@@ -59,7 +59,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
             <AppNav active="Borrow" activeSubmenu={`${market} Market`} />
             <ErrorBoundary description="Error in the market page, please try reloading">
                 {
-                    needCountdown && <VStack                        
+                    needCountdown && <VStack
                         borderBottomRightRadius="md"
                         borderBottomLeftRadius="md"
                         bgColor="secondaryTextColor"
@@ -69,7 +69,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                         justify="center"
                         spacing="0"
                         py="1"
-                        px="4"                    
+                        px="4"
                     >
                         <Text fontSize="16px" fontWeight="bold" color="white">
                             Daily borrow limit resets in
@@ -102,30 +102,32 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                             <ArrowBackIcon fontSize="18px" _hover={{ color: 'inherit' }} color="inherit" />
                                             <Text _hover={{ color: 'inherit' }} color="inherit">Back to Markets</Text>
                                         </HStack>
-                                        <HStack>
-                                            <FormControl
-                                                display="inline-flex"
-                                                flexDirection={{ base: 'column', md: 'row' }}
-                                                alignItems={{ base: 'flex-end', md: 'center' }}
-                                                justify="flex-end"
-                                            >
-                                                <FormLabel
-                                                    // fontSize={{ base: '12px', md: '14px' }}
-                                                    display={{ base: 'contents', md: 'inline-block' }}
-                                                    color="mainTextColor"
-                                                    cursor="pointer"
-                                                    htmlFor='walkthrough-mode'
-                                                    textAlign="right"
-                                                    mb='0'
+                                        {
+                                            !f2market.isStaking && <HStack>
+                                                <FormControl
+                                                    display="inline-flex"
+                                                    flexDirection={{ base: 'column', md: 'row' }}
+                                                    alignItems={{ base: 'flex-end', md: 'center' }}
+                                                    justify="flex-end"
                                                 >
-                                                    <VStack color="secondaryTextColor" spacing="0" alignItems="flex-end">
-                                                        {/* <Text fontWeight="normal" color="inherit">Deposit & Borrow</Text> */}
-                                                        <Text fontWeight="normal" color="inherit">Walkthrough mode</Text>
-                                                    </VStack>
-                                                </FormLabel>
-                                                <Switch colorScheme="purple" isChecked={isWalkthrough} onChange={() => toggleWalkthrough()} id='walkthrough-mode' mr="1" />
-                                            </FormControl>
-                                        </HStack>
+                                                    <FormLabel
+                                                        // fontSize={{ base: '12px', md: '14px' }}
+                                                        display={{ base: 'contents', md: 'inline-block' }}
+                                                        color="mainTextColor"
+                                                        cursor="pointer"
+                                                        htmlFor='walkthrough-mode'
+                                                        textAlign="right"
+                                                        mb='0'
+                                                    >
+                                                        <VStack color="secondaryTextColor" spacing="0" alignItems="flex-end">
+                                                            {/* <Text fontWeight="normal" color="inherit">Deposit & Borrow</Text> */}
+                                                            <Text fontWeight="normal" color="inherit">Walkthrough mode</Text>
+                                                        </VStack>
+                                                    </FormLabel>
+                                                    <Switch colorScheme="purple" isChecked={isWalkthrough} onChange={() => toggleWalkthrough()} id='walkthrough-mode' mr="1" />
+                                                </FormControl>
+                                            </HStack>
+                                        }
                                     </HStack>
 
                                     {

@@ -79,7 +79,7 @@ export const F2CombinedForm = ({
         dbrBuySlippage,
         setDbrBuySlippage,
         deposits, bnDeposits, debt, bnWithdrawalLimit, bnLeftToBorrow, bnCollateralBalance, collateralBalance, bnDebt,
-        newPerc, newCreditLimit, 
+        newPerc, newCreditLimit,
         notFirstTime, onFirstTimeModalOpen,
     } = useContext(F2MarketContext);
 
@@ -138,7 +138,7 @@ export const F2CombinedForm = ({
             return f2withdraw(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), isUseNativeCoin);
         } else if (action === 'repay') {
             if (isAutoDBR) {
-                const minDolaOut = getNumberToBn((parseFloat(dbrSellAmount) * (dbrPrice * (1-parseFloat(dbrBuySlippage)/100))));
+                const minDolaOut = getNumberToBn((parseFloat(dbrSellAmount) * (dbrPrice * (1 - parseFloat(dbrBuySlippage) / 100))));
                 const dbrAmountToSell = parseUnits(dbrSellAmount);
                 return f2sellAndRepayHelper(signer, market.address, parseUnits(debtAmount), minDolaOut, dbrAmountToSell);
             }
@@ -161,7 +161,7 @@ export const F2CombinedForm = ({
                 if (!isAutoDBR) {
                     return f2repayAndWithdrawNative(signer, market.address, parseUnits(debtAmount), parseUnits(collateralAmount, market.underlying.decimals));
                 }
-                const minDolaOut = getNumberToBn((parseFloat(dbrSellAmount) * (dbrPrice * (1-parseFloat(dbrBuySlippage)/100))));
+                const minDolaOut = getNumberToBn((parseFloat(dbrSellAmount) * (dbrPrice * (1 - parseFloat(dbrBuySlippage) / 100))));
                 const dbrAmountToSell = parseUnits(dbrSellAmount);
                 return f2sellAndWithdrawHelper(signer, market.address, parseUnits(debtAmount), parseUnits(collateralAmount, market.underlying.decimals), minDolaOut, dbrAmountToSell, isUseNativeCoin);
             }
@@ -209,10 +209,12 @@ export const F2CombinedForm = ({
             ['deposit', 'd&b', 'withdraw', 'r&w'].includes(MODES[mode]) && <VStack w='full' alignItems="flex-start">
                 <TextInfo message={
                     isDeposit ?
-                        "The more you deposit, the more you can borrow against"
+                        market.isStaking ?
+                            "Staked INV can be withdrawn at any time"
+                            : "The more you deposit, the more you can borrow against"
                         : "Withdrawing collateral will reduce borrowing power"
                 }>
-                    <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? 'Deposit' : 'Withdraw'}</b> {isWethMarket && isUseNativeCoin ? 'ETH' : market.underlying.symbol}:</Text>
+                    <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? market.isStaking ? 'Stake' : 'Deposit' : market.isStaking ? 'Unstake' : 'Withdraw'}</b> {isWethMarket && isUseNativeCoin ? 'ETH' : market.underlying.symbol}:</Text>
                 </TextInfo>
                 {
                     deposits > 0 || isDeposit ? <>
@@ -338,7 +340,7 @@ export const F2CombinedForm = ({
                         : isBorrowOnlyCase ? <Text>Please deposit collateral first</Text> : <Text>Nothing to repay</Text>
                 }
                 {
-                    isBorrowCase && market.leftToBorrow > 0 && deltaDebt > 0 && market.leftToBorrow < (isAutoDBR ? deltaDebt + (dbrCoverDebt*(1+parseFloat(dbrBuySlippage||0)/100)) : deltaDebt)
+                    isBorrowCase && market.leftToBorrow > 0 && deltaDebt > 0 && market.leftToBorrow < (isAutoDBR ? deltaDebt + (dbrCoverDebt * (1 + parseFloat(dbrBuySlippage || 0) / 100)) : deltaDebt)
                     && <WarningMessage alertProps={{ w: 'full' }} description={
                         `Only ${shortenNumber(market.leftToBorrow, 2)} DOLA are available for borrowing at the moment${isAutoDBR ? ` but around ${shortenNumber(dbrCoverDebt + deltaDebt, 2)} DOLA are needed to cover the debt (borrow amount+DBR auto-buy cost)` : ''}.`
                     } />
@@ -499,11 +501,13 @@ export const F2CombinedForm = ({
                 </FormControl>
             }
             <VStack justify="space-between" position="relative" w='full' px='2%' py="2" alignItems="center" spacing="4">
-                <NavButtons
-                    active={mode}
-                    options={isDeposit ? inOptions : outOptions}
-                    onClick={(v) => setMode(v)}
-                />
+                {
+                    !market.isStaking && <NavButtons
+                        active={mode}
+                        options={isDeposit ? inOptions : outOptions}
+                        onClick={(v) => setMode(v)}
+                    />
+                }
                 <Stack justify="space-between" w='full' spacing="4" direction={{ base: 'column' }}>
                     {leftPart}
                     {['d&b', 'borrow'].includes(MODES[mode]) && isAutoDBR && <Divider borderColor="#cccccc66" />}
@@ -540,7 +544,9 @@ export const F2CombinedForm = ({
                     />
                 }
                 {
-                    !market.leftToBorrow && isBorrowCase && <WarningMessage alertProps={{ w: 'full' }} description="No DOLA liquidity at the moment" />
+                    market.borrowPaused ? <WarningMessage alertProps={{ w: 'full' }} description="Borrowing is paused" />
+                        : !market.leftToBorrow && isBorrowCase
+                        && <WarningMessage alertProps={{ w: 'full' }} description="No DOLA liquidity at the moment" />
                 }
                 {/* {bottomPart} */}
                 {
