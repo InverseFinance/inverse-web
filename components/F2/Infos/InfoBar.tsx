@@ -167,7 +167,7 @@ export const MarketBar = ({
                                 Liquidity
                             </Title>
                             <SubTitle>
-                                {preciseCommify(market.dolaLiquidity, available < 100 ? 2 : 0, false)} DOLA
+                                {market.dolaLiquidity > 1 ? `${preciseCommify(market.dolaLiquidity, available < 100 ? 2 : 0, false)} DOLA` : 'No DOLA liquidity'}
                             </SubTitle>
                         </VStack>
                     </HStack>
@@ -182,7 +182,7 @@ export const MarketBar = ({
                                 </SubTitle>
                                 :
                                 <SubTitle fontWeight={available === 0 ? 'bold' : undefined} color={available === 0 ? 'warning' : 'secondaryTextColor'}>
-                                    {available ? `${preciseCommify(available, available < 100 ? 2 : 0, false)} DOLA` : 'No DOLA liquidity'}
+                                    {available ? `${preciseCommify(available, available < 100 ? 2 : 0, false)} DOLA` : 'No DOLA available'}
                                 </SubTitle>
                         }
                     </VStack>
