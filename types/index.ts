@@ -715,6 +715,7 @@ export type F2Market = {
   isGovTokenCollateral?: boolean
   hasClaimableRewards?: boolean
   isStaking?: boolean
+  isInv?: boolean
   govLink?: string
   marketIcon?: string
   helper?: boolean

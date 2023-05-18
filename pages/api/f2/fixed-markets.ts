@@ -8,6 +8,7 @@ import { TOKENS } from '@app/variables/tokens'
 import { getBnToNumber, getCvxCrvAPRs, getGOhmData, getStethData } from '@app/util/markets'
 import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_MS } from '@app/config/constants';
 import { frontierMarketsCacheKey } from '../markets';
+import { cgPricesCacheKey } from '../prices';
 
 const { F2_MARKETS, DOLA } = getNetworkConfigConstants();
 export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.2`;
@@ -37,7 +38,8 @@ export default async function handler(req, res) {
       borrowControllers,
       borrowPaused,
       liquidationFactors,
-      frontierMarkets, 
+      frontierMarkets,
+      cgPrices,
     ] = await Promise.all([
       Promise.all(
         F2_MARKETS.map(m => {
@@ -93,6 +95,7 @@ export default async function handler(req, res) {
         })
       ),
       getCacheFromRedis(frontierMarketsCacheKey, false),
+      getCacheFromRedis(cgPricesCacheKey, false),
     ]);
 
     const dailyLimits = await Promise.all(
@@ -174,7 +177,7 @@ export default async function handler(req, res) {
         oracle: oracles[i],
         oracleFeed: oracleFeeds[i][0],
         underlying: TOKENS[m.collateral],
-        price: getBnToNumber(bnPrices[i], (36 - underlying.decimals)),
+        price: m.isInv ? cgPrices[underlying.coingeckoId]?.usd : getBnToNumber(bnPrices[i], (36 - underlying.decimals)),
         totalDebt: getBnToNumber(bnTotalDebts[i]),
         collateralFactor: getBnToNumber(bnCollateralFactors[i], 4),
         dolaLiquidity: getBnToNumber(bnDola[i]),
