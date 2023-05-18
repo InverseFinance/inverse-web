@@ -431,6 +431,10 @@ export const F2_ESCROW_ABI = [
   "function disallowClaimOnBehalf(address) public",
   // only cvxCRV
   "function setRewardWeight(uint) public",
+  // only INV
+  'function claimable() public view returns (uint)',
+  "function claimDBR() public",
+  "function claimDBRTo() public",
 ];
 
 export const F2_CONTROLLER_ABI = [

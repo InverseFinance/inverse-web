@@ -460,7 +460,7 @@ export const F2CombinedForm = ({
             maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
             onAction={({ bnAmount }) => handleAction()}
             onMaxAction={({ bnAmount }) => handleAction()}
-            actionLabel={isSigNeeded ? `Sign + ${mode}` : mode}
+            actionLabel={isSigNeeded ? `Sign + ${mode}` : market.isStaking ? isDeposit ? 'Stake' : 'Unstake' : mode}
             approveLabel={isAutoDBR && isDeposit ? 'Step 1/3 - Approve' : undefined}
             maxActionLabel={btnMaxlabel}
             onAmountChange={handleCollateralChange}
@@ -495,7 +495,7 @@ export const F2CombinedForm = ({
             {
                 (deposits > 0 || debt > 0 || !isDeposit) && <FormControl boxShadow="0px 0px 1px 0px #ccccccaa" bg="primary.400" zIndex="1" borderRadius="10px" px="2" py="1" right="0" top="-20px" margin="auto" position="absolute" w='fit-content' display='flex' alignItems='center'>
                     <FormLabel cursor="pointer" htmlFor='withdraw-mode' mb='0'>
-                        Repay / Withdraw?
+                        {market.isStaking ? 'Unstake?' : 'Repay / Withdraw?'}
                     </FormLabel>
                     <Switch isChecked={!isDeposit} onChange={handleDirectionChange} id='withdraw-mode' />
                 </FormControl>

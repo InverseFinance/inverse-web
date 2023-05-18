@@ -298,7 +298,9 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         ],
     ];
 
-    const keyInfos = [
+    const keyInfos = market.isStaking ? [
+        positionInfos[2],
+    ] : [
         positionInfos[0],
         dbrInfos[3],
         // positionInfos[1],
@@ -331,7 +333,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
             onClick={(v) => handleTabChange(v)}
         />
         {
-            !debtAmountNumInfo && !collateralAmountNumInfo && !debt && infoTab === 'Summary' ?
+            !debtAmountNumInfo && !collateralAmountNumInfo && !debt && !deposits && infoTab === 'Summary' ?
                 <VStack pt="4" w='full'>
                     <InfoMessage
                         alertProps={{ w: 'full' }}

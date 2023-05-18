@@ -107,6 +107,8 @@ const mainConfig = {
             badgeInfo: 'DBR Real yield',
             badgeProps: { bgColor: 'info', color: 'contrastMainTextColor' },
             hasClaimableRewards: false,
+            isGovTokenCollateral: true,
+            govLink: '/governance',
             hasDbrRewards: true,
             isStaking: true,
             startingBlock: 17272807,
