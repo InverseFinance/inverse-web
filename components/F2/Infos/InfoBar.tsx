@@ -412,7 +412,7 @@ export const FirmBar = ({
                         FiRM Borrows
                     </Link>
                     <SubTitle textAlign="center">
-                        {shortenNumber(totalDebt, 2, false)} ({shortenNumber(totalDebtUsd, 2, true)})
+                        {shortenNumber(totalDebtUsd, 2, true)}
                     </SubTitle>
                 </VStack>
             </HStack>
