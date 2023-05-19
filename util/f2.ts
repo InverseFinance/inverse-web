@@ -365,10 +365,10 @@ export const getDBRRiskColor = (timestamp: number, comparedTo: number) => {
 export const getDbrPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3Provider) => {
     const crvPool = new Contract(
         '0x056ef502c1fc5335172bc95ec4cae16c2eb9b5b6',
-        ['function price_scale() public view returns(uint)',],
+        ['function price_oracle() public view returns(uint)',],
         SignerOrProvider,
     );
-    const dolaPriceInDbr = await crvPool.price_scale();
+    const dolaPriceInDbr = await crvPool.price_oracle();
     const priceInDola = 1 / getBnToNumber(dolaPriceInDbr);
     return { priceInDolaBn: getNumberToBn(priceInDola), priceInDola: priceInDola };
 }

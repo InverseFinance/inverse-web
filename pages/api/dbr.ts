@@ -12,7 +12,7 @@ const { DBR } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
   const withExtra = req.query.withExtra === 'true';
-  const cacheKey = `dbr-cache${withExtra ? '-extra' : ''}-v1.0.2`;
+  const cacheKey = `dbr-cache${withExtra ? '-extra' : ''}-v1.0.3`;
 
   try {
     const validCache = await getCacheFromRedis(cacheKey, true, 300);
