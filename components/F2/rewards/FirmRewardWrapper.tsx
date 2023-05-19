@@ -6,6 +6,7 @@ import { BURN_ADDRESS } from "@app/config/constants";
 import { zapperRefresh } from "@app/util/f2";
 import { RewardsContainer } from "./RewardsContainer";
 import { InfoMessage } from "@app/components/common/Messages";
+import { VStack } from "@chakra-ui/react";
 
 export const FirmRewardWrapper = ({
     market,
@@ -27,7 +28,7 @@ export const FirmRewardWrapper = ({
             market={market}
             label={label}
             showMarketBtn={showMarketBtn}
-            escrow={escrow}
+            escrow={_escrow}
         />
     }
 
@@ -35,7 +36,7 @@ export const FirmRewardWrapper = ({
         market={market}
         label={label}
         showMarketBtn={showMarketBtn}
-        escrow={escrow}
+        escrow={_escrow}
     />
 }
 
@@ -90,10 +91,12 @@ export const FirmINVRewardWrapperContent = ({
         isLoading={isLoading}
         escrow={escrow}
         extra={
-            <InfoMessage
-                title='What about INV?'
-                description="Your staked INV balance automatically increases, no claim process required!"
-            />
+            <VStack justify="center">
+                <InfoMessage
+                    title='What about INV?'
+                    description="Your staked INV balance automatically increases, no claim process required!"
+                />
+            </VStack>
         }
     />
 }
@@ -126,6 +129,7 @@ export const FirmRewards = ({
         return <></>
     }
     return <RewardsContainer
+        timestamp={rewardsInfos?.timestamp}
         label={label || `${market?.name} Market Rewards`}
         escrow={_escrow}
         claimables={claimables}

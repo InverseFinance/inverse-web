@@ -8,6 +8,7 @@ import { useState } from "react";
 import { zapperRefresh } from "@app/util/f2";
 import { Stack } from "@chakra-ui/react";
 import { useWeb3React } from "@web3-react/core";
+import moment from 'moment';
 
 export const RewardsContainer = ({
     escrow,
@@ -17,11 +18,13 @@ export const RewardsContainer = ({
     showMarketBtn = false,
     defaultCollapse = undefined,
     market,
+    timestamp,
     extra,
 }: {
     escrow: string,
     claimables: any,
     totalRewardsUSD: number,
+    timestamp: number,
     label?: string
     showMarketBtn?: boolean
     defaultCollapse?: boolean
@@ -46,6 +49,7 @@ export const RewardsContainer = ({
 
     return <Container
         label={label}
+        description={timestamp ? `Last update: ${moment(timestamp).fromNow()}` : undefined}
         noPadding
         p='0'
         collapsable={true}        
