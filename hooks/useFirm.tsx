@@ -9,12 +9,12 @@ import { useMultiContractEvents } from "./useContractEvents";
 import { DBR_ABI, F2_ESCROW_ABI, F2_MARKET_ABI } from "@app/config/abis";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { uniqueBy } from "@app/util/misc";
-import { ONE_DAY_MS } from "@app/config/constants";
+import { ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
 import useEtherSWR from "./useEtherSWR";
 
 const oneYear = ONE_DAY_MS * 365;
 
-const { DBR, F2_MARKETS } = getNetworkConfigConstants();
+const { DBR, DBR_DISTRIBUTOR } = getNetworkConfigConstants();
 
 export const useFirmPositions = (isShortfallOnly = false): SWR & {
   positions: any,
@@ -230,17 +230,27 @@ export const useDBRDebtHisto = (): SWR & {
 export const useINVEscrowRewards = (escrow: string): SWR & {
   rewards: number,
   rewardsInfos: { tokens: ZapperToken[] },
-} => {  
+} => {
   const { data, error } = useEtherSWR({
     args: [[escrow, 'claimable']],
     abi: F2_ESCROW_ABI,
   });
-  console.log('useINVEscrowRewards', data, error);
+  const { data: rewardRateBn } = useEtherSWR([DBR_DISTRIBUTOR, 'rewardRate']);
+  const { data: lastUpdate } = useEtherSWR([DBR_DISTRIBUTOR, 'lastUpdate']);
+  const { data: totalSupplyBn } = useEtherSWR([DBR_DISTRIBUTOR, 'totalSupply']);
+  
+  // per second
+  const rewardRate = rewardRateBn ? getBnToNumber(rewardRateBn) : 0;
+  const yearlyRewardRate = rewardRate * ONE_DAY_SECS * 365;
   const { price: dbrPrice } = useDBRPrice();
 
-  const rewards = 50//data && data[0] ? getBnToNumber(data[0]) : 0;
+  const rewards = data && data[0] ? getBnToNumber(data[0]) : 0;
+  const totalSupply = totalSupplyBn ? getBnToNumber(totalSupplyBn) : 0;
+
+  const apr = !totalSupply ? 0 : yearlyRewardRate / totalSupply;
 
   const rewardsInfos = {
+    timestamp: lastUpdate ? getBnToNumber(lastUpdate, 0)*1000 : 0,
     tokens: [
       {
         metaType: 'claimable',
@@ -253,7 +263,11 @@ export const useINVEscrowRewards = (escrow: string): SWR & {
   };
 
   return {
+    apr,
+    yearlyRewardRate,
+    totalSupply,
     rewards,
+    rewardRate,
     rewardsInfos,
     isLoading: !error && !data,
     isError: error,

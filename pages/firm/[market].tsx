@@ -22,6 +22,9 @@ import { FirstTimeModal } from '@app/components/F2/Modals/FirstTimeModal'
 import { FirmRewardWrapper } from '@app/components/F2/rewards/FirmRewardWrapper'
 import { CvxCrvPreferences } from '@app/components/F2/rewards/CvxCrvPreferences'
 import { DailyLimitCountdown } from '@app/components/common/Countdown'
+import Container from '@app/components/common/Container'
+import { InfoMessage } from '@app/components/common/Messages'
+import { shortenNumber } from '@app/util/markets'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -160,6 +163,30 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                 spacing="6"
                                             >
                                                 <ErrorBoundary description="Error in the standard mode, please try reloading">
+                                                    {
+                                                        f2market.isInv && <Container
+                                                            noPadding
+                                                            p="0"
+                                                            label="About INV staking and DBR streaming"
+                                                            description="Learn more in our documentation"
+                                                            href="https://docs.inverse.finance"
+                                                            collapsable={true}
+                                                            defaultCollapse={false}
+                                                        >
+                                                            <InfoMessage
+                                                                description={
+                                                                    <VStack alignItems="flex-start">
+                                                                        <Text>There is <b>{shortenNumber(f2market.dbrYearlyRewardRate, 2)} DBR yearly rewards</b> shared among stakers!</Text>
+                                                                        <Text>✨ <b>{shortenNumber(f2market.supplyApy, 2)}% INV APR</b>: your staked INV balance will increase automatically.</Text>
+                                                                        <Text>✨ <b>{shortenNumber(f2market.extraApy, 2)}% DBR APR</b>: your DBR rewards will have to be claimed.</Text>
+                                                                        <Text>
+                                                                            🤝 The more people borrow DOLA, the more DBR is burned and can be streamed, INV stakers directly profit from FiRM's success.
+                                                                        </Text>
+                                                                    </VStack>
+                                                                }
+                                                            />
+                                                        </Container>
+                                                    }
                                                     {
                                                         (f2market.hasClaimableRewards) && <FirmRewardWrapper market={f2market} />
                                                     }

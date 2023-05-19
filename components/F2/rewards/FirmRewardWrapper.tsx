@@ -5,8 +5,6 @@ import { F2MarketContext } from "../F2Contex";
 import { BURN_ADDRESS } from "@app/config/constants";
 import { zapperRefresh } from "@app/util/f2";
 import { RewardsContainer } from "./RewardsContainer";
-import { InfoMessage } from "@app/components/common/Messages";
-import { VStack } from "@chakra-ui/react";
 
 export const FirmRewardWrapper = ({
     market,
@@ -90,14 +88,6 @@ export const FirmINVRewardWrapperContent = ({
         showMarketBtn={showMarketBtn}
         isLoading={isLoading}
         escrow={escrow}
-        extra={
-            <VStack justify="center">
-                <InfoMessage
-                    title='What about INV?'
-                    description="Your staked INV balance automatically increases, no claim process required!"
-                />
-            </VStack>
-        }
     />
 }
 
