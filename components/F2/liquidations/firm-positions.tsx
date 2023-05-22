@@ -168,12 +168,14 @@ export const FirmPositions = ({
     const avgHealth = positions?.length > 0 && totalDebt > 0 ? positions.reduce((prev, curr) => prev + curr.debtRiskWeight, 0) / totalDebt : 100;
     const avgRiskColor = getRiskColor(avgHealth);
 
-    const groupMarketsByDeposits = groupPositionsBy(positions, 'marketName', 'tvl');
-    const groupMarketsByDebt = groupPositionsBy(positions, 'marketName', 'debt');
-    const groupMarketsByBorrowLimit = groupPositionsBy(positions, 'marketName', 'debtRiskWeight').map((f, i) => ({ ...f, balance: 100 - f.balance / groupMarketsByDebt[i].balance }));
+    const positionsWithDebt = positions.filter(p => p.debt > 0);
+    const positionsWithDeposits = positions.filter(p => p.deposits > 0);
+    const groupMarketsByDeposits = groupPositionsBy(positionsWithDeposits, 'marketName', 'tvl');
+    const groupMarketsByDebt = groupPositionsBy(positionsWithDebt, 'marketName', 'debt');
+    const groupMarketsByBorrowLimit = groupPositionsBy(positionsWithDebt, 'marketName', 'debtRiskWeight').map((f, i) => ({ ...f, balance: 100 - f.balance / groupMarketsByDebt[i].balance }));
     const barData = groupMarketsByBorrowLimit.map(d => {
         return [{ x: d.token.symbol, y: d.balance, label: `${shortenNumber(d.balance, 2)}%` }];
-    });
+    })
     const barColors = groupMarketsByBorrowLimit.map(f => getRiskColor(100-f.balance));
 
     return <VStack w='full'>

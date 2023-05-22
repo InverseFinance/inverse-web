@@ -11,7 +11,7 @@ import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
-export const F2_POSITIONS_CACHE_KEY = 'f2positions-v1.0.7'
+export const F2_POSITIONS_CACHE_KEY = 'f2positions-v1.0.8'
 export const F2_UNIQUE_USERS_CACHE_KEY = 'f2unique-users-v1.0.91'
 
 export const getFirmMarketUsers = async (provider) => {
@@ -112,7 +112,7 @@ export default async function handler(req, res) {
     });
 
     const resultData = {
-      positions: positions.filter(p => p.debt > 0),
+      positions: positions.filter(p => p.debt > 0 || p.deposits > 0.01),
       // marketUsersAndEscrows,
       timestamp: +(new Date()),
     }
