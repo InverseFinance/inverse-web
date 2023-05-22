@@ -94,7 +94,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
 
   const { data, error } = useEtherSWR([
     ...markets.map(m => {
-      return [F2_ORACLE, 'viewPrice', m.collateral, getNumberToBn(m.collateralFactor, 4)]
+      return m.isInv ? [] : [F2_ORACLE, 'viewPrice', m.collateral, getNumberToBn(m.collateralFactor, 4)]
     }),
     ...markets.map(m => {
       return [m.address, 'collateralFactorBps']
@@ -137,7 +137,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
       return {
         ...m,
         ...cachedMarkets[i],
-        price: data ? getBnToNumber(data[i], (36 - m.underlying.decimals)) : cachedMarkets[i]?.price ?? 0,
+        price: data && data[i] ? getBnToNumber(data[i], (36 - m.underlying.decimals)) : cachedMarkets[i]?.price ?? 0,
         collateralFactor: data ? getBnToNumber(data[i + nbMarkets], 4) : cachedMarkets[i]?.collateralFactor ?? 0,
         totalDebt: data ? getBnToNumber(data[i + 2 * nbMarkets]) : cachedMarkets[i]?.totalDebt ?? 0,
         bnDolaLiquidity: data ? data[i + 4 * nbMarkets] : cachedMarkets[i]?.bnDolaLiquidity ?? 0,
@@ -180,12 +180,18 @@ export const useAccountDBRMarket = (
   account: string,
   isUseNativeCoin = false,
 ): AccountDBRMarket => {
-  const { data: escrow } = useEtherSWR([market.address, 'escrows', account]);
+  const { data: escrow } = useEtherSWR([market.address, 'escrows', account]);  
   const { data: accountMarketData } = useEtherSWR(
-    !escrow || escrow === BURN_ADDRESS ? [] : [
-      [market.address, 'getCreditLimit', account],
+    !escrow || escrow === BURN_ADDRESS ? [] : [      
       [market.address, 'getWithdrawalLimit', account],
       [market.address, 'debts', account],
+    ]
+  );
+  
+  // inv does not have a valid feed, call will revert
+  const { data: accountMarketDataWithValidFeed } = useEtherSWR(
+    !escrow || escrow === BURN_ADDRESS || market.isInv ? [] : [
+      [market.address, 'getCreditLimit', account],
     ]
   );
 
@@ -193,7 +199,8 @@ export const useAccountDBRMarket = (
     isUseNativeCoin ? ['getBalance', account, 'latest'] : [market.collateral, 'balanceOf', account],
   ]);
 
-  const [bnCreditLimit, bnWithdrawalLimit, bnDebt] = accountMarketData || [zero, zero, zero];
+  const [bnWithdrawalLimit, bnDebt] = accountMarketData || [zero, zero];
+  const [bnCreditLimit] = accountMarketDataWithValidFeed || [zero];
   const bnCollateralBalance: BigNumber = balances ? balances[0] : zero;
   const creditLimit = bnCreditLimit ? getBnToNumber(bnCreditLimit) : 0;
 
