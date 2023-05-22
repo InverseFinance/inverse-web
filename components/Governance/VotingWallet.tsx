@@ -14,6 +14,7 @@ import Link from '@app/components/common/Link'
 import { InfoMessage } from '@app/components/common/Messages'
 import { useRouter } from 'next/dist/client/router'
 import { useNamedAddress } from '@app/hooks/useNamedAddress'
+import { useStakedInFirm } from '@app/hooks/useFirm'
 
 type VotingWalletFieldProps = {
   label: string
@@ -66,6 +67,9 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
   const { isOpen: changeDelIsOpen, onOpen: changeDelOnOpen, onClose: changeDelOnClose } = useDisclosure()
   const { isOpen: submitDelIsOpen, onOpen: submitDelOnOpen, onClose: submitDelOnClose } = useDisclosure()
 
+  const { stakedInFirm, delegate: firmDelegate, escrow } = useStakedInFirm(userAddress);
+  const firmInvDelegated = firmDelegate?.toLowerCase() === userAddress?.toLowerCase() ? stakedInFirm : 0;
+
   if (!account || !data || !userAddress) {
     return <></>
   }
@@ -96,7 +100,7 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
           {(invBalance ? parseFloat(formatUnits(invBalance)) : 0).toFixed(4)}
         </VotingWalletField>
         <VotingWalletField label={`Eligible x${rtokenSymbol}`}>
-          {(xinvBalance ? parseFloat(formatUnits(xinvBalance)) * parseFloat(formatUnits(exchangeRate)) : 0).toFixed(4)}
+          {(xinvBalance || firmInvDelegated ? parseFloat(formatUnits(xinvBalance)) * parseFloat(formatUnits(exchangeRate))+firmInvDelegated : 0).toFixed(4)}
         </VotingWalletField>
         <VotingWalletField label="Voting Power">{votingPower.toFixed(4)}</VotingWalletField>
         <DelegatingTo label={!needToShowXinvDelegate ? 'Delegating To' : `Delegating ${rtokenSymbol} to`}

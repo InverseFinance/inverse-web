@@ -727,6 +727,8 @@ export type F2Market = {
   badgeProps?: BadgeProps
   startingBlock: number
   order?: number
+  supplyApy?: number
+  supplyApyLow?: number
   extraApy?: number
   dbrApr?: number
   dbrRewardRate?: number
