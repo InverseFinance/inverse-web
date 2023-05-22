@@ -58,6 +58,7 @@ import { useCheckDBRAirdrop } from '@app/hooks/useDBR'
 import { AirdropModalCheck } from '@app/components/F2/Infos/AirdropModalCheck'
 import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
 import { BurgerMenu } from './BurgerMenu'
+import { useStakedInFirm } from '@app/hooks/useFirm'
 const NAV_ITEMS = MENUS.nav
 
 export const ThemeBtn = () => {
@@ -137,10 +138,12 @@ const INVBalance = () => {
     [XINV, 'balanceOf', userAddress],
   ])
 
+  const { stakedInFirm } = useStakedInFirm(userAddress);
+
   const [invBalance, xinvBalance] = data || [0, 0]
   const exRate = exchangeRates ? exchangeRates[XINV] : 0;
   const inv = invBalance / ETH_MANTISSA
-  const xinv = (xinvBalance / ETH_MANTISSA) * (exRate / ETH_MANTISSA)
+  const xinv = (xinvBalance / ETH_MANTISSA) * (exRate / ETH_MANTISSA) + stakedInFirm
   const hasUnstakedBal = inv >= 0.01;
 
   if (!data) {

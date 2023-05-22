@@ -10,19 +10,20 @@ import { preciseCommify } from '@app/util/misc'
 import { useAppTheme } from '@app/hooks/useAppTheme'
 import { SkeletonBlob } from '@app/components/common/Skeleton'
 import { FirmRewardWrapper, FirmRewards } from '@app/components/F2/rewards/FirmRewardWrapper'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { zapperRefresh } from '@app/util/f2'
 
 export const FirmRewardsPage = () => {
     const account = useAccount();
     const { themeStyles } = useAppTheme();
     const { markets } = useDBRMarkets();
+    const [extraUsd, setExtraUsd] = useState(0);
     const accountMarkets = useAccountF2Markets(markets, account);
     accountMarkets?.sort((a, b) => b.deposits - a.deposits);
 
     const { appGroupPositions, isLoading } = useUserRewards(account);
 
-    const totalRewardsUSD = appGroupPositions?.reduce((prev, curr) => {
+    const totalRewardsUSD = extraUsd + appGroupPositions?.reduce((prev, curr) => {
         return prev + curr.tokens
             .filter(t => t.metaType === 'claimable')
             .reduce((tprev, tcurr) => tprev + tcurr.balanceUSD, 0);
@@ -72,6 +73,7 @@ export const FirmRewardsPage = () => {
                                             market={market}
                                             showMarketBtn={true}
                                             escrow={market.escrow}
+                                            onLoad={(v) => setExtraUsd(v)}
                                         />
                                     }
                                     // via on zapper api

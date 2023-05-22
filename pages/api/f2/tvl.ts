@@ -15,9 +15,10 @@ const { F2_MARKETS } = getNetworkConfigConstants();
 
 export const firmTvlCacheKey = 'f2-tvl-v1.0.3'
 
-export default async function handler(req, res) {    
+export default async function handler(req, res) {
+    const { cacheFirst } = req.query;
     try {
-        const cache = await getCacheFromRedis(firmTvlCacheKey, true, 30);
+        const cache = await getCacheFromRedis(firmTvlCacheKey, cacheFirst !== 'true', 30);
         if (cache) {
             res.status(200).json(cache);
             return

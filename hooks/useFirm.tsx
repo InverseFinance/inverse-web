@@ -9,13 +9,13 @@ import { useMultiContractEvents } from "./useContractEvents";
 import { DBR_ABI, F2_ESCROW_ABI, F2_MARKET_ABI } from "@app/config/abis";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { uniqueBy } from "@app/util/misc";
-import { ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
+import { BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
 import useEtherSWR from "./useEtherSWR";
 import { useAccount } from "./misc";
 
 const oneYear = ONE_DAY_MS * 365;
 
-const { DBR, DBR_DISTRIBUTOR } = getNetworkConfigConstants();
+const { DBR, DBR_DISTRIBUTOR, F2_MARKETS, INV } = getNetworkConfigConstants();
 
 export const useFirmPositions = (isShortfallOnly = false): SWR & {
   positions: any,
@@ -307,4 +307,30 @@ export const useUserRewards = (user: string): SWR & {
     isLoading: !error && !data,
     isError: error,
   }
+}
+
+export const useStakedInFirm = (userAddress: string): {
+  stakedInFirm: number,
+  escrow: string,
+  delegate: string,
+} => {
+  const firmInv = F2_MARKETS.find(m => m.isInv);
+
+  const { data: escrow } = useEtherSWR(!!firmInv && !!userAddress ? [firmInv.address, 'escrows', userAddress] : []);
+  const { data: delegate } = useEtherSWR([INV, 'delegates', escrow]);
+
+  const { data: firmEscrowData } = useEtherSWR({
+    args: !!escrow && escrow !== BURN_ADDRESS ? [
+      [escrow, 'balance'],
+      [escrow, 'balance'],
+    ] : [[]],
+    abi: F2_ESCROW_ABI,
+  });
+  const stakedInFirm = firmEscrowData && firmEscrowData[0] ? getBnToNumber(firmEscrowData[0]) : 0;
+
+  return {
+    stakedInFirm,
+    escrow,
+    delegate,
+  };
 }
