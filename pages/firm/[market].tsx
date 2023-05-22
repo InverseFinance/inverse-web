@@ -177,10 +177,10 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                                 description={
                                                                     <VStack alignItems="flex-start">
                                                                         <Text>There is <b>{shortenNumber(f2market.dbrYearlyRewardRate, 2)} DBR yearly rewards</b> shared among stakers!</Text>
-                                                                        <Text>✨ <b>{shortenNumber(f2market.supplyApy, 2)}% INV APR</b>: your staked INV balance will increase automatically.</Text>
-                                                                        <Text>✨ <b>{shortenNumber(f2market.extraApy, 2)}% DBR APR</b>: your DBR rewards will have to be claimed.</Text>
+                                                                        <Text>✨ <b>{shortenNumber(f2market.supplyApy, 2)}% INV APR</b>: dilution protection, your staked INV balance will increase automatically.</Text>
+                                                                        <Text>✨ <b>{shortenNumber(f2market.extraApy, 2)}% DBR APR</b>: real yield, your DBR rewards will have to be claimed.</Text>
                                                                         <Text>
-                                                                            🤝 The more people borrow DOLA, the more DBR is burned and can be streamed, INV stakers directly profit from FiRM's success.
+                                                                            🤝 The more people borrow DOLA, the more DBR is burned and can be streamed, INV stakers directly benefit from FiRM's success.
                                                                         </Text>
                                                                     </VStack>
                                                                 }
