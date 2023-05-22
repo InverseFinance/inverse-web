@@ -1,4 +1,4 @@
-import { Contract } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
 import 'source-map-support'
 import { F2_MARKET_ABI, F2_ESCROW_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
@@ -10,9 +10,8 @@ import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
 import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
-const marketsWithValidOracle = F2_MARKETS.filter(m => !m.isInv);
 
-export const F2_POSITIONS_CACHE_KEY = 'f2positions-v1.0.6'
+export const F2_POSITIONS_CACHE_KEY = 'f2positions-v1.0.7'
 export const F2_UNIQUE_USERS_CACHE_KEY = 'f2unique-users-v1.0.91'
 
 export const getFirmMarketUsers = async (provider) => {
@@ -24,7 +23,7 @@ export const getFirmMarketUsers = async (provider) => {
   const afterLastBlock = latestBlockNumber !== undefined ? latestBlockNumber + 1 : undefined;
 
   const escrowCreations = await Promise.all(
-    marketsWithValidOracle.map(m => {
+    F2_MARKETS.map(m => {
       const market = new Contract(m.address, F2_MARKET_ABI, provider);
       return market.queryFilter(market.filters.CreateEscrow(), afterLastBlock);
     })
@@ -51,7 +50,7 @@ export const getFirmMarketUsers = async (provider) => {
   const usedMarkets = Object.keys(marketUsersAndEscrows);
 
   const firmMarketUsers = usedMarkets.map((marketAd, usedMarketIndex) => {
-    const marketIndex = marketsWithValidOracle.findIndex(m => m.address === marketAd);
+    const marketIndex = F2_MARKETS.findIndex(m => m.address === marketAd);
     return marketUsersAndEscrows[marketAd].users.map((user, userIndex) => {
       return {
         marketIndex,
@@ -94,7 +93,7 @@ export default async function handler(req, res) {
         })),
         await Promise.all(firmMarketUsers.map((f, i) => {
           const market = new Contract(F2_MARKETS[f.marketIndex].address, F2_MARKET_ABI, provider);
-          return market.getCreditLimit(f.user);
+          return F2_MARKETS[f.marketIndex].isInv ? new Promise((res) => res(BigNumber.from('0'))) : market.getCreditLimit(f.user);
         })),
       ]
     );
