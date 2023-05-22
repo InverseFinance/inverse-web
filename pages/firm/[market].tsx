@@ -169,7 +169,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                             p="0"
                                                             label="About INV staking and DBR streaming"
                                                             description="Learn more in our documentation"
-                                                            href="https://docs.inverse.finance"
+                                                            href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr"
                                                             collapsable={true}
                                                             defaultCollapse={false}
                                                         >
