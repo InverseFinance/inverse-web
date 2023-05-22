@@ -18,7 +18,7 @@ export const claim = (escrow: string, signer: JsonRpcSigner, methodName = 'claim
     return contract[methodName]();
 }
 
-export const claimTo = (escrow: string, to: string, signer: JsonRpcSigner, methodName = 'claim') => {
+export const claimTo = (escrow: string, to: string, signer: JsonRpcSigner, methodName = 'claimTo') => {
     const contract = new Contract(escrow, F2_ESCROW_ABI, signer);
     return contract[methodName](to);
 }
