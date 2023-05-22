@@ -27,21 +27,15 @@ export const FirmGovToken = () => {
     const [newDelegate, setNewDelegate] = useState('');
     const [hasError, setHasError] = useState(false);
     const { market, escrow } = useContext(F2MarketContext);
+    const hasEscrow = escrow?.replace(BURN_ADDRESS, '');
 
     // standard case
-    const { data: standardDelegateData } = useEtherSWR({
-        args: [[escrow, 'delegatingTo']],
-        abi: F2_ESCROW_ABI,
+    const { data: delegateData } = useEtherSWR({
+        args: market.isInv ? [[INV, 'delegates', escrow]] : [[escrow, 'delegatingTo']],
+        abi: market.isInv ? INV_ABI : F2_ESCROW_ABI,
     });
-    // inv escrow case
-    const { data: invDelegateData } = useEtherSWR({
-        args: [[INV, 'delegates', escrow]],
-        abi: INV_ABI,
-    });
-    
-    const standardDelegate = standardDelegateData ? standardDelegateData[0]?.replace(BURN_ADDRESS, '') : '';
-    const invDelegate = invDelegateData ? invDelegateData[0]?.replace(BURN_ADDRESS, '') : '';
-    const delegatingTo = standardDelegate || invDelegate;
+
+    const delegatingTo = (delegateData ? delegateData[0] : '')?.replace(BURN_ADDRESS, '');
 
     useEffect(() => {
         setHasError(
@@ -89,11 +83,11 @@ export const FirmGovToken = () => {
                 </VStack>
             </ConfirmModal>
             {
-                !!delegatingTo ? <Stack w='full' alignItems={{ base: 'flex-start', md: 'center' }} justify="space-between" spacing="4" direction={{ base: 'column', md: 'row' }}>
+                hasEscrow ? <Stack w='full' alignItems={{ base: 'flex-start', md: 'center' }} justify="space-between" spacing="4" direction={{ base: 'column', md: 'row' }}>
                     <Stack alignItems={{ base: 'flex-start', md: 'center' }} spacing="1" direction={{ base: 'column', md: 'row' }}>
                         <Text>You are currently delegating to:</Text>
                         {
-                            !!delegatingTo && <ScannerLink value={delegatingTo} useName={false} />
+                            !delegatingTo ? <Text>No one</Text> : <ScannerLink value={delegatingTo} useName={false} />
                         }
                     </Stack>
                     <RSubmitButton refreshOnSuccess={true} onSuccess={onClose} fontSize="14px" w='fit-content' onClick={onOpen}>
