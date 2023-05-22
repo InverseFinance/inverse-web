@@ -320,16 +320,7 @@ export const F2CombinedForm = ({
                                 isError={isDeposit ? debtAmountNum > 0 && newPerc < 1 : debtAmountNum > debt}
                             />
                             {
-                                !isDeposit && <HStack w='full' justify="space-between">
-                                    <AmountInfos
-                                        label="Debt"
-                                        value={debt}
-                                        textProps={{
-                                            cursor: 'pointer',
-                                            fontSize: '14px',
-                                            onClick: () => handleDebtChange(formatUnits(bnDebt, 18))
-                                        }}
-                                    />
+                                <HStack w='full' justify="space-between">
                                     <AmountInfos
                                         label="DOLA balance"
                                         value={dolaBalance}
@@ -337,6 +328,15 @@ export const F2CombinedForm = ({
                                             cursor: 'pointer',
                                             fontSize: '14px',
                                             onClick: () => handleDebtChange(formatUnits(bnDolaBalance, 18))
+                                        }}
+                                    />
+                                    <AmountInfos
+                                        label="Debt"
+                                        value={debt}
+                                        textProps={{
+                                            cursor: 'pointer',
+                                            fontSize: '14px',
+                                            onClick: () => handleDebtChange(formatUnits(bnDebt, 18))
                                         }}
                                     />
                                 </HStack>
