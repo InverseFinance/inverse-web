@@ -470,6 +470,8 @@ export const F2_MARKET_ABI = [
   "function forceReplenish(address user, uint amount) public",
   "function forceReplenishAll(address user) public",
   "function liquidate(address user, uint repaidDebt) public",
+  // withdrawMax: only INV
+  "function withdrawMax() public",
   "event Deposit(address indexed account, uint amount)",
   "event Borrow(address indexed account, uint amount)",
   "event Withdraw(address indexed account, address indexed to, uint amount)",

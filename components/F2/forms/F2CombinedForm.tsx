@@ -3,7 +3,7 @@ import Container from '@app/components/common/Container'
 import { getBnToNumber, getNumberToBn, shortenNumber } from '@app/util/markets'
 import { formatUnits, parseEther, parseUnits } from '@ethersproject/units'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
-import { f2repayAndWithdrawNative, f2borrow, f2deposit, f2depositAndBorrow, f2depositAndBorrowHelper, f2repay, f2repayAndWithdraw, f2sellAndRepayHelper, f2sellAndWithdrawHelper, f2withdraw, getRiskColor, f2approxDbrAndDolaNeeded } from '@app/util/f2'
+import { f2repayAndWithdrawNative, f2borrow, f2deposit, f2depositAndBorrow, f2depositAndBorrowHelper, f2repay, f2repayAndWithdraw, f2sellAndRepayHelper, f2sellAndWithdrawHelper, f2withdraw, getRiskColor, f2approxDbrAndDolaNeeded, f2withdrawMax } from '@app/util/f2'
 
 import { useContext, useEffect, useState } from 'react'
 
@@ -96,6 +96,11 @@ export const F2CombinedForm = ({
     const isBorrowOnlyCase = 'borrow' === MODES[mode];
     const isWithdrawOnlyCase = 'withdraw' === MODES[mode];
     const isSigNeeded = ((isBorrowCase || isWithdrawCase) && isAutoDBR) || ((isDepositCase || isWithdrawCase) && isUseNativeCoin);
+
+    const handleWithdrawMax = () => {
+        if (!signer) { return }
+        f2withdrawMax(signer, market.address);
+    }
 
     const handleAction = async () => {
         if (!signer) { return }
@@ -459,12 +464,12 @@ export const F2CombinedForm = ({
             decimals={colDecimals}
             maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
             onAction={({ bnAmount }) => handleAction()}
-            onMaxAction={({ bnAmount }) => handleAction()}
+            onMaxAction={({ bnAmount }) => handleWithdrawMax()}
             actionLabel={isSigNeeded ? `Sign + ${mode}` : market.isStaking ? isDeposit ? 'Stake' : 'Unstake' : mode}
             approveLabel={isAutoDBR && isDeposit ? 'Step 1/3 - Approve' : undefined}
-            maxActionLabel={btnMaxlabel}
+            maxActionLabel={'Unstake all'}
             onAmountChange={handleCollateralChange}
-            showMaxBtn={false}
+            showMaxBtn={market.isInv && isWithdrawCase}
             isDisabled={disabledConditions[MODES[mode]]}
             hideInputIfNoAllowance={false}
             hideInput={true}
