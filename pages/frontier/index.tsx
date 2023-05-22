@@ -1,4 +1,4 @@
-import { Flex } from '@chakra-ui/react'
+import { Flex, Text, VStack } from '@chakra-ui/react'
 import {
   AnchorBorrow,
   AnchorBorrowed,
@@ -15,6 +15,8 @@ import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { useState } from 'react'
 import { F2Header } from '@app/components/F2/F2Header'
+import { InfoMessage } from '@app/components/common/Messages'
+import Link from '@app/components/common/Link'
 
 export const Anchor = () => {
   const [active, setActive] = useState('Supply');
@@ -36,7 +38,17 @@ export const Anchor = () => {
             <F2Header />
           </ErrorBoundary>
         </Flex>
-        <Flex w={{ base: 'full' }} maxW="84rem" justify="center">
+        <Flex w={{ base: 'full' }} maxW="84rem" justify="center" direction="column">
+          <Flex w='full' justify="flex-end" px="5">
+            <InfoMessage alertProps={{ w: 'full' }} description={
+              <Flex display="inline-block" w='full'>
+                <Text display="inline-block">INV staking is now live on&nbsp;</Text>
+                <Link display="inline-block" textDecoration="underline" href="/firm/INV">FiRM</Link>
+                <Text display="inline-block">!&nbsp;Stake on FiRM to get DBR real yield in addition to INV dilution protection.</Text>
+              </Flex>
+            }
+            />
+          </Flex>
           <ErrorBoundary description="Failed to load borrow limits">
             <AnchorOverview />
           </ErrorBoundary>
@@ -57,10 +69,10 @@ export const Anchor = () => {
           </Flex>
           <Flex w="full" maxW="84rem" justify="center">
             <Flex w={{ base: 'full', xl: '55%', lg: '60%' }} justify="flex-end" display={supplyDisplay}>
-              <ErrorBoundary description="Failed to load suppliable assets"><AnchorSupply paused={false}  /></ErrorBoundary>
+              <ErrorBoundary description="Failed to load suppliable assets"><AnchorSupply paused={false} /></ErrorBoundary>
             </Flex>
             <Flex w={{ base: 'full', xl: '45%', lg: '40%' }} display={borrowDisplay}>
-              <ErrorBoundary description="failed to load borrowable assets"><AnchorBorrow paused={false}  /></ErrorBoundary>
+              <ErrorBoundary description="failed to load borrowable assets"><AnchorBorrow paused={false} /></ErrorBoundary>
             </Flex>
           </Flex>
         </Flex>

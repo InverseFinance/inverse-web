@@ -22,6 +22,7 @@ export const F2MarketContext = React.createContext<{
     market: F2Market,
     colDecimals: number,
     account: string,
+    escrow: string,
     signer: JsonRpcSigner,
     step: number,
     duration: number,
@@ -70,7 +71,7 @@ export const F2Context = ({
     const [isAutoDBR, setIsAutoDBR] = useState(false);
     const [isUseNativeCoin, setIsUseNativeCoin] = useState(false);
     const [needRefreshRewards, setNeedRefreshRewards] = useState(true);
-    const [mode, setMode] = useState('Deposit & Borrow');
+    const [mode, setMode] = useState(market.isStaking ? 'Deposit' : 'Deposit & Borrow');
     const [infoTab, setInfoTab] = useState('Summary');
     const [maxBorrowable, setMaxBorrowable] = useState(0);
     const [isSmallerThan728] = useMediaQuery('(max-width: 728px)');

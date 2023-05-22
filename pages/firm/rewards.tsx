@@ -9,7 +9,7 @@ import { useUserRewards } from '@app/hooks/useFirm'
 import { preciseCommify } from '@app/util/misc'
 import { useAppTheme } from '@app/hooks/useAppTheme'
 import { SkeletonBlob } from '@app/components/common/Skeleton'
-import { FirmRewards } from '@app/components/F2/rewards/FirmRewardWrapper'
+import { FirmRewardWrapper, FirmRewards } from '@app/components/F2/rewards/FirmRewardWrapper'
 import { useEffect } from 'react'
 import { zapperRefresh } from '@app/util/f2'
 
@@ -18,6 +18,7 @@ export const FirmRewardsPage = () => {
     const { themeStyles } = useAppTheme();
     const { markets } = useDBRMarkets();
     const accountMarkets = useAccountF2Markets(markets, account);
+    accountMarkets?.sort((a, b) => b.deposits - a.deposits);
 
     const { appGroupPositions, isLoading } = useUserRewards(account);
 
@@ -30,10 +31,12 @@ export const FirmRewardsPage = () => {
     const depositsWithRewards = accountMarkets?.filter(m => m.hasClaimableRewards)
         .reduce((prev, curr) => prev + curr.deposits * curr.price, 0);
 
+    const needZapper = !!accountMarkets?.find(m => m.hasClaimableRewards && !!m.zapperAppGroup && m.deposits > 0);
+
     useEffect(() => {
-        if(!account) { return }
+        if (!account || !needZapper) { return }
         zapperRefresh(account);
-    }, [account]);
+    }, [account, needZapper]);
 
     return (
         <Layout>
@@ -59,15 +62,28 @@ export const FirmRewardsPage = () => {
                     {
                         isLoading ? <SkeletonBlob />
                             :
-                            accountMarkets.filter(m => m.hasClaimableRewards).map(market => {
-                                const rewardsInfos = appGroupPositions.find(a => a.appGroup === market.zapperAppGroup);
-                                return <FirmRewards
-                                    key={market.address}
-                                    market={market}
-                                    rewardsInfos={rewardsInfos}
-                                    showMarketBtn={true}
-                                />
-                            })
+                            accountMarkets
+                                .filter(market => market.hasClaimableRewards)
+                                .map(market => {
+                                    // via on chain data
+                                    if (market.isInv) {
+                                        return <FirmRewardWrapper
+                                            key={market.address}
+                                            market={market}
+                                            showMarketBtn={true}
+                                            escrow={market.escrow}
+                                        />
+                                    }
+                                    // via on zapper api
+                                    const rewardsInfos = appGroupPositions.find(a => a.appGroup === market.zapperAppGroup);
+                                    return <FirmRewards
+                                        key={market.address}
+                                        market={market}
+                                        rewardsInfos={rewardsInfos}
+                                        showMarketBtn={true}
+                                        escrow={market.escrow}
+                                    />
+                                })
                     }
                 </VStack>
             </ErrorBoundary>

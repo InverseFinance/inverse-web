@@ -133,11 +133,14 @@ export const DBRTransparency = () => {
                                 <Link textDecoration="underline" color="secondaryTextColor" href="https://www.inverse.finance/governance/proposals/mills/75" isExternal target="_blank">
                                     See initial emission of 4,646,000 for FiRM launch.
                                 </Link>
+                                <Link textDecoration="underline" color="secondaryTextColor" href="https://www.inverse.finance/governance/proposals/mills/109" isExternal target="_blank">
+                                    See DBR streaming proposal.
+                                </Link>
                                 <Text>
                                     There is no max supply.
                                 </Text>
                                 <Text>
-                                    Future emissions to be voted by Governance.
+                                    Emissions are via DBR streaming to INV stakers on FiRM.
                                 </Text>
                             </VStack>
                         }

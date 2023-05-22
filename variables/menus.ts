@@ -36,7 +36,7 @@ export const MENUS = {
     },
     {
       label: 'Stake',
-      href: '/frontier',
+      href: '/firm/INV',
     },
     {
       label: 'Bond',

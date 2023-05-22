@@ -188,10 +188,10 @@ export const MarketBar = ({
                     </VStack>
                     <VStack spacing={{ base: '0', sm: '1' }} alignItems={{ base: 'flex-end', md: 'flex-start' }}>
                         <Title>
-                            Oracle Price
+                            {market.isInv ? '' : 'Oracle '}Price
                         </Title>
                         <SubTitle>
-                            {preciseCommify(market.price, 2, true)}
+                            {market.price ? preciseCommify(market.price, 2, true) : '-'}
                         </SubTitle>
                     </VStack>
                     {

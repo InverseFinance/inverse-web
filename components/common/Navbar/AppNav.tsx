@@ -148,12 +148,7 @@ const INVBalance = () => {
   }
 
   const goToSupply = () => {
-    if (router.pathname === '/frontier') {
-      const customEvent = new CustomEvent('open-anchor-supply', { detail: { market: 'inv' } });
-      document.dispatchEvent(customEvent);
-    } else {
-      router.push({ pathname: '/frontier', query: { market: 'inv', marketType: 'supply' } });
-    }
+    router.push({ pathname: '/firm/INV' });
   }
 
   const onMainnetCase = inv >= 0.01

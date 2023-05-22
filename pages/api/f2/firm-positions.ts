@@ -10,7 +10,9 @@ import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
 import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
-export const F2_POSITIONS_CACHE_KEY = 'f2positions-v1.0.5'
+const marketsWithValidOracle = F2_MARKETS.filter(m => !m.isInv);
+
+export const F2_POSITIONS_CACHE_KEY = 'f2positions-v1.0.6'
 export const F2_UNIQUE_USERS_CACHE_KEY = 'f2unique-users-v1.0.91'
 
 export const getFirmMarketUsers = async (provider) => {
@@ -22,7 +24,7 @@ export const getFirmMarketUsers = async (provider) => {
   const afterLastBlock = latestBlockNumber !== undefined ? latestBlockNumber + 1 : undefined;
 
   const escrowCreations = await Promise.all(
-    F2_MARKETS.map(m => {
+    marketsWithValidOracle.map(m => {
       const market = new Contract(m.address, F2_MARKET_ABI, provider);
       return market.queryFilter(market.filters.CreateEscrow(), afterLastBlock);
     })
@@ -49,7 +51,7 @@ export const getFirmMarketUsers = async (provider) => {
   const usedMarkets = Object.keys(marketUsersAndEscrows);
 
   const firmMarketUsers = usedMarkets.map((marketAd, usedMarketIndex) => {
-    const marketIndex = F2_MARKETS.findIndex(m => m.address === marketAd);
+    const marketIndex = marketsWithValidOracle.findIndex(m => m.address === marketAd);
     return marketUsersAndEscrows[marketAd].users.map((user, userIndex) => {
       return {
         marketIndex,

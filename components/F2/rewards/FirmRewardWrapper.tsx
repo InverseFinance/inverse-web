@@ -1,28 +1,40 @@
 import { F2Market } from "@app/types"
-import { CvxCrvRewards } from "./CvxCrvRewards";
 import { useContext, useEffect } from "react";
-import { useEscrowRewards } from "@app/hooks/useFirm";
+import { useEscrowRewards, useINVEscrowRewards } from "@app/hooks/useFirm";
 import { F2MarketContext } from "../F2Contex";
 import { BURN_ADDRESS } from "@app/config/constants";
 import { zapperRefresh } from "@app/util/f2";
+import { RewardsContainer } from "./RewardsContainer";
 
 export const FirmRewardWrapper = ({
     market,
     label,
     showMarketBtn = false,
+    escrow,
 }: {
     market: F2Market
     label?: string
+    escrow?: string
     showMarketBtn?: boolean
 }) => {
-    const { escrow } = useContext(F2MarketContext);
-    if (!escrow || escrow === BURN_ADDRESS) return <></>;
+    const { escrow: escrowFromContext } = useContext(F2MarketContext);
+    const _escrow = escrow?.replace(BURN_ADDRESS, '') || escrowFromContext?.replace(BURN_ADDRESS, '');
+    if (!_escrow) return <></>;
+
+    if (market.isInv) {
+        return <FirmINVRewardWrapperContent
+            market={market}
+            label={label}
+            showMarketBtn={showMarketBtn}
+            escrow={_escrow}
+        />
+    }
 
     return <FirmRewardWrapperContent
         market={market}
         label={label}
         showMarketBtn={showMarketBtn}
-        escrow={escrow}
+        escrow={_escrow}
     />
 }
 
@@ -41,8 +53,8 @@ export const FirmRewardWrapperContent = ({
     const { appGroupPositions, isLoading } = useEscrowRewards(escrow);
     const rewardsInfos = appGroupPositions.find(a => a.appGroup === market.zapperAppGroup);
 
-    useEffect(() => {        
-        if(!account || !needRefreshRewards) { return }        
+    useEffect(() => {
+        if (!account || !needRefreshRewards) { return }
         zapperRefresh(account);
         setNeedRefreshRewards(false);
     }, [needRefreshRewards, account]);
@@ -56,20 +68,48 @@ export const FirmRewardWrapperContent = ({
     />
 }
 
+export const FirmINVRewardWrapperContent = ({
+    market,
+    label,
+    showMarketBtn = false,
+    escrow,
+}: {
+    market: F2Market
+    label?: string
+    escrow?: string
+    showMarketBtn?: boolean
+}) => {
+    const { rewardsInfos, isLoading } = useINVEscrowRewards(escrow);
+
+    return <FirmRewards
+        market={market}
+        rewardsInfos={rewardsInfos}
+        label={label}
+        showMarketBtn={showMarketBtn}
+        isLoading={isLoading}
+        escrow={escrow}
+    />
+}
+
 export const FirmRewards = ({
     market,
     rewardsInfos,
     label,
     showMarketBtn = false,
     isLoading,
+    escrow,
+    extra,
 }: {
     market: F2Market
     rewardsInfos: any[]
     label?: string
+    escrow?: string
     showMarketBtn?: boolean
     isLoading?: boolean
+    extra?: any
 }) => {
-    const { escrow, signer, account } = useContext(F2MarketContext);
+    const { escrow: escrowFromContext } = useContext(F2MarketContext);
+    const _escrow = escrow?.replace(BURN_ADDRESS, '') || escrowFromContext?.replace(BURN_ADDRESS, '');
 
     const claimables = rewardsInfos?.tokens.filter(t => t.metaType === 'claimable');
     claimables?.sort((a, b) => b.balanceUSD - a.balanceUSD)
@@ -77,18 +117,16 @@ export const FirmRewards = ({
 
     if (isLoading) {
         return <></>
-    } else if (market.name === 'cvxCRV') {
-        return <CvxCrvRewards
-            label={label || `${market?.name} Rewards`}
-            escrow={escrow}
-            account={account}
-            claimables={claimables}
-            totalRewardsUSD={totalRewardsUSD}
-            signer={signer}
-            market={market}
-            showMarketBtn={showMarketBtn}
-            defaultCollapse={false}
-        />
     }
-    return <></>
+    return <RewardsContainer
+        timestamp={rewardsInfos?.timestamp}
+        label={label || `${market?.name} Market Rewards`}
+        escrow={_escrow}
+        claimables={claimables}
+        totalRewardsUSD={totalRewardsUSD}
+        market={market}
+        showMarketBtn={showMarketBtn}
+        defaultCollapse={false}
+        extra={extra}
+    />
 }

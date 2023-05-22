@@ -34,7 +34,7 @@ export default async function handler(req, res) {
 
     const userEscrows = await Promise.all(
       F2_MARKETS
-        .filter(market => market.hasClaimableRewards)
+        .filter(market => market.hasClaimableRewards && !!market.zapperAppGroup)
         .map(market => {
           const contract = new Contract(market.address, F2_MARKET_ABI, provider);
           return contract.escrows(user);

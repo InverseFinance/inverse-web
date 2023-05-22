@@ -61,11 +61,12 @@ const columns = [
         label: 'Underlying APY',
         tooltip: 'The APY provided by the asset itself (or via its claimable rewards) and that is kept even after supplying. This is not an additional APY from FiRM',
         header: ({ ...props }) => <ColHeader minWidth="140px" justify="center"  {...props} />,
-        value: ({ supplyApy, supplyApyLow, price, underlying, hasClaimableRewards }) => {
+        value: ({ supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isStaking, hasDbrRewards }) => {
             return <Cell spacing="0" direction="column" minWidth="140px" alignItems="center" justify="center" fontSize="14px">
                 <AnchorPoolInfo
                     protocolImage={underlying.protocolImage}
                     value={supplyApy}
+                    valueExtra={extraApy}
                     valueLow={supplyApyLow}
                     priceUsd={price}
                     symbol={underlying.symbol}
@@ -75,7 +76,7 @@ const columns = [
                 />
                 {
                     supplyApy > 0 && <Text fontSize="12px" color="mainTextColorLight2">
-                        {hasClaimableRewards ? 'Claimable APR' : 'Rebase APY'}
+                        {isStaking ? 'INV + DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY'}
                     </Text>
                 }
             </Cell>
@@ -129,9 +130,9 @@ const columns = [
         label: 'Borrows',
         header: ({ ...props }) => <ColHeader minWidth="80px" justify="center"  {...props} />,
         tooltip: 'Total DOLA borrowed in the Market',
-        value: ({ totalDebt }) => {
+        value: ({ totalDebt, borrowPaused }) => {
             return <Cell minWidth="80px" justify="center" >
-                <CellText>{shortenNumber(totalDebt, 2)}</CellText>
+                <CellText>{borrowPaused && !totalDebt ? '-' : shortenNumber(totalDebt, 2)}</CellText>
             </Cell>
         },
     },
@@ -140,9 +141,9 @@ const columns = [
         label: 'DOLA Liquidity',
         header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
         tooltip: 'Remaining borrowable DOLA liquidity, not taking into account daily limits',
-        value: ({ dolaLiquidity }) => {
+        value: ({ dolaLiquidity, borrowPaused }) => {
             return <Cell minWidth="120px" justify="center" >
-                <CellText>{shortenNumber(dolaLiquidity, 2)}</CellText>
+                <CellText>{borrowPaused ? '-' : shortenNumber(dolaLiquidity, 2)}</CellText>
             </Cell>
         },
     },
@@ -151,14 +152,18 @@ const columns = [
         label: "Available to borrow",
         header: ({ ...props }) => <ColHeader minWidth="130px" justify="center"  {...props} />,
         tooltip: 'Markets can have daily borrow limits, this shows the DOLA left to borrow for the day (UTC timezone)',
-        value: ({ leftToBorrow, totalDebt, dailyLimit, dolaLiquidity }) => {
+        value: ({ leftToBorrow, totalDebt, dailyLimit, dolaLiquidity, borrowPaused }) => {
             return <Cell minWidth="130px" justify="center" alignItems="center" direction="column" spacing="0" >
-                <CellText>{leftToBorrow ? shortenNumber(leftToBorrow, 2) : totalDebt ? 'Depleted' : 'No liquidity'}</CellText>
                 {
-                    leftToBorrow < dailyLimit && dolaLiquidity > 0 && leftToBorrow < dolaLiquidity
-                    && <CellText overflow="visible" whiteSpace="nowrap" minW="130px" textAlign={{ base: 'right', sm: 'left' }} fontSize={{ base: '10px', sm: '12px' }} color="mainTextColorLight2">
-                        <DailyLimitCountdown prefix="Limit resets in " />
-                    </CellText>
+                    borrowPaused ? <CellText>Borrow Paused</CellText> : <>
+                        <CellText>{leftToBorrow ? shortenNumber(leftToBorrow, 2) : totalDebt ? 'Depleted' : 'No liquidity'}</CellText>
+                        {
+                            leftToBorrow < dailyLimit && dolaLiquidity > 0 && leftToBorrow < dolaLiquidity
+                            && <CellText overflow="visible" whiteSpace="nowrap" minW="130px" textAlign={{ base: 'right', sm: 'left' }} fontSize={{ base: '10px', sm: '12px' }} color="mainTextColorLight2">
+                                <DailyLimitCountdown prefix="Limit resets in " />
+                            </CellText>
+                        }
+                    </>
                 }
             </Cell>
         },
