@@ -1,6 +1,6 @@
 
 import 'source-map-support'
-import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
+import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { getFirmMarketUsers } from './firm-positions';
 import { getProvider } from '@app/util/providers';
 import { CHAIN_ID } from '@app/config/constants';
@@ -18,18 +18,22 @@ export const firmTvlCacheKey = 'f2-tvl-v1.0.3'
 export default async function handler(req, res) {
     const { cacheFirst } = req.query;
     try {
-        const cache = await getCacheFromRedis(firmTvlCacheKey, cacheFirst !== 'true', 30);
-        if (cache) {
-            res.status(200).json(cache);
+        const { data: cachedTvl, isValid: isCachedTvlValid } = await getCacheFromRedisAsObj(firmTvlCacheKey, cacheFirst !== 'true', 60);
+        if (cachedTvl && isCachedTvlValid) {
+            res.status(200).json(cachedTvl);
             return
         }
 
         const provider = getProvider(CHAIN_ID);
         const { firmMarketUsers, marketUsersAndEscrows } = await getFirmMarketUsers(provider);
 
-        const marketsCache = await getCacheFromRedis(F2_MARKETS_CACHE_KEY, false);
+        // trigger
+        fetch('https://inverse.finance/api/f2/fixed-markets');
+
+        const { data: marketsCache } = await getCacheFromRedisAsObj(F2_MARKETS_CACHE_KEY, false);
+        
         if (!marketsCache) {
-            res.status(200).json({ firmTotalTvl: 0, firmTvls:[] });
+            res.status(200).json(cachedTvl || { firmTotalTvl: 0, firmTvls:[] });
             return
         }
 
