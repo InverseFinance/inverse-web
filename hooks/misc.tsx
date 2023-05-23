@@ -47,7 +47,7 @@ export const useEventsAsChartData = (
 ): SWR & { chartData: any } => {
     const now = new Date();
     let acc = 0;
-    const chartData = [...events.sort((a, b) => a.timestamp - b.timestamp).map(event => {
+    const chartData = [...(events||[]).sort((a, b) => a.timestamp - b.timestamp).map(event => {
         const date = new Date(event.timestamp);
         acc += event[yAttribute];
         return {
