@@ -27,12 +27,13 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
     const network = Number(chainId);
     const providers = [new AlchemyProvider(network, specificAlchemyKey || getRandomFromStringList(process.env.ALCHEMY_KEYS!))];
 
-    if(!onlyAlchemy) {
-        // providers.push(new CloudflareProvider(network));
-        providers.push(new InfuraProvider(network, getRandomFromStringList(process.env.INFURA_KEYS!)))
-    } else {
-        return providers[0]
-    }
+    return providers[0]
+    // if(!onlyAlchemy) {
+    //     // providers.push(new CloudflareProvider(network));
+    //     providers.push(new InfuraProvider(network, getRandomFromStringList(process.env.INFURA_KEYS!)))
+    // } else {
+    //     return providers[0]
+    // }
 
-    return new FallbackProvider(providers, 1);
+    // return new FallbackProvider(providers, 1);
 }
