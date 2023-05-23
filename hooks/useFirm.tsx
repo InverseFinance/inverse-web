@@ -206,6 +206,20 @@ export const useDBRBurns = (): SWR & {
   }
 }
 
+export const useDBREmissions = (): SWR & {
+  events: any,
+  timestamp: number,
+} => {
+  const { data, error } = useCacheFirstSWR(`/api/transparency/dbr-emissions`, fetcher);
+
+  return {
+    events: data ? data.totalEmissions : [],
+    timestamp: data ? data.timestamp : 0,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
 export const useDBRDebtHisto = (): SWR & {
   timestamp: number,
   history: { debt: number, timestamp: number }[],
