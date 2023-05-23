@@ -47,7 +47,8 @@ export const getCacheFromRedis = async (
     useChunks = false,
 ) => {
     try {
-        const { data, isValid } = getCacheFromRedisAsObj(cacheKey, checkForTime, cacheTime, useChunks);
+        const { data, isValid } = await getCacheFromRedisAsObj(cacheKey, checkForTime, cacheTime, useChunks);
+
         if(isValid && data) { return data }
     } catch (e) {
         console.log(cacheKey);
