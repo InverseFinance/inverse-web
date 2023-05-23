@@ -1,10 +1,15 @@
 import { F2Market } from "@app/types"
 import { useContext, useEffect } from "react";
-import { useEscrowRewards, useINVEscrowRewards } from "@app/hooks/useFirm";
+import { useEscrowRewards, useINVEscrowRewards, useStakedInFirm } from "@app/hooks/useFirm";
 import { F2MarketContext } from "../F2Contex";
 import { BURN_ADDRESS } from "@app/config/constants";
 import { zapperRefresh } from "@app/util/f2";
 import { RewardsContainer } from "./RewardsContainer";
+import { useAccount } from "@app/hooks/misc";
+import { VStack, Text } from "@chakra-ui/react";
+import { getMonthlyRate, shortenNumber } from "@app/util/markets";
+import { InfoMessage } from "@app/components/common/Messages";
+import { usePrices } from "@app/hooks/usePrices";
 
 export const FirmRewardWrapper = ({
     market,
@@ -84,14 +89,23 @@ export const FirmINVRewardWrapperContent = ({
     showMarketBtn?: boolean
     onLoad?: (v: number) => void
 }) => {
+    const account = useAccount();
+    const { prices } = usePrices();
     const { rewardsInfos, isLoading } = useINVEscrowRewards(escrow);
+    const { stakedInFirm } = useStakedInFirm(account);
 
-    useEffect(() => {        
-        if (!onLoad || !rewardsInfos?.tokens?.length || isLoading) { return }        
+    useEffect(() => {
+        if (!onLoad || !rewardsInfos?.tokens?.length || isLoading) { return }
         const totalUsd = rewardsInfos.tokens.filter(t => t.metaType === 'claimable')
             .reduce((prev, curr) => prev + curr.balanceUSD, 0);
         onLoad(totalUsd);
     }, [rewardsInfos, onLoad])
+
+    const share = market.invStakedViaDistributor ? stakedInFirm / market.invStakedViaDistributor : 0;
+    const invMonthlyRewards = getMonthlyRate(stakedInFirm, market?.supplyApy);
+    const dbrMonthlyRewards = share * market?.dbrYearlyRewardRate/12;
+    const invPriceCg = prices ? prices['inverse-finance']?.usd : 0;
+    const dbrPriceCg = prices ? prices['dola-borrowing-right']?.usd : 0;
 
     return <FirmRewards
         market={market}
@@ -100,6 +114,20 @@ export const FirmINVRewardWrapperContent = ({
         showMarketBtn={showMarketBtn}
         isLoading={isLoading}
         escrow={escrow}
+        extra={<VStack alignItems="flex-start" justify="center" w={{ base: 'auto', md: '700px' }}>
+            {
+                market?.invStakedViaDistributor &&
+                <InfoMessage
+                    alertProps={{ fontSize: '18px' }}
+                    description={
+                        <VStack alignItems="flex-start">                            
+                            <Text>Monthly INV rewards: <b>~{shortenNumber(invMonthlyRewards, 2)} ({shortenNumber(invMonthlyRewards * invPriceCg, 2, true)})</b></Text>
+                            <Text>Monthly DBR rewards: <b>~{shortenNumber(dbrMonthlyRewards, 2)} ({shortenNumber(dbrMonthlyRewards * dbrPriceCg, 2, true)})</b></Text>
+                        </VStack>
+                    }
+                />
+            }
+        </VStack>}
     />
 }
 
