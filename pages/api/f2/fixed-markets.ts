@@ -3,7 +3,7 @@ import 'source-map-support'
 import { DBR_DISTRIBUTOR_ABI, DOLA_ABI, F2_CONTROLLER_ABI, F2_MARKET_ABI, F2_ORACLE_ABI, XINV_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
-import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
+import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { TOKENS } from '@app/variables/tokens'
 import { getBnToNumber, getCvxCrvAPRs, getGOhmData, getStethData } from '@app/util/markets'
 import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_MS, ONE_DAY_SECS } from '@app/config/constants';
@@ -11,14 +11,14 @@ import { frontierMarketsCacheKey } from '../markets';
 import { cgPricesCacheKey } from '../prices';
 
 const { F2_MARKETS, DOLA, XINV, DBR_DISTRIBUTOR } = getNetworkConfigConstants();
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.3`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.4`;
 
 export default async function handler(req, res) {
 
   try {
-    const validCache = await getCacheFromRedis(F2_MARKETS_CACHE_KEY, true, 90);    
-    if (validCache) {
-      res.status(200).json(validCache);
+    const { data: cachedData, isValid } = await getCacheFromRedisAsObj(F2_MARKETS_CACHE_KEY, true, 60);    
+    if (cachedData && isValid) {
+      res.status(200).json(cachedData);
       return
     }
 
@@ -151,14 +151,16 @@ export default async function handler(req, res) {
     ));
 
     let cvxCrvData = {};
-    const cvxCrvAprsCache = await getCacheFromRedis('cvxCrv-aprs', true, 300);
-    if(!cvxCrvAprsCache) {
+    const { data: cvxCrvAprsCache, isValid: isCvxCrvCacheValid } = await getCacheFromRedisAsObj('cvxCrv-aprs', true, 300);
+    if(!cvxCrvAprsCache || !isCvxCrvCacheValid) {
       cvxCrvData = await getCvxCrvAPRs(provider);
       if(!!cvxCrvData?.group1) {
         redisSetWithTimestamp('cvx-crv-aprs', cvxCrvData);
+      } else if (!!cvxCrvAprsCache) {
+        cvxCrvData = cvxCrvAprsCache;
       }
     } else {
-      cvxCrvData = cvxCrvAprsCache;
+      cvxCrvData = cvxCrvAprsCache
     }
     // external yield bearing apys
     const externalYieldResults = await Promise.allSettled([

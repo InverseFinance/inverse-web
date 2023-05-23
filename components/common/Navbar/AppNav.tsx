@@ -580,7 +580,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
                   </PopoverTrigger>
                   {
                     submenus?.length > 0 &&
-                    <PopoverContent maxW="250px" background={isBlog ? 'mainBackgroundColor' : 'transparent'} border="none">
+                    <PopoverContent maxW="275px" background={isBlog ? 'mainBackgroundColor' : 'transparent'} border="none">
                       <PopoverBody className={`blurred-container ${themeName}-bg compat-mode2`} borderRadius="10px">
                         <VStack spacing="4" p="4">
                           {
