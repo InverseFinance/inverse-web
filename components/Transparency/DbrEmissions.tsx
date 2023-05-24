@@ -37,15 +37,15 @@ export const DbrEmissions = ({
     // if(includeInitialEmission) {
     //     theoreticalStreaming.unshift(initEvent);
     // }
-    const annualizedEmissions = [
-        { amount: 0, timestamp: streamingStartTs - ONE_DAY_MS * 3 },
-        { amount: yearlyRewardRate, timestamp: streamingStartTs },        
-        { amount: yearlyRewardRate, timestamp: now },
-    ];
 
     const [isSmooth, setIsSmooth] = useState(true);
     const repHashes = replenishments?.map(r => r.txHash) || [];
-    const { events: emissionEvents } = useDBREmissions();
+    const { events: emissionEvents, rewardRatesHistory } = useDBREmissions();
+
+    const annualizedEmissions = rewardRatesHistory?.rates || [
+        { yearlyRewardRate: 0, timestamp: streamingStartTs - ONE_DAY_MS * 3 },
+        { yearlyRewardRate: 4000000, timestamp: streamingStartTs },
+    ];
 
     const filteredEvents = includeReplenishments && includeClaims ?
         emissionEvents :
@@ -56,7 +56,7 @@ export const DbrEmissions = ({
 
     const { chartData: emissionChartData } = useEventsAsChartData(_events, '_auto_', 'amount');
     // const { chartData: theoreticalStreamingChartData } = useEventsAsChartData(theoreticalStreaming, '_auto_', 'amount', false, false);
-    const { chartData: annualizedEmissionsChartData } = useEventsAsChartData(annualizedEmissions, 'amount', 'amount', false, false);
+    const { chartData: annualizedEmissionsChartData } = useEventsAsChartData(annualizedEmissions, 'yearlyRewardRate', 'yearlyRewardRate', true, false);
 
     const [chartWidth, setChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
@@ -125,6 +125,7 @@ export const DbrEmissions = ({
             interpolation="stepAfter"
             id="annualized-streaming"
             showMaxY={false}
+            showTooltips={true}
             domainYpadding={1000000}
         />
     </Stack>

@@ -209,11 +209,16 @@ export const useDBRBurns = (): SWR & {
 export const useDBREmissions = (): SWR & {
   events: any,
   timestamp: number,
+  rewardRatesHistory: {
+    timestamp: number,
+    rates: { timestamp: number, rewardRate: number }[],
+  }
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/transparency/dbr-emissions`, fetcher);
+  const { data, error } = useCacheFirstSWR(`/api/transparency/dbr-emissions?v=2`, fetcher);
 
   return {
     events: data ? data.totalEmissions : [],
+    rewardRatesHistory: data ? data.rewardRatesHistory : { rates: [] },
     timestamp: data ? data.timestamp : 0,
     isLoading: !error && !data,
     isError: error,

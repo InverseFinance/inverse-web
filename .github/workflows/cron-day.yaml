@@ -11,3 +11,8 @@ jobs:
           curl -v --request POST \
           --url 'https://www.inverse.finance/api/cron-liquidity' \
           --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
+      - name: DBR reward rate snapshot
+        run: |
+          curl -v --request POST \
+          --url 'https://www.inverse.finance/api/cron-dbr-distributor' \
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'

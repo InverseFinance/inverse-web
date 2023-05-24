@@ -3,30 +3,30 @@ import 'source-map-support'
 import { DBR_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
-import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
+import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
-import { BURN_ADDRESS, CHAIN_ID } from '@app/config/constants';
+import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_SECS } from '@app/config/constants';
 import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
 import { NetworkIds } from '@app/types';
+import { dbrRewardRatesCacheKey, initialDbrRewardRates } from '../cron-dbr-distributor';
 
 const { DBR } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
-    const cacheKey = `dbr-emissions-v1.0.5`;
+    const cacheKey = `dbr-emissions-v1.0.6`;
     const { cacheFirst } = req.query;
 
     try {
-        const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', 9999, true);
-        if (validCache) {
-            res.status(200).json(validCache);
+        const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', ONE_DAY_SECS, true);
+        if (!!cachedData && isValid) {
+            res.status(200).json(cachedData);
             return
         }
 
         const provider = getProvider(CHAIN_ID);
         const contract = new Contract(DBR, DBR_ABI, provider);
-
-        const archived = await getCacheFromRedis(cacheKey, false, 0, true);
-        const pastTotalEvents = archived?.totalEmissions || [];
+        
+        const pastTotalEvents = cachedData?.totalEmissions || [];
 
         const lastKnownEvent = pastTotalEvents?.length > 0 ? (pastTotalEvents[pastTotalEvents.length - 1]) : {};
         const newStartingBlock = lastKnownEvent ? lastKnownEvent?.blockNumber + 1 : 0;
@@ -42,7 +42,11 @@ export default async function handler(req, res) {
             blocks,
             NetworkIds.mainnet,
         );
-        const timestamps = await getCachedBlockTimestamps();
+
+        const [timestamps, rewardRatesHistory] = await Promise.all([
+            getCachedBlockTimestamps(),
+            getCacheFromRedis(dbrRewardRatesCacheKey, false),
+        ]);        
 
         const newTransfers = newTransferEvents.map(e => {
             return {
@@ -60,6 +64,7 @@ export default async function handler(req, res) {
             totalEmissions: pastTotalEvents.concat(newTransfers).map(e => {
                 return { ...e, accEmissions: accEmissions += e.amount}
             }),
+            rewardRatesHistory: (rewardRatesHistory || initialDbrRewardRates),
         };
 
         await redisSetWithTimestamp(cacheKey, resultData, true);
