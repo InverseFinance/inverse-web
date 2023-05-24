@@ -15,6 +15,7 @@ import { useEventsAsChartData } from '@app/hooks/misc'
 import { DefaultCharts } from '@app/components/Transparency/DefaultCharts'
 import { useState } from 'react'
 import moment from 'moment'
+import { shortenNumber } from '@app/util/markets'
 
 const ColHeader = ({ ...props }) => {
   return <Flex justify="center" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -40,6 +41,30 @@ const columns = [
     },
   },
   {
+    field: 'totalBadDebtUsd',
+    label: 'Bad debt that occurred',
+    tooltip: 'Equals to remaining bad debt + what was repaid',
+    header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
+    value: ({ totalBadDebtUsd, symbol, priceUsd }) => {
+      return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
+        <CellText fontWeight="bold">{totalBadDebtUsd ? `${preciseCommify(totalBadDebtUsd * priceUsd, 0, true)}` : '-'}</CellText>
+        <CellText>{totalBadDebtUsd ? `${preciseCommify(totalBadDebtUsd, symbol === 'DOLA' ? 0 : 2)} ${symbol}` : '-'}</CellText>
+      </Cell>
+    },
+  },
+  {
+    field: 'totalBadDebtRepaidByDao',
+    label: 'Repayments',
+    tooltip: 'Direct repayments made by the DAO',
+    header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
+    value: ({ totalBadDebtRepaidByDao, symbol, priceUsd }) => {
+      return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
+        <CellText fontWeight="bold">{totalBadDebtRepaidByDao ? `${preciseCommify(totalBadDebtRepaidByDao * priceUsd, 0, true)}` : '-'}</CellText>
+        <CellText>{totalBadDebtRepaidByDao ? `${preciseCommify(totalBadDebtRepaidByDao, symbol === 'DOLA' ? 0 : 2)} ${symbol}` : '-'}</CellText>
+      </Cell>
+    },
+  },
+  {
     field: 'badDebtUsd',
     label: 'Remaining Bad Debt',
     header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
@@ -51,9 +76,32 @@ const columns = [
     },
   },
   {
+    field: 'percRepaid',
+    label: 'Bad Debt repaid',
+    header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
+    value: ({ percRepaid }) => {
+      return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
+        <CellText>{percRepaid ? `${shortenNumber(percRepaid, 2)}%` : '-'}</CellText>
+      </Cell>
+    },
+  },
+];
+
+const indirectRepaymentsColumns = [
+  {
+    field: 'symbol',
+    label: 'Asset',
+    header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-start"  {...props} />,
+    value: (token) => {
+      return <Cell minWidth='150px' spacing="2" justify="flex-start" alignItems="center" direction="row">
+        <UnderlyingItem {...token} badge={undefined} label={token.symbol} />
+      </Cell>
+    },
+  },  
+  {
     field: 'sold',
     label: 'Repayer: Debt sold',
-
+    tooltip: 'Stuck assets sold by users to the DAO against a discounted underlying',
     header: ({ ...props }) => <ColHeader minWidth="150px" justify="center" {...props} />,
     value: ({ sold, priceUsd, symbol }) => {
       return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
@@ -62,22 +110,22 @@ const columns = [
       </Cell>
     },
   },
-  // {
-  //   field: 'soldFor',
-  //   label: 'Repayer: Paid by Treasury',
-
-  //   header: ({ ...props }) => <ColHeader  minWidth="150px" justify="center"  {...props} />,
-  //   value: ({ soldFor, priceUsd, symbol }) => {
-  //     return <Cell  minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
-  //       {!!soldFor && <CellText fontWeight="bold" >{preciseCommify(soldFor * priceUsd, 0, true)}</CellText>}
-  //       <CellText >{soldFor ? `${preciseCommify(soldFor, 2)} ${symbol}` : '-'}</CellText>        
-  //     </Cell>
-  //   },
-  // },
+  {
+    field: 'soldFor',
+    label: 'Repayer: Sold for',
+    tooltip: 'Discounted amounts received by users against their stuck assets',
+    header: ({ ...props }) => <ColHeader  minWidth="150px" justify="center"  {...props} />,
+    value: ({ soldFor, priceUsd, symbol }) => {
+      return <Cell  minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
+        {!!soldFor && <CellText fontWeight="bold" >{preciseCommify(soldFor * priceUsd, 0, true)}</CellText>}
+        <CellText >{soldFor ? `${preciseCommify(soldFor, 2)} ${symbol}` : '-'}</CellText>        
+      </Cell>
+    },
+  },
   {
     field: 'converted',
     label: 'Converter: sold for IOUs',
-
+    tooltip: 'Stuck assets converted to DOLA IOUs',
     header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
     value: ({ converted, priceUsd, symbol }) => {
       return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
@@ -97,20 +145,21 @@ const columns = [
   //     </Cell>
   //   },
   // },  
-  {
-    field: 'totalBadDebtRepaidByDao',
-    label: 'Repaid',
-    header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
-    value: ({ totalBadDebtRepaidByDao, symbol, priceUsd }) => {
-      return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
-        <CellText fontWeight="bold">{totalBadDebtRepaidByDao ? `${preciseCommify(totalBadDebtRepaidByDao * priceUsd, 0, true)}` : '-'}</CellText>
-        <CellText>{totalBadDebtRepaidByDao ? `${preciseCommify(totalBadDebtRepaidByDao, symbol === 'DOLA' ? 0 : 2)} ${symbol}` : '-'}</CellText>
-      </Cell>
-    },
-  },
+  // {
+  //   field: 'totalBadDebtRepaidByDao',
+  //   label: 'Repaid',
+  //   header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
+  //   value: ({ totalBadDebtRepaidByDao, symbol, priceUsd }) => {
+  //     return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
+  //       <CellText fontWeight="bold">{totalBadDebtRepaidByDao ? `${preciseCommify(totalBadDebtRepaidByDao * priceUsd, 0, true)}` : '-'}</CellText>
+  //       <CellText>{totalBadDebtRepaidByDao ? `${preciseCommify(totalBadDebtRepaidByDao, symbol === 'DOLA' ? 0 : 2)} ${symbol}` : '-'}</CellText>
+  //     </Cell>
+  //   },
+  // },
   {
     field: 'repaidViaDwf',
-    label: 'Coming from DWF deal',
+    label: 'Indirect DWF repayment',
+    tooltip: 'Funds coming from the DWF OTC used to repay DOLA bad debt',
     header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
     value: ({ repaidViaDwf }) => {
       return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
@@ -287,8 +336,23 @@ export const BadDebtPage = () => {
           </Stack>
           <Container
             noPadding
-            label={`Indirect repayments: Bad Debt Converter and Repayer`}
-            description={`Learn more about the bad debt, Debt Converter and Debt Repayer`}
+            label={`Bad debt recap & Repayments`}
+            // description={`Learn more about the bad debt, Debt Converter and Debt Repayer`}
+            // href={'https://docs.inverse.finance/inverse-finance/inverse-finance/other/frontier'}
+          >
+            <Table
+              items={items}
+              columns={columns}
+              enableMobileRender={false}
+              key="symbol"
+              defaultSort="percRepaid"
+              defaultSortDir="desc"
+            />
+          </Container>
+          <Container
+            noPadding
+            label={`Annex: Bad Debt Converter and Repayer`}
+            description={`Learn more about Debt Converter and Debt Repayer`}
             href={'https://docs.inverse.finance/inverse-finance/inverse-finance/other/frontier'}
             headerProps={{
               direction: { base: 'column', md: 'row' },
@@ -303,11 +367,11 @@ export const BadDebtPage = () => {
           >
             <Table
               items={items}
-              columns={columns}
+              columns={indirectRepaymentsColumns}
               enableMobileRender={false}
               key="symbol"
-              defaultSort="badDebtUsd"
-              defaultSortDir="desc"
+              defaultSort="symbol"
+              defaultSortDir="asc"
             />
           </Container>
         </Flex>
