@@ -2,16 +2,16 @@ import { BALANCER_VAULT_ABI, F2_ESCROW_ABI } from "@app/config/abis";
 import { F2Market, SWR } from "@app/types"
 import { getBnToNumber, getNumberToBn } from "@app/util/markets";
 import { getNetworkConfigConstants } from "@app/util/networks"
-import { getToken, TOKENS } from "@app/variables/tokens";
+import { TOKENS } from "@app/variables/tokens";
 import { BigNumber } from "ethers/lib/ethers";
 import useEtherSWR from "./useEtherSWR"
 import { fetcher } from '@app/util/web3'
 import { useCustomSWR } from "./useCustomSWR";
 import { f2CalcNewHealth } from "@app/util/f2";
-import { BURN_ADDRESS, ONE_DAY_MS } from "@app/config/constants";
+import { BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
 import { parseUnits } from "@ethersproject/units";
 
-const { DBR, DBR_AIRDROP, F2_MARKETS, F2_ORACLE, DOLA } = getNetworkConfigConstants();
+const { DBR, DBR_AIRDROP, F2_MARKETS, F2_ORACLE, DOLA, DBR_DISTRIBUTOR } = getNetworkConfigConstants();
 
 const zero = BigNumber.from('0');
 const oneYear = ONE_DAY_MS * 365;
@@ -40,7 +40,7 @@ export const useAccountDBR = (
     // [DBR, 'lastUpdated', account],
   ]);
 
-  const [balance, debt, interests, signedBalance] = (data || [zero, zero, zero, zero, zero])
+  const [balance, debt, interests, signedBalance] = (data || [zero, zero, zero, zero])
     .map(v => getBnToNumber(v));
   // const [balance, allowance, debt, interests, signedBalance] = [100, 0, 5000, 0, 2500];
 
@@ -94,7 +94,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
 
   const { data, error } = useEtherSWR([
     ...markets.map(m => {
-      return [F2_ORACLE, 'viewPrice', m.collateral, getNumberToBn(m.collateralFactor, 4)]
+      return m.isInv ? [] : [F2_ORACLE, 'viewPrice', m.collateral, getNumberToBn(m.collateralFactor, 4)]
     }),
     ...markets.map(m => {
       return [m.address, 'collateralFactorBps']
@@ -137,7 +137,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
       return {
         ...m,
         ...cachedMarkets[i],
-        price: data ? getBnToNumber(data[i], (36 - m.underlying.decimals)) : cachedMarkets[i]?.price ?? 0,
+        price: data && data[i] ? getBnToNumber(data[i], (36 - m.underlying.decimals)) : cachedMarkets[i]?.price ?? 0,
         collateralFactor: data ? getBnToNumber(data[i + nbMarkets], 4) : cachedMarkets[i]?.collateralFactor ?? 0,
         totalDebt: data ? getBnToNumber(data[i + 2 * nbMarkets]) : cachedMarkets[i]?.totalDebt ?? 0,
         bnDolaLiquidity: data ? data[i + 4 * nbMarkets] : cachedMarkets[i]?.bnDolaLiquidity ?? 0,
@@ -180,12 +180,18 @@ export const useAccountDBRMarket = (
   account: string,
   isUseNativeCoin = false,
 ): AccountDBRMarket => {
-  const { data: escrow } = useEtherSWR([market.address, 'escrows', account]);
+  const { data: escrow } = useEtherSWR([market.address, 'escrows', account]);  
   const { data: accountMarketData } = useEtherSWR(
-    !escrow || escrow === BURN_ADDRESS ? [] : [
-      [market.address, 'getCreditLimit', account],
+    !escrow || escrow === BURN_ADDRESS ? [] : [      
       [market.address, 'getWithdrawalLimit', account],
       [market.address, 'debts', account],
+    ]
+  );
+  
+  // inv does not have a valid feed, call will revert
+  const { data: accountMarketDataWithValidFeed } = useEtherSWR(
+    !escrow || escrow === BURN_ADDRESS || market.isInv ? [] : [
+      [market.address, 'getCreditLimit', account],
     ]
   );
 
@@ -193,7 +199,8 @@ export const useAccountDBRMarket = (
     isUseNativeCoin ? ['getBalance', account, 'latest'] : [market.collateral, 'balanceOf', account],
   ]);
 
-  const [bnCreditLimit, bnWithdrawalLimit, bnDebt] = accountMarketData || [zero, zero, zero];
+  const [bnWithdrawalLimit, bnDebt] = accountMarketData || [zero, zero];
+  const [bnCreditLimit] = accountMarketDataWithValidFeed || [zero];
   const bnCollateralBalance: BigNumber = balances ? balances[0] : zero;
   const creditLimit = bnCreditLimit ? getBnToNumber(bnCreditLimit) : 0;
 
@@ -278,10 +285,10 @@ export const useDBRBalancePrice = (): { price: number | undefined } => {
 export const useDBRPriceLive = (): { price: number | undefined } => {
   const { data } = useEtherSWR({
     args: [
-      ['0x056ef502c1fc5335172bc95ec4cae16c2eb9b5b6', 'price_scale'],
+      ['0x056ef502c1fc5335172bc95ec4cae16c2eb9b5b6', 'price_oracle'],
     ],
     abi: [
-      'function price_scale() public view returns(uint)',
+      'function price_oracle() public view returns(uint)',
     ],
   });
   
@@ -321,6 +328,8 @@ export const useDBR = (): {
   timestamp: number,
   totalSupply: number,
   totalDueTokensAccrued: number,
+  rewardRate: number,
+  yearlyRewardRate: number,
   operator: string,
 } => {
   const { data: apiData } = useCustomSWR(`/api/dbr?withExtra=true`, fetcher);
@@ -330,14 +339,20 @@ export const useDBR = (): {
     [DBR, 'totalSupply'],
     [DBR, 'totalDueTokensAccrued'],
     [DBR, 'operator'],
+    [DBR_DISTRIBUTOR, 'rewardRate'],
   ]);
+  
+  const rewardRate = extraData ? getBnToNumber(extraData[3]) : apiData?.rewardRate || 0;
+  const yearlyRewardRate = rewardRate * ONE_DAY_SECS * 365;
 
   return {
-    timestamp: livePrice && extraData ? +(new Date()) : apiData?.timestamp,
+    timestamp: livePrice && extraData ? +(new Date()) : apiData?.timestamp,    
     price: livePrice ?? (apiData?.price || 0.04),
     totalSupply: extraData ? getBnToNumber(extraData[0]) : (apiData?.totalSupply || 0),
     totalDueTokensAccrued: extraData ? getBnToNumber(extraData[1]) : (apiData?.totalDueTokensAccrued || 0),
     operator: extraData ? extraData[2] : apiData?.operator || '0x926dF14a23BE491164dCF93f4c468A50ef659D5B',
+    rewardRate,
+    yearlyRewardRate,
   }
 }
 
@@ -372,13 +387,17 @@ export const useBorrowLimits = (market: F2Market) => {
 
 export const useDBRReplenishmentPrice = (): SWR & {
   replenishmentPrice: number,
+  replenishmentDailyRate: number,
 } => {
   const { data, error } = useEtherSWR([
     DBR, 'replenishmentPriceBps',
   ]);
 
+  const replenishmentPrice = data ? getBnToNumber(data, 4) : 0;
+
   return {
-    replenishmentPrice: data ? getBnToNumber(data, 4) : 0,
+    replenishmentPrice,
+    replenishmentDailyRate: replenishmentPrice * 100 / 365,
     isLoading: !error && !data,
     isError: error,
   }

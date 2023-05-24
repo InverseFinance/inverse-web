@@ -47,36 +47,55 @@ export const getCacheFromRedis = async (
     useChunks = false,
 ) => {
     try {
-        let cache, cacheObj;
-        if (!useChunks) {
-            cache = await redisClient.get(`${cacheKey}-version-${CACHE_VERSION}`);
-            if(!cache) { return undefined }
-            cacheObj = JSON.parse(cache);
-        } else {
-            const meta = await redisClient.get(`${cacheKey}-version-${CACHE_VERSION}-chunks-meta`);
-            if(!meta) { return undefined }
-            const metaObj = JSON.parse(meta);            
-            const arr = [...Array(metaObj.nbChunks).keys()];            
-            const chunks = await Promise.all(
-                arr.map((v, i) => {
-                    return redisClient.get(`${cacheKey}-version-${CACHE_VERSION}-chunk-${i}`)
-                })
-            )
-            cache = chunks.join('');
-            cacheObj = { ...metaObj, ...JSON.parse(cache) }
-        }
-        if (cache) {
-            const now = Date.now();            
-            // we don't use redis.expire because it deletes the key when expired, we want to be able to get data in case of error
-            if (!checkForTime || ((now - cacheObj?.timestamp) / 1000 < cacheTime)) {
-                return cacheObj.data;
-            }
-        }
+        const { data, isValid } = await getCacheFromRedisAsObj(cacheKey, checkForTime, cacheTime, useChunks);
+
+        if(isValid && data) { return data }
     } catch (e) {
         console.log(cacheKey);
         console.log(e);
     }
     return undefined;
+}
+
+export const getCacheFromRedisAsObj = async (
+    cacheKey: string,
+    checkForTime = true,
+    cacheTime = 1800,
+    useChunks = false,
+) => {
+    try {
+        let cache, cacheObj;
+        if (!useChunks) {
+            cache = await redisClient.get(`${cacheKey}-version-${CACHE_VERSION}`);
+            if (cache) {
+                cacheObj = JSON.parse(cache);
+            }
+        } else {
+            const meta = await redisClient.get(`${cacheKey}-version-${CACHE_VERSION}-chunks-meta`);
+            if (meta) {
+                const metaObj = JSON.parse(meta);
+                const arr = [...Array(metaObj.nbChunks).keys()];
+                const chunks = await Promise.all(
+                    arr.map((v, i) => {
+                        return redisClient.get(`${cacheKey}-version-${CACHE_VERSION}-chunk-${i}`)
+                    })
+                )
+                cache = chunks.join('');
+                cacheObj = { ...metaObj, ...JSON.parse(cache) }
+            }
+        }
+        if (cache) {
+            const now = Date.now();
+            return {
+                data: cacheObj.data,
+                isValid: !checkForTime || ((now - cacheObj?.timestamp) / 1000 < cacheTime),
+            };
+        }
+    } catch (e) {
+        console.log(cacheKey);
+        console.log(e);
+    }
+    return { data: undefined, isValid: false };
 }
 
 export const redisSetWithTimestamp = async (key: string, data: any, useChunks = false) => {

@@ -1,4 +1,4 @@
-import { Contract } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
 import 'source-map-support'
 import { F2_MARKET_ABI, F2_ESCROW_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
@@ -10,7 +10,8 @@ import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
 import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
-export const F2_POSITIONS_CACHE_KEY = 'f2positions-v1.0.5'
+
+export const F2_POSITIONS_CACHE_KEY = 'f2positions-v1.0.8'
 export const F2_UNIQUE_USERS_CACHE_KEY = 'f2unique-users-v1.0.91'
 
 export const getFirmMarketUsers = async (provider) => {
@@ -92,7 +93,7 @@ export default async function handler(req, res) {
         })),
         await Promise.all(firmMarketUsers.map((f, i) => {
           const market = new Contract(F2_MARKETS[f.marketIndex].address, F2_MARKET_ABI, provider);
-          return market.getCreditLimit(f.user);
+          return F2_MARKETS[f.marketIndex].isInv ? new Promise((res) => res(BigNumber.from('0'))) : market.getCreditLimit(f.user);
         })),
       ]
     );
@@ -111,7 +112,7 @@ export default async function handler(req, res) {
     });
 
     const resultData = {
-      positions: positions.filter(p => p.debt > 0),
+      positions: positions.filter(p => p.debt > 0 || p.deposits > 0.01),
       // marketUsersAndEscrows,
       timestamp: +(new Date()),
     }

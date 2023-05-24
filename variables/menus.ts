@@ -36,7 +36,17 @@ export const MENUS = {
     },
     {
       label: 'Stake',
-      href: '/frontier',
+      href: '/firm/INV',
+      submenus: [
+        {
+          label: 'Stake (FiRM)',
+          href: '/firm/INV',
+        },
+        {
+          label: 'Stake (Frontier, deprecated)',
+          href: '/frontier',
+        },
+      ]
     },
     {
       label: 'Bond',

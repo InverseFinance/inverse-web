@@ -433,6 +433,10 @@ export const F2_ESCROW_ABI = [
   "function disallowClaimOnBehalf(address) public",
   // only cvxCRV
   "function setRewardWeight(uint) public",
+  // only INV
+  'function claimable() public view returns (uint)',
+  "function claimDBR() public",
+  "function claimDBRTo() public",
 ];
 
 export const F2_CONTROLLER_ABI = [
@@ -468,6 +472,8 @@ export const F2_MARKET_ABI = [
   "function forceReplenish(address user, uint amount) public",
   "function forceReplenishAll(address user) public",
   "function liquidate(address user, uint repaidDebt) public",
+  // withdrawMax: only INV
+  "function withdrawMax() public",
   "event Deposit(address indexed account, uint amount)",
   "event Borrow(address indexed account, uint amount)",
   "event Withdraw(address indexed account, address indexed to, uint amount)",
@@ -499,6 +505,15 @@ export const MERKLE_DROP_ABI = [
 
 export const CONVEX_REWARD_POOL = [
   'function earned(address) public view returns (uint)',
+]
+
+export const DBR_DISTRIBUTOR_ABI = [
+  'function rewardRate() public view returns (uint)',
+  'function lastUpdate() public view returns (uint)',
+  'function claimable() public view returns (uint)',
+  'function rewardIndexMantissa() public view returns (uint)',
+  'function accruedRewards(address) public view returns (uint)',
+  'function totalSupply() public view returns (uint)',
 ]
 
 export const DWF_PURCHASER_ABI = [{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"usdcAmount","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"invAmount","type":"uint256"},{"indexed":false,"internalType":"address","name":"purchaser","type":"address"}],"name":"Buy","type":"event"},{"inputs":[],"name":"INV","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"USDC","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"buyer","type":"address"},{"internalType":"bool","name":"allowed","type":"bool"}],"name":"allowWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"uint256","name":"maxInvPrice","type":"uint256"}],"name":"buy","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"dailyBuy","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"dailyLimit","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"discountBps","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"additionalTime","type":"uint256"}],"name":"extendBuyPeriod","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"getInvPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"gov","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_startTime","type":"uint256"},{"internalType":"uint256","name":"_runTime","type":"uint256"},{"internalType":"uint256","name":"_dailyLimit","type":"uint256"},{"internalType":"uint256","name":"_lifetimeLimit","type":"uint256"},{"internalType":"uint256","name":"_discountBps","type":"uint256"},{"internalType":"uint256","name":"_minInvPrice","type":"uint256"},{"internalType":"address","name":"upgradeFrom","type":"address"}],"name":"init","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"lastBuy","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"lastReset","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"lifetimeBuy","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"lifetimeLimit","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"limitAvailable","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"minInvPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"minPriceGuardian","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"poolId","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"runTime","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"newMinPrice","type":"uint256"}],"name":"setMinInvPrice","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newGuardian","type":"address"}],"name":"setMinPriceGuardian","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"startTime","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"token","type":"address"}],"name":"sweep","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"vault","outputs":[{"internalType":"contract IVault","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"whitelist","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}];
@@ -535,6 +550,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
     F2_ORACLE,
     F2_CONTROLLER,
     F2_MARKETS,
+    DBR_DISTRIBUTOR,
   } = getNetworkConfigConstants(networkConfig);
 
   return new Map<string, string[]>(
@@ -564,6 +580,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [F2_ORACLE, F2_ORACLE_ABI],
         [F2_CONTROLLER, F2_CONTROLLER_ABI],
         [DWF_PURCHASER, DWF_PURCHASER_ABI],
+        [DBR_DISTRIBUTOR, DBR_DISTRIBUTOR_ABI],
         ...F2_MARKETS?.map((m) => [m.address, F2_MARKET_ABI]),
         [BOND_V2_FIXED_TERM, BOND_V2_ABI],
         [BOND_V2_FIXED_TERM_TELLER, BOND_V2_FIXED_TELLER_ABI],

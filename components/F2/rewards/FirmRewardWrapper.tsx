@@ -1,28 +1,48 @@
 import { F2Market } from "@app/types"
-import { CvxCrvRewards } from "./CvxCrvRewards";
 import { useContext, useEffect } from "react";
-import { useEscrowRewards } from "@app/hooks/useFirm";
+import { useEscrowRewards, useINVEscrowRewards, useStakedInFirm } from "@app/hooks/useFirm";
 import { F2MarketContext } from "../F2Contex";
 import { BURN_ADDRESS } from "@app/config/constants";
 import { zapperRefresh } from "@app/util/f2";
+import { RewardsContainer } from "./RewardsContainer";
+import { useAccount } from "@app/hooks/misc";
+import { VStack, Text } from "@chakra-ui/react";
+import { getMonthlyRate, shortenNumber } from "@app/util/markets";
+import { InfoMessage } from "@app/components/common/Messages";
+import { usePrices } from "@app/hooks/usePrices";
 
 export const FirmRewardWrapper = ({
     market,
     label,
     showMarketBtn = false,
+    escrow,
+    onLoad
 }: {
     market: F2Market
     label?: string
+    escrow?: string
     showMarketBtn?: boolean
+    onLoad?: (v: number) => void
 }) => {
-    const { escrow } = useContext(F2MarketContext);
-    if (!escrow || escrow === BURN_ADDRESS) return <></>;
+    const { escrow: escrowFromContext } = useContext(F2MarketContext);
+    const _escrow = escrow?.replace(BURN_ADDRESS, '') || escrowFromContext?.replace(BURN_ADDRESS, '');
+    if (!_escrow) return <></>;
+
+    if (market.isInv) {
+        return <FirmINVRewardWrapperContent
+            market={market}
+            label={label}
+            showMarketBtn={showMarketBtn}
+            escrow={_escrow}
+            onLoad={onLoad}
+        />
+    }
 
     return <FirmRewardWrapperContent
         market={market}
         label={label}
         showMarketBtn={showMarketBtn}
-        escrow={escrow}
+        escrow={_escrow}
     />
 }
 
@@ -41,8 +61,8 @@ export const FirmRewardWrapperContent = ({
     const { appGroupPositions, isLoading } = useEscrowRewards(escrow);
     const rewardsInfos = appGroupPositions.find(a => a.appGroup === market.zapperAppGroup);
 
-    useEffect(() => {        
-        if(!account || !needRefreshRewards) { return }        
+    useEffect(() => {
+        if (!account || !needRefreshRewards) { return }
         zapperRefresh(account);
         setNeedRefreshRewards(false);
     }, [needRefreshRewards, account]);
@@ -56,20 +76,80 @@ export const FirmRewardWrapperContent = ({
     />
 }
 
+export const FirmINVRewardWrapperContent = ({
+    market,
+    label,
+    showMarketBtn = false,
+    escrow,
+    onLoad,
+}: {
+    market: F2Market
+    label?: string
+    escrow?: string
+    showMarketBtn?: boolean
+    onLoad?: (v: number) => void
+}) => {
+    const account = useAccount();
+    const { prices } = usePrices();
+    const { rewardsInfos, isLoading } = useINVEscrowRewards(escrow);
+    const { stakedInFirm } = useStakedInFirm(account);
+
+    useEffect(() => {
+        if (!onLoad || !rewardsInfos?.tokens?.length || isLoading) { return }
+        const totalUsd = rewardsInfos.tokens.filter(t => t.metaType === 'claimable')
+            .reduce((prev, curr) => prev + curr.balanceUSD, 0);
+        onLoad(totalUsd);
+    }, [rewardsInfos, onLoad])
+
+    const share = market.invStakedViaDistributor ? stakedInFirm / market.invStakedViaDistributor : 0;
+    const invMonthlyRewards = getMonthlyRate(stakedInFirm, market?.supplyApy);
+    const dbrMonthlyRewards = share * market?.dbrYearlyRewardRate/12;
+    const invPriceCg = prices ? prices['inverse-finance']?.usd : 0;
+    const dbrPriceCg = prices ? prices['dola-borrowing-right']?.usd : 0;
+
+    return <FirmRewards
+        market={market}
+        rewardsInfos={rewardsInfos}
+        label={label}
+        showMarketBtn={showMarketBtn}
+        isLoading={isLoading}
+        escrow={escrow}
+        extra={<VStack alignItems="flex-start" justify="center" w={{ base: 'auto', md: '700px' }}>
+            {
+                market?.invStakedViaDistributor &&
+                <InfoMessage
+                    alertProps={{ fontSize: '18px' }}
+                    description={
+                        <VStack alignItems="flex-start">                            
+                            <Text>Monthly INV rewards: <b>~{shortenNumber(invMonthlyRewards, 2)} ({shortenNumber(invMonthlyRewards * invPriceCg, 2, true)})</b></Text>
+                            <Text>Monthly DBR rewards: <b>~{shortenNumber(dbrMonthlyRewards, 2)} ({shortenNumber(dbrMonthlyRewards * dbrPriceCg, 2, true)})</b></Text>
+                        </VStack>
+                    }
+                />
+            }
+        </VStack>}
+    />
+}
+
 export const FirmRewards = ({
     market,
     rewardsInfos,
     label,
     showMarketBtn = false,
     isLoading,
+    escrow,
+    extra,
 }: {
     market: F2Market
     rewardsInfos: any[]
     label?: string
+    escrow?: string
     showMarketBtn?: boolean
     isLoading?: boolean
+    extra?: any
 }) => {
-    const { escrow, signer, account } = useContext(F2MarketContext);
+    const { escrow: escrowFromContext } = useContext(F2MarketContext);
+    const _escrow = escrow?.replace(BURN_ADDRESS, '') || escrowFromContext?.replace(BURN_ADDRESS, '');
 
     const claimables = rewardsInfos?.tokens.filter(t => t.metaType === 'claimable');
     claimables?.sort((a, b) => b.balanceUSD - a.balanceUSD)
@@ -77,18 +157,16 @@ export const FirmRewards = ({
 
     if (isLoading) {
         return <></>
-    } else if (market.name === 'cvxCRV') {
-        return <CvxCrvRewards
-            label={label || `${market?.name} Rewards`}
-            escrow={escrow}
-            account={account}
-            claimables={claimables}
-            totalRewardsUSD={totalRewardsUSD}
-            signer={signer}
-            market={market}
-            showMarketBtn={showMarketBtn}
-            defaultCollapse={false}
-        />
     }
-    return <></>
+    return <RewardsContainer
+        timestamp={rewardsInfos?.timestamp}
+        label={label || `${market?.name} Market Rewards`}
+        escrow={_escrow}
+        claimables={claimables}
+        totalRewardsUSD={totalRewardsUSD}
+        market={market}
+        showMarketBtn={showMarketBtn}
+        defaultCollapse={false}
+        extra={extra}
+    />
 }

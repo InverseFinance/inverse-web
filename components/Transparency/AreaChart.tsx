@@ -1,4 +1,4 @@
-import { shortenNumber } from '@app/util/markets';
+import { shortenNumber, smartShortNumber } from '@app/util/markets';
 import { VictoryChart, VictoryLine, VictoryBar, VictoryLabel, VictoryAxis, VictoryArea, VictoryTheme, VictoryClipContainer, VictoryVoronoiContainer, VictoryAreaProps, VictoryAxisProps, VictoryLabelProps, VictoryZoomContainer, VictoryBrushContainer, createContainer } from 'victory';
 import moment from 'moment'
 import { Box, VStack, useMediaQuery } from '@chakra-ui/react';
@@ -34,6 +34,7 @@ export type AreaChartProps = {
     titleProps?: VictoryLabelProps,
     id?: string,
     yTickPrecision?: number
+    id?: string,
 };
 
 export const AreaChart = ({
@@ -54,7 +55,7 @@ export const AreaChart = ({
     titleProps,
     allowZoom = false,
     id = 'area-chart',
-    yTickPrecision,
+    yTickPrecision = 2,
 }: AreaChartProps) => {
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
     const [rightPadding, setRightPadding] = useState(50);

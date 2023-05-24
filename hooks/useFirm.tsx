@@ -1,19 +1,21 @@
 
-import { F2Market, FirmAction, SWR } from "@app/types"
-import { fetcher } from '@app/util/web3'
+import { F2Market, FirmAction, SWR, ZapperToken } from "@app/types"
+import { fetcher, fetcher30sectimeout } from '@app/util/web3'
 import { useCacheFirstSWR, useCustomSWR } from "./useCustomSWR";
-import { useDBRMarkets } from "./useDBR";
+import { useDBRMarkets, useDBRPrice } from "./useDBR";
 import { f2CalcNewHealth } from "@app/util/f2";
 import { getBnToNumber, getNumberToBn } from "@app/util/markets";
 import { useMultiContractEvents } from "./useContractEvents";
-import { DBR_ABI, F2_MARKET_ABI } from "@app/config/abis";
+import { DBR_ABI, F2_ESCROW_ABI, F2_MARKET_ABI } from "@app/config/abis";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { uniqueBy } from "@app/util/misc";
-import { ONE_DAY_MS } from "@app/config/constants";
+import { BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
+import useEtherSWR from "./useEtherSWR";
+import { useAccount } from "./misc";
 
 const oneYear = ONE_DAY_MS * 365;
 
-const { DBR, F2_MARKETS } = getNetworkConfigConstants();
+const { DBR, DBR_DISTRIBUTOR, F2_MARKETS, INV } = getNetworkConfigConstants();
 
 export const useFirmPositions = (isShortfallOnly = false): SWR & {
   positions: any,
@@ -204,6 +206,25 @@ export const useDBRBurns = (): SWR & {
   }
 }
 
+export const useDBREmissions = (): SWR & {
+  events: any,
+  timestamp: number,
+  rewardRatesHistory: {
+    timestamp: number,
+    rates: { timestamp: number, rewardRate: number }[],
+  }
+} => {
+  const { data, error } = useCacheFirstSWR(`/api/transparency/dbr-emissions?v=2`, fetcher);
+
+  return {
+    events: data ? data.totalEmissions : [],
+    rewardRatesHistory: data ? data.rewardRatesHistory : { rates: [] },
+    timestamp: data ? data.timestamp : 0,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
 export const useDBRDebtHisto = (): SWR & {
   timestamp: number,
   history: { debt: number, timestamp: number }[],
@@ -226,12 +247,64 @@ export const useDBRDebtHisto = (): SWR & {
   }
 }
 
+export const useINVEscrowRewards = (escrow: string): SWR & {
+  rewards: number,
+  rewardsInfos: { tokens: ZapperToken[] },
+} => {
+  const account = useAccount();
+  const { data: dbrSimData } = useCustomSWR(`/api/f2/sim-dbr-rewards?escrow=${escrow}&account=${account}`, fetcher30sectimeout);
+  const { data, error } = useEtherSWR({
+    args: [[escrow, 'claimable']],
+    abi: F2_ESCROW_ABI,
+  });  
+  const { data: rewardRateBn } = useEtherSWR([DBR_DISTRIBUTOR, 'rewardRate']);
+  const { data: lastUpdate } = useEtherSWR([DBR_DISTRIBUTOR, 'lastUpdate']);
+  const { data: totalSupplyBn } = useEtherSWR([DBR_DISTRIBUTOR, 'totalSupply']);
+
+  const lastUpdateStored = lastUpdate ? getBnToNumber(lastUpdate, 0)*1000 : 0;
+  const storedIsOutdated = !!data && !!dbrSimData && lastUpdateStored < dbrSimData?.timestamp;
+  
+  // per second
+  const rewardRate = rewardRateBn ? getBnToNumber(rewardRateBn) : 0;
+  const yearlyRewardRate = rewardRate * ONE_DAY_SECS * 365;
+  const { price: dbrPrice } = useDBRPrice();
+
+  const rewardsStored = data && data[0] ? getBnToNumber(data[0]) : 0;
+  const rewards = storedIsOutdated ? dbrSimData?.simRewards : rewardsStored;
+  const totalSupply = totalSupplyBn ? getBnToNumber(totalSupplyBn) : 0;
+
+  const apr = !totalSupply ? 0 : yearlyRewardRate / totalSupply;
+
+  const rewardsInfos = {
+    timestamp: storedIsOutdated ? dbrSimData?.timestamp : lastUpdateStored,
+    tokens: [
+      {
+        metaType: 'claimable',
+        balanceUSD: rewards * dbrPrice,
+        price: dbrPrice,
+        balance: rewards,
+        address: DBR,
+      }
+    ]
+  };
+
+  return {
+    apr,
+    yearlyRewardRate,
+    totalSupply,
+    rewards,
+    rewardRate,
+    rewardsInfos,
+    isLoading: !error && !data,
+    isError: error,
+  }
+};
 
 export const useEscrowRewards = (escrow: string): SWR & {
   appGroupPositions: any[],
   timestamp: number,
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/f2/escrow-rewards?escrow=${escrow||''}`, fetcher);
+  const { data, error } = useCacheFirstSWR(`/api/f2/escrow-rewards?escrow=${escrow || ''}`, fetcher);
 
   return {
     appGroupPositions: data?.appGroupPositions || [],
@@ -245,7 +318,7 @@ export const useUserRewards = (user: string): SWR & {
   appGroupPositions: any[],
   timestamp: number,
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/f2/user-rewards?user=${user||''}`, fetcher);
+  const { data, error } = useCacheFirstSWR(`/api/f2/user-rewards?user=${user || ''}`, fetcher);
 
   return {
     appGroupPositions: data?.appGroupPositions || [],
@@ -253,4 +326,31 @@ export const useUserRewards = (user: string): SWR & {
     isLoading: !error && !data,
     isError: error,
   }
+}
+
+export const useStakedInFirm = (userAddress: string): {
+  stakedInFirm: number,
+  escrow: string,
+  delegate: string,
+} => {
+  const firmInv = F2_MARKETS.find(m => m.isInv);
+
+  const { data: escrow } = useEtherSWR(!!firmInv && !!userAddress ? [firmInv.address, 'escrows', userAddress] : []);
+  const { data } = useEtherSWR([
+    [INV, 'delegates', escrow],
+  ]);
+
+  const { data: firmEscrowData } = useEtherSWR({
+    args: !!escrow && escrow !== BURN_ADDRESS ? [
+      [escrow, 'balance'],      
+    ] : [[]],
+    abi: F2_ESCROW_ABI,
+  });
+  const stakedInFirm = firmEscrowData && firmEscrowData[0] ? getBnToNumber(firmEscrowData[0]) : 0;
+
+  return {
+    stakedInFirm,
+    escrow,
+    delegate: data ? data[0] : '',
+  };
 }

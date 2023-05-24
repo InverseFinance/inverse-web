@@ -1,4 +1,4 @@
-import { Badge, Flex, HStack, Stack, Text, Image, VStack } from "@chakra-ui/react"
+import { Badge, Flex, HStack, Stack, Text, Image, VStack, useMediaQuery } from "@chakra-ui/react"
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useAccountDBR, useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
@@ -32,11 +32,11 @@ const columns = [
     {
         field: 'name',
         label: 'Market',
-        header: ({ ...props }) => <ColHeader minWidth="90px" justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="flex-start"  {...props} />,
         tooltip: 'Market type, each market have an underlying token and strategy',
         value: ({ name, icon, marketIcon, underlying, badgeInfo, badgeProps }) => {
-            return <Cell minWidth="90px">
-                <Cell minWidth='90px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
+            return <Cell minWidth="100px">
+                <Cell minWidth='100px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
                     <HStack justify="flex-start" alignItems="center" spacing="1" w='full'>
                         <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
                         <CellText fontWeight="bold">{name}</CellText>
@@ -60,12 +60,13 @@ const columns = [
         field: 'supplyApy',
         label: 'Underlying APY',
         tooltip: 'The APY provided by the asset itself (or via its claimable rewards) and that is kept even after supplying. This is not an additional APY from FiRM',
-        header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
-        value: ({ supplyApy, supplyApyLow, price, underlying, hasClaimableRewards }) => {
-            return <Cell spacing="0" direction="column" minWidth="150px" alignItems="center" justify="center" fontSize="14px">
+        header: ({ ...props }) => <ColHeader minWidth="140px" justify="center"  {...props} />,
+        value: ({ supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isStaking, hasDbrRewards }) => {
+            return <Cell spacing="0" direction="column" minWidth="140px" alignItems="center" justify="center" fontSize="14px">
                 <AnchorPoolInfo
                     protocolImage={underlying.protocolImage}
                     value={supplyApy}
+                    valueExtra={extraApy}
                     valueLow={supplyApyLow}
                     priceUsd={price}
                     symbol={underlying.symbol}
@@ -75,7 +76,7 @@ const columns = [
                 />
                 {
                     supplyApy > 0 && <Text fontSize="12px" color="mainTextColorLight2">
-                        {hasClaimableRewards ? 'Claimable rewards APR' : 'Rebase APY'}
+                        {isStaking ? 'INV + DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY'}
                     </Text>
                 }
             </Cell>
@@ -129,9 +130,9 @@ const columns = [
         label: 'Borrows',
         header: ({ ...props }) => <ColHeader minWidth="80px" justify="center"  {...props} />,
         tooltip: 'Total DOLA borrowed in the Market',
-        value: ({ totalDebt }) => {
+        value: ({ totalDebt, borrowPaused }) => {
             return <Cell minWidth="80px" justify="center" >
-                <CellText>{shortenNumber(totalDebt, 2)}</CellText>
+                <CellText>{borrowPaused && !totalDebt ? '-' : shortenNumber(totalDebt, 2)}</CellText>
             </Cell>
         },
     },
@@ -140,9 +141,9 @@ const columns = [
         label: 'DOLA Liquidity',
         header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
         tooltip: 'Remaining borrowable DOLA liquidity, not taking into account daily limits',
-        value: ({ dolaLiquidity }) => {
+        value: ({ dolaLiquidity, borrowPaused }) => {
             return <Cell minWidth="120px" justify="center" >
-                <CellText>{shortenNumber(dolaLiquidity, 2)}</CellText>
+                <CellText>{borrowPaused ? '-' : shortenNumber(dolaLiquidity, 2)}</CellText>
             </Cell>
         },
     },
@@ -151,14 +152,18 @@ const columns = [
         label: "Available to borrow",
         header: ({ ...props }) => <ColHeader minWidth="130px" justify="center"  {...props} />,
         tooltip: 'Markets can have daily borrow limits, this shows the DOLA left to borrow for the day (UTC timezone)',
-        value: ({ leftToBorrow, totalDebt, dailyLimit, dolaLiquidity }) => {
+        value: ({ leftToBorrow, totalDebt, dailyLimit, dolaLiquidity, borrowPaused }) => {
             return <Cell minWidth="130px" justify="center" alignItems="center" direction="column" spacing="0" >
-                <CellText>{leftToBorrow ? shortenNumber(leftToBorrow, 2) : totalDebt ? 'Depleted' : 'No liquidity'}</CellText>
                 {
-                    leftToBorrow < dailyLimit && dolaLiquidity > 0 && leftToBorrow < dolaLiquidity
-                    && <CellText overflow="visible" whiteSpace="nowrap" minW="130px" textAlign="left" fontSize="12px" color="mainTextColorLight2">
-                        <DailyLimitCountdown prefix="Limit resets in " />                                
-                    </CellText>
+                    borrowPaused ? <CellText>Borrow Paused</CellText> : <>
+                        <CellText>{leftToBorrow ? shortenNumber(leftToBorrow, 2) : totalDebt ? 'Depleted' : 'No liquidity'}</CellText>
+                        {
+                            leftToBorrow < dailyLimit && dolaLiquidity > 0 && leftToBorrow < dolaLiquidity
+                            && <CellText overflow="visible" whiteSpace="nowrap" minW="130px" textAlign={{ base: 'right', sm: 'left' }} fontSize={{ base: '10px', sm: '12px' }} color="mainTextColorLight2">
+                                <DailyLimitCountdown prefix="Limit resets in " />
+                            </CellText>
+                        }
+                    </>
                 }
             </Cell>
         },
@@ -225,6 +230,8 @@ const firmImages = {
     'light': 'firm-final-logo.png',
 }
 
+const responsiveThreshold = 1260;
+
 export const F2Markets = ({
 
 }: {
@@ -238,6 +245,7 @@ export const F2Markets = ({
     const router = useRouter();
     const { firmTvls, isLoading: tvlLoading } = useFirmTVL();
     const { themeStyles, themeName } = useAppTheme();
+    const [isSmallerThan] = useMediaQuery(`(max-width: ${responsiveThreshold}px)`);
 
     const isLoading = tvlLoading || !markets?.length;
 
@@ -257,7 +265,14 @@ export const F2Markets = ({
         description={`Learn more`}
         href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/firm"
         image={<BigImageButton transform="translateY(5px)" bg={`url('/assets/firm/${firmImages[themeName]}')`} h={{ base: '50px' }} w={{ base: '110px' }} borderRadius="0" />}
-        contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
+        contentProps={{
+            maxW: { base: '90vw', sm: '100%' },
+            overflowX: 'auto',
+            p: isSmallerThan ? '0' : '4',
+            shadow: isSmallerThan ? '0' : '0 0 0px 1px rgba(0, 0, 0, 0.25)',
+            borderRadius: isSmallerThan ? '0' : '8px',
+        }}
+        contentBgColor={isSmallerThan ? 'transparent' : undefined}
         headerProps={{
             direction: { base: 'column', md: 'row' },
             align: { base: 'flex-start', md: 'flex-end' },
@@ -285,7 +300,7 @@ export const F2Markets = ({
                     defaultSortDir="desc"
                     enableMobileRender={true}
                     mobileClickBtnLabel={'View Market'}
-                    mobileThreshold={1260}
+                    mobileThreshold={responsiveThreshold}
                     showRowBorder={true}
                     spacing="0"
                 />

@@ -32,12 +32,6 @@ export default async function handler(req, res) {
     return;
   }
 
-  if(CHAIN_ID === '5') {
-    const r = await fetch('https://www.inverse.finance/api/markets');
-    res.status(200).send(await r.json());    
-    return;
-  }
-
   try {
     const {
       INV,

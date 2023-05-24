@@ -1,6 +1,6 @@
 import { MarketImage } from "@app/components/common/Assets/MarketImage"
 import Link from "@app/components/common/Link"
-import { useAccountDBR, useDBRMarkets, useDBRPrice } from "@app/hooks/useDBR"
+import { useAccountDBR, useDBRMarkets, useDBRPrice, useDBRReplenishmentPrice } from "@app/hooks/useDBR"
 import { useDualSpeedEffect } from "@app/hooks/useDualSpeedEffect"
 import { getRiskColor } from "@app/util/f2"
 import { shortenNumber } from "@app/util/markets"
@@ -18,18 +18,32 @@ import { useFirmTVL } from "@app/hooks/useTVL"
 import 'add-to-calendar-button';
 import { DbrReminder } from "../DbrReminder"
 import { WarningTwoIcon } from "@chakra-ui/icons"
+import { WarningMessage } from "@app/components/common/Messages"
 
-const Title = (props: TextProps) => <Text fontWeight="extrabold" fontSize={{ base: '14px', md: '18px' }} {...props} />;
-const SubTitle = (props: TextProps) => <Text color="secondaryTextColor" fontSize={{ base: '14px', md: '16px' }} {...props} />;
+const Title = (props: TextProps) => <Text textAlign="center" fontWeight="extrabold" fontSize={{ base: '13px', md: '18px' }} {...props} />;
+const SubTitle = (props: TextProps) => <Text textAlign="center" color="secondaryTextColor" fontSize={{ base: '13px', md: '16px' }} {...props} />;
+
+const DbrRepMsg = ({ replenishmentDailyRate, ...props }: { replenishmentDailyRate: number }) => <WarningMessage
+    description={
+        <HStack spacing='1' display={{ base: 'inline-block', sm: 'inline-flex' }} {...props}>
+            <Text><b>You are out of DBR,</b></Text>
+            <Link style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" fontWeight="extrabold" color={'error'} href={BUY_LINKS.DBR} isExternal target='_blank'>
+                please top-up your balance,
+            </Link>
+            <Text>the daily cost is <b>{replenishmentDailyRate}% of your debt</b></Text>
+        </HStack>
+    } />;
 
 export const MarketBar = ({
     ...props
 }: {
 } & Partial<StackProps>) => {
     const { price: dbrPrice } = useDBRPrice();
+    const [isLargerThan400] = useMediaQuery('(min-width: 400px)');
     const [isLargerThan] = useMediaQuery('(min-width: 600px)');
     const [isLargerThan1000] = useMediaQuery('(min-width: 1000px)');
     const [effectEnded, setEffectEnded] = useState(true);
+    const { replenishmentDailyRate } = useDBRReplenishmentPrice();
 
     const {
         market,
@@ -41,7 +55,7 @@ export const MarketBar = ({
         dbrExpiryDate,
     } = useContext(F2MarketContext);
 
-    const [liquidity, setLiquidity] = useState(market.dolaLiquidity);
+    const [available, setAvailable] = useState(market.dolaLiquidity);
 
     useEffect(() => {
         setEffectEnded(false);
@@ -52,7 +66,7 @@ export const MarketBar = ({
     }, [isWalkthrough], !isWalkthrough, 200, 50);
 
     useDebouncedEffect(() => {
-        setLiquidity(market.leftToBorrow);
+        setAvailable(market.leftToBorrow);
     }, [market.dolaLiquidity, market.leftToBorrow], 500);
 
     const needTopUp = dbrBalance < 0 || (dbrBalance === 0 && debt > 0);
@@ -107,7 +121,7 @@ export const MarketBar = ({
     const otherInfos = <>
         <VStack spacing={{ base: '0', sm: '1' }} alignItems="flex-start">
             <Title>
-                Collateral Factor
+                C.F
             </Title>
             <SubTitle color="secondaryTextColor">
                 {preciseCommify(market.collateralFactor * 100, 2)}%
@@ -134,35 +148,52 @@ export const MarketBar = ({
 
     return <Container noPadding p="0">
         <VStack w='full' {...props}>
-            <HStack w='full' justify="space-between">
+            {
+                !isLargerThan400 && <HStack>
+                    <MarketImage pr="2" image={market.icon || market.underlying.image} size={isLargerThan ? 40 : 30} />
+                    <Title>
+                        {market.name} Market
+                    </Title>
+                </HStack>
+            }
+            <HStack w='full' alignItems="flex-start" justify="space-between">
                 <HStack w='full' spacing={{ base: '2', md: '8' }} justify="space-between">
                     <HStack spacing={{ base: '1', md: '2' }}>
-                        <MarketImage pr="2" image={market.icon || market.underlying.image} size={isLargerThan ? 40 : 30} />
-                        <VStack spacing={{ base: '0', sm: '1' }} alignItems="flex-start">
-                            <Title as='h2'>
-                                {market.name} Market
+                        {
+                            isLargerThan400 && <MarketImage pr="2" image={market.icon || market.underlying.image} size={isLargerThan ? 40 : 30} />
+                        }
+                        <VStack spacing={{ base: '0', sm: '1' }} alignItems={{ md: 'flex-start' }}>
+                            <Title textAlign="left">
+                                Liquidity
                             </Title>
-                            {
-                                market.borrowPaused ?
-                                    <SubTitle fontWeight="bold" color={'warning'}>
-                                        Paused
-                                    </SubTitle>
-                                    :
-                                    <SubTitle fontWeight={liquidity === 0 ? 'bold' : undefined} color={liquidity === 0 ? 'warning' : 'secondaryTextColor'}>
-                                        {liquidity ? shortenNumber(liquidity, liquidity < 100 ? 2 : 0, false, true) : 'No'} DOLA liquidity
-                                    </SubTitle>
-                            }
+                            <SubTitle>
+                                {market.dolaLiquidity > 1 ? `${preciseCommify(market.dolaLiquidity, available < 100 ? 2 : 0, false)} DOLA` : 'No DOLA liquidity'}
+                            </SubTitle>
                         </VStack>
                     </HStack>
+                    <VStack spacing={{ base: '0', sm: '1' }} alignItems={{ base: 'flex-start' }}>
+                        <Title textAlign="left">
+                            Available to borrow
+                        </Title>
+                        {
+                            market.borrowPaused ?
+                                <SubTitle fontWeight="bold" color={'warning'}>
+                                    Paused
+                                </SubTitle>
+                                :
+                                <SubTitle fontWeight={available === 0 ? 'bold' : undefined} color={available === 0 ? 'warning' : 'secondaryTextColor'}>
+                                    {available ? `${preciseCommify(available, available < 100 ? 2 : 0, false)} DOLA` : 'No DOLA available'}
+                                </SubTitle>
+                        }
+                    </VStack>
                     <VStack spacing={{ base: '0', sm: '1' }} alignItems={{ base: 'flex-end', md: 'flex-start' }}>
                         <Title>
-                            Oracle Price
+                            {market.isInv ? '' : 'Oracle '}Price
                         </Title>
                         <SubTitle>
-                            {preciseCommify(market.price, 2, true)}
+                            {market.price ? preciseCommify(market.price, 2, true) : '-'}
                         </SubTitle>
                     </VStack>
-
                     {
                         !isWalkthrough && effectEnded && isLargerThan1000 && otherInfos
                     }
@@ -196,6 +227,9 @@ export const MarketBar = ({
             {
                 debt > 0 && !isLargerThan1000 && <DbrReminder dbrExpiryDate={dbrExpiryDate} dbrBalance={dbrBalance} />
             } */}
+            {
+                needTopUp && <DbrRepMsg replenishmentDailyRate={replenishmentDailyRate} />
+            }
         </VStack>
     </Container>
 }
@@ -206,6 +240,7 @@ export const DbrBar = ({
 }: {
 } & Partial<StackProps>) => {
     const { dbrNbDaysExpiry, signedBalance: dbrBalance, dailyDebtAccrual, dbrDepletionPerc, dbrExpiryDate, balance, debt } = useAccountDBR(account);
+    const { replenishmentDailyRate } = useDBRReplenishmentPrice();
 
     const hasDebt = dailyDebtAccrual !== 0;
 
@@ -217,24 +252,24 @@ export const DbrBar = ({
 
     const needTopUp = dbrBalance < 0 || (dbrBalance === 0 && debt > 0);
 
-    const dbrBalanceInfos = <VStack spacing="1" alignItems="flex-start">
+    const dbrBalanceInfos = <VStack w={{ base: '33%', md: 'auto' }} spacing="1" alignItems="flex-start">
         <Title>
             DBR Balance
         </Title>
 
         <Link color={needTopUp ? 'error' : 'secondaryTextColor'} href={BUY_LINKS.DBR} isExternal target='_blank'>
             {
-                dbrBalance > 0 && <SubTitle color="inherit">
+                dbrBalance > 0 && <SubTitle textAlign="left" color="inherit">
                     {shortenNumber(dbrBalance, 2, false, true)}{!!dbrBalance && ` (${shortenNumber(dbrBalance * dbrPrice, 2, true, true)})`}
                 </SubTitle>
             }
             {
-                dbrBalance === 0 && !debt && <SubTitle color="inherit">
+                dbrBalance === 0 && !debt && <SubTitle textAlign="left" color="inherit">
                     Buy now
                 </SubTitle>
             }
             {
-                needTopUp && <SubTitle style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" color="inherit" fontWeight={dbrBalance < 0 ? 'extrabold' : 'normal'}>
+                needTopUp && <SubTitle textAlign="left" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" color="inherit" fontWeight={dbrBalance < 0 ? 'extrabold' : 'normal'}>
                     {shortenNumber(dbrBalance, 2)} Top-up now
                 </SubTitle>
             }
@@ -251,7 +286,7 @@ export const DbrBar = ({
                     {
                         dbrBalanceInfos
                     }
-                    <VStack spacing="1" alignItems="center">
+                    <VStack w={{ base: '33%', md: 'auto' }} spacing="1" alignItems="center">
                         <Title>
                             Total Debt
                         </Title>
@@ -259,7 +294,7 @@ export const DbrBar = ({
                             {preciseCommify(debt, 2, true)}
                         </SubTitle>
                     </VStack>
-                    <VStack spacing="1" alignItems={{ base: 'flex-end', md: 'center' }}>
+                    <VStack w={{ base: '33%', md: 'auto' }} spacing="1" alignItems={{ base: 'flex-end', md: 'center' }}>
                         <Title>
                             Daily Spend
                         </Title>
@@ -271,10 +306,10 @@ export const DbrBar = ({
             </HStack>
             <HStack w={{ base: 'full', md: 'auto' }} justify="space-between" spacing={{ base: '2', md: '8' }}>
                 <VStack spacing="1" alignItems={{ base: 'flex-start', md: 'flex-end' }}>
-                    <Title>
+                    <Title textAlign="right">
                         DBR Depletion Time
                     </Title>
-                    <SubTitle display="flex" alignItems="center" fontWeight={needsRechargeSoon ? 'extrabold' : 'inherit'} color={needsRechargeSoon ? dbrBalance < 0 ? 'error' : 'warning' : 'secondaryTextColor'}>
+                    <SubTitle textAlign="right" display="flex" alignItems="center" fontWeight={needsRechargeSoon ? 'extrabold' : 'inherit'} color={needsRechargeSoon ? dbrBalance < 0 ? 'error' : 'warning' : 'secondaryTextColor'}>
                         {dbrBalance <= 0 && <WarningTwoIcon mr="1" />}{dbrBalance <= 0 ? 'Depleted' : moment(dbrExpiryDate).fromNow()}
                         {/* {isLargerThan1000 && ` - ${moment(dbrExpiryDate).fromNow()}`} */}
                     </SubTitle>
@@ -290,6 +325,11 @@ export const DbrBar = ({
                 </VStack>
             </HStack>
         </Stack>
+        {
+            needTopUp && <VStack pt="8">
+                <DbrRepMsg replenishmentDailyRate={replenishmentDailyRate} />
+            </VStack>
+        }
     </VStack>
 }
 
@@ -338,41 +378,41 @@ export const FirmBar = ({
     const { markets } = useDBRMarkets();
     const [isLargerThan] = useMediaQuery('(min-width: 600px)');
     const [isLargerThan1000] = useMediaQuery('(min-width: 1000px)');
-    const totalDebt = markets?.reduce((prev, curr) => prev + curr.totalDebt, 0) || 0;    
+    const totalDebt = markets?.reduce((prev, curr) => prev + curr.totalDebt, 0) || 0;
     const totalDebtUsd = totalDebt * dolaPrice;
 
     return <VStack w='full' {...props}>
         <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
-            <HStack w={{ base: 'full', md: 'auto' }} justify="flex-start">
+            <HStack alignItems="flex-start" w={{ base: 'full', md: 'auto' }} justify="flex-start">
                 <HStack spacing="8" w={{ base: 'full', md: 'auto' }} justify={{ base: 'space-between', md: 'flex-start' }}>
                     <BarBlock label="Buy DBR" isLargerThan={isLargerThan} precision={4} price={dbrPrice} href={BUY_LINKS.DBR} imgSrc={`/assets/v2/dbr.png`} />
                     <BarBlock label="Buy DOLA" isLargerThan={isLargerThan} precision={4} price={dolaPrice} href={'/swap'} imgSrc={`/assets/v2/dola-512.jpg`} vstackProps={{ alignItems: { base: 'center', md: 'flex-start' } }} />
                     <BarBlock label="Buy INV" isLargerThan={isLargerThan} price={prices?.['inverse-finance']?.usd} href={BUY_LINKS.INV} imgSrc={`/assets/inv-square-dark.jpeg`} vstackProps={{ alignItems: { base: 'flex-end', md: 'flex-start' } }} />
                 </HStack>
             </HStack>
-            <HStack w={{ base: 'full', md: 'auto' }} justify="space-between" spacing={{ base: '2', md: '8' }}>
-                <VStack spacing="1" alignItems={{ base: 'flex-start', md: 'center' }}>
-                    <Link textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/transparency/feds/policy/all">
+            <HStack w={{ base: 'full', md: 'auto' }} alignItems="flex-start" justify="space-between" spacing={{ base: '2', md: '8' }}>
+                <VStack w={{ base: '33%', md: 'auto' }} spacing="1" alignItems={{ base: 'flex-start', md: 'center' }}>
+                    <Link textAlign="center" textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/transparency/feds/policy/all">
                         {isLargerThan ? 'Total ' : ''}DOLA Supply
                     </Link>
                     <SubTitle>
                         {shortenNumber(totalSupply, 2)}
                     </SubTitle>
                 </VStack>
-                <VStack spacing="1" alignItems='center'>
-                    <Link textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/firm/positions">
+                <VStack w={{ base: '33%', md: 'auto' }} spacing="1" alignItems='center'>
+                    <Link textAlign="center" textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/firm/positions">
                         FiRM TVL
                     </Link>
                     <SubTitle>
                         {shortenNumber(firmTotalTvl, 2, true)}
                     </SubTitle>
                 </VStack>
-                <VStack spacing="1" alignItems='flex-end'>
-                    <Link textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/firm/positions">
+                <VStack w={{ base: '33%', md: 'auto' }} spacing="1" alignItems='flex-end'>
+                    <Link textAlign="center" textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/firm/positions">
                         FiRM Borrows
                     </Link>
-                    <SubTitle>
-                        {shortenNumber(totalDebt, 2, false)} ({shortenNumber(totalDebtUsd, 2, true)})
+                    <SubTitle textAlign="center">
+                        {shortenNumber(totalDebtUsd, 2, true)}
                     </SubTitle>
                 </VStack>
             </HStack>

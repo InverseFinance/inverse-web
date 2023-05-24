@@ -123,7 +123,7 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                 },
                 {
                     title: 'Can I borrow DOLA with my INV tokens?',
-                    body: `Not at the moment but the INV market will be added soon.`
+                    body: `Not at the moment but borrowing will be enabled in the INV market soon.`
                 },
             ]
         }

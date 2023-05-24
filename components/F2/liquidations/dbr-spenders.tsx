@@ -137,22 +137,22 @@ export const DbrSpenders = ({
             align: { base: 'flex-start', md: 'flex-end' },
         }}
         right={
-            <HStack justify="space-between" spacing={{ base: '2', sm: '4' }}>
+            <HStack pt="2" alignItems="flex-start" justify="space-between" spacing={{ base: '2', sm: '4' }}>
                 <VStack spacing="0" alignItems={{ base: 'flex-start', sm: 'center' }}>
                     <Text textAlign="left" fontSize={fontSize} fontWeight="bold">Total DBR Deficit</Text>
                     <Text textAlign="left" fontSize={fontSize} color={totalDeficit < 0 ? 'error' : 'secondaryTextColor'}>{totalDeficit ? shortenNumber(totalDeficit, 2) : 'No Deficit'}</Text>
                 </VStack>
                 <VStack spacing="0" alignItems="center">
-                    <Text fontSize={fontSize} fontWeight="bold">Daily spend</Text>
-                    <Text fontSize={fontSize} color="secondaryTextColor">-{shortenNumber(totalDailyBurn, 2)} ({shortenNumber(price * totalDailyBurn, 2, true)})</Text>
+                    <Text textAlign="center" fontSize={fontSize} fontWeight="bold">Daily spend</Text>
+                    <Text textAlign="center" fontSize={fontSize} color="secondaryTextColor">-{shortenNumber(totalDailyBurn, 2)} ({shortenNumber(price * totalDailyBurn, 2, true)})</Text>
                 </VStack>
                 <VStack spacing="0" alignItems="center">
-                    <Text fontSize={fontSize} fontWeight="bold">Monthly spend</Text>
-                    <Text fontSize={fontSize} color="secondaryTextColor">-{shortenNumber(monthlyBurn, 2)} ({shortenNumber(price * monthlyBurn, 2, true)})</Text>
+                    <Text textAlign="center" fontSize={fontSize} fontWeight="bold">Monthly spend</Text>
+                    <Text textAlign="center" fontSize={fontSize} color="secondaryTextColor">-{shortenNumber(monthlyBurn, 2)} ({shortenNumber(price * monthlyBurn, 2, true)})</Text>
                 </VStack>
                 <VStack spacing="0" alignItems="flex-end">
-                    <Text textAlign="right" fontSize={fontSize} fontWeight="bold">Yearly spend</Text>
-                    <Text textAlign="right" fontSize={fontSize} color="secondaryTextColor">-{shortenNumber(yearlyBurn, 2)} ({shortenNumber(price * yearlyBurn, 2, true)})</Text>
+                    <Text textAlign="center" textAlign="right" fontSize={fontSize} fontWeight="bold">Yearly spend</Text>
+                    <Text textAlign="center" textAlign="right" fontSize={fontSize} color="secondaryTextColor">-{shortenNumber(yearlyBurn, 2)} ({shortenNumber(price * yearlyBurn, 2, true)})</Text>
                 </VStack>
                 {/* <VStack spacing="0" alignItems="flex-end">
                     <Text textAlign="right" fontSize={fontSize} fontWeight="bold">Total Debt</Text>

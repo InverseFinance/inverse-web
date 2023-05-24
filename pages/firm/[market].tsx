@@ -22,6 +22,9 @@ import { FirstTimeModal } from '@app/components/F2/Modals/FirstTimeModal'
 import { FirmRewardWrapper } from '@app/components/F2/rewards/FirmRewardWrapper'
 import { CvxCrvPreferences } from '@app/components/F2/rewards/CvxCrvPreferences'
 import { DailyLimitCountdown } from '@app/components/common/Countdown'
+import Container from '@app/components/common/Container'
+import { InfoMessage } from '@app/components/common/Messages'
+import { shortenNumber } from '@app/util/markets'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -56,10 +59,10 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                 <meta name="description" content="FiRM is Inverse Finance's Fixed Rate Market, borrow DOLA with the DOLA Borrowing Right token DBR. Rethink the way you borrow!" />
                 <meta name="og:image" content="https://images.ctfassets.net/kfs9y9ojngfc/6E4HUcq7GOoFsN5IiXVhME/dbb642baae622681d36579c1a092a6df/FiRM_Launch_Blog_Hero.png?w=3840&q=75" />
             </Head>
-            <AppNav active="Borrow" activeSubmenu={`${market} Market`} />
+            <AppNav active={f2market?.isInv ? 'Stake' : 'Borrow'} activeSubmenu={`${market} Market`} />
             <ErrorBoundary description="Error in the market page, please try reloading">
                 {
-                    needCountdown && <VStack                        
+                    needCountdown && <VStack
                         borderBottomRightRadius="md"
                         borderBottomLeftRadius="md"
                         bgColor="secondaryTextColor"
@@ -69,7 +72,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                         justify="center"
                         spacing="0"
                         py="1"
-                        px="4"                    
+                        px="4"
                     >
                         <Text fontSize="16px" fontWeight="bold" color="white">
                             Daily borrow limit resets in
@@ -102,30 +105,32 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                             <ArrowBackIcon fontSize="18px" _hover={{ color: 'inherit' }} color="inherit" />
                                             <Text _hover={{ color: 'inherit' }} color="inherit">Back to Markets</Text>
                                         </HStack>
-                                        <HStack>
-                                            <FormControl
-                                                display="inline-flex"
-                                                flexDirection={{ base: 'column', md: 'row' }}
-                                                alignItems={{ base: 'flex-end', md: 'center' }}
-                                                justify="flex-end"
-                                            >
-                                                <FormLabel
-                                                    // fontSize={{ base: '12px', md: '14px' }}
-                                                    display={{ base: 'contents', md: 'inline-block' }}
-                                                    color="mainTextColor"
-                                                    cursor="pointer"
-                                                    htmlFor='walkthrough-mode'
-                                                    textAlign="right"
-                                                    mb='0'
+                                        {
+                                            !f2market.isStaking && <HStack>
+                                                <FormControl
+                                                    display="inline-flex"
+                                                    flexDirection={{ base: 'column', md: 'row' }}
+                                                    alignItems={{ base: 'flex-end', md: 'center' }}
+                                                    justify="flex-end"
                                                 >
-                                                    <VStack color="secondaryTextColor" spacing="0" alignItems="flex-end">
-                                                        {/* <Text fontWeight="normal" color="inherit">Deposit & Borrow</Text> */}
-                                                        <Text fontWeight="normal" color="inherit">Walkthrough mode</Text>
-                                                    </VStack>
-                                                </FormLabel>
-                                                <Switch colorScheme="purple" isChecked={isWalkthrough} onChange={() => toggleWalkthrough()} id='walkthrough-mode' mr="1" />
-                                            </FormControl>
-                                        </HStack>
+                                                    <FormLabel
+                                                        // fontSize={{ base: '12px', md: '14px' }}
+                                                        display={{ base: 'contents', md: 'inline-block' }}
+                                                        color="mainTextColor"
+                                                        cursor="pointer"
+                                                        htmlFor='walkthrough-mode'
+                                                        textAlign="right"
+                                                        mb='0'
+                                                    >
+                                                        <VStack color="secondaryTextColor" spacing="0" alignItems="flex-end">
+                                                            {/* <Text fontWeight="normal" color="inherit">Deposit & Borrow</Text> */}
+                                                            <Text fontWeight="normal" color="inherit">Walkthrough mode</Text>
+                                                        </VStack>
+                                                    </FormLabel>
+                                                    <Switch colorScheme="purple" isChecked={isWalkthrough} onChange={() => toggleWalkthrough()} id='walkthrough-mode' mr="1" />
+                                                </FormControl>
+                                            </HStack>
+                                        }
                                     </HStack>
 
                                     {
@@ -158,6 +163,30 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                 spacing="6"
                                             >
                                                 <ErrorBoundary description="Error in the standard mode, please try reloading">
+                                                    {
+                                                        f2market.isInv && <Container
+                                                            noPadding
+                                                            p="0"
+                                                            label="About INV staking and DBR streaming"
+                                                            description="Learn more in our documentation"
+                                                            href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr"
+                                                            collapsable={true}
+                                                            defaultCollapse={false}
+                                                        >
+                                                            <InfoMessage
+                                                                description={
+                                                                    <VStack alignItems="flex-start">
+                                                                        <Text>There is <b>{shortenNumber(f2market.dbrYearlyRewardRate, 2)} DBR yearly rewards</b> shared among stakers!</Text>
+                                                                        <Text>✨ <b>{shortenNumber(f2market.supplyApy, 2)}% INV APR</b>: dilution protection, your staked INV balance will increase automatically.</Text>
+                                                                        <Text>✨ <b>{shortenNumber(f2market.extraApy, 2)}% DBR APR</b>: real yield, your DBR rewards will have to be claimed.</Text>
+                                                                        <Text>
+                                                                            🤝 The more people borrow DOLA, the more DBR is burned and can be streamed, INV stakers directly benefit from FiRM's success.
+                                                                        </Text>
+                                                                    </VStack>
+                                                                }
+                                                            />
+                                                        </Container>
+                                                    }
                                                     {
                                                         (f2market.hasClaimableRewards) && <FirmRewardWrapper market={f2market} />
                                                     }

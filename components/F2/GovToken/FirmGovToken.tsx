@@ -4,7 +4,7 @@ import { F2MarketContext } from "../F2Contex";
 import { useContext, useEffect, useState } from "react";
 import ScannerLink from "@app/components/common/ScannerLink";
 import useEtherSWR from "@app/hooks/useEtherSWR";
-import { F2_ESCROW_ABI } from "@app/config/abis";
+import { F2_ESCROW_ABI, INV_ABI } from "@app/config/abis";
 import { RSubmitButton } from "@app/components/common/Button/RSubmitButton";
 import ConfirmModal from "@app/components/common/Modal/ConfirmModal";
 import { Input } from "@app/components/common/Input";
@@ -15,6 +15,11 @@ import { useWeb3React } from "@web3-react/core";
 import { Web3Provider } from "@ethersproject/providers";
 import Link from "@app/components/common/Link";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { getNetworkConfigConstants } from "@app/util/networks";
+import { NetworkIds } from "@app/types";
+import { BURN_ADDRESS } from "@app/config/constants";
+
+const { INV } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 export const FirmGovToken = () => {
     const { library, account } = useWeb3React<Web3Provider>();
@@ -22,11 +27,15 @@ export const FirmGovToken = () => {
     const [newDelegate, setNewDelegate] = useState('');
     const [hasError, setHasError] = useState(false);
     const { market, escrow } = useContext(F2MarketContext);
-    const { data } = useEtherSWR({
-        args: [[escrow, 'delegatingTo']],
-        abi: F2_ESCROW_ABI,
+    const hasEscrow = escrow?.replace(BURN_ADDRESS, '');
+
+    // standard case
+    const { data: delegateData } = useEtherSWR({
+        args: market.isInv ? [[INV, 'delegates', escrow]] : [[escrow, 'delegatingTo']],
+        abi: market.isInv ? INV_ABI : F2_ESCROW_ABI,
     });
-    const delegatingTo = data ? data[0] : '';
+
+    const delegatingTo = (delegateData ? delegateData[0] : '')?.replace(BURN_ADDRESS, '');
 
     useEffect(() => {
         setHasError(
@@ -74,11 +83,11 @@ export const FirmGovToken = () => {
                 </VStack>
             </ConfirmModal>
             {
-                !!delegatingTo ? <Stack w='full' alignItems={{ base: 'flex-start', md: 'center' }} justify="space-between" spacing="4" direction={{ base: 'column', md: 'row' }}>
+                hasEscrow ? <Stack w='full' alignItems={{ base: 'flex-start', md: 'center' }} justify="space-between" spacing="4" direction={{ base: 'column', md: 'row' }}>
                     <Stack alignItems={{ base: 'flex-start', md: 'center' }} spacing="1" direction={{ base: 'column', md: 'row' }}>
                         <Text>You are currently delegating to:</Text>
                         {
-                            !!delegatingTo && <ScannerLink value={delegatingTo} useName={false} />
+                            !delegatingTo ? <Text>No one</Text> : <ScannerLink value={delegatingTo} useName={false} />
                         }
                     </Stack>
                     <RSubmitButton refreshOnSuccess={true} onSuccess={onClose} fontSize="14px" w='fit-content' onClick={onOpen}>

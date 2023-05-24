@@ -1,27 +1,35 @@
 import { BigNumber, Contract } from 'ethers'
 import 'source-map-support'
-import { DOLA_ABI, F2_CONTROLLER_ABI, F2_MARKET_ABI, F2_ORACLE_ABI } from '@app/config/abis'
+import { DBR_DISTRIBUTOR_ABI, DOLA_ABI, F2_CONTROLLER_ABI, F2_MARKET_ABI, F2_ORACLE_ABI, XINV_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
-import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
+import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { TOKENS } from '@app/variables/tokens'
 import { getBnToNumber, getCvxCrvAPRs, getGOhmData, getStethData } from '@app/util/markets'
-import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_MS } from '@app/config/constants';
+import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_MS, ONE_DAY_SECS } from '@app/config/constants';
+import { frontierMarketsCacheKey } from '../markets';
+import { cgPricesCacheKey } from '../prices';
 
-const { F2_MARKETS, DOLA } = getNetworkConfigConstants();
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.1`;
+const { F2_MARKETS, DOLA, XINV, DBR_DISTRIBUTOR } = getNetworkConfigConstants();
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.4`;
 
 export default async function handler(req, res) {
 
   try {
-    const validCache = await getCacheFromRedis(F2_MARKETS_CACHE_KEY, true, 60);
-    if (validCache) {
-      res.status(200).json(validCache);
+    const { data: cachedData, isValid } = await getCacheFromRedisAsObj(F2_MARKETS_CACHE_KEY, true, 60);    
+    if (cachedData && isValid) {
+      res.status(200).json(cachedData);
       return
     }
 
     const provider = getProvider(CHAIN_ID);
     const dolaContract = new Contract(DOLA, DOLA_ABI, provider);
+
+    const xINV = new Contract(XINV, XINV_ABI, provider);
+    const dbrDistributor = new Contract(DBR_DISTRIBUTOR, DBR_DISTRIBUTOR_ABI, provider);
+
+    // trigger
+    fetch('https://inverse.finance/api/markets');
 
     const [
       bnCollateralFactors,
@@ -33,6 +41,11 @@ export default async function handler(req, res) {
       borrowControllers,
       borrowPaused,
       liquidationFactors,
+      xinvExRateBn,
+      dbrDistributorSupply,
+      dbrRewardRateBn,
+      frontierMarkets,
+      cgPrices,
     ] = await Promise.all([
       Promise.all(
         F2_MARKETS.map(m => {
@@ -87,6 +100,11 @@ export default async function handler(req, res) {
           return market.liquidationFactorBps();
         })
       ),
+      xINV.exchangeRateStored(),
+      dbrDistributor.totalSupply(),
+      dbrDistributor.rewardRate(),
+      getCacheFromRedis(frontierMarketsCacheKey, false),
+      getCacheFromRedis(cgPricesCacheKey, false),
     ]);
 
     const dailyLimits = await Promise.all(
@@ -133,14 +151,16 @@ export default async function handler(req, res) {
     ));
 
     let cvxCrvData = {};
-    const cvxCrvAprsCache = await getCacheFromRedis('cvxCrv-aprs', true, 300);
-    if(!cvxCrvAprsCache) {
+    const { data: cvxCrvAprsCache, isValid: isCvxCrvCacheValid } = await getCacheFromRedisAsObj('cvxCrv-aprs', true, 300);
+    if(!cvxCrvAprsCache || !isCvxCrvCacheValid) {
       cvxCrvData = await getCvxCrvAPRs(provider);
       if(!!cvxCrvData?.group1) {
         redisSetWithTimestamp('cvx-crv-aprs', cvxCrvData);
+      } else if (!!cvxCrvAprsCache) {
+        cvxCrvData = cvxCrvAprsCache;
       }
     } else {
-      cvxCrvData = cvxCrvAprsCache;
+      cvxCrvData = cvxCrvAprsCache
     }
     // external yield bearing apys
     const externalYieldResults = await Promise.allSettled([
@@ -152,11 +172,20 @@ export default async function handler(req, res) {
       return r.status === 'fulfilled' ? r.value : {};
     });
 
+    const invFrontierMarket = frontierMarkets.markets.find(m => m.token === '0x1637e4e9941D55703a7A5E7807d6aDA3f7DCD61B')!;
     const externalApys = {
       'stETH': stethData?.apy||0,
       'gOHM': gohmData?.apy||0,
       'cvxCRV': Math.max(cvxCrvData?.group1||0, cvxCrvData?.group2||0),
-    }
+      'INV': invFrontierMarket.supplyApy||0,
+    };
+
+    const xinvExRate = getBnToNumber(xinvExRateBn);
+    const invStakedViaDistributor = xinvExRate * getBnToNumber(dbrDistributorSupply);
+    const dbrRewardRate = getBnToNumber(dbrRewardRateBn);
+    const dbrYearlyRewardRate = dbrRewardRate * ONE_DAY_SECS * 365;
+    const dbrInvExRate = cgPrices['dola-borrowing-right']?.usd / cgPrices['inverse-finance']?.usd;
+    const dbrApr = dbrYearlyRewardRate * dbrInvExRate / invStakedViaDistributor * 100;
 
     const markets = F2_MARKETS.map((m, i) => {
       const underlying = TOKENS[m.collateral];
@@ -166,7 +195,7 @@ export default async function handler(req, res) {
         oracle: oracles[i],
         oracleFeed: oracleFeeds[i][0],
         underlying: TOKENS[m.collateral],
-        price: getBnToNumber(bnPrices[i], (36 - underlying.decimals)),
+        price: m.isInv ? cgPrices[underlying.coingeckoId]?.usd : getBnToNumber(bnPrices[i], (36 - underlying.decimals)),
         totalDebt: getBnToNumber(bnTotalDebts[i]),
         collateralFactor: getBnToNumber(bnCollateralFactors[i], 4),
         dolaLiquidity: getBnToNumber(bnDola[i]),
@@ -180,8 +209,13 @@ export default async function handler(req, res) {
         dailyBorrows: getBnToNumber(dailyBorrows[i]),
         leftToBorrow: Math.min(getBnToNumber(bnLeftToBorrow[i]), getBnToNumber(bnDola[i])),
         supplyApy: externalApys[underlying.symbol] || 0,
+        extraApy: m.isInv ? dbrApr : 0,
         supplyApyLow: isCvxCrv ? Math.min(cvxCrvData?.group1||0, cvxCrvData?.group2||0) : 0,
         cvxCrvData: isCvxCrv ? cvxCrvData : undefined,
+        invStakedViaDistributor: m.isInv ? invStakedViaDistributor : undefined,
+        dbrApr: m.isInv ? dbrApr : undefined,
+        dbrRewardRate: m.isInv ? dbrRewardRate : undefined,
+        dbrYearlyRewardRate: m.isInv ? dbrYearlyRewardRate : undefined,
       }
     });
 

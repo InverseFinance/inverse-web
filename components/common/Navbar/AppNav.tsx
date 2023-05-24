@@ -58,6 +58,7 @@ import { useCheckDBRAirdrop } from '@app/hooks/useDBR'
 import { AirdropModalCheck } from '@app/components/F2/Infos/AirdropModalCheck'
 import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
 import { BurgerMenu } from './BurgerMenu'
+import { useStakedInFirm } from '@app/hooks/useFirm'
 const NAV_ITEMS = MENUS.nav
 
 export const ThemeBtn = () => {
@@ -137,10 +138,12 @@ const INVBalance = () => {
     [XINV, 'balanceOf', userAddress],
   ])
 
+  const { stakedInFirm } = useStakedInFirm(userAddress);
+
   const [invBalance, xinvBalance] = data || [0, 0]
   const exRate = exchangeRates ? exchangeRates[XINV] : 0;
   const inv = invBalance / ETH_MANTISSA
-  const xinv = (xinvBalance / ETH_MANTISSA) * (exRate / ETH_MANTISSA)
+  const xinv = (xinvBalance / ETH_MANTISSA) * (exRate / ETH_MANTISSA) + stakedInFirm
   const hasUnstakedBal = inv >= 0.01;
 
   if (!data) {
@@ -148,12 +151,7 @@ const INVBalance = () => {
   }
 
   const goToSupply = () => {
-    if (router.pathname === '/frontier') {
-      const customEvent = new CustomEvent('open-anchor-supply', { detail: { market: 'inv' } });
-      document.dispatchEvent(customEvent);
-    } else {
-      router.push({ pathname: '/frontier', query: { market: 'inv', marketType: 'supply' } });
-    }
+    router.push({ pathname: '/firm/INV' });
   }
 
   const onMainnetCase = inv >= 0.01
@@ -582,7 +580,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
                   </PopoverTrigger>
                   {
                     submenus?.length > 0 &&
-                    <PopoverContent maxW="250px" background={isBlog ? 'mainBackgroundColor' : 'transparent'} border="none">
+                    <PopoverContent maxW="275px" background={isBlog ? 'mainBackgroundColor' : 'transparent'} border="none">
                       <PopoverBody className={`blurred-container ${themeName}-bg compat-mode2`} borderRadius="10px">
                         <VStack spacing="4" p="4">
                           {

@@ -35,25 +35,40 @@ const getProposalStatusType = (status: ProposalStatus) => {
     return 'Active'
 }
 
+const FounderAddresses = ['0x16EC2AeA80863C1FB4e13440778D0c9967fC51cb', '0x3FcB35a1CbFB6007f9BC638D388958Bc4550cB28'];
+
 export const GovTransparency = () => {
     const { currentPayrolls, currentVesters } = useCompensations();
     const { prices } = usePricesV2();
     const { delegates } = useTopDelegates();
     const { proposals } = useProposals();
 
-    const teamPower = delegates.filter(d => hasPayrollOrVester(currentPayrolls, currentVesters, d)).reduce((prev, curr) => {
-        return prev + curr.votingPower
-    }, 0);
+    const teamPower = delegates.filter(d => hasPayrollOrVester(currentPayrolls, currentVesters, d))
+        .filter(d => !FounderAddresses.includes(d.address))
+        .reduce((prev, curr) => {
+            return prev + curr.votingPower
+        }, 0);
 
-    const nonTeamPower = delegates.filter(d => !hasPayrollOrVester(currentPayrolls, currentVesters, d)).reduce((prev, curr) => {
-        return prev + curr.votingPower
-    }, 0);
+    const founderPower = delegates
+        .filter(d => FounderAddresses.includes(d.address))
+        .reduce((prev, curr) => {
+            return prev + curr.votingPower
+        }, 0);
 
-    const teamPerc = teamPower / (teamPower + nonTeamPower) * 100
-    const otherPerc = nonTeamPower / (teamPower + nonTeamPower) * 100
+    const nonTeamPower = delegates.filter(d => !hasPayrollOrVester(currentPayrolls, currentVesters, d))
+        .filter(d => !FounderAddresses.includes(d.address))
+        .reduce((prev, curr) => {
+            return prev + curr.votingPower
+        }, 0);
+
+    const totalPower = founderPower + nonTeamPower + teamPower;
+    const founderPerc = founderPower / totalPower * 100
+    const teamPerc = teamPower / totalPower * 100
+    const otherPerc = nonTeamPower / totalPower * 100
     const totalVested = currentVesters.reduce((prev, curr) => prev + curr.amount / 12, 0);
 
     const votingPowerDist = [
+        { label: `Founder`, balance: founderPower, perc: founderPerc, usdPrice: 1 },
         { label: `Active Contributors`, balance: teamPower, perc: teamPerc, usdPrice: 1 },
         { label: `Others`, balance: nonTeamPower, perc: otherPerc, usdPrice: 1 },
     ];
