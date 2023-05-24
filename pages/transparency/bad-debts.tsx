@@ -255,7 +255,7 @@ export const BadDebtPage = () => {
         <meta name="keywords" content="Inverse Finance, transparency, frontier, Bad Debts" />
       </Head>
       <AppNav active="Transparency" activeSubmenu="Bad Debts" hideAnnouncement={true} />
-      <TransparencyTabs active="bad-debts" />
+      {/* <TransparencyTabs active="bad-debts" /> */}
       <ErrorBoundary>
         <Flex w="full" maxW='6xl' direction="column" justify="center">
           <Stack w='full' alignItems='center' justify="center" direction={{ base: 'column', lg: 'column' }}>
