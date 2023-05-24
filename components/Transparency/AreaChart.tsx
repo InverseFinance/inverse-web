@@ -147,7 +147,7 @@ export const AreaChart = ({
                     />
                     <VictoryBar
                         barWidth={1}
-                        labels={events.map(e => e.eventPointLabel.replace(' Exploit',''))}
+                        labels={events.map(e => e.eventPointLabel)}
                         labelComponent={<VictoryLabel style={{ fontFamily: 'Inter', fontSize: '13px', fontWeight: '600', fill: themeStyles.colors.mainTextColor }} dy={-5} />}
                         style={{ data: { fill: "#c43a31", stroke: "#c43a31", strokeWidth: 1 } }}
                         data={events.map(e => ({ x: e.x, y: maxY + (_yPad / 10) }))}
