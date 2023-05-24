@@ -30,6 +30,7 @@ export type AreaChartProps = {
     mainColor?: 'primary' | 'secondary' | 'info',
     titleProps?: VictoryLabelProps,
     yTickPrecision?: number
+    id?: string,
 };
 
 export const AreaChart = ({
@@ -48,6 +49,7 @@ export const AreaChart = ({
     isPerc = false,
     autoMinY = false,
     titleProps,
+    id = 'area-chart',
     yTickPrecision = 2,
 }: AreaChartProps) => {
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
@@ -103,7 +105,7 @@ export const AreaChart = ({
                 <VictoryAxis style={_axisStyle} />
                 <VictoryArea
                     domain={{ y: [autoMinY ? minY - _yPad < 0 ? 0 : minY - _yPad : 0, maxY + _yPad] }}
-                    groupComponent={<VictoryClipContainer clipId="area-chart" />}
+                    groupComponent={<VictoryClipContainer clipId={id} />}
                     data={data}
                     labelComponent={
                         <VictoryLabel

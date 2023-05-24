@@ -23,14 +23,13 @@ import { DbrBurns } from '@app/components/Transparency/DbrBurns'
 import { DbrDebt } from '@app/components/Transparency/DbrDebt'
 import { DbrEmissions } from '@app/components/Transparency/DbrEmissions'
 
-
 const { TOKENS, TREASURY, DBR } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const tabsOptions = ['Flowchart', 'Spenders', 'Replenishments', 'Income', 'Burns', 'Emissions'];
 
 export const DBRTransparency = () => {
     const router = useRouter();
-    const { totalSupply, operator, price, yearlyRewardRate } = useDBR();
+    const { totalSupply, operator, price, yearlyRewardRate, rewardRate } = useDBR();
     const { events } = useDBRReplenishments();
     const { events: burnEvents } = useDBRBurns();
     const { history } = useDBRDebtHisto();
@@ -89,7 +88,7 @@ export const DBRTransparency = () => {
                         }
                         {
                             tab === 'Emissions' && <VStack>
-                                <DbrEmissions replenishments={events} />
+                                <DbrEmissions replenishments={events} yearlyRewardRate={yearlyRewardRate} rewardRate={rewardRate} />
                             </VStack>
                         }
                     </VStack>
