@@ -17,8 +17,8 @@ export const DefaultCharts = ({
 }: {
     chartData: CoordinatesArray,
     maxChartWidth?: number,
-    areaProps?: AreaChartProps,
-    barProps?: BarChart12MonthsProps,
+    areaProps?: Partial<AreaChartProps>,
+    barProps?: Partial<BarChart12MonthsProps>,
     isDollars?: boolean
     isPerc?: boolean
     showAreaChart?: boolean

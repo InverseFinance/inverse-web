@@ -89,8 +89,7 @@ export const DBRTransparency = () => {
                         }
                         {
                             tab === 'Emissions' && <VStack>
-                                {/* <DbrDebt chartData={debtChartData} /> */}
-                                <DbrEmissions />
+                                <DbrEmissions replenishments={events} />
                             </VStack>
                         }
                     </VStack>
