@@ -239,10 +239,10 @@ export const MENUS = {
           href: '/transparency/multisigs',
           label: 'Multisig Wallets',
         },
-        {
-          href: '/transparency/bad-debts',
-          label: 'Bad Debts',
-        },
+        // {
+        //   href: '/transparency/bad-debts',
+        //   label: 'Bad Debts',
+        // },
         {
           href: '/transparency/frontier/overview',
           label: 'Frontier (deprecated)',
