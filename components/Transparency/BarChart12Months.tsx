@@ -2,7 +2,7 @@ import { useMediaQuery } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { BarChart, BarChartProps } from './BarChart'
 import moment from 'moment'
-import { shortenNumber, smartShortNumber } from '@app/util/markets';
+import { smartShortNumber } from '@app/util/markets';
 import { CoordinatesArray } from '@app/types';
 
 const DEFAULT_MONTHS = [...Array(12).keys()];

@@ -1,5 +1,5 @@
-import { shortenNumber, smartShortNumber } from '@app/util/markets';
-import { VictoryChart, VictoryLine, VictoryBar, VictoryLabel, VictoryAxis, VictoryArea, VictoryTheme, VictoryClipContainer, VictoryVoronoiContainer, VictoryAreaProps, VictoryAxisProps, VictoryLabelProps, VictoryZoomContainer, VictoryBrushContainer, createContainer } from 'victory';
+import { smartShortNumber } from '@app/util/markets';
+import { VictoryChart, VictoryBar, VictoryLabel, VictoryAxis, VictoryArea, VictoryTheme, VictoryClipContainer, VictoryVoronoiContainer, VictoryAreaProps, VictoryAxisProps, VictoryLabelProps, VictoryZoomContainer, VictoryBrushContainer, createContainer } from 'victory';
 import moment from 'moment'
 import { Box, VStack, useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
@@ -87,7 +87,7 @@ export const AreaChart = ({
         mouseFollowTooltips: true, voronoiDimension: 'x', labelComponent: <FlyoutTooltip />,
         labels: ({ datum }) => {
             return (
-                moment(datum.x).format('MMM Do YYYY') + '\n' + `${shortenNumber(datum.y, 2, isDollars)}${isPerc ? '%' : ''}`
+                moment(datum.x).format('MMM Do YYYY') + '\n' + `${smartShortNumber(datum.y, 2, isDollars)}${isPerc ? '%' : ''}`
             )
         }
     };
@@ -119,7 +119,7 @@ export const AreaChart = ({
                     {
                         !!title && <VictoryLabel text={title} style={{ fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '16px' }} x={Math.floor(width / 2)} y={20} textAnchor="middle" {...titleProps} />
                     }
-                    <VictoryAxis style={_axisStyle} dependentAxis tickFormat={(t) => `${shortenNumber(t, yTickPrecision ?? (t >= 1000000 && t < 10000000 ? 2 : 0), isDollars)}${isPerc ? '%' : ''}`} />
+                    <VictoryAxis style={_axisStyle} dependentAxis tickFormat={(t) => `${smartShortNumber(t, yTickPrecision ?? (t >= 1000000 && t < 10000000 ? 2 : 0), isDollars)}${isPerc ? '%' : ''}`} />
                     <VictoryAxis style={_axisStyle} />
                     <VictoryArea
                         domain={{ y: [autoMinY ? minY - _yPad < 0 ? 0 : minY - _yPad : 0, maxY + _yPad] }}
@@ -136,7 +136,7 @@ export const AreaChart = ({
                             ({ data, index }) => {
                                 const isMax = (maxY === data[index].y && index > 0 && maxY !== data[index - 1].y);
                                 const pointLabel = ''//data[index].eventPointLabel;
-                                return !!pointLabel ? pointLabel : (showLabels || (isMax && showMaxY) ? `${isMax && 'High: '}${shortenNumber(data[index].y, 2, isDollars)}${isPerc ? '%' : ''}` : '')
+                                return !!pointLabel ? pointLabel : (showLabels || (isMax && showMaxY) ? `${isMax && 'High: '}${smartShortNumber(data[index].y, 2, isDollars)}${isPerc ? '%' : ''}` : '')
                             }
                         }
                         style={{

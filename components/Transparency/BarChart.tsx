@@ -2,7 +2,7 @@ import { VictoryChart, VictoryTooltip, VictoryLabel, VictoryAxis, VictoryTheme, 
 
 import { Box, useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import { shortenNumber, smartShortNumber } from '@app/util/markets';
+import { smartShortNumber } from '@app/util/markets';
 import { useAppTheme } from '@app/hooks/useAppTheme';
 
 type Props = { x: string, y: number, label?: string }[][]
