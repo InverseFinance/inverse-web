@@ -25,7 +25,7 @@ import { DbrEmissions } from '@app/components/Transparency/DbrEmissions'
 
 const { TOKENS, TREASURY, DBR } = getNetworkConfigConstants(NetworkIds.mainnet);
 
-const tabsOptions = ['Flowchart', 'Spenders', 'Replenishments', 'Income', 'Burns', 'Emissions'];
+const tabsOptions = ['Flowchart', 'Spenders', 'Replenishments', 'Income', 'Burns', 'Issuance'];
 
 export const DBRTransparency = () => {
     const router = useRouter();
@@ -87,7 +87,7 @@ export const DBRTransparency = () => {
                             </VStack>
                         }
                         {
-                            tab === 'Emissions' && <VStack>
+                            tab === 'Issuance' && <VStack>
                                 <DbrEmissions replenishments={events} yearlyRewardRate={yearlyRewardRate} rewardRate={rewardRate} />
                             </VStack>
                         }
