@@ -46,14 +46,17 @@ export const useEventsAsChartData = (
     autoAddZeroYAtStart = true,
 ): SWR & { chartData: any } => {
     const now = new Date();
-    const chartData = [...events.sort((a, b) => a.timestamp - b.timestamp).map(event => {
+    let acc = 0;
+    const chartData = [...(events||[]).sort((a, b) => a.timestamp - b.timestamp).map(event => {
         const date = new Date(event.timestamp);
+        acc += event[yAttribute];
         return {
             x: event.timestamp,
-            y: event[yAccAttribute],
+            y: event[yAccAttribute]??acc,
             yDay: event[yAttribute],
             month: date.getUTCMonth(),
             year: date.getUTCFullYear(),
+            eventPointLabel: event.eventPointLabel,
         }
     })];
     
@@ -62,7 +65,7 @@ export const useEventsAsChartData = (
         chartData.unshift({ x: minX - ONE_DAY_MS, y: 0 });
     }
     if(autoAddToday) {
-        chartData.push({ x: now, y: chartData[chartData.length - 1].y });
+        chartData.push({ x: now, y: (chartData[chartData.length - 1]?.y||0) });
     }
 
     return {

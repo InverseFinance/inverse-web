@@ -1,4 +1,4 @@
-import { Divider, Flex, HStack, Link, Text, VStack } from '@chakra-ui/react'
+import { Flex, HStack, Link, Text, VStack } from '@chakra-ui/react'
 
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
@@ -11,7 +11,7 @@ import { SupplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
 import { useDBR } from '@app/hooks/useDBR'
 import { DbrSpenders } from '@app/components/F2/liquidations/dbr-spenders'
 import { DBRFlowChart } from '@app/components/Transparency/DBRFlowChart'
-import { shortenNumber } from '@app/util/markets'
+import { shortenNumber, smartShortNumber } from '@app/util/markets'
 import { useEffect, useState } from 'react'
 import { NavButtons } from '@app/components/common/Button'
 import { DbrReplenishments } from '@app/components/F2/liquidations/dbr-replenishments'
@@ -21,14 +21,15 @@ import { DbrIncome } from '@app/components/Transparency/DbrIncome'
 import { useRouter } from 'next/router'
 import { DbrBurns } from '@app/components/Transparency/DbrBurns'
 import { DbrDebt } from '@app/components/Transparency/DbrDebt'
+import { DbrEmissions } from '@app/components/Transparency/DbrEmissions'
 
 const { TOKENS, TREASURY, DBR } = getNetworkConfigConstants(NetworkIds.mainnet);
 
-const tabsOptions = ['Flowchart', 'Spenders', 'Replenishments', 'Income', 'Burns'];
+const tabsOptions = ['Flowchart', 'Spenders', 'Replenishments', 'Income', 'Burns', 'Issuance'];
 
 export const DBRTransparency = () => {
     const router = useRouter();
-    const { totalSupply, operator, price } = useDBR();
+    const { totalSupply, operator, price, yearlyRewardRate, rewardRate } = useDBR();
     const { events } = useDBRReplenishments();
     const { events: burnEvents } = useDBRBurns();
     const { history } = useDBRDebtHisto();
@@ -84,7 +85,12 @@ export const DBRTransparency = () => {
                                 <DbrDebt chartData={debtChartData} />
                                 <DbrBurns chartData={burnChartData} />
                             </VStack>
-                        }                        
+                        }
+                        {
+                            tab === 'Issuance' && <VStack>
+                                <DbrEmissions replenishments={events} yearlyRewardRate={yearlyRewardRate} rewardRate={rewardRate} />
+                            </VStack>
+                        }
                     </VStack>
                 </VStack>
                 <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: '300px' }}>
@@ -140,7 +146,7 @@ export const DBRTransparency = () => {
                                     There is no max supply.
                                 </Text>
                                 <Text>
-                                    Emissions are via DBR streaming to INV stakers on FiRM.
+                                    New emissions are via DBR streaming to INV stakers on FiRM, the current rate is {smartShortNumber(yearlyRewardRate)} DBR a year.
                                 </Text>
                             </VStack>
                         }

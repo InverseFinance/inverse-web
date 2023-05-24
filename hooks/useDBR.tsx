@@ -2,16 +2,16 @@ import { BALANCER_VAULT_ABI, F2_ESCROW_ABI } from "@app/config/abis";
 import { F2Market, SWR } from "@app/types"
 import { getBnToNumber, getNumberToBn } from "@app/util/markets";
 import { getNetworkConfigConstants } from "@app/util/networks"
-import { getToken, TOKENS } from "@app/variables/tokens";
+import { TOKENS } from "@app/variables/tokens";
 import { BigNumber } from "ethers/lib/ethers";
 import useEtherSWR from "./useEtherSWR"
 import { fetcher } from '@app/util/web3'
 import { useCustomSWR } from "./useCustomSWR";
 import { f2CalcNewHealth } from "@app/util/f2";
-import { BURN_ADDRESS, ONE_DAY_MS } from "@app/config/constants";
+import { BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
 import { parseUnits } from "@ethersproject/units";
 
-const { DBR, DBR_AIRDROP, F2_MARKETS, F2_ORACLE, DOLA } = getNetworkConfigConstants();
+const { DBR, DBR_AIRDROP, F2_MARKETS, F2_ORACLE, DOLA, DBR_DISTRIBUTOR } = getNetworkConfigConstants();
 
 const zero = BigNumber.from('0');
 const oneYear = ONE_DAY_MS * 365;
@@ -328,6 +328,8 @@ export const useDBR = (): {
   timestamp: number,
   totalSupply: number,
   totalDueTokensAccrued: number,
+  rewardRate: number,
+  yearlyRewardRate: number,
   operator: string,
 } => {
   const { data: apiData } = useCustomSWR(`/api/dbr?withExtra=true`, fetcher);
@@ -337,14 +339,20 @@ export const useDBR = (): {
     [DBR, 'totalSupply'],
     [DBR, 'totalDueTokensAccrued'],
     [DBR, 'operator'],
+    [DBR_DISTRIBUTOR, 'rewardRate'],
   ]);
+  
+  const rewardRate = extraData ? getBnToNumber(extraData[3]) : apiData?.rewardRate || 0;
+  const yearlyRewardRate = rewardRate * ONE_DAY_SECS * 365;
 
   return {
-    timestamp: livePrice && extraData ? +(new Date()) : apiData?.timestamp,
+    timestamp: livePrice && extraData ? +(new Date()) : apiData?.timestamp,    
     price: livePrice ?? (apiData?.price || 0.04),
     totalSupply: extraData ? getBnToNumber(extraData[0]) : (apiData?.totalSupply || 0),
     totalDueTokensAccrued: extraData ? getBnToNumber(extraData[1]) : (apiData?.totalDueTokensAccrued || 0),
     operator: extraData ? extraData[2] : apiData?.operator || '0x926dF14a23BE491164dCF93f4c468A50ef659D5B',
+    rewardRate,
+    yearlyRewardRate,
   }
 }
 

@@ -2,7 +2,7 @@ import { VictoryChart, VictoryTooltip, VictoryLabel, VictoryAxis, VictoryTheme, 
 
 import { Box, useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import { shortenNumber } from '@app/util/markets';
+import { shortenNumber, smartShortNumber } from '@app/util/markets';
 import { useAppTheme } from '@app/hooks/useAppTheme';
 
 type Props = { x: string, y: number, label?: string }[][]
@@ -15,6 +15,7 @@ export type BarChartProps = {
     isDollars?: boolean,
     colorScale?: string[],
     precision?: number
+    yTickPrecision?: number
     labelProps?: VictoryLabelProps | any,
     titleProps?: VictoryLabelProps,
     isPercentages?: boolean
@@ -28,6 +29,7 @@ export const BarChart = ({
     colorScale,
     isDollars = false,
     precision = 2,
+    yTickPrecision = 0,
     labelProps,
     titleProps,
     isPercentages = false,
@@ -85,13 +87,13 @@ export const BarChart = ({
                 />
                 <VictoryAxis
                     dependentAxis
-                    tickFormat={y => `${shortenNumber(y, 0, isDollars)}${isPercentages ? '%' : ''}`}
+                    tickFormat={y => `${smartShortNumber(y, yTickPrecision, isDollars)}${isPercentages ? '%' : ''}`}
                     style={defaultAxisStyle}
                 />
                 <VictoryBar
                     alignment="middle"
                     labelComponent={<VictoryLabel style={{ fontFamily: 'Inter', fontSize: '13px', fill: lightMode ? 'transparent' : themeStyles.colors.secondary, fontWeight: '600' }} dy={-10} {...labelProps} />}
-                    data={Object.entries(totals).map(([key, value]) => ({ x: key, y: value, label: shortenNumber(value, precision, isDollars) }))}
+                    data={Object.entries(totals).map(([key, value]) => ({ x: key, y: value, label: smartShortNumber(value, precision, isDollars) }))}
                     style={{
                         data: { strokeWidth: 0, fill: 'transparent', fontWeight: 'bold' }
                     }}

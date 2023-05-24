@@ -1,4 +1,4 @@
-import { shortenNumber } from '@app/util/markets';
+import { shortenNumber, smartShortNumber } from '@app/util/markets';
 import { VictoryChart, VictoryLabel, VictoryAxis, VictoryArea, VictoryTheme, VictoryClipContainer, VictoryVoronoiContainer, VictoryAreaProps, VictoryAxisProps, VictoryLabelProps } from 'victory';
 import moment from 'moment'
 import { Box, useMediaQuery } from '@chakra-ui/react';
@@ -30,6 +30,7 @@ export type AreaChartProps = {
     mainColor?: 'primary' | 'secondary' | 'info',
     titleProps?: VictoryLabelProps,
     yTickPrecision?: number
+    id?: string,
 };
 
 export const AreaChart = ({
@@ -48,7 +49,8 @@ export const AreaChart = ({
     isPerc = false,
     autoMinY = false,
     titleProps,
-    yTickPrecision,
+    id = 'area-chart',
+    yTickPrecision = 2,
 }: AreaChartProps) => {
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
     const [rightPadding, setRightPadding] = useState(50);
@@ -90,7 +92,7 @@ export const AreaChart = ({
                         labelComponent={<FlyoutTooltip />}
                         labels={({ datum }) => {
                             return (
-                                moment(datum.x).format('MMM Do YYYY') + '\n' + `${shortenNumber(datum.y, 2, isDollars)}${isPerc ? '%' : ''}`
+                                moment(datum.x).format('MMM Do YYYY') + '\n' + `${smartShortNumber(datum.y, 2, isDollars)}${isPerc ? '%' : ''}`
                             )
                         }}
                     />
@@ -99,11 +101,11 @@ export const AreaChart = ({
                 {
                     !!title && <VictoryLabel text={title} style={{ fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '16px' }} x={Math.floor(width / 2)} y={20} textAnchor="middle" {...titleProps} />
                 }
-                <VictoryAxis style={_axisStyle} dependentAxis tickFormat={(t) => `${shortenNumber(t, yTickPrecision ?? (t >= 1000000 && t < 10000000 ? 2 : 0), isDollars)}${isPerc ? '%' : ''}`} />
+                <VictoryAxis style={_axisStyle} dependentAxis tickFormat={(t) => `${smartShortNumber(t, yTickPrecision, isDollars)}${isPerc ? '%' : ''}`} />
                 <VictoryAxis style={_axisStyle} />
                 <VictoryArea
                     domain={{ y: [autoMinY ? minY - _yPad < 0 ? 0 : minY - _yPad : 0, maxY + _yPad] }}
-                    groupComponent={<VictoryClipContainer clipId="area-chart" />}
+                    groupComponent={<VictoryClipContainer clipId={id} />}
                     data={data}
                     labelComponent={
                         <VictoryLabel
@@ -115,7 +117,7 @@ export const AreaChart = ({
                     labels={
                         ({ data, index }) => {
                             const isMax = (maxY === data[index].y && index > 0 && maxY !== data[index - 1].y);
-                            return showLabels || (isMax && showMaxY) ? `${isMax && 'High: '}${shortenNumber(data[index].y, 2, isDollars)}${isPerc ? '%' : ''}` : ''
+                            return showLabels || (isMax && showMaxY) ? `${isMax && 'High: '}${smartShortNumber(data[index].y, 2, isDollars)}${isPerc ? '%' : ''}` : ''
                         }
                     }
                     style={{
