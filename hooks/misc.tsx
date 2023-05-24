@@ -65,7 +65,7 @@ export const useEventsAsChartData = (
         chartData.unshift({ x: minX - ONE_DAY_MS, y: 0 });
     }
     if(autoAddToday) {
-        chartData.push({ x: now, y: chartData[chartData.length - 1].y });
+        chartData.push({ x: now, y: (chartData[chartData.length - 1]?.y||0) });
     }
 
     return {
