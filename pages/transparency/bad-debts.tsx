@@ -15,7 +15,8 @@ import { useEventsAsChartData } from '@app/hooks/misc'
 import { DefaultCharts } from '@app/components/Transparency/DefaultCharts'
 import { useState } from 'react'
 import moment from 'moment'
-import { shortenNumber } from '@app/util/markets'
+import { shortenNumber, smartShortNumber } from '@app/util/markets'
+import { RSubmitButton } from '@app/components/common/Button/RSubmitButton'
 
 const ColHeader = ({ ...props }) => {
   return <Flex justify="center" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -29,6 +30,16 @@ const CellText = ({ ...props }) => {
   return <Text fontSize="14px" {...props} />
 }
 
+const defaultTotalValue = (field, items) => {
+  return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
+    <CellText fontWeight="bold">
+      {
+        smartShortNumber(items.reduce((prev, curr) => prev + curr[field], 0), 2, true)
+      }
+    </CellText>
+  </Cell>
+}
+
 const columns = [
   {
     field: 'symbol',
@@ -39,30 +50,37 @@ const columns = [
         <UnderlyingItem {...token} badge={undefined} label={token.symbol} />
       </Cell>
     },
+    totalValue: (field, items) => {
+      return <Cell minWidth='150px' spacing="2" justify="flex-start" alignItems="center" direction="row">
+        <CellText fontWeight="bold">Totals:</CellText>
+      </Cell>
+    }
   },
   {
     field: 'totalBadDebtUsd',
     label: 'Bad debt that occurred',
     tooltip: 'Equals to remaining bad debt + what was repaid',
     header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
-    value: ({ totalBadDebtUsd, symbol, priceUsd }) => {
+    value: ({ totalBadDebtUsd, totalBadDebt, symbol }) => {
       return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
-        <CellText fontWeight="bold">{totalBadDebtUsd ? `${preciseCommify(totalBadDebtUsd * priceUsd, 0, true)}` : '-'}</CellText>
-        <CellText>{totalBadDebtUsd ? `${preciseCommify(totalBadDebtUsd, symbol === 'DOLA' ? 0 : 2)} ${symbol}` : '-'}</CellText>
+        <CellText fontWeight="bold">{totalBadDebtUsd ? `${preciseCommify(totalBadDebtUsd, 0, true)}` : '-'}</CellText>
+        <CellText>{totalBadDebt ? `${preciseCommify(totalBadDebt, symbol === 'DOLA' ? 0 : 2)} ${symbol}` : '-'}</CellText>
       </Cell>
     },
+    totalValue: defaultTotalValue,
   },
   {
-    field: 'totalBadDebtRepaidByDao',
+    field: 'totalBadDebtRepaidByDaoUsd',
     label: 'Repayments',
     tooltip: 'Direct repayments made by the DAO',
     header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
-    value: ({ totalBadDebtRepaidByDao, symbol, priceUsd }) => {
+    value: ({ totalBadDebtRepaidByDao, totalBadDebtRepaidByDaoUsd, symbol }) => {
       return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
-        <CellText fontWeight="bold">{totalBadDebtRepaidByDao ? `${preciseCommify(totalBadDebtRepaidByDao * priceUsd, 0, true)}` : '-'}</CellText>
+        <CellText fontWeight="bold">{totalBadDebtRepaidByDao ? `${preciseCommify(totalBadDebtRepaidByDaoUsd, 0, true)}` : '-'}</CellText>
         <CellText>{totalBadDebtRepaidByDao ? `${preciseCommify(totalBadDebtRepaidByDao, symbol === 'DOLA' ? 0 : 2)} ${symbol}` : '-'}</CellText>
       </Cell>
     },
+    totalValue: defaultTotalValue,
   },
   {
     field: 'badDebtUsd',
@@ -74,6 +92,7 @@ const columns = [
         <CellText >{preciseCommify(badDebtBalance, symbol === 'DOLA' ? 0 : 2)} {symbol}</CellText>
       </Cell>
     },
+    totalValue: defaultTotalValue,
   },
   {
     field: 'percRepaid',
@@ -84,6 +103,15 @@ const columns = [
         <CellText>{percRepaid ? `${shortenNumber(percRepaid, 2)}%` : '-'}</CellText>
       </Cell>
     },
+    totalValue: (field, items) => {
+      const totalOfTotalUsd = items.reduce((prev, curr) => prev + curr['totalBadDebtUsd'], 0);
+      const totalOfRepaidUsd = items.reduce((prev, curr) => prev + curr['totalBadDebtRepaidByDaoUsd'], 0);
+      return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
+        <CellText fontWeight="bold">
+          {shortenNumber(totalOfRepaidUsd / totalOfTotalUsd * 100, 2)}%
+        </CellText>
+      </Cell>
+    }
   },
 ];
 
@@ -97,7 +125,7 @@ const indirectRepaymentsColumns = [
         <UnderlyingItem {...token} badge={undefined} label={token.symbol} />
       </Cell>
     },
-  },  
+  },
   {
     field: 'sold',
     label: 'Repayer: Debt sold',
@@ -114,11 +142,11 @@ const indirectRepaymentsColumns = [
     field: 'soldFor',
     label: 'Repayer: Sold for',
     tooltip: 'Discounted amounts received by users against their stuck assets',
-    header: ({ ...props }) => <ColHeader  minWidth="150px" justify="center"  {...props} />,
+    header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
     value: ({ soldFor, priceUsd, symbol }) => {
-      return <Cell  minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
+      return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
         {!!soldFor && <CellText fontWeight="bold" >{preciseCommify(soldFor * priceUsd, 0, true)}</CellText>}
-        <CellText >{soldFor ? `${preciseCommify(soldFor, 2)} ${symbol}` : '-'}</CellText>        
+        <CellText >{soldFor ? `${preciseCommify(soldFor, 2)} ${symbol}` : '-'}</CellText>
       </Cell>
     },
   },
@@ -224,7 +252,8 @@ export const BadDebtPage = () => {
     const key = item.symbol === 'DOLA' ? 'totalDolaRepayedByDAO' : `${item.symbol.toLowerCase()}RepayedByDAO`;
     const totalBadDebtRepaidByDao = data[key]?.reduce((prev, curr) => prev + curr.amount, 0) || 0
     const totalBadDebtRepaidByDaoUsd = totalBadDebtRepaidByDao * priceUsd;
-    const totalBadDebtUsd = currentBadDebtUsd + totalBadDebtRepaidByDaoUsd;    
+    const totalBadDebtUsd = currentBadDebtUsd + totalBadDebtRepaidByDaoUsd;
+    const totalBadDebt = item.badDebtBalance + totalBadDebtRepaidByDao;
     return {
       ...item,
       badDebtUsd: currentBadDebtUsd,
@@ -233,6 +262,7 @@ export const BadDebtPage = () => {
       totalBadDebtRepaidByDao,
       totalBadDebtRepaidByDaoUsd,
       totalBadDebtUsd,
+      totalBadDebt,
       percRepaid: totalBadDebtRepaidByDaoUsd / totalBadDebtUsd * 100,
     };
   }).filter(item => item.badDebtBalance > 0.1);
@@ -265,7 +295,6 @@ export const BadDebtPage = () => {
               noPadding
             >
               <DefaultCharts
-                barProps={{ eventName: 'Repayment' }}
                 // direction={'row'}
                 showMonthlyBarChart={false}
                 maxChartWidth={1000}
@@ -278,6 +307,7 @@ export const BadDebtPage = () => {
                     <Text color="mainTextColorLight" fontSize="14px">To change the zoom level, point an area and use the mouse scroll or change the boundaries in the mini-chart</Text>
                   </HStack>
                 }
+                barProps={{ eventName: 'Repayment' }}
                 areaProps={{ id: 'bad-debt-chart', showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
               />
             </Container>
@@ -322,14 +352,13 @@ export const BadDebtPage = () => {
             >
               <VStack w='full' alignItems="center" justify="center">
                 <DefaultCharts
-                  barProps={{ eventName: 'Repayment' }}
                   direction={'column-reverse'}
                   showMonthlyBarChart={true}
                   maxChartWidth={1000}
                   chartData={barChartData}
                   isDollars={isAllCase ? true : useUsd}
                   areaProps={{ showMaxY: false, showTooltips: true, id: 'repayments-chart', allowZoom: false }}
-                  barProps={{ months: [...Array(barChartNbMonths).keys()] }}
+                  barProps={{ months: [...Array(barChartNbMonths).keys()], eventName: 'Repayment' }}
                 />
               </VStack>
             </Container>
@@ -337,16 +366,17 @@ export const BadDebtPage = () => {
           <Container
             noPadding
             label={`Bad debt recap & Repayments`}
-            // description={`Learn more about the bad debt, Debt Converter and Debt Repayer`}
-            // href={'https://docs.inverse.finance/inverse-finance/inverse-finance/other/frontier'}
+          // description={`Learn more about the bad debt, Debt Converter and Debt Repayer`}
+          // href={'https://docs.inverse.finance/inverse-finance/inverse-finance/other/frontier'}
           >
             <Table
               items={items}
               columns={columns}
               enableMobileRender={false}
-              key="symbol"
+              keyName="symbol"
               defaultSort="percRepaid"
               defaultSortDir="desc"
+              showTotalRow={true}
             />
           </Container>
           <Container
@@ -369,7 +399,7 @@ export const BadDebtPage = () => {
               items={items}
               columns={indirectRepaymentsColumns}
               enableMobileRender={false}
-              key="symbol"
+              keyName="symbol"
               defaultSort="symbol"
               defaultSortDir="asc"
             />
