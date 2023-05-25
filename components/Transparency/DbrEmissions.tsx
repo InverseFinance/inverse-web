@@ -66,7 +66,18 @@ export const DbrEmissions = ({
     }, [isLargerThan]);
 
     return <Stack w='full' direction={{ base: 'column' }}>
-        <HStack pb="2" spacing="4" justify="space-between" alignItems="center" w='full'>
+        <AreaChart
+            title="DBR annualized issuance over time"
+            width={chartWidth}
+            data={annualizedEmissionsChartData}
+            interpolation="stepAfter"
+            id="annualized-streaming"
+            showMaxY={false}
+            showTooltips={true}
+            domainYpadding={1000000}
+        />
+        <Divider />
+        <HStack pt="4" spacing="4" justify="space-between" alignItems="center" w='full'>
             <HStack spacing="4" justify="flex-start" alignItems="center">
                 <FormControl w='auto' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
                     <Text mr="2" onClick={() => setIncludeInitialEmission(!includeInitialEmission)}>
@@ -109,7 +120,6 @@ export const DbrEmissions = ({
                 title: 'DBR issuance in the last 12 months'
             }}
         />
-        <Divider />
         {/* <AreaChart
             title="Theoretical Emissions Evolution"
             width={chartWidth}
@@ -118,15 +128,5 @@ export const DbrEmissions = ({
             id="theoretical-streaming"
             showMaxY={false}
         /> */}
-        <AreaChart
-            title="DBR annualized issuance over time"
-            width={chartWidth}
-            data={annualizedEmissionsChartData}
-            interpolation="stepAfter"
-            id="annualized-streaming"
-            showMaxY={false}
-            showTooltips={true}
-            domainYpadding={1000000}
-        />
     </Stack>
 }
