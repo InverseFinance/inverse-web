@@ -12,7 +12,7 @@ const { DBR, DBR_DISTRIBUTOR } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
   const withExtra = req.query.withExtra === 'true';
-  const cacheKey = `dbr-cache${withExtra ? '-extra' : ''}-v1.0.4`;
+  const cacheKey = `dbr-cache${withExtra ? '-extra' : ''}-v1.0.5`;
 
   try {
     const validCache = await getCacheFromRedis(cacheKey, true, 300);
@@ -34,6 +34,8 @@ export default async function handler(req, res) {
       dbr.totalDueTokensAccrued(),
       dbr.operator(),
       dbrDistributor.rewardRate(),
+      dbrDistributor.minRewardRate(),
+      dbrDistributor.maxRewardRate(),
     ] : []);
 
     const results = await Promise.all(queries);
@@ -51,6 +53,8 @@ export default async function handler(req, res) {
       totalDueTokensAccrued: withExtra ? getBnToNumber(results[3]) : undefined,
       operator: withExtra ? results[4] : undefined,
       rewardRate: withExtra ? getBnToNumber(results[5]) : undefined,
+      minRewardRate: withExtra ? getBnToNumber(results[6]) : undefined,
+      maxRewardRate: withExtra ? getBnToNumber(results[7]) : undefined,
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);

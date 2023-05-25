@@ -9,7 +9,7 @@ import { getBnToNumber } from '@app/util/markets';
 import { ONE_DAY_SECS } from '@app/config/constants';
 
 const { DBR_DISTRIBUTOR } = getNetworkConfigConstants();
-export const dbrRewardRatesCacheKey = `dbr-reward-rates-history-v1.0.0`;
+export const dbrRewardRatesCacheKey = `dbr-reward-rates-history-v1.0.1`;
 export const initialDbrRewardRates = {
   timestamp: 1684713600000,
   rates: [
@@ -22,6 +22,11 @@ export const initialDbrRewardRates = {
       timestamp: 1684713600000,
       yearlyRewardRate: 3999999.9999999893,
       rewardRate: 0.126839167935058,
+    },
+    {
+      timestamp: 1684954800000,
+      yearlyRewardRate: 5000000.000000002,
+      rewardRate: 0.158548959918823,
     },
   ]
 };
