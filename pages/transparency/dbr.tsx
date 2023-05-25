@@ -29,7 +29,7 @@ const tabsOptions = ['Flowchart', 'Spenders', 'Replenishments', 'Income', 'Burns
 
 export const DBRTransparency = () => {
     const router = useRouter();
-    const { totalSupply, operator, price, yearlyRewardRate, rewardRate } = useDBR();
+    const { totalSupply, operator, price, yearlyRewardRate, rewardRate, minYearlyRewardRate, maxYearlyRewardRate } = useDBR();
     const { events } = useDBRReplenishments();
     const { events: burnEvents } = useDBRBurns();
     const { history } = useDBRDebtHisto();
@@ -95,6 +95,41 @@ export const DBRTransparency = () => {
                 </VStack>
                 <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: '300px' }}>
                     <ShrinkableInfoMessage
+                        title="💸&nbsp;&nbsp;DBR Issuance Policy"
+                        description={
+                            <VStack spacing="0" alignItems="flex-start">
+                                <Link textDecoration="underline" color="secondaryTextColor" href="https://www.inverse.finance/governance/proposals/mills/75" isExternal target="_blank">
+                                    See initial emission of 4,646,000 for FiRM launch.
+                                </Link>
+                                <Link textDecoration="underline" color="secondaryTextColor" href="https://www.inverse.finance/governance/proposals/mills/109" isExternal target="_blank">
+                                    See DBR streaming proposal.
+                                </Link>
+                                <Link textDecoration="underline" color="secondaryTextColor" href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr#dbr-issuance" isExternal target="_blank">
+                                    DBR issuance documentation
+                                </Link>
+                                <Text fontWeight="bold">
+                                    Current yearly rewards: {smartShortNumber(yearlyRewardRate)} DBR.
+                                </Text>
+                                <Text>
+                                    Current min. yearly rewards: {smartShortNumber(minYearlyRewardRate)} DBR.
+                                </Text>
+                                <Text>
+                                    Current max. yearly rewards: {smartShortNumber(maxYearlyRewardRate)} DBR.
+                                </Text>
+
+                                <Text pt="4">
+                                    There is no max supply.
+                                </Text>
+                                <Text>
+                                    New emissions are via DBR streaming to INV stakers on FiRM.
+                                </Text>
+                                <Text>
+                                    The current reward rate is decided by the FedChair depending on the burn rate while the min and max can be changed by Governance only.
+                                </Text>
+                            </VStack>
+                        }
+                    />
+                    <ShrinkableInfoMessage
                         description={
                             <VStack spacing="0" alignItems="flex-start">
                                 <Text>DBR stands for DOLA Borrowing Right.</Text>
@@ -131,25 +166,6 @@ export const DBRTransparency = () => {
                     <SupplyInfos token={TOKENS[DBR]} supplies={[
                         { chainId: NetworkIds.mainnet, supply: totalSupply },
                     ]}
-                    />
-                    <ShrinkableInfoMessage
-                        title="💸&nbsp;&nbsp;DBR Emissions"
-                        description={
-                            <VStack spacing="0" alignItems="flex-start">
-                                <Link textDecoration="underline" color="secondaryTextColor" href="https://www.inverse.finance/governance/proposals/mills/75" isExternal target="_blank">
-                                    See initial emission of 4,646,000 for FiRM launch.
-                                </Link>
-                                <Link textDecoration="underline" color="secondaryTextColor" href="https://www.inverse.finance/governance/proposals/mills/109" isExternal target="_blank">
-                                    See DBR streaming proposal.
-                                </Link>
-                                <Text>
-                                    There is no max supply.
-                                </Text>
-                                <Text>
-                                    New emissions are via DBR streaming to INV stakers on FiRM, the current rate is {smartShortNumber(yearlyRewardRate)} DBR a year.
-                                </Text>
-                            </VStack>
-                        }
                     />
                     <ShrinkableInfoMessage
                         title="⚡&nbsp;&nbsp;Roles & Powers"

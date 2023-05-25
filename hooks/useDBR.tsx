@@ -330,6 +330,10 @@ export const useDBR = (): {
   totalDueTokensAccrued: number,
   rewardRate: number,
   yearlyRewardRate: number,
+  minRewardRate: number,
+  minYearlyRewardRate: number,
+  maxRewardRate: number,
+  maxYearlyRewardRate: number,
   operator: string,
 } => {
   const { data: apiData } = useCustomSWR(`/api/dbr?withExtra=true`, fetcher);
@@ -340,10 +344,16 @@ export const useDBR = (): {
     [DBR, 'totalDueTokensAccrued'],
     [DBR, 'operator'],
     [DBR_DISTRIBUTOR, 'rewardRate'],
+    [DBR_DISTRIBUTOR, 'minRewardRate'],
+    [DBR_DISTRIBUTOR, 'maxRewardRate'],
   ]);
   
   const rewardRate = extraData ? getBnToNumber(extraData[3]) : apiData?.rewardRate || 0;
   const yearlyRewardRate = rewardRate * ONE_DAY_SECS * 365;
+  const minRewardRate = extraData ? getBnToNumber(extraData[4]) : apiData?.minRewardRate || 0;
+  const minYearlyRewardRate = minRewardRate * ONE_DAY_SECS * 365;
+  const maxRewardRate = extraData ? getBnToNumber(extraData[5]) : apiData?.maxRewardRate || 0;
+  const maxYearlyRewardRate = maxRewardRate * ONE_DAY_SECS * 365;
 
   return {
     timestamp: livePrice && extraData ? +(new Date()) : apiData?.timestamp,    
@@ -353,6 +363,10 @@ export const useDBR = (): {
     operator: extraData ? extraData[2] : apiData?.operator || '0x926dF14a23BE491164dCF93f4c468A50ef659D5B',
     rewardRate,
     yearlyRewardRate,
+    minRewardRate,
+    maxRewardRate,
+    maxYearlyRewardRate,
+    minYearlyRewardRate,
   }
 }
 

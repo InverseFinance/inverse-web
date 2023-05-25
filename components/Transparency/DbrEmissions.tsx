@@ -40,7 +40,7 @@ export const DbrEmissions = ({
 
     const [isSmooth, setIsSmooth] = useState(true);
     const repHashes = replenishments?.map(r => r.txHash) || [];
-    const { events: emissionEvents, rewardRatesHistory } = useDBREmissions();
+    const { events: emissionEvents, rewardRatesHistory, timestamp } = useDBREmissions();
 
     const annualizedEmissions = rewardRatesHistory?.rates || [
         { yearlyRewardRate: 0, timestamp: streamingStartTs - ONE_DAY_MS * 3 },

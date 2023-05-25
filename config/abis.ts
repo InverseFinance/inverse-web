@@ -507,6 +507,8 @@ export const CONVEX_REWARD_POOL = [
 
 export const DBR_DISTRIBUTOR_ABI = [
   'function rewardRate() public view returns (uint)',
+  'function minRewardRate() public view returns (uint)',
+  'function maxRewardRate() public view returns (uint)',
   'function lastUpdate() public view returns (uint)',
   'function claimable() public view returns (uint)',
   'function rewardIndexMantissa() public view returns (uint)',

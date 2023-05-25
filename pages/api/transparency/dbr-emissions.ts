@@ -13,12 +13,12 @@ import { dbrRewardRatesCacheKey, initialDbrRewardRates } from '../cron-dbr-distr
 const { DBR } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
-    const cacheKey = `dbr-emissions-v1.0.6`;
+    const cacheKey = `dbr-emissions-v1.0.7`;
     const { cacheFirst } = req.query;
 
     try {
         const [emissionsCacheRes, ratesCache] = await Promise.all([
-            getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', ONE_DAY_SECS, true),
+            getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', 600, true),
             getCacheFromRedis(dbrRewardRatesCacheKey, false),
         ]);
         const { data: cachedData, isValid } = emissionsCacheRes;
