@@ -60,8 +60,11 @@ export const AreaChart = ({
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
     const [rightPadding, setRightPadding] = useState(50);
     const [selectedDomain, setSelectedDomain] = useState(undefined);
-    const maxY = data.length > 0 ? Math.max(...data.map(d => d.y)) : 95000000;
-    const minY = data.length > 0 ? Math.min(...data.map(d => d.y)) : 0;
+    const rangedData = selectedDomain?.x ? data?.filter(d => d.x >= selectedDomain.x[0] && d.x <= selectedDomain.x[1]) : data;
+
+    const maxY = rangedData.length > 0 ? Math.max(...rangedData.map(d => d.y)) : 95000000;
+    const minY = rangedData.length > 0 ? Math.min(...rangedData.map(d => d.y)) : 0;
+
     const { themeStyles } = useAppTheme();
 
     const _axisStyle = axisStyle || {
@@ -73,6 +76,7 @@ export const AreaChart = ({
     }
 
     const _yPad = domainYpadding === 'auto' ? maxY * 0.1 : domainYpadding;
+    const calcYDomain = [autoMinY ? minY - _yPad < 0 ? 0 : minY - _yPad : 0, maxY + _yPad];
 
     useEffect(() => {
         setRightPadding(isLargerThan ? 50 : 20)
@@ -82,7 +86,7 @@ export const AreaChart = ({
         setSelectedDomain(domain);
     }
 
-    const zoomProps = { zoomDimension: 'x', zoomDomain: selectedDomain, onZoomDomainChange: handleZoom };
+    const zoomProps = { zoomDimension: 'x', zoomDomain: selectedDomain ? { x: selectedDomain?.x, y: calcYDomain } : undefined, onZoomDomainChange: handleZoom };
     const voronoiProps = {
         mouseFollowTooltips: true, voronoiDimension: 'x', labelComponent: <FlyoutTooltip />,
         labels: ({ datum }) => {
@@ -150,7 +154,7 @@ export const AreaChart = ({
                         labels={events.map(e => e.eventPointLabel)}
                         labelComponent={<VictoryLabel style={{ fontFamily: 'Inter', fontSize: '13px', fontWeight: '600', fill: themeStyles.colors.mainTextColor }} dy={-5} />}
                         style={{ data: { fill: "#c43a31", stroke: "#c43a31", strokeWidth: 1 } }}
-                        data={events.map(e => ({ x: e.x, y: maxY + (_yPad / 10) }))}
+                        data={events.map(e => ({ x: e.x, y: maxY + (_yPad / 20) }))}
                     />
                 </VictoryChart>
             </Box>
@@ -179,7 +183,7 @@ export const AreaChart = ({
                         <VictoryAxis style={_axisStyle} dependentAxis tickFormat={(t) => ``} />
                         <VictoryAxis style={_axisStyle} />
                         <VictoryArea
-                            domain={{ y: [autoMinY ? minY - _yPad < 0 ? 0 : minY - _yPad : 0, maxY + _yPad] }}
+                            domain={{ y: calcYDomain }}
                             groupComponent={<VictoryClipContainer clipId={`${id}-mini`} />}
                             data={data}
                             style={{

@@ -34,7 +34,7 @@ const defaultTotalValue = (field, items) => {
   return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
     <CellText fontWeight="bold">
       {
-        smartShortNumber(items.reduce((prev, curr) => prev + curr[field], 0), 2, true)
+        smartShortNumber(items.reduce((prev, curr) => prev + (curr[field]||0), 0), 2, true)
       }
     </CellText>
   </Cell>
@@ -125,9 +125,14 @@ const indirectRepaymentsColumns = [
         <UnderlyingItem {...token} badge={undefined} label={token.symbol} />
       </Cell>
     },
+    totalValue: (field, items) => {
+      return <Cell minWidth='150px' spacing="2" justify="flex-start" alignItems="center" direction="row">
+        <CellText fontWeight="bold">Totals:</CellText>
+      </Cell>
+    }
   },
   {
-    field: 'sold',
+    field: 'soldUsd',
     label: 'Repayer: Debt sold',
     tooltip: 'Stuck assets sold by users to the DAO against a discounted underlying',
     header: ({ ...props }) => <ColHeader minWidth="150px" justify="center" {...props} />,
@@ -137,9 +142,10 @@ const indirectRepaymentsColumns = [
         <CellText >{sold ? `${preciseCommify(sold, 2)} ${symbol}` : '-'}</CellText>
       </Cell>
     },
+    totalValue: defaultTotalValue,
   },
   {
-    field: 'soldFor',
+    field: 'soldForUsd',
     label: 'Repayer: Sold for',
     tooltip: 'Discounted amounts received by users against their stuck assets',
     header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
@@ -149,18 +155,20 @@ const indirectRepaymentsColumns = [
         <CellText >{soldFor ? `${preciseCommify(soldFor, 2)} ${symbol}` : '-'}</CellText>
       </Cell>
     },
+    totalValue: defaultTotalValue,
   },
   {
-    field: 'converted',
+    field: 'convertedUsd',
     label: 'Converter: sold for IOUs',
     tooltip: 'Stuck assets converted to DOLA IOUs',
     header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
-    value: ({ converted, priceUsd, symbol }) => {
+    value: ({ converted, convertedUsd, priceUsd, symbol }) => {
       return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
         {!!converted && <CellText fontWeight="bold">{preciseCommify(converted * priceUsd, 0, true)}</CellText>}
         <CellText >{converted ? `${preciseCommify(converted, 2)} ${symbol}` : '-'}</CellText>
       </Cell>
     },
+    totalValue: defaultTotalValue,
   },
   // {
   //   field: 'totalBadDebtReduced',
@@ -194,6 +202,7 @@ const indirectRepaymentsColumns = [
         <CellText>{repaidViaDwf ? `${preciseCommify(repaidViaDwf, 0)} USDC` : '-'}</CellText>
       </Cell>
     },
+    totalValue: defaultTotalValue,
   },
 ];
 
@@ -256,6 +265,9 @@ export const BadDebtPage = () => {
     const totalBadDebt = item.badDebtBalance + totalBadDebtRepaidByDao;
     return {
       ...item,
+      soldUsd: item.sold * priceUsd,
+      convertedUsd: item.converted * priceUsd,
+      soldForUsd: item.soldFor * priceUsd,
       badDebtUsd: currentBadDebtUsd,
       priceUsd,
       totalBadDebtReduced: item.repaidViaDwf || 0 + item.sold + item.converted,
@@ -308,7 +320,7 @@ export const BadDebtPage = () => {
                   </HStack>
                 }
                 barProps={{ eventName: 'Repayment' }}
-                areaProps={{ id: 'bad-debt-chart', showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
+                areaProps={{ id: 'bad-debt-chart', domainYpadding: 1000000, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
               />
             </Container>
             <Container
@@ -399,6 +411,7 @@ export const BadDebtPage = () => {
               items={items}
               columns={indirectRepaymentsColumns}
               enableMobileRender={false}
+              showTotalRow={true}
               keyName="symbol"
               defaultSort="symbol"
               defaultSortDir="asc"
