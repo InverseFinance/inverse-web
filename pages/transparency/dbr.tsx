@@ -36,7 +36,7 @@ export const DBRTransparency = () => {
     const { chartData } = useEventsAsChartData(events, 'daoFeeAcc', 'daoDolaReward');
     const { chartData: debtChartData } = useEventsAsChartData(history, 'debt', 'debt');
     const { chartData: burnChartData } = useEventsAsChartData(burnEvents, 'accBurn', 'amount');
-    const [tab, setTab] = useState('Flowchart');
+    const [tab, setTab] = useState('Burns');
 
     const handleTabChange = (v: string) => {
         location.hash = v;
@@ -66,7 +66,13 @@ export const DBRTransparency = () => {
                 <VStack w={{ base: 'full', xl: '900px' }}>
                     <VStack mt="4" spacing="8" w='full'>
                         <VStack alignItems="flex-start" maxW={{ base: '300px', sm: '600px' }} w='full'>
-                            <NavButtons onClick={handleTabChange} active={tab} options={tabsOptions} textProps={{ p: '1', fontSize: { base: '12px', sm: '14px' } }} />
+                            <NavButtons
+                                onClick={handleTabChange}
+                                active={tab}
+                                options={tabsOptions}
+                                textProps={{ p: '1', fontSize: { base: '12px', sm: '14px' } }}
+                                overflow={{ base: 'scroll', sm: 'auto' }}
+                            />
                         </VStack>
                         {
                             tab === 'Spenders' && <DbrSpenders />
