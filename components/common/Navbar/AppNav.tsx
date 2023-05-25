@@ -441,8 +441,8 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const [isUnsupportedNetwork, setIsUsupportedNetwork] = useState(false)
 
   const [badgeChainId, setBadgeChainId] = useState(chainId)
-  const { nbNotif } = useGovernanceNotifs();
-
+  // const { nbNotif } = useGovernanceNotifs();
+  const nbNotif = 0;
   useDebouncedEffect(() => {
     setShowAirdropModal(isEligible && !hasClaimed);
   }, [isEligible, hasClaimed], 2000);
