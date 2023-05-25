@@ -17,15 +17,22 @@ export default async function handler(req, res) {
     const { cacheFirst } = req.query;
 
     try {
-        const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', ONE_DAY_SECS, true);
+        const [emissionsCacheRes, ratesCache] = await Promise.all([
+            getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', ONE_DAY_SECS, true),
+            getCacheFromRedis(dbrRewardRatesCacheKey, false),
+        ]);
+        const { data: cachedData, isValid } = emissionsCacheRes;
         if (!!cachedData && isValid) {
-            res.status(200).json(cachedData);
+            res.status(200).json({
+                ...cachedData,
+                rewardRatesHistory: (ratesCache || initialDbrRewardRates),
+            });
             return
         }
 
         const provider = getProvider(CHAIN_ID);
         const contract = new Contract(DBR, DBR_ABI, provider);
-        
+
         const pastTotalEvents = cachedData?.totalEmissions || [];
 
         const lastKnownEvent = pastTotalEvents?.length > 0 ? (pastTotalEvents[pastTotalEvents.length - 1]) : {};
@@ -43,10 +50,7 @@ export default async function handler(req, res) {
             NetworkIds.mainnet,
         );
 
-        const [timestamps, rewardRatesHistory] = await Promise.all([
-            getCachedBlockTimestamps(),
-            getCacheFromRedis(dbrRewardRatesCacheKey, false),
-        ]);        
+        const timestamps = await getCachedBlockTimestamps();
 
         const newTransfers = newTransferEvents.map(e => {
             return {
@@ -62,9 +66,9 @@ export default async function handler(req, res) {
         const resultData = {
             timestamp: +(new Date()),
             totalEmissions: pastTotalEvents.concat(newTransfers).map(e => {
-                return { ...e, accEmissions: accEmissions += e.amount}
+                return { ...e, accEmissions: accEmissions += e.amount }
             }),
-            rewardRatesHistory: (rewardRatesHistory || initialDbrRewardRates),
+            rewardRatesHistory: (ratesCache || initialDbrRewardRates),
         };
 
         await redisSetWithTimestamp(cacheKey, resultData, true);
