@@ -25,7 +25,7 @@ import { DbrEmissions } from '@app/components/Transparency/DbrEmissions'
 
 const { TOKENS, TREASURY, DBR } = getNetworkConfigConstants(NetworkIds.mainnet);
 
-const tabsOptions = ['Flowchart', 'Spenders', 'Replenishments', 'Income', 'Burns', 'Issuance'];
+const tabsOptions = ['Burns', 'Issuance', 'Spenders', 'Replenishments', 'Income', 'Flowchart'];
 
 export const DBRTransparency = () => {
     const router = useRouter();
@@ -116,7 +116,6 @@ export const DBRTransparency = () => {
                                 <Text>
                                     Current max. yearly rewards: {smartShortNumber(maxYearlyRewardRate)} DBR.
                                 </Text>
-
                                 <Text pt="4">
                                     There is no max supply.
                                 </Text>
