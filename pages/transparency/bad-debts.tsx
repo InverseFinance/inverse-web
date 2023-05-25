@@ -16,7 +16,9 @@ import { DefaultCharts } from '@app/components/Transparency/DefaultCharts'
 import { useState } from 'react'
 import moment from 'moment'
 import { shortenNumber, smartShortNumber } from '@app/util/markets'
-import { RSubmitButton } from '@app/components/common/Button/RSubmitButton'
+import ScannerLink from '@app/components/common/ScannerLink'
+import { Timestamp } from '@app/components/common/BlockTimestamp/Timestamp'
+import { SkeletonBlob } from '@app/components/common/Skeleton'
 
 const ColHeader = ({ ...props }) => {
   return <Flex justify="center" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -34,11 +36,85 @@ const defaultTotalValue = (field, items) => {
   return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
     <CellText fontWeight="bold">
       {
-        smartShortNumber(items.reduce((prev, curr) => prev + (curr[field]||0), 0), 2, true)
+        smartShortNumber(items.reduce((prev, curr) => prev + (curr[field] || 0), 0), 2, true)
       }
     </CellText>
   </Cell>
 }
+
+const transactionsColumns = [
+  {
+    field: 'symbol',
+    label: 'Asset',
+    header: ({ ...props }) => <ColHeader minWidth="100px" justify="flex-start"  {...props} />,
+    value: ({ symbol }) => {
+      return <Cell minWidth='100px' spacing="2" justify="flex-start" alignItems="center" direction="row">
+        <CellText>{symbol}</CellText>
+      </Cell>
+    },
+    totalValue: (field, items) => {
+      return <Cell minWidth='150px' spacing="2" justify="flex-start" alignItems="center" direction="row">
+        <CellText fontWeight="bold">Total:</CellText>
+      </Cell>
+    }
+  },
+  {
+    field: 'txHash',
+    label: 'tx',
+    header: ({ ...props }) => <ColHeader minWidth="100px" justify="flex-start"  {...props} />,
+    value: ({ txHash }) => {
+      return <Cell justify="flex-start" minWidth="100px">
+        <ScannerLink value={txHash} type="tx" fontSize='12px' />
+      </Cell>
+    },
+    totalValue: (field, items) => {
+      return <Cell minWidth='150px' spacing="2" justify="flex-start" alignItems="center" direction="row">
+        <CellText fontWeight="bold"></CellText>
+      </Cell>
+    }
+  },
+  {
+    field: 'timestamp',
+    label: 'Date',
+    header: ({ ...props }) => <ColHeader justify="flex-start" minWidth={'100px'} {...props} />,
+    value: ({ timestamp }) => <Cell justify="flex-start" minWidth="100px">
+      <Timestamp timestamp={timestamp} text1Props={{ fontSize: '12px' }} text2Props={{ fontSize: '12px' }} />
+    </Cell>,
+    totalValue: (field, items) => {
+      return <Cell minWidth='150px' spacing="2" justify="flex-start" alignItems="center" direction="row">
+        <CellText fontWeight="bold"></CellText>
+      </Cell>
+    }
+  },
+  {
+    field: 'histoPrice',
+    label: 'Historical Price',
+    // tooltip: 'Price according to coingecko for that day utc',
+    header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+    value: ({ histoPrice }) => {
+      return <Cell minWidth="100px" justify="center">
+        <CellText>{preciseCommify(histoPrice, 4, true)}</CellText>
+      </Cell>
+    },
+    totalValue: (field, items) => {
+      return <Cell minWidth='150px' spacing="2" justify="flex-start" alignItems="center" direction="row">
+        <CellText fontWeight="bold"></CellText>
+      </Cell>
+    }
+  },
+  {
+    field: 'worth',
+    label: 'Historical Worth',
+    header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
+    value: ({ amount, worth }) => {
+      return <Cell direction="column" minWidth="150px" justify="center">
+        <CellText textAlign="center">{preciseCommify(amount, 4)}</CellText>
+        <CellText textAlign="center">({preciseCommify(worth, 2, true)})</CellText>
+      </Cell>
+    },
+    totalValue: defaultTotalValue,
+  },
+]
 
 const columns = [
   {
@@ -59,7 +135,7 @@ const columns = [
   {
     field: 'totalBadDebtUsd',
     label: 'Bad debt that occurred',
-    tooltip: 'Equals to remaining bad debt + what was repaid',
+    tooltip: 'Equals to remaining bad debt + what was repaid, with current prices',
     header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
     value: ({ totalBadDebtUsd, totalBadDebt, symbol }) => {
       return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
@@ -72,7 +148,7 @@ const columns = [
   {
     field: 'totalBadDebtRepaidByDaoUsd',
     label: 'Repayments',
-    tooltip: 'Direct repayments made by the DAO',
+    tooltip: 'Direct repayments made by the DAO, with current prices',
     header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
     value: ({ totalBadDebtRepaidByDao, totalBadDebtRepaidByDaoUsd, symbol }) => {
       return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
@@ -85,6 +161,7 @@ const columns = [
   {
     field: 'badDebtUsd',
     label: 'Remaining Bad Debt',
+    tooltip: 'With current prices',
     header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
     value: ({ badDebtBalance, badDebtUsd, symbol }) => {
       return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
@@ -212,6 +289,13 @@ const keyPrices = {
   'yfiRepayedByDAO': 'yearn-finance',
 };
 
+const cgIdsSymbols = {
+  'wrapped-bitcoin': 'WBTC',
+  'ethereum': 'ETH',
+  'dola-usd': 'DOLA',
+  'yearn-finance': 'YFI',
+};
+
 // in case api failed to fetch a specific date, we use the closest previous date
 const getClosestPreviousHistoPrice = (histoPrices: { [key: string]: number }, date: string, defaultPrice: number) => {
   const dates = Object.keys(histoPrices);
@@ -221,17 +305,29 @@ const getClosestPreviousHistoPrice = (histoPrices: { [key: string]: number }, da
   return histoPrices[closestDate] || defaultPrice;
 }
 
-const formatToBarData = (data: any, item: any, key: string, isDolaCase: boolean, prices: any, isAllCase = false) => {
+const formatToBarData = (data: any, item: any, index: number, key: string, isDolaCase: boolean, prices: any, useHistorical = true) => {
   const cgId = isDolaCase ? 'dola-usd' : keyPrices[key];
+
   const histoData = data ?
     data.histoPrices[cgId]
     : {};
+
+  const price = prices[cgId]?.usd;
+  const histoPrice = (histoData && histoData[item.date] ?
+    histoData[item.date] : isDolaCase ?
+      1 : getClosestPreviousHistoPrice(histoData, item.date, price || 1)
+  );
+
+  const symbol = cgIdsSymbols[cgId];
+  const worth = item.amount * (useHistorical ? histoPrice : price)||0
+
   return {
     ...item,
-    worth: item.amount * (histoData && histoData[item.date] ?
-      histoData[item.date] : isDolaCase ?
-        1 : getClosestPreviousHistoPrice(histoData, item.date, prices[cgId]?.usd || 1)
-    )
+    key: `${item.txHash}-${symbol}-${index}`,
+    cgId,
+    symbol,
+    histoPrice,
+    worth,
   };
 }
 
@@ -240,17 +336,24 @@ const totalRepaymentKeys = ['wbtcRepayedByDAO', 'ethRepayedByDAO', 'yfiRepayedBy
 export const BadDebtPage = () => {
   const { data } = useRepayments();
   const [useUsd, setUseUsd] = useState(true);
+  const [useHistorical, setUseHistorical] = useState(false);
   const { prices } = usePrices();
   const [selected, setSelected] = useState('all');
   const isAllCase = selected === 'all';
   const isDolaCase = selected.toLowerCase().includes('dola');
 
+  const totalDirectRepaymentsForTable = totalRepaymentKeys.map(key => {
+    return (data[key] || []).map((d, i) => formatToBarData(data, d, i, key, key.toLowerCase().includes('dola'), prices, true));
+  }).flat();
+
+  const totalDirectRepaymentsForChart = totalRepaymentKeys.map(key => {
+    return (data[key] || []).map((d, i) => formatToBarData(data, d, i, key, key.toLowerCase().includes('dola'), prices, useHistorical));
+  }).flat();
+
   const chartSourceData = isAllCase ?
-    totalRepaymentKeys.map(key => {
-      return (data[key] || []).map((d, i) => formatToBarData(data, d, key, key.toLowerCase().includes('dola'), prices));
-    }).flat() :
+    totalDirectRepaymentsForChart :
     (data[`${selected}RepayedByDAO`] || [])
-      .map((d, i) => formatToBarData(data, d, `${selected}RepayedByDAO`, isDolaCase, prices, isAllCase));
+      .map((d, i) => formatToBarData(data, d, i, `${selected}RepayedByDAO`, isDolaCase, prices, useHistorical));
 
   const { chartData: barChartData } = useEventsAsChartData(chartSourceData, '_acc_', useUsd || isAllCase ? 'worth' : 'amount', false, false);
   const { chartData: dolaBadDebtEvo } = useEventsAsChartData(data?.dolaBadDebtEvolution || [], 'badDebt', 'delta', false, false);
@@ -258,8 +361,12 @@ export const BadDebtPage = () => {
   const items = Object.values(data?.badDebts || {}).map(item => {
     const priceUsd = prices[item.coingeckoId]?.usd || 1;
     const currentBadDebtUsd = item.badDebtBalance * priceUsd;
-    const key = item.symbol === 'DOLA' ? 'totalDolaRepayedByDAO' : `${item.symbol.toLowerCase()}RepayedByDAO`;
-    const totalBadDebtRepaidByDao = data[key]?.reduce((prev, curr) => prev + curr.amount, 0) || 0
+    const isDola = item.symbol === 'DOLA';
+    const key = isDola ? 'totalDolaRepayedByDAO' : `${item.symbol.toLowerCase()}RepayedByDAO`;
+    let totalBadDebtRepaidByDao = data[key]?.reduce((prev, curr) => prev + curr.amount, 0) || 0;
+    if (isDola) {
+      totalBadDebtRepaidByDao += data['dolaForIOUsRepayedByDAO']?.reduce((prev, curr) => prev + curr.amount, 0) || 0;
+    }
     const totalBadDebtRepaidByDaoUsd = totalBadDebtRepaidByDao * priceUsd;
     const totalBadDebtUsd = currentBadDebtUsd + totalBadDebtRepaidByDaoUsd;
     const totalBadDebt = item.badDebtBalance + totalBadDebtRepaidByDao;
@@ -280,11 +387,12 @@ export const BadDebtPage = () => {
   }).filter(item => item.badDebtBalance > 0.1);
 
   const totalBadDebtReduced = (data[`${selected}RepayedByDAO`] || []).reduce((prev, curr) => prev + curr.amount, 0) || 0;
-  const item = items.find(item => item.symbol.toLowerCase() === selected) || { coingeckoId: 'dola-usd' };
-  const totalBadDebtReducedUsd = isDolaCase ? totalBadDebtReduced * prices[item?.coingeckoId]?.usd || 1 :
-    chartSourceData.reduce((prev, curr) => prev + curr.worth, 0) || 0;
+  // const item = items.find(item => item.symbol.toLowerCase() === selected) || { coingeckoId: 'dola-usd' };
+  // const totalBadDebtReducedUsd = isDolaCase ? totalBadDebtReduced * prices[item?.coingeckoId]?.usd || 1 :
+  //   chartSourceData.reduce((prev, curr) => prev + curr.worth, 0) || 0;  
+  const totalBadDebtReducedUsd = chartSourceData.reduce((prev, curr) => prev + curr.worth, 0) || 0
 
-  const barChartNbMonths = getMonthDiff(new Date('2022-06-01'), new Date());
+  const barChartNbMonths = getMonthDiff(new Date('2022-05-01'), new Date());
 
   return (
     <Layout>
@@ -329,7 +437,8 @@ export const BadDebtPage = () => {
                 <Stack direction={{ base: 'column', md: 'row' }}>
                   <Select w={{ base: 'auto', sm: '300px' }} onChange={(e) => setSelected(e.target.value)}>
                     <option value="all">Total Repayments in USD</option>
-                    <option value="totalDola">Total DOLA Repayments</option>
+                    <option value="totalDolaIncludingIOU">Total DOLA Repayments (IOU included)</option>
+                    <option value="totalDola">Total DOLA Repayments (IOU excluded)</option>
                     <option value="dolaFrontier">DOLA Frontier Repayments</option>
                     <option value="nonFrontierDola">DOLA Fuse Repayments</option>
                     <option value="dolaForIOUs">IOU Repayments (in DOLA)</option>
@@ -337,8 +446,14 @@ export const BadDebtPage = () => {
                     <option value="wbtc">WBTC Frontier Repayments</option>
                     <option value="yfi">YFI Frontier Repayments</option>
                   </Select>
+                  <HStack w="200px">
+                    <Text fontSize="16px">
+                      Historical USD
+                    </Text>
+                    <Switch value="true" isChecked={useHistorical} onChange={() => setUseHistorical(!useHistorical)} />
+                  </HStack>
                   {
-                    !isAllCase && <HStack w="100px">
+                    !isAllCase && <HStack w="150px">
                       <Text fontSize="16px">
                         In USD
                       </Text>
@@ -357,27 +472,31 @@ export const BadDebtPage = () => {
                     !isAllCase && <Text>{preciseCommify(totalBadDebtReduced, isDolaCase ? 0 : 2)} {isDolaCase ? 'DOLA' : selected.toUpperCase()}</Text>
                   }
                   <Text fontWeight="bold">
-                    {preciseCommify(totalBadDebtReducedUsd, 0, true)}{!isAllCase ? ' (historical)' : ''}
+                    {preciseCommify(totalBadDebtReducedUsd, 0, true)}
                   </Text>
                 </Stack>
               }
             >
               <VStack w='full' alignItems="center" justify="center">
-                <DefaultCharts
-                  direction={'column-reverse'}
-                  showMonthlyBarChart={true}
-                  maxChartWidth={1000}
-                  chartData={barChartData}
-                  isDollars={isAllCase ? true : useUsd}
-                  areaProps={{ showMaxY: false, showTooltips: true, id: 'repayments-chart', allowZoom: false }}
-                  barProps={{ months: [...Array(barChartNbMonths).keys()], eventName: 'Repayment' }}
-                />
+                {
+                  prices && prices['dola-usd'] ? <DefaultCharts
+                    direction={'column-reverse'}
+                    showMonthlyBarChart={true}
+                    maxChartWidth={1000}
+                    chartData={barChartData}
+                    isDollars={isAllCase ? true : useUsd}
+                    areaProps={{ showMaxY: false, showTooltips: true, id: 'repayments-chart', allowZoom: false }}
+                    barProps={{ months: [...Array(barChartNbMonths).keys()], eventName: 'Repayment' }}
+                  /> :
+                    <SkeletonBlob />
+                }
               </VStack>
             </Container>
           </Stack>
           <Container
             noPadding
             label={`Bad debt recap & Repayments`}
+            description={"At current prices"}
           // description={`Learn more about the bad debt, Debt Converter and Debt Repayer`}
           // href={'https://docs.inverse.finance/inverse-finance/inverse-finance/other/frontier'}
           >
@@ -415,6 +534,21 @@ export const BadDebtPage = () => {
               keyName="symbol"
               defaultSort="symbol"
               defaultSortDir="asc"
+            />
+          </Container>
+          <Container
+            noPadding
+            label={`Direct repayments transactions`}
+            description="Includes DOLA repaid for IOUs"
+          >
+            <Table
+              items={totalDirectRepaymentsForTable}
+              columns={transactionsColumns}
+              enableMobileRender={false}
+              keyName="key"
+              defaultSort="timestamp"
+              defaultSortDir="desc"
+              showTotalRow={true}
             />
           </Container>
         </Flex>
