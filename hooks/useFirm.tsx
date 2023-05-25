@@ -21,7 +21,7 @@ export const useFirmPositions = (isShortfallOnly = false): SWR & {
   positions: any,
   timestamp: number,
 } => {
-  const { data, error } = useCustomSWR(`/api/f2/firm-positions?shortfallOnly=${isShortfallOnly}`, fetcher);
+  const { data, error } = useCacheFirstSWR(`/api/f2/firm-positions?shortfallOnly=${isShortfallOnly}`);
   const { markets } = useDBRMarkets();
 
   const positions = data ? data.positions : [];

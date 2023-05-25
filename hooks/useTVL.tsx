@@ -1,6 +1,6 @@
 import { F2Market, SWR, TokenWithBalance } from '@app/types'
 import { fetcher } from '@app/util/web3'
-import { useCustomSWR } from './useCustomSWR';
+import { useCacheFirstSWR, useCustomSWR } from './useCustomSWR';
 
 type TVL = {
   tvl: number
@@ -23,7 +23,7 @@ export const useFirmTVL = (): SWR & {
   timestamp: number
   firmTvls: { tvl: number, market: F2Market }
 }[] => {
-  const { data, error } = useCustomSWR(`/api/f2/tvl?v=2`, fetcher)
+  const { data, error } = useCacheFirstSWR(`/api/f2/tvl?v=2`)
 
   return {
     firmTotalTvl: data?.firmTotalTvl || 0,

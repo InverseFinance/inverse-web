@@ -6,7 +6,7 @@ import { TOKENS } from "@app/variables/tokens";
 import { BigNumber } from "ethers/lib/ethers";
 import useEtherSWR from "./useEtherSWR"
 import { fetcher } from '@app/util/web3'
-import { useCustomSWR } from "./useCustomSWR";
+import { useCacheFirstSWR, useCustomSWR } from "./useCustomSWR";
 import { f2CalcNewHealth } from "@app/util/f2";
 import { BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
 import { parseUnits } from "@ethersproject/units";
@@ -72,7 +72,7 @@ export const useAccountDBR = (
 export const useDBRMarkets = (marketOrList?: string | string[]): {
   markets: F2Market[]
 } => {
-  const { data: apiData } = useCustomSWR(`/api/f2/fixed-markets?v12`, fetcher);
+  const { data: apiData } = useCacheFirstSWR(`/api/f2/fixed-markets?v12`);
   const _markets = Array.isArray(marketOrList) ? marketOrList : !!marketOrList ? [marketOrList] : [];
 
   const cachedMarkets = (apiData?.markets || F2_MARKETS)
