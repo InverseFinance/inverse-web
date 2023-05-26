@@ -780,3 +780,9 @@ export type ZapperToken = {
   balance: number,
   address: string,
 }
+
+export type CoingeckoHistoricalData = {
+  prices: [number, number][],
+  market_caps: [number, number][],
+  total_volumes: [number, number][],
+}

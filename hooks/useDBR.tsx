@@ -1,5 +1,5 @@
 import { BALANCER_VAULT_ABI, F2_ESCROW_ABI } from "@app/config/abis";
-import { F2Market, SWR } from "@app/types"
+import { CoingeckoHistoricalData, F2Market, SWR } from "@app/types"
 import { getBnToNumber, getNumberToBn } from "@app/util/markets";
 import { getNetworkConfigConstants } from "@app/util/networks"
 import { TOKENS } from "@app/variables/tokens";
@@ -335,6 +335,7 @@ export const useDBR = (): {
   maxRewardRate: number,
   maxYearlyRewardRate: number,
   operator: string,
+  historicalData: CoingeckoHistoricalData
 } => {
   const { data: apiData } = useCustomSWR(`/api/dbr?withExtra=true`, fetcher);
   const { price: livePrice } = useDBRPriceLive();
@@ -361,6 +362,7 @@ export const useDBR = (): {
     totalSupply: extraData ? getBnToNumber(extraData[0]) : (apiData?.totalSupply || 0),
     totalDueTokensAccrued: extraData ? getBnToNumber(extraData[1]) : (apiData?.totalDueTokensAccrued || 0),
     operator: extraData ? extraData[2] : apiData?.operator || '0x926dF14a23BE491164dCF93f4c468A50ef659D5B',
+    historicalData: apiData?.historicalData,
     rewardRate,
     yearlyRewardRate,
     minRewardRate,
