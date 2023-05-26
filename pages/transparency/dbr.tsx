@@ -20,7 +20,6 @@ import { useDBRBurns, useDBRDebtHisto, useDBRReplenishments } from '@app/hooks/u
 import { DbrIncome } from '@app/components/Transparency/DbrIncome'
 import { useRouter } from 'next/router'
 import { DbrBurns } from '@app/components/Transparency/DbrBurns'
-import { DbrDebt } from '@app/components/Transparency/DbrDebt'
 import { DbrEmissions } from '@app/components/Transparency/DbrEmissions'
 import { timestampToUTC } from '@app/util/misc'
 

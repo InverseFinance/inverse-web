@@ -15,16 +15,18 @@ export const DbrBurns = ({
 }) => {
     const [useUsd, setUseUsd] = useState(false);
     const _history = history?.map(d => {
-        return { ...d, debtUsd: d.debt * (histoPrices[timestampToUTC(d.timestamp)]||0.05) }
+        const histoPrice = (histoPrices[timestampToUTC(d.timestamp)] || 0.05);
+        return { ...d, debtUsd: d.debt * histoPrice, histoPrice }
     });
     const _burnEvents = burnEvents?.map(d => {
-        const histoPrice = (histoPrices[timestampToUTC(d.timestamp)]||0.05);
+        const histoPrice = (histoPrices[timestampToUTC(d.timestamp)] || 0.05);
         return { ...d, accBurnUsd: d.accBurn * histoPrice, amountUsd: d.amount * histoPrice }
     });
+        
     const { chartData: debtChartData } = useEventsAsChartData(_history, useUsd ? 'debtUsd' : 'debt', useUsd ? 'debtUsd' : 'debt');
-    const { chartData: burnChartData } = useEventsAsChartData(_burnEvents, useUsd ? 'accBurnUsd' : 'accBurnUsd', useUsd ? 'amountUsd' : 'amount');
+    const { chartData: burnChartData } = useEventsAsChartData(_burnEvents, useUsd ? 'accBurnUsd' : 'accBurn', useUsd ? 'amountUsd' : 'amount');
     const [chartWidth, setChartWidth] = useState<number>(maxChartWidth);
-    const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);    
+    const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
     const { themeStyles } = useAppTheme();
     const defaultColorScale = [themeStyles.colors.secondary];
 

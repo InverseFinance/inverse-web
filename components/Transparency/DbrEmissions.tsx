@@ -69,8 +69,7 @@ export const DbrEmissions = ({
             return includeReplenishments ? repHashes.includes(e.txHash) : !repHashes.includes(e.txHash);
         });
 
-    const _events = (includeInitialEmission ? [initEvent, ...filteredEvents] : filteredEvents)
-        .map(e => {
+    const _events = (includeInitialEmission ? [initEvent, ...filteredEvents] : filteredEvents)?.map(e => {
             const histoPrice = histoPrices[timestampToUTC(e.timestamp)] || 0.05;
             return { ...e, worth: e.amount * histoPrice };
         });
@@ -101,7 +100,7 @@ export const DbrEmissions = ({
             id="annualized-streaming"
             showMaxY={false}
             showTooltips={true}
-            domainYpadding={1000000}
+            domainYpadding={useUsd ? 100000 : 1000000}
             isDollars={useUsd}
         />
         <Divider />
