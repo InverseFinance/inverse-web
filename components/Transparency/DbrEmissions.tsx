@@ -61,7 +61,7 @@ export const DbrEmissions = ({
             const yearlyRewardRate = rateChanges.findLast(d => date >= d.date)?.yearlyRewardRate || 0;
             return { yearlyRewardRate, date, timestamp: +(new Date(date)), histoPrice, worth: histoPrice * yearlyRewardRate };
         });
-    const annualizedEmissions = rateChanges.concat(intermediaryPoints);    
+    const annualizedEmissions = rateChanges.concat(intermediaryPoints);
 
     const filteredEvents = includeReplenishments && includeClaims ?
         emissionEvents :
@@ -89,7 +89,7 @@ export const DbrEmissions = ({
     return <Stack w='full' direction={{ base: 'column' }}>
         <FormControl cursor="pointer" w='full' justifyContent="flex-start" display='flex' alignItems='center'>
             <Text mr="2" onClick={() => setUseUsd(!useUsd)}>
-                In USD historical value
+                Show in USD historical value
             </Text>
             <Switch onChange={(e) => setUseUsd(!useUsd)} size="sm" colorScheme="purple" isChecked={useUsd} />
         </FormControl>

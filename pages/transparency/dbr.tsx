@@ -35,11 +35,9 @@ export const DBRTransparency = () => {
     const { events: burnEvents } = useDBRBurns();
     const { history } = useDBRDebtHisto();
     const { chartData } = useEventsAsChartData(events, 'daoFeeAcc', 'daoDolaReward');
-    const { chartData: debtChartData } = useEventsAsChartData(history, 'debt', 'debt');
-    const { chartData: burnChartData } = useEventsAsChartData(burnEvents, 'accBurn', 'amount');
     const [tab, setTab] = useState('Burns');
-
-    const histoPrices = historicalData ? historicalData.prices.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr[0])]: curr[1] }), {}) : {};
+    
+    const histoPrices = historicalData && !!historicalData?.prices ? historicalData.prices.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr[0])]: curr[1] }), {}) : {};
 
     const handleTabChange = (v: string) => {
         location.hash = v;
@@ -90,9 +88,8 @@ export const DBRTransparency = () => {
                             tab === 'Income' && <DbrIncome chartData={chartData} />
                         }
                         {
-                            tab === 'Burns' && <VStack>
-                                <DbrDebt chartData={debtChartData} />
-                                <DbrBurns chartData={burnChartData} />
+                            tab === 'Burns' && <VStack>                                
+                                <DbrBurns histoPrices={histoPrices} history={history} burnEvents={burnEvents} />
                             </VStack>
                         }
                         {
