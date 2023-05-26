@@ -22,6 +22,7 @@ import { useRouter } from 'next/router'
 import { DbrBurns } from '@app/components/Transparency/DbrBurns'
 import { DbrDebt } from '@app/components/Transparency/DbrDebt'
 import { DbrEmissions } from '@app/components/Transparency/DbrEmissions'
+import { timestampToUTC } from '@app/util/misc'
 
 const { TOKENS, TREASURY, DBR } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -29,7 +30,7 @@ const tabsOptions = ['Burns', 'Issuance', 'Spenders', 'Replenishments', 'Income'
 
 export const DBRTransparency = () => {
     const router = useRouter();
-    const { totalSupply, operator, price, yearlyRewardRate, rewardRate, minYearlyRewardRate, maxYearlyRewardRate } = useDBR();
+    const { totalSupply, operator, price, yearlyRewardRate, rewardRate, minYearlyRewardRate, maxYearlyRewardRate, historicalData } = useDBR();
     const { events } = useDBRReplenishments();
     const { events: burnEvents } = useDBRBurns();
     const { history } = useDBRDebtHisto();
@@ -37,6 +38,8 @@ export const DBRTransparency = () => {
     const { chartData: debtChartData } = useEventsAsChartData(history, 'debt', 'debt');
     const { chartData: burnChartData } = useEventsAsChartData(burnEvents, 'accBurn', 'amount');
     const [tab, setTab] = useState('Burns');
+
+    const histoPrices = historicalData ? historicalData.prices.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr[0])]: curr[1] }), {}) : {};
 
     const handleTabChange = (v: string) => {
         location.hash = v;
@@ -94,7 +97,7 @@ export const DBRTransparency = () => {
                         }
                         {
                             tab === 'Issuance' && <VStack>
-                                <DbrEmissions replenishments={events} yearlyRewardRate={yearlyRewardRate} rewardRate={rewardRate} />
+                                <DbrEmissions histoPrices={histoPrices} replenishments={events} yearlyRewardRate={yearlyRewardRate} rewardRate={rewardRate} />
                             </VStack>
                         }
                     </VStack>
