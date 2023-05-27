@@ -77,7 +77,7 @@ export const DbrEmissions = ({
             domainYpadding={1000000}
         />
         <Divider />
-        <HStack pt="4" spacing="4" justify="space-between" alignItems="center" w='full'>
+        <Stack direction={{ base :'column', sm: 'row' }} pt="4" spacing="4" justify="space-between" alignItems="center" w='full'>
             <HStack spacing="4" justify="flex-start" alignItems="center">
                 <FormControl w='auto' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
                     <Text mr="2" onClick={() => setIncludeInitialEmission(!includeInitialEmission)}>
@@ -87,13 +87,13 @@ export const DbrEmissions = ({
                 </FormControl>
                 <FormControl w='auto' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
                     <Text mr="2" onClick={() => setIncludeReplenishments(!includeReplenishments)}>
-                        Forced replenishments
+                        Replenishments
                     </Text>
                     <Switch onChange={(e) => setIncludeReplenishments(!includeReplenishments)} size="sm" colorScheme="purple" isChecked={includeReplenishments} />
                 </FormControl>
                 <FormControl w='auto' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
                     <Text mr="2" onClick={() => setIncludeClaims(!includeClaims)}>
-                        Claimed by stakers
+                        Claims
                     </Text>
                     <Switch onChange={(e) => setIncludeClaims(!includeClaims)} size="sm" colorScheme="purple" isChecked={includeClaims} />
                 </FormControl>
@@ -104,7 +104,7 @@ export const DbrEmissions = ({
                 </Text>
                 <Switch onChange={(e) => setIsSmooth(!isSmooth)} size="sm" colorScheme="blue" isChecked={isSmooth} />
             </FormControl>
-        </HStack>
+        </Stack>
         <DefaultCharts
             chartData={emissionChartData}
             maxChartWidth={chartWidth}

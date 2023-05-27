@@ -47,7 +47,7 @@ export const ZapperTokens = ({
                             <HStack>
                                 <UnderlyingItem {...underlying} label={underlying.symbol || t.symbol} textProps={{ fontSize: '14px', fontWeight: 'bold' }} />
                             </HStack>
-                            <Text color='mainTextColorLight' fontSize='14px'>{shortenNumber(t.price, 2, true)}</Text>
+                            <Text color='mainTextColorLight' fontSize='14px'>{shortenNumber(t.price, 4, true)}</Text>
                         </VStack>
                         <VStack spacing="1" alignItems="flex-end">
                             <Text fontSize='14px'>{shortenNumber(t.balance, 2)}</Text>
