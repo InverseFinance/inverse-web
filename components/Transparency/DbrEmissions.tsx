@@ -16,52 +16,40 @@ export const DbrEmissions = ({
     rewardRate,
     replenishments,
     histoPrices,
+    useUsd = false,
 }: {
     maxChartWidth: number
     yearlyRewardRate: number
     rewardRate: number
     replenishments: any[]
     histoPrices: { [key: string]: number }
+    useUsd?: boolean
 }) => {
     const [includeInitialEmission, setIncludeInitialEmission] = useState(false);
     const [includeReplenishments, setIncludeReplenishments] = useState(true);
     const [includeClaims, setIncludeClaims] = useState(true);
-    const [useUsd, setUseUsd] = useState(false);
-
-    // const now = +(new Date());
-    // const inOneYear = now + ONE_DAY_MS * 365;
-    // const deltaSec = (now - streamingStartTs) / 1000
-    // const amountSinceStart = rewardRate * deltaSec;
-
-    // const theoreticalStreaming = [
-    //     { amount: 0, timestamp: streamingStartTs },
-    //     { amount: amountSinceStart, timestamp: now },
-    //     { amount: yearlyRewardRate, timestamp: inOneYear },
-    // ];
-    // if(includeInitialEmission) {
-    //     theoreticalStreaming.unshift(initEvent);
-    // }
+    // const [useUsd, setUseUsd] = useState(false);
 
     const [isSmooth, setIsSmooth] = useState(true);
     const repHashes = replenishments?.map(r => r.txHash) || [];
     const { events: emissionEvents, rewardRatesHistory, timestamp } = useDBREmissions();
 
-    const rateChanges = (rewardRatesHistory?.rates || [
-        { yearlyRewardRate: 0, timestamp: streamingStartTs - ONE_DAY_MS * 3 },
-        { yearlyRewardRate: 4000000, timestamp: streamingStartTs },
-    ]).map(e => {
-        const date = timestampToUTC(e.timestamp);
-        const histoPrice = histoPrices[date];
-        return { ...e, histoPrice, worth: e.yearlyRewardRate * (histoPrice || 0.05), date };
-    });
+    // const rateChanges = (rewardRatesHistory?.rates || [
+    //     { yearlyRewardRate: 0, timestamp: streamingStartTs - ONE_DAY_MS * 3 },
+    //     { yearlyRewardRate: 4000000, timestamp: streamingStartTs },
+    // ]).map(e => {
+    //     const date = timestampToUTC(e.timestamp);
+    //     const histoPrice = histoPrices[date];
+    //     return { ...e, histoPrice, worth: e.yearlyRewardRate * (histoPrice || 0.05), date };
+    // });
     
-    const intermediaryPoints = Object.entries(histoPrices)
-        .filter(([date, v]) => date > rateChanges[0]?.date)
-        .map(([date, histoPrice]) => {
-            const yearlyRewardRate = rateChanges.findLast(d => date >= d.date)?.yearlyRewardRate || 0;
-            return { yearlyRewardRate, date, timestamp: +(new Date(date)), histoPrice, worth: histoPrice * yearlyRewardRate };
-        });
-    const annualizedEmissions = rateChanges.concat(intermediaryPoints);
+    // const intermediaryPoints = Object.entries(histoPrices)
+    //     .filter(([date, v]) => date > rateChanges[0]?.date)
+    //     .map(([date, histoPrice]) => {
+    //         const yearlyRewardRate = rateChanges.findLast(d => date >= d.date)?.yearlyRewardRate || 0;
+    //         return { yearlyRewardRate, date, timestamp: +(new Date(date)), histoPrice, worth: histoPrice * yearlyRewardRate };
+    //     });
+    // const annualizedEmissions = rateChanges.concat(intermediaryPoints);
 
     const filteredEvents = includeReplenishments && includeClaims ?
         emissionEvents :
@@ -76,7 +64,7 @@ export const DbrEmissions = ({
 
     const { chartData: emissionChartData } = useEventsAsChartData(_events, '_auto_', useUsd ? 'worth' : 'amount');
     // const { chartData: theoreticalStreamingChartData } = useEventsAsChartData(theoreticalStreaming, '_auto_', 'amount', false, false);
-    const { chartData: annualizedEmissionsChartData } = useEventsAsChartData(annualizedEmissions, useUsd ? 'worth' : 'yearlyRewardRate', useUsd ? 'worth' : 'yearlyRewardRate', true, false);
+    // const { chartData: annualizedEmissionsChartData } = useEventsAsChartData(annualizedEmissions, useUsd ? 'worth' : 'yearlyRewardRate', useUsd ? 'worth' : 'yearlyRewardRate', true, false);
 
     const [chartWidth, setChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
@@ -86,13 +74,13 @@ export const DbrEmissions = ({
     }, [isLargerThan]);
 
     return <Stack w='full' direction={{ base: 'column' }}>
-        <FormControl cursor="pointer" w='full' justifyContent="flex-start" display='flex' alignItems='center'>
+        {/* <FormControl cursor="pointer" w='full' justifyContent="flex-start" display='flex' alignItems='center'>
             <Text mr="2" onClick={() => setUseUsd(!useUsd)}>
                 Show in USD historical value
             </Text>
             <Switch onChange={(e) => setUseUsd(!useUsd)} size="sm" colorScheme="purple" isChecked={useUsd} />
-        </FormControl>
-        <AreaChart
+        </FormControl> */}
+        {/* <AreaChart
             title="DBR annualized issuance over time"
             width={chartWidth}
             data={annualizedEmissionsChartData}
@@ -103,7 +91,7 @@ export const DbrEmissions = ({
             domainYpadding={useUsd ? 100000 : 1000000}
             isDollars={useUsd}
         />
-        <Divider />
+        <Divider /> */}
         <Stack direction={{ base :'column', sm: 'row' }} pt="4" spacing="4" justify="space-between" alignItems="center" w='full'>
             <HStack spacing="4" justify="flex-start" alignItems="center">
                 <FormControl w='auto' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
@@ -125,18 +113,19 @@ export const DbrEmissions = ({
                     <Switch onChange={(e) => setIncludeClaims(!includeClaims)} size="sm" colorScheme="purple" isChecked={includeClaims} />
                 </FormControl>
             </HStack>
-            <FormControl w='auto' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
+            {/* <FormControl w='auto' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
                 <Text mr="2" onClick={() => setIsSmooth(!isSmooth)}>
                     Smooth line?
                 </Text>
                 <Switch onChange={(e) => setIsSmooth(!isSmooth)} size="sm" colorScheme="blue" isChecked={isSmooth} />
-            </FormControl>
+            </FormControl> */}
         </Stack>
         <DefaultCharts
             chartData={emissionChartData}
             maxChartWidth={chartWidth}
             isDollars={useUsd}
             showMonthlyBarChart={true}
+            showAreaChart={false}
             areaProps={{
                 interpolation: isSmooth ? "basis" : "stepAfter",
                 title: "DBR issuance over time",
@@ -147,13 +136,5 @@ export const DbrEmissions = ({
                 title: 'DBR issuance in the last 12 months'
             }}
         />
-        {/* <AreaChart
-            title="Theoretical Emissions Evolution"
-            width={chartWidth}
-            data={theoreticalStreamingChartData}
-            interpolation="linear"
-            id="theoretical-streaming"
-            showMaxY={false}
-        /> */}
     </Stack>
 }
