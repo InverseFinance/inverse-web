@@ -16,7 +16,7 @@ export default async function handler(req, res) {
   const cacheKey = `dbr-cache${withExtra ? '-extra' : ''}-v1.0.6`;
 
   try {
-    const validCache = await getCacheFromRedis(cacheKey, true, 9999);
+    const validCache = await getCacheFromRedis(cacheKey, true, 300);
     if (validCache) {
       res.status(200).json(validCache);
       return
