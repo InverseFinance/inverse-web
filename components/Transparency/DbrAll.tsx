@@ -6,20 +6,20 @@ import { useAppTheme } from "@app/hooks/useAppTheme";
 import { DbrDebt } from "./DbrDebt";
 import { useEventsAsChartData } from "@app/hooks/misc";
 import { timestampToUTC } from "@app/util/misc";
-import { VictoryAxis, VictoryLine } from "victory";
-// import { MultiChart } from "./MultiChart";
-// import { DbrMultiChart } from "./DbrMultiChart";
 import { useDBREmissions } from "@app/hooks/useFirm";
 import { ONE_DAY_MS } from "@app/config/constants";
 import { DbrComboChart } from "./DbrComboChart";
+import { DbrEmissions } from "./DbrEmissions";
 
-const initEvent = { blocknumber: 16196827, timestamp: 1671148800000, txHash: '', amount: 4646000 };
 const streamingStartTs = 1684713600000;
 
 export const DbrAll = ({
     history,
     burnEvents,
     histoPrices,
+    replenishments,
+    yearlyRewardRate,
+    rewardRate,
     maxChartWidth = 800,
 }) => {
     const [useUsd, setUseUsd] = useState(false);
@@ -63,15 +63,11 @@ export const DbrAll = ({
             debtUsd: d.debt * histoPrice,
             histoPrice,
             yearlyRewardRate,
+            yearlyRewardRateUsd: yearlyRewardRate * histoPrice,
         }
     });
-    console.log(combodata)
-    console.log(histoPrices)
 
-    const { chartData: priceChartData } = useEventsAsChartData(_history, 'histoPrice', 'histoPrice');
-    const { chartData: debtChartData } = useEventsAsChartData(_history, useUsd ? 'debtUsd' : 'debt', useUsd ? 'debtUsd' : 'debt');
     const { chartData: burnChartData } = useEventsAsChartData(_burnEvents, useUsd ? 'accBurnUsd' : 'accBurn', useUsd ? 'amountUsd' : 'amount');
-    const { chartData: annualizedEmissionsChartData } = useEventsAsChartData(annualizedEmissions, useUsd ? 'worth' : 'yearlyRewardRate', useUsd ? 'worth' : 'yearlyRewardRate', true, false);
 
     const [chartWidth, setChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
@@ -82,12 +78,6 @@ export const DbrAll = ({
         setChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 40)
     }, [isLargerThan]);
 
-    const multiData = [
-        debtChartData,
-        annualizedEmissionsChartData,
-        priceChartData,
-    ]
-
     return <Stack w='full' direction={{ base: 'column' }}>
         <FormControl cursor="pointer" w='full' justifyContent="flex-start" display='flex' alignItems='center'>
             <Text mr="2" onClick={() => setUseUsd(!useUsd)}>
@@ -95,7 +85,7 @@ export const DbrAll = ({
             </Text>
             <Switch onChange={(e) => setUseUsd(!useUsd)} size="sm" colorScheme="purple" isChecked={useUsd} />
         </FormControl>
-        <DbrComboChart combodata={combodata} chartWidth={chartWidth} />
+        <DbrComboChart combodata={combodata} chartWidth={chartWidth} useUsd={useUsd} />
         {/* <DbrMultiChart
             multiData={multiData}
             showTooltips={true}
@@ -135,6 +125,7 @@ export const DbrAll = ({
             id="dbr-burns-evo"
             title="DBR burned over time"
         />
+         */}
         <BarChart12Months
             title="DBR burned in the last 12 months"
             chartData={burnChartData}
@@ -143,6 +134,13 @@ export const DbrAll = ({
             yAttribute="yDay"
             colorScale={defaultColorScale}
             isDollars={useUsd}
-        /> */}
+        />
+        <DbrEmissions
+            maxChartWidth={chartWidth}
+            histoPrices={histoPrices}
+            replenishments={replenishments}
+            yearlyRewardRate={yearlyRewardRate}
+            rewardRate={rewardRate}
+        />
     </Stack>
 }

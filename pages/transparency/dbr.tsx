@@ -26,7 +26,7 @@ import { DbrAll } from '@app/components/Transparency/DbrAll'
 
 const { TOKENS, TREASURY, DBR } = getNetworkConfigConstants(NetworkIds.mainnet);
 
-const tabsOptions = ['Burns', 'Issuance', 'Spenders', 'Replenishments', 'Income', 'Flowchart'];
+const tabsOptions = ['Issuance', 'Spenders', 'Replenishments', 'Income', 'Flowchart'];
 
 export const DBRTransparency = () => {
     const router = useRouter();
@@ -35,7 +35,7 @@ export const DBRTransparency = () => {
     const { events: burnEvents } = useDBRBurns();
     const { history } = useDBRDebtHisto();
     const { chartData } = useEventsAsChartData(events, 'daoFeeAcc', 'daoDolaReward');
-    const [tab, setTab] = useState('Burns');
+    const [tab, setTab] = useState('Issuance');
     
     const histoPrices = historicalData && !!historicalData?.prices ? historicalData.prices.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr[0])]: curr[1] }), {}) : {};
 
@@ -88,17 +88,17 @@ export const DBRTransparency = () => {
                             tab === 'Income' && <DbrIncome chartData={chartData} />
                         }
                         {
-                            tab === 'Burns' && <VStack w='full'>                                
-                                <DbrAll histoPrices={histoPrices} history={history} burnEvents={burnEvents} />
+                            tab === 'Issuance' && <VStack w='full'>                                
+                                <DbrAll histoPrices={histoPrices} history={history} burnEvents={burnEvents} replenishments={events}  yearlyRewardRate={yearlyRewardRate} rewardRate={rewardRate}  />
                                 {/* <DbrBurns histoPrices={histoPrices} history={history} burnEvents={burnEvents} /> */}
                                 {/* <DbrComboChart histoPrices={histoPrices} history={history} burnEvents={burnEvents} /> */}
                             </VStack>
                         }
-                        {
+                        {/* {
                             tab === 'Issuance' && <VStack>
                                 <DbrEmissions histoPrices={histoPrices} replenishments={events} yearlyRewardRate={yearlyRewardRate} rewardRate={rewardRate} />
                             </VStack>
-                        }
+                        } */}
                     </VStack>
                 </VStack>
                 <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: '300px' }}>
