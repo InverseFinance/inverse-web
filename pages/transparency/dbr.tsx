@@ -22,6 +22,7 @@ import { useRouter } from 'next/router'
 import { DbrBurns } from '@app/components/Transparency/DbrBurns'
 import { DbrEmissions } from '@app/components/Transparency/DbrEmissions'
 import { timestampToUTC } from '@app/util/misc'
+import { DbrAll } from '@app/components/Transparency/DbrAll'
 
 const { TOKENS, TREASURY, DBR } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -87,8 +88,10 @@ export const DBRTransparency = () => {
                             tab === 'Income' && <DbrIncome chartData={chartData} />
                         }
                         {
-                            tab === 'Burns' && <VStack>                                
-                                <DbrBurns histoPrices={histoPrices} history={history} burnEvents={burnEvents} />
+                            tab === 'Burns' && <VStack w='full'>                                
+                                <DbrAll histoPrices={histoPrices} history={history} burnEvents={burnEvents} />
+                                {/* <DbrBurns histoPrices={histoPrices} history={history} burnEvents={burnEvents} /> */}
+                                {/* <DbrComboChart histoPrices={histoPrices} history={history} burnEvents={burnEvents} /> */}
                             </VStack>
                         }
                         {
