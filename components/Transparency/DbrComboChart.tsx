@@ -34,23 +34,25 @@ export const DbrComboChart = ({
     }
 
     return (
-        <VStack>
+        <VStack pr="110px">
             <Text>
-                DBR price and annualized burns & issuance
+                DBR price and annualized burn & issuance
             </Text>
             <ComposedChart
                 width={chartWidth}
-                height={300}
+                height={400}
                 data={combodata}
                 margin={{
-                    top: 50,
-                    right: 50,
-                    left: 50,
-                    bottom: 0,
+                    top: 20,
+                    right: 0,
+                    left: 0,
+                    bottom: 20,
                 }}
             >
                 <CartesianGrid strokeDasharray={_axisStyle.grid.strokeDasharray} />
-                <XAxis style={_axisStyle.tickLabels} dataKey="timestamp" scale="time" tickFormatter={v => moment(v).format('MMM-YY')} />
+                <XAxis minTickGap={28} interval="preserveStartEnd" style={_axisStyle.tickLabels} dataKey="timestamp" scale="time" type={'number'} allowDataOverflow={true} domain={['dataMin', 'dataMax']} tickFormatter={(v) => {
+                    return moment(v).format('MMM Do')
+                }} />
                 <YAxis style={_axisStyle.tickLabels} yAxisId="left" tickFormatter={(v) => smartShortNumber(v, 2, useUsd)} />
                 <YAxis style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => shortenNumber(v, 4, true)} />
                 <Tooltip
@@ -67,7 +69,7 @@ export const DbrComboChart = ({
                 <Area opacity={actives["Annualized DBR burn"] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name="Annualized DBR burn" yAxisId="left" type="monotone" dataKey={useUsd ? 'debtUsd' : 'debt'} stroke={themeStyles.colors.warning} dot={false} fillOpacity={1} fill="url(#warning-gradient)" />
                 <Area opacity={actives["Annualized DBR issuance"] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name="Annualized DBR issuance" yAxisId="left" type="monotone" dataKey={useUsd ? 'yearlyRewardRateUsd' : 'yearlyRewardRate'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={1} fill="url(#secondary-gradient)" />
                 <Line opacity={actives["Price"] ? 1 : 0} strokeWidth={2} name="Price" yAxisId="right" type="monotone" dataKey="histoPrice" stroke={themeStyles.colors.info} dot={false} />
-                <Brush dataKey="timestamp" height={30} stroke="#8884d8" tickFormatter={(v) => moment(v).format('MMM Do YYYY')} />
+                <Brush dataKey="timestamp" height={30} stroke="#8884d8" tickFormatter={(v) => ''} />
             </ComposedChart>
         </VStack>
     );

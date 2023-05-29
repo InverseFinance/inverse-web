@@ -125,6 +125,7 @@ export const DbrEmissions = ({
             maxChartWidth={chartWidth}
             isDollars={useUsd}
             showMonthlyBarChart={true}
+            showAreaChart={false}
             areaProps={{
                 interpolation: isSmooth ? "basis" : "stepAfter",
                 title: "DBR issuance over time",

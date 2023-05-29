@@ -1,4 +1,4 @@
-import { FormControl, Stack, useMediaQuery, Text, Switch } from "@chakra-ui/react";
+import { FormControl, Stack, useMediaQuery, Text, Switch, Divider } from "@chakra-ui/react";
 import { AreaChart } from "./AreaChart"
 import { useEffect, useState } from "react";
 import { BarChart12Months } from "./BarChart12Months";
@@ -85,20 +85,10 @@ export const DbrAll = ({
             </Text>
             <Switch onChange={(e) => setUseUsd(!useUsd)} size="sm" colorScheme="purple" isChecked={useUsd} />
         </FormControl>
+        <Divider />
         <DbrComboChart combodata={combodata} chartWidth={chartWidth} useUsd={useUsd} />
-        {/* <DbrMultiChart
-            multiData={multiData}
-            showTooltips={true}
-            height={300}
-            width={chartWidth}
-            // extraCharts={extraCharts}
-            allowZoom={true}
-            domainYpadding={'auto'}
-            mainColor="secondary"
-            isDollars={useUsd}
-            id="dbr-burns-evo-2"
-            title="DBR burned over time"
-        />
+        <Divider />
+        {/* 
         <AreaChart
             showTooltips={true}
             height={300}
