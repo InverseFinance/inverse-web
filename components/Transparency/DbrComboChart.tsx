@@ -1,6 +1,5 @@
 import { useAppTheme } from '@app/hooks/useAppTheme';
 import { shortenNumber, smartShortNumber } from '@app/util/markets';
-import Reactfrom 'react';
 import { LineChart, AreaChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import moment from 'moment';
 import { preciseCommify } from '@app/util/misc';
