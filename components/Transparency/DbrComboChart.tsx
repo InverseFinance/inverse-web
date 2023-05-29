@@ -8,13 +8,17 @@ import { useState } from 'react';
 
 export const DbrComboChart = ({
     combodata,
-    chartWidth,
+    chartWidth = 900,
     axisStyle,
     useUsd = false,
 }: {
+    combodata: { debt: number, dbrUsd: number, timestamp: number, histoPrice: number, yearlyRewardRateUsd: number, yearlyRewardRate: number }[]
     axisStyle?: any
+    chartWidth?: number
+    useUsd?: boolean
 }) => {
     const { themeStyles } = useAppTheme();
+    const [brushIndexes, setBrushIndexes] = useState({ startIndex: undefined, endIndex: undefined });
     const [actives, setActives] = useState({
         "Annualized DBR burn": true,
         "Annualized DBR issuance": true,
@@ -31,6 +35,10 @@ export const DbrComboChart = ({
 
     const toggleChart = (params) => {
         setActives({ ...actives, [params.value]: !actives[params.value] })
+    }
+
+    const handleBrush = (params) => {        
+        setBrushIndexes(params);
     }
 
     return (
@@ -69,7 +77,7 @@ export const DbrComboChart = ({
                 <Area opacity={actives["Annualized DBR burn"] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name="Annualized DBR burn" yAxisId="left" type="monotone" dataKey={useUsd ? 'debtUsd' : 'debt'} stroke={themeStyles.colors.warning} dot={false} fillOpacity={1} fill="url(#warning-gradient)" />
                 <Area opacity={actives["Annualized DBR issuance"] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name="Annualized DBR issuance" yAxisId="left" type="monotone" dataKey={useUsd ? 'yearlyRewardRateUsd' : 'yearlyRewardRate'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={1} fill="url(#secondary-gradient)" />
                 <Line opacity={actives["Price"] ? 1 : 0} strokeWidth={2} name="Price" yAxisId="right" type="monotone" dataKey="histoPrice" stroke={themeStyles.colors.info} dot={false} />
-                <Brush dataKey="timestamp" height={30} stroke="#8884d8" tickFormatter={(v) => ''} />
+                <Brush onChange={handleBrush} startIndex={brushIndexes.startIndex} endIndex={brushIndexes.endIndex} dataKey="timestamp" height={30} stroke="#8884d8" tickFormatter={(v) => ''} />
             </ComposedChart>
         </VStack>
     );

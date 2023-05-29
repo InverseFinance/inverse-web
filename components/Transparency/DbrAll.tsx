@@ -1,9 +1,7 @@
 import { FormControl, Stack, useMediaQuery, Text, Switch, Divider } from "@chakra-ui/react";
-import { AreaChart } from "./AreaChart"
 import { useEffect, useState } from "react";
 import { BarChart12Months } from "./BarChart12Months";
 import { useAppTheme } from "@app/hooks/useAppTheme";
-import { DbrDebt } from "./DbrDebt";
 import { useEventsAsChartData } from "@app/hooks/misc";
 import { timestampToUTC } from "@app/util/misc";
 import { useDBREmissions } from "@app/hooks/useFirm";
@@ -35,18 +33,6 @@ export const DbrAll = ({
         return { ...e, histoPrice, worth: e.yearlyRewardRate * (histoPrice || 0.05), date };
     });
 
-    const annualizedEmissions = history
-        .map((d) => {
-            const date = timestampToUTC(d.timestamp);
-            const histoPrice = (histoPrices[date] || 0.05);
-            const yearlyRewardRate = rateChanges.findLast(d => date >= d.date)?.yearlyRewardRate || 0;
-            return { yearlyRewardRate, date, timestamp: +(new Date(date)), histoPrice, worth: histoPrice * yearlyRewardRate };
-        });
-
-    const _history = history?.map(d => {
-        const histoPrice = (histoPrices[timestampToUTC(d.timestamp)] || 0.05);
-        return { ...d, debtUsd: d.debt * histoPrice, histoPrice }
-    });
     const _burnEvents = burnEvents?.map(d => {
         const histoPrice = (histoPrices[timestampToUTC(d.timestamp)] || 0.05);
         return { ...d, accBurnUsd: d.accBurn * histoPrice, amountUsd: d.amount * histoPrice }
@@ -87,35 +73,7 @@ export const DbrAll = ({
         </FormControl>
         <Divider />
         <DbrComboChart combodata={combodata} chartWidth={chartWidth} useUsd={useUsd} />
-        <Divider />
-        {/* 
-        <AreaChart
-            showTooltips={true}
-            height={300}
-            width={chartWidth}
-            data={priceChartData}
-            domainYpadding={'auto'}
-            mainColor="secondary"
-            isDollars={true}
-            id="dbr-price"
-            title="DBR price"
-            yTickPrecision={4}
-            allowZoom={true}
-        /> */}
-        {/* 
-        <DbrDebt chartData={debtChartData} useUsd={useUsd} />
-        <AreaChart
-            showTooltips={true}
-            height={300}
-            width={chartWidth}
-            data={burnChartData}
-            domainYpadding={'auto'}
-            mainColor="secondary"
-            isDollars={useUsd}
-            id="dbr-burns-evo"
-            title="DBR burned over time"
-        />
-         */}
+        <Divider />        
         <BarChart12Months
             title="DBR burned in the last 12 months"
             chartData={burnChartData}
