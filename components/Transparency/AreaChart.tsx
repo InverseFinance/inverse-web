@@ -1,4 +1,4 @@
-import { smartShortNumber } from '@app/util/markets';
+import { shortenNumber, smartShortNumber } from '@app/util/markets';
 import { VictoryChart, VictoryBar, VictoryLabel, VictoryAxis, VictoryArea, VictoryTheme, VictoryClipContainer, VictoryVoronoiContainer, VictoryAreaProps, VictoryAxisProps, VictoryLabelProps, VictoryZoomContainer, VictoryBrushContainer, createContainer } from 'victory';
 import moment from 'moment'
 import { Box, VStack, useMediaQuery } from '@chakra-ui/react';
@@ -90,7 +90,7 @@ export const AreaChart = ({
         mouseFollowTooltips: true, voronoiDimension: 'x', labelComponent: <FlyoutTooltip />,
         labels: ({ datum }) => {
             return (
-                moment(datum.x).format('MMM Do YYYY') + '\n' + `${smartShortNumber(datum.y, 2, isDollars)}${isPerc ? '%' : ''}`
+                moment(datum.x).format('MMM Do YYYY') + '\n' + `${shortenNumber(datum.y, yTickPrecision, isDollars)}${isPerc ? '%' : ''}`
             )
         }
     };
@@ -122,7 +122,7 @@ export const AreaChart = ({
                     {
                         !!title && <VictoryLabel text={title} style={{ fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '16px' }} x={Math.floor(width / 2)} y={20} textAnchor="middle" {...titleProps} />
                     }
-                    <VictoryAxis style={_axisStyle} dependentAxis tickFormat={(t) => `${smartShortNumber(t, yTickPrecision ?? (t >= 1000000 && t < 10000000 ? 2 : 0), isDollars)}${isPerc ? '%' : ''}`} />
+                    <VictoryAxis style={_axisStyle} dependentAxis tickFormat={(t) => `${smartShortNumber(t, yTickPrecision, isDollars)}${isPerc ? '%' : ''}`} />
                     <VictoryAxis style={_axisStyle} />
                     <VictoryArea
                         domain={{ y: [autoMinY ? minY - _yPad < 0 ? 0 : minY - _yPad : 0, maxY + _yPad] }}
