@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 export const DbrDebt = ({
     chartData,
     maxChartWidth = 800,
+    useUsd = false,
 }) => {
     const [chartWidth, setChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
@@ -19,9 +20,10 @@ export const DbrDebt = ({
             height={300}
             width={chartWidth}
             data={chartData}
-            domainYpadding={200000}
+            domainYpadding={'auto'}
             mainColor="secondary"
-            isDollars={false}
+            isDollars={useUsd}
+            id="dbr-debt-evo"
             title="DBR annualized burn-rate over time"
         />
     </Stack>

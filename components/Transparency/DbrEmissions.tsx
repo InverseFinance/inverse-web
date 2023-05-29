@@ -5,6 +5,7 @@ import { useEventsAsChartData } from "@app/hooks/misc";
 import { DefaultCharts } from "./DefaultCharts";
 import { ONE_DAY_MS } from "@app/config/constants";
 import { AreaChart } from "./AreaChart";
+import { timestampToUTC } from "@app/util/misc";
 
 const initEvent = { blocknumber: 16196827, timestamp: 1671148800000, txHash: '', amount: 4646000 };
 const streamingStartTs = 1684713600000;
@@ -14,17 +15,20 @@ export const DbrEmissions = ({
     yearlyRewardRate,
     rewardRate,
     replenishments,
+    histoPrices,
 }: {
     maxChartWidth: number
     yearlyRewardRate: number
     rewardRate: number
     replenishments: any[]
+    histoPrices: { [key: string]: number }
 }) => {
     const [includeInitialEmission, setIncludeInitialEmission] = useState(false);
     const [includeReplenishments, setIncludeReplenishments] = useState(true);
     const [includeClaims, setIncludeClaims] = useState(true);
+    const [useUsd, setUseUsd] = useState(false);
 
-    const now = +(new Date());
+    // const now = +(new Date());
     // const inOneYear = now + ONE_DAY_MS * 365;
     // const deltaSec = (now - streamingStartTs) / 1000
     // const amountSinceStart = rewardRate * deltaSec;
@@ -42,21 +46,37 @@ export const DbrEmissions = ({
     const repHashes = replenishments?.map(r => r.txHash) || [];
     const { events: emissionEvents, rewardRatesHistory, timestamp } = useDBREmissions();
 
-    const annualizedEmissions = rewardRatesHistory?.rates || [
+    const rateChanges = (rewardRatesHistory?.rates || [
         { yearlyRewardRate: 0, timestamp: streamingStartTs - ONE_DAY_MS * 3 },
         { yearlyRewardRate: 4000000, timestamp: streamingStartTs },
-    ];
+    ]).map(e => {
+        const date = timestampToUTC(e.timestamp);
+        const histoPrice = histoPrices[date];
+        return { ...e, histoPrice, worth: e.yearlyRewardRate * (histoPrice || 0.05), date };
+    });
+    
+    const intermediaryPoints = Object.entries(histoPrices)
+        .filter(([date, v]) => date > rateChanges[0]?.date)
+        .map(([date, histoPrice]) => {
+            const yearlyRewardRate = rateChanges.findLast(d => date >= d.date)?.yearlyRewardRate || 0;
+            return { yearlyRewardRate, date, timestamp: +(new Date(date)), histoPrice, worth: histoPrice * yearlyRewardRate };
+        });
+    const annualizedEmissions = rateChanges.concat(intermediaryPoints);
 
     const filteredEvents = includeReplenishments && includeClaims ?
         emissionEvents :
         emissionEvents?.filter(e => {
             return includeReplenishments ? repHashes.includes(e.txHash) : !repHashes.includes(e.txHash);
         });
-    const _events = includeInitialEmission ? [initEvent, ...filteredEvents] : filteredEvents;
 
-    const { chartData: emissionChartData } = useEventsAsChartData(_events, '_auto_', 'amount');
+    const _events = (includeInitialEmission ? [initEvent, ...filteredEvents] : filteredEvents)?.map(e => {
+            const histoPrice = histoPrices[timestampToUTC(e.timestamp)] || 0.05;
+            return { ...e, worth: e.amount * histoPrice };
+        });
+
+    const { chartData: emissionChartData } = useEventsAsChartData(_events, '_auto_', useUsd ? 'worth' : 'amount');
     // const { chartData: theoreticalStreamingChartData } = useEventsAsChartData(theoreticalStreaming, '_auto_', 'amount', false, false);
-    const { chartData: annualizedEmissionsChartData } = useEventsAsChartData(annualizedEmissions, 'yearlyRewardRate', 'yearlyRewardRate', true, false);
+    const { chartData: annualizedEmissionsChartData } = useEventsAsChartData(annualizedEmissions, useUsd ? 'worth' : 'yearlyRewardRate', useUsd ? 'worth' : 'yearlyRewardRate', true, false);
 
     const [chartWidth, setChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
@@ -66,6 +86,12 @@ export const DbrEmissions = ({
     }, [isLargerThan]);
 
     return <Stack w='full' direction={{ base: 'column' }}>
+        <FormControl cursor="pointer" w='full' justifyContent="flex-start" display='flex' alignItems='center'>
+            <Text mr="2" onClick={() => setUseUsd(!useUsd)}>
+                Show in USD historical value
+            </Text>
+            <Switch onChange={(e) => setUseUsd(!useUsd)} size="sm" colorScheme="purple" isChecked={useUsd} />
+        </FormControl>
         <AreaChart
             title="DBR annualized issuance over time"
             width={chartWidth}
@@ -74,7 +100,8 @@ export const DbrEmissions = ({
             id="annualized-streaming"
             showMaxY={false}
             showTooltips={true}
-            domainYpadding={1000000}
+            domainYpadding={useUsd ? 100000 : 1000000}
+            isDollars={useUsd}
         />
         <Divider />
         <Stack direction={{ base :'column', sm: 'row' }} pt="4" spacing="4" justify="space-between" alignItems="center" w='full'>
@@ -108,7 +135,7 @@ export const DbrEmissions = ({
         <DefaultCharts
             chartData={emissionChartData}
             maxChartWidth={chartWidth}
-            isDollars={false}
+            isDollars={useUsd}
             showMonthlyBarChart={true}
             areaProps={{
                 interpolation: isSmooth ? "basis" : "stepAfter",
