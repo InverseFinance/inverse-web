@@ -113,12 +113,12 @@ export const DbrEmissions = ({
                     <Switch onChange={(e) => setIncludeClaims(!includeClaims)} size="sm" colorScheme="purple" isChecked={includeClaims} />
                 </FormControl>
             </HStack>
-            <FormControl w='auto' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
+            {/* <FormControl w='auto' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
                 <Text mr="2" onClick={() => setIsSmooth(!isSmooth)}>
                     Smooth line?
                 </Text>
                 <Switch onChange={(e) => setIsSmooth(!isSmooth)} size="sm" colorScheme="blue" isChecked={isSmooth} />
-            </FormControl>
+            </FormControl> */}
         </Stack>
         <DefaultCharts
             chartData={emissionChartData}

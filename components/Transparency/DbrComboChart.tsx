@@ -34,7 +34,7 @@ export const DbrComboChart = ({
     }
 
     return (
-        <VStack pr="110px">
+        <VStack alignItems="center" maxW={`${chartWidth}px`}>
             <Text>
                 DBR price and annualized burn & issuance
             </Text>
