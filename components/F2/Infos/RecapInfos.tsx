@@ -121,7 +121,7 @@ export const RecapInfos = ({
                             Max. slippage % on DBR cost:
                         </Text>
                     </TextInfo>
-                    <Input py="0" maxH="30px" w='90px' value={dbrBuySlippage} onChange={(e) => setDbrBuySlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(?<=\..*)\./g, ''))} />
+                    <Input py="0" maxH="30px" w='90px' value={dbrBuySlippage} onChange={(e) => setDbrBuySlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'))} />
                 </HStack>
             </>
         }
