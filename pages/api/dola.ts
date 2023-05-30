@@ -11,9 +11,10 @@ const { DOLA, FEDS } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
   const cacheKey = `dola-cache-v1.0.0`;
-
+  const cacheDuration = 600;
+  res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
   try {
-    const validCache = await getCacheFromRedis(cacheKey, true, 600);
+    const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
     if(validCache) {
       res.status(200).json(validCache);
       return

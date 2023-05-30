@@ -8,7 +8,9 @@ export default async function handler(req, res) {
   const cacheKey = `stabilizer-fees-v1.0.0`;
 
   try {
-    const validCache = await getCacheFromRedis(cacheKey, true, 600);
+    const cacheDuration = 600;
+    res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+    const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
     if (validCache) {
       res.status(200).json(validCache);
       return

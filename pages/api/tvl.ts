@@ -16,6 +16,8 @@ export default async function handler(req, res) {
   const cacheKey = `${networkConfig.chainId}-tvl-cache-v1.1.1`;
 
   try {
+    const cacheDuration = 300;
+    res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const {
       DAI,
       USDC,
@@ -30,7 +32,7 @@ export default async function handler(req, res) {
       ANCHOR_DOLA,
     } = getNetworkConfigConstants(networkConfig);
 
-    const validCache = await getCacheFromRedis(cacheKey, true, 300);
+    const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
     if(validCache) {
       res.status(200).json(validCache);
       return

@@ -13,7 +13,9 @@ export default async function handler(req, res) {
     const cacheKey = `${networkConfig.chainId}-positions-v1.1.0`;
 
     try {
-        const validCache = await getCacheFromRedis(cacheKey, true, 60);
+        const cacheDuration = 60;
+        res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+        const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
         if(validCache && !accounts) {
           res.status(200).json(validCache);
           return

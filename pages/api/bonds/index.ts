@@ -16,7 +16,9 @@ export const BONDS_V2_IDS_API_CACHE_KEY = 'bonds-ids-v1.0.0'
 
 export default async function handler(req, res) {
     try {
-        const validCache = await getCacheFromRedis(BONDS_V2_API_CACHE_KEY, true, 30);
+        const cacheDuration = 30;
+        res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+        const validCache = await getCacheFromRedis(BONDS_V2_API_CACHE_KEY, true, cacheDuration);
         if(validCache) {
           res.status(200).send(validCache);
           return

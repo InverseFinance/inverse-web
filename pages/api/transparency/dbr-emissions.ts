@@ -16,7 +16,8 @@ export default async function handler(req, res) {
     const cacheKey = `dbr-emissions-v1.0.7`;
     const { cacheFirst } = req.query;
 
-    try {
+    try {        
+        res.setHeader('Cache-Control', `public, max-age=${60}`);
         const [emissionsCacheRes, ratesCache] = await Promise.all([
             getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', 600, true),
             getCacheFromRedis(dbrRewardRatesCacheKey, false),
