@@ -53,8 +53,9 @@ export default async function handler(req, res) {
   const cacheKeyNew = `fed-policy-cache-v1.0.96`;
 
   try {
-
-    const validCache = await getCacheFromRedis(cacheKeyNew, cacheFirst !== 'true', 60);
+    const cacheDuration = 60;
+    res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+    const validCache = await getCacheFromRedis(cacheKeyNew, cacheFirst !== 'true', cacheDuration);
 
     if (validCache) {
       res.status(200).json(validCache);

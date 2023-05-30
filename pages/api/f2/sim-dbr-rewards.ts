@@ -20,7 +20,9 @@ export default async function handler(req, res) {
   const cacheKey = `${escrow}-dbr-rewards`;
 
   try {
-    const validCache = await getCacheFromRedis(cacheKey, true, 90);
+    const cacheDuration = 90;
+    res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+    const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
     if (validCache) {
       res.status(200).json(validCache);
       return

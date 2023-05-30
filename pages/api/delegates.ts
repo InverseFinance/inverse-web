@@ -7,6 +7,8 @@ const client = getRedisClient();
 
 export default async function handler(req, res) {
   const { filter = '' } = req.query;
+  const cacheDuration = 60;
+  res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
   try {
     // defaults to mainnet data if unsupported network
     const networkConfig = getNetworkConfig(NetworkIds.mainnet, true)!;

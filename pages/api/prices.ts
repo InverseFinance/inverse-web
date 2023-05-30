@@ -16,7 +16,9 @@ export const cgPricesCacheKey = `cg-prices-v1.0.0`;
 export default async function handler(req, res) {
 
   try {
-    const validCache = await getCacheFromRedis(pricesCacheKey, true, 600);
+    const cacheDuration = 600;
+    res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+    const validCache = await getCacheFromRedis(pricesCacheKey, true, cacheDuration);
     if (validCache) {
       res.status(200).json(validCache);
       return

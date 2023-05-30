@@ -157,7 +157,7 @@ export const DWFPage = () => {
   }
 
   const handleMaxSlippage = (value: string) => {
-    const newSlippage = value.replace(/[^0-9.]/, '').replace(/(?<=\..*)\./g, '')
+    const newSlippage = value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1')
     setMaxSlippage(newSlippage);
   }
 

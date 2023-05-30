@@ -65,7 +65,9 @@ export const getFirmMarketUsers = async (provider) => {
 
 export default async function handler(req, res) {
   try {
-    const validCache = await getCacheFromRedis(F2_POSITIONS_CACHE_KEY, true, 60);
+    const cacheDuration = 60;
+    res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+    const validCache = await getCacheFromRedis(F2_POSITIONS_CACHE_KEY, true, cacheDuration);
     if (validCache) {
       res.status(200).json(validCache);
       return

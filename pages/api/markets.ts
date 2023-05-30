@@ -45,7 +45,9 @@ export default async function handler(req, res) {
       ESCROW_OLD,
     } = getNetworkConfigConstants(networkConfig);
 
-    const validCache = await getCacheFromRedis(frontierMarketsCacheKey, cacheFirst !== 'true', 600);
+    const cacheDuration = 600;
+    res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+    const validCache = await getCacheFromRedis(frontierMarketsCacheKey, cacheFirst !== 'true', cacheDuration);
     if (validCache) {
       res.status(200).json(validCache);
       return

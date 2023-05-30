@@ -12,7 +12,9 @@ export default async function handler(req, res) {
     const cacheKey = `liquidity-history-aggregated-${isExlcudeCurrent ? '-exclude-current' : ''}v1.0.0`
 
     try {
-        const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', 60);
+        const cacheDuration = 60;
+        res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+        const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
         if (validCache) {
             res.status(200).json(validCache);
             return
