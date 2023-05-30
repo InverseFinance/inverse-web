@@ -1,5 +1,5 @@
 // TODO: Clean up the landing page, this was rushed in a few hours
-import { Flex, HStack, Image, UnorderedList, ListItem, Stack, Text, VStack, SimpleGrid, StackProps } from '@chakra-ui/react'
+import { Flex, HStack, Image, UnorderedList, ListItem, Stack, Text, VStack, SimpleGrid, StackProps, Divider } from '@chakra-ui/react'
 import { RTOKEN_CG_ID } from '@app/variables/tokens'
 import Layout from '@app/components/common/Layout'
 import { LandingNav } from '@app/components/common/Navbar'
@@ -31,6 +31,13 @@ const Stat = ({ value, name }: { value: number, name: string }) => {
   </VStack>
 }
 
+const StatBasic = ({ value, name }: { value: number, name: string }) => {
+  return <VStack>
+    <Text color={lightTheme.colors.mainTextColor} fontSize={biggestSize} fontWeight="bold">{value}</Text>
+    <Text color={lightTheme.colors.mainTextColor} fontSize={smallerSize}>{name}</Text>
+  </VStack>
+}
+
 export const Landing = ({ posts }: {
   posts: any[]
 }) => {
@@ -42,7 +49,7 @@ export const Landing = ({ posts }: {
   const { firmTotalTvl } = useFirmTVL();
   const { data: dolaData } = useDOLAMarketData();
 
-  const invPrice = prices[RTOKEN_CG_ID] ? prices[RTOKEN_CG_ID].usd : 0;  
+  const invPrice = prices[RTOKEN_CG_ID] ? prices[RTOKEN_CG_ID].usd : 0;
 
   const stats = [
     {
@@ -67,21 +74,32 @@ export const Landing = ({ posts }: {
     },
   ]
 
+  const audits = [
+    {
+      name: 'Full Audits',
+      value: 2,
+    },
+    {
+      name: 'DefiSafety Score',
+      value: '87%',
+    },
+  ];
+
   const priceBar = <HStack spacing="2.5vw">
     <HStack>
       <Image borderRadius='50px' minH="20px" minW="20px" height="2vmax" src="/assets/v2/dola.jpg" />
       <Text fontSize={smallerSize2} display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>DOLA</Text>
-      <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{dolaPrice ? shortenNumber(dolaPrice, 3, true): '-'}</Text>
+      <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{dolaPrice ? shortenNumber(dolaPrice, 3, true) : '-'}</Text>
     </HStack>
     <HStack>
       <Image borderRadius='50px' minH="20px" minW="20px" height="2vmax" src="/assets/v2/dbr.png" />
       <Text fontSize={smallerSize2} display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>DBR</Text>
-      <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{dbrPrice ? shortenNumber(dbrPrice, 3, true): '-'}</Text>
+      <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{dbrPrice ? shortenNumber(dbrPrice, 3, true) : '-'}</Text>
     </HStack>
     <HStack>
       <Image borderRadius='50px' minH="20px" minW="20px" height="2vmax" src="/assets/v2/inv.jpg" />
       <Text fontSize={smallerSize2} display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>INV</Text>
-      <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{invPrice ? shortenNumber(invPrice, 2, true): '-'}</Text>
+      <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{invPrice ? shortenNumber(invPrice, 2, true) : '-'}</Text>
     </HStack>
   </HStack>
 
@@ -332,7 +350,7 @@ export const Landing = ({ posts }: {
                 <Image src="/assets/v2/landing/stake.png?" width="full" w="150px" h="150px" mt="6" />
                 <Text color={lightTheme.colors.mainTextColor} fontWeight="extrabold" fontSize={biggerSize}>Real yield</Text>
                 <Text color={lightTheme.colors.mainTextColor} textAlign="center" fontSize={normalSize}>
-                  Buy INV and stake on FiRM to earn DBR real yield. Participate in Governance.
+                  Buy INV and stake on FiRM to earn DBR real yield, you direclty benefit from FiRM's success. Participate in Governance.
                 </Text>
               </VStack>
               <LandingSubmitButton href="/firm/INV">
@@ -375,6 +393,10 @@ export const Landing = ({ posts }: {
               </VStack>
             </SimpleGrid>
             <VStack alignItems={{ base: 'center', sm: 'flex-start' }} w={{ base: 'full', md: '40%' }} spacing='4' pt={{ base: '4', md: '0' }}>
+              <ResponsiveStack w='full' alignItems="center" justify="space-around">
+                {audits.map(stat => <StatBasic key={stat.name} {...stat} />)}
+              </ResponsiveStack>
+              <Divider borderColor={lightTheme.colors.mainTextColorLight} />
               <Text color={lightTheme.colors.mainTextColor} fontWeight="bold" fontSize={normalSize}>
                 Designed from the ground up with security in mind and now backing it up with third party security professionals
               </Text>
@@ -382,7 +404,7 @@ export const Landing = ({ posts }: {
                 We know the importance of security, especially for new lending protocols. Read our audit reports or work with us as we expand our third party security efforts.
               </Text>
               <LandingOutlineButton w={{ base: 'full', sm: '200px', '2xl': 'auto' }} href="/audits" target="_blank">
-                Audits <ExternalLinkIcon ml="1" />
+                Audit Reports <ExternalLinkIcon ml="1" />
               </LandingOutlineButton>
             </VStack>
           </ResponsiveStack>
