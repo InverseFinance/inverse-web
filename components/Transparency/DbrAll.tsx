@@ -89,6 +89,7 @@ export const DbrAll = ({
             replenishments={replenishments}
             yearlyRewardRate={yearlyRewardRate}
             rewardRate={rewardRate}
+            useUsd={useUsd}
         />
     </Stack>
 }
