@@ -71,17 +71,17 @@ export const Landing = ({ posts }: {
     <HStack>
       <Image borderRadius='50px' minH="20px" minW="20px" height="2vmax" src="/assets/v2/dola.jpg" />
       <Text fontSize={smallerSize2} display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>DOLA</Text>
-      <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{shortenNumber(dolaPrice, 3, true)}</Text>
+      <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{dolaPrice ? shortenNumber(dolaPrice, 3, true): '-'}</Text>
     </HStack>
     <HStack>
       <Image borderRadius='50px' minH="20px" minW="20px" height="2vmax" src="/assets/v2/dbr.png" />
       <Text fontSize={smallerSize2} display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>DBR</Text>
-      <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{shortenNumber(dbrPrice, 3, true)}</Text>
+      <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{dbrPrice ? shortenNumber(dbrPrice, 3, true): '-'}</Text>
     </HStack>
     <HStack>
       <Image borderRadius='50px' minH="20px" minW="20px" height="2vmax" src="/assets/v2/inv.jpg" />
       <Text fontSize={smallerSize2} display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>INV</Text>
-      <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{shortenNumber(invPrice, 2, true)}</Text>
+      <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{invPrice ? shortenNumber(invPrice, 2, true): '-'}</Text>
     </HStack>
   </HStack>
 
@@ -330,12 +330,12 @@ export const Landing = ({ posts }: {
             <SimpleCard spacing="1vh" minH="470px" w={{ base: 'full', md: '33%' }} maxW="600px" alignItems="center" justify="space-between">
               <VStack w='full'>
                 <Image src="/assets/v2/landing/stake.png?" width="full" w="150px" h="150px" mt="6" />
-                <Text color={lightTheme.colors.mainTextColor} fontWeight="extrabold" fontSize={biggerSize}>Stake</Text>
+                <Text color={lightTheme.colors.mainTextColor} fontWeight="extrabold" fontSize={biggerSize}>Real yield</Text>
                 <Text color={lightTheme.colors.mainTextColor} textAlign="center" fontSize={normalSize}>
-                  Buy INV and stake on Frontier with high APY. Participate in Governance.
+                  Buy INV and stake on FiRM to earn DBR real yield. Participate in Governance.
                 </Text>
               </VStack>
-              <LandingSubmitButton href="/frontier">
+              <LandingSubmitButton href="/firm/INV">
                 I want to Stake INV
               </LandingSubmitButton>
             </SimpleCard>
@@ -367,16 +367,22 @@ export const Landing = ({ posts }: {
               <VStack as="a" href="https://peckshield.com/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
                 <Image maxW="150px" src="/assets/v2/landing/peckshield.png" />
               </VStack>
+              <VStack as="a" href="https://defisafety.com/app/pqrs/199" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
+                <Image maxW="150px" src="/assets/v2/landing/DefiSafety.jpg" />
+              </VStack>
+              <VStack as="a" href="https://www.nomoi.xyz/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
+                <Image maxW="150px" src="/assets/v2/landing/Nomoi.jpg" />
+              </VStack>
             </SimpleGrid>
             <VStack alignItems={{ base: 'center', sm: 'flex-start' }} w={{ base: 'full', md: '40%' }} spacing='4' pt={{ base: '4', md: '0' }}>
               <Text color={lightTheme.colors.mainTextColor} fontWeight="bold" fontSize={normalSize}>
                 Designed from the ground up with security in mind and now backing it up with third party security professionals
               </Text>
               <Text color={lightTheme.colors.mainTextColor} fontSize={smallerSize}>
-                We know the importance of security, especially for new lending protocols.Read our audit reports or work with us as we expand our third party security efforts.
+                We know the importance of security, especially for new lending protocols. Read our audit reports or work with us as we expand our third party security efforts.
               </Text>
-              <LandingOutlineButton w={{ base: 'full', sm: '200px', '2xl': 'auto' }} href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/firm#security/firm-security" target="_blank">
-                Learn More <ExternalLinkIcon ml="1" />
+              <LandingOutlineButton w={{ base: 'full', sm: '200px', '2xl': 'auto' }} href="/audits" target="_blank">
+                Audits <ExternalLinkIcon ml="1" />
               </LandingOutlineButton>
             </VStack>
           </ResponsiveStack>
