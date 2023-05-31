@@ -16,8 +16,6 @@ export const DbrAll = ({
     burnEvents,
     histoPrices,
     replenishments,
-    yearlyRewardRate,
-    rewardRate,
     maxChartWidth = 800,
 }) => {
     const [useUsd, setUseUsd] = useState(false);
@@ -87,8 +85,6 @@ export const DbrAll = ({
             maxChartWidth={chartWidth}
             histoPrices={histoPrices}
             replenishments={replenishments}
-            yearlyRewardRate={yearlyRewardRate}
-            rewardRate={rewardRate}
         />
     </Stack>
 }

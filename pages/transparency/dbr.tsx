@@ -19,8 +19,6 @@ import { useEventsAsChartData } from '@app/hooks/misc'
 import { useDBRBurns, useDBRDebtHisto, useDBRReplenishments } from '@app/hooks/useFirm'
 import { DbrIncome } from '@app/components/Transparency/DbrIncome'
 import { useRouter } from 'next/router'
-import { DbrBurns } from '@app/components/Transparency/DbrBurns'
-import { DbrEmissions } from '@app/components/Transparency/DbrEmissions'
 import { timestampToUTC } from '@app/util/misc'
 import { DbrAll } from '@app/components/Transparency/DbrAll'
 
@@ -89,16 +87,9 @@ export const DBRTransparency = () => {
                         }
                         {
                             tab === 'Issuance' && <VStack w='full'>                                
-                                <DbrAll histoPrices={histoPrices} history={history} burnEvents={burnEvents} replenishments={events}  yearlyRewardRate={yearlyRewardRate} rewardRate={rewardRate}  />
-                                {/* <DbrBurns histoPrices={histoPrices} history={history} burnEvents={burnEvents} /> */}
-                                {/* <DbrComboChart histoPrices={histoPrices} history={history} burnEvents={burnEvents} /> */}
+                                <DbrAll histoPrices={histoPrices} history={history} burnEvents={burnEvents} replenishments={events} />
                             </VStack>
                         }
-                        {/* {
-                            tab === 'Issuance' && <VStack>
-                                <DbrEmissions histoPrices={histoPrices} replenishments={events} yearlyRewardRate={yearlyRewardRate} rewardRate={rewardRate} />
-                            </VStack>
-                        } */}
                     </VStack>
                 </VStack>
                 <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: '300px' }}>
