@@ -85,6 +85,7 @@ export const DbrAll = ({
             maxChartWidth={chartWidth}
             histoPrices={histoPrices}
             replenishments={replenishments}
+            useUsd={useUsd}
         />
     </Stack>
 }
