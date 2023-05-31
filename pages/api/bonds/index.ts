@@ -12,7 +12,7 @@ import { ONE_DAY_SECS } from '@app/config/constants';
 const PAYOUT_TOKEN = process.env.NEXT_PUBLIC_REWARD_TOKEN!;
 
 export const BONDS_V2_API_CACHE_KEY = 'bonds-v2.0.4'
-export const BONDS_V2_IDS_API_CACHE_KEY = 'bonds-ids-v1.0.0'
+export const BONDS_V2_IDS_API_CACHE_KEY = 'bonds-ids-v1.0.1'
 
 export default async function handler(req, res) {
     try {
@@ -85,7 +85,7 @@ export default async function handler(req, res) {
         })
 
         // includes closed markets
-        const allMarketIds = await getCacheFromRedis(BONDS_V2_IDS_API_CACHE_KEY, false) || [];
+        const allMarketIds = await getCacheFromRedis(BONDS_V2_IDS_API_CACHE_KEY, false) || ["3","23","63","98"];
         bonds.forEach(b => {
             if(!allMarketIds.includes(b.id)) {
                 allMarketIds.push(b.id);
