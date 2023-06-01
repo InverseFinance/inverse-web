@@ -9,6 +9,7 @@ import { zapperRefresh } from "@app/util/f2";
 import { Stack } from "@chakra-ui/react";
 import { useWeb3React } from "@web3-react/core";
 import moment from 'moment';
+import useStorage from "@app/hooks/useStorage";
 
 export const RewardsContainer = ({
     escrow,
@@ -31,8 +32,11 @@ export const RewardsContainer = ({
     market: F2Market
     extra?: any
 }) => {
-    const { account, library } = useWeb3React();    
+    const { account, library } = useWeb3React();
     const [hasJustClaimed, setHasJustClaimed] = useState(false);
+    const { value: lastClaim, setter: setLastClaim } = useStorage(`just-claimed-${market.name}`);
+    const now = Date.now();
+    const claimedNotLongAgo = !!lastClaim && ((now - lastClaim) < 3000000);
 
     const handleClaim = async () => {
         if (!account) return;
@@ -41,6 +45,7 @@ export const RewardsContainer = ({
 
     const handleClaimSuccess = () => {
         setHasJustClaimed(true);
+        setLastClaim(Date.now());
         if (!account) return;
         if (!!market.zapperAppGroup) {
             zapperRefresh(account);
@@ -52,16 +57,16 @@ export const RewardsContainer = ({
         description={timestamp && market.isInv ? `Last update: ${moment(timestamp).fromNow()}` : undefined}
         noPadding
         p='0'
-        collapsable={true}        
+        collapsable={true}
         defaultCollapse={defaultCollapse ?? !totalRewardsUSD}
         right={showMarketBtn ? <Link textDecoration='underline' href={`/firm/${market.name}`}>
             Go to market
         </Link> : undefined}
     >
-        <Stack w='full' direction={{ base: 'column', md: 'row' }} spacing={{ base: '4', md:'2' }}>
+        <Stack id="yoo" w='full' direction={{ base: 'column', md: 'row' }} spacing={{ base: '4', md: '2' }} justify="space-between">
             {
-                hasJustClaimed ?
-                    <SuccessMessage description="Rewards claimed!" />
+                hasJustClaimed || claimedNotLongAgo ?
+                    <SuccessMessage alertProps={{ fontSize: '18px', fontWeight: 'bold', w: { base: 'full', sm: 'auto' } }} iconProps={{ height: 50, width: 50 }} description="Rewards claimed!" />
                     :
                     totalRewardsUSD > 0.1 ?
                         <ZapperTokens
