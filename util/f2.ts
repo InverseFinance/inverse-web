@@ -5,7 +5,7 @@ import { JsonRpcSigner, Web3Provider } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 import moment from 'moment';
 import { getNetworkConfigConstants } from "./networks";
-import { splitSignature } from "ethers/lib/utils";
+import { parseUnits, splitSignature } from "ethers/lib/utils";
 import { getBnToNumber, getNumberToBn } from "./markets";
 import { callWithHigherGL } from "./contracts";
 
@@ -377,6 +377,16 @@ export const getDbrPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3P
     const dolaPriceInDbr = await crvPool.price_oracle();
     const priceInDola = 1 / getBnToNumber(dolaPriceInDbr);
     return { priceInDolaBn: getNumberToBn(priceInDola), priceInDola: priceInDola };
+}
+
+export const getDbrSwapPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3Provider, ask = '1000') => {
+    const crvPool = new Contract(
+        '0x056ef502c1fc5335172bc95ec4cae16c2eb9b5b6',
+        ['function get_dy() public view returns(uint)',],
+        SignerOrProvider,
+    );
+    const priceInDolaBn = await crvPool.get_dy(parseUnits(ask));
+    return { priceInDolaBn: priceInDolaBn, priceInDola: getBnToNumber(priceInDolaBn) };
 }
 
 export const zapperRefresh = (account: string) => {
