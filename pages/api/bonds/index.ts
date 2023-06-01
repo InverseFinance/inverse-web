@@ -85,7 +85,8 @@ export default async function handler(req, res) {
         })
 
         // includes closed markets
-        const allMarketIds = await getCacheFromRedis(BONDS_V2_IDS_API_CACHE_KEY, false) || ["3","23","63","98"];
+        const cachedMarketIds = await getCacheFromRedis(BONDS_V2_IDS_API_CACHE_KEY, false);
+        const allMarketIds = cachedMarketIds || ["3","23","63","98"];
         bonds.forEach(b => {
             if(!allMarketIds.includes(b.id)) {
                 allMarketIds.push(b.id);
@@ -97,7 +98,9 @@ export default async function handler(req, res) {
             allMarketIds,
         }
 
-        await redisSetWithTimestamp(BONDS_V2_IDS_API_CACHE_KEY, allMarketIds);
+        if(cachedMarketIds) {
+            await redisSetWithTimestamp(BONDS_V2_IDS_API_CACHE_KEY, allMarketIds);
+        }        
         await redisSetWithTimestamp(BONDS_V2_API_CACHE_KEY, result);
 
         res.status(200).send(result);
