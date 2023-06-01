@@ -6,7 +6,7 @@ import { BURN_ADDRESS } from "@app/config/constants";
 import { zapperRefresh } from "@app/util/f2";
 import { RewardsContainer } from "./RewardsContainer";
 import { useAccount } from "@app/hooks/misc";
-import { VStack, Text } from "@chakra-ui/react";
+import { VStack, Text, HStack } from "@chakra-ui/react";
 import { getMonthlyRate, shortenNumber } from "@app/util/markets";
 import { InfoMessage } from "@app/components/common/Messages";
 import { usePrices } from "@app/hooks/usePrices";
@@ -103,7 +103,7 @@ export const FirmINVRewardWrapperContent = ({
 
     const share = market.invStakedViaDistributor ? stakedInFirm / market.invStakedViaDistributor : 0;
     const invMonthlyRewards = getMonthlyRate(stakedInFirm, market?.supplyApy);
-    const dbrMonthlyRewards = share * market?.dbrYearlyRewardRate/12;
+    const dbrMonthlyRewards = share * market?.dbrYearlyRewardRate / 12;
     const invPriceCg = prices ? prices['inverse-finance']?.usd : 0;
     const dbrPriceCg = prices ? prices['dola-borrowing-right']?.usd : 0;
 
@@ -120,9 +120,15 @@ export const FirmINVRewardWrapperContent = ({
                 <InfoMessage
                     alertProps={{ fontSize: '18px' }}
                     description={
-                        <VStack alignItems="flex-start">                            
-                            <Text>Monthly INV rewards: <b>~{shortenNumber(invMonthlyRewards, 2)} ({shortenNumber(invMonthlyRewards * invPriceCg, 2, true)})</b></Text>
-                            <Text>Monthly DBR rewards: <b>~{shortenNumber(dbrMonthlyRewards, 2)} ({shortenNumber(dbrMonthlyRewards * dbrPriceCg, 2, true)})</b></Text>
+                        <VStack alignItems="flex-start">
+                            <HStack w='full' justify="space-between">
+                                <Text>Monthly INV rewards:</Text>
+                                <Text fontWeight="bold">~{shortenNumber(invMonthlyRewards, 2)} ({shortenNumber(invMonthlyRewards * invPriceCg, 2, true)})</Text>
+                            </HStack>
+                            <HStack w='full' justify="space-between">
+                                <Text>Monthly DBR rewards:</Text>
+                                <Text fontWeight="bold">~{shortenNumber(dbrMonthlyRewards, 2)} ({shortenNumber(dbrMonthlyRewards * dbrPriceCg, 2, true)})</Text>
+                            </HStack>
                         </VStack>
                     }
                 />
