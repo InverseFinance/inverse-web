@@ -3,7 +3,7 @@ import 'source-map-support'
 import { BALANCER_VAULT_ABI, DBR_ABI, DBR_DISTRIBUTOR_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
-import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
+import { getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber, getHistoricalTokenData } from '@app/util/markets'
 import { CHAIN_ID } from '@app/config/constants';
 import { getDbrPriceOnCurve } from '@app/util/f2';
@@ -16,10 +16,10 @@ export default async function handler(req, res) {
   const cacheKey = `dbr-cache${withExtra ? '-extra' : ''}-v1.0.6`;
   const cacheDuration = 300;
   res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-  try {
-    const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
+  const { data: cachedData, isValid: validCache } = await getCacheFromRedisAsObj(cacheKey, true, cacheDuration);
+  try {    
     if (validCache) {
-      res.status(200).json(validCache);
+      res.status(200).json(cachedData);
       return
     }
 
@@ -77,10 +77,9 @@ export default async function handler(req, res) {
     console.error(err);
     // if an error occured, try to return last cached results
     try {
-      const cache = await getCacheFromRedis(cacheKey, false);
-      if (cache) {
+      if (!!cachedData) {
         console.log('Api call failed, returning last cache found');
-        res.status(200).json(cache);
+        res.status(200).json(cachedData);
       } else {
         res.status(500).json({ status: 'ko' });
       }
