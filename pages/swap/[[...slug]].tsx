@@ -1,10 +1,11 @@
-import { Flex, Stack, Text } from '@chakra-ui/react'
+import { Flex, Stack, Text, VStack } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import { StabilizerOverview } from '@app/components/Stabilizer/Overview';
 import { SwapView } from '@app/components/Swap'
 import Head from 'next/head';
 import { InfoMessage } from '@app/components/common/Messages';
+import { SwapViewSocket } from '@app/components/ThirdParties/SwapViewSocket';
 
 const supportedTokens = ['DOLA', 'DAI', 'USDC', 'USDT'];
 type Params = { slug: string[] }
@@ -55,14 +56,18 @@ export const Swap = ({ from, to }: { from?: string, to?: string }) => {
         <meta name="keywords" content="Inverse Finance, swap, stablecoin, DOLA, DAI, USDT, USDC, best rate" />
       </Head>
       <AppNav active="Swap" />
-      <Flex
-        maxW={{ base: 'full', lg: '650px', xl: 'none' }}
+      <Stack
+        w={{ base: 'full', lg: '1000px' }}
         justify="center"
         direction={{ base: 'column', xl: 'row' }}
         mt='6'
-        alignItems="flex-start">
-        <SwapView from={from} to={to} />
-        <Flex minW={{ base: 'auto', xl: '354px' }} minH={{ base: 'auto', xl: '544px' }} direction="column" w={{ base: 'full', xl: '500px' }} p={{ base: '6', xl: '0' }} justifyContent="space-between">
+        alignItems="flex-start"
+        spacing="8"
+      >
+        <VStack w={{ base: 'full', lg: '60%' }}>
+          <SwapViewSocket from={from} to={to} />
+        </VStack>
+        <Stack w={{ base: 'full', lg: '40%' }} direction="column" justifyContent="space-between">
           <InfoMessage
             alertProps={{ fontSize: '12px', mb: '8' }}
             description={
@@ -74,9 +79,9 @@ export const Swap = ({ from, to }: { from?: string, to?: string }) => {
               </Stack>
             }
           />
-          <StabilizerOverview />
-        </Flex>
-      </Flex>
+          {/* <StabilizerOverview /> */}
+        </Stack>
+      </Stack>
     </Layout>
   )
 }
