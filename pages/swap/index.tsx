@@ -15,12 +15,11 @@ export const Swap = () => {
   return (
     <Layout>
       <Head>
-        <title>{process.env.NEXT_PUBLIC_TITLE} - Swap</title>
-        <meta name="og:title" content="Inverse Finance - Swap" />
-        <meta name="og:image" content="https://inverse.finance/assets/social-previews/swap.png" />
-        <meta name="og:description" content="Swap between DOLA and other stablecoins with the best rates" />
-        <meta name="description" content="Swap between DOLA and other stablecoins with the best rates" />
-        <meta name="keywords" content="Inverse Finance, swap, stablecoin, DOLA, DAI, USDT, USDC, best rate" />
+        <title>{process.env.NEXT_PUBLIC_TITLE} - Swap / Bridge</title>
+        <meta name="og:title" content="Inverse Finance - Swap / Bridge" />
+        <meta name="og:description" content="Swap and Bridge DOLA and other assets" />
+        <meta name="description" content="Swap and Bridge DOLA and other assets" />
+        <meta name="keywords" content="Inverse Finance, swap, bridge, stablecoin, DOLA, DAI, USDT, USDC, INV, DBR" />
       </Head>
       <AppNav active="Swap" />
       <Stack
