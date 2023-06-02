@@ -53,16 +53,16 @@ function SocketBridge({
         defaultDestToken={defaultDestToken}
         tokenList={MAIN_TOKENS_ARRAY}
         customize={
-            {
+            {                
                 width: 400,
                 responsiveWidth: true,
                 borderRadius: 1,
                 secondary: isLight ? hexToRgb(colors.mainBackgroundColor) : 'rgb(68,69,79)',
-                primary: isLight ? undefined : 'rgb(31,34,44)',
-                accent: isLight ? undefined : 'rgb(131,249,151)',
-                onAccent: isLight ? undefined : 'rgb(0,0,0)',
-                interactive: isLight ? undefined : 'rgb(0,0,0)',
-                onInteractive: isLight ? undefined : 'rgb(240,240,240)',
+                primary: isLight ? hexToRgb(colors.containerContentBackground) : 'rgb(31,34,44)',
+                accent: isLight ? hexToRgb(colors.primary[100]) : 'rgb(131,249,151)',
+                onAccent: isLight ? hexToRgb(colors.containerContentBackground) : 'rgb(0,0,0)',
+                interactive: isLight ? hexToRgb(colors.mainBackgroundColor) : 'rgb(0,0,0)',
+                onInteractive: isLight ? hexToRgb(colors.mainTextColor) : 'rgb(240,240,240)',
                 text: isLight ? hexToRgb(colors.mainTextColor) : 'rgb(255,255,255)',
                 secondaryText: isLight ? hexToRgb(colors.mainTextColorLight) : 'rgb(200,200,200)',
             }
