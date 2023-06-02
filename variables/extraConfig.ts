@@ -49,6 +49,8 @@ const mainConfig = {
             oracleType: "chainlink",
             badgeInfo: 'High CF',
             startingBlock: 16159015,
+            isInv: false,
+            isStaking: false,
         },
         {
             name: 'stETH',
@@ -61,6 +63,8 @@ const mainConfig = {
             badgeInfo: 'Yield-Bearing',
             badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },
             startingBlock: 16441143,
+            isInv: false,
+            isStaking: false,
         },
         {
             name: 'gOHM',
@@ -74,6 +78,8 @@ const mainConfig = {
             isGovTokenCollateral: true,
             govLink: 'https://snapshot.org/#/olympusdao.eth',
             startingBlock: 16657838,
+            isInv: false,
+            isStaking: false,
         },
         {
             name: 'CRV',
@@ -84,6 +90,8 @@ const mainConfig = {
             oracleType: "chainlink",
             badgeInfo: 'High CF',
             startingBlock: 16791157,
+            isInv: false,
+            isStaking: false,
         },
         {
             name: 'cvxCRV',
@@ -97,6 +105,8 @@ const mainConfig = {
             hasClaimableRewards: true,
             zapperAppGroup: 'convex+cvx-crv-staking-wrapped',
             startingBlock: 17228187,
+            isInv: false,
+            isStaking: false,
         },
         {
             name: 'INV',
