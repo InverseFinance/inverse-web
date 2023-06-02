@@ -11,10 +11,6 @@ import { ExternalLinkIcon } from '@chakra-ui/icons';
 export const Swap = () => {
   const { query } = useRouter();
   const { fromToken, toToken, fromChain, toChain } = (query || {});
-  // if (!['1', '31337'].includes(process.env.NEXT_PUBLIC_CHAIN_ID)) {
-  //   return <Text>Network not supported</Text>
-  // }
-
 
   return (
     <Layout>

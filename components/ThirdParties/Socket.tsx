@@ -6,11 +6,12 @@ import dynamic from 'next/dynamic';
 import { WidgetProps } from "@socket.tech/plugin";
 import { MAIN_TOKENS_ARRAY } from "./tokenlist";
 import { useAppTheme } from "@app/hooks/useAppTheme";
+import { SkeletonBlob } from "../common/Skeleton";
 
 const DynamicComponent = dynamic(() =>
     import('@socket.tech/plugin').then((mod) => mod.Bridge), {
     ssr: false,
-    loading: () => <p>Loading...</p>,
+    loading: () => <SkeletonBlob />,
 });
 
 function hexToRgb(hex) {
@@ -25,8 +26,8 @@ function SocketBridge({
     defaultSourceNetwork = 1,
     defaultDestNetwork = 1,
     enableSameChainSwaps = true,
-    defaultSourceToken = 'DOLA',
-    defaultDestToken = 'INV',
+    defaultSourceToken = 'USDC',
+    defaultDestToken = 'DOLA',
 }: Partial<WidgetProps>) {
     const [enable, setEnable] = useState(false)
     const { library } = useWeb3React<Web3Provider>();
@@ -36,7 +37,7 @@ function SocketBridge({
         setEnable(true)
     }, []);
 
-    if (!library || !enable) return null;
+    if (!enable) return null;
     
     const isLight = themeName === 'light';
     const colors = themeStyles.colors;

@@ -10,7 +10,7 @@ import { BigNumberList, Token } from '@app/types'
 import { getNewContract } from './contracts'
 import { ERC20_ABI } from '@app/config/abis'
 import { AbstractConnector } from '@web3-react/abstract-connector'
-import { injectedConnector, walletConnectConnector, walletLinkConnector } from '@app/variables/connectors'
+import { injectedConnector, swapInjectedConnector, swapWalletConnectConnector, swapWalletLinkConnector, walletConnectConnector, walletLinkConnector } from '@app/variables/connectors'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
 import { getBnToNumber } from './markets'
 import { roundFloorString } from './misc'
@@ -178,11 +178,11 @@ export const getParsedTokenBalance = async (token: Token, signer: JsonRpcSigner)
 
 export const getConnectorFromInstance = (connector: AbstractConnector | undefined) => {
   if(connector instanceof InjectedConnector) {
-    return injectedConnector;
+    return location.pathname === '/swap' ? swapInjectedConnector : injectedConnector;
   } else if(connector instanceof WalletLinkConnector) {
-    return walletLinkConnector;
+    return location.pathname === '/swap' ? swapWalletLinkConnector : walletLinkConnector;
   } else if(connector instanceof WalletConnectConnector) {
-    return walletConnectConnector;
+    return location.pathname === '/swap' ? swapWalletConnectConnector : walletConnectConnector;
   }
   return null;
 }
