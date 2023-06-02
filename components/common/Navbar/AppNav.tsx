@@ -512,7 +512,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
         setTimeout(() => {
           const before = Number(window?.ethereum?.chainId)
           window?.ethereum?.on('chainChanged', (after) => {
-            if (before !== after) { window.location.reload() }
+            if (before !== after && location.pathname !== '/swap') { window.location.reload() }
           });
         }, 0)
       }
