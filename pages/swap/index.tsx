@@ -48,7 +48,7 @@ export const Swap = () => {
                 </Link>
                 <Text fontSize="14px" fontWeight="bold">What is INV?</Text>
                 <Text>
-                  INV is Inverse Finance's Governance token, allowing you to <b>vote on proposals</b> and <b>earn Real Yield</b> when staking it on FiRM.
+                  INV is Inverse Finance's Governance token, allowing you to <b>vote on proposals</b> and <b>earn Real Yield</b> via DBR issuance when staking on FiRM.                  
                 </Text>
                 <Link href="/firm/INV" textDecoration="underline">
                   Stake INV on FiRM
