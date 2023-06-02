@@ -54,7 +54,7 @@ function SocketBridge({
         defaultSourceToken={defaultSourceToken}
         defaultDestToken={defaultDestToken}
         tokenList={MAIN_TOKENS_ARRAY}
-        singleTxOnly={true}
+        // singleTxOnly={true}
         selectivelyShowRefuel={true}
         customize={
             {                
