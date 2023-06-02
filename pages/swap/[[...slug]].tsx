@@ -1,11 +1,10 @@
-import { Flex, Stack, Text, VStack } from '@chakra-ui/react'
+import { Stack, Text, VStack } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
-import { StabilizerOverview } from '@app/components/Stabilizer/Overview';
-import { SwapView } from '@app/components/Swap'
 import Head from 'next/head';
 import { InfoMessage } from '@app/components/common/Messages';
 import { SwapViewSocket } from '@app/components/ThirdParties/SwapViewSocket';
+import Link from '@app/components/common/Link';
 
 const supportedTokens = ['DOLA', 'DAI', 'USDC', 'USDT'];
 type Params = { slug: string[] }
@@ -69,17 +68,36 @@ export const Swap = ({ from, to }: { from?: string, to?: string }) => {
         </VStack>
         <Stack w={{ base: 'full', lg: '40%' }} direction="column" justifyContent="space-between">
           <InfoMessage
+            showIcon={false}
             alertProps={{ fontSize: '12px', mb: '8' }}
             description={
               <Stack>
                 <Text fontSize="14px" fontWeight="bold">What is DOLA?</Text>
                 <Text mt="">
-                  DOLA is a <b>capital-efficient decentralized debt-backed stablecoin</b> on Ethereum, Fantom and Optimism.
+                  DOLA is Inverse Finance's decentralized <b>stablecoin</b>, the best way to get DOLA is to borrow it on FiRM!
                 </Text>
+                <Text fontSize="14px" fontWeight="bold">What is INV?</Text>
+                <Text mt="">
+                  INV is Inverse Finance's Governance token, allowing you to <b>vote on proposals</b> and <b>earn Real Yield</b> when staking it on FiRM.
+                </Text>
+                <Link href="/firm/INV" textDecoration="underline">
+                  Stake INV on FiRM
+                </Link>
+                <Text fontSize="14px" fontWeight="bold">What is DBR?</Text>
+                <Text mt="">
+                  DBR is a borrowing right token, it <b>allows you to borrow DOLA on FiRM</b>, it's also the reward token for INV stakers.
+                  You can buy it to borrow now or later, or <b>sell it when borrowing interest rates are high</b>.
+                </Text>
+                <Text fontSize="14px" fontWeight="bold">FiRM</Text>
+                <Text mt="">
+                  FiRM is our <b>Fixed-Rate Market</b> and it's where the <b>synergy between DOLA, INV & DBR</b> happens as <b>DBR rewards to INV stakers increases when borrowing demand for DOLA increases</b>!
+                </Text>
+                <Link href="/firm" textDecoration="underline">
+                  Go to FiRM
+                </Link>
               </Stack>
             }
           />
-          {/* <StabilizerOverview /> */}
         </Stack>
       </Stack>
     </Layout>
