@@ -35,7 +35,7 @@ export const TOKEN_IMAGES = {
     "cvxCRV": 'https://assets.coingecko.com/coins/images/15586/small/convex-crv.png?1621255952',
     "MAI": "https://assets.coingecko.com/coins/images/15264/small/mimatic-red.png?1620281018",
     "ETH": "https://assets.coingecko.com/coins/images/279/small/ethereum.png",
-    "DAI": "https://assets.coingecko.com/coins/images/9956/small/dai-multi-collateral-mcd.png",
+    "DAI": "https://assets.coingecko.com/coins/images/9956/small/4943.png?1636636734",
     "USDT": "https://assets.coingecko.com/coins/images/325/small/Tether-logo.png",
     "USDC": "https://assets.coingecko.com/coins/images/6319/small/USD_Coin_icon.png",
     "WETH": "https://assets.coingecko.com/coins/images/2518/small/weth.png",

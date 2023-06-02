@@ -13,11 +13,11 @@ export const isSupportedNetwork = (chainId?: string | number): boolean => {
     return !!chainId && !!getNetwork(chainId)?.isSupported;
 }
 
-export const getNetwork = (chainId: string | number): Network => {
-    return NETWORKS.find(network => network.id === chainId?.toString())
+export const getNetwork = (chainIdOrCodename: string | number): Network => {
+    return NETWORKS.find(network => network.id === chainIdOrCodename?.toString() || chainIdOrCodename === network.codename)
         || {
         name: 'Unknown',
-        id: chainId?.toString(),
+        id: chainIdOrCodename?.toString(),
         codename: 'unknown',
         coinSymbol: '',
     };

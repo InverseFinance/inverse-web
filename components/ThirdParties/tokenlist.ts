@@ -9,7 +9,7 @@ const orders = {
 }
 export const MAIN_TOKENS_ARRAY = entries.flatMap(([chainId, chainList]) => {
     const tokens = Object.values(chainList)
-        .filter(token => ['INV', 'DOLA', 'DBR', 'USDC', 'USDT', 'DAI', 'WETH'].includes(token.symbol)
+        .filter(token => ['INV', 'DOLA', 'DBR', 'USDC', 'USDT', 'DAI', 'WETH', 'FRAX', 'WBTC', 'MATIC', 'OP', 'ARB', 'BNB', 'ETH'].includes(token.symbol)
         );
     return tokens.map(token => {
         return {
@@ -23,3 +23,5 @@ export const MAIN_TOKENS_ARRAY = entries.flatMap(([chainId, chainList]) => {
         }
     });
 }).sort((a, b) => a.order - b.order);
+
+export const EXTENDED_TOKENS_ARRAY = MAIN_TOKENS_ARRAY.concat([])

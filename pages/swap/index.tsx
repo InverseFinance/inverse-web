@@ -5,45 +5,17 @@ import Head from 'next/head';
 import { InfoMessage } from '@app/components/common/Messages';
 import { SwapViewSocket } from '@app/components/ThirdParties/SwapViewSocket';
 import Link from '@app/components/common/Link';
+import { useRouter } from 'next/router';
+import { ExternalLinkIcon } from '@chakra-ui/icons';
 
-const supportedTokens = ['DOLA', 'DAI', 'USDC', 'USDT'];
-type Params = { slug: string[] }
+export const Swap = () => {
+  const { query } = useRouter();
+  const { fromToken, toToken, fromChain, toChain } = (query || {});
+  // if (!['1', '31337'].includes(process.env.NEXT_PUBLIC_CHAIN_ID)) {
+  //   return <Text>Network not supported</Text>
+  // }
 
-const possiblePaths: { params: Params }[] = []
 
-for (let token of supportedTokens) {
-  for (let otherToken of supportedTokens.filter(t => t !== token)) {
-    possiblePaths.push({ params: { slug: [token, otherToken] } })
-  }
-}
-
-export async function getStaticPaths() {
-  if (!['1', '31337'].includes(process.env.NEXT_PUBLIC_CHAIN_ID)) {
-    return { paths: [], fallback: true }
-  }
-  return {
-    paths: possiblePaths,
-    fallback: true,
-  };
-}
-
-export async function getStaticProps({ params }: { params: Params }) {
-  const { slug } = params;
-  const from = slug?.length > 0 ? slug[0] : ''
-  const to = slug?.length > 1 ? slug[1] : ''
-
-  return {
-    props: {
-      from: from,
-      to: to,
-    },
-  }
-}
-
-export const Swap = ({ from, to }: { from?: string, to?: string }) => {
-  if (!['1', '31337'].includes(process.env.NEXT_PUBLIC_CHAIN_ID)) {
-    return <Text>Network not supported</Text>
-  }
   return (
     <Layout>
       <Head>
@@ -63,34 +35,39 @@ export const Swap = ({ from, to }: { from?: string, to?: string }) => {
         alignItems="flex-start"
         spacing="8"
       >
-        <VStack w={{ base: 'full', lg: '60%' }}>
-          <SwapViewSocket from={from} to={to} />
+        <VStack w={{ base: 'full', lg: '55%' }}>
+          <SwapViewSocket fromToken={fromToken} toToken={toToken} fromChain={fromChain} toChain={toChain} />
         </VStack>
-        <Stack w={{ base: 'full', lg: '40%' }} direction="column" justifyContent="space-between">
+        <Stack w={{ base: 'full', lg: '45%' }} direction="column" justifyContent="space-between">
           <InfoMessage
             showIcon={false}
             alertProps={{ fontSize: '12px', mb: '8' }}
             description={
               <Stack>
                 <Text fontSize="14px" fontWeight="bold">What is DOLA?</Text>
-                <Text mt="">
+                <Text>
                   DOLA is Inverse Finance's decentralized <b>stablecoin</b>, the best way to get DOLA is to borrow it on FiRM!
                 </Text>
+                <Link href="/tokens/yield-opportunities" textDecoration="underline">
+                  See yield opportunities for DOLA
+                </Link>
                 <Text fontSize="14px" fontWeight="bold">What is INV?</Text>
-                <Text mt="">
+                <Text>
                   INV is Inverse Finance's Governance token, allowing you to <b>vote on proposals</b> and <b>earn Real Yield</b> when staking it on FiRM.
                 </Text>
                 <Link href="/firm/INV" textDecoration="underline">
                   Stake INV on FiRM
                 </Link>
                 <Text fontSize="14px" fontWeight="bold">What is DBR?</Text>
-                <Text mt="">
-                  DBR is a borrowing right token, it <b>allows you to borrow DOLA on FiRM</b>, it's also the reward token for INV stakers.
-                  You can buy it to borrow now or later, or <b>sell it when borrowing interest rates are high</b>.
+                <Text>
+                  DBR is the DOLA Borrowing Right token, <b>1 DBR allows to borrow 1 DOLA for one year</b>, it's also the reward token for INV stakers on FiRM. Buy it to borrow or speculate on interest rates!
                 </Text>
-                <Text fontSize="14px" fontWeight="bold">FiRM</Text>
-                <Text mt="">
-                  FiRM is our <b>Fixed-Rate Market</b> and it's where the <b>synergy between DOLA, INV & DBR</b> happens as <b>DBR rewards to INV stakers increases when borrowing demand for DOLA increases</b>!
+                <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr' isExternal target="_blank">
+                  Learn more about DBR <ExternalLinkIcon />
+                </Link>
+                <Text fontSize="14px" fontWeight="bold">Token Synergy on FiRM</Text>
+                <Text>
+                  FiRM is our <b>Fixed-Rate Market</b> and it's where the <b>synergy between DOLA, INV & DBR</b> happens! <b>DBR rewards to INV stakers increases when borrowing demand for DOLA increases</b>!
                 </Text>
                 <Link href="/firm" textDecoration="underline">
                   Go to FiRM

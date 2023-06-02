@@ -43,6 +43,7 @@ function SocketBridge({
 
     return <DynamicComponent
         provider={library}
+        title={'Bridge / Swap'}
         API_KEY={process.env.NEXT_PUBLIC_SOCKET_API_KEY!}
         sourceNetworks={[1, 10, 137, 56, 43114, 250]}
         destNetworks={[1, 10, 137, 56, 43114, 250]}
