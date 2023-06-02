@@ -29,6 +29,7 @@ export const Swap = () => {
         mt='6'
         alignItems="flex-start"
         spacing="8"
+        px={{ base: '4', lg: '0' }}
       >
         <VStack w={{ base: 'full', lg: '55%' }}>
           <SwapViewSocket fromToken={fromToken} toToken={toToken} fromChain={fromChain} toChain={toChain} />
