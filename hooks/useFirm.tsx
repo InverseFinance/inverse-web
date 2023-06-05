@@ -89,6 +89,36 @@ export const useDBRActiveHolders = (): SWR & {
   }
 }
 
+export const useDBRPendingRewards = (): SWR & {
+  stakers: any,
+  timestamp: number,
+} => {
+  const { data, error } = useCustomSWR(`/api/f2/dbr-pending-rewards`, fetcher);
+  const { data: spendersData, error: spendersError } = useCustomSWR(`/api/f2/dbr-deficits?v2`, fetcher);
+  
+  const userData = data ? data.userData : [];
+  const activeDbrHolders = spendersData ? spendersData.activeDbrHolders : [];
+
+  const stakers = userData.map(u => {
+    const spender = activeDbrHolders.find(p => p.user === u.user) || { debt: 0, signedBalance: 0 };
+    const dailyBurn = spender.debt / oneYear * ONE_DAY_MS;
+    const dbrNbDaysExpiry = dailyBurn ? spender.signedBalance / dailyBurn : 0;
+    const dbrExpiryDate = !spender.debt ? null : (+new Date() + dbrNbDaysExpiry * ONE_DAY_MS);
+    return {
+      ...u,
+      dailyBurn,
+      dbrExpiryDate,
+    }
+  });
+
+  return {
+    stakers,
+    timestamp: data ? data.timestamp : 0,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
 const COMBINATIONS = {
   'Deposit': 'Borrow',
   'Borrow': 'Deposit',
