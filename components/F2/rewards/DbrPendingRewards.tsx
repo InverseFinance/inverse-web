@@ -96,7 +96,7 @@ const columns = [
     },
     {
         field: 'netDbr',
-        label: 'DBR Monthly',
+        label: 'DBR net Monthly',
         header: ({ ...props }) => <ColHeader minWidth="125px" justify="center"  {...props} />,
         value: ({ netDbr, dbrPrice }) => {
             return <Cell minWidth="125px" justify="center" direction="column" alignItems="center">
@@ -172,11 +172,12 @@ export const DbrPendingRewards = ({
     const totalClaimable = _stakers.reduce((prev, curr) => prev + (curr.claimable || 0), 0);
     const totalClaimableAbove100 = _stakers.filter(s => (s.claimable || 0) * dbrPrice >= 100)
         .reduce((prev, curr) => prev + curr.claimable, 0);
+    const totalStaked = _stakers.reduce((prev, curr) => prev + (curr.deposits || 0), 0);
 
-    const fontSize = { base: '14px', sm: '18px' };
+    const fontSize = { base: '14px', sm: '16px' };
 
     return <Container
-        label="INV Stakers & Rewards"
+        label="FiRM INV Stakers & Rewards"
         noPadding
         py="4"
         description={timestamp ? `DBR reward index updated ${moment(timestamp).from()}` : `Loading...`}
@@ -186,16 +187,24 @@ export const DbrPendingRewards = ({
             align: { base: 'flex-start', md: 'flex-end' },
         }}
         right={
-            <HStack pt="2" alignItems="flex-start" justify="space-between" spacing={{ base: '2', sm: '4' }}>
-                <VStack spacing="0" alignItems="flex-end">
-                    <Text textAlign="right" fontSize={fontSize} fontWeight="bold">INV APR</Text>
-                    <Text fontWeight="extrabold" textAlign="right" fontSize={fontSize} color="success">{shortenNumber(invMarket?.supplyApy, 2)}%</Text>
+            <HStack pt="2" alignItems="flex-start" justify="space-between" spacing={{ base: '2', sm: '6' }}>
+                <VStack spacing="0" alignItems="center">
+                    <Text textAlign="right" fontSize={fontSize} fontWeight="bold">Stakers</Text>
+                    <Text fontWeight="extrabold" textAlign="center" fontSize={fontSize} color="success">{preciseCommify(_stakers.filter(s => s.deposits > 0.01).length, 0)}</Text>
                 </VStack>
-                <VStack spacing="0" alignItems="flex-end">
-                    <Text textAlign="right" fontSize={fontSize} fontWeight="bold">DBR APR</Text>
-                    <Text fontWeight="extrabold" textAlign="right" fontSize={fontSize} color="success">{shortenNumber(invMarket?.dbrApr, 2)}%</Text>
+                <VStack spacing="0" alignItems="center">
+                    <Text textAlign="center" fontSize={fontSize} fontWeight="bold">Staked INV</Text>
+                    <Text fontWeight="extrabold" textAlign="center" fontSize={fontSize} color="success">{preciseCommify(totalStaked, 0)} ({shortenNumber(totalStaked * invPrice, 0, true)})</Text>
                 </VStack>
-                <VStack spacing="0" alignItems="flex-end">
+                <VStack spacing="0" alignItems="center">
+                    <Text textAlign="center" fontSize={fontSize} fontWeight="bold">INV APR</Text>
+                    <Text fontWeight="extrabold" textAlign="center" fontSize={fontSize} color="success">{shortenNumber(invMarket?.supplyApy, 2)}%</Text>
+                </VStack>
+                <VStack spacing="0" alignItems="center">
+                    <Text textAlign="center" fontSize={fontSize} fontWeight="bold">DBR APR</Text>
+                    <Text fontWeight="extrabold" textAlign="center" fontSize={fontSize} color="success">{shortenNumber(invMarket?.dbrApr, 2)}%</Text>
+                </VStack>
+                <VStack spacing="0" alignItems="center">
                     <Text textAlign="right" fontSize={fontSize} fontWeight="bold">DBR rewards above $100</Text>
                     <Text fontWeight="extrabold" textAlign="right" fontSize={fontSize} color="success">{preciseCommify(totalClaimableAbove100, 0)} ({preciseCommify(dbrPrice * totalClaimableAbove100, 0, true)})</Text>
                 </VStack>
