@@ -4,7 +4,7 @@ import { timestampToUTC } from '@app/util/misc';
 import { liquidityCacheKey } from './transparency/liquidity';
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') res.status(405).json({ success: false });
+  if (req.method !== 'POST') return res.status(405).json({ success: false });
   else if (req.headers.authorization !== `Bearer ${process.env.API_SECRET_KEY}`) return res.status(401).json({ success: false });
 
   try {

@@ -16,7 +16,7 @@ function onlyUniqueArrayFilter(value, index, self) {
 
 export default async function handler(req, res) {
   // authenticate cron job
-  if (req.method !== 'POST') res.status(405).json({ success: false });
+  if (req.method !== 'POST') return res.status(405).json({ success: false });
   else if (req.headers.authorization !== `Bearer ${process.env.API_SECRET_KEY}`) res.status(401).json({ success: false });
   else {
     // run delegates cron job
