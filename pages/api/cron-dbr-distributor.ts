@@ -32,11 +32,13 @@ export const initialDbrRewardRates = {
 };
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') res.status(405).json({ success: false });
-  else if (req.headers.authorization !== `Bearer ${process.env.API_SECRET_KEY}`) return res.status(401).json({ success: false });
-
   try {
-    const history = await getCacheFromRedis(dbrRewardRatesCacheKey, false) || initialDbrRewardRates;
+    const history = await getCacheFromRedis(dbrRewardRatesCacheKey, false);
+    if(!history) {
+      res.status(404).json({
+        success: false,
+      });
+    }
 
     const provider = getProvider(NetworkIds.mainnet);
     const dbrDistributor = new Contract(DBR_DISTRIBUTOR, DBR_DISTRIBUTOR_ABI, provider);
