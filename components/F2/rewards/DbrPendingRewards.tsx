@@ -130,7 +130,7 @@ export const DbrPendingRewards = ({
         label="INV stakers & claimable DBR rewards"
         noPadding
         py="4"
-        description={timestamp ? `Last update ${moment(timestamp).from()}` : `Loading...`}
+        description={timestamp ? `Last index update ${moment(timestamp).from()}` : `Loading...`}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
         headerProps={{
             direction: { base: 'column', md: 'row' },
