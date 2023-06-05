@@ -80,15 +80,23 @@ export const MENUS = {
     // },
     {
       label: 'Swap',
-      href: '/swap/DAI/DOLA',
+      href: '/swap',
       // submenus: [
       //   {
-      //     label: 'Swap DOLA',
-      //     href: '/swap/DAI/DOLA',
+      //     label: 'Buy INV',
+      //     href: '/swap?fromToken=DOLA&toToken=INV',
       //   },
       //   {
-      //     label: 'Tokens',
-      //     href: '/tokens',
+      //     label: 'Buy DBR',
+      //     href: '/swap?fromToken=DOLA&toToken=DBR',
+      //   },
+      //   {
+      //     label: 'Buy DOLA',
+      //     href: '/swap?fromToken=DAI&toToken=DOLA',
+      //   },
+      //   {
+      //     label: 'Bridge DOLA',
+      //     href: '/swap?fromToken=DOLA&toToken=DOLA&fromChain=ethereum&toChain=optimism',
       //   },
       // ]
     },

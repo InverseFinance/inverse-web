@@ -1548,7 +1548,7 @@ export const BONDS = [
     ctoken: '0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670',
     underlying: getToken(TOKENS, chainTokenAddresses["1"].DOLA)!,
     bondContract: '0xdBfBb1140F8ba147ca4C8c27A2e576dfed0449BD',
-    howToGetLink: 'https://www.inverse.finance/swap/DAI/DOLA',
+    howToGetLink: 'https://www.inverse.finance/swap?fromToken=DAI&toToken=DOLA',
     inputPrice: 1,
   },
   {
@@ -1566,7 +1566,7 @@ export const BONDS = [
     ctoken: '0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670',
     underlying: getToken(TOKENS, chainTokenAddresses["1"].DOLA)!,
     bondContract: '0xBfB90b9CE47F36841c776a1B82EE49157D4c746b',
-    howToGetLink: 'https://www.inverse.finance/swap/DAI/DOLA',
+    howToGetLink: 'https://www.inverse.finance/swap?fromToken=DAI&toToken=DOLA',
     inputPrice: 1,
   },
   {
@@ -1575,7 +1575,7 @@ export const BONDS = [
     ctoken: '0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670',
     underlying: getToken(TOKENS, chainTokenAddresses["1"].DOLA)!,
     bondContract: '0x3Fe012C3a1A747f249a376CC9536f9a94796eE81',
-    howToGetLink: 'https://www.inverse.finance/swap/DAI/DOLA',
+    howToGetLink: 'https://www.inverse.finance/swap?fromToken=DAI&toToken=DOLA',
     inputPrice: 1,
   },
 ]
