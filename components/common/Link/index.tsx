@@ -16,7 +16,7 @@ export const Link = (props: any) => {
   })(query);
 
   return (
-    <NextLink href={typeof href === 'string' && (href.includes('#') || isExternal) ? href : {
+    <NextLink href={typeof href === 'string' && (href.includes('#') || href.includes('?') || isExternal) ? href : {
       pathname: href?.pathname || href,
       query: href?.query || urlParamsToKeepWhenChangingPage,
     }} passHref>

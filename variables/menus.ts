@@ -81,24 +81,28 @@ export const MENUS = {
     {
       label: 'Swap',
       href: '/swap',
-      // submenus: [
-      //   {
-      //     label: 'Buy INV',
-      //     href: '/swap?fromToken=DOLA&toToken=INV',
-      //   },
-      //   {
-      //     label: 'Buy DBR',
-      //     href: '/swap?fromToken=DOLA&toToken=DBR',
-      //   },
-      //   {
-      //     label: 'Buy DOLA',
-      //     href: '/swap?fromToken=DAI&toToken=DOLA',
-      //   },
-      //   {
-      //     label: 'Bridge DOLA',
-      //     href: '/swap?fromToken=DOLA&toToken=DOLA&fromChain=ethereum&toChain=optimism',
-      //   },
-      // ]
+      submenus: [
+        {
+          label: 'Buy INV',
+          href: '/swap?fromToken=DOLA&toToken=INV',
+          needReload: true,
+        },
+        {
+          label: 'Buy DBR',
+          href: '/swap?fromToken=DOLA&toToken=DBR',
+          needReload: true,
+        },
+        {
+          label: 'Buy DOLA',
+          href: '/swap?fromToken=DAI&toToken=DOLA',
+          needReload: true,
+        },
+        {
+          label: 'Bridge DOLA',
+          href: '/swap?fromToken=DOLA&toToken=DOLA&fromChain=ethereum&toChain=optimism',
+          needReload: true,
+        },
+      ]
     },
     // {
     //   label: 'Swap',

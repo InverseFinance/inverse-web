@@ -584,7 +584,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
                           {
                             submenus
                               .filter(s => !s.href.includes('$account') || (s.href.includes('$account') && !!userAddress))
-                              ?.map(s => <Link key={s.href} color={active === label && activeSubmenu === s.label ? 'mainTextColor' : 'secondaryTextColor'} href={s.href.replace('$account', userAddress || '')}>{s.label}</Link>)
+                              ?.map(s => <Link key={s.href} onClick={s.needReload ? () => location.href = s.href : undefined} color={active === label && activeSubmenu === s.label ? 'mainTextColor' : 'secondaryTextColor'} href={s.href.replace('$account', userAddress || '')}>{s.label}</Link>)
                           }
                         </VStack>
                       </PopoverBody>
