@@ -85,19 +85,27 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="125px" justify="center"  {...props} />,
         value: ({ dbrMonthlyRewards, dbrPrice }) => {
             return <Cell minWidth="125px" justify="center" direction="column" alignItems="center">
-                <CellText fontWeight="bold" textAlign="center" color="success">{shortenNumber(dbrMonthlyRewards * dbrPrice, 2, true, true)}</CellText>
-                <CellText textAlign="center">{shortenNumber(dbrMonthlyRewards, 2, false, true)}</CellText>
+                {
+                    dbrMonthlyRewards ? <>
+                        <CellText fontWeight="bold" textAlign="center" color="success">{shortenNumber(dbrMonthlyRewards * dbrPrice, 2, true, true)}</CellText>
+                        <CellText textAlign="center">{shortenNumber(dbrMonthlyRewards, 2, false, true)}</CellText>
+                    </> : <CellText>-</CellText>
+                }
             </Cell>
         },
     },
     {
         field: 'netDbr',
-        label: 'DBR Net Monthly',
+        label: 'DBR Monthly',
         header: ({ ...props }) => <ColHeader minWidth="125px" justify="center"  {...props} />,
         value: ({ netDbr, dbrPrice }) => {
             return <Cell minWidth="125px" justify="center" direction="column" alignItems="center">
-                <CellText fontWeight="bold" textAlign="center" color={netDbr > 0 ? 'success' : 'warning'}>{shortenNumber(netDbr * dbrPrice, 2, true, false)}</CellText>
-                <CellText textAlign="center">{shortenNumber(netDbr, 2, false, false)}</CellText>
+                {
+                    netDbr ? <>
+                        <CellText fontWeight="bold" textAlign="center" color={netDbr > 0 ? 'success' : 'warning'}>{shortenNumber(netDbr * dbrPrice, 2, true, false)}</CellText>
+                        <CellText textAlign="center">{shortenNumber(netDbr, 2, false, false)}</CellText>
+                    </> : <CellText>-</CellText>
+                }
             </Cell>
         },
     },
@@ -107,8 +115,12 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="125px" justify="center"  {...props} />,
         value: ({ invMonthlyRewards, invPrice }) => {
             return <Cell minWidth="125px" justify="center" direction="column" alignItems="center">
-                <CellText fontWeight="bold" textAlign="center" color="success">{shortenNumber(invMonthlyRewards * invPrice, 2, true, true)}</CellText>
-                <CellText textAlign="center">{shortenNumber(invMonthlyRewards, 2, false, true)}</CellText>
+                {
+                    invMonthlyRewards ? <>
+                        <CellText fontWeight="bold" textAlign="center" color="success">{shortenNumber(invMonthlyRewards * invPrice, 2, true, true)}</CellText>
+                        <CellText textAlign="center">{shortenNumber(invMonthlyRewards, 2, false, true)}</CellText>
+                    </> : <CellText>-</CellText>
+                }
             </Cell>
         },
     },
@@ -118,8 +130,12 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="125px" justify="center"  {...props} />,
         value: ({ deposits, invPrice }) => {
             return <Cell minWidth="125px" justify="center" direction="column" alignItems="center">
-                <CellText fontWeight="bold" textAlign="center">{shortenNumber(deposits * invPrice, 2, true, true)}</CellText>
-                <CellText textAlign="center">{shortenNumber(deposits, 2, false, true)}</CellText>
+                {
+                    deposits ? <>
+                        <CellText fontWeight="bold" textAlign="center">{shortenNumber(deposits * invPrice, 2, true, true)}</CellText>
+                        <CellText textAlign="center">{shortenNumber(deposits, 2, false, true)}</CellText>
+                    </> : <CellText>-</CellText>
+                }
             </Cell>
         },
     },
