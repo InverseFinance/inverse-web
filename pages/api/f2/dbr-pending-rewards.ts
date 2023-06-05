@@ -1,14 +1,14 @@
 import { Contract } from 'ethers'
 import 'source-map-support'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { F2_ESCROW_ABI } from '@app/config/abis';
+import { DBR_DISTRIBUTOR_ABI, F2_ESCROW_ABI } from '@app/config/abis';
 import { getBnToNumber } from '@app/util/markets';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
 import { F2_POSITIONS_CACHE_KEY, F2_UNIQUE_USERS_CACHE_KEY } from './firm-positions';
 import { getProvider } from '@app/util/providers';
 import { CHAIN_ID } from '@app/config/constants';
 
-const { F2_MARKETS } = getNetworkConfigConstants();
+const { F2_MARKETS, DBR_DISTRIBUTOR } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
     const cacheKey = `pending-dbr-rewards`;
@@ -46,11 +46,13 @@ export default async function handler(req, res) {
                 })
         )).map(v => getBnToNumber(v));
 
+        const lastUpdate = (await (new Contract(DBR_DISTRIBUTOR, DBR_DISTRIBUTOR_ABI, provider)).lastUpdate()) * 1000;
+
         const result = {
-            timestamp: Date.now(),
+            timestamp: lastUpdate,
             userData: invMarketData.escrows.map((escrow, i) => {
                 const user = invMarketData.users[i];
-                const position = firmPositions.positions.find(p => p.user.toLowerCase() === user.toLowerCase());
+                const position = firmPositions.positions.find(p => p.marketIndex === invMarketIndex && p.user.toLowerCase() === user.toLowerCase());
                 return {
                     escrow,
                     user,

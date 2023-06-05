@@ -106,6 +106,7 @@ export const useDBRPendingRewards = (): SWR & {
     const dbrExpiryDate = !spender.debt ? null : (+new Date() + dbrNbDaysExpiry * ONE_DAY_MS);
     return {
       ...u,
+      totalDebt: spender.debt,
       dailyBurn,
       dbrExpiryDate,
     }

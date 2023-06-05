@@ -8,8 +8,8 @@ import ScannerLink from "@app/components/common/ScannerLink";
 import moment from 'moment'
 
 import Table from "@app/components/common/Table";
-import { useDBRPrice } from "@app/hooks/useDBR";
 import { preciseCommify } from "@app/util/misc";
+import { usePrices } from "@app/hooks/usePrices";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -26,7 +26,7 @@ const CellText = ({ ...props }) => {
 const columns = [
     {
         field: 'user',
-        label: 'Borrower',
+        label: 'Staker',
         header: ({ ...props }) => <ColHeader justify="flex-start" {...props} minWidth="100px" />,
         value: ({ user }) => {
             return <Cell w="100px" justify="flex-start" position="relative" onClick={(e) => e.stopPropagation()}>
@@ -50,12 +50,12 @@ const columns = [
         },
     },
     {
-        field: 'debt',
+        field: 'totalDebt',
         label: 'DOLA Debt',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        value: ({ debt }) => {
+        value: ({ totalDebt }) => {
             return <Cell minWidth="100px" justify="center" >
-                <CellText>{debt ? shortenNumber(debt, 2) : '-'}</CellText>
+                <CellText>{totalDebt ? shortenNumber(totalDebt, 2) : '-'}</CellText>
             </Cell>
         },
     },
@@ -86,12 +86,23 @@ const columns = [
         },
     },
     {
+        field: 'deposits',
+        label: 'INV staked',
+        header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
+        value: ({ deposits, invPrice }) => {
+            return <Cell minWidth="150px" justify="center" direction="column">
+                <CellText fontWeight="bold" textAlign="center">{shortenNumber(deposits * invPrice, 2, true, true)}</CellText>
+                <CellText textAlign="center">{shortenNumber(deposits, 2, false, true)}</CellText>               
+            </Cell>
+        },
+    },
+    {
         field: 'claimable',
         label: 'Claimable DBR',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="flex-end"  {...props} />,
         value: ({ claimable, dbrPrice }) => {
             return <Cell minWidth="100px" justify="flex-end" direction="column">
-                <CellText textAlign="right" fontWeight="bold">{shortenNumber(claimable * dbrPrice, 2, true)}</CellText>
+                <CellText textAlign="right" color="success" fontWeight="bold">{shortenNumber(claimable * dbrPrice, 2, true)}</CellText>
                 <CellText textAlign="right">{shortenNumber(claimable, 2)}</CellText>                
             </Cell>
         },
@@ -103,20 +114,17 @@ export const DbrPendingRewards = ({
 }: {
 
     }) => {
-    const { price: dbrPrice } = useDBRPrice();
+    const { prices } = usePrices();
+    const dbrPrice = prices?.['dola-borrowing-right']?.usd || 0;
+    const invPrice = prices?.['inverse-finance']?.usd || 0;
     const { stakers, timestamp, isLoading } = useDBRPendingRewards();
     const _stakers = stakers.map((staker) => {
-        return { ...staker, dbrPrice }
+        return { ...staker, dbrPrice, invPrice }
     })
 
-    // const totalDailyBurn = positions.reduce((prev, curr) => prev + curr.dailyBurn, 0);
-    // const totalDeficit = positions.reduce((prev, curr) => prev + (curr.deficit), 0);
-    // const totalDebt = positions.reduce((prev, curr) => prev + curr.debt, 0);
-    // const monthlyBurn = totalDailyBurn * 30.416;
-    // const yearlyBurn = totalDailyBurn * 365;
     const totalClaimable = stakers.reduce((prev, curr) => prev + curr.claimable, 0);
 
-    const fontSize = { base: '14px', sm: '16px' };
+    const fontSize = { base: '14px', sm: '18px' };
 
     return <Container
         label="INV stakers & claimable DBR rewards"
@@ -132,7 +140,7 @@ export const DbrPendingRewards = ({
             <HStack pt="2" alignItems="flex-start" justify="space-between" spacing={{ base: '2', sm: '4' }}>
                 <VStack spacing="0" alignItems="flex-end">
                     <Text textAlign="right" fontSize={fontSize} fontWeight="bold">Total DBR Claimable</Text>
-                    <Text textAlign="right" fontSize={fontSize} color="secondaryTextColor">{preciseCommify(totalClaimable, 0)} ({preciseCommify(dbrPrice * totalClaimable, 0, true)})</Text>
+                    <Text fontWeight="extrabold" textAlign="right" fontSize={fontSize} color="success">{preciseCommify(totalClaimable, 0)} ({preciseCommify(dbrPrice * totalClaimable, 0, true)})</Text>
                 </VStack>
             </HStack>
         }
