@@ -197,7 +197,7 @@ export const DbrPendingRewards = ({
                 </VStack>
                 <VStack spacing="0" alignItems="center">
                     <Text textAlign="center" fontSize={fontSize} fontWeight="bold">Staked INV</Text>
-                    <Text fontWeight="extrabold" textAlign="center" fontSize={fontSize} color="success">{preciseCommify(totalStaked, 0)} ({shortenNumber(totalStaked * invPrice, 0, true)})</Text>
+                    <Text fontWeight="extrabold" textAlign="center" fontSize={fontSize} color="success">{preciseCommify(totalStaked, 0)} ({shortenNumber(totalStaked * invPrice, 2, true)})</Text>
                 </VStack>
                 <VStack spacing="0" alignItems="center">
                     <Text textAlign="center" fontSize={fontSize} fontWeight="bold">INV APR</Text>
