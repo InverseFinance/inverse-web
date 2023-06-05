@@ -4,7 +4,7 @@ import { fetcher, fetcher30sectimeout } from '@app/util/web3'
 import { useCacheFirstSWR, useCustomSWR } from "./useCustomSWR";
 import { useDBRMarkets, useDBRPrice } from "./useDBR";
 import { f2CalcNewHealth } from "@app/util/f2";
-import { getBnToNumber, getNumberToBn } from "@app/util/markets";
+import { getBnToNumber, getMonthlyRate, getNumberToBn } from "@app/util/markets";
 import { useMultiContractEvents } from "./useContractEvents";
 import { DBR_ABI, F2_ESCROW_ABI, F2_MARKET_ABI } from "@app/config/abis";
 import { getNetworkConfigConstants } from "@app/util/networks";
@@ -92,6 +92,7 @@ export const useDBRActiveHolders = (): SWR & {
 export const useDBRPendingRewards = (): SWR & {
   stakers: any,
   timestamp: number,
+  invMarket: F2Market,
 } => {
   const { data, error } = useCustomSWR(`/api/f2/dbr-pending-rewards`, fetcher);
   const { data: spendersData, error: spendersError } = useCustomSWR(`/api/f2/dbr-deficits?v2`, fetcher);
@@ -103,17 +104,24 @@ export const useDBRPendingRewards = (): SWR & {
     const spender = activeDbrHolders.find(p => p.user === u.user) || { debt: 0, signedBalance: 0 };
     const dailyBurn = spender.debt / oneYear * ONE_DAY_MS;
     const dbrNbDaysExpiry = dailyBurn ? spender.signedBalance / dailyBurn : 0;
-    const dbrExpiryDate = !spender.debt ? null : (+new Date() + dbrNbDaysExpiry * ONE_DAY_MS);
+    const dbrExpiryDate = !spender.debt ? null : (+new Date() + dbrNbDaysExpiry * ONE_DAY_MS);    
+    const share = data.invMarket.invStakedViaDistributor ? (u.deposits||0) / data.invMarket.invStakedViaDistributor : 0;
+    const invMonthlyRewards = getMonthlyRate((u.deposits||0), data.invMarket?.supplyApy);
+    const dbrMonthlyRewards = share * data.invMarket?.dbrYearlyRewardRate/12;
     return {
       ...u,
       totalDebt: spender.debt,
       dailyBurn,
+      monthlyBurn: dailyBurn * 365/12,
       dbrExpiryDate,
+      invMonthlyRewards,
+      dbrMonthlyRewards,
     }
   });
 
   return {
     stakers,
+    invMarket: data ? data.invMarket : {},
     timestamp: data ? data.timestamp : 0,
     isLoading: !error && !data,
     isError: error,

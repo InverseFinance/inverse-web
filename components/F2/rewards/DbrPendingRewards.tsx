@@ -20,17 +20,17 @@ const Cell = ({ ...props }) => {
 }
 
 const CellText = ({ ...props }) => {
-    return <Text fontSize="16px" {...props} />
+    return <Text textAlign="center" fontSize="16px" {...props} />
 }
 
 const columns = [
     {
         field: 'user',
         label: 'Staker',
-        header: ({ ...props }) => <ColHeader justify="flex-start" {...props} minWidth="100px" />,
+        header: ({ ...props }) => <ColHeader justify="flex-start" {...props} minWidth="130px" />,
         value: ({ user }) => {
-            return <Cell w="100px" justify="flex-start" position="relative" onClick={(e) => e.stopPropagation()}>
-                <Link isExternal href={`/firm?viewAddress=${user}`}>
+            return <Cell w="130px" justify="flex-start" position="relative" onClick={(e) => e.stopPropagation()}>
+                <Link isExternal href={`/firm/INV?viewAddress=${user}`}>
                     <ViewIcon color="blue.600" boxSize={3} />
                 </Link>
                 <ScannerLink value={user} />
@@ -39,71 +39,98 @@ const columns = [
         showFilter: true,
         filterWidth: '100px',
     },
-    {
-        field: 'signedBalance',
-        label: 'DBR Signed Balance',
-        header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
-        value: ({ signedBalance }) => {
-            return <Cell minWidth="150px" justify="center" >
-                <CellText color={signedBalance < 0 ? 'error' : 'mainTextColor'}>{shortenNumber(signedBalance, signedBalance < 0 ? 4 : 2, false, signedBalance > 0)}</CellText>
-            </Cell>
-        },
-    },
+    // {
+    //     field: 'signedBalance',
+    //     label: 'DBR Signed Balance',
+    //     header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
+    //     value: ({ signedBalance }) => {
+    //         return <Cell minWidth="150px" justify="center" >
+    //             <CellText color={signedBalance < 0 ? 'error' : 'mainTextColor'}>{shortenNumber(signedBalance, signedBalance < 0 ? 4 : 2, false, signedBalance > 0)}</CellText>
+    //         </Cell>
+    //     },
+    // },
     {
         field: 'totalDebt',
         label: 'DOLA Debt',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        value: ({ totalDebt }) => {
-            return <Cell minWidth="100px" justify="center" >
-                <CellText>{totalDebt ? shortenNumber(totalDebt, 2) : '-'}</CellText>
-            </Cell>
-        },
-    },
-    {
-        field: 'dailyBurn',
-        label: 'DBR Daily Spend',
-        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        value: ({ dailyBurn }) => {
-            return <Cell minWidth="100px" justify="center" >
-                <CellText>-{dailyBurn ? shortenNumber(dailyBurn, 2) : ''}</CellText>
-            </Cell>
-        },
-    },
-    {
-        field: 'dbrExpiryDate',
-        label: 'DBR Depletion',
-        header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
-        value: ({ debt, dbrExpiryDate }) => {
-            return <Cell spacing="0" alignItems="center" direction="column" minWidth="120px" justify="center">
+        value: ({ totalDebt, dolaPrice }) => {
+            return <Cell minWidth="100px" justify="center" direction="column" alignItems="center">
                 {
-                    debt > 0 && !!dbrExpiryDate ? <>
-                        <CellText>{moment(dbrExpiryDate).format('MMM Do YYYY')}</CellText>
-                        <CellText color="secondaryTextColor">{moment(dbrExpiryDate).fromNow()}</CellText>
-                    </>
-                        : <CellText>-</CellText>
+                    totalDebt ? <>
+                        <CellText fontWeight="bold">{totalDebt ? shortenNumber(totalDebt * dolaPrice, 2, true) : '-'}</CellText>
+                        <CellText>{totalDebt ? shortenNumber(totalDebt, 2) : '-'}</CellText>
+                    </> : <CellText>-</CellText>
                 }
+            </Cell>
+        },
+    },
+    {
+        field: 'monthlyBurn',
+        label: 'DBR Monthly Spend',
+        header: ({ ...props }) => <ColHeader minWidth="125px" justify="center"  {...props} />,
+        value: ({ monthlyBurn, dbrPrice }) => {
+            return <Cell minWidth="125px" justify="center" direction="column" alignItems="center">
+                {
+                    monthlyBurn ? <>
+                        <CellText fontWeight="bold" textAlign="center" color="warning">-{shortenNumber(monthlyBurn * dbrPrice, 2, true, true)}</CellText>
+                        <CellText>-{monthlyBurn ? shortenNumber(monthlyBurn, 2) : ''}</CellText>
+                    </> : <CellText>-</CellText>
+                }
+            </Cell>
+        },
+    },
+    {
+        field: 'dbrMonthlyRewards',
+        label: 'DBR Monthly Rewards',
+        header: ({ ...props }) => <ColHeader minWidth="125px" justify="center"  {...props} />,
+        value: ({ dbrMonthlyRewards, dbrPrice }) => {
+            return <Cell minWidth="125px" justify="center" direction="column" alignItems="center">
+                <CellText fontWeight="bold" textAlign="center" color="success">{shortenNumber(dbrMonthlyRewards * dbrPrice, 2, true, true)}</CellText>
+                <CellText textAlign="center">{shortenNumber(dbrMonthlyRewards, 2, false, true)}</CellText>
+            </Cell>
+        },
+    },
+    {
+        field: 'netDbr',
+        label: 'DBR Net Monthly',
+        header: ({ ...props }) => <ColHeader minWidth="125px" justify="center"  {...props} />,
+        value: ({ netDbr, dbrPrice }) => {
+            return <Cell minWidth="125px" justify="center" direction="column" alignItems="center">
+                <CellText fontWeight="bold" textAlign="center" color={netDbr > 0 ? 'success' : 'warning'}>{shortenNumber(netDbr * dbrPrice, 2, true, false)}</CellText>
+                <CellText textAlign="center">{shortenNumber(netDbr, 2, false, false)}</CellText>
+            </Cell>
+        },
+    },
+    {
+        field: 'invMonthlyRewards',
+        label: 'INV Monthly Rewards',
+        header: ({ ...props }) => <ColHeader minWidth="125px" justify="center"  {...props} />,
+        value: ({ invMonthlyRewards, invPrice }) => {
+            return <Cell minWidth="125px" justify="center" direction="column" alignItems="center">
+                <CellText fontWeight="bold" textAlign="center" color="success">{shortenNumber(invMonthlyRewards * invPrice, 2, true, true)}</CellText>
+                <CellText textAlign="center">{shortenNumber(invMonthlyRewards, 2, false, true)}</CellText>
             </Cell>
         },
     },
     {
         field: 'deposits',
         label: 'INV staked',
-        header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="125px" justify="center"  {...props} />,
         value: ({ deposits, invPrice }) => {
-            return <Cell minWidth="150px" justify="center" direction="column">
+            return <Cell minWidth="125px" justify="center" direction="column" alignItems="center">
                 <CellText fontWeight="bold" textAlign="center">{shortenNumber(deposits * invPrice, 2, true, true)}</CellText>
-                <CellText textAlign="center">{shortenNumber(deposits, 2, false, true)}</CellText>               
+                <CellText textAlign="center">{shortenNumber(deposits, 2, false, true)}</CellText>
             </Cell>
         },
     },
     {
         field: 'claimable',
         label: 'Claimable DBR',
-        header: ({ ...props }) => <ColHeader minWidth="100px" justify="flex-end"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
         value: ({ claimable, dbrPrice }) => {
-            return <Cell minWidth="100px" justify="flex-end" direction="column">
+            return <Cell minWidth="150px" justify="center" direction="column" alignItems="center">
                 <CellText textAlign="right" color="success" fontWeight="bold">{shortenNumber(claimable * dbrPrice, 2, true)}</CellText>
-                <CellText textAlign="right">{shortenNumber(claimable, 2)}</CellText>                
+                <CellText textAlign="right">{shortenNumber(claimable, 2)}</CellText>
             </Cell>
         },
     },
@@ -117,20 +144,26 @@ export const DbrPendingRewards = ({
     const { prices } = usePrices();
     const dbrPrice = prices?.['dola-borrowing-right']?.usd || 0;
     const invPrice = prices?.['inverse-finance']?.usd || 0;
-    const { stakers, timestamp, isLoading } = useDBRPendingRewards();
+    const dolaPrice = prices?.['dola-usd']?.usd || 0;
+    const { stakers, timestamp, invMarket, isLoading } = useDBRPendingRewards();
+
     const _stakers = stakers.map((staker) => {
-        return { ...staker, dbrPrice, invPrice }
+        return {
+            ...staker, dbrPrice, invPrice, dolaPrice, netDbr: staker.dbrMonthlyRewards - staker.monthlyBurn,
+        }
     })
 
-    const totalClaimable = stakers.reduce((prev, curr) => prev + curr.claimable, 0);
+    const totalClaimable = _stakers.reduce((prev, curr) => prev + (curr.claimable || 0), 0);
+    const totalClaimableAbove100 = _stakers.filter(s => (s.claimable || 0) * dbrPrice >= 100)
+        .reduce((prev, curr) => prev + curr.claimable, 0);
 
     const fontSize = { base: '14px', sm: '18px' };
 
     return <Container
-        label="INV stakers & claimable DBR rewards"
+        label="INV Stakers & Rewards"
         noPadding
         py="4"
-        description={timestamp ? `Last index update ${moment(timestamp).from()}` : `Loading...`}
+        description={timestamp ? `DBR reward index updated ${moment(timestamp).from()}` : `Loading...`}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
         headerProps={{
             direction: { base: 'column', md: 'row' },
@@ -138,6 +171,18 @@ export const DbrPendingRewards = ({
         }}
         right={
             <HStack pt="2" alignItems="flex-start" justify="space-between" spacing={{ base: '2', sm: '4' }}>
+                <VStack spacing="0" alignItems="flex-end">
+                    <Text textAlign="right" fontSize={fontSize} fontWeight="bold">INV APR</Text>
+                    <Text fontWeight="extrabold" textAlign="right" fontSize={fontSize} color="success">{shortenNumber(invMarket?.supplyApy, 2)}%</Text>
+                </VStack>
+                <VStack spacing="0" alignItems="flex-end">
+                    <Text textAlign="right" fontSize={fontSize} fontWeight="bold">DBR APR</Text>
+                    <Text fontWeight="extrabold" textAlign="right" fontSize={fontSize} color="success">{shortenNumber(invMarket?.dbrApr, 2)}%</Text>
+                </VStack>
+                <VStack spacing="0" alignItems="flex-end">
+                    <Text textAlign="right" fontSize={fontSize} fontWeight="bold">DBR rewards above $100</Text>
+                    <Text fontWeight="extrabold" textAlign="right" fontSize={fontSize} color="success">{preciseCommify(totalClaimableAbove100, 0)} ({preciseCommify(dbrPrice * totalClaimableAbove100, 0, true)})</Text>
+                </VStack>
                 <VStack spacing="0" alignItems="flex-end">
                     <Text textAlign="right" fontSize={fontSize} fontWeight="bold">Total DBR Claimable</Text>
                     <Text fontWeight="extrabold" textAlign="right" fontSize={fontSize} color="success">{preciseCommify(totalClaimable, 0)} ({preciseCommify(dbrPrice * totalClaimable, 0, true)})</Text>
