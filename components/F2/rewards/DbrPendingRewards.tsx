@@ -10,6 +10,7 @@ import moment from 'moment'
 import Table from "@app/components/common/Table";
 import { preciseCommify } from "@app/util/misc";
 import { usePrices } from "@app/hooks/usePrices";
+import { SkeletonBlob } from "@app/components/common/Skeleton";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -175,6 +176,8 @@ export const DbrPendingRewards = ({
     const totalStaked = _stakers.reduce((prev, curr) => prev + (curr.deposits || 0), 0);
 
     const fontSize = { base: '14px', sm: '16px' };
+
+    if(isLoading) return <SkeletonBlob />
 
     return <Container
         label="FiRM INV Stakers & Rewards"

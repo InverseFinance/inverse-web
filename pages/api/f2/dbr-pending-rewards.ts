@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     const cacheKey = `pending-dbr-rewards-v1.0.0`;
 
     try {
-        const cacheDuration = 300;
+        const cacheDuration = 1800;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
         const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
         if (validCache) {
