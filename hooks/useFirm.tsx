@@ -94,8 +94,8 @@ export const useDBRPendingRewards = (): SWR & {
   timestamp: number,
   invMarket: F2Market,
 } => {
-  const { data, error } = useCustomSWR(`/api/f2/dbr-pending-rewards`, fetcher);
-  const { data: spendersData, error: spendersError } = useCustomSWR(`/api/f2/dbr-deficits?v2`, fetcher);
+  const { data, error } = useCacheFirstSWR(`/api/f2/dbr-pending-rewards`, fetcher);
+  const { data: spendersData, error: spendersError } = useCacheFirstSWR(`/api/f2/dbr-deficits?v2`, fetcher);
   
   const userData = data ? data.userData : [];
   const activeDbrHolders = spendersData ? spendersData.activeDbrHolders : [];
