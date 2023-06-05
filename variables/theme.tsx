@@ -26,7 +26,7 @@ export const lightTheme = extendTheme({
     verticalGradientGray: 'linear-gradient(0deg, rgba(51,51,51,0.2) 0%, rgba(51,51,51,0.7) 40%, rgba(51,51,51,0.7) 60%, rgba(51,51,51,0.2) 100%)',
     announcementBarBackgroundColor: "transparent",
     announcementBarBackground: 'none',//"url('/assets/landing/graphic1.webp')",
-    contrastMainTextColor: '#fff',
+    contrastMainTextColor: '#ffffff',
     secContrastMainTextColor: '#E6E6E6',
     mainTextColor: '#18205D',
     mainTextColorLight: '#18205Daa',

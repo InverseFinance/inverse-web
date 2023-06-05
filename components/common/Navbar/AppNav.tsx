@@ -39,7 +39,7 @@ import { ViewAsModal } from './ViewAsModal'
 import { getEnsName, namedAddress } from '@app/util'
 import { Avatar } from '@app/components/common/Avatar';
 import { MENUS } from '@app/variables/menus'
-import { injectedConnector, walletConnectConnector, walletLinkConnector } from '@app/variables/connectors'
+import { injectedConnector, swapInjectedConnector, walletConnectConnector, swapWalletConnectConnector, walletLinkConnector, swapWalletLinkConnector } from '@app/variables/connectors'
 import { WalletLinkConnector } from '@web3-react/walletlink-connector';
 import { InjectedConnector } from '@web3-react/injected-connector';
 import { RTOKEN_SYMBOL } from '@app/variables/tokens'
@@ -49,7 +49,6 @@ import { formatUnits } from 'ethers/lib/utils';
 import { gaEvent } from '@app/util/analytics'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates'
-import { BigNumber } from 'ethers'
 import PostSearch from 'blog/components/post-search'
 import { switchTheme } from '@app/util/theme'
 import { useAppTheme, useAppThemeParams } from '@app/hooks/useAppTheme'
@@ -107,15 +106,14 @@ const NetworkBadge = ({
   const [isSmallerThan1000] = useMediaQuery('(max-width: 1000px)')
   const { data } = useEtherSWR(['getGasPrice']);
 
-  const gasPrice = Math.floor(!data ? 0 : parseFloat(formatUnits(data, 'gwei')));
-
+  const gasPrice = Math.floor(!data ? 0 : parseFloat(formatUnits(data, 'gwei')));  
   return (
     <NavBadge
       cursor={isWrongNetwork ? 'pointer' : 'default'}
       onClick={isWrongNetwork ? showWrongNetworkModal : undefined}
     // bg={'primary.800'}
     >
-      <NetworkItem chainId={chainId} networkAttribute={isSmallerThan1000 ? null : isSmallerThan1200 && !isSmallerThan1000 ? 'coinSymbol' : 'name'} />
+      <NetworkItem isSupported={!isWrongNetwork} chainId={chainId} networkAttribute={isSmallerThan1000 ? null : isSmallerThan1200 && !isSmallerThan1000 ? 'coinSymbol' : 'name'} />
       <Flex direction="row" color="red" ml="1">
         {
           !!gasPrice &&
@@ -277,7 +275,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
       close()
       // visually better
       setTimeout(() => {
-        activate(injectedConnector);
+        activate(location.pathname === '/swap' ? swapInjectedConnector : injectedConnector);
         gaEvent({ action: 'connect-metamask' })
       }, 100)
     }
@@ -285,13 +283,13 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
 
   const connectWalletConnect = () => {
     close()
-    activate(walletConnectConnector)
+    activate(location.pathname === '/swap' ? swapWalletConnectConnector : walletConnectConnector)
     gaEvent({ action: 'connect-walletConnect' })
   }
 
   const connectCoinbaseWallet = () => {
     close()
-    activate(walletLinkConnector)
+    activate(location.pathname === '/swap' ? swapWalletLinkConnector : walletLinkConnector)    
     gaEvent({ action: 'connect-coinbaseWallet' })
   }
 
@@ -467,9 +465,9 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
     if (!walletActive && isPreviouslyConnected()) {
       const previousConnectorType = getPreviousConnectorType();
       const connectors = {
-        'coinbase': walletLinkConnector,
-        'injected': injectedConnector,
-        'walletConnect': walletConnectConnector,
+        'coinbase': location.pathname === '/swap' ? swapWalletLinkConnector : walletLinkConnector,
+        'injected': location.pathname === '/swap' ? swapInjectedConnector : injectedConnector,
+        'walletConnect': location.pathname === '/swap' ? swapWalletConnectConnector : walletConnectConnector,
       }
       const connector = connectors[previousConnectorType];
       activate(connector);
@@ -488,7 +486,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   useEffect(() => {
     if (!badgeChainId) { return }
 
-    const isSupported = isSupportedNetwork(badgeChainId);
+    const isSupported = location.pathname === '/swap' || isSupportedNetwork(badgeChainId);
     setIsUsupportedNetwork(!isSupported)
     if (!isSupported) { onWrongNetOpen() }
     else { onWrongNetClose() }
@@ -514,7 +512,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
         setTimeout(() => {
           const before = Number(window?.ethereum?.chainId)
           window?.ethereum?.on('chainChanged', (after) => {
-            if (before !== after) { window.location.reload() }
+            if (before !== after && location.pathname !== '/swap') { window.location.reload() }
           });
         }, 0)
       }

@@ -6,22 +6,24 @@ import { capitalize } from '@app/util/misc';
 export const NetworkItem = ({
     chainId,
     ignoreUnsupportedWarning = false,
+    isSupported = undefined,
     networkAttribute = 'name',
 }: {
     chainId?: string | number,
     ignoreUnsupportedWarning?: boolean,
+    isSupported?: boolean,
     networkAttribute?: 'name' | 'coinSymbol' | 'codename' | null,
 }) => {
     if (!chainId) { return <></> }
     const network = getNetwork(chainId);
 
-    const image = getNetworkImage(network?.id)
-    const isSupported = isSupportedNetwork(network?.id);
+    const image = getNetworkImage(network?.id);
+    const _isSupported = isSupported ?? isSupportedNetwork(network?.id);
 
     return (
         <>
             {
-                image && (isSupported || ignoreUnsupportedWarning) ?
+                image && (_isSupported || ignoreUnsupportedWarning) ?
                     <Image src={getNetworkImage(network?.id)} ignoreFallback={true} alt={network?.codename} w={5} h={5} mr="2" />
                     :
                     <Tooltip label="Unsupported Network">
