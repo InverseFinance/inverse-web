@@ -214,12 +214,12 @@ export const F2CombinedForm = ({
             ['deposit', 'd&b', 'withdraw', 'r&w'].includes(MODES[mode]) && <VStack w='full' alignItems="flex-start">
                 <TextInfo message={
                     isDeposit ?
-                        market.isStaking ?
+                        market.isInv ?
                             "Staked INV can be withdrawn at any time"
                             : "The more you deposit, the more you can borrow against"
                         : "Withdrawing collateral will reduce borrowing power"
                 }>
-                    <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? market.isStaking ? 'Stake' : 'Deposit' : market.isStaking ? 'Unstake' : 'Withdraw'}</b> {isWethMarket && isUseNativeCoin ? 'ETH' : market.underlying.symbol}:</Text>
+                    <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? market.isInv ? 'Stake' : 'Deposit' : market.isInv ? 'Unstake' : 'Withdraw'}</b> {isWethMarket && isUseNativeCoin ? 'ETH' : market.underlying.symbol}:</Text>
                 </TextInfo>
                 {
                     deposits > 0 || isDeposit ? <>
@@ -465,7 +465,7 @@ export const F2CombinedForm = ({
             maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
             onAction={({ bnAmount }) => handleAction()}
             onMaxAction={({ bnAmount }) => handleWithdrawMax()}
-            actionLabel={isSigNeeded ? `Sign + ${mode}` : market.isStaking ? isDeposit ? 'Stake' : 'Unstake' : mode}
+            actionLabel={isSigNeeded ? `Sign + ${mode}` : market.isInv ? isDeposit ? 'Stake' : 'Unstake' : mode}
             approveLabel={isAutoDBR && isDeposit ? 'Step 1/3 - Approve' : undefined}
             maxActionLabel={'Unstake all'}
             onAmountChange={handleCollateralChange}
@@ -500,14 +500,14 @@ export const F2CombinedForm = ({
             {
                 (deposits > 0 || debt > 0 || !isDeposit) && <FormControl boxShadow="0px 0px 1px 0px #ccccccaa" bg="primary.400" zIndex="1" borderRadius="10px" px="2" py="1" right="0" top="-20px" margin="auto" position="absolute" w='fit-content' display='flex' alignItems='center'>
                     <FormLabel cursor="pointer" htmlFor='withdraw-mode' mb='0'>
-                        {market.isStaking ? 'Unstake?' : 'Repay / Withdraw?'}
+                        {market.isInv ? 'Unstake?' : 'Repay / Withdraw?'}
                     </FormLabel>
                     <Switch isChecked={!isDeposit} onChange={handleDirectionChange} id='withdraw-mode' />
                 </FormControl>
             }
             <VStack justify="space-between" position="relative" w='full' px='2%' py="2" alignItems="center" spacing="4">
                 {
-                    !market.isStaking && <NavButtons
+                    !market.isInv && <NavButtons
                         active={mode}
                         options={isDeposit ? inOptions : outOptions}
                         onClick={(v) => setMode(v)}
