@@ -46,6 +46,10 @@ export const MENUS = {
           label: 'Stake (Frontier, deprecated)',
           href: '/frontier',
         },
+        {
+          label: 'FiRM stakers',
+          href: '/firm/stakers',
+        },
       ]
     },
     {

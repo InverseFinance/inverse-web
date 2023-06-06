@@ -19,7 +19,7 @@ const client = getRedisClient();
 export default async function handler(req, res) {
   // authenticate cron job
   const { sig } = req.body;
-  if (req.method !== 'POST') res.status(405).json({ success: false });
+  if (req.method !== 'POST') return res.status(405).json({ success: false });
   else if (
     req.headers.authorization !== `Bearer ${process.env.API_SECRET_KEY}`
     && !checkDraftRights(sig)

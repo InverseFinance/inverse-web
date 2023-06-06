@@ -7,7 +7,7 @@ const client = getRedisClient();
 export default async function handler(req, res) {
     const { accounts = '', pageSize = 2000, pageOffset = 0 } = req.query;
 
-    if (req.method !== 'POST') res.status(405).json({ success: false });
+    if (req.method !== 'POST') return res.status(405).json({ success: false });
     else if (req.headers.authorization !== `Bearer ${process.env.API_SECRET_KEY}`) return res.status(401).json({ success: false });
 
     try {
