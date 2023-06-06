@@ -61,7 +61,7 @@ const columns = [
         label: 'Underlying APY',
         tooltip: 'The APY provided by the asset itself (or via its claimable rewards) and that is kept even after supplying. This is not an additional APY from FiRM',
         header: ({ ...props }) => <ColHeader minWidth="140px" justify="center"  {...props} />,
-        value: ({ supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isStaking, hasDbrRewards }) => {
+        value: ({ supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv }) => {
             return <Cell spacing="0" direction="column" minWidth="140px" alignItems="center" justify="center" fontSize="14px">
                 <AnchorPoolInfo
                     protocolImage={underlying.protocolImage}
@@ -76,7 +76,7 @@ const columns = [
                 />
                 {
                     supplyApy > 0 && <Text fontSize="12px" color="mainTextColorLight2">
-                        {isStaking ? 'INV + DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY'}
+                        {isInv ? 'INV + DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY'}
                     </Text>
                 }
             </Cell>

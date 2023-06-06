@@ -107,7 +107,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                             <Text _hover={{ color: 'inherit' }} color="inherit">Back to Markets</Text>
                                         </HStack>
                                         {
-                                            !f2market.isStaking && <HStack>
+                                            !f2market.isInv && <HStack>
                                                 <FormControl
                                                     display="inline-flex"
                                                     flexDirection={{ base: 'column', md: 'row' }}

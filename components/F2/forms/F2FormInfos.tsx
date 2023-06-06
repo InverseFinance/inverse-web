@@ -100,7 +100,8 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
     } = useContext(F2MarketContext);
 
     const [now, setNow] = useState(Date.now());
-    const { events, isLoading: isLoadingEvents } = useFirmMarketEvents(market, account);
+    const { events, isLoading: isLoadingEvents, depositedByUser, liquidated } = useFirmMarketEvents(market, account);
+    const collateralRewards = (deposits + liquidated) - depositedByUser;
 
     useEffect(() => {
         let interval = setInterval(() => {
@@ -273,8 +274,8 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         ],
         [
             {
-                tooltip: 'The total amount of collateral after you deposit/withdraw',
-                title: 'Total Deposits',
+                tooltip: 'The resulting collateral balance after you deposit/withdraw',
+                title: 'Total Balance',
                 value: `${newDeposits ? `${shortenNumber(newDeposits, 2)} ${market.underlying.symbol} (${shortenNumber(newDeposits * market.price, 2, true)})` : '-'}`,
             },
             {
@@ -298,7 +299,21 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         ],
     ];
 
-    const keyInfos = market.isStaking ? [
+    const stakingInfos = !collateralRewards ? [] : [
+        {
+            tooltip: 'The amount of collateral that comes from your deposits alone (excludes staking rewards and liquidations)',
+            title: 'Originally Deposited',
+            value: depositedByUser >= 0 ? `${shortenNumber(depositedByUser, 2)} ${market.underlying.symbol} (${shortenNumber(depositedByUser * market.price, 2, true)})` : 'All have been withdrawn',
+        },
+        {
+            tooltip: 'The total amount of collateral earned thanks to staking',
+            title: 'Earned with staking',
+            value: `${preciseCommify(collateralRewards, 2)} ${market.underlying.symbol} (${shortenNumber(collateralRewards * market.price, 2, true)})`,
+            color: 'seagreen',
+        },
+    ];
+
+    const keyInfos = market.isInv ? [
         positionInfos[2],
     ] : [
         positionInfos[0],
@@ -308,8 +323,13 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         positionInfos[3],
     ];
 
-    if(isAutoDBR) {
+    if (isAutoDBR) {
         keyInfos.splice(2, 0, dbrInfos[2]);
+    }
+
+    if (collateralRewards) {
+        const balanceIndex = keyInfos.findIndex((v) => v[0].title === 'Total Balance');
+        keyInfos.splice(balanceIndex, 0, stakingInfos);
     }
 
     const lists = {
@@ -322,7 +342,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
     const tabItems = lists[infoTab];
 
     const handleTabChange = (v: string) => {
-        setInfoTab(v);        
+        setInfoTab(v);
         gaEvent({ action: `FiRM-info-tab-${v.toLowerCase().replace(' ', '_')}` });
     }
 

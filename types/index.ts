@@ -715,7 +715,7 @@ export type F2Market = {
   zapperAppGroup?: string
   isGovTokenCollateral?: boolean
   hasClaimableRewards?: boolean
-  isStaking?: boolean
+  
   isInv?: boolean
   govLink?: string
   marketIcon?: string
