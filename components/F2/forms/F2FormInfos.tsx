@@ -303,7 +303,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         {
             tooltip: 'The amount of collateral that comes from your deposits alone (excludes staking rewards and liquidations)',
             title: 'Originally Deposited',
-            value: `${shortenNumber(depositedByUser, 2)} ${market.underlying.symbol} (${shortenNumber(depositedByUser * market.price, 2, true)})`,
+            value: depositedByUser >= 0 ? `${shortenNumber(depositedByUser, 2)} ${market.underlying.symbol} (${shortenNumber(depositedByUser * market.price, 2, true)})` : 'All have been withdrawn',
         },
         {
             tooltip: 'The total amount of collateral earned thanks to staking',

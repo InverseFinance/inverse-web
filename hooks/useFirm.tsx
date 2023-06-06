@@ -181,8 +181,6 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
     const liquidatorReward = e.args?.liquidatorReward ? getBnToNumber(e.args?.liquidatorReward, 18) : undefined;
 
     if (isCollateralEvent && !!amount) {
-      console.log('yoyo', amount)
-      console.log('yoyo', depositedByUser)
       depositedByUser = depositedByUser + (e.event === 'Deposit' ? amount : -amount);
     } else if(e.event === 'Liquidate' && !!liquidatorReward) {
       liquidated += liquidatorReward;
