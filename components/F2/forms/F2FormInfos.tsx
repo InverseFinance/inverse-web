@@ -303,11 +303,11 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         {
             tooltip: 'The amount of collateral that comes from your deposits alone (excludes staking rewards and liquidations)',
             title: 'Originally Deposited',
-            value: depositedByUser >= 0 ? `${shortenNumber(depositedByUser, 2)} ${market.underlying.symbol} (${shortenNumber(depositedByUser * market.price, 2, true)})` : 'All have been withdrawn',
+            value: depositedByUser >= 0 ? `${shortenNumber(depositedByUser, 2)} ${market.underlying.symbol}` : 'All have been withdrawn',
         },
         {
-            tooltip: 'The total amount of collateral earned thanks to staking',
-            title: 'Earned with staking',
+            tooltip: 'The increase in collateral balance thanks to staking, anti-dilution protection or other mechanism that increases your collateral balance over time. USD value at current price.',
+            title: market.isInv ? 'Anti-dilution protection' : 'Earned with staking',
             value: `${preciseCommify(collateralRewards, 2)} ${market.underlying.symbol} (${shortenNumber(collateralRewards * market.price, 2, true)})`,
             color: 'seagreen',
         },
