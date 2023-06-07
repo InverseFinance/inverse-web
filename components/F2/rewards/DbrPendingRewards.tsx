@@ -1,4 +1,4 @@
-import { Flex, HStack, Stack, Text, VStack } from "@chakra-ui/react"
+import { Divider, Flex, HStack, SimpleGrid, Stack, Text, VStack, useMediaQuery } from "@chakra-ui/react"
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useDBRPendingRewards } from "@app/hooks/useFirm";
@@ -6,11 +6,19 @@ import Link from "@app/components/common/Link";
 import { ViewIcon } from "@chakra-ui/icons";
 import ScannerLink from "@app/components/common/ScannerLink";
 import moment from 'moment'
+import { biggestSize, smallerSize } from '@app/variables/responsive'
 
 import Table from "@app/components/common/Table";
 import { preciseCommify } from "@app/util/misc";
 import { usePrices } from "@app/hooks/usePrices";
 import { SkeletonBlob } from "@app/components/common/Skeleton";
+
+const StatBasic = ({ value, name }: { value: string, name: string }) => {    
+    return <VStack>
+        <Text color={'secondary'} fontSize={biggestSize} fontWeight="extrabold">{value}</Text>
+        <Text color={'mainTextColor'} fontSize={smallerSize} fontWeight="bold">{name}</Text>
+    </VStack>
+}
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -78,7 +86,7 @@ const columns = [
             return <Cell minWidth="125px" justify="center" direction="column" alignItems="center">
                 {
                     dbrMonthlyRewards ? <>
-                        <CellText fontWeight="bold" textAlign="center" color="success">{shortenNumber(dbrMonthlyRewards * dbrPrice, 2, true, true)}</CellText>
+                        <CellText fontWeight="bold" textAlign="center" color="secondary">{shortenNumber(dbrMonthlyRewards * dbrPrice, 2, true, true)}</CellText>
                         <CellText textAlign="center">{shortenNumber(dbrMonthlyRewards, 2, false, true)}</CellText>
                     </> : <CellText>-</CellText>
                 }
@@ -93,7 +101,7 @@ const columns = [
             return <Cell minWidth="125px" justify="center" direction="column" alignItems="center">
                 {
                     netDbr ? <>
-                        <CellText fontWeight="bold" textAlign="center" color={netDbr > 0 ? 'success' : 'warning'}>{shortenNumber(netDbr * dbrPrice, 2, true, false)}</CellText>
+                        <CellText fontWeight="bold" textAlign="center" color={netDbr > 0 ? 'secondary' : 'warning'}>{shortenNumber(netDbr * dbrPrice, 2, true, false)}</CellText>
                         <CellText textAlign="center">{shortenNumber(netDbr, 2, false, false)}</CellText>
                     </> : <CellText>-</CellText>
                 }
@@ -108,7 +116,7 @@ const columns = [
             return <Cell minWidth="125px" justify="center" direction="column" alignItems="center">
                 {
                     invMonthlyRewards ? <>
-                        <CellText fontWeight="bold" textAlign="center" color="success">{shortenNumber(invMonthlyRewards * invPrice, 2, true, true)}</CellText>
+                        <CellText fontWeight="bold" textAlign="center" color="secondary">{shortenNumber(invMonthlyRewards * invPrice, 2, true, true)}</CellText>
                         <CellText textAlign="center">{shortenNumber(invMonthlyRewards, 2, false, true)}</CellText>
                     </> : <CellText>-</CellText>
                 }
@@ -136,7 +144,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
         value: ({ claimable, dbrPrice }) => {
             return <Cell minWidth="150px" justify="center" direction="column" alignItems="center">
-                <CellText textAlign="right" color="success" fontWeight="bold">{shortenNumber(claimable * dbrPrice, 2, true)}</CellText>
+                <CellText textAlign="right" color="secondary" fontWeight="bold">{shortenNumber(claimable * dbrPrice, 2, true)}</CellText>
                 <CellText textAlign="right">{shortenNumber(claimable, 2)}</CellText>
             </Cell>
         },
@@ -149,6 +157,7 @@ export const DbrPendingRewards = ({
 
     }) => {
     const { prices } = usePrices();
+    const [isLargerThan] = useMediaQuery('(min-width: 400px)')
     const dbrPrice = prices?.['dola-borrowing-right']?.usd || 0;
     const invPrice = prices?.['inverse-finance']?.usd || 0;
     const dolaPrice = prices?.['dola-usd']?.usd || 0;
@@ -166,59 +175,53 @@ export const DbrPendingRewards = ({
     const totalStaked = _stakers.reduce((prev, curr) => prev + (curr.deposits || 0), 0);
 
     const fontSize = { base: '13px', sm: '16px' };
+    const nbStakers = _stakers.filter(s => s.deposits > 0.001).length;
 
     if (isLoading) return <SkeletonBlob />
 
-    return <Container
-        label="FiRM INV Stakers & Rewards"
-        noPadding
-        py="4"
-        description={timestamp ? `DBR reward index updated ${moment(timestamp).from()}` : `Loading...`}
-        contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
-        headerProps={{
-            direction: { base: 'column', md: 'row' },
-            align: { base: 'flex-start', md: 'flex-end' },
-        }}
-        right={
-            <Stack w={{ base: 'full', sm: 'auto' }} direction={{ base: 'column', sm: 'row' }} pt="2" alignItems="flex-start" spacing={{ base: '2', sm: '6' }}>
+    return <VStack px='4' w='full' spacing={{ base: '4', sm: '8' }}>
+        <SimpleGrid justify="space-between" w='full' columns={{ base: 2, sm: 5 }} spacing={{ base: '4', sm: '6' }}>
+            {
+                isLargerThan && <StatBasic name="Stakers" value={preciseCommify(nbStakers, 0)} />
+            }
+            <StatBasic name="Staked INV" value={`${preciseCommify(totalStaked, 0)}`} />
+            <StatBasic name="Staked TVL" value={`${(shortenNumber(totalStaked * invPrice, 2, true))}`} />
+            <StatBasic name="INV APR" value={`${shortenNumber(invMarket?.supplyApy, 2)}%`} />
+            <StatBasic name="DBR APR" value={`${shortenNumber(invMarket?.dbrApr, 2)}%`} />
+        </SimpleGrid>
+        <Divider />
+        <Container
+            label="FiRM INV Stakers & Rewards"
+            noPadding
+            px="0"
+            pt="0"
+            description={timestamp ? `DBR reward index updated ${moment(timestamp).from()}` : `Loading...`}
+            contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
+            headerProps={{
+                direction: { base: 'column', md: 'row' },
+                align: { base: 'flex-start', md: 'flex-end' },
+            }}
+            right={
                 <HStack w={{ base: 'full', sm: 'auto' }} spacing={{ base: '0', sm: '6' }} justifyContent="space-between" alignItems="flex-start">
-                    <VStack spacing="0" alignItems="center">
-                        <Text textAlign="right" fontSize={fontSize} fontWeight="bold">Stakers</Text>
-                        <Text fontWeight="extrabold" textAlign="center" fontSize={fontSize} color="success">{preciseCommify(_stakers.filter(s => s.deposits > 0.01).length, 0)}</Text>
-                    </VStack>
-                    <VStack spacing="0" alignItems="center">
-                        <Text textAlign="center" fontSize={fontSize} fontWeight="bold">Staked INV</Text>
-                        <Text fontWeight="extrabold" textAlign="center" fontSize={fontSize} color="success">{preciseCommify(totalStaked, 0)} ({shortenNumber(totalStaked * invPrice, 2, true)})</Text>
-                    </VStack>
-                    <VStack spacing="0" alignItems="center">
-                        <Text textAlign="center" fontSize={fontSize} fontWeight="bold">INV APR</Text>
-                        <Text fontWeight="extrabold" textAlign="center" fontSize={fontSize} color="success">{shortenNumber(invMarket?.supplyApy, 2)}%</Text>
-                    </VStack>
-                </HStack>
-                <HStack w={{ base: 'full', sm: 'auto' }} spacing={{ base: '0', sm: '6' }} justifyContent="space-between" alignItems="flex-start">
-                    <VStack spacing="0" alignItems="center">
-                        <Text textAlign="center" fontSize={fontSize} fontWeight="bold">DBR APR</Text>
-                        <Text fontWeight="extrabold" textAlign="center" fontSize={fontSize} color="success">{shortenNumber(invMarket?.dbrApr, 2)}%</Text>
-                    </VStack>
-                    <VStack display={{ base: 'none', sm: 'block' }} spacing="0" alignItems="center">
-                        <Text textAlign="right" fontSize={fontSize} fontWeight="bold">DBR rewards above $100</Text>
-                        <Text fontWeight="extrabold" textAlign="right" fontSize={fontSize} color="success">{preciseCommify(totalClaimableAbove100, 0)} ({preciseCommify(dbrPrice * totalClaimableAbove100, 0, true)})</Text>
+                    <VStack spacing="0" alignItems={{ base: 'flex-start', sm: 'center' }}>
+                        <Text textAlign={{ base: 'left', sm: 'right' }} fontSize={fontSize} fontWeight="bold">DBR rewards above $100</Text>
+                        <Text fontWeight="extrabold" textAlign={{ base: 'left', sm: 'right' }} fontSize={fontSize} color="secondary">{preciseCommify(totalClaimableAbove100, 0)} ({preciseCommify(dbrPrice * totalClaimableAbove100, 0, true)})</Text>
                     </VStack>
                     <VStack spacing="0" alignItems="flex-end">
                         <Text textAlign="right" fontSize={fontSize} fontWeight="bold">Total DBR Claimable</Text>
-                        <Text fontWeight="extrabold" textAlign="right" fontSize={fontSize} color="success">{preciseCommify(totalClaimable, 0)} ({preciseCommify(dbrPrice * totalClaimable, 0, true)})</Text>
+                        <Text fontWeight="extrabold" textAlign="right" fontSize={fontSize} color="secondary">{preciseCommify(totalClaimable, 0)} ({preciseCommify(dbrPrice * totalClaimable, 0, true)})</Text>
                     </VStack>
                 </HStack>
-            </Stack>
-        }
-    >
-        <Table
-            keyName="user"
-            noDataMessage={isLoading ? 'Loading' : "No stakers"}
-            columns={columns}
-            items={_stakers}
-            defaultSort={'claimable'}
-            defaultSortDir="desc"
-        />
-    </Container>
+            }
+        >
+            <Table
+                keyName="user"
+                noDataMessage={isLoading ? 'Loading' : "No stakers"}
+                columns={columns}
+                items={_stakers}
+                defaultSort={'claimable'}
+                defaultSortDir="desc"
+            />
+        </Container>
+    </VStack>
 }
