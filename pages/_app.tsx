@@ -21,7 +21,7 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/dist/client/router'
 import { gaPageview } from '@app/util/analytics'
 import { useAppTheme } from '@app/hooks/useAppTheme'
-import { metamaskHooks, metamaskInjector } from '@app/variables/connectors'
+import { metamaskHooks, metamaskInjector, walletConnectV2, walletConnectV2Hooks, coinbaseWallet, coinbaseWalletHooks } from '@app/variables/connectors'
 
 export const BlogContext = React.createContext({ locale: 'en-US', category: 'home' });
 
@@ -46,21 +46,27 @@ const App = ({ Component, pageProps }: AppProps) => {
 
   return (
     <ChakraProvider theme={themeStyles}>
-      <Web3ReactProvider connectors={[[metamaskInjector, metamaskHooks]]}>
+      <Web3ReactProvider connectors={
+        [
+          [metamaskInjector, metamaskHooks],
+          [walletConnectV2, walletConnectV2Hooks],
+          [coinbaseWallet, coinbaseWalletHooks],
+        ]
+      }>
         <Head>
           <title>{process.env.NEXT_PUBLIC_TITLE}</title>
           <meta name="description" content="Inverse Finance is an Open Source Protocol for borrowing at a fixed-rate. Stake INV to earn real yield through DBR streaming." />
           <meta name="keywords" content="Decentralized Finance, DeFi, lending, borrowing, DAO, stablecoins, Ethereum, stEth, ETH, CRV, cvxCRV, INV, DOLA, gOHM, real yield, audited, borrow, lend, bonds, rewards, transparency, FiRM, DBR, DOLA borrowing right, Fixed Rate, Fixed Rate Market" />
 
           <meta name="og:title" content="Inverse Finance" />
-          <meta name="og:description" content="Inverse Finance is an Open Source Protocol for borrowing at a fixed-rate. Stake INV to earn real yield through DBR streaming." />          
+          <meta name="og:description" content="Inverse Finance is an Open Source Protocol for borrowing at a fixed-rate. Stake INV to earn real yield through DBR streaming." />
           <meta name="og:image" content="https://images.ctfassets.net/kfs9y9ojngfc/1Ma9aOfVoZhPqBSfWypXPO/51c94241f900cd3f3252e4628916250e/inv_medium_article_image_1.png?w=3840&q=75" />
           <meta name="twitter:site" content="@InverseFinance" />
           <meta name="twitter:image:alt" content="inverse finance" />
           <meta property="twitter:card" content="summary_large_image" />
-          <meta name="google-site-verification" content="bMAjdxhP6hV5H0ZFaFW4AZVipI0NRmFZ2DQPWxgquP4" />          
+          <meta name="google-site-verification" content="bMAjdxhP6hV5H0ZFaFW4AZVipI0NRmFZ2DQPWxgquP4" />
 
-          <link rel="icon" type="image/png" href="/assets/favicon.png"></link>          
+          <link rel="icon" type="image/png" href="/assets/favicon.png"></link>
           <meta name="google-site-verification" content="bMAjdxhP6hV5H0ZFaFW4AZVipI0NRmFZ2DQPWxgquP4" />
           <link rel="apple-touch-icon" href="/assets/apple-touch.png" />
           <script

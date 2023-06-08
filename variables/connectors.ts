@@ -4,7 +4,6 @@ import { initializeConnector } from '@web3-react/core';
 // import { WalletLinkConnector } from '@web3-react/walletlink-connector';
 import { WalletConnect as WalletConnectV2 } from '@web3-react/walletconnect-v2'
 import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
-
 import { MetaMask } from '@web3-react/metamask'
 
 export const [metamaskInjector, metamaskHooks] = initializeConnector<MetaMask>((actions) => new MetaMask({ actions }))
@@ -36,7 +35,7 @@ const swapChains = [
 //     ],
 // })
 
-export const [walletConnectV2, hooks] = initializeConnector<WalletConnectV2>(
+export const [walletConnectV2, walletConnectV2Hooks] = initializeConnector<WalletConnectV2>(
     actions =>
       new WalletConnectV2({
         actions,
