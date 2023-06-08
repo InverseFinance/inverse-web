@@ -4,7 +4,7 @@ import { fetcher, fetcher30sectimeout } from '@app/util/web3'
 import { useCacheFirstSWR, useCustomSWR } from "./useCustomSWR";
 import { useDBRMarkets, useDBRPrice } from "./useDBR";
 import { f2CalcNewHealth } from "@app/util/f2";
-import { getBnToNumber, getMonthlyRate, getNumberToBn } from "@app/util/markets";
+import { getBnToNumber, getHistoricalTokenData, getMonthlyRate, getNumberToBn } from "@app/util/markets";
 import { useMultiContractEvents } from "./useContractEvents";
 import { DBR_ABI, F2_ESCROW_ABI, F2_MARKET_ABI } from "@app/config/abis";
 import { getNetworkConfigConstants } from "@app/util/networks";
@@ -12,6 +12,7 @@ import { uniqueBy } from "@app/util/misc";
 import { BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
 import useEtherSWR from "./useEtherSWR";
 import { useAccount } from "./misc";
+import { useBlocksTimestamps } from "./useBlockTimestamp";
 
 const oneYear = ONE_DAY_MS * 365;
 
@@ -407,4 +408,67 @@ export const useStakedInFirm = (userAddress: string): {
     escrow,
     delegate: data ? data[0] : '',
   };
+}
+
+export const useHistoricalPrices = (cgId: string) => {
+  const { data, error } = useCustomSWR(`cg-histo-prices-${cgId}`, async () => {
+    return await getHistoricalTokenData(cgId);
+  });
+
+  return {
+    prices: data?.prices || [],
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
+export const useFirmMarketEvolution = (market: F2Market, account: string): {
+  events: FirmAction[]
+  isLoading: boolean
+  error: any
+  depositedByUser: number
+  liquidated: number
+} => {
+  const { groupedEvents, isLoading, error } = useMultiContractEvents([
+    [market.address, F2_MARKET_ABI, 'Deposit', [account]],
+    [market.address, F2_MARKET_ABI, 'Withdraw', [account]],
+  ], `firm-market-${market.address}-${account}-collateral-evo`);
+
+  const flatenedEvents = groupedEvents.flat();
+  // can be different than current balance when staking
+  let depositedByUser = 0;
+  let liquidated = 0;
+
+  const { timestamps } = useBlocksTimestamps(flatenedEvents.map(e => e.blockNumber));
+
+  const events = flatenedEvents.map((e, i) => {
+    const decimals = market.underlying.decimals;
+    const tokenName = market.underlying.symbol
+    const amount = getBnToNumber(e.args?.amount, decimals);
+    const actionName = e.event;
+
+    depositedByUser = depositedByUser + (e.event === 'Deposit' ? amount : -amount);
+
+    return {
+      combinedKey: `${e.transactionHash}-${actionName}-${e.args?.account}`,
+      actionName,
+      depositedByUser,
+      timestamp: timestamps ? timestamps[i] : 0,
+      blockNumber: e.blockNumber,
+      txHash: e.transactionHash,
+      amount,
+      escrow: e.args?.escrow,
+      name: e.event,
+      logIndex: e.logIndex,
+      tokenName,      
+    }
+  });
+
+  return {
+    events,
+    depositedByUser,
+    liquidated,
+    isLoading,
+    error,
+  }
 }

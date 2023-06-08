@@ -26,6 +26,7 @@ import Container from '@app/components/common/Container'
 import { InfoMessage } from '@app/components/common/Messages'
 import { shortenNumber, smartShortNumber } from '@app/util/markets'
 import { preciseCommify } from '@app/util/misc'
+import { WorthEvoChartContainer } from '@app/components/F2/WorthEvoChart'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -163,6 +164,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                 direction={{ base: 'column', lg: 'row' }}
                                                 spacing="6"
                                             >
+                                                <WorthEvoChartContainer market={f2market} />
                                                 <ErrorBoundary description="Error in the standard mode, please try reloading">
                                                     {
                                                         f2market.isInv && <Container
