@@ -30,7 +30,12 @@ export const WorthEvoChartContainer = ({
                 depositedByUser,
             }
         });
-        
+
+    const hasData = data?.length > 0;
+    const startPrice = hasData ? data[0].histoPrice : 0;
+    const lastPrice = hasData ? data[data.length - 1].histoPrice : 0;
+    const priceChangeFromStart = hasData ? (lastPrice - startPrice)/startPrice * 100 : 0;
+
     return <WorthEvoChart
         chartWidth={700}
         data={data}
