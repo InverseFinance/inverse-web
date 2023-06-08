@@ -316,6 +316,7 @@ export const getYieldOppys = async () => {
             .map(p => {
                 return {
                     ...p,
+                    underlyingTokens: p.underlyingTokens||[],
                     // clean pool names & make them more homogen
                     symbol: p.symbol
                         .replace(/-3CRV$/i, '-3POOL')
