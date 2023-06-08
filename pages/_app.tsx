@@ -21,6 +21,7 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/dist/client/router'
 import { gaPageview } from '@app/util/analytics'
 import { useAppTheme } from '@app/hooks/useAppTheme'
+import { metamaskHooks, metamaskInjector } from '@app/variables/connectors'
 
 export const BlogContext = React.createContext({ locale: 'en-US', category: 'home' });
 
@@ -45,7 +46,7 @@ const App = ({ Component, pageProps }: AppProps) => {
 
   return (
     <ChakraProvider theme={themeStyles}>
-      <Web3ReactProvider getLibrary={getLibrary}>
+      <Web3ReactProvider connectors={[[metamaskInjector, metamaskHooks]]}>
         <Head>
           <title>{process.env.NEXT_PUBLIC_TITLE}</title>
           <meta name="description" content="Inverse Finance is an Open Source Protocol for borrowing at a fixed-rate. Stake INV to earn real yield through DBR streaming." />

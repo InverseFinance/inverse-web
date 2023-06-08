@@ -1,17 +1,14 @@
 import { ExternalProvider, JsonRpcFetchFunc, JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import { BLOCK_SCAN } from '@app/config/constants'
 import { getNetwork } from '@app/util/networks'
-import { InjectedConnector } from '@web3-react/injected-connector'
-import { WalletLinkConnector } from '@web3-react/walletlink-connector'
+
 import { hexValue, formatUnits, parseUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers';
 import localforage from 'localforage';
 import { BigNumberList, Token } from '@app/types'
 import { getNewContract } from './contracts'
 import { ERC20_ABI } from '@app/config/abis'
-import { AbstractConnector } from '@web3-react/abstract-connector'
-import { injectedConnector, swapInjectedConnector, swapWalletConnectConnector, swapWalletLinkConnector, walletConnectConnector, walletLinkConnector } from '@app/variables/connectors'
-import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
+import { metamaskInjector } from '@app/variables/connectors'
 import { getBnToNumber } from './markets'
 import { roundFloorString } from './misc'
 
@@ -176,21 +173,21 @@ export const getParsedTokenBalance = async (token: Token, signer: JsonRpcSigner)
   return parseFloat(formatUnits(bnBalance, token.decimals));
 }
 
-export const getConnectorFromInstance = (connector: AbstractConnector | undefined) => {
-  if(connector instanceof InjectedConnector) {
-    return location.pathname === '/swap' ? swapInjectedConnector : injectedConnector;
-  } else if(connector instanceof WalletLinkConnector) {
-    return location.pathname === '/swap' ? swapWalletLinkConnector : walletLinkConnector;
-  } else if(connector instanceof WalletConnectConnector) {
-    return location.pathname === '/swap' ? swapWalletConnectConnector : walletConnectConnector;
-  }
+export const getConnectorFromInstance = (connector: undefined) => {
+  // if(connector instanceof InjectedConnector) {
+  //   return location.pathname === '/swap' ? metamaskInjector : metamaskInjector;
+  // } else if(connector instanceof WalletLinkConnector) {
+  //   return location.pathname === '/swap' ? metamaskInjector : metamaskInjector;
+  // } else if(connector instanceof WalletConnectConnector) {
+  //   return location.pathname === '/swap' ? metamaskInjector : metamaskInjector;
+  // }
   return null;
 }
 
 export const forceQuickAccountRefresh = (
-  connector: AbstractConnector | undefined,
+  connector: undefined,
   deactivate: () => void,
-  activate: (c: InjectedConnector | WalletLinkConnector | WalletConnectConnector, onError?: () => void) => Promise<void>,
+  activate: (c: any, onError?: () => void) => Promise<void>,
   onActivateError?: () => void,
 ) => {
   const supportedConnector = getConnectorFromInstance(connector);
