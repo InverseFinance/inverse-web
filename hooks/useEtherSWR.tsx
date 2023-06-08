@@ -32,7 +32,7 @@ function useEtherSWR(..._args) {
   // if(!_args || !_args?.length || (_args?.length === 1 && !_args[0]?.length)) {
   //   return useSWR(null);
   // }
-  const { library, chainId } = useWeb3React<Web3Provider>()
+  const { provider, chainId } = useWeb3React<Web3Provider>()
 
   const withCustomAbiParam = _args.length > 0 && _args[0].args;
   const args = withCustomAbiParam ? getArgs(_args[0].args) : _args;
@@ -73,7 +73,7 @@ function useEtherSWR(..._args) {
   }
 
   if (fn === undefined) {
-    fn = etherJsFetcher(library, library?.getSigner(), ABIs)
+    fn = etherJsFetcher(provider, provider?.getSigner(), ABIs)
   }
 
   const [target] = isMulticall ? [_key[0][0]] : _key
@@ -81,7 +81,7 @@ function useEtherSWR(..._args) {
   const serializedKey = isMulticall ? JSON.stringify(_key) : cache.serializeKey(_key)[0]
 
   useEffect(() => {
-    if (!library || !config.subscribe || isAddress(target) || Array.isArray(target)) {
+    if (!provider || !config.subscribe || isAddress(target) || Array.isArray(target)) {
       return () => ({})
     }
 
@@ -92,13 +92,13 @@ function useEtherSWR(..._args) {
       const joinKey = serializedKey
       if (typeof subscribe === 'string') {
         filter = subscribe
-        library.on(filter, () => {
+        provider.on(filter, () => {
           mutate(joinKey, undefined, true)
         })
       } else if (typeof subscribe === 'object' && !Array.isArray(subscribe)) {
         const { name, on } = subscribe
         filter = name
-        library.on(filter, (...args) => {
+        provider.on(filter, (...args) => {
           if (on) {
             on(cache.get(joinKey), ...args)
           } else {
@@ -110,19 +110,19 @@ function useEtherSWR(..._args) {
 
     return () => {
       subscribers.forEach((filter) => {
-        library.removeAllListeners(filter)
+        provider.removeAllListeners(filter)
       })
     }
   }, [serializedKey, target])
 
   useEffect(() => {
-    if (!library || !library.getSigner() || !config.subscribe || !isAddress(target)) {
+    if (!provider || !provider.getSigner() || !config.subscribe || !isAddress(target)) {
       return () => ({})
     }
 
     const abi = ABIs.get(target)
 
-    const contract = getContract(target, abi, library.getSigner())
+    const contract = getContract(target, abi, provider.getSigner())
 
     const subscribers = Array.isArray(config.subscribe) ? config.subscribe : [config.subscribe]
 
@@ -155,7 +155,7 @@ function useEtherSWR(..._args) {
     }
   }, [serializedKey, target])
 
-  if (!library) {
+  if (!provider) {
     return useSWR(null)
   }
 
