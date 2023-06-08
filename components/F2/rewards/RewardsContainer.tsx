@@ -32,7 +32,7 @@ export const RewardsContainer = ({
     market: F2Market
     extra?: any
 }) => {
-    const { account, library } = useWeb3React();
+    const { account, provider } = useWeb3React();
     const [hasJustClaimed, setHasJustClaimed] = useState(false);
     const { value: lastClaim, setter: setLastClaim } = useStorage(`just-claimed-${market.name}`);
     const now = Date.now();
@@ -40,7 +40,7 @@ export const RewardsContainer = ({
 
     const handleClaim = async () => {
         if (!account) return;
-        return claim(escrow, library?.getSigner(), market.claimMethod);
+        return claim(escrow, provider?.getSigner(), market.claimMethod);
     }
 
     const handleClaimSuccess = () => {

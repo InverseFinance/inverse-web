@@ -10,11 +10,11 @@ import { bondV2Redeem } from '@app/util/bonds';
 import ScannerLink from '@app/components/common/ScannerLink';
 
 export const BondV2Redeem = ({ bond }: { bond: UserBondV2 }) => {
-    const { library, account } = useWeb3React<Web3Provider>();
+    const { provider, account } = useWeb3React<Web3Provider>();
 
     const handleClaim = () => {
-        if (!library?.getSigner() || !account) { return }
-        return bondV2Redeem(bond.id, library?.getSigner())
+        if (!provider?.getSigner() || !account) { return }
+        return bondV2Redeem(bond.id, provider?.getSigner())
     }
 
     return (

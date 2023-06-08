@@ -26,7 +26,7 @@ export const AnchorClaimModal = ({
     isOpen,
     onClose,
 }: Props) => {
-    const { library, account } = useWeb3React<Web3Provider>()
+    const { provider, account } = useWeb3React<Web3Provider>()
     const { markets, isLoading: marketsLoading } = useMarkets()
     const { balances: supplyBalances, isLoading: balancesLoading } = useSupplyBalances()
     const [checkedMarkets, setCheckedMarkets] = useState<string[]>([]);
@@ -40,7 +40,7 @@ export const AnchorClaimModal = ({
     }
 
     const handleClaim = () => {
-        return claimInvRewards(library?.getSigner()!, checkedMarkets, { onSuccess: () => close() })
+        return claimInvRewards(provider?.getSigner()!, checkedMarkets, { onSuccess: () => close() })
     }
 
     const handleCheck = (marketAddresses: string[]) => {

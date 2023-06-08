@@ -352,7 +352,7 @@ export const AnchorCollateralModal = ({
   onClose,
   asset,
 }: AnchorModalProps) => {
-  const { library, account } = useWeb3React<Web3Provider>();
+  const { provider, account } = useWeb3React<Web3Provider>();
   const { query } = useRouter();
   const userAddress = (query?.viewAddress as string) || account;
   const { prices: anchorPrices } = useAnchorPrices()
@@ -369,7 +369,7 @@ export const AnchorCollateralModal = ({
   const preventDisabling = owed > 0 || (newPerc >= 99 && asset.isCollateral);
 
   const handleConfirm = async () => {
-    const contract = getComptrollerContract(library?.getSigner());
+    const contract = getComptrollerContract(provider?.getSigner());
     const method = asset.isCollateral ? 'exitMarket' : 'enterMarkets';
     const target = asset.isCollateral ? asset.token : [asset.token];
     return contract[method](target);

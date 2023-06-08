@@ -26,7 +26,7 @@ export const ProposalFormContainer = ({
     isWhitelisted?: boolean,
     publicDraft?: Partial<Proposal>,
 }) => {
-    const { library, account } = useWeb3React<Web3Provider>();
+    const { provider, account } = useWeb3React<Web3Provider>();
     const [requiredVotingPower, setRequiredVotingPower] = useState(DEFAULT_REQUIRED_VOTING_POWER);
     const [lastProposalId, setLastProposalId] = useState(0);
     const { query } = useRouter();
@@ -35,7 +35,7 @@ export const ProposalFormContainer = ({
         let isMounted = true;
         const init = async () => {
             if (!account) { return }
-            const govContract = getGovernanceContract(library?.getSigner(), GovEra.mills);
+            const govContract = getGovernanceContract(provider?.getSigner(), GovEra.mills);
             const threshold = await govContract.proposalThreshold();
             const lastId = await govContract.proposalCount();
             if (!isMounted) { return }
@@ -45,7 +45,7 @@ export const ProposalFormContainer = ({
         }
         init();
         return () => { isMounted = false }
-    }, [library])
+    }, [provider])
 
     const { proposalLinkData, isPreview } = (query || {})
     const { title = '', description = '', functions = [], draftId = undefined, createdAt, updatedAt } = (proposalLinkData ? JSON.parse(proposalLinkData as string) : (publicDraft || {}))

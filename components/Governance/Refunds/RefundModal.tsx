@@ -23,7 +23,7 @@ type Props = {
 }
 
 export const RefundsModal = ({ txs, onSuccess, onClose, isOpen, handleExportCsv }: Props) => {
-    const { library } = useWeb3React<Web3Provider>();
+    const { provider } = useWeb3React<Web3Provider>();
 
     const totals: { [key: string]: BigNumber } = {};
     let overallTotal = BigNumber.from('0');
@@ -46,7 +46,7 @@ export const RefundsModal = ({ txs, onSuccess, onClose, isOpen, handleExportCsv 
 
     const handleSubmit = (totals) => {
         const inputs = Object.entries(totals).map(([address, value]) => ({ address, value: formatEther(value) }));
-        return disperseEther(inputs, library?.getSigner());
+        return disperseEther(inputs, provider?.getSigner());
     }
 
     // const handleSuccess = async (tx: TransactionResponse) => {
@@ -73,7 +73,7 @@ export const RefundsModal = ({ txs, onSuccess, onClose, isOpen, handleExportCsv 
     }
 
     const handleRemove = async () => {
-        return submitRefunds(txs, '', () => onSuccess(), library?.getSigner());
+        return submitRefunds(txs, '', () => onSuccess(), provider?.getSigner());
     }
 
     const handleResolve = async () => {
@@ -81,7 +81,7 @@ export const RefundsModal = ({ txs, onSuccess, onClose, isOpen, handleExportCsv 
         if(!txHash) {
             return new Promise((resolve) => resolve(false));
         }
-        return submitRefunds(txs, txHash, () => onSuccess(), library?.getSigner());
+        return submitRefunds(txs, txHash, () => onSuccess(), provider?.getSigner());
     }
 
     return (

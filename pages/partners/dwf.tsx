@@ -100,7 +100,7 @@ const buy = (bnAmount: BigNumber, maxInvPrice: BigNumber, signer: JsonRpcSigner)
 }
 
 export const DWFPage = () => {
-  const { library, account } = useWeb3React();
+  const { provider, account } = useWeb3React();
   const viewAddress = useAccount();
   const dwfData = useDWFPurchaser(viewAddress);
   const { prices } = usePrices();
@@ -153,7 +153,7 @@ export const DWFPage = () => {
   }, [account], !account, 1000);
 
   const handleAction = (params) => {
-    return buy(params.bnAmount, getNumberToBn(maxInvPrice, USDC_DECIMALS), library?.getSigner());
+    return buy(params.bnAmount, getNumberToBn(maxInvPrice, USDC_DECIMALS), provider?.getSigner());
   }
 
   const handleMaxSlippage = (value: string) => {
@@ -310,7 +310,7 @@ export const DWFPage = () => {
                                 defaultAmount={amount}
                                 address={USDC}
                                 destination={DWF_PURCHASER}
-                                signer={library?.getSigner()}
+                                signer={provider?.getSigner()}
                                 maxAmountFrom={[usdcBalanceBn, limitAvailableBn]}
                                 onAction={handleAction}
                                 onMaxAction={handleAction}

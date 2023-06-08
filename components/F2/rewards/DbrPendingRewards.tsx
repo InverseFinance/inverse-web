@@ -187,7 +187,7 @@ export const DbrPendingRewards = ({
             <StatBasic name="Staked INV" value={`${preciseCommify(totalStaked, 0)}`} />
             <StatBasic name="Staked TVL" value={`${(shortenNumber(totalStaked * invPrice, 2, true))}`} />
             <StatBasic name="INV APR" value={`${shortenNumber(invMarket?.supplyApy, 2)}%`} />
-            <StatBasic name="DBR APR" value={`${shortenNumber(invMarket?.dbrApr, 2)}%`} />
+            <StatBasic name="DBR Real-Yield" value={`${shortenNumber(invMarket?.dbrApr, 2)}%`} />
         </SimpleGrid>
         <Divider />
         <Container

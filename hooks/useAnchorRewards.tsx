@@ -12,15 +12,15 @@ type AnchorRewards = {
 }
 
 export const useAnchorRewards = (): SWR & AnchorRewards => {
-  const { account, library, chainId } = useWeb3React<Web3Provider>()
+  const { account, provider, chainId } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
-  const userAddress = (library ? (query?.viewAddress as string) : undefined) || account;
+  const userAddress = (provider ? (query?.viewAddress as string) : undefined) || account;
   const { INV, COMPTROLLER } = getNetworkConfigConstants(chainId);
   
   const { data, error } = useSWR(['getCompBalanceMetadataExt', INV, COMPTROLLER, userAddress], (...args) => {
     const [method, ...otherParams] = args
-    if (library) {
-      return getLensContract(library?.getSigner()).callStatic[method](...otherParams)
+    if (provider) {
+      return getLensContract(provider?.getSigner()).callStatic[method](...otherParams)
     }
     return undefined
   })

@@ -24,7 +24,7 @@ export const DbrReplenishmentModal = ({
     onClose: () => void,
     isOpen: boolean,
 }) => {
-    const { library, account } = useWeb3React();
+    const { provider, account } = useWeb3React();
 
     const [repayAmount, setRepayAmount] = useState('');
     const [chosenPosition, setChosenPosition] = useState(userData.marketPositions?.[0]);
@@ -37,7 +37,7 @@ export const DbrReplenishmentModal = ({
     const deficit = signedBalance < 0 ? Math.abs(signedBalance) : 0;
 
     const { costEth, costUsd } = useTransactionCost(
-        new Contract(chosenPosition?.market?.address, F2_MARKET_ABI, library?.getSigner()),
+        new Contract(chosenPosition?.market?.address, F2_MARKET_ABI, provider?.getSigner()),
         'forceReplenish',
         [
             userData.user,
@@ -48,7 +48,7 @@ export const DbrReplenishmentModal = ({
     const estimatedProfit = dolaReward - costUsd;
 
     const handleReplenish = async () => {
-        return f2replenishAll(library?.getSigner(), userData.user, chosenPosition?.market?.address);
+        return f2replenishAll(provider?.getSigner(), userData.user, chosenPosition?.market?.address);
     }
 
     const handleMarketSelect = (v) => {

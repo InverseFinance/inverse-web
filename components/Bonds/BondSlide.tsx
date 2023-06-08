@@ -40,7 +40,7 @@ export const BondSlide = ({
     bondIndex: number,
     handleDetails: (i: number) => void,
 }) => {
-    const { account, library } = useWeb3React<Web3Provider>();
+    const { account, provider } = useWeb3React<Web3Provider>();
     const { query } = useRouter();
     const userAddress = (query?.viewAddress as string) || account;
 
@@ -71,8 +71,8 @@ export const BondSlide = ({
     }
 
     const handleDeposit = () => {
-        if (!library?.getSigner() || !userAddress) { return }
-        return bondDeposit(bond, library?.getSigner(), amount, maxSlippage, userAddress);
+        if (!provider?.getSigner() || !userAddress) { return }
+        return bondDeposit(bond, provider?.getSigner(), amount, maxSlippage, userAddress);
     }
 
     return <SlideModal onClose={onClose} isOpen={isOpen}>
@@ -162,7 +162,7 @@ export const BondSlide = ({
                         <Flex maxW={{ base: 'none', sm: '190px' }} w="full" minW="120px">
                             {
                                 !isApproved ?
-                                    <ApproveButton tooltipMsg='' signer={library?.getSigner()} address={bond.underlying.address} toAddress={bond.bondContract} isDisabled={isApproved || (!library?.getSigner())} />
+                                    <ApproveButton tooltipMsg='' signer={provider?.getSigner()} address={bond.underlying.address} toAddress={bond.bondContract} isDisabled={isApproved || (!provider?.getSigner())} />
                                     :
                                     <SubmitButton isDisabled={!parseFloat(amount || '0') || parseFloat(amount || '0') > getMax()} onClick={handleDeposit} refreshOnSuccess={true}>
                                         Deposit

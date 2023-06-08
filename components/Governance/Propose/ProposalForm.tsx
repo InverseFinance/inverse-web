@@ -59,7 +59,7 @@ export const ProposalForm = ({
 }) => {
     const router = useRouter()
     const [hasSuccess, setHasSuccess] = useState(false);
-    const { library, account } = useWeb3React<Web3Provider>()
+    const { provider, account } = useWeb3React<Web3Provider>()
     const [form, setForm] = useState<ProposalFormFields>({
         title,
         description,
@@ -158,15 +158,15 @@ export const ProposalForm = ({
     }
 
     const handleSubmitProposal = async () => {
-        if (!library?.getSigner()) { return }
-        const tx = await submitProposal(library?.getSigner(), form);
+        if (!provider?.getSigner()) { return }
+        const tx = await submitProposal(provider?.getSigner(), form);
         return handleTx(tx, {
             onSuccess: (tx, receipt) => {
                 setHasSuccess(true);
                 const canDraft = DRAFT_WHITELIST.includes((account || '')?.toLowerCase());
                 if (draftId && isPublicDraft && canDraft) {
                     const proposalId = formatUnits(receipt?.events[2]?.args?.id, 0);
-                    linkDraft(draftId!, proposalId, library.getSigner(), (result) => {
+                    linkDraft(draftId!, proposalId, provider.getSigner(), (result) => {
                         handleApiResponse(result);
                     });
                 }
@@ -175,7 +175,7 @@ export const ProposalForm = ({
     }
 
     const handlePublishDraft = async () => {
-        if (!library?.getSigner()) {
+        if (!provider?.getSigner()) {
             showToast({ description: 'Not connected', status: 'info' });
             return;
         }
@@ -186,7 +186,7 @@ export const ProposalForm = ({
             form.title,
             form.description,
             functions,
-            library?.getSigner(),
+            provider?.getSigner(),
             isPublicDraft ? draftId : undefined,
             (newId) => {
                 if (newId) {
@@ -196,11 +196,11 @@ export const ProposalForm = ({
     }
 
     const handleDeleteDraft = async () => {
-        if (!library?.getSigner()) {
+        if (!provider?.getSigner()) {
             showToast({ description: 'Not connected', status: 'info' });
             return;
         }
-        return deleteDraft(draftId!, library.getSigner(), () => router.push('/governance'));
+        return deleteDraft(draftId!, provider.getSigner(), () => router.push('/governance'));
     }
 
     const showTemplateModal = () => {

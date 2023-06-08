@@ -52,7 +52,7 @@ const v1markets = compatibleCtokens.map(an => {
 });
 
 export const DebtConverterPage = () => {
-    const { library, account } = useWeb3React<Web3Provider>()
+    const { provider, account } = useWeb3React<Web3Provider>()
     const { query } = useRouter()
     const userAddress = (query?.viewAddress as string) || account;
     const { exchangeRates } = useExchangeRatesV2();
@@ -109,7 +109,7 @@ export const DebtConverterPage = () => {
 
     const handleConvert = (isAllCase = false) => {
         return convertToIOU(
-            library?.getSigner(),
+            provider?.getSigner(),
             collateralMarket.ctoken,
             (isAllCase ? '0' : antokenAmount),
             parseEther(minOutput.toFixed(2)),
@@ -267,7 +267,7 @@ export const DebtConverterPage = () => {
                                                                     isDisabled={false}
                                                                     address={collateralMarket?.ctoken}
                                                                     toAddress={DEBT_CONVERTER}
-                                                                    signer={library?.getSigner()}
+                                                                    signer={provider?.getSigner()}
                                                                 />
                                                                 :
                                                                 <Stack direction={{ base: 'column', lg: 'row' }} w='full'>
@@ -292,7 +292,7 @@ export const DebtConverterPage = () => {
                         }
                     </VStack>
                     {
-                        !!account && <DebtConversions account={userAddress} signer={library?.getSigner()} />
+                        !!account && <DebtConversions account={userAddress} signer={provider?.getSigner()} />
                     }
                 </VStack>
                 <Link color="accentTextColor" mt="5" href="/frontier/debt-converter/repayments">Go to Debt Converter Repayments</Link>

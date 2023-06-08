@@ -30,7 +30,7 @@ function SocketBridge({
     defaultDestToken = 'DOLA',
 }: Partial<WidgetProps>) {
     const [enable, setEnable] = useState(false)
-    const { library } = useWeb3React<Web3Provider>();
+    const { provider } = useWeb3React<Web3Provider>();
     const { themeName, themeStyles } = useAppTheme();
 
     useEffect(() => {
@@ -43,7 +43,7 @@ function SocketBridge({
     const colors = themeStyles.colors;
 
     return <DynamicComponent
-        provider={library}
+        provider={provider}
         title={'Bridge / Swap'}
         API_KEY={process.env.NEXT_PUBLIC_SOCKET_API_KEY!}
         sourceNetworks={[1, 10, 137, 56, 43114, 250, 42161]}

@@ -40,7 +40,7 @@ const EventInfos = ({ event }: { event: Event }) => {
 
 export const DolaPayrollPage = () => {
   const [isSmaller] = useMediaQuery('(max-width: 500px)')
-  const { account, library } = useWeb3React<Web3Provider>();
+  const { account, provider } = useWeb3React<Web3Provider>();
   const { query } = useRouter()
   const userAddress = (query?.viewAddress as string) || account;
 
@@ -132,7 +132,7 @@ export const DolaPayrollPage = () => {
                       :
                       <Text>Loading...</Text>
                   }
-                  <SubmitButton refreshOnSuccess={true} maxW="120px" disabled={!account && widthdrawable > 0} onClick={() => payrollWithdraw(library?.getSigner()!)}>
+                  <SubmitButton refreshOnSuccess={true} maxW="120px" disabled={!account && widthdrawable > 0} onClick={() => payrollWithdraw(provider?.getSigner()!)}>
                     Withdraw
                   </SubmitButton>
                   <VStack>

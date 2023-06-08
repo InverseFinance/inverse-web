@@ -29,7 +29,7 @@ const { DEBT_CONVERTER, DOLA } = getNetworkConfigConstants();
 const dolaToken = TOKENS[DOLA];
 
 export const DebtRepay = () => {
-    const { library, account } = useWeb3React<Web3Provider>()
+    const { provider, account } = useWeb3React<Web3Provider>()
     const { query } = useRouter()
     const userAddress = (query?.viewAddress as string) || account;
 
@@ -55,7 +55,7 @@ export const DebtRepay = () => {
             :
             parseEther(collateralAmount);
         return debtRepay(
-            library?.getSigner(),
+            provider?.getSigner(),
             amount,
         );
     }
@@ -84,7 +84,7 @@ export const DebtRepay = () => {
                             isDisabled={false}
                             address={DOLA}
                             toAddress={DEBT_CONVERTER}
-                            signer={library?.getSigner()}
+                            signer={provider?.getSigner()}
                         />
                         :
                         <Stack direction={{ base: 'column', lg: 'row' }} w='full'>
