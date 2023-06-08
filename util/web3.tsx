@@ -8,9 +8,12 @@ import localforage from 'localforage';
 import { BigNumberList, Token } from '@app/types'
 import { getNewContract } from './contracts'
 import { ERC20_ABI } from '@app/config/abis'
-import { metamaskInjector } from '@app/variables/connectors'
+import { coinbaseWallet, metamaskInjector, walletConnectV2 } from '@app/variables/connectors'
 import { getBnToNumber } from './markets'
 import { roundFloorString } from './misc'
+import { MetaMask } from '@web3-react/metamask';
+import { WalletConnect } from '@web3-react/walletconnect-v2';
+import { CoinbaseWallet } from '@web3-react/coinbase-wallet';
 
 export const getLibrary = (provider: ExternalProvider | JsonRpcFetchFunc): Web3Provider => {
   const library = new Web3Provider(provider)
@@ -174,13 +177,13 @@ export const getParsedTokenBalance = async (token: Token, signer: JsonRpcSigner)
 }
 
 export const getConnectorFromInstance = (connector: undefined) => {
-  // if(connector instanceof InjectedConnector) {
-  //   return location.pathname === '/swap' ? metamaskInjector : metamaskInjector;
-  // } else if(connector instanceof WalletLinkConnector) {
-  //   return location.pathname === '/swap' ? metamaskInjector : metamaskInjector;
-  // } else if(connector instanceof WalletConnectConnector) {
-  //   return location.pathname === '/swap' ? metamaskInjector : metamaskInjector;
-  // }
+  if(connector instanceof MetaMask) {
+    return location.pathname === '/swap' ? metamaskInjector : metamaskInjector;
+  } else if(connector instanceof WalletConnect) {
+    return location.pathname === '/swap' ? walletConnectV2 : walletConnectV2;
+  } else if(connector instanceof CoinbaseWallet) {
+    return location.pathname === '/swap' ? coinbaseWallet : coinbaseWallet;
+  }
   return null;
 }
 
