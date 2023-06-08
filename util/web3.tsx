@@ -178,11 +178,11 @@ export const getParsedTokenBalance = async (token: Token, signer: JsonRpcSigner)
 
 export const getConnectorFromInstance = (connector: undefined) => {
   if(connector instanceof MetaMask) {
-    return location.pathname === '/swap' ? metamaskInjector : metamaskInjector;
+    return metamaskInjector;
   } else if(connector instanceof WalletConnect) {
-    return location.pathname === '/swap' ? walletConnectV2 : walletConnectV2;
+    return walletConnectV2;
   } else if(connector instanceof CoinbaseWallet) {
-    return location.pathname === '/swap' ? coinbaseWallet : coinbaseWallet;
+    return coinbaseWallet;
   }
   return null;
 }

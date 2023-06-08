@@ -244,7 +244,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
     }
   }, [active, userAddress, connector], !userAddress, 1000)
 
-  const disconnect = () => { 
+  const disconnect = () => {
     close()
     // visually better
     setTimeout(() => {
@@ -394,9 +394,9 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const { query } = useRouter()
   const [isLargerThan] = useMediaQuery('(min-width: 1330px)');
   const [isLargerThan768] = useMediaQuery('(min-width: 768px)');
-  const { themeName } = useAppTheme();  
+  const { themeName } = useAppTheme();
   const { isActive, chainId } = useWeb3React<Web3Provider>();  
-
+ 
   const userAddress = useAccount();
   const { isEligible, hasClaimed } = useCheckDBRAirdrop(userAddress);
   const [showAirdropModal, setShowAirdropModal] = useState(false);
@@ -429,7 +429,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   }, [query])
 
   useEffect(() => {
-    if (!isActive && isPreviouslyConnected()) {
+    if (!isUnsupportedNetwork && !isActive && isPreviouslyConnected()) {
       const previousConnectorType = getPreviousConnectorType();
       const connectors = {
         'coinbase': location.pathname === '/swap' ? coinbaseWallet : coinbaseWallet,
@@ -444,7 +444,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
       }
       // setTimeout(() => activate(connector), 500);
     }
-  }, [isActive]);
+  }, [isActive, isUnsupportedNetwork]);
 
   // chainId exists only if user is connected
   useEffect(() => {
@@ -456,16 +456,12 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   // badgeChainId exists if user is connected or there is an injected provider present like metamask
   useEffect(() => {
     if (!badgeChainId) { return }
-
-    const isSupported = location.pathname === '/swap' || isSupportedNetwork(badgeChainId);
+    // swap page: any network is fine
+    const isSupported = location.pathname === '/swap' || isSupportedNetwork(badgeChainId);    
     setIsUsupportedNetwork(!isSupported)
-    if (!isSupported) { onWrongNetOpen() }
-    else { onWrongNetClose() }
-
     if (!isSupported) {
-      setIsPreviouslyConnected(false);
-      // deactivate();
-    }
+      onWrongNetOpen();
+    } else { onWrongNetClose() }
   }, [badgeChainId]);
 
   useEffect(() => {
