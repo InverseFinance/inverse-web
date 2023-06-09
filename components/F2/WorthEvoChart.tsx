@@ -3,11 +3,11 @@ import { useFirmMarketEvolution, useHistoricalPrices } from "@app/hooks/useFirm"
 import { F2Market } from "@app/types";
 import { VStack, Text } from "@chakra-ui/react";
 import { useState } from "react";
-import { Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Brush, ComposedChart } from 'recharts';
+import { Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Brush, ComposedChart, ReferenceLine } from 'recharts';
 import moment from 'moment';
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import { useAccount } from "@app/hooks/misc";
-import { preciseCommify } from "@app/util/misc";
+import { preciseCommify, timestampToUTC } from "@app/util/misc";
 
 export const WorthEvoChartContainer = ({
     market
@@ -16,6 +16,7 @@ export const WorthEvoChartContainer = ({
 }) => {
     const account = useAccount();
     const { prices } = useHistoricalPrices(market.underlying.coingeckoId);
+    const { prices: dbrPrices } = useHistoricalPrices('dola-borrowing-right');
     const { events } = useFirmMarketEvolution(market, account);
     const start = events ? events[0]?.timestamp : undefined;
 
@@ -23,18 +24,26 @@ export const WorthEvoChartContainer = ({
         .filter(p => p[0] > start)
         .map((p) => {
             const depositedByUser = events.findLast(e => e.timestamp <= p[0])?.depositedByUser || 0;
+            const claimEvent = events.findLast(e => timestampToUTC(e.timestamp) === timestampToUTC(p[0]));
+            const lastClaimEvent = events.findLast(e => e.timestamp <= p[0]);
+            const claims = lastClaimEvent?.claims || 0;
+            const dbrPrice = dbrPrices.find(dbrPrice => dbrPrice[0] === p[0])?.[1] || 0;
             return {
                 timestamp: p[0],
                 histoPrice: p[1],
+                dbrPrice,
+                isClaimEvent: !!claimEvent,
                 worth: depositedByUser * p[1],
+                totalWorth: claims * dbrPrice + depositedByUser * p[1],
                 depositedByUser,
+                claimsUsd: claims * dbrPrice,
             }
         });
 
     const hasData = data?.length > 0;
     const startPrice = hasData ? data[0].histoPrice : 0;
     const lastPrice = hasData ? data[data.length - 1].histoPrice : 0;
-    const priceChangeFromStart = hasData ? (lastPrice - startPrice)/startPrice * 100 : 0;
+    const priceChangeFromStart = hasData ? (lastPrice - startPrice) / startPrice * 100 : 0;
 
     return <WorthEvoChart
         chartWidth={700}
@@ -45,6 +54,8 @@ export const WorthEvoChartContainer = ({
 const keyNames = {
     'histoPrice': 'Price',
     'worth': 'USD worth',
+    'totalWorth': 'Total USD worth',
+    'claimsUsd': 'Claims worth',
 }
 
 export const WorthEvoChart = ({
@@ -109,9 +120,18 @@ export const WorthEvoChart = ({
                 }}
             />
             <Legend wrapperStyle={_axisStyle.tickLabels} onClick={toggleChart} style={{ cursor: 'pointer' }} formatter={(value) => value + (actives[value] ? '' : ' (hidden)')} />
-            {/* <Area opacity={actives["Annualized DBR burn"] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name="Annualized DBR burn" yAxisId="left" type="monotone" dataKey={useUsd ? 'debtUsd' : 'debt'} stroke={themeStyles.colors.warning} dot={false} fillOpacity={1} fill="url(#warning-gradient)" /> */}
-            <Area opacity={actives[keyNames["worth"]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames["worth"]} yAxisId="left" type="monotone" dataKey={'worth'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={1} fill="url(#secondary-gradient)" />
+            <Area opacity={actives[keyNames["totalWorth"]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames["totalWorth"]} yAxisId="left" type="monotone" dataKey={'totalWorth'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
+            {/* <Area opacity={actives[keyNames["worth"]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames["worth"]} yAxisId="left" type="monotone" dataKey={'worth'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" /> */}
+            {/* <Area opacity={actives[keyNames["claimsUsd"]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames["claimsUsd"]} yAxisId="left" type="monotone" dataKey={'claimsUsd'} stroke={themeStyles.colors.mainTextColor} dot={false} fillOpacity={0.5} fill="url(#primary-gradient)" /> */}
             <Line opacity={actives[keyNames["histoPrice"]] ? 1 : 0} strokeWidth={2} name={keyNames["histoPrice"]} yAxisId="right" type="monotone" dataKey="histoPrice" stroke={themeStyles.colors.info} dot={false} />
+            {/* <Line opacity={actives[keyNames["dbrPrice"]] ? 1 : 0} strokeWidth={2} name={keyNames["dbrPrice"]} yAxisId="right" type="monotone" dataKey="dbrPrice" stroke={themeStyles.colors.info} dot={false} /> */}
+            {/* {
+                data
+                    .filter(d => d.isClaimEvent)
+                    .map(d => {
+                        return <ReferenceLine x={d.timestamp} stroke="green" label="Min PAGE" />
+                    })
+            } */}
             {/* <Brush onChange={handleBrush} startIndex={brushIndexes.startIndex} endIndex={brushIndexes.endIndex} dataKey="timestamp" height={30} stroke="#8884d8" tickFormatter={(v) => ''} /> */}
         </ComposedChart>
     </VStack>
