@@ -2,12 +2,14 @@ import { useAppTheme } from "@app/hooks/useAppTheme";
 import { useFirmMarketEvolution, useHistoricalPrices } from "@app/hooks/useFirm";
 import { F2Market } from "@app/types";
 import { VStack, Text } from "@chakra-ui/react";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Brush, ComposedChart, ReferenceLine } from 'recharts';
 import moment from 'moment';
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import { useAccount } from "@app/hooks/misc";
 import { preciseCommify, timestampToUTC } from "@app/util/misc";
+import { ONE_DAY_MS } from "@app/config/constants";
+import { F2MarketContext } from "./F2Contex";
 
 export const WorthEvoChartContainer = ({
     market
@@ -15,30 +17,54 @@ export const WorthEvoChartContainer = ({
     market: F2Market,
 }) => {
     const account = useAccount();
+    const { deposits } = useContext(F2MarketContext);
     const { prices } = useHistoricalPrices(market.underlying.coingeckoId);
     const { prices: dbrPrices } = useHistoricalPrices('dola-borrowing-right');
-    const { events } = useFirmMarketEvolution(market, account);
+    const { events, depositedByUser } = useFirmMarketEvolution(market, account);
     const start = events ? events[0]?.timestamp : undefined;
+    const collateralRewards = (deposits) - depositedByUser;
 
-    const data = prices
-        .filter(p => p[0] > start)
-        .map((p) => {
-            const depositedByUser = events.findLast(e => e.timestamp <= p[0])?.depositedByUser || 0;
-            const claimEvent = events.findLast(e => timestampToUTC(e.timestamp) === timestampToUTC(p[0]));
-            const lastClaimEvent = events.findLast(e => e.timestamp <= p[0]);
-            const claims = lastClaimEvent?.claims || 0;
-            const dbrPrice = dbrPrices.find(dbrPrice => dbrPrice[0] === p[0])?.[1] || 0;
-            return {
-                timestamp: p[0],
-                histoPrice: p[1],
-                dbrPrice,
-                isClaimEvent: !!claimEvent,
-                worth: depositedByUser * p[1],
-                totalWorth: claims * dbrPrice + depositedByUser * p[1],
-                depositedByUser,
-                claimsUsd: claims * dbrPrice,
-            }
-        });
+    const pricesAtEvents = events.map(e => {
+        const price = prices.find(p => timestampToUTC(p[0]) === timestampToUTC(e.timestamp))?.[1];
+        return [e.timestamp, price];
+    }).filter(p => p[0] && !!p[1]);
+
+    const now = Date.now();
+
+    const allPrices = [
+        ...pricesAtEvents,
+        ...prices,
+        [now, prices.find(p => timestampToUTC(p[0]) === timestampToUTC(now))?.[1] || 0],
+    ].sort((a, b) => a[0] - b[0]);
+
+    const relevantPrices = allPrices
+        .filter(p => p[0] > start - ONE_DAY_MS * 2);
+    const data = relevantPrices.map((p, i) => {
+        const lastCollateralEvent = events.findLast(e => !e.isClaim && e.timestamp <= p[0]);
+        const depositedByUser = lastCollateralEvent?.depositedByUser || 0;
+        const claimEvent = events.find(e => e.isClaim && e.timestamp === p[0]);
+        const lastClaimEvent = events.findLast(e => e.isClaim && e.timestamp <= p[0]);
+        const claims = lastClaimEvent?.claims || 0;
+        const dbrPrice = dbrPrices.find(dbrPrice => timestampToUTC(dbrPrice[0]) === timestampToUTC(p[0]))?.[1] || 0;
+        const timeProgression = (p[0] - start) / (now - start);
+        const previousEstimatedStakedBonus = i > 0 ? collateralRewards * (relevantPrices[i-1][0] - start) / (now - start) : 0
+        const estimatedStakedBonus = collateralRewards * (p[0] - start) / (now - start) * ((depositedByUser+previousEstimatedStakedBonus) / deposits);
+        return {
+            timestamp: p[0],
+            histoPrice: p[1],
+            dbrPrice,
+            claimEvent,
+            isClaimEvent: !!claimEvent,
+            worth: depositedByUser * p[1],
+            totalWorth: claims * dbrPrice + depositedByUser * p[1] + estimatedStakedBonus * p[1],
+            depositedByUser,
+            claims,
+            timeProgression,
+            estimatedStakedBonus,
+            estimatedStakedBonusUsd: estimatedStakedBonus * p[1],
+            claimsUsd: claims * dbrPrice,
+        }
+    });
 
     const hasData = data?.length > 0;
     const startPrice = hasData ? data[0].histoPrice : 0;
@@ -125,13 +151,13 @@ export const WorthEvoChart = ({
             {/* <Area opacity={actives[keyNames["claimsUsd"]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames["claimsUsd"]} yAxisId="left" type="monotone" dataKey={'claimsUsd'} stroke={themeStyles.colors.mainTextColor} dot={false} fillOpacity={0.5} fill="url(#primary-gradient)" /> */}
             <Line opacity={actives[keyNames["histoPrice"]] ? 1 : 0} strokeWidth={2} name={keyNames["histoPrice"]} yAxisId="right" type="monotone" dataKey="histoPrice" stroke={themeStyles.colors.info} dot={false} />
             {/* <Line opacity={actives[keyNames["dbrPrice"]] ? 1 : 0} strokeWidth={2} name={keyNames["dbrPrice"]} yAxisId="right" type="monotone" dataKey="dbrPrice" stroke={themeStyles.colors.info} dot={false} /> */}
-            {/* {
+            {
                 data
                     .filter(d => d.isClaimEvent)
                     .map(d => {
-                        return <ReferenceLine x={d.timestamp} stroke="green" label="Min PAGE" />
+                        return <ReferenceLine position="start" isFront={true} yAxisId="left" x={d.timestamp} stroke="green" label="Claim" />
                     })
-            } */}
+            }
             {/* <Brush onChange={handleBrush} startIndex={brushIndexes.startIndex} endIndex={brushIndexes.endIndex} dataKey="timestamp" height={30} stroke="#8884d8" tickFormatter={(v) => ''} /> */}
         </ComposedChart>
     </VStack>
