@@ -432,12 +432,14 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
   const { groupedEvents, isLoading, error } = useMultiContractEvents([
     [market.address, F2_MARKET_ABI, 'Deposit', [account]],
     [market.address, F2_MARKET_ABI, 'Withdraw', [account]],
+    [DBR, DBR_ABI, 'Transfer', [BURN_ADDRESS, account]],
   ], `firm-market-${market.address}-${account}-collateral-evo`);
 
   const flatenedEvents = groupedEvents.flat();
   // can be different than current balance when staking
   let depositedByUser = 0;
   let liquidated = 0;
+  let claims = 0;
 
   const { timestamps } = useBlocksTimestamps(flatenedEvents.map(e => e.blockNumber));
 
@@ -447,11 +449,17 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
     const amount = getBnToNumber(e.args?.amount, decimals);
     const actionName = e.event;
 
-    depositedByUser = depositedByUser + (e.event === 'Deposit' ? amount : -amount);
+    if(['Deposit', 'Withdraw'].includes(actionName)) {
+      depositedByUser = depositedByUser + (actionName === 'Deposit' ? amount : -amount);
+    } else if(actionName === 'Transfer') {
+      claims += amount;
+    }
 
     return {
       combinedKey: `${e.transactionHash}-${actionName}-${e.args?.account}`,
       actionName,
+      claims,
+      isClaim: actionName === 'Transfer',
       depositedByUser,
       timestamp: timestamps ? timestamps[i] : 0,
       blockNumber: e.blockNumber,
