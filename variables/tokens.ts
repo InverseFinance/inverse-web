@@ -1145,7 +1145,7 @@ const chainTokens = {
       isVeloLP: true,
       isFusionLP: true,
       pairs: [
-        chainTokenAddresses["56"].WUSDR, chainTokenAddresses["56"].CUSD,
+        chainTokenAddresses["56"].WUSDR, chainTokenAddresses["56"].DOLA,
       ],
       protocolImage: PROTOCOL_IMAGES.THENA,
     },
