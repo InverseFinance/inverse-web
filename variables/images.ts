@@ -28,6 +28,7 @@ export const TOKEN_IMAGES = {
     "INV": IMAGES.INV,
     "DBR": IMAGES.DBR,
     "THREECRV": IMAGES["3CRV"],
+    "WUSDR": "https://assets.coingecko.com/coins/images/28800/small/wUSDRlogo.png?1674283345",
     "CHRONOS": "https://assets.coingecko.com/coins/images/29622/small/chronos_icono-01.png?1680077336",
     "AVAX": "https://assets.coingecko.com/coins/images/12559/small/Avalanche_Circle_RedWhite_Trans.png?1670992574",
     "CASH": "https://assets.coingecko.com/coins/images/27558/small/cash.png?1677063931",

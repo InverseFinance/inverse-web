@@ -131,6 +131,8 @@ const chainTokenAddresses = {
     THENADOLAWBNBLP: '0xc5856601712E8a74d57cdc7a47fB1B41C1a6Fae2',
     THENADOLAFRAXLP: '0xFD66A4a4c921CD7194ABAb38655476a06fbAEa05',
     FRAX: '0x90C97F71E18723b0Cf0dfa30ee176Ab653E89F40',
+    WUSDR: '0x2952beb1326acCbB5243725bd4Da2fC937BCa087',
+    THENADOLAWUSDRLP: '0x92104a7BeC32297DdD022A8f242bf498d0470876',
   },
   "137": {
     DOLA: '0xbC2b48BC930Ddc4E5cFb2e87a45c379Aab3aac5C',
@@ -1123,6 +1125,29 @@ const chainTokens = {
       coingeckoId: 'coin98-dollar',
       image: TOKEN_IMAGES.CUSD,
       decimals: 18,
+    },
+    [chainTokenAddresses["56"].WUSDR]: {
+      address: chainTokenAddresses["56"].WUSDR,
+      name: 'Wrapped USDR',
+      symbol: 'WUSDR',
+      coingeckoId: 'wrapped-usdr',
+      image: TOKEN_IMAGES.WUSDR,
+      decimals: 9,
+    },
+    [chainTokenAddresses["56"].THENADOLAWUSDRLP]: {
+      address: chainTokenAddresses["56"].THENADOLAWUSDRLP,
+      name: 'DOLA-WUSDR tlp',
+      symbol: 'DOLA-WUSDR tlp',
+      image: TOKEN_IMAGES.WUSDR,
+      decimals: 18,
+      isLP: true,
+      isStable: false,
+      isVeloLP: true,
+      isFusionLP: true,
+      pairs: [
+        chainTokenAddresses["56"].WUSDR, chainTokenAddresses["56"].CUSD,
+      ],
+      protocolImage: PROTOCOL_IMAGES.THENA,
     },
     [chainTokenAddresses["56"].THENADOLACUSDLP]: {
       address: chainTokenAddresses["56"].THENADOLACUSDLP,
