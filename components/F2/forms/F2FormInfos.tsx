@@ -300,7 +300,9 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         ],
     ];
 
-    const stakingInfos = !collateralRewards ? [] : [
+    const hasCollateralRewards = collateralRewards >= 0.01;
+
+    const stakingInfos = hasCollateralRewards ? [] : [
         {
             tooltip: 'The amount of collateral that comes from your deposits alone (excludes staking rewards and liquidations)',
             title: 'Originally Deposited',
@@ -328,7 +330,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         keyInfos.splice(2, 0, dbrInfos[2]);
     }
 
-    if (collateralRewards) {
+    if (hasCollateralRewards) {
         const balanceIndex = keyInfos.findIndex((v) => v[0].title === 'Total Balance');
         keyInfos.splice(balanceIndex, 0, stakingInfos);
     }
