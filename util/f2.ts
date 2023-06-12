@@ -136,7 +136,10 @@ export const f2approxDbrAndDolaNeeded = async (
     dbrBuySlippage: string | number,
     durationDays: number,
     helperType: 'curve-v2' | 'balancer' = DEFAULT_FIRM_HELPER_TYPE,
-) => {
+): {
+    minDbr: BigNumber, maxDola: BigNumber, dolaForDbrWithSlippage: BigNumber, dolaForDbr: BigNumber, totalDolaNeeded: BigNumber, dbrNeeded: BigNumber,
+    minDbrNum: number, maxDolaNum: number, dolaForDbrWithSlippageNum: number, dolaForDbrNum: number, totalDolaNeededNum: number, dbrNeededNum: number,
+} => {
     const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);
     const durationSecs = durationDays * ONE_DAY_SECS;
 
@@ -375,9 +378,9 @@ export const getDbrPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3P
         SignerOrProvider,
     );
     const ask = parseUnits('1000');
-    const data = await crvPool.get_dy(0, 1, ask);
-    const price = data ? getBnToNumber(data.div(ask)) : undefined;
-    return { priceInDolaBn: price, priceInDola: getBnToNumber(price) };
+    const data = await crvPool.get_dy(1, 0, ask);
+    const price = data ? 1/(getBnToNumber(data)/1000) : undefined;
+    return { priceInDolaBn: getNumberToBn(price), priceInDola: price };
 }
 
 export const zapperRefresh = (account: string) => {
