@@ -86,6 +86,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         dbrCoverDebt,
         dbrCover,
         dbrPrice,
+        dbrSwapPrice,
         newDailyDBRBurnInMarket,
         newDBRExpiryDate,
         isDeposit,
@@ -220,12 +221,12 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         ],
         [
             {
-                tooltip: 'Current market price for DBR, the token used to pay borrowing fees',
-                title: 'Current DBR price',
-                value: `${shortenNumber(dbrPrice, 4, true)}`,
+                tooltip: 'The DBR swap price on the Curve pool for the exact DOLA demanded',
+                title: 'Swap Price for asked DOLA',
+                value: `${shortenNumber(dbrSwapPrice, 6, true)}`,
             },
             {
-                tooltip: "DBR tokens you will receive, they will be automatically used to cover borrowing interests over time. Don't sell them unless you know what you're doing!",
+                tooltip: "DBR tokens needed for the borrow, they will be automatically used to cover borrowing interests over time. Don't sell them unless you know what you're doing!",
                 title: `DBR cost`,
                 value: dbrCover > 0 && isDeposit ? `${shortenNumber(dbrCover, 2)} DBRs (${shortenNumber(dbrCoverDebt, 2, true)})` : '-',
             },
