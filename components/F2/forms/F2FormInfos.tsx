@@ -55,12 +55,11 @@ const Infos = ({ infos, index, isLast }: { infos: [Data, Data], index: number, i
 }
 
 const ListInfos = ({ listInfos }: { listInfos: [Data, Data][] }) => {
-    const lastIndex = listInfos.length - 1;
-    console.log(listInfos)
+    const lastIndex = listInfos.length - 1;    
     return <VStack spacing="0" w='full' minH={{ base: '350px', md: '0' }}>
         {
             listInfos.map((infos, i) => {
-                return <Infos key={infos[0]?.title} infos={infos} index={i} isLast={i === lastIndex} />
+                return <Infos key={infos[0].title} infos={infos} index={i} isLast={i === lastIndex} />
             })
         }
     </VStack>
