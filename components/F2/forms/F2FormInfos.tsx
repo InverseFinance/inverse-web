@@ -56,10 +56,11 @@ const Infos = ({ infos, index, isLast }: { infos: [Data, Data], index: number, i
 
 const ListInfos = ({ listInfos }: { listInfos: [Data, Data][] }) => {
     const lastIndex = listInfos.length - 1;
+    console.log(listInfos)
     return <VStack spacing="0" w='full' minH={{ base: '350px', md: '0' }}>
         {
             listInfos.map((infos, i) => {
-                return <Infos key={infos[0].title} infos={infos} index={i} isLast={i === lastIndex} />
+                return <Infos key={infos[0]?.title} infos={infos} index={i} isLast={i === lastIndex} />
             })
         }
     </VStack>
@@ -305,7 +306,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
 
     const hasCollateralRewards = collateralRewards >= 0.01;
 
-    const stakingInfos = hasCollateralRewards ? [] : [
+    const stakingInfos = !hasCollateralRewards ? [] : [
         {
             tooltip: 'The amount of collateral that comes from your deposits alone (excludes staking rewards and liquidations)',
             title: 'Originally Deposited',
