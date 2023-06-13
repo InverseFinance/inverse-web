@@ -88,12 +88,13 @@ export const F2Context = ({
     const debtAmountNum = parseFloat(debtAmount || '0') || 0;// NaN => 0
     const collateralAmountNum = parseFloat(collateralAmount || '0') || 0;
 
-    const dbrApproxData = useDBRNeeded(debtAmount, duration);
-    const { price: dbrPrice } = useDBRPrice();
-    const { price: _dbrSwapPrice } = useDBRSwapPrice(debtAmountNum ? isAutoDBR ? (debtAmountNum + (dbrApproxData?.dolaForDbrNum||0)).toString() : debtAmount : '1000');
-    const dbrSwapPrice = _dbrSwapPrice || dbrPrice;
+    const dbrApproxData = useDBRNeeded(debtAmount, duration);    
 
-    const dbrCover = isAutoDBR ? dbrApproxData.minDbrNum : debtAmountNum / (365 / duration);
+    const dbrCover = isAutoDBR ? dbrApproxData.dbrNeededNum : debtAmountNum / (365 / duration);
+    const { price: dbrPrice } = useDBRPrice();
+    const autoDbrSwapPrice = isAutoDBR ? dbrApproxData?.dolaForDbrNum/dbrApproxData?.dbrNeededNum : 0;
+    const { price: _dbrSwapPrice } = useDBRSwapPrice(isAutoDBR && !dbrApproxData?.isLoading ? (dbrApproxData?.dbrNeeded/dbrApproxData?.dolaForDbrNum).toString() : '1000');
+    const dbrSwapPrice = isAutoDBR ? autoDbrSwapPrice || dbrPrice : dbrPrice;
     const dbrCoverDebt = dbrCover * dbrSwapPrice;
 
     const hasCollateralChange = ['deposit', 'd&b', 'withdraw', 'r&w'].includes(MODES[mode]);

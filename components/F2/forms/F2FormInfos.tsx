@@ -55,7 +55,7 @@ const Infos = ({ infos, index, isLast }: { infos: [Data, Data], index: number, i
 }
 
 const ListInfos = ({ listInfos }: { listInfos: [Data, Data][] }) => {
-    const lastIndex = listInfos.length - 1;
+    const lastIndex = listInfos.length - 1;    
     return <VStack spacing="0" w='full' minH={{ base: '350px', md: '0' }}>
         {
             listInfos.map((infos, i) => {
@@ -225,8 +225,8 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         [
             {
                 tooltip: 'The DBR swap price on the Curve pool for the exact DOLA demanded. Includes some extra dola when auto-buying DBR.',
-                title: debtAmount ? 'DBR swap price' : 'DBR market price',
-                value: `~${shortenNumber(debtAmount ? dbrSwapPrice : dbrPrice, 6, true)}`,
+                title: isAutoDBR && debtAmount ? 'DBR swap price' : 'DBR market price',
+                value: `~${shortenNumber(isAutoDBR && debtAmount ? dbrSwapPrice : dbrPrice, 6, true)}`,
             },
             {
                 tooltip: "DBR tokens needed for the borrow, they will be automatically used to cover borrowing interests over time. Don't sell them unless you know what you're doing! When auto-buying extra DBRs are added as cost to cover the auto-buyed DBRs.",
@@ -305,7 +305,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
 
     const hasCollateralRewards = collateralRewards >= 0.01;
 
-    const stakingInfos = hasCollateralRewards ? [] : [
+    const stakingInfos = !hasCollateralRewards ? [] : [
         {
             tooltip: 'The amount of collateral that comes from your deposits alone (excludes staking rewards and liquidations)',
             title: 'Originally Deposited',
