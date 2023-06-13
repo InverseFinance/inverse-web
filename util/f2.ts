@@ -5,7 +5,7 @@ import { JsonRpcSigner, Web3Provider } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 import moment from 'moment';
 import { getNetworkConfigConstants } from "./networks";
-import { splitSignature } from "ethers/lib/utils";
+import { parseUnits, splitSignature } from "ethers/lib/utils";
 import { getBnToNumber, getNumberToBn } from "./markets";
 import { callWithHigherGL } from "./contracts";
 
@@ -136,7 +136,10 @@ export const f2approxDbrAndDolaNeeded = async (
     dbrBuySlippage: string | number,
     durationDays: number,
     helperType: 'curve-v2' | 'balancer' = DEFAULT_FIRM_HELPER_TYPE,
-) => {
+): {
+    minDbr: BigNumber, maxDola: BigNumber, dolaForDbrWithSlippage: BigNumber, dolaForDbr: BigNumber, totalDolaNeeded: BigNumber, dbrNeeded: BigNumber,
+    minDbrNum: number, maxDolaNum: number, dolaForDbrWithSlippageNum: number, dolaForDbrNum: number, totalDolaNeededNum: number, dbrNeededNum: number,
+} => {
     const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);
     const durationSecs = durationDays * ONE_DAY_SECS;
 
@@ -377,6 +380,18 @@ export const getDbrPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3P
     const dolaPriceInDbr = await crvPool.price_oracle();
     const priceInDola = 1 / getBnToNumber(dolaPriceInDbr);
     return { priceInDolaBn: getNumberToBn(priceInDola), priceInDola: priceInDola };
+}
+
+export const getDbrSwapPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3Provider, ask = 1000) => {
+    const crvPool = new Contract(
+        '0x056ef502c1fc5335172bc95ec4cae16c2eb9b5b6',
+        ['function get_dy(uint i, uint j, uint dx) public view returns(uint)',],
+        SignerOrProvider,
+    );
+    const askBn = parseUnits(ask.toString());
+    const data = await crvPool.get_dy(1, 0, askBn);
+    const price = data ? 1/(getBnToNumber(data)/ask) : undefined;
+    return { priceInDolaBn: getNumberToBn(price), priceInDola: price };
 }
 
 export const zapperRefresh = (account: string) => {

@@ -14,9 +14,9 @@ const { DBR, DBR_DISTRIBUTOR } = getNetworkConfigConstants();
 export default async function handler(req, res) {
   const withExtra = req.query.withExtra === 'true';
   const cacheKey = `dbr-cache${withExtra ? '-extra' : ''}-v1.0.6`;
-  const cacheDuration = 300;
-  res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
   try {
+    const cacheDuration = 300;
+    res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
     if (validCache) {
       res.status(200).json(validCache);
@@ -48,7 +48,7 @@ export default async function handler(req, res) {
 
     const results = await Promise.all(queries);
 
-    if(withExtra && !!results[8] && !canUseCachedHisto) {
+    if (withExtra && !!results[8] && !canUseCachedHisto) {
       await redisSetWithTimestamp('dola-borrowing-right-historical', results[8]);
     }
 
@@ -61,7 +61,7 @@ export default async function handler(req, res) {
       timestamp: +(new Date()),
       priceOnBalancer,
       price: priceOnCurve,
-      totalSupply: withExtra ? getBnToNumber(results[2]) : undefined,      
+      totalSupply: withExtra ? getBnToNumber(results[2]) : undefined,
       totalDueTokensAccrued: withExtra ? getBnToNumber(results[3]) : undefined,
       operator: withExtra ? results[4] : undefined,
       rewardRate: withExtra ? getBnToNumber(results[5]) : undefined,

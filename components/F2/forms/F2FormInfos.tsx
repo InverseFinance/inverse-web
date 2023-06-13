@@ -16,6 +16,7 @@ import { FirmAccountEvents } from '../Infos/FirmAccountEvents'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import { OracleType } from '../Infos/OracleType'
 import { gaEvent } from '@app/util/analytics'
+import { useDBRNeeded } from '@app/hooks/useDBR'
 
 type Data = {
     tooltip: string
@@ -86,21 +87,24 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         dbrCoverDebt,
         dbrCover,
         dbrPrice,
+        dbrSwapPrice,
         newDailyDBRBurnInMarket,
         newDBRExpiryDate,
         isDeposit,
         deposits,
         debt,
+        debtAmount,
         newDeposits,
         newTotalDebt,
         newTotalDebtInMarket,
         newCreditLimit,
         dbrBalance,
         isAutoDBR,
+        dbrApproxData,
     } = useContext(F2MarketContext);
 
     const [now, setNow] = useState(Date.now());
-    const { events, isLoading: isLoadingEvents, depositedByUser, liquidated } = useFirmMarketEvents(market, account);
+    const { events, isLoading: isLoadingEvents, depositedByUser, liquidated } = useFirmMarketEvents(market, account);    
     const collateralRewards = (deposits + liquidated) - depositedByUser;
 
     useEffect(() => {
@@ -220,14 +224,14 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         ],
         [
             {
-                tooltip: 'Current market price for DBR, the token used to pay borrowing fees',
-                title: 'Current DBR price',
-                value: `${shortenNumber(dbrPrice, 4, true)}`,
+                tooltip: 'The DBR swap price on the Curve pool for the exact DOLA demanded',
+                title: debtAmount ? 'DBR swap price' : 'DBR market price',
+                value: `~${shortenNumber(debtAmount ? dbrSwapPrice : dbrPrice, 6, true)}`,
             },
             {
-                tooltip: "DBR tokens you will receive, they will be automatically used to cover borrowing interests over time. Don't sell them unless you know what you're doing!",
-                title: `DBR cost`,
-                value: dbrCover > 0 && isDeposit ? `${shortenNumber(dbrCover, 2)} DBRs (${shortenNumber(dbrCoverDebt, 2, true)})` : '-',
+                tooltip: "DBR tokens needed for the borrow, they will be automatically used to cover borrowing interests over time. Don't sell them unless you know what you're doing! When auto-buying you need more DBR to cover the auto-buyed DBRs.",
+                title: `${isAutoDBR ? 'Auto-buy ' : ''}DBR cost`,
+                value: dbrCover > 0 && isDeposit ? `~${shortenNumber(dbrCover, 2)} DBRs (${shortenNumber(dbrCoverDebt, 2, true)})` : '-',
             },
         ],
         [
@@ -299,7 +303,9 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         ],
     ];
 
-    const stakingInfos = !collateralRewards ? [] : [
+    const hasCollateralRewards = collateralRewards >= 0.01;
+
+    const stakingInfos = hasCollateralRewards ? [] : [
         {
             tooltip: 'The amount of collateral that comes from your deposits alone (excludes staking rewards and liquidations)',
             title: 'Originally Deposited',
@@ -323,11 +329,11 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         positionInfos[3],
     ];
 
-    if (isAutoDBR) {
+    if (!market.isInv) {
         keyInfos.splice(2, 0, dbrInfos[2]);
     }
 
-    if (collateralRewards) {
+    if (hasCollateralRewards) {
         const balanceIndex = keyInfos.findIndex((v) => v[0].title === 'Total Balance');
         keyInfos.splice(balanceIndex, 0, stakingInfos);
     }

@@ -7,11 +7,13 @@ import { BigNumber } from "ethers/lib/ethers";
 import useEtherSWR from "./useEtherSWR"
 import { fetcher } from '@app/util/web3'
 import { useCacheFirstSWR, useCustomSWR } from "./useCustomSWR";
-import { f2CalcNewHealth } from "@app/util/f2";
+import { f2CalcNewHealth, f2approxDbrAndDolaNeeded } from "@app/util/f2";
 import { BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
 import { parseUnits } from "@ethersproject/units";
+import useSWR from "swr";
+import { useWeb3React } from "@web3-react/core";
 
-const { DBR, DBR_AIRDROP, F2_MARKETS, F2_ORACLE, DOLA, DBR_DISTRIBUTOR } = getNetworkConfigConstants();
+const { DBR, DBR_AIRDROP, F2_MARKETS, F2_ORACLE, DOLA, DBR_DISTRIBUTOR, F2_HELPER } = getNetworkConfigConstants();
 
 const zero = BigNumber.from('0');
 const oneYear = ONE_DAY_MS * 365;
@@ -180,14 +182,14 @@ export const useAccountDBRMarket = (
   account: string,
   isUseNativeCoin = false,
 ): AccountDBRMarket => {
-  const { data: escrow } = useEtherSWR([market.address, 'escrows', account]);  
+  const { data: escrow } = useEtherSWR([market.address, 'escrows', account]);
   const { data: accountMarketData } = useEtherSWR(
-    !escrow || escrow === BURN_ADDRESS ? [] : [      
+    !escrow || escrow === BURN_ADDRESS ? [] : [
       [market.address, 'getWithdrawalLimit', account],
       [market.address, 'debts', account],
     ]
   );
-  
+
   // inv does not have a valid feed, call will revert
   const { data: accountMarketDataWithValidFeed } = useEtherSWR(
     !escrow || escrow === BURN_ADDRESS || market.isInv ? [] : [
@@ -291,7 +293,7 @@ export const useDBRPriceLive = (): { price: number | undefined } => {
       'function price_oracle() public view returns(uint)',
     ],
   });
-  
+
   const priceInDbr = data && data[0] ? getBnToNumber(data[0]) : undefined;
 
   return {
@@ -302,12 +304,12 @@ export const useDBRPriceLive = (): { price: number | undefined } => {
 export const useDBRSwapPrice = (ask = '1000'): { price: number | undefined } => {
   const { data } = useEtherSWR({
     args: [
-      ['0x056ef502c1fc5335172bc95ec4cae16c2eb9b5b6', 'get_dy', 0, 1, parseUnits(ask)],
+      ['0x056ef502c1fc5335172bc95ec4cae16c2eb9b5b6', 'get_dy', 1, 0, parseUnits(ask)],
     ],
     abi: ['function get_dy(uint i, uint j, uint dx) public view returns(uint)'],
   });
-  
-  const price = data && data[0] ? getBnToNumber(data[0].div(ask)) : undefined;
+
+  const price = data && data[0] ? 1/getBnToNumber(data[0].div(ask)) : undefined;
 
   return {
     price,
@@ -348,7 +350,7 @@ export const useDBR = (): {
     [DBR_DISTRIBUTOR, 'minRewardRate'],
     [DBR_DISTRIBUTOR, 'maxRewardRate'],
   ]);
-  
+
   const rewardRate = extraData ? getBnToNumber(extraData[3]) : apiData?.rewardRate || 0;
   const yearlyRewardRate = rewardRate * ONE_DAY_SECS * 365;
   const minRewardRate = extraData ? getBnToNumber(extraData[4]) : apiData?.minRewardRate || 0;
@@ -357,7 +359,7 @@ export const useDBR = (): {
   const maxYearlyRewardRate = maxRewardRate * ONE_DAY_SECS * 365;
 
   return {
-    timestamp: livePrice && extraData ? +(new Date()) : apiData?.timestamp,    
+    timestamp: livePrice && extraData ? +(new Date()) : apiData?.timestamp,
     price: livePrice ?? (apiData?.price || 0.04),
     totalSupply: extraData ? getBnToNumber(extraData[0]) : (apiData?.totalSupply || 0),
     totalDueTokensAccrued: extraData ? getBnToNumber(extraData[1]) : (apiData?.totalDueTokensAccrued || 0),
@@ -419,17 +421,21 @@ export const useDBRReplenishmentPrice = (): SWR & {
   }
 }
 
-export const useDBRNeeded = (borrowAmount: number, period: number, iterations = 8): SWR & {
+export const useDBRNeeded = (borrowAmount: string, durationDays: number, iterations = 8): SWR & {
   dolaNeeded: number,
   dbrNeeded: number,
 } => {
-  const { data, error } = useEtherSWR([
-    DBR, 'approximateDolaAndDbrNeeded', getNumberToBn(borrowAmount), period, iterations
-  ]);
+  const { library } = useWeb3React();
+ 
+  const { data, error } = useSWR(`dbr-helper-approx-${borrowAmount}`, async () => {
+    if (!borrowAmount) {
+      return undefined;
+    }
+    return await f2approxDbrAndDolaNeeded(library?.getSigner(), parseUnits(borrowAmount), '0', durationDays);
+  });
 
   return {
-    dolaNeeded: data ? getBnToNumber(data[0]) : 0,
-    dbrNeeded: data ? getBnToNumber(data[1]) : 0,
+    ...data,
     isLoading: !error && !data,
     isError: error,
   }
