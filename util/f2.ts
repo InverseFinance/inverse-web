@@ -382,15 +382,15 @@ export const getDbrPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3P
     return { priceInDolaBn: getNumberToBn(priceInDola), priceInDola: priceInDola };
 }
 
-export const getDbrSwapPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3Provider) => {
+export const getDbrSwapPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3Provider, ask = 1000) => {
     const crvPool = new Contract(
         '0x056ef502c1fc5335172bc95ec4cae16c2eb9b5b6',
         ['function get_dy(uint i, uint j, uint dx) public view returns(uint)',],
         SignerOrProvider,
     );
-    const ask = parseUnits('1000');
-    const data = await crvPool.get_dy(1, 0, ask);
-    const price = data ? 1/(getBnToNumber(data)/1000) : undefined;
+    const askBn = parseUnits(ask.toString());
+    const data = await crvPool.get_dy(1, 0, askBn);
+    const price = data ? 1/(getBnToNumber(data)/ask) : undefined;
     return { priceInDolaBn: getNumberToBn(price), priceInDola: price };
 }
 
