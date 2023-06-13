@@ -2,7 +2,7 @@ import { useMediaQuery, FlexProps, useDisclosure } from '@chakra-ui/react'
 import { F2Market } from '@app/types'
 import { JsonRpcSigner } from '@ethersproject/providers'
 import { f2CalcNewHealth, findMaxBorrow, getRiskColor } from '@app/util/f2'
-import { useAccountDBR, useAccountDBRMarket, useDBRPrice, useDBRSwapPrice } from '@app/hooks/useDBR'
+import { useAccountDBR, useAccountDBRMarket, useDBRNeeded, useDBRPrice, useDBRSwapPrice } from '@app/hooks/useDBR'
 import { useEffect, useRef, useState } from 'react'
 import { TOKENS } from '@app/variables/tokens'
 import { getNetworkConfigConstants } from '@app/util/networks'
@@ -91,9 +91,10 @@ export const F2Context = ({
     const { price: dbrPrice } = useDBRPrice();
     const { price: _dbrSwapPrice } = useDBRSwapPrice(debtAmountNum ? debtAmount : '1000');
     const dbrSwapPrice = _dbrSwapPrice || dbrPrice;
+    const dbrApproxData = useDBRNeeded(debtAmount, duration);
 
-    const dbrCover = debtAmountNum / (365 / duration);
-    const dbrCoverDebt = debtAmountNum * dbrSwapPrice / (365 / duration);
+    const dbrCover = isAutoDBR ? dbrApproxData.minDbrNum : debtAmountNum / (365 / duration);
+    const dbrCoverDebt = isAutoDBR ? dbrApproxData.dolaForDbrNum : dbrCover * dbrSwapPrice;
 
     const hasCollateralChange = ['deposit', 'd&b', 'withdraw', 'r&w'].includes(MODES[mode]);
     const hasDebtChange = ['borrow', 'd&b', 'repay', 'r&w'].includes(MODES[mode]);
@@ -286,6 +287,7 @@ export const F2Context = ({
             escrow,
             dbrBuySlippage,
             needRefreshRewards,
+            dbrApproxData,
             setNeedRefreshRewards,
             setDbrBuySlippage,
             setDbrSellAmount,

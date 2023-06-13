@@ -100,12 +100,11 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         newCreditLimit,
         dbrBalance,
         isAutoDBR,
-        duration,
+        dbrApproxData,
     } = useContext(F2MarketContext);
 
     const [now, setNow] = useState(Date.now());
-    const { events, isLoading: isLoadingEvents, depositedByUser, liquidated } = useFirmMarketEvents(market, account);
-    const dbrApproxData = useDBRNeeded(debtAmount, duration);
+    const { events, isLoading: isLoadingEvents, depositedByUser, liquidated } = useFirmMarketEvents(market, account);    
     const collateralRewards = (deposits + liquidated) - depositedByUser;
 
     useEffect(() => {
@@ -196,9 +195,6 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         ],
     ]
 
-    const _dbrNeeded = isAutoDBR ? dbrApproxData.minDbrNum : dbrCover;
-    const _dbrNeededCost = isAutoDBR ? dbrApproxData.dolaForDbrNum : dbrCover * dbrSwapPrice;
-
     const dbrInfos = [
         [
             {
@@ -229,13 +225,13 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         [
             {
                 tooltip: 'The DBR swap price on the Curve pool for the exact DOLA demanded',
-                title: 'Swap Price for asked DOLA',
-                value: `~${shortenNumber(dbrSwapPrice, 6, true)}`,
+                title: debtAmount ? 'DBR swap price' : 'DBR market price',
+                value: `~${shortenNumber(debtAmount ? dbrSwapPrice : dbrPrice, 6, true)}`,
             },
             {
-                tooltip: "DBR tokens needed for the borrow, they will be automatically used to cover borrowing interests over time. Don't sell them unless you know what you're doing!",
+                tooltip: "DBR tokens needed for the borrow, they will be automatically used to cover borrowing interests over time. Don't sell them unless you know what you're doing! When auto-buying you need more DBR to cover the auto-buyed DBRs.",
                 title: `${isAutoDBR ? 'Auto-buy ' : ''}DBR cost`,
-                value: dbrCover > 0 && isDeposit ? `~${shortenNumber(_dbrNeeded, 2)} DBRs (${shortenNumber(_dbrNeededCost, 2, true)})` : '-',
+                value: dbrCover > 0 && isDeposit ? `~${shortenNumber(dbrCover, 2)} DBRs (${shortenNumber(dbrCoverDebt, 2, true)})` : '-',
             },
         ],
         [

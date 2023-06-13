@@ -318,7 +318,7 @@ export const useDBRSwapPrice = (ask = '1000'): { price: number | undefined } => 
 
 export const useDBRPrice = (): { price: number } => {
   const { data: apiData } = useCustomSWR(`/api/dbr`, fetcher);
-  const { price: livePrice } = useDBRSwapPrice();
+  const { price: livePrice } = useDBRPriceLive();
 
   return {
     price: livePrice ?? (apiData?.price || 0.05),
