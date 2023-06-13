@@ -301,8 +301,8 @@ export const useDBRPriceLive = (): { price: number | undefined } => {
   }
 }
 
-export const useDBRSwapPrice = (ask = '1000'): { price: number | undefined } => {
-  const _ask = ask?.toString() === '0' ? '1000' : ask;
+export const useDBRSwapPrice = (dolaWorthOfDbrAsk = '1000'): { price: number | undefined } => {
+  const _ask = dolaWorthOfDbrAsk?.toString() === '0' ? '1000' : dolaWorthOfDbrAsk;
   const { data } = useEtherSWR({
     args: [
       ['0x056ef502c1fc5335172bc95ec4cae16c2eb9b5b6', 'get_dy', 1, 0, parseUnits(_ask)],
@@ -422,17 +422,17 @@ export const useDBRReplenishmentPrice = (): SWR & {
   }
 }
 
-export const useDBRNeeded = (borrowAmount: string, durationDays: number): SWR & {
+export const useDBRNeeded = (borrowAmount: string, durationDays: number, iterations?: number): SWR & {
   dolaNeeded: number,
   dbrNeeded: number,
 } => {
   const { library } = useWeb3React();
  
-  const { data, error } = useSWR(`dbr-helper-approx-${borrowAmount}-${durationDays}`, async () => {
+  const { data, error } = useSWR(`dbr-helper-approx-${borrowAmount}-${durationDays}-${iterations}`, async () => {
     if (!borrowAmount) {
       return undefined;
     }
-    return await f2approxDbrAndDolaNeeded(library?.getSigner(), parseUnits(borrowAmount), '0', durationDays);
+    return await f2approxDbrAndDolaNeeded(library?.getSigner(), parseUnits(borrowAmount), '0', durationDays, 'curve-v2', iterations);
   }, {
     refreshInterval: 100000,
   });
