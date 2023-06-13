@@ -258,7 +258,7 @@ export const F2Markets = ({
     return <Container
         label={
             <Text fontWeight="bold" fontSize={{ base: '14px', md: '16px' }}>
-                <b style={{ color: themeStyles.colors.success, fontSize: '18px', fontWeight: '900' }}>{shortenNumber(dbrPrice * 100, 2)}%</b> Fixed Borrow APR
+                <b style={{ color: themeStyles.colors.success, fontSize: '18px', fontWeight: '900' }}>{shortenNumber(dbrPrice * 100, 2)}%</b> Fixed Borrow APR, Unlimited Duration
             </Text>
         }
         labelProps={{ fontSize: { base: '14px', sm: '18px' }, fontWeight: 'extrabold' }}
