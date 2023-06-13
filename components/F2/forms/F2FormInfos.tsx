@@ -224,7 +224,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         ],
         [
             {
-                tooltip: 'The DBR swap price on the Curve pool for the exact DOLA demanded. Includes some extra dola when auto-buying DBR.',
+                tooltip: 'The DBR market price or swap price when auto-buying DBR.',
                 title: isAutoDBR && debtAmount ? 'DBR swap price' : 'DBR market price',
                 value: `~${shortenNumber(isAutoDBR && debtAmount ? dbrSwapPrice : dbrPrice, 6, true)}`,
             },
