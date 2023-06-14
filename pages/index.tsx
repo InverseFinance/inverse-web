@@ -70,7 +70,7 @@ export const Landing = ({ posts }: {
     },
     {
       name: 'DBR price',
-      value: dbrPrice,
+      value: dbrPrice ? dbrPrice : '-',
     },
   ]
 

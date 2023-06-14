@@ -12,6 +12,7 @@ import { BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
 import { parseUnits } from "@ethersproject/units";
 import useSWR from "swr";
 import { useWeb3React } from "@web3-react/core";
+import { usePrices } from "./usePrices";
 
 const { DBR, DBR_AIRDROP, F2_MARKETS, F2_ORACLE, DOLA, DBR_DISTRIBUTOR, F2_HELPER } = getNetworkConfigConstants();
 
@@ -319,10 +320,11 @@ export const useDBRSwapPrice = (ask = '1000'): { price: number | undefined } => 
 
 export const useDBRPrice = (): { price: number } => {
   const { data: apiData } = useCustomSWR(`/api/dbr`, fetcher);
+  const { prices } = usePrices();
   const { price: livePrice } = useDBRPriceLive();
 
   return {
-    price: livePrice ?? (apiData?.price || 0.05),
+    price: livePrice ?? (apiData?.price || (prices && prices['dola-borrowing-right']?.usd) || 0),
   }
 }
 
