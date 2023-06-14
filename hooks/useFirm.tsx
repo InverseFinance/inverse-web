@@ -1,6 +1,6 @@
 
 import { F2Market, FirmAction, SWR, ZapperToken } from "@app/types"
-import { fetcher, fetcher30sectimeout } from '@app/util/web3'
+import { fetcher, fetcher30sectimeout, fetcher60sectimeout } from '@app/util/web3'
 import { useCacheFirstSWR, useCustomSWR } from "./useCustomSWR";
 import { useDBRMarkets, useDBRPrice } from "./useDBR";
 import { f2CalcNewHealth } from "@app/util/f2";
@@ -21,7 +21,7 @@ export const useFirmPositions = (isShortfallOnly = false): SWR & {
   positions: any,
   timestamp: number,
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/f2/firm-positions?shortfallOnly=${isShortfallOnly}`);
+  const { data, error } = useCacheFirstSWR(`/api/f2/firm-positions?shortfallOnly=${isShortfallOnly}`, fetcher60sectimeout);
   const { markets } = useDBRMarkets();
 
   const positions = data ? data.positions : [];
