@@ -1,4 +1,4 @@
-import { Stack, VStack, Text } from '@chakra-ui/react'
+import { Stack, VStack, Text, SkeletonText } from '@chakra-ui/react'
 import { shortenNumber } from '@app/util/markets'
 import { preciseCommify } from '@app/util/misc'
 import { TextInfo } from '@app/components/common/Messages/TextInfo'
@@ -16,7 +16,6 @@ import { FirmAccountEvents } from '../Infos/FirmAccountEvents'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import { OracleType } from '../Infos/OracleType'
 import { gaEvent } from '@app/util/analytics'
-import { useDBRNeeded } from '@app/hooks/useDBR'
 
 type Data = {
     tooltip: string
@@ -25,6 +24,7 @@ type Data = {
     fontWeight: string
     title: string
     value: string
+    isLoading?: boolean
 }
 
 const Infos = ({ infos, index, isLast }: { infos: [Data, Data], index: number, isLast: boolean }) => {
@@ -37,9 +37,13 @@ const Infos = ({ infos, index, isLast }: { infos: [Data, Data], index: number, i
                     {left.title}:
                 </Text>
             </TextInfo>
-            <Text fontSize="18px" color={left.color} fontWeight={left.fontWeight || 'bold'}>
-                {left.value}
-            </Text>
+            {
+                left.isLoading ?
+                    <SkeletonText display="inline-block" pt="13px" skeletonHeight={2} height={'27px'} width={'90px'} noOfLines={1} />
+                    : <Text fontSize="18px" color={left.color} fontWeight={left.fontWeight || 'bold'}>
+                        {left.value}
+                    </Text>
+            }
         </VStack>
         <VStack pt={{ base: '0', sm: '4' }} pb={{ base: 0, sm: isLast ? '0' : '4' }} pl={{ base: 0, sm: '4' }} w={{ base: 'full', sm: '50%' }} borderLeft={{ base: 'none', sm: "1px solid #cccccc66" }} spacing="0" alignItems={'flex-start'}>
             <TextInfo message={right.tooltip}>
@@ -47,15 +51,19 @@ const Infos = ({ infos, index, isLast }: { infos: [Data, Data], index: number, i
                     {right.title}:
                 </Text>
             </TextInfo>
-            <Text fontSize="18px" color={right.color} fontWeight={right.fontWeight || 'bold'}>
-                {right.value}
-            </Text>
+            {
+                right.isLoading ?
+                    <SkeletonText display="inline-block" pt="13px" skeletonHeight={2} height={'27px'} width={'90px'} noOfLines={1} /> :
+                    <Text fontSize="18px" color={right.color} fontWeight={right.fontWeight || 'bold'}>
+                        {right.value}
+                    </Text>
+            }
         </VStack>
     </Stack>
 }
 
 const ListInfos = ({ listInfos }: { listInfos: [Data, Data][] }) => {
-    const lastIndex = listInfos.length - 1;    
+    const lastIndex = listInfos.length - 1;
     return <VStack spacing="0" w='full' minH={{ base: '350px', md: '0' }}>
         {
             listInfos.map((infos, i) => {
@@ -100,11 +108,11 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         newCreditLimit,
         dbrBalance,
         isAutoDBR,
-        dbrApproxData,
+        isDbrApproxLoading,
     } = useContext(F2MarketContext);
 
     const [now, setNow] = useState(Date.now());
-    const { events, isLoading: isLoadingEvents, depositedByUser, liquidated } = useFirmMarketEvents(market, account);    
+    const { events, isLoading: isLoadingEvents, depositedByUser, liquidated } = useFirmMarketEvents(market, account);
     const collateralRewards = (deposits + liquidated) - depositedByUser;
 
     useEffect(() => {
@@ -224,14 +232,16 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         ],
         [
             {
-                tooltip: 'The DBR market price or swap price when auto-buying DBR.',
-                title: isAutoDBR && debtAmount ? 'DBR swap price' : 'DBR market price',
-                value: `~${shortenNumber(isAutoDBR && debtAmount ? dbrSwapPrice : dbrPrice, 6, true)}`,
+                tooltip: 'The DBR swap price on Curve in the DBR-DOLA pool for the required DBR amount',
+                title: 'DBR swap price',
+                value: `~${shortenNumber(dbrSwapPrice, 6, true)}`,
+                isLoading: isDbrApproxLoading,
             },
             {
                 tooltip: "DBR tokens needed for the borrow, they will be automatically used to cover borrowing interests over time. Don't sell them unless you know what you're doing! When auto-buying extra DBRs are added as cost to cover the auto-buyed DBRs.",
-                title: `${isAutoDBR ? 'Auto-buy DBR cost' : 'DBR cost at market price'}`,
+                title: 'Auto-buy DBR cost',
                 value: dbrCover > 0 && isDeposit ? `~${shortenNumber(dbrCover, 2)} DBRs (${shortenNumber(dbrCoverDebt, 2, true)})` : '-',
+                isLoading: isDbrApproxLoading,
             },
         ],
         [
@@ -329,7 +339,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         positionInfos[3],
     ];
 
-    if (!market.isInv) {
+    if (!market.isInv && isAutoDBR) {
         keyInfos.splice(2, 0, dbrInfos[2]);
     }
 
