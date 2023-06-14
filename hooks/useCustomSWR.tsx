@@ -22,23 +22,29 @@ export const useCustomSWR = (key: string, fetcher = defaultFetcher): SWR & { dat
   }
 }
 
-export const useCacheFirstSWR = (key: string, fetcher = fetcher30sectimeout): SWR & { data: any, error: any } => {
+export const useCacheFirstSWR = (key: string, fetcher = defaultFetcher): SWR & { data: any, error: any } => {
   const { value: localCacheData, setter } = useStorage(key);
   const keyCacheFirst = key.indexOf('?') === -1 ? `${key}?cacheFirst=true` : `${key}&cacheFirst=true`
-  const { data: apiCacheData } = useSWR(keyCacheFirst, defaultFetcher);
-  const { data, error } = useSWR(key, fetcher);
+  const { data: apiCacheData } = useSWR(keyCacheFirst, fetcher);
+  const { data, error } = useSWR(key, fetcher30sectimeout);
 
   useEffect(() => {
-    if(typeof data !== 'undefined') {
+    if(typeof data !== 'undefined' && (data?.timestamp||0) >= (localCacheData?.timestamp||0)) {
       setter(data);
     }
   }, [data]);
 
-  const _data = data || apiCacheData || localCacheData;
+  let mostRecentData;
+  if(data?.timestamp || apiCacheData?.timestamp || localCacheData?.timestamp){
+    const datas = [data, apiCacheData, localCacheData].sort((a, b,) => (b?.timestamp||0) - (a?.timestamp||0));
+    mostRecentData = datas[0];
+  } else {
+    mostRecentData = data || apiCacheData || localCacheData;
+  }
 
   return {
-    data: _data,
-    isLoading: !error && !_data,
+    data: mostRecentData,
+    isLoading: !error && !mostRecentData,
     isError: error,
     error,
   }
