@@ -14,7 +14,7 @@ type Markets = {
 export const useMarkets = (): SWR & Markets => {
   const { chainId } = useWeb3React<Web3Provider>()
 
-  const { data, error } = useCacheFirstSWR(`/api/markets?chainId=${chainId || process.env.NEXT_PUBLIC_CHAIN_ID!}`, fetcher)
+  const { data, error } = useCacheFirstSWR(`/api/markets?chainId=${chainId || process.env.NEXT_PUBLIC_CHAIN_ID!}`)
 
   return {
     markets: data?.markets || [],
@@ -43,7 +43,7 @@ export const useAccountMarkets = (address?: string): SWR & Markets => {
 export const useOppys = (): SWR & {
   oppys: YieldOppy[]
 } => {
-  const { data, error, isLoading } = useCacheFirstSWR(`/api/oppys`, fetcher)
+  const { data, error, isLoading } = useCacheFirstSWR(`/api/oppys`)
 
   return {
     oppys: data?.pools || [],

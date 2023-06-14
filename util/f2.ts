@@ -5,7 +5,7 @@ import { JsonRpcSigner, Web3Provider } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 import moment from 'moment';
 import { getNetworkConfigConstants } from "./networks";
-import { splitSignature } from "ethers/lib/utils";
+import { parseUnits, splitSignature } from "ethers/lib/utils";
 import { getBnToNumber, getNumberToBn } from "./markets";
 import { callWithHigherGL } from "./contracts";
 
@@ -136,14 +136,20 @@ export const f2approxDbrAndDolaNeeded = async (
     dbrBuySlippage: string | number,
     durationDays: number,
     helperType: 'curve-v2' | 'balancer' = DEFAULT_FIRM_HELPER_TYPE,
-) => {
+    iterations?: number,
+): {
+    minDbr: BigNumber, maxDola: BigNumber, dolaForDbrWithSlippage: BigNumber, dolaForDbr: BigNumber, totalDolaNeeded: BigNumber, dbrNeeded: BigNumber,
+    minDbrNum: number, maxDolaNum: number, dolaForDbrWithSlippageNum: number, dolaForDbrNum: number, totalDolaNeededNum: number, dbrNeededNum: number,
+} => {
     const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);
     const durationSecs = durationDays * ONE_DAY_SECS;
+
+    const _iterations = iterations || (helperType === 'balancer' ? 8 : 20);
 
     const approx = await helperContract
         // Balancer: 8 iterations are used inside the Balancer helper contract
         // Curve: after 18 is precise enough
-        .approximateDolaAndDbrNeeded(dolaAmount, durationSecs, helperType === 'balancer' ? 8 : 20);
+        .approximateDolaAndDbrNeeded(dolaAmount, durationSecs, _iterations);
 
     let dolaForDbr, totalDolaNeeded = BigNumber.from(0);
 
@@ -359,7 +365,7 @@ export const findMaxBorrow = async (market, deposits, debt, dbrPrice, duration, 
 export const getDepletionDate = (timestamp: number, comparedTo: number) => {
     return !!timestamp ?
         (timestamp - ONE_DAY_MS) <= comparedTo ?
-            timestamp <= comparedTo ? 'Instant' : `~${moment(timestamp).from()}`
+            timestamp <= comparedTo ? 'Instant' : `~${moment(timestamp).fromNow()}`
             :
             moment(timestamp).format('MMM Do, YYYY') : '-'
 }

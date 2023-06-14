@@ -19,24 +19,23 @@ import { useEventsAsChartData } from '@app/hooks/misc'
 import { useDBRBurns, useDBRDebtHisto, useDBRReplenishments } from '@app/hooks/useFirm'
 import { DbrIncome } from '@app/components/Transparency/DbrIncome'
 import { useRouter } from 'next/router'
-import { DbrBurns } from '@app/components/Transparency/DbrBurns'
-import { DbrDebt } from '@app/components/Transparency/DbrDebt'
-import { DbrEmissions } from '@app/components/Transparency/DbrEmissions'
+import { timestampToUTC } from '@app/util/misc'
+import { DbrAll } from '@app/components/Transparency/DbrAll'
 
 const { TOKENS, TREASURY, DBR } = getNetworkConfigConstants(NetworkIds.mainnet);
 
-const tabsOptions = ['Flowchart', 'Spenders', 'Replenishments', 'Income', 'Burns', 'Issuance'];
+const tabsOptions = ['Issuance', 'Spenders', 'Replenishments', 'Income', 'Flowchart'];
 
 export const DBRTransparency = () => {
     const router = useRouter();
-    const { totalSupply, operator, price, yearlyRewardRate, rewardRate } = useDBR();
+    const { totalSupply, operator, price, yearlyRewardRate, rewardRate, minYearlyRewardRate, maxYearlyRewardRate, historicalData } = useDBR();
     const { events } = useDBRReplenishments();
     const { events: burnEvents } = useDBRBurns();
     const { history } = useDBRDebtHisto();
     const { chartData } = useEventsAsChartData(events, 'daoFeeAcc', 'daoDolaReward');
-    const { chartData: debtChartData } = useEventsAsChartData(history, 'debt', 'debt');
-    const { chartData: burnChartData } = useEventsAsChartData(burnEvents, 'accBurn', 'amount');
-    const [tab, setTab] = useState('Flowchart');
+    const [tab, setTab] = useState('Issuance');
+    
+    const histoPrices = historicalData && !!historicalData?.prices ? historicalData.prices.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr[0])]: curr[1] }), {}) : {};
 
     const handleTabChange = (v: string) => {
         location.hash = v;
@@ -66,7 +65,13 @@ export const DBRTransparency = () => {
                 <VStack w={{ base: 'full', xl: '900px' }}>
                     <VStack mt="4" spacing="8" w='full'>
                         <VStack alignItems="flex-start" maxW={{ base: '300px', sm: '600px' }} w='full'>
-                            <NavButtons onClick={handleTabChange} active={tab} options={tabsOptions} textProps={{ p: '1', fontSize: { base: '12px', sm: '14px' } }} />
+                            <NavButtons
+                                onClick={handleTabChange}
+                                active={tab}
+                                options={tabsOptions}
+                                textProps={{ p: '1', fontSize: { base: '12px', sm: '14px' } }}
+                                overflow={{ base: 'scroll', sm: 'auto' }}
+                            />
                         </VStack>
                         {
                             tab === 'Spenders' && <DbrSpenders />
@@ -81,19 +86,47 @@ export const DBRTransparency = () => {
                             tab === 'Income' && <DbrIncome chartData={chartData} />
                         }
                         {
-                            tab === 'Burns' && <VStack>
-                                <DbrDebt chartData={debtChartData} />
-                                <DbrBurns chartData={burnChartData} />
-                            </VStack>
-                        }
-                        {
-                            tab === 'Issuance' && <VStack>
-                                <DbrEmissions replenishments={events} yearlyRewardRate={yearlyRewardRate} rewardRate={rewardRate} />
+                            tab === 'Issuance' && <VStack w='full'>                                
+                                <DbrAll histoPrices={histoPrices} history={history} burnEvents={burnEvents} replenishments={events} />
                             </VStack>
                         }
                     </VStack>
                 </VStack>
                 <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: '300px' }}>
+                    <ShrinkableInfoMessage
+                        title="💸&nbsp;&nbsp;DBR Issuance Policy"
+                        description={
+                            <VStack spacing="0" alignItems="flex-start">
+                                <Link textDecoration="underline" color="secondaryTextColor" href="https://www.inverse.finance/governance/proposals/mills/75" isExternal target="_blank">
+                                    See initial emission of 4,646,000 for FiRM launch.
+                                </Link>
+                                <Link textDecoration="underline" color="secondaryTextColor" href="https://www.inverse.finance/governance/proposals/mills/109" isExternal target="_blank">
+                                    See DBR streaming proposal.
+                                </Link>
+                                <Link textDecoration="underline" color="secondaryTextColor" href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr#dbr-issuance" isExternal target="_blank">
+                                    DBR issuance documentation
+                                </Link>
+                                <Text fontWeight="bold">
+                                    Current yearly rewards: {smartShortNumber(yearlyRewardRate)} DBR.
+                                </Text>
+                                <Text>
+                                    Current min. yearly rewards: {smartShortNumber(minYearlyRewardRate)} DBR.
+                                </Text>
+                                <Text>
+                                    Current max. yearly rewards: {smartShortNumber(maxYearlyRewardRate)} DBR.
+                                </Text>
+                                <Text pt="4">
+                                    There is no max supply.
+                                </Text>
+                                <Text>
+                                    New emissions are via DBR streaming to INV stakers on FiRM.
+                                </Text>
+                                <Text>
+                                    The current reward rate is decided by the FedChair depending on the burn rate while the min and max can be changed by Governance only.
+                                </Text>
+                            </VStack>
+                        }
+                    />
                     <ShrinkableInfoMessage
                         description={
                             <VStack spacing="0" alignItems="flex-start">
@@ -131,25 +164,6 @@ export const DBRTransparency = () => {
                     <SupplyInfos token={TOKENS[DBR]} supplies={[
                         { chainId: NetworkIds.mainnet, supply: totalSupply },
                     ]}
-                    />
-                    <ShrinkableInfoMessage
-                        title="💸&nbsp;&nbsp;DBR Emissions"
-                        description={
-                            <VStack spacing="0" alignItems="flex-start">
-                                <Link textDecoration="underline" color="secondaryTextColor" href="https://www.inverse.finance/governance/proposals/mills/75" isExternal target="_blank">
-                                    See initial emission of 4,646,000 for FiRM launch.
-                                </Link>
-                                <Link textDecoration="underline" color="secondaryTextColor" href="https://www.inverse.finance/governance/proposals/mills/109" isExternal target="_blank">
-                                    See DBR streaming proposal.
-                                </Link>
-                                <Text>
-                                    There is no max supply.
-                                </Text>
-                                <Text>
-                                    New emissions are via DBR streaming to INV stakers on FiRM, the current rate is {smartShortNumber(yearlyRewardRate)} DBR a year.
-                                </Text>
-                            </VStack>
-                        }
                     />
                     <ShrinkableInfoMessage
                         title="⚡&nbsp;&nbsp;Roles & Powers"

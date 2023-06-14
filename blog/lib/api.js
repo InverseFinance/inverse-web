@@ -154,7 +154,8 @@ export async function getAllPostsForHome({
   skip,
   isCount = false,
 }) {
-  const categoryFilter = category && category !== 'home' ? `, where: { category: { name: "${category}" } }` : '';
+  const categoryFilter = category && category !== 'home' && !byTag ? `, where: { category: { name: "${category}" } }` : '';
+  const tagFilter = byTag ? `, where: { tags: { name: "${byTag}" } }` : '';
   const authorFilter = byAuthor ? `, where: { author: { name: "${decodeURIComponent(byAuthor)}" } }` : '';
   const fullTextFilter = fulltext ? `, where: { OR: [{content_contains: "${fulltext}"},{excerpt_contains: "${fulltext}"},{title_contains: "${fulltext}"}] }` : '';
   const q = `query {
@@ -162,7 +163,7 @@ export async function getAllPostsForHome({
         ${isCount ? '' : 'order: date_DESC,'}
         ${isCount ? `locale: "${locale}",` : ''}
         preview: ${preview ? 'true' : 'false'},
-        ${categoryFilter}${authorFilter}${fullTextFilter}${customWhere ? ', where: ' + customWhere + ',' : ''}
+        ${categoryFilter}${tagFilter}${authorFilter}${fullTextFilter}${customWhere ? ', where: ' + customWhere + ',' : ''}
         limit: ${limit},
         ${skip ? `skip: ${skip},` : ''}
       ) {
@@ -183,8 +184,8 @@ export async function getAllPostsForHome({
     q,
     preview
   )
-  const posts = extractPostEntries(entries);
-  return byTag ? posts.filter(p => !!p.tagsCollection.items.find(tag => tag.name === byTag)) : posts
+
+  return extractPostEntries(entries);
 }
 
 export async function getPostAndMorePosts(slug, preview, locale = 'en-US') {

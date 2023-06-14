@@ -85,7 +85,8 @@ export default async function handler(req, res) {
   const includesToday = todayUtc === endDate;
   const cacheKey = `refunds-v1.0.5-${startDate}-${endDate}${filterType || ''}${_multisigFilter || ''}`;
 
-  try {
+  try {    
+    res.setHeader('Cache-Control', `public, max-age=${30}`);
     const validCache = await getCacheFromRedis(cacheKey, true, includesToday && preferCache !== 'true' ? 30 : 3600);
     if (validCache) {
       // refunded txs, manually submitted by signature in UI

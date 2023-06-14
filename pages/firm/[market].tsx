@@ -24,7 +24,8 @@ import { CvxCrvPreferences } from '@app/components/F2/rewards/CvxCrvPreferences'
 import { DailyLimitCountdown } from '@app/components/common/Countdown'
 import Container from '@app/components/common/Container'
 import { InfoMessage } from '@app/components/common/Messages'
-import { shortenNumber } from '@app/util/markets'
+import { shortenNumber, smartShortNumber } from '@app/util/markets'
+import { preciseCommify } from '@app/util/misc'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -106,7 +107,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                             <Text _hover={{ color: 'inherit' }} color="inherit">Back to Markets</Text>
                                         </HStack>
                                         {
-                                            !f2market.isStaking && <HStack>
+                                            !f2market.isInv && <HStack>
                                                 <FormControl
                                                     display="inline-flex"
                                                     flexDirection={{ base: 'column', md: 'row' }}
@@ -175,12 +176,11 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                         >
                                                             <InfoMessage
                                                                 description={
-                                                                    <VStack alignItems="flex-start">
-                                                                        <Text>There is <b>{shortenNumber(f2market.dbrYearlyRewardRate, 2)} DBR yearly rewards</b> shared among stakers!</Text>
-                                                                        <Text>✨ <b>{shortenNumber(f2market.supplyApy, 2)}% INV APR</b>: dilution protection, your staked INV balance will increase automatically.</Text>
-                                                                        <Text>✨ <b>{shortenNumber(f2market.extraApy, 2)}% DBR APR</b>: real yield, your DBR rewards will have to be claimed.</Text>
+                                                                    <VStack alignItems="flex-start">                                                                        
+                                                                        <Text>✨ <b>{shortenNumber(f2market.extraApy, 2)}% DBR Rewards Annual Percentage Rate</b>. Real yield that you claim. Currently streaming <b>{preciseCommify(f2market.dbrYearlyRewardRate, 0)}</b> DBR's per year to INV stakers.</Text>
+                                                                        <Text>✨ <b>{shortenNumber(f2market.supplyApy, 2)}% INV Staking rewards</b>. Dilution protection. Your staked INV balance increases automatically.</Text>                                                                        
                                                                         <Text>
-                                                                            🤝 The more people borrow DOLA, the more DBR is burned and can be streamed, INV stakers directly benefit from FiRM's success.
+                                                                            The more DOLA that is borrowed means more DBR is burned. As DBR is burned, more DBR's are streamed to INV stakers, who benefit directly from FiRM's success.                                                                            
                                                                         </Text>
                                                                     </VStack>
                                                                 }

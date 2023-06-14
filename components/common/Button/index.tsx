@@ -136,10 +136,10 @@ type NavButtonProps = {
   bgColor?: string
   bgColorActive?: string
   textProps?: FlexProps
-}
+} & Partial<FlexProps>
 
-export const NavButtons = ({ options, textProps, active, onClick, isStaking, bgColor = 'primary.800', bgColorActive = 'primary.650' }: NavButtonProps) => (
-  <Flex w="full" bgColor={bgColor} p={1} borderRadius={4} cursor="pointer" borderWidth="1px"  borderColor="primary.650">
+export const NavButtons = ({ options, textProps, active, onClick, isStaking, bgColor = 'primary.800', bgColorActive = 'primary.650', ...props }: NavButtonProps) => (
+  <Flex w="full" bgColor={bgColor} p={1} borderRadius={4} cursor="pointer" borderWidth="1px"  borderColor="primary.650" {...props}>
     {options.map((option: string) => (
       <Flex
         key={option}

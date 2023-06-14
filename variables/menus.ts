@@ -46,6 +46,10 @@ export const MENUS = {
           label: 'Stake (Frontier, deprecated)',
           href: '/frontier',
         },
+        {
+          label: 'FiRM stakers',
+          href: '/firm/stakers',
+        },
       ]
     },
     {
@@ -80,17 +84,29 @@ export const MENUS = {
     // },
     {
       label: 'Swap',
-      href: '/swap/DAI/DOLA',
-      // submenus: [
-      //   {
-      //     label: 'Swap DOLA',
-      //     href: '/swap/DAI/DOLA',
-      //   },
-      //   {
-      //     label: 'Tokens',
-      //     href: '/tokens',
-      //   },
-      // ]
+      href: '/swap',
+      submenus: [
+        {
+          label: 'Buy INV',
+          href: '/swap?fromToken=DOLA&toToken=INV',
+          needReload: true,
+        },
+        {
+          label: 'Buy DBR',
+          href: '/swap?fromToken=DOLA&toToken=DBR',
+          needReload: true,
+        },
+        {
+          label: 'Buy DOLA',
+          href: '/swap?fromToken=DAI&toToken=DOLA',
+          needReload: true,
+        },
+        {
+          label: 'Bridge DOLA',
+          href: '/swap?fromToken=DOLA&toToken=DOLA&fromChain=ethereum&toChain=optimism',
+          needReload: true,
+        },
+      ]
     },
     // {
     //   label: 'Swap',

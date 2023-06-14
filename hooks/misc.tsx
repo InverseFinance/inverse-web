@@ -1,5 +1,6 @@
 import { ONE_DAY_MS } from '@app/config/constants';
 import { SWR } from '@app/types';
+import { timestampToUTC } from '@app/util/misc';
 import { Web3Provider } from '@ethersproject/providers';
 import { useWeb3React } from '@web3-react/core';
 import { useRouter } from 'next/router';
@@ -57,6 +58,7 @@ export const useEventsAsChartData = (
             month: date.getUTCMonth(),
             year: date.getUTCFullYear(),
             eventPointLabel: event.eventPointLabel,
+            utcDate: timestampToUTC(event.timestamp),
         }
     })];
     

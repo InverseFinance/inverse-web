@@ -1,10 +1,10 @@
 
 import { F2Market, FirmAction, SWR, ZapperToken } from "@app/types"
-import { fetcher, fetcher30sectimeout } from '@app/util/web3'
+import { fetcher, fetcher30sectimeout, fetcher60sectimeout } from '@app/util/web3'
 import { useCacheFirstSWR, useCustomSWR } from "./useCustomSWR";
 import { useDBRMarkets, useDBRPrice } from "./useDBR";
 import { f2CalcNewHealth } from "@app/util/f2";
-import { getBnToNumber, getNumberToBn } from "@app/util/markets";
+import { getBnToNumber, getMonthlyRate, getNumberToBn } from "@app/util/markets";
 import { useMultiContractEvents } from "./useContractEvents";
 import { DBR_ABI, F2_ESCROW_ABI, F2_MARKET_ABI } from "@app/config/abis";
 import { getNetworkConfigConstants } from "@app/util/networks";
@@ -21,7 +21,7 @@ export const useFirmPositions = (isShortfallOnly = false): SWR & {
   positions: any,
   timestamp: number,
 } => {
-  const { data, error } = useCustomSWR(`/api/f2/firm-positions?shortfallOnly=${isShortfallOnly}`, fetcher);
+  const { data, error } = useCacheFirstSWR(`/api/f2/firm-positions?shortfallOnly=${isShortfallOnly}`, fetcher60sectimeout);
   const { markets } = useDBRMarkets();
 
   const positions = data ? data.positions : [];
@@ -61,7 +61,7 @@ export const useDBRActiveHolders = (): SWR & {
   positions: any,
   timestamp: number,
 } => {
-  const { data, error } = useCustomSWR(`/api/f2/dbr-deficits?v2`, fetcher);
+  const { data, error } = useCacheFirstSWR(`/api/f2/dbr-deficits?v2`, fetcher60sectimeout);
   const { positions: firmPositions } = useFirmPositions();
 
   const activeDbrHolders = data ? data.activeDbrHolders : [];
@@ -89,6 +89,45 @@ export const useDBRActiveHolders = (): SWR & {
   }
 }
 
+export const useDBRPendingRewards = (): SWR & {
+  stakers: any,
+  timestamp: number,
+  invMarket: F2Market,
+} => {
+  const { data, error } = useCacheFirstSWR(`/api/f2/dbr-pending-rewards`, fetcher60sectimeout);
+  const { data: spendersData, error: spendersError } = useCacheFirstSWR(`/api/f2/dbr-deficits?v2`, fetcher60sectimeout);
+
+  const userData = data ? data.userData : [];
+  const activeDbrHolders = spendersData ? spendersData.activeDbrHolders : [];
+
+  const stakers = userData.map(u => {
+    const spender = activeDbrHolders.find(p => p.user === u.user) || { debt: 0, signedBalance: 0 };
+    const dailyBurn = spender.debt / oneYear * ONE_DAY_MS;
+    const dbrNbDaysExpiry = dailyBurn ? spender.signedBalance / dailyBurn : 0;
+    const dbrExpiryDate = !spender.debt ? null : (+new Date() + dbrNbDaysExpiry * ONE_DAY_MS);
+    const share = data.invMarket.invStakedViaDistributor ? (u.deposits || 0) / data.invMarket.invStakedViaDistributor : 0;
+    const invMonthlyRewards = getMonthlyRate((u.deposits || 0), data.invMarket?.supplyApy);
+    const dbrMonthlyRewards = share * data.invMarket?.dbrYearlyRewardRate / 12;
+    return {
+      ...u,
+      totalDebt: spender.debt,
+      dailyBurn,
+      monthlyBurn: dailyBurn * 365 / 12,
+      dbrExpiryDate,
+      invMonthlyRewards,
+      dbrMonthlyRewards,
+    }
+  });
+
+  return {
+    stakers,
+    invMarket: data ? data.invMarket : {},
+    timestamp: data ? data.timestamp : 0,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
 const COMBINATIONS = {
   'Deposit': 'Borrow',
   'Borrow': 'Deposit',
@@ -106,6 +145,8 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
   events: FirmAction[]
   isLoading: boolean
   error: any
+  depositedByUser: number
+  liquidated: number
 } => {
   const { groupedEvents, isLoading, error } = useMultiContractEvents([
     [market.address, F2_MARKET_ABI, 'Deposit', [account]],
@@ -114,10 +155,13 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
     [market.address, F2_MARKET_ABI, 'Repay', [account]],
     [market.address, F2_MARKET_ABI, 'Liquidate', [account]],
     // [market.address, F2_MARKET_ABI, 'CreateEscrow', [account]],
-    [DBR, DBR_ABI, 'ForceReplenish', [account]],
+    [DBR, DBR_ABI, 'ForceReplenish', [account, undefined, market.address]],
   ], `firm-market-${market.address}-${account}`);
 
   const flatenedEvents = groupedEvents.flat();
+  // can be different than current balance when staking
+  let depositedByUser = 0;
+  let liquidated = 0;
 
   const events = flatenedEvents.map(e => {
     const isCollateralEvent = ['Deposit', 'Withdraw'].includes(e.event);
@@ -133,17 +177,26 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
     const tokenName = isCollateralEvent ? market.underlying.symbol : e.args?.replenisher ? 'DBR' : 'DOLA';
     const actionName = !!combinedEvent ? COMBINATIONS_NAMES[e.event] : e.event;
 
+    const amount = e.args?.amount ? getBnToNumber(e.args?.amount, decimals) : undefined;
+    const liquidatorReward = e.args?.liquidatorReward ? getBnToNumber(e.args?.liquidatorReward, 18) : undefined;
+
+    if (isCollateralEvent && !!amount) {
+      depositedByUser = depositedByUser + (e.event === 'Deposit' ? amount : -amount);
+    } else if(e.event === 'Liquidate' && !!liquidatorReward) {
+      liquidated += liquidatorReward;
+    }
+
     return {
       combinedKey: `${e.transactionHash}-${actionName}-${e.args?.account}`,
       actionName,
       blockNumber: e.blockNumber,
       txHash: e.transactionHash,
-      amount: e.args?.amount ? getBnToNumber(e.args?.amount, decimals) : undefined,
+      amount,
       isCombined: !!combinedEvent,
       amountCombined: combinedEvent?.args?.amount ? getBnToNumber(combinedEvent.args.amount, decimals) : undefined,
       deficit: e.args?.deficit ? getBnToNumber(e.args?.deficit, 18) : undefined,
       repaidDebt: e.args?.repaidDebt ? getBnToNumber(e.args?.repaidDebt, 18) : undefined,
-      liquidatorReward: e.args?.liquidatorReward ? getBnToNumber(e.args?.liquidatorReward, 18) : undefined,
+      liquidatorReward,
       repayer: e.args?.repayer,
       to: e.args?.to,
       escrow: e.args?.escrow,
@@ -159,9 +212,10 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
 
   const grouped = uniqueBy(events, (o1, o2) => o1.combinedKey === o2.combinedKey);
   grouped.sort((a, b) => a.blockNumber !== b.blockNumber ? (b.blockNumber - a.blockNumber) : b.logIndex - a.logIndex);
-
   return {
     events: grouped,
+    depositedByUser,
+    liquidated,
     isLoading,
     error,
   }
@@ -196,7 +250,7 @@ export const useDBRBurns = (): SWR & {
   events: any,
   timestamp: number,
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/transparency/dbr-burns`, fetcher);
+  const { data, error } = useCacheFirstSWR(`/api/transparency/dbr-burns`);
 
   return {
     events: data ? data.totalBurns : [],
@@ -214,7 +268,7 @@ export const useDBREmissions = (): SWR & {
     rates: { timestamp: number, rewardRate: number }[],
   }
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/transparency/dbr-emissions?v=2`, fetcher);
+  const { data, error } = useCacheFirstSWR(`/api/transparency/dbr-emissions?v=2`);
 
   return {
     events: data ? data.totalEmissions : [],
@@ -229,7 +283,7 @@ export const useDBRDebtHisto = (): SWR & {
   timestamp: number,
   history: { debt: number, timestamp: number }[],
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/f2/debt-histo?v1`, fetcher);
+  const { data, error } = useCacheFirstSWR(`/api/f2/debt-histo?v1`);
 
   const debts = data?.debts || [];
   const history = debts.map((d, i) => {
@@ -256,14 +310,14 @@ export const useINVEscrowRewards = (escrow: string): SWR & {
   const { data, error } = useEtherSWR({
     args: [[escrow, 'claimable']],
     abi: F2_ESCROW_ABI,
-  });  
+  });
   const { data: rewardRateBn } = useEtherSWR([DBR_DISTRIBUTOR, 'rewardRate']);
   const { data: lastUpdate } = useEtherSWR([DBR_DISTRIBUTOR, 'lastUpdate']);
   const { data: totalSupplyBn } = useEtherSWR([DBR_DISTRIBUTOR, 'totalSupply']);
 
-  const lastUpdateStored = lastUpdate ? getBnToNumber(lastUpdate, 0)*1000 : 0;
+  const lastUpdateStored = lastUpdate ? getBnToNumber(lastUpdate, 0) * 1000 : 0;
   const storedIsOutdated = !!data && !!dbrSimData && lastUpdateStored < dbrSimData?.timestamp;
-  
+
   // per second
   const rewardRate = rewardRateBn ? getBnToNumber(rewardRateBn) : 0;
   const yearlyRewardRate = rewardRate * ONE_DAY_SECS * 365;
@@ -304,7 +358,7 @@ export const useEscrowRewards = (escrow: string): SWR & {
   appGroupPositions: any[],
   timestamp: number,
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/f2/escrow-rewards?escrow=${escrow || ''}`, fetcher);
+  const { data, error } = useCacheFirstSWR(`/api/f2/escrow-rewards?escrow=${escrow || ''}`);
 
   return {
     appGroupPositions: data?.appGroupPositions || [],
@@ -318,7 +372,7 @@ export const useUserRewards = (user: string): SWR & {
   appGroupPositions: any[],
   timestamp: number,
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/f2/user-rewards?user=${user || ''}`, fetcher);
+  const { data, error } = useCacheFirstSWR(`/api/f2/user-rewards?user=${user || ''}`);
 
   return {
     appGroupPositions: data?.appGroupPositions || [],
@@ -342,7 +396,7 @@ export const useStakedInFirm = (userAddress: string): {
 
   const { data: firmEscrowData } = useEtherSWR({
     args: !!escrow && escrow !== BURN_ADDRESS ? [
-      [escrow, 'balance'],      
+      [escrow, 'balance'],
     ] : [[]],
     abi: F2_ESCROW_ABI,
   });

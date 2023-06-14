@@ -13,14 +13,16 @@ import { getBnToNumber } from '@app/util/markets';
 
 export const proposalsCacheKey = '1-proposals-v1.0.0';
 
-export default async function handler(req, res) {  
+export default async function handler(req, res) {
+  const cacheDuration = 30;
+  res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
   try {
     const { sig } = req;
     const { GOVERNANCE } = getNetworkConfigConstants();
 
     const sigAddress = checkDraftRights(sig);
 
-    const validCache = await getCacheFromRedis(proposalsCacheKey, !sigAddress, 20, true);
+    const validCache = await getCacheFromRedis(proposalsCacheKey, !sigAddress, cacheDuration, true);
     if (validCache) {
       res.status(200).json(validCache);
       return
@@ -100,7 +102,7 @@ export default async function handler(req, res) {
     }
 
     await redisSetWithTimestamp(proposalsCacheKey, result, true);
-
+    
     res.status(200).json(result);
   } catch (err) {
     console.error(err);

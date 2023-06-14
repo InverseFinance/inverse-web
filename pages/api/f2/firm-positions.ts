@@ -8,6 +8,7 @@ import { getBnToNumber } from '@app/util/markets'
 import { CHAIN_ID } from '@app/config/constants';
 import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
 import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
+import { uniqueBy } from '@app/util/misc';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -64,8 +65,11 @@ export const getFirmMarketUsers = async (provider) => {
 }
 
 export default async function handler(req, res) {
+  const { cacheFirst } = req.query;
   try {
-    const validCache = await getCacheFromRedis(F2_POSITIONS_CACHE_KEY, true, 60);
+    const cacheDuration = 60;
+    res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+    const validCache = await getCacheFromRedis(F2_POSITIONS_CACHE_KEY, cacheFirst !== 'true', cacheDuration);
     if (validCache) {
       res.status(200).json(validCache);
       return
@@ -112,6 +116,7 @@ export default async function handler(req, res) {
     });
 
     const resultData = {
+      nbUniqueUsers: uniqueBy(positions, (a, b) => a.user === b.user).length,
       positions: positions.filter(p => p.debt > 0 || p.deposits > 0.01),
       // marketUsersAndEscrows,
       timestamp: +(new Date()),

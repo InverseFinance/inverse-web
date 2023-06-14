@@ -15,11 +15,12 @@ import { getBondV2Contract } from '@app/util/bonds';
 
 export default async function handler(req, res) {
 
-    const cacheKey = `bonds-cache-v1.0.3`;
+    const cacheKey = `bonds-cache-v1.0.4`;
 
     try {
-
-        const validCache = await getCacheFromRedis(cacheKey, true, 600);
+        const cacheDuration = 600;
+        res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+        const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
         if (validCache) {
           res.status(200).json(validCache);
           return
@@ -35,7 +36,7 @@ export default async function handler(req, res) {
         );
 
         // bonds V2 with bond protocol
-        const allV2BondsMarketIds = await getCacheFromRedis(BONDS_V2_IDS_API_CACHE_KEY, false) || [];
+        const allV2BondsMarketIds = await getCacheFromRedis(BONDS_V2_IDS_API_CACHE_KEY, false) || ["3","23","63","98"];
 
         const [depositsV2, marketInfos, terms] = await Promise.all([
             Promise.all(

@@ -60,10 +60,7 @@ export const usePricesV2 = (asUsdObject = true): SWR & Prices => {
 }
 
 export const useDOLAPrice = (): SWR & { price: number } => {
-  const { data, error } = useCacheFirstSWR(
-    `/api/dola-price`,
-    fetcher
-  )
+  const { data, error } = useCacheFirstSWR(`/api/dola-price`)
 
   return {
     price: data ? data['dola-usd'] : 1,

@@ -411,7 +411,12 @@ export const getLPBalances = async (LPToken: Token, chainId = process.env.NEXT_P
     }
     // Uni/Sushi or Solidly
     else if (!!LPToken.pairs) {
-      const balancesBn = await (new Contract(LPToken.address, ['function getReserves() public view returns (uint,uint,uint)'], providerOrSigner).getReserves())
+      let balancesBn;
+      if(LPToken.isFusionLP) {
+        balancesBn = await (new Contract(LPToken.address, ['function getTotalAmounts() public view returns (uint,uint)'], providerOrSigner).getTotalAmounts());
+      } else {
+        balancesBn = await (new Contract(LPToken.address, ['function getReserves() public view returns (uint,uint,uint)'], providerOrSigner).getReserves());
+      };
       const balances = balancesBn.slice(0, 2).map((bn, i) => getBnToNumber(bn, tokens[i].decimals));
       const total = balances.reduce((prev, curr) => prev + curr, 0);
       return tokens.map((token, i) => {

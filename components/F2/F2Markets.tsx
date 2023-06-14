@@ -1,4 +1,4 @@
-import { Badge, Flex, HStack, Stack, Text, Image, VStack, useMediaQuery } from "@chakra-ui/react"
+import { Badge, Flex, HStack, Stack, Text, Image, VStack, useMediaQuery, SkeletonText } from "@chakra-ui/react"
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useAccountDBR, useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
@@ -61,7 +61,7 @@ const columns = [
         label: 'Underlying APY',
         tooltip: 'The APY provided by the asset itself (or via its claimable rewards) and that is kept even after supplying. This is not an additional APY from FiRM',
         header: ({ ...props }) => <ColHeader minWidth="140px" justify="center"  {...props} />,
-        value: ({ supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isStaking, hasDbrRewards }) => {
+        value: ({ supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv }) => {
             return <Cell spacing="0" direction="column" minWidth="140px" alignItems="center" justify="center" fontSize="14px">
                 <AnchorPoolInfo
                     protocolImage={underlying.protocolImage}
@@ -76,7 +76,7 @@ const columns = [
                 />
                 {
                     supplyApy > 0 && <Text fontSize="12px" color="mainTextColorLight2">
-                        {isStaking ? 'INV + DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY'}
+                        {isInv ? 'INV + DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY'}
                     </Text>
                 }
             </Cell>
@@ -258,7 +258,16 @@ export const F2Markets = ({
     return <Container
         label={
             <Text fontWeight="bold" fontSize={{ base: '14px', md: '16px' }}>
-                <b style={{ color: themeStyles.colors.success, fontSize: '18px', fontWeight: '900' }}>{shortenNumber(dbrPrice * 100, 2)}%</b> Fixed Borrow APR
+                {
+                    !dbrPrice ?
+                        <SkeletonText display="inline-block" pt="13px" skeletonHeight={2} height={'22px'} width={'42px'} noOfLines={1} />
+                        :
+                        <b style={{ color: themeStyles.colors.success, fontSize: '18px', fontWeight: '900' }}>
+                            {shortenNumber(dbrPrice * 100, 2)}
+                        </b>
+                        
+                }
+                <b style={{ color: themeStyles.colors.success, fontSize: '18px', fontWeight: '900' }}>%</b> Fixed Borrow APR, Unlimited Duration
             </Text>
         }
         labelProps={{ fontSize: { base: '14px', sm: '18px' }, fontWeight: 'extrabold' }}

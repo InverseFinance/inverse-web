@@ -13,8 +13,7 @@ const namedAddresses: { [key: string]: string } = {
     '0x6B175474E89094C44Da98b954EedeAC495271d0F': 'DAI',
     '0x7e2a6e9395df9f01c00bc3af095068b454fd896e': 'InvPriceFeed',
     '0x40A2aCCbd92BCA938b02010E17A5b8929b49130D': 'SafeMultiSend',
-    '0xAAc0aa431c237C2C0B5f041c8e59B3f1a43aC78F': 'c2tp',
-    '0x7a16fF8270133F063aAb6C9977183D9e72835428': 'Mich',
+    '0xAAc0aa431c237C2C0B5f041c8e59B3f1a43aC78F': 'c2tp.eth',    
     // Feds
     '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664': 'Fed Fuse6',
     '0x2b34548b865ad66A2B046cb82e59eE43F75B90fd': 'Fed FiRM',

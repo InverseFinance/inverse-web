@@ -9,7 +9,7 @@ import { getBnToNumber } from '@app/util/markets';
 import { ONE_DAY_SECS } from '@app/config/constants';
 
 const { DBR_DISTRIBUTOR } = getNetworkConfigConstants();
-export const dbrRewardRatesCacheKey = `dbr-reward-rates-history-v1.0.0`;
+export const dbrRewardRatesCacheKey = `dbr-reward-rates-history-v1.0.1`;
 export const initialDbrRewardRates = {
   timestamp: 1684713600000,
   rates: [
@@ -23,15 +23,23 @@ export const initialDbrRewardRates = {
       yearlyRewardRate: 3999999.9999999893,
       rewardRate: 0.126839167935058,
     },
+    {
+      timestamp: 1684954800000,
+      yearlyRewardRate: 5000000.000000002,
+      rewardRate: 0.158548959918823,
+    },
   ]
 };
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') res.status(405).json({ success: false });
-  else if (req.headers.authorization !== `Bearer ${process.env.API_SECRET_KEY}`) return res.status(401).json({ success: false });
-
   try {
-    const history = await getCacheFromRedis(dbrRewardRatesCacheKey, false) || initialDbrRewardRates;
+    const history = await getCacheFromRedis(dbrRewardRatesCacheKey, false);
+    if(!history) {
+      res.status(404).json({
+        success: false,
+      });
+      return
+    }
 
     const provider = getProvider(NetworkIds.mainnet);
     const dbrDistributor = new Contract(DBR_DISTRIBUTOR, DBR_DISTRIBUTOR_ABI, provider);

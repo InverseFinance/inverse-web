@@ -2,7 +2,7 @@ import { useMediaQuery, FlexProps, useDisclosure } from '@chakra-ui/react'
 import { F2Market } from '@app/types'
 import { JsonRpcSigner } from '@ethersproject/providers'
 import { f2CalcNewHealth, findMaxBorrow, getRiskColor } from '@app/util/f2'
-import { useAccountDBR, useAccountDBRMarket, useDBRPrice } from '@app/hooks/useDBR'
+import { useAccountDBR, useAccountDBRMarket, useDBRNeeded, useDBRPrice } from '@app/hooks/useDBR'
 import { useEffect, useRef, useState } from 'react'
 import { TOKENS } from '@app/variables/tokens'
 import { getNetworkConfigConstants } from '@app/util/networks'
@@ -71,11 +71,11 @@ export const F2Context = ({
     const [isAutoDBR, setIsAutoDBR] = useState(false);
     const [isUseNativeCoin, setIsUseNativeCoin] = useState(false);
     const [needRefreshRewards, setNeedRefreshRewards] = useState(true);
-    const [mode, setMode] = useState(market.isStaking ? 'Deposit' : 'Deposit & Borrow');
+    const [mode, setMode] = useState(market.isInv ? 'Deposit' : 'Deposit & Borrow');
     const [infoTab, setInfoTab] = useState('Summary');
     const [maxBorrowable, setMaxBorrowable] = useState(0);
     const [isSmallerThan728] = useMediaQuery('(max-width: 728px)');
-    const { price: dbrPrice } = useDBRPrice();
+
     const isMountedRef = useRef(true)
     const firstTimeModalResolverRef = useRef(() => {});
     const { isOpen: isFirstTimeModalOpen, onOpen: onFirstTimeModalOpen, onClose: onFirstTimeModalClose } = useDisclosure();
@@ -88,8 +88,13 @@ export const F2Context = ({
     const debtAmountNum = parseFloat(debtAmount || '0') || 0;// NaN => 0
     const collateralAmountNum = parseFloat(collateralAmount || '0') || 0;
 
-    const dbrCover = debtAmountNum / (365 / duration);
-    const dbrCoverDebt = debtAmountNum * dbrPrice / (365 / duration);
+    const dbrApproxData = useDBRNeeded(debtAmount, duration);    
+
+    const dbrCover = isAutoDBR ? dbrApproxData.dbrNeededNum : debtAmountNum / (365 / duration);
+    const { price: dbrPrice } = useDBRPrice();
+    const autoDbrSwapPrice = isAutoDBR && !dbrApproxData?.isLoading ? dbrApproxData?.dolaForDbrNum/dbrApproxData?.dbrNeededNum : dbrPrice;    
+    const dbrSwapPrice = isAutoDBR ? autoDbrSwapPrice || dbrPrice : dbrPrice;
+    const dbrCoverDebt = dbrCover * dbrSwapPrice;
 
     const hasCollateralChange = ['deposit', 'd&b', 'withdraw', 'r&w'].includes(MODES[mode]);
     const hasDebtChange = ['borrow', 'd&b', 'repay', 'r&w'].includes(MODES[mode]);
@@ -228,6 +233,7 @@ export const F2Context = ({
             deltaCollateral,
             deltaDebt,
             dbrPrice,
+            dbrSwapPrice,
             dbrCoverDebt,
             isSmallerThan728,
             isDeposit,
@@ -263,6 +269,7 @@ export const F2Context = ({
             dbrExpiryDate,
             isAutoDBR,
             isUseNativeCoin,
+            isDbrApproxLoading: dbrApproxData?.isLoading,
             dbrBalance,
             bnDbrBalance,
             mode,
@@ -281,6 +288,7 @@ export const F2Context = ({
             escrow,
             dbrBuySlippage,
             needRefreshRewards,
+            dbrApproxData,
             setNeedRefreshRewards,
             setDbrBuySlippage,
             setDbrSellAmount,

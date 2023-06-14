@@ -1,4 +1,4 @@
-import { Stack, VStack, Text } from '@chakra-ui/react'
+import { Stack, VStack, Text, SkeletonText } from '@chakra-ui/react'
 import { shortenNumber } from '@app/util/markets'
 import { preciseCommify } from '@app/util/misc'
 import { TextInfo } from '@app/components/common/Messages/TextInfo'
@@ -24,6 +24,7 @@ type Data = {
     fontWeight: string
     title: string
     value: string
+    isLoading?: boolean
 }
 
 const Infos = ({ infos, index, isLast }: { infos: [Data, Data], index: number, isLast: boolean }) => {
@@ -36,9 +37,13 @@ const Infos = ({ infos, index, isLast }: { infos: [Data, Data], index: number, i
                     {left.title}:
                 </Text>
             </TextInfo>
-            <Text fontSize="18px" color={left.color} fontWeight={left.fontWeight || 'bold'}>
-                {left.value}
-            </Text>
+            {
+                left.isLoading ?
+                    <SkeletonText display="inline-block" pt="13px" skeletonHeight={2} height={'27px'} width={'90px'} noOfLines={1} />
+                    : <Text fontSize="18px" color={left.color} fontWeight={left.fontWeight || 'bold'}>
+                        {left.value}
+                    </Text>
+            }
         </VStack>
         <VStack pt={{ base: '0', sm: '4' }} pb={{ base: 0, sm: isLast ? '0' : '4' }} pl={{ base: 0, sm: '4' }} w={{ base: 'full', sm: '50%' }} borderLeft={{ base: 'none', sm: "1px solid #cccccc66" }} spacing="0" alignItems={'flex-start'}>
             <TextInfo message={right.tooltip}>
@@ -46,9 +51,13 @@ const Infos = ({ infos, index, isLast }: { infos: [Data, Data], index: number, i
                     {right.title}:
                 </Text>
             </TextInfo>
-            <Text fontSize="18px" color={right.color} fontWeight={right.fontWeight || 'bold'}>
-                {right.value}
-            </Text>
+            {
+                right.isLoading ?
+                    <SkeletonText display="inline-block" pt="13px" skeletonHeight={2} height={'27px'} width={'90px'} noOfLines={1} /> :
+                    <Text fontSize="18px" color={right.color} fontWeight={right.fontWeight || 'bold'}>
+                        {right.value}
+                    </Text>
+            }
         </VStack>
     </Stack>
 }
@@ -86,21 +95,25 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         dbrCoverDebt,
         dbrCover,
         dbrPrice,
+        dbrSwapPrice,
         newDailyDBRBurnInMarket,
         newDBRExpiryDate,
         isDeposit,
         deposits,
         debt,
+        debtAmount,
         newDeposits,
         newTotalDebt,
         newTotalDebtInMarket,
         newCreditLimit,
         dbrBalance,
         isAutoDBR,
+        isDbrApproxLoading,
     } = useContext(F2MarketContext);
 
     const [now, setNow] = useState(Date.now());
-    const { events, isLoading: isLoadingEvents } = useFirmMarketEvents(market, account);
+    const { events, isLoading: isLoadingEvents, depositedByUser, liquidated } = useFirmMarketEvents(market, account);
+    const collateralRewards = (deposits + liquidated) - depositedByUser;
 
     useEffect(() => {
         let interval = setInterval(() => {
@@ -219,14 +232,16 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         ],
         [
             {
-                tooltip: 'Current market price for DBR, the token used to pay borrowing fees',
-                title: 'Current DBR price',
-                value: `${shortenNumber(dbrPrice, 4, true)}`,
+                tooltip: 'The DBR swap price on Curve in the DBR-DOLA pool for the required DBR amount',
+                title: 'DBR swap price',
+                value: `~${shortenNumber(dbrSwapPrice, 6, true)}`,
+                isLoading: isDbrApproxLoading,
             },
             {
-                tooltip: "DBR tokens you will receive, they will be automatically used to cover borrowing interests over time. Don't sell them unless you know what you're doing!",
-                title: `DBR cost`,
-                value: dbrCover > 0 && isDeposit ? `${shortenNumber(dbrCover, 2)} DBRs (${shortenNumber(dbrCoverDebt, 2, true)})` : '-',
+                tooltip: "DBR tokens needed for the borrow, they will be automatically used to cover borrowing interests over time. Don't sell them unless you know what you're doing! When auto-buying extra DBRs are added as cost to cover the auto-buyed DBRs.",
+                title: 'Auto-buy DBR cost',
+                value: dbrCover > 0 && isDeposit ? `~${shortenNumber(dbrCover, 2)} DBRs (${shortenNumber(dbrCoverDebt, 2, true)})` : '-',
+                isLoading: isDbrApproxLoading,
             },
         ],
         [
@@ -273,8 +288,8 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         ],
         [
             {
-                tooltip: 'The total amount of collateral after you deposit/withdraw',
-                title: 'Total Deposits',
+                tooltip: 'The resulting collateral balance after you deposit/withdraw',
+                title: 'Total Balance',
                 value: `${newDeposits ? `${shortenNumber(newDeposits, 2)} ${market.underlying.symbol} (${shortenNumber(newDeposits * market.price, 2, true)})` : '-'}`,
             },
             {
@@ -298,7 +313,23 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         ],
     ];
 
-    const keyInfos = market.isStaking ? [
+    const hasCollateralRewards = collateralRewards >= 0.01;
+
+    const stakingInfos = !hasCollateralRewards ? [] : [
+        {
+            tooltip: 'The amount of collateral that comes from your deposits alone (excludes staking rewards and liquidations)',
+            title: 'Originally Deposited',
+            value: depositedByUser >= 0 ? `${shortenNumber(depositedByUser, 2)} ${market.underlying.symbol}` : 'All have been withdrawn',
+        },
+        {
+            tooltip: 'The increase in collateral balance thanks to staking, anti-dilution protection or other mechanism that increases your collateral balance over time. USD value at current price.',
+            title: market.isInv ? 'Anti-dilution protection' : 'Earned with staking',
+            value: `${preciseCommify(collateralRewards, 2)} ${market.underlying.symbol} (${shortenNumber(collateralRewards * market.price, 2, true)})`,
+            color: 'seagreen',
+        },
+    ];
+
+    const keyInfos = market.isInv ? [
         positionInfos[2],
     ] : [
         positionInfos[0],
@@ -308,8 +339,13 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         positionInfos[3],
     ];
 
-    if(isAutoDBR) {
+    if (!market.isInv && isAutoDBR) {
         keyInfos.splice(2, 0, dbrInfos[2]);
+    }
+
+    if (hasCollateralRewards) {
+        const balanceIndex = keyInfos.findIndex((v) => v[0].title === 'Total Balance');
+        keyInfos.splice(balanceIndex, 0, stakingInfos);
     }
 
     const lists = {
@@ -322,7 +358,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
     const tabItems = lists[infoTab];
 
     const handleTabChange = (v: string) => {
-        setInfoTab(v);        
+        setInfoTab(v);
         gaEvent({ action: `FiRM-info-tab-${v.toLowerCase().replace(' ', '_')}` });
     }
 

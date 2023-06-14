@@ -88,6 +88,7 @@ export const getCacheFromRedisAsObj = async (
             const now = Date.now();
             return {
                 data: cacheObj.data,
+                timestamp: cacheObj?.timestamp,
                 isValid: !checkForTime || ((now - cacheObj?.timestamp) / 1000 < cacheTime),
             };
         }

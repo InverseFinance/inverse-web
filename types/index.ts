@@ -18,6 +18,7 @@ export interface Token {
   isCrvLP?: boolean
   isVeloLP?: boolean
   isUniV3?: boolean
+  isFusionLP?: boolean
   link?: string
   lpBalanceContract?: string
   // crv pool where lp token != pool contract
@@ -715,7 +716,7 @@ export type F2Market = {
   zapperAppGroup?: string
   isGovTokenCollateral?: boolean
   hasClaimableRewards?: boolean
-  isStaking?: boolean
+  
   isInv?: boolean
   govLink?: string
   marketIcon?: string
@@ -779,4 +780,10 @@ export type ZapperToken = {
   price: number,
   balance: number,
   address: string,
+}
+
+export type CoingeckoHistoricalData = {
+  prices: [number, number][],
+  market_caps: [number, number][],
+  total_volumes: [number, number][],
 }

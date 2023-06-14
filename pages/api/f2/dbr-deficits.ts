@@ -10,11 +10,14 @@ import { F2_UNIQUE_USERS_CACHE_KEY } from './firm-positions';
 
 const { F2_MARKETS, DBR } = getNetworkConfigConstants();
 
-export default async function handler(req, res) {
-  const cacheKey = `f2dbr-v1.0.6`;
+const DBR_SPENDERS_CACHE_KEY = `f2dbr-v1.0.6`;
 
+export default async function handler(req, res) {  
+  const { cacheFirst } = req.query;
   try {
-    const validCache = await getCacheFromRedis(cacheKey, true, 30);
+    const cacheDuration = 300;
+    res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+    const validCache = await getCacheFromRedis(DBR_SPENDERS_CACHE_KEY, cacheFirst !== 'true', cacheDuration);
     if (validCache) {
       res.status(200).json(validCache);
       return
@@ -67,14 +70,14 @@ export default async function handler(req, res) {
       timestamp: +(new Date()),
     }
 
-    await redisSetWithTimestamp(cacheKey, resultData);
+    await redisSetWithTimestamp(DBR_SPENDERS_CACHE_KEY, resultData);
 
     res.status(200).json(resultData)
   } catch (err) {
     console.error(err);
     // if an error occured, try to return last cached results
     try {
-      const cache = await getCacheFromRedis(cacheKey, false);
+      const cache = await getCacheFromRedis(DBR_SPENDERS_CACHE_KEY, false);
       if (cache) {
         console.log('Api call failed, returning last cache found');
         res.status(200).json(cache);

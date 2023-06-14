@@ -48,11 +48,11 @@ const App = ({ Component, pageProps }: AppProps) => {
       <Web3ReactProvider getLibrary={getLibrary}>
         <Head>
           <title>{process.env.NEXT_PUBLIC_TITLE}</title>
-          <meta name="description" content="Inverse Finance is an Open Source Protocol for Lending and Borrowing assets. Stake INV to earn interests and borrow DOLA our decentralized stablecoin." />
-          <meta name="keywords" content="Decentralized Finance, DeFi, lending, borrowing, DAO, stablecoins, Ethereum, stEth, ETH, WBTC, YFI, INV, DOLA, FLOKI, xSushi, borrow, lend, bonds, positive-sum, rewards, transparency, anchor, frontier, FiRM, DBR, DOLA borrowing right, Fixed Rate, Fixed Rate Market" />
+          <meta name="description" content="Inverse Finance is an Open Source Protocol for borrowing at a fixed-rate. Stake INV to earn real yield through DBR streaming." />
+          <meta name="keywords" content="Decentralized Finance, DeFi, lending, borrowing, DAO, stablecoins, Ethereum, stEth, ETH, CRV, cvxCRV, INV, DOLA, gOHM, real yield, audited, borrow, lend, bonds, rewards, transparency, FiRM, DBR, DOLA borrowing right, Fixed Rate, Fixed Rate Market" />
 
           <meta name="og:title" content="Inverse Finance" />
-          <meta name="og:description" content="Inverse Finance is an Open Source Protocol for Lending and Borrowing assets. Stake INV to earn interests and borrow DOLA our decentralized stablecoin." />          
+          <meta name="og:description" content="Inverse Finance is an Open Source Protocol for borrowing at a fixed-rate. Stake INV to earn real yield through DBR streaming." />          
           <meta name="og:image" content="https://images.ctfassets.net/kfs9y9ojngfc/1Ma9aOfVoZhPqBSfWypXPO/51c94241f900cd3f3252e4628916250e/inv_medium_article_image_1.png?w=3840&q=75" />
           <meta name="twitter:site" content="@InverseFinance" />
           <meta name="twitter:image:alt" content="inverse finance" />
@@ -98,6 +98,10 @@ const App = ({ Component, pageProps }: AppProps) => {
               <linearGradient id="info-gradient" x1="0" x2="0" y1="0" y2="1">
                 <stop offset="0" stopColor="#4299e1" />
                 <stop offset="1" stopColor="#4299e100" />
+              </linearGradient>
+              <linearGradient id="warning-gradient" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stopColor="#ed8936" />
+                <stop offset="1" stopColor="#ed893600" />
               </linearGradient>
             </defs>
           </svg>

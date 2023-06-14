@@ -316,6 +316,7 @@ export const getYieldOppys = async () => {
             .map(p => {
                 return {
                     ...p,
+                    underlyingTokens: p.underlyingTokens||[],
                     // clean pool names & make them more homogen
                     symbol: p.symbol
                         .replace(/-3CRV$/i, '-3POOL')
@@ -339,4 +340,16 @@ export const triggerSupply = (marketName: string) => {
 export const triggerBorrow = (marketName: string) => {
     const customEvent = new CustomEvent('open-anchor-borrow', { detail: { market: marketName } });
     document.dispatchEvent(customEvent);
+}
+
+export const getHistoricalTokenData = async (cgId: string, from?: number, to?: number) => {
+    const now = Date.now();    
+    try {
+        const res = await fetch(`https://api.coingecko.com/api/v3/coins/${cgId}/market_chart/range?vs_currency=usd&from=${from||1392577232}&to=${to||now}`);
+        return res.json();
+    } catch (e) {
+        console.log(e);
+        console.log('failed to get historical data')        
+    }
+    return;
 }
