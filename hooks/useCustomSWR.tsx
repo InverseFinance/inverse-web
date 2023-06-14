@@ -29,10 +29,12 @@ export const useCacheFirstSWR = (key: string, fetcher = defaultFetcher): SWR & {
   const { data, error } = useSWR(key, fetcher30sectimeout);
 
   useEffect(() => {
-    if(typeof data !== 'undefined' && (data?.timestamp||0) >= (localCacheData?.timestamp||0)) {
+    if(typeof data !== 'undefined' && ((data?.timestamp||0) > (localCacheData?.timestamp||0) || (!data?.timestamp && !localCacheData?.timestamp))) {
       setter(data);
+    } else if(typeof apiCacheData !== 'undefined' && ((apiCacheData?.timestamp||0) > (localCacheData?.timestamp||0) || (!apiCacheData?.timestamp && !localCacheData?.timestamp))) {      
+      setter(apiCacheData);
     }
-  }, [data]);
+  }, [data, apiCacheData, localCacheData]);
 
   let mostRecentData;
   if(data?.timestamp || apiCacheData?.timestamp || localCacheData?.timestamp){

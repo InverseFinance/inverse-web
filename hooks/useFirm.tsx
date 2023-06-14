@@ -61,7 +61,7 @@ export const useDBRActiveHolders = (): SWR & {
   positions: any,
   timestamp: number,
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/f2/dbr-deficits?v2`);
+  const { data, error } = useCacheFirstSWR(`/api/f2/dbr-deficits?v2`, fetcher60sectimeout);
   const { positions: firmPositions } = useFirmPositions();
 
   const activeDbrHolders = data ? data.activeDbrHolders : [];
@@ -94,8 +94,8 @@ export const useDBRPendingRewards = (): SWR & {
   timestamp: number,
   invMarket: F2Market,
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/f2/dbr-pending-rewards`);
-  const { data: spendersData, error: spendersError } = useCacheFirstSWR(`/api/f2/dbr-deficits?v2`);
+  const { data, error } = useCacheFirstSWR(`/api/f2/dbr-pending-rewards`, fetcher60sectimeout);
+  const { data: spendersData, error: spendersError } = useCacheFirstSWR(`/api/f2/dbr-deficits?v2`, fetcher60sectimeout);
 
   const userData = data ? data.userData : [];
   const activeDbrHolders = spendersData ? spendersData.activeDbrHolders : [];
