@@ -2,7 +2,7 @@ import { useMediaQuery, FlexProps, useDisclosure } from '@chakra-ui/react'
 import { F2Market } from '@app/types'
 import { JsonRpcSigner } from '@ethersproject/providers'
 import { f2CalcNewHealth, findMaxBorrow, getRiskColor } from '@app/util/f2'
-import { useAccountDBR, useAccountDBRMarket, useDBRNeeded, useDBRPrice, useDBRSwapPrice } from '@app/hooks/useDBR'
+import { useAccountDBR, useAccountDBRMarket, useDBRNeeded, useDBRPrice } from '@app/hooks/useDBR'
 import { useEffect, useRef, useState } from 'react'
 import { TOKENS } from '@app/variables/tokens'
 import { getNetworkConfigConstants } from '@app/util/networks'
@@ -269,6 +269,7 @@ export const F2Context = ({
             dbrExpiryDate,
             isAutoDBR,
             isUseNativeCoin,
+            isDbrApproxLoading: dbrApproxData?.isLoading,
             dbrBalance,
             bnDbrBalance,
             mode,
