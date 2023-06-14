@@ -195,7 +195,7 @@ export const DbrPendingRewards = ({
             noPadding
             px="0"
             pt="0"
-            description={timestamp ? `DBR reward index updated ${moment(timestamp).from()}` : `Loading...`}
+            description={timestamp ? `DBR reward index updated ${moment(timestamp).fromNow()}` : `Loading...`}
             contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
             headerProps={{
                 direction: { base: 'column', md: 'row' },

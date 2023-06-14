@@ -126,7 +126,7 @@ export const DbrReplenishments = ({
         label="Last 100 Forced Replenishments"
         noPadding
         py="4"
-        description={timestamp ? `Last update ${moment(timestamp).from()}` : `Loading...`}
+        description={timestamp ? `Last update ${moment(timestamp).fromNow()}` : `Loading...`}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
         headerProps={{
             direction: { base: 'column', md: 'row' },
