@@ -61,7 +61,7 @@ export const useDBRActiveHolders = (): SWR & {
   positions: any,
   timestamp: number,
 } => {
-  const { data, error } = useCustomSWR(`/api/f2/dbr-deficits?v2`, fetcher);
+  const { data, error } = useCacheFirstSWR(`/api/f2/dbr-deficits?v2`);
   const { positions: firmPositions } = useFirmPositions();
 
   const activeDbrHolders = data ? data.activeDbrHolders : [];
@@ -94,8 +94,8 @@ export const useDBRPendingRewards = (): SWR & {
   timestamp: number,
   invMarket: F2Market,
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/f2/dbr-pending-rewards`, fetcher);
-  const { data: spendersData, error: spendersError } = useCacheFirstSWR(`/api/f2/dbr-deficits?v2`, fetcher);
+  const { data, error } = useCacheFirstSWR(`/api/f2/dbr-pending-rewards`);
+  const { data: spendersData, error: spendersError } = useCacheFirstSWR(`/api/f2/dbr-deficits?v2`);
 
   const userData = data ? data.userData : [];
   const activeDbrHolders = spendersData ? spendersData.activeDbrHolders : [];
@@ -250,7 +250,7 @@ export const useDBRBurns = (): SWR & {
   events: any,
   timestamp: number,
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/transparency/dbr-burns`, fetcher);
+  const { data, error } = useCacheFirstSWR(`/api/transparency/dbr-burns`);
 
   return {
     events: data ? data.totalBurns : [],
@@ -268,7 +268,7 @@ export const useDBREmissions = (): SWR & {
     rates: { timestamp: number, rewardRate: number }[],
   }
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/transparency/dbr-emissions?v=2`, fetcher);
+  const { data, error } = useCacheFirstSWR(`/api/transparency/dbr-emissions?v=2`);
 
   return {
     events: data ? data.totalEmissions : [],
@@ -283,7 +283,7 @@ export const useDBRDebtHisto = (): SWR & {
   timestamp: number,
   history: { debt: number, timestamp: number }[],
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/f2/debt-histo?v1`, fetcher);
+  const { data, error } = useCacheFirstSWR(`/api/f2/debt-histo?v1`);
 
   const debts = data?.debts || [];
   const history = debts.map((d, i) => {
@@ -358,7 +358,7 @@ export const useEscrowRewards = (escrow: string): SWR & {
   appGroupPositions: any[],
   timestamp: number,
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/f2/escrow-rewards?escrow=${escrow || ''}`, fetcher);
+  const { data, error } = useCacheFirstSWR(`/api/f2/escrow-rewards?escrow=${escrow || ''}`);
 
   return {
     appGroupPositions: data?.appGroupPositions || [],
@@ -372,7 +372,7 @@ export const useUserRewards = (user: string): SWR & {
   appGroupPositions: any[],
   timestamp: number,
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/f2/user-rewards?user=${user || ''}`, fetcher);
+  const { data, error } = useCacheFirstSWR(`/api/f2/user-rewards?user=${user || ''}`);
 
   return {
     appGroupPositions: data?.appGroupPositions || [],
