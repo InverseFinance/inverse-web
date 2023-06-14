@@ -365,7 +365,7 @@ export const findMaxBorrow = async (market, deposits, debt, dbrPrice, duration, 
 export const getDepletionDate = (timestamp: number, comparedTo: number) => {
     return !!timestamp ?
         (timestamp - ONE_DAY_MS) <= comparedTo ?
-            timestamp <= comparedTo ? 'Instant' : `~${moment(timestamp).from()}`
+            timestamp <= comparedTo ? 'Instant' : `~${moment(timestamp).fromNow()}`
             :
             moment(timestamp).format('MMM Do, YYYY') : '-'
 }

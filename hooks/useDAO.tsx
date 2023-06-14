@@ -37,7 +37,7 @@ export const useDAO = (): SWR & DAO => {
 }
 
 export const useLiquidityPools = (): SWR & { liquidity: any[], timestamp: number } => {
-  const { data, error } = useCacheFirstSWR(`/api/transparency/liquidity?v=1`, fetcher)
+  const { data, error } = useCacheFirstSWR(`/api/transparency/liquidity?v=1`)
 
   return {
     timestamp: data?.timestamp,
@@ -103,7 +103,7 @@ export const useFedHistory = (): SWR & {
   feds: (Fed & { supply: number })[],
   dolaSupplies: { chainId: string, supply: number }[],
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/transparency/fed-policy?v=2`, fetcher)
+  const { data, error } = useCacheFirstSWR(`/api/transparency/fed-policy?v=2`)
 
   const totalEvents = data?.totalEvents || [];
 
@@ -128,7 +128,7 @@ export const useFedPolicyMsg = (refreshIndex: number): SWR & { fedPolicyMsg: { m
 }
 
 export const useFedIncome = (): SWR & { totalEvents: FedEvent[], totalFedsIncomes: { [key: string]: number } } => {
-  const { data, error } = useCacheFirstSWR(`/api/transparency/fed-income?v=2`, fetcher)
+  const { data, error } = useCacheFirstSWR(`/api/transparency/fed-income?v=2`)
 
   const totalEvents = data?.totalEvents || [];
   const totalFedsIncomes = data?.totalFedsIncomes || {};
@@ -142,7 +142,7 @@ export const useFedIncome = (): SWR & { totalEvents: FedEvent[], totalFedsIncome
 }
 
 export const useFedOverview = (): SWR & { fedOverviews: any[] } => {
-  const { data, error } = useCacheFirstSWR(`/api/transparency/fed-overview`, fetcher)
+  const { data, error } = useCacheFirstSWR(`/api/transparency/fed-overview`)
 
   return {
     fedOverviews: data?.fedOverviews || [],
@@ -152,7 +152,7 @@ export const useFedOverview = (): SWR & { fedOverviews: any[] } => {
 }
 
 export const useStabilizer = (): SWR & { totalEvents: StabilizerEvent[] } => {
-  const { data, error } = useCustomSWR(`/api/transparency/stabilizer`, fetcher)
+  const { data, error } = useCustomSWR(`/api/transparency/stabilizer`)
 
   const totalEvents = data?.totalEvents || [];
 
