@@ -1,4 +1,4 @@
-import { Badge, Flex, HStack, Stack, Text, Image, VStack, useMediaQuery } from "@chakra-ui/react"
+import { Badge, Flex, HStack, Stack, Text, Image, VStack, useMediaQuery, SkeletonText } from "@chakra-ui/react"
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useAccountDBR, useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
@@ -258,7 +258,16 @@ export const F2Markets = ({
     return <Container
         label={
             <Text fontWeight="bold" fontSize={{ base: '14px', md: '16px' }}>
-                <b style={{ color: themeStyles.colors.success, fontSize: '18px', fontWeight: '900' }}>{shortenNumber(dbrPrice * 100, 2)}%</b> Fixed Borrow APR, Unlimited Duration
+                {
+                    !dbrPrice ?
+                        <SkeletonText display="inline-block" pt="13px" skeletonHeight={2} height={'22px'} width={'42px'} noOfLines={1} />
+                        :
+                        <b style={{ color: themeStyles.colors.success, fontSize: '18px', fontWeight: '900' }}>
+                            {shortenNumber(dbrPrice * 100, 2)}
+                        </b>
+                        
+                }
+                <b style={{ color: themeStyles.colors.success, fontSize: '18px', fontWeight: '900' }}>%</b> Fixed Borrow APR, Unlimited Duration
             </Text>
         }
         labelProps={{ fontSize: { base: '14px', sm: '18px' }, fontWeight: 'extrabold' }}

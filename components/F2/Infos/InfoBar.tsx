@@ -5,7 +5,7 @@ import { useDualSpeedEffect } from "@app/hooks/useDualSpeedEffect"
 import { getRiskColor } from "@app/util/f2"
 import { shortenNumber } from "@app/util/markets"
 import { preciseCommify } from "@app/util/misc"
-import { HStack, VStack, Text, useMediaQuery, StackProps, TextProps, Stack } from "@chakra-ui/react"
+import { HStack, VStack, Text, useMediaQuery, StackProps, TextProps, Stack, SkeletonText } from "@chakra-ui/react"
 import { useContext, useEffect, useState } from "react"
 import { F2MarketContext } from "../F2Contex"
 import moment from 'moment'
@@ -132,7 +132,7 @@ export const MarketBar = ({
                 DBR Price
             </Title>
             <SubTitle color="secondaryTextColor">
-                {preciseCommify(dbrPrice, 4, true)}
+                {dbrPrice ? preciseCommify(dbrPrice, 4, true) : '-'}
             </SubTitle>
         </VStack>
         {isLargerThan && <DbrBalance alignItems={{ base: 'flex-end', md: 'flex-start' }} />}
@@ -341,10 +341,12 @@ const BarBlock = ({
     href,
     vstackProps,
     precision = 2,
+    isLoading = false,
 }: {
     label: string,
     isLargerThan: boolean,
-    imgSrc: string,
+    isLoading?: boolean,
+    imgSrc?: string,
     price: number,
     precision?: number,
     href: string,
@@ -352,16 +354,21 @@ const BarBlock = ({
 }) => {
     return <HStack spacing="4">
         {
-            isLargerThan && <MarketImage image={imgSrc} size={40} imgProps={{ borderRadius: '100px' }} />
+            isLargerThan && !!imgSrc && <MarketImage image={imgSrc} size={40} imgProps={{ borderRadius: '100px' }} />
         }
         <VStack spacing="1" alignItems="flex-start" {...vstackProps}>
             <Link textDecoration="underline" fontWeight="extrabold" fontSize={{ base: '14px', md: '18px' }} color="mainTextColor" textAlign="left" href={href} isExternal target='_blank'>
                 {label}
             </Link>
 
-            <Text textAlign="left" color="secondaryTextColor">
-                {shortenNumber(price, precision, true)}
-            </Text>
+            {
+                isLoading || !price ?
+                    <SkeletonText pt="1" skeletonHeight={2} height={'24px'} width={'50px'} noOfLines={1} />
+                    :
+                    <Text textAlign="left" color="secondaryTextColor">
+                        {shortenNumber(price, precision, true)}
+                    </Text>
+            }
         </VStack>
     </HStack>
 }
@@ -372,9 +379,9 @@ export const FirmBar = ({
 } & Partial<StackProps>) => {
     const { prices } = usePrices();
     const { price: dbrPrice } = useDBRPrice();
-    const { totalSupply, firmSupply } = useDOLA();
-    const { price: dolaPrice } = useDOLAPrice();
-    const { firmTotalTvl } = useFirmTVL();
+    const { totalSupply, firmSupply, isLoading: isDolaDataLoading } = useDOLA();
+    const { price: dolaPrice, isLoading: isDolaPriceLoading } = useDOLAPrice();
+    const { firmTotalTvl, isLoading: isFirmTvlLoading } = useFirmTVL();
     const { markets } = useDBRMarkets();
     const [isLargerThan] = useMediaQuery('(min-width: 600px)');
     const [isLargerThan1000] = useMediaQuery('(min-width: 1000px)');
@@ -386,7 +393,7 @@ export const FirmBar = ({
             <HStack alignItems="flex-start" w={{ base: 'full', md: 'auto' }} justify="flex-start">
                 <HStack spacing="8" w={{ base: 'full', md: 'auto' }} justify={{ base: 'space-between', md: 'flex-start' }}>
                     <BarBlock label="Buy DBR" isLargerThan={isLargerThan} precision={4} price={dbrPrice} href={BUY_LINKS.DBR} imgSrc={`/assets/v2/dbr.png`} />
-                    <BarBlock label="Buy DOLA" isLargerThan={isLargerThan} precision={4} price={dolaPrice} href={'/swap'} imgSrc={`/assets/v2/dola-512.jpg`} vstackProps={{ alignItems: { base: 'center', md: 'flex-start' } }} />
+                    <BarBlock label="Buy DOLA" isLoading={isDolaPriceLoading} isLargerThan={isLargerThan} precision={4} price={dolaPrice} href={'/swap'} imgSrc={`/assets/v2/dola-512.jpg`} vstackProps={{ alignItems: { base: 'center', md: 'flex-start' } }} />
                     <BarBlock label="Buy INV" isLargerThan={isLargerThan} price={prices?.['inverse-finance']?.usd} href={BUY_LINKS.INV} imgSrc={`/assets/inv-square-dark.jpeg`} vstackProps={{ alignItems: { base: 'flex-end', md: 'flex-start' } }} />
                 </HStack>
             </HStack>
@@ -395,25 +402,37 @@ export const FirmBar = ({
                     <Link textAlign="center" textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/transparency/feds/policy/all">
                         {isLargerThan ? 'Total ' : ''}DOLA Supply
                     </Link>
-                    <SubTitle>
-                        {shortenNumber(totalSupply, 2)}
-                    </SubTitle>
+                    {
+                        isDolaDataLoading ?
+                            <SkeletonText pt="1" skeletonHeight={2} height={'24px'} width={'50px'} noOfLines={1} /> :
+                            <SubTitle>
+                                {shortenNumber(totalSupply, 2)}
+                            </SubTitle>
+                    }
                 </VStack>
                 <VStack w={{ base: '33%', md: 'auto' }} spacing="1" alignItems='center'>
                     <Link textAlign="center" textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/firm/positions">
                         FiRM TVL
                     </Link>
-                    <SubTitle>
-                        {shortenNumber(firmTotalTvl, 2, true)}
-                    </SubTitle>
+                    {
+                        isFirmTvlLoading ?
+                            <SkeletonText pt="1" skeletonHeight={2} height={'24px'} width={'50px'} noOfLines={1} /> :
+                            <SubTitle>
+                                {shortenNumber(firmTotalTvl, 2, true)}
+                            </SubTitle>
+                    }
                 </VStack>
                 <VStack w={{ base: '33%', md: 'auto' }} spacing="1" alignItems='flex-end'>
                     <Link textAlign="center" textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/firm/positions">
                         FiRM Borrows
                     </Link>
-                    <SubTitle textAlign="center">
-                        {shortenNumber(totalDebtUsd, 2, true)}
-                    </SubTitle>
+                    {
+                        !markets?.length ?
+                            <SkeletonText pt="1" skeletonHeight={2} height={'24px'} width={'50px'} noOfLines={1} /> :
+                            <SubTitle textAlign="center">
+                                {shortenNumber(totalDebtUsd, 2, true)}
+                            </SubTitle>
+                    }
                 </VStack>
             </HStack>
         </Stack>
