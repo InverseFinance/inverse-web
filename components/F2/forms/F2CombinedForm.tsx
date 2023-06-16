@@ -527,14 +527,14 @@ export const F2CombinedForm = ({
                         description="Not Enough collateral to deposit"
                     />
                 }
-                <Divider />
-                {actionBtn}
                 {
                     market.isInv && <>
                         <Divider />
                         <DBRAutoRepayCalculator />
                     </>
                 }
+                <Divider />
+                {actionBtn}
             </VStack>
         </Container>
         <Container
