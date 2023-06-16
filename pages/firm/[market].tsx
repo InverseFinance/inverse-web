@@ -24,9 +24,8 @@ import { CvxCrvPreferences } from '@app/components/F2/rewards/CvxCrvPreferences'
 import { DailyLimitCountdown } from '@app/components/common/Countdown'
 import Container from '@app/components/common/Container'
 import { InfoMessage } from '@app/components/common/Messages'
-import { shortenNumber, smartShortNumber } from '@app/util/markets'
+import { shortenNumber } from '@app/util/markets'
 import { preciseCommify } from '@app/util/misc'
-import { DBRAutoRepayCalculator } from '@app/components/F2/DBRAutoRepayCalculator'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -193,9 +192,6 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                     }
                                                     <F2CombinedForm />
                                                 </ErrorBoundary>
-                                                {
-                                                    f2market.isInv && <DBRAutoRepayCalculator />
-                                                }
                                                 {
                                                     (f2market.hasClaimableRewards && f2market.name === 'cvxCRV') && <CvxCrvPreferences />
                                                 }
