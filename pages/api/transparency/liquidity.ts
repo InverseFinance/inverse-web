@@ -13,7 +13,7 @@ import { pricesCacheKey } from '../prices';
 import { PROTOCOLS_BY_IMG } from '@app/variables/images';
 import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 
-export const liquidityCacheKey = `liquidity-v1.0.5`;
+export const liquidityCacheKey = `liquidity-v1.0.6`;
 
 const PROTOCOL_DEFILLAMA_MAPPING = {
     "VELO": 'velodrome',
@@ -27,12 +27,13 @@ const PROTOCOL_DEFILLAMA_MAPPING = {
     "UNI": "uniswap-v2",
     "UNIV3": "uniswap-v3",
     "BAL": "balancer-v2",
-    // TODO: check if correct project names for the following when defillama adds support
-    "RAMSES": "ramses-exchange",
+    "RAMSES": "ramses-v1",
+    // TODO: check if correct project names for the following when defillama adds support    
     "STERLING": "sterling-exchange",
     "SOLIDLIZARD": "solidlizard",
     "SATIN": "satin-exchange",
     "ARCHLY": "archly-exchange",
+    "PEARL": "pearl-exchange",
 }
 
 export default async function handler(req, res) {
