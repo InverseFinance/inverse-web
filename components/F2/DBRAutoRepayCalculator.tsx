@@ -78,11 +78,9 @@ export const DBRAutoRepayCalculator = () => {
         }
         {
             newTotalDebt > 0 ? <HStack>
-                <TextInfo message="At current DBR APR">
-                    <Text>
-                        Staking amount to add for a free loan:
-                    </Text>
-                </TextInfo>
+                <Text>
+                    Staking amount to add for a free loan:
+                </Text>
                 <Text fontWeight="bold">
                     {preciseCommify(invNeededToAdd, 2)} INV
                 </Text>
@@ -96,6 +94,13 @@ export const DBRAutoRepayCalculator = () => {
                         ~{preciseCommify(borrowableForFree, 0)} DOLA a year
                     </Text>
                 </HStack> : null
+        }
+        {
+            (newDeposits > 0 || deposits > 0 || newTotalDebt > 0) && <HStack>
+                <Text fontWeight="bold">
+                    Note: the DBR APR is volatile, this is for information purposes only.
+                </Text>
+            </HStack>
         }
     </VStack>
 };
