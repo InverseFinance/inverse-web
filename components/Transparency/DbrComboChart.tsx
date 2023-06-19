@@ -26,7 +26,7 @@ export const DbrComboChart = ({
     })
 
     useEffect(() => {
-        if(brushIndexes.startIndex !== undefined || !combodata.length) {
+        if(brushIndexes.startIndex !== undefined || combodata.length < 250) {
             return;
         }
         setBrushIndexes({ startIndex: 220, endIndex: combodata.length - 1 });

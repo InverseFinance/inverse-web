@@ -1,11 +1,14 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { F2MarketContext } from "./F2Contex";
-import { HStack, VStack, Text } from "@chakra-ui/react";
+import { HStack, VStack, Text, useDisclosure } from "@chakra-ui/react";
 import { preciseCommify } from "@app/util/misc";
 import { TextInfo } from "../common/Messages/TextInfo";
 import { shortenNumber } from "@app/util/markets";
 import { InfoMessage } from "../common/Messages";
 import { usePrices } from "@app/hooks/usePrices";
+import { TimeIcon } from "@chakra-ui/icons";
+import InfoModal from "../common/Modal/InfoModal";
+import { F2DurationInput } from "./forms/F2DurationInput";
 
 export const DBRAutoRepayCalculator = () => {
     const {
@@ -16,6 +19,8 @@ export const DBRAutoRepayCalculator = () => {
     } = useContext(F2MarketContext);
 
     const { prices: cgPrices } = usePrices();
+    const [duration, setDuration] = useState(365);
+    const { isOpen, onOpen, onClose } = useDisclosure();
 
     const delta = newDeposits - deposits;
 
@@ -24,32 +29,59 @@ export const DBRAutoRepayCalculator = () => {
 
     // const currentShare = market.invStakedViaDistributor ? deposits / market.invStakedViaDistributor : 0;
     const newShare = newTotalStaked ? newDeposits / (newTotalStaked) : 0;
-    const dbrYearlyRewards = newShare * market?.dbrYearlyRewardRate;
-    const shareNeeded = market?.dbrYearlyRewardRate < newTotalDebt || !market?.dbrYearlyRewardRate ?
-        null : (newTotalDebt / market?.dbrYearlyRewardRate);
+    const totalRewardsForDuration = duration / 365 * (market?.dbrYearlyRewardRate||0);
+    const userRewardsForDuration = newShare * totalRewardsForDuration;
+    const userBurnsForDuration = newTotalDebt * duration / 365;
+
+    const shareNeeded = market?.dbrYearlyRewardRate < userBurnsForDuration || !market?.dbrYearlyRewardRate ?
+        null : (userBurnsForDuration / totalRewardsForDuration);
 
     const invNeeded = (shareNeeded * withoutStake) / (1 - shareNeeded)
     const invNeededToAdd = invNeeded - deposits;
 
-    const netDbrRate = dbrYearlyRewards - newTotalDebt;
-    const borrowableForFree = dbrYearlyRewards;
+    const netDbrRate = userRewardsForDuration - newTotalDebt;
+    const borrowableForFree = userRewardsForDuration;
     const dbrInvExRate = !!cgPrices ? cgPrices['dola-borrowing-right']?.usd / cgPrices['inverse-finance']?.usd : 0;
     const newDbrApr = market?.dbrYearlyRewardRate * dbrInvExRate / newTotalStaked * 100;
 
+    const handleSimulationDuration = () => {
+        onOpen();
+    }
+
+    const handleDurationChange = (v) => {
+        setDuration(v);
+    }
+
     return <VStack w='full' alignItems="flex-start">
-        <TextInfo message="By having more DBR rewards than DBR burns, you can borrow for free (in DBR terms).">
-            <Text fontWeight="bold">
-                Interest-free borrowing calculator
-            </Text>
-        </TextInfo>
+        <InfoModal isOpen={isOpen} onClose={onClose}>
+            <VStack>
+                <Text>Loan duration to simulate for the calculator</Text>
+                <F2DurationInput
+                    onChange={handleDurationChange}
+                    defaultType={durationType}
+                    defaultValue={durationTypedValue}
+                />
+            </VStack>
+        </InfoModal>
+        <HStack w='full' justify="space-between">
+            <TextInfo message="By having more DBR rewards than DBR burns, you can borrow for free (in DBR terms).">
+                <Text fontWeight="bold">
+                    Interest-free borrowing calculator
+                </Text>
+            </TextInfo>
+            <HStack cursor="pointer" onClick={handleSimulationDuration}>
+                <TimeIcon />
+                <Text>Sim. duration</Text>
+            </HStack>
+        </HStack>
         {
             newDeposits > 0 || deposits > 0 ?
                 <HStack>
                     <Text w="200px">
                         Your yearly DBR rewards:
                     </Text>
-                    <Text fontWeight="bold" color={dbrYearlyRewards > 0 ? 'success' : undefined}>
-                        {preciseCommify(dbrYearlyRewards, 0)} DBR
+                    <Text fontWeight="bold" color={userRewardsForDuration > 0 ? 'success' : undefined}>
+                        {preciseCommify(userRewardsForDuration, 0)} DBR
                     </Text>
                 </HStack> : newTotalDebt > 0 ? null : <InfoMessage
                     alertProps={{ w: 'full' }}
