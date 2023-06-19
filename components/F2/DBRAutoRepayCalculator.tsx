@@ -79,7 +79,7 @@ export const DBRAutoRepayCalculator = () => {
 
     return <VStack w='full' alignItems="flex-start">
         <InfoModal title="Calculator settings" isOpen={isOpen} onClose={onClose} onOk={() => applyTempValues()}>
-            <VStack p='2' alignItems="flex-start">
+            <VStack p='4' alignItems="flex-start">
                 <Text>Duration of the staking and the DOLA loans?</Text>
                 <F2DurationInput
                     columnMode={true}
@@ -88,7 +88,7 @@ export const DBRAutoRepayCalculator = () => {
                     onChange={(days, typedValue, type) => setTempValues({ ...tempValues, days, typedValue, type })}
                 />
                 <Divider />
-                <Text>Total DOLA borrowed:</Text>
+                <Text>Total DOLA debt:</Text>
                 <Input textAlign="right" bgColor="mainBackgroundColor" value={tempValues.dolaDebt} onChange={e => handleDolaChange(e.target.value)} />
             </VStack>
         </InfoModal>
