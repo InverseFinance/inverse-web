@@ -1,6 +1,6 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { F2MarketContext } from "./F2Contex";
-import { HStack, VStack, Text, useDisclosure } from "@chakra-ui/react";
+import { HStack, VStack, Text, useDisclosure, Stack, Input, Divider } from "@chakra-ui/react";
 import { preciseCommify } from "@app/util/misc";
 import { TextInfo } from "../common/Messages/TextInfo";
 import { shortenNumber } from "@app/util/markets";
@@ -19,7 +19,11 @@ export const DBRAutoRepayCalculator = () => {
     } = useContext(F2MarketContext);
 
     const { prices: cgPrices } = usePrices();
+    const [tempValues, setTempValues] = useState({ days: 365, type: 'months', typedValue: 12, dolaDebt: undefined });
+    const [dolaDebt, setDolaDebt] = useState(newTotalDebt);
     const [duration, setDuration] = useState(365);
+    const [durationType, setDurationType] = useState('months');
+    const [durationTypeValue, setDurationTypeValue] = useState(12);
     const { isOpen, onOpen, onClose } = useDisclosure();
 
     const delta = newDeposits - deposits;
@@ -31,7 +35,7 @@ export const DBRAutoRepayCalculator = () => {
     const newShare = newTotalStaked ? newDeposits / (newTotalStaked) : 0;
     const totalRewardsForDuration = duration / 365 * (market?.dbrYearlyRewardRate||0);
     const userRewardsForDuration = newShare * totalRewardsForDuration;
-    const userBurnsForDuration = newTotalDebt * duration / 365;
+    const userBurnsForDuration = dolaDebt * duration / 365;
 
     const shareNeeded = market?.dbrYearlyRewardRate < userBurnsForDuration || !market?.dbrYearlyRewardRate ?
         null : (userBurnsForDuration / totalRewardsForDuration);
@@ -39,7 +43,7 @@ export const DBRAutoRepayCalculator = () => {
     const invNeeded = (shareNeeded * withoutStake) / (1 - shareNeeded)
     const invNeededToAdd = invNeeded - deposits;
 
-    const netDbrRate = userRewardsForDuration - newTotalDebt;
+    const netDbrRate = userRewardsForDuration - userBurnsForDuration;
     const borrowableForFree = userRewardsForDuration;
     const dbrInvExRate = !!cgPrices ? cgPrices['dola-borrowing-right']?.usd / cgPrices['inverse-finance']?.usd : 0;
     const newDbrApr = market?.dbrYearlyRewardRate * dbrInvExRate / newTotalStaked * 100;
@@ -48,59 +52,84 @@ export const DBRAutoRepayCalculator = () => {
         onOpen();
     }
 
-    const handleDurationChange = (v) => {
-        setDuration(v);
+    const applyTempValues = () => {
+        setDuration(tempValues.days);
+        setDurationType(tempValues.type);
+        setDurationTypeValue(tempValues.typedValue);
+        setDolaDebt(tempValues.dolaDebt);
+        onClose();
     }
 
+    const handleDolaChange = (value: string) => {
+        const stringAmount = value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1');
+        try {
+            const floatAmount = parseFloat(stringAmount) || 0;
+            setTempValues({ ...tempValues, dolaDebt: floatAmount });
+        } catch (error) {}
+    }
+
+    useEffect(() => {
+        if(!!newTotalDebt && tempValues.dolaDebt === undefined) {
+            setTempValues({ ...tempValues, dolaDebt: newTotalDebt });
+            setDolaDebt(newTotalDebt);
+        }
+    }, [newTotalDebt, tempValues.dolaDebt]);
+
+    const durationText = `${durationTypeValue} ${durationType}`
+
     return <VStack w='full' alignItems="flex-start">
-        <InfoModal isOpen={isOpen} onClose={onClose}>
-            <VStack>
-                <Text>Loan duration to simulate for the calculator</Text>
+        <InfoModal title="Calculator settings" isOpen={isOpen} onClose={onClose} onOk={() => applyTempValues()}>
+            <VStack p='2' alignItems="flex-start">
+                <Text>Duration of the staking and the DOLA loans?</Text>
                 <F2DurationInput
-                    onChange={handleDurationChange}
+                    columnMode={true}
                     defaultType={durationType}
-                    defaultValue={durationTypedValue}
+                    defaultValue={durationTypeValue}
+                    onChange={(days, typedValue, type) => setTempValues({ ...tempValues, days, typedValue, type })}
                 />
+                <Divider />
+                <Text>Total DOLA borrowed:</Text>
+                <Input textAlign="right" bgColor="mainBackgroundColor" value={tempValues.dolaDebt} onChange={e => handleDolaChange(e.target.value)} />
             </VStack>
         </InfoModal>
-        <HStack w='full' justify="space-between">
+        <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify="space-between">
             <TextInfo message="By having more DBR rewards than DBR burns, you can borrow for free (in DBR terms).">
                 <Text fontWeight="bold">
                     Interest-free borrowing calculator
                 </Text>
             </TextInfo>
-            <HStack cursor="pointer" onClick={handleSimulationDuration}>
-                <TimeIcon />
-                <Text>Sim. duration</Text>
+            <HStack textDecoration="underline" cursor="pointer" onClick={handleSimulationDuration}>
+                <TimeIcon boxSize="3" />
+                <Text>Sim. duration: {durationText}</Text>
             </HStack>
-        </HStack>
+        </Stack>
         {
             newDeposits > 0 || deposits > 0 ?
                 <HStack>
-                    <Text w="200px">
-                        Your yearly DBR rewards:
+                    <Text w="270px">
+                        Your DBR rewards for {durationText}:
                     </Text>
                     <Text fontWeight="bold" color={userRewardsForDuration > 0 ? 'success' : undefined}>
                         {preciseCommify(userRewardsForDuration, 0)} DBR
                     </Text>
-                </HStack> : newTotalDebt > 0 ? null : <InfoMessage
+                </HStack> : userBurnsForDuration > 0 ? null : <InfoMessage
                     alertProps={{ w: 'full' }}
                     description="Staking INV can make borrowing free if your DBR rewards are higher than DBR burns, input an INV amount to get informations on how much you could borrow for free."
                 />
         }
         {
-            newTotalDebt > 0 && <>
+            userBurnsForDuration > 0 && <>
                 <HStack>
-                    <Text w="200px">
-                        Your yearly DBR burn rate:
+                    <Text w="270px">
+                        Your DBR burns for {durationText}:
                     </Text>
-                    <Text fontWeight="bold" color={newTotalDebt > 0 ? 'warning' : undefined}>
-                        {preciseCommify(newTotalDebt, 0)} DBR
+                    <Text fontWeight="bold" color={userBurnsForDuration > 0 ? 'warning' : undefined}>
+                        {preciseCommify(userBurnsForDuration, 0)} DBR
                     </Text>
                 </HStack>
                 <HStack>
-                    <Text w="200px">
-                        Your yearly DBR net rate:
+                    <Text w="270px">
+                        Your DBR net result for {durationText}:
                     </Text>
                     <Text fontWeight="bold" color={Math.round(netDbrRate) === 0 ? undefined : netDbrRate < 0 ? 'warning' : 'success'}>
                         {preciseCommify(netDbrRate, 0)} DBR
@@ -109,7 +138,7 @@ export const DBRAutoRepayCalculator = () => {
             </>
         }
         {
-            newTotalDebt > 0 ? <HStack>
+            userBurnsForDuration > 0 ? <HStack>
                 <Text>
                     Staking amount to add for a free loan:
                 </Text>
@@ -120,15 +149,15 @@ export const DBRAutoRepayCalculator = () => {
                 :
                 newDeposits > 0 ? <HStack>
                     <Text>
-                        With <b>{shortenNumber(newDeposits, 2)} INV</b> you can borrow for free:
+                        With <b>{shortenNumber(newDeposits, 2)} INV</b> you could borrow:
                     </Text>
                     <Text fontWeight="bold">
-                        ~{preciseCommify(borrowableForFree, 0)} DOLA a year
+                        ~{preciseCommify(borrowableForFree, 0)} DOLA for {durationText}
                     </Text>
                 </HStack> : null
         }
         {
-            (newDeposits > 0 || deposits > 0 || newTotalDebt > 0) && <HStack>
+            (newDeposits > 0 || deposits > 0 || userBurnsForDuration > 0) && <HStack>
                 <Text fontWeight="bold">
                     Note: the DBR APR is volatile, this is for information purposes only.
                 </Text>
