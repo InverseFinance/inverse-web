@@ -2,6 +2,7 @@ import { Tabs, TabList, Tab, Text, HStack, Image } from '@chakra-ui/react';
 import { lightTheme } from '@app/variables/theme';
 import { SimpleCard } from '../common/Cards/Simple';
 import { useState } from 'react';
+import { TOKEN_IMAGES } from '@app/variables/images';
 
 const selected = {
     _after: {
@@ -67,9 +68,20 @@ const data = [
                 image: 'https://s2.coinmarketcap.com/static/img/coins/128x128/20435.png',
                 label: 'Velodrome',
                 href: '',
-            },{
+            },
+            {
                 image: 'https://assets.coingecko.com/coins/images/11683/large/Balancer.png?1592792958',
                 label: 'Balancer',
+                href: '',
+            },
+            {
+                image: TOKEN_IMAGES.THENA,
+                label: 'Thena',
+                href: '',
+            },
+            {
+                image: TOKEN_IMAGES.RAM,
+                label: 'Ramses',
                 href: '',
             },
         ],
