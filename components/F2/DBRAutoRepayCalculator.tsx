@@ -5,6 +5,7 @@ import { preciseCommify } from "@app/util/misc";
 import { TextInfo } from "../common/Messages/TextInfo";
 import { shortenNumber } from "@app/util/markets";
 import { InfoMessage } from "../common/Messages";
+import { usePrices } from "@app/hooks/usePrices";
 
 export const DBRAutoRepayCalculator = () => {
     const {
@@ -13,6 +14,8 @@ export const DBRAutoRepayCalculator = () => {
         newDeposits,
         deposits,
     } = useContext(F2MarketContext);
+
+    const { prices: cgPrices } = usePrices();
 
     const delta = newDeposits - deposits;
 
@@ -30,6 +33,8 @@ export const DBRAutoRepayCalculator = () => {
 
     const netDbrRate = dbrYearlyRewards - newTotalDebt;
     const borrowableForFree = dbrYearlyRewards;
+    const dbrInvExRate = !!cgPrices ? cgPrices['dola-borrowing-right']?.usd / cgPrices['inverse-finance']?.usd : 0;
+    const newDbrApr = market?.dbrYearlyRewardRate * dbrInvExRate / newTotalStaked * 100;
 
     return <VStack w='full' alignItems="flex-start">
         <TextInfo message="By having more DBR rewards than DBR burns, you can borrow for free (in DBR terms).">
@@ -38,7 +43,7 @@ export const DBRAutoRepayCalculator = () => {
             </Text>
         </TextInfo>
         {
-            newDeposits > 0 ?
+            newDeposits > 0 || deposits > 0 ?
                 <HStack>
                     <Text w="200px">
                         Your yearly DBR rewards:
@@ -73,9 +78,11 @@ export const DBRAutoRepayCalculator = () => {
         }
         {
             newTotalDebt > 0 ? <HStack>
-                <Text>
-                    For a free loan stake add at least:
-                </Text>
+                <TextInfo message="At current DBR APR">
+                    <Text>
+                        Staking amount to add for a free loan:
+                    </Text>
+                </TextInfo>
                 <Text fontWeight="bold">
                     {preciseCommify(invNeededToAdd, 2)} INV
                 </Text>
