@@ -53,7 +53,7 @@ export const DBRAutoRepayCalculator = () => {
                     </Text>
                 </HStack> : newTotalDebt > 0 ? null : <InfoMessage
                     alertProps={{ w: 'full' }}
-                    description="Staking INV can make borrowing free if DBR rewards are higher than DBR burns, input an INV amount to get informations on how much you could borrow for free."
+                    description="Staking INV can make borrowing free if your DBR rewards are higher than DBR burns, input an INV amount to get informations on how much you could borrow for free."
                 />
         }
         {
