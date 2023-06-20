@@ -118,7 +118,7 @@ export const DBRAutoRepayCalculator = () => {
                     </Text>
                 </HStack> : userBurnsForDuration > 0 ? null : <InfoMessage
                     alertProps={{ w: 'full' }}
-                    description="Staking INV can make borrowing free if your DBR rewards are higher than DBR burns, input an INV amount to get informations on how much you could borrow for free."
+                    description="Staking INV can make borrowing interest-free if your DBR rewards are higher than your DBR burns, input an INV amount to get informations on how much you could borrow for free."
                 />
         }
         {
@@ -164,7 +164,9 @@ export const DBRAutoRepayCalculator = () => {
         {
             (newDeposits > 0 || deposits > 0 || userBurnsForDuration > 0) && <HStack>
                 <Text fontWeight="bold">
-                    Note: the DBR APR is volatile, this is for information purposes only.
+                    Note: the DBR APR being volatile, {
+                        userBurnsForDuration > 0 ? `it's better to stake more than needed.` : `this is for information only.`
+                    }
                 </Text>
             </HStack>
         }
