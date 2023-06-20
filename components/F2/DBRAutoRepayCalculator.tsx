@@ -9,6 +9,7 @@ import { usePrices } from "@app/hooks/usePrices";
 import { TimeIcon } from "@chakra-ui/icons";
 import InfoModal from "../common/Modal/InfoModal";
 import { F2DurationInput } from "./forms/F2DurationInput";
+import { useAppThemeParams } from "@app/hooks/useAppTheme";
 
 export const DBRAutoRepayCalculator = () => {
     const {
@@ -18,6 +19,8 @@ export const DBRAutoRepayCalculator = () => {
         deposits,
         handleCollateralChange,
     } = useContext(F2MarketContext);
+
+    const { INPUT_BORDER } = useAppThemeParams();
 
     const { prices: cgPrices } = usePrices();
     const [tempValues, setTempValues] = useState({ days: 365, type: 'months', typedValue: 12, dolaDebt: undefined });
@@ -79,8 +82,8 @@ export const DBRAutoRepayCalculator = () => {
     const durationText = `${durationTypeValue} ${durationType}`
 
     return <VStack w='full' alignItems="flex-start">
-        <InfoModal title="Calculator settings" isOpen={isOpen} onClose={onClose} onOk={() => applyTempValues()}>
-            <VStack p='4' alignItems="flex-start">
+        <InfoModal okLabel="Apply Settings" title="Calculator settings" isOpen={isOpen} onClose={onClose} onOk={() => applyTempValues()}>
+            <VStack spacing="3" p='4' alignItems="flex-start">
                 <Text>Duration of the staking and the DOLA loans?</Text>
                 <F2DurationInput
                     columnMode={true}
@@ -90,7 +93,7 @@ export const DBRAutoRepayCalculator = () => {
                 />
                 <Divider />
                 <Text>Total DOLA debt to use for calculations:</Text>
-                <Input textAlign="right" bgColor="mainBackgroundColor" value={tempValues.dolaDebt} onChange={e => handleDolaChange(e.target.value)} />
+                <Input fontSize="24px" fontWeight="500" border={INPUT_BORDER} py='0' h='48px' textAlign="right" bgColor="primary.850" value={tempValues.dolaDebt} onChange={e => handleDolaChange(e.target.value)} />
             </VStack>
         </InfoModal>
         <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify="space-between">
