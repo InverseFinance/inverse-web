@@ -22,6 +22,7 @@ export const WorthEvoChartContainer = ({
     const { prices: dbrPrices } = useHistoricalPrices('dola-borrowing-right');
     const { events, depositedByUser } = useFirmMarketEvolution(market, account);
     const start = events ? events[0]?.timestamp : undefined;
+
     const collateralRewards = (deposits) - depositedByUser;
 
     const pricesAtEvents = events.map(e => {
@@ -39,22 +40,26 @@ export const WorthEvoChartContainer = ({
 
     const relevantPrices = allPrices
         .filter(p => p[0] > start - ONE_DAY_MS * 2);
+
     const data = relevantPrices.map((p, i) => {
+        const event = events.find(e => !e.isClaim && e.timestamp === p[0]);
         const lastCollateralEvent = events.findLast(e => !e.isClaim && e.timestamp <= p[0]);
-        const depositedByUser = lastCollateralEvent?.depositedByUser || 0;
+        const depositedByUser = Math.max(lastCollateralEvent?.depositedByUser || 0, 0);
         const claimEvent = events.find(e => e.isClaim && e.timestamp === p[0]);
         const lastClaimEvent = events.findLast(e => e.isClaim && e.timestamp <= p[0]);
         const claims = lastClaimEvent?.claims || 0;
         const dbrPrice = dbrPrices.find(dbrPrice => timestampToUTC(dbrPrice[0]) === timestampToUTC(p[0]))?.[1] || 0;
         const timeProgression = (p[0] - start) / (now - start);
-        const previousEstimatedStakedBonus = i > 0 ? collateralRewards * (relevantPrices[i-1][0] - start) / (now - start) : 0
-        const estimatedStakedBonus = collateralRewards * (p[0] - start) / (now - start) * ((depositedByUser+previousEstimatedStakedBonus) / deposits);
+        // TODO: better estimation
+        const estimatedStakedBonus = depositedByUser ? Math.max(collateralRewards * timeProgression, 0) : 0;
         return {
             timestamp: p[0],
             histoPrice: p[1],
             dbrPrice,
+            eventName: !!claimEvent ? 'Claim' : event?.actionName,
             claimEvent,
             isClaimEvent: !!claimEvent,
+            isEvent: !!event,
             worth: depositedByUser * p[1],
             totalWorth: claims * dbrPrice + depositedByUser * p[1] + estimatedStakedBonus * p[1],
             depositedByUser,
@@ -82,6 +87,22 @@ const keyNames = {
     'worth': 'USD worth',
     'totalWorth': 'Total USD worth',
     'claimsUsd': 'Claims worth',
+}
+
+const LABEL_POSITIONS = {
+    'Claim': 'center',
+    'Deposit': 'insideTop',
+    'Borrow': 'centerTop',
+    'Withdraw': 'centerBottom',
+    'Repay': 'insideBottom',
+}
+
+const LABEL_COLORS = {
+    'Claim': 'green',
+    'Deposit': 'blue',
+    'Borrow': 'blue',
+    'Withdraw': 'blue',
+    'Repay': 'blue',
 }
 
 export const WorthEvoChart = ({
@@ -155,7 +176,14 @@ export const WorthEvoChart = ({
                 data
                     .filter(d => d.isClaimEvent)
                     .map(d => {
-                        return <ReferenceLine position="start" isFront={true} yAxisId="left" x={d.timestamp} stroke="green" label="Claim" />
+                        return <ReferenceLine position="start" isFront={true} yAxisId="left" x={d.timestamp} stroke={LABEL_COLORS[d.eventName]} label={{ value: 'Claim', position: LABEL_POSITIONS[d.eventName], fill: LABEL_COLORS[d.eventName] }} />
+                    })
+            }
+            {
+                data
+                    .filter(d => !d.isClaimEvent && d.isEvent)
+                    .map(d => {
+                        return <ReferenceLine position="start" isFront={true} yAxisId="left" x={d.timestamp} stroke={LABEL_COLORS[d.eventName]} label={{ value: d.eventName, position: LABEL_POSITIONS[d.eventName], fill: LABEL_COLORS[d.eventName] }} />
                     })
             }
             {/* <Brush onChange={handleBrush} startIndex={brushIndexes.startIndex} endIndex={brushIndexes.endIndex} dataKey="timestamp" height={30} stroke="#8884d8" tickFormatter={(v) => ''} /> */}
