@@ -47,7 +47,7 @@ export const DbrEmissions = ({
 
     return <Stack w='full' direction={{ base: 'column' }}>       
         <Stack direction={{ base :'column', sm: 'row' }} py="4" spacing="4" justify="space-between" alignItems="center" w='full'>
-            <HStack spacing="4" justify="flex-start" alignItems="center">
+            <Stack direction={{ base :'column', sm: 'row' }} spacing="4" justify="flex-start" alignItems="flex-start">
                 <FormControl w='auto' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
                     <Text mr="2" onClick={() => setIncludeInitialEmission(!includeInitialEmission)}>
                         Initial issuance
@@ -66,7 +66,7 @@ export const DbrEmissions = ({
                     </Text>
                     <Switch onChange={(e) => setIncludeClaims(!includeClaims)} size="sm" colorScheme="purple" isChecked={includeClaims} />
                 </FormControl>
-            </HStack>
+            </Stack>
         </Stack>
         <DefaultCharts
             chartData={emissionChartData}

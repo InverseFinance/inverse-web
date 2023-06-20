@@ -81,11 +81,11 @@ export const DbrAll = ({
     const defaultColorScale = [themeStyles.colors.secondary];
 
     useEffect(() => {
-        setChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 40)
+        setChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width))
     }, [isLargerThan]);
 
     return <Stack w='full' direction={{ base: 'column' }}>
-        <FormControl cursor="pointer" w='full' justifyContent="flex-start" display='flex' alignItems='center'>
+        <FormControl cursor="pointer" w='full' justifyContent={{ base: 'center', sm: 'flex-start' }} display='flex' alignItems='center'>
             <Text mr="2" onClick={() => setUseUsd(!useUsd)}>
                 Show in USD historical value
             </Text>
