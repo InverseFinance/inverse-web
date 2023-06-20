@@ -146,7 +146,7 @@ export const DBRAutoRepayCalculator = () => {
                 <Text>
                     Staking amount to add to borrow interest-free:
                 </Text>
-                <Text fontWeight="bold" textDecoration="underline" cursor="pointer" onClick={() => handleCollateralChange(shortenNumber(invNeededToAdd, 2))}>
+                <Text fontWeight="bold" textDecoration="underline" cursor="pointer" onClick={() => handleCollateralChange(invNeededToAdd.toFixed(2))}>
                     {preciseCommify(invNeededToAdd, 2)} INV
                 </Text>
             </HStack> :
