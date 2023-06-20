@@ -87,7 +87,7 @@ export const DBRTransparency = () => {
                         }
                         {
                             tab === 'Issuance' && <VStack w='full'>                                
-                                <DbrAll histoPrices={histoPrices} history={history} burnEvents={burnEvents} replenishments={events} />
+                                <DbrAll histoPrices={histoPrices} history={history} burnEvents={burnEvents} replenishments={events} yearlyRewardRate={yearlyRewardRate} />
                             </VStack>
                         }
                     </VStack>

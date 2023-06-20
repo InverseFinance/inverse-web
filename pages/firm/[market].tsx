@@ -24,7 +24,7 @@ import { CvxCrvPreferences } from '@app/components/F2/rewards/CvxCrvPreferences'
 import { DailyLimitCountdown } from '@app/components/common/Countdown'
 import Container from '@app/components/common/Container'
 import { InfoMessage } from '@app/components/common/Messages'
-import { shortenNumber, smartShortNumber } from '@app/util/markets'
+import { shortenNumber } from '@app/util/markets'
 import { preciseCommify } from '@app/util/misc'
 
 const { F2_MARKETS } = getNetworkConfigConstants();

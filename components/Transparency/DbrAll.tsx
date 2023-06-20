@@ -8,6 +8,7 @@ import { useDBREmissions } from "@app/hooks/useFirm";
 import { ONE_DAY_MS } from "@app/config/constants";
 import { DbrComboChart } from "./DbrComboChart";
 import { DbrEmissions } from "./DbrEmissions";
+import { useDBRPrice } from "@app/hooks/useDBR";
 
 const streamingStartTs = 1684713600000;
 
@@ -17,8 +18,10 @@ export const DbrAll = ({
     histoPrices,
     replenishments,
     maxChartWidth = 800,
+    yearlyRewardRate,
 }) => {
     const [useUsd, setUseUsd] = useState(false);
+    const { price: dbrPrice } = useDBRPrice();
 
     const { events: emissionEvents, rewardRatesHistory, timestamp } = useDBREmissions();
 
@@ -44,12 +47,31 @@ export const DbrAll = ({
             ...d,
             time: (new Date(date)),
             date,
+            debt: d.debt,
             debtUsd: d.debt * histoPrice,
             histoPrice,
             yearlyRewardRate,
             yearlyRewardRateUsd: yearlyRewardRate * histoPrice,
         }
     });
+
+    // today utc: use current price
+    if(combodata?.length > 0 && !!dbrPrice && !!yearlyRewardRate) {        
+        const now = Date.now();
+        const todayUTC = timestampToUTC(now);
+        const todayIndex = combodata.findIndex(d => d.date === todayUTC);
+        const last = combodata[combodata.length - 1];
+        combodata.splice(todayIndex, combodata.length -(todayIndex), {
+            ...last,
+            timestamp: now,
+            time: new Date(timestampToUTC(now)),
+            debtUsd: last.debt * dbrPrice,
+            histoPrice: dbrPrice,
+            date: timestampToUTC(now),
+            yearlyRewardRate: yearlyRewardRate,
+            yearlyRewardRateUsd: yearlyRewardRate * dbrPrice,
+        });
+    }
 
     const { chartData: burnChartData } = useEventsAsChartData(_burnEvents, useUsd ? 'accBurnUsd' : 'accBurn', useUsd ? 'amountUsd' : 'amount');
 

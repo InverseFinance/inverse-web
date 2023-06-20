@@ -14,7 +14,7 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
             [
                 {
                     title: 'What is FiRM?',
-                    body: <FaqStack fontSize={props.smaller ? '14px' : undefined }>
+                    body: <FaqStack fontSize={props.smaller ? '14px' : undefined}>
                         <FaqText><b>FiRM</b> is a new <b>Fixed-Rate Market</b> for borrowing DOLA using DBR tokens and it is focused on <b>simplicity and safety</b>.</FaqText>
                         <FaqText>
                             All markets are isolated and collaterals cannot be borrowed by others.
@@ -24,7 +24,7 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                 },
                 {
                     title: 'How safe is FiRM and is it audited?',
-                    body: <FaqStack fontSize={props.smaller ? '14px' : undefined }>
+                    body: <FaqStack fontSize={props.smaller ? '14px' : undefined}>
                         <FaqText>
                             <b>FiRM</b> has a <b>high score of 87% on DefiSafety</b> and has <b>several unique safety features</b>.
                         </FaqText>
@@ -84,7 +84,7 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                 },
                 {
                     title: 'How can I get DBR tokens?',
-                    body: <FaqStack fontSize={props.smaller ? '14px' : undefined }>
+                    body: <FaqStack fontSize={props.smaller ? '14px' : undefined}>
                         <FaqText color="secondaryTextColor">
                             Either via the airdrop if you're eligible, on DEXes, or via the auto-buy DBR feature when borrowing.
                         </FaqText>
@@ -106,7 +106,7 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                 },
                 {
                     title: 'What happens if I run out of DBRs?',
-                    body: <FaqStack fontSize={props.smaller ? '14px' : undefined }>
+                    body: <FaqStack fontSize={props.smaller ? '14px' : undefined}>
                         <FaqText>
                             In case of a <b>DBR deficit</b> and an active loan, your <b>DBR balance can be force recharged</b> by someone through a <b>costly</b> process called replenishment, which uses a <b>premium price for DBR</b>.
                         </FaqText>
@@ -124,6 +124,31 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                 {
                     title: 'Can I borrow DOLA with my INV tokens?',
                     body: `Not at the moment but borrowing will be enabled in the INV market soon.`
+                },
+                {
+                    title: 'How does INV stakers benefit from FiRM?',
+                    body: <FaqStack fontSize={props.smaller ? '14px' : undefined}>
+                        <FaqText>
+                            When staking INV on FiRM you are protected against dilution and you earn real yield via DBR streaming, the real yield you get is directly linked to FiRM's success as the yearly rewards will increase when borrowing demand increases.
+                        </FaqText>
+                        <FaqLink href="/firm/INV">
+                            Stake INV
+                        </FaqLink>
+                        <FaqLink href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr">
+                            Docs: Real Yield
+                        </FaqLink>
+                    </FaqStack>
+                },
+                {
+                    title: 'Can I borrow for free?',
+                    body: <FaqStack fontSize={props.smaller ? '14px' : undefined}>
+                        <FaqText>
+                            It's possible to borrow for free (in DBR terms) when you have enough INV staked as the DBR rewards will be higher than the DBR burned for borrowing. There is a calculator to help you with that.
+                        </FaqText>
+                        <FaqLink href="/firm/INV">
+                            Stake INV
+                        </FaqLink>
+                    </FaqStack>
                 },
             ]
         }

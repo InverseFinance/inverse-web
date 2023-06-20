@@ -4,7 +4,7 @@ import { shortenNumber, smartShortNumber } from '@app/util/markets';
 import { Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Brush, ComposedChart } from 'recharts';
 import moment from 'moment';
 import { preciseCommify } from '@app/util/misc';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export const DbrComboChart = ({
     combodata,
@@ -25,12 +25,25 @@ export const DbrComboChart = ({
         "Price": true,
     })
 
+    useEffect(() => {
+        if(brushIndexes.startIndex !== undefined || combodata.length < 250) {
+            return;
+        }
+        setBrushIndexes({ startIndex: 220, endIndex: combodata.length - 1 });
+    }, [combodata, brushIndexes]);
+
     const _axisStyle = axisStyle || {
-        tickLabels: { fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '12px' },
+        tickLabels: { fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '14px' },
         grid: {
             stroke: '#66666633',
             strokeDasharray: '4 4',
         }
+    }
+
+    const legendStyle = {
+        ..._axisStyle.tickLabels,
+        top: -5,
+        fontSize: '12px',        
     }
 
     const toggleChart = (params) => {
@@ -73,7 +86,7 @@ export const DbrComboChart = ({
                         return !value ? 'none' : isPrice ? shortenNumber(value, 4, true) : preciseCommify(value, 0, useUsd)
                     }}
                 />
-                <Legend wrapperStyle={_axisStyle.tickLabels} onClick={toggleChart} style={{ cursor: 'pointer' }} formatter={(value) => value + (actives[value] ? '' : ' (hidden)')} />
+                <Legend wrapperStyle={legendStyle} onClick={toggleChart} style={{ cursor: 'pointer' }} formatter={(value) => value + (actives[value] ? '' : ' (hidden)')} />
                 <Area opacity={actives["Annualized DBR burn"] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name="Annualized DBR burn" yAxisId="left" type="monotone" dataKey={useUsd ? 'debtUsd' : 'debt'} stroke={themeStyles.colors.warning} dot={false} fillOpacity={1} fill="url(#warning-gradient)" />
                 <Area opacity={actives["Annualized DBR issuance"] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name="Annualized DBR issuance" yAxisId="left" type="monotone" dataKey={useUsd ? 'yearlyRewardRateUsd' : 'yearlyRewardRate'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={1} fill="url(#secondary-gradient)" />
                 <Line opacity={actives["Price"] ? 1 : 0} strokeWidth={2} name="Price" yAxisId="right" type="monotone" dataKey="histoPrice" stroke={themeStyles.colors.info} dot={false} />

@@ -22,6 +22,7 @@ import WethModal from '@app/components/common/Modal/WethModal'
 import { BUY_LINKS } from '@app/config/constants'
 import { Input } from '@app/components/common/Input'
 import { showToast } from '@app/util/notify'
+import { DBRAutoRepayCalculator } from '../DBRAutoRepayCalculator'
 
 const { DOLA, F2_HELPER, DBR } = getNetworkConfigConstants();
 
@@ -525,6 +526,12 @@ export const F2CombinedForm = ({
                         alertProps={{ w: 'full' }}
                         description="Not Enough collateral to deposit"
                     />
+                }
+                {
+                    market.isInv && <>
+                        <Divider />
+                        <DBRAutoRepayCalculator />
+                    </>
                 }
                 <Divider />
                 {actionBtn}
