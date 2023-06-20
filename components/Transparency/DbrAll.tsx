@@ -81,7 +81,7 @@ export const DbrAll = ({
     const defaultColorScale = [themeStyles.colors.secondary];
 
     useEffect(() => {
-        setChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 40)
+        setChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width))
     }, [isLargerThan]);
 
     return <Stack w='full' direction={{ base: 'column' }}>
