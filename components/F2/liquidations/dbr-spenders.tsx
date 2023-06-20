@@ -1,4 +1,4 @@
-import { Flex, HStack, Stack, Text, useDisclosure, VStack } from "@chakra-ui/react"
+import { Divider, Flex, HStack, SimpleGrid, SkeletonText, Stack, Text, useDisclosure, VStack } from "@chakra-ui/react"
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useDBRActiveHolders } from "@app/hooks/useFirm";
@@ -11,6 +11,7 @@ import { MarketImage } from "@app/components/common/Assets/MarketImage";
 import { DbrReplenishmentModal } from "./DbrReplenishmentModal";
 import Table from "@app/components/common/Table";
 import { useDBRPrice } from "@app/hooks/useDBR";
+import { biggestSize, smallerSize, slightlyBiggerSize3, slightlyBiggerSize } from '@app/variables/responsive'
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -44,7 +45,7 @@ const columns = [
         field: 'signedBalance',
         label: 'DBR Signed Balance',
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
-        value: ({ signedBalance }) => {            
+        value: ({ signedBalance }) => {
             return <Cell minWidth="150px" justify="center" >
                 <CellText color={signedBalance < 0 ? 'error' : 'mainTextColor'}>{shortenNumber(signedBalance, signedBalance < 0 ? 4 : 2, false, signedBalance > 0)}</CellText>
             </Cell>
@@ -87,7 +88,7 @@ const columns = [
         value: ({ dbrExpiryDate }) => {
             return <Cell spacing="0" alignItems="center" direction="column" minWidth="120px" justify="center">
                 <CellText>{moment(dbrExpiryDate).format('MMM Do YYYY')}</CellText>
-                <CellText color="secondaryTextColor">{moment(dbrExpiryDate).fromNow()}</CellText>                
+                <CellText color="secondaryTextColor">{moment(dbrExpiryDate).fromNow()}</CellText>
             </Cell>
         },
     },
@@ -103,6 +104,16 @@ const columns = [
     },
 ]
 
+const StatBasic = ({ value, name, isLoading = false }: { value: string, name: string, isLoading?: boolean }) => {
+    return <VStack>
+        {
+            !isLoading ? <Text textAlign="center" color={'secondary'} fontSize={slightlyBiggerSize} fontWeight="extrabold">{value}</Text>
+            : <SkeletonText pt="1" skeletonHeight={2} height={'24px'} width={'100px'} noOfLines={1} />
+        }
+        <Text textAlign="center" color={'mainTextColor'} fontSize={smallerSize} fontWeight="bold">{name}</Text>
+    </VStack>
+}
+
 export const DbrSpenders = ({
 
 }: {
@@ -117,7 +128,7 @@ export const DbrSpenders = ({
         setPosition(data);
         onOpen();
     }
-    
+
     const totalDailyBurn = positions.reduce((prev, curr) => prev + curr.dailyBurn, 0);
     const totalDeficit = positions.reduce((prev, curr) => prev + (curr.deficit), 0);
     const totalDebt = positions.reduce((prev, curr) => prev + curr.debt, 0);
@@ -126,52 +137,44 @@ export const DbrSpenders = ({
 
     const fontSize = { base: '12px', sm: '14px' };
 
-    return <Container
-        label="Active DBR Spenders"
-        noPadding
-        py="4"
-        description={timestamp ? `Last update ${moment(timestamp).fromNow()}` : `Loading...`}
-        contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
-        headerProps={{
-            direction: { base: 'column', md: 'row' },
-            align: { base: 'flex-start', md: 'flex-end' },
-        }}
-        right={
-            <HStack pt="2" alignItems="flex-start" justify="space-between" spacing={{ base: '2', sm: '4' }}>
-                <VStack spacing="0" alignItems={{ base: 'flex-start', sm: 'center' }}>
-                    <Text textAlign="left" fontSize={fontSize} fontWeight="bold">Total DBR Deficit</Text>
-                    <Text textAlign="left" fontSize={fontSize} color={totalDeficit < 0 ? 'error' : 'secondaryTextColor'}>{totalDeficit ? shortenNumber(totalDeficit, 2) : 'No Deficit'}</Text>
-                </VStack>
-                <VStack spacing="0" alignItems="center">
-                    <Text textAlign="center" fontSize={fontSize} fontWeight="bold">Daily spend</Text>
-                    <Text textAlign="center" fontSize={fontSize} color="secondaryTextColor">-{shortenNumber(totalDailyBurn, 2)} ({shortenNumber(price * totalDailyBurn, 2, true)})</Text>
-                </VStack>
-                <VStack spacing="0" alignItems="center">
-                    <Text textAlign="center" fontSize={fontSize} fontWeight="bold">Monthly spend</Text>
-                    <Text textAlign="center" fontSize={fontSize} color="secondaryTextColor">-{shortenNumber(monthlyBurn, 2)} ({shortenNumber(price * monthlyBurn, 2, true)})</Text>
-                </VStack>
-                <VStack spacing="0" alignItems="flex-end">
-                    <Text textAlign="center" textAlign="right" fontSize={fontSize} fontWeight="bold">Yearly spend</Text>
-                    <Text textAlign="center" textAlign="right" fontSize={fontSize} color="secondaryTextColor">-{shortenNumber(yearlyBurn, 2)} ({shortenNumber(price * yearlyBurn, 2, true)})</Text>
-                </VStack>
-                {/* <VStack spacing="0" alignItems="flex-end">
-                    <Text textAlign="right" fontSize={fontSize} fontWeight="bold">Total Debt</Text>
-                    <Text textAlign="right" fontSize={fontSize} color="secondaryTextColor">{shortenNumber(totalDebt, 2)}</Text>
-                </VStack> */}
-            </HStack>
-        }
-    >
-        {
-            !!position && position?.marketPositions?.length > 0 && <DbrReplenishmentModal isOpen={isOpen} onClose={onClose} userData={position} />
-        }
-        <Table
-            keyName="user"
-            noDataMessage={isLoading ? 'Loading' : "No DBR deficits in last update"}
-            columns={columns}
-            items={positions}
-            onClick={(v) => openReplenish(v)}
-            defaultSort={'dbrExpiryDate'}
-            defaultSortDir="asc"
-        />
-    </Container>
+    return <VStack w='full' spacing={{ base: '4', sm: '8' }}>
+        <SimpleGrid px="4" justify="space-between" w='full' columns={{ base: 3 }} spacing={{ base: '4', sm: '6' }}>
+            <StatBasic isLoading={isLoading} name="DBR Daily spend" value={`${shortenNumber(totalDailyBurn, 2)} (${shortenNumber(price * totalDailyBurn, 2, true)})`} />
+            <StatBasic isLoading={isLoading} name="DBR Monthly spend" value={`${shortenNumber(monthlyBurn, 2)} (${shortenNumber(price * monthlyBurn, 2, true)})`} />
+            <StatBasic isLoading={isLoading} name="DBR Yearly spend" value={`${shortenNumber(yearlyBurn, 2)} (${shortenNumber(price * yearlyBurn, 2, true)})`} />
+        </SimpleGrid>
+        {/* <Divider /> */}
+        <Container
+            label="Active DBR Spenders"
+            noPadding
+            py="4"
+            description={timestamp ? `Last update ${moment(timestamp).fromNow()}` : `Loading...`}
+            contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
+            headerProps={{
+                direction: { base: 'column', md: 'row' },
+                align: { base: 'flex-start', md: 'flex-end' },
+            }}
+            right={
+                <HStack pt="2" alignItems="flex-start" justify="space-between" spacing={{ base: '2', sm: '4' }}>
+                    <VStack spacing="0" alignItems={{ base: 'flex-start', sm: 'center' }}>
+                        <Text textAlign="left" fontSize={fontSize} fontWeight="bold">Total DBR Deficit</Text>
+                        <Text textAlign="left" fontSize={fontSize} color={totalDeficit < 0 ? 'error' : 'secondaryTextColor'}>{totalDeficit ? shortenNumber(totalDeficit, 2) : 'No Deficit'}</Text>
+                    </VStack>
+                </HStack>
+            }
+        >
+            {
+                !!position && position?.marketPositions?.length > 0 && <DbrReplenishmentModal isOpen={isOpen} onClose={onClose} userData={position} />
+            }
+            <Table
+                keyName="user"
+                noDataMessage={isLoading ? 'Loading' : "No DBR deficits in last update"}
+                columns={columns}
+                items={positions}
+                onClick={(v) => openReplenish(v)}
+                defaultSort={'dbrExpiryDate'}
+                defaultSortDir="asc"
+            />
+        </Container>
+    </VStack>
 }

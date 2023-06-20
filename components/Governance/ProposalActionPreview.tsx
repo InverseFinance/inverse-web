@@ -1,18 +1,19 @@
 import { ProposalFunction } from '@app/types'
-import { AbiCoder, commify, FunctionFragment, isAddress } from 'ethers/lib/utils';
+import { AbiCoder, commify, FunctionFragment, isAddress, parseUnits } from 'ethers/lib/utils';
 import { Stack, Flex, Text, StackProps } from '@chakra-ui/react';
 import Link from '@app/components/common/Link'
 import { namedAddress, shortenAddress } from '@app/util';
 import { REWARD_TOKEN, TOKENS, UNDERLYING } from '@app/variables/tokens';
-import { capitalize, removeScientificFormat, _getProp } from '@app/util/misc';
+import { capitalize, removeScientificFormat, _getProp, preciseCommify } from '@app/util/misc';
 import { formatUnits } from 'ethers/lib/utils';
 import { getNetworkConfigConstants } from '@app/util/networks';
 import ScannerLink from '@app/components/common/ScannerLink';
 import moment from 'moment';
-import { shortenNumber } from '@app/util/markets';
+import { getBnToNumber, shortenNumber } from '@app/util/markets';
 import { ErrorBoundary } from '../common/ErrorBoundary';
+import { ONE_DAY_SECS } from '@app/config/constants';
 
-const { DOLA_PAYROLL, DOLA, COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE, ORACLE, F2_CONTROLLER, FEDS, F2_MARKETS } = getNetworkConfigConstants();
+const { DOLA_PAYROLL, DOLA, COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE, ORACLE, F2_CONTROLLER, DBR_DISTRIBUTOR, FEDS, F2_MARKETS } = getNetworkConfigConstants();
 
 const firmMarketsFunctions = [
     'setCollateralFactorBps',
@@ -174,6 +175,41 @@ const FirmControllerHumanReadableActionLabel = ({
             amount = <Amount value={callDatas[1]} decimals={18} />;
             text = <Flex display="inline-block">
                 Set <ScannerLink color="info" value={callDatas[0]} /> <b>Daily Borrow Limit</b> to {amount} DOLA
+            </Flex>
+            break;
+    }
+
+    return (
+        <Flex display="inline-block" mb="2" fontStyle="italic">
+            &laquo; {text} &raquo;
+        </Flex>
+    )
+}
+
+const FirmDbrDistributorHumanReadableActionLabel = ({
+    signature,
+    callDatas,
+}: {
+    signature: string,
+    callDatas: string[],
+}) => {
+    const funName = signature.split('(')[0];
+    let text, amount;
+
+    switch (funName) {
+        case 'setRewardRate':
+            const yearlyReward = getBnToNumber(parseUnits(callDatas[0]), 36) * ONE_DAY_SECS * 365;            
+            text = <Flex display="inline-block">
+                Set the reward rate to <Text display="inline-block" fontWeight="bold" color="secondary">{preciseCommify(yearlyReward)}</Text> DBR a year
+            </Flex>
+            break;
+        case 'setRewardRateConstraints':            
+            const min = getBnToNumber(parseUnits(callDatas[0]), 36) * ONE_DAY_SECS * 365;
+            const max = getBnToNumber(parseUnits(callDatas[1]), 36) * ONE_DAY_SECS * 365;
+            const minText = <Text display="inline-block" fontWeight="bold" color="secondary">{preciseCommify(min)}</Text>;       
+            const maxText = <Text display="inline-block" fontWeight="bold" color="secondary">{preciseCommify(max)}</Text>;       
+            text = <Flex display="inline-block">
+                Set the min reward rate to {minText} DBR a year and the max to {maxText} DBR a year
             </Flex>
             break;
     }
@@ -363,6 +399,8 @@ const HumanReadableActionLabel = ({
         return <OracleHumanReadableActionLabel signature={signature} callDatas={callDatas} />
     } else if (lcTarget === F2_CONTROLLER.toLowerCase()) {
         return <FirmControllerHumanReadableActionLabel signature={signature} callDatas={callDatas} />
+    } else if (lcTarget === DBR_DISTRIBUTOR.toLowerCase()) {
+        return <FirmDbrDistributorHumanReadableActionLabel signature={signature} callDatas={callDatas} />
     } else if (!!F2_MARKETS.find(f => f.address.toLowerCase() === lcTarget) || firmMarketsFunctions.includes(funName)) {
         return <FirmMarketHumanReadableActionLabel signature={signature} callDatas={callDatas} market={target} />
     } else if (!!FEDS.find(f => f.address.toLowerCase() === lcTarget && f.isFirm)) {
@@ -373,7 +411,7 @@ const HumanReadableActionLabel = ({
     const contractKnownToken = isDolaPayroll ? _getProp(TOKENS, DOLA) : _getProp(TOKENS, target);
 
     const destinator = <ScannerLink color="info" value={callDatas[0]} label={namedAddress(callDatas[0])} />;
-    
+
     const symbol = <Text fontWeight="bold" display="inline-block">{contractKnownToken.symbol}</Text>;
 
     const amount = <Amount value={callDatas[1]} decimals={contractKnownToken.decimals} />
@@ -431,6 +469,8 @@ export const ProposalActionPreview = (({
         'changeMarketCeiling',
         'changeSupplyCeiling',
         'setDailyLimit',
+        'setRewardRate',
+        'setRewardRateConstraints',
         ...firmMarketsFunctions,
     ].includes(funName);
 
@@ -451,7 +491,7 @@ export const ProposalActionPreview = (({
                 {
                     isHumanRedeableCaseHandled
                     && (!!contractKnownToken
-                        || [COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE, ORACLE, F2_CONTROLLER].map(v => v.toLowerCase()).includes(target.toLowerCase())
+                        || [COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE, ORACLE, F2_CONTROLLER, DBR_DISTRIBUTOR].map(v => v.toLowerCase()).includes(target.toLowerCase())
                         || (!!F2_MARKETS.find(f => f.address.toLowerCase() === target.toLowerCase()) || firmMarketsFunctions.includes(funName))
                         || !!FEDS.find(f => f.address.toLowerCase() === target.toLowerCase() && f.isFirm)
                     )
