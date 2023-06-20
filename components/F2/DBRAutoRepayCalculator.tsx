@@ -16,6 +16,7 @@ export const DBRAutoRepayCalculator = () => {
         newTotalDebt,
         newDeposits,
         deposits,
+        handleCollateralChange,
     } = useContext(F2MarketContext);
 
     const { prices: cgPrices } = usePrices();
@@ -33,7 +34,7 @@ export const DBRAutoRepayCalculator = () => {
 
     // const currentShare = market.invStakedViaDistributor ? deposits / market.invStakedViaDistributor : 0;
     const newShare = newTotalStaked ? newDeposits / (newTotalStaked) : 0;
-    const totalRewardsForDuration = duration / 365 * (market?.dbrYearlyRewardRate||0);
+    const totalRewardsForDuration = duration / 365 * (market?.dbrYearlyRewardRate || 0);
     const userRewardsForDuration = newShare * totalRewardsForDuration;
     const userBurnsForDuration = dolaDebt * duration / 365;
 
@@ -65,11 +66,11 @@ export const DBRAutoRepayCalculator = () => {
         try {
             const floatAmount = parseFloat(stringAmount) || 0;
             setTempValues({ ...tempValues, dolaDebt: floatAmount });
-        } catch (error) {}
+        } catch (error) { }
     }
 
     useEffect(() => {
-        if(!!newTotalDebt && tempValues.dolaDebt === undefined) {
+        if (!!newTotalDebt && tempValues.dolaDebt === undefined) {
             setTempValues({ ...tempValues, dolaDebt: newTotalDebt });
             setDolaDebt(newTotalDebt);
         }
@@ -88,12 +89,12 @@ export const DBRAutoRepayCalculator = () => {
                     onChange={(days, typedValue, type) => setTempValues({ ...tempValues, days, typedValue, type })}
                 />
                 <Divider />
-                <Text>Total DOLA debt:</Text>
+                <Text>Total DOLA debt to use for calculations:</Text>
                 <Input textAlign="right" bgColor="mainBackgroundColor" value={tempValues.dolaDebt} onChange={e => handleDolaChange(e.target.value)} />
             </VStack>
         </InfoModal>
         <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify="space-between">
-            <TextInfo message="By having more DBR rewards than DBR burns, you can borrow for free (in DBR terms).">
+            <TextInfo message="By having more DBR rewards than DBR burns, you can borrow for free (in DBR terms). As the DBR APR is volatile, it's better to stake more than what is suggested for the current APR.">
                 <Text fontWeight="bold">
                     Interest-free borrowing calculator
                 </Text>
@@ -138,14 +139,15 @@ export const DBRAutoRepayCalculator = () => {
             </>
         }
         {
-            userBurnsForDuration > 0 ? <HStack>
+            userBurnsForDuration > 0 ? invNeededToAdd > 0 ? <HStack>
                 <Text>
-                    Staking amount to add for a free loan:
+                    Staking amount to add to borrow interest-free:
                 </Text>
-                <Text fontWeight="bold">
+                <Text fontWeight="bold" textDecoration="underline" cursor="pointer" onClick={() => handleCollateralChange(shortenNumber(invNeededToAdd, 2))}>
                     {preciseCommify(invNeededToAdd, 2)} INV
                 </Text>
-            </HStack>
+            </HStack> :
+                null
                 :
                 newDeposits > 0 ? <HStack>
                     <Text>
