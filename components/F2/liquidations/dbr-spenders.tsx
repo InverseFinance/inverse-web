@@ -11,7 +11,6 @@ import { MarketImage } from "@app/components/common/Assets/MarketImage";
 import { DbrReplenishmentModal } from "./DbrReplenishmentModal";
 import Table from "@app/components/common/Table";
 import { useDBRPrice } from "@app/hooks/useDBR";
-import { biggestSize, smallerSize, slightlyBiggerSize3, slightlyBiggerSize } from '@app/variables/responsive'
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -107,10 +106,10 @@ const columns = [
 const StatBasic = ({ value, name, isLoading = false }: { value: string, name: string, isLoading?: boolean }) => {
     return <VStack>
         {
-            !isLoading ? <Text textAlign="center" color={'secondary'} fontSize={slightlyBiggerSize} fontWeight="extrabold">{value}</Text>
+            !isLoading ? <Text textAlign="center" color={'secondary'} fontSize={{ base: '18px', sm: '24px' }} fontWeight="extrabold">{value}</Text>
             : <SkeletonText pt="1" skeletonHeight={2} height={'24px'} width={'100px'} noOfLines={1} />
         }
-        <Text textAlign="center" color={'mainTextColor'} fontSize={smallerSize} fontWeight="bold">{name}</Text>
+        <Text textAlign="center" color={'mainTextColor'} fontSize={{ base: '14px', sm: '16px' }} fontWeight="bold">{name}</Text>
     </VStack>
 }
 
