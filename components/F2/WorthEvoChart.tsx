@@ -1,7 +1,7 @@
 import { useAppTheme } from "@app/hooks/useAppTheme";
 import { useFirmMarketEvolution, useHistoricalPrices } from "@app/hooks/useFirm";
 import { F2Market } from "@app/types";
-import { VStack, Text } from "@chakra-ui/react";
+import { VStack, Text, FormControl, Switch, Stack } from "@chakra-ui/react";
 import { useContext, useState } from "react";
 import { Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Brush, ComposedChart, ReferenceLine } from 'recharts';
 import moment from 'moment';
@@ -78,6 +78,7 @@ export const WorthEvoChartContainer = ({
     const priceChangeFromStart = hasData ? (lastPrice - startPrice) / startPrice * 100 : 0;
 
     return <WorthEvoChart
+        market={market}
         chartWidth={700}
         data={data}
     />
@@ -98,26 +99,38 @@ const LABEL_POSITIONS = {
     'Repay': 'insideBottom',
 }
 
-const LABEL_COLORS = {
-    'Claim': 'green',
-    'Deposit': 'blue',
-    'Borrow': 'blue',
-    'Withdraw': 'blue',
-    'Repay': 'blue',
+const EVENT_DASHES = {
+    'Claim': undefined,
+    'Deposit': undefined,
+    'Borrow': undefined,
+    'Withdraw': '4 4',
+    'Repay': '4 4',
 }
 
 export const WorthEvoChart = ({
     chartWidth,
     data,
     axisStyle,
+    market,
     useUsd = false
 }: {
     chartWidth: number,
     data: any[],
     axisStyle?: any,
+    market: F2Market,
     useUsd?: boolean,
 }) => {
     const { themeStyles } = useAppTheme();
+
+    const LABEL_COLORS = {
+        'Claim': themeStyles.colors.success,
+        'Deposit': themeStyles.colors.mainTextColor,
+        'Borrow': themeStyles.colors.accentTextColor,
+        'Withdraw': themeStyles.colors.mainTextColor,
+        'Repay': themeStyles.colors.accentTextColor,
+    };
+
+    const [showEvents, setShowEvents] = useState(true);
     const [brushIndexes, setBrushIndexes] = useState({ startIndex: undefined, endIndex: undefined });
     const [actives, setActives] = useState(Object.values(keyNames).reduce((acc, cur) => ({ ...acc, [cur]: true }), {}));
     const _axisStyle = axisStyle || {
@@ -137,9 +150,17 @@ export const WorthEvoChart = ({
     }
 
     return <VStack alignItems="center" maxW={`${chartWidth}px`}>
-        <Text>
-            DBR price and annualized burn & issuance
-        </Text>
+        <Stack w='full' justify="center" alignItems="center" direction="column">
+            <Text fontWeight="extrabold" fontSize="18px" minW='fit-content'>
+                Your Portfolio Value in the {market.name} Market
+            </Text>
+            <FormControl w='fit-content' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
+                <Text mr="2" onClick={() => setShowEvents(!showEvents)}>
+                    Show events
+                </Text>
+                <Switch onChange={(e) => setShowEvents(!showEvents)} size="sm" colorScheme="purple" isChecked={showEvents} />
+            </FormControl>
+        </Stack>
         <ComposedChart
             width={chartWidth}
             height={400}
@@ -174,17 +195,25 @@ export const WorthEvoChart = ({
             <Line opacity={actives[keyNames["histoPrice"]] ? 1 : 0} strokeWidth={2} name={keyNames["histoPrice"]} yAxisId="right" type="monotone" dataKey="histoPrice" stroke={themeStyles.colors.info} dot={false} />
             {/* <Line opacity={actives[keyNames["dbrPrice"]] ? 1 : 0} strokeWidth={2} name={keyNames["dbrPrice"]} yAxisId="right" type="monotone" dataKey="dbrPrice" stroke={themeStyles.colors.info} dot={false} /> */}
             {
-                data
+                showEvents && data
                     .filter(d => d.isClaimEvent)
                     .map(d => {
-                        return <ReferenceLine position="start" isFront={true} yAxisId="left" x={d.timestamp} stroke={LABEL_COLORS[d.eventName]} label={{ value: 'Claim', position: LABEL_POSITIONS[d.eventName], fill: LABEL_COLORS[d.eventName] }} />
+                        return <ReferenceLine position="start" isFront={true} yAxisId="left" x={d.timestamp}
+                            stroke={LABEL_COLORS[d.eventName]}
+                            strokeDasharray={EVENT_DASHES[d.eventName]}
+                        // label={{ value: 'Claim', position: LABEL_POSITIONS[d.eventName], fill: LABEL_COLORS[d.eventName] }}
+                        />
                     })
             }
             {
-                data
+                showEvents && data
                     .filter(d => !d.isClaimEvent && d.isEvent)
                     .map(d => {
-                        return <ReferenceLine position="start" isFront={true} yAxisId="left" x={d.timestamp} stroke={LABEL_COLORS[d.eventName]} label={{ value: d.eventName, position: LABEL_POSITIONS[d.eventName], fill: LABEL_COLORS[d.eventName] }} />
+                        return <ReferenceLine position="start" isFront={true} yAxisId="left" x={d.timestamp}
+                            stroke={LABEL_COLORS[d.eventName]}
+                            strokeDasharray={EVENT_DASHES[d.eventName]}
+                        // label={{ value: d.eventName, position: LABEL_POSITIONS[d.eventName], fill: LABEL_COLORS[d.eventName] }}
+                        />
                     })
             }
             {/* <Brush onChange={handleBrush} startIndex={brushIndexes.startIndex} endIndex={brushIndexes.endIndex} dataKey="timestamp" height={30} stroke="#8884d8" tickFormatter={(v) => ''} /> */}
