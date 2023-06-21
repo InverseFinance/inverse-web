@@ -52,6 +52,7 @@ export const WorthEvoChartContainer = ({
         const timeProgression = (p[0] - start) / (now - start);
         // TODO: better estimation
         const estimatedStakedBonus = depositedByUser ? Math.max(collateralRewards * timeProgression, 0) : 0;
+        const claimsUsd = claims * dbrPrice;
         return {
             timestamp: p[0],
             histoPrice: p[1],
@@ -61,13 +62,13 @@ export const WorthEvoChartContainer = ({
             isClaimEvent: !!claimEvent,
             isEvent: !!event,
             worth: depositedByUser * p[1],
-            totalWorth: claims * dbrPrice + depositedByUser * p[1] + estimatedStakedBonus * p[1],
+            totalWorth: claimsUsd + depositedByUser * p[1] + estimatedStakedBonus * p[1],
             depositedByUser,
             claims,
             timeProgression,
             estimatedStakedBonus,
             estimatedStakedBonusUsd: estimatedStakedBonus * p[1],
-            claimsUsd: claims * dbrPrice,
+            claimsUsd,
         }
     });
 
