@@ -432,33 +432,47 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
   const { groupedEvents, isLoading, error } = useMultiContractEvents([
     [market.address, F2_MARKET_ABI, 'Deposit', [account]],
     [market.address, F2_MARKET_ABI, 'Withdraw', [account]],
+    [market.address, F2_MARKET_ABI, 'Borrow', [account]],
     [DBR, DBR_ABI, 'Transfer', [BURN_ADDRESS, account]],
     [DBR, DBR_ABI, 'ForceReplenish', [account, undefined, market.address]],
+    [market.address, F2_MARKET_ABI, 'Liquidate', [account]],
   ], `firm-market-${market.address}-${account}-collateral-evo`);
 
-  const flatenedEvents = groupedEvents.flat();
+  const flatenedEvents = groupedEvents.flat().sort((a, b) => a.blockNumber - b.blockNumber);
   // can be different than current balance when staking
   let depositedByUser = 0;
+  let unstakedCollateralBalance = 0;
   let liquidated = 0;
   let claims = 0;
   let replenished = 0;
+  let debt = 0;
 
   const { timestamps } = useBlocksTimestamps(flatenedEvents.map(e => e.blockNumber));
 
   const events = flatenedEvents.map((e, i) => {
+    const actionName = e.event;
+    const isDebtCase = ['Borrow', 'Repay'].includes(actionName);
     const decimals = market.underlying.decimals;
     const tokenName = market.underlying.symbol
-    const amount = getBnToNumber(e.args?.amount, decimals);
-    const actionName = e.event;
+    const amount = getBnToNumber(e.args?.amount, isDebtCase ? 18 : decimals);
 
     if(['Deposit', 'Withdraw'].includes(actionName)) {
       depositedByUser = depositedByUser + (actionName === 'Deposit' ? amount : -amount);
-    } else if(actionName === 'Transfer') {
-      claims += amount;
+      unstakedCollateralBalance = unstakedCollateralBalance + (actionName === 'Deposit' ? amount : -amount);
+    } else if(isDebtCase) {
+      debt = debt + (actionName === 'Borrow' ? amount : -amount);      
     } else if(actionName === 'ForceReplenish') {
       replenished += amount;
+      debt += getBnToNumber(e.args.replenishmentCost);
     } else if(actionName === 'Liquidate') {
       liquidated += amount;
+      unstakedCollateralBalance -= amount;
+    } else if(actionName === 'Transfer') {
+      claims += amount;
+    }    
+
+    if(unstakedCollateralBalance < 0) {
+      unstakedCollateralBalance = 0;
     }
 
     return {
@@ -467,6 +481,7 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
       claims,
       isClaim: actionName === 'Transfer',
       depositedByUser,
+      unstakedCollateralBalance,
       timestamp: timestamps ? timestamps[i] : 0,
       blockNumber: e.blockNumber,
       txHash: e.transactionHash,
@@ -477,11 +492,13 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
       tokenName,
       liquidated,
       replenished,
+      debt,
     }
   });
 
   return {
     events,
+    debt,
     depositedByUser,
     liquidated,
     replenished,

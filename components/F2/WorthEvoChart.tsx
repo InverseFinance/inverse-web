@@ -21,6 +21,7 @@ export const WorthEvoChartContainer = ({
     const { prices } = useHistoricalPrices(market.underlying.coingeckoId);
     const { prices: dbrPrices } = useHistoricalPrices('dola-borrowing-right');
     const { events, depositedByUser } = useFirmMarketEvolution(market, account);
+    
     const start = events ? events[0]?.timestamp : undefined;
 
     const collateralRewards = (deposits) - depositedByUser;
@@ -44,14 +45,15 @@ export const WorthEvoChartContainer = ({
     const data = relevantPrices.map((p, i) => {
         const event = events.find(e => !e.isClaim && e.timestamp === p[0]);
         const lastCollateralEvent = events.findLast(e => !e.isClaim && e.timestamp <= p[0]);
-        const depositedByUser = Math.max(lastCollateralEvent?.depositedByUser || 0, 0);
-        const claimEvent = events.find(e => e.isClaim && e.timestamp === p[0]);
+        const unstakedCollateralBalance = Math.max(lastCollateralEvent?.unstakedCollateralBalance || 0, 0);
+        const debt = Math.max(lastCollateralEvent?.debt || 0, 0);
+        const claimEvent = (!event || event?.actionName !== 'ForceReplenish') ? events.find(e => e.isClaim && e.timestamp === p[0]) : undefined;
         const lastClaimEvent = events.findLast(e => e.isClaim && e.timestamp <= p[0]);
         const claims = lastClaimEvent?.claims || 0;
         const dbrPrice = dbrPrices.find(dbrPrice => timestampToUTC(dbrPrice[0]) === timestampToUTC(p[0]))?.[1] || 0;
         const timeProgression = (p[0] - start) / (now - start);
         // TODO: better estimation
-        const estimatedStakedBonus = depositedByUser ? Math.max(collateralRewards * timeProgression, 0) : 0;
+        const estimatedStakedBonus = unstakedCollateralBalance ? Math.max(collateralRewards * timeProgression, 0) : 0;
         const claimsUsd = claims * dbrPrice;
         return {
             timestamp: p[0],
@@ -61,8 +63,10 @@ export const WorthEvoChartContainer = ({
             claimEvent,
             isClaimEvent: !!claimEvent,
             isEvent: !!event,
-            worth: depositedByUser * p[1],
-            totalWorth: claimsUsd + depositedByUser * p[1] + estimatedStakedBonus * p[1],
+            event,
+            worth: unstakedCollateralBalance * p[1],
+            totalWorth: claimsUsd + unstakedCollateralBalance * p[1] + estimatedStakedBonus * p[1],
+            debt,
             depositedByUser,
             claims,
             timeProgression,
@@ -89,14 +93,17 @@ const keyNames = {
     'worth': 'USD worth',
     'totalWorth': 'Total USD worth',
     'claimsUsd': 'Claims worth',
+    'debt': 'DOLA debt',
 }
 
 const LABEL_POSITIONS = {
     'Claim': 'center',
-    'Deposit': 'insideTop',
-    'Borrow': 'centerTop',
-    'Withdraw': 'centerBottom',
-    'Repay': 'insideBottom',
+    'Deposit': 'insideTopLeft',
+    'Borrow': 'insideRight',
+    'Withdraw': 'insideBottomLeft',
+    'Repay': 'insideBotttomRight',
+    'ForceReplenish': 'insideTop',
+    'Liquidate': 'top',
 }
 
 const EVENT_DASHES = {
@@ -105,6 +112,8 @@ const EVENT_DASHES = {
     'Borrow': undefined,
     'Withdraw': '4 4',
     'Repay': '4 4',
+    'ForceReplenish': '4 4',
+    'Liquidate': undefined,
 }
 
 export const WorthEvoChart = ({
@@ -112,7 +121,7 @@ export const WorthEvoChart = ({
     data,
     axisStyle,
     market,
-    useUsd = false
+    useUsd = false,
 }: {
     chartWidth: number,
     data: any[],
@@ -128,11 +137,17 @@ export const WorthEvoChart = ({
         'Borrow': themeStyles.colors.accentTextColor,
         'Withdraw': themeStyles.colors.mainTextColor,
         'Repay': themeStyles.colors.accentTextColor,
+        'ForceReplenish': themeStyles.colors.warning,
+        'Liquidate': themeStyles.colors.error,
     };
 
-    const [showEvents, setShowEvents] = useState(true);
+    const [showCollateral, setShowCollateral] = useState(true);
+    const [showEvents, setShowEvents] = useState(false);
+    const [showDebt, setShowDebt] = useState(false);    
+    const [showEventsLabel, setShowEventsLabel] = useState(false);
     const [brushIndexes, setBrushIndexes] = useState({ startIndex: undefined, endIndex: undefined });
     const [actives, setActives] = useState(Object.values(keyNames).reduce((acc, cur) => ({ ...acc, [cur]: true }), {}));
+
     const _axisStyle = axisStyle || {
         tickLabels: { fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '12px' },
         grid: {
@@ -160,6 +175,26 @@ export const WorthEvoChart = ({
                 </Text>
                 <Switch onChange={(e) => setShowEvents(!showEvents)} size="sm" colorScheme="purple" isChecked={showEvents} />
             </FormControl>
+            <FormControl w='fit-content' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
+                <Text mr="2" onClick={() => setShowCollateral(!showCollateral)}>
+                    Show collateral
+                </Text>
+                <Switch onChange={(e) => setShowCollateral(!showCollateral)} size="sm" colorScheme="purple" isChecked={showCollateral} />
+            </FormControl>
+            <FormControl w='fit-content' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
+                <Text mr="2" onClick={() => setShowDebt(!showDebt)}>
+                    Show debt
+                </Text>
+                <Switch onChange={(e) => setShowDebt(!showDebt)} size="sm" colorScheme="purple" isChecked={showDebt} />
+            </FormControl>
+            {/* {
+                showEvents && <FormControl w='fit-content' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
+                    <Text mr="2" onClick={() => setShowEventsLabel(!showEventsLabel)}>
+                        Show events
+                    </Text>
+                    <Switch onChange={(e) => setShowEventsLabel(!showEventsLabel)} size="sm" colorScheme="purple" isChecked={showEventsLabel} />
+                </FormControl>
+            } */}
         </Stack>
         <ComposedChart
             width={chartWidth}
@@ -189,7 +224,12 @@ export const WorthEvoChart = ({
                 }}
             />
             <Legend wrapperStyle={_axisStyle.tickLabels} onClick={toggleChart} style={{ cursor: 'pointer' }} formatter={(value) => value + (actives[value] ? '' : ' (hidden)')} />
-            <Area opacity={actives[keyNames["totalWorth"]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames["totalWorth"]} yAxisId="left" type="monotone" dataKey={'totalWorth'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
+            {
+                showCollateral && <Area opacity={actives[keyNames["totalWorth"]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames["totalWorth"]} yAxisId="left" type="monotone" dataKey={'totalWorth'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
+            }
+            {
+                showDebt && <Area opacity={actives[keyNames["debt"]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames["debt"]} yAxisId="left" type="monotone" dataKey={'debt'} stroke={themeStyles.colors.warning} dot={false} fillOpacity={0.5} fill="url(#warning-gradient)" />
+            }
             {/* <Area opacity={actives[keyNames["worth"]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames["worth"]} yAxisId="left" type="monotone" dataKey={'worth'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" /> */}
             {/* <Area opacity={actives[keyNames["claimsUsd"]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames["claimsUsd"]} yAxisId="left" type="monotone" dataKey={'claimsUsd'} stroke={themeStyles.colors.mainTextColor} dot={false} fillOpacity={0.5} fill="url(#primary-gradient)" /> */}
             <Line opacity={actives[keyNames["histoPrice"]] ? 1 : 0} strokeWidth={2} name={keyNames["histoPrice"]} yAxisId="right" type="monotone" dataKey="histoPrice" stroke={themeStyles.colors.info} dot={false} />
@@ -201,7 +241,7 @@ export const WorthEvoChart = ({
                         return <ReferenceLine position="start" isFront={true} yAxisId="left" x={d.timestamp}
                             stroke={LABEL_COLORS[d.eventName]}
                             strokeDasharray={EVENT_DASHES[d.eventName]}
-                        // label={{ value: 'Claim', position: LABEL_POSITIONS[d.eventName], fill: LABEL_COLORS[d.eventName] }}
+                            label={!showEventsLabel ? undefined : { value: 'Claim', position: LABEL_POSITIONS[d.eventName], fill: LABEL_COLORS[d.eventName] }}
                         />
                     })
             }
@@ -212,11 +252,11 @@ export const WorthEvoChart = ({
                         return <ReferenceLine position="start" isFront={true} yAxisId="left" x={d.timestamp}
                             stroke={LABEL_COLORS[d.eventName]}
                             strokeDasharray={EVENT_DASHES[d.eventName]}
-                        // label={{ value: d.eventName, position: LABEL_POSITIONS[d.eventName], fill: LABEL_COLORS[d.eventName] }}
+                            label={!showEventsLabel ? undefined : { value: d.eventName, position: LABEL_POSITIONS[d.eventName], fill: LABEL_COLORS[d.eventName] }}
                         />
                     })
             }
-            {/* <Brush onChange={handleBrush} startIndex={brushIndexes.startIndex} endIndex={brushIndexes.endIndex} dataKey="timestamp" height={30} stroke="#8884d8" tickFormatter={(v) => ''} /> */}
+            <Brush onChange={handleBrush} startIndex={brushIndexes.startIndex} endIndex={brushIndexes.endIndex} dataKey="timestamp" height={30} stroke="#8884d8" tickFormatter={(v) => ''} />
         </ComposedChart>
     </VStack>
 }
