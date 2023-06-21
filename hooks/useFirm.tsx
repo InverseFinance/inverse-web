@@ -433,6 +433,7 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
     [market.address, F2_MARKET_ABI, 'Deposit', [account]],
     [market.address, F2_MARKET_ABI, 'Withdraw', [account]],
     [DBR, DBR_ABI, 'Transfer', [BURN_ADDRESS, account]],
+    [DBR, DBR_ABI, 'ForceReplenish', [account, undefined, market.address]],
   ], `firm-market-${market.address}-${account}-collateral-evo`);
 
   const flatenedEvents = groupedEvents.flat();
@@ -440,6 +441,7 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
   let depositedByUser = 0;
   let liquidated = 0;
   let claims = 0;
+  let replenished = 0;
 
   const { timestamps } = useBlocksTimestamps(flatenedEvents.map(e => e.blockNumber));
 
@@ -453,6 +455,10 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
       depositedByUser = depositedByUser + (actionName === 'Deposit' ? amount : -amount);
     } else if(actionName === 'Transfer') {
       claims += amount;
+    } else if(actionName === 'ForceReplenish') {
+      replenished += amount;
+    } else if(actionName === 'Liquidate') {
+      liquidated += amount;
     }
 
     return {
@@ -468,7 +474,9 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
       escrow: e.args?.escrow,
       name: e.event,
       logIndex: e.logIndex,
-      tokenName,      
+      tokenName,
+      liquidated,
+      replenished,
     }
   });
 
@@ -476,6 +484,7 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
     events,
     depositedByUser,
     liquidated,
+    replenished,
     isLoading,
     error,
   }
