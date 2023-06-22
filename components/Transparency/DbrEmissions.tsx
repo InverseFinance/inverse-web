@@ -12,18 +12,19 @@ export const DbrEmissions = ({
     replenishments,
     histoPrices,
     useUsd = false,
+    emissionEvents,
 }: {
     maxChartWidth: number
     replenishments: any[]
     histoPrices: { [key: string]: number }
     useUsd?: boolean
+    emissionEvents: any[]
 }) => {
     const [includeInitialEmission, setIncludeInitialEmission] = useState(false);
     const [includeReplenishments, setIncludeReplenishments] = useState(true);
     const [includeClaims, setIncludeClaims] = useState(true);
 
-    const repHashes = replenishments?.map(r => r.txHash) || [];
-    const { events: emissionEvents, rewardRatesHistory, timestamp } = useDBREmissions();
+    const repHashes = replenishments?.map(r => r.txHash) || [];    
 
     const filteredEvents = includeReplenishments && includeClaims ?
         emissionEvents :
