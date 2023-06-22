@@ -441,7 +441,10 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
   if(market.isInv) {
     // DBR transfers = dbr claims, only for the INV market
     toQuery.push([DBR, DBR_ABI, 'Transfer', [BURN_ADDRESS, account]])
-  }
+  } 
+  // else if (market.name === 'cvxCRV') {
+    // TODO: add cvxCRV claims
+  // }
 
   const { groupedEvents, isLoading, error } = useMultiContractEvents(
     toQuery,
@@ -475,9 +478,9 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
       replenished += amount;
       debt += getBnToNumber(e.args.replenishmentCost);
     } else if (actionName === 'Liquidate') {
-      liquidated += amount;
+      liquidated += getBnToNumber(e.args.liquidatorReward, decimals);
       debt -= getBnToNumber(e.args.repaidDebt);
-      unstakedCollateralBalance -= amount;
+      unstakedCollateralBalance -= getBnToNumber(e.args.liquidatorReward, decimals);
     } else if (actionName === 'Transfer') {
       claims += amount;
     }
