@@ -59,6 +59,7 @@ export const WorthEvoChart = ({
         'totalWorth': 'Total USD worth',
         'claimsUsd': 'Claims worth',
         'debt': 'DOLA debt',
+        'estimatedStakedBonusUsd': 'Staking earnings',
     }
 
     const LABEL_COLORS = {
@@ -187,7 +188,7 @@ export const WorthEvoChart = ({
                     labelStyle={{ fontWeight: 'bold' }}
                     itemStyle={{ fontWeight: 'bold' }}
                     formatter={(value, name) => {
-                        const isPrice = name === 'Price';
+                        const isPrice = name === keyNames['histoPrice'];
                         return !value ? 'none' : isPrice ? shortenNumber(value, 4, true) : preciseCommify(value, 0, true)
                     }}
                 />
@@ -204,6 +205,7 @@ export const WorthEvoChart = ({
                     showDebt && <Area opacity={actives[keyNames["debt"]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames["debt"]} yAxisId="left" type="monotone" dataKey={'debt'} stroke={themeStyles.colors.warning} dot={false} fillOpacity={0.5} fill="url(#warning-gradient)" />
                 }
                 {/* <Area opacity={actives[keyNames["worth"]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames["worth"]} yAxisId="left" type="monotone" dataKey={'worth'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" /> */}
+                {/* <Area opacity={actives[keyNames["estimatedStakedBonusUsd"]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames["estimatedStakedBonusUsd"]} yAxisId="left" type="monotone" dataKey={'estimatedStakedBonusUsd'} stroke={themeStyles.colors.mainTextColor} dot={false} fillOpacity={0.5} fill="url(#primary-gradient)" /> */}
                 {/* <Area opacity={actives[keyNames["claimsUsd"]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames["claimsUsd"]} yAxisId="left" type="monotone" dataKey={'claimsUsd'} stroke={themeStyles.colors.mainTextColor} dot={false} fillOpacity={0.5} fill="url(#primary-gradient)" /> */}
                 <Line opacity={actives[keyNames["histoPrice"]] ? 1 : 0} strokeWidth={2} name={keyNames["histoPrice"]} yAxisId="right" type="monotone" dataKey="histoPrice" stroke={themeStyles.colors.info} dot={false} />
                 {/* <Line opacity={actives[keyNames["dbrPrice"]] ? 1 : 0} strokeWidth={2} name={keyNames["dbrPrice"]} yAxisId="right" type="monotone" dataKey="dbrPrice" stroke={themeStyles.colors.info} dot={false} /> */}
