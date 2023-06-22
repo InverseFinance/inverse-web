@@ -6,6 +6,12 @@ import moment from 'moment';
 import { preciseCommify } from '@app/util/misc';
 import { useEffect, useState } from 'react';
 
+const KEYS = {
+    BURN: 'Annualized burn',
+    ISSUANCE: 'Annualized issuance',
+    PRICE: 'Price',
+}
+
 export const DbrComboChart = ({
     combodata,
     chartWidth = 900,
@@ -20,13 +26,13 @@ export const DbrComboChart = ({
     const { themeStyles } = useAppTheme();
     const [brushIndexes, setBrushIndexes] = useState({ startIndex: undefined, endIndex: undefined });
     const [actives, setActives] = useState({
-        "Annualized DBR burn": true,
-        "Annualized DBR issuance": true,
-        "Price": true,
+        [KEYS.BURN]: true,
+        [KEYS.ISSUANCE]: true,
+        [KEYS.PRICE]: true,
     })
 
     useEffect(() => {
-        if(brushIndexes.startIndex !== undefined || combodata.length < 250) {
+        if(brushIndexes.startIndex !== undefined || !combodata || combodata.length < 250) {
             return;
         }
         setBrushIndexes({ startIndex: 220, endIndex: combodata.length - 1 });
@@ -42,7 +48,7 @@ export const DbrComboChart = ({
 
     const legendStyle = {
         ..._axisStyle.tickLabels,
-        top: -5,
+        top: -8,
         fontSize: '12px',        
     }
 
@@ -87,9 +93,9 @@ export const DbrComboChart = ({
                     }}
                 />
                 <Legend wrapperStyle={legendStyle} onClick={toggleChart} style={{ cursor: 'pointer' }} formatter={(value) => value + (actives[value] ? '' : ' (hidden)')} />
-                <Area opacity={actives["Annualized DBR burn"] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name="Annualized DBR burn" yAxisId="left" type="monotone" dataKey={useUsd ? 'debtUsd' : 'debt'} stroke={themeStyles.colors.warning} dot={false} fillOpacity={1} fill="url(#warning-gradient)" />
-                <Area opacity={actives["Annualized DBR issuance"] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name="Annualized DBR issuance" yAxisId="left" type="monotone" dataKey={useUsd ? 'yearlyRewardRateUsd' : 'yearlyRewardRate'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={1} fill="url(#secondary-gradient)" />
-                <Line opacity={actives["Price"] ? 1 : 0} strokeWidth={2} name="Price" yAxisId="right" type="monotone" dataKey="histoPrice" stroke={themeStyles.colors.info} dot={false} />
+                <Area opacity={actives[KEYS.BURN] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.BURN} yAxisId="left" type="monotone" dataKey={useUsd ? 'debtUsd' : 'debt'} stroke={themeStyles.colors.warning} dot={false} fillOpacity={1} fill="url(#warning-gradient)" />
+                <Area opacity={actives[KEYS.ISSUANCE] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.ISSUANCE} yAxisId="left" type="monotone" dataKey={useUsd ? 'yearlyRewardRateUsd' : 'yearlyRewardRate'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={1} fill="url(#secondary-gradient)" />
+                <Line opacity={actives[KEYS.PRICE] ? 1 : 0} strokeWidth={2} name={KEYS.PRICE} yAxisId="right" type="monotone" dataKey="histoPrice" stroke={themeStyles.colors.info} dot={false} />
                 <Brush onChange={handleBrush} startIndex={brushIndexes.startIndex} endIndex={brushIndexes.endIndex} dataKey="timestamp" height={30} stroke="#8884d8" tickFormatter={(v) => ''} />
             </ComposedChart>
         </VStack>
