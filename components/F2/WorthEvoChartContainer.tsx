@@ -1,12 +1,15 @@
 
 import { useFirmMarketEvolution, useHistoricalPrices } from "@app/hooks/useFirm";
 import { F2Market } from "@app/types";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useAccount } from "@app/hooks/misc";
 import { timestampToUTC } from "@app/util/misc";
 import { ONE_DAY_MS } from "@app/config/constants";
 import { F2MarketContext } from "./F2Contex";
 import { WorthEvoChart } from "./WorthEvoChart";
+import { useMediaQuery } from "@chakra-ui/react";
+
+const maxWidth = 1280;
 
 export const WorthEvoChartContainer = ({
     market
@@ -14,6 +17,14 @@ export const WorthEvoChartContainer = ({
     market: F2Market,
 }) => {
     const account = useAccount();
+
+    const [chartWidth, setChartWidth] = useState<number>(maxWidth);
+    const [isLargerThan] = useMediaQuery(`(min-width: ${maxWidth+50}px)`)
+
+    useEffect(() => {
+        setChartWidth(isLargerThan ? maxWidth : (screen.availWidth || screen.width) - 50)
+    }, [isLargerThan, maxWidth]);
+
     const { deposits } = useContext(F2MarketContext);
     const { prices } = useHistoricalPrices(market.underlying.coingeckoId);
     const { prices: dbrPrices } = useHistoricalPrices('dola-borrowing-right');
@@ -84,7 +95,7 @@ export const WorthEvoChartContainer = ({
 
     return <WorthEvoChart
         market={market}
-        chartWidth={1350}
+        chartWidth={chartWidth}
         data={data}
     />
 }

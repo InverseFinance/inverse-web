@@ -5,7 +5,7 @@ import Head from 'next/head'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { useDBRMarkets } from '@app/hooks/useDBR'
 
-import { VStack, Text, HStack, FormControl, FormLabel, Switch } from '@chakra-ui/react'
+import { VStack, Text, HStack, FormControl, FormLabel, Switch, Divider } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 
 import { useEffect, useState } from 'react'
@@ -163,9 +163,8 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                 w='full'
                                                 direction={{ base: 'column', lg: 'row' }}
                                                 spacing="6"
-                                            >
-                                                <WorthEvoChartContainer market={f2market} />
-                                                <ErrorBoundary description="Error in the standard mode, please try reloading">
+                                            >                                                
+                                                <ErrorBoundary description="Error in the form component, please try reloading">
                                                     {
                                                         f2market.isInv && <Container
                                                             noPadding
@@ -193,6 +192,9 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                         (f2market.hasClaimableRewards) && <FirmRewardWrapper market={f2market} />
                                                     }
                                                     <F2CombinedForm />
+                                                </ErrorBoundary>                                                
+                                                <ErrorBoundary description="The portfolio value chart could not load">
+                                                    <WorthEvoChartContainer market={f2market} />
                                                 </ErrorBoundary>
                                                 {
                                                     (f2market.hasClaimableRewards && f2market.name === 'cvxCRV') && <CvxCrvPreferences />

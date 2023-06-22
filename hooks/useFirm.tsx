@@ -183,7 +183,7 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
 
     if (isCollateralEvent && !!amount) {
       depositedByUser = depositedByUser + (e.event === 'Deposit' ? amount : -amount);
-    } else if(e.event === 'Liquidate' && !!liquidatorReward) {
+    } else if (e.event === 'Liquidate' && !!liquidatorReward) {
       liquidated += liquidatorReward;
     }
 
@@ -429,15 +429,24 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
   depositedByUser: number
   liquidated: number
 } => {
-  const { groupedEvents, isLoading, error } = useMultiContractEvents([
+  const toQuery = [
     [market.address, F2_MARKET_ABI, 'Deposit', [account]],
     [market.address, F2_MARKET_ABI, 'Withdraw', [account]],
     [market.address, F2_MARKET_ABI, 'Borrow', [account]],
     [market.address, F2_MARKET_ABI, 'Repay', [account]],
-    [DBR, DBR_ABI, 'Transfer', [BURN_ADDRESS, account]],
     [DBR, DBR_ABI, 'ForceReplenish', [account, undefined, market.address]],
     [market.address, F2_MARKET_ABI, 'Liquidate', [account]],
-  ], `firm-market-${market.address}-${account}-collateral-evo`);
+  ];
+
+  if(market.isInv) {
+    // DBR transfers = dbr claims, only for the INV market
+    toQuery.push([DBR, DBR_ABI, 'Transfer', [BURN_ADDRESS, account]])
+  }
+
+  const { groupedEvents, isLoading, error } = useMultiContractEvents(
+    toQuery,
+    `firm-market-${market.address}-${account}-collateral-evo`,
+  );
 
   const flatenedEvents = groupedEvents.flat().sort((a, b) => a.blockNumber - b.blockNumber);
   // can be different than current balance when staking
@@ -457,23 +466,23 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
     const tokenName = market.underlying.symbol
     const amount = getBnToNumber(e.args?.amount, isDebtCase ? 18 : decimals);
 
-    if(['Deposit', 'Withdraw'].includes(actionName)) {
+    if (['Deposit', 'Withdraw'].includes(actionName)) {
       depositedByUser = depositedByUser + (actionName === 'Deposit' ? amount : -amount);
       unstakedCollateralBalance = unstakedCollateralBalance + (actionName === 'Deposit' ? amount : -amount);
-    } else if(isDebtCase) {
+    } else if (isDebtCase) {
       debt = debt + (actionName === 'Borrow' ? amount : -amount);
-    } else if(actionName === 'ForceReplenish') {
+    } else if (actionName === 'ForceReplenish') {
       replenished += amount;
       debt += getBnToNumber(e.args.replenishmentCost);
-    } else if(actionName === 'Liquidate') {
+    } else if (actionName === 'Liquidate') {
       liquidated += amount;
       debt -= getBnToNumber(e.args.repaidDebt);
       unstakedCollateralBalance -= amount;
-    } else if(actionName === 'Transfer') {
+    } else if (actionName === 'Transfer') {
       claims += amount;
-    }    
+    }
 
-    if(unstakedCollateralBalance < 0) {
+    if (unstakedCollateralBalance < 0) {
       unstakedCollateralBalance = 0;
     }
 
