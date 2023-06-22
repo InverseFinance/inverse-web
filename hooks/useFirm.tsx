@@ -433,6 +433,7 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
     [market.address, F2_MARKET_ABI, 'Deposit', [account]],
     [market.address, F2_MARKET_ABI, 'Withdraw', [account]],
     [market.address, F2_MARKET_ABI, 'Borrow', [account]],
+    [market.address, F2_MARKET_ABI, 'Repay', [account]],
     [DBR, DBR_ABI, 'Transfer', [BURN_ADDRESS, account]],
     [DBR, DBR_ABI, 'ForceReplenish', [account, undefined, market.address]],
     [market.address, F2_MARKET_ABI, 'Liquidate', [account]],
@@ -460,12 +461,13 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
       depositedByUser = depositedByUser + (actionName === 'Deposit' ? amount : -amount);
       unstakedCollateralBalance = unstakedCollateralBalance + (actionName === 'Deposit' ? amount : -amount);
     } else if(isDebtCase) {
-      debt = debt + (actionName === 'Borrow' ? amount : -amount);      
+      debt = debt + (actionName === 'Borrow' ? amount : -amount);
     } else if(actionName === 'ForceReplenish') {
       replenished += amount;
       debt += getBnToNumber(e.args.replenishmentCost);
     } else if(actionName === 'Liquidate') {
       liquidated += amount;
+      debt -= getBnToNumber(e.args.repaidDebt);
       unstakedCollateralBalance -= amount;
     } else if(actionName === 'Transfer') {
       claims += amount;
