@@ -1,6 +1,6 @@
 import { useAppTheme } from "@app/hooks/useAppTheme";
 import { F2Market } from "@app/types";
-import { VStack, Text, FormControl, Switch, Stack } from "@chakra-ui/react";
+import { VStack, Text, FormControl, Switch, Stack, HStack, Popover, PopoverTrigger, PopoverContent } from "@chakra-ui/react";
 import { useState } from "react";
 import { Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Brush, ComposedChart, ReferenceLine } from 'recharts';
 import moment from 'moment';
@@ -25,6 +25,16 @@ const EVENT_DASHES = {
     'Repay': '4 4',
     'ForceReplenish': '4 4',
     'Liquidate': undefined,
+}
+
+const EVENT_WIDTHS = {
+    'Claim': undefined,
+    'Deposit': undefined,
+    'Borrow': undefined,
+    'Withdraw': undefined,
+    'Repay': undefined,
+    'ForceReplenish': 4,
+    'Liquidate': 4,
 }
 
 export const WorthEvoChart = ({
@@ -56,9 +66,28 @@ export const WorthEvoChart = ({
         'Borrow': themeStyles.colors.accentTextColor,
         'Withdraw': themeStyles.colors.mainTextColor,
         'Repay': themeStyles.colors.accentTextColor,
-        'ForceReplenish': themeStyles.colors.warning,
+        'ForceReplenish': themeStyles.colors.error,
         'Liquidate': themeStyles.colors.error,
     };
+
+    const EvoChartEventLegend = () => {
+        const eventTypes = Object.keys(EVENT_DASHES).sort((a, b) => a < b ? -1 : 1);
+        return <VStack alignItems="flex-start">
+            {
+                eventTypes.map((eventType, i) => {
+                    return <HStack spacing="2">
+                        <Text w='130px'>{eventType}:</Text>
+                        <Text
+                            minW="1px"
+                            h="20px"
+                            borderColor={LABEL_COLORS[eventType]}
+                            borderStyle={EVENT_DASHES[eventType] ? 'dashed' : undefined}
+                            borderWidth={'2px'}></Text>
+                    </HStack>
+                })
+            }
+        </VStack>
+    }
 
     const [showCollateral, setShowCollateral] = useState(true);
     const [showEvents, setShowEvents] = useState(false);
@@ -88,13 +117,7 @@ export const WorthEvoChart = ({
             <Text fontWeight="extrabold" fontSize="18px" minW='fit-content'>
                 Your Portfolio Value in the {market.name} Market
             </Text>
-            <Stack direction={{ base: 'column', sm: 'row' }}>
-                <FormControl w='fit-content' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
-                    <Text mr="2" onClick={() => setShowEvents(!showEvents)}>
-                        Show events
-                    </Text>
-                    <Switch onChange={(e) => setShowEvents(!showEvents)} size="sm" colorScheme="purple" isChecked={showEvents} />
-                </FormControl>
+            <Stack w='full' spacing="8" direction={{ base: 'column', sm: 'row' }}>
                 <FormControl w='fit-content' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
                     <Text mr="2" onClick={() => setShowCollateral(!showCollateral)}>
                         Show collateral
@@ -107,14 +130,32 @@ export const WorthEvoChart = ({
                     </Text>
                     <Switch onChange={(e) => setShowDebt(!showDebt)} size="sm" colorScheme="purple" isChecked={showDebt} />
                 </FormControl>
-                {/* {
-                showEvents && <FormControl w='fit-content' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
-                    <Text mr="2" onClick={() => setShowEventsLabel(!showEventsLabel)}>
+                <FormControl w='fit-content' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
+                    <Text mr="2" onClick={() => setShowEvents(!showEvents)}>
                         Show events
                     </Text>
-                    <Switch onChange={(e) => setShowEventsLabel(!showEventsLabel)} size="sm" colorScheme="purple" isChecked={showEventsLabel} />
+                    <Switch onChange={(e) => setShowEvents(!showEvents)} size="sm" colorScheme="purple" isChecked={showEvents} />
                 </FormControl>
-            } */}
+                <HStack cursor="help" visibility={!showEvents ? 'hidden' : 'visible'}>
+                    <Popover trigger="hover" placement="right-end">
+                        <PopoverTrigger>
+                            <Text color={themeStyles.colors.mainTextColorLight} textDecoration="underline">
+                                See Events Legend
+                            </Text>
+                        </PopoverTrigger>
+                        <PopoverContent p="4">
+                            <EvoChartEventLegend />
+                        </PopoverContent>
+                    </Popover>
+                </HStack>
+                {/* {
+                    showEvents && <FormControl w='fit-content' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
+                        <Text mr="2" onClick={() => setShowEventsLabel(!showEventsLabel)}>
+                            Show events
+                        </Text>
+                        <Switch onChange={(e) => setShowEventsLabel(!showEventsLabel)} size="sm" colorScheme="purple" isChecked={showEventsLabel} />
+                    </FormControl>
+                } */}
             </Stack>
         </Stack>
         <ComposedChart
@@ -173,6 +214,7 @@ export const WorthEvoChart = ({
                         return <ReferenceLine position="start" isFront={true} yAxisId="left" x={d.timestamp}
                             stroke={LABEL_COLORS[d.eventName]}
                             strokeDasharray={EVENT_DASHES[d.eventName]}
+                            strokeWidth={`${(EVENT_WIDTHS[d.eventName] || 2)}px`}
                             label={!showEventsLabel ? undefined : { value: d.eventName, position: LABEL_POSITIONS[d.eventName], fill: LABEL_COLORS[d.eventName] }}
                         />
                     })
