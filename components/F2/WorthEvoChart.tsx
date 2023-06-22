@@ -72,12 +72,15 @@ export const WorthEvoChart = ({
     };
 
     const EvoChartEventLegend = () => {
-        const eventTypes = Object.keys(EVENT_DASHES).sort((a, b) => a < b ? -1 : 1);
+        const eventTypes = Object.keys(EVENT_DASHES)
+            .filter(e => market.hasClaimableRewards ? true : e !== 'Claim')
+            .sort((a, b) => a < b ? -1 : 1);
+
         return <VStack alignItems="flex-start">
             {
                 eventTypes.map((eventType, i) => {
                     return <HStack spacing="2">
-                        <Text w='130px'>{eventType}:</Text>
+                        <Text w='130px'>{eventType.replace('Claim', 'Claim rewards')}:</Text>
                         <Text
                             minW="1px"
                             h="20px"
