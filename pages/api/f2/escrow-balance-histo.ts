@@ -1,18 +1,18 @@
 import { Contract } from 'ethers'
 import 'source-map-support'
-import { F2_ESCROW_ABI, F2_MARKET_ABI } from '@app/config/abis'
+import { DBR_ABI, F2_ESCROW_ABI, F2_MARKET_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber, getToken } from '@app/util/markets'
-import { BLOCKS_PER_DAY, CHAIN_ID } from '@app/config/constants';
+import { BLOCKS_PER_DAY, BURN_ADDRESS, CHAIN_ID } from '@app/config/constants';
 import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
 import { NetworkIds } from '@app/types';
 import { throttledPromises } from '@app/util/misc';
 import { CHAIN_TOKENS } from '@app/variables/tokens';
 import { isAddress } from 'ethers/lib/utils';
 
-const { F2_MARKETS } = getNetworkConfigConstants();
+const { F2_MARKETS, DBR } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
   const { cacheFirst, account, escrow, market } = req.query;
@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     res.status(400).json({ msg: 'invalid request' });
     return;
   }
-  const cacheKey = `firm-escrow-balance-histo-${escrow}-v1.0.6`;
+  const cacheKey = `firm-escrow-balance-histo-${escrow}-v1.0.8`;
   try {
     const cacheDuration = 1800;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
@@ -53,16 +53,23 @@ export default async function handler(req, res) {
       return;
     }
 
-    const archived = await getCacheFromRedis(cacheKey, false, 0) || { balances: [], blocks: [], timestamps: [] };    
-    const lastBlock = archived.blocks.length > 0 ? archived.blocks[archived.blocks.length - 1] : escrowCreationBlock-1;
+    const archived = await getCacheFromRedis(cacheKey, false, 0) || { balances: [], blocks: [], timestamps: [], dbrClaimables: [] };
+    const lastBlock = archived.blocks.length > 0 ? archived.blocks[archived.blocks.length - 1] : escrowCreationBlock - 1;
 
     const startingBlock = lastBlock + 1 < currentBlock ? lastBlock + 1 : currentBlock;
     // events impacting escrow balance
-    const escrowRelevantBlockNumbers = (await Promise.all([
+    const eventsToQuery = [
       marketContract.queryFilter(marketContract.filters.Deposit(account), startingBlock),
       marketContract.queryFilter(marketContract.filters.Withdraw(account), startingBlock),
       marketContract.queryFilter(marketContract.filters.Liquidate(account), startingBlock),
-    ])).flat().map(e => e.blockNumber);
+    ];
+
+    if (_market.isInv) {
+      const dbrContract = new Contract(DBR, DBR_ABI, provider);
+      eventsToQuery.push(dbrContract.queryFilter(dbrContract.filters.Transfer(BURN_ADDRESS, account), startingBlock))
+    }
+
+    const escrowRelevantBlockNumbers = (await Promise.all(eventsToQuery)).flat().map(e => e.blockNumber);
 
     const intIncrement = Math.floor(BLOCKS_PER_DAY * 3);
 
@@ -74,8 +81,11 @@ export default async function handler(req, res) {
 
     const escrowContract = new Contract(escrow, F2_ESCROW_ABI, provider);
     // Function signature and encoding
-    const functionName = 'balance';
-    const functionSignature = escrowContract.interface.getSighash(functionName);
+    const balanceFunctionName = 'balance';
+    const balanceFunctionSignature = escrowContract.interface.getSighash(balanceFunctionName);
+
+    const claimableFunctionName = 'claimable';
+    const claimableFunctionSignature = escrowContract.interface.getSighash(claimableFunctionName);
 
     if (!allUniqueBlocksToCheck.includes(currentBlock) && !archived?.blocks.includes(currentBlock)) {
       allUniqueBlocksToCheck.push(currentBlock);
@@ -97,7 +107,7 @@ export default async function handler(req, res) {
         (block: number) => {
           return escrowContract.provider.call({
             to: escrowContract.address,
-            data: functionSignature + '0000000000000000000000000000000000000000000000000000000000000000', // append 32 bytes of 0 for no arguments
+            data: balanceFunctionSignature + '0000000000000000000000000000000000000000000000000000000000000000', // append 32 bytes of 0 for no arguments
           }, block)
         },
         allUniqueBlocksToCheck,
@@ -105,14 +115,35 @@ export default async function handler(req, res) {
         100,
       );
 
+    let newClaimableBn = [];
+    if (_market.isInv) {
+      newClaimableBn =
+        await throttledPromises(
+          (block: number) => {
+            return escrowContract.provider.call({
+              to: escrowContract.address,
+              data: claimableFunctionSignature + '0000000000000000000000000000000000000000000000000000000000000000', // append 32 bytes of 0 for no arguments
+            }, block)
+          },
+          allUniqueBlocksToCheck,
+          5,
+          100,
+        );
+    }
+
     const decimals = getToken(CHAIN_TOKENS[CHAIN_ID], _market.collateral).decimals;
 
     const newBalances = newBalancesBn.map((d, i) => {
-      return getBnToNumber(escrowContract.interface.decodeFunctionResult(functionName, d)[0], decimals);
+      return getBnToNumber(escrowContract.interface.decodeFunctionResult(balanceFunctionName, d)[0], decimals);
+    });
+
+    const newDbrClaimables = newClaimableBn.map((d, i) => {
+      return getBnToNumber(escrowContract.interface.decodeFunctionResult(claimableFunctionName, d)[0], 18);
     });
 
     const resultData = {
       balances: archived.balances.concat(newBalances),
+      dbrClaimables: archived.dbrClaimables.concat(newDbrClaimables),
       timestamp: Date.now(),
       blocks: archived?.blocks.concat(allUniqueBlocksToCheck),
       timestamps: archived.timestamps.concat(allUniqueBlocksToCheck.map(b => timestamps[CHAIN_ID][b])),
