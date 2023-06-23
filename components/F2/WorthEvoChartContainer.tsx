@@ -53,48 +53,52 @@ export const WorthEvoChartContainer = ({
 
     const data = relevantPrices.map((p, i) => {
         const event = events.find(e => !e.isClaim && e.timestamp === p[0]);
-        const histoEscrowBalanceFromApi = escrowBalanceEvolution?.findLast(e => e.timestamp <= p[0])?.balance;        
+        const histoEscrowDataFromApi = escrowBalanceEvolution?.findLast(e => e.timestamp <= p[0]);
+        const histoEscrowBalance = histoEscrowDataFromApi?.balance;
+        const histoEscrowDbrClaimable = histoEscrowDataFromApi?.dbrClaimable;
         const lastCollateralEvent = events.findLast(e => !e.isClaim && e.timestamp <= p[0]);
         const unstakedCollateralBalance = Math.max(lastCollateralEvent?.unstakedCollateralBalance || 0, 0);
-        const balance = histoEscrowBalanceFromApi ?? unstakedCollateralBalance;
+        const balance = histoEscrowBalance || unstakedCollateralBalance;
         const debt = Math.max(lastCollateralEvent?.debt || 0, 0);
         const claimEvent = (!event || event?.actionName !== 'ForceReplenish') ? events.find(e => e.isClaim && e.timestamp === p[0]) : undefined;
         const lastClaimEvent = events.findLast(e => e.isClaim && e.timestamp <= p[0]);
         const claims = lastClaimEvent?.claims || 0;
-        const dbrPrice = dbrPrices.find(dbrPrice => timestampToUTC(dbrPrice[0]) === timestampToUTC(p[0]))?.[1] || 0;
+        const dbrHistoPrice = dbrPrices.find(dbrPrice => timestampToUTC(dbrPrice[0]) === timestampToUTC(p[0]))?.[1] || 0;
         const timeProgression = (p[0] - start) / (now - start);
 
         const estimatedStakedBonus = balance - unstakedCollateralBalance;
-        const claimsUsd = claims * dbrPrice;
+        const rewardsUsd = ((claims + histoEscrowDbrClaimable) * dbrHistoPrice) || 0;
+        const estimatedStakedBonusUsd = estimatedStakedBonus * p[1];
         return {
             timestamp: p[0],
             histoPrice: p[1],
-            dbrPrice,
+            dbrPrice: dbrHistoPrice,
             eventName: !!claimEvent ? 'Claim' : event?.actionName,
             claimEvent,
             isClaimEvent: !!claimEvent,
             isEvent: !!event,
             event,
-            worth: unstakedCollateralBalance * p[1],
-            stakedWorth: balance * p[1],
-            totalWorth: claimsUsd + balance * p[1],
+            depositsOnlyWorth: unstakedCollateralBalance * p[1],
+            balanceWorth: balance * p[1],
+            totalWorth: rewardsUsd + balance * p[1],
+            totalRewardsUsd: rewardsUsd + estimatedStakedBonusUsd,
+            // TODO: histo price dola
+            debtUsd: debt,
             debt,
             balance,
             depositedByUser,
-            claims,
+            dbrClaimed: claims,
+            dbrRewards: claims + histoEscrowDbrClaimable,
             timeProgression,
             estimatedStakedBonus,
-            estimatedStakedBonusUsd: estimatedStakedBonus * p[1],
-            claimsUsd,
+            estimatedStakedBonusUsd,
+            rewardsUsd,
         }
     });
 
     const hasData = data?.length > 0;
-    const startPrice = hasData ? data[0].histoPrice : 0;
-    const lastPrice = hasData ? data[data.length - 1].histoPrice : 0;
-    const priceChangeFromStart = hasData ? (lastPrice - startPrice) / startPrice * 100 : 0;
 
-    if(!hasData) {
+    if(!start || !hasData || !events.length) {
         return null;
     }
 

@@ -428,9 +428,14 @@ export const useEscrowBalanceEvolution = (account: string, escrow: string, marke
   isLoading: boolean,
   isError: boolean,
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/f2/escrow-balance-histo?v=1&account=${account}&escrow=${escrow}&market=${market}`, fetcher);
+  const { data, error } = useCacheFirstSWR(`/api/f2/escrow-balance-histo?v=3&account=${account}&escrow=${escrow}&market=${market}`, fetcher);
 
-  const evolution = data? data.balances.map((b,i) => ({ balance: b, timestamp: data.timestamps[i]*1000 })) : [];
+  const evolution = data ? data.balances.map((b, i) => ({
+    balance: b,
+    dbrClaimable: data.dbrClaimables[i],
+    blocknumber: data.blocks[i],
+    timestamp: data.timestamps[i] * 1000,
+  })) : [];
 
   return {
     evolution,
@@ -456,12 +461,12 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
     [market.address, F2_MARKET_ABI, 'Liquidate', [account]],
   ];
 
-  if(market.isInv) {
+  if (market.isInv) {
     // DBR transfers = dbr claims, only for the INV market
     toQuery.push([DBR, DBR_ABI, 'Transfer', [BURN_ADDRESS, account]])
-  } 
+  }
   // else if (market.name === 'cvxCRV') {
-    // TODO: add cvxCRV claims
+  // TODO: add cvxCRV claims
   // }
 
   const { groupedEvents, isLoading, error } = useMultiContractEvents(

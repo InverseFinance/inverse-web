@@ -99,9 +99,17 @@ const App = ({ Component, pageProps }: AppProps) => {
                 <stop offset="0" stopColor="#4299e1" />
                 <stop offset="1" stopColor="#4299e100" />
               </linearGradient>
+              <linearGradient id="gold-gradient" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stopColor="#ffd700" />
+                <stop offset="1" stopColor="#ffd70000" />
+              </linearGradient>
               <linearGradient id="warning-gradient" x1="0" x2="0" y1="0" y2="1">
                 <stop offset="0" stopColor="#ed8936" />
                 <stop offset="1" stopColor="#ed893600" />
+              </linearGradient>
+              <linearGradient id="blue-gradient" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stopColor="#18205D" />
+                <stop offset="1" stopColor="#18205D00" />
               </linearGradient>
             </defs>
           </svg>

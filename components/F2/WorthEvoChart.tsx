@@ -7,6 +7,8 @@ import moment from 'moment';
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import { preciseCommify } from "@app/util/misc";
 import Container from "../common/Container";
+import { NavButtons } from "../common/Button";
+import { lightTheme } from "@app/variables/theme";
 
 const LABEL_POSITIONS = {
     'Claim': 'center',
@@ -38,6 +40,16 @@ const EVENT_WIDTHS = {
     'Liquidate': 4,
 }
 
+const CHART_TABS = {
+    'overview': 'Overview',
+    'collateral': 'Collateral balance',
+    'debt': 'Debt',
+    'invStaking': 'INV anti-dilution',
+    'staking': 'Staking rewards',
+    'dbrRewards': 'DBR rewards',
+    'invDbr': 'INV & DBR',
+}
+
 export const WorthEvoChart = ({
     chartWidth,
     data,
@@ -55,14 +67,17 @@ export const WorthEvoChart = ({
 
     const keyNames = {
         'histoPrice': `${market.name} price`,
-        'worth': 'USD worth',
+        'dbrPrice': 'DBR price',
+        'totalRewardsUsd': 'Total rewards',
+        'balanceWorth': 'Collateral balance worth',
         'totalWorth': 'Total USD worth',
         'balance': 'Total collateral balance',
-        'claims': 'Claims',
-        'claimsUsd': 'Claims worth',
+        'dbrRewards': 'DBR rewards',
+        'rewardsUsd': 'DBR rewards',
+        'dbrClaimed': 'DBR claimed',
         'debtUsd': 'DOLA debt',
-        'estimatedStakedBonusUsd': 'Staking earnings',
-        'estimatedStakedBonus': 'Staking earnings',
+        'estimatedStakedBonusUsd': market.isInv ? 'INV anti-dilution rewards' : 'Staking earnings',
+        'estimatedStakedBonus': market.isInv ? 'INV anti-dilution rewards' : 'Staking earnings',
     }
 
     const LABEL_COLORS = {
@@ -83,7 +98,7 @@ export const WorthEvoChart = ({
         return <VStack alignItems="flex-start">
             {
                 eventTypes.map((eventType, i) => {
-                    return <HStack spacing="2">
+                    return <HStack spacing="2" key={eventType}>
                         <Text w='130px'>{eventType.replace('Claim', 'Claim rewards')}:</Text>
                         <Text
                             minW="1px"
@@ -97,10 +112,28 @@ export const WorthEvoChart = ({
         </VStack>
     }
 
+    const tabOptions = [CHART_TABS.overview, CHART_TABS.collateral];
+    if(!market.borrowPaused){
+        tabOptions.push(CHART_TABS.debt);
+    }
+    if(market.isInv) {
+        tabOptions.push(CHART_TABS.invDbr);
+        tabOptions.push(CHART_TABS.invStaking);
+        tabOptions.push(CHART_TABS.dbrRewards);        
+    } else if(market.name === 'stETH') {
+        tabOptions.push(CHART_TABS.staking);
+    }
+
+    const [activeTab, setActiveTab] = useState(CHART_TABS.overview);
     const [useUsd, setUseUsd] = useState(true);
-    const [showCollateral, setShowCollateral] = useState(true);
+    const [showTotal, setShowTotal] = useState(true);
+    const [showCollateral, setShowCollateral] = useState(false);
+    const [showDbr, setShowDbr] = useState(false);
+    const [showPrice, setShowPrice] = useState(true);
+    const [showDbrPrice, setShowDbrPrice] = useState(false);
+    const [showStaking, setShowStaking] = useState(false);
     const [showEvents, setShowEvents] = useState(false);
-    const [showDebt, setShowDebt] = useState(true);
+    const [showDebt, setShowDebt] = useState(!market.borrowPaused);
     const [showEventsLabel, setShowEventsLabel] = useState(false);
     const [brushIndexes, setBrushIndexes] = useState({ startIndex: undefined, endIndex: undefined });
     const [actives, setActives] = useState(Object.values(keyNames).reduce((acc, cur) => ({ ...acc, [cur]: true }), {}));
@@ -121,19 +154,38 @@ export const WorthEvoChart = ({
         setBrushIndexes(params);
     }
 
-    const balanceKey = useUsd ? 'totalWorth' : 'balance';
-    const debtKey = useUsd ? 'debt' : 'debt';
-    const claimsKey = useUsd ? 'claimsUsd' : 'claims';
+    const totalKey = 'totalWorth';
+    const totalRewardsUsd = 'totalRewardsUsd';
+    const balanceKey = useUsd ? 'balanceWorth' : 'balance';
+    const debtKey = useUsd ? 'debtUsd' : 'debt';
+    const claimsKey = useUsd ? 'rewardsUsd' : 'claims';
     const stakingKey = useUsd ? 'estimatedStakedBonusUsd' : 'estimatedStakedBonus';
+
+    const handleTabChange = (v: string) => {
+        setActiveTab(v);
+        setShowTotal([CHART_TABS.overview].includes(v));
+        setShowCollateral([CHART_TABS.collateral].includes(v));
+        setShowPrice([CHART_TABS.collateral, CHART_TABS.overview, CHART_TABS.debt, CHART_TABS.invDbr, CHART_TABS.invStaking, CHART_TABS.staking].includes(v));
+        setShowDebt(tabOptions.includes(CHART_TABS.debt) && [CHART_TABS.debt, CHART_TABS.overview].includes(v));
+        setShowDbr(tabOptions.includes(CHART_TABS.dbrRewards) && [CHART_TABS.dbrRewards, CHART_TABS.invDbr, CHART_TABS.overview].includes(v));
+        setShowDbrPrice(tabOptions.includes(CHART_TABS.dbrRewards) && [CHART_TABS.dbrRewards, CHART_TABS.invDbr].includes(v));
+        setShowStaking(tabOptions.includes(CHART_TABS.staking) || tabOptions.includes(CHART_TABS.invStaking) && [CHART_TABS.invStaking, CHART_TABS.invDbr, CHART_TABS.staking, CHART_TABS.overview].includes(v));
+    }
 
     return <Container
         p="0"
         noPadding
-        label={`Your Position Evolution in the ${market.name} Market`}
+        label={`Your Position Evolution in the ${market.name} Market - Beta`}
     >
         <VStack alignItems="center" maxW={`${chartWidth}px`}>
             <Stack w='full' justify="flex-start" alignItems="flex-start" direction="column">
                 <Stack w='full' spacing={{ base: '2', sm: '8' }} direction={{ base: 'column', sm: 'row' }}>
+                    <NavButtons
+                        maxW='800px'
+                        active={activeTab}
+                        options={tabOptions}
+                        onClick={(v) => handleTabChange(v)}
+                    />
                     {/* <FormControl w='fit-content' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
                         <Text mr="2" onClick={() => setUseUsd(!useUsd)}>
                             Show in USD
@@ -141,19 +193,7 @@ export const WorthEvoChart = ({
                         <Switch onChange={(e) => setUseUsd(!useUsd)} size="sm" colorScheme="purple" isChecked={useUsd} />
                     </FormControl> */}
                     <FormControl w='fit-content' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
-                        <Text mr="2" onClick={() => setShowCollateral(!showCollateral)}>
-                            Show collateral
-                        </Text>
-                        <Switch onChange={(e) => setShowCollateral(!showCollateral)} size="sm" colorScheme="purple" isChecked={showCollateral} />
-                    </FormControl>
-                    <FormControl w='fit-content' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
-                        <Text mr="2" onClick={() => setShowDebt(!showDebt)}>
-                            Show debt
-                        </Text>
-                        <Switch onChange={(e) => setShowDebt(!showDebt)} size="sm" colorScheme="purple" isChecked={showDebt} />
-                    </FormControl>
-                    <FormControl w='fit-content' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
-                        <Text mr="2" onClick={() => setShowEvents(!showEvents)}>
+                        <Text w='100px' mr="2" onClick={() => setShowEvents(!showEvents)}>
                             Show events
                         </Text>
                         <Switch onChange={(e) => setShowEvents(!showEvents)} size="sm" colorScheme="purple" isChecked={showEvents} />
@@ -170,14 +210,6 @@ export const WorthEvoChart = ({
                             </PopoverContent>
                         </Popover>
                     </HStack>
-                    {/* {
-                    showEvents && <FormControl w='fit-content' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
-                        <Text mr="2" onClick={() => setShowEventsLabel(!showEventsLabel)}>
-                            Show events
-                        </Text>
-                        <Switch onChange={(e) => setShowEventsLabel(!showEventsLabel)} size="sm" colorScheme="purple" isChecked={showEventsLabel} />
-                    </FormControl>
-                } */}
                 </Stack>
             </Stack>
             <ComposedChart
@@ -191,7 +223,7 @@ export const WorthEvoChart = ({
                     bottom: 20,
                 }}
             >
-                <CartesianGrid strokeDasharray={_axisStyle.grid.strokeDasharray} />
+                <CartesianGrid stroke="#66666633" strokeDasharray={_axisStyle.grid.strokeDasharray} />
                 <XAxis minTickGap={28} interval="preserveStartEnd" style={_axisStyle.tickLabels} dataKey="timestamp" scale="time" type={'number'} allowDataOverflow={true} domain={['dataMin', 'dataMax']} tickFormatter={(v) => {
                     return moment(v).format('MMM Do')
                 }} />
@@ -203,7 +235,7 @@ export const WorthEvoChart = ({
                     labelStyle={{ fontWeight: 'bold' }}
                     itemStyle={{ fontWeight: 'bold' }}
                     formatter={(value, name) => {
-                        const isPrice = name === keyNames['histoPrice'];
+                        const isPrice = name === keyNames['histoPrice'] || name === keyNames['dbrPrice'];
                         return !value ? 'none' : isPrice || !useUsd ? shortenNumber(value, 4, useUsd) : preciseCommify(value, 0, useUsd)
                     }}
                 />
@@ -214,19 +246,30 @@ export const WorthEvoChart = ({
                 }}
                     onClick={toggleChart} style={{ cursor: 'pointer' }} formatter={(value) => value + (actives[value] ? '' : ' (hidden)')} />
                 {
+                    showTotal && <Area opacity={actives[keyNames[totalKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[totalKey]} yAxisId="left" type="monotone" dataKey={totalKey} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
+                }
+                {
                     showCollateral && <Area opacity={actives[keyNames[balanceKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[balanceKey]} yAxisId="left" type="monotone" dataKey={balanceKey} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
                 }
                 {
                     showDebt && <Area opacity={actives[keyNames[debtKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[debtKey]} yAxisId="left" type="monotone" dataKey={debtKey} stroke={themeStyles.colors.warning} dot={false} fillOpacity={0.5} fill="url(#warning-gradient)" />
                 }
                 {/* <Area opacity={actives[keyNames["worth"]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames["worth"]} yAxisId="left" type="monotone" dataKey={'worth'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" /> */}
-
                 {
-                    collateralRewards > 0 && <Area opacity={actives[keyNames[stakingKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[stakingKey]} yAxisId="left" type="basis" dataKey={stakingKey} stroke={themeStyles.colors.mainTextColor} dot={false} fillOpacity={0.5} fill="url(#info-gradient)" />
+                    showDbr && showStaking && <Area opacity={actives[keyNames[totalRewardsUsd]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[totalRewardsUsd]} yAxisId="left" type="monotone" dataKey={totalRewardsUsd} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
                 }
-                <Area opacity={actives[keyNames[claimsKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[claimsKey]} yAxisId="left" type="monotone" dataKey={claimsKey} stroke={themeStyles.colors.mainTextColor} dot={false} fillOpacity={0.5} fill="url(#primary-gradient)" />
-                <Line opacity={actives[keyNames["histoPrice"]] ? 1 : 0} strokeWidth={2} name={keyNames["histoPrice"]} yAxisId="right" type="monotone" dataKey="histoPrice" stroke={themeStyles.colors.info} dot={false} />
-                {/* <Line opacity={actives[keyNames["dbrPrice"]] ? 1 : 0} strokeWidth={2} name={keyNames["dbrPrice"]} yAxisId="right" type="monotone" dataKey="dbrPrice" stroke={themeStyles.colors.info} dot={false} /> */}
+                {
+                    showStaking && <Area opacity={actives[keyNames[stakingKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[stakingKey]} yAxisId="left" type="basis" dataKey={stakingKey} stroke={lightTheme.colors.mainTextColor} dot={false} fillOpacity={0.5} fill="url(#info-gradient)" />
+                }
+                {
+                    showDbr && <Area opacity={actives[keyNames[claimsKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[claimsKey]} yAxisId="left" type="monotone" dataKey={claimsKey} stroke={'gold'} dot={false} fillOpacity={0.5} fill="url(#gold-gradient)" />
+                }
+                {
+                    showPrice && <Line opacity={actives[keyNames["histoPrice"]] ? 1 : 0} strokeWidth={2} name={keyNames["histoPrice"]} yAxisId="right" type="monotone" dataKey="histoPrice" stroke={themeStyles.colors.info} dot={false} />
+                }
+                {
+                    showDbrPrice && <Line opacity={actives[keyNames["dbrPrice"]] ? 1 : 0} strokeWidth={2} name={keyNames["dbrPrice"]} yAxisId="right" type="monotone" dataKey="dbrPrice" stroke={'green'} dot={false} />
+                }
                 {
                     showEvents && data
                         .filter(d => d.isClaimEvent)
