@@ -3,19 +3,28 @@ import 'source-map-support'
 import { F2_ESCROW_ABI, F2_MARKET_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
-import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
+import { getCacheFromRedis, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber, getToken } from '@app/util/markets'
 import { BLOCKS_PER_DAY, CHAIN_ID } from '@app/config/constants';
 import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
 import { NetworkIds } from '@app/types';
 import { throttledPromises } from '@app/util/misc';
 import { CHAIN_TOKENS } from '@app/variables/tokens';
+import { isAddress } from 'ethers/lib/utils';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
   const { cacheFirst, account, escrow, market } = req.query;
-  const cacheKey = `firm-escrow-balance-histo-${escrow}-v1.0.0`;
+  if (
+    !account || !isAddress(account) || isInvalidGenericParam(account)
+    || !market || !isAddress(market) || isInvalidGenericParam(market)
+    || !escrow || !isAddress(escrow) || isInvalidGenericParam(escrow)
+  ) {
+    res.status(400).json({ msg: 'invalid request' });
+    return;
+  }
+  const cacheKey = `firm-escrow-balance-histo-${escrow}-v1.0.4`;
   try {
     const cacheDuration = 1800;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
@@ -44,37 +53,41 @@ export default async function handler(req, res) {
       return;
     }
 
-    const archived = await getCacheFromRedis(cacheKey, false, 0) || { balances: [], blocks: [escrowCreationBlock], timestamps: [] };
-    const intIncrement = Math.floor(BLOCKS_PER_DAY);
-    const lastBlock = archived.blocks[archived.blocks.length - 1];
-    // skip if last block is less than 5 blocks ago
-    if (currentBlock - lastBlock < intIncrement) {
-      console.log('Skipping, last block is too recent')
-      res.status(200).json(archived);
-      return;
-    }
-    const startingBlock = lastBlock + intIncrement < currentBlock ? lastBlock + intIncrement : currentBlock;
+    const archived = await getCacheFromRedis(cacheKey, false, 0) || { balances: [], blocks: [], timestamps: [] };    
+    const lastBlock = archived.blocks.length > 0 ? archived.blocks[archived.blocks.length - 1] : escrowCreationBlock-1;
 
-    const nbDays = Math.floor((currentBlock - startingBlock) / intIncrement);
+    const startingBlock = lastBlock + 1 < currentBlock ? lastBlock + 1 : currentBlock;
+    // events impacting escrow balance
+    const escrowRelevantBlockNumbers = (await Promise.all([
+      marketContract.queryFilter(marketContract.filters.Deposit(account), startingBlock),
+      marketContract.queryFilter(marketContract.filters.Withdraw(account), startingBlock),
+      marketContract.queryFilter(marketContract.filters.Liquidate(account), startingBlock),
+    ])).flat().map(e => e.blockNumber);
 
-    const blocksFromStartUntilCurrent = [...Array(nbDays).keys()].map((i) => startingBlock + (i * intIncrement));
+    const intIncrement = Math.floor(BLOCKS_PER_DAY * 3);
+
+    const nbIntervals = Math.floor((currentBlock - startingBlock) / intIncrement);
+
+    const blocksFromStartUntilCurrent = [...Array(nbIntervals).keys()].map((i) => startingBlock + (i * intIncrement));
+    const allUniqueBlocksToCheck = [...new Set([...escrowRelevantBlockNumbers, ...blocksFromStartUntilCurrent])];
+
     const escrowContract = new Contract(escrow, F2_ESCROW_ABI, provider);
     // Function signature and encoding
     const functionName = 'balance';
     const functionSignature = escrowContract.interface.getSighash(functionName);
 
-    if (!blocksFromStartUntilCurrent.includes(currentBlock) && !archived?.blocks.includes(currentBlock)) {
-      blocksFromStartUntilCurrent.push(currentBlock);
+    if (!allUniqueBlocksToCheck.includes(currentBlock) && !archived?.blocks.includes(currentBlock)) {
+      allUniqueBlocksToCheck.push(currentBlock);
     }
 
-    if (!blocksFromStartUntilCurrent.length) {
+    if (!allUniqueBlocksToCheck.length) {
       res.status(200).json(archived);
       return;
     }
 
     await addBlockTimestamps(
-      blocksFromStartUntilCurrent,
-      NetworkIds.mainnet,
+      allUniqueBlocksToCheck,
+      CHAIN_ID,
     );
     const timestamps = await getCachedBlockTimestamps();
 
@@ -86,7 +99,7 @@ export default async function handler(req, res) {
             data: functionSignature + '0000000000000000000000000000000000000000000000000000000000000000', // append 32 bytes of 0 for no arguments
           }, block)
         },
-        blocksFromStartUntilCurrent,
+        allUniqueBlocksToCheck,
         5,
         100,
       );
@@ -100,8 +113,8 @@ export default async function handler(req, res) {
     const resultData = {
       balances: archived.balances.concat(newBalances),
       timestamp: Date.now(),
-      blocks: archived?.blocks.concat(blocksFromStartUntilCurrent),
-      timestamps: archived.timestamps.concat(blocksFromStartUntilCurrent.map(b => timestamps[NetworkIds.mainnet][b])),
+      blocks: archived?.blocks.concat(allUniqueBlocksToCheck),
+      timestamps: archived.timestamps.concat(allUniqueBlocksToCheck.map(b => timestamps[CHAIN_ID][b])),
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);
