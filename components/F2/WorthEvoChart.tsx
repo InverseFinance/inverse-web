@@ -43,13 +43,13 @@ export const WorthEvoChart = ({
     data,
     axisStyle,
     market,
-    useUsd = false,
+    collateralRewards = 0,
 }: {
     chartWidth: number,
     data: any[],
     axisStyle?: any,
     market: F2Market,
-    useUsd?: boolean,
+    collateralRewards: number
 }) => {
     const { themeStyles } = useAppTheme();
 
@@ -57,9 +57,12 @@ export const WorthEvoChart = ({
         'histoPrice': `${market.name} price`,
         'worth': 'USD worth',
         'totalWorth': 'Total USD worth',
+        'balance': 'Total collateral balance',
+        'claims': 'Claims',
         'claimsUsd': 'Claims worth',
-        'debt': 'DOLA debt',
+        'debtUsd': 'DOLA debt',
         'estimatedStakedBonusUsd': 'Staking earnings',
+        'estimatedStakedBonus': 'Staking earnings',
     }
 
     const LABEL_COLORS = {
@@ -94,6 +97,7 @@ export const WorthEvoChart = ({
         </VStack>
     }
 
+    const [useUsd, setUseUsd] = useState(true);
     const [showCollateral, setShowCollateral] = useState(true);
     const [showEvents, setShowEvents] = useState(false);
     const [showDebt, setShowDebt] = useState(true);
@@ -117,6 +121,11 @@ export const WorthEvoChart = ({
         setBrushIndexes(params);
     }
 
+    const balanceKey = useUsd ? 'totalWorth' : 'balance';
+    const debtKey = useUsd ? 'debt' : 'debt';
+    const claimsKey = useUsd ? 'claimsUsd' : 'claims';
+    const stakingKey = useUsd ? 'estimatedStakedBonusUsd' : 'estimatedStakedBonus';
+
     return <Container
         p="0"
         noPadding
@@ -125,6 +134,12 @@ export const WorthEvoChart = ({
         <VStack alignItems="center" maxW={`${chartWidth}px`}>
             <Stack w='full' justify="flex-start" alignItems="flex-start" direction="column">
                 <Stack w='full' spacing={{ base: '2', sm: '8' }} direction={{ base: 'column', sm: 'row' }}>
+                    {/* <FormControl w='fit-content' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
+                        <Text mr="2" onClick={() => setUseUsd(!useUsd)}>
+                            Show in USD
+                        </Text>
+                        <Switch onChange={(e) => setUseUsd(!useUsd)} size="sm" colorScheme="purple" isChecked={useUsd} />
+                    </FormControl> */}
                     <FormControl w='fit-content' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
                         <Text mr="2" onClick={() => setShowCollateral(!showCollateral)}>
                             Show collateral
@@ -180,8 +195,8 @@ export const WorthEvoChart = ({
                 <XAxis minTickGap={28} interval="preserveStartEnd" style={_axisStyle.tickLabels} dataKey="timestamp" scale="time" type={'number'} allowDataOverflow={true} domain={['dataMin', 'dataMax']} tickFormatter={(v) => {
                     return moment(v).format('MMM Do')
                 }} />
-                <YAxis style={_axisStyle.tickLabels} yAxisId="left" tickFormatter={(v) => smartShortNumber(v, 2, true)} />
-                <YAxis style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => shortenNumber(v, 4, true)} />
+                <YAxis style={_axisStyle.tickLabels} yAxisId="left" tickFormatter={(v) => smartShortNumber(v, 2, useUsd)} />
+                <YAxis style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => shortenNumber(v, 4, useUsd)} />
                 <Tooltip
                     wrapperStyle={_axisStyle.tickLabels}
                     labelFormatter={v => moment(v).format('MMM Do YYYY')}
@@ -189,7 +204,7 @@ export const WorthEvoChart = ({
                     itemStyle={{ fontWeight: 'bold' }}
                     formatter={(value, name) => {
                         const isPrice = name === keyNames['histoPrice'];
-                        return !value ? 'none' : isPrice ? shortenNumber(value, 4, true) : preciseCommify(value, 0, true)
+                        return !value ? 'none' : isPrice || !useUsd ? shortenNumber(value, 4, useUsd) : preciseCommify(value, 0, useUsd)
                     }}
                 />
                 <Legend wrapperStyle={{
@@ -199,14 +214,17 @@ export const WorthEvoChart = ({
                 }}
                     onClick={toggleChart} style={{ cursor: 'pointer' }} formatter={(value) => value + (actives[value] ? '' : ' (hidden)')} />
                 {
-                    showCollateral && <Area opacity={actives[keyNames["totalWorth"]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames["totalWorth"]} yAxisId="left" type="monotone" dataKey={'totalWorth'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
+                    showCollateral && <Area opacity={actives[keyNames[balanceKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[balanceKey]} yAxisId="left" type="monotone" dataKey={balanceKey} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
                 }
                 {
-                    showDebt && <Area opacity={actives[keyNames["debt"]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames["debt"]} yAxisId="left" type="monotone" dataKey={'debt'} stroke={themeStyles.colors.warning} dot={false} fillOpacity={0.5} fill="url(#warning-gradient)" />
+                    showDebt && <Area opacity={actives[keyNames[debtKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[debtKey]} yAxisId="left" type="monotone" dataKey={debtKey} stroke={themeStyles.colors.warning} dot={false} fillOpacity={0.5} fill="url(#warning-gradient)" />
                 }
                 {/* <Area opacity={actives[keyNames["worth"]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames["worth"]} yAxisId="left" type="monotone" dataKey={'worth'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" /> */}
-                {/* <Area opacity={actives[keyNames["estimatedStakedBonusUsd"]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames["estimatedStakedBonusUsd"]} yAxisId="left" type="monotone" dataKey={'estimatedStakedBonusUsd'} stroke={themeStyles.colors.mainTextColor} dot={false} fillOpacity={0.5} fill="url(#primary-gradient)" /> */}
-                {/* <Area opacity={actives[keyNames["claimsUsd"]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames["claimsUsd"]} yAxisId="left" type="monotone" dataKey={'claimsUsd'} stroke={themeStyles.colors.mainTextColor} dot={false} fillOpacity={0.5} fill="url(#primary-gradient)" /> */}
+
+                {
+                    collateralRewards > 0 && <Area opacity={actives[keyNames[stakingKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[stakingKey]} yAxisId="left" type="basis" dataKey={stakingKey} stroke={themeStyles.colors.mainTextColor} dot={false} fillOpacity={0.5} fill="url(#info-gradient)" />
+                }
+                <Area opacity={actives[keyNames[claimsKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[claimsKey]} yAxisId="left" type="monotone" dataKey={claimsKey} stroke={themeStyles.colors.mainTextColor} dot={false} fillOpacity={0.5} fill="url(#primary-gradient)" />
                 <Line opacity={actives[keyNames["histoPrice"]] ? 1 : 0} strokeWidth={2} name={keyNames["histoPrice"]} yAxisId="right" type="monotone" dataKey="histoPrice" stroke={themeStyles.colors.info} dot={false} />
                 {/* <Line opacity={actives[keyNames["dbrPrice"]] ? 1 : 0} strokeWidth={2} name={keyNames["dbrPrice"]} yAxisId="right" type="monotone" dataKey="dbrPrice" stroke={themeStyles.colors.info} dot={false} /> */}
                 {

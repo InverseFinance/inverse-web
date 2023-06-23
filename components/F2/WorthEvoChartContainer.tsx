@@ -79,6 +79,7 @@ export const WorthEvoChartContainer = ({
             stakedWorth: balance * p[1],
             totalWorth: claimsUsd + balance * p[1],
             debt,
+            balance,
             depositedByUser,
             claims,
             timeProgression,
@@ -98,6 +99,7 @@ export const WorthEvoChartContainer = ({
     }
 
     return <WorthEvoChart
+        collateralRewards={collateralRewards}
         market={market}
         chartWidth={chartWidth}
         data={data}

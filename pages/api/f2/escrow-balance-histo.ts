@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     res.status(400).json({ msg: 'invalid request' });
     return;
   }
-  const cacheKey = `firm-escrow-balance-histo-${escrow}-v1.0.4`;
+  const cacheKey = `firm-escrow-balance-histo-${escrow}-v1.0.6`;
   try {
     const cacheDuration = 1800;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
@@ -70,6 +70,7 @@ export default async function handler(req, res) {
 
     const blocksFromStartUntilCurrent = [...Array(nbIntervals).keys()].map((i) => startingBlock + (i * intIncrement));
     const allUniqueBlocksToCheck = [...new Set([...escrowRelevantBlockNumbers, ...blocksFromStartUntilCurrent])];
+    allUniqueBlocksToCheck.sort((a, b) => a - b);
 
     const escrowContract = new Contract(escrow, F2_ESCROW_ABI, provider);
     // Function signature and encoding
