@@ -418,7 +418,25 @@ export const useHistoricalPrices = (cgId: string) => {
   return {
     prices: data?.prices || [],
     isLoading: !error && !data,
-    isError: error,
+    isError: !!error,
+  }
+}
+
+export const useEscrowBalanceEvolution = (account: string, escrow: string, market: string, blockNumbers: number[]): SWR & {
+  evolution: { balance: number, timestamp: number }[],
+  timestamp: number,
+  isLoading: boolean,
+  isError: boolean,
+} => {
+  const { data, error } = useCacheFirstSWR(`/api/f2/escrow-balance-histo?v=1&account=${account}&escrow=${escrow}&market=${market}`, fetcher);
+
+  const evolution = data? data.balances.map((b,i) => ({ balance: b, timestamp: data.timestamps[i]*1000 })) : [];
+
+  return {
+    evolution,
+    timestamp: data ? data.timestamp : 0,
+    isLoading: !error && !data,
+    isError: !!error,
   }
 }
 
