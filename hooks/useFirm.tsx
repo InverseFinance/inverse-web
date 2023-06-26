@@ -39,6 +39,7 @@ export const useFirmPositions = (isShortfallOnly = false): SWR & {
       marketName: market.name,
       market,
       perc: newPerc,
+      depositsUsd: p.deposits * market.price,
       creditLimit: newCreditLimit,
       liquidationPrice: newLiquidationPrice,
       creditLeft: newCreditLeft,
