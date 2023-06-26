@@ -57,15 +57,19 @@ export default async function handler(req, res) {
     const lastBlock = archived.blocks.length > 0 ? archived.blocks[archived.blocks.length - 1] : escrowCreationBlock - 1;
 
     const startingBlock = lastBlock + 1 < currentBlock ? lastBlock + 1 : currentBlock;
-    // events impacting escrow balance
+
+    const dbrContract = new Contract(DBR, DBR_ABI, provider);
+    // events impacting escrow balance or visible on the chart
     const eventsToQuery = [
       marketContract.queryFilter(marketContract.filters.Deposit(account), startingBlock),
       marketContract.queryFilter(marketContract.filters.Withdraw(account), startingBlock),
       marketContract.queryFilter(marketContract.filters.Liquidate(account), startingBlock),
+      marketContract.queryFilter(marketContract.filters.Repay(account), startingBlock),
+      marketContract.queryFilter(marketContract.filters.Borrow(account), startingBlock),
+      dbrContract.queryFilter(dbrContract.filters.ForceReplenish(account, undefined, _market.address), startingBlock),
     ];
 
-    if (_market.isInv) {
-      const dbrContract = new Contract(DBR, DBR_ABI, provider);
+    if (_market.isInv) {      
       eventsToQuery.push(dbrContract.queryFilter(dbrContract.filters.Transfer(BURN_ADDRESS, account), startingBlock))
     }
 
