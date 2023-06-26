@@ -126,11 +126,11 @@ const poolColumn = ({ width, symbol, pool, project, chain, underlyingTokens }) =
                     {
                         !!link ?
                             <Link alignItems='center' textDecoration="underline" color="mainTextColor" textTransform="uppercase" as="a" href={link} isExternal target="_blank" display="flex">
-                                <UnderlyingItem textProps={{ fontSize: '14px', ml: '2', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '90px'  }} imgSize={20} label={symbol} pairs={pairs} showAsLp={true} chainId={chainId} />
+                                <UnderlyingItem textProps={{ fontSize: '14px', ml: '2', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '300px'  }} imgSize={20} label={symbol} pairs={pairs} showAsLp={true} chainId={chainId} />
                                 <ExternalLinkIcon color="info" ml="1" />
                             </Link>
                             :
-                            <UnderlyingItem textProps={{ fontSize: '14px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '90px'  }} imgSize={20} label={symbol} pairs={pairs} showAsLp={true} chainId={chainId} />
+                            <UnderlyingItem textProps={{ fontSize: '14px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '300px'  }} imgSize={20} label={symbol} pairs={pairs} showAsLp={true} chainId={chainId} />
                     }
                 </> : <Text>{symbol}</Text>
             }
