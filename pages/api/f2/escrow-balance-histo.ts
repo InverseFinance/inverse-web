@@ -5,7 +5,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber, getToken } from '@app/util/markets'
-import { BLOCKS_PER_DAY, BURN_ADDRESS, CHAIN_ID } from '@app/config/constants';
+import { BLOCKS_PER_DAY, BURN_ADDRESS, CHAIN_ID, ONE_DAY_SECS } from '@app/config/constants';
 import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
 import { NetworkIds } from '@app/types';
 import { throttledPromises } from '@app/util/misc';
@@ -15,20 +15,20 @@ import { isAddress } from 'ethers/lib/utils';
 const { F2_MARKETS, DBR } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
-  const { cacheFirst, account, escrow, market } = req.query;
+  const { cacheFirst, account, escrow, market, lastBlock } = req.query;
   if (
     !account || !isAddress(account) || isInvalidGenericParam(account)
     || !market || !isAddress(market) || isInvalidGenericParam(market)
     || !escrow || !isAddress(escrow) || isInvalidGenericParam(escrow)
+    || isInvalidGenericParam(lastBlock)
   ) {
     res.status(400).json({ msg: 'invalid request' });
     return;
   }
-  const cacheKey = `firm-escrow-balance-histo-${escrow}-v1.0.8`;
+  const cacheKey = `firm-escrow-balance-histo-${escrow}-${lastBlock}-${CHAIN_ID}-v1.0.8`;
   try {
-    const cacheDuration = 1800;
-    res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
+    res.setHeader('Cache-Control', `public, max-age=${ONE_DAY_SECS}`);
+    const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', ONE_DAY_SECS, true);
     if (validCache) {
       res.status(200).json(validCache);
       return

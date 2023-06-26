@@ -422,13 +422,14 @@ export const useHistoricalPrices = (cgId: string) => {
   }
 }
 
-export const useEscrowBalanceEvolution = (account: string, escrow: string, market: string, blockNumbers: number[]): SWR & {
+export const useEscrowBalanceEvolution = (account: string, escrow: string, market: string, lastBlock: number): SWR & {
   evolution: { balance: number, timestamp: number }[],
+  timestamps: { [key: string]: number },
   timestamp: number,
   isLoading: boolean,
   isError: boolean,
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/f2/escrow-balance-histo?v=3&account=${account}&escrow=${escrow}&market=${market}`, fetcher);
+  const { data, error } = useCacheFirstSWR(`/api/f2/escrow-balance-histo?v=3&account=${account}&escrow=${escrow}&market=${market}&lastBlock=${lastBlock}`, fetcher);
 
   const evolution = data ? data.balances.map((b, i) => ({
     balance: b,
@@ -437,8 +438,11 @@ export const useEscrowBalanceEvolution = (account: string, escrow: string, marke
     timestamp: data.timestamps[i] * 1000,
   })) : [];
 
+  const timestamps = data ? evolution.reduce((acc, e) => ({ ...acc, [e.blocknumber]: e.timestamp }), {}) : {};
+
   return {
     evolution,
+    timestamps,
     timestamp: data ? data.timestamp : 0,
     isLoading: !error && !data,
     isError: !!error,
@@ -451,6 +455,7 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
   error: any
   depositedByUser: number
   liquidated: number
+  lastBlock: number
 } => {
   const toQuery = [
     [market.address, F2_MARKET_ABI, 'Deposit', [account]],
@@ -483,7 +488,9 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
   let replenished = 0;
   let debt = 0;
 
-  const { timestamps } = useBlocksTimestamps(flatenedEvents.map(e => e.blockNumber));
+  const blocks = flatenedEvents.map(e => e.blockNumber);
+  // useBlocksTimestamps won't work for older events for some wallets/rpc, fallback is via backend api
+  const { timestamps } = useBlocksTimestamps(blocks);
 
   const events = flatenedEvents.map((e, i) => {
     const actionName = e.event;
@@ -539,6 +546,7 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
     depositedByUser,
     liquidated,
     replenished,
+    lastBlock: blocks?.length ? Math.max(...blocks) : 0,
     isLoading,
     error,
   }

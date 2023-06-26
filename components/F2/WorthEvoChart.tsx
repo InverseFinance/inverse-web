@@ -1,7 +1,7 @@
 import { useAppTheme } from "@app/hooks/useAppTheme";
 import { F2Market } from "@app/types";
 import { VStack, Text, FormControl, Switch, Stack, HStack, Popover, PopoverTrigger, PopoverContent } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Brush, ComposedChart, ReferenceLine } from 'recharts';
 import moment from 'moment';
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
@@ -55,22 +55,20 @@ export const WorthEvoChart = ({
     data,
     axisStyle,
     market,
-    collateralRewards = 0,
 }: {
     chartWidth: number,
     data: any[],
     axisStyle?: any,
     market: F2Market,
-    collateralRewards: number
 }) => {
     const { themeStyles } = useAppTheme();
 
     const keyNames = {
-        'histoPrice': `${market.name} price`,
-        'dbrPrice': 'DBR price',
+        'histoPrice': `${market.name} market price`,
+        'dbrPrice': 'DBR market price',
         'totalRewardsUsd': 'Total rewards',
         'balanceWorth': 'Collateral balance worth',
-        'totalWorth': 'Total USD worth',
+        'totalWorth': market.hasClaimableRewards || market.name === 'stETH' ? 'Balance + All Rewards worth' : 'Balance worth',
         'balance': 'Total collateral balance',
         'dbrRewards': 'DBR rewards',
         'rewardsUsd': 'DBR rewards',
@@ -161,6 +159,10 @@ export const WorthEvoChart = ({
     const claimsKey = useUsd ? 'rewardsUsd' : 'claims';
     const stakingKey = useUsd ? 'estimatedStakedBonusUsd' : 'estimatedStakedBonus';
 
+    useEffect(() => {
+        handleTabChange(CHART_TABS.overview);
+    }, [])
+
     const handleTabChange = (v: string) => {
         setActiveTab(v);
         setShowTotal([CHART_TABS.overview].includes(v));
@@ -168,7 +170,7 @@ export const WorthEvoChart = ({
         setShowPrice([CHART_TABS.collateral, CHART_TABS.overview, CHART_TABS.debt, CHART_TABS.invDbr, CHART_TABS.invStaking, CHART_TABS.staking].includes(v));
         setShowDebt(tabOptions.includes(CHART_TABS.debt) && [CHART_TABS.debt, CHART_TABS.overview].includes(v));
         setShowDbr(tabOptions.includes(CHART_TABS.dbrRewards) && [CHART_TABS.dbrRewards, CHART_TABS.invDbr, CHART_TABS.overview].includes(v));
-        setShowDbrPrice(tabOptions.includes(CHART_TABS.dbrRewards) && [CHART_TABS.dbrRewards, CHART_TABS.invDbr].includes(v));
+        setShowDbrPrice(tabOptions.includes(CHART_TABS.dbrRewards) && [CHART_TABS.overview, CHART_TABS.dbrRewards, CHART_TABS.invDbr].includes(v));
         setShowStaking(tabOptions.includes(CHART_TABS.staking) || tabOptions.includes(CHART_TABS.invStaking) && [CHART_TABS.invStaking, CHART_TABS.invDbr, CHART_TABS.staking, CHART_TABS.overview].includes(v));
     }
 

@@ -1,5 +1,5 @@
 
-import { useEscrowBalanceEvolution, useFirmMarketEvolution, useHistoricalPrices } from "@app/hooks/useFirm";
+import { useEscrowBalanceEvolution, useFirmMarketEvolution, useHistoricalPrices, useINVEscrowRewards } from "@app/hooks/useFirm";
 import { F2Market } from "@app/types";
 import { useContext, useEffect, useState } from "react";
 import { useAccount } from "@app/hooks/misc";
@@ -8,35 +8,33 @@ import { ONE_DAY_MS } from "@app/config/constants";
 import { F2MarketContext } from "./F2Contex";
 import { WorthEvoChart } from "./WorthEvoChart";
 import { useMediaQuery } from "@chakra-ui/react";
+import { usePrices } from "@app/hooks/usePrices";
+import { useDBRPrice } from "@app/hooks/useDBR";
 
 const maxWidth = 1280;
 
-export const WorthEvoChartContainer = ({
-    market
-}: {
+const useFirmUserPositionEvolution = (
     market: F2Market,
-}) => {
+    currentClaimableDbrRewards = 0,
+) => {
     const account = useAccount();
 
-    const [chartWidth, setChartWidth] = useState<number>(maxWidth);
-    const [isLargerThan] = useMediaQuery(`(min-width: ${maxWidth+50}px)`)
-
-    useEffect(() => {
-        setChartWidth(isLargerThan ? maxWidth : (screen.availWidth || screen.width) - 50)
-    }, [isLargerThan, maxWidth]);
-
-    const { deposits, escrow } = useContext(F2MarketContext);
-    const { prices } = useHistoricalPrices(market.underlying.coingeckoId);
+    const { deposits, escrow, debt } = useContext(F2MarketContext);
+    const { prices: histoPrices } = useHistoricalPrices(market.underlying.coingeckoId);
     const { prices: dbrPrices } = useHistoricalPrices('dola-borrowing-right');
-    const { events, depositedByUser, blockNumbers } = useFirmMarketEvolution(market, account);
-    const { evolution: escrowBalanceEvolution } = useEscrowBalanceEvolution(account, escrow, market.address, blockNumbers);
+    const { prices } = usePrices();
+    const { price: dbrPrice } = useDBRPrice();
+    const { events: _events, depositedByUser, lastBlock } = useFirmMarketEvolution(market, account);
+    
+    const { evolution: escrowBalanceEvolution, timestamps } = useEscrowBalanceEvolution(account, escrow, market.address, lastBlock);
+    const events = _events?.map(e => ({ ...e, timestamp: e.timestamp || timestamps[e.blockNumber] })).filter(e => !!e.timestamp);
 
     const start = events ? events.find(e => e.actionName === 'Deposit')?.timestamp : undefined;
 
     const collateralRewards = Math.max((deposits) - depositedByUser, 0);
 
     const pricesAtEvents = events.map(e => {
-        const price = prices.find(p => timestampToUTC(p[0]) === timestampToUTC(e.timestamp))?.[1];
+        const price = histoPrices.find(p => timestampToUTC(p[0]) === timestampToUTC(e.timestamp))?.[1];
         return [e.timestamp, price];
     }).filter(p => p[0] && !!p[1]);
 
@@ -44,12 +42,14 @@ export const WorthEvoChartContainer = ({
 
     const allPrices = [
         ...pricesAtEvents,
-        ...prices,
-        [now, prices.find(p => timestampToUTC(p[0]) === timestampToUTC(now))?.[1] || 0],
+        ...histoPrices,
+        [now, histoPrices.find(p => timestampToUTC(p[0]) === timestampToUTC(now))?.[1] || 0],
     ].sort((a, b) => a[0] - b[0]);
 
     const relevantPrices = allPrices
         .filter(p => p[0] > start - ONE_DAY_MS * 2);
+
+    const currentPrice = prices ? prices[market.underlying.coingeckoId] || 0 : 0;
 
     const data = relevantPrices.map((p, i) => {
         const event = events.find(e => !e.isClaim && e.timestamp === p[0]);
@@ -89,6 +89,7 @@ export const WorthEvoChartContainer = ({
             depositedByUser,
             dbrClaimed: claims,
             dbrRewards: claims + histoEscrowDbrClaimable,
+            dbrClaimable: histoEscrowDbrClaimable,
             timeProgression,
             estimatedStakedBonus,
             estimatedStakedBonusUsd,
@@ -98,12 +99,94 @@ export const WorthEvoChartContainer = ({
 
     const hasData = data?.length > 0;
 
-    if(!start || !hasData || !events.length) {
+    if (!start || !hasData || !events.length) {
         return null;
     }
 
+    const rewardsUsd = (data[data.length - 1].dbrClaimed + currentClaimableDbrRewards) * dbrPrice;
+
+    data.push({
+        ...data[data.length - 1],
+        histoPrice: currentPrice,
+        dbrPrice,
+        isEvent: false,
+        isClaimEvent: false,
+        timeProgression: 1,
+        timestamp: now,
+        debt,
+        debtUsd: debt,
+        balance: deposits,
+        balanceWorth: deposits * currentPrice,
+        totalWorth: deposits * currentPrice + rewardsUsd,
+        estimatedStakedBonus: collateralRewards,
+        estimatedStakedBonusUsd: collateralRewards * currentPrice,
+        totalRewardsUsd: rewardsUsd + collateralRewards * currentPrice,
+        rewardsUsd,
+    });
+
+    return data;
+}
+
+export const WorthEvoChartWrapper = ({
+    market
+}: {
+    market: F2Market,
+}) => {
+    const { escrow } = useContext(F2MarketContext);
+    const [chartWidth, setChartWidth] = useState<number>(maxWidth);
+    const [isLargerThan] = useMediaQuery(`(min-width: ${maxWidth + 50}px)`)
+
+    useEffect(() => {
+        setChartWidth(isLargerThan ? maxWidth : (screen.availWidth || screen.width) - 50)
+    }, [isLargerThan, maxWidth]);
+
+    if(!escrow) {
+        return null
+    }
+
+    if(market.isInv) {
+        return <WorthEvoChartContainerINV chartWidth={chartWidth} market={market} />
+    }
+
+    return <WorthEvoChartContainer chartWidth={chartWidth} market={market} />
+}
+
+export const WorthEvoChartContainer = ({
+    market,
+    chartWidth,
+}: {
+    market: F2Market,
+    chartWidth: number,
+}) => {
+    const data = useFirmUserPositionEvolution(market);
+
+    if(!data) {
+        return null
+    }
+
     return <WorthEvoChart
-        collateralRewards={collateralRewards}
+        chartWidth={chartWidth}
+        market={market}
+        data={data}
+    />
+}
+
+export const WorthEvoChartContainerINV = ({
+    market,
+    chartWidth,
+}: {
+    market: F2Market,
+    chartWidth: number,
+}) => {
+    const { escrow } = useContext(F2MarketContext);
+    const { rewards } = useINVEscrowRewards(escrow);
+    const data = useFirmUserPositionEvolution(market, rewards);
+
+    if(!data) {
+        return null
+    }
+
+    return <WorthEvoChart
         market={market}
         chartWidth={chartWidth}
         data={data}
