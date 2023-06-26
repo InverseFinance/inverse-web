@@ -69,13 +69,13 @@ const columns = [
         filterWidth: '100px',
     },
     {
-        field: 'deposits',
+        field: 'depositsUsd',
         label: 'Deposits',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        value: ({ deposits, market }) => {
+        value: ({ deposits, depositsUsd }) => {
             return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
                 <CellText>{shortenNumber(deposits, 2)}</CellText>
-                <CellText>({shortenNumber(deposits * market?.price, 2, true)})</CellText>
+                <CellText>({shortenNumber(depositsUsd, 2, true)})</CellText>
             </Cell>
         },
     },
