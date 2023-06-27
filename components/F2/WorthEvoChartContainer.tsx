@@ -11,7 +11,7 @@ import { useMediaQuery } from "@chakra-ui/react";
 import { usePrices } from "@app/hooks/usePrices";
 import { useDBRPrice } from "@app/hooks/useDBR";
 
-const maxWidth = 1280;
+const maxWidth = 1250;
 
 const useFirmUserPositionEvolution = (
     market: F2Market,
@@ -103,7 +103,8 @@ const useFirmUserPositionEvolution = (
         return null;
     }
 
-    const rewardsUsd = (data[data.length - 1].dbrClaimed + currentClaimableDbrRewards) * dbrPrice;
+    const dbrRewards = (data[data.length - 1].dbrClaimed + currentClaimableDbrRewards);
+    const rewardsUsd = dbrRewards * dbrPrice;
 
     data.push({
         ...data[data.length - 1],
@@ -122,6 +123,7 @@ const useFirmUserPositionEvolution = (
         estimatedStakedBonusUsd: collateralRewards * currentPrice,
         totalRewardsUsd: rewardsUsd + collateralRewards * currentPrice,
         rewardsUsd,
+        dbrRewards,
     });
 
     return data;

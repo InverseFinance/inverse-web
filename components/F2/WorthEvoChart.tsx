@@ -111,14 +111,14 @@ export const WorthEvoChart = ({
     }
 
     const tabOptions = [CHART_TABS.overview, CHART_TABS.collateral];
-    if(!market.borrowPaused){
+    if (!market.borrowPaused) {
         tabOptions.push(CHART_TABS.debt);
     }
-    if(market.isInv) {
+    if (market.isInv) {
         tabOptions.push(CHART_TABS.invDbr);
         tabOptions.push(CHART_TABS.invStaking);
-        tabOptions.push(CHART_TABS.dbrRewards);        
-    } else if(market.name === 'stETH') {
+        tabOptions.push(CHART_TABS.dbrRewards);
+    } else if (market.name === 'stETH') {
         tabOptions.push(CHART_TABS.staking);
     }
 
@@ -156,14 +156,19 @@ export const WorthEvoChart = ({
     const totalRewardsUsd = 'totalRewardsUsd';
     const balanceKey = useUsd ? 'balanceWorth' : 'balance';
     const debtKey = useUsd ? 'debtUsd' : 'debt';
-    const claimsKey = useUsd ? 'rewardsUsd' : 'claims';
+    const claimsKey = useUsd ? 'rewardsUsd' : 'dbrRewards';
     const stakingKey = useUsd ? 'estimatedStakedBonusUsd' : 'estimatedStakedBonus';
 
     useEffect(() => {
         handleTabChange(CHART_TABS.overview);
     }, [])
 
+    const canShowNonUsdAmounts = [CHART_TABS.collateral, CHART_TABS.dbrRewards, CHART_TABS.staking, CHART_TABS.invStaking].includes(activeTab);
+
     const handleTabChange = (v: string) => {
+        if(!canShowNonUsdAmounts && !useUsd){
+            setUseUsd(true);
+        }
         setActiveTab(v);
         setShowTotal([CHART_TABS.overview].includes(v));
         setShowCollateral([CHART_TABS.collateral].includes(v));
@@ -181,36 +186,44 @@ export const WorthEvoChart = ({
     >
         <VStack alignItems="center" maxW={`${chartWidth}px`}>
             <Stack w='full' justify="flex-start" alignItems="flex-start" direction="column">
-                <Stack w='full' spacing={{ base: '2', sm: '8' }} direction={{ base: 'column', sm: 'row' }}>
-                    <NavButtons
-                        maxW='800px'
-                        active={activeTab}
-                        options={tabOptions}
-                        onClick={(v) => handleTabChange(v)}
-                    />
-                    {/* <FormControl w='fit-content' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
-                        <Text mr="2" onClick={() => setUseUsd(!useUsd)}>
-                            Show in USD
-                        </Text>
-                        <Switch onChange={(e) => setUseUsd(!useUsd)} size="sm" colorScheme="purple" isChecked={useUsd} />
-                    </FormControl> */}
-                    <FormControl w='fit-content' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
-                        <Text w='100px' mr="2" onClick={() => setShowEvents(!showEvents)}>
-                            Show events
-                        </Text>
-                        <Switch onChange={(e) => setShowEvents(!showEvents)} size="sm" colorScheme="purple" isChecked={showEvents} />
-                    </FormControl>
-                    <HStack cursor="help" visibility={!showEvents ? 'hidden' : 'visible'}>
-                        <Popover trigger="hover" placement="right-end">
-                            <PopoverTrigger>
-                                <Text color={themeStyles.colors.mainTextColorLight2} textDecoration="underline">
-                                    See Events Legend
+                <Stack alignItems="center" w='full' spacing={{ base: '2', sm: '8' }} direction={{ base: 'column', lg: 'row' }}>
+                    <VStack alignItems="center" maxW={{ base: 'full', sm: '800px' }} w='full'>
+                        <NavButtons
+                            active={activeTab}
+                            options={tabOptions}
+                            onClick={(v) => handleTabChange(v)}
+                            textProps={{ p: '1', textAlign: 'center', fontSize: { base: '12px', sm: '14px' } }}
+                            overflow={{ base: 'scroll', sm: 'auto' }}
+                        />
+                    </VStack>
+                    <HStack h="30px" alignItems="center" spacing="3">
+                        {
+                            canShowNonUsdAmounts
+                            && <FormControl w='fit-content' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
+                                <Text w='100px' mr="2" onClick={() => setUseUsd(!useUsd)}>
+                                    Show in USD
                                 </Text>
-                            </PopoverTrigger>
-                            <PopoverContent p="4">
-                                <EvoChartEventLegend />
-                            </PopoverContent>
-                        </Popover>
+                                <Switch onChange={(e) => setUseUsd(!useUsd)} size="sm" colorScheme="purple" isChecked={useUsd} />
+                            </FormControl>
+                        }
+                        <FormControl display={{ base: 'none', sm: 'inline-flex' }} w='fit-content' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
+                            <Text w='100px' mr="2" onClick={() => setShowEvents(!showEvents)}>
+                                Show events
+                            </Text>
+                            <Switch onChange={(e) => setShowEvents(!showEvents)} size="sm" colorScheme="purple" isChecked={showEvents} />
+                        </FormControl>
+                        <HStack display={{ base: 'none', sm: 'inline-flex' }} cursor="help" visibility={!showEvents ? 'hidden' : 'visible'}>
+                            <Popover trigger="hover" placement="right-end">
+                                <PopoverTrigger>
+                                    <Text color={themeStyles.colors.mainTextColorLight2} textDecoration="underline">
+                                        See Events Legend
+                                    </Text>
+                                </PopoverTrigger>
+                                <PopoverContent p="4">
+                                    <EvoChartEventLegend />
+                                </PopoverContent>
+                            </Popover>
+                        </HStack>
                     </HStack>
                 </Stack>
             </Stack>
@@ -230,7 +243,7 @@ export const WorthEvoChart = ({
                     return moment(v).format('MMM Do')
                 }} />
                 <YAxis style={_axisStyle.tickLabels} yAxisId="left" tickFormatter={(v) => smartShortNumber(v, 2, useUsd)} />
-                <YAxis style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => shortenNumber(v, 4, useUsd)} />
+                <YAxis style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => shortenNumber(v, 4, true)} />
                 <Tooltip
                     wrapperStyle={_axisStyle.tickLabels}
                     labelFormatter={v => moment(v).format('MMM Do YYYY')}
@@ -238,12 +251,12 @@ export const WorthEvoChart = ({
                     itemStyle={{ fontWeight: 'bold' }}
                     formatter={(value, name) => {
                         const isPrice = name === keyNames['histoPrice'] || name === keyNames['dbrPrice'];
-                        return !value ? 'none' : isPrice || !useUsd ? shortenNumber(value, 4, useUsd) : preciseCommify(value, 0, useUsd)
+                        return !value ? 'none' : isPrice ? preciseCommify(value, value < 1 ? 4 : 2, true) : preciseCommify(value, !useUsd ? 2 : 0, useUsd)
                     }}
                 />
                 <Legend wrapperStyle={{
                     ..._axisStyle.tickLabels,
-                    fontSize: '16px',
+                    fontSize: chartWidth <= 400 ? '12px' : '16px',
                     fontWeight: 'bold',
                 }}
                     onClick={toggleChart} style={{ cursor: 'pointer' }} formatter={(value) => value + (actives[value] ? '' : ' (hidden)')} />
@@ -264,7 +277,7 @@ export const WorthEvoChart = ({
                     showStaking && <Area opacity={actives[keyNames[stakingKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[stakingKey]} yAxisId="left" type="basis" dataKey={stakingKey} stroke={lightTheme.colors.mainTextColor} dot={false} fillOpacity={0.5} fill="url(#info-gradient)" />
                 }
                 {
-                    showDbr && <Area opacity={actives[keyNames[claimsKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[claimsKey]} yAxisId="left" type="monotone" dataKey={claimsKey} stroke={'gold'} dot={false} fillOpacity={0.5} fill="url(#gold-gradient)" />
+                    showDbr && <Area opacity={actives[keyNames[claimsKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[claimsKey]} yAxisId="left" type="basis" dataKey={claimsKey} stroke={'gold'} dot={false} fillOpacity={0.5} fill="url(#gold-gradient)" />
                 }
                 {
                     showPrice && <Line opacity={actives[keyNames["histoPrice"]] ? 1 : 0} strokeWidth={2} name={keyNames["histoPrice"]} yAxisId="right" type="monotone" dataKey="histoPrice" stroke={themeStyles.colors.info} dot={false} />
