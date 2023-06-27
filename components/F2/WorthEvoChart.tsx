@@ -6,9 +6,10 @@ import { Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Brush, Compos
 import moment from 'moment';
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import { preciseCommify } from "@app/util/misc";
-import Container from "../common/Container";
+import Container, { AppContainerProps } from "../common/Container";
 import { NavButtons } from "../common/Button";
 import { lightTheme } from "@app/variables/theme";
+import { SkeletonBlob } from "../common/Skeleton";
 
 const LABEL_POSITIONS = {
     'Claim': 'center',
@@ -50,16 +51,24 @@ const CHART_TABS = {
     'invDbr': 'INV & DBR',
 }
 
+const Cont = (props: AppContainerProps) => <Container
+    p="0"
+    noPadding
+    {...props}
+/>
+
 export const WorthEvoChart = ({
     chartWidth,
     data,
     axisStyle,
     market,
+    isLoading,
 }: {
     chartWidth: number,
-    data: any[],
+    data: any[] | null,
     axisStyle?: any,
     market: F2Market,
+    isLoading?: boolean,
 }) => {
     const { themeStyles } = useAppTheme();
 
@@ -166,7 +175,7 @@ export const WorthEvoChart = ({
     const canShowNonUsdAmounts = [CHART_TABS.collateral, CHART_TABS.dbrRewards, CHART_TABS.staking, CHART_TABS.invStaking].includes(activeTab);
 
     const handleTabChange = (v: string) => {
-        if(!canShowNonUsdAmounts && !useUsd){
+        if (!canShowNonUsdAmounts && !useUsd) {
             setUseUsd(true);
         }
         setActiveTab(v);
@@ -179,11 +188,15 @@ export const WorthEvoChart = ({
         setShowStaking(tabOptions.includes(CHART_TABS.staking) || tabOptions.includes(CHART_TABS.invStaking) && [CHART_TABS.invStaking, CHART_TABS.invDbr, CHART_TABS.staking, CHART_TABS.overview].includes(v));
     }
 
-    return <Container
-        p="0"
-        noPadding
-        label={`Your Position Evolution in the ${market.name} Market - Beta`}
-    >
+    const containerLabel = `Your Position Evolution in the ${market.name} Market - Beta`;
+
+    if(isLoading || !data?.length) {
+        return <Cont label={containerLabel}>
+            <SkeletonBlob />
+        </Cont>
+    }
+
+    return <Cont label={containerLabel}>
         <VStack alignItems="center" maxW={`${chartWidth}px`}>
             <Stack w='full' justify="flex-start" alignItems="flex-start" direction="column">
                 <Stack alignItems="center" w='full' spacing={{ base: '2', lg: '4' }} direction={{ base: 'column', lg: 'row' }}>
@@ -311,5 +324,5 @@ export const WorthEvoChart = ({
                 <Brush onChange={handleBrush} startIndex={brushIndexes.startIndex} endIndex={brushIndexes.endIndex} dataKey="timestamp" height={30} stroke="#8884d8" tickFormatter={(v) => ''} />
             </ComposedChart>
         </VStack>
-    </Container>
+    </Cont>
 }

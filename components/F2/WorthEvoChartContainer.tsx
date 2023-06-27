@@ -10,6 +10,7 @@ import { WorthEvoChart } from "./WorthEvoChart";
 import { useMediaQuery } from "@chakra-ui/react";
 import { usePrices } from "@app/hooks/usePrices";
 import { useDBRPrice } from "@app/hooks/useDBR";
+import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect'
 
 const maxWidth = 1200;
 
@@ -20,14 +21,20 @@ const useFirmUserPositionEvolution = (
     const account = useAccount();
 
     const { deposits, escrow, debt } = useContext(F2MarketContext);
-    const { prices: histoPrices } = useHistoricalPrices(market.underlying.coingeckoId);
+    const { prices: histoPrices, isLoading: isLoadingHistoPrices } = useHistoricalPrices(market.underlying.coingeckoId);
     const { prices: dbrPrices } = useHistoricalPrices('dola-borrowing-right');
-    const { prices } = usePrices();
+    const { prices, isLoading: isLoadingPrices } = usePrices();
     const { price: dbrPrice } = useDBRPrice();
     const { events: _events, depositedByUser, lastBlock } = useFirmMarketEvolution(market, account);
+    const [isLoadingDebounced, setIsLoadingDebounced] = useState(true);
     
-    const { evolution: escrowBalanceEvolution, timestamps } = useEscrowBalanceEvolution(account, escrow, market.address, lastBlock);
+    const { evolution: escrowBalanceEvolution, timestamps, isLoading: isLoadingEscrowEvo } = useEscrowBalanceEvolution(account, escrow, market.address, lastBlock);
     const events = _events?.map(e => ({ ...e, timestamp: e.timestamp || timestamps[e.blockNumber] })).filter(e => !!e.timestamp);
+    const isLoading = isLoadingHistoPrices || isLoadingPrices || isLoadingEscrowEvo;
+
+    useDualSpeedEffect(() => {
+        setIsLoadingDebounced(isLoading);
+    }, [isLoading], isLoading, 7000, 1000);
 
     const start = events ? events.find(e => e.actionName === 'Deposit')?.timestamp : undefined;
 
@@ -100,7 +107,7 @@ const useFirmUserPositionEvolution = (
     const hasData = data?.length > 0;
 
     if (!start || !hasData || !events.length) {
-        return null;
+        return { data: null, isLoading: isLoadingDebounced, isError: !isLoadingDebounced && !hasData };
     }
 
     const dbrRewards = (data[data.length - 1].dbrClaimed + currentClaimableDbrRewards);
@@ -126,7 +133,7 @@ const useFirmUserPositionEvolution = (
         dbrRewards,
     });
 
-    return data;
+    return { data, isLoading: isLoadingDebounced, isError: !isLoadingDebounced && !hasData };
 }
 
 export const WorthEvoChartWrapper = ({
@@ -160,13 +167,10 @@ export const WorthEvoChartContainer = ({
     market: F2Market,
     chartWidth: number,
 }) => {
-    const data = useFirmUserPositionEvolution(market);
-
-    if(!data) {
-        return null
-    }
+    const { data, isLoading } = useFirmUserPositionEvolution(market);
 
     return <WorthEvoChart
+        isLoading={isLoading}
         chartWidth={chartWidth}
         market={market}
         data={data}
@@ -182,13 +186,11 @@ export const WorthEvoChartContainerINV = ({
 }) => {
     const { escrow } = useContext(F2MarketContext);
     const { rewards } = useINVEscrowRewards(escrow);
-    const data = useFirmUserPositionEvolution(market, rewards);
+    const { data, isLoading } = useFirmUserPositionEvolution(market, rewards);
 
-    if(!data) {
-        return null
-    }
 
     return <WorthEvoChart
+        isLoading={isLoading}
         market={market}
         chartWidth={chartWidth}
         data={data}
