@@ -88,6 +88,9 @@ export const WorthEvoChart = ({
     }
 
     const mainEventColor = themeName === 'light' ? lightTheme.colors.mainTextColor : lightTheme.colors.lightPrimary;
+    const stakingColor = themeName === 'light' ? lightTheme.colors.mainTextColor : lightTheme.colors.mainBackgroundColor;
+    const totalRewardsColor = themeName === 'light' ? 'darkgreen' : 'lightgreen';
+    const stakingGradient = themeName === 'light' ? '#blue-gradient' : '#light-gradient';
 
     const LABEL_COLORS = {
         'Claim': lightTheme.colors.success,
@@ -287,10 +290,10 @@ export const WorthEvoChart = ({
                 }
                 {/* <Area opacity={actives[keyNames["worth"]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames["worth"]} yAxisId="left" type="monotone" dataKey={'worth'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" /> */}
                 {
-                    showDbr && showStaking && <Area opacity={actives[keyNames[totalRewardsUsd]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[totalRewardsUsd]} yAxisId="left" type="monotone" dataKey={totalRewardsUsd} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
+                    showDbr && showStaking && <Area opacity={actives[keyNames[totalRewardsUsd]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[totalRewardsUsd]} yAxisId="left" type="monotone" dataKey={totalRewardsUsd} stroke={totalRewardsColor} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
                 }
                 {
-                    showStaking && <Area opacity={actives[keyNames[stakingKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[stakingKey]} yAxisId="left" type="basis" dataKey={stakingKey} stroke={lightTheme.colors.mainTextColor} dot={false} fillOpacity={0.5} fill="url(#info-gradient)" />
+                    showStaking && <Area opacity={actives[keyNames[stakingKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[stakingKey]} yAxisId="left" type="basis" dataKey={stakingKey} stroke={stakingColor} dot={false} fillOpacity={0.5} fill={`url(${stakingGradient})`} />
                 }
                 {
                     showDbr && <Area opacity={actives[keyNames[claimsKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[claimsKey]} yAxisId="left" type="basis" dataKey={claimsKey} stroke={'gold'} dot={false} fillOpacity={0.5} fill="url(#gold-gradient)" />
