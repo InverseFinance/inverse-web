@@ -11,7 +11,7 @@ import { useMediaQuery } from "@chakra-ui/react";
 import { usePrices } from "@app/hooks/usePrices";
 import { useDBRPrice } from "@app/hooks/useDBR";
 
-const maxWidth = 1250;
+const maxWidth = 1200;
 
 const useFirmUserPositionEvolution = (
     market: F2Market,

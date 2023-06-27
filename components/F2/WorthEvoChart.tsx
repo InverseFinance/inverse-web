@@ -186,7 +186,7 @@ export const WorthEvoChart = ({
     >
         <VStack alignItems="center" maxW={`${chartWidth}px`}>
             <Stack w='full' justify="flex-start" alignItems="flex-start" direction="column">
-                <Stack alignItems="center" w='full' spacing={{ base: '2', sm: '8' }} direction={{ base: 'column', lg: 'row' }}>
+                <Stack alignItems="center" w='full' spacing={{ base: '2', lg: '4' }} direction={{ base: 'column', lg: 'row' }}>
                     <VStack alignItems="center" maxW={{ base: 'full', sm: '800px' }} w='full'>
                         <NavButtons
                             active={activeTab}
@@ -200,14 +200,14 @@ export const WorthEvoChart = ({
                         {
                             canShowNonUsdAmounts
                             && <FormControl w='fit-content' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
-                                <Text w='100px' mr="2" onClick={() => setUseUsd(!useUsd)}>
+                                <Text fontSize="12px" whitespace="no-wrap" w='fit-content' mr="1" onClick={() => setUseUsd(!useUsd)}>
                                     Show in USD
                                 </Text>
                                 <Switch onChange={(e) => setUseUsd(!useUsd)} size="sm" colorScheme="purple" isChecked={useUsd} />
                             </FormControl>
                         }
-                        <FormControl display={{ base: 'none', sm: 'inline-flex' }} w='fit-content' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
-                            <Text w='100px' mr="2" onClick={() => setShowEvents(!showEvents)}>
+                        <FormControl display={{ base: 'none', sm: 'inline-flex' }} w='fit-content' cursor="pointer" justifyContent="flex-start" alignItems='center'>
+                            <Text fontSize="12px" whitespace="no-wrap" w='fit-content' mr="1" onClick={() => setShowEvents(!showEvents)}>
                                 Show events
                             </Text>
                             <Switch onChange={(e) => setShowEvents(!showEvents)} size="sm" colorScheme="purple" isChecked={showEvents} />
@@ -215,7 +215,7 @@ export const WorthEvoChart = ({
                         <HStack display={{ base: 'none', sm: 'inline-flex' }} cursor="help" visibility={!showEvents ? 'hidden' : 'visible'}>
                             <Popover trigger="hover" placement="right-end">
                                 <PopoverTrigger>
-                                    <Text color={themeStyles.colors.mainTextColorLight2} textDecoration="underline">
+                                    <Text fontSize="12px" color={themeStyles.colors.mainTextColorLight2} textDecoration="underline">
                                         See Events Legend
                                     </Text>
                                 </PopoverTrigger>
