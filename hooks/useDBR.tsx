@@ -428,13 +428,13 @@ export const useDBRNeeded = (borrowAmount: string, durationDays: number, iterati
   dolaNeeded: number,
   dbrNeeded: number,
 } => {
-  const { library } = useWeb3React();
+  const { provider } = useWeb3React();
  
   const { data, error } = useSWR(`dbr-helper-approx-${borrowAmount}-${durationDays}-${iterations}`, async () => {
     if (!borrowAmount) {
       return undefined;
     }
-    return await f2approxDbrAndDolaNeeded(library?.getSigner(), parseUnits(borrowAmount), '0', durationDays, 'curve-v2', iterations);
+    return await f2approxDbrAndDolaNeeded(provider?.getSigner(), parseUnits(borrowAmount), '0', durationDays, 'curve-v2', iterations);
   }, {
     refreshInterval: 100000,
   });
