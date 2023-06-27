@@ -237,7 +237,7 @@ export const WorthEvoChart = ({
                                         See Events Legend
                                     </Text>
                                 </PopoverTrigger>
-                                <PopoverContent bgColor="mainBackgroundColor" p="4">
+                                <PopoverContent maxW='180px' bgColor="mainBackgroundColor" p="4">
                                     <EvoChartEventLegend />
                                 </PopoverContent>
                             </Popover>
