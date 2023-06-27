@@ -4,7 +4,7 @@ import { F2Market } from "@app/types";
 import { useContext, useEffect, useState } from "react";
 import { useAccount } from "@app/hooks/misc";
 import { timestampToUTC } from "@app/util/misc";
-import { ONE_DAY_MS } from "@app/config/constants";
+import { BURN_ADDRESS, ONE_DAY_MS } from "@app/config/constants";
 import { F2MarketContext } from "./F2Contex";
 import { WorthEvoChart } from "./WorthEvoChart";
 import { useMediaQuery } from "@chakra-ui/react";
@@ -149,7 +149,7 @@ export const WorthEvoChartWrapper = ({
         setChartWidth(isLargerThan ? maxWidth : (screen.availWidth || screen.width) - 50)
     }, [isLargerThan, maxWidth]);
 
-    if(!escrow) {
+    if(!escrow || escrow === BURN_ADDRESS) {
         return null
     }
 
