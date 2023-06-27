@@ -70,7 +70,7 @@ export const WorthEvoChart = ({
     market: F2Market,
     isLoading?: boolean,
 }) => {
-    const { themeStyles } = useAppTheme();
+    const { themeStyles, themeName } = useAppTheme();
 
     const keyNames = {
         'histoPrice': `${market.name} market price`,
@@ -87,14 +87,16 @@ export const WorthEvoChart = ({
         'estimatedStakedBonus': market.isInv ? 'INV anti-dilution rewards' : 'Staking earnings',
     }
 
+    const mainEventColor = themeName === 'light' ? lightTheme.colors.mainTextColor : lightTheme.colors.lightPrimary;
+
     const LABEL_COLORS = {
-        'Claim': themeStyles.colors.success,
-        'Deposit': themeStyles.colors.mainTextColor,
-        'Borrow': themeStyles.colors.accentTextColor,
-        'Withdraw': themeStyles.colors.mainTextColor,
-        'Repay': themeStyles.colors.accentTextColor,
-        'ForceReplenish': themeStyles.colors.error,
-        'Liquidate': themeStyles.colors.error,
+        'Claim': lightTheme.colors.success,
+        'Deposit': mainEventColor,
+        'Borrow': lightTheme.colors.accentTextColor,
+        'Withdraw': mainEventColor,
+        'Repay': lightTheme.colors.accentTextColor,
+        'ForceReplenish': lightTheme.colors.error,
+        'Liquidate': lightTheme.colors.error,
     };
 
     const EvoChartEventLegend = () => {
@@ -232,7 +234,7 @@ export const WorthEvoChart = ({
                                         See Events Legend
                                     </Text>
                                 </PopoverTrigger>
-                                <PopoverContent p="4">
+                                <PopoverContent bgColor="mainBackgroundColor" p="4">
                                     <EvoChartEventLegend />
                                 </PopoverContent>
                             </Popover>
@@ -251,14 +253,15 @@ export const WorthEvoChart = ({
                     bottom: 20,
                 }}
             >
-                <CartesianGrid stroke="#66666633" strokeDasharray={_axisStyle.grid.strokeDasharray} />
+                <CartesianGrid fill={themeStyles.colors.accentChartBgColor}  stroke="#66666633" strokeDasharray={_axisStyle.grid.strokeDasharray} />
                 <XAxis minTickGap={28} interval="preserveStartEnd" style={_axisStyle.tickLabels} dataKey="timestamp" scale="time" type={'number'} allowDataOverflow={true} domain={['dataMin', 'dataMax']} tickFormatter={(v) => {
                     return moment(v).format('MMM Do')
                 }} />
                 <YAxis style={_axisStyle.tickLabels} yAxisId="left" tickFormatter={(v) => smartShortNumber(v, 2, useUsd)} />
                 <YAxis style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => shortenNumber(v, 4, true)} />
                 <Tooltip
-                    wrapperStyle={_axisStyle.tickLabels}
+                    wrapperStyle={{ ..._axisStyle.tickLabels }}
+                    contentStyle={{ backgroundColor: themeStyles.colors.mainBackgroundColor }}
                     labelFormatter={v => moment(v).format('MMM Do YYYY')}
                     labelStyle={{ fontWeight: 'bold' }}
                     itemStyle={{ fontWeight: 'bold' }}
