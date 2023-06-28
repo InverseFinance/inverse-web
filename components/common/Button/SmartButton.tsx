@@ -17,9 +17,9 @@ import { handleApiResponse } from '@app/util/misc';
  * If there's an error there will be a notification (transaction case or not)
  *  **/
 export const SmartButton = (props: SmartButtonProps) => {
-    // const { connector } = useWeb3React<Web3Provider>();
-    // const { deactivate: _deactivate, activate } = connector || { activate: () => { }, deactivate: () => { } };
-    // const deactivate = _deactivate || connector?.actions?.resetState || (() => 0);
+    const { connector } = useWeb3React<Web3Provider>();
+    const { deactivate: _deactivate, activate } = connector || { activate: () => { }, deactivate: () => { } };
+    const deactivate = _deactivate || connector?.actions?.resetState || (() => 0);
 
     const { query } = useRouter();
     const [isPending, setIsPending] = useState(false);
@@ -40,6 +40,7 @@ export const SmartButton = (props: SmartButtonProps) => {
     // wraps the onClick function given to handle promises/transactions automatically
     const handleClick = async (e: any) => {
         if (!btnProps.onClick) { return }
+
         const btnAction = props.gaAction || e?.target.getAttribute('data-testid') || e?.target?.innerText || '';
         if(btnAction) {
             gaEvent({ action: btnAction })
@@ -62,7 +63,7 @@ export const SmartButton = (props: SmartButtonProps) => {
                 if (promiseResult?.hash) {
                     const handleSuccess = (tx: TransactionResponse) => {
                         if (onSuccess) { onSuccess(tx) }
-                        // if (refreshOnSuccess) { forceQuickAccountRefresh(connector) }
+                        if (refreshOnSuccess) { forceQuickAccountRefresh(connector) }
                     }
                     await handleTx(promiseResult, { onSuccess: handleSuccess, onFail, onPending });
                 } else {
