@@ -30,7 +30,7 @@ import { FedIncomeTable } from '@app/components/Transparency/fed/FedIncomeTable'
 const { DOLA, TOKENS, FEDS, FEDS_WITH_ALL, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 export const FedPolicyPage = () => {
-    const { account, library } = useWeb3React<Web3Provider>();
+    const { account, provider } = useWeb3React<Web3Provider>();
     const { query } = useRouter();    
 
     const slug = query?.slug || ['policy', 'all'];
@@ -67,8 +67,8 @@ export const FedPolicyPage = () => {
 
     // const handlePolicyEdit = async () => {
     //     try {
-    //         if (!library) { return }
-    //         const signer = library?.getSigner()
+    //         if (!provider) { return }
+    //         const signer = provider?.getSigner()
     //         const newMsg = window.prompt("New Fed Chair Guidance", fedPolicyMsg.msg);
 
     //         if (newMsg === null) {

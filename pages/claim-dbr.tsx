@@ -34,12 +34,12 @@ const EligibleComp = ({
     hasClaimed: boolean,
     airdropData: { [key: string]: string },
 }) => {
-    const { library } = useWeb3React()
+    const { provider } = useWeb3React()
     const [isSuccess, setIsSuccess] = useState(hasClaimed);
 
     const claim = async () => {
         const proofs = getAccountProofs(account, airdropData, amountString);
-        return claimAirdrop(account, '0', airdropData[account], proofs, library?.getSigner());
+        return claimAirdrop(account, '0', airdropData[account], proofs, provider?.getSigner());
     }
 
     return <>

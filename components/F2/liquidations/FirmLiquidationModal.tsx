@@ -26,7 +26,7 @@ export const FirmLiquidationModal = ({
     onClose: () => void,
     isOpen: boolean,
 }) => {
-    const { library, account } = useWeb3React();
+    const { provider, account } = useWeb3React();
     const { price: dolaMarketPrice } = useDOLAPrice();
 
     const [repayAmount, setRepayAmount] = useState('');
@@ -34,7 +34,7 @@ export const FirmLiquidationModal = ({
     const [seizeWorth, setSeizeWorth] = useState(0);
 
     const { costEth, costUsd } = useTransactionCost(
-        new Contract(position.market.address, F2_MARKET_ABI, library?.getSigner()),
+        new Contract(position.market.address, F2_MARKET_ABI, provider?.getSigner()),
         'liquidate',
         [
             position.user,
@@ -48,7 +48,7 @@ export const FirmLiquidationModal = ({
     const estimatedProfit = seizeWorth - costUsd - (parseFloat(repayAmount) || 0) * dolaMarketPrice;
 
     const handleLiquidation = async (repayAmountBn: BigNumber) => {
-        return f2liquidate(library?.getSigner(), position.user, position.market.address, repayAmountBn);
+        return f2liquidate(provider?.getSigner(), position.user, position.market.address, repayAmountBn);
     }
 
     useEffect(() => {
@@ -143,7 +143,7 @@ export const FirmLiquidationModal = ({
                             defaultAmount={repayAmount}
                             address={DOLA}
                             destination={position?.market.address}
-                            signer={library?.getSigner()}
+                            signer={provider?.getSigner()}
                             decimals={18}
                             hideInputIfNoAllowance={false}
                             maxAmountFrom={[getNumberToBn(maxRepayable)]}

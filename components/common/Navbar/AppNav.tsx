@@ -22,7 +22,10 @@ import { ETH_MANTISSA } from '@app/config/constants'
 import useEtherSWR from '@app/hooks/useEtherSWR'
 import { ethereumReady, getPreviousConnectorType, setIsPreviouslyConnected, setPreviousChainId } from '@app/util/web3'
 import { useWeb3React } from '@web3-react/core'
-import { ReactNode, useEffect, useState } from 'react'
+import { WalletConnect as WalletConnectV2 } from '@web3-react/walletconnect-v2'
+import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
+import { MetaMask } from '@web3-react/metamask'
+import { useEffect, useState } from 'react'
 import { Announcement } from '@app/components/common/Announcement'
 import WrongNetworkModal from '@app/components/common/Modal/WrongNetworkModal'
 import { getNetwork, getNetworkConfigConstants, isSupportedNetwork } from '@app/util/networks'
@@ -39,15 +42,13 @@ import { ViewAsModal } from './ViewAsModal'
 import { getEnsName, namedAddress } from '@app/util'
 import { Avatar } from '@app/components/common/Avatar';
 import { MENUS } from '@app/variables/menus'
-import { injectedConnector, swapInjectedConnector, walletConnectConnector, swapWalletConnectConnector, walletLinkConnector, swapWalletLinkConnector } from '@app/variables/connectors'
-import { WalletLinkConnector } from '@web3-react/walletlink-connector';
-import { InjectedConnector } from '@web3-react/injected-connector';
+import { metamaskInjector, walletConnectV2, coinbaseWallet } from '@app/variables/connectors'
+
 import { RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { GasInfo } from '@app/components/common/Gas'
 import { formatUnits } from 'ethers/lib/utils';
 import { gaEvent } from '@app/util/analytics'
-import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { useExchangeRatesV2 } from '@app/hooks/useExchangeRates'
 import PostSearch from 'blog/components/post-search'
 import { switchTheme } from '@app/util/theme'
@@ -58,6 +59,7 @@ import { AirdropModalCheck } from '@app/components/F2/Infos/AirdropModalCheck'
 import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
 import { BurgerMenu } from './BurgerMenu'
 import { useStakedInFirm } from '@app/hooks/useFirm'
+import { useAccount } from '@app/hooks/misc'
 const NAV_ITEMS = MENUS.nav
 
 export const ThemeBtn = () => {
@@ -106,7 +108,7 @@ const NetworkBadge = ({
   const [isSmallerThan1000] = useMediaQuery('(max-width: 1000px)')
   const { data } = useEtherSWR(['getGasPrice']);
 
-  const gasPrice = Math.floor(!data ? 0 : parseFloat(formatUnits(data, 'gwei')));  
+  const gasPrice = Math.floor(!data ? 0 : parseFloat(formatUnits(data, 'gwei')));
   return (
     <NavBadge
       cursor={isWrongNetwork ? 'pointer' : 'default'}
@@ -211,27 +213,12 @@ const ConnectionMenuItem = ({ ...props }: StackProps) => {
   />
 }
 
-// const LiquidationsMenuItem = ({
-//   account,
-//   ...props
-// }: {
-//   account: string | null,
-// } & Partial<BadgeProps>) => {
-//   const router = useRouter();
-//   const nb = useNbUnseenLiquidations(account);
-
-//   if (!nb) { return <></> }
-
-//   return <ConnectionMenuItem onClick={() => router.push(`/transparency/liquidations?borrower=${account}`)}>
-//     <WarningIcon boxSize={3} color="error" />
-//     <Text fontWeight="semibold">
-//       {nb} Unread liquidations
-//     </Text>
-//   </ConnectionMenuItem>
-// }
-
 const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwork: boolean, showWrongNetworkModal: () => void }) => {
-  const { account, activate, active, deactivate, connector, chainId, library } = useWeb3React<Web3Provider>()
+  const web3react = useWeb3React<Web3Provider>()
+  const { account, isActive: active, connector, chainId } = web3react
+  const { deactivate: _deactivate } = connector || { activate: () => { }, deactivate: () => { } };
+  const deactivate = _deactivate || connector?.actions?.resetState || (() => 0);
+
   const { query } = useRouter();
   const [isLargerThan300] = useMediaQuery('(min-width: 300px)');
   const userAddress = (query?.viewAddress as string) || account;
@@ -248,11 +235,11 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
   }, [active, userAddress, addressName], !userAddress, 1000)
 
   useDualSpeedEffect(() => {
-    if (connector instanceof WalletLinkConnector && active) {
+    if (connector instanceof CoinbaseWallet && active) {
       setIsPreviouslyConnected(true, 'coinbase');
-    } else if (connector instanceof InjectedConnector && active) {
+    } else if (connector instanceof MetaMask && active) {
       setIsPreviouslyConnected(true, 'injected');
-    } else if (connector instanceof WalletConnectConnector && active) {
+    } else if (connector instanceof WalletConnectV2 && active) {
       setIsPreviouslyConnected(true, 'walletConnect');
     }
   }, [active, userAddress, connector], !userAddress, 1000)
@@ -262,7 +249,9 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
     // visually better
     setTimeout(() => {
       setIsPreviouslyConnected(false);
-      deactivate()
+      try {
+        deactivate();
+      } catch (e) { console.log(e) }
       window.location.reload()
     }, 100)
   }
@@ -275,7 +264,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
       close()
       // visually better
       setTimeout(() => {
-        activate(location.pathname === '/swap' ? swapInjectedConnector : injectedConnector);
+        metamaskInjector?.activate();
         gaEvent({ action: 'connect-metamask' })
       }, 100)
     }
@@ -283,13 +272,14 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
 
   const connectWalletConnect = () => {
     close()
-    activate(location.pathname === '/swap' ? swapWalletConnectConnector : walletConnectConnector)
+    walletConnectV2?.activate();
     gaEvent({ action: 'connect-walletConnect' })
   }
 
   const connectCoinbaseWallet = () => {
     close()
-    activate(location.pathname === '/swap' ? swapWalletLinkConnector : walletLinkConnector)    
+    coinbaseWallet?.activate();
+    // activate(location.pathname === '/swap' ? metamaskInjector : metamaskInjector)    
     gaEvent({ action: 'connect-coinbaseWallet' })
   }
 
@@ -324,9 +314,6 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
         >
           {!!userAddress && isLargerThan300 && <Avatar mr="2" sizePx={20} address={userAddress} />}
           <Text color={BUTTON_TEXT_COLOR}>{connectBtnLabel}</Text>
-          {/* {
-            !!account && <LiquidationsBadge account={userAddress} position="absolute" top="-5px" right="-5px" />
-          } */}
         </Flex>
       </PopoverTrigger>
       <PopoverContent
@@ -396,27 +383,6 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
                 </ConnectionMenuItem>
               </CoinbasePayButton>
             }
-            {/* {
-              !!account && <LiquidationsMenuItem account={userAddress} />
-            } */}
-            {/* {
-              !!chainId && chainId.toString() === NetworkIds.rinkeby ?
-                <>
-                  <ConnectionMenuItem
-                    onClick={() => getINVsFromFaucet(library?.getSigner())}
-                  >
-                    <Image boxSize={3} src={'/assets/favicon.png'} />
-                    <Text fontWeight="semibold">Get INVs</Text>
-                  </ConnectionMenuItem>
-                  <ConnectionMenuItem
-                    onClick={() => getDOLAsFromFaucet(library?.getSigner())}
-                  >
-                    <Image boxSize={3} src={'https://assets.coingecko.com/coins/images/14287/small/anchor-logo-1-200x200.png'} />
-                    <Text fontWeight="semibold">Get DOLAs</Text>
-                  </ConnectionMenuItem>
-                </>
-                : null
-            } */}
           </PopoverBody>
         )}
       </PopoverContent>
@@ -427,10 +393,11 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
 export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = false, hideAnnouncement = false }: { active?: string, activeSubmenu?: string, isBlog?: boolean, isClaimPage?: boolean, hideAnnouncement?: boolean }) => {
   const { query } = useRouter()
   const [isLargerThan] = useMediaQuery('(min-width: 1330px)');
-  const [isLargerThan768] = useMediaQuery('(min-width: 768px)');  
+  const [isLargerThan768] = useMediaQuery('(min-width: 768px)');
   const { themeName } = useAppTheme();
-  const { activate, active: walletActive, chainId, deactivate, account } = useWeb3React<Web3Provider>()
-  const userAddress = (query?.viewAddress as string) || account;
+  const { isActive, chainId } = useWeb3React<Web3Provider>();  
+ 
+  const userAddress = useAccount();
   const { isEligible, hasClaimed } = useCheckDBRAirdrop(userAddress);
   const [showAirdropModal, setShowAirdropModal] = useState(false);
   const { isOpen: isWrongNetOpen, onOpen: onWrongNetOpen, onClose: onWrongNetClose } = useDisclosure()
@@ -462,18 +429,22 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   }, [query])
 
   useEffect(() => {
-    if (!walletActive && isPreviouslyConnected()) {
+    if (!isUnsupportedNetwork && !isActive && isPreviouslyConnected()) {
       const previousConnectorType = getPreviousConnectorType();
       const connectors = {
-        'coinbase': location.pathname === '/swap' ? swapWalletLinkConnector : walletLinkConnector,
-        'injected': location.pathname === '/swap' ? swapInjectedConnector : injectedConnector,
-        'walletConnect': location.pathname === '/swap' ? swapWalletConnectConnector : walletConnectConnector,
+        'coinbase': location.pathname === '/swap' ? coinbaseWallet : coinbaseWallet,
+        'injected': location.pathname === '/swap' ? metamaskInjector : metamaskInjector,
+        'walletConnect': location.pathname === '/swap' ? walletConnectV2 : walletConnectV2,
       }
-      const connector = connectors[previousConnectorType];
-      activate(connector);
-      setTimeout(() => activate(connector), 500);
+      const previousConnector = connectors[previousConnectorType];
+      if (previousConnector) {
+        void previousConnector.connectEagerly().catch(() => {
+          console.debug('Failed to connect eagerly')
+        });
+      }
+      // setTimeout(() => activate(connector), 500);
     }
-  }, [walletActive]);
+  }, [isActive, isUnsupportedNetwork]);
 
   // chainId exists only if user is connected
   useEffect(() => {
@@ -485,16 +456,12 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   // badgeChainId exists if user is connected or there is an injected provider present like metamask
   useEffect(() => {
     if (!badgeChainId) { return }
-
-    const isSupported = location.pathname === '/swap' || isSupportedNetwork(badgeChainId);
+    // swap page: any network is fine
+    const isSupported = location.pathname === '/swap' || isSupportedNetwork(badgeChainId);    
     setIsUsupportedNetwork(!isSupported)
-    if (!isSupported) { onWrongNetOpen() }
-    else { onWrongNetClose() }
-
     if (!isSupported) {
-      setIsPreviouslyConnected(false);
-      deactivate();
-    }
+      onWrongNetOpen();
+    } else { onWrongNetClose() }
   }, [badgeChainId]);
 
   useEffect(() => {

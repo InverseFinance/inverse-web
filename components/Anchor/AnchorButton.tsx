@@ -107,7 +107,7 @@ export const ApproveButton = ({
 }
 
 export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdrawWarning }: AnchorButtonProps) => {
-  const { library, chainId, account } = useWeb3React<Web3Provider>()
+  const { provider, chainId, account } = useWeb3React<Web3Provider>()
   const { XINV, XINV_V1, ESCROW, ESCROW_OLD } = getNetworkConfigConstants(chainId);
   const isEthMarket = !asset.underlying.address;
   const { approvals } = useApprovals()
@@ -142,7 +142,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
   }
 
   const handleEthRepayAll = () => {
-    const repayAllContract = getEthRepayAllContract(asset.repayAllAddress!, library?.getSigner())
+    const repayAllContract = getEthRepayAllContract(asset.repayAllAddress!, provider?.getSigner())
 
     const parsedBal = getParsedBalance(borrowBalances, asset.token, asset.underlying.decimals)
     const dailyInterests = removeScientificFormat(getMonthlyRate(parsedBal, asset.borrowApy) / 30);
@@ -155,7 +155,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
   }
 
   const handleStandardRepayAll = () => {
-    const repayAllContract = getAnchorContract(asset.token, library?.getSigner())
+    const repayAllContract = getAnchorContract(asset.token, provider?.getSigner())
     return repayAllContract.repayBorrow(constants.MaxUint256)
   }
 
@@ -164,8 +164,8 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
 
   const contract =
     isEthMarket
-      ? getCEtherContract(asset.token, library?.getSigner())
-      : getAnchorContract(asset.token, library?.getSigner())
+      ? getCEtherContract(asset.token, provider?.getSigner())
+      : getAnchorContract(asset.token, provider?.getSigner())
 
   const supply =
     supplyBalances && exchangeRates
@@ -181,7 +181,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
         <Stack w="full" spacing={4}>
           {asset.token === XINV && asset.escrowDuration && asset.escrowDuration > 0 && <XINVEscrowAlert duration={asset.escrowDuration} />}
           {!isApproved ? (
-            <ApproveButton address={asset.underlying.address} toAddress={asset.token} signer={library?.getSigner()} isDisabled={isDisabled} onSuccess={handleApproveSuccess} />
+            <ApproveButton address={asset.underlying.address} toAddress={asset.token} signer={provider?.getSigner()} isDisabled={isDisabled} onSuccess={handleApproveSuccess} />
           ) : (
             <SubmitButton
               onClick={() => contract.mint(isEthMarket ? { value: amount } : amount)}
@@ -198,20 +198,20 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
       return (
         <Stack w="full" spacing={4}>
           {asset.escrowDuration && asset.escrowDuration > 0 && <XINVEscrowAlert showDescription duration={asset.escrowDuration} />}
-          {asset.token === XINV && withdrawalAmount?.gt(0) && library?.getSigner() && (
+          {asset.token === XINV && withdrawalAmount?.gt(0) && provider?.getSigner() && (
             <ClaimFromEscrowBtn
               escrowAddress={ESCROW}
               withdrawalTime={withdrawalTime}
               withdrawalAmount={withdrawalAmount}
-              signer={library?.getSigner()}
+              signer={provider?.getSigner()}
             />
           )}
-          {asset.token === XINV_V1 && withdrawalAmount_v1?.gt(0) && library?.getSigner() && (
+          {asset.token === XINV_V1 && withdrawalAmount_v1?.gt(0) && provider?.getSigner() && (
             <ClaimFromEscrowBtn
               escrowAddress={ESCROW_OLD}
               withdrawalTime={withdrawalTime_v1}
               withdrawalAmount={withdrawalAmount_v1}
-              signer={library?.getSigner()}
+              signer={provider?.getSigner()}
             />
           )}
           <SimpleGrid columns={2} spacingX="3" spacingY="1">
@@ -246,7 +246,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
 
     case AnchorOperations.repay:
       return !isApproved ? (
-        <ApproveButton address={asset.underlying.address} toAddress={asset.token} signer={library?.getSigner()} isDisabled={isDisabled} onSuccess={handleApproveSuccess} />
+        <ApproveButton address={asset.underlying.address} toAddress={asset.token} signer={provider?.getSigner()} isDisabled={isDisabled} onSuccess={handleApproveSuccess} />
       ) : (
         <SimpleGrid columns={2} spacingX="3" spacingY="1">
           <SubmitButton

@@ -74,7 +74,7 @@ export const AgainstVotesModal = ({ isOpen, onClose, proposal }: VoteCountModalP
 }
 
 export const VoteModal = ({ isOpen, onClose, proposal }: VoteCountModalProps) => {
-  const { library } = useWeb3React<Web3Provider>()
+  const { provider } = useWeb3React<Web3Provider>()
   const [support, setSupport] = useState(true)
 
   if (!proposal?.id) {
@@ -84,7 +84,7 @@ export const VoteModal = ({ isOpen, onClose, proposal }: VoteCountModalProps) =>
   const { era, id } = proposal;
 
   const handleVote = async () => {
-    const tx = await getGovernanceContract(library?.getSigner(), era).castVote(id, support);
+    const tx = await getGovernanceContract(provider?.getSigner(), era).castVote(id, support);
     return handleTx(tx, {
       onSuccess: () => {
         onClose()
@@ -217,7 +217,7 @@ const DelegationSignatureInput = ({ sig, onChange, onDelete }: { sig: string, on
 }
 
 export const SubmitDelegationsModal = ({ isOpen, onClose, onNewDelegate }: ModalProps & { address?: string, onNewDelegate?: (newDelegate: string) => void }) => {
-  const { library } = useWeb3React<Web3Provider>()
+  const { provider } = useWeb3React<Web3Provider>()
   const [signatures, setSignatures] = useState<string[]>([])
   const [isInited, setIsInited] = useState(false)
   const [hasInvalidSignature, setHasInvalidSignature] = useState(false)
@@ -264,13 +264,13 @@ export const SubmitDelegationsModal = ({ isOpen, onClose, onNewDelegate }: Modal
     clearStoredDelegationsCollected();
     setSignatures([]);
     if (onNewDelegate) {
-      onNewDelegate(await library?.getSigner()?.getAddress()!);
+      onNewDelegate(await provider?.getSigner()?.getAddress()!);
     }
   }
 
   const handleSubmit = async () => {
-    if (!library?.getSigner()) { return new Promise((res, reject) => reject("Signer required")) };
-    const tx = await submitMultiDelegation(library?.getSigner(), signatures);
+    if (!provider?.getSigner()) { return new Promise((res, reject) => reject("Signer required")) };
+    const tx = await submitMultiDelegation(provider?.getSigner(), signatures);
     return handleTx(tx, { onSuccess: handleSuccess });
   }
 

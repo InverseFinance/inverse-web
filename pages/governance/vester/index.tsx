@@ -43,7 +43,7 @@ const vestersToCheck = [...Array(25).keys()];
 
 export const VesterPage = () => {
   const [isSmaller] = useMediaQuery('(max-width: 500px)')
-  const { account, library } = useWeb3React<Web3Provider>();
+  const { account, provider } = useWeb3React<Web3Provider>();
   const { query } = useRouter();
   const userAddress = (query?.viewAddress as string) || account;
   const [vesterDelegate, setVesterDelegate] = useState('');
@@ -53,7 +53,7 @@ export const VesterPage = () => {
   const { prices } = usePricesV2();
 
   const { data: vestersData } = useCustomSWR(`vesters-list-${account}`, async () => {
-    const contract = new Contract(XINV_VESTOR_FACTORY, VESTER_FACTORY_ABI, library?.getSigner());
+    const contract = new Contract(XINV_VESTOR_FACTORY, VESTER_FACTORY_ABI, provider?.getSigner());
     const results = await Promise.allSettled([
       ...vestersToCheck.map((v, i) => contract.vesters(i))
     ])
@@ -262,7 +262,7 @@ export const VesterPage = () => {
                               </VStack>
                             }
                           />
-                          <SubmitButton refreshOnSuccess={true} maxW="120px" disabled={!account && widthdrawable > 0} onClick={() => vesterClaim(library?.getSigner()!, vesterAddress)}>
+                          <SubmitButton refreshOnSuccess={true} maxW="120px" disabled={!account && widthdrawable > 0} onClick={() => vesterClaim(provider?.getSigner()!, vesterAddress)}>
                             Claim
                           </SubmitButton>
                           <Divider />
@@ -286,7 +286,7 @@ export const VesterPage = () => {
                               <SubmitButton
                                 refreshOnSuccess={true}
                                 disabled={currentVesterDelegate.toLowerCase() === vesterDelegate.toLowerCase() || !vesterDelegate || !isAddress(vesterDelegate)}
-                                onClick={() => vesterChangeDelegate(library?.getSigner()!, vesterAddress, vesterDelegate)}>
+                                onClick={() => vesterChangeDelegate(provider?.getSigner()!, vesterAddress, vesterDelegate)}>
                                 Change Vester Contract's Delegate
                               </SubmitButton>
                             </VStack>
@@ -311,7 +311,7 @@ export const VesterPage = () => {
                                 themeColor="red.500"
                                 refreshOnSuccess={true}
                                 disabled={newRecipient.toLowerCase() === userAddress.toLowerCase() || !newRecipient || !isAddress(newRecipient)}
-                                onClick={() => vesterChangeRecipient(library?.getSigner()!, vesterAddress, newRecipient)}>
+                                onClick={() => vesterChangeRecipient(provider?.getSigner()!, vesterAddress, newRecipient)}>
                                 TRANSFER RIGHTS
                               </SubmitButton>
                             </VStack>
@@ -336,7 +336,7 @@ export const VesterPage = () => {
                                   <SubmitButton
                                     themeColor="red.500"
                                     refreshOnSuccess={true}
-                                    onClick={() => vesterCancel(library?.getSigner()!, vesterAddress)}>
+                                    onClick={() => vesterCancel(provider?.getSigner()!, vesterAddress)}>
                                     CANCEL VESTER
                                   </SubmitButton>
                                 </VStack>
