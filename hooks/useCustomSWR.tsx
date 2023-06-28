@@ -22,7 +22,7 @@ export const useCustomSWR = (key: string, fetcher = defaultFetcher): SWR & { dat
   }
 }
 
-export const useCacheFirstSWR = (key: string, fetcher = defaultFetcher): SWR & { data: any, error: any } => {
+export const useCacheFirstSWR = (key: string, fetcher = defaultFetcher): SWR & { data: any, error: any, isLoading: boolean } => {
   const { value: localCacheData, setter } = useStorage(key);
   const keyCacheFirst = key.indexOf('?') === -1 ? `${key}?cacheFirst=true` : `${key}&cacheFirst=true`
   const { data: apiCacheData } = useSWR(keyCacheFirst, fetcher);

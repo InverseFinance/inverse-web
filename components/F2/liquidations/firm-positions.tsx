@@ -1,4 +1,4 @@
-import { Flex, HStack, Stack, Text, useDisclosure, VStack } from "@chakra-ui/react"
+import { Flex, HStack, SkeletonText, Stack, Text, useDisclosure, VStack } from "@chakra-ui/react"
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { getRiskColor } from "@app/util/f2";
@@ -13,6 +13,7 @@ import { FirmLiquidationModal } from "./FirmLiquidationModal";
 import Table from "@app/components/common/Table";
 import { Funds } from "@app/components/Transparency/Funds";
 import { BarChart } from "@app/components/Transparency/BarChart";
+import { SkeletonBlob } from "@app/components/common/Skeleton";
 
 const groupPositionsBy = (positions: any[], groupBy: string, attributeToSum: string) => {
     return Object.entries(
@@ -154,7 +155,7 @@ export const FirmPositions = ({
 }: {
 
     }) => {
-    const { positions, timestamp } = useFirmPositions();
+    const { positions, timestamp, isLoading } = useFirmPositions();
     const { onOpen, onClose, isOpen } = useDisclosure();
     const [position, setPosition] = useState(null);
 
@@ -176,7 +177,7 @@ export const FirmPositions = ({
     const barData = groupMarketsByBorrowLimit.map(d => {
         return [{ x: d.token.symbol, y: d.balance, label: `${shortenNumber(d.balance, 2)}%` }];
     })
-    const barColors = groupMarketsByBorrowLimit.map(f => getRiskColor(100-f.balance));
+    const barColors = groupMarketsByBorrowLimit.map(f => getRiskColor(100 - f.balance));
 
     return <VStack w='full'>
         <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-around" >
@@ -185,10 +186,10 @@ export const FirmPositions = ({
                 <BarChart
                     width={300}
                     height={300}
-                    isPercentages={true}                    
+                    isPercentages={true}
                     groupedData={barData}
                     colorScale={barColors}
-                    isDollars={false}                
+                    isDollars={false}
                 />
             </VStack>
             <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
@@ -212,15 +213,24 @@ export const FirmPositions = ({
                 <HStack justify="space-between" spacing="4">
                     <VStack alignItems={{ base: 'flex-start', sm: 'center' }}>
                         <Text fontWeight="bold">Avg Borrow Limit</Text>
-                        <Text color={avgRiskColor}>{shortenNumber(100 - avgHealth, 2)}%</Text>
+                        {
+                            isLoading ? <SkeletonText pt="1" skeletonHeight={2} height={'24px'} width={'50px'} noOfLines={1} />
+                                : <Text color={avgRiskColor}>{shortenNumber(100 - avgHealth, 2)}%</Text>
+                        }
                     </VStack>
                     <VStack alignItems="center">
                         <Text textAlign="center" fontWeight="bold">Total Value Locked</Text>
-                        <Text textAlign="center" color="secondaryTextColor">{shortenNumber(totalTvl, 2, true)}</Text>
+                        {
+                            isLoading ? <SkeletonText pt="1" skeletonHeight={2} height={'24px'} width={'50px'} noOfLines={1} />
+                                : <Text textAlign="center" color="secondaryTextColor">{shortenNumber(totalTvl, 2, true)}</Text>
+                        }
                     </VStack>
                     <VStack alignItems="flex-end">
                         <Text textAlign="right" fontWeight="bold">Total Debt</Text>
-                        <Text textAlign="right" color="secondaryTextColor">{shortenNumber(totalDebt, 2, 0)}</Text>
+                        {
+                            isLoading ? <SkeletonText pt="1" skeletonHeight={2} height={'24px'} width={'50px'} noOfLines={1} />
+                                : <Text textAlign="right" color="secondaryTextColor">{shortenNumber(totalDebt, 2, 0)}</Text>
+                        }
                     </VStack>
                 </HStack>
             }
@@ -228,15 +238,20 @@ export const FirmPositions = ({
             {
                 !!position && <FirmLiquidationModal onClose={onClose} isOpen={isOpen} position={position} />
             }
-            <Table
-                keyName="key"
-                noDataMessage="No live positions in last update"
-                columns={columns}
-                items={positions}
-                onClick={(v) => openLiquidation(v)}
-                defaultSort="debt"
-                defaultSortDir="desc"
-            />
+            {
+                isLoading ?
+                    <SkeletonBlob />
+                    :
+                    <Table
+                        keyName="key"
+                        noDataMessage="No live positions in last update"
+                        columns={columns}
+                        items={positions}
+                        onClick={(v) => openLiquidation(v)}
+                        defaultSort="debt"
+                        defaultSortDir="desc"
+                    />
+            }
         </Container>
     </VStack>
 }

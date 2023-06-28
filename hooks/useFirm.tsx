@@ -21,9 +21,10 @@ const { DBR, DBR_DISTRIBUTOR, F2_MARKETS, INV } = getNetworkConfigConstants();
 export const useFirmPositions = (isShortfallOnly = false): SWR & {
   positions: any,
   timestamp: number,
+  isLoading: boolean,
 } => {
   const { data, error } = useCacheFirstSWR(`/api/f2/firm-positions?shortfallOnly=${isShortfallOnly}`, fetcher60sectimeout);
-  const { markets } = useDBRMarkets();
+  const { markets, isLoading } = useDBRMarkets();
 
   const positions = data ? data.positions : [];
 
@@ -54,7 +55,7 @@ export const useFirmPositions = (isShortfallOnly = false): SWR & {
   return {
     positions: positionsWithMarket,
     timestamp: data ? data.timestamp : 0,
-    isLoading: !error && !data,
+    isLoading: isLoading || (!error && !data),
     isError: error,
   }
 }
@@ -62,6 +63,7 @@ export const useFirmPositions = (isShortfallOnly = false): SWR & {
 export const useDBRActiveHolders = (): SWR & {
   positions: any,
   timestamp: number,
+  isLoading: boolean,
 } => {
   const { data, error } = useCacheFirstSWR(`/api/f2/dbr-deficits?v2`, fetcher60sectimeout);
   const { positions: firmPositions } = useFirmPositions();
