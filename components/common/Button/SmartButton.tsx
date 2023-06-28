@@ -17,7 +17,10 @@ import { handleApiResponse } from '@app/util/misc';
  * If there's an error there will be a notification (transaction case or not)
  *  **/
 export const SmartButton = (props: SmartButtonProps) => {
-    const { deactivate, activate, connector } = useWeb3React<Web3Provider>();
+    // const { connector } = useWeb3React<Web3Provider>();
+    // const { deactivate: _deactivate, activate } = connector || { activate: () => { }, deactivate: () => { } };
+    // const deactivate = _deactivate || connector?.actions?.resetState || (() => 0);
+
     const { query } = useRouter();
     const [isPending, setIsPending] = useState(false);
     const [loadingText, setLoadingText] = useState(props.loadingText || props?.children);
@@ -59,7 +62,7 @@ export const SmartButton = (props: SmartButtonProps) => {
                 if (promiseResult?.hash) {
                     const handleSuccess = (tx: TransactionResponse) => {
                         if (onSuccess) { onSuccess(tx) }
-                        if (refreshOnSuccess) { forceQuickAccountRefresh(connector, deactivate, activate) }
+                        // if (refreshOnSuccess) { forceQuickAccountRefresh(connector) }
                     }
                     await handleTx(promiseResult, { onSuccess: handleSuccess, onFail, onPending });
                 } else {
