@@ -193,7 +193,7 @@ export const forceQuickAccountRefresh = (
 ) => {
   const supportedConnector = getConnectorFromInstance(connector);
   if (supportedConnector === null) { return }
-  const { deactivate: _deactivate, activate } = supportedConnector || { activate: () => { }, deactivate: () => { } };
+  const { deactivate: _deactivate } = supportedConnector || { activate: () => { }, deactivate: () => { } };
   const deactivate = _deactivate || supportedConnector?.actions?.resetState || (() => 0);
   deactivate();
 }

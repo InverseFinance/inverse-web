@@ -18,8 +18,6 @@ import { handleApiResponse } from '@app/util/misc';
  *  **/
 export const SmartButton = (props: SmartButtonProps) => {
     const { connector } = useWeb3React<Web3Provider>();
-    const { deactivate: _deactivate, activate } = connector || { activate: () => { }, deactivate: () => { } };
-    const deactivate = _deactivate || connector?.actions?.resetState || (() => 0);
 
     const { query } = useRouter();
     const [isPending, setIsPending] = useState(false);
