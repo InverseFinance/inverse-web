@@ -2,12 +2,12 @@ import { Contract, ethers } from 'ethers'
 import 'source-map-support'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import ganache from 'ganache'
-import { DBR_DISTRIBUTOR_ABI, ERC20_ABI } from '@app/config/abis';
+import { ERC20_ABI } from '@app/config/abis';
 import { getBnToNumber } from '@app/util/markets';
 import { getCacheFromRedis, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis';
 import { isAddress } from 'ethers/lib/utils';
 
-const { DBR_DISTRIBUTOR, DBR } = getNetworkConfigConstants();
+const { DBR } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
   const { escrow, account } = req.query;
@@ -43,8 +43,7 @@ export default async function handler(req, res) {
 
     // init ganache Ethereum fork
     const ganacheProvider = await ganache.provider(options);
-    const web3provider = new ethers.providers.Web3Provider(ganacheProvider);
-    const dbrDistributor = new Contract(DBR_DISTRIBUTOR, DBR_DISTRIBUTOR_ABI, web3provider);    
+    const web3provider = new ethers.providers.Web3Provider(ganacheProvider);  
     const dbr = new Contract(DBR, ERC20_ABI, web3provider);
 
     const [signer] = await ganacheProvider.request({
@@ -71,13 +70,12 @@ export default async function handler(req, res) {
       }
     ]);
 
-    const [claimedAmount, lastUpdate] = await Promise.all([
+    const [claimedAmount] = await Promise.all([
       dbr.balanceOf(receiverPlaceholder),
-      dbrDistributor.lastUpdate(),
     ]);
 
     const result = {
-      timestamp: getBnToNumber(lastUpdate, 0) * 1000,
+      timestamp: (Date.now()-1000),
       simRewards: getBnToNumber(claimedAmount),
     }
 
