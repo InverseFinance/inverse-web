@@ -23,7 +23,7 @@ import {
 } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { Bond, GovEra, NetworkIds, Token } from '@app/types'
-import { formatUnits, parseEther, parseUnits } from 'ethers/lib/utils';
+import { AbiCoder, Interface, formatUnits, parseEther, parseUnits } from 'ethers/lib/utils';
 import { handleTx, HandleTxOptions } from './transactions'
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { CHAIN_TOKENS } from '@app/variables/tokens'
@@ -32,6 +32,26 @@ import { BigNumber, BigNumberish } from 'ethers'
 import { PROTOCOL_IMAGES } from '@app/variables/images'
 
 const { DEBT_CONVERTER, DOLA3POOLCRV, DOLAFRAXCRV } = getNetworkConfigConstants();
+
+export const getCallData = (args: { value: any, type: any }[]) => {
+  const abiCoder = new AbiCoder()
+  return abiCoder.encode(
+      args.map(arg => arg.type),
+      args.map(arg => {
+          if (arg.type === "bool" || arg.type === "bool[]") {
+              return JSON.parse(arg.value);
+          } else {
+              return arg.value;
+          }
+      })
+  )
+}
+
+export const getDataFieldForTransaction = (signature: string, values: any[] = []) => {
+  const iface = new Interface([`function ${signature}`]);
+  const args = values.map((v, i) => ({ value: v, type: iface.getFunction(signature).inputs[i].type }));
+  return `${iface.getSighash(signature)}${getCallData(args).replace('0x', '')}`
+}
 
 export const getNewContract = (
   address: string,

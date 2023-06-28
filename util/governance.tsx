@@ -1,4 +1,4 @@
-import { getMultiDelegatorContract, getGovernanceContract, getINVContract } from './contracts';
+import { getMultiDelegatorContract, getGovernanceContract, getINVContract, getCallData } from './contracts';
 import { JsonRpcSigner, TransactionReceipt, TransactionResponse } from '@ethersproject/providers';
 import { AbiCoder, isAddress, splitSignature, parseUnits, FunctionFragment, Interface, verifyMessage } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
@@ -101,20 +101,6 @@ export const clearStoredDelegationsCollected = (): void => {
     localforage.removeItem('signaturesCollected');
 }
 
-export const getCallData = (action: ProposalFormActionFields) => {
-    const abiCoder = new AbiCoder()
-    return abiCoder.encode(
-        action.args.map(arg => arg.type),
-        action.args.map(arg => {
-            if (arg.type === "bool" || arg.type === "bool[]") {
-                return JSON.parse(arg.value);
-            } else {
-                return arg.value;
-            }
-        })
-    )
-}
-
 export const getArgs = (fragment: FunctionFragment, calldata: string) => {
     const abiCoder = new AbiCoder()
     const types: any = fragment.inputs.map(v => ({ type: v.type, name: v.name }));
@@ -135,7 +121,7 @@ export const submitProposal = (signer: JsonRpcSigner, proposalForm: ProposalForm
 
             const text = `# ${title}\n${description}`
 
-            const calldatas = actions.map(action => getCallData(action))
+            const calldatas = actions.map(action => getCallData(action.args))
 
             // propose(address[] targets, uint256[] values, string[] signatures, bytes[] calldata, string description) public returns (uint)
             resolve(contract.propose(
@@ -159,7 +145,7 @@ export const getFunctionsFromProposalActions = (actions: ProposalFormActionField
 export const getFunctionFromProposalAction = (action: ProposalFormActionFields): ProposalFunction => {
     return {
         target: action.contractAddress,
-        callData: getCallData(action),
+        callData: getCallData(action.args),
         signature: action.fragment?.format('sighash') || '',
     }
 }
