@@ -95,7 +95,7 @@ export const getPreviousConnectorType = () => {
 
 export const setIsPreviouslyConnected = (value: boolean, connectorType = 'injected'): void => {
   if (typeof window === undefined) { return }
-  if(!value) { window.localStorage.clear(); }
+  if (!value) { window.localStorage.clear(); }
   window.localStorage.setItem('previousConnectorType', connectorType);
   return window.localStorage.setItem('previouslyConnected', JSON.stringify(value));
 }
@@ -159,10 +159,10 @@ export const formatBalance = (balance: BigNumber, decimals: number, symbol = '')
 
 export const hasAllowance = (approvals: BigNumberList, address: string, decimals = 18, amount?: string): boolean => {
   const allowanceValue = approvals && approvals[address] ? getBnToNumber(approvals[address], decimals) : 0;
-  if(!amount){
+  if (!amount) {
     return !!allowanceValue
   }
-  const _amount = (amount||'')?.toString()?.startsWith('.') ? `0${amount}` : amount;
+  const _amount = (amount || '')?.toString()?.startsWith('.') ? `0${amount}` : amount;
   return allowanceValue >= getBnToNumber(parseUnits((roundFloorString(_amount, decimals) || '0'), decimals));
 }
 
@@ -177,11 +177,11 @@ export const getParsedTokenBalance = async (token: Token, signer: JsonRpcSigner)
 }
 
 export const getConnectorFromInstance = (connector: undefined) => {
-  if(connector instanceof MetaMask) {
+  if (connector instanceof MetaMask) {
     return metamaskInjector;
-  } else if(connector instanceof WalletConnect) {
+  } else if (connector instanceof WalletConnect) {
     return walletConnectV2;
-  } else if(connector instanceof CoinbaseWallet) {
+  } else if (connector instanceof CoinbaseWallet) {
     return coinbaseWallet;
   }
   return null;
@@ -189,12 +189,11 @@ export const getConnectorFromInstance = (connector: undefined) => {
 
 export const forceQuickAccountRefresh = (
   connector: undefined,
-  deactivate: () => void,
-  activate: (c: any, onError?: () => void) => Promise<void>,
   onActivateError?: () => void,
 ) => {
   const supportedConnector = getConnectorFromInstance(connector);
   if (supportedConnector === null) { return }
+  const { deactivate: _deactivate } = supportedConnector || { activate: () => { }, deactivate: () => { } };
+  const deactivate = _deactivate || supportedConnector?.actions?.resetState || (() => 0);
   deactivate();
-  activate(supportedConnector, onActivateError)
 }
