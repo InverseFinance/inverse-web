@@ -143,7 +143,7 @@ const columns = [
         tooltip: 'Remaining borrowable DOLA liquidity, not taking into account daily limits',
         value: ({ dolaLiquidity, borrowPaused }) => {
             return <Cell minWidth="120px" justify="center" >
-                <CellText>{borrowPaused ? '-' : shortenNumber(dolaLiquidity, 2)}</CellText>
+                <CellText>{borrowPaused || dolaLiquidity < 1 ? '-' : shortenNumber(dolaLiquidity, 2)}</CellText>
             </Cell>
         },
     },
@@ -156,7 +156,7 @@ const columns = [
             return <Cell minWidth="130px" justify="center" alignItems="center" direction="column" spacing="0" >
                 {
                     borrowPaused ? <CellText>Borrow Paused</CellText> : <>
-                        <CellText>{leftToBorrow ? shortenNumber(leftToBorrow, 2) : totalDebt ? 'Depleted' : 'No liquidity'}</CellText>
+                        <CellText>{leftToBorrow > 1 ? shortenNumber(leftToBorrow, 2) : totalDebt ? 'Depleted' : 'No liquidity'}</CellText>
                         {
                             leftToBorrow < dailyLimit && dolaLiquidity > 0 && leftToBorrow < dolaLiquidity
                             && <CellText overflow="visible" whiteSpace="nowrap" minW="130px" textAlign={{ base: 'right', sm: 'left' }} fontSize={{ base: '10px', sm: '12px' }} color="mainTextColorLight2">
