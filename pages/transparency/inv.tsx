@@ -17,6 +17,7 @@ import { InvFlowChart } from '@app/components/Transparency/InvFlowChart'
 import { RTOKEN_CG_ID, RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { useDBRMarkets } from '@app/hooks/useDBR'
 import { preciseCommify } from '@app/util/misc'
+import { SkeletonBlob } from '@app/components/common/Skeleton'
 
 const { INV, XINV, XINV_V1, ESCROW, COMPTROLLER, TREASURY, XINV_MANAGER, POLICY_COMMITTEE, GOVERNANCE, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -36,9 +37,10 @@ const defaultValues = {
 
 export const InvPage = () => {
   const { prices: geckoPrices } = usePrices()
-  const { markets } = useMarkets()
-  const { markets: dbrMarkets } = useDBRMarkets();
-  const { invTotalSupply, invSupplies } = useDAO();
+  const { markets, isLoading: isLoadingFrontier } = useMarkets()
+  const { markets: dbrMarkets, isLoading: isLoadingFirm } = useDBRMarkets();
+  const isLoadingStaking = isLoadingFrontier || isLoadingFirm;
+  const { invTotalSupply, invSupplies, isLoading: isLoadingSupplies } = useDAO();
 
   const { data: xinvData } = useEtherSWR([
     [XINV, 'admin'],
@@ -93,10 +95,11 @@ export const InvPage = () => {
           <InvFlowChart {...invFlowChartData} />
         </Flex>
         <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
-          <SupplyInfos token={TOKENS[INV]} supplies={invSupplies}
-          />
+          <SupplyInfos isLoading={isLoadingSupplies} token={TOKENS[INV]} supplies={invSupplies} />
           <ShrinkableInfoMessage
             description={
+              isLoadingStaking ?
+              <SkeletonBlob /> :
               <>
                 <Text fontWeight="bold">{RTOKEN_SYMBOL} Staking:</Text>
                 <Funds noImage={true} showTotal={false} showPerc={true} funds={
@@ -133,15 +136,6 @@ export const InvPage = () => {
                 <Text fontWeight="bold">Monthly distribution to stakers:</Text>
                 <Text>{preciseCommify(rewardsPerMonth, 0)} {RTOKEN_SYMBOL} (~{preciseCommify(rewardsPerMonth * geckoPrices[RTOKEN_CG_ID]?.usd, 0, true)})</Text>
               </>
-            }
-          />
-          <ShrinkableInfoMessage
-            title="✨ Monthly INV rewards"
-            description={
-              <Funds showPerc={false} showTotal={false} funds={markets.map(market => {
-                return { token: market.underlying, balance: market.rewardsPerMonth, usdPrice: geckoPrices[RTOKEN_CG_ID]?.usd! }
-              })}
-              />
             }
           />
           <ShrinkableInfoMessage
