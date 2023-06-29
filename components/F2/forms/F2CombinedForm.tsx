@@ -448,7 +448,7 @@ export const F2CombinedForm = ({
     </VStack>
 
     const disabledConditions = {
-        'deposit': collateralAmountNum <= 0,
+        'deposit': collateralAmountNum <= 0 || collateralBalance < collateralAmountNum,
         'borrow': duration <= 0 || debtAmountNum <= 0 || newPerc < 1 || (isDeposit && !isAutoDBR && dbrBalance <= 0) || !market.leftToBorrow,
         'repay': debtAmountNum <= 0 || debtAmountNum > debt || debtAmountNum > dolaBalance || (isAutoDBR && !parseFloat(dbrSellAmount)),
         'withdraw': collateralAmountNum <= 0 || collateralAmountNum > deposits || newPerc < 1 || dbrBalance < 0,
