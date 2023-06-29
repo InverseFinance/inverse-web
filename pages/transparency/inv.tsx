@@ -14,8 +14,9 @@ import { SupplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
 import { Funds } from '@app/components/Transparency/Funds'
 import { useMarkets } from '@app/hooks/useMarkets'
 import { InvFlowChart } from '@app/components/Transparency/InvFlowChart'
-import { REWARD_TOKEN, RTOKEN_CG_ID, RTOKEN_SYMBOL } from '@app/variables/tokens'
-import { shortenNumber } from '@app/util/markets'
+import { RTOKEN_CG_ID, RTOKEN_SYMBOL } from '@app/variables/tokens'
+import { useDBRMarkets } from '@app/hooks/useDBR'
+import { preciseCommify } from '@app/util/misc'
 
 const { INV, XINV, XINV_V1, ESCROW, COMPTROLLER, TREASURY, XINV_MANAGER, POLICY_COMMITTEE, GOVERNANCE, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -36,6 +37,7 @@ const defaultValues = {
 export const InvPage = () => {
   const { prices: geckoPrices } = usePrices()
   const { markets } = useMarkets()
+  const { markets: dbrMarkets } = useDBRMarkets();
   const { invTotalSupply, invSupplies } = useDAO();
 
   const { data: xinvData } = useEtherSWR([
@@ -64,11 +66,15 @@ export const InvPage = () => {
   const fetchedValues = { xinvAdmin, xinvEscrow, xinvUnderlying, escrowGov, govTreasury }
   const invFlowChartData = { ...defaultValues, ...fetchedValues };
 
-  // (xinv old excluded)
-  const invSupplied = markets.find(m => m.token === XINV)?.supplied || 0;
-  const percentageInvSupplied = invTotalSupply ? invSupplied / invTotalSupply * 100 : 0;
-  const notStakedOnFrontier = invTotalSupply ?
-    invTotalSupply - markets.filter(market => [XINV, XINV_V1].includes(market.token)).reduce((prev, curr) => prev + curr.supplied, 0) : 0
+  // Frontier staking (includes staked via FiRM)
+  const invFrontierMarket = markets?.find(market => market.token === XINV);
+  const stakedOnFrontier = invFrontierMarket?.supplied || 0;
+  const stakedViaFirm = dbrMarkets?.find(market => market.isInv)?.invStakedViaDistributor || 0;
+  const stakedViaFrontier = stakedOnFrontier - stakedViaFirm;
+  const notStaked = invTotalSupply ?
+    invTotalSupply - stakedOnFrontier : 0
+
+  const rewardsPerMonth = invFrontierMarket?.rewardsPerMonth || 0;
 
   return (
     <Layout>
@@ -90,38 +96,49 @@ export const InvPage = () => {
           <SupplyInfos token={TOKENS[INV]} supplies={invSupplies}
           />
           <ShrinkableInfoMessage
-            title={`🔒 ${RTOKEN_SYMBOL} Staked on Frontier`}
             description={
               <>
-                <Funds showTotal={true} showPerc={true} funds={
-                  markets
-                    .filter(market => [XINV, XINV_V1].includes(market.token))
-                    .map(market => {
-                      return {
-                        token: { ...market.underlying, address: market.token },
-                        balance: market.supplied,
-                        usdPrice: geckoPrices[RTOKEN_CG_ID]?.usd!,
-                      }
-                    }).concat([
-                      {
-                        token: { ...REWARD_TOKEN, symbol: 'Not on Frontier' },
-                        balance: notStakedOnFrontier,
-                        usdPrice: geckoPrices[RTOKEN_CG_ID]?.usd!,
-                      }
-                    ])
+                <Text fontWeight="bold">{RTOKEN_SYMBOL} Staking:</Text>
+                <Funds noImage={true} showTotal={false} showPerc={true} funds={
+                  [
+                    {
+                      label: 'Total Staked',
+                      balance: stakedOnFrontier,
+                      usdPrice: geckoPrices[RTOKEN_CG_ID]?.usd!,
+                    },
+                    {
+                      label: 'Not staked',
+                      balance: notStaked,
+                      usdPrice: geckoPrices[RTOKEN_CG_ID]?.usd!,
+                    }
+                  ]
                 }
                 />
-                <Flex direction="row" w='full' justify="space-between">
-                  <Text>- % of {RTOKEN_SYMBOL} Supply staked (old excluded):</Text>
-                  <Text>{shortenNumber(percentageInvSupplied, 2)}%</Text>
-                </Flex>
+                <Text fontWeight="bold">{RTOKEN_SYMBOL} Staking repartition:</Text>
+                <Funds noImage={true} showTotal={false} showPerc={true} funds={
+                  [
+                    {
+                      label: 'Staked via FiRM',
+                      balance: stakedViaFirm,
+                      usdPrice: geckoPrices[RTOKEN_CG_ID]?.usd!,
+                    },
+                    {
+                      label: 'Staked via Frontier',
+                      balance: stakedViaFrontier,
+                      usdPrice: geckoPrices[RTOKEN_CG_ID]?.usd!,
+                    },
+                  ]
+                }
+                />
+                <Text fontWeight="bold">Monthly distribution to stakers:</Text>
+                <Text>{preciseCommify(rewardsPerMonth, 0)} {RTOKEN_SYMBOL} (~{preciseCommify(rewardsPerMonth * geckoPrices[RTOKEN_CG_ID]?.usd, 0, true)})</Text>
               </>
             }
           />
           <ShrinkableInfoMessage
-            title="✨ Monthly INV rewards for each Frontier Market"
+            title="✨ Monthly INV rewards"
             description={
-              <Funds funds={markets.map(market => {
+              <Funds showPerc={false} showTotal={false} funds={markets.map(market => {
                 return { token: market.underlying, balance: market.rewardsPerMonth, usdPrice: geckoPrices[RTOKEN_CG_ID]?.usd! }
               })}
               />
