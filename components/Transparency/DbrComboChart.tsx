@@ -74,7 +74,7 @@ export const DbrComboChart = ({
     return (
         <VStack alignItems="center" maxW={`${chartWidth}px`}>
             <Text fontWeight="bold">
-                DBR price and annualized burn & issuance
+                DBR annualized burn & issuance over time
             </Text>
             <ComposedChart
                 width={chartWidth}
