@@ -10,17 +10,16 @@ import { DbrComboChart } from "./DbrComboChart";
 import { DbrEmissions } from "./DbrEmissions";
 import { useDBRPrice } from "@app/hooks/useDBR";
 import { shortenNumber } from "@app/util/markets";
-import { biggestSize, smallerSize, slightlyBiggerSize3, slightlyBiggerSize } from '@app/variables/responsive'
 
 const streamingStartTs = 1684713600000;
 
 const StatBasic = ({ value, name, isLoading = false }: { value: string, name: string, isLoading?: boolean }) => {
-    return <VStack>
+    return <VStack spacing="0">
         {
-            !isLoading ? <Text textAlign="center" color={'secondary'} fontSize={slightlyBiggerSize} fontWeight="extrabold">{value}</Text>
+            !isLoading ? <Text textAlign="center" color={'secondary'} fontSize={{ base: '16px', sm: '18px' }} fontWeight="extrabold">{value}</Text>
                 : <SkeletonText pt="1" skeletonHeight={2} height={'24px'} width={'100px'} noOfLines={1} />
         }
-        <Text textAlign="center" color={'mainTextColor'} fontSize={smallerSize} fontWeight="bold">{name}</Text>
+        <Text textAlign="center" color={'mainTextColor'} fontSize={{ base: '14px', sm: '16px' }} fontWeight="bold">{name}</Text>
     </VStack>
 }
 
@@ -89,23 +88,26 @@ export const DbrAll = ({
         }
     });
 
+    const lastCombodata = combodata?.length > 0 ? combodata[combodata.length - 1] : { debt: 0 };
     // today utc: use current price
     if (combodata?.length > 0 && !!dbrPrice && !!yearlyRewardRate) {
         const now = Date.now();
         const todayUTC = timestampToUTC(now);
-        const todayIndex = combodata.findIndex(d => d.date === todayUTC);
-        const last = combodata[combodata.length - 1];
+        const todayIndex = combodata.findIndex(d => d.date === todayUTC);        
         combodata.splice(todayIndex, combodata.length - (todayIndex), {
-            ...last,
+            ...lastCombodata,
             timestamp: now,
             time: new Date(timestampToUTC(now)),
-            debtUsd: last.debt * dbrPrice,
+            debtUsd: lastCombodata.debt * dbrPrice,
             histoPrice: dbrPrice,
             date: timestampToUTC(now),
             yearlyRewardRate: yearlyRewardRate,
             yearlyRewardRateUsd: yearlyRewardRate * dbrPrice,
         });
     }
+
+    const annualizedBurn = lastCombodata.debt;
+    const annualizedIssuance = yearlyRewardRate;
 
     const { chartData: burnChartData } = useEventsAsChartData(_burnEvents, useUsd ? 'accBurnUsd' : 'accBurn', useUsd ? 'amountUsd' : 'amount');
 
@@ -120,16 +122,18 @@ export const DbrAll = ({
 
     return <Stack spacing="3" w='full' direction={{ base: 'column' }}>
         <FormControl cursor="pointer" w='full' justifyContent={{ base: 'center', sm: 'flex-start' }} display='flex' alignItems='center'>
-            <Text mr="2" onClick={() => setUseUsd(!useUsd)}>
+            <Text fontSize='14px' mr="2" onClick={() => setUseUsd(!useUsd)}>
                 Show in USD historical value
             </Text>
             <Switch onChange={(e) => setUseUsd(!useUsd)} size="sm" colorScheme="purple" isChecked={useUsd} />
         </FormControl>
         <VStack spacing="3">
             <Divider />
-            <SimpleGrid w='full' columns={2} >
-                <StatBasic isLoading={isEmmissionLoading} name="DBR claimed by stakers" value={`${shortenNumber(totalClaimed, 2)} (${shortenNumber(useUsd ? totalClaimedUsd : totalClaimed * dbrPrice, 2, true)})`} />
-                <StatBasic isLoading={!burnEvents?.length} name="DBR burned by borrowers" value={`${shortenNumber(totalBurned, 2)} (${shortenNumber(useUsd ? accBurnUsd : totalBurned * dbrPrice, 2, true)})`} />
+            <SimpleGrid gap="2" w='full' columns={{ base: 2, sm: 4 }} >
+                <StatBasic isLoading={!annualizedIssuance} name="Annualized Issuance" value={`${shortenNumber(annualizedIssuance, 2)} (${shortenNumber(annualizedIssuance * dbrPrice, 2, true)})`} />
+                <StatBasic isLoading={!annualizedBurn} name="Annualized Burn" value={`${shortenNumber(annualizedBurn, 2)} (${shortenNumber(annualizedBurn * dbrPrice, 2, true)})`} />
+                <StatBasic isLoading={isEmmissionLoading} name="Claimed by stakers" value={`${shortenNumber(totalClaimed, 2)} (${shortenNumber(useUsd ? totalClaimedUsd : totalClaimed * dbrPrice, 2, true)})`} />
+                <StatBasic isLoading={!burnEvents?.length} name="Burned by borrowers" value={`${shortenNumber(totalBurned, 2)} (${shortenNumber(useUsd ? accBurnUsd : totalBurned * dbrPrice, 2, true)})`} />
             </SimpleGrid>
             <Divider />
         </VStack>
