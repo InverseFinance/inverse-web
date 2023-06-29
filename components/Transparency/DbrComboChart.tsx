@@ -9,7 +9,8 @@ import { useEffect, useState } from 'react';
 const KEYS = {
     BURN: 'Annualized burn',
     ISSUANCE: 'Annualized issuance',
-    PRICE: 'Price',
+    DBR_PRICE: 'DBR Price',
+    INV_PRICE: 'INV Price',
 }
 
 export const DbrComboChart = ({
@@ -23,16 +24,17 @@ export const DbrComboChart = ({
     chartWidth?: number
     useUsd?: boolean
 }) => {
-    const { themeStyles } = useAppTheme();
+    const { themeStyles, themeName } = useAppTheme();
     const [brushIndexes, setBrushIndexes] = useState({ startIndex: undefined, endIndex: undefined });
     const [actives, setActives] = useState({
         [KEYS.BURN]: true,
         [KEYS.ISSUANCE]: true,
-        [KEYS.PRICE]: true,
+        [KEYS.DBR_PRICE]: true,
+        [KEYS.INV_PRICE]: false,
     })
 
     useEffect(() => {
-        if(brushIndexes.startIndex !== undefined || !combodata || combodata.length < 250) {
+        if (brushIndexes.startIndex !== undefined || !combodata || combodata.length < 250) {
             return;
         }
         setBrushIndexes({ startIndex: 220, endIndex: combodata.length - 1 });
@@ -49,20 +51,29 @@ export const DbrComboChart = ({
     const legendStyle = {
         ..._axisStyle.tickLabels,
         top: -8,
-        fontSize: '12px',        
+        fontSize: '12px',
     }
 
     const toggleChart = (params) => {
-        setActives({ ...actives, [params.value]: !actives[params.value] })
+        setActives({
+            ...actives,
+            [KEYS.INV_PRICE]: params.value === KEYS.DBR_PRICE ? false : actives[KEYS.INV_PRICE],
+            [KEYS.DBR_PRICE]: params.value === KEYS.INV_PRICE ? false : actives[KEYS.DBR_PRICE],
+            [params.value]: !actives[params.value],
+        });
     }
 
-    const handleBrush = (params) => {        
+    const priceKey = actives[KEYS.DBR_PRICE] ? 'histoPrice' : 'invHistoPrice';
+    const dbrPriceColor = themeStyles.colors.info;
+    const invPriceColor = themeName === 'light' ? themeStyles.colors.mainTextColor : 'lightblue';
+
+    const handleBrush = (params) => {
         setBrushIndexes(params);
     }
 
     return (
         <VStack alignItems="center" maxW={`${chartWidth}px`}>
-            <Text>
+            <Text fontWeight="bold">
                 DBR price and annualized burn & issuance
             </Text>
             <ComposedChart
@@ -76,7 +87,7 @@ export const DbrComboChart = ({
                     bottom: 20,
                 }}
             >
-                <CartesianGrid strokeDasharray={_axisStyle.grid.strokeDasharray} />
+                <CartesianGrid fill={themeStyles.colors.accentChartBgColor} stroke="#66666633" strokeDasharray={_axisStyle.grid.strokeDasharray} />
                 <XAxis minTickGap={28} interval="preserveStartEnd" style={_axisStyle.tickLabels} dataKey="timestamp" scale="time" type={'number'} allowDataOverflow={true} domain={['dataMin', 'dataMax']} tickFormatter={(v) => {
                     return moment(v).format('MMM Do')
                 }} />
@@ -95,7 +106,8 @@ export const DbrComboChart = ({
                 <Legend wrapperStyle={legendStyle} onClick={toggleChart} style={{ cursor: 'pointer' }} formatter={(value) => value + (actives[value] ? '' : ' (hidden)')} />
                 <Area opacity={actives[KEYS.BURN] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.BURN} yAxisId="left" type="monotone" dataKey={useUsd ? 'debtUsd' : 'debt'} stroke={themeStyles.colors.warning} dot={false} fillOpacity={1} fill="url(#warning-gradient)" />
                 <Area opacity={actives[KEYS.ISSUANCE] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.ISSUANCE} yAxisId="left" type="monotone" dataKey={useUsd ? 'yearlyRewardRateUsd' : 'yearlyRewardRate'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={1} fill="url(#secondary-gradient)" />
-                <Line opacity={actives[KEYS.PRICE] ? 1 : 0} strokeWidth={2} name={KEYS.PRICE} yAxisId="right" type="monotone" dataKey="histoPrice" stroke={themeStyles.colors.info} dot={false} />
+                <Line opacity={actives[KEYS.DBR_PRICE] ? 1 : 0} strokeWidth={2} name={KEYS.DBR_PRICE} yAxisId="right" type="monotone" dataKey={priceKey} stroke={dbrPriceColor} dot={false} />
+                <Line opacity={actives[KEYS.INV_PRICE] ? 1 : 0} strokeWidth={2} name={KEYS.INV_PRICE} yAxisId="right" type="monotone" dataKey={priceKey} stroke={invPriceColor} dot={false} />
                 <Brush onChange={handleBrush} startIndex={brushIndexes.startIndex} endIndex={brushIndexes.endIndex} dataKey="timestamp" height={30} stroke="#8884d8" tickFormatter={(v) => ''} />
             </ComposedChart>
         </VStack>

@@ -256,7 +256,7 @@ export const WorthEvoChart = ({
                     bottom: 20,
                 }}
             >
-                <CartesianGrid fill={themeStyles.colors.accentChartBgColor}  stroke="#66666633" strokeDasharray={_axisStyle.grid.strokeDasharray} />
+                <CartesianGrid fill={themeStyles.colors.accentChartBgColor} stroke="#66666633" strokeDasharray={_axisStyle.grid.strokeDasharray} />
                 <XAxis minTickGap={28} interval="preserveStartEnd" style={_axisStyle.tickLabels} dataKey="timestamp" scale="time" type={'number'} allowDataOverflow={true} domain={['dataMin', 'dataMax']} tickFormatter={(v) => {
                     return moment(v).format('MMM Do')
                 }} />

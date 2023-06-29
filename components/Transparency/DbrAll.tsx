@@ -4,7 +4,7 @@ import { BarChart12Months } from "./BarChart12Months";
 import { useAppTheme } from "@app/hooks/useAppTheme";
 import { useEventsAsChartData } from "@app/hooks/misc";
 import { timestampToUTC } from "@app/util/misc";
-import { useDBREmissions } from "@app/hooks/useFirm";
+import { useDBREmissions, useHistoricalPrices } from "@app/hooks/useFirm";
 import { ONE_DAY_MS } from "@app/config/constants";
 import { DbrComboChart } from "./DbrComboChart";
 import { DbrEmissions } from "./DbrEmissions";
@@ -33,6 +33,8 @@ export const DbrAll = ({
     yearlyRewardRate,
 }) => {
     const [useUsd, setUseUsd] = useState(false);
+    const { prices: invHistoPrices } = useHistoricalPrices('inverse-finance');
+    const invHistoPricesAsObj = !!invHistoPrices ? invHistoPrices.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr[0])]: curr[1] }), {}) : {};
     const { price: dbrPrice } = useDBRPrice();
 
     const { events: emissionEvents, rewardRatesHistory, isLoading: isEmmissionLoading } = useDBREmissions();
@@ -72,6 +74,7 @@ export const DbrAll = ({
     const combodata = history?.map(d => {
         const date = timestampToUTC(d.timestamp);
         const histoPrice = (histoPrices[date] || 0.05);
+        const invHistoPrice = (invHistoPricesAsObj[date] || 0);
         const yearlyRewardRate = rateChanges.findLast(rd => date >= rd.date)?.yearlyRewardRate || 0;
         return {
             ...d,
@@ -80,6 +83,7 @@ export const DbrAll = ({
             debt: d.debt,
             debtUsd: d.debt * histoPrice,
             histoPrice,
+            invHistoPrice,
             yearlyRewardRate,
             yearlyRewardRateUsd: yearlyRewardRate * histoPrice,
         }
