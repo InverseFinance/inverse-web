@@ -66,7 +66,7 @@ export const SwapFooter = ({
     onIncludeTxCostChange: () => void,
     onMaxSlippageChange: (v: number) => void
 }) => {
-    const { active } = useWeb3React<Web3Provider>()
+    const { isActive } = useWeb3React<Web3Provider>()
     const [isReady, setIsReady] = useState(false)
 
     useEffect(() => {
@@ -132,7 +132,7 @@ export const SwapFooter = ({
                     />
                     <SwapText textAlign={{ base: 'center', sm: 'left' }}>
                         {
-                            !active ? <>&nbsp;</> :
+                            !isActive ? <>&nbsp;</> :
                                 !exRate ?
                                     isStabilizer ? '' : 'Fetching rates...'
                                     :
