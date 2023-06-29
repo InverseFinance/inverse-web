@@ -346,7 +346,7 @@ export const F2CombinedForm = ({
                         : isBorrowOnlyCase ? <Text>Please deposit collateral first</Text> : <Text>Nothing to repay</Text>
                 }
                 {
-                    isBorrowCase && market.leftToBorrow > 0 && deltaDebt > 0 && market.leftToBorrow < (isAutoDBR ? deltaDebt + (dbrCoverDebt * (1 + parseFloat(dbrBuySlippage || 0) / 100)) : deltaDebt)
+                    notEnoughToBorrowWithAutobuy
                     && <WarningMessage alertProps={{ w: 'full' }} description={
                         `Only ${shortenNumber(market.leftToBorrow, 2)} DOLA are available for borrowing at the moment${isAutoDBR ? ` but around ${shortenNumber(dbrCoverDebt + deltaDebt, 2)} DOLA are needed to cover the debt (borrow amount+DBR auto-buy cost)` : ''}.`
                     } />
@@ -447,9 +447,11 @@ export const F2CombinedForm = ({
         </VStack>
     </VStack>
 
+
+    const notEnoughToBorrowWithAutobuy = isBorrowCase && market.leftToBorrow > 1 && deltaDebt > 0 && market.leftToBorrow < (isAutoDBR ? deltaDebt + (dbrCoverDebt * (1 + parseFloat(dbrBuySlippage || 0) / 100)) : deltaDebt);
     const disabledConditions = {
         'deposit': collateralAmountNum <= 0 || collateralBalance < collateralAmountNum,
-        'borrow': duration <= 0 || debtAmountNum <= 0 || newPerc < 1 || (isDeposit && !isAutoDBR && dbrBalance <= 0) || !market.leftToBorrow,
+        'borrow': duration <= 0 || debtAmountNum <= 0 || newPerc < 1 || (isDeposit && !isAutoDBR && dbrBalance <= 0) || market.leftToBorrow < 1 || debtAmountNum > market.leftToBorrow || notEnoughToBorrowWithAutobuy,
         'repay': debtAmountNum <= 0 || debtAmountNum > debt || debtAmountNum > dolaBalance || (isAutoDBR && !parseFloat(dbrSellAmount)),
         'withdraw': collateralAmountNum <= 0 || collateralAmountNum > deposits || newPerc < 1 || dbrBalance < 0,
     }
@@ -557,7 +559,7 @@ export const F2CombinedForm = ({
                 }
                 {
                     market.borrowPaused ? <WarningMessage alertProps={{ w: 'full' }} description="Borrowing is paused" />
-                        : !market.leftToBorrow && isBorrowCase
+                        : market.leftToBorrow < 1 && isBorrowCase
                         && <WarningMessage alertProps={{ w: 'full' }} description="No DOLA liquidity at the moment" />
                 }
                 {/* {bottomPart} */}
