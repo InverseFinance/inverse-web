@@ -48,7 +48,7 @@ export const AnchorModal = ({
   const _operations = operations//isV1market ? [...operations, AnchorOperations.migrate] : operations;
   const [operation, setOperation] = useState(_operations[0])
   const [amount, setAmount] = useState<string>('')
-  const { active } = useWeb3React()
+  const { isActive } = useWeb3React()
   const { balances } = useAccountBalances()
   const { balances: supplyBalances } = useSupplyBalances()
   const { balances: borrowBalances } = useBorrowBalances()
@@ -202,7 +202,7 @@ export const AnchorModal = ({
                   asset={asset}
                   amount={amount && !isNaN(amount as any) ? parseUnits(amount, asset.underlying.decimals) : BigNumber.from(0)}
                   needWithdrawWarning={needWithdrawWarning}
-                  isDisabled={isUserBorrowAbilityPaused || flokiSupplyDisabled || !amount || !active || isNaN(amount as any) || (parseFloat(amount) > maxFloat() && amount !== maxString())}
+                  isDisabled={isUserBorrowAbilityPaused || flokiSupplyDisabled || !amount || !isActive || isNaN(amount as any) || (parseFloat(amount) > maxFloat() && amount !== maxString())}
                 />
               </>
           }
