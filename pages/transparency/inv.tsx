@@ -101,11 +101,11 @@ export const InvPage = () => {
               isLoadingStaking ?
               <SkeletonBlob /> :
               <>
-                <Text fontWeight="bold">{RTOKEN_SYMBOL} Staking:</Text>
+                <Text fontWeight="bold">{RTOKEN_SYMBOL} staking:</Text>
                 <Funds noImage={true} showTotal={false} showPerc={true} funds={
                   [
                     {
-                      label: 'Total Staked',
+                      label: 'Total staked',
                       balance: stakedOnFrontier,
                       usdPrice: geckoPrices[RTOKEN_CG_ID]?.usd!,
                     },
@@ -117,7 +117,7 @@ export const InvPage = () => {
                   ]
                 }
                 />
-                <Text fontWeight="bold">{RTOKEN_SYMBOL} Staking repartition:</Text>
+                <Text fontWeight="bold">{RTOKEN_SYMBOL} staking repartition:</Text>
                 <Funds noImage={true} showTotal={false} showPerc={true} funds={
                   [
                     {

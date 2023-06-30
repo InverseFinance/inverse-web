@@ -40,6 +40,13 @@ export const Swap = () => {
             alertProps={{ fontSize: '12px', mb: '8' }}
             description={
               <Stack>
+                <Text fontSize="14px" fontWeight="bold">About the swap / bridge routing</Text>
+                <Text>
+                  Our swap / bridge component is powered by Socket.tech which works as an aggregator.
+                </Text>
+                <Link isExternal target="_blank" href="https://docs.socket.tech/socket-liquidity-layer/socketll-overview/chains-dexs-bridges" textDecoration="underline">
+                  More infos on Socket.tech <ExternalLinkIcon />
+                </Link>
                 <Text fontSize="14px" fontWeight="bold">What is DOLA?</Text>
                 <Text>
                   DOLA is Inverse Finance's decentralized <b>stablecoin</b>, the best way to get DOLA is to borrow it on FiRM!
@@ -49,7 +56,7 @@ export const Swap = () => {
                 </Link>
                 <Text fontSize="14px" fontWeight="bold">What is INV?</Text>
                 <Text>
-                  INV is Inverse Finance's Governance token, allowing you to <b>vote on proposals</b> and <b>earn Real Yield</b> via DBR issuance when staking on FiRM.                  
+                  INV is Inverse Finance's Governance token, allowing you to <b>vote on proposals</b> and <b>earn Real Yield</b> via DBR issuance when staking on FiRM.
                 </Text>
                 <Link href="/firm/INV" textDecoration="underline">
                   Stake INV on FiRM
