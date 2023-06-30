@@ -434,7 +434,7 @@ export const F2_ESCROW_ABI = [
   // only INV
   'function claimable() public view returns (uint)',
   "function claimDBR() public",
-  "function claimDBRTo() public",
+  "function claimDBRTo(address) public",
 ];
 
 export const F2_CONTROLLER_ABI = [

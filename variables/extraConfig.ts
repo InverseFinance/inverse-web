@@ -101,7 +101,8 @@ const mainConfig = {
             hasClaimableRewards: true,
             zapperAppGroup: 'convex+cvx-crv-staking-wrapped',
             startingBlock: 17228187,
-            isInv: false,            
+            isInv: false,
+            possibleRewards: ['CRV', 'CVX', '3CRV'],
         },
         {
             name: 'INV',
@@ -118,6 +119,7 @@ const mainConfig = {
             govLink: '/governance',                     
             startingBlock: 17272807,
             claimMethod: 'claimDBR',
+            possibleRewards: ['DBR'],
         },
     ],
     feds: FEDS_PARAMS,
