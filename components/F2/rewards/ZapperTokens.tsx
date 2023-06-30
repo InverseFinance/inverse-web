@@ -11,13 +11,9 @@ export const ZapperTokens = ({
     totalRewardsUSD,
     handleClaim,
     onSuccess,
-    market,
-    showMarketBtn = false,
 }: {
     claimables: any,
     totalRewardsUSD: number,
-    market: F2Market,
-    showMarketBtn?: boolean,
     handleClaim: () => void,
     onSuccess?: () => void,
 }) => {
@@ -40,7 +36,7 @@ export const ZapperTokens = ({
         </Stack>
         <Stack spacing="4" w='full' direction={{ base: 'column', sm: 'row' }}>
             {
-                claimables?.map((t, i) => {
+                claimables?.filter(t => t.balanceUSD > 0.01)?.map((t, i) => {
                     const underlying = getToken(TOKENS, t.address) || {};
                     return <HStack justify='space-between' key={t.address} w={{ base: 'full', sm: 'fit-content' }} border='1px solid #ccc' p='2' borderRadius='5px'>
                         <VStack spacing="1" alignItems="flex-start" w='80px'>

@@ -184,8 +184,8 @@ export const WorthEvoChartContainerINV = ({
     market: F2Market,
     chartWidth: number,
 }) => {
-    const { escrow } = useContext(F2MarketContext);
-    const { rewards } = useINVEscrowRewards(escrow);
+    const { escrow, account } = useContext(F2MarketContext);
+    const { rewards } = useINVEscrowRewards(escrow, account);
     const { data, isLoading } = useFirmUserPositionEvolution(market, rewards);
 
 

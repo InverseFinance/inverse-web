@@ -5,7 +5,7 @@ import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { useAccount } from '@app/hooks/misc'
 import { useAccountF2Markets, useDBRMarkets } from '@app/hooks/useDBR'
-import { useUserRewards } from '@app/hooks/useFirm'
+import { useSimUserRewards, useUserRewards } from '@app/hooks/useFirm'
 import { preciseCommify } from '@app/util/misc'
 import { useAppTheme } from '@app/hooks/useAppTheme'
 import { SkeletonBlob } from '@app/components/common/Skeleton'
@@ -21,9 +21,10 @@ export const FirmRewardsPage = () => {
     const accountMarkets = useAccountF2Markets(markets, account);
     accountMarkets?.sort((a, b) => b.deposits - a.deposits);
 
-    const { appGroupPositions, isLoading } = useUserRewards(account);
+    const { claimableRewards, isLoading } = useSimUserRewards(account);
 
-    const totalRewardsUSD = extraUsd + appGroupPositions?.reduce((prev, curr) => {
+    // inv market: via extraUsd (will be from simulated or on-chain)
+    const totalRewardsUSD = extraUsd + claimableRewards?.filter(d => !d.market.isInv)?.reduce((prev, curr) => {
         return prev + curr.tokens
             .filter(t => t.metaType === 'claimable')
             .reduce((tprev, tcurr) => tprev + tcurr.balanceUSD, 0);
@@ -31,13 +32,6 @@ export const FirmRewardsPage = () => {
 
     const depositsWithRewards = accountMarkets?.filter(m => m.hasClaimableRewards)
         .reduce((prev, curr) => prev + curr.deposits * curr.price, 0);
-
-    const needZapper = !!accountMarkets?.find(m => m.hasClaimableRewards && !!m.zapperAppGroup && m.deposits > 0);
-
-    useEffect(() => {
-        if (!account || !needZapper) { return }
-        zapperRefresh(account);
-    }, [account, needZapper]);
 
     return (
         <Layout>
@@ -66,7 +60,9 @@ export const FirmRewardsPage = () => {
                             accountMarkets
                                 .filter(market => market.hasClaimableRewards)
                                 .map(market => {
-                                    // via on chain data
+                                    // via on api
+                                    const rewardsInfos = claimableRewards.find(a =>  [a.appGroup, a.market.zapperAppGroup].includes(market.zapperAppGroup));
+                                    // plus via on chain data
                                     if (market.isInv) {
                                         return <FirmRewardWrapper
                                             key={market.address}
@@ -76,8 +72,7 @@ export const FirmRewardsPage = () => {
                                             onLoad={(v) => setExtraUsd(v)}
                                         />
                                     }
-                                    // via on zapper api
-                                    const rewardsInfos = appGroupPositions.find(a => a.appGroup === market.zapperAppGroup);
+                                    
                                     return <FirmRewards
                                         key={market.address}
                                         market={market}

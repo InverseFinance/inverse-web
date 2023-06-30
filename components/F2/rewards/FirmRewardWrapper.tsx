@@ -1,6 +1,6 @@
 import { F2Market } from "@app/types"
 import { useContext, useEffect } from "react";
-import { useEscrowRewards, useINVEscrowRewards, useStakedInFirm } from "@app/hooks/useFirm";
+import { useEscrowRewards, useINVEscrowRewards, useSimUserRewards, useStakedInFirm } from "@app/hooks/useFirm";
 import { F2MarketContext } from "../F2Contex";
 import { BURN_ADDRESS } from "@app/config/constants";
 import { zapperRefresh } from "@app/util/f2";
@@ -16,7 +16,7 @@ export const FirmRewardWrapper = ({
     label,
     showMarketBtn = false,
     escrow,
-    onLoad
+    onLoad,
 }: {
     market: F2Market
     label?: string
@@ -57,15 +57,10 @@ export const FirmRewardWrapperContent = ({
     escrow?: string
     showMarketBtn?: boolean
 }) => {
-    const { needRefreshRewards, setNeedRefreshRewards, account } = useContext(F2MarketContext);
-    const { appGroupPositions, isLoading } = useEscrowRewards(escrow);
-    const rewardsInfos = appGroupPositions.find(a => a.appGroup === market.zapperAppGroup);
+    const { account } = useContext(F2MarketContext);
+    const { claimableRewards, isLoading } = useSimUserRewards(account);
+    const rewardsInfos = claimableRewards.find(a => a.appGroup === market.zapperAppGroup || a.market?.address === market.address);
 
-    useEffect(() => {
-        if (!account || !needRefreshRewards) { return }
-        zapperRefresh(account);
-        setNeedRefreshRewards(false);
-    }, [needRefreshRewards, account]);
 
     return <FirmRewards
         market={market}
@@ -91,7 +86,7 @@ export const FirmINVRewardWrapperContent = ({
 }) => {
     const account = useAccount();
     const { prices } = usePrices();
-    const { rewardsInfos, isLoading } = useINVEscrowRewards(escrow);
+    const { rewardsInfos, isLoading } = useINVEscrowRewards(escrow, account);
     const { stakedInFirm } = useStakedInFirm(account);
 
     useEffect(() => {
@@ -147,7 +142,7 @@ export const FirmRewards = ({
     extra,
 }: {
     market: F2Market
-    rewardsInfos: any[]
+    rewardsInfos: any
     label?: string
     escrow?: string
     showMarketBtn?: boolean

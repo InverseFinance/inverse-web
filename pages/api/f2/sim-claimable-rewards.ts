@@ -14,14 +14,14 @@ import { getNetworkConfigConstants } from '@app/util/networks';
 const { F2_MARKETS } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
-  const { escrow, account } = req.query;
+  const { account } = req.query;
 
-  if (!escrow || !isAddress(escrow) || isInvalidGenericParam(escrow) || !isAddress(account) || isInvalidGenericParam(account)) {
+  if (!isAddress(account) || isInvalidGenericParam(account)) {
     res.status(400).json({ msg: 'invalid request' });
     return;
   };
 
-  const cacheKey = `${escrow}-cvxCrv-rewards`;
+  const cacheKey = `${account}-sim-rewards`;
 
   try {
     const cacheDuration = 300;

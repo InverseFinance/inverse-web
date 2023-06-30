@@ -13,6 +13,7 @@ import { BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
 import useEtherSWR from "./useEtherSWR";
 import { useAccount } from "./misc";
 import { useBlocksTimestamps } from "./useBlockTimestamp";
+import { usePrices } from "./usePrices";
 
 const oneYear = ONE_DAY_MS * 365;
 
@@ -305,12 +306,12 @@ export const useDBRDebtHisto = (): SWR & {
   }
 }
 
-export const useINVEscrowRewards = (escrow: string): SWR & {
+export const useINVEscrowRewards = (escrow: string, account: string): SWR & {
   rewards: number,
   rewardsInfos: { tokens: ZapperToken[] },
 } => {
-  const account = useAccount();
-  const { data: dbrSimData } = useCustomSWR(`/api/f2/sim-dbr-rewards?escrow=${escrow}&account=${account}`, fetcher30sectimeout);
+  const { claimableRewards } = useSimUserRewards(account);
+  const simRewardsInfos = claimableRewards.find(r => r.escrow === escrow);
   const { data, error } = useEtherSWR({
     args: [[escrow, 'claimable']],
     abi: F2_ESCROW_ABI,
@@ -320,7 +321,7 @@ export const useINVEscrowRewards = (escrow: string): SWR & {
   const { data: totalSupplyBn } = useEtherSWR([DBR_DISTRIBUTOR, 'totalSupply']);
 
   const lastUpdateStored = lastUpdate ? getBnToNumber(lastUpdate, 0) * 1000 : 0;
-  const storedIsOutdated = !!data && !!dbrSimData && lastUpdateStored < dbrSimData?.timestamp;
+  const storedIsOutdated = !!data && !!simRewardsInfos && lastUpdateStored < simRewardsInfos?.timestamp;
 
   // per second
   const rewardRate = rewardRateBn ? getBnToNumber(rewardRateBn) : 0;
@@ -328,13 +329,13 @@ export const useINVEscrowRewards = (escrow: string): SWR & {
   const { price: dbrPrice } = useDBRPrice();
 
   const rewardsStored = data && data[0] ? getBnToNumber(data[0]) : 0;
-  const rewards = storedIsOutdated ? dbrSimData?.simRewards : rewardsStored;
+  const rewards = storedIsOutdated ? simRewardsInfos?.tokens[0].balance : rewardsStored;
   const totalSupply = totalSupplyBn ? getBnToNumber(totalSupplyBn) : 0;
 
   const apr = !totalSupply ? 0 : yearlyRewardRate / totalSupply;
 
   const rewardsInfos = {
-    timestamp: storedIsOutdated ? dbrSimData?.timestamp : lastUpdateStored,
+    timestamp: storedIsOutdated ? simRewardsInfos?.timestamp : lastUpdateStored,
     tokens: [
       {
         metaType: 'claimable',
@@ -366,6 +367,33 @@ export const useEscrowRewards = (escrow: string): SWR & {
 
   return {
     appGroupPositions: data?.appGroupPositions || [],
+    timestamp: data ? data.timestamp : 0,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
+export const useSimUserRewards = (account: string): SWR & {
+  claimableRewards: { escrow: string, market: F2Market, rewards: ZapperToken[] }[],
+  timestamp: number,
+  isLoading: boolean
+  isError: boolean
+} => {
+  const { data, error } = useCacheFirstSWR(`/api/f2/sim-claimable-rewards?v=1&account=${account || ''}`, fetcher60sectimeout);
+  const { prices } = usePrices();
+  const claimableRewards = data ? data.claimableRewards.map(d => {
+    return {
+      ...d,
+      timestamp: data.timestamp,
+      tokens: d.rewards.map(r => {
+        const price = prices ? prices[r.coingeckoId]?.usd : 0;
+        return { ...r, metaType: 'claimable', price, balanceUSD: r.balance * price }
+      }),
+    }
+  }) : [];
+
+  return {
+    claimableRewards,
     timestamp: data ? data.timestamp : 0,
     isLoading: !error && !data,
     isError: error,

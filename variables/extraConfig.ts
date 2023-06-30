@@ -120,6 +120,7 @@ const mainConfig = {
             startingBlock: 17272807,
             claimMethod: 'claimDBR',
             possibleRewards: ['DBR'],
+            zapperAppGroup: 'inverse+inv',
         },
     ],
     feds: FEDS_PARAMS,
