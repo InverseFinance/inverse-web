@@ -13,7 +13,7 @@ import { pricesCacheKey } from '../prices';
 import { PROTOCOLS_BY_IMG } from '@app/variables/images';
 import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 
-export const liquidityCacheKey = `liquidity-v1.0.7`;
+export const liquidityCacheKey = `liquidity-v1.0.8`;
 
 const PROTOCOL_DEFILLAMA_MAPPING = {
     "VELO": 'velodrome',
@@ -164,7 +164,7 @@ export default async function handler(req, res) {
                 ownedAmount = Object.values(owned).reduce((prev, curr) => prev + curr, 0)
                     * (lp.isStable ? virtualLpPrice : (prices[lp.coingeckoId || lp.symbol] || 1));
             } else {
-                ownedAmount = fedPolData.supply;
+                ownedAmount = fedPolData.lpBalance * fedPolData.lpPrice;
             }
 
             const lpName = lp.symbol.replace(/(-LP|-SLP|-AURA| [a-zA-Z]*lp)/ig, '').replace(/-ETH/ig, '-WETH');
