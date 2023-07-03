@@ -12,7 +12,7 @@ const client = getRedisClient();
 
 const getEvents = (fedAd: string, abi: string[], chainId: NetworkIds, startBlock = 0x0) => {
   const provider = getProvider(chainId);
-  const contract = new Contract(fedAd, abi, provider);  
+  const contract = new Contract(fedAd, abi, provider);
   return Promise.all([
     contract.queryFilter(contract.filters.Contraction(), startBlock),
     contract.queryFilter(contract.filters.Expansion(), startBlock),
@@ -48,9 +48,9 @@ export default async function handler(req, res) {
 
   const { FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
   // to keep for archive
-  const cacheKeyOld = `fed-policy-cache-v1.0.95`;  
+  const cacheKeyOld = `fed-policy-cache-v1.0.96`;
   // temp migration
-  const cacheKeyNew = `fed-policy-cache-v1.0.96`;
+  const cacheKeyNew = `fed-policy-cache-v1.0.97`;
 
   try {
     const cacheDuration = 60;
@@ -69,10 +69,11 @@ export default async function handler(req, res) {
     const newStartingBlock = lastKnownEvent ? lastKnownEvent?.blockNumber + 1 : 0;
 
     const rawEvents = await Promise.all([
-      ...FEDS.map(fed =>
-        fed.hasEnded ?
+      ...FEDS.map(fed => {    
+        return fed.hasEnded ?
           new Promise((res) => res([[], []]))
-          : getEvents(fed.address, fed.abi, fed.chainId, newStartingBlock)
+          : getEvents(fed.address, fed.abi, fed.chainId, !pastTotalEvents.find(e => e.fedAddress === fed.address) ? 0x0 : newStartingBlock)
+      }
       )
     ]);
 

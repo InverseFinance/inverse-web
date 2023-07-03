@@ -1,6 +1,6 @@
 import 'source-map-support'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
+import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { Fed, NetworkIds } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
 import { getTxsOf } from '@app/util/covalent';
@@ -52,22 +52,22 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
     return await Promise.all(transfers.map(async (r, i) => {
         const fed = FEDS[i];
 
-        if(fed.hasEnded && !!cachedTotalEvents) {
+        if (fed.hasEnded && !!cachedTotalEvents) {
             return cachedTotalEvents.filter(event => event.fedIndex === i);
         }
 
         const toAddress = (fed?.incomeTargetAd || TREASURY)?.toLowerCase();
         const srcAddress = (fed?.incomeSrcAd || fed?.address)?.toLowerCase();
         const eventName = fed?.isXchain ? 'LogSwapout' : 'Transfer';
-        
+
         const items = r.data.items
-                .filter(item => item.successful)
-                .filter(item => !!item.log_events
-                    .find(e => !!e.decoded && e.decoded.name === eventName
-                        && e?.decoded?.params[0]?.value?.toLowerCase() == srcAddress
-                        && e?.decoded?.params[1]?.value?.toLowerCase() == toAddress
-                    ))
-                .sort((a, b) => a.block_height - b.block_height);
+            .filter(item => item.successful)
+            .filter(item => !!item.log_events
+                .find(e => !!e.decoded && e.decoded.name === eventName
+                    && e?.decoded?.params[0]?.value?.toLowerCase() == srcAddress
+                    && e?.decoded?.params[1]?.value?.toLowerCase() == toAddress
+                ))
+            .sort((a, b) => a.block_height - b.block_height);
 
         return await Promise.all(items.map(async item => {
             const filteredEvents = item.log_events
@@ -123,30 +123,45 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
 export default async function handler(req, res) {
     const { cacheFirst } = req.query;
     const { FEDS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
-    const cacheKey = `revenues-v1.0.14`;
+
+    const archiveCacheKey = `revenues-v1.0.14`;
+    const cacheKey = `revenues-v1.0.15`;
 
     try {
         const cacheDuration = 900;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-        const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
-        if (validCache) {
-            res.status(200).json(validCache);
+        const [archive, cache] = await Promise.all([
+            getCacheFromRedisAsObj(archiveCacheKey, false, cacheDuration),
+            getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration)
+        ]);
+
+        const { data: archived } = archive;
+        const { data: cachedData, isValid } = cache;
+
+        if (isValid) {
+            res.status(200).json(cachedData);
             return
         }
 
-        const [archived, cachedCurrentPrices] = await Promise.all([
-            getCacheFromRedis(cacheKey, false),
+        const [cachedCurrentPrices] = await Promise.all([
             getCacheFromRedis(pricesCacheKey, false),
         ]);
 
-        let withOldAddresses: (Fed & { oldAddress: string })[] = [];
+        let withOldAddresses: (Fed & { oldAddress?: string, oldIncomeSrcAd?: string })[] = [];
         FEDS.filter(fed => !!fed.oldAddresses).forEach(fed => {
             fed.oldAddresses?.forEach(oldAddress => withOldAddresses.push({ ...fed, oldAddress }));
         });
+        FEDS.filter(fed => !!fed.oldIncomeSrcAds).forEach(fed => {
+            fed.oldIncomeSrcAds?.forEach(oldAddress => withOldAddresses.push({ ...fed, oldIncomeSrcAd: oldAddress }));
+        });
         const [filteredTransfers, oldFilteredTransfers] = await Promise.all(
             [
-                getProfits(FEDS, TREASURY, cachedCurrentPrices, archived.totalEvents),
-                getProfits(withOldAddresses.map(f => ({ ...f, address: f.oldAddress })), TREASURY, cachedCurrentPrices, []),
+                getProfits(FEDS, TREASURY, cachedCurrentPrices, archived?.totalEvents||[]),
+                getProfits(withOldAddresses.map(f => ({
+                    ...f,
+                    address: f.oldAddress || f.address,
+                    incomeSrcAd: f.oldIncomeSrcAd || f.incomeSrcAd,
+                })), TREASURY, cachedCurrentPrices, []),
             ]
         );
 

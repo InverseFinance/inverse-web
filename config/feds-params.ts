@@ -137,7 +137,8 @@ export const FEDS_PARAMS = [
             "https://assets.coingecko.com/coins/images/25783/small/velo.png",
         supplyFuncName: "dolaSupply",
         incomeChainId: NetworkIds.optimism,
-        incomeSrcAd: "0xFED67cC40E9C5934F157221169d772B328cb138E",
+        incomeSrcAd: "0x8Bbd036d018657E454F679E7C4726F7a8ECE2773",
+        oldIncomeSrcAds: ["0xFED67cC40E9C5934F157221169d772B328cb138E"],
         incomeTargetAd: "0xa283139017a2f5BAdE8d8e25412C600055D318F8",
         strategy: {
             description: 'The minted DOLA is bridged to a VeloFarmer contract on Optimism, this contract can swap DOLA for USDC and deposit DOLA+USDC to the Velodrome DOLA-USDC liquidity pool. \n\nThis Fed gets rewards in VELO tokens which can then be locked to increase voting power on Velodrome further increasing efficiency.',
@@ -167,8 +168,8 @@ export const FEDS_PARAMS = [
         chainId: NetworkIds.mainnet,
         type: FedTypes.LP,
         protocol: "Aura",
-        address: "0x1CD24E3FBae88BECbaFED4b8Cda765D1e6e3BC03",
-        oldAddresses: ["0x5D5392505ee69f9FE7a6a1c1AF14f17Db3B3e364", "0xc6279A7Cd38819ebbF6ad3a05a0998f887DF2740"],
+        address: "0x5C16aE212f8d721FAb74164d1039d4514b11DB54",
+        oldAddresses: ["0x5D5392505ee69f9FE7a6a1c1AF14f17Db3B3e364", "0xc6279A7Cd38819ebbF6ad3a05a0998f887DF2740", "0x1CD24E3FBae88BECbaFED4b8Cda765D1e6e3BC03"],
         name: "Aura Fed",
         projectImage:
             "https://assets.coingecko.com/coins/images/25942/small/logo.png",
@@ -183,16 +184,16 @@ export const FEDS_PARAMS = [
                     image: '/assets/projects/balancer.png',
                 },
                 {
-                    address: '0x22915f309EC0182c85cD8331C23bD187fd761360',
+                    address: '0xb139946D2F0E71b38e2c75d03D87C5E16339d2CD',
                     name: 'Aura Reward Pool',
                     link: 'https://app.aura.finance/',
                     image: 'https://assets.coingecko.com/coins/images/25942/small/logo.png?1654784187',
                 },
             ],
             type: 'convex',
-            lpBalanceContract: '0x22915f309EC0182c85cD8331C23bD187fd761360',
+            lpBalanceContract: '0xb139946D2F0E71b38e2c75d03D87C5E16339d2CD',
             rewardPools: [
-                { address: '0x22915f309EC0182c85cD8331C23bD187fd761360', method: 'earned', underlying: '0xba100000625a3754423978a60c9317c58a424e3D' },
+                { address: '0xb139946D2F0E71b38e2c75d03D87C5E16339d2CD', method: 'earned', underlying: '0xba100000625a3754423978a60c9317c58a424e3D' },
                 { isAURAreward: true, underlying: '0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF' },                
             ],
             multisig: {
