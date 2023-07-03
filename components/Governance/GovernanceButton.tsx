@@ -24,7 +24,7 @@ const proposalCompletionMethods: any = {
 }
 
 export const VoteButton = ({ proposal }: { proposal: Proposal }) => {
-  const { active, account, chainId, library } = useWeb3React<Web3Provider>()
+  const { isActive, account, chainId, provider } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
   const userAddress = (query?.viewAddress as string) || account;
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -44,7 +44,7 @@ export const VoteButton = ({ proposal }: { proposal: Proposal }) => {
     [XINV, 'getPriorVotes', userAddress, proposal?.startBlock],
   ])
 
-  if (!active || !account || !data || !proposal?.id || !snapshotVotingPowerData || !userAddress) {
+  if (!isActive || !account || !data || !proposal?.id || !snapshotVotingPowerData || !userAddress) {
     return <></>
   }
 
@@ -69,7 +69,7 @@ export const VoteButton = ({ proposal }: { proposal: Proposal }) => {
   }
 
   const handleCompletion = async () => {
-    const tx = await proposalCompletionMethods[liveStatus](library?.getSigner(), proposal.era, proposal.id);
+    const tx = await proposalCompletionMethods[liveStatus](provider?.getSigner(), proposal.era, proposal.id);
     return handleTx(tx, { onSuccess: () => handleCompletionSuccess() })
   }
 

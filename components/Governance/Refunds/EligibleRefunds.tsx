@@ -46,7 +46,7 @@ const TxCheckbox = ({ txHash, checked, refunded, handleCheckTx }) => {
 }
 
 export const EligibleRefunds = () => {
-    const { account, library } = useWeb3React<Web3Provider>();
+    const { account, provider } = useWeb3React<Web3Provider>();
     const [eligibleTxs, setEligibleTxs] = useState<RefundableTransaction[]>([]);
     // given to table
     const [tableItems, setTableItems] = useState<RefundableTransaction[]>([]);
@@ -210,7 +210,7 @@ export const EligibleRefunds = () => {
     ];
 
     const handleRefund = (toRefund: RefundableTransaction[]) => {
-        if (!library?.getSigner()) { return }
+        if (!provider?.getSigner()) { return }
         setTxsToRefund(toRefund);
         onOpen();
     }
@@ -234,10 +234,10 @@ export const EligibleRefunds = () => {
     }
 
     const addTx = () => {
-        if (!library?.getSigner()) { return }
+        if (!provider?.getSigner()) { return }
         const txHash = window.prompt('Tx hash to add');
         if (!txHash) { return }
-        return addTxToRefund(txHash, library?.getSigner(), () => reloadData());
+        return addTxToRefund(txHash, provider?.getSigner(), () => reloadData());
     }
 
     const handleExportCsv = () => {

@@ -85,6 +85,7 @@ export const TOKEN_IMAGES = {
     "ARCHLY": "https://s2.coinmarketcap.com/static/img/exchanges/64x64/6432.png",
     "SATIN": "https://assets.coingecko.com/coins/images/29169/small/satin.png?1677050689",
     "SOLISNEK": "https://assets.coingecko.com/markets/images/1121/small/solisnek.jpeg?1681696649",
+    "PEARL": "https://www.pearl.exchange/logo.png",
 }
 
 export const PROTOCOL_IMAGES = {
@@ -108,6 +109,7 @@ export const PROTOCOL_IMAGES = {
     "ARCHLY": TOKEN_IMAGES.ARCHLY,
     "SATIN": TOKEN_IMAGES.SATIN,
     "CHRONOS": TOKEN_IMAGES.CHRONOS,
+    "PEARL": TOKEN_IMAGES.PEARL,
 }
 
 export const PROTOCOLS_BY_IMG = Object.fromEntries(

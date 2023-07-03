@@ -1,4 +1,4 @@
-import { Flex, Image, Text } from '@chakra-ui/react'
+import { Flex, Image, SkeletonText, Text } from '@chakra-ui/react'
 import { shortenNumber } from '@app/util/markets'
 import { InfoMessage } from '@app/components/common/Messages'
 import { Token, NetworkIds } from '@app/types';
@@ -14,11 +14,13 @@ export const SupplyInfos = ({
     supplies,
     token,
     showChart = false,
+    isLoading = false,
 }: {
     title?: React.ReactNode,
     supplies: { supply: number, chainId: NetworkIds, name?: string, projectImage?: string }[],
     token?: Token,
     showChart?: boolean,
+    isLoading?: boolean,
 }) => {
     const [chartData, setChartData] = useState<any>()
     const totalSupply = supplies.reduce((prev, curr) => prev + curr.supply, 0);
@@ -45,6 +47,7 @@ export const SupplyInfos = ({
             iconProps={{ fontSize: '16px' }}
             alertProps={{ fontSize: '12px', w: 'full' }}
             description={
+                isLoading ? <SkeletonText /> :
                 <>
                     {
                         sortedSupplies.map(({ supply, chainId, name, projectImage }, i) => {

@@ -1,19 +1,19 @@
 import { ExternalProvider, JsonRpcFetchFunc, JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import { BLOCK_SCAN } from '@app/config/constants'
 import { getNetwork } from '@app/util/networks'
-import { InjectedConnector } from '@web3-react/injected-connector'
-import { WalletLinkConnector } from '@web3-react/walletlink-connector'
+
 import { hexValue, formatUnits, parseUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers';
 import localforage from 'localforage';
 import { BigNumberList, Token } from '@app/types'
 import { getNewContract } from './contracts'
 import { ERC20_ABI } from '@app/config/abis'
-import { AbstractConnector } from '@web3-react/abstract-connector'
-import { injectedConnector, swapInjectedConnector, swapWalletConnectConnector, swapWalletLinkConnector, walletConnectConnector, walletLinkConnector } from '@app/variables/connectors'
-import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
+import { coinbaseWallet, metamaskInjector, walletConnectV2 } from '@app/variables/connectors'
 import { getBnToNumber } from './markets'
 import { roundFloorString } from './misc'
+import { MetaMask } from '@web3-react/metamask';
+import { WalletConnect } from '@web3-react/walletconnect-v2';
+import { CoinbaseWallet } from '@web3-react/coinbase-wallet';
 
 export const getLibrary = (provider: ExternalProvider | JsonRpcFetchFunc): Web3Provider => {
   const library = new Web3Provider(provider)
@@ -95,7 +95,7 @@ export const getPreviousConnectorType = () => {
 
 export const setIsPreviouslyConnected = (value: boolean, connectorType = 'injected'): void => {
   if (typeof window === undefined) { return }
-  if(!value) { window.localStorage.clear(); }
+  if (!value) { window.localStorage.clear(); }
   window.localStorage.setItem('previousConnectorType', connectorType);
   return window.localStorage.setItem('previouslyConnected', JSON.stringify(value));
 }
@@ -159,10 +159,10 @@ export const formatBalance = (balance: BigNumber, decimals: number, symbol = '')
 
 export const hasAllowance = (approvals: BigNumberList, address: string, decimals = 18, amount?: string): boolean => {
   const allowanceValue = approvals && approvals[address] ? getBnToNumber(approvals[address], decimals) : 0;
-  if(!amount){
+  if (!amount) {
     return !!allowanceValue
   }
-  const _amount = (amount||'')?.toString()?.startsWith('.') ? `0${amount}` : amount;
+  const _amount = (amount || '')?.toString()?.startsWith('.') ? `0${amount}` : amount;
   return allowanceValue >= getBnToNumber(parseUnits((roundFloorString(_amount, decimals) || '0'), decimals));
 }
 
@@ -176,25 +176,24 @@ export const getParsedTokenBalance = async (token: Token, signer: JsonRpcSigner)
   return parseFloat(formatUnits(bnBalance, token.decimals));
 }
 
-export const getConnectorFromInstance = (connector: AbstractConnector | undefined) => {
-  if(connector instanceof InjectedConnector) {
-    return location.pathname === '/swap' ? swapInjectedConnector : injectedConnector;
-  } else if(connector instanceof WalletLinkConnector) {
-    return location.pathname === '/swap' ? swapWalletLinkConnector : walletLinkConnector;
-  } else if(connector instanceof WalletConnectConnector) {
-    return location.pathname === '/swap' ? swapWalletConnectConnector : walletConnectConnector;
+export const getConnectorFromInstance = (connector: undefined) => {
+  if (connector instanceof MetaMask) {
+    return metamaskInjector;
+  } else if (connector instanceof WalletConnect) {
+    return walletConnectV2;
+  } else if (connector instanceof CoinbaseWallet) {
+    return coinbaseWallet;
   }
   return null;
 }
 
 export const forceQuickAccountRefresh = (
-  connector: AbstractConnector | undefined,
-  deactivate: () => void,
-  activate: (c: InjectedConnector | WalletLinkConnector | WalletConnectConnector, onError?: () => void) => Promise<void>,
+  connector: undefined,
   onActivateError?: () => void,
 ) => {
   const supportedConnector = getConnectorFromInstance(connector);
   if (supportedConnector === null) { return }
+  const { deactivate: _deactivate } = supportedConnector || { activate: () => { }, deactivate: () => { } };
+  const deactivate = _deactivate || supportedConnector?.actions?.resetState || (() => 0);
   deactivate();
-  activate(supportedConnector, onActivateError)
 }

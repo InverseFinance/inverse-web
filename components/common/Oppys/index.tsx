@@ -56,6 +56,8 @@ const projectLinks = {
     'uniswap-v2': 'https://app.uniswap.org/#/add/v2',
     'velodrome': 'https://app.velodrome.finance/liquidity/manage',
     'pickle': 'https://app.pickle.finance/farms',
+    'ramses-v1': 'https://app.ramses.exchange/liquidity',
+    'gamma': 'https://app.gamma.xyz/dashboard',
 }
 
 const getPoolLink = (project, pool, underlyingTokens) => {
@@ -75,6 +77,9 @@ const getPoolLink = (project, pool, underlyingTokens) => {
         //     break;
         case 'uniswap-v2':
             url = underlyingTokens ? `https://app.uniswap.org/#/add/v2/${underlyingTokens.join('/')}` : '';
+            break;
+        case 'ramses-v1':
+            url = `https://app.ramses.exchange/liquidity/${pool.toLowerCase()}`;
             break;
     }
     return poolLinks[pool] || url || projectLinks[project];
@@ -102,8 +107,9 @@ const poolColumn = ({ width, symbol, pool, project, chain, underlyingTokens }) =
     const link = getPoolLink(project, pool, underlyingTokens);
     let pairs = [];
     let isFallbackCase = false;
+
     try {
-        pairs = !underlyingTokens ? symbol.replace('DOLA-BNB', 'DOLA-WBNB').split('-').slice(0, 2).map(sym => getToken(CHAIN_TOKENS[NETWORKS_BY_NAME[chain]?.id], sym)?.address) : underlyingTokens;
+        pairs = !underlyingTokens?.length ? symbol.replace('DOLA-BNB', 'DOLA-WBNB').replace('-USDCE', '-USDC').split('-').slice(0, 2).map(sym => getToken(CHAIN_TOKENS[NETWORKS_BY_NAME[chain]?.id], sym)?.address) : underlyingTokens;
     } catch (e) {
         isFallbackCase = true;
     }
@@ -120,11 +126,11 @@ const poolColumn = ({ width, symbol, pool, project, chain, underlyingTokens }) =
                     {
                         !!link ?
                             <Link alignItems='center' textDecoration="underline" color="mainTextColor" textTransform="uppercase" as="a" href={link} isExternal target="_blank" display="flex">
-                                <UnderlyingItem textProps={{ fontSize: '14px', ml: '2', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '90px'  }} imgSize={20} label={symbol} pairs={pairs} showAsLp={true} chainId={chainId} />
+                                <UnderlyingItem textProps={{ fontSize: '14px', ml: '2', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '300px'  }} imgSize={20} label={symbol} pairs={pairs} showAsLp={true} chainId={chainId} />
                                 <ExternalLinkIcon color="info" ml="1" />
                             </Link>
                             :
-                            <UnderlyingItem textProps={{ fontSize: '14px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '90px'  }} imgSize={20} label={symbol} pairs={pairs} showAsLp={true} chainId={chainId} />
+                            <UnderlyingItem textProps={{ fontSize: '14px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '300px'  }} imgSize={20} label={symbol} pairs={pairs} showAsLp={true} chainId={chainId} />
                     }
                 </> : <Text>{symbol}</Text>
             }

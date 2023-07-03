@@ -181,8 +181,8 @@ export const MarketBar = ({
                                     Paused
                                 </SubTitle>
                                 :
-                                <SubTitle fontWeight={available === 0 ? 'bold' : undefined} color={available === 0 ? 'warning' : 'secondaryTextColor'}>
-                                    {available ? `${preciseCommify(available, available < 100 ? 2 : 0, false)} DOLA` : 'No DOLA available'}
+                                <SubTitle fontWeight={available < 1 ? 'bold' : undefined} color={available < 1 ? 'warning' : 'secondaryTextColor'}>
+                                    {available >= 1 ? `${preciseCommify(available, available < 100 ? 2 : 0, false)} DOLA` : 'No DOLA available'}
                                 </SubTitle>
                         }
                     </VStack>

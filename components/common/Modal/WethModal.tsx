@@ -22,7 +22,7 @@ const { TOKENS } = getNetworkConfigConstants();
 const weth = getToken(TOKENS, 'WETH')!;
 
 const WethModal = ({ onClose, isOpen }: WrongNetworkModalProps) => {
-    const { library } = useWeb3React();
+    const { provider } = useWeb3React();
     const account = useAccount();
     const { data: ethBalance } = useEtherSWR(['getBalance', account, 'latest']);
     const { data: wethBalance } = useEtherSWR([weth?.address, 'balanceOf', account]);
@@ -30,7 +30,7 @@ const WethModal = ({ onClose, isOpen }: WrongNetworkModalProps) => {
     const [amount, setAmount] = useState('');
 
     const { costEth, costUsd } = useTransactionCost(
-        new Contract(weth.address, WETH_ABI, library?.getSigner()),
+        new Contract(weth.address, WETH_ABI, provider?.getSigner()),
         'deposit',
         [],
     );
@@ -41,7 +41,7 @@ const WethModal = ({ onClose, isOpen }: WrongNetworkModalProps) => {
     const maxEth = maxEthNum <= 0 ? BigNumber.from('0') : getNumberToBn(maxEthNum);
 
     const handleAction = () => {
-        const contract = new Contract(weth.address, WETH_ABI, library?.getSigner());
+        const contract = new Contract(weth.address, WETH_ABI, provider?.getSigner());
         if(isDeposit) {
             return contract.deposit({ value: parseEther(amount) });
         } else {
@@ -80,7 +80,7 @@ const WethModal = ({ onClose, isOpen }: WrongNetworkModalProps) => {
                     defaultAmount={''}
                     address={weth.address}
                     destination={weth.address}
-                    signer={library?.getSigner()}
+                    signer={provider?.getSigner()}
                     decimals={18}
                     noApprovalNeeded={isDeposit}
                     maxAmountFrom={isDeposit ? [maxEth] : [wethBalance]}

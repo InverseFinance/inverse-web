@@ -22,7 +22,7 @@ import { BURN_ADDRESS } from "@app/config/constants";
 const { INV } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 export const FirmGovToken = () => {
-    const { library, account } = useWeb3React<Web3Provider>();
+    const { provider, account } = useWeb3React<Web3Provider>();
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [newDelegate, setNewDelegate] = useState('');
     const [hasError, setHasError] = useState(false);
@@ -47,7 +47,7 @@ export const FirmGovToken = () => {
     }, [newDelegate, account]);
 
     const handleOk = async () => {
-        const contract = new Contract(escrow, F2_ESCROW_ABI, library?.getSigner());
+        const contract = new Contract(escrow, F2_ESCROW_ABI, provider?.getSigner());
         return contract.delegate(newDelegate);
     }
 

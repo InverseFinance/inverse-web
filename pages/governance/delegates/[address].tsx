@@ -64,7 +64,7 @@ const SOCIALS = [
 type Tabs = 'votes' | 'supporters' | 'delegations';
 
 const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, newlyChosenDelegate?: string }) => {
-  const { chainId, library, active, account } = useWeb3React<Web3Provider>()
+  const { chainId, provider, isActive, account } = useWeb3React<Web3Provider>()
   const { query } = useRouter();
   const userAddress = (query?.viewAddress as string) || account;
   const { delegates, isLoading } = useDelegates(address)
@@ -116,12 +116,12 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
 
   const rank = (topDelegates.findIndex((topDelegate) => address === topDelegate.address) + 1) || ''
 
-  const signDisabled = !active;
+  const signDisabled = !isActive;
 
   const delegationCase = (isAlreadySameDelegate ? 'alreadyDelegating' : 'changingDelegation');
 
   const delegationCases = {
-    changingDelegation: <SignDelegation signDisabled={signDisabled} signer={library?.getSigner()} delegateAddress={address} isSelf={isSelf} />,
+    changingDelegation: <SignDelegation signDisabled={signDisabled} signer={provider?.getSigner()} delegateAddress={address} isSelf={isSelf} />,
     alreadyDelegating: <AlreadyDelegating isSelf={isSelf} />, // already delegating to self or other
   }
 

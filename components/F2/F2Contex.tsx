@@ -57,7 +57,7 @@ export const F2Context = ({
     setIsWalkthrough: (v: boolean) => void
 } & Partial<FlexProps>) => {
     const router = useRouter();
-    const { library } = useWeb3React();
+    const { provider } = useWeb3React();
     const account = useAccount();
     const [step, setStep] = useState(1);
     const [duration, setDuration] = useState(365);
@@ -223,7 +223,7 @@ export const F2Context = ({
             market,
             colDecimals,
             account,
-            signer: library?.getSigner(),
+            signer: provider?.getSigner(),
             step,
             duration,
             collateralAmount,

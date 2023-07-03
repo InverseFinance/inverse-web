@@ -41,7 +41,7 @@ const anWbtc = '0x17786f3813E6bA35343211bd8Fe18EC4de14F28b';
 const anYfi = '0xde2af899040536884e062D3a334F2dD36F34b4a4';
 
 export const DebtRepayerPage = () => {
-    const { library, account } = useWeb3React<Web3Provider>()
+    const { provider, account } = useWeb3React<Web3Provider>()
     const { markets } = useMarkets();
     const { exchangeRates } = useExchangeRatesV2();
     const { usdShortfall } = useAccountLiquidity()
@@ -111,16 +111,16 @@ export const DebtRepayerPage = () => {
     }
 
     const handleSell = () => {
-        if (!library?.getSigner()) { return }
+        if (!provider?.getSigner()) { return }
         const min = parseUnits(roundFloorString(minOutput, 5), outputToken.decimals);
-        return sellV1AnToken(library?.getSigner(), collateralMarket?.token, antokenAmount, min);
+        return sellV1AnToken(provider?.getSigner(), collateralMarket?.token, antokenAmount, min);
     }
 
     const handleSellAll = () => {
-        if (!library?.getSigner()) { return }
+        if (!provider?.getSigner()) { return }
         const maxAntokenAmount = anBalances[collateralMarket.token];
         const min = parseUnits(roundFloorString(maxOutput * 0.99, 5), outputToken.decimals);
-        return sellV1AnToken(library?.getSigner(), collateralMarket?.token, maxAntokenAmount, min);
+        return sellV1AnToken(provider?.getSigner(), collateralMarket?.token, maxAntokenAmount, min);
     }
 
     return (
@@ -249,7 +249,7 @@ export const DebtRepayerPage = () => {
                                                                 isDisabled={false}
                                                                 address={collateralMarket?.token}
                                                                 toAddress={DEBT_REPAYER}
-                                                                signer={library?.getSigner()}
+                                                                signer={provider?.getSigner()}
                                                             />
                                                             :
                                                             <Stack direction={{ base: 'column', lg: 'row' }} w='full'>

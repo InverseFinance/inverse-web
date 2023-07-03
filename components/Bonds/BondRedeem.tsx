@@ -8,11 +8,11 @@ import { bondRedeem } from '@app/util/contracts';
 import { TimeIcon } from '@chakra-ui/icons';
 
 export const BondRedeem = ({ bond }: { bond: Bond }) => {
-    const { library, account } = useWeb3React<Web3Provider>();
+    const { provider, account } = useWeb3React<Web3Provider>();
 
     const handleClaim = () => {
-        if (!library?.getSigner() || !account) { return }
-        return bondRedeem(bond, library?.getSigner(), account)
+        if (!provider?.getSigner() || !account) { return }
+        return bondRedeem(bond, provider?.getSigner(), account)
     }
 
     return (

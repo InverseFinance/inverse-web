@@ -4,7 +4,7 @@ import { fetcher, fetcher30sectimeout, fetcher60sectimeout } from '@app/util/web
 import { useCacheFirstSWR, useCustomSWR } from "./useCustomSWR";
 import { useDBRMarkets, useDBRPrice } from "./useDBR";
 import { f2CalcNewHealth } from "@app/util/f2";
-import { getBnToNumber, getMonthlyRate, getNumberToBn } from "@app/util/markets";
+import { getBnToNumber, getHistoricalTokenData, getMonthlyRate, getNumberToBn } from "@app/util/markets";
 import { useMultiContractEvents } from "./useContractEvents";
 import { DBR_ABI, F2_ESCROW_ABI, F2_MARKET_ABI } from "@app/config/abis";
 import { getNetworkConfigConstants } from "@app/util/networks";
@@ -12,6 +12,7 @@ import { uniqueBy } from "@app/util/misc";
 import { BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
 import useEtherSWR from "./useEtherSWR";
 import { useAccount } from "./misc";
+import { useBlocksTimestamps } from "./useBlockTimestamp";
 
 const oneYear = ONE_DAY_MS * 365;
 
@@ -20,9 +21,10 @@ const { DBR, DBR_DISTRIBUTOR, F2_MARKETS, INV } = getNetworkConfigConstants();
 export const useFirmPositions = (isShortfallOnly = false): SWR & {
   positions: any,
   timestamp: number,
+  isLoading: boolean,
 } => {
   const { data, error } = useCacheFirstSWR(`/api/f2/firm-positions?shortfallOnly=${isShortfallOnly}`, fetcher60sectimeout);
-  const { markets } = useDBRMarkets();
+  const { markets, isLoading } = useDBRMarkets();
 
   const positions = data ? data.positions : [];
 
@@ -39,6 +41,7 @@ export const useFirmPositions = (isShortfallOnly = false): SWR & {
       marketName: market.name,
       market,
       perc: newPerc,
+      depositsUsd: p.deposits * market.price,
       creditLimit: newCreditLimit,
       liquidationPrice: newLiquidationPrice,
       creditLeft: newCreditLeft,
@@ -52,7 +55,7 @@ export const useFirmPositions = (isShortfallOnly = false): SWR & {
   return {
     positions: positionsWithMarket,
     timestamp: data ? data.timestamp : 0,
-    isLoading: !error && !data,
+    isLoading: isLoading || (!error && !data),
     isError: error,
   }
 }
@@ -60,6 +63,7 @@ export const useFirmPositions = (isShortfallOnly = false): SWR & {
 export const useDBRActiveHolders = (): SWR & {
   positions: any,
   timestamp: number,
+  isLoading: boolean,
 } => {
   const { data, error } = useCacheFirstSWR(`/api/f2/dbr-deficits?v2`, fetcher60sectimeout);
   const { positions: firmPositions } = useFirmPositions();
@@ -182,7 +186,7 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
 
     if (isCollateralEvent && !!amount) {
       depositedByUser = depositedByUser + (e.event === 'Deposit' ? amount : -amount);
-    } else if(e.event === 'Liquidate' && !!liquidatorReward) {
+    } else if (e.event === 'Liquidate' && !!liquidatorReward) {
       liquidated += liquidatorReward;
     }
 
@@ -407,4 +411,146 @@ export const useStakedInFirm = (userAddress: string): {
     escrow,
     delegate: data ? data[0] : '',
   };
+}
+
+export const useHistoricalPrices = (cgId: string) => {
+  const { data, error } = useCustomSWR(`cg-histo-prices-${cgId}`, async () => {
+    return await getHistoricalTokenData(cgId);
+  });
+
+  return {
+    prices: data?.prices || [],
+    isLoading: !error && !data,
+    isError: !!error,
+  }
+}
+
+export const useEscrowBalanceEvolution = (account: string, escrow: string, market: string, lastBlock: number): SWR & {
+  evolution: { balance: number, timestamp: number }[],
+  timestamps: { [key: string]: number },
+  timestamp: number,
+  isLoading: boolean,
+  isError: boolean,
+} => {
+  const { data, error } = useCacheFirstSWR(`/api/f2/escrow-balance-histo?v=3&account=${account}&escrow=${escrow}&market=${market}&lastBlock=${lastBlock}`, fetcher);
+
+  const evolution = data ? data.balances.map((b, i) => ({
+    balance: b,
+    dbrClaimable: data.dbrClaimables[i],
+    blocknumber: data.blocks[i],
+    timestamp: data.timestamps[i] * 1000,
+  })) : [];
+
+  const timestamps = data ? evolution.reduce((acc, e) => ({ ...acc, [e.blocknumber]: e.timestamp }), {}) : {};
+
+  return {
+    evolution,
+    timestamps,
+    timestamp: data ? data.timestamp : 0,
+    isLoading: !error && !data,
+    isError: !!error,
+  }
+}
+
+export const useFirmMarketEvolution = (market: F2Market, account: string): {
+  events: FirmAction[]
+  isLoading: boolean
+  error: any
+  depositedByUser: number
+  liquidated: number
+  lastBlock: number
+} => {
+  const toQuery = [
+    [market.address, F2_MARKET_ABI, 'Deposit', [account]],
+    [market.address, F2_MARKET_ABI, 'Withdraw', [account]],
+    [market.address, F2_MARKET_ABI, 'Borrow', [account]],
+    [market.address, F2_MARKET_ABI, 'Repay', [account]],
+    [DBR, DBR_ABI, 'ForceReplenish', [account, undefined, market.address]],
+    [market.address, F2_MARKET_ABI, 'Liquidate', [account]],
+  ];
+
+  if (market.isInv) {
+    // DBR transfers = dbr claims, only for the INV market
+    toQuery.push([DBR, DBR_ABI, 'Transfer', [BURN_ADDRESS, account]])
+  }
+  // else if (market.name === 'cvxCRV') {
+  // TODO: add cvxCRV claims
+  // }
+
+  const { groupedEvents, isLoading, error } = useMultiContractEvents(
+    toQuery,
+    `firm-market-${market.address}-${account}-collateral-evo`,
+  );
+
+  const flatenedEvents = groupedEvents.flat().sort((a, b) => a.blockNumber - b.blockNumber);
+  // can be different than current balance when staking
+  let depositedByUser = 0;
+  let unstakedCollateralBalance = 0;
+  let liquidated = 0;
+  let claims = 0;
+  let replenished = 0;
+  let debt = 0;
+
+  const blocks = flatenedEvents.map(e => e.blockNumber);
+  // useBlocksTimestamps won't work for older events for some wallets/rpc, fallback is via backend api
+  const { timestamps } = useBlocksTimestamps(blocks);
+
+  const events = flatenedEvents.map((e, i) => {
+    const actionName = e.event;
+    const isDebtCase = ['Borrow', 'Repay'].includes(actionName);
+    const decimals = market.underlying.decimals;
+    const tokenName = market.underlying.symbol
+    const amount = getBnToNumber(e.args?.amount, isDebtCase ? 18 : decimals);
+
+    if (['Deposit', 'Withdraw'].includes(actionName)) {
+      depositedByUser = depositedByUser + (actionName === 'Deposit' ? amount : -amount);
+      unstakedCollateralBalance = unstakedCollateralBalance + (actionName === 'Deposit' ? amount : -amount);
+    } else if (isDebtCase) {
+      debt = debt + (actionName === 'Borrow' ? amount : -amount);
+    } else if (actionName === 'ForceReplenish') {
+      replenished += amount;
+      debt += getBnToNumber(e.args.replenishmentCost);
+    } else if (actionName === 'Liquidate') {
+      liquidated += getBnToNumber(e.args.liquidatorReward, decimals);
+      debt -= getBnToNumber(e.args.repaidDebt);
+      unstakedCollateralBalance -= getBnToNumber(e.args.liquidatorReward, decimals);
+    } else if (actionName === 'Transfer') {
+      claims += amount;
+    }
+
+    if (unstakedCollateralBalance < 0) {
+      unstakedCollateralBalance = 0;
+    }
+
+    return {
+      combinedKey: `${e.transactionHash}-${actionName}-${e.args?.account}`,
+      actionName,
+      claims,
+      isClaim: actionName === 'Transfer',
+      depositedByUser,
+      unstakedCollateralBalance,
+      timestamp: timestamps ? timestamps[i] : 0,
+      blockNumber: e.blockNumber,
+      txHash: e.transactionHash,
+      amount,
+      escrow: e.args?.escrow,
+      name: e.event,
+      logIndex: e.logIndex,
+      tokenName,
+      liquidated,
+      replenished,
+      debt,
+    }
+  });
+
+  return {
+    events,
+    debt,
+    depositedByUser,
+    liquidated,
+    replenished,
+    lastBlock: blocks?.length ? Math.max(...blocks) : 0,
+    isLoading,
+    error,
+  }
 }

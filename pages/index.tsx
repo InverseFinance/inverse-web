@@ -386,10 +386,10 @@ export const Landing = ({ posts }: {
                 <Image maxW="150px" src="/assets/v2/landing/peckshield.png" />
               </VStack>
               <VStack as="a" href="https://defisafety.com/app/pqrs/199" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
-                <Image maxW="150px" src="/assets/v2/landing/DefiSafety.jpg" />
+                <Image maxW="150px" src="/assets/v2/landing/defisafety.png" />
               </VStack>
               <VStack as="a" href="https://www.nomoi.xyz/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
-                <Image maxW="150px" src="/assets/v2/landing/Nomoi.jpg" />
+                <Image maxW="150px" src="/assets/v2/landing/nomoi.png" />
               </VStack>
             </SimpleGrid>
             <VStack alignItems={{ base: 'center', sm: 'flex-start' }} w={{ base: 'full', md: '40%' }} spacing='4' pt={{ base: '4', md: '0' }}>

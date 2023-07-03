@@ -74,8 +74,9 @@ export const useAccountDBR = (
 
 export const useDBRMarkets = (marketOrList?: string | string[]): {
   markets: F2Market[]
+  isLoading: boolean
 } => {
-  const { data: apiData } = useCacheFirstSWR(`/api/f2/fixed-markets?v12`);
+  const { data: apiData, isLoading } = useCacheFirstSWR(`/api/f2/fixed-markets?v12`);
   const _markets = Array.isArray(marketOrList) ? marketOrList : !!marketOrList ? [marketOrList] : [];
 
   const cachedMarkets = (apiData?.markets || F2_MARKETS)
@@ -130,6 +131,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
   ]);
 
   return {
+    isLoading,
     markets: markets.map((m, i) => {
       const dailyLimit = limits ? getBnToNumber(limits[i]) : cachedMarkets[i]?.dailyLimit ?? 0;
       const dailyBorrows = limits ? getBnToNumber(limits[i + nbMarkets]) : cachedMarkets[i]?.dailyBorrows ?? 0;
@@ -428,13 +430,13 @@ export const useDBRNeeded = (borrowAmount: string, durationDays: number, iterati
   dolaNeeded: number,
   dbrNeeded: number,
 } => {
-  const { library } = useWeb3React();
+  const { provider } = useWeb3React();
  
   const { data, error } = useSWR(`dbr-helper-approx-${borrowAmount}-${durationDays}-${iterations}`, async () => {
     if (!borrowAmount) {
       return undefined;
     }
-    return await f2approxDbrAndDolaNeeded(library?.getSigner(), parseUnits(borrowAmount), '0', durationDays, 'curve-v2', iterations);
+    return await f2approxDbrAndDolaNeeded(provider?.getSigner(), parseUnits(borrowAmount), '0', durationDays, 'curve-v2', iterations);
   }, {
     refreshInterval: 100000,
   });

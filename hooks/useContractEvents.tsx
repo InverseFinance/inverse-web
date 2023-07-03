@@ -10,7 +10,7 @@ type Props = {
 type MultiContractEvents = { groupedEvents: Event[][], isLoading?: boolean, error?: any };
 
 export const useContractEvents = (address: string, abi: string[], method: string, args: any[] = [], ignoreIfArgsUndefined = false, swrKey = ''): ContractEvents => {
-    const { account, library } = useWeb3React<Web3Provider>();
+    const { account, provider } = useWeb3React<Web3Provider>();
 
     const _swrKey = swrKey || `contract-event-${address}-${method}-${account}`;
 
@@ -18,7 +18,7 @@ export const useContractEvents = (address: string, abi: string[], method: string
         if(ignoreIfArgsUndefined && args?.length && args.filter(arg => arg !== undefined).length === 0) {
             return [];
         }
-        const contract = new Contract(address, abi, library?.getSigner());
+        const contract = new Contract(address, abi, provider?.getSigner());
         return await contract.queryFilter(contract.filters[method](...args));
     });
 
@@ -30,7 +30,7 @@ export const useContractEvents = (address: string, abi: string[], method: string
 }
 
 export const useMultiContractEvents = (params: any[], swrKey: string): MultiContractEvents => {
-    const { account, library } = useWeb3React<Web3Provider>();
+    const { account, provider } = useWeb3React<Web3Provider>();
    
     const { data, error } = useSWR(`${swrKey}--${account}`, async () => {
         return await Promise.allSettled(
@@ -39,7 +39,7 @@ export const useMultiContractEvents = (params: any[], swrKey: string): MultiCont
                 if(ignoreIfArgsUndefined && args?.length && args.filter(arg => arg !== undefined).length === 0) {
                     return [];
                 }
-                const contract = new Contract(address, abi, library?.getSigner());
+                const contract = new Contract(address, abi, provider?.getSigner());
                 return contract.queryFilter(contract.filters[method](...args));
             })
         )

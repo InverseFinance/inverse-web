@@ -28,7 +28,7 @@ const { TOKENS, DOLA } = getNetworkConfigConstants();
 const dolaToken = TOKENS[DOLA];
 
 export const Ale = () => {
-    const { library } = useWeb3React<Web3Provider>()
+    const { provider } = useWeb3React<Web3Provider>()
     const { markets } = useMarkets();
 
     const dolaMarket = markets?.find(m => m.underlying.symbol === 'DOLA');
@@ -91,7 +91,7 @@ export const Ale = () => {
             inputToken: inputToken.address,
             inputAmount,
             collateralAmount,
-            signer: library?.getSigner(),
+            signer: provider?.getSigner(),
         });
     }
 

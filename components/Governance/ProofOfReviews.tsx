@@ -66,7 +66,7 @@ export const ProofOfReviews = ({
     isDraft: boolean,
     era?: GovEra,
 }) => {
-    const { account, library } = useWeb3React<Web3Provider>();
+    const { account, provider } = useWeb3React<Web3Provider>();
     const { reviews: reviewsData, isLoading } = useProofOfReviews(id, isDraft, era);
     const { isOpen, onClose, onOpen } = useDisclosure();
 
@@ -86,11 +86,11 @@ export const ProofOfReviews = ({
     }
 
     const sendProofOfReview = (comment: string) => {
-        return sendDraftReview(library?.getSigner(), id, 'ok', comment, onSuccess);
+        return sendDraftReview(provider?.getSigner(), id, 'ok', comment, onSuccess);
     }
 
     const removeReview = async () => {
-        return sendDraftReview(library?.getSigner(), id, 'remove', '', onSuccess);
+        return sendDraftReview(provider?.getSigner(), id, 'remove', '', onSuccess);
     }
 
     const myReview = reviews?.find(r => r.reviewer.toLowerCase() === account?.toLowerCase());

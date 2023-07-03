@@ -27,7 +27,7 @@ export const LiquidationForm = ({
 }: {
     position: AccountPositionDetailed,
 }) => {
-    const { library } = useWeb3React<Web3Provider>()
+    const { provider } = useWeb3React<Web3Provider>()
     const { prices: oraclePrices } = useAnchorPricesUsd();
     const { bonusFactor } = useLiquidationIncentive();
 
@@ -98,7 +98,7 @@ export const LiquidationForm = ({
     }, [borrowedDetails, repayAmount, seizableDetails, oraclePrices])
 
     const handleLiquidation = async () => {
-        return liquidateBorrow(position.account, library?.getSigner(), repayAmount, borrowedDetails.ctoken, borrowedDetails.underlying, seizableDetails.ctoken);
+        return liquidateBorrow(position.account, provider?.getSigner(), repayAmount, borrowedDetails.ctoken, borrowedDetails.underlying, seizableDetails.ctoken);
     }
 
     const inputProps = { fontSize: '14px' }
@@ -162,7 +162,7 @@ export const LiquidationForm = ({
         <Stack direction="row">
             {
                 !isApproved &&
-                <ApproveButton tooltipMsg="" signer={library?.getSigner()} address={repayToken.address} toAddress={borrowedDetails.ctoken} isDisabled={isApproved} />
+                <ApproveButton tooltipMsg="" signer={provider?.getSigner()} address={repayToken.address} toAddress={borrowedDetails.ctoken} isDisabled={isApproved} />
             }
             <SubmitButton onClick={async () => handleLiquidation()} refreshOnSuccess={true} disabled={isSubmitDisabled}>
                 Liquidate

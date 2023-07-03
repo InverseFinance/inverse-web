@@ -5,7 +5,7 @@ import Head from 'next/head'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { useDBRMarkets } from '@app/hooks/useDBR'
 
-import { VStack, Text, HStack, FormControl, FormLabel, Switch } from '@chakra-ui/react'
+import { VStack, Text, HStack, FormControl, FormLabel, Switch, Divider } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 
 import { useEffect, useState } from 'react'
@@ -24,8 +24,9 @@ import { CvxCrvPreferences } from '@app/components/F2/rewards/CvxCrvPreferences'
 import { DailyLimitCountdown } from '@app/components/common/Countdown'
 import Container from '@app/components/common/Container'
 import { InfoMessage } from '@app/components/common/Messages'
-import { shortenNumber, smartShortNumber } from '@app/util/markets'
+import { shortenNumber } from '@app/util/markets'
 import { preciseCommify } from '@app/util/misc'
+import { WorthEvoChartWrapper } from '@app/components/F2/WorthEvoChartContainer'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -163,7 +164,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                 direction={{ base: 'column', lg: 'row' }}
                                                 spacing="6"
                                             >
-                                                <ErrorBoundary description="Error in the standard mode, please try reloading">
+                                                <ErrorBoundary description="Error in the form component, please try reloading">
                                                     {
                                                         f2market.isInv && <Container
                                                             noPadding
@@ -176,11 +177,11 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                         >
                                                             <InfoMessage
                                                                 description={
-                                                                    <VStack alignItems="flex-start">                                                                        
+                                                                    <VStack alignItems="flex-start">
                                                                         <Text>✨ <b>{shortenNumber(f2market.extraApy, 2)}% DBR Rewards Annual Percentage Rate</b>. Real yield that you claim. Currently streaming <b>{preciseCommify(f2market.dbrYearlyRewardRate, 0)}</b> DBR's per year to INV stakers.</Text>
-                                                                        <Text>✨ <b>{shortenNumber(f2market.supplyApy, 2)}% INV Staking rewards</b>. Dilution protection. Your staked INV balance increases automatically.</Text>                                                                        
+                                                                        <Text>✨ <b>{shortenNumber(f2market.supplyApy, 2)}% INV Staking rewards</b>. Dilution protection. Your staked INV balance increases automatically.</Text>
                                                                         <Text>
-                                                                            The more DOLA that is borrowed means more DBR is burned. As DBR is burned, more DBR's are streamed to INV stakers, who benefit directly from FiRM's success.                                                                            
+                                                                            The more DOLA that is borrowed means more DBR is burned. As DBR is burned, more DBR's are streamed to INV stakers, who benefit directly from FiRM's success.
                                                                         </Text>
                                                                     </VStack>
                                                                 }
@@ -191,6 +192,9 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                         (f2market.hasClaimableRewards) && <FirmRewardWrapper market={f2market} />
                                                     }
                                                     <F2CombinedForm />
+                                                </ErrorBoundary>
+                                                <ErrorBoundary description="The portfolio value chart could not load">
+                                                    <WorthEvoChartWrapper market={f2market} />
                                                 </ErrorBoundary>
                                                 {
                                                     (f2market.hasClaimableRewards && f2market.name === 'cvxCRV') && <CvxCrvPreferences />

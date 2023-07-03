@@ -48,7 +48,7 @@ export const AnchorModal = ({
   const _operations = operations//isV1market ? [...operations, AnchorOperations.migrate] : operations;
   const [operation, setOperation] = useState(_operations[0])
   const [amount, setAmount] = useState<string>('')
-  const { active } = useWeb3React()
+  const { isActive } = useWeb3React()
   const { balances } = useAccountBalances()
   const { balances: supplyBalances } = useSupplyBalances()
   const { balances: borrowBalances } = useBorrowBalances()
@@ -202,7 +202,7 @@ export const AnchorModal = ({
                   asset={asset}
                   amount={amount && !isNaN(amount as any) ? parseUnits(amount, asset.underlying.decimals) : BigNumber.from(0)}
                   needWithdrawWarning={needWithdrawWarning}
-                  isDisabled={isUserBorrowAbilityPaused || flokiSupplyDisabled || !amount || !active || isNaN(amount as any) || (parseFloat(amount) > maxFloat() && amount !== maxString())}
+                  isDisabled={isUserBorrowAbilityPaused || flokiSupplyDisabled || !amount || !isActive || isNaN(amount as any) || (parseFloat(amount) > maxFloat() && amount !== maxString())}
                 />
               </>
           }
@@ -352,7 +352,7 @@ export const AnchorCollateralModal = ({
   onClose,
   asset,
 }: AnchorModalProps) => {
-  const { library, account } = useWeb3React<Web3Provider>();
+  const { provider, account } = useWeb3React<Web3Provider>();
   const { query } = useRouter();
   const userAddress = (query?.viewAddress as string) || account;
   const { prices: anchorPrices } = useAnchorPrices()
@@ -369,7 +369,7 @@ export const AnchorCollateralModal = ({
   const preventDisabling = owed > 0 || (newPerc >= 99 && asset.isCollateral);
 
   const handleConfirm = async () => {
-    const contract = getComptrollerContract(library?.getSigner());
+    const contract = getComptrollerContract(provider?.getSigner());
     const method = asset.isCollateral ? 'exitMarket' : 'enterMarkets';
     const target = asset.isCollateral ? asset.token : [asset.token];
     return contract[method](target);

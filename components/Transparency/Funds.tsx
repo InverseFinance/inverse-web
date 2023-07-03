@@ -16,6 +16,7 @@ const FundLine = ({
     showPrice = false,
     label,
     showAsAmountOnly,
+    noImage = false,
 }: {
     token: Token,
     value: number,
@@ -26,6 +27,7 @@ const FundLine = ({
     showPrice?: boolean,
     label?: string,
     showAsAmountOnly?: boolean
+    noImage?: boolean
 }) => {
     const rightSideContent = <>
         <Text textAlign="right">
@@ -41,14 +43,16 @@ const FundLine = ({
         <Flex direction="row" w='full' alignItems="center" justify="space-between">
             <Flex alignItems="center">
                 <Text>-</Text>
-                <MarketImage
-                    image={token?.image}
-                    protocolImage={token?.protocolImage}
-                    isInPausedSection={token?.isInPausedSection || /(-v1|-old)/i.test(token?.symbol)}
-                    size={15}
-                    mx="1"
-                />
-                <Text ml="1" lineHeight="15px">{label || token?.symbol}{token?.address === OLD_XINV && ' (old)'}:</Text>
+                {
+                    !noImage && <MarketImage
+                        image={token?.image}
+                        protocolImage={token?.protocolImage}
+                        isInPausedSection={token?.isInPausedSection || /(-v1|-old)/i.test(token?.symbol)}
+                        size={15}
+                        mx="1"
+                    />
+                }
+                <Text ml={ noImage ? 0 : 1 } lineHeight="15px">{label || token?.symbol}{token?.address === OLD_XINV && ' (old)'}:</Text>
             </Flex>
             {
                 !!showAsAmountOnly ? <SimpleGrid w="140px" spacing="1" columns={2} alignItems="center">
@@ -97,6 +101,7 @@ type FundsProps = {
     minUsd?: number
     type?: 'both' | 'allowance' | 'balance'
     showAsAmountOnly?: boolean
+    noImage?: boolean
     innerRadius?: number
 };
 
@@ -127,6 +132,7 @@ export const Funds = ({
     type = 'both',
     showAsAmountOnly = false,
     innerRadius,
+    noImage = false,
 }: FundsProps) => {
     const usdTotals = { balance: 0, allowance: 0, overall: 0 };
 
@@ -159,7 +165,7 @@ export const Funds = ({
 
     const balancesContent = positiveBalances
         .map(({ token, balance, usdBalance, balancePerc, usdPrice, ctoken, label }) => {
-            return <FundLine key={ctoken || token?.address || label || token?.symbol} showAsAmountOnly={showAsAmountOnly} label={label} token={token} showPrice={showPrice} usdPrice={usdPrice} value={balance} usdValue={usdBalance} perc={balancePerc} showPerc={showPerc} />
+            return <FundLine noImage={noImage} key={ctoken || token?.address || label || token?.symbol} showAsAmountOnly={showAsAmountOnly} label={label} token={token} showPrice={showPrice} usdPrice={usdPrice} value={balance} usdValue={usdBalance} perc={balancePerc} showPerc={showPerc} />
         })
 
     const positiveAllowances = fundsWithPerc.filter(({ allowance }) => (allowance || 0) > 0);
@@ -167,7 +173,7 @@ export const Funds = ({
 
     const allowancesContent = positiveAllowances
         .map(({ token, allowance, usdAllowance, allowancePerc, usdPrice, ctoken, label }) => {
-            return <FundLine key={ctoken || token?.address || label || token?.symbol} showAsAmountOnly={showAsAmountOnly} label={label} showPrice={showPrice} usdPrice={usdPrice} token={token} value={allowance!} usdValue={usdAllowance} perc={allowancePerc} showPerc={showPerc} />
+            return <FundLine noImage={noImage} key={ctoken || token?.address || label || token?.symbol} showAsAmountOnly={showAsAmountOnly} label={label} showPrice={showPrice} usdPrice={usdPrice} token={token} value={allowance!} usdValue={usdAllowance} perc={allowancePerc} showPerc={showPerc} />
         })
 
     return (

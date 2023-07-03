@@ -179,7 +179,7 @@ export const AnchorSupplied = () => {
   const { prices } = usePrices()
 
   const { markets: accountMarkets } = useAccountMarkets()
-  const { active } = useWeb3React()
+  const { isActive } = useWeb3React()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { isOpen: isCollateralOpen, onOpen: onCollateralOpen, onClose: onCollateralClose } = useDisclosure()
   const [modalAsset, setModalAsset] = useState<Market>()
@@ -260,7 +260,7 @@ export const AnchorSupplied = () => {
     },
   ].filter(c => !!c);
 
-  if (!active || (!usdSupplyCoingecko && !accountMarkets.find(m => m.collateralGuardianPaused))) {
+  if (!isActive || (!usdSupplyCoingecko && !accountMarkets.find(m => m.collateralGuardianPaused))) {
     return <></>
   }
 
@@ -304,7 +304,7 @@ export const AnchorSupplied = () => {
 }
 
 export const AnchorBorrowed = () => {
-  const { active } = useWeb3React()
+  const { isActive } = useWeb3React()
   const { prices } = usePrices()
   const { markets, isLoading: marketsLoading } = useMarkets()
   const { usdBorrow, usdSupply, isLoading: accountLiquidityLoading } = useAccountLiquidity()
@@ -332,7 +332,7 @@ export const AnchorBorrowed = () => {
     getColumn('borrowBalance', 24),
   ]
 
-  if (!active || !usdSupply) {
+  if (!isActive || !usdSupply) {
     return <></>
   }
 
