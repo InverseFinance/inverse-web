@@ -13,10 +13,11 @@ import { pricesCacheKey } from '../prices';
 import { PROTOCOLS_BY_IMG } from '@app/variables/images';
 import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 
-export const liquidityCacheKey = `liquidity-v1.0.6`;
+export const liquidityCacheKey = `liquidity-v1.0.7`;
 
 const PROTOCOL_DEFILLAMA_MAPPING = {
     "VELO": 'velodrome',
+    "VELOV2": 'velodrome-v2',
     "THENA": 'thena-v1',
     "THENAV2": 'thena-v2',
     "AURA": 'aura',

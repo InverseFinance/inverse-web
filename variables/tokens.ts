@@ -90,6 +90,7 @@ const chainTokenAddresses = {
     DOLACUSDBLP: '0x384F67aA430376efc4f8987eaBf7F3f84eB9EA5d',
     DOLACUSDALP: '0x0995a508dF9606f1C6D512a2d6BA875Cf3cE94C3',
     DOLAUSDCALP: '0x22915f309ec0182c85cd8331c23bd187fd761360',
+    DOLAUSDCALP2: '0xb139946D2F0E71b38e2c75d03D87C5E16339d2CD',
     DOLAFRAXUSDCCVX: '0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c',
   },
   "250": {
@@ -105,13 +106,17 @@ const chainTokenAddresses = {
     VELO: '0x3c8B650257cFb5f272f799F5e2b4e65093a11a05',
     VEVELO: '0x9c7305eb78a432ced5C4D14Cac27E8Ed569A2e26',
     VELODOLAUSDCLP: '0x6C5019D345Ec05004A7E7B0623A91a0D9B8D590d',
+    VELOV2DOLAUSDCLP: '0xB720FBC32d60BB6dcc955Be86b98D8fD3c4bA645',
     VELODOLALP: '0x1eBE6427f037385dDcB95aa688c18272415e3F46',
     VELODOLAMAILP: '0x21950a0cA249A0ef3d182338c86c8C066B24D801',
+    VELOV2DOLAMAILP: '0xBE418771bC91F75C4d2BcE1d5E2b7286F50992da',
     VELODOLAUSDplusLP: '0xa99817d2d286C894F8f3888096A5616d06F20d46',
+    VELOV2DOLAUSDplusLP: '0x0b28C2e41058EDc7D66c516c617b664Ea86eeC5d',
     USDC: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
     USDplus: '0x73cb180bf0521828d8849bc8CF2B920918e23032',
     MAI: '0xdFA46478F9e5EA86d57387849598dbFB2e964b02',
     VELODOLAFRAXLP: '0xD29DE64c1a9Dd3e829A7345BE1E9c32a9414541f',
+    VELOV2DOLAFRAXLP: '0x1f8b46abe1EAbF5A60CbBB5Fb2e4a6A46fA0b6e6',
     FRAX: '0x2E3D870790dC77A83DD1d18184Acc7439A53f475',
     ARCHLYDOLAUSDCLP: '0x5b701874FFFc9dFF9305E1cA09705247E13cF717',
   },
@@ -541,7 +546,7 @@ const chainTokens = {
         '0x865377367054516e17014CcdED1e7d814EDC9ce4', '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
       ],
       image: TOKEN_IMAGES.DOLA,
-      deduce: [chainTokenAddresses["1"].DOLAUSDCALP],
+      deduce: [chainTokenAddresses["1"].DOLAUSDCALP, chainTokenAddresses["1"].DOLAUSDCALP2],
     },
     [chainTokenAddresses["1"].DBRDOLABALANCER]: {
       address: chainTokenAddresses["1"].DBRDOLABALANCER,
@@ -836,6 +841,23 @@ const chainTokens = {
       ],
       protocolImage: PROTOCOL_IMAGES.AURA,
     },
+    [chainTokenAddresses["1"].DOLAUSDCALP2]: {
+      address: chainTokenAddresses["1"].DOLAUSDCALP2,
+      name: 'DOLA-USDC aulp',
+      symbol: 'DOLA-USDC aulp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      balancerInfos: {
+        poolId: '0xff4ce5aaab5a627bf82f4a571ab1ce94aa365ea6000200000000000000000426',
+        vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
+      },
+      pairs: [
+        chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].USDC
+      ],
+      protocolImage: PROTOCOL_IMAGES.AURA,
+    },
   },
   "43114": {
     CHAIN_COIN: {
@@ -1006,6 +1028,20 @@ const chainTokens = {
       ],
       protocolImage: PROTOCOL_IMAGES.VELO,
     },
+    [chainTokenAddresses["10"].VELOV2DOLAUSDCLP]: {
+      address: chainTokenAddresses["10"].VELOV2DOLAUSDCLP,
+      name: 'DOLA-USDC',
+      symbol: 'DOLA-USDC',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isVeloLP: true,
+      pairs: [
+        chainTokenAddresses["10"].USDC, chainTokenAddresses["10"].DOLA
+      ],
+      protocolImage: PROTOCOL_IMAGES.VELOV2,
+    },
     [chainTokenAddresses["10"].VELODOLALP]: {
       address: chainTokenAddresses["10"].VELODOLALP,
       name: 'DOLA-VELO',
@@ -1033,6 +1069,20 @@ const chainTokens = {
       ],
       protocolImage: PROTOCOL_IMAGES.VELO,
     },
+    [chainTokenAddresses["10"].VELOV2DOLAMAILP]: {
+      address: chainTokenAddresses["10"].VELOV2DOLAMAILP,
+      name: 'DOLA-MAI',
+      symbol: 'DOLA-MAI vlp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,      
+      isVeloLP: true,
+      isStable: true,
+      pairs: [
+        chainTokenAddresses["10"].DOLA, chainTokenAddresses["10"].MAI
+      ],
+      protocolImage: PROTOCOL_IMAGES.VELOV2,
+    },
     [chainTokenAddresses["10"].VELODOLAFRAXLP]: {
       address: chainTokenAddresses["10"].VELODOLAFRAXLP,
       name: 'DOLA-FRAX',
@@ -1046,6 +1096,20 @@ const chainTokens = {
         chainTokenAddresses["10"].FRAX, chainTokenAddresses["10"].DOLA
       ],
       protocolImage: PROTOCOL_IMAGES.VELO,
+    },
+    [chainTokenAddresses["10"].VELOV2DOLAFRAXLP]: {
+      address: chainTokenAddresses["10"].VELOV2DOLAFRAXLP,
+      name: 'DOLA-FRAX',
+      symbol: 'DOLA-FRAX vlp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,      
+      isVeloLP: true,
+      isStable: true,
+      pairs: [
+        chainTokenAddresses["10"].FRAX, chainTokenAddresses["10"].DOLA
+      ],
+      protocolImage: PROTOCOL_IMAGES.VELOV2,
     },
     [chainTokenAddresses["10"].ARCHLYDOLAUSDCLP]: {
       address: chainTokenAddresses["10"].ARCHLYDOLAUSDCLP,
@@ -1075,6 +1139,21 @@ const chainTokens = {
         chainTokenAddresses["10"].USDplus, chainTokenAddresses["10"].DOLA
       ],
       protocolImage: PROTOCOL_IMAGES.VELO,
+    },
+    [chainTokenAddresses["10"].VELOV2DOLAUSDplusLP]: {
+      address: chainTokenAddresses["10"].VELOV2DOLAUSDplusLP,
+      name: 'DOLA-USD+',
+      symbol: 'DOLA-USD+ vlp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isVeloLP: true,
+      lpBalanceContract: '0x05d74f34ff651e80b0a1a4bD96D8867626Ac2ddD',
+      pairs: [
+        chainTokenAddresses["10"].USDplus, chainTokenAddresses["10"].DOLA
+      ],
+      protocolImage: PROTOCOL_IMAGES.VELOV2,
     },
   },
   "56": {

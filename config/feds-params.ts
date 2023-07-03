@@ -144,16 +144,16 @@ export const FEDS_PARAMS = [
             description: 'The minted DOLA is bridged to a VeloFarmer contract on Optimism, this contract can swap DOLA for USDC and deposit DOLA+USDC to the Velodrome DOLA-USDC liquidity pool. \n\nThis Fed gets rewards in VELO tokens which can then be locked to increase voting power on Velodrome further increasing efficiency.',
             pools: [
                 {
-                    address: '0x6C5019D345Ec05004A7E7B0623A91a0D9B8D590d',
+                    address: '0xB720FBC32d60BB6dcc955Be86b98D8fD3c4bA645',
                     name: 'Velodrome DOLA-USDC',
-                    link: 'https://app.velodrome.finance/liquidity/manage?address=0x6c5019d345ec05004a7e7b0623a91a0d9b8d590d',
+                    link: 'https://app.velodrome.finance/deposit?token0=0x7f5c764cbc14f9669b88837ca1490cca17c31607&token1=0x8ae125e8653821e851f12a49f7765db9a9ce7384&stable=true',
                     image: 'https://assets.coingecko.com/coins/images/25783/small/velo.png',
                 },
             ],
             type: 'solidly',        
-            lpBalanceContract: '0xAFD2c84b9d1cd50E7E18a55e419749A6c9055E1F',
+            lpBalanceContract: '0xa1034Ed2C9eb616d6F7f318614316e64682e7923',
             rewardPools: [
-                { address: '0xAFD2c84b9d1cd50E7E18a55e419749A6c9055E1F', method: 'earned', underlying: '0x3c8B650257cFb5f272f799F5e2b4e65093a11a05', type: 'specifyUnderlying' }
+                { address: '0xa1034Ed2C9eb616d6F7f318614316e64682e7923', method: 'earned', underlying: '0x3c8B650257cFb5f272f799F5e2b4e65093a11a05' }
             ],
             multisig: {
                 address: '0xa283139017a2f5BAdE8d8e25412C600055D318F8',
