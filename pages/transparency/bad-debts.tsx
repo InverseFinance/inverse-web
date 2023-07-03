@@ -134,8 +134,8 @@ const columns = [
   },
   {
     field: 'totalBadDebtUsd',
-    label: 'Bad debt that occurred',
-    tooltip: 'Equals to remaining bad debt + what was repaid, with current prices',
+    label: 'Total amount to repay',
+    tooltip: 'Equals to remaining to repay + what was repaid, with current prices',
     header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
     value: ({ totalBadDebtUsd, totalBadDebt, symbol }) => {
       return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
@@ -147,20 +147,20 @@ const columns = [
   },
   {
     field: 'totalBadDebtRepaidByDaoUsd',
-    label: 'Repayments',
+    label: 'Repayments made',
     tooltip: 'Direct repayments made by the DAO, with current prices',
     header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
     value: ({ totalBadDebtRepaidByDao, totalBadDebtRepaidByDaoUsd, symbol }) => {
       return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
         <CellText fontWeight="bold">{totalBadDebtRepaidByDao ? `${preciseCommify(totalBadDebtRepaidByDaoUsd, 0, true)}` : '-'}</CellText>
-        <CellText>{totalBadDebtRepaidByDao ? `${preciseCommify(totalBadDebtRepaidByDao, symbol === 'DOLA' ? 0 : 2)} ${symbol}` : '-'}</CellText>
+        <CellText>{totalBadDebtRepaidByDao ? `${preciseCommify(totalBadDebtRepaidByDao, symbol === 'DOLA' ? 0 : 2)} ${symbol === 'IOU' ? 'DOLA' : symbol}` : '-'}</CellText>
       </Cell>
     },
     totalValue: defaultTotalValue,
   },
   {
     field: 'badDebtUsd',
-    label: 'Remaining Bad Debt',
+    label: 'Remaining to repay',
     tooltip: 'With current prices',
     header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
     value: ({ badDebtBalance, badDebtUsd, symbol }) => {
@@ -173,7 +173,7 @@ const columns = [
   },
   {
     field: 'percRepaid',
-    label: 'Bad Debt repaid',
+    label: 'Share repaid',
     header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
     value: ({ percRepaid }) => {
       return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
@@ -424,26 +424,27 @@ export const BadDebtPage = () => {
   }).filter(item => item.badDebtBalance > 0.1);
 
   // add IOU debt to repay
-  // if(items.length > 0) {
-  //   const priceUsd = prices['dola-usd']?.usd || 1;
-  //   // amounts in UOU here
-  //   const totalBadDebt = data['debtConverterConversions']?.reduce((prev, curr) => prev + curr.convertedFor, 0) || 0;
-  //   const totalBadDebtUsd = totalBadDebt * data.iouExRate * priceUsd;
-  //   // amounts in dola here
-  //   const totalBadDebtRepaidByDao = data['dolaForIOUsRepayedByDAO']?.reduce((prev, curr) => prev + curr.amount, 0) || 0;
-  //   const totalBadDebtRepaidByDaoUsd = totalBadDebtRepaidByDao * priceUsd;
-  //   items.push({
-  //     symbol: 'IOU',
-  //     totalBadDebtRepaidByDao,
-  //     totalBadDebtRepaidByDaoUsd,
-  //     totalBadDebt,
-  //     totalBadDebtUsd,
-  //     badDebtBalance: totalBadDebt - totalBadDebtRepaidByDao,
-  //     badDebtUsd: totalBadDebtUsd - totalBadDebtRepaidByDaoUsd,
-  //     percRepaid: totalBadDebtRepaidByDaoUsd / totalBadDebtUsd * 100,
-  //     image: "/assets/v2/dola-small.png",
-  //   })
-  // }
+  if(items.length > 0) {
+    const priceUsd = prices['dola-usd']?.usd || 1;
+    // amounts in UOU here
+    const totalBadDebt = data['debtConverterConversions']?.reduce((prev, curr) => prev + curr.convertedFor, 0) || 0;
+    const totalBadDebtUsd = totalBadDebt * data.iouExRate * priceUsd;
+    // amounts in dola here
+    const totalBadDebtRepaidByDao = data['dolaForIOUsRepayedByDAO']?.reduce((prev, curr) => prev + curr.amount, 0) || 0;
+    const totalBadDebtRepaidByDaoUsd = totalBadDebtRepaidByDao * priceUsd;
+    items.push({
+      symbol: 'IOU',
+      totalBadDebtRepaidByDao,
+      totalBadDebtRepaidByDaoUsd,
+      totalBadDebt,
+      totalBadDebtUsd,
+      badDebtBalance: totalBadDebt - totalBadDebtRepaidByDao,
+      badDebtUsd: totalBadDebtUsd - totalBadDebtRepaidByDaoUsd,
+      percRepaid: totalBadDebtRepaidByDaoUsd / totalBadDebtUsd * 100,
+      image: "/assets/v2/dola-small.png",
+    })
+  }
+  const indirectItems = items.filter(item => item.symbol !== 'IOU');
 
   const totalBadDebtReduced = (data[`${selected}RepayedByDAO`] || []).reduce((prev, curr) => prev + curr.amount, 0) || 0;
   // const item = items.find(item => item.symbol.toLowerCase() === selected) || { coingeckoId: 'dola-usd' };
@@ -586,7 +587,7 @@ export const BadDebtPage = () => {
             }
           >
             <Table
-              items={items}
+              items={indirectItems}
               columns={indirectRepaymentsColumns}
               enableMobileRender={false}
               showTotalRow={true}
