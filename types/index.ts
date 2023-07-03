@@ -434,6 +434,7 @@ export type Fed = {
   oldAddresses?: string[]
   incomeChainId?: string
   incomeSrcAd?: string
+  oldIncomeSrcAds?: string[]
   incomeTargetAd?: string
   fusePool?: string
   isFirm?: boolean
