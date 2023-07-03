@@ -25,7 +25,7 @@ const frontierBadDebtEvoCacheKey = 'dola-frontier-evo-v1.0.x';
 const { DEBT_CONVERTER, DEBT_REPAYER } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
-    const { cacheFirst } = req.query;
+    const { cacheFirst, ignoreCache } = req.query;
     // defaults to mainnet data if unsupported network
     const cacheKey = `repayments-v1.0.93`;
     const frontierShortfallsKey = `1-positions-v1.1.0`;
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
 
     try {
         const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', ONE_DAY_SECS);
-        if (validCache) {
+        if (validCache && !ignoreCache) {
             res.status(200).json(validCache);
             return
         }
