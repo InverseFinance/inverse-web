@@ -36,10 +36,11 @@ export const BarChart12Months = ({
 
     const currentYear = new Date().getUTCFullYear();
     const currentMonth = new Date().getUTCMonth();
+    const nbMonths = months.length;
 
     const barChartData = [eventName].map(event => {
         return months.map(month => {
-            const date = Date.UTC(currentYear, currentMonth - 11 + month);
+            const date = Date.UTC(currentYear, currentMonth - (nbMonths-1) + month);
             const filterMonth = new Date(date).getUTCMonth();
             const filterYear = new Date(date).getUTCFullYear();
             const y = chartData.filter(d => d.month === filterMonth && d.year === filterYear).reduce((p, c) => p + c[yAttribute], 0);
