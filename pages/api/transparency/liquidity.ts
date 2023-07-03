@@ -17,6 +17,7 @@ export const liquidityCacheKey = `liquidity-v1.0.7`;
 
 const PROTOCOL_DEFILLAMA_MAPPING = {
     "VELO": 'velodrome',
+    "VELOV2": 'velodrome-v2',
     "THENA": 'thena-v1',
     "THENAV2": 'thena-v2',
     "AURA": 'aura',
