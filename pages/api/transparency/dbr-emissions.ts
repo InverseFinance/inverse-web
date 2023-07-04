@@ -5,15 +5,15 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
-import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_SECS } from '@app/config/constants';
+import { BURN_ADDRESS, CHAIN_ID } from '@app/config/constants';
 import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
 import { NetworkIds } from '@app/types';
 import { dbrRewardRatesCacheKey, initialDbrRewardRates } from '../cron-dbr-distributor';
 
-const { DBR } = getNetworkConfigConstants();
+const { DBR, TREASURY } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
-    const cacheKey = `dbr-emissions-v1.0.7`;
+    const cacheKey = `dbr-emissions-v1.0.9`;
     const { cacheFirst } = req.query;
 
     try {        
@@ -22,7 +22,9 @@ export default async function handler(req, res) {
             getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', 600, true),
             getCacheFromRedis(dbrRewardRatesCacheKey, false),
         ]);
+
         const { data: cachedData, isValid } = emissionsCacheRes;
+
         if (!!cachedData && isValid) {
             res.status(200).json({
                 ...cachedData,
@@ -41,7 +43,7 @@ export default async function handler(req, res) {
 
         const newTransferEvents = await contract.queryFilter(
             contract.filters.Transfer(BURN_ADDRESS),
-            newStartingBlock ? newStartingBlock : 16196828,// exclude initial mint
+            newStartingBlock ? newStartingBlock : undefined,
         );
 
         const blocks = newTransferEvents.map(e => e.blockNumber);
@@ -59,6 +61,7 @@ export default async function handler(req, res) {
                 timestamp: timestamps[NetworkIds.mainnet][e.blockNumber] * 1000,
                 blockNumber: e.blockNumber,
                 amount: getBnToNumber(e.args[2]),
+                isTreasuryMint: e.args[1].toLowerCase() === TREASURY.toLowerCase(),
             };
         }).filter(e => e.amount > 0);
 
@@ -66,6 +69,7 @@ export default async function handler(req, res) {
 
         const resultData = {
             timestamp: +(new Date()),
+            newTransfers,
             totalEmissions: pastTotalEvents.concat(newTransfers).map(e => {
                 return { ...e, accEmissions: accEmissions += e.amount }
             }),
