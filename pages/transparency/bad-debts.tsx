@@ -485,7 +485,7 @@ export const BadDebtPage = () => {
                   </HStack>
                 }
                 barProps={{ eventName: 'Repayment' }}
-                areaProps={{ id: 'bad-debt-chart', domainYpadding: 1000000, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
+                areaProps={{ id: 'bad-debt-chart', simplifyData: true, domainYpadding: 1000000, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
               />
             </Container>
             <Container
@@ -542,7 +542,7 @@ export const BadDebtPage = () => {
                     maxChartWidth={1000}
                     chartData={barChartData}
                     isDollars={isAllCase ? true : useUsd}
-                    areaProps={{ showMaxY: false, showTooltips: true, id: 'repayments-chart', allowZoom: false }}
+                    areaProps={{ showMaxY: false, simplifyData: true, showTooltips: true, id: 'repayments-chart', allowZoom: false }}
                     barProps={{ months: [...Array(barChartNbMonths).keys()], eventName: 'Repayment' }}
                   /> :
                     <SkeletonBlob />

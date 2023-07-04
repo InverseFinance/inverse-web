@@ -34,7 +34,15 @@ export type AreaChartProps = {
     titleProps?: VictoryLabelProps,
     id?: string,
     yTickPrecision?: number    
+    simplifyData?: boolean    
 };
+
+const getSimplifiedData = (data: CoordinatesArray) => {
+    const uniqueX = [...new Set(data.map(d => d.x))];
+    return uniqueX.map(v => {
+        return data.findLast(d => d.x <= v);
+    });
+}
 
 export const AreaChart = ({
     data,
@@ -55,11 +63,13 @@ export const AreaChart = ({
     allowZoom = false,
     id = 'area-chart',
     yTickPrecision = 2,
+    simplifyData = false,
 }: AreaChartProps) => {
+    const _data = simplifyData ? getSimplifiedData(data) : data;
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
     const [rightPadding, setRightPadding] = useState(50);
     const [selectedDomain, setSelectedDomain] = useState(undefined);
-    const rangedData = selectedDomain?.x ? data?.filter(d => d.x >= selectedDomain.x[0] && d.x <= selectedDomain.x[1]) : data;
+    const rangedData = selectedDomain?.x ? _data?.filter(d => d.x >= selectedDomain.x[0] && d.x <= selectedDomain.x[1]) : _data;
 
     const maxY = rangedData.length > 0 ? Math.max(...rangedData.map(d => d.y)) : 95000000;
     const minY = rangedData.length > 0 ? Math.min(...rangedData.map(d => d.y)) : 0;
@@ -95,7 +105,7 @@ export const AreaChart = ({
         }
     };
 
-    const events = data.filter(d => !!d.eventPointLabel);
+    const events = _data.filter(d => !!d.eventPointLabel);
 
     return (
         <VStack width={width} spacing="0" position="relative">
@@ -127,7 +137,7 @@ export const AreaChart = ({
                     <VictoryArea
                         domain={{ y: [autoMinY ? minY - _yPad < 0 ? 0 : minY - _yPad : 0, maxY + _yPad] }}
                         groupComponent={<VictoryClipContainer clipId={id} />}
-                        data={data}
+                        data={_data}
                         labelComponent={
                             <VictoryLabel
                                 dx={-rightPadding - 30}
@@ -184,7 +194,7 @@ export const AreaChart = ({
                         <VictoryArea
                             domain={{ y: calcYDomain }}
                             groupComponent={<VictoryClipContainer clipId={`${id}-mini`} />}
-                            data={data}
+                            data={_data}
                             style={{
                                 data: { fillOpacity: 0.2, fill: `url(#${mainColor}-gradient)`, stroke: strokeColors[mainColor], strokeWidth: 1 },
                             }}
