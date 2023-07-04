@@ -383,6 +383,8 @@ export const DEBT_CONVERTER_ABI = ERC20_ABI.concat([
   "function balanceOfDola(address _addr) external view returns (uint)",
   "function exchangeRateMantissa() external view returns (uint)",
   "function exchangeRateIncreasePerSecond() public view returns (uint)",
+  "function cumDebt() public view returns (uint)",
+  "function cumDolaRepaid() public view returns (uint)",
   "event NewOwner(address owner)",
   "event NewTreasury(address treasury)",
   "event NewGovernance(address governance)",

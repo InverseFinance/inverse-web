@@ -86,6 +86,8 @@ export default async function handler(req, res) {
             debtConverterRepaymentsEvents,
             debtConverterConversionsEvents,
             iousExRateMantissa,
+            iouCumDolaDebt,
+            iouDolaRepaid,
             debtRepayerRepaymentsEvents,
             dwfOtcBuy,
             wbtcRepayEvents,
@@ -101,6 +103,8 @@ export default async function handler(req, res) {
             debtConverter.queryFilter(debtConverter.filters.Repayment()),
             debtConverter.queryFilter(debtConverter.filters.Conversion()),
             debtConverter.exchangeRateMantissa(),
+            debtConverter.cumDebt(),
+            debtConverter.cumDolaRepaid(),
             debtRepayer.queryFilter(debtRepayer.filters.debtRepayment()),
             dwfOtc.lifetimeBuy(),
             anWbtc.queryFilter(anWbtc.filters.RepayBorrow(), 14886483),
@@ -152,15 +156,22 @@ export default async function handler(req, res) {
                         timestamp,
                         date: timestampToUTC(timestamp),
                         txHash: event.transactionHash,
+                        accountBorrows: getBnToNumber(event.args.accountBorrows, i === 0 ? 8 : 18),
+                        totalBorrows: getBnToNumber(event.args.totalBorrows, i === 0 ? 8 : 18),
+                        logIndex: event.logIndex,
                     }
                 });
             });
 
-        const dolaForIOUsRepayedByDAO = debtConverterRepaymentsEvents.map(event => {
+        const iouRepaymentsBlocks = [...new Set(debtConverterRepaymentsEvents.map(e => e.blockNumber))];
+        const histoIouExRates = await getHistoIouExRate(debtConverter, iouRepaymentsBlocks);
+
+        const dolaForIOUsRepayedByDAO = debtConverterRepaymentsEvents.map((event, i) => {
             const amount = getBnToNumber(event.args.dolaAmount);
             repayments.iou += amount;
-            const timestamp = timestamps['1'][event.blockNumber] * 1000
-            return { blocknumber: event.blockNumber, amount, timestamp, date: timestampToUTC(timestamp), txHash: event.transactionHash }
+            const timestamp = timestamps['1'][event.blockNumber] * 1000;
+            const iouExRate = histoIouExRates[i];
+            return { blocknumber: event.blockNumber, logIndex: event.logIndex, amount, iouExRate, iouAmount: amount / iouExRate, timestamp, date: timestampToUTC(timestamp), txHash: event.transactionHash }
         });
 
         const nonFrontierDolaRepayedByDAO = dolaB1RepayedByDAO.concat(dolaFuse6RepayedByDAO).concat(dolaBadgerRepayedByDAO).sort((a, b) => a.timestamp - b.timestamp);
@@ -169,7 +180,7 @@ export default async function handler(req, res) {
         // USDC decimals
         repayments.dwf = getBnToNumber(dwfOtcBuy, 6);
 
-        const debtConverterConversions = debtConverterConversionsEvents.map(event => {
+        const debtConverterConversions = debtConverterConversionsEvents.map((event, i) => {
             const underlying = UNDERLYING[event.args.anToken];
             const symbol = underlying.symbol.replace('WETH', 'ETH').replace('-v1', '');
             const converted = getBnToNumber(event.args.underlyingAmount, underlying.decimals);
@@ -179,7 +190,7 @@ export default async function handler(req, res) {
             return { symbol, converted, convertedFor }
         });
 
-        const debtRepayerRepayments = debtRepayerRepaymentsEvents.map(event => {
+        const debtRepayerRepayments = debtRepayerRepaymentsEvents.map((event, i) => {
             const underlying = getToken(TOKENS, event.args.underlying);
             const symbol = underlying.symbol.replace('WETH', 'ETH').replace('-v1', '');
             const marketIndex = frontierShortfalls.markets.map(m => UNDERLYING[m]?.address || WETH).indexOf(event.args.underlying);
@@ -297,6 +308,8 @@ export default async function handler(req, res) {
         const resultData = {
             timestamp: +(new Date()),
             iouExRate,
+            iouCumDolaDebt: getBnToNumber(iouCumDolaDebt),
+            iouDolaRepaid: getBnToNumber(iouDolaRepaid),
             histoPrices,
             iousHeld,
             iousDolaAmount,
@@ -336,6 +349,23 @@ export default async function handler(req, res) {
         }
     }
 };
+
+const getHistoIouExRate = async (debtConverter: Contract, blocks: number[]) => {
+    const iouExRatesBn =
+        await throttledPromises(
+            (block: number) => {
+                return getHistoricValue(debtConverter, block, 'exchangeRateMantissa', []);
+            },
+            blocks,
+            5,
+            100,
+        );
+
+    const iouExRates = iouExRatesBn.map((d, i) => {
+        return getBnToNumber(debtConverter.interface.decodeFunctionResult('exchangeRateMantissa', d)[0]);
+    });
+    return iouExRates;
+}
 
 const getBadDebtEvolution = async (repaymentBlocks: number[]) => {
     const provider = getProvider('1', '', true);

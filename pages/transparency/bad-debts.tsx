@@ -74,6 +74,21 @@ const transactionsColumns = [
     }
   },
   {
+    field: 'logIndex',
+    label: 'Log Index',
+    header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+    value: ({ logIndex }) => {
+      return <Cell justify="center" minWidth="100px">
+        <CellText>{logIndex}</CellText>
+      </Cell>
+    },
+    totalValue: (field, items) => {
+      return <Cell minWidth='150px' spacing="2" justify="flex-start" alignItems="center" direction="row">
+        <CellText fontWeight="bold"></CellText>
+      </Cell>
+    }
+  },
+  {
     field: 'timestamp',
     label: 'Date',
     header: ({ ...props }) => <ColHeader justify="flex-start" minWidth={'100px'} {...props} />,
@@ -140,7 +155,7 @@ const columns = [
     value: ({ totalBadDebtUsd, totalBadDebt, symbol }) => {
       return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
         <CellText fontWeight="bold">{totalBadDebtUsd ? `${preciseCommify(totalBadDebtUsd, 0, true)}` : '-'}</CellText>
-        <CellText>{totalBadDebt ? `${preciseCommify(totalBadDebt, symbol === 'DOLA' ? 0 : 2)} ${symbol}` : '-'}</CellText>
+        <CellText>{totalBadDebt ? `${preciseCommify(totalBadDebt, symbol === 'DOLA' ? 0 : 2)} ${symbol === 'IOU' ? 'DOLA' : symbol}` : '-'}</CellText>
       </Cell>
     },
     totalValue: defaultTotalValue,
@@ -166,7 +181,7 @@ const columns = [
     value: ({ badDebtBalance, badDebtUsd, symbol }) => {
       return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
         <CellText fontWeight="bold" >{preciseCommify(badDebtUsd, 0, true)}</CellText>
-        <CellText >{preciseCommify(badDebtBalance, symbol === 'DOLA' ? 0 : 2)} {symbol}</CellText>
+        <CellText >{preciseCommify(badDebtBalance, symbol === 'DOLA' ? 0 : 2)} {symbol === 'IOU' ? 'DOLA' : symbol}</CellText>
       </Cell>
     },
     totalValue: defaultTotalValue,
@@ -272,41 +287,19 @@ const indirectRepaymentsColumns = [
       </Cell>
     },
     totalValue: defaultTotalValue,
-  },
+  },  
   // {
-  //   field: 'totalBadDebtReduced',
-  //   label: 'Total Bad Debt Reduced',
+  //   field: 'repaidViaDwf',
+  //   label: 'Indirect DWF repayment',
+  //   tooltip: 'Funds coming from the DWF OTC used to repay DOLA bad debt',
   //   header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
-  //   value: ({ totalBadDebtReduced, symbol, priceUsd }) => {
+  //   value: ({ repaidViaDwf }) => {
   //     return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
-  //       <CellText>{totalBadDebtReduced ? `${preciseCommify(totalBadDebtReduced * priceUsd, 0, true)}` : '-'}</CellText>
-  //       <CellText>{totalBadDebtReduced ? `${preciseCommify(totalBadDebtReduced, symbol === 'DOLA' ? 0 : 2)} ${symbol}` : '-'}</CellText>
+  //       <CellText>{repaidViaDwf ? `${preciseCommify(repaidViaDwf, 0)} USDC` : '-'}</CellText>
   //     </Cell>
   //   },
-  // },  
-  // {
-  //   field: 'totalBadDebtRepaidByDao',
-  //   label: 'Repaid',
-  //   header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
-  //   value: ({ totalBadDebtRepaidByDao, symbol, priceUsd }) => {
-  //     return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
-  //       <CellText fontWeight="bold">{totalBadDebtRepaidByDao ? `${preciseCommify(totalBadDebtRepaidByDao * priceUsd, 0, true)}` : '-'}</CellText>
-  //       <CellText>{totalBadDebtRepaidByDao ? `${preciseCommify(totalBadDebtRepaidByDao, symbol === 'DOLA' ? 0 : 2)} ${symbol}` : '-'}</CellText>
-  //     </Cell>
-  //   },
+  //   totalValue: defaultTotalValue,
   // },
-  {
-    field: 'repaidViaDwf',
-    label: 'Indirect DWF repayment',
-    tooltip: 'Funds coming from the DWF OTC used to repay DOLA bad debt',
-    header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
-    value: ({ repaidViaDwf }) => {
-      return <Cell minWidth='150px' spacing="2" justify="center" alignItems="center" direction="column">
-        <CellText>{repaidViaDwf ? `${preciseCommify(repaidViaDwf, 0)} USDC` : '-'}</CellText>
-      </Cell>
-    },
-    totalValue: defaultTotalValue,
-  },
 ];
 
 const keyPrices = {
@@ -398,7 +391,7 @@ export const BadDebtPage = () => {
     const totalBadDebt = item.badDebtBalance + totalBadDebtRepaidByDao;
 
     const convertedFor = !isDola ? 0 : data['debtConverterConversions']?.reduce((prev, curr) => prev + curr.convertedFor, 0) || 0;
-    const convertedForUsd = convertedFor * data.iouExRate * dolaPrice;
+    const convertedForUsd = !isDola ? 0 : data.iouCumDolaDebt * dolaPrice;
 
     const dolaRepaidForIOU = !isDola ? 0 : data['dolaForIOUsRepayedByDAO']?.reduce((prev, curr) => prev + curr.amount, 0) || 0;
     const dolaRepaidForIOUUsd = dolaRepaidForIOU * dolaPrice;
@@ -425,31 +418,25 @@ export const BadDebtPage = () => {
 
   // add IOU debt to repay
   if (items.length > 0) {
-    const priceUsd = prices['dola-usd']?.usd || 1;
-    // amounts in UOU here
-    const totalBadDebt = data['debtConverterConversions']?.reduce((prev, curr) => prev + curr.convertedFor, 0) || 0;
-    const totalBadDebtUsd = totalBadDebt * data.iouExRate * priceUsd;
-    // amounts in dola here
-    const totalBadDebtRepaidByDao = data['dolaForIOUsRepayedByDAO']?.reduce((prev, curr) => prev + curr.amount, 0) || 0;
-    const totalBadDebtRepaidByDaoUsd = totalBadDebtRepaidByDao * priceUsd;
+    const totalDolaRepaid = data.iouDolaRepaid;
+    const totalDolaRepaidUsd = dolaPrice * totalDolaRepaid;
+    const totalBadDebtUsd = data.iouCumDolaDebt * dolaPrice;
     items.push({
       symbol: 'IOU',
-      totalBadDebtRepaidByDao,
-      totalBadDebtRepaidByDaoUsd,
-      totalBadDebt,
+      totalBadDebtRepaidByDao: totalDolaRepaid,
+      totalBadDebtRepaidByDaoUsd: totalDolaRepaidUsd,
+      totalBadDebt: data.iouCumDolaDebt,
       totalBadDebtUsd,
-      badDebtBalance: totalBadDebt - totalBadDebtRepaidByDao,
-      badDebtUsd: totalBadDebtUsd - totalBadDebtRepaidByDaoUsd,
-      percRepaid: totalBadDebtRepaidByDaoUsd / totalBadDebtUsd * 100,
+      badDebtBalance: data.iouCumDolaDebt - totalDolaRepaid,
+      badDebtUsd: totalBadDebtUsd - totalDolaRepaidUsd,
+      percRepaid: totalDolaRepaidUsd / totalBadDebtUsd * 100,
       image: "/assets/v2/dola-small.png",
     })
   }
   const indirectItems = items.filter(item => item.symbol !== 'IOU');
 
   const totalBadDebtReduced = (data[`${selected}RepayedByDAO`] || []).reduce((prev, curr) => prev + curr.amount, 0) || 0;
-  // const item = items.find(item => item.symbol.toLowerCase() === selected) || { coingeckoId: 'dola-usd' };
-  // const totalBadDebtReducedUsd = isDolaCase ? totalBadDebtReduced * prices[item?.coingeckoId]?.usd || 1 :
-  //   chartSourceData.reduce((prev, curr) => prev + curr.worth, 0) || 0;  
+
   const totalBadDebtReducedUsd = chartSourceData.reduce((prev, curr) => prev + curr.worth, 0) || 0
 
   const barChartNbMonths = getMonthDiff(new Date('2022-05-01'), new Date());
@@ -480,7 +467,7 @@ export const BadDebtPage = () => {
               right={
                 <VStack spacing="0" alignItems={{ base: 'flex-start', md: 'flex-end' }}>
                   <Text fontSize="14px">Current DOLA bad debt:</Text>
-                  <Text>{dolaBadDebtEvo.length > 0 && !!dolaBadDebtEvo[dolaBadDebtEvo.length - 1].y ? shortenNumber(dolaBadDebtEvo[dolaBadDebtEvo.length - 1].y, 2) : ''}</Text>
+                  <Text fontWeight="bold">{dolaBadDebtEvo.length > 0 && !!dolaBadDebtEvo[dolaBadDebtEvo.length - 1].y ? shortenNumber(dolaBadDebtEvo[dolaBadDebtEvo.length - 1].y, 2) : ''}</Text>
                 </VStack>
               }
             >
