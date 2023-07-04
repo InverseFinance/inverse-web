@@ -32,6 +32,7 @@ export default async function handler(req, res) {
     const histoPricesCacheKey = `historic-prices-v1.0.4`;
 
     try {
+        res.setHeader('Cache-Control', `public, max-age=${60}`);
         const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', ONE_DAY_SECS);
         if (validCache && !ignoreCache) {
             res.status(200).json(validCache);
@@ -282,6 +283,11 @@ export default async function handler(req, res) {
                 dolaBadDebtEvolution[i].badDebt = dolaBadDebtEvolution[i].frontierBadDebt;
             }
         });
+
+        // use same data ref instead of frontier shortfall api (update daily)
+        badDebts.DOLA.badDebtBalance = dolaBadDebtEvolution[dolaBadDebtEvolution.length - 1].badDebt;
+        badDebts.DOLA.nonFrontierBadDebtBalance = badDebts.DOLA.badDebtBalance - dolaBadDebtEvolution[dolaBadDebtEvolution.length - 1].frontierBadDebt;
+        badDebts.DOLA.frontierBadDebtBalance = dolaBadDebtEvolution[dolaBadDebtEvolution.length - 1].frontierBadDebt;
 
         const iousHeld = iouHoldersData?.data?.items?.map(d => d.balance)
             .reduce((prev, curr) => prev + getBnToNumber(parseUnits(curr, 0)), 0) || 0;

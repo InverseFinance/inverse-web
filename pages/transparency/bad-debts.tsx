@@ -345,7 +345,7 @@ const formatToBarData = (data: any, item: any, index: number, key: string, isDol
   );
 
   const symbol = cgIdsSymbols[cgId];
-  const worth = item.amount * (useHistorical ? histoPrice : price)||0
+  const worth = item.amount * (useHistorical ? histoPrice : price) || 0
 
   return {
     ...item,
@@ -424,7 +424,7 @@ export const BadDebtPage = () => {
   }).filter(item => item.badDebtBalance > 0.1);
 
   // add IOU debt to repay
-  if(items.length > 0) {
+  if (items.length > 0) {
     const priceUsd = prices['dola-usd']?.usd || 1;
     // amounts in UOU here
     const totalBadDebt = data['debtConverterConversions']?.reduce((prev, curr) => prev + curr.convertedFor, 0) || 0;
@@ -473,6 +473,16 @@ export const BadDebtPage = () => {
               label="DOLA bad debt Evolution"
               description={data?.timestamp ? `Last update: ${moment(data?.timestamp).fromNow()}` : 'Loading...'}
               noPadding
+              headerProps={{
+                direction: { base: 'column', md: 'row' },
+                align: { base: 'flex-start', md: 'flex-end' },
+              }}
+              right={
+                <VStack spacing="0" alignItems={{ base: 'flex-start', md: 'flex-end' }}>
+                  <Text fontSize="14px">Current DOLA bad debt:</Text>
+                  <Text>{dolaBadDebtEvo.length > 0 && !!dolaBadDebtEvo[dolaBadDebtEvo.length - 1].y ? shortenNumber(dolaBadDebtEvo[dolaBadDebtEvo.length - 1].y, 2) : ''}</Text>
+                </VStack>
+              }
             >
               <DefaultCharts
                 // direction={'row'}
@@ -495,7 +505,7 @@ export const BadDebtPage = () => {
               noPadding
               label={
                 <Stack direction={{ base: 'column', md: 'row' }}>
-                  <Select w={{ base: 'auto', sm: '300px' }} onChange={(e) => setSelected(e.target.value)}>
+                  <Select bgColor="containerContentBackground" fontWeight="bold" w={{ base: 'auto', sm: '300px' }} onChange={(e) => setSelected(e.target.value)}>
                     <option value="all">Total Repayments in USD</option>
                     <option value="totalDolaIncludingIOU">Total DOLA Repayments (IOU included)</option>
                     <option value="totalDola">Total DOLA Repayments (IOU excluded)</option>
