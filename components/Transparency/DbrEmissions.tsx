@@ -1,11 +1,8 @@
-import { FormControl, HStack, Stack, Switch, useMediaQuery, Text } from "@chakra-ui/react";
+import { FormControl, Stack, Switch, useMediaQuery, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { useDBREmissions } from "@app/hooks/useFirm";
 import { useEventsAsChartData } from "@app/hooks/misc";
 import { DefaultCharts } from "./DefaultCharts";
 import { timestampToUTC } from "@app/util/misc";
-
-const initEvent = { blocknumber: 16196827, timestamp: 1671148800000, txHash: '', amount: 4646000 };
 
 export const DbrEmissions = ({
     maxChartWidth = 800,
@@ -20,22 +17,25 @@ export const DbrEmissions = ({
     useUsd?: boolean
     emissionEvents: any[]
 }) => {
-    const [includeInitialEmission, setIncludeInitialEmission] = useState(false);
+    const [includeTreasuryMints, setIncludeTreasuryMints] = useState(false);
     const [includeReplenishments, setIncludeReplenishments] = useState(true);
     const [includeClaims, setIncludeClaims] = useState(true);
 
-    const repHashes = replenishments?.map(r => r.txHash) || [];    
+    const repHashes = replenishments?.map(r => r.txHash) || [];
 
-    const filteredEvents = includeReplenishments && includeClaims ?
+    const filteredEvents = includeReplenishments && includeClaims && includeTreasuryMints ?
         emissionEvents :
         emissionEvents?.filter(e => {
-            return includeReplenishments ? repHashes.includes(e.txHash) : !repHashes.includes(e.txHash);
+            const repCondition = includeReplenishments ? repHashes.includes(e.txHash) : false;
+            const claimCondition = includeClaims ? !repHashes.includes(e.txHash) && !e.isTreasuryMint : false;
+            const treasuryMintCondition = includeTreasuryMints ? e.isTreasuryMint : false;
+            return repCondition || claimCondition || treasuryMintCondition;
         });
 
-    const _events = (includeInitialEmission ? [initEvent, ...filteredEvents] : filteredEvents)?.map(e => {
-            const histoPrice = histoPrices[timestampToUTC(e.timestamp)] || 0.05;
-            return { ...e, worth: e.amount * histoPrice };
-        });
+    const _events = filteredEvents?.map(e => {
+        const histoPrice = histoPrices[timestampToUTC(e.timestamp)] || 0.05;
+        return { ...e, worth: e.amount * histoPrice };
+    });
 
     const { chartData: emissionChartData } = useEventsAsChartData(_events, '_auto_', useUsd ? 'worth' : 'amount');
 
@@ -46,14 +46,14 @@ export const DbrEmissions = ({
         setChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 40)
     }, [isLargerThan]);
 
-    return <Stack w='full' direction={{ base: 'column' }}>       
-        <Stack direction={{ base :'column', sm: 'row' }} py="4" spacing="4" justify="space-between" alignItems="center" w='full'>
-            <Stack direction={{ base :'column', sm: 'row' }} spacing="4" justify="flex-start" alignItems="flex-start">
+    return <Stack w='full' direction={{ base: 'column' }}>
+        <Stack direction={{ base: 'column', sm: 'row' }} py="4" spacing="4" justify="space-between" alignItems="center" w='full'>
+            <Stack direction={{ base: 'column', sm: 'row' }} spacing="4" justify="flex-start" alignItems="flex-start">
                 <FormControl w='auto' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
-                    <Text mr="2" onClick={() => setIncludeInitialEmission(!includeInitialEmission)}>
-                        Initial issuance
+                    <Text mr="2" onClick={() => setIncludeTreasuryMints(!includeTreasuryMints)}>
+                        Treasury Mints
                     </Text>
-                    <Switch onChange={(e) => setIncludeInitialEmission(!includeInitialEmission)} size="sm" colorScheme="purple" isChecked={includeInitialEmission} />
+                    <Switch onChange={(e) => setIncludeTreasuryMints(!includeTreasuryMints)} size="sm" colorScheme="purple" isChecked={includeTreasuryMints} />
                 </FormControl>
                 <FormControl w='auto' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
                     <Text mr="2" onClick={() => setIncludeReplenishments(!includeReplenishments)}>

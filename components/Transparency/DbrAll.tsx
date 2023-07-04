@@ -41,7 +41,7 @@ export const DbrAll = ({
     const repHashes = replenishments?.map(r => r.txHash) || [];
 
     const claimEvents = emissionEvents?.filter(e => {
-        return !repHashes.includes(e.txHash);
+        return !repHashes.includes(e.txHash) && !e.isTreasuryMint;
     });
 
     const totalClaimed = claimEvents.reduce((acc, e) => acc + e.amount, 0);
