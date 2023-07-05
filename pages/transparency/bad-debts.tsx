@@ -20,6 +20,7 @@ import ScannerLink from '@app/components/common/ScannerLink'
 import { Timestamp } from '@app/components/common/BlockTimestamp/Timestamp'
 import { SkeletonBlob } from '@app/components/common/Skeleton'
 import { useAppTheme } from '@app/hooks/useAppTheme'
+import { lightTheme } from '@app/variables/theme'
 
 const ColHeader = ({ ...props }) => {
   return <Flex justify="center" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -107,9 +108,9 @@ const transactionsColumns = [
     label: 'Historical Price',
     // tooltip: 'Price according to coingecko for that day utc',
     header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-    value: ({ histoPrice }) => {
+    value: ({ histoPrice, symbol }) => {
       return <Cell minWidth="100px" justify="center">
-        <CellText>{preciseCommify(histoPrice, 4, true)}</CellText>
+        <CellText>{preciseCommify(histoPrice, symbol === 'DOLA' ? 4 : 2, true)}</CellText>
       </Cell>
     },
     totalValue: (field, items) => {
@@ -497,15 +498,15 @@ export const BadDebtPage = () => {
               label={
                 <Stack direction={{ base: 'column', md: 'row' }}>
                   <Select bgColor="containerContentBackground" color="mainTextColor" fontWeight="bold" w={{ base: 'auto', sm: '300px' }} onChange={(e) => setSelected(e.target.value)}>
-                    <option style={{ color: themeStyles.colors.mainTextColor }} value="all">Total Repayments in USD</option>
-                    <option style={{ color: themeStyles.colors.mainTextColor }} value="totalDolaIncludingIOU">Total DOLA Repayments (IOU included)</option>
-                    <option style={{ color: themeStyles.colors.mainTextColor }} value="totalDola">Total DOLA Repayments (IOU excluded)</option>
-                    <option style={{ color: themeStyles.colors.mainTextColor }} value="dolaFrontier">DOLA Frontier Repayments</option>
-                    <option style={{ color: themeStyles.colors.mainTextColor }} value="nonFrontierDola">DOLA Non-Frontier Repayments</option>
-                    <option style={{ color: themeStyles.colors.mainTextColor }} value="dolaForIOUs">IOU Repayments (in DOLA)</option>
-                    <option style={{ color: themeStyles.colors.mainTextColor }} value="eth">ETH Frontier Repayments</option>
-                    <option style={{ color: themeStyles.colors.mainTextColor }} value="wbtc">WBTC Frontier Repayments</option>
-                    <option style={{ color: themeStyles.colors.mainTextColor }} value="yfi">YFI Frontier Repayments</option>
+                    <option style={{ color: lightTheme.colors.mainTextColor }} value="all">Total Repayments in USD</option>
+                    <option style={{ color: lightTheme.colors.mainTextColor }} value="totalDolaIncludingIOU">Total DOLA Repayments (IOU included)</option>
+                    <option style={{ color: lightTheme.colors.mainTextColor }} value="totalDola">Total DOLA Repayments (IOU excluded)</option>
+                    <option style={{ color: lightTheme.colors.mainTextColor }} value="dolaFrontier">DOLA Frontier Repayments</option>
+                    <option style={{ color: lightTheme.colors.mainTextColor }} value="nonFrontierDola">DOLA Non-Frontier Repayments</option>
+                    <option style={{ color: lightTheme.colors.mainTextColor }} value="dolaForIOUs">IOU Repayments (in DOLA)</option>
+                    <option style={{ color: lightTheme.colors.mainTextColor }} value="eth">ETH Frontier Repayments</option>
+                    <option style={{ color: lightTheme.colors.mainTextColor }} value="wbtc">WBTC Frontier Repayments</option>
+                    <option style={{ color: lightTheme.colors.mainTextColor }} value="yfi">YFI Frontier Repayments</option>
                   </Select>
                   <HStack w="200px">
                     <Text fontSize="16px">
