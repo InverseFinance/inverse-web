@@ -55,9 +55,9 @@ export const BarChart12Months = ({
 
     return (
         <BarChart
-            width={chartWidth}
-            width={chartWidth}            
+            width={chartWidth}        
             isDollars={isDollars}
+            yLabel={eventName}
             {...props}
             groupedData={barChartData}
         />

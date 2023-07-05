@@ -174,7 +174,7 @@ export const AreaChartRecharts = ({
                         return moment(v).format('MMM Do')
                     }}
                 />
-                <YAxis style={_axisStyle.tickLabels} tickFormatter={(v) => smartShortNumber(v, 2, useUsd)} />
+                <YAxis style={_axisStyle.tickLabels} tickFormatter={(v) => v === 0 ? '' : smartShortNumber(v, 2, useUsd)} />
                 {
                     showTooltips && <Tooltip
                         wrapperStyle={_axisStyle.tickLabels}
