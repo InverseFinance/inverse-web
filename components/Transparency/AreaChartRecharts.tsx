@@ -62,7 +62,7 @@ export const AreaChartRecharts = ({
         const xs = combodata.map(d => d.x);
         const fromIndex = xs.indexOf(from);
         const toIndex = xs.indexOf(to);
-        const refData = combodata.slice(fromIndex - 1, toIndex);
+        const refData = combodata.slice(fromIndex, toIndex + 1);
         let [bottom, top] = [refData[0][ref], refData[0][ref]];
         refData.forEach((d) => {
             if (d[ref] > top) top = d[ref];
