@@ -56,14 +56,16 @@ export const AreaChartRecharts = ({
 }) => {
     const { themeStyles } = useAppTheme();
     const [state, setState] = useState({ ...initialState, data: null });
-    const { data, left, right, refAreaLeft, refAreaRight, top, bottom } = state
+    const [refAreaLeft, setRefAreaLeft] = useState(initialState.refAreaLeft);
+    const [refAreaRight, setRefAreaRight] = useState(initialState.refAreaRight);
+    const { data, left, right, top, bottom } = state
     const _data = data || combodata;
     const [brushIndexes, setBrushIndexes] = useState({ startIndex: undefined, endIndex: undefined });
 
     const getAxisYDomain = (from, to, ref, offsetPerc = 0.05) => {
         const xs = combodata.map(d => d.x);
-        const fromIndex = xs.indexOf(from);
-        const toIndex = xs.indexOf(to);
+        const fromIndex = Math.max(xs.indexOf(from), 0);
+        const toIndex = xs.indexOf(to) === -1 ? xs.length - 1 : xs.indexOf(to);
         const refData = combodata.slice(fromIndex, toIndex + 1);
         let [bottom, top] = [refData[0][ref], refData[0][ref]];
         refData.forEach((d) => {
@@ -71,15 +73,15 @@ export const AreaChartRecharts = ({
             if (d[ref] < bottom) bottom = d[ref];
         });
 
-        return [Math.max((bottom || 0) * (1-offsetPerc), 0), (top | 0) * (1+offsetPerc), refData];
+        return [Math.max((bottom || 0) * (1 - offsetPerc), 0), (top | 0) * (1 + offsetPerc), refData];
     };
 
     const zoomOut = () => {
+        setRefAreaLeft('');
+        setRefAreaRight('');
         setState({
             ...state,
             data: null,
-            refAreaLeft: '',
-            refAreaRight: '',
             left: 'dataMin',
             right: 'dataMax',
             top: 'auto',
@@ -87,15 +89,20 @@ export const AreaChartRecharts = ({
         });
     }
 
-    const zoom = () => {
-        let { refAreaLeft, refAreaRight } = state;
+    const mouseLeave = () => {
+        zoom();
+        setRefAreaLeft('');
+        setRefAreaRight('');
+    }
 
+    const mouseMove = (e) => {
+        refAreaLeft && !!e && setRefAreaRight(e.activeLabel);
+    }
+
+    const zoom = () => {
         if (refAreaLeft === refAreaRight || refAreaRight === '') {
-            setState({
-                ...state,
-                refAreaLeft: '',
-                refAreaRight: '',
-            });
+            setRefAreaLeft('');
+            setRefAreaRight('');
             return;
         }
 
@@ -105,11 +112,11 @@ export const AreaChartRecharts = ({
         // yAxis domain
         const [bottom, top, data] = getAxisYDomain(refAreaLeft, refAreaRight, 'y', 0.02);
 
+        setRefAreaLeft('');
+        setRefAreaRight('');
         setState({
             ...state,
             data,
-            refAreaLeft: '',
-            refAreaRight: '',
             left: refAreaLeft,
             right: refAreaRight,
             bottom,
@@ -156,11 +163,11 @@ export const AreaChartRecharts = ({
                     left: 0,
                     bottom: 20,
                 }}
-                onMouseDown={!allowZoom ? undefined : (e) => !!e && setState({ ...state, refAreaLeft: e.activeLabel })}
-                onMouseMove={!allowZoom ? undefined : (e) => state.refAreaLeft && !!e && setState({ ...state, refAreaRight: e.activeLabel })}
+                onMouseDown={!allowZoom ? undefined : (e) => !!e && setRefAreaLeft(e.activeLabel)}
+                onMouseMove={!allowZoom ? undefined : mouseMove}
                 // // eslint-disable-next-line react/jsx-no-bind
                 onMouseUp={!allowZoom ? undefined : zoom}
-                onMouseLeave={!allowZoom ? undefined : zoom}
+                onMouseLeave={!allowZoom ? undefined : mouseLeave}
             >
                 <CartesianGrid fill={themeStyles.colors.accentChartBgColor} stroke="#66666633" strokeDasharray={_axisStyle.grid.strokeDasharray} />
                 <XAxis
@@ -212,7 +219,7 @@ export const AreaChartRecharts = ({
                         />
                     })
                 }
-                 {
+                {
                     combodata.filter(d => d.utcDate.endsWith('01-01')).map(d => {
                         return <ReferenceLine
                             position="start"
