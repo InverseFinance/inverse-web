@@ -19,6 +19,7 @@ import { shortenNumber, smartShortNumber } from '@app/util/markets'
 import ScannerLink from '@app/components/common/ScannerLink'
 import { Timestamp } from '@app/components/common/BlockTimestamp/Timestamp'
 import { SkeletonBlob } from '@app/components/common/Skeleton'
+import { useAppTheme } from '@app/hooks/useAppTheme'
 
 const ColHeader = ({ ...props }) => {
   return <Flex justify="center" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -353,6 +354,7 @@ const formatToBarData = (data: any, item: any, index: number, key: string, isDol
 const totalRepaymentKeys = ['wbtcRepayedByDAO', 'ethRepayedByDAO', 'yfiRepayedByDAO', 'totalDolaRepayedByDAO', 'dolaForIOUsRepayedByDAO'];
 
 export const BadDebtPage = () => {
+  const { themeStyles } = useAppTheme();
   const { data } = useRepayments();
   const [useUsd, setUseUsd] = useState(true);
   const [useHistorical, setUseHistorical] = useState(false);
@@ -494,16 +496,16 @@ export const BadDebtPage = () => {
               noPadding
               label={
                 <Stack direction={{ base: 'column', md: 'row' }}>
-                  <Select bgColor="containerContentBackground" fontWeight="bold" w={{ base: 'auto', sm: '300px' }} onChange={(e) => setSelected(e.target.value)}>
-                    <option value="all">Total Repayments in USD</option>
-                    <option value="totalDolaIncludingIOU">Total DOLA Repayments (IOU included)</option>
-                    <option value="totalDola">Total DOLA Repayments (IOU excluded)</option>
-                    <option value="dolaFrontier">DOLA Frontier Repayments</option>
-                    <option value="nonFrontierDola">DOLA Non-Frontier Repayments</option>
-                    <option value="dolaForIOUs">IOU Repayments (in DOLA)</option>
-                    <option value="eth">ETH Frontier Repayments</option>
-                    <option value="wbtc">WBTC Frontier Repayments</option>
-                    <option value="yfi">YFI Frontier Repayments</option>
+                  <Select bgColor="containerContentBackground" color="mainTextColor" fontWeight="bold" w={{ base: 'auto', sm: '300px' }} onChange={(e) => setSelected(e.target.value)}>
+                    <option color={themeStyles.colors.mainTextColor} value="all">Total Repayments in USD</option>
+                    <option color={themeStyles.colors.mainTextColor} value="totalDolaIncludingIOU">Total DOLA Repayments (IOU included)</option>
+                    <option color={themeStyles.colors.mainTextColor} value="totalDola">Total DOLA Repayments (IOU excluded)</option>
+                    <option color={themeStyles.colors.mainTextColor} value="dolaFrontier">DOLA Frontier Repayments</option>
+                    <option color={themeStyles.colors.mainTextColor} value="nonFrontierDola">DOLA Non-Frontier Repayments</option>
+                    <option color={themeStyles.colors.mainTextColor} value="dolaForIOUs">IOU Repayments (in DOLA)</option>
+                    <option color={themeStyles.colors.mainTextColor} value="eth">ETH Frontier Repayments</option>
+                    <option color={themeStyles.colors.mainTextColor} value="wbtc">WBTC Frontier Repayments</option>
+                    <option color={themeStyles.colors.mainTextColor} value="yfi">YFI Frontier Repayments</option>
                   </Select>
                   <HStack w="200px">
                     <Text fontSize="16px">
