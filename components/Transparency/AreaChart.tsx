@@ -6,6 +6,8 @@ import { useEffect, useState } from 'react';
 import { FlyoutTooltip } from './FlyoutTooltip';
 import { useAppTheme } from '@app/hooks/useAppTheme';
 import { CoordinatesArray } from '@app/types';
+import { AreaChartRecharts } from './AreaChartRecharts';
+import { fillMissingDailyDatesWithMostRecentData } from '@app/util/misc';
 
 const strokeColors = {
     primary: '#8881c9',
@@ -33,8 +35,14 @@ export type AreaChartProps = {
     mainColor?: 'primary' | 'secondary' | 'info',
     titleProps?: VictoryLabelProps,
     id?: string,
-    yTickPrecision?: number    
-    simplifyData?: boolean    
+    yTickPrecision?: number
+    simplifyData?: boolean
+    useRecharts?: boolean
+    showEvents?: boolean
+    showEventsLabels?: boolean
+    showLegend?: boolean
+    fillInDaily?: boolean
+    yLabel?: string
 };
 
 const getSimplifiedData = (data: CoordinatesArray) => {
@@ -64,8 +72,14 @@ export const AreaChart = ({
     id = 'area-chart',
     yTickPrecision = 2,
     simplifyData = false,
+    useRecharts = false,
+    showLegend = false,
+    showEvents = false,
+    showEventsLabels = false,
+    fillInDaily = false,
+    yLabel,
 }: AreaChartProps) => {
-    const _data = simplifyData ? getSimplifiedData(data) : data;
+    const _data = simplifyData ? getSimplifiedData(data) : fillInDaily ? fillMissingDailyDatesWithMostRecentData(data) : data;
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
     const [rightPadding, setRightPadding] = useState(50);
     const [selectedDomain, setSelectedDomain] = useState(undefined);
@@ -75,6 +89,10 @@ export const AreaChart = ({
     const minY = rangedData.length > 0 ? Math.min(...rangedData.map(d => d.y)) : 0;
 
     const { themeStyles } = useAppTheme();
+
+    useEffect(() => {
+        setRightPadding(isLargerThan ? 50 : 20)
+    }, [isLargerThan]);
 
     const _axisStyle = axisStyle || {
         tickLabels: { fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '12px' },
@@ -87,9 +105,27 @@ export const AreaChart = ({
     const _yPad = domainYpadding === 'auto' ? maxY * 0.1 : domainYpadding;
     const calcYDomain = [autoMinY ? minY - _yPad < 0 ? 0 : minY - _yPad : 0, maxY + _yPad];
 
-    useEffect(() => {
-        setRightPadding(isLargerThan ? 50 : 20)
-    }, [isLargerThan]);
+    const events = _data.filter(d => !!d.eventPointLabel);
+
+    if (useRecharts) {
+        return <AreaChartRecharts
+            title={title}
+            combodata={_data}
+            allowZoom={allowZoom}
+            interpolation={interpolation}
+            chartWidth={width}
+            chartHeight={height}
+            useUsd={isDollars}
+            mainColor={mainColor}
+            events={events}
+            yDomain={calcYDomain}            
+            showTooltips={showTooltips}
+            showLegend={showLegend}
+            showEvents={showEvents}
+            showEventsLabels={showEventsLabels}
+            yLabel={yLabel}
+        />
+    }
 
     const handleZoom = (domain) => {
         setSelectedDomain(domain);
@@ -104,8 +140,6 @@ export const AreaChart = ({
             )
         }
     };
-
-    const events = _data.filter(d => !!d.eventPointLabel);
 
     return (
         <VStack width={width} spacing="0" position="relative">
@@ -201,7 +235,7 @@ export const AreaChart = ({
                             interpolation={interpolation}
                         />
                         <VictoryBar
-                            barWidth={1}                            
+                            barWidth={1}
                             labelComponent={<VictoryLabel style={{ fontFamily: 'Inter', fontSize: '13px', fontWeight: '600', fill: themeStyles.colors.mainTextColor }} dy={-5} />}
                             style={{ data: { fill: "#c43a31", stroke: "#c43a31", strokeWidth: 1 } }}
                             data={events.map(e => ({ x: e.x, y: maxY + (_yPad / 10) }))}
