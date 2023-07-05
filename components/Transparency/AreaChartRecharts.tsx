@@ -12,8 +12,8 @@ const initialState = {
     right: 'dataMax',
     refAreaLeft: '',
     refAreaRight: '',
-    top: 'dataMax+1',
-    bottom: 'dataMin-1',
+    top: 'auto',
+    bottom: 'auto',
     animation: true,
 };
 
@@ -58,7 +58,7 @@ export const AreaChartRecharts = ({
     const _data = data || combodata;
     const [brushIndexes, setBrushIndexes] = useState({ startIndex: undefined, endIndex: undefined });
 
-    const getAxisYDomain = (from, to, ref, offset) => {
+    const getAxisYDomain = (from, to, ref, offsetPerc = 0.05) => {
         const xs = combodata.map(d => d.x);
         const fromIndex = xs.indexOf(from);
         const toIndex = xs.indexOf(to);
@@ -69,7 +69,7 @@ export const AreaChartRecharts = ({
             if (d[ref] < bottom) bottom = d[ref];
         });
 
-        return [(bottom | 0) - offset, (top | 0) + offset, refData];
+        return [Math.max((bottom || 0) * (1-offsetPerc), 0), (top | 0) * (1+offsetPerc), refData];
     };
 
     const zoomOut = () => {
@@ -101,7 +101,7 @@ export const AreaChartRecharts = ({
         if (refAreaLeft > refAreaRight) [refAreaLeft, refAreaRight] = [refAreaRight, refAreaLeft];
 
         // yAxis domain
-        const [bottom, top, data] = getAxisYDomain(refAreaLeft, refAreaRight, 'y', 1);
+        const [bottom, top, data] = getAxisYDomain(refAreaLeft, refAreaRight, 'y', 0.02);
 
         setState({
             ...state,
@@ -175,7 +175,7 @@ export const AreaChartRecharts = ({
                         return moment(v).format('MMM Do')
                     }}
                 />
-                <YAxis style={_axisStyle.tickLabels} tickFormatter={(v) => v === 0 ? '' : smartShortNumber(v, 2, useUsd)} />
+                <YAxis domain={[bottom, top]} style={_axisStyle.tickLabels} tickFormatter={(v) => v === 0 ? '' : smartShortNumber(v, 2, useUsd)} />
                 {
                     showTooltips && <Tooltip
                         wrapperStyle={_axisStyle.tickLabels}
