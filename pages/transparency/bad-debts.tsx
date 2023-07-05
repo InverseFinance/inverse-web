@@ -73,21 +73,21 @@ const transactionsColumns = [
       </Cell>
     }
   },
-  {
-    field: 'logIndex',
-    label: 'Log Index',
-    header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-    value: ({ logIndex }) => {
-      return <Cell justify="center" minWidth="100px">
-        <CellText>{logIndex}</CellText>
-      </Cell>
-    },
-    totalValue: (field, items) => {
-      return <Cell minWidth='150px' spacing="2" justify="flex-start" alignItems="center" direction="row">
-        <CellText fontWeight="bold"></CellText>
-      </Cell>
-    }
-  },
+  // {
+  //   field: 'logIndex',
+  //   label: 'Log Index',
+  //   header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+  //   value: ({ logIndex }) => {
+  //     return <Cell justify="center" minWidth="100px">
+  //       <CellText>{logIndex}</CellText>
+  //     </Cell>
+  //   },
+  //   totalValue: (field, items) => {
+  //     return <Cell minWidth='150px' spacing="2" justify="flex-start" alignItems="center" direction="row">
+  //       <CellText fontWeight="bold"></CellText>
+  //     </Cell>
+  //   }
+  // },
   {
     field: 'timestamp',
     label: 'Date',
