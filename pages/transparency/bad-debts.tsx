@@ -497,7 +497,7 @@ export const BadDebtPage = () => {
                     <option value="totalDolaIncludingIOU">Total DOLA Repayments (IOU included)</option>
                     <option value="totalDola">Total DOLA Repayments (IOU excluded)</option>
                     <option value="dolaFrontier">DOLA Frontier Repayments</option>
-                    <option value="nonFrontierDola">DOLA Fuse Repayments</option>
+                    <option value="nonFrontierDola">DOLA Non-Frontier Repayments</option>
                     <option value="dolaForIOUs">IOU Repayments (in DOLA)</option>
                     <option value="eth">ETH Frontier Repayments</option>
                     <option value="wbtc">WBTC Frontier Repayments</option>
@@ -535,7 +535,7 @@ export const BadDebtPage = () => {
               }
             >
               <VStack w='full' alignItems="center" justify="center">
-                {
+                {/* {
                   prices && prices['dola-usd'] ? <DefaultCharts
                     direction={'column-reverse'}
                     showMonthlyBarChart={true}
@@ -546,7 +546,7 @@ export const BadDebtPage = () => {
                     barProps={{ months: [...Array(barChartNbMonths).keys()], eventName: 'Repayment' }}
                   /> :
                     <SkeletonBlob />
-                }
+                } */}
               </VStack>
             </Container>
           </Stack>

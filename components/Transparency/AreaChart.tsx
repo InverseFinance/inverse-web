@@ -147,9 +147,9 @@ export const AreaChart = ({
                         }
                         labels={
                             ({ data, index }) => {
-                                const isMax = (maxY === data[index].y && index > 0 && maxY !== data[index - 1].y);
+                                const isMax = (maxY === _data[index].y && index > 0 && maxY !== _data[index - 1].y);
                                 const pointLabel = ''//data[index].eventPointLabel;
-                                return !!pointLabel ? pointLabel : (showLabels || (isMax && showMaxY) ? `${isMax && 'High: '}${smartShortNumber(data[index].y, 2, isDollars)}${isPerc ? '%' : ''}` : '')
+                                return !!pointLabel ? pointLabel : (showLabels || (isMax && showMaxY) ? `${isMax && 'High: '}${smartShortNumber(_data[index].y, 2, isDollars)}${isPerc ? '%' : ''}` : '')
                             }
                         }
                         style={{

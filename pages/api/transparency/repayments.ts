@@ -3,7 +3,7 @@ import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
 import { TOKENS, UNDERLYING, getToken } from "@app/variables/tokens";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { Contract } from "ethers";
-import { COMPTROLLER_ABI, CTOKEN_ABI, DEBT_CONVERTER_ABI, DEBT_REPAYER_ABI, DWF_PURCHASER_ABI } from "@app/config/abis";
+import { COMPTROLLER_ABI, CTOKEN_ABI, DEBT_CONVERTER_ABI, DEBT_REPAYER_ABI, DWF_PURCHASER_ABI, FED_ABI } from "@app/config/abis";
 import { getHistoricValue, getProvider } from "@app/util/providers";
 import { getBnToNumber } from "@app/util/markets";
 import { DWF_PURCHASER, ONE_DAY_SECS } from "@app/config/constants";
@@ -81,6 +81,7 @@ export default async function handler(req, res) {
         const anDolaB1 = new Contract('0xC1Fb01415f08Fbd71623aded6Ac8ec74F974Fdc1', CTOKEN_ABI, provider);
         const anDolaFuse6 = new Contract('0xf65155C9595F99BFC193CaFF0AAb6e2a98cf68aE', CTOKEN_ABI, provider);
         const anDolaBadger = new Contract('0x5117D9453cC9Be8c3fBFbA4aE3B858D18fe45903', CTOKEN_ABI, provider);
+        const eulerFed = new Contract('0xab4AE477899fD61B27744B4DEbe8990C66c81C22', FED_ABI, provider);
 
         const [
             debtConverterRepaymentsEvents,
@@ -97,7 +98,8 @@ export default async function handler(req, res) {
             dolaB1RepayEvents,
             dolaFuse6RepayEvents,
             dolaBadgerRepayEvents,
-            fedsOverviewData,
+            eulerFedContactionEvents,
+            // fedsOverviewData,
             iouHoldersData,
         ] = await Promise.all([
             debtConverter.queryFilter(debtConverter.filters.Repayment()),
@@ -111,21 +113,22 @@ export default async function handler(req, res) {
             anEth.queryFilter(anEth.filters.RepayBorrow(), 14886483),
             anYfi.queryFilter(anYfi.filters.RepayBorrow(), 14886483),
             anDola.queryFilter(anDola.filters.RepayBorrow(), 14886483),
-            anDolaB1.queryFilter(anDola.filters.RepayBorrow(), 14886483),
-            anDolaFuse6.queryFilter(anDola.filters.RepayBorrow(), 14886483),
-            anDolaBadger.queryFilter(anDola.filters.RepayBorrow(), 14886483),
-            getCacheFromRedis(fedOverviewCacheKey, false),
+            anDolaB1.queryFilter(anDolaB1.filters.RepayBorrow(), 14886483),
+            anDolaFuse6.queryFilter(anDolaFuse6.filters.RepayBorrow(), 14886483),
+            anDolaBadger.queryFilter(anDolaBadger.filters.RepayBorrow(), 14886483),
+            eulerFed.queryFilter(eulerFed.filters.Contraction(), 17607462),
+            // getCacheFromRedis(fedOverviewCacheKey, false),
             // iou holders
             getTokenHolders(DEBT_CONVERTER, 100, 0, '1'),
         ]);
 
-        const fedOverviews = fedsOverviewData?.fedOverviews || [];
-        const nonFrontierDolaBadDebt = fedOverviews
-            .filter(({ name }) => ['Badger Fed', '0xb1 Fed', 'AuraEuler Fed'].includes(name))
-            .reduce((acc, { supply }) => acc + supply, 0);
+        // const fedOverviews = fedsOverviewData?.fedOverviews || [];
+        // const nonFrontierDolaBadDebt = fedOverviews
+        //     .filter(({ name }) => ['Badger Fed', '0xb1 Fed', 'AuraEuler Fed'].includes(name))
+        //     .reduce((acc, { supply }) => acc + supply, 0);
 
-        badDebts['DOLA'].badDebtBalance += nonFrontierDolaBadDebt;
-        badDebts['DOLA'].nonFrontierBadDebtBalance = nonFrontierDolaBadDebt;
+        // badDebts['DOLA'].badDebtBalance += nonFrontierDolaBadDebt;
+        // badDebts['DOLA'].nonFrontierBadDebtBalance = nonFrontierDolaBadDebt;
 
         const dolaRepaymentsBlocks = dolaFrontierRepayEvents.map(e => e.blockNumber);
         const dolaFrontierDebts = await getBadDebtEvolution(dolaRepaymentsBlocks);
@@ -139,6 +142,7 @@ export default async function handler(req, res) {
                 .flat()
                 .concat(debtConverterRepaymentsEvents.map(e => e.blockNumber))
                 .concat(debtRepayerRepaymentsEvents.map(e => e.blockNumber))
+                .concat(eulerFedContactionEvents.map(e => e.blockNumber))
                 .concat(dolaFrontierDebts.blocks);
 
         await addBlockTimestamps(blocksNeedingTs, '1');
@@ -163,6 +167,18 @@ export default async function handler(req, res) {
                 });
             });
 
+        const dolaEulerRepayedByDAO = eulerFedContactionEvents.map(event => {
+            const timestamp = timestamps['1'][event.blockNumber] * 1000;
+            return {
+                blocknumber: event.blockNumber,
+                amount: getBnToNumber(event.args.amount),
+                timestamp,
+                date: timestampToUTC(timestamp),
+                txHash: event.transactionHash,
+                logIndex: event.logIndex,
+            }
+        });
+
         const iouRepaymentsBlocks = [...new Set(debtConverterRepaymentsEvents.map(e => e.blockNumber))];
         const histoIouExRates = await getHistoIouExRate(debtConverter, iouRepaymentsBlocks);
 
@@ -174,7 +190,7 @@ export default async function handler(req, res) {
             return { blocknumber: event.blockNumber, logIndex: event.logIndex, amount, iouExRate, iouAmount: amount / iouExRate, timestamp, date: timestampToUTC(timestamp), txHash: event.transactionHash }
         });
 
-        const nonFrontierDolaRepayedByDAO = dolaB1RepayedByDAO.concat(dolaFuse6RepayedByDAO).concat(dolaBadgerRepayedByDAO).sort((a, b) => a.timestamp - b.timestamp);
+        const nonFrontierDolaRepayedByDAO = dolaB1RepayedByDAO.concat(dolaFuse6RepayedByDAO).concat(dolaBadgerRepayedByDAO).concat(dolaEulerRepayedByDAO).sort((a, b) => a.timestamp - b.timestamp);
         const totalDolaRepayedByDAO = dolaFrontierRepayedByDAO.concat(nonFrontierDolaRepayedByDAO).sort((a, b) => a.timestamp - b.timestamp);
 
         // USDC decimals
@@ -319,6 +335,7 @@ export default async function handler(req, res) {
             yfiRepayedByDAO,
             dolaFrontierRepayedByDAO,
             nonFrontierDolaRepayedByDAO,
+            dolaEulerRepayedByDAO,
             dolaB1RepayedByDAO,
             dolaFuse6RepayedByDAO,
             dolaBadgerRepayedByDAO,
