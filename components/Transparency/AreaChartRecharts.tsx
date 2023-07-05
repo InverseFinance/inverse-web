@@ -51,11 +51,11 @@ export const AreaChartRecharts = ({
     showEvents?: boolean
     showEventsLabels?: boolean
     events?: any[]
-}) => {
-    // console.log('combodata', combodata);
-    const { themeStyles, themeName } = useAppTheme();
-    const [state, setState] = useState({ ...initialState, data: combodata });
+}) => {    
+    const { themeStyles } = useAppTheme();
+    const [state, setState] = useState({ ...initialState, data: null });
     const { data, left, right, refAreaLeft, refAreaRight, top, bottom } = state
+    const _data = data || combodata;
     const [brushIndexes, setBrushIndexes] = useState({ startIndex: undefined, endIndex: undefined });
 
     const getAxisYDomain = (from, to, ref, offset) => {
@@ -75,6 +75,7 @@ export const AreaChartRecharts = ({
     const zoomOut = () => {
         setState({
             ...state,
+            data: null,
             refAreaLeft: '',
             refAreaRight: '',
             left: 'dataMin',
@@ -100,11 +101,11 @@ export const AreaChartRecharts = ({
         if (refAreaLeft > refAreaRight) [refAreaLeft, refAreaRight] = [refAreaRight, refAreaLeft];
 
         // yAxis domain
-        const [bottom, top] = getAxisYDomain(refAreaLeft, refAreaRight, 'y', 1);
+        const [bottom, top, data] = getAxisYDomain(refAreaLeft, refAreaRight, 'y', 1);
 
         setState({
             ...state,
-            // data: 
+            data,
             refAreaLeft: '',
             refAreaRight: '',
             left: refAreaLeft,
@@ -146,15 +147,15 @@ export const AreaChartRecharts = ({
             <ComposedChart
                 width={chartWidth}
                 height={chartHeight}
-                data={combodata}
+                data={_data}
                 margin={{
                     top: 20,
                     right: 0,
                     left: 0,
                     bottom: 20,
                 }}
-                onMouseDown={!allowZoom ? undefined : (e) => setState({ ...state, refAreaLeft: e.activeLabel })}
-                onMouseMove={!allowZoom ? undefined : (e) => state.refAreaLeft && setState({ ...state, refAreaRight: e.activeLabel })}
+                onMouseDown={!allowZoom ? undefined : (e) => !!e && setState({ ...state, refAreaLeft: e.activeLabel })}
+                onMouseMove={!allowZoom ? undefined : (e) => state.refAreaLeft && !!e && setState({ ...state, refAreaRight: e.activeLabel })}
                 // // eslint-disable-next-line react/jsx-no-bind
                 onMouseUp={!allowZoom ? undefined : zoom}
                 onMouseLeave={!allowZoom ? undefined : zoom}
@@ -162,15 +163,15 @@ export const AreaChartRecharts = ({
                 <CartesianGrid fill={themeStyles.colors.accentChartBgColor} stroke="#66666633" strokeDasharray={_axisStyle.grid.strokeDasharray} />
                 <XAxis
                     minTickGap={14}
-                    interval="preserveStartEnd"
+                    interval="preserveEnd"
                     style={_axisStyle.tickLabels}
                     dataKey="x"
                     scale="time"
                     type={'number'}
                     allowDataOverflow={true}
-                    // domain={['dataMin', 'dataMax']}
-                    domain={[left, right]}
-                    tickFormatter={(v) => {
+                    domain={['dataMin', 'dataMax']}
+                    // domain={[left, right]}
+                    tickFormatter={(v, i) => {
                         return moment(v).format('MMM Do')
                     }}
                 />
