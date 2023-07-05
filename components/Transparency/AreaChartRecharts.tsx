@@ -34,6 +34,7 @@ export const AreaChartRecharts = ({
     showEvents = false,
     showEventsLabels = false,
     events,
+    rightPadding = 0,
 }: {
     combodata: { y: number, x: number, timestamp: number, utcDate: string }[]
     title: string
@@ -51,7 +52,8 @@ export const AreaChartRecharts = ({
     showEvents?: boolean
     showEventsLabels?: boolean
     events?: any[]
-}) => {    
+    rightPadding?: number
+}) => {
     const { themeStyles } = useAppTheme();
     const [state, setState] = useState({ ...initialState, data: null });
     const { data, left, right, refAreaLeft, refAreaRight, top, bottom } = state
@@ -150,7 +152,7 @@ export const AreaChartRecharts = ({
                 data={_data}
                 margin={{
                     top: 20,
-                    right: 0,
+                    right: rightPadding,
                     left: 0,
                     bottom: 20,
                 }}
@@ -201,7 +203,7 @@ export const AreaChartRecharts = ({
                             x={d.x}
                             stroke={d.eventColor || themeStyles.colors.error}
                             strokeWidth={`2px`}
-                            label={!showEventsLabels ? undefined : {
+                            label={!showEventsLabels || chartWidth < 400 ? undefined : {
                                 value: d.eventPointLabel,
                                 position: 'top',
                                 fill: d.eventColor || themeStyles.colors.error,

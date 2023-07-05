@@ -59,6 +59,7 @@ export const BarChart = ({
             title={title}
             chartWidth={width}
             chartHeight={height}
+            rightPadding={rightPadding}
         />
     }
 

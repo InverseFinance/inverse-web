@@ -17,6 +17,7 @@ export const BarChartRecharts = ({
     showTooltips = true,
     showLegend = false,
     allowZoom = false,
+    rightPadding = 0,
 }: {
     combodata: { y: number, x: number, timestamp: number, utcDate: string }[]
     title: string
@@ -34,6 +35,7 @@ export const BarChartRecharts = ({
     showEvents?: boolean
     showEventsLabels?: boolean
     events?: any[]
+    rightPadding?: number
 }) => {
     const { themeStyles } = useAppTheme();
 
@@ -67,7 +69,7 @@ export const BarChartRecharts = ({
                 data={combodata}
                 margin={{
                     top: 20,
-                    right: 0,
+                    right: rightPadding,
                     left: 0,
                     bottom: 20,
                 }}

@@ -110,6 +110,7 @@ export const AreaChart = ({
     if (useRecharts) {
         return <AreaChartRecharts
             title={title}
+            rightPadding={rightPadding}
             combodata={_data}
             allowZoom={allowZoom}
             interpolation={interpolation}
