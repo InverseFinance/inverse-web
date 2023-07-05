@@ -544,7 +544,7 @@ export const BadDebtPage = () => {
                     maxChartWidth={1000}
                     chartData={barChartData}
                     isDollars={isAllCase ? true : useUsd}
-                    areaProps={{ showMaxY: false, yLabel: 'Value', useRecharts: true, simplifyData: false, showTooltips: true, id: 'repayments-chart', allowZoom: false }}
+                    areaProps={{ showMaxY: false, yLabel: 'Value', useRecharts: true, fillInDaily: true, simplifyData: false, showTooltips: true, id: 'repayments-chart', allowZoom: false }}
                     barProps={{ useRecharts: true, months: [...Array(barChartNbMonths).keys()], eventName: 'Repayment' }}
                   /> :
                     <SkeletonBlob />

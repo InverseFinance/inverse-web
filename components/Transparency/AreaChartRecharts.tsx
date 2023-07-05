@@ -211,7 +211,7 @@ export const AreaChartRecharts = ({
                     })
                 }
                  {
-                    showEvents && combodata.filter(d => d.utcDate.endsWith('01-01')).map(d => {
+                    combodata.filter(d => d.utcDate.endsWith('01-01')).map(d => {
                         return <ReferenceLine
                             position="start"
                             isFront={true}
@@ -219,7 +219,7 @@ export const AreaChartRecharts = ({
                             stroke={themeStyles.colors.mainTextColor}
                             strokeWidth={`1`}
                             strokeDasharray={'4 4'}
-                            label={!showEventsLabels ? undefined : {
+                            label={{
                                 value: d.utcDate.substring(0, 4),
                                 position: 'insideLeft',
                                 fill: themeStyles.colors.mainTextColor,
