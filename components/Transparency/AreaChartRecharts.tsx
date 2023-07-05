@@ -169,7 +169,7 @@ export const AreaChartRecharts = ({
                     type={'number'}
                     allowDataOverflow={true}
                     // domain={['dataMin', 'dataMax']}
-                    domain={[left, right]}                    
+                    domain={[left, right]}
                     tickFormatter={(v) => {
                         return moment(v).format('MMM Do')
                     }}
@@ -191,7 +191,7 @@ export const AreaChartRecharts = ({
                 {
                     showLegend && <Legend wrapperStyle={legendStyle} style={{ cursor: 'pointer' }} formatter={(value) => value} />
                 }
-                <Area syncId="main" syncMethod={'value'} opacity={1} strokeWidth={2} name={yLabel} type={interpolation} dataKey={'y'} stroke={themeStyles.colors.info} dot={false} fillOpacity={1} fill={`url(#${mainColor}-gradient)`} />
+                <Area syncId="main" syncMethod={'value'} opacity={1} strokeWidth={2} name={yLabel} type={interpolation} dataKey={'y'} stroke={themeStyles.colors[mainColor]} dot={false} fillOpacity={1} fill={`url(#${mainColor}-gradient)`} />
                 {
                     showEvents && events.map(d => {
                         return <ReferenceLine
