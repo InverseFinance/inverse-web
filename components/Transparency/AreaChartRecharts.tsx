@@ -161,7 +161,7 @@ export const AreaChartRecharts = ({
             >
                 <CartesianGrid fill={themeStyles.colors.accentChartBgColor} stroke="#66666633" strokeDasharray={_axisStyle.grid.strokeDasharray} />
                 <XAxis
-                    minTickGap={7}
+                    minTickGap={14}
                     interval="preserveStartEnd"
                     style={_axisStyle.tickLabels}
                     dataKey="x"
@@ -191,7 +191,7 @@ export const AreaChartRecharts = ({
                 {
                     showLegend && <Legend wrapperStyle={legendStyle} style={{ cursor: 'pointer' }} formatter={(value) => value} />
                 }
-                <Area syncId="main" syncMethod={'value'} strokeDasharray="4" opacity={1} strokeWidth={2} name={yLabel} type={interpolation} dataKey={'y'} stroke={mainColor} dot={false} fillOpacity={1} fill={`url(#${mainColor}-gradient)`} />
+                <Area syncId="main" syncMethod={'value'} opacity={1} strokeWidth={2} name={yLabel} type={interpolation} dataKey={'y'} stroke={themeStyles.colors.info} dot={false} fillOpacity={1} fill={`url(#${mainColor}-gradient)`} />
                 {
                     showEvents && events.map(d => {
                         return <ReferenceLine
@@ -204,6 +204,24 @@ export const AreaChartRecharts = ({
                                 value: d.eventPointLabel,
                                 position: 'top',
                                 fill: d.eventColor || themeStyles.colors.error,
+                                style: { fontSize: '14px', fontWeight: 'bold', userSelect: 'none' },
+                            }}
+                        />
+                    })
+                }
+                 {
+                    showEvents && combodata.filter(d => d.utcDate.endsWith('01-01')).map(d => {
+                        return <ReferenceLine
+                            position="start"
+                            isFront={true}
+                            x={d.x}
+                            stroke={themeStyles.colors.mainTextColor}
+                            strokeWidth={`1`}
+                            strokeDasharray={'4 4'}
+                            label={!showEventsLabels ? undefined : {
+                                value: d.utcDate.substring(0, 4),
+                                position: 'insideLeft',
+                                fill: themeStyles.colors.mainTextColor,
                                 style: { fontSize: '14px', fontWeight: 'bold', userSelect: 'none' },
                             }}
                         />
