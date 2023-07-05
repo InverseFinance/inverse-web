@@ -287,7 +287,7 @@ const indirectRepaymentsColumns = [
       </Cell>
     },
     totalValue: defaultTotalValue,
-  },  
+  },
   // {
   //   field: 'repaidViaDwf',
   //   label: 'Indirect DWF repayment',
@@ -481,11 +481,13 @@ export const BadDebtPage = () => {
                 showCustomizationBar={true}
                 custombarChildren={
                   <HStack>
-                    <Text color="mainTextColorLight" fontSize="14px">To change the zoom level, point an area and use the mouse scroll or change the boundaries in the mini-chart</Text>
+                    <Text userSelect="none" color="mainTextColorLight" fontSize="14px">
+                      Click and drag the mouse on the chart to zoom in
+                    </Text>
                   </HStack>
                 }
                 barProps={{ eventName: 'Repayment' }}
-                areaProps={{ id: 'bad-debt-chart', simplifyData: true, domainYpadding: 1000000, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
+                areaProps={{ id: 'bad-debt-chart', yLabel: 'DOLA bad debt', useRecharts: true, fillInDaily: true, simplifyData: false, showEvents: true, showEventsLabels: true, domainYpadding: 1000000, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
               />
             </Container>
             <Container
@@ -535,18 +537,18 @@ export const BadDebtPage = () => {
               }
             >
               <VStack w='full' alignItems="center" justify="center">
-                {/* {
+                {
                   prices && prices['dola-usd'] ? <DefaultCharts
                     direction={'column-reverse'}
                     showMonthlyBarChart={true}
                     maxChartWidth={1000}
                     chartData={barChartData}
                     isDollars={isAllCase ? true : useUsd}
-                    areaProps={{ showMaxY: false, simplifyData: true, showTooltips: true, id: 'repayments-chart', allowZoom: false }}
-                    barProps={{ months: [...Array(barChartNbMonths).keys()], eventName: 'Repayment' }}
+                    areaProps={{ showMaxY: false, yLabel: 'Value', useRecharts: true, simplifyData: false, showTooltips: true, id: 'repayments-chart', allowZoom: false }}
+                    barProps={{ useRecharts: true, months: [...Array(barChartNbMonths).keys()], eventName: 'Repayment' }}
                   /> :
                     <SkeletonBlob />
-                } */}
+                }
               </VStack>
             </Container>
           </Stack>
