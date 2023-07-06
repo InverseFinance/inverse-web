@@ -58,6 +58,7 @@ export const CTOKEN_ABI = [
   "function liquidateBorrow(address account, uint256 amount, address ctoken) external returns (uint)",
   "function getAccountSnapshot(address account) external view returns (uint, uint, uint, uint)",
   "event Failure(uint256 error, uint256 info, uint256 detail)",
+  "event RepayBorrow(address payer, address borrower, uint repayAmount, uint accountBorrows, uint totalBorrows)",
 ];
 
 export const CETHER_ABI = [
@@ -361,6 +362,7 @@ export const DEBT_REPAYER_ABI = [
   "function currentDiscount(address anToken) public view returns(uint)",
   "function remainingDebt(address anToken) public view returns(uint)",
   "function convertToUnderlying(address anToken, uint amount) public view returns(uint)",
+  "event debtRepayment(address underlying, uint receiveAmount, uint paidAmount)",
 ]
 
 export const DEBT_CONVERTER_ABI = ERC20_ABI.concat([
@@ -381,6 +383,8 @@ export const DEBT_CONVERTER_ABI = ERC20_ABI.concat([
   "function balanceOfDola(address _addr) external view returns (uint)",
   "function exchangeRateMantissa() external view returns (uint)",
   "function exchangeRateIncreasePerSecond() public view returns (uint)",
+  "function cumDebt() public view returns (uint)",
+  "function cumDolaRepaid() public view returns (uint)",
   "event NewOwner(address owner)",
   "event NewTreasury(address treasury)",
   "event NewGovernance(address governance)",

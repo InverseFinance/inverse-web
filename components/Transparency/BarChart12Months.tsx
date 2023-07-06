@@ -2,10 +2,10 @@ import { useMediaQuery } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { BarChart, BarChartProps } from './BarChart'
 import moment from 'moment'
-import { shortenNumber, smartShortNumber } from '@app/util/markets';
+import { smartShortNumber } from '@app/util/markets';
 import { CoordinatesArray } from '@app/types';
 
-const months = [...Array(12).keys()];
+const DEFAULT_MONTHS = [...Array(12).keys()];
 
 export type BarChart12MonthsProps = {
     chartData: CoordinatesArray,
@@ -13,6 +13,8 @@ export type BarChart12MonthsProps = {
     eventName: string,
     yAttribute: string,
     isDollars?: boolean,
+    xDateFormat?: string,
+    months?: number[],
 }
 
 export const BarChart12Months = ({
@@ -21,6 +23,8 @@ export const BarChart12Months = ({
     eventName,
     yAttribute,
     isDollars,
+    xDateFormat = '',
+    months = DEFAULT_MONTHS,
     ...props
 }: BarChart12MonthsProps & Omit<BarChartProps, "groupedData">) => {
     const [chartWidth, setChartWidth] = useState<number>(maxChartWidth);
@@ -32,17 +36,18 @@ export const BarChart12Months = ({
 
     const currentYear = new Date().getUTCFullYear();
     const currentMonth = new Date().getUTCMonth();
+    const nbMonths = months.length;
 
     const barChartData = [eventName].map(event => {
         return months.map(month => {
-            const date = Date.UTC(currentYear, currentMonth - 11 + month);
+            const date = Date.UTC(currentYear, currentMonth - (nbMonths-1) + month);
             const filterMonth = new Date(date).getUTCMonth();
             const filterYear = new Date(date).getUTCFullYear();
             const y = chartData.filter(d => d.month === filterMonth && d.year === filterYear).reduce((p, c) => p + c[yAttribute], 0);
 
             return {
                 label: `${event}s: ${smartShortNumber(y, 2, isDollars)}`,
-                x: moment(date).utc().format(chartWidth <= 400 ? 'MMM' : 'MMM-YY'),
+                x: moment(date).utc().format(xDateFormat || (chartWidth <= 400 ? 'MMM' : 'MMM-YY')),
                 y,
             }
         });
@@ -50,8 +55,9 @@ export const BarChart12Months = ({
 
     return (
         <BarChart
-            width={chartWidth}            
+            width={chartWidth}        
             isDollars={isDollars}
+            yLabel={eventName}
             {...props}
             groupedData={barChartData}
         />

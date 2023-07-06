@@ -6,6 +6,8 @@ import { useEffect, useState } from 'react';
 import { FlyoutTooltip } from './FlyoutTooltip';
 import { useAppTheme } from '@app/hooks/useAppTheme';
 import { CoordinatesArray } from '@app/types';
+import { AreaChartRecharts } from './AreaChartRecharts';
+import { fillMissingDailyDatesWithMostRecentData } from '@app/util/misc';
 
 const strokeColors = {
     primary: '#8881c9',
@@ -33,8 +35,22 @@ export type AreaChartProps = {
     mainColor?: 'primary' | 'secondary' | 'info',
     titleProps?: VictoryLabelProps,
     id?: string,
-    yTickPrecision?: number    
+    yTickPrecision?: number
+    simplifyData?: boolean
+    useRecharts?: boolean
+    showEvents?: boolean
+    showEventsLabels?: boolean
+    showLegend?: boolean
+    fillInDaily?: boolean
+    yLabel?: string
 };
+
+const getSimplifiedData = (data: CoordinatesArray) => {
+    const uniqueX = [...new Set(data.map(d => d.x))];
+    return uniqueX.map(v => {
+        return data.findLast(d => d.x <= v);
+    });
+}
 
 export const AreaChart = ({
     data,
@@ -55,16 +71,28 @@ export const AreaChart = ({
     allowZoom = false,
     id = 'area-chart',
     yTickPrecision = 2,
+    simplifyData = false,
+    useRecharts = false,
+    showLegend = false,
+    showEvents = false,
+    showEventsLabels = false,
+    fillInDaily = false,
+    yLabel,
 }: AreaChartProps) => {
+    const _data = simplifyData ? getSimplifiedData(data) : fillInDaily ? fillMissingDailyDatesWithMostRecentData(data) : data;
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
     const [rightPadding, setRightPadding] = useState(50);
     const [selectedDomain, setSelectedDomain] = useState(undefined);
-    const rangedData = selectedDomain?.x ? data?.filter(d => d.x >= selectedDomain.x[0] && d.x <= selectedDomain.x[1]) : data;
+    const rangedData = selectedDomain?.x ? _data?.filter(d => d.x >= selectedDomain.x[0] && d.x <= selectedDomain.x[1]) : _data;
 
     const maxY = rangedData.length > 0 ? Math.max(...rangedData.map(d => d.y)) : 95000000;
     const minY = rangedData.length > 0 ? Math.min(...rangedData.map(d => d.y)) : 0;
 
     const { themeStyles } = useAppTheme();
+
+    useEffect(() => {
+        setRightPadding(isLargerThan ? 50 : 20)
+    }, [isLargerThan]);
 
     const _axisStyle = axisStyle || {
         tickLabels: { fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '12px' },
@@ -77,9 +105,28 @@ export const AreaChart = ({
     const _yPad = domainYpadding === 'auto' ? maxY * 0.1 : domainYpadding;
     const calcYDomain = [autoMinY ? minY - _yPad < 0 ? 0 : minY - _yPad : 0, maxY + _yPad];
 
-    useEffect(() => {
-        setRightPadding(isLargerThan ? 50 : 20)
-    }, [isLargerThan]);
+    const events = _data.filter(d => !!d.eventPointLabel);
+
+    if (useRecharts) {
+        return <AreaChartRecharts
+            title={title}
+            rightPadding={rightPadding}
+            combodata={_data}
+            allowZoom={allowZoom}
+            interpolation={interpolation}
+            chartWidth={width}
+            chartHeight={height}
+            useUsd={isDollars}
+            mainColor={mainColor}
+            events={events}
+            yDomain={calcYDomain}            
+            showTooltips={showTooltips}
+            showLegend={showLegend}
+            showEvents={showEvents}
+            showEventsLabels={showEventsLabels}
+            yLabel={yLabel}
+        />
+    }
 
     const handleZoom = (domain) => {
         setSelectedDomain(domain);
@@ -94,8 +141,6 @@ export const AreaChart = ({
             )
         }
     };
-
-    const events = data.filter(d => !!d.eventPointLabel);
 
     return (
         <VStack width={width} spacing="0" position="relative">
@@ -127,7 +172,7 @@ export const AreaChart = ({
                     <VictoryArea
                         domain={{ y: [autoMinY ? minY - _yPad < 0 ? 0 : minY - _yPad : 0, maxY + _yPad] }}
                         groupComponent={<VictoryClipContainer clipId={id} />}
-                        data={data}
+                        data={_data}
                         labelComponent={
                             <VictoryLabel
                                 dx={-rightPadding - 30}
@@ -137,9 +182,9 @@ export const AreaChart = ({
                         }
                         labels={
                             ({ data, index }) => {
-                                const isMax = (maxY === data[index].y && index > 0 && maxY !== data[index - 1].y);
+                                const isMax = (maxY === _data[index].y && index > 0 && maxY !== _data[index - 1].y);
                                 const pointLabel = ''//data[index].eventPointLabel;
-                                return !!pointLabel ? pointLabel : (showLabels || (isMax && showMaxY) ? `${isMax && 'High: '}${smartShortNumber(data[index].y, 2, isDollars)}${isPerc ? '%' : ''}` : '')
+                                return !!pointLabel ? pointLabel : (showLabels || (isMax && showMaxY) ? `${isMax && 'High: '}${smartShortNumber(_data[index].y, 2, isDollars)}${isPerc ? '%' : ''}` : '')
                             }
                         }
                         style={{
@@ -184,14 +229,14 @@ export const AreaChart = ({
                         <VictoryArea
                             domain={{ y: calcYDomain }}
                             groupComponent={<VictoryClipContainer clipId={`${id}-mini`} />}
-                            data={data}
+                            data={_data}
                             style={{
                                 data: { fillOpacity: 0.2, fill: `url(#${mainColor}-gradient)`, stroke: strokeColors[mainColor], strokeWidth: 1 },
                             }}
                             interpolation={interpolation}
                         />
                         <VictoryBar
-                            barWidth={1}                            
+                            barWidth={1}
                             labelComponent={<VictoryLabel style={{ fontFamily: 'Inter', fontSize: '13px', fontWeight: '600', fill: themeStyles.colors.mainTextColor }} dy={-5} />}
                             style={{ data: { fill: "#c43a31", stroke: "#c43a31", strokeWidth: 1 } }}
                             data={events.map(e => ({ x: e.x, y: maxY + (_yPad / 10) }))}

@@ -12,16 +12,20 @@ import { AutocompleteProps } from '@app/types';
 import React from 'react';
 import { RSubmitButton } from '../Button/RSubmitButton';
 import { useAppTheme } from '@app/hooks/useAppTheme';
+import { smartShortNumber } from '@app/util/markets';
 
 export type Column = {
   label: string
   field: string
+  totalField: string
   header: any
   value: any
+  totalValue: any
   tooltip?: ReactNode
   showFilter?: boolean
   filterWidth?: any
   customSubheader?: React.ReactChild
+  boxProps?: BoxProps
   filterItemRenderer?: AutocompleteProps["itemRenderer"]
 }
 
@@ -43,6 +47,7 @@ type TableProps = {
   mobileThreshold?: number
   mobileClickBtnLabel?: string
   showHeader?: boolean
+  showTotalRow?: boolean
 }
 
 const emptyObj = {};
@@ -114,6 +119,10 @@ export const MobileTable = ({
   </SimpleGrid>
 }
 
+const defaultTotalValue = (field: string, items: any[]) => {
+  return smartShortNumber(items.reduce((prev, curr) => prev + curr[field], 0), 2);
+}
+
 export const Table = ({
   columns,
   noDataMessage,
@@ -132,6 +141,7 @@ export const Table = ({
   mobileClickBtnLabel = 'View Details',
   showRowBorder = false,
   showHeader = true,
+  showTotalRow = false,
   ...props
 }: TableProps) => {
   const { themeStyles } = useAppTheme();
@@ -197,7 +207,7 @@ export const Table = ({
     }
   }
 
-  const chevronProps = { color: 'accentTextColor', w: 4, h: 4, ...sortChevronProps };
+  const chevronProps = { color: 'mainTextColorLight2', w: 4, h: 4, ...sortChevronProps };
 
   if (isReady && !isLargerThan && enableMobileRender) {
     return <MobileTable
@@ -234,10 +244,37 @@ export const Table = ({
       _hover={{ bgColor: 'primary.850' }}
     >
       {columns.map(({ value, field }, j) => (
-        <Box key={j} data-col={field}>{value(item, i)}</Box>        
+        <Box key={j} data-col={field}>{value(item, i)}</Box>
       ))}
     </Flex>
   ));
+
+  const totalRow = !showTotalRow ? null : <Flex
+    // bgColor={!alternateBg || (i % 2 === 0) ? 'primary.750' : 'primary.800'}
+    justify="space-between"
+    align="center"
+    fontWeight="semibold"
+    fontSize="sm"
+    cursor={!!onClick ? 'pointer' : undefined}
+    py={2.5}
+    pl={4}
+    pr={4}
+    border={showRowBorder ? `1px solid ${themeStyles.colors.primary[600]}` : undefined}
+    minW='fit-content'
+    w="full"
+    borderRadius={8}
+    _hover={{ bgColor: 'primary.850' }}
+  >
+    {columns.map(({ field, totalValue, totalField, value }, j) => (
+      <Box key={j} data-col={field}>
+        {
+          !totalValue && field === keyName ? <Text>Totals</Text> :
+            (totalValue || defaultTotalValue)(totalField || field, filteredItems)
+        }
+      </Box>
+    ))}
+  </Flex>
+
   const noDataEntity = filteredItems.length === 0 && !!noDataMessage &&
     <InfoMessage description={noDataMessage} alertProps={{ w: 'full', color: 'secondaryTextColor', fontSize: '12px' }} />;
 
@@ -296,12 +333,13 @@ export const Table = ({
                       position="relative"
                       color="mainTextColorLight2"
                       fontSize="12px"
+                      {...col.boxProps}
                     >
                       {col.label}
                       {
                         sortBy === col.field ?
                           <Box position="absolute" display="inline-block" right="-14px">
-                            {sortDir === 'desc' ? <ChevronDownIcon {...chevronProps} /> : <ChevronUpIcon {...chevronProps} />}
+                            {sortDir === 'desc' ? <ChevronDownIcon {...chevronProps} color={col.boxProps?.color} /> : <ChevronUpIcon {...chevronProps} color={col.boxProps?.color} />}
                           </Box>
                           : null
                       }
@@ -342,10 +380,12 @@ export const Table = ({
       {
         showRowBorder ? <VStack mt={showRowBorder ? "0 !important" : undefined} w='full' spacing={showRowBorder ? '4' : '0'}>
           {filteredRows}
+          {totalRow}
           {noDataEntity}
         </VStack>
           : <>
             {filteredRows}
+            {totalRow}
             {noDataEntity}
           </>
       }

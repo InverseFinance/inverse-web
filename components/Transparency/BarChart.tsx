@@ -2,8 +2,9 @@ import { VictoryChart, VictoryTooltip, VictoryLabel, VictoryAxis, VictoryTheme, 
 
 import { Box, useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import { shortenNumber, smartShortNumber } from '@app/util/markets';
+import { smartShortNumber } from '@app/util/markets';
 import { useAppTheme } from '@app/hooks/useAppTheme';
+import { BarChartRecharts } from './BarChartRecharts';
 
 type Props = { x: string, y: number, label?: string }[][]
 
@@ -19,6 +20,9 @@ export type BarChartProps = {
     labelProps?: VictoryLabelProps | any,
     titleProps?: VictoryLabelProps,
     isPercentages?: boolean
+    useRecharts?: boolean
+    axisStyle?: VictoryAxisProps["style"]
+    yLabel?: string
 }
 
 export const BarChart = ({
@@ -33,6 +37,9 @@ export const BarChart = ({
     labelProps,
     titleProps,
     isPercentages = false,
+    useRecharts = false,
+    axisStyle,
+    yLabel,
 }: BarChartProps) => {
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
     const [rightPadding, setRightPadding] = useState(65);
@@ -44,6 +51,18 @@ export const BarChart = ({
 
     const totals = {};
 
+    if(useRecharts) {
+        return <BarChartRecharts
+            combodata={groupedData.length > 0 ? groupedData[0] : []}
+            yLabel={yLabel}
+            useUsd={isDollars}
+            title={title}
+            chartWidth={width}
+            chartHeight={height}
+            rightPadding={rightPadding}
+        />
+    }
+
     Object.values(groupedData).forEach((groupValues) => {
         groupValues.forEach(categoryValues => {
             if (!totals[categoryValues.x]) { totals[categoryValues.x] = 0 }
@@ -54,10 +73,12 @@ export const BarChart = ({
     const lightMode = width <= 400;
 
     const defaultAxisStyle: VictoryAxisProps["style"] = {
-        tickLabels: { fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '12px', padding: 14 },
+        ...axisStyle,
+        tickLabels: { fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '12px', padding: 13, ...axisStyle?.tickLabels },
         grid: {
             stroke: '#66666633',
             strokeDasharray: '4 4',
+            ...axisStyle?.grid,
         }
     }
 
@@ -93,7 +114,7 @@ export const BarChart = ({
                 <VictoryBar
                     alignment="middle"
                     labelComponent={<VictoryLabel style={{ fontFamily: 'Inter', fontSize: '13px', fill: lightMode ? 'transparent' : themeStyles.colors.secondary, fontWeight: '600' }} dy={-10} {...labelProps} />}
-                    data={Object.entries(totals).map(([key, value]) => ({ x: key, y: value, label: smartShortNumber(value, precision, isDollars) }))}
+                    data={Object.entries(totals).map(([key, value]) => ({ x: key, y: value, label: value ? smartShortNumber(value, precision, isDollars) : '' }))}
                     style={{
                         data: { strokeWidth: 0, fill: 'transparent', fontWeight: 'bold' }
                     }}

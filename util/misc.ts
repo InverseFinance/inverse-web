@@ -1,5 +1,6 @@
 import { commify } from '@ethersproject/units';
 import { showToast } from './notify';
+import { ONE_DAY_MS } from '@app/config/constants';
 
 export const capitalize = (v: string) => v[0].toUpperCase() + v.substring(1, v.length).toLowerCase();
 
@@ -150,6 +151,32 @@ export const timestampToUTC = (timestamp: number) => {
     return `${date.getUTCFullYear()}-${(date.getUTCMonth() + 1).toString().padStart(2, '0')}-${(date.getUTCDate()).toString().padStart(2, '0')}`
 }
 
+export const utcDateToDDMMYYYY = (d: string) => {
+    const dateSplit = d.substring(0, 10).split('-');
+    return `${dateSplit[2]}-${dateSplit[1]}-${dateSplit[0]}`;
+}
+
+// yyyy-mm-dd format
+export const getTimestampFromUTCDate = (utcDate: string) => {
+    const dateParts = utcDate.split('-');
+    const year = parseInt(dateParts[0]);
+    const month = parseInt(dateParts[1]) - 1; // Months are zero-based (0-11)
+    const day = parseInt(dateParts[2]);
+  
+    const dateObj = new Date(Date.UTC(year, month, day));
+    const timestamp = dateObj.getTime();
+  
+    return timestamp;
+  }
+
+export const getMonthDiff = (d1: Date, d2: Date) => {
+    var months;
+    months = (d2.getFullYear() - d1.getFullYear()) * 12;
+    months -= d1.getMonth();
+    months += d2.getMonth();
+    return months <= 0 ? 0 : months;
+}
+
 export const getRandomFromStringList = (commaSeparatedList: string) => {
     const keys = commaSeparatedList.replace(/\s+/g, '').split(',');
     return keys[Math.floor(Math.random() * keys.length)];
@@ -163,7 +190,7 @@ export const handleApiResponse = (promiseResult: any) => {
 }
 
 export const _getProp = (object: Object, key: string) => {
-    if(!object) { return undefined }
+    if (!object) { return undefined }
     const lcKey = key.toLowerCase();
     const found = Object.entries(object).find(([key, value]) => {
         return key.toLowerCase() === lcKey
@@ -171,9 +198,9 @@ export const _getProp = (object: Object, key: string) => {
     return found?.[1];
 }
 
-export const preciseCommify = (v: number, precision = 2, isDollar = false) => {    
-    if(precision === 0 || !v){
-        return `${isDollar ? '$' : ''}${commify((v||0).toFixed(0))}`;
+export const preciseCommify = (v: number, precision = 2, isDollar = false) => {
+    if (precision === 0 || !v) {
+        return `${isDollar ? '$' : ''}${commify((v || 0).toFixed(0))}`;
     }
     const fixed = v?.toFixed(precision);
     const split = fixed?.split('.');
@@ -184,4 +211,39 @@ export const preciseCommify = (v: number, precision = 2, isDollar = false) => {
         console.log(e)
     }
     return result || '';
+}
+
+// array needs to be already sorted
+export const fillMissingDailyDatesWithMostRecentData = (arr: any[]) => {
+    const filledArray = [];
+    for (let i = 0; i < arr.length; i++) {
+        const currentEntry = arr[i];
+        const currentDateTs = getTimestampFromUTCDate(currentEntry.utcDate);
+
+        // Add the current entry to the filledArray
+        filledArray.push(currentEntry);
+
+        if (i !== arr.length - 1) {
+            const nextEntry = arr[i + 1];
+            const nextDateTs = getTimestampFromUTCDate(nextEntry.utcDate);
+            const diffTime = Math.abs(nextDateTs - currentDateTs);
+            const diffDays = Math.ceil(diffTime / ONE_DAY_MS);
+
+            if (diffDays > 1) {
+                for (let j = 1; j < diffDays; j++) {
+                    const ts = currentDateTs + j * ONE_DAY_MS;
+                    const missingEntry = {
+                        ...currentEntry,
+                        timestamp: ts,
+                        x: ts,
+                        utcDate: timestampToUTC(ts),
+                        eventPointLabel: undefined,
+                    };
+                    filledArray.push(missingEntry);
+                }
+            }
+        }
+    }
+
+    return filledArray;
 }
