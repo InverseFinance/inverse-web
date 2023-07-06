@@ -529,7 +529,7 @@ export const DBR_DISTRIBUTOR_ABI = [
   'function operator() public view returns (address)',
 ]
 
-export const FIRM_ALE_ABI = [
+export const F2_ALE_ABI = [
   'function leveragePosition(uint dolaToBorrow, address buyAd, address zeroXspender, address zeroXtarget, bytes swapData, uint deadline, uint v, bytes r, bytes s, bytes helperTransformData) public',  
   'function deleveragePosition(uint dolaToRepay, address sellAd, uint withdrawAmount , address zeroXspender, address zeroXtarget, bytes swapData, uint deadline, uint v, bytes r, bytes s, bytes helperTransformData) public',  
   'function markets(address token) public view returns (tuple(address market, address helper, address collateral))',
@@ -574,6 +574,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
     F2_CONTROLLER,
     F2_MARKETS,
     DBR_DISTRIBUTOR,
+    F2_ALE,
   } = getNetworkConfigConstants(networkConfig);
 
   return new Map<string, string[]>(
@@ -610,6 +611,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [BOND_V2_AGGREGATOR, BOND_V2_AGGREGATOR_ABI],
         ['0x4621b7A9c75199271F773Ebd9A499dbd165c3191', ERC20_ABI],
         [F2_HELPER, F2_HELPER_ABI],
+        [F2_ALE, F2_ALE_ABI],
         ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...MULTISIGS.map((m) => [m.address, MULTISIG_ABI]),
         ...Object.values(BONDS).map((bond) => [bond.bondContract, BONDS_ABIS[bond.abiType]]),
