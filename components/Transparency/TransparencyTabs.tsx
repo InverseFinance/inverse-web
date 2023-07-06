@@ -15,7 +15,7 @@ const TABS = [
     // { page: 'interest-model', label: 'Interest Rates' },
     { page: 'multisigs', label: 'Multisig Wallets' },
     { page: 'stabilizer', label: 'Stabilizer' },
-    { page: 'bad-debts', label: 'Bad debts' },
+    // { page: 'bad-debts', label: 'Bad debts' },
     { page: 'frontier-overview', label: 'Frontier' },
     // { page: 'liquidations', label: 'Frontier Liquidations' },    
 ];
