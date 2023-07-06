@@ -37,7 +37,9 @@ export const showToast = (options: CustomToastOptions) => {
     return toastRefs[toastId];
 }
 
-export const showFailNotif = (e: any, isFromTx?: boolean) => {    
+export const showFailNotif = (_e: any, isFromTx?: boolean) => {    
+    console.log('showFailNotif: ', _e);    
+    const e = typeof _e === 'string' ? { reason: _e } : _e;
     const isClearReason = !!e?.reason && e?.reason?.indexOf('cannot estimate gas') === -1;
     const msg = ((isClearReason ? e?.reason : undefined) || e?.error?.message || e?.data?.message || e?.message || '').substring(0, 200);
     // error codes relatable to transaction cancellation by user
