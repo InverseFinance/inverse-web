@@ -19,8 +19,8 @@ import { shortenNumber, smartShortNumber } from '@app/util/markets'
 import ScannerLink from '@app/components/common/ScannerLink'
 import { Timestamp } from '@app/components/common/BlockTimestamp/Timestamp'
 import { SkeletonBlob } from '@app/components/common/Skeleton'
-import { useAppTheme } from '@app/hooks/useAppTheme'
 import { lightTheme } from '@app/variables/theme'
+import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader'
 
 const ColHeader = ({ ...props }) => {
   return <Flex justify="center" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -355,8 +355,7 @@ const formatToBarData = (data: any, item: any, index: number, key: string, isDol
 const totalRepaymentKeys = ['wbtcRepaidByDAO', 'ethRepaidByDAO', 'yfiRepaidByDAO', 'totalDolaRepaidByDAO', 'dolaForIOUsRepaidByDAO'];
 
 export const BadDebtPage = () => {
-  const { themeStyles } = useAppTheme();
-  const { data } = useRepayments();
+  const { data, isLoading } = useRepayments();
   const [useUsd, setUseUsd] = useState(true);
   const [useHistorical, setUseHistorical] = useState(false);
   const { prices } = usePrices();
@@ -470,7 +469,9 @@ export const BadDebtPage = () => {
               right={
                 <VStack spacing="0" alignItems={{ base: 'flex-start', md: 'flex-end' }}>
                   <Text fontSize="14px">Current DOLA bad debt:</Text>
-                  <Text fontWeight="bold">{dolaBadDebtEvo.length > 0 && !!dolaBadDebtEvo[dolaBadDebtEvo.length - 1].y ? shortenNumber(dolaBadDebtEvo[dolaBadDebtEvo.length - 1].y, 2) : ''}</Text>
+                  {
+                    isLoading ? <SmallTextLoader /> : <Text fontWeight="bold">{dolaBadDebtEvo.length > 0 && !!dolaBadDebtEvo[dolaBadDebtEvo.length - 1].y ? shortenNumber(dolaBadDebtEvo[dolaBadDebtEvo.length - 1].y, 2) : ''}</Text>
+                  }
                 </VStack>
               }
             >
@@ -529,7 +530,7 @@ export const BadDebtPage = () => {
                 align: { base: 'flex-start', md: 'flex-end' },
               }}
               right={
-                <Stack pt={{ base: '2', sm: '0' }} justify="center" w='full' spacing={{ base: '1', sm: '0' }} alignItems="flex-end" direction={{ base: 'row', sm: 'column' }}>
+                isLoading ? null : <Stack pt={{ base: '2', sm: '0' }} justify="center" w='full' spacing={{ base: '1', sm: '0' }} alignItems="flex-end" direction={{ base: 'row', sm: 'column' }}>
                   {
                     !isAllCase && <Text>{preciseCommify(totalBadDebtReduced, isDolaCase ? 0 : 2)} {isDolaCase ? 'DOLA' : selected.toUpperCase()}</Text>
                   }
@@ -582,7 +583,7 @@ export const BadDebtPage = () => {
               align: { base: 'flex-start', md: 'flex-end' },
             }}
             right={
-              <VStack fontSize="14px" spacing="0" alignItems={{ base: 'flex-start', md: 'flex-end' }}>
+              isLoading ? null : <VStack fontSize="14px" spacing="0" alignItems={{ base: 'flex-start', md: 'flex-end' }}>
                 <Text>IOUs held: <b>{preciseCommify(data?.iousHeld, 0)}</b></Text>
                 <Text>IOUs in DOLA: <b>{preciseCommify(data?.iousDolaAmount, 0)}</b></Text>
               </VStack>

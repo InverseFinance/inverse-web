@@ -15,6 +15,7 @@ import { useAppTheme } from "@app/hooks/useAppTheme";
 import { gaEvent } from "@app/util/analytics";
 import Link from "@app/components/common/Link";
 import { DailyLimitCountdown } from "@app/components/common/Countdown";
+import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -260,7 +261,7 @@ export const F2Markets = ({
             <Text fontWeight="bold" fontSize={{ base: '14px', md: '16px' }}>
                 {
                     !dbrPrice ?
-                        <SkeletonText display="inline-block" pt="13px" skeletonHeight={2} height={'22px'} width={'42px'} noOfLines={1} />
+                        <SmallTextLoader pt="13px" width="42px" />
                         :
                         <b style={{ color: themeStyles.colors.success, fontSize: '18px', fontWeight: '900' }}>
                             {shortenNumber(dbrPrice * 100, 2)}

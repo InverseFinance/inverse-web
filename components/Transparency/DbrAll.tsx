@@ -1,4 +1,4 @@
-import { FormControl, Stack, useMediaQuery, Text, Switch, Divider, VStack, SkeletonText, SimpleGrid } from "@chakra-ui/react";
+import { FormControl, Stack, useMediaQuery, Text, Switch, Divider, VStack, SimpleGrid } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { BarChart12Months } from "./BarChart12Months";
 import { useAppTheme } from "@app/hooks/useAppTheme";
@@ -10,6 +10,7 @@ import { DbrComboChart } from "./DbrComboChart";
 import { DbrEmissions } from "./DbrEmissions";
 import { useDBRPrice } from "@app/hooks/useDBR";
 import { shortenNumber } from "@app/util/markets";
+import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 
 const streamingStartTs = 1684713600000;
 
@@ -17,7 +18,7 @@ const StatBasic = ({ value, name, isLoading = false }: { value: string, name: st
     return <VStack spacing="0">
         {
             !isLoading ? <Text textAlign="center" color={'secondary'} fontSize={{ base: '16px', sm: '18px' }} fontWeight="extrabold">{value}</Text>
-                : <SkeletonText pt="1" skeletonHeight={2} height={'24px'} width={'100px'} noOfLines={1} />
+                : <SmallTextLoader />
         }
         <Text textAlign="center" color={'mainTextColor'} fontSize={{ base: '14px', sm: '16px' }} fontWeight="bold">{name}</Text>
     </VStack>
