@@ -27,7 +27,7 @@ const { DEBT_CONVERTER, DEBT_REPAYER } = getNetworkConfigConstants();
 export default async function handler(req, res) {
     const { cacheFirst, ignoreCache } = req.query;
     // defaults to mainnet data if unsupported network
-    const cacheKey = `repayments-v1.0.93`;
+    const cacheKey = `repayments-v1.0.94`;
     const frontierShortfallsKey = `1-positions-v1.1.0`;
     const histoPricesCacheKey = `historic-prices-v1.0.4`;
 
@@ -148,7 +148,7 @@ export default async function handler(req, res) {
         await addBlockTimestamps(blocksNeedingTs, '1');
         const timestamps = await getCachedBlockTimestamps();
 
-        const [wbtcRepayedByDAO, ethRepayedByDAO, yfiRepayedByDAO, dolaFrontierRepayedByDAO, dolaB1RepayedByDAO, dolaFuse6RepayedByDAO, dolaBadgerRepayedByDAO] =
+        const [wbtcRepaidByDAO, ethRepaidByDAO, yfiRepaidByDAO, dolaFrontierRepaidByDAO, dolaB1RepaidByDAO, dolaFuse6RepaidByDAO, dolaBadgerRepaidByDAO] =
             [wbtcRepayEvents, ethRepayEvents, yfiRepayEvents, dolaFrontierRepayEvents, dolaB1RepayEvents, dolaFuse6RepayEvents, dolaBadgerRepayEvents].map((arr, i) => {
                 return arr.filter(event => {
                     return [TREASURY, TWG, RWG].includes(event.args.payer);
@@ -167,7 +167,7 @@ export default async function handler(req, res) {
                 });
             });
 
-        const dolaEulerRepayedByDAO = eulerFedContactionEvents.map(event => {
+        const dolaEulerRepaidByDAO = eulerFedContactionEvents.map(event => {
             const timestamp = timestamps['1'][event.blockNumber] * 1000;
             return {
                 blocknumber: event.blockNumber,
@@ -182,7 +182,7 @@ export default async function handler(req, res) {
         const iouRepaymentsBlocks = [...new Set(debtConverterRepaymentsEvents.map(e => e.blockNumber))];
         const histoIouExRates = await getHistoIouExRate(debtConverter, iouRepaymentsBlocks);
 
-        const dolaForIOUsRepayedByDAO = debtConverterRepaymentsEvents.map((event, i) => {
+        const dolaForIOUsRepaidByDAO = debtConverterRepaymentsEvents.map((event, i) => {
             const amount = getBnToNumber(event.args.dolaAmount);
             repayments.iou += amount;
             const timestamp = timestamps['1'][event.blockNumber] * 1000;
@@ -190,8 +190,8 @@ export default async function handler(req, res) {
             return { blocknumber: event.blockNumber, logIndex: event.logIndex, amount, iouExRate, iouAmount: amount / iouExRate, timestamp, date: timestampToUTC(timestamp), txHash: event.transactionHash }
         });
 
-        const nonFrontierDolaRepayedByDAO = dolaB1RepayedByDAO.concat(dolaFuse6RepayedByDAO).concat(dolaBadgerRepayedByDAO).concat(dolaEulerRepayedByDAO).sort((a, b) => a.timestamp - b.timestamp);
-        const totalDolaRepayedByDAO = dolaFrontierRepayedByDAO.concat(nonFrontierDolaRepayedByDAO).sort((a, b) => a.timestamp - b.timestamp);
+        const nonFrontierDolaRepaidByDAO = dolaB1RepaidByDAO.concat(dolaFuse6RepaidByDAO).concat(dolaBadgerRepaidByDAO).concat(dolaEulerRepaidByDAO).sort((a, b) => a.timestamp - b.timestamp);
+        const totalDolaRepaidByDAO = dolaFrontierRepaidByDAO.concat(nonFrontierDolaRepaidByDAO).sort((a, b) => a.timestamp - b.timestamp);
 
         // USDC decimals
         repayments.dwf = getBnToNumber(dwfOtcBuy, 6);
@@ -223,10 +223,10 @@ export default async function handler(req, res) {
         const histoPrices = await getCacheFromRedis(histoPricesCacheKey, false) || HISTO_PRICES;
 
         const [dolaPrices, wbtcPrices, ethPrices, yfiPrices] = await Promise.all([
-            getHistoPrices('dola-usd', totalDolaRepayedByDAO.concat(dolaForIOUsRepayedByDAO).map(d => d.timestamp), histoPrices),
-            getHistoPrices('wrapped-bitcoin', wbtcRepayedByDAO.map(d => d.timestamp), histoPrices),
-            getHistoPrices('ethereum', ethRepayedByDAO.map(d => d.timestamp), histoPrices),
-            getHistoPrices('yearn-finance', yfiRepayedByDAO.map(d => d.timestamp), histoPrices),
+            getHistoPrices('dola-usd', totalDolaRepaidByDAO.concat(dolaForIOUsRepaidByDAO).map(d => d.timestamp), histoPrices),
+            getHistoPrices('wrapped-bitcoin', wbtcRepaidByDAO.map(d => d.timestamp), histoPrices),
+            getHistoPrices('ethereum', ethRepaidByDAO.map(d => d.timestamp), histoPrices),
+            getHistoPrices('yearn-finance', yfiRepaidByDAO.map(d => d.timestamp), histoPrices),
         ]);
 
         histoPrices['dola-usd'] = { ...histoPrices['dola-usd'], ...dolaPrices };
@@ -284,7 +284,7 @@ export default async function handler(req, res) {
                 frontierDelta: 0,
                 eventPointLabel: 'Euler',
             },
-            ...nonFrontierDolaRepayedByDAO.map(({ blocknumber, timestamp, amount }, i) => {
+            ...nonFrontierDolaRepaidByDAO.map(({ blocknumber, timestamp, amount }, i) => {
                 return { timestamp, nonFrontierDelta: -amount, frontierDelta: 0 }
             })
         ];
@@ -330,17 +330,17 @@ export default async function handler(req, res) {
             iousHeld,
             iousDolaAmount,
             dolaBadDebtEvolution,
-            wbtcRepayedByDAO,
-            ethRepayedByDAO,
-            yfiRepayedByDAO,
-            dolaFrontierRepayedByDAO,
-            nonFrontierDolaRepayedByDAO,
-            dolaEulerRepayedByDAO,
-            dolaB1RepayedByDAO,
-            dolaFuse6RepayedByDAO,
-            dolaBadgerRepayedByDAO,
-            totalDolaRepayedByDAO,
-            dolaForIOUsRepayedByDAO,
+            wbtcRepaidByDAO,
+            ethRepaidByDAO,
+            yfiRepaidByDAO,
+            dolaFrontierRepaidByDAO,
+            nonFrontierDolaRepaidByDAO,
+            dolaEulerRepaidByDAO,
+            dolaB1RepaidByDAO,
+            dolaFuse6RepaidByDAO,
+            dolaBadgerRepaidByDAO,
+            totalDolaRepaidByDAO,
+            dolaForIOUsRepaidByDAO,
             badDebts,
             repayments,
             debtConverterConversions,

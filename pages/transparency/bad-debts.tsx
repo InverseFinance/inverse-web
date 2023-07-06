@@ -305,9 +305,9 @@ const indirectRepaymentsColumns = [
 ];
 
 const keyPrices = {
-  'wbtcRepayedByDAO': 'wrapped-bitcoin',
-  'ethRepayedByDAO': 'ethereum',
-  'yfiRepayedByDAO': 'yearn-finance',
+  'wbtcRepaidByDAO': 'wrapped-bitcoin',
+  'ethRepaidByDAO': 'ethereum',
+  'yfiRepaidByDAO': 'yearn-finance',
 };
 
 const cgIdsSymbols = {
@@ -352,7 +352,7 @@ const formatToBarData = (data: any, item: any, index: number, key: string, isDol
   };
 }
 
-const totalRepaymentKeys = ['wbtcRepayedByDAO', 'ethRepayedByDAO', 'yfiRepayedByDAO', 'totalDolaRepayedByDAO', 'dolaForIOUsRepayedByDAO'];
+const totalRepaymentKeys = ['wbtcRepaidByDAO', 'ethRepaidByDAO', 'yfiRepaidByDAO', 'totalDolaRepaidByDAO', 'dolaForIOUsRepaidByDAO'];
 
 export const BadDebtPage = () => {
   const { themeStyles } = useAppTheme();
@@ -376,8 +376,8 @@ export const BadDebtPage = () => {
 
   const chartSourceData = isAllCase ?
     totalDirectRepaymentsForChart :
-    (data[`${selected}RepayedByDAO`] || [])
-      .map((d, i) => formatToBarData(data, d, i, `${selected}RepayedByDAO`, isDolaCase, prices, useHistorical));
+    (data[`${selected}RepaidByDAO`] || [])
+      .map((d, i) => formatToBarData(data, d, i, `${selected}RepaidByDAO`, isDolaCase, prices, useHistorical));
 
   const { chartData: barChartData } = useEventsAsChartData(chartSourceData, '_acc_', useUsd || isAllCase ? 'worth' : 'amount', false, false);
   const { chartData: dolaBadDebtEvo } = useEventsAsChartData(data?.dolaBadDebtEvolution || [], 'badDebt', 'delta', false, false);
@@ -386,7 +386,7 @@ export const BadDebtPage = () => {
     const priceUsd = prices[item.coingeckoId]?.usd || 1;
     const currentBadDebtUsd = item.badDebtBalance * priceUsd;
     const isDola = item.symbol === 'DOLA';
-    const key = isDola ? 'totalDolaRepayedByDAO' : `${item.symbol.toLowerCase()}RepayedByDAO`;
+    const key = isDola ? 'totalDolaRepaidByDAO' : `${item.symbol.toLowerCase()}RepaidByDAO`;
     const totalBadDebtRepaidByDao = data[key]?.reduce((prev, curr) => prev + curr.amount, 0) || 0;
 
     const totalBadDebtRepaidByDaoUsd = totalBadDebtRepaidByDao * priceUsd;
@@ -396,7 +396,7 @@ export const BadDebtPage = () => {
     const convertedFor = !isDola ? 0 : data['debtConverterConversions']?.reduce((prev, curr) => prev + curr.convertedFor, 0) || 0;
     const convertedForUsd = !isDola ? 0 : data.iouCumDolaDebt * dolaPrice;
 
-    const dolaRepaidForIOU = !isDola ? 0 : data['dolaForIOUsRepayedByDAO']?.reduce((prev, curr) => prev + curr.amount, 0) || 0;
+    const dolaRepaidForIOU = !isDola ? 0 : data['dolaForIOUsRepaidByDAO']?.reduce((prev, curr) => prev + curr.amount, 0) || 0;
     const dolaRepaidForIOUUsd = dolaRepaidForIOU * dolaPrice;
 
     return {
@@ -438,7 +438,7 @@ export const BadDebtPage = () => {
   }
   const indirectItems = items.filter(item => item.symbol !== 'IOU');
 
-  const totalBadDebtReduced = (data[`${selected}RepayedByDAO`] || []).reduce((prev, curr) => prev + curr.amount, 0) || 0;
+  const totalBadDebtReduced = (data[`${selected}RepaidByDAO`] || []).reduce((prev, curr) => prev + curr.amount, 0) || 0;
 
   const totalBadDebtReducedUsd = chartSourceData.reduce((prev, curr) => prev + curr.worth, 0) || 0
 

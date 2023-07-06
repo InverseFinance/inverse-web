@@ -3,9 +3,9 @@ import { useCacheFirstSWR } from "./useCustomSWR"
 import { fetcher60sectimeout } from "@app/util/web3"
 
 export const useRepayments = (): SWR => {
-  const { data, error } = useCacheFirstSWR(`/api/transparency/repayments?v11`, fetcher60sectimeout);
+  const { data, error } = useCacheFirstSWR(`/api/transparency/repayments?v=1`, fetcher60sectimeout);
   const _data = data || {};
-  _data['totalDolaIncludingIOURepayedByDAO'] = (_data['totalDolaRepayedByDAO']||[]).concat((_data['dolaForIOUsRepayedByDAO']||[]))
+  _data['totalDolaIncludingIOURepaidByDAO'] = (_data['totalDolaRepaidByDAO']||[]).concat((_data['dolaForIOUsRepaidByDAO']||[]))
   return {
     data: _data,
     isLoading: !error && !data,
