@@ -16,6 +16,7 @@ import { FirmAccountEvents } from '../Infos/FirmAccountEvents'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import { OracleType } from '../Infos/OracleType'
 import { gaEvent } from '@app/util/analytics'
+import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader'
 
 type Data = {
     tooltip: string
@@ -39,7 +40,7 @@ const Infos = ({ infos, index, isLast }: { infos: [Data, Data], index: number, i
             </TextInfo>
             {
                 left.isLoading ?
-                    <SkeletonText display="inline-block" pt="13px" skeletonHeight={2} height={'27px'} width={'90px'} noOfLines={1} />
+                    <SmallTextLoader pt="13px" width={'90px'} />
                     : <Text fontSize="18px" color={left.color} fontWeight={left.fontWeight || 'bold'}>
                         {left.value}
                     </Text>
@@ -53,7 +54,7 @@ const Infos = ({ infos, index, isLast }: { infos: [Data, Data], index: number, i
             </TextInfo>
             {
                 right.isLoading ?
-                    <SkeletonText display="inline-block" pt="13px" skeletonHeight={2} height={'27px'} width={'90px'} noOfLines={1} /> :
+                    <SmallTextLoader pt="13px" width="90px" /> :
                     <Text fontSize="18px" color={right.color} fontWeight={right.fontWeight || 'bold'}>
                         {right.value}
                     </Text>

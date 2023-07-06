@@ -19,6 +19,7 @@ import 'add-to-calendar-button';
 import { DbrReminder } from "../DbrReminder"
 import { WarningTwoIcon } from "@chakra-ui/icons"
 import { WarningMessage } from "@app/components/common/Messages"
+import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader"
 
 const Title = (props: TextProps) => <Text textAlign="center" fontWeight="extrabold" fontSize={{ base: '13px', md: '18px' }} {...props} />;
 const SubTitle = (props: TextProps) => <Text textAlign="center" color="secondaryTextColor" fontSize={{ base: '13px', md: '16px' }} {...props} />;
@@ -363,7 +364,7 @@ const BarBlock = ({
 
             {
                 isLoading || !price ?
-                    <SkeletonText pt="1" skeletonHeight={2} height={'24px'} width={'50px'} noOfLines={1} />
+                    <SmallTextLoader width={'50px'} />
                     :
                     <Text textAlign="left" color="secondaryTextColor">
                         {shortenNumber(price, precision, true)}
@@ -404,7 +405,7 @@ export const FirmBar = ({
                     </Link>
                     {
                         isDolaDataLoading ?
-                            <SkeletonText pt="1" skeletonHeight={2} height={'24px'} width={'50px'} noOfLines={1} /> :
+                            <SmallTextLoader width={'50px'} /> :
                             <SubTitle>
                                 {shortenNumber(totalSupply, 2)}
                             </SubTitle>
@@ -416,7 +417,7 @@ export const FirmBar = ({
                     </Link>
                     {
                         isFirmTvlLoading ?
-                            <SkeletonText pt="1" skeletonHeight={2} height={'24px'} width={'50px'} noOfLines={1} /> :
+                            <SmallTextLoader width={'50px'} /> :
                             <SubTitle>
                                 {shortenNumber(firmTotalTvl, 2, true)}
                             </SubTitle>
@@ -428,7 +429,7 @@ export const FirmBar = ({
                     </Link>
                     {
                         !markets?.length ?
-                            <SkeletonText pt="1" skeletonHeight={2} height={'24px'} width={'50px'} noOfLines={1} /> :
+                            <SmallTextLoader width={'50px'} /> :
                             <SubTitle textAlign="center">
                                 {shortenNumber(totalDebtUsd, 2, true)}
                             </SubTitle>

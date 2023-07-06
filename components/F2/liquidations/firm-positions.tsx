@@ -14,6 +14,7 @@ import Table from "@app/components/common/Table";
 import { Funds } from "@app/components/Transparency/Funds";
 import { BarChart } from "@app/components/Transparency/BarChart";
 import { SkeletonBlob } from "@app/components/common/Skeleton";
+import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader";
 
 const groupPositionsBy = (positions: any[], groupBy: string, attributeToSum: string) => {
     return Object.entries(
@@ -214,21 +215,21 @@ export const FirmPositions = ({
                     <VStack alignItems={{ base: 'flex-start', sm: 'center' }}>
                         <Text fontWeight="bold">Avg Borrow Limit</Text>
                         {
-                            isLoading ? <SkeletonText pt="1" skeletonHeight={2} height={'24px'} width={'50px'} noOfLines={1} />
+                            isLoading ? <SmallTextLoader width={'50px'} />
                                 : <Text color={avgRiskColor}>{shortenNumber(100 - avgHealth, 2)}%</Text>
                         }
                     </VStack>
                     <VStack alignItems="center">
                         <Text textAlign="center" fontWeight="bold">Total Value Locked</Text>
                         {
-                            isLoading ? <SkeletonText pt="1" skeletonHeight={2} height={'24px'} width={'50px'} noOfLines={1} />
+                            isLoading ? <SmallTextLoader width={'50px'} />
                                 : <Text textAlign="center" color="secondaryTextColor">{shortenNumber(totalTvl, 2, true)}</Text>
                         }
                     </VStack>
                     <VStack alignItems="flex-end">
                         <Text textAlign="right" fontWeight="bold">Total Debt</Text>
                         {
-                            isLoading ? <SkeletonText pt="1" skeletonHeight={2} height={'24px'} width={'50px'} noOfLines={1} />
+                            isLoading ? <SmallTextLoader width={'50px'} />
                                 : <Text textAlign="right" color="secondaryTextColor">{shortenNumber(totalDebt, 2, 0)}</Text>
                         }
                     </VStack>
