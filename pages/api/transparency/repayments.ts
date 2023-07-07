@@ -163,6 +163,16 @@ export default async function handler(req, res) {
                 });
             });
 
+        const dolaEulerRepaidByDAO = [
+            {
+                blocknumber: 17636172,
+                timestamp: 1688663111000,// 6th July 2023
+                amount: 854752.437712229,
+                txHash: '0xd402c7521272ea2ff718a8706a79aedf4c916208a6f3e8172aae4ffb54338e2f',
+                logIndex: 0,
+            },
+        ];
+
         const iouRepaymentsBlocks = [...new Set(debtConverterRepaymentsEvents.map(e => e.blockNumber))];
         const histoIouExRates = await getHistoIouExRate(debtConverter, iouRepaymentsBlocks);
 
@@ -174,7 +184,7 @@ export default async function handler(req, res) {
             return { blocknumber: event.blockNumber, logIndex: event.logIndex, amount, iouExRate, iouAmount: amount / iouExRate, timestamp, date: timestampToUTC(timestamp), txHash: event.transactionHash }
         });
 
-        const nonFrontierDolaRepaidByDAO = dolaB1RepaidByDAO.concat(dolaFuse6RepaidByDAO).concat(dolaBadgerRepaidByDAO).sort((a, b) => a.timestamp - b.timestamp);
+        const nonFrontierDolaRepaidByDAO = dolaB1RepaidByDAO.concat(dolaFuse6RepaidByDAO).concat(dolaBadgerRepaidByDAO).concat(dolaEulerRepaidByDAO).sort((a, b) => a.timestamp - b.timestamp);
         const totalDolaRepaidByDAO = dolaFrontierRepaidByDAO.concat(nonFrontierDolaRepaidByDAO).sort((a, b) => a.timestamp - b.timestamp);
 
         // USDC decimals
@@ -263,15 +273,10 @@ export default async function handler(req, res) {
                 frontierDelta: 0,
             },
             {
-                timestamp: 1678665600000,// 13th march 2023
+                timestamp: 1678665600000,// 13 mars 2023
                 nonFrontierDelta: 863157,
                 frontierDelta: 0,
                 eventPointLabel: 'Euler',
-            },
-            {
-                timestamp: 1688663111000,// 6th July 2023
-                nonFrontierDelta: -854752.437712229,
-                frontierDelta: 0,                
             },
             ...nonFrontierDolaRepaidByDAO.map(({ blocknumber, timestamp, amount }, i) => {
                 return { timestamp, nonFrontierDelta: -amount, frontierDelta: 0 }
@@ -323,7 +328,8 @@ export default async function handler(req, res) {
             ethRepaidByDAO,
             yfiRepaidByDAO,
             dolaFrontierRepaidByDAO,
-            nonFrontierDolaRepaidByDAO,            
+            nonFrontierDolaRepaidByDAO,
+            dolaEulerRepaidByDAO,
             dolaB1RepaidByDAO,
             dolaFuse6RepaidByDAO,
             dolaBadgerRepaidByDAO,
