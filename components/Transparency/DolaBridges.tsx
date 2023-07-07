@@ -10,6 +10,7 @@ import { shortenNumber } from "@app/util/markets"
 import Container from "../common/Container"
 import { useMultichainPoolsForDola } from "@app/util/pools"
 import { useMemo } from "react"
+import { WarningMessage } from "../common/Messages"
 
 const ColHeader = ({ ...props }) => {
     return <Flex textTransform="initial" justify="center" minWidth={'150px'} fontSize="12px" fontWeight="extrabold" {...props} />
@@ -137,12 +138,27 @@ export const DolaBridges = ({
         description="Learn more on Bridging DOLA across chains"
         href={'https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola'}
     >
-        <Table
-            key="chainId"
-            columns={columns}
-            items={itemsWithMultichainLiquidity}
-            defaultSort="tvlChain"
-            defaultSortDir="desc"
-        />
+        <VStack spacing="4" w="100%">
+            <WarningMessage
+                alertProps={{ w: 'full' }}
+                title="Multichain incident"
+                description={
+                    <VStack spacing="0" align="flex-start">
+                        <Text>It is recommended to not use Multichain bridge at the moment.</Text>
+                        <Text>Follow their official account for updates:</Text>
+                        <Link isExternal href="https://twitter.com/MultichainOrg" textDecoration="underline" _target="_blank">
+                            https://twitter.com/MultichainOrg
+                        </Link>
+                    </VStack>
+                }
+            />
+            <Table
+                key="chainId"
+                columns={columns}
+                items={itemsWithMultichainLiquidity}
+                defaultSort="tvlChain"
+                defaultSortDir="desc"
+            />
+        </VStack>
     </Container>
 }

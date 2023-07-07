@@ -13,7 +13,7 @@ import { pricesCacheKey } from '../prices';
 import { PROTOCOLS_BY_IMG } from '@app/variables/images';
 import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 
-export const liquidityCacheKey = `liquidity-v1.0.8`;
+export const liquidityCacheKey = `liquidity-v1.0.9`;
 
 const PROTOCOL_DEFILLAMA_MAPPING = {
     "VELO": 'velodrome',
@@ -79,6 +79,9 @@ export default async function handler(req, res) {
             ...Object
                 .values(CHAIN_TOKENS[NetworkIds.avalanche]).filter(({ isLP }) => isLP)
                 .map((lp) => ({ chainId: NetworkIds.avalanche, ...lp })),
+            ...Object
+                .values(CHAIN_TOKENS[NetworkIds.ftm]).filter(({ isLP }) => isLP)
+                .map((lp) => ({ chainId: NetworkIds.ftm, ...lp })),
         ]
 
         const TWG = multisigsToShow.find(m => m.shortName === 'TWG')!;

@@ -99,7 +99,9 @@ const chainTokenAddresses = {
     DOLA: '0x3129662808bEC728a27Ab6a6b9AFd3cBacA8A43c',
     INV: '0xb84527D59b6Ecb96F433029ECc890D4492C5dCe1',
     USDC: '0x04068DA6C83AFCFA0e13ba15A6696662335D5B75',
-    WFTM: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',    
+    WFTM: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',
+    VELOCIMETERDOLAERNLP: '0xDcA71A777ADDc68709Ae7583658Ba554b5e6085C',
+    ERN: '0xce1E3cc1950D2aAEb47dE04DE2dec2Dc86380E0A',
   },
   "10": {
     DOLA: '0x8aE125E8653821E851F12A49F7765db9a9ce7384',
@@ -112,6 +114,8 @@ const chainTokenAddresses = {
     VELOV2DOLAMAILP: '0xBE418771bC91F75C4d2BcE1d5E2b7286F50992da',
     VELODOLAUSDplusLP: '0xa99817d2d286C894F8f3888096A5616d06F20d46',
     VELOV2DOLAUSDplusLP: '0x0b28C2e41058EDc7D66c516c617b664Ea86eeC5d',
+    VELOV2DOLAERNLP: '0xEea82dCab12C855E3736558d80500ED52c8598cd',
+    ERN: '0xc5b001DC33727F8F26880B184090D3E252470D45',
     USDC: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
     USDplus: '0x73cb180bf0521828d8849bc8CF2B920918e23032',
     MAI: '0xdFA46478F9e5EA86d57387849598dbFB2e964b02',
@@ -942,6 +946,28 @@ const chainTokens = {
     //     chainTokenAddresses["250"].DOLA, chainTokenAddresses["250"].WFTM
     //   ],
     // },
+    [chainTokenAddresses["250"].VELOCIMETERDOLAERNLP]: {
+      address: chainTokenAddresses["250"].VELOCIMETERDOLAERNLP,
+      name: 'DOLA-ERN',
+      symbol: 'DOLA-ERN vclp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isVeloLP: true,
+      pairs: [
+        chainTokenAddresses["250"].DOLA, chainTokenAddresses["250"].ERN
+      ],
+      protocolImage: PROTOCOL_IMAGES.VELOCIMETER,
+    },
+    [chainTokenAddresses["250"].ERN]: {
+      address: chainTokenAddresses["250"].ERN,
+      name: 'ERN',
+      symbol: 'ERN',
+      image: TOKEN_IMAGES['ERN'],
+      decimals: 18,
+      coingeckoId: 'ethos-reserve-note',
+    },
   },
   "5": {
     CHAIN_COIN: {
@@ -996,6 +1022,14 @@ const chainTokens = {
       image: TOKEN_IMAGES['USD+'],
       decimals: 6,
       coingeckoId: 'usd',
+    },
+    [chainTokenAddresses["10"].ERN]: {
+      address: chainTokenAddresses["10"].ERN,
+      name: 'ERN',
+      symbol: 'ERN',
+      image: TOKEN_IMAGES['ERN'],
+      decimals: 18,
+      coingeckoId: 'ethos-reserve-note',
     },
     [chainTokenAddresses["10"].MAI]: {
       address: chainTokenAddresses["10"].MAI,
@@ -1152,6 +1186,21 @@ const chainTokens = {
       lpBalanceContract: '0x05d74f34ff651e80b0a1a4bD96D8867626Ac2ddD',
       pairs: [
         chainTokenAddresses["10"].USDplus, chainTokenAddresses["10"].DOLA
+      ],
+      protocolImage: PROTOCOL_IMAGES.VELOV2,
+    },
+    [chainTokenAddresses["10"].VELOV2DOLAERNLP]: {
+      address: chainTokenAddresses["10"].VELOV2DOLAERNLP,
+      name: 'DOLA-ERN',
+      symbol: 'DOLA-ERN vlp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isVeloLP: true,
+      lpBalanceContract: '0x05d74f34ff651e80b0a1a4bD96D8867626Ac2ddD',
+      pairs: [
+        chainTokenAddresses["10"].DOLA, chainTokenAddresses["10"].ERN
       ],
       protocolImage: PROTOCOL_IMAGES.VELOV2,
     },
@@ -1717,6 +1766,7 @@ export const CHAIN_TOKEN_ADDRESSES = chainTokenAddresses;
 
 export const PROTOCOL_LINKS = {
   "VELO": (lp: Token) => 'https://app.velodrome.finance/liquidity/manage?address='+lp?.address?.toLowerCase(),
+  "VELOV2": (lp: Token) => `https://app.velodrome.finance/deposit?token0=${lp.pairs[0].toLowerCase()}&token1=${lp.pairs[1].toLowerCase()}&stable=true`,
   "THENA": (lp: Token) => 'https://thena.fi/liquidity',
   "AURA": (lp: Token) => 'https://app.aura.finance',
   "CRV": (lp: Token) => lp?.link || 'https://curve.fi/#/ethereum/pools',    
