@@ -491,7 +491,7 @@ export const BadDebtPage = () => {
                   </HStack>
                 }
                 barProps={{ eventName: 'Repayment' }}
-                areaProps={{ id: 'bad-debt-chart', yLabel: 'DOLA bad debt', useRecharts: true, fillInDaily: true, simplifyData: false, showEvents: true, showEventsLabels: true, domainYpadding: 1000000, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
+                areaProps={{ id: 'bad-debt-chart', yLabel: 'DOLA bad debt', useRecharts: true, fillInByDayInterval: 1, simplifyData: false, showEvents: true, showEventsLabels: true, domainYpadding: 1000000, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
               />
             </Container>
             <Container
@@ -548,7 +548,7 @@ export const BadDebtPage = () => {
                     maxChartWidth={1000}
                     chartData={barChartData}
                     isDollars={isAllCase ? true : useUsd}
-                    areaProps={{ showMaxY: false, yLabel: 'Value', useRecharts: true, fillInDaily: true, simplifyData: false, showTooltips: true, id: 'repayments-chart', allowZoom: false }}
+                    areaProps={{ showMaxY: false, yLabel: 'Value', interval: selected === 'nonFrontierDola' ? 30 : undefined, useRecharts: true, fillInByDayInterval: 1, simplifyData: false, showTooltips: true, id: 'repayments-chart', allowZoom: false }}
                     barProps={{ useRecharts: true, months: [...Array(barChartNbMonths).keys()], eventName: 'Repayment' }}
                   /> :
                     <SkeletonBlob />
