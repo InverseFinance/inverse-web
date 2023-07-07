@@ -22,6 +22,7 @@ import WethModal from '@app/components/common/Modal/WethModal'
 import { BUY_LINKS } from '@app/config/constants'
 import { Input } from '@app/components/common/Input'
 import { DBRAutoRepayCalculator } from '../DBRAutoRepayCalculator'
+import { prepareLeveragePosition } from '@app/util/firm-ale'
 import { FEATURE_FLAGS } from '@app/config/features'
 import { preciseCommify } from '@app/util/misc'
 
@@ -109,6 +110,7 @@ export const F2CombinedForm = ({
 
     const handleAction = async () => {
         if (!signer) { return }
+        return prepareLeveragePosition(signer, market, parseEther(debtAmount));
         // if(isBorrowCase && hasDbrV1NewBorrowIssue) {
         //     onDbrV1NewBorrowIssueModalOpen();            
         //     return;
