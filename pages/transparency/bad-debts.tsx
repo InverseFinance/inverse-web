@@ -491,7 +491,7 @@ export const BadDebtPage = () => {
                   </HStack>
                 }
                 barProps={{ eventName: 'Repayment' }}
-                areaProps={{ id: 'bad-debt-chart', yLabel: 'DOLA bad debt', useRecharts: true, fillInByDayInterval: 1, simplifyData: false, showEvents: true, showEventsLabels: true, domainYpadding: 1000000, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
+                areaProps={{ id: 'bad-debt-chart', showRangeBtns: true, yLabel: 'DOLA bad debt', useRecharts: true, fillInByDayInterval: 1, simplifyData: false, showEvents: true, showEventsLabels: true, domainYpadding: 1000000, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
               />
             </Container>
             <Container
