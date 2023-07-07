@@ -79,6 +79,9 @@ export default async function handler(req, res) {
             ...Object
                 .values(CHAIN_TOKENS[NetworkIds.avalanche]).filter(({ isLP }) => isLP)
                 .map((lp) => ({ chainId: NetworkIds.avalanche, ...lp })),
+            ...Object
+                .values(CHAIN_TOKENS[NetworkIds.ftm]).filter(({ isLP }) => isLP)
+                .map((lp) => ({ chainId: NetworkIds.ftm, ...lp })),
         ]
 
         const TWG = multisigsToShow.find(m => m.shortName === 'TWG')!;

@@ -99,7 +99,9 @@ const chainTokenAddresses = {
     DOLA: '0x3129662808bEC728a27Ab6a6b9AFd3cBacA8A43c',
     INV: '0xb84527D59b6Ecb96F433029ECc890D4492C5dCe1',
     USDC: '0x04068DA6C83AFCFA0e13ba15A6696662335D5B75',
-    WFTM: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',    
+    WFTM: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',
+    VELOCIMETERDOLAERNLP: '0xDcA71A777ADDc68709Ae7583658Ba554b5e6085C',
+    ERN: '0xce1E3cc1950D2aAEb47dE04DE2dec2Dc86380E0A',
   },
   "10": {
     DOLA: '0x8aE125E8653821E851F12A49F7765db9a9ce7384',
@@ -944,6 +946,28 @@ const chainTokens = {
     //     chainTokenAddresses["250"].DOLA, chainTokenAddresses["250"].WFTM
     //   ],
     // },
+    [chainTokenAddresses["250"].VELOCIMETERDOLAERNLP]: {
+      address: chainTokenAddresses["250"].VELOCIMETERDOLAERNLP,
+      name: 'DOLA-ERN',
+      symbol: 'DOLA-ERN vclp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isVeloLP: true,
+      pairs: [
+        chainTokenAddresses["250"].DOLA, chainTokenAddresses["250"].ERN
+      ],
+      protocolImage: PROTOCOL_IMAGES.VELOCIMETER,
+    },
+    [chainTokenAddresses["250"].ERN]: {
+      address: chainTokenAddresses["250"].ERN,
+      name: 'ERN',
+      symbol: 'ERN',
+      image: TOKEN_IMAGES['ERN'],
+      decimals: 18,
+      coingeckoId: 'ethos-reserve-note',
+    },
   },
   "5": {
     CHAIN_COIN: {
@@ -1742,6 +1766,7 @@ export const CHAIN_TOKEN_ADDRESSES = chainTokenAddresses;
 
 export const PROTOCOL_LINKS = {
   "VELO": (lp: Token) => 'https://app.velodrome.finance/liquidity/manage?address='+lp?.address?.toLowerCase(),
+  "VELOV2": (lp: Token) => `https://app.velodrome.finance/deposit?token0=${lp.pairs[0].toLowerCase()}&token1=${lp.pairs[1].toLowerCase()}&stable=true`,
   "THENA": (lp: Token) => 'https://thena.fi/liquidity',
   "AURA": (lp: Token) => 'https://app.aura.finance',
   "CRV": (lp: Token) => lp?.link || 'https://curve.fi/#/ethereum/pools',    

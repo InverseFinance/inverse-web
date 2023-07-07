@@ -23,7 +23,7 @@ import { addCurrentToHistory, getLpHistory } from '@app/util/pools';
 import { closeToast, showToast } from '@app/util/notify';
 import { DolaBridges } from '@app/components/Transparency/DolaBridges';
 
-const groupLpsBy = (lps: any[], attribute: string) => {
+const groupLpsBy = (lps: any[], attribute: string, max = 6) => {
   const items = Object.entries(
     lps.reduce((prev, curr) => {
       return { ...prev, [curr[attribute]]: (prev[curr[attribute]] || 0) + curr.tvl };
@@ -39,8 +39,8 @@ const groupLpsBy = (lps: any[], attribute: string) => {
   });
   // return items;
   items.sort((a, b) => b.balance - a.balance);
-  if (items.length > 6) {
-    const top5 = items.splice(0, 6);
+  if (items.length > max) {
+    const top5 = items.splice(0, max);
     const others = items.reduce((prev, curr) => ({ balance: prev.balance + curr.balance }), { balance: 0 });
     return top5.concat({ balance: others.balance, usdPrice: 1, token: { symbol: 'Others' } });
   } else {
@@ -88,9 +88,10 @@ export const Liquidity = () => {
   const byPairs = groupLpsBy(categoryLps, 'lpName');
   const byFed = groupLpsBy(categoryLps, 'isFed');
   const byChain = groupLpsBy(categoryLps, 'networkName')//.map(f => ({ ...f, token: { symbol: NETWORKS_BY_CHAIN_ID[f.token.symbol].name } }));
+  const allChains = groupLpsBy(categoryLps, 'networkName', 99)//.map(f => ({ ...f, token: { symbol: NETWORKS_BY_CHAIN_ID[f.token.symbol].name } }));
   const byProtocol = groupLpsBy(categoryLps, 'project').map(f => ({ ...f, token: { symbol: capitalize(f.token.symbol) } }));
 
-  const networkItems = byChain.map(f => {
+  const networkItems = allChains.map(f => {
     const networkPoolsByTvl = liquidity
       .filter(lp => lp.networkName.substring(0, 2).toLowerCase() === f.token.symbol.substring(0, 2).toLowerCase())
       .sort((a, b) => b.tvl - a.tvl);
