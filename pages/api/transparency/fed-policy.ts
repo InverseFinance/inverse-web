@@ -37,7 +37,6 @@ const getEventDetails = (log: Event, timestampInSec: number, fedIndex: number, i
     isContraction,
     blockNumber,
     transactionHash,
-    args,
     value: getBnToNumber(amountBn) * (isContraction ? -1 : 1),
     timestamp: timestampInSec * 1000,
   }
@@ -63,13 +62,35 @@ export default async function handler(req, res) {
     }
 
     const archived = await getCacheFromRedis(cacheKeyOld, false);
-    const pastTotalEvents = archived?.totalEvents || [];
+    const _pastTotalEvents = archived?.totalEvents || [];
+    let pastTotalEvents;
+    // Euler Fed closure fixture (no Contraction event was emitted)
+    if (!_pastTotalEvents.find(e => e.txHash === '0xd402c7521272ea2ff718a8706a79aedf4c916208a6f3e8172aae4ffb54338e2f')) {      
+      pastTotalEvents = _pastTotalEvents.filter(e => e.timestamp < 1688663111000);
+      const lastEventBeforeEulerFedClosure = pastTotalEvents[pastTotalEvents.length - 1];
+      const eulerFedClosure = {
+        "event": "Contraction",
+        "fedIndex": 11,
+        "isContraction": true,
+        "blockNumber": 17636172,
+        "transactionHash": "0xd402c7521272ea2ff718a8706a79aedf4c916208a6f3e8172aae4ffb54338e2f",
+        "value": 854752.437712229,
+        "timestamp": 1688663111000,
+        "newSupply": 0,
+        "newTotalSupply": lastEventBeforeEulerFedClosure.newTotalSupply - 854752.437712229,
+        "_key": lastEventBeforeEulerFedClosure._key + 1,
+        "fedAddress": "0xab4AE477899fD61B27744B4DEbe8990C66c81C22",
+      }
+      pastTotalEvents.push(eulerFedClosure);
+    } else {
+      pastTotalEvents = _pastTotalEvents;
+    }
 
     const lastKnownEvent = pastTotalEvents?.length > 0 ? (pastTotalEvents[pastTotalEvents.length - 1]) : {};
     const newStartingBlock = lastKnownEvent ? lastKnownEvent?.blockNumber + 1 : 0;
 
     const rawEvents = await Promise.all([
-      ...FEDS.map(fed => {    
+      ...FEDS.map(fed => {
         return fed.hasEnded ?
           new Promise((res) => res([[], []]))
           : getEvents(fed.address, fed.abi, fed.chainId, !pastTotalEvents.find(e => e.fedAddress === fed.address) ? 0x0 : newStartingBlock)
@@ -194,7 +215,7 @@ export default async function handler(req, res) {
     console.error(err);
     // if an error occured, try to return last cached results
     try {
-      const cache = await getCacheFromRedis(cacheKey, false);
+      const cache = await getCacheFromRedis(cacheKeyNew, false);
       if (cache) {
         console.log('Api call failed, returning last cache found');
         res.status(200).json(cache);
