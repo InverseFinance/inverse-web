@@ -398,7 +398,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const { isActive, chainId } = useWeb3React<Web3Provider>();  
  
   const userAddress = useAccount();
-  const { isEligible, hasClaimed } = useCheckDBRAirdrop(userAddress);
+  const { isEligible, hasClaimed, isLoading } = useCheckDBRAirdrop(userAddress);
   const [showAirdropModal, setShowAirdropModal] = useState(false);
   const { isOpen: isWrongNetOpen, onOpen: onWrongNetOpen, onClose: onWrongNetClose } = useDisclosure()
   const { isOpen: isAirdropOpen, onOpen: onAirdropOpen, onClose: onAirdropClose } = useDisclosure()
@@ -407,9 +407,11 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
 
   const [badgeChainId, setBadgeChainId] = useState(chainId)
   const { nbNotif } = useGovernanceNotifs();
+  
   useDebouncedEffect(() => {
+    if(isLoading) return
     setShowAirdropModal(isEligible && !hasClaimed);
-  }, [isEligible, hasClaimed], 2000);
+  }, [isEligible, hasClaimed, isLoading], 5000);
 
   useEffect(() => {
     const init = async () => {
