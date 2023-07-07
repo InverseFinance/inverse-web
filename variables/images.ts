@@ -87,6 +87,8 @@ export const TOKEN_IMAGES = {
     "SATIN": "https://assets.coingecko.com/coins/images/29169/small/satin.png?1677050689",
     "SOLISNEK": "https://assets.coingecko.com/markets/images/1121/small/solisnek.jpeg?1681696649",
     "PEARL": "https://www.pearl.exchange/logo.png",
+    "VELOCIMETER": "https://assets.coingecko.com/markets/images/1066/small/velocimeter.jpeg?1677577182",
+    "ERN": "https://assets.coingecko.com/coins/images/29744/small/ERN200x200.png?1681106290",
 }
 
 export const PROTOCOL_IMAGES = {
@@ -112,6 +114,7 @@ export const PROTOCOL_IMAGES = {
     "SATIN": TOKEN_IMAGES.SATIN,
     "CHRONOS": TOKEN_IMAGES.CHRONOS,
     "PEARL": TOKEN_IMAGES.PEARL,
+    "VELOCIMETER": TOKEN_IMAGES.VELOCIMETER,
 }
 
 export const PROTOCOLS_BY_IMG = Object.fromEntries(

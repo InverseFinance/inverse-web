@@ -112,6 +112,8 @@ const chainTokenAddresses = {
     VELOV2DOLAMAILP: '0xBE418771bC91F75C4d2BcE1d5E2b7286F50992da',
     VELODOLAUSDplusLP: '0xa99817d2d286C894F8f3888096A5616d06F20d46',
     VELOV2DOLAUSDplusLP: '0x0b28C2e41058EDc7D66c516c617b664Ea86eeC5d',
+    VELOV2DOLAERNLP: '0xEea82dCab12C855E3736558d80500ED52c8598cd',
+    ERN: '0xc5b001DC33727F8F26880B184090D3E252470D45',
     USDC: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
     USDplus: '0x73cb180bf0521828d8849bc8CF2B920918e23032',
     MAI: '0xdFA46478F9e5EA86d57387849598dbFB2e964b02',
@@ -997,6 +999,14 @@ const chainTokens = {
       decimals: 6,
       coingeckoId: 'usd',
     },
+    [chainTokenAddresses["10"].ERN]: {
+      address: chainTokenAddresses["10"].ERN,
+      name: 'ERN',
+      symbol: 'ERN',
+      image: TOKEN_IMAGES['ERN'],
+      decimals: 18,
+      coingeckoId: 'ethos-reserve-note',
+    },
     [chainTokenAddresses["10"].MAI]: {
       address: chainTokenAddresses["10"].MAI,
       ...MAI,
@@ -1152,6 +1162,21 @@ const chainTokens = {
       lpBalanceContract: '0x05d74f34ff651e80b0a1a4bD96D8867626Ac2ddD',
       pairs: [
         chainTokenAddresses["10"].USDplus, chainTokenAddresses["10"].DOLA
+      ],
+      protocolImage: PROTOCOL_IMAGES.VELOV2,
+    },
+    [chainTokenAddresses["10"].VELOV2DOLAERNLP]: {
+      address: chainTokenAddresses["10"].VELOV2DOLAERNLP,
+      name: 'DOLA-ERN',
+      symbol: 'DOLA-ERN vlp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isVeloLP: true,
+      lpBalanceContract: '0x05d74f34ff651e80b0a1a4bD96D8867626Ac2ddD',
+      pairs: [
+        chainTokenAddresses["10"].DOLA, chainTokenAddresses["10"].ERN
       ],
       protocolImage: PROTOCOL_IMAGES.VELOV2,
     },
