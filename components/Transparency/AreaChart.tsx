@@ -82,6 +82,7 @@ export const AreaChart = ({
     yLabel,
     minTickGap,
     interval,
+    showRangeBtns,
 }: AreaChartProps) => {
     const _data = simplifyData ? getSimplifiedData(data) : fillInByDayInterval > 0 ? fillMissingDailyDatesWithMostRecentData(data, fillInByDayInterval) : data;
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
@@ -131,6 +132,7 @@ export const AreaChart = ({
             yLabel={yLabel}
             minTickGap={minTickGap}
             interval={interval}
+            showRangeBtns={showRangeBtns}
         />
     }
 
