@@ -95,6 +95,7 @@ export const AreaChartRecharts = ({
     const zoomOut = () => {
         setRefAreaLeft('');
         setRefAreaRight('');
+        setLastRangeType(rangeBtns[0].label);
         setState({
             ...state,
             data: null,
@@ -199,13 +200,13 @@ export const AreaChartRecharts = ({
                 {title}
             </Text>
             {
-                showRangeBtns && <HStack position={{ base: 'relative', md: 'absolute' }} top="-43px">
+                showRangeBtns && <HStack position={{ base: 'static', md: 'absolute' }} top="-43px">
                     {rangeBtns.map((btn, i) => <RSubmitButton bgColor={btn.label === lastRangeType ? 'accentTextColor' : undefined} onClick={() => changeToRange(btn.label)} maxH="30px" py="1" px="2" fontSize="12px">{btn.label}</RSubmitButton>)}
                 </HStack>
             }
             {
                 allowZoom && left !== 'dataMin' && right !== 'dataMax'
-                && <RSubmitButton onClick={zoomOut} opacity="0.9" zIndex="1" w='fit-content' top="0" right="0" position="absolute">
+                && <RSubmitButton onClick={zoomOut} opacity="0.9" zIndex="1" w='fit-content' top={{ base: '35px', md: '0' }} right="0" position="absolute">
                     Zoom Out
                 </RSubmitButton>
             }
