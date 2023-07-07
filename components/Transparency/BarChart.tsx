@@ -41,12 +41,12 @@ export const BarChart = ({
     axisStyle,
     yLabel,
 }: BarChartProps) => {
-    const [isLargerThan] = useMediaQuery('(min-width: 900px)');
-    const [rightPadding, setRightPadding] = useState(65);
+    const [isLargerThan] = useMediaQuery(`(min-width: 900px)`);
+    const [rightPadding, setRightPadding] = useState(useRecharts ? 50 : 65);
     const { themeStyles } = useAppTheme();
 
     useEffect(() => {
-        setRightPadding(isLargerThan ? 65 : 20)
+        setRightPadding(isLargerThan ? useRecharts ? 50 : 65 : 20)
     }, [isLargerThan]);
 
     const totals = {};
