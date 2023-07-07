@@ -41,8 +41,10 @@ export type AreaChartProps = {
     showEvents?: boolean
     showEventsLabels?: boolean
     showLegend?: boolean
-    fillInDaily?: boolean
+    fillInByDayInterval?: number
     yLabel?: string
+    minTickGap?: number
+    interval?: number
 };
 
 const getSimplifiedData = (data: CoordinatesArray) => {
@@ -76,10 +78,12 @@ export const AreaChart = ({
     showLegend = false,
     showEvents = false,
     showEventsLabels = false,
-    fillInDaily = false,
+    fillInByDayInterval = 0,
     yLabel,
+    minTickGap,
+    interval,
 }: AreaChartProps) => {
-    const _data = simplifyData ? getSimplifiedData(data) : fillInDaily ? fillMissingDailyDatesWithMostRecentData(data) : data;
+    const _data = simplifyData ? getSimplifiedData(data) : fillInByDayInterval > 0 ? fillMissingDailyDatesWithMostRecentData(data, fillInByDayInterval) : data;
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
     const [rightPadding, setRightPadding] = useState(50);
     const [selectedDomain, setSelectedDomain] = useState(undefined);
@@ -125,6 +129,8 @@ export const AreaChart = ({
             showEvents={showEvents}
             showEventsLabels={showEventsLabels}
             yLabel={yLabel}
+            minTickGap={minTickGap}
+            interval={interval}
         />
     }
 

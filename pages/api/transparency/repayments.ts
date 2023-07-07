@@ -27,7 +27,7 @@ const { DEBT_CONVERTER, DEBT_REPAYER } = getNetworkConfigConstants();
 export default async function handler(req, res) {
     const { cacheFirst, ignoreCache } = req.query;
     // defaults to mainnet data if unsupported network
-    const cacheKey = `repayments-v1.0.94`;
+    const cacheKey = `repayments-v1.0.96`;
     const frontierShortfallsKey = `1-positions-v1.1.0`;
     const histoPricesCacheKey = `historic-prices-v1.0.4`;
 
@@ -80,8 +80,7 @@ export default async function handler(req, res) {
         // non-frontier bad debt
         const anDolaB1 = new Contract('0xC1Fb01415f08Fbd71623aded6Ac8ec74F974Fdc1', CTOKEN_ABI, provider);
         const anDolaFuse6 = new Contract('0xf65155C9595F99BFC193CaFF0AAb6e2a98cf68aE', CTOKEN_ABI, provider);
-        const anDolaBadger = new Contract('0x5117D9453cC9Be8c3fBFbA4aE3B858D18fe45903', CTOKEN_ABI, provider);
-        const eulerFed = new Contract('0xab4AE477899fD61B27744B4DEbe8990C66c81C22', FED_ABI, provider);
+        const anDolaBadger = new Contract('0x5117D9453cC9Be8c3fBFbA4aE3B858D18fe45903', CTOKEN_ABI, provider);        
 
         const [
             debtConverterRepaymentsEvents,
@@ -97,8 +96,7 @@ export default async function handler(req, res) {
             dolaFrontierRepayEvents,
             dolaB1RepayEvents,
             dolaFuse6RepayEvents,
-            dolaBadgerRepayEvents,
-            eulerFedContactionEvents,
+            dolaBadgerRepayEvents,            
             // fedsOverviewData,
             iouHoldersData,
         ] = await Promise.all([
@@ -115,8 +113,7 @@ export default async function handler(req, res) {
             anDola.queryFilter(anDola.filters.RepayBorrow(), 14886483),
             anDolaB1.queryFilter(anDolaB1.filters.RepayBorrow(), 14886483),
             anDolaFuse6.queryFilter(anDolaFuse6.filters.RepayBorrow(), 14886483),
-            anDolaBadger.queryFilter(anDolaBadger.filters.RepayBorrow(), 14886483),
-            eulerFed.queryFilter(eulerFed.filters.Contraction(), 17607462),
+            anDolaBadger.queryFilter(anDolaBadger.filters.RepayBorrow(), 14886483),            
             // getCacheFromRedis(fedOverviewCacheKey, false),
             // iou holders
             getTokenHolders(DEBT_CONVERTER, 100, 0, '1'),
@@ -141,8 +138,7 @@ export default async function handler(req, res) {
             })
                 .flat()
                 .concat(debtConverterRepaymentsEvents.map(e => e.blockNumber))
-                .concat(debtRepayerRepaymentsEvents.map(e => e.blockNumber))
-                .concat(eulerFedContactionEvents.map(e => e.blockNumber))
+                .concat(debtRepayerRepaymentsEvents.map(e => e.blockNumber))                
                 .concat(dolaFrontierDebts.blocks);
 
         await addBlockTimestamps(blocksNeedingTs, '1');
@@ -167,17 +163,15 @@ export default async function handler(req, res) {
                 });
             });
 
-        const dolaEulerRepaidByDAO = eulerFedContactionEvents.map(event => {
-            const timestamp = timestamps['1'][event.blockNumber] * 1000;
-            return {
-                blocknumber: event.blockNumber,
-                amount: getBnToNumber(event.args.amount),
-                timestamp,
-                date: timestampToUTC(timestamp),
-                txHash: event.transactionHash,
-                logIndex: event.logIndex,
-            }
-        });
+        const dolaEulerRepaidByDAO = [
+            {
+                blocknumber: 17636172,
+                timestamp: 1688663111000,// 6th July 2023
+                amount: 854752.437712229,
+                txHash: '0xd402c7521272ea2ff718a8706a79aedf4c916208a6f3e8172aae4ffb54338e2f',
+                logIndex: 0,
+            },
+        ];
 
         const iouRepaymentsBlocks = [...new Set(debtConverterRepaymentsEvents.map(e => e.blockNumber))];
         const histoIouExRates = await getHistoIouExRate(debtConverter, iouRepaymentsBlocks);

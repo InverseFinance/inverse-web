@@ -454,12 +454,12 @@ export const BadDebtPage = () => {
         <meta name="keywords" content="Inverse Finance, transparency, frontier, Bad Debts" />
       </Head>
       <AppNav active="Transparency" activeSubmenu="Bad Debts" hideAnnouncement={true} />
-      {/* <TransparencyTabs active="bad-debts" /> */}
+      <TransparencyTabs active="bad-debts" />
       <ErrorBoundary>
         <Flex w="full" maxW='6xl' direction="column" justify="center">
           <Stack w='full' alignItems='center' justify="center" direction={{ base: 'column', lg: 'column' }}>
             <Container
-              label="DOLA bad debt Evolution"
+              label="DOLA Bad Debt Evolution"
               description={data?.timestamp ? `Last update: ${moment(data?.timestamp).fromNow()}` : 'Loading...'}
               noPadding
               headerProps={{
@@ -491,7 +491,7 @@ export const BadDebtPage = () => {
                   </HStack>
                 }
                 barProps={{ eventName: 'Repayment' }}
-                areaProps={{ id: 'bad-debt-chart', yLabel: 'DOLA bad debt', useRecharts: true, fillInDaily: true, simplifyData: false, showEvents: true, showEventsLabels: true, domainYpadding: 1000000, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
+                areaProps={{ id: 'bad-debt-chart', yLabel: 'DOLA bad debt', useRecharts: true, fillInByDayInterval: 1, simplifyData: false, showEvents: true, showEventsLabels: true, domainYpadding: 1000000, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
               />
             </Container>
             <Container
@@ -548,7 +548,7 @@ export const BadDebtPage = () => {
                     maxChartWidth={1000}
                     chartData={barChartData}
                     isDollars={isAllCase ? true : useUsd}
-                    areaProps={{ showMaxY: false, yLabel: 'Value', useRecharts: true, fillInDaily: true, simplifyData: false, showTooltips: true, id: 'repayments-chart', allowZoom: false }}
+                    areaProps={{ showMaxY: false, yLabel: 'Value', interval: selected === 'nonFrontierDola' ? 30 : undefined, useRecharts: true, fillInByDayInterval: 1, simplifyData: false, showTooltips: true, id: 'repayments-chart', allowZoom: false }}
                     barProps={{ useRecharts: true, months: [...Array(barChartNbMonths).keys()], eventName: 'Repayment' }}
                   /> :
                     <SkeletonBlob />
@@ -558,7 +558,7 @@ export const BadDebtPage = () => {
           </Stack>
           <Container
             noPadding
-            label={`Bad debt recap & Repayments`}
+            label={`Bad Debt Recap & Repayments`}
             description={"At current prices"}
           // description={`Learn more about the bad debt, Debt Converter and Debt Repayer`}
           // href={'https://docs.inverse.finance/inverse-finance/inverse-finance/other/frontier'}
@@ -601,7 +601,7 @@ export const BadDebtPage = () => {
           </Container>
           <Container
             noPadding
-            label={`Direct repayments transactions`}
+            label={`Direct Repayments Transactions`}
             description="Includes DOLA repaid for IOUs"
           >
             <Table

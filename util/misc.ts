@@ -214,7 +214,7 @@ export const preciseCommify = (v: number, precision = 2, isDollar = false) => {
 }
 
 // array needs to be already sorted
-export const fillMissingDailyDatesWithMostRecentData = (arr: any[]) => {
+export const fillMissingDailyDatesWithMostRecentData = (arr: any[], minDayInterval: number) => {
     const filledArray = [];
     for (let i = 0; i < arr.length; i++) {
         const currentEntry = arr[i];
@@ -227,11 +227,12 @@ export const fillMissingDailyDatesWithMostRecentData = (arr: any[]) => {
             const nextEntry = arr[i + 1];
             const nextDateTs = getTimestampFromUTCDate(nextEntry.utcDate);
             const diffTime = Math.abs(nextDateTs - currentDateTs);
-            const diffDays = Math.ceil(diffTime / ONE_DAY_MS);
+            const intervalDays = minDayInterval * ONE_DAY_MS;
+            const diffDays = Math.ceil(diffTime / intervalDays);
 
-            if (diffDays > 1) {
-                for (let j = 1; j < diffDays; j++) {
-                    const ts = currentDateTs + j * ONE_DAY_MS;
+            if (diffDays > minDayInterval) {
+                for (let j = 1; j < diffDays; j += minDayInterval) {
+                    const ts = currentDateTs + j * intervalDays;
                     const missingEntry = {
                         ...currentEntry,
                         timestamp: ts,

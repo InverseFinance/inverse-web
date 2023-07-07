@@ -35,6 +35,8 @@ export const AreaChartRecharts = ({
     showEventsLabels = false,
     events,
     rightPadding = 0,
+    minTickGap = 14,
+    interval = 'preserveEnd',
 }: {
     combodata: { y: number, x: number, timestamp: number, utcDate: string }[]
     title: string
@@ -53,6 +55,8 @@ export const AreaChartRecharts = ({
     showEventsLabels?: boolean
     events?: any[]
     rightPadding?: number
+    minTickGap?: number
+    interval?: string | number
 }) => {
     const { themeStyles } = useAppTheme();
     const [state, setState] = useState({ ...initialState, data: null });
@@ -171,15 +175,15 @@ export const AreaChartRecharts = ({
             >
                 <CartesianGrid fill={themeStyles.colors.accentChartBgColor} stroke="#66666633" strokeDasharray={_axisStyle.grid.strokeDasharray} />
                 <XAxis
-                    minTickGap={14}
-                    interval="preserveEnd"
+                    minTickGap={minTickGap}
+                    interval={interval}
                     style={_axisStyle.tickLabels}
                     dataKey="x"
                     scale="time"
                     type={'number'}
                     allowDataOverflow={true}
                     domain={['dataMin', 'dataMax']}
-                    // domain={[left, right]}
+                    // domain={[left, right]}`                    
                     tickFormatter={(v, i) => {
                         return moment(v).format('MMM Do')
                     }}
