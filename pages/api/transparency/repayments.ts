@@ -27,7 +27,7 @@ const { DEBT_CONVERTER, DEBT_REPAYER } = getNetworkConfigConstants();
 export default async function handler(req, res) {
     const { cacheFirst, ignoreCache } = req.query;
     // defaults to mainnet data if unsupported network
-    const cacheKey = `repayments-v1.0.94`;
+    const cacheKey = `repayments-v1.0.95`;
     const frontierShortfallsKey = `1-positions-v1.1.0`;
     const histoPricesCacheKey = `historic-prices-v1.0.4`;
 
