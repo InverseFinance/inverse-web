@@ -65,7 +65,7 @@ export default async function handler(req, res) {
     const _pastTotalEvents = archived?.totalEvents || [];
     let pastTotalEvents;
     // Euler Fed closure fixture (no Contraction event was emitted)
-    if (!_pastTotalEvents.find(e => e.txHash === '0xd402c7521272ea2ff718a8706a79aedf4c916208a6f3e8172aae4ffb54338e2f')) {      
+    if (!_pastTotalEvents.find(e => e.txHash === '0xd402c7521272ea2ff718a8706a79aedf4c916208a6f3e8172aae4ffb54338e2f' && e.value < 0)) {
       pastTotalEvents = _pastTotalEvents.filter(e => e.timestamp < 1688663111000);
       const lastEventBeforeEulerFedClosure = pastTotalEvents[pastTotalEvents.length - 1];
       const eulerFedClosure = {
@@ -74,7 +74,7 @@ export default async function handler(req, res) {
         "isContraction": true,
         "blockNumber": 17636172,
         "transactionHash": "0xd402c7521272ea2ff718a8706a79aedf4c916208a6f3e8172aae4ffb54338e2f",
-        "value": 854752.437712229,
+        "value": -854752.437712229,
         "timestamp": 1688663111000,
         "newSupply": 0,
         "newTotalSupply": lastEventBeforeEulerFedClosure.newTotalSupply - 854752.437712229,
