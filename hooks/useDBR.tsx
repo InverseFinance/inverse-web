@@ -455,6 +455,7 @@ export const useCheckDBRAirdrop = (account: string): SWR & {
   amountString: string,
   airdropData: { [key: string]: string },
   claimer: string,
+  isLoading: boolean,
 } => {
   const { data: airdropData, error: airdropDataErr } = useCustomSWR('/assets/firm/dbr/airdrop.json', fetcher);
   const { data: hasClaimed, error: hasClaimErr } = useEtherSWR([
