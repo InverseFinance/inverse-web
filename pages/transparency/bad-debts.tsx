@@ -459,7 +459,7 @@ export const BadDebtPage = () => {
         <Flex w="full" maxW='6xl' direction="column" justify="center">
           <Stack w='full' alignItems='center' justify="center" direction={{ base: 'column', lg: 'column' }}>
             <Container
-              label="DOLA bad debt Evolution"
+              label="DOLA Bad Debt Evolution"
               description={data?.timestamp ? `Last update: ${moment(data?.timestamp).fromNow()}` : 'Loading...'}
               noPadding
               headerProps={{
@@ -558,7 +558,7 @@ export const BadDebtPage = () => {
           </Stack>
           <Container
             noPadding
-            label={`Bad debt recap & Repayments`}
+            label={`Bad Debt Recap & Repayments`}
             description={"At current prices"}
           // description={`Learn more about the bad debt, Debt Converter and Debt Repayer`}
           // href={'https://docs.inverse.finance/inverse-finance/inverse-finance/other/frontier'}
@@ -601,7 +601,7 @@ export const BadDebtPage = () => {
           </Container>
           <Container
             noPadding
-            label={`Direct repayments transactions`}
+            label={`Direct Repayments Transactions`}
             description="Includes DOLA repaid for IOUs"
           >
             <Table
