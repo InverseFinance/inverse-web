@@ -149,7 +149,7 @@ export const useRechartsZoom = ({
         });
     }
 
-    const rangeButtons = <>{ranges.map((range, i) => <RSubmitButton bgColor={range.label === lastRangeType ? 'accentTextColor' : undefined} onClick={() => changeToRange(range)} maxH="30px" py="1" px="2" fontSize="12px">{range.label}</RSubmitButton>)}</>
+    const rangeButtons = <>{ranges.map((range, i) => <RSubmitButton key={range.label} bgColor={range.label === lastRangeType ? 'accentTextColor' : undefined} onClick={() => changeToRange(range)} maxH="30px" py="1" px="2" fontSize="12px">{range.label}</RSubmitButton>)}</>
     const rangeButtonsBarAbs = !showRangeBtns || !allowZoom ? null : <HStack position={{ base: 'static', md: 'absolute' }} top="-43px">
         {rangeButtons}
     </HStack>
