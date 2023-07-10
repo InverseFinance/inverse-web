@@ -1,6 +1,6 @@
 import { RSubmitButton } from "@app/components/common/Button/RSubmitButton";
 import { ONE_DAY_MS } from "@app/config/constants";
-import { VStack, Text, HStack } from '@chakra-ui/react'
+import { HStack } from '@chakra-ui/react'
 import { useState } from "react";
 import { ReferenceArea } from "recharts";
 

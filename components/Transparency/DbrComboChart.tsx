@@ -1,10 +1,11 @@
 import { useAppTheme } from '@app/hooks/useAppTheme';
 import { VStack, Text } from '@chakra-ui/react'
 import { shortenNumber, smartShortNumber } from '@app/util/markets';
-import { Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Brush, ComposedChart } from 'recharts';
+import { Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ComposedChart } from 'recharts';
 import moment from 'moment';
 import { preciseCommify } from '@app/util/misc';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useRechartsZoom } from '@app/hooks/useRechartsZoom';
 
 const KEYS = {
     BURN: 'Annualized burn',
@@ -25,7 +26,13 @@ export const DbrComboChart = ({
     useUsd?: boolean
 }) => {
     const { themeStyles, themeName } = useAppTheme();
-    const [brushIndexes, setBrushIndexes] = useState({ startIndex: undefined, endIndex: undefined });
+
+    const { mouseDown, mouseUp, mouseMove, mouseLeave, zoomOutButton, rangeButtonsBar, zoomReferenceArea, data } = useRechartsZoom({
+        combodata, xKey: 'timestamp', yKey: useUsd ? 'debtUsd' : 'debt', yAxisId: 'left', 
+        rangesToInclude: ['All', '6M', '3M', '1M' ,'YTD'],
+    });
+    const _data = data || combodata;
+
     const [actives, setActives] = useState({
         [KEYS.BURN]: true,
         [KEYS.ISSUANCE]: true,
@@ -33,15 +40,8 @@ export const DbrComboChart = ({
         [KEYS.INV_PRICE]: false,
     })
 
-    useEffect(() => {
-        if (brushIndexes.startIndex !== undefined || !combodata || combodata.length < 250) {
-            return;
-        }
-        setBrushIndexes({ startIndex: 220, endIndex: combodata.length - 1 });
-    }, [combodata, brushIndexes]);
-
     const _axisStyle = axisStyle || {
-        tickLabels: { fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '14px' },
+        tickLabels: { fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '14px', userSelect: 'none'  },
         grid: {
             stroke: '#66666633',
             strokeDasharray: '4 4',
@@ -50,7 +50,6 @@ export const DbrComboChart = ({
 
     const legendStyle = {
         ..._axisStyle.tickLabels,
-        top: -8,
         fontSize: '12px',
     }
 
@@ -67,25 +66,30 @@ export const DbrComboChart = ({
     const dbrPriceColor = themeStyles.colors.info;
     const invPriceColor = themeName === 'light' ? themeStyles.colors.mainTextColor : 'lightblue';
 
-    const handleBrush = (params) => {
-        setBrushIndexes(params);
-    }
-
     return (
-        <VStack alignItems="center" maxW={`${chartWidth}px`}>
-            <Text fontWeight="bold">
-                DBR annualized burn & issuance over time
-            </Text>
+        <VStack position="relative" alignItems="center" maxW={`${chartWidth}px`}>
+            <VStack>
+                <Text fontWeight="bold">
+                    DBR annualized burn & issuance over time
+                </Text>
+                {rangeButtonsBar}
+            </VStack>
+            {/* {zoomOutButton} */}
             <ComposedChart
                 width={chartWidth}
                 height={400}
-                data={combodata}
+                data={_data}
                 margin={{
                     top: 20,
                     right: 0,
                     left: 0,
                     bottom: 20,
                 }}
+                onMouseDown={e => mouseDown(e)}
+                onMouseMove={mouseMove}
+                // // eslint-disable-next-line react/jsx-no-bind
+                onMouseUp={mouseUp}
+                onMouseLeave={mouseLeave}
             >
                 <CartesianGrid fill={themeStyles.colors.accentChartBgColor} stroke="#66666633" strokeDasharray={_axisStyle.grid.strokeDasharray} />
                 <XAxis minTickGap={28} interval="preserveStartEnd" style={_axisStyle.tickLabels} dataKey="timestamp" scale="time" type={'number'} allowDataOverflow={true} domain={['dataMin', 'dataMax']} tickFormatter={(v) => {
@@ -105,12 +109,12 @@ export const DbrComboChart = ({
                         return !_value ? 'none' : isPrice ? shortenNumber(_value, 4, true) : preciseCommify(_value, 0, useUsd)
                     }}
                 />
-                <Legend wrapperStyle={legendStyle} onClick={toggleChart} style={{ cursor: 'pointer' }} formatter={(value) => value + (actives[value] ? '' : ' (hidden)')} />
                 <Area opacity={actives[KEYS.BURN] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.BURN} yAxisId="left" type="monotone" dataKey={useUsd ? 'debtUsd' : 'debt'} stroke={themeStyles.colors.warning} dot={false} fillOpacity={1} fill="url(#warning-gradient)" />
                 <Area opacity={actives[KEYS.ISSUANCE] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.ISSUANCE} yAxisId="left" type="monotone" dataKey={useUsd ? 'yearlyRewardRateUsd' : 'yearlyRewardRate'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={1} fill="url(#secondary-gradient)" />
                 <Line opacity={actives[KEYS.DBR_PRICE] ? 1 : 0} strokeWidth={2} name={KEYS.DBR_PRICE} yAxisId="right" type="monotone" dataKey={priceKey} stroke={dbrPriceColor} dot={false} />
                 <Line opacity={actives[KEYS.INV_PRICE] ? 1 : 0} strokeWidth={2} name={KEYS.INV_PRICE} yAxisId="right" type="monotone" dataKey={priceKey} stroke={invPriceColor} dot={false} />
-                <Brush onChange={handleBrush} startIndex={brushIndexes.startIndex} endIndex={brushIndexes.endIndex} dataKey="timestamp" height={30} stroke="#8884d8" tickFormatter={(v) => ''} />
+                <Legend wrapperStyle={legendStyle} onClick={toggleChart} style={{ cursor: 'pointer' }} formatter={(value) => value + (actives[value] ? '' : ' (hidden)')} />
+                {zoomReferenceArea}
             </ComposedChart>
         </VStack>
     );
