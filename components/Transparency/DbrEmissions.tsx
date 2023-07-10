@@ -17,6 +17,7 @@ export const DbrEmissions = ({
     useUsd?: boolean
     emissionEvents: any[]
 }) => {
+    const [includeTreasuryTransfers, setIncludeTreasuryTransfers] = useState(false);
     const [includeTreasuryMints, setIncludeTreasuryMints] = useState(false);
     const [includeReplenishments, setIncludeReplenishments] = useState(true);
     const [includeClaims, setIncludeClaims] = useState(true);
@@ -27,9 +28,10 @@ export const DbrEmissions = ({
         emissionEvents :
         emissionEvents?.filter(e => {
             const repCondition = includeReplenishments ? repHashes.includes(e.txHash) : false;
-            const claimCondition = includeClaims ? !repHashes.includes(e.txHash) && !e.isTreasuryMint : false;
+            const claimCondition = includeClaims ? !repHashes.includes(e.txHash) && !e.isTreasuryMint && !e.isTreasuryTransfer : false;
             const treasuryMintCondition = includeTreasuryMints ? e.isTreasuryMint : false;
-            return repCondition || claimCondition || treasuryMintCondition;
+            const treasuryTransferCondition = includeTreasuryTransfers ? e.isTreasuryTransfer : false;
+            return repCondition || claimCondition || treasuryMintCondition || treasuryTransferCondition;
         });
 
     const _events = filteredEvents?.map(e => {
@@ -50,10 +52,10 @@ export const DbrEmissions = ({
         <Stack direction={{ base: 'column', sm: 'row' }} py="4" spacing="4" justify="space-between" alignItems="center" w='full'>
             <Stack direction={{ base: 'column', sm: 'row' }} spacing="4" justify="flex-start" alignItems="flex-start">
                 <FormControl w='auto' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
-                    <Text mr="2" onClick={() => setIncludeTreasuryMints(!includeTreasuryMints)}>
-                        Treasury Mints
+                    <Text mr="2" onClick={() => setIncludeTreasuryTransfers(!includeTreasuryTransfers)}>
+                        Treasury Transfers
                     </Text>
-                    <Switch onChange={(e) => setIncludeTreasuryMints(!includeTreasuryMints)} size="sm" colorScheme="purple" isChecked={includeTreasuryMints} />
+                    <Switch onChange={(e) => setIncludeTreasuryTransfers(!includeTreasuryTransfers)} size="sm" colorScheme="purple" isChecked={includeTreasuryTransfers} />
                 </FormControl>
                 <FormControl w='auto' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
                     <Text mr="2" onClick={() => setIncludeReplenishments(!includeReplenishments)}>
@@ -77,7 +79,7 @@ export const DbrEmissions = ({
             showAreaChart={false}
             barProps={{
                 eventName: 'Issuance',
-                title: 'DBR issuance in the last 12 months'
+                title: 'DBR added to the circulating supply in the last 12 months'
             }}
         />
     </Stack>

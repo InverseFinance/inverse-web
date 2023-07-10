@@ -13,7 +13,7 @@ import { dbrRewardRatesCacheKey, initialDbrRewardRates } from '../cron-dbr-distr
 const { DBR, TREASURY } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
-    const cacheKey = `dbr-emissions-v1.0.9`;
+    const cacheKey = `dbr-emissions-v1.0.91`;
     const { cacheFirst } = req.query;
 
     try {        
@@ -41,10 +41,21 @@ export default async function handler(req, res) {
         const lastKnownEvent = pastTotalEvents?.length > 0 ? (pastTotalEvents[pastTotalEvents.length - 1]) : {};
         const newStartingBlock = lastKnownEvent ? lastKnownEvent?.blockNumber + 1 : 0;
 
-        const newTransferEvents = await contract.queryFilter(
-            contract.filters.Transfer(BURN_ADDRESS),
-            newStartingBlock ? newStartingBlock : undefined,
-        );
+        const [
+            newMintEvents,
+            newTreasuryTransferEvents,
+        ] = await Promise.all([
+            contract.queryFilter(
+                contract.filters.Transfer(BURN_ADDRESS),
+                newStartingBlock ? newStartingBlock : undefined,
+            ),
+            contract.queryFilter(
+                contract.filters.Transfer(TREASURY),
+                newStartingBlock ? newStartingBlock : undefined,
+            )
+        ]);
+
+        const newTransferEvents = newMintEvents.concat(newTreasuryTransferEvents).sort((a, b) => a.blockNumber - b.blockNumber);
 
         const blocks = newTransferEvents.map(e => e.blockNumber);
 
@@ -62,6 +73,7 @@ export default async function handler(req, res) {
                 blockNumber: e.blockNumber,
                 amount: getBnToNumber(e.args[2]),
                 isTreasuryMint: e.args[1].toLowerCase() === TREASURY.toLowerCase(),
+                isTreasuryTransfer: e.args[0].toLowerCase() === TREASURY.toLowerCase(),
             };
         }).filter(e => e.amount > 0);
 
@@ -71,7 +83,7 @@ export default async function handler(req, res) {
             timestamp: +(new Date()),
             newTransfers,
             totalEmissions: pastTotalEvents.concat(newTransfers).map(e => {
-                return { ...e, accEmissions: accEmissions += e.amount }
+                return { ...e, accEmissions: e.isTreasuryTransfer ? accEmissions : accEmissions += e.amount }
             }),
             rewardRatesHistory: (ratesCache || initialDbrRewardRates),
         };
