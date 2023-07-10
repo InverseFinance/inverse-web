@@ -52,7 +52,7 @@ export const DelegatesPreview = (containerProps: Partial<FlexProps>) => {
                     <Text fontSize="sm" fontWeight="semibold">
                       {votingPower.toFixed(2)}
                     </Text>
-                    <Text fontSize="sm" color="lightAccentTextColor">
+                    <Text style={{ whiteSpace: 'nowrap' }} fontSize="sm" color="lightAccentTextColor">
                       {`${delegators.length} delegators`}
                     </Text>
                   </Flex>
