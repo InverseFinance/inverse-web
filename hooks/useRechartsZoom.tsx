@@ -1,6 +1,5 @@
 import { RSubmitButton } from "@app/components/common/Button/RSubmitButton";
 import { ONE_DAY_MS } from "@app/config/constants";
-import { timestampToUTC } from "@app/util/misc";
 import { VStack, Text, HStack } from '@chakra-ui/react'
 import { useState } from "react";
 import { ReferenceArea } from "recharts";
@@ -15,16 +14,22 @@ const initialState = {
     animation: true,
 };
 
-const rangeBtns = [
+const DEFAULT_RANGES_TO_INCLUDE = ['All', '1Y', '6M', '3M', 'YTD'];
+
+const RANGES = [
     { label: 'All' },
-    { label: '1Y' },
-    { label: '6M' },
-    { label: '3M' },
+    { label: '1Y', daysInPast: ONE_DAY_MS * 366 },
+    { label: '6M', daysInPast: ONE_DAY_MS * 181 },
+    { label: '3M', daysInPast: ONE_DAY_MS * 91 },
+    { label: '1M', daysInPast: ONE_DAY_MS * 31 },
+    { label: '3W', daysInPast: ONE_DAY_MS * 22 },
+    { label: '2W', daysInPast: ONE_DAY_MS * 15 },
+    { label: '7D', daysInPast: ONE_DAY_MS * 8 },
     { label: 'YTD' },
-]
+];
 
 const getAxisYDomain = (combodata, from, to, xKey, ref, offsetPerc = 0.05) => {
-    const xs = combodata.map(d => d[xKey]);    
+    const xs = combodata.map(d => d[xKey]);
     const fromIndex = Math.max(xs.indexOf(from), 0);
     const toIndex = xs.indexOf(to) === -1 ? xs.length - 1 : xs.indexOf(to);
     const refData = combodata.slice(fromIndex, toIndex + 1);
@@ -37,17 +42,34 @@ const getAxisYDomain = (combodata, from, to, xKey, ref, offsetPerc = 0.05) => {
     return [Math.max((bottom || 0) * (1 - offsetPerc), 0), (top | 0) * (1 + offsetPerc), refData];
 };
 
-export const useRechartsZoom = (combodata, xKey = 'x', yKey= 'y', allowZoom = false, showRangeBtns = false, yAxisId = undefined) => {
+export const useRechartsZoom = ({
+    combodata,
+    xKey = 'x',
+    yKey = 'y',
+    allowZoom = true,
+    showRangeBtns = true,
+    yAxisId = undefined,
+    rangesToInclude = DEFAULT_RANGES_TO_INCLUDE,
+}: {
+    combodata: any[]
+    xKey?: string
+    yKey?: string
+    allowZoom?: boolean
+    showRangeBtns?: boolean
+    yAxisId?: string
+    rangesToInclude?: string[]
+}) => {
+    const ranges = RANGES.filter(r => rangesToInclude.includes(r.label));
     const [state, setState] = useState({ ...initialState, data: null });
     const [refAreaLeft, setRefAreaLeft] = useState(initialState.refAreaLeft);
     const [refAreaRight, setRefAreaRight] = useState(initialState.refAreaRight);
-    const [lastRangeType, setLastRangeType] = useState(rangeBtns[0].label);
+    const [lastRangeType, setLastRangeType] = useState(ranges[0].label);
     const { data, left, right, top, bottom } = state
 
     const zoomOut = () => {
         setRefAreaLeft('');
         setRefAreaRight('');
-        setLastRangeType(rangeBtns[0].label);
+        setLastRangeType(ranges[0].label);
         setState({
             ...state,
             data: null,
@@ -68,25 +90,24 @@ export const useRechartsZoom = (combodata, xKey = 'x', yKey= 'y', allowZoom = fa
         refAreaLeft && !!e && setRefAreaRight(e.activeLabel);
     }
 
-    const changeToRange = (rangeType: string) => {
+    const changeToRange = (range: { label: string, daysInPast?: number }) => {
+        const { label: rangeType, daysInPast } = range;
         setLastRangeType(rangeType);
         if (rangeType === 'All') {
             zoomOut();
             return;
         } else {
-            const startOfYearTs = Date.UTC(new Date().getUTCFullYear());            
+            const startOfYearTs = Date.UTC(new Date().getUTCFullYear());
             let left;
             const right = combodata[combodata.length - 1][xKey];
-            
+
             if (rangeType === 'YTD') {
                 left = combodata.find(d => d[xKey] >= startOfYearTs)[xKey];
-            } else if (rangeType === '1Y') {
-                left = combodata.find(d => d[xKey] >= (right - ONE_DAY_MS * 366))[xKey];
-            } else if (rangeType === '6M') {
-                left = combodata.find(d => d[xKey] >= (right - ONE_DAY_MS * 181))[xKey];
-            } else if (rangeType === '3M') {
-                left = combodata.find(d => d[xKey] >= (right - ONE_DAY_MS * 91))[xKey];
-            }            
+            } else if (!!daysInPast) {
+                left = combodata.find(d => d[xKey] >= (right - daysInPast))[xKey];
+            } else {
+                return;
+            }
             zoom(left, right);
         }
     }
@@ -102,7 +123,7 @@ export const useRechartsZoom = (combodata, xKey = 'x', yKey= 'y', allowZoom = fa
 
     const zoom = (l?: string | number, r?: string | number) => {
         const refLeft = l || refAreaLeft;
-        const refRight = r || refAreaRight;        
+        const refRight = r || refAreaRight;
 
         if (refLeft === refRight || refRight === '') {
             setRefAreaLeft('');
@@ -128,7 +149,7 @@ export const useRechartsZoom = (combodata, xKey = 'x', yKey= 'y', allowZoom = fa
         });
     }
 
-    const rangeButtons = <>{rangeBtns.map((btn, i) => <RSubmitButton bgColor={btn.label === lastRangeType ? 'accentTextColor' : undefined} onClick={() => changeToRange(btn.label)} maxH="30px" py="1" px="2" fontSize="12px">{btn.label}</RSubmitButton>)}</>
+    const rangeButtons = <>{ranges.map((range, i) => <RSubmitButton bgColor={range.label === lastRangeType ? 'accentTextColor' : undefined} onClick={() => changeToRange(range)} maxH="30px" py="1" px="2" fontSize="12px">{range.label}</RSubmitButton>)}</>
     const rangeButtonsBarAbs = !showRangeBtns || !allowZoom ? null : <HStack position={{ base: 'static', md: 'absolute' }} top="-43px">
         {rangeButtons}
     </HStack>
