@@ -98,9 +98,11 @@ export const DbrComboChart = ({
                     labelFormatter={v => moment(v).format('MMM Do YYYY')}
                     labelStyle={{ fontWeight: 'bold' }}
                     itemStyle={{ fontWeight: 'bold' }}
-                    formatter={(value, name) => {
-                        const isPrice = name === 'Price';
-                        return !value ? 'none' : isPrice ? shortenNumber(value, 4, true) : preciseCommify(value, 0, useUsd)
+                    formatter={(value, name, d) => {
+                        // trick to show both price without messing up right axis by showing both price lines
+                        const _value = name === KEYS.INV_PRICE ? d.payload.invHistoPrice : name === KEYS.DBR_PRICE ? d.payload.histoPrice : value;
+                        const isPrice = /price/i.test(name);
+                        return !_value ? 'none' : isPrice ? shortenNumber(_value, 4, true) : preciseCommify(_value, 0, useUsd)
                     }}
                 />
                 <Legend wrapperStyle={legendStyle} onClick={toggleChart} style={{ cursor: 'pointer' }} formatter={(value) => value + (actives[value] ? '' : ' (hidden)')} />
