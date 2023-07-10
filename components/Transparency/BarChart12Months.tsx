@@ -29,12 +29,14 @@ export const BarChart12Months = ({
     months = DEFAULT_MONTHS,
     ...props
 }: BarChart12MonthsProps & Omit<BarChartProps, "groupedData">) => {
-    const [_chartWidth, setChartWidth] = useState<number>(chartWidth||maxChartWidth);
-    const [isLargerThan] = useMediaQuery(`(min-width: ${chartWidth||maxChartWidth}px)`)
+    const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
+    const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`)
 
     useEffect(() => {
-        setChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 40)
+        setAutoChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 40)
     }, [isLargerThan]);
+
+    const _chartWidth = chartWidth || autoChartWidth;
 
     const currentYear = new Date().getUTCFullYear();
     const currentMonth = new Date().getUTCMonth();

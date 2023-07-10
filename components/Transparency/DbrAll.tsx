@@ -152,6 +152,7 @@ export const DbrAll = ({
         />
         <DbrEmissions
             emissionEvents={emissionEvents}
+            maxChartWidth={chartWidth}
             chartWidth={chartWidth}
             histoPrices={histoPrices}
             replenishments={replenishments}

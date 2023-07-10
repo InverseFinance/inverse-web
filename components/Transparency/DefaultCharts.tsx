@@ -1,4 +1,4 @@
-import { Stack, useMediaQuery, HStack, Text, Switch } from "@chakra-ui/react";
+import { Stack, useMediaQuery, HStack, Text, Switch, StackProps } from "@chakra-ui/react";
 import { AreaChart, AreaChartProps } from "./AreaChart"
 import { useEffect, useState } from "react";
 import { BarChart12Months, BarChart12MonthsProps } from "./BarChart12Months";
@@ -19,6 +19,7 @@ export const DefaultCharts = ({
     showCustomizationBar = false,
     smoothLineByDefault = true,
     custombarChildren,
+    containerProps,
 }: {
     chartData: CoordinatesArray,
     maxChartWidth?: number,
@@ -33,18 +34,21 @@ export const DefaultCharts = ({
     smoothLineByDefault?: boolean
     custombarChildren?: any
     direction?: 'column' | 'row'
+    containerProps?: StackProps
 }) => {
     const [useSmoothLine, setUseSmoothLine] = useState(smoothLineByDefault);
-    const [_chartWidth, setChartWidth] = useState<number>(chartWidth||maxChartWidth);
-    const [isLargerThan] = useMediaQuery(`(min-width: ${chartWidth||maxChartWidth}px)`);
+    const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
+    const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
     const { themeStyles } = useAppTheme();
     const defaultColorScale = [themeStyles.colors.secondary];
 
     useEffect(() => {
-        setChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 40)
+        setAutoChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 40)
     }, [isLargerThan]);
 
-    return <Stack w='full' direction={direction} justify="space-between" alignItems="center">
+    const _chartWidth = chartWidth || autoChartWidth;
+
+    return <Stack w='full' direction={direction} justify="space-between" alignItems="center" {...containerProps}>
         {
             showCustomizationBar && <Stack w='full' direction={{ base: 'column', md: 'row' }} justify="space-between">
                 <HStack>

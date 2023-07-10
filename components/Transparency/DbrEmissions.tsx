@@ -1,16 +1,18 @@
-import { FormControl, Stack, Switch, Text } from "@chakra-ui/react";
-import { useState } from "react";
+import { FormControl, Stack, Switch, Text, useMediaQuery } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 import { useEventsAsChartData } from "@app/hooks/misc";
 import { DefaultCharts } from "./DefaultCharts";
 import { timestampToUTC } from "@app/util/misc";
 
 export const DbrEmissions = ({
-    chartWidth = 800,
+    maxChartWidth = 800,
+    chartWidth,
     replenishments,
     histoPrices,
     useUsd = false,
     emissionEvents,
 }: {
+    maxChartWidth: number
     chartWidth: number
     replenishments: any[]
     histoPrices: { [key: string]: number }
@@ -41,7 +43,16 @@ export const DbrEmissions = ({
 
     const { chartData: emissionChartData } = useEventsAsChartData(_events, '_auto_', useUsd ? 'worth' : 'amount');
 
-    return <Stack maxWidth={`${chartWidth}px`} w='full' direction={{ base: 'column' }}>
+    const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
+    const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
+
+    const _chartWidth = chartWidth || autoChartWidth;
+
+    useEffect(() => {
+        setAutoChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 40)
+    }, [isLargerThan]);
+
+    return <Stack w='full' direction={{ base: 'column' }} alignItems="flex-start">
         <Stack direction={{ base: 'column', sm: 'row' }} py="4" spacing="4" justify="space-between" alignItems="center" w='full'>
             <Stack direction={{ base: 'column', sm: 'row' }} spacing="4" justify="flex-start" alignItems="flex-start">
                 <FormControl w='auto' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
@@ -67,14 +78,15 @@ export const DbrEmissions = ({
         <DefaultCharts
             chartData={emissionChartData}
             maxChartWidth={chartWidth}
-            chartWidth={chartWidth}
+            chartWidth={_chartWidth}
             isDollars={useUsd}
             showMonthlyBarChart={true}
             showAreaChart={false}
             barProps={{
                 eventName: 'Issuance',
-                title: 'DBR added to the circulating supply in the last 12 months'
+                title: 'DBR circ. supply increases in the last 12 months'
             }}
+            containerProps={{ alignItems: 'flex-start' }}
         />
     </Stack>
 }
