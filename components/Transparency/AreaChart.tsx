@@ -40,6 +40,7 @@ export type AreaChartProps = {
     useRecharts?: boolean
     showEvents?: boolean
     showEventsLabels?: boolean
+    showRangeBtns?: boolean
     showLegend?: boolean
     fillInByDayInterval?: number
     yLabel?: string

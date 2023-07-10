@@ -8,7 +8,7 @@ import { CoordinatesArray } from "@app/types";
 export const DefaultCharts = ({
     chartData,
     maxChartWidth = 800,
-    chartWidth = 800,
+    chartWidth,
     areaProps,
     barProps,
     isDollars,
@@ -60,7 +60,7 @@ export const DefaultCharts = ({
             showAreaChart && <AreaChart
                 showTooltips={true}
                 height={300}
-                width={chartWidth}
+                width={_chartWidth}
                 data={chartData}
                 domainYpadding={'auto'}
                 mainColor="secondary"
@@ -74,7 +74,7 @@ export const DefaultCharts = ({
             showMonthlyBarChart && <BarChart12Months
                 chartData={chartData}
                 maxChartWidth={maxChartWidth}
-                chartWidth={chartWidth}
+                chartWidth={_chartWidth}
                 colorScale={defaultColorScale}
                 isDollars={isDollars}
                 eventName="Value"
