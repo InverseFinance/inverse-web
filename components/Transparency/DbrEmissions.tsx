@@ -1,17 +1,17 @@
-import { FormControl, Stack, Switch, useMediaQuery, Text } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { FormControl, Stack, Switch, Text } from "@chakra-ui/react";
+import { useState } from "react";
 import { useEventsAsChartData } from "@app/hooks/misc";
 import { DefaultCharts } from "./DefaultCharts";
 import { timestampToUTC } from "@app/util/misc";
 
 export const DbrEmissions = ({
-    maxChartWidth = 800,
+    chartWidth = 800,
     replenishments,
     histoPrices,
     useUsd = false,
     emissionEvents,
 }: {
-    maxChartWidth: number
+    chartWidth: number
     replenishments: any[]
     histoPrices: { [key: string]: number }
     useUsd?: boolean
@@ -41,14 +41,7 @@ export const DbrEmissions = ({
 
     const { chartData: emissionChartData } = useEventsAsChartData(_events, '_auto_', useUsd ? 'worth' : 'amount');
 
-    const [chartWidth, setChartWidth] = useState<number>(maxChartWidth);
-    const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
-
-    useEffect(() => {
-        setChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 40)
-    }, [isLargerThan]);
-
-    return <Stack w='full' direction={{ base: 'column' }}>
+    return <Stack maxWidth={`${chartWidth}px`} w='full' direction={{ base: 'column' }}>
         <Stack direction={{ base: 'column', sm: 'row' }} py="4" spacing="4" justify="space-between" alignItems="center" w='full'>
             <Stack direction={{ base: 'column', sm: 'row' }} spacing="4" justify="flex-start" alignItems="flex-start">
                 <FormControl w='auto' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
@@ -74,6 +67,7 @@ export const DbrEmissions = ({
         <DefaultCharts
             chartData={emissionChartData}
             maxChartWidth={chartWidth}
+            chartWidth={chartWidth}
             isDollars={useUsd}
             showMonthlyBarChart={true}
             showAreaChart={false}

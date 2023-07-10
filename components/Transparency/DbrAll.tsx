@@ -144,6 +144,7 @@ export const DbrAll = ({
             title="DBR burned in the last 12 months"
             chartData={burnChartData}
             maxChartWidth={chartWidth}
+            chartWidth={chartWidth}
             eventName="Burn"
             yAttribute="yDay"
             colorScale={defaultColorScale}
@@ -151,7 +152,7 @@ export const DbrAll = ({
         />
         <DbrEmissions
             emissionEvents={emissionEvents}
-            maxChartWidth={chartWidth}
+            chartWidth={chartWidth}
             histoPrices={histoPrices}
             replenishments={replenishments}
             useUsd={useUsd}

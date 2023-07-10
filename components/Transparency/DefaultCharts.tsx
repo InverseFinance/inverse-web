@@ -8,6 +8,7 @@ import { CoordinatesArray } from "@app/types";
 export const DefaultCharts = ({
     chartData,
     maxChartWidth = 800,
+    chartWidth = 800,
     areaProps,
     barProps,
     isDollars,
@@ -21,6 +22,7 @@ export const DefaultCharts = ({
 }: {
     chartData: CoordinatesArray,
     maxChartWidth?: number,
+    chartWidth?: number,
     areaProps?: Partial<AreaChartProps>,
     barProps?: Partial<BarChart12MonthsProps>,
     isDollars?: boolean
@@ -33,8 +35,8 @@ export const DefaultCharts = ({
     direction?: 'column' | 'row'
 }) => {
     const [useSmoothLine, setUseSmoothLine] = useState(smoothLineByDefault);
-    const [chartWidth, setChartWidth] = useState<number>(maxChartWidth);
-    const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
+    const [_chartWidth, setChartWidth] = useState<number>(chartWidth||maxChartWidth);
+    const [isLargerThan] = useMediaQuery(`(min-width: ${chartWidth||maxChartWidth}px)`);
     const { themeStyles } = useAppTheme();
     const defaultColorScale = [themeStyles.colors.secondary];
 
@@ -71,7 +73,8 @@ export const DefaultCharts = ({
         {
             showMonthlyBarChart && <BarChart12Months
                 chartData={chartData}
-                maxChartWidth={chartWidth}
+                maxChartWidth={maxChartWidth}
+                chartWidth={chartWidth}
                 colorScale={defaultColorScale}
                 isDollars={isDollars}
                 eventName="Value"
