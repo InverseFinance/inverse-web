@@ -42,7 +42,7 @@ export const DbrAll = ({
     const repHashes = replenishments?.map(r => r.txHash) || [];
 
     const claimEvents = emissionEvents?.filter(e => {
-        return !repHashes.includes(e.txHash) && !e.isTreasuryMint;
+        return !repHashes.includes(e.txHash) && !e.isTreasuryMint && !e.isTreasuryTransfer;
     });
 
     const totalClaimed = claimEvents.reduce((acc, e) => acc + e.amount, 0);
@@ -144,6 +144,7 @@ export const DbrAll = ({
             title="DBR burned in the last 12 months"
             chartData={burnChartData}
             maxChartWidth={chartWidth}
+            chartWidth={chartWidth}
             eventName="Burn"
             yAttribute="yDay"
             colorScale={defaultColorScale}
@@ -152,6 +153,7 @@ export const DbrAll = ({
         <DbrEmissions
             emissionEvents={emissionEvents}
             maxChartWidth={chartWidth}
+            chartWidth={chartWidth}
             histoPrices={histoPrices}
             replenishments={replenishments}
             useUsd={useUsd}

@@ -10,6 +10,7 @@ const DEFAULT_MONTHS = [...Array(12).keys()];
 export type BarChart12MonthsProps = {
     chartData: CoordinatesArray,
     maxChartWidth?: number,
+    chartWidth?: number,
     eventName: string,
     yAttribute: string,
     isDollars?: boolean,
@@ -20,6 +21,7 @@ export type BarChart12MonthsProps = {
 export const BarChart12Months = ({
     chartData,
     maxChartWidth = 900,
+    chartWidth = 900,
     eventName,
     yAttribute,
     isDollars,
@@ -27,12 +29,14 @@ export const BarChart12Months = ({
     months = DEFAULT_MONTHS,
     ...props
 }: BarChart12MonthsProps & Omit<BarChartProps, "groupedData">) => {
-    const [chartWidth, setChartWidth] = useState<number>(maxChartWidth);
+    const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`)
 
     useEffect(() => {
-        setChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 40)
+        setAutoChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 40)
     }, [isLargerThan]);
+
+    const _chartWidth = chartWidth || autoChartWidth;
 
     const currentYear = new Date().getUTCFullYear();
     const currentMonth = new Date().getUTCMonth();
@@ -47,7 +51,7 @@ export const BarChart12Months = ({
 
             return {
                 label: `${event}s: ${smartShortNumber(y, 2, isDollars)}`,
-                x: moment(date).utc().format(xDateFormat || (chartWidth <= 400 ? 'MMM' : 'MMM-YY')),
+                x: moment(date).utc().format(xDateFormat || (_chartWidth <= 400 ? 'MMM' : 'MMM-YY')),
                 y,
             }
         });
@@ -55,7 +59,7 @@ export const BarChart12Months = ({
 
     return (
         <BarChart
-            width={chartWidth}        
+            width={_chartWidth}        
             isDollars={isDollars}
             yLabel={eventName}
             {...props}

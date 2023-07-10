@@ -1,4 +1,4 @@
-import { Stack, useMediaQuery, HStack, Text, Switch } from "@chakra-ui/react";
+import { Stack, useMediaQuery, HStack, Text, Switch, StackProps } from "@chakra-ui/react";
 import { AreaChart, AreaChartProps } from "./AreaChart"
 import { useEffect, useState } from "react";
 import { BarChart12Months, BarChart12MonthsProps } from "./BarChart12Months";
@@ -8,6 +8,7 @@ import { CoordinatesArray } from "@app/types";
 export const DefaultCharts = ({
     chartData,
     maxChartWidth = 800,
+    chartWidth,
     areaProps,
     barProps,
     isDollars,
@@ -18,9 +19,11 @@ export const DefaultCharts = ({
     showCustomizationBar = false,
     smoothLineByDefault = true,
     custombarChildren,
+    containerProps,
 }: {
     chartData: CoordinatesArray,
     maxChartWidth?: number,
+    chartWidth?: number,
     areaProps?: Partial<AreaChartProps>,
     barProps?: Partial<BarChart12MonthsProps>,
     isDollars?: boolean
@@ -31,18 +34,21 @@ export const DefaultCharts = ({
     smoothLineByDefault?: boolean
     custombarChildren?: any
     direction?: 'column' | 'row'
+    containerProps?: StackProps
 }) => {
     const [useSmoothLine, setUseSmoothLine] = useState(smoothLineByDefault);
-    const [chartWidth, setChartWidth] = useState<number>(maxChartWidth);
+    const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
     const { themeStyles } = useAppTheme();
     const defaultColorScale = [themeStyles.colors.secondary];
 
     useEffect(() => {
-        setChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 40)
+        setAutoChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 40)
     }, [isLargerThan]);
 
-    return <Stack w='full' direction={direction} justify="space-between" alignItems="center">
+    const _chartWidth = chartWidth || autoChartWidth;
+
+    return <Stack w='full' direction={direction} justify="space-between" alignItems="center" {...containerProps}>
         {
             showCustomizationBar && <Stack w='full' direction={{ base: 'column', md: 'row' }} justify="space-between">
                 <HStack>
@@ -58,7 +64,7 @@ export const DefaultCharts = ({
             showAreaChart && <AreaChart
                 showTooltips={true}
                 height={300}
-                width={chartWidth}
+                width={_chartWidth}
                 data={chartData}
                 domainYpadding={'auto'}
                 mainColor="secondary"
@@ -71,7 +77,8 @@ export const DefaultCharts = ({
         {
             showMonthlyBarChart && <BarChart12Months
                 chartData={chartData}
-                maxChartWidth={chartWidth}
+                maxChartWidth={maxChartWidth}
+                chartWidth={_chartWidth}
                 colorScale={defaultColorScale}
                 isDollars={isDollars}
                 eventName="Value"

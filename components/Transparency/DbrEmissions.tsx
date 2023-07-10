@@ -1,4 +1,4 @@
-import { FormControl, Stack, Switch, useMediaQuery, Text } from "@chakra-ui/react";
+import { FormControl, Stack, Switch, Text, useMediaQuery } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useEventsAsChartData } from "@app/hooks/misc";
 import { DefaultCharts } from "./DefaultCharts";
@@ -6,17 +6,20 @@ import { timestampToUTC } from "@app/util/misc";
 
 export const DbrEmissions = ({
     maxChartWidth = 800,
+    chartWidth,
     replenishments,
     histoPrices,
     useUsd = false,
     emissionEvents,
 }: {
     maxChartWidth: number
+    chartWidth: number
     replenishments: any[]
     histoPrices: { [key: string]: number }
     useUsd?: boolean
     emissionEvents: any[]
 }) => {
+    const [includeTreasuryTransfers, setIncludeTreasuryTransfers] = useState(false);
     const [includeTreasuryMints, setIncludeTreasuryMints] = useState(false);
     const [includeReplenishments, setIncludeReplenishments] = useState(true);
     const [includeClaims, setIncludeClaims] = useState(true);
@@ -27,9 +30,10 @@ export const DbrEmissions = ({
         emissionEvents :
         emissionEvents?.filter(e => {
             const repCondition = includeReplenishments ? repHashes.includes(e.txHash) : false;
-            const claimCondition = includeClaims ? !repHashes.includes(e.txHash) && !e.isTreasuryMint : false;
+            const claimCondition = includeClaims ? !repHashes.includes(e.txHash) && !e.isTreasuryMint && !e.isTreasuryTransfer : false;
             const treasuryMintCondition = includeTreasuryMints ? e.isTreasuryMint : false;
-            return repCondition || claimCondition || treasuryMintCondition;
+            const treasuryTransferCondition = includeTreasuryTransfers ? e.isTreasuryTransfer : false;
+            return repCondition || claimCondition || treasuryMintCondition || treasuryTransferCondition;
         });
 
     const _events = filteredEvents?.map(e => {
@@ -39,21 +43,23 @@ export const DbrEmissions = ({
 
     const { chartData: emissionChartData } = useEventsAsChartData(_events, '_auto_', useUsd ? 'worth' : 'amount');
 
-    const [chartWidth, setChartWidth] = useState<number>(maxChartWidth);
+    const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
 
+    const _chartWidth = chartWidth || autoChartWidth;
+
     useEffect(() => {
-        setChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 40)
+        setAutoChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 40)
     }, [isLargerThan]);
 
-    return <Stack w='full' direction={{ base: 'column' }}>
+    return <Stack w='full' direction={{ base: 'column' }} alignItems="flex-start">
         <Stack direction={{ base: 'column', sm: 'row' }} py="4" spacing="4" justify="space-between" alignItems="center" w='full'>
             <Stack direction={{ base: 'column', sm: 'row' }} spacing="4" justify="flex-start" alignItems="flex-start">
                 <FormControl w='auto' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
-                    <Text mr="2" onClick={() => setIncludeTreasuryMints(!includeTreasuryMints)}>
-                        Treasury Mints
+                    <Text mr="2" onClick={() => setIncludeTreasuryTransfers(!includeTreasuryTransfers)}>
+                        Treasury Transfers
                     </Text>
-                    <Switch onChange={(e) => setIncludeTreasuryMints(!includeTreasuryMints)} size="sm" colorScheme="purple" isChecked={includeTreasuryMints} />
+                    <Switch onChange={(e) => setIncludeTreasuryTransfers(!includeTreasuryTransfers)} size="sm" colorScheme="purple" isChecked={includeTreasuryTransfers} />
                 </FormControl>
                 <FormControl w='auto' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
                     <Text mr="2" onClick={() => setIncludeReplenishments(!includeReplenishments)}>
@@ -72,13 +78,15 @@ export const DbrEmissions = ({
         <DefaultCharts
             chartData={emissionChartData}
             maxChartWidth={chartWidth}
+            chartWidth={_chartWidth}
             isDollars={useUsd}
             showMonthlyBarChart={true}
             showAreaChart={false}
             barProps={{
                 eventName: 'Issuance',
-                title: 'DBR issuance in the last 12 months'
+                title: 'DBR circ. supply increases in the last 12 months'
             }}
+            containerProps={{ alignItems: 'flex-start' }}
         />
     </Stack>
 }
