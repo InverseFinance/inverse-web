@@ -158,7 +158,7 @@ export const FEDS_PARAMS = [
             multisig: {
                 address: '0xa283139017a2f5BAdE8d8e25412C600055D318F8',
                 relevantAssets: [
-                    '0x9c7305eb78a432ced5C4D14Cac27E8Ed569A2e26',
+                    '0xFAf8FD17D9840595845582fCB047DF13f006787d',
                     '0x3c8B650257cFb5f272f799F5e2b4e65093a11a05',
                 ]
             },
