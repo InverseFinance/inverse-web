@@ -16,22 +16,29 @@ export const prepareLeveragePosition = async (
     signer: JsonRpcSigner,
     market: F2Market,
     dolaToBorrow: BigNumber,
+    slippage?: number,
 ) => {
-    const signatureResult = await getFirmSignature(signer, market.address, dolaToBorrow, 'BorrowOnBehalf');
+    const signatureResult = await getFirmSignature(signer, market.address, dolaToBorrow, 'BorrowOnBehalf', F2_ALE);
     if (signatureResult) {
         const { deadline, r, s, v } = signatureResult;
         let get0xQuoteResult;
         try {
-            get0xQuoteResult = await get0xQuote(market.collateral, DOLA, dolaToBorrow.toString());
+            get0xQuoteResult = await get0xQuote(market.collateral, DOLA, dolaToBorrow.toString(), slippage);
+            if (!get0xQuoteResult?.to) {
+                const msg = get0xQuoteResult?.validationErrors?.length > 0 ?
+                    `Swap validation failed with: ${get0xQuoteResult?.validationErrors[0].field} ${get0xQuoteResult?.validationErrors[0].reason}`
+                    : "Getting a quote from 0x failed";
+                return Promise.reject(msg);
+            }
         } catch (e) {
             console.log(e);
             return Promise.reject("Getting a quote from 0x failed");
         }
-        const { data, allowanceTarget, to: swapTarget, value } = get0xQuoteResult;
+        const { data, allowanceTarget, to: swapTarget, value, buyTokenAddress } = get0xQuoteResult;
         return leveragePosition(
             signer,
             dolaToBorrow,
-            market.collateral,
+            buyTokenAddress,
             allowanceTarget,
             swapTarget,
             data,
@@ -48,7 +55,7 @@ export const prepareLeveragePosition = async (
 
 export const leveragePosition = (
     signer: JsonRpcSigner,
-    dolatoBorrow: BigNumber,
+    dolaToBorrow: BigNumber,
     buyAd: string,
     zeroXspender: string,
     zeroXtarget: string,
@@ -61,8 +68,8 @@ export const leveragePosition = (
     value: string,
 ) => {
     return getAleContract(signer)
-        .leveragePosition(            
-            dolatoBorrow,
+        .leveragePosition(
+            dolaToBorrow,
             buyAd,
             zeroXspender,
             zeroXtarget,

@@ -24,6 +24,7 @@ export const getFirmSignature = (
     market: string,
     amount: string | BigNumber,
     type: 'BorrowOnBehalf' | 'WithdrawOnBehalf',
+    caller: string = F2_HELPER,
 ): Promise<{
     deadline: number,
     r: string,
@@ -49,7 +50,7 @@ export const getFirmSignature = (
             }
 
             const value = {
-                caller: F2_HELPER,
+                caller,
                 from,
                 amount,
                 nonce: (await marketContract.nonces(from)).toString(),
