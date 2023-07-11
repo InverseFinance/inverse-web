@@ -106,7 +106,7 @@ const chainTokenAddresses = {
   "10": {
     DOLA: '0x8aE125E8653821E851F12A49F7765db9a9ce7384',
     VELO: '0x3c8B650257cFb5f272f799F5e2b4e65093a11a05',
-    VEVELO: '0x9c7305eb78a432ced5C4D14Cac27E8Ed569A2e26',
+    VEVELO: '0xFAf8FD17D9840595845582fCB047DF13f006787d',
     VELODOLAUSDCLP: '0x6C5019D345Ec05004A7E7B0623A91a0D9B8D590d',
     VELOV2DOLAUSDCLP: '0xB720FBC32d60BB6dcc955Be86b98D8fD3c4bA645',
     VELODOLALP: '0x1eBE6427f037385dDcB95aa688c18272415e3F46',
@@ -1046,7 +1046,7 @@ const chainTokens = {
       image: TOKEN_IMAGES.veVELO,
       decimals: 18,
       coingeckoId: 'velodrome-finance',
-      veNftId: '4',
+      veNftId: '4130',
     },
     [chainTokenAddresses["10"].VELODOLAUSDCLP]: {
       address: chainTokenAddresses["10"].VELODOLAUSDCLP,

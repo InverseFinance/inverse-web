@@ -159,7 +159,7 @@ const columns = [
                     borrowPaused ? <CellText>Borrow Paused</CellText> : <>
                         <CellText>{leftToBorrow > 1 ? shortenNumber(leftToBorrow, 2) : totalDebt ? 'Depleted' : 'No liquidity'}</CellText>
                         {
-                            leftToBorrow < dailyLimit && dolaLiquidity > 0 && leftToBorrow < dolaLiquidity
+                            leftToBorrow < dailyLimit && dolaLiquidity > 0 && leftToBorrow < dolaLiquidity && shortenNumber(dolaLiquidity, 2) !== shortenNumber(leftToBorrow, 2)
                             && <CellText overflow="visible" whiteSpace="nowrap" minW="130px" textAlign={{ base: 'right', sm: 'left' }} fontSize={{ base: '10px', sm: '12px' }} color="mainTextColorLight2">
                                 <DailyLimitCountdown prefix="Limit resets in " />
                             </CellText>

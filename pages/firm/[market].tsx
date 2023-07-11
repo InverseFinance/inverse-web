@@ -5,7 +5,7 @@ import Head from 'next/head'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { useDBRMarkets } from '@app/hooks/useDBR'
 
-import { VStack, Text, HStack, FormControl, FormLabel, Switch, Divider } from '@chakra-ui/react'
+import { VStack, Text, HStack, FormControl, FormLabel, Switch } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 
 import { useEffect, useState } from 'react'
@@ -37,7 +37,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
     const { markets } = useDBRMarkets(market);
     const f2market = markets.length > 0 && !!market ? markets[0] : undefined;
 
-    const needCountdown = f2market?.leftToBorrow < f2market?.dailyLimit && f2market?.dolaLiquidity > 0 && f2market?.leftToBorrow < f2market?.dolaLiquidity;
+    const needCountdown = f2market?.leftToBorrow < f2market?.dailyLimit && f2market?.dolaLiquidity > 0 && f2market?.leftToBorrow < f2market?.dolaLiquidity && shortenNumber(f2market?.dolaLiquidity, 2) !== shortenNumber(f2market?.leftToBorrow, 2);
 
     useEffect(() => {
         if (inited) { return }

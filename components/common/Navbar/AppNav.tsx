@@ -393,6 +393,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
 export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = false, hideAnnouncement = false }: { active?: string, activeSubmenu?: string, isBlog?: boolean, isClaimPage?: boolean, hideAnnouncement?: boolean }) => {
   const { query } = useRouter()
   const [isLargerThan] = useMediaQuery('(min-width: 1330px)');
+  const [isLargerThan1150] = useMediaQuery('(min-width: 1150px)');
   const [isLargerThan768] = useMediaQuery('(min-width: 768px)');
   const { themeName } = useAppTheme();
   const { isActive, chainId } = useWeb3React<Web3Provider>();  
@@ -516,7 +517,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
       >
         <Stack direction="row" align="center" spacing={5}>
           <Link href="/">
-            <Logo boxSize={10} noFilter={true} />
+            <Logo minW='40px' boxSize={10} noFilter={true} />
           </Link>
           <Stack direction="row" align="center" spacing={isLargerThan || isBlog ? 6 : 5} display={{ base: 'none', lg: 'flex' }}>
             {NAV_ITEMS.map(({ label, href, submenus }, i) => (
@@ -577,7 +578,9 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
                 {
                   isLargerThan && <INVBalance />
                 }
-                <ETHBalance />
+                {
+                  isLargerThan1150 && <ETHBalance />
+                }
                 {
                   badgeChainId ?
                     <NetworkBadge isWrongNetwork={isUnsupportedNetwork} chainId={badgeChainId} showWrongNetworkModal={onWrongNetOpen} />
