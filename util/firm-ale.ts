@@ -4,7 +4,7 @@ import { JsonRpcSigner } from "@ethersproject/providers";
 import { F2_ALE_ABI } from "@app/config/abis";
 import { getFirmSignature } from "./f2";
 import { F2Market } from "@app/types";
-import { get0xQuote } from "./zero";
+import { get0xSellQuote } from "./zero";
 
 const { F2_ALE, DOLA } = getNetworkConfigConstants();
 
@@ -23,7 +23,7 @@ export const prepareLeveragePosition = async (
         const { deadline, r, s, v } = signatureResult;
         let get0xQuoteResult;
         try {
-            get0xQuoteResult = await get0xQuote(market.collateral, DOLA, dolaToBorrow.toString(), slippage);
+            get0xQuoteResult = await get0xSellQuote(market.collateral, DOLA, dolaToBorrow.toString(), slippage);
             if (!get0xQuoteResult?.to) {
                 const msg = get0xQuoteResult?.validationErrors?.length > 0 ?
                     `Swap validation failed with: ${get0xQuoteResult?.validationErrors[0].field} ${get0xQuoteResult?.validationErrors[0].reason}`
@@ -95,7 +95,7 @@ export const prepareDeleveragePosition = async (
         const { deadline, r, s, v } = signatureResult;
         let get0xQuoteResult;
         try {
-            get0xQuoteResult = await get0xQuote(DOLA, market.collateral, collateralToWithdraw.toString(), slippage);
+            get0xQuoteResult = await get0xSellQuote(DOLA, market.collateral, collateralToWithdraw.toString(), slippage);
             if (!get0xQuoteResult?.to) {
                 const msg = get0xQuoteResult?.validationErrors?.length > 0 ?
                     `Swap validation failed with: ${get0xQuoteResult?.validationErrors[0].field} ${get0xQuoteResult?.validationErrors[0].reason}`
@@ -126,10 +126,11 @@ export const prepareDeleveragePosition = async (
     return Promise.reject("Signature failed or canceled");
 }
 
-export const deleveragePosition = (
+export const deleveragePosition = async (
     signer: JsonRpcSigner,
-    dolaToBorrow: BigNumber,
-    buyAd: string,
+    dolaToRepay: BigNumber,
+    sellAd: string,
+    amountToWithdraw: BigNumber,
     zeroXspender: string,
     zeroXtarget: string,
     swapData: string,
@@ -141,9 +142,10 @@ export const deleveragePosition = (
     value: string,
 ) => {
     return getAleContract(signer)
-        .leveragePosition(
-            dolaToBorrow,
-            buyAd,
+        .deleveragePosition(
+            dolaToRepay,
+            sellAd,
+            amountToWithdraw,
             zeroXspender,
             zeroXtarget,
             swapData,
