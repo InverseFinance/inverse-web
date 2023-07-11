@@ -531,7 +531,7 @@ export const DBR_DISTRIBUTOR_ABI = [
 
 export const F2_ALE_ABI = [
   'function leveragePosition(uint dolaToBorrow, address buyAd, address zeroXspender, address payable zeroXtarget, bytes calldata swapData, uint deadline, uint8 v, bytes32 r, bytes32 s, bytes calldata helperTransformData) external payable',
-  'function deleveragePosition(uint dolaToRepay, address sellAd, uint withdrawAmount , address zeroXspender, address zeroXtarget, bytes swapData, uint deadline, uint v, bytes32 r, bytes32 s, bytes helperTransformData) public',  
+  'function deleveragePosition(uint dolaToRepay, address sellAd, uint withdrawAmount, address zeroXspender, address payable zeroXtarget, bytes calldata swapData, uint deadline, uint8 v, bytes32 r, bytes32 s, bytes calldata helperTransformData) external payable',
   'function markets(address token) public view returns (tuple(address market, address helper, address collateral))',
   'function exchangeProxy() public view returns (address)',
   'function dola() public view returns (address)',
