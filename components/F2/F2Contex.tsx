@@ -82,6 +82,7 @@ export const F2Context = ({
     const isMountedRef = useRef(true)
     const firstTimeModalResolverRef = useRef(() => {});
     const { isOpen: isFirstTimeModalOpen, onOpen: onFirstTimeModalOpen, onClose: onFirstTimeModalClose } = useDisclosure();
+    const { isOpen: isFirmLeverageEngineOpen, onOpen: onFirmLeverageEngineOpen, onClose: onFirmLeverageEngineClose } = useDisclosure();
     const { isOpen: isDbrV1NewBorrowIssueModalOpen, onOpen: onDbrV1NewBorrowIssueModalOpen, onClose: onDbrV1NewBorrowIssueModalClose } = useDisclosure();
     const { value: notFirstTime, setter: setNotFirstTime } = useStorage('firm-first-time-modal-no-more');
     const colDecimals = market.underlying.decimals;
@@ -315,6 +316,9 @@ export const F2Context = ({
             handleCollateralChange,
             notFirstTime,
             setNotFirstTime,
+            isFirmLeverageEngineOpen,
+            onFirmLeverageEngineOpen,
+            onFirmLeverageEngineClose,
             isFirstTimeModalOpen,
             firmActionIndex,
             setFirmActionIndex,

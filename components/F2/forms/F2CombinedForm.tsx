@@ -22,7 +22,9 @@ import WethModal from '@app/components/common/Modal/WethModal'
 import { BUY_LINKS } from '@app/config/constants'
 import { Input } from '@app/components/common/Input'
 import { DBRAutoRepayCalculator } from '../DBRAutoRepayCalculator'
-import { prepareLeveragePosition } from '@app/util/firm-ale'
+
+import { FirmLeverageModal } from '../Modals/FirmLeverageModal'
+import { RSubmitButton } from '@app/components/common/Button/RSubmitButton'
 import { FEATURE_FLAGS } from '@app/config/features'
 import { preciseCommify } from '@app/util/misc'
 
@@ -87,6 +89,7 @@ export const F2CombinedForm = ({
         hasDbrV1NewBorrowIssue, onDbrV1NewBorrowIssueModalOpen,
         firmActionIndex, setFirmActionIndex, setCachedFirmActionIndex,
         newTotalDebtInMarket,
+        onFirmLeverageEngineOpen,
     } = useContext(F2MarketContext);
 
     const [syncedMinH, setSyncedMinH] = useState('230px');
@@ -110,7 +113,7 @@ export const F2CombinedForm = ({
 
     const handleAction = async () => {
         if (!signer) { return }
-        return prepareLeveragePosition(signer, market, parseEther(debtAmount));
+
         // if(isBorrowCase && hasDbrV1NewBorrowIssue) {
         //     onDbrV1NewBorrowIssueModalOpen();            
         //     return;
@@ -308,6 +311,7 @@ export const F2CombinedForm = ({
             </VStack>
         }
         {['d&b', 'r&w'].includes(MODES[mode]) && <Divider borderColor="#cccccc66" />}
+        <FirmLeverageModal />
         {
             ['borrow', 'd&b', 'repay', 'r&w'].includes(MODES[mode]) && <VStack w='full' alignItems="flex-start">
                 <TextInfo
@@ -562,6 +566,9 @@ export const F2CombinedForm = ({
                 }
                 <Divider />
                 {actionBtn}
+                <RSubmitButton w='fit-content' onClick={() => onFirmLeverageEngineOpen()}>
+                    Leverage Up
+                </RSubmitButton>
             </VStack>
         </Container>
         <Container
