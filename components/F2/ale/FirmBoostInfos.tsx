@@ -1,6 +1,6 @@
 import { Slider, Text, VStack, SliderTrack, SliderFilledTrack, SliderThumb, HStack, Badge, BadgeProps, Stack, InputGroup, InputRightElement, InputLeftElement } from '@chakra-ui/react'
 
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import { getNumberToBn, shortenNumber } from '@app/util/markets'
 import { InfoMessage, WarningMessage } from '@app/components/common/Messages'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
@@ -9,22 +9,38 @@ import { showToast } from '@app/util/notify'
 import { Input } from '@app/components/common/Input'
 import { F2MarketContext } from '../F2Contex'
 import { f2CalcNewHealth, getRiskColor } from '@app/util/f2'
-import { preciseCommify } from '@app/util/misc'
+import { capitalize, preciseCommify } from '@app/util/misc'
 import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
 import { RSubmitButton } from '@app/components/common/Button/RSubmitButton'
+import { F2Market } from '@app/types'
 
-const powerBasis = 100;
+const getSteps = (market: F2Market, deposits: number, debt: number, perc: number, type: string, leverageLevel: number, steps: number[] = []): number[] => {
+    const inputWorth = market.price ? deposits * market.price : 0;
+    const isLeverageUp = type === 'up';
+    const _leverageLevel = leverageLevel + 0.01;
+    const effectiveLeverage = isLeverageUp ? _leverageLevel : 1 / _leverageLevel;
+    const desiredWorth = inputWorth * effectiveLeverage;
 
-const getSteps = (collateralFactor: number, steps: number[] = []): number[] => {
-    if (!steps.length) {
-        return getSteps(collateralFactor, [1 + collateralFactor]);
-    }
-    const lastLeverage = steps[steps.length - 1];
-    const remainingPowerFor100 = powerBasis * Math.pow(collateralFactor, steps.length + 1);
-    if (remainingPowerFor100 <= 5) {
+    const borrowRequired = desiredWorth - inputWorth;
+    const collateralPrice = market.price;
+    const targetCollateralBalance = collateralPrice ? desiredWorth / collateralPrice : 0;
+
+    const {
+        newDebt,
+        newPerc,
+    } = f2CalcNewHealth(
+        market,
+        deposits,
+        debt,
+        targetCollateralBalance - deposits,
+        borrowRequired,
+        perc,
+    );
+    if((newPerc <= 1) || newDebt < 0 || _leverageLevel > 10) {
         return steps;
+    } else {
+        return getSteps(market, deposits, debt, perc, type, _leverageLevel, [...steps, _leverageLevel]);
     }
-    return getSteps(collateralFactor, [...steps, lastLeverage + remainingPowerFor100 / powerBasis]);
 }
 
 const riskLevels = {
@@ -44,18 +60,14 @@ const RiskBadge = ({ color, text, onClick }: { color: BadgeProps["bgColor"], tex
 }
 
 export const FirmBoostInfos = ({
-    // market,
-    // inputAmount,
+    type = 'up',
     onLeverageChange,
 }: {
-    // market: F2Market,
-    // inputAmount: string,
-    onLeverageChange: (v: number) => void
+    type?: 'up' | 'down',
+    onLeverageChange: ({  }) => void
 }) => {
-    // const { prices } = usePrices();
     const {
         market,
-        collateralBalance,
         dbrPrice,
         deposits,
         debt,
@@ -63,9 +75,10 @@ export const FirmBoostInfos = ({
         borrowLimit,
         liquidationPrice,
     } = useContext(F2MarketContext);
+
     const borrowApy = dbrPrice * 100;
-    const minLeverage = 1.1;
-    const [leverageLevel, setLeverageLevel] = useState(2);
+    const minLeverage = 1.01;
+    const [leverageLevel, setLeverageLevel] = useState(minLeverage);
     const [editLeverageLevel, setEditLeverageLevel] = useState(leverageLevel.toString());
     const [debounced, setDebounced] = useState(false);
 
@@ -110,7 +123,9 @@ export const FirmBoostInfos = ({
     const round = (v: number) => Math.floor(v * 100) / 100;
 
     const inputWorth = market.price ? deposits * market.price : 0;
-    const desiredWorth = inputWorth * leverageLevel;
+    const isLeverageUp = type === 'up';
+    const effectiveLeverage = isLeverageUp ? leverageLevel : 1 / leverageLevel;
+    const desiredWorth = inputWorth * effectiveLeverage;
 
     const borrowRequired = desiredWorth - inputWorth;
     const collateralPrice = market.price;
@@ -120,9 +135,6 @@ export const FirmBoostInfos = ({
         newDebt,
         newPerc,
         newLiquidationPrice,
-        newDeposits,
-        newCreditLimit,
-        newCreditLeft,
     } = f2CalcNewHealth(
         market,
         deposits,
@@ -131,10 +143,9 @@ export const FirmBoostInfos = ({
         borrowRequired,
         perc,
     );
+
     const newBorrowLimit = 100 - newPerc;
-
-    const leverageSteps = getSteps(market.collateralFactor || 0);
-
+    const leverageSteps = useMemo(() => getSteps(market, deposits, debt, perc, type, 1), [market, deposits, debt, perc, type]);
     const maxLeverage = round(leverageSteps[leverageSteps.length - 1]);
     const leverageRelativeToMax = leverageLevel / maxLeverage;
 
@@ -151,8 +162,16 @@ export const FirmBoostInfos = ({
         onLeverageChange({
             borrowRequired,
             newBorrowLimit,
+            newDebt,
         });
-    }, [borrowRequired, newBorrowLimit], 100)
+    }, [borrowRequired, newBorrowLimit, newDebt], 100);
+
+    useEffect(() => {
+        const length = leverageSteps.length;
+        setLeverageLevel(length > 2 ? leverageSteps[Math.floor(length/2)] : 1);
+    }, [leverageSteps]);
+
+    const boostLabel = isLeverageUp ? 'Boost' : 'Deleverage';
 
     return <Stack fontSize="14px" spacing="4" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
         <VStack position="relative" w='50%' alignItems="center" justify="center">
@@ -163,11 +182,11 @@ export const FirmBoostInfos = ({
                     alignItems="center"
                 >
                     <InputLeftElement
-                        children={<Text cursor="text" as="label" for="boostInput" color="secondaryTextColor" whiteSpace="nowrap" transform="translateX(30px)" fontSize="20px" fontWeight="extrabold">
-                            Boost:
+                        children={<Text cursor="text" as="label" for="boostInput" color="secondaryTextColor" whiteSpace="nowrap" transform="translateX(60px)" fontSize="20px" fontWeight="extrabold">
+                            {boostLabel}:
                         </Text>}
                     />
-                    <Input onKeyPress={handleKeyPress} id="boostInput" color={risk.color} py="0" pl="60px" onChange={(e) => handleEditLeverage(e, minLeverage, maxLeverage)} width="150px" value={editLeverageLevel} min={minLeverage} max={maxLeverage} />
+                    <Input onKeyPress={handleKeyPress} id="boostInput" color={risk.color} py="0" pl="60px" onChange={(e) => handleEditLeverage(e, minLeverage, maxLeverage)} width="220px" value={editLeverageLevel} min={minLeverage} max={maxLeverage} />
                     {
                         parseFloat(editLeverageLevel) !== leverageLevel && debounced &&
                         <InputRightElement cursor="pointer" transform="translateX(40px)" onClick={() => validateEditLeverage()}
@@ -212,7 +231,7 @@ export const FirmBoostInfos = ({
                         <HStack>
                             <AnimatedInfoTooltip type="tooltip" message="Boost achieved thanks to the Accelerated Leverage Engine" />
                             <Text>
-                                Boost to apply:
+                                {capitalize(boostLabel)} to apply:
                             </Text>
                         </HStack>
                         <Text fontWeight="bold" color={risk.color}>
@@ -238,7 +257,7 @@ export const FirmBoostInfos = ({
                             </Text>
                         </HStack>
                     </HStack>
-                    <HStack w='full' justify="space-between" fontSize='14px'>
+                    {/* <HStack w='full' justify="space-between" fontSize='14px'>
                         <HStack>
                             <AnimatedInfoTooltip type="tooltip" message="To achieve the Boost, Borrowing a certain amount is required, the higher the Boost the higher the Debt" />
                             <Text>
@@ -248,7 +267,7 @@ export const FirmBoostInfos = ({
                         <Text fontWeight="bold">
                             {preciseCommify(borrowRequired, 2, false)} DOLA
                         </Text>
-                    </HStack>
+                    </HStack> */}
                     <HStack w='full' justify="space-between" fontSize='14px'>
                         <HStack>
                             <AnimatedInfoTooltip type="tooltip" message="To achieve the Boost, Borrowing a certain amount is required, the higher the Boost the higher the Debt" />

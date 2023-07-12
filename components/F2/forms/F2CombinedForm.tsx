@@ -582,7 +582,7 @@ export const F2CombinedForm = ({
                             h='50px'
                             fontSize='18px'
                             onClick={() => onFirmLeverageEngineOpen()}>
-                            Leverage Up
+                            Leverage {isDeposit ? 'Up' : 'Down'}
                         </RSubmitButton>
                     }
                 </HStack>

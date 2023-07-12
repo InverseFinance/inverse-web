@@ -4,25 +4,25 @@ import { useContext, useState } from "react";
 import { F2MarketContext } from "../F2Contex";
 import { FirmBoostInfos } from "../ale/FirmBoostInfos";
 import { prepareLeveragePosition } from "@app/util/firm-ale";
-import { getBnToNumber, getNumberToBn } from "@app/util/markets";
+import { getNumberToBn } from "@app/util/markets";
 
 export const FirmLeverageModal = () => {
-    const [dolaToBorrow, setDolaToBorrow] = useState(0);
-    const [borrowLimit, setBorrowLimit] = useState(0);
-    
+    const [state, setState] = useState({ dolaToBorrow: 0, borrowLimit: 0, newDebt: 0 });
+
     const {
         isFirmLeverageEngineOpen,
         onFirmLeverageEngineClose,
         signer,
         market,
+        isDeposit,
     } = useContext(F2MarketContext);
 
-    const cancel = () => {        
+    const cancel = () => {
         onFirmLeverageEngineClose();
     };
 
     const ok = async () => {
-        return prepareLeveragePosition(signer, market, getNumberToBn(dolaToBorrow));
+        return prepareLeveragePosition(signer, market, getNumberToBn(state.dolaToBorrow));
     };
 
     return <ConfirmModal
@@ -31,16 +31,16 @@ export const FirmLeverageModal = () => {
         onClose={cancel}
         onOk={ok}
         onCancel={cancel}
-        okDisabled={dolaToBorrow > market.leftToBorrow || borrowLimit >= 99}
+        okDisabled={state.dolaToBorrow > market.leftToBorrow || state.borrowLimit >= 99 || state.newDebt < 0}
         okLabel="Continue"
         onSuccess={() => onFirmLeverageEngineClose()}
         modalProps={{ minW: { base: '98vw', lg: '900px' }, scrollBehavior: 'inside' }}
     >
         <VStack spacing="4" p='4' alignItems="flex-start">
-            <FirmBoostInfos onLeverageChange={(d) => {
-                setDolaToBorrow(d.dolaToBorrow);
-                setBorrowLimit(d.newBorrowLimit);
-            }} />
+            <FirmBoostInfos
+                type={isDeposit ? 'up' : 'down'}
+                onLeverageChange={(d) => setState(d)}
+            />
         </VStack>
     </ConfirmModal>
 }
