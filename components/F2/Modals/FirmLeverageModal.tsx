@@ -4,9 +4,11 @@ import { useContext, useState } from "react";
 import { F2MarketContext } from "../F2Contex";
 import { FirmBoostInfos } from "../ale/FirmBoostInfos";
 import { prepareLeveragePosition } from "@app/util/firm-ale";
+import { getBnToNumber, getNumberToBn } from "@app/util/markets";
 
 export const FirmLeverageModal = () => {
-    const [dolaToBorrow, setDolaToBorrow] = useState('0');
+    const [dolaToBorrow, setDolaToBorrow] = useState(0);
+    const [borrowLimit, setBorrowLimit] = useState(0);
     
     const {
         isFirmLeverageEngineOpen,
@@ -20,8 +22,7 @@ export const FirmLeverageModal = () => {
     };
 
     const ok = async () => {
-        return prepareLeveragePosition(signer, market, dolaToBorrow);
-        // onFirmLeverageEngineClose();
+        return prepareLeveragePosition(signer, market, getNumberToBn(dolaToBorrow));
     };
 
     return <ConfirmModal
@@ -30,12 +31,16 @@ export const FirmLeverageModal = () => {
         onClose={cancel}
         onOk={ok}
         onCancel={cancel}
-        // okDisabled={}
+        okDisabled={dolaToBorrow > market.leftToBorrow || borrowLimit >= 99}
         okLabel="Continue"
+        onSuccess={() => onFirmLeverageEngineClose()}
         modalProps={{ minW: { base: '98vw', lg: '900px' }, scrollBehavior: 'inside' }}
     >
         <VStack spacing="4" p='4' alignItems="flex-start">
-            <FirmBoostInfos onLeverageChange={(v) => setDolaToBorrow(v)} />
+            <FirmBoostInfos onLeverageChange={(d) => {
+                setDolaToBorrow(d.dolaToBorrow);
+                setBorrowLimit(d.newBorrowLimit);
+            }} />
         </VStack>
     </ConfirmModal>
 }

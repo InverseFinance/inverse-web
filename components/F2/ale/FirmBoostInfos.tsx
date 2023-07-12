@@ -2,7 +2,7 @@ import { Slider, Text, VStack, SliderTrack, SliderFilledTrack, SliderThumb, HSta
 
 import { useContext, useEffect, useState } from 'react'
 import { getNumberToBn, shortenNumber } from '@app/util/markets'
-import { InfoMessage } from '@app/components/common/Messages'
+import { InfoMessage, WarningMessage } from '@app/components/common/Messages'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { CheckCircleIcon } from '@chakra-ui/icons'
 import { showToast } from '@app/util/notify'
@@ -21,7 +21,7 @@ const getSteps = (collateralFactor: number, steps: number[] = []): number[] => {
     }
     const lastLeverage = steps[steps.length - 1];
     const remainingPowerFor100 = powerBasis * Math.pow(collateralFactor, steps.length + 1);
-    if (remainingPowerFor100 <= 1) {
+    if (remainingPowerFor100 <= 5) {
         return steps;
     }
     return getSteps(collateralFactor, [...steps, lastLeverage + remainingPowerFor100 / powerBasis]);
@@ -148,11 +148,14 @@ export const FirmBoostInfos = ({
     const newRiskColor = getRiskColor(newPerc);
 
     useDebouncedEffect(() => {
-        onLeverageChange(getNumberToBn(borrowRequired));
-    }, [borrowRequired])
+        onLeverageChange({
+            borrowRequired,
+            newBorrowLimit,
+        });
+    }, [borrowRequired, newBorrowLimit], 100)
 
     return <Stack fontSize="14px" spacing="4" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
-        <VStack w='50%' alignItems="center" justify="center">
+        <VStack position="relative" w='50%' alignItems="center" justify="center">
             <HStack w='full' justify="center" alignItems="center">
                 {/* <RiskBadge {...riskLevels.safer} onClick={() => handleLeverageChange(leverageLevel - 1 >= minLeverage ? round(leverageLevel - 1) : minLeverage)} /> */}
                 <InputGroup
@@ -189,13 +192,16 @@ export const FirmBoostInfos = ({
                 <SliderThumb h="20px" w="10px" />
             </Slider>
             <HStack w='full' justify="space-between" alignItems="center">
-                <Text fontWeight="bold" cursor="pointer" color={riskLevels.safer.color} onClick={() => setLeverageLevel(minLeverage)}>
+                <Text textDecoration="underline" fontWeight="bold" cursor="pointer" color={riskLevels.safer.color} onClick={() => setLeverageLevel(minLeverage)}>
                     Min: x{shortenNumber(minLeverage, 2)}
                 </Text>
-                <Text fontWeight="bold" cursor="pointer" color={riskLevels.riskier.color} onClick={() => setLeverageLevel(maxLeverage)}>
+                <Text textDecoration="underline" fontWeight="bold" cursor="pointer" color={riskLevels.riskier.color} onClick={() => setLeverageLevel(maxLeverage)}>
                     Max: x{shortenNumber(maxLeverage, 2)}
                 </Text>
             </HStack>
+            {
+                newBorrowLimit >= 99 && <WarningMessage alertProps={{ position: 'absolute', top: '110px' }} description="New borrow limit would be too high" />
+            }
         </VStack>
         <InfoMessage
             alertProps={{ w: '50%', p: '8', fontSize: '14px' }}
