@@ -11,6 +11,7 @@ import { F2MarketContext } from '../F2Contex'
 import { f2CalcNewHealth, getRiskColor } from '@app/util/f2'
 import { preciseCommify } from '@app/util/misc'
 import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
+import { RSubmitButton } from '@app/components/common/Button/RSubmitButton'
 
 const powerBasis = 100;
 
@@ -37,9 +38,9 @@ const riskLevels = {
 }
 
 const RiskBadge = ({ color, text, onClick }: { color: BadgeProps["bgColor"], text: string, onClick: () => void }) => {
-    return <Badge _hover={{ filter: 'brightness(1.05)' }} userSelect="none" cursor="pointer" onClick={onClick} fontSize="14px" py="2" px="4" borderRadius="20px" bgColor={color} color="white">
+    return <RSubmitButton w='70px' _hover={{ filter: 'brightness(1.05)' }} userSelect="none" cursor="pointer" onClick={onClick}  bgColor={color} color="white">
         {text}
-    </Badge>
+    </RSubmitButton>
 }
 
 export const FirmBoostInfos = ({
@@ -152,8 +153,8 @@ export const FirmBoostInfos = ({
 
     return <Stack fontSize="14px" spacing="4" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
         <VStack w='50%' alignItems="center" justify="center">
-            <HStack w='full' justify="space-between" alignItems="center">
-                <RiskBadge {...riskLevels.safer} onClick={() => handleLeverageChange(leverageLevel - 1 >= minLeverage ? round(leverageLevel - 1) : minLeverage)} />
+            <HStack w='full' justify="center" alignItems="center">
+                {/* <RiskBadge {...riskLevels.safer} onClick={() => handleLeverageChange(leverageLevel - 1 >= minLeverage ? round(leverageLevel - 1) : minLeverage)} /> */}
                 <InputGroup
                     w='fit-content'
                     alignItems="center"
@@ -171,7 +172,7 @@ export const FirmBoostInfos = ({
                         />
                     }
                 </InputGroup>
-                <RiskBadge {...riskLevels.riskier} onClick={() => handleLeverageChange(leverageLevel + 1 <= maxLeverage ? round(leverageLevel + 1) : maxLeverage)} />
+                {/* <RiskBadge {...riskLevels.riskier} onClick={() => handleLeverageChange(leverageLevel + 1 <= maxLeverage ? round(leverageLevel + 1) : maxLeverage)} /> */}
             </HStack>
             <Slider
                 value={leverageLevel}
@@ -180,11 +181,12 @@ export const FirmBoostInfos = ({
                 max={maxLeverage}
                 step={0.01}
                 aria-label='slider-ex-4'
-                defaultValue={leverageLevel}>
-                <SliderTrack h="15px" bg='red.100'>
+                defaultValue={leverageLevel}
+            >
+                <SliderTrack h="10px" bg='red.100'>
                     <SliderFilledTrack bg={risk.color} />
                 </SliderTrack>
-                <SliderThumb h="30px" />
+                <SliderThumb h="20px" w="10px" />
             </Slider>
             <HStack w='full' justify="space-between" alignItems="center">
                 <Text fontWeight="bold" cursor="pointer" color={riskLevels.safer.color} onClick={() => setLeverageLevel(minLeverage)}>
@@ -229,7 +231,7 @@ export const FirmBoostInfos = ({
                                 {preciseCommify(targetCollateralBalance, 4)} {market?.underlying?.symbol}
                             </Text>
                         </HStack>
-                    </HStack>                    
+                    </HStack>
                     <HStack w='full' justify="space-between" fontSize='14px'>
                         <HStack>
                             <AnimatedInfoTooltip type="tooltip" message="To achieve the Boost, Borrowing a certain amount is required, the higher the Boost the higher the Debt" />
@@ -250,13 +252,13 @@ export const FirmBoostInfos = ({
                         </HStack>
                         <HStack>
                             <Text fontWeight="bold">
-                                {preciseCommify(debt, 4)}
+                                {preciseCommify(debt, 2)}
                             </Text>
                             <Text fontWeight="bold">
                             =>
                             </Text>
                             <Text fontWeight="bold">
-                                {preciseCommify(newDebt, 4)} DOLA
+                                {preciseCommify(newDebt, 2)} DOLA
                             </Text>
                         </HStack>
                     </HStack>
@@ -280,7 +282,7 @@ export const FirmBoostInfos = ({
                         </HStack>
                         <HStack>
                             <Text fontWeight="bold" color={currentRiskColor}>
-                                {preciseCommify(liquidationPrice, 4, true)}
+                                {preciseCommify(liquidationPrice, 2, true)}
                             </Text>
                             <Text fontWeight="bold">
                             =>

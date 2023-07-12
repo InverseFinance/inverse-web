@@ -90,6 +90,10 @@ export const F2CombinedForm = ({
         firmActionIndex, setFirmActionIndex, setCachedFirmActionIndex,
         newTotalDebtInMarket,
         onFirmLeverageEngineOpen,
+        setUseLeverage,
+        useLeverage,
+        leverage,
+        setLeverage,
     } = useContext(F2MarketContext);
 
     const [syncedMinH, setSyncedMinH] = useState('230px');
@@ -395,9 +399,15 @@ export const F2CombinedForm = ({
                         }
                     />
                 }
+                {/* <FormControl w='fit-content' display='flex' alignItems='center'>
+                    <FormLabel w='110px' fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-dbr' mb='0'>
+                        Use leverage?
+                    </FormLabel>
+                    <Switch onChange={() => setUseLeverage(!useLeverage)} isChecked={useLeverage} id='leverage-switch' />
+                </FormControl> */}
                 {
                     (hasDebtChange || hasCollateralChange) && <FormControl w='fit-content' display='flex' alignItems='center'>
-                        <FormLabel fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-dbr' mb='0'>
+                        <FormLabel w='110px' fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-dbr' mb='0'>
                             Auto-{isDeposit ? 'buy' : 'sell'} DBR?
                         </FormLabel>
                         <Switch isDisabled={!market.helper} onChange={() => setIsAutoDBR(!isAutoDBR)} isChecked={isAutoDBR} id='auto-dbr' />
@@ -565,10 +575,17 @@ export const F2CombinedForm = ({
                     </>
                 }
                 <Divider />
-                {actionBtn}
-                <RSubmitButton w='fit-content' onClick={() => onFirmLeverageEngineOpen()}>
-                    Leverage Up
-                </RSubmitButton>
+                <HStack>
+                    {actionBtn}
+                    {
+                        deposits > 0 && <RSubmitButton
+                            h='50px'
+                            fontSize='18px'
+                            onClick={() => onFirmLeverageEngineOpen()}>
+                            Leverage Up
+                        </RSubmitButton>
+                    }
+                </HStack>
             </VStack>
         </Container>
         <Container
