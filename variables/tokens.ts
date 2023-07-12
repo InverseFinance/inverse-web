@@ -63,9 +63,9 @@ const chainTokenAddresses = {
     AURA: '0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF',
     DOLAUSDCBALANCER: '0xFf4ce5AAAb5a627bf82f4A571AB1cE94Aa365eA6',
     DBRDOLABALANCER: '0x445494F823f3483ee62d854eBc9f58d5B9972A25',
-    DOLABBEUSD: '0x133d241F225750D2c92948E464A5a80111920331',
-    DOLABBEUSDALP: '0xFdbd847B7593Ef0034C58258aD5a18b34BA6cB29',
-    BBEUSD: '0x50Cf90B954958480b8DF7958A9E965752F627124',
+    // DOLABBEUSD: '0x133d241F225750D2c92948E464A5a80111920331',
+    // DOLABBEUSDALP: '0xFdbd847B7593Ef0034C58258aD5a18b34BA6cB29',
+    // BBEUSD: '0x50Cf90B954958480b8DF7958A9E965752F627124',
     SDCRV: '0xd1b5651e55d4ceed36251c61c50c889b36f6abb5',
     SDCRVGAUGE: '0x7f50786A0b15723D741727882ee99a0BF34e3466',
     // yearn vaults
@@ -568,51 +568,51 @@ const chainTokens = {
       ],
       image: TOKEN_IMAGES.DOLA
     },
-    [chainTokenAddresses["1"].DOLABBEUSD]: {
-      address: chainTokenAddresses["1"].DOLABBEUSD,
-      name: 'DOLA-BB-E-USD blp',
-      symbol: 'DOLA-bb-e-usd blp',
-      protocolImage: PROTOCOL_IMAGES.BAL,
-      decimals: 18,
-      isLP: true,
-      isStable: true,
-      balancerInfos: {
-        poolId: '0x133d241f225750d2c92948e464a5a80111920331000000000000000000000476',
-        vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
-      },     
-      pairs: [
-        '0x133d241F225750D2c92948E464A5a80111920331', '0x50Cf90B954958480b8DF7958A9E965752F627124', '0x865377367054516e17014CcdED1e7d814EDC9ce4'
-      ],
-      isComposableMetapool: true,
-      image: TOKEN_IMAGES.DOLA,
-      deduce: [chainTokenAddresses["1"].DOLABBEUSDALP],
-    },
-    [chainTokenAddresses["1"].DOLABBEUSDALP]: {
-      address: chainTokenAddresses["1"].DOLABBEUSDALP,
-      name: 'DOLA-BB-E-USD alp',
-      symbol: 'DOLA-bb-e-usd alp',
-      protocolImage: PROTOCOL_IMAGES.AURA,
-      decimals: 18,
-      isLP: true,
-      isStable: true,
-      balancerInfos: {
-        poolId: '0x133d241f225750d2c92948e464a5a80111920331000000000000000000000476',
-        vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
-      },     
-      pairs: [
-        '0x133d241F225750D2c92948E464A5a80111920331', '0x50Cf90B954958480b8DF7958A9E965752F627124', '0x865377367054516e17014CcdED1e7d814EDC9ce4'
-      ],
-      isComposableMetapool: true,
-      image: TOKEN_IMAGES.DOLA
-    },
-    [chainTokenAddresses["1"].BBEUSD]: {
-      address: chainTokenAddresses["1"].BBEUSD,
-      name: 'BB-EULER-USD',
-      symbol: 'BB-EULER-USD',   
-      image: TOKEN_IMAGES['BB-EULER-USD'],
-      protocolImage: PROTOCOL_IMAGES.EULER,
-      decimals: 18,
-    },    
+    // [chainTokenAddresses["1"].DOLABBEUSD]: {
+    //   address: chainTokenAddresses["1"].DOLABBEUSD,
+    //   name: 'DOLA-BB-E-USD blp',
+    //   symbol: 'DOLA-bb-e-usd blp',
+    //   protocolImage: PROTOCOL_IMAGES.BAL,
+    //   decimals: 18,
+    //   isLP: true,
+    //   isStable: true,
+    //   balancerInfos: {
+    //     poolId: '0x133d241f225750d2c92948e464a5a80111920331000000000000000000000476',
+    //     vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
+    //   },     
+    //   pairs: [
+    //     '0x133d241F225750D2c92948E464A5a80111920331', '0x50Cf90B954958480b8DF7958A9E965752F627124', '0x865377367054516e17014CcdED1e7d814EDC9ce4'
+    //   ],
+    //   isComposableMetapool: true,
+    //   image: TOKEN_IMAGES.DOLA,
+    //   deduce: [chainTokenAddresses["1"].DOLABBEUSDALP],
+    // },
+    // [chainTokenAddresses["1"].DOLABBEUSDALP]: {
+    //   address: chainTokenAddresses["1"].DOLABBEUSDALP,
+    //   name: 'DOLA-BB-E-USD alp',
+    //   symbol: 'DOLA-bb-e-usd alp',
+    //   protocolImage: PROTOCOL_IMAGES.AURA,
+    //   decimals: 18,
+    //   isLP: true,
+    //   isStable: true,
+    //   balancerInfos: {
+    //     poolId: '0x133d241f225750d2c92948e464a5a80111920331000000000000000000000476',
+    //     vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
+    //   },     
+    //   pairs: [
+    //     '0x133d241F225750D2c92948E464A5a80111920331', '0x50Cf90B954958480b8DF7958A9E965752F627124', '0x865377367054516e17014CcdED1e7d814EDC9ce4'
+    //   ],
+    //   isComposableMetapool: true,
+    //   image: TOKEN_IMAGES.DOLA
+    // },
+    // [chainTokenAddresses["1"].BBEUSD]: {
+    //   address: chainTokenAddresses["1"].BBEUSD,
+    //   name: 'BB-EULER-USD',
+    //   symbol: 'BB-EULER-USD',   
+    //   image: TOKEN_IMAGES['BB-EULER-USD'],
+    //   protocolImage: PROTOCOL_IMAGES.EULER,
+    //   decimals: 18,
+    // },
     [chainTokenAddresses["1"].THREECRV]: {
       address: chainTokenAddresses["1"].THREECRV,
       name: 'lp-3pool-curve',
