@@ -140,6 +140,7 @@ export const FEDS_PARAMS = [
         incomeSrcAd: "0x8Bbd036d018657E454F679E7C4726F7a8ECE2773",
         oldIncomeSrcAds: ["0xFED67cC40E9C5934F157221169d772B328cb138E"],
         incomeTargetAd: "0xa283139017a2f5BAdE8d8e25412C600055D318F8",
+        dontUseSupplyForPolCalc: true,
         strategy: {
             description: 'The minted DOLA is bridged to a VeloFarmer contract on Optimism, this contract can swap DOLA for USDC and deposit DOLA+USDC to the Velodrome DOLA-USDC liquidity pool. \n\nThis Fed gets rewards in VELO tokens which can then be locked to increase voting power on Velodrome further increasing efficiency.',
             pools: [
@@ -215,6 +216,7 @@ export const FEDS_PARAMS = [
         projectImage:
             "https://assets.coingecko.com/coins/images/25942/small/logo.png",
         supplyFuncName: "dolaSupply",
+        hasEnded: true,
         strategy: {
             isComposableMetapool: true,
             description: 'The minted DOLA is added to the Balancer DOLA/bb-e-USD liquidity pool, the resulting Balancer LP token is then deposited in the Aura booster. This Fed gets rewards in BAL and AURA tokens.',
@@ -233,7 +235,6 @@ export const FEDS_PARAMS = [
                 },
             ],
             type: 'convex',
-            lpBalanceContract: '0xFdbd847B7593Ef0034C58258aD5a18b34BA6cB29',
             rewardPools: [
                 { address: '0xFdbd847B7593Ef0034C58258aD5a18b34BA6cB29', method: 'earned', underlying: '0xba100000625a3754423978a60c9317c58a424e3D' },
                 { isAURAreward: true, underlying: '0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF' },                
