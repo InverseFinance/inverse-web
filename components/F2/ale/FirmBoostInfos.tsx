@@ -80,10 +80,10 @@ export const FirmBoostInfos = ({
     const minLeverage = 1.01;
     const [leverageLevel, setLeverageLevel] = useState(minLeverage);
     const [editLeverageLevel, setEditLeverageLevel] = useState(leverageLevel.toString());
-    const [debounced, setDebounced] = useState(false);
+    const [debounced, setDebounced] = useState(true);
 
     useDebouncedEffect(() => {
-        setDebounced(true);
+        setDebounced(!!editLeverageLevel && (!editLeverageLevel.endsWith('.') || editLeverageLevel === '.') && !isNaN(parseFloat(editLeverageLevel)));
     }, [editLeverageLevel], 500);
 
     useEffect(() => {
@@ -96,7 +96,8 @@ export const FirmBoostInfos = ({
 
     const handleEditLeverage = (e: any) => {
         setDebounced(false);
-        setEditLeverageLevel(e.target.value);
+        const stringAmount = e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1');
+        setEditLeverageLevel(stringAmount);
     }
 
     const handleKeyPress = (e: any) => {
@@ -110,11 +111,14 @@ export const FirmBoostInfos = ({
         setLeverageLevel(v);
     }
 
+    const isInvalidLeverage = (input: number) => {
+        return !input || isNaN(input) || input < minLeverage || input > maxLeverage;
+    }
+
     const validateEditLeverage = () => {
         const input = parseFloat(editLeverageLevel);
-        if (!input || isNaN(input) || input < minLeverage || input > maxLeverage) {
-            showToast({ status: 'info', title: 'Invalid value for Boost', description: 'The value should be between min and max' });
-            return
+        if(isInvalidLeverage(input)) {
+            return;            
         }
         handleLeverageChange(input);
     }
@@ -188,7 +192,7 @@ export const FirmBoostInfos = ({
                     />
                     <Input onKeyPress={handleKeyPress} id="boostInput" color={risk.color} py="0" pl="60px" onChange={(e) => handleEditLeverage(e, minLeverage, maxLeverage)} width="220px" value={editLeverageLevel} min={minLeverage} max={maxLeverage} />
                     {
-                        parseFloat(editLeverageLevel) !== leverageLevel && debounced &&
+                        editLeverageLevel !== leverageLevel.toFixed(2) && debounced && !isInvalidLeverage(parseFloat(editLeverageLevel)) &&
                         <InputRightElement cursor="pointer" transform="translateX(40px)" onClick={() => validateEditLeverage()}
                             children={<CheckCircleIcon transition="ease-in-out" transitionDuration="300ms" transitionProperty="color" _hover={{ color: 'success' }} />}
                         />
