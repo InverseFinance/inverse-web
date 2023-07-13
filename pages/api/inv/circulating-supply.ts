@@ -9,15 +9,13 @@ import { getBnToNumber } from '@app/util/markets'
 
 const {
   TREASURY,
-  OP_BOND_MANAGER,
   XINV_VESTOR_FACTORY,
+  POLICY_COMMITTEE,
 } = getNetworkConfigConstants();
 
 const excluded = [
   TREASURY,
-  OP_BOND_MANAGER,
-  // Nour vested Token
-  '0xbB6ef0B93792E4E98C6E6062EB1a9638D82E500f',
+  POLICY_COMMITTEE,
   // Stacking ETH INV LP
   '0x5c1245F9dB3f8f7Fe1208cB82325eA88fC11Fe89',
 ];
@@ -31,7 +29,9 @@ export default async function handler(req, res) {
   const cacheKey = `${networkConfig.chainId}-inv-circ-supply-v1.0.0`;
 
   try {
-    const validCache = await getCacheFromRedis(cacheKey, true, 30);
+    const cacheDuration = 30;
+    res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+    const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
 
     if (validCache) {
       res.status(200).send(validCache);
