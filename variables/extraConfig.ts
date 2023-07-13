@@ -7,6 +7,7 @@ export enum FIRM_ESCROWS {
     'gOHM' = '0xb4c4cD74e7b99ad2cf2f7b3A4F7091efB8BCeb7A',
     'cvxCRV' = '0x2F32a5E5E000d1a7257090DF260fC08F0Bab2125',
     'INV' = '0x502a7759809bD673cd39A0055beed44b40EAac98',
+    'cvxFXS' = '0xCa78ee4544ec5a33Af86F1E786EfC7d3652bf005',
 }
 
 const mainConfig = {
@@ -118,6 +119,20 @@ const mainConfig = {
             govLink: '/governance',                     
             startingBlock: 17272807,
             claimMethod: 'claimDBR',
+        },
+        {
+            name: 'cvxFXS',
+            collateral: '0xFEEf77d3f69374f66429C91d732A244f074bdf74',
+            address: '0x93685185666c8D34ad4c574B3DBF41231bbfB31b',
+            escrowImplementation: FIRM_ESCROWS.cvxFXS,            
+            helper: true,
+            oracleType: "curve-ema",
+            badgeInfo: 'Keep Rewards',
+            badgeProps: { bgColor: 'accentTextColor', color: 'contrastMainTextColor' },
+            hasClaimableRewards: true,
+            zapperAppGroup: 'convex+cvx-fxs-staking-wrapped',
+            startingBlock: 17672065,
+            isInv: false,            
         },
     ],
     feds: FEDS_PARAMS,
