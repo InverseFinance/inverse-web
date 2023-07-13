@@ -17,7 +17,7 @@ export default async function handler(req, res) {
     return;
   };
 
-  const cacheKey = `${escrow}-dbr-rewards`;
+  const cacheKey = `${escrow}-dbr-rewards-v1.0.0`;
 
   try {
     const cacheDuration = 90;
