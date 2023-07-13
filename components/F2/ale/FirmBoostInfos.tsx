@@ -8,11 +8,12 @@ import { CheckCircleIcon } from '@chakra-ui/icons'
 import { showToast } from '@app/util/notify'
 import { Input } from '@app/components/common/Input'
 import { F2MarketContext } from '../F2Contex'
-import { f2CalcNewHealth, getRiskColor } from '@app/util/f2'
+import { f2CalcNewHealth, getDepletionDate, getRiskColor } from '@app/util/f2'
 import { capitalize, preciseCommify } from '@app/util/misc'
 import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
 import { RSubmitButton } from '@app/components/common/Button/RSubmitButton'
 import { F2Market } from '@app/types'
+import { useAccountDBR } from '@app/hooks/useDBR'
 
 const getSteps = (market: F2Market, deposits: number, debt: number, perc: number, type: string, leverageLevel: number, steps: number[] = [], doLastOne = false): number[] => {
     const inputWorth = market.price ? deposits * market.price : 0;
@@ -74,6 +75,7 @@ export const FirmBoostInfos = ({
         perc,
         borrowLimit,
         liquidationPrice,
+        account,
     } = useContext(F2MarketContext);
 
     const borrowApy = dbrPrice * 100;
@@ -81,6 +83,10 @@ export const FirmBoostInfos = ({
     const [leverageLevel, setLeverageLevel] = useState(minLeverage);
     const [editLeverageLevel, setEditLeverageLevel] = useState(leverageLevel.toString());
     const [debounced, setDebounced] = useState(true);
+
+    const boostedApy = (leverageLevel * (market.supplyApy||0) / 100 - (leverageLevel - 1) * (borrowApy) / 100) * 100;
+    console.log('market', market);
+    console.log('boostedApy', boostedApy);
 
     useDebouncedEffect(() => {
         setDebounced(!!editLeverageLevel && (!editLeverageLevel.endsWith('.') || editLeverageLevel === '.') && !isNaN(parseFloat(editLeverageLevel)));
@@ -152,6 +158,10 @@ export const FirmBoostInfos = ({
     const maxLeverage = round(leverageSteps[leverageSteps.length - 1]);
     const leverageRelativeToMax = leverageLevel / maxLeverage;
 
+    const { dbrExpiryDate, debt: currentTotalDebt } = useAccountDBR(account);
+    const newTotalDebt = currentTotalDebt + deltaBorrow;
+    const { dbrExpiryDate: newDBRExpiryDate, dailyDebtAccrual: newDailyDBRBurn } = useAccountDBR(account, newTotalDebt);
+
     const risk = leverageRelativeToMax <= 0.5 ?
         riskLevels.low : leverageRelativeToMax <= 0.60 ?
             riskLevels.lowMid : leverageRelativeToMax <= 0.70 ?
@@ -176,6 +186,7 @@ export const FirmBoostInfos = ({
     }, [leverageSteps]);
 
     const boostLabel = isLeverageUp ? 'Boost' : 'Deleverage';
+    const now = Date.now();
 
     return <Stack fontSize="14px" spacing="4" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
         <VStack position="relative" w='50%' alignItems="center" justify="center">
@@ -227,7 +238,7 @@ export const FirmBoostInfos = ({
             }
         </VStack>
         <InfoMessage
-            alertProps={{ w: '50%', p: '8', fontSize: '14px' }}
+            alertProps={{ w: '60%', p: '4', fontSize: '14px' }}
             showIcon={false}
             description={
                 <VStack spacing="4" w='full' alignItems="flex-start" fontSize="18px">
@@ -246,18 +257,37 @@ export const FirmBoostInfos = ({
                         <HStack>
                             <AnimatedInfoTooltip type="tooltip" message="The final position you'll get in exchange for your deposit, this is held as collateral on Frontier, not in your wallet" />
                             <Text>
-                                Collateral change:
+                                Depletion:
                             </Text>
                         </HStack>
                         <HStack>
                             <Text fontWeight="bold">
-                                {preciseCommify(deposits, 4)}
+                                {getDepletionDate(dbrExpiryDate, now)}
                             </Text>
                             <Text fontWeight="bold">
                             =>
                             </Text>
                             <Text fontWeight="bold">
-                                {targetCollateralBalance < 0 ? '0' : preciseCommify(targetCollateralBalance, 4)} {market?.underlying?.symbol}
+                                {getDepletionDate(newDBRExpiryDate, now)}
+                            </Text>
+                        </HStack>
+                    </HStack>
+                    <HStack w='full' justify="space-between" fontSize='14px'>
+                        <HStack>
+                            <AnimatedInfoTooltip type="tooltip" message="The collateral balance in your escrow" />
+                            <Text>
+                                Collateral change:
+                            </Text>
+                        </HStack>
+                        <HStack>
+                            <Text fontWeight="bold">
+                                {preciseCommify(deposits, 2)}
+                            </Text>
+                            <Text fontWeight="bold">
+                            =>
+                            </Text>
+                            <Text fontWeight="bold">
+                                {targetCollateralBalance < 0 ? '0' : preciseCommify(targetCollateralBalance, 2)} {market?.underlying?.symbol}
                             </Text>
                         </HStack>
                     </HStack>
