@@ -14,14 +14,14 @@ import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
 import { RSubmitButton } from '@app/components/common/Button/RSubmitButton'
 import { F2Market } from '@app/types'
 
-const getSteps = (market: F2Market, deposits: number, debt: number, perc: number, type: string, leverageLevel: number, steps: number[] = []): number[] => {
+const getSteps = (market: F2Market, deposits: number, debt: number, perc: number, type: string, leverageLevel: number, steps: number[] = [], doLastOne = false): number[] => {
     const inputWorth = market.price ? deposits * market.price : 0;
     const isLeverageUp = type === 'up';
     const _leverageLevel = leverageLevel + 0.01;
     const effectiveLeverage = isLeverageUp ? _leverageLevel : 1 / _leverageLevel;
     const desiredWorth = inputWorth * effectiveLeverage;
 
-    const borrowRequired = desiredWorth - inputWorth;
+    const deltaBorrow = desiredWorth - inputWorth;
     const collateralPrice = market.price;
     const targetCollateralBalance = collateralPrice ? desiredWorth / collateralPrice : 0;
 
@@ -33,13 +33,13 @@ const getSteps = (market: F2Market, deposits: number, debt: number, perc: number
         deposits,
         debt,
         targetCollateralBalance - deposits,
-        borrowRequired,
+        deltaBorrow,
         perc,
     );
-    if((newPerc <= 1) || newDebt < 0 || _leverageLevel > 10) {
+    if((newPerc <= 1) || _leverageLevel > 10 || doLastOne) {
         return steps;
     } else {
-        return getSteps(market, deposits, debt, perc, type, _leverageLevel, [...steps, _leverageLevel]);
+        return getSteps(market, deposits, debt, perc, type, _leverageLevel, [...steps, _leverageLevel], newDebt < 0);
     }
 }
 
@@ -108,7 +108,6 @@ export const FirmBoostInfos = ({
     const handleLeverageChange = (v: number) => {
         setDebounced(false);
         setLeverageLevel(v);
-        // onLeverageChange(getNumberToBn(borrowRequired));
     }
 
     const validateEditLeverage = () => {
@@ -127,7 +126,7 @@ export const FirmBoostInfos = ({
     const effectiveLeverage = isLeverageUp ? leverageLevel : 1 / leverageLevel;
     const desiredWorth = inputWorth * effectiveLeverage;
 
-    const borrowRequired = desiredWorth - inputWorth;
+    const deltaBorrow = desiredWorth - inputWorth;
     const collateralPrice = market.price;
     const targetCollateralBalance = collateralPrice ? desiredWorth / collateralPrice : 0;
 
@@ -140,7 +139,7 @@ export const FirmBoostInfos = ({
         deposits,
         debt,
         targetCollateralBalance - deposits,
-        borrowRequired,
+        deltaBorrow,
         perc,
     );
 
@@ -160,11 +159,12 @@ export const FirmBoostInfos = ({
 
     useDebouncedEffect(() => {
         onLeverageChange({
-            borrowRequired,
+            deltaBorrow,
             newBorrowLimit,
             newDebt,
+            withdrawAmount: deposits - targetCollateralBalance,
         });
-    }, [borrowRequired, newBorrowLimit, newDebt], 100);
+    }, [deltaBorrow, newBorrowLimit, newDebt], 100);
 
     useEffect(() => {
         const length = leverageSteps.length;
@@ -253,7 +253,7 @@ export const FirmBoostInfos = ({
                             =>
                             </Text>
                             <Text fontWeight="bold">
-                                {preciseCommify(targetCollateralBalance, 4)} {market?.underlying?.symbol}
+                                {targetCollateralBalance < 0 ? '0' : preciseCommify(targetCollateralBalance, 4)} {market?.underlying?.symbol}
                             </Text>
                         </HStack>
                     </HStack>
@@ -265,7 +265,7 @@ export const FirmBoostInfos = ({
                             </Text>
                         </HStack>
                         <Text fontWeight="bold">
-                            {preciseCommify(borrowRequired, 2, false)} DOLA
+                            {preciseCommify(deltaBorrow, 2, false)} DOLA
                         </Text>
                     </HStack> */}
                     <HStack w='full' justify="space-between" fontSize='14px'>
@@ -283,7 +283,7 @@ export const FirmBoostInfos = ({
                             =>
                             </Text>
                             <Text fontWeight="bold">
-                                {preciseCommify(newDebt, 2)} DOLA
+                                {newDebt < 0 ? '0' : preciseCommify(newDebt, 2)} DOLA
                             </Text>
                         </HStack>
                     </HStack>
@@ -313,7 +313,7 @@ export const FirmBoostInfos = ({
                             =>
                             </Text>
                             <Text fontWeight="bold" color={newRiskColor}>
-                                {preciseCommify(newLiquidationPrice, 2, true)}
+                                {newLiquidationPrice < 0 ? 'n/a' : preciseCommify(newLiquidationPrice, 2, true)}
                             </Text>
                         </HStack>
                     </HStack>

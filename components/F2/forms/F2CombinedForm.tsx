@@ -405,19 +405,31 @@ export const F2CombinedForm = ({
                     </FormLabel>
                     <Switch onChange={() => setUseLeverage(!useLeverage)} isChecked={useLeverage} id='leverage-switch' />
                 </FormControl> */}
-                {
-                    (hasDebtChange || hasCollateralChange) && <FormControl w='fit-content' display='flex' alignItems='center'>
-                        <FormLabel w='110px' fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-dbr' mb='0'>
-                            Auto-{isDeposit ? 'buy' : 'sell'} DBR?
-                        </FormLabel>
-                        <Switch isDisabled={!market.helper} onChange={() => setIsAutoDBR(!isAutoDBR)} isChecked={isAutoDBR} id='auto-dbr' />
-                        {
-                            !market.helper && <Badge ml="2">
-                                Coming soon
-                            </Badge>
-                        }
-                    </FormControl>
-                }
+                <HStack justify="space-between" alignItems="space-between" w='full'>
+                    {
+                        (hasDebtChange || hasCollateralChange) && <FormControl w='fit-content' display='flex' alignItems='center'>
+                            <FormLabel w='110px' fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-dbr' mb='0'>
+                                Auto-{isDeposit ? 'buy' : 'sell'} DBR?
+                            </FormLabel>
+                            <Switch isDisabled={!market.helper} onChange={() => setIsAutoDBR(!isAutoDBR)} isChecked={isAutoDBR} id='auto-dbr' />
+                            {
+                                !market.helper && <Badge ml="2">
+                                    Coming soon
+                                </Badge>
+                            }
+                        </FormControl>
+                    }
+                    {
+                        deposits > 0 && <Text       
+                            cursor='pointer'                     
+                            color="accentTextColor"
+                            textDecoration='underline'                            
+                            fontSize='14px'
+                            onClick={() => onFirmLeverageEngineOpen()}>
+                            Leverage {isDeposit ? 'Up' : 'Down'}
+                        </Text>
+                    }
+                </HStack>
             </VStack>
         }
     </Stack>
@@ -577,14 +589,6 @@ export const F2CombinedForm = ({
                 <Divider />
                 <HStack>
                     {actionBtn}
-                    {
-                        deposits > 0 && <RSubmitButton
-                            h='50px'
-                            fontSize='18px'
-                            onClick={() => onFirmLeverageEngineOpen()}>
-                            Leverage {isDeposit ? 'Up' : 'Down'}
-                        </RSubmitButton>
-                    }
                 </HStack>
             </VStack>
         </Container>

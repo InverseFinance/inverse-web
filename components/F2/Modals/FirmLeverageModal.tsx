@@ -3,11 +3,11 @@ import { VStack } from "@chakra-ui/react"
 import { useContext, useState } from "react";
 import { F2MarketContext } from "../F2Contex";
 import { FirmBoostInfos } from "../ale/FirmBoostInfos";
-import { prepareLeveragePosition } from "@app/util/firm-ale";
+import { prepareDeleveragePosition, prepareLeveragePosition } from "@app/util/firm-ale";
 import { getNumberToBn } from "@app/util/markets";
 
 export const FirmLeverageModal = () => {
-    const [state, setState] = useState({ dolaToBorrow: 0, borrowLimit: 0, newDebt: 0 });
+    const [state, setState] = useState({ deltaBorrow: 0, borrowLimit: 0, newDebt: 0, withdrawAmount: 0 });
 
     const {
         isFirmLeverageEngineOpen,
@@ -15,6 +15,7 @@ export const FirmLeverageModal = () => {
         signer,
         market,
         isDeposit,
+        debt,
     } = useContext(F2MarketContext);
 
     const cancel = () => {
@@ -22,7 +23,11 @@ export const FirmLeverageModal = () => {
     };
 
     const ok = async () => {
-        return prepareLeveragePosition(signer, market, getNumberToBn(state.dolaToBorrow));
+        if(isDeposit) {
+            return prepareLeveragePosition(signer, market, getNumberToBn(state.deltaBorrow));
+        }
+        const repayAmount = Math.min(-state.deltaBorrow, debt);
+        return prepareDeleveragePosition(signer, market, getNumberToBn(repayAmount), getNumberToBn(state.withdrawAmount));
     };
 
     return <ConfirmModal
@@ -31,7 +36,7 @@ export const FirmLeverageModal = () => {
         onClose={cancel}
         onOk={ok}
         onCancel={cancel}
-        okDisabled={state.dolaToBorrow > market.leftToBorrow || state.borrowLimit >= 99 || state.newDebt < 0}
+        okDisabled={state.deltaBorrow > market.leftToBorrow || state.borrowLimit >= 99}
         okLabel="Continue"
         onSuccess={() => onFirmLeverageEngineClose()}
         modalProps={{ minW: { base: '98vw', lg: '900px' }, scrollBehavior: 'inside' }}
