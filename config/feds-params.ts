@@ -140,6 +140,7 @@ export const FEDS_PARAMS = [
         incomeSrcAd: "0x8Bbd036d018657E454F679E7C4726F7a8ECE2773",
         oldIncomeSrcAds: ["0xFED67cC40E9C5934F157221169d772B328cb138E"],
         incomeTargetAd: "0xa283139017a2f5BAdE8d8e25412C600055D318F8",
+        dontUseSupplyForPolCalc: true,
         strategy: {
             description: 'The minted DOLA is bridged to a VeloFarmer contract on Optimism, this contract can swap DOLA for USDC and deposit DOLA+USDC to the Velodrome DOLA-USDC liquidity pool. \n\nThis Fed gets rewards in VELO tokens which can then be locked to increase voting power on Velodrome further increasing efficiency.',
             pools: [
