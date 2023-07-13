@@ -216,6 +216,7 @@ export const FEDS_PARAMS = [
         projectImage:
             "https://assets.coingecko.com/coins/images/25942/small/logo.png",
         supplyFuncName: "dolaSupply",
+        hasEnded: true,
         strategy: {
             isComposableMetapool: true,
             description: 'The minted DOLA is added to the Balancer DOLA/bb-e-USD liquidity pool, the resulting Balancer LP token is then deposited in the Aura booster. This Fed gets rewards in BAL and AURA tokens.',
@@ -234,7 +235,6 @@ export const FEDS_PARAMS = [
                 },
             ],
             type: 'convex',
-            lpBalanceContract: '0xFdbd847B7593Ef0034C58258aD5a18b34BA6cB29',
             rewardPools: [
                 { address: '0xFdbd847B7593Ef0034C58258aD5a18b34BA6cB29', method: 'earned', underlying: '0xba100000625a3754423978a60c9317c58a424e3D' },
                 { isAURAreward: true, underlying: '0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF' },                

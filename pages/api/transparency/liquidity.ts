@@ -13,7 +13,7 @@ import { pricesCacheKey } from '../prices';
 import { PROTOCOLS_BY_IMG } from '@app/variables/images';
 import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 
-export const liquidityCacheKey = `liquidity-v1.0.92`;
+export const liquidityCacheKey = `liquidity-v1.0.93`;
 
 const PROTOCOL_DEFILLAMA_MAPPING = {
     "VELO": 'velodrome',
@@ -219,6 +219,7 @@ export default async function handler(req, res) {
             }
         } catch (e) {
             console.error(e);
+            return res.status(500);
         }
     }
 }
