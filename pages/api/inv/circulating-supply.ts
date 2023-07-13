@@ -29,8 +29,9 @@ export default async function handler(req, res) {
   const cacheKey = `${networkConfig.chainId}-inv-circ-supply-v1.0.0`;
 
   try {
-    res.setHeader('Cache-Control', `public, max-age=30`);
-    const validCache = await getCacheFromRedis(cacheKey, true, 30);
+    const cacheDuration = 30;
+    res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+    const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
 
     if (validCache) {
       res.status(200).send(validCache);
