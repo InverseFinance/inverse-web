@@ -1,7 +1,7 @@
 import { Slider, Text, VStack, SliderTrack, SliderFilledTrack, SliderThumb, HStack, Badge, BadgeProps, Stack, InputGroup, InputRightElement, InputLeftElement } from '@chakra-ui/react'
 
 import { useContext, useEffect, useMemo, useState } from 'react'
-import { getNumberToBn, shortenNumber } from '@app/util/markets'
+import { getNumberToBn, shortenNumber, smartShortNumber } from '@app/util/markets'
 import { InfoMessage, WarningMessage } from '@app/components/common/Messages'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { CheckCircleIcon } from '@chakra-ui/icons'
@@ -14,6 +14,7 @@ import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
 import { RSubmitButton } from '@app/components/common/Button/RSubmitButton'
 import { F2Market } from '@app/types'
 import { useAccountDBR } from '@app/hooks/useDBR'
+import { AnchorPoolInfo } from '@app/components/Anchor/AnchorPoolnfo'
 
 const getSteps = (market: F2Market, deposits: number, debt: number, perc: number, type: string, leverageLevel: number, steps: number[] = [], doLastOne = false): number[] => {
     const inputWorth = market.price ? deposits * market.price : 0;
@@ -37,7 +38,7 @@ const getSteps = (market: F2Market, deposits: number, debt: number, perc: number
         deltaBorrow,
         perc,
     );
-    if((newPerc <= 1) || _leverageLevel > 10 || doLastOne) {
+    if ((newPerc <= 1) || _leverageLevel > 10 || doLastOne) {
         return steps;
     } else {
         return getSteps(market, deposits, debt, perc, type, _leverageLevel, [...steps, _leverageLevel], newDebt < 0);
@@ -55,7 +56,7 @@ const riskLevels = {
 }
 
 const RiskBadge = ({ color, text, onClick }: { color: BadgeProps["bgColor"], text: string, onClick: () => void }) => {
-    return <RSubmitButton w='70px' _hover={{ filter: 'brightness(1.05)' }} userSelect="none" cursor="pointer" onClick={onClick}  bgColor={color} color="white">
+    return <RSubmitButton w='70px' _hover={{ filter: 'brightness(1.05)' }} userSelect="none" cursor="pointer" onClick={onClick} bgColor={color} color="white">
         {text}
     </RSubmitButton>
 }
@@ -65,7 +66,7 @@ export const FirmBoostInfos = ({
     onLeverageChange,
 }: {
     type?: 'up' | 'down',
-    onLeverageChange: ({  }) => void
+    onLeverageChange: ({ }) => void
 }) => {
     const {
         market,
@@ -84,9 +85,32 @@ export const FirmBoostInfos = ({
     const [editLeverageLevel, setEditLeverageLevel] = useState(leverageLevel.toString());
     const [debounced, setDebounced] = useState(true);
 
-    const boostedApy = (leverageLevel * (market.supplyApy||0) / 100 - (leverageLevel - 1) * (borrowApy) / 100) * 100;
-    console.log('market', market);
-    console.log('boostedApy', boostedApy);
+    const boostedApy = (leverageLevel * (market.supplyApy || 0) / 100 - (leverageLevel - 1) * (borrowApy) / 100) * 100;
+    const boostedApyLow = (leverageLevel * (market.supplyApyLow || 0));
+    const boostedSupplyApy = (leverageLevel * (market.supplyApy || 0));
+    const boostedExtraApy = (leverageLevel * (market.extraApy || 0));
+
+    const apyInfos = <AnchorPoolInfo
+        value={market.supplyApy}
+        valueExtra={market.extraApy}
+        valueLow={market.supplyApyLow}
+        priceUsd={market.price}
+        symbol={market.underlying.symbol}
+        type={'supply'}
+        textProps={{ textAlign: "end", fontWeight: "bold" }}
+        hasClaimableRewards={market.hasClaimableRewards}
+    />;
+
+    const newApyInfos = <AnchorPoolInfo
+        value={boostedSupplyApy}
+        valueExtra={boostedExtraApy}
+        valueLow={boostedApyLow}
+        priceUsd={market.price}
+        symbol={market.underlying.symbol}
+        type={'supply'}
+        textProps={{ textAlign: "end", fontWeight: "bold" }}
+        hasClaimableRewards={market.hasClaimableRewards}
+    />;
 
     useDebouncedEffect(() => {
         setDebounced(!!editLeverageLevel && (!editLeverageLevel.endsWith('.') || editLeverageLevel === '.') && !isNaN(parseFloat(editLeverageLevel)));
@@ -123,8 +147,8 @@ export const FirmBoostInfos = ({
 
     const validateEditLeverage = () => {
         const input = parseFloat(editLeverageLevel);
-        if(isInvalidLeverage(input)) {
-            return;            
+        if (isInvalidLeverage(input)) {
+            return;
         }
         handleLeverageChange(input);
     }
@@ -182,14 +206,14 @@ export const FirmBoostInfos = ({
 
     useEffect(() => {
         const length = leverageSteps.length;
-        setLeverageLevel(length > 2 ? leverageSteps[Math.floor(length/2)] : 1);
+        setLeverageLevel(length > 2 ? leverageSteps[Math.floor(length / 2)] : 1);
     }, [leverageSteps]);
 
     const boostLabel = isLeverageUp ? 'Boost' : 'Deleverage';
     const now = Date.now();
 
     return <Stack fontSize="14px" spacing="4" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
-        <VStack position="relative" w='50%' alignItems="center" justify="center">
+        <VStack position="relative" w={{ base: 'full', md: '40%' }} alignItems="center" justify="center">
             <HStack w='full' justify="center" alignItems="center">
                 {/* <RiskBadge {...riskLevels.safer} onClick={() => handleLeverageChange(leverageLevel - 1 >= minLeverage ? round(leverageLevel - 1) : minLeverage)} /> */}
                 <InputGroup
@@ -238,10 +262,10 @@ export const FirmBoostInfos = ({
             }
         </VStack>
         <InfoMessage
-            alertProps={{ w: '60%', p: '4', fontSize: '14px' }}
+            alertProps={{ w: { base: 'full', md: '60%' }, p: '4', fontSize: '14px' }}
             showIcon={false}
             description={
-                <VStack spacing="4" w='full' alignItems="flex-start" fontSize="18px">
+                <VStack spacing="2" w='full' alignItems="flex-start" fontSize="18px">
                     <HStack w='full' justify="space-between" fontSize='14px'>
                         <HStack>
                             <AnimatedInfoTooltip type="tooltip" message="Boost achieved thanks to the Accelerated Leverage Engine" />
@@ -253,11 +277,28 @@ export const FirmBoostInfos = ({
                             x{leverageLevel.toFixed(2)}
                         </Text>
                     </HStack>
+                    {
+                        isLeverageUp && <HStack w='full' justify="space-between" fontSize='14px'>
+                            <HStack>
+                                <AnimatedInfoTooltip type="tooltip" message="Effective collateral APR, note: this is supposing the position was not leveraged already before. Does not take into account borrowing costs in DBR." />
+                                <Text>
+                                    Collateral APR:
+                                </Text>
+                            </HStack>
+                            <HStack>
+                                {apyInfos}
+                                <Text fontWeight="bold">
+                            =>
+                                </Text>
+                                {newApyInfos}
+                            </HStack>
+                        </HStack>
+                    }
                     <HStack w='full' justify="space-between" fontSize='14px'>
                         <HStack>
-                            <AnimatedInfoTooltip type="tooltip" message="The final position you'll get in exchange for your deposit, this is held as collateral on Frontier, not in your wallet" />
+                            <AnimatedInfoTooltip type="tooltip" message="Leveraging impacts DBR burn rate and thus DBR depletion date" />
                             <Text>
-                                Depletion:
+                                DBR Depletion change:
                             </Text>
                         </HStack>
                         <HStack>
@@ -281,13 +322,13 @@ export const FirmBoostInfos = ({
                         </HStack>
                         <HStack>
                             <Text fontWeight="bold">
-                                {preciseCommify(deposits, 2)}
+                                {smartShortNumber(deposits, 2)}
                             </Text>
                             <Text fontWeight="bold">
                             =>
                             </Text>
                             <Text fontWeight="bold">
-                                {targetCollateralBalance < 0 ? '0' : preciseCommify(targetCollateralBalance, 2)} {market?.underlying?.symbol}
+                                {targetCollateralBalance < 0 ? '0' : smartShortNumber(targetCollateralBalance, 2)} {market?.underlying?.symbol}
                             </Text>
                         </HStack>
                     </HStack>
@@ -304,7 +345,7 @@ export const FirmBoostInfos = ({
                     </HStack> */}
                     <HStack w='full' justify="space-between" fontSize='14px'>
                         <HStack>
-                            <AnimatedInfoTooltip type="tooltip" message="To achieve the Boost, Borrowing a certain amount is required, the higher the Boost the higher the Debt" />
+                            <AnimatedInfoTooltip type="tooltip" message="Leveraging borrows/repays DOLA to buy/sell the collateral token" />
                             <Text>
                                 Debt change:
                             </Text>

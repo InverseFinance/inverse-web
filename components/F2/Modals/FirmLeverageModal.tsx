@@ -41,7 +41,7 @@ export const FirmLeverageModal = () => {
         onSuccess={() => onFirmLeverageEngineClose()}
         modalProps={{ minW: { base: '98vw', lg: '900px' }, scrollBehavior: 'inside' }}
     >
-        <VStack spacing="4" p='4' alignItems="flex-start">
+        <VStack id="vss" w='full' spacing="4" p={'4'} alignItems="flex-start">
             <FirmBoostInfos
                 type={isDeposit ? 'up' : 'down'}
                 onLeverageChange={(d) => setState(d)}

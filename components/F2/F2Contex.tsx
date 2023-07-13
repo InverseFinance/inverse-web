@@ -71,6 +71,8 @@ export const F2Context = ({
     const [isAutoDBR, setIsAutoDBR] = useState(false);
     const [isUseNativeCoin, setIsUseNativeCoin] = useState(false);
     const [needRefreshRewards, setNeedRefreshRewards] = useState(true);
+    const [useLeverage, setUseLeverage] = useState(false);
+    const [leverage, setLeverage] = useState(2);
     const [mode, setMode] = useState('Deposit & Borrow');
     const [infoTab, setInfoTab] = useState('Summary');
     const [maxBorrowable, setMaxBorrowable] = useState(0);
@@ -298,6 +300,10 @@ export const F2Context = ({
             dbrBuySlippage,
             needRefreshRewards,
             dbrApproxData,
+            useLeverage,
+            setUseLeverage,
+            leverage,
+            setLeverage,
             hasDbrV1NewBorrowIssue,
             underlyingExRate,
             setNeedRefreshRewards,
