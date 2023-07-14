@@ -5,7 +5,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { TOKENS } from '@app/variables/tokens'
-import { getBnToNumber, getCvxCrvAPRs, getGOhmData, getStethData } from '@app/util/markets'
+import { getBnToNumber, getCvxCrvAPRs, getCvxFxsAPRs, getGOhmData, getStethData } from '@app/util/markets'
 import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_MS, ONE_DAY_SECS } from '@app/config/constants';
 import { frontierMarketsCacheKey } from '../markets';
 import { cgPricesCacheKey } from '../prices';
@@ -152,18 +152,19 @@ export default async function handler(req, res) {
       }),
     ));
 
-    let cvxCrvData = {};
-    const { data: cvxCrvAprsCache, isValid: isCvxCrvCacheValid } = await getCacheFromRedisAsObj('cvxCrv-aprs', true, 300);
-    if(!cvxCrvAprsCache || !isCvxCrvCacheValid) {
-      cvxCrvData = await getCvxCrvAPRs(provider);
-      if(!!cvxCrvData?.group1) {
-        redisSetWithTimestamp('cvx-crv-aprs', cvxCrvData);
-      } else if (!!cvxCrvAprsCache) {
-        cvxCrvData = cvxCrvAprsCache;
-      }
-    } else {
-      cvxCrvData = cvxCrvAprsCache
+    let [cvxCrvData, cvxFxsData] = await Promise.all([
+      getCvxCrvAPRs(provider, cgPrices),
+      getCvxFxsAPRs(provider, cgPrices),
+    ]);
+
+    if (!cvxCrvData.group1 && !!cachedData) {
+      cvxCrvData = cachedData.markets.find(m => m.name === 'cvxCRV').cvxCrvData;
     }
+
+    if (!cvxFxsData.fxs && !!cachedData) {
+      cvxFxsData = cachedData.markets.find(m => m.name === 'cvxFXS').cvxFxsData;
+    }
+    
     // external yield bearing apys
     const externalYieldResults = await Promise.allSettled([
       getStethData(),
@@ -179,6 +180,7 @@ export default async function handler(req, res) {
       'stETH': stethData?.apy||0,
       'gOHM': gohmData?.apy||0,
       'cvxCRV': Math.max(cvxCrvData?.group1||0, cvxCrvData?.group2||0),
+      'cvxFXS': (cvxFxsData?.fxs||0)+(cvxFxsData?.cvx||0),
       'INV': invFrontierMarket.supplyApy||0,
     };
 
@@ -192,6 +194,7 @@ export default async function handler(req, res) {
     const markets = F2_MARKETS.map((m, i) => {
       const underlying = TOKENS[m.collateral];
       const isCvxCrv = underlying.symbol === 'cvxCRV';
+      const isCvxFxs = underlying.symbol === 'cvxFXS';
       return {
         ...m,        
         oracle: oracles[i],
@@ -214,6 +217,7 @@ export default async function handler(req, res) {
         extraApy: m.isInv ? dbrApr : 0,
         supplyApyLow: isCvxCrv ? Math.min(cvxCrvData?.group1||0, cvxCrvData?.group2||0) : 0,
         cvxCrvData: isCvxCrv ? cvxCrvData : undefined,
+        cvxFxsData: isCvxFxs ? cvxFxsData : undefined,
         invStakedViaDistributor: m.isInv ? invStakedViaDistributor : undefined,
         dbrApr: m.isInv ? dbrApr : undefined,
         dbrRewardRate: m.isInv ? dbrRewardRate : undefined,
