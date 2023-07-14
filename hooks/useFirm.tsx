@@ -13,6 +13,8 @@ import { BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
 import useEtherSWR from "./useEtherSWR";
 import { useAccount } from "./misc";
 import { useBlocksTimestamps } from "./useBlockTimestamp";
+import { TOKENS, getToken } from "@app/variables/tokens";
+import { usePrices } from "./usePrices";
 
 const oneYear = ONE_DAY_MS * 365;
 
@@ -357,6 +359,38 @@ export const useINVEscrowRewards = (escrow: string): SWR & {
     isError: error,
   }
 };
+
+export const useCvxFxsRewards = (escrow: string) => {
+  const { prices } = usePrices();
+  const { data: rewardsData, error } = useEtherSWR({
+    args: !!escrow && escrow !== BURN_ADDRESS ? [
+      ['0x49b4d1dF40442f0C31b1BbAEA3EDE7c38e37E31a', 'claimableRewards', escrow],
+    ] : [[]],
+    abi: ['function claimableRewards(address) view returns (tuple(address rewardToken, uint amount)[])'],
+  });
+
+  const rewards = rewardsData?.[0]?.map(r => {
+    const token = getToken(TOKENS, r.rewardToken);
+    const balance = getBnToNumber(r.amount, token.decimals);
+    const price = prices && prices[token.coingeckoId] ? prices[token.coingeckoId].usd : 0;
+    return {
+      metaType: 'claimable',
+      balanceUSD: balance * price,
+      price,
+      balance,
+      address: r.rewardToken,
+    }
+  });
+
+  return {
+    rewardsInfos: {
+      tokens: rewards || [],
+      timestamp: Date.now(),
+    },
+    isLoading: !rewardsData && !error,
+    isError: error,
+  }
+}
 
 export const useEscrowRewards = (escrow: string): SWR & {
   appGroupPositions: any[],
