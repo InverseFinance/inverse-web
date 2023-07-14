@@ -67,7 +67,7 @@ export const FirmRewardsPage = () => {
                                 .filter(market => market.hasClaimableRewards)
                                 .map(market => {
                                     // via on chain data
-                                    if (market.isInv) {
+                                    if (market.isInv || market.name === 'cvxFXS') {
                                         return <FirmRewardWrapper
                                             key={market.address}
                                             market={market}

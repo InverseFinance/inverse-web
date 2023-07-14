@@ -42,6 +42,7 @@ export const FirmRewardWrapper = ({
             label={label}
             showMarketBtn={showMarketBtn}
             escrow={_escrow}
+            onLoad={onLoad}
         />
     }
 
@@ -58,13 +59,22 @@ export const FirmCvxFxsRewardWrapperContent = ({
     label,
     showMarketBtn = false,
     escrow,
+    onLoad,
 }: {
     market: F2Market
     label?: string
     escrow?: string
     showMarketBtn?: boolean
+    onLoad?: (v: number) => void
 }) => {
     const { rewardsInfos, isLoading } = useCvxFxsRewards(escrow);
+
+    useEffect(() => {
+        if (!onLoad || !rewardsInfos?.tokens?.length || isLoading) { return }
+        const totalUsd = rewardsInfos.tokens.filter(t => t.metaType === 'claimable')
+            .reduce((prev, curr) => prev + curr.balanceUSD, 0);
+        onLoad(totalUsd);
+    }, [rewardsInfos, onLoad])
 
     return <FirmRewards
         market={market}
