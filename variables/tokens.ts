@@ -92,6 +92,8 @@ const chainTokenAddresses = {
     DOLAUSDCALP: '0x22915f309ec0182c85cd8331c23bd187fd761360',
     DOLAUSDCALP2: '0xb139946D2F0E71b38e2c75d03D87C5E16339d2CD',
     DOLAFRAXUSDCCVX: '0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c',
+    DOLACRVUSDLP: '0x8272e1a3dbef607c04aa6e5bd3a1a134c8ac063b',
+    CRVUSD: '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
   },
   "250": {
     DOLA2POOLCRV: '0x28368d7090421ca544bc89799a2ea8489306e3e5',
@@ -155,7 +157,8 @@ const chainTokenAddresses = {
   },
   "42161": {
     DOLA: '0x6A7661795C374c0bFC635934efAddFf3A7Ee23b6',
-    USDC: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+    USDCE: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+    USDC: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
     FRAX: '0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F',
     MAI: '0x3F56e0c36d275367b8C502090EDF38289b3dEa0d',
     RAM: '0xAAA6C1E32C55A7Bfa8066A6FAE9b42650F262418',
@@ -862,6 +865,29 @@ const chainTokens = {
       ],
       protocolImage: PROTOCOL_IMAGES.AURA,
     },
+    [chainTokenAddresses["1"].DOLACRVUSDLP]: {
+      address: chainTokenAddresses["1"].DOLACRVUSDLP,
+      name: 'DOLA-crvUSD',
+      symbol: 'DOLA-crvUSD clp', 
+      protocolImage: PROTOCOL_IMAGES.CRV,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isCrvLP: true,
+      pairs: [
+        '0x865377367054516e17014CcdED1e7d814EDC9ce4', '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E'
+      ],
+      image: TOKEN_IMAGES.DOLA,
+      link: 'https://curve.fi/#/ethereum/pools/factory-crvusd-12/deposit',
+    },
+    [chainTokenAddresses["1"].CRVUSD]: {
+      address: chainTokenAddresses["1"].CRVUSD,
+      name: 'crvUSD',
+      symbol: 'crvUSD',
+      coingeckoId: 'crvusd',
+      image: TOKEN_IMAGES.CRVUSD,
+      decimals: 18,
+    },
   },
   "43114": {
     CHAIN_COIN: {
@@ -1409,6 +1435,10 @@ const chainTokens = {
       ...DOLA,
       address: chainTokenAddresses["42161"].DOLA,
     },
+    [chainTokenAddresses["42161"].USDCE]: {
+      ...USDC,
+      address: chainTokenAddresses["42161"].USDCE,
+    },
     [chainTokenAddresses["42161"].USDC]: {
       ...USDC,
       address: chainTokenAddresses["42161"].USDC,
@@ -1512,7 +1542,7 @@ const chainTokens = {
       isStable: true,
       isVeloLP: true,
       pairs: [
-        chainTokenAddresses["42161"].DOLA, chainTokenAddresses["42161"].USDC
+        chainTokenAddresses["42161"].DOLA, chainTokenAddresses["42161"].USDCE
       ],
       protocolImage: PROTOCOL_IMAGES.RAMSES,
       twgAddress: '0x23dEDab98D7828AFBD2B7Ab8C71089f2C517774a',
@@ -1557,7 +1587,7 @@ const chainTokens = {
       isStable: true,
       isVeloLP: true,
       pairs: [
-        chainTokenAddresses["42161"].DOLA, chainTokenAddresses["42161"].USDC
+        chainTokenAddresses["42161"].DOLA, chainTokenAddresses["42161"].USDCE
       ],
       protocolImage: PROTOCOL_IMAGES.STERLING,
       twgAddress: '0x233Ca46D4882609C53fcbD2FCFaAe92D2eA89538',
@@ -1572,7 +1602,7 @@ const chainTokens = {
       isStable: true,
       isVeloLP: true,
       pairs: [
-        chainTokenAddresses["42161"].DOLA, chainTokenAddresses["42161"].USDC
+        chainTokenAddresses["42161"].DOLA, chainTokenAddresses["42161"].USDCE
       ],
       protocolImage: PROTOCOL_IMAGES.SOLIDLIZARD,
     },

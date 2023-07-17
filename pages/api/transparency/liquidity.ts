@@ -13,7 +13,7 @@ import { pricesCacheKey } from '../prices';
 import { PROTOCOLS_BY_IMG } from '@app/variables/images';
 import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 
-export const liquidityCacheKey = `liquidity-v1.0.93`;
+export const liquidityCacheKey = `liquidity-v1.0.95`;
 
 const PROTOCOL_DEFILLAMA_MAPPING = {
     "VELO": 'velodrome',
@@ -29,6 +29,7 @@ const PROTOCOL_DEFILLAMA_MAPPING = {
     "UNIV3": "uniswap-v3",
     "BAL": "balancer-v2",
     "RAMSES": "ramses-v1",
+    "RAMSESV2": "ramses-v2",
     // TODO: check if correct project names for the following when defillama adds support    
     "STERLING": "sterling-exchange",
     "SOLIDLIZARD": "solidlizard",
@@ -199,7 +200,7 @@ export default async function handler(req, res) {
 
         const liquidity = (await Promise.all([
             ...lps.map(lp => getPol(lp))
-        ]))
+        ])).filter(d => d.tvl > 1);
 
         const resultData = {
             timestamp: (+(new Date()) - 1000),
