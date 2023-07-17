@@ -3,7 +3,7 @@ import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { getYieldOppys } from '@app/util/markets'
 
 export default async function handler(req, res) {
-  const cacheKey = `oppys-v1.0.1`;
+  const cacheKey = `oppys-v1.0.2`;
   const { cacheFirst } = req.query;
 
   try {

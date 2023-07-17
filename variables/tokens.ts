@@ -1602,7 +1602,7 @@ const chainTokens = {
       isStable: true,
       isVeloLP: true,
       pairs: [
-        chainTokenAddresses["42161"].DOLA, chainTokenAddresses["42161"].USDCEE
+        chainTokenAddresses["42161"].DOLA, chainTokenAddresses["42161"].USDCE
       ],
       protocolImage: PROTOCOL_IMAGES.SOLIDLIZARD,
     },
