@@ -13,15 +13,15 @@ import { pricesCacheKey } from '../prices';
 import { PROTOCOLS_BY_IMG } from '@app/variables/images';
 import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 
-export const liquidityCacheKey = `liquidity-v1.0.95`;
+export const liquidityCacheKey = `liquidity-v1.0.97`;
 
 const PROTOCOL_DEFILLAMA_MAPPING = {
     "VELO": 'velodrome',
-    "VELOV2": 'velodrome-v2',
+    "VELOV2": 'velodrome',
     "THENA": 'thena-v1',
     "THENAV2": 'thena-v2',
     "AURA": 'aura',
-    "CRV": 'curve',
+    "CRV": 'curve-dex',
     "YFI": 'yearn',
     "CVX": "convex-finance",
     "SUSHI": "sushiswap",
@@ -141,21 +141,21 @@ export default async function handler(req, res) {
             const owned: { [key: string]: number } = {};
             if (!fedPolData) {
                 const contract = new Contract(lp.lpBalanceContract || lp.address, ERC20_ABI, provider);
-                if (lp.isCrvLP && !!lp.poolAddress) {
+                if (lp.isCrvLP && !!lp.poolAddress) {                    
                     const [lpBal, lpSupply] = await Promise.all([
                         contract.balanceOf(TWG.address),
                         contract.totalSupply(),
                     ]);
                     const share = getBnToNumber(lpBal) / getBnToNumber(lpSupply);
                     owned.twg = share * tvl;
-                } else if (!lp.isUniV3) {
+                } else if (!lp.isUniV3) {                    
                     owned.twg = getBnToNumber(await contract.balanceOf(lp.twgAddress || chainTWG[lp.chainId].address));
                     if (lp.chainId === NetworkIds.mainnet) {
                         // no more
                         // owned.bondsManager = getBnToNumber(await contract.balanceOf(OP_BOND_MANAGER));
                         owned.treasuryContract = getBnToNumber(await contract.balanceOf(TREASURY));
                     }
-                } else {
+                } else {                    
                     // univ3 pool liquidity
                     const univ3liquidity = getBnToNumber(await (new Contract(lp.address, ['function liquidity() public view returns (uint)'], provider)).liquidity());
                     // share of twg
