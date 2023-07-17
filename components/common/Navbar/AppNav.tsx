@@ -25,7 +25,7 @@ import { useWeb3React } from '@web3-react/core'
 import { WalletConnect as WalletConnectV2 } from '@web3-react/walletconnect-v2'
 import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
 import { MetaMask } from '@web3-react/metamask'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Announcement } from '@app/components/common/Announcement'
 import WrongNetworkModal from '@app/components/common/Modal/WrongNetworkModal'
 import { getNetwork, getNetworkConfigConstants, isSupportedNetwork } from '@app/util/networks'
@@ -60,6 +60,8 @@ import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
 import { BurgerMenu } from './BurgerMenu'
 import { useStakedInFirm } from '@app/hooks/useFirm'
 import { useAccount } from '@app/hooks/misc'
+import { TosModal } from '../Modal/TosModal'
+import { checkTosSig } from '@app/util/tos-api'
 const NAV_ITEMS = MENUS.nav
 
 export const ThemeBtn = () => {
@@ -391,18 +393,56 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
 }
 
 export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = false, hideAnnouncement = false }: { active?: string, activeSubmenu?: string, isBlog?: boolean, isClaimPage?: boolean, hideAnnouncement?: boolean }) => {
+  const { account } = useWeb3React<Web3Provider>();
   const { query } = useRouter()
   const [isLargerThan] = useMediaQuery('(min-width: 1330px)');
   const [isLargerThan1150] = useMediaQuery('(min-width: 1150px)');
   const [isLargerThan768] = useMediaQuery('(min-width: 768px)');
   const { themeName } = useAppTheme();
-  const { isActive, chainId } = useWeb3React<Web3Provider>();  
+  const { isActive, chainId } = useWeb3React<Web3Provider>();
  
   const userAddress = useAccount();
   const { isEligible, hasClaimed, isLoading } = useCheckDBRAirdrop(userAddress);
   const [showAirdropModal, setShowAirdropModal] = useState(false);
   const { isOpen: isWrongNetOpen, onOpen: onWrongNetOpen, onClose: onWrongNetClose } = useDisclosure()
   const { isOpen: isAirdropOpen, onOpen: onAirdropOpen, onClose: onAirdropClose } = useDisclosure()
+  const { isOpen: isTosOpen, onOpen: onTosOpen, onClose: onTosClose } = useDisclosure()
+  const [onTosOk, setOnTosOk] = useState(() => () => { });
+  const [tosApproved, setTosApproved] = useState(false);
+  const isMountedRef = useRef(false);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    const init = async () => {
+      const checkSigData = await checkTosSig(account);
+      if(!isMountedRef.current) return;
+      setTosApproved(!!checkSigData.accepted);
+    }
+    if(!account) {
+      setTosApproved(false);
+      return;
+    }
+    init();
+    return () => {
+      isMountedRef.current = false;
+    }
+  }, [account]);
+
+  useEffect(() => {
+    const tosOpen = (d) => {
+      if(tosApproved) {
+        d.detail.onOk()();
+        return;
+      } else {
+        setOnTosOk(d.detail.onOk);
+        onTosOpen();
+      };
+    }
+    document.addEventListener('tos-modal', tosOpen);
+    return () => {      
+      document.removeEventListener('tos-modal', tosOpen, false);
+    }
+  }, [tosApproved]);
 
   const [isUnsupportedNetwork, setIsUsupportedNetwork] = useState(false)
 
@@ -491,6 +531,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
 
   return (
     <VStack w='full' spacing="0">
+      <TosModal isOpen={isTosOpen} onClose={onTosClose} onOk={() => onTosOk()} />
       <WrongNetworkModal
         isOpen={isWrongNetOpen && !isBlog}
         onClose={onWrongNetClose}
