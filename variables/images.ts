@@ -89,6 +89,7 @@ export const TOKEN_IMAGES = {
     "PEARL": "https://www.pearl.exchange/logo.png",
     "VELOCIMETER": "https://assets.coingecko.com/markets/images/1066/small/velocimeter.jpeg?1677577182",
     "ERN": "https://assets.coingecko.com/coins/images/29744/small/ERN200x200.png?1681106290",
+    "CRVUSD": "https://assets.coingecko.com/coins/images/30118/small/crvusd.jpeg?1683171990",
 }
 
 export const PROTOCOL_IMAGES = {
