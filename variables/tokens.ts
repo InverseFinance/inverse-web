@@ -94,6 +94,7 @@ const chainTokenAddresses = {
     DOLAFRAXUSDCCVX: '0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c',
     DOLACRVUSDLP: '0x8272e1a3dbef607c04aa6e5bd3a1a134c8ac063b',
     CRVUSD: '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
+    INVTRICRYPTO: '0x5426178799ee0a0181A89b4f57eFddfAb49941Ec',
   },
   "250": {
     DOLA2POOLCRV: '0x28368d7090421ca544bc89799a2ea8489306e3e5',
@@ -887,6 +888,20 @@ const chainTokens = {
       coingeckoId: 'crvusd',
       image: TOKEN_IMAGES.CRVUSD,
       decimals: 18,
+    },
+    [chainTokenAddresses["1"].INVTRICRYPTO]: {
+      address: chainTokenAddresses["1"].INVTRICRYPTO,      
+      name: 'TricryptoINV',
+      symbol: 'TricryptoINV clp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isCrvLP: true,
+      pairs: [
+        chainTokenAddresses["1"].USDC, chainTokenAddresses["1"].WETH, chainTokenAddresses["1"].INV
+      ],
+      protocolImage: PROTOCOL_IMAGES.CRV,
+      link: 'https://curve.fi/#/ethereum/pools/factory-tricrypto-3/deposit',
     },
   },
   "43114": {
