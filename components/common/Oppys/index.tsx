@@ -57,6 +57,7 @@ const projectLinks = {
     'velodrome': 'https://app.velodrome.finance/liquidity/manage',
     'pickle': 'https://app.pickle.finance/farms',
     'ramses-v1': 'https://app.ramses.exchange/liquidity',
+    'ramses-v2': 'https://app.ramses.exchange/liquidity',
     'gamma': 'https://app.gamma.xyz/dashboard',
 }
 
@@ -79,6 +80,7 @@ const getPoolLink = (project, pool, underlyingTokens) => {
             url = underlyingTokens ? `https://app.uniswap.org/#/add/v2/${underlyingTokens.join('/')}` : '';
             break;
         case 'ramses-v1':
+        case 'ramses-v2':
             url = `https://app.ramses.exchange/liquidity/${pool.toLowerCase()}`;
             break;
     }
@@ -109,7 +111,7 @@ const poolColumn = ({ width, symbol, pool, project, chain, underlyingTokens }) =
     let isFallbackCase = false;
 
     try {
-        pairs = !underlyingTokens?.length ? symbol.replace('DOLA-BNB', 'DOLA-WBNB').replace('-USDCE', '-USDC').split('-').slice(0, 2).map(sym => getToken(CHAIN_TOKENS[NETWORKS_BY_NAME[chain]?.id], sym)?.address) : underlyingTokens;
+        pairs = underlyingTokens?.length < 2 ? symbol.replace('DOLA-BNB', 'DOLA-WBNB').replace('-USDCE', '-USDC').split('-').slice(0, 2).map(sym => getToken(CHAIN_TOKENS[NETWORKS_BY_NAME[chain]?.id], sym)?.address) : underlyingTokens;
     } catch (e) {
         isFallbackCase = true;
     }

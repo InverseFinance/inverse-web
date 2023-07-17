@@ -157,7 +157,8 @@ const chainTokenAddresses = {
   },
   "42161": {
     DOLA: '0x6A7661795C374c0bFC635934efAddFf3A7Ee23b6',
-    USDC: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+    USDCE: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+    USDC: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
     FRAX: '0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F',
     MAI: '0x3F56e0c36d275367b8C502090EDF38289b3dEa0d',
     RAM: '0xAAA6C1E32C55A7Bfa8066A6FAE9b42650F262418',
@@ -1434,6 +1435,10 @@ const chainTokens = {
       ...DOLA,
       address: chainTokenAddresses["42161"].DOLA,
     },
+    [chainTokenAddresses["42161"].USDCE]: {
+      ...USDC,
+      address: chainTokenAddresses["42161"].USDCE,
+    },
     [chainTokenAddresses["42161"].USDC]: {
       ...USDC,
       address: chainTokenAddresses["42161"].USDC,
@@ -1537,7 +1542,7 @@ const chainTokens = {
       isStable: true,
       isVeloLP: true,
       pairs: [
-        chainTokenAddresses["42161"].DOLA, chainTokenAddresses["42161"].USDC
+        chainTokenAddresses["42161"].DOLA, chainTokenAddresses["42161"].USDCE
       ],
       protocolImage: PROTOCOL_IMAGES.RAMSES,
       twgAddress: '0x23dEDab98D7828AFBD2B7Ab8C71089f2C517774a',
@@ -1582,7 +1587,7 @@ const chainTokens = {
       isStable: true,
       isVeloLP: true,
       pairs: [
-        chainTokenAddresses["42161"].DOLA, chainTokenAddresses["42161"].USDC
+        chainTokenAddresses["42161"].DOLA, chainTokenAddresses["42161"].USDCE
       ],
       protocolImage: PROTOCOL_IMAGES.STERLING,
       twgAddress: '0x233Ca46D4882609C53fcbD2FCFaAe92D2eA89538',
@@ -1597,7 +1602,7 @@ const chainTokens = {
       isStable: true,
       isVeloLP: true,
       pairs: [
-        chainTokenAddresses["42161"].DOLA, chainTokenAddresses["42161"].USDC
+        chainTokenAddresses["42161"].DOLA, chainTokenAddresses["42161"].USDCEE
       ],
       protocolImage: PROTOCOL_IMAGES.SOLIDLIZARD,
     },
