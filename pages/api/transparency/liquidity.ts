@@ -13,7 +13,7 @@ import { pricesCacheKey } from '../prices';
 import { PROTOCOLS_BY_IMG } from '@app/variables/images';
 import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 
-export const liquidityCacheKey = `liquidity-v1.0.97`;
+export const liquidityCacheKey = `liquidity-v1.0.98`;
 
 const PROTOCOL_DEFILLAMA_MAPPING = {
     "VELO": 'velodrome',
@@ -120,10 +120,13 @@ export default async function handler(req, res) {
             const provider = getProvider(lp.chainId);
             const protocol = PROTOCOLS_BY_IMG[lp.protocolImage];
             const defiLlamaProjectName = PROTOCOL_DEFILLAMA_MAPPING[protocol];
+            const lpName = lp.symbol.replace(/(-LP|-SLP|-AURA| [a-zA-Z]*lp)/ig, '').replace(/-ETH/ig, '-WETH');
 
             const yieldData = yields.find(y => {
                 return defiLlamaProjectName === y.project
-                    && y.underlyingTokens.join(',').toLowerCase() === lp.pairs?.join(',').toLowerCase();
+                    && (y.underlyingTokens?.length > 0 ? y.underlyingTokens.join(',').toLowerCase() === lp.pairs?.join(',').toLowerCase() : y.symbol === lpName)
+                    // no distinctinon in defillama's api between velov2 and velov1 :/, using apyBase to distinguish
+                    && (defiLlamaProjectName !== 'velodrome' ? true : protocol === 'VELOV2' ? y.apyBase > 0 : !y.apyBase);
             });
 
             const subBalances = fedPol?.subBalances || (await getLPBalances(lp, lp.chainId, provider));
@@ -169,9 +172,7 @@ export default async function handler(req, res) {
                     * (lp.isStable ? virtualLpPrice : (prices[lp.coingeckoId || lp.symbol] || 1));
             } else {
                 ownedAmount = fedPolData.dontUseSupplyForPolCalc ? fedPolData.lpBalance * fedPolData.lpPrice : fedPolData.supply;
-            }
-
-            const lpName = lp.symbol.replace(/(-LP|-SLP|-AURA| [a-zA-Z]*lp)/ig, '').replace(/-ETH/ig, '-WETH');
+            } 
             const perc = Math.min(ownedAmount / tvl * 100, 100);
 
             // bb-e-usd exception due to euler exploit to not throw off avgs
