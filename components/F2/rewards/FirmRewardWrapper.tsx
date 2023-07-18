@@ -1,6 +1,6 @@
 import { F2Market } from "@app/types"
 import { useContext, useEffect } from "react";
-import { useEscrowRewards, useINVEscrowRewards, useStakedInFirm } from "@app/hooks/useFirm";
+import { useCvxFxsRewards, useEscrowRewards, useINVEscrowRewards, useStakedInFirm } from "@app/hooks/useFirm";
 import { F2MarketContext } from "../F2Contex";
 import { BURN_ADDRESS } from "@app/config/constants";
 import { zapperRefresh } from "@app/util/f2";
@@ -36,6 +36,14 @@ export const FirmRewardWrapper = ({
             escrow={_escrow}
             onLoad={onLoad}
         />
+    } else if (market.name === 'cvxFXS') {        
+        return <FirmCvxFxsRewardWrapperContent
+            market={market}
+            label={label}
+            showMarketBtn={showMarketBtn}
+            escrow={_escrow}
+            onLoad={onLoad}
+        />
     }
 
     return <FirmRewardWrapperContent
@@ -43,6 +51,37 @@ export const FirmRewardWrapper = ({
         label={label}
         showMarketBtn={showMarketBtn}
         escrow={_escrow}
+    />
+}
+
+export const FirmCvxFxsRewardWrapperContent = ({
+    market,
+    label,
+    showMarketBtn = false,
+    escrow,
+    onLoad,
+}: {
+    market: F2Market
+    label?: string
+    escrow?: string
+    showMarketBtn?: boolean
+    onLoad?: (v: number) => void
+}) => {
+    const { rewardsInfos, isLoading } = useCvxFxsRewards(escrow);
+
+    useEffect(() => {
+        if (!onLoad || !rewardsInfos?.tokens?.length || isLoading) { return }
+        const totalUsd = rewardsInfos.tokens.filter(t => t.metaType === 'claimable')
+            .reduce((prev, curr) => prev + curr.balanceUSD, 0);
+        onLoad(totalUsd);
+    }, [rewardsInfos, onLoad])
+
+    return <FirmRewards
+        market={market}
+        rewardsInfos={rewardsInfos}
+        label={label}
+        showMarketBtn={showMarketBtn}
+        isLoading={isLoading}
     />
 }
 
@@ -128,7 +167,7 @@ export const FirmINVRewardWrapperContent = ({
                             <HStack w='full' justify="space-between" spacing="2">
                                 <Text>Monthly DBR rewards:</Text>
                                 <Text textAlign="right" fontWeight="bold">~{shortenNumber(dbrMonthlyRewards, 2)} ({shortenNumber(dbrMonthlyRewards * dbrPriceCg, 2, true)})</Text>
-                            </HStack>                            
+                            </HStack>
                         </VStack>
                     }
                 />

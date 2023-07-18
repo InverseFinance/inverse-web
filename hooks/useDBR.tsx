@@ -13,6 +13,7 @@ import { parseUnits } from "@ethersproject/units";
 import useSWR from "swr";
 import { useWeb3React } from "@web3-react/core";
 import { usePrices } from "./usePrices";
+import { useBlockTimestamp } from "./useBlockTimestamp";
 
 const { DBR, DBR_AIRDROP, F2_MARKETS, F2_ORACLE, DOLA, DBR_DISTRIBUTOR, F2_HELPER } = getNetworkConfigConstants();
 
@@ -34,18 +35,21 @@ export const useAccountDBR = (
   dbrDepletionPerc: number,
   bnDebt: BigNumber,
   bnBalance: BigNumber,
+  hasDbrV1NewBorrowIssue: boolean,
 } => {
   const { data, error } = useEtherSWR([
     [DBR, 'balanceOf', account],
     [DBR, 'debts', account],
     [DBR, 'dueTokensAccrued', account],
     [DBR, 'signedBalanceOf', account],
-    // [DBR, 'lastUpdated', account],
+    [DBR, 'lastUpdated', account],
   ]);
+  const blockTimestamp = useBlockTimestamp('latest');
 
   const [balance, debt, interests, signedBalance] = (data || [zero, zero, zero, zero])
     .map(v => getBnToNumber(v));
-  // const [balance, allowance, debt, interests, signedBalance] = [100, 0, 5000, 0, 2500];
+  // const [balance, allowance, debt, interests, signedBalance] = [100, 0, 5000, 0, 2500];  
+  const lastUpdate = data ? getBnToNumber(data[4], 0) * 1000 : 0;  
 
   // interests are not auto-compounded
   const _debt = previewDebt ?? debt;
@@ -56,7 +60,11 @@ export const useAccountDBR = (
   const dbrExpiryDate = !_debt ? null : (+new Date() + dbrNbDaysExpiry * ONE_DAY_MS);
   const dbrDepletionPerc = dbrNbDaysExpiry / 365 * 100;
 
+  // dbr v1 edge issue
+  const hasDbrV1NewBorrowIssue = lastUpdate > 0 && debt === 0 && lastUpdate !== (blockTimestamp?.timestamp||0);
+
   return {
+    hasDbrV1NewBorrowIssue,
     bnBalance: data ? data[0] : BigNumber.from('0'),
     balance,
     debt: _debt,

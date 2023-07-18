@@ -58,6 +58,7 @@ export const F2WalkthroughRecap = ({
         setDbrBuySlippage,
         notFirstTime,
         onFirstTimeModalOpen,
+        hasDbrV1NewBorrowIssue,
     } = useContext(F2MarketContext);
 
     const recapData = {
@@ -88,6 +89,10 @@ export const F2WalkthroughRecap = ({
             if(firstTimeAction !== 'continue') {
                 return
             }
+        }
+        if(hasDbrV1NewBorrowIssue) {
+            alert("There is a minor issue with new borrows for this account. Please reach out to the team on discord for more information.");
+            return;
         }
         if (market.helper) {
             // if(maxDolaInNum > maxBorrow) {

@@ -2,7 +2,7 @@ import { TOKENS } from '@app/variables/tokens';
 import { BigNumberList, Market, TokenList } from '@app/types';
 import { BigNumber, Contract } from 'ethers';
 import { formatUnits, commify, isAddress, parseUnits, parseEther } from 'ethers/lib/utils';
-import { ETH_MANTISSA, BLOCKS_PER_YEAR, DAYS_PER_YEAR, BLOCKS_PER_DAY } from '@app/config/constants';
+import { ETH_MANTISSA, BLOCKS_PER_YEAR, DAYS_PER_YEAR, BLOCKS_PER_DAY, ONE_DAY_SECS } from '@app/config/constants';
 import sushiData from '@sushiswap/sushi-data'
 import { toFixed } from './misc';
 
@@ -194,7 +194,35 @@ export const getCvxCrvData = async () => {
     return [];
 }
 
-export const getCvxCrvAPRs = async (provider) => {
+export const getCvxFxsAPRs = async (provider, _prices?: any) => {
+    try {
+        const utilContract = new Contract(
+            '0x49b4d1dF40442f0C31b1BbAEA3EDE7c38e37E31a',
+            [
+                'function rewardData(address) view returns (tuple(uint periodFinish, uint rewardRate, uint lastUpdateTime, uint rewardPerTokenStored))',
+                'function totalSupply() view returns (uint)',
+            ],
+            provider);
+
+        const [fxsRewardData, cvxRewardData, totalSupply, pricesRes] = await Promise.all([
+            utilContract.rewardData('0x3432B6A60D23Ca0dFCa7761B7ab56459D9C964D0'),
+            utilContract.rewardData('0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b'),
+            utilContract.totalSupply(),
+            !!_prices ? Promise.resolve() : fetch(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=frax-share,convex-finance,convex-fxs`)
+        ]);
+
+        const prices = _prices || await pricesRes.json();
+        const year = ONE_DAY_SECS * 365;
+
+        return {
+            fxs: 100 * getBnToNumber(fxsRewardData[1]) / getBnToNumber(totalSupply) * year * prices['frax-share'].usd/prices['convex-fxs'].usd, 
+            cvx: 100 * getBnToNumber(cvxRewardData[1]) / getBnToNumber(totalSupply) * year * prices['convex-finance'].usd/prices['convex-fxs'].usd,
+        };
+    } catch (e) { console.log(e) }
+    return {};
+}
+
+export const getCvxCrvAPRs = async (provider, _prices?: any) => {
     try {
         const utilContract = new Contract(
             '0xadd2F542f9FF06405Fabf8CaE4A74bD0FE29c673',
@@ -204,10 +232,10 @@ export const getCvxCrvAPRs = async (provider) => {
         const [mainRewardRates, extraRewardRates, pricesRes] = await Promise.all([
             utilContract.mainRewardRates(),
             utilContract.extraRewardRates(),
-            fetch(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=curve-dao-token,convex-finance,convex-crv,lp-3pool-curve`)
+            !!_prices ? Promise.resolve() : fetch(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=curve-dao-token,convex-finance,convex-crv,lp-3pool-curve`)
         ]);
 
-        const prices = await pricesRes.json();
+        const prices = _prices || await pricesRes.json();
         const mainTokens = mainRewardRates[0];
 
         const adCgId = {
