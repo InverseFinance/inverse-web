@@ -194,7 +194,7 @@ export const getCvxCrvData = async () => {
     return [];
 }
 
-export const getCvxFxsAPRs = async (provider, _prices) => {
+export const getCvxFxsAPRs = async (provider, _prices?: any) => {
     try {
         const utilContract = new Contract(
             '0x49b4d1dF40442f0C31b1BbAEA3EDE7c38e37E31a',
@@ -222,7 +222,7 @@ export const getCvxFxsAPRs = async (provider, _prices) => {
     return {};
 }
 
-export const getCvxCrvAPRs = async (provider, _prices) => {
+export const getCvxCrvAPRs = async (provider, _prices?: any) => {
     try {
         const utilContract = new Contract(
             '0xadd2F542f9FF06405Fabf8CaE4A74bD0FE29c673',

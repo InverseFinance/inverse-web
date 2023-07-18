@@ -153,8 +153,8 @@ export default async function handler(req, res) {
     ));
 
     let [cvxCrvData, cvxFxsData] = await Promise.all([
-      getCvxCrvAPRs(provider, cgPrices),
-      getCvxFxsAPRs(provider, cgPrices),
+      getCvxCrvAPRs(provider),
+      getCvxFxsAPRs(provider),
     ]);
 
     if (!cvxCrvData.group1 && !!cachedData) {
