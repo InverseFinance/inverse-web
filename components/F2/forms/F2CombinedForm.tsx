@@ -82,6 +82,7 @@ export const F2CombinedForm = ({
         deposits, bnDeposits, debt, bnWithdrawalLimit, bnLeftToBorrow, bnCollateralBalance, collateralBalance, bnDebt,
         newPerc, newCreditLimit,
         notFirstTime, onFirstTimeModalOpen,
+        hasDbrV1NewBorrowIssue,
     } = useContext(F2MarketContext);
 
     const [syncedMinH, setSyncedMinH] = useState('230px');
@@ -105,6 +106,10 @@ export const F2CombinedForm = ({
 
     const handleAction = async () => {
         if (!signer) { return }
+        if(isBorrowCase && hasDbrV1NewBorrowIssue) {
+            alert("There is a minor issue with new borrows for this account. Please reach out to the team on discord for more information.");
+            return;
+        }
         if (!notFirstTime && isBorrowCase) {
             const firstTimeAction = await onFirstTimeModalOpen();
             if (firstTimeAction !== 'continue') {
@@ -448,8 +453,6 @@ export const F2CombinedForm = ({
         </VStack>
     </VStack>
 
-
-    
     const disabledConditions = {
         'deposit': collateralAmountNum <= 0 || collateralBalance < collateralAmountNum,
         'borrow': duration <= 0 || debtAmountNum <= 0 || newPerc < 1 || (isDeposit && !isAutoDBR && dbrBalance <= 0) || market.leftToBorrow < 1 || debtAmountNum > market.leftToBorrow || notEnoughToBorrowWithAutobuy,
