@@ -233,7 +233,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         ],
         [
             {
-                tooltip: 'The DBR swap price on Curve in the DBR-DOLA pool for the required DBR amount',
+                tooltip: 'Approximated DBR swap price for the total required DBR amount (dbr amount for the borrowed dola + dbr amount for that dbr amount)',
                 title: 'DBR swap price',
                 value: `~${shortenNumber(dbrSwapPrice, 6, true)}`,
                 isLoading: debtAmountNumInfo > 0 && isDbrApproxLoading,

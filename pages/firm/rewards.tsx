@@ -12,6 +12,7 @@ import { SkeletonBlob } from '@app/components/common/Skeleton'
 import { FirmRewardWrapper, FirmRewards } from '@app/components/F2/rewards/FirmRewardWrapper'
 import { useEffect, useState } from 'react'
 import { zapperRefresh } from '@app/util/f2'
+import { BURN_ADDRESS } from '@app/config/constants'
 
 export const FirmRewardsPage = () => {
     const account = useAccount();
@@ -64,7 +65,7 @@ export const FirmRewardsPage = () => {
                         isLoading ? <SkeletonBlob />
                             :
                             accountMarkets
-                                .filter(market => market.hasClaimableRewards)
+                                .filter(market => market.hasClaimableRewards && !!market.escrow && market.escrow !== BURN_ADDRESS)
                                 .map(market => {
                                     // via on chain data
                                     if (market.isInv || market.name === 'cvxFXS') {
