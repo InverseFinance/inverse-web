@@ -53,7 +53,7 @@ export const fetcher30sectimeout = (input: RequestInfo, init?: RequestInit) => f
 
 export const fetcher = async (input: RequestInfo, init?: RequestInit, timeout = 6000) => {
   if(input === '-') {
-    return undefined;
+    return {};
   }
   const res = await fetchWithTimeout(input, init, timeout);
 
