@@ -10,6 +10,7 @@ import { Stack } from "@chakra-ui/react";
 import { useWeb3React } from "@web3-react/core";
 import moment from 'moment';
 import useStorage from "@app/hooks/useStorage";
+import { BURN_ADDRESS } from "@app/config/constants";
 
 export const RewardsContainer = ({
     escrow,
@@ -79,7 +80,9 @@ export const RewardsContainer = ({
                         />
                         :
                         <InfoMessage
-                            description="This market has rewards but you don't have any at the moment, it will show if you have at least $0.1 worth of rewards."
+                            description={
+                                !escrow || escrow === BURN_ADDRESS ? `This market has rewards but you don't have a position in it.` : "This market has rewards but you don't have any at the moment, it will show if you have at least $0.1 worth of rewards."
+                            }
                         />
             }
             {extra}

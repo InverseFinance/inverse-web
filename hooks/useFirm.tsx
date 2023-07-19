@@ -312,7 +312,7 @@ export const useINVEscrowRewards = (escrow: string): SWR & {
   rewardsInfos: { tokens: ZapperToken[] },
 } => {
   const account = useAccount();
-  const { data: dbrSimData } = useCustomSWR(`/api/f2/sim-dbr-rewards?escrow=${escrow}&account=${account}`, fetcher30sectimeout);
+  const { data: dbrSimData } = useCustomSWR(escrow && escrow !== BURN_ADDRESS ? `/api/f2/sim-dbr-rewards?escrow=${escrow}&account=${account}` : '-', fetcher30sectimeout);
   const { data, error } = useEtherSWR({
     args: [[escrow, 'claimable']],
     abi: F2_ESCROW_ABI,
@@ -396,11 +396,11 @@ export const useEscrowRewards = (escrow: string): SWR & {
   appGroupPositions: any[],
   timestamp: number,
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/f2/escrow-rewards?escrow=${escrow || ''}`);
+  const { data, error } = useCacheFirstSWR(escrow && escrow !== BURN_ADDRESS ? `/api/f2/escrow-rewards?escrow=${escrow || ''}` : '-');
 
   return {
     appGroupPositions: data?.appGroupPositions || [],
-    timestamp: data ? data.timestamp : 0,
+    timestamp: data?.timestamp || 0,
     isLoading: !error && !data,
     isError: error,
   }
@@ -410,11 +410,11 @@ export const useUserRewards = (user: string): SWR & {
   appGroupPositions: any[],
   timestamp: number,
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/f2/user-rewards?user=${user || ''}`);
+  const { data, error } = useCacheFirstSWR(!user ? '-' : `/api/f2/user-rewards?user=${user || ''}`);
 
   return {
     appGroupPositions: data?.appGroupPositions || [],
-    timestamp: data ? data.timestamp : 0,
+    timestamp: data?.timestamp || 0,
     isLoading: !error && !data,
     isError: error,
   }
