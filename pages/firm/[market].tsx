@@ -27,6 +27,7 @@ import { InfoMessage } from '@app/components/common/Messages'
 import { shortenNumber } from '@app/util/markets'
 import { preciseCommify } from '@app/util/misc'
 import { WorthEvoChartWrapper } from '@app/components/F2/WorthEvoChartContainer'
+import { DbrV1IssueModal } from '@app/components/F2/Modals/DbrV1IssueIModal'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -90,6 +91,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                     </Text>
                         : <F2Context market={f2market} isWalkthrough={isWalkthrough} setIsWalkthrough={setIsWalkthrough}>
                             <FirstTimeModal />
+                            <DbrV1IssueModal />
                             <VStack
                                 pt="4"
                                 w='full'

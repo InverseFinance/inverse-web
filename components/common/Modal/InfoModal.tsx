@@ -1,5 +1,5 @@
 import { Modal } from '@app/components/common/Modal';
-import { HStack, Stack, Text } from '@chakra-ui/react';
+import { HStack, ModalProps, Stack, Text } from '@chakra-ui/react';
 import { SubmitButton } from '@app/components/common/Button';
 import { ReactNode } from 'react';
 import { InfoIcon } from '@chakra-ui/icons';
@@ -14,6 +14,7 @@ export type Props = {
     children?: ReactNode
     minW?: any
     footerLeft?: ReactNode
+    modalProps?: ModalProps
 }
 
 const InfoModal = ({
@@ -25,6 +26,7 @@ const InfoModal = ({
     children,
     minW,
     footerLeft,
+    modalProps,
 }: Props) => {
     const { themeName } = useAppTheme();
     const handleOk = () => {
@@ -50,6 +52,7 @@ const InfoModal = ({
             minW={minW}
             className={`blurred-container ${themeName}-bg`}
             bg="transparent"
+            {...modalProps}
         >
             {children ? children : <></>}
         </Modal>

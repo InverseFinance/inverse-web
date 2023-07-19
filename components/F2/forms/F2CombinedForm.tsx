@@ -81,8 +81,8 @@ export const F2CombinedForm = ({
         setDbrBuySlippage,
         deposits, bnDeposits, debt, bnWithdrawalLimit, bnLeftToBorrow, bnCollateralBalance, collateralBalance, bnDebt,
         newPerc, newCreditLimit,
-        notFirstTime, onFirstTimeModalOpen,
-        hasDbrV1NewBorrowIssue,
+        notFirstTime, onFirstTimeModalOpen,        
+        hasDbrV1NewBorrowIssue, onDbrV1NewBorrowIssueModalOpen,
     } = useContext(F2MarketContext);
 
     const [syncedMinH, setSyncedMinH] = useState('230px');
@@ -107,7 +107,7 @@ export const F2CombinedForm = ({
     const handleAction = async () => {
         if (!signer) { return }
         if(isBorrowCase && hasDbrV1NewBorrowIssue) {
-            alert("There is a minor issue with new borrows for this account. Please reach out to the team on discord for more information.");
+            onDbrV1NewBorrowIssueModalOpen();            
             return;
         }
         if (!notFirstTime && isBorrowCase) {
