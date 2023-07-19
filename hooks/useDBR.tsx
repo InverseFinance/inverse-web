@@ -84,6 +84,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
   markets: F2Market[]
   isLoading: boolean
 } => {
+  const { account } = useWeb3React();
   const { data: apiData, isLoading } = useCacheFirstSWR(`/api/f2/fixed-markets?v12`);
   const _markets = Array.isArray(marketOrList) ? marketOrList : !!marketOrList ? [marketOrList] : [];
 
@@ -106,7 +107,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
 
   const { data, error } = useEtherSWR([
     ...markets.map(m => {
-      return m.isInv ? [] : [F2_ORACLE, 'viewPrice', m.collateral, getNumberToBn(m.collateralFactor, 4)]
+      return (m.isInv || !account ? [] : [F2_ORACLE, 'viewPrice', m.collateral, getNumberToBn(m.collateralFactor, 4)])
     }),
     ...markets.map(m => {
       return [m.address, 'collateralFactorBps']
