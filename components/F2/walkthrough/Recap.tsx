@@ -59,6 +59,7 @@ export const F2WalkthroughRecap = ({
         notFirstTime,
         onFirstTimeModalOpen,
         hasDbrV1NewBorrowIssue,
+        onDbrV1NewBorrowIssueModalOpen,
     } = useContext(F2MarketContext);
 
     const recapData = {
@@ -91,7 +92,7 @@ export const F2WalkthroughRecap = ({
             }
         }
         if(hasDbrV1NewBorrowIssue) {
-            alert("There is a minor issue with new borrows for this account. Please reach out to the team on discord for more information.");
+            onDbrV1NewBorrowIssueModalOpen();
             return;
         }
         if (market.helper) {
