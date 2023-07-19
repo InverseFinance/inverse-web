@@ -95,7 +95,14 @@ export const MobileTable = ({
                   onClick: (isNotFirstCol || !onClick) ? undefined : (e) => onClick(item, e),
                 }, <>{Value.props.children}</>);
 
-                return <HStack alignItems="flex-start" spacing="0" key={j} w='full' justify={isNotFirstCol ? 'space-between' : 'center'}>
+                return <HStack position="relative" alignItems="flex-start" spacing="0" key={j} w='full' justify={isNotFirstCol ? 'space-between' : 'center'}>
+                  {
+                    !isNotFirstCol && item._isPinned &&
+                    <Badge textTransform="capitalize" borderRadius="50px"
+                      px="8px" fontWeight="normal" bgColor="mainTextColor" color="contrastMainTextColor" w='fit-content' mr="1" position="absolute" top="-10px" left="-10px">
+                      New
+                    </Badge>
+                  }
                   <HStack display={isNotFirstCol ? 'inline-flex' : 'none'}>
                     {
                       col.tooltip ?
