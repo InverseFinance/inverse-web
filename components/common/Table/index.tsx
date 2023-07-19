@@ -1,5 +1,5 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
-import { Flex, Stack, Box, VStack, IconProps, BoxProps, useMediaQuery, HStack, Text, SimpleGrid } from '@chakra-ui/react'
+import { Flex, Stack, Box, VStack, IconProps, BoxProps, useMediaQuery, HStack, Text, SimpleGrid, Image, Badge } from '@chakra-ui/react'
 import { TEST_IDS } from '@app/config/test-ids'
 import { Fragment, useEffect, useState, ReactNode } from 'react'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
@@ -31,6 +31,7 @@ export type Column = {
 
 type TableProps = {
   columns: Column[]
+  pinned?: string
   items: any[]
   keyName?: string
   defaultSort?: string
@@ -142,6 +143,7 @@ export const Table = ({
   showRowBorder = false,
   showHeader = true,
   showTotalRow = false,
+  pinned,
   ...props
 }: TableProps) => {
   const { themeStyles } = useAppTheme();
@@ -209,6 +211,15 @@ export const Table = ({
 
   const chevronProps = { color: 'mainTextColorLight2', w: 4, h: 4, ...sortChevronProps };
 
+  if (pinned && filteredItems.length >= 2) {
+    const pinnedItemIndex = filteredItems.findIndex(item => item[keyName] === pinned);
+    if (pinnedItemIndex !== -1) {
+      const pinnedItem = filteredItems.splice(pinnedItemIndex, 1)[0];
+      pinnedItem._isPinned = true;
+      filteredItems.splice(0, 0, pinnedItem);
+    }
+  }
+
   if (isReady && !isLargerThan && enableMobileRender) {
     return <MobileTable
       keyName={keyName}
@@ -231,7 +242,7 @@ export const Table = ({
       py={2.5}
       pl={4}
       pr={4}
-      border={showRowBorder ? `1px solid ${themeStyles.colors.primary[600]}` : undefined}
+      border={showRowBorder ? `1px solid ${item._isPinned ? themeStyles.colors.mainTextColorLightAlpha : themeStyles.colors.primary[600]}` : undefined}
       minW='fit-content'
       w="full"
       borderRadius={8}
@@ -242,7 +253,15 @@ export const Table = ({
         return onClick(item, e);
       } : undefined}
       _hover={{ bgColor: 'primary.850' }}
+      position="relative"
     >
+      {
+        item._isPinned &&
+        <Badge textTransform="capitalize" borderRadius="50px"
+          px="8px" fontWeight="normal" bgColor="mainTextColor" color="contrastMainTextColor" w='fit-content' mr="1" position="absolute" top="-10px" left="-10px">
+          New
+        </Badge>
+      }
       {columns.map(({ value, field }, j) => (
         <Box key={j} data-col={field}>{value(item, i)}</Box>
       ))}
