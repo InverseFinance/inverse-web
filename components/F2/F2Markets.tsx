@@ -1,5 +1,5 @@
 import { Badge, Flex, HStack, Stack, Text, Image, VStack, useMediaQuery, SkeletonText } from "@chakra-ui/react"
-import { shortenNumber } from "@app/util/markets";
+import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useAccountDBR, useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
 import { useRouter } from 'next/router';
@@ -133,7 +133,7 @@ const columns = [
         tooltip: 'Total DOLA borrowed in the Market',
         value: ({ totalDebt, borrowPaused }) => {
             return <Cell minWidth="80px" justify="center" >
-                <CellText>{borrowPaused && !totalDebt ? '-' : shortenNumber(totalDebt, 2)}</CellText>
+                <CellText>{borrowPaused && !totalDebt ? '-' : smartShortNumber(totalDebt, 2)}</CellText>
             </Cell>
         },
     },
@@ -144,7 +144,7 @@ const columns = [
         tooltip: 'Remaining borrowable DOLA liquidity, not taking into account daily limits',
         value: ({ dolaLiquidity, borrowPaused }) => {
             return <Cell minWidth="120px" justify="center" >
-                <CellText>{borrowPaused || dolaLiquidity < 1 ? '-' : shortenNumber(dolaLiquidity, 2)}</CellText>
+                <CellText>{borrowPaused || dolaLiquidity < 1 ? '-' : smartShortNumber(dolaLiquidity, 2)}</CellText>
             </Cell>
         },
     },
@@ -157,9 +157,9 @@ const columns = [
             return <Cell minWidth="130px" justify="center" alignItems="center" direction="column" spacing="0" >
                 {
                     borrowPaused ? <CellText>Borrow Paused</CellText> : <>
-                        <CellText>{leftToBorrow > 1 ? shortenNumber(leftToBorrow, 2) : totalDebt ? 'Depleted' : 'No liquidity'}</CellText>
+                        <CellText>{leftToBorrow > 1 ? smartShortNumber(leftToBorrow, 2) : totalDebt ? 'Depleted' : 'No liquidity'}</CellText>
                         {
-                            leftToBorrow < dailyLimit && dolaLiquidity > 0 && leftToBorrow < dolaLiquidity && shortenNumber(dolaLiquidity, 2) !== shortenNumber(leftToBorrow, 2)
+                            leftToBorrow < dailyLimit && dolaLiquidity > 0 && leftToBorrow < dolaLiquidity && smartShortNumber(dolaLiquidity, 2) !== smartShortNumber(leftToBorrow, 2)
                             && <CellText overflow="visible" whiteSpace="nowrap" minW="130px" textAlign={{ base: 'right', sm: 'left' }} fontSize={{ base: '10px', sm: '12px' }} color="mainTextColorLight2">
                                 <DailyLimitCountdown prefix="Limit resets in " />
                             </CellText>
@@ -194,8 +194,8 @@ const columns = [
             return <Cell minWidth="120px" justify="center" alignItems="center" direction={{ base: 'row', sm: 'column' }} spacing={{ base: '1', sm: '0' }}>
                 {
                     account && deposits > 0 ? <>
-                        <CellText>{shortenNumber(deposits, 2)}</CellText>
-                        <CellText>({shortenNumber(deposits * price, 2, true)})</CellText>
+                        <CellText>{smartShortNumber(deposits, 2)}</CellText>
+                        <CellText>({smartShortNumber(deposits * price, 2, true)})</CellText>
                     </> : <>-</>
                 }
             </Cell>
@@ -208,7 +208,7 @@ const columns = [
         tooltip: 'Amount of DOLA you borrowed from the Market',
         value: ({ debt, account }) => {
             return <Cell minWidth="90px" justify="center">
-                <CellText>{account && debt > 0 ? shortenNumber(debt, 2, true) : '-'}</CellText>
+                <CellText>{account && debt > 0 ? smartShortNumber(debt, 2, true) : '-'}</CellText>
             </Cell>
         },
     },
