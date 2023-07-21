@@ -5,7 +5,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { TOKENS } from '@app/variables/tokens'
-import { getBnToNumber, getCvxCrvAPRs, getCvxFxsAPRs, getGOhmData, getStethData } from '@app/util/markets'
+import { getBnToNumber, getCvxCrvAPRs, getCvxFxsAPRs, getGOhmData, getStYcrvData, getStethData } from '@app/util/markets'
 import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_MS, ONE_DAY_SECS } from '@app/config/constants';
 import { frontierMarketsCacheKey } from '../markets';
 import { cgPricesCacheKey } from '../prices';
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
   try {
     const cacheDuration = 60;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const { data: cachedData, isValid } = await getCacheFromRedisAsObj(F2_MARKETS_CACHE_KEY, cacheFirst !== 'true', cacheDuration);    
+    const { data: cachedData, isValid } = await getCacheFromRedisAsObj(F2_MARKETS_CACHE_KEY, cacheFirst !== 'true', cacheDuration);
     if (cachedData && isValid) {
       res.status(200).json(cachedData);
       return
@@ -111,7 +111,7 @@ export default async function handler(req, res) {
 
     const dailyLimits = await Promise.all(
       borrowControllers.map((bc, i) => {
-        if(!bc || bc === BURN_ADDRESS) {
+        if (!bc || bc === BURN_ADDRESS) {
           return new Promise(resolve => resolve(BigNumber.from('0')));
         } else {
           const bcContract = new Contract(bc, F2_CONTROLLER_ABI, provider);
@@ -125,7 +125,7 @@ export default async function handler(req, res) {
 
     const dailyBorrows = await Promise.all(
       borrowControllers.map((bc, i) => {
-        if(bc === BURN_ADDRESS) {
+        if (bc === BURN_ADDRESS) {
           return new Promise(resolve => resolve(BigNumber.from('0')));
         } else {
           const bcContract = new Contract(bc, F2_CONTROLLER_ABI, provider);
@@ -152,10 +152,18 @@ export default async function handler(req, res) {
       }),
     ));
 
-    let [cvxCrvData, cvxFxsData] = await Promise.all([
+    // external yield bearing apys
+    const externalYieldResults = await Promise.allSettled([
+      getStethData(),
+      getGOhmData(),
+      getStYcrvData(),
       getCvxCrvAPRs(provider),
       getCvxFxsAPRs(provider),
     ]);
+
+    let [stethData, gohmData, stYcrvData, cvxCrvData, cvxFxsData] = externalYieldResults.map(r => {
+      return r.status === 'fulfilled' ? r.value : {};
+    });
 
     if (!cvxCrvData.group1 && !!cachedData) {
       cvxCrvData = cachedData.markets.find(m => m.name === 'cvxCRV').cvxCrvData;
@@ -164,24 +172,15 @@ export default async function handler(req, res) {
     if (!cvxFxsData.fxs && !!cachedData) {
       cvxFxsData = cachedData.markets.find(m => m.name === 'cvxFXS').cvxFxsData;
     }
-    
-    // external yield bearing apys
-    const externalYieldResults = await Promise.allSettled([
-      getStethData(),
-      getGOhmData(),
-    ]);
-
-    const [stethData, gohmData] = externalYieldResults.map(r => {
-      return r.status === 'fulfilled' ? r.value : {};
-    });
 
     const invFrontierMarket = frontierMarkets.markets.find(m => m.token === '0x1637e4e9941D55703a7A5E7807d6aDA3f7DCD61B')!;
     const externalApys = {
-      'stETH': stethData?.apy||0,
-      'gOHM': gohmData?.apy||0,
-      'cvxCRV': Math.max(cvxCrvData?.group1||0, cvxCrvData?.group2||0),
-      'cvxFXS': (cvxFxsData?.fxs||0)+(cvxFxsData?.cvx||0),
-      'INV': invFrontierMarket.supplyApy||0,
+      'stETH': stethData?.apy || 0,
+      'gOHM': gohmData?.apy || 0,
+      'cvxCRV': Math.max(cvxCrvData?.group1 || 0, cvxCrvData?.group2 || 0),
+      'cvxFXS': (cvxFxsData?.fxs || 0) + (cvxFxsData?.cvx || 0),
+      'INV': invFrontierMarket.supplyApy || 0,
+      'st-yCRV': stYcrvData?.apy || 0,
     };
 
     const xinvExRate = getBnToNumber(xinvExRateBn);
@@ -196,7 +195,7 @@ export default async function handler(req, res) {
       const isCvxCrv = underlying.symbol === 'cvxCRV';
       const isCvxFxs = underlying.symbol === 'cvxFXS';
       return {
-        ...m,        
+        ...m,
         oracle: oracles[i],
         oracleFeed: oracleFeeds[i][0],
         underlying: TOKENS[m.collateral],
@@ -215,7 +214,7 @@ export default async function handler(req, res) {
         leftToBorrow: Math.min(getBnToNumber(bnLeftToBorrow[i]), getBnToNumber(bnDola[i])),
         supplyApy: externalApys[underlying.symbol] || 0,
         extraApy: m.isInv ? dbrApr : 0,
-        supplyApyLow: isCvxCrv ? Math.min(cvxCrvData?.group1||0, cvxCrvData?.group2||0) : 0,
+        supplyApyLow: isCvxCrv ? Math.min(cvxCrvData?.group1 || 0, cvxCrvData?.group2 || 0) : 0,
         cvxCrvData: isCvxCrv ? cvxCrvData : undefined,
         cvxFxsData: isCvxFxs ? cvxFxsData : undefined,
         invStakedViaDistributor: m.isInv ? invStakedViaDistributor : undefined,

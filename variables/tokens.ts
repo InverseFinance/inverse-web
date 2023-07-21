@@ -97,6 +97,8 @@ const chainTokenAddresses = {
     DOLACRVUSDLP: '0x8272e1a3dbef607c04aa6e5bd3a1a134c8ac063b',
     CRVUSD: '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
     INVTRICRYPTO: '0x5426178799ee0a0181A89b4f57eFddfAb49941Ec',
+    STYCRV: '0x27B5739e22ad9033bcBf192059122d163b60349D',
+    YCRV: '0xFCc5c47bE19d06BF83eB04298b026F81069ff65b',
   },
   "250": {
     DOLA2POOLCRV: '0x28368d7090421ca544bc89799a2ea8489306e3e5',
@@ -906,6 +908,22 @@ const chainTokens = {
       symbol: 'crvUSD',
       coingeckoId: 'crvusd',
       image: TOKEN_IMAGES.CRVUSD,
+      decimals: 18,
+    },
+    [chainTokenAddresses["1"].STYCRV]: {
+      address: chainTokenAddresses["1"].STYCRV,
+      name: 'st-yCRV',
+      symbol: 'st-yCRV',
+      coingeckoId: 'staked-yearn-crv-vault',
+      image: TOKEN_IMAGES.STYCRV,
+      decimals: 18,
+    },
+    [chainTokenAddresses["1"].YCRV]: {
+      address: chainTokenAddresses["1"].YCRV,
+      name: 'yCRV',
+      symbol: 'yCRV',
+      coingeckoId: 'yearn-crv',
+      image: TOKEN_IMAGES.YCRV,
       decimals: 18,
     },
     [chainTokenAddresses["1"].INVTRICRYPTO]: {
