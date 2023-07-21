@@ -187,6 +187,7 @@ type AccountDBRMarket = F2Market & {
   liquidatableDebt: number
   seizableWorth: number,
   seizable: number,
+  underlyingExRate?: number,
 }
 
 export const useAccountDBRMarket = (
@@ -239,6 +240,12 @@ export const useAccountDBRMarket = (
   const liquidatableDebtBn = getNumberToBn(liquidatableDebt);
   const seizableWorth = liquidatableDebt + market.liquidationIncentive * liquidatableDebt;
 
+  const { data: stYcrvPriceShareData } = useEtherSWR({
+    args: market.name === 'st-yCRV' ? [[market.collateral, 'pricePerShare']] : [],
+    abi: ['function pricePerShare() public view returns (uint)'],
+  });
+  const stYcrvPriceShare = stYcrvPriceShareData?.length ? getBnToNumber(stYcrvPriceShareData[0]) : undefined;
+
   return {
     ...market,
     account,
@@ -261,6 +268,7 @@ export const useAccountDBRMarket = (
     liquidatableDebt: liquidatableDebtBn ? getBnToNumber(liquidatableDebtBn) : 0,
     seizableWorth,
     seizable: seizableWorth / market.price,
+    underlyingExRate: stYcrvPriceShare,
   }
 }
 

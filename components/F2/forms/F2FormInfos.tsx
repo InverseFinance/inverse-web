@@ -17,6 +17,7 @@ import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import { OracleType } from '../Infos/OracleType'
 import { gaEvent } from '@app/util/analytics'
 import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader'
+import { useAppTheme } from '@app/hooks/useAppTheme'
 
 type Data = {
     tooltip: string
@@ -26,6 +27,8 @@ type Data = {
     title: string
     value: string
     isLoading?: boolean
+    alternativeValueColor?: string
+    alternativeValue?: string
 }
 
 const Infos = ({ infos, index, isLast }: { infos: [Data, Data], index: number, isLast: boolean }) => {
@@ -43,6 +46,12 @@ const Infos = ({ infos, index, isLast }: { infos: [Data, Data], index: number, i
                     <SmallTextLoader pt="13px" width={'90px'} />
                     : <Text fontSize="18px" color={left.color} fontWeight={left.fontWeight || 'bold'}>
                         {left.value}
+                    </Text>
+            }
+            {
+                left.alternativeValue && !left.isLoading && 
+                    <Text fontSize="14px" color={left.alternativeValueColor || left.color}>
+                        {left.alternativeValue}
                     </Text>
             }
         </VStack>
@@ -79,6 +88,7 @@ const { DBR } = getNetworkConfigConstants();
 // TODO: clean this mess
 export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmountNumInfo: number }) => {
     const account = useAccount();
+    const { themeStyles } = useAppTheme();
 
     const {
         collateralAmountNumInfo,
@@ -110,6 +120,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         dbrBalance,
         isAutoDBR,
         isDbrApproxLoading,
+        underlyingExRate,
     } = useContext(F2MarketContext);
 
     const [now, setNow] = useState(Date.now());
@@ -260,6 +271,11 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         ],
     ];
 
+    let alternativeBalanceValue = '';
+    if (underlyingExRate > 0) {
+        alternativeBalanceValue = `${newDeposits ? `Underlying amount: ${shortenNumber(newDeposits * underlyingExRate, 2)} yCrv` : ''}`
+    }
+
     const positionInfos = [
         [
             {
@@ -292,6 +308,8 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
                 tooltip: 'The resulting collateral balance after you deposit/withdraw',
                 title: 'Total Balance',
                 value: `${newDeposits ? `${shortenNumber(newDeposits, 2)} ${market.underlying.symbol} (${shortenNumber(newDeposits * market.price, 2, true)})` : '-'}`,
+                alternativeValue: alternativeBalanceValue,
+                alternativeValueColor: themeStyles.colors.mainTextColorLight2,
             },
             {
                 tooltip: 'The total amount of debt after you borrow/repay',

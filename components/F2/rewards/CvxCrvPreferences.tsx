@@ -96,7 +96,7 @@ export const CvxCrvPreferences = () => {
                     </VStack>}
                 />
                 {
-                    (!!escrow && escrow !== BURN_ADDRESS) &&
+                    (!!escrow && escrow !== BURN_ADDRESS) && !!market.cvxCrvData &&
                     <VStack w='full' spacing="4" maxW='900px' alignItems="center">
                         <HStack fontSize="17px" fontWeight="bold" w='full' justify="space-between">
                             <VStack alignItems="flex-start" spacing="0">
