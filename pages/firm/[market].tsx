@@ -40,11 +40,11 @@ export const F2MarketPage = ({ market }: { market: string }) => {
 
     const needCountdown = f2market?.leftToBorrow < f2market?.dailyLimit && f2market?.dolaLiquidity > 0 && f2market?.leftToBorrow < f2market?.dolaLiquidity && shortenNumber(f2market?.dolaLiquidity, 2) !== shortenNumber(f2market?.leftToBorrow, 2);
 
-    useEffect(() => {
-        if (inited) { return }
-        setIsWalkthrough(router.asPath.includes('#step'))
-        setInited(true);
-    }, [router, inited]);
+    // useEffect(() => {
+    //     if (inited) { return }
+    //     setIsWalkthrough(router.asPath.includes('#step'))
+    //     setInited(true);
+    // }, [router, inited]);
 
     const backToMarkets = () => {
         router.push(router.asPath.replace(`/${market}`, '').replace(/#step[0-9]/i, ''));
@@ -109,7 +109,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                             <ArrowBackIcon fontSize="18px" _hover={{ color: 'inherit' }} color="inherit" />
                                             <Text _hover={{ color: 'inherit' }} color="inherit">Back to Markets</Text>
                                         </HStack>
-                                        {
+                                        {/* {
                                             !f2market.isInv && <HStack>
                                                 <FormControl
                                                     display="inline-flex"
@@ -126,15 +126,14 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                         textAlign="right"
                                                         mb='0'
                                                     >
-                                                        <VStack color="secondaryTextColor" spacing="0" alignItems="flex-end">
-                                                            {/* <Text fontWeight="normal" color="inherit">Deposit & Borrow</Text> */}
+                                                        <VStack color="secondaryTextColor" spacing="0" alignItems="flex-end">                                                            
                                                             <Text fontWeight="normal" color="inherit">Walkthrough mode</Text>
                                                         </VStack>
                                                     </FormLabel>
                                                     <Switch colorScheme="purple" isChecked={isWalkthrough} onChange={() => toggleWalkthrough()} id='walkthrough-mode' mr="1" />
                                                 </FormControl>
                                             </HStack>
-                                        }
+                                        } */}
                                     </HStack>
 
                                     {
@@ -153,13 +152,13 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                     !f2market ?
                                         <Text>Market not found</Text>
                                         :
-                                        isWalkthrough ?
-                                            <VStack id="walkthrough-container" w='full' maxW={'700px'} alignItems="flex-start" pt="2" pb="0" spacing="8">
-                                                <ErrorBoundary description="Error in the walkthrough mode, please try reloading">
-                                                    <F2Walkthrough market={f2market} />
-                                                </ErrorBoundary>
-                                            </VStack>
-                                            :
+                                        // isWalkthrough ?
+                                        //     <VStack id="walkthrough-container" w='full' maxW={'700px'} alignItems="flex-start" pt="2" pb="0" spacing="8">
+                                        //         <ErrorBoundary description="Error in the walkthrough mode, please try reloading">
+                                        //             <F2Walkthrough market={f2market} />
+                                        //         </ErrorBoundary>
+                                        //     </VStack>
+                                        //     :
                                             <VStack
                                                 alignItems="center"
                                                 w='full'
