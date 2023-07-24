@@ -14,10 +14,10 @@ const TABS = [
     { page: 'feds', label: 'Feds Policy & Income' },
     // { page: 'interest-model', label: 'Interest Rates' },
     { page: 'multisigs', label: 'Multisig Wallets' },
+    { page: 'liquidations', label: 'Liquidations' },
     { page: 'stabilizer', label: 'Stabilizer' },
     { page: 'bad-debts', label: 'Bad debts' },
-    { page: 'frontier-overview', label: 'Frontier' },
-    // { page: 'liquidations', label: 'Frontier Liquidations' },    
+    { page: 'frontier-overview', label: 'Frontier' },    
 ];
 
 const TABS_FRONTIER = [
