@@ -47,6 +47,9 @@ export const Swap = () => {
                 <Link isExternal target="_blank" href="https://docs.socket.tech/socket-liquidity-layer/socketll-overview/chains-dexs-bridges" textDecoration="underline">
                   More infos on Socket.tech <ExternalLinkIcon />
                 </Link>
+                <Link isExternal target="_blank" href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola" textDecoration="underline">
+                  Learn more about bridges & risk in the bridge tab in our docs <ExternalLinkIcon />
+                </Link>
                 <Text fontSize="14px" fontWeight="bold">What is DOLA?</Text>
                 <Text>
                   DOLA is Inverse Finance's decentralized <b>stablecoin</b>, the best way to get DOLA is to borrow it on FiRM!
