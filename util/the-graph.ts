@@ -27,7 +27,7 @@ export const theGraphFetch = (apiEndpoint: string, query: string) => {
 }
 
 export const getFrontierLiquidations = ({
-    offset = 0, 
+    offset = 0,
     size = 100,
     borrower = '',
 }) => {
@@ -38,7 +38,7 @@ export const getFrontierLiquidations = ({
             orderDirection: desc
             first: ${size}
             skip: ${offset}
-            where: { ${ !!borrower ? `borrower: "${borrower}"` : '' } }
+            where: { ${!!borrower ? `borrower: "${borrower}"` : ''} }
         ) {
             id
             blocktime: blockTime
@@ -56,7 +56,7 @@ export const getFrontierLiquidations = ({
 
 export const getGovProposals = ({
     offset = 0,
-    size = 100,
+    size = 200,
 }) => {
     return getFromGovernanceGraph(`
     query {        
@@ -98,6 +98,41 @@ export const getGovProposals = ({
             }
         }
         
+    }
+    `
+    )
+}
+
+export const getFirmLiquidations = ({
+    offset = 0,
+    size = 100,
+    borrower = '',
+}) => {
+    return getFromGovernanceGraph(`
+    query {        
+        liquidates (
+            orderBy: timestamp
+            orderDirection: desc
+            first: ${size}
+            skip: ${offset}
+            where: { ${!!borrower ? `borrower: "${borrower}"` : ''} }
+        ) {
+            transaction {
+              id
+            }
+            timestamp
+            account {
+              id
+            }
+            repaidDebt
+            liquidatorReward
+            liquidator {
+              id
+            }
+            market {
+              id
+            }
+        }
     }
     `
     )
