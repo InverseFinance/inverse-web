@@ -588,3 +588,31 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
     error,
   }
 }
+
+export const useFirmLiquidations = (user?: string): SWR & {
+  liquidations: { borrower: string, liquidator: string, repaidDebt: number, liquidatorReward: number, txHash: string, timestamp: number, market: F2Market }[],
+  timestamp: number,
+  isLoading: boolean,
+  isError: boolean,
+} => {
+  const { data, error } = useCacheFirstSWR(`/api/transparency/firm-liquidations?borrower=${user || ''}`);
+
+  const liquidations = (data?.liquidations || []).map(d => {
+    const market = F2_MARKETS.find(m => m.address.toLowerCase() === d.marketAddress.toLowerCase());
+    return {
+      ...d,
+      marketName: market.name,
+      market: {
+        ...market,        
+        underlying: TOKENS[market.collateral],
+      }
+    }
+  });
+
+  return {
+    timestamp: data?.timestamp || 0,
+    liquidations,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
