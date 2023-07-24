@@ -1,7 +1,7 @@
 import { Box } from '@chakra-ui/react'
 
 export const Newsletter = () => {
-    return <Box overflow="hidden" h="250px">
+    return <Box w="full" overflow="hidden" h="250px">
         <iframe
             src="https://inverse36431.activehosted.com/f/1"
             data-tf-redirect-target="_self"
