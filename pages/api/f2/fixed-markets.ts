@@ -11,7 +11,7 @@ import { frontierMarketsCacheKey } from '../markets';
 import { cgPricesCacheKey } from '../prices';
 
 const { F2_MARKETS, DOLA, XINV, DBR_DISTRIBUTOR } = getNetworkConfigConstants();
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.6`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.7`;
 
 export default async function handler(req, res) {
   const { cacheFirst } = req.query;
