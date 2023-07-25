@@ -10,6 +10,7 @@ export const TosModal = ({
     isOpen = false,
     onClose = () => { },
     onCancel = () => { },
+    onSuccess = () => { },
 }) => {
     const { provider, account } = useWeb3React();
 
@@ -19,8 +20,13 @@ export const TosModal = ({
             const sig = await signer.signMessage(TOS.join('\n\n')).catch(() => '');
             if(!!sig) {
                 const saveRes = await saveTosSig(account, sig);
+                console.log(saveRes);
                 if(saveRes.status === 200) {
-                    onOk();
+                    if(onSuccess) {
+                        onSuccess();
+                    }
+                    onClose();
+                    onOk();                    
                 }
             }
         } else {

@@ -10,22 +10,24 @@ export default async function handler(req, res) {
 
     const { address } = query;
 
-    if(isInvalidGenericParam(address)) {
+    if (isInvalidGenericParam(address)) {
+        console.log('invalid address');
         res.status(400).json({ status: 'error', message: 'Invalid address' });
         return;
     }
 
-    const key = `tos-${address}`;
+    const key = `tos-sign-${address}`;
 
     switch (method) {
         case 'GET':
             const checkResult = await getCacheFromRedis(key, false, 600);
-            res.status(200).json(checkResult);
+            res.status(200).json(checkResult || { accepted: false });
             break
-        case 'POST':            
-            const { sig } = JSON.parse(req.body)
+        case 'POST':
+
+            const { sig } = req.body
             let sigAddress = '';
-            
+
             try {
                 sigAddress = verifyMessage(TOS.join('\n\n'), sig);
             } catch (e) {
@@ -37,8 +39,9 @@ export default async function handler(req, res) {
                 return
             };
 
-            await redisSetWithTimestamp(key, { accepted: true });
-            res.status(200).json({ accepted: true, timestamp: Date.now() });
+            const result = { accepted: true, signature: sig, timestamp: Date.now() };
+            await redisSetWithTimestamp(key, result);
+            res.status(200).json(result);
             break
         default:
             res.setHeader('Allow', ['GET', 'POST'])

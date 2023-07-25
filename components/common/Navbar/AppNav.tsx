@@ -416,7 +416,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
     const init = async () => {
       const checkSigData = await checkTosSig(account);
       if(!isMountedRef.current) return;
-      setTosApproved(!!checkSigData.accepted);
+      setTosApproved(!!checkSigData?.accepted);
     }
     if(!account) {
       setTosApproved(false);
@@ -531,7 +531,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
 
   return (
     <VStack w='full' spacing="0">
-      <TosModal isOpen={isTosOpen} onClose={onTosClose} onOk={() => onTosOk()} />
+      <TosModal isOpen={isTosOpen} onClose={onTosClose} onOk={() => onTosOk()} onSuccess={() => setTosApproved(true)} />
       <WrongNetworkModal
         isOpen={isWrongNetOpen && !isBlog}
         onClose={onWrongNetClose}
