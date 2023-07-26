@@ -180,6 +180,13 @@ export const getYearnVaults = async () => {
     return [];
 }
 
+export const getStYcrvData = async () => {
+    try {
+        return getPoolYield('320550a3-b7c4-4017-a5dd-f3ebed459470');
+    } catch (e) { console.log(e) }
+    return [];
+}
+
 export const getStethData = async () => {
     try {
         return getPoolYield('747c1d2a-c668-4682-b9f9-296708a3dd90');

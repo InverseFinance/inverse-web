@@ -62,7 +62,7 @@ const columns = [
         label: 'Underlying APY',
         tooltip: 'The APY provided by the asset itself (or via its claimable rewards) and that is kept even after supplying. This is not an additional APY from FiRM',
         header: ({ ...props }) => <ColHeader minWidth="140px" justify="center"  {...props} />,
-        value: ({ supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv }) => {
+        value: ({ supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel }) => {
             return <Cell spacing="0" direction="column" minWidth="140px" alignItems="center" justify="center" fontSize="14px">
                 <AnchorPoolInfo
                     protocolImage={underlying.protocolImage}
@@ -77,7 +77,7 @@ const columns = [
                 />
                 {
                     supplyApy > 0 && <Text fontSize="12px" color="mainTextColorLight2">
-                        {isInv ? 'INV + DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY'}
+                        {rewardTypeLabel || (isInv ? 'INV + DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY')}
                     </Text>
                 }
             </Cell>
@@ -300,7 +300,7 @@ export const F2Markets = ({
                 <SkeletonList /> :
                 <Table
                     keyName="address"
-                    pinned={'0x93685185666c8D34ad4c574B3DBF41231bbfB31b'}
+                    pinned={'0x27b6c301Fd441f3345d61B7a4245E1F823c3F9c4'}
                     noDataMessage="Loading..."
                     columns={columns}
                     items={accountMarkets.map(m => {
