@@ -153,6 +153,9 @@ export const FirmLiquidationModal = ({
                             showMaxBtn={false}
                             showNotEnoughTokenMsg={true}
                             actionLabel="Liquidate"
+                            btnProps={{
+                                needTosFirst: true
+                            }}
                         />
                         <InfoMessage
                             alertProps={{ w: 'full' }}
