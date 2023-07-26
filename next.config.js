@@ -132,6 +132,11 @@ const redirects = async () => {
       destination: '/blog/posts/en-US/dola-trustworthy-capital-efficient-stablecoin',
       permanent: true,
     },
+    {
+      source: '/analytics',
+      destination: 'https://inverse.watch',
+      permanent: true,
+    },
   ]
 }
 
