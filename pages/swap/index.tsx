@@ -33,6 +33,7 @@ export const Swap = () => {
       >
         <VStack w={{ base: 'full', lg: '55%' }}>
           <SwapViewSocket fromToken={fromToken} toToken={toToken} fromChain={fromChain} toChain={toChain} />
+          <InfoMessage alertProps={{ w: 'full' }} description="Socket is a third-party service" />
         </VStack>
         <Stack w={{ base: 'full', lg: '45%' }} direction="column" justifyContent="space-between">
           <InfoMessage

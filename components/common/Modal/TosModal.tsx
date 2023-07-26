@@ -4,6 +4,7 @@ import { ExternalLinkIcon } from "@chakra-ui/icons"
 import { useWeb3React } from "@web3-react/core";
 import { TOS } from "@app/config/tos-texts";
 import { saveTosSig } from "@app/util/tos-api";
+import { InfoMessage } from "../Messages";
 
 export const TosModal = ({
     onOk = () => { },
@@ -15,23 +16,23 @@ export const TosModal = ({
     const { provider, account } = useWeb3React();
 
     const handleOk = async () => {
-        if(provider && !!account) {
+        if (provider && !!account) {
             const signer = provider?.getSigner();
             const sig = await signer.signMessage(TOS.join('\n\n')).catch(() => '');
-            if(!!sig) {
+            if (!!sig) {
                 const saveRes = await saveTosSig(account, sig);
                 console.log(saveRes);
-                if(saveRes.status === 200) {
-                    if(onSuccess) {
+                if (saveRes.status === 200) {
+                    if (onSuccess) {
                         onSuccess();
                     }
                     onClose();
-                    onOk();                    
+                    onOk();
                 }
             }
         } else {
             onOk();
-        }        
+        }
     }
 
     return <ConfirmModal
@@ -64,6 +65,10 @@ export const TosModal = ({
                     {TOS[2]}
                 </Text>
             </VStack>
+            <InfoMessage
+                alertProps={{ w: 'full' }}
+                description="Note: if you can't accept the TOS you can still exit your positions if there is any"
+            />
         </VStack>
     </ConfirmModal>
 }
