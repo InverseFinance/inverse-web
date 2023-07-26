@@ -159,51 +159,53 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                         //         </ErrorBoundary>
                                         //     </VStack>
                                         //     :
-                                            <VStack
-                                                alignItems="center"
-                                                w='full'
-                                                direction={{ base: 'column', lg: 'row' }}
-                                                spacing="6"
-                                            >
-                                                <ErrorBoundary description="Error in the form component, please try reloading">
-                                                    {
-                                                        f2market.isInv && <Container
-                                                            noPadding
-                                                            p="0"
-                                                            label="About INV staking and DBR streaming"
-                                                            description="Learn more in our documentation"
-                                                            href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr"
-                                                            collapsable={true}
-                                                            defaultCollapse={false}
-                                                        >
-                                                            <InfoMessage
-                                                                description={
-                                                                    <VStack alignItems="flex-start">
-                                                                        <Text>✨ <b>{shortenNumber(f2market.extraApy, 2)}% DBR Rewards Annual Percentage Rate</b>. Real yield that you claim. Currently streaming <b>{preciseCommify(f2market.dbrYearlyRewardRate, 0)}</b> DBR's per year to INV stakers.</Text>
-                                                                        <Text>✨ <b>{shortenNumber(f2market.supplyApy, 2)}% INV Staking rewards</b>. Dilution protection. Your staked INV balance increases automatically.</Text>
-                                                                        <Text>
-                                                                            The more DOLA that is borrowed means more DBR is burned. As DBR is burned, more DBR's are streamed to INV stakers, who benefit directly from FiRM's success.
-                                                                        </Text>
-                                                                    </VStack>
-                                                                }
-                                                            />
-                                                        </Container>
-                                                    }
-                                                    {
-                                                        (f2market.hasClaimableRewards) && <FirmRewardWrapper market={f2market} />
-                                                    }
-                                                    <F2CombinedForm />
-                                                </ErrorBoundary>
-                                                <ErrorBoundary description="The portfolio value chart could not load">
+                                        <VStack
+                                            alignItems="center"
+                                            w='full'
+                                            direction={{ base: 'column', lg: 'row' }}
+                                            spacing="6"
+                                        >
+                                            <ErrorBoundary description="Error in the form component, please try reloading">
+                                                {
+                                                    f2market.isInv && <Container
+                                                        noPadding
+                                                        p="0"
+                                                        label="About INV staking and DBR streaming"
+                                                        description="Learn more in our documentation"
+                                                        href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr"
+                                                        collapsable={true}
+                                                        defaultCollapse={false}
+                                                    >
+                                                        <InfoMessage
+                                                            description={
+                                                                <VStack alignItems="flex-start">
+                                                                    <Text>✨ <b>{shortenNumber(f2market.extraApy, 2)}% DBR Rewards Annual Percentage Rate</b>. Real yield that you claim. Currently streaming <b>{preciseCommify(f2market.dbrYearlyRewardRate, 0)}</b> DBR's per year to INV stakers.</Text>
+                                                                    <Text>✨ <b>{shortenNumber(f2market.supplyApy, 2)}% INV Staking rewards</b>. Dilution protection. Your staked INV balance increases automatically.</Text>
+                                                                    <Text>
+                                                                        The more DOLA that is borrowed means more DBR is burned. As DBR is burned, more DBR's are streamed to INV stakers, who benefit directly from FiRM's success.
+                                                                    </Text>
+                                                                </VStack>
+                                                            }
+                                                        />
+                                                    </Container>
+                                                }
+                                                {
+                                                    (f2market.hasClaimableRewards) && <FirmRewardWrapper market={f2market} />
+                                                }
+                                                <F2CombinedForm />
+                                            </ErrorBoundary>
+                                            {
+                                                f2market.name !== 'st-yCRV' && <ErrorBoundary description="The portfolio value chart could not load">
                                                     <WorthEvoChartWrapper market={f2market} />
                                                 </ErrorBoundary>
-                                                {
-                                                    (f2market.hasClaimableRewards && f2market.name === 'cvxCRV') && <CvxCrvPreferences />
-                                                }
-                                                {
-                                                    (f2market.isGovTokenCollateral) && <FirmGovToken />
-                                                }
-                                            </VStack>
+                                            }
+                                            {
+                                                (f2market.hasClaimableRewards && f2market.name === 'cvxCRV') && <CvxCrvPreferences />
+                                            }
+                                            {
+                                                (f2market.isGovTokenCollateral) && <FirmGovToken />
+                                            }
+                                        </VStack>
                                 }
                                 <FirmFAQ collapsable={true} defaultCollapse={false} />
                             </VStack>
