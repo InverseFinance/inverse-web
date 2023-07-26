@@ -145,7 +145,7 @@ const mainConfig = {
             badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },
             hasClaimableRewards: false,            
             startingBlock: 17663817,
-            rewardTypeLabel: 'yCrv Rebase APY',
+            rewardTypeLabel: 'yCrv APY',
             isInv: false,            
         },
     ],

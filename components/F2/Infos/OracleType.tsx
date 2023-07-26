@@ -28,7 +28,7 @@ export const OracleType = ({
     simplify?: boolean,
     subText?: string
     showTooltip?: boolean
-}) => {//
+}) => {
     return <Stack justify="flex-start" alignItems={{ base: 'flex-end', xl: 'center' }} direction="column" spacing="0">
         <Stack alignItems="center" spacing="1" direction="row">
             {
@@ -43,7 +43,7 @@ export const OracleType = ({
                 />
             }
             {showImage && <Image src={`/assets/oracles/${oracleType}.webp`} h="15px" w="15px" ignoreFallback={true} />}
-            {showText && <Text>
+            {showText && <Text whiteSpace="nowrap">
                 {capitalize(oracleType)}
                 {simplify ? '+PPO' : ''}
                 {simplify && !!subText ? `+${subText}` : '' }
