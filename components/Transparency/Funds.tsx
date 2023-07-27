@@ -52,7 +52,7 @@ const FundLine = ({
                         mx="1"
                     />
                 }
-                <Text ml={ noImage ? 0 : 1 } lineHeight="15px">{label || token?.symbol}{token?.address === OLD_XINV && ' (old)'}:</Text>
+                <Text ml={noImage ? 0 : 1} lineHeight="15px">{label || token?.symbol}{token?.address === OLD_XINV && ' (old)'}:</Text>
             </Flex>
             {
                 !!showAsAmountOnly ? <SimpleGrid w="140px" spacing="1" columns={2} alignItems="center">
@@ -103,6 +103,7 @@ type FundsProps = {
     showAsAmountOnly?: boolean
     noImage?: boolean
     innerRadius?: number
+    isLoading?: boolean
 };
 
 export const getFundsTotalUsd = (funds, prices, fundsType: 'balance' | 'allowance' | 'both' = 'balance'): number => {
@@ -133,6 +134,7 @@ export const Funds = ({
     showAsAmountOnly = false,
     innerRadius,
     noImage = false,
+    isLoading,
 }: FundsProps) => {
     const usdTotals = { balance: 0, allowance: 0, overall: 0 };
 
@@ -214,7 +216,7 @@ export const Funds = ({
             }
             {
                 !fundsWithPerc.length ?
-                    <Flex direction="row" w='full' justify="space-between">
+                    isLoading ? null : <Flex direction="row" w='full' justify="space-between">
                         <Text>No funds at the moment</Text>
                     </Flex>
                     :

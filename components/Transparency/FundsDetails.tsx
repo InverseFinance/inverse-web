@@ -5,6 +5,7 @@ import { Fund, Funds } from '@app/components/Transparency/Funds'
 import { useEffect, useState } from 'react'
 import { ArrowLeftIcon } from '@chakra-ui/icons'
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect'
+import { SkeletonBlob } from '../common/Skeleton'
 
 export const FundsDetails = ({
     funds,
@@ -15,6 +16,7 @@ export const FundsDetails = ({
     showAsAmountOnly = false,
     totalLabel,
     description = '',
+    isLoading,
 }: {
     funds: Fund[],
     title: string,
@@ -24,6 +26,7 @@ export const FundsDetails = ({
     labelWithPercInChart?: boolean,
     showAsAmountOnly?: boolean,
     totalLabel?: string
+    isLoading?: boolean
 }) => {
     const [data, setData] = useState(funds);
     const [isDrilled, setIsDrilled] = useState(false);
@@ -75,20 +78,23 @@ export const FundsDetails = ({
                     </Flex>
                 }
                 {
-                    data?.length && <Funds totalLabel={totalLabel} showAsAmountOnly={showAsAmountOnly} type={type} minUsd={1} handleDrill={isDrilled ? undefined : handleDrill} prices={prices} funds={data} chartMode={true} showTotal={true} labelWithPercInChart={labelWithPercInChart} />
+                    data?.length && !isLoading && <Funds isLoading={isLoading} totalLabel={totalLabel} showAsAmountOnly={showAsAmountOnly} type={type} minUsd={1} handleDrill={isDrilled ? undefined : handleDrill} prices={prices} funds={data} chartMode={true} showTotal={true} labelWithPercInChart={labelWithPercInChart} />
+                }
+                {
+                    isLoading && <SkeletonBlob />
                 }
             </Stack>
         </Stack>
 
         <SlideFade in={!isDrilled} unmountOnExit={true}>
             <Stack fontSize="12px" spacing="2">
-                <Funds totalLabel={totalLabel} showAsAmountOnly={showAsAmountOnly} type={type} minUsd={1} prices={prices} funds={funds} showPrice={false} showTotal={false} />
+                <Funds isLoading={isLoading} totalLabel={totalLabel} showAsAmountOnly={showAsAmountOnly} type={type} minUsd={1} prices={prices} funds={funds} showPrice={false} showTotal={false} />
             </Stack>
         </SlideFade>
         {
             isAfterSlideEffect && <SlideFade in={isDrilled} unmountOnExit={true}>
                 <Stack fontSize="12px" spacing="2">
-                    <Funds totalLabel={totalLabel} showAsAmountOnly={showAsAmountOnly} type={type} minUsd={1} prices={prices} funds={data} showPrice={false} showTotal={false} />
+                    <Funds isLoading={isLoading} totalLabel={totalLabel} showAsAmountOnly={showAsAmountOnly} type={type} minUsd={1} prices={prices} funds={data} showPrice={false} showTotal={false} />
                 </Stack>
             </SlideFade>
         }

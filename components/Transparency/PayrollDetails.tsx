@@ -13,6 +13,7 @@ type Props = {
     fundKey?: string,
     title?: string,
     toMonthly?: boolean,
+    isLoading?: boolean,
 }
 
 export const PayrollDetails = ({
@@ -21,6 +22,7 @@ export const PayrollDetails = ({
     fundKey = 'amount',
     title = 'DOLA monthly payrolls',
     toMonthly = true,
+    isLoading,
 }: Props) => {
     const divFactor = toMonthly ? 12 : 1;
     const totalDolaMonthly = currentPayrolls.reduce((prev, curr) => prev + curr[fundKey] / divFactor, 0);
@@ -46,6 +48,7 @@ export const PayrollDetails = ({
         funds={roleCosts}
         type="balance"
         prices={{}}
+        isLoading={isLoading}
         labelWithPercInChart={false}
     />
 }
