@@ -2,12 +2,11 @@ import { Contract } from 'ethers'
 import 'source-map-support'
 import { DBR_ABI, F2_ESCROW_ABI, F2_MARKET_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { getProvider } from '@app/util/providers';
+import { getHistoricValue, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber, getToken } from '@app/util/markets'
 import { BLOCKS_PER_DAY, BURN_ADDRESS, CHAIN_ID, ONE_DAY_SECS } from '@app/config/constants';
 import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
-import { NetworkIds } from '@app/types';
 import { throttledPromises } from '@app/util/misc';
 import { CHAIN_TOKENS } from '@app/variables/tokens';
 import { isAddress } from 'ethers/lib/utils';
@@ -25,7 +24,7 @@ export default async function handler(req, res) {
     res.status(400).json({ msg: 'invalid request' });
     return;
   }
-  const cacheKey = `firm-escrow-balance-histo-${escrow}-${lastBlock}-${CHAIN_ID}-v1.0.8`;
+  const cacheKey = `firm-escrow-balance-histo-${escrow}-${lastBlock}-${CHAIN_ID}-v1.0.93`;
   try {
     res.setHeader('Cache-Control', `public, max-age=${ONE_DAY_SECS}`);
     const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', ONE_DAY_SECS, true);
@@ -53,7 +52,7 @@ export default async function handler(req, res) {
       return;
     }
 
-    const archived = await getCacheFromRedis(cacheKey, false, 0) || { balances: [], blocks: [], timestamps: [], dbrClaimables: [] };
+    const archived = await getCacheFromRedis(cacheKey, false, 0) || { balances: [], debts: [], blocks: [], timestamps: [], dbrClaimables: [] };
     const lastBlock = archived.blocks.length > 0 ? archived.blocks[archived.blocks.length - 1] : escrowCreationBlock - 1;
 
     const startingBlock = lastBlock + 1 < currentBlock ? lastBlock + 1 : currentBlock;
@@ -69,7 +68,7 @@ export default async function handler(req, res) {
       dbrContract.queryFilter(dbrContract.filters.ForceReplenish(account, undefined, _market.address), startingBlock),
     ];
 
-    if (_market.isInv) {      
+    if (_market.isInv) {
       eventsToQuery.push(dbrContract.queryFilter(dbrContract.filters.Transfer(BURN_ADDRESS, account), startingBlock))
     }
 
@@ -84,12 +83,10 @@ export default async function handler(req, res) {
     allUniqueBlocksToCheck.sort((a, b) => a - b);
 
     const escrowContract = new Contract(escrow, F2_ESCROW_ABI, provider);
-    // Function signature and encoding
-    const balanceFunctionName = 'balance';
-    const balanceFunctionSignature = escrowContract.interface.getSighash(balanceFunctionName);
 
+    const balanceFunctionName = 'balance';
     const claimableFunctionName = 'claimable';
-    const claimableFunctionSignature = escrowContract.interface.getSighash(claimableFunctionName);
+    const debtFunctionName = 'debts';
 
     if (!allUniqueBlocksToCheck.includes(currentBlock) && !archived?.blocks.includes(currentBlock)) {
       allUniqueBlocksToCheck.push(currentBlock);
@@ -109,10 +106,7 @@ export default async function handler(req, res) {
     const newBalancesBn =
       await throttledPromises(
         (block: number) => {
-          return escrowContract.provider.call({
-            to: escrowContract.address,
-            data: balanceFunctionSignature + '0000000000000000000000000000000000000000000000000000000000000000', // append 32 bytes of 0 for no arguments
-          }, block)
+          return getHistoricValue(escrowContract, block, balanceFunctionName, [account]);
         },
         allUniqueBlocksToCheck,
         5,
@@ -124,16 +118,24 @@ export default async function handler(req, res) {
       newClaimableBn =
         await throttledPromises(
           (block: number) => {
-            return escrowContract.provider.call({
-              to: escrowContract.address,
-              data: claimableFunctionSignature + '0000000000000000000000000000000000000000000000000000000000000000', // append 32 bytes of 0 for no arguments
-            }, block)
+            return getHistoricValue(escrowContract, block, claimableFunctionName, [account]);
           },
           allUniqueBlocksToCheck,
           5,
           100,
         );
     }
+
+    let newDebtsBn = await throttledPromises(
+      (block: number) => {
+        return block < _market.borrowingWasDisabledBeforeBlock ?
+          Promise.resolve('0x0000000000000000000000000000000000000000000000000000000000000000') :
+          getHistoricValue(marketContract, block, debtFunctionName, [account]);
+      },
+      allUniqueBlocksToCheck,
+      5,
+      100,
+    );
 
     const decimals = getToken(CHAIN_TOKENS[CHAIN_ID], _market.collateral).decimals;
 
@@ -145,8 +147,13 @@ export default async function handler(req, res) {
       return getBnToNumber(escrowContract.interface.decodeFunctionResult(claimableFunctionName, d)[0], 18);
     });
 
-    const resultData = {
+    const newDebts = newDebtsBn.map((d, i) => {
+      return getBnToNumber(marketContract.interface.decodeFunctionResult(debtFunctionName, d)[0], 18);
+    });
+
+    const resultData = {      
       balances: archived.balances.concat(newBalances),
+      debts: archived.debts.concat(newDebts),
       dbrClaimables: archived.dbrClaimables.concat(newDbrClaimables),
       timestamp: Date.now(),
       blocks: archived?.blocks.concat(allUniqueBlocksToCheck),
