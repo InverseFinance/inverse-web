@@ -56,9 +56,9 @@ export default async function handler(req, res) {
     }
 
     const archived = await getCacheFromRedis(cacheKey, false, 0) || { balances: [], debts: [], blocks: [], timestamps: [], dbrClaimables: [], formattedEvents: [] };
-    const lastBlock = archived.blocks.length > 0 ? archived.blocks[archived.blocks.length - 1] : escrowCreationBlock - 1;
+    const lastArchivedBlock = archived.blocks.length > 0 ? archived.blocks[archived.blocks.length - 1] : escrowCreationBlock - 1;
 
-    const startingBlock = lastBlock + 1 < currentBlock ? lastBlock + 1 : currentBlock;
+    const startingBlock = lastArchivedBlock + 1 < currentBlock ? lastArchivedBlock + 1 : currentBlock;
 
     const dbrContract = new Contract(DBR, DBR_ABI, provider);
     // events impacting escrow balance or visible on the chart
@@ -78,6 +78,7 @@ export default async function handler(req, res) {
     const queryResults = await Promise.all(eventsToQuery);
     const flatenedEvents = queryResults.flat().sort(ascendingEventsSorter);
     const escrowRelevantBlockNumbers = flatenedEvents.map(e => e.blockNumber);
+    const lastEscrowEventBlock = Math.max(...escrowRelevantBlockNumbers);
 
     const intIncrement = Math.floor(BLOCKS_PER_DAY * 3);
 
@@ -97,7 +98,7 @@ export default async function handler(req, res) {
       allUniqueBlocksToCheck.push(currentBlock);
     }
 
-    if (!allUniqueBlocksToCheck.length) {
+    if (!allUniqueBlocksToCheck.length || ((currentBlock - lastEscrowEventBlock) <= 1000)) {
       res.status(200).json(archived);
       return;
     }

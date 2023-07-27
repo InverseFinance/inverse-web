@@ -166,6 +166,8 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
   ], `firm-market-${market.address}-${account}`);
 
   const flatenedEvents = groupedEvents.flat();
+  const lastTxBlockFromLast1000 = useBlockTxFromLast1000(market, account);
+
   // can be different than current balance when staking
   let depositedByUser = 0;
   let liquidated = 0;
@@ -218,13 +220,13 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
   });
 
   const grouped = uniqueBy(events, (o1, o2) => o1.combinedKey === o2.combinedKey);
-  const blocks = events.map(e => e.blocknumber);
+  const blocks = events.map(e => e.blockNumber);
   grouped.sort((a, b) => a.blockNumber !== b.blockNumber ? (b.blockNumber - a.blockNumber) : b.logIndex - a.logIndex);
   return {
     events: grouped,
     depositedByUser,
     liquidated,
-    lastBlock: blocks?.length ? Math.max(...blocks) : 0,
+    lastBlock: blocks?.length ? Math.max(...blocks) : lastTxBlockFromLast1000,
     isLoading,
     error,
   }
@@ -496,6 +498,28 @@ export const useEscrowBalanceEvolution = (account: string, escrow: string, marke
   }
 }
 
+// last block if a tx happened last 999 blocks
+export const useBlockTxFromLast1000 = (market: F2Market, account: string) => {
+  const { data: latestBlockData } = useEtherSWR(
+    ['getBlock']
+  );
+  
+  const latestBlock = latestBlockData?.number || 0;
+  // for wallets not supporting much events
+  const { groupedEvents: groupedRecentEvents } = useMultiContractEvents([
+    [market.address, F2_MARKET_ABI, 'Deposit', [account]],
+    [market.address, F2_MARKET_ABI, 'Withdraw', [account]],
+    [market.address, F2_MARKET_ABI, 'Borrow', [account]],
+    [market.address, F2_MARKET_ABI, 'Repay', [account]],
+    [market.address, F2_MARKET_ABI, 'Liquidate', [account]],    
+    [DBR, DBR_ABI, 'ForceReplenish', [account, undefined, market.address]],
+  ], `firm-market-recent-${market.address}-${account}-${latestBlock}`, latestBlockData ? latestBlockData?.number - 999 : undefined, latestBlockData ? latestBlockData?.number : undefined);
+
+  const flatenedRecentEvents = groupedRecentEvents.flat();
+  const blocks = flatenedRecentEvents.map(e => e.blockNumber);  
+  return blocks?.length ? Math.max(...blocks) : 0;
+}
+
 export const useFirmMarketEvolution = (market: F2Market, account: string): {
   events: FirmAction[]
   isLoading: boolean
@@ -526,6 +550,8 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
     `firm-market-${market.address}-${account}-collateral-evo`,
   );
 
+  const lastTxBlockFromLast1000 = useBlockTxFromLast1000(market, account);
+
   const flatenedEvents = groupedEvents.flat().sort(ascendingEventsSorter);
 
   const blocks = flatenedEvents.map(e => e.blockNumber);
@@ -540,7 +566,7 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
     depositedByUser,
     liquidated,
     replenished,
-    lastBlock,
+    lastBlock: lastBlock || lastTxBlockFromLast1000,
     isLoading,
     error,
   }
@@ -560,7 +586,7 @@ export const useFirmLiquidations = (user?: string): SWR & {
       ...d,
       marketName: market.name,
       market: {
-        ...market,        
+        ...market,
         underlying: TOKENS[market.collateral],
       }
     }

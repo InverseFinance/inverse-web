@@ -29,9 +29,8 @@ export const useContractEvents = (address: string, abi: string[], method: string
     }
 }
 
-export const useMultiContractEvents = (params: any[], swrKey: string): MultiContractEvents => {
+export const useMultiContractEvents = (params: any[], swrKey: string, from?: number, to?: number | 'latest'): MultiContractEvents => {
     const { account, provider } = useWeb3React<Web3Provider>();
-   
     const { data, error } = useSWR(`${swrKey}--${account}`, async () => {
         return await Promise.allSettled(
             params.map(p => {
@@ -40,7 +39,7 @@ export const useMultiContractEvents = (params: any[], swrKey: string): MultiCont
                     return [];
                 }
                 const contract = new Contract(address, abi, provider?.getSigner());
-                return contract.queryFilter(contract.filters[method](...args));
+                return contract.queryFilter(contract.filters[method](...args), from, to);
             })
         )
     });
