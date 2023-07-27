@@ -106,7 +106,7 @@ export default async function handler(req, res) {
     const newBalancesBn =
       await throttledPromises(
         (block: number) => {
-          return getHistoricValue(escrowContract, block, balanceFunctionName, [account]);
+          return getHistoricValue(escrowContract, block, balanceFunctionName, []);
         },
         allUniqueBlocksToCheck,
         5,
@@ -118,7 +118,7 @@ export default async function handler(req, res) {
       newClaimableBn =
         await throttledPromises(
           (block: number) => {
-            return getHistoricValue(escrowContract, block, claimableFunctionName, [account]);
+            return getHistoricValue(escrowContract, block, claimableFunctionName, []);
           },
           allUniqueBlocksToCheck,
           5,

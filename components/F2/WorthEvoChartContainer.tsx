@@ -25,18 +25,20 @@ const useFirmUserPositionEvolution = (
     const { prices: dbrPrices } = useHistoricalPrices('dola-borrowing-right');
     const { prices, isLoading: isLoadingPrices } = usePrices();
     const { price: dbrPrice } = useDBRPrice();
+    // events from user wallet, can be not fetched for some wallet providers
     const { events: _events, depositedByUser, lastBlock } = useFirmMarketEvolution(market, account);
     const [isLoadingDebounced, setIsLoadingDebounced] = useState(true);
-    
+    // from api
     const { evolution: escrowBalanceEvolution, timestamps, isLoading: isLoadingEscrowEvo } = useEscrowBalanceEvolution(account, escrow, market.address, lastBlock);
     const events = _events?.map(e => ({ ...e, timestamp: e.timestamp || timestamps[e.blockNumber] })).filter(e => !!e.timestamp);
+    
     const isLoading = isLoadingHistoPrices || isLoadingPrices || isLoadingEscrowEvo;
 
     useDualSpeedEffect(() => {
         setIsLoadingDebounced(isLoading);
     }, [isLoading], isLoading, 7000, 1000);
-
-    const start = events ? events.find(e => e.actionName === 'Deposit')?.timestamp : undefined;
+    
+    const start = events?.length > 0 ? events.find(e => e.actionName === 'Deposit')?.timestamp : escrowBalanceEvolution?.[0]?.timestamp;
 
     const collateralRewards = depositedByUser > 0 ? Math.max((deposits) - depositedByUser, 0) : 0;
 
@@ -106,7 +108,7 @@ const useFirmUserPositionEvolution = (
 
     const hasData = data?.length > 0;
 
-    if (!start || !hasData || !events.length) {
+    if (!start || !hasData || (!events.length && !escrowBalanceEvolution.length)) {
         return { data: null, isLoading: isLoadingDebounced, isError: !isLoadingDebounced && !hasData };
     }
 
@@ -133,7 +135,7 @@ const useFirmUserPositionEvolution = (
         dbrRewards,
     });
 
-    return { data, isLoading: isLoadingDebounced, isError: !isLoadingDebounced && !hasData };
+    return { data, walletSupportsEvents: _events?.length > 0, isLoading: isLoadingDebounced, isError: !isLoadingDebounced && !hasData };
 }
 
 export const WorthEvoChartWrapper = ({
@@ -167,13 +169,14 @@ export const WorthEvoChartContainer = ({
     market: F2Market,
     chartWidth: number,
 }) => {
-    const { data, isLoading } = useFirmUserPositionEvolution(market);
+    const { data, isLoading, walletSupportsEvents } = useFirmUserPositionEvolution(market);
 
     return <WorthEvoChart
         isLoading={isLoading}
         chartWidth={chartWidth}
         market={market}
         data={data}
+        walletSupportsEvents={walletSupportsEvents}
     />
 }
 
@@ -186,7 +189,7 @@ export const WorthEvoChartContainerINV = ({
 }) => {
     const { escrow } = useContext(F2MarketContext);
     const { rewards } = useINVEscrowRewards(escrow);
-    const { data, isLoading } = useFirmUserPositionEvolution(market, rewards);
+    const { data, isLoading, walletSupportsEvents } = useFirmUserPositionEvolution(market, rewards);
 
 
     return <WorthEvoChart
@@ -194,5 +197,6 @@ export const WorthEvoChartContainerINV = ({
         market={market}
         chartWidth={chartWidth}
         data={data}
+        walletSupportsEvents={walletSupportsEvents}
     />
 }

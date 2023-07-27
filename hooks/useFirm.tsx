@@ -460,7 +460,7 @@ export const useHistoricalPrices = (cgId: string) => {
 }
 
 export const useEscrowBalanceEvolution = (account: string, escrow: string, market: string, lastBlock: number): SWR & {
-  evolution: { balance: number, timestamp: number }[],
+  evolution: { balance: number, timestamp: number, debt: number, blocknumber: number, dbrClaimable: number }[],
   timestamps: { [key: string]: number },
   timestamp: number,
   isLoading: boolean,
@@ -472,6 +472,7 @@ export const useEscrowBalanceEvolution = (account: string, escrow: string, marke
     balance: b,
     dbrClaimable: data.dbrClaimables[i],
     blocknumber: data.blocks[i],
+    debt: data.debts[i],
     timestamp: data.timestamps[i] * 1000,
   })) : [];
 
