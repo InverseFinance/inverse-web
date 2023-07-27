@@ -207,7 +207,6 @@ export const WorthEvoChart = ({
 
     return <Cont
         label={containerLabel}
-        description={walletSupportsEvents ? undefined : `Note: event fetching is limited by your wallet, the feature has been disabled`}
     >
         <VStack alignItems="center" maxW={`${chartWidth}px`}>
             <Stack w='full' justify="flex-start" alignItems="flex-start" direction="column">
