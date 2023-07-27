@@ -125,7 +125,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
 
     const [now, setNow] = useState(Date.now());
     const { events, isLoading: isLoadingEvents, depositedByUser, liquidated } = useFirmMarketEvents(market, account);
-    const collateralRewards = (deposits + liquidated) - depositedByUser;
+    const collateralRewards = depositedByUser > 0 ? (deposits + liquidated) - depositedByUser : 0;
 
     useEffect(() => {
         let interval = setInterval(() => {

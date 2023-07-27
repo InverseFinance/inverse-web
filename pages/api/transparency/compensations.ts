@@ -12,10 +12,11 @@ export default async function handler(req, res) {
 
   const { INV, F2_MARKETS, XINV, DOLA_PAYROLL, XINV_VESTOR_FACTORY } = getNetworkConfigConstants(NetworkIds.mainnet);
   const cacheKey = `compensations-cache-v1.2.2`;
+  const { cacheFirst } = req.query;
   try {
-    const cacheDuration = 300;
+    const cacheDuration = 6000;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
+    const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
     if (validCache) {
       res.status(200).json(validCache);
       return

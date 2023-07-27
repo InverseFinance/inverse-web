@@ -38,7 +38,7 @@ const getProposalStatusType = (status: ProposalStatus) => {
 const FounderAddresses = ['0x16EC2AeA80863C1FB4e13440778D0c9967fC51cb', '0x3FcB35a1CbFB6007f9BC638D388958Bc4550cB28'];
 
 export const GovTransparency = () => {
-    const { currentPayrolls, currentVesters, currentInvBalances } = useCompensations();
+    const { currentPayrolls, currentVesters, currentInvBalances, isLoading } = useCompensations();
     const { prices } = usePricesV2();
     const { delegates } = useTopDelegates();
     const { proposals } = useProposals();
@@ -132,9 +132,10 @@ export const GovTransparency = () => {
                     <Stack spacing="5" direction='column' w="full" justify="space-around">
                         <SimpleGrid minChildWidth={{ base: '300px', sm: '300px' }} spacingX="100px" spacingY="40px">
                             <FundsDetails
-                                title="Voting Power Distribution"                                
+                                title="Voting Power Distribution"
                                 totalLabel="Total Distribution:"
                                 funds={votingPowerDist}
+                                isLoading={isLoading}
                                 type="balance"
                                 prices={{}}
                                 labelWithPercInChart={true}
@@ -146,7 +147,7 @@ export const GovTransparency = () => {
                                 </Text>
                                 <ProposalBarChart maxChartWidth={450} chartData={chartData} />
                             </VStack>
-                            <PayrollDetails currentPayrolls={currentPayrolls} prices={prices} />
+                            <PayrollDetails isLoading={isLoading} currentPayrolls={currentPayrolls} prices={prices} />
                             <FundsDetails
                                 title="INV Granted (xInv scaled, 2y vesting)"
                                 funds={vestersByRole}
@@ -154,6 +155,7 @@ export const GovTransparency = () => {
                                 prices={{}}
                                 labelWithPercInChart={false}
                                 showAsAmountOnly={true}
+                                isLoading={isLoading}
                                 totalLabel="- TOTAL:"
                             />
                         </SimpleGrid>

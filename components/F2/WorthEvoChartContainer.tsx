@@ -38,7 +38,7 @@ const useFirmUserPositionEvolution = (
 
     const start = events ? events.find(e => e.actionName === 'Deposit')?.timestamp : undefined;
 
-    const collateralRewards = Math.max((deposits) - depositedByUser, 0);
+    const collateralRewards = depositedByUser > 0 ? Math.max((deposits) - depositedByUser, 0) : 0;
 
     const pricesAtEvents = events.map(e => {
         const price = histoPrices.find(p => timestampToUTC(p[0]) === timestampToUTC(e.timestamp))?.[1];
