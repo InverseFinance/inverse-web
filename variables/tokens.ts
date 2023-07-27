@@ -181,6 +181,7 @@ const chainTokenAddresses = {
     VECHRONOS: '0x9A01857f33aa382b1d5bb96C3180347862432B0d',
     DOLAUSDPLUSCHRONOS: '0xBbD7fF1728963A5Eb582d26ea90290F84E89bd66',
     USDPLUS: '0xe80772Eaf6e2E18B651F160Bc9158b2A5caFCA65',
+    DOLAUSDCBALLP: '0x8bc65Eed474D1A00555825c91FeAb6A8255C2107',
   },
   "43114": {
     DOLA: '0x221743dc9E954bE4f86844649Bf19B43D6F8366d',
@@ -1672,6 +1673,24 @@ const chainTokens = {
       ],
       protocolImage: PROTOCOL_IMAGES.CHRONOS,
       twgAddress: '0x23dEDab98D7828AFBD2B7Ab8C71089f2C517774a',
+    },
+    [chainTokenAddresses["42161"].DOLAUSDCBALLP]: {
+      address: chainTokenAddresses["42161"].DOLAUSDCBALLP,
+      name: 'DOLA-USDC blp',
+      symbol: 'DOLA-USDC arbblp',
+      protocolImage: PROTOCOL_IMAGES.BAL,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      balancerInfos: {
+        poolId: '0x8bc65eed474d1a00555825c91feab6a8255c2107000000000000000000000453',
+        vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
+      },
+      pairs: [
+        chainTokenAddresses["42161"].DOLA, chainTokenAddresses["42161"].DOLAUSDCBALLP, chainTokenAddresses["42161"].USDC
+      ],
+      isComposableMetapool: true,
+      image: TOKEN_IMAGES.DOLA,      
     },
   }
 }
