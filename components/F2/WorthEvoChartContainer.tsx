@@ -26,11 +26,11 @@ const useFirmUserPositionEvolution = (
     const { prices, isLoading: isLoadingPrices } = usePrices();
     const { price: dbrPrice } = useDBRPrice();
     // events from user wallet, can be not fetched for some wallet providers
-    const { events: _events, depositedByUser, lastBlock } = useFirmMarketEvolution(market, account);
+    const { events: _events, depositedByUser: depositedByUserLive, lastBlock } = useFirmMarketEvolution(market, account);
     const [isLoadingDebounced, setIsLoadingDebounced] = useState(true);
     // from api
-    const { evolution: escrowBalanceEvolution, timestamps, isLoading: isLoadingEscrowEvo } = useEscrowBalanceEvolution(account, escrow, market.address, lastBlock);
-    const events = _events?.map(e => ({ ...e, timestamp: e.timestamp || timestamps[e.blockNumber] })).filter(e => !!e.timestamp);
+    const { evolution: escrowBalanceEvolution, timestamps, isLoading: isLoadingEscrowEvo, formattedEvents, depositedByUser: depositedByUserApi } = useEscrowBalanceEvolution(account, escrow, market.address, lastBlock);
+    const events = !_events?.length ? formattedEvents : _events?.map(e => ({ ...e, timestamp: e.timestamp || timestamps[e.blockNumber] })).filter(e => !!e.timestamp);
     
     const isLoading = isLoadingHistoPrices || isLoadingPrices || isLoadingEscrowEvo;
 
@@ -38,9 +38,9 @@ const useFirmUserPositionEvolution = (
         setIsLoadingDebounced(isLoading);
     }, [isLoading], isLoading, 7000, 1000);
     
-    const start = events?.length > 0 ? events.find(e => e.actionName === 'Deposit')?.timestamp : escrowBalanceEvolution?.[0]?.timestamp;
-
-    const collateralRewards = depositedByUser > 0 ? Math.max((deposits) - depositedByUser, 0) : 0;
+    const start = events.find(e => e.actionName === 'Deposit')?.timestamp;
+    const _depositedByUser = depositedByUserLive || depositedByUserApi;
+    const collateralRewards = _depositedByUser > 0 ? Math.max((deposits) - _depositedByUser, 0) : 0;
 
     const pricesAtEvents = events.map(e => {
         const price = histoPrices.find(p => timestampToUTC(p[0]) === timestampToUTC(e.timestamp))?.[1];
@@ -95,9 +95,9 @@ const useFirmUserPositionEvolution = (
             debtUsd: debt,
             debt,
             balance,
-            depositedByUser,
+            depositedByUser: _depositedByUser,
             dbrClaimed: claims,
-            dbrRewards: claims + histoEscrowDbrClaimable,
+            dbrRewards: (claims + histoEscrowDbrClaimable||0)||0,
             dbrClaimable: histoEscrowDbrClaimable,
             timeProgression,
             estimatedStakedBonus,
@@ -135,7 +135,7 @@ const useFirmUserPositionEvolution = (
         dbrRewards,
     });
 
-    return { data, walletSupportsEvents: _events?.length > 0, isLoading: isLoadingDebounced, isError: !isLoadingDebounced && !hasData };
+    return { data, walletSupportsEvents: events?.length > 0, isLoading: isLoadingDebounced, isError: !isLoadingDebounced && !hasData };
 }
 
 export const WorthEvoChartWrapper = ({
