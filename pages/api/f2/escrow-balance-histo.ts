@@ -25,7 +25,7 @@ export default async function handler(req, res) {
     res.status(400).json({ msg: 'invalid request' });
     return;
   }
-  const cacheKey = `firm-escrow-balance-histo-${escrow}-${lastBlock}-${CHAIN_ID}-v1.0.96`;
+  const cacheKey = `firm-escrow-balance-histo-${escrow}-${lastBlock}-${CHAIN_ID}-v1.0.97`;
   try {
     const cacheDuration = 3600;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
@@ -165,7 +165,7 @@ export default async function handler(req, res) {
       liquidated,
       replenished,
       claims,
-    } = formatFirmEvents(_market, flatenedEvents, resultTimestamps, archived?.formattedEvents?.length > 0 ? archived : undefined);
+    } = formatFirmEvents(_market, flatenedEvents, flatenedEvents.map(e => timestamps[CHAIN_ID][e.blockNumber] * 1000), archived?.formattedEvents?.length > 0 ? archived : undefined);
 
     const resultData = {
       debt,
