@@ -333,7 +333,6 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
     ];
 
     const hasCollateralRewards = collateralRewards >= 0.01;
-    console.log('collateralRewards', collateralRewards, hasCollateralRewards);
 
     const stakingInfos = !hasCollateralRewards ? [] : [
         {
