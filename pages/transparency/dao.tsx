@@ -38,7 +38,7 @@ const getProposalStatusType = (status: ProposalStatus) => {
 const FounderAddresses = ['0x16EC2AeA80863C1FB4e13440778D0c9967fC51cb', '0x3FcB35a1CbFB6007f9BC638D388958Bc4550cB28'];
 
 export const GovTransparency = () => {
-    const { currentPayrolls, currentVesters } = useCompensations();
+    const { currentPayrolls, currentVesters, currentInvBalances } = useCompensations();
     const { prices } = usePricesV2();
     const { delegates } = useTopDelegates();
     const { proposals } = useProposals();
@@ -62,15 +62,20 @@ export const GovTransparency = () => {
         }, 0);
 
     const totalPower = founderPower + nonTeamPower + teamPower;
-    const founderPerc = founderPower / totalPower * 100
-    const teamPerc = teamPower / totalPower * 100
-    const otherPerc = nonTeamPower / totalPower * 100
     const totalVested = currentVesters.reduce((prev, curr) => prev + curr.amount / 12, 0);
 
+    // excludes external delegation power
+    const founderInherentPower = currentInvBalances.filter(d => FounderAddresses.includes(d.address)).reduce((prev, curr) => prev + curr.totalInvBalance, 0);
+    const teamInherentPower = currentInvBalances.filter(d => !FounderAddresses.includes(d.address)).reduce((prev, curr) => prev + curr.totalInvBalance, 0);    
+    const notFromInherentTeamPower = totalPower - teamInherentPower - founderInherentPower;
+    const delegatedExternally = founderPower + teamPower - teamInherentPower - founderInherentPower;
+    const nonTeamPowerToUse = notFromInherentTeamPower - delegatedExternally;
+
     const votingPowerDist = [
-        { label: `Founder`, balance: founderPower, perc: founderPerc, usdPrice: 1 },
-        { label: `Active Contributors`, balance: teamPower, perc: teamPerc, usdPrice: 1 },
-        { label: `Others`, balance: nonTeamPower, perc: otherPerc, usdPrice: 1 },
+        { label: `Founder`, balance: founderInherentPower, perc: founderInherentPower / totalPower * 100, usdPrice: 1 },
+        { label: `Active Contributors`, balance: teamInherentPower, perc: teamInherentPower / totalPower * 100, usdPrice: 1 },
+        { label: `Externally Delegated to Contributors / Founder`, balance: delegatedExternally, perc: delegatedExternally / totalPower * 100, usdPrice: 1 },
+        { label: `Others`, balance: nonTeamPowerToUse, perc: nonTeamPowerToUse / totalPower * 100, usdPrice: 1 },
     ];
 
     const vestersByRecipients = Object.entries(currentVesters.reduce((prev, curr) => {
@@ -127,7 +132,7 @@ export const GovTransparency = () => {
                     <Stack spacing="5" direction='column' w="full" justify="space-around">
                         <SimpleGrid minChildWidth={{ base: '300px', sm: '300px' }} spacingX="100px" spacingY="40px">
                             <FundsDetails
-                                title="Voting Power Distribution"
+                                title="Voting Power Distribution"                                
                                 totalLabel="Total Distribution:"
                                 funds={votingPowerDist}
                                 type="balance"
