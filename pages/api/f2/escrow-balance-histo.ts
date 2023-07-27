@@ -5,7 +5,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getHistoricValue, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber, getToken } from '@app/util/markets'
-import { BLOCKS_PER_DAY, BURN_ADDRESS, CHAIN_ID, ONE_DAY_SECS } from '@app/config/constants';
+import { BLOCKS_PER_DAY, BURN_ADDRESS, CHAIN_ID } from '@app/config/constants';
 import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
 import { throttledPromises } from '@app/util/misc';
 import { CHAIN_TOKENS } from '@app/variables/tokens';
@@ -26,8 +26,9 @@ export default async function handler(req, res) {
   }
   const cacheKey = `firm-escrow-balance-histo-${escrow}-${lastBlock}-${CHAIN_ID}-v1.0.93`;
   try {
-    res.setHeader('Cache-Control', `public, max-age=${ONE_DAY_SECS}`);
-    const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', ONE_DAY_SECS, true);
+    const cacheDuration = 3600;
+    res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+    const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration, true);
     if (validCache) {
       res.status(200).json(validCache);
       return
