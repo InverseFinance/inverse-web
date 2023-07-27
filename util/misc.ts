@@ -162,12 +162,12 @@ export const getTimestampFromUTCDate = (utcDate: string) => {
     const year = parseInt(dateParts[0]);
     const month = parseInt(dateParts[1]) - 1; // Months are zero-based (0-11)
     const day = parseInt(dateParts[2]);
-  
+
     const dateObj = new Date(Date.UTC(year, month, day));
     const timestamp = dateObj.getTime();
-  
+
     return timestamp;
-  }
+}
 
 export const getMonthDiff = (d1: Date, d2: Date) => {
     var months;
@@ -247,4 +247,12 @@ export const fillMissingDailyDatesWithMostRecentData = (arr: any[], minDayInterv
     }
 
     return filledArray;
+}
+
+export const ascendingEventsSorter = (a, b) => {
+    if (a.blockNumber !== b.blockNumber) {
+        return a.blockNumber - b.blockNumber; // Sort by blockNumber in ascending order
+    } else {
+        return a.logIndex - b.logIndex; // If block numbers are equal, sort by logIndex in ascending order
+    }
 }

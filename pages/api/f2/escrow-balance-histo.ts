@@ -7,9 +7,10 @@ import { getCacheFromRedis, isInvalidGenericParam, redisSetWithTimestamp } from 
 import { getBnToNumber, getToken } from '@app/util/markets'
 import { BLOCKS_PER_DAY, BURN_ADDRESS, CHAIN_ID } from '@app/config/constants';
 import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
-import { throttledPromises } from '@app/util/misc';
-import { CHAIN_TOKENS } from '@app/variables/tokens';
+import { ascendingEventsSorter, throttledPromises } from '@app/util/misc';
+import { CHAIN_TOKENS, TOKENS } from '@app/variables/tokens';
 import { isAddress } from 'ethers/lib/utils';
+import { formatFirmEvents } from '@app/util/f2';
 
 const { F2_MARKETS, DBR } = getNetworkConfigConstants();
 
@@ -24,7 +25,7 @@ export default async function handler(req, res) {
     res.status(400).json({ msg: 'invalid request' });
     return;
   }
-  const cacheKey = `firm-escrow-balance-histo-${escrow}-${lastBlock}-${CHAIN_ID}-v1.0.93`;
+  const cacheKey = `firm-escrow-balance-histo-${escrow}-${lastBlock}-${CHAIN_ID}-v1.0.95`;
   try {
     const cacheDuration = 3600;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
@@ -37,6 +38,7 @@ export default async function handler(req, res) {
     // not using fallbackprovider because it's not working with call & blockNumber
     const provider = getProvider(CHAIN_ID, '', true);
     const _market = F2_MARKETS.find(m => m.address === market);
+    _market.underlying = TOKENS[_market.collateral];
 
     if (!_market) {
       res.status(404).json({ success: false });
@@ -53,7 +55,7 @@ export default async function handler(req, res) {
       return;
     }
 
-    const archived = await getCacheFromRedis(cacheKey, false, 0) || { balances: [], debts: [], blocks: [], timestamps: [], dbrClaimables: [] };
+    const archived = await getCacheFromRedis(cacheKey, false, 0) || { balances: [], debts: [], blocks: [], timestamps: [], dbrClaimables: [], formattedEvents: [] };
     const lastBlock = archived.blocks.length > 0 ? archived.blocks[archived.blocks.length - 1] : escrowCreationBlock - 1;
 
     const startingBlock = lastBlock + 1 < currentBlock ? lastBlock + 1 : currentBlock;
@@ -73,7 +75,9 @@ export default async function handler(req, res) {
       eventsToQuery.push(dbrContract.queryFilter(dbrContract.filters.Transfer(BURN_ADDRESS, account), startingBlock))
     }
 
-    const escrowRelevantBlockNumbers = (await Promise.all(eventsToQuery)).flat().map(e => e.blockNumber);
+    const queryResults = await Promise.all(eventsToQuery);
+    const flatenedEvents = queryResults.flat().sort(ascendingEventsSorter);
+    const escrowRelevantBlockNumbers = flatenedEvents.map(e => e.blockNumber);
 
     const intIncrement = Math.floor(BLOCKS_PER_DAY * 3);
 
@@ -152,13 +156,31 @@ export default async function handler(req, res) {
       return getBnToNumber(marketContract.interface.decodeFunctionResult(debtFunctionName, d)[0], 18);
     });
 
-    const resultData = {      
+    const resultTimestamps = archived.timestamps.concat(allUniqueBlocksToCheck.map(b => timestamps[CHAIN_ID][b]));
+    const {
+      events: newFormattedEvents,
+      debt,
+      depositedByUser,
+      unstakedCollateralBalance,
+      liquidated,
+      replenished,
+      claims,
+    } = formatFirmEvents(_market, flatenedEvents, resultTimestamps, archived?.formattedEvents?.length > 0 ? archived : undefined);
+
+    const resultData = {
+      debt,
+      depositedByUser,
+      unstakedCollateralBalance,
+      liquidated,
+      replenished,
+      claims,
       balances: archived.balances.concat(newBalances),
       debts: archived.debts.concat(newDebts),
       dbrClaimables: archived.dbrClaimables.concat(newDbrClaimables),
       timestamp: Date.now(),
       blocks: archived?.blocks.concat(allUniqueBlocksToCheck),
-      timestamps: archived.timestamps.concat(allUniqueBlocksToCheck.map(b => timestamps[CHAIN_ID][b])),
+      timestamps: resultTimestamps,
+      formattedEvents: archived.formattedEvents.concat(newFormattedEvents),
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);

@@ -393,3 +393,83 @@ export const zapperRefresh = (account: string) => {
         }
     );
 }
+
+const FIRM_EVENTS_DEFAULT_STARTING_VALUES = {
+    depositedByUser: 0,
+    unstakedCollateralBalance: 0,
+    liquidated: 0,
+    claims: 0,
+    replenished: 0,
+    debt: 0,    
+}
+
+export const formatFirmEvents = (
+    market: F2Market,
+    flatenedEvents: any[],
+    timestamps: number[],
+    startingValues = FIRM_EVENTS_DEFAULT_STARTING_VALUES,
+) => {
+    // can be different than current balance when staking
+    let { depositedByUser, unstakedCollateralBalance, liquidated, claims, replenished, debt } = startingValues;
+
+    const blocks = flatenedEvents.map(e => e.blockNumber);
+
+    const events = flatenedEvents.map((e, i) => {
+        const actionName = e.event;
+        const isDebtCase = ['Borrow', 'Repay'].includes(actionName);
+        const decimals = market.underlying.decimals;
+        const tokenName = market.underlying.symbol
+        const amount = getBnToNumber(e.args?.amount, isDebtCase ? 18 : decimals);
+
+        if (['Deposit', 'Withdraw'].includes(actionName)) {
+            depositedByUser = depositedByUser + (actionName === 'Deposit' ? amount : -amount);
+            unstakedCollateralBalance = unstakedCollateralBalance + (actionName === 'Deposit' ? amount : -amount);
+        } else if (isDebtCase) {
+            debt = debt + (actionName === 'Borrow' ? amount : -amount);
+        } else if (actionName === 'ForceReplenish') {
+            replenished += amount;
+            debt += getBnToNumber(e.args.replenishmentCost);
+        } else if (actionName === 'Liquidate') {
+            liquidated += getBnToNumber(e.args.liquidatorReward, decimals);
+            debt -= getBnToNumber(e.args.repaidDebt);
+            unstakedCollateralBalance -= getBnToNumber(e.args.liquidatorReward, decimals);
+        } else if (actionName === 'Transfer') {
+            claims += amount;
+        }
+
+        if (unstakedCollateralBalance < 0) {
+            unstakedCollateralBalance = 0;
+        }
+
+        return {
+            combinedKey: `${e.transactionHash}-${actionName}-${e.args?.account}`,
+            actionName,
+            claims,
+            isClaim: actionName === 'Transfer',
+            depositedByUser,
+            unstakedCollateralBalance,
+            timestamp: timestamps ? timestamps[i] : 0,
+            blockNumber: e.blockNumber,
+            txHash: e.transactionHash,
+            amount,
+            escrow: e.args?.escrow,
+            name: e.event,
+            logIndex: e.logIndex,
+            tokenName,
+            liquidated,
+            replenished,
+            debt,
+        }
+    });
+
+    return {
+        events,
+        debt,
+        depositedByUser,
+        unstakedCollateralBalance,
+        liquidated,
+        replenished,
+        claims,
+        lastBlock: blocks?.length ? Math.max(...blocks) : 0,
+    }
+}

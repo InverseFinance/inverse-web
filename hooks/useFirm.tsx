@@ -3,12 +3,12 @@ import { F2Market, FirmAction, SWR, ZapperToken } from "@app/types"
 import { fetcher, fetcher30sectimeout, fetcher60sectimeout } from '@app/util/web3'
 import { useCacheFirstSWR, useCustomSWR } from "./useCustomSWR";
 import { useDBRMarkets, useDBRPrice } from "./useDBR";
-import { f2CalcNewHealth } from "@app/util/f2";
+import { f2CalcNewHealth, formatFirmEvents } from "@app/util/f2";
 import { getBnToNumber, getHistoricalTokenData, getMonthlyRate, getNumberToBn } from "@app/util/markets";
 import { useMultiContractEvents } from "./useContractEvents";
 import { DBR_ABI, F2_ESCROW_ABI, F2_MARKET_ABI } from "@app/config/abis";
 import { getNetworkConfigConstants } from "@app/util/networks";
-import { uniqueBy } from "@app/util/misc";
+import { ascendingEventsSorter, uniqueBy } from "@app/util/misc";
 import { BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
 import useEtherSWR from "./useEtherSWR";
 import { useAccount } from "./misc";
@@ -461,8 +461,12 @@ export const useHistoricalPrices = (cgId: string) => {
 
 export const useEscrowBalanceEvolution = (account: string, escrow: string, market: string, lastBlock: number): SWR & {
   evolution: { balance: number, timestamp: number, debt: number, blocknumber: number, dbrClaimable: number }[],
+  formattedEvents: any[],
   timestamps: { [key: string]: number },
   timestamp: number,
+  debt: number,
+  claims: number,
+  depositedByUser: number,
   isLoading: boolean,
   isError: boolean,
 } => {
@@ -479,9 +483,10 @@ export const useEscrowBalanceEvolution = (account: string, escrow: string, marke
   const timestamps = data ? evolution.reduce((acc, e) => ({ ...acc, [e.blocknumber]: e.timestamp }), {}) : {};
 
   return {
+    ...data,
     evolution,
     timestamps,
-    timestamp: data ? data.timestamp : 0,
+    formattedEvents: data?.formattedEvents || [],
     isLoading: !error && !data,
     isError: !!error,
   }
@@ -517,66 +522,13 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
     `firm-market-${market.address}-${account}-collateral-evo`,
   );
 
-  const flatenedEvents = groupedEvents.flat().sort((a, b) => a.blockNumber - b.blockNumber);
-  // can be different than current balance when staking
-  let depositedByUser = 0;
-  let unstakedCollateralBalance = 0;
-  let liquidated = 0;
-  let claims = 0;
-  let replenished = 0;
-  let debt = 0;
+  const flatenedEvents = groupedEvents.flat().sort(ascendingEventsSorter);
 
   const blocks = flatenedEvents.map(e => e.blockNumber);
   // useBlocksTimestamps won't work for older events for some wallets/rpc, fallback is via backend api
   const { timestamps } = useBlocksTimestamps(blocks);
 
-  const events = flatenedEvents.map((e, i) => {
-    const actionName = e.event;
-    const isDebtCase = ['Borrow', 'Repay'].includes(actionName);
-    const decimals = market.underlying.decimals;
-    const tokenName = market.underlying.symbol
-    const amount = getBnToNumber(e.args?.amount, isDebtCase ? 18 : decimals);
-
-    if (['Deposit', 'Withdraw'].includes(actionName)) {
-      depositedByUser = depositedByUser + (actionName === 'Deposit' ? amount : -amount);
-      unstakedCollateralBalance = unstakedCollateralBalance + (actionName === 'Deposit' ? amount : -amount);
-    } else if (isDebtCase) {
-      debt = debt + (actionName === 'Borrow' ? amount : -amount);
-    } else if (actionName === 'ForceReplenish') {
-      replenished += amount;
-      debt += getBnToNumber(e.args.replenishmentCost);
-    } else if (actionName === 'Liquidate') {
-      liquidated += getBnToNumber(e.args.liquidatorReward, decimals);
-      debt -= getBnToNumber(e.args.repaidDebt);
-      unstakedCollateralBalance -= getBnToNumber(e.args.liquidatorReward, decimals);
-    } else if (actionName === 'Transfer') {
-      claims += amount;
-    }
-
-    if (unstakedCollateralBalance < 0) {
-      unstakedCollateralBalance = 0;
-    }
-
-    return {
-      combinedKey: `${e.transactionHash}-${actionName}-${e.args?.account}`,
-      actionName,
-      claims,
-      isClaim: actionName === 'Transfer',
-      depositedByUser,
-      unstakedCollateralBalance,
-      timestamp: timestamps ? timestamps[i] : 0,
-      blockNumber: e.blockNumber,
-      txHash: e.transactionHash,
-      amount,
-      escrow: e.args?.escrow,
-      name: e.event,
-      logIndex: e.logIndex,
-      tokenName,
-      liquidated,
-      replenished,
-      debt,
-    }
-  });
+  const { events, debt, depositedByUser, liquidated, replenished, lastBlock } = formatFirmEvents(market, flatenedEvents, timestamps);
 
   return {
     events,
@@ -584,7 +536,7 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
     depositedByUser,
     liquidated,
     replenished,
-    lastBlock: blocks?.length ? Math.max(...blocks) : 0,
+    lastBlock,
     isLoading,
     error,
   }
