@@ -72,14 +72,16 @@ export const useLiquidityPoolsAggregatedHistory = (excludeCurrent = false): SWR 
 export const useCompensations = (): SWR & {
   currentPayrolls: Payroll[]
   currentVesters: Vester[]
+  currentInvBalances: { address: string, totalInvBalance: number }[]
 } => {
-  const { data, error } = useCustomSWR(`/api/transparency/compensations`, fetcher)
+  const { data, error } = useCustomSWR(`/api/transparency/compensations?v=2`, fetcher)
 
   return {
     isLoading: !error && !data,
     isError: error,
     currentPayrolls: data?.currentPayrolls || [],
     currentVesters: data?.currentVesters || [],
+    currentInvBalances: data?.currentInvBalances || [],
   }
 }
 

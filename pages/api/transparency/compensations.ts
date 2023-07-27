@@ -11,7 +11,7 @@ import { BURN_ADDRESS } from '@app/config/constants';
 export default async function handler(req, res) {
 
   const { INV, F2_MARKETS, XINV, DOLA_PAYROLL, XINV_VESTOR_FACTORY } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `compensations-cache-v1.2.1`;
+  const cacheKey = `compensations-cache-v1.2.2`;
   try {
     const cacheDuration = 300;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
