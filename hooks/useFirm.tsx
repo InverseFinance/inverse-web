@@ -153,6 +153,7 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
   error: any
   depositedByUser: number
   liquidated: number
+  lastBlock: number
 } => {
   const { groupedEvents, isLoading, error } = useMultiContractEvents([
     [market.address, F2_MARKET_ABI, 'Deposit', [account]],
@@ -217,11 +218,13 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
   });
 
   const grouped = uniqueBy(events, (o1, o2) => o1.combinedKey === o2.combinedKey);
+  const blocks = events.map(e => e.blocknumber);
   grouped.sort((a, b) => a.blockNumber !== b.blockNumber ? (b.blockNumber - a.blockNumber) : b.logIndex - a.logIndex);
   return {
     events: grouped,
     depositedByUser,
     liquidated,
+    lastBlock: blocks?.length ? Math.max(...blocks) : 0,
     isLoading,
     error,
   }
@@ -465,29 +468,30 @@ export const useEscrowBalanceEvolution = (account: string, escrow: string, marke
   timestamps: { [key: string]: number },
   timestamp: number,
   debt: number,
+  liquidated: number,
   claims: number,
   depositedByUser: number,
   isLoading: boolean,
   isError: boolean,
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/f2/escrow-balance-histo?v=6&account=${account}&escrow=${escrow}&market=${market}&lastBlock=${lastBlock}`, fetcher);
+  const { data, error } = useCacheFirstSWR(!account || !escrow ? '-' : `/api/f2/escrow-balance-histo?v=7&account=${account}&escrow=${escrow}&market=${market}&lastBlock=${lastBlock}`, fetcher);
 
-  const evolution = data ? data.balances.map((b, i) => ({
+  const evolution = data?.balances?.map((b, i) => ({
     balance: b,
     dbrClaimable: data.dbrClaimables[i],
     blocknumber: data.blocks[i],
     debt: data.debts[i],
     timestamp: data.timestamps[i],
-  })) : [];
+  })) || [];
 
-  const timestamps = data ? evolution.reduce((acc, e) => ({ ...acc, [e.blocknumber]: e.timestamp }), {}) : {};
+  const timestamps = evolution.reduce((acc, e) => ({ ...acc, [e.blocknumber]: e.timestamp }), {});
 
   return {
     ...data,
     evolution,
     timestamps,
     formattedEvents: data?.formattedEvents || [],
-    isLoading: !error && !data,
+    isLoading: !error && !evolution?.length,
     isError: !!error,
   }
 }
