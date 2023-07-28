@@ -63,12 +63,14 @@ export const WorthEvoChart = ({
     axisStyle,
     market,
     isLoading,
+    walletSupportsEvents,
 }: {
     chartWidth: number,
     data: any[] | null,
     axisStyle?: any,
     market: F2Market,
     isLoading?: boolean,
+    walletSupportsEvents?: boolean,
 }) => {
     const { themeStyles, themeName } = useAppTheme();
 
@@ -129,8 +131,10 @@ export const WorthEvoChart = ({
         tabOptions.push(CHART_TABS.debt);
     }
     if (market.isInv) {
-        tabOptions.push(CHART_TABS.invDbr);
-        tabOptions.push(CHART_TABS.invStaking);
+        if (walletSupportsEvents) {
+            tabOptions.push(CHART_TABS.invDbr);
+            tabOptions.push(CHART_TABS.invStaking);
+        }
         tabOptions.push(CHART_TABS.dbrRewards);
     } else if (market.name === 'stETH') {
         tabOptions.push(CHART_TABS.staking);
@@ -195,13 +199,17 @@ export const WorthEvoChart = ({
 
     const containerLabel = `Your Position Evolution in the ${market.name} Market - Beta`;
 
-    if(isLoading || !data?.length) {
+    if (isLoading) {
         return <Cont label={containerLabel}>
             <SkeletonBlob />
         </Cont>
+    } else if(!data?.length) {
+        return null;
     }
 
-    return <Cont label={containerLabel}>
+    return <Cont
+        label={containerLabel}
+    >
         <VStack alignItems="center" maxW={`${chartWidth}px`}>
             <Stack w='full' justify="flex-start" alignItems="flex-start" direction="column">
                 <Stack alignItems="center" w='full' spacing={{ base: '2', lg: '4' }} direction={{ base: 'column', lg: 'row' }}>
@@ -224,12 +232,14 @@ export const WorthEvoChart = ({
                                 <Switch onChange={(e) => setUseUsd(!useUsd)} size="sm" colorScheme="purple" isChecked={useUsd} />
                             </FormControl>
                         }
-                        <FormControl display={{ base: 'none', sm: 'inline-flex' }} w='fit-content' cursor="pointer" justifyContent="flex-start" alignItems='center'>
-                            <Text fontSize="12px" whitespace="no-wrap" w='fit-content' mr="1" onClick={() => setShowEvents(!showEvents)}>
-                                Show events
-                            </Text>
-                            <Switch onChange={(e) => setShowEvents(!showEvents)} size="sm" colorScheme="purple" isChecked={showEvents} />
-                        </FormControl>
+                        {
+                            walletSupportsEvents && <FormControl display={{ base: 'none', sm: 'inline-flex' }} w='fit-content' cursor="pointer" justifyContent="flex-start" alignItems='center'>
+                                <Text fontSize="12px" whitespace="no-wrap" w='fit-content' mr="1" onClick={() => setShowEvents(!showEvents)}>
+                                    Show events
+                                </Text>
+                                <Switch onChange={(e) => setShowEvents(!showEvents)} size="sm" colorScheme="purple" isChecked={showEvents} />
+                            </FormControl>
+                        }
                         <HStack display={{ base: 'none', sm: 'inline-flex' }} cursor="help" visibility={!showEvents ? 'hidden' : 'visible'}>
                             <Popover trigger="hover" placement="right-end">
                                 <PopoverTrigger>

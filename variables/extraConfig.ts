@@ -119,6 +119,7 @@ const mainConfig = {
             govLink: '/governance',                     
             startingBlock: 17272807,
             claimMethod: 'claimDBR',
+            // borrowingWasDisabledBeforeBlock:
         },
         {
             name: 'cvxFXS',

@@ -737,6 +737,7 @@ export type F2Market = {
   dbrRewardRate?: number
   dbrYearlyRewardRate?: number
   claimMethod?: string
+  borrowingWasDisabledBeforeBlock?: number
 }
 
 export type FirmAction = {

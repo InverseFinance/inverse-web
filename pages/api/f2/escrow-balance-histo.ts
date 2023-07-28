@@ -2,15 +2,15 @@ import { Contract } from 'ethers'
 import 'source-map-support'
 import { DBR_ABI, F2_ESCROW_ABI, F2_MARKET_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { getProvider } from '@app/util/providers';
+import { getHistoricValue, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber, getToken } from '@app/util/markets'
-import { BLOCKS_PER_DAY, BURN_ADDRESS, CHAIN_ID, ONE_DAY_SECS } from '@app/config/constants';
+import { BLOCKS_PER_DAY, BURN_ADDRESS, CHAIN_ID } from '@app/config/constants';
 import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
-import { NetworkIds } from '@app/types';
-import { throttledPromises } from '@app/util/misc';
-import { CHAIN_TOKENS } from '@app/variables/tokens';
+import { ascendingEventsSorter, throttledPromises } from '@app/util/misc';
+import { CHAIN_TOKENS, TOKENS } from '@app/variables/tokens';
 import { isAddress } from 'ethers/lib/utils';
+import { formatFirmEvents } from '@app/util/f2';
 
 const { F2_MARKETS, DBR } = getNetworkConfigConstants();
 
@@ -25,10 +25,11 @@ export default async function handler(req, res) {
     res.status(400).json({ msg: 'invalid request' });
     return;
   }
-  const cacheKey = `firm-escrow-balance-histo-${escrow}-${lastBlock}-${CHAIN_ID}-v1.0.8`;
+  const cacheKey = `firm-escrow-balance-histo-${escrow}-${lastBlock}-${CHAIN_ID}-v1.0.98`;
   try {
-    res.setHeader('Cache-Control', `public, max-age=${ONE_DAY_SECS}`);
-    const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', ONE_DAY_SECS, true);
+    const cacheDuration = 3600;
+    res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+    const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration, true);
     if (validCache) {
       res.status(200).json(validCache);
       return
@@ -37,6 +38,7 @@ export default async function handler(req, res) {
     // not using fallbackprovider because it's not working with call & blockNumber
     const provider = getProvider(CHAIN_ID, '', true);
     const _market = F2_MARKETS.find(m => m.address === market);
+    _market.underlying = TOKENS[_market.collateral];
 
     if (!_market) {
       res.status(404).json({ success: false });
@@ -53,10 +55,10 @@ export default async function handler(req, res) {
       return;
     }
 
-    const archived = await getCacheFromRedis(cacheKey, false, 0) || { balances: [], blocks: [], timestamps: [], dbrClaimables: [] };
-    const lastBlock = archived.blocks.length > 0 ? archived.blocks[archived.blocks.length - 1] : escrowCreationBlock - 1;
+    const archived = await getCacheFromRedis(cacheKey, false, 0) || { balances: [], debts: [], blocks: [], timestamps: [], dbrClaimables: [], formattedEvents: [] };
+    const lastArchivedBlock = archived.blocks.length > 0 ? archived.blocks[archived.blocks.length - 1] : escrowCreationBlock - 1;
 
-    const startingBlock = lastBlock + 1 < currentBlock ? lastBlock + 1 : currentBlock;
+    const startingBlock = lastArchivedBlock + 1 < currentBlock ? lastArchivedBlock + 1 : currentBlock;
 
     const dbrContract = new Contract(DBR, DBR_ABI, provider);
     // events impacting escrow balance or visible on the chart
@@ -69,11 +71,14 @@ export default async function handler(req, res) {
       dbrContract.queryFilter(dbrContract.filters.ForceReplenish(account, undefined, _market.address), startingBlock),
     ];
 
-    if (_market.isInv) {      
+    if (_market.isInv) {
       eventsToQuery.push(dbrContract.queryFilter(dbrContract.filters.Transfer(BURN_ADDRESS, account), startingBlock))
     }
 
-    const escrowRelevantBlockNumbers = (await Promise.all(eventsToQuery)).flat().map(e => e.blockNumber);
+    const queryResults = await Promise.all(eventsToQuery);
+    const flatenedEvents = queryResults.flat().sort(ascendingEventsSorter);
+    const escrowRelevantBlockNumbers = flatenedEvents.map(e => e.blockNumber);
+    const lastEscrowEventBlock = Math.max(...escrowRelevantBlockNumbers);
 
     const intIncrement = Math.floor(BLOCKS_PER_DAY * 3);
 
@@ -84,18 +89,16 @@ export default async function handler(req, res) {
     allUniqueBlocksToCheck.sort((a, b) => a - b);
 
     const escrowContract = new Contract(escrow, F2_ESCROW_ABI, provider);
-    // Function signature and encoding
-    const balanceFunctionName = 'balance';
-    const balanceFunctionSignature = escrowContract.interface.getSighash(balanceFunctionName);
 
+    const balanceFunctionName = 'balance';
     const claimableFunctionName = 'claimable';
-    const claimableFunctionSignature = escrowContract.interface.getSighash(claimableFunctionName);
+    const debtFunctionName = 'debts';
 
     if (!allUniqueBlocksToCheck.includes(currentBlock) && !archived?.blocks.includes(currentBlock)) {
       allUniqueBlocksToCheck.push(currentBlock);
     }
 
-    if (!allUniqueBlocksToCheck.length) {
+    if (!allUniqueBlocksToCheck.length || ((currentBlock - lastEscrowEventBlock) <= 1000 && lastArchivedBlock === lastEscrowEventBlock)) {
       res.status(200).json(archived);
       return;
     }
@@ -109,10 +112,7 @@ export default async function handler(req, res) {
     const newBalancesBn =
       await throttledPromises(
         (block: number) => {
-          return escrowContract.provider.call({
-            to: escrowContract.address,
-            data: balanceFunctionSignature + '0000000000000000000000000000000000000000000000000000000000000000', // append 32 bytes of 0 for no arguments
-          }, block)
+          return getHistoricValue(escrowContract, block, balanceFunctionName, []);
         },
         allUniqueBlocksToCheck,
         5,
@@ -124,16 +124,24 @@ export default async function handler(req, res) {
       newClaimableBn =
         await throttledPromises(
           (block: number) => {
-            return escrowContract.provider.call({
-              to: escrowContract.address,
-              data: claimableFunctionSignature + '0000000000000000000000000000000000000000000000000000000000000000', // append 32 bytes of 0 for no arguments
-            }, block)
+            return getHistoricValue(escrowContract, block, claimableFunctionName, []);
           },
           allUniqueBlocksToCheck,
           5,
           100,
         );
     }
+
+    let newDebtsBn = await throttledPromises(
+      (block: number) => {
+        return block < _market.borrowingWasDisabledBeforeBlock ?
+          Promise.resolve('0x0000000000000000000000000000000000000000000000000000000000000000') :
+          getHistoricValue(marketContract, block, debtFunctionName, [account]);
+      },
+      allUniqueBlocksToCheck,
+      5,
+      100,
+    );
 
     const decimals = getToken(CHAIN_TOKENS[CHAIN_ID], _market.collateral).decimals;
 
@@ -145,12 +153,35 @@ export default async function handler(req, res) {
       return getBnToNumber(escrowContract.interface.decodeFunctionResult(claimableFunctionName, d)[0], 18);
     });
 
+    const newDebts = newDebtsBn.map((d, i) => {
+      return getBnToNumber(marketContract.interface.decodeFunctionResult(debtFunctionName, d)[0], 18);
+    });
+
+    const resultTimestamps = archived.timestamps.concat(allUniqueBlocksToCheck.map(b => timestamps[CHAIN_ID][b] * 1000));
+    const {
+      events: newFormattedEvents,
+      debt,
+      depositedByUser,
+      unstakedCollateralBalance,
+      liquidated,
+      replenished,
+      claims,
+    } = formatFirmEvents(_market, flatenedEvents, flatenedEvents.map(e => timestamps[CHAIN_ID][e.blockNumber] * 1000), archived?.formattedEvents?.length > 0 ? archived : undefined);
+
     const resultData = {
+      debt,
+      depositedByUser,
+      unstakedCollateralBalance,
+      liquidated,
+      replenished,
+      claims,
       balances: archived.balances.concat(newBalances),
+      debts: archived.debts.concat(newDebts),
       dbrClaimables: archived.dbrClaimables.concat(newDbrClaimables),
       timestamp: Date.now(),
       blocks: archived?.blocks.concat(allUniqueBlocksToCheck),
-      timestamps: archived.timestamps.concat(allUniqueBlocksToCheck.map(b => timestamps[CHAIN_ID][b])),
+      timestamps: resultTimestamps,
+      formattedEvents: archived.formattedEvents.concat(newFormattedEvents),
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);

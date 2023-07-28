@@ -10,7 +10,7 @@ import Link from '@app/components/common/Link'
 import { getDBRRiskColor, getDepletionDate } from '@app/util/f2'
 import { InfoMessage } from '@app/components/common/Messages'
 import { F2MarketContext } from '../F2Contex'
-import { useFirmMarketEvents } from '@app/hooks/useFirm'
+import { useEscrowBalanceEvolution, useFirmMarketEvents } from '@app/hooks/useFirm'
 import { useAccount } from '@app/hooks/misc'
 import { FirmAccountEvents } from '../Infos/FirmAccountEvents'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
@@ -121,11 +121,14 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         isAutoDBR,
         isDbrApproxLoading,
         underlyingExRate,
+        escrow,
     } = useContext(F2MarketContext);
 
     const [now, setNow] = useState(Date.now());
-    const { events, isLoading: isLoadingEvents, depositedByUser, liquidated } = useFirmMarketEvents(market, account);
-    const collateralRewards = depositedByUser > 0 ? (deposits + liquidated) - depositedByUser : 0;
+    const { events, isLoading: isLoadingEvents, depositedByUser, liquidated, lastBlock } = useFirmMarketEvents(market, account);
+    const { depositedByUser: depositedByUserApi, liquidated: liquidatedApi } = useEscrowBalanceEvolution(account, escrow, market.address, lastBlock);
+    const _depositedByUser = depositedByUser || depositedByUserApi;
+    const collateralRewards = _depositedByUser > 0 ? (deposits + (liquidated||liquidatedApi)) - _depositedByUser : 0;
 
     useEffect(() => {
         let interval = setInterval(() => {
@@ -338,7 +341,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         {
             tooltip: 'The amount of collateral that comes from your deposits alone (excludes staking rewards and liquidations)',
             title: 'Originally Deposited',
-            value: depositedByUser >= 0 ? `${shortenNumber(depositedByUser, 2)} ${market.underlying.symbol}` : 'All have been withdrawn',
+            value: _depositedByUser >= 0 ? `${shortenNumber(_depositedByUser, 2)} ${market.underlying.symbol}` : 'All have been withdrawn',
         },
         {
             tooltip: 'The increase in collateral balance thanks to staking, anti-dilution protection or other mechanism that increases your collateral balance over time. USD value at current price.',
