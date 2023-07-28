@@ -30,8 +30,7 @@ const useFirmUserPositionEvolution = (
     const [isLoadingDebounced, setIsLoadingDebounced] = useState(true);
     // from api
     const { evolution: escrowBalanceEvolution, timestamps, isLoading: isLoadingEscrowEvo, formattedEvents, depositedByUser: depositedByUserApi } = useEscrowBalanceEvolution(account, escrow, market.address, lastBlock);
-    const events = !_events?.length ? formattedEvents : _events?.map(e => ({ ...e, timestamp: e.timestamp || timestamps[e.blockNumber] })).filter(e => !!e.timestamp);
-    
+    const events = !_events?.length ? formattedEvents : _events?.map(e => ({ ...e, timestamp: e.timestamp || timestamps[e.blockNumber] })).filter(e => !!e.timestamp);    
     const isLoading = isLoadingHistoPrices || isLoadingPrices || isLoadingEscrowEvo;
 
     useDualSpeedEffect(() => {

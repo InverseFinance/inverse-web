@@ -25,7 +25,7 @@ export default async function handler(req, res) {
     res.status(400).json({ msg: 'invalid request' });
     return;
   }
-  const cacheKey = `firm-escrow-balance-histo-${escrow}-${lastBlock}-${CHAIN_ID}-v1.0.97`;
+  const cacheKey = `firm-escrow-balance-histo-${escrow}-${lastBlock}-${CHAIN_ID}-v1.0.98`;
   try {
     const cacheDuration = 3600;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
@@ -98,7 +98,7 @@ export default async function handler(req, res) {
       allUniqueBlocksToCheck.push(currentBlock);
     }
 
-    if (!allUniqueBlocksToCheck.length || ((currentBlock - lastEscrowEventBlock) <= 1000)) {
+    if (!allUniqueBlocksToCheck.length || ((currentBlock - lastEscrowEventBlock) <= 1000 && lastArchivedBlock === lastEscrowEventBlock)) {
       res.status(200).json(archived);
       return;
     }

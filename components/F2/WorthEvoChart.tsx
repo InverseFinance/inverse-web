@@ -199,10 +199,12 @@ export const WorthEvoChart = ({
 
     const containerLabel = `Your Position Evolution in the ${market.name} Market - Beta`;
 
-    if (isLoading || !data?.length) {
+    if (isLoading) {
         return <Cont label={containerLabel}>
             <SkeletonBlob />
         </Cont>
+    } else if(!data?.length) {
+        return null;
     }
 
     return <Cont

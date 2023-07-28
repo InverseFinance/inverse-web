@@ -476,7 +476,7 @@ export const useEscrowBalanceEvolution = (account: string, escrow: string, marke
   isLoading: boolean,
   isError: boolean,
 } => {
-  const { data, error } = useCacheFirstSWR(!account || !escrow ? '-' : `/api/f2/escrow-balance-histo?v=7&account=${account}&escrow=${escrow}&market=${market}&lastBlock=${lastBlock}`, fetcher);
+  const { data, error, isLoading } = useCacheFirstSWR(!account || !escrow ? '-' : `/api/f2/escrow-balance-histo?v=8&account=${account}&escrow=${escrow}&market=${market}&lastBlock=${lastBlock}`, fetcher);
 
   const evolution = data?.balances?.map((b, i) => ({
     balance: b,
@@ -493,7 +493,7 @@ export const useEscrowBalanceEvolution = (account: string, escrow: string, marke
     evolution,
     timestamps,
     formattedEvents: data?.formattedEvents || [],
-    isLoading: !error && !evolution?.length,
+    isLoading,
     isError: !!error,
   }
 }
