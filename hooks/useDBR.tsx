@@ -410,7 +410,7 @@ export const useBorrowLimits = (market: F2Market) => {
     [market.borrowController, 'dailyBorrows', market.address, dayIndexUtc],
   ];
 
-  const { data } = useEtherSWR(dataToGet);
+  const { data, error } = useEtherSWR(dataToGet);
 
   const dolaLiquidity = data ? getBnToNumber(data[0]) : 0;
   const dailyLimit = !noBorrowController && data ? getBnToNumber(data[1]) : 0;
@@ -422,6 +422,8 @@ export const useBorrowLimits = (market: F2Market) => {
     dailyBorrows,
     leftToBorrow,
     dolaLiquidity,
+    isLoading: !data && !error,
+    isError: !!error,
   }
 }
 
