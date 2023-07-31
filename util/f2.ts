@@ -507,7 +507,7 @@ export const formatAndGroupFirmEvents = (
 
     const events = flatenedEvents.map(e => {
         const name = e.event||e.name;
-        const isCollateralEvent = ['Deposit', 'Withdraw'].includes(name);
+        const isCollateralEvent = ['Deposit', 'Withdraw', 'Liquidate'].includes(name);
         const decimals = isCollateralEvent ? market.underlying.decimals : 18;
         const txHash = e.transactionHash||e.txHash;
 
@@ -524,7 +524,7 @@ export const formatAndGroupFirmEvents = (
         const actionName = !!combinedEvent ? COMBINATIONS_NAMES[name] : name;
 
         const amount = e.amount ? e.amount : e.args?.amount ? getBnToNumber(e.args?.amount, decimals) : undefined;
-        const liquidatorReward = e.liquidatorReward ? e.liquidatorReward : e.args?.liquidatorReward ? getBnToNumber(e.args?.liquidatorReward, 18) : undefined;
+        const liquidatorReward = e.liquidatorReward ? e.liquidatorReward : e.args?.liquidatorReward ? getBnToNumber(e.args?.liquidatorReward, decimals) : undefined;
 
         if (isCollateralEvent && !!amount) {
             depositedByUser = depositedByUser + (name === 'Deposit' ? amount : -amount);

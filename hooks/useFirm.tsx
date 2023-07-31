@@ -173,7 +173,7 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
   let liquidated = 0;
 
   const events = flatenedEvents.map(e => {
-    const isCollateralEvent = ['Deposit', 'Withdraw'].includes(e.event);
+    const isCollateralEvent = ['Deposit', 'Withdraw', 'Liquidate'].includes(e.event);
     const decimals = isCollateralEvent ? market.underlying.decimals : 18;
 
     // Deposit can be associated with Borrow, withdraw with repay
@@ -187,7 +187,7 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
     const actionName = !!combinedEvent ? COMBINATIONS_NAMES[e.event] : e.event;
 
     const amount = e.args?.amount ? getBnToNumber(e.args?.amount, decimals) : undefined;
-    const liquidatorReward = e.args?.liquidatorReward ? getBnToNumber(e.args?.liquidatorReward, 18) : undefined;
+    const liquidatorReward = e.args?.liquidatorReward ? getBnToNumber(e.args?.liquidatorReward, decimals) : undefined;
 
     if (isCollateralEvent && !!amount) {
       depositedByUser = depositedByUser + (e.event === 'Deposit' ? amount : -amount);
