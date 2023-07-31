@@ -82,7 +82,7 @@ export const FirmAccountEvents = ({
                         }
                     </HStack>
                     <HStack w='full' justify="space-between">
-                        <BlockTimestamp blockNumber={e.blockNumber} direction="row" textProps={{ color: colors[e.actionName] }} />
+                        <BlockTimestamp blockNumber={e.blockNumber} timestamp={e.timestamp} direction="row" textProps={{ color: colors[e.actionName] }} />
                         {
                             e.name === 'ForceReplenish' && <ReplenishDocLink />
                         }

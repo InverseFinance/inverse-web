@@ -8,6 +8,7 @@ import { getNetworkConfigConstants } from "./networks";
 import { parseUnits, splitSignature } from "ethers/lib/utils";
 import { getBnToNumber, getNumberToBn } from "./markets";
 import { callWithHigherGL } from "./contracts";
+import { uniqueBy } from "./misc";
 
 const { F2_HELPER } = getNetworkConfigConstants();
 
@@ -400,7 +401,7 @@ const FIRM_EVENTS_DEFAULT_STARTING_VALUES = {
     liquidated: 0,
     claims: 0,
     replenished: 0,
-    debt: 0,    
+    debt: 0,
 }
 
 export const formatFirmEvents = (
@@ -420,6 +421,7 @@ export const formatFirmEvents = (
         const decimals = market.underlying.decimals;
         const tokenName = market.underlying.symbol
         const amount = getBnToNumber(e.args?.amount, isDebtCase ? 18 : decimals);
+        let liquidatorReward, deficit;
 
         if (['Deposit', 'Withdraw'].includes(actionName)) {
             depositedByUser = depositedByUser + (actionName === 'Deposit' ? amount : -amount);
@@ -427,12 +429,14 @@ export const formatFirmEvents = (
         } else if (isDebtCase) {
             debt = debt + (actionName === 'Borrow' ? amount : -amount);
         } else if (actionName === 'ForceReplenish') {
-            replenished += amount;
+            deficit = getBnToNumber(e.args.deficit);
+            replenished += deficit;
             debt += getBnToNumber(e.args.replenishmentCost);
         } else if (actionName === 'Liquidate') {
-            liquidated += getBnToNumber(e.args.liquidatorReward, decimals);
+            liquidatorReward = getBnToNumber(e.args.liquidatorReward, decimals);
+            liquidated += liquidatorReward;
             debt -= getBnToNumber(e.args.repaidDebt);
-            unstakedCollateralBalance -= getBnToNumber(e.args.liquidatorReward, decimals);
+            unstakedCollateralBalance -= liquidatorReward;
         } else if (actionName === 'Transfer') {
             claims += amount;
         }
@@ -453,9 +457,14 @@ export const formatFirmEvents = (
             txHash: e.transactionHash,
             amount,
             escrow: e.args?.escrow,
+            repayer: e.args?.repayer,
+            to: e.args?.to,
+            replenisher: e.args?.replenisher,
             name: e.event,
             logIndex: e.logIndex,
             tokenName,
+            liquidatorReward,
+            deficit,
             liquidated,
             replenished,
             debt,
@@ -472,4 +481,88 @@ export const formatFirmEvents = (
         claims,
         lastBlock: blocks?.length ? Math.max(...blocks) : 0,
     }
+}
+
+const COMBINATIONS = {
+    'Deposit': 'Borrow',
+    'Borrow': 'Deposit',
+    'Repay': 'Withdraw',
+    'Withdraw': 'Repay',
+  }
+  const COMBINATIONS_NAMES = {
+    'Deposit': 'DepositBorrow',
+    'Borrow': 'DepositBorrow',
+    'Repay': 'RepayWithdraw',
+    'Withdraw': 'RepayWithdraw',
+  }
+
+export const formatAndGroupFirmEvents = (
+    market: F2Market,
+    account: string,
+    flatenedEvents: any[],
+) => {
+    // can be different than current balance when staking
+    let depositedByUser = 0;
+    let liquidated = 0;
+
+    const events = flatenedEvents.map(e => {
+        const name = e.event||e.name;
+        const isCollateralEvent = ['Deposit', 'Withdraw'].includes(name);
+        const decimals = isCollateralEvent ? market.underlying.decimals : 18;
+        const txHash = e.transactionHash||e.txHash;
+
+        // Deposit can be associated with Borrow, withdraw with repay
+        let combinedEvent;
+        const combinedEventName = COMBINATIONS[name];
+        if (combinedEventName) {
+            combinedEvent = flatenedEvents.find(e2 => {
+                const e2TxHash = e2.transactionHash||e2.txHash;;
+                return e2TxHash === txHash && (e2.event||e2.name) === combinedEventName
+            });
+        }        
+        const tokenName = isCollateralEvent ? market.underlying.symbol : e.args?.replenisher||e.replenisher ? 'DBR' : 'DOLA';
+        const actionName = !!combinedEvent ? COMBINATIONS_NAMES[name] : name;
+
+        const amount = e.amount ? e.amount : e.args?.amount ? getBnToNumber(e.args?.amount, decimals) : undefined;
+        const liquidatorReward = e.liquidatorReward ? e.liquidatorReward : e.args?.liquidatorReward ? getBnToNumber(e.args?.liquidatorReward, 18) : undefined;
+
+        if (isCollateralEvent && !!amount) {
+            depositedByUser = depositedByUser + (name === 'Deposit' ? amount : -amount);
+        } else if (name === 'Liquidate' && !!liquidatorReward) {
+            liquidated += liquidatorReward;
+        }
+
+        return {
+            combinedKey: `${txHash}-${actionName}-${e.args?.account||account}`,
+            actionName,
+            blockNumber: e.blockNumber,
+            txHash,
+            amount,
+            isCombined: !!combinedEvent,
+            amountCombined: combinedEvent?.amount ? combinedEvent?.amount : combinedEvent?.args?.amount ? getBnToNumber(combinedEvent.args.amount, decimals) : undefined,
+            deficit: e.deficit ? e.deficit : e.args?.deficit ? getBnToNumber(e.args?.deficit, 18) : undefined,
+            repaidDebt: e.repaidDebt ? e.repaidDebt : e.args?.repaidDebt ? getBnToNumber(e.args?.repaidDebt, 18) : undefined,
+            liquidatorReward,
+            repayer: e.args?.repayer||e.repayer,
+            to: e.args?.to||e.to,
+            escrow: e.args?.escrow||e.escrow,
+            replenisher: e.args?.replenisher||e.replenisher,
+            name,
+            nameCombined: combinedEventName,
+            logIndex: e.logIndex,
+            isCollateralEvent,
+            tokenName,
+            isClaim: actionName === 'Transfer',
+            tokenNameCombined: tokenName === 'DOLA' ? market.underlying.symbol : 'DOLA',
+            timestamp: e.timestamp,
+        }
+    });
+
+    const grouped = uniqueBy(events.filter(e => !e.isClaim), (o1, o2) => o1.combinedKey === o2.combinedKey);
+    grouped.sort((a, b) => a.blockNumber !== b.blockNumber ? (b.blockNumber - a.blockNumber) : b.logIndex - a.logIndex);
+    return {
+        grouped,
+        depositedByUser,
+        liquidated,
+    };
 }

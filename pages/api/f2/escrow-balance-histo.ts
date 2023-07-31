@@ -25,7 +25,7 @@ export default async function handler(req, res) {
     res.status(400).json({ msg: 'invalid request' });
     return;
   }
-  const cacheKey = `firm-escrow-balance-histo-${escrow}-${lastBlock}-${CHAIN_ID}-v1.0.98`;
+  const cacheKey = `firm-escrow-balance-histo-${escrow}-${lastBlock}-${CHAIN_ID}-v1.0.99`;
   try {
     const cacheDuration = 3600;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);

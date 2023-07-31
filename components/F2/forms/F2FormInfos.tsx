@@ -7,7 +7,7 @@ import ScannerLink from '@app/components/common/ScannerLink'
 import { useContext, useEffect, useState } from 'react'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import Link from '@app/components/common/Link'
-import { getDBRRiskColor, getDepletionDate } from '@app/util/f2'
+import { formatAndGroupFirmEvents, getDBRRiskColor, getDepletionDate } from '@app/util/f2'
 import { InfoMessage } from '@app/components/common/Messages'
 import { F2MarketContext } from '../F2Contex'
 import { useEscrowBalanceEvolution, useFirmMarketEvents } from '@app/hooks/useFirm'
@@ -125,8 +125,10 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
     } = useContext(F2MarketContext);
 
     const [now, setNow] = useState(Date.now());
-    const { events, isLoading: isLoadingEvents, depositedByUser, liquidated, lastBlock } = useFirmMarketEvents(market, account);
-    const { depositedByUser: depositedByUserApi, liquidated: liquidatedApi } = useEscrowBalanceEvolution(account, escrow, market.address, lastBlock);
+    const { isLoading: isLoadingEvents, lastBlock } = useFirmMarketEvents(market, account);
+    const { depositedByUser: depositedByUserApi, liquidated: liquidatedApi, formattedEvents } = useEscrowBalanceEvolution(account, escrow, market.address, lastBlock);
+    const { grouped: events, depositedByUser, liquidated } = formatAndGroupFirmEvents(market, account, formattedEvents);
+
     const _depositedByUser = depositedByUser || depositedByUserApi;
     const collateralRewards = _depositedByUser > 0 ? (deposits + (liquidated||liquidatedApi)) - _depositedByUser : 0;
 
