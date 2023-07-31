@@ -3,7 +3,7 @@ import { InfoMessage } from "@app/components/common/Messages";
 import { Modal } from "@app/components/common/Modal"
 import ScannerLink from "@app/components/common/ScannerLink";
 import { F2_MARKET_ABI } from "@app/config/abis";
-import { useAccountDBR, useDBRReplenishmentPrice } from "@app/hooks/useDBR";
+import { useAccountDBR, useBorrowLimits, useDBRReplenishmentPrice } from "@app/hooks/useDBR";
 import { useTransactionCost } from "@app/hooks/usePrices";
 import { f2replenishAll } from "@app/util/f2";
 import { shortenNumber } from "@app/util/markets";
@@ -32,6 +32,8 @@ export const DbrReplenishmentModal = ({
     const { replenishmentPrice } = useDBRReplenishmentPrice();
 
     const liveData = useAccountDBR(userData.user);
+    const { dolaLiquidity, isLoading } = useBorrowLimits(chosenPosition?.market);
+    const hasEnoughLiquidityForReward = dolaLiquidity >= dolaReward;
     const dataSource = !!account && !!liveData ? liveData : userData;
     const { signedBalance, debt } = dataSource;
     const deficit = signedBalance < 0 ? Math.abs(signedBalance) : 0;
@@ -119,7 +121,7 @@ export const DbrReplenishmentModal = ({
                 {
                     !account && <InfoMessage alertProps={{ w: 'full' }} description="Please connect wallet" />
                 }
-                <SubmitButton isDisabled={dolaReward <= 0} refreshOnSuccess={true} onClick={handleReplenish}>
+                <SubmitButton isDisabled={dolaReward <= 0 || !hasEnoughLiquidityForReward} refreshOnSuccess={true} onClick={handleReplenish}>
                     Replenish
                 </SubmitButton>
                 {
@@ -128,7 +130,9 @@ export const DbrReplenishmentModal = ({
                         <InfoMessage
                             alertProps={{ w: 'full' }}
                             description={
-                                `You only pay a transaction fee and get a DOLA reward while the borrower has their debt increased.`
+                                !isLoading && !hasEnoughLiquidityForReward ?
+                                    `Not enough DOLA liquidity in the market at the moment to pay the reward.`
+                                    : `You only pay a transaction fee and get a DOLA reward while the borrower has their debt increased.`
                             }
                         />
                         <HStack w='full' justify="space-between">
