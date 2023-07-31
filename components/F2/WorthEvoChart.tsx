@@ -209,6 +209,7 @@ export const WorthEvoChart = ({
 
     return <Cont
         label={containerLabel}
+        description="Historical market price data is powered by Coingecko."
     >
         <VStack alignItems="center" maxW={`${chartWidth}px`}>
             <Stack w='full' justify="flex-start" alignItems="flex-start" direction="column">
