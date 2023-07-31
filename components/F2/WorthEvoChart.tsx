@@ -198,18 +198,21 @@ export const WorthEvoChart = ({
     }
 
     const containerLabel = `Your Position Evolution in the ${market.name} Market - Beta`;
+    const contProps = {
+        label: containerLabel,
+        description: "Daily historical market prices are powered by Coingecko",
+        href: `https://www.coingecko.com/en/coins/${market.underlying.coingeckoId}`
+    }
 
     if (isLoading) {
-        return <Cont label={containerLabel}>
+        return <Cont {...contProps}>
             <SkeletonBlob />
         </Cont>
     } else if(!data?.length) {
         return null;
     }
 
-    return <Cont
-        label={containerLabel}
-    >
+    return <Cont {...contProps}>
         <VStack alignItems="center" maxW={`${chartWidth}px`}>
             <Stack w='full' justify="flex-start" alignItems="flex-start" direction="column">
                 <Stack alignItems="center" w='full' spacing={{ base: '2', lg: '4' }} direction={{ base: 'column', lg: 'row' }}>

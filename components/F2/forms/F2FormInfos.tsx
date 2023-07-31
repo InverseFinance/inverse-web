@@ -7,7 +7,7 @@ import ScannerLink from '@app/components/common/ScannerLink'
 import { useContext, useEffect, useState } from 'react'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import Link from '@app/components/common/Link'
-import { getDBRRiskColor, getDepletionDate } from '@app/util/f2'
+import { formatAndGroupFirmEvents, getDBRRiskColor, getDepletionDate } from '@app/util/f2'
 import { InfoMessage } from '@app/components/common/Messages'
 import { F2MarketContext } from '../F2Contex'
 import { useEscrowBalanceEvolution, useFirmMarketEvents } from '@app/hooks/useFirm'
@@ -125,10 +125,14 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
     } = useContext(F2MarketContext);
 
     const [now, setNow] = useState(Date.now());
-    const { events, isLoading: isLoadingEvents, depositedByUser, liquidated, lastBlock } = useFirmMarketEvents(market, account);
-    const { depositedByUser: depositedByUserApi, liquidated: liquidatedApi } = useEscrowBalanceEvolution(account, escrow, market.address, lastBlock);
-    const _depositedByUser = depositedByUser || depositedByUserApi;
-    const collateralRewards = _depositedByUser > 0 ? (deposits + (liquidated||liquidatedApi)) - _depositedByUser : 0;
+    const { isLoading: isLoadingEvents, events, depositedByUser, liquidated, lastBlock } = useFirmMarketEvents(market, account);
+    const { formattedEvents, isLoading: isLoadingEventsFromApi } = useEscrowBalanceEvolution(account, escrow, market.address, lastBlock);
+    const { grouped: groupedEventsFallback, depositedByUser: depositedByUserFallback, liquidated: liquidatedFallback } = formatAndGroupFirmEvents(market, account, formattedEvents);
+    // same length, use data from api (timestamp already there), otherwise use prefer live data from blockchain
+    const _events = events?.length > groupedEventsFallback?.length ? events : groupedEventsFallback;    
+    const _depositedByUser = depositedByUser || depositedByUserFallback;
+    const _liquidated = liquidated || liquidatedFallback;
+    const collateralRewards = _depositedByUser > 0 ? (deposits + (_liquidated)) - _depositedByUser : 0;
 
     useEffect(() => {
         let interval = setInterval(() => {
@@ -409,11 +413,11 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
                             Most recent events in this market about my account:
                         </Text>
                         {
-                            !events?.length && !isLoadingEvents ?
+                            !_events?.length && !isLoadingEvents && !isLoadingEventsFromApi ?
                                 <InfoMessage alertProps={{ w: 'full' }} description="No event yet" />
                                 :
                                 <ErrorBoundary description={'Something went wrong getting activity'}>
-                                    <FirmAccountEvents events={events} account={account} overflowY="auto" maxH="300px" />
+                                    <FirmAccountEvents events={_events} account={account} overflowY="auto" maxH="300px" />
                                 </ErrorBoundary>
                         }
                     </VStack>

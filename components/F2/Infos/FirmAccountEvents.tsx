@@ -51,7 +51,7 @@ export const FirmAccountEvents = ({
     return <VStack w='full' alignItems="flex-start" spacing="0" {...props}>
         {
             events?.map(e => {
-                const val = e.amount || e.repaidDebt || e.deficit;
+                const val = e.amount || e.repaidDebt || e.deficit || e.liquidatorReward;
                 const address = e.escrow || e.repayer || e.liquidator || e.replenisher;
                 return <VStack
                     key={`${e.blockNumber}-${e.name}`}
@@ -82,7 +82,7 @@ export const FirmAccountEvents = ({
                         }
                     </HStack>
                     <HStack w='full' justify="space-between">
-                        <BlockTimestamp blockNumber={e.blockNumber} direction="row" textProps={{ color: colors[e.actionName] }} />
+                        <BlockTimestamp blockNumber={e.blockNumber} timestamp={e.timestamp} direction="row" textProps={{ color: colors[e.actionName] }} />
                         {
                             e.name === 'ForceReplenish' && <ReplenishDocLink />
                         }
