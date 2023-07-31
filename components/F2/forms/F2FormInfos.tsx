@@ -128,7 +128,8 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
     const { isLoading: isLoadingEvents, events, depositedByUser, liquidated, lastBlock } = useFirmMarketEvents(market, account);
     const { formattedEvents, isLoading: isLoadingEventsFromApi } = useEscrowBalanceEvolution(account, escrow, market.address, lastBlock);
     const { grouped: groupedEventsFallback, depositedByUser: depositedByUserFallback, liquidated: liquidatedFallback } = formatAndGroupFirmEvents(market, account, formattedEvents);
-    const _events = events || groupedEventsFallback;
+    // same length, use data from api (timestamp already there), otherwise use prefer live data from blockchain
+    const _events = events?.length > groupedEventsFallback?.length ? events : groupedEventsFallback;    
     const _depositedByUser = depositedByUser || depositedByUserFallback;
     const _liquidated = liquidated || liquidatedFallback;
     const collateralRewards = _depositedByUser > 0 ? (deposits + (_liquidated)) - _depositedByUser : 0;
