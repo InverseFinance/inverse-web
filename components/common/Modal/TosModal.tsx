@@ -49,9 +49,7 @@ export const TosModal = ({
         <VStack p='4' spacing="4">
             <Box>
                 <Text>
-                    Please sign a message with your wallet to confirm your agreement to the <Link target="_blank" href="/" isExternal textDecoration="underline">
-                        Terms and Conditions <ExternalLinkIcon />
-                    </Link>.
+                    Please sign a message with your wallet to confirm your agreement to the following terms.
                 </Text>
             </Box>
             <VStack spacing="2" bgColor="mainBackgroundColor" borderColor="navBarBorderColor" borderWidth="1px" borderRadius="5px" p="2">
@@ -67,7 +65,7 @@ export const TosModal = ({
             </VStack>
             <InfoMessage
                 alertProps={{ w: 'full' }}
-                description="Note: if you can't accept the TOS you can still exit your positions if there is any"
+                description="Note: if you can't accept the agreement you can still exit your positions if there is any"
             />
         </VStack>
     </ConfirmModal>
