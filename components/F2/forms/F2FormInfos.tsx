@@ -294,7 +294,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
             {
                 tooltip: 'Minimum Collateral Price before liquidations can happen',
                 title: 'Liquidation Price',
-                value: (!!deposits || !!newDeposits) && newLiquidationPrice > 0 ? `${preciseCommify(newLiquidationPrice, 2, true)}` : '-',
+                value: (!!deposits || !!newDeposits) && newLiquidationPrice > 0 ? `${preciseCommify(newLiquidationPrice, newLiquidationPrice < 10 ? 4 : 2, true)}` : '-',
                 color: newDeposits > 0 || newTotalDebtInMarket > 0 ? riskColor : undefined,
             },
         ],
