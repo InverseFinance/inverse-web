@@ -185,7 +185,7 @@ export const FirmPositions = ({
             <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
                 <Text fontWeight="bold">Avg Borrow Limit By Markets</Text>
                 <BarChart
-                    width={350}
+                    width={450}
                     height={300}
                     isPercentages={true}
                     groupedData={barData}
