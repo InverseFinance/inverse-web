@@ -319,8 +319,10 @@ export const OppysTable = ({
                                     </HStack>
                                 }
                                 <Text>
-                                    Risk Disclosure: Most yield opportunities mentioned on this page have not been audited by Inverse Finance.
+                                    Risk Disclosure: Most yield opportunities mentioned on this page have not been audited by Inverse Finance.                                    
                                 </Text>
+                                <Text>APRs displayed are provided by Defillama, actual APRs may be different and can vary based on market conditions, all the data is provided for informational purposes only.</Text>
+                                <Text>By using pools you assume all risks.</Text>
                                 <Text>Please make your own Due Diligence.</Text>
                             </VStack>
                         }
