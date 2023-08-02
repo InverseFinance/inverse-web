@@ -74,12 +74,15 @@ const formatOutput = (output: any) => {
 }
 
 export const getMulticallOutput = async (
-    callRequests: { contract: Contract, functionName: string, params?: any[] }[],
+    callRequests: { contract: Contract, functionName: string, params?: any[], fallbackValue?: any, forceFallback?: boolean }[],
     chainId = Number(CHAIN_ID),
     block?: BlockTag
 ) => {
 
-    const calls = callRequests.map((callRequest) => {
+    const _callRequests = callRequests.filter((callRequest) => !callRequest.forceFallback);
+    const forcedFallbacksIndexes = callRequests.map((v, idx) => idx).filter((idx) => callRequests[idx].forceFallback);
+
+    const calls = _callRequests.map((callRequest) => {
         const fd = callRequest.contract.interface.fragments.find(f => f.name.includes(callRequest.functionName));
         const data = callRequest.contract.interface.encodeFunctionData(fd, callRequest.params || []);
         return {
@@ -90,19 +93,25 @@ export const getMulticallOutput = async (
 
     const returnValues = await executeCalls(calls, chainId, block);
 
-    return returnValues.map((values: any, index: number) => {
+    const formattedValues = returnValues.map((values: any, index: number) => {
         let output: any;
-        const call = callRequests[index];
-        const contractInterface = callRequests[index].contract.interface;
+        const call = _callRequests[index];
+        const contractInterface = _callRequests[index].contract.interface;
         const fd = call.contract.interface.fragments.find(f => f.name.includes(call.functionName));
 
         try {
             output = contractInterface.decodeFunctionResult(fd, values);
         } catch (e) {
-            output = null;
+            output = _callRequests[index].fallbackValue ?? null;
         }
         return formatOutput(output);
     });
+    if(forcedFallbacksIndexes?.length > 0){
+        forcedFallbacksIndexes.forEach((idx) => {
+            formattedValues.splice(idx, 0, callRequests[idx].fallbackValue);
+        });
+    }
+    return formattedValues;
 }
 
 export default async function makeMultiCall(
