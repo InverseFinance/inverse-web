@@ -9,9 +9,10 @@ import { getBnToNumber, getCvxCrvAPRs, getCvxFxsAPRs, getGOhmData, getStYcrvData
 import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_MS, ONE_DAY_SECS } from '@app/config/constants';
 import { frontierMarketsCacheKey } from '../markets';
 import { cgPricesCacheKey } from '../prices';
+import { getMulticallOutput } from '@app/util/multicall';
 
 const { F2_MARKETS, DOLA, XINV, DBR_DISTRIBUTOR } = getNetworkConfigConstants();
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.7`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.8`;
 
 export default async function handler(req, res) {
   const { cacheFirst } = req.query;
@@ -49,57 +50,57 @@ export default async function handler(req, res) {
       frontierMarkets,
       cgPrices,
     ] = await Promise.all([
-      Promise.all(
+      getMulticallOutput(
         F2_MARKETS.map(m => {
           const market = new Contract(m.address, F2_MARKET_ABI, provider);
-          return market.collateralFactorBps()
+          return { contract: market, functionName: 'collateralFactorBps' }
         })
       ),
-      Promise.all(
+      getMulticallOutput(
         F2_MARKETS.map(m => {
           const market = new Contract(m.address, F2_MARKET_ABI, provider);
-          return market.totalDebt()
+          return { contract: market, functionName: 'totalDebt' }
         })
       ),
-      Promise.all(
+      getMulticallOutput(
         F2_MARKETS.map(m => {
           const market = new Contract(m.address, F2_MARKET_ABI, provider);
-          return market.oracle()
+          return { contract: market, functionName: 'oracle' }
         })
       ),
-      Promise.all(
+      getMulticallOutput(
         F2_MARKETS.map(m => {
-          return dolaContract.balanceOf(m.address);
+          return { contract: dolaContract, functionName: 'balanceOf', params: [m.address] }
         })
       ),
-      Promise.all(
-        F2_MARKETS.map(m => {
-          const market = new Contract(m.address, F2_MARKET_ABI, provider);
-          return market.replenishmentIncentiveBps();
-        })
-      ),
-      Promise.all(
+      getMulticallOutput(
         F2_MARKETS.map(m => {
           const market = new Contract(m.address, F2_MARKET_ABI, provider);
-          return market.liquidationIncentiveBps();
+          return { contract: market, functionName: 'replenishmentIncentiveBps' }
         })
       ),
-      Promise.all(
+      getMulticallOutput(
         F2_MARKETS.map(m => {
           const market = new Contract(m.address, F2_MARKET_ABI, provider);
-          return market.borrowController();
+          return { contract: market, functionName: 'liquidationIncentiveBps' }
         })
       ),
-      Promise.all(
+      getMulticallOutput(
         F2_MARKETS.map(m => {
           const market = new Contract(m.address, F2_MARKET_ABI, provider);
-          return market.borrowPaused();
+          return { contract: market, functionName: 'borrowController' }
         })
       ),
-      Promise.all(
+      getMulticallOutput(
         F2_MARKETS.map(m => {
           const market = new Contract(m.address, F2_MARKET_ABI, provider);
-          return market.liquidationFactorBps();
+          return { contract: market, functionName: 'borrowPaused' }
+        })
+      ),
+      getMulticallOutput(
+        F2_MARKETS.map(m => {
+          const market = new Contract(m.address, F2_MARKET_ABI, provider);
+          return { contract: market, functionName: 'liquidationFactorBps' }
         })
       ),
       xINV.exchangeRateStored(),
@@ -109,48 +110,39 @@ export default async function handler(req, res) {
       getCacheFromRedis(cgPricesCacheKey, false),
     ]);
 
-    const dailyLimits = await Promise.all(
-      borrowControllers.map((bc, i) => {
-        if (!bc || bc === BURN_ADDRESS) {
-          return new Promise(resolve => resolve(BigNumber.from('0')));
-        } else {
-          const bcContract = new Contract(bc, F2_CONTROLLER_ABI, provider);
-          return bcContract.dailyLimits(F2_MARKETS[i].address);
-        }
-      })
-    );
-
     const today = new Date();
     const dayIndexUtc = Math.floor(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 0, 0, 0) / ONE_DAY_MS);
 
-    const dailyBorrows = await Promise.all(
-      borrowControllers.map((bc, i) => {
-        if (bc === BURN_ADDRESS) {
-          return new Promise(resolve => resolve(BigNumber.from('0')));
-        } else {
+    const [dailyLimits, dailyBorrows, bnPrices, oracleFeeds] = await Promise.all([
+      getMulticallOutput(
+        borrowControllers.map((bc, i) => {
           const bcContract = new Contract(bc, F2_CONTROLLER_ABI, provider);
-          return bcContract.dailyBorrows(F2_MARKETS[i].address, dayIndexUtc);
-        }
-      })
-    );
+          return { contract: bcContract, functionName: 'dailyLimits', params: [F2_MARKETS[i].address], forceFallback: bc === BURN_ADDRESS, fallbackValue: BigNumber.from('0') }
+        }),
+      ),
+      getMulticallOutput(
+        borrowControllers.map((bc, i) => {
+          const bcContract = new Contract(bc, F2_CONTROLLER_ABI, provider);
+          return { contract: bcContract, functionName: 'dailyBorrows', params: [F2_MARKETS[i].address, dayIndexUtc], forceFallback: bc === BURN_ADDRESS, fallbackValue: BigNumber.from('0') }
+        }),
+      ),
+      getMulticallOutput(
+        oracles.map((o, i) => {
+          const oracle = new Contract(o, F2_ORACLE_ABI, provider);
+          return { contract: oracle, functionName: 'viewPrice', params: [F2_MARKETS[i].collateral, bnCollateralFactors[i]], forceFallback: F2_MARKETS[i].isInv, fallbackValue: BigNumber.from('0') }
+        }),
+      ),
+      getMulticallOutput(
+        oracles.map((o, i) => {
+          const oracle = new Contract(o, F2_ORACLE_ABI, provider);
+          return { contract: oracle, functionName: 'feeds', params: [F2_MARKETS[i].collateral] }
+        })
+      )
+    ]);
 
     const bnLeftToBorrow = borrowControllers.map((bc, i) => {
       return bc === BURN_ADDRESS ? bnDola[i] : dailyLimits[i].sub(dailyBorrows[i]);
     });
-
-    const bnPrices = (await Promise.allSettled(
-      oracles.map((o, i) => {
-        const oracle = new Contract(o, F2_ORACLE_ABI, provider);
-        return oracle.viewPrice(F2_MARKETS[i].collateral, bnCollateralFactors[i]);
-      }),
-    )).map(r => r.status === 'fulfilled' ? r.value : BigNumber.from('0'));
-
-    const oracleFeeds = (await Promise.all(
-      oracles.map((o, i) => {
-        const oracle = new Contract(o, F2_ORACLE_ABI, provider);
-        return oracle.feeds(F2_MARKETS[i].collateral);
-      }),
-    ));
 
     // external yield bearing apys
     const externalYieldResults = await Promise.allSettled([
