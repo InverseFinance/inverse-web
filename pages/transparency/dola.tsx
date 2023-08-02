@@ -37,7 +37,7 @@ export const DolaDiagram = () => {
       <TransparencyTabs active="dola" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }} ml="2">
         <Flex direction="column">
-          <FedList prices={prices} feds={fedOverviews.filter(f => f.supply > 0)} isLoading={isLoadingOverview} />
+          <FedList prices={prices} feds={fedOverviews.filter(f => !f.hasEnded)} isLoading={isLoadingOverview} />
           <Flex mt="4" p="2">
             <DolaFlowChart dola={DOLA} dolaOperator={dolaOperator || TREASURY} feds={fedsWithData} />
           </Flex>
