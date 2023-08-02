@@ -1,4 +1,4 @@
-import { BigNumber, Contract } from 'ethers'
+import { Contract } from 'ethers'
 import 'source-map-support'
 import { F2_MARKET_ABI, F2_ESCROW_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
@@ -9,6 +9,7 @@ import { CHAIN_ID } from '@app/config/constants';
 import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
 import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
 import { uniqueBy } from '@app/util/misc';
+import { getMulticallOutput } from '@app/util/multicall';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -85,26 +86,34 @@ export default async function handler(req, res) {
 
     const [debtsBn, depositsBn, creditLimitsBn] = await Promise.all(
       [
-        await Promise.all(firmMarketUsers.map((f, i) => {
-          const market = new Contract(F2_MARKETS[f.marketIndex].address, F2_MARKET_ABI, provider);
-          return market.debts(f.user);
-        })),
-        await Promise.all(firmMarketUsers.map((f, i) => {
-          const marketAd = F2_MARKETS[f.marketIndex].address;
-          const users = marketUsersAndEscrows[marketAd].users;
-          const escrow = new Contract(marketUsersAndEscrows[marketAd].escrows[users.indexOf(f.user)], F2_ESCROW_ABI, provider);
-          return escrow.balance();
-        })),
-        await Promise.all(firmMarketUsers.map((f, i) => {
-          const market = new Contract(F2_MARKETS[f.marketIndex].address, F2_MARKET_ABI, provider);
-          return F2_MARKETS[f.marketIndex].isInv ? new Promise((res) => res(BigNumber.from('0'))) : market.getCreditLimit(f.user);
-        })),
+        await getMulticallOutput(
+          firmMarketUsers.map((f, i) => {
+            const market = new Contract(F2_MARKETS[f.marketIndex].address, F2_MARKET_ABI, provider);
+            return { contract: market, functionName: 'debts', params: [f.user] };            
+          })
+        ),
+        await getMulticallOutput(
+          firmMarketUsers.map((f, i) => {
+            const marketAd = F2_MARKETS[f.marketIndex].address;
+            const users = marketUsersAndEscrows[marketAd].users;
+            const escrow = new Contract(marketUsersAndEscrows[marketAd].escrows[users.indexOf(f.user)], F2_ESCROW_ABI, provider);
+            return { contract: escrow, functionName: 'balance', params: [] };
+          })
+        ),
+        await getMulticallOutput(
+          firmMarketUsers.map((f, i) => {
+            const market = new Contract(F2_MARKETS[f.marketIndex].address, F2_MARKET_ABI, provider);            
+            // placeholder debts call for the inv market meanwhile oracle feed is invalid
+            return { contract: market, functionName: F2_MARKETS[f.marketIndex].isInv ? 'debts' : 'getCreditLimit', params: [f.user] };
+          })
+        ),
       ]
     );
+   
     const deposits = depositsBn.map((bn, i) => getBnToNumber(bn, getToken(CHAIN_TOKENS[CHAIN_ID], F2_MARKETS[firmMarketUsers[i].marketIndex].collateral)?.decimals));
     const debts = debtsBn.map((bn) => getBnToNumber(bn));
     const creditLimits = creditLimitsBn.map((bn) => getBnToNumber(bn));
-    const liquidableDebts = creditLimits.map((creditLimit, i) => (creditLimit >= debts[i] ? 0 : debts[i] * (_markets[firmMarketUsers[i].marketIndex]?.liquidationFactor||0.5)));
+    const liquidableDebts = creditLimits.map((creditLimit, i) => (creditLimit >= debts[i] ? 0 : debts[i] * (_markets[firmMarketUsers[i].marketIndex]?.liquidationFactor || 0.5)));
 
     const positions = firmMarketUsers.map((f, i) => {
       return {
