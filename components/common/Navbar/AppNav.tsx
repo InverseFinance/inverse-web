@@ -393,6 +393,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
 export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = false, hideAnnouncement = false }: { active?: string, activeSubmenu?: string, isBlog?: boolean, isClaimPage?: boolean, hideAnnouncement?: boolean }) => {
   const { query } = useRouter()
   const [isLargerThan] = useMediaQuery('(min-width: 1330px)');
+  const [isLargerThan1470] = useMediaQuery('(min-width: 1470px)');
   const [isLargerThan1150] = useMediaQuery('(min-width: 1150px)');
   const [isLargerThan768] = useMediaQuery('(min-width: 768px)');
   const { themeName } = useAppTheme();
@@ -576,7 +577,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
 
               <Stack direction="row" align="center" display={{ base: 'none', lg: 'flex' }}>
                 {
-                  isLargerThan && <INVBalance />
+                  isLargerThan1470 && <INVBalance />
                 }
                 {
                   isLargerThan1150 && <ETHBalance />

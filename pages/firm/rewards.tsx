@@ -68,7 +68,7 @@ export const FirmRewardsPage = () => {
                                 .filter(market => market.hasClaimableRewards)
                                 .map(market => {
                                     // via on chain data
-                                    if (market.escrow &&  market.escrow !== BURN_ADDRESS && (market.isInv || market.name === 'cvxFXS')) {
+                                    if (market.escrow &&  market.escrow !== BURN_ADDRESS && (market.isInv || market.name === 'cvxFXS' || market.name === 'cvxCRV')) {
                                         return <FirmRewardWrapper
                                             key={market.address}
                                             market={market}

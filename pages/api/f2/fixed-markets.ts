@@ -12,7 +12,7 @@ import { cgPricesCacheKey } from '../prices';
 import { getMulticallOutput } from '@app/util/multicall';
 
 const { F2_MARKETS, DOLA, XINV, DBR_DISTRIBUTOR } = getNetworkConfigConstants();
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.8`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.9`;
 
 export default async function handler(req, res) {
   const { cacheFirst } = req.query;
