@@ -15,6 +15,9 @@ import { useAccount } from "./misc";
 import { useBlocksTimestamps } from "./useBlockTimestamp";
 import { TOKENS, getToken } from "@app/variables/tokens";
 import { usePrices } from "./usePrices";
+import { getCvxCrvRewards } from "@app/util/firm-extra";
+import { useWeb3React } from "@web3-react/core";
+import useSWR from "swr";
 
 const oneYear = ONE_DAY_MS * 365;
 
@@ -384,6 +387,38 @@ export const useCvxFxsRewards = (escrow: string) => {
       price,
       balance,
       address: r.rewardToken,
+    }
+  });
+
+  return {
+    rewardsInfos: {
+      tokens: rewards || [],
+      timestamp: Date.now(),
+    },
+    isLoading: !rewardsData && !error,
+    isError: error,
+  }
+}
+
+export const useCvxCrvRewards = (escrow: string) => {
+  const { prices } = usePrices();
+
+  const { provider } = useWeb3React();
+  const tsMinute = (new Date()).toISOString().substring(0, 16);
+  const { data: rewardsData, error } = useSWR(`cvxCrv-rewards-${escrow}-${tsMinute}`, async () => {
+    return !escrow || escrow === BURN_ADDRESS ? Promise.resolve(undefined) : await getCvxCrvRewards(escrow, provider?.getSigner());
+  });
+
+  const rewards = rewardsData?.map(r => {
+    const token = getToken(TOKENS, r.token);    
+    const balance = getBnToNumber(r.amount, token.decimals);
+    const price = prices && prices[token.coingeckoId] ? prices[token.coingeckoId].usd : 0;
+    return {
+      metaType: 'claimable',
+      balanceUSD: balance * price,
+      price,
+      balance,      
+      address: r.token,
     }
   });
 

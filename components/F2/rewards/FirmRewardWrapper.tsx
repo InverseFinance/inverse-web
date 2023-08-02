@@ -1,6 +1,6 @@
 import { F2Market } from "@app/types"
 import { useContext, useEffect } from "react";
-import { useCvxFxsRewards, useEscrowRewards, useINVEscrowRewards, useStakedInFirm } from "@app/hooks/useFirm";
+import { useCvxCrvRewards, useCvxFxsRewards, useEscrowRewards, useINVEscrowRewards, useStakedInFirm } from "@app/hooks/useFirm";
 import { F2MarketContext } from "../F2Contex";
 import { BURN_ADDRESS } from "@app/config/constants";
 import { zapperRefresh } from "@app/util/f2";
@@ -44,6 +44,14 @@ export const FirmRewardWrapper = ({
             escrow={_escrow}
             onLoad={onLoad}
         />
+    } else if (market.name === 'cvxCRV') {        
+        return <FirmCvxCrvRewardWrapperContent
+            market={market}
+            label={label}
+            showMarketBtn={showMarketBtn}
+            escrow={_escrow}
+            onLoad={onLoad}
+        />
     }
 
     return <FirmRewardWrapperContent
@@ -51,6 +59,37 @@ export const FirmRewardWrapper = ({
         label={label}
         showMarketBtn={showMarketBtn}
         escrow={_escrow}
+    />
+}
+
+export const FirmCvxCrvRewardWrapperContent = ({
+    market,
+    label,
+    showMarketBtn = false,
+    escrow,
+    onLoad,
+}: {
+    market: F2Market
+    label?: string
+    escrow?: string
+    showMarketBtn?: boolean
+    onLoad?: (v: number) => void
+}) => {
+    const { rewardsInfos, isLoading } = useCvxCrvRewards(escrow);
+
+    useEffect(() => {
+        if (!onLoad || !rewardsInfos?.tokens?.length || isLoading) { return }
+        const totalUsd = rewardsInfos.tokens.filter(t => t.metaType === 'claimable')
+            .reduce((prev, curr) => prev + curr.balanceUSD, 0);
+        onLoad(totalUsd);
+    }, [rewardsInfos, onLoad])
+
+    return <FirmRewards
+        market={market}
+        rewardsInfos={rewardsInfos}
+        label={label}
+        showMarketBtn={showMarketBtn}
+        isLoading={isLoading}
     />
 }
 
@@ -196,7 +235,7 @@ export const FirmRewards = ({
     const { escrow: escrowFromContext } = useContext(F2MarketContext);
     const _escrow = escrow?.replace(BURN_ADDRESS, '') || escrowFromContext?.replace(BURN_ADDRESS, '');
 
-    const claimables = rewardsInfos?.tokens.filter(t => t.metaType === 'claimable');
+    const claimables = rewardsInfos?.tokens.filter(t => t.metaType === 'claimable' && t.balanceUSD > 0.01);
     claimables?.sort((a, b) => b.balanceUSD - a.balanceUSD)
     const totalRewardsUSD = claimables?.reduce((prev, curr) => prev + curr.balanceUSD, 0);
 
