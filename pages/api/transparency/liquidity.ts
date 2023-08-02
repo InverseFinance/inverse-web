@@ -13,11 +13,11 @@ import { pricesCacheKey } from '../prices';
 import { PROTOCOLS_BY_IMG } from '@app/variables/images';
 import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 
-export const liquidityCacheKey = `liquidity-v1.0.991`;
+export const liquidityCacheKey = `liquidity-v1.1.0`;
 
 const PROTOCOL_DEFILLAMA_MAPPING = {
-    "VELO": 'velodrome',
-    "VELOV2": 'velodrome',
+    "VELO": 'velodrome-v1',
+    "VELOV2": 'velodrome-v2',
     "THENA": 'thena-v1',
     "THENAV2": 'thena-v2',
     "AURA": 'aura',
@@ -124,9 +124,7 @@ export default async function handler(req, res) {
 
             const yieldData = yields.find(y => {
                 return defiLlamaProjectName === y.project
-                    && (y.underlyingTokens?.length > 0 ? y.underlyingTokens.join(',').toLowerCase() === lp.pairs?.join(',').toLowerCase() : y.symbol === lpName)
-                    // no distinctinon in defillama's api between velov2 and velov1 :/, using apyBase to distinguish
-                    && (defiLlamaProjectName !== 'velodrome' ? true : protocol === 'VELOV2' ? y.apyBase > 0 : !y.apyBase);
+                    && (y.underlyingTokens?.length > 0 ? y.underlyingTokens.join(',').toLowerCase() === lp.pairs?.join(',').toLowerCase() : y.symbol === lpName)                    
             });
 
             const subBalances = fedPol?.subBalances || (await getLPBalances(lp, lp.chainId, provider));
