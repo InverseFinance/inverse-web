@@ -54,14 +54,15 @@ const projectLinks = {
     'thena-v2': 'https://thena.fi/liquidity',
     'balancer-v2': 'https://app.balancer.fi/#/ethereum',
     'uniswap-v2': 'https://app.uniswap.org/#/add/v2',
-    'velodrome': 'https://app.velodrome.finance/liquidity/manage',
+    'velodrome-v1': 'https://v1.velodrome.finance/liquidity/manage',
+    'velodrome-v2': 'https://app.velodrome.finance/liquidity/manage',
     'pickle': 'https://app.pickle.finance/farms',
     'ramses-v1': 'https://app.ramses.exchange/liquidity',
     'ramses-v2': 'https://app.ramses.exchange/liquidity',
     'gamma': 'https://app.gamma.xyz/dashboard',
 }
 
-const getPoolLink = (project, pool, underlyingTokens) => {
+const getPoolLink = (project, pool, underlyingTokens, symbol, isStable = true) => {
     let url;
     switch (project) {
         case 'balancer':
@@ -73,11 +74,14 @@ const getPoolLink = (project, pool, underlyingTokens) => {
         case 'uniswap':
             url = `https://info.uniswap.org/#/pools/${pool}`
             break;
-        // case 'velodrome':
-        //     url = `https://app.velodrome.finance/liquidity/manage?address=${pool}`
-        //     break;
+        case 'velodrome-v2':
+            const [sym0, sym1] = symbol.split('-');
+            const token0 = getToken(CHAIN_TOKENS[NetworkIds.optimism], sym0);
+            const token1 = getToken(CHAIN_TOKENS[NetworkIds.optimism], sym1);
+            url = token0?.address && token1?.address ? `https://app.velodrome.finance/deposit?token0=${token0.address.toLowerCase()}&token1=${token1.address.toLowerCase()}&stable=${isStable}` : 'https://app.velodrome.finance/liquidity'
+            break;
         case 'uniswap-v2':
-            url = underlyingTokens ? `https://app.uniswap.org/#/add/v2/${underlyingTokens.join('/')}` : '';
+            url = underlyingTokens?.length > 0 ? `https://app.uniswap.org/#/add/v2/${underlyingTokens.join('/')}` : '';
             break;
         case 'ramses-v1':
         case 'ramses-v2':
@@ -105,8 +109,8 @@ const ChainItem = ({ chain, showText = true }: { chain: string, showText?: boole
     </>
 }
 
-const poolColumn = ({ width, symbol, pool, project, chain, underlyingTokens }) => {
-    const link = getPoolLink(project, pool, underlyingTokens);
+const poolColumn = ({ width, symbol, pool, project, chain, underlyingTokens, stablecoin }) => {
+    const link = getPoolLink(project, pool, underlyingTokens, symbol, stablecoin);
     let pairs = [];
     let isFallbackCase = false;
 

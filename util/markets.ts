@@ -359,7 +359,9 @@ export const getYieldOppys = async () => {
                         .replace(/ \([0-9.]+%\)$/i, '')
                         .replace(/^(.*)-(DOLA|INV)$/i, '$2-$1')
                         .replace(/DOLA-YVCURVE/i, 'DOLA-3POOL')
-                        .replace(/^SAMMV2-/i, '')
+                        .replace(/-?SAMMV2-?/i, '')
+                        .replace(/DOLAUSDC/i, 'DOLA-USDC')
+                        .replace(/DOLAFRAX/i, 'DOLA-FRAX')
                         .toUpperCase()
                     ,
                 }
