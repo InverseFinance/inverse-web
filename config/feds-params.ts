@@ -69,6 +69,7 @@ export const FEDS_PARAMS = [
         address: "0xcc180262347F84544c3a4854b87C34117ACADf94",
         name: "Yearn Fed",
         projectImage: "/assets/projects/YFI.svg",
+        hasEnded: true,
     },
     {
         chainId: NetworkIds.mainnet,
