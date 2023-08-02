@@ -39,14 +39,18 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
     // return new FallbackProvider(providers, 1);
 }
 
-/** provider needs to support historical data, example: AlchemyProvider */
-export const getHistoricValue = (contract: Contract, block: number, functionName: string, args: any[]) => {
+export const getCallForFunction = (contract: Contract, functionName: string, args: any[]) => {
     const functionSignature = contract.interface.getSighash(functionName);
     const functionInputTypes = contract.interface.fragments
         .find(f => f.name === functionName && f.type === 'function')?.inputs.map(i => i.type) || [];
     const callData = (new AbiCoder().encode(functionInputTypes, args)).replace('0x', '');
-    return contract.provider.call({
+    return {
         to: contract.address,
         data: functionSignature + callData,
-    }, block);
+    };
+}
+
+/** provider needs to support historical data, example: AlchemyProvider */
+export const getHistoricValue = (contract: Contract, block: number, functionName: string, args: any[]) => {
+    return contract.provider.call(getCallForFunction(contract, functionName, args), block);
 }

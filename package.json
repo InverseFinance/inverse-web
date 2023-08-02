@@ -29,6 +29,7 @@
     "@ethersproject/units": "^5.3.0",
     "@fontsource/inter": "^4.4.5",
     "@socket.tech/plugin": "^1.0.14",
+    "@supercharge/promise-pool": "^3.0.0",
     "@sushiswap/sushi-data": "^1.0.26",
     "@web3-react/coinbase-wallet": "^8.2.0",
     "@web3-react/core": "^8.2.0",
