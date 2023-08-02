@@ -19,7 +19,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const cacheKey = `user-rewards-1-${user}`;
+  const cacheKey = `user-rewards-1-${user}-v1.0.0`;
 
   const APP_GROUPS = F2_MARKETS.filter(m => !!m.zapperAppGroup).map(m => m.zapperAppGroup);
 

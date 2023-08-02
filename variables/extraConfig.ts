@@ -100,7 +100,7 @@ const mainConfig = {
             badgeInfo: 'Keep Rewards',
             badgeProps: { bgColor: 'accentTextColor', color: 'contrastMainTextColor' },
             hasClaimableRewards: true,
-            zapperAppGroup: 'convex+cvx-crv-staking-wrapped',
+            // zapperAppGroup: 'convex+cvx-crv-staking-wrapped',
             startingBlock: 17228187,
             isInv: false,            
         },
