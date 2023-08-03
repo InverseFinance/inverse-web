@@ -2,7 +2,7 @@ import { Deferrable } from "@ethersproject/properties"
 import { BaseProvider, BlockTag, TransactionRequest } from "@ethersproject/providers"
 import { once, EventEmitter } from 'events'
 
-const maxParallelCalls = !!process.env.MULTICALL_MAX_PARALLEL ? +process.env.MULTICALL_MAX_PARALLEL : 100
+const maxParallelCalls = !!process.env.MULTICALL_MAX_PARALLEL ? +process.env.MULTICALL_MAX_PARALLEL : 200
 
 const COUNTERS: Record<string, Counter> = {}
 const emitter = new EventEmitter()

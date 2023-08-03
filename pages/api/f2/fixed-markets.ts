@@ -9,7 +9,7 @@ import { getBnToNumber, getCvxCrvAPRs, getCvxFxsAPRs, getGOhmData, getStYcrvData
 import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_MS, ONE_DAY_SECS } from '@app/config/constants';
 import { frontierMarketsCacheKey } from '../markets';
 import { cgPricesCacheKey } from '../prices';
-import { getMulticallOutput } from '@app/util/multicall';
+import { getGroupedMulticallOutputs } from '@app/util/multicall';
 
 const { F2_MARKETS, DOLA, XINV, DBR_DISTRIBUTOR } = getNetworkConfigConstants();
 export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.9`;
@@ -35,6 +35,55 @@ export default async function handler(req, res) {
     fetch('https://inverse.finance/api/markets');
 
     const [
+      groupedMulticallData,
+      frontierMarkets,
+      cgPrices,
+    ] = await Promise.all([
+      getGroupedMulticallOutputs([
+        F2_MARKETS.map(m => {
+          const market = new Contract(m.address, F2_MARKET_ABI, provider);
+          return { contract: market, functionName: 'collateralFactorBps' }
+        }),
+        F2_MARKETS.map(m => {
+          const market = new Contract(m.address, F2_MARKET_ABI, provider);
+          return { contract: market, functionName: 'totalDebt' }
+        }),
+        F2_MARKETS.map(m => {
+          const market = new Contract(m.address, F2_MARKET_ABI, provider);
+          return { contract: market, functionName: 'oracle' }
+        }),
+        F2_MARKETS.map(m => {
+          return { contract: dolaContract, functionName: 'balanceOf', params: [m.address] }
+        }),
+        F2_MARKETS.map(m => {
+          const market = new Contract(m.address, F2_MARKET_ABI, provider);
+          return { contract: market, functionName: 'replenishmentIncentiveBps' }
+        }),
+        F2_MARKETS.map(m => {
+          const market = new Contract(m.address, F2_MARKET_ABI, provider);
+          return { contract: market, functionName: 'liquidationIncentiveBps' }
+        }),
+        F2_MARKETS.map(m => {
+          const market = new Contract(m.address, F2_MARKET_ABI, provider);
+          return { contract: market, functionName: 'borrowController' }
+        }),
+        F2_MARKETS.map(m => {
+          const market = new Contract(m.address, F2_MARKET_ABI, provider);
+          return { contract: market, functionName: 'borrowPaused' }
+        }),
+        F2_MARKETS.map(m => {
+          const market = new Contract(m.address, F2_MARKET_ABI, provider);
+          return { contract: market, functionName: 'liquidationFactorBps' }
+        }),
+        { contract: xINV, functionName: 'exchangeRateStored' },
+        { contract: dbrDistributor, functionName: 'totalSupply' },
+        { contract: dbrDistributor, functionName: 'rewardRate' },
+      ]),
+      getCacheFromRedis(frontierMarketsCacheKey, false),
+      getCacheFromRedis(cgPricesCacheKey, false),
+    ]);
+
+    const [
       bnCollateralFactors,
       bnTotalDebts,
       oracles,
@@ -47,97 +96,28 @@ export default async function handler(req, res) {
       xinvExRateBn,
       dbrDistributorSupply,
       dbrRewardRateBn,
-      frontierMarkets,
-      cgPrices,
-    ] = await Promise.all([
-      getMulticallOutput(
-        F2_MARKETS.map(m => {
-          const market = new Contract(m.address, F2_MARKET_ABI, provider);
-          return { contract: market, functionName: 'collateralFactorBps' }
-        })
-      ),
-      getMulticallOutput(
-        F2_MARKETS.map(m => {
-          const market = new Contract(m.address, F2_MARKET_ABI, provider);
-          return { contract: market, functionName: 'totalDebt' }
-        })
-      ),
-      getMulticallOutput(
-        F2_MARKETS.map(m => {
-          const market = new Contract(m.address, F2_MARKET_ABI, provider);
-          return { contract: market, functionName: 'oracle' }
-        })
-      ),
-      getMulticallOutput(
-        F2_MARKETS.map(m => {
-          return { contract: dolaContract, functionName: 'balanceOf', params: [m.address] }
-        })
-      ),
-      getMulticallOutput(
-        F2_MARKETS.map(m => {
-          const market = new Contract(m.address, F2_MARKET_ABI, provider);
-          return { contract: market, functionName: 'replenishmentIncentiveBps' }
-        })
-      ),
-      getMulticallOutput(
-        F2_MARKETS.map(m => {
-          const market = new Contract(m.address, F2_MARKET_ABI, provider);
-          return { contract: market, functionName: 'liquidationIncentiveBps' }
-        })
-      ),
-      getMulticallOutput(
-        F2_MARKETS.map(m => {
-          const market = new Contract(m.address, F2_MARKET_ABI, provider);
-          return { contract: market, functionName: 'borrowController' }
-        })
-      ),
-      getMulticallOutput(
-        F2_MARKETS.map(m => {
-          const market = new Contract(m.address, F2_MARKET_ABI, provider);
-          return { contract: market, functionName: 'borrowPaused' }
-        })
-      ),
-      getMulticallOutput(
-        F2_MARKETS.map(m => {
-          const market = new Contract(m.address, F2_MARKET_ABI, provider);
-          return { contract: market, functionName: 'liquidationFactorBps' }
-        })
-      ),
-      xINV.exchangeRateStored(),
-      dbrDistributor.totalSupply(),
-      dbrDistributor.rewardRate(),
-      getCacheFromRedis(frontierMarketsCacheKey, false),
-      getCacheFromRedis(cgPricesCacheKey, false),
-    ]);
+     ] = groupedMulticallData;
 
     const today = new Date();
     const dayIndexUtc = Math.floor(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 0, 0, 0) / ONE_DAY_MS);
 
-    const [dailyLimits, dailyBorrows, bnPrices, oracleFeeds] = await Promise.all([
-      getMulticallOutput(
-        borrowControllers.map((bc, i) => {
-          const bcContract = new Contract(bc, F2_CONTROLLER_ABI, provider);
-          return { contract: bcContract, functionName: 'dailyLimits', params: [F2_MARKETS[i].address], forceFallback: bc === BURN_ADDRESS, fallbackValue: BigNumber.from('0') }
-        }),
-      ),
-      getMulticallOutput(
-        borrowControllers.map((bc, i) => {
-          const bcContract = new Contract(bc, F2_CONTROLLER_ABI, provider);
-          return { contract: bcContract, functionName: 'dailyBorrows', params: [F2_MARKETS[i].address, dayIndexUtc], forceFallback: bc === BURN_ADDRESS, fallbackValue: BigNumber.from('0') }
-        }),
-      ),
-      getMulticallOutput(
-        oracles.map((o, i) => {
-          const oracle = new Contract(o, F2_ORACLE_ABI, provider);
-          return { contract: oracle, functionName: 'viewPrice', params: [F2_MARKETS[i].collateral, bnCollateralFactors[i]], forceFallback: F2_MARKETS[i].isInv, fallbackValue: BigNumber.from('0') }
-        }),
-      ),
-      getMulticallOutput(
-        oracles.map((o, i) => {
-          const oracle = new Contract(o, F2_ORACLE_ABI, provider);
-          return { contract: oracle, functionName: 'feeds', params: [F2_MARKETS[i].collateral] }
-        })
-      )
+    const [dailyLimits, dailyBorrows, bnPrices, oracleFeeds] = await getGroupedMulticallOutputs([
+      borrowControllers.map((bc, i) => {
+        const bcContract = new Contract(bc, F2_CONTROLLER_ABI, provider);
+        return { contract: bcContract, functionName: 'dailyLimits', params: [F2_MARKETS[i].address], forceFallback: bc === BURN_ADDRESS, fallbackValue: BigNumber.from('0') }
+      }),
+      borrowControllers.map((bc, i) => {
+        const bcContract = new Contract(bc, F2_CONTROLLER_ABI, provider);
+        return { contract: bcContract, functionName: 'dailyBorrows', params: [F2_MARKETS[i].address, dayIndexUtc], forceFallback: bc === BURN_ADDRESS, fallbackValue: BigNumber.from('0') }
+      }),
+      oracles.map((o, i) => {
+        const oracle = new Contract(o, F2_ORACLE_ABI, provider);
+        return { contract: oracle, functionName: 'viewPrice', params: [F2_MARKETS[i].collateral, bnCollateralFactors[i]], forceFallback: F2_MARKETS[i].isInv, fallbackValue: BigNumber.from('0') }
+      }),
+      oracles.map((o, i) => {
+        const oracle = new Contract(o, F2_ORACLE_ABI, provider);
+        return { contract: oracle, functionName: 'feeds', params: [F2_MARKETS[i].collateral] }
+      }),
     ]);
 
     const bnLeftToBorrow = borrowControllers.map((bc, i) => {
