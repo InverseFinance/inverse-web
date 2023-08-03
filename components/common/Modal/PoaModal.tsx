@@ -1,12 +1,11 @@
-import { Box, Link, VStack, Text } from "@chakra-ui/react"
+import { Box, VStack, Text } from "@chakra-ui/react"
 import ConfirmModal from "./ConfirmModal"
-import { ExternalLinkIcon } from "@chakra-ui/icons"
 import { useWeb3React } from "@web3-react/core";
-import { TOS } from "@app/config/tos-texts";
-import { saveTosSig } from "@app/util/tos-api";
+import { POA_CURRENT_MSG_TO_SIGN, POA_CURRENT_TEXTS } from "@app/config/proof-of-agreement-texts";
+import { savePoaSig } from "@app/util/poa";
 import { InfoMessage } from "../Messages";
 
-export const TosModal = ({
+export const PoaModal = ({
     onOk = () => { },
     isOpen = false,
     onClose = () => { },
@@ -18,9 +17,9 @@ export const TosModal = ({
     const handleOk = async () => {
         if (provider && !!account) {
             const signer = provider?.getSigner();
-            const sig = await signer.signMessage(TOS.join('\n\n')).catch(() => '');
+            const sig = await signer.signMessage(POA_CURRENT_MSG_TO_SIGN).catch(() => '');
             if (!!sig) {
-                const saveRes = await saveTosSig(account, sig);
+                const saveRes = await savePoaSig(account, sig);
                 console.log(saveRes);
                 if (saveRes.status === 200) {
                     if (onSuccess) {
@@ -53,15 +52,13 @@ export const TosModal = ({
                 </Text>
             </Box>
             <VStack spacing="2" bgColor="mainBackgroundColor" borderColor="navBarBorderColor" borderWidth="1px" borderRadius="5px" p="2">
-                <Text>
-                    {TOS[0]}
-                </Text>
-                <Text>
-                    {TOS[1]}
-                </Text>
-                <Text>
-                    {TOS[2]}
-                </Text>
+                {
+                    POA_CURRENT_TEXTS.map((text, index) => {
+                        return <Text key={index}>
+                            {text}
+                        </Text>
+                    })
+                }
             </VStack>
             <InfoMessage
                 alertProps={{ w: 'full' }}

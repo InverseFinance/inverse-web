@@ -60,8 +60,8 @@ import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
 import { BurgerMenu } from './BurgerMenu'
 import { useStakedInFirm } from '@app/hooks/useFirm'
 import { useAccount } from '@app/hooks/misc'
-import { TosModal } from '../Modal/TosModal'
-import { checkTosSig } from '@app/util/tos-api'
+import { PoaModal } from '../Modal/PoaModal'
+import { checkPoaSig } from '@app/util/poa'
 const NAV_ITEMS = MENUS.nav
 
 export const ThemeBtn = () => {
@@ -414,7 +414,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   useEffect(() => {
     isMountedRef.current = true;
     const init = async () => {
-      const checkSigData = await checkTosSig(account);
+      const checkSigData = await checkPoaSig(account);
       if(!isMountedRef.current) return;
       setTosApproved(!!checkSigData?.accepted);
     }
@@ -531,7 +531,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
 
   return (
     <VStack w='full' spacing="0">
-      <TosModal isOpen={isTosOpen} onClose={onTosClose} onOk={() => onTosOk()} onSuccess={() => setTosApproved(true)} />
+      <PoaModal isOpen={isTosOpen} onClose={onTosClose} onOk={() => onTosOk()} onSuccess={() => setTosApproved(true)} />
       <WrongNetworkModal
         isOpen={isWrongNetOpen && !isBlog}
         onClose={onWrongNetClose}
