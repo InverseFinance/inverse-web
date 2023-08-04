@@ -9,7 +9,7 @@ import { CHAIN_ID } from '@app/config/constants';
 import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
 import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
 import { uniqueBy } from '@app/util/misc';
-import { getMulticallOutput } from '@app/util/multicall';
+import { getGroupedMulticallOutputs } from '@app/util/multicall';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -84,29 +84,23 @@ export default async function handler(req, res) {
     const { firmMarketUsers, marketUsersAndEscrows } = marketUsersCache;
     const _markets = marketsCache?.markets || F2_MARKETS;
 
-    const [debtsBn, depositsBn, creditLimitsBn] = await Promise.all(
+    const [debtsBn, depositsBn, creditLimitsBn] = await getGroupedMulticallOutputs(
       [
-        await getMulticallOutput(
-          firmMarketUsers.map((f, i) => {
-            const market = new Contract(F2_MARKETS[f.marketIndex].address, F2_MARKET_ABI, provider);
-            return { contract: market, functionName: 'debts', params: [f.user] };            
-          })
-        ),
-        await getMulticallOutput(
-          firmMarketUsers.map((f, i) => {
-            const marketAd = F2_MARKETS[f.marketIndex].address;
-            const users = marketUsersAndEscrows[marketAd].users;
-            const escrow = new Contract(marketUsersAndEscrows[marketAd].escrows[users.indexOf(f.user)], F2_ESCROW_ABI, provider);
-            return { contract: escrow, functionName: 'balance', params: [] };
-          })
-        ),
-        await getMulticallOutput(
-          firmMarketUsers.map((f, i) => {
-            const market = new Contract(F2_MARKETS[f.marketIndex].address, F2_MARKET_ABI, provider);            
-            // placeholder debts call for the inv market meanwhile oracle feed is invalid
-            return { contract: market, functionName: F2_MARKETS[f.marketIndex].isInv ? 'debts' : 'getCreditLimit', params: [f.user] };
-          })
-        ),
+        firmMarketUsers.map((f, i) => {
+          const market = new Contract(F2_MARKETS[f.marketIndex].address, F2_MARKET_ABI, provider);
+          return { contract: market, functionName: 'debts', params: [f.user] };            
+        }),
+        firmMarketUsers.map((f, i) => {
+          const marketAd = F2_MARKETS[f.marketIndex].address;
+          const users = marketUsersAndEscrows[marketAd].users;
+          const escrow = new Contract(marketUsersAndEscrows[marketAd].escrows[users.indexOf(f.user)], F2_ESCROW_ABI, provider);
+          return { contract: escrow, functionName: 'balance', params: [] };
+        }),
+        firmMarketUsers.map((f, i) => {
+          const market = new Contract(F2_MARKETS[f.marketIndex].address, F2_MARKET_ABI, provider);            
+          // placeholder debts call for the inv market meanwhile oracle feed is invalid
+          return { contract: market, functionName: F2_MARKETS[f.marketIndex].isInv ? 'debts' : 'getCreditLimit', params: [f.user] };
+        }),
       ]
     );
    
