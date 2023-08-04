@@ -64,6 +64,7 @@ export const WorthEvoChart = ({
     market,
     isLoading,
     walletSupportsEvents,
+    priceRef = 'oracleHistoPrice',
 }: {
     chartWidth: number,
     data: any[] | null,
@@ -71,11 +72,14 @@ export const WorthEvoChart = ({
     market: F2Market,
     isLoading?: boolean,
     walletSupportsEvents?: boolean,
+    priceRef?: string,
 }) => {
     const { themeStyles, themeName } = useAppTheme();
 
     const keyNames = {
-        'histoPrice': `${market.name} market price`,
+        'histoPrice': `${market.name} oracle or coingecko price`,
+        'oracleHistoPrice': `${market.name} oracle price`,
+        'cgHistoPrice': `${market.name} coingecko price`,
         'dbrPrice': 'DBR market price',
         'totalRewardsUsd': 'Total rewards',
         'balanceWorth': 'Collateral balance worth',
@@ -282,7 +286,7 @@ export const WorthEvoChart = ({
                     labelStyle={{ fontWeight: 'bold' }}
                     itemStyle={{ fontWeight: 'bold' }}
                     formatter={(value, name) => {
-                        const isPrice = name === keyNames['histoPrice'] || name === keyNames['dbrPrice'];
+                        const isPrice = [keyNames['histoPrice'], keyNames['cgHistoPrice'], keyNames['oracleHistoPrice']].includes(name);
                         return !value ? 'none' : isPrice ? preciseCommify(value, value < 1 ? 4 : 2, true) : preciseCommify(value, !useUsd ? 2 : 0, useUsd)
                     }}
                 />
@@ -312,7 +316,7 @@ export const WorthEvoChart = ({
                     showDbr && <Area opacity={actives[keyNames[claimsKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[claimsKey]} yAxisId="left" type="basis" dataKey={claimsKey} stroke={'gold'} dot={false} fillOpacity={0.5} fill="url(#gold-gradient)" />
                 }
                 {
-                    showPrice && <Line opacity={actives[keyNames["histoPrice"]] ? 1 : 0} strokeWidth={2} name={keyNames["histoPrice"]} yAxisId="right" type="monotone" dataKey="histoPrice" stroke={themeStyles.colors.info} dot={false} />
+                    showPrice && <Line opacity={actives[keyNames[priceRef]] ? 1 : 0} strokeWidth={2} name={keyNames[priceRef]} yAxisId="right" type="monotone" dataKey={priceRef} stroke={themeStyles.colors.info} dot={false} />
                 }
                 {
                     showDbrPrice && <Line opacity={actives[keyNames["dbrPrice"]] ? 1 : 0} strokeWidth={2} name={keyNames["dbrPrice"]} yAxisId="right" type="monotone" dataKey="dbrPrice" stroke={'green'} dot={false} />

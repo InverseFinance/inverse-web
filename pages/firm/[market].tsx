@@ -196,7 +196,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                 <F2CombinedForm />
                                             </ErrorBoundary>
                                             {
-                                                f2market.name !== 'st-yCRV' && <ErrorBoundary description="The portfolio value chart could not load">
+                                                <ErrorBoundary description="The portfolio value chart could not load">
                                                     <WorthEvoChartWrapper market={f2market} />
                                                 </ErrorBoundary>
                                             }

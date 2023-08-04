@@ -1,6 +1,6 @@
-import { Contract } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
 import 'source-map-support'
-import { DBR_ABI, F2_ESCROW_ABI, F2_MARKET_ABI } from '@app/config/abis'
+import { DBR_ABI, F2_ESCROW_ABI, F2_MARKET_ABI, F2_ORACLE_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getHistoricValue, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
@@ -11,8 +11,9 @@ import { ascendingEventsSorter, throttledPromises } from '@app/util/misc';
 import { CHAIN_TOKENS, TOKENS } from '@app/variables/tokens';
 import { isAddress } from 'ethers/lib/utils';
 import { formatFirmEvents } from '@app/util/f2';
+import { getGroupedMulticallOutputs, getMulticallOutput } from '@app/util/multicall';
 
-const { F2_MARKETS, DBR } = getNetworkConfigConstants();
+const { F2_MARKETS, DBR, F2_ORACLE } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
   const { cacheFirst, account, escrow, market, lastBlock } = req.query;
@@ -25,7 +26,7 @@ export default async function handler(req, res) {
     res.status(400).json({ msg: 'invalid request' });
     return;
   }
-  const cacheKey = `firm-escrow-balance-histo-${escrow}-${lastBlock}-${CHAIN_ID}-v1.0.99`;
+  const cacheKey = `firm-escrow-balance-histo-${escrow}-${lastBlock}-${CHAIN_ID}-v1.1.1`;
   try {
     const cacheDuration = 3600;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
@@ -55,12 +56,13 @@ export default async function handler(req, res) {
       return;
     }
 
-    const archived = await getCacheFromRedis(cacheKey, false, 0) || { balances: [], debts: [], blocks: [], timestamps: [], dbrClaimables: [], formattedEvents: [] };
+    const archived = await getCacheFromRedis(cacheKey, false, 0) || { balances: [], debts: [], blocks: [], timestamps: [], dbrClaimables: [], oraclePrices: [], formattedEvents: [] };
     const lastArchivedBlock = archived.blocks.length > 0 ? archived.blocks[archived.blocks.length - 1] : escrowCreationBlock - 1;
 
     const startingBlock = lastArchivedBlock + 1 < currentBlock ? lastArchivedBlock + 1 : currentBlock;
 
     const dbrContract = new Contract(DBR, DBR_ABI, provider);
+    const oracleContract = new Contract(F2_ORACLE, F2_ORACLE_ABI, provider);
     // events impacting escrow balance or visible on the chart
     const eventsToQuery = [
       marketContract.queryFilter(marketContract.filters.Deposit(account), startingBlock),
@@ -80,7 +82,7 @@ export default async function handler(req, res) {
     const escrowRelevantBlockNumbers = flatenedEvents.map(e => e.blockNumber);
     const lastEscrowEventBlock = Math.max(...escrowRelevantBlockNumbers);
 
-    const intIncrement = Math.floor(BLOCKS_PER_DAY * 3);
+    const intIncrement = Math.floor(BLOCKS_PER_DAY);
 
     const nbIntervals = Math.floor((currentBlock - startingBlock) / intIncrement);
 
@@ -108,54 +110,52 @@ export default async function handler(req, res) {
       CHAIN_ID,
     );
     const timestamps = await getCachedBlockTimestamps();
+    const decimals = getToken(CHAIN_TOKENS[CHAIN_ID], _market.collateral).decimals;
 
-    const newBalancesBn =
-      await throttledPromises(
-        (block: number) => {
-          return getHistoricValue(escrowContract, block, balanceFunctionName, []);
-        },
-        allUniqueBlocksToCheck,
-        5,
-        100,
-      );
-
-    let newClaimableBn = [];
-    if (_market.isInv) {
-      newClaimableBn =
-        await throttledPromises(
-          (block: number) => {
-            return getHistoricValue(escrowContract, block, claimableFunctionName, []);
-          },
-          allUniqueBlocksToCheck,
-          5,
-          100,
-        );
-    }
-
-    let newDebtsBn = await throttledPromises(
+    const batchedData = await throttledPromises(
       (block: number) => {
-        return block < _market.borrowingWasDisabledBeforeBlock ?
-          Promise.resolve('0x0000000000000000000000000000000000000000000000000000000000000000') :
-          getHistoricValue(marketContract, block, debtFunctionName, [account]);
+        return getGroupedMulticallOutputs([
+          { contract: escrowContract, functionName: balanceFunctionName },
+          { contract: escrowContract, functionName: claimableFunctionName, forceFallback: !_market.isInv, fallbackValue: BigNumber.from(0) },
+          { contract: marketContract, functionName: debtFunctionName, params: [account], forceFallback: block < _market.borrowingWasDisabledBeforeBlock, fallbackValue: BigNumber.from(0) },
+          { contract: marketContract, functionName: 'collateralFactorBps', params: [] },
+        ],
+          Number(CHAIN_ID),
+          block,
+        );
       },
       allUniqueBlocksToCheck,
       5,
       100,
     );
 
-    const decimals = getToken(CHAIN_TOKENS[CHAIN_ID], _market.collateral).decimals;
+    const newBalances = batchedData.map(t => getBnToNumber(t[0], decimals));
+    const newDbrClaimables = batchedData.map(t => getBnToNumber(t[1]));
+    const newDebts = batchedData.map(t => getBnToNumber(t[2]));
 
-    const newBalances = newBalancesBn.map((d, i) => {
-      return getBnToNumber(escrowContract.interface.decodeFunctionResult(balanceFunctionName, d)[0], decimals);
-    });
+    const newCollateralFactorsBn = batchedData.map(t => t[3], 4);
 
-    const newDbrClaimables = newClaimableBn.map((d, i) => {
-      return getBnToNumber(escrowContract.interface.decodeFunctionResult(claimableFunctionName, d)[0], 18);
-    });
+    const oraclePricesData = await throttledPromises(
+      (block: number) => {
+        const cfIndex = allUniqueBlocksToCheck.indexOf(block);
+        return getMulticallOutput(
+          [{
+            contract: oracleContract,
+            functionName: 'viewPrice',
+            params: [_market.collateral, newCollateralFactorsBn[cfIndex]],
+            forceFallback: _market.isInv,
+            fallbackValue: BigNumber.from(0),
+          }],
+          Number(CHAIN_ID),
+          block,
+        );
+      },
+      allUniqueBlocksToCheck,
+      5,
+      100,
+    );
 
-    const newDebts = newDebtsBn.map((d, i) => {
-      return getBnToNumber(marketContract.interface.decodeFunctionResult(debtFunctionName, d)[0], 18);
-    });
+    const newOraclePrices = oraclePricesData.flat().map(p => getBnToNumber(p));
 
     const resultTimestamps = archived.timestamps.concat(allUniqueBlocksToCheck.map(b => timestamps[CHAIN_ID][b] * 1000));
     const {
@@ -169,6 +169,7 @@ export default async function handler(req, res) {
     } = formatFirmEvents(_market, flatenedEvents, flatenedEvents.map(e => timestamps[CHAIN_ID][e.blockNumber] * 1000), archived?.formattedEvents?.length > 0 ? archived : undefined);
 
     const resultData = {
+      timestamp: Date.now(),
       debt,
       depositedByUser,
       unstakedCollateralBalance,
@@ -178,7 +179,7 @@ export default async function handler(req, res) {
       balances: archived.balances.concat(newBalances),
       debts: archived.debts.concat(newDebts),
       dbrClaimables: archived.dbrClaimables.concat(newDbrClaimables),
-      timestamp: Date.now(),
+      oraclePrices: archived.oraclePrices.concat(newOraclePrices),      
       blocks: archived?.blocks.concat(allUniqueBlocksToCheck),
       timestamps: resultTimestamps,
       formattedEvents: archived.formattedEvents.concat(newFormattedEvents),

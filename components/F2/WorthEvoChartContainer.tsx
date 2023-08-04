@@ -16,6 +16,7 @@ const maxWidth = 1200;
 
 const useFirmUserPositionEvolution = (
     market: F2Market,
+    priceRef: 'oracleHistoPrice' | 'cgHistoPrice' = 'oracleHistoPrice',
     currentClaimableDbrRewards = 0,
 ) => {
     const account = useAccount();
@@ -77,18 +78,23 @@ const useFirmUserPositionEvolution = (
         const estimatedStakedBonus = balance - unstakedCollateralBalance;
         const rewardsUsd = ((claims + histoEscrowDbrClaimable) * dbrHistoPrice) || 0;
         const estimatedStakedBonusUsd = estimatedStakedBonus * p[1];
+        const histoPrice = histoEscrowDataFromApi?.oraclePrice||p[1];
+        const priceRefs = { histoPrice, cgHistoPrice: p[1], oracleHistoPrice: histoEscrowDataFromApi?.oraclePrice };
+        const priceToUse = priceRefs[priceRef];
         return {
             timestamp: p[0],
-            histoPrice: p[1],
+            histoPrice: histoPrice,
+            cgHistoPrice: p[1],        
+            oracleHistoPrice: histoEscrowDataFromApi?.oraclePrice,
             dbrPrice: dbrHistoPrice,
             eventName: !!claimEvent ? 'Claim' : event?.actionName,
             claimEvent,
             isClaimEvent: !!claimEvent,
             isEvent: !!event,
             event,
-            depositsOnlyWorth: unstakedCollateralBalance * p[1],
-            balanceWorth: balance * p[1],
-            totalWorth: rewardsUsd + balance * p[1],
+            depositsOnlyWorth: unstakedCollateralBalance * priceToUse,
+            balanceWorth: balance * priceToUse,
+            totalWorth: rewardsUsd + balance * priceToUse,
             totalRewardsUsd: rewardsUsd + estimatedStakedBonusUsd,
             // TODO: histo price dola
             debtUsd: debt,
@@ -175,6 +181,7 @@ export const WorthEvoChartContainer = ({
         chartWidth={chartWidth}
         market={market}
         data={data}
+        priceRef={'oracleHistoPrice'}
         walletSupportsEvents={walletSupportsEvents}
     />
 }
@@ -188,14 +195,14 @@ export const WorthEvoChartContainerINV = ({
 }) => {
     const { escrow } = useContext(F2MarketContext);
     const { rewards } = useINVEscrowRewards(escrow);
-    const { data, isLoading, walletSupportsEvents } = useFirmUserPositionEvolution(market, rewards);
-
+    const { data, isLoading, walletSupportsEvents } = useFirmUserPositionEvolution(market, 'cgHistoPrice', rewards);
 
     return <WorthEvoChart
         isLoading={isLoading}
         market={market}
         chartWidth={chartWidth}
         data={data}
+        priceRef={'cgHistoPrice'}
         walletSupportsEvents={walletSupportsEvents}
     />
 }
