@@ -16,6 +16,7 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
 import { getBnToNumber, getPoolYield, getStethData, getXSushiData, getYearnVaults, toApr, toApy } from '@app/util/markets';
 import { REPAY_ALL_CONTRACTS } from '@app/variables/tokens';
+import { getGroupedMulticallOutputs } from "@app/util/multicall";
 
 const NB_DAYS_MONTH = 365/12;
 
@@ -64,6 +65,33 @@ export default async function handler(req, res) {
       .map((address: string) => new Contract(address, CTOKEN_ABI, provider));
 
     const [
+      groupedMulticallOutputs,
+      exchangeRates,
+      xinvExRate,
+    ]: any = await Promise.all([
+      getGroupedMulticallOutputs([
+        contracts.map((contract) => ({ contract, functionName: 'reserveFactorMantissa' })),
+        contracts.map((contract) => ({ contract, functionName: 'totalReserves' })),
+        contracts.map((contract) => ({ contract, functionName: 'totalBorrows' })),
+        contracts.map((contract) => ({ contract, functionName: 'supplyRatePerBlock' })),
+        contracts.map((contract) => ({ contract, functionName: 'borrowRatePerBlock' })),
+        contracts.map((contract) => ({ contract, functionName: 'getCash' })),
+        contracts.map((contract) => ({ contract: comptroller, functionName: 'markets', params: [contract.address] })),
+        contracts.map((contract) => ({ contract, functionName: 'totalSupply' })),      
+        contracts.map((contract) => ({ contract: comptroller, functionName: 'borrowGuardianPaused', params: [contract.address] })),
+        contracts.map((contract) => ({ contract: comptroller, functionName: 'mintGuardianPaused', params: [contract.address] })),
+        contracts.map((contract) => ({ contract: comptroller, functionName: 'collateralGuardianPaused', params: [contract.address] })),      
+        addresses.map((address) => ({ contract: oracle, functionName: 'getUnderlyingPrice', params: [address] })),      
+        addresses.map((address) => ({ contract: oracle, functionName: 'feeds', params: [address] })),
+        contracts.map((contract) => ({ contract, functionName: 'interestRateModel' })), 
+      ]),
+      Promise.all(
+        contracts.map((contract) => contract.callStatic.exchangeRateCurrent())
+      ),
+      (new Contract(XINV, XINV_ABI, provider).exchangeRateStored())
+    ]);
+
+    const [
       reserveFactors,
       totalReserves,
       totalBorrows,
@@ -71,58 +99,18 @@ export default async function handler(req, res) {
       borrowRates,
       cashes,
       collateralFactors,
-      totalSupplies,
-      exchangeRates,
+      totalSupplies,      
       borrowPaused,
       mintPaused,
       collateralGuardianPaused,
       oraclePrices,
       oracleFeeds,
       interestRateModels,
-    ]: any = await Promise.all([
-      Promise.all(contracts.map((contract) => contract.reserveFactorMantissa())),
-      Promise.all(contracts.map((contract) => contract.totalReserves())),
-      Promise.all(contracts.map((contract) => contract.totalBorrows())),
-      Promise.all(contracts.map((contract) => contract.supplyRatePerBlock())),
-      Promise.all(contracts.map((contract) => contract.borrowRatePerBlock())),
-      Promise.all(contracts.map((contract) => contract.getCash())),
-      Promise.all(
-        contracts.map((contract) => comptroller.markets(contract.address))
-      ),
-      Promise.all(contracts.map((contract) => contract.totalSupply())),
-      Promise.all(
-        contracts.map((contract) => contract.callStatic.exchangeRateCurrent())
-      ),
-      Promise.all(
-        contracts.map((contract) =>
-          comptroller.borrowGuardianPaused(contract.address)
-        )
-      ),
-      Promise.all(
-        contracts.map((contract) =>
-          comptroller.mintGuardianPaused(contract.address)
-        )
-      ),
-      Promise.all(
-        contracts.map((contract) =>
-          comptroller.collateralGuardianPaused(contract.address)
-        )
-      ),
-      Promise.all(addresses.map(address => oracle.getUnderlyingPrice(address))),
-      Promise.all(addresses.map(address => oracle.feeds(address))),
-      Promise.all(contracts.map(contract => contract.interestRateModel())),
-    ]);
+    ] = groupedMulticallOutputs;
 
-    let xinvExRate = BigNumber.from('0');
-    let speeds: BigNumber[] = [];
-    if (HAS_REWARD_TOKEN) {
-      [xinvExRate, speeds] = await Promise.all([
-        new Contract(XINV, XINV_ABI, provider).exchangeRateStored(),
-        Promise.all(
-          contracts.map((contract) => comptroller.compSpeeds(contract.address))
-        ),
-      ]);
-    }
+
+    // Frontier is deprecated
+    const speeds: BigNumber[] = contracts.map((contract) => BigNumber.from('0'));
 
     const prices: StringNumMap = oraclePrices
       .map((v, i) => {
@@ -227,12 +215,12 @@ export default async function handler(req, res) {
         totalSupply,
         collateralFactor,
         collateralGuardianPaused,
-      ] = await Promise.all([
-        xINV.rewardPerBlock(),
-        xINV.exchangeRateStored(),
-        xINV.totalSupply(),
-        comptroller.markets(xinvAddress),
-        comptroller.collateralGuardianPaused(xinvAddress),
+      ] = await getGroupedMulticallOutputs([
+        { contract: xINV, functionName: 'rewardPerBlock' },
+        { contract: xINV, functionName: 'exchangeRateStored' },
+        { contract: xINV, functionName: 'totalSupply' },
+        { contract: comptroller, functionName: 'markets', params: [xinvAddress] },
+        { contract: comptroller, functionName: 'collateralGuardianPaused', params: [xinvAddress] },
       ]);
 
       const ratePerBlock = !totalSupply.gt(0) ? 0 : (((rewardPerBlock / ETH_MANTISSA)) /

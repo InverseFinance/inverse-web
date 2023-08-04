@@ -296,37 +296,37 @@ export const getGOhmData = async () => {
 
 export const getXSushiData = async (nbDays = 7) => {
     let apy = 0;
-    const period = 365;
-    try {
-        const days = [...Array(nbDays).keys()];
+    // const period = 365;
+    // try {
+    //     const days = [...Array(nbDays).keys()];
 
-        const [daysData] = await Promise.all([
-            sushiData.exchange.dayData(),
-        ]);
-        const infos = await Promise.all([
-            ...days.map(v => {
-                const d = new Date();
-                const utc = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - v, 0, 0, 0);
-                return sushiData.bar.info({ timestamp: utc });
-            }),
-        ]);
+    //     const [daysData] = await Promise.all([
+    //         sushiData.exchange.dayData(),
+    //     ]);
+    //     const infos = await Promise.all([
+    //         ...days.map(v => {
+    //             const d = new Date();
+    //             const utc = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - v, 0, 0, 0);
+    //             return sushiData.bar.info({ timestamp: utc });
+    //         }),
+    //     ]);
 
-        const prices = (await Promise.all([
-            ...days.map(v => {
-                const d = new Date();
-                const utc = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - v, 0, 0, 0);
-                return sushiData.exchange.token({ timestamp: utc, token_address: '0x8798249c2e607446efb7ad49ec89dd1865ff4272' });
-            }),
-        ])).map(d => d.derivedETH);
+    //     const prices = (await Promise.all([
+    //         ...days.map(v => {
+    //             const d = new Date();
+    //             const utc = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - v, 0, 0, 0);
+    //             return sushiData.exchange.token({ timestamp: utc, token_address: '0x8798249c2e607446efb7ad49ec89dd1865ff4272' });
+    //         }),
+    //     ])).map(d => d.derivedETH);
 
-        const apys = days.map((d, i) => {
-            const apr = (((daysData[i].volumeETH * 0.05 * 0.01) / infos[i].totalSupply) * period) / (infos[i].ratio * prices[i])
-            const apy = (Math.pow((1 + (apr / period)), period)) - 1;
-            return apy;
-        });
+    //     const apys = days.map((d, i) => {
+    //         const apr = (((daysData[i].volumeETH * 0.05 * 0.01) / infos[i].totalSupply) * period) / (infos[i].ratio * prices[i])
+    //         const apy = (Math.pow((1 + (apr / period)), period)) - 1;
+    //         return apy;
+    //     });
 
-        apy = apys.reduce((prev, curr) => prev + curr, 0) / apys.length;
-    } catch (e) { console.log(e) }
+    //     apy = apys.reduce((prev, curr) => prev + curr, 0) / apys.length;
+    // } catch (e) { console.log(e) }
     return { apy: apy * 100 };
 }
 
