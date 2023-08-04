@@ -499,6 +499,28 @@ export const useHistoricalPrices = (cgId: string) => {
   }
 }
 
+export const useHistoOraclePrices = (marketAddress: string) : {
+  timestamp: number,  
+  evolution: [number, number][],
+  prices: number[],
+  blocks: number[],
+  timestamps: number[],
+  isLoading: boolean,
+  isError: boolean,
+} => {
+  const { data, error } = useCustomSWR(!marketAddress ? '-' : `/api/f2/histo-oracle-prices?market=${marketAddress}`, fetcher30sectimeout);
+
+  return {
+    evolution: data?.timestamps?.map((t,i) => [data.timestamps[i], data.oraclePrices[i]]) || [],    
+    timestamp: data?.timestamp || 0,
+    prices: data?.oraclePrices || [],
+    blocks: data?.blocks || [],
+    timestamps: data?.timestamps || [],
+    isLoading: !error && !data,
+    isError: !!error,
+  }
+}
+
 export const useEscrowBalanceEvolution = (account: string, escrow: string, market: string, lastBlock: number): SWR & {
   evolution: { balance: number, timestamp: number, debt: number, blocknumber: number, dbrClaimable: number }[],
   formattedEvents: any[],
