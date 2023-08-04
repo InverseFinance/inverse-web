@@ -10,6 +10,7 @@ import { CHAIN_TOKENS, CHAIN_TOKEN_ADDRESSES } from '@app/variables/tokens';
 import { isAddress } from 'ethers/lib/utils';
 import { DOLA_BRIDGED_CHAINS, INV_BRIDGED_CHAINS, ONE_DAY_SECS } from '@app/config/constants';
 import { liquidityCacheKey } from './liquidity';
+import { getGroupedMulticallOutputs } from '@app/util/multicall';
 
 const formatBn = (bn: BigNumber, token: Token) => {
   return { token, balance: getBnToNumber(bn, token.decimals) }
@@ -110,18 +111,15 @@ export default async function handler(req, res) {
     const treasuryFundsToCheck = [
       mainnetTokens.INV, mainnetTokens.DOLA, mainnetTokens.DAI, mainnetTokens.USDC, mainnetTokens.USDT, mainnetTokens.WETH, mainnetTokens.WBTC, mainnetTokens.INVETHLP, mainnetTokens.INVETHSLP, mainnetTokens.CRV, mainnetTokens.CVX, mainnetTokens.BAL, mainnetTokens.AURA, mainnetTokens.DBR, mainnetTokens.YFI, mainnetTokens.FRAX
     ];
-    const treasuryBalances = await Promise.all([
-      ...treasuryFundsToCheck.map((ad: string) => {
+    const [treasuryBalances, anchorReserves] = await getGroupedMulticallOutputs([
+      treasuryFundsToCheck.map((ad: string) => {
         const contract = new Contract(ad, ERC20_ABI, provider);
-        return contract.balanceOf(TREASURY);
+        return { contract, functionName: 'balanceOf', params: [TREASURY] };
       }),
-    ])
-
-    const anchorReserves = await Promise.all([
-      ...ANCHOR_TOKENS.map((ad: string) => {
+      ANCHOR_TOKENS.map((ad: string) => {
         const contract = new Contract(ad, CTOKEN_ABI, provider);
-        return ANCHOR_RESERVES_TO_CHECK.includes(ad) ? contract.totalReserves() : new Promise((res) => res(BigNumber.from('0')));
-      }),
+        return { contract, functionName: 'totalReserves', params: [], forceFallback: !ANCHOR_RESERVES_TO_CHECK.includes(ad), fallbackValue: BigNumber.from('0') };        
+      })
     ]);
 
     const multisigsToShow = MULTISIGS;
