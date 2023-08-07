@@ -181,12 +181,13 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
         <Stack w="full" spacing={4}>
           {asset.token === XINV && asset.escrowDuration && asset.escrowDuration > 0 && <XINVEscrowAlert duration={asset.escrowDuration} />}
           {!isApproved ? (
-            <ApproveButton address={asset.underlying.address} toAddress={asset.token} signer={provider?.getSigner()} isDisabled={isDisabled} onSuccess={handleApproveSuccess} />
+            <ApproveButton needPoaFirst={true} address={asset.underlying.address} toAddress={asset.token} signer={provider?.getSigner()} isDisabled={isDisabled} onSuccess={handleApproveSuccess} />
           ) : (
             <SubmitButton
               onClick={() => contract.mint(isEthMarket ? { value: amount } : amount)}
               refreshOnSuccess={true}
               isDisabled={isDisabled}
+              needPoaFirst={true}
             >
               {asset.underlying.symbol === RTOKEN_SYMBOL ? 'Stake' : 'Supply'}
             </SubmitButton>
@@ -239,7 +240,7 @@ export const AnchorButton = ({ operation, asset, amount, isDisabled, needWithdra
 
     case AnchorOperations.borrow:
       return (
-        <SubmitButton onClick={() => contract.borrow(amount)} refreshOnSuccess={true} isDisabled={isDisabled}>
+        <SubmitButton needPoaFirst={true} onClick={() => contract.borrow(amount)} refreshOnSuccess={true} isDisabled={isDisabled}>
           Borrow
         </SubmitButton>
       )

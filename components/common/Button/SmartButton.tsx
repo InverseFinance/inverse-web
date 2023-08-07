@@ -23,7 +23,7 @@ export const SmartButton = (props: SmartButtonProps) => {
     const [isPending, setIsPending] = useState(false);
     const [loadingText, setLoadingText] = useState(props.loadingText || props?.children);
     const { onSuccess, onFail, onPending, refreshOnSuccess, themeColor, ...btnProps } = props;
-    const isMountedRef = useRef(true)
+    const isMountedRef = useRef(true);
 
     useEffect(() => {
         return () => {
@@ -39,39 +39,49 @@ export const SmartButton = (props: SmartButtonProps) => {
     const handleClick = async (e: any) => {
         if (!btnProps.onClick) { return }
 
-        const btnAction = props.gaAction || e?.target.getAttribute('data-testid') || e?.target?.innerText || '';
-        if(btnAction) {
-            gaEvent({ action: btnAction })
-        }
-        const returnedValueFromClick: any = btnProps.onClick(e);
-        if (!returnedValueFromClick) { return }
-
-        // click returns a Promise
-        if (returnedValueFromClick?.then) {
-            if (query?.viewAddress) {
-                alert("You're in View Address Mode: we are returning you to normal mode for safety");
-                window.location.search = '';
+        const submitClick = async () => {
+            const btnAction = props.gaAction || e?.target.getAttribute('data-testid') || e?.target?.innerText || '';
+            if (btnAction) {
+                gaEvent({ action: btnAction })
             }
-            // when pending disable btn and show loader in btn
-            setIsPending(true);
 
-            try {
-                const promiseResult = await returnedValueFromClick;
-                // it's a TransactionResponse => handle tx status
-                if (promiseResult?.hash) {
-                    const handleSuccess = (tx: TransactionResponse) => {
-                        if (onSuccess) { onSuccess(tx) }
-                        if (refreshOnSuccess) { forceQuickAccountRefresh(connector) }
-                    }
-                    await handleTx(promiseResult, { onSuccess: handleSuccess, onFail, onPending });
-                } else {
-                    handleApiResponse(promiseResult);
+            const returnedValueFromClick: any = btnProps.onClick(e);
+            if (!returnedValueFromClick) { return }
+
+            // click returns a Promise
+            if (returnedValueFromClick?.then) {
+                if (query?.viewAddress) {
+                    alert("You're in View Address Mode: we are returning you to normal mode for safety");
+                    window.location.search = '';
                 }
-            } catch (e) {
-                showFailNotif(e)
+                // when pending disable btn and show loader in btn
+                setIsPending(true);
+
+                try {
+                    const promiseResult = await returnedValueFromClick;
+                    // it's a TransactionResponse => handle tx status
+                    if (promiseResult?.hash) {
+                        const handleSuccess = (tx: TransactionResponse) => {
+                            if (onSuccess) { onSuccess(tx) }
+                            if (refreshOnSuccess) { forceQuickAccountRefresh(connector) }
+                        }
+                        await handleTx(promiseResult, { onSuccess: handleSuccess, onFail, onPending });
+                    } else {
+                        handleApiResponse(promiseResult);
+                    }
+                } catch (e) {
+                    showFailNotif(e)
+                }
+                if (!isMountedRef.current) { return }
+                setIsPending(false);
             }
-            if (!isMountedRef.current) { return }
-            setIsPending(false);
+        }
+
+        if(btnProps.needPoaFirst) {
+            const customEvent = new CustomEvent('poa-modal', { detail: { onOk: () => () => submitClick() } });
+            document.dispatchEvent(customEvent);
+        } else {
+            submitClick();
         }
     }
 
