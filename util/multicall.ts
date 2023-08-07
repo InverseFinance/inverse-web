@@ -73,8 +73,26 @@ const formatOutput = (output: any) => {
     return output;
 }
 
+type CallRequest = { contract: Contract, functionName: string, params?: any[], fallbackValue?: any, forceFallback?: boolean };
+
+export const getGroupedMulticallOutputs = async (
+    groupedCallRequests: CallRequest[][] | CallRequest[],
+    chainId = Number(CHAIN_ID),
+    block?: BlockTag
+) => {
+    const flatOutputs = await getMulticallOutput(groupedCallRequests.flat(), chainId, block);    
+    let startIndex = 0;
+    return groupedCallRequests.map((callRequests) => {      
+        const isArray = Array.isArray(callRequests);
+        const length = isArray ? callRequests.length : 1;  
+        const groupItems = flatOutputs.slice(startIndex, startIndex + length);
+        startIndex += length;
+        return isArray ? groupItems : groupItems[0];
+    });
+}
+
 export const getMulticallOutput = async (
-    callRequests: { contract: Contract, functionName: string, params?: any[], fallbackValue?: any, forceFallback?: boolean }[],
+    callRequests: CallRequest[],
     chainId = Number(CHAIN_ID),
     block?: BlockTag
 ) => {

@@ -8,6 +8,12 @@
       },
       "pages/api/cron-ex-rates.ts": {
         "maxDuration": 60
+      },
+      "pages/api/f2/histo-oracle-prices.ts": {
+        "maxDuration": 60
+      },
+      "pages/api/f2/escrow-balance-histo.ts": {
+        "maxDuration": 60
       }
     }
   }

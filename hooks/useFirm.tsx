@@ -499,7 +499,29 @@ export const useHistoricalPrices = (cgId: string) => {
   }
 }
 
-export const useEscrowBalanceEvolution = (account: string, escrow: string, market: string, lastBlock: number): SWR & {
+export const useHistoOraclePrices = (marketAddress: string) : {
+  timestamp: number,  
+  evolution: [number, number][],
+  prices: number[],
+  blocks: number[],
+  timestamps: number[],
+  isLoading: boolean,
+  isError: boolean,
+} => {
+  const { data, error } = useCacheFirstSWR(!marketAddress ? '-' : `/api/f2/histo-oracle-prices?v=1.1&market=${marketAddress}`, fetcher);
+
+  return {
+    evolution: data?.timestamps?.map((t,i) => [data.timestamps[i], data.oraclePrices[i]]) || [],    
+    timestamp: data?.timestamp || 0,
+    prices: data?.oraclePrices || [],
+    blocks: data?.blocks || [],
+    timestamps: data?.timestamps || [],
+    isLoading: !error && !data,
+    isError: !!error,
+  }
+}
+
+export const useEscrowBalanceEvolution = (account: string, escrow: string, market: string, firmActionIndex: number): SWR & {
   evolution: { balance: number, timestamp: number, debt: number, blocknumber: number, dbrClaimable: number }[],
   formattedEvents: any[],
   timestamps: { [key: string]: number },
@@ -511,13 +533,13 @@ export const useEscrowBalanceEvolution = (account: string, escrow: string, marke
   isLoading: boolean,
   isError: boolean,
 } => {
-  const { data, error, isLoading } = useCacheFirstSWR(!account || !escrow ? '-' : `/api/f2/escrow-balance-histo?v=9&account=${account}&escrow=${escrow}&market=${market}&lastBlock=${lastBlock}`, fetcher60sectimeout);
+  const { data, error, isLoading } = useCacheFirstSWR(!account || (!escrow || escrow === BURN_ADDRESS) || (typeof firmActionIndex !== 'number') ? '-' : `/api/f2/escrow-balance-histo?v=1.1.1&account=${account}&escrow=${escrow}&market=${market}&actionIndex=${firmActionIndex}`, fetcher60sectimeout);
 
   const evolution = data?.balances?.map((b, i) => ({
     balance: b,
     dbrClaimable: data.dbrClaimables[i],
     blocknumber: data.blocks[i],
-    debt: data.debts[i],
+    debt: data.debts[i],    
     timestamp: data.timestamps[i],
   })) || [];
 

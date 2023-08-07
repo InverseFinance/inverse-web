@@ -122,11 +122,12 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         isDbrApproxLoading,
         underlyingExRate,
         escrow,
+        firmActionIndex,
     } = useContext(F2MarketContext);
 
     const [now, setNow] = useState(Date.now());
-    const { isLoading: isLoadingEvents, events, depositedByUser, liquidated, lastBlock } = useFirmMarketEvents(market, account);
-    const { formattedEvents, isLoading: isLoadingEventsFromApi } = useEscrowBalanceEvolution(account, escrow, market.address, lastBlock);
+    const { isLoading: isLoadingEvents, events, depositedByUser, liquidated } = useFirmMarketEvents(market, account);
+    const { formattedEvents, isLoading: isLoadingEventsFromApi } = useEscrowBalanceEvolution(account, escrow, market.address, firmActionIndex);
     const { grouped: groupedEventsFallback, depositedByUser: depositedByUserFallback, liquidated: liquidatedFallback } = formatAndGroupFirmEvents(market, account, formattedEvents);
     // same length, use data from api (timestamp already there), otherwise use prefer live data from blockchain
     const _events = events?.length > groupedEventsFallback?.length ? events : groupedEventsFallback;    
