@@ -28,9 +28,10 @@ export default async function handler(req, res) {
   }
   const cacheKey = `firm-escrow-balance-histo-${escrow}-${CHAIN_ID}-v1.0.99`;
   try {
-    const cacheDuration = 3600;
-    res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const { data: archivedData, isValid } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration);
+    const webCacheDuration = 3600;
+    const redisCacheDuration = 60;
+    res.setHeader('Cache-Control', `public, max-age=${webCacheDuration}`);
+    const { data: archivedData, isValid } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', redisCacheDuration);
     if (isValid) {
       res.status(200).json(archivedData);
       return
