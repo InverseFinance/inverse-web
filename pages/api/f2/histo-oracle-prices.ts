@@ -25,7 +25,7 @@ export default async function handler(req, res) {
   const cacheKey = `firm-oracle-prices-${market}-v1.0.0`;
   
   try {
-    const cacheDuration = 3600;
+    const cacheDuration = 300;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration, true);
     if (validCache) {

@@ -2,7 +2,7 @@ import { BigNumber, Contract } from 'ethers'
 import 'source-map-support'
 import { DBR_ABI, F2_ESCROW_ABI, F2_MARKET_ABI, F2_ORACLE_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { getHistoricValue, getProvider } from '@app/util/providers';
+import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber, getToken } from '@app/util/markets'
 import { BLOCKS_PER_DAY, BURN_ADDRESS, CHAIN_ID } from '@app/config/constants';
@@ -11,7 +11,7 @@ import { ascendingEventsSorter, throttledPromises } from '@app/util/misc';
 import { CHAIN_TOKENS, TOKENS } from '@app/variables/tokens';
 import { isAddress } from 'ethers/lib/utils';
 import { formatFirmEvents } from '@app/util/f2';
-import { getGroupedMulticallOutputs, getMulticallOutput } from '@app/util/multicall';
+import { getGroupedMulticallOutputs } from '@app/util/multicall';
 
 const { F2_MARKETS, DBR, F2_ORACLE } = getNetworkConfigConstants();
 
@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     res.status(400).json({ msg: 'invalid request' });
     return;
   }
-  const cacheKey = `firm-escrow-balance-histo-${escrow}-${lastBlock}-${CHAIN_ID}-v1.1.1`;
+  const cacheKey = `firm-escrow-balance-histo-${escrow}-${lastBlock}-${CHAIN_ID}-v1.0.99`;
   try {
     const cacheDuration = 3600;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
@@ -56,7 +56,7 @@ export default async function handler(req, res) {
       return;
     }
 
-    const archived = await getCacheFromRedis(cacheKey, false, 0) || { balances: [], debts: [], blocks: [], timestamps: [], dbrClaimables: [], oraclePrices: [], formattedEvents: [] };
+    const archived = await getCacheFromRedis(cacheKey, false, 0) || { balances: [], debts: [], blocks: [], timestamps: [], dbrClaimables: [], formattedEvents: [] };
     const lastArchivedBlock = archived.blocks.length > 0 ? archived.blocks[archived.blocks.length - 1] : escrowCreationBlock - 1;
 
     const startingBlock = lastArchivedBlock + 1 < currentBlock ? lastArchivedBlock + 1 : currentBlock;
@@ -117,8 +117,7 @@ export default async function handler(req, res) {
         return getGroupedMulticallOutputs([
           { contract: escrowContract, functionName: balanceFunctionName },
           { contract: escrowContract, functionName: claimableFunctionName, forceFallback: !_market.isInv, fallbackValue: BigNumber.from(0) },
-          { contract: marketContract, functionName: debtFunctionName, params: [account], forceFallback: block < _market.borrowingWasDisabledBeforeBlock, fallbackValue: BigNumber.from(0) },
-          { contract: marketContract, functionName: 'collateralFactorBps', params: [] },
+          { contract: marketContract, functionName: debtFunctionName, params: [account], forceFallback: block < _market.borrowingWasDisabledBeforeBlock, fallbackValue: BigNumber.from(0) },          
         ],
           Number(CHAIN_ID),
           block,
@@ -132,30 +131,6 @@ export default async function handler(req, res) {
     const newBalances = batchedData.map(t => getBnToNumber(t[0], decimals));
     const newDbrClaimables = batchedData.map(t => getBnToNumber(t[1]));
     const newDebts = batchedData.map(t => getBnToNumber(t[2]));
-
-    const newCollateralFactorsBn = batchedData.map(t => t[3], 4);
-
-    const oraclePricesData = await throttledPromises(
-      (block: number) => {
-        const cfIndex = allUniqueBlocksToCheck.indexOf(block);
-        return getMulticallOutput(
-          [{
-            contract: oracleContract,
-            functionName: 'viewPrice',
-            params: [_market.collateral, newCollateralFactorsBn[cfIndex]],
-            forceFallback: _market.isInv,
-            fallbackValue: BigNumber.from(0),
-          }],
-          Number(CHAIN_ID),
-          block,
-        );
-      },
-      allUniqueBlocksToCheck,
-      5,
-      100,
-    );
-
-    const newOraclePrices = oraclePricesData.flat().map(p => getBnToNumber(p));
 
     const resultTimestamps = archived.timestamps.concat(allUniqueBlocksToCheck.map(b => timestamps[CHAIN_ID][b] * 1000));
     const {
@@ -178,8 +153,7 @@ export default async function handler(req, res) {
       claims,
       balances: archived.balances.concat(newBalances),
       debts: archived.debts.concat(newDebts),
-      dbrClaimables: archived.dbrClaimables.concat(newDbrClaimables),
-      oraclePrices: archived.oraclePrices.concat(newOraclePrices),      
+      dbrClaimables: archived.dbrClaimables.concat(newDbrClaimables),  
       blocks: archived?.blocks.concat(allUniqueBlocksToCheck),
       timestamps: resultTimestamps,
       formattedEvents: archived.formattedEvents.concat(newFormattedEvents),
