@@ -508,7 +508,7 @@ export const useHistoOraclePrices = (marketAddress: string) : {
   isLoading: boolean,
   isError: boolean,
 } => {
-  const { data, error } = useCustomSWR(!marketAddress ? '-' : `/api/f2/histo-oracle-prices?market=${marketAddress}`, fetcher30sectimeout);
+  const { data, error } = useCustomSWR(!marketAddress ? '-' : `/api/f2/histo-oracle-prices?v=1.1&market=${marketAddress}`, fetcher30sectimeout);
 
   return {
     evolution: data?.timestamps?.map((t,i) => [data.timestamps[i], data.oraclePrices[i]]) || [],    
@@ -521,7 +521,7 @@ export const useHistoOraclePrices = (marketAddress: string) : {
   }
 }
 
-export const useEscrowBalanceEvolution = (account: string, escrow: string, market: string, lastBlock: number): SWR & {
+export const useEscrowBalanceEvolution = (account: string, escrow: string, market: string, firmActionIndex: number): SWR & {
   evolution: { balance: number, timestamp: number, debt: number, blocknumber: number, dbrClaimable: number }[],
   formattedEvents: any[],
   timestamps: { [key: string]: number },
@@ -533,14 +533,13 @@ export const useEscrowBalanceEvolution = (account: string, escrow: string, marke
   isLoading: boolean,
   isError: boolean,
 } => {
-  const { data, error, isLoading } = useCacheFirstSWR(!account || !escrow ? '-' : `/api/f2/escrow-balance-histo?v=1.1.1&account=${account}&escrow=${escrow}&market=${market}&lastBlock=${lastBlock}`, fetcher60sectimeout);
+  const { data, error, isLoading } = useCacheFirstSWR(!account || !escrow || (typeof firmActionIndex !== 'number') ? '-' : `/api/f2/escrow-balance-histo?v=1.1.1&account=${account}&escrow=${escrow}&market=${market}&actionIndex=${firmActionIndex}`, fetcher60sectimeout);
 
   const evolution = data?.balances?.map((b, i) => ({
     balance: b,
     dbrClaimable: data.dbrClaimables[i],
     blocknumber: data.blocks[i],
-    debt: data.debts[i],
-    oraclePrice: data.oraclePrices[i],
+    debt: data.debts[i],    
     timestamp: data.timestamps[i],
   })) || [];
 

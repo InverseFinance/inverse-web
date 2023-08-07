@@ -74,6 +74,9 @@ export const F2Context = ({
     const [mode, setMode] = useState(market.isInv ? 'Deposit' : 'Deposit & Borrow');
     const [infoTab, setInfoTab] = useState('Summary');
     const [maxBorrowable, setMaxBorrowable] = useState(0);
+    // increment on successful firm tx
+    const { value: cachedFirmActionIndex, setter: setCachedFirmActionIndex } = useStorage('firm-action-index');    
+    const [firmActionIndex, setFirmActionIndex] = useState(cachedFirmActionIndex === undefined ? null : cachedFirmActionIndex||0);    
     const [isSmallerThan728] = useMediaQuery('(max-width: 728px)');
 
     const isMountedRef = useRef(true)
@@ -149,6 +152,10 @@ export const F2Context = ({
             isMountedRef.current = false;
         };
     }, []);
+
+    useEffect(() => {
+        setFirmActionIndex(cachedFirmActionIndex === undefined ? null : cachedFirmActionIndex||0);
+    }, [cachedFirmActionIndex]);
 
     useEffect(() => {
         const init = async () => {
@@ -309,6 +316,9 @@ export const F2Context = ({
             notFirstTime,
             setNotFirstTime,
             isFirstTimeModalOpen,
+            firmActionIndex,
+            setFirmActionIndex,
+            setCachedFirmActionIndex,
             onFirstTimeModalOpen: async () => {
                 gaEvent({ action: 'FiRM-first-time-modal-open' });
                 onFirstTimeModalOpen();

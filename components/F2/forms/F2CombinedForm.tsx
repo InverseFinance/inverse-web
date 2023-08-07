@@ -83,6 +83,7 @@ export const F2CombinedForm = ({
         newPerc, newCreditLimit,
         notFirstTime, onFirstTimeModalOpen,        
         hasDbrV1NewBorrowIssue, onDbrV1NewBorrowIssueModalOpen,
+        firmActionIndex, setFirmActionIndex, setCachedFirmActionIndex,
     } = useContext(F2MarketContext);
 
     const [syncedMinH, setSyncedMinH] = useState('230px');
@@ -186,6 +187,13 @@ export const F2CombinedForm = ({
         const _isDeposit = !isDeposit;
         setIsDeposit(_isDeposit);
         setMode(_isDeposit ? inOptions[outOptions.indexOf(mode)] : outOptions[inOptions.indexOf(mode)]);
+    }
+
+    const onSuccess = () => {
+        resetForm();
+        const newFirmActionIndex = firmActionIndex + 1;
+        setCachedFirmActionIndex(newFirmActionIndex)
+        setFirmActionIndex(newFirmActionIndex);
     }
 
     const resetForm = () => {
@@ -481,7 +489,7 @@ export const F2CombinedForm = ({
             hideInputIfNoAllowance={false}
             hideInput={true}
             hideButtons={false}
-            onSuccess={resetForm}
+            onSuccess={onSuccess}
             enableCustomApprove={true}
             btnProps={{
                 h: '50px',

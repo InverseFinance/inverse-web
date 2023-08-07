@@ -21,17 +21,17 @@ const useFirmUserPositionEvolution = (
 ) => {
     const account = useAccount();
 
-    const { deposits, escrow, debt } = useContext(F2MarketContext);
+    const { deposits, escrow, debt, firmActionIndex } = useContext(F2MarketContext);
     const { prices: cgHistoPrices, isLoading: isLoadingHistoPrices } = useHistoricalPrices(market.underlying.coingeckoId);
     const { evolution: histoOraclePricesEvolution, isLoading: isLoadingOracleHistoPrices } = useHistoOraclePrices(market.address);
     const { prices: dbrPrices } = useHistoricalPrices('dola-borrowing-right');
     const { prices, isLoading: isLoadingPrices } = usePrices();
     const { price: dbrPrice } = useDBRPrice();
     // events from user wallet, can be not fetched for some wallet providers
-    const { events: _events, depositedByUser: depositedByUserLive, lastBlock } = useFirmMarketEvolution(market, account);
+    const { events: _events, depositedByUser: depositedByUserLive } = useFirmMarketEvolution(market, account);
     const [isLoadingDebounced, setIsLoadingDebounced] = useState(true);
     // from api
-    const { evolution: escrowBalanceEvolution, timestamps, isLoading: isLoadingEscrowEvo, formattedEvents, depositedByUser: depositedByUserApi } = useEscrowBalanceEvolution(account, escrow, market.address, lastBlock);
+    const { evolution: escrowBalanceEvolution, timestamps, isLoading: isLoadingEscrowEvo, formattedEvents, depositedByUser: depositedByUserApi } = useEscrowBalanceEvolution(account, escrow, market.address, firmActionIndex);
     const events = !_events?.length ? formattedEvents : _events?.map(e => ({ ...e, timestamp: e.timestamp || timestamps[e.blockNumber] })).filter(e => !!e.timestamp);    
     const isLoading = isLoadingOracleHistoPrices || isLoadingHistoPrices || isLoadingPrices || isLoadingEscrowEvo;
 

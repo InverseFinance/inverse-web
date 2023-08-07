@@ -3,7 +3,7 @@ import 'source-map-support'
 import { DBR_ABI, F2_ESCROW_ABI, F2_MARKET_ABI, F2_ORACLE_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
-import { getCacheFromRedis, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
+import { getCacheFromRedis, getCacheFromRedisAsObj, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber, getToken } from '@app/util/markets'
 import { BLOCKS_PER_DAY, BURN_ADDRESS, CHAIN_ID } from '@app/config/constants';
 import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
@@ -16,23 +16,23 @@ import { getGroupedMulticallOutputs } from '@app/util/multicall';
 const { F2_MARKETS, DBR, F2_ORACLE } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
-  const { cacheFirst, account, escrow, market, lastBlock } = req.query;
+  const { cacheFirst, account, escrow, market, firmActionIndex } = req.query;
   if (
     !account || !isAddress(account) || isInvalidGenericParam(account)
     || !market || !isAddress(market) || isInvalidGenericParam(market)
     || !escrow || !isAddress(escrow) || isInvalidGenericParam(escrow)
-    || isInvalidGenericParam(lastBlock)
+    || isInvalidGenericParam(firmActionIndex)
   ) {
     res.status(400).json({ msg: 'invalid request' });
     return;
   }
-  const cacheKey = `firm-escrow-balance-histo-${escrow}-${lastBlock}-${CHAIN_ID}-v1.0.99`;
+  const cacheKey = `firm-escrow-balance-histo-${escrow}-${CHAIN_ID}-v1.0.99`;
   try {
     const cacheDuration = 3600;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
-    if (validCache) {
-      res.status(200).json(validCache);
+    const { data: archivedData, isValid } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration);
+    if (isValid) {
+      res.status(200).json(archivedData);
       return
     }
 
@@ -56,7 +56,7 @@ export default async function handler(req, res) {
       return;
     }
 
-    const archived = await getCacheFromRedis(cacheKey, false, 0) || { balances: [], debts: [], blocks: [], timestamps: [], dbrClaimables: [], formattedEvents: [] };
+    const archived = archivedData || { balances: [], debts: [], blocks: [], timestamps: [], dbrClaimables: [], formattedEvents: [] };
     const lastArchivedBlock = archived.blocks.length > 0 ? archived.blocks[archived.blocks.length - 1] : escrowCreationBlock - 1;
 
     const startingBlock = lastArchivedBlock + 1 < currentBlock ? lastArchivedBlock + 1 : currentBlock;
