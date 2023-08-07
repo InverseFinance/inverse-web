@@ -30,7 +30,7 @@ export default async function handler(req, res) {
   try {
     const cacheDuration = 3600;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration, true);
+    const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
     if (validCache) {
       res.status(200).json(validCache);
       return
