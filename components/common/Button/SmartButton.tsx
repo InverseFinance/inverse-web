@@ -77,8 +77,8 @@ export const SmartButton = (props: SmartButtonProps) => {
             }
         }
 
-        if(btnProps.needTosFirst) {
-            const customEvent = new CustomEvent('tos-modal', { detail: { onOk: () => () => submitClick() } });
+        if(btnProps.needPoaFirst) {
+            const customEvent = new CustomEvent('poa-modal', { detail: { onOk: () => () => submitClick() } });
             document.dispatchEvent(customEvent);
         } else {
             submitClick();

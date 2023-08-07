@@ -438,9 +438,9 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
         onTosOpen();
       };
     }
-    document.addEventListener('tos-modal', tosOpen);
+    document.addEventListener('poa-modal', tosOpen);
     return () => {      
-      document.removeEventListener('tos-modal', tosOpen, false);
+      document.removeEventListener('poa-modal', tosOpen, false);
     }
   }, [tosApproved]);
 

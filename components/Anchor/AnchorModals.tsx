@@ -406,7 +406,7 @@ export const AnchorCollateralModal = ({
                 }
               />
               :
-              <SubmitButton needTosFirst={true} disabled={asset.collateralGuardianPaused && !asset.isCollateral} onClick={handleConfirm} refreshOnSuccess={true} onSuccess={() => onClose()}>
+              <SubmitButton needPoaFirst={true} disabled={asset.collateralGuardianPaused && !asset.isCollateral} onClick={handleConfirm} refreshOnSuccess={true} onSuccess={() => onClose()}>
                 {actionName} {asset.underlying.symbol} as Collateral
               </SubmitButton>
           }

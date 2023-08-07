@@ -485,7 +485,7 @@ export const F2CombinedForm = ({
                 w: 'fit-content',
                 fontSize: '18px',
                 gaAction: 'FiRM-action-btn-standard',
-                needTosFirst: isDeposit,
+                needPoaFirst: isDeposit,
             }} />
     </HStack>
 

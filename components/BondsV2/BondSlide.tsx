@@ -206,10 +206,10 @@ export const BondSlide = ({
                         <Flex maxW={{ base: 'none', sm: '190px' }} w="full" minW="120px">
                             {
                                 !isApproved ?
-                                    <ApproveButton needTosFirst={true} tooltipMsg='' signer={provider?.getSigner()} address={bond.underlying.address} toAddress={bond.teller} isDisabled={(!provider?.getSigner())} />
+                                    <ApproveButton needPoaFirst={true} tooltipMsg='' signer={provider?.getSigner()} address={bond.underlying.address} toAddress={bond.teller} isDisabled={(!provider?.getSigner())} />
                                     :
                                     <SubmitButton
-                                        needTosFirst={true}
+                                        needPoaFirst={true}
                                         onSuccess={() => handleSuccess()}
                                         isDisabled={!parseFloat(amount || '0') || parseFloat(amount || '0') > getMax() || !parseFloat(receiveAmount) || (parseFloat(receiveAmount) > pcApproved)}
                                         onClick={handleDeposit}
