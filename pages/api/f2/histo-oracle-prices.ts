@@ -3,7 +3,7 @@ import 'source-map-support'
 import { F2_MARKET_ABI, F2_ORACLE_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
-import { getCacheFromRedis, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
+import { getCacheFromRedis, getCacheFromRedisAsObj, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { BLOCKS_PER_DAY, CHAIN_ID } from '@app/config/constants';
 import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
@@ -27,8 +27,8 @@ export default async function handler(req, res) {
   try {
     const cacheDuration = 300;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
-    if (validCache) {
+    const { data: validCache, isValid } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration);
+    if (isValid) {
       res.status(200).json(validCache);
       return
     }
@@ -46,7 +46,7 @@ export default async function handler(req, res) {
     const currentBlock = await provider.getBlockNumber();
     const marketContract = new Contract(_market.address, F2_MARKET_ABI, provider);
 
-    const archived = await getCacheFromRedis(cacheKey, false, 0) || { blocks: [], timestamps: [], oraclePrices: [], collateralFactors: [] };
+    const archived = validCache || { blocks: [], timestamps: [], oraclePrices: [], collateralFactors: [] };
     const lastArchivedBlock = archived.blocks.length > 0 ? archived.blocks[archived.blocks.length - 1] : _market.startingBlock - 1;
 
     const startingBlock = lastArchivedBlock + 1 < currentBlock ? lastArchivedBlock + 1 : currentBlock;

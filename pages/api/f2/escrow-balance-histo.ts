@@ -63,7 +63,6 @@ export default async function handler(req, res) {
     const startingBlock = lastArchivedBlock + 1 < currentBlock ? lastArchivedBlock + 1 : currentBlock;
 
     const dbrContract = new Contract(DBR, DBR_ABI, provider);
-    const oracleContract = new Contract(F2_ORACLE, F2_ORACLE_ABI, provider);
     // events impacting escrow balance or visible on the chart
     const eventsToQuery = [
       marketContract.queryFilter(marketContract.filters.Deposit(account), startingBlock),
