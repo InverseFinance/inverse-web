@@ -49,7 +49,7 @@ const mainConfig = {
             helper: true,
             oracleType: "chainlink",
             badgeInfo: 'High CF',
-            startingBlock: 16159015,
+            startingBlock: 16196836,
             isInv: false,            
         },
         {
@@ -62,7 +62,7 @@ const mainConfig = {
             oracleType: "chainlink",
             badgeInfo: 'Yield-Bearing',
             badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },
-            startingBlock: 16441143,
+            startingBlock: 16484386,
             isInv: false,            
         },
         {
@@ -76,7 +76,7 @@ const mainConfig = {
             badgeProps: { bgColor: 'accentTextColor', color: 'contrastMainTextColor' },
             isGovTokenCollateral: true,
             govLink: 'https://snapshot.org/#/olympusdao.eth',
-            startingBlock: 16657838,
+            startingBlock: 16700429,
             isInv: false,            
         },
         {
@@ -87,7 +87,7 @@ const mainConfig = {
             helper: true,
             oracleType: "chainlink",
             badgeInfo: 'High CF',
-            startingBlock: 16791157,
+            startingBlock: 16833304,
             isInv: false,            
         },
         {
@@ -101,7 +101,7 @@ const mainConfig = {
             badgeProps: { bgColor: 'accentTextColor', color: 'contrastMainTextColor' },
             hasClaimableRewards: true,
             // zapperAppGroup: 'convex+cvx-crv-staking-wrapped',
-            startingBlock: 17228187,
+            startingBlock: 17224837,
             isInv: false,            
         },
         {
@@ -117,7 +117,7 @@ const mainConfig = {
             hasClaimableRewards: true,
             isGovTokenCollateral: true,
             govLink: '/governance',                     
-            startingBlock: 17272807,
+            startingBlock: 17313862,
             claimMethod: 'claimDBR',
             // borrowingWasDisabledBeforeBlock:
         },
@@ -132,7 +132,7 @@ const mainConfig = {
             badgeProps: { bgColor: 'accentTextColor', color: 'contrastMainTextColor' },
             hasClaimableRewards: true,
             // zapperAppGroup: 'convex-frax+staked-cvx-fxs',
-            startingBlock: 17672065,
+            startingBlock: 17721106,
             isInv: false,            
         },
         {
@@ -145,7 +145,7 @@ const mainConfig = {
             badgeInfo: 'Yield-Bearing',
             badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },
             hasClaimableRewards: false,            
-            startingBlock: 17663817,
+            startingBlock: 17777986,
             rewardTypeLabel: 'yCrv APY',
             isInv: false,            
         },
