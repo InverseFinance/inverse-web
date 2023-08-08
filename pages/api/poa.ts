@@ -1,6 +1,7 @@
 import { POA_CURRENT_MSG_TO_SIGN, POA_VERSION } from '@app/config/proof-of-agreement-texts';
+import { verifyMultisigMessage } from '@app/util/multisig';
 import { getCacheFromRedis, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis';
-import { verifyMessage } from 'ethers/lib/utils';
+import { verifyMessage, hashMessage } from 'ethers/lib/utils';
 
 export default async function handler(req, res) {
     const {
@@ -24,12 +25,13 @@ export default async function handler(req, res) {
             res.status(200).json(checkResult || { accepted: false });
             break
         case 'POST':
-            if(checkResult) {
+            if (checkResult) {
                 res.status(200).json(checkResult);
                 return;
             }
             const { sig } = req.body
             let sigAddress = '';
+            let isMultisig = false;
 
             try {
                 sigAddress = verifyMessage(POA_CURRENT_MSG_TO_SIGN, sig);
@@ -37,12 +39,24 @@ export default async function handler(req, res) {
                 console.log(e);
             }
 
-            if (sigAddress.toLowerCase() !== address.toLowerCase()) {
-                res.status(401).json({ status: 'warning', message: 'Unauthorized' })
-                return
+            if (sigAddress?.toLowerCase() !== address.toLowerCase() || !sigAddress) {
+                // try to verify as multisig
+                let multisigVerifyResult;
+                try {
+                    multisigVerifyResult = await verifyMultisigMessage(address, hashMessage(POA_CURRENT_MSG_TO_SIGN), sig);
+                } catch (e) {
+                    console.log('multisig verify error');
+                    console.log(e);
+                }
+                if (!multisigVerifyResult?.valid) {
+                    res.status(401).json({ status: 'warning', message: 'Unauthorized' })
+                    return
+                } else {
+                    isMultisig = true;
+                }
             };
 
-            const result = { accepted: true, signature: sig, timestamp: Date.now(), version: POA_VERSION };
+            const result = { accepted: true, signature: sig, isMultisig, timestamp: Date.now(), version: POA_VERSION };
             await redisSetWithTimestamp(key, result);
             res.status(200).json({ accepted: result.accepted, timestamp: result.timestamp });
             break
