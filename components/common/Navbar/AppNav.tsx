@@ -62,6 +62,7 @@ import { useStakedInFirm } from '@app/hooks/useFirm'
 import { useAccount } from '@app/hooks/misc'
 import { PoaModal } from '../Modal/PoaModal'
 import { checkPoaSig } from '@app/util/poa'
+import { smartShortNumber } from '@app/util/markets'
 const NAV_ITEMS = MENUS.nav
 
 export const ThemeBtn = () => {
@@ -92,7 +93,7 @@ export const NavBadge = (props: any) => {
     fontWeight="semibold"
     color={NAV_BUTTON_TEXT_COLOR}
     p={2}
-    px={{ base: '2', xl: '4' }}
+    px={{ base: '2', xl: '3' }}
     {...props}
   />
 }
@@ -106,7 +107,7 @@ const NetworkBadge = ({
   isWrongNetwork: boolean,
   showWrongNetworkModal: () => void
 }) => {
-  const [isSmallerThan1200] = useMediaQuery('(max-width: 1200px)')
+  const [isSmallerThan1470] = useMediaQuery('(max-width: 1470px)')
   const [isSmallerThan1000] = useMediaQuery('(max-width: 1000px)')
   const { data } = useEtherSWR(['getGasPrice']);
 
@@ -117,7 +118,7 @@ const NetworkBadge = ({
       onClick={isWrongNetwork ? showWrongNetworkModal : undefined}
     // bg={'primary.800'}
     >
-      <NetworkItem isSupported={!isWrongNetwork} chainId={chainId} networkAttribute={isSmallerThan1000 ? null : isSmallerThan1200 && !isSmallerThan1000 ? 'coinSymbol' : 'name'} />
+      <NetworkItem isSupported={!isWrongNetwork} chainId={chainId} networkAttribute={isSmallerThan1000 ? null : isSmallerThan1470 && !isSmallerThan1000 ? 'coinSymbol' : 'name'} />
       <Flex direction="row" color="red" ml="1">
         {
           !!gasPrice &&
@@ -173,9 +174,9 @@ const INVBalance = () => {
       }
       <>
         <Text onClick={goToSupply} cursor={hasUnstakedBal ? 'pointer' : undefined} mr="1" color={hasUnstakedBal ? 'orange.300' : 'mainTextColor'}>
-          {inv.toFixed(2)} {RTOKEN_SYMBOL}
+          {smartShortNumber(inv, 2)} {RTOKEN_SYMBOL}
         </Text>
-        ({xinv.toFixed(2)} x{RTOKEN_SYMBOL})
+        ({smartShortNumber(xinv, 2)} x{RTOKEN_SYMBOL})
       </>
     </NavBadge>
   )
@@ -396,7 +397,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const { account } = useWeb3React<Web3Provider>();
   const { query } = useRouter()
   const [isLargerThan] = useMediaQuery('(min-width: 1330px)');
-  const [isLargerThan1470] = useMediaQuery('(min-width: 1470px)');
+  const [isLargerThan1300] = useMediaQuery('(min-width: 1300px)');
   const [isLargerThan1150] = useMediaQuery('(min-width: 1150px)');
   const [isLargerThan768] = useMediaQuery('(min-width: 768px)');
   const { themeName } = useAppTheme();
@@ -618,7 +619,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
 
               <Stack direction="row" align="center" display={{ base: 'none', lg: 'flex' }}>
                 {
-                  isLargerThan1470 && <INVBalance />
+                  isLargerThan1300 && <INVBalance />
                 }
                 {
                   isLargerThan1150 && <ETHBalance />
