@@ -76,6 +76,7 @@ const namedAddresses: { [key: string]: string } = {
     '0x3D1579B42a9e1D8E6a9b740A2F6A1161B93698Fe': 'CMeth',
     '0x1ff9c712B011cBf05B67A6850281b13cA27eCb2A': 'DebtConverter',
     '0x9eb6BF2E582279cfC1988d3F2043Ff4DF18fa6A0': 'DebtRepayer',
+    '0xC555347d2b369B074be94fE6F7Ae9Ab43966B884': 'Mason',
     // FiRM
     '0xAD038Eb671c44b853887A7E32528FaB35dC5D710': 'DBR',
     '0x4C7b266B4bf0A8758fa85E69292eE55c212236cF': 'MerkleDrop',
