@@ -79,8 +79,11 @@ const useFirmUserPositionEvolution = (
         const rewardsUsd = ((claims + histoEscrowDbrClaimable) * dbrHistoPrice) || 0;
         const estimatedStakedBonusUsd = estimatedStakedBonus * p[1];
         const priceToUse = p[1];
+        const cf = p[2];
+        const creditWorth = balance * priceToUse * cf;
         return {
             timestamp: p[0],
+            collateralFactor: cf * 100,
             cgHistoPrice: priceToUse,  
             oracleHistoPrice: priceToUse,
             dbrPrice: dbrHistoPrice,
@@ -91,6 +94,8 @@ const useFirmUserPositionEvolution = (
             event,
             depositsOnlyWorth: unstakedCollateralBalance * priceToUse,
             balanceWorth: balance * priceToUse,
+            borrowLimit: balance > 0 ? Math.min((debt/creditWorth) * 100, 100) : 0,
+            creditWorth,
             totalWorth: rewardsUsd + balance * priceToUse,
             totalRewardsUsd: rewardsUsd + estimatedStakedBonusUsd,
             // TODO: histo price dola
@@ -127,6 +132,9 @@ const useFirmUserPositionEvolution = (
         debt,
         debtUsd: debt,
         balance: deposits,
+        borrowLimit: deposits > 0 ? Math.min(debt/(deposits * currentPrice * market.collateralFactor) * 100, 100) : 0,
+        collateralFactor: market.collateralFactor * 100,
+        creditWorth: deposits * currentPrice * market.collateralFactor,
         balanceWorth: deposits * currentPrice,
         totalWorth: deposits * currentPrice + rewardsUsd,
         estimatedStakedBonus: collateralRewards,

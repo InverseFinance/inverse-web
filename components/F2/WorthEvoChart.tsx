@@ -49,6 +49,8 @@ const CHART_TABS = {
     'staking': 'Staking rewards',
     'dbrRewards': 'DBR rewards',
     'invDbr': 'INV & DBR',
+    'borrowLimit': 'Borrow Limit',
+    'collateralFactor': 'Collateral Factor',
 }
 
 const Cont = (props: AppContainerProps) => <Container
@@ -91,6 +93,9 @@ export const WorthEvoChart = ({
         'debtUsd': 'DOLA debt',
         'estimatedStakedBonusUsd': market.isInv ? 'INV anti-dilution rewards' : 'Staking earnings',
         'estimatedStakedBonus': market.isInv ? 'INV anti-dilution rewards' : 'Staking earnings',
+        'creditWorth': 'Credit Limit',
+        'borrowLimit': 'Borrow Limit',
+        'collateralFactor': 'Collateral Factor',
     }
 
     const mainEventColor = themeName === 'light' ? lightTheme.colors.mainTextColor : lightTheme.colors.lightPrimary;
@@ -134,6 +139,9 @@ export const WorthEvoChart = ({
     if (!market.borrowPaused) {
         tabOptions.push(CHART_TABS.debt);
     }
+    if (!market.isInv) {
+        tabOptions.push(CHART_TABS.borrowLimit);
+    }
     if (market.isInv) {
         if (walletSupportsEvents) {
             tabOptions.push(CHART_TABS.invDbr);
@@ -148,6 +156,8 @@ export const WorthEvoChart = ({
     const [useUsd, setUseUsd] = useState(true);
     const [showTotal, setShowTotal] = useState(true);
     const [showCollateral, setShowCollateral] = useState(false);
+    const [showCreditWorth, setShowCreditWorth] = useState(false);
+    const [showBorrowLimit, setShowBorrowLimit] = useState(false);
     const [showDbr, setShowDbr] = useState(false);
     const [showPrice, setShowPrice] = useState(true);
     const [showDbrPrice, setShowDbrPrice] = useState(false);
@@ -194,11 +204,13 @@ export const WorthEvoChart = ({
         setActiveTab(v);
         setShowTotal([CHART_TABS.overview].includes(v));
         setShowCollateral([CHART_TABS.collateral].includes(v));
+        setShowCreditWorth([CHART_TABS.borrowLimit].includes(v));
+        setShowBorrowLimit([CHART_TABS.borrowLimit].includes(v));
         setShowPrice([CHART_TABS.collateral, CHART_TABS.overview, CHART_TABS.debt, CHART_TABS.invDbr, CHART_TABS.invStaking, CHART_TABS.staking].includes(v));
-        setShowDebt(tabOptions.includes(CHART_TABS.debt) && [CHART_TABS.debt, CHART_TABS.overview].includes(v));
+        setShowDebt(tabOptions.includes(CHART_TABS.debt) && [CHART_TABS.debt, CHART_TABS.overview, CHART_TABS.borrowLimit].includes(v));
         setShowDbr(tabOptions.includes(CHART_TABS.dbrRewards) && [CHART_TABS.dbrRewards, CHART_TABS.invDbr, CHART_TABS.overview].includes(v));
         setShowDbrPrice(tabOptions.includes(CHART_TABS.dbrRewards) && [CHART_TABS.overview, CHART_TABS.dbrRewards, CHART_TABS.invDbr].includes(v));
-        setShowStaking(tabOptions.includes(CHART_TABS.staking) || tabOptions.includes(CHART_TABS.invStaking) && [CHART_TABS.invStaking, CHART_TABS.invDbr, CHART_TABS.staking, CHART_TABS.overview].includes(v));
+        setShowStaking((tabOptions.includes(CHART_TABS.staking) || tabOptions.includes(CHART_TABS.invStaking)) && [CHART_TABS.invStaking, CHART_TABS.invDbr, CHART_TABS.staking, CHART_TABS.overview].includes(v));
     }
 
     const containerLabel = `Your Position Evolution in the ${market.name} Market - Beta`;
@@ -212,7 +224,7 @@ export const WorthEvoChart = ({
         return <Cont {...contProps}>
             <SkeletonBlob />
         </Cont>
-    } else if(!data?.length) {
+    } else if (!data?.length) {
         return null;
     }
 
@@ -278,7 +290,11 @@ export const WorthEvoChart = ({
                     return moment(v).format('MMM Do')
                 }} />
                 <YAxis style={_axisStyle.tickLabels} yAxisId="left" tickFormatter={(v) => smartShortNumber(v, 2, useUsd)} />
-                <YAxis style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => shortenNumber(v, 4, true)} />
+                {
+                    showBorrowLimit ?
+                        <YAxis domain={[0,100]} style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => `${shortenNumber(v, 2)}%`} />
+                        : <YAxis style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => shortenNumber(v, 4, true)} />
+                }
                 <Tooltip
                     wrapperStyle={{ ..._axisStyle.tickLabels }}
                     contentStyle={{ backgroundColor: themeStyles.colors.mainBackgroundColor }}
@@ -287,7 +303,8 @@ export const WorthEvoChart = ({
                     itemStyle={{ fontWeight: 'bold' }}
                     formatter={(value, name) => {
                         const isPrice = [keyNames['histoPrice'], keyNames['cgHistoPrice'], keyNames['oracleHistoPrice']].includes(name);
-                        return !value ? 'none' : isPrice ? preciseCommify(value, value < 1 ? 4 : 2, true) : preciseCommify(value, !useUsd ? 2 : 0, useUsd)
+                        const isPerc = [keyNames['borrowLimit'], keyNames['collateralFactor']].includes(name);
+                        return !value ? 'none' : isPerc ? `${shortenNumber(value, 2)}%` : isPrice ? preciseCommify(value, value < 1 ? 4 : 2, true) : preciseCommify(value, !useUsd ? 2 : 0, useUsd)
                     }}
                 />
                 <Legend wrapperStyle={{
@@ -303,6 +320,9 @@ export const WorthEvoChart = ({
                     showCollateral && <Area opacity={actives[keyNames[balanceKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[balanceKey]} yAxisId="left" type="monotone" dataKey={balanceKey} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
                 }
                 {
+                    showCreditWorth && <Area opacity={actives[keyNames['creditWorth']] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames['creditWorth']} yAxisId="left" type="monotone" dataKey={'creditWorth'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
+                }
+                {
                     showDebt && <Area opacity={actives[keyNames[debtKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[debtKey]} yAxisId="left" type="monotone" dataKey={debtKey} stroke={themeStyles.colors.warning} dot={false} fillOpacity={0.5} fill="url(#warning-gradient)" />
                 }
                 {/* <Area opacity={actives[keyNames["worth"]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames["worth"]} yAxisId="left" type="monotone" dataKey={'worth'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" /> */}
@@ -314,6 +334,12 @@ export const WorthEvoChart = ({
                 }
                 {
                     showDbr && <Area opacity={actives[keyNames[claimsKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[claimsKey]} yAxisId="left" type="basis" dataKey={claimsKey} stroke={'gold'} dot={false} fillOpacity={0.5} fill="url(#gold-gradient)" />
+                }
+                {
+                    showBorrowLimit && <Line opacity={actives[keyNames['collateralFactor']] ? 1 : 0} strokeWidth={2} name={keyNames['collateralFactor']} yAxisId="right" type="basis" dataKey={'collateralFactor'} stroke={themeStyles.colors.info} dot={false} />
+                }
+                {
+                    showBorrowLimit && <Line opacity={actives[keyNames['borrowLimit']] ? 1 : 0} strokeWidth={2} name={keyNames['borrowLimit']} yAxisId="right" type="basis" dataKey={'borrowLimit'} stroke={themeStyles.colors.error} dot={false} />
                 }
                 {
                     showPrice && <Line opacity={actives[keyNames[priceRef]] ? 1 : 0} strokeWidth={2} name={keyNames[priceRef]} yAxisId="right" type="monotone" dataKey={priceRef} stroke={themeStyles.colors.info} dot={false} />
