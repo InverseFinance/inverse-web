@@ -30,9 +30,9 @@ import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
 import { BURN_ADDRESS } from '@app/config/constants'
 
 const AlreadyDelegating = ({ isSelf }: { isSelf: boolean }) => (
-  <Box textAlign="center">
-    <InfoMessage alertProps={{ p: '9' }} description={`You're currently delegating to ${isSelf ? 'yourself' : 'this address'} ${isSelf ? '✅' : '🤝'}`} />
-    <Text mt="2" textAlign="center">
+  <Box textAlign="left">
+    <InfoMessage alertProps={{ p: '9', w: 'full' }} description={`You're currently delegating to ${isSelf ? 'yourself' : 'this address'} ${isSelf ? '✅' : '🤝'}`} />
+    <Text mt="2" textAlign="left">
       Share the link to this page if you want supporters delegating to {isSelf ? 'you' : 'this address'}
     </Text>
   </Box>
@@ -70,9 +70,10 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
   const { delegates, isLoading } = useDelegates(address)
   const { delegates: topDelegates } = useTopDelegates()
   const [isLargerThan780] = useMediaQuery('(min-width: 780px)')
-  const { INV, XINV } = getNetworkConfigConstants(chainId)
+  const { INV, XINV, F2_MARKETS } = getNetworkConfigConstants(chainId)
   const { ensName, ensProfile, hasEnsProfile } = useEnsProfile(address)
   const [notConnected, setNotConnected] = useState(false);
+  const { data: addressFirmInvEscrow } = useEtherSWR([F2_MARKETS.find(m => m.isInv).address, 'escrows', address]);
 
   const cachedDelegate = delegates && delegates[address];
   const delegate = cachedDelegate && { ...cachedDelegate } || { address, votingPower: 0, votes: [], delegators: [], ensName: '' }
@@ -200,7 +201,7 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
       />
       <Divider py="1" />
       {
-        tab === 'supporters' && <DelegateDetails delegate={delegate} supporters={supporters} />
+        tab === 'supporters' && <DelegateDetails delegateFirmInvEscrow={addressFirmInvEscrow} delegate={delegate} supporters={supporters} />
       }
       {
         tab === 'delegations' && <DelegatingEventsTable
@@ -216,7 +217,7 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
   )
 }
 
-export const DelegateDetails = ({ delegate, supporters }: { delegate: Partial<Delegate>, supporters: string[] }) => {
+export const DelegateDetails = ({ delegate, delegateFirmInvEscrow, supporters }: { delegate: Partial<Delegate>, delegateFirmInvEscrow: string, supporters: string[] }) => {
   const items = supporters.map((d) => ({
     address: d,
   }));
@@ -246,6 +247,7 @@ export const DelegateDetails = ({ delegate, supporters }: { delegate: Partial<De
       inv: invBalance,
       xinv: xinvBalance * exRate,
       delegatedPower,
+      isOwnFirmEscrow: item.address === delegateFirmInvEscrow && delegateFirmInvEscrow !== BURN_ADDRESS,
     }
   });
 
