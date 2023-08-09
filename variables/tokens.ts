@@ -889,21 +889,21 @@ const chainTokens = {
       ],
       protocolImage: PROTOCOL_IMAGES.AURA,
     },
-    // [chainTokenAddresses["1"].DOLACRVUSDLP]: {
-    //   address: chainTokenAddresses["1"].DOLACRVUSDLP,
-    //   name: 'DOLA-crvUSD',
-    //   symbol: 'DOLA-crvUSD clp', 
-    //   protocolImage: PROTOCOL_IMAGES.CRV,
-    //   decimals: 18,
-    //   isLP: true,
-    //   isStable: true,
-    //   isCrvLP: true,
-    //   pairs: [
-    //     '0x865377367054516e17014CcdED1e7d814EDC9ce4', '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E'
-    //   ],
-    //   image: TOKEN_IMAGES.DOLA,
-    //   link: 'https://curve.fi/#/ethereum/pools/factory-crvusd-12/deposit',
-    // },
+    [chainTokenAddresses["1"].DOLACRVUSDLP]: {
+      address: chainTokenAddresses["1"].DOLACRVUSDLP,
+      name: 'DOLA-crvUSD',
+      symbol: 'DOLA-crvUSD clp', 
+      protocolImage: PROTOCOL_IMAGES.CRV,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isCrvLP: true,
+      pairs: [
+        '0x865377367054516e17014CcdED1e7d814EDC9ce4', '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E'
+      ],
+      image: TOKEN_IMAGES.DOLA,
+      link: 'https://curve.fi/#/ethereum/pools/factory-crvusd-12/deposit',
+    },
     [chainTokenAddresses["1"].CRVUSD]: {
       address: chainTokenAddresses["1"].CRVUSD,
       name: 'crvUSD',
