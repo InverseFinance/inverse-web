@@ -7,6 +7,7 @@ import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { CHAIN_ID } from '@app/config/constants';
 import { F2_UNIQUE_USERS_CACHE_KEY } from './firm-positions';
+import { getGroupedMulticallOutputs } from '@app/util/multicall';
 
 const { F2_MARKETS, DBR } = getNetworkConfigConstants();
 
@@ -42,14 +43,14 @@ export default async function handler(req, res) {
 
     dbrUsers = [...new Set(dbrUsers)];
 
-    const [signedBalanceBn, debtsBn] = await Promise.all(
+    const [signedBalanceBn, debtsBn] = await getGroupedMulticallOutputs(
       [
-        Promise.all(dbrUsers.map(u => {
-          return dbrContract.signedBalanceOf(u);
-        })),
-        Promise.all(dbrUsers.map(u => {
-          return dbrContract.debts(u);
-        })),
+        dbrUsers.map(u => {
+          return { contract: dbrContract, functionName: 'signedBalanceOf', params: [u] }
+        }),
+        dbrUsers.map(u => {
+          return { contract: dbrContract, functionName: 'debts', params: [u] }
+        }),
       ]
     );
 

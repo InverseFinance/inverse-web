@@ -10,6 +10,7 @@ import { getBnToNumber } from '@app/util/markets';
 import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
 import { F2_ESCROW_ABI } from '@app/config/abis';
 import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
+import { getMulticallOutput } from '@app/util/multicall';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -42,14 +43,14 @@ export default async function handler(req, res) {
         let tvl = 0;
         const marketTvls = {};
 
-        const depositsBn = await Promise.all(
+        const depositsBn = await getMulticallOutput(
             firmMarketUsers.map((f, i) => {
                 const marketAd = F2_MARKETS[f.marketIndex].address;
                 const users = marketUsersAndEscrows[marketAd].users;
                 const escrow = new Contract(marketUsersAndEscrows[marketAd].escrows[users.indexOf(f.user)], F2_ESCROW_ABI, provider);
-                return escrow.balance();
+                return { contract: escrow, functionName: 'balance' };
             })
-        );
+        )
         const deposits = depositsBn.map((bn, i) => getBnToNumber(bn, getToken(CHAIN_TOKENS[CHAIN_ID], F2_MARKETS[firmMarketUsers[i].marketIndex].collateral)?.decimals));
 
         firmMarketUsers.forEach((p, i) => {
