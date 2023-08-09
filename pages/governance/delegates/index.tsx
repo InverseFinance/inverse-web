@@ -262,14 +262,16 @@ export const PastVotesTable = ({ delegate }: { delegate: Partial<Delegate> }) =>
   )
 }
 
-const SupporterField = ({ address }: { address: string }) => {
+const SupporterField = ({ address, isOwnFirmEscrow }: { address: string, isOwnFirmEscrow: boolean }) => {
   const { addressName } = useNamedAddress(address);
   return (
     (
       <Stack direction="row" align="flex-start" spacing={4} minWidth={'200px'}>
         <Stack direction="row" align="flex-start">
           <Avatar address={address} sizePx={24} />
-          <Flex>{addressName}</Flex>
+          <Flex>
+            {isOwnFirmEscrow ? "Personal FiRM INV escrow" : addressName}
+          </Flex>
         </Stack>
       </Stack>
     )
@@ -293,7 +295,7 @@ export const SupportersTable = ({
       field: 'address',
       label: 'Delegator',
       header: ({ ...props }) => <Flex minWidth={'200px'} {...props} />,
-      value: ({ address }: Supporter, i: number) => <SupporterField address={address} />
+      value: ({ address, isOwnFirmEscrow }: Supporter, i: number) => <SupporterField isOwnFirmEscrow={isOwnFirmEscrow} address={address} />
     },
     {
       field: 'delegatedPower',
@@ -313,7 +315,7 @@ export const SupportersTable = ({
         label: 'INV',
         header: ({ ...props }) => <Flex justify="center" minWidth={'50px'} {...props} />,
         value: ({ inv }: Supporter) => <Flex justify="center" minWidth={'50px'}>
-          {shortenNumber(inv, 2, false, true)}
+          {inv > 0 ? shortenNumber(inv, 2, false, true) : '-'}
         </Flex>,
       }
     );
@@ -322,7 +324,7 @@ export const SupportersTable = ({
       label: 'Staked INV',
       header: ({ ...props }) => <Flex justify="center" minWidth={'80px'} {...props} />,
       value: ({ xinv }: Supporter) => <Flex justify="center" minWidth={'80px'}>
-        {shortenNumber(xinv, 2, false, true)}
+        {xinv > 0 ? shortenNumber(xinv, 2, false, true) : '-'}
       </Flex>,
     })
   }
@@ -343,23 +345,16 @@ export const SupportersTable = ({
       position="relative"
       collapsable={true}
       label={`${delegators.length} Delegator${delegators.length > 1 ? 's' : ''}${nbActive !== delegators.length ? ` (${nbActive} with power)` : ''} - Updated Every 15 min`}
-      description={
-        <Stack direction={{ base: 'column', sm: 'row' }} justify="space-between" w='full'>
-          <Text fontSize="12px" color="secondaryTextColor">
-            Total Power Received Thanks to Supporters: {shortenNumber(genkidama, 2)} / {shortenNumber(delegate.votingPower, 2)} => {shortenNumber(genkidamaPerc, 2)}%{genkidamaPerc > 100 ? ' (% > 100 means that the Cached Supporter list differ a bit from live voting power)' : ''}
-            <AnimatedInfoTooltip iconProps={{ ml: '1', fontSize: '10px' }} message={
-              <VStack>
-                <Text><b>Delegators</b>: Includes the Delegate</Text>
-                <Text><b>Supporters</b>: Delegators excluding the Delegate</Text>
-              </VStack>
-            } />
-          </Text>
-          <HStack position={{ base: 'static', sm: 'absolute' }} right="24px" alignItems="center">
-            <Text fontSize="12px">Only With Power:</Text>
-            <Switch isChecked={isOnlyActive} onChange={() => setIsOnlyActive(!isOnlyActive)} />
-          </HStack>
-        </Stack>
+      right={
+        <HStack position={{ base: 'static', sm: 'absolute' }} right="24px" alignItems="center">
+          <Text fontSize="12px">Only With Power:</Text>
+          <Switch isChecked={isOnlyActive} onChange={() => setIsOnlyActive(!isOnlyActive)} />
+        </HStack>
       }
+      headerProps={{
+        direction: { base: 'column', md: 'row' },
+        align: { base: 'flex-start', md: 'flex-end' },
+      }}
     >
       {
         delegators?.length > 0 ?
