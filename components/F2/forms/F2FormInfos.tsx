@@ -126,14 +126,17 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
     } = useContext(F2MarketContext);
 
     const [now, setNow] = useState(Date.now());
-    const { isLoading: isLoadingEvents, events, depositedByUser, liquidated } = useFirmMarketEvents(market, account);
+    const { isLoading: isLoadingEvents, events, depositedByUser, currentCycleDepositedByUser, liquidated } = useFirmMarketEvents(market, account);
     const { formattedEvents, isLoading: isLoadingEventsFromApi } = useEscrowBalanceEvolution(account, escrow, market.address, firmActionIndex);
-    const { grouped: groupedEventsFallback, depositedByUser: depositedByUserFallback, liquidated: liquidatedFallback } = formatAndGroupFirmEvents(market, account, formattedEvents);
+    const { grouped: groupedEventsFallback, depositedByUser: depositedByUserFallback, currentCycleDepositedByUser: currentCycleDepositedByUserFallback, liquidated: liquidatedFallback } = formatAndGroupFirmEvents(market, account, formattedEvents);
     // same length, use data from api (timestamp already there), otherwise use prefer live data from blockchain
     const _events = events?.length > groupedEventsFallback?.length ? events : groupedEventsFallback;    
     const _depositedByUser = depositedByUser || depositedByUserFallback;
+    const _currentCycleDepositedByUser = currentCycleDepositedByUser || currentCycleDepositedByUserFallback;
     const _liquidated = liquidated || liquidatedFallback;
-    const collateralRewards = _depositedByUser > 0 ? (deposits + (_liquidated)) - _depositedByUser : 0;
+    const totalAccCollateralRewards = _depositedByUser > 0 ? (deposits + (_liquidated)) - _depositedByUser : 0;
+    // current cycle's collateral rewards
+    const collateralRewards = _currentCycleDepositedByUser > 0 ? (deposits + (_liquidated)) - _currentCycleDepositedByUser : 0;
 
     useEffect(() => {
         let interval = setInterval(() => {
@@ -344,12 +347,12 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
 
     const stakingInfos = !hasCollateralRewards ? [] : [
         {
-            tooltip: 'The amount of collateral that comes from your deposits alone (excludes staking rewards and liquidations)',
+            tooltip: 'The amount of collateral that comes from your deposits alone (excludes staking rewards and liquidations) for the current position',
             title: 'Originally Deposited',
             value: _depositedByUser >= 0 ? `${shortenNumber(_depositedByUser, 2)} ${market.underlying.symbol}` : 'All have been withdrawn',
         },
         {
-            tooltip: 'The increase in collateral balance thanks to staking, anti-dilution protection or other mechanism that increases your collateral balance over time. USD value at current price.',
+            tooltip: 'The increase in collateral balance since the start of the current position thanks to staking, anti-dilution protection or other mechanism that increases your collateral balance over time. USD value at current price. Amounts from previously closed positions are not included.',
             title: market.isInv ? 'Anti-dilution protection' : 'Earned with staking',
             value: `${preciseCommify(collateralRewards, 2)} ${market.underlying.symbol} (${shortenNumber(collateralRewards * market.price, 2, true)})`,
             color: 'seagreen',

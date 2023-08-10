@@ -155,6 +155,7 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
   isLoading: boolean
   error: any
   depositedByUser: number
+  currentCycleDepositedByUser: number
   liquidated: number
   lastBlock: number
 } => {
@@ -168,11 +169,13 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
     [DBR, DBR_ABI, 'ForceReplenish', [account, undefined, market.address]],
   ], `firm-market-${market.address}-${account}`);
 
-  const flatenedEvents = groupedEvents.flat();
+  const flatenedEvents = groupedEvents.flat().sort(ascendingEventsSorter);
   const lastTxBlockFromLast1000 = useBlockTxFromLast1000(market, account);
 
   // can be different than current balance when staking
   let depositedByUser = 0;
+  // originally deposited in the current "cycle" (new cycle = deposit goes from 0 to > 0)
+  let currentCycleDepositedByUser = 0;
   let liquidated = 0;
 
   const events = flatenedEvents.map(e => {
@@ -193,7 +196,12 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
     const liquidatorReward = e.args?.liquidatorReward ? getBnToNumber(e.args?.liquidatorReward, decimals) : undefined;
 
     if (isCollateralEvent && !!amount) {
-      depositedByUser = depositedByUser + (e.event === 'Deposit' ? amount : -amount);
+      const colDelta = (e.event === 'Deposit' ? amount : -amount);
+      depositedByUser = depositedByUser + colDelta;
+      currentCycleDepositedByUser = currentCycleDepositedByUser + colDelta;
+      if(currentCycleDepositedByUser < 0) {
+        currentCycleDepositedByUser = 0;
+      }
     } else if (e.event === 'Liquidate' && !!liquidatorReward) {
       liquidated += liquidatorReward;
     }
@@ -228,6 +236,7 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
   return {
     events: grouped,
     depositedByUser,
+    currentCycleDepositedByUser,
     liquidated,
     lastBlock: blocks?.length ? Math.max(...blocks) : lastTxBlockFromLast1000,
     isLoading,

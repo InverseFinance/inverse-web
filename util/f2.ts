@@ -503,8 +503,9 @@ export const formatAndGroupFirmEvents = (
 ) => {
     // can be different than current balance when staking
     let depositedByUser = 0;
+    // originally deposited in the current "cycle" (new cycle = deposit goes from 0 to > 0)
+    let currentCycleDepositedByUser = 0;
     let liquidated = 0;
-
     const events = flatenedEvents.map(e => {
         const name = e.event||e.name;
         const isCollateralEvent = ['Deposit', 'Withdraw', 'Liquidate'].includes(name);
@@ -527,7 +528,13 @@ export const formatAndGroupFirmEvents = (
         const liquidatorReward = e.liquidatorReward ? e.liquidatorReward : e.args?.liquidatorReward ? getBnToNumber(e.args?.liquidatorReward, decimals) : undefined;
 
         if (isCollateralEvent && !!amount) {
-            depositedByUser = depositedByUser + (name === 'Deposit' ? amount : -amount);
+            const colDelta = (name === 'Deposit' ? amount : -amount)
+            depositedByUser = depositedByUser + colDelta;
+            currentCycleDepositedByUser = currentCycleDepositedByUser + colDelta;
+            if(currentCycleDepositedByUser < 0) {
+                currentCycleDepositedByUser = 0;
+            }
+            // console.log('depositedByUser', depositedByUser, 'amount', a)
         } else if (name === 'Liquidate' && !!liquidatorReward) {
             liquidated += liquidatorReward;
         }
@@ -563,6 +570,7 @@ export const formatAndGroupFirmEvents = (
     return {
         grouped,
         depositedByUser,
+        currentCycleDepositedByUser,
         liquidated,
     };
 }
