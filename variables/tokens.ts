@@ -91,7 +91,7 @@ const chainTokenAddresses = {
     CUSD: '0xC285B7E09A4584D027E5BC36571785B515898246',
     DOLACUSDBLP: '0x384F67aA430376efc4f8987eaBf7F3f84eB9EA5d',
     DOLACUSDALP: '0x0995a508dF9606f1C6D512a2d6BA875Cf3cE94C3',
-    DOLAUSDCALP: '0x22915f309ec0182c85cd8331c23bd187fd761360',
+    // DOLAUSDCALP: '0x22915f309ec0182c85cd8331c23bd187fd761360',
     DOLAUSDCALP2: '0xb139946D2F0E71b38e2c75d03D87C5E16339d2CD',
     DOLAFRAXUSDCCVX: '0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c',
     DOLACRVUSDLP: '0x8272e1a3dbef607c04aa6e5bd3a1a134c8ac063b',
@@ -525,7 +525,7 @@ const chainTokens = {
         '0x865377367054516e17014CcdED1e7d814EDC9ce4', '0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC'
       ],
       image: TOKEN_IMAGES.DOLA,
-      link: 'https://www.convexfinance.com/stake',
+      link: 'https://www.convexfinance.com/stake/ethereum/115',
     },
     // [chainTokenAddresses["1"].DOLACUSDALP]: {
     //   address: chainTokenAddresses["1"].DOLACUSDALP,
@@ -560,7 +560,7 @@ const chainTokens = {
         '0x865377367054516e17014CcdED1e7d814EDC9ce4', '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
       ],
       image: TOKEN_IMAGES.DOLA,
-      deduce: [chainTokenAddresses["1"].DOLAUSDCALP, chainTokenAddresses["1"].DOLAUSDCALP2],
+      deduce: [chainTokenAddresses["1"].DOLAUSDCALP2],
     },
     [chainTokenAddresses["1"].DBRDOLABALANCER]: {
       address: chainTokenAddresses["1"].DBRDOLABALANCER,
@@ -855,23 +855,23 @@ const chainTokens = {
       ],
       protocolImage: PROTOCOL_IMAGES.AURA,
     },
-    [chainTokenAddresses["1"].DOLAUSDCALP]: {
-      address: chainTokenAddresses["1"].DOLAUSDCALP,
-      name: 'DOLA-USDC alp',
-      symbol: 'DOLA-USDC alp',
-      image: TOKEN_IMAGES.DOLA,
-      decimals: 18,
-      isLP: true,
-      isStable: true,
-      balancerInfos: {
-        poolId: '0xff4ce5aaab5a627bf82f4a571ab1ce94aa365ea6000200000000000000000426',
-        vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
-      },
-      pairs: [
-        chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].USDC
-      ],
-      protocolImage: PROTOCOL_IMAGES.AURA,
-    },
+    // [chainTokenAddresses["1"].DOLAUSDCALP]: {
+    //   address: chainTokenAddresses["1"].DOLAUSDCALP,
+    //   name: 'DOLA-USDC alp',
+    //   symbol: 'DOLA-USDC alp',
+    //   image: TOKEN_IMAGES.DOLA,
+    //   decimals: 18,
+    //   isLP: true,
+    //   isStable: true,
+    //   balancerInfos: {
+    //     poolId: '0xff4ce5aaab5a627bf82f4a571ab1ce94aa365ea6000200000000000000000426',
+    //     vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
+    //   },
+    //   pairs: [
+    //     chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].USDC
+    //   ],
+    //   protocolImage: PROTOCOL_IMAGES.AURA,
+    // },
     [chainTokenAddresses["1"].DOLAUSDCALP2]: {
       address: chainTokenAddresses["1"].DOLAUSDCALP2,
       name: 'DOLA-USDC aulp',
