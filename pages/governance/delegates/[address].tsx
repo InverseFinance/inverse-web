@@ -28,6 +28,7 @@ import { getBnToNumber, shortenNumber } from '@app/util/markets'
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect'
 import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
 import { BURN_ADDRESS } from '@app/config/constants'
+import { useStakedInFirm } from '@app/hooks/useFirm'
 
 const AlreadyDelegating = ({ isSelf }: { isSelf: boolean }) => (
   <Box textAlign="left">
@@ -70,10 +71,10 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
   const { delegates, isLoading } = useDelegates(address)
   const { delegates: topDelegates } = useTopDelegates()
   const [isLargerThan780] = useMediaQuery('(min-width: 780px)')
-  const { INV, XINV, F2_MARKETS } = getNetworkConfigConstants(chainId)
+  const { INV, XINV } = getNetworkConfigConstants(chainId)
   const { ensName, ensProfile, hasEnsProfile } = useEnsProfile(address)
   const [notConnected, setNotConnected] = useState(false);
-  const { data: addressFirmInvEscrow } = useEtherSWR([F2_MARKETS.find(m => m.isInv).address, 'escrows', address]);
+  const { escrow: addressFirmInvEscrow } = useStakedInFirm(address);
 
   const cachedDelegate = delegates && delegates[address];
   const delegate = cachedDelegate && { ...cachedDelegate } || { address, votingPower: 0, votes: [], delegators: [], ensName: '' }

@@ -266,7 +266,7 @@ const SupporterField = ({ address, isOwnFirmEscrow }: { address: string, isOwnFi
   const { addressName } = useNamedAddress(address);
   return (
     (
-      <Stack direction="row" align="flex-start" spacing={4} minWidth={'200px'}>
+      <Stack direction="row" align="flex-start" spacing={4} minWidth={'220px'}>
         <Stack direction="row" align="flex-start">
           <Avatar address={address} sizePx={24} />
           <Flex>
@@ -294,7 +294,7 @@ export const SupportersTable = ({
     {
       field: 'address',
       label: 'Delegator',
-      header: ({ ...props }) => <Flex minWidth={'200px'} {...props} />,
+      header: ({ ...props }) => <Flex minWidth={'220px'} {...props} />,
       value: ({ address, isOwnFirmEscrow }: Supporter, i: number) => <SupporterField isOwnFirmEscrow={isOwnFirmEscrow} address={address} />
     },
     {
