@@ -38,10 +38,10 @@ const DelegatingTo = ({ label, delegate, account, chainId }: { label: string, de
       {delegate === AddressZero ? (
         <Text color="error">Nobody</Text>
       ) : delegate === account ? (
-        <Text  color="mainTextColor">Self</Text>
+        <Text color="mainTextColor">Self</Text>
       ) : (
         <Stack direction="row" align="center">
-          <Avatar address={delegate} sizePx={20}  />
+          <Avatar address={delegate} sizePx={20} />
           <Text color="mainTextColor">{namedAddress(delegate, chainId)}</Text>
         </Stack>
       )}
@@ -79,6 +79,7 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
   const votingPower = parseFloat(formatUnits(currentVotes || 0)) + parseFloat(formatUnits(currentVotesX || 0)) * parseFloat(formatUnits(exchangeRate || '1'));
 
   const needToShowXinvDelegate = parseFloat(formatUnits(xinvBalance)) > 0 && invDelegate !== xinvDelegate
+  const needToShowFirmDelegate = stakedInFirm > 0 && invDelegate !== firmDelegate
   const rtokenSymbol = process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL!
 
   return (
@@ -100,7 +101,7 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
           {(invBalance ? parseFloat(formatUnits(invBalance)) : 0).toFixed(4)}
         </VotingWalletField>
         <VotingWalletField label={`Eligible x${rtokenSymbol}`}>
-          {(xinvBalance || firmInvDelegated ? parseFloat(formatUnits(xinvBalance)) * parseFloat(formatUnits(exchangeRate))+firmInvDelegated : 0).toFixed(4)}
+          {(xinvBalance || firmInvDelegated ? parseFloat(formatUnits(xinvBalance)) * parseFloat(formatUnits(exchangeRate)) + firmInvDelegated : 0).toFixed(4)}
         </VotingWalletField>
         <VotingWalletField label="Voting Power">{votingPower.toFixed(4)}</VotingWalletField>
         <DelegatingTo label={!needToShowXinvDelegate ? 'Delegating To' : `Delegating ${rtokenSymbol} to`}
@@ -114,6 +115,10 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
                 description={`Your x${rtokenSymbol} delegation is out of sync with ${rtokenSymbol}, you can sync them by doing the delegation process`} />
             </>
             : null
+        }
+        {
+          needToShowFirmDelegate && <DelegatingTo label={'FiRM Delegating To'}
+            delegate={firmDelegate} account={userAddress} chainId={chainId?.toString()} />
         }
         <Flex
           w="full"
