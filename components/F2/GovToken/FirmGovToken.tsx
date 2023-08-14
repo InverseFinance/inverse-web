@@ -77,7 +77,7 @@ export const FirmGovToken = () => {
                 <VStack p="2" w='full' alignItems="flex-start">
                     <Input _hover={hasError ? {} : undefined} borderWidth="1" borderColor={hasError ? !!newDelegate ? 'error' : undefined : 'success'} onChange={(e) => setNewDelegate(e.target.value)} fontSize="14px" value={newDelegate} placeholder={'New delegate address'} />
                     {
-                        delegatingTo?.toLowerCase() === newDelegate.toLowerCase()
+                        delegatingTo?.toLowerCase() === newDelegate.toLowerCase() && !!delegatingTo && !!newDelegate
                         && <InfoMessage alertProps={{ w: 'full' }} description="You already delegate to that address" />
                     }
                 </VStack>
