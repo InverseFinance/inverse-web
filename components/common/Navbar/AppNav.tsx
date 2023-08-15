@@ -233,10 +233,15 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
   const close = () => setIsOpen(false)
   const { isOpen: isViewAsOpen, onOpen: onViewAsOpen, onClose: onViewAsClose } = useDisclosure()
   const { BUTTON_BORDER_COLOR, BUTTON_BG, BUTTON_TEXT_COLOR } = useAppThemeParams();
+  const [isIframe, setIsIframe] = useState(false);
 
   useDualSpeedEffect(() => {
     setConnectBtnLabel(active && userAddress ? addressName : 'Connect')
   }, [active, userAddress, addressName], !userAddress, 1000)
+
+  useEffect(() => {
+    setIsIframe(window.parent !== window);
+  }, []);
 
   useDualSpeedEffect(() => {
     if (connector instanceof CoinbaseWallet && active) {
@@ -359,12 +364,14 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
                 <Image w={6} h={6} src="/assets/wallets/coinbase.png" />
                 <Text fontWeight="semibold">Coinbase Wallet</Text>
               </ConnectionMenuItem>
-              <ConnectionMenuItem
-                onClick={connectSafeApp}
-              >
-                <Image w={6} h={6} src="/assets/wallets/WalletConnect.svg" />
-                <Text fontWeight="semibold">Gnosis Safe</Text>
-              </ConnectionMenuItem>
+              {
+                isIframe && <ConnectionMenuItem
+                  onClick={connectSafeApp}
+                >
+                  <Image borderRadius="4px" w={6} h={6} src="/assets/wallets/gnosis-safe.jpeg" />
+                  <Text fontWeight="semibold">Gnosis Safe</Text>
+                </ConnectionMenuItem>
+              }
             </Stack>
           </PopoverBody>
         )}
@@ -418,7 +425,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const [isLargerThan768] = useMediaQuery('(min-width: 768px)');
   const { themeName } = useAppTheme();
   const { isActive, chainId } = useWeb3React<Web3Provider>();
- 
+
   const userAddress = useAccount();
   const { isEligible, hasClaimed, isLoading } = useCheckDBRAirdrop(userAddress);
   const [showAirdropModal, setShowAirdropModal] = useState(false);
@@ -433,10 +440,10 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
     isMountedRef.current = true;
     const init = async () => {
       const checkSigData = await checkPoaSig(account);
-      if(!isMountedRef.current) return;
+      if (!isMountedRef.current) return;
       setTosApproved(!!checkSigData?.accepted);
     }
-    if(!account) {
+    if (!account) {
       setTosApproved(false);
       return;
     }
@@ -448,7 +455,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
 
   useEffect(() => {
     const tosOpen = (d) => {
-      if(tosApproved) {
+      if (tosApproved) {
         d.detail.onOk()();
         return;
       } else {
@@ -457,7 +464,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
       };
     }
     document.addEventListener('poa-modal', tosOpen);
-    return () => {      
+    return () => {
       document.removeEventListener('poa-modal', tosOpen, false);
     }
   }, [tosApproved]);
@@ -466,9 +473,9 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
 
   const [badgeChainId, setBadgeChainId] = useState(chainId)
   const { nbNotif } = useGovernanceNotifs();
-  
+
   useDebouncedEffect(() => {
-    if(isLoading) return
+    if (isLoading) return
     setShowAirdropModal(isEligible && !hasClaimed);
   }, [isEligible, hasClaimed, isLoading], 5000);
 
@@ -518,7 +525,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   useEffect(() => {
     if (!badgeChainId) { return }
     // swap page: any network is fine
-    const isSupported = location.pathname === '/swap' || isSupportedNetwork(badgeChainId);    
+    const isSupported = location.pathname === '/swap' || isSupportedNetwork(badgeChainId);
     setIsUsupportedNetwork(!isSupported)
     if (!isSupported) {
       onWrongNetOpen();
