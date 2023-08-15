@@ -25,6 +25,7 @@ import { useWeb3React } from '@web3-react/core'
 import { WalletConnect as WalletConnectV2 } from '@web3-react/walletconnect-v2'
 import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
 import { MetaMask } from '@web3-react/metamask'
+import { GnosisSafe } from '@web3-react/gnosis-safe'
 import { useEffect, useRef, useState } from 'react'
 import { Announcement } from '@app/components/common/Announcement'
 import WrongNetworkModal from '@app/components/common/Modal/WrongNetworkModal'
@@ -42,7 +43,7 @@ import { ViewAsModal } from './ViewAsModal'
 import { getEnsName, namedAddress } from '@app/util'
 import { Avatar } from '@app/components/common/Avatar';
 import { MENUS } from '@app/variables/menus'
-import { metamaskInjector, walletConnectV2, coinbaseWallet } from '@app/variables/connectors'
+import { metamaskInjector, walletConnectV2, coinbaseWallet, gnosisSafe } from '@app/variables/connectors'
 
 import { RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
@@ -244,6 +245,8 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
       setIsPreviouslyConnected(true, 'injected');
     } else if (connector instanceof WalletConnectV2 && active) {
       setIsPreviouslyConnected(true, 'walletConnect');
+    } else if (connector instanceof GnosisSafe && active) {
+      setIsPreviouslyConnected(true, 'safe-app');
     }
   }, [active, userAddress, connector], !userAddress, 1000)
 
@@ -284,6 +287,13 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
     coinbaseWallet?.activate();
     // activate(location.pathname === '/swap' ? metamaskInjector : metamaskInjector)    
     gaEvent({ action: 'connect-coinbaseWallet' })
+  }
+
+  const connectSafeApp = () => {
+    close()
+    gnosisSafe?.activate();
+    // activate(location.pathname === '/swap' ? metamaskInjector : metamaskInjector)    
+    gaEvent({ action: 'connect-safe-app' })
   }
 
   return (
@@ -348,6 +358,12 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
               >
                 <Image w={6} h={6} src="/assets/wallets/coinbase.png" />
                 <Text fontWeight="semibold">Coinbase Wallet</Text>
+              </ConnectionMenuItem>
+              <ConnectionMenuItem
+                onClick={connectSafeApp}
+              >
+                <Image w={6} h={6} src="/assets/wallets/WalletConnect.svg" />
+                <Text fontWeight="semibold">Gnosis Safe</Text>
               </ConnectionMenuItem>
             </Stack>
           </PopoverBody>
@@ -479,6 +495,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
         'coinbase': location.pathname === '/swap' ? coinbaseWallet : coinbaseWallet,
         'injected': location.pathname === '/swap' ? metamaskInjector : metamaskInjector,
         'walletConnect': location.pathname === '/swap' ? walletConnectV2 : walletConnectV2,
+        'safe-app': location.pathname === '/swap' ? gnosisSafe : gnosisSafe,
       }
       const previousConnector = connectors[previousConnectorType];
       if (previousConnector) {

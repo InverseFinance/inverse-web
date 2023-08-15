@@ -33,6 +33,7 @@
     "@sushiswap/sushi-data": "^1.0.26",
     "@web3-react/coinbase-wallet": "^8.2.0",
     "@web3-react/core": "^8.2.0",
+    "@web3-react/gnosis-safe": "^8.2.1",
     "@web3-react/metamask": "^8.2.1",
     "@web3-react/store": "^8.2.0",
     "@web3-react/types": "^8.2.0",
