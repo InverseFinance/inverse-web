@@ -43,9 +43,9 @@ const columns = [
     {
         field: 'user',
         label: 'User',
-        header: ({ ...props }) => <ColHeader justify="flex-start" {...props} minWidth="120px" />,
+        header: ({ ...props }) => <ColHeader justify="flex-start" {...props} minWidth="130px" />,
         value: ({ user }) => {
-            return <Cell w="120px" justify="flex-start" position="relative" onClick={(e) => e.stopPropagation()}>
+            return <Cell w="130px" justify="flex-start" position="relative" onClick={(e) => e.stopPropagation()}>
                 <Link isExternal href={`/firm?viewAddress=${user}`}>
                     <ViewIcon color="blue.600" boxSize={3} />
                 </Link>
@@ -54,6 +54,16 @@ const columns = [
         },
         showFilter: true,
         filterWidth: '100px',
+    },
+    {
+        field: 'stakedInvUsd',
+        label: 'INV staked',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        value: ({ stakedInvUsd }) => {
+            return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">                
+                <CellText>{stakedInvUsd > 0 ? shortenNumber(stakedInvUsd, 2, true) : '-'}</CellText>
+            </Cell>
+        },
     },
     {
         field: 'depositsUsd',
@@ -71,7 +81,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ creditLimit }) => {
             return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">                
-                <CellText>{shortenNumber(creditLimit, 2, true)}</CellText>
+                <CellText>{creditLimit > 0 ? shortenNumber(creditLimit, 2, true): '-'}</CellText>
             </Cell>
         },
     },
@@ -81,7 +91,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ debt }) => {
             return <Cell minWidth="100px" justify="center" >
-                <CellText>{shortenNumber(debt, 2)}</CellText>
+                <CellText>{debt > 0 ? shortenNumber(debt, 2) : '-'}</CellText>
             </Cell>
         },
     },
@@ -112,22 +122,32 @@ const columns = [
         },
     },
     {
-        field: 'marketIcons',
-        label: 'Collaterals',
+        field: 'marketRelativeDebtSizes',
+        label: 'Relative Debts',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        value: ({ marketIcons }) => {
+        value: ({ marketIcons, marketRelativeDebtSizes }) => {
             return <Cell minWidth="100px" justify="center">
-                {marketIcons.map(img => <MarketImage key={img} image={img} size={20} />)}
+                {marketRelativeDebtSizes.map((size, i) => <MarketImage imgProps={{ title: `${size*100}%`, display: size > 0 ? 'inline-block' : 'none' }} key={marketIcons[i]} image={marketIcons[i]} size={(size*10+10)} />)}
             </Cell>
         },
     },
+    // {
+    //     field: 'marketRelativeCollateralSizes',
+    //     label: 'Collateral sizes',
+    //     header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+    //     value: ({ marketIcons, marketRelativeCollateralSizes }) => {
+    //         return <Cell minWidth="100px" justify="center">
+    //             {marketRelativeCollateralSizes.map((size, i) => <MarketImage imgProps={{ title: `${size*100}%`, display: size > 0 ? 'inline-block' : 'none' }} key={marketIcons[i]} image={marketIcons[i]} size={(size*10+10)} />)}
+    //         </Cell>
+    //     },
+    // },
     {
         field: 'avgBorrowLimit',
-        label: 'Avg Weighted Borrow Limit',
-        header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-end"  {...props} />,
+        label: 'Avg Borrow Limit',
+        header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-end"  {...props} />,        
         value: ({ debt, avgBorrowLimit }) => {
             const color = getRiskColor(100-avgBorrowLimit);
-            return <Cell minWidth="200px" justify="flex-end" >
+            return <Cell minWidth="150px" justify="flex-end" >
                 <CellText color={debt > 0 ? color : undefined}>{debt > 0 ? `${shortenNumber(avgBorrowLimit, 2)}%` : '-'}</CellText>
             </Cell>
         },
@@ -144,6 +164,7 @@ export const FirmUsers = ({
     const positionsAggregatedByUser = uniqueUsers.map(user => {
         const userPositions = positions.filter(p => p.user === user);
         const debt = userPositions.reduce((prev, curr) => prev + (curr.debt), 0);
+        const creditLimit = userPositions.reduce((prev, curr) => prev + (curr.creditLimit), 0);
         const liquidatableDebt = userPositions.reduce((prev, curr) => prev + (curr.liquidatableDebt), 0);
         return {
             user,
@@ -153,7 +174,11 @@ export const FirmUsers = ({
             debt,
             avgBorrowLimit: debt > 0 ? userPositions.reduce((prev, curr) => prev + curr.debtRiskWeight, 0) / debt : 0,
             marketIcons: userPositions?.map(p => p.market.underlying.image) || [],
+            marketRelativeDebtSizes: userPositions?.map(p => p.debt > 0 ? p.debt/debt : 0),
+            marketRelativeCollateralSizes: userPositions?.map(p => p.creditLimit > 0 ? p.creditLimit/creditLimit : 0),
             creditLimit: userPositions.reduce((prev, curr) => prev + (curr.creditLimit), 0),
+            stakedInv: userPositions.filter(p => p.market.isInv).reduce((prev, curr) => prev + (curr.deposits), 0),
+            stakedInvUsd: userPositions.filter(p => p.market.isInv).reduce((prev, curr) => prev + (curr.tvl), 0),
         }
     });
     const { onOpen, onClose, isOpen } = useDisclosure();
