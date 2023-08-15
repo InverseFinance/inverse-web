@@ -1,13 +1,40 @@
 import { getMultiDelegatorContract, getGovernanceContract, getINVContract } from './contracts';
 import { JsonRpcSigner, TransactionReceipt, TransactionResponse } from '@ethersproject/providers';
 import { AbiCoder, isAddress, splitSignature, parseUnits, FunctionFragment, Interface, verifyMessage } from 'ethers/lib/utils'
-import { BigNumber } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import localforage from 'localforage';
 import { ProposalFormFields, ProposalFormActionFields, ProposalFunction, GovEra, ProposalStatus, NetworkIds, DraftProposal, DraftReview, RefundableTransaction } from '@app/types';
 import { CURRENT_ERA, SIGN_MSG, GRACE_PERIOD_MS, DRAFT_WHITELIST } from '@app/config/constants';
 import { showToast } from './notify';
+import { GnosisSafe } from '@web3-react/gnosis-safe';
+import SafeAppsSDK, { isObjectEIP712TypedData, OffChainSignMessageResponse, SafeInfo } from '@safe-global/safe-apps-sdk';
 
-export const getDelegationSig = (signer: JsonRpcSigner, delegatee: string): Promise<string> => {
+const getExampleData = (domain) => {
+    return {
+      types: {
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'verifyingContract', type: 'address' },
+        ],
+        Example: [{ name: 'content', type: 'string' }],
+      },
+      primaryType: 'Example',
+      domain,
+    //   {
+    //     name: 'EIP-1271 Example DApp',
+    //     version: '1.0',
+    //     chainId: 1,
+    //     verifyingContract: '0x123..456',
+    //   },
+      message: {
+        content: 'Hello World!',
+      },
+    }
+  }
+
+export const getDelegationSig = (signer: JsonRpcSigner, delegatee: string, connector: WalletConnect, pro): Promise<string> => {
     return new Promise(async (resolve, reject) => {
         try {
             if (!signer || !delegatee) { resolve('') }
@@ -30,8 +57,25 @@ export const getDelegationSig = (signer: JsonRpcSigner, delegatee: string): Prom
                 nonce: (await invContract.nonces(account)).toString(),
                 expiry: 10e9,
             }
+            const example = getExampleData(domain);
+            let signature;
 
-            const signature = await signer._signTypedData(domain, types, value)
+            if(connector instanceof GnosisSafe) {
+                console.log(connector);
+                const SDK = new SafeAppsSDK();
+                const messageHash = SDK.safe.calculateTypedMessageHash(example);
+                console.log('Message hash: ', messageHash);
+
+                 signature = await SDK.safe.getOffChainSignature(messageHash);
+                console.log('Signature: ', signature);
+                // signature = await connector._signTypedData([
+                //     account,
+                //     JSON.stringify(example),
+                //     // JSON.stringify({ domain, types, primaryType: 'Delegation', value  }),
+                //   ])
+            } else {
+                signature = await signer._signTypedData(domain, types, value)
+            }
 
             resolve(
                 JSON.stringify({
