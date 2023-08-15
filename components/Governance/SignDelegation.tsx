@@ -5,6 +5,7 @@ import { InfoMessage } from '@app/components/common/Messages';
 import { SubmitButton } from '@app/components/common/Button';
 import { getDelegationSig } from '@app/util/governance';
 import { JsonRpcSigner } from '@ethersproject/providers';
+import { useWeb3React } from '@web3-react/core';
 
 export const SignDelegation = ({
     signDisabled,
@@ -17,6 +18,7 @@ export const SignDelegation = ({
     isSelf: boolean,
     signer?: JsonRpcSigner,
 }) => {
+    const { connector } = useWeb3React();
     const [signature, setSignature] = useState('')
     const [hasLastSigCopied, setHasLastSigCopied] = useState(false)
     const { hasCopied, onCopy } = useClipboard(signature)
@@ -32,7 +34,7 @@ export const SignDelegation = ({
 
     const handleDelegation = async () => {
         if (!signer) { return }
-        const sig = await getDelegationSig(signer, delegateAddress);
+        const sig = await getDelegationSig(signer, delegateAddress, connector);
         setSignature(sig);
     }
 
