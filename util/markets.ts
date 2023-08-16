@@ -222,8 +222,8 @@ export const getCvxFxsAPRs = async (provider, _prices?: any) => {
         const year = ONE_DAY_SECS * 365;
 
         return {
-            fxs: 100 * getBnToNumber(fxsRewardData[1]) / getBnToNumber(totalSupply) * year * prices['frax-share'].usd/prices['convex-fxs'].usd, 
-            cvx: 100 * getBnToNumber(cvxRewardData[1]) / getBnToNumber(totalSupply) * year * prices['convex-finance'].usd/prices['convex-fxs'].usd,
+            fxs: 100 * getBnToNumber(fxsRewardData[1]) / getBnToNumber(totalSupply) * year * prices['frax-share'].usd / prices['convex-fxs'].usd,
+            cvx: 100 * getBnToNumber(cvxRewardData[1]) / getBnToNumber(totalSupply) * year * prices['convex-finance'].usd / prices['convex-fxs'].usd,
         };
     } catch (e) { console.log(e) }
     return {};
@@ -252,10 +252,10 @@ export const getCvxCrvAPRs = async (provider, _prices?: any) => {
         }
 
         const aprs = await Promise.all(
-            mainTokens.map((tokenAd, i) => {                
-                const extraRewardIndex = extraRewardRates[0].findIndex(a => a.toLowerCase() === tokenAd.toLowerCase());                
+            mainTokens.map((tokenAd, i) => {
+                const extraRewardIndex = extraRewardRates[0].findIndex(a => a.toLowerCase() === tokenAd.toLowerCase());
                 let rate = mainRewardRates[1][i];
-                if (extraRewardIndex !== -1) {                    
+                if (extraRewardIndex !== -1) {
                     rate = rate.add(extraRewardRates[1][extraRewardIndex]);
                 };
                 return utilContract.apr(
@@ -269,7 +269,7 @@ export const getCvxCrvAPRs = async (provider, _prices?: any) => {
             crv: getBnToNumber(aprs[0]) * 100,
             cvx: getBnToNumber(aprs[1]) * 100,
             '3crv': getBnToNumber(aprs[2]) * 100,
-            group1: (getBnToNumber(aprs[0]) * 100)+(getBnToNumber(aprs[1]) * 100),
+            group1: (getBnToNumber(aprs[0]) * 100) + (getBnToNumber(aprs[1]) * 100),
             group2: getBnToNumber(aprs[2]) * 100,
         };
     } catch (e) { console.log(e) }
@@ -351,7 +351,7 @@ export const getYieldOppys = async () => {
             .map(p => {
                 return {
                     ...p,
-                    underlyingTokens: p.underlyingTokens||[],
+                    underlyingTokens: p.underlyingTokens || [],
                     // clean pool names & make them more homogen
                     symbol: p.symbol
                         .replace(/-3CRV$/i, '-3POOL')
@@ -364,6 +364,13 @@ export const getYieldOppys = async () => {
                         .replace(/DOLAFRAX/i, 'DOLA-FRAX')
                         .toUpperCase()
                     ,
+                }
+            })
+            .map(p => {
+                return {
+                    ...p,
+                    // force as stablecoin even though defillama says not stable
+                    stablecoin: p.symbol === 'DOLA-CRVUSD' ? true : p.stablecoin,
                 }
             });
     } catch (e) { console.log(e) }
@@ -381,13 +388,13 @@ export const triggerBorrow = (marketName: string) => {
 }
 
 export const getHistoricalTokenData = async (cgId: string, from?: number, to?: number) => {
-    const now = Date.now();    
+    const now = Date.now();
     try {
-        const res = await fetch(`https://api.coingecko.com/api/v3/coins/${cgId}/market_chart/range?vs_currency=usd&from=${from||1392577232}&to=${to||now}`);
+        const res = await fetch(`https://api.coingecko.com/api/v3/coins/${cgId}/market_chart/range?vs_currency=usd&from=${from || 1392577232}&to=${to || now}`);
         return res.json();
     } catch (e) {
         console.log(e);
-        console.log('failed to get historical data')        
+        console.log('failed to get historical data')
     }
     return;
 }
