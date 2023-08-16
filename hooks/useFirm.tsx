@@ -3,7 +3,7 @@ import { F2Market, FirmAction, SWR, ZapperToken } from "@app/types"
 import { fetcher, fetcher30sectimeout, fetcher60sectimeout } from '@app/util/web3'
 import { useCacheFirstSWR, useCustomSWR } from "./useCustomSWR";
 import { useDBRMarkets, useDBRPrice } from "./useDBR";
-import { f2CalcNewHealth, formatFirmEvents } from "@app/util/f2";
+import { f2CalcNewHealth, formatFirmEvents, getDBRRiskColor } from "@app/util/f2";
 import { getBnToNumber, getHistoricalTokenData, getMonthlyRate, getNumberToBn } from "@app/util/markets";
 import { useMultiContractEvents } from "./useContractEvents";
 import { DBR_ABI, F2_ESCROW_ABI, F2_MARKET_ABI } from "@app/config/abis";
@@ -27,6 +27,7 @@ export const useFirmPositions = (isShortfallOnly = false): SWR & {
   positions: any,
   timestamp: number,
   isLoading: boolean,
+  isError: boolean,
 } => {
   const { data, error } = useCacheFirstSWR(`/api/f2/firm-positions?shortfallOnly=${isShortfallOnly}`, fetcher60sectimeout);
   const { markets, isLoading } = useDBRMarkets();
@@ -62,6 +63,58 @@ export const useFirmPositions = (isShortfallOnly = false): SWR & {
     timestamp: data ? data.timestamp : 0,
     isLoading: isLoading || (!error && !data),
     isError: error,
+  }
+}
+
+export const useFirmUsers = (): SWR & {
+  userPositions: any,
+  positions: any,
+  timestamp: number,
+  isLoading: boolean,
+} => {
+  const { data, error, isLoading: isLoadingDbr } = useCacheFirstSWR(`/api/f2/dbr-deficits?v2`, fetcher60sectimeout);
+  const { positions, timestamp, isLoading: isLoadingPositions, isError: isErrorPositions } = useFirmPositions();
+
+  const activeDbrHolders = data ? data.activeDbrHolders : [];
+
+  const uniqueUsers = [...new Set(positions.map(d => d.user))];
+  const now = Date.now();
+  const positionsAggregatedByUser = uniqueUsers.map(user => {
+      const userPositions = positions.filter(p => p.user === user);
+      const debt = userPositions.reduce((prev, curr) => prev + (curr.debt), 0);
+      const creditLimit = userPositions.reduce((prev, curr) => prev + (curr.creditLimit), 0);
+      const liquidatableDebt = userPositions.reduce((prev, curr) => prev + (curr.liquidatableDebt), 0);
+      const dbrPos = activeDbrHolders.find(p => p.user === user);
+      const dailyBurn = debt / oneYear * ONE_DAY_MS;
+      const dbrNbDaysExpiry = dailyBurn ? dbrPos.signedBalance / dailyBurn : 0;
+      const dbrExpiryDate = !debt ? null : (now + dbrNbDaysExpiry * ONE_DAY_MS);
+      return {
+          user,
+          depositsUsd: userPositions.reduce((prev, curr) => prev + (curr.tvl), 0),
+          liquidatableDebt,
+          isLiquidatable: liquidatableDebt > 0,
+          debt,
+          avgBorrowLimit: debt > 0 ? userPositions.reduce((prev, curr) => prev + curr.debtRiskWeight, 0) / debt : 0,
+          marketIcons: userPositions?.map(p => p.market.underlying.image) || [],
+          marketRelativeDebtSizes: userPositions?.map(p => p.debt > 0 ? p.debt/debt : 0),
+          marketRelativeCollateralSizes: userPositions?.map(p => p.creditLimit > 0 ? p.creditLimit/creditLimit : 0),
+          creditLimit: userPositions.reduce((prev, curr) => prev + (curr.creditLimit), 0),
+          stakedInv: userPositions.filter(p => p.market.isInv).reduce((prev, curr) => prev + (curr.deposits), 0),
+          stakedInvUsd: userPositions.filter(p => p.market.isInv).reduce((prev, curr) => prev + (curr.tvl), 0),
+          dailyBurn,
+          dbrNbDaysExpiry,
+          dbrExpiryDate,
+          dbrSignedBalance: dbrPos.signedBalance,
+          dbrRiskColor: getDBRRiskColor(dbrExpiryDate, now),
+      }
+  });
+
+  return {
+    userPositions: positionsAggregatedByUser,
+    positions,
+    timestamp,
+    isLoading: isLoadingDbr || isLoadingPositions,
+    isError: error || isErrorPositions,
   }
 }
 

@@ -1,9 +1,8 @@
-import { Flex, HStack, SkeletonText, Stack, Text, useDisclosure, VStack } from "@chakra-ui/react"
+import { Flex, HStack, Stack, Text, useDisclosure, VStack } from "@chakra-ui/react"
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { getRiskColor } from "@app/util/f2";
-import { BigImageButton } from "@app/components/common/Button/BigImageButton";
-import { useFirmPositions } from "@app/hooks/useFirm";
+import { useFirmUsers } from "@app/hooks/useFirm";
 import Link from "@app/components/common/Link";
 import { ViewIcon } from "@chakra-ui/icons";
 import ScannerLink from "@app/components/common/ScannerLink";
@@ -66,6 +65,27 @@ const columns = [
         },
     },
     {
+        field: 'dbrSignedBalance',
+        label: 'DBR balance',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        value: ({ dbrSignedBalance }) => {
+            return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">                
+                <CellText color={dbrSignedBalance < 0 ? 'error' : undefined}>{dbrSignedBalance !== 0 ? shortenNumber(dbrSignedBalance, 2) : '-'}</CellText>
+            </Cell>
+        },
+    },
+    {
+        field: 'dbrExpiryDate',
+        label: 'DBR Depletion',
+        header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
+        value: ({ dbrExpiryDate, debt, dbrRiskColor }) => {
+            return <Cell spacing="0" alignItems="center" direction="column" minWidth="120px" justify="center">
+                <CellText color={dbrRiskColor}>{debt > 0 ? moment(dbrExpiryDate).format('MMM Do YYYY') : '-'}</CellText>
+                {/* <CellText color="secondaryTextColor">{moment(dbrExpiryDate).fromNow()}</CellText> */}
+            </Cell>
+        },
+    },
+    {
         field: 'depositsUsd',
         label: 'Deposits',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
@@ -98,29 +118,29 @@ const columns = [
     {
         field: 'isLiquidatable',
         label: 'In shortfall?',
-        header: ({ ...props }) => <ColHeader minWidth="150px" alignItems="center" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="100px" alignItems="center" justify="center"  {...props} />,
         value: ({ isLiquidatable }) => {
-            return <Cell minWidth="150px" justify="center" direction="column" alignItems="center">
+            return <Cell minWidth="100px" justify="center" direction="column" alignItems="center">
                 <CellText color={isLiquidatable ? 'error' : 'mainTextColor'}>{isLiquidatable ? 'Yes' : 'No'}</CellText>
             </Cell>
         },
         showFilter: true,
-        filterWidth: '100px',
+        filterWidth: '90px',
     },
-    {
-        field: 'liquidatableDebt',
-        label: 'Seizable',
-        header: ({ ...props }) => <ColHeader minWidth="150px" alignItems="center" justify="center"  {...props} />,
-        value: ({ seizableWorth, liquidatableDebt }) => {
-            return <Cell minWidth="150px" justify="center" direction="column" alignItems="center">
-                {
-                    liquidatableDebt > 0 ? <>                        
-                        <CellText>~{shortenNumber(liquidatableDebt, 2)} DOLA</CellText>
-                    </> : <CellText>-</CellText>
-                }
-            </Cell>
-        },
-    },
+    // {
+    //     field: 'liquidatableDebt',
+    //     label: 'Seizable',
+    //     header: ({ ...props }) => <ColHeader minWidth="150px" alignItems="center" justify="center"  {...props} />,
+    //     value: ({ seizableWorth, liquidatableDebt }) => {
+    //         return <Cell minWidth="150px" justify="center" direction="column" alignItems="center">
+    //             {
+    //                 liquidatableDebt > 0 ? <>                        
+    //                     <CellText>~{shortenNumber(liquidatableDebt, 2)} DOLA</CellText>
+    //                 </> : <CellText>-</CellText>
+    //             }
+    //         </Cell>
+    //     },
+    // },
     {
         field: 'marketRelativeDebtSizes',
         label: 'Relative Debts',
@@ -144,10 +164,10 @@ const columns = [
     {
         field: 'avgBorrowLimit',
         label: 'Avg Borrow Limit',
-        header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-end"  {...props} />,        
+        header: ({ ...props }) => <ColHeader minWidth="110px" justify="flex-end"  {...props} />,        
         value: ({ debt, avgBorrowLimit }) => {
             const color = getRiskColor(100-avgBorrowLimit);
-            return <Cell minWidth="150px" justify="flex-end" >
+            return <Cell minWidth="110px" justify="flex-end" >
                 <CellText color={debt > 0 ? color : undefined}>{debt > 0 ? `${shortenNumber(avgBorrowLimit, 2)}%` : '-'}</CellText>
             </Cell>
         },
@@ -159,28 +179,8 @@ export const FirmUsers = ({
 }: {
 
     }) => {
-    const { positions, timestamp, isLoading } = useFirmPositions();
-    const uniqueUsers = [...new Set(positions.map(d => d.user))];
-    const positionsAggregatedByUser = uniqueUsers.map(user => {
-        const userPositions = positions.filter(p => p.user === user);
-        const debt = userPositions.reduce((prev, curr) => prev + (curr.debt), 0);
-        const creditLimit = userPositions.reduce((prev, curr) => prev + (curr.creditLimit), 0);
-        const liquidatableDebt = userPositions.reduce((prev, curr) => prev + (curr.liquidatableDebt), 0);
-        return {
-            user,
-            depositsUsd: userPositions.reduce((prev, curr) => prev + (curr.tvl), 0),
-            liquidatableDebt,
-            isLiquidatable: liquidatableDebt > 0,
-            debt,
-            avgBorrowLimit: debt > 0 ? userPositions.reduce((prev, curr) => prev + curr.debtRiskWeight, 0) / debt : 0,
-            marketIcons: userPositions?.map(p => p.market.underlying.image) || [],
-            marketRelativeDebtSizes: userPositions?.map(p => p.debt > 0 ? p.debt/debt : 0),
-            marketRelativeCollateralSizes: userPositions?.map(p => p.creditLimit > 0 ? p.creditLimit/creditLimit : 0),
-            creditLimit: userPositions.reduce((prev, curr) => prev + (curr.creditLimit), 0),
-            stakedInv: userPositions.filter(p => p.market.isInv).reduce((prev, curr) => prev + (curr.deposits), 0),
-            stakedInvUsd: userPositions.filter(p => p.market.isInv).reduce((prev, curr) => prev + (curr.tvl), 0),
-        }
-    });
+    const { userPositions, positions, timestamp, isLoading } = useFirmUsers();
+
     const { onOpen, onClose, isOpen } = useDisclosure();
     const [position, setPosition] = useState(null);
 
@@ -189,7 +189,7 @@ export const FirmUsers = ({
         onOpen();
     }
 
-    const totalTvl = positions.reduce((prev, curr) => prev + (curr.deposits * curr.market.price), 0);
+    const totalTvl = positions.reduce((prev, curr) => prev + (curr.depositsUsd), 0);
     const totalDebt = positions.reduce((prev, curr) => prev + curr.debt, 0);
     const avgHealth = positions?.length > 0 && totalDebt > 0 ? positions.reduce((prev, curr) => prev + curr.debtRiskWeight, 0) / totalDebt : 100;
     const avgRiskColor = getRiskColor(avgHealth);
@@ -268,7 +268,7 @@ export const FirmUsers = ({
                         keyName="user"
                         noDataMessage="No active user in last update"
                         columns={columns}
-                        items={positionsAggregatedByUser}
+                        items={userPositions}
                         defaultSort="debt"
                         defaultSortDir="desc"
                     />
