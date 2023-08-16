@@ -36,7 +36,12 @@ export const FirmUserModal = ({
 
     return <Modal
         header={`${shortenAddress(userData.user)} details`}
-        onClose={onClose}
+        onClose={() => {
+            onClose();
+            setTimeout(() => {
+                setActive('Markets');
+            });
+        }}
         isOpen={isOpen}
         size="lg"
         scrollBehavior="inside"

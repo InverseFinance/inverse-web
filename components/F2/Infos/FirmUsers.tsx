@@ -144,7 +144,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ marketIcons, marketRelativeDebtSizes }) => {
             return <Cell minWidth="100px" justify="center">
-                {marketRelativeDebtSizes.map((size, i) => <MarketImage imgProps={{ title: `${shortenNumber(size * 100, 2)}%`, display: size > 0 ? 'inline-block' : 'none' }} key={marketIcons[i]} image={marketIcons[i]} size={(size * 10 + 10)} />)}
+                {marketRelativeDebtSizes.map((size, i) => size > 0 ? <MarketImage imgProps={{ title: `${shortenNumber(size * 100, 2)}%` }} key={marketIcons[i]} image={marketIcons[i]} size={(size * 10 + 10)} /> : null)}
             </Cell>
         },
     },

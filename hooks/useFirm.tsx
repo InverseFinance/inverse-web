@@ -80,7 +80,7 @@ export const useFirmUsers = (): SWR & {
   const uniqueUsers = [...new Set(positions.map(d => d.user))];
   const now = Date.now();
   const positionsAggregatedByUser = uniqueUsers.map(user => {
-      const userPositions = positions.filter(p => p.user === user);
+      const userPositions = positions.filter(p => p.user === user).sort((a,b) => b.debt - a.debt);
       const debt = userPositions.reduce((prev, curr) => prev + (curr.debt), 0);
       const creditLimit = userPositions.reduce((prev, curr) => prev + (curr.creditLimit), 0);
       const liquidatableDebt = userPositions.reduce((prev, curr) => prev + (curr.liquidatableDebt), 0);
@@ -105,7 +105,7 @@ export const useFirmUsers = (): SWR & {
           dbrNbDaysExpiry,
           dbrExpiryDate,
           dbrSignedBalance: dbrPos.signedBalance,
-          dbrRiskColor: getDBRRiskColor(dbrExpiryDate, now),
+          dbrRiskColor: debt > 0 ? getDBRRiskColor(dbrExpiryDate, now) : undefined,
           marketPositions: userPositions,
       }
   });
