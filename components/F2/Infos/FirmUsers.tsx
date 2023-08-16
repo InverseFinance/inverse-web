@@ -14,6 +14,15 @@ import { BarChart } from "@app/components/Transparency/BarChart";
 import { SkeletonBlob } from "@app/components/common/Skeleton";
 import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader";
 import { MarketImage } from "@app/components/common/Assets/MarketImage";
+import { preciseCommify } from "@app/util/misc";
+import { FirmUserModal } from "./FirmUserModal";
+
+const StatBasic = ({ value, name }: { value: string, name: string }) => {    
+    return <VStack>
+        <Text color={'secondary'} fontSize={'22px'} fontWeight="extrabold">{value}</Text>
+        <Text color={'mainTextColor'} fontSize={'18px'} fontWeight="bold">{name}</Text>
+    </VStack>
+}
 
 const groupPositionsBy = (positions: any[], groupBy: string, attributeToSum: string) => {
     return Object.entries(
@@ -147,7 +156,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ marketIcons, marketRelativeDebtSizes }) => {
             return <Cell minWidth="100px" justify="center">
-                {marketRelativeDebtSizes.map((size, i) => <MarketImage imgProps={{ title: `${size*100}%`, display: size > 0 ? 'inline-block' : 'none' }} key={marketIcons[i]} image={marketIcons[i]} size={(size*10+10)} />)}
+                {marketRelativeDebtSizes.map((size, i) => <MarketImage imgProps={{ title: `${shortenNumber(size*100, 2)}%`, display: size > 0 ? 'inline-block' : 'none' }} key={marketIcons[i]} image={marketIcons[i]} size={(size*10+10)} />)}
             </Cell>
         },
     },
@@ -184,11 +193,12 @@ export const FirmUsers = ({
     const { onOpen, onClose, isOpen } = useDisclosure();
     const [position, setPosition] = useState(null);
 
-    const openLiquidation = async (data) => {
+    const openUserDetails = async (data) => {
         setPosition(data);
         onOpen();
     }
 
+    const totalStaked = userPositions.reduce((prev, curr) => prev + (curr.stakedInv), 0);
     const totalTvl = positions.reduce((prev, curr) => prev + (curr.depositsUsd), 0);
     const totalDebt = positions.reduce((prev, curr) => prev + curr.debt, 0);
     const avgHealth = positions?.length > 0 && totalDebt > 0 ? positions.reduce((prev, curr) => prev + curr.debtRiskWeight, 0) / totalDebt : 100;
@@ -205,8 +215,13 @@ export const FirmUsers = ({
     const barColors = groupMarketsByBorrowLimit.map(f => getRiskColor(100 - f.balance));
 
     return <VStack w='full'>
+        {
+            !!position && <FirmUserModal userData={position} isOpen={isOpen} onClose={onClose} />
+        }
         <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-around" >
-            <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
+            <StatBasic name="Staked INV" value={`${preciseCommify(totalStaked, 0)}`} />
+            <StatBasic name="DBR Yearly Spend" value={`${preciseCommify(totalDebt, 0)}`} />
+            {/* <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
                 <Text fontWeight="bold">Avg Borrow Limit By Markets</Text>
                 <BarChart
                     width={450}
@@ -224,7 +239,7 @@ export const FirmUsers = ({
             <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
                 <Text fontWeight="bold">Debt By Markets</Text>
                 <Funds labelWithPercInChart={true} funds={groupMarketsByDebt} chartMode={true} showTotal={false} showChartTotal={true} />
-            </VStack>
+            </VStack> */}
         </Stack>
         <Container
             label="FiRM Users"
@@ -269,6 +284,7 @@ export const FirmUsers = ({
                         noDataMessage="No active user in last update"
                         columns={columns}
                         items={userPositions}
+                        onClick={openUserDetails}
                         defaultSort="debt"
                         defaultSortDir="desc"
                     />
