@@ -9,6 +9,10 @@ export const MENUS = {
           href: '/firm',
         },
         {
+          label: 'FiRM users',
+          href: '/firm/users',
+        },
+        {
           label: 'FiRM rewards',
           href: '/firm/rewards',
         },
