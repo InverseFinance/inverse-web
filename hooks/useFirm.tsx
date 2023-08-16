@@ -86,7 +86,7 @@ export const useFirmUsers = (): SWR & {
       const liquidatableDebt = userPositions.reduce((prev, curr) => prev + (curr.liquidatableDebt), 0);
       const dbrPos = activeDbrHolders.find(p => p.user === user);
       const dailyBurn = debt / oneYear * ONE_DAY_MS;
-      const dbrNbDaysExpiry = dailyBurn ? dbrPos.signedBalance / dailyBurn : 0;
+      const dbrNbDaysExpiry = dailyBurn ? (dbrPos?.signedBalance||0) / dailyBurn : 0;
       const dbrExpiryDate = !debt ? null : (now + dbrNbDaysExpiry * ONE_DAY_MS);
       return {
           user,
@@ -106,6 +106,7 @@ export const useFirmUsers = (): SWR & {
           dbrExpiryDate,
           dbrSignedBalance: dbrPos.signedBalance,
           dbrRiskColor: getDBRRiskColor(dbrExpiryDate, now),
+          marketPositions: userPositions,
       }
   });
 
