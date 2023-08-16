@@ -101,7 +101,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ creditLimit }) => {
             return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
-                <CellText>{creditLimit > 0 ? shortenNumber(creditLimit, 2, true) : '-'}</CellText>
+                <CellText>{creditLimit > 0 ? shortenNumber(creditLimit, 2) : '-'}</CellText>
             </Cell>
         },
     },
