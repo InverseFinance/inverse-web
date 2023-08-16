@@ -104,7 +104,7 @@ export const useFirmUsers = (): SWR & {
           dailyBurn,
           dbrNbDaysExpiry,
           dbrExpiryDate,
-          dbrSignedBalance: dbrPos.signedBalance,
+          dbrSignedBalance: dbrPos?.signedBalance||0,
           dbrRiskColor: debt > 0 ? getDBRRiskColor(dbrExpiryDate, now) : undefined,
           marketPositions: userPositions,
       }

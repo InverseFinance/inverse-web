@@ -16,9 +16,12 @@ import { preciseCommify } from "@app/util/misc";
 import { FirmUserModal } from "./FirmUserModal";
 import { useDBRPrice } from "@app/hooks/useDBR";
 
-const StatBasic = ({ value, name }: { value: string, name: string }) => {
+const StatBasic = ({ value, name, isLoading = false }: { value: string, name: string, isLoading?: boolean }) => {
     return <VStack>
-        <Text color={'secondary'} fontSize={{ base: '20px', sm: '26px' }} fontWeight="extrabold">{value}</Text>
+        {
+            !isLoading ? <Text color={'secondary'} fontSize={{ base: '20px', sm: '26px' }} fontWeight="extrabold">{value}</Text>
+                : <SmallTextLoader width={'100px'} />
+        }
         <Text color={'mainTextColor'} fontSize={{ base: '16px', sm: '20px' }} fontWeight="bold">{name}</Text>
     </VStack>
 }
@@ -200,10 +203,10 @@ export const FirmUsers = ({
             !!position && <FirmUserModal userData={position} isOpen={isOpen} onClose={onClose} />
         }
         <SimpleGrid justify="space-between" w='full' columns={{ base: 2, sm: 4 }} spacing={{ base: '4', sm: '6' }}>
-            <StatBasic name="Users" value={`${preciseCommify(nbUsers, 0)}`} />
-            <StatBasic name="Stakers" value={`${preciseCommify(nbStakers, 0)}`} />
-            <StatBasic name="Borrowers" value={`${preciseCommify(nbBorrowers, 0)}`} />
-            <StatBasic name="DBR Yearly Spend" value={`${smartShortNumber(totalDebt, 2)} (${smartShortNumber(totalDebt*price, 2, true)})`} />
+            <StatBasic isLoading={isLoading} name="Users" value={`${preciseCommify(nbUsers, 0)}`} />
+            <StatBasic isLoading={isLoading} name="Stakers" value={`${preciseCommify(nbStakers, 0)}`} />
+            <StatBasic isLoading={isLoading} name="Borrowers" value={`${preciseCommify(nbBorrowers, 0)}`} />
+            <StatBasic isLoading={isLoading} name="DBR Yearly Spend" value={`${smartShortNumber(totalDebt, 2)} (${smartShortNumber(totalDebt * price, 2, true)})`} />
         </SimpleGrid>
         <Divider />
         <Container
