@@ -1,5 +1,5 @@
-import { Flex, HStack, Stack, Text, useDisclosure, VStack } from "@chakra-ui/react"
-import { shortenNumber } from "@app/util/markets";
+import { Divider, Flex, HStack, SimpleGrid, Stack, Text, useDisclosure, VStack } from "@chakra-ui/react"
+import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { getRiskColor } from "@app/util/f2";
 import { useFirmUsers } from "@app/hooks/useFirm";
@@ -9,30 +9,18 @@ import ScannerLink from "@app/components/common/ScannerLink";
 import moment from 'moment'
 import { useState } from "react";
 import Table from "@app/components/common/Table";
-import { Funds } from "@app/components/Transparency/Funds";
-import { BarChart } from "@app/components/Transparency/BarChart";
 import { SkeletonBlob } from "@app/components/common/Skeleton";
 import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader";
 import { MarketImage } from "@app/components/common/Assets/MarketImage";
 import { preciseCommify } from "@app/util/misc";
 import { FirmUserModal } from "./FirmUserModal";
+import { useDBRPrice } from "@app/hooks/useDBR";
 
-const StatBasic = ({ value, name }: { value: string, name: string }) => {    
+const StatBasic = ({ value, name }: { value: string, name: string }) => {
     return <VStack>
-        <Text color={'secondary'} fontSize={'22px'} fontWeight="extrabold">{value}</Text>
-        <Text color={'mainTextColor'} fontSize={'18px'} fontWeight="bold">{name}</Text>
+        <Text color={'secondary'} fontSize={{ base: '20px', sm: '26px' }} fontWeight="extrabold">{value}</Text>
+        <Text color={'mainTextColor'} fontSize={{ base: '16px', sm: '20px' }} fontWeight="bold">{name}</Text>
     </VStack>
-}
-
-const groupPositionsBy = (positions: any[], groupBy: string, attributeToSum: string) => {
-    return Object.entries(
-        positions.reduce((prev, curr) => {
-            return { ...prev, [curr[groupBy]]: (prev[curr[groupBy]] || 0) + curr[attributeToSum] };
-        }, {})
-    ).map(([key, val]) => {
-        const symbol = key.replace('true', 'With Fed').replace('false', 'Without Fed');
-        return { balance: val, usdPrice: 1, token: { symbol } }
-    });
 }
 
 const ColHeader = ({ ...props }) => {
@@ -68,7 +56,7 @@ const columns = [
         label: 'INV staked',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ stakedInvUsd }) => {
-            return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">                
+            return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
                 <CellText>{stakedInvUsd > 0 ? shortenNumber(stakedInvUsd, 2, true) : '-'}</CellText>
             </Cell>
         },
@@ -78,7 +66,7 @@ const columns = [
         label: 'DBR balance',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ dbrSignedBalance }) => {
-            return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">                
+            return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
                 <CellText color={dbrSignedBalance < 0 ? 'error' : undefined}>{dbrSignedBalance !== 0 ? shortenNumber(dbrSignedBalance, 2) : '-'}</CellText>
             </Cell>
         },
@@ -99,7 +87,7 @@ const columns = [
         label: 'Deposits',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ depositsUsd }) => {
-            return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">                
+            return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
                 <CellText>{shortenNumber(depositsUsd, 2, true)}</CellText>
             </Cell>
         },
@@ -109,8 +97,8 @@ const columns = [
         label: 'Max Debt',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ creditLimit }) => {
-            return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">                
-                <CellText>{creditLimit > 0 ? shortenNumber(creditLimit, 2, true): '-'}</CellText>
+            return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
+                <CellText>{creditLimit > 0 ? shortenNumber(creditLimit, 2, true) : '-'}</CellText>
             </Cell>
         },
     },
@@ -156,7 +144,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ marketIcons, marketRelativeDebtSizes }) => {
             return <Cell minWidth="100px" justify="center">
-                {marketRelativeDebtSizes.map((size, i) => <MarketImage imgProps={{ title: `${shortenNumber(size*100, 2)}%`, display: size > 0 ? 'inline-block' : 'none' }} key={marketIcons[i]} image={marketIcons[i]} size={(size*10+10)} />)}
+                {marketRelativeDebtSizes.map((size, i) => <MarketImage imgProps={{ title: `${shortenNumber(size * 100, 2)}%`, display: size > 0 ? 'inline-block' : 'none' }} key={marketIcons[i]} image={marketIcons[i]} size={(size * 10 + 10)} />)}
             </Cell>
         },
     },
@@ -173,9 +161,9 @@ const columns = [
     {
         field: 'avgBorrowLimit',
         label: 'Avg Borrow Limit',
-        header: ({ ...props }) => <ColHeader minWidth="110px" justify="flex-end"  {...props} />,        
+        header: ({ ...props }) => <ColHeader minWidth="110px" justify="flex-end"  {...props} />,
         value: ({ debt, avgBorrowLimit }) => {
-            const color = getRiskColor(100-avgBorrowLimit);
+            const color = getRiskColor(100 - avgBorrowLimit);
             return <Cell minWidth="110px" justify="flex-end" >
                 <CellText color={debt > 0 ? color : undefined}>{debt > 0 ? `${shortenNumber(avgBorrowLimit, 2)}%` : '-'}</CellText>
             </Cell>
@@ -188,6 +176,7 @@ export const FirmUsers = ({
 }: {
 
     }) => {
+    const { price } = useDBRPrice();
     const { userPositions, positions, timestamp, isLoading } = useFirmUsers();
 
     const { onOpen, onClose, isOpen } = useDisclosure();
@@ -198,50 +187,27 @@ export const FirmUsers = ({
         onOpen();
     }
 
-    const totalStaked = userPositions.reduce((prev, curr) => prev + (curr.stakedInv), 0);
+    const nbUsers = userPositions.length;
+    const nbBorrowers = userPositions.filter(p => p.debt > 0).length;
+    const nbStakers = userPositions.filter(p => p.stakedInv > 0).length;
     const totalTvl = positions.reduce((prev, curr) => prev + (curr.depositsUsd), 0);
     const totalDebt = positions.reduce((prev, curr) => prev + curr.debt, 0);
     const avgHealth = positions?.length > 0 && totalDebt > 0 ? positions.reduce((prev, curr) => prev + curr.debtRiskWeight, 0) / totalDebt : 100;
     const avgRiskColor = getRiskColor(avgHealth);
 
-    const positionsWithDebt = positions.filter(p => p.debt > 0);
-    const positionsWithDeposits = positions.filter(p => p.deposits > 0);
-    const groupMarketsByDeposits = groupPositionsBy(positionsWithDeposits, 'marketName', 'tvl');
-    const groupMarketsByDebt = groupPositionsBy(positionsWithDebt, 'marketName', 'debt');
-    const groupMarketsByBorrowLimit = groupPositionsBy(positionsWithDebt, 'marketName', 'debtRiskWeight').map((f, i) => ({ ...f, balance: 100 - f.balance / groupMarketsByDebt[i].balance }));
-    const barData = groupMarketsByBorrowLimit.map(d => {
-        return [{ x: d.token.symbol, y: d.balance, label: `${shortenNumber(d.balance, 2)}%` }];
-    })
-    const barColors = groupMarketsByBorrowLimit.map(f => getRiskColor(100 - f.balance));
-
-    return <VStack w='full'>
+    return <VStack w='full' spacing={{ base: '4', sm: '8' }}>
         {
             !!position && <FirmUserModal userData={position} isOpen={isOpen} onClose={onClose} />
         }
-        <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-around" >
-            <StatBasic name="Staked INV" value={`${preciseCommify(totalStaked, 0)}`} />
-            <StatBasic name="DBR Yearly Spend" value={`${preciseCommify(totalDebt, 0)}`} />
-            {/* <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
-                <Text fontWeight="bold">Avg Borrow Limit By Markets</Text>
-                <BarChart
-                    width={450}
-                    height={300}
-                    isPercentages={true}
-                    groupedData={barData}
-                    colorScale={barColors}
-                    isDollars={false}
-                />
-            </VStack>
-            <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
-                <Text fontWeight="bold">TVL By Markets</Text>
-                <Funds labelWithPercInChart={true} funds={groupMarketsByDeposits} chartMode={true} showTotal={false} showChartTotal={true} />
-            </VStack>
-            <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
-                <Text fontWeight="bold">Debt By Markets</Text>
-                <Funds labelWithPercInChart={true} funds={groupMarketsByDebt} chartMode={true} showTotal={false} showChartTotal={true} />
-            </VStack> */}
-        </Stack>
+        <SimpleGrid justify="space-between" w='full' columns={{ base: 2, sm: 4 }} spacing={{ base: '4', sm: '6' }}>
+            <StatBasic name="Users" value={`${preciseCommify(nbUsers, 0)}`} />
+            <StatBasic name="Stakers" value={`${preciseCommify(nbStakers, 0)}`} />
+            <StatBasic name="Borrowers" value={`${preciseCommify(nbBorrowers, 0)}`} />
+            <StatBasic name="DBR Yearly Spend" value={`${smartShortNumber(totalDebt, 2)} (${smartShortNumber(totalDebt*price, 2, true)})`} />
+        </SimpleGrid>
+        <Divider />
         <Container
+            py="0"
             label="FiRM Users"
             description={timestamp ? `Last update ${moment(timestamp).fromNow()}` : `Loading...`}
             contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}

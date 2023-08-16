@@ -3,14 +3,10 @@ import { DbrReplenishmentForm } from "../liquidations/DbrReplenishmentForm";
 import { shortenAddress } from "@app/util";
 import { NavButtons } from "@app/components/common/Button";
 import { useState } from "react";
-import { VStack } from "@chakra-ui/react";
+import { HStack, VStack, useDisclosure, Text } from "@chakra-ui/react";
 import { FirmPositionsTable } from "./FirmPositionsTable";
-
-const widths = {
-    'Summary': '600px',
-    'DBR replenishment': '600px',
-    'Liquidation': '600px',
-}
+import { FirmLiquidationForm } from "../liquidations/FirmLiquidationForm";
+import { ArrowBackIcon } from "@chakra-ui/icons";
 
 export const FirmUserModal = ({
     userData,
@@ -21,22 +17,48 @@ export const FirmUserModal = ({
     onClose: () => void,
     isOpen: boolean,
 }) => {
-    const [active, setActive] = useState('Summary');
+    const [active, setActive] = useState('Markets');
+    const { isOpen: isOpenMarket, onOpen: onOpenMarket, onClose: onCloseMarket } = useDisclosure();
+
+    const [position, setPosition] = useState(null);
+
+    const openLiquidation = async (data) => {
+        setPosition(data);
+        onOpenMarket();
+    }
+
+    const back = () => {
+        onCloseMarket();
+        setTimeout(() => {
+            setPosition(null);
+        });
+    }
+
     return <Modal
         header={`${shortenAddress(userData.user)} details`}
         onClose={onClose}
         isOpen={isOpen}
-        minWidth="600px"
-        // maxWidth="98vw"
+        size="lg"
+        scrollBehavior="inside"
     >
-        <NavButtons options={['Summary', 'DBR replenishment', 'Liquidation']} onClick={(v) => setActive(v)} active={active} />
+        <NavButtons options={['Markets', 'DBR replenishment']} onClick={(v) => setActive(v)} active={active} />
         <VStack w='100%' alignItems="center">
-            <VStack w={widths[active]} p="2">
+            <VStack w='100%' px="2" py="4">
                 {
                     active === 'DBR replenishment' && <DbrReplenishmentForm userData={userData} />
                 }
                 {
-                    active === 'Liquidation' && <FirmPositionsTable isOneUserOnly={true} openLiquidation={() => {}} positions={userData.marketPositions} />
+                    active === 'Markets' ?
+                        !isOpenMarket ?
+                            <FirmPositionsTable isOneUserOnly={true} onClick={openLiquidation} positions={userData.marketPositions} />
+                            : <VStack w='full' alignItems="flex-start">
+                                <HStack cursor="pointer" spacing="1" onClick={back}>
+                                    <ArrowBackIcon size="20px" />
+                                    <Text fontWeight="bold">Back to list</Text>
+                                </HStack>
+                                <FirmLiquidationForm position={position} />
+                            </VStack>
+                        : null
                 }
             </VStack>
         </VStack>

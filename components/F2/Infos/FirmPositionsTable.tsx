@@ -8,16 +8,21 @@ import { ViewIcon } from "@chakra-ui/icons"
 import { Flex, Stack, Text } from "@chakra-ui/react"
 
 export const FirmPositionsTable = ({
-    openLiquidation,
+    onClick,
     positions,
     isOneUserOnly = false,
+}: {
+    onClick: (v: any) => void
+    positions: any[]
+    isOneUserOnly?: boolean
 }) => {
     return <Table
+        enableMobileRender={isOneUserOnly}
         keyName="key"
         noDataMessage="No live positions in last update"
         columns={isOneUserOnly ? oneUserOnlyColumns : columns}
         items={positions}
-        onClick={(v) => openLiquidation(v)}
+        onClick={(v) => onClick(v)}
         defaultSort="debt"
         defaultSortDir="desc"
     />

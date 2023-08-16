@@ -115,7 +115,7 @@ export const FirmPositions = ({
                 isLoading ?
                     <SkeletonBlob />
                     :
-                    <FirmPositionsTable positions={positions} openLiquidation={openLiquidation} />
+                    <FirmPositionsTable positions={positions} onClick={openLiquidation} />
             }
         </Container>
     </VStack>
