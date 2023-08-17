@@ -92,7 +92,7 @@ export const F2Context = ({
     const debtAmountNum = parseFloat(debtAmount || '0') || 0;// NaN => 0
     const collateralAmountNum = parseFloat(collateralAmount || '0') || 0;
 
-    const dbrApproxData = useDBRNeeded(debtAmount, duration);    
+    const dbrApproxData = useDBRNeeded(debtAmount, duration);
 
     const dbrCover = isAutoDBR ? dbrApproxData.dbrNeededNum : debtAmountNum / (365 / duration);
     const { price: dbrPrice } = useDBRPrice();

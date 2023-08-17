@@ -137,6 +137,11 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
       const noBorrowController = bc === BURN_ADDRESS;
       return data && !noBorrowController ? [bc, 'dailyBorrows', m.address, dayIndexUtc] : [];
     }),
+    ...markets.map((m, i) => {
+      const bc = data ? data[i + 3 * nbMarkets] : BURN_ADDRESS;
+      const noBorrowController = bc === BURN_ADDRESS;
+      return data && !noBorrowController ? [bc, 'minDebts', m.address] : [];
+    }),
   ]);
 
   return {
@@ -144,6 +149,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
     markets: markets.map((m, i) => {
       const dailyLimit = limits ? getBnToNumber(limits[i]) : cachedMarkets[i]?.dailyLimit ?? 0;
       const dailyBorrows = limits ? getBnToNumber(limits[i + nbMarkets]) : cachedMarkets[i]?.dailyBorrows ?? 0;
+      const minDebt = limits ? getBnToNumber(limits[i + 2 * nbMarkets]) : cachedMarkets[i]?.minDebt ?? 0;
       const dolaLiquidity = data ? getBnToNumber(data[i + 4 * nbMarkets]) : cachedMarkets[i]?.dolaLiquidity ?? 0;
       const borrowPaused = data ? data[i + 5 * nbMarkets] : cachedMarkets[i]?.borrowPaused ?? false;
       const leftToBorrow = borrowPaused ? 0 : limits ? dailyLimit === 0 ? dolaLiquidity : Math.min(dailyLimit - dailyBorrows, dolaLiquidity) : cachedMarkets[i]?.leftToBorrow ?? 0;
@@ -159,6 +165,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
         dailyLimit,
         dailyBorrows,
         leftToBorrow,
+        minDebt,
         bnLeftToBorrow: getNumberToBn(leftToBorrow),
         borrowPaused,
       }

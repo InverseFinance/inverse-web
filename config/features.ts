@@ -1,3 +1,4 @@
+import { CHAIN_ID } from "./constants";
 
 type Features = {
     firmMinDebt: boolean
