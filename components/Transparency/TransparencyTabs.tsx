@@ -1,7 +1,7 @@
 import { useAppTheme } from '@app/hooks/useAppTheme';
 import { Tabs, TabList, Tab, VStack, Text, HStack, Image } from '@chakra-ui/react'
 
-type TabsType = 'overview' | 'treasury' | 'liquidity' | 'inv' | 'dola' | 'dbr' | 'multisigs' | 'interest-model' | 'feds' | 'stabilizer' | 'dao' | 'liquidations' | 'shortfalls' | 'bad-debts';
+type TabsType = 'overview' | 'treasury' | 'liquidity' | 'inv' | 'dola' | 'dbr' | 'multisigs' | 'interest-model' | 'feds' | 'stabilizer' | 'dao' | 'liquidations' | 'shortfalls' | 'bad-debts' | 'firm-users';
 
 const TABS = [
     { page: 'overview', label: 'Overview' },
@@ -14,21 +14,22 @@ const TABS = [
     { page: 'feds', label: 'Feds Policy & Income' },
     // { page: 'interest-model', label: 'Interest Rates' },
     { page: 'multisigs', label: 'Multisig Wallets' },
+    { page: 'firm-users', label: 'FiRM users' },
     { page: 'liquidations', label: 'Liquidations' },
-    { page: 'stabilizer', label: 'Stabilizer' },
     { page: 'bad-debts', label: 'Bad debts' },
-    { page: 'frontier-overview', label: 'Frontier' },    
+    { page: 'frontier-overview', label: 'Frontier & Other' },
 ];
 
-const TABS_FRONTIER = [
+const TABS_OTHER = [
     { page: 'overview', label: 'Main Portal' },
     { page: 'frontier-overview', label: 'Frontier Overview' },
     { page: 'frontier-shortfalls', label: 'Frontier Shortfalls' },
     { page: 'frontier-liquidations', label: 'Frontier Liquidations' },
+    { page: 'other-stabilizer', label: 'Stabilizer' },
 ];
 
-export const TransparencyFrontierTabs = (props: TransparencyTabsProps) => {
-    return <TransparencyTabs tabs={TABS_FRONTIER} {...props} />
+export const TransparencyOtherTabs = (props: TransparencyTabsProps) => {
+    return <TransparencyTabs tabs={TABS_OTHER} {...props} />
 }
 
 type TransparencyTabsProps = {
@@ -60,7 +61,7 @@ export const TransparencyTabs = ({
             </HStack>
             <Tabs onChange={handleTab} defaultIndex={activeIndex} mt="5" mb="2" overflow="auto" w="full" colorScheme={TABS_COLOR_SCHEME} variant={TABS_VARIANT}>
                 <TabList justifyContent={{ base: 'flex-start', sm: 'center' }}>
-                    {tabs.map(tab => <Tab _focus={{ outline: 'none' }} key={tab.page}>{tab.label}</Tab>)}
+                    {tabs.map(tab => <Tab px={{ base: '3', '2xl': '4' }} fontSize={{ base: '14px', '2xl': '16px' }} _focus={{ outline: 'none' }} key={tab.page}>{tab.label}</Tab>)}
                 </TabList>
             </Tabs>
         </VStack>

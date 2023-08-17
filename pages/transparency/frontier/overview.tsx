@@ -9,7 +9,7 @@ import { NetworkIds } from '@app/types'
 import useEtherSWR from '@app/hooks/useEtherSWR'
 import { usePricesV2 } from '@app/hooks/usePrices'
 import { useTVL } from '@app/hooks/useTVL'
-import { TransparencyFrontierTabs } from '@app/components/Transparency/TransparencyTabs';
+import { TransparencyOtherTabs } from '@app/components/Transparency/TransparencyTabs';
 import Link from '@app/components/common/Link'
 import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { useDAO } from '@app/hooks/useDAO'
@@ -87,8 +87,8 @@ export const Overview = () => {
         <meta name="description" content="Overview with Contracts Flowchart and key metrics" />
         <meta name="keywords" content="Inverse Finance, dao, transparency, overview" />
       </Head>
-      <AppNav active="Transparency" activeSubmenu="Frontier (deprecated)" hideAnnouncement={true} />
-      <TransparencyFrontierTabs active="frontier-overview" />
+      <AppNav active="Transparency" activeSubmenu="Frontier & Other" hideAnnouncement={true} />
+      <TransparencyOtherTabs active="frontier-overview" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="2">
           <FrontierFlowChart {...govFlowChartData} />

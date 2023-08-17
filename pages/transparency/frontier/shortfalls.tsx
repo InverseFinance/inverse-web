@@ -12,7 +12,7 @@ import moment from 'moment'
 import { TopDelegatesAutocomplete } from '@app/components/common/Input/TopDelegatesAutocomplete'
 import { shortenAddress } from '@app/util'
 import { InfoMessage } from '@app/components/common/Messages'
-import { TransparencyFrontierTabs, TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
+import { TransparencyOtherTabs, TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 
 export const ShortfallsPage = () => {
   const [accounts, setAccounts] = useState('');
@@ -28,8 +28,8 @@ export const ShortfallsPage = () => {
         <meta name="description" content="Inverse Finance Shortfalls Details" />
         <meta name="keywords" content="Inverse Finance, transparency, frontier, shortfalls" />
       </Head>
-      <AppNav active="Transparency" activeSubmenu="Frontier (deprecated)" hideAnnouncement={true} />
-      <TransparencyFrontierTabs active="frontier-shortfalls" />
+      <AppNav active="Transparency" activeSubmenu="Frontier & Other" hideAnnouncement={true} />
+      <TransparencyOtherTabs active="frontier-shortfalls" />
       <ErrorBoundary>
         <Flex w="full" maxW='6xl' direction="column" justify="center">
           <Container

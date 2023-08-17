@@ -221,7 +221,7 @@ export const MENUS = {
         },
         {
           href: '/transparency/frontier/overview',
-          label: 'Frontier (deprecated)',
+          label: 'Frontier & Other',
         },
       ],
     },

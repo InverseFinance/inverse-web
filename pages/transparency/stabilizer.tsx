@@ -6,7 +6,7 @@ import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { NetworkIds } from '@app/types'
-import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
+import { TransparencyOtherTabs } from '@app/components/Transparency/TransparencyTabs'
 import { useDAO, useStabilizer } from '@app/hooks/useDAO'
 import { shortenNumber } from '@app/util/markets'
 import { SupplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
@@ -157,7 +157,7 @@ export const StabilizerTransparency = () => {
                 <meta name="keywords" content="Inverse Finance, dao, transparency, dola, stabilizer, peg" />
             </Head>
             <AppNav active="Transparency" activeSubmenu="Stabilizer" hideAnnouncement={true} />
-            <TransparencyTabs active="stabilizer" />
+            <TransparencyOtherTabs active="stabilizer" />
             <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
                 <Flex direction="column">
                     <Container
