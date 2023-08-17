@@ -372,7 +372,7 @@ export const getDepletionDate = (timestamp: number, comparedTo: number) => {
 }
 
 export const getDBRRiskColor = (timestamp: number, comparedTo: number) => {
-    return getRiskColor((timestamp - comparedTo) / (365 * ONE_DAY_MS) * 200);
+    return getRiskColor((timestamp - comparedTo) / (365 * ONE_DAY_MS) * 300);
 }
 
 export const getDbrPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3Provider) => {
