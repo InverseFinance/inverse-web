@@ -1,7 +1,7 @@
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
-import { TransparencyFrontierTabs } from '@app/components/Transparency/TransparencyTabs'
+import { TransparencyOtherTabs } from '@app/components/Transparency/TransparencyTabs'
 import { LiquidationsTable } from '@app/components/Transparency/LiquidationsTable'
 
 export const LiquidationsPage = () => {
@@ -16,8 +16,8 @@ export const LiquidationsPage = () => {
                 <meta name="description" content="Frontier: Liquidations" />
                 <meta name="keywords" content="Inverse Finance, frontier, liquidations" />
             </Head>
-            <AppNav active="Transparency" activeSubmenu="Frontier (deprecated)" hideAnnouncement={true} />
-            <TransparencyFrontierTabs active="frontier-liquidations" />
+            <AppNav active="Transparency" activeSubmenu="Frontier & Other" hideAnnouncement={true} />
+            <TransparencyOtherTabs active="frontier-liquidations" />
             <LiquidationsTable />
         </Layout>
     )

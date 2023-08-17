@@ -4,6 +4,7 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { FirmUsers } from '@app/components/F2/Infos/FirmUsers'
+import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 
 export const F2UsersPage = () => {
 
@@ -12,7 +13,8 @@ export const F2UsersPage = () => {
             <Head>
                 <title>{process.env.NEXT_PUBLIC_TITLE} - FiRM Users</title>
             </Head>
-            <AppNav active="Earn" activeSubmenu="Liquidate Loans" />
+            <AppNav active="Transparency" activeSubmenu="FiRM users" hideAnnouncement={true} />
+            <TransparencyTabs active="firm-users" />
             <ErrorBoundary>
                 <VStack w='full' maxW="1200px" mt="4">
                     <FirmUsers />

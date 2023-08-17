@@ -68,8 +68,23 @@ const redirects = async () => {
       permanent: true,
     },
     {
+      source: '/transparency/other-stabilizer',
+      destination: '/transparency/other/stabilizer',
+      permanent: true,
+    },
+    {
       source: '/transparency/shortfalls',
       destination: '/transparency/frontier/shortfalls',
+      permanent: true,
+    },
+    {
+      source: '/firm/users',
+      destination: '/transparency/firm-users',
+      permanent: true,
+    },
+    {
+      source: '/transparency/other-stabilizer',
+      destination: '/transparency/other/stabilizer',
       permanent: true,
     },
     {
