@@ -9,10 +9,6 @@ export const MENUS = {
           href: '/firm',
         },
         {
-          label: 'FiRM users',
-          href: '/firm/users',
-        },
-        {
           label: 'FiRM rewards',
           href: '/firm/rewards',
         },
@@ -168,51 +164,7 @@ export const MENUS = {
         {
           href: '/analytics',
           label: 'Analytics',
-        },
-        // {
-        //   label: 'Blog',
-        //   href: '/blog',
-        // },
-        // {
-        //   href: '/transparency/treasury',
-        //   label: 'Treasury',
-        // },
-        // {
-        //   href: '/transparency/dao',
-        //   label: 'DAO',
-        // },
-        // {
-        //   href: '/transparency/inv',
-        //   label: 'INV',
-        // },
-        // {
-        //   href: '/transparency/dola',
-        //   label: 'DOLA & the Feds',
-        // },
-        // {
-        //   href: '/transparency/feds/policy/all',
-        //   label: 'Feds',
-        // },
-        // {
-        //   href: '/transparency/interest-model',
-        //   label: 'Interest Rates',
-        // },
-        // {
-        //   href: '/transparency/multisigs',
-        //   label: 'Multisig Wallets',
-        // },
-        // {
-        //   href: '/transparency/stabilizer',
-        //   label: 'Stabilizer',
-        // },
-        // {
-        //   href: '/transparency/shortfalls',
-        //   label: 'Shortfalls',
-        // },
-        // {
-        //   href: '/transparency/liquidations',
-        //   label: 'Liquidations',
-        // },
+        },       
       ]
     },
     {
@@ -230,6 +182,10 @@ export const MENUS = {
         {
           href: '/transparency/treasury',
           label: 'Treasury',
+        },
+        {
+          label: 'FiRM users',
+          href: '/firm/users',
         },
         {
           href: '/transparency/liquidity',

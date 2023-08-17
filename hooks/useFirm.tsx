@@ -94,7 +94,7 @@ export const useFirmUsers = (): SWR & {
           liquidatableDebt,
           isLiquidatable: liquidatableDebt > 0,
           debt,
-          avgBorrowLimit: debt > 0 ? userPositions.reduce((prev, curr) => prev + curr.debtRiskWeight, 0) / debt : 0,
+          avgBorrowLimit: debt > 0 ? 100 - (userPositions.reduce((prev, curr) => prev + curr.debtRiskWeight, 0) / debt) : 0,
           marketIcons: userPositions?.map(p => p.market.underlying.image) || [],
           marketRelativeDebtSizes: userPositions?.map(p => p.debt > 0 ? p.debt/debt : 0),
           marketRelativeCollateralSizes: userPositions?.map(p => p.creditLimit > 0 ? p.creditLimit/creditLimit : 0),
