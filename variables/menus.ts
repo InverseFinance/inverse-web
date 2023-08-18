@@ -185,7 +185,7 @@ export const MENUS = {
         },
         {
           label: 'FiRM users',
-          href: '/firm/users',
+          href: '/transparency/firm-users',
         },
         {
           href: '/transparency/liquidity',
