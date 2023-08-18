@@ -8,6 +8,11 @@ const redirects = async () => {
       permanent: false,
     },
     {
+      source: '/firm/users',
+      destination: '/transparency/firm-users',
+      permanent: true,
+    },
+    {
       source: '/firm/whitepaper:slug*',
       destination: '/firm.pdf',
       permanent: false,
@@ -76,12 +81,7 @@ const redirects = async () => {
       source: '/transparency/shortfalls',
       destination: '/transparency/frontier/shortfalls',
       permanent: true,
-    },
-    {
-      source: '/firm/users',
-      destination: '/transparency/firm-users',
-      permanent: true,
-    },
+    },    
     {
       source: '/transparency/other-stabilizer',
       destination: '/transparency/other/stabilizer',
