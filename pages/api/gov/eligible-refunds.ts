@@ -14,7 +14,7 @@ const topics = {
 
 export const ELIGIBLE_TXS = 'eligible-refunds-txs';
 export const REFUNDED_TXS_CACHE_KEY = 'refunded-txs-epoch2';
-export const REFUNDED_TXS_CUSTOM_CACHE_KEY = 'custom-txs-to-refund-epoch2';
+export const REFUNDED_TXS_CUSTOM_CACHE_KEY = 'custom-txs-to-refund-epoch3';
 export const REFUNDED_TXS_IGNORE_CACHE_KEY = 'refunds-ignore-tx-hashes';
 
 const formatResults = (data: any, type: string, refundWhitelist?: string[], voteCastWhitelist?: string[]): RefundableTransaction[] => {
