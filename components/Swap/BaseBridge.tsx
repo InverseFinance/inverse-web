@@ -18,11 +18,14 @@ import { MarketImage } from "../common/Assets/MarketImage";
 import { TOKEN_IMAGES } from "@app/variables/images";
 import useSpecificChainBalance from "@app/hooks/useSpecificChainBalance";
 import { switchWalletNetwork } from "@app/util/web3";
+import { isAddress } from "ethers/lib/utils";
+import { useAppTheme } from "@app/hooks/useAppTheme";
 
 const { DOLA } = getNetworkConfigConstants();
 
 export const BaseBridge = () => {
     const { provider, account, chainId } = useWeb3React();
+    const { themeStyles } = useAppTheme();
     const { balance: dolaBalance, bnBalance: bnDolaBalance } = useDOLABalance(account);
     const { balance: mainnetBalance, bnBalance: mainnetBnBalance } = useSpecificChainBalance(account, '0x865377367054516e17014CcdED1e7d814EDC9ce4', NetworkIds.mainnet);
     const { balance: baseBalance, bnBalance: baseBnBalance } = useSpecificChainBalance(account, '0x4621b7A9c75199271F773Ebd9A499dbd165c3191', NetworkIds.base);
@@ -39,11 +42,11 @@ export const BaseBridge = () => {
     const [mode, setMode] = useState<'Deposit' | 'Withdraw'>('Deposit');
 
     const handleAction = (bnAmount: BigNumber) => {
-        if (!signer) return;
+        if (!signer || isWrongAddress) return;
         if (mode === 'Withdraw') {
-            return withdrawDolaFromBase(bnAmount, signer);
+            return withdrawDolaFromBase(bnAmount, signer, !!to ? to : undefined);
         }
-        return bridgeDolaToBase(bnAmount, signer);
+        return bridgeDolaToBase(bnAmount, signer, !!to ? to : undefined);
     }
 
     const handleSuccess = () => {
@@ -52,6 +55,7 @@ export const BaseBridge = () => {
     }
 
     const isWrongNetwork = (chainId?.toString() === NetworkIds.mainnet && mode !== 'Deposit') || (chainId?.toString() === NetworkIds.base && mode !== 'Withdraw');
+    const isWrongAddress = !!to ? !isAddress(to) : false;
 
     return <Container
         label="Base Native Bridge"
@@ -97,7 +101,7 @@ export const BaseBridge = () => {
                         onSuccess={() => handleSuccess()}
                         enableCustomApprove={true}
                         containerProps={{ spacing: '4' }}
-                        isDisabled={isWrongNetwork}
+                        isDisabled={isWrongNetwork || isWrongAddress}
                         alsoDisableApprove={true}
                         includeBalanceInMax={true}
                         customBalance={!isWrongNetwork && !!account ? bnDolaBalance : chainBalances[mode === 'Deposit' ? NetworkIds.mainnet : NetworkIds.base]}
@@ -105,12 +109,12 @@ export const BaseBridge = () => {
                         extraBeforeButton={
                             <VStack alignItems="flex-start" w='full'>
                                 <TextInfo message="If you wish to receive the asset on another address than the current connected wallet address">
-                                    <HStack spacing="1" cursor="pointer" onClick={v => setIsCustomAddress(!isCustomAddress)}>
+                                    <HStack spacing="1" cursor="pointer" onClick={v => !!to ? () => {} : setIsCustomAddress(!isCustomAddress)}>
                                         <Text>Recipient address (optional)</Text>
-                                        {isCustomAddress ? <ChevronDownIcon /> : <ChevronRightIcon />}
+                                        {!to ? isCustomAddress ? <ChevronDownIcon /> : <ChevronRightIcon /> : null}
                                     </HStack>
                                 </TextInfo>
-                                <Input display={isCustomAddress ? 'block' : 'none'} w='full' placeholder={account} value={to} onChange={e => setTo(e.target.value)} />
+                                <Input borderColor={isWrongAddress ? `${themeStyles.colors.error}` : undefined} borderWidth={isWrongAddress ? '1px' : '0'} display={isCustomAddress ? 'block' : 'none'} w='full' placeholder={account} value={to} onChange={e => setTo(e.target.value)} />
                                 {
                                     isWrongNetwork && <WarningMessage alertProps={{ w: 'full' }} title={`Wrong network`} description={
                                         <Text textDecoration="underline" cursor="pointer"
