@@ -4,7 +4,7 @@ import { BASE_L1_ERC20_BRIDGE, bridgeDolaToBase } from "@app/util/base";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { useWeb3React } from "@web3-react/core";
 import { parseEther } from "@ethersproject/units";
-import { VStack, Text, HStack } from "@chakra-ui/react";
+import { VStack, Text, HStack, Box } from "@chakra-ui/react";
 import { InfoMessage, SuccessMessage } from "../common/Messages";
 import Link from "../common/Link";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
@@ -66,7 +66,35 @@ export const BaseBridge = () => {
                 />
             }
             <InfoMessage
-                description="Note: this is a temporary UI to allow DOLA users to bridge to Base while the official Base UI and third-party parties don't support DOLA yet. To bridge back DOLA to Ethereum the native bridge takes around 7 days."
+                description={
+                    <VStack alignItems="flex-start">
+                        <Box>
+                            <Text fontWeight="bold" display="inline">
+                                Please note:
+                            </Text>
+                            <Text ml="1" display="inline">
+                                DOLA has been deployed to the native base Bridge however DOLA may not be reflected on
+                            </Text>
+                            <Link ml="1" textDecoration="underline" href="https://bridge.base.org/deposit" isExternal target="_blank">
+                                the official Base UI
+                            </Link>
+                            <Text display="inline" ml="1">
+                                pull-down menu for several weeks.
+                            </Text>
+                        </Box>
+                        <Text>
+                            Until then, we are providing this user interface to the Base native bridge for our users wishing to move DOLA to Base.
+                        </Text>
+                        <Box w='full'>
+                            <Text display="inline">
+                                For more information on using bridges with DOLA please visit:
+                            </Text>
+                            <Link ml="1" textDecoration="underline" href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola" isExternal={true} target="_blank">
+                                DOLA docs
+                            </Link>
+                        </Box>
+                    </VStack>
+                }
             />
         </VStack>
     </Container>
