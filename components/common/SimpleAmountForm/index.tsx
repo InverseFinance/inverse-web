@@ -3,7 +3,7 @@ import { useAllowances } from "@app/hooks/useApprovals";
 import { useBalances } from "@app/hooks/useBalances";
 import { getBnToNumber } from "@app/util/markets";
 import { hasAllowance } from "@app/util/web3";
-import { ButtonProps, Checkbox, FlexProps, InputProps, Stack, TextProps, VStack } from "@chakra-ui/react"
+import { ButtonProps, Checkbox, FlexProps, InputProps, Stack, StackProps, TextProps, VStack } from "@chakra-ui/react"
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { formatUnits, parseUnits } from "@ethersproject/units";
 import { BigNumber } from "ethers";
@@ -45,6 +45,9 @@ type Props = {
     inputLeftProps?: FlexProps
     enableCustomApprove?: boolean
     defaultInfiniteApprovalMode?: boolean
+    extraBeforeButton?: any
+    customBalance?: BigNumber
+    containerProps?: StackProps
     onSuccess?: () => void
 }
 
@@ -102,6 +105,9 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         onSuccess,
         enableCustomApprove = false,
         defaultInfiniteApprovalMode = true,
+        extraBeforeButton = null,
+        customBalance,
+        containerProps,
     } = props;
     const [amount, setAmount] = useState(!defaultAmount ? '' : defaultAmount);
     const [isInfiniteApprovalMode, setIsInfiniteApprovalMode] = useState(defaultInfiniteApprovalMode);
@@ -111,9 +117,9 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     const { balances } = useBalances([address]);
     const _tokenAddress = address || 'CHAIN_COIN';
 
-    const balanceBn = balances && balances[_tokenAddress] ? balances[_tokenAddress] : zeroBn;
+    const balanceBn = !!customBalance ? customBalance : (balances && balances[_tokenAddress] ? balances[_tokenAddress] : zeroBn);
     const balance = getBnToNumber(balanceBn, decimals);
-    let maxBn = maxAmountFrom ? [...maxAmountFrom] : [balances && balances[_tokenAddress] ? balances[_tokenAddress] : zeroBn];
+    let maxBn = maxAmountFrom ? [...maxAmountFrom] : [balanceBn];
     if (maxAmountFrom && includeBalanceInMax) {
         maxBn.push(balanceBn);
     }
@@ -161,7 +167,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         }
     }
 
-    return <VStack w='full'>
+    return <VStack w='full' {...containerProps}>
         {
             (tokenApproved || !hideInputIfNoAllowance) && !hideInput &&
             <BalanceInput
@@ -181,6 +187,9 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                 isError={isError}
                 showMax={showMax}
             />
+        }
+        {
+            extraBeforeButton
         }
         {
             hideButtons && !onlyShowApproveBtn ? null :

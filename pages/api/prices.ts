@@ -9,6 +9,7 @@ import { COMPTROLLER_ABI, ORACLE_ABI } from '@app/config/abis'
 import { BigNumber, Contract } from 'ethers'
 import { formatUnits } from '@ethersproject/units'
 import { getTokenData } from '@app/util/livecoinwatch'
+import { getDolaUsdPriceOnCurve } from '@app/util/f2'
 
 export const pricesCacheKey = `prices-v1.0.7`;
 export const cgPricesCacheKey = `cg-prices-v1.0.0`;
@@ -90,8 +91,11 @@ export default async function handler(req, res) {
 
     Object.entries(geckoPrices).forEach(([key, value]) => {
       prices[key] = value.usd;
-    })
-    prices['dola-usd'] = prices['dola-usd-lcw'] || prices['dola-usd-cg'];
+    });
+
+    const { price: dolaOnChainPrice, tvl: crvUsdDolaTvl } = await getDolaUsdPriceOnCurve(getProvider(NetworkIds.mainnet));        
+    prices['dola-onchain-usd'] = dolaOnChainPrice;
+    prices['dola-usd'] = crvUsdDolaTvl >= 1000000 ? dolaOnChainPrice : prices['dola-usd-cg'] || prices['dola-usd-lcw'];
 
     let lps: { token: Token, chainId: string }[] = [];
 

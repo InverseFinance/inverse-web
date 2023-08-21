@@ -1,8 +1,10 @@
 import 'source-map-support'
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
-import { Prices } from '@app/types'
+import { NetworkIds, Prices } from '@app/types'
 import { getTokenData } from '@app/util/livecoinwatch'
 import { cgPricesCacheKey } from './prices'
+import { getDolaUsdPriceOnCurve } from '@app/util/f2'
+import { getProvider } from '@app/util/providers'
 
 const cacheKey = `dola-price-v1.0.0`;
 
@@ -40,7 +42,10 @@ export default async function handler(req, res) {
             console.log('Error livecoinwatch gecko prices');
         }
 
-        prices['dola-usd'] = prices['dola-usd-lcw'] || prices['dola-usd-cg'];
+        const { price: dolaOnChainPrice, tvl: crvUsdDolaTvl } = await getDolaUsdPriceOnCurve(getProvider(NetworkIds.mainnet));
+        
+        prices['dola-onchain-usd'] = dolaOnChainPrice;
+        prices['dola-usd'] = crvUsdDolaTvl >= 1000000 ? dolaOnChainPrice : prices['dola-usd-cg'] || prices['dola-usd-lcw'];
 
         prices['_timestamp'] = +(new Date());
 

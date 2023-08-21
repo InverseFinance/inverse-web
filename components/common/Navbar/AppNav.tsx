@@ -118,7 +118,7 @@ const NetworkBadge = ({
       onClick={isWrongNetwork ? showWrongNetworkModal : undefined}
     // bg={'primary.800'}
     >
-      <NetworkItem isSupported={!isWrongNetwork} chainId={chainId} networkAttribute={isSmallerThan1000 ? null : isSmallerThan1470 && !isSmallerThan1000 ? 'coinSymbol' : 'name'} />
+      <NetworkItem isSupported={!isWrongNetwork} chainId={chainId} networkAttribute={isSmallerThan1000 ? null : isSmallerThan1470 && !isSmallerThan1000 && chainId?.toString() !== '8453' ? 'coinSymbol' : 'name'} />
       <Flex direction="row" color="red" ml="1">
         {
           !!gasPrice &&
@@ -501,7 +501,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   useEffect(() => {
     if (!badgeChainId) { return }
     // swap page: any network is fine
-    const isSupported = location.pathname === '/swap' || isSupportedNetwork(badgeChainId);    
+    const isSupported = ['/swap', '/base'].includes(location.pathname) || isSupportedNetwork(badgeChainId);    
     setIsUsupportedNetwork(!isSupported)
     if (!isSupported) {
       onWrongNetOpen();

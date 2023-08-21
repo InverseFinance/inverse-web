@@ -51,6 +51,7 @@ export enum NETWORK_CODENAMES {
   harmony = 'harmony',
   celo = 'celo',
   moonriver = 'moonriver',
+  base = 'base',
   ethftm = 'eth-ftm',
 }
 
@@ -183,6 +184,16 @@ const networks: Network[] = [
     isSupported: false,
     image: `/assets/networks/${NETWORK_CODENAMES.optimism}.svg`,
     scan: 'https://optimistic.etherscan.io',
+  },
+  {
+    id: '8453',
+    codename: NETWORK_CODENAMES.base,
+    name: 'Base',
+    coinSymbol: 'eth',
+    isTestnet: false,
+    isSupported: false,
+    image: `/assets/networks/${NETWORK_CODENAMES.base}.svg`,
+    scan: 'https://basescan.org',
   },
   {
     id: '42161',
