@@ -445,6 +445,8 @@ export const F2_CONTROLLER_ABI = [
   "function dailyLimits(address market) public view returns (uint)",
   "function dailyBorrows(address market, uint day) public view returns (uint)",
   "function contractAllowlist(address market) public view returns (bool)",
+  "function minDebts(address market) public view returns (uint)",
+  "function isBelowMinDebt(address market, address borrower, uint amount) public view returns(bool)",
 ];
 
 export const F2_MARKET_ABI = [

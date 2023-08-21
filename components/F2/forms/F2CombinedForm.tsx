@@ -1,11 +1,11 @@
 import { Stack, VStack, Text, HStack, FlexProps, Divider, Switch, FormControl, FormLabel, Flex, useMediaQuery, Badge, useDisclosure } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
-import { getBnToNumber, getNumberToBn, shortenNumber } from '@app/util/markets'
+import { getNumberToBn, shortenNumber } from '@app/util/markets'
 import { formatUnits, parseEther, parseUnits } from '@ethersproject/units'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
 import { f2repayAndWithdrawNative, f2borrow, f2deposit, f2depositAndBorrow, f2depositAndBorrowHelper, f2repay, f2repayAndWithdraw, f2sellAndRepayHelper, f2sellAndWithdrawHelper, f2withdraw, getRiskColor, f2approxDbrAndDolaNeeded, f2withdrawMax } from '@app/util/f2'
 
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useState } from 'react'
 
 import { F2DurationInput } from './F2DurationInput'
 import { MarketImage } from '@app/components/common/Assets/MarketImage'
@@ -21,8 +21,8 @@ import { F2MarketContext } from '../F2Contex'
 import WethModal from '@app/components/common/Modal/WethModal'
 import { BUY_LINKS } from '@app/config/constants'
 import { Input } from '@app/components/common/Input'
-import { showToast } from '@app/util/notify'
 import { DBRAutoRepayCalculator } from '../DBRAutoRepayCalculator'
+import { FEATURE_FLAGS } from '@app/config/features'
 
 const { DOLA, F2_HELPER, DBR } = getNetworkConfigConstants();
 
@@ -84,6 +84,7 @@ export const F2CombinedForm = ({
         notFirstTime, onFirstTimeModalOpen,        
         hasDbrV1NewBorrowIssue, onDbrV1NewBorrowIssueModalOpen,
         firmActionIndex, setFirmActionIndex, setCachedFirmActionIndex,
+        newTotalDebtInMarket,
     } = useContext(F2MarketContext);
 
     const [syncedMinH, setSyncedMinH] = useState('230px');
@@ -107,10 +108,10 @@ export const F2CombinedForm = ({
 
     const handleAction = async () => {
         if (!signer) { return }
-        if(isBorrowCase && hasDbrV1NewBorrowIssue) {
-            onDbrV1NewBorrowIssueModalOpen();            
-            return;
-        }
+        // if(isBorrowCase && hasDbrV1NewBorrowIssue) {
+        //     onDbrV1NewBorrowIssueModalOpen();            
+        //     return;
+        // }
         if (!notFirstTime && isBorrowCase) {
             const firstTimeAction = await onFirstTimeModalOpen();
             if (firstTimeAction !== 'continue') {
@@ -223,6 +224,7 @@ export const F2CombinedForm = ({
     const btnLabel = isDeposit ? `Deposit & Borrow` : 'Withdraw';
     const btnMaxlabel = `${btnLabel} Max`;
     const notEnoughToBorrowWithAutobuy = isBorrowCase && market.leftToBorrow > 1 && deltaDebt > 0 && market.leftToBorrow < (isAutoDBR ? deltaDebt + (dbrCoverDebt * (1 + parseFloat(dbrBuySlippage || 0) / 100)) : deltaDebt);
+    const minDebtDisabledCondition = FEATURE_FLAGS.firmMinDebt && newTotalDebtInMarket < market.minDebt;
 
     const leftPart = <Stack direction={{ base: 'column' }} spacing="4" w='full' >
         {
@@ -366,6 +368,13 @@ export const F2CombinedForm = ({
                     } />
                 }
                 {
+                    !notEnoughToBorrowWithAutobuy && minDebtDisabledCondition && debtAmountNum > 0
+                    && <WarningMessage alertProps={{ w: 'full' }} description={
+                        !debt ? `You need to borrow at least ${shortenNumber(market.minDebt, 2)} DOLA`
+                        : `When borrowing the resulting debt should be at least ${shortenNumber(market.minDebt, 2)} DOLA`
+                    } />
+                }
+                {
                     isDeposit && !isAutoDBR && dbrBalance <= 0 &&
                     <InfoMessage
                         title="No DBRs in wallet"
@@ -463,7 +472,7 @@ export const F2CombinedForm = ({
 
     const disabledConditions = {
         'deposit': collateralAmountNum <= 0 || collateralBalance < collateralAmountNum,
-        'borrow': duration <= 0 || debtAmountNum <= 0 || newPerc < 1 || (isDeposit && !isAutoDBR && dbrBalance <= 0) || market.leftToBorrow < 1 || debtAmountNum > market.leftToBorrow || notEnoughToBorrowWithAutobuy,
+        'borrow': duration <= 0 || debtAmountNum <= 0 || newPerc < 1 || (isDeposit && !isAutoDBR && dbrBalance <= 0) || market.leftToBorrow < 1 || debtAmountNum > market.leftToBorrow || notEnoughToBorrowWithAutobuy || minDebtDisabledCondition,
         'repay': debtAmountNum <= 0 || debtAmountNum > debt || debtAmountNum > dolaBalance || (isAutoDBR && !parseFloat(dbrSellAmount)),
         'withdraw': collateralAmountNum <= 0 || collateralAmountNum > deposits || newPerc < 1 || dbrBalance < 0,
     }

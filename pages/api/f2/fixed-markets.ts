@@ -10,9 +10,10 @@ import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_MS, ONE_DAY_SECS } from '@app/config/co
 import { frontierMarketsCacheKey } from '../markets';
 import { cgPricesCacheKey } from '../prices';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
+import { FEATURE_FLAGS } from '@app/config/features';
 
 const { F2_MARKETS, DOLA, XINV, DBR_DISTRIBUTOR } = getNetworkConfigConstants();
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.91`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.92`;
 
 export default async function handler(req, res) {
   const { cacheFirst } = req.query;
@@ -101,7 +102,7 @@ export default async function handler(req, res) {
     const today = new Date();
     const dayIndexUtc = Math.floor(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 0, 0, 0) / ONE_DAY_MS);
 
-    const [dailyLimits, dailyBorrows, bnPrices, oracleFeeds] = await getGroupedMulticallOutputs([
+    const [dailyLimits, dailyBorrows, minDebtsBn, bnPrices, oracleFeeds] = await getGroupedMulticallOutputs([
       borrowControllers.map((bc, i) => {
         const bcContract = new Contract(bc, F2_CONTROLLER_ABI, provider);
         return { contract: bcContract, functionName: 'dailyLimits', params: [F2_MARKETS[i].address], forceFallback: bc === BURN_ADDRESS, fallbackValue: BigNumber.from('0') }
@@ -109,6 +110,10 @@ export default async function handler(req, res) {
       borrowControllers.map((bc, i) => {
         const bcContract = new Contract(bc, F2_CONTROLLER_ABI, provider);
         return { contract: bcContract, functionName: 'dailyBorrows', params: [F2_MARKETS[i].address, dayIndexUtc], forceFallback: bc === BURN_ADDRESS, fallbackValue: BigNumber.from('0') }
+      }),      
+      borrowControllers.map((bc, i) => {
+        const bcContract = new Contract(bc, F2_CONTROLLER_ABI, provider);
+        return { contract: bcContract, functionName: 'minDebts', params: [F2_MARKETS[i].address], forceFallback: bc === BURN_ADDRESS || !FEATURE_FLAGS.firmMinDebt, fallbackValue: BigNumber.from('0') }
       }),
       oracles.map((o, i) => {
         const oracle = new Contract(o, F2_ORACLE_ABI, provider);
@@ -193,6 +198,7 @@ export default async function handler(req, res) {
         dbrApr: m.isInv ? dbrApr : undefined,
         dbrRewardRate: m.isInv ? dbrRewardRate : undefined,
         dbrYearlyRewardRate: m.isInv ? dbrYearlyRewardRate : undefined,
+        minDebt: getBnToNumber(minDebtsBn[i]),
       }
     });
 
