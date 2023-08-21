@@ -29,7 +29,7 @@ export default async function handler(req, res) {
 
                 const contract = new Contract(TWG.address, MULTISIG_ABI, provider);
                 const owners = await contract.getOwners();
-                const authorizedAddresses = [...owners, TWG.address, '0x6535020cCeB810Bdb3F3cA5e93dE2460FF7989BB'];
+                const authorizedAddresses = [...owners, TWG.address, '0x6535020cCeB810Bdb3F3cA5e93dE2460FF7989BB', '0xEC092c15e8D5A48a77Cde36827F8e228CE39471a'];
 
                 if (!authorizedAddresses.map(a => a.toLowerCase()).includes(sigAddress.toLowerCase())) {
                     res.status(401).json({ status: 'warning', message: 'Unauthorized: Only TWG members or TWG' })
