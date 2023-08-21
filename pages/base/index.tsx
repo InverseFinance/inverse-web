@@ -72,6 +72,7 @@ export const Swap = () => {
                         DOLA docs
                       </Link>
                     </Box>
+                    <Text>Inverse Finance did not audit the Base native bridge and bridging process and only provides a UI to facilitate early DOLA bridging.</Text>
                   </VStack>
                 }
               />
