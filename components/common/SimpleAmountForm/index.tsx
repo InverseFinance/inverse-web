@@ -46,6 +46,7 @@ type Props = {
     inputLeftProps?: FlexProps
     enableCustomApprove?: boolean
     defaultInfiniteApprovalMode?: boolean
+    needApprove?: boolean
     extraBeforeButton?: any
     customBalance?: BigNumber
     containerProps?: StackProps
@@ -110,6 +111,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         extraBeforeButton = null,
         customBalance,
         containerProps,
+        needApprove = true,
     } = props;
     const [amount, setAmount] = useState(!defaultAmount ? '' : defaultAmount);
     const [isInfiniteApprovalMode, setIsInfiniteApprovalMode] = useState(defaultInfiniteApprovalMode);
@@ -171,7 +173,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
 
     return <VStack w='full' {...containerProps}>
         {
-            (tokenApproved || !hideInputIfNoAllowance) && !hideInput &&
+            ((tokenApproved || !needApprove) || !hideInputIfNoAllowance) && !hideInput &&
             <BalanceInput
                 value={!amount ? '' : amount}
                 showBalance={showBalance}
@@ -195,7 +197,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         }
         {
             hideButtons && !onlyShowApproveBtn ? null :
-                !tokenApproved && !noApprovalNeeded ?
+                (!tokenApproved && needApprove) && !noApprovalNeeded ?
                     <>
                         <ApproveButton
                             w='full'

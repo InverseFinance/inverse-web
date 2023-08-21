@@ -592,6 +592,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [BOND_V2_FIXED_TERM, BOND_V2_ABI],
         [BOND_V2_FIXED_TERM_TELLER, BOND_V2_FIXED_TELLER_ABI],
         [BOND_V2_AGGREGATOR, BOND_V2_AGGREGATOR_ABI],
+        ['0x4621b7A9c75199271F773Ebd9A499dbd165c3191', ERC20_ABI],
         [F2_HELPER, F2_HELPER_ABI],
         ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...MULTISIGS.map((m) => [m.address, MULTISIG_ABI]),
