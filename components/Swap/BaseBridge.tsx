@@ -4,7 +4,7 @@ import { BASE_L1_ERC20_BRIDGE, BASE_L2_ERC20_BRIDGE, bridgeDolaToBase, withdrawD
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { useWeb3React } from "@web3-react/core";
 import { VStack, Text, HStack, Image } from "@chakra-ui/react";
-import { InfoMessage, SuccessMessage } from "../common/Messages";
+import { InfoMessage, SuccessMessage, WarningMessage } from "../common/Messages";
 import Link from "../common/Link";
 import { ArrowForwardIcon, ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import Container from "../common/Container";
@@ -17,6 +17,7 @@ import { NetworkIds } from "@app/types";
 import { MarketImage } from "../common/Assets/MarketImage";
 import { TOKEN_IMAGES } from "@app/variables/images";
 import useSpecificChainBalance from "@app/hooks/useSpecificChainBalance";
+import { switchWalletNetwork } from "@app/util/web3";
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -97,8 +98,9 @@ export const BaseBridge = () => {
                         enableCustomApprove={true}
                         containerProps={{ spacing: '4' }}
                         isDisabled={isWrongNetwork}
+                        alsoDisableApprove={true}
                         includeBalanceInMax={true}
-                        customBalance={!isWrongNetwork && !!account ? bnDolaBalance : chainBalances[mode === 'Deposit' ? NetworkIds.mainnet : NetworkIds.base]}                        
+                        customBalance={!isWrongNetwork && !!account ? bnDolaBalance : chainBalances[mode === 'Deposit' ? NetworkIds.mainnet : NetworkIds.base]}
                         inputRight={<MarketImage pr="2" image={TOKEN_IMAGES.DOLA} size={25} />}
                         extraBeforeButton={
                             <VStack alignItems="flex-start" w='full'>
@@ -109,6 +111,15 @@ export const BaseBridge = () => {
                                     </HStack>
                                 </TextInfo>
                                 <Input display={isCustomAddress ? 'block' : 'none'} w='full' placeholder={account} value={to} onChange={e => setTo(e.target.value)} />
+                                {
+                                    isWrongNetwork && <WarningMessage alertProps={{ w: 'full' }} title={`Wrong network`} description={
+                                        <Text textDecoration="underline" cursor="pointer"
+                                            onClick={() => switchWalletNetwork(chainId?.toString() === NetworkIds.mainnet ? NetworkIds.base : NetworkIds.mainnet )}
+                                        >
+                                            Switch to {chainId?.toString() === NetworkIds.mainnet ? 'Base' : 'Ethereum'}
+                                        </Text>
+                                    } />
+                                }
                             </VStack>
                         }
                     />

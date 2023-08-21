@@ -19,6 +19,7 @@ type Props = {
     destination: string
     signer?: JsonRpcSigner
     isDisabled?: boolean
+    alsoDisableApprove?: boolean
     isMaxDisabled?: boolean
     decimals?: number
     actionLabel?: string
@@ -75,6 +76,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         destination,
         signer,
         isDisabled,
+        alsoDisableApprove,
         isMaxDisabled,
         onAction,
         onMaxAction,
@@ -201,7 +203,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                             address={address}
                             toAddress={destination}
                             signer={signer}
-                            isDisabled={isInfiniteApprovalMode ? balance <= 0 : !parseFloat(_amount)}
+                            isDisabled={(isInfiniteApprovalMode ? balance <= 0 : !parseFloat(_amount)) || (!!alsoDisableApprove && !!isDisabled)}
                             onSuccess={() => setFreshTokenApproved(isInfiniteApprovalMode)}
                             ButtonComp={ButtonComp}
                             amount={isInfiniteApprovalMode ? undefined : _bnAmount}
