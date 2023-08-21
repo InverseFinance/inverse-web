@@ -46,6 +46,7 @@ type Props = {
     enableCustomApprove?: boolean
     defaultInfiniteApprovalMode?: boolean
     extraBeforeButton?: any
+    customBalance?: BigNumber
     containerProps?: StackProps
     onSuccess?: () => void
 }
@@ -105,6 +106,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         enableCustomApprove = false,
         defaultInfiniteApprovalMode = true,
         extraBeforeButton = null,
+        customBalance,
         containerProps,
     } = props;
     const [amount, setAmount] = useState(!defaultAmount ? '' : defaultAmount);
@@ -115,9 +117,9 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     const { balances } = useBalances([address]);
     const _tokenAddress = address || 'CHAIN_COIN';
 
-    const balanceBn = balances && balances[_tokenAddress] ? balances[_tokenAddress] : zeroBn;
+    const balanceBn = !!customBalance ? customBalance : (balances && balances[_tokenAddress] ? balances[_tokenAddress] : zeroBn);
     const balance = getBnToNumber(balanceBn, decimals);
-    let maxBn = maxAmountFrom ? [...maxAmountFrom] : [balances && balances[_tokenAddress] ? balances[_tokenAddress] : zeroBn];
+    let maxBn = maxAmountFrom ? [...maxAmountFrom] : [balanceBn];
     if (maxAmountFrom && includeBalanceInMax) {
         maxBn.push(balanceBn);
     }

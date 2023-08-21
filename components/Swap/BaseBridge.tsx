@@ -16,12 +16,20 @@ import { TextInfo } from "../common/Messages/TextInfo";
 import { NetworkIds } from "@app/types";
 import { MarketImage } from "../common/Assets/MarketImage";
 import { TOKEN_IMAGES } from "@app/variables/images";
+import useSpecificChainBalance from "@app/hooks/useSpecificChainBalance";
 
 const { DOLA } = getNetworkConfigConstants();
 
 export const BaseBridge = () => {
     const { provider, account, chainId } = useWeb3React();
     const { balance: dolaBalance, bnBalance: bnDolaBalance } = useDOLABalance(account);
+    const { balance: mainnetBalance, bnBalance: mainnetBnBalance } = useSpecificChainBalance(account, '0x865377367054516e17014CcdED1e7d814EDC9ce4', NetworkIds.mainnet);
+    const { balance: baseBalance, bnBalance: baseBnBalance } = useSpecificChainBalance(account, '0x4621b7A9c75199271F773Ebd9A499dbd165c3191', NetworkIds.base);
+    const chainBalances = {
+        [NetworkIds.mainnet]: mainnetBnBalance,
+        [NetworkIds.base]: baseBnBalance,
+    }
+
     const signer = !!provider ? provider?.getSigner() : undefined;
     const [amount, setAmount] = useState('');
     const [to, setTo] = useState('');
@@ -42,7 +50,7 @@ export const BaseBridge = () => {
         setAmount('');
     }
 
-    const isWrongNetwork = (chainId === NetworkIds.mainnet && mode !== 'Deposit') || (chainId === NetworkIds.base && mode !== 'Withdraw');
+    const isWrongNetwork = (chainId?.toString() === NetworkIds.mainnet && mode !== 'Deposit') || (chainId?.toString() === NetworkIds.base && mode !== 'Withdraw');
 
     return <Container
         label="Base Native Bridge"
@@ -89,6 +97,8 @@ export const BaseBridge = () => {
                         enableCustomApprove={true}
                         containerProps={{ spacing: '4' }}
                         isDisabled={isWrongNetwork}
+                        includeBalanceInMax={true}
+                        customBalance={!isWrongNetwork && !!account ? bnDolaBalance : chainBalances[mode === 'Deposit' ? NetworkIds.mainnet : NetworkIds.base]}                        
                         inputRight={<MarketImage pr="2" image={TOKEN_IMAGES.DOLA} size={25} />}
                         extraBeforeButton={
                             <VStack alignItems="flex-start" w='full'>
