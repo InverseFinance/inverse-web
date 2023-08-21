@@ -69,6 +69,33 @@ export const useDOLAPrice = (): SWR & { price: number } => {
   }
 }
 
+export const useDOLAPriceLive = (): { price: number | undefined } => {
+  const { data: dolaCrvUsdLpPriceOracle } = useEtherSWR({
+    args: [
+      ['0x8272e1a3dbef607c04aa6e5bd3a1a134c8ac063b', 'price_oracle'],
+    ],
+    abi: [
+      'function price_oracle() public view returns(uint)',
+    ],
+  });  
+  
+  const { data: crvUsdLastPrice } = useEtherSWR({
+    args: [
+      ['0x18672b1b0c623a30089A280Ed9256379fb0E4E62', 'last_price'],
+    ],
+    abi: [
+      'function last_price() public view returns(uint)',
+    ],
+  });
+
+  const price_oracle = dolaCrvUsdLpPriceOracle && dolaCrvUsdLpPriceOracle[0] ? getBnToNumber(dolaCrvUsdLpPriceOracle[0]) : undefined;
+  const last_price = crvUsdLastPrice && crvUsdLastPrice[0] ? getBnToNumber(crvUsdLastPrice[0]) : undefined;
+
+  return {
+    price: !!price_oracle && price_oracle > 0 && last_price ? last_price / price_oracle : undefined,
+  }
+}
+
 export const useAnchorPrices = (): any => {
   const { chainId } = useWeb3React<Web3Provider>()
   const { ANCHOR_TOKENS, XINV, XINV_V1, ORACLE } = getNetworkConfigConstants(chainId)
