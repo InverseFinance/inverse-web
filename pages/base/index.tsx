@@ -31,8 +31,8 @@ export const Swap = () => {
           <BaseBridge />
         </VStack>
         <VStack w={{ base: 'full', lg: '45%' }}>
-          <Container label="Informations" noPadding p="0">
-            <VStack w='full'>
+          <Container label="Informations" noPadding p="0" contentProps={{ minH: '400px' }}>
+            <VStack w='full' spacing="4" justify="space-between">
               <WarningMessage
                 alertProps={{ w: 'full' }}
                 title="Bridging times"

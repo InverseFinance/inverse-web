@@ -6,18 +6,21 @@ import { useWeb3React } from "@web3-react/core";
 import { VStack, Text, HStack, Image } from "@chakra-ui/react";
 import { InfoMessage, SuccessMessage } from "../common/Messages";
 import Link from "../common/Link";
-import { ArrowForwardIcon, ExternalLinkIcon } from "@chakra-ui/icons";
+import { ArrowForwardIcon, ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import Container from "../common/Container";
 import { NavButtons } from "../common/Button";
 import { useDOLABalance } from "@app/hooks/useDOLA";
 import { BigNumber } from "ethers";
 import { Input } from "../common/Input";
 import { TextInfo } from "../common/Messages/TextInfo";
+import { NetworkIds } from "@app/types";
+import { MarketImage } from "../common/Assets/MarketImage";
+import { TOKEN_IMAGES } from "@app/variables/images";
 
 const { DOLA } = getNetworkConfigConstants();
 
 export const BaseBridge = () => {
-    const { provider, account } = useWeb3React();
+    const { provider, account, chainId } = useWeb3React();
     const { balance: dolaBalance, bnBalance: bnDolaBalance } = useDOLABalance(account);
     const signer = !!provider ? provider?.getSigner() : undefined;
     const [amount, setAmount] = useState('');
@@ -39,35 +42,38 @@ export const BaseBridge = () => {
         setAmount('');
     }
 
+    const isWrongNetwork = (chainId === NetworkIds.mainnet && mode !== 'Deposit') || (chainId === NetworkIds.base && mode !== 'Withdraw');
+
     return <Container
         label="Base Native Bridge"
         noPadding
         p="0"
-        contentProps={{ direction: 'column' }}
+        contentProps={{ direction: 'column', minH: '400px' }}
     >
         {
             !account ? <InfoMessage alertProps={{ w: 'full' }} description="Please connect your wallet" />
                 : <VStack spacing="4">
                     <NavButtons options={['Deposit', 'Withdraw']} active={mode} onClick={v => setMode(v)} />
-                    <HStack id="too" w='full' justify="center" spacing="0" flexDirection={mode === 'Deposit' ? 'row' : 'row-reverse'}>
+                    <HStack w='full' justify="center" spacing="0" flexDirection={mode === 'Deposit' ? 'row' : 'row-reverse'}>
                         <VStack w="73px">
-                            <Image src={`/assets/networks/ethereum.png`} w="40px" h="40px" />
+                            <Image src={`/assets/networks/ethereum.png`} w="30px" h="30px" />
                             <Text color="mainTextColorLight">Ethereum</Text>
                         </VStack>
                         <VStack w='73px' alignItems="center">
                             <ArrowForwardIcon fontSize="20px" />
                         </VStack>
                         <VStack w="73px">
-                            <Image src={`/assets/networks/base.svg`} w="40px" h="40px" />
+                            <Image src={`/assets/networks/base.svg`} w="30px" h="30px" />
                             <Text color="mainTextColorLight">Base</Text>
                         </VStack>
                     </HStack>
                     <VStack alignItems="flex-start" w='full'>
                         <TextInfo message="From source chain to destination chain, you will pay gas on the source chain">
-                            <Text>Amount to bridge:</Text>
+                            <Text>DOLA amount to bridge:</Text>
                         </TextInfo>
                     </VStack>
                     <SimpleAmountForm
+                        showBalance={true}
                         defaultAmount={amount}
                         address={DOLA}
                         destination={mode === 'Deposit' ? BASE_L1_ERC20_BRIDGE : BASE_L2_ERC20_BRIDGE}
@@ -82,12 +88,17 @@ export const BaseBridge = () => {
                         onSuccess={() => handleSuccess()}
                         enableCustomApprove={true}
                         containerProps={{ spacing: '4' }}
+                        isDisabled={isWrongNetwork}
+                        inputRight={<MarketImage pr="2" image={TOKEN_IMAGES.DOLA} size={25} />}
                         extraBeforeButton={
                             <VStack alignItems="flex-start" w='full'>
                                 <TextInfo message="If you wish to receive the asset on another address than the current connected wallet address">
-                                    <Text>Recipient address (optional):</Text>
+                                    <HStack spacing="1" cursor="pointer" onClick={v => setIsCustomAddress(!isCustomAddress)}>
+                                        <Text>Recipient address (optional)</Text>
+                                        {isCustomAddress ? <ChevronDownIcon /> : <ChevronRightIcon />}
+                                    </HStack>
                                 </TextInfo>
-                                <Input w='full' placeholder={account} value={to} onChange={e => setTo(e.target.value)} />
+                                <Input display={isCustomAddress ? 'block' : 'none'} w='full' placeholder={account} value={to} onChange={e => setTo(e.target.value)} />
                             </VStack>
                         }
                     />
