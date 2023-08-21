@@ -18,13 +18,13 @@ export const bridgeDolaToBase = async (amount: BigNumber, signer: JsonRpcSigner,
     );
 }
 
-export const withdraw = async (amount: BigNumber, signer: JsonRpcSigner, to?: string) => {
+export const withdrawDolaFromBase = async (amount: BigNumber, signer: JsonRpcSigner, to?: string) => {
     const contract = new Contract(BASE_L2_ERC20_BRIDGE, bridgeABI ,signer);
     const _to = to || await signer.getAddress();
-    return contract.withdrawTo(
+    return contract.bridgeERC20To(
         '0x4621b7A9c75199271F773Ebd9A499dbd165c3191',
         '0x865377367054516e17014CcdED1e7d814EDC9ce4',
-        _to,   
+        _to,
         amount,
         '100000',
         '0x01',

@@ -16,7 +16,7 @@ export const Swap = () => {
       </Head>
       <AppNav active="Swap" activeSubmenu="Base" />
       <Stack
-        w={{ base: 'full', lg: '1000px' }}
+        w={{ base: 'full', lg: '600px' }}
         justify="center"
         direction={{ base: 'column', xl: 'row' }}
         mt='6'
@@ -24,11 +24,9 @@ export const Swap = () => {
         spacing="8"
         px={{ base: '4', lg: '0' }}
       >
-        <VStack w={{ base: 'full', lg: '55%' }}>
-          <VStack>            
+         <VStack>            
             <BaseBridge />
           </VStack>
-        </VStack>
       </Stack>
     </Layout>
   )

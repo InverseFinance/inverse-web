@@ -1,26 +1,42 @@
 import { useState } from "react";
 import { SimpleAmountForm } from "../common/SimpleAmountForm"
-import { BASE_L1_ERC20_BRIDGE, bridgeDolaToBase } from "@app/util/base";
+import { BASE_L1_ERC20_BRIDGE, BASE_L2_ERC20_BRIDGE, bridgeDolaToBase, withdrawDolaFromBase } from "@app/util/base";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { useWeb3React } from "@web3-react/core";
-import { parseEther } from "@ethersproject/units";
-import { VStack, Text, HStack, Box } from "@chakra-ui/react";
+import { VStack, Text, HStack, Box, Checkbox } from "@chakra-ui/react";
 import { InfoMessage, SuccessMessage } from "../common/Messages";
 import Link from "../common/Link";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import Container from "../common/Container";
+import { NavButtons } from "../common/Button";
+import { useDOLABalance } from "@app/hooks/useDOLA";
+import { BigNumber } from "ethers";
+import { Input } from "../common/Input";
+import { TextInfo } from "../common/Messages/TextInfo";
 
 const { DOLA } = getNetworkConfigConstants();
 
 export const BaseBridge = () => {
     const { provider, account } = useWeb3React();
+    const { balance: dolaBalance, bnBalance: bnDolaBalance } = useDOLABalance(account);
     const signer = !!provider ? provider?.getSigner() : undefined;
     const [amount, setAmount] = useState('');
+    const [to, setTo] = useState('');
     const [isSuccess, setIsSuccess] = useState(false);
+    const [isCustomAddress, setIsCustomAddress] = useState(false);
+    const [mode, setMode] = useState<'deposit' | 'withdraw'>('deposit');
 
-    const handleAction = () => {
+    const handleAction = (bnAmount: BigNumber) => {
         if (!signer) return;
-        return bridgeDolaToBase(parseEther(amount), signer);
+        if (mode === 'withdraw') {
+            return withdrawDolaFromBase(bnAmount, signer);
+        }
+        return bridgeDolaToBase(bnAmount, signer);
+    }
+
+    const handleSuccess = () => {
+        setIsSuccess(true);
+        setAmount('');
     }
 
     return <Container
@@ -29,21 +45,36 @@ export const BaseBridge = () => {
         p="0"
         contentProps={{ direction: 'column' }}
     >
-        <VStack spacing="4">
+        <VStack spacing="8">
+            <NavButtons options={['deposit', 'withdraw']} active={mode} onClick={v => setMode(v)} />
             <SimpleAmountForm
                 defaultAmount={amount}
                 address={DOLA}
-                destination={BASE_L1_ERC20_BRIDGE}
+                destination={mode === 'deposit' ? BASE_L1_ERC20_BRIDGE : BASE_L2_ERC20_BRIDGE}
                 signer={signer}
                 decimals={18}
                 hideInputIfNoAllowance={false}
-                onAction={({ bnAmount }) => handleAction()}
-                onMaxAction={({ bnAmount }) => handleWithdrawMax()}
+                onAction={({ bnAmount }) => handleAction(bnAmount)}
+                onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
                 actionLabel={'Bridge DOLA (native bridge)'}
                 onAmountChange={(v) => setAmount(v)}
                 showMaxBtn={true}
-                onSuccess={() => setIsSuccess(true)}
+                onSuccess={() => handleSuccess()}
                 enableCustomApprove={true}
+                containerProps={{ spacing: '4' }}
+                extraBeforeButton={
+                    <VStack alignItems="flex-start" w='full'>
+                        <TextInfo message="If you wish to receive the asset on another address than the current connected wallet address">
+                            <Text>Recipient address (optional):</Text>
+                        </TextInfo>
+                        {/* <HStack>
+                            <Checkbox isChecked={isCustomAddress} onChange={() => setIsCustomAddress(!isCustomAddress)} value='true'>
+                                Send to another address?
+                            </Checkbox>
+                        </HStack> */}
+                        <Input w='full' placeholder={account} value={to} onChange={e => setTo(e.target.value)} />
+                    </VStack>
+                }
             />
             {
                 isSuccess && <SuccessMessage
