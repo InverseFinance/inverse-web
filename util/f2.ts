@@ -391,7 +391,11 @@ export const getDolaUsdPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | W
     try {
         const crvPool = new Contract(
             '0x8272e1a3dbef607c04aa6e5bd3a1a134c8ac063b',
-            ['function price_oracle() public view returns(uint)',],
+            [
+                'function price_oracle() public view returns(uint)',
+                'function totalSupply() public view returns(uint)',
+                'function get_virtual_price() public view returns(uint)',
+            ],
             SignerOrProvider,
         );
         const crvUsdAggreg = new Contract(
@@ -402,7 +406,7 @@ export const getDolaUsdPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | W
         const [dolaPriceInCrvUsd, crvUsdLastPrice, totalSupply, lpVirtualPrice] = await getMulticallOutput([
             { contract: crvPool, functionName: 'price_oracle' },
             { contract: crvUsdAggreg, functionName: 'last_price' },
-            { contract: crvPool, functionName: 'total_supply' },
+            { contract: crvPool, functionName: 'totalSupply' },
             { contract: crvPool, functionName: 'get_virtual_price' },
         ]);        
         return {
