@@ -9,6 +9,7 @@ import { parseUnits, splitSignature } from "ethers/lib/utils";
 import { getBnToNumber, getNumberToBn } from "./markets";
 import { callWithHigherGL } from "./contracts";
 import { uniqueBy } from "./misc";
+import { getMulticallOutput } from "./multicall";
 
 const { F2_HELPER } = getNetworkConfigConstants();
 
@@ -384,6 +385,33 @@ export const getDbrPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3P
     const dolaPriceInDbr = await crvPool.price_oracle();
     const priceInDola = 1 / getBnToNumber(dolaPriceInDbr);
     return { priceInDolaBn: getNumberToBn(priceInDola), priceInDola: priceInDola };
+}
+
+export const getDolaUsdPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3Provider) => {
+    try {
+        const crvPool = new Contract(
+            '0x8272e1a3dbef607c04aa6e5bd3a1a134c8ac063b',
+            ['function price_oracle() public view returns(uint)',],
+            SignerOrProvider,
+        );
+        const crvUsdAggreg = new Contract(
+            '0x18672b1b0c623a30089A280Ed9256379fb0E4E62',
+            ['function last_price() public view returns(uint)',],
+            SignerOrProvider,
+        );
+        const [dolaPriceInCrvUsd, crvUsdLastPrice, totalSupply, lpVirtualPrice] = await getMulticallOutput([
+            { contract: crvPool, functionName: 'price_oracle' },
+            { contract: crvUsdAggreg, functionName: 'last_price' },
+            { contract: crvPool, functionName: 'total_supply' },
+            { contract: crvPool, functionName: 'get_virtual_price' },
+        ]);        
+        return {
+            price: getBnToNumber(crvUsdLastPrice) / getBnToNumber(dolaPriceInCrvUsd),
+            tvl: getBnToNumber(lpVirtualPrice) * getBnToNumber(totalSupply),
+        };
+    } catch(e) {
+        return { price: 0, tvl: 0, error: true };
+    }
 }
 
 export const zapperRefresh = (account: string) => {
