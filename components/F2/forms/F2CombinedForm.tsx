@@ -108,10 +108,10 @@ export const F2CombinedForm = ({
 
     const handleAction = async () => {
         if (!signer) { return }
-        if(isBorrowCase && hasDbrV1NewBorrowIssue) {
-            onDbrV1NewBorrowIssueModalOpen();            
-            return;
-        }
+        // if(isBorrowCase && hasDbrV1NewBorrowIssue) {
+        //     onDbrV1NewBorrowIssueModalOpen();            
+        //     return;
+        // }
         if (!notFirstTime && isBorrowCase) {
             const firstTimeAction = await onFirstTimeModalOpen();
             if (firstTimeAction !== 'continue') {

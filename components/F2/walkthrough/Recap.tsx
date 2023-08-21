@@ -91,10 +91,10 @@ export const F2WalkthroughRecap = ({
                 return
             }
         }
-        if(hasDbrV1NewBorrowIssue) {
-            onDbrV1NewBorrowIssueModalOpen();
-            return;
-        }
+        // if(hasDbrV1NewBorrowIssue) {
+        //     onDbrV1NewBorrowIssueModalOpen();
+        //     return;
+        // }
         if (market.helper) {
             // if(maxDolaInNum > maxBorrow) {
             //     return showToast({
