@@ -31,7 +31,7 @@ export default function useSpecificChainBalance(
 
 export const getPublicRpcProvider = (chainId: NetworkIds) => {
     if(chainId === NetworkIds.mainnet) {
-        return new JsonRpcProvider('https://eth.llamarpc.com');
+        return new JsonRpcProvider('https://rpc.ankr.com/eth');
     }
     else if (chainId === NetworkIds.ftm) {
         return new JsonRpcProvider('https://rpc.ftm.tools/');
