@@ -37,7 +37,7 @@ export const RewardsContainer = ({
     const [hasJustClaimed, setHasJustClaimed] = useState(false);
     const { value: lastClaim, setter: setLastClaim } = useStorage(`just-claimed-${account}-${market.name}`);
     const now = Date.now();
-    const claimedNotLongAgo = !!lastClaim && ((now - lastClaim) < 3000000);
+    const claimedNotLongAgo = !!lastClaim && ((now - lastClaim) < 300000);
 
     const handleClaim = async () => {
         if (!account) return;
