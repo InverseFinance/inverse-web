@@ -4,8 +4,7 @@ import { BASE_L1_ERC20_BRIDGE, BASE_L2_ERC20_BRIDGE, bridgeDolaToBase, withdrawD
 import { useWeb3React } from "@web3-react/core";
 import { VStack, Text, HStack, Image } from "@chakra-ui/react";
 import { InfoMessage, SuccessMessage, WarningMessage } from "../common/Messages";
-import Link from "../common/Link";
-import { ArrowForwardIcon, ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon } from "@chakra-ui/icons";
+import { ArrowForwardIcon, ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import Container from "../common/Container";
 import { NavButtons } from "../common/Button";
 import { useDOLABalance } from "@app/hooks/useDOLA";
@@ -20,6 +19,7 @@ import { switchWalletNetwork } from "@app/util/web3";
 import { isAddress } from "ethers/lib/utils";
 import { useAppTheme } from "@app/hooks/useAppTheme";
 import { RSubmitButton } from "../common/Button/RSubmitButton";
+import { getBnToNumber } from "@app/util/markets";
 
 const DOLAmain = '0x865377367054516e17014CcdED1e7d814EDC9ce4';
 const DOLAbase = '0x4621b7A9c75199271F773Ebd9A499dbd165c3191';
@@ -44,7 +44,7 @@ export const BaseBridge = () => {
     const [mode, setMode] = useState<'Deposit' | 'Withdraw'>('Deposit');
     const isDeposit = mode === 'Deposit';
 
-    const handleAction = (bnAmount: BigNumber) => {        
+    const handleAction = (bnAmount: BigNumber) => {
         if (!signer || isWrongAddress) return;
         if (mode === 'Withdraw') {
             return withdrawDolaFromBase(bnAmount, signer, !!to ? to : undefined);
@@ -53,7 +53,7 @@ export const BaseBridge = () => {
     }
 
     const handleSuccess = () => {
-        setIsSuccess(true);        
+        setIsSuccess(true);
     }
 
     const reset = () => {
@@ -65,6 +65,9 @@ export const BaseBridge = () => {
 
     const isWrongNetwork = (isMainnet && !isDeposit) || (chainId?.toString() === NetworkIds.base && mode !== 'Withdraw');
     const isWrongAddress = !!to ? !isAddress(to) : false;
+    const balance = !isWrongNetwork && !!account ? bnDolaBalance : chainBalances[isDeposit ? NetworkIds.mainnet : NetworkIds.base];
+    const isDisabled = isWrongNetwork || isWrongAddress || !amount || isNaN(parseFloat(amount)) || parseFloat(amount) > getBnToNumber(balance);
+    const isDisabledMax = isWrongNetwork || isWrongAddress || !getBnToNumber(balance);
 
     return <Container
         label="Base Native Bridge"
@@ -113,11 +116,12 @@ export const BaseBridge = () => {
                                 onSuccess={() => handleSuccess()}
                                 enableCustomApprove={true}
                                 containerProps={{ spacing: '4' }}
-                                isDisabled={isWrongNetwork || isWrongAddress}
+                                isDisabled={isDisabled}
+                                isMaxDisabled={isDisabledMax}
                                 alsoDisableApprove={true}
                                 needApprove={isDeposit}
                                 includeBalanceInMax={true}
-                                customBalance={!isWrongNetwork && !!account ? bnDolaBalance : chainBalances[isDeposit ? NetworkIds.mainnet : NetworkIds.base]}
+                                customBalance={balance}
                                 inputRight={<MarketImage pr="2" image={TOKEN_IMAGES.DOLA} size={25} />}
                                 extraBeforeButton={
                                     <VStack alignItems="flex-start" w='full'>
@@ -137,6 +141,16 @@ export const BaseBridge = () => {
                                                 </Text>
                                             } />
                                         }
+                                        {
+                                            !isDeposit && <InfoMessage alertProps={{ w: 'full' }}
+                                                description={<VStack w='full' alignItems="flex-start" >
+                                                    <Text>To withdraw from Base, there will be three transactions required:</Text>
+                                                    <Text>- Initiate withdraw (Tx on Base)</Text>
+                                                    <Text>- After 1h, verify the withdrawal (Tx on Ethereum)</Text>
+                                                    <Text>- 7 days after the verification, claim (Tx on Ethereum)</Text>
+                                                </VStack>}
+                                            />
+                                        }
                                     </VStack>
                                 }
                             />
@@ -146,7 +160,7 @@ export const BaseBridge = () => {
                                 description={
                                     <VStack alignItems="flex-start">
                                         <Text>
-                                            It can take up to { isDeposit ? '30 minutes' : '7 days' } for the bridging to complete and the DOLA to arrive on {isMainnet ? 'Base' : 'Ethereum'}.
+                                            It can take up to {isDeposit ? '30 minutes' : '7 days'} for the bridging to complete and the DOLA to arrive on {isMainnet ? 'Base' : 'Ethereum'}.
                                         </Text>
                                         {/* <HStack>
                                             <Text>
