@@ -32,6 +32,7 @@ export type Column = {
 type TableProps = {
   columns: Column[]
   pinned?: string
+  pinLabel?: string
   items: any[]
   keyName?: string
   defaultSort?: string
@@ -151,6 +152,7 @@ export const Table = ({
   showHeader = true,
   showTotalRow = false,
   pinned,
+  pinLabel = 'New',
   ...props
 }: TableProps) => {
   const { themeStyles } = useAppTheme();
@@ -266,7 +268,7 @@ export const Table = ({
         item._isPinned &&
         <Badge textTransform="capitalize" borderRadius="50px"
           px="8px" fontWeight="normal" bgColor="mainTextColor" color="contrastMainTextColor" w='fit-content' mr="1" position="absolute" top="-10px" left="-10px">
-          New
+          {pinLabel}
         </Badge>
       }
       {columns.map(({ value, field }, j) => (
