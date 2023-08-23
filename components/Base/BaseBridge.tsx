@@ -36,6 +36,8 @@ export const BaseBridge = () => {
         [NetworkIds.base]: baseBnBalance,
     }
 
+    
+
     const signer = !!provider ? provider?.getSigner() : undefined;
     const [amount, setAmount] = useState('');
     const [to, setTo] = useState('');
@@ -162,14 +164,6 @@ export const BaseBridge = () => {
                                         <Text>
                                             It can take up to {isDeposit ? '30 minutes' : '7 days'} for the bridging to complete and the DOLA to arrive on {isMainnet ? 'Base' : 'Ethereum'}.
                                         </Text>
-                                        {/* <HStack>
-                                            <Text>
-                                                Recipient address:
-                                            </Text>
-                                            <Link isExternal target="_blank" href={`https://basescan.org/address/${account}`}>
-                                                Basescan <ExternalLinkIcon />
-                                            </Link>
-                                        </HStack> */}
                                         <RSubmitButton onClick={reset}>
                                             OK
                                         </RSubmitButton>

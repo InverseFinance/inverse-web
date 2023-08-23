@@ -1,15 +1,14 @@
-import { useEffect, useState } from "react";
-import {  getBaseAddressInfo, getEhereumBaseRelatedTransactions } from "@app/util/base";
 import { useWeb3React } from "@web3-react/core";
 import { VStack, Text, Flex, Stack } from "@chakra-ui/react";
 import { InfoMessage } from "../common/Messages";
 import Container from "../common/Container";
 import { NetworkIds } from "@app/types";
-import { useAppTheme } from "@app/hooks/useAppTheme";
-import { shortenNumber } from "@app/util/markets";
+import { smartShortNumber } from "@app/util/markets";
 import Table from "../common/Table";
 import ScannerLink from "../common/ScannerLink";
 import moment from "moment";
+import { useBaseAddressWithdrawals } from "./useBaseAddressWithdrawals";
+import { SkeletonBlob } from "../common/Skeleton";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -38,7 +37,7 @@ const columns = [
         field: 'timestamp',
         label: 'Time',
         header: ({ ...props }) => <Flex minW="100px" {...props} />,
-        value: ({ timestamp }) => {            
+        value: ({ timestamp }) => {
             return (
                 <Flex minW="100px">
                     <VStack spacing="0">
@@ -50,64 +49,52 @@ const columns = [
         },
     },
     {
-        field: 'amount',
-        label: 'Amount',
+        field: 'symbol',
+        label: 'Infos',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        value: ({ amount }) => {
+        value: ({ amount, symbol }) => {
             return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
-                <CellText>{shortenNumber(amount, 2)}</CellText>
+                <CellText>{smartShortNumber(amount, 2)} {symbol}</CellText>
             </Cell>
         },
     },
     {
-        field: 'step1',
-        label: 'Step 1',
-        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        value: ({ canBeVerified }) => {
-            return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
-                <CellText>{ canBeVerified ? 'Verify' : 'Wait' }</CellText>
+        field: 'shortDescription',
+        label: 'Status',
+        header: ({ ...props }) => <ColHeader minWidth="200px" justify="center"  {...props} />,
+        value: ({ shortDescription }) => {
+            return <Cell minWidth="200px" justify="center" alignItems="center" direction="column" spacing="0">
+                <CellText>{shortDescription}</CellText>
             </Cell>
         },
-    },    
+    },
 ]
 
-export const BaseTransactions = () => {
+export const BaseTransactions = ({
+    onClick
+}) => {
     const { provider, account, chainId } = useWeb3React();
-    const { themeStyles } = useAppTheme();
-    const [items, setItems] = useState([]);
-    const [hasError, setHasError] = useState(false);
+    const { transactions, hasError, isLoading } = useBaseAddressWithdrawals(account, chainId, provider);
 
-    useEffect(() => {
-        if(!account) {
-            setItems([]);
-            return;
-        }
-        const init = async () => {
-            const { hasError, results } = await getBaseAddressInfo(account);
-            const { hasError: ethErr, results: ethResults } = await getEhereumBaseRelatedTransactions(account);
-            console.log('---');
-            console.log(results);
-            console.log(ethResults);
-            setHasError(hasError);
-            setItems(results);
-        }
-        init();
-    }, [account])
-    
     return <Container
-        label="Transactions"
+        label="ERC20 withdrawals transactions"
         noPadding
-        p="0"
-        // contentProps={{ direction: 'column', minH: '400px' }}
+        p="0"    
     >
         {
             !account ? <InfoMessage alertProps={{ w: 'full' }} description="Please connect your wallet" />
-                : <VStack spacing="4">
-                    <Table
-                        keyName="hash"
-                        columns={columns}
-                        items={items}
-                    />
+                : <VStack spacing="4" w='full'>
+                    {
+                        isLoading ? <SkeletonBlob skeletonHeight={6} noOfLines={5} /> :
+                            <Table
+                                keyName="hash"
+                                columns={columns}
+                                items={transactions}
+                                defaultSort="timestamp"
+                                defaultSortDir="desc"
+                                onClick={v => onClick(v)}
+                            />
+                    }
                 </VStack>
         }
     </Container>

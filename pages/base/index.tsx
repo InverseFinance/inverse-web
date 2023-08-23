@@ -2,13 +2,14 @@ import { Stack, VStack, Text, Box } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
-import { BaseBridge } from '@app/components/Swap/BaseBridge';
+import { BaseBridge } from '@app/components/Base/BaseBridge';
 import { InfoMessage, WarningMessage } from '@app/components/common/Messages';
 import Link from '@app/components/common/Link';
 import Container from '@app/components/common/Container';
-import { BaseTransactions } from '@app/components/Swap/BaseTransactions';
+import { BaseWithdrawlsProcess } from '@app/components/Base/BaseWithdrawlsProcess';
 
-export const Swap = () => {
+
+export const BasePage = () => {
   return (
     <Layout>
       <Head>
@@ -87,10 +88,10 @@ export const Swap = () => {
             </Container>
           </VStack>
         </Stack>
-        <BaseTransactions />
+        <BaseWithdrawlsProcess />
       </VStack>
     </Layout>
   )
 }
 
-export default Swap
+export default BasePage
