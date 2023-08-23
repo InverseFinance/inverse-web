@@ -35,9 +35,9 @@ export const RewardsContainer = ({
 }) => {
     const { account, provider } = useWeb3React();
     const [hasJustClaimed, setHasJustClaimed] = useState(false);
-    const { value: lastClaim, setter: setLastClaim } = useStorage(`just-claimed-${market.name}`);
+    const { value: lastClaim, setter: setLastClaim } = useStorage(`just-claimed-${account}-${market.name}`);
     const now = Date.now();
-    const claimedNotLongAgo = !!lastClaim && ((now - lastClaim) < 3000000);
+    const claimedNotLongAgo = !!lastClaim && ((now - lastClaim) < 300000);
 
     const handleClaim = async () => {
         if (!account) return;

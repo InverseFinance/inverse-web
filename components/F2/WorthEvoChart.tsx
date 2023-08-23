@@ -135,11 +135,9 @@ export const WorthEvoChart = ({
         </VStack>
     }
 
-    const tabOptions = [CHART_TABS.overview, CHART_TABS.collateral];
-    if (!market.borrowPaused) {
-        tabOptions.push(CHART_TABS.debt);
-    }
+    const tabOptions = [CHART_TABS.overview, CHART_TABS.collateral];    
     if (!market.isInv) {
+        tabOptions.push(CHART_TABS.debt);
         tabOptions.push(CHART_TABS.borrowLimit);
     }
     if (market.isInv) {
@@ -163,7 +161,7 @@ export const WorthEvoChart = ({
     const [showDbrPrice, setShowDbrPrice] = useState(false);
     const [showStaking, setShowStaking] = useState(false);
     const [showEvents, setShowEvents] = useState(false);
-    const [showDebt, setShowDebt] = useState(!market.borrowPaused);
+    const [showDebt, setShowDebt] = useState(!market.isInv);
     const [showEventsLabel, setShowEventsLabel] = useState(false);
     const [brushIndexes, setBrushIndexes] = useState({ startIndex: undefined, endIndex: undefined });
     const [actives, setActives] = useState(Object.values(keyNames).reduce((acc, cur) => ({ ...acc, [cur]: true }), {}));

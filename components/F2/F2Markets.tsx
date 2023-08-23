@@ -300,14 +300,14 @@ export const F2Markets = ({
                 <SkeletonList /> :
                 <Table
                     keyName="address"
-                    pinned={'0x27b6c301Fd441f3345d61B7a4245E1F823c3F9c4'}
+                    // pinned={'0x27b6c301Fd441f3345d61B7a4245E1F823c3F9c4'}
                     noDataMessage="Loading..."
                     columns={columns}
                     items={accountMarkets.map(m => {
                         return { ...m, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
                     })}
                     onClick={openMarket}
-                    defaultSort={debt > 0 ? 'deposits' : 'tvl'}
+                    defaultSort={debt > 0 ? 'deposits' : 'leftToBorrow'}
                     defaultSortDir="desc"
                     enableMobileRender={true}
                     mobileClickBtnLabel={'View Market'}
