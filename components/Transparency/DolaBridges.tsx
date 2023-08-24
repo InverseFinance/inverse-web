@@ -10,7 +10,6 @@ import { shortenNumber } from "@app/util/markets"
 import Container from "../common/Container"
 import { useMultichainPoolsForDola } from "@app/util/pools"
 import { useMemo } from "react"
-import { WarningMessage } from "../common/Messages"
 
 const ColHeader = ({ ...props }) => {
     return <Flex textTransform="initial" justify="center" minWidth={'150px'} fontSize="12px" fontWeight="extrabold" {...props} />
@@ -26,12 +25,10 @@ const CellText = ({ ...props }) => {
 
 const noPropagation = (e: React.MouseEvent<HTMLElement>) => e.stopPropagation();
 
-const defaultBridge = { url: 'https://app.multichain.org/#/router', name: 'Multichain' };
 const nativeBridges = {
     'Optimism': { url: 'https://app.optimism.io/bridge/deposit', name: 'Native bridge' },
     'Arbitrum': { url: 'https://bridge.arbitrum.io/', name: 'Native bridge' },
     'Polygon': { url: 'https://wallet.polygon.technology/polygon/bridge/deposit', name: 'Native bridge' },
-    'Avalanche': { url: 'https://core.app/bridge/', name: 'Native bridge' },
 };
 
 
@@ -65,26 +62,6 @@ const columns = [
                         </CellText> */}
                     </VStack> : <CellText>-</CellText>
                 }
-            </Cell>
-        },
-    },
-    {
-        field: 'multichainLiquidity',
-        label: 'Multichain Bridge',
-        header: ({ ...props }) => <ColHeader minWidth="160px" justify="center"  {...props} />,
-        value: ({ multichainLiquidity }) => {
-            return <Cell minWidth="160px" justify="center" fontSize="15px">
-                {
-                    multichainLiquidity !== undefined && <Link fontSize="12px" textDecoration="underline" isExternal _target="_blank" href={defaultBridge.url}>
-                        {defaultBridge.name} <ExternalLinkIcon />
-                    </Link>
-                }
-                <CellText>
-                    {
-                        multichainLiquidity === undefined ? 'Not available yet' :
-                            ((multichainLiquidity === null ? 'Unlimited' : preciseCommify(multichainLiquidity, 0)) + ' DOLA liquidity')
-                    }
-                </CellText>
             </Cell>
         },
     },
@@ -139,19 +116,6 @@ export const DolaBridges = ({
         href={'https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola'}
     >
         <VStack spacing="4" w="100%">
-            <WarningMessage
-                alertProps={{ w: 'full' }}
-                title="Multichain incident"
-                description={
-                    <VStack spacing="0" align="flex-start">
-                        <Text>It is recommended to not use Multichain bridge at the moment.</Text>
-                        <Text>Follow their official account for updates:</Text>
-                        <Link isExternal href="https://twitter.com/MultichainOrg" textDecoration="underline" _target="_blank">
-                            https://twitter.com/MultichainOrg
-                        </Link>
-                    </VStack>
-                }
-            />
             <Table
                 key="chainId"
                 columns={columns}
