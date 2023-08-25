@@ -16,6 +16,13 @@ export const BASE_L1_ERC20_BRIDGE = '0x3154Cf16ccdb4C6d922629664174b904d80F2C35'
 export const BASE_L2_ERC20_BRIDGE = '0x4200000000000000000000000000000000000010';
 export const L2_ETH_TOKEN = '0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000';
 
+export const OFFICIALLY_SUPPORTED_L2_TOKENS: { [key: string]: boolean } = {
+    '0x50c5725949a6f0c72e6c4a641f24049a917db0cb': true, // DAI
+    '0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca': true, // USDbC
+    '0x9e1028f5f1d5ede59748ffcee5532509976840e0': true, // COMP
+    '0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22': true, // cbETH
+}
+
 export type MsgStatusItem = {
     status: MessageStatus,
     index: number,
@@ -76,8 +83,9 @@ export const withdrawFromBase = async (
         return;
     }
     const messenger = getMessenger(getEthProvider()!, l2Signer);
-    // force withdrawTo to avoid crashing the official Base Transactions UI
-    const _to = to || await l2Signer.getAddress();
+    // force withdrawTo if unofficial token to avoid crashing the official Base Transactions UI
+    const forceWithdrawTo = !OFFICIALLY_SUPPORTED_L2_TOKENS[l2token.toLowerCase()];
+    const _to = to || (forceWithdrawTo ? await l2Signer.getAddress() : undefined);
     return messenger.withdrawERC20(l1token, l2token, amount, { recipient: _to })
 }
 
