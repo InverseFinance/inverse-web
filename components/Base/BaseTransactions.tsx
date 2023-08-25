@@ -10,6 +10,7 @@ import moment from "moment";
 import { useBaseAddressWithdrawals } from "./useBaseAddressWithdrawals";
 import { SkeletonBlob } from "../common/Skeleton";
 import { switchWalletNetwork } from "@app/util/web3";
+import { useAccount } from "@app/hooks/misc";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -55,7 +56,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ amount, symbol }) => {
             return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
-                <CellText>{smartShortNumber(amount, 2)} {symbol}</CellText>
+                <CellText>{smartShortNumber(amount, 2, false, true)} {symbol}</CellText>
             </Cell>
         },
     },
@@ -75,7 +76,8 @@ export const BaseTransactions = ({
     onClick,
     ...props
 }) => {
-    const { provider, account, chainId } = useWeb3React();
+    const { provider, chainId } = useWeb3React();
+    const account = useAccount();
     const { transactions, hasError, isLoading } = useBaseAddressWithdrawals(account, chainId, provider);
 
     return <Container

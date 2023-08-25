@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { MsgStatusItem, WithdrawalItem, getBaseProvider, getMessenger, getTransactionsStatuses } from "@app/util/base";
+import { MsgStatusItem, WithdrawalItem, executeMessage, getBaseProvider, getMessenger, getTransactionsStatuses } from "@app/util/base";
 import { MessageStatus } from '@eth-optimism/sdk'
 import { useWeb3React } from "@web3-react/core";
 import { VStack, Text } from "@chakra-ui/react";
@@ -7,19 +7,22 @@ import { InfoMessage } from "../common/Messages";
 import Container from "../common/Container";
 import { Input } from "../common/Input";
 import { RSubmitButton } from "../common/Button/RSubmitButton";
+import { useAccount } from "@app/hooks/misc";
 
 export const BaseWithdraw = ({
     transactionItem,
     onSuccess,
-    ...props,
+    ...props
 }: {
     transactionItem: WithdrawalItem | undefined
     onSuccess: () => void
 }) => {
-    const { provider, account } = useWeb3React();
+    const { provider } = useWeb3React();
+    const account = useAccount();
     const [txHash, setTxHash] = useState(transactionItem?.hash || '');
     const [statuses, setStatuses] = useState<MsgStatusItem[]>(transactionItem?.statuses || []);
     const [isLoadingStatus, setIsLoadingStatus] = useState(false);
+    const signer = provider?.getSigner();
 
     useEffect(() => {
         setTxHash(transactionItem?.hash || '');
@@ -28,40 +31,18 @@ export const BaseWithdraw = ({
     }, [transactionItem?.hash]);
 
     const checkStatus = async () => {
-        if(!provider?.getSigner()) return;
-        const results = await getTransactionsStatuses([txHash], provider?.getSigner());
+        if (!signer) return;
+        const results = await getTransactionsStatuses([txHash], signer);
         const statuses = results[0];
         setIsLoadingStatus(true);
         setStatuses(statuses);
         setIsLoadingStatus(false);
     }
 
-    const canExecute = statuses.some(
+    const canExecute = !!signer && statuses.some(
         (message) =>
             message.status === MessageStatus.READY_TO_PROVE || message.status === MessageStatus.READY_FOR_RELAY
     );
-
-    const executeMessage = async () => {
-        if(!provider?.getSigner()) return
-        console.log(
-            'Execute button pressed. Current message status:',
-            statuses,
-        )
-        if (txHash) {
-            const messenger = getMessenger(provider?.getSigner(), getBaseProvider()!);
-
-            for (const { status, index } of statuses) {
-                console.log('Executing message at index:', index)
-                if (status === MessageStatus.READY_TO_PROVE) {
-                    console.log('Proving message...')
-                    return messenger.proveMessage(txHash, undefined, index)
-                } else if (status === MessageStatus.READY_FOR_RELAY) {
-                    console.log('Relaying message...')
-                    return messenger.finalizeMessage(txHash, undefined, index)
-                }
-            }
-        }
-    }
 
     const hasStatus = statuses.length > 0;
 
@@ -92,7 +73,7 @@ export const BaseWithdraw = ({
                         </VStack>
                     }
                     {
-                        canExecute && <RSubmitButton onSuccess={() => checkStatus()} onClick={() => executeMessage()}>
+                        canExecute && <RSubmitButton onSuccess={() => checkStatus()} onClick={() => executeMessage(txHash, statuses, signer)}>
                             Execute
                         </RSubmitButton>
                     }

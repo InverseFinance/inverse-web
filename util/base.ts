@@ -68,6 +68,19 @@ export const withdrawFromBase = async (
     return messenger.withdrawERC20(l1token, l2token, amount, !!to ? { recipient: to } : undefined)
 }
 
+export const executeMessage = async (txHash: string, statuses: MsgStatusItem[], signer: JsonRpcSigner) => {
+    if (!signer || !txHash) return
+    const messenger = getMessenger(signer, getBaseProvider()!);
+    for (const { status, index } of statuses) {
+        if (status === MessageStatus.READY_TO_PROVE) {                
+            return messenger.proveMessage(txHash, undefined, index)
+        } else if (status === MessageStatus.READY_FOR_RELAY) {                
+            return messenger.finalizeMessage(txHash, undefined, index)
+        }
+    }
+    return
+}
+
 export const getBaseAddressWithrawals = async (
     ethProvider: Web3Provider,
     address: string,
