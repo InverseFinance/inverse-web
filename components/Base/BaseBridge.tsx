@@ -35,6 +35,7 @@ export const BaseBridge = () => {
 
     const [l1token, setL1token] = useState(DOLAmain);
     const [l2token, setL2token] = useState(DOLAbase);
+    const [inited, setInited] = useState(false);
     const { symbol, decimals, l1Token: l1tokenDetected } = useBaseToken(l2token);
 
     const { bnBalance: bnConnectedBalance } = useToken(!account ? l1token : (isMainnet ? l1token : l2token), account);
@@ -62,7 +63,13 @@ export const BaseBridge = () => {
     useEffect(() => {
         if(!l2token) return;
         setL1token(l1tokenDetected);
-    }, [l2token, l1tokenDetected])
+    }, [l2token, l1tokenDetected]);
+
+    useEffect(() => {
+        if(inited || !chainId) return;
+        setMode(isMainnet ? 'Deposit' : 'Withdraw');
+        setInited(true);
+    }, [chainId, isMainnet, inited]);
 
     const handleAction = (bnAmount: BigNumber) => {
         if (!signer || isWrongAddress) return;
@@ -87,8 +94,8 @@ export const BaseBridge = () => {
     const bnBalance = !isWrongNetwork && !!account ? bnConnectedBalance : chainBalances[isDeposit ? NetworkIds.mainnet : NetworkIds.base];
     const balance = getBnToNumber(bnBalance, decimals);
 
-    const isDisabled = isWrongNetwork || isWrongAddress || !amount || isNaN(parseFloat(amount)) || parseFloat(amount) > balance;
-    const isDisabledMax = isWrongNetwork || isWrongAddress || !balance;
+    const isDisabled = !l1token || !l2token || isWrongNetwork || isWrongAddress || !amount || isNaN(parseFloat(amount)) || parseFloat(amount) > balance;
+    const isDisabledMax = !l1token || !l2token || isWrongNetwork || isWrongAddress || !balance;
 
     return <Container
         label="Base Native Bridge"
@@ -117,7 +124,7 @@ export const BaseBridge = () => {
                             </HStack>
                             <VStack alignItems="flex-start" w='full'>
                                 <TextInfo message="From source chain to destination chain, you will pay gas on the source chain">
-                                    <Text>{symbol} amount to bridge:</Text>
+                                    <Text><b>{symbol}</b> amount to bridge:</Text>
                                 </TextInfo>
                             </VStack>
                             <SimpleAmountForm
