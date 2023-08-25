@@ -1,6 +1,8 @@
+import { getPublicRpcProvider } from "@app/hooks/useSpecificChainBalance";
 import { NetworkIds } from "@app/types";
-import { WithdrawalItem, getBaseAddressWithrawals } from "@app/util/base";
+import { L2_TOKEN_ABI, WithdrawalItem, getBaseAddressWithrawals } from "@app/util/base";
 import { Web3Provider } from "@ethersproject/providers";
+import { Contract } from "ethers";
 import useSWR from "swr"
 
 export const useBaseAddressWithdrawals = (
@@ -26,4 +28,38 @@ export const useBaseAddressWithdrawals = (
         error: data?.error || error,
         isLoading: !hasError && !data?.results,
     }
+}
+
+export const useBaseToken = (
+    adOnBase: string,
+    account: string | undefined
+) => {
+    const args = [
+        [adOnBase, 'decimals'],
+        [adOnBase, 'symbol'],
+    ];
+    if (!!account) {
+        args.push([adOnBase, 'balanceOf', account]);
+    }
+
+    const baseProvider = getPublicRpcProvider(NetworkIds.base)!;
+
+    const { data, error } = useSWR(`base-token-${adOnBase}`, async () => {
+        if (!adOnBase) return null;
+        const baseTokenContract = new Contract(adOnBase, L2_TOKEN_ABI, baseProvider);
+        return await Promise.all([
+            baseTokenContract.decimals(),
+            baseTokenContract.symbol(),
+            baseTokenContract.l1Token(),
+        ]);
+    });
+
+    const [decimals, symbol, l1Token] = data || [18, '', ''];
+    return {
+        decimals,
+        symbol,
+        l1Token,
+        isLoading: !data && !error,
+        hasError: !data && !!error,
+    };
 }

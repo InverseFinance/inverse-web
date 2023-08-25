@@ -13,6 +13,7 @@ import { useAccountMarkets, useMarkets } from './useMarkets'
 import { getBnToNumber, getMonthlyRate, getParsedBalance } from '@app/util/markets'
 import { useExchangeRates } from './useExchangeRates'
 import { formatUnits } from '@ethersproject/units'
+import { ERC20_ABI } from '@app/config/abis'
 
 type Balances = {
   balances: BigNumberList
@@ -23,9 +24,10 @@ export const useBalances = (addresses: string[], method = 'balanceOf', address?:
   const { query } = useRouter()
   const userAddress = address || (query?.viewAddress as string) || account;
 
-  const { data, error } = useEtherSWR(
-    addresses.map((address) => (address ? [address, method, userAddress] : ['getBalance', userAddress, 'latest']))
-  )
+  const { data, error } = useEtherSWR({
+    abi: ERC20_ABI,
+    args: addresses.map((address) => (address ? [address, method, userAddress] : ['getBalance', userAddress, 'latest'])),
+  })
 
   return {
     balances: data?.reduce((balances: BigNumberList, balance: BigNumber, i: number) => {

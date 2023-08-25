@@ -1,14 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SimpleAmountForm } from "../common/SimpleAmountForm"
-import { BASE_L1_ERC20_BRIDGE, BASE_L2_ERC20_BRIDGE, bridgeDolaToBase, withdrawDolaFromBase } from "@app/util/base";
+import { BASE_L1_ERC20_BRIDGE, BASE_L2_ERC20_BRIDGE, bridgeToBase, withdrawFromBase } from "@app/util/base";
 import { useWeb3React } from "@web3-react/core";
 import { VStack, Text, HStack, Image } from "@chakra-ui/react";
 import { InfoMessage, SuccessMessage, WarningMessage } from "../common/Messages";
 import { ArrowForwardIcon, ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import Container from "../common/Container";
 import { NavButtons } from "../common/Button";
-import { useDOLABalance } from "@app/hooks/useDOLA";
-import { BigNumber } from "ethers";
+import { BigNumber, utils } from "ethers";
 import { Input } from "../common/Input";
 import { TextInfo } from "../common/Messages/TextInfo";
 import { NetworkIds } from "@app/types";
@@ -20,6 +19,9 @@ import { isAddress } from "ethers/lib/utils";
 import { useAppTheme } from "@app/hooks/useAppTheme";
 import { RSubmitButton } from "../common/Button/RSubmitButton";
 import { getBnToNumber } from "@app/util/markets";
+import { useToken } from "@app/hooks/useToken";
+import { useBaseToken } from "./useBaseAddressWithdrawals";
+import { useRouter } from "next/router";
 
 const DOLAmain = '0x865377367054516e17014CcdED1e7d814EDC9ce4';
 const DOLAbase = '0x4621b7A9c75199271F773Ebd9A499dbd165c3191';
@@ -27,16 +29,21 @@ const DOLAbase = '0x4621b7A9c75199271F773Ebd9A499dbd165c3191';
 export const BaseBridge = () => {
     const { provider, account, chainId } = useWeb3React();
     const { themeStyles } = useAppTheme();
+    const { query } = useRouter();
     const isMainnet = chainId?.toString() === NetworkIds.mainnet;
-    const { balance: dolaBalance, bnBalance: bnDolaBalance } = useDOLABalance(account, !account ? DOLAmain : (isMainnet ? '0x865377367054516e17014CcdED1e7d814EDC9ce4' : '0x4621b7A9c75199271F773Ebd9A499dbd165c3191'));
-    const { balance: mainnetBalance, bnBalance: mainnetBnBalance } = useSpecificChainBalance(account, DOLAmain, NetworkIds.mainnet);
-    const { balance: baseBalance, bnBalance: baseBnBalance } = useSpecificChainBalance(account, DOLAbase, NetworkIds.base);
-    const chainBalances = {
-        [NetworkIds.mainnet]: mainnetBnBalance,
-        [NetworkIds.base]: baseBnBalance,
-    }
 
-    
+    const [l1token, setL1token] = useState(DOLAmain);
+    const [l2token, setL2token] = useState(DOLAbase);
+    const { symbol, decimals } = useBaseToken(l2token);
+
+    const { bnBalance: bnConnectedBalance } = useToken(!account ? l1token : (isMainnet ? l1token : l2token), account);
+    const { bnBalance: bnL1tokenBalance } = useSpecificChainBalance(account, l1token, NetworkIds.mainnet);
+    const { bnBalance: bnL2tokenBalance } = useSpecificChainBalance(account, l2token, NetworkIds.base);
+
+    const chainBalances = {
+        [NetworkIds.mainnet]: bnL1tokenBalance,
+        [NetworkIds.base]: bnL2tokenBalance,
+    }
 
     const signer = !!provider ? provider?.getSigner() : undefined;
     const [amount, setAmount] = useState('');
@@ -46,12 +53,17 @@ export const BaseBridge = () => {
     const [mode, setMode] = useState<'Deposit' | 'Withdraw'>('Deposit');
     const isDeposit = mode === 'Deposit';
 
+    useEffect(() => {
+        if (!query?.l2token || !utils.isAddress(query?.l2token)) return;
+        setL2token(query.l2token);
+    }, [query]);
+
     const handleAction = (bnAmount: BigNumber) => {
         if (!signer || isWrongAddress) return;
         if (mode === 'Withdraw') {
-            return withdrawDolaFromBase(bnAmount, signer, !!to ? to : undefined);
+            return withdrawFromBase(l2token, bnAmount, signer, !!to ? to : undefined);
         }
-        return bridgeDolaToBase(bnAmount, signer, !!to ? to : undefined);
+        return bridgeToBase(l1token, l2token, bnAmount, signer, !!to ? to : undefined);
     }
 
     const handleSuccess = () => {
@@ -67,15 +79,17 @@ export const BaseBridge = () => {
 
     const isWrongNetwork = (isMainnet && !isDeposit) || (chainId?.toString() === NetworkIds.base && mode !== 'Withdraw');
     const isWrongAddress = !!to ? !isAddress(to) : false;
-    const balance = !isWrongNetwork && !!account ? bnDolaBalance : chainBalances[isDeposit ? NetworkIds.mainnet : NetworkIds.base];
-    const isDisabled = isWrongNetwork || isWrongAddress || !amount || isNaN(parseFloat(amount)) || parseFloat(amount) > getBnToNumber(balance);
-    const isDisabledMax = isWrongNetwork || isWrongAddress || !getBnToNumber(balance);
+    const bnBalance = !isWrongNetwork && !!account ? bnConnectedBalance : chainBalances[isDeposit ? NetworkIds.mainnet : NetworkIds.base];
+    const balance = getBnToNumber(bnBalance, decimals);
+
+    const isDisabled = isWrongNetwork || isWrongAddress || !amount || isNaN(parseFloat(amount)) || parseFloat(amount) > balance;
+    const isDisabledMax = isWrongNetwork || isWrongAddress || !balance;
 
     return <Container
         label="Base Native Bridge"
         noPadding
         p="0"
-        contentProps={{ direction: 'column', minH: '400px' }}
+        contentProps={{ direction: 'column', minH: !account ? undefined : '400px' }}
     >
         {
             !account ? <InfoMessage alertProps={{ w: 'full' }} description="Please connect your wallet" />
@@ -98,21 +112,21 @@ export const BaseBridge = () => {
                             </HStack>
                             <VStack alignItems="flex-start" w='full'>
                                 <TextInfo message="From source chain to destination chain, you will pay gas on the source chain">
-                                    <Text>DOLA amount to bridge:</Text>
+                                    <Text>{symbol} amount to bridge:</Text>
                                 </TextInfo>
                             </VStack>
                             <SimpleAmountForm
                                 showBalance={true}
                                 defaultAmount={amount}
-                                address={isDeposit ? DOLAmain : DOLAbase}
+                                address={isDeposit ? l1token : l2token}
                                 destination={isDeposit ? BASE_L1_ERC20_BRIDGE : BASE_L2_ERC20_BRIDGE}
                                 signer={signer}
-                                decimals={18}
+                                decimals={decimals}
                                 hideInputIfNoAllowance={false}
                                 onAction={({ bnAmount }) => handleAction(bnAmount)}
                                 onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
-                                actionLabel={'Bridge DOLA'}
-                                maxActionLabel={'Bridge all DOLA'}
+                                actionLabel={`Bridge ${symbol}`}
+                                maxActionLabel={`Bridge all ${symbol}`}
                                 onAmountChange={(v) => setAmount(v)}
                                 showMaxBtn={true}
                                 onSuccess={() => handleSuccess()}
@@ -123,8 +137,8 @@ export const BaseBridge = () => {
                                 alsoDisableApprove={true}
                                 needApprove={isDeposit}
                                 includeBalanceInMax={true}
-                                customBalance={balance}
-                                inputRight={<MarketImage pr="2" image={TOKEN_IMAGES.DOLA} size={25} />}
+                                customBalance={bnBalance}
+                                inputRight={symbol === 'DOLA' ? <MarketImage pr="2" image={TOKEN_IMAGES.DOLA} size={25} /> : undefined}
                                 extraBeforeButton={
                                     <VStack alignItems="flex-start" w='full'>
                                         <TextInfo message="If you wish to receive the asset on another address than the current connected wallet address">
@@ -161,9 +175,16 @@ export const BaseBridge = () => {
                                 title={`Bridging to ${isDeposit ? 'Base' : 'Ethereum'} started!`}
                                 description={
                                     <VStack alignItems="flex-start">
-                                        <Text>
-                                            It can take up to {isDeposit ? '30 minutes' : '7 days'} for the bridging to complete and the DOLA to arrive on {isMainnet ? 'Base' : 'Ethereum'}.
-                                        </Text>
+                                        {
+                                            isDeposit ?
+                                                <Text>
+                                                    It can take up to 30 minutes for the bridging to complete and the {symbol} to arrive on Base.
+                                                </Text>
+                                                :
+                                                <Text>
+                                                    Bridging back to Ethereum initiated, after one hour you will be able to verify the withdrawal on Ethereum, then after 7 days you can claim on Ethereum.
+                                                </Text>
+                                        }
                                         <RSubmitButton onClick={reset}>
                                             OK
                                         </RSubmitButton>
