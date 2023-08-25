@@ -39,8 +39,9 @@ export const BaseBridge = () => {
     const [l2token, setL2token] = useState(DOLAbase);
     const [inited, setInited] = useState(false);
     const [isEthCase, setIsEthCase] = useState(false);
-    const { symbol: l2tokenSymbol, decimals, l1Token: l1tokenDetected } = useBaseToken(l2token);
+    const { symbol: l2tokenSymbol, decimals: l2tokenDecimals, l1Token: l1tokenDetected } = useBaseToken(l2token);
     const symbol = isEthCase ? 'Ether' : l2tokenSymbol;
+    const decimals = isEthCase ? 18 : l2tokenDecimals;
 
     const { bnBalance: bnConnectedTokenBalance } = useToken(!account ? l1token : (isMainnet ? l1token : l2token), account);
     const { data: bnConnectedEthBalance } = useEtherSWR(['getBalance', account, 'latest']);
