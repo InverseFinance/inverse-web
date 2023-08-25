@@ -12,7 +12,7 @@ export const BaseBridgeInformations = () => {
                 description={
                     <VStack alignItems="flex-start">
                         <Text>- From Ethereum to Base: up to ~30min.</Text>
-                        <Text>- From Base to Ethereum: 7 days, 3 steps required.</Text>
+                        <Text>- From Base to Ethereum: 7 days, 3 txs required.</Text>
                     </VStack>
                 }
             />

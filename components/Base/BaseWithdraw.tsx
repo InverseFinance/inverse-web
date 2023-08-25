@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
-import { MsgStatusItem, WithdrawalItem, executeMessage, getBaseProvider, getMessenger, getTransactionsStatuses } from "@app/util/base";
+import { MsgStatusItem, WithdrawalItem, executeMessage, getTransactionsStatuses } from "@app/util/base";
 import { MessageStatus } from '@eth-optimism/sdk'
 import { useWeb3React } from "@web3-react/core";
 import { VStack, Text } from "@chakra-ui/react";
 import { InfoMessage } from "../common/Messages";
-import Container from "../common/Container";
+import Container, { AppContainerProps } from "../common/Container";
 import { Input } from "../common/Input";
 import { RSubmitButton } from "../common/Button/RSubmitButton";
 import { useAccount } from "@app/hooks/misc";
+import { useAppTheme } from "@app/hooks/useAppTheme";
 
 export const BaseWithdraw = ({
     transactionItem,
@@ -16,7 +17,8 @@ export const BaseWithdraw = ({
 }: {
     transactionItem: WithdrawalItem | undefined
     onSuccess: () => void
-}) => {
+} & Partial<AppContainerProps>) => {
+    const { themeStyles } = useAppTheme();
     const { provider } = useWeb3React();
     const account = useAccount();
     const [txHash, setTxHash] = useState(transactionItem?.hash || '');
@@ -26,9 +28,12 @@ export const BaseWithdraw = ({
 
     useEffect(() => {
         setTxHash(transactionItem?.hash || '');
-        setStatuses(transactionItem?.statuses || []);
+    }, [transactionItem?.hash, transactionItem?.statuses]);
+
+    useEffect(() => {
+        setStatuses(transactionItem?.hash === txHash ? transactionItem?.statuses || [] : []);
         setIsLoadingStatus(false);
-    }, [transactionItem?.hash]);
+    }, [txHash, transactionItem?.hash, transactionItem?.statuses]);
 
     const checkStatus = async () => {
         if (!signer) return;
@@ -39,15 +44,22 @@ export const BaseWithdraw = ({
         setIsLoadingStatus(false);
     }
 
-    const canExecute = !!signer && statuses.some(
+    const refresh = () => {
+        checkStatus();
+        onSuccess();
+    }
+
+    const canExecute = !!signer && !!txHash && statuses.some(
         (message) =>
             message.status === MessageStatus.READY_TO_PROVE || message.status === MessageStatus.READY_FOR_RELAY
     );
 
     const hasStatus = statuses.length > 0;
+    const isInvalidTx = !!txHash && (txHash?.length !== 66 || !txHash.startsWith('0x'));
 
     return <Container
         label="Prove / Relay withdraw"
+        description="The transaction hash is the withdraw initiated on Base"
         noPadding
         p="0"
         {...props}
@@ -56,8 +68,8 @@ export const BaseWithdraw = ({
             !account ? <InfoMessage alertProps={{ w: 'full' }} description="Please connect your wallet" />
                 : <VStack w='full' spacing="4" alignItems="flex-start">
                     <VStack w='full'>
-                        <Input placeholder="Base transaction hash to prove or finalize" fontSize="12px" value={txHash} onChange={e => setTxHash(e.target.value)} />
-                        <RSubmitButton disabled={!txHash} onClick={() => checkStatus()}>
+                        <Input borderColor={isInvalidTx ? `${themeStyles.colors.error}` : undefined} borderWidth={isInvalidTx ? '1px' : '0'} placeholder="Base transaction hash to prove or finalize" fontSize="12px" value={txHash} onChange={e => setTxHash(e.target.value)} />
+                        <RSubmitButton disabled={!txHash || isInvalidTx} onClick={() => checkStatus()}>
                             {hasStatus ? 'Re-check' : 'Check'} status
                         </RSubmitButton>
                     </VStack>
@@ -73,7 +85,7 @@ export const BaseWithdraw = ({
                         </VStack>
                     }
                     {
-                        canExecute && <RSubmitButton onSuccess={() => checkStatus()} onClick={() => executeMessage(txHash, statuses, signer)}>
+                        canExecute && <RSubmitButton onSuccess={() => refresh()} onClick={() => executeMessage(txHash, statuses, signer)}>
                             Execute
                         </RSubmitButton>
                     }

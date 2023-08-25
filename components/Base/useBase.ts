@@ -8,13 +8,14 @@ export const useBaseAddressWithdrawals = (
     account: string | undefined,
     chainId: number | undefined,
     ethProvider: Web3Provider | undefined,
+    refreshIndex = 0,
 ): {
     transactions: WithdrawalItem[],
     hasError: boolean,
     isLoading: boolean,
     error: any,
 } => {
-    const { data, error } = useSWR(`base-withdrawals-${account}-${chainId}`, async () => {
+    const { data, error } = useSWR(`base-withdrawals-${account}-${chainId}-${refreshIndex}`, async () => {
         if (!account || chainId?.toString() !== NetworkIds.mainnet || !ethProvider) return null;
         return await getBaseAddressWithrawals(ethProvider, account);
     });

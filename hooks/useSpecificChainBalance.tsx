@@ -15,6 +15,9 @@ export default function useSpecificChainBalance(
     const { data } = useSWR(`${token}-${chainId}-bal-${account}`, async () => {
         const provider = getPublicRpcProvider(chainId);
         if (account && isAddress(account) && !!provider) {
+            if(!token || token === '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE') {
+                return { value: (await provider.getBalance(account)).toString(), decimals: 18 };
+            }
             const contract = new Contract(token, ERC20_ABI, provider);
             const decimals = getBnToNumber(await contract.decimals(), 0);
             return { decimals, value: (await contract.balanceOf(account)).toString() };

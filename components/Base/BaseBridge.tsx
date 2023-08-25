@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { SimpleAmountForm } from "../common/SimpleAmountForm"
-import { BASE_L1_ERC20_BRIDGE, BASE_L2_ERC20_BRIDGE, bridgeToBase, withdrawFromBase } from "@app/util/base";
+import { BASE_L1_ERC20_BRIDGE, BASE_L2_ERC20_BRIDGE, bridgeEthToBase, bridgeToBase, withdrawEthFromBase, withdrawFromBase } from "@app/util/base";
 import { useWeb3React } from "@web3-react/core";
-import { VStack, Text, HStack, Image } from "@chakra-ui/react";
+import { VStack, Text, HStack, Image, Checkbox, Stack } from "@chakra-ui/react";
 import { InfoMessage, SuccessMessage, WarningMessage } from "../common/Messages";
 import { ArrowForwardIcon, ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import Container from "../common/Container";
@@ -23,9 +23,11 @@ import { useToken } from "@app/hooks/useToken";
 import { useBaseToken } from "./useBase";
 import { useRouter } from "next/router";
 import { BURN_ADDRESS } from "@app/config/constants";
+import useEtherSWR from "@app/hooks/useEtherSWR";
 
 const DOLAmain = '0x865377367054516e17014CcdED1e7d814EDC9ce4';
 const DOLAbase = '0x4621b7A9c75199271F773Ebd9A499dbd165c3191';
+export const ETH_AD = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 
 export const BaseBridge = () => {
     const { provider, account, chainId } = useWeb3React();
@@ -36,11 +38,15 @@ export const BaseBridge = () => {
     const [l1token, setL1token] = useState(DOLAmain);
     const [l2token, setL2token] = useState(DOLAbase);
     const [inited, setInited] = useState(false);
-    const { symbol, decimals, l1Token: l1tokenDetected } = useBaseToken(l2token);
+    const [isEthCase, setIsEthCase] = useState(false);
+    const { symbol: l2tokenSymbol, decimals, l1Token: l1tokenDetected } = useBaseToken(l2token);
+    const symbol = isEthCase ? 'Ether' : l2tokenSymbol;
 
-    const { bnBalance: bnConnectedBalance } = useToken(!account ? l1token : (isMainnet ? l1token : l2token), account);
-    const { bnBalance: bnL1tokenBalance } = useSpecificChainBalance(account, l1token, NetworkIds.mainnet);
-    const { bnBalance: bnL2tokenBalance } = useSpecificChainBalance(account, l2token, NetworkIds.base);
+    const { bnBalance: bnConnectedTokenBalance } = useToken(!account ? l1token : (isMainnet ? l1token : l2token), account);
+    const { data: bnConnectedEthBalance } = useEtherSWR(['getBalance', account, 'latest']);
+    const bnConnectedBalance = isEthCase ? bnConnectedEthBalance : bnConnectedTokenBalance;
+    const { bnBalance: bnL1tokenBalance } = useSpecificChainBalance(account, isEthCase ? ETH_AD : l1token, NetworkIds.mainnet);
+    const { bnBalance: bnL2tokenBalance } = useSpecificChainBalance(account, isEthCase ? ETH_AD : l2token, NetworkIds.base);
 
     const chainBalances = {
         [NetworkIds.mainnet]: bnL1tokenBalance,
@@ -61,19 +67,25 @@ export const BaseBridge = () => {
     }, [query]);
 
     useEffect(() => {
-        if(!l2token) return;
+        if (!l2token) return;
         setL1token(l1tokenDetected);
     }, [l2token, l1tokenDetected]);
 
     useEffect(() => {
-        if(inited || !chainId) return;
+        if (inited || !chainId) return;
         setMode(isMainnet ? 'Deposit' : 'Withdraw');
         setInited(true);
     }, [chainId, isMainnet, inited]);
 
     const handleAction = (bnAmount: BigNumber) => {
         if (!signer || isWrongAddress) return;
-        const args = [l1token, l2token, bnAmount, signer, !!to ? to : undefined];
+        const _to = !!to ? to : undefined;
+        if (isEthCase) {
+            const args = [bnAmount, signer, _to];
+            const bridgeMethod = isDeposit ? bridgeEthToBase : withdrawEthFromBase;
+            return bridgeMethod(...args);
+        }
+        const args = [l1token, l2token, bnAmount, signer, _to];
         const bridgeMethod = isDeposit ? bridgeToBase : withdrawFromBase;
         return bridgeMethod(...args);
     }
@@ -109,19 +121,22 @@ export const BaseBridge = () => {
                     {
                         !isSuccess ? <>
                             <NavButtons options={['Deposit', 'Withdraw']} active={mode} onClick={v => setMode(v)} />
-                            <HStack w='full' justify="center" spacing="0" flexDirection={isDeposit ? 'row' : 'row-reverse'}>
-                                <VStack w="73px">
-                                    <Image src={`/assets/networks/ethereum.png`} w="30px" h="30px" />
-                                    <Text color="mainTextColorLight">Ethereum</Text>
-                                </VStack>
-                                <VStack w='73px' alignItems="center">
-                                    <ArrowForwardIcon fontSize="20px" />
-                                </VStack>
-                                <VStack w="73px">
-                                    <Image src={`/assets/networks/base.svg`} w="30px" h="30px" />
-                                    <Text color="mainTextColorLight">Base</Text>
-                                </VStack>
-                            </HStack>
+                            <Stack w='full' justify="space-around" direction={{ base: 'column', sm: 'row' }}>
+                                <HStack justify="center" spacing="0" flexDirection={isDeposit ? 'row' : 'row-reverse'}>
+                                    <VStack w="73px">
+                                        <Image src={`/assets/networks/ethereum.png`} w="30px" h="30px" />
+                                        <Text color="mainTextColorLight">Ethereum</Text>
+                                    </VStack>
+                                    <VStack w='73px' alignItems="center">
+                                        <ArrowForwardIcon fontSize="20px" />
+                                    </VStack>
+                                    <VStack w="73px">
+                                        <Image src={`/assets/networks/base.svg`} w="30px" h="30px" />
+                                        <Text color="mainTextColorLight">Base</Text>
+                                    </VStack>
+                                </HStack>
+                                <Checkbox isChecked={isEthCase} onChange={e => setIsEthCase(!isEthCase)}>Bridge Ether</Checkbox>
+                            </Stack>
                             <VStack alignItems="flex-start" w='full'>
                                 <TextInfo message="From source chain to destination chain, you will pay gas on the source chain">
                                     <Text><b>{symbol}</b> amount to bridge:</Text>
@@ -137,10 +152,10 @@ export const BaseBridge = () => {
                                 hideInputIfNoAllowance={false}
                                 onAction={({ bnAmount }) => handleAction(bnAmount)}
                                 onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
-                                actionLabel={`Bridge ${symbol}`}
-                                maxActionLabel={`Bridge all ${symbol}`}
+                                actionLabel={`${mode} ${symbol}`}
+                                maxActionLabel={`${mode} all ${symbol}`}
                                 onAmountChange={(v) => setAmount(v)}
-                                showMaxBtn={true}
+                                showMaxBtn={!isEthCase}
                                 onSuccess={() => handleSuccess()}
                                 enableCustomApprove={true}
                                 containerProps={{ spacing: '4' }}

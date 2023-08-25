@@ -1,7 +1,7 @@
 import { useWeb3React } from "@web3-react/core";
 import { VStack, Text, Flex, Stack } from "@chakra-ui/react";
 import { InfoMessage } from "../common/Messages";
-import Container from "../common/Container";
+import Container, { AppContainerProps } from "../common/Container";
 import { NetworkIds } from "@app/types";
 import { smartShortNumber } from "@app/util/markets";
 import Table from "../common/Table";
@@ -52,7 +52,7 @@ const columns = [
     },
     {
         field: 'symbol',
-        label: 'Infos',
+        label: 'Transaction',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ amount, symbol }) => {
             return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
@@ -74,14 +74,19 @@ const columns = [
 
 export const BaseTransactions = ({
     onClick,
+    refreshIndex = 0,
     ...props
-}) => {
+}: {
+    onClick: (item: any) => void;
+    refreshIndex?: number;
+} & Partial<AppContainerProps>) => {
     const { provider, chainId } = useWeb3React();
     const account = useAccount();
-    const { transactions, hasError, isLoading } = useBaseAddressWithdrawals(account, chainId, provider);
+    const { transactions, isLoading } = useBaseAddressWithdrawals(account, chainId, provider, refreshIndex);
 
     return <Container
-        label="ERC20 withdrawals transactions"
+        label="Base withdrawals transactions"
+        description="Note: if you don't find a transaction, copy-paste the base txHash in the form directly"
         noPadding
         p="0"
         {...props}
