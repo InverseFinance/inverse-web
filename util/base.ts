@@ -182,15 +182,15 @@ export const getStatusShortDescription = (status: MessageStatus) => {
         case MessageStatus.FAILED_L1_TO_L2_MESSAGE:
             return 'Message is an L1 to L2 message and the transaction to execute the message failed'
         case MessageStatus.STATE_ROOT_NOT_PUBLISHED:
-            return 'Message is an L2 to L1 message and no state root has been published yet'
+            return '1/5 - 1h wait period'
         case MessageStatus.READY_TO_PROVE:
-            return '1/3 - Ready to prove'
+            return '2/5 - Ready to prove'
         case MessageStatus.IN_CHALLENGE_PERIOD:
-            return '2/3 - Wait period'
+            return '3/5 - 7 days challenge period'
         case MessageStatus.READY_FOR_RELAY:
-            return '3/3 - Ready to be relayed'
+            return '4/5 - Ready to be relayed'
         case MessageStatus.RELAYED:
-            return 'Relayed'
+            return '5/5 - Relayed'
         default:
             return 'Unknown status'
     }

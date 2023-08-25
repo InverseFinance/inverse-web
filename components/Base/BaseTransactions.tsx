@@ -9,6 +9,7 @@ import ScannerLink from "../common/ScannerLink";
 import moment from "moment";
 import { useBaseAddressWithdrawals } from "./useBaseAddressWithdrawals";
 import { SkeletonBlob } from "../common/Skeleton";
+import { switchWalletNetwork } from "@app/util/web3";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -79,21 +80,29 @@ export const BaseTransactions = ({
     return <Container
         label="ERC20 withdrawals transactions"
         noPadding
-        p="0"    
+        p="0"
     >
         {
             !account ? <InfoMessage alertProps={{ w: 'full' }} description="Please connect your wallet" />
                 : <VStack spacing="4" w='full'>
                     {
-                        isLoading ? <SkeletonBlob skeletonHeight={6} noOfLines={5} /> :
-                            <Table
-                                keyName="hash"
-                                columns={columns}
-                                items={transactions}
-                                defaultSort="timestamp"
-                                defaultSortDir="desc"
-                                onClick={v => onClick(v)}
-                            />
+                        chainId !== 1 ?
+                            <InfoMessage alertProps={{ w: 'full' }} title={`Prove & Claim withdrawals`} description={
+                                <Text textDecoration="underline" cursor="pointer"
+                                    onClick={() => switchWalletNetwork(NetworkIds.mainnet)}
+                                >
+                                    Switch to Ethereum to continue the withdrawal process
+                                </Text>
+                            } />
+                            : isLoading ? <SkeletonBlob skeletonHeight={2} noOfLines={8} /> :
+                                <Table
+                                    keyName="hash"
+                                    columns={columns}
+                                    items={transactions}
+                                    defaultSort="timestamp"
+                                    defaultSortDir="desc"
+                                    onClick={v => onClick(v)}
+                                />
                     }
                 </VStack>
         }

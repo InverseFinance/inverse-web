@@ -21,7 +21,7 @@ export const useBaseAddressWithdrawals = (
     });
 
     const hasError = !!error || !!data?.hasError;
-    
+
     return {
         transactions: data?.results || [],
         hasError,
