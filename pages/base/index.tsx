@@ -3,7 +3,7 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
 import { BaseBridge } from '@app/components/Base/BaseBridge';
-import { BaseWithdrawlsProcess } from '@app/components/Base/BaseWithdrawlsProcess';
+import { BaseWithdrawlsSection } from '@app/components/Base/BaseWithdrawlsSection';
 import { BaseBridgeInformations } from '@app/components/Base/BaseBridgeInformations';
 import { useWeb3React } from '@web3-react/core';
 
@@ -42,7 +42,7 @@ export const BasePage = () => {
           </VStack>
         </Stack>
         {
-          !!account && <BaseWithdrawlsProcess />
+          !!account && <BaseWithdrawlsSection />
         }
       </VStack>
     </Layout>

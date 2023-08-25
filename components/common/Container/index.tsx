@@ -78,7 +78,9 @@ export const Container = ({
     p={4}
     // shadow="0 0 20px 2px rgba(0, 0, 0, 0.25)"
     shadow="0 0 0px 1px rgba(0, 0, 0, 0.25)"
-    bg={contentBgColor ?? 'containerContentBackground'} {...contentProps}>
+    bg={contentBgColor ?? 'containerContentBackground'}
+    {...contentProps}
+  >
     {children}
   </Flex>
 

@@ -22,6 +22,7 @@ import { getBnToNumber } from "@app/util/markets";
 import { useToken } from "@app/hooks/useToken";
 import { useBaseToken } from "./useBaseAddressWithdrawals";
 import { useRouter } from "next/router";
+import { BURN_ADDRESS } from "@app/config/constants";
 
 const DOLAmain = '0x865377367054516e17014CcdED1e7d814EDC9ce4';
 const DOLAbase = '0x4621b7A9c75199271F773Ebd9A499dbd165c3191';
@@ -60,10 +61,9 @@ export const BaseBridge = () => {
 
     const handleAction = (bnAmount: BigNumber) => {
         if (!signer || isWrongAddress) return;
-        if (mode === 'Withdraw') {
-            return withdrawFromBase(l2token, bnAmount, signer, !!to ? to : undefined);
-        }
-        return bridgeToBase(l1token, l2token, bnAmount, signer, !!to ? to : undefined);
+        const args = [l1token, l2token, bnAmount, signer, !!to ? to : undefined];
+        const bridgeMethod = isDeposit ? bridgeToBase : withdrawFromBase;
+        return bridgeMethod(...args);
     }
 
     const handleSuccess = () => {
@@ -78,7 +78,7 @@ export const BaseBridge = () => {
     }
 
     const isWrongNetwork = (isMainnet && !isDeposit) || (chainId?.toString() === NetworkIds.base && mode !== 'Withdraw');
-    const isWrongAddress = !!to ? !isAddress(to) : false;
+    const isWrongAddress = !!to ? !isAddress(to) || to === BURN_ADDRESS : false;
     const bnBalance = !isWrongNetwork && !!account ? bnConnectedBalance : chainBalances[isDeposit ? NetworkIds.mainnet : NetworkIds.base];
     const balance = getBnToNumber(bnBalance, decimals);
 

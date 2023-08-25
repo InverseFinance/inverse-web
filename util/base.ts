@@ -1,6 +1,6 @@
 import { JsonRpcSigner, Web3Provider } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
-import { CrossChainMessenger, MessageStatus } from '@eth-optimism/sdk'
+import { CrossChainMessenger, MessageStatus, SignerOrProviderLike } from '@eth-optimism/sdk'
 import { fetcher } from "./web3";
 import { AbiCoder, FunctionFragment } from "ethers/lib/utils";
 import { getBnToNumber } from "./markets";
@@ -37,51 +37,35 @@ export type WithdrawalItem = {
     statuses: MsgStatusItem[]
 }
 
+export const getBaseProvider = () => getPublicRpcProvider(NetworkIds.base);
+export const getEthProvider = () => getPublicRpcProvider(NetworkIds.mainnet);
+
 export const bridgeToBase = async (
     l1token: string,
     l2token: string,
     amount: BigNumber,
-    signer: JsonRpcSigner,
+    l1Signer: JsonRpcSigner,
     to?: string,
 ) => {
-    if (!l1token || !l2token || l1token === BURN_ADDRESS || l2token === BURN_ADDRESS) {
+    if (!l1token || !l2token || l1token === BURN_ADDRESS || l2token === BURN_ADDRESS || to === BURN_ADDRESS) {
         return;
     }
-    const contract = new Contract(BASE_L1_ERC20_BRIDGE, BRIDGE_ABI, signer);
-    const _to = to || await signer.getAddress();
-    return contract.bridgeERC20To(
-        l1token,
-        l2token,
-        _to,
-        amount,
-        '100000',
-        '0x01',
-    );
+    const messenger = getMessenger(l1Signer, getBaseProvider()!);
+    return messenger.depositERC20(l1token, l2token, amount, !!to ? { recipient: to } : undefined);
 }
 
 export const withdrawFromBase = async (
+    l1token: string,
     l2token: string,
     amount: BigNumber,
-    signer: JsonRpcSigner,
+    l2Signer: JsonRpcSigner,
     to?: string,
 ) => {
-    if (!l2token || l2token === BURN_ADDRESS) {
+    if (!l2token || l2token === BURN_ADDRESS || to === BURN_ADDRESS) {
         return;
     }
-    const contract = new Contract(BASE_L2_ERC20_BRIDGE, L2_BRIDGE_ABI, signer);    
-    const args = [
-        l2token,        
-        amount,
-        '100000',
-        '0x01',
-    ];
-    if(!!to) {
-        args.splice(1, 0, to);
-    }
-
-    // Base official UI only detects withdraw method
-    const method = !!to ? 'withdrawTo' : 'withdraw';
-    return contract[method](...args);
+    const messenger = getMessenger(getEthProvider()!, l2Signer);
+    return messenger.withdrawERC20(l1token, l2token, amount, !!to ? { recipient: to } : undefined)
 }
 
 export const getBaseAddressWithrawals = async (
@@ -111,7 +95,7 @@ export const getBaseAddressWithrawals = async (
             }
         });
 
-        const baseProvider = getPublicRpcProvider(NetworkIds.base)!;
+        const baseProvider = getBaseProvider()!;
         const l2tokens = [...new Set(filteredList.map(r => r.args._l2Token))];
         // TODO: use Base multicall      
         const [
@@ -130,18 +114,18 @@ export const getBaseAddressWithrawals = async (
                 }),
             ),
             getTransactionsStatuses(
-                filteredList.map(r => r.hash),
-                // filteredList.map(r => r.canBeVerified),
-                ethProvider,
+                filteredList.map(r => r.hash),                
+                ethProvider.getSigner(),
             ),
         ]);
 
         const results = filteredList.map((d, i) => {
+            const l2tokenIndex = l2tokens.indexOf(d.args._l2Token);
             return {
                 ...d,
                 token: d.args._l2Token,
-                amount: getBnToNumber(d.args._amount, decimals[i]),
-                symbol: symbols[i],
+                amount: getBnToNumber(d.args._amount, decimals[l2tokenIndex]),
+                symbol: symbols[l2tokenIndex],
                 statuses: statuses[i],
                 shortDescription: statuses[i][0].shortDescription,
             }
@@ -196,18 +180,18 @@ export const getStatusShortDescription = (status: MessageStatus) => {
     }
 }
 
-export const getMessenger = (provider: any) => {
+export const getMessenger = (l1SignerOrProvider: SignerOrProviderLike, l2SignerOrProvider: SignerOrProviderLike) => {
     return new CrossChainMessenger({
-        l1SignerOrProvider: provider?.getSigner(), // replace with your L1 provider or signer
-        l2SignerOrProvider: getPublicRpcProvider(NetworkIds.base), // replace with your L2 provider or signer
+        l1SignerOrProvider, // replace with your L1 provider or signer
+        l2SignerOrProvider, // replace with your L2 provider or signer
         l1ChainId: parseInt(NetworkIds.mainnet), // replace with your L1 chain ID
         l2ChainId: parseInt(NetworkIds.base), // replace with your L2 chain ID
         bedrock: true,
     });
 }
 
-export const getTransactionsStatuses = async (txHashes: string[], provider: Web3Provider): Promise<MsgStatusItem[][]> => {
-    const messenger = getMessenger(provider);
+export const getTransactionsStatuses = async (txHashes: string[], signer: JsonRpcSigner): Promise<MsgStatusItem[][]> => {
+    const messenger = getMessenger(signer, getPublicRpcProvider(NetworkIds.base)!);
 
     const messagesLists = await Promise.all(
         txHashes.map(async (txHash) => {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { MsgStatusItem, WithdrawalItem, getMessenger, getTransactionsStatuses } from "@app/util/base";
+import { MsgStatusItem, WithdrawalItem, getBaseProvider, getMessenger, getTransactionsStatuses } from "@app/util/base";
 import { MessageStatus } from '@eth-optimism/sdk'
 import { useWeb3React } from "@web3-react/core";
 import { VStack, Text } from "@chakra-ui/react";
@@ -10,8 +10,11 @@ import { RSubmitButton } from "../common/Button/RSubmitButton";
 
 export const BaseWithdraw = ({
     transactionItem,
+    onSuccess,
+    ...props,
 }: {
     transactionItem: WithdrawalItem | undefined
+    onSuccess: () => void
 }) => {
     const { provider, account } = useWeb3React();
     const [txHash, setTxHash] = useState(transactionItem?.hash || '');
@@ -25,7 +28,8 @@ export const BaseWithdraw = ({
     }, [transactionItem?.hash]);
 
     const checkStatus = async () => {
-        const results = await getTransactionsStatuses([txHash], provider);
+        if(!provider?.getSigner()) return;
+        const results = await getTransactionsStatuses([txHash], provider?.getSigner());
         const statuses = results[0];
         setIsLoadingStatus(true);
         setStatuses(statuses);
@@ -38,23 +42,22 @@ export const BaseWithdraw = ({
     );
 
     const executeMessage = async () => {
+        if(!provider?.getSigner()) return
         console.log(
             'Execute button pressed. Current message status:',
             statuses,
         )
         if (txHash) {
-            const messenger = getMessenger(provider);
+            const messenger = getMessenger(provider?.getSigner(), getBaseProvider()!);
 
             for (const { status, index } of statuses) {
                 console.log('Executing message at index:', index)
                 if (status === MessageStatus.READY_TO_PROVE) {
                     console.log('Proving message...')
-                    await messenger.proveMessage(txHash, undefined, index)
-                    console.log('Message proved.')
+                    return messenger.proveMessage(txHash, undefined, index)
                 } else if (status === MessageStatus.READY_FOR_RELAY) {
                     console.log('Relaying message...')
-                    await messenger.finalizeMessage(txHash, undefined, index)
-                    console.log('Message relayed.')
+                    return messenger.finalizeMessage(txHash, undefined, index)
                 }
             }
         }
@@ -66,14 +69,15 @@ export const BaseWithdraw = ({
         label="Prove / Relay withdraw"
         noPadding
         p="0"
+        {...props}
     >
         {
             !account ? <InfoMessage alertProps={{ w: 'full' }} description="Please connect your wallet" />
-                : <VStack spacing="4" alignItems="flex-start">
-                    <VStack>
-                        <Input placeholder="Base transaction hash to prove or finalize" fontSize="14px" w='600px' value={txHash} onChange={e => setTxHash(e.target.value)} />
+                : <VStack w='full' spacing="4" alignItems="flex-start">
+                    <VStack w='full'>
+                        <Input placeholder="Base transaction hash to prove or finalize" fontSize="12px" value={txHash} onChange={e => setTxHash(e.target.value)} />
                         <RSubmitButton disabled={!txHash} onClick={() => checkStatus()}>
-                            {hasStatus ? 'Recheck' : 'Check'} status
+                            {hasStatus ? 'Re-check' : 'Check'} status
                         </RSubmitButton>
                     </VStack>
                     {
@@ -88,7 +92,7 @@ export const BaseWithdraw = ({
                         </VStack>
                     }
                     {
-                        canExecute && <RSubmitButton onClick={() => executeMessage()}>
+                        canExecute && <RSubmitButton onSuccess={() => checkStatus()} onClick={() => executeMessage()}>
                             Execute
                         </RSubmitButton>
                     }

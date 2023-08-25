@@ -65,14 +65,15 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="200px" justify="center"  {...props} />,
         value: ({ shortDescription }) => {
             return <Cell minWidth="200px" justify="center" alignItems="center" direction="column" spacing="0">
-                <CellText>{shortDescription}</CellText>
+                <CellText fontSize='14px'>{shortDescription}</CellText>
             </Cell>
         },
     },
 ]
 
 export const BaseTransactions = ({
-    onClick
+    onClick,
+    ...props
 }) => {
     const { provider, account, chainId } = useWeb3React();
     const { transactions, hasError, isLoading } = useBaseAddressWithdrawals(account, chainId, provider);
@@ -81,6 +82,7 @@ export const BaseTransactions = ({
         label="ERC20 withdrawals transactions"
         noPadding
         p="0"
+        {...props}
     >
         {
             !account ? <InfoMessage alertProps={{ w: 'full' }} description="Please connect your wallet" />

@@ -1,6 +1,5 @@
-import { getPublicRpcProvider } from "@app/hooks/useSpecificChainBalance";
 import { NetworkIds } from "@app/types";
-import { L2_TOKEN_ABI, WithdrawalItem, getBaseAddressWithrawals } from "@app/util/base";
+import { L2_TOKEN_ABI, WithdrawalItem, getBaseAddressWithrawals, getBaseProvider } from "@app/util/base";
 import { Web3Provider } from "@ethersproject/providers";
 import { Contract } from "ethers";
 import useSWR from "swr"
@@ -42,7 +41,7 @@ export const useBaseToken = (
         args.push([adOnBase, 'balanceOf', account]);
     }
 
-    const baseProvider = getPublicRpcProvider(NetworkIds.base)!;
+    const baseProvider = getBaseProvider()!;
 
     const { data, error } = useSWR(`base-token-${adOnBase}`, async () => {
         if (!adOnBase) return null;

@@ -5,7 +5,7 @@ import { BaseWithdraw } from "./BaseWithdraw";
 import { WithdrawalItem } from "@app/util/base";
 import { useWeb3React } from "@web3-react/core";
 
-export const BaseWithdrawlsProcess = () => {
+export const BaseWithdrawlsSection = () => {
     const { chainId } = useWeb3React();
     const [selectedItem, setSelectedItem] = useState<WithdrawalItem | undefined>(undefined);
 
@@ -13,10 +13,10 @@ export const BaseWithdrawlsProcess = () => {
         setSelectedItem(item);
     }
     
-    return <Stack direction={{ base: 'column', 'xl': 'row' }} w='full'>
-        <BaseTransactions onClick={selectTransaction} />
+    return <Stack spacing="8" direction={{ base: 'column', 'xl': 'row' }} w='full'>
+        <BaseTransactions w={{ base: 'full', lg: '55%' }} onClick={selectTransaction} />
         {
-            chainId === 1 && <BaseWithdraw transactionItem={selectedItem} />
+            chainId === 1 && <BaseWithdraw w={{ base: 'full', lg: '45%' }} transactionItem={selectedItem} />
         }
     </Stack>
 }
