@@ -101,7 +101,7 @@ export const BaseBridge = () => {
         setIsCustomAddress(false);
     }
 
-    const isWrongNetwork = (isMainnet && !isDeposit) || (chainId?.toString() === NetworkIds.base && mode !== 'Withdraw');
+    const isWrongNetwork = (isMainnet && !isDeposit) || (chainId?.toString() === NetworkIds.base && mode !== 'Withdraw') || ![NetworkIds.base, NetworkIds.mainnet].includes(chainId?.toString());
     const isWrongAddress = !!to ? !isAddress(to) || to === BURN_ADDRESS : false;
     const bnBalance = !isWrongNetwork && !!account ? bnConnectedBalance : chainBalances[isDeposit ? NetworkIds.mainnet : NetworkIds.base];
     const balance = getBnToNumber(bnBalance, decimals);
@@ -162,7 +162,7 @@ export const BaseBridge = () => {
                                 isDisabled={isDisabled}
                                 isMaxDisabled={isDisabledMax}
                                 alsoDisableApprove={true}
-                                needApprove={isDeposit}
+                                needApprove={isDeposit && !isEthCase}
                                 includeBalanceInMax={true}
                                 customBalance={bnBalance}
                                 inputRight={symbol === 'DOLA' ? <MarketImage pr="2" image={TOKEN_IMAGES.DOLA} size={25} /> : undefined}
