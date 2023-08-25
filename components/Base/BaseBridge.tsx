@@ -20,7 +20,7 @@ import { useAppTheme } from "@app/hooks/useAppTheme";
 import { RSubmitButton } from "../common/Button/RSubmitButton";
 import { getBnToNumber } from "@app/util/markets";
 import { useToken } from "@app/hooks/useToken";
-import { useBaseToken } from "./useBaseAddressWithdrawals";
+import { useBaseToken } from "./useBase";
 import { useRouter } from "next/router";
 import { BURN_ADDRESS } from "@app/config/constants";
 
@@ -35,7 +35,7 @@ export const BaseBridge = () => {
 
     const [l1token, setL1token] = useState(DOLAmain);
     const [l2token, setL2token] = useState(DOLAbase);
-    const { symbol, decimals } = useBaseToken(l2token);
+    const { symbol, decimals, l1Token: l1tokenDetected } = useBaseToken(l2token);
 
     const { bnBalance: bnConnectedBalance } = useToken(!account ? l1token : (isMainnet ? l1token : l2token), account);
     const { bnBalance: bnL1tokenBalance } = useSpecificChainBalance(account, l1token, NetworkIds.mainnet);
@@ -58,6 +58,11 @@ export const BaseBridge = () => {
         if (!query?.l2token || !utils.isAddress(query?.l2token)) return;
         setL2token(query.l2token);
     }, [query]);
+
+    useEffect(() => {
+        if(!l2token) return;
+        setL1token(l1tokenDetected);
+    }, [l2token, l1tokenDetected])
 
     const handleAction = (bnAmount: BigNumber) => {
         if (!signer || isWrongAddress) return;
