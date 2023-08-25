@@ -7,7 +7,7 @@ import { smartShortNumber } from "@app/util/markets";
 import Table from "../common/Table";
 import ScannerLink from "../common/ScannerLink";
 import moment from "moment";
-import { useBaseAddressWithdrawals } from "./useBaseAddressWithdrawals";
+import { useBaseAddressWithdrawals } from "./useBase";
 import { SkeletonBlob } from "../common/Skeleton";
 import { switchWalletNetwork } from "@app/util/web3";
 import { useAccount } from "@app/hooks/misc";

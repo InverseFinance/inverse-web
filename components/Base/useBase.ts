@@ -31,16 +31,7 @@ export const useBaseAddressWithdrawals = (
 
 export const useBaseToken = (
     adOnBase: string,
-    account: string | undefined
 ) => {
-    const args = [
-        [adOnBase, 'decimals'],
-        [adOnBase, 'symbol'],
-    ];
-    if (!!account) {
-        args.push([adOnBase, 'balanceOf', account]);
-    }
-
     const baseProvider = getBaseProvider()!;
 
     const { data, error } = useSWR(`base-token-${adOnBase}`, async () => {
