@@ -37,9 +37,9 @@ export const BaseWithdraw = ({
 
     const checkStatus = async () => {
         if (!signer) return;
+        setIsLoadingStatus(true);
         const results = await getTransactionsStatuses([txHash], signer);
         const statuses = results[0];
-        setIsLoadingStatus(true);
         setStatuses(statuses);
         setIsLoadingStatus(false);
     }
@@ -85,7 +85,7 @@ export const BaseWithdraw = ({
                         </VStack>
                     }
                     {
-                        canExecute && <RSubmitButton onSuccess={() => refresh()} onClick={() => executeMessage(txHash, statuses, signer)}>
+                        !isLoadingStatus && canExecute && <RSubmitButton onSuccess={() => refresh()} onClick={() => executeMessage(txHash, statuses, signer)}>
                             Execute
                         </RSubmitButton>
                     }
