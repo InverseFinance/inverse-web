@@ -1,6 +1,6 @@
 import { useWeb3React } from "@web3-react/core";
 import { VStack, Text, Flex, Stack } from "@chakra-ui/react";
-import { InfoMessage } from "../common/Messages";
+import { InfoMessage, WarningMessage } from "../common/Messages";
 import Container, { AppContainerProps } from "../common/Container";
 import { NetworkIds } from "@app/types";
 import { smartShortNumber } from "@app/util/markets";
@@ -82,7 +82,7 @@ export const BaseTransactions = ({
 } & Partial<AppContainerProps>) => {
     const { provider, chainId } = useWeb3React();
     const account = useAccount();
-    const { transactions, isLoading } = useBaseAddressWithdrawals(account, chainId, provider, refreshIndex);
+    const { transactions, isLoading, hasError } = useBaseAddressWithdrawals(account, chainId, provider, refreshIndex);
 
     return <Container
         label="Base withdrawals transactions"
@@ -104,14 +104,16 @@ export const BaseTransactions = ({
                                 </Text>
                             } />
                             : isLoading ? <SkeletonBlob skeletonHeight={2} noOfLines={8} /> :
-                                <Table
-                                    keyName="hash"
-                                    columns={columns}
-                                    items={transactions}
-                                    defaultSort="timestamp"
-                                    defaultSortDir="desc"
-                                    onClick={v => onClick(v)}
-                                />
+                                hasError ?
+                                    <WarningMessage description="Could not load transactions" /> : <Table
+                                        noDataMessage="No withdrawal transactions yet"
+                                        keyName="hash"
+                                        columns={columns}
+                                        items={transactions}
+                                        defaultSort="timestamp"
+                                        defaultSortDir="desc"
+                                        onClick={v => onClick(v)}
+                                    />
                     }
                 </VStack>
         }
