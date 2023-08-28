@@ -14,7 +14,7 @@ import { NetworkIds } from "@app/types";
 import { MarketImage } from "../common/Assets/MarketImage";
 import { TOKEN_IMAGES } from "@app/variables/images";
 import useSpecificChainBalance from "@app/hooks/useSpecificChainBalance";
-import { switchWalletNetwork } from "@app/util/web3";
+import { switchWalletNetwork, importToken } from "@app/util/web3";
 import { isAddress } from "ethers/lib/utils";
 import { useAppTheme } from "@app/hooks/useAppTheme";
 import { RSubmitButton } from "../common/Button/RSubmitButton";
@@ -198,6 +198,14 @@ export const BaseBridge = () => {
                                     </VStack>
                                 }
                             />
+                            {
+                                chainId?.toString() === NetworkIds.base
+                                && <Text cursor="pointer" color="mainTextColorLight" fontSize='14px' textDecoration="underline" onClick={() => {
+                                    return importToken({ address: DOLAbase, symbol: 'DOLA', decimals: 18, image: 'https://assets.coingecko.com/coins/images/14287/small/dola.png?1667738374' })
+                                }}>
+                                    Add DOLA to my Base token list in my wallet
+                                </Text>
+                            }
                         </>
                             : <SuccessMessage
                                 title={`Bridging to ${isDeposit ? 'Base' : 'Ethereum'} started!`}
