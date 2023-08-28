@@ -10,8 +10,8 @@ export const BaseBridgeInformations = () => {
                 alertProps={{ w: 'full' }}
                 title="Bridging times"
                 description={
-                    <VStack alignItems="flex-start">
-                        <Text>- From Ethereum to Base: up to ~30min.</Text>
+                    <VStack spacing="0" alignItems="flex-start">
+                        <Text>- From Ethereum to Base: a few minutes usually.</Text>
                         <Text>- From Base to Ethereum: 7 days, 3 txs required.</Text>
                     </VStack>
                 }

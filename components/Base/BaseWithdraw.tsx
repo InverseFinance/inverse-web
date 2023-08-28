@@ -59,7 +59,7 @@ export const BaseWithdraw = ({
 
     return <Container
         label="Prove / Relay withdraw"
-        description="The transaction hash is the withdraw initiated on Base"
+        description="The withdrawal transaction hash initiated on Base"
         noPadding
         p="0"
         {...props}

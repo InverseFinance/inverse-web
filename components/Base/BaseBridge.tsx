@@ -189,7 +189,7 @@ export const BaseBridge = () => {
                                             !isDeposit && <InfoMessage alertProps={{ w: 'full' }}
                                                 description={<VStack w='full' alignItems="flex-start" >
                                                     <Text>To withdraw from Base, there will be three transactions required:</Text>
-                                                    <Text>- Initiate withdraw (Tx on Base)</Text>
+                                                    <Text>- Initiate withdrawal (Tx on Base)</Text>
                                                     <Text>- After 1h, verify the withdrawal (Tx on Ethereum)</Text>
                                                     <Text>- 7 days after the verification, claim (Tx on Ethereum)</Text>
                                                 </VStack>}
@@ -214,7 +214,7 @@ export const BaseBridge = () => {
                                         {
                                             isDeposit ?
                                                 <Text>
-                                                    It can take up to 30 minutes for the bridging to complete and the {symbol} to arrive on Base.
+                                                    It usually takes a few minutes for the bridging to complete and the {symbol} to arrive on Base.
                                                 </Text>
                                                 :
                                                 <Text>
