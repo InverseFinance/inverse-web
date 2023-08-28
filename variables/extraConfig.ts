@@ -174,7 +174,7 @@ const mainConfig = {
             address: '0xa283139017a2f5BAdE8d8e25412C600055D318F8',
             name: 'Treasury Working Group on Optimism',
             shortName: 'TWG on OP',
-            purpose: 'Optimize Inverse Treasury management on Fantom',
+            purpose: 'Optimize Inverse Treasury management on Optimism',
             governanceLink: 'https://www.inverse.finance/governance/proposals/mills/10',
             chainId: NetworkIds.optimism,
             order: 2,
@@ -285,6 +285,14 @@ const mainConfig = {
             purpose: 'Ad hoc expenses and short-term hires',            
             chainId: NetworkIds.mainnet,            
         },
+        // {
+        //     address: '0x586CF50c2874f3e3997660c0FD0996B090FB9764',
+        //     name: 'Treasury Working Group on Base',
+        //     shortName: 'TWG on Base',
+        //     purpose: 'Optimize Inverse Treasury management on Base',            
+        //     chainId: NetworkIds.base,
+        //     order: 2.1,
+        // },
         // '0x77C64eEF5F4781Dd6e9405a8a77D80567CFD37E0': 'Rewards Committee',
     ],
 };
