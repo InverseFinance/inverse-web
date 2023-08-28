@@ -106,11 +106,11 @@ export const MENUS = {
           href: '/swap?fromToken=DOLA&toToken=DOLA&fromChain=ethereum&toChain=optimism',
           needReload: true,
         },
-        {
-          label: 'Native Base Bridge',
-          href: '/base',
-          needReload: true,
-        },
+        // {
+        //   label: 'Native Base Bridge',
+        //   href: '/base',
+        //   needReload: true,
+        // },
       ]
     },
     // {
