@@ -45,7 +45,13 @@ export const BaseBridgeInformations = () => {
                                 DOLA docs
                             </Link>
                         </Box>
-                        <Text>Base relies mostly on the same technologies as Optimism, please make your own due diligence.</Text>
+                        <Text fontWeight="bold">Base relies mostly on the same technologies as Optimism, please make your own due diligence.</Text>
+                        <Text display="inline">
+                            This page can also be used for other tokens than DOLA by adding the Base token address to the URL:
+                        </Text>
+                        <Link ml="1" textDecoration="underline" href="/base?l2token=0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca">
+                            USDC example
+                        </Link>
                     </VStack>
                 }
             />
