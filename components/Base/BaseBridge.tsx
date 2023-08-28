@@ -24,13 +24,15 @@ import { useBaseToken } from "./useBase";
 import { useRouter } from "next/router";
 import { BURN_ADDRESS } from "@app/config/constants";
 import useEtherSWR from "@app/hooks/useEtherSWR";
+import { useAccount } from "@app/hooks/misc";
 
 const DOLAmain = '0x865377367054516e17014CcdED1e7d814EDC9ce4';
 const DOLAbase = '0x4621b7A9c75199271F773Ebd9A499dbd165c3191';
 export const ETH_AD = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 
 export const BaseBridge = () => {
-    const { provider, account, chainId } = useWeb3React();
+    const { provider, chainId } = useWeb3React();
+    const account = useAccount();
     const { themeStyles } = useAppTheme();
     const { query } = useRouter();
     const isMainnet = chainId?.toString() === NetworkIds.mainnet;
