@@ -3,7 +3,7 @@ import { BigNumberList, Market, TokenList } from '@app/types';
 import { BigNumber, Contract } from 'ethers';
 import { formatUnits, commify, isAddress, parseUnits, parseEther } from 'ethers/lib/utils';
 import { ETH_MANTISSA, BLOCKS_PER_YEAR, DAYS_PER_YEAR, BLOCKS_PER_DAY, ONE_DAY_SECS } from '@app/config/constants';
-import sushiData from '@sushiswap/sushi-data'
+
 import { toFixed } from './misc';
 
 export const getMonthlyRate = (balance: number, apy: number) => {

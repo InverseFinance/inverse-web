@@ -20,8 +20,8 @@ export const getGasPrice = async () => {
     return res?.status === "1" ? res?.result : '{"result":{"SafeGasPrice":"0","ProposeGasPrice":"0","FastGasPrice":"0"}}'
 }
 
-export const getTransactions = async (address: string) => {
-    const path = `?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&sort=desc&apikey=A6SD2E7KYV3F7HR2KY88TH7A4H89JCFNNS`
+export const getTransactions = async (address: string, startBlock = 0) => {
+    const path = `?module=account&action=txlist&address=${address}&startblock=${startBlock}&endblock=99999999&sort=desc&apikey=A6SD2E7KYV3F7HR2KY88TH7A4H89JCFNNS`
     const res = await fetcher(`${baseUrl}${path}`);
-    return res?.status === "1" ? res?.result : '[]';
+    return res?.status === "1" ? res?.result : [];
 }

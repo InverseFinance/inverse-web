@@ -191,6 +191,10 @@ const chainTokenAddresses = {
     VESOLISNEK: '0xeeee3Bf0E550505C0C17a8432065F2f6b9D06350',    
     DOLAUSDCSOLISNEDKLP: '0x7680D9F07f80B11A7a96E4443398245D917998e6',
   },
+  "8453": {
+    DOLA: '0x4621b7A9c75199271F773Ebd9A499dbd165c3191',
+    USDC: '0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA',
+  },
 }
 chainTokenAddresses["31337"] = chainTokenAddresses["1"];
 
@@ -1701,7 +1705,20 @@ const chainTokens = {
       isComposableMetapool: true,
       image: TOKEN_IMAGES.DOLA,      
     },
-  }
+  },
+  "8453": {
+    CHAIN_COIN: {
+      ...ETH,
+    },
+    [chainTokenAddresses["8453"].DOLA]: {
+      address: chainTokenAddresses["8453"].DOLA,
+      ...DOLA,
+    },
+    [chainTokenAddresses["8453"].USDC]: {
+      ...USDC,
+      address: chainTokenAddresses["8453"].USDC,
+    },
+  },
 }
 chainTokens["31337"] = chainTokens["1"];
 

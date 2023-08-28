@@ -19,6 +19,7 @@ type Props = {
     destination: string
     signer?: JsonRpcSigner
     isDisabled?: boolean
+    alsoDisableApprove?: boolean
     isMaxDisabled?: boolean
     decimals?: number
     actionLabel?: string
@@ -45,6 +46,7 @@ type Props = {
     inputLeftProps?: FlexProps
     enableCustomApprove?: boolean
     defaultInfiniteApprovalMode?: boolean
+    needApprove?: boolean
     extraBeforeButton?: any
     customBalance?: BigNumber
     containerProps?: StackProps
@@ -75,6 +77,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         destination,
         signer,
         isDisabled,
+        alsoDisableApprove,
         isMaxDisabled,
         onAction,
         onMaxAction,
@@ -108,6 +111,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         extraBeforeButton = null,
         customBalance,
         containerProps,
+        needApprove = true,
     } = props;
     const [amount, setAmount] = useState(!defaultAmount ? '' : defaultAmount);
     const [isInfiniteApprovalMode, setIsInfiniteApprovalMode] = useState(defaultInfiniteApprovalMode);
@@ -169,7 +173,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
 
     return <VStack w='full' {...containerProps}>
         {
-            (tokenApproved || !hideInputIfNoAllowance) && !hideInput &&
+            ((tokenApproved || !needApprove) || !hideInputIfNoAllowance) && !hideInput &&
             <BalanceInput
                 value={!amount ? '' : amount}
                 showBalance={showBalance}
@@ -193,7 +197,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         }
         {
             hideButtons && !onlyShowApproveBtn ? null :
-                !tokenApproved && !noApprovalNeeded ?
+                (!tokenApproved && needApprove) && !noApprovalNeeded ?
                     <>
                         <ApproveButton
                             w='full'
@@ -201,7 +205,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                             address={address}
                             toAddress={destination}
                             signer={signer}
-                            isDisabled={isInfiniteApprovalMode ? balance <= 0 : !parseFloat(_amount)}
+                            isDisabled={(isInfiniteApprovalMode ? balance <= 0 : !parseFloat(_amount)) || (!!alsoDisableApprove && !!isDisabled)}
                             onSuccess={() => setFreshTokenApproved(isInfiniteApprovalMode)}
                             ButtonComp={ButtonComp}
                             amount={isInfiniteApprovalMode ? undefined : _bnAmount}

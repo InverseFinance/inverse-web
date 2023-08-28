@@ -9,14 +9,14 @@ import useEtherSWR from './useEtherSWR';
 import { getBnToNumber } from '@app/util/markets';
 import { BigNumber } from 'ethers';
 
-type DOLA = {
+type DolaSupply = {
   totalSupply: number,
   firmSupply: number,
 }
 
 const { ANCHOR_DOLA, DOLA } = getNetworkConfigConstants();
 
-export const useDOLA = (): SWR & DOLA => {
+export const useDOLA = (): SWR & DolaSupply => {
   const { data, error } = useCustomSWR(`/api/dola`, fetcher)
 
   return {
@@ -29,7 +29,7 @@ export const useDOLA = (): SWR & DOLA => {
 
 const nonFrontierDolaShortfall = 520000;
 
-export const useDOLAShortfall = (): SWR & DOLA & {
+export const useDOLAShortfall = (): SWR & DolaSupply & {
   frontierDolaShortfall: number
   totalDolaShortfall: number
   shortfallPerc: number
@@ -58,8 +58,8 @@ export const useDOLAShortfall = (): SWR & DOLA & {
   }
 }
 
-export const useDOLABalance = (account: string) => {
-  const { data, error } = useEtherSWR([DOLA, 'balanceOf', account]);
+export const useDOLABalance = (account: string, ad = DOLA) => {
+  const { data, error } = useEtherSWR([ad, 'balanceOf', account]);
   return {
     bnBalance: data || BigNumber.from('0'),
     balance: data ? getBnToNumber(data) : 0,

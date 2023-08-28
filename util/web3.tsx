@@ -126,6 +126,37 @@ export const switchWalletNetwork = async (id: string | number, onSuccess?: () =>
   }
 }
 
+export const importToken = async ({
+  address,
+  symbol,
+  decimals,
+  image,
+}: {
+  address: string,
+  symbol: string,
+  decimals: number,
+  image: string,
+}) => {
+  try {
+      if (!ethereum) { return }
+      // wasAdded is a boolean. Like any RPC method, an error may be thrown.
+      await ethereum.request({
+          method: 'wallet_watchAsset',
+          params: {
+              type: 'ERC20',
+              options: {
+                  address,
+                  symbol,
+                  decimals,
+                  image,
+              },
+          },
+      });
+  } catch (error) {
+      console.log(error);
+  }
+}
+
 // window.ethereum is injected by providers even if the user is not connected to our app
 export const ethereumReady = async (timeout = 10000): Promise<boolean> => {
   const polling = 50;

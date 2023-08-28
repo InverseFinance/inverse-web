@@ -1,5 +1,5 @@
 import { UseToastOptions } from "@chakra-ui/react"
-import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
+import { Log, TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 import ScannerLink from '@app/components/common/ScannerLink';
 import { getAbis } from '@app/config/abis';
 import { CustomToastOptions, NetworkIds } from '@app/types';
@@ -84,5 +84,15 @@ export const getTransactionEvents = (receipt: TransactionReceipt, chainId: strin
     }
     catch (e) {
         return []
+    }
+}
+
+export const parseLog = (log: Log, abi: any) => {
+    try {        
+        const iface = new Interface(abi);
+        return iface.parseLog(log);
+    }
+    catch (e) {
+        return null
     }
 }

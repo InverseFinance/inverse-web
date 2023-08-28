@@ -6,6 +6,7 @@ import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
 import { isAddress } from 'ethers/lib/utils'
 import { useRouter } from 'next/dist/client/router'
+import { ERC20_ABI } from '@app/config/abis'
 
 type Approvals = {
   approvals: BigNumberList
@@ -37,7 +38,10 @@ export const useAllowances = (addresses: string[], target: string, from?: string
   const { query } = useRouter()
   const userAddress = from || (query?.viewAddress as string) || account;
   const filteredAddresses = addresses.filter(ad => !!ad && isAddress(ad));
-  const { data, error } = useEtherSWR(filteredAddresses.map(ad => ([ad, 'allowance', userAddress, target])))
+  const { data, error } = useEtherSWR({
+    abi: ERC20_ABI,
+    args: filteredAddresses.map(ad => ([ad, 'allowance', userAddress, target])),
+  })
 
   const results: BigNumberList = {};
   
