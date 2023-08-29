@@ -188,7 +188,7 @@ export const FedPolicyPage = () => {
                     <SupplyInfos token={TOKENS[DOLA]} supplies={dolaSupplies}
                     />
                     <SupplyInfos
-                        title="🦅&nbsp;&nbsp;DOLA Fed Supplies"
+                        title="🦅&nbsp;&nbsp;DOLA Active Fed Supplies"
                         supplies={
                             policyFeds.map((fed, fedIndex) => {
                                 return { supply: Math.max(fed.supply, 0), chainId: fed.chainId, name: fed.name, projectImage: fed.projectImage }
