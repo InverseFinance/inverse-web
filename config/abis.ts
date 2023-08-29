@@ -529,9 +529,12 @@ export const DBR_DISTRIBUTOR_ABI = [
   'function operator() public view returns (address)',
 ]
 
+const PERMIT_STRUCT = `tuple(uint256 deadline, uint8 v, bytes32 r, bytes s)`;
+const DBR_STRUCT = `tuple(uint256 amountIn, uint256 amountOut)`;
+
 export const F2_ALE_ABI = [
-  'function leveragePosition(uint dolaToBorrow, address buyAd, address zeroXspender, address payable zeroXtarget, bytes calldata swapData, uint deadline, uint8 v, bytes32 r, bytes32 s, bytes calldata helperTransformData) external payable',
-  'function deleveragePosition(uint dolaToRepay, address sellAd, uint withdrawAmount, address zeroXspender, address payable zeroXtarget, bytes calldata swapData, uint deadline, uint8 v, bytes32 r, bytes32 s, bytes calldata helperTransformData) external payable',
+  `function leveragePosition(uint dolaToBorrow, address buyAd, address zeroXspender, bytes calldata swapData, ${PERMIT_STRUCT}, bytes calldata helperTransformData, ${DBR_STRUCT}) external payable`,
+  `function deleveragePosition(uint dolaToRepay, address sellAd, uint withdrawAmount, address zeroXspender, bytes calldata swapData, ${PERMIT_STRUCT}, bytes calldata helperTransformData, ${DBR_STRUCT}) external payable`,
   'function markets(address token) public view returns (tuple(address market, address helper, address collateral))',
   'function exchangeProxy() public view returns (address)',
   'function dola() public view returns (address)',

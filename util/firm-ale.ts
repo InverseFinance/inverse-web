@@ -34,19 +34,19 @@ export const prepareLeveragePosition = async (
             console.log(e);
             return Promise.reject("Getting a quote from 0x failed");
         }
-        const { data, allowanceTarget, to: swapTarget, value, buyTokenAddress } = get0xQuoteResult;
+        const { data: swapData, allowanceTarget, to: swapTarget, value, buyTokenAddress } = get0xQuoteResult;
+        const permitData = [deadline, v, r, s];
+        const helperTransformData = '0x';
+        const dbrData = [];
         return leveragePosition(
             signer,
             dolaToBorrow,
             buyTokenAddress,
             allowanceTarget,
-            swapTarget,
-            data,
-            deadline,
-            v,
-            r,
-            s,
-            '0x',
+            swapData,
+            permitData,
+            helperTransformData,
+            dbrData,
             value,
         );
     }
@@ -57,28 +57,22 @@ export const leveragePosition = (
     signer: JsonRpcSigner,
     dolaToBorrow: BigNumber,
     buyAd: string,
-    zeroXspender: string,
-    zeroXtarget: string,
+    zeroXspender: string,    
     swapData: string,
-    deadline: number,
-    v: number,
-    r: string,
-    s: string,
+    permitTuple: any[],
     helperTransformData: string,
+    dbrTuple: any[],
     value: string,
 ) => {
     return getAleContract(signer)
         .leveragePosition(
             dolaToBorrow,
             buyAd,
-            zeroXspender,
-            zeroXtarget,
+            zeroXspender,            
             swapData,
-            deadline,
-            v,
-            r,
-            s,
+            permitTuple,
             helperTransformData,
+            dbrTuple,
             { value },
         );
 }
@@ -106,20 +100,20 @@ export const prepareDeleveragePosition = async (
             console.log(e);
             return Promise.reject("Getting a quote from 0x failed");
         }
-        const { data, allowanceTarget, to: swapTarget, value, sellTokenAddress } = get0xQuoteResult;
+        const { data: swapData, allowanceTarget, to: swapTarget, value, sellTokenAddress } = get0xQuoteResult;
+        const permitData = [deadline, v, r, s];
+        const helperTransformData = '0x';
+        const dbrData = [];
         return deleveragePosition(
             signer,
             dolaToRepay,
             sellTokenAddress,
             collateralToWithdraw,
             allowanceTarget,
-            swapTarget,
-            data,
-            deadline,
-            v,
-            r,
-            s,
-            '0x',
+            swapData,
+            permitData,
+            helperTransformData,
+            dbrData,
             value,
         );
     }
@@ -132,13 +126,10 @@ export const deleveragePosition = async (
     sellAd: string,
     amountToWithdraw: BigNumber,
     zeroXspender: string,
-    zeroXtarget: string,
     swapData: string,
-    deadline: number,
-    v: number,
-    r: string,
-    s: string,
+    permitTuple: any[],
     helperTransformData: string,
+    dbrTuple: any[],
     value: string,
 ) => {
     return getAleContract(signer)
@@ -147,13 +138,10 @@ export const deleveragePosition = async (
             sellAd,
             amountToWithdraw,
             zeroXspender,
-            zeroXtarget,
             swapData,
-            deadline,
-            v,
-            r,
-            s,
+            permitTuple,
             helperTransformData,
+            dbrTuple,
             { value },
         );
 }
