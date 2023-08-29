@@ -169,6 +169,9 @@ export const BaseBridge = () => {
                                 includeBalanceInMax={true}
                                 customBalance={bnBalance}
                                 inputRight={symbol === 'DOLA' ? <MarketImage pr="2" image={TOKEN_IMAGES.DOLA} size={25} /> : undefined}
+                                btnProps={{
+                                    needPoaFirst: true,
+                                }}
                                 extraBeforeButton={
                                     <VStack alignItems="flex-start" w='full'>
                                         <TextInfo message="If you wish to receive the asset on another address than the current connected wallet address">
