@@ -30,18 +30,18 @@ import { FedIncomeTable } from '@app/components/Transparency/fed/FedIncomeTable'
 const { DOLA, TOKENS, FEDS, FEDS_WITH_ALL, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 export const FedPolicyPage = () => {
-    const { account, provider } = useWeb3React<Web3Provider>();
+    // const { account, provider } = useWeb3React<Web3Provider>();
     const { query } = useRouter();    
 
     const slug = query?.slug || ['policy', 'all'];
     const queryFedName = slug[1] || 'all';
-    const userAddress = (query?.viewAddress as string) || account;    
-    const [msgUpdates, setMsgUpdates] = useState(0)
+    // const userAddress = (query?.viewAddress as string) || account;    
+    // const [msgUpdates, setMsgUpdates] = useState(0)
 
     const { totalEvents: policyEvents, isLoading: isPolicyLoading, feds: policyFeds, dolaSupplies } = useFedHistory();
     const { totalEvents: profitsEvents, totalFedsIncomes, isLoading: isProfitsLoading } = useFedIncome();
 
-    const { fedPolicyMsg } = useFedPolicyMsg(msgUpdates);
+    // const { fedPolicyMsg } = useFedPolicyMsg(msgUpdates);
     const [detailsType, setDetailsType] = useState(slug[0]);
 
     const queryFedIndex = FEDS_WITH_ALL.findIndex(fed => fed.name.replace(' Fed', '').toLowerCase() === queryFedName.toLowerCase())
@@ -138,7 +138,7 @@ export const FedPolicyPage = () => {
                                 {
                                     detailsType === 'policy' ?
                                         <FedAreaChart
-                                            title={`${chosenFed.name} Supply Evolution\n(Current supply: ${chartDataPolicies.length ? shortenNumber(Math.max(chartDataPolicies[chartDataPolicies.length - 1].y, 0), 2) : 0})`}
+                                            title={`${chosenFed.name} Supply Evolution\n(Current supply: ${fedPolicyEvents.length ? shortenNumber(Math.max(fedPolicyEvents[fedPolicyEvents.length - 1][isAllFedsCase ? 'newTotalSupply' : 'newSupply'], 0), 2) : 0})`}
                                             fed={chosenFed}
                                             chartData={chartDataPolicies}
                                             domainYpadding={'auto'}
