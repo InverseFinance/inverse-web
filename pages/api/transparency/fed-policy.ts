@@ -47,9 +47,9 @@ export default async function handler(req, res) {
 
   const { FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
   // to keep for archive
-  const cacheKeyOld = `fed-policy-cache-v1.0.96`;
+  const cacheKeyOld = `fed-policy-cache-v1.1.0`;
   // temp migration
-  const cacheKeyNew = `fed-policy-cache-v1.0.97`;
+  const cacheKeyNew = `fed-policy-cache-v1.1.1`;
 
   try {
     const cacheDuration = 60;
@@ -147,8 +147,6 @@ export default async function handler(req, res) {
       }
     }
 
-    let totalAccumulatedSupply = lastKnownEvent?.newTotalSupply || 0;
-
     let _key = lastKnownEvent?._key ? lastKnownEvent?._key + 1 : 0;
 
     let accumulatedSupplies = {};
@@ -183,11 +181,14 @@ export default async function handler(req, res) {
       .reduce((prev, curr) => prev.concat(curr.events), [] as FedEvent[])
       .sort((a, b) => a.timestamp - b.timestamp)
       .map(event => {
-        totalAccumulatedSupply += event.value
-        return { ...event, newTotalSupply: totalAccumulatedSupply, _key: _key++ }
+        return {
+          ...event,
+          newTotalSupply: Object.values(accumulatedSupplies).reduce((prev, curr) => prev + curr, 0),
+          _key: _key++
+        }
       })
 
-    const fedPolicyMsg = JSON.parse((await client.get('fed-policy-msg')) || '{"msg": "No guidance at the moment","lastUpdate": ' + Date.now() + '}');
+    const fedPolicyMsg = {"msg": "No guidance at the moment","lastUpdate": 1664090872336};
 
     const dolaSuppliesCacheData = (await getCacheFromRedis(cacheDolaSupplies, false)) || { dolaSupplies: [], dolaTotalSupply: 0 };
 
