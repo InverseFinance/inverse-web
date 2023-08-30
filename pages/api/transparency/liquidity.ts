@@ -13,11 +13,12 @@ import { pricesCacheKey } from '../prices';
 import { PROTOCOLS_BY_IMG } from '@app/variables/images';
 import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 
-export const liquidityCacheKey = `liquidity-v1.1.1`;
+export const liquidityCacheKey = `liquidity-v1.1.2`;
 
 const PROTOCOL_DEFILLAMA_MAPPING = {
     "VELO": 'velodrome-v1',
     "VELOV2": 'velodrome-v2',
+    "AERO": 'aerodrome-finance',
     "THENA": 'thena-v1',
     "THENAV2": 'thena-v2',
     "AURA": 'aura',
@@ -83,7 +84,10 @@ export default async function handler(req, res) {
             ...Object
                 .values(CHAIN_TOKENS[NetworkIds.ftm]).filter(({ isLP }) => isLP)
                 .map((lp) => ({ chainId: NetworkIds.ftm, ...lp })),
-        ]
+            ...Object
+                .values(CHAIN_TOKENS[NetworkIds.base]).filter(({ isLP }) => isLP)
+                .map((lp) => ({ chainId: NetworkIds.base, ...lp })),
+        ];
 
         const TWG = multisigsToShow.find(m => m.shortName === 'TWG')!;
 
@@ -100,6 +104,7 @@ export default async function handler(req, res) {
             [NetworkIds.arbitrum]: multisigsToShow.find(m => m.shortName === 'TWG on ARB 1')!,
             [NetworkIds.polygon]: multisigsToShow.find(m => m.shortName === 'TWG on PLG')!,
             [NetworkIds.avalanche]: multisigsToShow.find(m => m.shortName === 'TWG on AVAX')!,
+            [NetworkIds.base]: multisigsToShow.find(m => m.shortName === 'TWG on BASE')!,
         }
 
         const fedPols = fedsOverviewCache?.fedOverviews || [];
@@ -116,15 +121,13 @@ export default async function handler(req, res) {
                 return !!f?.strategy?.pools?.find(p => p.address?.toLowerCase() === lp.address?.toLowerCase());
             });
             const fedPolData = fedPol || relatedFedPol;
-
             const provider = getProvider(lp.chainId);
             const protocol = PROTOCOLS_BY_IMG[lp.protocolImage];
             const defiLlamaProjectName = PROTOCOL_DEFILLAMA_MAPPING[protocol];
             const lpName = lp.symbol.replace(/(-LP|-SLP|-AURA| [a-zA-Z]*lp)/ig, '').replace(/-ETH/ig, '-WETH');
-
             const yieldData = yields.find(y => {
                 return defiLlamaProjectName === y.project
-                    && (y.underlyingTokens?.length > 0 ? y.underlyingTokens.join(',').toLowerCase() === lp.pairs?.join(',').toLowerCase() : y.symbol === lpName)                    
+                    && (y.underlyingTokens?.length > 0 ? y.underlyingTokens.join(',').toLowerCase() === lp.pairs?.join(',').toLowerCase() : y.symbol === lpName)
             });
 
             const subBalances = fedPol?.subBalances || (await getLPBalances(lp, lp.chainId, provider));
@@ -137,26 +140,25 @@ export default async function handler(req, res) {
             const mainPart = subBalances.find(d => d.symbol === (isDolaMain ? 'DOLA' : 'INV'));
             const dolaWorth = (mainPart?.balance || 0) * (prices[isDolaMain ? 'dola-usd' : 'inverse-finance'] || 1);
             const dolaPerc = dolaWorth / srcTvl;
-
             let ownedAmount = 0;
             const owned: { [key: string]: number } = {};
             if (!fedPolData) {
                 const contract = new Contract(lp.lpBalanceContract || lp.address, ERC20_ABI, provider);
-                if (lp.isCrvLP && !!lp.poolAddress) {                    
+                if (lp.isCrvLP && !!lp.poolAddress) {
                     const [lpBal, lpSupply] = await Promise.all([
                         contract.balanceOf(TWG.address),
                         contract.totalSupply(),
                     ]);
                     const share = getBnToNumber(lpBal) / getBnToNumber(lpSupply);
                     owned.twg = share * tvl;
-                } else if (!lp.isUniV3) {                    
+                } else if (!lp.isUniV3) {
                     owned.twg = getBnToNumber(await contract.balanceOf(lp.twgAddress || chainTWG[lp.chainId].address));
                     if (lp.chainId === NetworkIds.mainnet) {
                         // no more
                         // owned.bondsManager = getBnToNumber(await contract.balanceOf(OP_BOND_MANAGER));
                         owned.treasuryContract = getBnToNumber(await contract.balanceOf(TREASURY));
                     }
-                } else {                    
+                } else {
                     // univ3 pool liquidity
                     const univ3liquidity = getBnToNumber(await (new Contract(lp.address, ['function liquidity() public view returns (uint)'], provider)).liquidity());
                     // share of twg
@@ -170,7 +172,7 @@ export default async function handler(req, res) {
                     * (lp.isStable ? virtualLpPrice : (prices[lp.coingeckoId || lp.symbol] || 1));
             } else {
                 ownedAmount = fedPolData.dontUseSupplyForPolCalc ? fedPolData.lpBalance * fedPolData.lpPrice : fedPolData.supply;
-            } 
+            }
             const perc = Math.min(ownedAmount / tvl * 100, 100);
 
             // bb-e-usd exception due to euler exploit to not throw off avgs

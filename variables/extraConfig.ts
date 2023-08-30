@@ -285,14 +285,14 @@ const mainConfig = {
             purpose: 'Ad hoc expenses and short-term hires',            
             chainId: NetworkIds.mainnet,            
         },
-        // {
-        //     address: '0x586CF50c2874f3e3997660c0FD0996B090FB9764',
-        //     name: 'Treasury Working Group on Base',
-        //     shortName: 'TWG on Base',
-        //     purpose: 'Optimize Inverse Treasury management on Base',            
-        //     chainId: NetworkIds.base,
-        //     order: 2.1,
-        // },
+        {
+            address: '0x586CF50c2874f3e3997660c0FD0996B090FB9764',
+            name: 'Treasury Working Group on Base',
+            shortName: 'TWG on BASE',
+            purpose: 'Optimize Inverse Treasury management on Base',            
+            chainId: NetworkIds.base,
+            order: 2.1,
+        },
         // '0x77C64eEF5F4781Dd6e9405a8a77D80567CFD37E0': 'Rewards Committee',
     ],
 };
