@@ -1,8 +1,9 @@
-import { ethers } from 'ethers'
+import { ethers, utils } from 'ethers'
 import 'source-map-support'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import ganache from 'ganache'
 import { getRandomFromStringList } from '@app/util/misc';
+import { parseUnits } from '@ethersproject/units';
 
 const { TREASURY } = getNetworkConfigConstants();
 
@@ -48,7 +49,7 @@ export default async function handler(req, res) {
           from: TREASURY,
           to: action.to,
           data: action.data,
-          value: action.value ? action.value : undefined,
+          value: action.value ? utils.hexStripZeros(parseUnits(action.value, 0).toHexString()) : undefined,
           gasLimit: '0x0f4240',
         }
       ]);
@@ -72,6 +73,6 @@ export default async function handler(req, res) {
     res.status(200).json(result);
   } catch (err) {
     console.error(err);
-    res.status(200).json({ success: false })
+    res.status(200).json({ success: false, hasError: true })
   }
 }
