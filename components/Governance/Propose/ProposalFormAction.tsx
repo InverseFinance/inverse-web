@@ -186,11 +186,7 @@ export const ProposalFormAction = ({
                             : null
                     }
                     <FormControl>
-                        <FormLabel mt="2">
-                            Optional Eth Value
-                            <AnimatedInfoTooltip iconProps={{ ml: '1', fontSize: '12px' }} message="In Wei, so 1000000000000000000 for 1 Eth" />
-                        </FormLabel>
-                        <ProposalInput type="number" placeholder="In WEI" value={value} onChange={(e: any) => onChange('value', e.currentTarget.value)} />
+                        <ProposalFormFuncArg index={0} name="Optional Eth Value" type="uint" placeholder="In WEI" defaultValue={value} onChange={(e: any) => onChange('value', e.currentTarget.value)} />
                     </FormControl>
                 </ScaleFade>
             </Box>
