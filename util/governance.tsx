@@ -1,6 +1,6 @@
 import { getMultiDelegatorContract, getGovernanceContract, getINVContract } from './contracts';
 import { JsonRpcSigner, TransactionReceipt, TransactionResponse } from '@ethersproject/providers';
-import { AbiCoder, isAddress, splitSignature, parseUnits, FunctionFragment, Interface, verifyMessage } from 'ethers/lib/utils'
+import { AbiCoder, isAddress, splitSignature, FunctionFragment, Interface, verifyMessage } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import localforage from 'localforage';
 import { ProposalFormFields, ProposalFormActionFields, ProposalFunction, GovEra, ProposalStatus, NetworkIds, DraftProposal, DraftReview, RefundableTransaction } from '@app/types';
@@ -140,7 +140,7 @@ export const submitProposal = (signer: JsonRpcSigner, proposalForm: ProposalForm
             // propose(address[] targets, uint256[] values, string[] signatures, bytes[] calldata, string description) public returns (uint)
             resolve(contract.propose(
                 actions.map(a => a.contractAddress),
-                actions.map(a => parseUnits((a.value || '0').toString())),
+                actions.map(a => a.value || '0'),
                 actions.map(a => a.fragment!.format('sighash')),
                 calldatas,
                 text,
@@ -156,11 +156,12 @@ export const getFunctionsFromProposalActions = (actions: ProposalFormActionField
     return actions.map(getFunctionFromProposalAction);
 }
 
-export const getFunctionFromProposalAction = (action: ProposalFormActionFields): ProposalFunction => {
+export const getFunctionFromProposalAction = (action: ProposalFormActionFields): ProposalFunction => {    
     return {
         target: action.contractAddress,
         callData: getCallData(action),
         signature: action.fragment?.format('sighash') || '',
+        value: action.value || '',
     }
 }
 
@@ -168,7 +169,7 @@ export const getProposalActionFromFunction = (actionId: number, func: ProposalFu
     const fragment = FunctionFragment.from(func.signature);
     return {
         actionId,
-        value: '',
+        value: !func.value || func.value === '0' ? '' : func.value,
         contractAddress: func.target,
         args: getArgs(fragment, func.callData),
         fragment,
@@ -432,7 +433,7 @@ export const simulateOnChainActions = async (
         const actions = functions.map(f => {
             const iface = new Interface([`function ${f.signature}`]);
             const data = `${iface.getSighash(f.signature)}${f.callData.replace('0x', '')}`;
-            return { to: f.target, data }
+            return { to: f.target, data, value: f.value }
         })
 
         const rawResponse = await fetch(`/api/drafts/sim`, {

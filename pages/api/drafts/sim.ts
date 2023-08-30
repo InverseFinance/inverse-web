@@ -48,6 +48,7 @@ export default async function handler(req, res) {
           from: TREASURY,
           to: action.to,
           data: action.data,
+          value: action.value ? action.value : undefined,
           gasLimit: '0x0f4240',
         }
       ]);

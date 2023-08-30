@@ -1,5 +1,5 @@
 import { ProposalFunction } from '@app/types'
-import { AbiCoder, commify, FunctionFragment, isAddress, parseUnits } from 'ethers/lib/utils';
+import { AbiCoder, commify, FunctionFragment, isAddress, parseUnits, formatEther } from 'ethers/lib/utils';
 import { Stack, Flex, Text, StackProps } from '@chakra-ui/react';
 import Link from '@app/components/common/Link'
 import { namedAddress, shortenAddress } from '@app/util';
@@ -203,16 +203,16 @@ const FirmDbrDistributorHumanReadableActionLabel = ({
 
     switch (funName) {
         case 'setRewardRate':
-            const yearlyReward = getBnToNumber(parseUnits(callDatas[0]), 36) * ONE_DAY_SECS * 365;            
+            const yearlyReward = getBnToNumber(parseUnits(callDatas[0]), 36) * ONE_DAY_SECS * 365;
             text = <Flex display="inline-block">
                 Set the reward rate to <Text display="inline-block" fontWeight="bold" color="secondary">{preciseCommify(yearlyReward)}</Text> DBR a year
             </Flex>
             break;
-        case 'setRewardRateConstraints':            
+        case 'setRewardRateConstraints':
             const min = getBnToNumber(parseUnits(callDatas[0]), 36) * ONE_DAY_SECS * 365;
             const max = getBnToNumber(parseUnits(callDatas[1]), 36) * ONE_DAY_SECS * 365;
-            const minText = <Text display="inline-block" fontWeight="bold" color="secondary">{preciseCommify(min)}</Text>;       
-            const maxText = <Text display="inline-block" fontWeight="bold" color="secondary">{preciseCommify(max)}</Text>;       
+            const minText = <Text display="inline-block" fontWeight="bold" color="secondary">{preciseCommify(min)}</Text>;
+            const maxText = <Text display="inline-block" fontWeight="bold" color="secondary">{preciseCommify(max)}</Text>;
             text = <Flex display="inline-block">
                 Set the min reward rate to {minText} DBR a year and the max to {maxText} DBR a year
             </Flex>
@@ -443,6 +443,7 @@ export const ProposalActionPreview = (({
     signature,
     callData,
     num,
+    value,
     ...props
 }: ProposalFunction & { num?: number } & StackProps) => {
     const callDatas = new AbiCoder()
@@ -526,6 +527,11 @@ export const ProposalActionPreview = (({
                     )}
                 </Flex>
                 {callDatas[0] && <Text>)</Text>}
+                {
+                    !!value && value !== '0' && <Text mt="2" fontSize="14px">
+                        Value to send from Treasury alongside the call: <b>{formatEther(value)} Eth</b>
+                    </Text>
+                }
             </Flex>
         </Stack>
     )
