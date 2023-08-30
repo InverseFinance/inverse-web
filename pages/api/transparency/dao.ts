@@ -37,7 +37,7 @@ export const cacheMultisigDataKey = `dao-multisigs-data-v1.0.6`;
 export default async function handler(req, res) {
 
   const { DOLA, INV, ANCHOR_TOKENS, UNDERLYING, FEDS, TREASURY, MULTISIGS, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `dao-cache-v1.3.9`;
+  const cacheKey = `dao-cache-v1.3.91`;
 
   try {
     const cacheDuration = 300;
