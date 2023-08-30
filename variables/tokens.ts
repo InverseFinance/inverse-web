@@ -197,6 +197,7 @@ const chainTokenAddresses = {
     MAI: '0xbf1aeA8670D2528E08334083616dD9C5F3B087aE',
     AERODOLAMAILP: '0x8b432C54d6e8E1B8D1802753514AB53044Af1861',
     AERODOLAUSDCLP: '0x0B25c51637c43decd6CC1C1e3da4518D54ddb528',
+    VEAERO: '0xeBf418Fe2512e7E6bd9b87a8F0f294aCDC67e6B4',
   },
 }
 chainTokenAddresses["31337"] = chainTokenAddresses["1"];
@@ -1724,6 +1725,15 @@ const chainTokens = {
     [chainTokenAddresses["8453"].MAI]: {
       ...MAI,
       address: chainTokenAddresses["8453"].MAI,
+    },
+    [chainTokenAddresses["8453"].VEAERO]: {
+      address: chainTokenAddresses["8453"].VEAERO,
+      name: 'veAERO',
+      symbol: 'veAERO',
+      image: TOKEN_IMAGES.AERO,
+      decimals: 18,
+      // coingeckoId: 'velodrome-finance',
+      veNftId: '7',
     },
     [chainTokenAddresses["8453"].AERODOLAMAILP]: {
       address: chainTokenAddresses["8453"].AERODOLAMAILP,

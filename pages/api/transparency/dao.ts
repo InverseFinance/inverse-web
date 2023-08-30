@@ -36,7 +36,7 @@ export const cacheMultisigDataKey = `dao-multisigs-data-v1.0.6`;
 
 export default async function handler(req, res) {
 
-  const { DOLA, INV, ANCHOR_TOKENS, UNDERLYING, FEDS, TREASURY, MULTISIGS, TOKENS, OP_BOND_MANAGER, DOLA3POOLCRV, DOLA_PAYROLL, XINV_VESTOR_FACTORY } = getNetworkConfigConstants(NetworkIds.mainnet);
+  const { DOLA, INV, ANCHOR_TOKENS, UNDERLYING, FEDS, TREASURY, MULTISIGS, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
   const cacheKey = `dao-cache-v1.3.9`;
 
   try {
@@ -153,6 +153,7 @@ export default async function handler(req, res) {
       [NetworkIds.arbitrum]: Object.keys(CHAIN_TOKENS[NetworkIds.arbitrum]).filter(key => isAddress(key)),
       [NetworkIds.polygon]: Object.keys(CHAIN_TOKENS[NetworkIds.polygon]).filter(key => isAddress(key)),
       [NetworkIds.avalanche]: Object.keys(CHAIN_TOKENS[NetworkIds.avalanche]).filter(key => isAddress(key)),
+      [NetworkIds.base]: Object.keys(CHAIN_TOKENS[NetworkIds.base]).filter(key => isAddress(key)),
     }
 
     const [multisigBalCache, liquidityCacheData] = await Promise.all([
