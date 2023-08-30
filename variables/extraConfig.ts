@@ -86,7 +86,7 @@ const mainConfig = {
             escrowImplementation: FIRM_ESCROWS.simple,            
             helper: true,
             oracleType: "chainlink",
-            badgeInfo: 'High CF',
+            badgeInfo: 'DeFi Bluechip',
             startingBlock: 16833304,
             isInv: false,            
         },
