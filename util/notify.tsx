@@ -54,7 +54,7 @@ export const showFailNotif = (_e: any, isFromTx?: boolean) => {
         })
     } else {
         const revertMsg = "reverted with reason string ";
-        const reasonStringIdx = e?.data?.message.indexOf(revertMsg);
+        const reasonStringIdx = !e?.data?.message ? -1 : e?.data?.message.indexOf(revertMsg);
         showToast({
             title: `${isFromTx ? 'Transaction prevented' : 'Action failed'}`,
             status: 'warning',
