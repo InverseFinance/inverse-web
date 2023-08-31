@@ -169,7 +169,7 @@ export const F2CombinedForm = ({
             return f2repay(signer, market.address, parseUnits(debtAmount));
         } else if (action === 'd&b') {
             if (useLeverage) {
-                return prepareLeveragePosition(signer, market, getNumberToBn(debtAmountNum), parseUnits(collateralAmount||'0', market.underlying.decimals));
+                return prepareLeveragePosition(signer, market, getNumberToBn(debtAmountNum), parseUnits(collateralAmount || '0', market.underlying.decimals));
             }
             else if (isAutoDBR || isUseNativeCoin) {
                 return f2depositAndBorrowHelper(
@@ -284,12 +284,14 @@ export const F2CombinedForm = ({
                                 >
                                     Easily convert between ETH to WETH
                                 </Text>
-                                <FormControl w='fit-content' display='flex' alignItems='center'>
-                                    <FormLabel fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-eth' mb='0'>
-                                        Use ETH instead of WETH?
-                                    </FormLabel>
-                                    <Switch onChange={() => setIsUseNativeCoin(!isUseNativeCoin)} isChecked={isUseNativeCoin} id='auto-eth' />
-                                </FormControl>
+                                {
+                                    !useLeverage && <FormControl w='fit-content' display='flex' alignItems='center'>
+                                        <FormLabel fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-eth' mb='0'>
+                                            Use ETH instead of WETH?
+                                        </FormLabel>
+                                        <Switch onChange={() => setIsUseNativeCoin(!isUseNativeCoin)} isChecked={isUseNativeCoin} id='auto-eth' />
+                                    </FormControl>
+                                }
                             </HStack>
                         }
                         {/* <AmountInfos label="Total Deposits" value={deposits} price={market.price} delta={deltaCollateral} textProps={{ fontSize: '14px' }} /> */}
@@ -343,7 +345,12 @@ export const F2CombinedForm = ({
                                 onMaxAction={({ bnAmount }) => handleAction()}
                                 actionLabel={btnLabel}
                                 maxActionLabel={btnMaxlabel}
-                                onAmountChange={handleDebtChange}
+                                onAmountChange={(v,s) => {
+                                    const desiredWorth = deposits*market.price+s;
+                                    const leverage = desiredWorth/(deposits*market.price)
+                                    setLeverage(leverage);
+                                    handleDebtChange(v);
+                                }}
                                 showMax={!isDeposit}
                                 showMaxBtn={!isDeposit}
                                 hideInputIfNoAllowance={false}
@@ -423,12 +430,14 @@ export const F2CombinedForm = ({
                             }
                         </FormControl>
                     }
-                    <FormControl w='fit-content' display='flex' alignItems='center'>
-                        <FormLabel fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-dbr' mb='0'>
-                            Leverage?
-                        </FormLabel>
-                        <Switch onChange={() => setUseLeverage(!useLeverage)} isChecked={useLeverage} id='auto-dbr' />
-                    </FormControl>
+                    {
+                        !isUseNativeCoin && <FormControl w='fit-content' display='flex' alignItems='center'>
+                            <FormLabel fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='leverage-switch' mb='0'>
+                                Leverage?
+                            </FormLabel>
+                            <Switch onChange={() => setUseLeverage(!useLeverage)} isChecked={useLeverage} id='leverage-switch' />
+                        </FormControl>
+                    }
                     {/* {
                         deposits > 0 && <Text
                             cursor='pointer'
@@ -580,12 +589,13 @@ export const F2CombinedForm = ({
                 <Stack justify="space-between" w='full' spacing="4" direction={{ base: 'column' }}>
                     {leftPart}
                     {
-                        useLeverage && <FirmBoostInfos
-                            debtAmount={debtAmountNum}
+                        useLeverage && <FirmBoostInfos                   
                             onLeverageChange={({
                                 deltaBorrow, deltaCollateral
                             }) => {
-                                handleDebtChange(deltaBorrow.toString());
+                                if(deltaBorrow.toFixed(2) !== debtAmountNum.toFixed(2)){
+                                    handleDebtChange(deltaBorrow.toFixed(2));
+                                }
                                 setLeverageCollateralAmount(deltaCollateral.toString());
                             }}
                         />

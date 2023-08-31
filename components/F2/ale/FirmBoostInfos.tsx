@@ -62,11 +62,9 @@ const RiskBadge = ({ color, text, onClick }: { color: BadgeProps["bgColor"], tex
 }
 
 export const FirmBoostInfos = ({
-    type = 'up',
-    debtAmount,
+    type = 'up',    
     onLeverageChange,
-}: {
-    debtAmount?: number,
+}: {    
     type?: 'up' | 'down',    
     onLeverageChange: ({ }) => void
 }) => {
@@ -211,6 +209,9 @@ export const FirmBoostInfos = ({
     }, [deltaBorrow, newBorrowLimit, newDebt, deltaCollateral], 100);
 
     useEffect(() => {
+        if(leverageLevel !== minLeverage){
+            return;
+        }
         const length = leverageSteps.length;
         setLeverageLevel(length > 2 ? leverageSteps[Math.floor(length / 2)] : 1);
     }, [leverageSteps]);
@@ -249,6 +250,7 @@ export const FirmBoostInfos = ({
                 step={0.01}
                 aria-label='slider-ex-4'
                 defaultValue={leverageLevel}
+                focusThumbOnChange={false}
             >
                 <SliderTrack h="10px" bg='red.100'>
                     <SliderFilledTrack bg={risk.color} />
