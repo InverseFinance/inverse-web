@@ -30,7 +30,7 @@ import { preciseCommify } from '@app/util/misc'
 import { FirmBoostInfos } from '../ale/FirmBoostInfos'
 import { prepareLeveragePosition } from '@app/util/firm-ale'
 
-const { DOLA, F2_HELPER, DBR } = getNetworkConfigConstants();
+const { DOLA, F2_HELPER, DBR, F2_ALE } = getNetworkConfigConstants();
 
 const dolaToken = TOKENS[DOLA];
 const dbrToken = TOKENS[DBR];
@@ -523,14 +523,14 @@ export const F2CombinedForm = ({
         <SimpleAmountForm
             defaultAmount={isRepayCase ? debtAmount : collateralAmount}
             address={isWithdrawOnlyCase || isBorrowOnlyCase ? '' : isRepayCase ? DOLA : isUseNativeCoin ? '' : market.collateral}
-            destination={isAutoDBR || isUseNativeCoin ? F2_HELPER : market.address}
+            destination={useLeverage ? F2_ALE : isAutoDBR || isUseNativeCoin ? F2_HELPER : market.address}
             signer={signer}
             decimals={colDecimals}
             maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
             onAction={({ bnAmount }) => handleAction()}
             onMaxAction={({ bnAmount }) => handleWithdrawMax()}
             actionLabel={isSigNeeded ? `Sign + ${modeLabel}` : modeLabel}
-            approveLabel={isAutoDBR && isDeposit ? 'Step 1/3 - Approve' : undefined}
+            approveLabel={(isAutoDBR || useLeverage) && isDeposit ? 'Step 1/3 - Approve' : undefined}
             maxActionLabel={'Unstake all'}
             onAmountChange={handleCollateralChange}
             showMaxBtn={market.isInv && isWithdrawCase && !debt}
