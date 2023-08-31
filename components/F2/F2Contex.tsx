@@ -65,6 +65,8 @@ export const F2Context = ({
     const [durationTypedValue, setDurationTypedValue] = useState(12);
     const [collateralAmount, setCollateralAmount] = useState('');
     const [debtAmount, setDebtAmount] = useState('');
+    const [leverageCollateralAmount, setLeverageCollateralAmount] = useState('');
+    const [leverageDebtAmount, setLeverageDebtAmount] = useState('');
     const [dbrSellAmount, setDbrSellAmount] = useState('');
     const [dbrBuySlippage, setDbrBuySlippage] = useState('1');
     const [isDeposit, setIsDeposit] = useState(true);
@@ -72,7 +74,7 @@ export const F2Context = ({
     const [isUseNativeCoin, setIsUseNativeCoin] = useState(false);
     const [needRefreshRewards, setNeedRefreshRewards] = useState(true);
     const [useLeverage, setUseLeverage] = useState(false);
-    const [leverage, setLeverage] = useState(2);
+    const [leverage, setLeverage] = useState(1.01);
     const [mode, setMode] = useState('Deposit & Borrow');
     const [infoTab, setInfoTab] = useState('Summary');
     const [maxBorrowable, setMaxBorrowable] = useState(0);
@@ -95,6 +97,12 @@ export const F2Context = ({
     const debtAmountNum = parseFloat(debtAmount || '0') || 0;// NaN => 0
     const collateralAmountNum = parseFloat(collateralAmount || '0') || 0;
 
+    const leverageDebtAmountNum = parseFloat(leverageDebtAmount || '0') || 0;// NaN => 0
+    const leverageCollateralAmountNum = parseFloat(leverageCollateralAmount || '0') || 0;
+
+    const totalDebtAmountNum = debtAmountNum + (useLeverage ? leverageDebtAmountNum : 0);
+    const totalCollateralAmountNum = collateralAmountNum + (useLeverage ? leverageCollateralAmountNum : 0);
+
     const dbrApproxData = useDBRNeeded(debtAmount, duration);
 
     const dbrCover = isAutoDBR ? dbrApproxData.dbrNeededNum : debtAmountNum / (365 / duration);
@@ -106,8 +114,8 @@ export const F2Context = ({
     const hasCollateralChange = ['deposit', 'd&b', 'withdraw', 'r&w'].includes(MODES[mode]);
     const hasDebtChange = ['borrow', 'd&b', 'repay', 'r&w'].includes(MODES[mode]);
 
-    const deltaCollateral = isDeposit ? collateralAmountNum : -collateralAmountNum;
-    const deltaDebt = isDeposit ? debtAmountNum : -debtAmountNum;
+    const deltaCollateral = isDeposit ? totalCollateralAmountNum : -totalCollateralAmountNum;
+    const deltaDebt = isDeposit ? totalDebtAmountNum : -totalDebtAmountNum;
 
     const {
         newDebt
@@ -138,7 +146,7 @@ export const F2Context = ({
         deposits,
         debt,
         hasCollateralChange ? deltaCollateral : 0,
-        hasDebtChange ? isDeposit ? 0 : -(Math.min(debtAmountNum, debt)) : 0,
+        hasDebtChange ? isDeposit ? 0 : -(Math.min(totalDebtAmountNum, debt)) : 0,
         perc,
     );
 
@@ -169,7 +177,7 @@ export const F2Context = ({
                 dbrPrice,
                 duration,
                 deltaCollateral,
-                isDeposit ? 0 : -debtAmountNum,
+                isDeposit ? 0 : -totalDebtAmountNum,
                 maxBorrow,
                 perc,
                 isAutoDBR,
@@ -180,7 +188,7 @@ export const F2Context = ({
             setMaxBorrowable(newMaxBorrowable);
         }
         init();
-    }, [market, deposits, debt, debtAmountNum, dbrPrice, deltaCollateral, duration, collateralAmount, maxBorrow, perc, isDeposit, isAutoDBR]);
+    }, [market, deposits, debt, debtAmountNum, totalDebtAmountNum, dbrPrice, deltaCollateral, duration, collateralAmount, maxBorrow, perc, isDeposit, isAutoDBR]);
 
     const handleCollateralChange = (stringNumber: string) => {
         setCollateralAmount(stringNumber);
@@ -325,6 +333,7 @@ export const F2Context = ({
             isFirmLeverageEngineOpen,
             onFirmLeverageEngineOpen,
             onFirmLeverageEngineClose,
+            setLeverageCollateralAmount,
             isFirstTimeModalOpen,
             firmActionIndex,
             setFirmActionIndex,

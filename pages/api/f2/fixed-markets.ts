@@ -18,13 +18,13 @@ export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.96`;
 export default async function handler(req, res) {
   const { cacheFirst } = req.query;
   try {
-    const cacheDuration = 60;
+    const cacheDuration = 99999;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const { data: cachedData, isValid } = await getCacheFromRedisAsObj(F2_MARKETS_CACHE_KEY, cacheFirst !== 'true', cacheDuration);
-    if (cachedData && isValid) {
+    // if (cachedData && isValid) {
       res.status(200).json(cachedData);
       return
-    }
+    // }
 
     const provider = getProvider(CHAIN_ID);
     const dolaContract = new Contract(DOLA, DOLA_ABI, provider);

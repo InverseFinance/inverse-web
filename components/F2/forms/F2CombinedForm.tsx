@@ -27,6 +27,8 @@ import { FirmLeverageModal } from '../Modals/FirmLeverageModal'
 import { RSubmitButton } from '@app/components/common/Button/RSubmitButton'
 import { FEATURE_FLAGS } from '@app/config/features'
 import { preciseCommify } from '@app/util/misc'
+import { FirmBoostInfos } from '../ale/FirmBoostInfos'
+import { prepareLeveragePosition } from '@app/util/firm-ale'
 
 const { DOLA, F2_HELPER, DBR } = getNetworkConfigConstants();
 
@@ -94,6 +96,7 @@ export const F2CombinedForm = ({
         useLeverage,
         leverage,
         setLeverage,
+        setLeverageCollateralAmount,
     } = useContext(F2MarketContext);
 
     const [syncedMinH, setSyncedMinH] = useState('230px');
@@ -108,7 +111,7 @@ export const F2CombinedForm = ({
     const isRepayCase = ['repay', 'r&w'].includes(MODES[mode]);
     const isBorrowOnlyCase = 'borrow' === MODES[mode];
     const isWithdrawOnlyCase = 'withdraw' === MODES[mode];
-    const isSigNeeded = ((isBorrowCase || isWithdrawCase) && isAutoDBR) || ((isDepositCase || isWithdrawCase) && isUseNativeCoin);
+    const isSigNeeded = useLeverage || ((isBorrowCase || isWithdrawCase) && isAutoDBR) || ((isDepositCase || isWithdrawCase) && isUseNativeCoin);
 
     const handleWithdrawMax = () => {
         if (!signer) { return }
@@ -117,11 +120,6 @@ export const F2CombinedForm = ({
 
     const handleAction = async () => {
         if (!signer) { return }
-
-        // if(isBorrowCase && hasDbrV1NewBorrowIssue) {
-        //     onDbrV1NewBorrowIssueModalOpen();            
-        //     return;
-        // }
         if (!notFirstTime && isBorrowCase) {
             const firstTimeAction = await onFirstTimeModalOpen();
             if (firstTimeAction !== 'continue') {
@@ -144,7 +142,10 @@ export const F2CombinedForm = ({
         if (action === 'deposit') {
             return f2deposit(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), isUseNativeCoin);
         } else if (action === 'borrow') {
-            if (isAutoDBR) {
+            if (useLeverage) {
+                return prepareLeveragePosition(signer, market, getNumberToBn(debtAmountNum));
+            }
+            else if (isAutoDBR) {
                 return f2depositAndBorrowHelper(
                     signer,
                     market.address,
@@ -167,7 +168,10 @@ export const F2CombinedForm = ({
             }
             return f2repay(signer, market.address, parseUnits(debtAmount));
         } else if (action === 'd&b') {
-            if (isAutoDBR || isUseNativeCoin) {
+            if (useLeverage) {
+                return prepareLeveragePosition(signer, market, getNumberToBn(debtAmountNum), parseUnits(collateralAmount||'0', market.underlying.decimals));
+            }
+            else if (isAutoDBR || isUseNativeCoin) {
                 return f2depositAndBorrowHelper(
                     signer,
                     market.address,
@@ -419,16 +423,22 @@ export const F2CombinedForm = ({
                             }
                         </FormControl>
                     }
-                    {
-                        deposits > 0 && <Text       
-                            cursor='pointer'                     
+                    <FormControl w='fit-content' display='flex' alignItems='center'>
+                        <FormLabel fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-dbr' mb='0'>
+                            Leverage?
+                        </FormLabel>
+                        <Switch onChange={() => setUseLeverage(!useLeverage)} isChecked={useLeverage} id='auto-dbr' />
+                    </FormControl>
+                    {/* {
+                        deposits > 0 && <Text
+                            cursor='pointer'
                             color="accentTextColor"
-                            textDecoration='underline'                            
+                            textDecoration='underline'
                             fontSize='14px'
                             onClick={() => onFirmLeverageEngineOpen()}>
                             Leverage {isDeposit ? 'Up' : 'Down'}
                         </Text>
-                    }
+                    } */}
                 </HStack>
             </VStack>
         }
@@ -500,7 +510,7 @@ export const F2CombinedForm = ({
     </VStack>
 
     const disabledConditions = {
-        'deposit': collateralAmountNum <= 0 || collateralBalance < collateralAmountNum,
+        'deposit': !useLeverage && (collateralAmountNum <= 0 || collateralBalance < collateralAmountNum),
         'borrow': duration <= 0 || debtAmountNum <= 0 || newPerc < 1 || (isDeposit && !isAutoDBR && dbrBalance <= 0) || market.leftToBorrow < 1 || debtAmountNum > market.leftToBorrow || notEnoughToBorrowWithAutobuy || minDebtDisabledCondition,
         'repay': debtAmountNum <= 0 || debtAmountNum > debt || debtAmountNum > dolaBalance || (isAutoDBR && !parseFloat(dbrSellAmount)),
         'withdraw': collateralAmountNum <= 0 || collateralAmountNum > deposits || newPerc < 1 || dbrBalance < 0,
@@ -569,6 +579,17 @@ export const F2CombinedForm = ({
                 />
                 <Stack justify="space-between" w='full' spacing="4" direction={{ base: 'column' }}>
                     {leftPart}
+                    {
+                        useLeverage && <FirmBoostInfos
+                            debtAmount={debtAmountNum}
+                            onLeverageChange={({
+                                deltaBorrow, deltaCollateral
+                            }) => {
+                                handleDebtChange(deltaBorrow.toString());
+                                setLeverageCollateralAmount(deltaCollateral.toString());
+                            }}
+                        />
+                    }
                     {['d&b', 'borrow'].includes(MODES[mode]) && isAutoDBR && <Divider borderColor="#cccccc66" />}
                     {['d&b', 'borrow'].includes(MODES[mode]) && isAutoDBR && durationPart}
                     {['r&w', 'repay'].includes(MODES[mode]) && isAutoDBR && sellDbrAmountPart}
