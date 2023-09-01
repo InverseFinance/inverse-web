@@ -169,7 +169,14 @@ export const F2CombinedForm = ({
             return f2repay(signer, market.address, parseUnits(debtAmount));
         } else if (action === 'd&b') {
             if (useLeverage) {
-                return prepareLeveragePosition(signer, market, getNumberToBn(debtAmountNum), parseUnits(collateralAmount || '0', market.underlying.decimals));
+                return prepareLeveragePosition(
+                    signer,
+                    market, getNumberToBn(debtAmountNum),
+                    parseUnits(collateralAmount || '0', market.underlying.decimals),
+                    undefined,
+                    isAutoDBR ? dbrBuySlippage : undefined,
+                    isAutoDBR ? duration : 0,
+                );
             }
             else if (isAutoDBR || isUseNativeCoin) {
                 return f2depositAndBorrowHelper(
@@ -345,9 +352,9 @@ export const F2CombinedForm = ({
                                 onMaxAction={({ bnAmount }) => handleAction()}
                                 actionLabel={btnLabel}
                                 maxActionLabel={btnMaxlabel}
-                                onAmountChange={(v,s) => {
-                                    const desiredWorth = deposits*market.price+s;
-                                    const leverage = desiredWorth/(deposits*market.price)
+                                onAmountChange={(v, s) => {
+                                    const desiredWorth = deposits * market.price + s;
+                                    const leverage = desiredWorth / (deposits * market.price)
                                     setLeverage(leverage);
                                     handleDebtChange(v);
                                 }}
@@ -589,11 +596,11 @@ export const F2CombinedForm = ({
                 <Stack justify="space-between" w='full' spacing="4" direction={{ base: 'column' }}>
                     {leftPart}
                     {
-                        useLeverage && <FirmBoostInfos                   
+                        useLeverage && <FirmBoostInfos
                             onLeverageChange={({
                                 deltaBorrow, deltaCollateral
                             }) => {
-                                if(deltaBorrow.toFixed(2) !== debtAmountNum.toFixed(2)){
+                                if (deltaBorrow.toFixed(2) !== debtAmountNum.toFixed(2)) {
                                     handleDebtChange(deltaBorrow.toFixed(2));
                                 }
                                 setLeverageCollateralAmount(deltaCollateral.toString());

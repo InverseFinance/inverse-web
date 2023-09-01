@@ -2,9 +2,10 @@ import { BigNumber, Contract } from "ethers";
 import { getNetworkConfigConstants } from "./networks";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { F2_ALE_ABI } from "@app/config/abis";
-import { getFirmSignature } from "./f2";
+import { f2approxDbrAndDolaNeeded, getFirmSignature, getHelperDolaAndDbrParams } from "./f2";
 import { F2Market } from "@app/types";
 import { get0xSellQuote } from "./zero";
+import { BURN_ADDRESS } from "@app/config/constants";
 
 const { F2_ALE, DOLA } = getNetworkConfigConstants();
 
@@ -15,16 +16,29 @@ export const getAleContract = (signer: JsonRpcSigner) => {
 export const prepareLeveragePosition = async (
     signer: JsonRpcSigner,
     market: F2Market,
-    dolaToBorrow: BigNumber,
+    dolaToBorrowToBuyCollateral: BigNumber,
     initialDeposit?: BigNumber,
     slippage?: number,
+    dbrBuySlippage?: string | number,
+    durationDays?: number,
 ) => {
-    const signatureResult = await getFirmSignature(signer, market.address, dolaToBorrow, 'BorrowOnBehalf', F2_ALE);
+    // return getAleContract(signer).setMarket(market.collateral, market.address, market.collateral, BURN_ADDRESS);
+    let dbrApprox;
+    let dbrInputs = { dolaParam: '0', dbrParam: '0' };
+    if(durationDays && dbrBuySlippage) {
+        dbrApprox = await f2approxDbrAndDolaNeeded(signer, dolaToBorrowToBuyCollateral, dbrBuySlippage, durationDays);
+        dbrInputs = getHelperDolaAndDbrParams('curve-v2', durationDays, dbrApprox);
+    }
+    const totalDolaToBorrow = dbrApprox?.maxDola || dolaToBorrowToBuyCollateral;
+    // in ALE totalDolaToBorrow will be minted and borrowed
+    const signatureResult = await getFirmSignature(signer, market.address, totalDolaToBorrow, 'BorrowOnBehalf', F2_ALE);
+
     if (signatureResult) {
         const { deadline, r, s, v } = signatureResult;
         let get0xQuoteResult;
         try {
-            get0xQuoteResult = await get0xSellQuote(market.collateral, DOLA, dolaToBorrow.toString(), slippage);
+            // the dola swapped for collateral is dolaToBorrowToBuyCollateral not totalDolaToBorrow (a part is for dbr)
+            get0xQuoteResult = await get0xSellQuote(market.collateral, DOLA, dolaToBorrowToBuyCollateral.toString(), slippage);
             if (!get0xQuoteResult?.to) {
                 const msg = get0xQuoteResult?.validationErrors?.length > 0 ?
                     `Swap validation failed with: ${get0xQuoteResult?.validationErrors[0].field} ${get0xQuoteResult?.validationErrors[0].reason}`
@@ -38,11 +52,12 @@ export const prepareLeveragePosition = async (
         const { data: swapData, allowanceTarget, to: swapTarget, value, buyTokenAddress } = get0xQuoteResult;
         const permitData = [deadline, v, r, s];
         const helperTransformData = '0x';
-        const dbrData = ['0', '0'];
+        // dolaIn, minDbrOut
+        const dbrData = [dbrInputs.dolaParam, dbrInputs.dbrParam];        
         if (initialDeposit && initialDeposit.gt(0)) {
             return depositAndLeveragePosition(
                 signer,
-                dolaToBorrow,
+                dolaToBorrowToBuyCollateral,
                 buyTokenAddress,
                 allowanceTarget,
                 swapData,
@@ -54,7 +69,7 @@ export const prepareLeveragePosition = async (
             )
         }
         return leveragePosition(
-            signer, dolaToBorrow, buyTokenAddress, allowanceTarget, swapData, permitData, helperTransformData, dbrData, value,
+            signer, dolaToBorrowToBuyCollateral, buyTokenAddress, allowanceTarget, swapData, permitData, helperTransformData, dbrData, value,
         );
     }
     return Promise.reject("Signature failed or canceled");

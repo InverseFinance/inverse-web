@@ -193,12 +193,12 @@ export const f2depositAndBorrowHelper = async (
     durationDays: number,
     isNativeCoin = false,
     isBorrowOnly = false,
-    helperType = DEFAULT_FIRM_HELPER_TYPE,
+    dbrHelperType = DEFAULT_FIRM_HELPER_TYPE,
 ) => {
-    const approx = await f2approxDbrAndDolaNeeded(signer, borrow, dbrBuySlippage, durationDays, helperType);
+    const approx = await f2approxDbrAndDolaNeeded(signer, borrow, dbrBuySlippage, durationDays, dbrHelperType);
 
     const signatureResult = await getFirmSignature(signer, market, !durationDays ? borrow : approx.maxDola, 'BorrowOnBehalf');
-    const { dolaParam, dbrParam } = getHelperDolaAndDbrParams(helperType, durationDays, approx);
+    const { dolaParam, dbrParam } = getHelperDolaAndDbrParams(dbrHelperType, durationDays, approx);
 
     if (signatureResult) {
         const { deadline, r, s, v } = signatureResult;
