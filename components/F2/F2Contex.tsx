@@ -76,6 +76,7 @@ export const F2Context = ({
     const [useLeverage, setUseLeverage] = useState(false);
     const [leverage, setLeverage] = useState(1.01);
     const [mode, setMode] = useState('Deposit & Borrow');
+    const useLeverageInMode = useLeverage && ['Deposit & Borrow', 'Repay & Withdraw'].includes(mode);
     const [infoTab, setInfoTab] = useState('Summary');
     const [maxBorrowable, setMaxBorrowable] = useState(0);
     // increment on successful firm tx
@@ -100,8 +101,8 @@ export const F2Context = ({
     const leverageDebtAmountNum = parseFloat(leverageDebtAmount || '0') || 0;// NaN => 0
     const leverageCollateralAmountNum = parseFloat(leverageCollateralAmount || '0') || 0;
 
-    const totalDebtAmountNum = debtAmountNum + (useLeverage ? leverageDebtAmountNum : 0);
-    const totalCollateralAmountNum = collateralAmountNum + (useLeverage ? leverageCollateralAmountNum : 0);
+    const totalDebtAmountNum = debtAmountNum + (useLeverageInMode ? leverageDebtAmountNum : 0);
+    const totalCollateralAmountNum = collateralAmountNum + (useLeverageInMode ? leverageCollateralAmountNum : 0);
 
     const dbrApproxData = useDBRNeeded(debtAmount, duration);
 
@@ -309,6 +310,7 @@ export const F2Context = ({
             needRefreshRewards,
             dbrApproxData,
             useLeverage,
+            useLeverageInMode,
             setUseLeverage,
             leverage,
             setLeverage,
@@ -334,6 +336,7 @@ export const F2Context = ({
             onFirmLeverageEngineOpen,
             onFirmLeverageEngineClose,
             setLeverageCollateralAmount,
+            leverageCollateralAmount,
             isFirstTimeModalOpen,
             firmActionIndex,
             setFirmActionIndex,

@@ -64,9 +64,11 @@ const RiskBadge = ({ color, text, onClick }: { color: BadgeProps["bgColor"], tex
 export const FirmBoostInfos = ({
     type = 'up',    
     onLeverageChange,
+    showDetails = false,
 }: {    
     type?: 'up' | 'down',    
     onLeverageChange: ({ }) => void
+    showDetails: boolean
 }) => {
     const {
         market,
@@ -80,40 +82,41 @@ export const FirmBoostInfos = ({
         leverage: leverageLevel,
         setLeverage: setLeverageLevel,
         debtAmountNum,
+        onFirmLeverageEngineOpen,
     } = useContext(F2MarketContext);
 
-    // const borrowApy = dbrPrice * 100;
+    const borrowApy = dbrPrice * 100;
     const minLeverage = 1.01;
     // const [leverageLevel, setLeverageLevel] = useState(minLeverage || _leverageLevel);
     const [editLeverageLevel, setEditLeverageLevel] = useState(leverageLevel.toString());
     const [debounced, setDebounced] = useState(true);
 
-    // const boostedApy = (leverageLevel * (market.supplyApy || 0) / 100 - (leverageLevel - 1) * (borrowApy) / 100) * 100;
-    // const boostedApyLow = (leverageLevel * (market.supplyApyLow || 0));
-    // const boostedSupplyApy = (leverageLevel * (market.supplyApy || 0));
-    // const boostedExtraApy = (leverageLevel * (market.extraApy || 0));
+    const boostedApy = (leverageLevel * (market.supplyApy || 0) / 100 - (leverageLevel - 1) * (borrowApy) / 100) * 100;
+    const boostedApyLow = (leverageLevel * (market.supplyApyLow || 0));
+    const boostedSupplyApy = (leverageLevel * (market.supplyApy || 0));
+    const boostedExtraApy = (leverageLevel * (market.extraApy || 0));
 
-    // const apyInfos = <AnchorPoolInfo
-    //     value={market.supplyApy}
-    //     valueExtra={market.extraApy}
-    //     valueLow={market.supplyApyLow}
-    //     priceUsd={market.price}
-    //     symbol={market.underlying.symbol}
-    //     type={'supply'}
-    //     textProps={{ textAlign: "end", fontWeight: "bold" }}
-    //     hasClaimableRewards={market.hasClaimableRewards}
-    // />;
+    const apyInfos = <AnchorPoolInfo
+        value={market.supplyApy}
+        valueExtra={market.extraApy}
+        valueLow={market.supplyApyLow}
+        priceUsd={market.price}
+        symbol={market.underlying.symbol}
+        type={'supply'}
+        textProps={{ textAlign: "end", fontWeight: "bold" }}
+        hasClaimableRewards={market.hasClaimableRewards}
+    />;
 
-    // const newApyInfos = <AnchorPoolInfo
-    //     value={boostedSupplyApy}
-    //     valueExtra={boostedExtraApy}
-    //     valueLow={boostedApyLow}
-    //     priceUsd={market.price}
-    //     symbol={market.underlying.symbol}
-    //     type={'supply'}
-    //     textProps={{ textAlign: "end", fontWeight: "bold" }}
-    //     hasClaimableRewards={market.hasClaimableRewards}
-    // />;
+    const newApyInfos = <AnchorPoolInfo
+        value={boostedSupplyApy}
+        valueExtra={boostedExtraApy}
+        valueLow={boostedApyLow}
+        priceUsd={market.price}
+        symbol={market.underlying.symbol}
+        type={'supply'}
+        textProps={{ textAlign: "end", fontWeight: "bold" }}
+        hasClaimableRewards={market.hasClaimableRewards}
+    />;
 
     useDebouncedEffect(() => {
         setDebounced(!!editLeverageLevel && (!editLeverageLevel.endsWith('.') || editLeverageLevel === '.') && !isNaN(parseFloat(editLeverageLevel)));
@@ -240,6 +243,7 @@ export const FirmBoostInfos = ({
                         />
                     }
                 </InputGroup>
+                {/* <Text onClick={() => onFirmLeverageEngineOpen()}>Details</Text> */}
                 {/* <RiskBadge {...riskLevels.riskier} onClick={() => handleLeverageChange(leverageLevel + 1 <= maxLeverage ? round(leverageLevel + 1) : maxLeverage)} /> */}
             </HStack>
             <Slider
@@ -269,7 +273,7 @@ export const FirmBoostInfos = ({
                 newBorrowLimit >= 99 && <WarningMessage alertProps={{ position: 'absolute', top: '110px' }} description="New borrow limit would be too high" />
             }
         </VStack>
-        {/* <InfoMessage
+        {showDetails &&  <InfoMessage
             alertProps={{ w: { base: 'full', md: '60%' }, p: '4', fontSize: '14px' }}
             showIcon={false}
             description={
@@ -286,7 +290,7 @@ export const FirmBoostInfos = ({
                         </Text>
                     </HStack>
                     {
-                        isLeverageUp && apyInfos > 0  && <HStack w='full' justify="space-between" fontSize='14px'>
+                        isLeverageUp && market.supplyApy > 0  && <HStack w='full' justify="space-between" fontSize='14px'>
                             <HStack>
                                 <AnimatedInfoTooltip type="tooltip" message="Effective collateral APR, note: this is supposing the position was not leveraged already before. Does not take into account borrowing costs in DBR." />
                                 <Text>
@@ -399,6 +403,6 @@ export const FirmBoostInfos = ({
                     </HStack>
                 </VStack>
             }
-        /> */}
+        />}
     </Stack>
 }
