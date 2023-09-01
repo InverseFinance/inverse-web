@@ -13,19 +13,19 @@ import { useAccountMarkets, useMarkets } from './useMarkets'
 import { getBnToNumber, getMonthlyRate, getParsedBalance } from '@app/util/markets'
 import { useExchangeRates } from './useExchangeRates'
 import { formatUnits } from '@ethersproject/units'
-import { ERC20_ABI } from '@app/config/abis'
+import { CTOKEN_ABI, ERC20_ABI } from '@app/config/abis'
 
 type Balances = {
   balances: BigNumberList
 }
 
-export const useBalances = (addresses: string[], method = 'balanceOf', address?: string): SWR & Balances => {
+export const useBalances = (addresses: string[], method = 'balanceOf', address?: string, abi?: any[]): SWR & Balances => {
   const { account } = useWeb3React<Web3Provider>()
   const { query } = useRouter()
   const userAddress = address || (query?.viewAddress as string) || account;
 
   const { data, error } = useEtherSWR({
-    abi: ERC20_ABI,
+    abi: abi || ERC20_ABI,
     args: addresses.map((address) => (address ? [address, method, userAddress] : ['getBalance', userAddress, 'latest'])),
   })
 
@@ -51,14 +51,14 @@ export const useSupplyBalances = (address?: string): SWR & Balances => {
   const { chainId } = useWeb3React<Web3Provider>()
   const { ANCHOR_TOKENS, XINV, XINV_V1 } = getNetworkConfigConstants(chainId)
   const tokens = ANCHOR_TOKENS.concat(HAS_REWARD_TOKEN && XINV ? [XINV] : []).concat(HAS_REWARD_TOKEN && XINV_V1 ? [XINV_V1] : [])
-  return useBalances(tokens, 'balanceOf', address)
+  return useBalances(tokens, 'balanceOf', address, CTOKEN_ABI)
 }
 
 export const useBorrowBalances = (address?: string): SWR & Balances => {
   const { chainId } = useWeb3React<Web3Provider>()
   const { ANCHOR_TOKENS } = getNetworkConfigConstants(chainId)
   const tokens = ANCHOR_TOKENS
-  return useBalances(tokens, 'borrowBalanceStored', address)
+  return useBalances(tokens, 'borrowBalanceStored', address, CTOKEN_ABI)
 }
 
 export const useStabilizerBalance = () => {

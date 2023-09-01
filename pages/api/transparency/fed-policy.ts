@@ -49,7 +49,7 @@ export default async function handler(req, res) {
   // to keep for archive
   const cacheKeyOld = `fed-policy-cache-v1.1.0`;
   // temp migration
-  const cacheKeyNew = `fed-policy-cache-v1.1.1`;
+  const cacheKeyNew = `fed-policy-cache-v1.1.11`;
 
   try {
     const cacheDuration = 60;
@@ -174,7 +174,10 @@ export default async function handler(req, res) {
               if (accumulatedSupplies[fed.address] < 0) {
                 accumulatedSupplies[fed.address] = 0;
               }
-              return { ...e, newSupply: accumulatedSupplies[fed.address] }
+              return {
+                ...e,
+                newSupply: accumulatedSupplies[fed.address],
+              }
             })
         }
       })
@@ -183,18 +186,24 @@ export default async function handler(req, res) {
       .map(event => {
         return {
           ...event,
-          newTotalSupply: Object.values(accumulatedSupplies).reduce((prev, curr) => prev + curr, 0),
           _key: _key++
         }
       })
 
-    const fedPolicyMsg = {"msg": "No guidance at the moment","lastUpdate": 1664090872336};
+    const fedPolicyMsg = { "msg": "No guidance at the moment", "lastUpdate": 1664090872336 };
 
     const dolaSuppliesCacheData = (await getCacheFromRedis(cacheDolaSupplies, false)) || { dolaSupplies: [], dolaTotalSupply: 0 };
 
-    // temp => migrate data to add fed address to data
+    // newTotalSupply fix and reconstruction
+    accumulatedSupplies = {};
     const totalEvents = pastTotalEvents.concat(newEvents).map(event => {
-      return { ...event, fedAddress: FEDS[event.fedIndex].address }
+      const fedAddress = FEDS[event.fedIndex].address;
+      accumulatedSupplies[fedAddress] = event.newSupply;
+      return {
+        ...event,
+        fedAddress,
+        newTotalSupply: Object.values(accumulatedSupplies).reduce((prev, curr) => prev + curr, 0),
+      }
     });
 
     const resultData = {
