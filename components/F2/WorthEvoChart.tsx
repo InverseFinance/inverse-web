@@ -85,7 +85,7 @@ export const WorthEvoChart = ({
         'dbrPrice': 'DBR market price',
         'totalRewardsUsd': 'Total rewards',
         'balanceWorth': 'Collateral balance worth',
-        'totalWorth': market.hasClaimableRewards || market.name === 'stETH' ? 'Balance + All Rewards worth' : 'Balance worth',
+        'totalWorth': market.hasClaimableRewards || market.hasStakingLikeRewards ? 'Balance + All Rewards worth' : 'Balance worth',
         'balance': 'Total collateral balance',
         'dbrRewards': 'DBR rewards',
         'rewardsUsd': 'DBR rewards',
@@ -146,7 +146,7 @@ export const WorthEvoChart = ({
             tabOptions.push(CHART_TABS.invStaking);
         }
         tabOptions.push(CHART_TABS.dbrRewards);
-    } else if (market.name === 'stETH') {
+    } else if (market.hasStakingLikeRewards) {
         tabOptions.push(CHART_TABS.staking);
     }
 
