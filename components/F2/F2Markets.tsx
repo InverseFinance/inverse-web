@@ -300,8 +300,8 @@ export const F2Markets = ({
                 <SkeletonList /> :
                 <Table
                     keyName="address"
-                    pinned={'0xb516247596Ca36bf32876199FBdCaD6B3322330B'}
-                    pinLabel='Stake'
+                    pinned={'0x0971B1690d101169BFca4715897aD3a9b3C39b26'}
+                    // pinLabel='Stake'
                     noDataMessage="Loading..."
                     columns={columns}
                     items={accountMarkets.map(m => {
