@@ -3,13 +3,13 @@ import { getCacheFromRedis, isInvalidGenericParam, redisSetWithTimestamp } from 
 import { getAggregatedDataFromPools } from '@app/util/pools';
 
 export default async function handler(req, res) {
-    const { cacheFirst, excludeCurrent } = req.query;
+    const { cacheFirst, excludeCurrent, chainId } = req.query;
     const isExlcudeCurrent = excludeCurrent === 'true';
-    if (isInvalidGenericParam(excludeCurrent)) {
+    if (isInvalidGenericParam(excludeCurrent) || (!!chainId && !/[0-9]+/.test(chainId))) {
         res.status(400).json({ msg: 'invalid request' });
         return;
     }
-    const cacheKey = `liquidity-history-aggregated-${isExlcudeCurrent ? '-exclude-current' : ''}v1.0.0`
+    const cacheKey = `liquidity-history-aggregated${chainId ? '-c'+chainId+'-' : ''}-${isExlcudeCurrent ? '-exclude-current' : ''}v1.0.1`
 
     try {
         const cacheDuration = 60;
@@ -29,7 +29,7 @@ export default async function handler(req, res) {
             .concat(latestLiquidityCache ? await latestLiquidityCache?.json() : { liquidity: [] })
             .filter((entry) => entry.liquidity.length > 0);
 
-        const aggregatedHistory = getAggregatedDataFromPools(totalEntries);
+        const aggregatedHistory = getAggregatedDataFromPools(totalEntries, undefined, chainId);
 
         const resultData = {
             timestamp: +(new Date()),

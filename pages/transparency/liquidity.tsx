@@ -22,6 +22,8 @@ import InfoModal from '@app/components/common/Modal/InfoModal';
 import { addCurrentToHistory, getLpHistory } from '@app/util/pools';
 import { closeToast, showToast } from '@app/util/notify';
 import { DolaBridges } from '@app/components/Transparency/DolaBridges';
+import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
+import { SkeletonBlob } from '@app/components/common/Skeleton';
 
 const groupLpsBy = (lps: any[], attribute: string, max = 6) => {
   const items = Object.entries(
@@ -61,8 +63,9 @@ const cgIds = {
 
 export const Liquidity = () => {
   const { liquidity, timestamp } = useLiquidityPools();
-  const { aggregatedHistory } = useLiquidityPoolsAggregatedHistory(true);
-  const aggregatedHistoryPlusCurrent = addCurrentToHistory(aggregatedHistory, { liquidity, timestamp });
+  const [histoAttributeChainId, setHistoAttributeChainId] = useState('');
+  const { aggregatedHistory, isLoading: isLoadingAggregatedHistory } = useLiquidityPoolsAggregatedHistory(true, histoAttributeChainId);
+  const aggregatedHistoryPlusCurrent = addCurrentToHistory(aggregatedHistory, { liquidity, timestamp }, undefined, histoAttributeChainId);
   const { dola, inv, dbr } = useTokensData();
   const { prices } = usePricesV2();
   const [category, setCategory] = useState('DOLA');
@@ -160,6 +163,11 @@ export const Liquidity = () => {
     setHistoIsPerc(['dolaWeight', 'apy', 'perc'].includes(col));
   }
 
+  const handleClose = () => {
+    setHistoAttributeChainId('');
+    onClose()
+  }
+
   return (
     <Layout>
       <Head>
@@ -174,8 +182,8 @@ export const Liquidity = () => {
       <TransparencyTabs active="liquidity" />
       <InfoModal
         title={`${histoTitle}`}
-        onClose={onClose}
-        onOk={onClose}
+        onClose={handleClose}
+        onOk={handleClose}
         isOpen={isOpen}
         minW={{ base: '98vw', lg: '850px' }}
         okLabel="Close"
@@ -184,22 +192,43 @@ export const Liquidity = () => {
           {
             _chartData?.length > 0 && <>
               <HStack w='full' justify="space-between" pr="16">
-                <Select
-                  cursor="pointer"
-                  borderWidth="1px"
-                  borderColor="mainTextColor"
-                  maxW='200px'
-                  onChange={(e) => handleNewLpCol(e.target.value)}>
+                <HStack>
+                  <Select
+                    cursor="pointer"
+                    borderWidth="1px"
+                    borderColor="mainTextColor"
+                    maxW='200px'
+                    onChange={(e) => handleNewLpCol(e.target.value)}>
+                    {
+                      LP_COLS
+                        .filter(col => !col.showFilter)
+                        .map(col => <option key={col.field} value={col.field} selected={col.label === histoAttributeLabel}>{col.label}</option>)
+                    }
+                  </Select>
                   {
-                    LP_COLS
-                      .filter(col => !col.showFilter)
-                      .map(col => <option key={col.field} value={col.field} selected={col.label === histoAttributeLabel}>{col.label}</option>)
-                  }
-                </Select>
+                    !isLpChart &&
+                    <Select
+                      cursor="pointer"
+                      borderWidth="1px"
+                      borderColor="mainTextColor"
+                      maxW='200px'
+                      onChange={(e) => setHistoAttributeChainId(e.target.value)}>
+                      <option value='' selected={!histoAttributeChainId}>
+                        All networks
+                      </option>
+                      {
+                        networkItems
+                          .map(netItem => <option key={netItem.chainId} value={netItem.chainId} selected={netItem.chainId === histoAttributeChainId}>
+                            {NETWORKS_BY_CHAIN_ID[netItem.chainId].name}
+                          </option>)
+                      }
+                    </Select>                
+                }
+                </HStack>
                 <Text>Current {histoAttributeLabel}: <b>{preciseCommify(_chartData[_chartData.length - 1].y, histoIsPerc ? 2 : 0, !histoIsPerc)}{histoIsPerc ? '%' : ''}</b></Text>
               </HStack>
               {
-                isOpen && <DefaultCharts chartData={_chartData} isDollars={!histoIsPerc} isPerc={histoIsPerc} areaProps={{ autoMinY: true }} />
+                !isOpen ? null : isLoadingAggregatedHistory ? <SkeletonBlob h="300px" pt="50px" /> : <DefaultCharts chartData={_chartData} isDollars={!histoIsPerc} isPerc={histoIsPerc} areaProps={{ autoMinY: true }} />
               }
             </>
           }

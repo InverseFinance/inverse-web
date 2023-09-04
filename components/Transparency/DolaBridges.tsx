@@ -29,6 +29,7 @@ const nativeBridges = {
     'Optimism': { url: 'https://app.optimism.io/bridge/deposit', name: 'Native bridge' },
     'Arbitrum': { url: 'https://bridge.arbitrum.io/', name: 'Native bridge' },
     'Polygon': { url: 'https://wallet.polygon.technology/polygon/bridge/deposit', name: 'Native bridge' },
+    'Base': { url: 'https://bridge.base.org/deposit', name: 'Native bridge' },
 };
 
 
