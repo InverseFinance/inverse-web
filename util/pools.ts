@@ -7,6 +7,7 @@ import { fetcher } from "./web3";
 
 export const getPoolsAggregatedStats = (
     items: any[],
+    chainId = '',
     isStable?: boolean,
     include?: string | string[],
     exclude?: string | string[],
@@ -19,6 +20,7 @@ export const getPoolsAggregatedStats = (
     rewardDay: number,
     avgApy: number,
     avgDom: number,
+    chainId?: string,
 } => {
     const _include = Array.isArray(include) ? include : [include || ''];
     const _exclude = Array.isArray(exclude) ? exclude : [exclude || ''];
@@ -26,7 +28,8 @@ export const getPoolsAggregatedStats = (
     const filteredItems = items?.filter(lp => {
         return (isStable === undefined || (lp.isStable || false) === isStable)
             && _include.every(inc => lp.name.includes(inc))
-            && (!!exclude ? _exclude.every(exc => !lp.name.includes(exc)) : true);
+            && (!!exclude ? _exclude.every(exc => !lp.name.includes(exc)) : true)
+            && (!!chainId ? lp.chainId === chainId : true)
     }) || [];
 
     const toExcludeFromAggregate = filteredItems.filter(lp => !!lp.deduce).flatMap(lp => lp.deduce);
@@ -51,6 +54,7 @@ export const getPoolsAggregatedStats = (
         rewardDay,
         avgApy,
         avgDom,
+        chainId,
     }
 }
 
@@ -66,27 +70,29 @@ export const POOL_CATEGORIES = [
     { name: 'DBR-NON_DOLA', args: [undefined, 'DBR', 'DOLA'] },
 ];
 
-export const getAggregatedDataFromPools = (totalEntries: any, categories = POOL_CATEGORIES) => {
-    return categories.reduce((prev, curr) => {
+export const getAggregatedDataFromPools = (totalEntries: any, categories = POOL_CATEGORIES, chainId?: NetworkIds) => {
+    return categories.reduce((prev, curr) => {    
+        const key = curr.name;
         return {
             ...prev,
-            [curr.name]: totalEntries.map((entry) => {
+            [key]: totalEntries.map((entry) => {
                 return {
                     timestamp: entry.timestamp,
-                    ...getPoolsAggregatedStats(entry.liquidity, ...curr.args),
+                    ...getPoolsAggregatedStats(entry.liquidity, chainId, ...curr.args),
                 };
             }),
         }
     }, {});
 }
 
-export const addCurrentToHistory = (aggregatedHistory, currentEntry: any, categories = POOL_CATEGORIES) => {
+export const addCurrentToHistory = (aggregatedHistory, currentEntry: any, categories = POOL_CATEGORIES, chainId?: NetworkIds) => {
     if (!currentEntry) return aggregatedHistory;
     const historyAndCurrent = { ...aggregatedHistory };
-    const currentAggregated = getAggregatedDataFromPools([currentEntry], categories);
+    const currentAggregated = getAggregatedDataFromPools([currentEntry], categories, chainId);
     categories.forEach((category) => {
-        const histo = aggregatedHistory[category.name] || [];
-        historyAndCurrent[category.name] = [...histo, (currentAggregated[category.name] || [])[0]];
+        const key = category.name;
+        const histo = aggregatedHistory[key] || [];
+        historyAndCurrent[key] = [...histo, (currentAggregated[key] || [])[0]];
     });
     return historyAndCurrent;
 }

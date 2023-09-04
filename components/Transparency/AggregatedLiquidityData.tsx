@@ -41,7 +41,7 @@ export const AggregatedLiquidityData = ({
         pol,
         rewardDay,
         avgApy,
-    } = getPoolsAggregatedStats(items, isStable, include, exclude);
+    } = getPoolsAggregatedStats(items, '', isStable, include, exclude);
 
     return <SimpleTwoColTable
         containerProps={containerProps}
