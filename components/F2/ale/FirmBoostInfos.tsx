@@ -4,7 +4,7 @@ import { useContext, useEffect, useMemo, useState } from 'react'
 import { getNumberToBn, shortenNumber, smartShortNumber } from '@app/util/markets'
 import { InfoMessage, WarningMessage } from '@app/components/common/Messages'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
-import { CheckCircleIcon } from '@chakra-ui/icons'
+import { ArrowDownIcon, ArrowUpIcon, CheckCircleIcon } from '@chakra-ui/icons'
 import { showToast } from '@app/util/notify'
 import { Input } from '@app/components/common/Input'
 import { F2MarketContext } from '../F2Contex'
@@ -15,6 +15,7 @@ import { RSubmitButton } from '@app/components/common/Button/RSubmitButton'
 import { F2Market } from '@app/types'
 import { useAccountDBR } from '@app/hooks/useDBR'
 import { AnchorPoolInfo } from '@app/components/Anchor/AnchorPoolnfo'
+import { TextInfo } from '@app/components/common/Messages/TextInfo'
 
 const getSteps = (market: F2Market, deposits: number, debt: number, perc: number, type: string, leverageLevel: number, steps: number[] = [], doLastOne = false): number[] => {
     const inputWorth = market.price ? deposits * market.price : 0;
@@ -62,11 +63,11 @@ const RiskBadge = ({ color, text, onClick }: { color: BadgeProps["bgColor"], tex
 }
 
 export const FirmBoostInfos = ({
-    type = 'up',    
+    type = 'up',
     onLeverageChange,
     showDetails = false,
-}: {    
-    type?: 'up' | 'down',    
+}: {
+    type?: 'up' | 'down',
     onLeverageChange: ({ }) => void
     showDetails: boolean
 }) => {
@@ -183,7 +184,7 @@ export const FirmBoostInfos = ({
         deltaBorrow,
         perc,
     );
-    
+
     const newBorrowLimit = 100 - newPerc;
     const leverageSteps = useMemo(() => getSteps(market, deposits, debt, perc, type, 1), [market, deposits, debt, perc, type]);
     const maxLeverage = round(leverageSteps[leverageSteps.length - 1]);
@@ -212,14 +213,14 @@ export const FirmBoostInfos = ({
     }, [deltaBorrow, newBorrowLimit, newDebt, deltaCollateral], 100);
 
     useEffect(() => {
-        if(leverageLevel !== minLeverage){
+        if (leverageLevel !== minLeverage) {
             return;
         }
         const length = leverageSteps.length;
         setLeverageLevel(length > 2 ? leverageSteps[Math.floor(length / 2)] : 1);
     }, [leverageSteps]);
 
-    const boostLabel = isLeverageUp ? 'Boost' : 'Deleverage';
+    const boostLabel = isLeverageUp ? 'Leverage' : 'Deleverage';
     const now = Date.now();
 
     return <Stack fontSize="14px" spacing="4" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
@@ -243,6 +244,27 @@ export const FirmBoostInfos = ({
                         />
                     }
                 </InputGroup>
+                <TextInfo direction="row-reverse" message={isLeverageUp ? `Collateral added thanks to leverage` : `Collateral reduced thanks to deleverage`}>
+                    <HStack color="success" fontWeight="bold" spacing="1" alignItems="center">
+                        {isLeverageUp ? <ArrowUpIcon /> : <ArrowDownIcon />}
+                        <Text>
+                            {smartShortNumber(deltaCollateral, 4, false, true)} {market.underlying.symbol}
+                        </Text>
+                    </HStack>
+                </TextInfo>
+                {/* {
+                    market.supplyApy > 0 && <HStack>
+                        {newApyInfos}
+                    </HStack>
+                } */}
+                {/* <TextInfo direction="row-reverse" message={isLeverageUp ? `Collateral added thanks to leverage` : `Collateral reduced thanks to deleverage`}>
+                    <HStack color="success" fontWeight="bold" spacing="1" alignItems="center">
+                        {isLeverageUp ? <ArrowUpIcon /> : <ArrowDownIcon />}
+                        <Text>
+                            {smartShortNumber(deltaCollateral, 4, false, true)} {market.underlying.symbol}
+                        </Text>
+                    </HStack>
+                </TextInfo> */}
                 {/* <Text onClick={() => onFirmLeverageEngineOpen()}>Details</Text> */}
                 {/* <RiskBadge {...riskLevels.riskier} onClick={() => handleLeverageChange(leverageLevel + 1 <= maxLeverage ? round(leverageLevel + 1) : maxLeverage)} /> */}
             </HStack>
@@ -273,7 +295,7 @@ export const FirmBoostInfos = ({
                 newBorrowLimit >= 99 && <WarningMessage alertProps={{ position: 'absolute', top: '110px' }} description="New borrow limit would be too high" />
             }
         </VStack>
-        {showDetails &&  <InfoMessage
+        {showDetails && <InfoMessage
             alertProps={{ w: { base: 'full', md: '60%' }, p: '4', fontSize: '14px' }}
             showIcon={false}
             description={
@@ -290,7 +312,7 @@ export const FirmBoostInfos = ({
                         </Text>
                     </HStack>
                     {
-                        isLeverageUp && market.supplyApy > 0  && <HStack w='full' justify="space-between" fontSize='14px'>
+                        isLeverageUp && market.supplyApy > 0 && <HStack w='full' justify="space-between" fontSize='14px'>
                             <HStack>
                                 <AnimatedInfoTooltip type="tooltip" message="Effective collateral APR, note: this is supposing the position was not leveraged already before. Does not take into account borrowing costs in DBR." />
                                 <Text>
