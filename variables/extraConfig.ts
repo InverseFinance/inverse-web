@@ -8,6 +8,7 @@ export enum FIRM_ESCROWS {
     'cvxCRV' = '0x2F32a5E5E000d1a7257090DF260fC08F0Bab2125',
     'INV' = '0x502a7759809bD673cd39A0055beed44b40EAac98',
     'cvxFXS' = '0xCa78ee4544ec5a33Af86F1E786EfC7d3652bf005',
+    'DSR' = '0xCcABAD4923c14E48C9C27e6C4556C1CAf4E91eBB',
 }
 
 const mainConfig = {
@@ -63,7 +64,8 @@ const mainConfig = {
             badgeInfo: 'Yield-Bearing',
             badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },
             startingBlock: 16484386,
-            isInv: false,            
+            isInv: false,
+            hasStakingLikeRewards: true,
         },
         {
             name: 'gOHM',
@@ -148,6 +150,21 @@ const mainConfig = {
             startingBlock: 17777986,
             rewardTypeLabel: 'yCrv APY',
             isInv: false,            
+        },
+        {
+            name: 'DAI',
+            collateral: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            address: '0x0971B1690d101169BFca4715897aD3a9b3C39b26',
+            escrowImplementation: FIRM_ESCROWS.DSR,            
+            helper: true,
+            oracleType: "chainlink",
+            badgeInfo: 'Dai Savings Rate',
+            badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },
+            hasClaimableRewards: false,            
+            startingBlock: 18063664,
+            rewardTypeLabel: 'DSR APY',
+            isInv: false,
+            hasStakingLikeRewards: true,
         },
     ],
     feds: FEDS_PARAMS,

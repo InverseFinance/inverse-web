@@ -33,11 +33,11 @@ const columns = [
     {
         field: 'name',
         label: 'Market',
-        header: ({ ...props }) => <ColHeader minWidth="100px" justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="110px" justify="flex-start"  {...props} />,
         tooltip: 'Market type, each market have an underlying token and strategy',
         value: ({ name, icon, marketIcon, underlying, badgeInfo, badgeProps }) => {
-            return <Cell minWidth="100px">
-                <Cell minWidth='100px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
+            return <Cell minWidth="110px">
+                <Cell minWidth='110px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
                     <HStack justify="flex-start" alignItems="center" spacing="1" w='full'>
                         <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
                         <CellText fontWeight="bold">{name}</CellText>
@@ -122,7 +122,7 @@ const columns = [
         tooltip: 'Total Value Locked',
         value: ({ tvl }) => {
             return <Cell minWidth="70px" justify="center" >
-                <CellText>{shortenNumber(tvl, 2, true)}</CellText>
+                <CellText>{tvl > 0 ? shortenNumber(tvl, 2, true) : '-'}</CellText>
             </Cell>
         },
     },
@@ -133,7 +133,7 @@ const columns = [
         tooltip: 'Total DOLA borrowed in the Market',
         value: ({ totalDebt, borrowPaused }) => {
             return <Cell minWidth="80px" justify="center" >
-                <CellText>{borrowPaused && !totalDebt ? '-' : smartShortNumber(totalDebt, 2)}</CellText>
+                <CellText>{!totalDebt ? '-' : smartShortNumber(totalDebt, 2)}</CellText>
             </Cell>
         },
     },
@@ -300,8 +300,8 @@ export const F2Markets = ({
                 <SkeletonList /> :
                 <Table
                     keyName="address"
-                    pinned={'0xb516247596Ca36bf32876199FBdCaD6B3322330B'}
-                    pinLabel='Stake'
+                    pinned={'0x0971B1690d101169BFca4715897aD3a9b3C39b26'}
+                    // pinLabel='Stake'
                     noDataMessage="Loading..."
                     columns={columns}
                     items={accountMarkets.map(m => {

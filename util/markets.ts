@@ -201,6 +201,13 @@ export const getCvxCrvData = async () => {
     return [];
 }
 
+export const getDSRData = async () => {
+    try {
+        return getPoolYield('c8a24fee-ec00-4f38-86c0-9f6daebc4225');
+    } catch (e) { console.log(e) }
+    return [];
+}
+
 export const getCvxFxsAPRs = async (provider, _prices?: any) => {
     try {
         const utilContract = new Contract(
