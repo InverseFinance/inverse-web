@@ -78,7 +78,7 @@ export default async function handler(req, res) {
     });
 
     const maxBorrowableUntilTomorrow = markets
-      .filter((m, i) => !m.borrowaPaused)
+      .filter((m, i) => !m.borrowPaused)
       .map((market) => {
         return {          
           maxBorrowableUntilTomorrow: Math.min(market.leftToBorrow + market.dailyLimit, market.dolaLiquidity),
