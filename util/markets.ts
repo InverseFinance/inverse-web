@@ -109,7 +109,7 @@ export const shortenNumber = (value: number, precision = 2, isDollar = false, sh
 }
 
 export const smartShortNumber = (value: number, precision = 2, isDollar = false, showMinPrecision = false) => {
-    const num = shortenNumber(value, precision = 2, isDollar, showMinPrecision);
+    const num = shortenNumber(value, precision, isDollar, showMinPrecision);
     return num.replace(/(\.\d*?[1-9])0+([a-zA-Z])?$/, '$1$2').replace(/\.0+([a-zA-Z])?$/, '$1');
 }
 

@@ -7,7 +7,7 @@ export const TextInfo = ({ message, children, color = 'mainTextColor', direction
     color?: string,
     direction?: StackProps['direction']
 }) => {
-    return <Stack direction={direction}>
+    return <Stack alignItems="center" direction={direction}>
         <AnimatedInfoTooltip
             message={message}
             iconProps={{ color, fontSize: '12px' }}
