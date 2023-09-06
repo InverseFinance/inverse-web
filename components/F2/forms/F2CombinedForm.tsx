@@ -230,6 +230,7 @@ export const F2CombinedForm = ({
     const notEnoughToBorrowWithAutobuy = isBorrowCase && market.leftToBorrow > 1 && deltaDebt > 0 && market.leftToBorrow < (isAutoDBR ? deltaDebt + (dbrCoverDebt * (1 + parseFloat(dbrBuySlippage || 0) / 100)) : deltaDebt);
     const minDebtDisabledCondition = FEATURE_FLAGS.firmMinDebt && newTotalDebtInMarket > 0 && newTotalDebtInMarket < market.minDebt;
     const isDeleverageCase = useLeverageInMode && !isDeposit;
+    const canUseLeverage = !isUseNativeCoin && (mode === 'Deposit & Borrow' || (mode === 'Repay & Withdraw' && debt > 1));
 
     const leftPart = <Stack direction={{ base: 'column' }} spacing="4" w='full' >
         {
@@ -418,7 +419,7 @@ export const F2CombinedForm = ({
                         </FormControl>
                     }
                     {
-                        !isUseNativeCoin && <FormControl w='fit-content' display='flex' alignItems='center'>
+                        canUseLeverage && <FormControl w='fit-content' display='flex' alignItems='center'>
                             <FormLabel fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='leverage-switch' mb='0'>
                                 {isDeposit ? 'L' : 'Del'}everage?
                             </FormLabel>

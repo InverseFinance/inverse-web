@@ -246,9 +246,9 @@ export const FirmBoostInfos = ({
                 </InputGroup>
                 <TextInfo direction="row-reverse" message={isLeverageUp ? `Collateral added thanks to leverage` : `Collateral reduced thanks to deleverage`}>
                     <HStack color="success" fontWeight="bold" spacing="1" alignItems="center">
-                        {isLeverageUp ? <ArrowUpIcon /> : <ArrowDownIcon />}
-                        <Text>
-                            {smartShortNumber(deltaCollateral, 4, false, true)} {market.underlying.symbol}
+                        {isLeverageUp ? <ArrowUpIcon fontSize="18px"  /> : <ArrowDownIcon fontSize="18px" />}
+                        <Text fontSize="16px">
+                            {smartShortNumber(deltaCollateral, 8)} {market.underlying.symbol}
                         </Text>
                     </HStack>
                 </TextInfo>

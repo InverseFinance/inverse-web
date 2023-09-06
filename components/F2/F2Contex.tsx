@@ -76,7 +76,7 @@ export const F2Context = ({
     const [useLeverage, setUseLeverage] = useState(false);
     const [leverage, setLeverage] = useState(1.01);
     const [mode, setMode] = useState('Deposit & Borrow');
-    const useLeverageInMode = useLeverage && ['Deposit & Borrow', 'Repay & Withdraw'].includes(mode);
+    
     const [infoTab, setInfoTab] = useState('Summary');
     const [maxBorrowable, setMaxBorrowable] = useState(0);
     // increment on successful firm tx
@@ -94,6 +94,8 @@ export const F2Context = ({
 
     const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt, bnLeftToBorrow, leftToBorrow, liquidationPrice, escrow, underlyingExRate } = useAccountDBRMarket(market, account, isUseNativeCoin);
     const { balance: dolaBalance, bnBalance: bnDolaBalance } = useDOLABalance(account);
+
+    const useLeverageInMode = useLeverage && (mode === 'Deposit & Borrow' || (mode === 'Repay & Withdraw' && debt > 1))
 
     const debtAmountNum = parseFloat(debtAmount || '0') || 0;// NaN => 0
     const collateralAmountNum = parseFloat(collateralAmount || '0') || 0;
