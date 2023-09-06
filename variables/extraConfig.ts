@@ -161,7 +161,7 @@ const mainConfig = {
             badgeInfo: 'Dai Savings Rate',
             badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },
             hasClaimableRewards: false,            
-            startingBlock: 18063664,
+            startingBlock: 18075830,
             rewardTypeLabel: 'DSR APY',
             isInv: false,
             hasStakingLikeRewards: true,
