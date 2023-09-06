@@ -2,7 +2,7 @@ import { BlockTimestamp } from "@app/components/common/BlockTimestamp";
 import Link from "@app/components/common/Link";
 import ScannerLink from "@app/components/common/ScannerLink";
 import { shortenAddress } from "@app/util";
-import { shortenNumber } from "@app/util/markets";
+import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import { VStack, HStack, StackProps } from "@chakra-ui/react"
 
 const colors = {
@@ -17,7 +17,7 @@ const colors = {
 }
 
 const getActionLabel = (name: string, amount?: number, tokenName?: string) => {
-    return <>{name}{amount ? <b style={{ fontWeight: '800' }}>&nbsp;{shortenNumber(amount, 2, false, true)} {tokenName}</b> : ''}</>
+    return <>{name}{amount ? <b style={{ fontWeight: '800' }}>&nbsp;{smartShortNumber(amount, 4, false, true)} {tokenName}</b> : ''}</>
 }
 
 const ErrDocLink = (props) => <Link
