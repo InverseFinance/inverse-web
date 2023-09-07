@@ -20,6 +20,9 @@ export const DolaMoreInfos = () => {
                     <Text pt="2">
                         <b>TIP</b>: DOLA currently has some bad debt as a result of oracle manipulations on the now deprecated Frontier; this is actively being paid down using DAO revenues. <b>Borrowing and using DOLA on FiRM protects the user from risks of depegging below $1</b>, while also presenting the opportunity to make a profit in such situation via buying back the DOLA and repaying for a lower cost.
                     </Text>
+                    <Link color="secondaryTextColor" href="/transparency/bad-debts">
+                        Learn more about DOLA bad debt
+                    </Link>
                     <Text pt="2" fontWeight="bold">What are the Fed contracts?</Text>
                     <Text>
                         Fed contracts handle DOLA supply in protocols and liquidity pools and play an important role in the DOLA peg.

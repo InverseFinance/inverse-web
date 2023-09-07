@@ -72,6 +72,9 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                         <FaqLink href="/transparency/dola">
                             Transparency page
                         </FaqLink>
+                        <FaqLink href="/transparency/bad-debts">
+                            DOLA bad debt
+                        </FaqLink>
                         <FaqLink href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola">
                             Docs: DOLA
                         </FaqLink>
