@@ -223,6 +223,8 @@ export const F2CombinedForm = ({
         handleDebtChange('');
         handleCollateralChange('');
         setDbrSellAmount('');
+        setLeverageCollateralAmount('');
+        setUseLeverage(false);
     }
 
     const btnLabel = isDeposit ? `Deposit & Borrow` : 'Withdraw';
@@ -230,7 +232,7 @@ export const F2CombinedForm = ({
     const notEnoughToBorrowWithAutobuy = isBorrowCase && market.leftToBorrow > 1 && deltaDebt > 0 && market.leftToBorrow < (isAutoDBR ? deltaDebt + (dbrCoverDebt * (1 + parseFloat(dbrBuySlippage || 0) / 100)) : deltaDebt);
     const minDebtDisabledCondition = FEATURE_FLAGS.firmMinDebt && newTotalDebtInMarket > 0 && newTotalDebtInMarket < market.minDebt;
     const isDeleverageCase = useLeverageInMode && !isDeposit;
-    const canUseLeverage = !isUseNativeCoin && (mode === 'Deposit & Borrow' || (mode === 'Repay & Withdraw' && debt > 1));
+    const canUseLeverage = !isUseNativeCoin && ((mode === 'Deposit & Borrow' && (deposits > 0 || collateralAmountNum > 0)) || (mode === 'Repay & Withdraw' && debt > 1));
 
     const leftPart = <Stack direction={{ base: 'column' }} spacing="4" w='full' >
         {
@@ -247,7 +249,7 @@ export const F2CombinedForm = ({
                 {
                     deposits > 0 || isDeposit ? <>
                         <SimpleAmountForm
-                            defaultAmount={collateralAmount}
+                            defaultAmount={isDeleverageCase ? '' : collateralAmount}
                             address={isUseNativeCoin ? '' : market.collateral}
                             destination={isAutoDBR ? F2_HELPER : market.address}
                             signer={signer}
@@ -263,7 +265,7 @@ export const F2CombinedForm = ({
                             hideButtons={true}
                             showMax={!isDeleverageCase}
                             showBalance={isDeposit}
-                            inputProps={isDeleverageCase ? { disabled: true, placeholder: `Withdrawing by leverage: ${leverageCollateralAmount}` } : useLeverageInMode ? { placeholder: `Deposit amount on top of leverage` } : undefined}
+                            inputProps={isDeleverageCase ? { disabled: true, placeholder: `Withdrawing by leverage: ~${leverageCollateralAmount}` } : useLeverageInMode ? { placeholder: `Deposit amount on top of leverage` } : undefined}
                             inputRight={<MarketImage pr="2" image={isWethMarket ? (isUseNativeCoin ? market.icon : market.underlying.image) : market.icon || market.underlying.image} size={25} />}
                             isError={isDeposit ? collateralAmountNum > collateralBalance : collateralAmountNum > deposits}
                         />
@@ -574,7 +576,7 @@ export const F2CombinedForm = ({
                             type={isDeposit ? 'up' : 'down'}
                             onLeverageChange={({
                                 deltaBorrow, deltaCollateral
-                            }) => {                                
+                            }) => {
                                 if (Math.abs(deltaBorrow).toFixed(2) !== debtAmountNum.toFixed(2)) {
                                     handleDebtChange(Math.abs(deltaBorrow).toFixed(2));
                                 }

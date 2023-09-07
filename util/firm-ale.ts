@@ -6,6 +6,7 @@ import { f2approxDbrAndDolaNeeded, getFirmSignature, getHelperDolaAndDbrParams }
 import { F2Market } from "@app/types";
 import { get0xSellQuote } from "./zero";
 import { BURN_ADDRESS } from "@app/config/constants";
+import { getBnToNumber, getNumberToBn } from "./markets";
 
 const { F2_ALE, DOLA } = getNetworkConfigConstants();
 
@@ -115,75 +116,38 @@ export const prepareDeleveragePosition = async (
     dbrToSell?: BigNumber,
     minDolaOut?: BigNumber,
 ) => {
+    let get0xQuoteResult;
+    // we need the quote first
+    try {
+        // the dola swapped for collateral is dolaToRepayToSellCollateral not totalDolaToBorrow (a part is for dbr)
+        get0xQuoteResult = await get0xSellQuote(DOLA, market.collateral, collateralToWithdraw.toString(), slippage);            
+        if (!get0xQuoteResult?.to) {
+            const msg = get0xQuoteResult?.validationErrors?.length > 0 ?
+                `Swap validation failed with: ${get0xQuoteResult?.validationErrors[0].field} ${get0xQuoteResult?.validationErrors[0].reason}`
+                : "Getting a quote from 0x failed";
+            return Promise.reject(msg);
+        }
+    } catch (e) {
+        console.log(e);
+        return Promise.reject("Getting a quote from 0x failed");
+    }
+
     const signatureResult = await getFirmSignature(signer, market.address, collateralToWithdraw, 'WithdrawOnBehalf', F2_ALE);
 
     if (signatureResult) {
         const { deadline, r, s, v } = signatureResult;
-        let get0xQuoteResult;
-        try {
-            // the dola swapped for collateral is dolaToRepayToSellCollateral not totalDolaToBorrow (a part is for dbr)
-            get0xQuoteResult = await get0xSellQuote(DOLA, market.collateral, collateralToWithdraw.toString(), slippage);            
-            if (!get0xQuoteResult?.to) {
-                const msg = get0xQuoteResult?.validationErrors?.length > 0 ?
-                    `Swap validation failed with: ${get0xQuoteResult?.validationErrors[0].field} ${get0xQuoteResult?.validationErrors[0].reason}`
-                    : "Getting a quote from 0x failed";
-                return Promise.reject(msg);
-            }
-        } catch (e) {
-            console.log(e);
-            return Promise.reject("Getting a quote from 0x failed");
-        }
-        const { data: swapData, allowanceTarget, to: swapTarget, value, sellTokenAddress } = get0xQuoteResult;
+        
+        const { data: swapData, allowanceTarget, to: swapTarget, value, sellTokenAddress, guaranteedPrice } = get0xQuoteResult;
         const permitData = [deadline, v, r, s];
         const helperTransformData = '0x';
+        const nb = parseFloat(guaranteedPrice) * getBnToNumber(collateralToWithdraw, market.underlying.decimals);
+
+        const minDolaAmountFromSwap = getNumberToBn(nb);
         // dolaIn, minDbrOut
         const dbrData = [dbrToSell, minDolaOut];
         return deleveragePosition(
             signer,
-            dolaToRepayToSellCollateral,
-            sellTokenAddress,
-            collateralToWithdraw,
-            allowanceTarget,
-            swapData,
-            permitData,
-            helperTransformData,
-            dbrData,
-            value,
-        );
-    }
-    return Promise.reject("Signature failed or canceled");
-}
-
-export const prepareDeleveragePosition2 = async (
-    signer: JsonRpcSigner,
-    market: F2Market,
-    dolaToRepay: BigNumber,
-    collateralToWithdraw: BigNumber,
-    slippage?: number,
-) => {
-    const signatureResult = await getFirmSignature(signer, market.address, collateralToWithdraw, 'WithdrawOnBehalf', F2_ALE);
-    if (signatureResult) {
-        const { deadline, r, s, v } = signatureResult;
-        let get0xQuoteResult;
-        try {
-            get0xQuoteResult = await get0xSellQuote(DOLA, market.collateral, collateralToWithdraw.toString(), slippage);
-            if (!get0xQuoteResult?.to) {
-                const msg = get0xQuoteResult?.validationErrors?.length > 0 ?
-                    `Swap validation failed with: ${get0xQuoteResult?.validationErrors[0].field} ${get0xQuoteResult?.validationErrors[0].reason}`
-                    : "Getting a quote from 0x failed";
-                return Promise.reject(msg);
-            }
-        } catch (e) {
-            console.log(e);
-            return Promise.reject("Getting a quote from 0x failed");
-        }
-        const { data: swapData, allowanceTarget, to: swapTarget, value, sellTokenAddress } = get0xQuoteResult;
-        const permitData = [deadline, v, r, s];
-        const helperTransformData = '0x';
-        const dbrData = [];
-        return deleveragePosition(
-            signer,
-            dolaToRepay,
+            minDolaAmountFromSwap,
             sellTokenAddress,
             collateralToWithdraw,
             allowanceTarget,

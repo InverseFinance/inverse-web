@@ -83,6 +83,7 @@ export const FirmBoostInfos = ({
         leverage: leverageLevel,
         setLeverage: setLeverageLevel,
         debtAmountNum,
+        collateralAmountNum,
         onFirmLeverageEngineOpen,
     } = useContext(F2MarketContext);
 
@@ -162,15 +163,20 @@ export const FirmBoostInfos = ({
 
     const round = (v: number) => Math.floor(v * 100) / 100;
 
-    const inputWorth = market.price ? deposits * market.price : 0;
+    const _deposits = deposits > 0 ? deposits : collateralAmountNum;
+    const inputWorth = market.price ? _deposits * market.price : 0;
     const isLeverageUp = type === 'up';
     const effectiveLeverage = isLeverageUp ? leverageLevel : 1 / leverageLevel;
-    const desiredWorth = inputWorth * effectiveLeverage;
+    const _desiredWorth = inputWorth * effectiveLeverage;
 
-    const deltaBorrow = desiredWorth - inputWorth;
+    const _deltaBorrow = _desiredWorth - inputWorth;
+
+    const deltaBorrow = isLeverageUp ? _deltaBorrow : _deltaBorrow < -debt ? -debt : _deltaBorrow;
+    const desiredWorth = isLeverageUp ? _desiredWorth : inputWorth + deltaBorrow;
+
     const collateralPrice = market.price;
     const targetCollateralBalance = collateralPrice ? desiredWorth / collateralPrice : 0;
-    const deltaCollateral = targetCollateralBalance - deposits;
+    const deltaCollateral = targetCollateralBalance - _deposits;
 
     const {
         newDebt,
@@ -178,15 +184,15 @@ export const FirmBoostInfos = ({
         newLiquidationPrice,
     } = f2CalcNewHealth(
         market,
-        deposits,
+        _deposits,
         debt,
-        targetCollateralBalance - deposits,
+        targetCollateralBalance - _deposits,
         deltaBorrow,
         perc,
     );
 
     const newBorrowLimit = 100 - newPerc;
-    const leverageSteps = useMemo(() => getSteps(market, deposits, debt, perc, type, 1), [market, deposits, debt, perc, type]);
+    const leverageSteps = useMemo(() => getSteps(market, _deposits, debt, perc, type, 1), [market, _deposits, debt, perc, type]);
     const maxLeverage = round(leverageSteps[leverageSteps.length - 1]);
     const leverageRelativeToMax = leverageLevel / maxLeverage;
 
@@ -225,7 +231,7 @@ export const FirmBoostInfos = ({
 
     return <Stack fontSize="14px" spacing="4" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
         <VStack position="relative" w='full' alignItems="center" justify="center">
-            <HStack w='full' justify="center" alignItems="center">
+            <HStack spacing="8" w='full' justify="space-between" alignItems="center">
                 {/* <RiskBadge {...riskLevels.safer} onClick={() => handleLeverageChange(leverageLevel - 1 >= minLeverage ? round(leverageLevel - 1) : minLeverage)} /> */}
                 <InputGroup
                     w='fit-content'
@@ -245,10 +251,10 @@ export const FirmBoostInfos = ({
                     }
                 </InputGroup>
                 <TextInfo direction="row-reverse" message={isLeverageUp ? `Collateral added thanks to leverage` : `Collateral reduced thanks to deleverage`}>
-                    <HStack color="success" fontWeight="bold" spacing="1" alignItems="center">
-                        {isLeverageUp ? <ArrowUpIcon fontSize="18px"  /> : <ArrowDownIcon fontSize="18px" />}
+                    <HStack fontWeight="bold" spacing="1" alignItems="center">
+                        {isLeverageUp ? <ArrowUpIcon color="success" fontSize="18px"  /> : <ArrowDownIcon color="warning" fontSize="18px" />}
                         <Text fontSize="16px">
-                            {smartShortNumber(deltaCollateral, 8)} {market.underlying.symbol}
+                            ~{smartShortNumber(Math.abs(deltaCollateral), 8)} {market.underlying.symbol}
                         </Text>
                     </HStack>
                 </TextInfo>
@@ -356,7 +362,7 @@ export const FirmBoostInfos = ({
                         </HStack>
                         <HStack>
                             <Text fontWeight="bold">
-                                {smartShortNumber(deposits, 2)}
+                                {smartShortNumber(_deposits, 2)}
                             </Text>
                             <Text fontWeight="bold">
                             =>

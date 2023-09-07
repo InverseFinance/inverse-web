@@ -104,7 +104,7 @@ export const F2Context = ({
     const leverageCollateralAmountNum = parseFloat(leverageCollateralAmount || '0') || 0;
 
     const totalDebtAmountNum = debtAmountNum + (useLeverageInMode ? leverageDebtAmountNum : 0);
-    const totalCollateralAmountNum = collateralAmountNum + (useLeverageInMode ? leverageCollateralAmountNum : 0);
+    const totalCollateralAmountNum = (isDeposit || !useLeverageInMode ? collateralAmountNum : 0) + (useLeverageInMode ? leverageCollateralAmountNum : 0);
 
     const dbrApproxData = useDBRNeeded(debtAmount, duration);
 
