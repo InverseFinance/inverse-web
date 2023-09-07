@@ -151,10 +151,10 @@ const columns = [
     {
         field: 'leftToBorrow',
         label: "Available to borrow",
-        header: ({ ...props }) => <ColHeader minWidth="130px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="135px" justify="center"  {...props} />,
         tooltip: 'Markets can have daily borrow limits, this shows the DOLA left to borrow for the day (UTC timezone)',
         value: ({ leftToBorrow, totalDebt, dailyLimit, dolaLiquidity, borrowPaused }) => {
-            return <Cell minWidth="130px" justify="center" alignItems="center" direction="column" spacing="0" >
+            return <Cell minWidth="135px" justify="center" alignItems="center" direction="column" spacing="0" >
                 {
                     borrowPaused ? <CellText>Borrow Paused</CellText> : <>
                         <CellText>{leftToBorrow > 1 ? smartShortNumber(leftToBorrow, 2) : totalDebt ? 'Depleted' : 'No liquidity'}</CellText>
@@ -204,10 +204,10 @@ const columns = [
     {
         field: 'debt',
         label: 'Your Debt',
-        header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="80px" justify="center"  {...props} />,
         tooltip: 'Amount of DOLA you borrowed from the Market',
         value: ({ debt, account }) => {
-            return <Cell minWidth="90px" justify="center">
+            return <Cell minWidth="80px" justify="center">
                 <CellText>{account && debt > 0 ? smartShortNumber(debt, 2, true) : '-'}</CellText>
             </Cell>
         },
@@ -215,8 +215,8 @@ const columns = [
     {
         field: 'perc',
         label: 'Your Borrow Limit',
-        header: ({ ...props }) => <ColHeader minWidth="110px" justify="flex-end"  {...props} />,
-        tooltip: 'Your Borrow Limit, should not reach 100%, otherwise liquidations can happen',
+        header: ({ ...props }) => <ColHeader minWidth="116px" justify="flex-end"  {...props} />,
+        tooltip: 'Your Borrow Limit, should not reach 160%, otherwise liquidations can happen',
         value: ({ perc, debt }) => {
             const color = getRiskColor(perc);
             return <Cell minWidth="110px" justify="flex-end" >
@@ -300,8 +300,8 @@ export const F2Markets = ({
                 <SkeletonList /> :
                 <Table
                     keyName="address"
-                    pinnedItems={['0x0971B1690d101169BFca4715897aD3a9b3C39b26', '0xb516247596Ca36bf32876199FBdCaD6B3322330B']}
-                    pinnedLabels={['New', 'Stake']}
+                    pinnedItems={['0xb516247596Ca36bf32876199FBdCaD6B3322330B', '0x0971B1690d101169BFca4715897aD3a9b3C39b26']}
+                    pinnedLabels={['Stake', 'New']}
                     noDataMessage="Loading..."
                     columns={columns}
                     items={accountMarkets.map(m => {
