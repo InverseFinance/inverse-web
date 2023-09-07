@@ -31,8 +31,8 @@ export type Column = {
 
 type TableProps = {
   columns: Column[]
-  pinned?: string
-  pinLabel?: string
+  pinnedItems?: string[]
+  pinnedLabels?: string[]
   items: any[]
   keyName?: string
   defaultSort?: string
@@ -151,8 +151,8 @@ export const Table = ({
   showRowBorder = false,
   showHeader = true,
   showTotalRow = false,
-  pinned,
-  pinLabel = 'New',
+  pinnedItems,
+  pinnedLabels,
   ...props
 }: TableProps) => {
   const { themeStyles } = useAppTheme();
@@ -220,13 +220,16 @@ export const Table = ({
 
   const chevronProps = { color: 'mainTextColorLight2', w: 4, h: 4, ...sortChevronProps };
 
-  if (pinned && filteredItems.length >= 2) {
-    const pinnedItemIndex = filteredItems.findIndex(item => item[keyName] === pinned);
-    if (pinnedItemIndex !== -1) {
-      const pinnedItem = filteredItems.splice(pinnedItemIndex, 1)[0];
-      pinnedItem._isPinned = true;
-      filteredItems.splice(0, 0, pinnedItem);
-    }
+  if (pinnedItems?.length > 0 && filteredItems.length >= 2) {
+    pinnedItems?.forEach((p, pinIndex) => {
+      const pinnedItemIndex = filteredItems.findIndex(item => item[keyName] === p);
+      if (pinnedItemIndex !== -1) {
+        const pinnedItem = filteredItems.splice(pinnedItemIndex, 1)[0];
+        pinnedItem._isPinned = true;
+        pinnedItem._pinLabel = pinnedLabels?.[pinIndex] || '';
+        filteredItems.splice(pinIndex, 0, pinnedItem);
+      }
+    });
   }
 
   if (isReady && !isLargerThan && enableMobileRender) {
@@ -265,10 +268,10 @@ export const Table = ({
       position="relative"
     >
       {
-        item._isPinned &&
+        item._isPinned && item._pinLabel &&
         <Badge textTransform="capitalize" borderRadius="50px"
           px="8px" fontWeight="normal" bgColor="mainTextColor" color="contrastMainTextColor" w='fit-content' mr="1" position="absolute" top="-10px" left="-10px">
-          {pinLabel}
+          {item._pinLabel}
         </Badge>
       }
       {columns.map(({ value, field }, j) => (
