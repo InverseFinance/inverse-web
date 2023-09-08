@@ -121,6 +121,7 @@ export const DbrReplenishments = ({
 
     }) => {
     const { events, timestamp, isLoading } = useDBRReplenishments();
+    const top100 = events?.slice(events?.length-100);
 
     return <Container
         label="Last 100 Forced Replenishments"
@@ -137,7 +138,7 @@ export const DbrReplenishments = ({
             keyName="key"
             noDataMessage={isLoading ? 'Loading' : "No DBR replenishments"}
             columns={columns}
-            items={events.slice(0, 100)}         
+            items={top100}
             defaultSort={'timestamp'}
             defaultSortDir="desc"
         />
