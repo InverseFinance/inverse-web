@@ -5,7 +5,7 @@ import { formatUnits, parseEther, parseUnits } from '@ethersproject/units'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
 import { f2repayAndWithdrawNative, f2borrow, f2deposit, f2depositAndBorrow, f2depositAndBorrowHelper, f2repay, f2repayAndWithdraw, f2sellAndRepayHelper, f2sellAndWithdrawHelper, f2withdraw, getRiskColor, f2approxDbrAndDolaNeeded, f2withdrawMax } from '@app/util/f2'
 
-import { useContext, useState } from 'react'
+import { useContext, useState, useEffect } from 'react'
 
 import { F2DurationInput } from './F2DurationInput'
 import { MarketImage } from '@app/components/common/Assets/MarketImage'
@@ -27,8 +27,9 @@ import { FirmLeverageModal } from '../Modals/FirmLeverageModal'
 import { RSubmitButton } from '@app/components/common/Button/RSubmitButton'
 import { FEATURE_FLAGS } from '@app/config/features'
 import { preciseCommify } from '@app/util/misc'
-import { FirmBoostInfos } from '../ale/FirmBoostInfos'
+import { FirmBoostInfos, getLeverageImpact } from '../ale/FirmBoostInfos'
 import { prepareDeleveragePosition, prepareLeveragePosition } from '@app/util/firm-ale'
+import { removeTrailingZeros } from '@app/util/misc'
 
 const { DOLA, F2_HELPER, DBR, F2_ALE } = getNetworkConfigConstants();
 
@@ -99,6 +100,7 @@ export const F2CombinedForm = ({
         setLeverage,
         setLeverageCollateralAmount,
         leverageCollateralAmount,
+        leverageCollateralAmountNum,
     } = useContext(F2MarketContext);
 
     const [syncedMinH, setSyncedMinH] = useState('230px');
@@ -130,9 +132,9 @@ export const F2CombinedForm = ({
         }
         const action = MODES[mode]
 
-        const minDolaOut = !isAutoDBR ? parseUnits('0') : getNumberToBn((parseFloat(dbrSellAmount||'0') * (dbrPrice * (1 - parseFloat(dbrBuySlippage) / 100))));
-        const dbrAmountToSell = !isAutoDBR ? parseUnits('0') : parseUnits(dbrSellAmount||'0');
-        
+        const minDolaOut = !isAutoDBR ? parseUnits('0') : getNumberToBn((parseFloat(dbrSellAmount || '0') * (dbrPrice * (1 - parseFloat(dbrBuySlippage) / 100))));
+        const dbrAmountToSell = !isAutoDBR ? parseUnits('0') : parseUnits(dbrSellAmount || '0');
+
         if (action === 'deposit') {
             return f2deposit(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), isUseNativeCoin);
         } else if (action === 'borrow') {
@@ -182,13 +184,13 @@ export const F2CombinedForm = ({
             }
             return f2depositAndBorrow(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), parseUnits(debtAmount));
         } else if (action === 'r&w') {
-            if(useLeverageInMode) {
+            if (useLeverageInMode) {
                 return prepareDeleveragePosition(
                     signer,
                     market,
                     parseUnits(debtAmount),
                     // withdrawn by deleverage
-                    parseUnits(leverageCollateralAmount || '0', market.underlying.decimals),
+                    parseUnits(collateralAmount || '0', market.underlying.decimals),
                     undefined,
                     dbrAmountToSell,
                     minDolaOut,
@@ -205,6 +207,15 @@ export const F2CombinedForm = ({
             alert('AlphaPhase: Contract is not implemented yet for this action');
         }
     }
+
+    useEffect(() => {
+        if(!useLeverage) return;
+        if(!isDeposit) {
+            triggerCollateralAndOrLeverageChange(leverageCollateralAmount, leverageCollateralAmountNum);
+        } else {
+            triggerDebtAndOrLeverageChange(debtAmount, debtAmountNum);
+        }
+    }, [isDeposit, useLeverage])
 
     const handleDirectionChange = () => {
         const _isDeposit = !isDeposit;
@@ -227,6 +238,34 @@ export const F2CombinedForm = ({
         setUseLeverage(false);
     }
 
+    const triggerCollateralAndOrLeverageChange = (collateralString: string, collateralNum: number) => {
+        if (isDeleverageCase) {
+            const desiredWorth = (deposits - collateralNum) * market.price;                                    
+            const leverage = (deposits * market.price) / desiredWorth;
+            setLeverage(leverage);
+            const { dolaAmount } = getLeverageImpact({
+                deposits, debt, leverageLevel: leverage, market, isUp: false
+            });
+            handleDebtChange(Math.abs(dolaAmount).toFixed(2));
+            // setLeverageCollateralAmount('');
+        }
+        handleCollateralChange(collateralString);
+    }
+
+    const triggerDebtAndOrLeverageChange = (debtString: string, debtNum: number) => {
+        if (!isDeleverageCase && !!debtNum && debtNum > 0) {
+            const baseColAmountForLeverage = deposits > 0 ? deposits : collateralAmountNum;
+            const baseWorth = baseColAmountForLeverage * market.price;
+            const leverage = (debtNum + baseWorth) / baseWorth;
+            const { collateralAmount } = getLeverageImpact({
+                deposits, debt, leverageLevel: leverage, market, isUp: true
+            });
+            setLeverageCollateralAmount(removeTrailingZeros(collateralAmount.toFixed(8)));
+            setLeverage(leverage);
+        }
+        handleDebtChange(debtString);
+    }
+
     const btnLabel = isDeposit ? `Deposit & Borrow` : 'Withdraw';
     const btnMaxlabel = `${btnLabel} Max`;
     const notEnoughToBorrowWithAutobuy = isBorrowCase && market.leftToBorrow > 1 && deltaDebt > 0 && market.leftToBorrow < (isAutoDBR ? deltaDebt + (dbrCoverDebt * (1 + parseFloat(dbrBuySlippage || 0) / 100)) : deltaDebt);
@@ -244,12 +283,14 @@ export const F2CombinedForm = ({
                             : "The more you deposit, the more you can borrow against"
                         : "Withdrawing collateral will reduce borrowing power"
                 }>
-                    <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? market.isInv ? 'Stake' : 'Deposit' : market.isInv ? 'Unstake' : 'Withdraw'}</b> {isWethMarket && isUseNativeCoin ? 'ETH' : market.underlying.symbol}:</Text>
+                    <Text fontSize='18px' color="mainTextColor">
+                        <b>{isDeposit ? market.isInv ? 'Stake' : 'Deposit' : market.isInv ? 'Unstake' : 'Withdraw'}</b> {isWethMarket && isUseNativeCoin ? 'ETH' : market.underlying.symbol}{useLeverageInMode ? isDeposit && deposits > 0 ? ` (on top of leverage)` : ' (with leverage)' : ''}:
+                    </Text>
                 </TextInfo>
                 {
                     deposits > 0 || isDeposit ? <>
                         <SimpleAmountForm
-                            defaultAmount={isDeleverageCase ? '' : collateralAmount}
+                            defaultAmount={collateralAmount}
                             address={isUseNativeCoin ? '' : market.collateral}
                             destination={isAutoDBR ? F2_HELPER : market.address}
                             signer={signer}
@@ -258,14 +299,16 @@ export const F2CombinedForm = ({
                             onAction={handleAction}
                             onMaxAction={handleAction}
                             actionLabel={btnLabel}
-                            maxActionLabel={btnMaxlabel}
-                            onAmountChange={handleCollateralChange}
+                            maxActionLabel={btnMaxlabel}                            
+                            onAmountChange={(v, s) => {
+                                triggerCollateralAndOrLeverageChange(v, s);
+                            }}
                             showMaxBtn={isDeposit || !debt}
                             hideInputIfNoAllowance={false}
                             hideButtons={true}
                             showMax={!isDeleverageCase}
                             showBalance={isDeposit}
-                            inputProps={isDeleverageCase ? { disabled: true, placeholder: `Withdrawing by leverage: ~${leverageCollateralAmount}` } : useLeverageInMode ? { placeholder: `Deposit amount on top of leverage` } : undefined}
+                            inputProps={isDeleverageCase ? { disabled: false } : undefined}
                             inputRight={<MarketImage pr="2" image={isWethMarket ? (isUseNativeCoin ? market.icon : market.underlying.image) : market.icon || market.underlying.image} size={25} />}
                             isError={isDeposit ? collateralAmountNum > collateralBalance : collateralAmountNum > deposits}
                         />
@@ -325,13 +368,13 @@ export const F2CombinedForm = ({
                         `The amount of DOLA stablecoin you wish to ${isDeposit ? 'borrow' : 'repay'}`
                     }
                 >
-                    <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? 'Borrow' : 'Repay'}</b> DOLA:</Text>
+                    <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? 'Borrow' : 'Repay'}</b> DOLA{useLeverageInMode ? ' (with leverage)' : ''}:</Text>
                 </TextInfo>
                 {
                     (debt > 0 || isDeposit) && ((deposits > 0 && isBorrowOnlyCase) || !isBorrowOnlyCase) ?
                         <>
                             <SimpleAmountForm
-                                defaultAmount={debtAmount}
+                                defaultAmount={isDeleverageCase ? '' : debtAmount}
                                 address={market.collateral}
                                 destination={isAutoDBR ? F2_HELPER : market.address}
                                 signer={signer}
@@ -341,18 +384,16 @@ export const F2CombinedForm = ({
                                 onMaxAction={({ bnAmount }) => handleAction()}
                                 actionLabel={btnLabel}
                                 maxActionLabel={btnMaxlabel}
-                                onAmountChange={(v, s) => {                                    
-                                    const desiredWorth = deposits * market.price + (isDeleverageCase ? -s : s);
-                                    const leverage = isDeleverageCase ? (deposits * market.price) / desiredWorth : desiredWorth / (deposits * market.price);
-                                    setLeverage(leverage);
-                                    handleDebtChange(v);
+                                onAmountChange={(v, s) => {
+                                    triggerDebtAndOrLeverageChange(v, s);
                                 }}
-                                showMax={!isDeposit}
+                                showMax={!isDeleverageCase && !isDeposit}
                                 showMaxBtn={!isDeposit}
                                 hideInputIfNoAllowance={false}
                                 hideButtons={true}
                                 inputRight={<MarketImage pr="2" image={dolaToken.image} size={25} />}
                                 isError={isDeposit ? debtAmountNum > 0 && newPerc < 1 : debtAmountNum > debt}
+                                inputProps={isDeleverageCase ? { disabled: true, placeholder: `Repay via deleverage: ~${debtAmount}` } : undefined}
                             />
                             {
                                 <HStack w='full' justify="space-between">
@@ -362,7 +403,7 @@ export const F2CombinedForm = ({
                                         textProps={{
                                             cursor: 'pointer',
                                             fontSize: '14px',
-                                            onClick: () => handleDebtChange(formatUnits(bnDolaBalance, 18))
+                                            onClick: () => isDeleverageCase ? null : handleDebtChange(formatUnits(bnDolaBalance, 18))
                                         }}
                                     />
                                     <AmountInfos
@@ -371,7 +412,7 @@ export const F2CombinedForm = ({
                                         textProps={{
                                             cursor: 'pointer',
                                             fontSize: '14px',
-                                            onClick: () => handleDebtChange(formatUnits(bnDebt, 18))
+                                            onClick: () => isDeleverageCase ? null : handleDebtChange(formatUnits(bnDebt, 18))
                                         }}
                                     />
                                 </HStack>
@@ -504,11 +545,11 @@ export const F2CombinedForm = ({
         'repay': debtAmountNum <= 0 || debtAmountNum > debt || (debtAmountNum > dolaBalance && !useLeverageInMode) || (isAutoDBR && !parseFloat(dbrSellAmount)),
         'withdraw': ((collateralAmountNum <= 0 && !useLeverageInMode) || collateralAmountNum > deposits || newPerc < 1 || dbrBalance < 0),
     }
-    disabledConditions['d&b'] = disabledConditions['deposit'] || disabledConditions['borrow'] || !parseFloat(dbrBuySlippage);
-    disabledConditions['r&w'] = disabledConditions['repay'] || disabledConditions['withdraw']
+    disabledConditions['d&b'] = disabledConditions['deposit'] || disabledConditions['borrow'] || !parseFloat(dbrBuySlippage) || (useLeverageInMode && leverage <= 1);
+    disabledConditions['r&w'] = disabledConditions['repay'] || disabledConditions['withdraw'] || (useLeverageInMode && leverage <= 1);
 
     const modeLabel = mode.replace(/deposit/i, 'Stake').replace(/withdraw/i, 'Unstake');
-    const actionBtnLabel = useLeverageInMode ? `Sign + ${collateralAmountNum > 0 ? 'Deposit & ' : ''}Leverage ${isDeposit ? 'up' : 'down'}` : isSigNeeded ? `Sign + ${modeLabel}` : market.isInv ? isDeposit ? 'Stake' : 'Unstake' : modeLabel;
+    const actionBtnLabel = useLeverageInMode ? `Sign + ${collateralAmountNum > 0 && !isDeleverageCase ? 'Deposit & ' : ''}Leverage ${isDeposit ? 'up' : 'down'}` : isSigNeeded ? `Sign + ${modeLabel}` : market.isInv ? isDeposit ? 'Stake' : 'Unstake' : modeLabel;
 
     const actionBtn = <HStack>
         <SimpleAmountForm
@@ -532,6 +573,7 @@ export const F2CombinedForm = ({
             hideButtons={false}
             onSuccess={onSuccess}
             enableCustomApprove={true}
+            inputProps={isDeleverageCase ? { disabled: true, placeholder: `Repay via deleverage: ~${debtAmount}` } : undefined}
             btnProps={{
                 h: '50px',
                 w: 'fit-content',
@@ -575,12 +617,15 @@ export const F2CombinedForm = ({
                         useLeverageInMode && <FirmBoostInfos
                             type={isDeposit ? 'up' : 'down'}
                             onLeverageChange={({
-                                deltaBorrow, deltaCollateral
+                                dolaAmount, collateralAmount, isLeverageUp
                             }) => {
-                                if (Math.abs(deltaBorrow).toFixed(2) !== debtAmountNum.toFixed(2)) {
-                                    handleDebtChange(Math.abs(deltaBorrow).toFixed(2));
+                                if (isLeverageUp) {
+                                    handleDebtChange(Math.abs(dolaAmount).toFixed(2));
+                                    setLeverageCollateralAmount(Math.abs(collateralAmount).toFixed(8));
+                                } else {
+                                    handleCollateralChange(Math.abs(collateralAmount).toFixed(8));
+                                    handleDebtChange(Math.abs(dolaAmount).toFixed(2));
                                 }
-                                setLeverageCollateralAmount(Math.abs(deltaCollateral).toFixed(8));
                             }}
                         />
                     }

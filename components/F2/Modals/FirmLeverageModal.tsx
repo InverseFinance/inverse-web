@@ -22,19 +22,19 @@ export const FirmLeverageModal = () => {
         onFirmLeverageEngineClose();
     };
 
-    const ok = async () => {
-        if(isDeposit) {
-            return prepareLeveragePosition(signer, market, getNumberToBn(state.deltaBorrow));
-        }
-        const repayAmount = Math.min(-state.deltaBorrow, debt);
-        return prepareDeleveragePosition(signer, market, getNumberToBn(repayAmount), getNumberToBn(state.withdrawAmount));
-    };
+    // const ok = async () => {
+    //     if(isDeposit) {
+    //         return prepareLeveragePosition(signer, market, getNumberToBn(state.deltaBorrow));
+    //     }
+    //     const repayAmount = Math.min(-state.deltaBorrow, debt);
+    //     return prepareDeleveragePosition(signer, market, getNumberToBn(repayAmount), getNumberToBn(state.withdrawAmount));
+    // };
 
     return <ConfirmModal
         title="FiRM Leverage Engine"
         isOpen={isFirmLeverageEngineOpen}
         onClose={cancel}
-        onOk={ok}
+        onOk={cancel}
         onCancel={cancel}
         okDisabled={state.deltaBorrow > market.leftToBorrow || state.borrowLimit >= 99}
         okLabel="Continue"
@@ -45,6 +45,7 @@ export const FirmLeverageModal = () => {
             <FirmBoostInfos
                 type={isDeposit ? 'up' : 'down'}
                 onLeverageChange={(d) => setState(d)}
+                showDetails={true}
             />
         </VStack>
     </ConfirmModal>

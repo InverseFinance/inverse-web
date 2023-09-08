@@ -256,3 +256,7 @@ export const ascendingEventsSorter = (a, b) => {
         return a.logIndex - b.logIndex; // If block numbers are equal, sort by logIndex in ascending order
     }
 }
+
+export const removeTrailingZeros = (num: string) => {
+    return num.replace(/(\.\d*?[1-9])0+([a-zA-Z])?$/, '$1$2').replace(/\.0+([a-zA-Z])?$/, '$1')
+}

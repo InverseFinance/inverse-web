@@ -74,7 +74,7 @@ export const F2Context = ({
     const [isUseNativeCoin, setIsUseNativeCoin] = useState(false);
     const [needRefreshRewards, setNeedRefreshRewards] = useState(true);
     const [useLeverage, setUseLeverage] = useState(false);
-    const [leverage, setLeverage] = useState(1.01);
+    const [leverage, setLeverage] = useState(1);
     const [mode, setMode] = useState('Deposit & Borrow');
     
     const [infoTab, setInfoTab] = useState('Summary');
@@ -104,7 +104,7 @@ export const F2Context = ({
     const leverageCollateralAmountNum = parseFloat(leverageCollateralAmount || '0') || 0;
 
     const totalDebtAmountNum = debtAmountNum + (useLeverageInMode ? leverageDebtAmountNum : 0);
-    const totalCollateralAmountNum = (isDeposit || !useLeverageInMode ? collateralAmountNum : 0) + (useLeverageInMode ? leverageCollateralAmountNum : 0);
+    const totalCollateralAmountNum = collateralAmountNum + (isDeposit && useLeverageInMode ? leverageCollateralAmountNum : 0)//(isDeposit || !useLeverageInMode || (!isDeposit && useLeverageInMode) ? collateralAmountNum : 0) + (useLeverageInMode ? leverageCollateralAmountNum : 0);
 
     const dbrApproxData = useDBRNeeded(debtAmount, duration);
 
@@ -318,6 +318,7 @@ export const F2Context = ({
             setLeverage,
             hasDbrV1NewBorrowIssue,
             underlyingExRate,
+            totalCollateralAmountNum,
             setNeedRefreshRewards,
             setDbrBuySlippage,
             setDbrSellAmount,
@@ -339,6 +340,7 @@ export const F2Context = ({
             onFirmLeverageEngineClose,
             setLeverageCollateralAmount,
             leverageCollateralAmount,
+            leverageCollateralAmountNum,
             isFirstTimeModalOpen,
             firmActionIndex,
             setFirmActionIndex,

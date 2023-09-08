@@ -17,14 +17,23 @@ import { useAccountDBR } from '@app/hooks/useDBR'
 import { AnchorPoolInfo } from '@app/components/Anchor/AnchorPoolnfo'
 import { TextInfo } from '@app/components/common/Messages/TextInfo'
 
-const getSteps = (market: F2Market, deposits: number, debt: number, perc: number, type: string, leverageLevel: number, steps: number[] = [], doLastOne = false): number[] => {
-    const inputWorth = market.price ? deposits * market.price : 0;
+const getSteps = (
+    market: F2Market,
+    deposits: number,
+    debt: number,
+    perc: number,
+    type: string,
+    leverageLevel: number,
+    steps: number[] = [],
+    doLastOne = false,
+): number[] => {
+    const baseWorth = market.price ? deposits * market.price : 0;
     const isLeverageUp = type === 'up';
     const _leverageLevel = leverageLevel + 0.01;
     const effectiveLeverage = isLeverageUp ? _leverageLevel : 1 / _leverageLevel;
-    const desiredWorth = inputWorth * effectiveLeverage;
+    const desiredWorth = baseWorth * effectiveLeverage;
 
-    const deltaBorrow = desiredWorth - inputWorth;
+    const deltaBorrow = desiredWorth - baseWorth;
     const collateralPrice = market.price;
     const targetCollateralBalance = collateralPrice ? desiredWorth / collateralPrice : 0;
 
@@ -62,6 +71,48 @@ const RiskBadge = ({ color, text, onClick }: { color: BadgeProps["bgColor"], tex
     </RSubmitButton>
 }
 
+export const getLeverageImpact = ({
+    leverageLevel,
+    market,
+    isUp,
+    deposits,
+    initialDeposit,
+    debt,
+    dolaPrice = 1,
+}) => {
+    const collateralPrice = market?.price;
+    if (!collateralPrice) {
+        return
+    }
+    if (isUp) {
+        // leverage up: dola amount is fixed, collateral amount is variable
+        // if already has deposits, base is deposits, if not (=depositAndLeverage case), base is initialDeposit
+        const baseColAmountForLeverage = deposits > 0 ? deposits : initialDeposit;
+        const baseWorth = baseColAmountForLeverage * collateralPrice;
+        const targetWorth = baseWorth * leverageLevel;
+        const borrowAmountToSign = targetWorth - baseWorth;
+        const targetCollateralBalance = targetWorth / collateralPrice;
+        const collateralIncrease = targetCollateralBalance - baseColAmountForLeverage;
+        return {
+            dolaAmount: borrowAmountToSign,
+            collateralAmount: collateralIncrease,
+        }
+    } else {
+        // leverage down: dola amount is variable, collateral amount is fixed
+        // when deleveraging base is always current deposits
+        const baseColAmountForLeverage = deposits;
+        const baseWorth = baseColAmountForLeverage * collateralPrice;
+        const targetWorth = Math.max(0, baseWorth * (1 / leverageLevel));
+        const estimatedRepayAmount = (baseWorth - targetWorth);
+        const targetCollateralBalance = targetWorth / collateralPrice;
+        const withdrawAmountToSign = targetCollateralBalance - baseColAmountForLeverage;
+        return {
+            dolaAmount: estimatedRepayAmount,
+            collateralAmount: withdrawAmountToSign,
+        }
+    }
+}
+
 export const FirmBoostInfos = ({
     type = 'up',
     onLeverageChange,
@@ -85,10 +136,18 @@ export const FirmBoostInfos = ({
         debtAmountNum,
         collateralAmountNum,
         onFirmLeverageEngineOpen,
+        handleDebtChange,
+        leverageCollateralAmount,
+        setLeverageCollateralAmount,
+
+        newDebt,
+        newPerc,
+        newLiquidationPrice,
+        newTotalDebt,
     } = useContext(F2MarketContext);
 
     const borrowApy = dbrPrice * 100;
-    const minLeverage = 1.01;
+    const minLeverage = 1;
     // const [leverageLevel, setLeverageLevel] = useState(minLeverage || _leverageLevel);
     const [editLeverageLevel, setEditLeverageLevel] = useState(leverageLevel.toString());
     const [debounced, setDebounced] = useState(true);
@@ -147,6 +206,19 @@ export const FirmBoostInfos = ({
     const handleLeverageChange = (v: number) => {
         setDebounced(false);
         setLeverageLevel(v);
+        const { dolaAmount, collateralAmount } = getLeverageImpact({
+            leverageLevel: parseFloat(v),
+            market,
+            debt,
+            deposits,
+            initialDeposit: collateralAmountNum,
+            isUp: isLeverageUp,
+        });
+        onLeverageChange({
+            dolaAmount,
+            collateralAmount,
+            isLeverageUp,
+        })        
     }
 
     const isInvalidLeverage = (input: number) => {
@@ -163,41 +235,15 @@ export const FirmBoostInfos = ({
 
     const round = (v: number) => Math.floor(v * 100) / 100;
 
-    const _deposits = deposits > 0 ? deposits : collateralAmountNum;
-    const inputWorth = market.price ? _deposits * market.price : 0;
-    const isLeverageUp = type === 'up';
-    const effectiveLeverage = isLeverageUp ? leverageLevel : 1 / leverageLevel;
-    const _desiredWorth = inputWorth * effectiveLeverage;
-
-    const _deltaBorrow = _desiredWorth - inputWorth;
-
-    const deltaBorrow = isLeverageUp ? _deltaBorrow : _deltaBorrow < -debt ? -debt : _deltaBorrow;
-    const desiredWorth = isLeverageUp ? _desiredWorth : inputWorth + deltaBorrow;
-
-    const collateralPrice = market.price;
-    const targetCollateralBalance = collateralPrice ? desiredWorth / collateralPrice : 0;
-    const deltaCollateral = targetCollateralBalance - _deposits;
-
-    const {
-        newDebt,
-        newPerc,
-        newLiquidationPrice,
-    } = f2CalcNewHealth(
-        market,
-        _deposits,
-        debt,
-        targetCollateralBalance - _deposits,
-        deltaBorrow,
-        perc,
-    );
+    const isLeverageUp = type === 'up';    
 
     const newBorrowLimit = 100 - newPerc;
-    const leverageSteps = useMemo(() => getSteps(market, _deposits, debt, perc, type, 1), [market, _deposits, debt, perc, type]);
+    const leverageSteps = useMemo(() => getSteps(market, deposits, debt, perc, type, 1), [market, deposits, debt, perc, type]);
     const maxLeverage = round(leverageSteps[leverageSteps.length - 1]);
     const leverageRelativeToMax = leverageLevel / maxLeverage;
 
     const { dbrExpiryDate, debt: currentTotalDebt } = useAccountDBR(account);
-    const newTotalDebt = currentTotalDebt + deltaBorrow;
+    // const newTotalDebt = currentTotalDebt + deltaBorrow;
     const { dbrExpiryDate: newDBRExpiryDate, dailyDebtAccrual: newDailyDBRBurn } = useAccountDBR(account, newTotalDebt);
 
     const risk = leverageRelativeToMax <= 0.5 ?
@@ -208,23 +254,6 @@ export const FirmBoostInfos = ({
 
     const currentRiskColor = getRiskColor(perc);
     const newRiskColor = getRiskColor(newPerc);
-
-    useDebouncedEffect(() => {
-        onLeverageChange({
-            deltaBorrow,
-            newBorrowLimit,
-            newDebt,
-            deltaCollateral,
-        });
-    }, [deltaBorrow, newBorrowLimit, newDebt, deltaCollateral], 100);
-
-    useEffect(() => {
-        if (leverageLevel !== minLeverage) {
-            return;
-        }
-        const length = leverageSteps.length;
-        setLeverageLevel(length > 2 ? leverageSteps[Math.floor(length / 2)] : 1);
-    }, [leverageSteps]);
 
     const boostLabel = isLeverageUp ? 'Leverage' : 'Deleverage';
     const now = Date.now();
@@ -250,14 +279,16 @@ export const FirmBoostInfos = ({
                         />
                     }
                 </InputGroup>
-                <TextInfo direction="row-reverse" message={isLeverageUp ? `Collateral added thanks to leverage` : `Collateral reduced thanks to deleverage`}>
+                {
+                    leverageLevel > 1 && <TextInfo direction="row-reverse" message={isLeverageUp ? `Collateral added thanks to leverage` : `Collateral reduced thanks to deleverage`}>
                     <HStack fontWeight="bold" spacing="1" alignItems="center">
-                        {isLeverageUp ? <ArrowUpIcon color="success" fontSize="18px"  /> : <ArrowDownIcon color="warning" fontSize="18px" />}
+                        {isLeverageUp ? <ArrowUpIcon color="success" fontSize="18px" /> : <ArrowDownIcon color="warning" fontSize="18px" />}
                         <Text fontSize="16px">
-                            ~{smartShortNumber(Math.abs(deltaCollateral), 8)} {market.underlying.symbol}
+                            ~{smartShortNumber(isLeverageUp ? parseFloat(leverageCollateralAmount) : collateralAmountNum, 8)} {market.underlying.symbol}
                         </Text>
                     </HStack>
                 </TextInfo>
+                }
                 {/* {
                     market.supplyApy > 0 && <HStack>
                         {newApyInfos}
@@ -290,18 +321,18 @@ export const FirmBoostInfos = ({
                 <SliderThumb h="20px" w="10px" />
             </Slider>
             <HStack w='full' justify="space-between" alignItems="center">
-                <Text textDecoration="underline" fontWeight="bold" cursor="pointer" color={riskLevels.safer.color} onClick={() => setLeverageLevel(minLeverage)}>
-                    Min: x{shortenNumber(minLeverage, 2)}
+                <Text textDecoration="underline" fontWeight="bold" cursor="pointer" color={riskLevels.safer.color} onClick={() => handleLeverageChange(minLeverage)}>
+                    No leverage
                 </Text>
-                <Text textDecoration="underline" fontWeight="bold" cursor="pointer" color={riskLevels.riskier.color} onClick={() => setLeverageLevel(maxLeverage)}>
+                <Text textDecoration="underline" fontWeight="bold" cursor="pointer" color={riskLevels.riskier.color} onClick={() => handleLeverageChange(maxLeverage)}>
                     Max: x{shortenNumber(maxLeverage, 2)}
                 </Text>
             </HStack>
             {
-                newBorrowLimit >= 99 && <WarningMessage alertProps={{ position: 'absolute', top: '110px' }} description="New borrow limit would be too high" />
+                newBorrowLimit >= 99 && <WarningMessage description="New borrow limit would be too high" />
             }
         </VStack>
-        {showDetails && <InfoMessage
+        {/* {showDetails && <InfoMessage
             alertProps={{ w: { base: 'full', md: '60%' }, p: '4', fontSize: '14px' }}
             showIcon={false}
             description={
@@ -362,7 +393,7 @@ export const FirmBoostInfos = ({
                         </HStack>
                         <HStack>
                             <Text fontWeight="bold">
-                                {smartShortNumber(_deposits, 2)}
+                                {smartShortNumber(baseColAmountForLeverage, 2)}
                             </Text>
                             <Text fontWeight="bold">
                             =>
@@ -431,6 +462,6 @@ export const FirmBoostInfos = ({
                     </HStack>
                 </VStack>
             }
-        />}
+        />} */}
     </Stack>
 }
