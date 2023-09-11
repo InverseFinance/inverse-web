@@ -24,7 +24,6 @@ import { Input } from '@app/components/common/Input'
 import { DBRAutoRepayCalculator } from '../DBRAutoRepayCalculator'
 
 import { FirmLeverageModal } from '../Modals/FirmLeverageModal'
-import { RSubmitButton } from '@app/components/common/Button/RSubmitButton'
 import { FEATURE_FLAGS } from '@app/config/features'
 import { preciseCommify } from '@app/util/misc'
 import { FirmBoostInfos, getLeverageImpact } from '../ale/FirmBoostInfos'
@@ -103,6 +102,7 @@ export const F2CombinedForm = ({
         setLeverageCollateralAmount,
         leverageCollateralAmount,
         leverageCollateralAmountNum,
+        dolaPrice,
     } = useContext(F2MarketContext);
 
     const [syncedMinH, setSyncedMinH] = useState('230px');
@@ -240,13 +240,13 @@ export const F2CombinedForm = ({
         setUseLeverage(false);
     }
 
-    const triggerCollateralAndOrLeverageChange = (collateralString: string, collateralNum: number) => {
+    const triggerCollateralAndOrLeverageChange = async (collateralString: string, collateralNum: number) => {
         if (isDeleverageCase) {
             const desiredWorth = (deposits - collateralNum) * market.price;                                    
             const leverage = (deposits * market.price) / desiredWorth;
             setLeverage(leverage);
-            const { dolaAmount } = getLeverageImpact({
-                deposits, debt, leverageLevel: leverage, market, isUp: false
+            const { dolaAmount } = await getLeverageImpact({
+                deposits, debt, leverageLevel: leverage, market, isUp: false, dolaPrice
             });
             handleDebtChange(Math.abs(dolaAmount).toFixed(2));
             // setLeverageCollateralAmount('');
@@ -254,13 +254,13 @@ export const F2CombinedForm = ({
         handleCollateralChange(collateralString);
     }
 
-    const triggerDebtAndOrLeverageChange = (debtString: string, debtNum: number) => {
+    const triggerDebtAndOrLeverageChange = async (debtString: string, debtNum: number) => {
         if (!isDeleverageCase && !!debtNum && debtNum > 0) {
             const baseColAmountForLeverage = deposits > 0 ? deposits : collateralAmountNum;
             const baseWorth = baseColAmountForLeverage * market.price;
             const leverage = (debtNum + baseWorth) / baseWorth;
-            const { collateralAmount } = getLeverageImpact({
-                deposits, debt, leverageLevel: leverage, market, isUp: true
+            const { collateralAmount } = await getLeverageImpact({
+                deposits, debt, leverageLevel: leverage, market, isUp: true, dolaPrice
             });
             setLeverageCollateralAmount(removeTrailingZeros(collateralAmount.toFixed(8)));
             setLeverage(leverage);

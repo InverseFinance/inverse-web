@@ -1,7 +1,7 @@
 import { Slider, Text, VStack, SliderTrack, SliderFilledTrack, SliderThumb, HStack, Stack, InputGroup, InputRightElement, InputLeftElement } from '@chakra-ui/react'
 
 import { useContext, useEffect, useMemo, useState } from 'react'
-import { shortenNumber, smartShortNumber } from '@app/util/markets'
+import { getNumberToBn, shortenNumber, smartShortNumber } from '@app/util/markets'
 import { WarningMessage } from '@app/components/common/Messages'
 import { ArrowDownIcon, ArrowUpIcon, CheckCircleIcon } from '@chakra-ui/icons'
 import { Input } from '@app/components/common/Input'
@@ -12,6 +12,10 @@ import { F2Market } from '@app/types'
 import { useAccountDBR } from '@app/hooks/useDBR'
 import { AnchorPoolInfo } from '@app/components/Anchor/AnchorPoolnfo'
 import { TextInfo } from '@app/components/common/Messages/TextInfo'
+import { get0xSellQuote } from '@app/util/zero'
+import { getNetworkConfigConstants } from '@app/util/networks'
+
+const { DOLA } = getNetworkConfigConstants();
 
 const getSteps = (
     market: F2Market,
@@ -61,7 +65,7 @@ const riskLevels = {
     'riskier': { color: 'red.500', text: 'Riskier' },
 }
 
-export const getLeverageImpact = ({
+export const getLeverageImpact = async ({
     leverageLevel,
     market,
     isUp,
@@ -69,6 +73,7 @@ export const getLeverageImpact = ({
     initialDeposit,
     debt,
     dolaPrice = 1,
+    aleSlippage,
 }) => {
     const collateralPrice = market?.price;
     if (!collateralPrice) {
@@ -80,12 +85,14 @@ export const getLeverageImpact = ({
         const baseColAmountForLeverage = deposits > 0 ? deposits : initialDeposit;
         const baseWorth = baseColAmountForLeverage * collateralPrice;
         const targetWorth = baseWorth * leverageLevel;
-        const borrowAmountToSign = targetWorth - baseWorth;
-        const targetCollateralBalance = targetWorth / collateralPrice;
-        const collateralIncrease = targetCollateralBalance - baseColAmountForLeverage;
+        const borrowAmountToSign = (targetWorth - baseWorth) * dolaPrice;
+        const { buyAmount } = await get0xSellQuote(market.collateral, DOLA, getNumberToBn(borrowAmountToSign).toString(), aleSlippage, true);        
+        // const targetCollateralBalance = targetWorth / collateralPrice;
+        // const collateralIncrease = targetCollateralBalance - baseColAmountForLeverage;
         return {
             dolaAmount: borrowAmountToSign,
-            collateralAmount: collateralIncrease,
+            // collateralAmount: collateralIncrease,
+            collateralAmount: parseFloat(buyAmount)/(10 ** market.underlying.decimals),
         }
     } else {
         // leverage down: dola amount is variable, collateral amount is fixed
@@ -136,6 +143,7 @@ export const FirmBoostInfos = ({
         newTotalDebt,
         aleSlippage,
         setAleSlippage,
+        dolaPrice,
     } = useContext(F2MarketContext);
 
     const borrowApy = dbrPrice * 100;
@@ -195,16 +203,18 @@ export const FirmBoostInfos = ({
         }
     }
 
-    const handleLeverageChange = (v: number) => {
+    const handleLeverageChange = async (v: number) => {
         setDebounced(false);
         setLeverageLevel(v);
-        const { dolaAmount, collateralAmount } = getLeverageImpact({
+        const { dolaAmount, collateralAmount } = await getLeverageImpact({
             leverageLevel: parseFloat(v),
             market,
             debt,
             deposits,
             initialDeposit: collateralAmountNum,
             isUp: isLeverageUp,
+            aleSlippage,
+            dolaPrice,
         });
         onLeverageChange({
             dolaAmount,

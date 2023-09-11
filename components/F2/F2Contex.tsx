@@ -13,6 +13,7 @@ import { useRouter } from 'next/router'
 import { useDOLABalance } from '@app/hooks/useDOLA'
 import useStorage from '@app/hooks/useStorage'
 import { gaEvent } from '@app/util/analytics'
+import { useDOLAPrice } from '@app/hooks/usePrices'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -95,6 +96,7 @@ export const F2Context = ({
 
     const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt, bnLeftToBorrow, leftToBorrow, liquidationPrice, escrow, underlyingExRate } = useAccountDBRMarket(market, account, isUseNativeCoin);
     const { balance: dolaBalance, bnBalance: bnDolaBalance } = useDOLABalance(account);
+    const { price: dolaPrice, isLoading: isDolaPriceLoading } = useDOLAPrice();
 
     const useLeverageInMode = useLeverage && (mode === 'Deposit & Borrow' || (mode === 'Repay & Withdraw' && debt > 1))
 
@@ -322,6 +324,7 @@ export const F2Context = ({
             totalCollateralAmountNum,
             setAleSlippage,
             aleSlippage,
+            dolaPrice,
             setNeedRefreshRewards,
             setDbrBuySlippage,
             setDbrSellAmount,
