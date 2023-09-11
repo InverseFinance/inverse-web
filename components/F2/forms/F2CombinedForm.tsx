@@ -29,6 +29,7 @@ import { preciseCommify } from '@app/util/misc'
 import { FirmBoostInfos, getLeverageImpact } from '../ale/FirmBoostInfos'
 import { prepareDeleveragePosition, prepareLeveragePosition } from '@app/util/firm-ale'
 import { removeTrailingZeros } from '@app/util/misc'
+import { showToast } from '@app/util/notify'
 
 const { DOLA, F2_HELPER, DBR, F2_ALE } = getNetworkConfigConstants();
 
@@ -245,23 +246,31 @@ export const F2CombinedForm = ({
             const desiredWorth = (deposits - collateralNum) * market.price;                                    
             const leverage = (deposits * market.price) / desiredWorth;
             setLeverage(leverage);
-            const { dolaAmount } = await getLeverageImpact({
+            const { dolaAmount, errorMsg } = await getLeverageImpact({
                 deposits, debt, leverageLevel: leverage, market, isUp: false, dolaPrice
             });
+            if(!!errorMsg) {
+                showToast({ status: 'warning', description: errorMsg, title: 'ZeroX api error' })
+                return
+            }
             handleDebtChange(Math.abs(dolaAmount).toFixed(2));
             // setLeverageCollateralAmount('');
         }
         handleCollateralChange(collateralString);
     }
 
-    const triggerDebtAndOrLeverageChange = async (debtString: string, debtNum: number) => {
+    const triggerDebtAndOrLeverageChange = async (debtString: string, debtNum: number) => {        
         if (!isDeleverageCase && !!debtNum && debtNum > 0) {
             const baseColAmountForLeverage = deposits > 0 ? deposits : collateralAmountNum;
             const baseWorth = baseColAmountForLeverage * market.price;
             const leverage = (debtNum + baseWorth) / baseWorth;
-            const { collateralAmount } = await getLeverageImpact({
+            const { collateralAmount, errorMsg } = await getLeverageImpact({
                 deposits, debt, leverageLevel: leverage, market, isUp: true, dolaPrice
             });
+            if(!!errorMsg) {
+                showToast({ status: 'warning', description: errorMsg, title: 'ZeroX api error' })
+                return
+            }
             setLeverageCollateralAmount(removeTrailingZeros(collateralAmount.toFixed(8)));
             setLeverage(leverage);
         }

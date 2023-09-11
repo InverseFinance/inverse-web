@@ -14,6 +14,7 @@ import { AnchorPoolInfo } from '@app/components/Anchor/AnchorPoolnfo'
 import { TextInfo } from '@app/components/common/Messages/TextInfo'
 import { get0xSellQuote } from '@app/util/zero'
 import { getNetworkConfigConstants } from '@app/util/networks'
+import { showToast } from '@app/util/notify'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -76,7 +77,7 @@ export const getLeverageImpact = async ({
     aleSlippage,
 }) => {
     const collateralPrice = market?.price;
-    if (!collateralPrice) {
+    if (!collateralPrice || leverageLevel <= 1) {
         return
     }
     if (isUp) {
@@ -86,10 +87,14 @@ export const getLeverageImpact = async ({
         const baseWorth = baseColAmountForLeverage * collateralPrice;
         const targetWorth = baseWorth * leverageLevel;
         const borrowAmountToSign = (targetWorth - baseWorth) * dolaPrice;
-        const { buyAmount } = await get0xSellQuote(market.collateral, DOLA, getNumberToBn(borrowAmountToSign).toString(), aleSlippage, true);        
+        const { buyAmount, validationErrors } = await get0xSellQuote(market.collateral, DOLA, getNumberToBn(borrowAmountToSign).toString(), aleSlippage, true);
+        const msg = validationErrors?.length > 0 ?
+                `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
+                : "Getting a quote from 0x failed";
         // const targetCollateralBalance = targetWorth / collateralPrice;
         // const collateralIncrease = targetCollateralBalance - baseColAmountForLeverage;
         return {
+            errorMsg: validationErrors?.length > 0 ? msg : undefined,
             dolaAmount: borrowAmountToSign,
             // collateralAmount: collateralIncrease,
             collateralAmount: parseFloat(buyAmount)/(10 ** market.underlying.decimals),
@@ -98,13 +103,19 @@ export const getLeverageImpact = async ({
         // leverage down: dola amount is variable, collateral amount is fixed
         // when deleveraging base is always current deposits
         const baseColAmountForLeverage = deposits;
-        const baseWorth = baseColAmountForLeverage * collateralPrice;
+        const baseWorth = baseColAmountForLeverage * collateralPrice;        
         const targetWorth = Math.max(0, baseWorth * (1 / leverageLevel));
-        const estimatedRepayAmount = (baseWorth - targetWorth);
-        const targetCollateralBalance = targetWorth / collateralPrice;
-        const withdrawAmountToSign = targetCollateralBalance - baseColAmountForLeverage;
+        // const estimatedRepayAmount = (baseWorth - targetWorth);
+        const targetCollateralBalance = targetWorth / collateralPrice;        
+        const withdrawAmountToSign = targetCollateralBalance - baseColAmountForLeverage;       
+        const { buyAmount, validationErrors } = await get0xSellQuote(market.collateral, DOLA, getNumberToBn(Math.abs(withdrawAmountToSign), market.underlying.decimals).toString(), aleSlippage, true);
+        const msg = validationErrors?.length > 0 ?
+                `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
+                : "Getting a quote from 0x failed";
         return {
-            dolaAmount: estimatedRepayAmount,
+            errorMsg: validationErrors?.length > 0 ? msg : undefined,
+            // dolaAmount: estimatedRepayAmount,
+            dolaAmount: buyAmount,
             collateralAmount: withdrawAmountToSign,
         }
     }
@@ -206,7 +217,7 @@ export const FirmBoostInfos = ({
     const handleLeverageChange = async (v: number) => {
         setDebounced(false);
         setLeverageLevel(v);
-        const { dolaAmount, collateralAmount } = await getLeverageImpact({
+        const { dolaAmount, collateralAmount, errorMsg } = await getLeverageImpact({
             leverageLevel: parseFloat(v),
             market,
             debt,
@@ -216,6 +227,10 @@ export const FirmBoostInfos = ({
             aleSlippage,
             dolaPrice,
         });
+        if(!!errorMsg) {
+            showToast({ status: 'warning', description: errorMsg, title: 'ZeroX api error' })
+            return
+        }
         onLeverageChange({
             dolaAmount,
             collateralAmount,
@@ -272,7 +287,7 @@ export const FirmBoostInfos = ({
                             {boostLabel}:
                         </Text>}
                     />
-                    <Input onKeyPress={handleKeyPress} id="boostInput" color={risk.color} py="0" pl="60px" onChange={(e) => handleEditLeverage(e, minLeverage, maxLeverage)} width="220px" value={editLeverageLevel} min={minLeverage} max={maxLeverage} />
+                    <Input autocomplete="off" onKeyPress={handleKeyPress} id="boostInput" color={risk.color} py="0" pl="60px" onChange={(e) => handleEditLeverage(e, minLeverage, maxLeverage)} width="220px" value={editLeverageLevel} min={minLeverage} max={maxLeverage} />
                     {
                         editLeverageLevel !== leverageLevel.toFixed(2) && debounced && !isInvalidLeverage(parseFloat(editLeverageLevel)) &&
                         <InputRightElement cursor="pointer" transform="translateX(40px)" onClick={() => validateEditLeverage()}
