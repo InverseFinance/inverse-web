@@ -69,6 +69,7 @@ export const F2Context = ({
     const [leverageDebtAmount, setLeverageDebtAmount] = useState('');
     const [dbrSellAmount, setDbrSellAmount] = useState('');
     const [dbrBuySlippage, setDbrBuySlippage] = useState('1');
+    const [aleSlippage, setAleSlippage] = useState('1');
     const [isDeposit, setIsDeposit] = useState(true);
     const [isAutoDBR, setIsAutoDBR] = useState(false);
     const [isUseNativeCoin, setIsUseNativeCoin] = useState(false);
@@ -319,6 +320,8 @@ export const F2Context = ({
             hasDbrV1NewBorrowIssue,
             underlyingExRate,
             totalCollateralAmountNum,
+            setAleSlippage,
+            aleSlippage,
             setNeedRefreshRewards,
             setDbrBuySlippage,
             setDbrSellAmount,

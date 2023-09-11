@@ -1,17 +1,13 @@
-import { Slider, Text, VStack, SliderTrack, SliderFilledTrack, SliderThumb, HStack, Badge, BadgeProps, Stack, InputGroup, InputRightElement, InputLeftElement } from '@chakra-ui/react'
+import { Slider, Text, VStack, SliderTrack, SliderFilledTrack, SliderThumb, HStack, Stack, InputGroup, InputRightElement, InputLeftElement } from '@chakra-ui/react'
 
 import { useContext, useEffect, useMemo, useState } from 'react'
-import { getNumberToBn, shortenNumber, smartShortNumber } from '@app/util/markets'
-import { InfoMessage, WarningMessage } from '@app/components/common/Messages'
-import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
+import { shortenNumber, smartShortNumber } from '@app/util/markets'
+import { WarningMessage } from '@app/components/common/Messages'
 import { ArrowDownIcon, ArrowUpIcon, CheckCircleIcon } from '@chakra-ui/icons'
-import { showToast } from '@app/util/notify'
 import { Input } from '@app/components/common/Input'
 import { F2MarketContext } from '../F2Contex'
-import { f2CalcNewHealth, getDepletionDate, getRiskColor } from '@app/util/f2'
-import { capitalize, preciseCommify } from '@app/util/misc'
+import { f2CalcNewHealth, getRiskColor } from '@app/util/f2'
 import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
-import { RSubmitButton } from '@app/components/common/Button/RSubmitButton'
 import { F2Market } from '@app/types'
 import { useAccountDBR } from '@app/hooks/useDBR'
 import { AnchorPoolInfo } from '@app/components/Anchor/AnchorPoolnfo'
@@ -63,12 +59,6 @@ const riskLevels = {
     'midHigh': { color: 'tomato', text: 'Riskier' },
     'high': { color: 'red.500', text: 'Risky' },
     'riskier': { color: 'red.500', text: 'Riskier' },
-}
-
-const RiskBadge = ({ color, text, onClick }: { color: BadgeProps["bgColor"], text: string, onClick: () => void }) => {
-    return <RSubmitButton w='70px' _hover={{ filter: 'brightness(1.05)' }} userSelect="none" cursor="pointer" onClick={onClick} bgColor={color} color="white">
-        {text}
-    </RSubmitButton>
 }
 
 export const getLeverageImpact = ({
@@ -144,6 +134,8 @@ export const FirmBoostInfos = ({
         newPerc,
         newLiquidationPrice,
         newTotalDebt,
+        aleSlippage,
+        setAleSlippage,
     } = useContext(F2MarketContext);
 
     const borrowApy = dbrPrice * 100;
@@ -260,8 +252,7 @@ export const FirmBoostInfos = ({
 
     return <Stack fontSize="14px" spacing="4" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
         <VStack position="relative" w='full' alignItems="center" justify="center">
-            <HStack spacing="8" w='full' justify="space-between" alignItems="center">
-                {/* <RiskBadge {...riskLevels.safer} onClick={() => handleLeverageChange(leverageLevel - 1 >= minLeverage ? round(leverageLevel - 1) : minLeverage)} /> */}
+            <HStack spacing="8" w='full' justify="space-between" alignItems="center">                
                 <InputGroup
                     w='fit-content'
                     alignItems="center"
@@ -302,8 +293,7 @@ export const FirmBoostInfos = ({
                         </Text>
                     </HStack>
                 </TextInfo> */}
-                {/* <Text onClick={() => onFirmLeverageEngineOpen()}>Details</Text> */}
-                {/* <RiskBadge {...riskLevels.riskier} onClick={() => handleLeverageChange(leverageLevel + 1 <= maxLeverage ? round(leverageLevel + 1) : maxLeverage)} /> */}
+                {/* <Text onClick={() => onFirmLeverageEngineOpen()}>Details</Text> */}                
             </HStack>
             <Slider
                 value={leverageLevel}
@@ -327,6 +317,15 @@ export const FirmBoostInfos = ({
                 <Text textDecoration="underline" fontWeight="bold" cursor="pointer" color={riskLevels.riskier.color} onClick={() => handleLeverageChange(maxLeverage)}>
                     Max: x{shortenNumber(maxLeverage, 2)}
                 </Text>
+            </HStack>
+            <HStack w='full' justify="space-between">
+                <TextInfo
+                    message="Collateral price can vary, the max. slippage % allows the swap required for leverage to be within a certain range, if out of range, tx will revert or fail">
+                    <Text>
+                        Max. swap slippage %:
+                    </Text>
+                </TextInfo>
+                <Input py="0" maxH="30px" w='90px' value={aleSlippage} onChange={(e) => setAleSlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'))} />
             </HStack>
             {
                 newBorrowLimit >= 99 && <WarningMessage description="New borrow limit would be too high" />

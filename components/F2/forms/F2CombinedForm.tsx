@@ -84,6 +84,8 @@ export const F2CombinedForm = ({
         isWethMarket,
         dbrSellAmount,
         setDbrSellAmount,
+        aleSlippage,
+        setAleSlippage,
         dbrBuySlippage,
         setDbrBuySlippage,
         deposits, bnDeposits, debt, bnWithdrawalLimit, bnLeftToBorrow, bnCollateralBalance, collateralBalance, bnDebt,
@@ -166,7 +168,7 @@ export const F2CombinedForm = ({
                     parseUnits(debtAmount),
                     // deposit in addition to collateral increase due to leverage
                     parseUnits(collateralAmount || '0', market.underlying.decimals),
-                    undefined,
+                    aleSlippage,
                     isAutoDBR ? dbrBuySlippage : undefined,
                     isAutoDBR ? duration : 0,
                 );
@@ -191,7 +193,7 @@ export const F2CombinedForm = ({
                     parseUnits(debtAmount),
                     // withdrawn by deleverage
                     parseUnits(collateralAmount || '0', market.underlying.decimals),
-                    undefined,
+                    aleSlippage,
                     dbrAmountToSell,
                     minDolaOut,
                 );

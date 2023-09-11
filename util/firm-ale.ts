@@ -19,7 +19,7 @@ export const prepareLeveragePosition = async (
     market: F2Market,
     dolaToBorrowToBuyCollateral: BigNumber,
     initialDeposit?: BigNumber,
-    slippage?: number,
+    slippagePerc?: string | number,
     dbrBuySlippage?: string | number,
     durationDays?: number,
 ) => {
@@ -39,7 +39,7 @@ export const prepareLeveragePosition = async (
         let get0xQuoteResult;
         try {
             // the dola swapped for collateral is dolaToBorrowToBuyCollateral not totalDolaToBorrow (a part is for dbr)
-            get0xQuoteResult = await get0xSellQuote(market.collateral, DOLA, dolaToBorrowToBuyCollateral.toString(), slippage);
+            get0xQuoteResult = await get0xSellQuote(market.collateral, DOLA, dolaToBorrowToBuyCollateral.toString(), slippagePerc);
             if (!get0xQuoteResult?.to) {
                 const msg = get0xQuoteResult?.validationErrors?.length > 0 ?
                     `Swap validation failed with: ${get0xQuoteResult?.validationErrors[0].field} ${get0xQuoteResult?.validationErrors[0].reason}`
@@ -112,7 +112,7 @@ export const prepareDeleveragePosition = async (
     market: F2Market,
     dolaToRepayToSellCollateral: BigNumber,
     collateralToWithdraw: BigNumber,    
-    slippage?: number,
+    slippagePerc?: string | number,
     dbrToSell?: BigNumber,
     minDolaOut?: BigNumber,
 ) => {
@@ -120,7 +120,7 @@ export const prepareDeleveragePosition = async (
     // we need the quote first
     try {
         // the dola swapped for collateral is dolaToRepayToSellCollateral not totalDolaToBorrow (a part is for dbr)
-        get0xQuoteResult = await get0xSellQuote(DOLA, market.collateral, collateralToWithdraw.toString(), slippage);            
+        get0xQuoteResult = await get0xSellQuote(DOLA, market.collateral, collateralToWithdraw.toString(), slippagePerc);          
         if (!get0xQuoteResult?.to) {
             const msg = get0xQuoteResult?.validationErrors?.length > 0 ?
                 `Swap validation failed with: ${get0xQuoteResult?.validationErrors[0].field} ${get0xQuoteResult?.validationErrors[0].reason}`
