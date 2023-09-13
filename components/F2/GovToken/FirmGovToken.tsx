@@ -1,5 +1,5 @@
 import Container from "@app/components/common/Container"
-import { Stack, Text, VStack, useDisclosure } from "@chakra-ui/react"
+import { HStack, Stack, Text, VStack, useDisclosure } from "@chakra-ui/react"
 import { F2MarketContext } from "../F2Contex";
 import { useContext, useEffect, useState } from "react";
 import ScannerLink from "@app/components/common/ScannerLink";
@@ -9,7 +9,7 @@ import { RSubmitButton } from "@app/components/common/Button/RSubmitButton";
 import ConfirmModal from "@app/components/common/Modal/ConfirmModal";
 import { Input } from "@app/components/common/Input";
 import { isAddress } from "ethers/lib/utils";
-import { InfoMessage } from "@app/components/common/Messages";
+import { InfoMessage, WarningMessage } from "@app/components/common/Messages";
 import { Contract } from "ethers";
 import { useWeb3React } from "@web3-react/core";
 import { Web3Provider } from "@ethersproject/providers";
@@ -18,33 +18,70 @@ import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { NetworkIds } from "@app/types";
 import { BURN_ADDRESS } from "@app/config/constants";
+import { useStakedInFirm } from "@app/hooks/useFirm";
+import { useAccount } from "@app/hooks/misc";
+
+const CONTAINER_ID = 'firm-gov-token-container'
 
 const { INV } = getNetworkConfigConstants(NetworkIds.mainnet);
 
-export const FirmGovToken = () => {
-    const { provider, account } = useWeb3React<Web3Provider>();
+export const InvInconsistentFirmDelegation = () => {
+    const account = useAccount();
+    const { escrow } = useContext(F2MarketContext);
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const [newDelegate, setNewDelegate] = useState('');
+    const { data: nonFirmDelegation, error } = useEtherSWR([
+        INV, 'delegates', account,
+    ]);
+    const { delegate: firmDelegate } = useStakedInFirm(account);
+    const delegatingTo = firmDelegate?.replace(BURN_ADDRESS, '');
+
+    if (!error && !!nonFirmDelegation && nonFirmDelegation?.replace(BURN_ADDRESS, '') !== delegatingTo) {
+        return <>
+            <FirmGovDelegationModal
+                isOpen={isOpen}
+                onClose={onClose}
+                delegatingTo={delegatingTo}
+                suggestedValue={nonFirmDelegation?.replace(BURN_ADDRESS, '')}
+                escrow={escrow}
+            />
+            <WarningMessage
+                alertProps={{ w: 'full' }}
+                description={
+                    <VStack alignItems="flex-start">
+                        <Text><b>Note</b>: your FiRM INV delegation is inconsistent with your global INV delegation</Text>
+                        <HStack spacing="1">
+                            <Text>- FiRM INV is delegated to:</Text>
+                            <ScannerLink fontWeight="bold" value={delegatingTo} />
+                        </HStack>
+                        <HStack spacing="1">
+                            <Text>- INV/xINV is delegated to:</Text>
+                            <ScannerLink fontWeight="bold" value={nonFirmDelegation} />
+                        </HStack>
+                        <Text fontWeight="bold" textDecoration="underline" cursor="pointer" onClick={() => onOpen()}>
+                            Change FiRM delegation
+                        </Text>
+                        <Text fontWeight="bold" textDecoration="underline" cursor="pointer">
+                            Close and don't show this message again
+                        </Text>
+                    </VStack>
+                }
+            />
+        </>
+    }
+    return null
+}
+
+export const FirmGovDelegationModal = ({
+    isOpen,
+    onClose,
+    delegatingTo,
+    suggestedValue = '',
+    escrow,
+}) => {
+    const { provider } = useWeb3React<Web3Provider>();
+    const account = useAccount();
     const [hasError, setHasError] = useState(false);
-    const { market, escrow } = useContext(F2MarketContext);
-    const hasEscrow = escrow?.replace(BURN_ADDRESS, '');
-
-    // standard case
-    const { data: delegateData } = useEtherSWR({
-        args: market.isInv ? [[INV, 'delegates', escrow]] : [[escrow, 'delegatingTo']],
-        abi: market.isInv ? INV_ABI : F2_ESCROW_ABI,
-    });
-
-    const delegatingTo = (delegateData ? delegateData[0] : '')?.replace(BURN_ADDRESS, '');
-
-    useEffect(() => {
-        setHasError(
-            !newDelegate
-            || !account
-            || (!!newDelegate && !isAddress(newDelegate))
-            || delegatingTo?.toLowerCase() === newDelegate.toLowerCase()
-        );
-    }, [newDelegate, account]);
+    const [newDelegate, setNewDelegate] = useState('');
 
     const handleOk = async () => {
         const contract = new Contract(escrow, F2_ESCROW_ABI, provider?.getSigner());
@@ -56,32 +93,71 @@ export const FirmGovToken = () => {
         onClose();
     }
 
+    useEffect(() => {
+        setHasError(
+            !newDelegate
+            || !account
+            || (!!newDelegate && !isAddress(newDelegate))
+            || delegatingTo?.toLowerCase() === newDelegate.toLowerCase()
+        );
+    }, [newDelegate, account]);
+
+    return <ConfirmModal
+        title="Change FiRM INV Delegation"
+        isOpen={isOpen}
+        onClose={handleClose}
+        onOk={handleOk}
+        onCancel={handleClose}
+        okDisabled={hasError}
+        okLabel="Change"
+    >
+        <VStack spacing="4" p="4" w='full' alignItems="flex-start">
+            {
+                !!suggestedValue && suggestedValue !== delegatingTo  && <HStack>
+                    <Text cursor="pointer" fontWeight="bold" textDecoration="underline" onClick={() => setNewDelegate(suggestedValue)}>
+                        Click here to sync with my non-FiRM delegation
+                    </Text>
+                </HStack>
+            }
+            <Input _hover={hasError ? {} : undefined} borderWidth="1" borderColor={hasError ? !!newDelegate ? 'error' : undefined : 'success'} onChange={(e) => setNewDelegate(e.target.value)} fontSize="14px" value={newDelegate} placeholder={'New delegate address'} />
+            {
+                delegatingTo?.toLowerCase() === newDelegate.toLowerCase() && !!delegatingTo && !!newDelegate
+                && <InfoMessage alertProps={{ w: 'full' }} description="You already delegate to that address" />
+            }
+        </VStack>
+    </ConfirmModal>
+}
+
+export const FirmGovToken = () => {
+    const { isOpen, onOpen, onClose } = useDisclosure();
+
+    const { market, escrow } = useContext(F2MarketContext);
+    const hasEscrow = escrow?.replace(BURN_ADDRESS, '');
+
+    // standard case
+    const { data: delegateData } = useEtherSWR({
+        args: market.isInv ? [[INV, 'delegates', escrow]] : [[escrow, 'delegatingTo']],
+        abi: market.isInv ? INV_ABI : F2_ESCROW_ABI,
+    });
+
+    const delegatingTo = (delegateData ? delegateData[0] : '')?.replace(BURN_ADDRESS, '');
+
     return <Container
         noPadding
         p="0"
+        id={CONTAINER_ID}
         collapsable={true}
         defaultCollapse={false}
         label={`${market.underlying.symbol} Governance Rights`}
         description={`Governance tokens deposited on FiRM keep their voting power!`}
     >
         <VStack w='full' alignItems="flex-start">
-            <ConfirmModal
-                title="Delegate"
+            <FirmGovDelegationModal
                 isOpen={isOpen}
-                onClose={handleClose}
-                onOk={handleOk}
-                onCancel={handleClose}
-                okDisabled={hasError}
-                okLabel="Change"
-            >
-                <VStack p="2" w='full' alignItems="flex-start">
-                    <Input _hover={hasError ? {} : undefined} borderWidth="1" borderColor={hasError ? !!newDelegate ? 'error' : undefined : 'success'} onChange={(e) => setNewDelegate(e.target.value)} fontSize="14px" value={newDelegate} placeholder={'New delegate address'} />
-                    {
-                        delegatingTo?.toLowerCase() === newDelegate.toLowerCase() && !!delegatingTo && !!newDelegate
-                        && <InfoMessage alertProps={{ w: 'full' }} description="You already delegate to that address" />
-                    }
-                </VStack>
-            </ConfirmModal>
+                onClose={onClose}
+                delegatingTo={delegatingTo}
+                escrow={escrow}
+            />
             {
                 hasEscrow ? <Stack w='full' alignItems={{ base: 'flex-start', md: 'center' }} justify="space-between" spacing="4" direction={{ base: 'column', md: 'row' }}>
                     <Stack alignItems={{ base: 'flex-start', md: 'center' }} spacing="1" direction={{ base: 'column', md: 'row' }}>
