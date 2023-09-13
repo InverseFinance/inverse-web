@@ -37,12 +37,12 @@ export const SimpleAssetDropdown = ({
             label={
                 <HStack w='full' p="2">
                     {
-                        !!selectedItem.image && <Flex w={5} position="relative">
+                        !!selectedItem?.image && <Flex w={5} position="relative">
                             <Image ignoreFallback={true} alt={selectedItem.label} w={5} h={5} src={selectedItem.image} />
                         </Flex>
                     }
                     <Flex minW="80px" fontSize="lg" alignItems="center" fontWeight="semibold" color="secondaryTextColor" justify="space-between" {...dropdownSelectedProps}>
-                        {selectedItem.label} <ChevronDownIcon boxSize={6} mt={0.5} />
+                        {selectedItem?.label} <ChevronDownIcon boxSize={6} mt={0.5} />
                     </Flex>
                 </HStack>
             }

@@ -1,23 +1,74 @@
 import { BigNumber } from "ethers";
-import { fetcher } from "./web3";
 import { JsonRpcSigner } from "@ethersproject/providers";
+import useSWR from 'swr';
 
 const key = '033137b3-73c1-4308-8e77-d7e14d3664ca'
+export const EthXe = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+
+type EnsoZapOptions = {
+    fromAddress: string,
+    amount: BigNumber | string,
+    chainId: string,    
+    tokenIn: string,
+    tokenOut: string,
+    slippage?: string,
+    toEoa?: string,
+    targetChainId?: string,
+}
+
+export const useEnso = (
+    fromAddress: string,
+    chainId: string,
+) => {
+    const { data, error } = useSWR(`enso-${fromAddress}-${chainId}`, async () => {
+        if (!fromAddress || !chainId) return null;
+        return await getEnsoApprove(fromAddress, chainId);
+    });
+    return {
+        address: data?.address||'',
+        isDeployed: data?.isDeployed||false,
+        isLoading: !data && !error,
+        error,
+    }
+}
 
 // the api gives an address per user, the user needs to approve this given address to spend their tokens
-export const ensoApprove = async (fromAddress: string, chainId = 1) => {
+export const getEnsoApprove = async (fromAddress: string, chainId = 1) => {
     const path = `https://api.enso.finance/api/v1/wallet?chainId=${chainId}&fromAddress=${fromAddress}`;
     const res = await fetch(path, {
         headers: {
             'Content-Type': 'application/json',
         },
     });
-    const { address, isDeployed } = await res.json();    
+    const { address, isDeployed } = await res.json();
     return { address, isDeployed }
 }
 
-export const ensoZapArbBalancer = async (signer: JsonRpcSigner, fromAddress: string, amount: BigNumber | string) => {
-    const path = `https://api.enso.finance/api/v1/shortcuts/route?chainId=42161&fromAddress=${fromAddress}&tokenInAmountToApprove=${amount}&tokenInAmountToTransfer=${amount}&amountIn=${amount}&minAmountOut=${amount}&slippage=300&tokenIn=0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee&tokenOut=0x8bc65Eed474D1A00555825c91FeAb6A8255C2107`;
+export const ensoZap = async (
+    signer: JsonRpcSigner,
+    options: EnsoZapOptions,
+) => {
+    if(options.targetChainId !== options.chainId) {
+        return ensoCrossChainZap(signer, options);
+    }
+    return ensoSameChainZap(signer, options);
+}
+
+export const ensoSameChainZap = async (
+    signer: JsonRpcSigner,
+    options: EnsoZapOptions,
+) => {
+    const {
+        fromAddress,
+        amount,
+        chainId,
+        tokenIn,
+        tokenOut,
+        slippage = '300',
+        toEoa = 'true',
+    } = options;
+    const _tokenIn = !tokenIn ? EthXe : tokenIn;
+    const path = `https://api.enso.finance/api/v1/shortcuts/route?chainId=${chainId}&fromAddress=${fromAddress}&tokenInAmountToApprove=${amount}&tokenInAmountToTransfer=${amount}&amountIn=${amount}&minAmountOut=${amount}&slippage=${slippage}&tokenIn=${_tokenIn}&tokenOut=${tokenOut}&toEoa=${toEoa}`;
     const res = await fetch(path, {
         method: 'GET',
         headers: {
@@ -25,6 +76,138 @@ export const ensoZapArbBalancer = async (signer: JsonRpcSigner, fromAddress: str
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${key}`,
         },
+    });
+
+    const data = await res.json();
+    const { tx } = data
+
+    return signer.sendTransaction({
+        from: tx.from,
+        to: tx.to,
+        data: tx.data,
+        value: tx.value,
+    })
+}
+
+export const ensoCrossChainZap = async (
+    signer: JsonRpcSigner,
+    options: EnsoZapOptions,
+) => {
+    const {
+        fromAddress,
+        amount,
+        chainId,
+        targetChainId,
+        tokenIn,
+        tokenOut,
+        slippage = '100',// 1%
+        toEoa = 'true',
+    } = options;
+
+    const path = `https://api.enso.finance/api/experimental/multichain/shortcut/route?chainId=${chainId}&fromAddress=${fromAddress}&tokenInAmountToApprove=${amount}&tokenInAmountToTransfer=${amount}&amountIn=${amount}&minAmountOut=${amount}&slippage=${slippage}&tokenIn=${tokenIn}&tokenOut=${tokenOut}&toEoa=${toEoa}`;
+    const res = await fetch(path, {
+        method: 'GET',
+        headers: {
+            'accept': "*/*",
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${key}`,
+        },
+        body: JSON.stringify({
+            "amountIn": amount,
+            "slippage": slippage,
+            "in": {
+                "sourceChainId": chainId,
+                "token": tokenIn
+            },
+            "out": {
+                "destinationChainId": targetChainId,
+                "token": tokenOut
+            },
+            "fromAddress": fromAddress
+        })
+    });
+
+    const data = await res.json();
+    const { tx } = data
+
+    return signer.sendTransaction({
+        from: tx.from,
+        to: tx.to,
+        data: tx.data,
+        value: tx.value,
+    })
+}
+
+export const ensoZapArbBalancer = async (signer: JsonRpcSigner, fromAddress: string, amount: BigNumber | string) => {
+    const path = `https://api.enso.finance/api/v1/shortcuts/route?chainId=42161&fromAddress=${fromAddress}&tokenInAmountToApprove=${amount}&tokenInAmountToTransfer=${amount}&amountIn=${amount}&minAmountOut=${amount}&slippage=300&tokenIn=0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee&tokenOut=0x8bc65Eed474D1A00555825c91FeAb6A8255C2107&toEoa=true`;
+    const res = await fetch(path, {
+        method: 'GET',
+        headers: {
+            'accept': "*/*",
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${key}`,
+        },
+    });
+    const data = await res.json();
+    const { tx } = data
+    return signer.sendTransaction({
+        from: tx.from,
+        to: tx.to,
+        data: tx.data,
+        value: tx.value,
+    })
+}
+
+export const ensoZapArbBalancerExit = async (signer: JsonRpcSigner, fromAddress: string, amount: BigNumber | string) => {
+    const path = `https://api.enso.finance/api/v1/shortcuts/route?chainId=42161&fromAddress=${fromAddress}&tokenInAmountToApprove=${amount}&tokenInAmountToTransfer=${amount}&amountIn=${amount}&minAmountOut=${amount}&slippage=300&tokenOut=0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee&tokenIn=0x8bc65Eed474D1A00555825c91FeAb6A8255C2107&toEoa=true`;
+    const res = await fetch(path, {
+        method: 'GET',
+        headers: {
+            'accept': "*/*",
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${key}`,
+        },
+    });
+    const data = await res.json();
+    const { tx } = data
+    return signer.sendTransaction({
+        from: tx.from,
+        to: tx.to,
+        data: tx.data,
+        value: tx.value,
+    })
+}
+
+export const ensoBuilderExample = async (signer: JsonRpcSigner) => {
+    const path = `https://api.enso.finance/api/v1/shortcuts/builder?chainId=42161&fromAddress=0x6535020cCeB810Bdb3F3cA5e93dE2460FF7989BB`;
+    const res = await fetch(path, {
+        method: 'POST',
+        headers: {
+            'accept': "*/*",
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${key}`,
+        },
+        body: JSON.stringify({
+            "calls": [
+                {
+                    "address": "0x8bc65Eed474D1A00555825c91FeAb6A8255C2107",
+                    "method": "balanceOf",
+                    "args": [
+                        "0x99ace069a54a94980910133b1142d82b4fc6890d"
+                    ]
+                },
+                {
+                    "address": "0x8bc65Eed474D1A00555825c91FeAb6A8255C2107",
+                    "method": "transfer",
+                    "args": [
+                        "0x6535020cCeB810Bdb3F3cA5e93dE2460FF7989BB",
+                        {
+                            "useOutputOfCallAt": 0
+                        }
+                    ]
+                }
+            ]
+        })
     });
     const data = await res.json();
     const { tx } = data

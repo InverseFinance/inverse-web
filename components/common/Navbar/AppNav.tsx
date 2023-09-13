@@ -501,7 +501,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   useEffect(() => {
     if (!badgeChainId) { return }
     // swap page: any network is fine
-    const isSupported = ['/swap', '/base'].includes(location.pathname) || isSupportedNetwork(badgeChainId);    
+    const isSupported = ['/swap', '/base', '/zap'].includes(location.pathname) || isSupportedNetwork(badgeChainId);    
     setIsUsupportedNetwork(!isSupported)
     if (!isSupported) {
       onWrongNetOpen();
@@ -523,7 +523,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
         setTimeout(() => {
           const before = Number(window?.ethereum?.chainId)
           window?.ethereum?.on('chainChanged', (after) => {
-            if (before !== after && !['/swap'].includes(location.pathname)) { window.location.reload() }
+            if (before !== after && !['/swap', '/zap'].includes(location.pathname)) { window.location.reload() }
           });
         }, 0)
       }
