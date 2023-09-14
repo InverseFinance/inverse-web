@@ -183,6 +183,10 @@ const chainTokenAddresses = {
     DOLAUSDPLUSCHRONOS: '0xBbD7fF1728963A5Eb582d26ea90290F84E89bd66',
     USDPLUS: '0xe80772Eaf6e2E18B651F160Bc9158b2A5caFCA65',
     DOLAUSDCBALLP: '0x8bc65Eed474D1A00555825c91FeAb6A8255C2107',
+    DOLAUSDCALP: '0xAc7025Dec5E216025C76414f6ac1976227c20Ff0',
+    BAL: '0x040d1EdC9569d4Bab2D15287Dc5A4F10F56a56B8',
+    AURA: '0x1509706a6c66CA549ff0cB464de88231DDBe213B',
+    // VLAURA: '',
   },
   "43114": {
     DOLA: '0x221743dc9E954bE4f86844649Bf19B43D6F8366d',
@@ -1707,7 +1711,50 @@ const chainTokens = {
         chainTokenAddresses["42161"].DOLA, chainTokenAddresses["42161"].DOLAUSDCBALLP, chainTokenAddresses["42161"].USDC
       ],
       isComposableMetapool: true,
-      image: TOKEN_IMAGES.DOLA,      
+      image: TOKEN_IMAGES.DOLA,
+      deduce: [chainTokenAddresses["42161"].DOLAUSDCALP],
+    },
+    [chainTokenAddresses["42161"].DOLAUSDCALP]: {
+      address: chainTokenAddresses["42161"].DOLAUSDCALP,
+      name: 'DOLA-USDC',
+      symbol: 'DOLA-USDC arbalp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      balancerInfos: {
+        poolId: '0x8bc65eed474d1a00555825c91feab6a8255c2107000000000000000000000453',
+        vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
+      },
+      pairs: [
+        chainTokenAddresses["42161"].DOLA, chainTokenAddresses["42161"].DOLAUSDCBALLP, chainTokenAddresses["42161"].USDC
+      ],
+      isComposableMetapool: true,
+      protocolImage: PROTOCOL_IMAGES.AURA,
+    },
+    [chainTokenAddresses["42161"].AURA]: {
+      address: chainTokenAddresses["42161"].AURA,
+      name: 'AURA',
+      symbol: 'AURA',
+      coingeckoId: 'aura-finance',
+      image: TOKEN_IMAGES.AURA,
+      decimals: 18,
+    },
+    // [chainTokenAddresses["42161"].VLAURA]: {
+    //   address: chainTokenAddresses["42161"].VLAURA,
+    //   name: 'vlAURA',
+    //   symbol: 'vlAURA',
+    //   image: TOKEN_IMAGES.vlAURA,
+    //   decimals: 18,
+    //   coingeckoId: 'aura-finance',
+    // },
+    [chainTokenAddresses["42161"].BAL]: {
+      address: chainTokenAddresses["42161"].BAL,
+      name: 'BAL',
+      symbol: 'BAL',
+      coingeckoId: 'balancer',
+      image: TOKEN_IMAGES.BAL,     
+      decimals: 18,
     },
   },
   "8453": {
