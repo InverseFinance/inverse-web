@@ -23,8 +23,10 @@ export default async (req, res) => {
 
         let csvData = `DOLA bad debt:,${currentDolaBadDebt},FiRM borrows:,${totalBorrowsOnFirm},Cache:,~5min\n`;
         csvData += `Fed,Supply,DOLA balance,Pairing Depth\n`;
-        feds.forEach((d) => {
-            csvData += `${d.fedName},${d.fedSupply},${d.dolaBalance},${d.pairingDepth}\n`;
+        feds.forEach((lp) => {
+            const parentLp = liquidityData.liquidity.filter(l => !!l.deduce).find(l => l.deduce.includes(lp.address));
+            const balanceSource = parentLp || lp;
+            csvData += `${lp.fedName},${lp.fedSupply},${balanceSource?.dolaBalance},${balanceSource?.pairingDepth}\n`;
         });
 
         // Set response headers to indicate that you're serving a CSV file
@@ -34,6 +36,7 @@ export default async (req, res) => {
         // Send the CSV data as the response
         res.status(200).send(csvData);
     } catch (e) {
+        console.log(e);
         res.setHeader("Content-Type", "text/csv");
         res.setHeader("Content-Disposition", "attachment; filename=inverse-feds.csv");
         // Send the CSV data as the response
