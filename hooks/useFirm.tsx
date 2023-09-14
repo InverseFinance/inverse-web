@@ -527,15 +527,16 @@ export const useStakedInFirm = (userAddress: string): {
   stakedInFirm: number,
   escrow: string,
   delegate: string,
+  isLoading: boolean,
 } => {
   const firmInv = F2_MARKETS.find(m => m.isInv);
 
-  const { data: escrow } = useEtherSWR(!!firmInv && !!userAddress ? [firmInv.address, 'escrows', userAddress] : []);
-  const { data } = useEtherSWR([
+  const { data: escrow, error: escrowError } = useEtherSWR(!!firmInv && !!userAddress ? [firmInv.address, 'escrows', userAddress] : []);
+  const { data, error: invDelError } = useEtherSWR([
     [INV, 'delegates', escrow],
   ]);
 
-  const { data: firmEscrowData } = useEtherSWR({
+  const { data: firmEscrowData, error: firmEscrowError } = useEtherSWR({
     args: !!escrow && escrow !== BURN_ADDRESS ? [
       [escrow, 'balance'],
     ] : [[]],
@@ -547,6 +548,7 @@ export const useStakedInFirm = (userAddress: string): {
     stakedInFirm,
     escrow,
     delegate: data ? data[0] : '',
+    isLoading: (!invDelError && !data) || (!escrow && !escrowError) || (!firmEscrowData && !firmEscrowError),
   };
 }
 

@@ -17,7 +17,7 @@ import { F2Context } from '@app/components/F2/F2Contex'
 import { F2Walkthrough } from '@app/components/F2/walkthrough/WalkthroughContainer'
 import { useRouter } from 'next/router'
 import { ArrowBackIcon } from '@chakra-ui/icons'
-import { FirmGovToken } from '@app/components/F2/GovToken/FirmGovToken'
+import { FirmGovToken, InvInconsistentFirmDelegation } from '@app/components/F2/GovToken/FirmGovToken'
 import { FirstTimeModal } from '@app/components/F2/Modals/FirstTimeModal'
 import { FirmRewardWrapper } from '@app/components/F2/rewards/FirmRewardWrapper'
 import { CvxCrvPreferences } from '@app/components/F2/rewards/CvxCrvPreferences'
@@ -166,6 +166,9 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                             direction={{ base: 'column', lg: 'row' }}
                                             spacing="6"
                                         >
+                                            <ErrorBoundary>
+                                                <InvInconsistentFirmDelegation />
+                                            </ErrorBoundary>
                                             <ErrorBoundary description="Error in the form component, please try reloading">
                                                 {
                                                     f2market.isInv && <Container
@@ -196,15 +199,15 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                 <F2CombinedForm />
                                             </ErrorBoundary>
                                             {
+                                                (f2market.isGovTokenCollateral) && <FirmGovToken />
+                                            }
+                                            {
                                                 <ErrorBoundary description="The portfolio value chart could not load">
                                                     <WorthEvoChartWrapper market={f2market} />
                                                 </ErrorBoundary>
                                             }
                                             {
                                                 (f2market.hasClaimableRewards && f2market.name === 'cvxCRV') && <CvxCrvPreferences />
-                                            }
-                                            {
-                                                (f2market.isGovTokenCollateral) && <FirmGovToken />
                                             }
                                         </VStack>
                                 }

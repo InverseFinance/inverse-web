@@ -128,11 +128,11 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
           fontWeight="semibold"
           textTransform="uppercase"
         >
-          <Text _hover={{ color: 'secondary' }} cursor="pointer" onClick={changeDelOnOpen}>
-            Change Delegate
+          <Text textDecoration="underline" _hover={{ color: 'secondary' }} cursor="pointer" onClick={changeDelOnOpen}>
+            Change INV Delegate
           </Text>
-          <Text _hover={{ color: 'secondary' }} cursor="pointer" onClick={submitDelOnOpen}>
-            Submit Signatures
+          <Text textDecoration="underline" _hover={{ color: 'secondary' }} cursor="pointer" onClick={submitDelOnOpen}>
+            Submit INV Signatures
           </Text>
         </Flex>
       </Stack>
