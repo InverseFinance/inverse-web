@@ -13,7 +13,7 @@ import { pricesCacheKey } from '../prices';
 import { PROTOCOLS_BY_IMG } from '@app/variables/images';
 import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 
-export const liquidityCacheKey = `liquidity-v1.1.3`;
+export const liquidityCacheKey = `liquidity-v1.1.4`;
 
 const PROTOCOL_DEFILLAMA_MAPPING = {
     "VELO": 'velodrome-v1',
@@ -179,6 +179,7 @@ export default async function handler(req, res) {
 
             // bb-e-usd exception due to euler exploit to not throw off avgs
             const apy = lpName.toLowerCase().includes('-bb-e') ? 0 : yieldData?.apy;
+            const isFed = !!fedPol;
 
             return {
                 ...lp,
@@ -196,7 +197,10 @@ export default async function handler(req, res) {
                 dolaBalance: tvl * dolaPerc,
                 dolaWeight: dolaPerc * 100,
                 rewardDay: ownedAmount * (apy || 0) / 100 / 365,
-                isFed: !!fedPol,
+                isFed,
+                fedName: isFed ? fedPol.name : undefined,
+                fedSupply: isFed ? fedPol.supply : undefined,
+                fedBorrows: isFed ? fedPol.borrows||0 : undefined,
                 // subBalances,
             }
         }
@@ -208,6 +212,7 @@ export default async function handler(req, res) {
         const resultData = {
             timestamp: (+(new Date()) - 1000),
             liquidity,
+            firmBorrows: fedPols.filter(d => d.isFirm).reduce((prev, curr) => prev+(curr.borrows||0), 0),
         }
         await redisSetWithTimestamp(liquidityCacheKey, resultData);
 
