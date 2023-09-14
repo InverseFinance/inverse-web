@@ -27,26 +27,26 @@ const ANCHOR_RESERVES_TO_CHECK = [
 ];
 
 export const cacheMultisigMetaKey = `dao-multisigs-meta-v1.0.5`;
-export const cacheFedsMetaKey = `dao-feds-meta-v1.0.0`;
+export const cacheFedsMetaKey = `dao-feds-meta-v1.0.2`;
 export const cacheMulBalKey = `dao-multisigs-bal-v1.0.9`;
 export const cacheMulAllKey = `dao-multisigs-all-v1.0.5`;
 export const cacheDolaSupplies = `dao-dola-supplies-v1.0.1`;
-export const cacheFedDataKey = `dao-feds-datas-v1.0.0`;
+export const cacheFedDataKey = `dao-feds-datas-v1.0.2`;
 export const cacheMultisigDataKey = `dao-multisigs-data-v1.0.7`;
 
 export default async function handler(req, res) {
 
   const { DOLA, INV, ANCHOR_TOKENS, UNDERLYING, FEDS, TREASURY, MULTISIGS, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `dao-cache-v1.3.92`;
+  const cacheKey = `dao-cache-v1.3.94`;
 
   try {
     const cacheDuration = 300;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
-    if (validCache) {
-      res.status(200).json(validCache);
-      return
-    }
+    // if (validCache) {
+    //   res.status(200).json(validCache);
+    //   return
+    // }
 
     const provider = getProvider(NetworkIds.mainnet);
     const dolaContract = new Contract(DOLA, DOLA_ABI, provider);
