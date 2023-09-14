@@ -20,6 +20,7 @@ import { NetworkIds } from "@app/types";
 import { BURN_ADDRESS } from "@app/config/constants";
 import { useStakedInFirm } from "@app/hooks/useFirm";
 import { useAccount } from "@app/hooks/misc";
+import useStorage from "@app/hooks/useStorage";
 
 const CONTAINER_ID = 'firm-gov-token-container'
 
@@ -32,10 +33,11 @@ export const InvInconsistentFirmDelegation = () => {
     const { data: nonFirmDelegation, error } = useEtherSWR([
         INV, 'delegates', account,
     ]);
-    const { delegate: firmDelegate } = useStakedInFirm(account);
+    const { delegate: firmDelegate, isLoading } = useStakedInFirm(account);
     const delegatingTo = firmDelegate?.replace(BURN_ADDRESS, '');
+    const { value: decidedToIgnore, setter: ignoreInconsistentDel } = useStorage(`firm-inconsistent-del-${account?.substring(0, 5)}-${delegatingTo?.substring(0, 5)}-${nonFirmDelegation?.substring(0, 5)}`);
 
-    if (!error && !!nonFirmDelegation && nonFirmDelegation?.replace(BURN_ADDRESS, '') !== delegatingTo) {
+    if (!decidedToIgnore && decidedToIgnore !== undefined && !isLoading && !error && !!delegatingTo && !!nonFirmDelegation && nonFirmDelegation?.replace(BURN_ADDRESS, '') !== delegatingTo) {
         return <>
             <FirmGovDelegationModal
                 isOpen={isOpen}
@@ -48,7 +50,7 @@ export const InvInconsistentFirmDelegation = () => {
                 alertProps={{ w: 'full' }}
                 description={
                     <VStack alignItems="flex-start">
-                        <Text><b>Note</b>: your FiRM INV delegation is inconsistent with your global INV delegation</Text>
+                        <Text><b>Note</b>: your FiRM INV delegation is inconsistent with your non-FiRM INV delegation</Text>
                         <HStack spacing="1">
                             <Text>- FiRM INV is delegated to:</Text>
                             <ScannerLink fontWeight="bold" value={delegatingTo} />
@@ -60,7 +62,7 @@ export const InvInconsistentFirmDelegation = () => {
                         <Text fontWeight="bold" textDecoration="underline" cursor="pointer" onClick={() => onOpen()}>
                             Change FiRM delegation
                         </Text>
-                        <Text fontWeight="bold" textDecoration="underline" cursor="pointer">
+                        <Text onClick={() => ignoreInconsistentDel(true)} fontWeight="bold" textDecoration="underline" cursor="pointer">
                             Close and don't show this message again
                         </Text>
                     </VStack>
