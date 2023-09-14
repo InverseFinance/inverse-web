@@ -100,11 +100,11 @@ export const FEDS_PARAMS = [
                     image: 'https://assets.coingecko.com/coins/images/15585/small/convex.png?1621256328',
                 },
             ],
-            type: 'convex',   
+            type: 'convex',
             lpBalanceContract: '0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c',
             rewardPools: [
                 { address: '0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c', method: 'earned', underlying: '0xD533a949740bb3306d119CC777fa900bA034cd52' },
-                { isCVXreward: true, underlying: '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b' },                
+                { isCVXreward: true, underlying: '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b' },
             ],
             multisig: {
                 address: '0x9D5Df30F475CEA915b1ed4C0CCa59255C897b61B',
@@ -152,7 +152,7 @@ export const FEDS_PARAMS = [
                     image: 'https://assets.coingecko.com/coins/images/25783/small/velo.png',
                 },
             ],
-            type: 'solidly',        
+            type: 'solidly',
             lpBalanceContract: '0xa1034Ed2C9eb616d6F7f318614316e64682e7923',
             rewardPools: [
                 { address: '0xa1034Ed2C9eb616d6F7f318614316e64682e7923', method: 'earned', underlying: '0x9560e827af36c94d2ac33a39bce1fe78631088db' }
@@ -197,7 +197,7 @@ export const FEDS_PARAMS = [
             lpBalanceContract: '0xb139946D2F0E71b38e2c75d03D87C5E16339d2CD',
             rewardPools: [
                 { address: '0xb139946D2F0E71b38e2c75d03D87C5E16339d2CD', method: 'earned', underlying: '0xba100000625a3754423978a60c9317c58a424e3D' },
-                { isAURAreward: true, underlying: '0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF' },                
+                { isAURAreward: true, underlying: '0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF' },
             ],
             multisig: {
                 address: '0x9D5Df30F475CEA915b1ed4C0CCa59255C897b61B',
@@ -213,7 +213,7 @@ export const FEDS_PARAMS = [
         chainId: NetworkIds.mainnet,
         type: FedTypes.LP,
         protocol: "Aura",
-        address: "0xab4AE477899fD61B27744B4DEbe8990C66c81C22",        
+        address: "0xab4AE477899fD61B27744B4DEbe8990C66c81C22",
         name: "AuraEuler Fed",
         projectImage:
             "https://assets.coingecko.com/coins/images/25942/small/logo.png",
@@ -239,7 +239,7 @@ export const FEDS_PARAMS = [
             type: 'convex',
             rewardPools: [
                 { address: '0xFdbd847B7593Ef0034C58258aD5a18b34BA6cB29', method: 'earned', underlying: '0xba100000625a3754423978a60c9317c58a424e3D' },
-                { isAURAreward: true, underlying: '0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF' },                
+                { isAURAreward: true, underlying: '0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF' },
             ],
             multisig: {
                 address: '0x9D5Df30F475CEA915b1ed4C0CCa59255C897b61B',
@@ -247,6 +247,49 @@ export const FEDS_PARAMS = [
                     '0xba100000625a3754423978a60c9317c58a424e3D',
                     '0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF',
                     '0x3Fa73f1E5d8A792C80F426fc8F84FBF7Ce9bBCAC',
+                ]
+            },
+        },
+    },
+    {
+        chainId: NetworkIds.mainnet,
+        type: FedTypes.LP,
+        protocol: "Aura",
+        address: "0x0B5ec95257afd9534C953428AC833D19579843CB",        
+        name: "ArbiFed",
+        projectImage:
+            "https://assets.coingecko.com/coins/images/25942/small/logo.png",
+        supplyFuncName: "underlyingSupply",
+        incomeChainId: NetworkIds.arbitrum,
+        incomeSrcAd: "0x1992AF61FBf8ee38741bcc57d636CAA22A1a7702",
+        incomeTargetAd: "0x23dEDab98D7828AFBD2B7Ab8C71089f2C517774a",
+        strategy: {
+            description: 'The minted DOLA is added to the Balancer DOLA/USDC liquidity pool, the resulting Balancer LP token is then deposited in the Aura booster. This Fed gets rewards in BAL and AURA tokens.',
+            pools: [
+                {
+                    address: '0x8bc65Eed474D1A00555825c91FeAb6A8255C2107',
+                    name: 'Balancer DOLA/USDC',
+                    link: 'https://app.balancer.fi/#/ethereum/pool/0x8bc65eed474d1a00555825c91feab6a8255c2107000200000000000000000426',
+                    image: '/assets/projects/balancer.png',
+                },
+                {
+                    address: '0xAc7025Dec5E216025C76414f6ac1976227c20Ff0',
+                    name: 'Aura Reward Pool',
+                    link: 'https://app.aura.finance/',
+                    image: 'https://assets.coingecko.com/coins/images/25942/small/logo.png?1654784187',
+                },
+            ],
+            type: 'convex',
+            lpBalanceContract: '0xAc7025Dec5E216025C76414f6ac1976227c20Ff0',
+            rewardPools: [
+                { address: '0xAc7025Dec5E216025C76414f6ac1976227c20Ff0', method: 'earned', underlying: '0x040d1EdC9569d4Bab2D15287Dc5A4F10F56a56B8' },
+                { isAURAreward: true, underlying: '0x1509706a6c66CA549ff0cB464de88231DDBe213B' },
+            ],
+            multisig: {
+                address: '0x23dEDab98D7828AFBD2B7Ab8C71089f2C517774a',
+                relevantAssets: [
+                    '0x040d1EdC9569d4Bab2D15287Dc5A4F10F56a56B8',
+                    '0x1509706a6c66CA549ff0cB464de88231DDBe213B',
                 ]
             },
         },
