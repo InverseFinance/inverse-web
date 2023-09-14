@@ -13,7 +13,7 @@ import { pricesCacheKey } from '../prices';
 import { PROTOCOLS_BY_IMG } from '@app/variables/images';
 import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 
-export const liquidityCacheKey = `liquidity-v1.1.2`;
+export const liquidityCacheKey = `liquidity-v1.1.3`;
 
 const PROTOCOL_DEFILLAMA_MAPPING = {
     "VELO": 'velodrome-v1',
@@ -116,22 +116,24 @@ export default async function handler(req, res) {
             const fedPol = fedPols.find(f => {
                 return f?.strategy?.pools?.[f?.strategy?.pools?.length - 1]?.address?.toLowerCase() === lp.address?.toLowerCase();
             });
+           
             // case where Fed has an LP that is then staked in a protocol, relatedFedPol is the original protocol for the lp
             const relatedFedPol = fedPols.find(f => {
                 return !!f?.strategy?.pools?.find(p => p.address?.toLowerCase() === lp.address?.toLowerCase());
             });
             const fedPolData = fedPol || relatedFedPol;
+            
             const provider = getProvider(lp.chainId);
             const protocol = PROTOCOLS_BY_IMG[lp.protocolImage];
             const defiLlamaProjectName = PROTOCOL_DEFILLAMA_MAPPING[protocol];
             const lpName = lp.symbol.replace(/(-LP|-SLP|-AURA| [a-zA-Z]*lp)/ig, '').replace(/-ETH/ig, '-WETH');
+            const balancerPoolAd = lp.balancerInfos?.poolId?.substring(0, 42)?.toLowerCase();
             const yieldData = yields.find(y => {
                 return defiLlamaProjectName === y.project
-                    && (y.underlyingTokens?.length > 0 ? y.underlyingTokens.join(',').toLowerCase() === lp.pairs?.join(',').toLowerCase() : y.symbol === lpName)
+                    && (y.underlyingTokens?.length > 0 ? y.underlyingTokens.join(',').toLowerCase() === lp.pairs?.filter(pa => pa.toLowerCase() !== balancerPoolAd).join(',').toLowerCase() : y.symbol === lpName)
             });
 
             const subBalances = fedPol?.subBalances || (await getLPBalances(lp, lp.chainId, provider));
-
             const isDolaMain = lp.symbol.includes('DOLA');
             const virtualTotalSupply = subBalances.reduce((prev, curr) => prev + curr.balance, 0);
             const srcTvl = subBalances.reduce((prev, curr) => prev + curr.balance * (prices[curr.coingeckoId || curr.symbol] || 1), 0);

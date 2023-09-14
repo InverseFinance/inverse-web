@@ -203,6 +203,7 @@ export const FED_ABI = [
   "function supply() public view returns (uint256)",
   // dolaSupply instead of supply for Convex Fed only
   "function dolaSupply() public view returns (uint256)",
+  "function underlyingSupply() public view returns (uint256)",
   "event Expansion (uint256 amount)",
   "event Contraction (uint256 amount)",
 ]
