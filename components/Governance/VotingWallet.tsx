@@ -15,6 +15,8 @@ import { InfoMessage } from '@app/components/common/Messages'
 import { useRouter } from 'next/dist/client/router'
 import { useNamedAddress } from '@app/hooks/useNamedAddress'
 import { useStakedInFirm } from '@app/hooks/useFirm'
+import { BURN_ADDRESS } from '@app/config/constants'
+import { FirmGovDelegationModal } from '../F2/GovToken/FirmGovToken'
 
 type VotingWalletFieldProps = {
   label: string
@@ -66,6 +68,7 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
   ])
   const { isOpen: changeDelIsOpen, onOpen: changeDelOnOpen, onClose: changeDelOnClose } = useDisclosure()
   const { isOpen: submitDelIsOpen, onOpen: submitDelOnOpen, onClose: submitDelOnClose } = useDisclosure()
+  const { isOpen: isFirmModalOpen, onOpen: firmOnOpen, onClose: firmOnClose } = useDisclosure()
 
   const { stakedInFirm, delegate: firmDelegate, escrow } = useStakedInFirm(userAddress);
   const firmInvDelegated = firmDelegate?.toLowerCase() === userAddress?.toLowerCase() ? stakedInFirm : 0;
@@ -79,7 +82,7 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
   const votingPower = parseFloat(formatUnits(currentVotes || 0)) + parseFloat(formatUnits(currentVotesX || 0)) * parseFloat(formatUnits(exchangeRate || '1'));
 
   const needToShowXinvDelegate = parseFloat(formatUnits(xinvBalance)) > 0 && invDelegate !== xinvDelegate
-  const needToShowFirmDelegate = stakedInFirm > 0 && invDelegate !== firmDelegate
+  const hasFirmEscrow = !!escrow && !!escrow.replace(BURN_ADDRESS, '');
   const rtokenSymbol = process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL!
 
   return (
@@ -117,7 +120,7 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
             : null
         }
         {
-          needToShowFirmDelegate && <DelegatingTo label={'FiRM Delegating To'}
+          stakedInFirm > 0 && <DelegatingTo label={'FiRM Delegating To'}
             delegate={firmDelegate} account={userAddress} chainId={chainId?.toString()} />
         }
         <Flex
@@ -135,7 +138,21 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
             Submit INV Signatures
           </Text>
         </Flex>
+        {
+          hasFirmEscrow && <Text fontSize="xs" fontWeight="semibold" textTransform="uppercase" textAlign="center" textDecoration="underline" _hover={{ color: 'secondary' }} cursor="pointer" onClick={firmOnOpen}>
+            Change FiRM Delegate
+          </Text>
+        }
       </Stack>
+      {
+        stakedInFirm > 0 && <FirmGovDelegationModal
+          isOpen={isFirmModalOpen}
+          onClose={firmOnClose}
+          delegatingTo={firmDelegate}
+          suggestedValue={invDelegate?.replace(BURN_ADDRESS, '')}
+          escrow={escrow}
+        />
+      }
       <ChangeDelegatesModal isOpen={changeDelIsOpen} onClose={changeDelOnClose} />
       <SubmitDelegationsModal isOpen={submitDelIsOpen} onClose={submitDelOnClose} onNewDelegate={onNewDelegate} />
     </Container>
