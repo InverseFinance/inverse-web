@@ -86,6 +86,10 @@ function EnsoZap({
         setInited(true);
     }, [inited, chainId, targetChainId, toOptions]);
 
+    useEffect(() => {
+        changeTokenOut(toOptions[0]?.value);
+    }, [targetChainId, toOptions]);
+
     return <Container w='full' noPadding p='0' label="Zap-In / Zap-out">
         <VStack alignItems='flex-start' w="full" direction="column" spacing="5">
             <Text>
