@@ -294,4 +294,42 @@ export const FEDS_PARAMS = [
             },
         },
     },
+    {
+        chainId: NetworkIds.mainnet,
+        type: FedTypes.LP,
+        protocol: "Aerodrome",
+        address: "0x24a3C49e5Cd8786498e9051F5Be7D6e86B263c8B",
+        name: "Aero Fed",
+        projectImage:
+            "https://assets.coingecko.com/coins/images/31745/small/token.png?1694749704",
+        supplyFuncName: "dolaSupply",
+        incomeChainId: NetworkIds.base,
+        incomeSrcAd: "0x2457937668a345305FE08736F407Fba3F39cbF2f",
+        incomeTargetAd: "0x586CF50c2874f3e3997660c0FD0996B090FB9764",
+        dontUseSupplyForPolCalc: true,
+        strategy: {
+            description: 'The minted DOLA is bridged to a AeroFarmer contract on Base, this contract can swap DOLA for USDbC and deposit DOLA+USDbC to the Velodrome DOLA-USDbC liquidity pool. \n\nThis Fed gets rewards in AERO tokens which can then be locked to increase voting power on Aerodrome further increasing efficiency.',
+            pools: [
+                {
+                    address: '0x0B25c51637c43decd6CC1C1e3da4518D54ddb528',
+                    name: 'Aerodrome DOLA-USDbC',
+                    link: 'https://aerodrome.finance/deposit?token0=0x4621b7a9c75199271f773ebd9a499dbd165c3191&token1=0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca&stable=true',
+                    image: 'https://assets.coingecko.com/coins/images/31745/small/token.png?1694749704',
+                },
+            ],
+            type: 'solidly',
+            lpBalanceContract: '0xeAE066C25106006fB386A3a8b1698A0cB6931c1a',
+            rewardPools: [
+                { address: '0xeAE066C25106006fB386A3a8b1698A0cB6931c1a', method: 'earned', underlying: '0x940181a94A35A4569E4529A3CDfB74e38FD98631' }
+            ],
+            multisig: {
+                address: '0x586CF50c2874f3e3997660c0FD0996B090FB9764',
+                relevantAssets: [
+                    '0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA',
+                    '0x4621b7A9c75199271F773Ebd9A499dbd165c3191',
+                    '0x940181a94A35A4569E4529A3CDfB74e38FD98631',
+                ]
+            },
+        },
+    },
 ];
