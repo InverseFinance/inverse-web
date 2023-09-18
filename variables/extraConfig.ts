@@ -121,6 +121,7 @@ const mainConfig = {
             govLink: '/governance',                     
             startingBlock: 17313862,
             claimMethod: 'claimDBR',
+            hasStakingLikeRewards: true,
             // borrowingWasDisabledBeforeBlock:
         },
         {

@@ -145,6 +145,7 @@ export default async function handler(req, res) {
 
     const resultData = {
       timestamp: Date.now(),
+      firmActionIndex,
       debt,
       depositedByUser,
       unstakedCollateralBalance,

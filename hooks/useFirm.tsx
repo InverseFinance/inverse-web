@@ -595,6 +595,7 @@ export const useEscrowBalanceEvolution = (account: string, escrow: string, marke
   liquidated: number,
   claims: number,
   depositedByUser: number,
+  firmActionIndex: number,
   isLoading: boolean,
   isError: boolean,
 } => {
