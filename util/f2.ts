@@ -14,6 +14,12 @@ import { FIRM_ESCROWS } from "@app/variables/extraConfig";
 
 const { F2_HELPER, F2_MARKETS } = getNetworkConfigConstants();
 
+const needsHigherGasLimit = (market: string) => {
+    const marketObj = F2_MARKETS.find(m => m.address === market)!;
+    console.log(marketObj)
+    return marketObj.escrowImplementation !== FIRM_ESCROWS.simple
+}
+
 export const getFirmSignature = (
     signer: JsonRpcSigner,
     market: string,
@@ -234,7 +240,7 @@ export const f2deposit = async (signer: JsonRpcSigner, market: string, amount: s
         return helperContract.depositNativeEthOnBehalf(market, { value: amount });
     }
     const contract = new Contract(market, F2_MARKET_ABI, signer);
-    if(F2_MARKETS.find(m => m.address === market)?.escrowImplementation === FIRM_ESCROWS.simple) {
+    if(needsHigherGasLimit(market)) {        
         return callWithHigherGL(contract, 'deposit', [account, amount]);
     }
     return contract.deposit(account, amount);
@@ -250,7 +256,7 @@ export const f2withdraw = async (signer: JsonRpcSigner, market: string, amount: 
         }
     }
     const contract = new Contract(market, F2_MARKET_ABI, signer);
-    if(F2_MARKETS.find(m => m.address === market)?.escrowImplementation === FIRM_ESCROWS.simple) {
+    if(needsHigherGasLimit(market)) {
         return callWithHigherGL(contract, 'withdraw', [amount]);
     }
     return contract.withdraw(amount);
@@ -264,7 +270,7 @@ export const f2withdrawMax = async (signer: JsonRpcSigner, market: string) => {
 
 export const f2borrow = (signer: JsonRpcSigner, market: string, amount: string | BigNumber) => {
     const contract = new Contract(market, F2_MARKET_ABI, signer);
-    if(F2_MARKETS.find(m => m.address === market)?.escrowImplementation === FIRM_ESCROWS.simple) {
+    if(needsHigherGasLimit(market)) {
         return callWithHigherGL(contract, 'borrow', [amount]);
     }
     return contract.borrow(amount);
@@ -273,7 +279,7 @@ export const f2borrow = (signer: JsonRpcSigner, market: string, amount: string |
 export const f2repay = async (signer: JsonRpcSigner, market: string, amount: string | BigNumber, to?: string) => {
     const contract = new Contract(market, F2_MARKET_ABI, signer);
     const _to = to ? to : await signer.getAddress();
-    if(F2_MARKETS.find(m => m.address === market)?.escrowImplementation === FIRM_ESCROWS.simple) {
+    if(needsHigherGasLimit(market)) {
         return callWithHigherGL(contract, 'repay', [_to, amount]);
     }
     return contract.repay(_to, amount);
@@ -281,7 +287,7 @@ export const f2repay = async (signer: JsonRpcSigner, market: string, amount: str
 
 export const f2depositAndBorrow = (signer: JsonRpcSigner, market: string, deposit: string | BigNumber, borrow: string | BigNumber) => {
     const contract = new Contract(market, F2_MARKET_ABI, signer);
-    if(F2_MARKETS.find(m => m.address === market)?.escrowImplementation === FIRM_ESCROWS.simple) {
+    if(needsHigherGasLimit(market)) {
         return callWithHigherGL(contract, 'depositAndBorrow', [deposit, borrow]);
     }
     return contract.depositAndBorrow(deposit, borrow);
@@ -289,7 +295,7 @@ export const f2depositAndBorrow = (signer: JsonRpcSigner, market: string, deposi
 
 export const f2repayAndWithdraw = (signer: JsonRpcSigner, market: string, repay: string | BigNumber, withdraw: string | BigNumber) => {
     const contract = new Contract(market, F2_MARKET_ABI, signer);
-    if(F2_MARKETS.find(m => m.address === market)?.escrowImplementation === FIRM_ESCROWS.simple) {
+    if(needsHigherGasLimit(market)) {
         return callWithHigherGL(contract, 'repayAndWithdraw', [repay, withdraw]);
     }
     return contract.repayAndWithdraw(repay, withdraw);
