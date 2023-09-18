@@ -16,7 +16,6 @@ const { F2_HELPER, F2_MARKETS } = getNetworkConfigConstants();
 
 const needsHigherGasLimit = (market: string) => {
     const marketObj = F2_MARKETS.find(m => m.address === market)!;
-    console.log(marketObj)
     return marketObj.escrowImplementation !== FIRM_ESCROWS.simple
 }
 
@@ -240,7 +239,7 @@ export const f2deposit = async (signer: JsonRpcSigner, market: string, amount: s
         return helperContract.depositNativeEthOnBehalf(market, { value: amount });
     }
     const contract = new Contract(market, F2_MARKET_ABI, signer);
-    if(needsHigherGasLimit(market)) {        
+    if(needsHigherGasLimit(market)) {
         return callWithHigherGL(contract, 'deposit', [account, amount]);
     }
     return contract.deposit(account, amount);
