@@ -86,6 +86,7 @@ export const FirmCvxCrvRewardWrapperContent = ({
 
     return <FirmRewards
         market={market}
+        escrow={escrow}
         rewardsInfos={rewardsInfos}
         label={label}
         showMarketBtn={showMarketBtn}
@@ -117,6 +118,7 @@ export const FirmCvxFxsRewardWrapperContent = ({
 
     return <FirmRewards
         market={market}
+        escrow={escrow}
         rewardsInfos={rewardsInfos}
         label={label}
         showMarketBtn={showMarketBtn}
@@ -147,6 +149,7 @@ export const FirmRewardWrapperContent = ({
 
     return <FirmRewards
         market={market}
+        escrow={escrow}
         rewardsInfos={rewardsInfos}
         label={label}
         showMarketBtn={showMarketBtn}
