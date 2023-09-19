@@ -161,7 +161,7 @@ export default async function handler(req, res) {
       'INV': invFrontierMarket.supplyApy || 0,
       'st-yCRV': stYcrvData?.apy || 0,
       'DAI': dsrData?.apy || 0,
-      'st-CVX': stCvxData?.apy || 0,
+      'CVX': stCvxData?.apy || 0,
     };
 
     const xinvExRate = getBnToNumber(xinvExRateBn);
