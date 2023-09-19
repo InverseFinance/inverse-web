@@ -433,6 +433,7 @@ export const F2_ESCROW_ABI = [
   "function rewardPool() public view returns(address)",
   "function claim() public",
   "function claimTo(address) public",
+  "function claimTo(address, address[] extraRewards) public",
   "function allowClaimOnBehalf(address) public",
   "function disallowClaimOnBehalf(address) public",
   // only cvxCRV
@@ -511,6 +512,8 @@ export const MERKLE_DROP_ABI = [
 
 export const CONVEX_REWARD_POOL = [
   'function earned(address) public view returns (uint)',
+  'function extraRewards(uint) public view returns (address)',
+  'function extraRewardsLength() public view returns (uint)',
 ]
 
 export const DBR_DISTRIBUTOR_ABI = [

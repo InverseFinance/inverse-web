@@ -22,6 +22,7 @@ export const RewardsContainer = ({
     market,
     timestamp,
     extra,
+    extraRewards,
 }: {
     escrow: string,
     claimables: any,
@@ -32,6 +33,7 @@ export const RewardsContainer = ({
     defaultCollapse?: boolean
     market: F2Market
     extra?: any
+    extraRewards?: string[]
 }) => {
     const { account, provider } = useWeb3React();
     const [hasJustClaimed, setHasJustClaimed] = useState(false);
@@ -41,7 +43,7 @@ export const RewardsContainer = ({
 
     const handleClaim = async () => {
         if (!account) return;
-        return claim(escrow, provider?.getSigner(), market.claimMethod);
+        return claim(escrow, provider?.getSigner(), market.claimMethod, extraRewards);
     }
 
     const handleClaimSuccess = () => {
