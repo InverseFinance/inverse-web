@@ -12,13 +12,13 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
         return new JsonRpcProvider('https://rpc.ftm.tools/');
     }
     else if(chainId === NetworkIds.optimism) {
-        return new JsonRpcProvider('https://rpc.ankr.com/optimism');
+        return new JsonRpcProvider('https://optimism.llamarpc.com');
     } 
     else if(chainId === NetworkIds.bsc) {
         return new JsonRpcProvider('https://bsc-dataseed3.binance.org');
     }
     else if(chainId === NetworkIds.arbitrum) {
-        return new JsonRpcProvider('https://arb1.arbitrum.io/rpc');
+        return new JsonRpcProvider('https://arbitrum.llamarpc.com');
     }
     else if(chainId === NetworkIds.polygon) {
         return new JsonRpcProvider('https://polygon.llamarpc.com');
