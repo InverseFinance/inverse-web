@@ -595,10 +595,11 @@ export const useEscrowBalanceEvolution = (account: string, escrow: string, marke
   liquidated: number,
   claims: number,
   depositedByUser: number,
+  firmActionIndex: number,
   isLoading: boolean,
   isError: boolean,
 } => {
-  const { data, error, isLoading } = useCacheFirstSWR(!account || (!escrow || escrow === BURN_ADDRESS) || (typeof firmActionIndex !== 'number') ? '-' : `/api/f2/escrow-balance-histo?v=1.1.1&account=${account}&escrow=${escrow}&market=${market}&actionIndex=${firmActionIndex}`, fetcher60sectimeout);
+  const { data, error, isLoading } = useCacheFirstSWR(!account || (!escrow || escrow === BURN_ADDRESS) || (typeof firmActionIndex !== 'number') ? '-' : `/api/f2/escrow-balance-histo?v=1.1.1&account=${account}&escrow=${escrow}&market=${market}&firmActionIndex=${firmActionIndex}`, fetcher60sectimeout);
 
   const evolution = data?.balances?.map((b, i) => ({
     balance: b,

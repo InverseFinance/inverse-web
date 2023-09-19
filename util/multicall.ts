@@ -197,7 +197,7 @@ export const executeCalls = async (
                 data: callData,
             };
 
-            const returnData = await call(getProvider(chainId), tx, block ?? "latest", chainId)
+            const returnData = await call(getProvider(chainId?.toString()), tx, block ?? "latest", chainId?.toString())
 
             const [blockNumber, returnValues] = ethers.utils.defaultAbiCoder.decode(
                 ["uint256", "bytes[]"],
@@ -226,7 +226,7 @@ export const executeCalls = async (
         processor: async ({ to, data }: any) => {
             let result = null
             try {
-                result = await call(getProvider(chainId), { to, data }, block ?? "latest", chainId,);
+                result = await call(getProvider(chainId?.toString()), { to, data }, block ?? "latest", chainId?.toString());
             } catch (e) {
                 console.log(e)
             }
@@ -236,7 +236,7 @@ export const executeCalls = async (
 }
 
 async function multicallAddressOrThrow(chainId: number) {
-    const network = await getProvider(chainId).getNetwork();
+    const network = await getProvider(chainId?.toString()).getNetwork();
     const address = multicallAddress(network?.chainId);
     if (address === null) {
         const msg = `multicall is not available on the network ${network.chainId}`;
@@ -255,6 +255,7 @@ function multicallAddress(chainId: number) {
     switch (chainId) {
         case 1:
         case 10001:
+        case 31337:
             return MULTICALL_ADDRESS_MAINNET;
         case 42:
             return MULTICALL_ADDRESS_KOVAN;

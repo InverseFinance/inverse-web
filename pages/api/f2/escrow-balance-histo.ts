@@ -1,6 +1,6 @@
 import { BigNumber, Contract } from 'ethers'
 import 'source-map-support'
-import { DBR_ABI, F2_ESCROW_ABI, F2_MARKET_ABI, F2_ORACLE_ABI } from '@app/config/abis'
+import { DBR_ABI, F2_ESCROW_ABI, F2_MARKET_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
@@ -13,7 +13,7 @@ import { isAddress } from 'ethers/lib/utils';
 import { formatFirmEvents } from '@app/util/f2';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
 
-const { F2_MARKETS, DBR, F2_ORACLE } = getNetworkConfigConstants();
+const { F2_MARKETS, DBR } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
   const { cacheFirst, account, escrow, market, firmActionIndex } = req.query;
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
     const redisCacheDuration = 60;
     res.setHeader('Cache-Control', `public, max-age=${webCacheDuration}`);
     const { data: archivedData, isValid } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', redisCacheDuration);
-    if (isValid) {
+    if (isValid && (firmActionIndex === archivedData.firmActionIndex || cacheFirst === 'true')) {
       res.status(200).json(archivedData);
       return
     }
@@ -99,15 +99,14 @@ export default async function handler(req, res) {
     if (!allUniqueBlocksToCheck.includes(currentBlock) && !archived?.blocks.includes(currentBlock)) {
       allUniqueBlocksToCheck.push(currentBlock);
     }
-
-    if (!allUniqueBlocksToCheck.length || ((currentBlock - lastEscrowEventBlock) <= 1000 && lastArchivedBlock === lastEscrowEventBlock)) {
+    if (!allUniqueBlocksToCheck.length || ((currentBlock - lastEscrowEventBlock) <= 1000 && lastArchivedBlock === lastEscrowEventBlock && archived?.firmActionIndex === firmActionIndex)) {
       res.status(200).json(archived);
       return;
     }
-
+    const timeChainId = CHAIN_ID === '31337' ? '1' : CHAIN_ID;
     await addBlockTimestamps(
       allUniqueBlocksToCheck,
-      CHAIN_ID,
+      timeChainId,
     );
     const timestamps = await getCachedBlockTimestamps();
     const decimals = getToken(CHAIN_TOKENS[CHAIN_ID], _market.collateral).decimals;
@@ -132,7 +131,7 @@ export default async function handler(req, res) {
     const newDbrClaimables = batchedData.map(t => getBnToNumber(t[1]));
     const newDebts = batchedData.map(t => getBnToNumber(t[2]));
 
-    const resultTimestamps = archived.timestamps.concat(allUniqueBlocksToCheck.map(b => timestamps[CHAIN_ID][b] * 1000));
+    const resultTimestamps = archived.timestamps.concat(allUniqueBlocksToCheck.map(b => timestamps[timeChainId][b] * 1000));
     const {
       events: newFormattedEvents,
       debt,
@@ -141,10 +140,11 @@ export default async function handler(req, res) {
       liquidated,
       replenished,
       claims,
-    } = formatFirmEvents(_market, flatenedEvents, flatenedEvents.map(e => timestamps[CHAIN_ID][e.blockNumber] * 1000), archived?.formattedEvents?.length > 0 ? archived : undefined);
+    } = formatFirmEvents(_market, flatenedEvents, flatenedEvents.map(e => timestamps[timeChainId][e.blockNumber] * 1000), archived?.formattedEvents?.length > 0 ? archived : undefined);
 
     const resultData = {
       timestamp: Date.now(),
+      firmActionIndex,
       debt,
       depositedByUser,
       unstakedCollateralBalance,
