@@ -3,7 +3,7 @@ import { liquidityCacheKey } from "../transparency/liquidity";
 import { repaymentsCacheKey } from "../transparency/repayments";
 
 export default async (req, res) => {
-    const cacheDuration = 240;
+    const cacheDuration = 600;
     const cacheKey = 'dola-modal-v1';
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
 
