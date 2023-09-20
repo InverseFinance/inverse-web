@@ -192,6 +192,7 @@ const headers = async () => {
 }
 
 const common = {
+  swcMinify: false,
   images: {
     domains: ['images.ctfassets.net'],
     loader: 'custom',

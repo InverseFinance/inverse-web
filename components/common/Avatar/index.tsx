@@ -2,7 +2,7 @@ import { Box, BoxProps } from '@chakra-ui/react'
 
 import { isAddress, parseUnits } from 'ethers/lib/utils';
 import { useEnsProfile } from '@app/hooks/useEnsProfile';
-import Jazzicon, { jsNumberForAddress } from 'react-jazzicon';
+// import Jazzicon, { jsNumberForAddress } from 'react-jazzicon';
 import { Contract } from 'ethers';
 import { AlchemyProvider } from '@ethersproject/providers';
 import { NetworkIds } from '@app/types';
@@ -198,9 +198,9 @@ export const Avatar = ({
       backgroundRepeat="no-repeat"
       borderRadius="50px"
       {...boxProps}>
-      {
+      {/* {
         !finalUrl && <Jazzicon seed={jsNumberForAddress(avatarAddress)} diameter={sizePx} />
-      }
+      } */}
     </Box>
   )
 }

@@ -1,0 +1,2000 @@
+{
+  "read": 88588,
+  "write": 2257,
+  "dola-cache-v1.0.0": {
+    "read": 255,
+    "write": 40
+  },
+  "dbr-cache-v1.0.6": {
+    "read": 2325,
+    "write": 527
+  },
+  "dola-price-v1.0.0": {
+    "read": 1107,
+    "write": 154
+  },
+  "f2-tvl-v1.0.3": {
+    "read": 1210,
+    "write": 17
+  },
+  "1-tvl-cache-v1.1.1": {
+    "read": 78,
+    "write": 9
+  },
+  "f2unique-users-v1.0.91": {
+    "read": 914,
+    "write": 435
+  },
+  "f2markets-v1.1.4": {
+    "read": 161,
+    "write": 0
+  },
+  "1-proposals-v1.0.0": {
+    "read": 41940,
+    "write": 191
+  },
+  "1-markets-cache-v1.4.5": {
+    "read": 3753,
+    "write": 0
+  },
+  "cg-prices-v1.0.0": {
+    "read": 3587,
+    "write": 43
+  },
+  "cvxCrv-aprs": {
+    "read": 2119,
+    "write": 0
+  },
+  "oppys-v1.0.0": {
+    "read": 191,
+    "write": 10
+  },
+  "cvx-crv-aprs": {
+    "read": 1,
+    "write": 69
+  },
+  "0x936911DF02A094855B03987695BF28bf53516cf9-dbr-rewards": {
+    "read": 573,
+    "write": 2
+  },
+  "bonds-cache-v1.0.3": {
+    "read": 4,
+    "write": 0
+  },
+  "bonds-ids-v1.0.0": {
+    "read": 3,
+    "write": 0
+  },
+  "f2dbr-v1.0.6": {
+    "read": 376,
+    "write": 0
+  },
+  "f2positions-v1.0.8": {
+    "read": 241,
+    "write": 0
+  },
+  "stabilizer-fees-v1.0.0": {
+    "read": 17,
+    "write": 2
+  },
+  "dbr-reward-rates-history-v1.0.1": {
+    "read": 589,
+    "write": 0
+  },
+  "exRates": {
+    "read": 2540,
+    "write": 0
+  },
+  "f2markets-v1.1.5": {
+    "read": 5656,
+    "write": 25
+  },
+  "pending-dbr-claims": {
+    "read": 6,
+    "write": 0
+  },
+  "dbr-emissions-v1.0.7": {
+    "read": 487,
+    "write": 10
+  },
+  "dbr-cache-extra-v1.0.6": {
+    "read": 140,
+    "write": 16
+  },
+  "f2dbr-replenishments-v1.0.0": {
+    "read": 395,
+    "write": 75
+  },
+  "dola-borrowing-right-historical": {
+    "read": 92,
+    "write": 2
+  },
+  "dbr-burns-v1.0.0": {
+    "read": 197,
+    "write": 12
+  },
+  "firm-debt-histo-v1.0.7": {
+    "read": 109,
+    "write": 2
+  },
+  "pending-dbr-rewards": {
+    "read": 7,
+    "write": 1
+  },
+  "pending-dbr-rewards-v1.0.0": {
+    "read": 13,
+    "write": 0
+  },
+  "0x4fa4679985B0dCf47ccdc1E4e9E4Eac32DD9Fafc-dbr-rewards": {
+    "read": 1,
+    "write": 0
+  },
+  "escrow-rewards-1-0x42f9e4Ee58F959924A97110C37a3820F4d4969b7": {
+    "read": 197,
+    "write": 54
+  },
+  "liquidity-v1.0.5": {
+    "read": 16,
+    "write": 0
+  },
+  "fed-overview-v1.0.1": {
+    "read": 50,
+    "write": 3
+  },
+  "prices-v1.0.7": {
+    "read": 510,
+    "write": 6
+  },
+  "0x5a1E0490c1ab0De97c0479307a2F437Fb06CaB05-dbr-rewards": {
+    "read": 26,
+    "write": 0
+  },
+  "escrow-rewards-1-0x682A61Ac4d87d5476e8B49CC3A03f8B414CC4e52": {
+    "read": 14,
+    "write": 2
+  },
+  "dao-feds-datas-v1.0.0": {
+    "read": 66,
+    "write": 4
+  },
+  "dao-multisigs-data-v1.0.5": {
+    "read": 12,
+    "write": 3
+  },
+  "tokens-data-v1.0.0": {
+    "read": 41,
+    "write": 10
+  },
+  "liquidity-history-aggregated--exclude-currentv1.0.0": {
+    "read": 131,
+    "write": 70
+  },
+  "liquidity-history": {
+    "read": 237,
+    "write": 0
+  },
+  "liquidity-v1.0.6": {
+    "read": 31,
+    "write": 0
+  },
+  "0xd05e9233F12924167fEeca9DBaa62dD2824Fc624-dbr-rewards": {
+    "read": 23,
+    "write": 0
+  },
+  "0x712CEaD047383e6F25E4Ce394711bD3Eaa3907BF-dbr-rewards": {
+    "read": 79,
+    "write": 2
+  },
+  "0xc3e40Ef959aF484d0eC3AE8D96381562A77787B0-dbr-rewards": {
+    "read": 3,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x936911DF02A094855B03987695BF28bf53516cf9-v1.0.0": {
+    "read": 25,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x936911DF02A094855B03987695BF28bf53516cf9-v1.0.2": {
+    "read": 2,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x936911DF02A094855B03987695BF28bf53516cf9-v1.0.3": {
+    "read": 1,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x936911DF02A094855B03987695BF28bf53516cf9-v1.0.4": {
+    "read": 2,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x936911DF02A094855B03987695BF28bf53516cf9-v1.0.6": {
+    "read": 6,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x936911DF02A094855B03987695BF28bf53516cf9-v1.0.7": {
+    "read": 4,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x936911DF02A094855B03987695BF28bf53516cf9-v1.0.8": {
+    "read": 16,
+    "write": 1
+  },
+  "firm-escrow-balance-histo-0xD1698aa0Dd087060C2688A2443AF3FC513B491Cb-v1.0.8": {
+    "read": 7,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x73F8AF2e1A916E8e010Ee682dC1CE0B279A88Ff7-v1.0.8": {
+    "read": 5,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x0000000000000000000000000000000000000000-v1.0.8": {
+    "read": 4,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x936911DF02A094855B03987695BF28bf53516cf9-0-1-v1.0.8": {
+    "read": 16,
+    "write": 1
+  },
+  "firm-escrow-balance-histo-0x936911DF02A094855B03987695BF28bf53516cf9-17562561-1-v1.0.8": {
+    "read": 10,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x73F8AF2e1A916E8e010Ee682dC1CE0B279A88Ff7-0-1-v1.0.8": {
+    "read": 6,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x73F8AF2e1A916E8e010Ee682dC1CE0B279A88Ff7-17556945-1-v1.0.8": {
+    "read": 6,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x0B0F1f9c2E5d1FE3A027Bb4471C6001f4Ed3ceCb-0-1-v1.0.8": {
+    "read": 8,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x0B0F1f9c2E5d1FE3A027Bb4471C6001f4Ed3ceCb-17438980-1-v1.0.8": {
+    "read": 6,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x0000000000000000000000000000000000000000-0-1-v1.0.8": {
+    "read": 2,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xD1698aa0Dd087060C2688A2443AF3FC513B491Cb-16975396-1-v1.0.8": {
+    "read": 16,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xD1698aa0Dd087060C2688A2443AF3FC513B491Cb-0-1-v1.0.8": {
+    "read": 14,
+    "write": 0
+  },
+  "0x42f9e4Ee58F959924A97110C37a3820F4d4969b7-cvxCrv-rewards": {
+    "read": 17,
+    "write": 0
+  },
+  "0x495EFBcA11A6Daf7a12a0d62edC40A81ED91D7cC-dbr-rewards": {
+    "read": 51,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x495EFBcA11A6Daf7a12a0d62edC40A81ED91D7cC-0-31337-v1.0.8": {
+    "read": 0,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x495EFBcA11A6Daf7a12a0d62edC40A81ED91D7cC-17580066-31337-v1.0.8": {
+    "read": 0,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x495EFBcA11A6Daf7a12a0d62edC40A81ED91D7cC-17580052-31337-v1.0.8": {
+    "read": 6,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x495EFBcA11A6Daf7a12a0d62edC40A81ED91D7cC-17580053-31337-v1.0.8": {
+    "read": 6,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x495EFBcA11A6Daf7a12a0d62edC40A81ED91D7cC-17580054-31337-v1.0.8": {
+    "read": 6,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x495EFBcA11A6Daf7a12a0d62edC40A81ED91D7cC-17580055-31337-v1.0.8": {
+    "read": 6,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x495EFBcA11A6Daf7a12a0d62edC40A81ED91D7cC-17580056-31337-v1.0.8": {
+    "read": 12,
+    "write": 0
+  },
+  "dao-cache-v1.3.6": {
+    "read": 40,
+    "write": 3
+  },
+  "dao-feds-meta-v1.0.0": {
+    "read": 86,
+    "write": 19
+  },
+  "dao-multisigs-meta-v1.0.4": {
+    "read": 63,
+    "write": 8
+  },
+  "dao-multisigs-bal-v1.0.7": {
+    "read": 20,
+    "write": 14
+  },
+  "dao-multisigs-all-v1.0.4": {
+    "read": 55,
+    "write": 3
+  },
+  "dao-dola-supplies-v1.0.1": {
+    "read": 34,
+    "write": 4
+  },
+  "firm-escrow-balance-histo-0x495EFBcA11A6Daf7a12a0d62edC40A81ED91D7cC-17580284-1-v1.0.8": {
+    "read": 11,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x075aeCd9fb973B9549b0E6B4e3AD6591BeA66d2B-0-1-v1.0.8": {
+    "read": 14,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x075aeCd9fb973B9549b0E6B4e3AD6591BeA66d2B-16491913-1-v1.0.8": {
+    "read": 16,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xa0c51d31a6B3FcCd3733688Cebd192e86A3D3cB0-0-1-v1.0.8": {
+    "read": 12,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xa0c51d31a6B3FcCd3733688Cebd192e86A3D3cB0-16806500-1-v1.0.8": {
+    "read": 16,
+    "write": 0
+  },
+  "0x34a7a276ed77c6fe866c75bbc8d79127c4e14a09-sim-rewards": {
+    "read": 3,
+    "write": 0
+  },
+  "0xAAc0aa431c237C2C0B5f041c8e59B3f1a43aC78F-sim-rewards": {
+    "read": 9,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x42f9e4Ee58F959924A97110C37a3820F4d4969b7-0-1-v1.0.8": {
+    "read": 10,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x42f9e4Ee58F959924A97110C37a3820F4d4969b7-17340189-1-v1.0.8": {
+    "read": 14,
+    "write": 0
+  },
+  "0x42f9e4Ee58F959924A97110C37a3820F4d4969b7-sim-rewards": {
+    "read": 3,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x712CEaD047383e6F25E4Ce394711bD3Eaa3907BF-0-1-v1.0.8": {
+    "read": 8,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x712CEaD047383e6F25E4Ce394711bD3Eaa3907BF-17575476-1-v1.0.8": {
+    "read": 8,
+    "write": 0
+  },
+  "revenues-v1.0.14": {
+    "read": 86,
+    "write": 0
+  },
+  "revenues-v1.0.15": {
+    "read": 105,
+    "write": 0
+  },
+  "price-convex-finance-27-09-2022": {
+    "read": 31,
+    "write": 0
+  },
+  "price-curve-dao-token-27-09-2022": {
+    "read": 31,
+    "write": 0
+  },
+  "price-convex-finance-01-10-2022": {
+    "read": 31,
+    "write": 0
+  },
+  "price-curve-dao-token-01-10-2022": {
+    "read": 31,
+    "write": 0
+  },
+  "price-convex-finance-10-10-2022": {
+    "read": 31,
+    "write": 0
+  },
+  "price-curve-dao-token-10-10-2022": {
+    "read": 31,
+    "write": 0
+  },
+  "price-convex-finance-28-10-2022": {
+    "read": 31,
+    "write": 0
+  },
+  "price-curve-dao-token-28-10-2022": {
+    "read": 31,
+    "write": 0
+  },
+  "price-convex-finance-31-12-2022": {
+    "read": 31,
+    "write": 0
+  },
+  "price-curve-dao-token-31-12-2022": {
+    "read": 31,
+    "write": 0
+  },
+  "price-convex-finance-06-01-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-curve-dao-token-06-01-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-convex-finance-09-01-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-curve-dao-token-09-01-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-aura-finance-18-11-2022": {
+    "read": 31,
+    "write": 0
+  },
+  "price-balancer-18-11-2022": {
+    "read": 31,
+    "write": 0
+  },
+  "price-aura-finance-22-11-2022": {
+    "read": 31,
+    "write": 0
+  },
+  "price-balancer-22-11-2022": {
+    "read": 31,
+    "write": 0
+  },
+  "price-aura-finance-09-12-2022": {
+    "read": 31,
+    "write": 0
+  },
+  "price-balancer-09-12-2022": {
+    "read": 31,
+    "write": 0
+  },
+  "price-aura-finance-13-12-2022": {
+    "read": 31,
+    "write": 0
+  },
+  "price-balancer-13-12-2022": {
+    "read": 31,
+    "write": 0
+  },
+  "price-aura-finance-19-12-2022": {
+    "read": 31,
+    "write": 0
+  },
+  "price-balancer-19-12-2022": {
+    "read": 31,
+    "write": 0
+  },
+  "price-aura-finance-23-12-2022": {
+    "read": 62,
+    "write": 0
+  },
+  "price-balancer-23-12-2022": {
+    "read": 62,
+    "write": 0
+  },
+  "price-aura-finance-27-12-2022": {
+    "read": 31,
+    "write": 0
+  },
+  "price-balancer-27-12-2022": {
+    "read": 31,
+    "write": 0
+  },
+  "price-aura-finance-31-12-2022": {
+    "read": 31,
+    "write": 0
+  },
+  "price-balancer-31-12-2022": {
+    "read": 31,
+    "write": 0
+  },
+  "price-aura-finance-06-01-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-balancer-06-01-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-aura-finance-04-02-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-balancer-04-02-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-aura-finance-17-02-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-balancer-17-02-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-aura-finance-03-03-2023": {
+    "read": 37,
+    "write": 0
+  },
+  "price-balancer-03-03-2023": {
+    "read": 37,
+    "write": 0
+  },
+  "price-aura-finance-17-03-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-balancer-17-03-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-aura-finance-31-03-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-balancer-31-03-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-aura-finance-14-04-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-balancer-14-04-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-aura-finance-26-04-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-balancer-26-04-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-aura-finance-28-04-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-balancer-28-04-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-aura-finance-12-05-2023": {
+    "read": 31,
+    "write": 1
+  },
+  "price-balancer-12-05-2023": {
+    "read": 31,
+    "write": 1
+  },
+  "price-aura-finance-25-05-2023": {
+    "read": 31,
+    "write": 1
+  },
+  "price-balancer-25-05-2023": {
+    "read": 31,
+    "write": 1
+  },
+  "price-aura-finance-09-06-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-balancer-09-06-2023": {
+    "read": 31,
+    "write": 1
+  },
+  "price-aura-finance-26-06-2023": {
+    "read": 31,
+    "write": 1
+  },
+  "price-balancer-26-06-2023": {
+    "read": 31,
+    "write": 1
+  },
+  "price-velodrome-finance-25-10-2022": {
+    "read": 31,
+    "write": 0
+  },
+  "price-velodrome-finance-18-11-2022": {
+    "read": 31,
+    "write": 0
+  },
+  "price-velodrome-finance-13-12-2022": {
+    "read": 31,
+    "write": 0
+  },
+  "price-velodrome-finance-07-01-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-velodrome-finance-13-01-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-velodrome-finance-20-01-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-velodrome-finance-27-01-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-velodrome-finance-30-01-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-velodrome-finance-03-02-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-velodrome-finance-10-02-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-velodrome-finance-17-02-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-velodrome-finance-24-02-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-velodrome-finance-03-03-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-velodrome-finance-10-03-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-velodrome-finance-17-03-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-velodrome-finance-24-03-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-velodrome-finance-31-03-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-velodrome-finance-06-04-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-velodrome-finance-07-04-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-velodrome-finance-14-04-2023": {
+    "read": 62,
+    "write": 0
+  },
+  "price-velodrome-finance-21-04-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-velodrome-finance-28-04-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-velodrome-finance-05-05-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-velodrome-finance-12-05-2023": {
+    "read": 31,
+    "write": 1
+  },
+  "price-velodrome-finance-19-05-2023": {
+    "read": 31,
+    "write": 1
+  },
+  "price-velodrome-finance-25-05-2023": {
+    "read": 31,
+    "write": 1
+  },
+  "price-velodrome-finance-27-05-2023": {
+    "read": 31,
+    "write": 1
+  },
+  "price-velodrome-finance-02-06-2023": {
+    "read": 31,
+    "write": 1
+  },
+  "price-velodrome-finance-09-06-2023": {
+    "read": 31,
+    "write": 1
+  },
+  "price-velodrome-finance-12-06-2023": {
+    "read": 31,
+    "write": 1
+  },
+  "price-velodrome-finance-17-06-2023": {
+    "read": 31,
+    "write": 1
+  },
+  "price-velodrome-finance-24-06-2023": {
+    "read": 31,
+    "write": 1
+  },
+  "price-velodrome-finance-28-06-2023": {
+    "read": 31,
+    "write": 1
+  },
+  "price-velodrome-finance-29-06-2023": {
+    "read": 31,
+    "write": 0
+  },
+  "price-convex-finance-20-01-2023": {
+    "read": 16,
+    "write": 0
+  },
+  "price-curve-dao-token-20-01-2023": {
+    "read": 16,
+    "write": 0
+  },
+  "price-convex-finance-03-02-2023": {
+    "read": 16,
+    "write": 0
+  },
+  "price-curve-dao-token-03-02-2023": {
+    "read": 16,
+    "write": 0
+  },
+  "price-convex-finance-17-02-2023": {
+    "read": 16,
+    "write": 0
+  },
+  "price-curve-dao-token-17-02-2023": {
+    "read": 16,
+    "write": 0
+  },
+  "price-convex-finance-03-03-2023": {
+    "read": 16,
+    "write": 0
+  },
+  "price-curve-dao-token-03-03-2023": {
+    "read": 16,
+    "write": 0
+  },
+  "price-convex-finance-10-03-2023": {
+    "read": 16,
+    "write": 0
+  },
+  "price-curve-dao-token-10-03-2023": {
+    "read": 16,
+    "write": 0
+  },
+  "price-convex-finance-31-03-2023": {
+    "read": 16,
+    "write": 0
+  },
+  "price-curve-dao-token-31-03-2023": {
+    "read": 16,
+    "write": 0
+  },
+  "price-convex-finance-14-04-2023": {
+    "read": 16,
+    "write": 0
+  },
+  "price-curve-dao-token-14-04-2023": {
+    "read": 16,
+    "write": 0
+  },
+  "price-convex-finance-28-04-2023": {
+    "read": 16,
+    "write": 0
+  },
+  "price-curve-dao-token-28-04-2023": {
+    "read": 16,
+    "write": 0
+  },
+  "price-convex-finance-12-05-2023": {
+    "read": 16,
+    "write": 0
+  },
+  "price-curve-dao-token-12-05-2023": {
+    "read": 16,
+    "write": 0
+  },
+  "price-convex-finance-25-05-2023": {
+    "read": 16,
+    "write": 0
+  },
+  "price-curve-dao-token-25-05-2023": {
+    "read": 16,
+    "write": 0
+  },
+  "price-convex-finance-09-06-2023": {
+    "read": 16,
+    "write": 0
+  },
+  "price-curve-dao-token-09-06-2023": {
+    "read": 16,
+    "write": 0
+  },
+  "price-velodrome-finance-30-06-2023": {
+    "read": 16,
+    "write": 0
+  },
+  "price-velodrome-finance-01-07-2023": {
+    "read": 16,
+    "write": 0
+  },
+  "price-aura-finance-16-06-2023": {
+    "read": 16,
+    "write": 0
+  },
+  "price-balancer-16-06-2023": {
+    "read": 16,
+    "write": 0
+  },
+  "price-aura-finance-22-02-2023": {
+    "read": 6,
+    "write": 0
+  },
+  "price-balancer-22-02-2023": {
+    "read": 6,
+    "write": 0
+  },
+  "price-aura-finance-29-03-2023": {
+    "read": 6,
+    "write": 0
+  },
+  "price-balancer-29-03-2023": {
+    "read": 6,
+    "write": 0
+  },
+  "fed-policy-cache-v1.0.97": {
+    "read": 79,
+    "write": 5
+  },
+  "fed-policy-cache-v1.0.96": {
+    "read": 44,
+    "write": 0
+  },
+  "liquidity-v1.0.7": {
+    "read": 62,
+    "write": 0
+  },
+  "fed-overview-v1.0.2": {
+    "read": 78,
+    "write": 2
+  },
+  "liquidity-v1.0.8": {
+    "read": 39,
+    "write": 0
+  },
+  "repayments-v1.0.93": {
+    "read": 705,
+    "write": 76
+  },
+  "1-positions-v1.1.0": {
+    "read": 206,
+    "write": 0
+  },
+  "dola-frontier-evo-v1.0.x": {
+    "read": 195,
+    "write": 177
+  },
+  "historic-prices-v1.0.4": {
+    "read": 183,
+    "write": 0
+  },
+  "dbr-emissions-v1.0.8": {
+    "read": 13,
+    "write": 0
+  },
+  "dbr-emissions-v1.0.9": {
+    "read": 109,
+    "write": 0
+  },
+  "repayments-v1.0.94": {
+    "read": 58,
+    "write": 1
+  },
+  "firm-escrow-balance-histo-0xD1698aa0Dd087060C2688A2443AF3FC513B491Cb-0-31337-v1.0.8": {
+    "read": 67,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xD1698aa0Dd087060C2688A2443AF3FC513B491Cb-16975396-31337-v1.0.8": {
+    "read": 24,
+    "write": 0
+  },
+  "repayments-v1.0.95": {
+    "read": 73,
+    "write": 1
+  },
+  "liquidity-v1.0.9": {
+    "read": 6,
+    "write": 0
+  },
+  "fed-policy-cache-v1.0.95": {
+    "read": 4,
+    "write": 0
+  },
+  "repayments-v1.0.96": {
+    "read": 166,
+    "write": 1
+  },
+  "dbr-emissions-v1.0.91": {
+    "read": 560,
+    "write": 12
+  },
+  "price-velodrome-finance-08-07-2023": {
+    "read": 11,
+    "write": 0
+  },
+  "dao-cache-v1.3.7": {
+    "read": 5,
+    "write": 0
+  },
+  "dao-multisigs-bal-v1.0.8": {
+    "read": 43,
+    "write": 26
+  },
+  "firm-escrow-balance-histo-0xD1698aa0Dd087060C2688A2443AF3FC513B491Cb-17635799-31337-v1.0.8": {
+    "read": 27,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xe1C3eaB20a66cF25b1D488Bbd2C7CbEeF3e1164c-0-31337-v1.0.8": {
+    "read": 12,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xe1C3eaB20a66cF25b1D488Bbd2C7CbEeF3e1164c-16532145-31337-v1.0.8": {
+    "read": 12,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x42f9e4Ee58F959924A97110C37a3820F4d4969b7-0-31337-v1.0.8": {
+    "read": 0,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x42f9e4Ee58F959924A97110C37a3820F4d4969b7-17340189-31337-v1.0.8": {
+    "read": 3,
+    "write": 0
+  },
+  "31337-dola-circ-supply-v1.0.0": {
+    "read": 1,
+    "write": 0
+  },
+  "31337-inv-circ-supply-v1.0.0": {
+    "read": 1,
+    "write": 0
+  },
+  "31337-inv-supply-v1.0.0": {
+    "read": 1,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x936911DF02A094855B03987695BF28bf53516cf9-0-31337-v1.0.8": {
+    "read": 16,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x936911DF02A094855B03987695BF28bf53516cf9-17580187-31337-v1.0.8": {
+    "read": 21,
+    "write": 0
+  },
+  "f2markets-v1.1.6": {
+    "read": 548,
+    "write": 12
+  },
+  "fed-overview-v1.0.3": {
+    "read": 9,
+    "write": 0
+  },
+  "dao-multisigs-data-v1.0.6": {
+    "read": 18,
+    "write": 0
+  },
+  "liquidity-v1.0.92": {
+    "read": 3,
+    "write": 0
+  },
+  "liquidity-v1.0.93": {
+    "read": 9,
+    "write": 0
+  },
+  "fed-overview-v1.0.4": {
+    "read": 154,
+    "write": 10
+  },
+  "dao-cache-v1.3.8": {
+    "read": 60,
+    "write": 0
+  },
+  "cvxFxs-aprs": {
+    "read": 1,
+    "write": 0
+  },
+  "cvx-fxs-aprs": {
+    "read": 1,
+    "write": 0
+  },
+  "escrow-rewards-1-0xaac0aa431c237c2c0b5f041c8e59b3f1a43ac78f": {
+    "read": 3,
+    "write": 0
+  },
+  "user-rewards-1-0x6535020cCeB810Bdb3F3cA5e93dE2460FF7989BB": {
+    "read": 57,
+    "write": 0
+  },
+  "oppys-v1.0.1": {
+    "read": 4,
+    "write": 0
+  },
+  "liquidity-v1.0.94": {
+    "read": 4,
+    "write": 0
+  },
+  "liquidity-v1.0.95": {
+    "read": 25,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x936911DF02A094855B03987695BF28bf53516cf9-17580187-1-v1.0.8": {
+    "read": 6,
+    "write": 1
+  },
+  "tos-0x34A7a276eD77c6FE866c75Bbc8d79127c4E14a09": {
+    "read": 68,
+    "write": 0
+  },
+  "tos-undefined": {
+    "read": 13,
+    "write": 0
+  },
+  "liquidity-v1.0.96": {
+    "read": 3,
+    "write": 0
+  },
+  "liquidity-v1.0.97": {
+    "read": 13,
+    "write": 1
+  },
+  "liquidity-v1.0.99": {
+    "read": 35,
+    "write": 0
+  },
+  "liquidity-v1.0.98": {
+    "read": 7,
+    "write": 0
+  },
+  "tos--0x34A7a276eD77c6FE866c75Bbc8d79127c4E14a09": {
+    "read": 8,
+    "write": 0
+  },
+  "tos-----0x34A7a276eD77c6FE866c75Bbc8d79127c4E14a09": {
+    "read": 2,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x495EFBcA11A6Daf7a12a0d62edC40A81ED91D7cC-0-1-v1.0.8": {
+    "read": 10,
+    "write": 1
+  },
+  "f2markets-v1.1.7": {
+    "read": 726,
+    "write": 6
+  },
+  "firm-escrow-balance-histo-0xc9a91b44C49A18Cd167cdC74FEBf5dc3f8CfcF5B-0-1-v1.0.8": {
+    "read": 4,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xc9a91b44C49A18Cd167cdC74FEBf5dc3f8CfcF5B-17723804-1-v1.0.8": {
+    "read": 4,
+    "write": 0
+  },
+  "user-rewards-1-0xC4Dd018f8c281BD4A7DF9777546d1c0fdE3826F9": {
+    "read": 21,
+    "write": 0
+  },
+  "0x4ad7f6F04579E9964E46C7F2054Ddb1eFB943d50-dbr-rewards": {
+    "read": 6,
+    "write": 0
+  },
+  "user-rewards-1-0x7a16ff8270133f063aab6c9977183d9e72835428": {
+    "read": 28,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xD1698aa0Dd087060C2688A2443AF3FC513B491Cb-17721894-1-v1.0.8": {
+    "read": 14,
+    "write": 0
+  },
+  "oppys-v1.0.2": {
+    "read": 51,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xd0655D3F5D5C80146Dcf8be24572Ce0e1b8A5f6b-0-1-v1.0.8": {
+    "read": 8,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xd0655D3F5D5C80146Dcf8be24572Ce0e1b8A5f6b-16197489-1-v1.0.8": {
+    "read": 14,
+    "write": 0
+  },
+  "tos-----0x6535020cCeB810Bdb3F3cA5e93dE2460FF7989BB": {
+    "read": 3,
+    "write": 0
+  },
+  "firm--liquidations-v1.0.0": {
+    "read": 41,
+    "write": 0
+  },
+  "price-convex-finance-10-07-2023": {
+    "read": 10,
+    "write": 0
+  },
+  "price-curve-dao-token-10-07-2023": {
+    "read": 10,
+    "write": 0
+  },
+  "price-velodrome-finance-16-07-2023": {
+    "read": 10,
+    "write": 0
+  },
+  "price-velodrome-finance-23-07-2023": {
+    "read": 10,
+    "write": 0
+  },
+  "price-aura-finance-10-07-2023": {
+    "read": 10,
+    "write": 0
+  },
+  "price-balancer-10-07-2023": {
+    "read": 10,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xD1698aa0Dd087060C2688A2443AF3FC513B491Cb-17721894-31337-v1.0.8": {
+    "read": 6,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xD1698aa0Dd087060C2688A2443AF3FC513B491Cb-17740818-31337-v1.0.8": {
+    "read": 12,
+    "write": 0
+  },
+  "tos------0x34A7a276eD77c6FE866c75Bbc8d79127c4E14a09": {
+    "read": 8,
+    "write": 3
+  },
+  "tos------0x6535020cCeB810Bdb3F3cA5e93dE2460FF7989BB": {
+    "read": 3,
+    "write": 0
+  },
+  "tos-------0x6535020cCeB810Bdb3F3cA5e93dE2460FF7989BB": {
+    "read": 9,
+    "write": 3
+  },
+  "tos--------0x6535020cCeB810Bdb3F3cA5e93dE2460FF7989BB": {
+    "read": 1,
+    "write": 1
+  },
+  "tos-sign-0x6535020cCeB810Bdb3F3cA5e93dE2460FF7989BB": {
+    "read": 12,
+    "write": 0
+  },
+  "bonds-v2.0.4": {
+    "read": 2,
+    "write": 0
+  },
+  "bonds-ids-v1.0.1": {
+    "read": 1,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x1bd700058dCa0b58990f651b3643efE134c660AE-0-31337-v1.0.8": {
+    "read": 1,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x1bd700058dCa0b58990f651b3643efE134c660AE-17778041-31337-v1.0.8": {
+    "read": 2,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x1bd700058dCa0b58990f651b3643efE134c660AE-17778041-1-v1.0.8": {
+    "read": 10,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x1bd700058dCa0b58990f651b3643efE134c660AE-0-1-v1.0.8": {
+    "read": 4,
+    "write": 0
+  },
+  "refunds-v1.0.5-2023-07-21-2023-07-27": {
+    "read": 78,
+    "write": 0
+  },
+  "compensations-cache-v1.2.1": {
+    "read": 46,
+    "write": 0
+  },
+  "compensations-cache-v1.2.2": {
+    "read": 4,
+    "write": 0
+  },
+  "0x7186146412E7a2f2169b09C0795ac95a6DB020aF-dbr-rewards": {
+    "read": 107,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x7186146412E7a2f2169b09C0795ac95a6DB020aF-0-1-v1.0.8": {
+    "read": 4,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x7186146412E7a2f2169b09C0795ac95a6DB020aF-17777587-1-v1.0.8": {
+    "read": 8,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x7186146412E7a2f2169b09C0795ac95a6DB020aF-0-1-v1.0.9": {
+    "read": 5,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x7186146412E7a2f2169b09C0795ac95a6DB020aF-0-1-v1.0.91": {
+    "read": 5,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x7186146412E7a2f2169b09C0795ac95a6DB020aF-0-1-v1.0.92": {
+    "read": 2,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x7186146412E7a2f2169b09C0795ac95a6DB020aF-0-1-v1.0.93": {
+    "read": 45,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x7186146412E7a2f2169b09C0795ac95a6DB020aF-17777587-1-v1.0.93": {
+    "read": 6,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x936911DF02A094855B03987695BF28bf53516cf9-0-1-v1.0.93": {
+    "read": 2,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x7186146412E7a2f2169b09C0795ac95a6DB020aF-0-1-v1.0.94": {
+    "read": 7,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x7186146412E7a2f2169b09C0795ac95a6DB020aF-0-1-v1.0.95": {
+    "read": 11,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x7186146412E7a2f2169b09C0795ac95a6DB020aF-17777587-1-v1.0.95": {
+    "read": 3,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x7186146412E7a2f2169b09C0795ac95a6DB020aF-0-1-v1.0.96": {
+    "read": 10,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x7186146412E7a2f2169b09C0795ac95a6DB020aF-0-1-v1.0.97": {
+    "read": 8,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x936911DF02A094855B03987695BF28bf53516cf9-0-1-v1.0.97": {
+    "read": 14,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x936911DF02A094855B03987695BF28bf53516cf9-NaN-1-v1.0.97": {
+    "read": 2,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x936911DF02A094855B03987695BF28bf53516cf9-17580187-1-v1.0.97": {
+    "read": 6,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x0000000000000000000000000000000000000000-0-1-v1.0.97": {
+    "read": 4,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x50B34871407f4393E8bC4C455DC803c90D0Dc29d-0-1-v1.0.97": {
+    "read": 8,
+    "write": 0
+  },
+  "0x50B34871407f4393E8bC4C455DC803c90D0Dc29d-dbr-rewards": {
+    "read": 5,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xE5B31ed6A103E9511Fc107F6089BE432eFe2bAA0-0-1-v1.0.97": {
+    "read": 8,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xE5B31ed6A103E9511Fc107F6089BE432eFe2bAA0-17789949-1-v1.0.97": {
+    "read": 8,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xE5B31ed6A103E9511Fc107F6089BE432eFe2bAA0-17789949-1-v1.0.98": {
+    "read": 22,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x0000000000000000000000000000000000000000-0-1-v1.0.98": {
+    "read": 4,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xE5B31ed6A103E9511Fc107F6089BE432eFe2bAA0-0-1-v1.0.98": {
+    "read": 12,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x936911DF02A094855B03987695BF28bf53516cf9-17580187-1-v1.0.98": {
+    "read": 12,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x936911DF02A094855B03987695BF28bf53516cf9-0-1-v1.0.98": {
+    "read": 11,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x73F8AF2e1A916E8e010Ee682dC1CE0B279A88Ff7-0-1-v1.0.98": {
+    "read": 10,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x73F8AF2e1A916E8e010Ee682dC1CE0B279A88Ff7-17642568-1-v1.0.98": {
+    "read": 12,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x712CEaD047383e6F25E4Ce394711bD3Eaa3907BF-0-1-v1.0.98": {
+    "read": 10,
+    "write": 0
+  },
+  "tos-sign-0x34A7a276eD77c6FE866c75Bbc8d79127c4E14a09": {
+    "read": 4,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xa0c51d31a6B3FcCd3733688Cebd192e86A3D3cB0-0-1-v1.0.98": {
+    "read": 12,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xa0c51d31a6B3FcCd3733688Cebd192e86A3D3cB0-16806500-1-v1.0.98": {
+    "read": 27,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x712CEaD047383e6F25E4Ce394711bD3Eaa3907BF-17674122-1-v1.0.98": {
+    "read": 8,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x712CEaD047383e6F25E4Ce394711bD3Eaa3907BF-17761198-1-v1.0.98": {
+    "read": 9,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xD1698aa0Dd087060C2688A2443AF3FC513B491Cb-0-1-v1.0.98": {
+    "read": 16,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xD1698aa0Dd087060C2688A2443AF3FC513B491Cb-17721894-1-v1.0.98": {
+    "read": 4,
+    "write": 1
+  },
+  "firm-escrow-balance-histo-0xe1C3eaB20a66cF25b1D488Bbd2C7CbEeF3e1164c-0-1-v1.0.99": {
+    "read": 4,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xe1C3eaB20a66cF25b1D488Bbd2C7CbEeF3e1164c-16532145-1-v1.0.99": {
+    "read": 4,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xD1698aa0Dd087060C2688A2443AF3FC513B491Cb-0-1-v1.0.99": {
+    "read": 6,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xD1698aa0Dd087060C2688A2443AF3FC513B491Cb-17721894-1-v1.0.99": {
+    "read": 10,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xaB0F5856829B8E51C851B8495f575f8f84278FF9-0-1-v1.0.99": {
+    "read": 10,
+    "write": 1
+  },
+  "firm-escrow-balance-histo-0xaB0F5856829B8E51C851B8495f575f8f84278FF9-17804105-1-v1.0.99": {
+    "read": 20,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x936911DF02A094855B03987695BF28bf53516cf9-0-1-v1.0.99": {
+    "read": 11,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x936911DF02A094855B03987695BF28bf53516cf9-17580187-1-v1.0.99": {
+    "read": 9,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x682A61Ac4d87d5476e8B49CC3A03f8B414CC4e52-0-1-v1.0.99": {
+    "read": 21,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x682A61Ac4d87d5476e8B49CC3A03f8B414CC4e52-17636281-1-v1.0.99": {
+    "read": 8,
+    "write": 0
+  },
+  "1-inv-supply-v1.0.0": {
+    "read": 57,
+    "write": 0
+  },
+  "liquidity-v1.0.991": {
+    "read": 7,
+    "write": 0
+  },
+  "oppys-v1.0.3": {
+    "read": 4,
+    "write": 0
+  },
+  "oppys-v1.0.4": {
+    "read": 5,
+    "write": 0
+  },
+  "liquidity-v1.1.0": {
+    "read": 11,
+    "write": 0
+  },
+  "f2positions-v1.0.9": {
+    "read": 345,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x2c4D375Fa4440c8022D2eF8f475Ec9939901d18D-0-1-v1.0.99": {
+    "read": 4,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x2c4D375Fa4440c8022D2eF8f475Ec9939901d18D-16717685-1-v1.0.99": {
+    "read": 4,
+    "write": 0
+  },
+  "f2markets-v1.1.8": {
+    "read": 23,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x42f9e4Ee58F959924A97110C37a3820F4d4969b7-0-1-v1.0.99": {
+    "read": 12,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x42f9e4Ee58F959924A97110C37a3820F4d4969b7-17340189-1-v1.0.99": {
+    "read": 12,
+    "write": 0
+  },
+  "f2markets-v1.1.9": {
+    "read": 132,
+    "write": 1
+  },
+  "user-rewards-1-0xAAc0aa431c237C2C0B5f041c8e59B3f1a43aC78F-v1.0.0": {
+    "read": 8,
+    "write": 0
+  },
+  "user-rewards-1-0x34A7a276eD77c6FE866c75Bbc8d79127c4E14a09-v1.0.0": {
+    "read": 92,
+    "write": 3
+  },
+  "firm-escrow-balance-histo-0x320DF6560D1f9cE86d298327c8072F28D44E44f9-0-1-v1.0.99": {
+    "read": 4,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x320DF6560D1f9cE86d298327c8072F28D44E44f9-17812393-1-v1.0.99": {
+    "read": 6,
+    "write": 0
+  },
+  "poa-sign-0x5786A4eB1BeC381cb39AcAc75C944b63E7d5A40c": {
+    "read": 3,
+    "write": 0
+  },
+  "poa-sign-0x6535020cCeB810Bdb3F3cA5e93dE2460FF7989BB": {
+    "read": 2054,
+    "write": 1
+  },
+  "poa-sign-0x4b6c63E6a94ef26E2dF60b89372db2d8e211F1B7": {
+    "read": 11,
+    "write": 0
+  },
+  "poa-sign-0x6535020cCeB810Bdb3F3cA5e93dE2460FF7989BB-": {
+    "read": 4,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x1bd700058dCa0b58990f651b3643efE134c660AE-17778041-1-v1.0.99": {
+    "read": 44,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x936911DF02A094855B03987695BF28bf53516cf9-undefined-1-v1.0.99": {
+    "read": 2,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x682A61Ac4d87d5476e8B49CC3A03f8B414CC4e52-0-1-v1.1.0": {
+    "read": 14,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x682A61Ac4d87d5476e8B49CC3A03f8B414CC4e52-17819706-1-v1.1.0": {
+    "read": 18,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x682A61Ac4d87d5476e8B49CC3A03f8B414CC4e52-17819706-1-v1.1.1": {
+    "read": 17,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x682A61Ac4d87d5476e8B49CC3A03f8B414CC4e52-0-1-v1.1.1": {
+    "read": 12,
+    "write": 0
+  },
+  "firm-oracle-prices-0x3474ad0e3a9775c9F68B415A7a9880B0CAB9397a-v1.0.0": {
+    "read": 17,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x936911DF02A094855B03987695BF28bf53516cf9-0-1-v1.1.1": {
+    "read": 4,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x936911DF02A094855B03987695BF28bf53516cf9-17580187-1-v1.1.1": {
+    "read": 6,
+    "write": 0
+  },
+  "firm-oracle-prices-0xb516247596Ca36bf32876199FBdCaD6B3322330B-v1.0.0": {
+    "read": 95,
+    "write": 1
+  },
+  "firm-oracle-prices-0x743A502cf0e213F6FEE56cD9C6B03dE7Fa951dCf-v1.0.0": {
+    "read": 45,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xa0c51d31a6B3FcCd3733688Cebd192e86A3D3cB0-0-1-v1.1.1": {
+    "read": 10,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xa0c51d31a6B3FcCd3733688Cebd192e86A3D3cB0-16806500-1-v1.1.1": {
+    "read": 8,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x0000000000000000000000000000000000000000-0-1-v1.1.1": {
+    "read": 2,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x08e0f20e9E4F1b1EE4CA17Ca71d74EEC8C32D028-0-1-v1.1.1": {
+    "read": 4,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x08e0f20e9E4F1b1EE4CA17Ca71d74EEC8C32D028-17775545-1-v1.1.1": {
+    "read": 4,
+    "write": 0
+  },
+  "firm-oracle-prices-0x7Cd3ab8354289BEF52c84c2BF0A54E3608e66b37-v1.0.0": {
+    "read": 12,
+    "write": 0
+  },
+  "firm-oracle-prices-0x743A502cf0e213F6FEE56cD9C6B03dE7Fa951dCf-v1.0.0-": {
+    "read": 2,
+    "write": 0
+  },
+  "firm-oracle-prices-0x63Df5e23Db45a2066508318f172bA45B9CD37035-v1.0.0-": {
+    "read": 2,
+    "write": 0
+  },
+  "f2markets-v1.1.91": {
+    "read": 909,
+    "write": 1
+  },
+  "firm-escrow-balance-histo-0x936911DF02A094855B03987695BF28bf53516cf9-17861746-1-v1.0.99": {
+    "read": 5,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x936911DF02A094855B03987695BF28bf53516cf9-1-v1.0.99": {
+    "read": 23,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xD1698aa0Dd087060C2688A2443AF3FC513B491Cb-1-v1.0.99": {
+    "read": 25,
+    "write": 0
+  },
+  "firm-oracle-prices-0x63Df5e23Db45a2066508318f172bA45B9CD37035-v1.0.0": {
+    "read": 1400,
+    "write": 0
+  },
+  "poa-sign-0x34A7a276eD77c6FE866c75Bbc8d79127c4E14a09": {
+    "read": 212,
+    "write": 0
+  },
+  "poa-sign-0x977A688f1F96c22b0Fb474581abd6d53b70dA991": {
+    "read": 27,
+    "write": 0
+  },
+  "poa-sign-0xA31D372292686ecFfbc0D0F743a712686b219a0A": {
+    "read": 93,
+    "write": 0
+  },
+  "poa-sign$-0x6535020cCeB810Bdb3F3cA5e93dE2460FF7989BB": {
+    "read": 3,
+    "write": 0
+  },
+  "poa-sign$-0xA31D372292686ecFfbc0D0F743a712686b219a0A": {
+    "read": 2,
+    "write": 0
+  },
+  "firm-oracle-prices-0x93685185666c8D34ad4c574B3DBF41231bbfB31b-v1.0.0": {
+    "read": 1,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xa0c51d31a6B3FcCd3733688Cebd192e86A3D3cB0-1-v1.0.99": {
+    "read": 9,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x73F8AF2e1A916E8e010Ee682dC1CE0B279A88Ff7-1-v1.0.99": {
+    "read": 4,
+    "write": 0
+  },
+  "firm-oracle-prices-0x63fAd99705a255fE2D500e498dbb3A9aE5AA1Ee8-v1.0.0": {
+    "read": 12,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x682A61Ac4d87d5476e8B49CC3A03f8B414CC4e52-1-v1.0.99": {
+    "read": 4,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x653ad3Dedb299aFf315Eb7020E54a71E60589935-1-v1.0.99": {
+    "read": 2,
+    "write": 0
+  },
+  "0x653ad3Dedb299aFf315Eb7020E54a71E60589935-dbr-rewards": {
+    "read": 14,
+    "write": 0
+  },
+  "liquidity-v1.1.1": {
+    "read": 55,
+    "write": 0
+  },
+  "stabilizer-v1.0.2": {
+    "read": 38,
+    "write": 7
+  },
+  "refunds-v1.0.5-2023-08-12-2023-08-18": {
+    "read": 15,
+    "write": 0
+  },
+  "refunds-v1.0.5-2023-08-15-2023-08-21": {
+    "read": 2,
+    "write": 0
+  },
+  "eligible-refunds-txs": {
+    "read": 0,
+    "write": 0
+  },
+  "poa-sign-0x9c3F0A86967010E451F139D81A4df5e3aA0a743C": {
+    "read": 107,
+    "write": 0
+  },
+  "f2markets-v1.1.92": {
+    "read": 22,
+    "write": 0
+  },
+  "f2markets-v1.1.93": {
+    "read": 441,
+    "write": 0
+  },
+  "dao-cache-v1.3.9": {
+    "read": 13,
+    "write": 0
+  },
+  "price-convex-finance-24-07-2023": {
+    "read": 8,
+    "write": 0
+  },
+  "price-curve-dao-token-24-07-2023": {
+    "read": 8,
+    "write": 0
+  },
+  "price-convex-finance-31-07-2023": {
+    "read": 8,
+    "write": 0
+  },
+  "price-curve-dao-token-31-07-2023": {
+    "read": 8,
+    "write": 0
+  },
+  "price-convex-finance-21-08-2023": {
+    "read": 8,
+    "write": 0
+  },
+  "price-curve-dao-token-21-08-2023": {
+    "read": 8,
+    "write": 0
+  },
+  "price-velodrome-finance-29-07-2023": {
+    "read": 8,
+    "write": 0
+  },
+  "price-velodrome-finance-06-08-2023": {
+    "read": 8,
+    "write": 0
+  },
+  "price-velodrome-finance-13-08-2023": {
+    "read": 8,
+    "write": 0
+  },
+  "price-velodrome-finance-20-08-2023": {
+    "read": 8,
+    "write": 0
+  },
+  "price-velodrome-finance-28-08-2023": {
+    "read": 8,
+    "write": 0
+  },
+  "price-aura-finance-24-07-2023": {
+    "read": 8,
+    "write": 0
+  },
+  "price-balancer-24-07-2023": {
+    "read": 8,
+    "write": 0
+  },
+  "price-aura-finance-31-07-2023": {
+    "read": 8,
+    "write": 0
+  },
+  "price-balancer-31-07-2023": {
+    "read": 8,
+    "write": 0
+  },
+  "price-aura-finance-16-08-2023": {
+    "read": 8,
+    "write": 0
+  },
+  "price-balancer-16-08-2023": {
+    "read": 8,
+    "write": 0
+  },
+  "1-dola-circ-supply-v1.0.0": {
+    "read": 4,
+    "write": 0
+  },
+  "fed-policy-cache-v1.1.1": {
+    "read": 7,
+    "write": 0
+  },
+  "fed-policy-cache-v1.1.0": {
+    "read": 62,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xD1698aa0Dd087060C2688A2443AF3FC513B491Cb-31337-v1.0.99": {
+    "read": 28,
+    "write": 0
+  },
+  "dao-cache-v1.3.91": {
+    "read": 6,
+    "write": 0
+  },
+  "liquidity-v1.1.2": {
+    "read": 87,
+    "write": 2
+  },
+  "dao-cache-v1.3.92": {
+    "read": 18,
+    "write": 1
+  },
+  "dao-multisigs-meta-v1.0.5": {
+    "read": 14,
+    "write": 6
+  },
+  "dao-multisigs-bal-v1.0.9": {
+    "read": 10,
+    "write": 4
+  },
+  "dao-multisigs-all-v1.0.5": {
+    "read": 7,
+    "write": 0
+  },
+  "lp-history-aggregated-0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c--exclude-currentv1.0.0": {
+    "read": 2,
+    "write": 0
+  },
+  "lp-history-aggregated-0xB720FBC32d60BB6dcc955Be86b98D8fD3c4bA645--exclude-currentv1.0.0": {
+    "read": 1,
+    "write": 0
+  },
+  "liquidity-history-aggregated-c1---exclude-currentv1.0.0": {
+    "read": 4,
+    "write": 0
+  },
+  "liquidity-history-aggregated-c10---exclude-currentv1.0.0": {
+    "read": 9,
+    "write": 1
+  },
+  "liquidity-history-aggregated-c250---exclude-currentv1.0.0": {
+    "read": 2,
+    "write": 0
+  },
+  "liquidity-history-aggregated-c137---exclude-currentv1.0.0": {
+    "read": 1,
+    "write": 0
+  },
+  "liquidity-history-aggregated-c43114---exclude-currentv1.0.0": {
+    "read": 2,
+    "write": 0
+  },
+  "liquidity-history-aggregated-c8453---exclude-currentv1.0.0": {
+    "read": 2,
+    "write": 0
+  },
+  "lp-history-aggregated-0x0b28C2e41058EDc7D66c516c617b664Ea86eeC5d--exclude-currentv1.0.0": {
+    "read": 1,
+    "write": 0
+  },
+  "liquidity-history-aggregated--exclude-currentv1.0.1": {
+    "read": 20,
+    "write": 5
+  },
+  "f2markets-v1.1.94": {
+    "read": 583,
+    "write": 0
+  },
+  "31337-tvl-cache-v1.1.1": {
+    "read": 9,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xD651011108dAc73D842041102F330c2204b85aEf-31337-v1.0.99": {
+    "read": 4,
+    "write": 0
+  },
+  "firm-oracle-prices-0x0971B1690d101169BFca4715897aD3a9b3C39b26-v1.0.0": {
+    "read": 28,
+    "write": 0
+  },
+  "31337-dola-borrowable-v1.0.0": {
+    "read": 1,
+    "write": 0
+  },
+  "1-dola-borrowable-v1.0.0": {
+    "read": 5,
+    "write": 0
+  },
+  "1-dola-max-borrowable-until-tomorrow-v1.0.0": {
+    "read": 13,
+    "write": 0
+  },
+  "dao-multisigs-data-v1.0.7": {
+    "read": 40,
+    "write": 1
+  },
+  "0x6350e0DEAB0Ea73becD47cf08466718d29b0037E-dbr-rewards": {
+    "read": 32,
+    "write": 2
+  },
+  "firm-escrow-balance-histo-0x6350e0DEAB0Ea73becD47cf08466718d29b0037E-1-v1.0.99": {
+    "read": 18,
+    "write": 1
+  },
+  "firm-escrow-balance-histo-0x495EFBcA11A6Daf7a12a0d62edC40A81ED91D7cC-1-v1.0.99": {
+    "read": 9,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x495EFBcA11A6Daf7a12a0d62edC40A81ED91D7cC-31337-v1.0.99": {
+    "read": 4,
+    "write": 0
+  },
+  "fed-overview-v1.0.5": {
+    "read": 39,
+    "write": 3
+  },
+  "liquidity-v1.1.3": {
+    "read": 39,
+    "write": 1
+  },
+  "dao-cache-v1.3.93": {
+    "read": 1,
+    "write": 0
+  },
+  "dao-cache-v1.3.94": {
+    "read": 2,
+    "write": 0
+  },
+  "dao-feds-meta-v1.0.2": {
+    "read": 2,
+    "write": 2
+  },
+  "firm-escrow-balance-histo-0xaB0F5856829B8E51C851B8495f575f8f84278FF9-1-v1.0.99": {
+    "read": 6,
+    "write": 0
+  },
+  "liquidity-v1.1.4": {
+    "read": 32,
+    "write": 0
+  },
+  "feds-csv-v1": {
+    "read": 1,
+    "write": 0
+  },
+  "fed-policy-cache-v1.1.11": {
+    "read": 171,
+    "write": 0
+  },
+  "price-convex-finance-04-09-2023": {
+    "read": 7,
+    "write": 0
+  },
+  "price-curve-dao-token-04-09-2023": {
+    "read": 7,
+    "write": 0
+  },
+  "price-velodrome-finance-05-09-2023": {
+    "read": 7,
+    "write": 0
+  },
+  "price-velodrome-finance-13-09-2023": {
+    "read": 7,
+    "write": 0
+  },
+  "price-aura-finance-04-09-2023": {
+    "read": 7,
+    "write": 0
+  },
+  "price-balancer-04-09-2023": {
+    "read": 7,
+    "write": 0
+  },
+  "price-aura-finance-12-09-2023": {
+    "read": 7,
+    "write": 0
+  },
+  "price-balancer-12-09-2023": {
+    "read": 7,
+    "write": 0
+  },
+  "price-aura-finance-17-09-2023": {
+    "read": 14,
+    "write": 0
+  },
+  "price-balancer-17-09-2023": {
+    "read": 14,
+    "write": 0
+  },
+  "price-aura-finance-06-09-2023": {
+    "read": 14,
+    "write": 0
+  },
+  "price-balancer-06-09-2023": {
+    "read": 7,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xe1C3eaB20a66cF25b1D488Bbd2C7CbEeF3e1164c-1-v1.0.99": {
+    "read": 11,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0xA2B4f147124018c84C196Cf3533610511CfEDF97-31337-v1.0.99": {
+    "read": 22,
+    "write": 0
+  },
+  "firm-escrow-balance-histo-0x936911DF02A094855B03987695BF28bf53516cf9-31337-v1.0.99": {
+    "read": 18,
+    "write": 0
+  },
+  "user-rewards-1-0x7a16ff8270133f063aab6c9977183d9e72835428-v1.0.0": {
+    "read": 40,
+    "write": 7
+  },
+  "user-rewards-1-0x6535020cCeB810Bdb3F3cA5e93dE2460FF7989BB-v1.0.0": {
+    "read": 2,
+    "write": 0
+  },
+  "fed-overview-v1.0.6": {
+    "read": 8,
+    "write": 0
+  },
+  "dao-feds-datas-v1.0.3": {
+    "read": 4,
+    "write": 0
+  },
+  "fed-overview-v1.0.8": {
+    "read": 5,
+    "write": 0
+  },
+  "liquidity-v1.1.5": {
+    "read": 1,
+    "write": 0
+  },
+  "liquidity-v1.1.6": {
+    "read": 2,
+    "write": 0
+  },
+  "eligible-refunds-txs-gov-": {
+    "read": 2,
+    "write": 0
+  },
+  "eligible-refunds-txs-feds-": {
+    "read": 3,
+    "write": 0
+  }
+}
