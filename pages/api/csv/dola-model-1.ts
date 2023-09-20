@@ -19,11 +19,11 @@ export default async (req, res) => {
         const currentDolaBadDebt = badDebtData.badDebts.DOLA.badDebtBalance;
 
         let csvData = `DOLA bad debt:,${currentDolaBadDebt},FiRM borrows:,${totalBorrowsOnFirm},Liquidity Cache:,~5min,Liquidity timestamp:,${liquidityData.timestamp},Bad debt timestamp:,${badDebtData.timestamp}\n`;
-        csvData += `LP,Fed,Fed Supply,Fed PoL,DOLA balance,Pairing Depth\n`;
+        csvData += `LP,Fed,Fed Supply,DOLA balance,Pairing Depth,Fed PoL\n`;
         feds.forEach((lp) => {
             const parentLp = liquidityData.liquidity.filter(l => !!l.deduce).find(l => l.deduce.includes(lp.address));
             const balanceSource = parentLp || lp;
-            csvData += `${lp.lpName},${lp.fedName||'n/a'},${lp.fedSupply||0},${lp.ownedAmount||0},${balanceSource?.dolaBalance||0},${balanceSource?.pairingDepth||0}\n`;
+            csvData += `${lp.lpName},${lp.fedName||'n/a'},${lp.fedSupply||0},${balanceSource?.dolaBalance||0},${balanceSource?.pairingDepth||0},${lp.ownedAmount||0}\n`;
         });
 
         redisSetWithTimestamp(cacheKey, { csvData });
