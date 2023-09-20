@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=14.18.3"
+    "node": ">=18.16.1"
   },
   "scripts": {
     "dev": "next dev",
@@ -25,6 +25,7 @@
     "@contentful/rich-text-react-renderer": "^15.17.2",
     "@emotion/react": "^11.4.0",
     "@emotion/styled": "^11.3.0",
+    "@ensofinance/use-defi": "^0.2.3",
     "@eth-optimism/sdk": "^3.1.2",
     "@ethersproject/providers": "^5.3.0",
     "@ethersproject/units": "^5.3.0",
@@ -63,7 +64,9 @@
     "remove-markdown": "^0.5.0",
     "source-map-support": "^0.5.19",
     "swr": "^0.5.6",
-    "victory": "^35.8.6"
+    "victory": "^35.8.6",
+    "viem": "^1.11.0",
+    "wagmi": "^1.4.2"
   },
   "devDependencies": {
     "@testing-library/dom": "^8.11.1",
@@ -83,6 +86,6 @@
     "postcss": "8.4.5",
     "start-server-and-test": "^1.14.0",
     "tailwindcss": "^3.0.15",
-    "typescript": "^4.5.2"
+    "typescript": "5.0.4"
   }
 }
