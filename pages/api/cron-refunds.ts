@@ -3,9 +3,6 @@ import { getCacheFromRedis, getRedisClient, redisSetWithTimestamp } from '@app/u
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { DRAFT_WHITELIST } from "@app/config/constants";
 import { CUSTOM_NAMED_ADDRESSES } from "@app/variables/names";
-import { getProvider } from "@app/util/providers";
-import { Contract } from "ethers";
-import { ORACLE_ABI } from "@app/config/abis";
 import { Fed, NetworkIds, RefundableTransaction } from "@app/types";
 import { cacheMultisigMetaKey } from "./transparency/dao";
 import { getTxsOf } from "@app/util/covalent";
@@ -15,7 +12,7 @@ import { formatEther } from "@ethersproject/units";
 
 const client = getRedisClient();
 
-const { GOVERNANCE, FEDS, MULTISIGS, MULTI_DELEGATOR, ORACLE, XINV } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { GOVERNANCE, FEDS, MULTISIGS, MULTI_DELEGATOR } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const topics = {
     "0xdcc16fd18a808d877bcd9a09b544844b36ae8f0a4b222e317d7b777b2c18b032": "Expansion",
@@ -88,13 +85,6 @@ export default async function handler(req, res) {
             ...Object.keys(CUSTOM_NAMED_ADDRESSES),
         ];
 
-        const provider = getProvider(NetworkIds.mainnet);
-
-        const xinvFeed = await new Contract(ORACLE, ORACLE_ABI, provider).feeds(XINV);
-        const xinvKeeperAddress = await new Contract(xinvFeed, ['function oracle() public view returns (address)'], provider).oracle();
-        // old one, then we add the current one
-        const invOracleKeepers = ['0xd14439b3a7245d8ea92e37b77347014ea7e4f809', xinvKeeperAddress];
-
         const deltaDays = 4;
 
         const hasFilter = !!filterType;
@@ -107,8 +97,6 @@ export default async function handler(req, res) {
             multidelegator,
             gno,
             feds,
-            oracleOld,
-            oracleCurrent,
             delegatesRes,
         ] = await Promise.all([
             Promise.all(
@@ -130,10 +118,7 @@ export default async function handler(req, res) {
                     5,
                     1000,
                 )
-                : new Promise((r) => r([{ data: { items: [] } }])),
-            // price feed update
-            !hasFilter || filterType === 'oracles' ? getTxsOf(invOracleKeepers[0], deltaDays * 2) : new Promise((r) => r({ data: { items: [] } })),
-            !hasFilter || filterType === 'oracles' ? getTxsOf(invOracleKeepers[1], deltaDays * 2) : new Promise((r) => r({ data: { items: [] } })),
+                : new Promise((r) => r([{ data: { items: [] } }])),            
             client.get(`1-delegates`),
         ])
 
@@ -152,8 +137,6 @@ export default async function handler(req, res) {
         let cronJobItems = formatResults(gov, 'governance', refundWhitelist, eligibleVoteCasters)
             .concat(formatResults(multidelegator, 'multidelegator', refundWhitelist))
             .concat(formatResults(gno, 'gnosisproxy', refundWhitelist))
-            .concat(formatResults(oracleOld, 'oracle', refundWhitelist))
-            .concat(formatResults(oracleCurrent, 'oracle', refundWhitelist))
 
         multisigsRes.forEach(r => {
             cronJobItems = cronJobItems.concat(formatResults(r, 'multisig', refundWhitelist, [], multisig))
