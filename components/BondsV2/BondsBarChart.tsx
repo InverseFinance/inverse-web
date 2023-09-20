@@ -40,7 +40,7 @@ export const BondsBarChart = ({
                 label: `${type.replace(/(-)([0-9]+$)/, ' ($2 days vesting)')}: ${shortenNumber(y, 2, false)}`,
                 x: moment(date).utc().format(chartWidth <= 400 ? 'MMM' : 'MMM-YY'),
                 y,
-            }
+            };
         });
     })
 

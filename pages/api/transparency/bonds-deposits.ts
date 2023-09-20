@@ -36,7 +36,7 @@ export default async function handler(req, res) {
         );
 
         // bonds V2 with bond protocol
-        const allV2BondsMarketIds = await getCacheFromRedis(BONDS_V2_IDS_API_CACHE_KEY, false) || ["3","23","63","98"];
+        const allV2BondsMarketIds = (await getCacheFromRedis(BONDS_V2_IDS_API_CACHE_KEY, false)) || ["3","23","63","98"];
 
         const [depositsV2, marketInfos, terms] = await Promise.all([
             Promise.all(

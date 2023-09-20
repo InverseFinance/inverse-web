@@ -87,162 +87,164 @@ export const BondSlide = ({
     const split = now.split('-');
     const vestingCompleteDate = Date.UTC(parseInt(split[0]), parseInt(split[1]) - 1, parseInt(split[2]) + bond.vestingDays, 0);
 
-    return <SlideModal onClose={onClose} isOpen={isOpen}>
-        <VStack maxH={{ base: 'calc(100vh - 80px)' }} w='full' position="relative" overflowY="auto" overflowX="hidden" fontSize={{ base: '12px', sm: '18px' }}>
-            <VStack maxW="700px" w='full' spacing="4">
-                <HStack fontSize={{ base: '18px', sm: '24px' }} fontWeight="extrabold">
-                    {bondIndex !== 0 && <ArrowLeftIcon zIndex="10" cursor="pointer" onClick={() => handleDetails(bondIndex - 1)} position="absolute" left="0" />}
-                    <Flex>
-                        {/* <LPImg leftSize={30} rightSize={20} rightDeltaX={-5} leftImg={bond.underlying.image} rightImg={invDarkBgImg} /> */}
-                        <MarketImage size={30} image={bond.underlying.image} protocolImage={bond.underlying.protocolImage} />
-                        <Text ml="2" textTransform="uppercase">
-                            {bond.underlying.name} BOND ({bond.vestingDays} days vesting)
-                        </Text>
-                    </Flex>
-                    {bondIndex !== (bonds.length - 1) && <ArrowRightIcon zIndex="10" cursor="pointer" onClick={() => handleDetails(bondIndex + 1)} position="absolute" right="0" />}
-                </HStack>
-                <Divider />
-                <HStack w='full' justify="space-between" fontWeight="bold">
-                    <HStack>
-                        <MarketImage size={18} image={bond.underlying.image} protocolImage={bond.underlying.protocolImage} />
-                        <Text mr="1" display={{ base: 'none', sm: 'inline-block' }}>Deposit</Text>
+    return (
+        <SlideModal onClose={onClose} isOpen={isOpen}>
+            <VStack maxH={{ base: 'calc(100vh - 80px)' }} w='full' position="relative" overflowY="auto" overflowX="hidden" fontSize={{ base: '12px', sm: '18px' }}>
+                <VStack maxW="700px" w='full' spacing="4">
+                    <HStack fontSize={{ base: '18px', sm: '24px' }} fontWeight="extrabold">
+                        {bondIndex !== 0 && <ArrowLeftIcon zIndex="10" cursor="pointer" onClick={() => handleDetails(bondIndex - 1)} position="absolute" left="0" />}
+                        <Flex>
+                            {/* <LPImg leftSize={30} rightSize={20} rightDeltaX={-5} leftImg={bond.underlying.image} rightImg={invDarkBgImg} /> */}
+                            <MarketImage size={30} image={bond.underlying.image} protocolImage={bond.underlying.protocolImage} />
+                            <Text ml="2" textTransform="uppercase">
+                                {bond.underlying.name} BOND ({bond.vestingDays} days vesting)
+                            </Text>
+                        </Flex>
+                        {bondIndex !== (bonds.length - 1) && <ArrowRightIcon zIndex="10" cursor="pointer" onClick={() => handleDetails(bondIndex + 1)} position="absolute" right="0" />}
                     </HStack>
-                    <Text>=></Text>
-                    <Flex alignItems="center">
-                        <TimeIcon fontSize="16px" />
-                        <Text mx="2" fontWeight="extrabold">Wait ~{bond.vestingDays} days</Text>
-                        <AnimatedInfoTooltip type="tooltip" message={`After bonding you will need to wait around ${bond.vestingDays} days before being able to redeem your INVs (no linear unlocking)`} />
-                    </Flex>
-                    <Text>=></Text>
-                    <Stack direction="row" alignItems="center">
-                        <Text display={{ base: 'none', sm: 'inline-block' }}>Redeem</Text>
-                        <Image ignoreFallback={true} src={invDarkBgImg} w='18px' h='18px' borderRadius="15px" />
-                    </Stack>
-                </HStack>
-                <Divider />
-                <HStack w='full' justify="space-between" fontWeight="bold">
-                    <Flex>
-                        <Text fontWeight="normal" mr="1">Bond Price: </Text>
-                        <Text fontWeight="extrabold">{shortenNumber(bond.bondPrice, 2, true)}</Text>
-                    </Flex>
-                    <Flex>
-                        <Text fontWeight="normal" mr="1">Market Price: </Text>
-                        <Text fontWeight="extrabold">{shortenNumber(bond.marketPrice, 2, true)}</Text>
-                    </Flex>
-                    <Text fontWeight="extrabold" textAlign="right" color={bond.positiveRoi ? 'secondary' : 'error'}>
-                        ROI: {shortenNumber(bond.roi, 2, false)}%
-                    </Text>
-                </HStack>
-                <HStack fontSize="12px" w='full' justify="space-between">
-                    <Stack direction={{ base: 'column', sm: 'row' }} fontSize="12px" w='25%' >
-                        <Text>Bond Market ID: </Text>
-                        <Text>{bond.id.toString()}</Text>
-                    </Stack>
-                    <Stack direction={{ base: 'column', sm: 'row' }} fontSize="12px" w='25%' >
-                        <Text>Min bond price: </Text>
-                        <Text>{shortenNumber(bond.minPrice, 2, true)}</Text>
-                    </Stack>
-                    <Stack direction={{ base: 'column', sm: 'row' }} w='25%' alignItems="center" justify="center">
-                        <Text>Teller: </Text>
-                        <ScannerLink value={BOND_V2_FIXED_TERM_TELLER} />
-                    </Stack>
-                    <Stack direction={{ base: 'column', sm: 'row' }} w='25%' alignItems="center" justify="flex-end">
-                        <Text>Auctioneer: </Text>
-                        <ScannerLink value={bond.bondContract} />
-                    </Stack>
-                </HStack>
-
-                <Divider />
-                <VStack w='full' m="0" p="0" spacing="4" fontSize="14px">
-                    <HStack w='full' justify="space-between">
-                        <Text>
-                            Your {bond.underlying.symbol} Balance:
-                        </Text>
-                        {
-                            parseFloat(bal) === 0 ?
-                                <Link fontWeight="extrabold" color="secondary" textDecoration="underline" href={bond.howToGetLink}>
-                                    Get {bond.underlying.symbol}
-                                </Link>
-                                :
-                                <Text fontWeight="extrabold" textAlign="right">
-                                    {shortenNumber(parseFloat(bal), 2, false, true)} ({shortenNumber(parseFloat(bal) * bond.inputUsdPrice, 2, true, true)})
-                                </Text>
-                        }
-                    </HStack>
-                    <HStack w='full' justify="space-between">
-                        <Text>
-                            Current Max Available Payout for this bond <AnimatedInfoTooltip type="tooltip" message="The number of INVs available in this bonding contract" />:
-                        </Text>
-                        <Text fontWeight="bold" textAlign="right">
-                            {bond.maxPayout} ({shortenNumber(bond.maxPayout * bond.marketPrice, 2, true)})
-                        </Text>
-                    </HStack>
-                    <HStack w='full' justify="space-between">
-                        <Text>
-                            Remaining bond market Capacity <AnimatedInfoTooltip type="tooltip" message="Once this reaches 0, the bond cannot be purchased anymore." />:
-                        </Text>
-                        <Text fontWeight="bold" textAlign="right">
-                            {bond.capacity} {bond.capacityInQuote ? bond.underlying.symbol : 'INV'}
-                        </Text>
-                    </HStack>
-                    {
-                        bond.capacity && !bond.capacityInQuote && pcApproved < bond.capacity &&
-                        <HStack w='full' justify="flex-start">
-                            <WarningMessage
-                                alertProps={{ w: 'full' }}
-                                description="The Policy Committee needs to increase allowance for this market"
-                            />
+                    <Divider />
+                    <HStack w='full' justify="space-between" fontWeight="bold">
+                        <HStack>
+                            <MarketImage size={18} image={bond.underlying.image} protocolImage={bond.underlying.protocolImage} />
+                            <Text mr="1" display={{ base: 'none', sm: 'inline-block' }}>Deposit</Text>
                         </HStack>
-                    }
-                    <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify="space-between">
-                        <Flex w='full' maxW={{ base: 'full', sm: '400px' }}>
-                            <BalanceInput
-                                value={amount}
-                                inputProps={{ fontSize: '15px', py: { base: '20px', sm: '24px' } }}
-                                onChange={(e: React.MouseEvent<HTMLInputElement>) => setAmount(e.currentTarget.value.replace(',', '.').replace(/[^0-9.]/g, ''))}
-                                onMaxClick={() => handleMax()}
-                            />
+                        <Text>=></Text>
+                        <Flex alignItems="center">
+                            <TimeIcon fontSize="16px" />
+                            <Text mx="2" fontWeight="extrabold">Wait ~{bond.vestingDays} days</Text>
+                            <AnimatedInfoTooltip type="tooltip" message={`After bonding you will need to wait around ${bond.vestingDays} days before being able to redeem your INVs (no linear unlocking)`} />
                         </Flex>
-                        <Flex maxW={{ base: 'none', sm: '190px' }} w="full" minW="120px">
-                            {
-                                !isApproved ?
-                                    <ApproveButton needPoaFirst={true} tooltipMsg='' signer={provider?.getSigner()} address={bond.underlying.address} toAddress={bond.teller} isDisabled={(!provider?.getSigner())} />
-                                    :
-                                    <SubmitButton
-                                        needPoaFirst={true}
-                                        onSuccess={() => handleSuccess()}
-                                        isDisabled={!parseFloat(amount || '0') || parseFloat(amount || '0') > getMax() || !parseFloat(receiveAmount) || (parseFloat(receiveAmount) > pcApproved)}
-                                        onClick={handleDeposit}
-                                        refreshOnSuccess={true}>
-                                        Purchase
-                                    </SubmitButton>
-                            }
-                        </Flex>
-                    </Stack>
-                    <HStack w='full'>
-                        <BondSlippage maxSlippage={maxSlippage} toToken={REWARD_TOKEN!} toAmount={receiveAmount.toString()} onChange={(v) => setMaxSlippage(parseFloat(v))} />
+                        <Text>=></Text>
+                        <Stack direction="row" alignItems="center">
+                            <Text display={{ base: 'none', sm: 'inline-block' }}>Redeem</Text>
+                            <Image ignoreFallback={true} src={invDarkBgImg} w='18px' h='18px' borderRadius="15px" />
+                        </Stack>
                     </HStack>
-                    {
-                        parseFloat(amount) > 0 && !parseFloat(receiveAmount) &&
+                    <Divider />
+                    <HStack w='full' justify="space-between" fontWeight="bold">
+                        <Flex>
+                            <Text fontWeight="normal" mr="1">Bond Price: </Text>
+                            <Text fontWeight="extrabold">{shortenNumber(bond.bondPrice, 2, true)}</Text>
+                        </Flex>
+                        <Flex>
+                            <Text fontWeight="normal" mr="1">Market Price: </Text>
+                            <Text fontWeight="extrabold">{shortenNumber(bond.marketPrice, 2, true)}</Text>
+                        </Flex>
+                        <Text fontWeight="extrabold" textAlign="right" color={bond.positiveRoi ? 'secondary' : 'error'}>
+                            ROI: {shortenNumber(bond.roi, 2, false)}%
+                        </Text>
+                    </HStack>
+                    <HStack fontSize="12px" w='full' justify="space-between">
+                        <Stack direction={{ base: 'column', sm: 'row' }} fontSize="12px" w='25%' >
+                            <Text>Bond Market ID: </Text>
+                            <Text>{bond.id.toString()}</Text>
+                        </Stack>
+                        <Stack direction={{ base: 'column', sm: 'row' }} fontSize="12px" w='25%' >
+                            <Text>Min bond price: </Text>
+                            <Text>{shortenNumber(bond.minPrice, 2, true)}</Text>
+                        </Stack>
+                        <Stack direction={{ base: 'column', sm: 'row' }} w='25%' alignItems="center" justify="center">
+                            <Text>Teller: </Text>
+                            <ScannerLink value={BOND_V2_FIXED_TERM_TELLER} />
+                        </Stack>
+                        <Stack direction={{ base: 'column', sm: 'row' }} w='25%' alignItems="center" justify="flex-end">
+                            <Text>Auctioneer: </Text>
+                            <ScannerLink value={bond.bondContract} />
+                        </Stack>
+                    </HStack>
+
+                    <Divider />
+                    <VStack w='full' m="0" p="0" spacing="4" fontSize="14px">
+                        <HStack w='full' justify="space-between">
+                            <Text>
+                                Your {bond.underlying.symbol} Balance:
+                            </Text>
+                            {
+                                parseFloat(bal) === 0 ?
+                                    <Link fontWeight="extrabold" color="secondary" textDecoration="underline" href={bond.howToGetLink}>
+                                        Get {bond.underlying.symbol}
+                                    </Link>
+                                    :
+                                    <Text fontWeight="extrabold" textAlign="right">
+                                        {shortenNumber(parseFloat(bal), 2, false, true)} ({shortenNumber(parseFloat(bal) * bond.inputUsdPrice, 2, true, true)})
+                                    </Text>
+                            }
+                        </HStack>
+                        <HStack w='full' justify="space-between">
+                            <Text>
+                                Current Max Available Payout for this bond <AnimatedInfoTooltip type="tooltip" message="The number of INVs available in this bonding contract" />:
+                            </Text>
+                            <Text fontWeight="bold" textAlign="right">
+                                {bond.maxPayout} ({shortenNumber(bond.maxPayout * bond.marketPrice, 2, true)})
+                            </Text>
+                        </HStack>
+                        <HStack w='full' justify="space-between">
+                            <Text>
+                                Remaining bond market Capacity <AnimatedInfoTooltip type="tooltip" message="Once this reaches 0, the bond cannot be purchased anymore." />:
+                            </Text>
+                            <Text fontWeight="bold" textAlign="right">
+                                {bond.capacity} {bond.capacityInQuote ? bond.underlying.symbol : 'INV'}
+                            </Text>
+                        </HStack>
+                        {
+                            bond.capacity && !bond.capacityInQuote && pcApproved < bond.capacity &&
+                            <HStack w='full' justify="flex-start">
+                                <WarningMessage
+                                    alertProps={{ w: 'full' }}
+                                    description="The Policy Committee needs to increase allowance for this market"
+                                />
+                            </HStack>
+                        }
+                        <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify="space-between">
+                            <Flex w='full' maxW={{ base: 'full', sm: '400px' }}>
+                                <BalanceInput
+                                    value={amount}
+                                    inputProps={{ fontSize: '15px', py: { base: '20px', sm: '24px' } }}
+                                    onChange={(e: React.MouseEvent<HTMLInputElement>) => setAmount(e.currentTarget.value.replace(',', '.').replace(/[^0-9.]/g, ''))}
+                                    onMaxClick={() => handleMax()}
+                                />
+                            </Flex>
+                            <Flex maxW={{ base: 'none', sm: '190px' }} w="full" minW="120px">
+                                {
+                                    !isApproved ?
+                                        <ApproveButton needPoaFirst={true} tooltipMsg='' signer={provider?.getSigner()} address={bond.underlying.address} toAddress={bond.teller} isDisabled={(!provider?.getSigner())} />
+                                        :
+                                        <SubmitButton
+                                            needPoaFirst={true}
+                                            onSuccess={() => handleSuccess()}
+                                            isDisabled={!parseFloat(amount || '0') || parseFloat(amount || '0') > getMax() || !parseFloat(receiveAmount) || (parseFloat(receiveAmount) > pcApproved)}
+                                            onClick={handleDeposit}
+                                            refreshOnSuccess={true}>
+                                            Purchase
+                                        </SubmitButton>
+                                }
+                            </Flex>
+                        </Stack>
+                        <HStack w='full'>
+                            <BondSlippage maxSlippage={maxSlippage} toToken={REWARD_TOKEN!} toAmount={receiveAmount.toString()} onChange={(v) => setMaxSlippage(parseFloat(v))} />
+                        </HStack>
+                        {
+                            parseFloat(amount) > 0 && !parseFloat(receiveAmount) &&
+                            <InfoMessage
+                                alertProps={{ w: 'full' }}
+                                description="Payout amount is null with current conditions and parameters"
+                            />
+                        }
+                        <HStack fontSize={{ base: '12px', sm: '18px' }} w='full' justify="space-between">
+                            <Text fontWeight="bold">
+                                Estimated INV amount to receive:
+                            </Text>
+                            <Text fontWeight="extrabold">
+                                {shortenNumber(parseFloat(receiveAmount), 4)}
+                            </Text>
+                        </HStack>
                         <InfoMessage
                             alertProps={{ w: 'full' }}
-                            description="Payout amount is null with current conditions and parameters"
+                            description={`Vesting will be complete on ${moment(vestingCompleteDate).format('MMM Do YYYY, hh:mm a')}`}
                         />
-                    }
-                    <HStack fontSize={{ base: '12px', sm: '18px' }} w='full' justify="space-between">
-                        <Text fontWeight="bold">
-                            Estimated INV amount to receive:
-                        </Text>
-                        <Text fontWeight="extrabold">
-                            {shortenNumber(parseFloat(receiveAmount), 4)}
-                        </Text>
-                    </HStack>
-                    <InfoMessage
-                        alertProps={{ w: 'full' }}
-                        description={`Vesting will be complete on ${moment(vestingCompleteDate).format('MMM Do YYYY, hh:mm a')}`}
-                    />
+                    </VStack>
                 </VStack>
             </VStack>
-        </VStack>
-    </SlideModal>
+        </SlideModal>
+    );
 }

@@ -159,7 +159,7 @@ export default async function handler(req, res) {
         );
       }
 
-      const previouslyArchivedProposals = JSON.parse(await client.get(`${chainId}-proposals-archived-v1.0.1`) || '{"proposals": []}').proposals;
+      const previouslyArchivedProposals = JSON.parse((await client.get(`${chainId}-proposals-archived-v1.0.1`)) || '{"proposals": []}').proposals;
 
       const proposals = await getProposals(proposalCount, governance, proposalsCreated, votesCast, quorumVotes, GovEra.mills, previouslyArchivedProposals);
       const proposalsAlpha = await getProposals(proposalCountAlpha, governanceAlpha, proposalsCreatedAlpha, votesCastAlpha, quorumVotesAlpha, GovEra.alpha, previouslyArchivedProposals);

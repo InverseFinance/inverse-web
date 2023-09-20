@@ -25,9 +25,11 @@ const firmMarketsFunctions = [
 ];
 
 const Amount = ({ value, decimals, isPerc = false }: { value: string, decimals: number, isPerc?: boolean }) => {
-    return <Text display="inline-block" fontWeight="bold" color="secondary">
-        {commify(removeScientificFormat(parseFloat(formatUnits(value, decimals)) * (isPerc ? 100 : 1))).replace(/\.0$/, '')}{isPerc && '%'}
-    </Text>;
+    return (
+        <Text display="inline-block" fontWeight="bold" color="secondary">
+            {commify(removeScientificFormat(parseFloat(formatUnits(value, decimals)) * (isPerc ? 100 : 1))).replace(/\.0$/, '')}{isPerc && '%'}
+        </Text>
+    );
 }
 
 const XinvVestorHumanReadable = ({

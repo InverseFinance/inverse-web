@@ -16,7 +16,7 @@ export default async function handler(req, res) {
       ...liquidityData,
     });
 
-    const history = await getCacheFromRedis(`liquidity-history`, false, 0, true) || { entries: [] };
+    const history = (await getCacheFromRedis(`liquidity-history`, false, 0, true)) || { entries: [] };
     history.entries = history.entries.concat(liquidityData);
 
     await redisSetWithTimestamp(`liquidity-history`, {

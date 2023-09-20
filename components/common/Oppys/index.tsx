@@ -97,7 +97,7 @@ const ProjectItem = ({ project, showText = true }: { project: string, showText?:
         {
             showText && <Text textTransform="capitalize">{project.replace(/-/g, ' ')}</Text>
         }
-    </>
+    </>;
 }
 
 const ChainItem = ({ chain, showText = true }: { chain: string, showText?: boolean }) => {

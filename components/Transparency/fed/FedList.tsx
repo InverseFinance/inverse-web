@@ -33,25 +33,27 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="105px" justify="flex-start"  {...props} />,
         tooltip: 'Fed name, can also indicate the protocol used',
         value: ({ name, projectImage, badgeInfo, badgeProps }) => {
-            return <Cell minWidth="105px">
-                <Cell minWidth='105px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
-                    <HStack justify="flex-start" alignItems="center" spacing="1" w='full'>
-                        <BigImageButton bg={`url('${projectImage}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
-                        <CellText fontWeight="bold">{name?.replace(/ fed/i, '')}</CellText>
-                    </HStack>
-                    {
-                        !!badgeInfo && <CellText fontWeight="bold">
-                            <Badge fontWeight="normal"
-                                textTransform="capitalize"
-                                borderRadius="50px"
-                                px="8px"
-                                {...badgeProps}>
-                                {badgeInfo}
-                            </Badge>
-                        </CellText>
-                    }
+            return (
+                <Cell minWidth="105px">
+                    <Cell minWidth='105px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
+                        <HStack justify="flex-start" alignItems="center" spacing="1" w='full'>
+                            <BigImageButton bg={`url('${projectImage}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
+                            <CellText fontWeight="bold">{name?.replace(/ fed/i, '')}</CellText>
+                        </HStack>
+                        {
+                            !!badgeInfo && <CellText fontWeight="bold">
+                                <Badge fontWeight="normal"
+                                    textTransform="capitalize"
+                                    borderRadius="50px"
+                                    px="8px"
+                                    {...badgeProps}>
+                                    {badgeInfo}
+                                </Badge>
+                            </CellText>
+                        }
+                    </Cell>
                 </Cell>
-            </Cell>
+            );
         },
     },
     {

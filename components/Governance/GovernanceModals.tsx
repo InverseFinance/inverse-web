@@ -225,7 +225,7 @@ export const SubmitDelegationsModal = ({ isOpen, onClose, onNewDelegate }: Modal
   useEffect(() => {
     const init = async () => {
       if (!signatures?.length) {
-        setSignatures(await getStoredDelegationsCollected() || []);
+        setSignatures((await getStoredDelegationsCollected()) || []);
       }
       setIsInited(true);
     }

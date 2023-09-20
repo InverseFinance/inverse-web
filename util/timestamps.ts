@@ -24,6 +24,6 @@ export const addBlockTimestamps = async (blockNumbers: number[], chainId: string
 }
 
 export const getCachedBlockTimestamps = async () => {
-    const cachedBlockTimestamps: { [key: string]: { [key: string]: number } } = JSON.parse(await client.get('block-timestamps') || '{}');
+    const cachedBlockTimestamps: { [key: string]: { [key: string]: number } } = JSON.parse((await client.get('block-timestamps')) || '{}');
     return mergeDeep(BLOCK_TIMESTAMPS, cachedBlockTimestamps);
 }

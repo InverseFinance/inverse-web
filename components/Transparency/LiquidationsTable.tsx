@@ -60,7 +60,7 @@ const columns = fields.map(f => {
                 <FieldValue f={f} v={v} />
             </Flex>
         },
-    }
+    };
 })
 
 export const LiquidationsTable = () => {

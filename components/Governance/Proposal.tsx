@@ -263,7 +263,7 @@ export const ProposalDetails = ({
         </Flex>
       </Stack>
     </Container>
-  )
+  );
 }
 
 export const ProposalActions = ({ proposal, isEditing = false }: { proposal: Proposal, isEditing?: boolean }) => {

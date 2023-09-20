@@ -16,7 +16,7 @@ export default async function handler(req, res) {
 
     switch (method) {
         case 'GET':
-            const msg = await client.get(redisKey) || '{"msg": "No guidance at the moment","lastUpdate": null}';
+            const msg = (await client.get(redisKey)) || '{"msg": "No guidance at the moment","lastUpdate": null}';
             res.status(200).json({ status: 'success', fedPolicyMsg: JSON.parse(msg) })
             break
         case 'POST':

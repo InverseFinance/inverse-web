@@ -56,7 +56,7 @@ const formatResults = (data: any, type: string, refundWhitelist?: string[], vote
       voteCastWhitelist.includes(item.from.toLowerCase())
       :
       type === 'custom' || refundWhitelist.includes(item.from.toLowerCase())
-    )
+    );
 }
 
 const addRefundedData = (transactions: RefundableTransaction[], refunded) => {
@@ -90,7 +90,7 @@ export default async function handler(req, res) {
     const validCache = await getCacheFromRedis(cacheKey, true, includesToday && preferCache !== 'true' ? 30 : 3600);
     if (validCache) {
       // refunded txs, manually submitted by signature in UI
-      const refunded = JSON.parse(await client.get(REFUNDED_TXS_CACHE_KEY) || '[]');
+      const refunded = JSON.parse((await client.get(REFUNDED_TXS_CACHE_KEY)) || '[]');
       res.status(200).json({
         transactions: addRefundedData(validCache.transactions, refunded),
         cachedMostRecentTimestamp: validCache.cachedMostRecentTimestamp,

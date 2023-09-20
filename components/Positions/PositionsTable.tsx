@@ -42,25 +42,29 @@ const AssetIcons = ({ list, minW = '100px' }: {
         usdWorth: number,
     }[]
 }) => {
-    return <HStack minW={minW} position="relative" maxW="150px" overflow="hidden">
-        {
-            list?.map((item, i) => {
-                // floki exception, was removed in config
-                const underlyingToken = item?.ctoken === "0x0BC08f2433965eA88D977d7bFdED0917f3a0F60B" ? getToken(TOKENS, 'FLOKI') : item?.underlying;
-                const { image, protocolImage, isInPausedSection, symbol } = underlyingToken || {};
-                if(!image) {
-                    return <></>
-                }
-                return <MarketImage
-                    key={item.marketIndex}
-                    size={getAssetSize(item.usdWorth)}
-                    image={image}
-                    protocolImage={protocolImage}
-                    isInPausedSection={isInPausedSection || /(-v1|-old)/i.test(symbol)}
-                />
-            })
-        }
-    </HStack>
+    return (
+        <HStack minW={minW} position="relative" maxW="150px" overflow="hidden">
+            {
+                list?.map((item, i) => {
+                    // floki exception, was removed in config
+                    const underlyingToken = item?.ctoken === "0x0BC08f2433965eA88D977d7bFdED0917f3a0F60B" ? getToken(TOKENS, 'FLOKI') : item?.underlying;
+                    const { image, protocolImage, isInPausedSection, symbol } = underlyingToken || {};
+                    if(!image) {
+                        return <></>
+                    }
+                    return (
+                        <MarketImage
+                            key={item.marketIndex}
+                            size={getAssetSize(item.usdWorth)}
+                            image={image}
+                            protocolImage={protocolImage}
+                            isInPausedSection={isInPausedSection || /(-v1|-old)/i.test(symbol)}
+                        />
+                    );
+                })
+            }
+        </HStack>
+    );
 }
 
 const getColumns = () => {

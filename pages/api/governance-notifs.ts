@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   const cacheDuration = 60;
   res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
   try {
-    const data: any = await getCacheFromRedis(proposalsCacheKey, false, 0, true) || { proposals: [] };
+    const data: any = (await getCacheFromRedis(proposalsCacheKey, false, 0, true)) || { proposals: [] };
     
     if (!data) {
       res.status(404).json({ success: false });
@@ -19,7 +19,7 @@ export default async function handler(req, res) {
     const activeProposalsKeys = data.proposals.filter(p => [ProposalStatus.active].includes(p.status))
       .map(p => `active-${p.proposalNum}`);
 
-    const draftKeys = JSON.parse(await client.get('drafts') || '[]').map(p => `draft-${p.publicDraftId}`);
+    const draftKeys = JSON.parse((await client.get('drafts')) || '[]').map(p => `draft-${p.publicDraftId}`);
 
     res.status(200).json({
       blockNumber: data.blockNumber,

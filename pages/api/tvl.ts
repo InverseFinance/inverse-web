@@ -40,7 +40,7 @@ export default async function handler(req, res) {
 
     const provider = getProvider(networkConfig.chainId)
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
-    const allMarkets: string[] = [...await comptroller.getAllMarkets()];
+    const allMarkets: string[] = [...(await comptroller.getAllMarkets())];
     const addresses = allMarkets.filter(address => !!UNDERLYING[address])
 
     const oracle = new Contract(ORACLE, ORACLE_ABI, provider);

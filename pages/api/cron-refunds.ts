@@ -59,7 +59,7 @@ const formatResults = (covalentResponse: any, type: string, refundWhitelist?: st
             voteCastWhitelist.includes(item.from.toLowerCase())
             :
             type === 'custom' || refundWhitelist.includes(item.from.toLowerCase())
-        )
+        );
 }
 
 export default async function handler(req, res) {

@@ -19,8 +19,8 @@ type SingleProposal = {
 export const useLocalDraftProposals = (): SWR & { drafts: DraftProposal[] } => {
   const { data, error } = useSWR(`get-local-drafts`, async () => {
     return {
-      drafts: await getLocalDrafts() || []
-    }
+      drafts: (await getLocalDrafts()) || []
+    };
   })
 
   return {
@@ -70,7 +70,7 @@ export const useGovernanceNotifs = (): SWR & {
   const { data: readData } = useSWR(`read-governance-notifs${pathname}`, async () => {
     return new Promise((resolve) => {
       setTimeout(async() => {
-        resolve({ keys: await getReadGovernanceNotifs() || [] })
+        resolve({ keys: (await getReadGovernanceNotifs()) || [] })
       }, 1000);
     });
   })

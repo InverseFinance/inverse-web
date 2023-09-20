@@ -225,7 +225,7 @@ export const getCvxFxsAPRs = async (provider, _prices?: any) => {
             !!_prices ? Promise.resolve() : fetch(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=frax-share,convex-finance,convex-fxs`)
         ]);
 
-        const prices = _prices || await pricesRes.json();
+        const prices = _prices || (await pricesRes.json());
         const year = ONE_DAY_SECS * 365;
 
         return {
@@ -249,7 +249,7 @@ export const getCvxCrvAPRs = async (provider, _prices?: any) => {
             !!_prices ? Promise.resolve() : fetch(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=curve-dao-token,convex-finance,convex-crv,lp-3pool-curve`)
         ]);
 
-        const prices = _prices || await pricesRes.json();
+        const prices = _prices || (await pricesRes.json());
         const mainTokens = mainRewardRates[0];
 
         const adCgId = {
@@ -371,7 +371,7 @@ export const getYieldOppys = async () => {
                         .replace(/DOLAFRAX/i, 'DOLA-FRAX')
                         .toUpperCase()
                     ,
-                }
+                };
             })
             .map(p => {
                 return {

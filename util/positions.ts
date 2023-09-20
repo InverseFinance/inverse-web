@@ -60,7 +60,7 @@ export const getPositionsDetails = async ({
     const provider = getProvider(process.env.NEXT_PUBLIC_CHAIN_ID!, process.env.POSITIONS_ALCHEMY_API, true);
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
     const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
-    const allMarkets: string[] = marketsData?.allMarkets || [...await comptroller.getAllMarkets()].filter(address => !!UNDERLYING[address])
+    const allMarkets: string[] = marketsData?.allMarkets || [...(await comptroller.getAllMarkets())].filter(address => !!UNDERLYING[address])
 
     const contracts = allMarkets
         .map((address: string) => new Contract(address, CTOKEN_ABI, provider));

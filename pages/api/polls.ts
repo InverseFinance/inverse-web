@@ -16,7 +16,7 @@ export default async function handler(req, res) {
 
     switch (method) {
         case 'GET':
-            const pollsData = await getCacheFromRedis(pollsCacheKey, false) || {};            
+            const pollsData = (await getCacheFromRedis(pollsCacheKey, false)) || {};            
             const formatted = pollCodes.map(pollCode => {
                 const pollsVotes = pollsData[pollCode] || {};
                 return {
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
                 res.status(400).json({ status: 'error', message: 'Invalid parameters' })
                 return
             }
-            const polls = await getCacheFromRedis(pollsCacheKey, false) || {};
+            const polls = (await getCacheFromRedis(pollsCacheKey, false)) || {};
             if (!polls[poll]) {
                 polls[poll] = pollAnswerValues
                     .reduce((acc, possibleAnswer) => ({ ...acc, [possibleAnswer]: 0 }), { abstain: 0 });

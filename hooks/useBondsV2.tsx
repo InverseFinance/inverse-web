@@ -204,7 +204,7 @@ export const useAccountBondPurchases = (
       purchaseDate,
       vestingDays: Math.round(((expiry - purchaseDate) / ONE_DAY_MS)),
       percentVestedFor: Math.min((Math.max(now - purchaseDate, 0)) / (expiry - purchaseDate) * 100, 100),
-    }
+    };
   });
   
   const userBonds = purchaseIds.map(id => {

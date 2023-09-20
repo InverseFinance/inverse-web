@@ -29,7 +29,7 @@ export default async function handler(req, res) {
     const provider = getProvider(CHAIN_ID, '', true);
 
     const currentBlock = await provider.getBlockNumber();
-    const archived = await getCacheFromRedis(cacheKey, false, 0) || FIRM_DEBT_HISTORY_INIT;
+    const archived = (await getCacheFromRedis(cacheKey, false, 0)) || FIRM_DEBT_HISTORY_INIT;
     const intIncrement = Math.floor(BLOCKS_PER_DAY/3);
     const lastBlock = archived.blocks[archived.blocks.length - 1];
     // skip if last block is less than 5 blocks ago

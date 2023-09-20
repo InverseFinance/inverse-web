@@ -188,7 +188,7 @@ const headers = async () => {
         }
       ],
     },
-  ]
+  ];
 }
 
 const common = {

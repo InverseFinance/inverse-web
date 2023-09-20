@@ -215,7 +215,7 @@ const DelegateOverview = ({ address, newlyChosenDelegate }: { address: string, n
         delegate?.address && tab === 'votes' && <PastVotesTable delegate={delegate} />
       }
     </VStack>
-  )
+  );
 }
 
 export const DelegateDetails = ({ delegate, delegateFirmInvEscrow, supporters }: { delegate: Partial<Delegate>, delegateFirmInvEscrow: string, supporters: string[] }) => {

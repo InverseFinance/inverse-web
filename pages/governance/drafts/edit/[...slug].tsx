@@ -89,7 +89,7 @@ export default Drafts
 export async function getServerSideProps(context) {
   const { slug } = context.params;
   const client = getRedisClient();
-  const drafts = JSON.parse(await client.get('drafts') || '[]');
+  const drafts = JSON.parse((await client.get('drafts')) || '[]');
 
   const now = new Date();
 

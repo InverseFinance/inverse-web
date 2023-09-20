@@ -26,7 +26,7 @@ export default async function handler(req, res) {
 
     const provider = getProvider(process.env.NEXT_PUBLIC_CHAIN_ID!);
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
-    const allMarkets: string[] = [...await comptroller.getAllMarkets()];
+    const allMarkets: string[] = [...(await comptroller.getAllMarkets())];
     const addresses = allMarkets.filter(address => !!UNDERLYING[address]);
 
     const contracts = addresses

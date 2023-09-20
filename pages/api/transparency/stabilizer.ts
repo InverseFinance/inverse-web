@@ -52,7 +52,7 @@ export default async function handler(req, res) {
             contract.queryFilter(contract.filters.Sell()),
         ]);
 
-        const cachedBlockTimestamps: { [key: string]: { [key: string]: number } } = JSON.parse(await client.get('block-timestamps') || '{}');
+        const cachedBlockTimestamps: { [key: string]: { [key: string]: number } } = JSON.parse((await client.get('block-timestamps')) || '{}');
         const blockTimestamps = mergeDeep(BLOCK_TIMESTAMPS, cachedBlockTimestamps);
         
         const events = rawEvents[0].concat(rawEvents[1]);

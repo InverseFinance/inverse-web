@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     switch (method) {
         case 'GET':
             const key = isProposal === 'true' && !!era ? `proposal-${redisKey}-${era}-${id}` : `${redisKey}-${id}`
-            const reviews = JSON.parse(await client.get(key) || '[]');
+            const reviews = JSON.parse((await client.get(key)) || '[]');
             res.status(200).json({ status: 'success', reviews });
             break
         case 'POST':
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
             };
 
             try {
-                const reviews: DraftReview[] = JSON.parse(await client.get(`${redisKey}-${id}`) || '[]');
+                const reviews: DraftReview[] = JSON.parse((await client.get(`${redisKey}-${id}`)) || '[]');
 
                 const sigReviewIndex = reviews.findIndex(review => review.reviewer === sigAddress);
 

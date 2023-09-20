@@ -5,7 +5,7 @@ import { ADDRESS_ROLES } from '../variables/names';
 
 export const getEnsName = async (address: string, isBackendSide = false, specificProvider?: any): Promise<string> => {
   try {
-    const rememberedName: string = isBackendSide ? '' : await localforage.getItem(`ensName-${address}`) || '';
+    const rememberedName: string = isBackendSide ? '' : (await localforage.getItem(`ensName-${address}`)) || '';
     if (rememberedName) { return rememberedName }
     const provider = specificProvider || getProvider(process.env.NEXT_PUBLIC_CHAIN_ID!, process.env.NEXT_PUBLIC_ENS_ALCHEMY_API, true);
     const ensName = await provider.lookupAddress(address);

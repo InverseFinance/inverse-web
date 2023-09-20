@@ -19,7 +19,7 @@ export const useEnsProfile = (address: string, avatarOnly?: boolean): SWR & Outp
         ensProfile: {},
       })
     }
-    const ensName = await getEnsName(address, true, ensProvider) || '';
+    const ensName = (await getEnsName(address, true, ensProvider)) || '';
     const ensProfile = {}
 
     if (ensName) {

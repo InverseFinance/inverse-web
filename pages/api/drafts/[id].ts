@@ -6,7 +6,7 @@ import { ProposalFormActionFields } from '@app/types';
 const client = getRedisClient();
 
 const getDraft = async (id) => {
-    const drafts = JSON.parse(await client.get('drafts') || '[]');
+    const drafts = JSON.parse((await client.get('drafts')) || '[]');
     const draft = drafts.find((d) => d.publicDraftId.toString() === id);
     return draft
 }
@@ -52,13 +52,13 @@ export default async function handler(req, res) {
                     return
                 }
 
-                drafts = JSON.parse(await client.get('drafts') || '[]');
+                drafts = JSON.parse((await client.get('drafts')) || '[]');
                 const index = drafts.findIndex((d) => d.publicDraftId.toString() === id);
 
                 if (method === 'PUT') {
                     // submitted the proposal
                     if (proposalId) {
-                        const draftReviews = JSON.parse(await client.get(`reviews-${id}`) || '[]');
+                        const draftReviews = JSON.parse((await client.get(`reviews-${id}`)) || '[]');
                         await client.set(`proposal-reviews-${CURRENT_ERA}-${proposalId}`, JSON.stringify(draftReviews));
                         drafts.splice(index, 1);
                         client.del(`reviews-${id}`);

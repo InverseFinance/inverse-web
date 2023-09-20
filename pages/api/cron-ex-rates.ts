@@ -31,7 +31,7 @@ export default async function handler(req, res) {
     });
 
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, web3provider);
-    const allMarkets: string[] = [...await comptroller.getAllMarkets()];
+    const allMarkets: string[] = [...(await comptroller.getAllMarkets())];
     const ctokens = allMarkets.filter(address => !!UNDERLYING[address]);
 
     const currentlyStoredExRates = await Promise.all([

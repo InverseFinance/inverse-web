@@ -87,7 +87,7 @@ export default Drafts
 export async function getStaticProps(context) {
   const { slug } = context.params;
   const client = getRedisClient();
-  const drafts = JSON.parse(await client.get('drafts') || '[]');
+  const drafts = JSON.parse((await client.get('drafts')) || '[]');
 
   const now = new Date();
 
@@ -124,7 +124,7 @@ export async function getStaticPaths() {
     return { paths: [], fallback: true }
   }
   const client = getRedisClient();
-  const drafts = JSON.parse(await client.get('drafts') || '[]');
+  const drafts = JSON.parse((await client.get('drafts')) || '[]');
 
   const possiblePaths = drafts.map(p => {
     return `/governance/drafts/${p.era}/${p.id}`;

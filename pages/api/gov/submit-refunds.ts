@@ -48,8 +48,8 @@ export default async function handler(req, res) {
 
                 const signedAt = Date.now();
 
-                refunded = JSON.parse(await client.get(REFUNDED_TXS_CACHE_KEY) || '[]');
-                const ignoredTxHashes = JSON.parse(await client.get(REFUNDED_TXS_IGNORE_CACHE_KEY) || '[]');
+                refunded = JSON.parse((await client.get(REFUNDED_TXS_CACHE_KEY)) || '[]');
+                const ignoredTxHashes = JSON.parse((await client.get(REFUNDED_TXS_IGNORE_CACHE_KEY)) || '[]');
                 refunds.forEach(r => {
                     const existingIndex = refunded.findIndex(past => past.txHash === r.txHash);
                     const refund = { ...r, refunded: !!refundTxHash, signedAt, signedBy: sigAddress, refundTxHash };
@@ -69,7 +69,7 @@ export default async function handler(req, res) {
 
                 if(!refundTxHash) {
                     // remove previously added custom txs if ignored now
-                    const customTxs = JSON.parse(await client.get(REFUNDED_TXS_CUSTOM_CACHE_KEY) || '[]');
+                    const customTxs = JSON.parse((await client.get(REFUNDED_TXS_CUSTOM_CACHE_KEY)) || '[]');
                     await client.set(REFUNDED_TXS_CUSTOM_CACHE_KEY, JSON.stringify(customTxs.filter(t => !ignoredTxHashes.includes(t.tx_hash)))); 
                 }
 

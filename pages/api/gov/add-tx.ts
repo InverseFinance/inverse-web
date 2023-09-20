@@ -36,7 +36,7 @@ export default async function handler(req, res) {
                     return
                 };
 
-                const customTxs = JSON.parse(await client.get(REFUNDED_TXS_CUSTOM_CACHE_KEY) || '[]');
+                const customTxs = JSON.parse((await client.get(REFUNDED_TXS_CUSTOM_CACHE_KEY)) || '[]');
                 const alreadyAdded = customTxs.find(t => t.tx_hash.toLowerCase() === txHash.toLowerCase());
 
                 if (!!alreadyAdded) {
@@ -57,7 +57,7 @@ export default async function handler(req, res) {
                 await client.set(REFUNDED_TXS_CUSTOM_CACHE_KEY, JSON.stringify(customTxs));
 
                 // remove from ignored hashes if now adding tx
-                const ignoredTxHashes = JSON.parse(await client.get(REFUNDED_TXS_IGNORE_CACHE_KEY) || '[]');
+                const ignoredTxHashes = JSON.parse((await client.get(REFUNDED_TXS_IGNORE_CACHE_KEY)) || '[]');
                 await client.set(REFUNDED_TXS_IGNORE_CACHE_KEY, JSON.stringify(ignoredTxHashes.filter(hash => hash !== txHash))); 
                 
                 res.status(200).json({

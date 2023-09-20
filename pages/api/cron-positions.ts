@@ -12,8 +12,8 @@ export default async function handler(req, res) {
 
     try {
         const isFirstBatch = pageOffset === '0';
-        const _resultData = isFirstBatch ? { positions: [] } : (await getCacheFromRedis('frontier-positions',  false, 1, true) || { positions: [] });
-        const _resultMeta = isFirstBatch ? undefined : JSON.parse(await client.get('frontier-positions-meta') || '{}');
+        const _resultData = isFirstBatch ? { positions: [] } : ((await getCacheFromRedis('frontier-positions',  false, 1, true)) || { positions: [] });
+        const _resultMeta = isFirstBatch ? undefined : JSON.parse((await client.get('frontier-positions-meta')) || '{}');
 
         const { positionDetails, meta } = await getPositionsDetails({
             isFirstBatch,

@@ -218,7 +218,7 @@ export const getProposalStatus = (
 
 export const saveLocalDraft = async (title: string, description: string, functions: ProposalFunction[], draftId?: number): Promise<number> => {
     try {
-        const drafts: DraftProposal[] = await localforage.getItem('proposal-drafts') || []
+        const drafts: DraftProposal[] = (await localforage.getItem('proposal-drafts')) || []
         const id = draftId || (drafts.length + 1)
         const newDraft = { title, description, functions, draftId: id };
 
@@ -238,7 +238,7 @@ export const saveLocalDraft = async (title: string, description: string, functio
 
 export const removeLocalDraft = async (draftId: number): Promise<void> => {
     try {
-        const drafts: DraftProposal[] = await localforage.getItem('proposal-drafts') || []
+        const drafts: DraftProposal[] = (await localforage.getItem('proposal-drafts')) || []
         const index = drafts.findIndex(d => d.draftId === draftId)
         drafts.splice(index, 1)
         await localforage.setItem('proposal-drafts', drafts);
@@ -248,7 +248,7 @@ export const removeLocalDraft = async (draftId: number): Promise<void> => {
 }
 
 export const getLocalDrafts = async (): Promise<DraftProposal[]> => {
-    return await localforage.getItem('proposal-drafts') || []
+    return (await localforage.getItem('proposal-drafts')) || [];
 }
 
 export const clearLocalDrafts = () => localforage.removeItem('proposal-drafts')
@@ -373,7 +373,7 @@ export const isProposalFormInvalid = ({ title, description, actions }: ProposalF
 }
 
 export const getReadGovernanceNotifs = async (): Promise<string[]> => {
-    return await localforage.getItem('read-governance-notifs') || [];
+    return (await localforage.getItem('read-governance-notifs')) || [];
 }
 
 export const getLastNbNotif = async (): Promise<number> => {
@@ -520,7 +520,7 @@ export const triggerProposalUpdate = async (
     onSuccess?: (result: any) => void,
 ): Promise<any> => {
     try {
-        let _sig = sig || await signer.signMessage(SIGN_MSG)
+        let _sig = sig || (await signer.signMessage(SIGN_MSG))
 
         const rawResponse = await fetch(`/api/proposals`, {
             method: 'POST',

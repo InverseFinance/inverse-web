@@ -15,7 +15,7 @@ export default async function handler(req, res) {
 
     switch (method) {
         case 'GET':
-            drafts = await client.get('drafts') || '[]';
+            drafts = (await client.get('drafts')) || '[]';
             res.status(200).json({ status: 'success', drafts: JSON.parse(drafts) })
             break
         case 'POST':
@@ -38,14 +38,14 @@ export default async function handler(req, res) {
                     return
                 }
 
-                drafts = JSON.parse(await client.get('drafts') || '[]');
+                drafts = JSON.parse((await client.get('drafts')) || '[]');
 
                 if(drafts.length === 10) {
                     res.status(403).json({ status: 'warning', message: "Maximum number of public drafts is 10" })
                     return
                 }
 
-                const id = (parseInt(await client.get('lastDraftId') || '0')) + 1;
+                const id = (parseInt((await client.get('lastDraftId')) || '0')) + 1;
 
                 drafts.unshift({ ...draft, publicDraftId: id, createdAt: Date.now(), createdBy: sigAddress });
 

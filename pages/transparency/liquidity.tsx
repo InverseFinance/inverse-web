@@ -136,7 +136,7 @@ export const Liquidity = () => {
     const cellBox = target.closest('[data-col]');
     const col = cellBox.dataset.col;
     showToast({ title: 'Loading pool history...', id: 'pool-histo', status: 'info' });
-    const lpHistoRes = lpsHisto[address] || await getLpHistory(address, true);
+    const lpHistoRes = lpsHisto[address] || (await getLpHistory(address, true));
     setLpsHisto(lpHistoRes);
     closeToast('pool-histo');
     const lpWithCurrent = addCurrentToHistory(

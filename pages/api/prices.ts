@@ -38,7 +38,7 @@ export default async function handler(req, res) {
 
     const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
-    const allMarkets: string[] = [...await comptroller.getAllMarkets()];
+    const allMarkets: string[] = [...(await comptroller.getAllMarkets())];
 
     const markets = allMarkets
       .filter(address => !!UNDERLYING[address]

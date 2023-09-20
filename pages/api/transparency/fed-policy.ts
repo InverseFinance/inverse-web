@@ -114,7 +114,7 @@ export default async function handler(req, res) {
       rawEvents[fedIndex][1] = rawEvents[fedIndex][1].concat(oldRawEvents[i][1]);
     });
 
-    const blockTimestamps: { [key: string]: { [key: string]: number } } = JSON.parse(await client.get('block-timestamps') || '{}');
+    const blockTimestamps: { [key: string]: { [key: string]: number } } = JSON.parse((await client.get('block-timestamps')) || '{}');
 
     // first time
     if (!blockTimestamps[NetworkIds.mainnet]) {

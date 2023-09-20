@@ -214,7 +214,7 @@ export default async function handler(req, res) {
         });
 
         // get and save histo prices
-        const histoPrices = await getCacheFromRedis(histoPricesCacheKey, false) || HISTO_PRICES;
+        const histoPrices = (await getCacheFromRedis(histoPricesCacheKey, false)) || HISTO_PRICES;
 
         const [dolaPrices, wbtcPrices, ethPrices, yfiPrices] = await Promise.all([
             getHistoPrices('dola-usd', totalDolaRepaidByDAO.concat(dolaForIOUsRepaidByDAO).map(d => d.timestamp), histoPrices),
@@ -396,7 +396,7 @@ const getBadDebtEvolution = async (repaymentBlocks: number[]) => {
         '0x6B92686c40747C85809a6772D0eda8e22a77C60c',
     ];
 
-    const pastData = await getCacheFromRedis(frontierBadDebtEvoCacheKey, false, 3600) || DOLA_FRONTIER_DEBTS;
+    const pastData = (await getCacheFromRedis(frontierBadDebtEvoCacheKey, false, 3600)) || DOLA_FRONTIER_DEBTS;
     // return pastData;
     const newBlocks = [...repaymentBlocks, currentBlock].filter(block => block > pastData.blocks[pastData.blocks.length - 1]);
     const blocks = [...new Set(newBlocks)].sort((a, b) => a - b);

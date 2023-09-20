@@ -127,21 +127,23 @@ export const F2WalkthroughRecap = ({
     }
 
     if (isDone) {
-        return <SuccessMessage
-            title="Borrowing complete!"
-            alertProps={{ w: 'full' }}
-            iconProps={{ height: 50, width: 50 }}
-            description={
-                <Stack direction={{ base: 'column', sm: 'row' }} mt="4">
-                    <RSubmitButton onClick={() => router.push(router.asPath.replace(`/${market.name}`, '').replace(/#step[0-9]/i, ''))}>
-                        Go Back to Markets
-                    </RSubmitButton>
-                    <RSubmitButton onClick={() => gotoLoan()}>
-                        Go to Loan
-                    </RSubmitButton>
-                </Stack>
-            }
-        />
+        return (
+            <SuccessMessage
+                title="Borrowing complete!"
+                alertProps={{ w: 'full' }}
+                iconProps={{ height: 50, width: 50 }}
+                description={
+                    <Stack direction={{ base: 'column', sm: 'row' }} mt="4">
+                        <RSubmitButton onClick={() => router.push(router.asPath.replace(`/${market.name}`, '').replace(/#step[0-9]/i, ''))}>
+                            Go Back to Markets
+                        </RSubmitButton>
+                        <RSubmitButton onClick={() => gotoLoan()}>
+                            Go to Loan
+                        </RSubmitButton>
+                    </Stack>
+                }
+            />
+        );
     }
 
     return <>

@@ -18,10 +18,10 @@ export const getBlogHomeProps = async ({ preview = false, ...context }) => {
     const { locale, category, byAuthor, byTag, isPreviewUrl } = getBlogContext(context);
     const isPreview = preview || isPreviewUrl;
     const pinnedPost = await getPinnedPost({ isPreview });
-    const homePosts = await getAllPostsForHome({ isPreview, locale, category, byAuthor, byTag, limit: BLOG_PAGINATION_SIZE }) ?? []
-    const totalPostsToCount = (await getAllPostsForHome({ isPreview, locale, category, byAuthor, byTag, limit: 100, isCount: true }) ?? [])
-    const categories = await getCategories(isPreview, locale) ?? []
-    const tag = byTag ? await getTag(isPreview, locale, byTag) || null : null;
+    const homePosts = (await getAllPostsForHome({ isPreview, locale, category, byAuthor, byTag, limit: BLOG_PAGINATION_SIZE })) ?? []
+    const totalPostsToCount = ((await getAllPostsForHome({ isPreview, locale, category, byAuthor, byTag, limit: 100, isCount: true })) ?? [])
+    const categories = (await getCategories(isPreview, locale)) ?? []
+    const tag = byTag ? (await getTag(isPreview, locale, byTag)) || null : null;
     const nbTotalPosts = totalPostsToCount.length;
 
     return {
@@ -32,7 +32,7 @@ export const getBlogHomeProps = async ({ preview = false, ...context }) => {
 export const getLandingProps = async ({ preview = false, ...context }) => {
     const { isPreviewUrl } = getBlogContext(context);
     const isPreview = preview || isPreviewUrl;
-    const posts = await getLandingPosts({ isPreview }) ?? [];
+    const posts = (await getLandingPosts({ isPreview })) ?? [];
     return {
         props: { preview: isPreview, posts },
     }
@@ -59,7 +59,7 @@ export const getBlogAuthorsProps = async (context) => {
     const { locale, isPreviewUrl } = getBlogContext(context);
     const isPreview = preview || isPreviewUrl;
     const authors = await getAuthors(preview, locale)
-    const categories = await getCategories(preview, locale) ?? []
+    const categories = (await getCategories(preview, locale)) ?? []
 
     return {
         props: {
@@ -75,7 +75,7 @@ export const getDefaultProps = async (context) => {
     const { preview = false } = context;
     const { locale, isPreviewUrl } = getBlogContext(context);
     const isPreview = preview || isPreviewUrl;
-    const categories = await getCategories(preview, locale) ?? []
+    const categories = (await getCategories(preview, locale)) ?? []
 
     return {
         props: {

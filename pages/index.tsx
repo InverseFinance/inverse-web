@@ -597,7 +597,7 @@ export const Landing = ({ posts }: {
 export default Landing;
 
 export async function getStaticProps(context) {
-  return { ...await getLandingProps(context), revalidate: 1800 }
+  return { ...(await getLandingProps(context)), revalidate: 1800 };
 }
 
 // export async function getStaticPaths() {

@@ -64,7 +64,7 @@ const FundLine = ({
                     </Flex>
             }
         </Flex>
-    )
+    );
 }
 
 const getPrice = (prices: Prices["prices"] | undefined, token: Token | undefined) => {

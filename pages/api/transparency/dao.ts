@@ -126,7 +126,7 @@ export default async function handler(req, res) {
 
     // Multisigs
     const multisigMetaCache = await getCacheFromRedis(cacheMultisigMetaKey, true, ONE_DAY_SECS);
-    const [multisigsOwners, multisigsThresholds] = (multisigMetaCache || await Promise.all([
+    const [multisigsOwners, multisigsThresholds] = (multisigMetaCache || (await Promise.all([
       Promise.all(multisigsToShow.map((m) => {
         const provider = getProvider(m.chainId);
         const contract = new Contract(m.address, MULTISIG_ABI, provider);
@@ -137,7 +137,7 @@ export default async function handler(req, res) {
         const contract = new Contract(m.address, MULTISIG_ABI, provider);
         return contract.getThreshold();
       })),
-    ]));
+    ])));
 
     if (!multisigMetaCache) {
       await redisSetWithTimestamp(cacheMultisigMetaKey, [multisigsOwners, multisigsThresholds]);
