@@ -263,6 +263,7 @@ export const FEDS_PARAMS = [
         incomeChainId: NetworkIds.arbitrum,
         incomeSrcAd: "0x1992AF61FBf8ee38741bcc57d636CAA22A1a7702",
         incomeTargetAd: "0x23dEDab98D7828AFBD2B7Ab8C71089f2C517774a",
+        dontUseSupplyForPolCalc: true,
         strategy: {
             description: 'The minted DOLA is added to the Balancer DOLA/USDC liquidity pool, the resulting Balancer LP token is then deposited in the Aura booster. This Fed gets rewards in BAL and AURA tokens.',
             pools: [
