@@ -1,8 +1,8 @@
 import ReactFlow, {
-  OnLoadParams,
   Controls,
-  ArrowHeadType,
   Background,
+  MarkerType,
+  ReactFlowInstance,
 } from 'react-flow-renderer';
 
 import { FlowChartData, FlowChartElementsOptions, FlowChartOptions, NetworkIds } from '@app/types';
@@ -86,7 +86,7 @@ const toElements = (links: FlowChartData[], options?: FlowChartElementsOptions, 
       const bridgeId = `${srcId}-${targetId}`
       if (!elements.find((el) => el.id === bridgeId)) {
         elements.push({
-          arrowHeadType: ArrowHeadType.ArrowClosed,
+          markerEnd: MarkerType.ArrowClosed,
           type: target.type,
           id: bridgeId,
           source: srcId,
@@ -122,9 +122,10 @@ export const FlowChart = ({
   chainId?: NetworkIds,
   noInteraction?: boolean,
 }) => {
-  const [reactFlowInstance, setReactFlowInstance] = useState<OnLoadParams | undefined>(undefined)
+  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance| undefined>(undefined)
 
-  const handleLoad = (instance: OnLoadParams) => {
+  const handleLoad = (instance: ReactFlowInstance) => {
+    if(!instance) { return }
     instance.fitView();
     setTimeout(() => {
       instance.fitView();
@@ -145,6 +146,8 @@ export const FlowChart = ({
   }
 
   const elements = toElements(flowData, options?.elementsOptions, chainId);
+  const nodes = elements.filter(e => e.id.split('-').length === 1);
+  const edges = elements.filter(e => e.id.split('-').length > 1);
 
   const { autofit } = options || {};
 
@@ -156,8 +159,9 @@ export const FlowChart = ({
       {
         !!elements?.length
         && <ReactFlow
-          elements={elements}
-          onLoad={autofit ? (reactFlowInstance: OnLoadParams) => handleLoad(reactFlowInstance) : undefined}
+          nodes={nodes}
+          edges={edges}
+          onInit={autofit ? (reactFlowInstance: ReactFlowInstance) => handleLoad(reactFlowInstance) : undefined}
           {...options}
         >
           {options?.showControls && <Controls />}

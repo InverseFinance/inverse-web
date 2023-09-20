@@ -21,19 +21,25 @@ type VotesProps = {
 
 export const Voter = ({ voter, votes }: { voter: string, votes: number }) => {
   const { addressName } = useNamedAddress(voter);
-  return <NextLink key={voter} href={`/governance/delegates/${voter}`} passHref>
-    <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'primary.850' }}>
-      <Stack direction="row" align="center">
-        <Avatar address={voter} sizePx={28} />
+  return (
+    <NextLink
+      key={voter}
+      href={`/governance/delegates/${voter}`}
+      passHref
+      legacyBehavior>
+      <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'primary.850' }}>
+        <Stack direction="row" align="center">
+          <Avatar address={voter} sizePx={28} />
+          <Text fontSize="sm" fontWeight="semibold">
+            {addressName}
+          </Text>
+        </Stack>
         <Text fontSize="sm" fontWeight="semibold">
-          {addressName}
+          {shortenNumber(votes, 2)}
         </Text>
-      </Stack>
-      <Text fontSize="sm" fontWeight="semibold">
-        {shortenNumber(votes, 2)}
-      </Text>
-    </Flex>
-  </NextLink>
+      </Flex>
+    </NextLink>
+  );
 }
 
 const Votes = ({ votes, status, voters, onViewAll, quorum }: VotesProps) => {

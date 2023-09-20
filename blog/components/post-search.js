@@ -78,23 +78,25 @@ export default function PostSearch({ ...props }) {
                     {
                         results && results?.map((item, i) => {
                             const url = `/blog/posts/${locale}/${item.slug}`
-                            return <Link href={url} key={item.slug}>
-                                <VStack
-                                    cursor="pointer"
-                                    p="4"
-                                    w='full'
-                                    alignItems="flex-start"
-                                    borderTop={i > 0 ? `1px solid ${themeStyles.colors.secondaryTextColor}` : undefined}
-                                    _hover={{ bgColor: themeStyles.colors.secContrastMainTextColor }}
-                                    as="a"
-                                >
-                                    <BlogText fontWeight="bold" color="mainTextColor">
-                                        {item.title}
-                                    </BlogText>
-                                    <Excerpt asLink={false} excerpt={item.excerpt} content={item.content} url={url} charLimit={100} color={themeStyles.colors.secondaryTextColor} />
-                                    <DateComponent dateString={item.date} readtime={item.readtime} fontSize="14px" color={themeStyles.colors.secondaryTextColor} />
-                                </VStack>
-                            </Link>
+                            return (
+                                <Link href={url} key={item.slug} legacyBehavior>
+                                    <VStack
+                                        cursor="pointer"
+                                        p="4"
+                                        w='full'
+                                        alignItems="flex-start"
+                                        borderTop={i > 0 ? `1px solid ${themeStyles.colors.secondaryTextColor}` : undefined}
+                                        _hover={{ bgColor: themeStyles.colors.secContrastMainTextColor }}
+                                        as="a"
+                                    >
+                                        <BlogText fontWeight="bold" color="mainTextColor">
+                                            {item.title}
+                                        </BlogText>
+                                        <Excerpt asLink={false} excerpt={item.excerpt} content={item.content} url={url} charLimit={100} color={themeStyles.colors.secondaryTextColor} />
+                                        <DateComponent dateString={item.date} readtime={item.readtime} fontSize="14px" color={themeStyles.colors.secondaryTextColor} />
+                                    </VStack>
+                                </Link>
+                            );
                         })
                     }
                     {
@@ -112,5 +114,5 @@ export default function PostSearch({ ...props }) {
                 </VStack>
             }
         </Flex>
-    )
+    );
 }

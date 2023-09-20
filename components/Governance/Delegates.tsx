@@ -37,7 +37,7 @@ export const DelegatesPreview = (containerProps: Partial<FlexProps>) => {
         {
           delegates.slice(0, 5).map(({ address, ensName, votingPower, delegators, votes }: Delegate) => {
             return (
-              <NextLink key={address} href={`/governance/delegates/${address}`}>
+              <NextLink key={address} href={`/governance/delegates/${address}`} legacyBehavior>
                 <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'primary.850' }}>
                   <Stack direction="row" align="center">
                     <Avatar address={address} sizePx={28} />
@@ -58,11 +58,11 @@ export const DelegatesPreview = (containerProps: Partial<FlexProps>) => {
                   </Flex>
                 </Flex>
               </NextLink>
-            )
+            );
           }
           )
         }
-        <NextLink href="/governance/delegates" passHref>
+        <NextLink href="/governance/delegates" passHref legacyBehavior>
           <Flex
             cursor="pointer"
             w="full"
@@ -80,7 +80,7 @@ export const DelegatesPreview = (containerProps: Partial<FlexProps>) => {
         </NextLink>
       </Stack>
     </Container>
-  )
+  );
 }
 
 export const DelegatorsPreview = ({ address }: { address: string }) => {
@@ -109,7 +109,7 @@ export const DelegatorsPreview = ({ address }: { address: string }) => {
     <Container label="Delegators" contentBgColor="gradient3">
       <Stack w="full">
         {delegators.slice(0, 5).map((address: Delegator) => (
-          <NextLink key={address} href={`/governance/delegates/${address}`}>
+          <NextLink key={address} href={`/governance/delegates/${address}`} legacyBehavior>
             <Flex cursor="pointer" justify="space-between" p={2} borderRadius={8} _hover={{ bgColor: 'primary.850' }}>
               <Stack direction="row" align="center">
                 <Avatar address={address} sizePx={28} />
@@ -122,7 +122,7 @@ export const DelegatorsPreview = ({ address }: { address: string }) => {
             </Flex>
           </NextLink>
         ))}
-        <NextLink href="/governance/delegates" passHref>
+        <NextLink href="/governance/delegates" passHref legacyBehavior>
           <Flex
             cursor="pointer"
             w="full"
@@ -140,5 +140,5 @@ export const DelegatorsPreview = ({ address }: { address: string }) => {
         </NextLink>
       </Stack>
     </Container>
-  )
+  );
 }

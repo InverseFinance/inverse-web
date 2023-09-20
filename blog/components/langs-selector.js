@@ -29,20 +29,18 @@ export default function LangsSelector({ ...props }) {
                     <PopoverBody>
                         <VStack w='full'>
                             {Object.entries(flags).map(([key, val]) => {
-                                return <Link
-                                    key={key}
-                                    w='full'
-                                    href={asPath.replace(locale, key)}                                    
-                                >
-                                    <Text cursor="pointer" w='full' color={locale === key ? activeTextColor : passiveTextColor} textTransform="uppercase">
-                                        {val} {key.substring(0, 2)}
-                                    </Text>
-                                </Link>
+                                return (
+                                    <Link key={key} w='full' href={asPath.replace(locale, key)} legacyBehavior>
+                                        <Text cursor="pointer" w='full' color={locale === key ? activeTextColor : passiveTextColor} textTransform="uppercase">
+                                            {val} {key.substring(0, 2)}
+                                        </Text>
+                                    </Link>
+                                );
                             })}
                         </VStack>
                     </PopoverBody>
                 </PopoverContent>
             </Popover>
         </Box>
-    )
+    );
 }

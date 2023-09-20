@@ -29,7 +29,7 @@ export default function PostPreview({
       }
       <BlogText as="h3" fontWeight="bold" fontSize={{ base: 'lg', sm: 'xl' }}>
         <Link href={url}>
-          <a>{title}</a>
+          {title}
         </Link>
       </BlogText>
       <Excerpt excerpt={excerpt} content={content} url={url} />
@@ -37,5 +37,5 @@ export default function PostPreview({
       <TagsBar tagsCollection={tagsCollection} />
       {author && <Avatar name={author.name} picture={author.picture} title={author.title} />}
     </VStack>
-  )
+  );
 }

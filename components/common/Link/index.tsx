@@ -16,10 +16,13 @@ export const Link = (props: any) => {
   })(query);
 
   return (
-    <NextLink href={typeof href === 'string' && (href.includes('#') || href.includes('?') || isExternal) ? href : {
-      pathname: href?.pathname || href,
-      query: href?.query || urlParamsToKeepWhenChangingPage,
-    }} passHref>
+    <NextLink
+      href={typeof href === 'string' && (href.includes('#') || href.includes('?') || isExternal) ? href : {
+        pathname: href?.pathname || href,
+        query: href?.query || urlParamsToKeepWhenChangingPage,
+      }}
+      passHref
+      legacyBehavior>
       {isExternal ? (
         <ChakraLink
           color="secondaryTextColor"
@@ -33,7 +36,7 @@ export const Link = (props: any) => {
         <Text color="lightAccentTextColor" cursor="pointer" _hover={{ color: 'mainTextColor', filter: 'brightness(1.4)' }} _focus={{}} {...otherProps} />
       )}
     </NextLink>
-  )
+  );
 }
 
 export default Link

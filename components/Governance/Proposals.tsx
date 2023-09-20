@@ -221,7 +221,7 @@ export const Proposals = ({
           <ProposalPreview key={proposal.proposalNum} proposal={proposal} onTagSelect={(tag) => handleTag(tag)} />
         ))}
         {
-          recentOnly && <NextLink href="/governance/proposals">
+          recentOnly && <NextLink href="/governance/proposals" legacyBehavior>
             <Flex
               cursor="pointer"
               w="full"
@@ -240,5 +240,5 @@ export const Proposals = ({
         }
       </Stack>
     </Container>
-  )
+  );
 }

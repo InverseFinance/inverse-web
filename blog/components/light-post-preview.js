@@ -32,10 +32,10 @@ export default function LightPostPreview({
       }
       <BlogText as="h3" fontWeight="bold" fontSize={{ base: 'lg', sm: 'xl' }}>
         <Link href={url}>
-          <a>{title}</a>
+          {title}
         </Link>
       </BlogText>
       <DateComponent dateString={date} readtime={readtime} />
     </SimpleCard>
-  )
+  );
 }
