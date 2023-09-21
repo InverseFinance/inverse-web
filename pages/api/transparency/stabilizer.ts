@@ -4,19 +4,9 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
-import { getRedisClient } from '@app/util/redis';
 import { getStabilizerContract } from '@app/util/contracts';
-import { BLOCK_TIMESTAMPS } from '@app/config/blocknumber-timestamps-archived';
-import { mergeDeep } from '@app/util/misc';
+import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
 
-const client = getRedisClient()
-
-const getTimestamps = (events: Event[], chainId: NetworkIds) => {
-    const provider = getProvider(chainId);
-    return Promise.all(
-        events.map(rawEvent => provider.getBlock(rawEvent.blockNumber))
-    )
-}
 
 const getEventDetails = (log: Event, timestampInSec: number, includeTxHash: boolean) => {
     const { event, blockNumber, transactionHash, args } = log;
@@ -52,32 +42,11 @@ export default async function handler(req, res) {
             contract.queryFilter(contract.filters.Sell()),
         ]);
 
-        const cachedBlockTimestamps: { [key: string]: { [key: string]: number } } = JSON.parse(await client.get('block-timestamps') || '{}');
-        const blockTimestamps = mergeDeep(BLOCK_TIMESTAMPS, cachedBlockTimestamps);
-        
         const events = rawEvents[0].concat(rawEvents[1]);
-        // first time
-        if (!blockTimestamps.stabilizerInited) {
-            const timestamps = await getTimestamps(events, NetworkIds.mainnet);
-            events.forEach((event, eventIndex) => {
-                if (!blockTimestamps[NetworkIds.mainnet]) {
-                    blockTimestamps[NetworkIds.mainnet] = {};
-                }
-                blockTimestamps[NetworkIds.mainnet][event.blockNumber] = timestamps[eventIndex].timestamp;
-            })
-        }
-        blockTimestamps.stabilizerInited = true;
-
         // get timestamps for new blocks
-        for (let event of events) {
-            if (!blockTimestamps[NetworkIds.mainnet]) {
-                blockTimestamps[NetworkIds.mainnet] = {};
-            }
-            if (!blockTimestamps[NetworkIds.mainnet][event.blockNumber]) {
-                const block = await provider.getBlock(event.blockNumber);
-                blockTimestamps[NetworkIds.mainnet][event.blockNumber] = block.timestamp;
-            }
-        }
+        const blocks = events.map(e => e.blockNumber);
+        await addBlockTimestamps(blocks, NetworkIds.mainnet);
+        const blockTimestamps = await getCachedBlockTimestamps();
 
         let totalAccumulated = 0;
 
@@ -95,8 +64,6 @@ export default async function handler(req, res) {
         const resultData = {
             totalEvents,
         }
-
-        await client.set('block-timestamps', JSON.stringify(blockTimestamps));
 
         await redisSetWithTimestamp(cacheKey, resultData);
 

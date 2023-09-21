@@ -5,10 +5,8 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { Fed, FedEvent, NetworkIds } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
-import { getRedisClient } from '@app/util/redis';
 import { cacheDolaSupplies } from './dao';
-
-const client = getRedisClient();
+import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
 
 const getEvents = (fedAd: string, abi: string[], chainId: NetworkIds, startBlock = 0x0) => {
   const provider = getProvider(chainId);
@@ -114,38 +112,18 @@ export default async function handler(req, res) {
       rawEvents[fedIndex][1] = rawEvents[fedIndex][1].concat(oldRawEvents[i][1]);
     });
 
-    const blockTimestamps: { [key: string]: { [key: string]: number } } = JSON.parse(await client.get('block-timestamps') || '{}');
-
-    // first time
-    if (!blockTimestamps[NetworkIds.mainnet]) {
-      const timestamps = await Promise.all([
-        ...FEDS.map((fed, i) => getTimestamps(rawEvents[i], fed.chainId))
-      ]);
-      FEDS.forEach((fed, fedIndex) => {
-        const events = rawEvents[fedIndex][0].concat(rawEvents[fedIndex][1]);
-        events.forEach((event, eventIndex) => {
-          if (!blockTimestamps[fed.chainId]) {
-            blockTimestamps[fed.chainId] = {};
-          }
-          blockTimestamps[fed.chainId][event.blockNumber] = timestamps[fedIndex][eventIndex].timestamp;
-        })
-      })
-    }
-
     // get timestamps for new blocks
+    let blocksToAddPerChainId = {};
     for (let [fedIndex, fed] of FEDS.entries()) {
       const events = rawEvents[fedIndex][0].concat(rawEvents[fedIndex][1]);
-      const provider = getProvider(fed.chainId);
-      for (let event of events) {
-        if (!blockTimestamps[fed.chainId]) {
-          blockTimestamps[fed.chainId] = {};
-        }
-        if (!blockTimestamps[fed.chainId][event.blockNumber]) {
-          const block = await provider.getBlock(event.blockNumber);
-          blockTimestamps[fed.chainId][event.blockNumber] = block.timestamp;
-        }
-      }
+      const blocks = [...new Set(events.map(e => e.blockNumber))];
+      blocksToAddPerChainId[fed.chainId] = blocksToAddPerChainId[fed.chainId] ? [...new Set(blocksToAddPerChainId[fed.chainId].concat(blocks))] : blocks;
     }
+    const timestampsToAddPerChain = Object.keys(blocksToAddPerChainId);
+    for (let chainId of timestampsToAddPerChain) {
+      await addBlockTimestamps(blocksToAddPerChainId[chainId], chainId as NetworkIds);
+    }
+    const blockTimestamps = await getCachedBlockTimestamps();
 
     let _key = lastKnownEvent?._key ? lastKnownEvent?._key + 1 : 0;
 
@@ -215,8 +193,6 @@ export default async function handler(req, res) {
       }),
       dolaSupplies: dolaSuppliesCacheData?.dolaSupplies,
     }
-
-    await client.set('block-timestamps', JSON.stringify(blockTimestamps));
 
     await redisSetWithTimestamp(cacheKeyNew, resultData);
 
