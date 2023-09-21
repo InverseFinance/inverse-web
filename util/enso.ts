@@ -16,6 +16,23 @@ type EnsoZapOptions = {
     targetChainId?: string,
 }
 
+type EnsoPool = {
+    apy: number
+    chainId: number
+    id: string
+    name: string
+    subtitle: string
+    primaryAddress: string
+    poolAddress: string
+    token: any
+    tokenAddress: string
+    tvl: number
+    underlyingTokens: string[]
+    rewardTokens: string[]
+    project: string
+    protocol: any
+}
+
 export const useEnso = (
     fromAddress: string,
     chainId: string,
@@ -32,6 +49,32 @@ export const useEnso = (
     }
 }
 
+export const useEnsoPools = ({
+    symbol = 'DOLA',
+    chainId = '',
+    underlyingAddress = '',
+    tokenAddress = '',
+    protocol = '',
+    project = '',
+}) => {
+    const { data, error } = useSWR(`enso-pools-${symbol}`, async () => {
+        if (!symbol && !chainId && !underlyingAddress && !tokenAddress && !protocol && !project) return null;
+        return await getEnsoPools({
+            symbol,
+            chainId,
+            underlyingAddress,
+            tokenAddress,
+            protocol,
+            project
+        });
+    });
+    return {
+        pools: data||[],
+        isLoading: !data && !error,
+        error,
+    }
+}
+
 // the api gives an address per user, the user needs to approve this given address to spend their tokens
 export const getEnsoApprove = async (fromAddress: string, chainId = 1) => {
     const path = `https://api.enso.finance/api/v1/wallet?chainId=${chainId}&fromAddress=${fromAddress}`;
@@ -42,6 +85,18 @@ export const getEnsoApprove = async (fromAddress: string, chainId = 1) => {
     });
     const { address, isDeployed } = await res.json();
     return { address, isDeployed }
+}
+
+// the api gives an address per user, the user needs to approve this given address to spend their tokens
+export const getEnsoPools = async (params): Promise<EnsoPool[]> => {
+    const queryString = new URLSearchParams(params).toString();
+    const path = `https://api.enso.finance/api/v1/defiTokens?${queryString}`;
+    const res = await fetch(path, {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+    return await res.json();
 }
 
 export const ensoZap = async (
