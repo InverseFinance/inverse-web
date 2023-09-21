@@ -2,12 +2,12 @@
 import { useOppys } from '@app/hooks/useMarkets'
 import { NetworkIds, YieldOppy } from '@app/types';
 import { shortenNumber } from '@app/util/markets';
-import { Flex, HStack, Image, Stack, Text, VStack, useMediaQuery } from '@chakra-ui/react';
+import { Flex, HStack, Image, Stack, Text, VStack, useDisclosure, useMediaQuery } from '@chakra-ui/react';
 import Container from '@app/components/common/Container';
 import Table from '@app/components/common/Table';
 import { InfoMessage } from '@app/components/common/Messages';
 import Link from '@app/components/common/Link';
-import { ExternalLinkIcon } from '@chakra-ui/icons';
+import { ArrowDownIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
 import { useEffect, useState } from 'react';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
@@ -16,6 +16,9 @@ import { UnderlyingItem } from '../Assets/UnderlyingItem';
 import { NETWORKS_BY_NAME } from '@app/config/networks';
 import { CHAIN_TOKENS, TOKENS, getToken } from '@app/variables/tokens';
 import { gaEvent } from '@app/util/analytics';
+import { EnsoPool, useEnsoPools } from '@app/util/enso';
+import EnsoZap from '@app/components/ThirdParties/EnsoZap';
+import SimpleModal from '../Modal/SimpleModal';
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="24px" fontWeight="extrabold" {...props} />
@@ -132,11 +135,11 @@ const poolColumn = ({ width, symbol, pool, project, chain, underlyingTokens, sta
                     {
                         !!link ?
                             <Link alignItems='center' textDecoration="underline" color="mainTextColor" textTransform="uppercase" as="a" href={link} isExternal target="_blank" display="flex">
-                                <UnderlyingItem textProps={{ fontSize: '14px', ml: '2', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '300px'  }} imgSize={20} label={symbol} pairs={pairs} showAsLp={true} chainId={chainId} />
+                                <UnderlyingItem textProps={{ fontSize: '14px', ml: '2', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '300px' }} imgSize={20} label={symbol} pairs={pairs} showAsLp={true} chainId={chainId} />
                                 <ExternalLinkIcon color="info" ml="1" />
                             </Link>
                             :
-                            <UnderlyingItem textProps={{ fontSize: '14px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '300px'  }} imgSize={20} label={symbol} pairs={pairs} showAsLp={true} chainId={chainId} />
+                            <UnderlyingItem textProps={{ fontSize: '14px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '300px' }} imgSize={20} label={symbol} pairs={pairs} showAsLp={true} chainId={chainId} />
                     }
                 </> : <Text>{symbol}</Text>
             }
@@ -233,6 +236,14 @@ const columnsShort = [
             <Text fontWeight="bold">{preciseCommify(apy, 2)}%</Text>
         </Cell>,
     },
+    {
+        field: 'hasEnso',
+        label: 'Zap',
+        header: ({ ...props }) => <ColHeader minWidth="80px" justify="flex-end" {...props} />,
+        value: ({ hasEnso }) => <Cell minWidth="80px" justify="flex-end">
+            {hasEnso && <ArrowDownIcon />}
+        </Cell>,
+    },
 ]
 
 const columnsShortMobile = [
@@ -243,9 +254,11 @@ const columnsShortMobile = [
 export const OppysTable = ({
     oppys,
     isLoading,
+    onClick
 }: {
     oppys: YieldOppy[],
     isLoading?: boolean,
+    onClick: (item: any) => void,
 }) => {
     const [category, setCategory] = useState('all');
     const [filteredOppys, setFilteredOppys] = useState(oppys);
@@ -310,6 +323,7 @@ export const OppysTable = ({
                         columns={columns}
                         items={filteredOppys}
                         colBoxProps={{ fontWeight: "extrabold" }}
+                        onClick={onClick}
                     />
                     <InfoMessage
                         alertProps={{ w: 'full' }}
@@ -323,7 +337,7 @@ export const OppysTable = ({
                                     </HStack>
                                 }
                                 <Text>
-                                    Risk Disclosure: Most yield opportunities mentioned on this page have not been audited by Inverse Finance.                                    
+                                    Risk Disclosure: Most yield opportunities mentioned on this page have not been audited by Inverse Finance.
                                 </Text>
                                 <Text>APRs displayed are provided by Defillama, actual APRs may be different and can vary based on market conditions, all the data is provided for informational purposes only.</Text>
                                 <Text>By using pools you assume all risks.</Text>
@@ -347,15 +361,17 @@ export const OppysTop5 = ({
     title,
     isLoading,
     isLargerThan = false,
+    onClick,
 }: {
     oppys: YieldOppy[],
     isLoading?: boolean,
     isLargerThan?: boolean,
     title?: string,
+    onClick: (item: any) => void,
 }) => {
 
     return <Container
-        noPadding        
+        noPadding
         contentProps={{ p: { base: '2', sm: '4' } }}
         label={title}
         description={'More infos on Liquidity Pools'}
@@ -372,6 +388,7 @@ export const OppysTop5 = ({
                     columns={isLargerThan ? columnsShort : columnsShortMobile}
                     items={oppys}
                     colBoxProps={{ fontWeight: "extrabold" }}
+                    onClick={onClick}
                 />
         }
     </Container>
@@ -380,17 +397,42 @@ export const OppysTop5 = ({
 export const Oppys = () => {
     const { oppys, isLoading } = useOppys();
     const [isLargerThan] = useMediaQuery(`(min-width: 400px)`)
-    // temp: dont show bb euler pools
-    const _oppys = oppys.filter(o => !o.symbol.includes('-BB-'));
+    const { pools: ensoPools } = useEnsoPools({ symbol: 'DOLA' });
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const [defaultTokenOut, setDefaultTokenOut] = useState('');
+    const [defaultTargetChainId, setDefaultTargetChainId] = useState('');
 
-    const top5Stable = _oppys.filter(o => o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5).map((o, i) => ({...o, rank: i+1}));
-    const top5Volatile = _oppys.filter(o => !o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5).map((o, i) => ({...o, rank: i+1}));
+    const _oppys = oppys
+        .filter(o => !o.symbol.includes('-BB-'))
+        .map(o => {
+            const ensoPool = ensoPools.find(ep => ep.underlyingTokens.join('') === o.underlyingTokens.join(''));
+            return { ...o, ensoPool, hasEnso: !!ensoPool };
+        });
+
+    const top5Stable = _oppys.filter(o => o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5).map((o, i) => ({ ...o, rank: i + 1 }));
+    const top5Volatile = _oppys.filter(o => !o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5).map((o, i) => ({ ...o, rank: i + 1 }));
+
+    const handleClick = (item: { ensoPool: EnsoPool }) => {
+        if (!item.ensoPool?.poolAddress) return;
+        setDefaultTokenOut(item.ensoPool.poolAddress);
+        setDefaultTargetChainId(item.ensoPool.chainId?.toString());
+        onOpen();
+    }
 
     return <VStack alignItems="flex-start">
+        <SimpleModal title="Zap-in / Zap-out" isOpen={isOpen} onClose={onClose} modalProps={{ minW: { base: '98vw', lg: '600px' }, scrollBehavior: 'inside' }}>
+            <VStack p="4">
+                <EnsoZap
+                    defaultTokenOut={defaultTokenOut}
+                    defaultTargetChainId={defaultTargetChainId}
+                    ensoPools={ensoPools}
+                />
+            </VStack>
+        </SimpleModal>
         <Stack direction={{ base: 'column', md: 'row' }} w='full'>
-            <OppysTop5 isLargerThan={isLargerThan} title={'Top 5 stablecoin pool APYs'} isLoading={isLoading} oppys={top5Stable} />
-            <OppysTop5 isLargerThan={isLargerThan} title={'Top 5 volatile pool APYs'} isLoading={isLoading} oppys={top5Volatile} />
+            <OppysTop5 onClick={handleClick} isLargerThan={isLargerThan} title={'Top 5 stablecoin pool APYs'} isLoading={isLoading} oppys={top5Stable} />
+            <OppysTop5 onClick={handleClick} isLargerThan={isLargerThan} title={'Top 5 volatile pool APYs'} isLoading={isLoading} oppys={top5Volatile} />
         </Stack>
-        <OppysTable isLoading={isLoading} oppys={_oppys} />
+        <OppysTable onClick={handleClick} isLoading={isLoading} oppys={_oppys} />
     </VStack>
 }

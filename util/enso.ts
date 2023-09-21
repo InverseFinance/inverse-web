@@ -5,7 +5,7 @@ import useSWR from 'swr';
 const key = '033137b3-73c1-4308-8e77-d7e14d3664ca'
 export const EthXe = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
-type EnsoZapOptions = {
+export type EnsoZapOptions = {
     fromAddress: string,
     amount: BigNumber | string,
     chainId: string,    
@@ -16,7 +16,7 @@ type EnsoZapOptions = {
     targetChainId?: string,
 }
 
-type EnsoPool = {
+export type EnsoPool = {
     apy: number
     chainId: number
     id: string

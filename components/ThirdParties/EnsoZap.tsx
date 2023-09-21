@@ -2,8 +2,6 @@ import { Web3Provider } from "@ethersproject/providers";
 import { useWeb3React } from "@web3-react/core";
 import { useEffect, useState } from "react";
 
-import { WidgetProps } from "@socket.tech/plugin";
-
 import { EthXe, ensoZap, useEnso } from "@app/util/enso";
 import { parseUnits } from "@ethersproject/units";
 import { VStack, Text, HStack, Divider } from "@chakra-ui/react";
@@ -26,26 +24,30 @@ const zapTokenOptions = [
     { label: 'Tokens & LPs', value: 'all' },
     { label: 'Tokens only', value: 'tokens' },
     { label: 'LPs only', value: 'lps' },
-]
+];
 
 function EnsoZap({
-    defaultSourceNetwork = 1,
-    defaultDestNetwork = 1,
-    enableSameChainSwaps = true,
-    defaultSourceToken = 'USDC',
-    defaultDestToken = 'DOLA',
-}: Partial<WidgetProps>) {
+    defaultTokenOut = '0xE57180685E3348589E9521aa53Af0BCD497E884d',
+    defaultTargetChainId = '',
+    ensoPools,
+    title = null,
+}: {
+    defaultTokenOut: string
+    defaultTargetChainId?: string
+    ensoPools: any[]
+    title?: string | null
+}) {
     const { provider, account, chainId } = useWeb3React<Web3Provider>();
     const { address: ensoAddress, isDeployed } = useEnso(account, chainId);
     const [inited, setInited] = useState(false);
     const [tokenInOption, setTokenInOption] = useState('all');
     const [tokenOutOption, setTokenOutOption] = useState('lps');
     const [tokenIn, setTokenIn] = useState(getToken(CHAIN_TOKENS[chainId || '1'], 'DOLA').address); // dola
-    const [tokenOut, setTokenOut] = useState('0xE57180685E3348589E9521aa53Af0BCD497E884d'); // fraxbp
+    const [tokenOut, setTokenOut] = useState(defaultTokenOut); // fraxbp
 
-    const tokenInObj = getToken(CHAIN_TOKENS[chainId || '1'], tokenIn||'ETH');
+    const tokenInObj = getToken(CHAIN_TOKENS[chainId || '1'], tokenIn || 'ETH');
     // const [chainId, setChainId] = useState('1');
-    const [targetChainId, setTargetChainId] = useState(chainId || '1');
+    const [targetChainId, setTargetChainId] = useState(defaultTargetChainId || chainId || '1');
     const targetNetwork = implementedNetworks.find(n => n.id === targetChainId);
     const [amountIn, setAmountIn] = useState<string>('');
     const [amountOut, setAmountOut] = useState<string>('');
@@ -60,10 +62,9 @@ function EnsoZap({
     const ads = Object.keys(fromOptions).map(ad => ad.replace(EthXe, ''));
     const { balances } = useBalances(ads);
 
-    const toOptions = ZAP_TOKENS_ARRAY
-        .filter(t => t.chainId.toString() === targetChainId.toString())
-        .filter(t => tokenOutOption === 'lps' && t.isLP || tokenOutOption === 'tokens' && !t.isLP || tokenOutOption === 'all')
-        .map(t => ({ ...t, label: t.name, value: t.address }))
+    const toOptions = ensoPools?.filter(t => t.chainId.toString() === targetChainId.toString())
+        // .filter(t => tokenOutOption === 'lps' && t.isLP || tokenOutOption === 'tokens' && !t.isLP || tokenOutOption === 'all')
+        .map(t => ({ ...t, label: t.name, value: t.poolAddress }))
 
 
     const fromAssetInputProps = { tokens: fromOptions, balances, showBalance: true }
@@ -79,18 +80,14 @@ function EnsoZap({
     }
 
     useEffect(() => {
-        if (inited || !chainId) return;        
+        if (inited || !chainId) return;
         setTargetChainId(chainId.toString());
         setTokenIn(getToken(CHAIN_TOKENS[chainId || '1'], 'DOLA').address);
-        changeTokenOut(toOptions[0]?.value);
+        changeTokenOut(defaultTokenOut||toOptions[0]?.value);
         setInited(true);
-    }, [inited, chainId, targetChainId, toOptions]);
+    }, [inited, chainId, targetChainId, toOptions, defaultTokenOut]);
 
-    useEffect(() => {
-        changeTokenOut(toOptions[0]?.value);
-    }, [targetChainId, toOptions]);
-
-    return <Container w='full' noPadding p='0' label="Zap-In / Zap-out">
+    return <Container w='full' noPadding p='0' label={title} contentProps={{ mt: 0 }}>
         <VStack alignItems='flex-start' w="full" direction="column" spacing="5">
             <Text>
                 From <b>{getNetwork(chainId)?.name}</b>:
