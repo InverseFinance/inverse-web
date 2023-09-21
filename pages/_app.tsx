@@ -1,4 +1,4 @@
-import { ChakraProvider } from '@chakra-ui/react'
+import { ChakraProvider, createStandaloneToast } from '@chakra-ui/react'
 import '../blog/styles/index.css'
 import './polyfill.css'
 import './animations.css'
@@ -22,6 +22,7 @@ import { useRouter } from 'next/dist/client/router'
 import { gaPageview } from '@app/util/analytics'
 import { useAppTheme } from '@app/hooks/useAppTheme'
 import { metamaskHooks, metamaskInjector, walletConnectV2, walletConnectV2Hooks, coinbaseWallet, coinbaseWalletHooks } from '@app/variables/connectors'
+const { ToastContainer } = createStandaloneToast()
 
 export const BlogContext = React.createContext({ locale: 'en-US', category: 'home' });
 
@@ -127,6 +128,7 @@ const App = ({ Component, pageProps }: AppProps) => {
           <Component {...pageProps} />
         </SWRConfig>
       </Web3ReactProvider>
+      <ToastContainer />
     </ChakraProvider>
   )
 }
