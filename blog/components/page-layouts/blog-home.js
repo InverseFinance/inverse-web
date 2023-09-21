@@ -50,7 +50,7 @@ export default function BlogHome({ preview, pinnedPost, homePosts, categories, l
                 No Stories published yet
               </BlogText>
             }
-            {heroPost && (
+            {!!heroPost?.title && (
               <HeroPost
                 isPinned={hasPinnedPost}
                 {...heroPost}

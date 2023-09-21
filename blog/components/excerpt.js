@@ -4,7 +4,7 @@ import BlogLink from './common/blog-link';
 import BlogText from './common/text';
 
 export default function Excerpt({ excerpt, content, url, charLimit = 256, asLink = true, color = BLOG_THEME.colors.secondaryTextColor }) {
-    const text = (excerpt || documentToPlainTextString(content.json))
+    const text = (excerpt || (!!content?.json ? documentToPlainTextString(content?.json) : ''))
     const excerptContent = text.substring(0, charLimit) + (text?.length > charLimit ? '...' : '')
     
     if (asLink) {
