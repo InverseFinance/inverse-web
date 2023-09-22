@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import { EthXe, ensoZap, useEnso } from "@app/util/enso";
 import { parseUnits } from "@ethersproject/units";
-import { VStack, Text, HStack, Divider } from "@chakra-ui/react";
+import { VStack, Text, HStack, Divider, Stack } from "@chakra-ui/react";
 import { AssetInput } from "../common/Assets/AssetInput";
 import { ZAP_TOKENS_ARRAY } from "./tokenlist";
 import { useBalances } from "@app/hooks/useBalances";
@@ -13,7 +13,7 @@ import { CHAIN_TOKENS, getToken } from "@app/variables/tokens";
 import { getNetwork } from "@app/util/networks";
 import { SimpleAssetDropdown } from "../common/SimpleDropdown";
 import { NETWORKS } from "@app/config/networks";
-import { Token } from "@app/types";
+import { Token, YieldOppy } from "@app/types";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
 import { DOLA_BRIDGED_CHAINS } from "@app/config/constants";
 
@@ -22,18 +22,20 @@ const implementedNetworks = NETWORKS
     .filter(n => ['1', ...DOLA_BRIDGED_CHAINS].includes(n.id.toString()))
     .map(n => ({ ...n, label: n.name, value: n.id }));
 
-const zapTokenOptions = [
-    { label: 'Tokens & LPs', value: 'all' },
-    { label: 'Tokens only', value: 'tokens' },
-    { label: 'LPs only', value: 'lps' },
-];
+// const zapTokenOptions = [
+//     { label: 'Tokens & LPs', value: 'all' },
+//     { label: 'Tokens only', value: 'tokens' },
+//     { label: 'LPs only', value: 'lps' },
+// ];
 
 function EnsoZap({
+    selectedLiquidityPool,
     defaultTokenOut = '0xE57180685E3348589E9521aa53Af0BCD497E884d',
     defaultTargetChainId = '',
     ensoPools,
     title = null,
 }: {
+    selectedLiquidityPool: YieldOppy
     defaultTokenOut: string
     defaultTargetChainId?: string
     ensoPools: any[]
@@ -67,7 +69,6 @@ function EnsoZap({
     const toOptions = ensoPools?.filter(t => t.chainId.toString() === targetChainId.toString())
         // .filter(t => tokenOutOption === 'lps' && t.isLP || tokenOutOption === 'tokens' && !t.isLP || tokenOutOption === 'all')
         .map(t => ({ ...t, label: t.name, value: t.poolAddress }))
-
 
     const fromAssetInputProps = { tokens: fromOptions, balances, showBalance: true }
 
@@ -111,7 +112,7 @@ function EnsoZap({
 
             <Divider />
 
-            <HStack spacing="2" justify="space-between" w='full'>
+            <Stack spacing="2" direction={{ base: 'columns', md: 'row' }} justify="space-between" w='full'>
                 <HStack>
                     <Text>To</Text>
                     <SimpleAssetDropdown
@@ -120,20 +121,13 @@ function EnsoZap({
                         handleChange={(v) => setTargetChainId(v.value)}
                     />
                 </HStack>
-            </HStack>
-
-            <HStack w='full' justify="space-between">
-                {/* <SimpleAssetDropdown
-                    list={zapTokenOptions}
-                    selectedValue={tokenOutOption}
-                    handleChange={(v) => setTokenOutOption(v.value)}
-                /> */}
                 <SimpleAssetDropdown
                     list={toOptions}
                     selectedValue={tokenOut}
                     handleChange={(v) => setTokenOut(v.value)}
                 />
-            </HStack>
+            </Stack>
+
             <SimpleAmountForm
                 address={tokenIn === EthXe ? '' : tokenIn}
                 destination={ensoAddress}
@@ -141,6 +135,7 @@ function EnsoZap({
                 showMaxBtn={false}
                 actionLabel="Zap-in"
                 isDisabled={!amountIn}
+                btnProps={{ needPoaFirst: true }}
                 onAction={
                     () => {
                         if (!provider) return;
