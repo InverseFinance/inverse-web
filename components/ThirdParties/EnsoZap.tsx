@@ -6,7 +6,7 @@ import { EthXe, ensoZap, useEnso } from "@app/util/enso";
 import { parseUnits } from "@ethersproject/units";
 import { VStack, Text, HStack, Divider } from "@chakra-ui/react";
 import { AssetInput } from "../common/Assets/AssetInput";
-import { ENSO_INTEGRATIONS, ZAP_TOKENS_ARRAY } from "./tokenlist";
+import { ZAP_TOKENS_ARRAY } from "./tokenlist";
 import { useBalances } from "@app/hooks/useBalances";
 import Container from "../common/Container";
 import { CHAIN_TOKENS, getToken } from "@app/variables/tokens";
@@ -15,10 +15,12 @@ import { SimpleAssetDropdown } from "../common/SimpleDropdown";
 import { NETWORKS } from "@app/config/networks";
 import { Token } from "@app/types";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
+import { DOLA_BRIDGED_CHAINS } from "@app/config/constants";
 
 const zapOptions = [...new Set(ZAP_TOKENS_ARRAY.map(t => t.address))];
-const chainIdsWithZaps = [...new Set(Object.keys(ENSO_INTEGRATIONS).map(v => v.split('-')[0]))];
-const implementedNetworks = NETWORKS.filter(n => chainIdsWithZaps.includes(n.id)).map(n => ({ ...n, label: n.name, value: n.id }));
+const implementedNetworks = NETWORKS
+    .filter(n => ['1', ...DOLA_BRIDGED_CHAINS].includes(n.id.toString()))
+    .map(n => ({ ...n, label: n.name, value: n.id }));
 
 const zapTokenOptions = [
     { label: 'Tokens & LPs', value: 'all' },
@@ -87,6 +89,10 @@ function EnsoZap({
         setInited(true);
     }, [inited, chainId, targetChainId, toOptions, defaultTokenOut]);
 
+    useEffect(() => {
+        setTargetChainId(defaultTargetChainId);
+    }, [defaultTargetChainId])
+
     return <Container w='full' noPadding p='0' label={title} contentProps={{ mt: 0 }}>
         <VStack alignItems='flex-start' w="full" direction="column" spacing="5">
             <Text>
@@ -117,11 +123,11 @@ function EnsoZap({
             </HStack>
 
             <HStack w='full' justify="space-between">
-                <SimpleAssetDropdown
+                {/* <SimpleAssetDropdown
                     list={zapTokenOptions}
                     selectedValue={tokenOutOption}
                     handleChange={(v) => setTokenOutOption(v.value)}
-                />
+                /> */}
                 <SimpleAssetDropdown
                     list={toOptions}
                     selectedValue={tokenOut}
