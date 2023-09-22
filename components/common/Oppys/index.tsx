@@ -423,7 +423,6 @@ export const Oppys = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [defaultTokenOut, setDefaultTokenOut] = useState('');
     const [defaultTargetChainId, setDefaultTargetChainId] = useState('');
-    const [selectedLiquidityPool, setSelectedLiquidityPool] = useState(null);
 
     const _oppys = (oppys || []).filter(o => !o.symbol.includes('-BB-'))
         .map(o => {
@@ -443,7 +442,6 @@ export const Oppys = () => {
 
     const handleClick = (item: { ensoPool: EnsoPool }) => {
         if (!item.ensoPool?.poolAddress) return;
-        setSelectedLiquidityPool(item);
         setDefaultTokenOut(item.ensoPool.poolAddress);
         setDefaultTargetChainId(item.ensoPool.chainId?.toString());
         onOpen();
@@ -452,7 +450,8 @@ export const Oppys = () => {
     const ensoPoolLikeOppys = _oppys.filter(o => o.hasEnso).map(o => {
         return {
             poolAddress: o.ensoPool?.poolAddress,
-            name: `${o.symbol} (${o.project})`,
+            name: o.symbol,
+            project: o.project,
             chainId: parseInt(NETWORKS_BY_NAME[o.chain].id),
             image: `https://icons.llamao.fi/icons/protocols/${o.project}?w=24&h=24`
         };
@@ -462,7 +461,6 @@ export const Oppys = () => {
         <SimpleModal title="Zap-in / Zap-out" isOpen={isOpen} onClose={onClose} modalProps={{ minW: { base: '98vw', lg: '600px' }, scrollBehavior: 'inside' }}>
             <VStack p="4">
                 <EnsoZap
-                    liquidityPool={selectedLiquidityPool}
                     defaultTokenOut={defaultTokenOut}
                     defaultTargetChainId={defaultTargetChainId}
                     ensoPools={ensoPoolLikeOppys}
@@ -471,8 +469,13 @@ export const Oppys = () => {
                     alertProps={{ w: 'full' }}
                     description={
                         <VStack w='full' alignItems="flex-start">
-                            <Text>Powered by the third-party Enso Finance</Text>
-                            <Text>
+                            <HStack spacing="1">
+                                <Text>Powered by the third-party</Text>
+                                <Link textDecoration="underline" target="_blank" isExternal={true} href="https://www.enso.finance/">
+                                    Enso Finance
+                                </Link>
+                            </HStack>
+                            <Text textDecoration="underline">
                                 Inverse Finance does not give any Financial Advice and do not endorse or audit Enso and the protocols related to this yield opportunity.
                             </Text>
                             <Text fontWeight="bold">

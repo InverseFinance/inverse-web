@@ -1,4 +1,4 @@
-import { Stack, Flex, Image, FlexProps, useDisclosure, HStack } from '@chakra-ui/react';
+import { Stack, Flex, Image, FlexProps, useDisclosure, HStack, VStack, Text } from '@chakra-ui/react';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { AssetsDropdown } from '../Assets/AssetsDropdown';
 import { useEffect, useState } from 'react';
@@ -24,7 +24,7 @@ export const SimpleAssetDropdown = ({
         setTimeout(() => setJustClosed(false), 200)
     }, [isOpen])
 
-    const selectedItem = list.find(item => (item.value||item.label) === selectedValue) || list[0];
+    const selectedItem = list.find(item => (item.value || item.label) === selectedValue) || list[0];
 
     return (
         <AssetsDropdown
@@ -49,7 +49,7 @@ export const SimpleAssetDropdown = ({
         >
             {list.map((item, idx) => {
                 return (
-                    <Flex
+                    <VStack
                         key={idx}
                         p={2}
                         justify="space-between"
@@ -60,6 +60,7 @@ export const SimpleAssetDropdown = ({
                             onClose();
                         }}
                         cursor="pointer"
+                        alignItems="flex-start"
                     >
                         <Stack direction="row" align="center">
                             {
@@ -71,7 +72,15 @@ export const SimpleAssetDropdown = ({
                                 {item.label}
                             </Flex>
                         </Stack>
-                    </Flex>
+                        {
+                            !!item.subtitle && <Text
+                                color="mainTextColor"
+                                textTransform="capitalize"
+                            >
+                                {item.subtitle}
+                            </Text>
+                        }
+                    </VStack>
                 )
             })}
         </AssetsDropdown>

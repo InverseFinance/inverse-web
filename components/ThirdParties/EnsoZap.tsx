@@ -13,7 +13,7 @@ import { CHAIN_TOKENS, getToken } from "@app/variables/tokens";
 import { getNetwork } from "@app/util/networks";
 import { SimpleAssetDropdown } from "../common/SimpleDropdown";
 import { NETWORKS } from "@app/config/networks";
-import { Token, YieldOppy } from "@app/types";
+import { Token } from "@app/types";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
 import { DOLA_BRIDGED_CHAINS } from "@app/config/constants";
 
@@ -29,13 +29,11 @@ const implementedNetworks = NETWORKS
 // ];
 
 function EnsoZap({
-    selectedLiquidityPool,
     defaultTokenOut = '0xE57180685E3348589E9521aa53Af0BCD497E884d',
     defaultTargetChainId = '',
     ensoPools,
     title = null,
 }: {
-    selectedLiquidityPool: YieldOppy
     defaultTokenOut: string
     defaultTargetChainId?: string
     ensoPools: any[]
@@ -44,8 +42,8 @@ function EnsoZap({
     const { provider, account, chainId } = useWeb3React<Web3Provider>();
     const { address: ensoAddress, isDeployed } = useEnso(account, chainId);
     const [inited, setInited] = useState(false);
-    const [tokenInOption, setTokenInOption] = useState('all');
-    const [tokenOutOption, setTokenOutOption] = useState('lps');
+    // const [tokenInOption, setTokenInOption] = useState('all');
+    // const [tokenOutOption, setTokenOutOption] = useState('lps');
     const [tokenIn, setTokenIn] = useState(getToken(CHAIN_TOKENS[chainId || '1'], 'DOLA').address); // dola
     const [tokenOut, setTokenOut] = useState(defaultTokenOut); // fraxbp
 
@@ -68,7 +66,7 @@ function EnsoZap({
 
     const toOptions = ensoPools?.filter(t => t.chainId.toString() === targetChainId.toString())
         // .filter(t => tokenOutOption === 'lps' && t.isLP || tokenOutOption === 'tokens' && !t.isLP || tokenOutOption === 'all')
-        .map(t => ({ ...t, label: t.name, value: t.poolAddress }))
+        .map(t => ({ ...t, label: t.name, value: t.poolAddress, subtitle: t.project }))
 
     const fromAssetInputProps = { tokens: fromOptions, balances, showBalance: true }
 
