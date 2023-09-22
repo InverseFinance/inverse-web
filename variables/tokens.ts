@@ -529,7 +529,7 @@ const chainTokens = {
     [chainTokenAddresses["1"].DOLAFRAXUSDCCVX]: {
       address: chainTokenAddresses["1"].DOLAFRAXUSDCCVX,
       name: 'DOLA-FRAX-USDC',
-      symbol: 'DOLA-FRAX-USDC cvx',      
+      symbol: 'DOLA-FRAX-USDC cvxlp',
       protocolImage: PROTOCOL_IMAGES.CVX,
       decimals: 18,
       isLP: true,
