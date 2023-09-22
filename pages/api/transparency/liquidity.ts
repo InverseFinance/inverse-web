@@ -31,6 +31,7 @@ const PROTOCOL_DEFILLAMA_MAPPING = {
     "BAL": "balancer-v2",
     "RAMSES": "ramses-v1",
     "RAMSESV2": "ramses-v2",
+    "CHRONOS": "chronos-v1",
     // TODO: check if correct project names for the following when defillama adds support    
     "STERLING": "sterling-exchange",
     "SOLIDLIZARD": "solidlizard",
