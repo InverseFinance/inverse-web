@@ -7,7 +7,7 @@ import Container from '@app/components/common/Container';
 import Table from '@app/components/common/Table';
 import { InfoMessage } from '@app/components/common/Messages';
 import Link from '@app/components/common/Link';
-import { ArrowDownIcon, ExternalLinkIcon } from '@chakra-ui/icons';
+import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
 import { useEffect, useState } from 'react';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
@@ -30,6 +30,11 @@ const Cell = ({ ...props }) => {
 
 const FilterItem = ({ ...props }) => {
     return <HStack fontSize="14px" fontWeight="normal" justify="flex-start" {...props} />
+}
+
+const ENSO_DEFILLAMA_MAPPING = {
+    "convex-lp": "convex-finance",
+    "balancer-gauge": "balancer",
 }
 
 const poolLinks = {
@@ -151,10 +156,10 @@ const columns = [
     {
         field: 'symbol',
         label: 'Pool',
-        header: ({ ...props }) => <ColHeader minWidth="330px" justify="flex-start"  {...props} />,
-        value: (p) => poolColumn({ ...p, width: '330px' }),
+        header: ({ ...props }) => <ColHeader minWidth="260px" justify="flex-start"  {...props} />,
+        value: (p) => poolColumn({ ...p, width: '260px' }),
         showFilter: true,
-        filterWidth: '320px',
+        filterWidth: '260px',
         filterItemRenderer: ({ symbol }) => <FilterItem><Text>{symbol}</Text></FilterItem>
     },
     {
@@ -195,14 +200,22 @@ const columns = [
             <Text>{shortenNumber(tvlUsd, 2, true)}</Text>
         </Cell>,
     },
+    {
+        field: 'hasEnso',
+        label: 'Zap',
+        header: ({ ...props }) => <ColHeader minWidth="80px" justify="flex-end" {...props} />,
+        value: ({ hasEnso }) => <Cell minWidth="80px" justify="flex-end">
+            {hasEnso && <Image src="/assets/zap.png" h="20px" w="20px" />}
+        </Cell>,
+    },
 ]
 
 const columnsShort = [
     {
         field: 'rank',
         label: 'Rank',
-        header: ({ ...props }) => <ColHeader minWidth="50px" justify="flex-start"  {...props} />,
-        value: ({ rank }) => <Cell minWidth="50px" justify="flex-start">
+        header: ({ ...props }) => <ColHeader minWidth="40px" justify="flex-start"  {...props} />,
+        value: ({ rank }) => <Cell minWidth="40px" justify="flex-start">
             <Text>#{rank}</Text>
         </Cell>,
     },
@@ -241,7 +254,7 @@ const columnsShort = [
         label: 'Zap',
         header: ({ ...props }) => <ColHeader minWidth="80px" justify="flex-end" {...props} />,
         value: ({ hasEnso }) => <Cell minWidth="80px" justify="flex-end">
-            {hasEnso && <ArrowDownIcon />}
+            {hasEnso && <Image src="/assets/zap.png" h="20px" w="20px" />}
         </Cell>,
     },
 ]
@@ -394,6 +407,15 @@ export const OppysTop5 = ({
     </Container>
 }
 
+const underlyingTokensArrayToString = (underlyingTokens: string[]) => {
+    return (underlyingTokens||[]).sort()?.join('').toLowerCase();
+}
+
+const oppyLpNameToUnderlyingTokens = (lpName: string, chainId: string | number) => {
+    const split = lpName.split('-');
+    return split.map(sym => getToken(CHAIN_TOKENS[chainId], sym)?.address);
+}
+
 export const Oppys = () => {
     const { oppys, isLoading } = useOppys();
     const [isLargerThan] = useMediaQuery(`(min-width: 400px)`)
@@ -402,10 +424,16 @@ export const Oppys = () => {
     const [defaultTokenOut, setDefaultTokenOut] = useState('');
     const [defaultTargetChainId, setDefaultTargetChainId] = useState('');
 
-    const _oppys = oppys
-        .filter(o => !o.symbol.includes('-BB-'))
+    const _oppys = (oppys || []).filter(o => !o.symbol.includes('-BB-'))
         .map(o => {
-            const ensoPool = ensoPools.find(ep => ep.underlyingTokens.join('') === o.underlyingTokens.join(''));
+            const oppyChainId = NETWORKS_BY_NAME[o.chain].id.toString();
+            const oppyUnderlyingTokens = o.underlyingTokens?.length > 0 ? o.underlyingTokens : oppyLpNameToUnderlyingTokens(o.symbol, oppyChainId);
+            const oppyUnderlyingTokensString = underlyingTokensArrayToString(oppyUnderlyingTokens);
+            const ensoPool = ensoPools
+                .find(ep => ep.chainId.toString() === oppyChainId
+                    && o.project === (ENSO_DEFILLAMA_MAPPING[ep.project] || ep.project)
+                    && underlyingTokensArrayToString(ep.underlyingTokens) === oppyUnderlyingTokensString
+                );
             return { ...o, ensoPool, hasEnso: !!ensoPool };
         });
 
