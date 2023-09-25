@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
 import { preciseCommify } from '@app/util/misc';
 import { UnderlyingItem } from '../Assets/UnderlyingItem';
-import { NETWORKS_BY_NAME } from '@app/config/networks';
+import { NETWORKS_BY_NAME, NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 import { CHAIN_TOKENS, TOKENS, getToken } from '@app/variables/tokens';
 import { gaEvent } from '@app/util/analytics';
 import { EnsoPool, useEnsoPools } from '@app/util/enso';
@@ -35,6 +35,7 @@ const FilterItem = ({ ...props }) => {
 const ENSO_DEFILLAMA_MAPPING = {
     "convex-lp": "convex-finance",
     "balancer-gauge": "balancer",
+    "curve-gauge": "curve-dex",
 }
 
 const poolLinks = {
@@ -72,15 +73,16 @@ const projectLinks = {
 
 const getPoolLink = (project, pool, underlyingTokens, symbol, isStable = true) => {
     let url;
+    const _pool = pool||'';
     switch (project) {
         case 'balancer':
-            url = `https://app.balancer.fi/#/pool/${pool}`
+            url = `https://app.balancer.fi/#/pool/${_pool}`
             break;
         case 'yearn-finance':
-            url = `https://yearn.finance/#/vault/${pool}`
+            url = `https://yearn.finance/#/vault/${_pool}`
             break;
         case 'uniswap':
-            url = `https://info.uniswap.org/#/pools/${pool}`
+            url = `https://info.uniswap.org/#/pools/${_pool}`
             break;
         case 'velodrome-v2':
             const [sym0, sym1] = symbol.split('-');
@@ -93,10 +95,10 @@ const getPoolLink = (project, pool, underlyingTokens, symbol, isStable = true) =
             break;
         case 'ramses-v1':
         case 'ramses-v2':
-            url = `https://app.ramses.exchange/liquidity/${pool.toLowerCase()}`;
+            url = `https://app.ramses.exchange/liquidity/${_pool.toLowerCase()}`;
             break;
     }
-    return poolLinks[pool] || url || projectLinks[project];
+    return poolLinks[_pool] || url || projectLinks[project];
 }
 
 const ProjectItem = ({ project, showText = true }: { project: string, showText?: boolean }) => {
@@ -420,6 +422,7 @@ export const Oppys = () => {
     const { oppys, isLoading } = useOppys();
     const [isLargerThan] = useMediaQuery(`(min-width: 400px)`)
     const { pools: ensoPools } = useEnsoPools({ symbol: 'DOLA' });
+
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [defaultTokenOut, setDefaultTokenOut] = useState('');
     const [defaultTargetChainId, setDefaultTargetChainId] = useState('');
@@ -437,8 +440,35 @@ export const Oppys = () => {
             return { ...o, ensoPool, hasEnso: !!ensoPool };
         });
 
-    const top5Stable = _oppys.filter(o => o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5).map((o, i) => ({ ...o, rank: i + 1 }));
-    const top5Volatile = _oppys.filter(o => !o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5).map((o, i) => ({ ...o, rank: i + 1 }));
+    // some oppys are in enso api but not in defillama
+    const oppysNotInDefillama = ensoPools.filter(ep => {
+        const defillamaOppy = _oppys.find(o => {
+            const oppyChainId = NETWORKS_BY_NAME[o.chain].id.toString();
+            const oppyUnderlyingTokens = o.underlyingTokens?.length > 0 ? o.underlyingTokens : oppyLpNameToUnderlyingTokens(o.symbol, oppyChainId);
+            const oppyUnderlyingTokensString = underlyingTokensArrayToString(oppyUnderlyingTokens);
+            return ep.chainId.toString() === oppyChainId
+                && o.project === (ENSO_DEFILLAMA_MAPPING[ep.project] || ep.project)
+                && underlyingTokensArrayToString(ep.underlyingTokens) === oppyUnderlyingTokensString;
+        })
+        return !defillamaOppy;
+    });
+    const oppysWithEnso = _oppys.concat(
+        oppysNotInDefillama.map(ep => {
+            return {
+                ...ep,
+                ensoPool: ep,
+                hasEnso: true,
+                chain: NETWORKS_BY_CHAIN_ID[ep.chainId].name,
+                project: ENSO_DEFILLAMA_MAPPING[ep.project] || ep.project,
+                apy: ep.apy,
+                underlyingTokens: ep.underlyingTokens,
+                tvlUsd: ep.tvl,
+            }
+        })
+    )
+
+    const top5Stable = oppysWithEnso.filter(o => o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5).map((o, i) => ({ ...o, rank: i + 1 }));
+    const top5Volatile = oppysWithEnso.filter(o => !o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5).map((o, i) => ({ ...o, rank: i + 1 }));
 
     const handleClick = (item: { ensoPool: EnsoPool }) => {
         if (!item.ensoPool?.poolAddress) return;
@@ -447,12 +477,12 @@ export const Oppys = () => {
         onOpen();
     }
 
-    const ensoPoolLikeOppys = _oppys.filter(o => o.hasEnso).map(o => {
+    const ensoPoolLikeOppys = oppysWithEnso.filter(o => o.hasEnso).map(o => {
         return {
             poolAddress: o.ensoPool?.poolAddress,
             name: o.symbol,
             project: o.project,
-            chainId: parseInt(NETWORKS_BY_NAME[o.chain].id),
+            chainId: parseInt(NETWORKS_BY_NAME[o.chain]?.id),
             image: `https://icons.llamao.fi/icons/protocols/${o.project}?w=24&h=24`
         };
     });
@@ -490,6 +520,6 @@ export const Oppys = () => {
             <OppysTop5 onClick={handleClick} isLargerThan={isLargerThan} title={'Top 5 stablecoin pool APYs'} isLoading={isLoading} oppys={top5Stable} />
             <OppysTop5 onClick={handleClick} isLargerThan={isLargerThan} title={'Top 5 volatile pool APYs'} isLoading={isLoading} oppys={top5Volatile} />
         </Stack>
-        <OppysTable onClick={handleClick} isLoading={isLoading} oppys={_oppys} />
+        <OppysTable onClick={handleClick} isLoading={isLoading} oppys={oppysWithEnso} />
     </VStack>
 }

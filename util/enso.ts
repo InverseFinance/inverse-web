@@ -1,6 +1,10 @@
 import { BigNumber } from "ethers";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import useSWR from 'swr';
+import { CHAIN_TOKENS } from "@app/variables/tokens";
+import { lowercaseObjectKeys } from "./misc";
+import { getSymbolFromUnderlyingTokens, homogeneizeLpName } from "./markets";
+import { PROTOCOLS_BY_IMG, PROTOCOL_DEFILLAMA_MAPPING } from "@app/variables/images";
 
 const key = '033137b3-73c1-4308-8e77-d7e14d3664ca'
 export const EthXe = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
@@ -8,7 +12,7 @@ export const EthXe = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 export type EnsoZapOptions = {
     fromAddress: string,
     amount: BigNumber | string,
-    chainId: string,    
+    chainId: string,
     tokenIn: string,
     tokenOut: string,
     slippage?: string,
@@ -42,8 +46,8 @@ export const useEnso = (
         return await getEnsoApprove(fromAddress, chainId);
     });
     return {
-        address: data?.address||'',
-        isDeployed: data?.isDeployed||false,
+        address: data?.address || '',
+        isDeployed: data?.isDeployed || false,
         isLoading: !data && !error,
         error,
     }
@@ -57,7 +61,7 @@ export const useEnsoPools = ({
     protocol = '',
     project = '',
 }) => {
-    const { data, error } = useSWR(`enso-pools-${symbol}`, async () => {
+    const { data, error } = useSWR(`enso-pools-${symbol}-4`, async () => {
         if (!symbol && !chainId && !underlyingAddress && !tokenAddress && !protocol && !project) return null;
         return await getEnsoPools({
             symbol,
@@ -69,7 +73,7 @@ export const useEnsoPools = ({
         });
     });
     return {
-        pools: data||[],
+        pools: data || [],
         isLoading: !data && !error,
         error,
     }
@@ -90,20 +94,46 @@ export const getEnsoApprove = async (fromAddress: string, chainId = 1) => {
 // the api gives an address per user, the user needs to approve this given address to spend their tokens
 export const getEnsoPools = async (params): Promise<EnsoPool[]> => {
     const queryString = new URLSearchParams(params).toString();
-    const path = `https://api.enso.finance/api/v1/defiTokens?${queryString}`;
+    // const path = `https://api.enso.finance/api/v1/defiTokens?${queryString}`;
+    const path = `https://api.enso.finance/api/v1/positions?${queryString}`;
     const res = await fetch(path, {
         headers: {
             'Content-Type': 'application/json',
         },
     });
-    return await res.json();
+    const result = await res.json();
+    let list = []
+    try {
+        list = result.baseTokens
+            .map(bt => {
+                const isAlreadyInDefiTokens = result.defiTokens.find(dt => dt.poolAddress.toLowerCase() === bt.address.toLowerCase());
+                if (isAlreadyInDefiTokens) return null;
+                const chainTokens = lowercaseObjectKeys(CHAIN_TOKENS[bt.chainId]);
+                const foundTokenConfig = chainTokens[bt.address.toLowerCase()];
+                const underlyingTokens = foundTokenConfig ? foundTokenConfig?.pairs?.filter(pt => pt.toLowerCase() !== bt.address.toLowerCase()) : [];
+                if (!foundTokenConfig || !foundTokenConfig.isLP) return null;
+                const symbol = homogeneizeLpName(foundTokenConfig.symbol);
+                return { isEnsoBaseToken: true, ...bt, poolAddress: foundTokenConfig.address, apy: 0, underlyingTokens, rewardTokens: [], subtitle: symbol, symbol, name: foundTokenConfig.name, project: PROTOCOL_DEFILLAMA_MAPPING[PROTOCOLS_BY_IMG[foundTokenConfig.protocolImage]] };
+            })
+            .filter(bt => bt !== null)
+            .concat(result.defiTokens.map(dt => {
+                const chainTokens = lowercaseObjectKeys(CHAIN_TOKENS[dt.chainId]);
+                const foundTokenConfig = chainTokens[dt.poolAddress.toLowerCase()];
+                const attemptSymbol = foundTokenConfig ? foundTokenConfig.symbol : getSymbolFromUnderlyingTokens(dt.chainId, dt.underlyingTokens);
+                const symbol = homogeneizeLpName(attemptSymbol);
+                return { ...dt, symbol }
+            }));
+    } catch (e) {
+        console.warn(e);
+    }
+    return list;
 }
 
 export const ensoZap = async (
     signer: JsonRpcSigner,
     options: EnsoZapOptions,
 ) => {
-    if(options.targetChainId !== options.chainId) {
+    if (options.targetChainId !== options.chainId) {
         return ensoCrossChainZap(signer, options);
     }
     return ensoSameChainZap(signer, options);
