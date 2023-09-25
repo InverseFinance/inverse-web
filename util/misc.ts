@@ -256,3 +256,10 @@ export const ascendingEventsSorter = (a, b) => {
         return a.logIndex - b.logIndex; // If block numbers are equal, sort by logIndex in ascending order
     }
 }
+
+export const lowercaseObjectKeys = (obj: any) => {
+    return Object.keys(obj).reduce((accumulator, key) => {
+        accumulator[key.toLowerCase()] = obj[key];
+        return accumulator;
+    }, {});
+}
