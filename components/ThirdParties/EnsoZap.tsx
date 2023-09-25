@@ -134,6 +134,7 @@ function EnsoZap({
                 actionLabel="Zap-in"
                 isDisabled={!amountIn}
                 btnProps={{ needPoaFirst: true }}
+                signer={provider?.getSigner()}
                 onAction={
                     () => {
                         if (!provider) return;
