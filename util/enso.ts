@@ -52,6 +52,33 @@ export const useEnso = (
         error,
     }
 }
+// get the route to know where to approve
+export const useEnsoRoute = (
+    fromAddress: string,
+    chainId: string,
+    targetChainId: string,
+    tokenIn: string,
+    tokenOut: string,
+) => {
+    const { data, error } = useSWR(`enso-route-${chainId}-${targetChainId}-${tokenIn}-${tokenOut}`, async () => {
+        if (!tokenIn || !tokenOut) return null;
+        return await ensoZap(null, { 
+            fromAddress,
+            amount: '10000000000000000',
+            chainId,
+            targetChainId,
+            tokenIn,
+            tokenOut,
+            slippage: '300',
+            toEoa: 'true',
+        });
+    });
+    return {
+        ...data,
+        isLoading: !data && !error,
+        error,
+    }
+}
 
 export const useEnsoPools = ({
     symbol = 'DOLA',
@@ -130,17 +157,17 @@ export const getEnsoPools = async (params): Promise<EnsoPool[]> => {
 }
 
 export const ensoZap = async (
-    signer: JsonRpcSigner,
+    signer: JsonRpcSigner | null,
     options: EnsoZapOptions,
 ) => {
-    if (options.targetChainId !== options.chainId) {
+    if (options.targetChainId?.toString() !== options.chainId?.toString()) {
         return ensoCrossChainZap(signer, options);
     }
     return ensoSameChainZap(signer, options);
 }
 
 export const ensoSameChainZap = async (
-    signer: JsonRpcSigner,
+    signer: JsonRpcSigner | null,
     options: EnsoZapOptions,
 ) => {
     const {
@@ -164,7 +191,8 @@ export const ensoSameChainZap = async (
     });
 
     const data = await res.json();
-    const { tx } = data
+    if(!signer) return data;
+    const { tx } = data    
 
     return signer.sendTransaction({
         from: tx.from,
@@ -175,7 +203,7 @@ export const ensoSameChainZap = async (
 }
 
 export const ensoCrossChainZap = async (
-    signer: JsonRpcSigner,
+    signer: JsonRpcSigner | null,
     options: EnsoZapOptions,
 ) => {
     const {
@@ -213,6 +241,7 @@ export const ensoCrossChainZap = async (
     });
 
     const data = await res.json();
+    if(!signer) return data;
     const { tx } = data
 
     return signer.sendTransaction({

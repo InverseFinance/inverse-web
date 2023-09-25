@@ -364,6 +364,8 @@ export const homogeneizeLpName = (value: string) => {
         .replace(/-?SAMMV2-?/i, '')
         .replace(/DOLAUSDC/i, 'DOLA-USDC')
         .replace(/DOLAFRAX/i, 'DOLA-FRAX')
+        .replace(/OPUSDCE/i, 'USDC')
+        .replace(/(-LP|-SLP|-AURA| [a-zA-Z]*lp)/ig, '')
         .toUpperCase()
 }
 

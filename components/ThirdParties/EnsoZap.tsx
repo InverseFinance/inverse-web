@@ -2,7 +2,7 @@ import { Web3Provider } from "@ethersproject/providers";
 import { useWeb3React } from "@web3-react/core";
 import { useEffect, useState } from "react";
 
-import { EthXe, ensoZap, useEnso } from "@app/util/enso";
+import { EthXe, ensoZap, useEnso, useEnsoRoute } from "@app/util/enso";
 import { parseUnits } from "@ethersproject/units";
 import { VStack, Text, HStack, Divider, Stack } from "@chakra-ui/react";
 import { AssetInput } from "../common/Assets/AssetInput";
@@ -40,16 +40,18 @@ function EnsoZap({
     title?: string | null
 }) {
     const { provider, account, chainId } = useWeb3React<Web3Provider>();
-    const { address: ensoAddress, isDeployed } = useEnso(account, chainId);
+    // const { address: ensoSmartWalletAddress, isDeployed } = useEnso(account, chainId);
     const [inited, setInited] = useState(false);
     // const [tokenInOption, setTokenInOption] = useState('all');
     // const [tokenOutOption, setTokenOutOption] = useState('lps');
-    const [tokenIn, setTokenIn] = useState(getToken(CHAIN_TOKENS[chainId || '1'], 'DOLA').address); // dola
+    const [tokenIn, setTokenIn] = useState(getToken(CHAIN_TOKENS[chainId || '1'], 'DOLA').address); // dola    
     const [tokenOut, setTokenOut] = useState(defaultTokenOut); // fraxbp
 
     const tokenInObj = getToken(CHAIN_TOKENS[chainId || '1'], tokenIn || 'ETH');
     // const [chainId, setChainId] = useState('1');
     const [targetChainId, setTargetChainId] = useState(defaultTargetChainId || chainId || '1');
+    const { tx: routeTx } = useEnsoRoute(account, chainId, targetChainId, tokenIn, tokenOut);
+
     const targetNetwork = implementedNetworks.find(n => n.id === targetChainId);
     const [amountIn, setAmountIn] = useState<string>('');
     const [amountOut, setAmountOut] = useState<string>('');
@@ -128,8 +130,9 @@ function EnsoZap({
 
             <SimpleAmountForm
                 address={tokenIn === EthXe ? '' : tokenIn}
-                destination={ensoAddress}
+                destination={routeTx?.to}
                 hideInput={true}
+                hideButtons={!routeTx}
                 showMaxBtn={false}
                 actionLabel="Zap-in"
                 isDisabled={!amountIn}
