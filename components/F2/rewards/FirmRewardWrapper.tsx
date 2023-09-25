@@ -1,6 +1,6 @@
 import { F2Market } from "@app/types"
 import { useContext, useEffect } from "react";
-import { useCvxCrvRewards, useCvxFxsRewards, useEscrowRewards, useINVEscrowRewards, useStakedInFirm } from "@app/hooks/useFirm";
+import { useCvxCrvRewards, useCvxFxsRewards, useCvxRewards, useEscrowRewards, useINVEscrowRewards, useStakedInFirm } from "@app/hooks/useFirm";
 import { F2MarketContext } from "../F2Contex";
 import { BURN_ADDRESS } from "@app/config/constants";
 import { zapperRefresh } from "@app/util/f2";
@@ -52,6 +52,14 @@ export const FirmRewardWrapper = ({
             escrow={_escrow}
             onLoad={onLoad}
         />
+    } else if (market.name === 'CVX') {   
+        return <FirmCvxRewardWrapperContent
+            market={market}
+            label={label}
+            showMarketBtn={showMarketBtn}
+            escrow={_escrow}
+            onLoad={onLoad}
+        />
     }
 
     return <FirmRewardWrapperContent
@@ -88,6 +96,39 @@ export const FirmCvxCrvRewardWrapperContent = ({
         market={market}
         escrow={escrow}
         rewardsInfos={rewardsInfos}
+        label={label}
+        showMarketBtn={showMarketBtn}
+        isLoading={isLoading}
+    />
+}
+
+export const FirmCvxRewardWrapperContent = ({
+    market,
+    label,
+    showMarketBtn = false,
+    escrow,
+    onLoad,
+}: {
+    market: F2Market
+    label?: string
+    escrow?: string
+    showMarketBtn?: boolean
+    onLoad?: (v: number) => void
+}) => {
+    const { rewardsInfos, extraRewards, isLoading } = useCvxRewards(escrow);
+
+    useEffect(() => {
+        if (!onLoad || !rewardsInfos?.tokens?.length || isLoading) { return }
+        const totalUsd = rewardsInfos.tokens.filter(t => t.metaType === 'claimable')
+            .reduce((prev, curr) => prev + curr.balanceUSD, 0);
+        onLoad(totalUsd);
+    }, [rewardsInfos, onLoad])
+
+    return <FirmRewards
+        market={market}
+        escrow={escrow}
+        rewardsInfos={rewardsInfos}
+        extraRewards={extraRewards}
         label={label}
         showMarketBtn={showMarketBtn}
         isLoading={isLoading}
@@ -221,6 +262,7 @@ export const FirmINVRewardWrapperContent = ({
 export const FirmRewards = ({
     market,
     rewardsInfos,
+    extraRewards,
     label,
     showMarketBtn = false,
     isLoading,
@@ -229,6 +271,7 @@ export const FirmRewards = ({
 }: {
     market: F2Market
     rewardsInfos: any[]
+    extraRewards?: string[]
     label?: string
     escrow?: string
     showMarketBtn?: boolean
@@ -255,5 +298,6 @@ export const FirmRewards = ({
         showMarketBtn={showMarketBtn}
         defaultCollapse={false}
         extra={extra}
+        extraRewards={extraRewards}
     />
 }

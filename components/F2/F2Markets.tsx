@@ -300,7 +300,7 @@ export const F2Markets = ({
                 <SkeletonList /> :
                 <Table
                     keyName="address"
-                    pinnedItems={['0xb516247596Ca36bf32876199FBdCaD6B3322330B', '0x0971B1690d101169BFca4715897aD3a9b3C39b26']}
+                    pinnedItems={['0xb516247596Ca36bf32876199FBdCaD6B3322330B', '0xdc2265cBD15beD67b5F2c0B82e23FcE4a07ddF6b']}
                     pinnedLabels={['Stake', 'New']}
                     noDataMessage="Loading..."
                     columns={columns}

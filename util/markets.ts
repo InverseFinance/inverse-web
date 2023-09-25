@@ -208,6 +208,13 @@ export const getDSRData = async () => {
     return [];
 }
 
+export const getStCvxData = async () => {
+    try {
+        return getPoolYield('777032e6-e815-4f44-90b4-abb98f0f9632');
+    } catch (e) { console.log(e) }
+    return [];
+}
+
 export const getCvxFxsAPRs = async (provider, _prices?: any) => {
     try {
         const utilContract = new Contract(

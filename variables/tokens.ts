@@ -53,7 +53,7 @@ const chainTokenAddresses = {
     WFTM: '0x4E15361FD6b4BB609Fa63C81A2be19d873717870',
     MIM: '0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3',
     DOLAWETHLP: '0xb204bf10bc3a5435017d3db247f56da601dfe08a',
-    CVX: '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b',
+    CVX: '0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B',
     CVXCRV: '0x62B9c7356A2Dc64a1969e19C23e4f579F9810Aa7',
     CVXFXS: '0xFEEf77d3f69374f66429C91d732A244f074bdf74',
     FXS: '0x3432B6A60D23Ca0dFCa7761B7ab56459D9C964D0',
@@ -99,6 +99,7 @@ const chainTokenAddresses = {
     INVTRICRYPTO: '0x5426178799ee0a0181A89b4f57eFddfAb49941Ec',
     STYCRV: '0x27B5739e22ad9033bcBf192059122d163b60349D',
     YCRV: '0xFCc5c47bE19d06BF83eB04298b026F81069ff65b',
+    STCVX: '0xCF50b810E57Ac33B91dCF525C6ddd9881B139332',
   },
   "250": {
     DOLA2POOLCRV: '0x28368d7090421ca544bc89799a2ea8489306e3e5',
@@ -931,6 +932,14 @@ const chainTokens = {
       symbol: 'st-yCRV',
       coingeckoId: 'staked-yearn-crv-vault',
       image: TOKEN_IMAGES.STYCRV,
+      decimals: 18,
+    },
+    [chainTokenAddresses["1"].STCVX]: {
+      address: chainTokenAddresses["1"].STCVX,
+      name: 'st-CVX',
+      symbol: 'st-CVX',
+      coingeckoId: 'convex-finance',
+      image: TOKEN_IMAGES.CVX,
       decimals: 18,
     },
     [chainTokenAddresses["1"].YCRV]: {

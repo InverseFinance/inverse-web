@@ -9,6 +9,7 @@ export enum FIRM_ESCROWS {
     'INV' = '0x502a7759809bD673cd39A0055beed44b40EAac98',
     'cvxFXS' = '0xCa78ee4544ec5a33Af86F1E786EfC7d3652bf005',
     'DSR' = '0xCcABAD4923c14E48C9C27e6C4556C1CAf4E91eBB',
+    'stCVX' = '0xf2a2b6c1F47c75FFacDbF60B35F2Ed2d35f0a9C1',
 }
 
 const mainConfig = {
@@ -166,6 +167,20 @@ const mainConfig = {
             rewardTypeLabel: 'DSR APY',
             isInv: false,
             hasStakingLikeRewards: true,
+        },
+        {
+            name: 'CVX',
+            collateral: '0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B',
+            address: '0xdc2265cBD15beD67b5F2c0B82e23FcE4a07ddF6b',
+            escrowImplementation: FIRM_ESCROWS.stCVX,            
+            helper: true,
+            oracleType: "chainlink",
+            badgeInfo: 'Staking Rewards',
+            badgeProps: { bgColor: 'accentTextColor', color: 'contrastMainTextColor' },
+            hasClaimableRewards: true,            
+            startingBlock: 18075830,
+            rewardTypeLabel: 'CVX staking APY',
+            isInv: false,
         },
     ],
     feds: FEDS_PARAMS,

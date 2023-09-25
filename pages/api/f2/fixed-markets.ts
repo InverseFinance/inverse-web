@@ -5,7 +5,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { TOKENS } from '@app/variables/tokens'
-import { getBnToNumber, getCvxCrvAPRs, getCvxFxsAPRs, getDSRData, getGOhmData, getStYcrvData, getStethData } from '@app/util/markets'
+import { getBnToNumber, getCvxCrvAPRs, getCvxFxsAPRs, getDSRData, getGOhmData, getStCvxData, getStYcrvData, getStethData } from '@app/util/markets'
 import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_MS, ONE_DAY_SECS } from '@app/config/constants';
 import { frontierMarketsCacheKey } from '../markets';
 import { cgPricesCacheKey } from '../prices';
@@ -13,7 +13,7 @@ import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { FEATURE_FLAGS } from '@app/config/features';
 
 const { F2_MARKETS, DOLA, XINV, DBR_DISTRIBUTOR } = getNetworkConfigConstants();
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.94`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.95`;
 
 export default async function handler(req, res) {
   const { cacheFirst } = req.query;
@@ -137,9 +137,10 @@ export default async function handler(req, res) {
       getCvxCrvAPRs(provider),
       getCvxFxsAPRs(provider),
       getDSRData(),
+      getStCvxData(),
     ]);
 
-    let [stethData, gohmData, stYcrvData, cvxCrvData, cvxFxsData, dsrData] = externalYieldResults.map(r => {
+    let [stethData, gohmData, stYcrvData, cvxCrvData, cvxFxsData, dsrData, stCvxData] = externalYieldResults.map(r => {
       return r.status === 'fulfilled' ? r.value : {};
     });
 
@@ -160,6 +161,7 @@ export default async function handler(req, res) {
       'INV': invFrontierMarket.supplyApy || 0,
       'st-yCRV': stYcrvData?.apy || 0,
       'DAI': dsrData?.apy || 0,
+      'CVX': stCvxData?.apy || 0,
     };
 
     const xinvExRate = getBnToNumber(xinvExRateBn);
