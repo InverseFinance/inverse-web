@@ -119,7 +119,7 @@ export const FirmCvxRewardWrapperContent = ({
     const { balance } = useEscrowBalance(escrow);
     const { prices } = usePrices();
 
-    const monthlyRewards = getMonthlyRate(balance, market?.supplyApy);
+    const monthlyRewards = getMonthlyRate(balance||0, market?.supplyApy);
     const price = prices ? prices['convex-finance']?.usd : 0;
     const cvxCrvPrice = prices ? prices['convex-crv']?.usd : 0;
     const cvxCrvEquivalentMonthlyRewards = (monthlyRewards * price) / cvxCrvPrice;
@@ -140,17 +140,19 @@ export const FirmCvxRewardWrapperContent = ({
         showMarketBtn={showMarketBtn}
         isLoading={isLoading}
         showMonthlyRewards={false}
-        extra={<VStack alignItems="flex-end" justify="center" w={{ base: 'auto', md: '700px' }}>
-            <InfoMessage
-                alertProps={{ fontSize: '18px' }}
-                description={
-                    <VStack alignItems="flex-end">
-                        <Text>Monthly cvxCRV rewards:</Text>
-                        <Text textAlign="right" fontWeight="bold">~{shortenNumber(cvxCrvEquivalentMonthlyRewards, 2)} ({shortenNumber(cvxCrvEquivalentMonthlyRewards * cvxCrvPrice, 2, true)})</Text>
-                    </VStack>
-                }
-            />
-        </VStack>}
+        extra={
+            cvxCrvPrice > 0 && <VStack alignItems="flex-end" justify="center" w={{ base: 'auto', md: '700px' }}>
+                <InfoMessage
+                    alertProps={{ fontSize: '18px' }}
+                    description={
+                        <VStack alignItems="flex-end">
+                            <Text>Monthly cvxCRV rewards:</Text>
+                            <Text textAlign="right" fontWeight="bold">~{shortenNumber(cvxCrvEquivalentMonthlyRewards, 2)} ({shortenNumber(cvxCrvEquivalentMonthlyRewards * cvxCrvPrice, 2, true)})</Text>
+                        </VStack>
+                    }
+                />
+            </VStack>
+        }
     />
 }
 
