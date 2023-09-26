@@ -555,6 +555,24 @@ export const useUserRewards = (user: string): SWR & {
   }
 }
 
+export const useEscrowBalance = (escrow: string, decimals = 18): {
+  balance: number,
+  isLoading: boolean,
+} => {
+  const { data: firmEscrowData, error: firmEscrowError } = useEtherSWR({
+    args: !!escrow && escrow !== BURN_ADDRESS ? [
+      [escrow, 'balance'],
+    ] : [[]],
+    abi: F2_ESCROW_ABI,
+  });
+  const balance = firmEscrowData && firmEscrowData[0] ? getBnToNumber(firmEscrowData[0], decimals) : 0;
+
+  return {
+    balance,
+    isLoading: (!firmEscrowData && !firmEscrowError),
+  };
+}
+
 export const useStakedInFirm = (userAddress: string): {
   stakedInFirm: number,
   escrow: string,
