@@ -116,7 +116,7 @@ export const FirmCvxRewardWrapperContent = ({
     onLoad?: (v: number) => void
 }) => {
     const { rewardsInfos, extraRewards, isLoading } = useCvxRewards(escrow);
-    const { balance } = useEscrowBalance(escrow);
+    const { balance } = useEscrowBalance(escrow, market.underlying.decimals);
     const { prices } = usePrices();
 
     const monthlyRewards = getMonthlyRate(balance||0, market?.supplyApy);
