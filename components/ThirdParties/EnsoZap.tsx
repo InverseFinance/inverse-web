@@ -40,7 +40,7 @@ function EnsoZap({
     title?: string | null
 }) {
     const { provider, account, chainId } = useWeb3React<Web3Provider>();
-    // const { address: ensoSmartWalletAddress, isDeployed } = useEnso(account, chainId);
+    const { address: ensoSmartWalletAddress, isDeployed } = useEnso(account, chainId);
     const [inited, setInited] = useState(false);
     // const [tokenInOption, setTokenInOption] = useState('all');
     // const [tokenOutOption, setTokenOutOption] = useState('lps');
@@ -50,7 +50,7 @@ function EnsoZap({
     const tokenInObj = getToken(CHAIN_TOKENS[chainId || '1'], tokenIn || 'ETH');
     // const [chainId, setChainId] = useState('1');
     const [targetChainId, setTargetChainId] = useState(defaultTargetChainId || chainId || '1');
-    const { tx: routeTx } = useEnsoRoute(account, chainId, targetChainId, tokenIn, tokenOut);
+    // const { tx: routeTx } = useEnsoRoute(account, chainId, targetChainId, tokenIn, tokenOut);
 
     const targetNetwork = implementedNetworks.find(n => n.id === targetChainId);
     const [amountIn, setAmountIn] = useState<string>('');
@@ -94,6 +94,8 @@ function EnsoZap({
         setTargetChainId(defaultTargetChainId);
     }, [defaultTargetChainId])
 
+    const approveDestinationAddress = ensoSmartWalletAddress;
+
     return <Container w='full' noPadding p='0' label={title} contentProps={{ mt: 0 }}>
         <VStack alignItems='flex-start' w="full" direction="column" spacing="5">
             <Text>
@@ -130,11 +132,12 @@ function EnsoZap({
 
             <SimpleAmountForm
                 address={tokenIn === EthXe ? '' : tokenIn}
-                destination={routeTx?.to}
+                // destination={routeTx?.to}
+                destination={approveDestinationAddress}
                 hideInput={true}
                 showMaxBtn={false}
                 actionLabel="Zap-in"
-                isDisabled={!amountIn || ((!!tokenIn && tokenIn !== EthXe) && !routeTx?.to)}
+                isDisabled={!amountIn || ((!!tokenIn && tokenIn !== EthXe) && !approveDestinationAddress)}
                 alsoDisableApprove={true}
                 btnProps={{ needPoaFirst: true }}
                 signer={provider?.getSigner()}

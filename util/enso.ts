@@ -180,7 +180,8 @@ export const ensoSameChainZap = async (
         toEoa = 'true',
     } = options;
     const _tokenIn = !tokenIn ? EthXe : tokenIn;
-    const path = `https://api.enso.finance/api/v1/shortcuts/route?chainId=${chainId}&fromAddress=${fromAddress}&tokenInAmountToApprove=${amount}&tokenInAmountToTransfer=${amount}&amountIn=${amount}&minAmountOut=${amount}&slippage=${slippage}&tokenIn=${_tokenIn}&tokenOut=${tokenOut}&toEoa=${toEoa}`;
+    // const path = `https://api.enso.finance/api/v1/shortcuts/route?chainId=${chainId}&fromAddress=${fromAddress}&tokenInAmountToApprove=${amount}&tokenInAmountToTransfer=${amount}&amountIn=${amount}&minAmountOut=${amount}&slippage=${slippage}&tokenIn=${_tokenIn}&tokenOut=${tokenOut}&toEoa=${toEoa}`;
+    const path = `https://api.enso.finance/api/v1/shortcuts/route?chainId=${chainId}&fromAddress=${fromAddress}&amountIn=${amount}&slippage=${slippage}&tokenIn=${_tokenIn}&tokenOut=${tokenOut}&toEoa=${toEoa}&priceImpact=false`;
     const res = await fetch(path, {
         method: 'GET',
         headers: {
@@ -192,13 +193,14 @@ export const ensoSameChainZap = async (
 
     const data = await res.json();
     if(!signer) return data;
-    const { tx } = data    
+    const { tx, gas } = data    
 
     return signer.sendTransaction({
         from: tx.from,
         to: tx.to,
         data: tx.data,
         value: tx.value,
+        gasLimit: gas*1.05,
     })
 }
 
