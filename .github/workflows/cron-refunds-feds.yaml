@@ -6,9 +6,24 @@ jobs:
   cron:
     runs-on: ubuntu-latest
     steps:     
-      - name: Governance refunds - FEDS
+      - name: Governance refunds - FEDS part 1
         run: |
           curl -v --request POST \
-          --url 'https://www.inverse.finance/api/cron-refunds?filterType=feds' \
-          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'      
+          --url 'https://www.inverse.finance/api/cron-refunds?filterType=feds&start=0&size=3' \
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
+      - name: Governance refunds - FEDS part 2
+        run: |
+          curl -v --request POST \
+          --url 'https://www.inverse.finance/api/cron-refunds?filterType=feds&start=3&size=3' \
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
+      - name: Governance refunds - FEDS part 3
+        run: |
+          curl -v --request POST \
+          --url 'https://www.inverse.finance/api/cron-refunds?filterType=feds&start=6&size=3' \
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
+      - name: Governance refunds - FEDS part 4
+        run: |
+          curl -v --request POST \
+          --url 'https://www.inverse.finance/api/cron-refunds?filterType=feds&start=9&size=3' \
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
       
