@@ -16,6 +16,7 @@ export const addBlockTimestamps = async (blockNumbers: number[], chainId: string
     const results = await Promise.all(
         uniqueBns.map(blockNumber => provider.getBlock(blockNumber))
     );
+    if(!cachedOnlyBlockTimestamps[chainId]) cachedOnlyBlockTimestamps[chainId] = {};
     results.forEach(r => {
         // in secs
         cachedOnlyBlockTimestamps[chainId][r.number] = r.timestamp;
