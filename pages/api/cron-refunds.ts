@@ -63,18 +63,24 @@ const formatResults = (covalentResponse: any, type: string, refundWhitelist?: st
 }
 
 export default async function handler(req, res) {
-    const { filterType, multisig } = req.query;
+    const { filterType, multisig, start, size } = req.query;
 
     if (req.method !== 'POST') return res.status(405).json({ success: false });
     else if (req.headers.authorization !== `Bearer ${process.env.API_SECRET_KEY}`) return res.status(401).json({ success: false });
+    else if (filterType === 'feds' && (!/[0-9]+/.test(start) || !/[0-9]+/.test(size))) {
+        return res.status(400).json({ msg: 'invalid request' });
+    }
 
     try {
         const _multisigFilter = filterType === 'multisig' ? multisig : '';
 
-        const lastSuccessKey = `${ELIGIBLE_TXS}-${filterType}-${_multisigFilter}`;
+        let lastSuccessKey = `${ELIGIBLE_TXS}-${filterType}-${_multisigFilter}`;
+        if (filterType === 'feds') {
+            lastSuccessKey += `-${start}-${size}`;
+        }
         // if job had success in last 12h, skip job
         const hadSuccess = await getCacheFromRedis(lastSuccessKey, true, 43200);
-        if(hadSuccess) {
+        if (hadSuccess) {
             const lastSuccessUTC = (new Date(hadSuccess.timestamp)).toUTCString();
             res.status(200).json({ success: true, delta: 0, skipped: true, lastSuccessUTC });
             return;
@@ -109,8 +115,8 @@ export default async function handler(req, res) {
             !hasFilter || filterType === 'gov' ? getTxsOf(GOVERNANCE, deltaDays * 3) : new Promise((r) => r({ data: { items: [] } })),
             !hasFilter || filterType === 'multidelegator' ? getTxsOf(MULTI_DELEGATOR, deltaDays * 3) : new Promise((r) => r({ data: { items: [] } })),
             // gnosis proxy, for creation
-            !hasFilter || filterType === 'gnosis' ? getTxsOf('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2', deltaDays * 5) : new Promise((r) => r({ data: { items: [] } })),            
-            !hasFilter || filterType === 'feds' ? 
+            !hasFilter || filterType === 'gnosis' ? getTxsOf('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2', deltaDays * 5) : new Promise((r) => r({ data: { items: [] } })),
+            !hasFilter || filterType === 'feds' ?
                 throttledPromises(
                     (f: Fed) => getTxsOf(f.address, deltaDays * 10),
                     FEDS.filter(f => f.chainId === NetworkIds.mainnet && !f.hasEnded),
@@ -118,7 +124,7 @@ export default async function handler(req, res) {
                     5,
                     1000,
                 )
-                : new Promise((r) => r([{ data: { items: [] } }])),            
+                : new Promise((r) => r([{ data: { items: [] } }])),
             client.get(`1-delegates`),
         ])
 
