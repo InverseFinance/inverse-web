@@ -3,7 +3,7 @@ import { JsonRpcSigner } from "@ethersproject/providers";
 import useSWR from 'swr';
 import { CHAIN_TOKENS } from "@app/variables/tokens";
 import { lowercaseObjectKeys } from "./misc";
-import { getSymbolFromUnderlyingTokens, homogeneizeLpName } from "./markets";
+import { getBnToNumber, getSymbolFromUnderlyingTokens, homogeneizeLpName } from "./markets";
 import { PROTOCOLS_BY_IMG, PROTOCOL_DEFILLAMA_MAPPING } from "@app/variables/images";
 
 const key = '033137b3-73c1-4308-8e77-d7e14d3664ca'
@@ -230,11 +230,11 @@ export const ensoCrossChainZap = async (
             "slippage": slippage,
             "in": {
                 "sourceChainId": Number(chainId),
-                "token": _tokenIn
+                "token": _tokenIn.toLowerCase()
             },
             "out": {
                 "destinationChainId": Number(targetChainId),
-                "token": tokenOut
+                "token": tokenOut.toLowerCase()
             },
             "fromAddress": fromAddress
         })
@@ -243,6 +243,7 @@ export const ensoCrossChainZap = async (
     const data = await res.json();
     if(!signer) return data;
     const { tx } = data
+    console.log(getBnToNumber(tx.value))
 
     return signer.sendTransaction({
         from: tx.from,

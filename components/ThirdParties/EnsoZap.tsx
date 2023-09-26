@@ -132,10 +132,10 @@ function EnsoZap({
                 address={tokenIn === EthXe ? '' : tokenIn}
                 destination={routeTx?.to}
                 hideInput={true}
-                hideButtons={!routeTx}
                 showMaxBtn={false}
                 actionLabel="Zap-in"
-                isDisabled={!amountIn}
+                isDisabled={!amountIn || ((!!tokenIn && tokenIn !== EthXe) && !routeTx?.to)}
+                alsoDisableApprove={true}
                 btnProps={{ needPoaFirst: true }}
                 signer={provider?.getSigner()}
                 onAction={
