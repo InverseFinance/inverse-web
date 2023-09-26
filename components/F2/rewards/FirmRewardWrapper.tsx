@@ -1,6 +1,6 @@
 import { F2Market } from "@app/types"
 import { useContext, useEffect } from "react";
-import { useCvxCrvRewards, useCvxFxsRewards, useCvxRewards, useEscrowRewards, useINVEscrowRewards, useStakedInFirm } from "@app/hooks/useFirm";
+import { useCvxCrvRewards, useCvxFxsRewards, useCvxRewards, useEscrowBalance, useEscrowRewards, useINVEscrowRewards, useStakedInFirm } from "@app/hooks/useFirm";
 import { F2MarketContext } from "../F2Contex";
 import { BURN_ADDRESS } from "@app/config/constants";
 import { zapperRefresh } from "@app/util/f2";
@@ -36,7 +36,7 @@ export const FirmRewardWrapper = ({
             escrow={_escrow}
             onLoad={onLoad}
         />
-    } else if (market.name === 'cvxFXS') {        
+    } else if (market.name === 'cvxFXS') {
         return <FirmCvxFxsRewardWrapperContent
             market={market}
             label={label}
@@ -44,7 +44,7 @@ export const FirmRewardWrapper = ({
             escrow={_escrow}
             onLoad={onLoad}
         />
-    } else if (market.name === 'cvxCRV') {        
+    } else if (market.name === 'cvxCRV') {
         return <FirmCvxCrvRewardWrapperContent
             market={market}
             label={label}
@@ -52,7 +52,7 @@ export const FirmRewardWrapper = ({
             escrow={_escrow}
             onLoad={onLoad}
         />
-    } else if (market.name === 'CVX') {   
+    } else if (market.name === 'CVX') {
         return <FirmCvxRewardWrapperContent
             market={market}
             label={label}
@@ -116,6 +116,13 @@ export const FirmCvxRewardWrapperContent = ({
     onLoad?: (v: number) => void
 }) => {
     const { rewardsInfos, extraRewards, isLoading } = useCvxRewards(escrow);
+    const { balance } = useEscrowBalance(escrow, market.underlying.decimals);
+    const { prices } = usePrices();
+
+    const monthlyRewards = getMonthlyRate(balance||0, market?.supplyApy);
+    const price = prices ? prices['convex-finance']?.usd : 0;
+    const cvxCrvPrice = prices ? prices['convex-crv']?.usd : 0;
+    const cvxCrvEquivalentMonthlyRewards = (monthlyRewards * price) / cvxCrvPrice;
 
     useEffect(() => {
         if (!onLoad || !rewardsInfos?.tokens?.length || isLoading) { return }
@@ -132,6 +139,20 @@ export const FirmCvxRewardWrapperContent = ({
         label={label}
         showMarketBtn={showMarketBtn}
         isLoading={isLoading}
+        showMonthlyRewards={false}
+        extra={
+            cvxCrvPrice > 0 && <VStack alignItems="flex-end" justify="center" w={{ base: 'auto', md: '700px' }}>
+                <InfoMessage
+                    alertProps={{ fontSize: '18px' }}
+                    description={
+                        <VStack alignItems="flex-end">
+                            <Text>Monthly cvxCRV rewards:</Text>
+                            <Text textAlign="right" fontWeight="bold">~{shortenNumber(cvxCrvEquivalentMonthlyRewards, 2)} ({shortenNumber(cvxCrvEquivalentMonthlyRewards * cvxCrvPrice, 2, true)})</Text>
+                        </VStack>
+                    }
+                />
+            </VStack>
+        }
     />
 }
 
