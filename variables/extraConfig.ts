@@ -178,7 +178,7 @@ const mainConfig = {
             badgeInfo: 'Staking Rewards',
             badgeProps: { bgColor: 'accentTextColor', color: 'contrastMainTextColor' },
             hasClaimableRewards: true,            
-            startingBlock: 18075830,
+            startingBlock: 18212771,
             rewardTypeLabel: 'CVX staking APY',
             isInv: false,
         },
