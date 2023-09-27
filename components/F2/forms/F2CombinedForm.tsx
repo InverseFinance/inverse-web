@@ -242,7 +242,8 @@ export const F2CombinedForm = ({
     }
 
     const triggerCollateralAndOrLeverageChange = async (collateralString: string, collateralNum: number) => {
-        if (isDeleverageCase) {
+        handleCollateralChange(collateralString);        
+        if (useLeverageInMode && isDeleverageCase) {
             const desiredWorth = (deposits - collateralNum) * market.price;                                    
             const leverage = (deposits * market.price) / desiredWorth;
             setLeverage(leverage);
@@ -255,12 +256,12 @@ export const F2CombinedForm = ({
             }
             handleDebtChange(Math.abs(dolaAmount).toFixed(2));
             // setLeverageCollateralAmount('');
-        }
-        handleCollateralChange(collateralString);
+        }        
     }
 
-    const triggerDebtAndOrLeverageChange = async (debtString: string, debtNum: number) => {        
-        if (!isDeleverageCase && !!debtNum && debtNum > 0) {
+    const triggerDebtAndOrLeverageChange = async (debtString: string, debtNum: number) => {
+        handleDebtChange(debtString);
+        if (useLeverageInMode && !isDeleverageCase && !!debtNum && debtNum > 0) {
             const baseColAmountForLeverage = deposits > 0 ? deposits : collateralAmountNum;
             const baseWorth = baseColAmountForLeverage * market.price;
             const leverage = (debtNum + baseWorth) / baseWorth;
@@ -273,8 +274,7 @@ export const F2CombinedForm = ({
             }
             setLeverageCollateralAmount(removeTrailingZeros(collateralAmount.toFixed(8)));
             setLeverage(leverage);
-        }
-        handleDebtChange(debtString);
+        }        
     }
 
     const btnLabel = isDeposit ? `Deposit & Borrow` : 'Withdraw';
