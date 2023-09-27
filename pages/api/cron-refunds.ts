@@ -118,7 +118,7 @@ export default async function handler(req, res) {
             !hasFilter || filterType === 'gnosis' ? getTxsOf('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2', deltaDays * 5) : new Promise((r) => r({ data: { items: [] } })),
             !hasFilter || filterType === 'feds' ?
                 throttledPromises(
-                    (f: Fed) => getTxsOf(f.address, deltaDays * 10),
+                    (f: Fed) => getTxsOf(f.address, deltaDays * 3),
                     FEDS.filter(f => f.chainId === NetworkIds.mainnet && !f.hasEnded),
                     // freemium: 5 req per sec
                     5,

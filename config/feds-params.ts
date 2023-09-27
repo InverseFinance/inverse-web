@@ -32,6 +32,7 @@ export const FEDS_PARAMS = [
         protocol: "Fuse",
         address: "0xe3277f1102C1ca248aD859407Ca0cBF128DB0664",
         name: "Fuse6 Fed",
+        hasEnded: true,
         projectImage: "/assets/projects/Fuse.png",
     },
     {
