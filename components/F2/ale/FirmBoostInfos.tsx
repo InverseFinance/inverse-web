@@ -167,6 +167,7 @@ export const FirmBoostInfos = ({
     const minLeverage = 1;
     // const [leverageLevel, setLeverageLevel] = useState(minLeverage || _leverageLevel);
     const [editLeverageLevel, setEditLeverageLevel] = useState(leverageLevel.toString());
+    const [sliderLeverageLevel, setSliderLeverageLevel] = useState(leverageLevel.toString());
     const [debounced, setDebounced] = useState(true);
 
     const boostedApy = (leverageLevel * (market.supplyApy || 0) / 100 - (leverageLevel - 1) * (borrowApy) / 100) * 100;
@@ -200,6 +201,11 @@ export const FirmBoostInfos = ({
         setDebounced(!!editLeverageLevel && (!editLeverageLevel.endsWith('.') || editLeverageLevel === '.') && !isNaN(parseFloat(editLeverageLevel)));
     }, [editLeverageLevel], 500);
 
+    useDebouncedEffect(() => {
+        setDebounced(false);
+        validatePendingLeverage(sliderLeverageLevel);
+    }, [sliderLeverageLevel], 500);
+
     useEffect(() => {
         setEditLeverageLevel(leverageLevel.toFixed(2));
     }, [leverageLevel])
@@ -214,15 +220,22 @@ export const FirmBoostInfos = ({
         setEditLeverageLevel(stringAmount);
     }
 
+    const handleSliderLeverage = (value: string) => {
+        setDebounced(false);
+        setLeverageLevel(value);
+        setSliderLeverageLevel(value);
+    }
+
     const handleKeyPress = (e: any) => {
         if (e.key === 'Enter') {
-            validateEditLeverage();
+            validatePendingLeverage(editLeverageLevel);
         }
     }
 
     const handleLeverageChange = async (v: number) => {
         setDebounced(false);
         setLeverageLevel(v);
+        if(!market.price || v <= 1) return;
         const { dolaAmount, collateralAmount, errorMsg } = await getLeverageImpact({
             setLeverageLoading,
             leverageLevel: parseFloat(v),
@@ -249,8 +262,8 @@ export const FirmBoostInfos = ({
         return !input || isNaN(input) || input < minLeverage || input > maxLeverage;
     }
 
-    const validateEditLeverage = () => {
-        const input = parseFloat(editLeverageLevel);
+    const validatePendingLeverage = (v: string) => {
+        const input = parseFloat(v);
         if (isInvalidLeverage(input)) {
             return;
         }
@@ -297,7 +310,7 @@ export const FirmBoostInfos = ({
                     <Input autocomplete="off" onKeyPress={handleKeyPress} id="boostInput" color={risk.color} py="0" pl="60px" onChange={(e) => handleEditLeverage(e.target.value, minLeverage, maxLeverage)} width="220px" value={editLeverageLevel} min={minLeverage} max={maxLeverage} />
                     {
                         editLeverageLevel !== leverageLevel.toFixed(2) && debounced && !isInvalidLeverage(parseFloat(editLeverageLevel)) &&
-                        <InputRightElement cursor="pointer" transform="translateX(40px)" onClick={() => validateEditLeverage()}
+                        <InputRightElement cursor="pointer" transform="translateX(40px)" onClick={() => validatePendingLeverage(editLeverageLevel)}
                             children={<CheckCircleIcon transition="ease-in-out" transitionDuration="300ms" transitionProperty="color" _hover={{ color: 'success' }} />}
                         />
                     }
@@ -332,7 +345,7 @@ export const FirmBoostInfos = ({
             </HStack>
             <Slider
                 value={leverageLevel}
-                onChange={(v: number) => handleLeverageChange(v)}
+                onChange={(v: number) => handleSliderLeverage(v)}
                 min={minLeverage}
                 max={maxLeverage}
                 step={0.01}
