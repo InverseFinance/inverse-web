@@ -247,6 +247,7 @@ export const F2CombinedForm = ({
             const desiredWorth = (deposits - collateralNum) * market.price;                                    
             const leverage = (deposits * market.price) / desiredWorth;
             setLeverage(leverage);
+            if(!market.price || leverage <= 1) return
             const { dolaAmount, errorMsg } = await getLeverageImpact({
                 deposits, debt, leverageLevel: leverage, market, isUp: false, dolaPrice
             });
@@ -265,6 +266,7 @@ export const F2CombinedForm = ({
             const baseColAmountForLeverage = deposits > 0 ? deposits : collateralAmountNum;
             const baseWorth = baseColAmountForLeverage * market.price;
             const leverage = (debtNum + baseWorth) / baseWorth;
+            if(!market.price || leverage <= 1) return
             const { collateralAmount, errorMsg } = await getLeverageImpact({
                 deposits, debt, leverageLevel: leverage, market, isUp: true, dolaPrice
             });
