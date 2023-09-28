@@ -135,11 +135,7 @@ export const WorthEvoChart = ({
         </VStack>
     }
 
-    const tabOptions = [CHART_TABS.overview, CHART_TABS.collateral];    
-    if (!market.isInv) {
-        tabOptions.push(CHART_TABS.debt);
-        tabOptions.push(CHART_TABS.borrowLimit);
-    }
+    const tabOptions = [CHART_TABS.overview, CHART_TABS.collateral];
     if (market.isInv) {
         if (walletSupportsEvents) {
             tabOptions.push(CHART_TABS.invDbr);
@@ -161,7 +157,7 @@ export const WorthEvoChart = ({
     const [showDbrPrice, setShowDbrPrice] = useState(false);
     const [showStaking, setShowStaking] = useState(false);
     const [showEvents, setShowEvents] = useState(false);
-    const [showDebt, setShowDebt] = useState(!market.isInv);
+    const [showDebt, setShowDebt] = useState(true);
     const [showEventsLabel, setShowEventsLabel] = useState(false);
     const [brushIndexes, setBrushIndexes] = useState({ startIndex: undefined, endIndex: undefined });
     const [actives, setActives] = useState(Object.values(keyNames).reduce((acc, cur) => ({ ...acc, [cur]: true }), {}));
@@ -214,8 +210,8 @@ export const WorthEvoChart = ({
     const containerLabel = `Your Position Evolution in the ${market.name} Market - Beta`;
     const contProps = {
         label: containerLabel,
-        description: market.isInv ? "Daily historical market prices are powered by Coingecko" : "Historical prices according to the pessimistic oracle",
-        href: market.isInv ? `https://www.coingecko.com/en/coins/${market.underlying.coingeckoId}` : undefined,
+        description: market.isInv ? "Historical prices according to the pessimistic oracle (or coingecko if before borrowing was enabled)" : "Historical prices according to the pessimistic oracle",
+        // href: market.isInv ? `https://www.coingecko.com/en/coins/${market.underlying.coingeckoId}` : undefined,
     }
 
     if (isLoading) {

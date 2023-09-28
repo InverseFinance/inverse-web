@@ -107,7 +107,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
 
   const { data, error } = useEtherSWR([
     ...markets.map(m => {
-      return (m.isInv || !account ? [] : [F2_ORACLE, 'viewPrice', m.collateral, getNumberToBn(m.collateralFactor, 4)])
+      return [F2_ORACLE, 'viewPrice', m.collateral, getNumberToBn(m.collateralFactor, 4)];
     }),
     ...markets.map(m => {
       return [m.address, 'collateralFactorBps']
@@ -212,7 +212,7 @@ export const useAccountDBRMarket = (
 
   // inv does not have a valid feed, call will revert
   const { data: accountMarketDataWithValidFeed } = useEtherSWR(
-    !escrow || escrow === BURN_ADDRESS || market.isInv ? [] : [
+    !escrow || escrow === BURN_ADDRESS ? [] : [
       [market.address, 'getCreditLimit', account],
     ]
   );

@@ -81,7 +81,7 @@ export const F2CombinedForm = ({
         setDbrBuySlippage,
         deposits, bnDeposits, debt, bnWithdrawalLimit, bnLeftToBorrow, bnCollateralBalance, collateralBalance, bnDebt,
         newPerc, newCreditLimit,
-        notFirstTime, onFirstTimeModalOpen,        
+        notFirstTime, onFirstTimeModalOpen,
         hasDbrV1NewBorrowIssue, onDbrV1NewBorrowIssueModalOpen,
         firmActionIndex, setFirmActionIndex, setCachedFirmActionIndex,
         newTotalDebtInMarket,
@@ -371,7 +371,7 @@ export const F2CombinedForm = ({
                     !notEnoughToBorrowWithAutobuy && minDebtDisabledCondition && debtAmountNum > 0
                     && <WarningMessage alertProps={{ w: 'full' }} description={
                         !debt ? `You need to borrow at least ${shortenNumber(market.minDebt, 2)} DOLA`
-                        : `When borrowing the resulting debt should be at least ${shortenNumber(market.minDebt, 2)} DOLA`
+                            : `When borrowing the resulting debt should be at least ${shortenNumber(market.minDebt, 2)} DOLA`
                     } />
                 }
                 {
@@ -493,7 +493,7 @@ export const F2CombinedForm = ({
             approveLabel={isAutoDBR && isDeposit ? 'Step 1/3 - Approve' : undefined}
             maxActionLabel={'Unstake all'}
             onAmountChange={handleCollateralChange}
-            showMaxBtn={!!market.isInv && isWithdrawCase}
+            // showMaxBtn={false}
             isDisabled={disabledConditions[MODES[mode]]}
             hideInputIfNoAllowance={false}
             hideInput={true}
@@ -531,13 +531,11 @@ export const F2CombinedForm = ({
                 </FormControl>
             }
             <VStack justify="space-between" position="relative" w='full' px='2%' py="2" alignItems="center" spacing="4">
-                {
-                    !market.isInv && <NavButtons
-                        active={mode}
-                        options={isDeposit ? inOptions : outOptions}
-                        onClick={(v) => setMode(v)}
-                    />
-                }
+                <NavButtons
+                    active={mode}
+                    options={isDeposit ? inOptions : outOptions}
+                    onClick={(v) => setMode(v)}
+                />
                 <Stack justify="space-between" w='full' spacing="4" direction={{ base: 'column' }}>
                     {leftPart}
                     {['d&b', 'borrow'].includes(MODES[mode]) && isAutoDBR && <Divider borderColor="#cccccc66" />}

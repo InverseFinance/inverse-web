@@ -99,7 +99,7 @@ export default async function handler(req, res) {
         firmMarketUsers.map((f, i) => {
           const market = new Contract(F2_MARKETS[f.marketIndex].address, F2_MARKET_ABI, provider);            
           // placeholder debts call for the inv market meanwhile oracle feed is invalid
-          return { contract: market, functionName: F2_MARKETS[f.marketIndex].isInv ? 'debts' : 'getCreditLimit', params: [f.user] };
+          return { contract: market, functionName: 'getCreditLimit', params: [f.user] };
         }),
       ]
     );

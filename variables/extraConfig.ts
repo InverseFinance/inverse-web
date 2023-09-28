@@ -114,7 +114,7 @@ const mainConfig = {
             escrowImplementation: FIRM_ESCROWS.INV,            
             helper: true,
             isInv: true,
-            oracleType: "twap",
+            oracleType: "curve-ema",
             badgeInfo: 'DBR Real yield',
             badgeProps: { bgColor: 'info', color: 'contrastMainTextColor' },
             hasClaimableRewards: true,
