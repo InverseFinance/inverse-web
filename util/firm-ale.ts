@@ -54,12 +54,12 @@ export const prepareLeveragePosition = async (
         const permitData = [deadline, v, r, s];
         const helperTransformData = '0x';
         // dolaIn, minDbrOut
-        const dbrData = [dbrInputs.dolaParam, dbrInputs.dbrParam];        
+        const dbrData = [dbrInputs.dolaParam, dbrInputs.dbrParam, '0'];        
         if (initialDeposit && initialDeposit.gt(0)) {
             return depositAndLeveragePosition(
                 signer,
                 dolaToBorrowToBuyCollateral,
-                buyTokenAddress,
+                market.address,
                 allowanceTarget,
                 swapData,
                 permitData,
@@ -70,7 +70,7 @@ export const prepareLeveragePosition = async (
             )
         }
         return leveragePosition(
-            signer, dolaToBorrowToBuyCollateral, buyTokenAddress, allowanceTarget, swapData, permitData, helperTransformData, dbrData, value,
+            signer, dolaToBorrowToBuyCollateral, market.address, allowanceTarget, swapData, permitData, helperTransformData, dbrData, value,
         );
     }
     return Promise.reject("Signature failed or canceled");
@@ -79,7 +79,7 @@ export const prepareLeveragePosition = async (
 export const leveragePosition = (
     signer: JsonRpcSigner,
     dolaToBorrow: BigNumber,
-    buyAd: string,
+    marketAd: string,
     zeroXspender: string,
     swapData: string,
     permitTuple: any[],
@@ -88,13 +88,13 @@ export const leveragePosition = (
     ethValue?: string,
 ) => {
     return getAleContract(signer)
-        .leveragePosition(dolaToBorrow, buyAd, zeroXspender, swapData, permitTuple, helperTransformData, dbrTuple, { value: ethValue });
+        .leveragePosition(dolaToBorrow, marketAd, zeroXspender, swapData, permitTuple, helperTransformData, dbrTuple, { value: ethValue });
 }
 
 export const depositAndLeveragePosition = (
     signer: JsonRpcSigner,
     dolaToBorrow: BigNumber,
-    buyAd: string,
+    marketAd: string,
     zeroXspender: string,
     swapData: string,
     permitTuple: any[],
@@ -104,7 +104,7 @@ export const depositAndLeveragePosition = (
     ethValue?: string,
 ) => {
     return getAleContract(signer)
-        .depositAndLeveragePosition(initialDeposit, dolaToBorrow, buyAd, zeroXspender, swapData, permitTuple, helperTransformData, dbrTuple, { value: ethValue });
+        .depositAndLeveragePosition(initialDeposit, dolaToBorrow, marketAd, zeroXspender, swapData, permitTuple, helperTransformData, dbrTuple, { value: ethValue });
 }
 
 export const prepareDeleveragePosition = async (
@@ -148,7 +148,7 @@ export const prepareDeleveragePosition = async (
         return deleveragePosition(
             signer,
             minDolaAmountFromSwap,
-            sellTokenAddress,
+            market.address,
             collateralToWithdraw,
             allowanceTarget,
             swapData,
@@ -164,7 +164,7 @@ export const prepareDeleveragePosition = async (
 export const deleveragePosition = async (
     signer: JsonRpcSigner,
     dolaToRepay: BigNumber,
-    sellAd: string,
+    marketAd: string,
     amountToWithdraw: BigNumber,
     zeroXspender: string,
     swapData: string,
@@ -176,7 +176,7 @@ export const deleveragePosition = async (
     return getAleContract(signer)
         .deleveragePosition(
             dolaToRepay,
-            sellAd,
+            marketAd,
             amountToWithdraw,
             zeroXspender,
             swapData,
