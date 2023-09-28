@@ -77,6 +77,7 @@ export const F2Context = ({
     const [needRefreshRewards, setNeedRefreshRewards] = useState(true);
     const [useLeverage, setUseLeverage] = useState(false);
     const [leverage, setLeverage] = useState(1);
+    const [leverageLoading, setLeverageLoading] = useState(false);
     const [mode, setMode] = useState('Deposit & Borrow');
     
     const [infoTab, setInfoTab] = useState('Summary');
@@ -347,6 +348,8 @@ export const F2Context = ({
             setLeverageCollateralAmount,
             leverageCollateralAmount,
             leverageCollateralAmountNum,
+            leverageLoading,
+            setLeverageLoading,
             isFirstTimeModalOpen,
             firmActionIndex,
             setFirmActionIndex,
