@@ -402,13 +402,13 @@ export const getDBRRiskColor = (timestamp: number, comparedTo: number) => {
 
 export const getDbrPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3Provider) => {
     const crvPool = new Contract(
-        '0x056ef502c1fc5335172bc95ec4cae16c2eb9b5b6',
-        ['function price_oracle() public view returns(uint)',],
+        '0xC7DE47b9Ca2Fc753D6a2F167D8b3e19c6D18b19a',
+        ['function price_oracle(uint) public view returns(uint)'],
         SignerOrProvider,
     );
-    const dolaPriceInDbr = await crvPool.price_oracle();
-    const priceInDola = 1 / getBnToNumber(dolaPriceInDbr);
-    return { priceInDolaBn: getNumberToBn(priceInDola), priceInDola: priceInDola };
+    const priceInDolaBn = await crvPool.price_oracle('0');
+    const priceInDola = getBnToNumber(priceInDolaBn);
+    return { priceInDolaBn: priceInDolaBn, priceInDola: priceInDola };
 }
 
 export const getDolaUsdPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3Provider) => {
