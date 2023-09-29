@@ -13,7 +13,7 @@ import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { FEATURE_FLAGS } from '@app/config/features';
 
 const { F2_MARKETS, DOLA, XINV, DBR_DISTRIBUTOR, FEDS } = getNetworkConfigConstants();
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.95`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.96`;
 
 export default async function handler(req, res) {
   const { cacheFirst } = req.query;
@@ -107,27 +107,27 @@ export default async function handler(req, res) {
 
     const today = new Date();
     const dayIndexUtc = Math.floor(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 0, 0, 0) / ONE_DAY_MS);
-
+    
     const [dailyLimits, dailyBorrows, minDebtsBn, bnPrices, oracleFeeds] = await getGroupedMulticallOutputs([
       borrowControllers.map((bc, i) => {
         const bcContract = new Contract(bc, F2_CONTROLLER_ABI, provider);
-        return { contract: bcContract, functionName: 'dailyLimits', params: [F2_MARKETS[i].address], forceFallback: bc === BURN_ADDRESS, fallbackValue: BigNumber.from('0') }
+        return { contract: bcContract, functionName: 'dailyLimits', params: [F2_MARKETS[i].address], forceFallback: bc === BURN_ADDRESS || !bc, fallbackValue: BigNumber.from('0') }
       }),
       borrowControllers.map((bc, i) => {
         const bcContract = new Contract(bc, F2_CONTROLLER_ABI, provider);
-        return { contract: bcContract, functionName: 'dailyBorrows', params: [F2_MARKETS[i].address, dayIndexUtc], forceFallback: bc === BURN_ADDRESS, fallbackValue: BigNumber.from('0') }
+        return { contract: bcContract, functionName: 'dailyBorrows', params: [F2_MARKETS[i].address, dayIndexUtc], forceFallback: bc === BURN_ADDRESS || !bc, fallbackValue: BigNumber.from('0') }
       }),      
       borrowControllers.map((bc, i) => {
         const bcContract = new Contract(bc, F2_CONTROLLER_ABI, provider);
-        return { contract: bcContract, functionName: 'minDebts', params: [F2_MARKETS[i].address], forceFallback: bc === BURN_ADDRESS || !FEATURE_FLAGS.firmMinDebt, fallbackValue: BigNumber.from('0') }
+        return { contract: bcContract, functionName: 'minDebts', params: [F2_MARKETS[i].address], forceFallback: bc === BURN_ADDRESS || !FEATURE_FLAGS.firmMinDebt || !bc, fallbackValue: BigNumber.from('0') }
       }),
       oracles.map((o, i) => {
         const oracle = new Contract(o, F2_ORACLE_ABI, provider);
-        return { contract: oracle, functionName: 'viewPrice', params: [F2_MARKETS[i].collateral, bnCollateralFactors[i]], forceFallback: F2_MARKETS[i].isInv, fallbackValue: BigNumber.from('0') }
+        return { contract: oracle, functionName: 'viewPrice', params: [F2_MARKETS[i].collateral, bnCollateralFactors[i]], forceFallback: !o, fallbackValue: BigNumber.from('0') }
       }),
       oracles.map((o, i) => {
         const oracle = new Contract(o, F2_ORACLE_ABI, provider);
-        return { contract: oracle, functionName: 'feeds', params: [F2_MARKETS[i].collateral] }
+        return { contract: oracle, functionName: 'feeds', params: [F2_MARKETS[i].collateral], forceFallback: !o, fallbackValue: BURN_ADDRESS }
       }),
     ]);
 
@@ -186,7 +186,7 @@ export default async function handler(req, res) {
         oracle: oracles[i],
         oracleFeed: oracleFeeds[i][0],
         underlying: TOKENS[m.collateral],
-        price: m.isInv ? cgPrices[underlying.coingeckoId]?.usd : getBnToNumber(bnPrices[i], (36 - underlying.decimals)),
+        price: getBnToNumber(bnPrices[i], (36 - underlying.decimals)),
         totalDebt: getBnToNumber(bnTotalDebts[i]),
         collateralFactor: getBnToNumber(bnCollateralFactors[i], 4),
         dolaLiquidity: getBnToNumber(bnDola[i]),
