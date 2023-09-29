@@ -1,6 +1,6 @@
 import { Contract } from 'ethers'
 import 'source-map-support'
-import { INV_ABI, VESTER_FACTORY_ABI, XINV_ABI } from '@app/config/abis'
+import { INV_ABI, XINV_ABI } from '@app/config/abis'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { getNetworkConfigConstants } from '@app/util/networks';
@@ -8,6 +8,7 @@ import { getBnToNumber } from '@app/util/markets'
 import { BLOCKS_PER_DAY, CHAIN_ID } from '@app/config/constants';
 import { throttledPromises } from '@app/util/misc';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
+import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
 
 const {
   TREASURY,
@@ -44,7 +45,7 @@ const VESTERS = [
 ];
 
 export default async function handler(req, res) {
-  const cacheKey = `inv-circ-supply-evolution-v1.0.0`;
+  const cacheKey = `inv-circ-supply-evolution-v1.0.2`;
 
   try {
     const cacheDuration = 3600;
@@ -60,13 +61,22 @@ export default async function handler(req, res) {
     const currentBlock = await provider.getBlockNumber();
     const contract = new Contract(process.env.NEXT_PUBLIC_REWARD_TOKEN!, INV_ABI, provider);
     const xinvContract = new Contract(process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN!, XINV_ABI, provider);
-    const vesterFa
 
-    const startBlock = 16155758;
+    const archived = validCache || { blocks: [], timestamps: [], evolution: [] };
+    const lastArchivedBlock = archived.blocks.length > 0 ? archived.blocks[archived.blocks.length - 1] : 16155758;
+
+    const startingBlock = lastArchivedBlock + 1 < currentBlock ? lastArchivedBlock + 1 : currentBlock;
+
     const intIncrement = Math.floor(BLOCKS_PER_DAY*30);
-    const nbDays = (currentBlock - startBlock) / intIncrement;
-    const blocks = Array.from({ length: nbDays }, (_, i) => startBlock + i * intIncrement).filter(b => b < (currentBlock-1));
-    blocks.push(currentBlock-1)
+    const nbDays = (currentBlock - startingBlock) / intIncrement;
+    const blocks = Array.from({ length: nbDays }, (_, i) => startingBlock + i * intIncrement).filter(b => b < (currentBlock));
+    blocks.push(currentBlock);
+
+    await addBlockTimestamps(
+      blocks,
+      '1',
+    );
+    const cachedTimestamps = await getCachedBlockTimestamps();
 
     const batchedData = await throttledPromises(
       (block: number) => {
@@ -116,10 +126,13 @@ export default async function handler(req, res) {
       return circulatingSupply;
     });
 
+    const timestamps = blocks.map(b => cachedTimestamps[CHAIN_ID][b] * 1000);
+
     const result = {
       timestamp: Date.now(),
-      bloks: blocks,
-      evolution,
+      blocks: archived.blocks.concat(blocks),
+      timestamps: archived.timestamps.concat(timestamps),
+      evolution: archived.evolution.concat(evolution),
     }
 
     await redisSetWithTimestamp(cacheKey, result);
