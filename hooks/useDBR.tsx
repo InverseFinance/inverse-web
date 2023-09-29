@@ -314,17 +314,15 @@ export const useDBRBalancePrice = (): { price: number | undefined } => {
 export const useDBRPriceLive = (): { price: number | undefined } => {
   const { data } = useEtherSWR({
     args: [
-      ['0x056ef502c1fc5335172bc95ec4cae16c2eb9b5b6', 'price_oracle'],
+      ['0xC7DE47b9Ca2Fc753D6a2F167D8b3e19c6D18b19a', 'price_oracle', '0'],
     ],
     abi: [
-      'function price_oracle() public view returns(uint)',
+      'function price_oracle(uint) public view returns(uint)',
     ],
   });
 
-  const priceInDbr = data && data[0] ? getBnToNumber(data[0]) : undefined;
-
   return {
-    price: priceInDbr ? (1 / priceInDbr) : undefined,
+    price: data && data[0] ? getBnToNumber(data[0]) : undefined,
   }
 }
 
@@ -332,7 +330,7 @@ export const useDBRSwapPrice = (dolaWorthOfDbrAsk = '1000'): { price: number | u
   const _ask = dolaWorthOfDbrAsk?.toString() === '0' ? '1000' : dolaWorthOfDbrAsk;
   const { data } = useEtherSWR({
     args: [
-      ['0x056ef502c1fc5335172bc95ec4cae16c2eb9b5b6', 'get_dy', 1, 0, parseUnits(_ask)],
+      ['0xC7DE47b9Ca2Fc753D6a2F167D8b3e19c6D18b19a', 'get_dy', 1, 0, parseUnits(_ask)],
     ],
     abi: ['function get_dy(uint i, uint j, uint dx) public view returns(uint)'],
   });
