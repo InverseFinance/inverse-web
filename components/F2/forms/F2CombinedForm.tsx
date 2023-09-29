@@ -23,6 +23,7 @@ import { BUY_LINKS } from '@app/config/constants'
 import { Input } from '@app/components/common/Input'
 import { DBRAutoRepayCalculator } from '../DBRAutoRepayCalculator'
 import { FEATURE_FLAGS } from '@app/config/features'
+import { preciseCommify } from '@app/util/misc'
 
 const { DOLA, F2_HELPER, DBR } = getNetworkConfigConstants();
 
@@ -370,7 +371,7 @@ export const F2CombinedForm = ({
                 {
                     !notEnoughToBorrowWithAutobuy && minDebtDisabledCondition && debtAmountNum > 0
                     && <WarningMessage alertProps={{ w: 'full' }} description={
-                        !debt ? `You need to borrow at least ${shortenNumber(market.minDebt, 2)} DOLA`
+                        !debt ? `You need to borrow at least ${preciseCommify(market.minDebt, 0)} DOLA`
                             : `When borrowing the resulting debt should be at least ${shortenNumber(market.minDebt, 2)} DOLA`
                     } />
                 }
@@ -479,6 +480,7 @@ export const F2CombinedForm = ({
     disabledConditions['d&b'] = disabledConditions['deposit'] || disabledConditions['borrow'] || !parseFloat(dbrBuySlippage);
     disabledConditions['r&w'] = disabledConditions['repay'] || disabledConditions['withdraw']
 
+    const modeLabel = mode.replace(/deposit/i, 'Stake').replace(/withdraw/i, 'Unstake');
     const actionBtn = <HStack>
         <SimpleAmountForm
             defaultAmount={isRepayCase ? debtAmount : collateralAmount}
@@ -489,11 +491,11 @@ export const F2CombinedForm = ({
             maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
             onAction={({ bnAmount }) => handleAction()}
             onMaxAction={({ bnAmount }) => handleWithdrawMax()}
-            actionLabel={isSigNeeded ? `Sign + ${mode}` : market.isInv ? isDeposit ? 'Stake' : 'Unstake' : mode}
+            actionLabel={isSigNeeded ? `Sign + ${modeLabel}` : modeLabel}
             approveLabel={isAutoDBR && isDeposit ? 'Step 1/3 - Approve' : undefined}
             maxActionLabel={'Unstake all'}
             onAmountChange={handleCollateralChange}
-            // showMaxBtn={false}
+            showMaxBtn={market.isInv && isWithdrawCase}
             isDisabled={disabledConditions[MODES[mode]]}
             hideInputIfNoAllowance={false}
             hideInput={true}
