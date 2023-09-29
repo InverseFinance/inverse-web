@@ -160,7 +160,9 @@ const chainTokenAddresses = {
     CASHDOLASATLP: '0x2c5BE0526343A5057B2e10372e64845d666e7140',
     USDC: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
     USDR: '0xb5DFABd7fF7F83BAB83995E72A52B97ABb7bcf63',
+    RUSDR: '0x40379a439D4F6795B6fc9aa5687dB461677A2dBa',
     DOLAUSDRPEARLLP: '0x394DeB5c87e1df9aa7400e99F5cd27a0cD0A64f2',
+    DOLAUSDRPEARLLP2: '0x8B0630Cb57d8E63444E97C19a2e82Bb1988399e2',
   },
   "42161": {
     DOLA: '0x6A7661795C374c0bFC635934efAddFf3A7Ee23b6',
@@ -1468,6 +1470,14 @@ const chainTokens = {
       decimals: 9,
       coingeckoId: 'wrapped-usdr',
     },
+    [chainTokenAddresses["137"].RUSDR]: {
+      address: chainTokenAddresses["137"].RUSDR,
+      name: 'RUSDR',
+      symbol: 'RUSDR',
+      image: TOKEN_IMAGES['RUSDR'],
+      decimals: 9,
+      coingeckoId: 'real-usd',
+    },
     [chainTokenAddresses["137"].DOLAUSDRPEARLLP]: {
       address: chainTokenAddresses["137"].DOLAUSDRPEARLLP,
       name: 'DOLA-USDR plp',
@@ -1479,6 +1489,20 @@ const chainTokens = {
       isVeloLP: true,
       pairs: [
         chainTokenAddresses["137"].USDR, chainTokenAddresses["137"].DOLA
+      ],
+      protocolImage: PROTOCOL_IMAGES.PEARL,
+    },
+    [chainTokenAddresses["137"].DOLAUSDRPEARLLP2]: {
+      address: chainTokenAddresses["137"].DOLAUSDRPEARLLP2,
+      name: 'DOLA-USDR plp',
+      symbol: 'DOLA-USDR newplp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isVeloLP: true,
+      pairs: [
+        chainTokenAddresses["137"].RUSDR, chainTokenAddresses["137"].DOLA
       ],
       protocolImage: PROTOCOL_IMAGES.PEARL,
     },
