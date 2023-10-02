@@ -11,6 +11,7 @@ import { DbrEmissions } from "./DbrEmissions";
 import { useDBRPrice } from "@app/hooks/useDBR";
 import { shortenNumber } from "@app/util/markets";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
+import { useHistoricalInvMarketCap } from "@app/hooks/useHistoricalMarketCap";
 
 const streamingStartTs = 1684713600000;
 
@@ -34,6 +35,8 @@ export const DbrAll = ({
 }) => {
     const [useUsd, setUseUsd] = useState(false);
     const { prices: invHistoPrices } = useHistoricalPrices('inverse-finance');
+    const { evolution: circSupplyEvolution } = useHistoricalInvMarketCap();
+    const circSupplyAsObj = !!circSupplyEvolution ? circSupplyEvolution.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr.timestamp)]: curr.circSupply }), {}) : {};
     const invHistoPricesAsObj = !!invHistoPrices ? invHistoPrices.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr[0])]: curr[1] }), {}) : {};
     const { price: dbrPrice } = useDBRPrice();
 
@@ -75,6 +78,8 @@ export const DbrAll = ({
         const date = timestampToUTC(d.timestamp);
         const histoPrice = (histoPrices[date] || 0.05);
         const invHistoPrice = (invHistoPricesAsObj[date] || 0);
+        const invHistoCircSupply = (circSupplyAsObj[date] || 0);
+        const invHistoMarketCap = invHistoPrice * invHistoCircSupply;
         const yearlyRewardRate = rateChanges.findLast(rd => date >= rd.date)?.yearlyRewardRate || 0;
         return {
             ...d,
@@ -83,7 +88,7 @@ export const DbrAll = ({
             debt: d.debt,
             debtUsd: d.debt * histoPrice,
             histoPrice,
-            invHistoPrice,
+            invHistoMarketCap,
             yearlyRewardRate,
             yearlyRewardRateUsd: yearlyRewardRate * histoPrice,
         }

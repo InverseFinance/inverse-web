@@ -45,10 +45,10 @@ const VESTERS = [
 ];
 
 export default async function handler(req, res) {
-  const cacheKey = `inv-circ-supply-evolution-v1.0.2`;
+  const cacheKey = `inv-circ-supply-evolution-v1.0.3`;
 
   try {
-    const cacheDuration = 3600;
+    const cacheDuration = 10000;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
 
@@ -62,15 +62,17 @@ export default async function handler(req, res) {
     const contract = new Contract(process.env.NEXT_PUBLIC_REWARD_TOKEN!, INV_ABI, provider);
     const xinvContract = new Contract(process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN!, XINV_ABI, provider);
 
-    const archived = validCache || { blocks: [], timestamps: [], evolution: [] };
+    const archived = validCache || { blocks: [], timestampsSec: [], evolution: [] };
     const lastArchivedBlock = archived.blocks.length > 0 ? archived.blocks[archived.blocks.length - 1] : 16155758;
 
     const startingBlock = lastArchivedBlock + 1 < currentBlock ? lastArchivedBlock + 1 : currentBlock;
 
-    const intIncrement = Math.floor(BLOCKS_PER_DAY*30);
+    const intIncrement = Math.floor(BLOCKS_PER_DAY);
     const nbDays = (currentBlock - startingBlock) / intIncrement;
-    const blocks = Array.from({ length: nbDays }, (_, i) => startingBlock + i * intIncrement).filter(b => b < (currentBlock));
-    blocks.push(currentBlock);
+    const blocks = Array.from({ length: Math.ceil(nbDays) }, (_, i) => startingBlock + i * intIncrement).filter(b => b < (currentBlock));
+    if(nbDays > 0.25) {
+      blocks.push(currentBlock);
+    }
 
     await addBlockTimestamps(
       blocks,
@@ -126,12 +128,12 @@ export default async function handler(req, res) {
       return circulatingSupply;
     });
 
-    const timestamps = blocks.map(b => cachedTimestamps[CHAIN_ID][b] * 1000);
+    const timestampsSec = blocks.map(b => cachedTimestamps[CHAIN_ID][b]);
 
     const result = {
       timestamp: Date.now(),
       blocks: archived.blocks.concat(blocks),
-      timestamps: archived.timestamps.concat(timestamps),
+      timestampsSec: archived.timestampsSec.concat(timestampsSec),
       evolution: archived.evolution.concat(evolution),
     }
 
