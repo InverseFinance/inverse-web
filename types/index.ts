@@ -741,6 +741,7 @@ export type F2Market = {
   claimMethod?: string
   borrowingWasDisabledBeforeBlock?: number
   minDebt: number
+  ceiling: number
 }
 
 export type FirmAction = {

@@ -225,9 +225,21 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
                 value: `${shortenNumber(market.replenishmentIncentive * 100, 2)}%`,
             },
             {
+                tooltip: 'Maximum amount of DOLA allowed to be borrowed in this market, the Fed Chair can provide liquidity in the market that is less or equal to this limit.',
+                title: 'Borrowing ceiling',
+                value: `${preciseCommify(market.ceiling, 0)}`,
+            },
+        ],
+        [
+            {
                 tooltip: 'Liquidation incentive to liquidate shortfalling loans',
                 title: 'Liquidation Incentive',
                 value: `${shortenNumber(market.liquidationIncentive * 100, 2)}%`,
+            },
+            {
+                tooltip: 'Percentage that can be liquidated in one liquidation',
+                title: 'Liquidation factor',
+                value: `${shortenNumber(market.liquidationFactor * 100, 2)}%`,
             },
         ],
     ]

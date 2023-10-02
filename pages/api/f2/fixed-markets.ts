@@ -1,6 +1,6 @@
 import { BigNumber, Contract } from 'ethers'
 import 'source-map-support'
-import { DBR_DISTRIBUTOR_ABI, DOLA_ABI, F2_CONTROLLER_ABI, F2_MARKET_ABI, F2_ORACLE_ABI, XINV_ABI } from '@app/config/abis'
+import { DBR_DISTRIBUTOR_ABI, DOLA_ABI, F2_CONTROLLER_ABI, F2_MARKET_ABI, F2_ORACLE_ABI, FIRM_FED_ABI, XINV_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
@@ -12,7 +12,7 @@ import { cgPricesCacheKey } from '../prices';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { FEATURE_FLAGS } from '@app/config/features';
 
-const { F2_MARKETS, DOLA, XINV, DBR_DISTRIBUTOR } = getNetworkConfigConstants();
+const { F2_MARKETS, DOLA, XINV, DBR_DISTRIBUTOR, FEDS } = getNetworkConfigConstants();
 export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.95`;
 
 export default async function handler(req, res) {
@@ -31,6 +31,8 @@ export default async function handler(req, res) {
 
     const xINV = new Contract(XINV, XINV_ABI, provider);
     const dbrDistributor = new Contract(DBR_DISTRIBUTOR, DBR_DISTRIBUTOR_ABI, provider);
+    const firmFed = FEDS.find((f) => f.isFirm)!;
+    const firmFedContract = new Contract(firmFed.address, FIRM_FED_ABI, provider);
 
     // trigger
     fetch('https://inverse.finance/api/markets');
@@ -79,6 +81,9 @@ export default async function handler(req, res) {
         { contract: xINV, functionName: 'exchangeRateStored' },
         { contract: dbrDistributor, functionName: 'totalSupply' },
         { contract: dbrDistributor, functionName: 'rewardRate' },
+        F2_MARKETS.map(m => {          
+          return { contract: firmFedContract, functionName: 'ceilings', params: [m.address] }
+        }),
       ]),
       getCacheFromRedis(frontierMarketsCacheKey, false),
       getCacheFromRedis(cgPricesCacheKey, false),
@@ -97,6 +102,7 @@ export default async function handler(req, res) {
       xinvExRateBn,
       dbrDistributorSupply,
       dbrRewardRateBn,
+      ceilings,
      ] = groupedMulticallData;
 
     const today = new Date();
@@ -203,6 +209,7 @@ export default async function handler(req, res) {
         dbrRewardRate: m.isInv ? dbrRewardRate : undefined,
         dbrYearlyRewardRate: m.isInv ? dbrYearlyRewardRate : undefined,
         minDebt: getBnToNumber(minDebtsBn[i]),
+        ceiling: getBnToNumber(ceilings[i]),
       }
     });
 
