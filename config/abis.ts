@@ -212,6 +212,7 @@ export const FIRM_FED_ABI = [
   "function chair() public view returns (address)",
   "function gov() public view returns (address)",
   "function globalSupply() public view returns (uint256)",
+  "function ceilings(address) public view returns (uint256)",
   "event Expansion (address indexed market, uint256 amount)",
   "event Contraction (address indexed market, uint256 amount)",
 ]
