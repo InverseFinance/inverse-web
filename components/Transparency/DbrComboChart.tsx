@@ -12,6 +12,7 @@ const KEYS = {
     ISSUANCE: 'Annualized issuance',
     DBR_PRICE: 'DBR Price',
     INV_PRICE: 'INV Price',
+    INV_MC: 'INV Circ. MC',
 }
 
 export const DbrComboChart = ({
@@ -37,7 +38,7 @@ export const DbrComboChart = ({
         [KEYS.BURN]: true,
         [KEYS.ISSUANCE]: true,
         [KEYS.DBR_PRICE]: true,
-        [KEYS.INV_PRICE]: false,
+        [KEYS.INV_MC]: false,
     })
 
     const _axisStyle = axisStyle || {
@@ -56,13 +57,13 @@ export const DbrComboChart = ({
     const toggleChart = (params) => {
         setActives({
             ...actives,
-            [KEYS.INV_PRICE]: params.value === KEYS.DBR_PRICE ? false : actives[KEYS.INV_PRICE],
-            [KEYS.DBR_PRICE]: params.value === KEYS.INV_PRICE ? false : actives[KEYS.DBR_PRICE],
+            [KEYS.INV_MC]: params.value === KEYS.DBR_PRICE ? false : actives[KEYS.INV_MC],
+            [KEYS.DBR_PRICE]: params.value === KEYS.INV_MC ? false : actives[KEYS.DBR_PRICE],
             [params.value]: !actives[params.value],
         });
     }
 
-    const priceKey = actives[KEYS.DBR_PRICE] ? 'histoPrice' : 'invHistoPrice';
+    const priceKey = actives[KEYS.DBR_PRICE] ? 'histoPrice' : 'invHistoMarketCap';
     const dbrPriceColor = themeStyles.colors.info;
     const invPriceColor = themeName === 'light' ? themeStyles.colors.mainTextColor : 'lightblue';
 
@@ -95,8 +96,8 @@ export const DbrComboChart = ({
                 <XAxis minTickGap={28} interval="preserveStartEnd" style={_axisStyle.tickLabels} dataKey="timestamp" scale="time" type={'number'} allowDataOverflow={true} domain={['dataMin', 'dataMax']} tickFormatter={(v) => {
                     return moment(v).format('MMM Do')
                 }} />
-                <YAxis style={_axisStyle.tickLabels} yAxisId="left" tickFormatter={(v) => smartShortNumber(v, 2, useUsd)} />
-                <YAxis style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => shortenNumber(v, 4, true)} />
+                <YAxis opacity={(actives[KEYS.BURN] || actives[KEYS.ISSUANCE]) ? 1 : 0} style={_axisStyle.tickLabels} yAxisId="left" tickFormatter={(v) => smartShortNumber(v, 2, useUsd)} />
+                <YAxis opacity={(actives[KEYS.DBR_PRICE] || actives[KEYS.INV_MC]) ? 1 : 0} style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => shortenNumber(v, 4, true)} />
                 <Tooltip
                     wrapperStyle={_axisStyle.tickLabels}
                     labelFormatter={v => moment(v).format('MMM Do YYYY')}
@@ -104,15 +105,15 @@ export const DbrComboChart = ({
                     itemStyle={{ fontWeight: 'bold' }}
                     formatter={(value, name, d) => {
                         // trick to show both price without messing up right axis by showing both price lines
-                        const _value = name === KEYS.INV_PRICE ? d.payload.invHistoPrice : name === KEYS.DBR_PRICE ? d.payload.histoPrice : value;
-                        const isPrice = /price/i.test(name);
+                        const _value = name === KEYS.INV_MC ? d.payload.invHistoMarketCap : name === KEYS.DBR_PRICE ? d.payload.histoPrice : value;
+                        const isPrice = /price|MC/i.test(name);
                         return !_value ? 'none' : isPrice ? shortenNumber(_value, 4, true) : preciseCommify(_value, 0, useUsd)
                     }}
                 />
                 <Area opacity={actives[KEYS.BURN] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.BURN} yAxisId="left" type="monotone" dataKey={useUsd ? 'debtUsd' : 'debt'} stroke={themeStyles.colors.warning} dot={false} fillOpacity={1} fill="url(#warning-gradient)" />
                 <Area opacity={actives[KEYS.ISSUANCE] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.ISSUANCE} yAxisId="left" type="monotone" dataKey={useUsd ? 'yearlyRewardRateUsd' : 'yearlyRewardRate'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={1} fill="url(#secondary-gradient)" />
                 <Line opacity={actives[KEYS.DBR_PRICE] ? 1 : 0} strokeWidth={2} name={KEYS.DBR_PRICE} yAxisId="right" type="monotone" dataKey={priceKey} stroke={dbrPriceColor} dot={false} />
-                <Line opacity={actives[KEYS.INV_PRICE] ? 1 : 0} strokeWidth={2} name={KEYS.INV_PRICE} yAxisId="right" type="monotone" dataKey={priceKey} stroke={invPriceColor} dot={false} />
+                <Line opacity={actives[KEYS.INV_MC] ? 1 : 0} strokeWidth={2} name={KEYS.INV_MC} yAxisId="right" type="monotone" dataKey={priceKey} stroke={invPriceColor} dot={false} />
                 <Legend wrapperStyle={legendStyle} onClick={toggleChart} style={{ cursor: 'pointer' }} formatter={(value) => value + (actives[value] ? '' : ' (hidden)')} />
                 {zoomReferenceArea}
             </ComposedChart>
