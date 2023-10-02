@@ -155,7 +155,7 @@ export const NavButtons = ({ options, textProps, active, onClick, isStaking, bgC
         bgColor={option === active ? bgColorActive : bgColor}
         {...textProps}
       >
-        {isStaking ? option.replace('Supply', 'Stake').replace('Withdraw', 'Unstake') : option}
+        {isStaking ? option.replace(/supply|deposit/i, 'Stake').replace(/withdraw/i, 'Unstake') : option}
       </Flex>
     ))}
   </Flex>

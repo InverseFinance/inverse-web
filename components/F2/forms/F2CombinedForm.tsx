@@ -104,7 +104,7 @@ export const F2CombinedForm = ({
 
     const handleWithdrawMax = () => {
         if (!signer) { return }
-        f2withdrawMax(signer, market.address);
+        return f2withdrawMax(signer, market.address);
     }
 
     const handleAction = async () => {
@@ -225,7 +225,7 @@ export const F2CombinedForm = ({
     const btnLabel = isDeposit ? `Deposit & Borrow` : 'Withdraw';
     const btnMaxlabel = `${btnLabel} Max`;
     const notEnoughToBorrowWithAutobuy = isBorrowCase && market.leftToBorrow > 1 && deltaDebt > 0 && market.leftToBorrow < (isAutoDBR ? deltaDebt + (dbrCoverDebt * (1 + parseFloat(dbrBuySlippage || 0) / 100)) : deltaDebt);
-    const minDebtDisabledCondition = FEATURE_FLAGS.firmMinDebt && newTotalDebtInMarket < market.minDebt;
+    const minDebtDisabledCondition = FEATURE_FLAGS.firmMinDebt && newTotalDebtInMarket > 0 && newTotalDebtInMarket < market.minDebt;
 
     const leftPart = <Stack direction={{ base: 'column' }} spacing="4" w='full' >
         {
@@ -537,6 +537,7 @@ export const F2CombinedForm = ({
                     active={mode}
                     options={isDeposit ? inOptions : outOptions}
                     onClick={(v) => setMode(v)}
+                    isStaking={market.isInv}
                 />
                 <Stack justify="space-between" w='full' spacing="4" direction={{ base: 'column' }}>
                     {leftPart}
