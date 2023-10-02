@@ -16,7 +16,7 @@ const maxWidth = 1200;
 
 const useFirmUserPositionEvolution = (
     market: F2Market,
-    priceRef: 'oracleHistoPrice' | 'cgHistoPrice' = 'oracleHistoPrice',
+    priceRef: 'oracleHistoPrice' | 'cgHistoPrice' | 'comboPrice' = 'oracleHistoPrice',
     currentClaimableDbrRewards = 0,
 ) => {
     const account = useAccount();
@@ -56,12 +56,13 @@ const useFirmUserPositionEvolution = (
         [now, cgHistoPrices.find(p => timestampToUTC(p[0]) === timestampToUTC(now))?.[1] || 0],
     ].sort((a, b) => a[0] - b[0]);
 
-    const relevantPrices = (priceRef === 'cgHistoPrice' ? allPrices : histoOraclePricesEvolution)
+    const relevantPrices = (['cgHistoPrice', 'comboPrice'].includes(priceRef) ? allPrices : histoOraclePricesEvolution)
         .filter(p => p[0] > start - ONE_DAY_MS * 2);
 
-    const currentPrice = priceRef === 'cgHistoPrice' ? (!!prices ? prices[market.underlying.coingeckoId] : 0) : market.price;
+    const currentPrice = ['cgHistoPrice', 'comboPrice'].includes(priceRef) ? (!!prices ? prices[market.underlying.coingeckoId] : 0) : market.price;
 
     const data = relevantPrices.map((p, i) => {
+        const utcString = timestampToUTC(p[0]);
         const event = events.find(e => !e.isClaim && e.timestamp === p[0]);
         const histoEscrowDataFromApi = escrowBalanceEvolution?.findLast(e => e.timestamp <= p[0]);
         const histoEscrowBalance = histoEscrowDataFromApi?.balance;
@@ -78,13 +79,23 @@ const useFirmUserPositionEvolution = (
         const estimatedStakedBonus = balance - unstakedCollateralBalance;
         const rewardsUsd = ((claims + histoEscrowDbrClaimable) * dbrHistoPrice) || 0;
         const estimatedStakedBonusUsd = estimatedStakedBonus * p[1];
-        const priceToUse = p[1];
-        const cf = p[2];
+        let priceToUse = p[1];
+        let cf = p[2];
+        // inv market: use cg price if no oracle price yet
+        if(priceRef === 'comboPrice' && market.oracleStartingBlock) {
+            const histoData = histoOraclePricesEvolution.find(op => utcString === timestampToUTC(op[0]));
+            if(histoData?.[1]) {                        
+                priceToUse = histoData[1];                
+                cf = histoData[2];
+            }
+        }
+        
         const creditWorth = balance * priceToUse * cf;
         return {
             timestamp: p[0],
             collateralFactor: cf * 100,
-            cgHistoPrice: priceToUse,  
+            comboPrice: priceToUse,
+            cgHistoPrice: priceToUse,
             oracleHistoPrice: priceToUse,
             dbrPrice: dbrHistoPrice,
             eventName: !!claimEvent ? 'Claim' : event?.actionName,
@@ -125,6 +136,7 @@ const useFirmUserPositionEvolution = (
         ...data[data.length - 1],
         cgHistoPrice: currentPrice,
         oracleHistoPrice: currentPrice,
+        comboPrice: currentPrice,
         dbrPrice,
         isEvent: false,
         isClaimEvent: false,
@@ -199,14 +211,14 @@ export const WorthEvoChartContainerINV = ({
 }) => {
     const { escrow } = useContext(F2MarketContext);
     const { rewards } = useINVEscrowRewards(escrow);
-    const { data, isLoading, walletSupportsEvents } = useFirmUserPositionEvolution(market, 'cgHistoPrice', rewards);
+    const { data, isLoading, walletSupportsEvents } = useFirmUserPositionEvolution(market, 'comboPrice', rewards);
 
     return <WorthEvoChart
         isLoading={isLoading}
         market={market}
         chartWidth={chartWidth}
         data={data}
-        priceRef={'cgHistoPrice'}
+        priceRef={'comboPrice'}
         walletSupportsEvents={walletSupportsEvents}
     />
 }

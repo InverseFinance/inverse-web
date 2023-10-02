@@ -82,6 +82,7 @@ export const WorthEvoChart = ({
         'histoPrice': `${market.name} oracle or coingecko price`,
         'oracleHistoPrice': `${market.name} oracle price`,
         'cgHistoPrice': `${market.name} coingecko price`,
+        'comboPrice': `${market.name} cg/oracle price`,
         'dbrPrice': 'DBR market price',
         'totalRewardsUsd': 'Total rewards',
         'balanceWorth': 'Collateral balance worth',
@@ -296,7 +297,7 @@ export const WorthEvoChart = ({
                     labelStyle={{ fontWeight: 'bold' }}
                     itemStyle={{ fontWeight: 'bold' }}
                     formatter={(value, name) => {
-                        const isPrice = [keyNames['histoPrice'], keyNames['cgHistoPrice'], keyNames['oracleHistoPrice']].includes(name);
+                        const isPrice = [keyNames['histoPrice'], keyNames['cgHistoPrice'], keyNames['oracleHistoPrice'], keyNames['comboPrice']].includes(name);
                         const isPerc = [keyNames['borrowLimit'], keyNames['collateralFactor']].includes(name);
                         return !value ? 'none' : isPerc ? `${shortenNumber(value, 2)}%` : isPrice ? preciseCommify(value, value < 1 ? 4 : 2, true) : preciseCommify(value, !useUsd ? 2 : 0, useUsd)
                     }}

@@ -742,6 +742,7 @@ export type F2Market = {
   borrowingWasDisabledBeforeBlock?: number
   minDebt: number
   ceiling: number
+  oracleStartingBlock?: number
 }
 
 export type FirmAction = {
