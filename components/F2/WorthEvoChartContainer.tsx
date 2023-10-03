@@ -16,7 +16,7 @@ const maxWidth = 1200;
 
 const useFirmUserPositionEvolution = (
     market: F2Market,
-    priceRef: 'oracleHistoPrice' | 'cgHistoPrice' = 'oracleHistoPrice',
+    priceRef: 'oracleHistoPrice' | 'cgHistoPrice' | 'comboPrice' = 'oracleHistoPrice',
     currentClaimableDbrRewards = 0,
 ) => {
     const account = useAccount();
@@ -56,7 +56,11 @@ const useFirmUserPositionEvolution = (
         [now, cgHistoPrices.find(p => timestampToUTC(p[0]) === timestampToUTC(now))?.[1] || 0],
     ].sort((a, b) => a[0] - b[0]);
 
-    const relevantPrices = (priceRef === 'cgHistoPrice' ? allPrices : histoOraclePricesEvolution)
+    const oraclePricesStartTs = histoOraclePricesEvolution[0]?.[0] || 0;
+    const cgPricesBeforeOraclePrices = priceRef === 'comboPrice' ? allPrices.filter(p => p[0] < oraclePricesStartTs) : [];
+    const pricesSource = priceRef === 'oracleHistoPrice' ? histoOraclePricesEvolution : priceRef === 'comboPrice' ? cgPricesBeforeOraclePrices.concat(histoOraclePricesEvolution) : allPrices;
+
+    const relevantPrices = pricesSource
         .filter(p => p[0] > start - ONE_DAY_MS * 2);
 
     const currentPrice = priceRef === 'cgHistoPrice' ? (!!prices ? prices[market.underlying.coingeckoId] : 0) : market.price;
@@ -78,13 +82,15 @@ const useFirmUserPositionEvolution = (
         const estimatedStakedBonus = balance - unstakedCollateralBalance;
         const rewardsUsd = ((claims + histoEscrowDbrClaimable) * dbrHistoPrice) || 0;
         const estimatedStakedBonusUsd = estimatedStakedBonus * p[1];
-        const priceToUse = p[1];
-        const cf = p[2];
+        let priceToUse = p[1];
+        let cf = p[2]||0;
+        
         const creditWorth = balance * priceToUse * cf;
         return {
             timestamp: p[0],
             collateralFactor: cf * 100,
-            cgHistoPrice: priceToUse,  
+            comboPrice: priceToUse,
+            cgHistoPrice: priceToUse,
             oracleHistoPrice: priceToUse,
             dbrPrice: dbrHistoPrice,
             eventName: !!claimEvent ? 'Claim' : event?.actionName,
@@ -94,7 +100,7 @@ const useFirmUserPositionEvolution = (
             event,
             depositsOnlyWorth: unstakedCollateralBalance * priceToUse,
             balanceWorth: balance * priceToUse,
-            borrowLimit: balance > 0 ? Math.min((debt/creditWorth) * 100, 100) : 0,
+            borrowLimit: creditWorth > 0 ? Math.min((debt/creditWorth) * 100, 100) : 0,
             creditWorth,
             totalWorth: rewardsUsd + balance * priceToUse,
             totalRewardsUsd: rewardsUsd + estimatedStakedBonusUsd,
@@ -125,6 +131,7 @@ const useFirmUserPositionEvolution = (
         ...data[data.length - 1],
         cgHistoPrice: currentPrice,
         oracleHistoPrice: currentPrice,
+        comboPrice: currentPrice,
         dbrPrice,
         isEvent: false,
         isClaimEvent: false,
@@ -199,14 +206,14 @@ export const WorthEvoChartContainerINV = ({
 }) => {
     const { escrow } = useContext(F2MarketContext);
     const { rewards } = useINVEscrowRewards(escrow);
-    const { data, isLoading, walletSupportsEvents } = useFirmUserPositionEvolution(market, 'cgHistoPrice', rewards);
+    const { data, isLoading, walletSupportsEvents } = useFirmUserPositionEvolution(market, 'comboPrice', rewards);
 
     return <WorthEvoChart
         isLoading={isLoading}
         market={market}
         chartWidth={chartWidth}
         data={data}
-        priceRef={'cgHistoPrice'}
+        priceRef={'comboPrice'}
         walletSupportsEvents={walletSupportsEvents}
     />
 }

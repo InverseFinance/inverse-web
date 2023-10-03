@@ -623,7 +623,7 @@ export const useHistoOraclePrices = (marketAddress: string) : {
   isLoading: boolean,
   isError: boolean,
 } => {
-  const { data, error } = useCacheFirstSWR(!marketAddress ? '-' : `/api/f2/histo-oracle-prices?v=1.1&market=${marketAddress}`, fetcher);
+  const { data, error } = useCacheFirstSWR(!marketAddress ? '-' : `/api/f2/histo-oracle-prices?v=1.2&market=${marketAddress}`, fetcher);
 
   return {
     evolution: data?.timestamps?.map((t,i) => [data.timestamps[i], data.oraclePrices[i], data.collateralFactors[i]]) || [],    

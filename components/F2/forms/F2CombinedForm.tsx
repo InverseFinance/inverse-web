@@ -23,6 +23,7 @@ import { BUY_LINKS } from '@app/config/constants'
 import { Input } from '@app/components/common/Input'
 import { DBRAutoRepayCalculator } from '../DBRAutoRepayCalculator'
 import { FEATURE_FLAGS } from '@app/config/features'
+import { preciseCommify } from '@app/util/misc'
 
 const { DOLA, F2_HELPER, DBR } = getNetworkConfigConstants();
 
@@ -81,7 +82,7 @@ export const F2CombinedForm = ({
         setDbrBuySlippage,
         deposits, bnDeposits, debt, bnWithdrawalLimit, bnLeftToBorrow, bnCollateralBalance, collateralBalance, bnDebt,
         newPerc, newCreditLimit,
-        notFirstTime, onFirstTimeModalOpen,        
+        notFirstTime, onFirstTimeModalOpen,
         hasDbrV1NewBorrowIssue, onDbrV1NewBorrowIssueModalOpen,
         firmActionIndex, setFirmActionIndex, setCachedFirmActionIndex,
         newTotalDebtInMarket,
@@ -103,7 +104,7 @@ export const F2CombinedForm = ({
 
     const handleWithdrawMax = () => {
         if (!signer) { return }
-        f2withdrawMax(signer, market.address);
+        return f2withdrawMax(signer, market.address);
     }
 
     const handleAction = async () => {
@@ -224,7 +225,7 @@ export const F2CombinedForm = ({
     const btnLabel = isDeposit ? `Deposit & Borrow` : 'Withdraw';
     const btnMaxlabel = `${btnLabel} Max`;
     const notEnoughToBorrowWithAutobuy = isBorrowCase && market.leftToBorrow > 1 && deltaDebt > 0 && market.leftToBorrow < (isAutoDBR ? deltaDebt + (dbrCoverDebt * (1 + parseFloat(dbrBuySlippage || 0) / 100)) : deltaDebt);
-    const minDebtDisabledCondition = FEATURE_FLAGS.firmMinDebt && newTotalDebtInMarket < market.minDebt;
+    const minDebtDisabledCondition = FEATURE_FLAGS.firmMinDebt && newTotalDebtInMarket > 0 && newTotalDebtInMarket < market.minDebt;
 
     const leftPart = <Stack direction={{ base: 'column' }} spacing="4" w='full' >
         {
@@ -370,8 +371,8 @@ export const F2CombinedForm = ({
                 {
                     !notEnoughToBorrowWithAutobuy && minDebtDisabledCondition && debtAmountNum > 0
                     && <WarningMessage alertProps={{ w: 'full' }} description={
-                        !debt ? `You need to borrow at least ${shortenNumber(market.minDebt, 2)} DOLA`
-                        : `When borrowing the resulting debt should be at least ${shortenNumber(market.minDebt, 2)} DOLA`
+                        !debt ? `You need to borrow at least ${preciseCommify(market.minDebt, 0)} DOLA`
+                            : `When borrowing the resulting debt should be at least ${shortenNumber(market.minDebt, 2)} DOLA`
                     } />
                 }
                 {
@@ -479,6 +480,7 @@ export const F2CombinedForm = ({
     disabledConditions['d&b'] = disabledConditions['deposit'] || disabledConditions['borrow'] || !parseFloat(dbrBuySlippage);
     disabledConditions['r&w'] = disabledConditions['repay'] || disabledConditions['withdraw']
 
+    const modeLabel = mode.replace(/deposit/i, 'Stake').replace(/withdraw/i, 'Unstake');
     const actionBtn = <HStack>
         <SimpleAmountForm
             defaultAmount={isRepayCase ? debtAmount : collateralAmount}
@@ -489,11 +491,11 @@ export const F2CombinedForm = ({
             maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
             onAction={({ bnAmount }) => handleAction()}
             onMaxAction={({ bnAmount }) => handleWithdrawMax()}
-            actionLabel={isSigNeeded ? `Sign + ${mode}` : market.isInv ? isDeposit ? 'Stake' : 'Unstake' : mode}
+            actionLabel={isSigNeeded ? `Sign + ${modeLabel}` : modeLabel}
             approveLabel={isAutoDBR && isDeposit ? 'Step 1/3 - Approve' : undefined}
             maxActionLabel={'Unstake all'}
             onAmountChange={handleCollateralChange}
-            showMaxBtn={!!market.isInv && isWithdrawCase}
+            showMaxBtn={market.isInv && isWithdrawCase && !debt}
             isDisabled={disabledConditions[MODES[mode]]}
             hideInputIfNoAllowance={false}
             hideInput={true}
@@ -531,13 +533,12 @@ export const F2CombinedForm = ({
                 </FormControl>
             }
             <VStack justify="space-between" position="relative" w='full' px='2%' py="2" alignItems="center" spacing="4">
-                {
-                    !market.isInv && <NavButtons
-                        active={mode}
-                        options={isDeposit ? inOptions : outOptions}
-                        onClick={(v) => setMode(v)}
-                    />
-                }
+                <NavButtons
+                    active={mode}
+                    options={isDeposit ? inOptions : outOptions}
+                    onClick={(v) => setMode(v)}
+                    isStaking={market.isInv}
+                />
                 <Stack justify="space-between" w='full' spacing="4" direction={{ base: 'column' }}>
                     {leftPart}
                     {['d&b', 'borrow'].includes(MODES[mode]) && isAutoDBR && <Divider borderColor="#cccccc66" />}

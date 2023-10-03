@@ -377,9 +377,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         },
     ];
 
-    const keyInfos = market.isInv ? [
-        positionInfos[2],
-    ] : [
+    const keyInfos = [
         positionInfos[0],
         dbrInfos[3],
         // positionInfos[1],

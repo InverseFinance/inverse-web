@@ -43,7 +43,7 @@ const EVENT_WIDTHS = {
 
 const CHART_TABS = {
     'overview': 'Overview',
-    'collateral': 'Collateral balance',
+    'collateral': 'Balance',
     'debt': 'Debt',
     'invStaking': 'INV anti-dilution',
     'staking': 'Staking rewards',
@@ -82,10 +82,11 @@ export const WorthEvoChart = ({
         'histoPrice': `${market.name} oracle or coingecko price`,
         'oracleHistoPrice': `${market.name} oracle price`,
         'cgHistoPrice': `${market.name} coingecko price`,
+        'comboPrice': `${market.name} cg/oracle price`,
         'dbrPrice': 'DBR market price',
         'totalRewardsUsd': 'Total rewards',
         'balanceWorth': 'Collateral balance worth',
-        'totalWorth': market.hasClaimableRewards || market.hasStakingLikeRewards ? 'Balance + All Rewards worth' : 'Balance worth',
+        'totalWorth': market.hasStakingLikeRewards ? 'Balance + All Rewards worth' : 'Balance worth',
         'balance': 'Total collateral balance',
         'dbrRewards': 'DBR rewards',
         'rewardsUsd': 'DBR rewards',
@@ -135,11 +136,7 @@ export const WorthEvoChart = ({
         </VStack>
     }
 
-    const tabOptions = [CHART_TABS.overview, CHART_TABS.collateral];    
-    if (!market.isInv) {
-        tabOptions.push(CHART_TABS.debt);
-        tabOptions.push(CHART_TABS.borrowLimit);
-    }
+    const tabOptions = [CHART_TABS.overview, CHART_TABS.collateral, CHART_TABS.debt, CHART_TABS.borrowLimit];
     if (market.isInv) {
         if (walletSupportsEvents) {
             tabOptions.push(CHART_TABS.invDbr);
@@ -161,7 +158,7 @@ export const WorthEvoChart = ({
     const [showDbrPrice, setShowDbrPrice] = useState(false);
     const [showStaking, setShowStaking] = useState(false);
     const [showEvents, setShowEvents] = useState(false);
-    const [showDebt, setShowDebt] = useState(!market.isInv);
+    const [showDebt, setShowDebt] = useState(true);
     const [showEventsLabel, setShowEventsLabel] = useState(false);
     const [brushIndexes, setBrushIndexes] = useState({ startIndex: undefined, endIndex: undefined });
     const [actives, setActives] = useState(Object.values(keyNames).reduce((acc, cur) => ({ ...acc, [cur]: true }), {}));
@@ -214,8 +211,8 @@ export const WorthEvoChart = ({
     const containerLabel = `Your Position Evolution in the ${market.name} Market - Beta`;
     const contProps = {
         label: containerLabel,
-        description: market.isInv ? "Daily historical market prices are powered by Coingecko" : "Historical prices according to the pessimistic oracle",
-        href: market.isInv ? `https://www.coingecko.com/en/coins/${market.underlying.coingeckoId}` : undefined,
+        description: market.isInv ? "Historical prices according to the pessimistic oracle (or coingecko when borrowing was not enabled yet)" : "Historical prices according to the pessimistic oracle",
+        // href: market.isInv ? `https://www.coingecko.com/en/coins/${market.underlying.coingeckoId}` : undefined,
     }
 
     if (isLoading) {
@@ -287,11 +284,11 @@ export const WorthEvoChart = ({
                 <XAxis minTickGap={28} interval="preserveStartEnd" style={_axisStyle.tickLabels} dataKey="timestamp" scale="time" type={'number'} allowDataOverflow={true} domain={['dataMin', 'dataMax']} tickFormatter={(v) => {
                     return moment(v).format('MMM Do')
                 }} />
-                <YAxis style={_axisStyle.tickLabels} yAxisId="left" tickFormatter={(v) => smartShortNumber(v, 2, useUsd)} />
+                <YAxis allowDataOverflow={true} style={_axisStyle.tickLabels} yAxisId="left" tickFormatter={(v) => smartShortNumber(v, 2, useUsd)} domain={[0, 'auto']} />
                 {
                     showBorrowLimit ?
-                        <YAxis domain={[0,100]} style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => `${shortenNumber(v, 2)}%`} />
-                        : <YAxis style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => shortenNumber(v, 4, true)} />
+                        <YAxis allowDataOverflow={true} domain={[0,100]} style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => `${shortenNumber(v, 2)}%`} />
+                        : <YAxis allowDataOverflow={true} style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => shortenNumber(v, 4, true)} />
                 }
                 <Tooltip
                     wrapperStyle={{ ..._axisStyle.tickLabels }}
@@ -300,7 +297,7 @@ export const WorthEvoChart = ({
                     labelStyle={{ fontWeight: 'bold' }}
                     itemStyle={{ fontWeight: 'bold' }}
                     formatter={(value, name) => {
-                        const isPrice = [keyNames['histoPrice'], keyNames['cgHistoPrice'], keyNames['oracleHistoPrice']].includes(name);
+                        const isPrice = [keyNames['dbrPrice'], keyNames['histoPrice'], keyNames['cgHistoPrice'], keyNames['oracleHistoPrice'], keyNames['comboPrice']].includes(name);
                         const isPerc = [keyNames['borrowLimit'], keyNames['collateralFactor']].includes(name);
                         return !value ? 'none' : isPerc ? `${shortenNumber(value, 2)}%` : isPrice ? preciseCommify(value, value < 1 ? 4 : 2, true) : preciseCommify(value, !useUsd ? 2 : 0, useUsd)
                     }}
