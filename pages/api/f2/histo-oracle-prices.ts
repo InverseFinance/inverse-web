@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     return;
   }
   const _market = F2_MARKETS.find(m => m.address === market);
-  const cacheKey = `firm-oracle-prices-${_market.isInv ? market : 'inv'}-v1.0.0`;
+  const cacheKey = `firm-oracle-prices-${_market.isInv ? 'inverse' : market}-v1.0.0`;
   
   try {
     const cacheDuration = 300;
