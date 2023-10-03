@@ -56,13 +56,16 @@ const useFirmUserPositionEvolution = (
         [now, cgHistoPrices.find(p => timestampToUTC(p[0]) === timestampToUTC(now))?.[1] || 0],
     ].sort((a, b) => a[0] - b[0]);
 
-    const relevantPrices = (['cgHistoPrice', 'comboPrice'].includes(priceRef) ? allPrices : histoOraclePricesEvolution)
+    const oraclePricesStartTs = histoOraclePricesEvolution[0]?.[0] || 0;
+    const cgPricesBeforeOraclePrices = priceRef === 'comboPrice' ? allPrices.filter(p => p[0] < oraclePricesStartTs) : [];
+    const pricesSource = priceRef === 'oracleHistoPrice' ? histoOraclePricesEvolution : priceRef === 'comboPrice' ? cgPricesBeforeOraclePrices.concat(histoOraclePricesEvolution) : allPrices;
+
+    const relevantPrices = pricesSource
         .filter(p => p[0] > start - ONE_DAY_MS * 2);
 
-    const currentPrice = ['cgHistoPrice', 'comboPrice'].includes(priceRef) ? (!!prices ? prices[market.underlying.coingeckoId] : 0) : market.price;
+    const currentPrice = priceRef === 'cgHistoPrice' ? (!!prices ? prices[market.underlying.coingeckoId] : 0) : market.price;
 
     const data = relevantPrices.map((p, i) => {
-        const utcString = timestampToUTC(p[0]);
         const event = events.find(e => !e.isClaim && e.timestamp === p[0]);
         const histoEscrowDataFromApi = escrowBalanceEvolution?.findLast(e => e.timestamp <= p[0]);
         const histoEscrowBalance = histoEscrowDataFromApi?.balance;
@@ -81,14 +84,6 @@ const useFirmUserPositionEvolution = (
         const estimatedStakedBonusUsd = estimatedStakedBonus * p[1];
         let priceToUse = p[1];
         let cf = p[2]||0;
-        // inv market: use cg price if no oracle price yet
-        if(priceRef === 'comboPrice' && market.oracleStartingBlock) {
-            const histoData = histoOraclePricesEvolution.find(op => utcString === timestampToUTC(op[0]));
-            if(histoData?.[1]) {                    
-                priceToUse = histoData[1];                
-                cf = histoData[2];
-            }
-        }
         
         const creditWorth = balance * priceToUse * cf;
         return {
