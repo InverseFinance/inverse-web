@@ -15,14 +15,15 @@ import { MarketImage } from "@app/components/common/Assets/MarketImage";
 import { preciseCommify } from "@app/util/misc";
 import { FirmUserModal } from "./FirmUserModal";
 import { useDBRPrice } from "@app/hooks/useDBR";
+import InfoModal from "@app/components/common/Modal/InfoModal";
 
-const StatBasic = ({ value, name, isLoading = false }: { value: string, name: string, isLoading?: boolean }) => {
+const StatBasic = ({ value, name, onClick = undefined, isLoading = false }: { value: string, onClick?: () => void, name: string, isLoading?: boolean }) => {
     return <VStack>
         {
             !isLoading ? <Text color={'secondary'} fontSize={{ base: '20px', sm: '26px' }} fontWeight="extrabold">{value}</Text>
                 : <SmallTextLoader width={'100px'} />
         }
-        <Text color={'mainTextColor'} fontSize={{ base: '16px', sm: '20px' }} fontWeight="bold">{name}</Text>
+        <Text cursor={!!onClick ? 'pointer' : undefined} textDecoration={!!onClick ? 'underline' : undefined} onClick={onClick} color={'mainTextColor'} fontSize={{ base: '16px', sm: '20px' }} fontWeight="bold">{name}</Text>
     </VStack>
 }
 
@@ -174,6 +175,10 @@ const columns = [
     },
 ]
 
+const CHART_URLS: { [key: string]: string } = {
+    'nbUsers': 'https://app.inverse.watch/embed/query/473/visualization/593?api_key=V5YPx0uk9MQ46ksOW1Uu49u7LL6GPLQXimfv177H&',
+}
+
 export const FirmUsers = ({
 
 }: {
@@ -181,9 +186,11 @@ export const FirmUsers = ({
     }) => {
     const { price } = useDBRPrice();
     const { userPositions, positions, timestamp, isLoading } = useFirmUsers();
+    const { isOpen: isChartOpen, onOpen: onChartOpen, onClose: onChartClose } = useDisclosure();
 
     const { onOpen, onClose, isOpen } = useDisclosure();
     const [position, setPosition] = useState(null);
+    const [chartUrl, setChartUrl] = useState(null);
 
     const openUserDetails = async (data) => {
         setPosition(data);
@@ -198,16 +205,40 @@ export const FirmUsers = ({
     const avgHealth = positions?.length > 0 && totalDebt > 0 ? positions.reduce((prev, curr) => prev + curr.debtRiskWeight, 0) / totalDebt : 100;
     const avgRiskColor = getRiskColor(avgHealth);
 
+    const openChart = (type = 'nbUsers') => {
+        setChartUrl(CHART_URLS[type]);
+        onChartOpen();
+    }
+
     return <VStack w='full' spacing={{ base: '4', sm: '8' }}>
         {
             !!position && <FirmUserModal userData={position} isOpen={isOpen} onClose={onClose} />
         }
         <SimpleGrid justify="space-between" w='full' columns={{ base: 2, sm: 4 }} spacing={{ base: '4', sm: '6' }}>
-            <StatBasic isLoading={isLoading} name="Users" value={`${preciseCommify(nbUsers, 0)}`} />
+            <StatBasic onClick={() => openChart('nbUsers')} isLoading={isLoading} name="Users" value={`${preciseCommify(nbUsers, 0)}`} />
             <StatBasic isLoading={isLoading} name="Stakers" value={`${preciseCommify(nbStakers, 0)}`} />
             <StatBasic isLoading={isLoading} name="Borrowers" value={`${preciseCommify(nbBorrowers, 0)}`} />
             <StatBasic isLoading={isLoading} name="DBR Yearly Spend" value={`${smartShortNumber(totalDebt, 2)} (${smartShortNumber(totalDebt * price, 2, true)})`} />
         </SimpleGrid>
+        {
+            !!chartUrl && <InfoModal
+                noFooter={true}
+                title="Historical Data"
+                isOpen={isChartOpen}
+                onClose={onChartClose}
+                minW={{ base: '98vw', lg: '800px', xl: '1000px' }}
+            >
+                <VStack h={{ base: '300px', lg: '550px' }}>
+                    <iframe
+                        src={chartUrl}
+                        width="100%"
+                        height="550px"
+                        frameBorder="0"
+                        allowFullScreen
+                    />
+                </VStack>
+            </InfoModal>
+        }
         <Divider />
         <Container
             py="0"

@@ -15,6 +15,7 @@ export type Props = {
     minW?: any
     footerLeft?: ReactNode
     modalProps?: ModalProps
+    noFooter?: boolean
 }
 
 const InfoModal = ({
@@ -27,6 +28,7 @@ const InfoModal = ({
     minW,
     footerLeft,
     modalProps,
+    noFooter = false
 }: Props) => {
     const { themeName } = useAppTheme();
     const handleOk = () => {
@@ -44,7 +46,7 @@ const InfoModal = ({
                 </Stack>
             }
             footer={
-                <HStack w='full' justify="space-between">
+                !noFooter && <HStack w='full' justify="space-between">
                     <HStack>{footerLeft}</HStack>
                     <SubmitButton w='fit-content' themeColor="blue.500" onClick={handleOk} >{okLabel}</SubmitButton>
                 </HStack>
