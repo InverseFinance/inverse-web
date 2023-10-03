@@ -22,7 +22,8 @@ export default async function handler(req, res) {
     res.status(400).json({ msg: 'invalid request' });
     return;
   }
-  const cacheKey = `firm-oracle-prices-${market}-v1.0.0`;
+  const _market = F2_MARKETS.find(m => m.address === market);
+  const cacheKey = `firm-oracle-prices-${_market.isInv ? market : 'inv'}-v1.0.0`;
   
   try {
     const cacheDuration = 300;
@@ -34,8 +35,7 @@ export default async function handler(req, res) {
     }
 
     // not using fallbackprovider because it's not working with call & blockNumber
-    const provider = getProvider(CHAIN_ID, '', true);
-    const _market = F2_MARKETS.find(m => m.address === market);
+    const provider = getProvider(CHAIN_ID, '', true);    
     _market.underlying = TOKENS[_market.collateral];
 
     if (!_market) {
@@ -47,7 +47,7 @@ export default async function handler(req, res) {
     const marketContract = new Contract(_market.address, F2_MARKET_ABI, provider);
 
     const archived = validCache || { blocks: [], timestamps: [], oraclePrices: [], collateralFactors: [] };
-    const lastArchivedBlock = archived.blocks.length > 0 ? archived.blocks[archived.blocks.length - 1] : _market.startingBlock - 1;
+    const lastArchivedBlock = archived.blocks.length > 0 ? archived.blocks[archived.blocks.length - 1] : (_market.oracleStartingBlock || _market.startingBlock) - 1;
 
     const startingBlock = lastArchivedBlock + 1 < currentBlock ? lastArchivedBlock + 1 : currentBlock;
 
@@ -112,7 +112,8 @@ export default async function handler(req, res) {
             contract: oracleContract,
             functionName: 'viewPrice',
             params: [_market.collateral, newCollateralFactorsBn[cfIndex]],
-            forceFallback: _market.isInv,
+            // inv feed was invalid before borrowing was enabled
+            forceFallback: !!_market.oracleStartingBlock && block < _market.oracleStartingBlock,
             fallbackValue: BigNumber.from(0),
           }],
           Number(CHAIN_ID),

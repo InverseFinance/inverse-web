@@ -121,6 +121,7 @@ const mainConfig = {
             isGovTokenCollateral: true,
             govLink: '/governance',                     
             startingBlock: 17313862,
+            oracleStartingBlock: 18264581,
             claimMethod: 'claimDBR',
             hasStakingLikeRewards: true,
             // borrowingWasDisabledBeforeBlock:
