@@ -193,14 +193,14 @@ export const ensoSameChainZap = async (
 
     const data = await res.json();
     if(!signer) return data;
-    const { tx, gas } = data    
+    const { tx, gas } = data
 
     return signer.sendTransaction({
         from: tx.from,
         to: tx.to,
         data: tx.data,
         value: tx.value,
-        gasLimit: gas*1.05,
+        gasLimit: BigNumber.from(gas).add(20000),
     })
 }
 
