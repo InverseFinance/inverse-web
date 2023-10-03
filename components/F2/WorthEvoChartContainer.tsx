@@ -80,11 +80,11 @@ const useFirmUserPositionEvolution = (
         const rewardsUsd = ((claims + histoEscrowDbrClaimable) * dbrHistoPrice) || 0;
         const estimatedStakedBonusUsd = estimatedStakedBonus * p[1];
         let priceToUse = p[1];
-        let cf = p[2];
+        let cf = p[2]||0;
         // inv market: use cg price if no oracle price yet
         if(priceRef === 'comboPrice' && market.oracleStartingBlock) {
             const histoData = histoOraclePricesEvolution.find(op => utcString === timestampToUTC(op[0]));
-            if(histoData?.[1]) {                        
+            if(histoData?.[1]) {                    
                 priceToUse = histoData[1];                
                 cf = histoData[2];
             }
@@ -105,7 +105,7 @@ const useFirmUserPositionEvolution = (
             event,
             depositsOnlyWorth: unstakedCollateralBalance * priceToUse,
             balanceWorth: balance * priceToUse,
-            borrowLimit: balance > 0 ? Math.min((debt/creditWorth) * 100, 100) : 0,
+            borrowLimit: creditWorth > 0 ? Math.min((debt/creditWorth) * 100, 100) : 0,
             creditWorth,
             totalWorth: rewardsUsd + balance * priceToUse,
             totalRewardsUsd: rewardsUsd + estimatedStakedBonusUsd,
