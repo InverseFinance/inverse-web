@@ -73,7 +73,7 @@ const projectLinks = {
 
 const getPoolLink = (project, pool, underlyingTokens, symbol, isStable = true) => {
     let url;
-    const _pool = pool||'';
+    const _pool = pool || '';
     switch (project) {
         case 'balancer':
             url = `https://app.balancer.fi/#/pool/${_pool}`
@@ -418,6 +418,16 @@ const oppyLpNameToUnderlyingTokens = (lpName: string, chainId: string | number) 
     return split.map(sym => getToken(CHAIN_TOKENS[chainId], sym)?.address);
 }
 
+// const getEnsoItemUnderlyingTokens = (ep: any) => {
+//     if (!ep.underlyingTokens || ep.underlyingTokens?.length <= 1) {
+//         const foundLpToken = getToken(CHAIN_TOKENS[ep.chainId], ep.poolAddress);
+//         if (!!foundLpToken) {
+//             return foundLpToken.pairs?.filter(ad => ad !== ep.poolAddress);
+//         }
+//     }
+//     return ep.underlyingTokens;
+// }
+
 export const Oppys = () => {
     const { oppys, isLoading } = useOppys();
     const [isLargerThan] = useMediaQuery(`(min-width: 400px)`)
@@ -441,31 +451,36 @@ export const Oppys = () => {
         });
 
     // some oppys are in enso api but not in defillama
-    const oppysNotInDefillama = ensoPools.filter(ep => {
-        const defillamaOppy = _oppys.find(o => {
-            const oppyChainId = NETWORKS_BY_NAME[o.chain].id.toString();
-            const oppyUnderlyingTokens = o.underlyingTokens?.length > 0 ? o.underlyingTokens : oppyLpNameToUnderlyingTokens(o.symbol, oppyChainId);
-            const oppyUnderlyingTokensString = underlyingTokensArrayToString(oppyUnderlyingTokens);
-            return ep.chainId.toString() === oppyChainId
-                && o.project === (ENSO_DEFILLAMA_MAPPING[ep.project] || ep.project)
-                && underlyingTokensArrayToString(ep.underlyingTokens) === oppyUnderlyingTokensString;
-        })
-        return !defillamaOppy;
-    });
-    const oppysWithEnso = _oppys.concat(
-        oppysNotInDefillama.map(ep => {
-            return {
-                ...ep,
-                ensoPool: ep,
-                hasEnso: true,
-                chain: NETWORKS_BY_CHAIN_ID[ep.chainId].name,
-                project: ENSO_DEFILLAMA_MAPPING[ep.project] || ep.project,
-                apy: ep.apy,
-                underlyingTokens: ep.underlyingTokens,
-                tvlUsd: ep.tvl,
-            }
-        })
-    )
+    // const oppysNotInDefillama = ensoPools.filter(ep => {
+    //     const defillamaOppy = _oppys.find(o => {
+    //         const oppyChainId = NETWORKS_BY_NAME[o.chain].id.toString();
+    //         const oppyUnderlyingTokens = o.underlyingTokens?.length > 0 ? o.underlyingTokens : oppyLpNameToUnderlyingTokens(o.symbol, oppyChainId);
+    //         const oppyUnderlyingTokensString = underlyingTokensArrayToString(oppyUnderlyingTokens);
+    //         const epUnderlyingTokens = getEnsoItemUnderlyingTokens(ep);            
+
+    //         const condition = ep.underlyingTokens >=2 
+    //             && ep.chainId.toString() === oppyChainId
+    //             && o.project === (ENSO_DEFILLAMA_MAPPING[ep.project] || ep.project)
+    //             && underlyingTokensArrayToString(epUnderlyingTokens) === oppyUnderlyingTokensString;
+    //         return condition;
+    //     })
+    //     return !defillamaOppy;
+    // });
+    const oppysWithEnso = _oppys
+    // .concat(
+    //     oppysNotInDefillama.map(ep => {
+    //         return {
+    //             ...ep,
+    //             ensoPool: ep,
+    //             hasEnso: true,
+    //             chain: NETWORKS_BY_CHAIN_ID[ep.chainId].name,
+    //             project: ENSO_DEFILLAMA_MAPPING[ep.project] || ep.project,
+    //             apy: ep.apy,
+    //             underlyingTokens: ep.underlyingTokens,
+    //             tvlUsd: ep.tvl,
+    //         }
+    //     })
+    // );
 
     const top5Stable = oppysWithEnso.filter(o => o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5).map((o, i) => ({ ...o, rank: i + 1 }));
     const top5Volatile = oppysWithEnso.filter(o => !o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5).map((o, i) => ({ ...o, rank: i + 1 }));

@@ -40,7 +40,7 @@ function EnsoZap({
     title?: string | null
 }) {
     const { provider, account, chainId } = useWeb3React<Web3Provider>();
-    const { address: ensoSmartWalletAddress, isDeployed } = useEnso(account, chainId);
+    const { address: ensoSmartWalletAddress } = useEnso(account, chainId);
     const [inited, setInited] = useState(false);
     // const [tokenInOption, setTokenInOption] = useState('all');
     // const [tokenOutOption, setTokenOutOption] = useState('lps');
