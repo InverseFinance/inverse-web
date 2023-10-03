@@ -211,7 +211,7 @@ export const WorthEvoChart = ({
     const containerLabel = `Your Position Evolution in the ${market.name} Market - Beta`;
     const contProps = {
         label: containerLabel,
-        description: market.isInv ? "Historical prices according to the pessimistic oracle (or coingecko if before borrowing was enabled)" : "Historical prices according to the pessimistic oracle",
+        description: market.isInv ? "Historical prices according to the pessimistic oracle (or coingecko when borrowing was not enabled yet)" : "Historical prices according to the pessimistic oracle",
         // href: market.isInv ? `https://www.coingecko.com/en/coins/${market.underlying.coingeckoId}` : undefined,
     }
 
