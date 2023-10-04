@@ -144,7 +144,7 @@ export const prepareDeleveragePosition = async (
 
         const minDolaAmountFromSwap = getNumberToBn(nb);
         // dolaIn, minDbrOut
-        const dbrData = [dbrToSell, minDolaOut];
+        const dbrData = [dbrToSell, minDolaOut, '0'];
         return deleveragePosition(
             signer,
             minDolaAmountFromSwap,
