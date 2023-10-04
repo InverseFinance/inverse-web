@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import { EthXe, ensoZap, useEnso, useEnsoRoute } from "@app/util/enso";
 import { parseUnits } from "@ethersproject/units";
-import { VStack, Text, HStack, Divider, Stack } from "@chakra-ui/react";
+import { VStack, Text, HStack, Divider, Stack, Input } from "@chakra-ui/react";
 import { AssetInput } from "../common/Assets/AssetInput";
 import { ZAP_TOKENS_ARRAY } from "./tokenlist";
 import { useBalances } from "@app/hooks/useBalances";
@@ -42,6 +42,7 @@ function EnsoZap({
     const { provider, account, chainId } = useWeb3React<Web3Provider>();
     const { address: ensoSmartWalletAddress } = useEnso(account, chainId);
     const [inited, setInited] = useState(false);
+    const [slippage, setSlippage] = useState('1');
     // const [tokenInOption, setTokenInOption] = useState('all');
     // const [tokenOutOption, setTokenOutOption] = useState('lps');
     const [tokenIn, setTokenIn] = useState(getToken(CHAIN_TOKENS[chainId || '1'], 'DOLA').address); // dola    
@@ -86,7 +87,7 @@ function EnsoZap({
         if (inited || !chainId) return;
         setTargetChainId(chainId.toString());
         setTokenIn(getToken(CHAIN_TOKENS[chainId || '1'], 'DOLA').address);
-        changeTokenOut(defaultTokenOut||toOptions[0]?.value);
+        changeTokenOut(defaultTokenOut || toOptions[0]?.value);
         setInited(true);
     }, [inited, chainId, targetChainId, toOptions, defaultTokenOut]);
 
@@ -130,6 +131,13 @@ function EnsoZap({
                 />
             </Stack>
 
+            <HStack w='full' justify="space-between">
+                <Text>
+                    Max. slippage %:
+                </Text>
+                <Input py="0" maxH="30px" w='90px' value={slippage} onChange={(e) => setSlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'))} />
+            </HStack>
+
             <SimpleAmountForm
                 address={tokenIn === EthXe ? '' : tokenIn}
                 // destination={routeTx?.to}
@@ -137,7 +145,7 @@ function EnsoZap({
                 hideInput={true}
                 showMaxBtn={false}
                 actionLabel="Zap-in"
-                isDisabled={!amountIn || ((!!tokenIn && tokenIn !== EthXe) && !approveDestinationAddress)}
+                isDisabled={!amountIn || ((!!tokenIn && tokenIn !== EthXe) && !approveDestinationAddress) || !slippage || !parseFloat(slippage)}
                 alsoDisableApprove={true}
                 btnProps={{ needPoaFirst: true }}
                 signer={provider?.getSigner()}
@@ -152,6 +160,7 @@ function EnsoZap({
                             targetChainId,
                             amount: parseUnits(amountIn, tokenInObj.decimals).toString(),
                             toEoa: true,
+                            slippage: parseFloat(slippage) * 100,
                         })
                     }
                 }
