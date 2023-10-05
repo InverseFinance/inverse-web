@@ -32,7 +32,7 @@ const getLeverageActionLabel = (e: any) => {
     return <>
         {userExtraDeposit > 0 ? `Deposit ${smartShortNumber(userExtraDeposit, 4)} & ${name}` : userExtraRepay > 0 ? `Repay ${smartShortNumber(userExtraRepay, 4)} & ${name}` : name}
         <b style={{ fontWeight: '800' }}>
-            &nbsp;with {smartShortNumber(e.dolaFlashMinted, 2, false, true)} DOLA: {isUp ? '+' : '-'}{smartShortNumber(e.collateralLeveragedAmount, 4)} {collateralName}
+            &nbsp;with {smartShortNumber(e.dolaFlashMinted, 2, false, true)} DOLA => {isUp ? '+' : '-'}{smartShortNumber(e.collateralLeveragedAmount, 4)} {collateralName}
         </b></>
 }
 

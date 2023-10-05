@@ -239,6 +239,7 @@ export const F2CombinedForm = ({
         setDbrSellAmount('');
         setLeverageCollateralAmount('');
         setUseLeverage(false);
+        setLeverage(1);
     }
 
     const triggerCollateralAndOrLeverageChange = async (collateralString: string, collateralNum: number) => {

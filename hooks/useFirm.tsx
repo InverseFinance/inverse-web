@@ -295,7 +295,7 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
       escrow: e.args?.escrow,
       replenisher: e.args?.replenisher,
       name: e.event,
-      nameCombined: leverageCombinedEventName || combinedEventName,
+      nameCombined: !!leverageEvent ? leverageCombinedEventName : combinedEventName,
       logIndex: e.logIndex,
       isCollateralEvent,
       tokenName,
