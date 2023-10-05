@@ -180,7 +180,6 @@ export const ensoSameChainZap = async (
         toEoa = 'true',
     } = options;
     const _tokenIn = !tokenIn ? EthXe : tokenIn;
-    // const path = `https://api.enso.finance/api/v1/shortcuts/route?chainId=${chainId}&fromAddress=${fromAddress}&tokenInAmountToApprove=${amount}&tokenInAmountToTransfer=${amount}&amountIn=${amount}&minAmountOut=${amount}&slippage=${slippage}&tokenIn=${_tokenIn}&tokenOut=${tokenOut}&toEoa=${toEoa}`;
     let path = `https://api.enso.finance/api/v1/shortcuts/route?chainId=${chainId}&fromAddress=${fromAddress}&amountIn=${amount}&slippage=${slippage}&tokenIn=${_tokenIn}&tokenOut=${tokenOut}&toEoa=${toEoa}&priceImpact=false`;
     if(toEoa) {
         path += (_tokenIn === EthXe ? `&tokenInAmountToTransfer=${amount}` : `&tokenInAmountToApprove=${amount}`);
