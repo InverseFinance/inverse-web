@@ -132,7 +132,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
     const lastFirmActionIndexLoaded = firmActionIndex === firmActionDepositsIndexState;
     const { grouped: groupedEventsFallback, depositedByUser: depositedByUserFallback, currentCycleDepositedByUser: currentCycleDepositedByUserFallback, liquidated: liquidatedFallback } = formatAndGroupFirmEvents(market, account, lastFirmActionIndexLoaded ? formattedEvents: []);
     // same length, use data from api (timestamp already there), otherwise use prefer live data from blockchain
-    const _events = events?.length > groupedEventsFallback?.length ? events : groupedEventsFallback;    
+    const _events = events?.length > groupedEventsFallback?.length ? events : groupedEventsFallback;
     const _depositedByUser = depositedByUser || depositedByUserFallback;
     const _currentCycleDepositedByUser = currentCycleDepositedByUser || currentCycleDepositedByUserFallback;
     const _liquidated = liquidated || liquidatedFallback;
@@ -143,6 +143,11 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
     useEffect(() => {
         setFirmActionDepositsIndexState(firmActionDepositsIndexState);
     }, [responseFirmActionIndex]);
+    
+    useEffect(() => {
+        if(firmActionIndex === null) return;
+        setFirmActionDepositsIndexState(firmActionIndex);
+    }, [firmActionIndex]);
 
     useEffect(() => {
         let interval = setInterval(() => {
