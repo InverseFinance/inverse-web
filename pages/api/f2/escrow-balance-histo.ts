@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     res.status(400).json({ msg: 'invalid request' });
     return;
   }
-  const cacheKey = `firm-escrow-balance-histo-${escrow}-${CHAIN_ID}-v1.0.99`;
+  const cacheKey = `firm-escrow-balance-histo-${escrow}-${CHAIN_ID}-v1.1.0`;
   try {
     const webCacheDuration = 3600;
     const redisCacheDuration = 60;
@@ -72,8 +72,8 @@ export default async function handler(req, res) {
       marketContract.queryFilter(marketContract.filters.Repay(account), startingBlock),
       marketContract.queryFilter(marketContract.filters.Borrow(account), startingBlock),
       dbrContract.queryFilter(dbrContract.filters.ForceReplenish(account, undefined, _market.address), startingBlock),
-      // aleContract.queryFilter(aleContract.filters.LeverageUp(_market.address, account), startingBlock),
-      // aleContract.queryFilter(aleContract.filters.LeverageDown(_market.address, account), startingBlock),
+      aleContract.queryFilter(aleContract.filters.LeverageUp(_market.address, account), startingBlock),
+      aleContract.queryFilter(aleContract.filters.LeverageDown(_market.address, account), startingBlock),
     ];
 
     if (_market.isInv) {
