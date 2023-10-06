@@ -132,6 +132,7 @@ const chainTokenAddresses = {
     VELOV2DOLAFRAXLP: '0x1f8b46abe1EAbF5A60CbBB5Fb2e4a6A46fA0b6e6',
     FRAX: '0x2E3D870790dC77A83DD1d18184Acc7439A53f475',
     ARCHLYDOLAUSDCLP: '0x5b701874FFFc9dFF9305E1cA09705247E13cF717',
+    DOLAUSDCBEETLP: '0xACfE9b4782910A853b68abbA60f3FD8049Ffe638',
   },
   "5": {
     DOLA: '0x50e6a8a893bDa08D31ADCA88E8B99cC3f9b2dE9A',
@@ -163,6 +164,8 @@ const chainTokenAddresses = {
     RUSDR: '0x40379a439D4F6795B6fc9aa5687dB461677A2dBa',
     DOLAUSDRPEARLLP: '0x394DeB5c87e1df9aa7400e99F5cd27a0cD0A64f2',
     DOLAUSDRPEARLLP2: '0x8B0630Cb57d8E63444E97C19a2e82Bb1988399e2',
+    DOLACASHRETROLP: '0x4b4B895a0dD744B4893aA4370A8F7eDbde5Fd90e',
+    CASHV2: '0x5D066D022EDE10eFa2717eD3D79f22F949F8C175',
   },
   "42161": {
     DOLA: '0x6A7661795C374c0bFC635934efAddFf3A7Ee23b6',
@@ -1316,6 +1319,24 @@ const chainTokens = {
       ],
       protocolImage: PROTOCOL_IMAGES.VELOV2,
     },
+    [chainTokenAddresses["10"].DOLAUSDCBEETLP]: {
+      address: chainTokenAddresses["10"].DOLAUSDCBEETLP,
+      name: 'DOLA-USDC',
+      symbol: 'DOLA-USDC beetlp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      balancerInfos: {
+        poolId: '0xacfe9b4782910a853b68abba60f3fd8049ffe6380000000000000000000000ff',
+        vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
+      },
+      pairs: [
+        chainTokenAddresses["10"].USDC, chainTokenAddresses["10"].DOLA, chainTokenAddresses["10"].DOLAUSDCBEETLP
+      ],
+      isStable: true,
+      isComposableMetapool: true,
+      protocolImage: PROTOCOL_IMAGES.BEETHOVEN,
+    },
   },
   "56": {
     CHAIN_COIN: {
@@ -1460,7 +1481,15 @@ const chainTokens = {
       symbol: 'CASH',
       image: TOKEN_IMAGES['CASH'],
       decimals: 18,
-      // coingeckoId: 'cash',
+      coingeckoId: 'stabl-fi',
+    },
+    [chainTokenAddresses["137"].CASHV2]: {
+      address: chainTokenAddresses["137"].CASHV2,
+      name: 'CASH v2',
+      symbol: 'CASH',
+      image: TOKEN_IMAGES['CASH'],
+      decimals: 18,
+      coingeckoId: 'stabl-fi',
     },
     [chainTokenAddresses["137"].USDR]: {
       address: chainTokenAddresses["137"].USDR,
@@ -1533,6 +1562,20 @@ const chainTokens = {
         chainTokenAddresses["137"].CASH, chainTokenAddresses["137"].DOLA
       ],
       protocolImage: PROTOCOL_IMAGES.SATIN,      
+    },
+    [chainTokenAddresses["137"].DOLACASHRETROLP]: {
+      address: chainTokenAddresses["137"].DOLACASHRETROLP,
+      name: 'DOLA-CASH LP',
+      symbol: 'DOLA-CASH retrolp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isUniV3: true,
+      pairs: [
+        chainTokenAddresses["137"].CASHV2, chainTokenAddresses["137"].DOLA
+      ],
+      protocolImage: PROTOCOL_IMAGES.RETRO,
     },
   },
   "42161": {
