@@ -103,6 +103,9 @@ export const F2CombinedForm = ({
         setLeverageCollateralAmount,
         leverageCollateralAmount,
         leverageCollateralAmountNum,
+        setLeverageDebtAmount,
+        leverageDebtAmount,
+        leverageDebtAmountNum,
         dolaPrice,
     } = useContext(F2MarketContext);
 
@@ -191,7 +194,7 @@ export const F2CombinedForm = ({
                 return prepareDeleveragePosition(
                     signer,
                     market,
-                    parseUnits(debtAmount),
+                    parseUnits(debtAmount||'0'),
                     // withdrawn by deleverage
                     parseUnits(collateralAmount || '0', market.underlying.decimals),
                     aleSlippage,
@@ -216,7 +219,7 @@ export const F2CombinedForm = ({
         if(!isDeposit) {
             triggerCollateralAndOrLeverageChange(leverageCollateralAmount, leverageCollateralAmountNum);
         } else {
-            triggerDebtAndOrLeverageChange(debtAmount, debtAmountNum);
+            triggerDebtAndOrLeverageChange(leverageDebtAmount, leverageDebtAmountNum);
         }
     }, [isDeposit, useLeverage])
 
@@ -238,6 +241,7 @@ export const F2CombinedForm = ({
         handleCollateralChange('');
         setDbrSellAmount('');
         setLeverageCollateralAmount('');
+        setLeverageDebtAmount('');
         setUseLeverage(false);
         setLeverage(1);
     }
@@ -256,7 +260,7 @@ export const F2CombinedForm = ({
                 showToast({ status: 'warning', description: errorMsg, title: 'ZeroX api error' })
                 return
             }
-            handleDebtChange(Math.abs(dolaAmount).toFixed(2));
+            setLeverageDebtAmount(Math.abs(dolaAmount).toFixed(2));
             // setLeverageCollateralAmount('');
         }        
     }
@@ -382,7 +386,7 @@ export const F2CombinedForm = ({
                         `The amount of DOLA stablecoin you wish to ${isDeposit ? 'borrow' : 'repay'}`
                     }
                 >
-                    <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? 'Borrow' : 'Repay'}</b> DOLA{useLeverageInMode ? ' (with leverage)' : ''}:</Text>
+                    <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? 'Borrow' : 'Repay'}</b> DOLA{useLeverageInMode ? isDeposit ? ' (with leverage)' : ' (on top of leverage)' : ''}:</Text>
                 </TextInfo>
                 {
                     (debt > 0 || isDeposit) && ((deposits > 0 && isBorrowOnlyCase) || !isBorrowOnlyCase) ?
@@ -407,7 +411,7 @@ export const F2CombinedForm = ({
                                 hideButtons={true}
                                 inputRight={<MarketImage pr="2" image={dolaToken.image} size={25} />}
                                 isError={isDeposit ? debtAmountNum > 0 && newPerc < 1 : debtAmountNum > debt}
-                                inputProps={isDeleverageCase ? { disabled: true, placeholder: `Repay via deleverage: ~${debtAmount}` } : undefined}
+                                // inputProps={isDeleverageCase ? { disabled: true, placeholder: `Repay via deleverage: ~${debtAmount}` } : undefined}
                             />
                             {
                                 <HStack w='full' justify="space-between">
@@ -556,7 +560,7 @@ export const F2CombinedForm = ({
     const disabledConditions = {
         'deposit': ((collateralAmountNum <= 0 && !useLeverageInMode) || collateralBalance < collateralAmountNum),
         'borrow': duration <= 0 || debtAmountNum <= 0 || newPerc < 1 || (isDeposit && !isAutoDBR && dbrBalance <= 0) || market.leftToBorrow < 1 || debtAmountNum > market.leftToBorrow || notEnoughToBorrowWithAutobuy || minDebtDisabledCondition,
-        'repay': debtAmountNum <= 0 || debtAmountNum > debt || (debtAmountNum > dolaBalance && !useLeverageInMode) || (isAutoDBR && !parseFloat(dbrSellAmount)),
+        'repay': (debtAmountNum <= 0 && !useLeverageInMode) || debtAmountNum > debt || (debtAmountNum > dolaBalance && !useLeverageInMode) || (isAutoDBR && !parseFloat(dbrSellAmount)),
         'withdraw': ((collateralAmountNum <= 0 && !useLeverageInMode) || collateralAmountNum > deposits || newPerc < 1 || dbrBalance < 0),
     }
     disabledConditions['d&b'] = disabledConditions['deposit'] || disabledConditions['borrow'] || !parseFloat(dbrBuySlippage) || (useLeverageInMode && leverage <= 1);
@@ -638,7 +642,7 @@ export const F2CombinedForm = ({
                                     setLeverageCollateralAmount(Math.abs(collateralAmount).toFixed(8));
                                 } else {
                                     handleCollateralChange(Math.abs(collateralAmount).toFixed(8));
-                                    handleDebtChange(Math.abs(dolaAmount).toFixed(2));
+                                    setLeverageDebtAmount(Math.abs(dolaAmount).toFixed(2));
                                 }
                             }}
                         />

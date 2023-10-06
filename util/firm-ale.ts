@@ -110,8 +110,8 @@ export const depositAndLeveragePosition = (
 export const prepareDeleveragePosition = async (
     signer: JsonRpcSigner,
     market: F2Market,
-    dolaToRepayToSellCollateral: BigNumber,
-    collateralToWithdraw: BigNumber,    
+    extraDolaToRepay: BigNumber,
+    collateralToWithdraw: BigNumber,
     slippagePerc?: string | number,
     dbrToSell?: BigNumber,
     minDolaOut?: BigNumber,
@@ -143,8 +143,8 @@ export const prepareDeleveragePosition = async (
         const nb = parseFloat(guaranteedPrice) * getBnToNumber(collateralToWithdraw, market.underlying.decimals);
 
         const minDolaAmountFromSwap = getNumberToBn(nb);
-        // dolaIn, minDbrOut
-        const dbrData = [dbrToSell, minDolaOut, '0'];
+        // dolaIn, minDbrOut, extraDolaToRepay
+        const dbrData = [dbrToSell, minDolaOut, extraDolaToRepay];
         return deleveragePosition(
             signer,
             minDolaAmountFromSwap,

@@ -146,6 +146,7 @@ export const FirmBoostInfos = ({
         leverage: leverageLevel,
         setLeverage: setLeverageLevel,
         debtAmountNum,
+        leverageDebtAmount,
         collateralAmountNum,
         onFirmLeverageEngineOpen,
         handleDebtChange,
@@ -320,10 +321,20 @@ export const FirmBoostInfos = ({
                 }
                 {
                     !leverageLoading && leverageLevel > 1 && <TextInfo direction="row-reverse" message={isLeverageUp ? `Collateral added thanks to leverage` : `Collateral reduced thanks to deleverage`}>
-                        <HStack fontWeight="bold" spacing="1" alignItems="center">
+                        <HStack fontWeight="bold" spacing="0" alignItems="center">
                             {isLeverageUp ? <ArrowUpIcon color="success" fontSize="18px" /> : <ArrowDownIcon color="warning" fontSize="18px" />}
-                            <Text fontSize="16px">
+                            <Text fontSize="14px" textAlign="center">
                                 ~{smartShortNumber(isLeverageUp ? parseFloat(leverageCollateralAmount) : collateralAmountNum, 8)} {market.underlying.symbol}
+                            </Text>
+                        </HStack>
+                    </TextInfo>
+                }
+                {
+                    !leverageLoading && leverageLevel > 1 && <TextInfo direction="row-reverse" message={isLeverageUp ? `Debt added due to leverage` : `Debt reduced via deleveraging`}>
+                        <HStack fontWeight="bold" spacing="0" alignItems="center">
+                            {isLeverageUp ? <ArrowUpIcon color="warning" fontSize="18px" /> : <ArrowDownIcon color="success" fontSize="18px" />}
+                            <Text fontSize="14px" textAlign="center">
+                                ~{smartShortNumber(!isLeverageUp ? parseFloat(leverageDebtAmount) : debtAmountNum, 8)} DEBT
                             </Text>
                         </HStack>
                     </TextInfo>
@@ -370,7 +381,7 @@ export const FirmBoostInfos = ({
                 <TextInfo
                     message="Collateral price can vary, the max. slippage % allows the swap required for leverage to be within a certain range, if out of range, tx will revert or fail">
                     <Text>
-                        Max. swap slippage %:
+                        Max. swap slippage for leverage %:
                     </Text>
                 </TextInfo>
                 <Input py="0" maxH="30px" w='90px' value={aleSlippage} onChange={(e) => setAleSlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'))} />
