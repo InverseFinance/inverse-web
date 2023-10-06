@@ -96,6 +96,8 @@ export const TOKEN_IMAGES = {
     "CRVUSD": "https://assets.coingecko.com/coins/images/30118/small/crvusd.jpeg?1683171990",
     "STYCRV": "https://assets.coingecko.com/coins/images/27623/small/st-yCRV-128-0x27B5739e22ad9033bcBf192059122d163b60349D.png?1674200862",
     "YCRV": "https://assets.coingecko.com/coins/images/27622/small/yearncrvnew_32.png?1664881722",
+    "BEETHOVEN": "https://assets.coingecko.com/coins/images/19158/small/beets-icon-large.png?1696518608",
+    "RETRO": "https://assets.coingecko.com/coins/images/31136/small/retro.png?1696529965",
 }
 
 export const PROTOCOL_IMAGES = {
@@ -124,6 +126,8 @@ export const PROTOCOL_IMAGES = {
     "CHRONOS": TOKEN_IMAGES.CHRONOS,
     "PEARL": TOKEN_IMAGES.PEARL,
     "VELOCIMETER": TOKEN_IMAGES.VELOCIMETER,
+    "BEETHOVEN": TOKEN_IMAGES.BEETHOVEN,
+    "RETRO": TOKEN_IMAGES.RETRO,
 }
 
 export const PROTOCOLS_BY_IMG = Object.fromEntries(
