@@ -20,15 +20,12 @@ export const DBRAutoRepayCalculator = () => {
         handleCollateralChange,
     } = useContext(F2MarketContext);
 
-    const { INPUT_BORDER } = useAppThemeParams();
-
     const { prices: cgPrices } = usePrices();
-    const [tempValues, setTempValues] = useState({ days: 365, type: 'months', typedValue: 12, dolaDebt: undefined });
-    const [dolaDebt, setDolaDebt] = useState(newTotalDebt);
+    // const [tempValues, setTempValues] = useState({ days: 365, type: 'months', typedValue: 12 });
     const [duration, setDuration] = useState(365);
     const [durationType, setDurationType] = useState('months');
     const [durationTypeValue, setDurationTypeValue] = useState(12);
-    const { isOpen, onOpen, onClose } = useDisclosure();
+    // const { isOpen, onOpen, onClose } = useDisclosure();
 
     const delta = newDeposits - deposits;
 
@@ -39,7 +36,7 @@ export const DBRAutoRepayCalculator = () => {
     const newShare = newTotalStaked ? newDeposits / (newTotalStaked) : 0;
     const totalRewardsForDuration = duration / 365 * (market?.dbrYearlyRewardRate || 0);
     const userRewardsForDuration = newShare * totalRewardsForDuration;
-    const userBurnsForDuration = dolaDebt * duration / 365;
+    const userBurnsForDuration = newTotalDebt * duration / 365;
 
     const shareNeeded = market?.dbrYearlyRewardRate < userBurnsForDuration || !market?.dbrYearlyRewardRate ?
         null : (userBurnsForDuration / totalRewardsForDuration);
@@ -60,29 +57,13 @@ export const DBRAutoRepayCalculator = () => {
         setDuration(tempValues.days);
         setDurationType(tempValues.type);
         setDurationTypeValue(tempValues.typedValue);
-        setDolaDebt(tempValues.dolaDebt);
         onClose();
     }
-
-    const handleDolaChange = (value: string) => {
-        const stringAmount = value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1');
-        try {
-            const floatAmount = parseFloat(stringAmount) || 0;
-            setTempValues({ ...tempValues, dolaDebt: floatAmount });
-        } catch (error) { }
-    }
-
-    useEffect(() => {
-        if (!!newTotalDebt && tempValues.dolaDebt === undefined) {
-            setTempValues({ ...tempValues, dolaDebt: newTotalDebt });
-            setDolaDebt(newTotalDebt);
-        }
-    }, [newTotalDebt, tempValues.dolaDebt]);
 
     const durationText = `${durationTypeValue} ${durationType}`
 
     return <VStack w='full' alignItems="flex-start">
-        <InfoModal okLabel="Apply Settings" title="Calculator settings" isOpen={isOpen} onClose={onClose} onOk={() => applyTempValues()}>
+        {/* <InfoModal okLabel="Apply Settings" title="Calculator settings" isOpen={isOpen} onClose={onClose} onOk={() => applyTempValues()}>
             <VStack spacing="3" p='4' alignItems="flex-start">
                 <Text>Duration of the staking and the DOLA loans?</Text>
                 <F2DurationInput
@@ -91,21 +72,21 @@ export const DBRAutoRepayCalculator = () => {
                     defaultValue={durationTypeValue}
                     onChange={(days, typedValue, type) => setTempValues({ ...tempValues, days, typedValue, type })}
                 />
-                <Divider />
-                <Text>Total DOLA debt to use for calculations:</Text>
-                <Input fontSize="24px" fontWeight="500" border={INPUT_BORDER} py='0' h='48px' textAlign="right" bgColor="primary.850" value={tempValues.dolaDebt} onChange={e => handleDolaChange(e.target.value)} />
+                <InfoMessage
+                    description="This setting is only used for the interest-free borrowing calculator, it doesn't change the actual duration of the staking and the DOLA loans."
+                />
             </VStack>
-        </InfoModal>
+        </InfoModal> */}
         <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify="space-between">
             <TextInfo message="By having more DBR rewards than DBR burns, you can borrow for free (in DBR terms). As the DBR APR is volatile, it's better to stake more than what is suggested for the current APR.">
                 <Text fontWeight="bold">
                     Interest-free borrowing calculator
                 </Text>
             </TextInfo>
-            <HStack textDecoration="underline" cursor="pointer" onClick={handleSimulationDuration}>
+            {/* <HStack textDecoration="underline" cursor="pointer" onClick={handleSimulationDuration}>
                 <TimeIcon boxSize="3" />
                 <Text>Sim. duration: {durationText}</Text>
-            </HStack>
+            </HStack> */}
         </Stack>
         {
             newDeposits > 0 || deposits > 0 ?
