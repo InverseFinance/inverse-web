@@ -76,7 +76,7 @@ export const DbrAll = ({
 
     const combodata = history?.map(d => {
         const date = timestampToUTC(d.timestamp);
-        const histoPrice = (histoPrices[date] || 0.05);
+        const histoPrice = date > '2023-10-03' ? dbrPrice || 0.05 : (histoPrices[date] || 0.05);
         const invHistoPrice = (invHistoPricesAsObj[date] || 0);
         const invHistoCircSupply = (circSupplyAsObj[date] || 0);
         const invHistoMarketCap = invHistoPrice * invHistoCircSupply;
