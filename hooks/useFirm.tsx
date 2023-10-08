@@ -80,34 +80,34 @@ export const useFirmUsers = (): SWR & {
   const uniqueUsers = [...new Set(positions.map(d => d.user))];
   const now = Date.now();
   const positionsAggregatedByUser = uniqueUsers.map(user => {
-      const userPositions = positions.filter(p => p.user === user).sort((a,b) => b.debt - a.debt);
-      const debt = userPositions.reduce((prev, curr) => prev + (curr.debt), 0);
-      const creditLimit = userPositions.reduce((prev, curr) => prev + (curr.creditLimit), 0);
-      const liquidatableDebt = userPositions.reduce((prev, curr) => prev + (curr.liquidatableDebt), 0);
-      const dbrPos = activeDbrHolders.find(p => p.user === user);
-      const dailyBurn = debt / oneYear * ONE_DAY_MS;
-      const dbrNbDaysExpiry = dailyBurn ? (dbrPos?.signedBalance||0) / dailyBurn : 0;
-      const dbrExpiryDate = !debt ? null : (now + dbrNbDaysExpiry * ONE_DAY_MS);
-      return {
-          user,
-          depositsUsd: userPositions.reduce((prev, curr) => prev + (curr.tvl), 0),
-          liquidatableDebt,
-          isLiquidatable: liquidatableDebt > 0,
-          debt,
-          avgBorrowLimit: debt > 0 ? 100 - (userPositions.reduce((prev, curr) => prev + curr.debtRiskWeight, 0) / debt) : 0,
-          marketIcons: userPositions?.map(p => p.market.underlying.image) || [],
-          marketRelativeDebtSizes: userPositions?.map(p => p.debt > 0 ? p.debt/debt : 0),
-          marketRelativeCollateralSizes: userPositions?.map(p => p.creditLimit > 0 ? p.creditLimit/creditLimit : 0),
-          creditLimit: userPositions.reduce((prev, curr) => prev + (curr.creditLimit), 0),
-          stakedInv: userPositions.filter(p => p.market.isInv).reduce((prev, curr) => prev + (curr.deposits), 0),
-          stakedInvUsd: userPositions.filter(p => p.market.isInv).reduce((prev, curr) => prev + (curr.tvl), 0),
-          dailyBurn,
-          dbrNbDaysExpiry,
-          dbrExpiryDate,
-          dbrSignedBalance: dbrPos?.signedBalance||0,
-          dbrRiskColor: debt > 0 ? getDBRRiskColor(dbrExpiryDate, now) : undefined,
-          marketPositions: userPositions,
-      }
+    const userPositions = positions.filter(p => p.user === user).sort((a, b) => b.debt - a.debt);
+    const debt = userPositions.reduce((prev, curr) => prev + (curr.debt), 0);
+    const creditLimit = userPositions.reduce((prev, curr) => prev + (curr.creditLimit), 0);
+    const liquidatableDebt = userPositions.reduce((prev, curr) => prev + (curr.liquidatableDebt), 0);
+    const dbrPos = activeDbrHolders.find(p => p.user === user);
+    const dailyBurn = debt / oneYear * ONE_DAY_MS;
+    const dbrNbDaysExpiry = dailyBurn ? (dbrPos?.signedBalance || 0) / dailyBurn : 0;
+    const dbrExpiryDate = !debt ? null : (now + dbrNbDaysExpiry * ONE_DAY_MS);
+    return {
+      user,
+      depositsUsd: userPositions.reduce((prev, curr) => prev + (curr.tvl), 0),
+      liquidatableDebt,
+      isLiquidatable: liquidatableDebt > 0,
+      debt,
+      avgBorrowLimit: debt > 0 ? 100 - (userPositions.reduce((prev, curr) => prev + curr.debtRiskWeight, 0) / debt) : 0,
+      marketIcons: userPositions?.map(p => p.market.underlying.image) || [],
+      marketRelativeDebtSizes: userPositions?.map(p => p.debt > 0 ? p.debt / debt : 0),
+      marketRelativeCollateralSizes: userPositions?.map(p => p.creditLimit > 0 ? p.creditLimit / creditLimit : 0),
+      creditLimit: userPositions.reduce((prev, curr) => prev + (curr.creditLimit), 0),
+      stakedInv: userPositions.filter(p => p.market.isInv).reduce((prev, curr) => prev + (curr.deposits), 0),
+      stakedInvUsd: userPositions.filter(p => p.market.isInv).reduce((prev, curr) => prev + (curr.tvl), 0),
+      dailyBurn,
+      dbrNbDaysExpiry,
+      dbrExpiryDate,
+      dbrSignedBalance: dbrPos?.signedBalance || 0,
+      dbrRiskColor: debt > 0 ? getDBRRiskColor(dbrExpiryDate, now) : undefined,
+      marketPositions: userPositions,
+    }
   });
 
   return {
@@ -253,7 +253,7 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
       const colDelta = (e.event === 'Deposit' ? amount : -amount);
       depositedByUser = depositedByUser + colDelta;
       currentCycleDepositedByUser = currentCycleDepositedByUser + colDelta;
-      if(currentCycleDepositedByUser < 0) {
+      if (currentCycleDepositedByUser < 0) {
         currentCycleDepositedByUser = 0;
       }
     } else if (e.event === 'Liquidate' && !!liquidatorReward) {
@@ -363,12 +363,14 @@ export const useDBRDebtHisto = (): SWR & {
   const { data, error } = useCacheFirstSWR(`/api/f2/debt-histo?v1`);
 
   const debts = data?.debts || [];
-  const history = debts.map((d, i) => {
-    return {
-      debt: d.reduce((a, b) => a + b, 0),
-      timestamp: data.timestamps[i] * 1000,
-    }
-  });
+  const history = debts
+    .map((d, i) => {
+      return {
+        debt: d.reduce((a, b) => a + b, 0),
+        timestamp: data.timestamps[i] * 1000,
+      }
+    })
+    .filter((d, i) => !!d.timestamp)
 
   return {
     history,
@@ -473,14 +475,14 @@ export const useCvxCrvRewards = (escrow: string) => {
   });
 
   const rewards = rewardsData?.map(r => {
-    const token = getToken(TOKENS, r.token);    
+    const token = getToken(TOKENS, r.token);
     const balance = getBnToNumber(r.amount, token.decimals);
     const price = prices && prices[token.coingeckoId] ? prices[token.coingeckoId].usd : 0;
     return {
       metaType: 'claimable',
       balanceUSD: balance * price,
       price,
-      balance,      
+      balance,
       address: r.token,
     }
   });
@@ -512,7 +514,7 @@ export const useCvxRewards = (escrow: string) => {
     metaType: 'claimable',
     balanceUSD: balance * price,
     price,
-    balance,      
+    balance,
     address: token.address,
   }];
 
@@ -614,8 +616,8 @@ export const useHistoricalPrices = (cgId: string) => {
   }
 }
 
-export const useHistoOraclePrices = (marketAddress: string) : {
-  timestamp: number,  
+export const useHistoOraclePrices = (marketAddress: string): {
+  timestamp: number,
   evolution: [number, number][],
   prices: number[],
   blocks: number[],
@@ -626,7 +628,7 @@ export const useHistoOraclePrices = (marketAddress: string) : {
   const { data, error } = useCacheFirstSWR(!marketAddress ? '-' : `/api/f2/histo-oracle-prices?v=1.2&market=${marketAddress}`, fetcher);
 
   return {
-    evolution: data?.timestamps?.map((t,i) => [data.timestamps[i], data.oraclePrices[i], data.collateralFactors[i]]) || [],    
+    evolution: data?.timestamps?.map((t, i) => [data.timestamps[i], data.oraclePrices[i], data.collateralFactors[i]]) || [],
     timestamp: data?.timestamp || 0,
     prices: data?.oraclePrices || [],
     blocks: data?.blocks || [],
@@ -655,7 +657,7 @@ export const useEscrowBalanceEvolution = (account: string, escrow: string, marke
     balance: b,
     dbrClaimable: data.dbrClaimables[i],
     blocknumber: data.blocks[i],
-    debt: data.debts[i],    
+    debt: data.debts[i],
     timestamp: data.timestamps[i],
   })) || [];
 
@@ -676,7 +678,7 @@ export const useBlockTxFromLast1000 = (market: F2Market, account: string) => {
   const { data: latestBlockData } = useEtherSWR(
     ['getBlock']
   );
-  
+
   const latestBlock = latestBlockData?.number || 0;
   // for wallets not supporting much events
   const { groupedEvents: groupedRecentEvents } = useMultiContractEvents([
@@ -684,12 +686,12 @@ export const useBlockTxFromLast1000 = (market: F2Market, account: string) => {
     [market.address, F2_MARKET_ABI, 'Withdraw', [account]],
     [market.address, F2_MARKET_ABI, 'Borrow', [account]],
     [market.address, F2_MARKET_ABI, 'Repay', [account]],
-    [market.address, F2_MARKET_ABI, 'Liquidate', [account]],    
+    [market.address, F2_MARKET_ABI, 'Liquidate', [account]],
     [DBR, DBR_ABI, 'ForceReplenish', [account, undefined, market.address]],
   ], `firm-market-recent-${market.address}-${account}-${latestBlock}`, latestBlockData ? latestBlockData?.number - 999 : undefined, latestBlockData ? latestBlockData?.number : undefined);
 
   const flatenedRecentEvents = groupedRecentEvents.flat();
-  const blocks = flatenedRecentEvents.map(e => e.blockNumber);  
+  const blocks = flatenedRecentEvents.map(e => e.blockNumber);
   return blocks?.length ? Math.max(...blocks) : 0;
 }
 
