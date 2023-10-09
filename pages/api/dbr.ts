@@ -2,14 +2,73 @@ import { Contract } from 'ethers'
 import 'source-map-support'
 import { BALANCER_VAULT_ABI, DBR_ABI, DBR_DISTRIBUTOR_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { getProvider } from '@app/util/providers';
+import { getHistoricValue, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
-import { getBnToNumber, getHistoricalTokenData } from '@app/util/markets'
-import { CHAIN_ID } from '@app/config/constants';
+import { getBnToNumber } from '@app/util/markets'
+import { BLOCKS_PER_DAY, CHAIN_ID } from '@app/config/constants';
 import { getDbrPriceOnCurve } from '@app/util/f2';
-import { timestampToUTC } from '@app/util/misc';
+import { throttledPromises, timestampToUTC } from '@app/util/misc';
+import { Web3Provider } from '@ethersproject/providers';
+import { DBR_CG_HISTO_PRICES } from '@app/fixtures/dbr-prices';
+import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
 
 const { DBR, DBR_DISTRIBUTOR } = getNetworkConfigConstants();
+
+// before we use coingecko data, after the triDBR crv pool directly
+const POST_COINGECKO_ERA_BLOCK = 18279729;
+
+export const getCombineCgAndCurveDbrPrices = async (provider: Web3Provider, pastData: undefined | { prices: any[], blocks:[] }) => {
+  const currentBlock = await provider.getBlockNumber();
+
+  let startingBlock: number;
+  if(pastData?.blocks) {
+    startingBlock = Math.min(pastData.blocks[pastData.blocks.length - 1] + 1, currentBlock);
+  } else {
+    startingBlock = POST_COINGECKO_ERA_BLOCK;
+  }
+
+  const intIncrement = Math.floor(BLOCKS_PER_DAY);
+  const nbIntervals = Math.floor((currentBlock - startingBlock) / intIncrement);
+  // new blocks since last cache
+  const newBlocks = [...Array(nbIntervals).keys()].map((i) => startingBlock + (i * intIncrement)).filter(bn => bn <= currentBlock);
+  const crvPrices = await getDbrPricesOnCurve(provider, newBlocks);
+  await addBlockTimestamps(
+    newBlocks,
+    CHAIN_ID,
+  );
+  const timestamps = await getCachedBlockTimestamps();
+  return {
+    blocks: (pastData?.blocks||[]).concat(newBlocks),
+    // [timestamp, price][] format
+    prices: (pastData?.prices||DBR_CG_HISTO_PRICES).concat(crvPrices.map(((crvPrice, i) => [timestamps[CHAIN_ID][newBlocks[i]] * 1000, crvPrice] ))),
+  };
+}
+
+export const getDbrPricesOnCurve = async (SignerOrProvider: Web3Provider, blocks: number[]) => {
+  const crvPool = new Contract(
+      '0xC7DE47b9Ca2Fc753D6a2F167D8b3e19c6D18b19a',
+      ['function price_oracle(uint) public view returns(uint)'],
+      SignerOrProvider,
+  );
+  return getHistoPrices(crvPool, blocks);
+}
+
+const getHistoPrices = async (contract: Contract, blocks: number[]) => {
+  const bns =
+      await throttledPromises(
+          (block: number) => {
+              return getHistoricValue(contract, block, 'price_oracle', ['0']);
+          },
+          blocks,
+          5,
+          100,
+      );
+
+  const values = bns.map((d, i) => {
+      return getBnToNumber(contract.interface.decodeFunctionResult('price_oracle', d)[0]);
+  });
+  return values;
+}
 
 export default async function handler(req, res) {
   const withExtra = req.query.withExtra === 'true';
@@ -23,12 +82,12 @@ export default async function handler(req, res) {
       return
     }
 
-    const provider = getProvider(CHAIN_ID);
+    const provider = getProvider(CHAIN_ID, undefined, true);
     const dbr = new Contract(DBR, DBR_ABI, provider);
     const dbrDistributor = new Contract(DBR_DISTRIBUTOR, DBR_DISTRIBUTOR_ABI, provider);
     const balancerVault = new Contract('0xBA12222222228d8Ba445958a75a0704d566BF2C8', BALANCER_VAULT_ABI, provider);
 
-    const { data: cachedHistoTokenData, isValid, timestamp: histoTokenDataTs } = withExtra ? await getCacheFromRedisAsObj('dola-borrowing-right-historical', true, 3600, false) : { data: undefined, isValid: false };
+    const { data: cachedHistoTokenData, isValid, timestamp: histoTokenDataTs } = withExtra ? await getCacheFromRedisAsObj('tridbr-histo-prices-v1.0.0', true, 3600, false) : { data: undefined, isValid: false };
     const todayUtc = timestampToUTC(Date.now());
     const cachedUtc = histoTokenDataTs ? timestampToUTC(histoTokenDataTs) : '';
     const canUseCachedHisto = todayUtc === cachedUtc;
@@ -43,13 +102,13 @@ export default async function handler(req, res) {
       dbrDistributor.rewardRate(),
       dbrDistributor.minRewardRate(),
       dbrDistributor.maxRewardRate(),
-      canUseCachedHisto ? new Promise((res) => res(cachedHistoTokenData)) : getHistoricalTokenData('dola-borrowing-right'),
+      canUseCachedHisto ? new Promise((res) => res(cachedHistoTokenData)) : getCombineCgAndCurveDbrPrices(provider, cachedHistoTokenData),
     ] : []);
 
     const results = await Promise.all(queries);
 
     if (withExtra && !!results[8] && !canUseCachedHisto) {
-      await redisSetWithTimestamp('dola-borrowing-right-historical', results[8]);
+      await redisSetWithTimestamp('tridbr-histo-prices-v1.0.0', results[8]);
     }
 
     const [poolData, curvePriceData] = results;
