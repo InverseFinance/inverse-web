@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { BarChart12Months } from "./BarChart12Months";
 import { useAppTheme } from "@app/hooks/useAppTheme";
 import { useEventsAsChartData } from "@app/hooks/misc";
-import { timestampToUTC } from "@app/util/misc";
+import { getClosestPreviousHistoPrice, timestampToUTC } from "@app/util/misc";
 import { useDBREmissions, useHistoricalPrices } from "@app/hooks/useFirm";
 import { ONE_DAY_MS } from "@app/config/constants";
 import { DbrComboChart } from "./DbrComboChart";
@@ -76,9 +76,9 @@ export const DbrAll = ({
 
     const combodata = history?.map(d => {
         const date = timestampToUTC(d.timestamp);
-        const histoPrice = date > '2023-10-03' ? dbrPrice || 0.05 : (histoPrices[date] || 0.05);
-        const invHistoPrice = (invHistoPricesAsObj[date] || 0);
-        const invHistoCircSupply = (circSupplyAsObj[date] || 0);
+        const histoPrice = (histoPrices[date] || getClosestPreviousHistoPrice(histoPrices, date ,0.05));
+        const invHistoPrice = (invHistoPricesAsObj[date] || getClosestPreviousHistoPrice(invHistoPricesAsObj, date, 0));
+        const invHistoCircSupply = (circSupplyAsObj[date] || getClosestPreviousHistoPrice(circSupplyAsObj, date, 0));
         const invHistoMarketCap = invHistoPrice * invHistoCircSupply;
         const yearlyRewardRate = rateChanges.findLast(rd => date >= rd.date)?.yearlyRewardRate || 0;
         return {
