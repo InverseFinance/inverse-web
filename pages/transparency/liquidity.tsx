@@ -24,6 +24,7 @@ import { closeToast, showToast } from '@app/util/notify';
 import { DolaBridges } from '@app/components/Transparency/DolaBridges';
 import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
+import { useEnsoPools } from '@app/util/enso';
 
 const groupLpsBy = (lps: any[], attribute: string, max = 6) => {
   const items = Object.entries(
@@ -81,6 +82,7 @@ export const Liquidity = () => {
   const { chartData } = useEventsAsChartData(aggregatedHistoryPlusCurrent[categoryChartHisto] || [], histoAttribute, histoAttribute, false, false);
   const { chartData: lpChartData } = useEventsAsChartData(lpHistoArray, histoAttribute, histoAttribute, false, false);
   const _chartData = isLpChart ? lpChartData : chartData;
+  const { pools: ensoPools } = useEnsoPools({ symbol: 'DOLA' });
 
   const volumes = { DOLA: dola?.volume || 0, INV: inv?.volume || 0, DBR: dbr?.volume || 0 }
 
@@ -168,6 +170,13 @@ export const Liquidity = () => {
     onClose()
   }
 
+  const liquidityWithEnso = liquidity.map(o => {
+    const ensoPool = ensoPools
+      .find(ep => ep.poolAddress.toLowerCase() === o.address.toLowerCase()
+      );
+    return { ...o, ensoPool, hasEnso: !!ensoPool };
+  });
+
   return (
     <Layout>
       <Head>
@@ -222,8 +231,8 @@ export const Liquidity = () => {
                             {NETWORKS_BY_CHAIN_ID[netItem.chainId].name}
                           </option>)
                       }
-                    </Select>                
-                }
+                    </Select>
+                  }
                 </HStack>
                 <Text>Current {histoAttributeLabel}: <b>{preciseCommify(_chartData[_chartData.length - 1].y, histoIsPerc ? 2 : 0, !histoIsPerc)}{histoIsPerc ? '%' : ''}</b></Text>
               </HStack>
@@ -299,8 +308,8 @@ export const Liquidity = () => {
           </Stack>
           <Divider my="4" />
           <LiquidityPoolsTable
-            onRowClick={(item, e) => handleOpenHistoChartFromTable(item, e, liquidity)}
-            items={liquidity}
+            onRowClick={(item, e) => handleOpenHistoChartFromTable(item, e, liquidityWithEnso)}
+            items={liquidityWithEnso}
             timestamp={timestamp}
           />
           <InfoMessage
