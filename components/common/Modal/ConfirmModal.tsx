@@ -1,7 +1,7 @@
 import { Modal } from '@app/components/common/Modal';
 import { HStack, ModalProps, Stack, Text, TextareaProps } from '@chakra-ui/react';
-import { SubmitButton } from '@app/components/common/Button';
 import { ReactNode } from 'react';
+import { RSubmitButton } from '../Button/RSubmitButton';
 
 export type Props = {
     title?: string,
@@ -58,8 +58,8 @@ const ConfirmModal = ({
             }
             footer={
                 <HStack>
-                    { !!cancelLabel && <SubmitButton onClick={handleCancel}>{cancelLabel}</SubmitButton> }
-                    <SubmitButton disabled={okDisabled} refreshOnSuccess={true} onClick={handleOk} onSuccess={handleSuccess}>{okLabel}</SubmitButton>
+                    { !!cancelLabel && <RSubmitButton onClick={handleCancel}>{cancelLabel}</RSubmitButton> }
+                    <RSubmitButton disabled={okDisabled} refreshOnSuccess={true} onClick={handleOk} onSuccess={handleSuccess}>{okLabel}</RSubmitButton>
                 </HStack>
             }
             {...modalProps}

@@ -3,13 +3,13 @@ import { useEscrowBalanceEvolution, useFirmMarketEvolution, useHistoOraclePrices
 import { F2Market } from "@app/types";
 import { useContext, useEffect, useState } from "react";
 import { useAccount } from "@app/hooks/misc";
-import { timestampToUTC } from "@app/util/misc";
+import { getClosestPreviousHistoPrice, timestampToUTC } from "@app/util/misc";
 import { BURN_ADDRESS, ONE_DAY_MS } from "@app/config/constants";
 import { F2MarketContext } from "./F2Contex";
 import { WorthEvoChart } from "./WorthEvoChart";
 import { useMediaQuery } from "@chakra-ui/react";
 import { usePrices } from "@app/hooks/usePrices";
-import { useDBRPrice } from "@app/hooks/useDBR";
+import { useDBR, useDBRPrice } from "@app/hooks/useDBR";
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect'
 
 const maxWidth = 1200;
@@ -24,7 +24,9 @@ const useFirmUserPositionEvolution = (
     const { deposits, escrow, debt, firmActionIndex } = useContext(F2MarketContext);
     const { prices: cgHistoPrices, isLoading: isLoadingHistoPrices } = useHistoricalPrices(market.underlying.coingeckoId);
     const { evolution: histoOraclePricesEvolution, isLoading: isLoadingOracleHistoPrices } = useHistoOraclePrices(market.address);
-    const { prices: dbrPrices } = useHistoricalPrices('dola-borrowing-right');
+    const { historicalData: dbrHistoricalData } = useDBR();
+    const dbrPrices = (dbrHistoricalData?.prices || []);
+    const dbrPricesAsObj = !!dbrPrices ? dbrPrices.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr[0])]: curr[1] }), {}) : {};
     const { prices, isLoading: isLoadingPrices } = usePrices();
     const { price: dbrPrice } = useDBRPrice();
     // events from user wallet, can be not fetched for some wallet providers
@@ -77,7 +79,8 @@ const useFirmUserPositionEvolution = (
         const claimEvent = (!event || event?.actionName !== 'ForceReplenish') ? events.find(e => e.isClaim && e.timestamp === p[0]) : undefined;
         const lastClaimEvent = events.findLast(e => e.isClaim && e.timestamp <= p[0]);
         const claims = lastClaimEvent?.claims || 0;
-        const dbrHistoPrice = dbrPrices.find(dbrPrice => timestampToUTC(dbrPrice[0]) === timestampToUTC(p[0]))?.[1] || 0;
+        const utcDay = timestampToUTC(p[0]);
+        const dbrHistoPrice = dbrPrices.find(dbrPrice => timestampToUTC(dbrPrice[0]) === utcDay)?.[1] || getClosestPreviousHistoPrice(dbrPricesAsObj, utcDay, 0);
 
         const estimatedStakedBonus = balance - unstakedCollateralBalance;
         const rewardsUsd = ((claims + histoEscrowDbrClaimable) * dbrHistoPrice) || 0;

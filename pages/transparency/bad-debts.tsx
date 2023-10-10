@@ -8,7 +8,7 @@ import Head from 'next/head'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 import { useRepayments } from '@app/hooks/useRepayments'
 import Table from '@app/components/common/Table'
-import { getMonthDiff, preciseCommify } from '@app/util/misc'
+import { getClosestPreviousHistoPrice, getMonthDiff, preciseCommify } from '@app/util/misc'
 import { UnderlyingItem } from '@app/components/common/Assets/UnderlyingItem'
 import { usePrices } from '@app/hooks/usePrices'
 import { useEventsAsChartData } from '@app/hooks/misc'
@@ -316,15 +316,6 @@ const cgIdsSymbols = {
   'dola-usd': 'DOLA',
   'yearn-finance': 'YFI',
 };
-
-// in case api failed to fetch a specific date, we use the closest previous date
-const getClosestPreviousHistoPrice = (histoPrices: { [key: string]: number }, date: string, defaultPrice: number) => {
-  const dates = Object.keys(histoPrices);
-  const closestDate = dates.reduce((prev, curr) => {
-    return curr < date ? curr : prev;
-  }, date);
-  return histoPrices[closestDate] || defaultPrice;
-}
 
 const formatToBarData = (data: any, item: any, index: number, key: string, isDolaCase: boolean, prices: any, useHistorical = true) => {
   const cgId = isDolaCase ? 'dola-usd' : keyPrices[key];
