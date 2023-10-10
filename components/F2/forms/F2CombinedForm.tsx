@@ -566,8 +566,8 @@ export const F2CombinedForm = ({
     disabledConditions['d&b'] = disabledConditions['deposit'] || disabledConditions['borrow'] || !parseFloat(dbrBuySlippage) || (useLeverageInMode && leverage <= 1);
     disabledConditions['r&w'] = disabledConditions['repay'] || disabledConditions['withdraw'] || (useLeverageInMode && leverage <= 1);
 
-    const modeLabel = mode.replace(/deposit/i, 'Stake').replace(/withdraw/i, 'Unstake');
-    const actionBtnLabel = useLeverageInMode ? `Sign + ${collateralAmountNum > 0 && !isDeleverageCase ? 'Deposit & ' : ''}Leverage ${isDeposit ? 'up' : 'down'}` : isSigNeeded ? `Sign + ${modeLabel}` : market.isInv ? isDeposit ? 'Stake' : 'Unstake' : modeLabel;
+    const modeLabel = market.isInv ? mode.replace(/deposit/i, 'Stake').replace(/withdraw/i, 'Unstake') : mode;
+    const actionBtnLabel = useLeverageInMode ? `Sign + ${collateralAmountNum > 0 && !isDeleverageCase ? 'Deposit & ' : ''}Leverage ${isDeposit ? 'up' : 'down'}` : isSigNeeded ? `Sign + ${modeLabel}` : modeLabel;
 
     const actionBtn = <HStack>
         <SimpleAmountForm
