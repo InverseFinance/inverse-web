@@ -88,7 +88,7 @@ export const useEnsoPools = ({
     protocol = '',
     project = '',
 }) => {
-    const { data, error } = useSWR(`enso-pools-${symbol}-4`, async () => {
+    const { data, error } = useSWR(`enso-pools-${symbol}-v1`, async () => {
         if (!symbol && !chainId && !underlyingAddress && !tokenAddress && !protocol && !project) return null;
         return await getEnsoPools({
             symbol,

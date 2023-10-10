@@ -3,11 +3,13 @@ import { CHAIN_ID } from "./constants";
 type Features = {
     firmMinDebt: boolean
     firmLeverage: boolean
+    lpZaps: boolean
 }
 
 const defaultFeatures: Features = {
     firmMinDebt: true,
     firmLeverage: false,
+    lpZaps: false,
 }
 
 export const CHAIN_FEATURE_FLAGS = {

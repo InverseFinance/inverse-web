@@ -19,6 +19,7 @@ import { gaEvent } from '@app/util/analytics';
 import { EnsoPool, useEnsoPools } from '@app/util/enso';
 import EnsoZap from '@app/components/ThirdParties/EnsoZap';
 import SimpleModal from '../Modal/SimpleModal';
+import { FEATURE_FLAGS } from '@app/config/features';
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="24px" fontWeight="extrabold" {...props} />
@@ -202,15 +203,18 @@ const columns = [
             <Text>{shortenNumber(tvlUsd, 2, true)}</Text>
         </Cell>,
     },
-    {
+]
+if (FEATURE_FLAGS.lpZaps) {
+    columns.push({
         field: 'hasEnso',
         label: 'Zap',
         header: ({ ...props }) => <ColHeader minWidth="80px" justify="flex-end" {...props} />,
         value: ({ hasEnso }) => <Cell minWidth="80px" justify="flex-end">
             {hasEnso && <Image src="/assets/zap.png" h="20px" w="20px" />}
         </Cell>,
-    },
-]
+    });
+}
+
 
 const columnsShort = [
     {
@@ -251,15 +255,18 @@ const columnsShort = [
             <Text fontWeight="bold">{preciseCommify(apy, 2)}%</Text>
         </Cell>,
     },
-    {
+];
+
+if (FEATURE_FLAGS.lpZaps) {
+    columnsShort.push({
         field: 'hasEnso',
         label: 'Zap',
         header: ({ ...props }) => <ColHeader minWidth="80px" justify="flex-end" {...props} />,
         value: ({ hasEnso }) => <Cell minWidth="80px" justify="flex-end">
             {hasEnso && <Image src="/assets/zap.png" h="20px" w="20px" />}
         </Cell>,
-    },
-]
+    });
+}
 
 const columnsShortMobile = [
     columnsShort[1],
@@ -430,8 +437,9 @@ const oppyLpNameToUnderlyingTokens = (lpName: string, chainId: string | number) 
 
 export const Oppys = () => {
     const { oppys, isLoading } = useOppys();
-    const [isLargerThan] = useMediaQuery(`(min-width: 400px)`)
-    const { pools: ensoPools } = useEnsoPools({ symbol: 'DOLA' });
+    const [isLargerThan] = useMediaQuery(`(min-width: 400px)`);
+    // skip api call if feature disabled
+    const { pools: ensoPools } = useEnsoPools({ symbol: FEATURE_FLAGS.lpZaps ? 'DOLA' : '' });
 
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [defaultTokenOut, setDefaultTokenOut] = useState('');
@@ -486,7 +494,7 @@ export const Oppys = () => {
     const top5Volatile = oppysWithEnso.filter(o => !o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5).map((o, i) => ({ ...o, rank: i + 1 }));
 
     const handleClick = (item: { ensoPool: EnsoPool }) => {
-        if (!item.ensoPool?.poolAddress) return;
+        if (!FEATURE_FLAGS.lpZaps || !item.ensoPool?.poolAddress) return;
         setDefaultTokenOut(item.ensoPool.poolAddress);
         setDefaultTargetChainId(item.ensoPool.chainId?.toString());
         onOpen();
