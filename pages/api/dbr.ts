@@ -15,7 +15,7 @@ import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestam
 const { DBR, DBR_DISTRIBUTOR } = getNetworkConfigConstants();
 
 // before we use coingecko data, after the triDBR crv pool directly
-const POST_COINGECKO_ERA_BLOCK = 18279729;
+const POST_COINGECKO_ERA_BLOCK = 18274000;
 
 export const getCombineCgAndCurveDbrPrices = async (provider: Web3Provider, pastData: undefined | { prices: any[], blocks:[] }) => {
   const currentBlock = await provider.getBlockNumber();
@@ -73,6 +73,7 @@ const getHistoPrices = async (contract: Contract, blocks: number[]) => {
 export default async function handler(req, res) {
   const withExtra = req.query.withExtra === 'true';
   const cacheKey = `dbr-cache${withExtra ? '-extra' : ''}-v1.0.6`;
+  const triDbrKey = 'tridbr-histo-prices-v1.0.1';
   try {
     const cacheDuration = 300;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
@@ -87,7 +88,7 @@ export default async function handler(req, res) {
     const dbrDistributor = new Contract(DBR_DISTRIBUTOR, DBR_DISTRIBUTOR_ABI, provider);
     const balancerVault = new Contract('0xBA12222222228d8Ba445958a75a0704d566BF2C8', BALANCER_VAULT_ABI, provider);
 
-    const { data: cachedHistoTokenData, isValid, timestamp: histoTokenDataTs } = withExtra ? await getCacheFromRedisAsObj('tridbr-histo-prices-v1.0.0', true, 3600, false) : { data: undefined, isValid: false };
+    const { data: cachedHistoTokenData, isValid, timestamp: histoTokenDataTs } = withExtra ? await getCacheFromRedisAsObj(triDbrKey, true, 3600, false) : { data: undefined, isValid: false };
     const todayUtc = timestampToUTC(Date.now());
     const cachedUtc = histoTokenDataTs ? timestampToUTC(histoTokenDataTs) : '';
     const canUseCachedHisto = todayUtc === cachedUtc;
@@ -108,7 +109,7 @@ export default async function handler(req, res) {
     const results = await Promise.all(queries);
 
     if (withExtra && !!results[8] && !canUseCachedHisto) {
-      await redisSetWithTimestamp('tridbr-histo-prices-v1.0.0', results[8]);
+      await redisSetWithTimestamp(triDbrKey, results[8]);
     }
 
     const [poolData, curvePriceData] = results;
