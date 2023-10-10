@@ -12,6 +12,7 @@ import { CHAIN_TOKENS, TOKENS } from '@app/variables/tokens';
 import { isAddress } from 'ethers/lib/utils';
 import { formatFirmEvents } from '@app/util/f2';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
+import { FEATURE_FLAGS } from '@app/config/features';
 
 const { F2_MARKETS, DBR, F2_ALE } = getNetworkConfigConstants();
 
@@ -71,10 +72,12 @@ export default async function handler(req, res) {
       marketContract.queryFilter(marketContract.filters.Liquidate(account), startingBlock),
       marketContract.queryFilter(marketContract.filters.Repay(account), startingBlock),
       marketContract.queryFilter(marketContract.filters.Borrow(account), startingBlock),
-      dbrContract.queryFilter(dbrContract.filters.ForceReplenish(account, undefined, _market.address), startingBlock),
-      aleContract.queryFilter(aleContract.filters.LeverageUp(_market.address, account), startingBlock),
-      aleContract.queryFilter(aleContract.filters.LeverageDown(_market.address, account), startingBlock),
+      dbrContract.queryFilter(dbrContract.filters.ForceReplenish(account, undefined, _market.address), startingBlock),      
     ];
+    if(FEATURE_FLAGS.firmLeverage) {
+      eventsToQuery.push(aleContract.queryFilter(aleContract.filters.LeverageUp(_market.address, account), startingBlock));
+      eventsToQuery.push(aleContract.queryFilter(aleContract.filters.LeverageDown(_market.address, account), startingBlock));
+    }
 
     if (_market.isInv) {
       eventsToQuery.push(dbrContract.queryFilter(dbrContract.filters.Transfer(BURN_ADDRESS, account), startingBlock))

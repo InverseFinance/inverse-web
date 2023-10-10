@@ -7,12 +7,12 @@ type Features = {
 
 const defaultFeatures: Features = {
     firmMinDebt: true,
-    firmLeverage: true,
+    firmLeverage: false,
 }
 
 export const CHAIN_FEATURE_FLAGS = {
     "1": defaultFeatures,
-    "31337": defaultFeatures,
+    "31337": { ...defaultFeatures, firmLeverage: true },
 }
 
 export const FEATURE_FLAGS: Features = CHAIN_FEATURE_FLAGS[CHAIN_ID] || defaultFeatures;
