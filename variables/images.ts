@@ -153,10 +153,12 @@ export const PROTOCOL_DEFILLAMA_MAPPING = {
     "RAMSES": "ramses-v1",
     "RAMSESV2": "ramses-v2",
     "CHRONOS": "chronos-v1",
+    "BEETHOVEN": "beethoven-x",
     // TODO: check if correct project names for the following when defillama adds support    
     "STERLING": "sterling-exchange",
     "SOLIDLIZARD": "solidlizard",
     "SATIN": "satin-exchange",
     "ARCHLY": "archly-exchange",
     "PEARL": "pearl-exchange",
+    "RETRO": "retro-finance",
 }
