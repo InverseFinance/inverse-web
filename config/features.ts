@@ -6,10 +6,13 @@ type Features = {
     lpZaps: boolean
 }
 
+const envFlags = process.env.NEXT_PUBLIC_FF?.length
+    ? process.env.NEXT_PUBLIC_FF.split(',') : ['true', 'false', 'false'];
+
 const defaultFeatures: Features = {
-    firmMinDebt: true,
-    firmLeverage: false,
-    lpZaps: false,
+    firmMinDebt: envFlags[0] === 'true',
+    firmLeverage: envFlags[1] === 'true',
+    lpZaps: envFlags[2] === 'true',
 }
 
 export const CHAIN_FEATURE_FLAGS = {
