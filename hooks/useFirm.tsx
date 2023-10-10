@@ -6,7 +6,7 @@ import { useDBRMarkets, useDBRPrice } from "./useDBR";
 import { f2CalcNewHealth, formatFirmEvents, getDBRRiskColor } from "@app/util/f2";
 import { getBnToNumber, getHistoricalTokenData, getMonthlyRate, getNumberToBn } from "@app/util/markets";
 import { useMultiContractEvents } from "./useContractEvents";
-import { DBR_ABI, F2_ESCROW_ABI, F2_MARKET_ABI } from "@app/config/abis";
+import { DBR_ABI, F2_ALE_ABI, F2_ESCROW_ABI, F2_MARKET_ABI } from "@app/config/abis";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { ascendingEventsSorter, uniqueBy } from "@app/util/misc";
 import { BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
@@ -18,10 +18,11 @@ import { usePrices } from "./usePrices";
 import { getCvxCrvRewards, getCvxRewards } from "@app/util/firm-extra";
 import { useWeb3React } from "@web3-react/core";
 import useSWR from "swr";
+import { FEATURE_FLAGS } from "@app/config/features";
 
 const oneYear = ONE_DAY_MS * 365;
 
-const { DBR, DBR_DISTRIBUTOR, F2_MARKETS, INV } = getNetworkConfigConstants();
+const { DBR, DBR_DISTRIBUTOR, F2_MARKETS, INV, F2_ALE } = getNetworkConfigConstants();
 
 export const useFirmPositions = (isShortfallOnly = false): SWR & {
   positions: any,
@@ -197,6 +198,12 @@ const COMBINATIONS = {
   'Repay': 'Withdraw',
   'Withdraw': 'Repay',
 }
+const COMBINATIONS_LEVERAGE = {
+  'Deposit': 'LeverageUp',
+  'Borrow': 'LeverageUp',
+  'Withdraw': 'LeverageDown',
+  'Repay': 'LeverageDown',
+}
 const COMBINATIONS_NAMES = {
   'Deposit': 'DepositBorrow',
   'Borrow': 'DepositBorrow',
@@ -213,7 +220,7 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
   liquidated: number
   lastBlock: number
 } => {
-  const { groupedEvents, isLoading, error } = useMultiContractEvents([
+  const eventQueries = [
     [market.address, F2_MARKET_ABI, 'Deposit', [account]],
     [market.address, F2_MARKET_ABI, 'Withdraw', [account]],
     [market.address, F2_MARKET_ABI, 'Borrow', [account]],
@@ -221,7 +228,15 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
     [market.address, F2_MARKET_ABI, 'Liquidate', [account]],
     // [market.address, F2_MARKET_ABI, 'CreateEscrow', [account]],
     [DBR, DBR_ABI, 'ForceReplenish', [account, undefined, market.address]],
-  ], `firm-market-${market.address}-${account}`);
+  ];
+  if(FEATURE_FLAGS.firmLeverage) {
+    eventQueries.push([F2_ALE, F2_ALE_ABI, 'LeverageUp', [market.address, account]]);
+    eventQueries.push([F2_ALE, F2_ALE_ABI, 'LeverageDown', [market.address, account]]);
+  }
+  const { groupedEvents, isLoading, error } = useMultiContractEvents(
+    eventQueries,
+    `firm-market-${market.address}-${account}`,
+  );
 
   const flatenedEvents = groupedEvents.flat().sort(ascendingEventsSorter);
   const lastTxBlockFromLast1000 = useBlockTxFromLast1000(market, account);
@@ -234,20 +249,30 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
 
   const events = flatenedEvents.map(e => {
     const isCollateralEvent = ['Deposit', 'Withdraw', 'Liquidate'].includes(e.event);
+    const isLeverageEvent = ['LeverageUp', 'LeverageDown'].includes(e.event);
     const decimals = isCollateralEvent ? market.underlying.decimals : 18;
 
     // Deposit can be associated with Borrow, withdraw with repay
-    let combinedEvent;
+    let combinedEvent, leverageEvent;
     const combinedEventName = COMBINATIONS[e.event];
+    const leverageCombinedEventName = COMBINATIONS_LEVERAGE[e.event];
     if (combinedEventName) {
       combinedEvent = flatenedEvents.find(e2 => e.transactionHash === e2.transactionHash && e2.event === combinedEventName);
     }
+    if (leverageCombinedEventName) {
+      leverageEvent = flatenedEvents.find(e2 => e.transactionHash === e2.transactionHash && e2.event === leverageCombinedEventName);
+    } else if (isLeverageEvent) {
+      leverageEvent = e;
+    }
 
     const tokenName = isCollateralEvent ? market.underlying.symbol : e.args?.replenisher ? 'DBR' : 'DOLA';
-    const actionName = !!combinedEvent ? COMBINATIONS_NAMES[e.event] : e.event;
+    const actionName = !!leverageEvent ? leverageEvent.event : !!combinedEvent ? COMBINATIONS_NAMES[e.event] : e.event;
 
     const amount = e.args?.amount ? getBnToNumber(e.args?.amount, decimals) : undefined;
     const liquidatorReward = e.args?.liquidatorReward ? getBnToNumber(e.args?.liquidatorReward, decimals) : undefined;
+
+    const dolaFlashMinted = !!leverageEvent ? getBnToNumber(leverageEvent.args?.dolaFlashMinted) : 0;
+    const collateralLeveragedAmount = !!leverageEvent ? getBnToNumber(leverageEvent.args[3], market.underlying.decimals) : 0;
 
     if (isCollateralEvent && !!amount) {
       const colDelta = (e.event === 'Deposit' ? amount : -amount);
@@ -266,7 +291,8 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
       blockNumber: e.blockNumber,
       txHash: e.transactionHash,
       amount,
-      isCombined: !!combinedEvent,
+      isLeverage: !!leverageEvent,
+      isCombined: !!combinedEvent || !!leverageEvent,
       amountCombined: combinedEvent?.args?.amount ? getBnToNumber(combinedEvent.args.amount, decimals) : undefined,
       deficit: e.args?.deficit ? getBnToNumber(e.args?.deficit, 18) : undefined,
       repaidDebt: e.args?.repaidDebt ? getBnToNumber(e.args?.repaidDebt, 18) : undefined,
@@ -276,17 +302,20 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
       escrow: e.args?.escrow,
       replenisher: e.args?.replenisher,
       name: e.event,
-      nameCombined: combinedEventName,
+      nameCombined: !!leverageEvent ? leverageCombinedEventName : combinedEventName,
       logIndex: e.logIndex,
       isCollateralEvent,
       tokenName,
       tokenNameCombined: tokenName === 'DOLA' ? market.underlying.symbol : 'DOLA',
+      dolaFlashMinted,
+      collateralLeveragedAmount,
     }
   });
 
   const grouped = uniqueBy(events, (o1, o2) => o1.combinedKey === o2.combinedKey);
   const blocks = events.map(e => e.blockNumber);
   grouped.sort((a, b) => a.blockNumber !== b.blockNumber ? (b.blockNumber - a.blockNumber) : b.logIndex - a.logIndex);
+
   return {
     events: grouped,
     depositedByUser,

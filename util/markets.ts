@@ -4,7 +4,7 @@ import { BigNumber, Contract } from 'ethers';
 import { formatUnits, commify, isAddress, parseUnits, parseEther } from 'ethers/lib/utils';
 import { ETH_MANTISSA, BLOCKS_PER_YEAR, DAYS_PER_YEAR, BLOCKS_PER_DAY, ONE_DAY_SECS } from '@app/config/constants';
 
-import { toFixed } from './misc';
+import { removeTrailingZeros, toFixed } from './misc';
 
 export const getMonthlyRate = (balance: number, apy: number) => {
     return (balance || 0) * (apy || 0) / 100 / 12;
@@ -109,8 +109,8 @@ export const shortenNumber = (value: number, precision = 2, isDollar = false, sh
 }
 
 export const smartShortNumber = (value: number, precision = 2, isDollar = false, showMinPrecision = false) => {
-    const num = shortenNumber(value, precision = 2, isDollar, showMinPrecision);
-    return num.replace(/(\.\d*?[1-9])0+([a-zA-Z])?$/, '$1$2').replace(/\.0+([a-zA-Z])?$/, '$1');
+    const num = shortenNumber(value, precision, isDollar, showMinPrecision);
+    return removeTrailingZeros(num);
 }
 
 export const getToken = (tokens: TokenList, symbolOrAddress: string) => {

@@ -169,5 +169,6 @@ export const getNetworkConfigConstants = (
         F2_HELPER: config.f2helper,
         F2_ORACLE: config.f2Oracle,
         F2_MARKETS: config.f2markets||[],
+        F2_ALE: config.f2ale,
     }
 }

@@ -1,6 +1,6 @@
 import { BigNumber, Contract } from 'ethers'
 import 'source-map-support'
-import { DBR_ABI, F2_ESCROW_ABI, F2_MARKET_ABI } from '@app/config/abis'
+import { DBR_ABI, F2_ALE_ABI, F2_ESCROW_ABI, F2_MARKET_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
@@ -12,8 +12,9 @@ import { CHAIN_TOKENS, TOKENS } from '@app/variables/tokens';
 import { isAddress } from 'ethers/lib/utils';
 import { formatFirmEvents } from '@app/util/f2';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
+import { FEATURE_FLAGS } from '@app/config/features';
 
-const { F2_MARKETS, DBR } = getNetworkConfigConstants();
+const { F2_MARKETS, DBR, F2_ALE } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
   const { cacheFirst, account, escrow, market, firmActionIndex } = req.query;
@@ -26,7 +27,7 @@ export default async function handler(req, res) {
     res.status(400).json({ msg: 'invalid request' });
     return;
   }
-  const cacheKey = `firm-escrow-balance-histo-${escrow}-${CHAIN_ID}-v1.0.99`;
+  const cacheKey = `firm-escrow-balance-histo-${escrow}-${CHAIN_ID}-v1.1.0`;
   try {
     const webCacheDuration = 3600;
     const redisCacheDuration = 60;
@@ -49,6 +50,7 @@ export default async function handler(req, res) {
 
     const currentBlock = await provider.getBlockNumber();
     const marketContract = new Contract(_market.address, F2_MARKET_ABI, provider);
+    const aleContract = new Contract(F2_ALE, F2_ALE_ABI, provider);
     const escrowCreations = await marketContract.queryFilter(marketContract.filters.CreateEscrow(account), _market.startingBlock);
     const escrowCreationBlock = escrowCreations.length > 0 ? escrowCreations[0].blockNumber : 0;
 
@@ -70,8 +72,12 @@ export default async function handler(req, res) {
       marketContract.queryFilter(marketContract.filters.Liquidate(account), startingBlock),
       marketContract.queryFilter(marketContract.filters.Repay(account), startingBlock),
       marketContract.queryFilter(marketContract.filters.Borrow(account), startingBlock),
-      dbrContract.queryFilter(dbrContract.filters.ForceReplenish(account, undefined, _market.address), startingBlock),
+      dbrContract.queryFilter(dbrContract.filters.ForceReplenish(account, undefined, _market.address), startingBlock),      
     ];
+    if(FEATURE_FLAGS.firmLeverage) {
+      eventsToQuery.push(aleContract.queryFilter(aleContract.filters.LeverageUp(_market.address, account), startingBlock));
+      eventsToQuery.push(aleContract.queryFilter(aleContract.filters.LeverageDown(_market.address, account), startingBlock));
+    }
 
     if (_market.isInv) {
       eventsToQuery.push(dbrContract.queryFilter(dbrContract.filters.Transfer(BURN_ADDRESS, account), startingBlock))
@@ -141,7 +147,7 @@ export default async function handler(req, res) {
       replenished,
       claims,
     } = formatFirmEvents(_market, flatenedEvents, flatenedEvents.map(e => timestamps[timeChainId][e.blockNumber] * 1000), archived?.formattedEvents?.length > 0 ? archived : undefined);
-
+    
     const resultData = {
       timestamp: Date.now(),
       firmActionIndex,

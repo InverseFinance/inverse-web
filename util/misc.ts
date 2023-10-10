@@ -257,6 +257,9 @@ export const ascendingEventsSorter = (a, b) => {
     }
 }
 
+export const removeTrailingZeros = (num: string) => {
+    return num.replace(/(\.\d*?[1-9])0+([a-zA-Z])?$/, '$1$2').replace(/\.0+([a-zA-Z])?$/, '$1')
+}
 // in case api failed to fetch a specific date, we use the closest previous date
 export const getClosestPreviousHistoPrice = (histoPrices: { [key: string]: number }, date: string, defaultPrice: number) => {
     const dates = Object.keys(histoPrices);

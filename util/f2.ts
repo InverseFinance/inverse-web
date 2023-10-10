@@ -24,6 +24,7 @@ export const getFirmSignature = (
     market: string,
     amount: string | BigNumber,
     type: 'BorrowOnBehalf' | 'WithdrawOnBehalf',
+    caller: string = F2_HELPER,
 ): Promise<{
     deadline: number,
     r: string,
@@ -49,7 +50,7 @@ export const getFirmSignature = (
             }
 
             const value = {
-                caller: F2_HELPER,
+                caller,
                 from,
                 amount,
                 nonce: (await marketContract.nonces(from)).toString(),
@@ -192,12 +193,12 @@ export const f2depositAndBorrowHelper = async (
     durationDays: number,
     isNativeCoin = false,
     isBorrowOnly = false,
-    helperType = DEFAULT_FIRM_HELPER_TYPE,
+    dbrHelperType = DEFAULT_FIRM_HELPER_TYPE,
 ) => {
-    const approx = await f2approxDbrAndDolaNeeded(signer, borrow, dbrBuySlippage, durationDays, helperType);
+    const approx = await f2approxDbrAndDolaNeeded(signer, borrow, dbrBuySlippage, durationDays, dbrHelperType);
 
     const signatureResult = await getFirmSignature(signer, market, !durationDays ? borrow : approx.maxDola, 'BorrowOnBehalf');
-    const { dolaParam, dbrParam } = getHelperDolaAndDbrParams(helperType, durationDays, approx);
+    const { dolaParam, dbrParam } = getHelperDolaAndDbrParams(dbrHelperType, durationDays, approx);
 
     if (signatureResult) {
         const { deadline, r, s, v } = signatureResult;
@@ -239,7 +240,7 @@ export const f2deposit = async (signer: JsonRpcSigner, market: string, amount: s
         return helperContract.depositNativeEthOnBehalf(market, { value: amount });
     }
     const contract = new Contract(market, F2_MARKET_ABI, signer);
-    if(needsHigherGasLimit(market)) {
+    if (needsHigherGasLimit(market)) {
         return callWithHigherGL(contract, 'deposit', [account, amount]);
     }
     return contract.deposit(account, amount);
@@ -255,7 +256,7 @@ export const f2withdraw = async (signer: JsonRpcSigner, market: string, amount: 
         }
     }
     const contract = new Contract(market, F2_MARKET_ABI, signer);
-    if(needsHigherGasLimit(market)) {
+    if (needsHigherGasLimit(market)) {
         return callWithHigherGL(contract, 'withdraw', [amount]);
     }
     return contract.withdraw(amount);
@@ -269,7 +270,7 @@ export const f2withdrawMax = async (signer: JsonRpcSigner, market: string) => {
 
 export const f2borrow = (signer: JsonRpcSigner, market: string, amount: string | BigNumber) => {
     const contract = new Contract(market, F2_MARKET_ABI, signer);
-    if(needsHigherGasLimit(market)) {
+    if (needsHigherGasLimit(market)) {
         return callWithHigherGL(contract, 'borrow', [amount]);
     }
     return contract.borrow(amount);
@@ -278,7 +279,7 @@ export const f2borrow = (signer: JsonRpcSigner, market: string, amount: string |
 export const f2repay = async (signer: JsonRpcSigner, market: string, amount: string | BigNumber, to?: string) => {
     const contract = new Contract(market, F2_MARKET_ABI, signer);
     const _to = to ? to : await signer.getAddress();
-    if(needsHigherGasLimit(market)) {
+    if (needsHigherGasLimit(market)) {
         return callWithHigherGL(contract, 'repay', [_to, amount]);
     }
     return contract.repay(_to, amount);
@@ -286,7 +287,7 @@ export const f2repay = async (signer: JsonRpcSigner, market: string, amount: str
 
 export const f2depositAndBorrow = (signer: JsonRpcSigner, market: string, deposit: string | BigNumber, borrow: string | BigNumber) => {
     const contract = new Contract(market, F2_MARKET_ABI, signer);
-    if(needsHigherGasLimit(market)) {
+    if (needsHigherGasLimit(market)) {
         return callWithHigherGL(contract, 'depositAndBorrow', [deposit, borrow]);
     }
     return contract.depositAndBorrow(deposit, borrow);
@@ -294,7 +295,7 @@ export const f2depositAndBorrow = (signer: JsonRpcSigner, market: string, deposi
 
 export const f2repayAndWithdraw = (signer: JsonRpcSigner, market: string, repay: string | BigNumber, withdraw: string | BigNumber) => {
     const contract = new Contract(market, F2_MARKET_ABI, signer);
-    if(needsHigherGasLimit(market)) {
+    if (needsHigherGasLimit(market)) {
         return callWithHigherGL(contract, 'repayAndWithdraw', [repay, withdraw]);
     }
     return contract.repayAndWithdraw(repay, withdraw);
@@ -432,12 +433,12 @@ export const getDolaUsdPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | W
             { contract: crvUsdAggreg, functionName: 'last_price' },
             { contract: crvPool, functionName: 'totalSupply' },
             { contract: crvPool, functionName: 'get_virtual_price' },
-        ]);        
+        ]);
         return {
             price: getBnToNumber(crvUsdLastPrice) / getBnToNumber(dolaPriceInCrvUsd),
             tvl: getBnToNumber(lpVirtualPrice) * getBnToNumber(totalSupply),
         };
-    } catch(e) {
+    } catch (e) {
         return { price: 0, tvl: 0, error: true };
     }
 }
@@ -544,13 +545,19 @@ const COMBINATIONS = {
     'Borrow': 'Deposit',
     'Repay': 'Withdraw',
     'Withdraw': 'Repay',
-  }
-  const COMBINATIONS_NAMES = {
+}
+const COMBINATIONS_NAMES = {
     'Deposit': 'DepositBorrow',
     'Borrow': 'DepositBorrow',
     'Repay': 'RepayWithdraw',
     'Withdraw': 'RepayWithdraw',
-  }
+}
+const COMBINATIONS_LEVERAGE = {
+    'Deposit': 'LeverageUp',
+    'Borrow': 'LeverageUp',
+    'Withdraw': 'LeverageDown',
+    'Repay': 'LeverageDown',
+}
 
 export const formatAndGroupFirmEvents = (
     market: F2Market,
@@ -563,31 +570,44 @@ export const formatAndGroupFirmEvents = (
     let currentCycleDepositedByUser = 0;
     let liquidated = 0;
     const events = flatenedEvents.map(e => {
-        const name = e.event||e.name;
+        const name = e.event || e.name;
         const isCollateralEvent = ['Deposit', 'Withdraw', 'Liquidate'].includes(name);
+        const isLeverageEvent = ['LeverageUp', 'LeverageDown'].includes(name);
         const decimals = isCollateralEvent ? market.underlying.decimals : 18;
-        const txHash = e.transactionHash||e.txHash;
+        const txHash = e.transactionHash || e.txHash;
 
         // Deposit can be associated with Borrow, withdraw with repay
-        let combinedEvent;
+        let combinedEvent, leverageEvent;
         const combinedEventName = COMBINATIONS[name];
+        const leverageCombinedEventName = COMBINATIONS_LEVERAGE[name];
         if (combinedEventName) {
             combinedEvent = flatenedEvents.find(e2 => {
-                const e2TxHash = e2.transactionHash||e2.txHash;;
-                return e2TxHash === txHash && (e2.event||e2.name) === combinedEventName
+                const e2TxHash = e2.transactionHash || e2.txHash;
+                return e2TxHash === txHash && (e2.event || e2.name) === combinedEventName
             });
-        }        
-        const tokenName = isCollateralEvent ? market.underlying.symbol : e.args?.replenisher||e.replenisher ? 'DBR' : 'DOLA';
-        const actionName = !!combinedEvent ? COMBINATIONS_NAMES[name] : name;
+        }
+        if (leverageCombinedEventName) {
+            leverageEvent = flatenedEvents.find(e2 => {
+                const e2TxHash = e2.transactionHash || e2.txHash;
+                return e2TxHash === txHash && (e2.event === leverageCombinedEventName || e2.name === leverageCombinedEventName);
+            });
+        } else if (isLeverageEvent) {
+            leverageEvent = e;
+        }
+        const tokenName = isCollateralEvent ? market.underlying.symbol : e.args?.replenisher || e.replenisher ? 'DBR' : 'DOLA';
+        const actionName = !!leverageEvent ? (leverageEvent.event||leverageEvent.name) : !!combinedEvent ? COMBINATIONS_NAMES[name] : name;
 
         const amount = e.amount ? e.amount : e.args?.amount ? getBnToNumber(e.args?.amount, decimals) : undefined;
         const liquidatorReward = e.liquidatorReward ? e.liquidatorReward : e.args?.liquidatorReward ? getBnToNumber(e.args?.liquidatorReward, decimals) : undefined;
+
+        const dolaFlashMinted = !!leverageEvent ? getBnToNumber(leverageEvent.args?.dolaFlashMinted) : 0;
+        const collateralLeveragedAmount = !!leverageEvent ? getBnToNumber(leverageEvent.args?.[3], market.underlying.decimals) : 0;
 
         if (isCollateralEvent && !!amount) {
             const colDelta = (name === 'Deposit' ? amount : -amount)
             depositedByUser = depositedByUser + colDelta;
             currentCycleDepositedByUser = currentCycleDepositedByUser + colDelta;
-            if(currentCycleDepositedByUser < 0) {
+            if (currentCycleDepositedByUser < 0) {
                 currentCycleDepositedByUser = 0;
             }
             // console.log('depositedByUser', depositedByUser, 'amount', a)
@@ -596,20 +616,21 @@ export const formatAndGroupFirmEvents = (
         }
 
         return {
-            combinedKey: `${txHash}-${actionName}-${e.args?.account||account}`,
+            combinedKey: `${txHash}-${actionName}-${e.args?.account || account}`,
             actionName,
             blockNumber: e.blockNumber,
             txHash,
             amount,
-            isCombined: !!combinedEvent,
+            isLeverage: !!leverageEvent,
+            isCombined: !!combinedEvent || !!leverageEvent,
             amountCombined: combinedEvent?.amount ? combinedEvent?.amount : combinedEvent?.args?.amount ? getBnToNumber(combinedEvent.args.amount, decimals) : undefined,
             deficit: e.deficit ? e.deficit : e.args?.deficit ? getBnToNumber(e.args?.deficit, 18) : undefined,
             repaidDebt: e.repaidDebt ? e.repaidDebt : e.args?.repaidDebt ? getBnToNumber(e.args?.repaidDebt, 18) : undefined,
             liquidatorReward,
-            repayer: e.args?.repayer||e.repayer,
-            to: e.args?.to||e.to,
-            escrow: e.args?.escrow||e.escrow,
-            replenisher: e.args?.replenisher||e.replenisher,
+            repayer: e.args?.repayer || e.repayer,
+            to: e.args?.to || e.to,
+            escrow: e.args?.escrow || e.escrow,
+            replenisher: e.args?.replenisher || e.replenisher,
             name,
             nameCombined: combinedEventName,
             logIndex: e.logIndex,
@@ -617,6 +638,8 @@ export const formatAndGroupFirmEvents = (
             tokenName,
             isClaim: actionName === 'Transfer',
             tokenNameCombined: tokenName === 'DOLA' ? market.underlying.symbol : 'DOLA',
+            dolaFlashMinted,
+            collateralLeveragedAmount,
             timestamp: e.timestamp,
         }
     });

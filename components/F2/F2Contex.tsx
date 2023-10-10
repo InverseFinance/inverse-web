@@ -13,6 +13,7 @@ import { useRouter } from 'next/router'
 import { useDOLABalance } from '@app/hooks/useDOLA'
 import useStorage from '@app/hooks/useStorage'
 import { gaEvent } from '@app/util/analytics'
+import { useDOLAPrice } from '@app/hooks/usePrices'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -65,13 +66,20 @@ export const F2Context = ({
     const [durationTypedValue, setDurationTypedValue] = useState(12);
     const [collateralAmount, setCollateralAmount] = useState('');
     const [debtAmount, setDebtAmount] = useState('');
+    const [leverageCollateralAmount, setLeverageCollateralAmount] = useState('');
+    const [leverageDebtAmount, setLeverageDebtAmount] = useState('');
     const [dbrSellAmount, setDbrSellAmount] = useState('');
     const [dbrBuySlippage, setDbrBuySlippage] = useState('1');
+    const [aleSlippage, setAleSlippage] = useState('1');
     const [isDeposit, setIsDeposit] = useState(true);
     const [isAutoDBR, setIsAutoDBR] = useState(false);
     const [isUseNativeCoin, setIsUseNativeCoin] = useState(false);
     const [needRefreshRewards, setNeedRefreshRewards] = useState(true);
+    const [useLeverage, setUseLeverage] = useState(false);
+    const [leverage, setLeverage] = useState(1);
+    const [leverageLoading, setLeverageLoading] = useState(false);
     const [mode, setMode] = useState('Deposit & Borrow');
+    
     const [infoTab, setInfoTab] = useState('Summary');
     const [maxBorrowable, setMaxBorrowable] = useState(0);
     // increment on successful firm tx
@@ -82,15 +90,25 @@ export const F2Context = ({
     const isMountedRef = useRef(true)
     const firstTimeModalResolverRef = useRef(() => {});
     const { isOpen: isFirstTimeModalOpen, onOpen: onFirstTimeModalOpen, onClose: onFirstTimeModalClose } = useDisclosure();
+    const { isOpen: isFirmLeverageEngineOpen, onOpen: onFirmLeverageEngineOpen, onClose: onFirmLeverageEngineClose } = useDisclosure();
     const { isOpen: isDbrV1NewBorrowIssueModalOpen, onOpen: onDbrV1NewBorrowIssueModalOpen, onClose: onDbrV1NewBorrowIssueModalClose } = useDisclosure();
     const { value: notFirstTime, setter: setNotFirstTime } = useStorage('firm-first-time-modal-no-more');
     const colDecimals = market.underlying.decimals;
 
     const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt, bnLeftToBorrow, leftToBorrow, liquidationPrice, escrow, underlyingExRate } = useAccountDBRMarket(market, account, isUseNativeCoin);
     const { balance: dolaBalance, bnBalance: bnDolaBalance } = useDOLABalance(account);
+    const { price: dolaPrice, isLoading: isDolaPriceLoading } = useDOLAPrice();
+
+    const useLeverageInMode = useLeverage && (mode === 'Deposit & Borrow' || (mode === 'Repay & Withdraw' && debt > 1))
 
     const debtAmountNum = parseFloat(debtAmount || '0') || 0;// NaN => 0
     const collateralAmountNum = parseFloat(collateralAmount || '0') || 0;
+
+    const leverageDebtAmountNum = parseFloat(leverageDebtAmount || '0') || 0;// NaN => 0
+    const leverageCollateralAmountNum = parseFloat(leverageCollateralAmount || '0') || 0;
+
+    const totalDebtAmountNum = debtAmountNum + (useLeverageInMode ? leverageDebtAmountNum : 0);
+    const totalCollateralAmountNum = collateralAmountNum + (isDeposit && useLeverageInMode ? leverageCollateralAmountNum : 0)//(isDeposit || !useLeverageInMode || (!isDeposit && useLeverageInMode) ? collateralAmountNum : 0) + (useLeverageInMode ? leverageCollateralAmountNum : 0);
 
     const dbrApproxData = useDBRNeeded(debtAmount, duration);
 
@@ -103,8 +121,8 @@ export const F2Context = ({
     const hasCollateralChange = ['deposit', 'd&b', 'withdraw', 'r&w'].includes(MODES[mode]);
     const hasDebtChange = ['borrow', 'd&b', 'repay', 'r&w'].includes(MODES[mode]);
 
-    const deltaCollateral = isDeposit ? collateralAmountNum : -collateralAmountNum;
-    const deltaDebt = isDeposit ? debtAmountNum : -debtAmountNum;
+    const deltaCollateral = isDeposit ? totalCollateralAmountNum : -totalCollateralAmountNum;
+    const deltaDebt = isDeposit ? totalDebtAmountNum : -totalDebtAmountNum;
 
     const {
         newDebt
@@ -135,7 +153,7 @@ export const F2Context = ({
         deposits,
         debt,
         hasCollateralChange ? deltaCollateral : 0,
-        hasDebtChange ? isDeposit ? 0 : -(Math.min(debtAmountNum, debt)) : 0,
+        hasDebtChange ? isDeposit ? 0 : -(Math.min(totalDebtAmountNum, debt)) : 0,
         perc,
     );
 
@@ -166,7 +184,7 @@ export const F2Context = ({
                 dbrPrice,
                 duration,
                 deltaCollateral,
-                isDeposit ? 0 : -debtAmountNum,
+                isDeposit ? 0 : -totalDebtAmountNum,
                 maxBorrow,
                 perc,
                 isAutoDBR,
@@ -177,7 +195,7 @@ export const F2Context = ({
             setMaxBorrowable(newMaxBorrowable);
         }
         init();
-    }, [market, deposits, debt, debtAmountNum, dbrPrice, deltaCollateral, duration, collateralAmount, maxBorrow, perc, isDeposit, isAutoDBR]);
+    }, [market, deposits, debt, debtAmountNum, totalDebtAmountNum, dbrPrice, deltaCollateral, duration, collateralAmount, maxBorrow, perc, isDeposit, isAutoDBR]);
 
     const handleCollateralChange = (stringNumber: string) => {
         setCollateralAmount(stringNumber);
@@ -297,8 +315,17 @@ export const F2Context = ({
             dbrBuySlippage,
             needRefreshRewards,
             dbrApproxData,
+            useLeverage,
+            useLeverageInMode,
+            setUseLeverage,
+            leverage,
+            setLeverage,
             hasDbrV1NewBorrowIssue,
             underlyingExRate,
+            totalCollateralAmountNum,
+            setAleSlippage,
+            aleSlippage,
+            dolaPrice,
             setNeedRefreshRewards,
             setDbrBuySlippage,
             setDbrSellAmount,
@@ -315,6 +342,17 @@ export const F2Context = ({
             handleCollateralChange,
             notFirstTime,
             setNotFirstTime,
+            isFirmLeverageEngineOpen,
+            onFirmLeverageEngineOpen,
+            onFirmLeverageEngineClose,
+            setLeverageCollateralAmount,
+            leverageCollateralAmount,
+            leverageCollateralAmountNum,
+            leverageDebtAmount,
+            setLeverageDebtAmount,
+            leverageDebtAmountNum,
+            leverageLoading,
+            setLeverageLoading,
             isFirstTimeModalOpen,
             firmActionIndex,
             setFirmActionIndex,
