@@ -13,7 +13,7 @@ import { pricesCacheKey } from '../prices';
 import { PROTOCOLS_BY_IMG } from '@app/variables/images';
 import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 
-export const liquidityCacheKey = `liquidity-v1.1.7`;
+export const liquidityCacheKey = `liquidity-v1.1.9`;
 
 const PROTOCOL_DEFILLAMA_MAPPING = {
     "VELO": 'velodrome-v1',
@@ -32,12 +32,14 @@ const PROTOCOL_DEFILLAMA_MAPPING = {
     "RAMSES": "ramses-v1",
     "RAMSESV2": "ramses-v2",
     "CHRONOS": "chronos-v1",
+    "BEETHOVEN": "beethoven-x",
     // TODO: check if correct project names for the following when defillama adds support    
     "STERLING": "sterling-exchange",
     "SOLIDLIZARD": "solidlizard",
     "SATIN": "satin-exchange",
     "ARCHLY": "archly-exchange",
     "PEARL": "pearl-exchange",
+    "RETRO": "retro-finance",
 }
 
 export default async function handler(req, res) {
