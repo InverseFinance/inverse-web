@@ -16,6 +16,7 @@ import { NETWORKS } from "@app/config/networks";
 import { Token } from "@app/types";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
 import { DOLA_BRIDGED_CHAINS } from "@app/config/constants";
+import { WarningMessage } from "../common/Messages";
 
 const zapOptions = [...new Set(ZAP_TOKENS_ARRAY.map(t => t.address))];
 const implementedNetworks = NETWORKS
@@ -138,33 +139,41 @@ function EnsoZap({
                 <Input py="0" maxH="30px" w='90px' value={slippage} onChange={(e) => setSlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'))} />
             </HStack>
 
-            <SimpleAmountForm
-                address={tokenIn === EthXe ? '' : tokenIn}
-                // destination={routeTx?.to}
-                destination={approveDestinationAddress}
-                hideInput={true}
-                showMaxBtn={false}
-                actionLabel="Zap-in"
-                isDisabled={!amountIn || ((!!tokenIn && tokenIn !== EthXe) && !approveDestinationAddress) || !slippage || !parseFloat(slippage)}
-                alsoDisableApprove={true}
-                btnProps={{ needPoaFirst: true }}
-                signer={provider?.getSigner()}
-                onAction={
-                    () => {
-                        if (!provider) return;
-                        return ensoZap(provider?.getSigner(), {
-                            fromAddress: account,
-                            tokenIn,
-                            tokenOut,
-                            chainId: chainId?.toString(),
-                            targetChainId,
-                            amount: parseUnits(amountIn, tokenInObj.decimals).toString(),
-                            toEoa: true,
-                            slippage: parseFloat(slippage) * 100,
-                        })
-                    }
-                }
-            />
+            {
+                chainId?.toString() !== targetChainId?.toString() ? <WarningMessage
+                    alertProps={{ w: 'full' }}
+                    title="Wrong Network"
+                    description={`Please connect to ${targetNetwork?.name}`}
+                />
+                    :
+                    <SimpleAmountForm
+                        address={tokenIn === EthXe ? '' : tokenIn}
+                        // destination={routeTx?.to}
+                        destination={approveDestinationAddress}
+                        hideInput={true}
+                        showMaxBtn={false}
+                        actionLabel="Zap-in"
+                        isDisabled={!amountIn || ((!!tokenIn && tokenIn !== EthXe) && !approveDestinationAddress) || !slippage || !parseFloat(slippage)}
+                        alsoDisableApprove={true}
+                        btnProps={{ needPoaFirst: true }}
+                        signer={provider?.getSigner()}
+                        onAction={
+                            () => {
+                                if (!provider) return;
+                                return ensoZap(provider?.getSigner(), {
+                                    fromAddress: account,
+                                    tokenIn,
+                                    tokenOut,
+                                    chainId: chainId?.toString(),
+                                    targetChainId,
+                                    amount: parseUnits(amountIn, tokenInObj.decimals).toString(),
+                                    toEoa: true,
+                                    slippage: parseFloat(slippage) * 100,
+                                })
+                            }
+                        }
+                    />
+            }
         </VStack>
     </Container>
 }
