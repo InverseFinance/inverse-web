@@ -1,6 +1,6 @@
 import { VStack, HStack, Text } from "@chakra-ui/react"
 import SimpleModal from "./SimpleModal"
-import EnsoZap from "@app/components/ThirdParties/EnsoZap"
+import EnsoZap from "@app/components/ThirdParties/enso/EnsoZap"
 import Link from "../Link"
 import { InfoMessage } from "../Messages"
 

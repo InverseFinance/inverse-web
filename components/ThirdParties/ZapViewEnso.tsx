@@ -1,7 +1,7 @@
 import { getNetwork } from "@app/util/networks";
 import SocketBridge from "./Socket"
 import { CHAIN_TOKENS, getToken } from "@app/variables/tokens";
-import EnsoZap from "./EnsoZap";
+import EnsoZap from "./enso/EnsoZap";
 
 export const ZapViewEnso = ({
     fromToken = 'USDC',
