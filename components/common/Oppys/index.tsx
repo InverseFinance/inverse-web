@@ -13,13 +13,13 @@ import { useEffect, useState } from 'react';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
 import { preciseCommify } from '@app/util/misc';
 import { UnderlyingItem } from '../Assets/UnderlyingItem';
-import { NETWORKS_BY_NAME, NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
+import { NETWORKS_BY_NAME } from '@app/config/networks';
 import { CHAIN_TOKENS, TOKENS, getToken } from '@app/variables/tokens';
 import { gaEvent } from '@app/util/analytics';
 import { EnsoPool, useEnsoPools } from '@app/util/enso';
-import EnsoZap from '@app/components/ThirdParties/EnsoZap';
-import SimpleModal from '../Modal/SimpleModal';
+
 import { FEATURE_FLAGS } from '@app/config/features';
+import { EnsoModal } from '../Modal/EnsoModal';
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="24px" fontWeight="extrabold" {...props} />
@@ -425,16 +425,6 @@ const oppyLpNameToUnderlyingTokens = (lpName: string, chainId: string | number) 
     return split.map(sym => getToken(CHAIN_TOKENS[chainId], sym)?.address);
 }
 
-// const getEnsoItemUnderlyingTokens = (ep: any) => {
-//     if (!ep.underlyingTokens || ep.underlyingTokens?.length <= 1) {
-//         const foundLpToken = getToken(CHAIN_TOKENS[ep.chainId], ep.poolAddress);
-//         if (!!foundLpToken) {
-//             return foundLpToken.pairs?.filter(ad => ad !== ep.poolAddress);
-//         }
-//     }
-//     return ep.underlyingTokens;
-// }
-
 export const Oppys = () => {
     const { oppys, isLoading } = useOppys();
     const [isLargerThan] = useMediaQuery(`(min-width: 400px)`);
@@ -458,37 +448,7 @@ export const Oppys = () => {
             return { ...o, ensoPool, hasEnso: !!ensoPool };
         });
 
-    // some oppys are in enso api but not in defillama
-    // const oppysNotInDefillama = ensoPools.filter(ep => {
-    //     const defillamaOppy = _oppys.find(o => {
-    //         const oppyChainId = NETWORKS_BY_NAME[o.chain].id.toString();
-    //         const oppyUnderlyingTokens = o.underlyingTokens?.length > 0 ? o.underlyingTokens : oppyLpNameToUnderlyingTokens(o.symbol, oppyChainId);
-    //         const oppyUnderlyingTokensString = underlyingTokensArrayToString(oppyUnderlyingTokens);
-    //         const epUnderlyingTokens = getEnsoItemUnderlyingTokens(ep);            
-
-    //         const condition = ep.underlyingTokens >=2 
-    //             && ep.chainId.toString() === oppyChainId
-    //             && o.project === (ENSO_DEFILLAMA_MAPPING[ep.project] || ep.project)
-    //             && underlyingTokensArrayToString(epUnderlyingTokens) === oppyUnderlyingTokensString;
-    //         return condition;
-    //     })
-    //     return !defillamaOppy;
-    // });
     const oppysWithEnso = _oppys
-    // .concat(
-    //     oppysNotInDefillama.map(ep => {
-    //         return {
-    //             ...ep,
-    //             ensoPool: ep,
-    //             hasEnso: true,
-    //             chain: NETWORKS_BY_CHAIN_ID[ep.chainId].name,
-    //             project: ENSO_DEFILLAMA_MAPPING[ep.project] || ep.project,
-    //             apy: ep.apy,
-    //             underlyingTokens: ep.underlyingTokens,
-    //             tvlUsd: ep.tvl,
-    //         }
-    //     })
-    // );
 
     const top5Stable = oppysWithEnso.filter(o => o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5).map((o, i) => ({ ...o, rank: i + 1 }));
     const top5Volatile = oppysWithEnso.filter(o => !o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5).map((o, i) => ({ ...o, rank: i + 1 }));
@@ -500,7 +460,7 @@ export const Oppys = () => {
         onOpen();
     }
 
-    const ensoPoolLikeOppys = oppysWithEnso.filter(o => o.hasEnso).map(o => {
+    const ensoPoolsLike = oppysWithEnso.filter(o => o.hasEnso).map(o => {
         return {
             poolAddress: o.ensoPool?.poolAddress,
             name: o.symbol,
@@ -511,34 +471,13 @@ export const Oppys = () => {
     });
 
     return <VStack alignItems="flex-start">
-        <SimpleModal title="Zap-in / Zap-out" isOpen={isOpen} onClose={onClose} modalProps={{ minW: { base: '98vw', lg: '600px' }, scrollBehavior: 'inside' }}>
-            <VStack p="4">
-                <EnsoZap
-                    defaultTokenOut={defaultTokenOut}
-                    defaultTargetChainId={defaultTargetChainId}
-                    ensoPools={ensoPoolLikeOppys}
-                />
-                <InfoMessage
-                    alertProps={{ w: 'full' }}
-                    description={
-                        <VStack w='full' alignItems="flex-start">
-                            <HStack spacing="1">
-                                <Text>Powered by the third-party</Text>
-                                <Link textDecoration="underline" target="_blank" isExternal={true} href="https://www.enso.finance/">
-                                    Enso Finance
-                                </Link>
-                            </HStack>
-                            <Text textDecoration="underline">
-                                Inverse Finance does not give any Financial Advice and do not endorse or audit Enso and the protocols related to this yield opportunity.
-                            </Text>
-                            <Text fontWeight="bold">
-                                Perform your own due diligence before using this yield opportunity.
-                            </Text>
-                        </VStack>
-                    }
-                />
-            </VStack>
-        </SimpleModal>
+        <EnsoModal
+            isOpen={isOpen}
+            onClose={onClose}
+            defaultTokenOut={defaultTokenOut}
+            defaultTargetChainId={defaultTargetChainId}
+            ensoPoolsLike={ensoPoolsLike}
+        />
         <Stack direction={{ base: 'column', md: 'row' }} w='full'>
             <OppysTop5 onClick={handleClick} isLargerThan={isLargerThan} title={'Top 5 stablecoin pool APYs'} isLoading={isLoading} oppys={top5Stable} />
             <OppysTop5 onClick={handleClick} isLargerThan={isLargerThan} title={'Top 5 volatile pool APYs'} isLoading={isLoading} oppys={top5Volatile} />

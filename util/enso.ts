@@ -1,7 +1,7 @@
 import { BigNumber } from "ethers";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import useSWR from 'swr';
-import { CHAIN_TOKENS } from "@app/variables/tokens";
+import { CHAIN_TOKENS, getToken } from "@app/variables/tokens";
 import { lowercaseObjectKeys } from "./misc";
 import { getBnToNumber, getSymbolFromUnderlyingTokens, homogeneizeLpName } from "./markets";
 import { PROTOCOLS_BY_IMG, PROTOCOL_DEFILLAMA_MAPPING } from "@app/variables/images";
@@ -202,14 +202,11 @@ export const ensoSameChainZap = async (
     const { tx, gas } = data
 
     return signer.sendTransaction({
-        from: tx.from,
-        to: tx.to,
-        data: tx.data,
-        value: tx.value,
+        ...tx,
         gasLimit: BigNumber.from(gas).add(20000),
     })
 }
-
+// still experimental
 export const ensoCrossChainZap = async (
     signer: JsonRpcSigner | null,
     options: EnsoZapOptions,
@@ -251,7 +248,6 @@ export const ensoCrossChainZap = async (
     const data = await res.json();
     if(!signer) return data;
     const { tx } = data
-    console.log(getBnToNumber(tx.value))
 
     return signer.sendTransaction({
         from: tx.from,
@@ -300,4 +296,14 @@ export const ensoBuilderExample = async (signer: JsonRpcSigner) => {
         data: tx.data,
         value: tx.value,
     })
+}
+
+export const getEnsoItemUnderlyingTokens = (ep: any) => {
+    if (!ep.underlyingTokens || ep.underlyingTokens?.length <= 1) {
+        const foundLpToken = getToken(CHAIN_TOKENS[ep.chainId], ep.poolAddress);
+        if (!!foundLpToken) {
+            return foundLpToken.pairs?.filter(ad => ad !== ep.poolAddress);
+        }
+    }
+    return ep.underlyingTokens;
 }
