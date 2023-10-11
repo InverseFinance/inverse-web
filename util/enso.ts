@@ -61,19 +61,25 @@ export const useEnsoRoute = (
     tokenOut: string,
     amount: string
 ) => {
-    const { data, error } = useSWR(`enso-route-${chainId}-${targetChainId}-${tokenIn}-${tokenOut}-${amount}`, async () => {
-        if (!chainId || !tokenOut || !targetChainId || !amount) return null;
-        return await ensoZap(null, { 
-            fromAddress,
-            amount,
-            chainId,
-            targetChainId,
-            tokenIn,
-            tokenOut,
-            slippage: '300',
-            toEoa: 'true',
+    const { data, error } = useSWR(
+        `enso-route-${chainId}-${targetChainId}-${tokenIn}-${tokenOut}-${amount}`,
+        async () => {
+            if (!chainId || !tokenOut || !targetChainId || !amount) return null;
+            return await ensoZap(null, {
+                fromAddress,
+                amount,
+                chainId,
+                targetChainId,
+                tokenIn,
+                tokenOut,
+                slippage: '100',
+                toEoa: 'true',
+            });
+        }, {
+            revalidateOnFocus: false,            
+            revalidateOnReconnect: false,
+            errorRetryInterval: 9000,
         });
-    });
     return {
         ...data,
         isLoading: !data && !error,
@@ -183,9 +189,9 @@ export const ensoSameChainZap = async (
     const isEth = !tokenIn || tokenIn === EthXe;
     const _tokenIn = !tokenIn ? EthXe : tokenIn;
     let path = `https://api.enso.finance/api/v1/shortcuts/route?chainId=${chainId}&fromAddress=${fromAddress}&amountIn=${amount}&slippage=${slippage}&tokenIn=${_tokenIn}&tokenOut=${tokenOut}&priceImpact=false`;
-    if(toEoa) {
+    if (toEoa) {
         path += `&receiver=${fromAddress}`;
-        if(!isEth) {
+        if (!isEth) {
             path += `&spender=${fromAddress}`
         }
     }
@@ -199,11 +205,11 @@ export const ensoSameChainZap = async (
     });
 
     const data = await res.json();
-    if(res.status !== 200 || !data.tx) {
+    if (res.status !== 200 || !data.tx) {
         console.warn(data);
-        throw new Error(`Zap failed: the Enso api failed to fetch the route, please try again later`);
+        throw new Error(`The Enso api failed to fetch the route, please try again later`);
     }
-    if(!signer) return data;
+    if (!signer) return data;
     const { tx, gas } = data
 
     return signer.sendTransaction({
@@ -251,7 +257,7 @@ export const ensoCrossChainZap = async (
     });
 
     const data = await res.json();
-    if(!signer) return data;
+    if (!signer) return data;
     const { tx } = data
 
     return signer.sendTransaction({

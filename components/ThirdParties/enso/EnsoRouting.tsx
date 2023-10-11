@@ -1,8 +1,11 @@
 import { UnderlyingItem } from "@app/components/common/Assets/UnderlyingItem"
+import { Token } from "@app/types"
 import { EthXe } from "@app/util/enso"
+import { getBnToNumber, smartShortNumber } from "@app/util/markets"
 import { CHAIN_TOKENS, getToken } from "@app/variables/tokens"
 import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons"
 import { VStack, Text, HStack } from "@chakra-ui/react"
+import { parseUnits } from "@ethersproject/units"
 import { useState } from "react"
 
 type Route = {
@@ -25,17 +28,27 @@ const getTokenObjectFromPosition = (chainId: string, address: string) => {
 export const EnsoRouting = ({
     chainId,
     targetChainId,
-    routes
+    amountOut,
+    targetAsset,
+    routes,
 }: {
     chainId: string
+    amountOut: string
+    targetAsset: Token
     targetChainId: string
     routes: EnsoRoute[]
 }) => {
     const [showActions, setShowActions] = useState(false);
     return <VStack w='full' alignItems="flex-start">
-        <HStack spacing="1" textDecoration="underline" cursor="pointer" onClick={() => setShowActions(!showActions)}>
-            <Text fontWeight="bold">Actions</Text>
-            { showActions ? <ChevronDownIcon /> : <ChevronRightIcon /> }
+        <HStack justify="space-between" spacing="1" textDecoration="underline" cursor="pointer" onClick={() => setShowActions(!showActions)}>
+            <HStack>
+                <Text fontWeight="bold">Actions</Text>
+                {showActions ? <ChevronDownIcon /> : <ChevronRightIcon />}
+            </HStack>
+            {/* <HStack>
+                <Text>Result:</Text>
+                <Text>{`~${smartShortNumber(getBnToNumber(parseUnits(amountOut, 0), targetAsset.decimals))} ${targetAsset.name}`}</Text>
+            </HStack> */}
         </HStack>
         {showActions && routes.map((r, i) => {
             const inTokens = r.tokenIn.map(t => getTokenObjectFromPosition(chainId, t));

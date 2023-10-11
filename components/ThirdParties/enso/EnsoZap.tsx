@@ -46,9 +46,10 @@ function EnsoZap({
     const [tokenIn, setTokenIn] = useState(''); // dola    
     const [tokenOut, setTokenOut] = useState(defaultTokenOut); // fraxbp
 
-    const tokenInObj = tokenIn ? getToken(CHAIN_TOKENS[chainId || '1'], tokenIn) : CHAIN_TOKENS[chainId || '1'].CHAIN_COIN;
+    const tokenInObj = tokenIn ? getToken(CHAIN_TOKENS[chainId || '1'], tokenIn) : CHAIN_TOKENS[chainId || '1'].CHAIN_COIN;    
     // const [chainId, setChainId] = useState('1');
     const [targetChainId, setTargetChainId] = useState(defaultTargetChainId || chainId || '1');
+    const tokenOutObj = tokenOut ? getToken(CHAIN_TOKENS[targetChainId || '1'], tokenOut) : CHAIN_TOKENS[targetChainId || '1'].CHAIN_COIN;
 
     const targetNetwork = implementedNetworks.find(n => n.id === targetChainId);
     const [amountIn, setAmountIn] = useState<string>('');
@@ -195,6 +196,8 @@ function EnsoZap({
                         zapResponseData?.route && <EnsoRouting
                             chainId={chainId?.toString()}
                             targetChainId={targetChainId?.toString()}
+                            targetAsset={tokenOutObj}
+                            amountOut={zapResponseData.amountOut}
                             routes={zapResponseData.route}
                         />
                     }
