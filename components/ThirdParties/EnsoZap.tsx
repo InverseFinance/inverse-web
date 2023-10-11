@@ -48,10 +48,10 @@ function EnsoZap({
     const [slippage, setSlippage] = useState('1');
     // const [tokenInOption, setTokenInOption] = useState('all');
     // const [tokenOutOption, setTokenOutOption] = useState('lps');
-    const [tokenIn, setTokenIn] = useState(getToken(CHAIN_TOKENS[chainId || '1'], 'DOLA').address); // dola    
+    const [tokenIn, setTokenIn] = useState(''); // dola    
     const [tokenOut, setTokenOut] = useState(defaultTokenOut); // fraxbp
 
-    const tokenInObj = getToken(CHAIN_TOKENS[chainId || '1'], tokenIn || 'ETH');
+    const tokenInObj = tokenIn ? getToken(CHAIN_TOKENS[chainId || '1'], tokenIn) : CHAIN_TOKENS[chainId || '1'].CHAIN_COIN;
     // const [chainId, setChainId] = useState('1');
     const [targetChainId, setTargetChainId] = useState(defaultTargetChainId || chainId || '1');
     // const { tx: routeTx } = useEnsoRoute(account, chainId, targetChainId, tokenIn, tokenOut);
@@ -89,7 +89,7 @@ function EnsoZap({
     useEffect(() => {
         if (inited || !chainId) return;
         setTargetChainId(chainId.toString());
-        setTokenIn(getToken(CHAIN_TOKENS[chainId || '1'], 'DOLA').address);
+        setTokenIn('');
         changeTokenOut(defaultTokenOut || toOptions[0]?.value);
         setInited(true);
     }, [inited, chainId, targetChainId, toOptions, defaultTokenOut]);
