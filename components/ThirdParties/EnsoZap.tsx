@@ -17,6 +17,8 @@ import { Token } from "@app/types";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
 import { DOLA_BRIDGED_CHAINS } from "@app/config/constants";
 import { WarningMessage } from "../common/Messages";
+import { SkeletonBlob } from "../common/Skeleton";
+import { switchWalletNetwork } from "@app/util/web3";
 
 const zapOptions = [...new Set(ZAP_TOKENS_ARRAY.map(t => t.address))];
 const implementedNetworks = NETWORKS
@@ -97,84 +99,97 @@ function EnsoZap({
     }, [defaultTargetChainId])
 
     const approveDestinationAddress = ensoSmartWalletAddress;
+    const isLoading = !ads.length || !balances;
 
     return <Container w='full' noPadding p='0' label={title} contentProps={{ mt: 0 }}>
-        <VStack alignItems='flex-start' w="full" direction="column" spacing="5">
-            <Text>
-                From <b>{getNetwork(chainId)?.name}</b>:
-            </Text>
-            {
-                ads.length > 0 && !!balances && <AssetInput
-                    amount={amountIn}
-                    token={tokenInObj}
-                    assetOptions={zapOptions}
-                    onAssetChange={(newToken) => changeTokenIn(newToken)}
-                    onAmountChange={(newAmount) => changeAmount(newAmount, true)}
-                    {...fromAssetInputProps}
-                />
-            }
-
-            <Divider />
-
-            <Stack spacing="2" direction={{ base: 'columns', md: 'row' }} justify="space-between" w='full'>
-                <HStack>
-                    <Text>To</Text>
-                    <SimpleAssetDropdown
-                        list={implementedNetworks}
-                        selectedValue={targetChainId}
-                        handleChange={(v) => setTargetChainId(v.value)}
+        {
+            !account ? <WarningMessage
+                alertProps={{ w: 'full' }}
+                title="Wallet not connected"
+                description="Please connect your wallet to use the Zap feature"
+            /> : isLoading ? <SkeletonBlob />
+                :
+                <VStack alignItems='flex-start' w="full" direction="column" spacing="5">
+                    <Text>
+                        From <b>{getNetwork(chainId)?.name}</b>:
+                    </Text>
+                    <AssetInput
+                        amount={amountIn}
+                        token={tokenInObj}
+                        assetOptions={zapOptions}
+                        onAssetChange={(newToken) => changeTokenIn(newToken)}
+                        onAmountChange={(newAmount) => changeAmount(newAmount, true)}
+                        {...fromAssetInputProps}
                     />
-                </HStack>
-                <SimpleAssetDropdown
-                    list={toOptions}
-                    selectedValue={tokenOut}
-                    handleChange={(v) => setTokenOut(v.value)}
-                />
-            </Stack>
 
-            <HStack w='full' justify="space-between">
-                <Text>
-                    Max. slippage %:
-                </Text>
-                <Input py="0" maxH="30px" w='90px' value={slippage} onChange={(e) => setSlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'))} />
-            </HStack>
+                    <Divider />
 
-            {
-                chainId?.toString() !== targetChainId?.toString() ? <WarningMessage
-                    alertProps={{ w: 'full' }}
-                    title="Wrong Network"
-                    description={`Please connect to ${targetNetwork?.name}`}
-                />
-                    :
-                    <SimpleAmountForm
-                        address={tokenIn === EthXe ? '' : tokenIn}
-                        // destination={routeTx?.to}
-                        destination={approveDestinationAddress}
-                        hideInput={true}
-                        showMaxBtn={false}
-                        actionLabel="Zap-in"
-                        isDisabled={!amountIn || ((!!tokenIn && tokenIn !== EthXe) && !approveDestinationAddress) || !slippage || !parseFloat(slippage)}
-                        alsoDisableApprove={true}
-                        btnProps={{ needPoaFirst: true }}
-                        signer={provider?.getSigner()}
-                        onAction={
-                            () => {
-                                if (!provider) return;
-                                return ensoZap(provider?.getSigner(), {
-                                    fromAddress: account,
-                                    tokenIn,
-                                    tokenOut,
-                                    chainId: chainId?.toString(),
-                                    targetChainId,
-                                    amount: parseUnits(amountIn, tokenInObj.decimals).toString(),
-                                    toEoa: true,
-                                    slippage: parseFloat(slippage) * 100,
-                                })
+                    <Stack spacing="2" direction={{ base: 'columns', md: 'row' }} justify="space-between" w='full'>
+                        <HStack>
+                            <Text>To</Text>
+                            <SimpleAssetDropdown
+                                list={implementedNetworks}
+                                selectedValue={targetChainId}
+                                handleChange={(v) => setTargetChainId(v.value)}
+                            />
+                        </HStack>
+                        <SimpleAssetDropdown
+                            list={toOptions}
+                            selectedValue={tokenOut}
+                            handleChange={(v) => setTokenOut(v.value)}
+                        />
+                    </Stack>
+
+                    <HStack w='full' justify="space-between">
+                        <Text>
+                            Max. slippage %:
+                        </Text>
+                        <Input py="0" maxH="30px" w='90px' value={slippage} onChange={(e) => setSlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'))} />
+                    </HStack>
+
+                    {
+                        chainId?.toString() !== targetChainId?.toString() ? <WarningMessage
+                            alertProps={{ w: 'full' }}
+                            title="Wrong Network"
+                            description={
+                                <Text textDecoration="underline" cursor="pointer"
+                                    onClick={() => switchWalletNetwork(targetChainId)}
+                                >
+                                    Switch to {targetNetwork?.name}
+                                </Text>
                             }
-                        }
-                    />
-            }
-        </VStack>
+                        />
+                            :
+                            <SimpleAmountForm
+                                address={tokenIn === EthXe ? '' : tokenIn}
+                                // destination={routeTx?.to}
+                                destination={approveDestinationAddress}
+                                hideInput={true}
+                                showMaxBtn={false}
+                                actionLabel="Zap-in"
+                                isDisabled={!amountIn || ((!!tokenIn && tokenIn !== EthXe) && !approveDestinationAddress) || !slippage || !parseFloat(slippage)}
+                                alsoDisableApprove={true}
+                                btnProps={{ needPoaFirst: true }}
+                                signer={provider?.getSigner()}
+                                onAction={
+                                    () => {
+                                        if (!provider) return;
+                                        return ensoZap(provider?.getSigner(), {
+                                            fromAddress: account,
+                                            tokenIn,
+                                            tokenOut,
+                                            chainId: chainId?.toString(),
+                                            targetChainId,
+                                            amount: parseUnits(amountIn, tokenInObj.decimals).toString(),
+                                            toEoa: true,
+                                            slippage: parseFloat(slippage) * 100,
+                                        })
+                                    }
+                                }
+                            />
+                    }
+                </VStack>
+        }
     </Container>
 }
 
