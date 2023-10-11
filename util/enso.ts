@@ -59,12 +59,13 @@ export const useEnsoRoute = (
     targetChainId: string,
     tokenIn: string,
     tokenOut: string,
+    amount: string
 ) => {
-    const { data, error } = useSWR(`enso-route-${chainId}-${targetChainId}-${tokenIn}-${tokenOut}`, async () => {
-        if (!tokenIn || !tokenOut) return null;
+    const { data, error } = useSWR(`enso-route-${chainId}-${targetChainId}-${tokenIn}-${tokenOut}-${amount}`, async () => {
+        if (!chainId || !tokenOut || !targetChainId || !amount) return null;
         return await ensoZap(null, { 
             fromAddress,
-            amount: '10000000000000000',
+            amount,
             chainId,
             targetChainId,
             tokenIn,
@@ -198,6 +199,10 @@ export const ensoSameChainZap = async (
     });
 
     const data = await res.json();
+    if(res.status !== 200 || !data.tx) {
+        console.warn(data);
+        throw new Error(`Zap failed: the Enso api failed to fetch the route, please try again later`);
+    }
     if(!signer) return data;
     const { tx, gas } = data
 
