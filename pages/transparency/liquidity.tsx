@@ -25,6 +25,8 @@ import { DolaBridges } from '@app/components/Transparency/DolaBridges';
 import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
 import { useEnsoPools } from '@app/util/enso';
+import { FEATURE_FLAGS } from '@app/config/features';
+import { EnsoModal } from '@app/components/common/Modal/EnsoModal';
 
 const groupLpsBy = (lps: any[], attribute: string, max = 6) => {
   const items = Object.entries(
@@ -82,7 +84,12 @@ export const Liquidity = () => {
   const { chartData } = useEventsAsChartData(aggregatedHistoryPlusCurrent[categoryChartHisto] || [], histoAttribute, histoAttribute, false, false);
   const { chartData: lpChartData } = useEventsAsChartData(lpHistoArray, histoAttribute, histoAttribute, false, false);
   const _chartData = isLpChart ? lpChartData : chartData;
-  const { pools: ensoPools } = useEnsoPools({ symbol: 'DOLA' });
+
+  // skip api call if feature disabled
+  const { pools: ensoPools } = useEnsoPools({ symbol: FEATURE_FLAGS.lpZaps ? 'DOLA' : '' });
+  const { isOpen: isZapOpen, onOpen: onZapOpen, onClose: onZapClose } = useDisclosure();
+  const [defaultTokenOut, setDefaultTokenOut] = useState('');
+  const [defaultTargetChainId, setDefaultTargetChainId] = useState('');
 
   const volumes = { DOLA: dola?.volume || 0, INV: inv?.volume || 0, DBR: dbr?.volume || 0 }
 
@@ -133,10 +140,16 @@ export const Liquidity = () => {
     onOpen();
   }
 
-  const handleOpenHistoChartFromTable = async ({ address, lpName, project }, event, liquidity) => {
+  const handleOpenHistoChartFromTable = async ({ address, lpName, project, chainId }, event, liquidity) => {
     const target = event.target;
     const cellBox = target.closest('[data-col]');
     const col = cellBox.dataset.col;
+    if (col === 'hasEnso') {
+      onZapOpen();
+      setDefaultTokenOut(address);
+      setDefaultTargetChainId(chainId);
+      return
+    }
     showToast({ title: 'Loading pool history...', id: 'pool-histo', status: 'info' });
     const lpHistoRes = lpsHisto[address] || await getLpHistory(address, true);
     setLpsHisto(lpHistoRes);
@@ -177,6 +190,16 @@ export const Liquidity = () => {
     return { ...o, ensoPool, hasEnso: !!ensoPool };
   });
 
+  const ensoPoolsLike = liquidityWithEnso.filter(o => o.hasEnso).map(o => {
+    return {
+      poolAddress: o.ensoPool?.poolAddress,
+      name: o.symbol,
+      project: o.project,
+      chainId: parseInt(o.chainId),
+      image: `https://icons.llamao.fi/icons/protocols/${o.project}?w=24&h=24`
+    };
+  });
+
   return (
     <Layout>
       <Head>
@@ -189,6 +212,16 @@ export const Liquidity = () => {
       </Head>
       <AppNav active="Transparency" activeSubmenu="Liquidity" hideAnnouncement={true} />
       <TransparencyTabs active="liquidity" />
+      {
+        FEATURE_FLAGS.lpZaps
+        && <EnsoModal
+          isOpen={isZapOpen}
+          onClose={onZapClose}
+          defaultTokenOut={defaultTokenOut}
+          defaultTargetChainId={defaultTargetChainId}
+          ensoPoolsLike={ensoPoolsLike}
+        />
+      }
       <InfoModal
         title={`${histoTitle}`}
         onClose={handleClose}

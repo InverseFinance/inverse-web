@@ -13,6 +13,7 @@ import { SkeletonBlob } from "../common/Skeleton"
 import Link from "../common/Link"
 import { ExternalLinkIcon } from "@chakra-ui/icons"
 import { getLpLink } from "@app/variables/tokens"
+import { FEATURE_FLAGS } from "@app/config/features"
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="12px" fontWeight="extrabold" {...props} />
@@ -109,9 +110,9 @@ export const LP_COLS = [
     {
         field: 'tvl',
         label: 'TVL',
-        header: ({ ...props }) => <ColHeader minWidth="90px" justify="flex-end"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="80px" justify="flex-end"  {...props} />,
         value: ({ tvl }) => {
-            return <Cell minWidth="90px" justify="flex-end" fontSize="15px">
+            return <Cell minWidth="80px" justify="flex-end" fontSize="15px">
                 <ClickableCellText>{preciseCommify(tvl, 0, true)}</ClickableCellText>
             </Cell>
         },
@@ -119,9 +120,9 @@ export const LP_COLS = [
     {
         field: 'pairingDepth',
         label: 'Pairing Depth',
-        header: ({ ...props }) => <ColHeader minWidth="110px" justify="flex-end"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="flex-end"  {...props} />,
         value: ({ pairingDepth }) => {
-            return <Cell minWidth="110px" justify="flex-end" fontSize="15px">
+            return <Cell minWidth="100px" justify="flex-end" fontSize="15px">
                 <ClickableCellText>{preciseCommify(pairingDepth || 0, 0, true)}</ClickableCellText>
             </Cell>
         },
@@ -129,9 +130,9 @@ export const LP_COLS = [
     {
         field: 'dolaBalance',
         label: 'DOLA Balance',
-        header: ({ ...props }) => <ColHeader minWidth="110px" justify="flex-end"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="flex-end"  {...props} />,
         value: ({ dolaBalance }) => {
-            return <Cell minWidth="110px" justify="flex-end" fontSize="15px">
+            return <Cell minWidth="100px" justify="flex-end" fontSize="15px">
                 <ClickableCellText>{preciseCommify(dolaBalance || 0, 0, true)}</ClickableCellText>
             </Cell>
         },
@@ -149,9 +150,9 @@ export const LP_COLS = [
     {
         field: 'apy',
         label: 'APY',
-        header: ({ ...props }) => <ColHeader minWidth="70px" justify="flex-end"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="60px" justify="flex-end"  {...props} />,
         value: ({ apy }) => {
-            return <Cell minWidth="70px" justify="flex-end" fontSize="15px">
+            return <Cell minWidth="60px" justify="flex-end" fontSize="15px">
                 <ClickableCellText>{typeof apy === 'undefined' ? '-' : `${shortenNumber(apy || 0, 2)}%`}</ClickableCellText>
             </Cell>
         },
@@ -169,9 +170,9 @@ export const LP_COLS = [
     , {
         field: 'ownedAmount',
         label: 'PoL',
-        header: ({ ...props }) => <ColHeader minWidth="100px" justify="flex-end"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="80px" justify="flex-end"  {...props} />,
         value: ({ ownedAmount }) => {
-            return <Cell minWidth="100px" justify="flex-end" fontSize="15px">
+            return <Cell minWidth="80px" justify="flex-end" fontSize="15px">
                 <ClickableCellText>{preciseCommify(ownedAmount, 0, true)}</ClickableCellText>
             </Cell>
         },
@@ -179,14 +180,24 @@ export const LP_COLS = [
     , {
         field: 'rewardDay',
         label: '$/day',
-        header: ({ ...props }) => <ColHeader minWidth="90px" justify="flex-end"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="70px" justify="flex-end"  {...props} />,
         value: ({ rewardDay }) => {
-            return <Cell minWidth="90px" justify="flex-end" fontSize="15px">
+            return <Cell minWidth="70px" justify="flex-end" fontSize="15px">
                 <ClickableCellText>{preciseCommify(rewardDay, 0, true)}</ClickableCellText>
             </Cell>
         },
     }
 ];
+if(FEATURE_FLAGS.lpZaps) {
+    LP_COLS.push({
+        field: 'hasEnso',
+        label: 'Zap',
+        header: ({ ...props }) => <ColHeader minWidth="50px" justify="flex-end" {...props} />,
+        value: ({ hasEnso }) => <Cell minWidth="50px" justify="flex-end" cursor="pointer" _hover={{ filter: 'brightness(1.1)' }}>
+            {hasEnso && <Image src="/assets/zap.png" h="20px" w="20px" />}
+        </Cell>,
+    });
+}
 
 export const LiquidityPoolsTable = ({
     items,
