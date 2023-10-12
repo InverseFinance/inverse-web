@@ -398,7 +398,7 @@ export const getYieldOppys = async () => {
                 return {
                     ...p,
                     // force as stablecoin even though defillama says not stable
-                    stablecoin: p.symbol === 'DOLA-CRVUSD' ? true : p.stablecoin,
+                    stablecoin: ['DOLA-CRVUSD', 'DOLA-ERN', 'DOLA-USDBC', 'DOLA-USDC'].includes(p.symbol) ? true : p.stablecoin,
                 }
             });
     } catch (e) { console.log(e) }
