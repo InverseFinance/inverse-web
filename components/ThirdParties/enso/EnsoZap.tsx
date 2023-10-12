@@ -1,6 +1,6 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { useWeb3React } from "@web3-react/core";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { EthXe, ensoZap, useEnso, useEnsoRoute } from "@app/util/enso";
 import { parseUnits } from "@ethersproject/units";
@@ -28,7 +28,7 @@ const implementedNetworks = NETWORKS
     .map(n => ({ ...n, label: n.name, value: n.id }));
 
 function EnsoZap({
-    defaultTokenOut = '0xE57180685E3348589E9521aa53Af0BCD497E884d',
+    defaultTokenOut = '',
     defaultTargetChainId = '',
     ensoPools,
     title = null,
@@ -66,8 +66,10 @@ function EnsoZap({
     const ads = Object.keys(fromOptions).map(ad => ad.replace(EthXe, ''));
     const { balances } = useBalances(ads);
 
-    const toOptions = ensoPools?.filter(t => t.chainId.toString() === targetChainId.toString())
+    const toOptions = useMemo(() => {
+        return ensoPools?.filter(t => t.chainId.toString() === targetChainId.toString())
         .map(t => ({ ...t, label: t.name, value: t.poolAddress, subtitle: t.project }))
+    }, [targetChainId]);
 
     const fromAssetInputProps = { tokens: fromOptions, balances, showBalance: true }
 
@@ -82,16 +84,15 @@ function EnsoZap({
     }
 
     useEffect(() => {
-        if (inited || !chainId) return;
-        setTargetChainId(chainId.toString());
+        if (!chainId) return;
         setTokenIn('');
-        changeTokenOut(defaultTokenOut || toOptions[0]?.value);
-        setInited(true);
-    }, [inited, chainId, targetChainId, toOptions, defaultTokenOut]);
+    }, [chainId]);
 
     useEffect(() => {
-        setTargetChainId(defaultTargetChainId);
-    }, [defaultTargetChainId])
+        if (!targetChainId) return;
+        const foundToken = toOptions.find(t => t.value.toLowerCase() === defaultTokenOut.toLowerCase());
+        changeTokenOut(!!foundToken ? foundToken.value : toOptions[0]?.value);
+    }, [targetChainId, toOptions, defaultTokenOut]);
 
     useDebouncedEffect(() => {
         if (!chainId || !targetChainId || !tokenOut || !amountIn) {
