@@ -61,7 +61,7 @@ export const EnsoRouting = ({
                             {r.action}
                         </Text>
                     </HStack>
-                    <HStack spacing="1">
+                    {/* <HStack spacing="1">
                         <HStack spacing="0">
                             {inTokens.map(token => <UnderlyingItem {...token} protocolImage={undefined} />)}
                         </HStack>
@@ -73,7 +73,7 @@ export const EnsoRouting = ({
                                 </HStack>
                             </>
                         }
-                    </HStack>
+                    </HStack> */}
                 </HStack>
             </HStack>
         })}
