@@ -76,10 +76,10 @@ export const useEnsoRoute = (
                 toEoa: 'true',
             });
         }, {
-            revalidateOnFocus: false,            
-            revalidateOnReconnect: false,
-            errorRetryInterval: 9000,
-        });
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
+        errorRetryInterval: 9000,
+    });
     return {
         ...data,
         isLoading: !data && !error,
@@ -128,8 +128,8 @@ export const getEnsoApprove = async (fromAddress: string, chainId = 1) => {
 // the api gives an address per user, the user needs to approve this given address to spend their tokens
 export const getEnsoPools = async (params): Promise<EnsoPool[]> => {
     const queryString = new URLSearchParams(params).toString();
-    // const path = `https://api.enso.finance/api/v1/defiTokens?${queryString}`;
-    const path = `https://api.enso.finance/api/v1/positions?${queryString}`;
+    const path = `https://api.enso.finance/api/v1/defiTokens?${queryString}`;
+    // const path = `https://api.enso.finance/api/v1/positions?${queryString}`;
     const res = await fetch(path, {
         headers: {
             'Content-Type': 'application/json',
@@ -138,25 +138,32 @@ export const getEnsoPools = async (params): Promise<EnsoPool[]> => {
     const result = await res.json();
     let list = []
     try {
-        list = result.baseTokens
-            .map(bt => {
-                const isAlreadyInDefiTokens = result.defiTokens.find(dt => dt.poolAddress.toLowerCase() === bt.address.toLowerCase());
-                if (isAlreadyInDefiTokens) return null;
-                const chainTokens = lowercaseObjectKeys(CHAIN_TOKENS[bt.chainId]);
-                const foundTokenConfig = chainTokens[bt.address.toLowerCase()];
-                const underlyingTokens = foundTokenConfig ? foundTokenConfig?.pairs?.filter(pt => pt.toLowerCase() !== bt.address.toLowerCase()) : [];
-                if (!foundTokenConfig || !foundTokenConfig.isLP) return null;
-                const symbol = homogeneizeLpName(foundTokenConfig.symbol);
-                return { isEnsoBaseToken: true, ...bt, poolAddress: foundTokenConfig.address, apy: 0, underlyingTokens, rewardTokens: [], subtitle: symbol, symbol, name: foundTokenConfig.name, project: PROTOCOL_DEFILLAMA_MAPPING[PROTOCOLS_BY_IMG[foundTokenConfig.protocolImage]] };
-            })
-            .filter(bt => bt !== null)
-            .concat(result.defiTokens.map(dt => {
-                const chainTokens = lowercaseObjectKeys(CHAIN_TOKENS[dt.chainId]);
-                const foundTokenConfig = chainTokens[dt.poolAddress.toLowerCase()];
-                const attemptSymbol = foundTokenConfig ? foundTokenConfig.symbol : getSymbolFromUnderlyingTokens(dt.chainId, dt.underlyingTokens);
-                const symbol = homogeneizeLpName(attemptSymbol);
-                return { ...dt, symbol }
-            }));
+        // list = result.baseTokens
+        //     .map(bt => {
+        //         const isAlreadyInDefiTokens = result.defiTokens.find(dt => dt.poolAddress.toLowerCase() === bt.address.toLowerCase());
+        //         if (isAlreadyInDefiTokens) return null;
+        //         const chainTokens = lowercaseObjectKeys(CHAIN_TOKENS[bt.chainId]);
+        //         const foundTokenConfig = chainTokens[bt.address.toLowerCase()];
+        //         const underlyingTokens = foundTokenConfig ? foundTokenConfig?.pairs?.filter(pt => pt.toLowerCase() !== bt.address.toLowerCase()) : [];
+        //         if (!foundTokenConfig || !foundTokenConfig.isLP) return null;
+        //         const symbol = homogeneizeLpName(foundTokenConfig.symbol);
+        //         return { isEnsoBaseToken: true, ...bt, poolAddress: foundTokenConfig.address, apy: 0, underlyingTokens, rewardTokens: [], subtitle: symbol, symbol, name: foundTokenConfig.name, project: PROTOCOL_DEFILLAMA_MAPPING[PROTOCOLS_BY_IMG[foundTokenConfig.protocolImage]] };
+        //     })
+        //     .filter(bt => bt !== null)
+        //     .concat(result.defiTokens.map(dt => {
+        //         const chainTokens = lowercaseObjectKeys(CHAIN_TOKENS[dt.chainId]);
+        //         const foundTokenConfig = chainTokens[dt.poolAddress.toLowerCase()];
+        //         const attemptSymbol = foundTokenConfig ? foundTokenConfig.symbol : getSymbolFromUnderlyingTokens(dt.chainId, dt.underlyingTokens);
+        //         const symbol = homogeneizeLpName(attemptSymbol);
+        //         return { ...dt, symbol }
+        //     }));
+        list = result.map(dt => {
+            const chainTokens = lowercaseObjectKeys(CHAIN_TOKENS[dt.chainId]);
+            const foundTokenConfig = chainTokens[dt.poolAddress.toLowerCase()];
+            const attemptSymbol = foundTokenConfig ? foundTokenConfig.symbol : getSymbolFromUnderlyingTokens(dt.chainId, dt.underlyingTokens);
+            const symbol = homogeneizeLpName(attemptSymbol);
+            return { ...dt, symbol }
+        })
     } catch (e) {
         console.warn(e);
     }
