@@ -51,8 +51,8 @@ export const EnsoRouting = ({
             </HStack> */}
         </HStack>
         {showActions && routes.map((r, i) => {
-            const inTokens = r.tokenIn.map(t => getTokenObjectFromPosition(chainId, t));
-            const outTokens = r.tokenOut.map(t => getTokenObjectFromPosition(targetChainId, t));
+            const inTokens = r.tokenIn.map(t => getTokenObjectFromPosition(chainId, t)).flat();
+            const outTokens = r.tokenOut.map(t => getTokenObjectFromPosition(targetChainId, t)).flat();
             return <HStack key={`${r.action}-${r.protocol}-${i}`}>
                 <HStack spacing="0">
                     <HStack spacing="1">
@@ -66,10 +66,10 @@ export const EnsoRouting = ({
                             {inTokens.map(token => <UnderlyingItem {...token} protocolImage={undefined} />)}
                         </HStack>
                         {
-                            r.action === 'split' && <>
+                            <>
                                 <Text>=></Text>
                                 <HStack spacing="0">
-                                    {outTokens.map(token => <UnderlyingItem {...token} protocolImage={undefined} />)}
+                                    {outTokens.map(token => <UnderlyingItem {...token} protocolImage={undefined} showAsLp={token.isLP} />)}
                                 </HStack>
                             </>
                         }
