@@ -257,16 +257,16 @@ const columnsShort = [
     },
 ];
 
-if (FEATURE_FLAGS.lpZaps) {
-    columnsShort.push({
-        field: 'hasEnso',
-        label: 'Zap',
-        header: ({ ...props }) => <ColHeader minWidth="80px" justify="flex-end" {...props} />,
-        value: ({ hasEnso }) => <Cell minWidth="80px" justify="flex-end">
-            {hasEnso && <Image src="/assets/zap.png" h="20px" w="20px" />}
-        </Cell>,
-    });
-}
+// if (FEATURE_FLAGS.lpZaps) {
+//     columnsShort.push({
+//         field: 'hasEnso',
+//         label: 'Zap',
+//         header: ({ ...props }) => <ColHeader minWidth="80px" justify="flex-end" {...props} />,
+//         value: ({ hasEnso }) => <Cell minWidth="80px" justify="flex-end">
+//             {hasEnso && <Image src="/assets/zap.png" h="20px" w="20px" />}
+//         </Cell>,
+//     });
+// }
 
 const columnsShortMobile = [
     columnsShort[1],
