@@ -81,6 +81,7 @@ export const Liquidity = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isLpChart, setIsLpChart] = useState(false);
   const [lpsHisto, setLpsHisto] = useState({});
+  const [resultAsset, setResultAsset] = useState(null);
   const { chartData } = useEventsAsChartData(aggregatedHistoryPlusCurrent[categoryChartHisto] || [], histoAttribute, histoAttribute, false, false);
   const { chartData: lpChartData } = useEventsAsChartData(lpHistoArray, histoAttribute, histoAttribute, false, false);
   const _chartData = isLpChart ? lpChartData : chartData;
@@ -140,16 +141,19 @@ export const Liquidity = () => {
     onOpen();
   }
 
-  const handleOpenHistoChartFromTable = async ({ address, lpName, project, chainId }, event, liquidity) => {
+  const handleOpenHistoChartFromTable = async (item, event, liquidity) => {
+    const { address, lpName, project, chainId } = item;
     const target = event.target;
     const cellBox = target.closest('[data-col]');
     const col = cellBox.dataset.col;
     if (col === 'hasEnso') {
+      setResultAsset(item);
       onZapOpen();
       setDefaultTokenOut(address);
       setDefaultTargetChainId(chainId);
       return
     }
+    setResultAsset(null);
     showToast({ title: 'Loading pool history...', id: 'pool-histo', status: 'info' });
     const lpHistoRes = lpsHisto[address] || await getLpHistory(address, true);
     setLpsHisto(lpHistoRes);
@@ -193,7 +197,7 @@ export const Liquidity = () => {
   const ensoPoolsLike = liquidityWithEnso.filter(o => o.hasEnso).map(o => {
     return {
       poolAddress: o.ensoPool?.poolAddress,
-      name: o.symbol,
+      name: o.lpName,
       project: o.project,
       chainId: parseInt(o.chainId),
       image: `https://icons.llamao.fi/icons/protocols/${o.project}?w=24&h=24`
@@ -220,6 +224,7 @@ export const Liquidity = () => {
           defaultTokenOut={defaultTokenOut}
           defaultTargetChainId={defaultTargetChainId}
           ensoPoolsLike={ensoPoolsLike}
+          resultAsset={resultAsset}
         />
       }
       <InfoModal

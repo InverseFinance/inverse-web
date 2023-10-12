@@ -434,6 +434,7 @@ export const Oppys = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [defaultTokenOut, setDefaultTokenOut] = useState('');
     const [defaultTargetChainId, setDefaultTargetChainId] = useState('');
+    const [resultAsset, setResultAsset] = useState<any>(null);
 
     const _oppys = (oppys || []).filter(o => !o.symbol.includes('-BB-'))
         .map(o => {
@@ -455,6 +456,7 @@ export const Oppys = () => {
 
     const handleClick = (item: { ensoPool: EnsoPool }) => {
         if (!FEATURE_FLAGS.lpZaps || !item.ensoPool?.poolAddress) return;
+        setResultAsset(item);
         setDefaultTokenOut(item.ensoPool.poolAddress);
         setDefaultTargetChainId(item.ensoPool.chainId?.toString());
         onOpen();
@@ -477,6 +479,7 @@ export const Oppys = () => {
             defaultTokenOut={defaultTokenOut}
             defaultTargetChainId={defaultTargetChainId}
             ensoPoolsLike={ensoPoolsLike}
+            resultAsset={resultAsset}
         />
         <Stack direction={{ base: 'column', md: 'row' }} w='full'>
             <OppysTop5 onClick={handleClick} isLargerThan={isLargerThan} title={'Top 5 stablecoin pool APYs'} isLoading={isLoading} oppys={top5Stable} />
