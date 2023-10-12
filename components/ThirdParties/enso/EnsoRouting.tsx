@@ -1,7 +1,7 @@
 import { UnderlyingItem } from "@app/components/common/Assets/UnderlyingItem"
 import { Token } from "@app/types"
 import { EthXe } from "@app/util/enso"
-import { getBnToNumber, smartShortNumber } from "@app/util/markets"
+import { getBnToNumber, shortenNumber, smartShortNumber } from "@app/util/markets"
 import { CHAIN_TOKENS, getToken } from "@app/variables/tokens"
 import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons"
 import { VStack, Text, HStack } from "@chakra-ui/react"
@@ -31,19 +31,27 @@ export const EnsoRouting = ({
     amountOut,
     targetAsset,
     routes,
+    priceImpactBps,
+    isLoading = false
 }: {
     chainId: string
     amountOut: string
     targetAsset: Token
     targetChainId: string
     routes: EnsoRoute[]
+    priceImpactBps: number | null
+    isLoading: boolean
 }) => {
     const [showActions, setShowActions] = useState(false);
     return <VStack w='full' alignItems="flex-start">
-        <HStack justify="space-between" spacing="1" textDecoration="underline" cursor="pointer" onClick={() => setShowActions(!showActions)}>
-            <HStack>
+        <HStack w='full' justify="space-between" spacing="1">
+            <HStack textDecoration="underline" cursor="pointer" onClick={() => setShowActions(!showActions)}>
                 <Text fontWeight="bold">Actions</Text>
                 {showActions ? <ChevronDownIcon /> : <ChevronRightIcon />}
+            </HStack>
+            <HStack>
+                <Text>Price impact:</Text>
+                <Text fontWeight="bold" color={!priceImpactBps || priceImpactBps >= 200 ? 'error' : priceImpactBps < 100 ? 'success' : 'warning'}>{!priceImpactBps ? 'Unknown (not recommended to zap)' : `${shortenNumber(priceImpactBps / 100, 2)}%`}</Text>                
             </HStack>
             {/* <HStack>
                 <Text>Result:</Text>

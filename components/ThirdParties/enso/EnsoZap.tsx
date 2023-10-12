@@ -23,9 +23,6 @@ import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
 import { EnsoRouting } from "./EnsoRouting";
 
 const zapOptions = [...new Set(ZAP_TOKENS_ARRAY.map(t => t.address))];
-const implementedNetworks = NETWORKS
-    .filter(n => ['1', ...DOLA_BRIDGED_CHAINS].includes(n.id.toString()))
-    .map(n => ({ ...n, label: n.name, value: n.id }));
 
 function EnsoZap({
     defaultTokenOut = '',
@@ -46,10 +43,17 @@ function EnsoZap({
     const [tokenIn, setTokenIn] = useState(''); // dola    
     const [tokenOut, setTokenOut] = useState(defaultTokenOut); // fraxbp
 
-    const tokenInObj = tokenIn ? getToken(CHAIN_TOKENS[chainId || '1'], tokenIn) : CHAIN_TOKENS[chainId || '1'].CHAIN_COIN;    
+    const tokenInObj = tokenIn ? getToken(CHAIN_TOKENS[chainId || '1'], tokenIn) : CHAIN_TOKENS[chainId || '1'].CHAIN_COIN;
     // const [chainId, setChainId] = useState('1');
     const [targetChainId, setTargetChainId] = useState(defaultTargetChainId || chainId || '1');
     const tokenOutObj = tokenOut ? getToken(CHAIN_TOKENS[targetChainId || '1'], tokenOut) : CHAIN_TOKENS[targetChainId || '1'].CHAIN_COIN;
+    const availableChainIds = [...new Set(ensoPools.map(ep => ep.chainId.toString()))];
+
+    const implementedNetworks = useMemo(() => {
+        return NETWORKS
+            .filter(n => availableChainIds.includes(n.id.toString()))
+            .map(n => ({ ...n, label: n.name, value: n.id }))
+    }, [NETWORKS, availableChainIds, ensoPools]);
 
     const targetNetwork = implementedNetworks.find(n => n.id === targetChainId);
     const [amountIn, setAmountIn] = useState<string>('');
@@ -68,7 +72,7 @@ function EnsoZap({
 
     const toOptions = useMemo(() => {
         return ensoPools?.filter(t => t.chainId.toString() === targetChainId.toString())
-        .map(t => ({ ...t, label: t.name, value: t.poolAddress, subtitle: t.project }))
+            .map(t => ({ ...t, label: t.name, value: t.poolAddress, subtitle: t.project }))
     }, [targetChainId]);
 
     const fromAssetInputProps = { tokens: fromOptions, balances, showBalance: true }
@@ -129,7 +133,7 @@ function EnsoZap({
 
                     <Divider />
 
-                    <Stack spacing="2" direction={{ base: 'columns', md: 'row' }} justify="space-between" w='full'>
+                    <Stack alignItems="center" spacing="2" direction={{ base: 'columns', md: 'row' }} justify="space-between" w='full'>
                         <HStack>
                             <Text>To</Text>
                             <SimpleAssetDropdown
@@ -138,11 +142,13 @@ function EnsoZap({
                                 handleChange={(v) => setTargetChainId(v.value)}
                             />
                         </HStack>
-                        <SimpleAssetDropdown
-                            list={toOptions}
-                            selectedValue={tokenOut}
-                            handleChange={(v) => setTokenOut(v.value)}
-                        />
+                        {
+                            toOptions?.length ? <SimpleAssetDropdown
+                                list={toOptions}
+                                selectedValue={tokenOut}
+                                handleChange={(v) => setTokenOut(v.value)}
+                            /> : <Text>No options for this chain</Text>
+                        }
                     </Stack>
 
                     <HStack w='full' justify="space-between">
@@ -172,7 +178,7 @@ function EnsoZap({
                                 hideInput={true}
                                 showMaxBtn={false}
                                 actionLabel="Zap-in"
-                                isDisabled={!amountIn || ((!!tokenIn && tokenIn !== EthXe) && !approveDestinationAddress) || !slippage || !parseFloat(slippage)}
+                                isDisabled={!zapResponseData?.route || !amountIn || ((!!tokenIn && tokenIn !== EthXe) && !approveDestinationAddress) || !slippage || !parseFloat(slippage)}
                                 alsoDisableApprove={true}
                                 btnProps={{ needPoaFirst: true }}
                                 signer={provider?.getSigner()}
@@ -194,12 +200,19 @@ function EnsoZap({
                             />
                     }
                     {
+                        zapResponseData?.isLoading && <Text>
+                            Loading route and price impact...
+                        </Text>
+                    }
+                    {
                         zapResponseData?.route && <EnsoRouting
                             chainId={chainId?.toString()}
                             targetChainId={targetChainId?.toString()}
                             targetAsset={tokenOutObj}
                             amountOut={zapResponseData.amountOut}
                             routes={zapResponseData.route}
+                            priceImpactBps={zapResponseData.priceImpact}
+                            isLoading={zapResponseData.isLoading}
                         />
                     }
                 </VStack>

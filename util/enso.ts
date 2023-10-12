@@ -82,7 +82,7 @@ export const useEnsoRoute = (
     });
     return {
         ...data,
-        isLoading: !data && !error,
+        isLoading: !data && !(!chainId || !tokenOut || !targetChainId || !amount) && !error,
         error,
     }
 }
@@ -195,7 +195,7 @@ export const ensoSameChainZap = async (
     } = options;
     const isEth = !tokenIn || tokenIn === EthXe;
     const _tokenIn = !tokenIn ? EthXe : tokenIn;
-    let path = `https://api.enso.finance/api/v1/shortcuts/route?chainId=${chainId}&fromAddress=${fromAddress}&amountIn=${amount}&slippage=${slippage}&tokenIn=${_tokenIn}&tokenOut=${tokenOut}&priceImpact=false`;
+    let path = `https://api.enso.finance/api/v1/shortcuts/route?chainId=${chainId}&fromAddress=${fromAddress}&amountIn=${amount}&slippage=${slippage}&tokenIn=${_tokenIn}&tokenOut=${tokenOut}&priceImpact=true`;
     if (toEoa) {
         path += `&receiver=${fromAddress}`;
         if (!isEth) {
