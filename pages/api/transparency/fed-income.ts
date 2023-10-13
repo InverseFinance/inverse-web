@@ -128,7 +128,8 @@ export default async function handler(req, res) {
     const cacheKey = `revenues-v1.0.20`;
 
     try {
-        const cacheDuration = 900;
+        // TODO: remove temporary high cache, covalent being downish
+        const cacheDuration = 86000;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
         const [archive, cache] = await Promise.all([
             getCacheFromRedisAsObj(archiveCacheKey, false, cacheDuration),
