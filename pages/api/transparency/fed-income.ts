@@ -43,13 +43,12 @@ const deduceBridgeFees = (value: number, chainId: string) => {
 
 const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { [key: string]: number }, cachedTotalEvents?: any) => {
     const transfers = await throttledPromises(
-        (fed: Fed) => getTxsOf(fed.incomeSrcAd || fed.address, 1000, 0, fed.incomeChainId || fed.chainId),
+        (fed: Fed) => getTxsOf(fed.incomeSrcAd || fed.address, 100, 0, fed.incomeChainId || fed.chainId),
         FEDS,
         // max 5 req per sec
         5,
         500,
     );
-
     return await Promise.all(transfers.map(async (r, i) => {
         const fed = FEDS[i];
 
@@ -125,8 +124,8 @@ export default async function handler(req, res) {
     const { cacheFirst } = req.query;
     const { FEDS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
 
-    const archiveCacheKey = `revenues-v1.0.14`;
-    const cacheKey = `revenues-v1.0.16`;
+    const archiveCacheKey = `revenues-v1.0.20a`;
+    const cacheKey = `revenues-v1.0.20`;
 
     try {
         const cacheDuration = 900;
@@ -155,14 +154,16 @@ export default async function handler(req, res) {
         FEDS.filter(fed => !!fed.oldIncomeSrcAds).forEach(fed => {
             fed.oldIncomeSrcAds?.forEach(oldAddress => withOldAddresses.push({ ...fed, oldIncomeSrcAd: oldAddress }));
         });
-        const [filteredTransfers, oldFilteredTransfers] = await Promise.all(
+        const oldFilteredTransfers = withOldAddresses.map(old => []);
+        // const [filteredTransfers, oldFilteredTransfers] = await Promise.all(
+        const [filteredTransfers] = await Promise.all(
             [
                 getProfits(FEDS, TREASURY, cachedCurrentPrices, archived?.totalEvents||[]),
-                getProfits(withOldAddresses.map(f => ({
-                    ...f,
-                    address: f.oldAddress || f.address,
-                    incomeSrcAd: f.oldIncomeSrcAd || f.incomeSrcAd,
-                })), TREASURY, cachedCurrentPrices, []),
+                // getProfits(withOldAddresses.map(f => ({
+                //     ...f,
+                //     address: f.oldAddress || f.address,
+                //     incomeSrcAd: f.oldIncomeSrcAd || f.incomeSrcAd,
+                // })), TREASURY, cachedCurrentPrices, []),
             ]
         );
 
