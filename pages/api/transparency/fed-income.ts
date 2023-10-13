@@ -14,6 +14,7 @@ const COINGECKO_IDS = {
     'VELO': 'velodrome-finance',
     'BAL': 'balancer',
     'AURA': 'aura-finance',
+    'AERO': 'aerodrome-finance',
 }
 
 // Crosschain Fee is 0.1 %, Minimum Crosschain Fee is 83 DOLA, Maximum Crosschain Fee is 1,040 DOLA
@@ -42,13 +43,12 @@ const deduceBridgeFees = (value: number, chainId: string) => {
 
 const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { [key: string]: number }, cachedTotalEvents?: any) => {
     const transfers = await throttledPromises(
-        (fed: Fed) => getTxsOf(fed.incomeSrcAd || fed.address, 1000, 0, fed.incomeChainId || fed.chainId),
+        (fed: Fed) => getTxsOf(fed.incomeSrcAd || fed.address, 100, 0, fed.incomeChainId || fed.chainId),
         FEDS,
         // max 5 req per sec
         5,
         500,
     );
-
     return await Promise.all(transfers.map(async (r, i) => {
         const fed = FEDS[i];
 
@@ -81,7 +81,7 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
             const histoDateDDMMYYYY = `${dateSplit[2]}-${dateSplit[1]}-${dateSplit[0]}`;
             await Promise.all(filteredEvents.map(async e => {
                 const amount = getBnToNumber(parseUnits(e.decoded.params[2].value, 0));
-                if (['CRV', 'CVX', 'VELO', 'BAL', 'AURA'].includes(e.sender_contract_ticker_symbol)) {
+                if (['CRV', 'CVX', 'VELO', 'BAL', 'AURA', 'AERO'].includes(e.sender_contract_ticker_symbol)) {
                     const cgId = COINGECKO_IDS[e.sender_contract_ticker_symbol];
                     let histoPrice = 1;
                     const histoCacheKey = `price-${cgId}-${histoDateDDMMYYYY}`;
@@ -124,11 +124,12 @@ export default async function handler(req, res) {
     const { cacheFirst } = req.query;
     const { FEDS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
 
-    const archiveCacheKey = `revenues-v1.0.14`;
-    const cacheKey = `revenues-v1.0.15`;
+    const archiveCacheKey = `revenues-v1.0.20a`;
+    const cacheKey = `revenues-v1.0.20`;
 
     try {
-        const cacheDuration = 900;
+        // TODO: remove temporary high cache, covalent being downish
+        const cacheDuration = 86000;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
         const [archive, cache] = await Promise.all([
             getCacheFromRedisAsObj(archiveCacheKey, false, cacheDuration),
@@ -154,14 +155,16 @@ export default async function handler(req, res) {
         FEDS.filter(fed => !!fed.oldIncomeSrcAds).forEach(fed => {
             fed.oldIncomeSrcAds?.forEach(oldAddress => withOldAddresses.push({ ...fed, oldIncomeSrcAd: oldAddress }));
         });
-        const [filteredTransfers, oldFilteredTransfers] = await Promise.all(
+        const oldFilteredTransfers = withOldAddresses.map(old => []);
+        // const [filteredTransfers, oldFilteredTransfers] = await Promise.all(
+        const [filteredTransfers] = await Promise.all(
             [
                 getProfits(FEDS, TREASURY, cachedCurrentPrices, archived?.totalEvents||[]),
-                getProfits(withOldAddresses.map(f => ({
-                    ...f,
-                    address: f.oldAddress || f.address,
-                    incomeSrcAd: f.oldIncomeSrcAd || f.incomeSrcAd,
-                })), TREASURY, cachedCurrentPrices, []),
+                // getProfits(withOldAddresses.map(f => ({
+                //     ...f,
+                //     address: f.oldAddress || f.address,
+                //     incomeSrcAd: f.oldIncomeSrcAd || f.incomeSrcAd,
+                // })), TREASURY, cachedCurrentPrices, []),
             ]
         );
 
