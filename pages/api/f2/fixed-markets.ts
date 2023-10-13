@@ -13,7 +13,7 @@ import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { FEATURE_FLAGS } from '@app/config/features';
 
 const { F2_MARKETS, DOLA, XINV, DBR_DISTRIBUTOR, FEDS } = getNetworkConfigConstants();
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.96`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.97`;
 
 export default async function handler(req, res) {
   const { cacheFirst } = req.query;
@@ -138,7 +138,6 @@ export default async function handler(req, res) {
     // external yield bearing apys
     const externalYieldResults = await Promise.allSettled([
       getStethData(),
-      getGOhmData(),
       getStYcrvData(),
       getCvxCrvAPRs(provider),
       getCvxFxsAPRs(provider),
@@ -146,7 +145,7 @@ export default async function handler(req, res) {
       getStCvxData(),
     ]);
 
-    let [stethData, gohmData, stYcrvData, cvxCrvData, cvxFxsData, dsrData, stCvxData] = externalYieldResults.map(r => {
+    let [stethData, stYcrvData, cvxCrvData, cvxFxsData, dsrData, stCvxData] = externalYieldResults.map(r => {
       return r.status === 'fulfilled' ? r.value : {};
     });
 
@@ -161,7 +160,6 @@ export default async function handler(req, res) {
     const invFrontierMarket = frontierMarkets.markets.find(m => m.token === '0x1637e4e9941D55703a7A5E7807d6aDA3f7DCD61B')!;
     const externalApys = {
       'stETH': stethData?.apy || 0,
-      'gOHM': gohmData?.apy || 0,
       'cvxCRV': Math.max(cvxCrvData?.group1 || 0, cvxCrvData?.group2 || 0),
       'cvxFXS': (cvxFxsData?.fxs || 0) + (cvxFxsData?.cvx || 0),
       'INV': invFrontierMarket.supplyApy || 0,
