@@ -179,7 +179,7 @@ function EnsoZap({
                                 showMaxBtn={false}
                                 actionLabel="Zap-in"
                                 isDisabled={!zapResponseData?.route || !amountIn || ((!!tokenIn && tokenIn !== EthXe) && !approveDestinationAddress) || !slippage || !parseFloat(slippage)}
-                                alsoDisableApprove={true}
+                                alsoDisableApprove={!amountIn || ((!!tokenIn && tokenIn !== EthXe) && !approveDestinationAddress) || !slippage || !parseFloat(slippage)}
                                 btnProps={{ needPoaFirst: true }}
                                 signer={provider?.getSigner()}
                                 onAction={
@@ -202,6 +202,11 @@ function EnsoZap({
                     {
                         zapResponseData?.isLoading && <Text>
                             Loading route and price impact...
+                        </Text>
+                    }
+                    {
+                        zapResponseData?.error && <Text color="warning" fontSize="14px">
+                            {zapResponseData?.error?.toString()}
                         </Text>
                     }
                     {
