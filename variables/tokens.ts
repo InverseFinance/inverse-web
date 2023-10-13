@@ -331,7 +331,6 @@ const chainTokens = {
       symbol: 'gOHM',
       coingeckoId: 'governance-ohm',
       image: TOKEN_IMAGES.gOHM,
-      protocolImage: PROTOCOL_IMAGES.OHM,
       decimals: 18,      
     },
     [chainTokenAddresses["1"].INVDOLASLP]: {
