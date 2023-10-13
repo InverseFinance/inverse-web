@@ -43,7 +43,7 @@ const deduceBridgeFees = (value: number, chainId: string) => {
 
 const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { [key: string]: number }, cachedTotalEvents?: any) => {
     const transfers = await throttledPromises(
-        (fed: Fed) => getTxsOf(fed.incomeSrcAd || fed.address, 100, 0, fed.incomeChainId || fed.chainId),
+        (fed: Fed) => getTxsOf(fed.incomeSrcAd || fed.address, 30, 0, fed.incomeChainId || fed.chainId),
         FEDS,
         // max 5 req per sec
         5,
@@ -51,9 +51,9 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
     );
     return await Promise.all(transfers.map(async (r, i) => {
         const fed = FEDS[i];
-
+        const archivedFedData = cachedTotalEvents.filter(event => event.fedIndex === i);
         if (fed.hasEnded && !!cachedTotalEvents) {
-            return cachedTotalEvents.filter(event => event.fedIndex === i);
+            return archivedFedData;
         }
 
         const toAddress = (fed?.incomeTargetAd || TREASURY)?.toLowerCase();
@@ -62,6 +62,7 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
 
         const items = r.data.items
             .filter(item => item.successful)
+            .filter(item => !archivedFedData.find(archTx => archTx.transactionHash === item.tx_hash && archTx.fedIndex === i))
             .filter(item => !!item.log_events
                 .find(e => !!e.decoded && e.decoded.name === eventName
                     && e?.decoded?.params[0]?.value?.toLowerCase() == srcAddress
@@ -69,7 +70,7 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
                 ))
             .sort((a, b) => a.block_height - b.block_height);
 
-        return await Promise.all(items.map(async item => {
+        const unarchivedData = await Promise.all(items.map(async item => {
             const filteredEvents = item.log_events
                 .filter(e => !!e.decoded && e.decoded.name === eventName
                     && e?.decoded?.params[0]?.value?.toLowerCase() == srcAddress
@@ -117,6 +118,7 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
                 transactionHash: item.tx_hash,
             }
         }));
+        return archivedFedData.concat(unarchivedData);
     }));
 }
 
@@ -125,18 +127,18 @@ export default async function handler(req, res) {
     const { FEDS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
 
     const archiveCacheKey = `revenues-v1.0.20a`;
-    const cacheKey = `revenues-v1.0.20`;
+    const cacheKey = `revenues-v1.0.21`;
 
     try {
-        // TODO: remove temporary high cache, covalent being downish
-        const cacheDuration = 86000;
+
+        const cacheDuration = 1800;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
         const [archive, cache] = await Promise.all([
             getCacheFromRedisAsObj(archiveCacheKey, false, cacheDuration),
             getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration)
         ]);
 
-        const { data: archived } = archive;
+        const { data: archived } = archive;        
         const { data: cachedData, isValid } = cache;
 
         if (isValid) {
