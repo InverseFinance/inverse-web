@@ -14,6 +14,7 @@ const COINGECKO_IDS = {
     'VELO': 'velodrome-finance',
     'BAL': 'balancer',
     'AURA': 'aura-finance',
+    'AERO': 'aerodrome-finance',
 }
 
 // Crosschain Fee is 0.1 %, Minimum Crosschain Fee is 83 DOLA, Maximum Crosschain Fee is 1,040 DOLA
@@ -81,7 +82,7 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
             const histoDateDDMMYYYY = `${dateSplit[2]}-${dateSplit[1]}-${dateSplit[0]}`;
             await Promise.all(filteredEvents.map(async e => {
                 const amount = getBnToNumber(parseUnits(e.decoded.params[2].value, 0));
-                if (['CRV', 'CVX', 'VELO', 'BAL', 'AURA'].includes(e.sender_contract_ticker_symbol)) {
+                if (['CRV', 'CVX', 'VELO', 'BAL', 'AURA', 'AERO'].includes(e.sender_contract_ticker_symbol)) {
                     const cgId = COINGECKO_IDS[e.sender_contract_ticker_symbol];
                     let histoPrice = 1;
                     const histoCacheKey = `price-${cgId}-${histoDateDDMMYYYY}`;
@@ -125,7 +126,7 @@ export default async function handler(req, res) {
     const { FEDS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
 
     const archiveCacheKey = `revenues-v1.0.14`;
-    const cacheKey = `revenues-v1.0.15`;
+    const cacheKey = `revenues-v1.0.16`;
 
     try {
         const cacheDuration = 900;
