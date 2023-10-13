@@ -77,7 +77,7 @@ export const AnchorPoolInfo = ({
 
     const suffix = isBalance ? '' : '%'
     const label = (value ? `${isBalance ? shortenNumber(value, 2, false, true) : value.toFixed(2)}` : '0.00') + suffix
-    const isYieldBearingApyKnown = (value || 0 > 0) || symbol.startsWith('yv')
+    const isYieldBearingApyKnown = (value || 0) > 0 || symbol.startsWith('yv')
 
     return (
         <Text {...textProps} opacity={(value && value > 0 || !!protocolImage) ? 1 : 0.5} position="relative">
