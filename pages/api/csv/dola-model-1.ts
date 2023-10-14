@@ -1,9 +1,11 @@
 import { getCacheFromRedis, redisSetWithTimestamp } from "@app/util/redis";
 import { repaymentsCacheKey } from "../transparency/repayments";
+import { NETWORKS_BY_CHAIN_ID } from "@app/config/networks";
+import { capitalize } from "@app/util/misc";
 
 export default async (req, res) => {
     const cacheDuration = 900;
-    const cacheKey = 'dola-modal-v1.0.2';
+    const cacheKey = 'dola-modal-v1.0.4';
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
 
     try {
@@ -13,17 +15,22 @@ export default async (req, res) => {
         ]);
         const liquidityData = await liquidityRes.json();
 
-        // feds + crvUSD lp
-        const feds = liquidityData.liquidity.filter(d => d.isFed || d.address === '0x8272e1a3dbef607c04aa6e5bd3a1a134c8ac063b');
+        // feds + exceptions, dolacrvusd, dolausd+, dola-usdc op aura
+        const exceptions = [
+            '0x8272e1a3dbef607c04aa6e5bd3a1a134c8ac063b',
+            '0x5a473b418193C6a3967aF0913135534B7b3B23E9',
+            '0x8E9154AC849e839d60299E85156bcb589De2693A',
+        ].map(ad => ad.toLowerCase());
+        const feds = liquidityData.liquidity.filter(d => d.isFed || exceptions.includes(d.address.toLowerCase()));
         const totalBorrowsOnFirm = liquidityData.firmBorrows;
         const currentDolaBadDebt = badDebtData.badDebts.DOLA.badDebtBalance;
 
         let csvData = `DOLA bad debt:,${currentDolaBadDebt},FiRM borrows:,${totalBorrowsOnFirm},Liquidity Cache:,~5min,Liquidity timestamp:,${liquidityData.timestamp},Bad debt timestamp:,${badDebtData.timestamp}\n`;
-        csvData += `LP,Fed,Fed Supply,DOLA balance,Pairing Depth,Fed PoL\n`;
+        csvData += `LP,Fed or Project,Fed Supply,DOLA balance,Pairing Depth,Fed PoL\n`;
         feds.forEach((lp) => {
             const parentLp = liquidityData.liquidity.filter(l => !!l.deduce).find(l => l.deduce.includes(lp.address));
             const balanceSource = parentLp || lp;
-            csvData += `${lp.lpName},${lp.fedName||'n/a'},${lp.fedSupply||0},${balanceSource?.dolaBalance||0},${balanceSource?.pairingDepth||0},${lp.ownedAmount||0}\n`;
+            csvData += `${lp.lpName},${lp.fedName || (capitalize(lp.project)+ ' ' + NETWORKS_BY_CHAIN_ID[lp.chainId].name)},${lp.fedSupply || 0},${balanceSource?.dolaBalance || 0},${balanceSource?.pairingDepth || 0},${lp.ownedAmount || 0}\n`;
         });
 
         redisSetWithTimestamp(cacheKey, { csvData });
