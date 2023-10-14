@@ -381,10 +381,11 @@ export const getLPBalances = async (LPToken: Token, chainId = process.env.NEXT_P
     } else if (LPToken.balancerInfos && !!LPToken.pairs) {
       const balancesBn = await getBalancerPoolBalances(LPToken, providerOrSigner);
       let subShareFactor = 1;
+      const bpPool = LPToken.balancerInfos.poolId.substring(0, 42);
       if (LPToken.protocolImage === PROTOCOL_IMAGES.AURA) {
         const [balSupply, auraSupply] = await Promise.all([
           // blp supply
-          (new Contract(LPToken.balancerInfos.poolId.substring(0, 42), ERC20_ABI, providerOrSigner)).totalSupply(),
+          (new Contract(bpPool, ERC20_ABI, providerOrSigner)).totalSupply(),
           // aura lp supply
           (new Contract(LPToken.address, ERC20_ABI, providerOrSigner)).totalSupply(),
         ]);
@@ -392,9 +393,9 @@ export const getLPBalances = async (LPToken: Token, chainId = process.env.NEXT_P
       }
       const _balances = balancesBn.map((bn, i) => getBnToNumber(bn, tokens[i]?.decimals || 18) * subShareFactor);
       // balancer composable metapools contain the LP itself, we can skip it for our calc
-      const balances = _balances.filter((v, i) => tokens[i].address !== LPToken.address);
+      const balances = _balances.filter((v, i) => tokens[i].address?.toLowerCase() !== bpPool?.toLowerCase());
       const total = balances.reduce((prev, curr) => prev + curr, 0);
-      return tokens.filter((token => token.address !== LPToken.address)).map((token, i) => {
+      return tokens.filter((token => token.address.toLowerCase() !== bpPool.toLowerCase())).map((token, i) => {
         return { ...token, balance: balances[i], perc: total > 0 ? balances[i] / total * 100 : 0 };
       });
     }

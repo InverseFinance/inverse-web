@@ -134,6 +134,7 @@ const chainTokenAddresses = {
     FRAX: '0x2E3D870790dC77A83DD1d18184Acc7439A53f475',
     ARCHLYDOLAUSDCLP: '0x5b701874FFFc9dFF9305E1cA09705247E13cF717',
     DOLAUSDCBEETLP: '0xACfE9b4782910A853b68abbA60f3FD8049Ffe638',
+    DOLAUSDCALP: '0x5a473b418193C6a3967aF0913135534B7b3B23E9',
   },
   "5": {
     DOLA: '0x50e6a8a893bDa08D31ADCA88E8B99cC3f9b2dE9A',
@@ -210,6 +211,8 @@ const chainTokenAddresses = {
     AERODOLAUSDBCLP: '0x0B25c51637c43decd6CC1C1e3da4518D54ddb528',
     VEAERO: '0xeBf418Fe2512e7E6bd9b87a8F0f294aCDC67e6B4',
     AERO: '0x940181a94A35A4569E4529A3CDfB74e38FD98631',
+    USDPLUS: '0xB79DD08EA68A908A97220C76d19A6aA9cBDE4376',
+    AERODOLAUSDPLUS: '0x8E9154AC849e839d60299E85156bcb589De2693A',
   },
 }
 chainTokenAddresses["31337"] = chainTokenAddresses["1"];
@@ -1350,6 +1353,25 @@ const chainTokens = {
       isStable: true,
       isComposableMetapool: true,
       protocolImage: PROTOCOL_IMAGES.BEETHOVEN,
+      deduce: [chainTokenAddresses["10"].DOLAUSDCALP],
+    },
+    [chainTokenAddresses["10"].DOLAUSDCALP]: {
+      address: chainTokenAddresses["10"].DOLAUSDCALP,
+      name: 'DOLA-USDC',
+      symbol: 'DOLA-USDC opalp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      balancerInfos: {
+        poolId: '0xacfe9b4782910a853b68abba60f3fd8049ffe6380000000000000000000000ff',
+        vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
+      },
+      pairs: [
+        chainTokenAddresses["10"].USDC, chainTokenAddresses["10"].DOLA, chainTokenAddresses["10"].DOLAUSDCBEETLP
+      ],
+      isComposableMetapool: true,
+      protocolImage: PROTOCOL_IMAGES.AURA,
     },
   },
   "56": {
@@ -1865,6 +1887,14 @@ const chainTokens = {
       ...MAI,
       address: chainTokenAddresses["8453"].MAI,
     },
+    [chainTokenAddresses["8453"].USDPLUS]: {
+      address: chainTokenAddresses["8453"].USDPLUS,
+      name: 'USD+',
+      symbol: 'USD+',
+      image: TOKEN_IMAGES['USD+'],
+      decimals: 6,
+      coingeckoId: 'usd',
+    },
     [chainTokenAddresses["8453"].VEAERO]: {
       address: chainTokenAddresses["8453"].VEAERO,
       name: 'veAERO',
@@ -1899,6 +1929,20 @@ const chainTokens = {
       isStable: true,
       pairs: [
         chainTokenAddresses["8453"].DOLA, chainTokenAddresses["8453"].USDBC
+      ],
+      protocolImage: PROTOCOL_IMAGES.AERO,
+    },
+    [chainTokenAddresses["8453"].AERODOLAUSDPLUS]: {
+      address: chainTokenAddresses["8453"].AERODOLAUSDPLUS,
+      name: 'DOLA-USD+',
+      symbol: 'DOLA-USD+ aerolp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,      
+      isVeloLP: true,
+      isStable: true,
+      pairs: [
+        chainTokenAddresses["8453"].DOLA, chainTokenAddresses["8453"].USDPLUS
       ],
       protocolImage: PROTOCOL_IMAGES.AERO,
     },
