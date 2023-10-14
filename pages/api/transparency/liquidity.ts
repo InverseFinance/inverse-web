@@ -13,7 +13,7 @@ import { pricesCacheKey } from '../prices';
 import { PROTOCOLS_BY_IMG } from '@app/variables/images';
 import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 
-export const liquidityCacheKey = `liquidity-v1.1.91`;
+export const liquidityCacheKey = `liquidity-v1.1.92`;
 
 const PROTOCOL_DEFILLAMA_MAPPING = {
     "VELO": 'velodrome-v1',
@@ -204,7 +204,7 @@ export default async function handler(req, res) {
                 fedName: isFed ? fedPol.name : undefined,
                 fedSupply: isFed ? fedPol.supply : undefined,
                 fedBorrows: isFed ? fedPol.borrows||0 : undefined,
-                mainPartBalance: mainPart?.balance,
+                mainPartBalance: mainPart?.balance,                
             }
         }
 
