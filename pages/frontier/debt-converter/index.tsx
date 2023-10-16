@@ -10,7 +10,6 @@ import { useEffect, useState } from 'react'
 import { useWeb3React } from '@web3-react/core'
 import { Web3Provider } from '@ethersproject/providers'
 import { AssetInput } from '@app/components/common/Assets/AssetInput'
-import { useMarkets } from '@app/hooks/useMarkets'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { useBalances } from '@app/hooks/useBalances'
 import { Market, Token } from '@app/types'
@@ -22,8 +21,8 @@ import { roundFloorString } from '@app/util/misc'
 import { InfoMessage, WarningMessage } from '@app/components/common/Messages'
 import { dollarify, getBnToNumber, getMonthlyRate, shortenNumber } from '@app/util/markets'
 import { SubmitButton } from '@app/components/common/Button'
-import { useAllowances } from '@app/hooks/useApprovals'
-import { getScanner, hasAllowance } from '@app/util/web3'
+import { useIsApproved } from '@app/hooks/useApprovals'
+import { getScanner } from '@app/util/web3'
 import { ApproveButton } from '@app/components/Anchor/AnchorButton'
 import { convertToIOU } from '@app/util/contracts'
 import { AnimatedInfoTooltip, InfoPopover } from '@app/components/common/Tooltip'
@@ -72,7 +71,7 @@ export const DebtConverterPage = () => {
 
     const maxPrice = (maxUnderlyingPrice !== 0 && maxUnderlyingPrice !== null ? maxUnderlyingPrice : price) || 0;
 
-    const { approvals } = useAllowances([collateralMarket?.ctoken], DEBT_CONVERTER);
+    const { isApproved, isAllBalanceApproved } = useIsApproved(collateralMarket?.ctoken, DEBT_CONVERTER, userAddress, antokenAmount, true);
     const { balances: anBalances } = useBalances([anEth, anWbtc, anYfi]);
     const { underlyingBalance: anEthBal } = useConvertToUnderlying(anEth, anBalances ? anBalances[anEth] : '0');
     const { underlyingBalance: anWbtcBal } = useConvertToUnderlying(anWbtc, anBalances ? anBalances[anWbtc] : '0');
@@ -261,7 +260,7 @@ export const DebtConverterPage = () => {
                                                 /> :
                                                     <HStack w='full' pt="4">
                                                         {
-                                                            !hasAllowance(approvals, collateralMarket?.ctoken) ?
+                                                            !isApproved ?
                                                                 <ApproveButton
                                                                     tooltipMsg=""
                                                                     isDisabled={false}
@@ -277,7 +276,7 @@ export const DebtConverterPage = () => {
                                                                         refreshOnSuccess={true}>
                                                                         convert
                                                                     </SubmitButton>
-                                                                    <SubmitButton onClick={() => handleConvert(true)} refreshOnSuccess={true}>
+                                                                    <SubmitButton disabled={!isAllBalanceApproved} onClick={() => handleConvert(true)} refreshOnSuccess={true}>
                                                                         convert all
                                                                     </SubmitButton>
                                                                 </Stack>

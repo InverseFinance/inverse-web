@@ -4,7 +4,7 @@ import useEtherSWR from '@app/hooks/useEtherSWR'
 import { BigNumberList, SWR } from '@app/types'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
-import { isAddress } from 'ethers/lib/utils'
+import { isAddress, parseUnits } from 'ethers/lib/utils'
 import { useRouter } from 'next/dist/client/router'
 import { ERC20_ABI } from '@app/config/abis'
 import { EthXe } from '@app/util/enso'
@@ -58,8 +58,9 @@ export const useAllowances = (addresses: string[], target: string, from?: string
   }
 }
 
-export const useIsApproved = (token: string, spender: string, from: string, amount = 0): SWR & {
+export const useIsApproved = (token: string, spender: string, from: string, amount: string | number = 0, isRawAmount = false): SWR & {
   isApproved: boolean
+  isAllBalanceApproved: boolean
   approvedAmount: number
 } => {
   const isEth = !token || token === EthXe;
@@ -68,13 +69,17 @@ export const useIsApproved = (token: string, spender: string, from: string, amou
     args: [
       [token, 'allowance', from, spender],
       [token, 'decimals'],
+      [token, 'balanceOf', from],
     ],
   });
- 
-  const [allowance, decimals] = data ? data : [BigNumber.from('0'), 18];
-  const approvedAmount = isEth ? Infinity : getBnToNumber(allowance, getBnToNumber(decimals, 0));
+
+  const [allowance, decimals, balance] = data ? data : [BigNumber.from('0'), 18, BigNumber.from('0')];
+  const approvedAmount = isEth ? Infinity : getBnToNumber(allowance, decimals);
+  const userBalance = getBnToNumber(balance, decimals);
+  const _amount = !!amount && isRawAmount && typeof amount === 'string' ? getBnToNumber(parseUnits(amount, 0), decimals) : amount ? amount : 0;
   return {
-    isApproved: isEth ? true : approvedAmount > 0 && approvedAmount >= amount,
+    isApproved: isEth ? true : approvedAmount > 0 && approvedAmount >= _amount,
+    isAllBalanceApproved: isEth ? true : approvedAmount >= userBalance,
     approvedAmount,
     isLoading: !error && !data,
     isError: error,
