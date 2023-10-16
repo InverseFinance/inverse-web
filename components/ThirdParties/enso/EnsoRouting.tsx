@@ -43,6 +43,7 @@ export const EnsoRouting = ({
     isLoading: boolean
 }) => {
     const [showActions, setShowActions] = useState(false);
+    const isPriceImpactUnknown = typeof priceImpactBps !== 'number';
     return <VStack w='full' alignItems="flex-start">
         <HStack w='full' justify="space-between" spacing="1">
             <HStack textDecoration="underline" cursor="pointer" onClick={() => setShowActions(!showActions)}>
@@ -51,7 +52,7 @@ export const EnsoRouting = ({
             </HStack>
             <HStack>
                 <Text>Price impact:</Text>
-                <Text fontWeight="bold" color={!priceImpactBps || priceImpactBps >= 200 ? 'error' : priceImpactBps < 100 ? 'success' : 'warning'}>{!priceImpactBps ? 'Unknown (not recommended to zap)' : `${shortenNumber(priceImpactBps / 100, 2)}%`}</Text>                
+                <Text fontWeight="bold" color={isPriceImpactUnknown || priceImpactBps >= 200 ? 'error' : priceImpactBps < 100 ? 'success' : 'warning'}>{isPriceImpactUnknown ? 'Unknown (not recommended to zap)' : `${shortenNumber(priceImpactBps / 100, 2)}%`}</Text>                
             </HStack>
             {/* <HStack>
                 <Text>Result:</Text>

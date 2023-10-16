@@ -5,6 +5,7 @@ import { CHAIN_TOKENS, getToken } from "@app/variables/tokens";
 import { lowercaseObjectKeys } from "./misc";
 import { getBnToNumber, getSymbolFromUnderlyingTokens, homogeneizeLpName } from "./markets";
 import { PROTOCOLS_BY_IMG, PROTOCOL_DEFILLAMA_MAPPING } from "@app/variables/images";
+import { NetworkIds } from "@app/types";
 
 const key = '033137b3-73c1-4308-8e77-d7e14d3664ca'
 export const EthXe = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
@@ -54,6 +55,7 @@ export const useEnso = (
 }
 // get the route to know where to approve
 export const useEnsoRoute = (
+    isApproved = false,
     fromAddress: string,
     chainId: string,
     targetChainId: string,
@@ -64,7 +66,7 @@ export const useEnsoRoute = (
     const { data, error } = useSWR(
         `enso-route-${chainId}-${targetChainId}-${tokenIn}-${tokenOut}-${amount}`,
         async () => {
-            if (!chainId || !tokenOut || !targetChainId || !amount) return null;
+            if (!isApproved || !fromAddress || !chainId || !tokenOut || !targetChainId || !amount) return null;
             return await ensoZap(null, {
                 fromAddress,
                 amount,
@@ -107,7 +109,7 @@ export const useEnsoPools = ({
         });
     });
     return {
-        pools: data || [],
+        pools: (data || []).filter(p => ![NetworkIds.bsc, NetworkIds.ftm].includes(p.chainId.toString())),
         isLoading: !data && !error,
         error,
     }

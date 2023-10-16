@@ -3,7 +3,7 @@ import { BLOCK_SCAN } from '@app/config/constants'
 import { getNetwork } from '@app/util/networks'
 
 import { hexValue, formatUnits, parseUnits } from 'ethers/lib/utils'
-import { BigNumber } from 'ethers';
+import { BigNumber, Contract } from 'ethers';
 import localforage from 'localforage';
 import { BigNumberList, Token } from '@app/types'
 import { getNewContract } from './contracts'
@@ -230,4 +230,9 @@ export const forceQuickAccountRefresh = (
   const { deactivate: _deactivate } = supportedConnector || { activate: () => { }, deactivate: () => { } };
   const deactivate = _deactivate || supportedConnector?.actions?.resetState || (() => 0);
   deactivate();
+}
+
+export const getAllowanceOf = async (provider: JsonRpcSigner | Web3Provider, token: string, account: string, spender: string) => {
+  const contract = new Contract(token, ERC20_ABI, provider);
+  return contract.allowance(account, spender);
 }

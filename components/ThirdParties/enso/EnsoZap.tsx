@@ -3,7 +3,7 @@ import { useWeb3React } from "@web3-react/core";
 import { useEffect, useMemo, useState } from "react";
 
 import { EthXe, ensoZap, useEnso, useEnsoRoute } from "@app/util/enso";
-import { parseUnits } from "@ethersproject/units";
+import { formatUnits, parseUnits } from "@ethersproject/units";
 import { VStack, Text, HStack, Divider, Stack, Input } from "@chakra-ui/react";
 import { AssetInput } from "../../common/Assets/AssetInput";
 import { ZAP_TOKENS_ARRAY } from "../tokenlist";
@@ -15,12 +15,12 @@ import { SimpleAssetDropdown } from "../../common/SimpleDropdown";
 import { NETWORKS } from "@app/config/networks";
 import { Token } from "@app/types";
 import { SimpleAmountForm } from "../../common/SimpleAmountForm";
-import { DOLA_BRIDGED_CHAINS } from "@app/config/constants";
 import { WarningMessage } from "../../common/Messages";
 import { SkeletonBlob } from "../../common/Skeleton";
 import { switchWalletNetwork } from "@app/util/web3";
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
 import { EnsoRouting } from "./EnsoRouting";
+import { useIsApproved } from "@app/hooks/useApprovals";
 
 const zapOptions = [...new Set(ZAP_TOKENS_ARRAY.map(t => t.address))];
 
@@ -58,7 +58,11 @@ function EnsoZap({
     const targetNetwork = implementedNetworks.find(n => n.id === targetChainId);
     const [amountIn, setAmountIn] = useState<string>('');
     const [zapRequestData, setZapRequestData] = useState<any>({});
-    const zapResponseData = useEnsoRoute(zapRequestData.account, zapRequestData.chainId, zapRequestData.targetChainId, zapRequestData.tokenIn, zapRequestData.tokenOut, zapRequestData.amountIn);
+
+    const approveDestinationAddress = ensoSmartWalletAddress;
+    const { isApproved, approvedAmount } = useIsApproved(tokenIn, approveDestinationAddress, account, amountIn);
+
+    const zapResponseData = useEnsoRoute(isApproved, zapRequestData.account, zapRequestData.chainId, zapRequestData.targetChainId, zapRequestData.tokenIn, zapRequestData.tokenOut, zapRequestData.amountIn);
 
     const fromOptions = ZAP_TOKENS_ARRAY
         .filter(t => t.chainId === chainId)
@@ -103,12 +107,11 @@ function EnsoZap({
             setZapRequestData({});
             return
         }
-        const amountInValue = amountIn && tokenInObj?.decimals ? parseFloat(amountIn) * (10 ** tokenInObj.decimals) : '';
+        const amountInValue = amountIn && tokenInObj?.decimals ? formatUnits(parseUnits(amountIn, tokenInObj?.decimals), 0) : '';
         setZapRequestData({ account, chainId, targetChainId, tokenIn, tokenOut, amountIn: amountInValue });
     }, [account, chainId, targetChainId, tokenIn, tokenOut, amountIn, tokenInObj]);
-
-    const approveDestinationAddress = ensoSmartWalletAddress;
-    const isLoading = !ads.length || !balances;
+   
+    const isLoading = !ads.length || !balances;    
 
     return <Container w='full' noPadding p='0' label={title} contentProps={{ mt: 0 }}>
         {
@@ -205,7 +208,7 @@ function EnsoZap({
                         </Text>
                     }
                     {
-                        !!zapResponseData?.error && <Text color="warning" fontSize="14px">
+                        isApproved && !!zapResponseData?.error && <Text color="warning" fontSize="14px">
                             {zapResponseData?.error?.toString()}
                         </Text>
                     }
