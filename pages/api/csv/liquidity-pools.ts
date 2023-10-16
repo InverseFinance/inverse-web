@@ -13,10 +13,10 @@ export default async (req, res) => {
         const liquidityData = await liquidityRes.json();
 
         let csvData = `Last update:,${liquidityData.timestamp}\n`;
-        csvData += `Pool,Protocol,Chain,Has Fed,TVL,Pairing depth,DOLA balance,DOLA weight,APY,Pool dom,Pol,$/day,Is stable\n`;
+        csvData += `Pool,Protocol,Chain,Has Fed,TVL,Pairing depth,RootLP DOLA balance,DOLA weight,APY,Pool dom,Pol,$/day,Is stable\n`;
         liquidityData.liquidity.sort((a,b) => b.tvl - a.tvl);
         liquidityData.liquidity.forEach((lp) => {
-            csvData += `${lp.lpName},${lp.project.toLowerCase()},${NETWORKS_BY_CHAIN_ID[lp.chainId].name},${lp.isFed},${lp.tvl},${lp.pairingDepth},${lp.dolaBalance},${lp.dolaWeight},${lp.apy||''},${lp.perc},${lp.ownedAmount},${lp.rewardDay},${lp.isStable||false}\n`;
+            csvData += `${lp.lpName},${lp.project.toLowerCase()},${NETWORKS_BY_CHAIN_ID[lp.chainId].name},${lp.isFed},${lp.tvl},${lp.pairingDepth},${lp.parentMainPartBalance||lp.dolaBalance},${lp.dolaWeight},${lp.apy||''},${lp.perc},${lp.ownedAmount},${lp.rewardDay},${lp.isStable||false}\n`;
         });
 
         redisSetWithTimestamp(cacheKey, { csvData });
