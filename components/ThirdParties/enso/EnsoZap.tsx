@@ -203,7 +203,7 @@ function EnsoZap({
                             />
                     }
                     {
-                        zapResponseData?.isLoading && <Text>
+                        isApproved && zapResponseData?.isLoading && <Text>
                             Loading route and price impact...
                         </Text>
                     }
