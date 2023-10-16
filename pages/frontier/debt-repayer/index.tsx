@@ -24,13 +24,14 @@ import { useConvertToUnderlying, useDebtRepayerOutput, useMarketDebtRepayer } fr
 import { InfoMessage, WarningMessage } from '@app/components/common/Messages'
 import { getBnToNumber, shortenNumber } from '@app/util/markets'
 import { SubmitButton } from '@app/components/common/Button'
-import { useAllowances } from '@app/hooks/useApprovals'
-import { getScanner, hasAllowance } from '@app/util/web3'
+import { useIsApproved } from '@app/hooks/useApprovals'
+import { getScanner } from '@app/util/web3'
 import { ApproveButton } from '@app/components/Anchor/AnchorButton'
 import { sellV1AnToken } from '@app/util/contracts'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { commify, parseUnits } from '@ethersproject/units'
 import { useAccountLiquidity } from '@app/hooks/useAccountLiquidity'
+import { useAccount } from '@app/hooks/misc'
 
 const { TOKENS, DEBT_REPAYER } = getNetworkConfigConstants();
 
@@ -41,7 +42,8 @@ const anWbtc = '0x17786f3813E6bA35343211bd8Fe18EC4de14F28b';
 const anYfi = '0xde2af899040536884e062D3a334F2dD36F34b4a4';
 
 export const DebtRepayerPage = () => {
-    const { provider, account } = useWeb3React<Web3Provider>()
+    const { provider } = useWeb3React<Web3Provider>()
+    const account = useAccount();
     const { markets } = useMarkets();
     const { exchangeRates } = useExchangeRatesV2();
     const { usdShortfall } = useAccountLiquidity()
@@ -60,7 +62,7 @@ export const DebtRepayerPage = () => {
     const [outputToken, setOutputToken] = useState<Token>({})
     const [collateralMarket, setCollateralMarket] = useState<Market>({})
 
-    const { approvals } = useAllowances([collateralMarket?.token], DEBT_REPAYER);
+    const { isApproved, isAllBalanceApproved } = useIsApproved(collateralMarket?.token, DEBT_REPAYER, account, antokenAmount, true);
 
     const { balances: liquidities, isLoading: isLoadingLiquidity } = useBalances([outputToken.address], 'balanceOf', DEBT_REPAYER);
     const { balances: outputTokenBalances } = useBalances([outputToken.address], 'balanceOf');
@@ -243,7 +245,7 @@ export const DebtRepayerPage = () => {
                                             /> :
                                                 <HStack w='full' pt="4">
                                                     {
-                                                        !hasAllowance(approvals, collateralMarket?.token) ?
+                                                        !isApproved ?
                                                             <ApproveButton
                                                                 tooltipMsg=""
                                                                 isDisabled={false}
@@ -256,7 +258,7 @@ export const DebtRepayerPage = () => {
                                                                 <SubmitButton disabled={!collateralAmount || (parseFloat(collateralAmount) * discount > outputLiquidity) || !maxOutput || !outputLiquidity} onClick={handleSell} refreshOnSuccess={true}>
                                                                     exchange
                                                                 </SubmitButton>
-                                                                <SubmitButton disabled={!maxOutput || !outputLiquidity} onClick={handleSellAll} refreshOnSuccess={true}>
+                                                                <SubmitButton disabled={!isAllBalanceApproved || !maxOutput || !outputLiquidity} onClick={handleSellAll} refreshOnSuccess={true}>
                                                                     exchange all available
                                                                 </SubmitButton>
                                                             </Stack>

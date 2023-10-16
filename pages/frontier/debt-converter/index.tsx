@@ -71,7 +71,7 @@ export const DebtConverterPage = () => {
 
     const maxPrice = (maxUnderlyingPrice !== 0 && maxUnderlyingPrice !== null ? maxUnderlyingPrice : price) || 0;
 
-    const { isApproved, isAllBalanceApproved } = useIsApproved(collateralMarket?.ctoken, DEBT_CONVERTER, userAddress, antokenAmount, true);    
+    const { isApproved, isAllBalanceApproved } = useIsApproved(collateralMarket?.ctoken, DEBT_CONVERTER, userAddress, antokenAmount, true);
     const { balances: anBalances } = useBalances([anEth, anWbtc, anYfi]);
     const { underlyingBalance: anEthBal } = useConvertToUnderlying(anEth, anBalances ? anBalances[anEth] : '0');
     const { underlyingBalance: anWbtcBal } = useConvertToUnderlying(anWbtc, anBalances ? anBalances[anWbtc] : '0');
