@@ -107,7 +107,7 @@ function EnsoZap({
             setZapRequestData({});
             return
         }
-        const amountInValue = amountIn && tokenInObj?.decimals ? formatUnits(parseUnits(amountIn, tokenInObj?.decimals), tokenInObj?.decimals) : '';
+        const amountInValue = amountIn && tokenInObj?.decimals ? formatUnits(parseUnits(amountIn, tokenInObj?.decimals), 0) : '';
         setZapRequestData({ account, chainId, targetChainId, tokenIn, tokenOut, amountIn: amountInValue });
     }, [account, chainId, targetChainId, tokenIn, tokenOut, amountIn, tokenInObj]);
    
