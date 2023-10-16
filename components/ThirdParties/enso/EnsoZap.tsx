@@ -205,12 +205,12 @@ function EnsoZap({
                         </Text>
                     }
                     {
-                        zapResponseData?.error && <Text color="warning" fontSize="14px">
+                        !!zapResponseData?.error && <Text color="warning" fontSize="14px">
                             {zapResponseData?.error?.toString()}
                         </Text>
                     }
                     {
-                        zapResponseData?.route && <EnsoRouting
+                        !zapResponseData?.error && zapResponseData?.route && <EnsoRouting
                             chainId={chainId?.toString()}
                             targetChainId={targetChainId?.toString()}
                             targetAsset={tokenOutObj}
