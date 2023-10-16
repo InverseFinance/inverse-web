@@ -60,7 +60,7 @@ function EnsoZap({
     const [zapRequestData, setZapRequestData] = useState<any>({});
 
     const approveDestinationAddress = ensoSmartWalletAddress;
-    const { isApproved, approvedAmount } = useIsApproved(tokenIn, approveDestinationAddress, account, amountIn);
+    const { isApproved } = useIsApproved(tokenIn, approveDestinationAddress, account, amountIn);
 
     const zapResponseData = useEnsoRoute(isApproved, zapRequestData.account, zapRequestData.chainId, zapRequestData.targetChainId, zapRequestData.tokenIn, zapRequestData.tokenOut, zapRequestData.amountIn);
 
