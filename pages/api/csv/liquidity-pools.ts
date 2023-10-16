@@ -3,7 +3,7 @@ import { NETWORKS_BY_CHAIN_ID } from "@app/config/networks";
 
 export default async (req, res) => {
     const cacheDuration = 900;
-    const cacheKey = 'csv-liquidity-pools-v1.0.1';
+    const cacheKey = 'csv-liquidity-pools-v1.0.2';
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
 
     try {
