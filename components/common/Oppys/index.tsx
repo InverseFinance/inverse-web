@@ -2,7 +2,7 @@
 import { useOppys } from '@app/hooks/useMarkets'
 import { NetworkIds, YieldOppy } from '@app/types';
 import { shortenNumber } from '@app/util/markets';
-import { Flex, HStack, Image, Stack, Text, VStack, useMediaQuery } from '@chakra-ui/react';
+import { Flex, HStack, Image, Stack, Text, VStack, useDisclosure, useMediaQuery } from '@chakra-ui/react';
 import Container from '@app/components/common/Container';
 import Table from '@app/components/common/Table';
 import { InfoMessage } from '@app/components/common/Messages';
@@ -16,6 +16,10 @@ import { UnderlyingItem } from '../Assets/UnderlyingItem';
 import { NETWORKS_BY_NAME } from '@app/config/networks';
 import { CHAIN_TOKENS, TOKENS, getToken } from '@app/variables/tokens';
 import { gaEvent } from '@app/util/analytics';
+import { EnsoPool, useEnsoPools } from '@app/util/enso';
+
+import { FEATURE_FLAGS } from '@app/config/features';
+import { EnsoModal } from '../Modal/EnsoModal';
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="24px" fontWeight="extrabold" {...props} />
@@ -27,6 +31,12 @@ const Cell = ({ ...props }) => {
 
 const FilterItem = ({ ...props }) => {
     return <HStack fontSize="14px" fontWeight="normal" justify="flex-start" {...props} />
+}
+
+const ENSO_DEFILLAMA_MAPPING = {
+    "convex-lp": "convex-finance",
+    "balancer-gauge": "balancer",
+    "curve-gauge": "curve-dex",
 }
 
 const poolLinks = {
@@ -64,15 +74,16 @@ const projectLinks = {
 
 const getPoolLink = (project, pool, underlyingTokens, symbol, isStable = true) => {
     let url;
+    const _pool = pool || '';
     switch (project) {
         case 'balancer':
-            url = `https://app.balancer.fi/#/pool/${pool}`
+            url = `https://app.balancer.fi/#/pool/${_pool}`
             break;
         case 'yearn-finance':
-            url = `https://yearn.finance/#/vault/${pool}`
+            url = `https://yearn.finance/#/vault/${_pool}`
             break;
         case 'uniswap':
-            url = `https://info.uniswap.org/#/pools/${pool}`
+            url = `https://info.uniswap.org/#/pools/${_pool}`
             break;
         case 'velodrome-v2':
             const [sym0, sym1] = symbol.split('-');
@@ -85,10 +96,10 @@ const getPoolLink = (project, pool, underlyingTokens, symbol, isStable = true) =
             break;
         case 'ramses-v1':
         case 'ramses-v2':
-            url = `https://app.ramses.exchange/liquidity/${pool.toLowerCase()}`;
+            url = `https://app.ramses.exchange/liquidity/${_pool.toLowerCase()}`;
             break;
     }
-    return poolLinks[pool] || url || projectLinks[project];
+    return poolLinks[_pool] || url || projectLinks[project];
 }
 
 const ProjectItem = ({ project, showText = true }: { project: string, showText?: boolean }) => {
@@ -132,11 +143,11 @@ const poolColumn = ({ width, symbol, pool, project, chain, underlyingTokens, sta
                     {
                         !!link ?
                             <Link alignItems='center' textDecoration="underline" color="mainTextColor" textTransform="uppercase" as="a" href={link} isExternal target="_blank" display="flex">
-                                <UnderlyingItem textProps={{ fontSize: '14px', ml: '2', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '300px'  }} imgSize={20} label={symbol} pairs={pairs} showAsLp={true} chainId={chainId} />
+                                <UnderlyingItem textProps={{ fontSize: '14px', ml: '2', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '300px' }} imgSize={20} label={symbol} pairs={pairs} showAsLp={true} chainId={chainId} />
                                 <ExternalLinkIcon color="info" ml="1" />
                             </Link>
                             :
-                            <UnderlyingItem textProps={{ fontSize: '14px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '300px'  }} imgSize={20} label={symbol} pairs={pairs} showAsLp={true} chainId={chainId} />
+                            <UnderlyingItem textProps={{ fontSize: '14px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '300px' }} imgSize={20} label={symbol} pairs={pairs} showAsLp={true} chainId={chainId} />
                     }
                 </> : <Text>{symbol}</Text>
             }
@@ -148,10 +159,10 @@ const columns = [
     {
         field: 'symbol',
         label: 'Pool',
-        header: ({ ...props }) => <ColHeader minWidth="330px" justify="flex-start"  {...props} />,
-        value: (p) => poolColumn({ ...p, width: '330px' }),
+        header: ({ ...props }) => <ColHeader minWidth="260px" justify="flex-start"  {...props} />,
+        value: (p) => poolColumn({ ...p, width: '260px' }),
         showFilter: true,
-        filterWidth: '320px',
+        filterWidth: '260px',
         filterItemRenderer: ({ symbol }) => <FilterItem><Text>{symbol}</Text></FilterItem>
     },
     {
@@ -193,13 +204,24 @@ const columns = [
         </Cell>,
     },
 ]
+if (FEATURE_FLAGS.lpZaps) {
+    columns.push({
+        field: 'hasEnso',
+        label: 'Zap',
+        header: ({ ...props }) => <ColHeader minWidth="80px" justify="flex-end" {...props} />,
+        value: ({ hasEnso }) => <Cell minWidth="80px" justify="flex-end">
+            {hasEnso && <Image src="/assets/zap.png" h="20px" w="20px" />}
+        </Cell>,
+    });
+}
+
 
 const columnsShort = [
     {
         field: 'rank',
         label: 'Rank',
-        header: ({ ...props }) => <ColHeader minWidth="50px" justify="flex-start"  {...props} />,
-        value: ({ rank }) => <Cell minWidth="50px" justify="flex-start">
+        header: ({ ...props }) => <ColHeader minWidth="40px" justify="flex-start"  {...props} />,
+        value: ({ rank }) => <Cell minWidth="40px" justify="flex-start">
             <Text>#{rank}</Text>
         </Cell>,
     },
@@ -233,7 +255,18 @@ const columnsShort = [
             <Text fontWeight="bold">{preciseCommify(apy, 2)}%</Text>
         </Cell>,
     },
-]
+];
+
+// if (FEATURE_FLAGS.lpZaps) {
+//     columnsShort.push({
+//         field: 'hasEnso',
+//         label: 'Zap',
+//         header: ({ ...props }) => <ColHeader minWidth="80px" justify="flex-end" {...props} />,
+//         value: ({ hasEnso }) => <Cell minWidth="80px" justify="flex-end">
+//             {hasEnso && <Image src="/assets/zap.png" h="20px" w="20px" />}
+//         </Cell>,
+//     });
+// }
 
 const columnsShortMobile = [
     columnsShort[1],
@@ -243,9 +276,11 @@ const columnsShortMobile = [
 export const OppysTable = ({
     oppys,
     isLoading,
+    onClick
 }: {
     oppys: YieldOppy[],
     isLoading?: boolean,
+    onClick: (item: any) => void,
 }) => {
     const [category, setCategory] = useState('all');
     const [filteredOppys, setFilteredOppys] = useState(oppys);
@@ -310,6 +345,7 @@ export const OppysTable = ({
                         columns={columns}
                         items={filteredOppys}
                         colBoxProps={{ fontWeight: "extrabold" }}
+                        onClick={onClick}
                     />
                     <InfoMessage
                         alertProps={{ w: 'full' }}
@@ -323,7 +359,7 @@ export const OppysTable = ({
                                     </HStack>
                                 }
                                 <Text>
-                                    Risk Disclosure: Most yield opportunities mentioned on this page have not been audited by Inverse Finance.                                    
+                                    Risk Disclosure: Most yield opportunities mentioned on this page have not been audited by Inverse Finance.
                                 </Text>
                                 <Text>APRs displayed are provided by Defillama, actual APRs may be different and can vary based on market conditions, all the data is provided for informational purposes only.</Text>
                                 <Text>By using pools you assume all risks.</Text>
@@ -347,15 +383,17 @@ export const OppysTop5 = ({
     title,
     isLoading,
     isLargerThan = false,
+    onClick,
 }: {
     oppys: YieldOppy[],
     isLoading?: boolean,
     isLargerThan?: boolean,
     title?: string,
+    onClick: (item: any) => void,
 }) => {
 
     return <Container
-        noPadding        
+        noPadding
         contentProps={{ p: { base: '2', sm: '4' } }}
         label={title}
         description={'More infos on Liquidity Pools'}
@@ -372,25 +410,81 @@ export const OppysTop5 = ({
                     columns={isLargerThan ? columnsShort : columnsShortMobile}
                     items={oppys}
                     colBoxProps={{ fontWeight: "extrabold" }}
+                    onClick={onClick}
                 />
         }
     </Container>
 }
 
+const underlyingTokensArrayToString = (underlyingTokens: string[]) => {
+    return (underlyingTokens || []).sort()?.join('').toLowerCase();
+}
+
+const oppyLpNameToUnderlyingTokens = (lpName: string, chainId: string | number) => {
+    const split = lpName.split('-');
+    return split.map(sym => getToken(CHAIN_TOKENS[chainId], sym)?.address);
+}
+
 export const Oppys = () => {
     const { oppys, isLoading } = useOppys();
-    const [isLargerThan] = useMediaQuery(`(min-width: 400px)`)
-    // temp: dont show bb euler pools
-    const _oppys = oppys.filter(o => !o.symbol.includes('-BB-'));
+    const [isLargerThan] = useMediaQuery(`(min-width: 400px)`);
+    // skip api call if feature disabled
+    const { pools: ensoPools } = useEnsoPools({ symbol: FEATURE_FLAGS.lpZaps ? 'DOLA' : '' });
 
-    const top5Stable = _oppys.filter(o => o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5).map((o, i) => ({...o, rank: i+1}));
-    const top5Volatile = _oppys.filter(o => !o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5).map((o, i) => ({...o, rank: i+1}));
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const [defaultTokenOut, setDefaultTokenOut] = useState('');
+    const [defaultTargetChainId, setDefaultTargetChainId] = useState('');
+    const [resultAsset, setResultAsset] = useState<any>(null);
+
+    const _oppys = (oppys || []).filter(o => !o.symbol.includes('-BB-'))
+        .map(o => {
+            const oppyChainId = NETWORKS_BY_NAME[o.chain].id.toString();
+            const oppyUnderlyingTokens = o.underlyingTokens?.length > 0 ? o.underlyingTokens : oppyLpNameToUnderlyingTokens(o.symbol, oppyChainId);
+            const oppyUnderlyingTokensString = underlyingTokensArrayToString(oppyUnderlyingTokens);
+            const ensoPool = ensoPools
+                .find(ep => ep.chainId.toString() === oppyChainId
+                    && o.project === (ENSO_DEFILLAMA_MAPPING[ep.project] || ep.project)
+                    && underlyingTokensArrayToString(ep.underlyingTokens) === oppyUnderlyingTokensString
+                );
+            return { ...o, ensoPool, hasEnso: !!ensoPool };
+        });
+
+    const oppysWithEnso = _oppys
+
+    const top5Stable = oppysWithEnso.filter(o => o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5).map((o, i) => ({ ...o, rank: i + 1 }));
+    const top5Volatile = oppysWithEnso.filter(o => !o.stablecoin).sort((a, b) => b.apy - a.apy).slice(0, 5).map((o, i) => ({ ...o, rank: i + 1 }));
+
+    const handleClick = (item: { ensoPool: EnsoPool }) => {
+        if (!FEATURE_FLAGS.lpZaps || !item.ensoPool?.poolAddress) return;
+        setResultAsset(item);
+        setDefaultTokenOut(item.ensoPool.poolAddress);
+        setDefaultTargetChainId(item.ensoPool.chainId?.toString());
+        onOpen();
+    }
+
+    const ensoPoolsLike = oppysWithEnso.filter(o => o.hasEnso).map(o => {
+        return {
+            poolAddress: o.ensoPool?.poolAddress,
+            name: o.symbol,
+            project: o.project,
+            chainId: parseInt(NETWORKS_BY_NAME[o.chain]?.id),
+            image: `https://icons.llamao.fi/icons/protocols/${o.project}?w=24&h=24`
+        };
+    });
 
     return <VStack alignItems="flex-start">
+        <EnsoModal
+            isOpen={isOpen}
+            onClose={onClose}
+            defaultTokenOut={defaultTokenOut}
+            defaultTargetChainId={defaultTargetChainId}
+            ensoPoolsLike={ensoPoolsLike}
+            resultAsset={resultAsset}
+        />
         <Stack direction={{ base: 'column', md: 'row' }} w='full'>
-            <OppysTop5 isLargerThan={isLargerThan} title={'Top 5 stablecoin pool APYs'} isLoading={isLoading} oppys={top5Stable} />
-            <OppysTop5 isLargerThan={isLargerThan} title={'Top 5 volatile pool APYs'} isLoading={isLoading} oppys={top5Volatile} />
+            <OppysTop5 onClick={handleClick} isLargerThan={isLargerThan} title={'Top 5 stablecoin pool APYs'} isLoading={isLoading} oppys={top5Stable} />
+            <OppysTop5 onClick={handleClick} isLargerThan={isLargerThan} title={'Top 5 volatile pool APYs'} isLoading={isLoading} oppys={top5Volatile} />
         </Stack>
-        <OppysTable isLoading={isLoading} oppys={_oppys} />
+        <OppysTable onClick={handleClick} isLoading={isLoading} oppys={oppysWithEnso} />
     </VStack>
 }

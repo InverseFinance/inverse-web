@@ -257,6 +257,12 @@ export const ascendingEventsSorter = (a, b) => {
     }
 }
 
+export const lowercaseObjectKeys = (obj: any) => {
+    return Object.keys(obj).reduce((accumulator, key) => {
+        accumulator[key.toLowerCase()] = obj[key];
+        return accumulator;
+    }, {});
+}
 export const removeTrailingZeros = (num: string) => {
     return num.replace(/(\.\d*?[1-9])0+([a-zA-Z])?$/, '$1$2').replace(/\.0+([a-zA-Z])?$/, '$1')
 }

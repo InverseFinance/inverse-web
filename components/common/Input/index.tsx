@@ -40,7 +40,7 @@ type BalanceInputProps = {
   onMaxClick: (e: any) => void
   inputProps?: InputProps
   showBalance?: boolean
-  balance?: string
+  balance?: string | number
   showMax?: boolean
   isError?: boolean
   inputRightProps?: TextProps
@@ -73,7 +73,7 @@ export const BalanceInput = ({ isError, value, label, onChange, onMaxClick, inpu
         {...inputLeftProps}
       >
         {
-          showBalance ? `Bal ${shortenNumber(parseFloat(balance), 2, false, true)}` : 'MAX'
+          showBalance ? `Bal ${shortenNumber(parseFloat(balance?.toString()?.replace(',', '')), 2, false, true)}` : 'MAX'
         }        
       </Flex>
       <Input value={value} onChange={onChange} placeholder="0" {...inputProps} />

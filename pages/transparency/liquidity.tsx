@@ -24,6 +24,9 @@ import { closeToast, showToast } from '@app/util/notify';
 import { DolaBridges } from '@app/components/Transparency/DolaBridges';
 import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
+import { useEnsoPools } from '@app/util/enso';
+import { FEATURE_FLAGS } from '@app/config/features';
+import { EnsoModal } from '@app/components/common/Modal/EnsoModal';
 
 const groupLpsBy = (lps: any[], attribute: string, max = 6) => {
   const items = Object.entries(
@@ -78,9 +81,16 @@ export const Liquidity = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isLpChart, setIsLpChart] = useState(false);
   const [lpsHisto, setLpsHisto] = useState({});
+  const [resultAsset, setResultAsset] = useState(null);
   const { chartData } = useEventsAsChartData(aggregatedHistoryPlusCurrent[categoryChartHisto] || [], histoAttribute, histoAttribute, false, false);
   const { chartData: lpChartData } = useEventsAsChartData(lpHistoArray, histoAttribute, histoAttribute, false, false);
   const _chartData = isLpChart ? lpChartData : chartData;
+
+  // skip api call if feature disabled
+  const { pools: ensoPools } = useEnsoPools({ symbol: FEATURE_FLAGS.lpZaps ? 'DOLA' : '' });
+  const { isOpen: isZapOpen, onOpen: onZapOpen, onClose: onZapClose } = useDisclosure();
+  const [defaultTokenOut, setDefaultTokenOut] = useState('');
+  const [defaultTargetChainId, setDefaultTargetChainId] = useState('');
 
   const volumes = { DOLA: dola?.volume || 0, INV: inv?.volume || 0, DBR: dbr?.volume || 0 }
 
@@ -131,10 +141,19 @@ export const Liquidity = () => {
     onOpen();
   }
 
-  const handleOpenHistoChartFromTable = async ({ address, lpName, project }, event, liquidity) => {
+  const handleOpenHistoChartFromTable = async (item, event, liquidity) => {
+    const { address, lpName, project, chainId } = item;
     const target = event.target;
     const cellBox = target.closest('[data-col]');
     const col = cellBox.dataset.col;
+    if (col === 'hasEnso') {
+      setResultAsset(item);
+      onZapOpen();
+      setDefaultTokenOut(address);
+      setDefaultTargetChainId(chainId);
+      return
+    }
+    setResultAsset(null);
     showToast({ title: 'Loading pool history...', id: 'pool-histo', status: 'info' });
     const lpHistoRes = lpsHisto[address] || await getLpHistory(address, true);
     setLpsHisto(lpHistoRes);
@@ -168,6 +187,23 @@ export const Liquidity = () => {
     onClose()
   }
 
+  const liquidityWithEnso = liquidity.map(o => {
+    const ensoPool = ensoPools
+      .find(ep => ep.poolAddress.toLowerCase() === o.address.toLowerCase()
+      );
+    return { ...o, ensoPool, hasEnso: !!ensoPool };
+  });
+
+  const ensoPoolsLike = liquidityWithEnso.filter(o => o.hasEnso).map(o => {
+    return {
+      poolAddress: o.ensoPool?.poolAddress,
+      name: o.lpName,
+      project: o.project,
+      chainId: parseInt(o.chainId),
+      image: `https://icons.llamao.fi/icons/protocols/${o.project}?w=24&h=24`
+    };
+  });
+
   return (
     <Layout>
       <Head>
@@ -180,6 +216,17 @@ export const Liquidity = () => {
       </Head>
       <AppNav active="Transparency" activeSubmenu="Liquidity" hideAnnouncement={true} />
       <TransparencyTabs active="liquidity" />
+      {
+        FEATURE_FLAGS.lpZaps
+        && <EnsoModal
+          isOpen={isZapOpen}
+          onClose={onZapClose}
+          defaultTokenOut={defaultTokenOut}
+          defaultTargetChainId={defaultTargetChainId}
+          ensoPoolsLike={ensoPoolsLike}
+          resultAsset={resultAsset}
+        />
+      }
       <InfoModal
         title={`${histoTitle}`}
         onClose={handleClose}
@@ -222,8 +269,8 @@ export const Liquidity = () => {
                             {NETWORKS_BY_CHAIN_ID[netItem.chainId].name}
                           </option>)
                       }
-                    </Select>                
-                }
+                    </Select>
+                  }
                 </HStack>
                 <Text>Current {histoAttributeLabel}: <b>{preciseCommify(_chartData[_chartData.length - 1].y, histoIsPerc ? 2 : 0, !histoIsPerc)}{histoIsPerc ? '%' : ''}</b></Text>
               </HStack>
@@ -299,8 +346,8 @@ export const Liquidity = () => {
           </Stack>
           <Divider my="4" />
           <LiquidityPoolsTable
-            onRowClick={(item, e) => handleOpenHistoChartFromTable(item, e, liquidity)}
-            items={liquidity}
+            onRowClick={(item, e) => handleOpenHistoChartFromTable(item, e, liquidityWithEnso)}
+            items={liquidityWithEnso}
             timestamp={timestamp}
           />
           <InfoMessage

@@ -63,6 +63,7 @@ import { useAccount } from '@app/hooks/misc'
 import { PoaModal } from '../Modal/PoaModal'
 import { checkPoaSig } from '@app/util/poa'
 import { smartShortNumber } from '@app/util/markets'
+import useSWR from 'swr'
 const NAV_ITEMS = MENUS.nav
 
 export const ThemeBtn = () => {
@@ -184,14 +185,17 @@ const INVBalance = () => {
 
 const ETHBalance = () => {
   const { query } = useRouter()
-  const { account, chainId } = useWeb3React<Web3Provider>()
+  const { account, chainId, provider } = useWeb3React<Web3Provider>()
   const userAddress = (query?.viewAddress as string) || account;
-  const { data: balance } = useEtherSWR(['getBalance', userAddress, 'latest'])
-  const [formattedBalance, setFormattedBalance] = useState('')
+  const { data: balance } = useSWR(`${account}-${chainId}-bal`, () => {
+    if(!account || !chainId || !provider) return undefined
+    return provider.getBalance(account);
+  })
+  const [formattedBalance, setFormattedBalance] = useState('');
 
   useDualSpeedEffect(() => {
     setFormattedBalance(balance ? (balance / ETH_MANTISSA).toFixed(2) : '')
-  }, [balance, userAddress], !userAddress, 1000)
+  }, [balance, userAddress, chainId], !userAddress, 1000)
 
   if (!formattedBalance || !chainId) {
     return <></>
@@ -501,7 +505,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   useEffect(() => {
     if (!badgeChainId) { return }
     // swap page: any network is fine
-    const isSupported = ['/swap', '/base'].includes(location.pathname) || isSupportedNetwork(badgeChainId);    
+    const isSupported = ['/swap', '/base', '/zap', '/transparency/liquidity', '/tokens/yield-opportunities'].includes(location.pathname) || isSupportedNetwork(badgeChainId);    
     setIsUsupportedNetwork(!isSupported)
     if (!isSupported) {
       onWrongNetOpen();
@@ -523,7 +527,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
         setTimeout(() => {
           const before = Number(window?.ethereum?.chainId)
           window?.ethereum?.on('chainChanged', (after) => {
-            if (before !== after && !['/swap'].includes(location.pathname)) { window.location.reload() }
+            if (before !== after && !['/swap', '/zap', '/transparency/liquidity', '/tokens/yield-opportunities'].includes(location.pathname)) { window.location.reload() }
           });
         }, 0)
       }

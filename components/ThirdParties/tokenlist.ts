@@ -29,6 +29,25 @@ export const TOKENS_ARRAY = entries.flatMap(([chainId, chainList]) => {
     return { ...token, address: token.address || '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' };
 }).sort((a, b) => a.order - b.order);
 
+export const ENSO_INTEGRATIONS = {
+    '1-0xE57180685E3348589E9521aa53Af0BCD497E884d': true,
+    '42161-0x8bc65Eed474D1A00555825c91FeAb6A8255C2107': true,
+};
+
+export const ZAP_TOKENS_ARRAY = entries.flatMap(([chainId, chainList]) => {
+    const tokens = Object.values(chainList)
+        .filter(token => MAIN_SYMBOLS.includes(token.symbol) || !!ENSO_INTEGRATIONS[`${chainId}-${token.address}`]);
+    return tokens.map(token => {
+        return {
+            chainId: parseInt(chainId),
+            ...token,
+            order: orders[token.symbol] ?? Infinity
+        }
+    });
+}).map(token => {
+    return { ...token, address: token.address || '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' };
+}).sort((a, b) => a.order - b.order);
+
 const uniswapMinusMain = UNISWAP_TOKENS
     // exclude very old INV token on polygon
     .filter(token => token.chainId !== 137 && token.symbol !== 'INV')

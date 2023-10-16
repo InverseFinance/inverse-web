@@ -1,10 +1,10 @@
-import { TOKENS } from '@app/variables/tokens';
+import { CHAIN_TOKENS, TOKENS } from '@app/variables/tokens';
 import { BigNumberList, Market, TokenList } from '@app/types';
 import { BigNumber, Contract } from 'ethers';
 import { formatUnits, commify, isAddress, parseUnits, parseEther } from 'ethers/lib/utils';
 import { ETH_MANTISSA, BLOCKS_PER_YEAR, DAYS_PER_YEAR, BLOCKS_PER_DAY, ONE_DAY_SECS } from '@app/config/constants';
 
-import { removeTrailingZeros, toFixed } from './misc';
+import { lowercaseObjectKeys, removeTrailingZeros, toFixed } from './misc';
 
 export const getMonthlyRate = (balance: number, apy: number) => {
     return (balance || 0) * (apy || 0) / 100 / 12;
@@ -354,6 +354,31 @@ export const getPoolYield = async (defiLlamaPoolId: string) => {
     return {};
 }
 
+export const homogeneizeLpName = (value: string) => {
+    return value
+        .replace(/-3CRV$/i, '-3POOL')
+        .replace(/DOLA-DAI\+USDC/i, 'DOLA-2POOL')
+        .replace(/ \([0-9.]+%\)$/i, '')
+        .replace(/^(.*)-(DOLA|INV)$/i, '$2-$1')
+        .replace(/DOLA-YVCURVE/i, 'DOLA-3POOL')
+        .replace(/-?SAMMV2-?/i, '')
+        .replace(/DOLAUSDC/i, 'DOLA-USDC')
+        .replace(/DOLAFRAX/i, 'DOLA-FRAX')
+        .replace(/OPUSDCE/i, 'USDC')
+        .replace('USDC.E-DOLA-BPT-DOLA-USDC', 'DOLA-USDC')
+        .replace(/(-LP|-SLP|-AURA| [a-zA-Z]*lp)/ig, '')
+        .toUpperCase()
+}
+
+export const getSymbolFromUnderlyingTokens = (chainId: string | number, underlyingTokens: string[]) => {
+    const chainTokens = lowercaseObjectKeys(CHAIN_TOKENS[chainId]);
+    const tokens = underlyingTokens
+        .map(ad => chainTokens[ad.toLowerCase()])
+        .filter(t => !!t)
+        .map(t => t.symbol);
+    return tokens.join('-');
+}
+
 export const getYieldOppys = async () => {
     const url = `https://yields.llama.fi/pools`;
     try {
@@ -367,19 +392,7 @@ export const getYieldOppys = async () => {
                     ...p,
                     underlyingTokens: p.underlyingTokens || [],
                     // clean pool names & make them more homogen
-                    symbol: p.symbol
-                        .replace(/-3CRV$/i, '-3POOL')
-                        .replace(/DOLA-DAI\+USDC/i, 'DOLA-2POOL')
-                        .replace(/ \([0-9.]+%\)$/i, '')
-                        .replace(/^(.*)-(DOLA|INV)$/i, '$2-$1')
-                        .replace(/DOLA-YVCURVE/i, 'DOLA-3POOL')
-                        .replace(/-?SAMMV2-?/i, '')
-                        .replace(/DOLAUSDC/i, 'DOLA-USDC')
-                        .replace(/DOLAFRAX/i, 'DOLA-FRAX')
-                        .replace(/OPUSDCE/i, 'USDC')
-                        .replace('USDC.E-DOLA-BPT-DOLA-USDC', 'DOLA-USDC')
-                        .toUpperCase()
-                    ,
+                    symbol: homogeneizeLpName(p.symbol),
                 }
             })
             .map(p => {
