@@ -5,7 +5,7 @@ import { capitalize } from "@app/util/misc";
 
 export default async (req, res) => {
     const cacheDuration = 900;
-    const cacheKey = 'dola-modal-v1.0.4';
+    const cacheKey = 'dola-modal-v1.0.5';
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
 
     try {
@@ -26,11 +26,11 @@ export default async (req, res) => {
         const currentDolaBadDebt = badDebtData.badDebts.DOLA.badDebtBalance;
 
         let csvData = `DOLA bad debt:,${currentDolaBadDebt},FiRM borrows:,${totalBorrowsOnFirm},Liquidity Cache:,~5min,Liquidity timestamp:,${liquidityData.timestamp},Bad debt timestamp:,${badDebtData.timestamp}\n`;
-        csvData += `LP,Fed or Project,Fed Supply,DOLA balance,Pairing Depth,Fed PoL\n`;
+        csvData += `LP,Fed or Project,Fed Supply,RootLP DOLA balance,Pairing Depth $,Fed PoL\n`;
         feds.forEach((lp) => {
             const parentLp = liquidityData.liquidity.filter(l => !!l.deduce).find(l => l.deduce.includes(lp.address));
             const balanceSource = parentLp || lp;
-            csvData += `${lp.lpName},${lp.fedName || (capitalize(lp.project)+ ' ' + NETWORKS_BY_CHAIN_ID[lp.chainId].name)},${lp.fedSupply || 0},${balanceSource?.dolaBalance || 0},${balanceSource?.pairingDepth || 0},${lp.ownedAmount || 0}\n`;
+            csvData += `${lp.lpName},${lp.fedName || (capitalize(lp.project)+ ' ' + NETWORKS_BY_CHAIN_ID[lp.chainId].name)},${lp.fedSupply || 0},${balanceSource?.mainPartBalance || 0},${balanceSource?.pairingDepth || 0},${lp.ownedAmount || 0}\n`;
         });
 
         redisSetWithTimestamp(cacheKey, { csvData });
