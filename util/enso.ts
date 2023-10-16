@@ -5,6 +5,7 @@ import { CHAIN_TOKENS, getToken } from "@app/variables/tokens";
 import { lowercaseObjectKeys } from "./misc";
 import { getBnToNumber, getSymbolFromUnderlyingTokens, homogeneizeLpName } from "./markets";
 import { PROTOCOLS_BY_IMG, PROTOCOL_DEFILLAMA_MAPPING } from "@app/variables/images";
+import { NetworkIds } from "@app/types";
 
 const key = '033137b3-73c1-4308-8e77-d7e14d3664ca'
 export const EthXe = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
@@ -108,7 +109,7 @@ export const useEnsoPools = ({
         });
     });
     return {
-        pools: data || [],
+        pools: (data || []).filter(p => ![NetworkIds.bsc, NetworkIds.ftm].includes(p.chainId.toString())),
         isLoading: !data && !error,
         error,
     }
