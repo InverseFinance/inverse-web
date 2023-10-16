@@ -185,6 +185,18 @@ export default async function handler(req, res) {
             ...lps.map(lp => getPol(lp))
         ])).filter(d => d.tvl > 1);
 
+        // readjust dola balances of child pools
+        liquidity
+            .filter(lp => ['aura', 'convex-finance'].includes(lp.project))
+            .forEach((lp) => {
+                const parentLp = liquidity.find(plp => plp?.deduce?.includes(lp.address));
+                if(!!parentLp && parentLp.tvl) {
+                    const ratio = lp.tvl/parentLp.tvl;
+                    lp.mainPartBalance = ratio * parentLp.mainPartBalance;
+                    lp.parentMainPartBalance = parentLp.mainPartBalance;
+                }
+            });
+
         const resultData = {
             timestamp: (+(new Date()) - 1000),
             liquidity,
