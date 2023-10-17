@@ -252,6 +252,7 @@ export const DebtRepayerPage = () => {
                                                                 address={collateralMarket?.token}
                                                                 toAddress={DEBT_REPAYER}
                                                                 signer={provider?.getSigner()}
+                                                                forceRefresh={true}
                                                             />
                                                             :
                                                             <Stack direction={{ base: 'column', lg: 'row' }} w='full'>

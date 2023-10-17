@@ -267,6 +267,7 @@ export const DebtConverterPage = () => {
                                                                     address={collateralMarket?.ctoken}
                                                                     toAddress={DEBT_CONVERTER}
                                                                     signer={provider?.getSigner()}
+                                                                    forceRefresh={true}
                                                                 />
                                                                 :
                                                                 <Stack direction={{ base: 'column', lg: 'row' }} w='full'>
