@@ -65,6 +65,7 @@ export type SimpleAmountFormProps = Props & {
     onMaxAction: (p: ActionProps) => void
     onAmountChange?: (v: string, s: number) => void
     onApprove?: () => void
+    approveForceRefresh?: boolean
 }
 
 const zeroBn = BigNumber.from('0');
@@ -113,7 +114,8 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         customBalance,
         containerProps,
         needApprove = true,
-        onApprove
+        onApprove,
+        approveForceRefresh = false,
     } = props;
     const [amount, setAmount] = useState(!defaultAmount ? '' : defaultAmount);
     const [isInfiniteApprovalMode, setIsInfiniteApprovalMode] = useState(defaultInfiniteApprovalMode);
@@ -216,6 +218,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                             }}
                             ButtonComp={ButtonComp}
                             amount={isInfiniteApprovalMode ? undefined : _bnAmount}
+                            forceRefresh={approveForceRefresh}
                             {...btnProps}
                         >
                             {approveLabel}

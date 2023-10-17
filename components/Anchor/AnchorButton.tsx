@@ -77,6 +77,7 @@ export const ApproveButton = ({
   tooltipMsg,
   ButtonComp = SubmitButton,
   amount = constants.MaxUint256,
+  forceRefresh = false,
   ...props
 }: {
   address: string,
@@ -87,16 +88,21 @@ export const ApproveButton = ({
   tooltipMsg?: string
   amount?: string | BigNumber,
   ButtonComp?: React.ReactNode
+  forceRefresh?: boolean
 }) => {
   return (
     <ButtonComp
-      onClick={async () =>
-        handleTx(
-          await getERC20Contract(address, signer).approve(toAddress, amount),
-          { onSuccess },
-        )
-      }
+      onClick={async () => {
+        return forceRefresh ?
+          getERC20Contract(address, signer).approve(toAddress, amount) :
+          // backward compatibility
+          handleTx(
+            await getERC20Contract(address, signer).approve(toAddress, amount),
+            { onSuccess },
+          )
+      }}
       isDisabled={isDisabled}
+      onSuccess={onSuccess}
       refreshOnSuccess={true}
       rightIcon={tooltipMsg === '' ? undefined : <AnimatedInfoTooltip type="tooltip" ml="1" message='Approving is the first step, it will allow us to use your tokens for the next final step. You only need to do the approve step once per token type and contract' />}
       {...props}
