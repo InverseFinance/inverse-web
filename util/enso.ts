@@ -64,9 +64,11 @@ export const useEnsoRoute = (
     amount: string
 ) => {
     const { data, error } = useSWR(
-        `enso-route-${chainId}-${targetChainId}-${tokenIn}-${tokenOut}-${amount}`,
+        `enso-route-${chainId}-${targetChainId}-${tokenIn}-${tokenOut}-${amount}-${isApproved}`,
         async () => {
-            if (!isApproved || !fromAddress || !chainId || !tokenOut || !targetChainId || !amount) return null;
+            if (!isApproved || !fromAddress || chainId?.toString() !== targetChainId?.toString() || !chainId || !tokenOut || !targetChainId || !amount) {
+                return null;
+            }
             return await ensoZap(null, {
                 fromAddress,
                 amount,
@@ -223,7 +225,7 @@ export const ensoSameChainZap = async (
 
     return signer.sendTransaction({
         ...tx,
-        gasLimit: BigNumber.from(gas).add(20000),
+        gasLimit: BigNumber.from(gas).add(50000),
     })
 }
 // still experimental
