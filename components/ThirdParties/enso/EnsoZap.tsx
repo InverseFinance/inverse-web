@@ -37,14 +37,13 @@ function EnsoZap({
 }) {
     const { provider, account, chainId } = useWeb3React<Web3Provider>();
     const { address: ensoSmartWalletAddress } = useEnso(account, chainId);
-    const [inited, setInited] = useState(false);
     const [slippage, setSlippage] = useState('1');
+    const [lastChainId, setLastChainId] = useState(chainId);
 
-    const [tokenIn, setTokenIn] = useState(''); // dola    
+    const [tokenIn, setTokenIn] = useState('');
     const [tokenOut, setTokenOut] = useState(defaultTokenOut); // fraxbp
 
     const tokenInObj = tokenIn ? getToken(CHAIN_TOKENS[chainId || '1'], tokenIn) : CHAIN_TOKENS[chainId || '1'].CHAIN_COIN;
-    // const [chainId, setChainId] = useState('1');
     const [targetChainId, setTargetChainId] = useState(defaultTargetChainId || chainId || '1');
     const tokenOutObj = tokenOut ? getToken(CHAIN_TOKENS[targetChainId || '1'], tokenOut) : CHAIN_TOKENS[targetChainId || '1'].CHAIN_COIN;
     const availableChainIds = [...new Set(ensoPools.map(ep => ep.chainId.toString()))];
@@ -93,8 +92,12 @@ function EnsoZap({
 
     useEffect(() => {
         if (!chainId) return;
-        setTokenIn('');
-    }, [chainId]);
+        // changing chain => native coin by default as tokenIn
+        if(chainId !== lastChainId){
+            setTokenIn('');
+            setLastChainId(chainId);
+        }
+    }, [chainId, lastChainId]);
 
     useEffect(() => {
         if (!targetChainId) return;
@@ -111,7 +114,15 @@ function EnsoZap({
         setZapRequestData({ account, chainId, targetChainId, tokenIn, tokenOut, amountIn: amountInValue });
     }, [account, chainId, targetChainId, tokenIn, tokenOut, amountIn, tokenInObj]);
    
-    const isLoading = !ads.length || !balances;    
+    const isLoading = !ads.length || !balances;
+
+    const resetForm = () => {
+        setAmountIn('');
+    }
+
+    const handleSuccess = () => {
+        resetForm();
+    }
 
     return <Container w='full' noPadding p='0' label={title} contentProps={{ mt: 0 }}>
         {
@@ -185,6 +196,7 @@ function EnsoZap({
                                 alsoDisableApprove={!amountIn || ((!!tokenIn && tokenIn !== EthXe) && !approveDestinationAddress) || !slippage || !parseFloat(slippage)}
                                 btnProps={{ needPoaFirst: true }}
                                 signer={provider?.getSigner()}
+                                onSuccess={() => handleSuccess()}
                                 onAction={
                                     () => {
                                         if (!provider) return;
