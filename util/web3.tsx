@@ -197,7 +197,8 @@ export const hasAllowance = (approvals: BigNumberList, address: string, decimals
     return !!allowanceValue
   }
   const _amount = (amount || '')?.toString()?.startsWith('.') ? `0${amount}` : amount;
-  return allowanceValue >= getBnToNumber(parseUnits((roundFloorString(_amount, decimals) || '0'), decimals));
+  const value = getBnToNumber(parseUnits((roundFloorString(_amount, decimals) || '0'), decimals), decimals);
+  return allowanceValue >= value;
 }
 
 export const getTokenBalance = async (token: Token, signer: JsonRpcSigner) => {
