@@ -64,7 +64,7 @@ export const useEnsoRoute = (
     amount: string
 ) => {
     const { data, error } = useSWR(
-        `enso-route-${chainId}-${targetChainId}-${tokenIn}-${tokenOut}-${amount}`,
+        `enso-route-${chainId}-${targetChainId}-${tokenIn}-${tokenOut}-${amount}-${isApproved}`,
         async () => {
             if (!isApproved || !fromAddress || chainId !== targetChainId || !chainId || !tokenOut || !targetChainId || !amount) return null;
             return await ensoZap(null, {
