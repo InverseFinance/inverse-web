@@ -42,6 +42,7 @@ function EnsoZap({
 
     const [tokenIn, setTokenIn] = useState('');
     const [tokenOut, setTokenOut] = useState(defaultTokenOut);
+    const [freshApprove, setFreshApprove] = useState(false);
 
     const tokenInObj = tokenIn ? getToken(CHAIN_TOKENS[chainId || '1'], tokenIn) : CHAIN_TOKENS[chainId || '1'].CHAIN_COIN;
     const [targetChainId, setTargetChainId] = useState(defaultTargetChainId || chainId || '1');
@@ -60,8 +61,9 @@ function EnsoZap({
 
     const approveDestinationAddress = ensoSmartWalletAddress;
     const { isApproved } = useIsApproved(tokenIn, approveDestinationAddress, account, amountIn);
+    const _isApproved = freshApprove || isApproved;
 
-    const zapResponseData = useEnsoRoute(isApproved, zapRequestData.account, zapRequestData.chainId, zapRequestData.targetChainId, zapRequestData.tokenIn, zapRequestData.tokenOut, zapRequestData.amountIn);
+    const zapResponseData = useEnsoRoute(_isApproved, zapRequestData.account, zapRequestData.chainId, zapRequestData.targetChainId, zapRequestData.tokenIn, zapRequestData.tokenOut, zapRequestData.amountIn);
 
     const fromOptions = ZAP_TOKENS_ARRAY
         .filter(t => t.chainId === chainId)
@@ -95,6 +97,7 @@ function EnsoZap({
         // changing chain => native coin by default as tokenIn
         if(chainId !== lastChainId){
             setTokenIn('');
+            setFreshApprove(false);
             setLastChainId(chainId);
         }
     }, [chainId, lastChainId]);
@@ -122,6 +125,10 @@ function EnsoZap({
 
     const handleSuccess = () => {
         resetForm();
+    }
+
+    const handleApprove = () => {
+        setFreshApprove(true);
     }
 
     return <Container w='full' noPadding p='0' label={title} contentProps={{ mt: 0 }}>
@@ -186,6 +193,7 @@ function EnsoZap({
                         />
                             :
                             <SimpleAmountForm
+                                defaultAmount={amountIn}
                                 address={tokenIn === EthXe ? '' : tokenIn}
                                 // destination={routeTx?.to}
                                 destination={approveDestinationAddress}
@@ -196,6 +204,7 @@ function EnsoZap({
                                 alsoDisableApprove={!amountIn || ((!!tokenIn && tokenIn !== EthXe) && !approveDestinationAddress) || !slippage || !parseFloat(slippage)}
                                 btnProps={{ needPoaFirst: true }}
                                 signer={provider?.getSigner()}
+                                onApprove={() => handleApprove()}
                                 onSuccess={() => handleSuccess()}
                                 onAction={
                                     () => {
@@ -215,12 +224,12 @@ function EnsoZap({
                             />
                     }
                     {
-                        isApproved && zapResponseData?.isLoading && <Text>
+                        _isApproved && zapResponseData?.isLoading && <Text>
                             Loading route and price impact...
                         </Text>
                     }
                     {
-                        isApproved && !!zapResponseData?.error && <Text color="warning" fontSize="14px">
+                        _isApproved && !!zapResponseData?.error && <Text color="warning" fontSize="14px">
                             {zapResponseData?.error?.toString()}
                         </Text>
                     }
