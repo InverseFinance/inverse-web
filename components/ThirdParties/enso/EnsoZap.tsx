@@ -41,7 +41,7 @@ function EnsoZap({
     const [lastChainId, setLastChainId] = useState(chainId);
 
     const [tokenIn, setTokenIn] = useState('');
-    const [tokenOut, setTokenOut] = useState(defaultTokenOut); // fraxbp
+    const [tokenOut, setTokenOut] = useState(defaultTokenOut);
 
     const tokenInObj = tokenIn ? getToken(CHAIN_TOKENS[chainId || '1'], tokenIn) : CHAIN_TOKENS[chainId || '1'].CHAIN_COIN;
     const [targetChainId, setTargetChainId] = useState(defaultTargetChainId || chainId || '1');
