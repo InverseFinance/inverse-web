@@ -188,6 +188,7 @@ function EnsoZap({
                             <SimpleAmountForm
                                 defaultAmount={amountIn}
                                 address={tokenIn === EthXe ? '' : tokenIn}
+                                decimals={tokenInObj?.decimals}
                                 // destination={routeTx?.to}
                                 destination={approveDestinationAddress}
                                 hideInput={true}
