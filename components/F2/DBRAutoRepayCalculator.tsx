@@ -1,44 +1,39 @@
-import { useContext, useEffect, useState } from "react";
-import { F2MarketContext } from "./F2Contex";
-import { HStack, VStack, Text, useDisclosure, Stack, Input, Divider } from "@chakra-ui/react";
+import { HStack, VStack, Text, Stack } from "@chakra-ui/react";
 import { preciseCommify } from "@app/util/misc";
 import { TextInfo } from "../common/Messages/TextInfo";
 import { shortenNumber } from "@app/util/markets";
 import { InfoMessage } from "../common/Messages";
-import { usePrices } from "@app/hooks/usePrices";
-import { TimeIcon } from "@chakra-ui/icons";
-import InfoModal from "../common/Modal/InfoModal";
-import { F2DurationInput } from "./forms/F2DurationInput";
-import { useAppThemeParams } from "@app/hooks/useAppTheme";
 
-export const DBRAutoRepayCalculator = () => {
-    const {
-        market,
-        newTotalDebt,
-        newDeposits,
-        deposits,
-        handleCollateralChange,
-    } = useContext(F2MarketContext);
+const duration = 365;
+const durationType = 'months';
+const durationTypeValue = 12;
 
-    const { prices: cgPrices } = usePrices();
-    // const [tempValues, setTempValues] = useState({ days: 365, type: 'months', typedValue: 12 });
-    const [duration, setDuration] = useState(365);
-    const [durationType, setDurationType] = useState('months');
-    const [durationTypeValue, setDurationTypeValue] = useState(12);
-    // const { isOpen, onOpen, onClose } = useDisclosure();
-
+export const DBRAutoRepayCalculator = ({
+    invStakedViaDistributor,
+    dbrYearlyRewardRate,
+    newTotalDebt,
+    newDeposits,
+    deposits,
+    handleCollateralChange,
+}: {
+    invStakedViaDistributor?: number
+    dbrYearlyRewardRate?: number,
+    newTotalDebt?: number,
+    newDeposits?: number,
+    deposits?: number,
+    handleCollateralChange: (v: string) => void,
+}) => {
     const delta = newDeposits - deposits;
 
-    const withoutStake = market.invStakedViaDistributor - deposits;
-    const newTotalStaked = market.invStakedViaDistributor + delta;
+    const withoutStake = invStakedViaDistributor - deposits;
+    const newTotalStaked = invStakedViaDistributor + delta;
 
-    // const currentShare = market.invStakedViaDistributor ? deposits / market.invStakedViaDistributor : 0;
     const newShare = newTotalStaked ? newDeposits / (newTotalStaked) : 0;
-    const totalRewardsForDuration = duration / 365 * (market?.dbrYearlyRewardRate || 0);
+    const totalRewardsForDuration = duration / 365 * (dbrYearlyRewardRate || 0);
     const userRewardsForDuration = newShare * totalRewardsForDuration;
     const userBurnsForDuration = newTotalDebt * duration / 365;
 
-    const shareNeeded = market?.dbrYearlyRewardRate < userBurnsForDuration || !market?.dbrYearlyRewardRate ?
+    const shareNeeded = dbrYearlyRewardRate < userBurnsForDuration || !dbrYearlyRewardRate ?
         null : (userBurnsForDuration / totalRewardsForDuration);
 
     const invNeeded = (shareNeeded * withoutStake) / (1 - shareNeeded)
@@ -46,47 +41,16 @@ export const DBRAutoRepayCalculator = () => {
 
     const netDbrRate = userRewardsForDuration - userBurnsForDuration;
     const borrowableForFree = userRewardsForDuration;
-    const dbrInvExRate = !!cgPrices ? cgPrices['dola-borrowing-right']?.usd / cgPrices['inverse-finance']?.usd : 0;
-    const newDbrApr = market?.dbrYearlyRewardRate * dbrInvExRate / newTotalStaked * 100;
-
-    const handleSimulationDuration = () => {
-        onOpen();
-    }
-
-    const applyTempValues = () => {
-        setDuration(tempValues.days);
-        setDurationType(tempValues.type);
-        setDurationTypeValue(tempValues.typedValue);
-        onClose();
-    }
 
     const durationText = `${durationTypeValue} ${durationType}`
 
     return <VStack w='full' alignItems="flex-start">
-        {/* <InfoModal okLabel="Apply Settings" title="Calculator settings" isOpen={isOpen} onClose={onClose} onOk={() => applyTempValues()}>
-            <VStack spacing="3" p='4' alignItems="flex-start">
-                <Text>Duration of the staking and the DOLA loans?</Text>
-                <F2DurationInput
-                    columnMode={true}
-                    defaultType={durationType}
-                    defaultValue={durationTypeValue}
-                    onChange={(days, typedValue, type) => setTempValues({ ...tempValues, days, typedValue, type })}
-                />
-                <InfoMessage
-                    description="This setting is only used for the interest-free borrowing calculator, it doesn't change the actual duration of the staking and the DOLA loans."
-                />
-            </VStack>
-        </InfoModal> */}
         <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify="space-between">
             <TextInfo message="By having more DBR rewards than DBR burns, you can borrow for free (in DBR terms). As the DBR APR is volatile, it's better to stake more than what is suggested for the current APR.">
                 <Text fontWeight="bold">
                     Interest-free borrowing calculator
                 </Text>
             </TextInfo>
-            {/* <HStack textDecoration="underline" cursor="pointer" onClick={handleSimulationDuration}>
-                <TimeIcon boxSize="3" />
-                <Text>Sim. duration: {durationText}</Text>
-            </HStack> */}
         </Stack>
         {
             newDeposits > 0 || deposits > 0 ?
