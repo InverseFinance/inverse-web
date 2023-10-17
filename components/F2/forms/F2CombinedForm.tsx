@@ -1,6 +1,6 @@
 import { Stack, VStack, Text, HStack, FlexProps, Divider, Switch, FormControl, FormLabel, Flex, useMediaQuery, Badge, useDisclosure } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
-import { getNumberToBn, shortenNumber } from '@app/util/markets'
+import { getNumberToBn, shortenNumber, smartShortNumber } from '@app/util/markets'
 import { formatUnits, parseEther, parseUnits } from '@ethersproject/units'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
 import { f2repayAndWithdrawNative, f2borrow, f2deposit, f2depositAndBorrow, f2depositAndBorrowHelper, f2repay, f2repayAndWithdraw, f2sellAndRepayHelper, f2sellAndWithdrawHelper, f2withdraw, getRiskColor, f2approxDbrAndDolaNeeded, f2withdrawMax } from '@app/util/f2'
@@ -416,7 +416,7 @@ export const F2CombinedForm = ({
                             // inputProps={isDeleverageCase ? { disabled: true, placeholder: `Repay via deleverage: ~${debtAmount}` } : undefined}
                             />
                             {
-                                <HStack w='full' justify="space-between">
+                                isRepayCase ? <HStack w='full' justify="space-between">
                                     <AmountInfos
                                         label="DOLA balance"
                                         value={dolaBalance}
@@ -429,13 +429,23 @@ export const F2CombinedForm = ({
                                     <AmountInfos
                                         label="Debt"
                                         value={debt}
-                                        textProps={{
-                                            cursor: 'pointer',
+                                        textProps={{                                            
                                             fontSize: '14px',
                                             onClick: () => isDeleverageCase ? null : handleDebtChange(formatUnits(bnDebt, 18))
                                         }}
                                     />
                                 </HStack>
+                                    :
+                                    <HStack w='full' justify="space-between">
+                                        <AmountInfos
+                                            label="Available DOLA"                                            
+                                            value={market.leftToBorrow < 1 ? 0 : market.leftToBorrow}                                            
+                                            textProps={{                                                
+                                                fontSize: '14px',
+                                                onClick: market.leftToBorrow > 1 ? () => handleDebtChange(formatUnits(bnLeftToBorrow, 18)) : undefined
+                                            }}
+                                        />                                       
+                                    </HStack>
                             }
                         </>
                         : isBorrowOnlyCase ? <Text>Please deposit collateral first</Text> : <Text>Nothing to repay</Text>
