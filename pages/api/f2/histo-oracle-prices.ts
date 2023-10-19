@@ -74,11 +74,7 @@ export default async function handler(req, res) {
     const allUniqueBlocksToCheck = [...new Set([...relevantBlockNumbers, ...blocksFromStartUntilCurrent])];
     allUniqueBlocksToCheck.sort((a, b) => a - b);
 
-    if (!allUniqueBlocksToCheck.includes(currentBlock) && !archived?.blocks.includes(currentBlock)) {
-      allUniqueBlocksToCheck.push(currentBlock);
-    }
-
-    if (!allUniqueBlocksToCheck.length || ((currentBlock - lastMarketEventBlock) <= 1000 && lastArchivedBlock === lastMarketEventBlock)) {
+    if (!allUniqueBlocksToCheck.length || ((currentBlock - lastMarketEventBlock) < BLOCKS_PER_DAY && lastArchivedBlock === lastMarketEventBlock)) {
       res.status(200).json(archived);
       return;
     }
