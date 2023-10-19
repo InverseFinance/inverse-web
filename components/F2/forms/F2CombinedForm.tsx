@@ -109,6 +109,7 @@ export const F2CombinedForm = ({
         dolaPrice,
         newTotalDebt,
         newDeposits,
+        userNotEligibleForLeverage,
     } = useContext(F2MarketContext);
 
     const [syncedMinH, setSyncedMinH] = useState('230px');
@@ -494,7 +495,7 @@ export const F2CombinedForm = ({
                     {
                         canUseLeverage && <FormControl w='fit-content' display='flex' alignItems='center'>
                             <FormLabel fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='leverage-switch' mb='0'>
-                                {isDeposit ? 'L' : 'Del'}everage?
+                                {isDeposit ? 'L' : 'Del'}everage (beta)?
                             </FormLabel>
                             <Switch onChange={() => setUseLeverage(!useLeverage)} isChecked={useLeverage} id='leverage-switch' />
                         </FormControl>
@@ -644,7 +645,7 @@ export const F2CombinedForm = ({
                 <Stack justify="space-between" w='full' spacing="4" direction={{ base: 'column' }}>
                     {leftPart}
                     {
-                        useLeverageInMode && <FirmBoostInfos
+                        (useLeverageInMode || (useLeverage && userNotEligibleForLeverage)) && <FirmBoostInfos
                             type={isDeposit ? 'up' : 'down'}
                             onLeverageChange={({
                                 dolaAmount, collateralAmount, isLeverageUp
