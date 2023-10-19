@@ -25,8 +25,13 @@ const firmMarketsFunctions = [
 ];
 
 const Amount = ({ value, decimals, isPerc = false }: { value: string, decimals: number, isPerc?: boolean }) => {
-    return <Text display="inline-block" fontWeight="bold" color="secondary">
-        {commify(removeScientificFormat(parseFloat(formatUnits(value, decimals)) * (isPerc ? 100 : 1))).replace(/\.0$/, '')}{isPerc && '%'}
+    let number = parseFloat(formatUnits(value, decimals)) * (isPerc ? 100 : 1);
+    if(isPerc) {
+        // handle javascript float precision, eg: 0.29 * 100 would show 28.999999999999996
+        number = parseFloat(number.toFixed(2));
+    }
+    return <Text display="inline-block" fontWeight="bold" color="secondary">        
+        {commify(removeScientificFormat(number)).replace(/\.0$/, '')}{isPerc && '%'}
     </Text>;
 }
 
@@ -127,7 +132,7 @@ const FirmMarketHumanReadableActionLabel = ({
                 Set <ScannerLink color="info" value={market} /> <b>Collateral Factor</b> to {amount}
             </Flex>
             break;
-        case 'setLiquidationFactorBps':
+        case 'setLiquidationFactorBps':            
             amount = <Amount value={callDatas[0]} decimals={4} isPerc={true} />;
             text = <Flex display="inline-block">
                 Set <ScannerLink color="info" value={market} /> <b>Liquidation Factor</b> to {amount}
