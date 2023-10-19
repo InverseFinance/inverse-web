@@ -201,11 +201,9 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                             {
                                                 (f2market.isGovTokenCollateral) && <FirmGovToken />
                                             }
-                                            {
-                                                !f2market.isInv && <ErrorBoundary description="The portfolio value chart could not load">
-                                                    <WorthEvoChartWrapper market={f2market} />
-                                                </ErrorBoundary>
-                                            }
+                                            <ErrorBoundary description="The portfolio value chart could not load">
+                                                <WorthEvoChartWrapper market={f2market} />
+                                            </ErrorBoundary>
                                             {
                                                 (f2market.hasClaimableRewards && f2market.name === 'cvxCRV') && <CvxCrvPreferences />
                                             }
