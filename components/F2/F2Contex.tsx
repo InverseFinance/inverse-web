@@ -14,6 +14,8 @@ import { useDOLABalance } from '@app/hooks/useDOLA'
 import useStorage from '@app/hooks/useStorage'
 import { gaEvent } from '@app/util/analytics'
 import { useDOLAPrice } from '@app/hooks/usePrices'
+import { useStakedInFirm } from '@app/hooks/useFirm'
+import { INV_STAKERS_ONLY } from '@app/config/features'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -86,6 +88,7 @@ export const F2Context = ({
     const { value: cachedFirmActionIndex, setter: setCachedFirmActionIndex } = useStorage('firm-action-index');    
     const [firmActionIndex, setFirmActionIndex] = useState(cachedFirmActionIndex === undefined ? null : cachedFirmActionIndex||0);    
     const [isSmallerThan728] = useMediaQuery('(max-width: 728px)');
+    const { isInvPrimeMember } = useStakedInFirm(account);
 
     const isMountedRef = useRef(true)
     const firstTimeModalResolverRef = useRef(() => {});
@@ -99,7 +102,10 @@ export const F2Context = ({
     const { balance: dolaBalance, bnBalance: bnDolaBalance } = useDOLABalance(account);
     const { price: dolaPrice, isLoading: isDolaPriceLoading } = useDOLAPrice();
 
-    const useLeverageInMode = useLeverage && (mode === 'Deposit & Borrow' || (mode === 'Repay & Withdraw' && debt > 1))
+    // if true and leverage switched is enabled, the user will see the INV prime msg
+    const userNotEligibleForLeverage = !isInvPrimeMember && INV_STAKERS_ONLY.firmLeverage;
+    // if true, the leverage UI will show
+    const useLeverageInMode = useLeverage && !userNotEligibleForLeverage && (mode === 'Deposit & Borrow' || (mode === 'Repay & Withdraw' && debt > 1))
 
     const debtAmountNum = parseFloat(debtAmount || '0') || 0;// NaN => 0
     const collateralAmountNum = parseFloat(collateralAmount || '0') || 0;
@@ -367,6 +373,8 @@ export const F2Context = ({
             onFirstTimeModalClose,
             firstTimeModalResolverRef,
             isDbrV1NewBorrowIssueModalOpen,
+            isInvPrimeMember,
+            userNotEligibleForLeverage,
             onDbrV1NewBorrowIssueModalOpen: () => {
                 gaEvent({ action: 'FiRM-dbrv1-issue-modal-open' });
                 onDbrV1NewBorrowIssueModalOpen();

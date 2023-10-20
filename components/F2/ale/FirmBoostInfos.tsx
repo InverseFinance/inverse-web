@@ -15,6 +15,8 @@ import { TextInfo } from '@app/components/common/Messages/TextInfo'
 import { get0xSellQuote } from '@app/util/zero'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { showToast } from '@app/util/notify'
+import { INV_STAKERS_ONLY } from '@app/config/features'
+import { InvPrime } from '@app/components/common/InvPrime'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -162,7 +164,8 @@ export const FirmBoostInfos = ({
         dolaPrice,
         leverageLoading,
         setLeverageLoading,
-    } = useContext(F2MarketContext);
+        isInvPrimeMember,
+    } = useContext(F2MarketContext);    
 
     const borrowApy = dbrPrice * 100;
     const minLeverage = 1;
@@ -295,6 +298,10 @@ export const FirmBoostInfos = ({
 
     const boostLabel = isLeverageUp ? 'Leverage' : 'Deleverage';
     const now = Date.now();
+
+    if(!isInvPrimeMember && INV_STAKERS_ONLY.firmLeverage) {
+        return <InvPrime showLinks={false} />
+    }
 
     return <Stack fontSize="14px" spacing="4" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
         <VStack position="relative" w='full' alignItems="center" justify="center">

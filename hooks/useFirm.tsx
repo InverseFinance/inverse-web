@@ -18,7 +18,7 @@ import { usePrices } from "./usePrices";
 import { getCvxCrvRewards, getCvxRewards } from "@app/util/firm-extra";
 import { useWeb3React } from "@web3-react/core";
 import useSWR from "swr";
-import { FEATURE_FLAGS } from "@app/config/features";
+import { FEATURE_FLAGS, isInvPrimeMember } from "@app/config/features";
 
 const oneYear = ONE_DAY_MS * 365;
 
@@ -609,6 +609,7 @@ export const useStakedInFirm = (userAddress: string): {
   escrow: string,
   delegate: string,
   isLoading: boolean,
+  isInvPrimeMember: boolean,
 } => {
   const firmInv = F2_MARKETS.find(m => m.isInv);
 
@@ -626,6 +627,7 @@ export const useStakedInFirm = (userAddress: string): {
   const stakedInFirm = firmEscrowData && firmEscrowData[0] ? getBnToNumber(firmEscrowData[0]) : 0;
 
   return {
+    isInvPrimeMember: isInvPrimeMember(stakedInFirm),
     stakedInFirm,
     escrow,
     delegate: data ? data[0] : '',
