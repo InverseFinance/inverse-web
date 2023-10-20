@@ -26,11 +26,11 @@ const getLeverageActionLabel = (e: any) => {
     const isUp = [e.nameCombined, e.actionName].includes('LeverageUp');
     const name = isUp ? 'Leverage Up' : 'Leverage Down';
     const collateralName = isUp ? e.tokenName : e.tokenNameCombined;
-    // TODO: get user extra deposit and repay from event
+    // TODO: get user extra deposit using Transfer event
     const userExtraDeposit = 0;// 0 if leverage only and no extra deposit
-    const userExtraRepay = 0// 0 if leverage only and no extra repay
-    const dolaAmount = e.dolaFlashMinted || (isUp ? e.amountCombined : e.amount);
-    const collateralAmount = e.collateralLeveragedAmount || (isUp ? e.amount : e.amountCombined);
+    const userExtraRepay = e.userDola// optional extra repay when deleveraging
+    const dolaAmount = e.dolaForLeverage || (isUp ? e.amountCombined : e.amount);
+    const collateralAmount = e.collateralAmountWhileLeverage || (isUp ? e.amount : e.amountCombined);
     return <>
         {userExtraDeposit > 0 ? `Deposit ${smartShortNumber(userExtraDeposit, 4)} & ${name}` : userExtraRepay > 0 ? `Repay ${smartShortNumber(userExtraRepay, 4)} & ${name}` : name}
         <b style={{ fontWeight: '800' }}>

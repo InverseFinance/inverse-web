@@ -3,7 +3,7 @@ import { F2Market, FirmAction, SWR, ZapperToken } from "@app/types"
 import { fetcher, fetcher30sectimeout, fetcher60sectimeout } from '@app/util/web3'
 import { useCacheFirstSWR, useCustomSWR } from "./useCustomSWR";
 import { useDBRMarkets, useDBRPrice } from "./useDBR";
-import { f2CalcNewHealth, formatFirmEvents, getDBRRiskColor } from "@app/util/f2";
+import { f2CalcNewHealth, formatFirmEvents, getDBRRiskColor, getLeverageEventDetails } from "@app/util/f2";
 import { getBnToNumber, getHistoricalTokenData, getMonthlyRate, getNumberToBn } from "@app/util/markets";
 import { useMultiContractEvents } from "./useContractEvents";
 import { DBR_ABI, F2_ALE_ABI, F2_ESCROW_ABI, F2_MARKET_ABI } from "@app/config/abis";
@@ -271,8 +271,7 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
     const amount = e.args?.amount ? getBnToNumber(e.args?.amount, decimals) : undefined;
     const liquidatorReward = e.args?.liquidatorReward ? getBnToNumber(e.args?.liquidatorReward, decimals) : undefined;
 
-    const dolaFlashMinted = !!leverageEvent ? getBnToNumber(leverageEvent.args?.dolaFlashMinted) : 0;
-    const collateralLeveragedAmount = !!leverageEvent ? getBnToNumber(leverageEvent.args[3], market.underlying.decimals) : 0;
+    const leverageEventDetails = getLeverageEventDetails(leverageEvent?.args, e.event === 'LeverageUp');
 
     if (isCollateralEvent && !!amount) {
       const colDelta = (e.event === 'Deposit' ? amount : -amount);
@@ -307,8 +306,8 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
       isCollateralEvent,
       tokenName,
       tokenNameCombined: tokenName === 'DOLA' ? market.underlying.symbol : 'DOLA',
-      dolaFlashMinted,
-      collateralLeveragedAmount,
+      dolaForLeverage: leverageEventDetails?.dolaForLeverage||0,
+      collateralAmountWhileLeverage: leverageEventDetails?.collateralAmount||0,
     }
   });
 
