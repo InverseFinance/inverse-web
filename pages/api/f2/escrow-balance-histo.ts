@@ -102,10 +102,7 @@ export default async function handler(req, res) {
     const claimableFunctionName = 'claimable';
     const debtFunctionName = 'debts';
 
-    if (!allUniqueBlocksToCheck.includes(currentBlock) && !archived?.blocks.includes(currentBlock)) {
-      allUniqueBlocksToCheck.push(currentBlock);
-    }
-    if (!allUniqueBlocksToCheck.length || ((currentBlock - lastEscrowEventBlock) <= 1000 && lastArchivedBlock === lastEscrowEventBlock && archived?.firmActionIndex === firmActionIndex)) {
+    if (!allUniqueBlocksToCheck.length || ((currentBlock - lastEscrowEventBlock) < BLOCKS_PER_DAY && lastArchivedBlock === lastEscrowEventBlock && archived?.firmActionIndex === firmActionIndex)) {
       res.status(200).json(archived);
       return;
     }
