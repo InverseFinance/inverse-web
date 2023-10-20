@@ -794,3 +794,27 @@ export type CoingeckoHistoricalData = {
   market_caps: [number, number][],
   total_volumes: [number, number][],
 }
+
+export type LeverageUpEventArgs = {
+  market: string
+  account: string
+  dolaFlashMinted: BigNumber
+  // deposited by user + via deposited leverage
+  collateralDeposited: BigNumber
+  // borrowed for the user
+  dolaBorrowed: BigNumber
+  // borrowed to buy DBR
+  dolaForDBR: BigNumber
+}
+
+export type LeverageDownEventArgs = {
+  market: string
+  account: string
+  dolaFlashMinted: BigNumber
+  // sold
+  collateralSold: BigNumber
+  // repaid by user not leverage
+  dolaUserRepaid: BigNumber
+  // dbr sold
+  dbrSoldForDola: BigNumber
+}

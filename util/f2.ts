@@ -1,12 +1,12 @@
 import { F2_HELPER_ABI, F2_MARKET_ABI, F2_ESCROW_ABI } from "@app/config/abis";
 import { CHAIN_ID, DEFAULT_FIRM_HELPER_TYPE, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
-import { F2Market } from "@app/types";
+import { F2Market, LeverageDownEventArgs, LeverageUpEventArgs } from "@app/types";
 import { JsonRpcSigner, Web3Provider } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 import moment from 'moment';
 import { getNetworkConfigConstants } from "./networks";
-import { parseUnits, splitSignature } from "ethers/lib/utils";
-import { getBnToNumber, getNumberToBn } from "./markets";
+import { splitSignature } from "ethers/lib/utils";
+import { getBnToNumber } from "./markets";
 import { callWithHigherGL } from "./contracts";
 import { uniqueBy } from "./misc";
 import { getMulticallOutput } from "./multicall";
@@ -600,8 +600,7 @@ export const formatAndGroupFirmEvents = (
         const amount = e.amount ? e.amount : e.args?.amount ? getBnToNumber(e.args?.amount, decimals) : undefined;
         const liquidatorReward = e.liquidatorReward ? e.liquidatorReward : e.args?.liquidatorReward ? getBnToNumber(e.args?.liquidatorReward, decimals) : undefined;
 
-        const dolaFlashMinted = !!leverageEvent ? getBnToNumber(leverageEvent.args?.dolaFlashMinted) : 0;
-        const collateralLeveragedAmount = !!leverageEvent ? getBnToNumber(leverageEvent.args?.[3], market.underlying.decimals) : 0;
+        const leverageEventDetails = getLeverageEventDetails(leverageEvent?.args, name === 'LeverageUp');
 
         if (isCollateralEvent && !!amount) {
             const colDelta = (name === 'Deposit' ? amount : -amount)
@@ -638,8 +637,8 @@ export const formatAndGroupFirmEvents = (
             tokenName,
             isClaim: actionName === 'Transfer',
             tokenNameCombined: tokenName === 'DOLA' ? market.underlying.symbol : 'DOLA',
-            dolaFlashMinted,
-            collateralLeveragedAmount,
+            dolaForLeverage: leverageEventDetails?.dolaForLeverage,
+            collateralAmountWhileLeverage: leverageEventDetails?.collateralAmount,
             timestamp: e.timestamp,
         }
     });
@@ -652,4 +651,30 @@ export const formatAndGroupFirmEvents = (
         currentCycleDepositedByUser,
         liquidated,
     };
+}
+
+export const getLeverageEventDetails = (leverageEventArgs: LeverageUpEventArgs | LeverageDownEventArgs, isUp = true) => {
+    if (!leverageEventArgs) {
+        return { dolaForLeverage: 0, collateralAmount: 0, userDola: 0 };
+    }
+    return isUp ? getLeverageUpEventDetails(leverageEventArgs) : getLeverageDownEventDetails(leverageEventArgs);
+}
+
+export const getLeverageUpEventDetails = (leverageEventArgs: LeverageUpEventArgs) => {
+    const dolaFlashMinted = !!leverageEventArgs ? getBnToNumber(leverageEventArgs.dolaFlashMinted) : 0;
+    // borrowed in addition to leverage (not used in UI for now)
+    const extraBorrowed = !!leverageEventArgs ? getBnToNumber(leverageEventArgs.dolaBorrowed) : 0;
+    const borrowedForDbr = !!leverageEventArgs ? getBnToNumber(leverageEventArgs.dolaForDBR) : 0;
+    const collateralDeposited = !!leverageEventArgs ? getBnToNumber(leverageEventArgs.collateralDeposited) : 0;
+    const dolaForLeverage = dolaFlashMinted - borrowedForDbr - extraBorrowed;
+    return { borrowedForDbr, dolaForLeverage, userDola: extraBorrowed, collateralAmount: collateralDeposited };
+}
+
+export const getLeverageDownEventDetails = (leverageEventArgs: LeverageDownEventArgs) => {
+    const dolaFlashMinted = !!leverageEventArgs ? getBnToNumber(leverageEventArgs.dolaFlashMinted) : 0;
+    // repayed by the user in addition to leverage repayment
+    const dolaUserRepaid = !!leverageEventArgs ? getBnToNumber(leverageEventArgs.dolaUserRepaid) : 0;
+    const collateralSold = !!leverageEventArgs ? getBnToNumber(leverageEventArgs.collateralSold) : 0;    
+    const dbrSoldForDola = !!leverageEventArgs ? getBnToNumber(leverageEventArgs.dbrSoldForDola) : 0;    
+    return { dolaForLeverage: dolaFlashMinted, collateralAmount: collateralSold, userDola: dolaUserRepaid, dbrSoldForDola };
 }
