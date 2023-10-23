@@ -340,7 +340,7 @@ export const f2CalcNewHealth = (
 ) => {
     const newDeposits = Math.max((deposits + (depositsDelta || 0)), 0);
     const newCreditLimit = newDeposits * market.collateralFactor * market.price;
-    const newDebt = debt + debtDelta;
+    const newDebt = Math.max(0, debt + debtDelta);
 
     const newPerc = !depositsDelta && !debtDelta && perc !== undefined ?
         perc : betweenZeroAnd100(

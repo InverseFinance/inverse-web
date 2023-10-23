@@ -337,11 +337,11 @@ export const FirmBoostInfos = ({
                     </TextInfo>
                 }
                 {
-                    !leverageLoading && leverageLevel > 1 && <TextInfo direction="row-reverse" message={isLeverageUp ? `Debt added due to leverage` : `Debt reduced via deleveraging`}>
+                    !leverageLoading && leverageLevel > 1 && <TextInfo direction="row-reverse" message={isLeverageUp ? `Debt added due to leverage` : `Debt reducable via deleveraging, if higher than the current debt, the leftover DOLA will be transferred to the user`}>
                         <HStack fontWeight="bold" spacing="0" alignItems="center">
                             {isLeverageUp ? <ArrowUpIcon color="warning" fontSize="18px" /> : <ArrowDownIcon color="success" fontSize="18px" />}
                             <Text fontSize="14px" textAlign="center">
-                                ~{smartShortNumber(!isLeverageUp ? parseFloat(leverageDebtAmount) : debtAmountNum, 8)} DEBT
+                                ~{smartShortNumber(!isLeverageUp ? parseFloat(leverageDebtAmount) : debtAmountNum, 2)} DEBT
                             </Text>
                         </HStack>
                     </TextInfo>
