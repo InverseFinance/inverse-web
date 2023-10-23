@@ -200,9 +200,10 @@ export const F2CombinedForm = ({
                     parseUnits(debtAmount || '0'),
                     // withdrawn by deleverage
                     parseUnits(collateralAmount || '0', market.underlying.decimals),
+                    bnDebt,
                     aleSlippage,
                     dbrAmountToSell,
-                    minDolaOut,
+                    minDolaOut,                    
                 );
             }
             else if (isAutoDBR || isUseNativeCoin) {
@@ -305,7 +306,7 @@ export const F2CombinedForm = ({
                         : "Withdrawing collateral will reduce borrowing power"
                 }>
                     <Text fontSize='18px' color="mainTextColor">
-                        <b>{isDeposit ? market.isInv ? 'Stake' : 'Deposit' : market.isInv ? 'Unstake' : 'Withdraw'}</b> {isWethMarket && isUseNativeCoin ? 'ETH' : market.underlying.symbol}{useLeverageInMode ? isDeposit && deposits > 0 ? ` (on top of leverage)` : ' (with leverage)' : ''}:
+                        <b>{isDeposit ? market.isInv ? 'Stake' : 'Deposit' : useLeverageInMode ? 'Reduce' : market.isInv ? 'Unstake' : 'Withdraw'}</b> {isWethMarket && isUseNativeCoin ? 'ETH' : market.underlying.symbol}{useLeverageInMode ? isDeposit && deposits > 0 ? ` (on top of leverage)` : ' (with leverage)' : ''}:
                     </Text>
                 </TextInfo>
                 {
@@ -365,7 +366,7 @@ export const F2CombinedForm = ({
                     />
                 }
                 {
-                    !isDeposit && deposits > 0 && !isDeleverageCase && <HStack w='full' justify="space-between">
+                    !isDeposit && deposits > 0 && <HStack w='full' justify="space-between">
                         <AmountInfos
                             label="Deposits"
                             value={deposits}

@@ -112,9 +112,10 @@ export const prepareDeleveragePosition = async (
     market: F2Market,
     extraDolaToRepay: BigNumber,
     collateralToWithdraw: BigNumber,
+    currentUserDebt: BigNumber,
     slippagePerc?: string | number,
     dbrToSell?: BigNumber,
-    minDolaOut?: BigNumber,
+    minDolaOut?: BigNumber,    
 ) => {
     let get0xQuoteResult;
     // we need the quote first
@@ -143,11 +144,13 @@ export const prepareDeleveragePosition = async (
         const nb = parseFloat(guaranteedPrice) * getBnToNumber(collateralToWithdraw, market.underlying.decimals);
 
         const minDolaAmountFromSwap = getNumberToBn(nb);
+        const potentialTotalDolaToRepay = minDolaAmountFromSwap.add(extraDolaToRepay);
+        const dolaToRepay = potentialTotalDolaToRepay?.gte(currentUserDebt) ? currentUserDebt : potentialTotalDolaToRepay;
         // dolaIn, minDbrOut, extraDolaToRepay
         const dbrData = [dbrToSell, minDolaOut, extraDolaToRepay];
         return deleveragePosition(
             signer,
-            minDolaAmountFromSwap,
+            dolaToRepay,
             market.address,
             collateralToWithdraw,
             allowanceTarget,
