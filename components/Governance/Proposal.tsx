@@ -153,14 +153,14 @@ export const ProposalPreview = ({
             {(forVotes > 0 || againstVotes > 0) && (
               <Flex direction="column" align="flex-end" display={{ base: 'none', lg: 'flex' }} pl={6}>
                 <Stack direction="row" w={56} align="center" justify="flex-end">
-                  <Text w={16} fontSize="xs" fontWeight="bold" color="primary.300" textAlign="end">
+                  <Text w={16} fontSize="xs" fontWeight="bold" color={againstVotes > 0 ? 'warning' : 'primary.300'} textAlign="end">
                     {againstVotes >= 1000 ? `${(againstVotes / 1000).toFixed(2)}k` : againstVotes.toFixed(0)}
                   </Text>
                   <Flex w="full">
                     <Flex
                       w={`${Math.floor((againstVotes / (forVotes + againstVotes)) * 100)}%`}
                       h={1}
-                      bgColor="primary.300"
+                      bgColor={againstVotes > 0 ? 'warning' : 'primary.300'}
                     />
                     <Flex w={`${Math.floor((forVotes / (forVotes + againstVotes)) * 100)}%`} h={1} bgColor="success" />
                   </Flex>
@@ -169,7 +169,7 @@ export const ProposalPreview = ({
                   </Text>
                 </Stack>
                 <Text fontSize="13px" color="lightAccentTextColor" fontWeight="semibold">{`${totalVotes >= 1000 ? `${(totalVotes / 1000).toFixed(2)}k` : totalVotes.toFixed(0)
-                  } votes`}</Text>
+                  } total votes`}</Text>
               </Flex>
             )}
           </Flex>
