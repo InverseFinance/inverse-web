@@ -161,7 +161,7 @@ export default async function handler(req, res) {
     const { FEDS, DOLA, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
 
     const archiveCacheKey = `revenues-v1.0.20a`;
-    const cacheKey = `revenues-v1.0.21`;
+    const cacheKey = `revenues-v1.0.22`;
 
     try {
 
