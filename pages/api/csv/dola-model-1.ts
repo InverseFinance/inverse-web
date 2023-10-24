@@ -20,6 +20,7 @@ export default async (req, res) => {
             '0x8272e1a3dbef607c04aa6e5bd3a1a134c8ac063b',
             '0x5a473b418193C6a3967aF0913135534B7b3B23E9',
             '0x8E9154AC849e839d60299E85156bcb589De2693A',
+            '0x896ffE2cd28Ba13ddDa98103a3B66E82bb36BeE3',
         ].map(ad => ad.toLowerCase());
         const feds = liquidityData.liquidity.filter(d => d.isFed || exceptions.includes(d.address.toLowerCase()));
         const totalBorrowsOnFirm = liquidityData.firmBorrows;
