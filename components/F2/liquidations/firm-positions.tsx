@@ -54,10 +54,10 @@ export const FirmPositions = ({
 
     return <VStack w='full'>
         <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-around" >
-            <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
+            <VStack display={{ base: 'none', md :'block' }} alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
                 <Text fontWeight="bold">Avg Borrow Limit By Markets</Text>
                 <BarChart
-                    width={450}
+                    width={550}
                     height={300}
                     isPercentages={true}
                     groupedData={barData}
@@ -67,11 +67,11 @@ export const FirmPositions = ({
             </VStack>
             <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
                 <Text fontWeight="bold">TVL By Markets</Text>
-                <Funds labelWithPercInChart={true} funds={groupMarketsByDeposits} chartMode={true} showTotal={false} showChartTotal={true} />
+                <Funds isLoading={isLoading} labelWithPercInChart={true} funds={groupMarketsByDeposits} chartMode={true} showTotal={false} showChartTotal={true} />
             </VStack>
             <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
                 <Text fontWeight="bold">Debt By Markets</Text>
-                <Funds labelWithPercInChart={true} funds={groupMarketsByDebt} chartMode={true} showTotal={false} showChartTotal={true} />
+                <Funds isLoading={isLoading} labelWithPercInChart={true} funds={groupMarketsByDebt} chartMode={true} showTotal={false} showChartTotal={true} />
             </VStack>
         </Stack>
         <Container
