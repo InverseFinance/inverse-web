@@ -7,6 +7,10 @@ import { getTxsOf } from '@app/util/covalent';
 import { parseUnits } from '@ethersproject/units';
 import { pricesCacheKey } from '../prices';
 import { throttledPromises } from '@app/util/misc';
+import { Contract } from 'ethers';
+import { getProvider } from '@app/util/providers';
+import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
+import { DOLA_ABI } from '@app/config/abis';
 
 const COINGECKO_IDS = {
     'CRV': 'curve-dao-token',
@@ -39,6 +43,36 @@ const deduceBridgeFees = (value: number, chainId: string) => {
         }
     }
     return value;
+}
+
+// For cross-chain feds, also take into account DOLA transfers happening on mainnet from Fed mainnet address to Treasury
+const getXchainMainnetProfits = async (FEDS: Fed[], DOLA: string, TREASURY: string, cachedTotalEvents?: any) => {
+    const xchainFeds = FEDS.filter(fed => !fed.hasEnded && !!fed.incomeChainId && fed.incomeChainId !== NetworkIds.mainnet);
+    const dolaContract = new Contract(DOLA, DOLA_ABI, getProvider(NetworkIds.mainnet, undefined, true));
+    const transfersToTreasury = await Promise.all(
+        xchainFeds.map((fed) => {
+            const lastMainnetTransferEvents = cachedTotalEvents.filter(event => event.isMainnetTxForXchainFed && event.fedAddress === fed.address);
+            const startingBlock = lastMainnetTransferEvents?.length ? lastMainnetTransferEvents[lastMainnetTransferEvents.length - 1].blockNumber + 1 : undefined;
+            return dolaContract.queryFilter(dolaContract.filters.Transfer(fed.address, TREASURY), startingBlock);
+        })
+    );
+    const uniqueBlocks = [...new Set(transfersToTreasury.map((fedTransfers, i) => fedTransfers.map(ev => ev.blockNumber)).flat())];
+    await addBlockTimestamps(uniqueBlocks, NetworkIds.mainnet);
+    const timestamps = await getCachedBlockTimestamps();    
+    return xchainFeds.map((fed, i) => {
+        return {
+            fedAddress: fed.address,
+            events: transfersToTreasury[i].map(ev => {
+                return {
+                    timestamp: timestamps[NetworkIds.mainnet][ev.blockNumber] * 1000,
+                    blockNumber: ev.blockNumber,
+                    transactionHash: ev.transactionHash,
+                    profit: getBnToNumber(ev.args![2]),
+                    isMainnetTxForXchainFed: true,
+                }
+            })
+        }
+    })
 }
 
 const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { [key: string]: number }, cachedTotalEvents?: any) => {
@@ -124,7 +158,7 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
 
 export default async function handler(req, res) {
     const { cacheFirst } = req.query;
-    const { FEDS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
+    const { FEDS, DOLA, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
 
     const archiveCacheKey = `revenues-v1.0.20a`;
     const cacheKey = `revenues-v1.0.21`;
@@ -138,7 +172,7 @@ export default async function handler(req, res) {
             getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration)
         ]);
 
-        const { data: archived } = archive;        
+        const { data: archived } = archive;     
         const { data: cachedData, isValid } = cache;
 
         if (isValid) {
@@ -159,9 +193,10 @@ export default async function handler(req, res) {
         });
         const oldFilteredTransfers = withOldAddresses.map(old => []);
         // const [filteredTransfers, oldFilteredTransfers] = await Promise.all(
-        const [filteredTransfers] = await Promise.all(
+        const [filteredTransfers, xchainMainnetTransfers] = await Promise.all(
             [
                 getProfits(FEDS, TREASURY, cachedCurrentPrices, archived?.totalEvents||[]),
+                getXchainMainnetProfits(FEDS, DOLA, TREASURY, archived?.totalEvents||[]),
                 // getProfits(withOldAddresses.map(f => ({
                 //     ...f,
                 //     address: f.oldAddress || f.address,
@@ -173,6 +208,10 @@ export default async function handler(req, res) {
         withOldAddresses.forEach((old, i) => {
             const fedIndex = FEDS.findIndex(f => f.name === old.name);
             filteredTransfers[fedIndex] = filteredTransfers[fedIndex].concat(oldFilteredTransfers[i]);
+        });
+        xchainMainnetTransfers.forEach((activeXchainFed, i) => {
+            const fedIndex = FEDS.findIndex(f => f.address === activeXchainFed.fedAddress);
+            filteredTransfers[fedIndex] = filteredTransfers[fedIndex].concat(activeXchainFed.events);
         });
 
         const accProfits: { [key: string]: number } = {};
