@@ -48,8 +48,8 @@ const columns = [
         field: 'transactionHash',
         label: 'Transaction',
         header: ({ ...props }) => <Flex minW="120px" {...props} />,
-        value: ({ transactionHash, chainId, incomeChainId }) => <Flex minW="120px">
-            <ScannerLink value={transactionHash} type="tx" chainId={incomeChainId||chainId} />
+        value: ({ transactionHash, chainId, incomeChainId, isMainnetTxForXchainFed }) => <Flex minW="120px">
+            <ScannerLink value={transactionHash} type="tx" chainId={isMainnetTxForXchainFed ? chainId : incomeChainId||chainId} />
         </Flex>,
     },
     {
@@ -80,7 +80,7 @@ const columnsWithTotal = columns.concat([
     },
 ])
 
-export const FedIncomeTable = ({ fedHistoricalEvents, isLoading, showTotalCol = true }: { fedHistoricalEvents: FedEvent[], isLoading?: boolean, showTotalCol?: boolean }) => {
+export const FedIncomeTable = ({ fedHistoricalEvents, isLoading, showTotalCol = true }: { fedHistoricalEvents: FedEvent[], isLoading?: boolean, showTotalCol?: boolean }) => {    
     return (
         fedHistoricalEvents?.length > 0 ?
             <Table

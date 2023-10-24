@@ -130,7 +130,7 @@ export const useFedPolicyMsg = (refreshIndex: number): SWR & { fedPolicyMsg: { m
 }
 
 export const useFedIncome = (): SWR & { totalEvents: FedEvent[], totalFedsIncomes: { [key: string]: number } } => {
-  const { data, error } = useCacheFirstSWR(`/api/transparency/fed-income?v=3`)
+  const { data, error } = useCacheFirstSWR(`/api/transparency/fed-income?v=4`)
 
   const totalEvents = data?.totalEvents || [];
   const totalFedsIncomes = data?.totalFedsIncomes || {};
