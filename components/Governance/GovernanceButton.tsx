@@ -7,14 +7,15 @@ import useEtherSWR from '@app/hooks/useEtherSWR'
 import { ProposalStatus, Proposal, NetworkIds, GovEra } from '@app/types'
 import { getGovernanceAddress } from '@app/util/contracts'
 import { useWeb3React } from '@web3-react/core'
-import { formatUnits } from 'ethers/lib/utils'
-import { InfoMessage } from '@app/components/common/Messages'
+import { commify, formatUnits } from 'ethers/lib/utils'
+import { InfoMessage, SuccessMessage } from '@app/components/common/Messages'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { useRouter } from 'next/dist/client/router';
 import { executeProposal, queueProposal } from '@app/util/governance';
 import { handleTx } from '@app/util/transactions';
 import { showToast } from '@app/util/notify';
 import { useEffect } from 'react';
+import { preciseCommify } from '@app/util/misc';
 
 const { INV, XINV, GOVERNANCE } = getNetworkConfigConstants(NetworkIds.mainnet)
 
@@ -33,7 +34,7 @@ export const VoteButton = ({ proposal }: { proposal: Proposal }) => {
   const [liveStatus, setLiveStatus] = useState<ProposalStatus>(proposal.status)
 
   useEffect(() => {
-    if(!proposal.status) { return }
+    if (!proposal.status) { return }
     setLiveStatus(proposal.status)
   }, [proposal.status])
 
@@ -53,7 +54,7 @@ export const VoteButton = ({ proposal }: { proposal: Proposal }) => {
     + parseFloat(formatUnits(currentVotesX || 0)) * parseFloat(formatUnits(exchangeRate || '1'));
 
   const hasVoted = data[0]
-  const votes = hasVoted ? parseFloat(formatUnits(data[2])).toFixed(2) : 0
+  const nbVotes = hasVoted ? parseFloat(formatUnits(data[2])) : 0
   const support = hasVoted && data[1]
 
   const handleCompletionSuccess = () => {
@@ -97,15 +98,20 @@ export const VoteButton = ({ proposal }: { proposal: Proposal }) => {
                 :
                 null
             }
-            <InfoMessage
-              alertProps={{ w: 'full', mt: "2", fontSize: '12px' }}
-              description={
-                hasVoted ?
-                  `You voted ${support ? '"For"' : '"Against"'} with ${votes} voting power`
-                  :
-                  'You did not vote for this proposal'
-              }
-            />
+            {
+              hasVoted ? <SuccessMessage
+                alertProps={{ w: 'full', mt: "2", fontSize: '12px', fontWeight: 'bold' }}
+                description={
+                  `You voted ${support ? '"For"' : '"Against"'} with ${preciseCommify(nbVotes, nbVotes >= 1000 ? 0 : 2)} voting power`
+                }
+              /> :
+                <InfoMessage
+                  alertProps={{ w: 'full', mt: "2", fontSize: '12px', fontWeight: 'bold' }}
+                  description={
+                    'You did not vote for this proposal'
+                  }
+                />
+            }
           </>
       }
       <VoteModal isOpen={isOpen} onClose={onClose} proposal={proposal} />
