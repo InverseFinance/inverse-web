@@ -167,6 +167,7 @@ const chainTokenAddresses = {
     DOLAUSDRPEARLLP: '0x394DeB5c87e1df9aa7400e99F5cd27a0cD0A64f2',
     DOLAUSDRPEARLLP2: '0x8B0630Cb57d8E63444E97C19a2e82Bb1988399e2',
     DOLACASHRETROLP: '0x4b4B895a0dD744B4893aA4370A8F7eDbde5Fd90e',
+    DOLAUSDCRETROLP: '0x896ffE2cd28Ba13ddDa98103a3B66E82bb36BeE3',
     CASHV2: '0x5D066D022EDE10eFa2717eD3D79f22F949F8C175',
   },
   "42161": {
@@ -1610,6 +1611,20 @@ const chainTokens = {
       isUniV3: true,
       pairs: [
         chainTokenAddresses["137"].CASHV2, chainTokenAddresses["137"].DOLA
+      ],
+      protocolImage: PROTOCOL_IMAGES.RETRO,
+    },
+    [chainTokenAddresses["137"].DOLAUSDCRETROLP]: {
+      address: chainTokenAddresses["137"].DOLAUSDCRETROLP,
+      name: 'DOLA-USDC LP',
+      symbol: 'DOLA-USDC retrolp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isUniV3: true,
+      pairs: [
+        chainTokenAddresses["137"].USDC, chainTokenAddresses["137"].DOLA
       ],
       protocolImage: PROTOCOL_IMAGES.RETRO,
     },
