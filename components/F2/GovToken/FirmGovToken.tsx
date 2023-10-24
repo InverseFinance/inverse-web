@@ -21,23 +21,32 @@ import { BURN_ADDRESS } from "@app/config/constants";
 import { useStakedInFirm } from "@app/hooks/useFirm";
 import { useAccount } from "@app/hooks/misc";
 import useStorage from "@app/hooks/useStorage";
+import { getBnToNumber } from "@app/util/markets";
 
 const CONTAINER_ID = 'firm-gov-token-container'
 
-const { INV } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { INV, XINV } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 export const InvInconsistentFirmDelegation = () => {
     const account = useAccount();
     const { escrow } = useContext(F2MarketContext);
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const { data: nonFirmDelegation, error } = useEtherSWR([
-        INV, 'delegates', account,
+    const { data: invData, error } = useEtherSWR([
+        [INV, 'delegates', account],
+        [INV, 'balanceOf', account],
+        [XINV, 'balanceOf', account],
+        [XINV, 'exchangeRateStored'],
     ]);
+    const nonFirmDelegation = invData?.[0];
+    const invBalance = invData ? getBnToNumber(invData[1]) : 0;
+    const xinvBalance = invData ? getBnToNumber(invData[2]) * getBnToNumber(invData[3]) : 0;
+    const nonFirmInvBalance = invBalance + xinvBalance;
+
     const { delegate: firmDelegate, isLoading } = useStakedInFirm(account);
     const delegatingTo = firmDelegate?.replace(BURN_ADDRESS, '');
     const { value: decidedToIgnore, setter: ignoreInconsistentDel } = useStorage(`firm-inconsistent-del-${account?.substring(0, 5)}-${delegatingTo?.substring(0, 5)}-${nonFirmDelegation?.substring(0, 5)}`);
 
-    if (!decidedToIgnore && decidedToIgnore !== undefined && !isLoading && !error && !!delegatingTo && !!nonFirmDelegation && nonFirmDelegation?.replace(BURN_ADDRESS, '') !== delegatingTo) {
+    if (nonFirmInvBalance >= 1 && !decidedToIgnore && decidedToIgnore !== undefined && !isLoading && !error && !!delegatingTo && !!nonFirmDelegation && nonFirmDelegation?.replace(BURN_ADDRESS, '') !== delegatingTo) {
         return <>
             <FirmGovDelegationModal
                 isOpen={isOpen}
