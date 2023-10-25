@@ -22,17 +22,14 @@ export type AnimProps = {
 export const Animation = ({ animData, height = 30, width = 30, loop = false, autoplay = true, isStopped }: AnimProps) => {
     return (
         <Lottie
-            options={{
-                loop,
-                autoplay,
-                animationData: animData,
-                rendererSettings: {
-                    preserveAspectRatio: 'xMidYMid slice'
-                },
+            loop={loop}
+            autoplay={autoplay}
+            animationData={animData}
+            rendererSettings={{
+                preserveAspectRatio: 'xMidYMid slice'
             }}
             height={height}
-            width={width}
-            isStopped={isStopped ?? !autoplay}
+            width={width}            
         />
     )
 }
@@ -40,7 +37,7 @@ export const Animation = ({ animData, height = 30, width = 30, loop = false, aut
 export type AnimIconProps = Partial<AnimProps> & { boxProps?: BoxProps, canClick?: boolean }
 
 export const AnimIcon = ({ animData = infoBubbleLottie, height = 20, width = 20, loop = false, autoplay = true, isStopped, boxProps, canClick = false }: AnimIconProps) => {
-    return <Box className={!canClick ? 'app-anim-box-no-pointer' : undefined } display="inline-block" w={`${width}px`} h={`${height}px`} {...boxProps} alignItems="center" justifyContent="center">
+    return <Box className={!canClick ? 'app-anim-box-no-pointer' : undefined} display="inline-block" w={`${width}px`} h={`${height}px`} {...boxProps} alignItems="center" justifyContent="center">
         <Animation animData={animData} height={height} width={width} loop={loop} autoplay={autoplay} isStopped={isStopped} />
     </Box>;
 }
