@@ -31,7 +31,7 @@ export default function LightPostPreview({
         !!coverImage?.url && <CoverImage title={title} slug={slug} url={coverImage.url} />
       }
       <BlogText as="h3" fontWeight="bold" fontSize={{ base: 'lg', sm: 'xl' }}>
-        <Link href={url}>
+        <Link href={url} legacyBehavior>
           <a>{title}</a>
         </Link>
       </BlogText>

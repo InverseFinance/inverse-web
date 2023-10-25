@@ -32,7 +32,8 @@ export default function LangsSelector({ ...props }) {
                                 return <Link
                                     key={key}
                                     w='full'
-                                    href={asPath.replace(locale, key)}                                    
+                                    href={asPath.replace(locale, key)}     
+                                    legacyBehavior                               
                                 >
                                     <Text cursor="pointer" w='full' color={locale === key ? activeTextColor : passiveTextColor} textTransform="uppercase">
                                         {val} {key.substring(0, 2)}

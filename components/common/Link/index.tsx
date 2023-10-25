@@ -14,7 +14,6 @@ export const Link = (props: any) => {
     if (viewAddress) { params['viewAddress'] = viewAddress }
     return params
   })(query);
-  return null
   return (
     <NextLink
       href={typeof href === 'string' && (href.includes('#') || href.includes('?') || isExternal) ? href : {
@@ -22,7 +21,7 @@ export const Link = (props: any) => {
         query: href?.query || urlParamsToKeepWhenChangingPage,
       }}
       passHref
-      legacyBehavior={true}>
+      legacyBehavior>
       {isExternal ? (
         <ChakraLink
           color="secondaryTextColor"
