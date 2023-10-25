@@ -13,7 +13,7 @@ export const RSubmitButton = (props: Props) => {
     const _props = { borderLeftRadius: { base: '30px', '2xl': '50vmax' }, borderRightRadius: { base: '30px', '2xl': '50vmax' }, ...props }
     if (_props?.href) {
         const { target, linkProps, ...btnProps } = _props;
-        return <NextLink href={_props.href} passHref>
+        return <NextLink href={_props.href} passHref legacyBehavior>
             <Link target={target} textDecoration="none" _hover={{ textDecoration: 'none' }} {...linkProps}>
                 <SubmitButton textTransform="inherit" w='full' {...btnProps} />
             </Link>

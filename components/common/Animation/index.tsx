@@ -7,7 +7,7 @@ import warningLottie from '@app/public/assets/lotties/warning.json';
 import inverseLottie from '@app/public/assets/lotties/inverse.json';
 import launchLottie from '@app/public/assets/lotties/launch.json';
 import confettiLottie from '@app/public/assets/lotties/confetti.json';
-import Lottie from 'react-lottie';
+import Lottie from 'lottie-react';
 
 export type AnimProps = {
     animData: Object,

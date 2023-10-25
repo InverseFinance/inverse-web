@@ -102,7 +102,7 @@ export const Landing = ({ posts }: {
       <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{invPrice ? shortenNumber(invPrice, 2, true) : '-'}</Text>
     </HStack>
   </HStack>
-
+  
   return (
     <Layout isLanding={true} pt="0" overflow="hidden">
       <Head>

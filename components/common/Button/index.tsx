@@ -37,7 +37,7 @@ export const LinkButton = ({
   }
 
   return (
-    <NextLink href={href} passHref>
+    <NextLink href={href} passHref legacyBehavior>
       <Link onClick={handleGa} w="full" color={isOutline ? OUTLINE_BUTTON_TEXT_COLOR : BUTTON_TEXT_COLOR} fontSize="md" fontWeight="semibold" _hover={{}} target={target} _focus={{}} {...props} >
         <Flex
           justify="center"
@@ -53,7 +53,7 @@ export const LinkButton = ({
         </Flex>
       </Link>
     </NextLink>
-  )
+  );
 }
 
 export const LinkOutlineButton = ({

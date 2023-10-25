@@ -7,9 +7,9 @@ import etherJsFetcher from '@app/util/fetcher'
 import { useWeb3React } from '@web3-react/core'
 import { Contract } from 'ethers'
 import { useEffect } from 'react'
-import useSWR, { cache, mutate } from 'swr'
+import useSWR from 'swr'
+import { useSWRConfig } from 'swr'
 
-export { cache } from 'swr'
 export type etherKeyFuncInterface = () => ethKeyInterface | ethKeysInterface
 export type ethKeyInterface = [string, any?, any?, any?, any?]
 export type ethKeysInterface = string[][]
@@ -32,6 +32,7 @@ function useEtherSWR(..._args) {
   // if(!_args || !_args?.length || (_args?.length === 1 && !_args[0]?.length)) {
   //   return useSWR(null);
   // }
+  const { cache, mutate } = useSWRConfig()
   const { provider, chainId } = useWeb3React<Web3Provider>()
 
   const withCustomAbiParam = _args.length > 0 && _args[0].args;
@@ -77,7 +78,6 @@ function useEtherSWR(..._args) {
   }
 
   const [target] = isMulticall ? [_key[0][0]] : _key
-
   const serializedKey = isMulticall ? JSON.stringify(_key) : cache.serializeKey(_key)[0]
 
   useEffect(() => {

@@ -4,7 +4,7 @@ import { Notification } from '@app/components/common/Notification';
 import { CustomToastOptions } from '@app/types';
 import { capitalize } from './misc';
 
-const toast = createStandaloneToast({})
+const { toast } = createStandaloneToast({})
 let toastCounter = 0;
 
 const toastRefs: { [key: string]: ToastId } = {}
