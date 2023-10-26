@@ -50,14 +50,14 @@ export const SupplyInfos = ({
                 isLoading ? <SkeletonText /> :
                 <>
                     {
-                        sortedSupplies.map(({ supply, chainId, name, projectImage }, i) => {
+                        sortedSupplies.map(({ supply, chainId, name, projectImage, label }, i) => {
                             const network = getNetwork(chainId);
                             return (
                                 <Flex key={i} position="relative" direction="row" w='full' justify="space-between" alignItems="center">
                                     <Flex alignItems="center">
                                         <Text>-</Text>
                                         <Img src={projectImage ? `${projectImage}` : network.image!} />
-                                        <Text lineHeight="15px">On {name || network.name}:</Text>
+                                        <Text lineHeight="15px">{label ? label : `On ${name || network.name}`}:</Text>
                                     </Flex>
                                     <Text>{shortenNumber(supply)} ({shortenNumber(totalSupply ? supply / totalSupply * 100 : 0)}%)</Text>
                                 </Flex>
