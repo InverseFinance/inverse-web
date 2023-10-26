@@ -21,16 +21,16 @@ export type AnimProps = {
 // some react-lottie features don't work with React 17
 export const Animation = ({ animData, height = 30, width = 30, loop = false, autoplay = true, isStopped }: AnimProps) => {
     return (
-        <Lottie
-            loop={loop}
-            autoplay={autoplay}
-            animationData={animData}
-            rendererSettings={{
-                preserveAspectRatio: 'xMidYMid slice'
-            }}
-            height={height}
-            width={width}            
-        />
+        <Box height={`${height}px`} width={`${width}px`}>
+            <Lottie
+                loop={loop}
+                autoplay={autoplay}
+                animationData={animData}
+                rendererSettings={{
+                    preserveAspectRatio: 'xMidYMid slice'
+                }}
+            />
+        </Box>
     )
 }
 
