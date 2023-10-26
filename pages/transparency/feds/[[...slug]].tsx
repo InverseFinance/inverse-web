@@ -26,6 +26,7 @@ import { FedPolicyTable } from '@app/components/Transparency/fed/FedPolicyTable'
 import { useEffect } from 'react';
 import { FedBarChart } from '@app/components/Transparency/fed/FedBarChart'
 import { FedIncomeTable } from '@app/components/Transparency/fed/FedIncomeTable'
+import { DolaSupplies } from '@app/components/common/Dataviz/DolaSupplies'
 
 const { DOLA, TOKENS, FEDS, FEDS_WITH_ALL, DEPLOYER } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -185,8 +186,7 @@ export const FedPolicyPage = () => {
                             </>
                         }
                     /> */}
-                    <SupplyInfos token={TOKENS[DOLA]} supplies={dolaSupplies}
-                    />
+                    <DolaSupplies supplies={dolaSupplies.filter(chain => chain.supply > 0)} />
                     <SupplyInfos
                         title="🦅&nbsp;&nbsp;DOLA Fed Supplies"
                         supplies={

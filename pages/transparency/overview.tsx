@@ -12,6 +12,7 @@ import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 import { useDAO } from '@app/hooks/useDAO'
 import { SupplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
 import { GovernanceRules } from '@app/components/Governance/GovernanceRules'
+import { DolaSupplies } from '@app/components/common/Dataviz/DolaSupplies'
 
 const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, GOVERNANCE, DOLA, DBR, TOKENS, DEPLOYER, XINV_MANAGER, POLICY_COMMITTEE, OP_BOND_MANAGER, MULTISIGS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -90,8 +91,8 @@ export const Overview = () => {
         </Flex>
         <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
           <GovernanceRules />                
-          <SupplyInfos token={TOKENS[INV]} supplies={invSupplies} />
-          <SupplyInfos token={TOKENS[DOLA]} supplies={dolaSupplies} />
+          <SupplyInfos token={TOKENS[INV]} supplies={invSupplies} />          
+          <DolaSupplies supplies={dolaSupplies.filter(chain => chain.supply > 0)} />
           <ShrinkableInfoMessage
             title="⚡ Roles & Powers"
             description={
