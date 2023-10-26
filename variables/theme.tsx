@@ -35,7 +35,7 @@ export const lightTheme = extendTheme({
     mainTextColorLightAlpha: '#18205D88',
     // secondaryTextColor: '#333333',
     // secondaryTextColor: '#2457DF',
-    secondaryTextColor: '#7448DC',    
+    secondaryTextColor: '#7448DC',
     accentTextColor: '#7448DC',
     accentTextColorAlpha: '#7448DC22',
     secAccentTextColor: '#FFC35C',
@@ -113,6 +113,13 @@ export const lightTheme = extendTheme({
   },
   fonts: {
     body: 'Inter',
+  },
+  styles: {
+    global: (props) => ({
+      body: {
+        fontFamily: 'Inter'
+      },
+    }),
   },
   components: {
     Text: {
@@ -223,6 +230,13 @@ export const darkTheme = extendTheme({
   },
   fonts: {
     body: 'Inter',
+  },
+  styles: {
+    global: (props) => ({
+      body: {
+        fontFamily: 'Inter'
+      },
+    }),
   },
   components: {
     Text: {
