@@ -596,7 +596,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
                     submenus?.length > 0 &&
                     <PopoverContent maxW="275px" background={isBlog ? 'mainBackgroundColor' : 'transparent'} border="none">
                       <PopoverBody className={`blurred-container ${themeName}-bg compat-mode2`} borderRadius="10px">
-                        <VStack spacing="4" p="4">
+                        <VStack spacing="2" p="4">
                           {
                             submenus
                               .filter(s => !s.href.includes('$account') || (s.href.includes('$account') && !!userAddress))
