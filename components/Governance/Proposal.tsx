@@ -116,7 +116,7 @@ export const ProposalPreview = ({
 
   return (
     <VStack w='full'>
-      <NextLink href={href}>
+      <NextLink href={href} legacyBehavior>
         <VStack
           w='full'
           _hover={{ bgColor: 'primary.850' }}
@@ -188,7 +188,7 @@ export const ProposalPreview = ({
         </Flex>
       }
     </VStack>
-  )
+  );
 }
 
 export const ProposalDetails = ({

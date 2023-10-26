@@ -122,8 +122,8 @@ export const useRechartsZoom = ({
     }
 
     const zoom = (l?: string | number, r?: string | number) => {
-        const refLeft = l || refAreaLeft;
-        const refRight = r || refAreaRight;
+        let refLeft = l || refAreaLeft;
+        let refRight = r || refAreaRight;
 
         if (refLeft === refRight || refRight === '') {
             setRefAreaLeft('');

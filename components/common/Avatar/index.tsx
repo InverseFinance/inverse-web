@@ -1,13 +1,14 @@
-import { Box, BoxProps } from '@chakra-ui/react'
+import { Box, BoxProps, Image } from '@chakra-ui/react'
 
 import { isAddress, parseUnits } from 'ethers/lib/utils';
 import { useEnsProfile } from '@app/hooks/useEnsProfile';
-import Jazzicon, { jsNumberForAddress } from 'react-jazzicon';
+import makeBlockie from 'ethereum-blockies-base64';
 import { Contract } from 'ethers';
 import { AlchemyProvider } from '@ethersproject/providers';
 import { NetworkIds } from '@app/types';
 import { useCustomSWR } from '@app/hooks/useCustomSWR';
 import localforage from 'localforage'
+import { useMemo } from 'react';
 
 const erc721Abi = [
   'function ownerOf(uint256 tokenId) view returns (address)',
@@ -69,6 +70,7 @@ export const Avatar = ({
 } & Partial<BoxProps>) => {
   const avatarAddress = !address || !isAddress(address) ? '0x0000000000000000000000000000000000000000' : address
   const { ensProfile } = useEnsProfile(avatarAddress, true);
+  const blockieUrl = useMemo(() => makeBlockie(avatarAddress), [avatarAddress]);
 
   const { data: finalUrl } = useCustomSWR(`avatar-uri-${ensProfile?.avatar}`, async (req) => {
     const uri = req?.replace('avatar-uri-', '');
@@ -199,7 +201,7 @@ export const Avatar = ({
       borderRadius="50px"
       {...boxProps}>
       {
-        !finalUrl && <Jazzicon seed={jsNumberForAddress(avatarAddress)} diameter={sizePx} />
+        !finalUrl && <Image borderRadius="50px" alt="avatar" src={blockieUrl} size={sizePx} />
       }
     </Box>
   )

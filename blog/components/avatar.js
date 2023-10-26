@@ -14,7 +14,7 @@ export default function Avatar({ name, picture, title, twitterHandle, size = '60
   return (
     <div className="flex items-center">
       <Box boxSize={size} position="relative" mr="5">
-        <Link href={url}>
+        <Link href={url} legacyBehavior>
           <a href={url}>
             <ContentfulImage
               src={picture.url}

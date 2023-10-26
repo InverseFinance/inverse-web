@@ -188,7 +188,7 @@ const ETHBalance = () => {
   const { account, chainId, provider } = useWeb3React<Web3Provider>()
   const userAddress = (query?.viewAddress as string) || account;
   const { data: balance } = useSWR(`${account}-${chainId}-bal`, () => {
-    if(!account || !chainId || !provider) return undefined
+    if (!account || !chainId || !provider) return undefined
     return provider.getBalance(account);
   })
   const [formattedBalance, setFormattedBalance] = useState('');
@@ -406,7 +406,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const [isLargerThan768] = useMediaQuery('(min-width: 768px)');
   const { themeName } = useAppTheme();
   const { isActive, chainId } = useWeb3React<Web3Provider>();
- 
+
   const userAddress = useAccount();
   const { isEligible, hasClaimed, isLoading } = useCheckDBRAirdrop(userAddress);
   const [showAirdropModal, setShowAirdropModal] = useState(false);
@@ -421,10 +421,10 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
     isMountedRef.current = true;
     const init = async () => {
       const checkSigData = await checkPoaSig(account);
-      if(!isMountedRef.current) return;
+      if (!isMountedRef.current) return;
       setTosApproved(!!checkSigData?.accepted);
     }
-    if(!account) {
+    if (!account) {
       setTosApproved(false);
       return;
     }
@@ -436,7 +436,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
 
   useEffect(() => {
     const tosOpen = (d) => {
-      if(tosApproved) {
+      if (tosApproved) {
         d.detail.onOk()();
         return;
       } else {
@@ -445,7 +445,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
       };
     }
     document.addEventListener('poa-modal', tosOpen);
-    return () => {      
+    return () => {
       document.removeEventListener('poa-modal', tosOpen, false);
     }
   }, [tosApproved]);
@@ -454,9 +454,9 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
 
   const [badgeChainId, setBadgeChainId] = useState(chainId)
   const { nbNotif } = useGovernanceNotifs();
-  
+
   useDebouncedEffect(() => {
-    if(isLoading) return
+    if (isLoading) return
     setShowAirdropModal(isEligible && !hasClaimed);
   }, [isEligible, hasClaimed, isLoading], 5000);
 
@@ -505,7 +505,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   useEffect(() => {
     if (!badgeChainId) { return }
     // swap page: any network is fine
-    const isSupported = ['/swap', '/base', '/zap', '/transparency/liquidity', '/tokens/yield-opportunities'].includes(location.pathname) || isSupportedNetwork(badgeChainId);    
+    const isSupported = ['/swap', '/base', '/zap', '/transparency/liquidity', '/tokens/yield-opportunities'].includes(location.pathname) || isSupportedNetwork(badgeChainId);
     setIsUsupportedNetwork(!isSupported)
     if (!isSupported) {
       onWrongNetOpen();
@@ -596,11 +596,22 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
                     submenus?.length > 0 &&
                     <PopoverContent maxW="275px" background={isBlog ? 'mainBackgroundColor' : 'transparent'} border="none">
                       <PopoverBody className={`blurred-container ${themeName}-bg compat-mode2`} borderRadius="10px">
-                        <VStack spacing="4" p="4">
+                        <VStack spacing="2" p="4">
                           {
                             submenus
                               .filter(s => !s.href.includes('$account') || (s.href.includes('$account') && !!userAddress))
-                              ?.map(s => <Link key={s.href} onClick={s.needReload ? () => location.href = s.href : undefined} color={active === label && activeSubmenu === s.label ? 'mainTextColor' : 'secondaryTextColor'} href={s.href.replace('$account', userAddress || '')}>{s.label}</Link>)
+                              ?.map(s => <Link
+                                key={s.href}
+                                onClick={s.needReload ? () => location.href = s.href : undefined}
+                                color={active === label && activeSubmenu === s.label ? 'mainTextColor' : 'secondaryTextColor'}
+                                display="inline-flex"
+                                alignItems="center"
+                                h="30px"                 
+                                transform="translateY(0px)"
+                                href={s.href.replace('$account', userAddress || '')}
+                              >
+                                {s.label}                                
+                              </Link>)
                           }
                         </VStack>
                       </PopoverBody>

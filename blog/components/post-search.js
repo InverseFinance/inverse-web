@@ -78,7 +78,7 @@ export default function PostSearch({ ...props }) {
                     {
                         results && results?.map((item, i) => {
                             const url = `/blog/posts/${locale}/${item.slug}`
-                            return <Link href={url} key={item.slug}>
+                            return <Link href={url} key={item.slug} legacyBehavior>
                                 <VStack
                                     cursor="pointer"
                                     p="4"
