@@ -43,60 +43,64 @@ export const DolaSupplies = ({
     return (
         <InfoMessage
             showIcon={false}
-            iconProps={{ fontSize: '16px' }}
             alertProps={{ fontSize: '12px', w: 'full', p: '4' }}
             description={
-                isLoading ? <SkeletonText /> :
-                    <>
-                        <Flex alignItems="center">
-                            <Image borderRadius="50px" mr="2" display="inline-block" src={dola.image} ignoreFallback={true} w='15px' h='15px' />
-                            DOLA Total Supplies:
-                        </Flex>
-                        {
-                            sortedNative.map(({ supply, chainId, name, projectImage }, i) => {
-                                const network = getNetwork(chainId);
-                                const extraInfo = chainBridgeTypes[network.id];
-                                const label = extraInfo ? `${network.name} (${extraInfo})` : network.name;
-                                return (
-                                    <Flex key={i} position="relative" direction="row" w='full' justify="space-between" alignItems="center">
-                                        <Flex alignItems="center">
-                                            <Text>-</Text>
-                                            <Img src={projectImage ? `${projectImage}` : network.image!} />
-                                            <Text lineHeight="15px">{label}:</Text>
-                                        </Flex>
-                                        <Text>{shortenNumber(supply)} ({shortenNumber(totalSupply ? supply / totalSupply * 100 : 0)}%)</Text>
-                                    </Flex>
-                                )
-                            })
-                        }
-                        <Text alignItems="center">
-                            Bridge DOLA IOU Total Supplies:
-                        </Text>
-                        {
-                            sortedNonNative.map(({ supply, chainId, name, projectImage }, i) => {
-                                const network = getNetwork(chainId);
-                                const extraInfo = chainBridgeTypes[network.id];
-                                const label = extraInfo ? `${network.name} (${extraInfo})` : network.name;
-                                return (
-                                    <Flex key={i} position="relative" direction="row" w='full' justify="space-between" alignItems="center">
-                                        <Flex alignItems="center">
-                                            <Text>-</Text>
-                                            <Img src={projectImage ? `${projectImage}` : network.image!} />
-                                            <Text lineHeight="15px">{label}:</Text>
-                                        </Flex>
-                                        <Text>{shortenNumber(supply)} ({shortenNumber(totalSupply ? supply / totalSupply * 100 : 0)}%)</Text>
-                                    </Flex>
-                                )
-                            })
-                        }
-                        <Flex fontWeight="bold" direction="row" w='full' justify="space-between" alignItems="center">
-                            <Text>- Total Cross-Chain:</Text>
-                            <Text>{shortenNumber(totalSupply)}</Text>
-                        </Flex>
-                        <Link textDecoration="underline" isExternal target="_blank" href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola">
-                            Learn more about DOLA
-                        </Link>
-                    </>
+                <>
+                    <Flex alignItems="center">
+                        <Image borderRadius="50px" mr="2" display="inline-block" src={dola.image} ignoreFallback={true} w='15px' h='15px' />
+                        DOLA Total Supplies:
+                    </Flex>
+                    {
+                        isLoading || !supplies?.length ? <SkeletonText />
+                            :
+                            <>
+                                {
+                                    sortedNative.map(({ supply, chainId, name, projectImage }, i) => {
+                                        const network = getNetwork(chainId);
+                                        const extraInfo = chainBridgeTypes[network.id];
+                                        const label = extraInfo ? `${network.name} (${extraInfo})` : network.name;
+                                        return (
+                                            <Flex key={i} position="relative" direction="row" w='full' justify="space-between" alignItems="center">
+                                                <Flex alignItems="center">
+                                                    <Text>-</Text>
+                                                    <Img src={projectImage ? `${projectImage}` : network.image!} />
+                                                    <Text lineHeight="15px">{label}:</Text>
+                                                </Flex>
+                                                <Text>{shortenNumber(supply)} ({shortenNumber(totalSupply ? supply / totalSupply * 100 : 0)}%)</Text>
+                                            </Flex>
+                                        )
+                                    })
+                                }
+                                <Text alignItems="center">
+                                    Bridge DOLA IOU Total Supplies:
+                                </Text>
+                                {
+                                    sortedNonNative.map(({ supply, chainId, name, projectImage }, i) => {
+                                        const network = getNetwork(chainId);
+                                        const extraInfo = chainBridgeTypes[network.id];
+                                        const label = extraInfo ? `${network.name} (${extraInfo})` : network.name;
+                                        return (
+                                            <Flex key={i} position="relative" direction="row" w='full' justify="space-between" alignItems="center">
+                                                <Flex alignItems="center">
+                                                    <Text>-</Text>
+                                                    <Img src={projectImage ? `${projectImage}` : network.image!} />
+                                                    <Text lineHeight="15px">{label}:</Text>
+                                                </Flex>
+                                                <Text>{shortenNumber(supply)} ({shortenNumber(totalSupply ? supply / totalSupply * 100 : 0)}%)</Text>
+                                            </Flex>
+                                        )
+                                    })
+                                }
+                                <Flex fontWeight="bold" direction="row" w='full' justify="space-between" alignItems="center">
+                                    <Text>- Total Cross-Chain:</Text>
+                                    <Text>{shortenNumber(totalSupply)}</Text>
+                                </Flex>
+                                <Link textDecoration="underline" isExternal target="_blank" href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola">
+                                    Learn more about DOLA
+                                </Link>
+                            </>
+                    }
+                </>
             }
         />
     )
