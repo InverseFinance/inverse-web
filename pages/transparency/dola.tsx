@@ -9,10 +9,10 @@ import { NetworkIds } from '@app/types'
 import { DolaFlowChart } from '@app/components/Transparency/DolaFlowChart'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 import { useDAO, useFedOverview } from '@app/hooks/useDAO'
-import { SupplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
 import { DolaMoreInfos } from '@app/components/Transparency/DolaMoreInfos'
 import { FedList } from '@app/components/Transparency/fed/FedList'
 import { usePrices } from '@app/hooks/usePrices'
+import { DolaSupplies } from '@app/components/common/Dataviz/DolaSupplies'
 
 const { DOLA, TOKENS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -44,12 +44,7 @@ export const DolaDiagram = () => {
         </Flex>
         <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
           <DolaMoreInfos />
-          <SupplyInfos token={TOKENS[DOLA]} supplies={dolaSupplies.filter(chain => chain.supply > 0)}
-          />
-          {/* <SupplyInfos
-            title="🦅&nbsp;&nbsp;DOLA Fed Supplies"
-            supplies={fedsWithData.filter(fed => fed.supply > 0)}
-          /> */}
+          <DolaSupplies supplies={dolaSupplies.filter(chain => chain.supply > 0)} />
           <ShrinkableInfoMessage
             title="⚡&nbsp;&nbsp;Roles & Powers"
             description={

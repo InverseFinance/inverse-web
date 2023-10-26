@@ -9,7 +9,6 @@ import { NetworkIds } from '@app/types'
 import { TransparencyOtherTabs } from '@app/components/Transparency/TransparencyTabs'
 import { useDAO, useStabilizer } from '@app/hooks/useDAO'
 import { shortenNumber } from '@app/util/markets'
-import { SupplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
 import Table from '@app/components/common/Table'
 import { Container } from '@app/components/common/Container';
 import { ArrowDownIcon, ArrowForwardIcon, ArrowUpIcon, ExternalLinkIcon } from '@chakra-ui/icons'
@@ -21,8 +20,7 @@ import ScannerLink from '@app/components/common/ScannerLink'
 import { ShrinkableInfoMessage } from '@app/components/common/Messages'
 import { BarChart } from '@app/components/Transparency/BarChart'
 import Link from '@app/components/common/Link'
-
-const { DOLA, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
+import { DolaSupplies } from '@app/components/common/Dataviz/DolaSupplies'
 
 const months = [...Array(12).keys()];
 
@@ -233,8 +231,7 @@ export const StabilizerTransparency = () => {
                     <ShrinkableInfoMessage description={
                         <Text>DAI income is sent to the Inverse Treasury on each swap</Text>
                     } />
-                    <SupplyInfos token={TOKENS[DOLA]} supplies={dolaSupplies}
-                    />
+                    <DolaSupplies supplies={dolaSupplies.filter(chain => chain.supply > 0)} />
                 </VStack>
             </Flex>
         </Layout>
