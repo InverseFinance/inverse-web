@@ -1,25 +1,26 @@
 import { Contract } from 'ethers'
 import 'source-map-support'
-import { CTOKEN_ABI, DOLA_ABI } from '@app/config/abis'
-import { getNetworkConfig } from '@app/util/networks'
+import { DOLA_ABI } from '@app/config/abis'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { getBnToNumber } from '@app/util/markets'
+import { NetworkIds } from '@app/types';
+import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
 
-const { ANCHOR_DOLA, F2_MARKETS } = getNetworkConfigConstants();
+const { F2_MARKETS, DOLA, FEDS } = getNetworkConfigConstants();
 
 const excluded = [
-  // TREASURY,
-  // OP_BOND_MANAGER,
   // AN_DOLA
   '0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670',
+  ...FEDS.filter(fed => !!fed.incomeChainId && !!fed.incomeSrcAd).map(fed => {
+    return [fed.incomeSrcAd, fed.incomeChainId];
+  }),
   ...F2_MARKETS.map(m => m.address),
 ];
 
 export default async function handler(req, res) {
-  const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
-  const cacheKey = `${networkConfig.chainId}-dola-circ-supply-v1.0.0`;
+  const cacheKey = `dola-circ-supply-v1.0.1`;
 
   try {
     const cacheDuration = 30;
@@ -31,21 +32,29 @@ export default async function handler(req, res) {
       return
     }
 
-    const provider = getProvider(networkConfig.chainId);
-    const contract = new Contract(process.env.NEXT_PUBLIC_DOLA!, DOLA_ABI, provider);
-    const anDola = new Contract(ANCHOR_DOLA, CTOKEN_ABI, provider);
+    const provider = getProvider(NetworkIds.mainnet);
+    const mainnetContract = new Contract(DOLA, DOLA_ABI, provider);
 
-    const [totalSupply, anDolaReserves, ...excludedBalances] = await Promise.all([
-      contract.totalSupply(),
-      anDola.totalReserves(),
-      ...excluded.map(excludedAd => contract.balanceOf(excludedAd)),
+    const [
+      totalSupply,
+      ...excludedBalances
+    ] = await Promise.all([
+      mainnetContract.totalSupply(),
+      ...excluded.map(excludedData => {
+        const contract = Array.isArray(excludedData) ?
+          new Contract(getToken(CHAIN_TOKENS[excludedData[1]], 'DOLA').address!, DOLA_ABI, getProvider(excludedData[1]))
+          :
+          mainnetContract;
+        const excludedAd = Array.isArray(excludedData) ? excludedData[0] : excludedData;
+        return contract.balanceOf(excludedAd);
+      }),
     ]);
 
-    const totalInvExcluded = excludedBalances
+    const totalDolaExcluded = excludedBalances
       .map(bn => getBnToNumber(bn))
       .reduce((prev, curr) => prev + curr, 0);
 
-    const circulatingSupply = getBnToNumber(totalSupply) - getBnToNumber(anDolaReserves) - totalInvExcluded;
+    const circulatingSupply = getBnToNumber(totalSupply) - totalDolaExcluded;
 
     await redisSetWithTimestamp(cacheKey, circulatingSupply);
 
