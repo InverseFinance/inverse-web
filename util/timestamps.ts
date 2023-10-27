@@ -9,6 +9,9 @@ const client = getRedisClient();
 export const addBlockTimestamps = async (blockNumbers: number[], chainId: string) => {
     const cachedOnlyBlockTimestamps = await getRedisCachedOnlyBlockTimestamps();
     const cachedAndArchivedBlockTimestamps = mergeDeep(BLOCK_TIMESTAMPS, cachedOnlyBlockTimestamps);
+    if(!cachedAndArchivedBlockTimestamps[chainId]) {
+        cachedAndArchivedBlockTimestamps[chainId] = {};
+    }
     const cachedBns = Object.keys(cachedAndArchivedBlockTimestamps[chainId]);
 
     const uniqueBns = [...new Set(blockNumbers)].filter(v => !cachedBns.includes(v.toString()));
@@ -20,7 +23,7 @@ export const addBlockTimestamps = async (blockNumbers: number[], chainId: string
     results.forEach(r => {
         // in secs
         cachedOnlyBlockTimestamps[chainId][r.number] = r.timestamp;
-    });
+    });    
     await client.set('block-timestamps-unarchived', JSON.stringify(cachedOnlyBlockTimestamps));
 }
 // archived + cached but unarchived
