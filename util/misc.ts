@@ -274,3 +274,31 @@ export const getClosestPreviousHistoValue = (histoValues: { [key: string]: numbe
     }, date);
     return histoValues[closestDate] || defaultValue;
 }
+
+export const getOrClosest = (data: { [key: string]: number }, targetDateStr: string, maxTries = 365) => {
+    // If the date exists, return the value immediately
+    if (data[targetDateStr] !== undefined) {
+        return data[targetDateStr];
+    }
+
+    let date = new Date(targetDateStr);    
+    for(let i = 0; i < maxTries; i++) {
+        // Try the next date
+        date.setDate(date.getDate() + 1);
+        let nextDateStr = date.toISOString().split('T')[0];
+        if (data[nextDateStr] !== undefined) {
+            return data[nextDateStr];
+        }
+
+        // Try the previous date
+        date.setDate(date.getDate() - 2);  // subtract 2 because we added 1 in the above step
+        let prevDateStr = date.toISOString().split('T')[0];
+        if (data[prevDateStr] !== undefined) {
+            return data[prevDateStr];
+        }
+
+        // Reset to the next date for the next loop iteration
+        date.setDate(date.getDate() + 1);
+    }
+    return undefined;
+}
