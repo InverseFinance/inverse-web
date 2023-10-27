@@ -3,7 +3,7 @@ import { useEscrowBalanceEvolution, useFirmMarketEvolution, useHistoOraclePrices
 import { F2Market } from "@app/types";
 import { useContext, useEffect, useState } from "react";
 import { useAccount } from "@app/hooks/misc";
-import { getClosestPreviousHistoPrice, timestampToUTC } from "@app/util/misc";
+import { getClosestPreviousHistoValue, timestampToUTC } from "@app/util/misc";
 import { BURN_ADDRESS, ONE_DAY_MS } from "@app/config/constants";
 import { F2MarketContext } from "./F2Contex";
 import { WorthEvoChart } from "./WorthEvoChart";
@@ -80,7 +80,7 @@ const useFirmUserPositionEvolution = (
         const lastClaimEvent = events.findLast(e => e.isClaim && e.timestamp <= p[0]);
         const claims = lastClaimEvent?.claims || 0;
         const utcDay = timestampToUTC(p[0]);
-        const dbrHistoPrice = dbrPrices.find(dbrPrice => timestampToUTC(dbrPrice[0]) === utcDay)?.[1] || getClosestPreviousHistoPrice(dbrPricesAsObj, utcDay, 0);
+        const dbrHistoPrice = dbrPrices.find(dbrPrice => timestampToUTC(dbrPrice[0]) === utcDay)?.[1] || getClosestPreviousHistoValue(dbrPricesAsObj, utcDay, 0);
 
         const estimatedStakedBonus = balance - unstakedCollateralBalance;
         const rewardsUsd = ((claims + histoEscrowDbrClaimable) * dbrHistoPrice) || 0;

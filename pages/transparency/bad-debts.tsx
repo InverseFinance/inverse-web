@@ -8,7 +8,7 @@ import Head from 'next/head'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 import { useRepayments } from '@app/hooks/useRepayments'
 import Table from '@app/components/common/Table'
-import { getClosestPreviousHistoPrice, getMonthDiff, preciseCommify } from '@app/util/misc'
+import { getClosestPreviousHistoValue, getMonthDiff, preciseCommify } from '@app/util/misc'
 import { UnderlyingItem } from '@app/components/common/Assets/UnderlyingItem'
 import { usePrices } from '@app/hooks/usePrices'
 import { useEventsAsChartData } from '@app/hooks/misc'
@@ -327,7 +327,7 @@ const formatToBarData = (data: any, item: any, index: number, key: string, isDol
   const price = prices[cgId]?.usd;
   const histoPrice = (histoData && histoData[item.date] ?
     histoData[item.date] : isDolaCase ?
-      1 : getClosestPreviousHistoPrice(histoData, item.date, price || 1)
+      1 : getClosestPreviousHistoValue(histoData, item.date, price || 1)
   );
 
   const symbol = cgIdsSymbols[cgId];
