@@ -2,14 +2,14 @@ import { Contract } from 'ethers'
 import 'source-map-support'
 import { DOLA_ABI } from '@app/config/abis'
 import { getProvider } from '@app/util/providers';
-import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
+import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { BigNumber } from 'ethers';
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { getBnToNumber } from '@app/util/markets'
-import { BLOCKS_PER_DAY, CHAIN_ID } from '@app/config/constants';
-import { getOrClosest, throttledPromises, timestampToUTC } from '@app/util/misc';
+import { CHAIN_ID } from '@app/config/constants';
+import { getOrClosest, mergeDeep, throttledPromises, timestampToUTC } from '@app/util/misc';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
-import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
+import { addBlockTimestamps, getRedisCachedOnlyBlockTimestamps } from '@app/util/timestamps';
 import { NetworkIds } from '@app/types';
 import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
 
@@ -27,7 +27,6 @@ const CHAIN_START_BLOCKS = {
 }
 
 const FARMER_START_BLOCKS = {
-  // OP
   // velo v1
   '0xFED67cC40E9C5934F157221169d772B328cb138E': 61968205,
   // velo v2
@@ -37,17 +36,20 @@ const FARMER_START_BLOCKS = {
   // base farmer
   '0x2457937668a345305FE08736F407Fba3F39cbF2f': 3694545,
 }
-
-const CHAIN_BLOCKS_PER_DAY = {
-  [NetworkIds.mainnet]: BLOCKS_PER_DAY * 30,
-  [NetworkIds.optimism]: 1 / 2 * 86400 * 30,
-  [NetworkIds.base]: 1 / 2 * 86400 * 30,
-  [NetworkIds.arbitrum]: 1 / 0.3 * 86400 * 30,
+const FARMER_END_BLOCKS = {
+  // velo v1
+  '0xFED67cC40E9C5934F157221169d772B328cb138E': 106217226,
+}
+const XCHAIN_DAYS_INTERVAL = 7;
+const CHAIN_BLOCKS_INTERVALS = {
+  [NetworkIds.optimism]: 1 / 2 * 86400 * XCHAIN_DAYS_INTERVAL,
+  [NetworkIds.base]: 1 / 2 * 86400 * XCHAIN_DAYS_INTERVAL,
+  [NetworkIds.arbitrum]: 1 / 0.3 * 86400 * XCHAIN_DAYS_INTERVAL,
 }
 
 const FARMERS = FEDS.filter(fed => !!fed.incomeChainId && !!fed.incomeSrcAd)
   .map(fed => {
-    return [[fed.incomeSrcAd, fed.incomeChainId]].concat(fed.oldIncomeSrcAds ? fed.oldIncomeSrcAds.map(ad => [ad, fed.incomeChainId]) : [[]]);
+    return [[fed.incomeSrcAd, fed.incomeChainId]].concat(fed.oldIncomeSrcAds ? fed.oldIncomeSrcAds.map(ad => [ad, fed.incomeChainId]) : []);
   })
   .flat()
   .map(fedData => {
@@ -62,44 +64,55 @@ const mainnetExcluded = [
   ...F2_MARKETS.map(m => [m.address, m.startingBlock]),
 ];
 
+const XCHAIN_TIMESTAMPS_CACHE_KEY = 'xchain-block-timestamps-unarchived';
+
 const getXchainTimestamps = async () => {
-  const nets = [NetworkIds.base, NetworkIds.optimism, NetworkIds.arbitrum];
-  for (let net of nets) {
-    const startingBlock = CHAIN_START_BLOCKS[net];
-    const provider = getProvider(net);
+  for (let chainId of FARMERS_CHAIN_IDS) {
+    const startingBlock = CHAIN_START_BLOCKS[chainId];
+    const provider = getProvider(chainId, chainId === NetworkIds.optimism ? process.env.OP_ALCHEMY_KEY : undefined, chainId === NetworkIds.optimism);
     const currentBlock = await provider.getBlockNumber();
-    const intIncrement = Math.floor(CHAIN_BLOCKS_PER_DAY[net]);
-    const nbDays = (currentBlock - startingBlock) / intIncrement;
-    const blocks = Array.from({ length: Math.ceil(nbDays) }, (_, i) => startingBlock + i * intIncrement).filter(b => b < (currentBlock));
+    const intIncrement = Math.floor(CHAIN_BLOCKS_INTERVALS[chainId]);
+    const nbIntervals = (currentBlock - startingBlock) / intIncrement;
+    const nbDays = nbIntervals / XCHAIN_DAYS_INTERVAL;
+    const blocks = Array.from({ length: Math.ceil(nbIntervals) }, (_, i) => startingBlock + i * intIncrement).filter(b => b < (currentBlock));
+    if (nbDays >= 0.8) {
+      blocks.push(currentBlock);
+    }
     await addBlockTimestamps(
       blocks,
-      net,
+      chainId,
+      XCHAIN_TIMESTAMPS_CACHE_KEY,
     );
   }
 }
 
 export default async function handler(req, res) {
-  const cacheKey = `dola-circ-supply-evolution-v1.0.0`;
+  const cacheKey = `dola-circ-supply-evolution-v1.0.1`;
 
   try {
-    const cacheDuration = 10000;
+    const cacheDuration = 40000;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
+    const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, true, cacheDuration);
 
     const dolaContract = new Contract(DOLA, DOLA_ABI, getProvider(NetworkIds.mainnet));
 
-    // if (validCache) {
-    //   res.status(200).send(validCache);
-    //   return
-    // }
-    // await getXchainTimestamps()
+    if (isValid) {
+      res.status(200).send(data);
+      return
+    }
+    await getXchainTimestamps();
 
-    const cachedTimestamps = await getCachedBlockTimestamps();
+    const [mainnetCachedTimestamps, xchainCachedTimestamps] = await Promise.all([
+      getRedisCachedOnlyBlockTimestamps(),
+      getRedisCachedOnlyBlockTimestamps(XCHAIN_TIMESTAMPS_CACHE_KEY),
+    ]);
+    
+    const cachedTimestamps = mergeDeep(mainnetCachedTimestamps, xchainCachedTimestamps);
     // per chain, map an utc date with a blockNumber
     const utcKeyBlockValues = {};
     const blockKeyUtcValue = {};
 
-    [NetworkIds.mainnet, NetworkIds.arbitrum, NetworkIds.base, NetworkIds.optimism].forEach(chainId => {
+    [NetworkIds.mainnet, ...FARMERS_CHAIN_IDS].forEach(chainId => {
       if (!utcKeyBlockValues[chainId]) utcKeyBlockValues[chainId] = {};
       if (!blockKeyUtcValue[chainId]) blockKeyUtcValue[chainId] = {};
       Object.entries(cachedTimestamps[chainId]).forEach(([block, ts]) => {
@@ -107,17 +120,37 @@ export default async function handler(req, res) {
         utcKeyBlockValues[chainId][utcDate] = block;
         blockKeyUtcValue[chainId][block] = utcDate;
       });
-    });    
+    });
+
+    await redisSetWithTimestamp('utc-dates-blocks', utcKeyBlockValues);
 
     const chainBalances = {};
+    const lastUtcDate = cachedData?.lastUtcDate || '2022-12-10';
+
+    const mainnetBlocks = Object.entries(utcKeyBlockValues[CHAIN_ID])
+      .filter(([utcDate, blockForUtc]) => utcDate > lastUtcDate)
+      .map(([utcDate, blockForUtc]) => blockForUtc)
+      .map(v => parseInt(v))
+      .filter(v => v >= CHAIN_START_BLOCKS[CHAIN_ID]);
+
+    if(!mainnetBlocks?.length) {
+      res.status(200).send(cachedData);
+      return; 
+    }
 
     for (let chainId of FARMERS_CHAIN_IDS) {
       const chainFarmers = FARMERS.filter(f => f[1] === chainId);
       const chainDola = getToken(CHAIN_TOKENS[chainId], 'DOLA');
-      const chainDolaContract = new Contract(chainDola.address!, DOLA_ABI, getProvider(chainId));
-      const chainBlocks = Object.values(utcKeyBlockValues[chainId])
-        .map(v => parseInt(v))
-        .filter(v => v >= CHAIN_START_BLOCKS[chainId]);
+      const chainProvider = getProvider(chainId, chainId === NetworkIds.optimism ? process.env.OP_ALCHEMY_KEY : undefined, chainId === NetworkIds.optimism);
+      const chainDolaContract = new Contract(chainDola.address!, DOLA_ABI, chainProvider);      
+      // only get blocks after lastUtcDate
+      const chainBlocks =
+        Object.entries(utcKeyBlockValues[chainId])
+          .filter(([utcDate, blockForUtc]) => utcDate > lastUtcDate)
+          .map(([utcDate, blockForUtc]) => blockForUtc)
+          .map(v => parseInt(v))
+          .filter(v => v >= CHAIN_START_BLOCKS[chainId]);
+      chainBlocks.sort((a, b) => a - b);
 
       const balances = await throttledPromises(
         (block: number) => {
@@ -129,7 +162,7 @@ export default async function handler(req, res) {
                 functionName: 'balanceOf',
                 params: [farmerAd],
                 // 0 value if before startingBlock
-                forceFallback: FARMER_START_BLOCKS[farmerAd] > block,
+                forceFallback: FARMER_START_BLOCKS[farmerAd] > block || (!!FARMER_END_BLOCKS[farmerAd] && FARMER_END_BLOCKS[farmerAd] <= block),
                 fallbackValue: BigNumber.from('0'),
               }
             }),
@@ -142,7 +175,8 @@ export default async function handler(req, res) {
         5,
         100,
       );
-      const totalBalancesPerBlock = balances.map(blockFarmerBalances => blockFarmerBalances.flat().map(v => getBnToNumber(v)).reduce((prev, curr) => prev+curr, 0))
+
+      const totalBalancesPerBlock = balances.map(blockFarmerBalances => blockFarmerBalances.flat().map(v => getBnToNumber(v)).reduce((prev, curr) => prev + curr, 0))
       chainBalances[chainId] = {
         balancesOnUtcDate: chainBlocks.map((block, i) => blockKeyUtcValue[chainId][block]),
         blocks: chainBlocks,
@@ -150,10 +184,6 @@ export default async function handler(req, res) {
         asUtcObj: chainBlocks.reduce((prev, curr, i) => ({ ...prev, [blockKeyUtcValue[chainId][curr]]: totalBalancesPerBlock[i] }), {}),
       };
     }
-
-    const mainnetBlocks = Object.values(utcKeyBlockValues[CHAIN_ID])
-      .map(v => parseInt(v))
-      .filter(v => v >= CHAIN_START_BLOCKS[CHAIN_ID]);
 
     // on mainnet, get totalSupply and balances in markets
     const mainnetData = await throttledPromises(
@@ -180,29 +210,34 @@ export default async function handler(req, res) {
       5,
       100,
     );
-
-    const evolution = mainnetData.map((dataAtBlock, i) => {
+    
+    const newEvolutionData = mainnetData.map((dataAtBlock, i) => {
       const [totalSupplyBn, balances] = dataAtBlock;
       const mainnetExcluded = balances.reduce((prev, curr) => getBnToNumber(curr) + prev, 0);
-      const totalSupply = getBnToNumber(totalSupplyBn);      
+      const totalSupply = getBnToNumber(totalSupplyBn);
       const utcDate = blockKeyUtcValue[CHAIN_ID][mainnetBlocks[i]];
       const farmersExcluded = FARMERS_CHAIN_IDS.map(chainId => {
-        return getOrClosest(chainBalances[chainId], utcDate)||0;
+        return getOrClosest(chainBalances[chainId].asUtcObj, utcDate) || 0;
       }).reduce((prev, curr) => prev + curr, 0);
-      const circSupply = totalSupply - mainnetExcluded;
-      const circSupplyV2 = circSupply - farmersExcluded;
+      const circSupply = totalSupply - mainnetExcluded - farmersExcluded;
       return {
         utcDate,
         totalSupply,
         circSupply,
-        circSupplyV2,
         mainnetExcluded,
         farmersExcluded,
-        block: mainnetBlocks[i],
       }
     });
+    
+    const newLastUtcDate = newEvolutionData[newEvolutionData.length - 1].lastUtcDate;
 
-    return res.status(200).send({ evolution });
+    const results = {
+      timestamp: Date.now(),
+      lastUtcDate: newLastUtcDate,
+      evolution: cachedData ? cachedData.evolution.concat(newEvolutionData) : newEvolutionData,
+    }
+    // await redisSetWithTimestamp(cacheKey, results);
+    return res.status(200).send(results);
   } catch (err) {
     console.error(err);
     // if an error occured, try to return last cached results
