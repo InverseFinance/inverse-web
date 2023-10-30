@@ -4,19 +4,22 @@ import { getProvider } from '@app/util/providers';
 import { ADDRESS_ROLES } from '../variables/names';
 
 export const getEnsName = async (address: string, isBackendSide = false, specificProvider?: any): Promise<string> => {
+  const date = new Date();
+  // cached locally ~10 days
+  const cacheKey = `ensName-${address}-${date.toISOString().slice(0, 9)}`;
   try {
-    const rememberedName: string = isBackendSide ? '' : await localforage.getItem(`ensName-${address}`) || '';
+    const rememberedName: string = isBackendSide ? '' : await localforage.getItem(cacheKey) || '';
     if (rememberedName) { return rememberedName }
     const provider = specificProvider || getProvider(process.env.NEXT_PUBLIC_CHAIN_ID!, process.env.NEXT_PUBLIC_ENS_ALCHEMY_API, true);
     const ensName = await provider.lookupAddress(address);
     if (ensName && !isBackendSide) {
-      await localforage.setItem(`ensName-${address}`, ensName);
+      await localforage.setItem(cacheKey, ensName);
     }
     return ensName;
   } catch (e: any) {
     console.log(e);
     if (e.message === 'STRINGPREP_CONTAINS_UNASSIGNED') {
-      await localforage.setItem(`ensName-${address}`, '');
+      await localforage.setItem(cacheKey, '');
     }
   }
   return '';
