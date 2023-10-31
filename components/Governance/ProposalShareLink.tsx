@@ -68,52 +68,48 @@ export const ProposalShareLink = ({
     }
 
     return (
-        <>
+        <HStack ml="3" spacing="3" alignItems="center">
             {
-                <HStack ml="3" spacing="3" display="inline-block">
+                type === 'copy' ? <>
+                    <Link display="inline-block" ml="2" mr="1" href={{ pathname: `/governance/propose`, query: { proposalLinkData } }} isExternal>
+                        <AnimatedInfoTooltip type="tooltip" message={labels[type]}>
+                            <IconComp color="blue.500" fontSize="12px" cursor="pointer" />
+                        </AnimatedInfoTooltip>
+                    </Link>
                     {
-                        type === 'copy' ? <>
-                            <Link display="inline-block" ml="2" mr="1" href={{ pathname: `/governance/propose`, query: { proposalLinkData } }} isExternal>
-                                <AnimatedInfoTooltip message={labels[type]}>
-                                    <IconComp color="blue.500" fontSize="12px" cursor="pointer" />
-                                </AnimatedInfoTooltip>
-                            </Link>
-                            {
-                                isPublicDraft && <Link display="inline-block" pr="2" href={{ pathname: `/governance/drafts/edit/${draftId}` }}>
-                                    <AnimatedInfoTooltip message={"Edit the draft"}>
-                                        <EditIcon color="blue.500" fontSize="12px" cursor="pointer" />
-                                    </AnimatedInfoTooltip>
-                                </Link>
-                            }
-                        </>
-                            :
-                            <>
-                                <Popover isOpen={hasCopied} isLazy={true} placement="bottom">
-                                    <PopoverTrigger>
-                                        <span>
-                                            <AnimatedInfoTooltip message={labels[type]}>
-                                                <IconComp color="blue.500" fontSize="12px" cursor="pointer" onClick={handleShareLink} />
-                                            </AnimatedInfoTooltip>
-                                        </span>
-                                    </PopoverTrigger>
-                                    <PopoverContent fontSize="14px" width="fit-content" p="1" className="blurred-container info-bg">
-                                        <PopoverBody>
-                                            <b>Sharable Link Copied !</b>
-                                        </PopoverBody>
-                                    </PopoverContent>
-                                </Popover>
-                                <AnimatedInfoTooltip message={"Save the draft locally"}>
-                                    <DownloadIcon color="blue.500" fontSize="12px" cursor="pointer" onClick={handleSave} />
-                                </AnimatedInfoTooltip>
-                                {
-                                    draftId && !isPublicDraft && <AnimatedInfoTooltip message={"Remove the draft from the local drafts"}>
-                                        <DeleteIcon color="red.500" fontSize="12px" cursor="pointer" onClick={handleRemove} />
-                                    </AnimatedInfoTooltip>
-                                }
-                            </>
+                        isPublicDraft && <Link display="inline-block" pr="2" href={{ pathname: `/governance/drafts/edit/${draftId}` }}>
+                            <AnimatedInfoTooltip type="tooltip" message={"Edit the draft"}>
+                                <EditIcon color="blue.500" fontSize="12px" cursor="pointer" />
+                            </AnimatedInfoTooltip>
+                        </Link>
                     }
-                </HStack>
+                </>
+                    :
+                    <>
+                        <Popover isOpen={hasCopied} isLazy={true} placement="bottom">
+                            <PopoverTrigger>
+                                <span>
+                                    <AnimatedInfoTooltip type="tooltip" message={labels[type]}>
+                                        <IconComp color="blue.500" fontSize="12px" cursor="pointer" onClick={handleShareLink} />
+                                    </AnimatedInfoTooltip>
+                                </span>
+                            </PopoverTrigger>
+                            <PopoverContent fontSize="14px" width="fit-content" p="1" className="blurred-container info-bg">
+                                <PopoverBody>
+                                    <b>Sharable Link Copied !</b>
+                                </PopoverBody>
+                            </PopoverContent>
+                        </Popover>
+                        <AnimatedInfoTooltip type="tooltip" message={"Save the draft locally"}>
+                            <DownloadIcon color="blue.500" fontSize="12px" cursor="pointer" onClick={handleSave} />
+                        </AnimatedInfoTooltip>
+                        {
+                            draftId && !isPublicDraft && <AnimatedInfoTooltip type="tooltip" message={"Remove the draft from the local drafts"}>
+                                <DeleteIcon color="red.500" fontSize="12px" cursor="pointer" onClick={handleRemove} />
+                            </AnimatedInfoTooltip>
+                        }
+                    </>
             }
-        </>
+        </HStack>
     )
 }

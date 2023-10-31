@@ -59,6 +59,7 @@ export const ProposalForm = ({
 }) => {
     const router = useRouter()
     const [hasSuccess, setHasSuccess] = useState(false);
+    const [isInited, setIsInited] = useState(false);
     const { provider, account } = useWeb3React<Web3Provider>()
     const [form, setForm] = useState<ProposalFormFields>({
         title,
@@ -75,7 +76,8 @@ export const ProposalForm = ({
     useEffect(() => {
         const actions = functions.map((f, i) => getProposalActionFromFunction(i + 1, f));
         const validFormGiven = !isProposalFormInvalid({ title, description, actions });
-        if (!validFormGiven) { return }
+        if (!validFormGiven || isInited) { return }
+        setIsInited(true);
         setForm({
             title,
             description,
@@ -84,7 +86,7 @@ export const ProposalForm = ({
         setActionLastId(functions.length)
         setIsFormValid(validFormGiven)
         setPreviewMode(validFormGiven && isPreview)
-    }, [title, description, functions, isPreview])
+    }, [title, description, functions, isPreview, isInited])    
 
     useEffect(() => {
         setIsFormValid(!isProposalFormInvalid(form))
