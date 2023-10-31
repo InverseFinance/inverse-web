@@ -6,7 +6,7 @@ import { SIGN_MSG } from '@app/config/constants';
 import { Contract } from 'ethers';
 import { MULTISIG_ABI } from '@app/config/abis';
 import { getProvider } from '@app/util/providers';
-import { REFUNDED_TXS_CUSTOM_CACHE_KEY, REFUNDED_TXS_IGNORE_CACHE_KEY } from './eligible-refunds';
+import { REFUNDED_TXS_CUSTOM_CACHE_KEY, REFUNDED_TXS_IGNORE_CACHE_KEY, formatTxResults } from './eligible-refunds';
 
 const client = getRedisClient();
 
@@ -37,7 +37,7 @@ export default async function handler(req, res) {
                 };
 
                 const customTxs = JSON.parse(await client.get(REFUNDED_TXS_CUSTOM_CACHE_KEY) || '[]');
-                const alreadyAdded = customTxs.find(t => t.tx_hash.toLowerCase() === txHash.toLowerCase());
+                const alreadyAdded = customTxs.find(t => t.txHash.toLowerCase() === txHash.toLowerCase());
 
                 if (!!alreadyAdded) {
                     res.status(401).json({ status: 'warning', message: 'TX already in list' })
@@ -52,7 +52,12 @@ export default async function handler(req, res) {
                 } 
 
                 const tx = result.data.items[0];
-                customTxs.push(tx);
+                const formattedCustomTxs = formatTxResults({ items: [tx], chainId: '1' }, 'custom');
+                if(!formattedCustomTxs.length) {
+                    res.status(400).json({ status: 'warning', message: 'Tx not eligible' })
+                    return
+                }
+                customTxs.push(formattedCustomTxs[0]);
 
                 await client.set(REFUNDED_TXS_CUSTOM_CACHE_KEY, JSON.stringify(customTxs));
 
