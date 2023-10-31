@@ -168,6 +168,20 @@ export const getTimestampFromUTCDate = (utcDate: string) => {
 
     return timestamp;
 }
+// yyyy-mm-dd format
+export const utcDateStringToTimestamp = (dateString: string) => {
+    // Validate the input format using a regular expression
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      throw new Error('Invalid date format. Please use "yyyy-mm-dd" format.');
+    }
+    // Parse the date string and convert it to a UTC date object
+    const date = new Date(`${dateString}T00:00:00Z`);
+    // Check for invalid dates (e.g., "2023-02-30")
+    if (isNaN(date.getTime())) {
+      throw new Error('Invalid date.');
+    }
+    return date.getTime();
+}
 
 export const getMonthDiff = (d1: Date, d2: Date) => {
     var months;

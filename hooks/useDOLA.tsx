@@ -8,6 +8,7 @@ import { getNetworkConfigConstants } from '@app/util/networks';
 import useEtherSWR from './useEtherSWR';
 import { getBnToNumber } from '@app/util/markets';
 import { BigNumber } from 'ethers';
+import { utcDateStringToTimestamp } from '@app/util/misc';
 
 type DolaSupply = {
   totalSupply: number,
@@ -33,10 +34,10 @@ export const useDOLAShortfall = (): SWR & DolaSupply & {
   frontierDolaShortfall: number
   totalDolaShortfall: number
   shortfallPerc: number
- } => {
+} => {
   const { chainId } = useWeb3React<Web3Provider>()
 
-  const { data, error } = useCustomSWR(`/api/dola?chainId=${chainId||process.env.NEXT_PUBLIC_CHAIN_ID!}`, fetcher)
+  const { data, error } = useCustomSWR(`/api/dola?chainId=${chainId || process.env.NEXT_PUBLIC_CHAIN_ID!}`, fetcher)
 
   const { positions, markets } = usePositions({ accounts: '' });
 
@@ -69,7 +70,7 @@ export const useDOLABalance = (account: string, ad = DOLA) => {
 }
 
 export const useDOLAMarketData = (): SWR & { hasError: boolean, data: { market_data: { total_volume: { usd: number } } } } => {
-  const  url = `https://api.coingecko.com/api/v3/coins/dola-usd?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`;
+  const url = `https://api.coingecko.com/api/v3/coins/dola-usd?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`;
   // const  url = `/api/dola/market`;
   const { data, error } = useCustomSWR(url, fetcher);
   return {
@@ -77,4 +78,14 @@ export const useDOLAMarketData = (): SWR & { hasError: boolean, data: { market_d
     isLoading: !data && !error,
     hasError: !data && !!error,
   };
+}
+
+export const useDolaCirculatingSupplyEvolution = () => {
+  const { data, error } = useCustomSWR(`/api/dola/circulating-supply-evolution`);
+
+  return {
+    evolution: (data?.evolution || []).map((v, i) => ({ ...v, timestamp: utcDateStringToTimestamp(v.utcDate), x: utcDateStringToTimestamp(v.utcDate), y: v.circSupply })),
+    isLoading: !error && !data,
+    isError: !!error,
+  }
 }

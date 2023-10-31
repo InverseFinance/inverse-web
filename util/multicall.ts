@@ -196,8 +196,8 @@ export const executeCalls = async (
                 to: address,
                 data: callData,
             };
-
-            const returnData = await call(getHistoricalProvider(chainId?.toString()), tx, block ?? "latest", chainId?.toString())
+            const provider = !!block ? getHistoricalProvider(chainId?.toString()) : getProvider(chainId?.toString());
+            const returnData = await call(provider, tx, block ?? "latest", chainId?.toString())
 
             const [blockNumber, returnValues] = ethers.utils.defaultAbiCoder.decode(
                 ["uint256", "bytes[]"],
@@ -226,7 +226,8 @@ export const executeCalls = async (
         processor: async ({ to, data }: any) => {
             let result = null
             try {
-                result = await call(getHistoricalProvider(chainId?.toString()), { to, data }, block ?? "latest", chainId?.toString());
+                const provider = !!block ? getHistoricalProvider(chainId?.toString()) : getProvider(chainId?.toString());
+                result = await call(provider, { to, data }, block ?? "latest", chainId?.toString());
             } catch (e) {
                 console.log(e)
             }

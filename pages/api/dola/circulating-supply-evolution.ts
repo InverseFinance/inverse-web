@@ -1,7 +1,7 @@
 import { Contract } from 'ethers'
 import 'source-map-support'
 import { DOLA_ABI } from '@app/config/abis'
-import { getProvider } from '@app/util/providers';
+import { getHistoricalProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { BigNumber } from 'ethers';
 import { getNetworkConfigConstants } from '@app/util/networks';
@@ -69,7 +69,7 @@ const XCHAIN_TIMESTAMPS_CACHE_KEY = 'xchain-block-timestamps-unarchived';
 const getXchainTimestamps = async () => {
   for (let chainId of FARMERS_CHAIN_IDS) {
     const startingBlock = CHAIN_START_BLOCKS[chainId];
-    const provider = getProvider(chainId, chainId === NetworkIds.optimism ? process.env.OP_ALCHEMY_KEY : undefined, chainId === NetworkIds.optimism);
+    const provider = getHistoricalProvider(chainId);
     const currentBlock = await provider.getBlockNumber();
     const intIncrement = Math.floor(CHAIN_BLOCKS_INTERVALS[chainId]);
     const nbIntervals = (currentBlock - startingBlock) / intIncrement;
@@ -87,7 +87,7 @@ const getXchainTimestamps = async () => {
 }
 
 export default async function handler(req, res) {
-  const cacheKey = `dola-circ-supply-evolution-v1.0.1`;
+  const cacheKey = `dola-circ-supply-evolution-v1.0.3`;
 
   try {
     const cacheDuration = 40000;
@@ -106,7 +106,7 @@ export default async function handler(req, res) {
       getRedisCachedOnlyBlockTimestamps(),
       getRedisCachedOnlyBlockTimestamps(XCHAIN_TIMESTAMPS_CACHE_KEY),
     ]);
-    
+
     const cachedTimestamps = mergeDeep(mainnetCachedTimestamps, xchainCachedTimestamps);
     // per chain, map an utc date with a blockNumber
     const utcKeyBlockValues = {};
@@ -133,16 +133,16 @@ export default async function handler(req, res) {
       .map(v => parseInt(v))
       .filter(v => v >= CHAIN_START_BLOCKS[CHAIN_ID]);
 
-    if(!mainnetBlocks?.length) {
+    if (!mainnetBlocks?.length) {
       res.status(200).send(cachedData);
-      return; 
+      return;
     }
 
     for (let chainId of FARMERS_CHAIN_IDS) {
       const chainFarmers = FARMERS.filter(f => f[1] === chainId);
       const chainDola = getToken(CHAIN_TOKENS[chainId], 'DOLA');
-      const chainProvider = getProvider(chainId, chainId === NetworkIds.optimism ? process.env.OP_ALCHEMY_KEY : undefined, chainId === NetworkIds.optimism);
-      const chainDolaContract = new Contract(chainDola.address!, DOLA_ABI, chainProvider);      
+      const chainProvider = getHistoricalProvider(chainId);
+      const chainDolaContract = new Contract(chainDola.address!, DOLA_ABI, chainProvider);
       // only get blocks after lastUtcDate
       const chainBlocks =
         Object.entries(utcKeyBlockValues[chainId])
@@ -210,7 +210,7 @@ export default async function handler(req, res) {
       5,
       100,
     );
-    
+
     const newEvolutionData = mainnetData.map((dataAtBlock, i) => {
       const [totalSupplyBn, balances] = dataAtBlock;
       const mainnetExcluded = balances.reduce((prev, curr) => getBnToNumber(curr) + prev, 0);
@@ -228,7 +228,7 @@ export default async function handler(req, res) {
         farmersExcluded,
       }
     });
-    
+
     const newLastUtcDate = newEvolutionData[newEvolutionData.length - 1].lastUtcDate;
 
     const results = {
@@ -236,7 +236,7 @@ export default async function handler(req, res) {
       lastUtcDate: newLastUtcDate,
       evolution: cachedData ? cachedData.evolution.concat(newEvolutionData) : newEvolutionData,
     }
-    // await redisSetWithTimestamp(cacheKey, results);
+    await redisSetWithTimestamp(cacheKey, results);
     return res.status(200).send(results);
   } catch (err) {
     console.error(err);

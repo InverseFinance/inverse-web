@@ -13,6 +13,7 @@ import { DolaMoreInfos } from '@app/components/Transparency/DolaMoreInfos'
 import { FedList } from '@app/components/Transparency/fed/FedList'
 import { usePrices } from '@app/hooks/usePrices'
 import { DolaSupplies } from '@app/components/common/Dataviz/DolaSupplies'
+import { DolaCircSupplyEvolution } from '@app/components/Transparency/DolaCircSupplyEvolution'
 
 const { DOLA, TOKENS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -38,6 +39,7 @@ export const DolaDiagram = () => {
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }} ml="2">
         <Flex direction="column">
           <FedList prices={prices} feds={fedOverviews.filter(f => !f.hasEnded)} isLoading={isLoadingOverview} />
+          <DolaCircSupplyEvolution />
           <Flex mt="4" p="2">
             <DolaFlowChart dola={DOLA} dolaOperator={dolaOperator || TREASURY} feds={fedsWithData} />
           </Flex>
