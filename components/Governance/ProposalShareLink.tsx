@@ -70,7 +70,7 @@ export const ProposalShareLink = ({
     return (
         <>
             {
-                <HStack ml="3" spacing="3" display="inline-block">
+                <HStack ml="3" spacing="2" alignItems="center">
                     {
                         type === 'copy' ? <>
                             <Link display="inline-block" ml="2" mr="1" href={{ pathname: `/governance/propose`, query: { proposalLinkData } }} isExternal>
