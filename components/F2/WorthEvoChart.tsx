@@ -10,6 +10,7 @@ import Container, { AppContainerProps } from "../common/Container";
 import { NavButtons } from "../common/Button";
 import { lightTheme } from "@app/variables/theme";
 import { SkeletonBlob } from "../common/Skeleton";
+import { useRechartsZoom } from "@app/hooks/useRechartsZoom";
 
 const LABEL_POSITIONS = {
     'Claim': 'center',
@@ -163,6 +164,12 @@ export const WorthEvoChart = ({
     const [brushIndexes, setBrushIndexes] = useState({ startIndex: undefined, endIndex: undefined });
     const [actives, setActives] = useState(Object.values(keyNames).reduce((acc, cur) => ({ ...acc, [cur]: true }), {}));
 
+    const { mouseDown, mouseUp, mouseMove, mouseLeave, rangeButtonsBar, zoomReferenceArea, data: dataWithZoom } = useRechartsZoom({
+        combodata: data, xKey: 'timestamp', yAxisId: 'left',
+        rangesToInclude: ['All', '6M', '3M', '1M', 'YTD'],
+    });
+    const chartData = dataWithZoom || data;
+
     const _axisStyle = axisStyle || {
         tickLabels: { fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '12px' },
         grid: {
@@ -173,10 +180,6 @@ export const WorthEvoChart = ({
 
     const toggleChart = (params) => {
         setActives({ ...actives, [params.value]: !actives[params.value] })
-    }
-
-    const handleBrush = (params) => {
-        setBrushIndexes(params);
     }
 
     const totalKey = 'totalWorth';
@@ -269,16 +272,29 @@ export const WorthEvoChart = ({
                     </HStack>
                 </Stack>
             </Stack>
+            <Stack w='full' position="relative" justify="center" alignItems="center" mt={{ base: '0', lg: '2' }} direction={{ base: 'column', lg: 'row' }}>
+                {rangeButtonsBar}
+                <HStack position={{ base: 'static', lg: 'absolute' }} right="20px" justify="flex-end">
+                    <Text userSelect="none" color="mainTextColorLight" fontSize="14px">
+                        Click and drag the mouse on the chart to zoom in
+                    </Text>
+                </HStack>
+            </Stack>
             <ComposedChart
                 width={chartWidth}
                 height={400}
-                data={data}
+                data={chartData}
                 margin={{
                     top: 20,
                     right: 0,
                     left: 0,
                     bottom: 20,
                 }}
+                onMouseDown={e => mouseDown(e)}
+                onMouseMove={mouseMove}
+                // // eslint-disable-next-line react/jsx-no-bind
+                onMouseUp={mouseUp}
+                onMouseLeave={mouseLeave}
             >
                 <CartesianGrid fill={themeStyles.colors.accentChartBgColor} stroke="#66666633" strokeDasharray={_axisStyle.grid.strokeDasharray} />
                 <XAxis minTickGap={28} interval="preserveStartEnd" style={_axisStyle.tickLabels} dataKey="timestamp" scale="time" type={'number'} allowDataOverflow={true} domain={['dataMin', 'dataMax']} tickFormatter={(v) => {
@@ -287,7 +303,7 @@ export const WorthEvoChart = ({
                 <YAxis allowDataOverflow={true} style={_axisStyle.tickLabels} yAxisId="left" tickFormatter={(v) => smartShortNumber(v, 2, useUsd)} domain={[0, 'auto']} />
                 {
                     showBorrowLimit ?
-                        <YAxis allowDataOverflow={true} domain={[0,100]} style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => `${shortenNumber(v, 2)}%`} />
+                        <YAxis allowDataOverflow={true} domain={[0, 100]} style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => `${shortenNumber(v, 2)}%`} />
                         : <YAxis allowDataOverflow={true} style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => shortenNumber(v, 4, true)} />
                 }
                 <Tooltip
@@ -296,7 +312,7 @@ export const WorthEvoChart = ({
                     labelFormatter={v => moment(v).format('MMM Do YYYY')}
                     labelStyle={{ fontWeight: 'bold' }}
                     itemStyle={{ fontWeight: 'bold' }}
-                    formatter={(value, name) => {
+                    formatter={(value, name) => {                        
                         const isPrice = [keyNames['dbrPrice'], keyNames['histoPrice'], keyNames['cgHistoPrice'], keyNames['oracleHistoPrice'], keyNames['comboPrice']].includes(name);
                         const isPerc = [keyNames['borrowLimit'], keyNames['collateralFactor']].includes(name);
                         return !value ? 'none' : isPerc ? `${shortenNumber(value, 2)}%` : isPrice ? preciseCommify(value, value < 1 ? 4 : 2, true) : preciseCommify(value, !useUsd ? 2 : 0, useUsd)
@@ -304,6 +320,7 @@ export const WorthEvoChart = ({
                 />
                 <Legend wrapperStyle={{
                     ..._axisStyle.tickLabels,
+                    userSelect: 'none',
                     fontSize: chartWidth <= 400 ? '12px' : '16px',
                     fontWeight: 'bold',
                 }}
@@ -365,7 +382,8 @@ export const WorthEvoChart = ({
                             />
                         })
                 }
-                <Brush onChange={handleBrush} startIndex={brushIndexes.startIndex} endIndex={brushIndexes.endIndex} dataKey="timestamp" height={30} stroke="#8884d8" tickFormatter={(v) => ''} />
+                {zoomReferenceArea}
+                {/* <Brush onChange={handleBrush} startIndex={brushIndexes.startIndex} endIndex={brushIndexes.endIndex} dataKey="timestamp" height={30} stroke="#8884d8" tickFormatter={(v) => ''} /> */}
             </ComposedChart>
         </VStack>
     </Cont>
