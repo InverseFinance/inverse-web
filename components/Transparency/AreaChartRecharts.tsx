@@ -27,6 +27,7 @@ export const AreaChartRecharts = ({
     minTickGap = 14,
     interval = 'preserveEnd',
     showRangeBtns = false,
+    rangesToInclude,
 }: {
     combodata: { y: number, x: number, timestamp: number, utcDate: string }[]
     title: string
@@ -48,10 +49,11 @@ export const AreaChartRecharts = ({
     minTickGap?: number
     interval?: string | number
     showRangeBtns?: boolean
+    rangesToInclude?: string[]
 }) => {
     const { themeStyles } = useAppTheme();
     const { mouseDown, mouseUp, mouseMove, mouseLeave, bottom, top, rangeButtonsBarAbs, zoomReferenceArea, data } = useRechartsZoom({
-        combodata,        
+        combodata, rangesToInclude        
     });
 
     const _data = data || combodata;

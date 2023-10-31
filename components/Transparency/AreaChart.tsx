@@ -46,6 +46,7 @@ export type AreaChartProps = {
     yLabel?: string
     minTickGap?: number
     interval?: number
+    rangesToInclude?: string[]
 };
 
 const getSimplifiedData = (data: CoordinatesArray) => {
@@ -84,6 +85,7 @@ export const AreaChart = ({
     minTickGap,
     interval,
     showRangeBtns,
+    rangesToInclude,
 }: AreaChartProps) => {
     const _data = simplifyData ? getSimplifiedData(data) : fillInByDayInterval > 0 ? fillMissingDailyDatesWithMostRecentData(data, fillInByDayInterval) : data;
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
@@ -134,6 +136,7 @@ export const AreaChart = ({
             minTickGap={minTickGap}
             interval={interval}
             showRangeBtns={showRangeBtns}
+            rangesToInclude={rangesToInclude}
         />
     }
 
