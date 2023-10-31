@@ -3,7 +3,7 @@ import { ParamType } from "ethers/lib/utils";
 import { call } from "./rpcCall";
 import { BlockTag } from "@ethersproject/providers"
 import PromisePool from "@supercharge/promise-pool";
-import { getProvider } from "./providers";
+import { getHistoricalProvider, getProvider } from "./providers";
 import { CHAIN_ID } from "@app/config/constants";
 
 export const runInPromisePool = async (params: {
@@ -197,7 +197,7 @@ export const executeCalls = async (
                 data: callData,
             };
 
-            const returnData = await call(getProvider(chainId?.toString()), tx, block ?? "latest", chainId?.toString())
+            const returnData = await call(getHistoricalProvider(chainId?.toString()), tx, block ?? "latest", chainId?.toString())
 
             const [blockNumber, returnValues] = ethers.utils.defaultAbiCoder.decode(
                 ["uint256", "bytes[]"],
@@ -226,7 +226,7 @@ export const executeCalls = async (
         processor: async ({ to, data }: any) => {
             let result = null
             try {
-                result = await call(getProvider(chainId?.toString()), { to, data }, block ?? "latest", chainId?.toString());
+                result = await call(getHistoricalProvider(chainId?.toString()), { to, data }, block ?? "latest", chainId?.toString());
             } catch (e) {
                 console.log(e)
             }
