@@ -13,11 +13,11 @@ const topics = {
 }
 
 export const ELIGIBLE_TXS = 'eligible-refunds-txs';
-export const REFUNDED_TXS_CACHE_KEY = 'refunded-txs-epoch2';
-export const REFUNDED_TXS_CUSTOM_CACHE_KEY = 'custom-txs-to-refund-epoch3';
+export const REFUNDED_TXS_CACHE_KEY = 'refunded-txs-epoch3';
+export const REFUNDED_TXS_CUSTOM_CACHE_KEY = 'custom-txs-to-refund-v2';
 export const REFUNDED_TXS_IGNORE_CACHE_KEY = 'refunds-ignore-tx-hashes';
 
-const formatResults = (data: any, type: string, refundWhitelist?: string[], voteCastWhitelist?: string[]): RefundableTransaction[] => {
+export const formatTxResults = (data: any, type: string, refundWhitelist?: string[], voteCastWhitelist?: string[]): RefundableTransaction[] => {
   if (data === null) {
     return [];
   }
@@ -83,7 +83,7 @@ export default async function handler(req, res) {
   const nowTs = +(new Date());
   const todayUtc = timestampToUTC(nowTs);
   const includesToday = todayUtc === endDate;
-  const cacheKey = `refunds-v1.0.5-${startDate}-${endDate}${filterType || ''}${_multisigFilter || ''}`;
+  const cacheKey = `refunds-v1.0.6-${startDate}-${endDate}${filterType || ''}${_multisigFilter || ''}`;
 
   try {    
     res.setHeader('Cache-Control', `public, max-age=${30}`);
@@ -130,8 +130,7 @@ export default async function handler(req, res) {
     const cachedTxs = cached?.formattedTxs || [];
     const cachedMostRecentTimestamp = cached.timestamp;
 
-    let totalItems = formatResults({ items: customTxs, chainId: '1' }, 'custom')
-      .concat(cachedTxs)
+    let totalItems = customTxs.concat(cachedTxs)
 
     const ignoredTxs = JSON.parse(ignoreTxsRes || '[]');
 

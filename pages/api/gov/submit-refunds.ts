@@ -70,7 +70,7 @@ export default async function handler(req, res) {
                 if(!refundTxHash) {
                     // remove previously added custom txs if ignored now
                     const customTxs = JSON.parse(await client.get(REFUNDED_TXS_CUSTOM_CACHE_KEY) || '[]');
-                    await client.set(REFUNDED_TXS_CUSTOM_CACHE_KEY, JSON.stringify(customTxs.filter(t => !ignoredTxHashes.includes(t.tx_hash)))); 
+                    await client.set(REFUNDED_TXS_CUSTOM_CACHE_KEY, JSON.stringify(customTxs.filter(t => !ignoredTxHashes.includes(t.txHash)))); 
                 }
 
                 res.status(200).json({
