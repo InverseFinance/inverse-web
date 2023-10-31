@@ -13,10 +13,8 @@ export const DolaCircSupplyEvolution = () => {
     const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
 
-    const _chartWidth = chartWidth || autoChartWidth;
-
     useEffect(() => {
-        setAutoChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 40)
+        setAutoChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 80)
     }, [isLargerThan]);
 
     return <Container label="DOLA Circulating Supply Evolution" description="Excluded from circulation: DOLAs sitting in markets and in Fed Farmers; Precision: daily on mainnet, weekly on L2s">
@@ -25,8 +23,8 @@ export const DolaCircSupplyEvolution = () => {
                 isLoading ? <SkeletonBlob />
                     : <DefaultCharts
                         showMonthlyBarChart={false}
-                        maxChartWidth={_chartWidth}
-                        chartWidth={_chartWidth}
+                        maxChartWidth={autoChartWidth}
+                        chartWidth={autoChartWidth}
                         chartData={evolution}
                         isDollars={false}
                         smoothLineByDefault={true}
