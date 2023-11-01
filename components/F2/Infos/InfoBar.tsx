@@ -1,12 +1,11 @@
 import { MarketImage } from "@app/components/common/Assets/MarketImage"
 import Link from "@app/components/common/Link"
 import { useAccountDBR, useDBRMarkets, useDBRPrice, useDBRReplenishmentPrice } from "@app/hooks/useDBR"
-import { useDualSpeedEffect } from "@app/hooks/useDualSpeedEffect"
 import { getRiskColor } from "@app/util/f2"
 import { shortenNumber } from "@app/util/markets"
 import { preciseCommify } from "@app/util/misc"
-import { HStack, VStack, Text, useMediaQuery, StackProps, TextProps, Stack, SkeletonText } from "@chakra-ui/react"
-import { useContext, useEffect, useState } from "react"
+import { HStack, VStack, Text, useMediaQuery, StackProps, TextProps, Stack } from "@chakra-ui/react"
+import { useContext, useState } from "react"
 import { F2MarketContext } from "../F2Contex"
 import moment from 'moment'
 import Container from "@app/components/common/Container"
@@ -43,12 +42,10 @@ export const MarketBar = ({
     const [isLargerThan400] = useMediaQuery('(min-width: 400px)');
     const [isLargerThan] = useMediaQuery('(min-width: 600px)');
     const [isLargerThan1000] = useMediaQuery('(min-width: 1000px)');
-    const [effectEnded, setEffectEnded] = useState(true);
     const { replenishmentDailyRate } = useDBRReplenishmentPrice();
 
     const {
-        market,
-        isWalkthrough,
+        market,        
         dbrBalance,
         debt,
         liquidationPrice,
@@ -57,14 +54,6 @@ export const MarketBar = ({
     } = useContext(F2MarketContext);
 
     const [available, setAvailable] = useState(market.dolaLiquidity);
-
-    useEffect(() => {
-        setEffectEnded(false);
-    }, [isWalkthrough])
-
-    useDualSpeedEffect(() => {
-        setEffectEnded(true);
-    }, [isWalkthrough], !isWalkthrough, 200, 50);
 
     useDebouncedEffect(() => {
         setAvailable(market.leftToBorrow);
@@ -142,9 +131,6 @@ export const MarketBar = ({
                 <DbrReminder dbrExpiryDate={dbrExpiryDate} dbrBalance={dbrBalance} />
             </VStack>
         </VStack>}
-        {/* {
-            debt > 0 && isLargerThan1000 && loanInfos
-        } */}
     </>;
 
     return <Container noPadding p="0">
@@ -196,13 +182,13 @@ export const MarketBar = ({
                         </SubTitle>
                     </VStack>
                     {
-                        !isWalkthrough && effectEnded && isLargerThan1000 && otherInfos
+                        isLargerThan1000 && otherInfos
                     }
                 </HStack>
 
             </HStack>
             {
-                !isWalkthrough && effectEnded && !isLargerThan1000 && <HStack
+                !isLargerThan1000 && <HStack
                     w='full'
                     justify="space-between"
                     overflow="auto">
@@ -222,12 +208,6 @@ export const MarketBar = ({
                     </VStack>
                 </HStack>
             }
-            {/* {
-                !isLargerThan && dbrBalanceEl
-            }
-            {
-                debt > 0 && !isLargerThan1000 && <DbrReminder dbrExpiryDate={dbrExpiryDate} dbrBalance={dbrBalance} />
-            } */}
             {
                 needTopUp && <DbrRepMsg replenishmentDailyRate={replenishmentDailyRate} />
             }
@@ -239,8 +219,9 @@ export const DbrBar = ({
     account,
     ...props
 }: {
+    account: string
 } & Partial<StackProps>) => {
-    const { dbrNbDaysExpiry, signedBalance: dbrBalance, dailyDebtAccrual, dbrDepletionPerc, dbrExpiryDate, balance, debt } = useAccountDBR(account);
+    const { dbrNbDaysExpiry, signedBalance: dbrBalance, dailyDebtAccrual, dbrExpiryDate, debt } = useAccountDBR(account);
     const { replenishmentDailyRate } = useDBRReplenishmentPrice();
 
     const hasDebt = dailyDebtAccrual !== 0;
@@ -248,9 +229,6 @@ export const DbrBar = ({
     const needsRechargeSoon = dbrNbDaysExpiry <= 30 && hasDebt;
 
     const { price: dbrPrice } = useDBRPrice();
-    const [isLargerThan] = useMediaQuery('(min-width: 600px)');
-    const [isLargerThan1000] = useMediaQuery('(min-width: 1000px)');
-
     const needTopUp = dbrBalance < 0 || (dbrBalance === 0 && debt > 0);
 
     const dbrBalanceInfos = <VStack w={{ base: '33%', md: 'auto' }} spacing="1" alignItems="flex-start">
@@ -280,9 +258,6 @@ export const DbrBar = ({
     return <VStack w='full' {...props}>
         <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
             <HStack w={{ base: 'full', md: 'auto' }} justify="flex-start">
-                {/* {
-                    isLargerThan && <MarketImage pr="2" image={`/assets/v2/dbr.png`} size={40} imgProps={{ borderRadius: '100px' }} />
-                } */}
                 <HStack spacing="4" w={{ base: 'full', md: 'auto' }} justify={{ base: 'space-between', md: 'flex-start' }}>
                     {
                         dbrBalanceInfos
@@ -312,17 +287,10 @@ export const DbrBar = ({
                     </Title>
                     <SubTitle textAlign="right" display="flex" alignItems="center" fontWeight={needsRechargeSoon ? 'extrabold' : 'inherit'} color={needsRechargeSoon ? dbrBalance < 0 ? 'error' : 'warning' : 'secondaryTextColor'}>
                         {dbrBalance <= 0 && <WarningTwoIcon mr="1" />}{dbrBalance <= 0 ? 'Depleted' : moment(dbrExpiryDate).fromNow()}
-                        {/* {isLargerThan1000 && ` - ${moment(dbrExpiryDate).fromNow()}`} */}
                     </SubTitle>
                 </VStack>
                 <VStack spacing="1" alignItems='flex-end'>
-                    {/* <Title>
-                        DBR Depletion Date
-                    </Title> */}
                     <DbrReminder dbrExpiryDate={dbrExpiryDate} dbrBalance={dbrBalance} />
-                    {/* <SubTitle fontWeight={needsRechargeSoon ? 'bold' : 'inherit'} color={needsRechargeSoon ? 'warning' : 'secondaryTextColor'}>
-                        {dbrBalance <= 0 ? 'Depleted' : moment(dbrExpiryDate).format('MMM Do, YYYY')}
-                    </SubTitle> */}
                 </VStack>
             </HStack>
         </Stack>
@@ -380,12 +348,11 @@ export const FirmBar = ({
 } & Partial<StackProps>) => {
     const { prices } = usePrices();
     const { price: dbrPrice } = useDBRPrice();
-    const { totalSupply, firmSupply, isLoading: isDolaDataLoading } = useDOLA();
+    const { totalSupply, isLoading: isDolaDataLoading } = useDOLA();
     const { price: dolaPrice, isLoading: isDolaPriceLoading } = useDOLAPrice();
     const { firmTotalTvl, isLoading: isFirmTvlLoading } = useFirmTVL();
     const { markets } = useDBRMarkets();
     const [isLargerThan] = useMediaQuery('(min-width: 600px)');
-    const [isLargerThan1000] = useMediaQuery('(min-width: 1000px)');
     const totalDebt = markets?.reduce((prev, curr) => prev + curr.totalDebt, 0) || 0;
     const totalDebtUsd = totalDebt * dolaPrice;
 

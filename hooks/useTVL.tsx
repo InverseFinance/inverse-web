@@ -22,7 +22,7 @@ export const useFirmTVL = (): SWR & {
   firmTotalTvl: number
   timestamp: number
   firmTvls: { tvl: number, market: F2Market }
-}[] => {
+} => {
   const { data, error } = useCacheFirstSWR(`/api/f2/tvl?v=2`)
 
   return {
