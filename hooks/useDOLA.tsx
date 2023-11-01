@@ -81,7 +81,7 @@ export const useDOLAMarketData = (): SWR & { hasError: boolean, data: { market_d
 }
 
 export const useDolaCirculatingSupplyEvolution = () => {
-  const { data, error } = useCustomSWR(`/api/dola/circulating-supply-evolution?v=3`);
+  const { data, error } = useCustomSWR(`/api/dola/circulating-supply-evolution?`);  
   const { data: currentCirculatingSupply } = useCustomSWR(`/api/dola/circulating-supply`);
 
   const array = (data?.evolution || []);
@@ -89,9 +89,20 @@ export const useDolaCirculatingSupplyEvolution = () => {
     array.push({ circSupply: currentCirculatingSupply, utcDate: new Date().toISOString().substring(0, 10) });
   }
 
+  const evolution = array.map((v, i) => {
+    const ts = utcDateStringToTimestamp(v.utcDate);
+    return ({ 
+      ...v,
+      timestamp: ts,
+      x: ts,
+      y: v.circSupply,
+    });
+  });
+  evolution.sort((a,b) => a.x - b.x);
+
   return {
     currentCirculatingSupply,
-    evolution: array.map((v, i) => ({ ...v, timestamp: utcDateStringToTimestamp(v.utcDate), x: utcDateStringToTimestamp(v.utcDate), y: v.circSupply })),
+    evolution,
     isLoading: !error && !data,
     isError: !!error,
   }
