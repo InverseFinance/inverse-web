@@ -743,6 +743,8 @@ export type F2Market = {
   minDebt: number
   ceiling: number
   oracleStartingBlock?: number
+  hasAleFeat?: boolean
+  aleData: { buySellToken: string, collateral: string, helper: string }
 }
 
 export type FirmAction = {

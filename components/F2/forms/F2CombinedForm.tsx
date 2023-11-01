@@ -1,40 +1,35 @@
-import { Stack, VStack, Text, HStack, FlexProps, Divider, Switch, FormControl, FormLabel, Flex, useMediaQuery, Badge, useDisclosure } from '@chakra-ui/react'
+import { Stack, VStack, Text, HStack, FlexProps, Divider, Switch, FormControl, FormLabel, useMediaQuery, Badge, useDisclosure } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
-import { getNumberToBn, shortenNumber } from '@app/util/markets'
+import { getNumberToBn } from '@app/util/markets'
 import { formatUnits, parseEther, parseUnits } from '@ethersproject/units'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
 import { f2repayAndWithdrawNative, f2borrow, f2deposit, f2depositAndBorrow, f2depositAndBorrowHelper, f2repay, f2repayAndWithdraw, f2sellAndRepayHelper, f2sellAndWithdrawHelper, f2withdraw, f2withdrawMax } from '@app/util/f2'
 
 import { useContext, useEffect } from 'react'
 
-import { F2DurationInput } from './F2DurationInput'
 import { MarketImage } from '@app/components/common/Assets/MarketImage'
 import { TOKENS } from '@app/variables/tokens'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { InfoMessage, WarningMessage } from '@app/components/common/Messages'
 import { TextInfo } from '@app/components/common/Messages/TextInfo'
 import { AmountInfos } from '@app/components/common/Messages/AmountInfos'
 import { F2FormInfos } from './F2FormInfos'
 import { NavButtons } from '@app/components/common/Button'
-import Link from '@app/components/common/Link'
 import { F2MarketContext } from '../F2Contex'
 import WethModal from '@app/components/common/Modal/WethModal'
-import { BUY_LINKS } from '@app/config/constants'
-import { Input } from '@app/components/common/Input'
 import { DBRAutoRepayCalculator } from '../DBRAutoRepayCalculator'
 
 import { FirmLeverageModal } from '../Modals/FirmLeverageModal'
 import { FEATURE_FLAGS } from '@app/config/features'
-import { preciseCommify } from '@app/util/misc'
 import { FirmBoostInfos, getLeverageImpact } from '../ale/FirmBoostInfos'
 import { prepareDeleveragePosition, prepareLeveragePosition } from '@app/util/firm-ale'
 import { removeTrailingZeros } from '@app/util/misc'
 import { showToast } from '@app/util/notify'
+import { BorrowPausedMessage, CannotWithdrawIfDbrDeficitMessage, MinDebtBorrowMessage, NoDbrInWalletMessage, NoDolaLiqMessage, NotEnoughCollateralMessage, NotEnoughLiqWithAutobuyMessage, ResultingBorrowLimitTooHighMessage } from './FirmFormSubcomponents/FirmMessages'
+import { AutoBuyDbrDurationInputs, SellDbrInput } from './FirmFormSubcomponents/FirmDbrHelper'
 
-const { DOLA, F2_HELPER, DBR, F2_ALE } = getNetworkConfigConstants();
+const { DOLA, F2_HELPER, F2_ALE } = getNetworkConfigConstants();
 
 const dolaToken = TOKENS[DOLA];
-const dbrToken = TOKENS[DBR];
 
 const MODES = {
     'Deposit & Borrow': 'd&b',
@@ -110,7 +105,7 @@ export const F2CombinedForm = ({
     } = useContext(F2MarketContext);
     
     const [isLargerThan] = useMediaQuery('(min-width: 1280px)');
-    const { isOpen, onOpen, onClose } = useDisclosure();
+    const { isOpen: isWethSwapModalOpen, onOpen: onWethSwapModalOpen, onClose: onWethSwapModalClose } = useDisclosure();
 
     const hasCollateralChange = ['deposit', 'd&b', 'withdraw', 'r&w'].includes(MODES[mode]);
     const hasDebtChange = ['borrow', 'd&b', 'repay', 'r&w'].includes(MODES[mode]);
@@ -288,7 +283,22 @@ export const F2CombinedForm = ({
     const notEnoughToBorrowWithAutobuy = isBorrowCase && market.leftToBorrow > 1 && deltaDebt > 0 && market.leftToBorrow < (isAutoDBR ? deltaDebt + (dbrCoverDebt * (1 + parseFloat(dbrBuySlippage || 0) / 100)) : deltaDebt);
     const minDebtDisabledCondition = FEATURE_FLAGS.firmMinDebt && newTotalDebtInMarket > 0 && newTotalDebtInMarket < market.minDebt;
     const isDeleverageCase = useLeverageInMode && !isDeposit;
-    const canUseLeverage = FEATURE_FLAGS.firmLeverage && !isUseNativeCoin && ((mode === 'Deposit & Borrow' && (deposits > 0 || collateralAmountNum > 0)) || (mode === 'Repay & Withdraw' && debt > 1));
+    const canUseLeverage = FEATURE_FLAGS.firmLeverage && market.hasAleFeat && !isUseNativeCoin && ((mode === 'Deposit & Borrow' && (deposits > 0 || collateralAmountNum > 0)) || (mode === 'Repay & Withdraw' && debt > 1));
+    const showMinDebtMessage = !notEnoughToBorrowWithAutobuy && minDebtDisabledCondition && debtAmountNum > 0;    
+    const showNeedDbrMessage = isDeposit && !isAutoDBR && dbrBalance <= 0;
+
+    const disabledConditions = {
+        'deposit': ((collateralAmountNum <= 0 && !useLeverageInMode) || collateralBalance < collateralAmountNum),
+        'borrow': duration <= 0 || debtAmountNum <= 0 || newPerc < 1 || showNeedDbrMessage || market.leftToBorrow < 1 || debtAmountNum > market.leftToBorrow || notEnoughToBorrowWithAutobuy || minDebtDisabledCondition,
+        'repay': (debtAmountNum <= 0 && !useLeverageInMode) || debtAmountNum > debt || (debtAmountNum > dolaBalance && !useLeverageInMode) || (isAutoDBR && !parseFloat(dbrSellAmount)),
+        'withdraw': ((collateralAmountNum <= 0 && !useLeverageInMode) || collateralAmountNum > deposits || newPerc < 1 || dbrBalance < 0),
+    }
+    disabledConditions['d&b'] = disabledConditions['deposit'] || disabledConditions['borrow'] || !parseFloat(dbrBuySlippage) || (useLeverageInMode && leverage <= 1);
+    disabledConditions['r&w'] = disabledConditions['repay'] || disabledConditions['withdraw'] || (useLeverageInMode && leverage <= 1);
+
+    const showResultingLimitTooHigh = disabledConditions[MODES[mode]] && (!!debtAmountNum || !!collateralAmountNum) && newPerc < 1;
+    const modeLabel = market.isInv ? mode.replace(/deposit/i, 'Stake').replace(/withdraw/i, 'Unstake') : mode;
+    const actionBtnLabel = useLeverageInMode ? `Sign + ${collateralAmountNum > 0 && !isDeleverageCase ? 'Deposit & ' : ''}Leverage ${isDeposit ? 'up' : 'down'}` : isSigNeeded ? `Sign + ${modeLabel}` : modeLabel;
 
     const leftPart = <Stack direction={{ base: 'column' }} spacing="4" w='full' >
         {
@@ -335,7 +345,7 @@ export const F2CombinedForm = ({
                                     color="secondaryTextColor"
                                     textDecoration="underline"
                                     cursor="pointer"
-                                    onClick={onOpen}
+                                    onClick={onWethSwapModalOpen}
                                     fontSize="14px"
                                 >
                                     Easily convert between ETH to WETH
@@ -355,10 +365,7 @@ export const F2CombinedForm = ({
                         : <Text>Nothing to withdraw</Text>
                 }
                 {
-                    dbrBalance < 0 && !isDeposit && <WarningMessage
-                        alertProps={{ w: 'full' }}
-                        description="Can not withdraw when there is a DBR deficit"
-                    />
+                    dbrBalance < 0 && !isDeposit && <CannotWithdrawIfDbrDeficitMessage />
                 }
                 {
                     !isDeposit && deposits > 0 && !isDeleverageCase && <HStack w='full' justify="space-between">
@@ -379,7 +386,7 @@ export const F2CombinedForm = ({
         {['d&b', 'r&w'].includes(MODES[mode]) && <Divider borderColor="#cccccc66" />}
         <FirmLeverageModal />
         {
-            ['borrow', 'd&b', 'repay', 'r&w'].includes(MODES[mode]) && <VStack w='full' alignItems="flex-start">
+            hasDebtChange && <VStack w='full' alignItems="flex-start">
                 <TextInfo
                     message={
                         `The amount of DOLA stablecoin you wish to ${isDeposit ? 'borrow' : 'repay'}`
@@ -448,31 +455,13 @@ export const F2CombinedForm = ({
                         : isBorrowOnlyCase ? <Text>Please deposit collateral first</Text> : <Text>Nothing to repay</Text>
                 }
                 {
-                    notEnoughToBorrowWithAutobuy
-                    && <WarningMessage alertProps={{ w: 'full' }} description={
-                        `Only ${shortenNumber(market.leftToBorrow, 2)} DOLA are available for borrowing at the moment${isAutoDBR ? ` but around ${shortenNumber(dbrCoverDebt + deltaDebt, 2)} DOLA are needed to cover the debt (borrow amount+DBR auto-buy cost)` : ''}.`
-                    } />
+                    notEnoughToBorrowWithAutobuy && <NotEnoughLiqWithAutobuyMessage leftToBorrow={market.leftToBorrow} isAutoDBR={isAutoDBR} dbrCoverDebt={dbrCoverDebt} deltaDebt={deltaDebt} />
                 }
                 {
-                    !notEnoughToBorrowWithAutobuy && minDebtDisabledCondition && debtAmountNum > 0
-                    && <WarningMessage alertProps={{ w: 'full' }} description={
-                        !debt ? `You need to borrow at least ${preciseCommify(market.minDebt, 0)} DOLA`
-                            : `When borrowing the resulting debt should be at least ${shortenNumber(market.minDebt, 2)} DOLA`
-                    } />
+                    showMinDebtMessage && <MinDebtBorrowMessage debt={debt} minDebt={market.minDebt} />
                 }
                 {
-                    isDeposit && !isAutoDBR && dbrBalance <= 0 &&
-                    <InfoMessage
-                        title="No DBRs in wallet"
-                        alertProps={{ w: 'full' }}
-                        description={
-                            <Flex display="inline-block">
-                                To borrow DOLA you need to first <Link textDecoration="underline" color="accentTextColor" display="inline-block" href={BUY_LINKS.DBR} isExternal target="_blank">
-                                    buy DBR tokens
-                                </Link> OR use the auto-buy option which adds the DBR cost to your DOLA loan.
-                            </Flex>
-                        }
-                    />
+                    showNeedDbrMessage && <NoDbrInWalletMessage />
                 }
                 <HStack justify="space-between" alignItems="space-between" w='full'>
                     {
@@ -501,82 +490,25 @@ export const F2CombinedForm = ({
         }
     </Stack>
 
-    const durationPart = <VStack spacing='4' w={{ base: '100%', lg: '100%' }}>
-        <VStack w='full' alignItems="flex-start">
-            <TextInfo message="This will lock-in a Borrow Rate for the desired duration by auto-buying DBR tokens, after the duration you can still keep the loan but at the expense of a higher debt and Borrow Rate.">
-                <Text fontSize='18px' color="mainTextColor"><b>Duration</b> to cover:</Text>
-            </TextInfo>
-            <F2DurationInput
-                onChange={handleDurationChange}
-                defaultType={durationType}
-                defaultValue={durationTypedValue}
-            />
-            <AmountInfos format={false} label="Duration in days" value={duration} textProps={{ fontSize: '14px' }} />
-            <HStack w='full' justify="space-between">
-                <TextInfo
-                    message="DBR price can vary while trying to buy, the max. slippage % allows the resulting total DOLA debt created to be within a certain range, if out of range, tx will revert or fail">
-                    <Text>
-                        Max. slippage %:
-                    </Text>
-                </TextInfo>
-                <Input py="0" maxH="30px" w='90px' value={dbrBuySlippage} onChange={(e) => setDbrBuySlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'))} />
-            </HStack>
-            <InfoMessage
-                alertProps={{ w: 'full', fontStyle: 'italic' }}
-                description="Note: The cost of the auto-bought DBR will be added to your DOLA debt. Actual duration may vary a little bit due to DBR price fluctuations."
-            />
-        </VStack>
-    </VStack>
+    const dbrDurationInputs = <AutoBuyDbrDurationInputs
+        duration={duration}
+        durationType={durationType}
+        durationTypedValue={durationTypedValue}
+        handleDurationChange={handleDurationChange}
+        dbrBuySlippage={dbrBuySlippage}
+        setDbrBuySlippage={setDbrBuySlippage}
+    />
 
-    const sellDbrAmountPart = <VStack spacing='4' w={{ base: '100%', lg: '100%' }}>
-        <VStack w='full' alignItems="flex-start">
-            <TextInfo message="Will auto-sell the specified amount of DBRs against DOLAs">
-                <Text fontSize='18px' color="mainTextColor"><b>DBR</b> to sell:</Text>
-            </TextInfo>
-            <SimpleAmountForm
-                defaultAmount={dbrSellAmount}
-                address={DBR}
-                destination={useLeverageInMode ? F2_ALE : F2_HELPER}
-                signer={signer}
-                decimals={18}
-                maxAmountFrom={[bnDbrBalance]}
-                onAmountChange={setDbrSellAmount}
-                approveLabel="Approve DBR for auto-selling"
-                showMax={true}
-                showMaxBtn={false}
-                onlyShowApproveBtn={true}
-                hideInputIfNoAllowance={true}
-                inputRight={<MarketImage pr="2" image={dbrToken.image} size={25} />}
-                // balance decreases if debt, calling with higher sell amount to contract is ok
-                isError={dbrBalance < parseFloat(dbrSellAmount) * 1.01}
-            />
-            <HStack w='full' justify="space-between">
-                <TextInfo
-                    message="DBR price can vary while trying to sell, the max. slippage % allows the resulting total DOLA received to be within a certain range, if out of range, tx will revert or fail">
-                    <Text>
-                        Max. slippage %:
-                    </Text>
-                </TextInfo>
-                <Input py="0" maxH="30px" w='90px' value={dbrBuySlippage} onChange={(e) => setDbrBuySlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'))} />
-            </HStack>
-            <InfoMessage
-                alertProps={{ w: 'full', fontStyle: 'italic' }}
-                description="Note: The DOLA received from the DBR swap will be sent to your wallet."
-            />
-        </VStack>
-    </VStack>
-
-    const disabledConditions = {
-        'deposit': ((collateralAmountNum <= 0 && !useLeverageInMode) || collateralBalance < collateralAmountNum),
-        'borrow': duration <= 0 || debtAmountNum <= 0 || newPerc < 1 || (isDeposit && !isAutoDBR && dbrBalance <= 0) || market.leftToBorrow < 1 || debtAmountNum > market.leftToBorrow || notEnoughToBorrowWithAutobuy || minDebtDisabledCondition,
-        'repay': (debtAmountNum <= 0 && !useLeverageInMode) || debtAmountNum > debt || (debtAmountNum > dolaBalance && !useLeverageInMode) || (isAutoDBR && !parseFloat(dbrSellAmount)),
-        'withdraw': ((collateralAmountNum <= 0 && !useLeverageInMode) || collateralAmountNum > deposits || newPerc < 1 || dbrBalance < 0),
-    }
-    disabledConditions['d&b'] = disabledConditions['deposit'] || disabledConditions['borrow'] || !parseFloat(dbrBuySlippage) || (useLeverageInMode && leverage <= 1);
-    disabledConditions['r&w'] = disabledConditions['repay'] || disabledConditions['withdraw'] || (useLeverageInMode && leverage <= 1);
-
-    const modeLabel = market.isInv ? mode.replace(/deposit/i, 'Stake').replace(/withdraw/i, 'Unstake') : mode;
-    const actionBtnLabel = useLeverageInMode ? `Sign + ${collateralAmountNum > 0 && !isDeleverageCase ? 'Deposit & ' : ''}Leverage ${isDeposit ? 'up' : 'down'}` : isSigNeeded ? `Sign + ${modeLabel}` : modeLabel;
+    const sellDbrInput = <SellDbrInput
+        dbrSellAmount={dbrSellAmount}
+        setDbrSellAmount={setDbrSellAmount}
+        helperAddress={useLeverageInMode ? F2_ALE : F2_HELPER}
+        dbrBuySlippage={dbrBuySlippage}
+        setDbrBuySlippage={setDbrBuySlippage}
+        signer={signer}
+        dbrBalance={dbrBalance}
+        bnDbrBalance={bnDbrBalance}
+    />
 
     const actionBtn = <HStack>
         <SimpleAmountForm
@@ -615,7 +547,7 @@ export const F2CombinedForm = ({
         w='full'
         spacing="4"
     >
-        <WethModal isOpen={isOpen} onClose={onClose} />
+        <WethModal isOpen={isWethSwapModalOpen} onClose={onWethSwapModalClose} />
         <Container
             noPadding
             p="0"
@@ -657,15 +589,11 @@ export const F2CombinedForm = ({
                         />
                     }
                     {['d&b', 'borrow'].includes(MODES[mode]) && isAutoDBR && <Divider borderColor="#cccccc66" />}
-                    {['d&b', 'borrow'].includes(MODES[mode]) && isAutoDBR && durationPart}
-                    {['r&w', 'repay'].includes(MODES[mode]) && isAutoDBR && sellDbrAmountPart}
+                    {['d&b', 'borrow'].includes(MODES[mode]) && isAutoDBR && dbrDurationInputs}
+                    {['r&w', 'repay'].includes(MODES[mode]) && isAutoDBR && sellDbrInput}
                 </Stack>
                 {
-                    collateralAmountNum > collateralBalance && isDeposit &&
-                    <InfoMessage
-                        alertProps={{ w: 'full' }}
-                        description="Not Enough collateral to deposit"
-                    />
+                    collateralAmountNum > collateralBalance && isDeposit && <NotEnoughCollateralMessage />
                 }
                 {
                     market.isInv && <>
@@ -698,17 +626,11 @@ export const F2CombinedForm = ({
                     debtAmountNumInfo={hasDebtChange ? isDeposit ? debtAmountNum : Math.min(debtAmountNum, debt) : 0}
                 />
                 {
-                    disabledConditions[MODES[mode]] && (!!debtAmountNum || !!collateralAmountNum) && newPerc < 1 &&
-                    <WarningMessage
-                        alertProps={{ w: 'full' }}
-                        description="The resulting Borrow Limit is too high"
-                    />
+                    showResultingLimitTooHigh && <ResultingBorrowLimitTooHighMessage />
                 }
                 {
-                    market.borrowPaused ? <WarningMessage alertProps={{ w: 'full' }} description="Borrowing is paused" />
-                        : market.leftToBorrow < 1 && isBorrowCase
-                        && <WarningMessage alertProps={{ w: 'full' }} description="No DOLA liquidity at the moment" />
-                }                
+                    market.borrowPaused ? <BorrowPausedMessage /> : market.leftToBorrow < 1 && isBorrowCase && <NoDolaLiqMessage />
+                }        
                 {
                     !isLargerThan && actionBtn
                 }

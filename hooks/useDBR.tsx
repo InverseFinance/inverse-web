@@ -15,7 +15,7 @@ import { useWeb3React } from "@web3-react/core";
 import { usePrices } from "./usePrices";
 import { useBlockTimestamp } from "./useBlockTimestamp";
 
-const { DBR, DBR_AIRDROP, F2_MARKETS, F2_ORACLE, DOLA, DBR_DISTRIBUTOR, F2_HELPER } = getNetworkConfigConstants();
+const { DBR, DBR_AIRDROP, F2_MARKETS, F2_ORACLE, DOLA, DBR_DISTRIBUTOR, F2_HELPER, F2_ALE } = getNetworkConfigConstants();
 
 const zero = BigNumber.from('0');
 const oneYear = ONE_DAY_MS * 365;
@@ -83,8 +83,7 @@ export const useAccountDBR = (
 export const useDBRMarkets = (marketOrList?: string | string[]): {
   markets: F2Market[]
   isLoading: boolean
-} => {
-  const { account } = useWeb3React();
+} => {  
   const { data: apiData, isLoading } = useCacheFirstSWR(`/api/f2/fixed-markets?v12`);
   const _markets = Array.isArray(marketOrList) ? marketOrList : !!marketOrList ? [marketOrList] : [];
 
@@ -123,6 +122,9 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
     }),
     ...markets.map(m => {
       return [m.address, 'borrowPaused']
+    }),    
+    ...markets.map(m => {
+      return [F2_ALE, 'markets', m.address]
     }),
   ]);
 
@@ -153,6 +155,8 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
       const dolaLiquidity = data ? getBnToNumber(data[i + 4 * nbMarkets]) : cachedMarkets[i]?.dolaLiquidity ?? 0;
       const borrowPaused = data ? data[i + 5 * nbMarkets] : cachedMarkets[i]?.borrowPaused ?? false;
       const leftToBorrow = borrowPaused ? 0 : limits ? dailyLimit === 0 ? dolaLiquidity : Math.min(dailyLimit - dailyBorrows, dolaLiquidity) : cachedMarkets[i]?.leftToBorrow ?? 0;
+      const aleData = data ? data[i + 6 * nbMarkets] : [BURN_ADDRESS, BURN_ADDRESS, BURN_ADDRESS];
+      const hasAleFeat = aleData[0] !== BURN_ADDRESS;
 
       return {
         ...m,
@@ -168,6 +172,8 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
         minDebt,
         bnLeftToBorrow: getNumberToBn(leftToBorrow),
         borrowPaused,
+        hasAleFeat,
+        aleData: { buySellToken: aleData[0], collateral: aleData[1], helper: aleData[2] },
       }
     }),
   }
