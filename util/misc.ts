@@ -168,6 +168,20 @@ export const getTimestampFromUTCDate = (utcDate: string) => {
 
     return timestamp;
 }
+// yyyy-mm-dd format
+export const utcDateStringToTimestamp = (dateString: string) => {
+    // Validate the input format using a regular expression
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      throw new Error('Invalid date format. Please use "yyyy-mm-dd" format.');
+    }
+    // Parse the date string and convert it to a UTC date object
+    const date = new Date(`${dateString}T00:00:00Z`);
+    // Check for invalid dates (e.g., "2023-02-30")
+    if (isNaN(date.getTime())) {
+      throw new Error('Invalid date.');
+    }
+    return date.getTime();
+}
 
 export const getMonthDiff = (d1: Date, d2: Date) => {
     var months;
@@ -267,10 +281,47 @@ export const removeTrailingZeros = (num: string) => {
     return num.replace(/(\.\d*?[1-9])0+([a-zA-Z])?$/, '$1$2').replace(/\.0+([a-zA-Z])?$/, '$1')
 }
 // in case api failed to fetch a specific date, we use the closest previous date
-export const getClosestPreviousHistoPrice = (histoPrices: { [key: string]: number }, date: string, defaultPrice: number) => {
-    const dates = Object.keys(histoPrices);
+export const getClosestPreviousHistoValue = (histoValues: { [key: string]: number }, date: string, defaultValue: number) => {
+    const dates = Object.keys(histoValues);
     const closestDate = dates.reduce((prev, curr) => {
         return curr < date ? curr : prev;
     }, date);
-    return histoPrices[closestDate] || defaultPrice;
+    return histoValues[closestDate] || defaultValue;
+}
+
+export const getOrClosest = (data: { [key: string]: number }, targetDateStr: string, maxTries = 365) => {
+    // If the date exists, return the value immediately
+    if (data[targetDateStr] !== undefined) {
+        return data[targetDateStr];
+    }
+
+    let date = new Date(targetDateStr);
+    for (let i = 0; i < maxTries; i++) {
+        const delta = i+1;
+        // Try the next date
+        date.setDate(date.getDate() + delta);
+        let nextDateStr = date.toISOString().split('T')[0];
+        if (data[nextDateStr] !== undefined) {
+            return data[nextDateStr];
+        }
+
+        // Try the previous date
+        date.setDate(date.getDate() - 2*delta);  // subtract 2 because we added 1 in the above step
+        let prevDateStr = date.toISOString().split('T')[0];
+        if (data[prevDateStr] !== undefined) {
+            return data[prevDateStr];
+        }
+
+        // Reset to the next date for the next loop iteration
+        date.setDate(date.getDate() + delta);
+    }
+    return undefined;
+}
+
+export const getEveryXthElement = (arr: any[], X = 1) => {
+    let result = [];
+    for (let i = X - 1; i < arr.length; i += X) {
+        result.push(arr[i]);
+    }
+    return result;
 }

@@ -48,7 +48,7 @@ export type AreaChartProps = {
     interval?: number
     rangesToInclude?: string[]
 };
-
+// make sure there is only one data point per x value
 const getSimplifiedData = (data: CoordinatesArray) => {
     const uniqueX = [...new Set(data.map(d => d.x))];
     return uniqueX.map(v => {

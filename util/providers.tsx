@@ -5,28 +5,28 @@ import { Contract } from "ethers";
 import { AbiCoder } from "ethers/lib/utils";
 
 export const getProvider = (chainId: string | number, specificAlchemyKey?: string, onlyAlchemy = false): FallbackProvider | JsonRpcProvider => {
-    if(chainId === '31337') {
+    if (chainId === '31337') {
         return new JsonRpcProvider('http://localhost:8545/');
     }
-    else if(chainId === NetworkIds.ftm) {
+    else if (chainId === NetworkIds.ftm && !specificAlchemyKey) {
         return new JsonRpcProvider('https://rpc.ftm.tools/');
     }
-    else if(chainId === NetworkIds.optimism) {
+    else if (chainId === NetworkIds.optimism && !specificAlchemyKey) {
         return new JsonRpcProvider('https://optimism.llamarpc.com');
-    } 
-    else if(chainId === NetworkIds.bsc) {
+    }
+    else if (chainId === NetworkIds.bsc && !specificAlchemyKey) {
         return new JsonRpcProvider('https://bsc-dataseed3.binance.org');
     }
-    else if(chainId === NetworkIds.arbitrum) {
+    else if (chainId === NetworkIds.arbitrum && !specificAlchemyKey) {
         return new JsonRpcProvider('https://arbitrum.llamarpc.com');
     }
-    else if(chainId === NetworkIds.polygon) {
+    else if (chainId === NetworkIds.polygon && !specificAlchemyKey) {
         return new JsonRpcProvider('https://polygon.llamarpc.com');
-    }    
-    else if(chainId === NetworkIds.avalanche) {
+    }
+    else if (chainId === NetworkIds.avalanche && !specificAlchemyKey) {
         return new JsonRpcProvider('https://rpc.ankr.com/avalanche');
     }
-    else if(chainId === NetworkIds.base) {
+    else if (chainId === NetworkIds.base && !specificAlchemyKey) {
         return new JsonRpcProvider('https://mainnet.base.org');
     }
     const network = Number(chainId);
@@ -56,4 +56,11 @@ export const getCallForFunction = (contract: Contract, functionName: string, arg
 /** provider needs to support historical data, example: AlchemyProvider */
 export const getHistoricValue = (contract: Contract, block: number, functionName: string, args: any[]) => {
     return contract.provider.call(getCallForFunction(contract, functionName, args), block);
+}
+
+export const getHistoricalProvider = (chainId: string) => {
+    if (chainId?.toString() === NetworkIds.optimism) {
+        return new AlchemyProvider(Number(chainId), process.env.OP_ALCHEMY_KEY);
+    }
+    return getProvider(chainId);
 }
