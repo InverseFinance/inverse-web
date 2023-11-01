@@ -1,11 +1,11 @@
 import { Stack, VStack, Text, HStack, FlexProps, Divider, Switch, FormControl, FormLabel, Flex, useMediaQuery, Badge, useDisclosure } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
-import { getNumberToBn, shortenNumber, smartShortNumber } from '@app/util/markets'
+import { getNumberToBn, shortenNumber } from '@app/util/markets'
 import { formatUnits, parseEther, parseUnits } from '@ethersproject/units'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
-import { f2repayAndWithdrawNative, f2borrow, f2deposit, f2depositAndBorrow, f2depositAndBorrowHelper, f2repay, f2repayAndWithdraw, f2sellAndRepayHelper, f2sellAndWithdrawHelper, f2withdraw, getRiskColor, f2approxDbrAndDolaNeeded, f2withdrawMax } from '@app/util/f2'
+import { f2repayAndWithdrawNative, f2borrow, f2deposit, f2depositAndBorrow, f2depositAndBorrowHelper, f2repay, f2repayAndWithdraw, f2sellAndRepayHelper, f2sellAndWithdrawHelper, f2withdraw, f2withdrawMax } from '@app/util/f2'
 
-import { useContext, useState, useEffect } from 'react'
+import { useContext, useEffect } from 'react'
 
 import { F2DurationInput } from './F2DurationInput'
 import { MarketImage } from '@app/components/common/Assets/MarketImage'
@@ -84,17 +84,14 @@ export const F2CombinedForm = ({
         isWethMarket,
         dbrSellAmount,
         setDbrSellAmount,
-        aleSlippage,
-        setAleSlippage,
+        aleSlippage,        
         dbrBuySlippage,
         setDbrBuySlippage,
         deposits, bnDeposits, debt, bnWithdrawalLimit, bnLeftToBorrow, bnCollateralBalance, collateralBalance, bnDebt,
         newPerc, newCreditLimit,
-        notFirstTime, onFirstTimeModalOpen,
-        hasDbrV1NewBorrowIssue, onDbrV1NewBorrowIssueModalOpen,
+        notFirstTime, onFirstTimeModalOpen,        
         firmActionIndex, setFirmActionIndex, setCachedFirmActionIndex,
         newTotalDebtInMarket,
-        onFirmLeverageEngineOpen,
         setUseLeverage,
         useLeverage,
         useLeverageInMode,
@@ -111,8 +108,7 @@ export const F2CombinedForm = ({
         newDeposits,
         userNotEligibleForLeverage,
     } = useContext(F2MarketContext);
-
-    const [syncedMinH, setSyncedMinH] = useState('230px');
+    
     const [isLargerThan] = useMediaQuery('(min-width: 1280px)');
     const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -624,7 +620,7 @@ export const F2CombinedForm = ({
             noPadding
             p="0"
             w='full'
-            contentProps={{ minH: syncedMinH, position: 'relative', id: 'f2-combined-form' }}
+            contentProps={{ minH: '230px', position: 'relative', id: 'f2-combined-form' }}
             {...props}
         >
             {
@@ -693,7 +689,7 @@ export const F2CombinedForm = ({
         <Container
             noPadding
             w='full'
-            contentProps={{ minH: syncedMinH, id: 'f2-recap-container', h: { base: 'auto', md: '100%' } }}
+            contentProps={{ minH: '230px', id: 'f2-recap-container', h: { base: 'auto', md: '100%' } }}
             p="0"
         >
             <VStack position="relative" w='full' px='2%' py="2" alignItems="center" justify="space-between" spacing="2">
@@ -712,8 +708,7 @@ export const F2CombinedForm = ({
                     market.borrowPaused ? <WarningMessage alertProps={{ w: 'full' }} description="Borrowing is paused" />
                         : market.leftToBorrow < 1 && isBorrowCase
                         && <WarningMessage alertProps={{ w: 'full' }} description="No DOLA liquidity at the moment" />
-                }
-                {/* {bottomPart} */}
+                }                
                 {
                     !isLargerThan && actionBtn
                 }
