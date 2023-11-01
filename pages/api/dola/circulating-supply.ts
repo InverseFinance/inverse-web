@@ -23,7 +23,7 @@ export default async function handler(req, res) {
   const cacheKey = `dola-circ-supply-v1.0.1`;
 
   try {
-    const cacheDuration = 30;
+    const cacheDuration = 60;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
 

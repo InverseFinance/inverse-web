@@ -97,7 +97,7 @@ export default async function handler(req, res) {
     const dolaContract = new Contract(DOLA, DOLA_ABI, getProvider(NetworkIds.mainnet));
 
     if (isValid) {
-      res.status(200).send(data);
+      res.status(200).send(cachedData);
       return
     }
     await getXchainTimestamps();

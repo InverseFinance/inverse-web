@@ -5,11 +5,11 @@ import { SkeletonBlob } from "../common/Skeleton";
 import Container from "../common/Container";
 import { useEffect, useState } from "react";
 
-const maxChartWidth= 1200
+const maxChartWidth= 820
 
 export const DolaCircSupplyEvolution = () => {
     const { evolution, isLoading, isError } = useDolaCirculatingSupplyEvolution();
-
+    
     const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
 
@@ -29,7 +29,7 @@ export const DolaCircSupplyEvolution = () => {
                         isDollars={false}
                         smoothLineByDefault={true}
                         barProps={{ eventName: 'Circ. Supply' }}
-                        areaProps={{ id: 'dola-circ-supply-chart', showRangeBtns: true, yLabel: 'DOLA Circ. supply', useRecharts: true, fillInByDayInterval: 1, simplifyData: false, domainYpadding: 1000000, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
+                        areaProps={{ id: 'dola-circ-supply-chart', showRangeBtns: true, yLabel: 'DOLA Circ. supply', useRecharts: true, simplifyData: true, domainYpadding: 1000000, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
                     />
             }
         </VStack>
