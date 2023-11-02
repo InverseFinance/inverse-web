@@ -25,7 +25,8 @@ import { prepareDeleveragePosition, prepareLeveragePosition } from '@app/util/fi
 import { removeTrailingZeros } from '@app/util/misc'
 import { showToast } from '@app/util/notify'
 import { BorrowPausedMessage, CannotWithdrawIfDbrDeficitMessage, MinDebtBorrowMessage, NoDbrInWalletMessage, NoDolaLiqMessage, NotEnoughCollateralMessage, NotEnoughLiqWithAutobuyMessage, ResultingBorrowLimitTooHighMessage } from './FirmFormSubcomponents/FirmMessages'
-import { AutoBuyDbrDurationInputs, SellDbrInput } from './FirmFormSubcomponents/FirmDbrHelper'
+import { AutoBuyDbrDurationInputs, DbrHelperSwitch, SellDbrInput } from './FirmFormSubcomponents/FirmDbrHelper'
+import { FirmBorroInputwSubline, FirmRepayInputSubline, FirmWethSwitch, FirmWithdrawInputSubline } from './FirmFormSubcomponents'
 
 const { DOLA, F2_HELPER, F2_ALE } = getNetworkConfigConstants();
 
@@ -79,12 +80,12 @@ export const F2CombinedForm = ({
         isWethMarket,
         dbrSellAmount,
         setDbrSellAmount,
-        aleSlippage,        
+        aleSlippage,
         dbrBuySlippage,
         setDbrBuySlippage,
         deposits, bnDeposits, debt, bnWithdrawalLimit, bnLeftToBorrow, bnCollateralBalance, collateralBalance, bnDebt,
         newPerc, newCreditLimit,
-        notFirstTime, onFirstTimeModalOpen,        
+        notFirstTime, onFirstTimeModalOpen,
         firmActionIndex, setFirmActionIndex, setCachedFirmActionIndex,
         newTotalDebtInMarket,
         setUseLeverage,
@@ -103,7 +104,7 @@ export const F2CombinedForm = ({
         newDeposits,
         userNotEligibleForLeverage,
     } = useContext(F2MarketContext);
-    
+
     const [isLargerThan] = useMediaQuery('(min-width: 1280px)');
     const { isOpen: isWethSwapModalOpen, onOpen: onWethSwapModalOpen, onClose: onWethSwapModalClose } = useDisclosure();
 
@@ -284,7 +285,7 @@ export const F2CombinedForm = ({
     const minDebtDisabledCondition = FEATURE_FLAGS.firmMinDebt && newTotalDebtInMarket > 0 && newTotalDebtInMarket < market.minDebt;
     const isDeleverageCase = useLeverageInMode && !isDeposit;
     const canUseLeverage = FEATURE_FLAGS.firmLeverage && market.hasAleFeat && !isUseNativeCoin && ((mode === 'Deposit & Borrow' && (deposits > 0 || collateralAmountNum > 0)) || (mode === 'Repay & Withdraw' && debt > 1));
-    const showMinDebtMessage = !notEnoughToBorrowWithAutobuy && minDebtDisabledCondition && debtAmountNum > 0;    
+    const showMinDebtMessage = !notEnoughToBorrowWithAutobuy && minDebtDisabledCondition && debtAmountNum > 0;
     const showNeedDbrMessage = isDeposit && !isAutoDBR && dbrBalance <= 0;
 
     const disabledConditions = {
@@ -340,25 +341,13 @@ export const F2CombinedForm = ({
                             isError={isDeposit ? collateralAmountNum > collateralBalance : collateralAmountNum > deposits}
                         />
                         {
-                            isWethMarket && !!market.helper && !isDeleverageCase && <HStack w='full' justify="space-between">
-                                <Text
-                                    color="secondaryTextColor"
-                                    textDecoration="underline"
-                                    cursor="pointer"
-                                    onClick={onWethSwapModalOpen}
-                                    fontSize="14px"
-                                >
-                                    Easily convert between ETH to WETH
-                                </Text>
-                                {
-                                    !useLeverage && <FormControl w='fit-content' display='flex' alignItems='center'>
-                                        <FormLabel fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-eth' mb='0'>
-                                            Use ETH instead of WETH?
-                                        </FormLabel>
-                                        <Switch onChange={() => setIsUseNativeCoin(!isUseNativeCoin)} isChecked={isUseNativeCoin} id='auto-eth' />
-                                    </FormControl>
-                                }
-                            </HStack>
+                            isWethMarket && !!market.helper && !isDeleverageCase
+                            && <FirmWethSwitch
+                                useLeverage={useLeverage}
+                                onWethSwapModalOpen={onWethSwapModalOpen}
+                                setIsUseNativeCoin={setIsUseNativeCoin}
+                                isUseNativeCoin={isUseNativeCoin}
+                            />
                         }
                         {/* <AmountInfos label="Total Deposits" value={deposits} price={market.price} delta={deltaCollateral} textProps={{ fontSize: '14px' }} /> */}
                     </>
@@ -368,18 +357,13 @@ export const F2CombinedForm = ({
                     dbrBalance < 0 && !isDeposit && <CannotWithdrawIfDbrDeficitMessage />
                 }
                 {
-                    !isDeposit && deposits > 0 && !isDeleverageCase && <HStack w='full' justify="space-between">
-                        <AmountInfos
-                            label="Deposits"
-                            value={deposits}
-                            price={market.price}
-                            textProps={{
-                                cursor: 'pointer',
-                                fontSize: '14px',
-                                onClick: () => handleCollateralChange(formatUnits(bnDeposits, market.underlying.decimals))
-                            }}
-                        />
-                    </HStack>
+                    !isDeposit && deposits > 0 && !isDeleverageCase && <FirmWithdrawInputSubline
+                        deposits={deposits}
+                        price={market.price}
+                        handleCollateralChange={handleCollateralChange}
+                        bnDeposits={bnDeposits}
+                        decimals={market.underlying.decimals}
+                    />
                 }
             </VStack>
         }
@@ -420,62 +404,31 @@ export const F2CombinedForm = ({
                             // inputProps={isDeleverageCase ? { disabled: true, placeholder: `Repay via deleverage: ~${debtAmount}` } : undefined}
                             />
                             {
-                                isRepayCase ? <HStack w='full' justify="space-between">
-                                    <AmountInfos
-                                        label="DOLA balance"
-                                        value={dolaBalance}
-                                        textProps={{
-                                            cursor: 'pointer',
-                                            fontSize: '14px',
-                                            onClick: () => isDeleverageCase ? null : handleDebtChange(formatUnits(bnDolaBalance, 18))
-                                        }}
-                                    />
-                                    <AmountInfos
-                                        label="Debt"
-                                        value={debt}
-                                        textProps={{                                            
-                                            fontSize: '14px',
-                                            onClick: () => isDeleverageCase ? null : handleDebtChange(formatUnits(bnDebt, 18))
-                                        }}
-                                    />
-                                </HStack>
+                                isRepayCase ? <FirmRepayInputSubline
+                                    isDeleverageCase={isDeleverageCase}
+                                    dolaBalance={dolaBalance}
+                                    debt={debt}
+                                    handleDebtChange={handleDebtChange}
+                                    bnDolaBalance={bnDolaBalance}
+                                    bnDebt={bnDebt}
+                                />
                                     :
-                                    <HStack w='full' justify="space-between">
-                                        <AmountInfos
-                                            label="Available DOLA"                                            
-                                            value={market.leftToBorrow < 1 ? 0 : market.leftToBorrow}                                            
-                                            textProps={{                                                
-                                                fontSize: '14px',
-                                                onClick: market.leftToBorrow > 1 ? () => handleDebtChange(formatUnits(bnLeftToBorrow, 18)) : undefined
-                                            }}
-                                        />                                       
-                                    </HStack>
+                                    <FirmBorroInputwSubline leftToBorrow={market.leftToBorrow} bnLeftToBorrow={bnLeftToBorrow} handleDebtChange={handleDebtChange} />
                             }
                         </>
                         : isBorrowOnlyCase ? <Text>Please deposit collateral first</Text> : <Text>Nothing to repay</Text>
                 }
-                {
-                    notEnoughToBorrowWithAutobuy && <NotEnoughLiqWithAutobuyMessage leftToBorrow={market.leftToBorrow} isAutoDBR={isAutoDBR} dbrCoverDebt={dbrCoverDebt} deltaDebt={deltaDebt} />
-                }
-                {
-                    showMinDebtMessage && <MinDebtBorrowMessage debt={debt} minDebt={market.minDebt} />
-                }
-                {
-                    showNeedDbrMessage && <NoDbrInWalletMessage />
-                }
+                {notEnoughToBorrowWithAutobuy && <NotEnoughLiqWithAutobuyMessage leftToBorrow={market.leftToBorrow} isAutoDBR={isAutoDBR} dbrCoverDebt={dbrCoverDebt} deltaDebt={deltaDebt} />}
+                {showMinDebtMessage && <MinDebtBorrowMessage debt={debt} minDebt={market.minDebt} />}
+                {showNeedDbrMessage && <NoDbrInWalletMessage />}
                 <HStack justify="space-between" alignItems="space-between" w='full'>
                     {
-                        (hasDebtChange || hasCollateralChange) && <FormControl w='fit-content' display='flex' alignItems='center'>
-                            <FormLabel w='110px' fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-dbr' mb='0'>
-                                Auto-{isDeposit ? 'buy' : 'sell'} DBR?
-                            </FormLabel>
-                            <Switch isDisabled={!market.helper} onChange={() => setIsAutoDBR(!isAutoDBR)} isChecked={isAutoDBR} id='auto-dbr' />
-                            {
-                                !market.helper && <Badge ml="2">
-                                    Coming soon
-                                </Badge>
-                            }
-                        </FormControl>
+                        (hasDebtChange || hasCollateralChange) && <DbrHelperSwitch
+                            isDeposit={isDeposit}
+                            setIsAutoDBR={setIsAutoDBR}
+                            isAutoDBR={isAutoDBR}
+                            hasHelper={!!market.helper}
+                        />
                     }
                     {
                         canUseLeverage && <FormControl w='fit-content' display='flex' alignItems='center'>
@@ -630,7 +583,7 @@ export const F2CombinedForm = ({
                 }
                 {
                     market.borrowPaused ? <BorrowPausedMessage /> : market.leftToBorrow < 1 && isBorrowCase && <NoDolaLiqMessage />
-                }        
+                }
                 {
                     !isLargerThan && actionBtn
                 }

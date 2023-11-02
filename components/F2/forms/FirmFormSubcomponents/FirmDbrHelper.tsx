@@ -1,5 +1,5 @@
 import { TextInfo } from "@app/components/common/Messages/TextInfo"
-import { HStack, VStack, Text } from "@chakra-ui/react"
+import { HStack, VStack, Text, FormControl, FormLabel, Switch, Badge } from "@chakra-ui/react"
 import { F2DurationInput } from "../F2DurationInput"
 import { AmountInfos } from "@app/components/common/Messages/AmountInfos"
 import { Input } from "@app/components/common/Input"
@@ -111,4 +111,28 @@ export const SellDbrInput = ({
             />
         </VStack>
     </VStack>
+}
+
+export const DbrHelperSwitch = ({
+    isDeposit,
+    setIsAutoDBR,
+    isAutoDBR,
+    hasHelper
+}: {
+    isDeposit: boolean
+    setIsAutoDBR: (v: boolean) => void
+    isAutoDBR: boolean
+    hasHelper: boolean
+}) => {
+    return <FormControl w='fit-content' display='flex' alignItems='center'>
+        <FormLabel w='110px' fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-dbr' mb='0'>
+            Auto-{isDeposit ? 'buy' : 'sell'} DBR?
+        </FormLabel>
+        <Switch isDisabled={!hasHelper} onChange={() => setIsAutoDBR(!isAutoDBR)} isChecked={isAutoDBR} id='auto-dbr' />
+        {
+            !hasHelper && <Badge ml="2">
+                Coming soon
+            </Badge>
+        }
+    </FormControl>
 }
