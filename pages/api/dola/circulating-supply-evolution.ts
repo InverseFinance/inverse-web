@@ -86,20 +86,21 @@ const getXchainTimestamps = async () => {
   }
 }
 
-export default async function handler(req, res) {
-  const cacheKey = `dola-circ-supply-evolution-v1.0.3`;
+export const DOLA_CIRC_SUPPLY_EVO_CACHE_KEY = `dola-circ-supply-evolution-v1.0.3`;
 
+export default async function handler(req, res) {  
   try {
-    const cacheDuration = 40000;
+    const cacheDuration = 3600;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, true, cacheDuration);
-
-    const dolaContract = new Contract(DOLA, DOLA_ABI, getProvider(NetworkIds.mainnet));
+    // cache is now updated via daily cron job
+    const { data: cachedData, isValid } = await getCacheFromRedisAsObj(DOLA_CIRC_SUPPLY_EVO_CACHE_KEY, false, cacheDuration);    
 
     if (isValid) {
       res.status(200).send(cachedData);
       return
     }
+    // new data is now added via daily cron job
+    const dolaContract = new Contract(DOLA, DOLA_ABI, getProvider(NetworkIds.mainnet));    
     await getXchainTimestamps();
 
     const [mainnetCachedTimestamps, xchainCachedTimestamps] = await Promise.all([
@@ -236,13 +237,13 @@ export default async function handler(req, res) {
       lastUtcDate: newLastUtcDate,
       evolution: cachedData ? cachedData.evolution.concat(newEvolutionData) : newEvolutionData,
     }
-    await redisSetWithTimestamp(cacheKey, results);
+    await redisSetWithTimestamp(DOLA_CIRC_SUPPLY_EVO_CACHE_KEY, results);
     return res.status(200).send(results);
   } catch (err) {
     console.error(err);
     // if an error occured, try to return last cached results
     try {
-      const cache = await getCacheFromRedis(cacheKey, false);
+      const cache = await getCacheFromRedis(DOLA_CIRC_SUPPLY_EVO_CACHE_KEY, false);
       if (cache) {
         console.log('Api call failed, returning last cache found');
         res.status(200).send(cache);
