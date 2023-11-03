@@ -1,4 +1,6 @@
 import { AmountInfos } from "@app/components/common/Messages/AmountInfos"
+import { TextInfo } from "@app/components/common/Messages/TextInfo"
+import { F2Market } from "@app/types"
 import { FormControl, FormLabel, HStack, Switch, Text } from "@chakra-ui/react"
 import { formatUnits } from "@ethersproject/units"
 import { BigNumber } from "ethers"
@@ -117,4 +119,65 @@ export const FirmWethSwitch = ({
             </FormControl>
         }
     </HStack>
+}
+
+export const FirmExitModeSwitch = ({
+    isDeposit,
+    handleDirectionChange,
+    isInv,
+}: {
+    isDeposit: boolean
+    handleDirectionChange: () => void
+    isInv: boolean
+}) => {
+    return <FormControl boxShadow="0px 0px 1px 0px #ccccccaa" bg="primary.400" zIndex="1" borderRadius="10px" px="2" py="1" right="0" top="-20px" margin="auto" position="absolute" w='fit-content' display='flex' alignItems='center'>
+        <FormLabel cursor="pointer" htmlFor='withdraw-mode' mb='0'>
+            {isInv ? 'Unstake?' : 'Repay / Withdraw?'}
+        </FormLabel>
+        <Switch isChecked={!isDeposit} onChange={handleDirectionChange} id='withdraw-mode' />
+    </FormControl>
+}
+
+export const FirmCollateralInputTitle = ({
+    isDeposit,
+    market,
+    isWethMarket,
+    isUseNativeCoin,
+    useLeverageInMode,
+    deposits,
+}: {
+    isDeposit: boolean
+    market: F2Market
+    isWethMarket: boolean
+    isUseNativeCoin: boolean
+    useLeverageInMode: boolean
+    deposits: number
+}) => {
+    return <TextInfo message={
+        isDeposit ?
+            market.isInv ?
+                "Staked INV can be withdrawn at any time"
+                : "The more you deposit, the more you can borrow against"
+            : "Withdrawing collateral will reduce borrowing power"
+    }>
+        <Text fontSize='18px' color="mainTextColor">
+            <b>{isDeposit ? market.isInv ? 'Stake' : 'Deposit' : market.isInv ? 'Unstake' : 'Withdraw'}</b> {isWethMarket && isUseNativeCoin ? 'ETH' : market.underlying.symbol}{useLeverageInMode ? isDeposit && deposits > 0 ? ` (on top of leverage)` : ' (with leverage)' : ''}:
+        </Text>
+    </TextInfo>
+}
+
+export const FirmDebtInputTitle = ({
+    isDeposit,
+    useLeverageInMode,
+}: {
+    isDeposit: boolean
+    useLeverageInMode: boolean
+}) => {
+    return <TextInfo
+        message={
+            `The amount of DOLA stablecoin you wish to ${isDeposit ? 'borrow' : 'repay'}`
+        }
+    >
+        <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? 'Borrow' : 'Repay'}</b> DOLA{useLeverageInMode ? isDeposit ? ' (with leverage)' : ' (on top of leverage)' : ''}:</Text>
+    </TextInfo>
 }

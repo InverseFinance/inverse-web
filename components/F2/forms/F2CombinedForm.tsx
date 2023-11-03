@@ -1,7 +1,7 @@
-import { Stack, VStack, Text, HStack, FlexProps, Divider, Switch, FormControl, FormLabel, useMediaQuery, Badge, useDisclosure } from '@chakra-ui/react'
+import { Stack, VStack, Text, HStack, FlexProps, Divider, Switch, FormControl, FormLabel, useMediaQuery, useDisclosure } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 import { getNumberToBn } from '@app/util/markets'
-import { formatUnits, parseEther, parseUnits } from '@ethersproject/units'
+import { parseEther, parseUnits } from '@ethersproject/units'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
 import { f2repayAndWithdrawNative, f2borrow, f2deposit, f2depositAndBorrow, f2depositAndBorrowHelper, f2repay, f2repayAndWithdraw, f2sellAndRepayHelper, f2sellAndWithdrawHelper, f2withdraw, f2withdrawMax } from '@app/util/f2'
 
@@ -10,8 +10,6 @@ import { useContext, useEffect } from 'react'
 import { MarketImage } from '@app/components/common/Assets/MarketImage'
 import { TOKENS } from '@app/variables/tokens'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { TextInfo } from '@app/components/common/Messages/TextInfo'
-import { AmountInfos } from '@app/components/common/Messages/AmountInfos'
 import { F2FormInfos } from './F2FormInfos'
 import { NavButtons } from '@app/components/common/Button'
 import { F2MarketContext } from '../F2Contex'
@@ -26,7 +24,7 @@ import { removeTrailingZeros } from '@app/util/misc'
 import { showToast } from '@app/util/notify'
 import { BorrowPausedMessage, CannotWithdrawIfDbrDeficitMessage, MinDebtBorrowMessage, NoDbrInWalletMessage, NoDolaLiqMessage, NotEnoughCollateralMessage, NotEnoughLiqWithAutobuyMessage, ResultingBorrowLimitTooHighMessage } from './FirmFormSubcomponents/FirmMessages'
 import { AutoBuyDbrDurationInputs, DbrHelperSwitch, SellDbrInput } from './FirmFormSubcomponents/FirmDbrHelper'
-import { FirmBorroInputwSubline, FirmRepayInputSubline, FirmWethSwitch, FirmWithdrawInputSubline } from './FirmFormSubcomponents'
+import { FirmBorroInputwSubline, FirmCollateralInputTitle, FirmDebtInputTitle, FirmExitModeSwitch, FirmRepayInputSubline, FirmWethSwitch, FirmWithdrawInputSubline } from './FirmFormSubcomponents'
 
 const { DOLA, F2_HELPER, F2_ALE } = getNetworkConfigConstants();
 
@@ -303,18 +301,8 @@ export const F2CombinedForm = ({
 
     const leftPart = <Stack direction={{ base: 'column' }} spacing="4" w='full' >
         {
-            ['deposit', 'd&b', 'withdraw', 'r&w'].includes(MODES[mode]) && <VStack w='full' alignItems="flex-start">
-                <TextInfo message={
-                    isDeposit ?
-                        market.isInv ?
-                            "Staked INV can be withdrawn at any time"
-                            : "The more you deposit, the more you can borrow against"
-                        : "Withdrawing collateral will reduce borrowing power"
-                }>
-                    <Text fontSize='18px' color="mainTextColor">
-                        <b>{isDeposit ? market.isInv ? 'Stake' : 'Deposit' : market.isInv ? 'Unstake' : 'Withdraw'}</b> {isWethMarket && isUseNativeCoin ? 'ETH' : market.underlying.symbol}{useLeverageInMode ? isDeposit && deposits > 0 ? ` (on top of leverage)` : ' (with leverage)' : ''}:
-                    </Text>
-                </TextInfo>
+            hasCollateralChange && <VStack w='full' alignItems="flex-start">
+                <FirmCollateralInputTitle isDeposit={isDeposit} market={market} deposits={deposits} isWethMarket={isWethMarket} isUseNativeCoin={isUseNativeCoin} useLeverageInMode={useLeverageInMode} />
                 {
                     deposits > 0 || isDeposit ? <>
                         <SimpleAmountForm
@@ -371,13 +359,7 @@ export const F2CombinedForm = ({
         <FirmLeverageModal />
         {
             hasDebtChange && <VStack w='full' alignItems="flex-start">
-                <TextInfo
-                    message={
-                        `The amount of DOLA stablecoin you wish to ${isDeposit ? 'borrow' : 'repay'}`
-                    }
-                >
-                    <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? 'Borrow' : 'Repay'}</b> DOLA{useLeverageInMode ? isDeposit ? ' (with leverage)' : ' (on top of leverage)' : ''}:</Text>
-                </TextInfo>
+                <FirmDebtInputTitle isDeposit={isDeposit} useLeverageInMode={useLeverageInMode} />
                 {
                     (debt > 0 || isDeposit) && ((deposits > 0 && isBorrowOnlyCase) || !isBorrowOnlyCase) ?
                         <>
@@ -509,12 +491,7 @@ export const F2CombinedForm = ({
             {...props}
         >
             {
-                (deposits > 0 || debt > 0 || !isDeposit) && <FormControl boxShadow="0px 0px 1px 0px #ccccccaa" bg="primary.400" zIndex="1" borderRadius="10px" px="2" py="1" right="0" top="-20px" margin="auto" position="absolute" w='fit-content' display='flex' alignItems='center'>
-                    <FormLabel cursor="pointer" htmlFor='withdraw-mode' mb='0'>
-                        {market.isInv ? 'Unstake?' : 'Repay / Withdraw?'}
-                    </FormLabel>
-                    <Switch isChecked={!isDeposit} onChange={handleDirectionChange} id='withdraw-mode' />
-                </FormControl>
+                (deposits > 0 || debt > 0 || !isDeposit) && <FirmExitModeSwitch isDeposit={isDeposit} handleDirectionChange={handleDirectionChange} isInv={market.isInv} />
             }
             <VStack justify="space-between" position="relative" w='full' px='2%' py="2" alignItems="center" spacing="4">
                 <NavButtons
