@@ -1,6 +1,6 @@
 import { getCacheFromRedis, redisSetWithTimestamp } from "@app/util/redis";
 import { repaymentsCacheKey } from "../transparency/repayments";
-import { timestampToUTC, uniqueBy } from "@app/util/misc";
+import { fillMissingDailyDatesWithMostRecentData, timestampToUTC, uniqueBy } from "@app/util/misc";
 
 export default async (req, res) => {
     const cacheDuration = 3600;
@@ -8,15 +8,19 @@ export default async (req, res) => {
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
 
     try {
-        const repaymentsData = (await getCacheFromRedis(repaymentsCacheKey, false)) || { dolaBadDebtEvolution: [] };        
-        
-        let csvData = `Date,DOLA bad debt\n`;
-        const evolutionWithUtcDate = repaymentsData.dolaBadDebtEvolution.map((d) => ({ ...d, utcDate: timestampToUTC(d.timestamp) }));
+        const repaymentsData = (await getCacheFromRedis(repaymentsCacheKey, false)) || { dolaBadDebtEvolution: [] };
+
+
         const oneDayBeforeExploitDate = '2022-04-01';
-        const dailyBadDebtData = uniqueBy(evolutionWithUtcDate, (o1, o2) => o1.utcDate === o2.utcDate)
+        const evolutionWithUtcDate = repaymentsData.dolaBadDebtEvolution
+            .map((d) => ({ ...d, utcDate: timestampToUTC(d.timestamp) }))
             .filter(d => d.utcDate >= oneDayBeforeExploitDate);
 
-        dailyBadDebtData.forEach((d) => {
+        const evolutionWithDailyUtcDates = fillMissingDailyDatesWithMostRecentData(evolutionWithUtcDate, 1);
+        const evolutionWithUniqueDailyUtcDates = uniqueBy(evolutionWithDailyUtcDates, (o1, o2) => o1.utcDate === o2.utcDate);
+
+        let csvData = `Date,DOLA bad debt\n`;
+        evolutionWithUniqueDailyUtcDates.forEach((d) => {
             csvData += `${d.utcDate},${d.badDebt}\n`;
         });
 
