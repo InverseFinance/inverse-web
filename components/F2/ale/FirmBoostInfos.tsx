@@ -12,7 +12,7 @@ import { F2Market } from '@app/types'
 import { useAccountDBR } from '@app/hooks/useDBR'
 import { AnchorPoolInfo } from '@app/components/Anchor/AnchorPoolnfo'
 import { TextInfo } from '@app/components/common/Messages/TextInfo'
-import { get0xSellQuote } from '@app/util/zero'
+import { get0xBuyQuote, get0xSellQuote } from '@app/util/zero'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { showToast } from '@app/util/notify'
 import { INV_STAKERS_ONLY } from '@app/config/features'
@@ -78,20 +78,34 @@ export const getLeverageImpact = async ({
     debt,
     dolaPrice = 1,
     aleSlippage,
+    viaInput = false,
 }) => {
     const collateralPrice = market?.price;
     if (!collateralPrice || leverageLevel <= 1) {
         return
     }
-    if (setLeverageLoading) setLeverageLoading(true);
+    if (setLeverageLoading) {
+        setLeverageLoading(true);
+    }
     if (isUp) {
         // leverage up: dola amount is fixed, collateral amount is variable
         // if already has deposits, base is deposits, if not (=depositAndLeverage case), base is initialDeposit
         const baseColAmountForLeverage = deposits > 0 ? deposits : initialDeposit;
         const baseWorth = baseColAmountForLeverage * collateralPrice;
-        const targetWorth = baseWorth * leverageLevel;
-        const borrowAmountToSign = (targetWorth - baseWorth) * dolaPrice;
-        const { buyAmount, validationErrors } = await get0xSellQuote(market.collateral, DOLA, getNumberToBn(borrowAmountToSign).toString(), aleSlippage, true);
+        let borrowStringToSign, borrowNumToSign;
+        // precision is focused on collateral amount
+        if (!viaInput) {
+            const amountUp = deposits * leverageLevel - deposits;
+            const { sellAmount } = await get0xBuyQuote(market.collateral, DOLA, getNumberToBn(amountUp, market.underlying.decimals).toString(), aleSlippage, true);
+            borrowStringToSign = sellAmount;
+            borrowNumToSign = parseFloat(borrowStringToSign) / (1e18);
+        } else {
+            const targetWorth = baseWorth * leverageLevel;            
+            borrowNumToSign = (targetWorth - baseWorth) * dolaPrice;
+            borrowStringToSign = getNumberToBn(borrowNumToSign).toString();
+        }
+        
+        const { buyAmount, validationErrors } = await get0xSellQuote(market.collateral, DOLA, borrowStringToSign, aleSlippage, true);
         const msg = validationErrors?.length > 0 ?
             `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
             : "Getting a quote from 0x failed";
@@ -100,7 +114,7 @@ export const getLeverageImpact = async ({
         if (setLeverageLoading) setLeverageLoading(false);
         return {
             errorMsg: validationErrors?.length > 0 ? msg : undefined,
-            dolaAmount: borrowAmountToSign,
+            dolaAmount: borrowNumToSign,
             // collateralAmount: collateralIncrease,
             collateralAmount: parseFloat(buyAmount) / (10 ** market.underlying.decimals),
         }
@@ -165,7 +179,7 @@ export const FirmBoostInfos = ({
         leverageLoading,
         setLeverageLoading,
         isInvPrimeMember,
-    } = useContext(F2MarketContext);    
+    } = useContext(F2MarketContext);
 
     const borrowApy = dbrPrice * 100;
     const minLeverage = 1;
@@ -239,7 +253,7 @@ export const FirmBoostInfos = ({
     const handleLeverageChange = async (v: number) => {
         setDebounced(false);
         setLeverageLevel(v);
-        if(!market.price || v <= 1) return;
+        if (!market.price || v <= 1) return;
         const { dolaAmount, collateralAmount, errorMsg } = await getLeverageImpact({
             setLeverageLoading,
             leverageLevel: parseFloat(v),
@@ -299,7 +313,7 @@ export const FirmBoostInfos = ({
     const boostLabel = isLeverageUp ? 'Leverage' : 'Deleverage';
     const now = Date.now();
 
-    if(!isInvPrimeMember && INV_STAKERS_ONLY.firmLeverage) {
+    if (!isInvPrimeMember && INV_STAKERS_ONLY.firmLeverage) {
         return <InvPrime showLinks={false} />
     }
 

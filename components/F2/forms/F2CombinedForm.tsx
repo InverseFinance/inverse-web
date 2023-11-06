@@ -101,6 +101,7 @@ export const F2CombinedForm = ({
         newTotalDebt,
         newDeposits,
         userNotEligibleForLeverage,
+        setLeverageLoading,
     } = useContext(F2MarketContext);
 
     const [isLargerThan] = useMediaQuery('(min-width: 1280px)');
@@ -247,7 +248,7 @@ export const F2CombinedForm = ({
             setLeverage(leverage);
             if (!market.price || leverage <= 1) return
             const { dolaAmount, errorMsg } = await getLeverageImpact({
-                deposits, debt, leverageLevel: leverage, market, isUp: false, dolaPrice
+                deposits, debt, leverageLevel: leverage, market, isUp: false, dolaPrice, setLeverageLoading, viaInput: true
             });
             if (!!errorMsg) {
                 showToast({ status: 'warning', description: errorMsg, title: 'ZeroX api error' })
@@ -260,13 +261,13 @@ export const F2CombinedForm = ({
 
     const triggerDebtAndOrLeverageChange = async (debtString: string, debtNum: number) => {
         handleDebtChange(debtString);
-        if (useLeverageInMode && !isDeleverageCase && !!debtNum && debtNum > 0) {
+        if (useLeverageInMode && !isDeleverageCase && !!debtNum && debtNum > 0) {            
             const baseColAmountForLeverage = deposits > 0 ? deposits : collateralAmountNum;
             const baseWorth = baseColAmountForLeverage * market.price;
             const leverage = (debtNum + baseWorth) / baseWorth;
-            if (!market.price || leverage <= 1) return
+            if (!market.price || leverage <= 1) return            
             const { collateralAmount, errorMsg } = await getLeverageImpact({
-                deposits, debt, leverageLevel: leverage, market, isUp: true, dolaPrice
+                deposits, debt, leverageLevel: leverage, market, isUp: true, dolaPrice, setLeverageLoading, viaInput: true
             });
             if (!!errorMsg) {
                 showToast({ status: 'warning', description: errorMsg, title: 'ZeroX api error' })
