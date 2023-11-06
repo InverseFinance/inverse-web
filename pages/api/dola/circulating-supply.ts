@@ -8,7 +8,7 @@ import { getBnToNumber } from '@app/util/markets'
 import { NetworkIds } from '@app/types';
 import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
 import { DOLA_CIRC_SUPPLY_EVO_CACHE_KEY } from './circulating-supply-evolution';
-import { timestampToUTC } from '@app/util/misc';
+import { fillMissingDailyDatesWithMostRecentData, timestampToUTC } from '@app/util/misc';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
 
 const { F2_MARKETS, DOLA, FEDS } = getNetworkConfigConstants();
@@ -32,8 +32,9 @@ export default async function handler(req, res) {
     const cacheDuration = 60;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
+    const isSaveCircSupply = req.method === 'POST' || req.query.saveCircSupply === 'true';
 
-    if (validCache) {
+    if (validCache && !isSaveCircSupply) {
       res.status(200).send(validCache);
       return
     }
@@ -82,7 +83,7 @@ export default async function handler(req, res) {
     await redisSetWithTimestamp(cacheKey, circSupply);
 
     // daily cron job case: add daily data to evolution data
-    if (req.method === 'POST' && req.headers.authorization !== `Bearer ${process.env.API_SECRET_KEY}`) {
+    if (isSaveCircSupply) {
       const cachedCircEvoData = (await getCacheFromRedis(DOLA_CIRC_SUPPLY_EVO_CACHE_KEY, false)) || { evolution: [] };
       const timestamp = Date.now();
       const utcDate = timestampToUTC(timestamp);
@@ -94,11 +95,15 @@ export default async function handler(req, res) {
           circSupply,          
           mainnetExcluded: mainnetExcludedTotal,
           farmersExcluded: farmersExcludedTotal,
-        }); 
+        });
+        // in case we missed a day, fill with most recent data
+        const filledIn = fillMissingDailyDatesWithMostRecentData(cachedCircEvoData.evolution, 1);
         const results = {
           timestamp,
           lastUtcDate: utcDate,
-          evolution: cachedCircEvoData.evolution,
+          evolution: filledIn.map(evo => {
+            return { utcDate: evo.utcDate, totalSupply: evo.totalSupply, circSupply: evo.circSupply, mainnetExcluded: evo.mainnetExcluded, farmersExcluded: evo.farmersExcluded }
+          }),
         }
         await redisSetWithTimestamp(DOLA_CIRC_SUPPLY_EVO_CACHE_KEY, results);
       }      

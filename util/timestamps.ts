@@ -2,7 +2,7 @@
 import { BLOCK_TIMESTAMPS } from '@app/config/blocknumber-timestamps-archived';
 import { getRedisClient } from '@app/util/redis';
 import { mergeDeep } from './misc';
-import { getProvider } from './providers';
+import { getHistoricalProvider } from './providers';
 
 const client = getRedisClient();
 const cachedButNotArchivedYetKey = 'block-timestamps-unarchived';
@@ -16,7 +16,7 @@ export const addBlockTimestamps = async (blockNumbers: number[], chainId: string
     const cachedBns = Object.keys(cachedAndArchivedBlockTimestamps[chainId]);
 
     const uniqueBns = [...new Set(blockNumbers)].filter(v => !cachedBns.includes(v.toString()));
-    const provider = getProvider(chainId);
+    const provider = getHistoricalProvider(chainId);
     const results = await Promise.all(
         uniqueBns.map(blockNumber => provider.getBlock(blockNumber))
     );
