@@ -1,0 +1,138 @@
+import { TextInfo } from "@app/components/common/Messages/TextInfo"
+import { HStack, VStack, Text, FormControl, FormLabel, Switch, Badge } from "@chakra-ui/react"
+import { F2DurationInput } from "../F2DurationInput"
+import { AmountInfos } from "@app/components/common/Messages/AmountInfos"
+import { Input } from "@app/components/common/Input"
+import { AutoBuyDbrNoteMessage } from "./FirmMessages"
+import { SimpleAmountForm } from "@app/components/common/SimpleAmountForm"
+import { MarketImage } from "@app/components/common/Assets/MarketImage"
+import { TOKENS } from "@app/variables/tokens"
+import { getNetworkConfigConstants } from "@app/util/networks"
+import { InfoMessage } from "@app/components/common/Messages"
+import { BigNumber } from "ethers"
+
+const { DBR } = getNetworkConfigConstants();
+
+const dbrToken = TOKENS[DBR];
+
+export const AutoBuyDbrDurationInputs = ({
+    setDbrBuySlippage,
+    dbrBuySlippage,
+    duration,
+    handleDurationChange,
+    durationType,
+    durationTypedValue,
+}: {
+    setDbrBuySlippage: (value: string) => void
+    handleDurationChange: (v: number, typedValue: number, type: string) => void
+    durationType: 'days' | 'weeks' | 'months' | 'quarters' | 'years'
+    dbrBuySlippage: string
+    durationTypedValue: string
+    duration: string | number
+}) => {
+    return <VStack spacing='4' w={{ base: '100%', lg: '100%' }}>
+        <VStack w='full' alignItems="flex-start">
+            <TextInfo message="This will lock-in a Borrow Rate for the desired duration by auto-buying DBR tokens, after the duration you can still keep the loan but at the expense of a higher debt and Borrow Rate.">
+                <Text fontSize='18px' color="mainTextColor"><b>Duration</b> to cover:</Text>
+            </TextInfo>
+            <F2DurationInput
+                onChange={handleDurationChange}
+                defaultType={durationType}
+                defaultValue={durationTypedValue}
+            />
+            <AmountInfos format={false} label="Duration in days" value={duration} textProps={{ fontSize: '14px' }} />
+            <HStack w='full' justify="space-between">
+                <TextInfo
+                    message="DBR price can vary while trying to buy, the max. slippage % allows the resulting total DOLA debt created to be within a certain range, if out of range, tx will revert or fail">
+                    <Text>
+                        Max. slippage %:
+                    </Text>
+                </TextInfo>
+                <Input py="0" maxH="30px" w='90px' value={dbrBuySlippage} onChange={(e) => setDbrBuySlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'))} />
+            </HStack>
+            <AutoBuyDbrNoteMessage />
+        </VStack>
+    </VStack>
+}
+
+export const SellDbrInput = ({
+    dbrSellAmount,
+    setDbrSellAmount,
+    helperAddress,
+    dbrBalance,
+    bnDbrBalance,
+    signer,
+    dbrBuySlippage,
+    setDbrBuySlippage,
+}: {
+    dbrSellAmount: string
+    setDbrSellAmount: (value: string) => void
+    helperAddress: string
+    dbrBalance: number
+    bnDbrBalance: BigNumber
+    signer: any
+    dbrBuySlippage: string
+    setDbrBuySlippage: (value: string) => void
+}) => {
+    return <VStack spacing='4' w={{ base: '100%', lg: '100%' }}>
+        <VStack w='full' alignItems="flex-start">
+            <TextInfo message="Will auto-sell the specified amount of DBRs against DOLAs">
+                <Text fontSize='18px' color="mainTextColor"><b>DBR</b> to sell:</Text>
+            </TextInfo>
+            <SimpleAmountForm
+                defaultAmount={dbrSellAmount}
+                address={DBR}
+                destination={helperAddress}
+                signer={signer}
+                decimals={18}
+                maxAmountFrom={[bnDbrBalance]}
+                onAmountChange={setDbrSellAmount}
+                approveLabel="Approve DBR for auto-selling"
+                showMax={true}
+                showMaxBtn={false}
+                onlyShowApproveBtn={true}
+                hideInputIfNoAllowance={true}
+                inputRight={<MarketImage pr="2" image={dbrToken.image} size={25} />}
+                // balance decreases if debt, calling with higher sell amount to contract is ok
+                isError={dbrBalance < parseFloat(dbrSellAmount) * 1.01}
+            />
+            <HStack w='full' justify="space-between">
+                <TextInfo
+                    message="DBR price can vary while trying to sell, the max. slippage % allows the resulting total DOLA received to be within a certain range, if out of range, tx will revert or fail">
+                    <Text>
+                        Max. slippage %:
+                    </Text>
+                </TextInfo>
+                <Input py="0" maxH="30px" w='90px' value={dbrBuySlippage} onChange={(e) => setDbrBuySlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'))} />
+            </HStack>
+            <InfoMessage
+                alertProps={{ w: 'full', fontStyle: 'italic' }}
+                description="Note: The DOLA received from the DBR swap will be sent to your wallet."
+            />
+        </VStack>
+    </VStack>
+}
+
+export const DbrHelperSwitch = ({
+    isDeposit,
+    setIsAutoDBR,
+    isAutoDBR,
+    hasHelper
+}: {
+    isDeposit: boolean
+    setIsAutoDBR: (v: boolean) => void
+    isAutoDBR: boolean
+    hasHelper: boolean
+}) => {
+    return <FormControl w='fit-content' display='flex' alignItems='center'>
+        <FormLabel w='110px' fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-dbr' mb='0'>
+            Auto-{isDeposit ? 'buy' : 'sell'} DBR?
+        </FormLabel>
+        <Switch isDisabled={!hasHelper} onChange={() => setIsAutoDBR(!isAutoDBR)} isChecked={isAutoDBR} id='auto-dbr' />
+        {
+            !hasHelper && <Badge ml="2">
+                Coming soon
+            </Badge>
+        }
+    </FormControl>
+}

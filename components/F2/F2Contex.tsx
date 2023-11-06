@@ -9,7 +9,6 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { useWeb3React } from '@web3-react/core'
 import { useAccount } from '@app/hooks/misc'
 import React from 'react'
-import { useRouter } from 'next/router'
 import { useDOLABalance } from '@app/hooks/useDOLA'
 import useStorage from '@app/hooks/useStorage'
 import { gaEvent } from '@app/util/analytics'
@@ -27,7 +26,6 @@ export const F2MarketContext = React.createContext<{
     account: string,
     escrow: string,
     signer: JsonRpcSigner,
-    step: number,
     duration: number,
     collateralAmount: string,
     debtAmount: string,
@@ -51,18 +49,12 @@ const MODES = {
 
 export const F2Context = ({
     market,
-    isWalkthrough,
-    setIsWalkthrough,
     ...props
 }: {
     market: F2Market
-    isWalkthrough: boolean
-    setIsWalkthrough: (v: boolean) => void
 } & Partial<FlexProps>) => {
-    const router = useRouter();
     const { provider } = useWeb3React();
     const account = useAccount();
-    const [step, setStep] = useState(1);
     const [duration, setDuration] = useState(365);
     const [durationType, setDurationType] = useState('months');
     const [durationTypedValue, setDurationTypedValue] = useState(12);
@@ -217,36 +209,6 @@ export const F2Context = ({
         setDuration(duration);
     }
 
-    const handleStepChange = (newStep: number) => {
-        router.push({ hash: `step${newStep}`, query: { ...router.query } });
-    }
-
-    useEffect(() => {
-        const stepString = location.hash.replace(/#step/, '');
-
-        const hasStep = location.hash.indexOf('step') !== -1;
-        setIsWalkthrough(hasStep)
-        if (!hasStep) {
-            return
-        }
-        setIsAutoDBR(!!market.helper);
-        if (mode !== 'Deposit & Borrow') {
-            handleDebtChange('');
-            setMode('Deposit & Borrow');
-            // setIsAutoDBR(true);
-        }
-        if (!collateralAmount && parseInt(stepString) !== 1) {
-            setStep(1);
-            router.replace({ hash: `step1` });
-        } else {
-            if (stepString && !isNaN(parseInt(stepString))) {
-                setStep(parseInt(stepString));
-            } else if (step !== 1) {
-                setStep(1);
-            }
-        }
-    }, [router, collateralAmount, mode, market])
-
     const isFormFilled = (!!collateralAmount && !!debtAmount) || debt > 0 || newDebt > 0;
     const riskColor = !isFormFilled ? 'mainTextColor' : getRiskColor(newPerc);
 
@@ -256,7 +218,6 @@ export const F2Context = ({
             colDecimals,
             account,
             signer: provider?.getSigner(),
-            step,
             duration,
             collateralAmount,
             debtAmount,
@@ -307,7 +268,6 @@ export const F2Context = ({
             mode,
             newDailyDBRBurn,
             newDailyDBRBurnInMarket,
-            isWalkthrough,
             infoTab,
             liquidationPrice,
             perc,
@@ -336,13 +296,10 @@ export const F2Context = ({
             setDbrBuySlippage,
             setDbrSellAmount,
             setInfoTab,
-            setIsWalkthrough,
             setMode,
             setIsAutoDBR,
             setIsUseNativeCoin,
-            setStep,
             setIsDeposit,
-            handleStepChange,
             handleDurationChange,
             handleDebtChange,
             handleCollateralChange,

@@ -5,16 +5,14 @@ import Head from 'next/head'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { useDBRMarkets } from '@app/hooks/useDBR'
 
-import { VStack, Text, HStack, FormControl, FormLabel, Switch } from '@chakra-ui/react'
+import { VStack, Text, HStack } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 
-import { useEffect, useState } from 'react'
 import { F2CombinedForm } from '@app/components/F2/forms/F2CombinedForm'
 import { FirmFAQ } from '@app/components/F2/Infos/FirmFAQ'
 import { MarketBar } from '@app/components/F2/Infos/InfoBar'
 import React from 'react'
 import { F2Context } from '@app/components/F2/F2Contex'
-import { F2Walkthrough } from '@app/components/F2/walkthrough/WalkthroughContainer'
 import { useRouter } from 'next/router'
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { FirmGovToken, InvInconsistentFirmDelegation } from '@app/components/F2/GovToken/FirmGovToken'
@@ -33,25 +31,13 @@ const { F2_MARKETS } = getNetworkConfigConstants();
 
 export const F2MarketPage = ({ market }: { market: string }) => {
     const router = useRouter();
-    const [inited, setInited] = useState(false);
-    const [isWalkthrough, setIsWalkthrough] = useState(true);
     const { markets } = useDBRMarkets(market);
     const f2market = markets.length > 0 && !!market ? markets[0] : undefined;
 
     const needCountdown = !f2market?.borrowPaused && f2market?.leftToBorrow < f2market?.dailyLimit && f2market?.dolaLiquidity > 0 && f2market?.leftToBorrow < f2market?.dolaLiquidity && shortenNumber(f2market?.dolaLiquidity, 2) !== shortenNumber(f2market?.leftToBorrow, 2);
 
-    // useEffect(() => {
-    //     if (inited) { return }
-    //     setIsWalkthrough(router.asPath.includes('#step'))
-    //     setInited(true);
-    // }, [router, inited]);
-
     const backToMarkets = () => {
         router.push(router.asPath.replace(`/${market}`, '').replace(/#step[0-9]/i, ''));
-    }
-
-    const toggleWalkthrough = () => {
-        router.replace({ hash: isWalkthrough ? '' : 'step1', query: router.query })
     }
 
     return (
@@ -70,7 +56,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                         borderBottomLeftRadius="md"
                         bgColor="secondaryTextColor"
                         transform="translateY(-2px)"
-                        position={isWalkthrough ? 'relative' : { base: 'relative', md: 'absolute' }}
+                        position={{ base: 'relative', md: 'absolute' }}
                         alignItems="center"
                         justify="center"
                         spacing="0"
@@ -89,14 +75,13 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                     !f2market || !market ? <Text mt="8">
                         {!f2market ? 'Loading...' : 'Market not found!'}
                     </Text>
-                        : <F2Context market={f2market} isWalkthrough={isWalkthrough} setIsWalkthrough={setIsWalkthrough}>
+                        : <F2Context market={f2market}>
                             <FirstTimeModal />
                             <DbrV1IssueModal />
                             <VStack
                                 pt="4"
                                 w='full'
                                 maxW={'84rem'}
-                                // maxW={isWalkthrough ? '750px' : '84rem'}
                                 transitionProperty="width"
                                 transition="ease-in-out"
                                 transitionDuration="200ms"
@@ -110,56 +95,19 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                             <ArrowBackIcon fontSize="18px" _hover={{ color: 'inherit' }} color="inherit" />
                                             <Text _hover={{ color: 'inherit' }} color="inherit">Back to Markets</Text>
                                         </HStack>
-                                        {/* {
-                                            !f2market.isInv && <HStack>
-                                                <FormControl
-                                                    display="inline-flex"
-                                                    flexDirection={{ base: 'column', md: 'row' }}
-                                                    alignItems={{ base: 'flex-end', md: 'center' }}
-                                                    justify="flex-end"
-                                                >
-                                                    <FormLabel
-                                                        // fontSize={{ base: '12px', md: '14px' }}
-                                                        display={{ base: 'contents', md: 'inline-block' }}
-                                                        color="mainTextColor"
-                                                        cursor="pointer"
-                                                        htmlFor='walkthrough-mode'
-                                                        textAlign="right"
-                                                        mb='0'
-                                                    >
-                                                        <VStack color="secondaryTextColor" spacing="0" alignItems="flex-end">                                                            
-                                                            <Text fontWeight="normal" color="inherit">Walkthrough mode</Text>
-                                                        </VStack>
-                                                    </FormLabel>
-                                                    <Switch colorScheme="purple" isChecked={isWalkthrough} onChange={() => toggleWalkthrough()} id='walkthrough-mode' mr="1" />
-                                                </FormControl>
-                                            </HStack>
-                                        } */}
                                     </HStack>
-
-                                    {
-                                        !isWalkthrough && <MarketBar
-                                            w='full'
-                                            minH="64px"
-                                            overflow="hidden"
-                                            alignItems="center"
-                                            pt='0'
-                                        />
-                                    }
-
+                                    <MarketBar
+                                        w='full'
+                                        minH="64px"
+                                        overflow="hidden"
+                                        alignItems="center"
+                                        pt='0'
+                                    />
                                 </VStack>
-
                                 {
                                     !f2market ?
                                         <Text>Market not found</Text>
                                         :
-                                        // isWalkthrough ?
-                                        //     <VStack id="walkthrough-container" w='full' maxW={'700px'} alignItems="flex-start" pt="2" pb="0" spacing="8">
-                                        //         <ErrorBoundary description="Error in the walkthrough mode, please try reloading">
-                                        //             <F2Walkthrough market={f2market} />
-                                        //         </ErrorBoundary>
-                                        //     </VStack>
-                                        //     :
                                         <VStack
                                             alignItems="center"
                                             w='full'

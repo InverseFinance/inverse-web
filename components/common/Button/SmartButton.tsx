@@ -87,14 +87,15 @@ export const SmartButton = (props: SmartButtonProps) => {
 
     const colorFactor = (Number((themeColor?.match(/\.(.*$)/) || ['', '500'])[1]) + 100).toString();
     const themeColors = themeColor ? { bgColor: themeColor, _hover: { bgColor: `${themeColor.replace(/\..*$/, '')}.${colorFactor}` } } : {}
-
+    const disabled = btnProps.disabled || btnProps.isDisabled || isPending;
     return (
         <Button
             loadingText={loadingText}
             {...btnProps}
             {...themeColors}
             // keep after {...props} :
-            disabled={btnProps.disabled || btnProps.isDisabled || isPending}
+            disabled={disabled}
+            isDisabled={disabled}
             onClick={handleClick}
             isLoading={btnProps.isLoading || isPending}
             lineHeight={0}
