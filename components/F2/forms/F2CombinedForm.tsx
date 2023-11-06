@@ -24,7 +24,7 @@ import { removeTrailingZeros } from '@app/util/misc'
 import { showToast } from '@app/util/notify'
 import { BorrowPausedMessage, CannotWithdrawIfDbrDeficitMessage, MinDebtBorrowMessage, NoDbrInWalletMessage, NoDolaLiqMessage, NotEnoughCollateralMessage, NotEnoughLiqWithAutobuyMessage, ResultingBorrowLimitTooHighMessage } from './FirmFormSubcomponents/FirmMessages'
 import { AutoBuyDbrDurationInputs, DbrHelperSwitch, SellDbrInput } from './FirmFormSubcomponents/FirmDbrHelper'
-import { FirmBorroInputwSubline, FirmCollateralInputTitle, FirmDebtInputTitle, FirmExitModeSwitch, FirmRepayInputSubline, FirmWethSwitch, FirmWithdrawInputSubline } from './FirmFormSubcomponents'
+import { FirmBorroInputwSubline, FirmCollateralInputTitle, FirmDebtInputTitle, FirmExitModeSwitch, FirmLeverageSwitch, FirmRepayInputSubline, FirmWethSwitch, FirmWithdrawInputSubline } from './FirmFormSubcomponents'
 
 const { DOLA, F2_HELPER, F2_ALE } = getNetworkConfigConstants();
 
@@ -299,7 +299,7 @@ export const F2CombinedForm = ({
     const modeLabel = market.isInv ? mode.replace(/deposit/i, 'Stake').replace(/withdraw/i, 'Unstake') : mode;
     const actionBtnLabel = useLeverageInMode ? `Sign + ${collateralAmountNum > 0 && !isDeleverageCase ? 'Deposit & ' : ''}Leverage ${isDeposit ? 'up' : 'down'}` : isSigNeeded ? `Sign + ${modeLabel}` : modeLabel;
 
-    const leftPart = <Stack direction={{ base: 'column' }} spacing="4" w='full' >
+    const mainFormInputs = <Stack direction={{ base: 'column' }} spacing="4" w='full'>
         {
             hasCollateralChange && <VStack w='full' alignItems="flex-start">
                 <FirmCollateralInputTitle isDeposit={isDeposit} market={market} deposits={deposits} isWethMarket={isWethMarket} isUseNativeCoin={isUseNativeCoin} useLeverageInMode={useLeverageInMode} />
@@ -413,12 +413,7 @@ export const F2CombinedForm = ({
                         />
                     }
                     {
-                        canUseLeverage && <FormControl w='fit-content' display='flex' alignItems='center'>
-                            <FormLabel fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='leverage-switch' mb='0'>
-                                {isDeposit ? 'L' : 'Del'}everage (beta)?
-                            </FormLabel>
-                            <Switch onChange={() => setUseLeverage(!useLeverage)} isChecked={useLeverage} id='leverage-switch' />
-                        </FormControl>
+                        canUseLeverage && <FirmLeverageSwitch isDeposit={isDeposit} useLeverage={useLeverage} setUseLeverage={setUseLeverage} />
                     }
                 </HStack>
             </VStack>
@@ -501,7 +496,7 @@ export const F2CombinedForm = ({
                     isStaking={market.isInv}
                 />
                 <Stack justify="space-between" w='full' spacing="4" direction={{ base: 'column' }}>
-                    {leftPart}
+                    {mainFormInputs}
                     {
                         (useLeverageInMode || (useLeverage && userNotEligibleForLeverage)) && <FirmBoostInfos
                             type={isDeposit ? 'up' : 'down'}

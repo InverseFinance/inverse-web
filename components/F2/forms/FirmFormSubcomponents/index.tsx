@@ -138,6 +138,23 @@ export const FirmExitModeSwitch = ({
     </FormControl>
 }
 
+export const FirmLeverageSwitch = ({
+    isDeposit,
+    setUseLeverage,
+    useLeverage,
+}: {
+    isDeposit: boolean
+    setUseLeverage: (value: boolean) => void
+    useLeverage: boolean
+}) => {
+    return <FormControl w='fit-content' display='flex' alignItems='center'>
+    <FormLabel fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='leverage-switch' mb='0'>
+        {isDeposit ? 'L' : 'Del'}everage (beta)?
+    </FormLabel>
+    <Switch onChange={() => setUseLeverage(!useLeverage)} isChecked={useLeverage} id='leverage-switch' />
+</FormControl>
+}
+
 export const FirmCollateralInputTitle = ({
     isDeposit,
     market,
