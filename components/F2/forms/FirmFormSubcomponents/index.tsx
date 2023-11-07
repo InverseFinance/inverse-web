@@ -178,7 +178,7 @@ export const FirmCollateralInputTitle = ({
             : "Withdrawing collateral will reduce borrowing power"
     }>
         <Text fontSize='18px' color="mainTextColor">
-            <b>{isDeposit ? market.isInv ? 'Stake' : 'Deposit' : market.isInv ? 'Unstake' : 'Withdraw'}</b> {isWethMarket && isUseNativeCoin ? 'ETH' : market.underlying.symbol}{useLeverageInMode ? isDeposit && deposits > 0 ? ` (on top of leverage)` : ' (with leverage)' : ''}:
+            <b>{isDeposit ? market.isInv ? 'Stake' : 'Deposit' : market.isInv ? 'Unstake' : 'Withdraw'}</b> {isWethMarket && isUseNativeCoin ? 'ETH' : market.underlying.symbol}{useLeverageInMode ? isDeposit && deposits > 0 ? ` (on top of leverage)` : ' (deleveraging)' : ''}:
         </Text>
     </TextInfo>
 }
@@ -195,6 +195,6 @@ export const FirmDebtInputTitle = ({
             `The amount of DOLA stablecoin you wish to ${isDeposit ? 'borrow' : 'repay'}`
         }
     >
-        <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? 'Borrow' : 'Repay'}</b> DOLA{useLeverageInMode ? isDeposit ? ' (with leverage)' : ' (on top of leverage)' : ''}:</Text>
+        <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? 'Borrow' : 'Repay'}</b> DOLA{useLeverageInMode ? isDeposit ? ' (to do leverage)' : ' (on top of leverage)' : ''}:</Text>
     </TextInfo>
 }
