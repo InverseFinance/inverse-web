@@ -102,6 +102,7 @@ export const F2CombinedForm = ({
         newDeposits,
         userNotEligibleForLeverage,
         setLeverageLoading,
+        leverageLoading,
     } = useContext(F2MarketContext);
 
     const [isLargerThan] = useMediaQuery('(min-width: 1280px)');
@@ -208,19 +209,21 @@ export const F2CombinedForm = ({
         }
     }
 
-    useEffect(() => {
-        if (!useLeverage) return;
+    const retriggerLeverage = (isDeposit: boolean, inputString?: string, num?: number, leverageInMode?: boolean) => {
         if (!isDeposit) {
             triggerCollateralAndOrLeverageChange(leverageCollateralAmount, leverageCollateralAmountNum);
         } else {
-            triggerDebtAndOrLeverageChange(leverageDebtAmount, leverageDebtAmountNum);
+            triggerDebtAndOrLeverageChange(inputString || leverageDebtAmount, num || leverageDebtAmountNum, leverageInMode);
         }
-    }, [isDeposit, useLeverage])
+    }
 
     const handleDirectionChange = () => {
         const _isDeposit = !isDeposit;
         setIsDeposit(_isDeposit);
         setMode(_isDeposit ? inOptions[outOptions.indexOf(mode)] : outOptions[inOptions.indexOf(mode)]);
+        if(useLeverage){
+            resetForm(true);
+        }
     }
 
     const onSuccess = () => {
@@ -230,13 +233,17 @@ export const F2CombinedForm = ({
         setFirmActionIndex(newFirmActionIndex);
     }
 
-    const resetForm = () => {
+    const resetForm = (disableLeverage = true) => {
         handleDebtChange('');
         handleCollateralChange('');
         setDbrSellAmount('');
+        setUseLeverage(!disableLeverage);
+        resetLeverage();
+    }
+
+    const resetLeverage = () => {
         setLeverageCollateralAmount('');
         setLeverageDebtAmount('');
-        setUseLeverage(false);
         setLeverage(1);
     }
 
@@ -259,13 +266,13 @@ export const F2CombinedForm = ({
         }
     }
 
-    const triggerDebtAndOrLeverageChange = async (debtString: string, debtNum: number) => {
+    const triggerDebtAndOrLeverageChange = async (debtString: string, debtNum: number, leverageInMode?: boolean) => {
         handleDebtChange(debtString);
-        if (useLeverageInMode && !isDeleverageCase && !!debtNum && debtNum > 0) {            
+        if (leverageInMode || useLeverageInMode && !isDeleverageCase && !!debtNum && debtNum > 0) {
             const baseColAmountForLeverage = deposits > 0 ? deposits : collateralAmountNum;
             const baseWorth = baseColAmountForLeverage * market.price;
             const leverage = (debtNum + baseWorth) / baseWorth;
-            if (!market.price || leverage <= 1) return            
+            if (!market.price || leverage <= 1) return;
             const { collateralAmount, errorMsg } = await getLeverageImpact({
                 deposits, debt, leverageLevel: leverage, market, isUp: true, dolaPrice, setLeverageLoading, viaInput: true
             });
@@ -275,6 +282,8 @@ export const F2CombinedForm = ({
             }
             setLeverageCollateralAmount(removeTrailingZeros(collateralAmount.toFixed(8)));
             setLeverage(leverage);
+        } else if (!debtString || debtString === '0') {
+            resetLeverage();
         }
     }
 
@@ -293,8 +302,9 @@ export const F2CombinedForm = ({
         'repay': (debtAmountNum <= 0 && !useLeverageInMode) || debtAmountNum > debt || (debtAmountNum > dolaBalance && !useLeverageInMode) || (isAutoDBR && !parseFloat(dbrSellAmount)),
         'withdraw': ((collateralAmountNum <= 0 && !useLeverageInMode) || collateralAmountNum > deposits || newPerc < 1 || dbrBalance < 0),
     }
-    disabledConditions['d&b'] = disabledConditions['deposit'] || disabledConditions['borrow'] || !parseFloat(dbrBuySlippage) || (useLeverageInMode && leverage <= 1);
-    disabledConditions['r&w'] = disabledConditions['repay'] || disabledConditions['withdraw'] || (useLeverageInMode && leverage <= 1);
+    const disabledDueToLeverage = useLeverageInMode && (leverage <= 1 || leverageLoading);
+    disabledConditions['d&b'] = disabledConditions['deposit'] || disabledConditions['borrow'] || !parseFloat(dbrBuySlippage) || disabledDueToLeverage;
+    disabledConditions['r&w'] = disabledConditions['repay'] || disabledConditions['withdraw'] || disabledDueToLeverage;
 
     const showResultingLimitTooHigh = disabledConditions[MODES[mode]] && (!!debtAmountNum || !!collateralAmountNum) && newPerc < 1;
     const modeLabel = market.isInv ? mode.replace(/deposit/i, 'Stake').replace(/withdraw/i, 'Unstake') : mode;
@@ -414,7 +424,11 @@ export const F2CombinedForm = ({
                         />
                     }
                     {
-                        canUseLeverage && <FirmLeverageSwitch isDeposit={isDeposit} useLeverage={useLeverage} setUseLeverage={setUseLeverage} />
+                        canUseLeverage && <FirmLeverageSwitch isDeposit={isDeposit} useLeverage={useLeverage} onChange={(isDeposit) => {
+                            const isActivatingLeverage = !useLeverage;
+                            setUseLeverage(isActivatingLeverage);
+                            retriggerLeverage(isDeposit, debtAmount, debtAmountNum, true);
+                        }} />
                     }
                 </HStack>
             </VStack>
@@ -499,20 +513,22 @@ export const F2CombinedForm = ({
                 <Stack justify="space-between" w='full' spacing="4" direction={{ base: 'column' }}>
                     {mainFormInputs}
                     {
-                        (useLeverageInMode || (useLeverage && userNotEligibleForLeverage)) && <FirmBoostInfos
-                            type={isDeposit ? 'up' : 'down'}
-                            onLeverageChange={({
-                                dolaAmount, collateralAmount, isLeverageUp
-                            }) => {
-                                if (isLeverageUp) {
-                                    handleDebtChange(Math.abs(dolaAmount).toFixed(2));
-                                    setLeverageCollateralAmount(Math.abs(collateralAmount).toFixed(8));
-                                } else {
-                                    handleCollateralChange(Math.abs(collateralAmount).toFixed(8));
-                                    setLeverageDebtAmount(Math.abs(dolaAmount).toFixed(2));
-                                }
-                            }}
-                        />
+                        <VStack display={(useLeverageInMode || (useLeverage && userNotEligibleForLeverage)) ? 'inline-block' : 'none'}>
+                            <FirmBoostInfos
+                                type={isDeposit ? 'up' : 'down'}
+                                onLeverageChange={({
+                                    dolaAmount, collateralAmount, isLeverageUp
+                                }) => {
+                                    if (isLeverageUp) {
+                                        handleDebtChange(Math.abs(dolaAmount).toFixed(2));
+                                        setLeverageCollateralAmount(Math.abs(collateralAmount).toFixed(8));
+                                    } else {
+                                        handleCollateralChange(Math.abs(collateralAmount).toFixed(8));
+                                        setLeverageDebtAmount(Math.abs(dolaAmount).toFixed(2));
+                                    }
+                                }}
+                            />
+                        </VStack>
                     }
                     {['d&b', 'borrow'].includes(MODES[mode]) && isAutoDBR && <Divider borderColor="#cccccc66" />}
                     {['d&b', 'borrow'].includes(MODES[mode]) && isAutoDBR && dbrDurationInputs}
@@ -552,7 +568,7 @@ export const F2CombinedForm = ({
                     debtAmountNumInfo={hasDebtChange ? isDeposit ? debtAmountNum : Math.min(debtAmountNum, debt) : 0}
                 />
                 {
-                    showResultingLimitTooHigh && <ResultingBorrowLimitTooHighMessage />
+                    showResultingLimitTooHigh && !leverageLoading && <ResultingBorrowLimitTooHighMessage />
                 }
                 {
                     market.borrowPaused ? <BorrowPausedMessage /> : market.leftToBorrow < 1 && isBorrowCase && <NoDolaLiqMessage />

@@ -51,7 +51,7 @@ const getSteps = (
         deltaBorrow,
         perc,
     );
-    if ((newPerc <= 1) || _leverageLevel > 10 || doLastOne) {
+    if ((newPerc <= 2) || _leverageLevel > 10 || doLastOne) {
         return steps;
     } else {
         return getSteps(market, deposits, debt, perc, type, _leverageLevel, [...steps, _leverageLevel], newDebt < 0);
@@ -218,8 +218,8 @@ export const FirmBoostInfos = ({
     useDebouncedEffect(() => {
         setDebounced(!!editLeverageLevel && (!editLeverageLevel.endsWith('.') || editLeverageLevel === '.') && !isNaN(parseFloat(editLeverageLevel)));
     }, [editLeverageLevel], 500);
-
-    useDebouncedEffect(() => {
+    
+    useDebouncedEffect(() => {        
         setDebounced(false);
         validatePendingLeverage(sliderLeverageLevel);
     }, [sliderLeverageLevel], 500);
