@@ -2,7 +2,7 @@ import { Slider, Text, VStack, SliderTrack, SliderFilledTrack, SliderThumb, HSta
 
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { getNumberToBn, shortenNumber, smartShortNumber } from '@app/util/markets'
-import { WarningMessage } from '@app/components/common/Messages'
+import { InfoMessage, WarningMessage } from '@app/components/common/Messages'
 import { ArrowDownIcon, ArrowUpIcon, CheckCircleIcon } from '@chakra-ui/icons'
 import { Input } from '@app/components/common/Input'
 import { F2MarketContext } from '../F2Contex'
@@ -104,7 +104,7 @@ export const getLeverageImpact = async ({
             borrowNumToSign = (targetWorth - baseWorth) * dolaPrice;
             borrowStringToSign = getNumberToBn(borrowNumToSign).toString();
         }
-
+        // in the end the reference is always a number of dola sold (as it's what we need to sign, or part of it if with dbr)
         const { buyAmount, validationErrors } = await get0xSellQuote(market.collateral, DOLA, borrowStringToSign, aleSlippage, true);
         const msg = validationErrors?.length > 0 ?
             `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
@@ -315,6 +315,8 @@ export const FirmBoostInfos = ({
 
     if (!isInvPrimeMember && INV_STAKERS_ONLY.firmLeverage) {
         return <InvPrime showLinks={false} />
+    } else if (isLeverageUp && market.leftToBorrow < 1) {
+        return <InfoMessage alertProps={{ w: 'full' }} description="Cannot use leverage when there is no DOLA liquidity" />
     }
 
     return <Stack fontSize="14px" spacing="4" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
@@ -345,10 +347,10 @@ export const FirmBoostInfos = ({
                         <HStack fontWeight="bold" spacing="1" alignItems="center">
                             {isLeverageUp ? <ArrowUpIcon color="success" fontSize="18px" /> : <ArrowDownIcon color="warning" fontSize="18px" />}
                             <VStack spacing="0">
-                                <Text w='fit-content' fontSize="14px" textAlign="center">
+                                <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="14px" textAlign="center">
                                     ~{smartShortNumber(isLeverageUp ? parseFloat(leverageCollateralAmount) : collateralAmountNum, 8)}
                                 </Text>
-                                <Text>
+                                <Text textDecoration="underline" cursor="default">
                                     {market.underlying.symbol}
                                 </Text>
                             </VStack>
@@ -360,10 +362,10 @@ export const FirmBoostInfos = ({
                         <HStack fontWeight="bold" spacing="1" alignItems="center">
                             {isLeverageUp ? <ArrowUpIcon color="warning" fontSize="18px" /> : <ArrowDownIcon color="success" fontSize="18px" />}
                             <VStack spacing="0">
-                                <Text w='fit-content' fontSize="14px" textAlign="center">
+                                <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="14px" textAlign="center">
                                     ~{smartShortNumber(!isLeverageUp ? parseFloat(leverageDebtAmount) : debtAmountNum, 8)}
                                 </Text>
-                                <Text>DEBT</Text>
+                                <Text textDecoration="underline" cursor="default">DEBT</Text>
                             </VStack>
                         </HStack>
                     </TextInfoSimple>
