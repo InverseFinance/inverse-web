@@ -11,7 +11,7 @@ import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
 import { F2Market } from '@app/types'
 import { useAccountDBR } from '@app/hooks/useDBR'
 import { AnchorPoolInfo } from '@app/components/Anchor/AnchorPoolnfo'
-import { TextInfo } from '@app/components/common/Messages/TextInfo'
+import { TextInfo, TextInfoSimple } from '@app/components/common/Messages/TextInfo'
 import { get0xBuyQuote, get0xSellQuote } from '@app/util/zero'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { showToast } from '@app/util/notify'
@@ -100,11 +100,11 @@ export const getLeverageImpact = async ({
             borrowStringToSign = sellAmount;
             borrowNumToSign = parseFloat(borrowStringToSign) / (1e18);
         } else {
-            const targetWorth = baseWorth * leverageLevel;            
+            const targetWorth = baseWorth * leverageLevel;
             borrowNumToSign = (targetWorth - baseWorth) * dolaPrice;
             borrowStringToSign = getNumberToBn(borrowNumToSign).toString();
         }
-        
+
         const { buyAmount, validationErrors } = await get0xSellQuote(market.collateral, DOLA, borrowStringToSign, aleSlippage, true);
         const msg = validationErrors?.length > 0 ?
             `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
@@ -218,8 +218,8 @@ export const FirmBoostInfos = ({
     useDebouncedEffect(() => {
         setDebounced(!!editLeverageLevel && (!editLeverageLevel.endsWith('.') || editLeverageLevel === '.') && !isNaN(parseFloat(editLeverageLevel)));
     }, [editLeverageLevel], 500);
-    
-    useDebouncedEffect(() => {        
+
+    useDebouncedEffect(() => {
         setDebounced(false);
         validatePendingLeverage(sliderLeverageLevel);
     }, [sliderLeverageLevel], 500);
@@ -338,27 +338,35 @@ export const FirmBoostInfos = ({
                     }
                 </InputGroup>
                 {
-                    leverageLoading && <Text fontWeight="bold" color="secondaryTextColor">Loading...</Text>
+                    leverageLoading && <Text fontWeight="bold" color="secondaryTextColor">Fetching swap data...</Text>
                 }
                 {
-                    !leverageLoading && leverageLevel > 1 && <TextInfo direction="row-reverse" message={isLeverageUp ? `Collateral added thanks to leverage` : `Collateral reduced thanks to deleverage`}>
-                        <HStack fontWeight="bold" spacing="0" alignItems="center">
+                    !leverageLoading && leverageLevel > 1 && <TextInfoSimple direction="row-reverse" message={isLeverageUp ? `Collateral added thanks to leverage` : `Collateral reduced thanks to deleverage`}>
+                        <HStack fontWeight="bold" spacing="1" alignItems="center">
                             {isLeverageUp ? <ArrowUpIcon color="success" fontSize="18px" /> : <ArrowDownIcon color="warning" fontSize="18px" />}
-                            <Text fontSize="14px" textAlign="center">
-                                ~{smartShortNumber(isLeverageUp ? parseFloat(leverageCollateralAmount) : collateralAmountNum, 8)} {market.underlying.symbol}
-                            </Text>
+                            <VStack spacing="0">
+                                <Text w='fit-content' fontSize="14px" textAlign="center">
+                                    ~{smartShortNumber(isLeverageUp ? parseFloat(leverageCollateralAmount) : collateralAmountNum, 8)}
+                                </Text>
+                                <Text>
+                                    {market.underlying.symbol}
+                                </Text>
+                            </VStack>
                         </HStack>
-                    </TextInfo>
+                    </TextInfoSimple>
                 }
                 {
-                    !leverageLoading && leverageLevel > 1 && <TextInfo direction="row-reverse" message={isLeverageUp ? `Debt added due to leverage` : `Debt reduced via deleveraging`}>
-                        <HStack fontWeight="bold" spacing="0" alignItems="center">
+                    !leverageLoading && leverageLevel > 1 && <TextInfoSimple direction="row-reverse" message={isLeverageUp ? `Debt added due to leverage` : `Debt reduced via deleveraging`}>
+                        <HStack fontWeight="bold" spacing="1" alignItems="center">
                             {isLeverageUp ? <ArrowUpIcon color="warning" fontSize="18px" /> : <ArrowDownIcon color="success" fontSize="18px" />}
-                            <Text fontSize="14px" textAlign="center">
-                                ~{smartShortNumber(!isLeverageUp ? parseFloat(leverageDebtAmount) : debtAmountNum, 8)} DEBT
-                            </Text>
+                            <VStack spacing="0">
+                                <Text w='fit-content' fontSize="14px" textAlign="center">
+                                    ~{smartShortNumber(!isLeverageUp ? parseFloat(leverageDebtAmount) : debtAmountNum, 8)}
+                                </Text>
+                                <Text>DEBT</Text>
+                            </VStack>
                         </HStack>
-                    </TextInfo>
+                    </TextInfoSimple>
                 }
                 {/* {
                     market.supplyApy > 0 && <HStack>

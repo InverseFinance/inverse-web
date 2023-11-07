@@ -170,6 +170,11 @@ export const FirmCollateralInputTitle = ({
     useLeverageInMode: boolean
     deposits: number
 }) => {
+    const depositWording = market.isInv ? 'Stake' : 'Deposit';
+    const withdrawWording = useLeverageInMode ? 'Sell' : market.isInv ? 'Unstake' : 'Withdraw';
+    const wording = isDeposit ? depositWording : withdrawWording;
+    const leverageExtraWording = useLeverageInMode ? isDeposit && deposits > 0 ? ` (on top of leverage)` : ' (to deleverage)' : '';
+    const assetName = isWethMarket && isUseNativeCoin ? 'ETH' : market.underlying.symbol;
     return <TextInfo message={
         isDeposit ?
             market.isInv ?
@@ -178,7 +183,7 @@ export const FirmCollateralInputTitle = ({
             : "Withdrawing collateral will reduce borrowing power"
     }>
         <Text fontSize='18px' color="mainTextColor">
-            <b>{isDeposit ? market.isInv ? 'Stake' : 'Deposit' : market.isInv ? 'Unstake' : 'Withdraw'}</b> {isWethMarket && isUseNativeCoin ? 'ETH' : market.underlying.symbol}{useLeverageInMode ? isDeposit && deposits > 0 ? ` (on top of leverage)` : ' (deleveraging)' : ''}:
+            <b>{wording}</b> {assetName}{leverageExtraWording}:
         </Text>
     </TextInfo>
 }
@@ -195,6 +200,6 @@ export const FirmDebtInputTitle = ({
             `The amount of DOLA stablecoin you wish to ${isDeposit ? 'borrow' : 'repay'}`
         }
     >
-        <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? 'Borrow' : 'Repay'}</b> DOLA{useLeverageInMode ? isDeposit ? ' (to do leverage)' : ' (on top of leverage)' : ''}:</Text>
+        <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? 'Borrow' : 'Repay'}</b> DOLA{useLeverageInMode ? isDeposit ? ' (to do leverage)' : ' (on top of deleverage)' : ''}:</Text>
     </TextInfo>
 }
