@@ -110,7 +110,7 @@ export const F2Context = ({
 
     const dbrApproxData = useDBRNeeded(debtAmount, duration);
 
-    const dbrCover = isAutoDBR ? dbrApproxData.dbrNeededNum : debtAmountNum / (365 / duration);
+    const dbrCover = totalDebtAmountNum > 0 ? isAutoDBR ? dbrApproxData.dbrNeededNum : debtAmountNum / (365 / duration) : 0;
     const { price: dbrPrice } = useDBRPrice();
     const autoDbrSwapPrice = isAutoDBR && !dbrApproxData?.isLoading ? dbrApproxData?.dolaForDbrNum/dbrApproxData?.dbrNeededNum : dbrPrice;    
     const dbrSwapPrice = isAutoDBR ? autoDbrSwapPrice || dbrPrice : dbrPrice;
