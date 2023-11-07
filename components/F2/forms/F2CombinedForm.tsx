@@ -103,6 +103,7 @@ export const F2CombinedForm = ({
         userNotEligibleForLeverage,
         setLeverageLoading,
         leverageLoading,
+        setLeveragePriceImpact,
     } = useContext(F2MarketContext);
 
     const [isLargerThan] = useMediaQuery('(min-width: 1280px)');
@@ -255,7 +256,7 @@ export const F2CombinedForm = ({
             setLeverage(leverage);
             if (!market.price || leverage <= 1) return
             const { dolaAmount, errorMsg } = await getLeverageImpact({
-                deposits, debt, leverageLevel: leverage, market, isUp: false, dolaPrice, setLeverageLoading, viaInput: true
+                deposits, debt, leverageLevel: leverage, market, isUp: false, dolaPrice, setLeverageLoading, viaInput: true, setLeveragePriceImpact
             });
             if (!!errorMsg) {
                 showToast({ status: 'warning', description: errorMsg, title: 'ZeroX api error' })
@@ -274,7 +275,7 @@ export const F2CombinedForm = ({
             const leverage = (debtNum + baseWorth) / baseWorth;
             if (!market.price || leverage <= 1) return;
             const { collateralAmount, errorMsg } = await getLeverageImpact({
-                deposits, debt, leverageLevel: leverage, market, isUp: true, dolaPrice, setLeverageLoading, viaInput: true
+                deposits, debt, leverageLevel: leverage, market, isUp: true, dolaPrice, setLeverageLoading, viaInput: true, setLeveragePriceImpact
             });
             if (!!errorMsg) {
                 showToast({ status: 'warning', description: errorMsg, title: 'ZeroX api error' })

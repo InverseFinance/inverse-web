@@ -70,6 +70,7 @@ const riskLevels = {
 
 export const getLeverageImpact = async ({
     setLeverageLoading,
+    setLeveragePriceImpact,
     leverageLevel,
     market,
     isUp,
@@ -105,18 +106,20 @@ export const getLeverageImpact = async ({
             borrowStringToSign = getNumberToBn(borrowNumToSign).toString();
         }
         // in the end the reference is always a number of dola sold (as it's what we need to sign, or part of it if with dbr)
-        const { buyAmount, validationErrors } = await get0xSellQuote(market.collateral, DOLA, borrowStringToSign, aleSlippage, true);
+        const { buyAmount, validationErrors, estimatedPriceImpact } = await get0xSellQuote(market.collateral, DOLA, borrowStringToSign, aleSlippage, true);
         const msg = validationErrors?.length > 0 ?
             `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
             : "Getting a quote from 0x failed";
         // const targetCollateralBalance = targetWorth / collateralPrice;
         // const collateralIncrease = targetCollateralBalance - baseColAmountForLeverage;
         if (setLeverageLoading) setLeverageLoading(false);
+        if (setLeveragePriceImpact) setLeveragePriceImpact(estimatedPriceImpact);
         return {
             errorMsg: validationErrors?.length > 0 ? msg : undefined,
             dolaAmount: borrowNumToSign,
             // collateralAmount: collateralIncrease,
             collateralAmount: parseFloat(buyAmount) / (10 ** market.underlying.decimals),
+            estimatedPriceImpact: estimatedPriceImpact ? parseFloat(estimatedPriceImpact) : null,
         }
     } else {
         // leverage down: dola amount is variable, collateral amount is fixed
@@ -127,16 +130,18 @@ export const getLeverageImpact = async ({
         // const estimatedRepayAmount = (baseWorth - targetWorth);
         const targetCollateralBalance = targetWorth / collateralPrice;
         const withdrawAmountToSign = targetCollateralBalance - baseColAmountForLeverage;
-        const { buyAmount, validationErrors } = await get0xSellQuote(DOLA, market.collateral, getNumberToBn(Math.abs(withdrawAmountToSign), market.underlying.decimals).toString(), aleSlippage, true);
+        const { buyAmount, validationErrors, estimatedPriceImpact } = await get0xSellQuote(DOLA, market.collateral, getNumberToBn(Math.abs(withdrawAmountToSign), market.underlying.decimals).toString(), aleSlippage, true);
         const msg = validationErrors?.length > 0 ?
             `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
             : "Getting a quote from 0x failed";
         if (setLeverageLoading) setLeverageLoading(false);
+        if (setLeveragePriceImpact) setLeveragePriceImpact(estimatedPriceImpact);
         return {
             errorMsg: validationErrors?.length > 0 ? msg : undefined,
             // dolaAmount: estimatedRepayAmount,
             dolaAmount: parseFloat(buyAmount) / 1e18,
             collateralAmount: withdrawAmountToSign,
+            estimatedPriceImpact: estimatedPriceImpact ? parseFloat(estimatedPriceImpact) : null,
         }
     }
 }
@@ -179,6 +184,8 @@ export const FirmBoostInfos = ({
         leverageLoading,
         setLeverageLoading,
         isInvPrimeMember,
+        setLeveragePriceImpact,
+        leveragePriceImpact,
     } = useContext(F2MarketContext);
 
     const borrowApy = dbrPrice * 100;
@@ -254,7 +261,7 @@ export const FirmBoostInfos = ({
         setDebounced(false);
         setLeverageLevel(v);
         if (!market.price || v <= 1) return;
-        const { dolaAmount, collateralAmount, errorMsg } = await getLeverageImpact({
+        const { dolaAmount, collateralAmount, errorMsg, estimatedPriceImpact } = await getLeverageImpact({
             setLeverageLoading,
             leverageLevel: parseFloat(v),
             market,
@@ -264,7 +271,9 @@ export const FirmBoostInfos = ({
             isUp: isLeverageUp,
             aleSlippage,
             dolaPrice,
+            setLeveragePriceImpact,
         });
+               
         if (!!errorMsg) {
             showToast({ status: 'warning', description: errorMsg, title: 'ZeroX api error' })
             return
@@ -273,6 +282,7 @@ export const FirmBoostInfos = ({
             dolaAmount,
             collateralAmount,
             isLeverageUp,
+            estimatedPriceImpact,
         })
     }
 
@@ -369,7 +379,7 @@ export const FirmBoostInfos = ({
                             </VStack>
                         </HStack>
                     </TextInfoSimple>
-                }
+                }                
                 {/* {
                     market.supplyApy > 0 && <HStack>
                         {newApyInfos}

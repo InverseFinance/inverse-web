@@ -62,6 +62,7 @@ export const F2Context = ({
     const [debtAmount, setDebtAmount] = useState('');
     const [leverageCollateralAmount, setLeverageCollateralAmount] = useState('');
     const [leverageDebtAmount, setLeverageDebtAmount] = useState('');
+    const [leveragePriceImpact, setLeveragePriceImpact] = useState('');
     const [dbrSellAmount, setDbrSellAmount] = useState('');
     const [dbrBuySlippage, setDbrBuySlippage] = useState('1');
     const [aleSlippage, setAleSlippage] = useState('1');
@@ -316,6 +317,8 @@ export const F2Context = ({
             leverageDebtAmountNum,
             leverageLoading,
             setLeverageLoading,
+            leveragePriceImpact,
+            setLeveragePriceImpact,
             isFirstTimeModalOpen,
             firmActionIndex,
             setFirmActionIndex,
