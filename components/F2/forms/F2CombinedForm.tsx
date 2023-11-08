@@ -42,6 +42,8 @@ const MODES = {
 const inOptions = ['Deposit & Borrow', 'Deposit', 'Borrow'];
 const outOptions = ['Repay & Withdraw', 'Withdraw', 'Repay'];
 
+let timeout = -1;
+
 export const F2CombinedForm = ({
     ...props
 }: {
@@ -250,48 +252,65 @@ export const F2CombinedForm = ({
 
     const triggerCollateralAndOrLeverageChange = async (collateralString: string, collateralNum: number) => {
         handleCollateralChange(collateralString);
-        if (useLeverageInMode && isDeleverageCase) {
-            const desiredWorth = (deposits - collateralNum) * market.price;
-            const leverage = (deposits * market.price) / desiredWorth;
-            setLeverage(leverage);
-            if (!market.price || leverage <= 1) {
-                resetLeverage();
-                return
+        const debouncedZeroXCall = async () => {
+            if (useLeverageInMode && isDeleverageCase) {
+                const desiredWorth = (deposits - collateralNum) * market.price;
+                const leverage = (deposits * market.price) / desiredWorth;
+                setLeverage(leverage);
+                if (!market.price || leverage <= 1) {
+                    resetLeverage();
+                    return
+                }
+                const { dolaAmount, errorMsg } = await getLeverageImpact({
+                    deposits, debt, leverageLevel: leverage, market, isUp: false, dolaPrice, setLeverageLoading, viaInput: true, setLeveragePriceImpact
+                });
+                if (!!errorMsg) {
+                    showToast({ status: 'warning', description: errorMsg, title: 'ZeroX api error' })
+                    return
+                }
+                setLeverageDebtAmount(Math.abs(dolaAmount).toFixed(2));
+                // setLeverageCollateralAmount('');
             }
-            const { dolaAmount, errorMsg } = await getLeverageImpact({
-                deposits, debt, leverageLevel: leverage, market, isUp: false, dolaPrice, setLeverageLoading, viaInput: true, setLeveragePriceImpact
-            });
-            if (!!errorMsg) {
-                showToast({ status: 'warning', description: errorMsg, title: 'ZeroX api error' })
-                return
-            }
-            setLeverageDebtAmount(Math.abs(dolaAmount).toFixed(2));
-            // setLeverageCollateralAmount('');
+        }        
+        if(timeout !== -1){
+            clearTimeout(timeout);
         }
+        timeout = setTimeout(() => {
+            debouncedZeroXCall();
+        }, 300);
     }
 
     const triggerDebtAndOrLeverageChange = async (debtString: string, debtNum: number, leverageInMode?: boolean, viaInput?: boolean) => {
         handleDebtChange(debtString);
-        if (leverageInMode || useLeverageInMode && !isDeleverageCase && !!debtNum && debtNum > 0) {
-            const baseColAmountForLeverage = deposits > 0 ? deposits : collateralAmountNum;
-            const baseWorth = baseColAmountForLeverage * market.price;
-            const leverage = (debtNum + baseWorth) / baseWorth;
-            if (!market.price || leverage <= 1) {
+        
+        const debouncedZeroXCall = async () => {     
+            if (leverageInMode || useLeverageInMode && !isDeleverageCase && !!debtNum && debtNum > 0) {                
+                const baseColAmountForLeverage = deposits > 0 ? deposits : collateralAmountNum;
+                const baseWorth = baseColAmountForLeverage * market.price;
+                const leverage = (debtNum + baseWorth) / baseWorth;
+                if (!market.price || leverage <= 1) {
+                    resetLeverage();
+                    return
+                }
+                const { collateralAmount, errorMsg } = await getLeverageImpact({
+                    deposits, debt, leverageLevel: leverage, market, isUp: true, dolaPrice, setLeverageLoading, viaInput, dolaInput: viaInput ? debtString : undefined, setLeveragePriceImpact
+                });
+                if (!!errorMsg) {
+                    showToast({ status: 'warning', description: errorMsg, title: 'ZeroX api error' })
+                    return
+                }
+                setLeverageCollateralAmount(removeTrailingZeros(collateralAmount.toFixed(8)));
+                setLeverage(leverage);
+            } else if ((!debtString || debtString === '0') && !isDeleverageCase) {
                 resetLeverage();
-                return
             }
-            const { collateralAmount, errorMsg } = await getLeverageImpact({
-                deposits, debt, leverageLevel: leverage, market, isUp: true, dolaPrice, setLeverageLoading, viaInput, dolaInput: viaInput ? debtString : undefined, setLeveragePriceImpact
-            });
-            if (!!errorMsg) {
-                showToast({ status: 'warning', description: errorMsg, title: 'ZeroX api error' })
-                return
-            }
-            setLeverageCollateralAmount(removeTrailingZeros(collateralAmount.toFixed(8)));
-            setLeverage(leverage);
-        } else if ((!debtString || debtString === '0') && !isDeleverageCase) {
-            resetLeverage();
         }
+        if(timeout !== -1){
+            clearTimeout(timeout);
+        }
+        timeout = setTimeout(() => {
+            debouncedZeroXCall();
+        }, 300);
     }
 
     const btnLabel = isDeposit ? `Deposit & Borrow` : 'Withdraw';
