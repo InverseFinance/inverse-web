@@ -334,6 +334,8 @@ export const FirmBoostInfos = ({
         return <InfoMessage alertProps={{ w: 'full' }} description="Cannot use leverage when there is no DOLA liquidity" />
     }
 
+    const editLeverageIsInvalid = isInvalidLeverage(parseFloat(editLeverageLevel));
+
     return <Stack fontSize="14px" spacing="4" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
         <VStack position="relative" w='full' alignItems="center" justify="center">
             <HStack spacing="8" w='full' justify="space-between" alignItems="center">
@@ -346,9 +348,9 @@ export const FirmBoostInfos = ({
                             {boostLabel}:
                         </Text>}
                     />
-                    <Input autocomplete="off" onKeyPress={handleKeyPress} id="boostInput" color={risk.color} py="0" pl="60px" onChange={(e) => handleEditLeverage(e.target.value, minLeverage, maxLeverage)} width="220px" value={editLeverageLevel} min={minLeverage} max={maxLeverage} />
+                    <Input _focusVisible={false} isInvalid={editLeverageIsInvalid} autocomplete="off" onKeyPress={handleKeyPress} id="boostInput" color={risk.color} py="0" pl="60px" onChange={(e) => handleEditLeverage(e.target.value, minLeverage, maxLeverage)} width="220px" value={editLeverageLevel} min={minLeverage} max={maxLeverage} />
                     {
-                        editLeverageLevel !== leverageLevel.toFixed(2) && debounced && !isInvalidLeverage(parseFloat(editLeverageLevel)) &&
+                        editLeverageLevel !== leverageLevel.toFixed(2) && debounced && !editLeverageIsInvalid &&
                         <InputRightElement cursor="pointer" transform="translateX(40px)" onClick={() => validatePendingLeverage(editLeverageLevel)}
                             children={<CheckCircleIcon transition="ease-in-out" transitionDuration="300ms" transitionProperty="color" _hover={{ color: 'success' }} />}
                         />
