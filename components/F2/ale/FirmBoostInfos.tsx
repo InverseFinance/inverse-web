@@ -378,7 +378,7 @@ export const FirmBoostInfos = ({
                             {isLeverageUp ? <ArrowUpIcon color="warning" fontSize="18px" /> : <ArrowDownIcon color="success" fontSize="18px" />}
                             <VStack spacing="0">
                                 <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="14px" textAlign="center">
-                                    ~{smartShortNumber(!isLeverageUp ? parseFloat(leverageDebtAmount) : debtAmountNum, 8)}
+                                    ~{smartShortNumber(!isLeverageUp ? parseFloat(leverageDebtAmount) : debtAmountNum, 2)}
                                 </Text>
                                 <Text textDecoration="underline" cursor="default">DEBT</Text>
                             </VStack>
@@ -433,7 +433,7 @@ export const FirmBoostInfos = ({
                 <Input py="0" maxH="30px" w='90px' value={aleSlippage} onChange={(e) => setAleSlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'))} />
             </HStack>
             {
-                newBorrowLimit >= 99 && <WarningMessage description="New borrow limit would be too high" />
+                newBorrowLimit >= 99 && !leverageLoading && <WarningMessage description="New borrow limit would be too high" />
             }
         </VStack>
         {/* {showDetails && <InfoMessage
