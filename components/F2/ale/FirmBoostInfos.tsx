@@ -54,7 +54,7 @@ const getSteps = (
     if ((newPerc <= 2) || _leverageLevel > 10 || doLastOne) {
         return steps;
     } else {
-        return getSteps(market, deposits, debt, perc, type, _leverageLevel, [...steps, _leverageLevel], newDebt < 0);
+        return getSteps(market, deposits, debt, perc, type, _leverageLevel, [...steps, _leverageLevel], newDebt <= 0);
     }
 }
 
@@ -307,9 +307,9 @@ export const FirmBoostInfos = ({
 
     const isLeverageUp = type === 'up';
 
-    const newBorrowLimit = 100 - newPerc;
+    const newBorrowLimit = 100 - newPerc;    
     const leverageSteps = useMemo(() => getSteps(market, deposits, debt, perc, type, 1), [market, deposits, debt, perc, type]);
-    const maxLeverage = round(leverageSteps[leverageSteps.length - 1]);
+    const maxLeverage = round(leverageSteps[leverageSteps.length - 1]);    
     const leverageRelativeToMax = leverageLevel / maxLeverage;
 
     const { dbrExpiryDate, debt: currentTotalDebt } = useAccountDBR(account);
