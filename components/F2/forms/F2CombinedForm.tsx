@@ -267,7 +267,7 @@ export const F2CombinedForm = ({
         }
     }
 
-    const triggerDebtAndOrLeverageChange = async (debtString: string, debtNum: number, leverageInMode?: boolean) => {
+    const triggerDebtAndOrLeverageChange = async (debtString: string, debtNum: number, leverageInMode?: boolean, viaInput?: boolean) => {
         handleDebtChange(debtString);
         if (leverageInMode || useLeverageInMode && !isDeleverageCase && !!debtNum && debtNum > 0) {
             const baseColAmountForLeverage = deposits > 0 ? deposits : collateralAmountNum;
@@ -275,7 +275,7 @@ export const F2CombinedForm = ({
             const leverage = (debtNum + baseWorth) / baseWorth;
             if (!market.price || leverage <= 1) return;
             const { collateralAmount, errorMsg } = await getLeverageImpact({
-                deposits, debt, leverageLevel: leverage, market, isUp: true, dolaPrice, setLeverageLoading, viaInput: true, setLeveragePriceImpact
+                deposits, debt, leverageLevel: leverage, market, isUp: true, dolaPrice, setLeverageLoading, viaInput, dolaInput: viaInput ? debtString : undefined, setLeveragePriceImpact
             });
             if (!!errorMsg) {
                 showToast({ status: 'warning', description: errorMsg, title: 'ZeroX api error' })
@@ -388,7 +388,7 @@ export const F2CombinedForm = ({
                                 actionLabel={btnLabel}
                                 maxActionLabel={btnMaxlabel}
                                 onAmountChange={(v, s) => {
-                                    triggerDebtAndOrLeverageChange(v, s);
+                                    triggerDebtAndOrLeverageChange(v, s, undefined, true);
                                 }}
                                 showMax={!isDeleverageCase && !isDeposit}
                                 showMaxBtn={!isDeposit}

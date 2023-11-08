@@ -80,6 +80,7 @@ export const getLeverageImpact = async ({
     dolaPrice = 1,
     aleSlippage,
     viaInput = false,
+    dolaInput,
 }) => {
     const collateralPrice = market?.price;
     if (!collateralPrice || leverageLevel <= 1) {
@@ -100,11 +101,15 @@ export const getLeverageImpact = async ({
             const { sellAmount } = await get0xBuyQuote(market.collateral, DOLA, getNumberToBn(amountUp, market.underlying.decimals).toString(), aleSlippage, true);
             borrowStringToSign = sellAmount;
             borrowNumToSign = parseFloat(borrowStringToSign) / (1e18);
+        } else if(!!dolaInput) {      
+            borrowNumToSign = parseFloat(dolaInput);
+            borrowStringToSign = getNumberToBn(borrowNumToSign).toString();
         } else {
             const targetWorth = baseWorth * leverageLevel;
             borrowNumToSign = (targetWorth - baseWorth) * dolaPrice;
             borrowStringToSign = getNumberToBn(borrowNumToSign).toString();
         }
+
         // in the end the reference is always a number of dola sold (as it's what we need to sign, or part of it if with dbr)
         const { buyAmount, validationErrors, estimatedPriceImpact } = await get0xSellQuote(market.collateral, DOLA, borrowStringToSign, aleSlippage, true);
         const msg = validationErrors?.length > 0 ?
