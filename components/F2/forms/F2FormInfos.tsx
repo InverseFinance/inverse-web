@@ -370,7 +370,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
 
     const stakingInfos = !hasCollateralRewards ? [] : [
         {
-            tooltip: 'The amount of collateral that comes from your deposits alone (excludes staking rewards and liquidations) for the current position',
+            tooltip: 'The amount of collateral that comes from your deposits (or leverage) (excludes staking rewards and liquidations) for the current position',
             title: 'Originally Deposited',
             value: _depositedByUser >= 0 ? `${shortenNumber(_depositedByUser, 2)} ${market.underlying.symbol}` : 'All have been withdrawn',
         },
