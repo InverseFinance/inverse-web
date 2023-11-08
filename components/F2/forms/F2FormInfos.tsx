@@ -1,4 +1,4 @@
-import { Stack, VStack, Text, SkeletonText } from '@chakra-ui/react'
+import { Stack, VStack, Text } from '@chakra-ui/react'
 import { shortenNumber } from '@app/util/markets'
 import { preciseCommify } from '@app/util/misc'
 import { TextInfo } from '@app/components/common/Messages/TextInfo'

@@ -5,7 +5,7 @@ import { getRiskColor } from "@app/util/f2"
 import { shortenNumber } from "@app/util/markets"
 import { preciseCommify } from "@app/util/misc"
 import { HStack, VStack, Text, useMediaQuery, StackProps, TextProps, Stack } from "@chakra-ui/react"
-import { useContext, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { F2MarketContext } from "../F2Contex"
 import moment from 'moment'
 import Container from "@app/components/common/Container"
@@ -19,6 +19,7 @@ import { DbrReminder } from "../DbrReminder"
 import { WarningTwoIcon } from "@chakra-ui/icons"
 import { WarningMessage } from "@app/components/common/Messages"
 import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader"
+import { SkeletonBlob } from "@app/components/common/Skeleton"
 
 const Title = (props: TextProps) => <Text textAlign="center" fontWeight="extrabold" fontSize={{ base: '13px', md: '18px' }} {...props} />;
 const SubTitle = (props: TextProps) => <Text textAlign="center" color="secondaryTextColor" fontSize={{ base: '13px', md: '16px' }} {...props} />;
@@ -43,15 +44,21 @@ export const MarketBar = ({
     const [isLargerThan] = useMediaQuery('(min-width: 600px)');
     const [isLargerThan1000] = useMediaQuery('(min-width: 1000px)');
     const { replenishmentDailyRate } = useDBRReplenishmentPrice();
+    const [inited, setInited] = useState(false);
 
     const {
-        market,        
+        market,
         dbrBalance,
         debt,
         liquidationPrice,
         perc,
         dbrExpiryDate,
     } = useContext(F2MarketContext);
+
+    useEffect(() => {
+        if (inited) return
+        setInited(true);
+    }, []);
 
     const [available, setAvailable] = useState(market.dolaLiquidity);
 
@@ -132,6 +139,10 @@ export const MarketBar = ({
             </VStack>
         </VStack>}
     </>;
+
+    if (!inited) {
+        return <Container noPadding p="0"><SkeletonBlob skeletonHeight={1} noOfLines={3}  /></Container>
+    }
 
     return <Container noPadding p="0">
         <VStack w='full' {...props}>
