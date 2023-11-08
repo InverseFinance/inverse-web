@@ -41,7 +41,7 @@ const useFirmUserPositionEvolution = (
         setIsLoadingDebounced(isLoading);
     }, [isLoading], isLoading, 7000, 1000);
     
-    const start = events.find(e => e.actionName === 'Deposit')?.timestamp;
+    const start = events.find(e => e.actionName === 'Deposit' || 'LeverageUp')?.timestamp;
     const _depositedByUser = depositedByUserLive || depositedByUserApi;
     const collateralRewards = _depositedByUser > 0 ? Math.max((deposits) - _depositedByUser, 0) : 0;
 
