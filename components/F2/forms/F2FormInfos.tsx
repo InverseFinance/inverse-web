@@ -206,8 +206,8 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
                 value: `${preciseCommify(market.dolaLiquidity, 0)}`,
             },
             {
-                tooltip: 'Total amount of DOLA already borrowed from this market',
-                title: 'Total Already Borrowed',
+                tooltip: 'The debt in a market is due to what is currently borrowed plus the debt added due to the DBR replenishments.',
+                title: 'Total Market Debt',
                 value: `${preciseCommify(market.totalDebt, 0)}`,
             },
         ],
