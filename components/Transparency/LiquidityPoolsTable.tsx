@@ -30,8 +30,8 @@ const CellText = ({ ...props }) => {
 const ClickableCellText = ({ ...props }) => {
     return <CellText
         textDecoration="underline"
-         cursor="pointer" 
-         style={{ 'text-decoration-skip-ink': 'none' }}
+        cursor="pointer"
+        style={{ 'text-decoration-skip-ink': 'none' }}
         {...props}
     />
 }
@@ -54,6 +54,11 @@ export const LP_COLS = [
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-start"  {...props} />,
         value: (lp) => {
             const link = getLpLink(lp);
+            if (!link) {
+                return <Cell onClick={noPropagation} minWidth='150px' spacing="2" justify="flex-start" alignItems="center" direction="row">
+                    <UnderlyingItem textProps={{ fontSize: '12px', ml: '2', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '90px' }} imgSize={15} {...lp} label={lp.lpName} showAsLp={true} chainId={lp.chainId} />
+                </Cell>
+            }
             return <Cell onClick={noPropagation} minWidth='150px' spacing="2" justify="flex-start" alignItems="center" direction="row">
                 <Link textDecoration="underline" href={link} isExternal target="_blank" display="flex" justify="flex-start" alignItems="center" direction="row">
                     <UnderlyingItem textProps={{ fontSize: '12px', ml: '2', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '90px' }} imgSize={15} {...lp} label={lp.lpName} showAsLp={true} chainId={lp.chainId} />
@@ -188,7 +193,7 @@ export const LP_COLS = [
         },
     }
 ];
-if(FEATURE_FLAGS.lpZaps) {
+if (FEATURE_FLAGS.lpZaps) {
     LP_COLS.push({
         field: 'hasEnso',
         label: 'Zap',
