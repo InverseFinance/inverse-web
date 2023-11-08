@@ -254,7 +254,10 @@ export const F2CombinedForm = ({
             const desiredWorth = (deposits - collateralNum) * market.price;
             const leverage = (deposits * market.price) / desiredWorth;
             setLeverage(leverage);
-            if (!market.price || leverage <= 1) return
+            if (!market.price || leverage <= 1) {
+                resetLeverage();
+                return
+            }
             const { dolaAmount, errorMsg } = await getLeverageImpact({
                 deposits, debt, leverageLevel: leverage, market, isUp: false, dolaPrice, setLeverageLoading, viaInput: true, setLeveragePriceImpact
             });
@@ -273,7 +276,10 @@ export const F2CombinedForm = ({
             const baseColAmountForLeverage = deposits > 0 ? deposits : collateralAmountNum;
             const baseWorth = baseColAmountForLeverage * market.price;
             const leverage = (debtNum + baseWorth) / baseWorth;
-            if (!market.price || leverage <= 1) return;
+            if (!market.price || leverage <= 1) {
+                resetLeverage();
+                return
+            }
             const { collateralAmount, errorMsg } = await getLeverageImpact({
                 deposits, debt, leverageLevel: leverage, market, isUp: true, dolaPrice, setLeverageLoading, viaInput, dolaInput: viaInput ? debtString : undefined, setLeveragePriceImpact
             });
@@ -283,7 +289,7 @@ export const F2CombinedForm = ({
             }
             setLeverageCollateralAmount(removeTrailingZeros(collateralAmount.toFixed(8)));
             setLeverage(leverage);
-        } else if (!debtString || debtString === '0') {
+        } else if ((!debtString || debtString === '0') && !isDeleverageCase) {
             resetLeverage();
         }
     }
@@ -295,7 +301,7 @@ export const F2CombinedForm = ({
     const isDeleverageCase = useLeverageInMode && !isDeposit;
     // disallow INV for now as 0x routing is too bad atm
     const canUseLeverage = !market.isInv && FEATURE_FLAGS.firmLeverage && market.hasAleFeat && !isUseNativeCoin && ((mode === 'Deposit & Borrow' && (deposits > 0 || collateralAmountNum > 0)) || (mode === 'Repay & Withdraw' && debt > 1));
-    const showMinDebtMessage = !notEnoughToBorrowWithAutobuy && minDebtDisabledCondition && debtAmountNum > 0;
+    const showMinDebtMessage = !notEnoughToBorrowWithAutobuy && minDebtDisabledCondition && (debtAmountNum > 0 || isDeleverageCase);
     const showNeedDbrMessage = isDeposit && !isAutoDBR && dbrBalance <= 0;
 
     const disabledConditions = {
@@ -462,7 +468,7 @@ export const F2CombinedForm = ({
             defaultAmount={isRepayCase ? debtAmount : collateralAmount}
             address={isWithdrawOnlyCase || isBorrowOnlyCase ? '' : isRepayCase ? DOLA : isUseNativeCoin ? '' : market.collateral}
             destination={useLeverageInMode ? F2_ALE : isAutoDBR || isUseNativeCoin ? F2_HELPER : market.address}
-            needApprove={!isDeleverageCase && !(useLeverageInMode && isDeposit && !collateralAmountNum)}
+            needApprove={(!isDeleverageCase || (isDeleverageCase && debtAmountNum > 0)) && !(useLeverageInMode && isDeposit && !collateralAmountNum)}
             signer={signer}
             decimals={colDecimals}
             maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
