@@ -420,14 +420,16 @@ export const useBorrowLimits = (market: F2Market) => {
     [DOLA, 'balanceOf', market.address],
     [market.borrowController, 'dailyLimits', market.address],
     [market.borrowController, 'dailyBorrows', market.address, dayIndexUtc],
+    [market.address, 'borrowPaused'],
   ];
 
   const { data, error } = useEtherSWR(dataToGet);
 
   const dolaLiquidity = data ? getBnToNumber(data[0]) : 0;
   const dailyLimit = !noBorrowController && data ? getBnToNumber(data[1]) : 0;
-  const dailyBorrows = !noBorrowController && data ? getBnToNumber(data[2]) : 0;
-  const leftToBorrow = data && dailyLimit !== 0 ? dailyLimit - dailyBorrows : dolaLiquidity;
+  const dailyBorrows = !noBorrowController && data ? getBnToNumber(data[2]) : 0;  
+  const borrowPaused = data ? data[3] : market.borrowPaused ?? false;
+  const leftToBorrow = borrowPaused ? 0 : !dailyLimit ? dolaLiquidity : Math.min(dailyLimit - dailyBorrows, dolaLiquidity);
 
   return {
     dailyLimit,
