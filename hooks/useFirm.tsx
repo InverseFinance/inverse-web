@@ -134,6 +134,7 @@ export const useDBRActiveHolders = (): SWR & {
     const marketPositions = firmPositions?.filter(p => p.user === s.user) || [];
     const marketIcons = marketPositions?.map(p => p.market.underlying.image) || [];
     const dailyBurn = s.debt / oneYear * ONE_DAY_MS;
+    const monthlyBurn = dailyBurn * 365/12;
     const dbrNbDaysExpiry = dailyBurn ? s.signedBalance / dailyBurn : 0;
     const dbrExpiryDate = !s.debt ? null : (+new Date() + dbrNbDaysExpiry * ONE_DAY_MS);
     return {
@@ -141,6 +142,7 @@ export const useDBRActiveHolders = (): SWR & {
       marketPositions,
       marketIcons,
       dailyBurn,
+      monthlyBurn,
       dbrExpiryDate,
     }
   }).filter(p => p.debt > 0);

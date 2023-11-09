@@ -30,6 +30,7 @@ export const useAccountDBR = (
   interests: number,
   signedBalance: number,
   dailyDebtAccrual: number,
+  monthlyDebtAccrual: number,
   dbrNbDaysExpiry: number,
   dbrExpiryDate: number | null,
   dbrDepletionPerc: number,
@@ -54,6 +55,7 @@ export const useAccountDBR = (
   // interests are not auto-compounded
   const _debt = previewDebt ?? debt;
   const dailyDebtAccrual = Math.max(0, (ONE_DAY_MS * _debt / oneYear));
+  const monthlyDebtAccrual = dailyDebtAccrual * 365/12;
   const balanceWithDelta = signedBalance + deltaDBR;
   // at current debt accrual rate, when will DBR be depleted?
   const dbrNbDaysExpiry = dailyDebtAccrual ? balanceWithDelta <= 0 ? 0 : balanceWithDelta / dailyDebtAccrual : 0;
@@ -71,6 +73,7 @@ export const useAccountDBR = (
     interests,
     signedBalance: balanceWithDelta,
     dailyDebtAccrual,
+    monthlyDebtAccrual,
     dbrNbDaysExpiry,
     dbrExpiryDate,
     dbrDepletionPerc,

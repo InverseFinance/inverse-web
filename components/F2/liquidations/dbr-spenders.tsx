@@ -82,6 +82,16 @@ const columns = [
         },
     },
     {
+        field: 'monthlyBurn',
+        label: 'DBR Monthly Spend',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        value: ({ monthlyBurn }) => {
+            return <Cell minWidth="100px" justify="center" >
+                <CellText>-{shortenNumber(monthlyBurn, 2)}</CellText>
+            </Cell>
+        },
+    },
+    {
         field: 'dbrExpiryDate',
         label: 'DBR Depletion',
         header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,

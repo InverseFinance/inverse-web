@@ -206,8 +206,8 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
                 value: `${preciseCommify(market.dolaLiquidity, 0)}`,
             },
             {
-                tooltip: 'Total amount of DOLA already borrowed from this market',
-                title: 'Total Already Borrowed',
+                tooltip: 'The debt in a market is due to what is currently borrowed plus the debt added due to the DBR replenishments.',
+                title: 'Total Market Debt',
                 value: `${preciseCommify(market.totalDebt, 0)}`,
             },
         ],
@@ -248,6 +248,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
             },
         ],
     ]
+    const newMonthlyDBRBurnInMarket = newDailyDBRBurnInMarket ? newDailyDBRBurnInMarket * 365/12 : 0;
 
     const dbrInfos = [
         [
@@ -292,9 +293,9 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         ],
         [
             {
-                tooltip: 'The total number of DBRs that will be spent every day',
-                title: 'Daily DBR spend',
-                value: `-${newDailyDBRBurnInMarket ? `${shortenNumber(newDailyDBRBurnInMarket, 4)} (${shortenNumber(newDailyDBRBurnInMarket * dbrPrice, 2, true)})` : ''}`,
+                tooltip: 'The total number of DBRs that will be spent on a monthly bassis',
+                title: 'Monthly DBR spend',
+                value: `-${newMonthlyDBRBurnInMarket ? `${shortenNumber(newMonthlyDBRBurnInMarket, 4)} (${shortenNumber(newMonthlyDBRBurnInMarket * dbrPrice, 2, true)})` : ''}`,
             },
             {
                 tooltip: "Date where you will run out of DBRs, it is recommended that you always have DBRs in your wallet as when you run out of DBRs someone can force top-up your balance and this will cost your additional debt",

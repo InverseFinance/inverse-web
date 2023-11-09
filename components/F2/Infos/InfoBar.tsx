@@ -221,10 +221,10 @@ export const DbrBar = ({
 }: {
     account: string
 } & Partial<StackProps>) => {
-    const { dbrNbDaysExpiry, signedBalance: dbrBalance, dailyDebtAccrual, dbrExpiryDate, debt } = useAccountDBR(account);
+    const { dbrNbDaysExpiry, signedBalance: dbrBalance, monthlyDebtAccrual, dbrExpiryDate, debt } = useAccountDBR(account);
     const { replenishmentDailyRate } = useDBRReplenishmentPrice();
 
-    const hasDebt = dailyDebtAccrual !== 0;
+    const hasDebt = monthlyDebtAccrual !== 0;
 
     const needsRechargeSoon = dbrNbDaysExpiry <= 30 && hasDebt;
 
@@ -272,10 +272,10 @@ export const DbrBar = ({
                     </VStack>
                     <VStack w={{ base: '33%', md: 'auto' }} spacing="1" alignItems={{ base: 'flex-end', md: 'center' }}>
                         <Title>
-                            Daily Spend
+                            Monthly Spend
                         </Title>
                         <SubTitle color="secondaryTextColor">
-                            {preciseCommify(-dailyDebtAccrual, 2, false)} DBR
+                            {preciseCommify(-monthlyDebtAccrual, 2, false)} DBR
                         </SubTitle>
                     </VStack>
                 </HStack>
