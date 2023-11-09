@@ -5,8 +5,8 @@ import { useCacheFirstSWR, useCustomSWR } from "./useCustomSWR";
 import { useDBRMarkets, useDBRPrice } from "./useDBR";
 import { f2CalcNewHealth, formatFirmEvents, getDBRRiskColor } from "@app/util/f2";
 import { getBnToNumber, getHistoricalTokenData, getMonthlyRate, getNumberToBn } from "@app/util/markets";
-import { useMultiContractEvents } from "./useContractEvents";
-import { DBR_ABI, F2_ALE_ABI, F2_ESCROW_ABI, F2_MARKET_ABI } from "@app/config/abis";
+import { useContractEvents, useMultiContractEvents } from "./useContractEvents";
+import { DBR_ABI, ERC20_ABI, F2_ALE_ABI, F2_ESCROW_ABI, F2_MARKET_ABI } from "@app/config/abis";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { ascendingEventsSorter, uniqueBy } from "@app/util/misc";
 import { BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
@@ -22,7 +22,7 @@ import { FEATURE_FLAGS, isInvPrimeMember } from "@app/config/features";
 
 const oneYear = ONE_DAY_MS * 365;
 
-const { DBR, DBR_DISTRIBUTOR, F2_MARKETS, INV, F2_ALE } = getNetworkConfigConstants();
+const { DBR, DBR_DISTRIBUTOR, F2_MARKETS, INV, F2_ALE, DOLA } = getNetworkConfigConstants();
 
 export const useFirmPositions = (isShortfallOnly = false): SWR & {
   positions: any,
@@ -229,13 +229,21 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
     // [market.address, F2_MARKET_ABI, 'CreateEscrow', [account]],
     [DBR, DBR_ABI, 'ForceReplenish', [account, undefined, market.address]],
   ];
-  if(FEATURE_FLAGS.firmLeverage) {
+  const needAleEvents = FEATURE_FLAGS.firmLeverage && market.hasAleFeat;
+  if(needAleEvents) {
     eventQueries.push([F2_ALE, F2_ALE_ABI, 'LeverageUp', [market.address, account]]);
     eventQueries.push([F2_ALE, F2_ALE_ABI, 'LeverageDown', [market.address, account]]);
   }
   const { groupedEvents, isLoading, error } = useMultiContractEvents(
     eventQueries,
     `firm-market-${market.address}-${account}`,
+  );
+  const { events: depositsOnTopOfLeverageEvents } = useContractEvents(
+    market.collateral, ERC20_ABI, 'Transfer', needAleEvents ? [account, F2_ALE] : undefined, true, `ale-${account}-deposits-on-top`
+  );
+
+  const { events: repaysOnTopOfDeleverageEvents } = useContractEvents(
+    DOLA, ERC20_ABI, 'Transfer', needAleEvents ? [account, F2_ALE] : undefined, true, `ale-${account}-repays-on-top`
   );
 
   const flatenedEvents = groupedEvents.flat().sort(ascendingEventsSorter);
@@ -249,7 +257,7 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
 
   const events = flatenedEvents.map(e => {
     const isCollateralEvent = ['Deposit', 'Withdraw', 'Liquidate'].includes(e.event);
-    const isLeverageEvent = ['LeverageUp', 'LeverageDown'].includes(e.event);
+    const isLeverageEvent = ['LeverageUp', 'LeverageDown'].includes(e.event);    
     const decimals = isCollateralEvent ? market.underlying.decimals : 18;
 
     // Deposit can be associated with Borrow, withdraw with repay
@@ -284,6 +292,11 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
     } else if (e.event === 'Liquidate' && !!liquidatorReward) {
       liquidated += liquidatorReward;
     }
+  
+    const depositOnTopOfLeverageEvent = actionName === 'LeverageUp' ? depositsOnTopOfLeverageEvents?.find(e2 => e2.transactionHash.toLowerCase() === e.transactionHash.toLowerCase()) : undefined;
+    const depositOnTopOfLeverage = depositOnTopOfLeverageEvent ? getBnToNumber(depositOnTopOfLeverageEvent.args.amount, market.underlying.decimals) : 0;
+    const repayOnTopOfDeleverageEvent = actionName === 'LeverageDown' ? repaysOnTopOfDeleverageEvents?.find(e2 => e2.transactionHash.toLowerCase() === e.transactionHash.toLowerCase()) : undefined;
+    const repayOnTopOfDeleverage = depositOnTopOfLeverageEvent ? getBnToNumber(repayOnTopOfDeleverageEvent.args.amount, market.underlying.decimals) : 0;
 
     return {
       combinedKey: `${e.transactionHash}-${actionName}-${e.args?.account}`,
@@ -309,6 +322,8 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
       tokenNameCombined: tokenName === 'DOLA' ? market.underlying.symbol : 'DOLA',
       dolaFlashMinted,
       collateralLeveragedAmount,
+      depositOnTopOfLeverage,
+      repayOnTopOfDeleverage,
     }
   });
 
@@ -742,14 +757,15 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
     [DBR, DBR_ABI, 'ForceReplenish', [account, undefined, market.address]],
     [market.address, F2_MARKET_ABI, 'Liquidate', [account]],
   ];
-
+  
   if (market.isInv) {
     // DBR transfers = dbr claims, only for the INV market
     toQuery.push([DBR, DBR_ABI, 'Transfer', [BURN_ADDRESS, account]])
   }
-  if(FEATURE_FLAGS.firmLeverage && market.hasAleFeat) {
+  const needAleEvents = FEATURE_FLAGS.firmLeverage && market.hasAleFeat;
+  if(needAleEvents) {
     toQuery.push([F2_ALE, F2_ALE_ABI, 'LeverageUp', [market.address, account]]);
-    toQuery.push([F2_ALE, F2_ALE_ABI, 'LeverageDown', [market.address, account]]);
+    toQuery.push([F2_ALE, F2_ALE_ABI, 'LeverageDown', [market.address, account]]);    
   }
   // else if (market.name === 'cvxCRV') {
   // TODO: add cvxCRV claims
