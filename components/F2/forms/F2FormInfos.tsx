@@ -299,7 +299,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
             {
                 tooltip: "Date where you will run out of DBRs, it is recommended that you always have DBRs in your wallet as when you run out of DBRs someone can force top-up your balance and this will cost your additional debt",
                 title: 'DBR depletion date',
-                value: getDepletionDate(newDBRExpiryDate, now),
+                value: newTotalDebt > 0 ? getDepletionDate(newDBRExpiryDate, now) : '-',
                 color: newTotalDebt > 0 ? getDBRRiskColor(newDBRExpiryDate, now) : undefined
             },
         ],
