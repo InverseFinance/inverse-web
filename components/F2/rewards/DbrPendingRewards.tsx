@@ -12,6 +12,7 @@ import Table from "@app/components/common/Table";
 import { preciseCommify } from "@app/util/misc";
 import { usePrices } from "@app/hooks/usePrices";
 import { SkeletonBlob } from "@app/components/common/Skeleton";
+import { useDBRPrice } from "@app/hooks/useDBR";
 
 const StatBasic = ({ value, name }: { value: string, name: string }) => {    
     return <VStack>
@@ -158,7 +159,7 @@ export const DbrPendingRewards = ({
     }) => {
     const { prices } = usePrices();
     const [isLargerThan] = useMediaQuery('(min-width: 400px)')
-    const dbrPrice = prices?.['dola-borrowing-right']?.usd || 0;
+    const { price: dbrPrice } = useDBRPrice();
     const invPrice = prices?.['inverse-finance']?.usd || 0;
     const dolaPrice = prices?.['dola-usd']?.usd || 0;
     const { stakers, timestamp, invMarket, isLoading } = useDBRPendingRewards();
