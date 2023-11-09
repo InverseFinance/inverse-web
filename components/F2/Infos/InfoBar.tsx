@@ -141,7 +141,7 @@ export const MarketBar = ({
     </>;
 
     if (!inited) {
-        return <Container noPadding p="0"><SkeletonBlob skeletonHeight={1} noOfLines={3}  /></Container>
+        return <Container noPadding p="0"><SkeletonBlob skeletonHeight={2} noOfLines={2}  /></Container>
     }
 
     return <Container noPadding p="0">
