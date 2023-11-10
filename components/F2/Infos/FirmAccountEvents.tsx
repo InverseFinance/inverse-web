@@ -26,9 +26,9 @@ const getLeverageActionLabel = (e: any) => {
     const isUp = [e.nameCombined, e.actionName].includes('LeverageUp');
     const name = isUp ? 'Leverage Up' : 'Leverage Down';
     const collateralName = isUp ? e.tokenName : e.tokenNameCombined;
-    // TODO: get user extra deposit and repay from event
-    const userExtraDeposit = 0;// 0 if leverage only and no extra deposit
-    const userExtraRepay = 0// 0 if leverage only and no extra repay
+    // the extra deposit/repay is already included in the amount
+    const userExtraDeposit = e.depositOnTopOfLeverage;// 0 if leverage only and no extra deposit
+    const userExtraRepay = e.repayOnTopOfDeleverage// 0 if leverage only and no extra repay
     const dolaAmount = e.dolaFlashMinted || (isUp ? e.amountCombined : e.amount);
     const collateralAmount = e.collateralLeveragedAmount || (isUp ? e.amount : e.amountCombined);
     return <>
@@ -43,6 +43,7 @@ const ErrDocLink = (props) => <Link
     target="_blank"
     color="error"
     textDecoration="underline"
+    fontSize="14px"
     {...props}
 />
 
@@ -80,7 +81,7 @@ export const FirmAccountEvents = ({
                     <HStack w='full' justify="space-between">
                         <ScannerLink
                             color={colors[e.actionName]}
-                            fontSize={{ base: '14px', sm: '16px' }}
+                            fontSize={{ base: '14px', sm: '15px' }}
                             _hover={{ filter: 'brightness(1.2)' }}
                             fontWeight="bold"
                             value={e.txHash}
@@ -91,17 +92,19 @@ export const FirmAccountEvents = ({
                                 {e.isCombined && !e.isLeverage ? <>&nbsp;& {getActionLabel(e.nameCombined, e.amountCombined, e.tokenNameCombined)}</> : ''}
                             </>}
                         />
-                        {
+                        {/* {
                             !!address && address !== account && !e.isLeverage &&
                             <ScannerLink
                                 value={address}
                                 color={colors[e.actionName]}
                                 _hover={{ filter: 'brightness(1.2)' }}
-                                label={`by ${shortenAddress(address)}`} />
-                        }
+                                label={`by ${shortenAddress(address)}`}
+                                fontSize="14px"
+                            />
+                        } */}
                     </HStack>
                     <HStack w='full' justify="space-between">
-                        <BlockTimestamp blockNumber={e.blockNumber} timestamp={e.timestamp} direction="row" textProps={{ color: colors[e.actionName] }} />
+                        <BlockTimestamp blockNumber={e.blockNumber} timestamp={e.timestamp} direction="row" textProps={{ color: colors[e.actionName], fontSize: '14px' }} />
                         {
                             e.name === 'ForceReplenish' && <ReplenishDocLink />
                         }

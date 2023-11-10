@@ -296,7 +296,7 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
     const depositOnTopOfLeverageEvent = actionName === 'LeverageUp' ? depositsOnTopOfLeverageEvents?.find(e2 => e2.transactionHash.toLowerCase() === e.transactionHash.toLowerCase()) : undefined;
     const depositOnTopOfLeverage = depositOnTopOfLeverageEvent ? getBnToNumber(depositOnTopOfLeverageEvent.args.amount, market.underlying.decimals) : 0;
     const repayOnTopOfDeleverageEvent = actionName === 'LeverageDown' ? repaysOnTopOfDeleverageEvents?.find(e2 => e2.transactionHash.toLowerCase() === e.transactionHash.toLowerCase()) : undefined;
-    const repayOnTopOfDeleverage = depositOnTopOfLeverageEvent ? getBnToNumber(repayOnTopOfDeleverageEvent.args.amount, market.underlying.decimals) : 0;
+    const repayOnTopOfDeleverage = repayOnTopOfDeleverageEvent ? getBnToNumber(repayOnTopOfDeleverageEvent.args.amount, market.underlying.decimals) : 0;
 
     return {
       combinedKey: `${e.transactionHash}-${actionName}-${e.args?.account}`,
