@@ -563,6 +563,8 @@ export const formatAndGroupFirmEvents = (
     market: F2Market,
     account: string,
     flatenedEvents: any[],
+    depositsOnTopOfLeverageEvents: any[], 
+    repaysOnTopOfDeleverageEvents: any[],
 ) => {
     // can be different than current balance when staking
     let depositedByUser = 0;
@@ -615,6 +617,11 @@ export const formatAndGroupFirmEvents = (
             liquidated += liquidatorReward;
         }
 
+        const depositOnTopOfLeverageEvent = actionName === 'LeverageUp' ? depositsOnTopOfLeverageEvents?.find(e2 => e2.transactionHash.toLowerCase() === txHash.toLowerCase()) : undefined;
+        const depositOnTopOfLeverage = depositOnTopOfLeverageEvent ? getBnToNumber(depositOnTopOfLeverageEvent.args.amount, market.underlying.decimals) : 0;
+        const repayOnTopOfDeleverageEvent = actionName === 'LeverageDown' ? repaysOnTopOfDeleverageEvents?.find(e2 => e2.transactionHash.toLowerCase() === txHash.toLowerCase()) : undefined;
+        const repayOnTopOfDeleverage = repayOnTopOfDeleverageEvent ? getBnToNumber(repayOnTopOfDeleverageEvent.args.amount) : 0;
+
         return {
             combinedKey: `${txHash}-${actionName}-${e.args?.account || account}`,
             actionName,
@@ -641,6 +648,8 @@ export const formatAndGroupFirmEvents = (
             dolaFlashMinted,
             collateralLeveragedAmount,
             timestamp: e.timestamp,
+            depositOnTopOfLeverage,
+            repayOnTopOfDeleverage,
         }
     });
 

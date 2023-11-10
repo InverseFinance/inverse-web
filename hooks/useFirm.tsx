@@ -219,6 +219,8 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
   currentCycleDepositedByUser: number
   liquidated: number
   lastBlock: number
+  depositsOnTopOfLeverageEvents: any[]
+  repaysOnTopOfDeleverageEvents: any[]
 } => {
   const eventQueries = [
     [market.address, F2_MARKET_ABI, 'Deposit', [account]],
@@ -296,7 +298,7 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
     const depositOnTopOfLeverageEvent = actionName === 'LeverageUp' ? depositsOnTopOfLeverageEvents?.find(e2 => e2.transactionHash.toLowerCase() === e.transactionHash.toLowerCase()) : undefined;
     const depositOnTopOfLeverage = depositOnTopOfLeverageEvent ? getBnToNumber(depositOnTopOfLeverageEvent.args.amount, market.underlying.decimals) : 0;
     const repayOnTopOfDeleverageEvent = actionName === 'LeverageDown' ? repaysOnTopOfDeleverageEvents?.find(e2 => e2.transactionHash.toLowerCase() === e.transactionHash.toLowerCase()) : undefined;
-    const repayOnTopOfDeleverage = repayOnTopOfDeleverageEvent ? getBnToNumber(repayOnTopOfDeleverageEvent.args.amount, market.underlying.decimals) : 0;
+    const repayOnTopOfDeleverage = repayOnTopOfDeleverageEvent ? getBnToNumber(repayOnTopOfDeleverageEvent.args.amount) : 0;
 
     return {
       combinedKey: `${e.transactionHash}-${actionName}-${e.args?.account}`,
@@ -337,6 +339,8 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
     currentCycleDepositedByUser,
     liquidated,
     lastBlock: blocks?.length ? Math.max(...blocks) : lastTxBlockFromLast1000,
+    depositsOnTopOfLeverageEvents,
+    repaysOnTopOfDeleverageEvents,
     isLoading,
     error,
   }

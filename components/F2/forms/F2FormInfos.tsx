@@ -127,10 +127,10 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
 
     const [now, setNow] = useState(Date.now());
     const [firmActionDepositsIndexState, setFirmActionDepositsIndexState] = useState(firmActionIndex);
-    const { isLoading: isLoadingEvents, events, depositedByUser, currentCycleDepositedByUser, liquidated } = useFirmMarketEvents(market, account);
+    const { isLoading: isLoadingEvents, events, depositedByUser, currentCycleDepositedByUser, liquidated, depositsOnTopOfLeverageEvents, repaysOnTopOfDeleverageEvents } = useFirmMarketEvents(market, account);
     const { formattedEvents, isLoading: isLoadingEventsFromApi, firmActionIndex: responseFirmActionIndex } = useEscrowBalanceEvolution(account, escrow, market.address, firmActionIndex);
     const lastFirmActionIndexLoaded = firmActionIndex === firmActionDepositsIndexState;
-    const { grouped: groupedEventsFallback, depositedByUser: depositedByUserFallback, currentCycleDepositedByUser: currentCycleDepositedByUserFallback, liquidated: liquidatedFallback } = formatAndGroupFirmEvents(market, account, lastFirmActionIndexLoaded ? formattedEvents: []);
+    const { grouped: groupedEventsFallback, depositedByUser: depositedByUserFallback, currentCycleDepositedByUser: currentCycleDepositedByUserFallback, liquidated: liquidatedFallback } = formatAndGroupFirmEvents(market, account, lastFirmActionIndexLoaded ? formattedEvents: [], depositsOnTopOfLeverageEvents, repaysOnTopOfDeleverageEvents);
     // same length, use data from api (timestamp already there), otherwise use prefer live data from blockchain
     const _events = events?.length > groupedEventsFallback?.length ? events : groupedEventsFallback;
     const _depositedByUser = depositedByUser || depositedByUserFallback;
