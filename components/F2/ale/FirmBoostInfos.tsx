@@ -1,4 +1,4 @@
-import { Slider, Text, VStack, SliderTrack, SliderFilledTrack, SliderThumb, HStack, Stack, InputGroup, InputRightElement, InputLeftElement } from '@chakra-ui/react'
+import { Slider, Text, VStack, SliderTrack, SliderFilledTrack, SliderThumb, HStack, Stack, InputGroup, InputRightElement, InputLeftElement, useDisclosure } from '@chakra-ui/react'
 
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { getNumberToBn, shortenNumber, smartShortNumber } from '@app/util/markets'
@@ -17,6 +17,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { showToast } from '@app/util/notify'
 import { INV_STAKERS_ONLY } from '@app/config/features'
 import { InvPrime } from '@app/components/common/InvPrime'
+import { AboutAleModal } from '../Modals/AboutAleModal'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -81,7 +82,7 @@ export const getLeverageImpact = async ({
     aleSlippage,
     viaInput = false,
     dolaInput,
-}) => {
+}) => {    
     const collateralPrice = market?.price;
     if (!collateralPrice || leverageLevel <= 1) {
         return
@@ -101,7 +102,7 @@ export const getLeverageImpact = async ({
             const { sellAmount } = await get0xBuyQuote(market.collateral, DOLA, getNumberToBn(amountUp, market.underlying.decimals).toString(), aleSlippage, true);
             borrowStringToSign = sellAmount;
             borrowNumToSign = parseFloat(borrowStringToSign) / (1e18);
-        } else if(!!dolaInput) {      
+        } else if (!!dolaInput) {
             borrowNumToSign = parseFloat(dolaInput);
             borrowStringToSign = getNumberToBn(borrowNumToSign).toString();
         } else {
@@ -192,7 +193,7 @@ export const FirmBoostInfos = ({
         setLeveragePriceImpact,
         leveragePriceImpact,
     } = useContext(F2MarketContext);
-
+    const { isOpen, onOpen, onClose } = useDisclosure();
     const borrowApy = dbrPrice * 100;
     const minLeverage = 1;
     // const [leverageLevel, setLeverageLevel] = useState(minLeverage || _leverageLevel);
@@ -278,7 +279,7 @@ export const FirmBoostInfos = ({
             dolaPrice,
             setLeveragePriceImpact,
         });
-               
+
         if (!!errorMsg) {
             showToast({ status: 'warning', description: errorMsg, title: 'ZeroX api error' })
             return
@@ -307,9 +308,9 @@ export const FirmBoostInfos = ({
 
     const isLeverageUp = type === 'up';
 
-    const newBorrowLimit = 100 - newPerc;    
+    const newBorrowLimit = 100 - newPerc;
     const leverageSteps = useMemo(() => getSteps(market, deposits, debt, perc, type, 1), [market, deposits, debt, perc, type]);
-    const maxLeverage = round(leverageSteps[leverageSteps.length - 1]);    
+    const maxLeverage = round(leverageSteps[leverageSteps.length - 1]);
     const leverageRelativeToMax = leverageLevel / maxLeverage;
 
     const { dbrExpiryDate, debt: currentTotalDebt } = useAccountDBR(account);
@@ -386,7 +387,7 @@ export const FirmBoostInfos = ({
                             </VStack>
                         </HStack>
                     </TextInfoSimple>
-                }                
+                }
                 {/* {
                     market.supplyApy > 0 && <HStack>
                         {newApyInfos}
@@ -434,6 +435,10 @@ export const FirmBoostInfos = ({
                 </TextInfo>
                 <Input py="0" maxH="30px" w='90px' value={aleSlippage} onChange={(e) => setAleSlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'))} />
             </HStack>
+            <AboutAleModal isOpen={isOpen} onClose={onClose} />
+            <Text cursor="pointer" w='full' textAlign="left" textDecoration="underline" onClick={onOpen}>
+                About the Accelerated Leverage Engine
+            </Text>
             {
                 newBorrowLimit >= 99 && !leverageLoading && <WarningMessage description="New borrow limit would be too high" />
             }

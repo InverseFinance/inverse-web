@@ -5,6 +5,9 @@ import InfoModal from "@app/components/common/Modal/InfoModal";
 export const AboutAleModal = ({
     isOpen,
     onClose,
+}: {
+    isOpen: boolean;
+    onClose: () => void;
 }) => {
     return <InfoModal
         title="About the Accelerated Leverage Engine"
@@ -14,10 +17,10 @@ export const AboutAleModal = ({
     >
         <VStack spacing="4" p='4' alignItems="flex-start">
             <Text>
-                The Accelerated Leverage Engine (ALE) is a feature that allows to increase the exposition to the collateral asset by flash-minting DOLA, buying the collateral on DEXes (via the 0x protocol and api) depositing the collateral, and then borrowing DOLA to burn the flash-minted DOLA.
+                The Accelerated Leverage Engine (ALE) is a feature that allows to increase the exposition to the collateral asset by flash-minting DOLA, buying the collateral on DEXes (via the 0x protocol and api) depositing the collateral, and then borrowing DOLA to burn the previously flash-minted DOLA.
             </Text>
             <Text>The result is similar to a "spot leverage"</Text>
-            <Link href="https://docs.inverse.finance/" isExternal target="_blank">
+            <Link textDecoration="underline" href="https://docs.inverse.finance/" isExternal target="_blank">
                 Learn more about ALE
             </Link>
         </VStack>
