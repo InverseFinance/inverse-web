@@ -101,6 +101,7 @@ const chainTokenAddresses = {
     STYCRV: '0x27B5739e22ad9033bcBf192059122d163b60349D',
     YCRV: '0xFCc5c47bE19d06BF83eB04298b026F81069ff65b',
     STCVX: '0xCF50b810E57Ac33B91dCF525C6ddd9881B139332',
+    DOLAINVUNIV3: '0xbD1F921786e12a80F2184E4d6A5cAcB25dc673c9',
   },
   "250": {
     DOLA2POOLCRV: '0x28368d7090421ca544bc89799a2ea8489306e3e5',
@@ -448,6 +449,19 @@ const chainTokens = {
       isUniV3: true,
       pairs: [
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].DBR
+      ],
+      protocolImage: PROTOCOL_IMAGES.UNIV3,
+    },
+    [chainTokenAddresses["1"].DOLAINVUNIV3]: {
+      address: chainTokenAddresses["1"].DOLAINVUNIV3,
+      name: 'DOLA-INV LP',
+      symbol: 'DOLA-INV uv3lp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isUniV3: true,
+      pairs: [
+        chainTokenAddresses["1"].INV, chainTokenAddresses["1"].DOLA
       ],
       protocolImage: PROTOCOL_IMAGES.UNIV3,
     },
