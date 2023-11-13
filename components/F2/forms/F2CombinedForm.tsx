@@ -440,8 +440,7 @@ export const F2CombinedForm = ({
                             }
                         </>
                         : isBorrowOnlyCase ? <Text>Please deposit collateral first</Text> : <Text>Nothing to repay</Text>
-                }
-                {notEnoughToBorrowWithAutobuy && <NotEnoughLiqWithAutobuyMessage leftToBorrow={market.leftToBorrow} isAutoDBR={isAutoDBR} dbrCoverDebt={dbrCoverDebt} deltaDebt={deltaDebt} />}
+                }                
                 {showMinDebtMessage && <MinDebtBorrowMessage debt={debt} minDebt={market.minDebt} />}
                 {showNeedDbrMessage && <NoDbrInWalletMessage />}
                 <HStack justify="space-between" alignItems="space-between" w='full'>
@@ -580,6 +579,7 @@ export const F2CombinedForm = ({
                         />
                     </>
                 }
+                {notEnoughToBorrowWithAutobuy && <NotEnoughLiqWithAutobuyMessage leftToBorrow={market.leftToBorrow} isAutoDBR={isAutoDBR} dbrCoverDebt={dbrCoverDebt} deltaDebt={deltaDebt} />}
                 <Divider />
                 <HStack>
                     {actionBtn}
