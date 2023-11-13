@@ -82,6 +82,7 @@ export const getLeverageImpact = async ({
     aleSlippage,
     viaInput = false,
     dolaInput,
+    isInvPrimeMember,
 }) => {    
     const collateralPrice = market?.price;
     if (!collateralPrice || leverageLevel <= 1) {
@@ -112,7 +113,7 @@ export const getLeverageImpact = async ({
         }
 
         // in the end the reference is always a number of dola sold (as it's what we need to sign, or part of it if with dbr)
-        const { buyAmount, validationErrors, estimatedPriceImpact } = await get0xSellQuote(market.collateral, DOLA, borrowStringToSign, aleSlippage, true);
+        const { buyAmount, validationErrors, estimatedPriceImpact } = await get0xSellQuote(market.collateral, DOLA, borrowStringToSign, aleSlippage, true, !isInvPrimeMember);
         const msg = validationErrors?.length > 0 ?
             `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
             : "Getting a quote from 0x failed";
@@ -136,7 +137,7 @@ export const getLeverageImpact = async ({
         // const estimatedRepayAmount = (baseWorth - targetWorth);
         const targetCollateralBalance = targetWorth / collateralPrice;
         const withdrawAmountToSign = targetCollateralBalance - baseColAmountForLeverage;
-        const { buyAmount, validationErrors, estimatedPriceImpact } = await get0xSellQuote(DOLA, market.collateral, getNumberToBn(Math.abs(withdrawAmountToSign), market.underlying.decimals).toString(), aleSlippage, true);
+        const { buyAmount, validationErrors, estimatedPriceImpact } = await get0xSellQuote(DOLA, market.collateral, getNumberToBn(Math.abs(withdrawAmountToSign), market.underlying.decimals).toString(), aleSlippage, true, !isInvPrimeMember);
         const msg = validationErrors?.length > 0 ?
             `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
             : "Getting a quote from 0x failed";

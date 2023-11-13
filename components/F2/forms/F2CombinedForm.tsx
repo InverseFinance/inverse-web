@@ -106,6 +106,7 @@ export const F2CombinedForm = ({
         setLeverageLoading,
         leverageLoading,
         setLeveragePriceImpact,
+        isInvPrimeMember,
     } = useContext(F2MarketContext);
 
     const [isLargerThan] = useMediaQuery('(min-width: 1280px)');
@@ -173,6 +174,7 @@ export const F2CombinedForm = ({
                     aleSlippage,
                     isAutoDBR ? dbrBuySlippage : undefined,
                     isAutoDBR ? duration : 0,
+                    isInvPrimeMember,
                 );
             }
             else if (isAutoDBR || isUseNativeCoin) {
@@ -198,6 +200,7 @@ export const F2CombinedForm = ({
                     aleSlippage,
                     dbrAmountToSell,
                     minDolaOut,
+                    isInvPrimeMember,
                 );
             }
             else if (isAutoDBR || isUseNativeCoin) {
