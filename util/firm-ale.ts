@@ -5,8 +5,8 @@ import { F2_ALE_ABI } from "@app/config/abis";
 import { f2approxDbrAndDolaNeeded, getFirmSignature, getHelperDolaAndDbrParams } from "./f2";
 import { F2Market } from "@app/types";
 import { get0xSellQuote } from "./zero";
-import { BURN_ADDRESS } from "@app/config/constants";
 import { getBnToNumber, getNumberToBn } from "./markets";
+import { callWithHigherGL } from "./contracts";
 
 const { F2_ALE, DOLA } = getNetworkConfigConstants();
 
@@ -24,7 +24,6 @@ export const prepareLeveragePosition = async (
     durationDays?: number,
     isInvPrimeMember?: boolean,
 ) => {
-    // return getAleContract(signer).setMarket(market.collateral, market.address, market.collateral, BURN_ADDRESS);
     let dbrApprox;
     let dbrInputs = { dolaParam: '0', dbrParam: '0' };
     if(durationDays && dbrBuySlippage) {
@@ -88,8 +87,13 @@ export const leveragePosition = (
     dbrTuple: any[],
     ethValue?: string,
 ) => {
-    return getAleContract(signer)
-        .leveragePosition(dolaToBorrow, marketAd, zeroXspender, swapData, permitTuple, helperTransformData, dbrTuple, { value: ethValue });
+    return callWithHigherGL(
+        getAleContract(signer),
+        'leveragePosition',
+        [dolaToBorrow, marketAd, zeroXspender, swapData, permitTuple, helperTransformData, dbrTuple],
+        100000,
+        { value: ethValue },
+    );
 }
 
 export const depositAndLeveragePosition = (
@@ -104,8 +108,13 @@ export const depositAndLeveragePosition = (
     initialDeposit: BigNumber,
     ethValue?: string,
 ) => {
-    return getAleContract(signer)
-        .depositAndLeveragePosition(initialDeposit, dolaToBorrow, marketAd, zeroXspender, swapData, permitTuple, helperTransformData, dbrTuple, { value: ethValue });
+    return callWithHigherGL(
+        getAleContract(signer),
+        'depositAndLeveragePosition',
+        [initialDeposit, dolaToBorrow, marketAd, zeroXspender, swapData, permitTuple, helperTransformData, dbrTuple],
+        100000,
+        { value: ethValue },
+    )
 }
 
 export const prepareDeleveragePosition = async (
@@ -175,8 +184,10 @@ export const deleveragePosition = async (
     dbrTuple: any[],
     value: string,
 ) => {
-    return getAleContract(signer)
-        .deleveragePosition(
+    return callWithHigherGL(
+        getAleContract(signer),
+        'deleveragePosition',
+        [
             dolaToRepay,
             marketAd,
             amountToWithdraw,
@@ -185,6 +196,8 @@ export const deleveragePosition = async (
             permitTuple,
             helperTransformData,
             dbrTuple,
-            { value },
-        );
+        ],
+        100000,
+        { value },
+    );
 }
