@@ -9,10 +9,10 @@ const PRICE_IMPACT_PROTECTION = 0.05;// 5% fee
 export const get0xSellQuote = async (buyAd: string, sellAd: string, sellAmount: string, slippagePerc = '1', getPriceOnly = false, applyFees = true) => {
     const method = getPriceOnly ? 'price' : 'quote';
     const slippage = parseFloat(slippagePerc) / 100;
-    let url = `https://api.0x.org/swap/v1/${method}?buyToken=${buyAd.toLowerCase()}&sellToken=${sellAd.toLowerCase()}&sellAmount=${sellAmount}&slippagePercentage=${slippage}&feeRecipient=${TREASURY}`;
-    if (applyFees) {
-        url += `&affiliateAddress=${TREASURY}&affiliateFee=${ZEROX_AFFILIATE_FEE}&priceImpactFee=${PRICE_IMPACT_PROTECTION}`;
-    }
+    let url = `https://api.0x.org/swap/v1/${method}?buyToken=${buyAd.toLowerCase()}&sellToken=${sellAd.toLowerCase()}&sellAmount=${sellAmount}&slippagePercentage=${slippage}&feeRecipient=${TREASURY}&feeRecipientTradeSurplus=${TREASURY}&priceImpactProtectionPercentage=${PRICE_IMPACT_PROTECTION}`;
+    // if (applyFees) {
+    //     url += `&affiliateAddress=${TREASURY}&affiliateFee=${ZEROX_AFFILIATE_FEE}`;
+    // }
     const response = await fetch(url, {
         headers: {
             '0x-api-key': ZEROX_API_KEY,
