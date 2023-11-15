@@ -32,6 +32,17 @@ export const NoDbrInWalletMessage = () => {
     />
 }
 
+export const NotEnoughDolaToRepayMessage = ({
+    amount
+}: {
+    amount: number
+}) => {
+    return <InfoMessage    
+        alertProps={{ w: 'full' }}
+        description={`Not enough DOLA in wallet to repay ${preciseCommify(amount, 2)} DOLA`}
+    />
+}
+
 export const AutoBuyDbrNoteMessage = () => {
     return <InfoMessage
         alertProps={{ w: 'full', fontStyle: 'italic' }}

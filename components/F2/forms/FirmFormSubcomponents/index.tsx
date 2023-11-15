@@ -197,7 +197,7 @@ export const FirmDebtInputTitle = ({
 }) => {
     return <TextInfo
         message={
-            `The amount of DOLA stablecoin you wish to ${isDeposit ? 'borrow' : 'repay'}`
+            `The amount of DOLA stablecoin you wish to ${isDeposit ? 'borrow' : 'repay'}${useLeverageInMode ? isDeposit ? ' to do leverage' : ' while deleveraging' : ''}`
         }
     >
         <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? 'Borrow' : 'Repay'}</b> DOLA{useLeverageInMode ? isDeposit ? ' (to do leverage)' : ' (on top of deleverage)' : ''}:</Text>
