@@ -386,7 +386,7 @@ export const F2CombinedForm = ({
                     dbrBalance < 0 && !isDeposit && <CannotWithdrawIfDbrDeficitMessage />
                 }
                 {
-                    !isDeposit && deposits > 0 && !isDeleverageCase && <FirmWithdrawInputSubline
+                    !isDeposit && deposits > 0 && <FirmWithdrawInputSubline
                         deposits={deposits}
                         price={market.price}
                         handleCollateralChange={handleCollateralChange}

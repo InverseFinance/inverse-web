@@ -180,7 +180,7 @@ export const FirmCollateralInputTitle = ({
             market.isInv ?
                 "Staked INV can be withdrawn at any time"
                 : "The more you deposit, the more you can borrow against"
-            : "Withdrawing collateral will reduce borrowing power"
+            : useLeverageInMode ? "When deleveraging, the collateral will be withdrawn and automatically sold for DOLA in order to repay some debt" : "Withdrawing collateral will reduce borrowing power"
     }>
         <Text fontSize='18px' color="mainTextColor">
             <b>{wording}</b> {assetName}{leverageExtraWording}:
