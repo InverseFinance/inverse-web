@@ -325,7 +325,7 @@ export const F2CombinedForm = ({
     const canUseLeverage = !market.isInv && FEATURE_FLAGS.firmLeverage && market.hasAleFeat && !isUseNativeCoin && ((mode === 'Deposit & Borrow' && (deposits > 0 || collateralAmountNum > 0)) || (mode === 'Repay & Withdraw' && debt > 1));
     const showMinDebtMessage = !notEnoughToBorrowWithAutobuy && minDebtDisabledCondition && (debtAmountNum > 0 || isDeleverageCase);
     const showNeedDbrMessage = isDeposit && !isAutoDBR && dbrBalance <= 0;
-    const showNotEnoughDolaToRepayMessage = debtAmountNum > 0 && dolaBalance < debtAmountNum;
+    const showNotEnoughDolaToRepayMessage = isRepayCase && debtAmountNum > 0 && dolaBalance < debtAmountNum;
     
     const disabledConditions = {
         'deposit': ((collateralAmountNum <= 0 && !useLeverageInMode) || collateralBalance < collateralAmountNum),
