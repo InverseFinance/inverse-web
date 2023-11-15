@@ -22,7 +22,7 @@ export const AboutAleModal = ({
                 The Accelerated Leverage Engine (ALE) is a feature that allows to increase the exposition to the collateral asset by flash-minting DOLA, buying the collateral on DEXes (via the 0x protocol and api) depositing the collateral, and then borrowing DOLA to burn the previously flash-minted DOLA.
             </Text>
             <Text>The result is similar to a "spot leverage"</Text>
-            <Text>There is no fees charged for the service</Text>
+            <Text>There is no fee charged for the service</Text>
             <Link textDecoration="underline" href="https://docs.inverse.finance/" isExternal target="_blank">
                 Learn more about ALE <ExternalLinkIcon />
             </Link>

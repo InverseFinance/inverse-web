@@ -359,17 +359,17 @@ export const FirmBoostInfos = ({
                     }
                 </InputGroup>
                 {
-                    leverageLoading && <Text fontWeight="bold" color="secondaryTextColor">Fetching swap data...</Text>
+                    leverageLoading && <Text fontSize="16px" fontWeight="bold" color="secondaryTextColor">Fetching swap data...</Text>
                 }
                 {
                     !leverageLoading && leverageLevel > 1 && <TextInfoSimple direction="row-reverse" message={isLeverageUp ? `Collateral added thanks to leverage` : `Collateral reduced thanks to deleverage`}>
                         <HStack fontWeight="bold" spacing="1" alignItems="center">
-                            {isLeverageUp ? <ArrowUpIcon color="success" fontSize="18px" /> : <ArrowDownIcon color="warning" fontSize="18px" />}
+                            {isLeverageUp ? <ArrowUpIcon color="success" fontSize="24px" /> : <ArrowDownIcon color="warning" fontSize="18px" />}
                             <VStack spacing="0">
-                                <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="14px" textAlign="center">
+                                <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="16px" textAlign="center">
                                     ~{smartShortNumber(isLeverageUp ? parseFloat(leverageCollateralAmount) : collateralAmountNum, 8)}
                                 </Text>
-                                <Text textDecoration="underline" cursor="default">
+                                <Text textDecoration="underline" cursor="default" fontSize="16px">
                                     {market.underlying.symbol}
                                 </Text>
                             </VStack>
@@ -379,12 +379,12 @@ export const FirmBoostInfos = ({
                 {
                     !leverageLoading && leverageLevel > 1 && <TextInfoSimple direction="row-reverse" message={isLeverageUp ? `Debt added due to leverage` : `Debt reduced via deleveraging`}>
                         <HStack fontWeight="bold" spacing="1" alignItems="center">
-                            {isLeverageUp ? <ArrowUpIcon color="warning" fontSize="18px" /> : <ArrowDownIcon color="success" fontSize="18px" />}
+                            {isLeverageUp ? <ArrowUpIcon color="warning" fontSize="24px" /> : <ArrowDownIcon color="success" fontSize="18px" />}
                             <VStack spacing="0">
-                                <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="14px" textAlign="center">
+                                <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="16px" textAlign="center">
                                     ~{smartShortNumber(!isLeverageUp ? parseFloat(leverageDebtAmount) : debtAmountNum, 2)}
                                 </Text>
-                                <Text textDecoration="underline" cursor="default">DEBT</Text>
+                                <Text textDecoration="underline" cursor="default" fontSize="16px">DEBT</Text>
                             </VStack>
                         </HStack>
                     </TextInfoSimple>
@@ -429,7 +429,7 @@ export const FirmBoostInfos = ({
             </HStack>
             <HStack w='full' justify="space-between">
                 <TextInfo
-                    message="Collateral price can vary, the max. slippage % allows the swap required for leverage to be within a certain range, if out of range, tx will revert or fail">
+                    message="Collateral and DOLA market price can vary, the max. slippage % allows the swap required for leverage to be within a certain range, if out of range, the transaction will revert or fail">
                     <Text>
                         Max. swap slippage for leverage %:
                     </Text>
