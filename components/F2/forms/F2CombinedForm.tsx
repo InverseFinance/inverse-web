@@ -390,9 +390,10 @@ export const F2CombinedForm = ({
                     !isDeposit && deposits > 0 && <FirmWithdrawInputSubline
                         deposits={deposits}
                         price={market.price}
-                        handleCollateralChange={handleCollateralChange}
+                        handleCollateralChange={triggerCollateralAndOrLeverageChange}
                         bnDeposits={bnDeposits}
                         decimals={market.underlying.decimals}
+                        useLeverageInMode={useLeverageInMode}
                     />
                 }
             </VStack>

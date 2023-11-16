@@ -1,6 +1,7 @@
 import { AmountInfos } from "@app/components/common/Messages/AmountInfos"
 import { TextInfo } from "@app/components/common/Messages/TextInfo"
 import { F2Market } from "@app/types"
+import { getBnToNumber } from "@app/util/markets"
 import { FormControl, FormLabel, HStack, Switch, Text } from "@chakra-ui/react"
 import { formatUnits } from "@ethersproject/units"
 import { BigNumber } from "ethers"
@@ -68,22 +69,24 @@ export const FirmWithdrawInputSubline = ({
     handleCollateralChange,
     bnDeposits,
     decimals,
+    useLeverageInMode = false
 }: {
     deposits: number
     price: number
-    handleCollateralChange: (value: string) => void
+    handleCollateralChange: (value: string, num: number) => void
     bnDeposits: BigNumber
     decimals: number
+    useLeverageInMode: boolean
 }) => {
     return <HStack w='full' justify="space-between">
         <AmountInfos
-            label="Deposits"
+            label={useLeverageInMode ? 'Sell all' : 'Deposits'}
             value={deposits}
             price={price}
             textProps={{
                 cursor: 'pointer',
                 fontSize: '14px',
-                onClick: () => handleCollateralChange(formatUnits(bnDeposits, decimals))
+                onClick: () => handleCollateralChange(formatUnits(bnDeposits, decimals), getBnToNumber(bnDeposits, decimals))
             }}
         />
     </HStack>
