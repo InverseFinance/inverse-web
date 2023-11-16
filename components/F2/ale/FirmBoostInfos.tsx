@@ -22,6 +22,9 @@ import { preciseCommify } from '@app/util/misc'
 
 const { DOLA } = getNetworkConfigConstants();
 
+const roundDown = (v: number) => Math.floor(v * 100) / 100;
+const roundUp = (v: number) => Math.ceil(v * 100) / 100;
+
 const getSteps = (
     market: F2Market,
     deposits: number,
@@ -29,13 +32,14 @@ const getSteps = (
     perc: number,
     type: string,
     leverageLevel: number,
-    steps: number[] = [],
+    aleSlippage: string,
+    steps: number[] = [],    
     doLastOne = false,
 ): number[] => {
     const baseWorth = market.price ? deposits * market.price : 0;
     const isLeverageUp = type === 'up';
     const _leverageLevel = leverageLevel + 0.01;
-    const effectiveLeverage = isLeverageUp ? _leverageLevel : 1 / _leverageLevel;
+    const effectiveLeverage = isLeverageUp ? _leverageLevel : (1 / _leverageLevel) * (1+parseFloat(aleSlippage)*2 / 100);
     const desiredWorth = baseWorth * effectiveLeverage;
 
     const deltaBorrow = desiredWorth - baseWorth;
@@ -56,7 +60,7 @@ const getSteps = (
     if ((newPerc <= 2) || _leverageLevel > 10 || doLastOne) {
         return steps;
     } else {
-        return getSteps(market, deposits, debt, perc, type, _leverageLevel, [...steps, _leverageLevel], newDebt <= 0);
+        return getSteps(market, deposits, debt, perc, type, _leverageLevel, aleSlippage, [...steps, _leverageLevel], newDebt <= 0);
     }
 }
 
@@ -301,13 +305,12 @@ export const FirmBoostInfos = ({
             return;
         }
         handleLeverageChange(input);
-    }
-
-    const round = (v: number) => Math.floor(v * 100) / 100;
+    }    
 
     const newBorrowLimit = 100 - newPerc;
-    const leverageSteps = useMemo(() => getSteps(market, deposits, debt, perc, type, 1), [market, deposits, debt, perc, type]);
-    const maxLeverage = round(leverageSteps[leverageSteps.length - 1]);
+    const leverageSteps = useMemo(() => getSteps(market, deposits, debt, perc, type, 1, aleSlippage, []), [market, deposits, debt, perc, type, undefined, aleSlippage]);
+    // when deleveraging we want the max to be higher what's required to repay all debt, the extra dola is sent to the wallet
+    const maxLeverage = isLeverageUp ? roundDown(leverageSteps[leverageSteps.length - 1]) : roundUp(leverageSteps[leverageSteps.length - 1]);
     const leverageRelativeToMax = leverageLevel / maxLeverage;
 
     const { dbrExpiryDate, debt: currentTotalDebt } = useAccountDBR(account);
@@ -337,6 +340,7 @@ export const FirmBoostInfos = ({
     const aleSlippageFactor = (1 - parseFloat(aleSlippage) / 100);
     const estimatedAmount = leverageLevel > 1 ? parseFloat(isLeverageUp ? leverageCollateralAmount : leverageDebtAmount) : 0;
     const minAmount = aleSlippage ? aleSlippageFactor * estimatedAmount : 0;
+    // when leveraging down min amount (or debt) is always the amount repaid, the slippage impacts amount of dola received in wallet
     const amountOfDebtReduced = !isLeverageUp ? Math.min(minAmount, debt) : 0;
     const extraDolaReceivedInWallet = isLeverageUp ? 0 : estimatedAmount - amountOfDebtReduced;
 
@@ -456,7 +460,7 @@ export const FirmBoostInfos = ({
                     <TextInfo
                         message="This is the minimum amount that you're willing to accept for the trade, if the amount is not within the slippage range the transaction will fail or revert.">
                         <Text>
-                            Min. amount swapped for {preciseCommify(knownFixedAmount, 8, false, true)} {!isLeverageUp ? market.underlying.symbol : 'DOLA'}: {preciseCommify(minAmount, isLeverageUp ? 6 : 2, false, true)} {isLeverageUp ? market.underlying.symbol : 'DOLA'}
+                            Min. amount swapped for {preciseCommify(knownFixedAmount, 8, false, true)} {!isLeverageUp ? market.underlying.symbol : 'DOLA'}: {preciseCommify(isLeverageUp ? minAmount : amountOfDebtReduced, isLeverageUp ? 6 : 2, false, true)} {isLeverageUp ? market.underlying.symbol : 'DOLA'}
                         </Text>
                     </TextInfo>
                 </HStack>
