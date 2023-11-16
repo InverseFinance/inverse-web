@@ -12,12 +12,12 @@ import { F2Market } from '@app/types'
 import { useAccountDBR } from '@app/hooks/useDBR'
 import { AnchorPoolInfo } from '@app/components/Anchor/AnchorPoolnfo'
 import { TextInfo, TextInfoSimple } from '@app/components/common/Messages/TextInfo'
-import { get0xBuyQuote, get0xSellQuote } from '@app/util/zero'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { showToast } from '@app/util/notify'
 import { INV_STAKERS_ONLY } from '@app/config/features'
 import { InvPrime } from '@app/components/common/InvPrime'
 import { AboutAleModal } from '../Modals/AboutAleModal'
+import { getAleSellQuote } from '@app/util/firm-ale'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -82,8 +82,7 @@ export const getLeverageImpact = async ({
     aleSlippage,
     viaInput = false,
     dolaInput,
-    isInvPrimeMember,
-}) => {    
+}) => {
     const collateralPrice = market?.price;
     if (!collateralPrice || leverageLevel <= 1) {
         return
@@ -97,13 +96,14 @@ export const getLeverageImpact = async ({
         const baseColAmountForLeverage = deposits > 0 ? deposits : initialDeposit;
         const baseWorth = baseColAmountForLeverage * collateralPrice;
         let borrowStringToSign, borrowNumToSign;
-        // precision is focused on collateral amount
-        if (!viaInput) {
-            const amountUp = deposits * leverageLevel - deposits;
-            const { sellAmount } = await get0xBuyQuote(market.collateral, DOLA, getNumberToBn(amountUp, market.underlying.decimals).toString(), aleSlippage, true);
-            borrowStringToSign = sellAmount;
-            borrowNumToSign = parseFloat(borrowStringToSign) / (1e18);
-        } else if (!!dolaInput) {
+        // precision is focused on collateral amount, only with 0x
+        // if (false && !viaInput) {
+        //     const amountUp = deposits * leverageLevel - deposits;
+        //     const { sellAmount } = await get0xBuyQuote(market.collateral, DOLA, getNumberToBn(amountUp, market.underlying.decimals).toString(), aleSlippage, true);
+        //     borrowStringToSign = sellAmount;
+        //     borrowNumToSign = parseFloat(borrowStringToSign) / (1e18);
+        // } 
+        if (!!dolaInput) {
             borrowNumToSign = parseFloat(dolaInput);
             borrowStringToSign = getNumberToBn(borrowNumToSign).toString();
         } else {
@@ -113,20 +113,16 @@ export const getLeverageImpact = async ({
         }
 
         // in the end the reference is always a number of dola sold (as it's what we need to sign, or part of it if with dbr)
-        const { buyAmount, validationErrors, estimatedPriceImpact } = await get0xSellQuote(market.collateral, DOLA, borrowStringToSign, aleSlippage, true, !isInvPrimeMember);
-        const msg = validationErrors?.length > 0 ?
+        const { buyAmount, validationErrors, msg } = await getAleSellQuote(market.collateral, DOLA, borrowStringToSign, aleSlippage, true);
+        const errorMsg = msg || (validationErrors?.length > 0 ?
             `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
-            : "Getting a quote from 0x failed";
-        // const targetCollateralBalance = targetWorth / collateralPrice;
-        // const collateralIncrease = targetCollateralBalance - baseColAmountForLeverage;
+            : "Getting a quote from 0x failed");
         if (setLeverageLoading) setLeverageLoading(false);
-        if (setLeveragePriceImpact) setLeveragePriceImpact(estimatedPriceImpact);
+        // if (setLeveragePriceImpact) setLeveragePriceImpact(estimatedPriceImpact);
         return {
-            errorMsg: validationErrors?.length > 0 ? msg : undefined,
-            dolaAmount: borrowNumToSign,
-            // collateralAmount: collateralIncrease,
-            collateralAmount: parseFloat(buyAmount) / (10 ** market.underlying.decimals),
-            estimatedPriceImpact: estimatedPriceImpact ? parseFloat(estimatedPriceImpact) : null,
+            errorMsg,
+            dolaAmount: borrowNumToSign,            
+            collateralAmount: parseFloat(buyAmount) / (10 ** market.underlying.decimals),        
         }
     } else {
         // leverage down: dola amount is variable, collateral amount is fixed
@@ -137,18 +133,17 @@ export const getLeverageImpact = async ({
         // const estimatedRepayAmount = (baseWorth - targetWorth);
         const targetCollateralBalance = targetWorth / collateralPrice;
         const withdrawAmountToSign = targetCollateralBalance - baseColAmountForLeverage;
-        const { buyAmount, validationErrors, estimatedPriceImpact } = await get0xSellQuote(DOLA, market.collateral, getNumberToBn(Math.abs(withdrawAmountToSign), market.underlying.decimals).toString(), aleSlippage, true, !isInvPrimeMember);
+        const { buyAmount, validationErrors } = await getAleSellQuote(DOLA, market.collateral, getNumberToBn(Math.abs(withdrawAmountToSign), market.underlying.decimals).toString(), aleSlippage, true);
         const msg = validationErrors?.length > 0 ?
             `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
             : "Getting a quote from 0x failed";
         if (setLeverageLoading) setLeverageLoading(false);
-        if (setLeveragePriceImpact) setLeveragePriceImpact(estimatedPriceImpact);
+        // if (setLeveragePriceImpact) setLeveragePriceImpact(estimatedPriceImpact);
         return {
             errorMsg: validationErrors?.length > 0 ? msg : undefined,
             // dolaAmount: estimatedRepayAmount,
             dolaAmount: parseFloat(buyAmount) / 1e18,
-            collateralAmount: withdrawAmountToSign,
-            estimatedPriceImpact: estimatedPriceImpact ? parseFloat(estimatedPriceImpact) : null,
+            collateralAmount: withdrawAmountToSign,            
         }
     }
 }
@@ -207,6 +202,8 @@ export const FirmBoostInfos = ({
     const boostedSupplyApy = (leverageLevel * (market.supplyApy || 0));
     const boostedExtraApy = (leverageLevel * (market.extraApy || 0));
 
+    const isLeverageUp = type === 'up';
+
     const apyInfos = <AnchorPoolInfo
         value={market.supplyApy}
         valueExtra={market.extraApy}
@@ -235,8 +232,8 @@ export const FirmBoostInfos = ({
 
     useDebouncedEffect(() => {
         setDebounced(false);
-        validatePendingLeverage(sliderLeverageLevel);
-    }, [sliderLeverageLevel], 500);
+        validatePendingLeverage(sliderLeverageLevel, isLeverageUp);
+    }, [sliderLeverageLevel, isLeverageUp], 500);
 
     useEffect(() => {
         setEditLeverageLevel(leverageLevel.toFixed(2));
@@ -260,7 +257,7 @@ export const FirmBoostInfos = ({
 
     const handleKeyPress = (e: any) => {
         if (e.key === 'Enter') {
-            validatePendingLeverage(editLeverageLevel);
+            validatePendingLeverage(editLeverageLevel, isLeverageUp);
         }
     }
 
@@ -293,21 +290,19 @@ export const FirmBoostInfos = ({
         })
     }
 
-    const isInvalidLeverage = (input: number) => {
-        return !input || isNaN(input) || input < minLeverage || input > maxLeverage;
+    const isInvalidLeverage = (input: number, isLeverageUp: boolean) => {
+        return !input || isNaN(input) || input < minLeverage || (isLeverageUp && input > maxLeverage);
     }
 
-    const validatePendingLeverage = (v: string) => {
+    const validatePendingLeverage = (v: string, isLeverageUp: boolean) => {
         const input = parseFloat(v);
-        if (isInvalidLeverage(input)) {
+        if (isInvalidLeverage(input, isLeverageUp)) {
             return;
         }
         handleLeverageChange(input);
     }
 
-    const round = (v: number) => Math.floor(v * 100) / 100;
-
-    const isLeverageUp = type === 'up';
+    const round = (v: number) => Math.floor(v * 100) / 100; 
 
     const newBorrowLimit = 100 - newPerc;
     const leverageSteps = useMemo(() => getSteps(market, deposits, debt, perc, type, 1), [market, deposits, debt, perc, type]);
@@ -336,7 +331,10 @@ export const FirmBoostInfos = ({
         return <InfoMessage alertProps={{ w: 'full' }} description="Cannot use leverage when there is no DOLA liquidity" />
     }
 
-    const editLeverageIsInvalid = isInvalidLeverage(parseFloat(editLeverageLevel));
+    const editLeverageIsInvalid = isInvalidLeverage(parseFloat(editLeverageLevel), isLeverageUp);
+    const knownFixedAmount = isLeverageUp ? debtAmountNum : collateralAmountNum;
+    const estimatedAmount = leverageLevel > 1 ? parseFloat(isLeverageUp ? leverageCollateralAmount : leverageDebtAmount) : 0;
+    const minAmount = aleSlippage ? (1-parseFloat(aleSlippage)/100) * estimatedAmount : 0; 
 
     return <Stack fontSize="14px" spacing="4" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
         <VStack position="relative" w='full' alignItems="center" justify="center">
@@ -353,7 +351,7 @@ export const FirmBoostInfos = ({
                     <Input _focusVisible={false} isInvalid={editLeverageIsInvalid} autocomplete="off" onKeyPress={handleKeyPress} id="boostInput" color={risk.color} py="0" pl="60px" onChange={(e) => handleEditLeverage(e.target.value, minLeverage, maxLeverage)} width="220px" value={editLeverageLevel} min={minLeverage} max={maxLeverage} />
                     {
                         editLeverageLevel !== leverageLevel.toFixed(2) && debounced && !editLeverageIsInvalid &&
-                        <InputRightElement cursor="pointer" transform="translateX(40px)" onClick={() => validatePendingLeverage(editLeverageLevel)}
+                        <InputRightElement cursor="pointer" transform="translateX(40px)" onClick={() => validatePendingLeverage(editLeverageLevel, isLeverageUp)}
                             children={<CheckCircleIcon transition="ease-in-out" transitionDuration="300ms" transitionProperty="color" _hover={{ color: 'success' }} />}
                         />
                     }
@@ -367,7 +365,7 @@ export const FirmBoostInfos = ({
                             {isLeverageUp ? <ArrowUpIcon color="success" fontSize="24px" /> : <ArrowDownIcon color="warning" fontSize="18px" />}
                             <VStack spacing="0">
                                 <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="16px" textAlign="center">
-                                    ~{smartShortNumber(isLeverageUp ? parseFloat(leverageCollateralAmount) : collateralAmountNum, 8)}
+                                    {isLeverageUp ? '~' : ''}{smartShortNumber(isLeverageUp ? parseFloat(leverageCollateralAmount) : collateralAmountNum, 8)}
                                 </Text>
                                 <Text textDecoration="underline" cursor="default" fontSize="16px">
                                     {market.underlying.symbol}
@@ -377,12 +375,12 @@ export const FirmBoostInfos = ({
                     </TextInfoSimple>
                 }
                 {
-                    !leverageLoading && leverageLevel > 1 && <TextInfoSimple direction="row-reverse" message={isLeverageUp ? `Debt added due to leverage` : `Debt reduced via deleveraging`}>
+                    !leverageLoading && leverageLevel > 1 && <TextInfoSimple direction="row-reverse" message={isLeverageUp ? `Debt added due to leverage` : `Debt reduced via deleveraging, if higher than the current debt the extra DOLA goes to the user wallet`}>
                         <HStack fontWeight="bold" spacing="1" alignItems="center">
                             {isLeverageUp ? <ArrowUpIcon color="warning" fontSize="24px" /> : <ArrowDownIcon color="success" fontSize="18px" />}
                             <VStack spacing="0">
                                 <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="16px" textAlign="center">
-                                    ~{smartShortNumber(!isLeverageUp ? parseFloat(leverageDebtAmount) : debtAmountNum, 2)}
+                                    {!isLeverageUp ? '~' : ''}{smartShortNumber(!isLeverageUp ? parseFloat(leverageDebtAmount) : debtAmountNum, 2)}
                                 </Text>
                                 <Text textDecoration="underline" cursor="default" fontSize="16px">DEBT</Text>
                             </VStack>
@@ -404,27 +402,29 @@ export const FirmBoostInfos = ({
                 </TextInfo> */}
                 {/* <Text onClick={() => onFirmLeverageEngineOpen()}>Details</Text> */}
             </HStack>
-            <Slider
-                value={leverageLevel}
-                onChange={(v: number) => handleSliderLeverage(v)}
-                min={minLeverage}
-                max={maxLeverage}
-                step={0.01}
-                aria-label='slider-ex-4'
-                defaultValue={leverageLevel}
-                focusThumbOnChange={false}
-            >
-                <SliderTrack h="10px" bg='red.100'>
-                    <SliderFilledTrack bg={risk.color} />
-                </SliderTrack>
-                <SliderThumb h="20px" w="10px" />
-            </Slider>
+            {
+                isLeverageUp && <Slider
+                    value={leverageLevel}
+                    onChange={(v: number) => handleSliderLeverage(v)}
+                    min={minLeverage}
+                    max={maxLeverage}
+                    step={0.01}
+                    aria-label='slider-ex-4'
+                    defaultValue={leverageLevel}
+                    focusThumbOnChange={false}
+                >
+                    <SliderTrack h="10px" bg='red.100'>
+                        <SliderFilledTrack bg={risk.color} />
+                    </SliderTrack>
+                    <SliderThumb h="20px" w="10px" />
+                </Slider>
+            }
             <HStack w='full' justify="space-between" alignItems="center">
                 <Text textDecoration="underline" fontWeight="bold" cursor="pointer" color={riskLevels.safer.color} onClick={() => handleLeverageChange(minLeverage)}>
-                    No leverage
+                    No {isLeverageUp ? 'leverage' : 'deleverage'}
                 </Text>
-                <Text textDecoration="underline" fontWeight="bold" cursor="pointer" color={riskLevels.riskier.color} onClick={() => handleLeverageChange(maxLeverage)}>
-                    Max: x{shortenNumber(maxLeverage, 2)}
+                <Text textDecoration="underline" fontWeight="bold" cursor="pointer" color={isLeverageUp ? riskLevels.riskier.color : riskLevels.safer.color} onClick={() => handleLeverageChange(maxLeverage)}>
+                    {isLeverageUp ? `Max: x${shortenNumber(maxLeverage, 2)}`: 'Max deleverage'}
                 </Text>
             </HStack>
             <HStack w='full' justify="space-between">
@@ -435,6 +435,14 @@ export const FirmBoostInfos = ({
                     </Text>
                 </TextInfo>
                 <Input py="0" maxH="30px" w='90px' value={aleSlippage} onChange={(e) => setAleSlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'))} />
+            </HStack>
+            <HStack w='full' justify="space-between">
+                <TextInfo
+                    message="This is the minimum amount that you're willing to accept for the trade, if the amount is not within the slippage range the transaction will fail or revert.">
+                    <Text>
+                        Min. amount bought for {smartShortNumber(knownFixedAmount, 2)} {!isLeverageUp ? market.underlying.symbol : 'DOLA'}: {minAmount} {isLeverageUp ? market.underlying.symbol : 'DOLA'}
+                    </Text>
+                </TextInfo>                
             </HStack>
             <AboutAleModal isOpen={isOpen} onClose={onClose} />
             <Text cursor="pointer" w='full' textAlign="left" textDecoration="underline" onClick={onOpen}>
