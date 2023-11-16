@@ -127,7 +127,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
 
     const [now, setNow] = useState(Date.now());
     const [firmActionDepositsIndexState, setFirmActionDepositsIndexState] = useState(firmActionIndex);
-    const { isLoading: isLoadingEvents, events, depositedByUser, currentCycleDepositedByUser, liquidated, depositsOnTopOfLeverageEvents, repaysOnTopOfDeleverageEvents } = useFirmMarketEvents(market, account);
+    const { isLoading: isLoadingEvents, events, depositedByUser, currentCycleDepositedByUser, liquidated, depositsOnTopOfLeverageEvents, repaysOnTopOfDeleverageEvents } = useFirmMarketEvents(market, account, firmActionIndex);
     const { formattedEvents, isLoading: isLoadingEventsFromApi, firmActionIndex: responseFirmActionIndex } = useEscrowBalanceEvolution(account, escrow, market.address, firmActionIndex);
     const lastFirmActionIndexLoaded = firmActionIndex === firmActionDepositsIndexState;
     const { grouped: groupedEventsFallback, depositedByUser: depositedByUserFallback, currentCycleDepositedByUser: currentCycleDepositedByUserFallback, liquidated: liquidatedFallback } = formatAndGroupFirmEvents(market, account, lastFirmActionIndexLoaded ? formattedEvents: [], depositsOnTopOfLeverageEvents, repaysOnTopOfDeleverageEvents);

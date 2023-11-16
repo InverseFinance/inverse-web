@@ -211,7 +211,7 @@ const COMBINATIONS_NAMES = {
   'Withdraw': 'RepayWithdraw',
 }
 
-export const useFirmMarketEvents = (market: F2Market, account: string): {
+export const useFirmMarketEvents = (market: F2Market, account: string, firmActionIndex: number): {
   events: FirmAction[]
   isLoading: boolean
   error: any
@@ -221,7 +221,7 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
   lastBlock: number
   depositsOnTopOfLeverageEvents: any[]
   repaysOnTopOfDeleverageEvents: any[]
-} => {
+} => {  
   const eventQueries = [
     [market.address, F2_MARKET_ABI, 'Deposit', [account]],
     [market.address, F2_MARKET_ABI, 'Withdraw', [account]],
@@ -238,14 +238,14 @@ export const useFirmMarketEvents = (market: F2Market, account: string): {
   }
   const { groupedEvents, isLoading, error } = useMultiContractEvents(
     eventQueries,
-    `firm-market-${market.address}-${account}`,
+    `firm-market-${market.address}-${account}-${firmActionIndex}`,
   );
   const { events: depositsOnTopOfLeverageEvents } = useContractEvents(
-    market.collateral, ERC20_ABI, 'Transfer', needAleEvents ? [account, F2_ALE] : undefined, true, `ale-${account}-deposits-on-top`
+    market.collateral, ERC20_ABI, 'Transfer', needAleEvents ? [account, F2_ALE] : undefined, true, `ale-${account}-deposits-on-top--${firmActionIndex}`
   );
 
   const { events: repaysOnTopOfDeleverageEvents } = useContractEvents(
-    DOLA, ERC20_ABI, 'Transfer', needAleEvents ? [account, F2_ALE] : undefined, true, `ale-${account}-repays-on-top`
+    DOLA, ERC20_ABI, 'Transfer', needAleEvents ? [account, F2_ALE] : undefined, true, `ale-${account}-repays-on-top-${firmActionIndex}`
   );
 
   const flatenedEvents = groupedEvents.flat().sort(ascendingEventsSorter);
