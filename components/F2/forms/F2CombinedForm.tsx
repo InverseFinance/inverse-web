@@ -173,8 +173,7 @@ export const F2CombinedForm = ({
                     parseUnits(collateralAmount || '0', market.underlying.decimals),
                     aleSlippage,
                     isAutoDBR ? dbrBuySlippage : undefined,
-                    isAutoDBR ? duration : 0,
-                    isInvPrimeMember,
+                    isAutoDBR ? duration : 0,                    
                 );
             }
             else if (isAutoDBR || isUseNativeCoin) {
@@ -199,8 +198,7 @@ export const F2CombinedForm = ({
                     parseUnits(collateralAmount || '0', market.underlying.decimals),
                     aleSlippage,
                     dbrAmountToSell,
-                    minDolaOut,
-                    isInvPrimeMember,
+                    minDolaOut,                    
                 );
             }
             else if (isAutoDBR || isUseNativeCoin) {
@@ -247,7 +245,7 @@ export const F2CombinedForm = ({
         resetLeverage();
     }
 
-    const resetLeverage = () => {
+    const resetLeverage = () => {        
         setLeverageCollateralAmount('');
         setLeverageDebtAmount('');
         setLeverage(1);
@@ -268,7 +266,7 @@ export const F2CombinedForm = ({
                     deposits, debt, leverageLevel: leverage, market, isUp: false, dolaPrice, setLeverageLoading, viaInput: true, setLeveragePriceImpact
                 });
                 if (!!errorMsg) {
-                    showToast({ status: 'warning', description: errorMsg, title: 'ZeroX api error' })
+                    showToast({ status: 'warning', description: errorMsg, title: 'Api error' })
                     return
                 }
                 setLeverageDebtAmount(Math.abs(dolaAmount).toFixed(2));
@@ -299,7 +297,7 @@ export const F2CombinedForm = ({
                     deposits, debt, leverageLevel: leverage, market, isUp: true, dolaPrice, setLeverageLoading, viaInput, dolaInput: viaInput ? debtString : undefined, setLeveragePriceImpact
                 });
                 if (!!errorMsg) {
-                    showToast({ status: 'warning', description: errorMsg, title: 'ZeroX api error' })
+                    showToast({ status: 'warning', description: errorMsg, title: 'Api error' })
                     return
                 }
                 setLeverageCollateralAmount(removeTrailingZeros(collateralAmount.toFixed(8)));

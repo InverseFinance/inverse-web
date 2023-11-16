@@ -24,7 +24,6 @@ export const prepareLeveragePosition = async (
     slippagePerc?: string | number,
     dbrBuySlippage?: string | number,
     durationDays?: number,
-    isInvPrimeMember?: boolean,
 ) => {
     let dbrApprox;
     let dbrInputs = { dolaParam: '0', dbrParam: '0' };
@@ -41,7 +40,7 @@ export const prepareLeveragePosition = async (
         let aleQuoteResult;
         try {
             // the dola swapped for collateral is dolaToBorrowToBuyCollateral not totalDolaToBorrow (a part is for dbr)
-            aleQuoteResult = await getAleSellQuote(market.collateral, DOLA, dolaToBorrowToBuyCollateral.toString(), slippagePerc, false, !isInvPrimeMember);
+            aleQuoteResult = await getAleSellQuote(market.collateral, DOLA, dolaToBorrowToBuyCollateral.toString(), slippagePerc, false);
             if (!aleQuoteResult?.data || !!aleQuoteResult.msg) {
                 const msg = aleQuoteResult?.validationErrors?.length > 0 ?
                     `Swap validation failed with: ${aleQuoteResult?.validationErrors[0].field} ${aleQuoteResult?.validationErrors[0].reason}`
@@ -127,13 +126,12 @@ export const prepareDeleveragePosition = async (
     slippagePerc?: string | number,
     dbrToSell?: BigNumber,
     minDolaOut?: BigNumber,
-    isInvPrimeMember?: boolean,
 ) => {
     let aleQuoteResult;
     // we need the quote first
     try {
         // the dola swapped for collateral is dolaToRepayToSellCollateral not totalDolaToBorrow (a part is for dbr)
-        aleQuoteResult = await getAleSellQuote(DOLA, market.collateral, collateralToWithdraw.toString(), slippagePerc, false, !isInvPrimeMember);
+        aleQuoteResult = await getAleSellQuote(DOLA, market.collateral, collateralToWithdraw.toString(), slippagePerc, false);
         if (!aleQuoteResult?.data || !!aleQuoteResult.msg) {
             const msg = aleQuoteResult?.validationErrors?.length > 0 ?
                 `Swap validation failed with: ${aleQuoteResult?.validationErrors[0].field} ${aleQuoteResult?.validationErrors[0].reason}`
