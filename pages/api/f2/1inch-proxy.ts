@@ -6,6 +6,31 @@ const BASE_URL = 'https://api.1inch.dev/swap/v5.2/1';
 
 const { F2_ALE } = getNetworkConfigConstants();
 
+// default limit is 1 Request Per Sec
+const fetch1inchWithRetry = async (
+  url: string,
+  maxRetries = 20,
+  currentRetry = 0,
+): Promise<Response | undefined> => {
+  let response;
+  try {
+    response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${process.env.ONEINCH_KEY}`,
+        'accept': 'application/json',
+      },
+    });
+  } catch (e) {
+
+  }
+
+  if (response?.status !== 200 &&  currentRetry < maxRetries) {
+      await new Promise((r) => setTimeout(() => r(true), 1000));
+      return await fetch1inchWithRetry(url, maxRetries, currentRetry + 1);
+  };
+  return response;
+}
+
 export default async function handler(req, res) {
   const { method, buyToken, buyAmount, sellToken, sellAmount, slippagePercentage } = req.query;
   if (!['swap', 'quote'].includes(method) || !isAddress(buyToken) || !isAddress(sellToken)) {
@@ -17,24 +42,22 @@ export default async function handler(req, res) {
     let url = `${BASE_URL}/${method}?dst=${buyToken}&src=${sellToken}&slippage=${5}&disableEstimate=true&from=${F2_ALE}`;
     url += `&amount=${sellAmount || ''}`;
 
-    const response = await fetch(url, {
-      headers: {
-        'Authorization': `Bearer ${process.env.ONEINCH_KEY}`,
-        'accept': 'application/json',
-      },
-    });
+    const response = await fetch1inchWithRetry(url);
+    if(!response) {
+      return res.status(500).json({ error: true, msg: 'Failed to fecth swap data, please try again' });
+    }
 
-    const zeroXresult = await response.json();
+    const responseData = await response?.json();
     return res.status(response.status).json({
-      ...zeroXresult,      
-      buyAmount: zeroXresult?.toAmount,
+      ...responseData,      
+      buyAmount: responseData?.toAmount,
       // 1inch router v5
       allowanceTarget: '0x1111111254EEB25477B68fb85Ed929f73A960582',
-      data: zeroXresult?.tx?.data,
-      gasPrice: zeroXresult?.tx?.gasPrice,
+      data: responseData?.tx?.data,
+      gasPrice: responseData?.tx?.gasPrice,
     });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: true })
+    return res.status(500).json({ error: true, msg: 'Failed to fecth swap data, please try again' })
   }
 }

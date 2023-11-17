@@ -24,6 +24,7 @@ const { DOLA } = getNetworkConfigConstants();
 
 const roundDown = (v: number) => Math.floor(v * 100) / 100;
 const roundUp = (v: number) => Math.ceil(v * 100) / 100;
+let timeout = -1;
 
 const getSteps = (
     market: F2Market,
@@ -156,11 +157,9 @@ export const getLeverageImpact = async ({
 export const FirmBoostInfos = ({
     type = 'up',
     onLeverageChange,
-    showDetails = false,
 }: {
     type?: 'up' | 'down',
     onLeverageChange: ({ }) => void
-    showDetails: boolean
 }) => {
     const {
         market,
@@ -179,6 +178,7 @@ export const FirmBoostInfos = ({
         onFirmLeverageEngineOpen,
         handleDebtChange,
         leverageCollateralAmount,
+        leverageCollateralAmountNum,
         setLeverageCollateralAmount,
 
         newDebt,
@@ -192,56 +192,65 @@ export const FirmBoostInfos = ({
         setLeverageLoading,
         isInvPrimeMember,
         setLeveragePriceImpact,
-        leveragePriceImpact,
+        useLeverageInMode,
     } = useContext(F2MarketContext);
-    const { isOpen, onOpen, onClose } = useDisclosure();
-    const borrowApy = dbrPrice * 100;
+    const newBorrowLimit = 100 - newPerc;
+    const showBorrowLimitTooHighMsg = newBorrowLimit >= 99 && !leverageLoading;
+    const { isOpen, onOpen, onClose } = useDisclosure();    
     const minLeverage = 1;
     // const [leverageLevel, setLeverageLevel] = useState(minLeverage || _leverageLevel);
     const [editLeverageLevel, setEditLeverageLevel] = useState(leverageLevel.toString());
     const [sliderLeverageLevel, setSliderLeverageLevel] = useState(leverageLevel.toString());
     const [debounced, setDebounced] = useState(true);
+    const [debouncedShowdBorrowLimitMsg, setDebouncedShowdBorrowLimitMsg] = useState(showBorrowLimitTooHighMsg);
 
-    const boostedApy = (leverageLevel * (market.supplyApy || 0) / 100 - (leverageLevel - 1) * (borrowApy) / 100) * 100;
-    const boostedApyLow = (leverageLevel * (market.supplyApyLow || 0));
-    const boostedSupplyApy = (leverageLevel * (market.supplyApy || 0));
-    const boostedExtraApy = (leverageLevel * (market.extraApy || 0));
+    // const borrowApy = dbrPrice * 100;
+    // const boostedApy = (leverageLevel * (market.supplyApy || 0) / 100 - (leverageLevel - 1) * (borrowApy) / 100) * 100;
+    // const boostedApyLow = (leverageLevel * (market.supplyApyLow || 0));
+    // const boostedSupplyApy = (leverageLevel * (market.supplyApy || 0));
+    // const boostedExtraApy = (leverageLevel * (market.extraApy || 0));
 
     const isLeverageUp = type === 'up';
 
-    const apyInfos = <AnchorPoolInfo
-        value={market.supplyApy}
-        valueExtra={market.extraApy}
-        valueLow={market.supplyApyLow}
-        priceUsd={market.price}
-        symbol={market.underlying.symbol}
-        type={'supply'}
-        textProps={{ textAlign: "end", fontWeight: "bold" }}
-        hasClaimableRewards={market.hasClaimableRewards}
-    />;
+    // const apyInfos = <AnchorPoolInfo
+    //     value={market.supplyApy}
+    //     valueExtra={market.extraApy}
+    //     valueLow={market.supplyApyLow}
+    //     priceUsd={market.price}
+    //     symbol={market.underlying.symbol}
+    //     type={'supply'}
+    //     textProps={{ textAlign: "end", fontWeight: "bold" }}
+    //     hasClaimableRewards={market.hasClaimableRewards}
+    // />;
 
-    const newApyInfos = <AnchorPoolInfo
-        value={boostedSupplyApy}
-        valueExtra={boostedExtraApy}
-        valueLow={boostedApyLow}
-        priceUsd={market.price}
-        symbol={market.underlying.symbol}
-        type={'supply'}
-        textProps={{ textAlign: "end", fontWeight: "bold" }}
-        hasClaimableRewards={market.hasClaimableRewards}
-    />;
+    // const newApyInfos = <AnchorPoolInfo
+    //     value={boostedSupplyApy}
+    //     valueExtra={boostedExtraApy}
+    //     valueLow={boostedApyLow}
+    //     priceUsd={market.price}
+    //     symbol={market.underlying.symbol}
+    //     type={'supply'}
+    //     textProps={{ textAlign: "end", fontWeight: "bold" }}
+    //     hasClaimableRewards={market.hasClaimableRewards}
+    // />;
 
     useDebouncedEffect(() => {
         setDebounced(!!editLeverageLevel && (!editLeverageLevel.endsWith('.') || editLeverageLevel === '.') && !isNaN(parseFloat(editLeverageLevel)));
-    }, [editLeverageLevel], 500);
-
+    }, [editLeverageLevel], 500);    
+    
     useDebouncedEffect(() => {
-        setDebounced(false);
-        validatePendingLeverage(sliderLeverageLevel, isLeverageUp);
-    }, [sliderLeverageLevel, isLeverageUp], 500);
+        setDebouncedShowdBorrowLimitMsg(showBorrowLimitTooHighMsg);
+    }, [showBorrowLimitTooHighMsg], 500);
+
+    // useDebouncedEffect(() => {
+    //     if(!useLeverageInMode) return;
+    //     console.warn('useDebouncedEffect')
+    //     setDebounced(false);
+    //     validatePendingLeverage(sliderLeverageLevel, isLeverageUp);
+    // }, [sliderLeverageLevel, isLeverageUp, useLeverageInMode], 500);
 
     useEffect(() => {
-        setEditLeverageLevel(leverageLevel.toFixed(2));
+        setEditLeverageLevel(leverageLevel.toFixed(2));        
     }, [leverageLevel])
 
     if (!market?.underlying) {
@@ -254,10 +263,21 @@ export const FirmBoostInfos = ({
         setEditLeverageLevel(stringAmount);
     }
 
-    const handleSliderLeverage = (value: string) => {
+    const handleSliderLeverage = (value: string, isLeverageUp: boolean) => {
         setDebounced(false);
         setLeverageLevel(value);
         setSliderLeverageLevel(value);
+
+        const debouncedAction = () => {
+            validatePendingLeverage(value, isLeverageUp);
+        }
+
+        if (timeout !== -1) {
+            clearTimeout(timeout);
+        }
+        timeout = setTimeout(() => {
+            debouncedAction();
+        }, 500);
     }
 
     const handleKeyPress = (e: any) => {
@@ -269,7 +289,7 @@ export const FirmBoostInfos = ({
     const handleLeverageChange = async (v: number) => {
         setDebounced(false);
         setLeverageLevel(v);
-        if (!market.price || v <= 1) return;
+        if (!market.price || v <= 1) return;        
         const { dolaAmount, collateralAmount, errorMsg, estimatedPriceImpact } = await getLeverageImpact({
             setLeverageLoading,
             leverageLevel: parseFloat(v),
@@ -306,16 +326,16 @@ export const FirmBoostInfos = ({
         }
         handleLeverageChange(input);
     }    
-
-    const newBorrowLimit = 100 - newPerc;
-    const leverageSteps = useMemo(() => getSteps(market, deposits, debt, perc, type, 1, aleSlippage, []), [market, deposits, debt, perc, type, undefined, aleSlippage]);
+    
+    const baseColAmountForLeverage = deposits > 0 ? deposits : collateralAmountNum;
+    const leverageSteps = useMemo(() => getSteps(market, baseColAmountForLeverage, debt, perc, type, 1, aleSlippage, []), [market, baseColAmountForLeverage, debt, perc, type, undefined, aleSlippage]);
     // when deleveraging we want the max to be higher what's required to repay all debt, the extra dola is sent to the wallet
     const maxLeverage = isLeverageUp ? roundDown(leverageSteps[leverageSteps.length - 1]) : roundUp(leverageSteps[leverageSteps.length - 1]);
     const leverageRelativeToMax = leverageLevel / maxLeverage;
 
-    const { dbrExpiryDate, debt: currentTotalDebt } = useAccountDBR(account);
+    // const { dbrExpiryDate, debt: currentTotalDebt } = useAccountDBR(account);
     // const newTotalDebt = currentTotalDebt + deltaBorrow;
-    const { dbrExpiryDate: newDBRExpiryDate, dailyDebtAccrual: newDailyDBRBurn } = useAccountDBR(account, newTotalDebt);
+    // const { dbrExpiryDate: newDBRExpiryDate, dailyDebtAccrual: newDailyDBRBurn } = useAccountDBR(account, newTotalDebt);
 
     const risk = leverageRelativeToMax <= 0.5 ?
         riskLevels.low : leverageRelativeToMax <= 0.60 ?
@@ -425,7 +445,7 @@ export const FirmBoostInfos = ({
             </HStack>
             <Slider
                 value={leverageLevel}
-                onChange={(v: number) => handleSliderLeverage(v)}
+                onChange={(v: number) => handleSliderLeverage(v, isLeverageUp)}
                 min={minLeverage}
                 max={maxLeverage}
                 step={0.01}
@@ -470,7 +490,7 @@ export const FirmBoostInfos = ({
                 About the Accelerated Leverage Engine
             </Text>
             {
-                newBorrowLimit >= 99 && !leverageLoading && <WarningMessage description="New borrow limit would be too high" />
+                debouncedShowdBorrowLimitMsg && <WarningMessage description="New borrow limit would be too high" />
             }
         </VStack>
         {/* {showDetails && <InfoMessage

@@ -106,7 +106,6 @@ export const F2CombinedForm = ({
         setLeverageLoading,
         leverageLoading,
         setLeveragePriceImpact,
-        isInvPrimeMember,
     } = useContext(F2MarketContext);
 
     const [isLargerThan] = useMediaQuery('(min-width: 1280px)');
@@ -173,7 +172,7 @@ export const F2CombinedForm = ({
                     parseUnits(collateralAmount || '0', market.underlying.decimals),
                     aleSlippage,
                     isAutoDBR ? dbrBuySlippage : undefined,
-                    isAutoDBR ? duration : 0,                    
+                    isAutoDBR ? duration : 0,
                 );
             }
             else if (isAutoDBR || isUseNativeCoin) {
@@ -198,7 +197,7 @@ export const F2CombinedForm = ({
                     parseUnits(collateralAmount || '0', market.underlying.decimals),
                     aleSlippage,
                     dbrAmountToSell,
-                    minDolaOut,                    
+                    minDolaOut,
                 );
             }
             else if (isAutoDBR || isUseNativeCoin) {
@@ -225,9 +224,7 @@ export const F2CombinedForm = ({
         const _isDeposit = !isDeposit;
         setIsDeposit(_isDeposit);
         setMode(_isDeposit ? inOptions[outOptions.indexOf(mode)] : outOptions[inOptions.indexOf(mode)]);
-        if(useLeverage){
-            resetForm(true);
-        }
+        resetForm(true);
     }
 
     const onSuccess = () => {
@@ -245,7 +242,7 @@ export const F2CombinedForm = ({
         resetLeverage();
     }
 
-    const resetLeverage = () => {        
+    const resetLeverage = () => {
         setLeverageCollateralAmount('');
         setLeverageDebtAmount('');
         setLeverage(1);
@@ -272,8 +269,8 @@ export const F2CombinedForm = ({
                 setLeverageDebtAmount(Math.abs(dolaAmount).toFixed(2));
                 // setLeverageCollateralAmount('');
             }
-        }        
-        if(timeout !== -1){
+        }
+        if (timeout !== -1) {
             clearTimeout(timeout);
         }
         timeout = setTimeout(() => {
@@ -283,9 +280,9 @@ export const F2CombinedForm = ({
 
     const triggerDebtAndOrLeverageChange = async (debtString: string, debtNum: number, leverageInMode?: boolean, viaInput?: boolean) => {
         handleDebtChange(debtString);
-        
-        const debouncedZeroXCall = async () => {     
-            if (leverageInMode || useLeverageInMode && !isDeleverageCase && !!debtNum && debtNum > 0) {                
+
+        const debouncedZeroXCall = async () => {
+            if (leverageInMode || useLeverageInMode && !isDeleverageCase && !!debtNum && debtNum > 0) {
                 const baseColAmountForLeverage = deposits > 0 ? deposits : collateralAmountNum;
                 const baseWorth = baseColAmountForLeverage * market.price;
                 const leverage = (debtNum + baseWorth) / baseWorth;
@@ -306,7 +303,7 @@ export const F2CombinedForm = ({
                 resetLeverage();
             }
         }
-        if(timeout !== -1){
+        if (timeout !== -1) {
             clearTimeout(timeout);
         }
         timeout = setTimeout(() => {
@@ -319,12 +316,11 @@ export const F2CombinedForm = ({
     const notEnoughToBorrowWithAutobuy = isBorrowCase && market.leftToBorrow > 1 && deltaDebt > 0 && market.leftToBorrow < (isAutoDBR ? deltaDebt + (dbrCoverDebt * (1 + parseFloat(dbrBuySlippage || 0) / 100)) : deltaDebt);
     const minDebtDisabledCondition = FEATURE_FLAGS.firmMinDebt && newTotalDebtInMarket > 0 && newTotalDebtInMarket < market.minDebt;
     const isDeleverageCase = useLeverageInMode && !isDeposit;
-    // disallow INV for now as 0x routing is too bad atm
-    const canUseLeverage = !market.isInv && FEATURE_FLAGS.firmLeverage && market.hasAleFeat && !isUseNativeCoin && ((mode === 'Deposit & Borrow' && (deposits > 0 || collateralAmountNum > 0)) || (mode === 'Repay & Withdraw' && debt > 1));
+    const canUseLeverage = FEATURE_FLAGS.firmLeverage && market.hasAleFeat && !isUseNativeCoin && ((mode === 'Deposit & Borrow' && (deposits > 0 || collateralAmountNum > 0)) || (mode === 'Borrow' && deposits > 0) || (['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1));
     const showMinDebtMessage = !notEnoughToBorrowWithAutobuy && minDebtDisabledCondition && (debtAmountNum > 0 || isDeleverageCase);
     const showNeedDbrMessage = isDeposit && !isAutoDBR && dbrBalance <= 0;
     const showNotEnoughDolaToRepayMessage = isRepayCase && debtAmountNum > 0 && dolaBalance < debtAmountNum;
-    
+
     const disabledConditions = {
         'deposit': ((collateralAmountNum <= 0 && !useLeverageInMode) || collateralBalance < collateralAmountNum),
         'borrow': duration <= 0 || debtAmountNum <= 0 || newPerc < 1 || showNeedDbrMessage || market.leftToBorrow < 1 || debtAmountNum > market.leftToBorrow || notEnoughToBorrowWithAutobuy || minDebtDisabledCondition,
@@ -440,7 +436,7 @@ export const F2CombinedForm = ({
                             }
                         </>
                         : isBorrowOnlyCase ? <Text>Please deposit collateral first</Text> : <Text>Nothing to repay</Text>
-                }                
+                }
                 {showMinDebtMessage && <MinDebtBorrowMessage debt={debt} minDebt={market.minDebt} />}
                 {showNeedDbrMessage && <NoDbrInWalletMessage />}
                 {showNotEnoughDolaToRepayMessage && <NotEnoughDolaToRepayMessage amount={debtAmountNum} />}
@@ -543,7 +539,7 @@ export const F2CombinedForm = ({
                 <Stack justify="space-between" w='full' spacing="4" direction={{ base: 'column' }}>
                     {mainFormInputs}
                     {
-                        !market.isInv && <VStack display={(useLeverageInMode || (useLeverage && userNotEligibleForLeverage)) ? 'inline-block' : 'none'}>
+                        canUseLeverage && <VStack display={(useLeverageInMode || (useLeverage && userNotEligibleForLeverage)) ? 'inline-block' : 'none'}>
                             <FirmBoostInfos
                                 type={isDeposit ? 'up' : 'down'}
                                 onLeverageChange={({

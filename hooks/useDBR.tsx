@@ -157,7 +157,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
       const leftToBorrow = borrowPaused ? 0 : limits ? dailyLimit === 0 ? dolaLiquidity : Math.min(dailyLimit - dailyBorrows, dolaLiquidity) : cachedMarkets[i]?.leftToBorrow ?? 0;
       const aleData = data ? data[i + 6 * nbMarkets] : [BURN_ADDRESS, BURN_ADDRESS, BURN_ADDRESS];
       // only those markets have a decent routing at the moment
-      const hasAleFeat = ['DAI', 'WETH'].includes(m.name)//aleData[0] !== BURN_ADDRESS;
+      const hasAleFeat = !['cvxFXS'].includes(m.name)//aleData[0] !== BURN_ADDRESS;
 
       return {
         ...m,
