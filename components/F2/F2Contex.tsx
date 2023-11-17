@@ -97,8 +97,8 @@ export const F2Context = ({
 
     // if true and leverage switched is enabled, the user will see the INV prime msg
     const userNotEligibleForLeverage = !isInvPrimeMember && INV_STAKERS_ONLY.firmLeverage;
-    // if true, the leverage UI will show
-    const useLeverageInMode = useLeverage && !userNotEligibleForLeverage && (mode === 'Deposit & Borrow' || (mode === 'Repay & Withdraw' && debt > 1))
+    // if true, the leverage UI will show and leverage is relevant to the mode
+    const useLeverageInMode = useLeverage && !userNotEligibleForLeverage && (mode === 'Deposit & Borrow' || (mode === 'Borrow' && deposits > 0) || (['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1))
 
     const debtAmountNum = parseFloat(debtAmount || '0') || 0;// NaN => 0
     const collateralAmountNum = parseFloat(collateralAmount || '0') || 0;
@@ -117,10 +117,10 @@ export const F2Context = ({
     const dbrSwapPrice = isAutoDBR ? autoDbrSwapPrice || dbrPrice : dbrPrice;
     const dbrCoverDebt = dbrCover * dbrSwapPrice;
 
-    const hasCollateralChange = ['deposit', 'd&b', 'withdraw', 'r&w'].includes(MODES[mode]);
-    const hasDebtChange = ['borrow', 'd&b', 'repay', 'r&w'].includes(MODES[mode]);
+    const hasCollateralChange = ['deposit', 'd&b', 'withdraw', 'r&w'].includes(MODES[mode]) || useLeverageInMode;
+    const hasDebtChange = ['borrow', 'd&b', 'repay', 'r&w'].includes(MODES[mode]) || useLeverageInMode;
 
-    const deltaCollateral = isDeposit ? totalCollateralAmountNum : -totalCollateralAmountNum;
+    const deltaCollateral = isDeposit ? totalCollateralAmountNum : -totalCollateralAmountNum;    
     const deltaDebt = isDeposit ? totalDebtAmountNum : -totalDebtAmountNum;
 
     const {
@@ -143,7 +143,7 @@ export const F2Context = ({
         hasCollateralChange ? deltaCollateral : 0,
         hasDebtChange ? deltaDebt : 0,
         perc,
-    );
+    );    
 
     const {
         newCreditLeft: maxBorrow

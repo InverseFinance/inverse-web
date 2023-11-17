@@ -144,11 +144,6 @@ export const F2CombinedForm = ({
             return f2deposit(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), isUseNativeCoin);
         } else if (action === 'withdraw') {
             return f2withdraw(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), isUseNativeCoin);
-        } else if (action === 'repay') {
-            if (isAutoDBR) {
-                return f2sellAndRepayHelper(signer, market.address, parseUnits(debtAmount), minDolaOut, dbrAmountToSell);
-            }
-            return f2repay(signer, market.address, parseUnits(debtAmount));
         } else if (['d&b', 'borrow'].includes(action)) {
             if (action === 'borrow' && !useLeverageInMode) {
                 if (isAutoDBR) {
@@ -189,8 +184,14 @@ export const F2CombinedForm = ({
                 );
             }
             return f2depositAndBorrow(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), parseUnits(debtAmount));
-        } else if (action === 'r&w') {
-            if (useLeverageInMode) {
+        } else if (['r&w', 'repay'].includes(action)) {
+            if (action === 'repay' && !useLeverageInMode) {
+                if (isAutoDBR) {
+                    return f2sellAndRepayHelper(signer, market.address, parseUnits(debtAmount), minDolaOut, dbrAmountToSell);
+                }
+                return f2repay(signer, market.address, parseUnits(debtAmount));
+            }
+            else if (useLeverageInMode) {
                 return prepareDeleveragePosition(
                     signer,
                     market,
@@ -317,8 +318,8 @@ export const F2CombinedForm = ({
     const btnMaxlabel = `${btnLabel} Max`;
     const notEnoughToBorrowWithAutobuy = isBorrowCase && market.leftToBorrow > 1 && deltaDebt > 0 && market.leftToBorrow < (isAutoDBR ? deltaDebt + (dbrCoverDebt * (1 + parseFloat(dbrBuySlippage || 0) / 100)) : deltaDebt);
     const minDebtDisabledCondition = FEATURE_FLAGS.firmMinDebt && newTotalDebtInMarket > 0 && newTotalDebtInMarket < market.minDebt;
-    const isDeleverageCase = useLeverageInMode && !isDeposit;
-    const canUseLeverage = FEATURE_FLAGS.firmLeverage && market.hasAleFeat && !isUseNativeCoin && ((mode === 'Deposit & Borrow' && (deposits > 0 || collateralAmountNum > 0)) || (mode === 'Borrow' && deposits > 0) || (['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1));
+    const isDeleverageCase = useLeverageInMode && !isDeposit;    
+    const canUseLeverage = FEATURE_FLAGS.firmLeverage && market.hasAleFeat && !isUseNativeCoin && ((mode === 'Deposit & Borrow' && (deposits > 0 || collateralAmountNum > 0)) || (mode === 'Borrow' && deposits > 0) || (['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1));    
     const showMinDebtMessage = !notEnoughToBorrowWithAutobuy && minDebtDisabledCondition && (debtAmountNum > 0 || isDeleverageCase);
     const showNeedDbrMessage = isDeposit && !isAutoDBR && dbrBalance <= 0;
     const showNotEnoughDolaToRepayMessage = isRepayCase && debtAmountNum > 0 && dolaBalance < debtAmountNum;
@@ -545,6 +546,7 @@ export const F2CombinedForm = ({
                         canUseLeverage && <VStack display={(useLeverageInMode || (useLeverage && userNotEligibleForLeverage)) ? 'inline-block' : 'none'}>
                             <FirmBoostInfos
                                 type={isDeposit ? 'up' : 'down'}
+                                triggerCollateralAndOrLeverageChange={triggerCollateralAndOrLeverageChange}
                                 onLeverageChange={({
                                     dolaAmount, collateralAmount, isLeverageUp
                                 }) => {
