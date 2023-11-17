@@ -33,7 +33,7 @@ const fetch1inchWithRetry = async (
 
 export default async function handler(req, res) {
   const { method, buyToken, buyAmount, sellToken, sellAmount, slippagePercentage } = req.query;
-  if (!['swap', 'quote'].includes(method) || !isAddress(buyToken) || !isAddress(sellToken)) {
+  if (!['swap', 'quote'].includes(method) || !isAddress(buyToken) || !isAddress(sellToken) || !/^[1-9]+[0-9]*$/.test(sellAmount)) {
     return res.status(400).json({ msg: 'invalid request' });
   }
   try {

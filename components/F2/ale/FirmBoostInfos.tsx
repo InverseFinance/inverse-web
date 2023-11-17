@@ -19,6 +19,7 @@ import { InvPrime } from '@app/components/common/InvPrime'
 import { AboutAleModal } from '../Modals/AboutAleModal'
 import { getAleSellQuote } from '@app/util/firm-ale'
 import { preciseCommify } from '@app/util/misc'
+import { formatUnits, parseUnits } from '@ethersproject/units'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -37,10 +38,10 @@ const getSteps = (
     steps: number[] = [],    
     doLastOne = false,
 ): number[] => {
-    const baseWorth = market.price ? deposits * market.price : 0;
     const isLeverageUp = type === 'up';
+    const baseWorth = market.price ? deposits * market.price : 0;    
     const _leverageLevel = leverageLevel + 0.01;
-    const effectiveLeverage = isLeverageUp ? _leverageLevel : (1 / _leverageLevel) * (1+parseFloat(aleSlippage)*2 / 100);
+    const effectiveLeverage = isLeverageUp ? _leverageLevel : (1 / _leverageLevel);
     const desiredWorth = baseWorth * effectiveLeverage;
 
     const deltaBorrow = desiredWorth - baseWorth;
@@ -49,6 +50,7 @@ const getSteps = (
 
     const {
         newDebt,
+        newDebtSigned,
         newPerc,
     } = f2CalcNewHealth(
         market,
@@ -61,7 +63,7 @@ const getSteps = (
     if ((newPerc <= 2) || _leverageLevel > 10 || doLastOne) {
         return steps;
     } else {
-        return getSteps(market, deposits, debt, perc, type, _leverageLevel, aleSlippage, [...steps, _leverageLevel], newDebt <= 0);
+        return getSteps(market, deposits, debt, perc, type, _leverageLevel, aleSlippage, [...steps, _leverageLevel], newDebtSigned <= 0 && Math.abs(newDebtSigned) >= debt * (parseFloat(aleSlippage)/100));
     }
 }
 
@@ -139,14 +141,14 @@ export const getLeverageImpact = async ({
         // const estimatedRepayAmount = (baseWorth - targetWorth);
         const targetCollateralBalance = targetWorth / collateralPrice;
         const withdrawAmountToSign = targetCollateralBalance - baseColAmountForLeverage;
-        const { buyAmount, validationErrors } = await getAleSellQuote(DOLA, market.collateral, getNumberToBn(Math.abs(withdrawAmountToSign), market.underlying.decimals).toString(), aleSlippage, true);
-        const msg = validationErrors?.length > 0 ?
+        const { buyAmount, validationErrors, msg } = await getAleSellQuote(DOLA, market.collateral, getNumberToBn(Math.abs(withdrawAmountToSign), market.underlying.decimals).toString(), aleSlippage, true);
+        const errorMsg = validationErrors?.length > 0 ?
             `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
-            : "Getting a quote from 0x failed";
+            : msg;
         if (setLeverageLoading) setLeverageLoading(false);
         // if (setLeveragePriceImpact) setLeveragePriceImpact(estimatedPriceImpact);
         return {
-            errorMsg: validationErrors?.length > 0 ? msg : undefined,
+            errorMsg,
             // dolaAmount: estimatedRepayAmount,
             dolaAmount: parseFloat(buyAmount) / 1e18,
             collateralAmount: withdrawAmountToSign,
@@ -157,9 +159,11 @@ export const getLeverageImpact = async ({
 export const FirmBoostInfos = ({
     type = 'up',
     onLeverageChange,
+    triggerCollateralAndOrLeverageChange,
 }: {
     type?: 'up' | 'down',
     onLeverageChange: ({ }) => void
+    triggerCollateralAndOrLeverageChange,
 }) => {
     const {
         market,
@@ -286,10 +290,25 @@ export const FirmBoostInfos = ({
         }
     }
 
-    const handleLeverageChange = async (v: number) => {
+    const handleSellEnough = async () => {
+        if (!market.price) return;
+        setLeverageLoading(true);
+        const estimatedDolaRequiredBeforeSlippage = debt * (1+(parseFloat(aleSlippage)+2)/100);
+        const estimatedResult = await getAleSellQuote(market.collateral, DOLA, getNumberToBn(estimatedDolaRequiredBeforeSlippage).toString(), aleSlippage, true);        
+
+        if (!estimatedResult?.buyAmount) {
+            showToast({ status: 'warning', title: 'Could not estimate amount to sell to repay all' });
+            return
+        }
+        const estimatedCollateralAmountToSell = formatUnits(parseUnits(estimatedResult?.buyAmount, '0'), market.underlying.decimals);
+        triggerCollateralAndOrLeverageChange(estimatedCollateralAmountToSell, parseFloat(estimatedCollateralAmountToSell));
+    }
+
+    const handleLeverageChange = async (v: number) => {        
         setDebounced(false);
+        if(v <= 1 || isNaN(v)) return;
         setLeverageLevel(v);
-        if (!market.price || v <= 1) return;        
+        if (!market.price) return;
         const { dolaAmount, collateralAmount, errorMsg, estimatedPriceImpact } = await getLeverageImpact({
             setLeverageLoading,
             leverageLevel: parseFloat(v),
@@ -304,7 +323,7 @@ export const FirmBoostInfos = ({
         });
 
         if (!!errorMsg) {
-            showToast({ status: 'warning', description: errorMsg, title: 'ZeroX api error' })
+            showToast({ status: 'warning', description: errorMsg, title: 'Could not fetch swap data' })
             return
         }
         onLeverageChange({
@@ -462,7 +481,7 @@ export const FirmBoostInfos = ({
                 <Text textDecoration="underline" fontWeight="bold" cursor="pointer" color={riskLevels.safer.color} onClick={() => handleLeverageChange(minLeverage)}>
                     No {isLeverageUp ? 'leverage' : 'deleverage'}
                 </Text>
-                <Text textDecoration="underline" fontWeight="bold" cursor="pointer" color={isLeverageUp ? riskLevels.riskier.color : riskLevels.safer.color} onClick={() => handleLeverageChange(maxLeverage)}>
+                <Text textDecoration="underline" fontWeight="bold" cursor="pointer" color={isLeverageUp ? riskLevels.riskier.color : riskLevels.safer.color} onClick={() => handleSellEnough()}>
                     {isLeverageUp ? `Max: x${shortenNumber(maxLeverage, 2)}` : 'Sell enough to repay all debt'}
                 </Text>
             </HStack>
