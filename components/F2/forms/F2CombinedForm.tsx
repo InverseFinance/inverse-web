@@ -25,6 +25,7 @@ import { showToast } from '@app/util/notify'
 import { BorrowPausedMessage, CannotWithdrawIfDbrDeficitMessage, MinDebtBorrowMessage, NoDbrInWalletMessage, NoDolaLiqMessage, NotEnoughCollateralMessage, NotEnoughDolaToRepayMessage, NotEnoughLiqWithAutobuyMessage, ResultingBorrowLimitTooHighMessage } from './FirmFormSubcomponents/FirmMessages'
 import { AutoBuyDbrDurationInputs, DbrHelperSwitch, SellDbrInput } from './FirmFormSubcomponents/FirmDbrHelper'
 import { FirmBorroInputwSubline, FirmCollateralInputTitle, FirmDebtInputTitle, FirmExitModeSwitch, FirmLeverageSwitch, FirmRepayInputSubline, FirmWethSwitch, FirmWithdrawInputSubline } from './FirmFormSubcomponents'
+import { BigNumber } from 'ethers'
 
 const { DOLA, F2_HELPER, F2_ALE } = getNetworkConfigConstants();
 
@@ -141,20 +142,6 @@ export const F2CombinedForm = ({
 
         if (action === 'deposit') {
             return f2deposit(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), isUseNativeCoin);
-        } else if (action === 'borrow') {
-            if (isAutoDBR) {
-                return f2depositAndBorrowHelper(
-                    signer,
-                    market.address,
-                    parseUnits('0', market.underlying.decimals),
-                    parseUnits(debtAmount),
-                    dbrBuySlippage,
-                    duration,
-                    false,
-                    true,
-                );
-            }
-            return f2borrow(signer, market.address, parseUnits(debtAmount));
         } else if (action === 'withdraw') {
             return f2withdraw(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), isUseNativeCoin);
         } else if (action === 'repay') {
@@ -162,14 +149,29 @@ export const F2CombinedForm = ({
                 return f2sellAndRepayHelper(signer, market.address, parseUnits(debtAmount), minDolaOut, dbrAmountToSell);
             }
             return f2repay(signer, market.address, parseUnits(debtAmount));
-        } else if (action === 'd&b') {
-            if (useLeverageInMode) {
+        } else if (['d&b', 'borrow'].includes(action)) {
+            if (action === 'borrow' && !useLeverageInMode) {
+                if (isAutoDBR) {
+                    return f2depositAndBorrowHelper(
+                        signer,
+                        market.address,
+                        parseUnits('0', market.underlying.decimals),
+                        parseUnits(debtAmount),
+                        dbrBuySlippage,
+                        duration,
+                        false,
+                        true,
+                    );
+                }
+                return f2borrow(signer, market.address, parseUnits(debtAmount));
+            }
+            else if (useLeverageInMode) {
                 return prepareLeveragePosition(
                     signer,
                     market,
                     parseUnits(debtAmount),
                     // deposit in addition to collateral increase due to leverage
-                    parseUnits(collateralAmount || '0', market.underlying.decimals),
+                    action === 'borrow' ? BigNumber.from('0') : parseUnits(collateralAmount || '0', market.underlying.decimals),
                     aleSlippage,
                     isAutoDBR ? dbrBuySlippage : undefined,
                     isAutoDBR ? duration : 0,
@@ -321,15 +323,16 @@ export const F2CombinedForm = ({
     const showNeedDbrMessage = isDeposit && !isAutoDBR && dbrBalance <= 0;
     const showNotEnoughDolaToRepayMessage = isRepayCase && debtAmountNum > 0 && dolaBalance < debtAmountNum;
 
+    const disabledDueToLeverage = useLeverageInMode && (leverage <= 1 || leverageLoading);
     const disabledConditions = {
         'deposit': ((collateralAmountNum <= 0 && !useLeverageInMode) || collateralBalance < collateralAmountNum),
-        'borrow': duration <= 0 || debtAmountNum <= 0 || newPerc < 1 || showNeedDbrMessage || market.leftToBorrow < 1 || debtAmountNum > market.leftToBorrow || notEnoughToBorrowWithAutobuy || minDebtDisabledCondition,
-        'repay': (debtAmountNum <= 0 && !useLeverageInMode) || debtAmountNum > debt || showNotEnoughDolaToRepayMessage || (isAutoDBR && !parseFloat(dbrSellAmount)),
+        'borrow': duration <= 0 || debtAmountNum <= 0 || newPerc < 1 || showNeedDbrMessage || market.leftToBorrow < 1 || debtAmountNum > market.leftToBorrow || notEnoughToBorrowWithAutobuy || minDebtDisabledCondition || disabledDueToLeverage,
+        'repay': (debtAmountNum <= 0 && !useLeverageInMode) || debtAmountNum > debt || showNotEnoughDolaToRepayMessage || (isAutoDBR && !parseFloat(dbrSellAmount)) || disabledDueToLeverage,
         'withdraw': ((collateralAmountNum <= 0 && !useLeverageInMode) || collateralAmountNum > deposits || newPerc < 1 || dbrBalance < 0),
     }
-    const disabledDueToLeverage = useLeverageInMode && (leverage <= 1 || leverageLoading);
-    disabledConditions['d&b'] = disabledConditions['deposit'] || disabledConditions['borrow'] || !parseFloat(dbrBuySlippage) || disabledDueToLeverage;
-    disabledConditions['r&w'] = disabledConditions['repay'] || disabledConditions['withdraw'] || disabledDueToLeverage;
+    
+    disabledConditions['d&b'] = disabledConditions['deposit'] || disabledConditions['borrow'] || !parseFloat(dbrBuySlippage);
+    disabledConditions['r&w'] = disabledConditions['repay'] || disabledConditions['withdraw'];
 
     const showResultingLimitTooHigh = disabledConditions[MODES[mode]] && (!!debtAmountNum || !!collateralAmountNum) && newPerc < 1;
     const modeLabel = market.isInv ? mode.replace(/deposit/i, 'Stake').replace(/withdraw/i, 'Unstake') : mode;
