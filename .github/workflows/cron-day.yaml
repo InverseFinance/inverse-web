@@ -21,3 +21,8 @@ jobs:
           curl -v --request POST \
           --url 'https://www.inverse.finance/api/dola/circulating-supply' \
           --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
+      - name: Daily Block & timestamp snapshot
+        run: |
+          curl -v --request POST \
+          --url 'https://www.inverse.finance/api/cron-daily-block-timestamp' \
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
