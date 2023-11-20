@@ -518,7 +518,7 @@ export const useCheckDBRAirdrop = (account: string): SWR & {
   }
 }
 
-export const useDBRBalanceHisto = (account: string): { evolution: any, isLoading: boolean } => {
+export const useDBRBalanceHisto = (account: string): { evolution: any, currentBalance: number, isLoading: boolean } => {
   const { data, isLoading } = useCustomSWR(!account ? '-' : `/api/f2/dbr-balance-histo?account=${account}&v=1`, fetcher60sectimeout);
   const { signedBalance } = useAccountDBR(account);  
 
@@ -533,6 +533,7 @@ export const useDBRBalanceHisto = (account: string): { evolution: any, isLoading
   }
   return {
     ...data,
+    currentBalance: signedBalance,
     evolution,
     isLoading,
   }
