@@ -303,7 +303,7 @@ export const FirmRewards = ({
     const { escrow: escrowFromContext } = useContext(F2MarketContext);
     const _escrow = escrow?.replace(BURN_ADDRESS, '') || escrowFromContext?.replace(BURN_ADDRESS, '');
 
-    const claimables = rewardsInfos?.tokens.filter(t => t.metaType === 'claimable' && t.balanceUSD > 0.01);
+    const claimables = rewardsInfos?.tokens.filter(t => t.metaType === 'claimable' && (t.balanceUSD > 0.01 || (!t.price && t.balance > 0)));
     claimables?.sort((a, b) => b.balanceUSD - a.balanceUSD)
     const totalRewardsUSD = claimables?.reduce((prev, curr) => prev + curr.balanceUSD, 0);
 

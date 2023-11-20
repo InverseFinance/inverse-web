@@ -1,5 +1,6 @@
 import { UnderlyingItem } from "@app/components/common/Assets/UnderlyingItem";
 import { RSubmitButton } from "@app/components/common/Button/RSubmitButton"
+import { InfoMessage } from "@app/components/common/Messages";
 import { F2Market } from "@app/types";
 import { shortenNumber } from "@app/util/markets";
 import { preciseCommify } from "@app/util/misc"
@@ -21,15 +22,20 @@ export const ZapperTokens = ({
     handleClaim: () => void,
     onSuccess?: () => void,
 }) => {
+    const isUnknownPricing = !claimables.find(c => !!c.price);// 0 asset with known price (in case ref price source is down)
     return <VStack spacing='4' w='full' alignItems="flex-start">
         <Stack spacing={{ base: '2', sm: '8' }} direction={{ base: 'column', sm: 'row' }}>
             <HStack>
                 <Text whiteSpace='nowrap' fontSize="18px" fontWeight="bold">Total Rewards:</Text>
-                <Text color="success" fontWeight="extrabold" fontSize="20px">{preciseCommify(totalRewardsUSD, 2, true)}</Text>
+                {
+                    !isUnknownPricing && <Text color="success" fontWeight="extrabold" fontSize="20px">
+                        {preciseCommify(totalRewardsUSD, 2, true)}
+                    </Text>
+                }
             </HStack>
             {
-                totalRewardsUSD > 0.1 && <RSubmitButton
-                    disabled={!totalRewardsUSD}
+                (totalRewardsUSD > 0.1 || !!claimables.find(c => !c.price && c.balance > 0)) && <RSubmitButton
+                    // disabled={!totalRewardsUSD}
                     fontSize='16px'
                     onClick={() => handleClaim()}
                     onSuccess={onSuccess}
@@ -47,15 +53,24 @@ export const ZapperTokens = ({
                             <HStack>
                                 <UnderlyingItem {...underlying} label={underlying.symbol || t.symbol} textProps={{ fontSize: '14px', fontWeight: 'bold' }} />
                             </HStack>
-                            <Text color='mainTextColorLight' fontSize='14px'>{shortenNumber(t.price, 4, true)}</Text>
+                            {
+                                !!t.price && <Text color='mainTextColorLight' fontSize='14px'>
+                                    {shortenNumber(t.price, 4, true)}
+                                </Text>
+                            }
                         </VStack>
                         <VStack spacing="1" alignItems="flex-end">
                             <Text fontSize='14px'>{shortenNumber(t.balance, 2)}</Text>
-                            <Text color="success" fontWeight="extrabold" fontSize='14px'>{preciseCommify(t.balanceUSD, 2, true)}</Text>
+                            {
+                                !!t.price && <Text color="success" fontWeight="extrabold" fontSize='14px'>{preciseCommify(t.balanceUSD, 2, true)}</Text>
+                            }
                         </VStack>
                     </HStack>
                 })
             }
         </Stack>
+        {
+            isUnknownPricing && <InfoMessage description="Note: could not fetch the market price of some assets" />
+        }
     </VStack>
 }
