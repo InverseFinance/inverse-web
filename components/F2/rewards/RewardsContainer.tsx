@@ -71,7 +71,7 @@ export const RewardsContainer = ({
                 hasJustClaimed || claimedNotLongAgo ?
                     <SuccessMessage alertProps={{ fontSize: '18px', fontWeight: 'bold', w: { base: 'full', sm: 'auto' } }} iconProps={{ height: 50, width: 50 }} description="Rewards claimed!" />
                     :
-                    totalRewardsUSD > 0.1 ?
+                    (totalRewardsUSD > 0.1 || !!claimables?.find(c => !c.price && c.balance > 0)) ?
                         <ZapperTokens
                             showMarketBtn={showMarketBtn}
                             market={market}
