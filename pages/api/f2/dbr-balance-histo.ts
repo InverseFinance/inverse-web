@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     res.status(400).json({ msg: 'invalid request' });
     return;
   }
-  const cacheKey = `user-dbr-balance-histo-${account}-v1.0.0`;
+  const cacheKey = `user-dbr-balance-histo-${account}-v1.0.4`;
   try {
     const webCacheDuration = 3600;
     const redisCacheDuration = 3600;
@@ -53,15 +53,21 @@ export default async function handler(req, res) {
     });
     dateBlockValues.sort((a, b) => a.date > b.date ? 1 : -1);
 
-    const startBlock = archived.blocks.length > 0 ? (dateBlockValues[0].block+1) : (transferEvents[0].blockNumber-1);
+    const startBlock = archived.blocks.length > 0 ? (archived.blocks[archived.blocks.length-1]+1) : (transferEvents[0].blockNumber-1);
     const newEntries = dateBlockValues.filter((d) => d.block > startBlock);
+        
     const blocksToFetch = newEntries.map(d => d.block);
     const timestampsToFetch = newEntries.map(d => utcDateStringToTimestamp(d.date));
+
+    if(!blocksToFetch.length) {
+      res.status(200).json(archivedUserData);
+      return
+    }
     
     const batchedData = await throttledPromises(
       (block: number) => {
         return getGroupedMulticallOutputs([
-          { contract: dbrContract, functionName: 'balanceOf', params: [account] },
+          { contract: dbrContract, functionName: 'signedBalanceOf', params: [account] },
           { contract: dbrContract, functionName: 'debts', params: [account] },
         ], parseInt(NetworkIds.mainnet), block);
       },
