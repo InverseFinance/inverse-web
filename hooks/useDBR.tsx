@@ -519,13 +519,18 @@ export const useCheckDBRAirdrop = (account: string): SWR & {
 }
 
 export const useDBRBalanceHisto = (account: string): { evolution: any, isLoading: boolean } => {
-  const { data, isLoading } = useCustomSWR(!account ? '-' : `/api/f2/dbr-balance-histo?account=${account}`, fetcher60sectimeout);
+  const { data, isLoading } = useCustomSWR(!account ? '-' : `/api/f2/dbr-balance-histo?account=${account}&v=1`, fetcher60sectimeout);
+  const { signedBalance } = useAccountDBR(account);  
 
-  const evolution = data?.balances.map((bal, i) => {
+  const evolution = data?.balances?.map((bal, i) => {
     const ts = data?.timestamps[i];
     return { utcDate: timestampToUTC(ts), debt: data?.debts[i], balance: bal, timestamp: ts, x: ts, y: bal };
   });
-  evolution.sort((a,b) => a.x - b.x);
+  evolution?.sort((a,b) => a.x - b.x);
+  if(evolution?.length > 0) {
+    const now = Date.now();
+    evolution.push({ x: now, utcDate: timestampToUTC(now), balance: signedBalance, timestamp: now, y: signedBalance });
+  }
   return {
     ...data,
     evolution,
