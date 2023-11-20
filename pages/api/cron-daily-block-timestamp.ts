@@ -31,7 +31,7 @@ export default async function handler(req, res) {
         const cacheDuration = 3600;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
         // cache is now updated via daily cron job
-        const { data: cachedData, isValid } = await getCacheFromRedisAsObj(DAILY_UTC_CACHE_KEY, false, cacheDuration) || { cachedData: ARCHIVED_UTC_DATES_BLOCKS, isValid: false };
+        const { data: cachedData, isValid } = await getCacheFromRedisAsObj(DAILY_UTC_CACHE_KEY, false, cacheDuration) || { data: ARCHIVED_UTC_DATES_BLOCKS, isValid: false };
 
         if (cachedData && isValid) {
             res.status(200).send(cachedData);
