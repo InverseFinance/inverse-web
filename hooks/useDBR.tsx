@@ -5,7 +5,7 @@ import { getNetworkConfigConstants } from "@app/util/networks"
 import { TOKENS } from "@app/variables/tokens";
 import { BigNumber } from "ethers/lib/ethers";
 import useEtherSWR from "./useEtherSWR"
-import { fetcher } from '@app/util/web3'
+import { fetcher, fetcher60sectimeout } from '@app/util/web3'
 import { useCacheFirstSWR, useCustomSWR } from "./useCustomSWR";
 import { f2CalcNewHealth, f2approxDbrAndDolaNeeded } from "@app/util/f2";
 import { BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
@@ -14,6 +14,7 @@ import useSWR from "swr";
 import { useWeb3React } from "@web3-react/core";
 import { usePrices } from "./usePrices";
 import { useBlockTimestamp } from "./useBlockTimestamp";
+import { timestampToUTC } from "@app/util/misc";
 
 const { DBR, DBR_AIRDROP, F2_MARKETS, F2_ORACLE, DOLA, DBR_DISTRIBUTOR, F2_HELPER, F2_ALE } = getNetworkConfigConstants();
 
@@ -514,5 +515,27 @@ export const useCheckDBRAirdrop = (account: string): SWR & {
     airdropData,
     isLoading: !airdropData,
     isError: !!airdropDataErr || !!hasClaimErr,
+  }
+}
+
+export const useDBRBalanceHisto = (account: string): { evolution: any, currentBalance: number | null, isLoading: boolean } => {
+  const { account: connectedUser } = useWeb3React();
+  const { data, isLoading } = useCustomSWR(!account ? '-' : `/api/f2/dbr-balance-histo?account=${account}&v=1`, fetcher60sectimeout);
+  const { signedBalance } = useAccountDBR(account);  
+
+  const evolution = data?.balances?.map((bal, i) => {
+    const ts = data?.timestamps[i];
+    return { utcDate: timestampToUTC(ts), debt: data?.debts[i], balance: bal, timestamp: ts, x: ts, y: bal };
+  });
+  evolution?.sort((a,b) => a.x - b.x);
+  if(evolution?.length > 0 && !!connectedUser) {
+    const now = Date.now();
+    evolution.push({ x: now, utcDate: timestampToUTC(now), balance: signedBalance, timestamp: now, y: signedBalance });
+  }
+  return {
+    ...data,
+    currentBalance: !connectedUser ? null : signedBalance,
+    evolution,
+    isLoading,
   }
 }
