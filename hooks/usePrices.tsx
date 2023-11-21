@@ -1,6 +1,6 @@
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { Prices, StringNumMap, SWR, Token } from '@app/types'
-import { fetcher } from '@app/util/web3'
+import { fetcher, fetcherWithFallback } from '@app/util/web3'
 import { BigNumber, Contract } from 'ethers'
 import useEtherSWR from './useEtherSWR'
 import { useWeb3React } from '@web3-react/core';
@@ -28,10 +28,13 @@ export const usePrices = (extras?: string[]): SWR & Prices => {
   const { chainId } = useWeb3React<Web3Provider>()
   const { TOKENS } = getNetworkConfigConstants(chainId)
 
-  const coingeckoIds = Object.values(TOKENS).map(({ coingeckoId }) => coingeckoId).concat(extras||[]);
+  const coingeckoIds = Object.values(TOKENS)
+    .filter(t => !!t.coingeckoId)
+    .map(({ coingeckoId }) => coingeckoId)
+    .concat(extras || []);
   const { data, error } = useCustomSWR(
     `${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoIds.join(',')}`,
-    fetcher
+    (url) => fetcherWithFallback(url, `/api/prices-cg-proxy`)
   )
 
   return {
@@ -77,8 +80,8 @@ export const useDOLAPriceLive = (): { price: number | undefined } => {
     abi: [
       'function price_oracle() public view returns(uint)',
     ],
-  });  
-  
+  });
+
   const { data: crvUsdLastPrice } = useEtherSWR({
     args: [
       ['0x18672b1b0c623a30089A280Ed9256379fb0E4E62', 'last_price'],
@@ -174,7 +177,7 @@ export const useLpPrice = (LPToken: Token, chainId: string) => {
     return await getLPPrice(LPToken, chainId, provider?.getSigner());
   })
 
-  return data||0;
+  return data || 0;
 }
 
 export const useLpPrices = (LPTokens: Token[], chainIds: string[]) => {
@@ -183,10 +186,10 @@ export const useLpPrices = (LPTokens: Token[], chainIds: string[]) => {
     return await Promise.all(LPTokens.map((lp, i) => getLPPrice(lp, chainIds[i], provider?.getSigner())));
   })
 
-  return data||LPTokens.map(lp => 0);
+  return data || LPTokens.map(lp => 0);
 }
 
-export const useStabilizerFees = (): SWR & { buyFee:number, sellFee: number } => {
+export const useStabilizerFees = (): SWR & { buyFee: number, sellFee: number } => {
   const { STABILIZER } = getNetworkConfigConstants();
 
   const { data: apiData, error } = useCustomSWR(
@@ -200,7 +203,7 @@ export const useStabilizerFees = (): SWR & { buyFee:number, sellFee: number } =>
   ]);
 
   return {
-    buyFee:  (realTimeData && getBnToNumber(realTimeData[0], 4)) ?? (apiData && apiData.buyFee) ?? 0.004,
+    buyFee: (realTimeData && getBnToNumber(realTimeData[0], 4)) ?? (apiData && apiData.buyFee) ?? 0.004,
     sellFee: (realTimeData && getBnToNumber(realTimeData[1], 4)) ?? (apiData && apiData.sellFee) ?? 0.001,
     isError: error,
   }

@@ -4,7 +4,7 @@ import { Prices } from '@app/types'
 import { CHAIN_TOKENS } from '@app/variables/tokens'
 
 export const cgPricesCacheKey = `cg-prices-v1.0.0`;
-
+// proxy api for cg as fallback to direct call to cg api from client side (can be blocked in some regions)
 export default async function handler(req, res) {
   try {
     const cacheDuration = 90;
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
 
     await redisSetWithTimestamp(cgPricesCacheKey, geckoPrices);
 
-    return res.status(200).json(geckoPrices);
+    return res.status(200).json({ _timestamp: Date.now(), ...geckoPrices });
   } catch (err) {
     console.error(err);
     // if an error occured, try to return last cached results
