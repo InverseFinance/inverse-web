@@ -47,7 +47,7 @@ export const DbrHistoBalanceModal = ({
                     chartData={evolution}
                     isDollars={false}
                     smoothLineByDefault={true}
-                    areaProps={{ title: `Current DBR balance: ${smartShortNumber(currentBalance, 2)}`, id: 'dbr-balance-histo-chart', showRangeBtns: true, yLabel: 'Historical DBR balance', useRecharts: true, simplifyData: true, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
+                    areaProps={{ title: typeof currentBalance === 'number' ? `Current DBR balance: ${smartShortNumber(currentBalance, 2)}` : undefined, id: 'dbr-balance-histo-chart', showRangeBtns: true, yLabel: 'Historical DBR balance', useRecharts: true, simplifyData: true, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
                 />
             }
         </VStack>

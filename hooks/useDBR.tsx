@@ -518,7 +518,8 @@ export const useCheckDBRAirdrop = (account: string): SWR & {
   }
 }
 
-export const useDBRBalanceHisto = (account: string): { evolution: any, currentBalance: number, isLoading: boolean } => {
+export const useDBRBalanceHisto = (account: string): { evolution: any, currentBalance: number | null, isLoading: boolean } => {
+  const { account: connectedUser } = useWeb3React();
   const { data, isLoading } = useCustomSWR(!account ? '-' : `/api/f2/dbr-balance-histo?account=${account}&v=1`, fetcher60sectimeout);
   const { signedBalance } = useAccountDBR(account);  
 
@@ -527,13 +528,13 @@ export const useDBRBalanceHisto = (account: string): { evolution: any, currentBa
     return { utcDate: timestampToUTC(ts), debt: data?.debts[i], balance: bal, timestamp: ts, x: ts, y: bal };
   });
   evolution?.sort((a,b) => a.x - b.x);
-  if(evolution?.length > 0) {
+  if(evolution?.length > 0 && !!connectedUser) {
     const now = Date.now();
     evolution.push({ x: now, utcDate: timestampToUTC(now), balance: signedBalance, timestamp: now, y: signedBalance });
   }
   return {
     ...data,
-    currentBalance: signedBalance,
+    currentBalance: !connectedUser ? null : signedBalance,
     evolution,
     isLoading,
   }
