@@ -154,6 +154,7 @@ export const DbrAll = ({
             yAttribute="yDay"
             colorScale={defaultColorScale}
             isDollars={useUsd}
+            useRecharts={true}
         />
         <DbrEmissions
             emissionEvents={emissionEvents}
