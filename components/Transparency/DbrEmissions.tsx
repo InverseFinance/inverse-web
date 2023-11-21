@@ -83,6 +83,7 @@ export const DbrEmissions = ({
             showMonthlyBarChart={true}
             showAreaChart={false}
             barProps={{
+                useRecharts: true,
                 eventName: 'Issuance',
                 title: 'DBR circ. supply increases in the last 12 months'
             }}
