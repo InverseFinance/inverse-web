@@ -6,6 +6,7 @@ import { shortenNumber } from "@app/util/markets";
 import { preciseCommify } from "@app/util/misc"
 import { TOKENS, getToken } from "@app/variables/tokens";
 import { HStack, VStack, Text, Stack } from "@chakra-ui/react"
+import { DbrExtraClaimButtons } from "./DbrExtraClaimButtons";
 
 export const ZapperTokens = ({
     claimables,
@@ -42,6 +43,9 @@ export const ZapperTokens = ({
                 >
                     Claim rewards
                 </RSubmitButton>
+            }
+            {
+                market.isInv && claimables?.length > 0 && <DbrExtraClaimButtons dbrRewardsInfo={claimables[0]} basicClaim={handleClaim} />
             }
         </Stack>
         <Stack spacing="4" w='full' direction={{ base: 'column', sm: 'row' }}>
