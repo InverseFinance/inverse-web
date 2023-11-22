@@ -23,6 +23,7 @@ export const ZapperTokens = ({
     handleClaim: () => void,
     onSuccess?: () => void,
 }) => {
+    const showClaimButtons = (totalRewardsUSD > 0.1 || !!claimables.find(c => !c.price && c.balance > 0));
     const isUnknownPricing = !claimables.find(c => !!c.price);// 0 asset with known price (in case ref price source is down)
     return <VStack spacing='4' w='full' alignItems="flex-start">
         <Stack spacing={{ base: '2', sm: '8' }} direction={{ base: 'column', sm: 'row' }}>
@@ -35,7 +36,7 @@ export const ZapperTokens = ({
                 }
             </HStack>
             {
-                (totalRewardsUSD > 0.1 || !!claimables.find(c => !c.price && c.balance > 0)) && <RSubmitButton
+                showClaimButtons && <RSubmitButton
                     // disabled={!totalRewardsUSD}
                     fontSize='16px'
                     onClick={() => handleClaim()}
@@ -45,7 +46,7 @@ export const ZapperTokens = ({
                 </RSubmitButton>
             }
             {
-                market.isInv && claimables?.length > 0 && <DbrExtraClaimButtons dbrRewardsInfo={claimables[0]} basicClaim={handleClaim} />
+                showClaimButtons && market.isInv && claimables?.length > 0 && <DbrExtraClaimButtons dbrRewardsInfo={claimables[0]} basicClaim={handleClaim} />
             }
         </Stack>
         <Stack spacing="4" w='full' direction={{ base: 'column', sm: 'row' }}>
