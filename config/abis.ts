@@ -575,7 +575,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
     F2_MARKETS,
     DBR_DISTRIBUTOR,
     F2_ALE,
-    F2_DBR_HELPER,
+    F2_DBR_REWARDS_HELPER,
   } = getNetworkConfigConstants(networkConfig);
 
   return new Map<string, string[]>(
@@ -613,7 +613,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         ['0x4621b7A9c75199271F773Ebd9A499dbd165c3191', ERC20_ABI],
         [F2_HELPER, F2_HELPER_ABI],
         [F2_ALE, F2_ALE_ABI],
-        [F2_DBR_HELPER, DBR_REWARDS_HELPER_ABI],
+        [F2_DBR_REWARDS_HELPER, DBR_REWARDS_HELPER_ABI],
         ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...MULTISIGS.map((m) => [m.address, MULTISIG_ABI]),
         ...Object.values(BONDS).map((bond) => [bond.bondContract, BONDS_ABIS[bond.abiType]]),

@@ -7,6 +7,7 @@ import { preciseCommify } from "@app/util/misc"
 import { TOKENS, getToken } from "@app/variables/tokens";
 import { HStack, VStack, Text, Stack } from "@chakra-ui/react"
 import { DbrExtraClaimButtons } from "./DbrExtraClaimButtons";
+import { FEATURE_FLAGS } from "@app/config/features";
 
 export const ZapperTokens = ({
     claimables,
@@ -46,7 +47,8 @@ export const ZapperTokens = ({
                 </RSubmitButton>
             }
             {
-                showClaimButtons && market.isInv && claimables?.length > 0 && <DbrExtraClaimButtons dbrRewardsInfo={claimables[0]} basicClaim={handleClaim} />
+                showClaimButtons && market.isInv && claimables?.length > 0 && FEATURE_FLAGS.firmDbrRewardsHelper
+                    && <DbrExtraClaimButtons dbrRewardsInfo={claimables[0]} basicClaim={handleClaim} />
             }
         </Stack>
         <Stack spacing="4" w='full' direction={{ base: 'column', sm: 'row' }}>

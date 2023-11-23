@@ -8,7 +8,7 @@ import { BigNumber, Contract } from "ethers"
 import { getBnToNumber } from "./markets";
 import { getNetworkConfigConstants } from "./networks";
 
-const { F2_DBR_HELPER } = getNetworkConfigConstants();
+const { F2_DBR_REWARDS_HELPER } = getNetworkConfigConstants();
 
 // Only for cvxCRV escrow
 export const setRewardWeight = (escrow: string, newValueBps: string | number, signer: JsonRpcSigner) => {
@@ -55,16 +55,16 @@ export const claimTo = (escrow: string, to: string, signer: JsonRpcSigner, metho
 }
 
 export const claimDbrAndSell = async (minDolaOut: BigNumber, signer: JsonRpcSigner) => {
-    const contract = new Contract(F2_DBR_HELPER, DBR_REWARDS_HELPER_ABI, signer);
+    const contract = new Contract(F2_DBR_REWARDS_HELPER, DBR_REWARDS_HELPER_ABI, signer);
     return contract.claimAndSellDbr(minDolaOut, await signer.getAddress());
 }
 
 export const claimDbrSellAndRepay = async (minDolaOut: BigNumber, market: string, signer: JsonRpcSigner) => {
-    const contract = new Contract(F2_DBR_HELPER, DBR_REWARDS_HELPER_ABI, signer);
+    const contract = new Contract(F2_DBR_REWARDS_HELPER, DBR_REWARDS_HELPER_ABI, signer);
     return contract.claimSellAndRepay(minDolaOut, market, await signer.getAddress());
 }
 
 export const claimDbrSellAndDepositInv = async (minDolaOut: BigNumber, signer: JsonRpcSigner) => {
-    const contract = new Contract(F2_DBR_HELPER, DBR_REWARDS_HELPER_ABI, signer);
+    const contract = new Contract(F2_DBR_REWARDS_HELPER, DBR_REWARDS_HELPER_ABI, signer);
     return contract.claimSellAndDepositInv(minDolaOut, await signer.getAddress());
 }
