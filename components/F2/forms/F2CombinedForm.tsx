@@ -577,7 +577,7 @@ export const F2CombinedForm = ({
                             newTotalDebt={newTotalDebt}
                             newDeposits={newDeposits}
                             deposits={deposits}
-                            handleCollateralChange={handleCollateralChange}
+                            handleCollateralChange={(v) => triggerCollateralAndOrLeverageChange(v, parseFloat(v))}
                         />
                     </>
                 }
