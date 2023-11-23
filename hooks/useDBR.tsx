@@ -352,6 +352,21 @@ export const useDBRSwapPrice = (dolaWorthOfDbrAsk = '1000'): { price: number | u
   }
 }
 
+export const useTriCryptoSwap = (amountToSell: number, srcIdx = 1, dstIdx = 0): { amountOut: number | null, isLoading: boolean, isError: boolean } => {  
+  const { data, error } = useEtherSWR({
+    args: [
+      ['0xC7DE47b9Ca2Fc753D6a2F167D8b3e19c6D18b19a', 'get_dy', srcIdx, dstIdx, parseUnits(amountToSell.toString(), 18)],
+    ],
+    abi: ['function get_dy(uint i, uint j, uint dx) public view returns(uint)'],
+  });
+  
+  return {
+    amountOut: data ? getBnToNumber(data[0]) : null,
+    isLoading: !error && !data,
+    isError: !!error,
+  }
+}
+
 export const useDBRPrice = (): { price: number } => {
   const { data: apiData } = useCustomSWR(`/api/dbr`, fetcher);
   const { prices } = usePrices();
