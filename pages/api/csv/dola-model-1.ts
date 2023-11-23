@@ -2,6 +2,7 @@ import { getCacheFromRedis, redisSetWithTimestamp } from "@app/util/redis";
 import { repaymentsCacheKey } from "../transparency/repayments";
 import { NETWORKS_BY_CHAIN_ID } from "@app/config/networks";
 import { capitalize } from "@app/util/misc";
+import { fetcher30sectimeout } from "@app/util/web3";
 
 export default async (req, res) => {
     const cacheDuration = 900;
@@ -9,11 +10,10 @@ export default async (req, res) => {
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
 
     try {
-        const [liquidityRes, badDebtData] = await Promise.all([
-            fetch('https://www.inverse.finance/api/transparency/liquidity'),
+        const [liquidityData, badDebtData] = await Promise.all([
+            fetcher30sectimeout('https://www.inverse.finance/api/transparency/liquidity'),
             getCacheFromRedis(repaymentsCacheKey, false),
         ]);
-        const liquidityData = await liquidityRes.json();
 
         // feds + exceptions, dolacrvusd, dolausd+, dola-usdc op aura, dola-usdc uni v3, dola-inv uni v3
         const exceptions = [

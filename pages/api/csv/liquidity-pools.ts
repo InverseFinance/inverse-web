@@ -1,5 +1,6 @@
 import { getCacheFromRedis, redisSetWithTimestamp } from "@app/util/redis";
 import { NETWORKS_BY_CHAIN_ID } from "@app/config/networks";
+import { fetcher30sectimeout } from "@app/util/web3";
 
 export default async (req, res) => {
     const cacheDuration = 900;
@@ -7,10 +8,9 @@ export default async (req, res) => {
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
 
     try {
-        const [liquidityRes] = await Promise.all([
-            fetch('https://www.inverse.finance/api/transparency/liquidity'),            
+        const [liquidityData] = await Promise.all([
+            fetcher30sectimeout('https://www.inverse.finance/api/transparency/liquidity'),            
         ]);
-        const liquidityData = await liquidityRes.json();
 
         let csvData = `Last update:,${liquidityData.timestamp}\n`;
         csvData += `Pool,Protocol,Chain,Has Fed,TVL,Pairing depth,DOLA balance (not $),DOLA weight,APY,Pool dom,Pol,$/day,Is stable\n`;

@@ -17,6 +17,12 @@
       },
       "pages/api/f2/dbr-balance-histo.ts": {
         "maxDuration": 60
+      },
+      "pages/api/csv/liquidity-pools.ts": {
+        "maxDuration": 60
+      },
+      "pages/api/csv/dola-model-1.ts": {
+        "maxDuration": 60
       }
     }
   }
