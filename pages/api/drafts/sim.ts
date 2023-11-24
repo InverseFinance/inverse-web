@@ -54,7 +54,7 @@ export default async function handler(req, res) {
         }
       ]);
 
-      const tx = await web3provider.getTransaction(hash);
+      await web3provider.getTransaction(hash);
       const receipt = await web3provider.getTransactionReceipt(hash);
       receipts.push(receipt);
 
