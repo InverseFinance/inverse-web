@@ -34,13 +34,12 @@ export default async function handler(req, res) {
     });
     const simData = await response.json();
     const errorMsg = simData.error?.message;
-    let hasError = !!errorMsg || !!simData?.simulation_results?.find(s => s.status === false);
+    let hasError = !!errorMsg || !!simData?.simulation_results?.map(s => s.simulation)?.find(s => s.status === false);
 
     const result = {
-      status: 'success',
-      simData,
-      errorMsg,
-      results: simData?.simulation_results,
+      status: 'success',      
+      errorMsg,      
+      results: simData?.simulation_results?.map(s => s.simulation).map((sim) => ({ status: sim.status, id: sim.id, errorMsg: sim.error_message })),
       hasError,
     }
 
