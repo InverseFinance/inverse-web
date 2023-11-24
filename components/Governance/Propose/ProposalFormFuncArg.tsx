@@ -9,12 +9,14 @@ export const ProposalFormFuncArg = ({
     name,
     index,
     defaultValue,
+    placeholder = 'Argument data',
     onChange,
 }: {
     type: string,
     name: string,
     index: number,
     defaultValue: any,
+    placeholder: string,
     onChange: (e: any, index: number) => void,
 }) => {
     const [value, setValue] = useState(defaultValue || '');
@@ -44,7 +46,7 @@ export const ProposalFormFuncArg = ({
                         type={inputType}
                         min={min}
                         defaultValue={value}
-                        placeholder="Argument data"
+                        placeholder={placeholder}
                         onChange={(e: any) => handleChange(e, index)}
                     />
             }

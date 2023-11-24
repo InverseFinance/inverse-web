@@ -137,6 +137,7 @@ export type ProposalFunction = {
   target: string
   signature: string
   callData: string
+  value?: string
 }
 
 export type ProposalVote = {

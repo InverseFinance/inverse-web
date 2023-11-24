@@ -142,7 +142,9 @@ export const ProposalFormAction = ({
                                 pt="1"
                                 target={previewFunc.target}
                                 signature={previewFunc.signature}
-                                callData={previewFunc.callData} />
+                                callData={previewFunc.callData}
+                                value={previewFunc.value}
+                            />
                             :
                             <Box textAlign="left" pt="3">
                                 <WarningMessage
@@ -184,11 +186,7 @@ export const ProposalFormAction = ({
                             : null
                     }
                     <FormControl>
-                        <FormLabel mt="2">
-                            Amount of Eth to send
-                            <AnimatedInfoTooltip iconProps={{ ml: '1', fontSize: '12px' }} message="Directly in normal Eth units not in wei" />
-                        </FormLabel>
-                        <ProposalInput type="number" placeholder="Eg : 0.1, 0 by default" value={value} onChange={(e: any) => onChange('value', e.currentTarget.value)} />
+                        <ProposalFormFuncArg index={0} name="Optional Eth Value" type="uint" placeholder="In WEI" defaultValue={value} onChange={(e: any) => onChange('value', e.currentTarget.value)} />
                     </FormControl>
                 </ScaleFade>
             </Box>

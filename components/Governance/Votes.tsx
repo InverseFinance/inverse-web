@@ -54,7 +54,7 @@ const Votes = ({ votes, status, voters, onViewAll, quorum }: VotesProps) => {
         </Text>
       </Flex>
       {voters.slice(0, MAX_PREVIEW).map(({ voter, votes }: ProposalVote) => (
-        <Voter voter={voter} votes={votes} />
+        <Voter key={voter} voter={voter} votes={votes} />
       ))}
       {voters.length > MAX_PREVIEW && (
         <Flex

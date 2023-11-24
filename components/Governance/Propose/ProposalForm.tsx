@@ -86,7 +86,7 @@ export const ProposalForm = ({
         setActionLastId(functions.length)
         setIsFormValid(validFormGiven)
         setPreviewMode(validFormGiven && isPreview)
-    }, [title, description, functions, isPreview, isInited])    
+    }, [title, description, functions, isPreview, isInited])
 
     useEffect(() => {
         setIsFormValid(!isProposalFormInvalid(form))
@@ -231,15 +231,16 @@ export const ProposalForm = ({
     } : {}
 
     const handleSimulation = async () => {
-        return simulateOnChainActions(preview.functions!, (result) => {
-            const failedIdx = result.receipts.length - 1;
+        return simulateOnChainActions(preview.functions!, (result) => {            
+            const failedIdx = result.results?.findIndex(item => item.status === false);
             const failedAction = preview.functions[failedIdx];
             showToast({
                 duration: 15000,
                 status: result.hasError ? 'error' : 'success',
                 title: 'On-Chain Actions Simulation',
                 description: result.hasError ?
-                    <>Action #{result.receipts.length} <b>{namedAddress(failedAction.target)}.{failedAction.signature.split('(')[0]}</b>: Failed!</>
+                    (!result.errorMsg ? <>Action #{failedIdx + 1} <b>{namedAddress(failedAction.target)}.{failedAction.signature.split('(')[0]}</b>: Failed!</>
+                        : <>{result.errorMsg}</>)
                     :
                     'Simulations executed successfully',
             })
