@@ -1,73 +1,47 @@
-import { ethers, utils } from 'ethers'
 import 'source-map-support'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import ganache from 'ganache'
-import { getRandomFromStringList } from '@app/util/misc';
-import { parseUnits } from '@ethersproject/units';
 
 const { TREASURY } = getNetworkConfigConstants();
+
+const { TENDERLY_USER, TENDERLY_KEY } = process.env;
 
 export default async function handler(req, res) {
   const { actions } = req.body;
 
   try {
-    // forking options
-    const options = {
-      namespace: { option: "fork" },
-      fork: {
-        url: `https://eth-mainnet.alchemyapi.io/v2/${getRandomFromStringList(process.env.ALCHEMY_KEYS!)}`,
-      },
-      wallet: {
-        // unlock TREASURY account to use as "from"
-        unlockedAccounts: [TREASURY],
-      }
-    };
-
-    // init ganache Ethereum fork
-    const provider = await ganache.provider(options);
-    const web3provider = new ethers.providers.Web3Provider(provider);
-
-    const accounts = await provider.request({
-      method: "eth_accounts",
-      params: [],
+    const tenderkyUrl = `https://api.tenderly.co/api/v1/account/${TENDERLY_USER}/project/inverse-finance/simulate-bundle`;
+    const body = JSON.stringify({      
+      simulations: actions.map((transaction) => ({
+        network_id: '1', // network to simulate on
+        save: true,        
+        save_if_fails: true,
+        simulation_type: 'full',
+        from: TREASURY,
+        // gas: 1000000,
+        gas_price: 0,
+        value: (transaction.value || 0),
+        input: transaction.data,
+        to: transaction.to,
+      })),
     });
-
-    await provider.send("eth_sendTransaction", [
-      {
-        from: accounts[0],
-        to: TREASURY,
-        value: "0x056bc75e2d63100000",
-      }
-    ]);
-
-    const receipts = [];
-    let hasError = false
-
-    for (let action of actions) {
-      const hash = await provider.send("eth_sendTransaction", [
-        {
-          from: TREASURY,
-          to: action.to,
-          data: action.data,
-          value: action.value ? utils.hexStripZeros(parseUnits(action.value, 0).toHexString()) : undefined,
-          gasLimit: '0x0f4240',
-        }
-      ]);
-
-      await web3provider.getTransaction(hash);
-      const receipt = await web3provider.getTransactionReceipt(hash);
-      receipts.push(receipt);
-
-      if (receipt.status === 0) {
-        hasError = true
-        break
-      }
-    }
+    // console.log(body)
+    const response = await fetch(tenderkyUrl, {
+      method: 'POST',
+      headers: {
+        'X-Access-Key': TENDERLY_KEY as string,
+      },
+      body,
+    });
+    const simData = await response.json();
+    const errorMsg = simData.error?.message;
+    let hasError = !!errorMsg || !!simData?.simulation_results?.find(s => s.status === false);
 
     const result = {
       status: 'success',
+      simData,
+      errorMsg,
+      results: simData?.simulation_results,
       hasError,
-      receipts,
     }
 
     res.status(200).json(result);
