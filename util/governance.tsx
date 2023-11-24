@@ -423,26 +423,21 @@ export const sendDraftReview = async (
 }
 
 export const simulateOnChainActions = async (
-    functions: ProposalFunction[],
+    form: any,
     onSuccess: (reviews: DraftReview[]) => void,
 ): Promise<{
     hasError: boolean,
     receipts: TransactionReceipt[],
 }> => {
     try {
-        const actions = functions.map(f => {
-            const iface = new Interface([`function ${f.signature}`]);
-            const data = `${iface.getSighash(f.signature)}${f.callData.replace('0x', '')}`;
-            return { to: f.target, data, value: f.value }
-        })
 
         const rawResponse = await fetch(`/api/drafts/sim`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ actions })
+            },            
+            body: JSON.stringify(form)
         });
         const result = await rawResponse.json();
         if (onSuccess && result.status === 'success') { onSuccess(result) }
