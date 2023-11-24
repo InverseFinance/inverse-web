@@ -529,7 +529,7 @@ export const ProposalActionPreview = (({
                 {callDatas[0] && <Text>)</Text>}
                 {
                     !!value && value !== '0' && <Text mt="2" fontSize="14px">
-                        Value to send from Treasury alongside the call: <b>{formatEther(value)} Eth</b>
+                        Value to send alongside the call: <b>{formatEther(value)} Eth</b>
                     </Text>
                 }
             </Flex>
