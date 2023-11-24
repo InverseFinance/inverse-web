@@ -17,7 +17,7 @@ async function mainnetFork() {
     {
       method: 'POST',
       body: JSON.stringify({
-        network_id: '1',
+        network_id: '1',        
       }),
       headers: {
         'X-Access-Key': TENDERLY_KEY as string,
@@ -30,18 +30,17 @@ export default async function handler(req, res) {
   const form = req.body;
 
   try {
-    // const forkResponse = await mainnetFork();
-    // const fork = await forkResponse.json();
+    const forkResponse = await mainnetFork();
+    const fork = await forkResponse.json();
     
-    // const forkId = fork?.simulation_fork.id;  
-    const forkId = '882d93a4-650e-486a-b9a3-5be857024259';
+    const forkId = fork?.simulation_fork.id;    
     const rpcUrl = `https://rpc.tenderly.co/fork/${forkId}`;    
 
     const forkProvider = new ethers.providers.JsonRpcProvider(rpcUrl);
     const accounts = await forkProvider.listAccounts();
     const signers = accounts.map(acc => forkProvider.getSigner(acc));
 
-    const snapStart = await forkProvider.send("evm_snapshot", []);
+    // const snapStart = await forkProvider.send("evm_snapshot", []);
 
     const forkProposer = accounts[0];
     const forkProposerSigner = signers[0];
@@ -63,8 +62,6 @@ export default async function handler(req, res) {
         ]),
       }
     ]);
-
-    await invContract.getCurrentVotes(forkProposer);
     
     const formWithRedbuiltFragments = { ...form, actions: form.actions.map(action => ({ ...action, fragment: FunctionFragment.from(action.func) })) };
     await submitProposal(forkProposerSigner, formWithRedbuiltFragments);
@@ -73,14 +70,14 @@ export default async function handler(req, res) {
     await forkProvider.send('evm_increaseBlocks', [
       ethers.utils.hexValue(1000)
     ]);
-    // vote
+    // // vote
     await govContract.castVote(newProposalId, true);
-    // pass blocks     
+    // // pass blocks     
     await forkProvider.send('evm_increaseBlocks', [
       ethers.utils.hexValue(17281)
     ]);
     await govContract.queue(newProposalId);
-    // pass time
+    // // pass time
     await forkProvider.send('evm_increaseTime', [
       ethers.utils.hexValue(60 * 60 * 24 * 5)
     ]);
@@ -90,7 +87,15 @@ export default async function handler(req, res) {
 
     // reset
     const snapEnd = await forkProvider.send("evm_snapshot", []);    
-    await forkProvider.send("evm_revert", [snapStart]);
+    // await forkProvider.send("evm_revert", [snapStart]);
+
+    // share
+    await fetch(`https://api.tenderly.co/api/v1/account/theAlienTourist/project/inverse-finance/fork/${forkId}/share`, {
+      method: 'POST',
+      headers: {
+        'X-Access-Key': TENDERLY_KEY as string,
+      },
+    });    
 
     res.status(200).json({
       status: 'success',
