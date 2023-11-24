@@ -60,6 +60,7 @@ export const ProposalForm = ({
     const router = useRouter()
     const [hasSuccess, setHasSuccess] = useState(false);
     const [isInited, setIsInited] = useState(false);
+    const [simulationUrl, setSimulationUrl] = useState('');
     const { provider, account } = useWeb3React<Web3Provider>()
     const [form, setForm] = useState<ProposalFormFields>({
         title,
@@ -231,16 +232,15 @@ export const ProposalForm = ({
     } : {}
 
     const handleSimulation = async () => {
-        return simulateOnChainActions(preview.functions!, (result) => {            
-            const failedIdx = result.results?.findIndex(item => item.status === false);
-            const failedAction = preview.functions[failedIdx];
+        setSimulationUrl('');
+        return simulateOnChainActions(form, (result) => {
+            setSimulationUrl(result.simUrl||'');
             showToast({
                 duration: 15000,
                 status: result.hasError ? 'error' : 'success',
                 title: 'On-Chain Actions Simulation',
                 description: result.hasError ?
-                    (!result.errorMsg ? <>Action #{failedIdx + 1} <b>{namedAddress(failedAction.target)}.{failedAction.signature.split('(')[0]}</b>: Failed!</>
-                        : <>{result.errorMsg}</>)
+                    result.errorMsg || 'Simulation failed'
                     :
                     'Simulations executed successfully',
             })
@@ -330,6 +330,7 @@ export const ProposalForm = ({
                 showTemplateModal={showTemplateModal}
                 draftId={draftId}
                 isPublicDraft={isPublicDraft}
+                simulationUrl={simulationUrl}
             />
             <ActionTemplateModal isOpen={isOpen} onClose={onClose} onAddTemplate={handleAddTemplate} />
         </Stack>

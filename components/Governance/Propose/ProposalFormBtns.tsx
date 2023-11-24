@@ -1,7 +1,8 @@
 import { Flex, Stack } from '@chakra-ui/react';
 import { SuccessMessage } from '@app/components/common/Messages';
-import { PlusSquareIcon, ViewIcon, EditIcon, CheckIcon, CheckCircleIcon, DeleteIcon, HamburgerIcon } from '@chakra-ui/icons';
+import { PlusSquareIcon, ViewIcon, EditIcon, CheckIcon, CheckCircleIcon, DeleteIcon, HamburgerIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import { RSubmitButton } from '@app/components/common/Button/RSubmitButton';
+import Link from '@app/components/common/Link';
 
 export const ProposalFormBtns = ({
     hasTitleAndDescrption,
@@ -11,6 +12,7 @@ export const ProposalFormBtns = ({
     isPublicDraft,
     nbActions,
     draftId,
+    simulationUrl,
     handleSubmitProposal,
     handlePublishDraft,
     handleDeleteDraft,
@@ -26,6 +28,7 @@ export const ProposalFormBtns = ({
     isPublicDraft?: boolean,
     nbActions: number,
     draftId?: number,
+    simulationUrl: string,
     handleSubmitProposal: () => void,
     handlePublishDraft: () => void,
     handleDeleteDraft: () => void,
@@ -78,6 +81,9 @@ export const ProposalFormBtns = ({
                             </Stack>
                 }
             </Flex>
+            {previewMode && !!simulationUrl && <Link textDecoration="underline" href={simulationUrl} target="_blank" isExternal>
+                Simulation link <ExternalLinkIcon ml="1" />
+            </Link>}
             {
                 previewMode && isPublicDraft && !!draftId && <Flex alignItems="center" justify="center" w="full" pt="10">
                     <RSubmitButton themeColor="red.500" w={{ base: 'full', sm:'fit-content' }}  onClick={handleDeleteDraft}>
