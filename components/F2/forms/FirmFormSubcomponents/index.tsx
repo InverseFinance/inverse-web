@@ -49,7 +49,7 @@ export const FirmBorroInputwSubline = ({
 }: {
     leftToBorrow: number
     bnLeftToBorrow: BigNumber
-    handleDebtChange: (value: string) => void
+    handleDebtChange: (value: string, num: number) => void
 }) => {
     return <HStack w='full' justify="space-between">
         <AmountInfos
@@ -57,7 +57,7 @@ export const FirmBorroInputwSubline = ({
             value={leftToBorrow < 1 ? 0 : leftToBorrow}
             textProps={{
                 fontSize: '14px',
-                onClick: leftToBorrow > 1 ? () => handleDebtChange(formatUnits(bnLeftToBorrow, 18)) : undefined
+                onClick: leftToBorrow > 1 ? () => handleDebtChange(formatUnits(bnLeftToBorrow, 18), getBnToNumber(bnLeftToBorrow)) : undefined
             }}
         />
     </HStack>

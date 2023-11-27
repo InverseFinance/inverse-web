@@ -123,6 +123,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         underlyingExRate,
         escrow,
         firmActionIndex,
+        leverageLoading,
     } = useContext(F2MarketContext);
 
     const [now, setNow] = useState(Date.now());
@@ -281,13 +282,13 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
                 tooltip: 'Approximated DBR swap price for the total required DBR amount (dbr amount for the borrowed dola + dbr amount for that dbr amount)',
                 title: 'DBR swap price',
                 value: `~${shortenNumber(dbrSwapPrice, 6, true)}`,
-                isLoading: debtAmountNumInfo > 0 && isDbrApproxLoading,
+                isLoading: debtAmountNumInfo > 0 && (isDbrApproxLoading || leverageLoading),
             },
             {
                 tooltip: "DBR tokens needed for the borrow, they will be automatically used to cover borrowing interests over time. Don't sell them unless you know what you're doing! When auto-buying extra DBRs are added as cost to cover the auto-buyed DBRs.",
                 title: 'Auto-buy DBR cost',
                 value: dbrCover > 0 && isDeposit ? `~${shortenNumber(dbrCover, 2)} DBRs (${shortenNumber(dbrCoverDebt, 2, true)})` : '-',
-                isLoading: debtAmountNumInfo > 0 && isDbrApproxLoading,
+                isLoading: debtAmountNumInfo > 0 && (isDbrApproxLoading || leverageLoading),
             },
         ],
         [
@@ -295,12 +296,14 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
                 tooltip: 'The total number of DBRs that will be spent every day',
                 title: 'Daily DBR spend',
                 value: `-${newDailyDBRBurnInMarket ? `${shortenNumber(newDailyDBRBurnInMarket, 4)} (${shortenNumber(newDailyDBRBurnInMarket * dbrPrice, 2, true)})` : ''}`,
+                isLoading: debtAmountNumInfo > 0 && (isDbrApproxLoading || leverageLoading),
             },
             {
                 tooltip: "Date where you will run out of DBRs, it is recommended that you always have DBRs in your wallet as when you run out of DBRs someone can force top-up your balance and this will cost your additional debt",
                 title: 'DBR depletion date',
                 value: newTotalDebt > 0 ? getDepletionDate(newDBRExpiryDate, now) : '-',
-                color: newTotalDebt > 0 ? getDBRRiskColor(newDBRExpiryDate, now) : undefined
+                color: newTotalDebt > 0 ? getDBRRiskColor(newDBRExpiryDate, now) : undefined,
+                isLoading: debtAmountNumInfo > 0 && (isDbrApproxLoading || leverageLoading),
             },
         ],
     ];
@@ -317,24 +320,28 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
                 title: 'Borrow Limit',
                 value: !!deposits || !!newDeposits ? `${shortenNumber(newBorrowLimit, 2)}%` : '-',
                 color: newDeposits > 0 || newTotalDebtInMarket > 0 ? riskColor : undefined,
+                isLoading: leverageLoading,
             },
             {
                 tooltip: 'Minimum Collateral Price before liquidations can happen',
                 title: 'Liquidation Price',
                 value: (!!deposits || !!newDeposits) && newLiquidationPrice > 0 ? `${preciseCommify(newLiquidationPrice, newLiquidationPrice < 10 ? 4 : 2, true)}` : '-',
                 color: newDeposits > 0 || newTotalDebtInMarket > 0 ? riskColor : undefined,
+                isLoading: leverageLoading,
             },
         ],
         [
             {
-                tooltip: `Amouunt of Collateral that you are ${isDeposit ? 'depositing' : 'withdrawing'}`,
+                tooltip: `Amount of Collateral that you are ${isDeposit ? 'depositing' : 'withdrawing'}`,
                 title: isDeposit ? 'Depositing' : 'Withdrawing',
                 value: `${collateralAmountNumInfo > 0 ? `${shortenNumber(collateralAmountNumInfo, 4)} ${market.underlying.symbol} (${shortenNumber(collateralAmountNumInfo * market.price, 2, true)})` : '-'}`,
+                isLoading: leverageLoading,
             },
             {
                 tooltip: `Amouunt of Debt that you are ${isDeposit ? 'borrowing' : 'repaying'}`,
                 title: isDeposit ? 'Borrowing' : 'Repaying',
                 value: `${debtAmountNumInfo > 0 ? `${shortenNumber(debtAmountNumInfo, 2)} DOLA` : '-'}`,
+                isLoading: leverageLoading,
             },
         ],
         [
@@ -344,11 +351,13 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
                 value: `${newDeposits ? `${shortenNumber(newDeposits, 2)} ${market.underlying.symbol} (${shortenNumber(newDeposits * market.price, 2, true)})` : '-'}`,
                 alternativeValue: alternativeBalanceValue,
                 alternativeValueColor: themeStyles.colors.mainTextColorLight2,
+                isLoading: leverageLoading,
             },
             {
                 tooltip: 'The total amount of debt after you borrow/repay',
                 title: 'Total Debt',
                 value: `${newTotalDebtInMarket ? `${preciseCommify(newTotalDebtInMarket, 2)} DOLA` : '-'}`,
+                isLoading: leverageLoading,
             },
         ],
         [
@@ -356,12 +365,14 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
                 tooltip: 'Technical Max Borrowing Power, usually you would avoid borrowing the maximum to reduce liquidation risk',
                 title: 'Your borrowing power',
                 value: `${maxBorrow ? `${preciseCommify(maxBorrow, 2)} DOLA` : '-'}`,
+                isLoading: leverageLoading,
             },
             {
                 tooltip: 'Max debt before liquidation',
                 title: 'Max Debt',
                 value: `${newCreditLimit ? `${preciseCommify(newCreditLimit < 0 ? 0 : newCreditLimit, 0)} DOLA` : '-'}`,
-                color: newCreditLimit <= 0 && newDeposits > 0 ? 'error' : undefined
+                color: newCreditLimit <= 0 && newDeposits > 0 ? 'error' : undefined,
+                isLoading: leverageLoading,
             },
         ],
     ];
