@@ -92,7 +92,7 @@ export const leveragePosition = (
         getAleContract(signer),
         'leveragePosition',
         [dolaToBorrow, marketAd, zeroXspender, swapData, permitTuple, helperTransformData, dbrTuple],
-        100000,
+        200000,
         { value: ethValue },
     );
 }
@@ -113,7 +113,7 @@ export const depositAndLeveragePosition = (
         getAleContract(signer),
         'depositAndLeveragePosition',
         [initialDeposit, dolaToBorrow, marketAd, zeroXspender, swapData, permitTuple, helperTransformData, dbrTuple],
-        100000,
+        200000,
         { value: ethValue },
     )
 }
@@ -199,7 +199,7 @@ export const deleveragePosition = async (
             helperTransformData,
             dbrTuple,
         ],
-        100000,
+        200000,
         { value },
     );
 }
@@ -213,6 +213,17 @@ export const getAleSellQuote = async (
 ) => {
     const method = getPriceOnly ? 'quote' : 'swap';    
     let url = `/api/f2/1inch-proxy?method=${method}&buyToken=${buyAd.toLowerCase()}&sellToken=${sellAd.toLowerCase()}&sellAmount=${sellAmount}&slippagePercentage=${slippagePercentage}`;
+    const response = await fetch(url);
+    return response.json();
+}
+// will do a binary search
+export const getAleSellEnoughToRepayDebt = async (
+    buyAd: string,
+    sellAd: string,
+    debt: string,
+    deposits: string,    
+) => {    
+    let url = `/api/f2/1inch-proxy?isFullDeleverage=true&method=quote&buyToken=${buyAd.toLowerCase()}&sellToken=${sellAd.toLowerCase()}&debt=${debt}&deposits=${deposits}`;
     const response = await fetch(url);
     return response.json();
 }
