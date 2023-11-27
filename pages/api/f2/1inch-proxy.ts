@@ -32,14 +32,14 @@ const fetch1inchWithRetry = async (
 }
 
 export default async function handler(req, res) {
-  const { method, buyToken, buyAmount, sellToken, sellAmount, slippagePercentage } = req.query;
-  if (!['swap', 'quote'].includes(method) || !isAddress(buyToken) || !isAddress(sellToken) || !/^[1-9]+[0-9]*$/.test(sellAmount)) {
+  const { method, buyToken, buyAmount, sellToken, sellAmount, slippagePercentage, isFullDeleverage } = req.query;
+  if (!['swap', 'quote'].includes(method) || !isAddress(buyToken) || !isAddress(sellToken) || (!/^[1-9]+[0-9]*$/.test(sellAmount) && isFullDeleverage !== 'true')) {
     return res.status(400).json({ msg: 'invalid request' });
   }
   try {
     const cacheDuration = 2;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    let url = `${BASE_URL}/${method}?dst=${buyToken}&src=${sellToken}&slippage=${5}&disableEstimate=true&from=${F2_ALE}`;
+    let url = `${BASE_URL}/${method}?dst=${buyToken}&src=${sellToken}&slippage=${slippagePercentage}&disableEstimate=true&from=${F2_ALE}`;
     url += `&amount=${sellAmount || ''}`;
 
     const response = await fetch1inchWithRetry(url);
