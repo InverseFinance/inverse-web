@@ -215,7 +215,7 @@ export const F2CombinedForm = ({
         }
     }
 
-    const retriggerLeverage = (isDeposit: boolean, inputString?: string, num?: number, leverageInMode?: boolean) => {
+    const retriggerLeverage = (isDeposit: boolean, inputString?: string, num?: number, leverageInMode?: boolean) => {        
         if (!isDeposit) {
             triggerCollateralAndOrLeverageChange(leverageCollateralAmount, leverageCollateralAmountNum);
         } else {
@@ -405,7 +405,7 @@ export const F2CombinedForm = ({
                     (debt > 0 || isDeposit) && ((deposits > 0 && isBorrowOnlyCase) || !isBorrowOnlyCase) ?
                         <>
                             <SimpleAmountForm
-                                defaultAmount={isDeleverageCase ? '' : debtAmount}
+                                defaultAmount={debtAmount}
                                 address={market.collateral}
                                 destination={isAutoDBR ? F2_HELPER : market.address}
                                 signer={signer}
@@ -454,7 +454,7 @@ export const F2CombinedForm = ({
                         />
                     }
                     {
-                        canUseLeverage && <FirmLeverageSwitch isDeposit={isDeposit} useLeverage={useLeverage} onChange={(isDeposit) => {
+                        canUseLeverage && <FirmLeverageSwitch isDeposit={isDeposit} useLeverage={useLeverage} onChange={(isDeposit) => {                            
                             const isActivatingLeverage = !useLeverage;
                             setUseLeverage(isActivatingLeverage);
                             retriggerLeverage(isDeposit, debtAmount, debtAmountNum, true);
