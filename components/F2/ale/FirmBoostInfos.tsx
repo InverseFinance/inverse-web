@@ -299,7 +299,7 @@ export const FirmBoostInfos = ({
         if (!estimatedResult?.buyAmount) {
             showToast({ status: 'warning', title: 'Could not estimate amount to sell to repay all' });
             return
-        }
+        }        
         const estimatedCollateralAmountToSell = formatUnits(parseUnits(estimatedResult?.buyAmount, '0'), market.underlying.decimals);
         triggerCollateralAndOrLeverageChange(estimatedCollateralAmountToSell, parseFloat(estimatedCollateralAmountToSell));
     }
@@ -482,7 +482,7 @@ export const FirmBoostInfos = ({
                     No {isLeverageUp ? 'leverage' : 'deleverage'}
                 </Text>
                 <Text textDecoration="underline" fontWeight="bold" cursor="pointer" color={isLeverageUp ? riskLevels.riskier.color : riskLevels.safer.color} onClick={() => isLeverageUp ? handleLeverageChange(maxLeverage) : handleSellEnough()}>
-                    {isLeverageUp ? `Max: x${shortenNumber(maxLeverage, 2)}` : 'Sell enough to repay all debt'}
+                    {isLeverageUp ? `Max: x${shortenNumber(maxLeverage, 2)}` : 'Sell enough to repay all (estimate)'}
                 </Text>
             </HStack>
             <HStack w='full' justify="space-between">
