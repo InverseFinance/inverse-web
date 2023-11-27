@@ -324,7 +324,7 @@ export const F2CombinedForm = ({
     const showNeedDbrMessage = isDeposit && !isAutoDBR && dbrBalance <= 0;
     const showNotEnoughDolaToRepayMessage = isRepayCase && debtAmountNum > 0 && dolaBalance < debtAmountNum;
 
-    const disabledDueToLeverage = useLeverageInMode && (leverage <= 1 || leverageLoading);
+    const disabledDueToLeverage = useLeverageInMode && (leverage <= 1 || leverageLoading || !aleSlippage || aleSlippage === '0' || isNaN(parseFloat(aleSlippage)));
     const disabledConditions = {
         'deposit': ((collateralAmountNum <= 0 && !useLeverageInMode) || collateralBalance < collateralAmountNum),
         'borrow': duration <= 0 || debtAmountNum <= 0 || newPerc < 1 || showNeedDbrMessage || market.leftToBorrow < 1 || debtAmountNum > market.leftToBorrow || notEnoughToBorrowWithAutobuy || minDebtDisabledCondition || disabledDueToLeverage,
