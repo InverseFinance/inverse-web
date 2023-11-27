@@ -26,6 +26,9 @@
       },
       "pages/api/drafts/sim.ts": {
         "maxDuration": 60
+      },
+      "pages/api/f2/1inch-proxy.ts": {
+        "maxDuration": 60
       }
     }
   }

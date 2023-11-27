@@ -9,7 +9,7 @@ const { F2_ALE } = getNetworkConfigConstants();
 // default limit is 1 Request Per Sec
 const fetch1inchWithRetry = async (
   url: string,
-  maxRetries = 20,
+  maxRetries = 40,
   currentRetry = 0,
 ): Promise<Response | undefined> => {
   let response;
@@ -25,7 +25,7 @@ const fetch1inchWithRetry = async (
   }
 
   if (response?.status !== 200 &&  currentRetry < maxRetries) {
-      await new Promise((r) => setTimeout(() => r(true), 1000));
+      await new Promise((r) => setTimeout(() => r(true), 1050));
       return await fetch1inchWithRetry(url, maxRetries, currentRetry + 1);
   };
   return response;
