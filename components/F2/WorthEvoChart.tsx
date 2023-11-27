@@ -15,7 +15,9 @@ import { useRechartsZoom } from "@app/hooks/useRechartsZoom";
 const LABEL_POSITIONS = {
     'Claim': 'center',
     'Deposit': 'insideTopLeft',
+    'LeverageUp': 'insideTopLeft',
     'Borrow': 'insideRight',
+    'LeverageDown': 'insideRight',
     'Withdraw': 'insideBottomLeft',
     'Repay': 'insideBotttomRight',
     'ForceReplenish': 'insideTop',
@@ -25,7 +27,9 @@ const LABEL_POSITIONS = {
 const EVENT_DASHES = {
     'Claim': undefined,
     'Deposit': undefined,
+    'LeverageUp': undefined,
     'Borrow': undefined,
+    'LeverageDown': undefined,
     'Withdraw': '4 4',
     'Repay': '4 4',
     'ForceReplenish': '4 4',
@@ -35,7 +39,9 @@ const EVENT_DASHES = {
 const EVENT_WIDTHS = {
     'Claim': undefined,
     'Deposit': undefined,
+    'LeverageUp': undefined,
     'Borrow': undefined,
+    'LeverageDown': undefined,
     'Withdraw': undefined,
     'Repay': undefined,
     'ForceReplenish': 4,
@@ -108,7 +114,9 @@ export const WorthEvoChart = ({
     const LABEL_COLORS = {
         'Claim': lightTheme.colors.success,
         'Deposit': mainEventColor,
+        'LeverageUp': mainEventColor,
         'Borrow': lightTheme.colors.accentTextColor,
+        'LeverageDown': lightTheme.colors.accentTextColor,
         'Withdraw': mainEventColor,
         'Repay': lightTheme.colors.accentTextColor,
         'ForceReplenish': lightTheme.colors.error,
@@ -117,7 +125,7 @@ export const WorthEvoChart = ({
 
     const EvoChartEventLegend = () => {
         const eventTypes = Object.keys(EVENT_DASHES)
-            .filter(e => market.hasClaimableRewards ? true : e !== 'Claim')
+            .filter(e => (e === 'Claim' && market.hasClaimableRewards) || (['LeverageUp', 'LeverageDown'].includes(e) && market.hasAleFeat) || (!['Claim', 'LeverageUp', 'LeverageDown'].includes(e)))            
             .sort((a, b) => a < b ? -1 : 1);
 
         return <VStack alignItems="flex-start">

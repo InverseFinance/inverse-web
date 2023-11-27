@@ -212,7 +212,7 @@ export const _getProp = (object: Object, key: string) => {
     return found?.[1];
 }
 
-export const preciseCommify = (v: number, precision = 2, isDollar = false) => {
+export const preciseCommify = (v: number, precision = 2, isDollar = false, isRemoveTrailingZeros = false) => {
     if (precision === 0 || !v) {
         return `${isDollar ? '$' : ''}${commify((v || 0).toFixed(0))}`;
     }
@@ -221,6 +221,9 @@ export const preciseCommify = (v: number, precision = 2, isDollar = false) => {
     let result
     try {
         result = `${isDollar ? '$' : ''}${commify(split[0])}.${split[1]}`.replace('$-', '-$');
+        if(isRemoveTrailingZeros) {
+            result = removeTrailingZeros(result);
+        }
     } catch (e) {
         console.log(e)
     }

@@ -14,7 +14,7 @@ export const MinDebtBorrowMessage = ({
 }) => {
     return <WarningMessage alertProps={{ w: 'full' }} description={
         !debt ? `You need to borrow at least ${preciseCommify(minDebt, 0)} DOLA`
-            : `When borrowing the resulting debt should be at least ${shortenNumber(minDebt, 2)} DOLA`
+            : `The resulting debt should be at least ${preciseCommify(minDebt, 0)} DOLA`
     } />
 }
 
@@ -29,6 +29,17 @@ export const NoDbrInWalletMessage = () => {
                 </Link> OR use the auto-buy option which adds the DBR cost to your DOLA loan.
             </Flex>
         }
+    />
+}
+
+export const NotEnoughDolaToRepayMessage = ({
+    amount
+}: {
+    amount: number
+}) => {
+    return <InfoMessage    
+        alertProps={{ w: 'full' }}
+        description={`Not enough DOLA in wallet to repay ${preciseCommify(amount, 2)} DOLA`}
     />
 }
 

@@ -145,6 +145,10 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         setAmount(defaultAmount);
     }, [defaultAmount])
 
+    useEffect(() => {        
+        setFreshTokenApproved(false);
+    }, [address, destination]);
+
     useEffect(() => {
         setTokenApproved(freshTokenApproved || !address || hasAllowance(approvals, address, decimals, amount));
     }, [approvals, address, freshTokenApproved]);

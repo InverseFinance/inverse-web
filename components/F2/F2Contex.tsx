@@ -62,6 +62,7 @@ export const F2Context = ({
     const [debtAmount, setDebtAmount] = useState('');
     const [leverageCollateralAmount, setLeverageCollateralAmount] = useState('');
     const [leverageDebtAmount, setLeverageDebtAmount] = useState('');
+    const [leveragePriceImpact, setLeveragePriceImpact] = useState('');
     const [dbrSellAmount, setDbrSellAmount] = useState('');
     const [dbrBuySlippage, setDbrBuySlippage] = useState('1');
     const [aleSlippage, setAleSlippage] = useState('1');
@@ -96,8 +97,8 @@ export const F2Context = ({
 
     // if true and leverage switched is enabled, the user will see the INV prime msg
     const userNotEligibleForLeverage = !isInvPrimeMember && INV_STAKERS_ONLY.firmLeverage;
-    // if true, the leverage UI will show
-    const useLeverageInMode = useLeverage && !userNotEligibleForLeverage && (mode === 'Deposit & Borrow' || (mode === 'Repay & Withdraw' && debt > 1))
+    // if true, the leverage UI will show and leverage is relevant to the mode
+    const useLeverageInMode = useLeverage && !userNotEligibleForLeverage && (mode === 'Deposit & Borrow' || (mode === 'Borrow' && deposits > 0) || (['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1))
 
     const debtAmountNum = parseFloat(debtAmount || '0') || 0;// NaN => 0
     const collateralAmountNum = parseFloat(collateralAmount || '0') || 0;
@@ -105,21 +106,21 @@ export const F2Context = ({
     const leverageDebtAmountNum = parseFloat(leverageDebtAmount || '0') || 0;// NaN => 0
     const leverageCollateralAmountNum = parseFloat(leverageCollateralAmount || '0') || 0;
 
-    const totalDebtAmountNum = debtAmountNum + (useLeverageInMode ? leverageDebtAmountNum : 0);
-    const totalCollateralAmountNum = collateralAmountNum + (isDeposit && useLeverageInMode ? leverageCollateralAmountNum : 0)//(isDeposit || !useLeverageInMode || (!isDeposit && useLeverageInMode) ? collateralAmountNum : 0) + (useLeverageInMode ? leverageCollateralAmountNum : 0);
+    const totalDebtAmountNum = debtAmountNum + (useLeverageInMode ? leverageDebtAmountNum * (1-parseFloat(aleSlippage)/100) : 0);
+    const totalCollateralAmountNum = (!(useLeverageInMode && mode === 'Borrow') ? collateralAmountNum : 0) + (isDeposit && useLeverageInMode ? leverageCollateralAmountNum : 0)//(isDeposit || !useLeverageInMode || (!isDeposit && useLeverageInMode) ? collateralAmountNum : 0) + (useLeverageInMode ? leverageCollateralAmountNum : 0);    
 
     const dbrApproxData = useDBRNeeded(debtAmount, duration);
 
-    const dbrCover = isAutoDBR ? dbrApproxData.dbrNeededNum : debtAmountNum / (365 / duration);
+    const dbrCover = totalDebtAmountNum > 0 ? isAutoDBR ? dbrApproxData.dbrNeededNum : debtAmountNum / (365 / duration) : 0;
     const { price: dbrPrice } = useDBRPrice();
     const autoDbrSwapPrice = isAutoDBR && !dbrApproxData?.isLoading ? dbrApproxData?.dolaForDbrNum/dbrApproxData?.dbrNeededNum : dbrPrice;    
     const dbrSwapPrice = isAutoDBR ? autoDbrSwapPrice || dbrPrice : dbrPrice;
     const dbrCoverDebt = dbrCover * dbrSwapPrice;
 
-    const hasCollateralChange = ['deposit', 'd&b', 'withdraw', 'r&w'].includes(MODES[mode]);
-    const hasDebtChange = ['borrow', 'd&b', 'repay', 'r&w'].includes(MODES[mode]);
+    const hasCollateralChange = ['deposit', 'd&b', 'withdraw', 'r&w'].includes(MODES[mode]) || useLeverageInMode;
+    const hasDebtChange = ['borrow', 'd&b', 'repay', 'r&w'].includes(MODES[mode]) || useLeverageInMode;
 
-    const deltaCollateral = isDeposit ? totalCollateralAmountNum : -totalCollateralAmountNum;
+    const deltaCollateral = isDeposit ? totalCollateralAmountNum : -totalCollateralAmountNum;    
     const deltaDebt = isDeposit ? totalDebtAmountNum : -totalDebtAmountNum;
 
     const {
@@ -142,7 +143,7 @@ export const F2Context = ({
         hasCollateralChange ? deltaCollateral : 0,
         hasDebtChange ? deltaDebt : 0,
         perc,
-    );
+    );    
 
     const {
         newCreditLeft: maxBorrow
@@ -316,6 +317,8 @@ export const F2Context = ({
             leverageDebtAmountNum,
             leverageLoading,
             setLeverageLoading,
+            leveragePriceImpact,
+            setLeveragePriceImpact,
             isFirstTimeModalOpen,
             firmActionIndex,
             setFirmActionIndex,

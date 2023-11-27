@@ -104,6 +104,7 @@ const namedAddresses: { [key: string]: string } = {
     '0x6c31147E995074eA6aaD2Fbe95060B0Aef7363E1': 'FiRMBalancerHelper',
     '0xae8165f37FC453408Fb1cd1064973df3E6499a76': 'FiRMCurveHelper',
     '0xdcd2D918511Ba39F2872EB731BB88681AE184244': 'DbrDistributor',
+    '0x958979432A7c58FD3F30be8071bBa79401BbAE3E': 'FirmALE',
     // partners
     '0x58dCB47956De1e99B1AF0ceb643727EF66aF4647': 'DWF Swapper',
 }

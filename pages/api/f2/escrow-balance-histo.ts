@@ -49,8 +49,10 @@ export default async function handler(req, res) {
     }
 
     const currentBlock = await provider.getBlockNumber();
-    const marketContract = new Contract(_market.address, F2_MARKET_ABI, provider);
+    const marketContract = new Contract(_market.address, F2_MARKET_ABI, provider);   
     const aleContract = new Contract(F2_ALE, F2_ALE_ABI, provider);
+    const aleMarketData = await aleContract.markets(_market.address);
+    const hasAleFeature = FEATURE_FLAGS.firmLeverage && aleMarketData[0] !== BURN_ADDRESS;
     const escrowCreations = await marketContract.queryFilter(marketContract.filters.CreateEscrow(account), _market.startingBlock);
     const escrowCreationBlock = escrowCreations.length > 0 ? escrowCreations[0].blockNumber : 0;
 
@@ -72,9 +74,10 @@ export default async function handler(req, res) {
       marketContract.queryFilter(marketContract.filters.Liquidate(account), startingBlock),
       marketContract.queryFilter(marketContract.filters.Repay(account), startingBlock),
       marketContract.queryFilter(marketContract.filters.Borrow(account), startingBlock),
-      dbrContract.queryFilter(dbrContract.filters.ForceReplenish(account, undefined, _market.address), startingBlock),      
+      dbrContract.queryFilter(dbrContract.filters.ForceReplenish(account, undefined, _market.address), startingBlock),
     ];
-    if(FEATURE_FLAGS.firmLeverage) {
+
+    if (hasAleFeature) {
       eventsToQuery.push(aleContract.queryFilter(aleContract.filters.LeverageUp(_market.address, account), startingBlock));
       eventsToQuery.push(aleContract.queryFilter(aleContract.filters.LeverageDown(_market.address, account), startingBlock));
     }
@@ -122,7 +125,7 @@ export default async function handler(req, res) {
         return getGroupedMulticallOutputs([
           { contract: escrowContract, functionName: balanceFunctionName },
           { contract: escrowContract, functionName: claimableFunctionName, forceFallback: !_market.isInv, fallbackValue: BigNumber.from(0) },
-          { contract: marketContract, functionName: debtFunctionName, params: [account], forceFallback: block < _market.borrowingWasDisabledBeforeBlock, fallbackValue: BigNumber.from(0) },          
+          { contract: marketContract, functionName: debtFunctionName, params: [account], forceFallback: block < _market.borrowingWasDisabledBeforeBlock, fallbackValue: BigNumber.from(0) },
         ],
           Number(CHAIN_ID),
           block,
@@ -146,8 +149,13 @@ export default async function handler(req, res) {
       liquidated,
       replenished,
       claims,
-    } = formatFirmEvents(_market, flatenedEvents, flatenedEvents.map(e => timestamps[timeChainId][e.blockNumber] * 1000), archived?.formattedEvents?.length > 0 ? archived : undefined);
-    
+    } = formatFirmEvents(
+      _market,
+      flatenedEvents,
+      flatenedEvents.map(e => timestamps[timeChainId][e.blockNumber] * 1000),
+      archived?.formattedEvents?.length > 0 ? archived : undefined,
+    );
+
     const resultData = {
       timestamp: Date.now(),
       firmActionIndex,
@@ -159,7 +167,7 @@ export default async function handler(req, res) {
       claims,
       balances: archived.balances.concat(newBalances),
       debts: archived.debts.concat(newDebts),
-      dbrClaimables: archived.dbrClaimables.concat(newDbrClaimables),  
+      dbrClaimables: archived.dbrClaimables.concat(newDbrClaimables),
       blocks: archived?.blocks.concat(allUniqueBlocksToCheck),
       timestamps: resultTimestamps,
       formattedEvents: archived.formattedEvents.concat(newFormattedEvents),

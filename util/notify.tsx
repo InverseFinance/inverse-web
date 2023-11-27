@@ -41,7 +41,7 @@ export const showFailNotif = (_e: any, isFromTx?: boolean) => {
     console.log('showFailNotif: ', _e);    
     const e = typeof _e === 'string' ? { reason: _e } : _e;
     const isClearReason = !!e?.reason && e?.reason?.indexOf('cannot estimate gas') === -1;
-    const msg = ((isClearReason ? e?.reason : undefined) || e?.error?.message || e?.data?.message || e?.message || '').substring(0, 200);
+    let msg = ((isClearReason ? e?.reason : undefined) || e?.error?.message || e?.data?.message || e?.message || '').substring(0, 200);
     // error codes relatable to transaction cancellation by user
     const revertMsg = "reverted with reason string ";
     const reasonStringIdx = msg.indexOf(revertMsg);
@@ -55,6 +55,10 @@ export const showFailNotif = (_e: any, isFromTx?: boolean) => {
     } else {
         const revertMsg = "reverted with reason string ";
         const reasonStringIdx = !e?.data?.message ? -1 : e?.data?.message.indexOf(revertMsg);
+        const isUnrecognizedCustomError = msg.indexOf('unrecognized custom error') !== -1;
+        if(isUnrecognizedCustomError) {
+            msg = 'Reverted, try increasing the slippage';
+        }
         showToast({
             title: `${isFromTx ? 'Transaction prevented' : 'Action failed'}`,
             status: 'warning',

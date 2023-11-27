@@ -160,7 +160,8 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
       const borrowPaused = data ? data[i + 5 * nbMarkets] : cachedMarkets[i]?.borrowPaused ?? false;
       const leftToBorrow = borrowPaused ? 0 : limits ? dailyLimit === 0 ? dolaLiquidity : Math.min(dailyLimit - dailyBorrows, dolaLiquidity) : cachedMarkets[i]?.leftToBorrow ?? 0;
       const aleData = data ? data[i + 6 * nbMarkets] : [BURN_ADDRESS, BURN_ADDRESS, BURN_ADDRESS];
-      const hasAleFeat = aleData[0] !== BURN_ADDRESS;
+      // only those markets have a decent routing at the moment
+      const hasAleFeat = aleData[0] !== BURN_ADDRESS && !['cvxFXS'].includes(m.name);
 
       return {
         ...m,
@@ -438,14 +439,16 @@ export const useBorrowLimits = (market: F2Market) => {
     [DOLA, 'balanceOf', market.address],
     [market.borrowController, 'dailyLimits', market.address],
     [market.borrowController, 'dailyBorrows', market.address, dayIndexUtc],
+    [market.address, 'borrowPaused'],
   ];
 
   const { data, error } = useEtherSWR(dataToGet);
 
   const dolaLiquidity = data ? getBnToNumber(data[0]) : 0;
   const dailyLimit = !noBorrowController && data ? getBnToNumber(data[1]) : 0;
-  const dailyBorrows = !noBorrowController && data ? getBnToNumber(data[2]) : 0;
-  const leftToBorrow = data && dailyLimit !== 0 ? dailyLimit - dailyBorrows : dolaLiquidity;
+  const dailyBorrows = !noBorrowController && data ? getBnToNumber(data[2]) : 0;  
+  const borrowPaused = data ? data[3] : market.borrowPaused ?? false;
+  const leftToBorrow = borrowPaused ? 0 : !dailyLimit ? dolaLiquidity : Math.min(dailyLimit - dailyBorrows, dolaLiquidity);
 
   return {
     dailyLimit,

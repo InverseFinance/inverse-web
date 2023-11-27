@@ -1,6 +1,7 @@
 import { AmountInfos } from "@app/components/common/Messages/AmountInfos"
 import { TextInfo } from "@app/components/common/Messages/TextInfo"
 import { F2Market } from "@app/types"
+import { getBnToNumber } from "@app/util/markets"
 import { FormControl, FormLabel, HStack, Switch, Text } from "@chakra-ui/react"
 import { formatUnits } from "@ethersproject/units"
 import { BigNumber } from "ethers"
@@ -48,7 +49,7 @@ export const FirmBorroInputwSubline = ({
 }: {
     leftToBorrow: number
     bnLeftToBorrow: BigNumber
-    handleDebtChange: (value: string) => void
+    handleDebtChange: (value: string, num: number) => void
 }) => {
     return <HStack w='full' justify="space-between">
         <AmountInfos
@@ -56,7 +57,7 @@ export const FirmBorroInputwSubline = ({
             value={leftToBorrow < 1 ? 0 : leftToBorrow}
             textProps={{
                 fontSize: '14px',
-                onClick: leftToBorrow > 1 ? () => handleDebtChange(formatUnits(bnLeftToBorrow, 18)) : undefined
+                onClick: leftToBorrow > 1 ? () => handleDebtChange(formatUnits(bnLeftToBorrow, 18), getBnToNumber(bnLeftToBorrow)) : undefined
             }}
         />
     </HStack>
@@ -68,22 +69,24 @@ export const FirmWithdrawInputSubline = ({
     handleCollateralChange,
     bnDeposits,
     decimals,
+    useLeverageInMode = false
 }: {
     deposits: number
     price: number
-    handleCollateralChange: (value: string) => void
+    handleCollateralChange: (value: string, num: number) => void
     bnDeposits: BigNumber
     decimals: number
+    useLeverageInMode: boolean
 }) => {
     return <HStack w='full' justify="space-between">
         <AmountInfos
-            label="Deposits"
+            label={useLeverageInMode ? 'Sell all' : 'Deposits'}
             value={deposits}
             price={price}
             textProps={{
                 cursor: 'pointer',
                 fontSize: '14px',
-                onClick: () => handleCollateralChange(formatUnits(bnDeposits, decimals))
+                onClick: () => handleCollateralChange(formatUnits(bnDeposits, decimals), getBnToNumber(bnDeposits, decimals))
             }}
         />
     </HStack>
@@ -140,18 +143,18 @@ export const FirmExitModeSwitch = ({
 
 export const FirmLeverageSwitch = ({
     isDeposit,
-    setUseLeverage,
+    onChange,
     useLeverage,
 }: {
     isDeposit: boolean
-    setUseLeverage: (value: boolean) => void
+    onChange: (value: boolean) => void
     useLeverage: boolean
 }) => {
     return <FormControl w='fit-content' display='flex' alignItems='center'>
     <FormLabel fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='leverage-switch' mb='0'>
         {isDeposit ? 'L' : 'Del'}everage (beta)?
     </FormLabel>
-    <Switch onChange={() => setUseLeverage(!useLeverage)} isChecked={useLeverage} id='leverage-switch' />
+    <Switch onChange={() => onChange(isDeposit)} isChecked={useLeverage} id='leverage-switch' />
 </FormControl>
 }
 
@@ -170,15 +173,20 @@ export const FirmCollateralInputTitle = ({
     useLeverageInMode: boolean
     deposits: number
 }) => {
+    const depositWording = market.isInv ? 'Stake' : 'Deposit';
+    const withdrawWording = useLeverageInMode ? 'Sell' : market.isInv ? 'Unstake' : 'Withdraw';
+    const wording = isDeposit ? depositWording : withdrawWording;
+    const leverageExtraWording = useLeverageInMode ? isDeposit && deposits > 0 ? ` (on top of leverage)` : ' (to deleverage)' : '';
+    const assetName = isWethMarket && isUseNativeCoin ? 'ETH' : market.underlying.symbol;
     return <TextInfo message={
         isDeposit ?
             market.isInv ?
                 "Staked INV can be withdrawn at any time"
                 : "The more you deposit, the more you can borrow against"
-            : "Withdrawing collateral will reduce borrowing power"
+            : useLeverageInMode ? "When deleveraging, the collateral will be withdrawn and automatically sold for DOLA in order to repay some debt" : "Withdrawing collateral will reduce borrowing power"
     }>
         <Text fontSize='18px' color="mainTextColor">
-            <b>{isDeposit ? market.isInv ? 'Stake' : 'Deposit' : market.isInv ? 'Unstake' : 'Withdraw'}</b> {isWethMarket && isUseNativeCoin ? 'ETH' : market.underlying.symbol}{useLeverageInMode ? isDeposit && deposits > 0 ? ` (on top of leverage)` : ' (with leverage)' : ''}:
+            <b>{wording}</b> {assetName}{leverageExtraWording}:
         </Text>
     </TextInfo>
 }
@@ -192,9 +200,9 @@ export const FirmDebtInputTitle = ({
 }) => {
     return <TextInfo
         message={
-            `The amount of DOLA stablecoin you wish to ${isDeposit ? 'borrow' : 'repay'}`
+            `The amount of DOLA stablecoin you wish to ${isDeposit ? 'borrow' : 'repay'}${useLeverageInMode ? isDeposit ? ' to do leverage' : ' while deleveraging' : ''}`
         }
     >
-        <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? 'Borrow' : 'Repay'}</b> DOLA{useLeverageInMode ? isDeposit ? ' (with leverage)' : ' (on top of leverage)' : ''}:</Text>
+        <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? 'Borrow' : 'Repay'}</b> DOLA{useLeverageInMode ? isDeposit ? ' (to do leverage)' : ' (on top of deleverage)' : ''}:</Text>
     </TextInfo>
 }
