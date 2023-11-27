@@ -12,6 +12,7 @@ import { DbrReplenishmentModal } from "./DbrReplenishmentModal";
 import Table from "@app/components/common/Table";
 import { useDBRPrice } from "@app/hooks/useDBR";
 import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader";
+import { DbrHistoBalanceModal } from "../Infos/DbrHistoBalanceModal";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -24,85 +25,6 @@ const Cell = ({ ...props }) => {
 const CellText = ({ ...props }) => {
     return <Text fontSize="16px" {...props} />
 }
-
-const columns = [
-    {
-        field: 'user',
-        label: 'Borrower',
-        header: ({ ...props }) => <ColHeader justify="flex-start" {...props} minWidth="100px" />,
-        value: ({ user }) => {
-            return <Cell w="100px" justify="flex-start" position="relative" onClick={(e) => e.stopPropagation()}>
-                <Link isExternal href={`/firm?viewAddress=${user}`}>
-                    <ViewIcon color="blue.600" boxSize={3} />
-                </Link>
-                <ScannerLink value={user} />
-            </Cell>
-        },
-        showFilter: true,
-        filterWidth: '100px',
-    },
-    {
-        field: 'signedBalance',
-        label: 'DBR Signed Balance',
-        header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
-        value: ({ signedBalance }) => {
-            return <Cell minWidth="150px" justify="center" >
-                <CellText color={signedBalance < 0 ? 'error' : 'mainTextColor'}>{shortenNumber(signedBalance, signedBalance < 0 ? 4 : 2, false, signedBalance > 0)}</CellText>
-            </Cell>
-        },
-    },
-    // {
-    //     field: 'balance',
-    //     label: 'DBR Balance',
-    //     header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-    //     value: ({ balance }) => {
-    //         return <Cell minWidth="100px" justify="center" >
-    //             <CellText>{shortenNumber(balance, 2, false, true)}</CellText>
-    //         </Cell>
-    //     },
-    // },
-    {
-        field: 'debt',
-        label: 'DOLA Debt',
-        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        value: ({ debt }) => {
-            return <Cell minWidth="100px" justify="center" >
-                <CellText>{shortenNumber(debt, 2)}</CellText>
-            </Cell>
-        },
-    },
-    {
-        field: 'dailyBurn',
-        label: 'DBR Daily Spend',
-        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        value: ({ dailyBurn }) => {
-            return <Cell minWidth="100px" justify="center" >
-                <CellText>-{shortenNumber(dailyBurn, 2)}</CellText>
-            </Cell>
-        },
-    },
-    {
-        field: 'dbrExpiryDate',
-        label: 'DBR Depletion',
-        header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
-        value: ({ dbrExpiryDate }) => {
-            return <Cell spacing="0" alignItems="center" direction="column" minWidth="120px" justify="center">
-                <CellText>{moment(dbrExpiryDate).format('MMM Do YYYY')}</CellText>
-                <CellText color="secondaryTextColor">{moment(dbrExpiryDate).fromNow()}</CellText>
-            </Cell>
-        },
-    },
-    {
-        field: 'marketIcons',
-        label: 'Collaterals',
-        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        value: ({ marketIcons }) => {
-            return <Cell minWidth="100px" justify="center">
-                {marketIcons.map(img => <MarketImage key={img} image={img} size={20} />)}
-            </Cell>
-        },
-    },
-]
 
 const StatBasic = ({ value, name, isLoading = false }: { value: string, name: string, isLoading?: boolean }) => {
     return <VStack>
@@ -122,7 +44,107 @@ export const DbrSpenders = ({
     const { price } = useDBRPrice();
     const { positions, timestamp, isLoading } = useDBRActiveHolders();
     const { onOpen, onClose, isOpen } = useDisclosure();
+    const { onOpen: onHistoOpen, onClose: onHistoClose, isOpen: isHistoOpen } = useDisclosure();
     const [position, setPosition] = useState(null);
+    const [user, setUser] = useState('');
+
+    const openDbrHisto = (user: string) => {
+        setUser(user);
+        onHistoOpen();
+    }
+
+    const columns = [
+        {
+            field: 'user',
+            label: 'Borrower',
+            header: ({ ...props }) => <ColHeader justify="flex-start" {...props} minWidth="100px" />,
+            value: ({ user }) => {
+                return <Cell w="100px" justify="flex-start" position="relative" onClick={(e) => e.stopPropagation()}>
+                    <Link isExternal href={`/firm?viewAddress=${user}`}>
+                        <ViewIcon color="blue.600" boxSize={3} />
+                    </Link>
+                    <ScannerLink value={user} />
+                </Cell>
+            },
+            showFilter: true,
+            filterWidth: '100px',
+        },
+        {
+            field: 'signedBalance',
+            label: 'DBR Signed Balance',
+            header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
+            value: ({ signedBalance, user }) => {
+                return <Cell minWidth="150px" justify="center" >
+                    <CellText onClick={(e) => {
+                        e.stopPropagation();
+                        openDbrHisto(user);
+                    }} 
+                    cursor="pointer" textDecoration="underline" color={signedBalance < 0 ? 'error' : 'mainTextColor'}>{shortenNumber(signedBalance, signedBalance < 0 ? 4 : 2, false, signedBalance > 0)}</CellText>
+                </Cell>
+            },
+        },
+        // {
+        //     field: 'balance',
+        //     label: 'DBR Balance',
+        //     header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        //     value: ({ balance }) => {
+        //         return <Cell minWidth="100px" justify="center" >
+        //             <CellText>{shortenNumber(balance, 2, false, true)}</CellText>
+        //         </Cell>
+        //     },
+        // },
+        {
+            field: 'debt',
+            label: 'DOLA Debt',
+            header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+            value: ({ debt }) => {
+                return <Cell minWidth="100px" justify="center" >
+                    <CellText>{shortenNumber(debt, 2)}</CellText>
+                </Cell>
+            },
+        },
+        {
+            field: 'dailyBurn',
+            label: 'DBR Daily Spend',
+            header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+            value: ({ dailyBurn }) => {
+                return <Cell minWidth="100px" justify="center" >
+                    <CellText>-{shortenNumber(dailyBurn, 2)}</CellText>
+                </Cell>
+            },
+        },
+        {
+            field: 'monthlyBurn',
+            label: 'DBR Monthly Spend',
+            header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+            value: ({ monthlyBurn }) => {
+                return <Cell minWidth="100px" justify="center" >
+                    <CellText>-{shortenNumber(monthlyBurn, 2)}</CellText>
+                </Cell>
+            },
+        },
+        {
+            field: 'dbrExpiryDate',
+            label: 'DBR Depletion',
+            header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
+            value: ({ dbrExpiryDate }) => {
+                return <Cell spacing="0" alignItems="center" direction="column" minWidth="120px" justify="center">
+                    <CellText>{moment(dbrExpiryDate).format('MMM Do YYYY')}</CellText>
+                    <CellText color="secondaryTextColor">{moment(dbrExpiryDate).fromNow()}</CellText>
+                </Cell>
+            },
+        },
+        {
+            field: 'marketIcons',
+            label: 'Collaterals',
+            header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+            value: ({ marketIcons }) => {
+                return <Cell minWidth="100px" justify="center">
+                    {marketIcons.map(img => <MarketImage key={img} image={img} size={20} />)}
+                </Cell>
+            },
+        },
+    ]
 
     const openReplenish = async (data) => {
         setPosition(data);
@@ -165,6 +187,9 @@ export const DbrSpenders = ({
         >
             {
                 !!position && position?.marketPositions?.length > 0 && <DbrReplenishmentModal isOpen={isOpen} onClose={onClose} userData={position} />
+            }
+            {
+                !!user && isHistoOpen && <DbrHistoBalanceModal account={user} isOpen={isHistoOpen} onClose={onHistoClose} />
             }
             <Table
                 keyName="user"

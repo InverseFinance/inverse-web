@@ -10,6 +10,7 @@ import { VStack, Text, HStack } from "@chakra-ui/react";
 import { getMonthlyRate, shortenNumber } from "@app/util/markets";
 import { InfoMessage } from "@app/components/common/Messages";
 import { usePrices } from "@app/hooks/usePrices";
+import { useDBRPrice } from "@app/hooks/useDBR";
 
 export const FirmRewardWrapper = ({
     market,
@@ -248,7 +249,7 @@ export const FirmINVRewardWrapperContent = ({
     const invMonthlyRewards = getMonthlyRate(stakedInFirm, market?.supplyApy);
     const dbrMonthlyRewards = share * market?.dbrYearlyRewardRate / 12;
     const invPriceCg = prices ? prices['inverse-finance']?.usd : 0;
-    const dbrPriceCg = prices ? prices['dola-borrowing-right']?.usd : 0;
+    const { price: dbrPrice } = useDBRPrice();
 
     return <FirmRewards
         market={market}
@@ -270,7 +271,7 @@ export const FirmINVRewardWrapperContent = ({
                             </HStack>
                             <HStack w='full' justify="space-between" spacing="2">
                                 <Text>Monthly DBR rewards:</Text>
-                                <Text textAlign="right" fontWeight="bold">~{shortenNumber(dbrMonthlyRewards, 2)} ({shortenNumber(dbrMonthlyRewards * dbrPriceCg, 2, true)})</Text>
+                                <Text textAlign="right" fontWeight="bold">~{shortenNumber(dbrMonthlyRewards, 2)} ({shortenNumber(dbrMonthlyRewards * dbrPrice, 2, true)})</Text>
                             </HStack>
                         </VStack>
                     }
@@ -302,7 +303,7 @@ export const FirmRewards = ({
     const { escrow: escrowFromContext } = useContext(F2MarketContext);
     const _escrow = escrow?.replace(BURN_ADDRESS, '') || escrowFromContext?.replace(BURN_ADDRESS, '');
 
-    const claimables = rewardsInfos?.tokens.filter(t => t.metaType === 'claimable' && t.balanceUSD > 0.01);
+    const claimables = rewardsInfos?.tokens.filter(t => t.metaType === 'claimable' && (t.balanceUSD > 0.01 || (!t.price && t.balance > 0)));
     claimables?.sort((a, b) => b.balanceUSD - a.balanceUSD)
     const totalRewardsUSD = claimables?.reduce((prev, curr) => prev + curr.balanceUSD, 0);
 

@@ -10,8 +10,10 @@ import { checkDraftRights, getProposalStatus } from '@app/util/governance';
 import { Contract } from 'ethers';
 import { GOVERNANCE_ABI } from '@app/config/abis';
 import { getBnToNumber } from '@app/util/markets';
+import { parseEther } from "@ethersproject/units";
+import { PROPOSAL_159_ACTIONS } from "@app/fixtures/temp-gov-actions-fix";
 
-export const proposalsCacheKey = '1-proposals-v1.0.0';
+export const proposalsCacheKey = '1-proposals-v1.0.1';
 
 export default async function handler(req, res) {
   const cacheDuration = 30;
@@ -55,7 +57,7 @@ export default async function handler(req, res) {
 
       let status = getProposalStatus(p.canceled, p.executed, parseInt(p.eta), startBlock, endBlock, blockNumber, againstVotes, forVotes, getBnToNumber(quorumVotes))
 
-      return {
+      return {        
         id: proposalId,
         proposalNum: proposalId + (era === GovEra.alpha ? 0 : 29),
         era,
@@ -75,12 +77,12 @@ export default async function handler(req, res) {
         description: description,
         descriptionAsText: removeMd(description),
         status,
-        functions: p.calls.map(c => {
+        functions: proposalId === 159 ? PROPOSAL_159_ACTIONS : p.calls.map(c => {
           return {
             target: c.target.id,
             signature: c.signature,
             callData: c.calldata,
-            value: c.value,
+            value: parseEther(c.value).toString(),
           }
         }),
         voters: p.receipts.map((vote: any, i) => ({

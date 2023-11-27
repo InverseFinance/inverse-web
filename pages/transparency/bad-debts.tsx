@@ -1,4 +1,4 @@
-import { Flex, Stack, Text, VStack, Select, HStack, Switch } from '@chakra-ui/react'
+import { Flex, Stack, Text, VStack, Select, HStack, Switch, Progress, useMediaQuery } from '@chakra-ui/react'
 
 import Container from '@app/components/common/Container'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
@@ -353,7 +353,7 @@ export const BadDebtPage = () => {
   const [selected, setSelected] = useState('all');
   const isAllCase = selected === 'all';
   const isDolaCase = selected.toLowerCase().includes('dola');
-
+  const [isSmallerThan] = useMediaQuery('(max-width: 1150px)')  
   const dolaPrice = !!prices ? prices['dola-usd']?.usd : 1;
 
   const totalDirectRepaymentsForTable = totalRepaymentKeys.map(key => {
@@ -409,6 +409,8 @@ export const BadDebtPage = () => {
     };
   }).filter(item => item.badDebtBalance > 0.1);
 
+  const dolaBadDebtRepaidProgress = items.find(item => item.symbol === 'DOLA')?.percRepaid || 0;
+
   // add IOU debt to repay
   if (items.length > 0) {
     const totalDolaRepaid = data.iouDolaRepaid;
@@ -449,6 +451,24 @@ export const BadDebtPage = () => {
       <ErrorBoundary>
         <Flex w="full" maxW='6xl' direction="column" justify="center">
           <Stack w='full' alignItems='center' justify="center" direction={{ base: 'column', lg: 'column' }}>
+            <Container label="DOLA Bad Debt Repayment Progress" noPadding>
+              <HStack justify="center" alignItems="center" w='full'>
+                {!isSmallerThan && <Text textAlign="left">0%</Text>}
+                <HStack w='full' position="relative" justify="center" alignItems="center">
+                  {dolaBadDebtRepaidProgress > 0 && !isSmallerThan && <Text fontSize={{ base: '18px', lg: '24px' }} fontWeight="bold" zIndex="1" position="absolute" left={`${dolaBadDebtRepaidProgress - 10}%`}>{shortenNumber(dolaBadDebtRepaidProgress, 2)}%</Text>}
+                  {
+                    !isSmallerThan ?
+                      <Progress isAnimated={true} borderRadius="8px" width={'1000px'} colorScheme="green" hasStripe={true} height='40px' value={dolaBadDebtRepaidProgress} />
+                      : <HStack borderRadius="4px" w='full' bgColor="barUnfilledColor">
+                        <HStack position="relative" borderRadius='4px' height="30px" bgColor="barFilledColor" width={`${dolaBadDebtRepaidProgress}%`}>
+                          <Text zIndex="3" color="white" fontSize={'16px'} fontWeight="bold" position="absolute" right={'15px'}>{shortenNumber(dolaBadDebtRepaidProgress, 2)}%</Text>
+                        </HStack>
+                      </HStack>
+                  }
+                </HStack>
+                {!isSmallerThan! && <Text textAlign="right">100%</Text>}
+              </HStack>
+            </Container>
             <Container
               label="DOLA Bad Debt Evolution"
               description={data?.timestamp ? `Last update: ${moment(data?.timestamp).fromNow()}` : 'Loading...'}
@@ -466,24 +486,26 @@ export const BadDebtPage = () => {
                 </VStack>
               }
             >
-              <DefaultCharts
-                // direction={'row'}
-                showMonthlyBarChart={false}
-                maxChartWidth={1000}
-                chartData={dolaBadDebtEvo}
-                isDollars={false}
-                smoothLineByDefault={true}
-                showCustomizationBar={true}
-                custombarChildren={
-                  <HStack>
-                    <Text userSelect="none" color="mainTextColorLight" fontSize="14px">
-                      Click and drag the mouse on the chart to zoom in
-                    </Text>
-                  </HStack>
-                }
-                barProps={{ eventName: 'Repayment' }}
-                areaProps={{ id: 'bad-debt-chart', showRangeBtns: true, rangesToInclude: ['All', 'YTD', '1Y', '6M', '3M', '7D'], yLabel: 'DOLA bad debt', useRecharts: true, fillInByDayInterval: 1, simplifyData: false, showEvents: true, showEventsLabels: true, domainYpadding: 1000000, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
-              />
+              <VStack w='full' spacing="6" mt="2">
+                <DefaultCharts
+                  // direction={'row'}
+                  showMonthlyBarChart={false}
+                  maxChartWidth={1000}
+                  chartData={dolaBadDebtEvo}
+                  isDollars={false}
+                  smoothLineByDefault={true}
+                  showCustomizationBar={true}
+                  custombarChildren={
+                    <HStack>
+                      <Text userSelect="none" color="mainTextColorLight" fontSize="14px">
+                        Click and drag the mouse on the chart to zoom in
+                      </Text>
+                    </HStack>
+                  }
+                  barProps={{ eventName: 'Repayment' }}
+                  areaProps={{ id: 'bad-debt-chart', showRangeBtns: true, rangesToInclude: ['All', 'YTD', '1Y', '6M', '3M', '7D'], yLabel: 'DOLA bad debt', useRecharts: true, fillInByDayInterval: 1, simplifyData: false, showEvents: true, showEventsLabels: true, domainYpadding: 1000000, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
+                />
+              </VStack>
             </Container>
             <Container
               noPadding

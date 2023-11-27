@@ -27,6 +27,7 @@ import { SkeletonBlob } from '@app/components/common/Skeleton';
 import { useEnsoPools } from '@app/util/enso';
 import { FEATURE_FLAGS } from '@app/config/features';
 import { EnsoModal } from '@app/components/common/Modal/EnsoModal';
+import { useDBRPrice } from '@app/hooks/useDBR';
 
 const groupLpsBy = (lps: any[], attribute: string, max = 6) => {
   const items = Object.entries(
@@ -71,6 +72,7 @@ export const Liquidity = () => {
   const aggregatedHistoryPlusCurrent = addCurrentToHistory(aggregatedHistory, { liquidity, timestamp }, undefined, histoAttributeChainId);
   const { dola, inv, dbr } = useTokensData();
   const { prices } = usePricesV2();
+  const { price: dbrPrice } = useDBRPrice();
   const [category, setCategory] = useState('DOLA');
   const [lpHistoArray, setLpHistoArray] = useState([]);
   const [categoryChartHisto, setCategoryChartHisto] = useState(category);
@@ -204,6 +206,8 @@ export const Liquidity = () => {
     };
   });
 
+  const categoryPrice = category === 'DBR' ? dbrPrice : prices ? prices[cgIds[category]]?.usd : 0;
+
   return (
     <Layout>
       <Head>
@@ -307,7 +311,7 @@ export const Liquidity = () => {
               <VStack w='130px' spacing="0" alignItems={{ base: 'flex-start', sm: "flex-end" }}>
                 <Text>{category} Price</Text>
                 <Link textDecoration="underline" style={{ 'text-decoration-skip-ink': 'none' }} isExternal={true} target="_blank" fontWeight="bold" href={LINKS[category]}>
-                  {!!prices && prices[cgIds[category]]?.usd ? preciseCommify(prices[cgIds[category]]?.usd, 4, true) : '-'}
+                  {!!categoryPrice ? preciseCommify(categoryPrice, 4, true) : '-'}
                 </Link>
               </VStack>
             </HStack>

@@ -13,7 +13,7 @@ import { pricesCacheKey } from '../prices';
 import { PROTOCOLS_BY_IMG, PROTOCOL_DEFILLAMA_MAPPING } from '@app/variables/images';
 import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 
-export const liquidityCacheKey = `liquidity-v1.1.93`;
+export const liquidityCacheKey = `liquidity-v1.1.94`;
 
 export default async function handler(req, res) {
     const { cacheFirst } = req.query;
@@ -102,7 +102,7 @@ export default async function handler(req, res) {
             const provider = getProvider(lp.chainId);
             const protocol = PROTOCOLS_BY_IMG[lp.protocolImage];
             const defiLlamaProjectName = PROTOCOL_DEFILLAMA_MAPPING[protocol];
-            const lpName = lp.symbol.replace(/(-LP|-SLP|-AURA| [a-zA-Z]*lp)/ig, '').replace(/-ETH/ig, '-WETH');
+            const lpName = lp.symbol.replace(/(-LP|-SLP|-AURA| [a-zA-Z0-9]*lp)/ig, '').replace(/-ETH/ig, '-WETH');
             const balancerPoolAd = lp.balancerInfos?.poolId?.substring(0, 42)?.toLowerCase();
             const yieldData = yields.find(y => {
                 return defiLlamaProjectName === y.project

@@ -1,76 +1,109 @@
-import { ethers } from 'ethers'
 import 'source-map-support'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import ganache from 'ganache'
-import { getRandomFromStringList } from '@app/util/misc';
+import { Contract, ethers } from 'ethers';
+import { submitProposal } from '@app/util/governance';
+import { CURRENT_ERA } from '@app/config/constants';
+import { getGovernanceContract } from '@app/util/contracts';
+import { FunctionFragment } from 'ethers/lib/utils';
+import { INV_ABI } from '@app/config/abis';
 
-const { TREASURY } = getNetworkConfigConstants();
+const { TREASURY, INV } = getNetworkConfigConstants();
+
+const { TENDERLY_USER, TENDERLY_KEY } = process.env;
+
+async function mainnetFork() {
+  return await fetch(
+    `https://api.tenderly.co/api/v1/account/${TENDERLY_USER}/project/inverse-finance/fork`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        network_id: '1',        
+      }),
+      headers: {
+        'X-Access-Key': TENDERLY_KEY as string,
+      },
+    },
+  );
+}
 
 export default async function handler(req, res) {
-  const { actions } = req.body;
+  const form = req.body;
 
   try {
-    // forking options
-    const options = {
-      namespace: { option: "fork" },
-      fork: {
-        url: `https://eth-mainnet.alchemyapi.io/v2/${getRandomFromStringList(process.env.ALCHEMY_KEYS!)}`,
-      },
-      wallet: {
-        // unlock TREASURY account to use as "from"
-        unlockedAccounts: [TREASURY],
-      }
-    };
+    const forkResponse = await mainnetFork();
+    const fork = await forkResponse.json();
+    
+    const forkId = fork?.simulation_fork.id;    
+    const rpcUrl = `https://rpc.tenderly.co/fork/${forkId}`;    
 
-    // init ganache Ethereum fork
-    const provider = await ganache.provider(options);
-    const web3provider = new ethers.providers.Web3Provider(provider);
+    const forkProvider = new ethers.providers.JsonRpcProvider(rpcUrl);
+    const accounts = await forkProvider.listAccounts();
+    const signers = accounts.map(acc => forkProvider.getSigner(acc));
 
-    const accounts = await provider.request({
-      method: "eth_accounts",
-      params: [],
-    });
+    // const snapStart = await forkProvider.send("evm_snapshot", []);
 
-    await provider.send("eth_sendTransaction", [
-      {
-        from: accounts[0],
-        to: TREASURY,
-        value: "0x056bc75e2d63100000",
-      }
+    const forkProposer = accounts[0];
+    const forkProposerSigner = signers[0];
+
+    await forkProvider.send('tenderly_setBalance', [
+      [TREASURY],
+      ethers.utils.hexValue(ethers.utils.parseUnits('1', 'ether').toHexString()),
     ]);
 
-    const receipts = [];
-    let hasError = false
+    const invContract = new Contract(INV, INV_ABI, forkProvider);
+    const govContract = getGovernanceContract(forkProposerSigner, CURRENT_ERA);
 
-    for (let action of actions) {
-      const hash = await provider.send("eth_sendTransaction", [
-        {
-          from: TREASURY,
-          to: action.to,
-          data: action.data,
-          gasLimit: '0x0f4240',
-        }
-      ]);
-
-      const tx = await web3provider.getTransaction(hash);
-      const receipt = await web3provider.getTransactionReceipt(hash);
-      receipts.push(receipt);
-
-      if (receipt.status === 0) {
-        hasError = true
-        break
+    await forkProvider.send("eth_sendTransaction", [
+      {
+        from: TREASURY,
+        to: INV,
+        data: invContract.interface.encodeFunctionData('delegate', [
+          forkProposer,
+        ]),
       }
-    }
+    ]);
+    
+    const formWithRedbuiltFragments = { ...form, actions: form.actions.map(action => ({ ...action, fragment: FunctionFragment.from(action.func) })) };
+    await submitProposal(forkProposerSigner, formWithRedbuiltFragments);
+    const newProposalId = parseInt(await govContract.proposalCount());
+    
+    await forkProvider.send('evm_increaseBlocks', [
+      ethers.utils.hexValue(1000)
+    ]);
+    // // vote
+    await govContract.castVote(newProposalId, true);
+    // // pass blocks     
+    await forkProvider.send('evm_increaseBlocks', [
+      ethers.utils.hexValue(17281)
+    ]);
+    await govContract.queue(newProposalId);
+    // // pass time
+    await forkProvider.send('evm_increaseTime', [
+      ethers.utils.hexValue(60 * 60 * 24 * 5)
+    ]);
+    await govContract.execute(newProposalId, {
+      gasLimit: 8000000,
+    });   
 
-    const result = {
+    // reset
+    const snapEnd = await forkProvider.send("evm_snapshot", []);    
+    // await forkProvider.send("evm_revert", [snapStart]);
+
+    // share
+    await fetch(`https://api.tenderly.co/api/v1/account/theAlienTourist/project/inverse-finance/fork/${forkId}/share`, {
+      method: 'POST',
+      headers: {
+        'X-Access-Key': TENDERLY_KEY as string,
+      },
+    });    
+
+    res.status(200).json({
       status: 'success',
-      hasError,
-      receipts,
-    }
-
-    res.status(200).json(result);
+      hasError: false,
+      simUrl: `https://dashboard.tenderly.co/shared/fork/${forkId}/simulation/${snapEnd}`
+    });
   } catch (err) {
     console.error(err);
-    res.status(200).json({ success: false })
+    res.status(200).json({ success: false, hasError: true, errorMsg: err })
   }
 }
