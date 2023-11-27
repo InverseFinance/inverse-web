@@ -435,7 +435,7 @@ export const FirmBoostInfos = ({
                     </TextInfoSimple>
                 }
                 {
-                    !leverageLoading && leverageLevel > 1 && !isLeverageUp && extraDolaReceivedInWallet > 0 && <TextInfoSimple direction="row-reverse" message={"If the collateral sold gets more DOLA than the current debt in the market, the remaining DOLA is sent to the user wallet."}>
+                    !leverageLoading && leverageLevel > 1 && !isLeverageUp && extraDolaReceivedInWallet > 0 && <TextInfoSimple direction="row-reverse" message={"DOLA estimated to be sent to wallet directly, depends on difference between min amount and actual amount or amount and debt"}>
                         <HStack fontWeight="bold" spacing="1" alignItems="center">
                             <ArrowUpIcon color="success" fontSize="20px" />
                             <VStack spacing="0">
