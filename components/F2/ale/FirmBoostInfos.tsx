@@ -411,10 +411,10 @@ export const FirmBoostInfos = ({
                         <HStack fontWeight="bold" spacing="1" alignItems="center">
                             {isLeverageUp ? <ArrowUpIcon color="success" fontSize="20px" /> : <ArrowDownIcon color="warning" fontSize="20px" />}
                             <VStack spacing="0">
-                                <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="16px" textAlign="center">
+                                <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="15px" textAlign="center">
                                     {isLeverageUp ? '~' : ''}{smartShortNumber(isLeverageUp ? parseFloat(leverageCollateralAmount) : collateralAmountNum, 4)}
                                 </Text>
-                                <Text textDecoration="underline" cursor="default" fontSize="16px">
+                                <Text textDecoration="underline" cursor="default" fontSize="15px">
                                     {market.underlying.symbol}
                                 </Text>
                             </VStack>
@@ -426,23 +426,23 @@ export const FirmBoostInfos = ({
                         <HStack fontWeight="bold" spacing="1" alignItems="center">
                             {isLeverageUp ? <ArrowUpIcon color="warning" fontSize="20px" /> : <ArrowDownIcon color="success" fontSize="20px" />}
                             <VStack spacing="0">
-                                <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="16px" textAlign="center">
+                                <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="15px" textAlign="center">
                                     {smartShortNumber(!isLeverageUp ? amountOfDebtReduced : debtAmountNum, 2)}
                                 </Text>
-                                <Text textDecoration="underline" cursor="default" fontSize="16px">DEBT</Text>
+                                <Text textDecoration="underline" cursor="default" fontSize="15px">DEBT</Text>
                             </VStack>
                         </HStack>
                     </TextInfoSimple>
                 }
                 {
-                    !leverageLoading && leverageLevel > 1 && !isLeverageUp && extraDolaReceivedInWallet > 0 && <TextInfoSimple direction="row-reverse" message={"DOLA estimated to be sent to wallet directly, depends on difference between min amount and actual amount or amount and debt"}>
+                    !leverageLoading && leverageLevel > 1 && !isLeverageUp && extraDolaReceivedInWallet > 0 && <TextInfoSimple direction="row-reverse" message={"DOLA estimated to be sent to wallet directly, it depends on the difference between min amount to receive from sell and actual amount or amount and debt"}>
                         <HStack fontWeight="bold" spacing="1" alignItems="center">
                             <ArrowUpIcon color="success" fontSize="20px" />
                             <VStack spacing="0">
-                                <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="16px" textAlign="center">
+                                <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="15px" textAlign="center">
                                     ~{smartShortNumber(extraDolaReceivedInWallet, 2)}
                                 </Text>
-                                <Text textDecoration="underline" cursor="default" fontSize="16px">DOLA</Text>
+                                <Text textDecoration="underline" cursor="default" fontSize="15px">DOLA</Text>
                             </VStack>
                         </HStack>
                     </TextInfoSimple>
