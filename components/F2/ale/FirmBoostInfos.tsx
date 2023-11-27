@@ -394,7 +394,7 @@ export const FirmBoostInfos = ({
                         children={<Text cursor="text" as="label" for="boostInput" color="secondaryTextColor" whiteSpace="nowrap" transform="translateX(60px)" fontSize="20px" fontWeight="extrabold">
                             {boostLabel}:
                         </Text>}
-                    />
+                    />                    
                     <Input _focusVisible={false} isInvalid={editLeverageIsInvalid} autocomplete="off" onKeyPress={handleKeyPress} id="boostInput" color={risk.color} py="0" pl="60px" onChange={(e) => handleEditLeverage(e.target.value, minLeverage, maxLeverage)} width="220px" value={editLeverageLevel} min={minLeverage} max={maxLeverage} />
                     {
                         editLeverageLevel !== leverageLevel.toFixed(2) && debounced && !editLeverageIsInvalid &&
@@ -412,7 +412,7 @@ export const FirmBoostInfos = ({
                             {isLeverageUp ? <ArrowUpIcon color="success" fontSize="20px" /> : <ArrowDownIcon color="warning" fontSize="20px" />}
                             <VStack spacing="0">
                                 <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="16px" textAlign="center">
-                                    {isLeverageUp ? '~' : ''}{smartShortNumber(isLeverageUp ? parseFloat(leverageCollateralAmount) : collateralAmountNum, 8)}
+                                    {isLeverageUp ? '~' : ''}{smartShortNumber(isLeverageUp ? parseFloat(leverageCollateralAmount) : collateralAmountNum, 4)}
                                 </Text>
                                 <Text textDecoration="underline" cursor="default" fontSize="16px">
                                     {market.underlying.symbol}
