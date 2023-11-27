@@ -103,15 +103,15 @@ export const getLeverageImpact = async ({
         // if already has deposits, base is deposits, if not (=depositAndLeverage case), base is initialDeposit
         const baseColAmountForLeverage = deposits > 0 ? deposits : initialDeposit;
         const baseWorth = baseColAmountForLeverage * collateralPrice;
-        let borrowStringToSign, borrowNumToSign;
+        let borrowStringToSign, borrowNumToSign;        
         // precision is focused on collateral amount, only with 0x
-        // if (false && !viaInput) {
-        //     const amountUp = deposits * leverageLevel - deposits;
-        //     const { sellAmount } = await get0xBuyQuote(market.collateral, DOLA, getNumberToBn(amountUp, market.underlying.decimals).toString(), aleSlippage, true);
-        //     borrowStringToSign = sellAmount;
-        //     borrowNumToSign = parseFloat(borrowStringToSign) / (1e18);
-        // } 
-        if (!!dolaInput) {
+        if (!viaInput) {
+            const amountUp = deposits * leverageLevel - deposits;            
+            const { buyAmount } = await getAleSellQuote(DOLA, market.collateral, getNumberToBn(amountUp, market.underlying.decimals).toString(), aleSlippage, true);
+            borrowStringToSign = buyAmount;
+            borrowNumToSign = parseFloat(borrowStringToSign) / (1e18);
+        } 
+        else if (!!dolaInput) {
             borrowNumToSign = parseFloat(dolaInput);
             borrowStringToSign = getNumberToBn(borrowNumToSign).toString();
         } else {
@@ -404,7 +404,7 @@ export const FirmBoostInfos = ({
                     }
                 </InputGroup>
                 {
-                    leverageLoading && <Text fontSize="16px" fontWeight="bold" color="secondaryTextColor">Fetching swap data...</Text>
+                    leverageLoading && <Text fontSize="16px" fontWeight="bold" color="secondaryTextColor">Fetching 1inch swap data...</Text>
                 }
                 {
                     !leverageLoading && leverageLevel > 1 && <TextInfoSimple direction="row-reverse" message={isLeverageUp ? `Collateral added thanks to leverage` : `Collateral reduced thanks to deleverage`}>
@@ -481,7 +481,7 @@ export const FirmBoostInfos = ({
                 <Text textDecoration="underline" fontWeight="bold" cursor="pointer" color={riskLevels.safer.color} onClick={() => handleLeverageChange(minLeverage)}>
                     No {isLeverageUp ? 'leverage' : 'deleverage'}
                 </Text>
-                <Text textDecoration="underline" fontWeight="bold" cursor="pointer" color={isLeverageUp ? riskLevels.riskier.color : riskLevels.safer.color} onClick={() => handleSellEnough()}>
+                <Text textDecoration="underline" fontWeight="bold" cursor="pointer" color={isLeverageUp ? riskLevels.riskier.color : riskLevels.safer.color} onClick={() => isLeverageUp ? handleLeverageChange(maxLeverage) : handleSellEnough()}>
                     {isLeverageUp ? `Max: x${shortenNumber(maxLeverage, 2)}` : 'Sell enough to repay all debt'}
                 </Text>
             </HStack>
