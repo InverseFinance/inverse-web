@@ -10,7 +10,7 @@ export const getDbrAuctionContract = (signerOrProvider: JsonRpcSigner) => {
 
 export const sellDolaForDbr = async (signerOrProvider: JsonRpcSigner, dolaToSell: BigNumber, minDbrOut: BigNumber) => {
     const contract = getDbrAuctionContract(signerOrProvider);
-    await contract.buyDBR(dolaToSell, minDbrOut);
+    return contract.buyDBR(dolaToSell, minDbrOut);
 }
 
 export const getDbrOut = async (signerOrProvider: JsonRpcSigner, dolaToSell: BigNumber) => {
