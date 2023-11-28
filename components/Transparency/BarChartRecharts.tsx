@@ -4,7 +4,7 @@ import { shortenNumber, smartShortNumber } from '@app/util/markets';
 import { Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ComposedChart } from 'recharts';
 import { preciseCommify } from '@app/util/misc';
 
-const CustomizedLabel = ({x, y, fill, value, color}) => {
+const CustomizedLabel = ({x, y, fill, value, color, useUsd}) => {
     return <text
         x={x}
         y={y}
@@ -14,7 +14,7 @@ const CustomizedLabel = ({x, y, fill, value, color}) => {
         fontFamily='sans-serif'
         fontWeight="bold" 
         fill={color}
-        textAnchor="middle">{value ? smartShortNumber(value, 2): ''}</text>
+        textAnchor="middle">{value ? smartShortNumber(value, 2, useUsd): ''}</text>
 };
 
 export const BarChartRecharts = ({
@@ -109,7 +109,7 @@ export const BarChartRecharts = ({
                 {
                     showLegend && <Legend wrapperStyle={legendStyle} style={{ cursor: 'pointer' }} formatter={(value) => value} />
                 }
-                <Bar label={(props) => <CustomizedLabel {...props} color={color} />} maxBarSize={25} name={yLabel} dataKey={'y'} stroke={color} fillOpacity={1} fill={color} />
+                <Bar label={(props) => <CustomizedLabel {...props} useUsd={useUsd} color={color} />} maxBarSize={25} name={yLabel} dataKey={'y'} stroke={color} fillOpacity={1} fill={color} />
             </ComposedChart>
         </VStack>
     );
