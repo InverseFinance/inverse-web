@@ -93,7 +93,7 @@ const columns = [
     },
     {
         field: 'borrows',
-        label: 'DOLA Borrowed',
+        label: 'Borrowed',
         header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
         tooltip: 'Amount of DOLA you borrowed from the Market',
         value: ({ borrows }) => {
@@ -101,7 +101,19 @@ const columns = [
                 <CellText>{borrows > 0 ? shortenNumber(borrows, 2) : '-'}</CellText>
             </Cell>
         },
-    }, {
+    },
+    {
+        field: 'dolaBalance',
+        label: 'PoL Balance',
+        header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
+        tooltip: 'DOLA balance owned by the Fed in the liquidity pool',
+        value: ({ dolaBalance }) => {
+            return <Cell minWidth="120px" justify="center">
+                <CellText>{dolaBalance > 0 ? shortenNumber(dolaBalance, 2) : '-'}</CellText>
+            </Cell>
+        },
+    }, 
+    {
         field: 'detailsLinkName',
         label: 'More Data',
         header: ({ ...props }) => <ColHeader minWidth="120px" justify="flex-end"  {...props} />,
