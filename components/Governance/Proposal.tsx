@@ -22,6 +22,10 @@ import Link from '@app/components/common/Link'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { useAppTheme } from '@app/hooks/useAppTheme'
 import { DWFtextFix } from './dwf-text-fix'
+import { useState } from 'react'
+import { showToast } from '@app/util/notify'
+import { RSubmitButton } from '../common/Button/RSubmitButton'
+import { simulateOnChainActions } from '@app/util/governance'
 
 const badgeColors: { [key: string]: string } = {
   [ProposalStatus.active]: 'gray',
@@ -267,11 +271,28 @@ export const ProposalDetails = ({
 }
 
 export const ProposalActions = ({ proposal, isEditing = false }: { proposal: Proposal, isEditing?: boolean }) => {
+  const [simulationUrl, setSimulationUrl] = useState('');
   if (!proposal?.id) {
     return <></>
   }
 
   const { functions } = proposal
+
+  const handleSimulation = async () => {
+    setSimulationUrl('');
+    return simulateOnChainActions(proposal, (result) => {
+      setSimulationUrl(result.simUrl || '');
+      showToast({
+        duration: 15000,
+        status: result.hasError ? 'error' : 'success',
+        title: 'On-Chain Actions Simulation',
+        description: result.hasError ?
+          result.errorMsg || 'Simulation failed'
+          :
+          'Simulations executed successfully',
+      })
+    });
+  }
 
   return (
     <Container contentBgColor="gradient2" label="Actions" px={isEditing ? '0' : '6'}>
@@ -280,6 +301,18 @@ export const ProposalActions = ({ proposal, isEditing = false }: { proposal: Pro
         {functions.map(({ target, signature, callData, value }: ProposalFunction, i: number) => {
           return <ProposalActionPreview key={i} num={i + 1} target={target} signature={signature} callData={callData} value={value} />
         })}
+        {
+          [ProposalStatus.active, ProposalStatus.succeeded, ProposalStatus.queued].includes(proposal.status) && <Stack alignItems="center" justify="space-evenly" w='full' direction={{ base: 'column', lg: 'row' }}>
+            <RSubmitButton fontSize="16px" w={'fit-content'} onClick={handleSimulation}>
+              Simulate Proposal
+            </RSubmitButton>
+            {
+              !!simulationUrl && <Link textAlign="right" w='fit-content' textDecoration="underline" href={simulationUrl} target="_blank" isExternal>
+                Simulation link <ExternalLinkIcon ml="1" />
+              </Link>
+            }
+          </Stack>
+        }
       </Stack>
     </Container>
   )

@@ -6,6 +6,7 @@ import { CURRENT_ERA } from '@app/config/constants';
 import { getGovernanceContract } from '@app/util/contracts';
 import { FunctionFragment } from 'ethers/lib/utils';
 import { INV_ABI } from '@app/config/abis';
+import { ProposalStatus } from '@app/types';
 
 const { TREASURY, INV } = getNetworkConfigConstants();
 
@@ -17,7 +18,7 @@ async function mainnetFork() {
     {
       method: 'POST',
       body: JSON.stringify({
-        network_id: '1',        
+        network_id: '1',
       }),
       headers: {
         'X-Access-Key': TENDERLY_KEY as string,
@@ -28,13 +29,15 @@ async function mainnetFork() {
 
 export default async function handler(req, res) {
   const form = req.body;
+  const isNotDraft = !!form.id;
+  let proposalId;
 
   try {
     const forkResponse = await mainnetFork();
     const fork = await forkResponse.json();
-    
-    const forkId = fork?.simulation_fork.id;    
-    const rpcUrl = `https://rpc.tenderly.co/fork/${forkId}`;    
+
+    const forkId = fork?.simulation_fork.id;
+    const rpcUrl = `https://rpc.tenderly.co/fork/${forkId}`;
 
     const forkProvider = new ethers.providers.JsonRpcProvider(rpcUrl);
     const accounts = await forkProvider.listAccounts();
@@ -53,40 +56,53 @@ export default async function handler(req, res) {
     const invContract = new Contract(INV, INV_ABI, forkProvider);
     const govContract = getGovernanceContract(forkProposerSigner, CURRENT_ERA);
 
-    await forkProvider.send("eth_sendTransaction", [
-      {
-        from: TREASURY,
-        to: INV,
-        data: invContract.interface.encodeFunctionData('delegate', [
-          forkProposer,
-        ]),
+    if (!isNotDraft) {
+      await forkProvider.send("eth_sendTransaction", [
+        {
+          from: TREASURY,
+          to: INV,
+          data: invContract.interface.encodeFunctionData('delegate', [
+            forkProposer,
+          ]),
+        }
+      ]);
+      const formWithRedbuiltFragments = { ...form, actions: form.actions.map(action => ({ ...action, fragment: FunctionFragment.from(action.func) })) };
+      await submitProposal(forkProposerSigner, formWithRedbuiltFragments);
+      proposalId = parseInt(await govContract.proposalCount());
+    } else {
+      proposalId = form.id;
+    }
+
+    if (!form.status || form.status === ProposalStatus.active) {
+      await forkProvider.send('evm_increaseBlocks', [
+        ethers.utils.hexValue(1000)
+      ]);
+      // // vote
+      await govContract.castVote(proposalId, true);
+      // pass blocks
+      await forkProvider.send('evm_increaseBlocks', [
+        ethers.utils.hexValue(17281)
+      ]);
+    }
+
+    if (!form.status || form.status === ProposalStatus.succeeded) {
+      await govContract.queue(proposalId);
+    }
+
+    if (!form.status || form.status === ProposalStatus.queued) {
+      //pass time      
+      if(!form.status || (!!form.etaTimestamp && Date.now() < form.etaTimestamp)) {
+        await forkProvider.send('evm_increaseTime', [
+          ethers.utils.hexValue(60 * 60 * 24 * 5)
+        ]);
       }
-    ]);
-    
-    const formWithRedbuiltFragments = { ...form, actions: form.actions.map(action => ({ ...action, fragment: FunctionFragment.from(action.func) })) };
-    await submitProposal(forkProposerSigner, formWithRedbuiltFragments);
-    const newProposalId = parseInt(await govContract.proposalCount());
-    
-    await forkProvider.send('evm_increaseBlocks', [
-      ethers.utils.hexValue(1000)
-    ]);
-    // // vote
-    await govContract.castVote(newProposalId, true);
-    // // pass blocks     
-    await forkProvider.send('evm_increaseBlocks', [
-      ethers.utils.hexValue(17281)
-    ]);
-    await govContract.queue(newProposalId);
-    // // pass time
-    await forkProvider.send('evm_increaseTime', [
-      ethers.utils.hexValue(60 * 60 * 24 * 5)
-    ]);
-    await govContract.execute(newProposalId, {
-      gasLimit: 8000000,
-    });   
+      await govContract.execute(proposalId, {
+        gasLimit: 8000000,
+      });
+    }
 
     // reset
-    const snapEnd = await forkProvider.send("evm_snapshot", []);    
+    const snapEnd = await forkProvider.send("evm_snapshot", []);
     // await forkProvider.send("evm_revert", [snapStart]);
 
     // share
@@ -95,7 +111,7 @@ export default async function handler(req, res) {
       headers: {
         'X-Access-Key': TENDERLY_KEY as string,
       },
-    });    
+    });
 
     res.status(200).json({
       status: 'success',
