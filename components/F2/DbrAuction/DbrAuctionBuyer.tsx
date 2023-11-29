@@ -11,7 +11,7 @@ import { parseEther } from "@ethersproject/units";
 import { BigNumber } from "ethers";
 import { Input } from "../../common/Input";
 import Container from "../../common/Container";
-import { useDBRSwapPrice } from "@app/hooks/useDBR";
+import { useTriCryptoSwap } from "@app/hooks/useDBR";
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -36,11 +36,11 @@ export const DbrAuctionBuyer = () => {
     const { provider } = useWeb3React();
     const [amount, setAmount] = useState('');
     const [slippage, setSlippage] = useState('1');
-    const { price: dbrPrice } = useDBRSwapPrice(amount || defaultRefAmount);    
+    const { price: dbrPrice, isLoading: isCurvePriceLoading } = useTriCryptoSwap(parseFloat(amount || defaultRefAmount), 0, 1);
     const { data } = useEtherSWR([
         [DBR_AUCTION_ADDRESS, 'getDbrOut', parseEther(amount || '0')],
         [DBR_AUCTION_ADDRESS, 'getDbrOut', parseEther(defaultRefAmount)],
-    ]);
+    ]);    
     const refDbrOut = data && data[1] ? getBnToNumber(data[1]) : 0;
     const estimatedDbrOut = data && data[0] ? getBnToNumber(data[0]) : 0;
     const minDbrOut = data && data[0] ? getNumberToBn(estimatedDbrOut * (1 - parseFloat(slippage) / 100)) : BigNumber.from('0');
@@ -82,7 +82,7 @@ export const DbrAuctionBuyer = () => {
             <ListLabelValues items={[
                 { label: `Estimated amount to receive`, value: estimatedDbrOut > 0 ? `${shortenNumber(estimatedDbrOut, 2)} DBR` : '-' },
                 { label: `Price via auction`, color: auctionPriceColor, value: dbrAuctionPrice > 0 ? `~${shortenNumber(dbrAuctionPrice, 2)} DBR per DOLA` : '-' },
-                { label: `Price via Curve`, value: dbrPrice ? `~${shortenNumber(dbrPrice, 2)} DBR per DOLA` : '-' },
+                { label: `Price via Curve`, value: !isCurvePriceLoading && dbrPrice > 0 ? `~${shortenNumber(dbrPrice, 2)} DBR per DOLA` : '-' },
             ]} />            
             <Divider />
             <ListLabelValues items={[

@@ -551,6 +551,8 @@ export const DBR_AUCTION_ABI = [
   "function getDbrOut(uint _dolaIn) public view returns (uint _dbrOut)",
   "function setMaxDbrRatePerYear(uint _maxRate) external",
   "function setDbrRatePerYear(uint _rate) external",
+  "function setDbrReserve(uint _dbrReserve) external",
+  "function setDolaReserve(uint _dolaReserve) external",
   "function buyDBR(uint dolaIn, uint minDbrOut) external returns (uint _dbrOut)",
 ];
 
