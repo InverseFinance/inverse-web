@@ -49,7 +49,7 @@ export async function fetchWithTimeout(input: RequestInfo, options: RequestInit 
 }
 
 function isServer() {
-  return ! (typeof window != 'undefined' && window.document);
+  return !(typeof window != 'undefined' && window.document);
 }
 
 export const fetcher60sectimeout = (input: RequestInfo, init?: RequestInit) => fetcher(input, init, 60000);
@@ -57,14 +57,14 @@ export const fetcher30sectimeout = (input: RequestInfo, init?: RequestInit) => f
 export const fetcherWithFallback = (input: RequestInfo, fallbackUrl: string) => fetcher(input, undefined, 60000, fallbackUrl);
 
 export const fetcher = async (input: RequestInfo, init?: RequestInit, timeout = 6000, fallbackUrl?: string) => {
-  if(typeof input === 'string' && input.startsWith('-')) {
+  if (typeof input === 'string' && input.startsWith('-')) {
     return {};
   }
   const res = await fetchWithTimeout(input, init, timeout);
 
   if (!res?.ok) {
     // if api call fails, return cached results in browser
-    if(!!fallbackUrl) {
+    if (!!fallbackUrl) {
       return fetcher(fallbackUrl, init, timeout);
     } else if (!isServer() && typeof input === 'string') {
       const cachedResults = await localforage.getItem(input).catch(() => undefined);
@@ -145,22 +145,22 @@ export const importToken = async ({
   image: string,
 }) => {
   try {
-      if (!ethereum) { return }
-      // wasAdded is a boolean. Like any RPC method, an error may be thrown.
-      await ethereum.request({
-          method: 'wallet_watchAsset',
-          params: {
-              type: 'ERC20',
-              options: {
-                  address,
-                  symbol,
-                  decimals,
-                  image,
-              },
-          },
-      });
+    if (!ethereum) { return }
+    // wasAdded is a boolean. Like any RPC method, an error may be thrown.
+    await ethereum.request({
+      method: 'wallet_watchAsset',
+      params: {
+        type: 'ERC20',
+        options: {
+          address,
+          symbol,
+          decimals,
+          image,
+        },
+      },
+    });
   } catch (error) {
-      console.log(error);
+    console.log(error);
   }
 }
 
@@ -237,7 +237,11 @@ export const forceQuickAccountRefresh = (
   if (supportedConnector === null) { return }
   const { deactivate: _deactivate } = supportedConnector || { activate: () => { }, deactivate: () => { } };
   const deactivate = _deactivate || supportedConnector?.actions?.resetState || (() => 0);
-  deactivate();
+  try {
+    deactivate();
+  } catch (e) {
+    console.warn(e)
+  }
 }
 
 export const getAllowanceOf = async (provider: JsonRpcSigner | Web3Provider, token: string, account: string, spender: string) => {
