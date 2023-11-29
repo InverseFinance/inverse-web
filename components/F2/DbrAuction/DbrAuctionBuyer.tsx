@@ -1,16 +1,16 @@
-import { VStack, Text, HStack } from "@chakra-ui/react"
+import { VStack, Text, HStack, Divider } from "@chakra-ui/react"
 import { DBR_AUCTION_ADDRESS, sellDolaForDbr } from "@app/util/dbr-auction"
 import useEtherSWR from "@app/hooks/useEtherSWR";
 import { useWeb3React } from "@web3-react/core";
 import { getBnToNumber, getNumberToBn, smartShortNumber } from "@app/util/markets";
-import { TextInfo } from "../common/Messages/TextInfo";
-import { SimpleAmountForm } from "../common/SimpleAmountForm";
+import { TextInfo } from "../../common/Messages/TextInfo";
+import { SimpleAmountForm } from "../../common/SimpleAmountForm";
 import { useState } from "react";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { parseEther } from "@ethersproject/units";
 import { BigNumber } from "ethers";
-import { Input } from "../common/Input";
-import Container from "../common/Container";
+import { Input } from "../../common/Input";
+import Container from "../../common/Container";
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -27,10 +27,17 @@ export const DbrAuctionBuyer = () => {
         return sellDolaForDbr(provider?.getSigner(), parseEther(amount), minDbrOut);
     }
 
-    return <Container label="DBR auction" noPadding m="0" p="0" maxW='400px'>
-        <VStack spacing="8" alignItems="flex-start" w='full'>
+    return <Container
+        label="DBR auction"
+        description="See contract"
+        href={`https://etherscan.io/address/${DBR_AUCTION_ADDRESS}`}
+        noPadding
+        m="0"
+        p="0"
+        maxW='400px'>
+        <VStack spacing="4" alignItems="flex-start" w='full'>
             <VStack w='full' alignItems="flex-start">
-                <TextInfo message="Title">
+                <TextInfo message="Sell DOLA in exchange for DBR, the auction formula is of type K=xy">
                     <Text>Amount of DOLA to sell</Text>
                 </TextInfo>
                 <SimpleAmountForm
@@ -38,7 +45,7 @@ export const DbrAuctionBuyer = () => {
                     address={DOLA}
                     destination={DBR_AUCTION_ADDRESS}
                     signer={provider?.getSigner()}
-                    decimals={18}                    
+                    decimals={18}
                     onAction={() => sell()}
                     actionLabel={'Buy DBR'}
                     onAmountChange={(v) => setAmount(v)}
@@ -47,18 +54,21 @@ export const DbrAuctionBuyer = () => {
                     showBalance={true}
                 />
             </VStack>
+            <Divider />
             <VStack spacing="2" alignItems="flex-start">
                 <HStack>
-                    <Text>
+                    <Text fontSize="14px">
                         Max. slippage %:
                     </Text>
                     <Input py="0" maxH="30px" w='90px' value={slippage} onChange={(e) => setSlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'))} />
                 </HStack>
                 <HStack>
-                    <Text>
+                    <Text fontSize="14px">
                         Min. DBR to receive:
                     </Text>
-                    <Text fontWeight="bold">{smartShortNumber(getBnToNumber(minDbrOut), 2, false, true)}</Text>
+                    <Text fontWeight="bold">
+                        {minDbrOut > 0 ? smartShortNumber(getBnToNumber(minDbrOut), 2, false, true) : '-'}
+                    </Text>
                 </HStack>
             </VStack>
         </VStack>
