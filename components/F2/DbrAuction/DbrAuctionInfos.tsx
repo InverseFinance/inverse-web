@@ -76,6 +76,7 @@ export const DbrAuctionInfos = () => {
                         <Text>- Max. DBR rate per year:</Text>
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(maxDbrRatePerYear, 0)}</Text>}
                     </HStack>
+                    <Text>Reserves and the max. DBR rate per year are updatable by Governance vote only. The DBR rate per year can be updated by Governance or by the Operator (within the max limit set by Governance).</Text>
                 </VStack>
             </Stack>
         }
