@@ -63,9 +63,18 @@ const getHistoPrices = async (contract: Contract, blocks: number[]) => {
           5,
           100,
       );
+    const dolaUsdPrices =
+      await throttledPromises(
+          (block: number) => {
+              return getDolaUsdPriceOnCurve(contract.provider, block);
+          },
+          blocks,
+          5,
+          100,
+      );    
 
   const values = bns.map((d, i) => {
-      return getBnToNumber(contract.interface.decodeFunctionResult('price_oracle', d)[0]);
+      return getBnToNumber(contract.interface.decodeFunctionResult('price_oracle', d)[0]) * dolaUsdPrices[i].price;
   });
   return values;
 }
@@ -118,7 +127,7 @@ export default async function handler(req, res) {
 
     const { priceInDola: priceOnCurve } = curvePriceData;
     const { price: dolaUsdPriceOnCurve } = curveDolaPriceData;
-
+    
     const resultData = {
       timestamp: +(new Date()),
       priceOnBalancer,
