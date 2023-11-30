@@ -11,7 +11,7 @@ import { frontierMarketsCacheKey } from '../markets';
 import { cgPricesCacheKey } from '../prices';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { FEATURE_FLAGS } from '@app/config/features';
-import { getDbrPriceOnCurve } from '@app/util/f2';
+import { getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
 
 const { F2_MARKETS, DOLA, XINV, DBR_DISTRIBUTOR, FEDS } = getNetworkConfigConstants();
 export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.98`;
@@ -43,6 +43,7 @@ export default async function handler(req, res) {
       frontierMarkets,
       cgPrices,
       dbrPriceData,
+      dolaPriceData,
     ] = await Promise.all([
       getGroupedMulticallOutputs([
         F2_MARKETS.map(m => {
@@ -90,6 +91,7 @@ export default async function handler(req, res) {
       getCacheFromRedis(frontierMarketsCacheKey, false),
       getCacheFromRedis(cgPricesCacheKey, false),
       getDbrPriceOnCurve(provider),
+      getDolaUsdPriceOnCurve(provider),
     ]);
 
     const [
@@ -175,7 +177,7 @@ export default async function handler(req, res) {
     const invStakedViaDistributor = xinvExRate * getBnToNumber(dbrDistributorSupply);
     const dbrRewardRate = getBnToNumber(dbrRewardRateBn);
     const dbrYearlyRewardRate = dbrRewardRate * ONE_DAY_SECS * 365;
-    const dbrInvExRate = dbrPriceData.priceInDola / cgPrices['inverse-finance']?.usd;
+    const dbrInvExRate = (dbrPriceData.priceInDola * dolaPriceData.price||1) / cgPrices['inverse-finance']?.usd;
     const dbrApr = dbrYearlyRewardRate * dbrInvExRate / invStakedViaDistributor * 100;
 
     const markets = F2_MARKETS.map((m, i) => {

@@ -124,13 +124,13 @@ export default async function handler(req, res) {
       priceOnBalancer,
       priceDola: priceOnCurve,
       priceUsd: priceOnCurve * dolaUsdPriceOnCurve,
-      totalSupply: withExtra ? getBnToNumber(results[2]) : undefined,
-      totalDueTokensAccrued: withExtra ? getBnToNumber(results[3]) : undefined,
-      operator: withExtra ? results[4] : undefined,
-      rewardRate: withExtra ? getBnToNumber(results[5]) : undefined,
-      minRewardRate: withExtra ? getBnToNumber(results[6]) : undefined,
-      maxRewardRate: withExtra ? getBnToNumber(results[7]) : undefined,
-      historicalData: withExtra ? results[8] : undefined,
+      totalSupply: withExtra ? getBnToNumber(results[3]) : undefined,
+      totalDueTokensAccrued: withExtra ? getBnToNumber(results[4]) : undefined,
+      operator: withExtra ? results[5] : undefined,
+      rewardRate: withExtra ? getBnToNumber(results[6]) : undefined,
+      minRewardRate: withExtra ? getBnToNumber(results[7]) : undefined,
+      maxRewardRate: withExtra ? getBnToNumber(results[8]) : undefined,
+      historicalData: withExtra ? results[9] : undefined,
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);
