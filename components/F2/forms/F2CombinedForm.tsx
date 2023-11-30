@@ -69,7 +69,7 @@ export const F2CombinedForm = ({
         setIsAutoDBR,
         isUseNativeCoin,
         setIsUseNativeCoin,
-        dbrPrice,
+        dbrPriceInDola,
         signer,
         dbrCoverDebt,
         dbrBalance,
@@ -137,7 +137,7 @@ export const F2CombinedForm = ({
         }
         const action = MODES[mode]
 
-        const minDolaOut = !isAutoDBR ? parseUnits('0') : getNumberToBn((parseFloat(dbrSellAmount || '0') * (dbrPrice * (1 - parseFloat(dbrBuySlippage) / 100))));
+        const minDolaOut = !isAutoDBR ? parseUnits('0') : getNumberToBn((parseFloat(dbrSellAmount || '0') * (dbrPriceInDola * (1 - parseFloat(dbrBuySlippage) / 100))));
         const dbrAmountToSell = !isAutoDBR ? parseUnits('0') : parseUnits(dbrSellAmount || '0');
 
         if (action === 'deposit') {

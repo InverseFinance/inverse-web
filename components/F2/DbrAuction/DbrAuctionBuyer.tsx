@@ -41,7 +41,7 @@ export const DbrAuctionBuyer = () => {
         [DBR_AUCTION_ADDRESS, 'getDbrOut', parseEther(amount || '0')],
         [DBR_AUCTION_ADDRESS, 'getDbrOut', parseEther(defaultRefAmount)],
     ]);
-    const { price: dbrPrice } = useDBRPrice();    
+    const { priceUsd: dbrPrice } = useDBRPrice();
     const refDbrOut = data && data[1] ? getBnToNumber(data[1]) : 0;
     const estimatedDbrOut = data && data[0] ? getBnToNumber(data[0]) : 0;
     const minDbrOut = data && data[0] ? getNumberToBn(estimatedDbrOut * (1 - parseFloat(slippage) / 100)) : BigNumber.from('0');

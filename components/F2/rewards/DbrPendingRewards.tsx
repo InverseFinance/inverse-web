@@ -159,19 +159,19 @@ export const DbrPendingRewards = ({
     }) => {
     const { prices } = usePrices();
     const [isLargerThan] = useMediaQuery('(min-width: 400px)')
-    const { price: dbrPrice } = useDBRPrice();
+    const { priceUsd: dbrPriceUsd } = useDBRPrice();
     const invPrice = prices?.['inverse-finance']?.usd || 0;
     const dolaPrice = prices?.['dola-usd']?.usd || 0;
     const { stakers, timestamp, invMarket, isLoading } = useDBRPendingRewards();
 
     const _stakers = stakers.map((staker) => {
         return {
-            ...staker, dbrPrice, invPrice, dolaPrice, netDbr: staker.dbrMonthlyRewards - staker.monthlyBurn,
+            ...staker, dbrPrice: dbrPriceUsd, invPrice, dolaPrice, netDbr: staker.dbrMonthlyRewards - staker.monthlyBurn,
         }
     })
 
     const totalClaimable = _stakers.reduce((prev, curr) => prev + (curr.claimable || 0), 0);
-    const totalClaimableAbove100 = _stakers.filter(s => (s.claimable || 0) * dbrPrice >= 100)
+    const totalClaimableAbove100 = _stakers.filter(s => (s.claimable || 0) * dbrPriceUsd >= 100)
         .reduce((prev, curr) => prev + curr.claimable, 0);
     const totalStaked = _stakers.reduce((prev, curr) => prev + (curr.deposits || 0), 0);
 
@@ -206,11 +206,11 @@ export const DbrPendingRewards = ({
                 <HStack w={{ base: 'full', sm: 'auto' }} spacing={{ base: '0', sm: '6' }} justifyContent="space-between" alignItems="flex-start">
                     <VStack spacing="0" alignItems={{ base: 'flex-start', sm: 'center' }}>
                         <Text textAlign={{ base: 'left', sm: 'right' }} fontSize={fontSize} fontWeight="bold">DBR rewards above $100</Text>
-                        <Text fontWeight="extrabold" textAlign={{ base: 'left', sm: 'right' }} fontSize={fontSize} color="secondary">{preciseCommify(totalClaimableAbove100, 0)} ({preciseCommify(dbrPrice * totalClaimableAbove100, 0, true)})</Text>
+                        <Text fontWeight="extrabold" textAlign={{ base: 'left', sm: 'right' }} fontSize={fontSize} color="secondary">{preciseCommify(totalClaimableAbove100, 0)} ({preciseCommify(dbrPriceUsd * totalClaimableAbove100, 0, true)})</Text>
                     </VStack>
                     <VStack spacing="0" alignItems="flex-end">
                         <Text textAlign="right" fontSize={fontSize} fontWeight="bold">Total DBR Claimable</Text>
-                        <Text fontWeight="extrabold" textAlign="right" fontSize={fontSize} color="secondary">{preciseCommify(totalClaimable, 0)} ({preciseCommify(dbrPrice * totalClaimable, 0, true)})</Text>
+                        <Text fontWeight="extrabold" textAlign="right" fontSize={fontSize} color="secondary">{preciseCommify(totalClaimable, 0)} ({preciseCommify(dbrPriceUsd * totalClaimable, 0, true)})</Text>
                     </VStack>
                 </HStack>
             }

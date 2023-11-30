@@ -1,6 +1,8 @@
 import Link from "@app/components/common/Link"
 import { InfoMessage } from "@app/components/common/Messages"
+import { useDBRPrice } from "@app/hooks/useDBR"
 import useEtherSWR from "@app/hooks/useEtherSWR"
+import { useDOLAPrice } from "@app/hooks/usePrices"
 import { DBR_AUCTION_ADDRESS } from "@app/util/dbr-auction"
 import { getBnToNumber } from "@app/util/markets"
 import { preciseCommify } from "@app/util/misc"
@@ -38,6 +40,8 @@ const useDbrAuction = (): {
 
 export const DbrAuctionInfos = () => {
     const { dolaReserve, dbrReserve, dbrRatePerYear, maxDbrRatePerYear, isLoading } = useDbrAuction();
+    const { priceUsd: dbrPrice } = useDBRPrice();
+    const { price: dolaPrice } = useDOLAPrice();
     return <InfoMessage
         showIcon={false}
         alertProps={{ fontSize: '12px', mb: '8' }}
@@ -59,22 +63,22 @@ export const DbrAuctionInfos = () => {
                 <VStack w='full' spacing="0">
                     <HStack w='full'>
                         <Text>- DOLA reserves:</Text>
-                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(dolaReserve, 0)}</Text>}
+                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(dolaReserve, 0)} ({preciseCommify(dolaReserve * dolaPrice, 0, true)})</Text>}
                     </HStack>
                     <HStack w='full'>
                         <Text>- DBR reserves:</Text>
-                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(dbrReserve, 0)}</Text>}
+                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(dbrReserve, 0)} ({preciseCommify(dbrReserve * dbrPrice, 0, true)})</Text>}
                     </HStack>
                 </VStack>
                 <Text fontSize="14px" fontWeight="bold">Auction Contract Parameters</Text>
                 <VStack w='full' spacing="0">
                     <HStack w='full'>
                         <Text>- DBR rate per year:</Text>
-                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(dbrRatePerYear, 0)}</Text>}
+                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(dbrRatePerYear, 0)} ({preciseCommify(dbrRatePerYear * dbrPrice, 0, true)})</Text>}
                     </HStack>
                     <HStack w='full'>
                         <Text>- Max. DBR rate per year:</Text>
-                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(maxDbrRatePerYear, 0)}</Text>}
+                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(maxDbrRatePerYear, 0)} ({preciseCommify(maxDbrRatePerYear * dbrPrice, 0, true)})</Text>}
                     </HStack>
                     <Text>Reserves and the max. DBR rate per year are updatable by Governance vote only. The DBR rate per year can be updated by Governance or by the Operator (within the max limit set by Governance).</Text>
                 </VStack>

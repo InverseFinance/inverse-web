@@ -39,7 +39,7 @@ export const MarketBar = ({
     ...props
 }: {
 } & Partial<StackProps>) => {
-    const { price: dbrPrice } = useDBRPrice();
+    const { priceUsd: dbrPriceUsd } = useDBRPrice();
     const [isLargerThan400] = useMediaQuery('(min-width: 400px)');
     const [isLargerThan] = useMediaQuery('(min-width: 600px)');
     const [isLargerThan1000] = useMediaQuery('(min-width: 1000px)');
@@ -99,7 +99,7 @@ export const MarketBar = ({
         <Link color={needTopUp ? 'error' : 'secondaryTextColor'} href={BUY_LINKS.DBR} isExternal target='_blank'>
             {
                 dbrBalance > 0 && <SubTitle color="inherit">
-                    {shortenNumber(dbrBalance, 2)}{!!dbrBalance && ` (${shortenNumber(dbrBalance * dbrPrice, 2, true)})`}
+                    {shortenNumber(dbrBalance, 2)}{!!dbrBalance && ` (${shortenNumber(dbrBalance * dbrPriceUsd, 2, true)})`}
                 </SubTitle>
             }
             {
@@ -129,7 +129,7 @@ export const MarketBar = ({
                 DBR Price
             </Title>
             <SubTitle color="secondaryTextColor">
-                {dbrPrice ? preciseCommify(dbrPrice, 4, true) : '-'}
+                {dbrPriceUsd ? preciseCommify(dbrPriceUsd, 4, true) : '-'}
             </SubTitle>
         </VStack>
         {isLargerThan && <DbrBalance alignItems={{ base: 'flex-end', md: 'flex-start' }} />}
@@ -239,7 +239,7 @@ export const DbrBar = ({
 
     const needsRechargeSoon = dbrNbDaysExpiry <= 30 && hasDebt;
 
-    const { price: dbrPrice } = useDBRPrice();
+    const { priceUsd: dbrPriceUsd } = useDBRPrice();
     const needTopUp = dbrBalance < 0 || (dbrBalance === 0 && debt > 0);
 
     const dbrBalanceInfos = <VStack w={{ base: '33%', md: 'auto' }} spacing="1" alignItems="flex-start">
@@ -250,7 +250,7 @@ export const DbrBar = ({
         <Link color={needTopUp ? 'error' : 'secondaryTextColor'} href={BUY_LINKS.DBR} isExternal target='_blank'>
             {
                 dbrBalance > 0 && <SubTitle textAlign="left" color="inherit">
-                    {shortenNumber(dbrBalance, 2, false, true)}{!!dbrBalance && ` (${shortenNumber(dbrBalance * dbrPrice, 2, true, true)})`}
+                    {shortenNumber(dbrBalance, 2, false, true)}{!!dbrBalance && ` (${shortenNumber(dbrBalance * dbrPriceUsd, 2, true, true)})`}
                 </SubTitle>
             }
             {
@@ -358,7 +358,7 @@ export const FirmBar = ({
 }: {
 } & Partial<StackProps>) => {
     const { prices } = usePrices();
-    const { price: dbrPrice } = useDBRPrice();
+    const { priceUsd: dbrPriceUsd } = useDBRPrice();
     const { totalSupply, isLoading: isDolaDataLoading } = useDOLA();
     const { price: dolaPrice, isLoading: isDolaPriceLoading } = useDOLAPrice();
     const { firmTotalTvl, isLoading: isFirmTvlLoading } = useFirmTVL();
@@ -371,7 +371,7 @@ export const FirmBar = ({
         <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
             <HStack alignItems="flex-start" w={{ base: 'full', md: 'auto' }} justify="flex-start">
                 <HStack spacing="8" w={{ base: 'full', md: 'auto' }} justify={{ base: 'space-between', md: 'flex-start' }}>
-                    <BarBlock label="Buy DBR" isLargerThan={isLargerThan} precision={4} price={dbrPrice} href={BUY_LINKS.DBR} imgSrc={`/assets/v2/dbr.png`} />
+                    <BarBlock label="Buy DBR" isLargerThan={isLargerThan} precision={4} price={dbrPriceUsd} href={BUY_LINKS.DBR} imgSrc={`/assets/v2/dbr.png`} />
                     <BarBlock label="Buy DOLA" isLoading={isDolaPriceLoading} isLargerThan={isLargerThan} precision={4} price={dolaPrice} href={'/swap'} imgSrc={`/assets/v2/dola-512.jpg`} vstackProps={{ alignItems: { base: 'center', md: 'flex-start' } }} />
                     <BarBlock label="Buy INV" isLargerThan={isLargerThan} price={prices?.['inverse-finance']?.usd} href={BUY_LINKS.INV} imgSrc={`/assets/inv-square-dark.jpeg`} vstackProps={{ alignItems: { base: 'flex-end', md: 'flex-start' } }} />
                 </HStack>

@@ -249,7 +249,7 @@ export const FirmINVRewardWrapperContent = ({
     const invMonthlyRewards = getMonthlyRate(stakedInFirm, market?.supplyApy);
     const dbrMonthlyRewards = share * market?.dbrYearlyRewardRate / 12;
     const invPriceCg = prices ? prices['inverse-finance']?.usd : 0;
-    const { price: dbrPrice } = useDBRPrice();
+    const { priceUsd: dbrPriceUsd } = useDBRPrice();
 
     return <FirmRewards
         market={market}
@@ -271,7 +271,7 @@ export const FirmINVRewardWrapperContent = ({
                             </HStack>
                             <HStack w='full' justify="space-between" spacing="2">
                                 <Text>Monthly DBR rewards:</Text>
-                                <Text textAlign="right" fontWeight="bold">~{shortenNumber(dbrMonthlyRewards, 2)} ({shortenNumber(dbrMonthlyRewards * dbrPrice, 2, true)})</Text>
+                                <Text textAlign="right" fontWeight="bold">~{shortenNumber(dbrMonthlyRewards, 2)} ({shortenNumber(dbrMonthlyRewards * dbrPriceUsd, 2, true)})</Text>
                             </HStack>
                         </VStack>
                     }

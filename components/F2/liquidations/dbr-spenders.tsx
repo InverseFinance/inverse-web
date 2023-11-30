@@ -41,7 +41,7 @@ export const DbrSpenders = ({
 }: {
 
     }) => {
-    const { price } = useDBRPrice();
+    const { priceUsd: dbrPriceUsd } = useDBRPrice();
     const { positions, timestamp, isLoading } = useDBRActiveHolders();
     const { onOpen, onClose, isOpen } = useDisclosure();
     const { onOpen: onHistoOpen, onClose: onHistoClose, isOpen: isHistoOpen } = useDisclosure();
@@ -161,9 +161,9 @@ export const DbrSpenders = ({
 
     return <VStack w='full' spacing={{ base: '4', sm: '8' }}>
         <SimpleGrid px="4" justify="space-between" w='full' columns={{ base: 3 }} spacing={{ base: '4', sm: '6' }}>
-            <StatBasic isLoading={isLoading} name="DBR Daily spend" value={`${shortenNumber(totalDailyBurn, 2)} (${shortenNumber(price * totalDailyBurn, 2, true)})`} />
-            <StatBasic isLoading={isLoading} name="DBR Monthly spend" value={`${shortenNumber(monthlyBurn, 2)} (${shortenNumber(price * monthlyBurn, 2, true)})`} />
-            <StatBasic isLoading={isLoading} name="DBR Yearly spend" value={`${shortenNumber(yearlyBurn, 2)} (${shortenNumber(price * yearlyBurn, 2, true)})`} />
+            <StatBasic isLoading={isLoading} name="DBR Daily spend" value={`${shortenNumber(totalDailyBurn, 2)} (${shortenNumber(dbrPriceUsd * totalDailyBurn, 2, true)})`} />
+            <StatBasic isLoading={isLoading} name="DBR Monthly spend" value={`${shortenNumber(monthlyBurn, 2)} (${shortenNumber(dbrPriceUsd * monthlyBurn, 2, true)})`} />
+            <StatBasic isLoading={isLoading} name="DBR Yearly spend" value={`${shortenNumber(yearlyBurn, 2)} (${shortenNumber(dbrPriceUsd * yearlyBurn, 2, true)})`} />
         </SimpleGrid>
         {/* <Divider /> */}
         <Container
