@@ -107,6 +107,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         dbrCover,
         dbrPriceUsd,
         dbrSwapPrice,
+        dolaPrice,
         newDailyDBRBurnInMarket,
         newDBRExpiryDate,
         isDeposit,
@@ -282,7 +283,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
             {
                 tooltip: 'Approximated DBR swap price for the total required DBR amount (dbr amount for the borrowed dola + dbr amount for that dbr amount)',
                 title: 'DBR swap price',
-                value: `~${shortenNumber(dbrSwapPrice, 6, true)}`,
+                value: `~${shortenNumber(dbrSwapPrice * dolaPrice, 6, true)}`,
                 isLoading: debtAmountNumInfo > 0 && (isDbrApproxLoading || leverageLoading),
             },
             {
@@ -402,7 +403,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         positionInfos[3],
     ];
 
-    if (!market.isInv && isAutoDBR) {
+    if (isAutoDBR) {
         keyInfos.splice(2, 0, dbrInfos[2]);
     }
 
