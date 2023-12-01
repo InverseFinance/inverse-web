@@ -478,7 +478,7 @@ export const FirmBoostInfos = ({
                 <SliderThumb h="20px" w="10px" />
             </Slider>
             <HStack w='full' justify="space-between" alignItems="center">
-                <Text textDecoration="underline" fontWeight="bold" cursor="pointer" color={riskLevels.safer.color} onClick={() => handleLeverageChange(minLeverage)}>
+                <Text fontWeight="bold" color={riskLevels.safer.color}>
                     No {isLeverageUp ? 'leverage' : 'deleverage'}
                 </Text>
                 <Text textDecoration="underline" fontWeight="bold" cursor="pointer" color={isLeverageUp ? riskLevels.riskier.color : riskLevels.safer.color} onClick={() => isLeverageUp ? handleLeverageChange(maxLeverage) : handleSellEnough()}>
