@@ -176,7 +176,7 @@ export const FirmCollateralInputTitle = ({
     const depositWording = market.isInv ? 'Stake' : 'Deposit';
     const withdrawWording = useLeverageInMode ? 'Sell' : market.isInv ? 'Unstake' : 'Withdraw';
     const wording = isDeposit ? depositWording : withdrawWording;
-    const leverageExtraWording = useLeverageInMode ? isDeposit && deposits > 0 ? ` (on top of leverage)` : ' (to deleverage)' : '';
+    const leverageExtraWording = useLeverageInMode ? isDeposit && deposits > 0 ? ` (on top of leverage)` : isDeposit && !deposits ? '' : ' (to deleverage)' : '';
     const assetName = isWethMarket && isUseNativeCoin ? 'ETH' : market.underlying.symbol;
     return <TextInfo message={
         isDeposit ?
