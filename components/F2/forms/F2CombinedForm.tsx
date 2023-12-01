@@ -215,11 +215,11 @@ export const F2CombinedForm = ({
         }
     }
 
-    const retriggerLeverage = (isDeposit: boolean, inputString?: string, num?: number, leverageInMode?: boolean) => {        
+    const retriggerLeverage = (isDeposit: boolean, inputString?: string, num?: number, leverageInMode?: boolean, collateralAmountNum?: number) => {
         if (!isDeposit) {
             triggerCollateralAndOrLeverageChange(leverageCollateralAmount, leverageCollateralAmountNum);
         } else {
-            triggerDebtAndOrLeverageChange(inputString || leverageDebtAmount, num || leverageDebtAmountNum, leverageInMode);
+            triggerDebtAndOrLeverageChange(inputString || leverageDebtAmount, num || leverageDebtAmountNum, leverageInMode, undefined, collateralAmountNum);
         }
     }
 
@@ -281,7 +281,7 @@ export const F2CombinedForm = ({
         }, 300);
     }
 
-    const triggerDebtAndOrLeverageChange = async (debtString: string, debtNum: number, leverageInMode?: boolean, viaInput?: boolean) => {
+    const triggerDebtAndOrLeverageChange = async (debtString: string, debtNum: number, leverageInMode?: boolean, viaInput?: boolean, initialDeposit?: number) => {
         handleDebtChange(debtString);
 
         const debouncedZeroXCall = async () => {
@@ -294,7 +294,7 @@ export const F2CombinedForm = ({
                     return
                 }
                 const { collateralAmount, errorMsg } = await getLeverageImpact({
-                    deposits, debt, leverageLevel: leverage, market, isUp: true, dolaPrice, setLeverageLoading, viaInput, dolaInput: viaInput ? debtString : undefined, setLeveragePriceImpact
+                    deposits, debt, leverageLevel: leverage, market, isUp: true, dolaPrice, setLeverageLoading, viaInput, dolaInput: viaInput ? debtString : undefined, setLeveragePriceImpact, initialDeposit
                 });
                 if (!!errorMsg) {
                     showToast({ status: 'warning', description: errorMsg, title: 'Api error' })
@@ -457,7 +457,7 @@ export const F2CombinedForm = ({
                         canUseLeverage && <FirmLeverageSwitch isDeposit={isDeposit} useLeverage={useLeverage} onChange={(isDeposit) => {                            
                             const isActivatingLeverage = !useLeverage;
                             setUseLeverage(isActivatingLeverage);
-                            retriggerLeverage(isDeposit, debtAmount, debtAmountNum, true);
+                            retriggerLeverage(isDeposit, debtAmount, debtAmountNum, true, collateralAmountNum);
                         }} />
                     }
                 </HStack>
