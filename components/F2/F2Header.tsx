@@ -36,7 +36,7 @@ export const F2Header = () => {
   // const rewardTokenMarket = markets?.find((v) => v.token === process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN)
   const { totalSupply } = useDOLA()
   const { prices } = usePrices()
-  const { price: dbrPrice } = useDBRPrice();
+  const { priceUsd: dbrPrice } = useDBRPrice();
 
   const getStarted = () => {
     const newPath = router.asPath.replace(router.pathname, '/firm');

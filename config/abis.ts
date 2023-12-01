@@ -2,6 +2,7 @@ import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks'
 import { BOND_V2_AGGREGATOR, BOND_V2_FIXED_TERM, BOND_V2_FIXED_TERM_TELLER } from '@app/variables/bonds';
 import { BONDS } from '@app/variables/tokens';
 import { DWF_PURCHASER } from './constants';
+import { DBR_AUCTION_ADDRESS } from '@app/util/dbr-auction';
 
 // TODO: Clean-up ABIs
 export const COMPTROLLER_ABI = [
@@ -540,6 +541,21 @@ export const DBR_REWARDS_HELPER_ABI = [
   "function claimSellAndDepositInv(uint minOut, address to) external",
 ]
 
+export const DBR_AUCTION_ABI = [
+  "function dolaReserve() public view returns (uint256)",
+  "function dbrReserve() public view returns (uint256)",
+  "function dbrRatePerYear() public view returns (uint256)",
+  "function maxDbrRatePerYear() public view returns (uint256)",
+  "function lastUpdate() public view returns (uint256)",
+  "function getCurrentReserves() public view returns (uint256 _dolaReserve, uint256 _dbrReserve)",
+  "function getDbrOut(uint _dolaIn) public view returns (uint _dbrOut)",
+  "function setMaxDbrRatePerYear(uint _maxRate) external",
+  "function setDbrRatePerYear(uint _rate) external",
+  "function setDbrReserve(uint _dbrReserve) external",
+  "function setDolaReserve(uint _dolaReserve) external",
+  "function buyDBR(uint dolaIn, uint minDbrOut) external returns (uint _dbrOut)",
+];
+
 export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {
   const networkConfig = getNetworkConfig(chainId, true)!;
   const {
@@ -614,6 +630,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [F2_HELPER, F2_HELPER_ABI],
         [F2_ALE, F2_ALE_ABI],
         [F2_DBR_REWARDS_HELPER, DBR_REWARDS_HELPER_ABI],
+        [DBR_AUCTION_ADDRESS, DBR_AUCTION_ABI],
         ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...MULTISIGS.map((m) => [m.address, MULTISIG_ABI]),
         ...Object.values(BONDS).map((bond) => [bond.bondContract, BONDS_ABIS[bond.abiType]]),

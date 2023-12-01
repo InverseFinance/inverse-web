@@ -184,7 +184,7 @@ export const FirmUsers = ({
 }: {
 
     }) => {
-    const { price } = useDBRPrice();
+    const { priceUsd: dbrPriceUsd } = useDBRPrice();
     const { userPositions, positions, timestamp, isLoading } = useFirmUsers();
     const { isOpen: isChartOpen, onOpen: onChartOpen, onClose: onChartClose } = useDisclosure();
 
@@ -218,7 +218,7 @@ export const FirmUsers = ({
             <StatBasic onClick={() => openChart('nbUsers')} isLoading={isLoading} name="Users" value={`${preciseCommify(nbUsers, 0)}`} />
             <StatBasic isLoading={isLoading} name="Stakers" value={`${preciseCommify(nbStakers, 0)}`} />
             <StatBasic isLoading={isLoading} name="Borrowers" value={`${preciseCommify(nbBorrowers, 0)}`} />
-            <StatBasic isLoading={isLoading} name="DBR Yearly Spend" value={`${smartShortNumber(totalDebt, 2)} (${smartShortNumber(totalDebt * price, 2, true)})`} />
+            <StatBasic isLoading={isLoading} name="DBR Yearly Spend" value={`${smartShortNumber(totalDebt, 2)} (${smartShortNumber(totalDebt * dbrPriceUsd, 2, true)})`} />
         </SimpleGrid>
         {
             !!chartUrl && <InfoModal

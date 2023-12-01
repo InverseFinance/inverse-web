@@ -12,7 +12,7 @@ import { BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
 import { parseUnits } from "@ethersproject/units";
 import useSWR from "swr";
 import { useWeb3React } from "@web3-react/core";
-import { usePrices } from "./usePrices";
+import { useDOLAPriceLive } from "./usePrices";
 import { useBlockTimestamp } from "./useBlockTimestamp";
 import { timestampToUTC } from "@app/util/misc";
 
@@ -322,7 +322,8 @@ export const useDBRBalancePrice = (): { price: number | undefined } => {
   }
 }
 
-export const useDBRPriceLive = (): { price: number | undefined } => {
+export const useDBRPriceLive = (): { priceUsd: number | undefined, priceDola: number | undefined } => {
+  const { price: dolaPrice } = useDOLAPriceLive();
   const { data } = useEtherSWR({
     args: [
       ['0xC7DE47b9Ca2Fc753D6a2F167D8b3e19c6D18b19a', 'price_oracle', '0'],
@@ -333,13 +334,14 @@ export const useDBRPriceLive = (): { price: number | undefined } => {
   });
 
   return {
-    price: data && data[0] ? getBnToNumber(data[0]) : undefined,
+    priceUsd: data && data[0] && !!dolaPrice ? getBnToNumber(data[0]) * dolaPrice : undefined,
+    priceDola: data && data[0] ? getBnToNumber(data[0]) : undefined,
   }
 }
 
-export const useDBRSwapPrice = (dolaWorthOfDbrAsk = '1000'): { price: number | undefined } => {
+export const useDBRSwapPrice = (dolaWorthOfDbrAsk = '1000'): { price: number | undefined, isLoading: boolean } => {
   const _ask = dolaWorthOfDbrAsk?.toString() === '0' ? '1000' : dolaWorthOfDbrAsk;
-  const { data } = useEtherSWR({
+  const { data, error } = useEtherSWR({
     args: [
       ['0xC7DE47b9Ca2Fc753D6a2F167D8b3e19c6D18b19a', 'get_dy', 1, 0, parseUnits(_ask)],
     ],
@@ -350,10 +352,11 @@ export const useDBRSwapPrice = (dolaWorthOfDbrAsk = '1000'): { price: number | u
 
   return {
     price,
+    isLoading: !data && !error,
   }
 }
 
-export const useTriCryptoSwap = (amountToSell: number, srcIdx = 1, dstIdx = 0): { amountOut: number | null, isLoading: boolean, isError: boolean } => {  
+export const useTriCryptoSwap = (amountToSell: number, srcIdx = 1, dstIdx = 0): { amountOut: number | null, price: number | null, isLoading: boolean, isError: boolean } => {  
   const { data, error } = useEtherSWR({
     args: [
       ['0xC7DE47b9Ca2Fc753D6a2F167D8b3e19c6D18b19a', 'get_dy', srcIdx, dstIdx, parseUnits(amountToSell.toString(), 18)],
@@ -363,23 +366,25 @@ export const useTriCryptoSwap = (amountToSell: number, srcIdx = 1, dstIdx = 0): 
   
   return {
     amountOut: data ? getBnToNumber(data[0]) : null,
+    price: data ? getBnToNumber(data[0])/amountToSell : null,
     isLoading: !error && !data,
     isError: !!error,
   }
 }
 
-export const useDBRPrice = (): { price: number } => {
-  const { data: apiData } = useCustomSWR(`/api/dbr`, fetcher);
-  const { prices } = usePrices();
-  const { price: livePrice } = useDBRPriceLive();
+export const useDBRPrice = (): { priceUsd: number, priceDola: number | undefined } => {
+  const { data: apiData } = useCustomSWR(`/api/dbr`, fetcher);  
+  const { priceUsd: livePriceUsd, priceDola: livePriceDola } = useDBRPriceLive();
 
   return {
-    price: livePrice ?? (apiData?.price || (prices && prices['dola-borrowing-right']?.usd) || 0),
+    priceUsd: livePriceUsd ?? (apiData?.priceUsd || 0),
+    priceDola: livePriceDola ?? (apiData?.priceDola || 0),    
   }
 }
 
 export const useDBR = (): {
-  price: number,
+  priceUsd: number,
+  priceDola: number,
   timestamp: number,
   totalSupply: number,
   totalDueTokensAccrued: number,
@@ -393,7 +398,7 @@ export const useDBR = (): {
   historicalData: CoingeckoHistoricalData
 } => {
   const { data: apiData } = useCustomSWR(`/api/dbr?withExtra=true`, fetcher);
-  const { price: livePrice } = useDBRPriceLive();
+  const { priceUsd: livePrice, priceDola } = useDBRPriceLive();
 
   const { data: extraData } = useEtherSWR([
     [DBR, 'totalSupply'],
@@ -413,7 +418,8 @@ export const useDBR = (): {
 
   return {
     timestamp: livePrice && extraData ? +(new Date()) : apiData?.timestamp,
-    price: livePrice ?? (apiData?.price || 0.04),
+    priceUsd: livePrice ?? (apiData?.priceUsd || 0.04),
+    priceDola: priceDola ?? (apiData?.priceDola || 0.04),
     totalSupply: extraData ? getBnToNumber(extraData[0]) : (apiData?.totalSupply || 0),
     totalDueTokensAccrued: extraData ? getBnToNumber(extraData[1]) : (apiData?.totalDueTokensAccrued || 0),
     operator: extraData ? extraData[2] : apiData?.operator || '0x926dF14a23BE491164dCF93f4c468A50ef659D5B',

@@ -72,7 +72,7 @@ export const Liquidity = () => {
   const aggregatedHistoryPlusCurrent = addCurrentToHistory(aggregatedHistory, { liquidity, timestamp }, undefined, histoAttributeChainId);
   const { dola, inv, dbr } = useTokensData();
   const { prices } = usePricesV2();
-  const { price: dbrPrice } = useDBRPrice();
+  const { priceUsd: dbrPriceUsd } = useDBRPrice();
   const [category, setCategory] = useState('DOLA');
   const [lpHistoArray, setLpHistoArray] = useState([]);
   const [categoryChartHisto, setCategoryChartHisto] = useState(category);
@@ -206,7 +206,7 @@ export const Liquidity = () => {
     };
   });
 
-  const categoryPrice = category === 'DBR' ? dbrPrice : prices ? prices[cgIds[category]]?.usd : 0;
+  const categoryPrice = category === 'DBR' ? dbrPriceUsd : prices ? prices[cgIds[category]]?.usd : 0;
 
   return (
     <Layout>

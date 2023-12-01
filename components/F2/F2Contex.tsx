@@ -31,7 +31,7 @@ export const F2MarketContext = React.createContext<{
     debtAmount: string,
     collateralAmountNum: number,
     debtAmountNum: number,
-    dbrPrice: number,
+    dbrPriceUsd: number,
     isSmallerThan728: boolean,
     isDeposit: boolean,
 }>({
@@ -112,9 +112,9 @@ export const F2Context = ({
     const dbrApproxData = useDBRNeeded(debtAmount, duration);
 
     const dbrCover = totalDebtAmountNum > 0 ? isAutoDBR ? dbrApproxData.dbrNeededNum : debtAmountNum / (365 / duration) : 0;
-    const { price: dbrPrice } = useDBRPrice();
-    const autoDbrSwapPrice = isAutoDBR && !dbrApproxData?.isLoading ? dbrApproxData?.dolaForDbrNum/dbrApproxData?.dbrNeededNum : dbrPrice;    
-    const dbrSwapPrice = isAutoDBR ? autoDbrSwapPrice || dbrPrice : dbrPrice;
+    const { priceDola: dbrPriceInDola, priceUsd: dbrPriceUsd } = useDBRPrice();
+    const autoDbrSwapPrice = isAutoDBR && !dbrApproxData?.isLoading ? dbrApproxData?.dolaForDbrNum/dbrApproxData?.dbrNeededNum : dbrPriceInDola;    
+    const dbrSwapPrice = isAutoDBR ? autoDbrSwapPrice || dbrPriceInDola : dbrPriceInDola;
     const dbrCoverDebt = dbrCover * dbrSwapPrice;
 
     const hasCollateralChange = ['deposit', 'd&b', 'withdraw', 'r&w'].includes(MODES[mode]) || useLeverageInMode;
@@ -180,7 +180,7 @@ export const F2Context = ({
                 market,
                 deposits,
                 debt,
-                dbrPrice,
+                dbrPriceInDola,
                 duration,
                 deltaCollateral,
                 isDeposit ? 0 : -totalDebtAmountNum,
@@ -194,7 +194,7 @@ export const F2Context = ({
             setMaxBorrowable(newMaxBorrowable);
         }
         init();
-    }, [market, deposits, debt, debtAmountNum, totalDebtAmountNum, dbrPrice, deltaCollateral, duration, collateralAmount, maxBorrow, perc, isDeposit, isAutoDBR]);
+    }, [market, deposits, debt, debtAmountNum, totalDebtAmountNum, dbrPriceInDola, deltaCollateral, duration, collateralAmount, maxBorrow, perc, isDeposit, isAutoDBR]);
 
     const handleCollateralChange = (stringNumber: string) => {
         setCollateralAmount(stringNumber);
@@ -226,7 +226,8 @@ export const F2Context = ({
             collateralAmountNum,
             deltaCollateral,
             deltaDebt,
-            dbrPrice,
+            dbrPriceUsd,
+            dbrPriceInDola,
             dbrSwapPrice,
             dbrCoverDebt,
             isSmallerThan728,

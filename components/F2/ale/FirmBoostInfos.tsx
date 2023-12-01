@@ -167,7 +167,7 @@ export const FirmBoostInfos = ({
 }) => {
     const {
         market,
-        dbrPrice,
+        dbrPriceUsd,
         deposits,
         debt,
         perc,
@@ -208,7 +208,7 @@ export const FirmBoostInfos = ({
     const [debounced, setDebounced] = useState(true);
     const [debouncedShowdBorrowLimitMsg, setDebouncedShowdBorrowLimitMsg] = useState(showBorrowLimitTooHighMsg);
 
-    // const borrowApy = dbrPrice * 100;
+    // const borrowApy = dbrPriceUsd * 100;
     // const boostedApy = (leverageLevel * (market.supplyApy || 0) / 100 - (leverageLevel - 1) * (borrowApy) / 100) * 100;
     // const boostedApyLow = (leverageLevel * (market.supplyApyLow || 0));
     // const boostedSupplyApy = (leverageLevel * (market.supplyApy || 0));

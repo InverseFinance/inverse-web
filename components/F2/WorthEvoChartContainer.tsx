@@ -28,7 +28,7 @@ const useFirmUserPositionEvolution = (
     const dbrPrices = (dbrHistoricalData?.prices || []);
     const dbrPricesAsObj = !!dbrPrices ? dbrPrices.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr[0])]: curr[1] }), {}) : {};
     const { prices, isLoading: isLoadingPrices } = usePrices();
-    const { price: dbrPrice } = useDBRPrice();
+    const { priceUsd: dbrPriceUsd } = useDBRPrice();
     // events from user wallet, can be not fetched for some wallet providers
     const { events: _events, depositedByUser: depositedByUserLive } = useFirmMarketEvolution(market, account);
     const [isLoadingDebounced, setIsLoadingDebounced] = useState(true);
@@ -128,14 +128,14 @@ const useFirmUserPositionEvolution = (
     }
 
     const dbrRewards = (data[data.length - 1].dbrClaimed + currentClaimableDbrRewards);
-    const rewardsUsd = dbrRewards * dbrPrice;
+    const rewardsUsd = dbrRewards * dbrPriceUsd;
 
     data.push({
         ...data[data.length - 1],
         cgHistoPrice: currentPrice,
         oracleHistoPrice: currentPrice,
         comboPrice: currentPrice,
-        dbrPrice,
+        dbrPrice: dbrPriceUsd,
         isEvent: false,
         isClaimEvent: false,
         timestamp: now,

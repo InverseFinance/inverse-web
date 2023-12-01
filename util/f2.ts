@@ -1,7 +1,7 @@
 import { F2_HELPER_ABI, F2_MARKET_ABI, F2_ESCROW_ABI } from "@app/config/abis";
 import { CHAIN_ID, DEFAULT_FIRM_HELPER_TYPE, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
 import { F2Market } from "@app/types";
-import { JsonRpcSigner, Web3Provider } from "@ethersproject/providers";
+import { BlockTag, JsonRpcSigner, Web3Provider } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 import moment from 'moment';
 import { getNetworkConfigConstants } from "./networks";
@@ -414,7 +414,7 @@ export const getDbrPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3P
     return { priceInDolaBn: priceInDolaBn, priceInDola: priceInDola };
 }
 
-export const getDolaUsdPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3Provider) => {
+export const getDolaUsdPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3Provider, block?: BlockTag) => {
     try {
         const crvPool = new Contract(
             '0x8272e1a3dbef607c04aa6e5bd3a1a134c8ac063b',
@@ -435,7 +435,7 @@ export const getDolaUsdPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | W
             { contract: crvUsdAggreg, functionName: 'last_price' },
             { contract: crvPool, functionName: 'totalSupply' },
             { contract: crvPool, functionName: 'get_virtual_price' },
-        ]);
+        ], 1, block);
         return {
             price: getBnToNumber(crvUsdLastPrice) / getBnToNumber(dolaPriceInCrvUsd),
             tvl: getBnToNumber(lpVirtualPrice) * getBnToNumber(totalSupply),

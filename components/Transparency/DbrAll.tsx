@@ -38,7 +38,7 @@ export const DbrAll = ({
     const { evolution: circSupplyEvolution } = useHistoricalInvMarketCap();
     const circSupplyAsObj = !!circSupplyEvolution ? circSupplyEvolution.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr.timestamp)]: curr.circSupply }), {}) : {};
     const invHistoPricesAsObj = !!invHistoPrices ? invHistoPrices.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr[0])]: curr[1] }), {}) : {};
-    const { price: dbrPrice } = useDBRPrice();
+    const { priceUsd: dbrPriceUsd } = useDBRPrice();
 
     const { events: emissionEvents, rewardRatesHistory, isLoading: isEmmissionLoading } = useDBREmissions();
 
@@ -96,7 +96,7 @@ export const DbrAll = ({
 
     const lastCombodata = combodata?.length > 0 ? combodata[combodata.length - 1] : { debt: 0 };
     // today utc: use current price
-    if (combodata?.length > 0 && !!dbrPrice && !!yearlyRewardRate) {
+    if (combodata?.length > 0 && !!dbrPriceUsd && !!yearlyRewardRate) {
         const now = Date.now();
         const todayUTC = timestampToUTC(now);
         const todayIndex = combodata.findIndex(d => d.date === todayUTC);        
@@ -104,11 +104,11 @@ export const DbrAll = ({
             ...lastCombodata,
             timestamp: now,
             time: new Date(timestampToUTC(now)),
-            debtUsd: lastCombodata.debt * dbrPrice,
-            histoPrice: dbrPrice,
+            debtUsd: lastCombodata.debt * dbrPriceUsd,
+            histoPrice: dbrPriceUsd,
             date: timestampToUTC(now),
             yearlyRewardRate: yearlyRewardRate,
-            yearlyRewardRateUsd: yearlyRewardRate * dbrPrice,
+            yearlyRewardRateUsd: yearlyRewardRate * dbrPriceUsd,
         });
     }
 
@@ -136,10 +136,10 @@ export const DbrAll = ({
         <VStack spacing="3">
             <Divider />
             <SimpleGrid gap="2" w='full' columns={{ base: 2, sm: 4 }} >
-                <StatBasic isLoading={!annualizedIssuance} name="Annualized Issuance" value={`${shortenNumber(annualizedIssuance, 2)} (${shortenNumber(annualizedIssuance * dbrPrice, 2, true)})`} />
-                <StatBasic isLoading={!annualizedBurn} name="Annualized Burn" value={`${shortenNumber(annualizedBurn, 2)} (${shortenNumber(annualizedBurn * dbrPrice, 2, true)})`} />
-                <StatBasic isLoading={isEmmissionLoading} name="Claimed by stakers" value={`${shortenNumber(totalClaimed, 2)} (${shortenNumber(useUsd ? totalClaimedUsd : totalClaimed * dbrPrice, 2, true)})`} />
-                <StatBasic isLoading={!burnEvents?.length} name="Burned by borrowers" value={`${shortenNumber(totalBurned, 2)} (${shortenNumber(useUsd ? accBurnUsd : totalBurned * dbrPrice, 2, true)})`} />
+                <StatBasic isLoading={!annualizedIssuance} name="Annualized Issuance" value={`${shortenNumber(annualizedIssuance, 2)} (${shortenNumber(annualizedIssuance * dbrPriceUsd, 2, true)})`} />
+                <StatBasic isLoading={!annualizedBurn} name="Annualized Burn" value={`${shortenNumber(annualizedBurn, 2)} (${shortenNumber(annualizedBurn * dbrPriceUsd, 2, true)})`} />
+                <StatBasic isLoading={isEmmissionLoading} name="Claimed by stakers" value={`${shortenNumber(totalClaimed, 2)} (${shortenNumber(useUsd ? totalClaimedUsd : totalClaimed * dbrPriceUsd, 2, true)})`} />
+                <StatBasic isLoading={!burnEvents?.length} name="Burned by borrowers" value={`${shortenNumber(totalBurned, 2)} (${shortenNumber(useUsd ? accBurnUsd : totalBurned * dbrPriceUsd, 2, true)})`} />
             </SimpleGrid>
             <Divider />
         </VStack>

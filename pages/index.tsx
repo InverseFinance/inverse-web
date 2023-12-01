@@ -43,7 +43,7 @@ export const Landing = ({ posts }: {
 }) => {
   const { totalSupply } = useDOLA();
   const { prices } = usePrices();
-  const { price: dbrPrice } = useDBRPrice();
+  const { priceUsd: dbrPriceUsd } = useDBRPrice();
   const { price: dolaPrice } = useDOLAPrice();
   const { tvl } = useTVL();
   const { firmTotalTvl } = useFirmTVL();
@@ -70,7 +70,7 @@ export const Landing = ({ posts }: {
     },
     {
       name: 'DBR price',
-      value: dbrPrice ? dbrPrice : '-',
+      value: dbrPriceUsd ? dbrPriceUsd : '-',
     },
   ]
 
@@ -94,7 +94,7 @@ export const Landing = ({ posts }: {
     <HStack>
       <Image borderRadius='50px' minH="20px" minW="20px" height="2vmax" src="/assets/v2/dbr.png" />
       <Text fontSize={smallerSize2} display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>DBR</Text>
-      <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{dbrPrice ? shortenNumber(dbrPrice, 3, true) : '-'}</Text>
+      <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{dbrPriceUsd ? shortenNumber(dbrPriceUsd, 3, true) : '-'}</Text>
     </HStack>
     <HStack>
       <Image borderRadius='50px' minH="20px" minW="20px" height="2vmax" src="/assets/v2/inv.jpg" />

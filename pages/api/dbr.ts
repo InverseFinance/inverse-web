@@ -6,7 +6,7 @@ import { getHistoricValue, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { BLOCKS_PER_DAY, CHAIN_ID } from '@app/config/constants';
-import { getDbrPriceOnCurve } from '@app/util/f2';
+import { getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
 import { throttledPromises, timestampToUTC } from '@app/util/misc';
 import { Web3Provider } from '@ethersproject/providers';
 import { DBR_CG_HISTO_PRICES } from '@app/fixtures/dbr-prices';
@@ -63,16 +63,25 @@ const getHistoPrices = async (contract: Contract, blocks: number[]) => {
           5,
           100,
       );
+    const dolaUsdPrices =
+      await throttledPromises(
+          (block: number) => {
+              return getDolaUsdPriceOnCurve(contract.provider, block);
+          },
+          blocks,
+          5,
+          100,
+      );    
 
   const values = bns.map((d, i) => {
-      return getBnToNumber(contract.interface.decodeFunctionResult('price_oracle', d)[0]);
+      return getBnToNumber(contract.interface.decodeFunctionResult('price_oracle', d)[0]) * dolaUsdPrices[i].price;
   });
   return values;
 }
 
 export default async function handler(req, res) {
   const withExtra = req.query.withExtra === 'true';
-  const cacheKey = `dbr-cache${withExtra ? '-extra' : ''}-v1.0.6`;
+  const cacheKey = `dbr-cache${withExtra ? '-extra' : ''}-v1.0.7`;
   const triDbrKey = 'tridbr-histo-prices-v1.0.1';
   try {
     const cacheDuration = 300;
@@ -96,6 +105,7 @@ export default async function handler(req, res) {
     const queries = [
       balancerVault.getPoolTokens('0x445494f823f3483ee62d854ebc9f58d5b9972a25000200000000000000000415'),
       getDbrPriceOnCurve(provider),
+      getDolaUsdPriceOnCurve(provider),
     ].concat(withExtra ? [
       dbr.totalSupply(),
       dbr.totalDueTokensAccrued(),
@@ -108,26 +118,28 @@ export default async function handler(req, res) {
 
     const results = await Promise.all(queries);
 
-    if (withExtra && !!results[8] && !canUseCachedHisto) {
-      await redisSetWithTimestamp(triDbrKey, results[8]);
+    if (withExtra && !!results[9] && !canUseCachedHisto) {
+      await redisSetWithTimestamp(triDbrKey, results[9]);
     }
 
-    const [poolData, curvePriceData] = results;
+    const [poolData, curvePriceData, curveDolaPriceData] = results;
     const priceOnBalancer = poolData && poolData[1] ? getBnToNumber(poolData[1][0]) / getBnToNumber(poolData[1][1]) : 0.05;
 
     const { priceInDola: priceOnCurve } = curvePriceData;
-
+    const { price: dolaUsdPriceOnCurve } = curveDolaPriceData;
+    
     const resultData = {
       timestamp: +(new Date()),
       priceOnBalancer,
-      price: priceOnCurve,
-      totalSupply: withExtra ? getBnToNumber(results[2]) : undefined,
-      totalDueTokensAccrued: withExtra ? getBnToNumber(results[3]) : undefined,
-      operator: withExtra ? results[4] : undefined,
-      rewardRate: withExtra ? getBnToNumber(results[5]) : undefined,
-      minRewardRate: withExtra ? getBnToNumber(results[6]) : undefined,
-      maxRewardRate: withExtra ? getBnToNumber(results[7]) : undefined,
-      historicalData: withExtra ? results[8] : undefined,
+      priceDola: priceOnCurve,
+      priceUsd: priceOnCurve * dolaUsdPriceOnCurve,
+      totalSupply: withExtra ? getBnToNumber(results[3]) : undefined,
+      totalDueTokensAccrued: withExtra ? getBnToNumber(results[4]) : undefined,
+      operator: withExtra ? results[5] : undefined,
+      rewardRate: withExtra ? getBnToNumber(results[6]) : undefined,
+      minRewardRate: withExtra ? getBnToNumber(results[7]) : undefined,
+      maxRewardRate: withExtra ? getBnToNumber(results[8]) : undefined,
+      historicalData: withExtra ? results[9] : undefined,
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);

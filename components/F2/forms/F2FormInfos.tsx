@@ -105,8 +105,9 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         market,
         dbrCoverDebt,
         dbrCover,
-        dbrPrice,
+        dbrPriceUsd,
         dbrSwapPrice,
+        dolaPrice,
         newDailyDBRBurnInMarket,
         newDBRExpiryDate,
         isDeposit,
@@ -270,19 +271,19 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
             {
                 tooltip: 'Your Current DBR balance',
                 title: 'DBR balance',
-                value: `${preciseCommify(dbrBalance, 2)} (${shortenNumber(dbrBalance * dbrPrice, 2, true)})`,
+                value: `${preciseCommify(dbrBalance, 2)} (${shortenNumber(dbrBalance * dbrPriceUsd, 2, true)})`,
             },
             {
                 tooltip: 'DBR balance after the transaction',
                 title: 'New DBR balance',
-                value: newDbrBalance === dbrBalance ? 'No change' : `${preciseCommify(newDbrBalance, 2)}  (${shortenNumber((newDbrBalance) * dbrPrice, 2, true)})`,
+                value: newDbrBalance === dbrBalance ? 'No change' : `${preciseCommify(newDbrBalance, 2)}  (${shortenNumber((newDbrBalance) * dbrPriceUsd, 2, true)})`,
             },
         ],
         [
             {
                 tooltip: 'Approximated DBR swap price for the total required DBR amount (dbr amount for the borrowed dola + dbr amount for that dbr amount)',
                 title: 'DBR swap price',
-                value: `~${shortenNumber(dbrSwapPrice, 6, true)}`,
+                value: `~${shortenNumber(dbrSwapPrice * dolaPrice, 6, true)}`,
                 isLoading: debtAmountNumInfo > 0 && (isDbrApproxLoading || leverageLoading),
             },
             {
@@ -296,7 +297,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
             {
                 tooltip: 'The total number of DBRs that will be spent on a monthly bassis',
                 title: 'Monthly DBR spend',
-                value: `-${newMonthlyDBRBurnInMarket ? `${shortenNumber(newMonthlyDBRBurnInMarket, 4)} (${shortenNumber(newMonthlyDBRBurnInMarket * dbrPrice, 2, true)})` : ''}`,
+                value: `-${newMonthlyDBRBurnInMarket ? `${shortenNumber(newMonthlyDBRBurnInMarket, 4)} (${shortenNumber(newMonthlyDBRBurnInMarket * dbrPriceUsd, 2, true)})` : ''}`,
                 isLoading: debtAmountNumInfo > 0 && (isDbrApproxLoading || leverageLoading),
             },
             {
@@ -402,7 +403,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         positionInfos[3],
     ];
 
-    if (!market.isInv && isAutoDBR) {
+    if (isAutoDBR) {
         keyInfos.splice(2, 0, dbrInfos[2]);
     }
 

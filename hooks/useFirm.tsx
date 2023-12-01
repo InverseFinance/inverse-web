@@ -450,7 +450,7 @@ export const useINVEscrowRewards = (escrow: string): SWR & {
   // per second
   const rewardRate = rewardRateBn ? getBnToNumber(rewardRateBn) : 0;
   const yearlyRewardRate = rewardRate * ONE_DAY_SECS * 365;
-  const { price: dbrPrice } = useDBRPrice();
+  const { priceUsd: dbrPriceUsd } = useDBRPrice();
 
   const rewardsStored = data && data[0] ? getBnToNumber(data[0]) : 0;
   const rewards = storedIsOutdated ? dbrSimData?.simRewards : rewardsStored;
@@ -463,8 +463,8 @@ export const useINVEscrowRewards = (escrow: string): SWR & {
     tokens: [
       {
         metaType: 'claimable',
-        balanceUSD: rewards * dbrPrice,
-        price: dbrPrice,
+        balanceUSD: rewards * dbrPriceUsd,
+        price: dbrPriceUsd,
         balance: rewards,
         address: DBR,
       }

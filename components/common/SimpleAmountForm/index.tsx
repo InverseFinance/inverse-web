@@ -19,6 +19,7 @@ type Props = {
     destination: string
     signer?: JsonRpcSigner
     isDisabled?: boolean
+    checkBalanceOnTopOfIsDisabled?: boolean
     alsoDisableApprove?: boolean
     isMaxDisabled?: boolean
     decimals?: number
@@ -79,6 +80,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         destination,
         signer,
         isDisabled,
+        checkBalanceOnTopOfIsDisabled,
         alsoDisableApprove,
         isMaxDisabled,
         onAction,
@@ -249,7 +251,7 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                                     onSuccess();
                                 }
                             }}
-                            disabled={((!amount || parseFloat(amount) <= 0 || parseFloat(amount) > maxFloat) && isDisabled === undefined) || (isDisabled !== undefined && isDisabled)}
+                            disabled={((!amount || parseFloat(amount) <= 0 || parseFloat(amount) > maxFloat) && (isDisabled === undefined || checkBalanceOnTopOfIsDisabled)) || (isDisabled !== undefined && isDisabled)}
                             {...btnProps}
                         >
                             {actionLabel}
