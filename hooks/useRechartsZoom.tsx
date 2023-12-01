@@ -24,7 +24,10 @@ const RANGES = [
     { label: '1M', daysInPast: ONE_DAY_MS * 31 },
     { label: '3W', daysInPast: ONE_DAY_MS * 22 },
     { label: '2W', daysInPast: ONE_DAY_MS * 15 },
+    { label: '1W', daysInPast: ONE_DAY_MS * 8 },
     { label: '7D', daysInPast: ONE_DAY_MS * 8 },
+    { label: '2D', daysInPast: ONE_DAY_MS * 2 },
+    { label: '1D', daysInPast: ONE_DAY_MS * 1 },
     { label: 'YTD' },
 ];
 
