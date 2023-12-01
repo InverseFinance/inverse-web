@@ -105,8 +105,8 @@ export const getLeverageImpact = async ({
         const baseWorth = baseColAmountForLeverage * collateralPrice;
         let borrowStringToSign, borrowNumToSign;        
         // precision is focused on collateral amount, only with 0x
-        if (!viaInput) {
-            const amountUp = deposits > 0 ? deposits * leverageLevel - deposits : initialDeposit * leverageLevel;
+        if (!viaInput) {            
+            const amountUp = baseColAmountForLeverage * leverageLevel - baseColAmountForLeverage;            
             const { buyAmount } = await getAleSellQuote(DOLA, market.collateral, getNumberToBn(amountUp, market.underlying.decimals).toString(), aleSlippage, true);
             borrowStringToSign = buyAmount;
             borrowNumToSign = parseFloat(borrowStringToSign) / (1e18);
@@ -478,7 +478,7 @@ export const FirmBoostInfos = ({
                 <SliderThumb h="20px" w="10px" />
             </Slider>
             <HStack w='full' justify="space-between" alignItems="center">
-                <Text textDecoration="underline" fontWeight="bold" cursor="pointer" color={riskLevels.safer.color} onClick={() => handleLeverageChange(minLeverage)}>
+                <Text fontWeight="bold" color={riskLevels.safer.color}>
                     No {isLeverageUp ? 'leverage' : 'deleverage'}
                 </Text>
                 <Text textDecoration="underline" fontWeight="bold" cursor="pointer" color={isLeverageUp ? riskLevels.riskier.color : riskLevels.safer.color} onClick={() => isLeverageUp ? handleLeverageChange(maxLeverage) : handleSellEnough()}>
