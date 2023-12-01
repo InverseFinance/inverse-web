@@ -106,7 +106,7 @@ export const getLeverageImpact = async ({
         let borrowStringToSign, borrowNumToSign;        
         // precision is focused on collateral amount, only with 0x
         if (!viaInput) {
-            const amountUp = deposits * leverageLevel - deposits;            
+            const amountUp = deposits > 0 ? deposits * leverageLevel - deposits : initialDeposit * leverageLevel;
             const { buyAmount } = await getAleSellQuote(DOLA, market.collateral, getNumberToBn(amountUp, market.underlying.decimals).toString(), aleSlippage, true);
             borrowStringToSign = buyAmount;
             borrowNumToSign = parseFloat(borrowStringToSign) / (1e18);
