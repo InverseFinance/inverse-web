@@ -30,7 +30,7 @@ export const DbrComboChart = ({
 
     const { mouseDown, mouseUp, mouseMove, mouseLeave, zoomOutButton, rangeButtonsBar, zoomReferenceArea, data } = useRechartsZoom({
         combodata, xKey: 'timestamp', yKey: useUsd ? 'debtUsd' : 'debt', yAxisId: 'left', 
-        rangesToInclude: ['All', '6M', '3M', '1M', '1W', '2D' ,'YTD'],
+        rangesToInclude: ['All', '6M', '3M', '1M', '1W','YTD'],
     });
     const _data = data || combodata;
 
