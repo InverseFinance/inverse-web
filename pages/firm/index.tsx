@@ -56,8 +56,20 @@ export const F2PAGE = ({
                 <meta name="og:description" content="FiRM is Inverse Finance's Fixed Rate Market, borrow DOLA with the DOLA Borrowing Right token DBR. Rethink the way you borrow!" />
                 <meta name="description" content="FiRM is Inverse Finance's Fixed Rate Market, borrow DOLA with the DOLA Borrowing Right token DBR. Rethink the way you borrow!" />
                 <meta name="og:image" content="" />
-                <meta name="twitter:image" content={isTwitterAlert ? 'https://inverse.finance/assets/social-previews/inverse-alert.jpg' : ''} />
-                <meta name="twitter:image:alt" content="FiRM" />
+                {
+                    isTwitterAlert ?
+                        <>
+                            <meta property="twitter:card" content="summary_large_image" />
+                            <meta name="twitter:image" content="https://inverse.finance/assets/social-previews/inverse-alert.jpg" />
+                            <meta name="twitter:image:alt" content="FiRM" />
+                        </>
+                        : <>                            
+                            <meta name="twitter:site" content="" />
+                            <meta name="twitter:image" content="" />
+                            <meta name="twitter:image:alt" content="" />
+                            <meta property="twitter:card" content="" />
+                        </>
+                }                
             </Head>
             <AppNav active="Borrow" activeSubmenu="FiRM" />
             {
