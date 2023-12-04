@@ -18,12 +18,12 @@ export const sellDolaForDbr = async (signerOrProvider: JsonRpcSigner, dolaToSell
     return contract.buyDBR(dolaToSell, minDbrOut);
 }
 
-function swapExactDolaForDbr(signerOrProvider: JsonRpcSigner, dolaToSell: BigNumber, minDbrOut: BigNumber) {
+export const swapExactDolaForDbr = (signerOrProvider: JsonRpcSigner, dolaToSell: BigNumber, minDbrOut: BigNumber) => {
     const contract = getDbrAuctionHelperContract(signerOrProvider);
     return contract.swapExactDolaForDbr(dolaToSell, minDbrOut);
 }
 
-function swapDolaForExactDbr(signerOrProvider: JsonRpcSigner, dolaInMax: BigNumber, dbrOut: BigNumber) {
+export const swapDolaForExactDbr = (signerOrProvider: JsonRpcSigner, dolaInMax: BigNumber, dbrOut: BigNumber) => {
     const contract = getDbrAuctionHelperContract(signerOrProvider);
     return contract.swapDolaForExactDbr(dbrOut, dolaInMax);
 }
