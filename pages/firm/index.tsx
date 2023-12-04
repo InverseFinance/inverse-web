@@ -16,7 +16,9 @@ import { answerPoll } from '@app/util/analytics'
 import { showToast } from '@app/util/notify'
 import { POLLS, ACTIVE_POLL } from '@app/variables/poll-data'
 
-export const F2PAGE = () => {
+export const F2PAGE = ({
+    isTwitterAlert = false
+}) => {
     const account = useAccount();
     const [radioValue, setRadioValue] = useState('');
     const { debt } = useAccountDBR(account);
@@ -53,7 +55,8 @@ export const F2PAGE = () => {
                 <title>{process.env.NEXT_PUBLIC_TITLE} - FiRM</title>
                 <meta name="og:description" content="FiRM is Inverse Finance's Fixed Rate Market, borrow DOLA with the DOLA Borrowing Right token DBR. Rethink the way you borrow!" />
                 <meta name="description" content="FiRM is Inverse Finance's Fixed Rate Market, borrow DOLA with the DOLA Borrowing Right token DBR. Rethink the way you borrow!" />
-                <meta name="og:image" content="https://images.ctfassets.net/kfs9y9ojngfc/6E4HUcq7GOoFsN5IiXVhME/dbb642baae622681d36579c1a092a6df/FiRM_Launch_Blog_Hero.png?w=3840&q=75" />
+                <meta name="og:image" content="" />
+                <meta name="twiiter:image" content={isTwitterAlert ? 'https://inverse.finance/assets/social-previews/inverse-alert.jpg' : ''} />
             </Head>
             <AppNav active="Borrow" activeSubmenu="FiRM" />
             {
