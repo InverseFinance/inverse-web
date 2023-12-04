@@ -1,5 +1,5 @@
 import { VStack, Text, HStack, Divider } from "@chakra-ui/react"
-import { DBR_AUCTION_ADDRESS, sellDolaForDbr } from "@app/util/dbr-auction"
+import { DBR_AUCTION_HELPER_ADDRESS } from "@app/util/dbr-auction"
 import useEtherSWR from "@app/hooks/useEtherSWR";
 import { useWeb3React } from "@web3-react/core";
 import { getBnToNumber, getNumberToBn, shortenNumber, smartShortNumber } from "@app/util/markets";
@@ -38,8 +38,8 @@ export const DbrAuctionBuyer = () => {
     const [slippage, setSlippage] = useState('1');
     const { price: dbrSwapPrice, isLoading: isCurvePriceLoading } = useTriCryptoSwap(parseFloat(amount || defaultRefAmount), 0, 1);
     const { data } = useEtherSWR([
-        [DBR_AUCTION_ADDRESS, 'getDbrOut', parseEther(amount || '0')],
-        [DBR_AUCTION_ADDRESS, 'getDbrOut', parseEther(defaultRefAmount)],
+        [DBR_AUCTION_HELPER_ADDRESS, 'getDbrOut', parseEther(amount || '0')],
+        [DBR_AUCTION_HELPER_ADDRESS, 'getDbrOut', parseEther(defaultRefAmount)],
     ]);
     const { priceUsd: dbrPrice } = useDBRPrice();
     const refDbrOut = data && data[1] ? getBnToNumber(data[1]) : 0;
@@ -62,13 +62,13 @@ export const DbrAuctionBuyer = () => {
     />;
 
     const sell = async () => {
-        return sellDolaForDbr(provider?.getSigner(), parseEther(amount), minDbrOut);
+        return swapExactDolaForDbr(provider?.getSigner(), parseEther(amount), minDbrOut);
     }
 
     return <Container
         label="DBR auction of type K=xy"
         description="See contract"
-        href={`https://etherscan.io/address/${DBR_AUCTION_ADDRESS}`}
+        href={`https://etherscan.io/address/${DBR_AUCTION_HELPER_ADDRESS}`}
         noPadding
         m="0"
         p="0"
@@ -81,7 +81,7 @@ export const DbrAuctionBuyer = () => {
                 <SimpleAmountForm
                     defaultAmount={amount}
                     address={DOLA}
-                    destination={DBR_AUCTION_ADDRESS}
+                    destination={DBR_AUCTION_HELPER_ADDRESS}
                     signer={provider?.getSigner()}
                     decimals={18}
                     onAction={() => sell()}
@@ -107,4 +107,8 @@ export const DbrAuctionBuyer = () => {
             ]} />
         </VStack>
     </Container>
+}
+
+function swapExactDolaForDbr(arg0: import("@ethersproject/providers").JsonRpcSigner | undefined, arg1: BigNumber, minDbrOut: BigNumber) {
+    throw new Error("Function not implemented.");
 }

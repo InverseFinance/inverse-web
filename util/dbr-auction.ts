@@ -2,10 +2,15 @@ import { DBR_AUCTION_ABI } from "@app/config/abis";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 
-export const DBR_AUCTION_ADDRESS = '0xFf658343244c0475b9305859F1b7CDAB9784762f';
+export const DBR_AUCTION_ADDRESS = '0xf274De14171Ab928A5Ec19928cE35FaD91a42B64';
+export const DBR_AUCTION_HELPER_ADDRESS = '0xcb0A9835CDf63c84FE80Fcc59d91d7505871c98B';
 
 export const getDbrAuctionContract = (signerOrProvider: JsonRpcSigner) => {
     return new Contract(DBR_AUCTION_ADDRESS, DBR_AUCTION_ABI, signerOrProvider);
+}
+
+export const getDbrAuctionHelperContract = (signerOrProvider: JsonRpcSigner) => {
+    return new Contract(DBR_AUCTION_HELPER_ADDRESS, DBR_AUCTION_ABI, signerOrProvider);
 }
 
 export const sellDolaForDbr = async (signerOrProvider: JsonRpcSigner, dolaToSell: BigNumber, minDbrOut: BigNumber) => {
@@ -13,7 +18,17 @@ export const sellDolaForDbr = async (signerOrProvider: JsonRpcSigner, dolaToSell
     return contract.buyDBR(dolaToSell, minDbrOut);
 }
 
+function swapExactDolaForDbr(signerOrProvider: JsonRpcSigner, dolaToSell: BigNumber, minDbrOut: BigNumber) {
+    const contract = getDbrAuctionHelperContract(signerOrProvider);
+    return contract.swapExactDolaForDbr(dolaToSell, minDbrOut);
+}
+
+function swapDolaForExactDbr(signerOrProvider: JsonRpcSigner, dolaInMax: BigNumber, dbrOut: BigNumber) {
+    const contract = getDbrAuctionHelperContract(signerOrProvider);
+    return contract.swapDolaForExactDbr(dbrOut, dolaInMax);
+}
+
 export const getDbrOut = async (signerOrProvider: JsonRpcSigner, dolaToSell: BigNumber) => {
-    const contract = getDbrAuctionContract(signerOrProvider);
+    const contract = getDbrAuctionHelperContract(signerOrProvider);
     return contract.getDbrOut(dolaToSell);
 }
