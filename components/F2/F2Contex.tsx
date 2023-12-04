@@ -15,6 +15,7 @@ import { gaEvent } from '@app/util/analytics'
 import { useDOLAPrice } from '@app/hooks/usePrices'
 import { useStakedInFirm } from '@app/hooks/useFirm'
 import { INV_STAKERS_ONLY } from '@app/config/features'
+import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -73,6 +74,7 @@ export const F2Context = ({
     const [useLeverage, setUseLeverage] = useState(false);
     const [leverage, setLeverage] = useState(1);
     const [leverageLoading, setLeverageLoading] = useState(false);
+    const [isTriggerLeverageFetch, setIsTriggerLeverageFetch] = useState(false);
     const [mode, setMode] = useState('Deposit & Borrow');
     
     const [infoTab, setInfoTab] = useState('Summary');
@@ -173,6 +175,16 @@ export const F2Context = ({
     useEffect(() => {
         setFirmActionIndex(cachedFirmActionIndex === undefined ? null : cachedFirmActionIndex||0);
     }, [cachedFirmActionIndex]);
+
+    useEffect(() => {        
+        if(!useLeverageInMode) return;
+        setIsTriggerLeverageFetch(true);
+    }, [collateralAmount, debtAmount, useLeverageInMode]);
+
+    useDebouncedEffect(() => {
+        if(!isTriggerLeverageFetch) return;
+        setIsTriggerLeverageFetch(false);
+    }, [isTriggerLeverageFetch], 300);
 
     useEffect(() => {
         const init = async () => {
@@ -321,6 +333,7 @@ export const F2Context = ({
             leveragePriceImpact,
             setLeveragePriceImpact,
             isFirstTimeModalOpen,
+            isTriggerLeverageFetch,
             firmActionIndex,
             setFirmActionIndex,
             setCachedFirmActionIndex,

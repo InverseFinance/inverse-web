@@ -107,6 +107,7 @@ export const F2CombinedForm = ({
         setLeverageLoading,
         leverageLoading,
         setLeveragePriceImpact,
+        isTriggerLeverageFetch,
     } = useContext(F2MarketContext);
 
     const [isLargerThan] = useMediaQuery('(min-width: 1280px)');
@@ -324,7 +325,7 @@ export const F2CombinedForm = ({
     const showNeedDbrMessage = isDeposit && !isAutoDBR && dbrBalance <= 0;
     const showNotEnoughDolaToRepayMessage = isRepayCase && debtAmountNum > 0 && dolaBalance < debtAmountNum;
 
-    const disabledDueToLeverage = useLeverageInMode && (leverage <= 1 || leverageLoading || !aleSlippage || aleSlippage === '0' || isNaN(parseFloat(aleSlippage)));
+    const disabledDueToLeverage = useLeverageInMode && (leverage <= 1 || leverageLoading || isTriggerLeverageFetch || !aleSlippage || aleSlippage === '0' || isNaN(parseFloat(aleSlippage)));
     const disabledConditions = {
         'deposit': ((collateralAmountNum <= 0 && !useLeverageInMode) || collateralBalance < collateralAmountNum),
         'borrow': duration <= 0 || debtAmountNum <= 0 || newPerc < 1 || showNeedDbrMessage || market.leftToBorrow < 1 || debtAmountNum > market.leftToBorrow || notEnoughToBorrowWithAutobuy || minDebtDisabledCondition || disabledDueToLeverage || showMinDebtMessage,
@@ -600,7 +601,7 @@ export const F2CombinedForm = ({
                     debtAmountNumInfo={hasDebtChange ? isDeposit ? debtAmountNum : Math.min(debtAmountNum, debt) : 0}
                 />
                 {
-                    showResultingLimitTooHigh && !leverageLoading && <ResultingBorrowLimitTooHighMessage />
+                    showResultingLimitTooHigh && !leverageLoading && !isTriggerLeverageFetch && <ResultingBorrowLimitTooHighMessage />
                 }
                 {
                     market.borrowPaused ? <BorrowPausedMessage /> : market.leftToBorrow < 1 && isBorrowCase && <NoDolaLiqMessage />

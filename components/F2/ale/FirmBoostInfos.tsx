@@ -1,4 +1,4 @@
-import { Slider, Text, VStack, SliderTrack, SliderFilledTrack, SliderThumb, HStack, Stack, InputGroup, InputRightElement, InputLeftElement, useDisclosure } from '@chakra-ui/react'
+import { Slider, Text, VStack, SliderTrack, SliderFilledTrack, SliderThumb, HStack, Stack, InputGroup, InputRightElement, InputLeftElement, useDisclosure, SkeletonText } from '@chakra-ui/react'
 
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { getNumberToBn, shortenNumber, smartShortNumber } from '@app/util/markets'
@@ -35,11 +35,11 @@ const getSteps = (
     type: string,
     leverageLevel: number,
     aleSlippage: string,
-    steps: number[] = [],    
+    steps: number[] = [],
     doLastOne = false,
 ): number[] => {
     const isLeverageUp = type === 'up';
-    const baseWorth = market.price ? deposits * market.price : 0;    
+    const baseWorth = market.price ? deposits * market.price : 0;
     const _leverageLevel = leverageLevel + 0.01;
     const effectiveLeverage = isLeverageUp ? _leverageLevel : (1 / _leverageLevel);
     const desiredWorth = baseWorth * effectiveLeverage;
@@ -63,7 +63,7 @@ const getSteps = (
     if ((newPerc <= 2) || _leverageLevel > 10 || doLastOne) {
         return steps;
     } else {
-        return getSteps(market, deposits, debt, perc, type, _leverageLevel, aleSlippage, [...steps, _leverageLevel], newDebtSigned <= 0 && Math.abs(newDebtSigned) >= debt * (parseFloat(aleSlippage)/100));
+        return getSteps(market, deposits, debt, perc, type, _leverageLevel, aleSlippage, [...steps, _leverageLevel], newDebtSigned <= 0 && Math.abs(newDebtSigned) >= debt * (parseFloat(aleSlippage) / 100));
     }
 }
 
@@ -103,14 +103,14 @@ export const getLeverageImpact = async ({
         // if already has deposits, base is deposits, if not (=depositAndLeverage case), base is initialDeposit
         const baseColAmountForLeverage = deposits > 0 ? deposits : initialDeposit;
         const baseWorth = baseColAmountForLeverage * collateralPrice;
-        let borrowStringToSign, borrowNumToSign;        
+        let borrowStringToSign, borrowNumToSign;
         // precision is focused on collateral amount, only with 0x
-        if (!viaInput) {            
-            const amountUp = baseColAmountForLeverage * leverageLevel - baseColAmountForLeverage;            
+        if (!viaInput) {
+            const amountUp = baseColAmountForLeverage * leverageLevel - baseColAmountForLeverage;
             const { buyAmount } = await getAleSellQuote(DOLA, market.collateral, getNumberToBn(amountUp, market.underlying.decimals).toString(), aleSlippage, true);
             borrowStringToSign = buyAmount;
             borrowNumToSign = parseFloat(borrowStringToSign) / (1e18);
-        } 
+        }
         else if (!!dolaInput) {
             borrowNumToSign = parseFloat(dolaInput);
             borrowStringToSign = getNumberToBn(borrowNumToSign).toString();
@@ -197,10 +197,11 @@ export const FirmBoostInfos = ({
         isInvPrimeMember,
         setLeveragePriceImpact,
         useLeverageInMode,
+        isTriggerLeverageFetch,
     } = useContext(F2MarketContext);
     const newBorrowLimit = 100 - newPerc;
-    const showBorrowLimitTooHighMsg = newBorrowLimit >= 99 && !leverageLoading;
-    const { isOpen, onOpen, onClose } = useDisclosure();    
+    const showBorrowLimitTooHighMsg = newBorrowLimit >= 99 && !leverageLoading && !isTriggerLeverageFetch;
+    const { isOpen, onOpen, onClose } = useDisclosure();
     const minLeverage = 1;
     // const [leverageLevel, setLeverageLevel] = useState(minLeverage || _leverageLevel);
     const [editLeverageLevel, setEditLeverageLevel] = useState(leverageLevel.toString());
@@ -240,8 +241,8 @@ export const FirmBoostInfos = ({
 
     useDebouncedEffect(() => {
         setDebounced(!!editLeverageLevel && (!editLeverageLevel.endsWith('.') || editLeverageLevel === '.') && !isNaN(parseFloat(editLeverageLevel)));
-    }, [editLeverageLevel], 500);    
-    
+    }, [editLeverageLevel], 500);
+
     useDebouncedEffect(() => {
         setDebouncedShowdBorrowLimitMsg(showBorrowLimitTooHighMsg);
     }, [showBorrowLimitTooHighMsg], 500);
@@ -254,7 +255,7 @@ export const FirmBoostInfos = ({
     // }, [sliderLeverageLevel, isLeverageUp, useLeverageInMode], 500);
 
     useEffect(() => {
-        setEditLeverageLevel(leverageLevel.toFixed(2));        
+        setEditLeverageLevel(leverageLevel.toFixed(2));
     }, [leverageLevel])
 
     if (!market?.underlying) {
@@ -293,20 +294,20 @@ export const FirmBoostInfos = ({
     const handleSellEnough = async () => {
         if (!market.price) return;
         setLeverageLoading(true);
-        const estimatedDolaRequiredBeforeSlippage = debt * (1+(parseFloat(aleSlippage)+2)/100);
-        const estimatedResult = await getAleSellQuote(market.collateral, DOLA, getNumberToBn(estimatedDolaRequiredBeforeSlippage).toString(), aleSlippage, true);        
+        const estimatedDolaRequiredBeforeSlippage = debt * (1 + (parseFloat(aleSlippage) + 2) / 100);
+        const estimatedResult = await getAleSellQuote(market.collateral, DOLA, getNumberToBn(estimatedDolaRequiredBeforeSlippage).toString(), aleSlippage, true);
 
         if (!estimatedResult?.buyAmount) {
             showToast({ status: 'warning', title: 'Could not estimate amount to sell to repay all' });
             return
-        }        
+        }
         const estimatedCollateralAmountToSell = formatUnits(parseUnits(estimatedResult?.buyAmount, '0'), market.underlying.decimals);
         triggerCollateralAndOrLeverageChange(estimatedCollateralAmountToSell, parseFloat(estimatedCollateralAmountToSell));
     }
 
-    const handleLeverageChange = async (v: number) => {        
+    const handleLeverageChange = async (v: number) => {
         setDebounced(false);
-        if(v <= 1 || isNaN(v)) return;
+        if (v <= 1 || isNaN(v)) return;
         setLeverageLevel(v);
         if (!market.price) return;
         const { dolaAmount, collateralAmount, errorMsg, estimatedPriceImpact } = await getLeverageImpact({
@@ -344,8 +345,8 @@ export const FirmBoostInfos = ({
             return;
         }
         handleLeverageChange(input);
-    }    
-    
+    }
+
     const baseColAmountForLeverage = deposits > 0 ? deposits : collateralAmountNum;
     const leverageSteps = useMemo(() => getSteps(market, baseColAmountForLeverage, debt, perc, type, 1, aleSlippage, []), [market, baseColAmountForLeverage, debt, perc, type, undefined, aleSlippage]);
     // when deleveraging we want the max to be higher what's required to repay all debt, the extra dola is sent to the wallet
@@ -394,7 +395,7 @@ export const FirmBoostInfos = ({
                         children={<Text cursor="text" as="label" for="boostInput" color="secondaryTextColor" whiteSpace="nowrap" transform="translateX(60px)" fontSize="20px" fontWeight="extrabold">
                             {boostLabel}:
                         </Text>}
-                    />                    
+                    />
                     <Input _focusVisible={false} isInvalid={editLeverageIsInvalid} autocomplete="off" onKeyPress={handleKeyPress} id="boostInput" color={risk.color} py="0" pl="60px" onChange={(e) => handleEditLeverage(e.target.value, minLeverage, maxLeverage)} width="220px" value={editLeverageLevel} min={minLeverage} max={maxLeverage} />
                     {
                         editLeverageLevel !== leverageLevel.toFixed(2) && debounced && !editLeverageIsInvalid &&
@@ -484,6 +485,15 @@ export const FirmBoostInfos = ({
                 <Text textDecoration="underline" fontWeight="bold" cursor="pointer" color={isLeverageUp ? riskLevels.riskier.color : riskLevels.safer.color} onClick={() => isLeverageUp ? handleLeverageChange(maxLeverage) : handleSellEnough()}>
                     {isLeverageUp ? `Max: x${shortenNumber(maxLeverage, 2)}` : 'Sell enough to repay all (estimate)'}
                 </Text>
+            </HStack>
+            <HStack spacing="1" w='full' alignItems="flex-start">
+                <TextInfo message="The quote on 1inch for the trade required to do leverage/deleverage">
+                    <Text>Quote:</Text>
+                    {
+                        leverageLoading || isTriggerLeverageFetch ? <SkeletonText pt="2px" skeletonHeight={3} height={'16px'} width={'90px'} noOfLines={1} />
+                            : <Text>{estimatedAmount > 0 && knownFixedAmount > 0 ? `~${preciseCommify(isLeverageUp ? knownFixedAmount / estimatedAmount : estimatedAmount / knownFixedAmount, 6)} DOLA per ${market.underlying.symbol}` : '-'}</Text>
+                    }
+                </TextInfo>
             </HStack>
             <HStack w='full' justify="space-between">
                 <TextInfo
