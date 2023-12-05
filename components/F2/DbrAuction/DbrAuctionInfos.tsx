@@ -79,9 +79,13 @@ export const DbrAuctionInfos = () => {
                     <HStack w='full'>
                         <Text>- Max. DBR rate per year:</Text>
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(maxDbrRatePerYear, 0)} ({preciseCommify(maxDbrRatePerYear * dbrPrice, 0, true)})</Text>}
-                    </HStack>
-                    <Text>Reserves and the max. DBR rate per year are updatable by Governance vote only. The DBR rate per year can be updated by Governance or by the Operator (within the max limit set by Governance).</Text>
+                    </HStack>                    
                 </VStack>
+                <Text fontSize="14px" fontWeight="bold">Governance</Text>
+                <Text>Reserves and the max. DBR rate per year are updatable by Governance vote only. The DBR rate per year can be updated by Governance or by the Operator (within the max limit set by Governance).</Text>
+                <Link textDecoration="underline" href="/governance" target="_blank" isExternal>
+                    DBR Auction Governance proposal link <ExternalLinkIcon />
+                </Link>
             </Stack>
         }
     />
