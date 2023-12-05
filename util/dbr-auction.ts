@@ -1,4 +1,4 @@
-import { DBR_AUCTION_ABI } from "@app/config/abis";
+import { DBR_AUCTION_ABI, DBR_AUCTION_HELPER_ABI } from "@app/config/abis";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 
@@ -10,7 +10,7 @@ export const getDbrAuctionContract = (signerOrProvider: JsonRpcSigner) => {
 }
 
 export const getDbrAuctionHelperContract = (signerOrProvider: JsonRpcSigner) => {
-    return new Contract(DBR_AUCTION_HELPER_ADDRESS, DBR_AUCTION_ABI, signerOrProvider);
+    return new Contract(DBR_AUCTION_HELPER_ADDRESS, DBR_AUCTION_HELPER_ABI, signerOrProvider);
 }
 
 export const sellDolaForDbr = async (signerOrProvider: JsonRpcSigner, dolaToSell: BigNumber, minDbrOut: BigNumber) => {
