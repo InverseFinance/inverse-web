@@ -444,6 +444,8 @@ export const F2_ESCROW_ABI = [
   'function claimable() public view returns (uint)',
   "function claimDBR() public",
   "function claimDBRTo() public",
+  "function setClaimer(address, bool) public",
+  "function claimers(address) public view returns (bool)",
 ];
 
 export const F2_CONTROLLER_ABI = [

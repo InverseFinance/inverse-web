@@ -1,15 +1,23 @@
 import { ROutlineButton, RSubmitButton } from "@app/components/common/Button/RSubmitButton"
 import { Input } from "@app/components/common/Input"
 import { Modal } from "@app/components/common/Modal"
+import { F2_ESCROW_ABI } from "@app/config/abis"
+import { BURN_ADDRESS } from "@app/config/constants"
 import { useAccount } from "@app/hooks/misc"
 import { useAccountDBR, useAccountF2Markets, useDBRMarkets, useTriCryptoSwap } from "@app/hooks/useDBR"
+import useEtherSWR from "@app/hooks/useEtherSWR"
+import { useStakedInFirm } from "@app/hooks/useFirm"
 import { ZapperToken } from "@app/types"
-import { claimDbrAndSell, claimDbrSellAndDepositInv, claimDbrSellAndRepay } from "@app/util/firm-extra"
+import { claimDbrAndSellForDola, claimDbrSellAndDepositInv, claimDbrSellAndRepay } from "@app/util/firm-extra"
 import { getNumberToBn, smartShortNumber } from "@app/util/markets"
 import { preciseCommify } from "@app/util/misc"
+import { getNetworkConfigConstants } from "@app/util/networks"
 import { VStack, useDisclosure, Text, Stack, RadioGroup, Radio, HStack, Select } from "@chakra-ui/react"
 import { useWeb3React } from "@web3-react/core"
+import { Contract } from "ethers"
 import { useMemo, useState } from "react"
+
+const { F2_DBR_REWARDS_HELPER } = getNetworkConfigConstants();
 
 export const DbrRewardsModal = ({
     isOpen,
@@ -26,6 +34,16 @@ export const DbrRewardsModal = ({
     const { provider } = useWeb3React();
     const { debt } = useAccountDBR(account);
     const { markets } = useDBRMarkets();
+    const { escrow } = useStakedInFirm(account);
+    const { data: claimersData } = useEtherSWR(
+        {
+            args: !!escrow && escrow !== BURN_ADDRESS ? [
+                [escrow, 'claimers', F2_DBR_REWARDS_HELPER],
+            ] : [[]],
+            abi: F2_ESCROW_ABI,
+        }
+    );
+    const isHelperAllowedAsClaimer = claimersData ? claimersData[0] : false;
     const accountMarkets = useAccountF2Markets(markets, account);
     const marketsWithDebt = useMemo(() => {
         return accountMarkets.filter(m => m.debt > 0).sort((a, b) => b.debt - a.debt);
@@ -49,13 +67,19 @@ export const DbrRewardsModal = ({
         setSlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'));
     }
 
+    const authorizeAsClaimer = () => {
+        if (!account) return;
+        const contract = new Contract(escrow, F2_ESCROW_ABI, provider?.getSigner())
+        return contract.setClaimer(F2_DBR_REWARDS_HELPER, true);
+    }
+
     const handleClaim = () => {
         if (!account) return;
         const minAmountOutBn = getNumberToBn(minAmountOut);
         if (selected === 'restake') {
             return claimDbrSellAndDepositInv(minAmountOutBn, provider?.getSigner());
         } else if (selected === 'sell') {
-            return claimDbrAndSell(minAmountOutBn, provider?.getSigner());
+            return claimDbrAndSellForDola(minAmountOutBn, provider?.getSigner());
         } else if (selected === 'repay' && !!marketToRepay) {
             return claimDbrSellAndRepay(minAmountOutBn, marketToRepay, provider?.getSigner());
         } else if (selected === 'claim') {
@@ -127,9 +151,16 @@ export const DbrRewardsModal = ({
                 </HStack>
             }
             <VStack alignItems="center" w='full'>
-                <RSubmitButton disabled={(isNotBasicClaim && hasInvalidSlippage) || (isRepay && !marketToRepay)} onClick={handleClaim} p="6" w='fit-content' fontSize="18px">
-                    Confirm
-                </RSubmitButton>
+                {
+                    !isHelperAllowedAsClaimer ?
+                        <RSubmitButton refreshOnSuccess={true} onClick={authorizeAsClaimer} p="6" w='fit-content' fontSize="18px">
+                            Authorize DBR Rewards Helper
+                        </RSubmitButton>
+                        :
+                        <RSubmitButton refreshOnSuccess={true} disabled={(isNotBasicClaim && hasInvalidSlippage) || (isRepay && !marketToRepay)} onClick={handleClaim} p="6" w='fit-content' fontSize="18px">
+                            Confirm
+                        </RSubmitButton>
+                }
             </VStack>
         </VStack>
     </Modal>
