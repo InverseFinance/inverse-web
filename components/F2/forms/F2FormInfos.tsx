@@ -49,10 +49,10 @@ const Infos = ({ infos, index, isLast }: { infos: [Data, Data], index: number, i
                     </Text>
             }
             {
-                left.alternativeValue && !left.isLoading && 
-                    <Text fontSize="14px" color={left.alternativeValueColor || left.color}>
-                        {left.alternativeValue}
-                    </Text>
+                left.alternativeValue && !left.isLoading &&
+                <Text fontSize="14px" color={left.alternativeValueColor || left.color}>
+                    {left.alternativeValue}
+                </Text>
             }
         </VStack>
         <VStack pt={{ base: '0', sm: '4' }} pb={{ base: 0, sm: isLast ? '0' : '4' }} pl={{ base: 0, sm: '4' }} w={{ base: 'full', sm: '50%' }} borderLeft={{ base: 'none', sm: "1px solid #cccccc66" }} spacing="0" alignItems={'flex-start'}>
@@ -133,7 +133,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
     const { isLoading: isLoadingEvents, events, depositedByUser, currentCycleDepositedByUser, liquidated, depositsOnTopOfLeverageEvents, repaysOnTopOfDeleverageEvents } = useFirmMarketEvents(market, account, firmActionIndex);
     const { formattedEvents, isLoading: isLoadingEventsFromApi, firmActionIndex: responseFirmActionIndex } = useEscrowBalanceEvolution(account, escrow, market.address, firmActionIndex);
     const lastFirmActionIndexLoaded = firmActionIndex === firmActionDepositsIndexState;
-    const { grouped: groupedEventsFallback, depositedByUser: depositedByUserFallback, currentCycleDepositedByUser: currentCycleDepositedByUserFallback, liquidated: liquidatedFallback } = formatAndGroupFirmEvents(market, account, lastFirmActionIndexLoaded ? formattedEvents: [], depositsOnTopOfLeverageEvents, repaysOnTopOfDeleverageEvents);
+    const { grouped: groupedEventsFallback, depositedByUser: depositedByUserFallback, currentCycleDepositedByUser: currentCycleDepositedByUserFallback, liquidated: liquidatedFallback } = formatAndGroupFirmEvents(market, account, lastFirmActionIndexLoaded ? formattedEvents : [], depositsOnTopOfLeverageEvents, repaysOnTopOfDeleverageEvents);
     // same length, use data from api (timestamp already there), otherwise use prefer live data from blockchain
     const _events = events?.length > groupedEventsFallback?.length ? events : groupedEventsFallback;
     const _depositedByUser = depositedByUser || depositedByUserFallback;
@@ -146,9 +146,9 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
     useEffect(() => {
         setFirmActionDepositsIndexState(firmActionDepositsIndexState);
     }, [responseFirmActionIndex]);
-    
+
     useEffect(() => {
-        if(firmActionIndex === null) return;
+        if (firmActionIndex === null) return;
         setFirmActionDepositsIndexState(firmActionIndex);
     }, [firmActionIndex]);
 
@@ -252,7 +252,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
             },
         ],
     ]
-    const newMonthlyDBRBurnInMarket = newDailyDBRBurnInMarket ? newDailyDBRBurnInMarket * 365/12 : 0;
+    const newMonthlyDBRBurnInMarket = newDailyDBRBurnInMarket ? newDailyDBRBurnInMarket * 365 / 12 : 0;
 
     const dbrInfos = [
         [
@@ -327,9 +327,11 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
                 isLoading: isLeverageLoadingOrTriggeringLoad,
             },
             {
-                tooltip: 'Minimum Collateral Price before liquidations can happen',
+                tooltip: 'Minimum Collateral Price before liquidations can happen, the percentage shows the drawdown from the current price needed to reach the liquidation price',
                 title: 'Liquidation Price',
-                value: (!!deposits || !!newDeposits) && newLiquidationPrice > 0 ? `${preciseCommify(newLiquidationPrice, newLiquidationPrice < 10 ? 4 : 2, true)}` : '-',
+                value: (!!deposits || !!newDeposits) && newLiquidationPrice > 0 ?
+                    `${preciseCommify(newLiquidationPrice, newLiquidationPrice < 10 ? 4 : 2, true)} (-${shortenNumber((1 - newLiquidationPrice / market.price) * 100, 2)}%)`
+                    : '-',
                 color: newDeposits > 0 || newTotalDebtInMarket > 0 ? riskColor : undefined,
                 isLoading: isLeverageLoadingOrTriggeringLoad,
             },
