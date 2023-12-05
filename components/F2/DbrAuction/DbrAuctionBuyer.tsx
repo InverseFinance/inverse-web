@@ -11,11 +11,13 @@ import { parseEther } from "@ethersproject/units";
 import { BigNumber } from "ethers";
 import { Input } from "../../common/Input";
 import Container from "../../common/Container";
-import { useDBRPrice, useTriCryptoSwap } from "@app/hooks/useDBR";
+import { useAccountDBR, useDBRPrice, useTriCryptoSwap } from "@app/hooks/useDBR";
 import { NavButtons } from "@app/components/common/Button";
 import { useDOLAPriceLive } from "@app/hooks/usePrices";
 import { InfoMessage } from "@app/components/common/Messages";
 import { preciseCommify } from "@app/util/misc";
+import { useDOLABalance } from "@app/hooks/useDOLA";
+import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -41,6 +43,9 @@ export const DbrAuctionBuyer = () => {
     const { provider, account } = useWeb3React();
     const [dolaAmount, setDolaAmount] = useState('');
     const [dbrAmount, setDbrAmount] = useState('');
+    const [isConnected, setIsConnected] = useState(true);
+    const { signedBalance: dbrBalance, dbrExpiryDate, debt: currentTotalDebt } = useAccountDBR(account);
+    const { balance: dolaBalance } = useDOLABalance(account);
 
     const [slippage, setSlippage] = useState('1');
     const [tab, setTab] = useState('Sell exact DOLA');
@@ -93,6 +98,10 @@ export const DbrAuctionBuyer = () => {
         return swapDolaForExactDbr(provider?.getSigner(), maxDolaIn, parseEther(dbrAmount));
     }
 
+    useDebouncedEffect(() => {
+        setIsConnected(!!account)
+    }, [account], 500);
+
     return <Container
         label="DBR auction of type K=xy"
         description="See contract"
@@ -103,15 +112,23 @@ export const DbrAuctionBuyer = () => {
         maxW='450px'>
         <VStack spacing="4" alignItems="flex-start" w='full'>
             {
-                !account ? <InfoMessage description="Please connect your wallet" />
+                !isConnected ? <InfoMessage alertProps={{ w:'full' }} description="Please connect your wallet" />
                     :
-                    <>
+                    <>                        
                         <NavButtons active={tab} options={['Sell exact DOLA', 'Buy exact DBR']} onClick={(v) => setTab(v)} />
+                        <HStack w='full' justify="space-between">
+                            <Text fontSize="14px">
+                                DBR balance: {preciseCommify(dbrBalance, 2)}
+                            </Text>
+                            <Text fontSize="14px">
+                                DOLA balance: {preciseCommify(dolaBalance, 2)}
+                            </Text>
+                        </HStack>
                         {
                             isExactDola ?
                                 <VStack w='full' alignItems="flex-start">
                                     <TextInfo message="Exact amount of DOLA in exchange for DBR, the auction formula is of type K=xy">
-                                        <Text>Exact amount DOLA to sell</Text>
+                                        <Text fontWeight="bold" fontSize="14px">Exact amount DOLA to sell:</Text>
                                     </TextInfo>
                                     <SimpleAmountForm
                                         defaultAmount={dolaAmount}
@@ -132,7 +149,7 @@ export const DbrAuctionBuyer = () => {
                                 :
                                 <VStack w='full' alignItems="flex-start">
                                     <TextInfo message="Exact amount of DBR in exchange for DOLA, the auction formula is of type K=xy">
-                                        <Text>Exact amount of DBR to buy</Text>
+                                        <Text fontWeight="bold" fontSize="14px">Exact amount of DBR to buy:</Text>
                                     </TextInfo>
                                     <SimpleAmountForm
                                         defaultAmount={dbrAmount}
