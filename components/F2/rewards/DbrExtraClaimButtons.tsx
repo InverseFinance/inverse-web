@@ -1,5 +1,6 @@
 import { ROutlineButton, RSubmitButton } from "@app/components/common/Button/RSubmitButton"
 import { Input } from "@app/components/common/Input"
+import { TextInfo } from "@app/components/common/Messages/TextInfo"
 import { Modal } from "@app/components/common/Modal"
 import { F2_ESCROW_ABI } from "@app/config/abis"
 import { BURN_ADDRESS } from "@app/config/constants"
@@ -12,9 +13,11 @@ import { claimDbrAndSellForDola, claimDbrSellAndDepositInv, claimDbrSellAndRepay
 import { getNumberToBn, smartShortNumber } from "@app/util/markets"
 import { preciseCommify } from "@app/util/misc"
 import { getNetworkConfigConstants } from "@app/util/networks"
+import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons"
 import { VStack, useDisclosure, Text, Stack, RadioGroup, Radio, HStack, Select } from "@chakra-ui/react"
 import { useWeb3React } from "@web3-react/core"
 import { Contract } from "ethers"
+import { isAddress } from "ethers/lib/utils"
 import { useMemo, useState } from "react"
 
 const { F2_DBR_REWARDS_HELPER } = getNetworkConfigConstants();
@@ -49,6 +52,8 @@ export const DbrRewardsModal = ({
         return accountMarkets.filter(m => m.debt > 0).sort((a, b) => b.debt - a.debt);
     }, [accountMarkets.map(m => m.debt).join('-')]);
 
+    const [isCustomAddress, setIsCustomAddress] = useState(false);
+    const [customAddress, setCustomAddress] = useState('');
     const [selected, setSelected] = useState('restake');
     const [slippage, setSlippage] = useState('1');
     const [marketToRepay, setMarketToRepay] = useState('');
@@ -76,14 +81,15 @@ export const DbrRewardsModal = ({
     const handleClaim = () => {
         if (!account) return;
         const minAmountOutBn = getNumberToBn(minAmountOut);
+        const destinationAddress = isCustomAddress ? customAddress : account;
         if (selected === 'restake') {
-            return claimDbrSellAndDepositInv(minAmountOutBn, provider?.getSigner());
+            return claimDbrSellAndDepositInv(minAmountOutBn, provider?.getSigner(), destinationAddress);
         } else if (selected === 'sell') {
-            return claimDbrAndSellForDola(minAmountOutBn, provider?.getSigner());
+            return claimDbrAndSellForDola(minAmountOutBn, provider?.getSigner(), destinationAddress);
         } else if (selected === 'repay' && !!marketToRepay) {
-            return claimDbrSellAndRepay(minAmountOutBn, marketToRepay, provider?.getSigner());
+            return claimDbrSellAndRepay(minAmountOutBn, marketToRepay, provider?.getSigner(), destinationAddress);
         } else if (selected === 'claim') {
-            return basicClaim();
+            return basicClaim(destinationAddress);
         }
     }
 
@@ -150,6 +156,15 @@ export const DbrRewardsModal = ({
                     <Text>Min. {isRestake ? 'INV' : 'DOLA'} amount from sell: <b>{minAmountOut ? smartShortNumber(minAmountOut, 2, false, true) : '-'}</b></Text>
                 </HStack>
             }
+            <VStack spacing="0" w='full' alignItems="flex-start">
+                <TextInfo message="If you wish to assets transferred or deposited to another account address">
+                    <HStack spacing="1" cursor="pointer" onClick={v => !!customAddress ? () => { } : setIsCustomAddress(!isCustomAddress)}>
+                        <Text>Recipient address (optional)</Text>
+                        {!customAddress ? isCustomAddress ? <ChevronDownIcon /> : <ChevronRightIcon /> : null}
+                    </HStack>
+                </TextInfo>
+                <Input fontSize="14px" isInvalid={!!customAddress && !isAddress(customAddress)} display={isCustomAddress ? 'block' : 'none'} w='full' placeholder={account} value={customAddress} onChange={e => setCustomAddress(e.target.value)} />
+            </VStack>
             <VStack alignItems="center" w='full'>
                 {
                     !isHelperAllowedAsClaimer ?

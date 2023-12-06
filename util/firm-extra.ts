@@ -80,26 +80,23 @@ export const claimDbrAndSell = async (
     return contract.claimAndSell(claimAndSellData, repayData);
 }
 
-export const claimDbrAndSellForDola = async (minDolaOut: BigNumber, signer: JsonRpcSigner) => {
-    const contract = new Contract(F2_DBR_REWARDS_HELPER, DBR_REWARDS_HELPER_ABI, signer);
-    const account = await signer.getAddress();
-    const exchangeData = [account, account, account, minDolaOut, '10000', '0', '0'];
+export const claimDbrAndSellForDola = async (minDolaOut: BigNumber, signer: JsonRpcSigner, destinationAddress: string) => {
+    const contract = new Contract(F2_DBR_REWARDS_HELPER, DBR_REWARDS_HELPER_ABI, signer);    
+    const exchangeData = [destinationAddress, destinationAddress, destinationAddress, minDolaOut, '10000', '0', '0'];
     const repayData = [BURN_ADDRESS, BURN_ADDRESS, '0'];
     return contract.claimAndSell(exchangeData, repayData);
 }
 
-export const claimDbrSellAndRepay = async (minDolaOut: BigNumber, market: string, signer: JsonRpcSigner) => {
-    const contract = new Contract(F2_DBR_REWARDS_HELPER, DBR_REWARDS_HELPER_ABI, signer);
-    const account = await signer.getAddress();
-    const exchangeData = [account, account, account, minDolaOut, '10000', '0', '0'];
-    const repayData = [market, account, '10000'];
+export const claimDbrSellAndRepay = async (minDolaOut: BigNumber, market: string, signer: JsonRpcSigner, destinationAddress: string) => {
+    const contract = new Contract(F2_DBR_REWARDS_HELPER, DBR_REWARDS_HELPER_ABI, signer);    
+    const exchangeData = [destinationAddress, destinationAddress, destinationAddress, minDolaOut, '10000', '0', '0'];
+    const repayData = [market, destinationAddress, '10000'];
     return contract.claimAndSell(exchangeData, repayData);
 }
 
-export const claimDbrSellAndDepositInv = async (minInvOut: BigNumber, signer: JsonRpcSigner) => {
-    const contract = new Contract(F2_DBR_REWARDS_HELPER, DBR_REWARDS_HELPER_ABI, signer);
-    const account = await signer.getAddress();
-    const exchangeData = [account, account, account, '0', '0', minInvOut, '10000'];
+export const claimDbrSellAndDepositInv = async (minInvOut: BigNumber, signer: JsonRpcSigner, destinationAddress: string) => {
+    const contract = new Contract(F2_DBR_REWARDS_HELPER, DBR_REWARDS_HELPER_ABI, signer);    
+    const exchangeData = [destinationAddress, destinationAddress, destinationAddress, '0', '0', minInvOut, '10000'];
     const repayData = [BURN_ADDRESS, BURN_ADDRESS, '0'];
     return contract.claimAndSell(exchangeData, repayData);
 }
