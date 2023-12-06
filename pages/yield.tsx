@@ -8,7 +8,7 @@ export const EarnPage = () => {
     return (
         <Layout>
             <Head>
-                <title>{process.env.NEXT_PUBLIC_TITLE} - Yield Opportunities</title>
+                <title>Inverse Finance - Yield Opportunities</title>
                 <meta name="og:title" content="" />
                 <meta name="og:description" content="" />
                 <meta name="description" content="" />

@@ -439,7 +439,7 @@ export const BadDebtPage = () => {
   return (
     <Layout>
       <Head>
-        <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Bad Debts</title>
+        <title>Inverse Finance - Transparency Bad Debts</title>
         <meta name="og:title" content="Inverse Finance - Bad Debts" />
         <meta name="og:description" content="Bad Debts" />
         <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-portal.png" />

@@ -106,7 +106,7 @@ export const Landing = ({ posts }: {
   return (
     <Layout isLanding={true} pt="0" overflow="hidden">
       <Head>
-        <title>{process.env.NEXT_PUBLIC_TITLE}</title>
+        <title>Inverse Finance</title>
         <meta name="og:image" content="https://inverse.finance/assets/social-previews/landing.png" />
       </Head>
       <video autoPlay muted loop style={{

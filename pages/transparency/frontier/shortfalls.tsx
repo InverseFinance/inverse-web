@@ -21,7 +21,7 @@ export const ShortfallsPage = () => {
   return (
     <Layout>
       <Head>
-        <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Shortfalls</title>
+        <title>Inverse Finance - Transparency Shortfalls</title>
         <meta name="og:title" content="Inverse Finance - Shortfalls" />
         <meta name="og:description" content="Frontier's shortfalls" />
         <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-portal.png" />

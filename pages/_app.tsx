@@ -55,7 +55,7 @@ const App = ({ Component, pageProps }: AppProps) => {
         ]
       }>
         <Head>
-          <title>{process.env.NEXT_PUBLIC_TITLE}</title>
+          <title>Inverse Finance</title>
           <meta name="description" content="Inverse Finance is an Open Source Protocol for borrowing at a fixed-rate. Stake INV to earn real yield through DBR streaming." />
           <meta name="keywords" content="Decentralized Finance, DeFi, lending, borrowing, DAO, stablecoins, Ethereum, stEth, ETH, CRV, cvxCRV, INV, DOLA, gOHM, real yield, audited, borrow, lend, bonds, rewards, transparency, FiRM, DBR, DOLA borrowing right, Fixed Rate, Fixed Rate Market" />
 

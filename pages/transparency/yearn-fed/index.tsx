@@ -447,7 +447,7 @@ export const YearnFed = ({ cachedYearnFedData }: { cachedYearnFedData: YearnFedD
   return (
     <Layout>
       <Head>
-        <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Yearn Fed</title>
+        <title>Inverse Finance - Transparency Yearn Fed</title>
         <meta name="og:title" content="Inverse Finance - Yearn Fed" />
         <meta name="og:description" content="Yearn Fed" />
         <meta name="description" content="Inverse Finance Yearn Fed" />

@@ -42,7 +42,7 @@ export const Drafts = ({ proposal }) => {
   return (
     <Layout>
       <Head>
-        <title>{process.env.NEXT_PUBLIC_TITLE} - Edit Draft</title>
+        <title>Inverse Finance - Edit Draft</title>
         <meta name="og:title" content={`Inverse Finance - Draft Proposal`} />
         <meta name="og:description" content={`${proposal?.title || 'Draft Not Found or Removed'}`} />
         <meta name="description" content={`Inverse Finance DAO's Draft Proposal`} />

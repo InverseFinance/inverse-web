@@ -12,7 +12,7 @@ export const DbrAuctionPage = () => {
   return (
     <Layout>
       <Head>
-        <title>{process.env.NEXT_PUBLIC_TITLE} - DBR auction</title>
+        <title>Inverse Finance - DBR auction</title>
         <meta name="og:title" content="Inverse Finance - DBR auction" />
         <meta name="og:description" content="DBR auction" />
         <meta name="description" content="DBR auction" />

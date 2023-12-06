@@ -9,7 +9,7 @@ export const F2PAGE = () => {
     return (
         <Layout>
             <Head>
-                <title>{process.env.NEXT_PUBLIC_TITLE} - FiRM FAQ</title>
+                <title>Inverse Finance - FiRM FAQ</title>
             </Head>
             <AppNav active="Borrow" activeSubmenu="FiRM" />
             <ErrorBoundary>

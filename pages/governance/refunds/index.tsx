@@ -11,7 +11,7 @@ export const GovRefunds = () => {
   return (
     <Layout>
       <Head>
-        <title>{process.env.NEXT_PUBLIC_TITLE} - Refunds</title>
+        <title>Inverse Finance - Refunds</title>
         <meta name="og:title" content="Inverse Finance - Refunds" />
         <meta name="og:description" content="Refunds Portal" />
       </Head>

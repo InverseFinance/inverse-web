@@ -52,7 +52,7 @@ export const DBRTransparency = () => {
     return (
         <Layout>
             <Head>
-                <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency DBR</title>
+                <title>Inverse Finance - Transparency DBR</title>
                 <meta name="og:title" content="Inverse Finance - Transparency" />
                 <meta name="og:description" content="DBR Transparency" />
                 <meta name="description" content="DBR Transparency" />

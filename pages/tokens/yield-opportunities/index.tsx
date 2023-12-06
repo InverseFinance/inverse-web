@@ -8,7 +8,7 @@ export const OpportunitiesPage = () => {
     return (
         <Layout>
             <Head>
-                <title>{process.env.NEXT_PUBLIC_TITLE} - Yield Opportunities</title>
+                <title>Inverse Finance - Yield Opportunities</title>
                 <meta name="og:title" content="Inverse Finance - Yield Opportunities" />
                 <meta name="og:description" content="INV & DOLA Yield Opportunities" />
                 <meta name="description" content="INV & DOLA Yield Opportunities" />

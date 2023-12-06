@@ -32,7 +32,7 @@ export const Overview = () => {
   return (
     <Layout>
       <Head>
-        <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Treasury</title>
+        <title>Inverse Finance - Transparency Treasury</title>
         <meta name="og:title" content="Inverse Finance - Transparency" />
         <meta name="og:description" content="Treasury Details" />
         <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-portal.png" />

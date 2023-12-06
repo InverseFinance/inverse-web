@@ -28,7 +28,7 @@ export const DebtConverterRepaymentsPage = () => {
     return (
         <Layout>
             <Head>
-                <title>{process.env.NEXT_PUBLIC_TITLE} - Debt Converter Repayments</title>
+                <title>Inverse Finance - Debt Converter Repayments</title>
             </Head>
             <AppNav active="Frontier" activeSubmenu="Debt Converter" />
             <ErrorBoundary>

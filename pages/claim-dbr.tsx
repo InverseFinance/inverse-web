@@ -137,7 +137,7 @@ export const ClaimDbr = () => {
     return (
         <Layout>
             <Head>
-                <title>{process.env.NEXT_PUBLIC_TITLE} - DBR token</title>
+                <title>Inverse Finance - DBR token</title>
                 <meta name="og:title" content="Inverse Finance - DBR Airdrop" />
                 <meta name="og:description" content="Check if you're available for the DBR airdrop and claim it!" />
                 <meta name="og:image" content="https://inverse.finance/assets/v2/dbr-airdrop.jpg" />

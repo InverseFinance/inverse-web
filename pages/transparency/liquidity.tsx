@@ -211,7 +211,7 @@ export const Liquidity = () => {
   return (
     <Layout>
       <Head>
-        <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Liquidity</title>
+        <title>Inverse Finance - Transparency Liquidity</title>
         <meta name="og:title" content="Inverse Finance - Liquidity" />
         <meta name="og:description" content="Liquidity Details" />
         <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-portal.png" />

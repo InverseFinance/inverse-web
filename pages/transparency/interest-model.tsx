@@ -40,7 +40,7 @@ export const InterestModelPage = () => {
     return (
         <Layout>
             <Head>
-                <title>{process.env.NEXT_PUBLIC_TITLE} - Interest Rate Model</title>
+                <title>Inverse Finance - Interest Rate Model</title>
                 <meta name="og:title" content="Inverse Finance - Transparency" />
                 <meta name="og:description" content="Interest Rates" />
                 <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-portal.png" />

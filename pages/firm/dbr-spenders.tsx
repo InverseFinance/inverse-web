@@ -10,7 +10,7 @@ export const F2DbrSpendersPage = () => {
     return (
         <Layout>
             <Head>
-                <title>{process.env.NEXT_PUBLIC_TITLE} - FiRM DBR Deficits</title>
+                <title>Inverse Finance - FiRM DBR Deficits</title>
             </Head>
             <AppNav active="Earn" activeSubmenu="Replenish DBR" />
             <ErrorBoundary>

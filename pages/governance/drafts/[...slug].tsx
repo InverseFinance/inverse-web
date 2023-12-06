@@ -33,7 +33,7 @@ export const Drafts = ({ proposal }) => {
   return (
     <Layout>
       <Head>
-        <title>{process.env.NEXT_PUBLIC_TITLE} - Draft Details</title>
+        <title>Inverse Finance - Draft Details</title>
         <meta name="og:title" content={`Inverse Finance - Draft Proposal`} />
         <meta name="og:description" content={`${proposal?.title || 'Draft'}`} />
         <meta name="og:image" content="https://images.ctfassets.net/kfs9y9ojngfc/6yAG6AVICeMaq6CPntNZqZ/d25e6524959cbba190f4af4b42dbfb83/cover-governance.png?w=3840&q=75" />

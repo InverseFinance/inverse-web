@@ -9,7 +9,7 @@ export const AboutFirm = () => {
     return (
         <Layout>
             <Head>
-                <title>{process.env.NEXT_PUBLIC_TITLE} - Audits</title>
+                <title>Inverse Finance - Audits</title>
                 <meta name="og:title" content="Inverse Finance - Audits" />
                 <meta name="description" content="Inverse Finance audits" />
                 <meta name="og:description" content="Inverse Finance audits" />

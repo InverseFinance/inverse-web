@@ -10,7 +10,7 @@ export const FirmStakers = () => {
     return (
         <Layout>
             <Head>
-                <title>{process.env.NEXT_PUBLIC_TITLE} - INV stakers</title>
+                <title>Inverse Finance - INV stakers</title>
             </Head>
             <AppNav active="FiRM" activeSubmenu="Stakers" />
             <ErrorBoundary>
