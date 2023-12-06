@@ -5,16 +5,17 @@ import { Modal } from "@app/components/common/Modal"
 import { F2_ESCROW_ABI } from "@app/config/abis"
 import { BURN_ADDRESS } from "@app/config/constants"
 import { useAccount } from "@app/hooks/misc"
+import { useAppTheme } from "@app/hooks/useAppTheme"
 import { useAccountDBR, useAccountF2Markets, useDBRMarkets, useTriCryptoSwap } from "@app/hooks/useDBR"
 import useEtherSWR from "@app/hooks/useEtherSWR"
 import { useStakedInFirm } from "@app/hooks/useFirm"
 import { ZapperToken } from "@app/types"
-import { claimDbrAndSellForDola, claimDbrSellAndDepositInv, claimDbrSellAndRepay } from "@app/util/firm-extra"
-import { getNumberToBn, smartShortNumber } from "@app/util/markets"
+import { claimDbrAndSell, claimDbrAndSellForDola, claimDbrSellAndDepositInv, claimDbrSellAndRepay } from "@app/util/firm-extra"
+import { getNumberToBn, shortenNumber, smartShortNumber } from "@app/util/markets"
 import { preciseCommify } from "@app/util/misc"
 import { getNetworkConfigConstants } from "@app/util/networks"
 import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons"
-import { VStack, useDisclosure, Text, Stack, RadioGroup, Radio, HStack, Select } from "@chakra-ui/react"
+import { VStack, useDisclosure, Text, Stack, RadioGroup, Radio, HStack, Select, RangeSlider, RangeSliderTrack, RangeSliderFilledTrack, RangeSliderThumb, Slider, SliderTrack, SliderFilledTrack, SliderThumb, Divider } from "@chakra-ui/react"
 import { useWeb3React } from "@web3-react/core"
 import { Contract } from "ethers"
 import { isAddress } from "ethers/lib/utils"
@@ -33,6 +34,7 @@ export const DbrRewardsModal = ({
     basicClaim: () => void,
     dbrRewardsInfo: ZapperToken
 }) => {
+    const { themeStyles } = useAppTheme();
     const account = useAccount();
     const { provider } = useWeb3React();
     const { debt } = useAccountDBR(account);
@@ -57,6 +59,7 @@ export const DbrRewardsModal = ({
     const [selected, setSelected] = useState('restake');
     const [slippage, setSlippage] = useState('1');
     const [marketToRepay, setMarketToRepay] = useState('');
+    const [percentageToReinvest, setPercentageToReinvest] = useState(100);
 
     // amounts of DOLA and INV for selling DBR
     const { amountOut: dolaMinAmountOut } = useTriCryptoSwap(dbrRewardsInfo.balance, 1, 0);
@@ -82,18 +85,31 @@ export const DbrRewardsModal = ({
         if (!account) return;
         const minAmountOutBn = getNumberToBn(minAmountOut);
         const destinationAddress = isCustomAddress ? customAddress : account;
-        if (selected === 'restake') {
-            return claimDbrSellAndDepositInv(minAmountOutBn, provider?.getSigner(), destinationAddress);
-        } else if (selected === 'sell') {
-            return claimDbrAndSellForDola(minAmountOutBn, provider?.getSigner(), destinationAddress);
-        } else if (selected === 'repay' && !!marketToRepay) {
-            return claimDbrSellAndRepay(minAmountOutBn, marketToRepay, provider?.getSigner(), destinationAddress);
-        } else if (selected === 'claim') {
-            return basicClaim(destinationAddress);
-        }
+        const dolaPerc = 100 - percentageToReinvest;
+        const invBps = (percentageToReinvest * 100).toString();
+        const dolaBps = (dolaPerc * 100).toString();
+        const slippageFactor = (1 - parseFloat(slippage) / 100);
+        const dolaMinOutBn = getNumberToBn(dolaMinAmountOut * (dolaPerc / 100) * slippageFactor);
+        const invMinOutBn = getNumberToBn(dolaMinAmountOut * (dolaPerc / 100) * slippageFactor);
+        const exchangeData = [destinationAddress, destinationAddress, destinationAddress, dolaMinOutBn, dolaBps , invMinOutBn, invBps];
+        const repayData = [destinationAddress, destinationAddress, '0'];
+        return claimDbrAndSell(provider.getSigner(), exchangeData, repayData);
+        // if (selected === 'restake') {
+        //     return claimDbrSellAndDepositInv(minAmountOutBn, provider?.getSigner(), destinationAddress);
+        // } else if (selected === 'sell') {
+        //     return claimDbrAndSellForDola(minAmountOutBn, provider?.getSigner(), destinationAddress);
+        // } else if (selected === 'repay' && !!marketToRepay) {
+        //     return claimDbrSellAndRepay(minAmountOutBn, marketToRepay, provider?.getSigner(), destinationAddress);
+        // } else if (selected === 'claim') {
+        //     return basicClaim(destinationAddress);
+        // }
     }
 
     const hasInvalidSlippage = (!slippage || slippage === '0' || isNaN(parseFloat(slippage)));
+
+    const handleSellSlider = (percToReinvest: number) => {
+        setPercentageToReinvest(percToReinvest);
+    }
 
     return <Modal
         isOpen={isOpen}
@@ -116,10 +132,11 @@ export const DbrRewardsModal = ({
                         debt > 0 && <Text>My total debt: {smartShortNumber(debt, 2)} DOLA</Text>
                     }
                 </HStack>
-                <Text fontSize='20px' fontWeight="bold">
+                <Divider />
+                {/* <Text fontSize='20px' fontWeight="bold">
                     Choose an action to do with the DBR rewards:
-                </Text>
-                <RadioGroup onChange={setSelected} pl="4" defaultValue='restake'>
+                </Text> */}
+                {/* <RadioGroup onChange={setSelected} pl="4" defaultValue='restake'>
                     <Stack spacing="3">
                         <Radio value='restake'>
                             <Text fontWeight={selected === 'restake' ? 'bold' : undefined}>Re-invest it in INV and stake</Text>
@@ -134,7 +151,7 @@ export const DbrRewardsModal = ({
                             <Text fontWeight={selected === 'repay' ? 'bold' : undefined}>Sell it for DOLA and repay debt in a market</Text>
                         </Radio>
                     </Stack>
-                </RadioGroup>
+                </RadioGroup> */}
                 {
                     isRepay && <Select onChange={(e) => setMarketToRepay(e.target.value)} value={marketToRepay} placeholder='Select a Market to repay debt'>
                         {
@@ -146,6 +163,44 @@ export const DbrRewardsModal = ({
                         }
                     </Select>
                 }
+                <VStack spacing="2" w='full' alignItems="flex-start">
+                    <HStack w='full' justify="space-between">
+                        <Text fontWeight="bold">Percentage to re-invest in INV:</Text>
+                        <Text>{shortenNumber(percentageToReinvest, 0)}%</Text>
+                    </HStack>
+                    <Slider
+                        value={percentageToReinvest}
+                        onChange={(v: number) => handleSellSlider(v)}
+                        min={0}
+                        max={100}
+                        step={1}
+                        aria-label='slider-ex-4'
+                        defaultValue={100}>
+                        <SliderTrack h="15px" bg={themeStyles.barFilledColor}>
+                            <SliderFilledTrack bg={themeStyles.success} />
+                        </SliderTrack>
+                        <SliderThumb boxSize={6} />
+                    </Slider>
+                    <HStack w='full' justify="space-between">
+                        <Text w='123px' cursor="pointer" textDecoration="underline" onClick={() => handleSellSlider(0)}>
+                            Sell all for DOLA
+                        </Text>
+                        <Text cursor="pointer" textDecoration="underline" onClick={() => handleSellSlider(50)}>
+                            50%
+                        </Text>
+                        <Text w='123px' cursor="pointer" textDecoration="underline" onClick={() => handleSellSlider(100)}>
+                            Sell all for INV
+                        </Text>
+                    </HStack>
+                </VStack>
+                <Divider />
+                {/* <RangeSlider onChange={handleRangeSlider} defaultValue={[0, 100]} min={0} max={100} step={1}>
+                    <RangeSliderTrack bg='red.100'>
+                        <RangeSliderFilledTrack bg='tomato' />
+                    </RangeSliderTrack>
+                    <RangeSliderThumb boxSize={6} index={0} />
+                    <RangeSliderThumb boxSize={6} index={1} />
+                </RangeSlider> */}
             </VStack>
             {
                 isNotBasicClaim && <HStack justify="space-between" w='full'>
