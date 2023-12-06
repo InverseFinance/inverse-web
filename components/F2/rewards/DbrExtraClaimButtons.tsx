@@ -67,7 +67,7 @@ export const DbrRewardsModal = ({
 
     // amounts of DOLA and INV for selling DBR
     const { amountOut: dolaAmountOut } = useTriCryptoSwap(dbrRewardsInfo.balance, 1, 0);
-    const { amountOut: invAmountOut } = useTriCryptoSwap(dbrRewardsInfo.balance, 1, 2);    
+    const { amountOut: invAmountOut } = useTriCryptoSwap(dbrRewardsInfo.balance, 1, 2);
 
     const dolaPerc = 100 - percentageToReinvest;
     const slippageFactor = (1 - parseFloat(slippage) / 100);
@@ -100,7 +100,9 @@ export const DbrRewardsModal = ({
         const dolaMinOutBn = getNumberToBn(dolaMinOut);
         const invMinOutBn = getNumberToBn(invMinOut);
         const exchangeData = [destinationAddress, destinationAddress, destinationAddress, dolaMinOutBn, dolaBps, invMinOutBn, invBps];
-        const repayData = [destinationAddress, destinationAddress, (percentageRepay*100).toString()];
+        const repayData = hasRepay ?
+            [marketToRepay, destinationAddress, (percentageRepay * 100).toString()]
+            : [BURN_ADDRESS, BURN_ADDRESS, '0'];
         return claimDbrAndSell(provider.getSigner(), exchangeData, repayData);
         // if (selected === 'restake') {
         //     return claimDbrSellAndDepositInv(minAmountOutBn, provider?.getSigner(), destinationAddress);
@@ -126,8 +128,9 @@ export const DbrRewardsModal = ({
     return <Modal
         isOpen={isOpen}
         onClose={onClose}
-        width="550px"
+        width="600px"
         maxW="98vw"
+        scrollBehavior="inside"
         header={
             <Stack minWidth={24} direction="row" align="center" >
                 <Text>
@@ -276,11 +279,11 @@ export const DbrRewardsModal = ({
                                     <HStack w='full' justify="space-between">
                                         <HStack>
                                             <Text>Keeping min.:</Text>
-                                            <Text>{dolaMinOut && percentageRepay < 100 ? `~${preciseCommify(dolaMinOut * (1-percentageRepay/100), 2)}` : '-'}</Text>
+                                            <Text>{dolaMinOut && percentageRepay < 100 ? `~${preciseCommify(dolaMinOut * (1 - percentageRepay / 100), 2)}` : '-'}</Text>
                                         </HStack>
                                         <HStack>
                                             <Text>Repaying min. debt:</Text>
-                                            <Text>{dolaMinOut && percentageRepay > 0 ? `~${preciseCommify(dolaMinOut * percentageRepay/100, 2)}` : '-'}</Text>
+                                            <Text>{dolaMinOut && percentageRepay > 0 ? `~${preciseCommify(dolaMinOut * percentageRepay / 100, 2)}` : '-'}</Text>
                                         </HStack>
                                     </HStack>
                                 </VStack>
@@ -296,7 +299,7 @@ export const DbrRewardsModal = ({
                             Authorize DBR Rewards Helper
                         </RSubmitButton>
                         :
-                        <RSubmitButton refreshOnSuccess={true} disabled={(isNotBasicClaim && hasInvalidSlippage) || (isRepay && !marketToRepay)} onClick={handleClaim} p="6" w='fit-content' fontSize="18px">
+                        <RSubmitButton refreshOnSuccess={true} disabled={(isNotBasicClaim && hasInvalidSlippage) || (hasRepay && !marketToRepay) || (isCustomAddress && (!isAddress(customAddress) || customAddress === BURN_ADDRESS))} onClick={handleClaim} p="6" w='fit-content' fontSize="18px">
                             Confirm
                         </RSubmitButton>
                 }
