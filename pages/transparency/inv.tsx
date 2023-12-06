@@ -81,7 +81,7 @@ export const InvPage = () => {
   return (
     <Layout>
       <Head>
-        <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Overview</title>
+        <title>Inverse Finance - Transparency Overview</title>
         <meta name="og:title" content="Inverse Finance - Transparency" />
         <meta name="og:description" content="INV Governance Token" />
         <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-inv.png" />

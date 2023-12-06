@@ -453,7 +453,7 @@ const DelegatesTable = () => {
 export const Stake = () => (
   <Layout>
     <Head>
-      <title>{process.env.NEXT_PUBLIC_TITLE} - Delegates</title>
+      <title>Inverse Finance - Delegates</title>
       <meta name="og:title" content="Inverse Finance - Governance" />
       <meta name="og:description" content="Top 100 delegates" />
       <meta name="og:image" content="https://images.ctfassets.net/kfs9y9ojngfc/6yAG6AVICeMaq6CPntNZqZ/d25e6524959cbba190f4af4b42dbfb83/cover-governance.png?w=3840&q=75" />

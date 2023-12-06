@@ -11,7 +11,7 @@ export const F2UsersPage = () => {
     return (
         <Layout>
             <Head>
-                <title>{process.env.NEXT_PUBLIC_TITLE} - FiRM Users</title>
+                <title>Inverse Finance - FiRM Users</title>
             </Head>
             <AppNav active="Transparency" activeSubmenu="FiRM users" hideAnnouncement={true} />
             <TransparencyTabs active="firm-users" />

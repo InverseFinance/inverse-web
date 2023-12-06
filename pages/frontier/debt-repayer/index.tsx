@@ -128,7 +128,7 @@ export const DebtRepayerPage = () => {
     return (
         <Layout>
             <Head>
-                <title>{process.env.NEXT_PUBLIC_TITLE} - Debt Repayer</title>
+                <title>Inverse Finance - Debt Repayer</title>
             </Head>
             <AppNav active="Borrow" activeSubmenu="Frontier - Debt Repayer" />
             <ErrorBoundary>

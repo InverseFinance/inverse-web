@@ -32,7 +32,7 @@ export const Propose = () => {
   return (
     <Layout>
       <Head>
-        <title>{process.env.NEXT_PUBLIC_TITLE} - New Proposal</title>
+        <title>Inverse Finance - New Proposal</title>
       </Head>
       <AppNav active="Governance" activeSubmenu="Create a Draft" />
       <Breadcrumbs

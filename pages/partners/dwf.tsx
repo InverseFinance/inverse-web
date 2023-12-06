@@ -166,7 +166,7 @@ export const DWFPage = () => {
   return (
     <Layout>
       <Head>
-        <title>{process.env.NEXT_PUBLIC_TITLE} - DWF</title>
+        <title>Inverse Finance - DWF</title>
         <meta name="og:title" content="Inverse Finance - DWF" />
         <meta name="description" content="Inverse Finance DWF" />
         <meta name="og:description" content="Inverse Finance DWF" />

@@ -100,7 +100,7 @@ export const Ale = () => {
     return (
         <Layout>
             <Head>
-                <title>{process.env.NEXT_PUBLIC_TITLE} - ALE</title>
+                <title>Inverse Finance - ALE</title>
             </Head>
             <AppNav active="Frontier" activeSubmenu="Ale" />
             <ErrorBoundary>

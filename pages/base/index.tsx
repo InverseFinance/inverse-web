@@ -12,7 +12,7 @@ export const BasePage = () => {
   return (
     <Layout>
       <Head>
-        <title>{process.env.NEXT_PUBLIC_TITLE} - Base</title>
+        <title>Inverse Finance - Base</title>
         <meta name="og:title" content="Inverse Finance - Base" />
         <meta name="og:description" content="Base bridging" />
         <meta name="description" content="Base bridging" />

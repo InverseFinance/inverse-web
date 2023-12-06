@@ -9,7 +9,7 @@ export const LiquidationsPage = () => {
     return (
         <Layout>
             <Head>
-                <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Liquidations</title>
+                <title>Inverse Finance - Transparency Liquidations</title>
                 <meta name="og:title" content="Inverse Finance - Frontier Liquidations" />
                 <meta name="og:description" content="Frontier: Liquidations" />
                 <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-portal.png" />

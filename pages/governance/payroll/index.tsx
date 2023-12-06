@@ -77,7 +77,7 @@ export const DolaPayrollPage = () => {
   return (
     <Layout>
       <Head>
-        <title>{process.env.NEXT_PUBLIC_TITLE} - Payroll</title>
+        <title>Inverse Finance - Payroll</title>
         <meta name="og:title" content="Inverse Finance - Payroll" />
         <meta name="og:description" content="Payroll Portal" />
       </Head>

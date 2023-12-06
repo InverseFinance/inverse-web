@@ -9,7 +9,7 @@ export const TokensPage = () => {
     return (
         <Layout>
             <Head>
-                <title>{process.env.NEXT_PUBLIC_TITLE} - Tokens</title>
+                <title>Inverse Finance - Tokens</title>
                 <meta name="og:title" content="Inverse Finance - Tokens" />                
             </Head>
             <AppNav active="Tokens" activeSubmenu="Overview" />

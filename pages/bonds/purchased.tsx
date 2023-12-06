@@ -10,7 +10,7 @@ export const BondsPage = () => {
     return (
         <Layout>
             <Head>
-                <title>{process.env.NEXT_PUBLIC_TITLE} - Bonds</title>
+                <title>Inverse Finance - Bonds</title>
                 <meta name="og:title" content="Inverse Finance - Bonds" />
                 <meta name="og:description" content="Buy INV at a discount thanks to bonds" />
                 <meta name="description" content="Buy INV at a discount thanks to bonds" />

@@ -15,7 +15,7 @@ export const Swap = () => {
   return (
     <Layout>
       <Head>
-        <title>{process.env.NEXT_PUBLIC_TITLE} - Swap / Bridge</title>
+        <title>Inverse Finance - Swap / Bridge</title>
         <meta name="og:title" content="Inverse Finance - Swap / Bridge" />
         <meta name="og:description" content="Swap and Bridge DOLA and other assets" />
         <meta name="description" content="Swap and Bridge DOLA and other assets" />

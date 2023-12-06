@@ -15,7 +15,7 @@ export const TokensPage = () => {
     return (
         <Layout>
             <Head>
-                <title>{process.env.NEXT_PUBLIC_TITLE} - Team Portal</title>
+                <title>Inverse Finance - Team Portal</title>
                 <meta name="og:title" content="Inverse Finance - Team Portal" />
             </Head>
             <AppNav active="Governance" />

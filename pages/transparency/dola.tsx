@@ -27,7 +27,7 @@ export const DolaDiagram = () => {
   return (
     <Layout>
       <Head>
-        <title>{process.env.NEXT_PUBLIC_TITLE} - Transparency Dola</title>
+        <title>Inverse Finance - Transparency Dola</title>
         <meta name="og:title" content="Inverse Finance - Transparency" />
         <meta name="og:description" content="Dola & the Feds" />
         <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-portal.png" />

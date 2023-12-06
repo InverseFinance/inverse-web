@@ -8,7 +8,7 @@ export const NewsletterPage = () => {
   return (
     <Layout preview={false} isNewsletter={true}>
       <Head>
-        <title>{process.env.NEXT_PUBLIC_TITLE} - Newsletter</title>
+        <title>Inverse Finance - Newsletter</title>
         <meta name="og:title" content="Inverse Finance - Newsletter" />
         <meta name="description" content="Inverse Finance Newsletter" />
         <meta name="og:description" content="Inverse Finance Newsletter" />

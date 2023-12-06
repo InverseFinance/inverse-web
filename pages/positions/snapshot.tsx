@@ -21,7 +21,7 @@ export const PositionsSnapshotPage = () => {
   return (
     <Layout>
       <Head>
-        <title>{process.env.NEXT_PUBLIC_TITLE} - Positions Snapshot</title>
+        <title>Inverse Finance - Positions Snapshot</title>
       </Head>
       <AppNav active="Positions" />
       <ErrorBoundary>

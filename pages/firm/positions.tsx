@@ -10,7 +10,7 @@ export const F2PositionsPage = () => {
     return (
         <Layout>
             <Head>
-                <title>{process.env.NEXT_PUBLIC_TITLE} - FiRM Positions</title>
+                <title>Inverse Finance - FiRM Positions</title>
             </Head>
             <AppNav active="Earn" activeSubmenu="Liquidate Loans" />
             <ErrorBoundary>
