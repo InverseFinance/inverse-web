@@ -1,4 +1,5 @@
 import { Input } from "@app/components/common/Input"
+import { InfoMessage } from "@app/components/common/Messages"
 import { AmountInfos } from "@app/components/common/Messages/AmountInfos"
 import { TextInfo } from "@app/components/common/Messages/TextInfo"
 import { BURN_ADDRESS } from "@app/config/constants"
@@ -99,12 +100,12 @@ export const FirmWithdrawInputSubline = ({
 
 export const FirmWethSwitch = ({
     onWethSwapModalOpen,
-    useLeverage,
+    hideUseNativeSwitch,
     setIsUseNativeCoin,
     isUseNativeCoin,
 }: {
     onWethSwapModalOpen: () => void
-    useLeverage: boolean
+    hideUseNativeSwitch: boolean
     setIsUseNativeCoin: (value: boolean) => void
     isUseNativeCoin: boolean
 }) => {
@@ -119,7 +120,7 @@ export const FirmWethSwitch = ({
             Easily convert between ETH to WETH
         </Text>
         {
-            !useLeverage && <FormControl w='fit-content' display='flex' alignItems='center'>
+            !hideUseNativeSwitch && <FormControl w='fit-content' display='flex' alignItems='center'>
                 <FormLabel fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-eth' mb='0'>
                     Use ETH instead of WETH?
                 </FormLabel>
@@ -212,11 +213,11 @@ export const FirmDebtInputTitle = ({
     </TextInfo>
 }
 
-export const FirmDepositRecipient = ({    
+export const FirmDepositRecipient = ({
     setCustomRecipient,
     customRecipient,
     placeholder
-}: {    
+}: {
     setCustomRecipient: (v: string) => void,
     customRecipient: string,
     placeholder: string
@@ -224,7 +225,7 @@ export const FirmDepositRecipient = ({
     const [opened, setOpened] = useState(false);
     const isVisible = !!customRecipient || opened;
     const isWrongAddress = !!customRecipient ? !isAddress(customRecipient) || customRecipient === BURN_ADDRESS : false;
-    return <VStack w='full'>
+    return <VStack w='full' alignItems="flex-start">
         <TextInfo message="The deposit will be deposited to another account">
             <HStack spacing="1" cursor="pointer" onClick={v => !!customRecipient ? () => { } : setOpened(!opened)}>
                 <Text>Recipient address (optional)</Text>
@@ -233,6 +234,12 @@ export const FirmDepositRecipient = ({
         </TextInfo>
         {
             isVisible && <Input isInvalid={isWrongAddress} w='full' placeholder={placeholder} value={customRecipient} onChange={e => setCustomRecipient(e.target.value)} />
+        }
+        {
+            isVisible && !!customRecipient && <InfoMessage
+                alertProps={{ w: 'full' }}
+                description="You will deposit to another account than the current connected account, the position of your current connected account will not change."
+            />
         }
     </VStack>
 }
