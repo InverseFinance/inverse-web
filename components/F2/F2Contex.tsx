@@ -75,6 +75,7 @@ export const F2Context = ({
     const [leverage, setLeverage] = useState(1);
     const [leverageLoading, setLeverageLoading] = useState(false);
     const [isTriggerLeverageFetch, setIsTriggerLeverageFetch] = useState(false);
+    const [customRecipient, setCustomRecipient] = useState('');
     const [mode, setMode] = useState('Deposit & Borrow');
     
     const [infoTab, setInfoTab] = useState('Summary');
@@ -119,7 +120,7 @@ export const F2Context = ({
     const dbrSwapPrice = isAutoDBR ? autoDbrSwapPrice || dbrPriceInDola : dbrPriceInDola;
     const dbrCoverDebt = dbrCover * dbrSwapPrice;
 
-    const hasCollateralChange = ['deposit', 'd&b', 'withdraw', 'r&w'].includes(MODES[mode]) || useLeverageInMode;
+    const hasCollateralChange = (!customRecipient || !!customRecipient && MODES[mode] !== 'deposit') && (['deposit', 'd&b', 'withdraw', 'r&w'].includes(MODES[mode]) || useLeverageInMode);
     const hasDebtChange = ['borrow', 'd&b', 'repay', 'r&w'].includes(MODES[mode]) || useLeverageInMode;
 
     const deltaCollateral = isDeposit ? totalCollateralAmountNum : -totalCollateralAmountNum;    
@@ -334,6 +335,8 @@ export const F2Context = ({
             setLeveragePriceImpact,
             isFirstTimeModalOpen,
             isTriggerLeverageFetch,
+            setCustomRecipient,
+            customRecipient,
             firmActionIndex,
             setFirmActionIndex,
             setCachedFirmActionIndex,

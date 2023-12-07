@@ -1,10 +1,16 @@
+import { Input } from "@app/components/common/Input"
+import { InfoMessage } from "@app/components/common/Messages"
 import { AmountInfos } from "@app/components/common/Messages/AmountInfos"
 import { TextInfo } from "@app/components/common/Messages/TextInfo"
+import { BURN_ADDRESS } from "@app/config/constants"
 import { F2Market } from "@app/types"
 import { getBnToNumber } from "@app/util/markets"
-import { FormControl, FormLabel, HStack, Switch, Text } from "@chakra-ui/react"
+import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons"
+import { FormControl, FormLabel, HStack, Switch, Text, VStack } from "@chakra-ui/react"
 import { formatUnits } from "@ethersproject/units"
 import { BigNumber } from "ethers"
+import { isAddress } from "ethers/lib/utils"
+import { useState } from "react"
 
 export const FirmRepayInputSubline = ({
     isDeleverageCase,
@@ -94,12 +100,12 @@ export const FirmWithdrawInputSubline = ({
 
 export const FirmWethSwitch = ({
     onWethSwapModalOpen,
-    useLeverage,
+    hideUseNativeSwitch,
     setIsUseNativeCoin,
     isUseNativeCoin,
 }: {
     onWethSwapModalOpen: () => void
-    useLeverage: boolean
+    hideUseNativeSwitch: boolean
     setIsUseNativeCoin: (value: boolean) => void
     isUseNativeCoin: boolean
 }) => {
@@ -114,7 +120,7 @@ export const FirmWethSwitch = ({
             Easily convert between ETH to WETH
         </Text>
         {
-            !useLeverage && <FormControl w='fit-content' display='flex' alignItems='center'>
+            !hideUseNativeSwitch && <FormControl w='fit-content' display='flex' alignItems='center'>
                 <FormLabel fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-eth' mb='0'>
                     Use ETH instead of WETH?
                 </FormLabel>
@@ -151,11 +157,11 @@ export const FirmLeverageSwitch = ({
     useLeverage: boolean
 }) => {
     return <FormControl w='fit-content' display='flex' alignItems='center'>
-    <FormLabel fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='leverage-switch' mb='0'>
-        {isDeposit ? 'L' : 'Del'}everage (beta)?
-    </FormLabel>
-    <Switch onChange={() => onChange(isDeposit)} isChecked={useLeverage} id='leverage-switch' />
-</FormControl>
+        <FormLabel fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='leverage-switch' mb='0'>
+            {isDeposit ? 'L' : 'Del'}everage (beta)?
+        </FormLabel>
+        <Switch onChange={() => onChange(isDeposit)} isChecked={useLeverage} id='leverage-switch' />
+    </FormControl>
 }
 
 export const FirmCollateralInputTitle = ({
@@ -205,4 +211,35 @@ export const FirmDebtInputTitle = ({
     >
         <Text fontSize='18px' color="mainTextColor"><b>{isDeposit ? 'Borrow' : 'Repay'}</b> DOLA{useLeverageInMode ? isDeposit ? ' (to do leverage)' : ' (on top of deleverage)' : ''}:</Text>
     </TextInfo>
+}
+
+export const FirmDepositRecipient = ({
+    setCustomRecipient,
+    customRecipient,
+    placeholder
+}: {
+    setCustomRecipient: (v: string) => void,
+    customRecipient: string,
+    placeholder: string
+}) => {
+    const [opened, setOpened] = useState(false);
+    const isVisible = !!customRecipient || opened;
+    const isWrongAddress = !!customRecipient ? !isAddress(customRecipient) || customRecipient === BURN_ADDRESS : false;
+    return <VStack w='full' alignItems="flex-start">
+        <TextInfo message="The deposit will be deposited to another account">
+            <HStack spacing="1" cursor="pointer" onClick={v => !!customRecipient ? () => { } : setOpened(!opened)}>
+                <Text>Recipient address (optional)</Text>
+                {!customRecipient ? isVisible ? <ChevronDownIcon /> : <ChevronRightIcon /> : null}
+            </HStack>
+        </TextInfo>
+        {
+            isVisible && <Input isInvalid={isWrongAddress} w='full' placeholder={placeholder} value={customRecipient} onChange={e => setCustomRecipient(e.target.value)} />
+        }
+        {
+            isVisible && !!customRecipient && <InfoMessage
+                alertProps={{ w: 'full' }}
+                description="You will deposit to another account than the current connected account, the position of your current connected account will not change."
+            />
+        }
+    </VStack>
 }

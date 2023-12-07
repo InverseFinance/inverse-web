@@ -233,7 +233,7 @@ export const f2depositAndBorrowHelper = async (
     return new Promise((res, rej) => rej("Signature failed or canceled"));
 }
 
-export const f2deposit = async (signer: JsonRpcSigner, market: string, amount: string | BigNumber, isNativeCoin = false) => {
+export const f2deposit = async (signer: JsonRpcSigner, market: string, amount: string | BigNumber, isNativeCoin = false, customRecipient?: string) => {
     const account = await signer.getAddress();
     if (isNativeCoin) {
         const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);
@@ -243,7 +243,7 @@ export const f2deposit = async (signer: JsonRpcSigner, market: string, amount: s
     if (needsHigherGasLimit(market)) {
         return callWithHigherGL(contract, 'deposit', [account, amount]);
     }
-    return contract.deposit(account, amount);
+    return contract.deposit(customRecipient || account, amount);
 }
 
 export const f2withdraw = async (signer: JsonRpcSigner, market: string, amount: string | BigNumber, isNativeCoin?: boolean) => {

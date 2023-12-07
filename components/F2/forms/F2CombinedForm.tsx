@@ -24,8 +24,10 @@ import { removeTrailingZeros } from '@app/util/misc'
 import { showToast } from '@app/util/notify'
 import { BorrowPausedMessage, CannotWithdrawIfDbrDeficitMessage, MinDebtBorrowMessage, NoDbrInWalletMessage, NoDolaLiqMessage, NotEnoughCollateralMessage, NotEnoughDolaToRepayMessage, NotEnoughLiqWithAutobuyMessage, ResultingBorrowLimitTooHighMessage } from './FirmFormSubcomponents/FirmMessages'
 import { AutoBuyDbrDurationInputs, DbrHelperSwitch, SellDbrInput } from './FirmFormSubcomponents/FirmDbrHelper'
-import { FirmBorroInputwSubline, FirmCollateralInputTitle, FirmDebtInputTitle, FirmExitModeSwitch, FirmLeverageSwitch, FirmRepayInputSubline, FirmWethSwitch, FirmWithdrawInputSubline } from './FirmFormSubcomponents'
+import { FirmBorroInputwSubline, FirmCollateralInputTitle, FirmDebtInputTitle, FirmDepositRecipient, FirmExitModeSwitch, FirmLeverageSwitch, FirmRepayInputSubline, FirmWethSwitch, FirmWithdrawInputSubline } from './FirmFormSubcomponents'
 import { BigNumber } from 'ethers'
+import { isAddress } from 'ethers/lib/utils'
+import { BURN_ADDRESS } from '@app/config/constants'
 
 const { DOLA, F2_HELPER, F2_ALE } = getNetworkConfigConstants();
 
@@ -108,6 +110,9 @@ export const F2CombinedForm = ({
         leverageLoading,
         setLeveragePriceImpact,
         isTriggerLeverageFetch,
+        account,
+        setCustomRecipient,
+        customRecipient,
     } = useContext(F2MarketContext);
 
     const [isLargerThan] = useMediaQuery('(min-width: 1280px)');
@@ -121,6 +126,7 @@ export const F2CombinedForm = ({
     const isRepayCase = ['repay', 'r&w'].includes(MODES[mode]);
     const isBorrowOnlyCase = 'borrow' === MODES[mode];
     const isWithdrawOnlyCase = 'withdraw' === MODES[mode];
+    const isDepositOnlyCase = 'deposit' === MODES[mode];
     const isSigNeeded = useLeverageInMode || ((isBorrowCase || isWithdrawCase) && isAutoDBR) || ((isDepositCase || isWithdrawCase) && isUseNativeCoin);
 
     const handleWithdrawMax = () => {
@@ -142,7 +148,7 @@ export const F2CombinedForm = ({
         const dbrAmountToSell = !isAutoDBR ? parseUnits('0') : parseUnits(dbrSellAmount || '0');
 
         if (action === 'deposit') {
-            return f2deposit(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), isUseNativeCoin);
+            return f2deposit(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), isUseNativeCoin, customRecipient);
         } else if (action === 'withdraw') {
             return f2withdraw(signer, market.address, parseUnits(collateralAmount, market.underlying.decimals), isUseNativeCoin);
         } else if (['d&b', 'borrow'].includes(action)) {
@@ -319,20 +325,21 @@ export const F2CombinedForm = ({
     const btnMaxlabel = `${btnLabel} Max`;
     const notEnoughToBorrowWithAutobuy = isBorrowCase && market.leftToBorrow > 1 && deltaDebt > 0 && market.leftToBorrow < (isAutoDBR ? deltaDebt + (dbrCoverDebt * (1 + parseFloat(dbrBuySlippage || 0) / 100)) : deltaDebt);
     const minDebtDisabledCondition = FEATURE_FLAGS.firmMinDebt && newTotalDebtInMarket > 0 && newTotalDebtInMarket < market.minDebt;
-    const isDeleverageCase = useLeverageInMode && !isDeposit;    
-    const canUseLeverage = FEATURE_FLAGS.firmLeverage && market.hasAleFeat && !isUseNativeCoin && ((mode === 'Deposit & Borrow' && (deposits > 0 || collateralAmountNum > 0)) || (mode === 'Borrow' && deposits > 0) || (['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1));    
+    const isDeleverageCase = useLeverageInMode && !isDeposit;
+    const canUseLeverage = FEATURE_FLAGS.firmLeverage && market.hasAleFeat && !isUseNativeCoin && ((mode === 'Deposit & Borrow' && (deposits > 0 || collateralAmountNum > 0)) || (mode === 'Borrow' && deposits > 0) || (['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1));
     const showMinDebtMessage = !notEnoughToBorrowWithAutobuy && minDebtDisabledCondition && (debtAmountNum > 0 || isDeleverageCase);
     const showNeedDbrMessage = isDeposit && !isAutoDBR && dbrBalance <= 0;
     const showNotEnoughDolaToRepayMessage = isRepayCase && debtAmountNum > 0 && dolaBalance < debtAmountNum;
 
+    const isWrongCustomRecipient = !!customRecipient ? !isAddress(customRecipient) || customRecipient === BURN_ADDRESS : false;
     const disabledDueToLeverage = useLeverageInMode && (leverage <= 1 || leverageLoading || isTriggerLeverageFetch || !aleSlippage || aleSlippage === '0' || isNaN(parseFloat(aleSlippage)));
     const disabledConditions = {
-        'deposit': ((collateralAmountNum <= 0 && !useLeverageInMode) || collateralBalance < collateralAmountNum),
+        'deposit': ((collateralAmountNum <= 0 && !useLeverageInMode) || collateralBalance < collateralAmountNum) || (isWrongCustomRecipient && isDepositOnlyCase),
         'borrow': duration <= 0 || debtAmountNum <= 0 || newPerc < 1 || showNeedDbrMessage || market.leftToBorrow < 1 || debtAmountNum > market.leftToBorrow || notEnoughToBorrowWithAutobuy || minDebtDisabledCondition || disabledDueToLeverage || showMinDebtMessage,
         'repay': (debtAmountNum <= 0 && !useLeverageInMode) || debtAmountNum > debt || showNotEnoughDolaToRepayMessage || (isAutoDBR && !parseFloat(dbrSellAmount)) || disabledDueToLeverage || showMinDebtMessage,
         'withdraw': ((collateralAmountNum <= 0 && !useLeverageInMode) || collateralAmountNum > deposits || newPerc < 1 || dbrBalance < 0),
     }
-    
+
     disabledConditions['d&b'] = disabledConditions['deposit'] || disabledConditions['borrow'] || !parseFloat(dbrBuySlippage);
     disabledConditions['r&w'] = disabledConditions['repay'] || disabledConditions['withdraw'];
 
@@ -372,10 +379,17 @@ export const F2CombinedForm = ({
                         {
                             isWethMarket && !!market.helper && !isDeleverageCase
                             && <FirmWethSwitch
-                                useLeverage={useLeverage}
+                                hideUseNativeSwitch={useLeverage || (!!customRecipient && isDepositOnlyCase)}
                                 onWethSwapModalOpen={onWethSwapModalOpen}
                                 setIsUseNativeCoin={setIsUseNativeCoin}
                                 isUseNativeCoin={isUseNativeCoin}
+                            />
+                        }
+                        {
+                            !useLeverageInMode && isDepositOnlyCase && !isUseNativeCoin && <FirmDepositRecipient
+                                setCustomRecipient={setCustomRecipient}
+                                customRecipient={customRecipient}
+                                placeholder={account}
                             />
                         }
                         {/* <AmountInfos label="Total Deposits" value={deposits} price={market.price} delta={deltaCollateral} textProps={{ fontSize: '14px' }} /> */}
@@ -455,7 +469,7 @@ export const F2CombinedForm = ({
                         />
                     }
                     {
-                        canUseLeverage && <FirmLeverageSwitch isDeposit={isDeposit} useLeverage={useLeverage} onChange={(isDeposit) => {                            
+                        canUseLeverage && <FirmLeverageSwitch isDeposit={isDeposit} useLeverage={useLeverage} onChange={(isDeposit) => {
                             const isActivatingLeverage = !useLeverage;
                             setUseLeverage(isActivatingLeverage);
                             retriggerLeverage(isDeposit, debtAmount, debtAmountNum, true, collateralAmountNum);
