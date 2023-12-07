@@ -3,7 +3,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { Fed, NetworkIds } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
-import { getTxsOf } from '@app/util/covalent';
+import { getLast100TxsOf, getTxsOf } from '@app/util/covalent';
 import { parseUnits } from '@ethersproject/units';
 import { pricesCacheKey } from '../prices';
 import { throttledPromises } from '@app/util/misc';
@@ -77,7 +77,7 @@ const getXchainMainnetProfits = async (FEDS: Fed[], DOLA: string, TREASURY: stri
 
 const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { [key: string]: number }, cachedTotalEvents?: any) => {
     const transfers = await throttledPromises(
-        (fed: Fed) => getTxsOf(fed.incomeSrcAd || fed.address, 30, 0, fed.incomeChainId || fed.chainId),
+        (fed: Fed) => getLast100TxsOf(fed.incomeSrcAd || fed.address, fed.incomeChainId || fed.chainId),
         FEDS,
         // max 5 req per sec
         5,
@@ -123,6 +123,7 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
                     const cachedHistoPrice = await getCacheFromRedis(histoCacheKey, false);
 
                     if (!cachedHistoPrice) {
+                        // TODO: use historical api with daily data
                         const histoPriceUrl = `https://api.coingecko.com/api/v3/coins/${cgId}/history?date=${histoDateDDMMYYYY}&localization=false`;
                         const res = await fetch(histoPriceUrl);
                         const historicalData = await res.json();
