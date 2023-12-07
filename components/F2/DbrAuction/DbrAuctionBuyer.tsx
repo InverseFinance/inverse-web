@@ -103,7 +103,7 @@ export const DbrAuctionBuyer = () => {
     }, [account], 500);
 
     return <Container
-        label="DBR auction of type K=xy"
+        label="DBR XYK Auction"
         description="See contract"
         href={`https://etherscan.io/address/${DBR_AUCTION_HELPER_ADDRESS}`}
         noPadding
