@@ -3,7 +3,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { Fed, NetworkIds } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
-import { getLast100TxsOf, getTxsOf } from '@app/util/covalent';
+import { getLast100TxsOf } from '@app/util/covalent';
 import { parseUnits } from '@ethersproject/units';
 import { pricesCacheKey } from '../prices';
 import { throttledPromises } from '@app/util/misc';
@@ -97,16 +97,14 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
         const items = r.data.items
             .filter(item => item.successful)
             .filter(item => !archivedFedData.find(archTx => archTx.transactionHash === item.tx_hash && archTx.fedIndex === i))
-            .filter(item => !!item.log_events
-                .find(e => !!e.decoded && e.decoded.name === eventName
+            .filter(item => !!item.log_events?.find(e => !!e.decoded && e.decoded.name === eventName
                     && e?.decoded?.params[0]?.value?.toLowerCase() == srcAddress
                     && e?.decoded?.params[1]?.value?.toLowerCase() == toAddress
                 ))
             .sort((a, b) => a.block_height - b.block_height);
 
         const unarchivedData = await Promise.all(items.map(async item => {
-            const filteredEvents = item.log_events
-                .filter(e => !!e.decoded && e.decoded.name === eventName
+            const filteredEvents = item.log_events?.filter(e => !!e.decoded && e.decoded.name === eventName
                     && e?.decoded?.params[0]?.value?.toLowerCase() == srcAddress
                     && e?.decoded?.params[1]?.value?.toLowerCase() == toAddress
                 )
@@ -161,8 +159,8 @@ export default async function handler(req, res) {
     const { cacheFirst } = req.query;
     const { FEDS, DOLA, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
 
-    const archiveCacheKey = `revenues-v1.0.20a`;
-    const cacheKey = `revenues-v1.0.22`;
+    const archiveCacheKey = `revenues-v1.0.22`;
+    const cacheKey = `revenues-v1.0.23`;
 
     try {
 

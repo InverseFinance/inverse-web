@@ -14,6 +14,14 @@ export const getTransfers = async (contractAd: string, from: string, pageSize = 
     return res.json();
 }
 
+export const getTxsOf_deprecated = async (ad: string, pageSize = 1000, pageNumber = 0, chainId = process.env.NEXT_PUBLIC_CHAIN_ID) => {
+    const _chainId = chainId === '31337' ? '1' : chainId
+    const path = `/${_chainId}/address/${ad}/transactions_v2/?quote-currency=USD&page-number=${pageNumber}&page-size=${pageSize}&format=JSON&key=${process.env.COVALENT_API_KEY}`
+    const res = await fetch(`${baseUrl}${path}`);
+
+    return res.json();
+}
+
 export const getLast100TxsOf = async (ad: string, chainId = process.env.NEXT_PUBLIC_CHAIN_ID) => {
     const _chainId = chainId === '31337' ? '1' : chainId
     const path = `/${_chainId}/address/${ad}/transactions_v3/?quote-currency=USD&page-number=0&format=JSON&key=${process.env.COVALENT_API_KEY}`
