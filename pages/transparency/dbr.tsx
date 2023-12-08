@@ -28,7 +28,7 @@ const tabsOptions = ['Issuance', 'Spenders', 'Replenishments', 'Income', 'Flowch
 
 export const DBRTransparency = () => {
     const router = useRouter();
-    const { totalSupply, operator, price, yearlyRewardRate, rewardRate, minYearlyRewardRate, maxYearlyRewardRate, historicalData } = useDBR();
+    const { totalSupply, operator, priceUsd, yearlyRewardRate, rewardRate, minYearlyRewardRate, maxYearlyRewardRate, historicalData } = useDBR();
     const { events } = useDBRReplenishments();
     const { events: burnEvents } = useDBRBurns();
     const { history } = useDBRDebtHisto();
@@ -134,7 +134,7 @@ export const DBRTransparency = () => {
                                 <Text>1 DBR = right for 1 DOLA a year.</Text>
                                 <HStack w='full' justify="space-between">
                                     <Text>Current DBR price: </Text>
-                                    <Text>{shortenNumber(price, 4, true)}</Text>
+                                    <Text>{shortenNumber(priceUsd, 4, true)}</Text>
                                 </HStack>
                             </VStack>
                         }
