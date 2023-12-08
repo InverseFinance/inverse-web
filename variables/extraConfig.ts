@@ -329,7 +329,14 @@ const mainConfig = {
             chainId: NetworkIds.base,
             order: 2.1,
         },
-        // '0x77C64eEF5F4781Dd6e9405a8a77D80567CFD37E0': 'Rewards Committee',
+        {
+            address: '0x87C37f2D588BD353A6334349cd86e471D0Ec75Bb',
+            name: 'TWAP',
+            shortName: 'TWAP',
+            purpose: 'Handle TWAP transactions',            
+            chainId: NetworkIds.mainnet,
+            order: 2.2,
+        },
     ],
 };
 
