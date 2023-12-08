@@ -14,7 +14,7 @@ export const MinDebtBorrowMessage = ({
 }) => {
     return <WarningMessage alertProps={{ w: 'full' }} description={
         !debt ? `You need to borrow at least ${preciseCommify(minDebt, 0)} DOLA`
-            : `The resulting debt should be at least ${preciseCommify(minDebt, 0)} DOLA`
+            : `The resulting debt should be at least ${preciseCommify(minDebt, 0)} DOLA or zero`
     } />
 }
 
