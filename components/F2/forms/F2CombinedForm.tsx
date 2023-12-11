@@ -28,6 +28,7 @@ import { FirmBorroInputwSubline, FirmCollateralInputTitle, FirmDebtInputTitle, F
 import { BigNumber } from 'ethers'
 import { isAddress } from 'ethers/lib/utils'
 import { BURN_ADDRESS } from '@app/config/constants'
+import { useMultisig } from '@app/hooks/useSafeMultisig'
 
 const { DOLA, F2_HELPER, F2_ALE } = getNetworkConfigConstants();
 
@@ -114,6 +115,8 @@ export const F2CombinedForm = ({
         setCustomRecipient,
         customRecipient,
     } = useContext(F2MarketContext);
+
+    const { isMultisig } = useMultisig();
 
     const [isLargerThan] = useMediaQuery('(min-width: 1280px)');
     const { isOpen: isWethSwapModalOpen, onOpen: onWethSwapModalOpen, onClose: onWethSwapModalClose } = useDisclosure();
@@ -326,7 +329,7 @@ export const F2CombinedForm = ({
     const notEnoughToBorrowWithAutobuy = isBorrowCase && market.leftToBorrow > 1 && deltaDebt > 0 && market.leftToBorrow < (isAutoDBR ? deltaDebt + (dbrCoverDebt * (1 + parseFloat(dbrBuySlippage || 0) / 100)) : deltaDebt);
     const minDebtDisabledCondition = FEATURE_FLAGS.firmMinDebt && newTotalDebtInMarket > 0 && newTotalDebtInMarket < market.minDebt;
     const isDeleverageCase = useLeverageInMode && !isDeposit;
-    const canUseLeverage = FEATURE_FLAGS.firmLeverage && market.hasAleFeat && !isUseNativeCoin && ((mode === 'Deposit & Borrow' && (deposits > 0 || collateralAmountNum > 0)) || (mode === 'Borrow' && deposits > 0) || (['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1));
+    const canUseLeverage = !isMultisig && FEATURE_FLAGS.firmLeverage && market.hasAleFeat && !isUseNativeCoin && ((mode === 'Deposit & Borrow' && (deposits > 0 || collateralAmountNum > 0)) || (mode === 'Borrow' && deposits > 0) || (['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1));
     const showMinDebtMessage = !notEnoughToBorrowWithAutobuy && minDebtDisabledCondition && (debtAmountNum > 0 || isDeleverageCase);
     const showNeedDbrMessage = isDeposit && !isAutoDBR && dbrBalance <= 0;
     const showNotEnoughDolaToRepayMessage = isRepayCase && debtAmountNum > 0 && dolaBalance < debtAmountNum;
@@ -377,7 +380,7 @@ export const F2CombinedForm = ({
                             isError={isDeposit ? collateralAmountNum > collateralBalance : collateralAmountNum > deposits}
                         />
                         {
-                            isWethMarket && !!market.helper && !isDeleverageCase
+                            isWethMarket && !!market.helper && !isDeleverageCase && !isMultisig
                             && <FirmWethSwitch
                                 hideUseNativeSwitch={useLeverage || (!!customRecipient && isDepositOnlyCase)}
                                 onWethSwapModalOpen={onWethSwapModalOpen}
@@ -461,7 +464,7 @@ export const F2CombinedForm = ({
                 {showNotEnoughDolaToRepayMessage && <NotEnoughDolaToRepayMessage amount={debtAmountNum} />}
                 <HStack justify="space-between" alignItems="space-between" w='full'>
                     {
-                        (hasDebtChange || hasCollateralChange) && <DbrHelperSwitch
+                        (hasDebtChange || hasCollateralChange) && !isMultisig && <DbrHelperSwitch
                             isDeposit={isDeposit}
                             setIsAutoDBR={setIsAutoDBR}
                             isAutoDBR={isAutoDBR}

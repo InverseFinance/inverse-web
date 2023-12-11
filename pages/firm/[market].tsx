@@ -121,8 +121,9 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                             </ErrorBoundary>
                                             {
                                                 isMultisig && <InfoMessage
+                                                    alertProps={{ w: 'full' }}
                                                     title="Using a Multisig:"
-                                                    description="Please note that borrowing is not allowed for contracts, features requiring signing will not work either."
+                                                    description="Please note that borrowing is not allowed for multisigs / contracts."
                                                 />
                                             }
                                             <ErrorBoundary description="Error in the form component, please try reloading">
