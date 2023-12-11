@@ -5,6 +5,9 @@ import { InfoMessage } from '@app/components/common/Messages';
 import { SubmitButton } from '@app/components/common/Button';
 import { getDelegationSig } from '@app/util/governance';
 import { JsonRpcSigner } from '@ethersproject/providers';
+import { useWeb3React } from '@web3-react/core';
+import { GnosisSafe } from '@web3-react/gnosis-safe';
+import { safeMultisigDelegateInv } from '@app/util/safe-multisig';
 
 export const SignDelegation = ({
     signDisabled,
@@ -17,9 +20,12 @@ export const SignDelegation = ({
     isSelf: boolean,
     signer?: JsonRpcSigner,
 }) => {
+    const { connector } = useWeb3React();
     const [signature, setSignature] = useState('')
     const [hasLastSigCopied, setHasLastSigCopied] = useState(false)
     const { hasCopied, onCopy } = useClipboard(signature)
+
+    const isMultisig = !!connector && connector instanceof GnosisSafe;
 
     useEffect(() => {
         if (!hasCopied) { return }
@@ -32,35 +38,41 @@ export const SignDelegation = ({
 
     const handleDelegation = async () => {
         if (!signer) { return }
-        const sig = await getDelegationSig(signer, delegateAddress);
-        setSignature(sig);
+        if (isMultisig) {
+            return safeMultisigDelegateInv(delegateAddress);
+        } else {
+            const sig = await getDelegationSig(signer, delegateAddress);
+            setSignature(sig);
+        }
     }
 
     return (
         <>
-            <InfoMessage
-                description={
-                    <>
-                        Do you want to delegate your <b>voting power</b> to {isSelf ? 'yourself' : 'the address above'} ?
-                        <Text mt="2" mb="2">This action will <b>not cost you any gas fees</b>.</Text>
-                        Previous delegations to other addresses (including yours) will be withdrawn.
-                        You can also change your delegate at any time in the future.
-                        <Text mt="2" mb="2" fontWeight="bold">
-                            Delegation will apply for both {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} and x{process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL}.
-                        </Text>
-                        <Text textDecoration="underline" mt="2" mb="2" fontWeight="bold">
-                            Once signed, you will need to {
-                                isSelf ?
-                                    'submit the signature data' :
-                                    'send the signature data to the delegatee whom will then finish the process'
-                            }
-                        </Text>
-                    </>
-                } />
+            {
+                !isMultisig && <InfoMessage
+                    description={
+                        <>
+                            Do you want to delegate your <b>voting power</b> to {isSelf ? 'yourself' : 'the address above'} ?
+                            <Text mt="2" mb="2">This action will <b>not cost you any gas fees</b>.</Text>
+                            Previous delegations to other addresses (including yours) will be withdrawn.
+                            You can also change your delegate at any time in the future.
+                            <Text mt="2" mb="2" fontWeight="bold">
+                                Delegation will apply for both {process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} and x{process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL}.
+                            </Text>
+                            <Text textDecoration="underline" mt="2" mb="2" fontWeight="bold">
+                                Once signed, you will need to {
+                                    isSelf ?
+                                        'submit the signature data' :
+                                        'send the signature data to the delegatee whom will then finish the process'
+                                }
+                            </Text>
+                        </>
+                    } />
+            }
 
-            <SubmitButton mt="2" onClick={handleDelegation} disabled={signDisabled} alignItems="center">
+            <SubmitButton mt="2" onClick={() => handleDelegation()} disabled={signDisabled} alignItems="center">
                 <EditIcon mr="2" boxSize={3} />
-                {signDisabled ? 'Please connect to Mainnet first' : 'Sign Delegation'}
+                {signDisabled ? 'Please connect to Mainnet first' : isMultisig ? 'Delegate with Multisig' : 'Sign Delegation'}
             </SubmitButton>
 
             {
