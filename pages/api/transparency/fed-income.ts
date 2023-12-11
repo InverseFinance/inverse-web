@@ -3,7 +3,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { Fed, NetworkIds } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
-import { getTxsOf } from '@app/util/covalent';
+import { getLast100TxsOf } from '@app/util/covalent';
 import { parseUnits } from '@ethersproject/units';
 import { pricesCacheKey } from '../prices';
 import { throttledPromises } from '@app/util/misc';
@@ -77,7 +77,7 @@ const getXchainMainnetProfits = async (FEDS: Fed[], DOLA: string, TREASURY: stri
 
 const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { [key: string]: number }, cachedTotalEvents?: any) => {
     const transfers = await throttledPromises(
-        (fed: Fed) => getTxsOf(fed.incomeSrcAd || fed.address, 30, 0, fed.incomeChainId || fed.chainId),
+        (fed: Fed) => getLast100TxsOf(fed.incomeSrcAd || fed.address, fed.incomeChainId || fed.chainId),
         FEDS,
         // max 5 req per sec
         5,
@@ -97,16 +97,14 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
         const items = r.data.items
             .filter(item => item.successful)
             .filter(item => !archivedFedData.find(archTx => archTx.transactionHash === item.tx_hash && archTx.fedIndex === i))
-            .filter(item => !!item.log_events
-                .find(e => !!e.decoded && e.decoded.name === eventName
+            .filter(item => !!item.log_events?.find(e => !!e.decoded && e.decoded.name === eventName
                     && e?.decoded?.params[0]?.value?.toLowerCase() == srcAddress
                     && e?.decoded?.params[1]?.value?.toLowerCase() == toAddress
                 ))
             .sort((a, b) => a.block_height - b.block_height);
 
         const unarchivedData = await Promise.all(items.map(async item => {
-            const filteredEvents = item.log_events
-                .filter(e => !!e.decoded && e.decoded.name === eventName
+            const filteredEvents = item.log_events?.filter(e => !!e.decoded && e.decoded.name === eventName
                     && e?.decoded?.params[0]?.value?.toLowerCase() == srcAddress
                     && e?.decoded?.params[1]?.value?.toLowerCase() == toAddress
                 )
@@ -123,6 +121,7 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
                     const cachedHistoPrice = await getCacheFromRedis(histoCacheKey, false);
 
                     if (!cachedHistoPrice) {
+                        // TODO: use historical api with daily data
                         const histoPriceUrl = `https://api.coingecko.com/api/v3/coins/${cgId}/history?date=${histoDateDDMMYYYY}&localization=false`;
                         const res = await fetch(histoPriceUrl);
                         const historicalData = await res.json();
@@ -160,8 +159,8 @@ export default async function handler(req, res) {
     const { cacheFirst } = req.query;
     const { FEDS, DOLA, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
 
-    const archiveCacheKey = `revenues-v1.0.20a`;
-    const cacheKey = `revenues-v1.0.22`;
+    const archiveCacheKey = `revenues-v1.0.22`;
+    const cacheKey = `revenues-v1.0.23`;
 
     try {
 

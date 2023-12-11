@@ -5,7 +5,7 @@ import { DRAFT_WHITELIST } from "@app/config/constants";
 import { CUSTOM_NAMED_ADDRESSES } from "@app/variables/names";
 import { Fed, NetworkIds, RefundableTransaction } from "@app/types";
 import { cacheMultisigMetaKey } from "./transparency/dao";
-import { getTxsOf } from "@app/util/covalent";
+import { getLast100TxsOf } from "@app/util/covalent";
 import { capitalize, throttledPromises, uniqueBy } from "@app/util/misc";
 import { ELIGIBLE_TXS } from "./gov/eligible-refunds";
 import { formatEther } from "@ethersproject/units";
@@ -27,14 +27,16 @@ const formatResults = (covalentResponse: any, type: string, refundWhitelist?: st
     return items
         .filter(item => typeof item.fees_paid === 'string' && /^[0-9\.]+$/.test(item.fees_paid))
         .map(item => {
-            const decodedArr = item.log_events?.map(e => e.decoded).filter(d => !!d);
-            const fedLog = item.log_events
+            const logEvents = item.log_events || [];
+            logEvents.sort((a, b) => b.log_offset - a.log_offset);
+            const decodedArr = logEvents.map(e => e.decoded).filter(d => !!d);
+            const fedLog = logEvents
                 .find(e => (['Contraction', 'Expansion'].includes(e?.decoded?.name) || !!e?.raw_log_topics?.find(r => !!topics[r])));
             const isFed = !!fedLog;
             const isContraction = fedLog?.decoded?.name === 'Contraction' || !!fedLog?.raw_log_topics?.find(rawTopic => topics[rawTopic] === 'Contraction')
             const decoded = isFed ? { name: isContraction ? 'Contraction' : 'Expansion' } : decodedArr[0];
             const isContractCreation = !item.to_address;
-            const log0 = (item.log_events && item.log_events[0] && item.log_events[0]) || {};
+            const log0 = (logEvents && logEvents[0]) || {};
             const to = item.to_address || log0.sender_address;
             const name = (isContractCreation ? 'ContractCreation' : !!decoded ? decoded.name || `${capitalize(type)}Other` : type === 'oracle' ? 'Keep3rAction' : `${capitalize(type)}Other`) || 'Unknown';
 
@@ -109,16 +111,16 @@ export default async function handler(req, res) {
                 MULTISIGS
                     .filter(m => m.chainId === NetworkIds.mainnet && ((!!_multisigFilter && hasFilter && m.shortName === _multisigFilter) || !hasFilter || !_multisigFilter))
                     .map(m => !hasFilter || filterType === 'multisig' ?
-                        getTxsOf(m.address, ['FedChair', 'TWG'].includes(m.shortName) ? deltaDays * 10 : deltaDays * 5)
+                    getLast100TxsOf(m.address)
                         : new Promise((r) => r({ data: { items: [] } })))
             ),
-            !hasFilter || filterType === 'gov' ? getTxsOf(GOVERNANCE, deltaDays * 3) : new Promise((r) => r({ data: { items: [] } })),
-            !hasFilter || filterType === 'multidelegator' ? getTxsOf(MULTI_DELEGATOR, deltaDays * 3) : new Promise((r) => r({ data: { items: [] } })),
+            !hasFilter || filterType === 'gov' ? getLast100TxsOf(GOVERNANCE) : new Promise((r) => r({ data: { items: [] } })),
+            !hasFilter || filterType === 'multidelegator' ? getLast100TxsOf(MULTI_DELEGATOR) : new Promise((r) => r({ data: { items: [] } })),
             // gnosis proxy, for creation
-            !hasFilter || filterType === 'gnosis' ? getTxsOf('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2', deltaDays * 5) : new Promise((r) => r({ data: { items: [] } })),
+            !hasFilter || filterType === 'gnosis' ? getLast100TxsOf('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2') : new Promise((r) => r({ data: { items: [] } })),
             !hasFilter || filterType === 'feds' ?
                 throttledPromises(
-                    (f: Fed) => getTxsOf(f.address, deltaDays * 3),
+                    (f: Fed) => getLast100TxsOf(f.address),
                     FEDS.filter(f => f.chainId === NetworkIds.mainnet && !f.hasEnded),
                     // freemium: 5 req per sec
                     5,

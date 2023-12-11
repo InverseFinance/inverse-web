@@ -25,14 +25,16 @@ export const formatTxResults = (data: any, type: string, refundWhitelist?: strin
   return items
     .filter(item => typeof item.fees_paid === 'string' && /^[0-9\.]+$/.test(item.fees_paid))
     .map(item => {
-      const decodedArr = item.log_events?.map(e => e.decoded).filter(d => !!d);
-      const fedLog = item.log_events
+      const logEvents = item.log_events || [];
+      logEvents.sort((a, b) => b.log_offset - a.log_offset);
+      const decodedArr = logEvents.map(e => e.decoded).filter(d => !!d);
+      const fedLog = logEvents
         .find(e => (['Contraction', 'Expansion'].includes(e?.decoded?.name) || !!e?.raw_log_topics?.find(r => !!topics[r])));
       const isFed = !!fedLog;
       const isContraction = fedLog?.decoded?.name === 'Contraction' || !!fedLog?.raw_log_topics?.find(rawTopic => topics[rawTopic] === 'Contraction')
       const decoded = isFed ? { name: isContraction ? 'Contraction' : 'Expansion' } : decodedArr[0];
       const isContractCreation = !item.to_address;
-      const log0 = (item.log_events && item.log_events[0] && item.log_events[0]) || {};
+      const log0 = (logEvents && logEvents[0]) || {};
       const to = item.to_address || log0.sender_address;
       const name = (isContractCreation ? 'ContractCreation' : !!decoded ? decoded.name || `${capitalize(type)}Other` : type === 'oracle' ? 'Keep3rAction' : `${capitalize(type)}Other`) || 'Unknown';
 
