@@ -5,9 +5,8 @@ import { InfoMessage } from '@app/components/common/Messages';
 import { SubmitButton } from '@app/components/common/Button';
 import { getDelegationSig } from '@app/util/governance';
 import { JsonRpcSigner } from '@ethersproject/providers';
-import { useWeb3React } from '@web3-react/core';
-import { GnosisSafe } from '@web3-react/gnosis-safe';
 import { safeMultisigDelegateInv } from '@app/util/safe-multisig';
+import { useMultisig } from '@app/hooks/useSafeMultisig';
 
 export const SignDelegation = ({
     signDisabled,
@@ -19,13 +18,12 @@ export const SignDelegation = ({
     delegateAddress: string,
     isSelf: boolean,
     signer?: JsonRpcSigner,
-}) => {
-    const { connector } = useWeb3React();
+}) => {    
     const [signature, setSignature] = useState('')
     const [hasLastSigCopied, setHasLastSigCopied] = useState(false)
     const { hasCopied, onCopy } = useClipboard(signature)
 
-    const isMultisig = !!connector && connector instanceof GnosisSafe;
+    const { isSafeMultisigConnector } = useMultisig();
 
     useEffect(() => {
         if (!hasCopied) { return }
@@ -38,7 +36,7 @@ export const SignDelegation = ({
 
     const handleDelegation = async () => {
         if (!signer) { return }
-        if (isMultisig) {
+        if (isSafeMultisigConnector) {
             return safeMultisigDelegateInv(delegateAddress);
         } else {
             const sig = await getDelegationSig(signer, delegateAddress);
@@ -49,7 +47,7 @@ export const SignDelegation = ({
     return (
         <>
             {
-                !isMultisig && <InfoMessage
+                !isSafeMultisigConnector && <InfoMessage
                     description={
                         <>
                             Do you want to delegate your <b>voting power</b> to {isSelf ? 'yourself' : 'the address above'} ?
@@ -72,7 +70,7 @@ export const SignDelegation = ({
 
             <SubmitButton mt="2" onClick={() => handleDelegation()} disabled={signDisabled} alignItems="center">
                 <EditIcon mr="2" boxSize={3} />
-                {signDisabled ? 'Please connect to Mainnet first' : isMultisig ? 'Delegate with Multisig' : 'Sign Delegation'}
+                {signDisabled ? 'Please connect to Mainnet first' : isSafeMultisigConnector ? 'Delegate with Multisig' : 'Sign Delegation'}
             </SubmitButton>
 
             {
