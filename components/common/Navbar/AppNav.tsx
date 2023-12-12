@@ -65,6 +65,7 @@ import { PoaModal } from '../Modal/PoaModal'
 import { checkPoaSig } from '@app/util/poa'
 import { smartShortNumber } from '@app/util/markets'
 import useSWR from 'swr'
+import { useMultisig } from '@app/hooks/useSafeMultisig'
 const NAV_ITEMS = MENUS.nav
 
 export const ThemeBtn = () => {
@@ -429,6 +430,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const [isLargerThan768] = useMediaQuery('(min-width: 768px)');
   const { themeName } = useAppTheme();
   const { isActive, chainId } = useWeb3React<Web3Provider>();
+  const { isSafeMultisigConnector, isMultisig } = useMultisig();
 
   const userAddress = useAccount();
   const { isEligible, hasClaimed, isLoading } = useCheckDBRAirdrop(userAddress);
@@ -498,6 +500,29 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
     }
     init()
   }, [query])
+
+  useEffect(() => {
+    const init = async () => {
+      if (!!account && isMultisig && !isSafeMultisigConnector) {
+        showToast({
+          status: 'info',
+          title: 'Using a multisig?',
+          description: <Link
+            color="mainTextColor"
+            textDecoration="underline"
+            target="_blank"
+            display="inline-flex"
+            alignItems="center"
+            href={`https://app.safe.global/apps/open?safe=${account}&appUrl=${encodeURIComponent(window.location.href)}`}>
+              <Image mr="1" borderRadius="50px" src="/assets/wallets/gnosis-safe.jpeg" h="20px" w="20px" />
+             Click here to use the Safe app for a better experience
+          </Link>,
+          duration: 30000,
+        });
+      }
+    }
+    init()
+  }, [isMultisig, isSafeMultisigConnector, account]);
 
   useEffect(() => {
     if (!isUnsupportedNetwork && !isActive && isPreviouslyConnected()) {

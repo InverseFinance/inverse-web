@@ -4,7 +4,10 @@ import { GnosisSafe } from "@web3-react/gnosis-safe";
 import { Contract } from "ethers";
 import useSWR from "swr";
 
-export const useMultisig = () => {
+export const useMultisig = (): {
+    isSafeMultisigConnector: boolean,
+    isMultisig: boolean,
+} => {
     const { connector, account, provider } = useWeb3React();
     const { data, error } = useSWR(`is-multisig-${account}`, async () => {
         if(!account || !provider) return undefined;
@@ -17,5 +20,5 @@ export const useMultisig = () => {
     if(!account || !connector) return { isSafeMultisigConnector: false, isMultisig: false };
     const isSafeConnector =  !!connector && connector instanceof GnosisSafe;
     if(isSafeConnector) return { isSafeMultisigConnector: true, isMultisig: true };    
-    return { isSafeMultisigConnector: false, isMultisig: !error && data }
+    return { isSafeMultisigConnector: false, isMultisig: !error && !!data }
 }
