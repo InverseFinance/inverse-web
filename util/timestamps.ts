@@ -5,7 +5,7 @@ import { mergeDeep } from './misc';
 import { getHistoricalProvider } from './providers';
 
 const client = getRedisClient();
-const cachedButNotArchivedYetKey = 'block-timestamps-unarchived';
+const cachedButNotArchivedYetKey = 'block-timestamps-unarchived-2';
 // add to unarchived cached
 export const addBlockTimestamps = async (blockNumbers: number[], chainId: string, cacheKey = cachedButNotArchivedYetKey) => {
     const cachedOnlyBlockTimestamps = await getRedisCachedOnlyBlockTimestamps(cacheKey);
