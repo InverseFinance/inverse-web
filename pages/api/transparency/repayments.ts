@@ -7,8 +7,7 @@ import { COMPTROLLER_ABI, CTOKEN_ABI, DEBT_CONVERTER_ABI, DEBT_REPAYER_ABI, DWF_
 import { getHistoricValue, getProvider } from "@app/util/providers";
 import { getBnToNumber } from "@app/util/markets";
 import { DWF_PURCHASER, ONE_DAY_SECS } from "@app/config/constants";
-import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
-import { fedOverviewCacheKey } from "./fed-overview";
+import { addBlockTimestamps } from '@app/util/timestamps';
 import { DOLA_FRONTIER_DEBTS } from "@app/fixtures/frontier-dola";
 import { throttledPromises, timestampToUTC, utcDateToDDMMYYYY } from "@app/util/misc";
 import { getTokenHolders } from "@app/util/covalent";
@@ -141,8 +140,7 @@ export default async function handler(req, res) {
                 .concat(debtRepayerRepaymentsEvents.map(e => e.blockNumber))                
                 .concat(dolaFrontierDebts.blocks);
 
-        await addBlockTimestamps(blocksNeedingTs, '1');
-        const timestamps = await getCachedBlockTimestamps();
+        const timestamps = await addBlockTimestamps(blocksNeedingTs, '1');        
 
         const [wbtcRepaidByDAO, ethRepaidByDAO, yfiRepaidByDAO, dolaFrontierRepaidByDAO, dolaB1RepaidByDAO, dolaFuse6RepaidByDAO, dolaBadgerRepaidByDAO] =
             [wbtcRepayEvents, ethRepayEvents, yfiRepayEvents, dolaFrontierRepayEvents, dolaB1RepayEvents, dolaFuse6RepayEvents, dolaBadgerRepayEvents].map((arr, i) => {

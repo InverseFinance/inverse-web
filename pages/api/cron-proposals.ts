@@ -11,7 +11,7 @@ import { SECONDS_PER_BLOCK } from '@app/config/constants';
 import { checkDraftRights, getProposalStatus } from '@app/util/governance';
 import { ProposalStatus } from '@app/types';
 import { Proposal } from '@app/types';
-import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
+import { addBlockTimestamps } from '@app/util/timestamps';
 import removeMd from 'remove-markdown';
 
 const client = getRedisClient();
@@ -92,8 +92,7 @@ export default async function handler(req, res) {
         );
 
         const govExecutions = await govContract.queryFilter(govContract.filters.ProposalExecuted());
-        await addBlockTimestamps(govExecutions.map(e => e.blockNumber), NetworkIds.mainnet);
-        const timestamps = await getCachedBlockTimestamps();
+        const timestamps = await addBlockTimestamps(govExecutions.map(e => e.blockNumber), NetworkIds.mainnet);        
 
         return proposalData.map(
           (

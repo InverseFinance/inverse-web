@@ -6,7 +6,7 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { BURN_ADDRESS, CHAIN_ID } from '@app/config/constants';
-import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
+import { addBlockTimestamps } from '@app/util/timestamps';
 import { NetworkIds } from '@app/types';
 
 const { DBR } = getNetworkConfigConstants();
@@ -40,11 +40,10 @@ export default async function handler(req, res) {
 
         const blocks = newBurnEvents.map(e => e.blockNumber);
 
-        await addBlockTimestamps(
+        const timestamps = await addBlockTimestamps(
             blocks,
             NetworkIds.mainnet,
-        );
-        const timestamps = await getCachedBlockTimestamps();
+        );        
 
         const newBurns = newBurnEvents.map(e => {
             return {

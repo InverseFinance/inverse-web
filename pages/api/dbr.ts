@@ -10,7 +10,7 @@ import { getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
 import { throttledPromises, timestampToUTC } from '@app/util/misc';
 import { Web3Provider } from '@ethersproject/providers';
 import { DBR_CG_HISTO_PRICES } from '@app/fixtures/dbr-prices';
-import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
+import { addBlockTimestamps } from '@app/util/timestamps';
 
 const { DBR, DBR_DISTRIBUTOR } = getNetworkConfigConstants();
 
@@ -32,11 +32,11 @@ export const getCombineCgAndCurveDbrPrices = async (provider: Web3Provider, past
   // new blocks since last cache
   const newBlocks = [...Array(nbIntervals).keys()].map((i) => startingBlock + (i * intIncrement)).filter(bn => bn <= currentBlock);
   const crvPrices = await getDbrPricesOnCurve(provider, newBlocks);
-  await addBlockTimestamps(
+  const timestamps = await addBlockTimestamps(
     newBlocks,
     CHAIN_ID,
   );
-  const timestamps = await getCachedBlockTimestamps();
+  
   return {
     blocks: (pastData?.blocks||[]).concat(newBlocks),
     // [timestamp, price][] format

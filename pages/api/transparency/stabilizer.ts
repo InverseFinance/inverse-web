@@ -5,8 +5,7 @@ import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
 import { getStabilizerContract } from '@app/util/contracts';
-import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
-
+import { addBlockTimestamps } from '@app/util/timestamps';
 
 const getEventDetails = (log: Event, timestampInSec: number, includeTxHash: boolean) => {
     const { event, blockNumber, transactionHash, args } = log;
@@ -45,8 +44,7 @@ export default async function handler(req, res) {
         const events = rawEvents[0].concat(rawEvents[1]);
         // get timestamps for new blocks
         const blocks = events.map(e => e.blockNumber);
-        await addBlockTimestamps(blocks, NetworkIds.mainnet);
-        const blockTimestamps = await getCachedBlockTimestamps();
+        const blockTimestamps = await addBlockTimestamps(blocks, NetworkIds.mainnet);        
 
         let totalAccumulated = 0;
 

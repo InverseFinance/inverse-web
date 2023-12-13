@@ -6,7 +6,7 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { BLOCKS_PER_DAY, CHAIN_ID } from '@app/config/constants';
-import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
+import { addBlockTimestamps } from '@app/util/timestamps';
 import { NetworkIds } from '@app/types';
 import { throttledPromises } from '@app/util/misc';
 import { FIRM_DEBT_HISTORY_INIT } from '@app/fixtures/firm-debt-history-init';
@@ -57,11 +57,10 @@ export default async function handler(req, res) {
       return;
     }
 
-    await addBlockTimestamps(
+    const timestamps = await addBlockTimestamps(
       blocksFromStartUntilCurrent,
       NetworkIds.mainnet,
-    );
-    const timestamps = await getCachedBlockTimestamps();
+    );    
 
     const newDebtsBn =
       await throttledPromises(
