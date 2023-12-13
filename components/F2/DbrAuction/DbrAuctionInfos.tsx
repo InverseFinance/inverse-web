@@ -54,7 +54,7 @@ export const DbrAuctionInfos = () => {
                     </Text>
                     <Text>- One DBR allows to borrow one DOLA for one year</Text>
                     <Text>- It's also the reward token for INV stakers on FiRM</Text>
-                    <Text>- DBR can be bought to borrow or speculate on interest rates!</Text>
+                    <Text>- DBR can be bought to borrow or hedge against interest rates!</Text>
                 </VStack>
                 <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr' isExternal target="_blank">
                     Learn more about DBR <ExternalLinkIcon />
@@ -81,11 +81,15 @@ export const DbrAuctionInfos = () => {
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(maxDbrRatePerYear, 0)} ({preciseCommify(maxDbrRatePerYear * dbrPrice, 0, true)})</Text>}
                     </HStack>                    
                 </VStack>
-                <Text fontSize="14px" fontWeight="bold">Governance</Text>
+                <Text fontSize="14px" fontWeight="bold">What are XYK Auctions?</Text>                
+                <Link textDecoration="underline" href="https://docs.inverse.finance" target="_blank" isExternal>
+                    Learn more <ExternalLinkIcon />
+                </Link>
+                {/* <Text fontSize="14px" fontWeight="bold">Governance</Text>
                 <Text>Reserves and the max. DBR rate per year are updatable by Governance vote only. The DBR rate per year can be updated by Governance or by the Operator (within the max limit set by Governance).</Text>
                 <Link textDecoration="underline" href="/governance" target="_blank" isExternal>
                     DBR Auction Governance proposal link <ExternalLinkIcon />
-                </Link>
+                </Link> */}
             </Stack>
         }
     />
