@@ -6,7 +6,7 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { BLOCKS_PER_DAY, CHAIN_ID } from '@app/config/constants';
-import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
+import { addBlockTimestamps } from '@app/util/timestamps';
 import { ascendingEventsSorter, throttledPromises } from '@app/util/misc';
 import { TOKENS } from '@app/variables/tokens';
 import { isAddress } from 'ethers/lib/utils';
@@ -79,11 +79,11 @@ export default async function handler(req, res) {
       return;
     }
 
-    await addBlockTimestamps(
+    const timestamps = await addBlockTimestamps(
       allUniqueBlocksToCheck,
       CHAIN_ID,
     );
-    const timestamps = await getCachedBlockTimestamps();
+    
     const batchedData = await throttledPromises(
       (block: number) => {
         return getGroupedMulticallOutputs([          

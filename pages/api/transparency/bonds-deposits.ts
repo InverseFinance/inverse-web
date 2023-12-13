@@ -7,7 +7,7 @@ import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
 import { BONDS, TOKENS, getToken } from '@app/variables/tokens';
-import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
+import { addBlockTimestamps } from '@app/util/timestamps';
 import { BLOCKS_PER_DAY, ONE_DAY_SECS } from '@app/config/constants';
 import { BOND_V2_FIXED_TERM, BOND_V2_FIXED_TERM_TELLER } from '@app/variables/bonds';
 import { BONDS_V2_IDS_API_CACHE_KEY } from '../bonds';
@@ -52,11 +52,10 @@ export default async function handler(req, res) {
         const blocks = depositsV1.map(d => d.map(e => e.blockNumber)).flat()
             .concat(depositsV2.map(d => d.map(e => e.blockNumber)).flat());
 
-        await addBlockTimestamps(
+        const timestamps = await addBlockTimestamps(
             blocks,
             NetworkIds.mainnet,
-        );
-        const timestamps = await getCachedBlockTimestamps();
+        );        
 
         const formattedDepositsV1 = depositsV1.map((d, i) => {
             const bond = BONDS[i];

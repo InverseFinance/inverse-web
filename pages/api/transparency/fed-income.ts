@@ -9,7 +9,7 @@ import { pricesCacheKey } from '../prices';
 import { throttledPromises } from '@app/util/misc';
 import { Contract } from 'ethers';
 import { getProvider } from '@app/util/providers';
-import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
+import { addBlockTimestamps } from '@app/util/timestamps';
 import { DOLA_ABI } from '@app/config/abis';
 
 const COINGECKO_IDS = {
@@ -57,8 +57,7 @@ const getXchainMainnetProfits = async (FEDS: Fed[], DOLA: string, TREASURY: stri
         })
     );
     const uniqueBlocks = [...new Set(transfersToTreasury.map((fedTransfers, i) => fedTransfers.map(ev => ev.blockNumber)).flat())];
-    await addBlockTimestamps(uniqueBlocks, NetworkIds.mainnet);
-    const timestamps = await getCachedBlockTimestamps();    
+    const timestamps = await addBlockTimestamps(uniqueBlocks, NetworkIds.mainnet);    
     return xchainFeds.map((fed, i) => {
         return {
             fedAddress: fed.address,

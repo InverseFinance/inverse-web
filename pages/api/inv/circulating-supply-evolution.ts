@@ -8,7 +8,7 @@ import { getBnToNumber } from '@app/util/markets'
 import { BLOCKS_PER_DAY, CHAIN_ID } from '@app/config/constants';
 import { throttledPromises } from '@app/util/misc';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
-import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
+import { addBlockTimestamps } from '@app/util/timestamps';
 
 const {
   TREASURY,
@@ -74,11 +74,10 @@ export default async function handler(req, res) {
       blocks.push(currentBlock);
     }
 
-    await addBlockTimestamps(
+    const cachedTimestamps = await addBlockTimestamps(
       blocks,
       '1',
-    );
-    const cachedTimestamps = await getCachedBlockTimestamps();
+    );    
 
     const batchedData = await throttledPromises(
       (block: number) => {

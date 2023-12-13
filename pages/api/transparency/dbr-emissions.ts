@@ -6,7 +6,7 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { BURN_ADDRESS, CHAIN_ID } from '@app/config/constants';
-import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
+import { addBlockTimestamps } from '@app/util/timestamps';
 import { NetworkIds } from '@app/types';
 import { dbrRewardRatesCacheKey, initialDbrRewardRates } from '../cron-dbr-distributor';
 
@@ -59,12 +59,10 @@ export default async function handler(req, res) {
 
         const blocks = newTransferEvents.map(e => e.blockNumber);
 
-        await addBlockTimestamps(
+        const timestamps = await addBlockTimestamps(
             blocks,
             NetworkIds.mainnet,
-        );
-
-        const timestamps = await getCachedBlockTimestamps();
+        );        
 
         const newTransfers = newTransferEvents.map(e => {
             return {

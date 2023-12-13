@@ -26,6 +26,7 @@ export const addBlockTimestamps = async (blockNumbers: number[], chainId: string
         cachedOnlyBlockTimestamps[chainId][r.number] = r.timestamp;
     });    
     await client.set(cacheKey, JSON.stringify(cachedOnlyBlockTimestamps));
+    return mergeDeep(BLOCK_TIMESTAMPS, cachedOnlyBlockTimestamps);
 }
 // archived + cached but unarchived
 export const getCachedBlockTimestamps = async (cacheKey = cachedButNotArchivedYetKey) => {
