@@ -31,15 +31,13 @@ export default async function handler(req, res) {
         const cacheDuration = 3600;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
         // cache is now updated via daily cron job
-        const { data: cachedData, isValid } = await getCacheFromRedisAsObj(DAILY_UTC_CACHE_KEY, true, cacheDuration) || { data: ARCHIVED_UTC_DATES_BLOCKS, isValid: false };
+        const { data: utcKeyBlockValues, isValid } = await getCacheFromRedisAsObj(DAILY_UTC_CACHE_KEY, true, cacheDuration) || { data: ARCHIVED_UTC_DATES_BLOCKS, isValid: false };
 
-        if (cachedData && isValid) {
-            res.status(200).send(cachedData);
+        if (utcKeyBlockValues && isValid) {
+            res.status(200).send(utcKeyBlockValues);
             return
         }
 
-        // per chain, map an utc date with a blockNumber
-        const utcKeyBlockValues = {};
         const utcDate = timestampToUTC(Date.now());
 
         for (let chainId of [NetworkIds.mainnet, ...FARMERS_CHAIN_IDS]) {
