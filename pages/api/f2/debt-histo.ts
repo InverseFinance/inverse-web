@@ -3,13 +3,13 @@ import 'source-map-support'
 import { F2_MARKET_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
-import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
+import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
-import { BLOCKS_PER_DAY, CHAIN_ID } from '@app/config/constants';
-import { addBlockTimestamps } from '@app/util/timestamps';
-import { NetworkIds } from '@app/types';
-import { throttledPromises } from '@app/util/misc';
+import { CHAIN_ID } from '@app/config/constants';
+import { throttledPromises, utcDateStringToTimestamp } from '@app/util/misc';
 import { FIRM_DEBT_HISTORY_INIT } from '@app/fixtures/firm-debt-history-init';
+import { DAILY_UTC_CACHE_KEY } from '../cron-daily-block-timestamp';
+import { ARCHIVED_UTC_DATES_BLOCKS } from '@app/fixtures/utc-dates-blocks';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -18,49 +18,37 @@ export default async function handler(req, res) {
   const { cacheFirst } = req.query;
   try {
     const cacheDuration = 1800;
-    res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
-    if (validCache) {
-      res.status(200).json(validCache);
+    res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);    
+    const { data: archived, isValid } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration) || { data: FIRM_DEBT_HISTORY_INIT, isValid: false };
+    if (isValid && !!archived) {
+      res.status(200).json(archived);
       return
     }
 
     // not using fallbackprovider because it's not working with call & blockNumber
     const provider = getProvider(CHAIN_ID, '', true);
 
-    const currentBlock = await provider.getBlockNumber();
-    const archived = await getCacheFromRedis(cacheKey, false, 0) || FIRM_DEBT_HISTORY_INIT;
-    const intIncrement = Math.floor(BLOCKS_PER_DAY/3);
-    const lastBlock = archived.blocks[archived.blocks.length - 1];
-    // skip if last block is less than 5 blocks ago
-    if(currentBlock - lastBlock < 5) {
-      console.log('Skipping debt histo update, last block is less than 5 blocks ago')
+    const { data: archivedDailyUtcBlocks } = await getCacheFromRedisAsObj(DAILY_UTC_CACHE_KEY, false) || { data: ARCHIVED_UTC_DATES_BLOCKS };
+    const dateBlockValues = Object.entries(archivedDailyUtcBlocks[CHAIN_ID]).map(([date, block]) => {
+      return { date, block: parseInt(block) };
+    });
+    dateBlockValues.sort((a, b) => a.date > b.date ? 1 : -1);
+
+    const startBlock = archived.blocks.length > 0 ? (archived.blocks[archived.blocks.length-1]+1) : F2_MARKETS.find(m => m.name === 'WETH').startingBlock;
+    const newEntries = dateBlockValues.filter((d) => d.block > startBlock);
+    
+    const blocksToFetch = newEntries.map(d => d.block);
+    const timestampsToFetch = newEntries.map(d => utcDateStringToTimestamp(d.date));    
+
+    if(!blocksToFetch.length) {
       res.status(200).json(archived);
-      return;
+      return
     }
-    const startingBlock = lastBlock + intIncrement < currentBlock ? lastBlock + intIncrement : currentBlock;
-
-    const nbDays = Math.floor((currentBlock - startingBlock) / intIncrement);
-
-    const blocksFromStartUntilCurrent = [...Array(nbDays).keys()].map((i) => startingBlock + (i * intIncrement));
+    
     const marketTemplate = new Contract(F2_MARKETS[0].address, F2_MARKET_ABI, provider);
     // Function signature and encoding
     const functionName = 'totalDebt';
     const functionSignature = marketTemplate.interface.getSighash(functionName);
-
-    if (!blocksFromStartUntilCurrent.includes(currentBlock) && !archived.blocks.includes(currentBlock)) {
-      blocksFromStartUntilCurrent.push(currentBlock);
-    }
-
-    if (!blocksFromStartUntilCurrent.length) {      
-      res.status(200).json(archived);
-      return;
-    }
-
-    const timestamps = await addBlockTimestamps(
-      blocksFromStartUntilCurrent,
-      NetworkIds.mainnet,
-    );    
 
     const newDebtsBn =
       await throttledPromises(
@@ -75,7 +63,7 @@ export default async function handler(req, res) {
               new Promise((resolve) => resolve(null));
           }))
         },
-        blocksFromStartUntilCurrent,
+        blocksToFetch,
         5,
         100,
       );
@@ -88,8 +76,8 @@ export default async function handler(req, res) {
       debts: archived.debts.concat(newDebts),
       timestamp: +(new Date()),
       markets: F2_MARKETS.map(m => m.address),
-      blocks: archived.blocks.concat(blocksFromStartUntilCurrent),
-      timestamps: archived.timestamps.concat(blocksFromStartUntilCurrent.map(b => timestamps[NetworkIds.mainnet][b])),
+      blocks: archived.blocks.concat(blocksToFetch),
+      timestamps: archived.timestamps.concat(timestampsToFetch),
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);
