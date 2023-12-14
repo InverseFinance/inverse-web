@@ -1,5 +1,5 @@
 import { F2_HELPER_ABI, F2_MARKET_ABI, F2_ESCROW_ABI } from "@app/config/abis";
-import { CHAIN_ID, DEFAULT_FIRM_HELPER_TYPE, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
+import { BURN_ADDRESS, CHAIN_ID, DEFAULT_FIRM_HELPER_TYPE, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
 import { F2Market } from "@app/types";
 import { BlockTag, JsonRpcSigner, Web3Provider } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
@@ -238,12 +238,14 @@ export const f2deposit = async (signer: JsonRpcSigner, market: string, amount: s
     if (isNativeCoin) {
         const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);
         return helperContract.depositNativeEthOnBehalf(market, { value: amount });
-    }
-    const contract = new Contract(market, F2_MARKET_ABI, signer);
+    }    
+    const useCustomRecipient = !!customRecipient && customRecipient?.toLowerCase() !== account?.toLowerCase() && customRecipient !== BURN_ADDRESS;
+    // need non-ambigious deposit function for callWithHigherGL
+    const contract = new Contract(market, useCustomRecipient ? ["function deposit(address user, uint amount) public"] : ["function deposit(uint amount) public"], signer);    
     if (needsHigherGasLimit(market)) {
-        return callWithHigherGL(contract, 'deposit', [account, amount]);
+        return callWithHigherGL(contract, 'deposit', useCustomRecipient ? [customRecipient, amount] : [amount]);
     }
-    return contract.deposit(customRecipient || account, amount);
+    return useCustomRecipient ? contract.deposit(customRecipient, amount) : contract.deposit(amount);
 }
 
 export const f2withdraw = async (signer: JsonRpcSigner, market: string, amount: string | BigNumber, isNativeCoin?: boolean) => {
