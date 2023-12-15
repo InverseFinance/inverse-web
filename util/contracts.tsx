@@ -30,6 +30,7 @@ import { CHAIN_TOKENS } from '@app/variables/tokens'
 import { getBnToNumber } from './markets'
 import { BigNumber, BigNumberish } from 'ethers'
 import { PROTOCOL_IMAGES } from '@app/variables/images'
+import { getMulticallOutput } from './multicall'
 
 const { DEBT_CONVERTER, DOLA3POOLCRV, DOLAFRAXCRV } = getNetworkConfigConstants();
 
@@ -366,6 +367,30 @@ export const getCrvConvexRewards = async (baseRewardPool: string, account: strin
   return rewards.map(bn => getBnToNumber(bn));
 }
 
+export const getCurveLpTVL = async (address: string, providerOrSigner?: Provider | JsonRpcSigner, chainId = 1) => {
+  const contract = new Contract(address, DOLA3POOLCRV_ABI, providerOrSigner);
+  const results = await getMulticallOutput([
+    { contract, functionName: 'get_virtual_price' },
+    { contract, functionName: 'totalSupply' },
+  ], chainId);
+  return getBnToNumber(results[0]) * getBnToNumber(results[1]);
+}
+
+export const getDolaFraxUsdcSubData = async (fraxPrice: number, usdcPrice: number, providerOrSigner?: Provider | JsonRpcSigner) => {
+  // const mainContract = new Contract('0xE57180685E3348589E9521aa53Af0BCD497E884d', DOLA3POOLCRV_ABI, providerOrSigner);
+  const fraxUsdcLpContract = new Contract('0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2', DOLA3POOLCRV_ABI, providerOrSigner);
+  const fraxUsdcTokenContract = new Contract('0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC', ERC20_ABI, providerOrSigner);
+  const results = await getMulticallOutput([
+    { contract: fraxUsdcLpContract, functionName: 'get_virtual_price' },    
+    { contract: fraxUsdcTokenContract, functionName: 'balanceOf', params: ['0xE57180685E3348589E9521aa53Af0BCD497E884d'] },    
+  ], 1);
+  const minPrice = Math.min(fraxPrice, usdcPrice);
+  const depth = getBnToNumber(results[0]) * getBnToNumber(results[1]) * minPrice;
+  return {
+    depth,
+  };
+}
+
 export const getLPBalances = async (LPToken: Token, chainId = process.env.NEXT_PUBLIC_CHAIN_ID!, providerOrSigner?: Provider | JsonRpcSigner): Promise<Token & { balance: number, perc: number }[]> => {
   const tokens = LPToken.pairs?.map(address => CHAIN_TOKENS[chainId][address]) || [];
   try {
@@ -413,7 +438,7 @@ export const getLPBalances = async (LPToken: Token, chainId = process.env.NEXT_P
     // Uni/Sushi or Solidly
     else if (!!LPToken.pairs) {
       let balancesBn;
-      if(LPToken.isFusionLP) {
+      if (LPToken.isFusionLP) {
         balancesBn = await (new Contract(LPToken.address, ['function getTotalAmounts() public view returns (uint,uint)'], providerOrSigner).getTotalAmounts());
       } else {
         balancesBn = await (new Contract(LPToken.address, ['function getReserves() public view returns (uint,uint,uint)'], providerOrSigner).getReserves());
@@ -562,11 +587,11 @@ export const callWithHigherGL = async (
 ) => {
   let gasLimit = undefined;
   try {
-    const originalEstimate =  await contract.estimateGas[method](...args);
-    gasLimit = originalEstimate.add(increaseGL);  
+    const originalEstimate = await contract.estimateGas[method](...args);
+    gasLimit = originalEstimate.add(increaseGL);
     console.log('gas estimate', originalEstimate.toString());
     console.log('gl increased to', gasLimit.toString());
-  } catch (e) {    
+  } catch (e) {
     console.log('could not estimate gas, using default');
     console.log(e);
   }
