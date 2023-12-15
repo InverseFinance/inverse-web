@@ -4,7 +4,7 @@ import { fetcher30sectimeout } from "@app/util/web3";
 
 export default async (req, res) => {
     const cacheDuration = 900;
-    const cacheKey = 'csv-liquidity-pools-v1.0.3';
+    const cacheKey = 'csv-liquidity-pools-v1.0.4';
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
 
     try {
