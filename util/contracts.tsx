@@ -377,17 +377,21 @@ export const getCurveLpTVL = async (address: string, providerOrSigner?: Provider
 }
 
 export const getDolaFraxUsdcSubData = async (fraxPrice: number, usdcPrice: number, providerOrSigner?: Provider | JsonRpcSigner) => {
-  // const mainContract = new Contract('0xE57180685E3348589E9521aa53Af0BCD497E884d', DOLA3POOLCRV_ABI, providerOrSigner);
+  const mainContract = new Contract('0xE57180685E3348589E9521aa53Af0BCD497E884d', ERC20_ABI, providerOrSigner);
   const fraxUsdcLpContract = new Contract('0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2', DOLA3POOLCRV_ABI, providerOrSigner);
   const fraxUsdcTokenContract = new Contract('0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC', ERC20_ABI, providerOrSigner);
+  const convexContract = new Contract('0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c', ERC20_ABI, providerOrSigner);
   const results = await getMulticallOutput([
     { contract: fraxUsdcLpContract, functionName: 'get_virtual_price' },    
     { contract: fraxUsdcTokenContract, functionName: 'balanceOf', params: ['0xE57180685E3348589E9521aa53Af0BCD497E884d'] },    
+    { contract: mainContract, functionName: 'totalSupply' }, 
+    { contract: convexContract, functionName: 'totalSupply' },    
   ], 1);
   const minPrice = Math.min(fraxPrice, usdcPrice);
   const depth = getBnToNumber(results[0]) * getBnToNumber(results[1]) * minPrice;
   return {
     depth,
+    convexRatio: getBnToNumber(results[3]) / getBnToNumber(results[2]),
   };
 }
 

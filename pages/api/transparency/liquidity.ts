@@ -13,7 +13,7 @@ import { pricesCacheKey } from '../prices';
 import { PROTOCOLS_BY_IMG, PROTOCOL_DEFILLAMA_MAPPING } from '@app/variables/images';
 import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 
-export const liquidityCacheKey = `liquidity-v1.1.95`;
+export const liquidityCacheKey = `liquidity-v1.1.96`;
 
 export default async function handler(req, res) {
     const { cacheFirst } = req.query;
@@ -202,7 +202,7 @@ export default async function handler(req, res) {
             .forEach((lp) => {
                 const parentLp = liquidity.find(plp => plp?.deduce?.includes(lp.address));
                 if(!!parentLp && parentLp.tvl) {
-                    const ratio = parentLp.specialCase ? lp.srcTvl/parentLp.srcTvl : lp.tvl/parentLp.tvl;
+                    const ratio = parentLp.specialCase ? parentLp.specialCase.convexRatio : lp.tvl/parentLp.tvl;
                     lp.mainPartBalance = ratio * parentLp.mainPartBalance;
                     lp.pairingDepth = ratio * parentLp.pairingDepth;
                     lp.parentMainPartBalance = parentLp.mainPartBalance;                    
