@@ -18,7 +18,6 @@ export const liquidityCacheKey = `liquidity-v1.1.95`;
 export default async function handler(req, res) {
     const { cacheFirst } = req.query;
     const { TREASURY, MULTISIGS } = getNetworkConfigConstants(NetworkIds.mainnet);
-
     try {
         const cacheDuration = 60;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
