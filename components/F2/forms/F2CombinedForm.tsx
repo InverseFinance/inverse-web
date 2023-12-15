@@ -1,11 +1,11 @@
-import { Stack, VStack, Text, HStack, FlexProps, Divider, Switch, FormControl, FormLabel, useMediaQuery, useDisclosure } from '@chakra-ui/react'
+import { Stack, VStack, Text, HStack, FlexProps, Divider, useMediaQuery, useDisclosure } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 import { getNumberToBn } from '@app/util/markets'
 import { parseEther, parseUnits } from '@ethersproject/units'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
 import { f2repayAndWithdrawNative, f2borrow, f2deposit, f2depositAndBorrow, f2depositAndBorrowHelper, f2repay, f2repayAndWithdraw, f2sellAndRepayHelper, f2sellAndWithdrawHelper, f2withdraw, f2withdrawMax } from '@app/util/f2'
 
-import { useContext, useEffect } from 'react'
+import { useContext } from 'react'
 
 import { MarketImage } from '@app/components/common/Assets/MarketImage'
 import { TOKENS } from '@app/variables/tokens'
@@ -107,8 +107,7 @@ export const F2CombinedForm = ({
         newDeposits,
         userNotEligibleForLeverage,
         setLeverageLoading,
-        leverageLoading,
-        setLeveragePriceImpact,
+        leverageLoading,        
         isTriggerLeverageFetch,
         account,
         setCustomRecipient,
@@ -270,14 +269,13 @@ export const F2CombinedForm = ({
                     return
                 }
                 const { dolaAmount, errorMsg } = await getLeverageImpact({
-                    deposits, debt, leverageLevel: leverage, market, isUp: false, dolaPrice, setLeverageLoading, viaInput: true, setLeveragePriceImpact
+                    deposits, debt, leverageLevel: leverage, market, isUp: false, dolaPrice, setLeverageLoading, viaInput: true
                 });
                 if (!!errorMsg) {
                     showToast({ status: 'warning', description: errorMsg, title: 'Api error' })
                     return
                 }
-                setLeverageDebtAmount(Math.abs(dolaAmount).toFixed(2));
-                // setLeverageCollateralAmount('');
+                setLeverageDebtAmount(Math.abs(dolaAmount).toFixed(2));                
             }
         }
         if (timeout !== -1) {
@@ -301,7 +299,7 @@ export const F2CombinedForm = ({
                     return
                 }
                 const { collateralAmount, errorMsg } = await getLeverageImpact({
-                    deposits, debt, leverageLevel: leverage, market, isUp: true, dolaPrice, setLeverageLoading, viaInput, dolaInput: viaInput ? debtString : undefined, setLeveragePriceImpact, initialDeposit
+                    deposits, debt, leverageLevel: leverage, market, isUp: true, dolaPrice, setLeverageLoading, viaInput, dolaInput: viaInput ? debtString : undefined, initialDeposit
                 });
                 if (!!errorMsg) {
                     showToast({ status: 'warning', description: errorMsg, title: 'Api error' })
@@ -391,8 +389,7 @@ export const F2CombinedForm = ({
                                 customRecipient={customRecipient}
                                 placeholder={account}
                             />
-                        }
-                        {/* <AmountInfos label="Total Deposits" value={deposits} price={market.price} delta={deltaCollateral} textProps={{ fontSize: '14px' }} /> */}
+                        }                        
                     </>
                         : <Text>Nothing to withdraw</Text>
                 }
@@ -438,8 +435,7 @@ export const F2CombinedForm = ({
                                 hideInputIfNoAllowance={false}
                                 hideButtons={true}
                                 inputRight={<MarketImage pr="2" image={dolaToken.image} size={25} />}
-                                isError={isDeposit ? debtAmountNum > 0 && newPerc < 1 : debtAmountNum > debt}
-                            // inputProps={isDeleverageCase ? { disabled: true, placeholder: `Repay via deleverage: ~${debtAmount}` } : undefined}
+                                isError={isDeposit ? debtAmountNum > 0 && newPerc < 1 : debtAmountNum > debt}                            
                             />
                             {
                                 isRepayCase ? <FirmRepayInputSubline
