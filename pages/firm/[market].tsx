@@ -26,11 +26,13 @@ import { shortenNumber } from '@app/util/markets'
 import { preciseCommify } from '@app/util/misc'
 import { WorthEvoChartWrapper } from '@app/components/F2/WorthEvoChartContainer'
 import { DbrV1IssueModal } from '@app/components/F2/Modals/DbrV1IssueIModal'
+import { useMultisig } from '@app/hooks/useSafeMultisig'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
 export const F2MarketPage = ({ market }: { market: string }) => {
     const router = useRouter();
+    const { isMultisig } = useMultisig();
     const { markets } = useDBRMarkets(market);
     const f2market = markets.length > 0 && !!market ? markets[0] : undefined;
 
@@ -117,6 +119,13 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                             <ErrorBoundary>
                                                 <InvInconsistentFirmDelegation />
                                             </ErrorBoundary>
+                                            {
+                                                isMultisig && <InfoMessage
+                                                    alertProps={{ w: 'full' }}
+                                                    title="Using a Multisig:"
+                                                    description="Please note that borrowing is not allowed for multisigs / contracts."
+                                                />
+                                            }
                                             <ErrorBoundary description="Error in the form component, please try reloading">
                                                 {
                                                     f2market.isInv && <Container

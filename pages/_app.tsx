@@ -21,7 +21,7 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/dist/client/router'
 import { gaPageview } from '@app/util/analytics'
 import { useAppTheme } from '@app/hooks/useAppTheme'
-import { metamaskHooks, metamaskInjector, walletConnectV2, walletConnectV2Hooks, coinbaseWallet, coinbaseWalletHooks } from '@app/variables/connectors'
+import { metamaskHooks, metamaskInjector, walletConnectV2, walletConnectV2Hooks, coinbaseWallet, coinbaseWalletHooks, gnosisSafe, gnosisSafeHooks } from '@app/variables/connectors'
 const { ToastContainer } = createStandaloneToast()
 
 export const BlogContext = React.createContext({ locale: 'en-US', category: 'home' });
@@ -52,6 +52,7 @@ const App = ({ Component, pageProps }: AppProps) => {
           [metamaskInjector, metamaskHooks],
           [walletConnectV2, walletConnectV2Hooks],
           [coinbaseWallet, coinbaseWalletHooks],
+          [gnosisSafe, gnosisSafeHooks],
         ]
       }>
         <Head>

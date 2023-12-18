@@ -25,6 +25,7 @@ import { useWeb3React } from '@web3-react/core'
 import { WalletConnect as WalletConnectV2 } from '@web3-react/walletconnect-v2'
 import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
 import { MetaMask } from '@web3-react/metamask'
+import { GnosisSafe } from '@web3-react/gnosis-safe'
 import { useEffect, useRef, useState } from 'react'
 import { Announcement } from '@app/components/common/Announcement'
 import WrongNetworkModal from '@app/components/common/Modal/WrongNetworkModal'
@@ -42,7 +43,7 @@ import { ViewAsModal } from './ViewAsModal'
 import { getEnsName, namedAddress } from '@app/util'
 import { Avatar } from '@app/components/common/Avatar';
 import { MENUS } from '@app/variables/menus'
-import { metamaskInjector, walletConnectV2, coinbaseWallet } from '@app/variables/connectors'
+import { metamaskInjector, walletConnectV2, coinbaseWallet, gnosisSafe } from '@app/variables/connectors'
 
 import { RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
@@ -64,6 +65,7 @@ import { PoaModal } from '../Modal/PoaModal'
 import { checkPoaSig } from '@app/util/poa'
 import { smartShortNumber } from '@app/util/markets'
 import useSWR from 'swr'
+import { useMultisig } from '@app/hooks/useSafeMultisig'
 const NAV_ITEMS = MENUS.nav
 
 export const ThemeBtn = () => {
@@ -236,10 +238,15 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
   const close = () => setIsOpen(false)
   const { isOpen: isViewAsOpen, onOpen: onViewAsOpen, onClose: onViewAsClose } = useDisclosure()
   const { BUTTON_BORDER_COLOR, BUTTON_BG, BUTTON_TEXT_COLOR } = useAppThemeParams();
+  const [isIframe, setIsIframe] = useState(false);
 
   useDualSpeedEffect(() => {
     setConnectBtnLabel(active && userAddress ? addressName : 'Connect')
   }, [active, userAddress, addressName], !userAddress, 1000)
+
+  useEffect(() => {
+    setIsIframe(window.parent !== window);
+  }, []);
 
   useDualSpeedEffect(() => {
     if (connector instanceof CoinbaseWallet && active) {
@@ -248,6 +255,8 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
       setIsPreviouslyConnected(true, 'injected');
     } else if (connector instanceof WalletConnectV2 && active) {
       setIsPreviouslyConnected(true, 'walletConnect');
+    } else if (connector instanceof GnosisSafe && active) {
+      setIsPreviouslyConnected(true, 'safe-app');
     }
   }, [active, userAddress, connector], !userAddress, 1000)
 
@@ -288,6 +297,13 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
     coinbaseWallet?.activate();
     // activate(location.pathname === '/swap' ? metamaskInjector : metamaskInjector)    
     gaEvent({ action: 'connect-coinbaseWallet' })
+  }
+
+  const connectSafeApp = () => {
+    close()
+    gnosisSafe?.activate();
+    // activate(location.pathname === '/swap' ? metamaskInjector : metamaskInjector)    
+    gaEvent({ action: 'connect-safe-app' })
   }
 
   return (
@@ -353,6 +369,14 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
                 <Image w={6} h={6} src="/assets/wallets/coinbase.png" />
                 <Text fontWeight="semibold">Coinbase Wallet</Text>
               </ConnectionMenuItem>
+              {
+                isIframe && <ConnectionMenuItem
+                  onClick={connectSafeApp}
+                >
+                  <Image borderRadius="4px" w={6} h={6} src="/assets/wallets/gnosis-safe.jpeg" />
+                  <Text fontWeight="semibold">Gnosis Safe</Text>
+                </ConnectionMenuItem>
+              }
             </Stack>
           </PopoverBody>
         )}
@@ -406,6 +430,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const [isLargerThan768] = useMediaQuery('(min-width: 768px)');
   const { themeName } = useAppTheme();
   const { isActive, chainId } = useWeb3React<Web3Provider>();
+  const { isSafeMultisigConnector, isMultisig } = useMultisig();
 
   const userAddress = useAccount();
   const { isEligible, hasClaimed, isLoading } = useCheckDBRAirdrop(userAddress);
@@ -477,12 +502,36 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   }, [query])
 
   useEffect(() => {
+    const init = async () => {
+      if (!!account && isMultisig && !isSafeMultisigConnector) {
+        showToast({
+          status: 'info',
+          title: 'Using a multisig?',
+          description: <Link
+            color="mainTextColor"
+            textDecoration="underline"
+            target="_blank"
+            display="inline-flex"
+            alignItems="center"
+            href={`https://app.safe.global/apps/open?safe=${account}&appUrl=${encodeURIComponent(window.location.href)}`}>
+              <Image mr="1" borderRadius="50px" src="/assets/wallets/gnosis-safe.jpeg" h="20px" w="20px" />
+             Click here to use the Safe app for a better experience
+          </Link>,
+          duration: 30000,
+        });
+      }
+    }
+    init()
+  }, [isMultisig, isSafeMultisigConnector, account]);
+
+  useEffect(() => {
     if (!isUnsupportedNetwork && !isActive && isPreviouslyConnected()) {
       const previousConnectorType = getPreviousConnectorType();
       const connectors = {
-        'coinbase': location.pathname === '/swap' ? coinbaseWallet : coinbaseWallet,
-        'injected': location.pathname === '/swap' ? metamaskInjector : metamaskInjector,
-        'walletConnect': location.pathname === '/swap' ? walletConnectV2 : walletConnectV2,
+        'coinbase': coinbaseWallet,
+        'injected': metamaskInjector,
+        'walletConnect': walletConnectV2,
+        'safe-app': gnosisSafe,
       }
       const previousConnector = connectors[previousConnectorType];
       if (previousConnector) {
@@ -606,11 +655,11 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
                                 color={active === label && activeSubmenu === s.label ? 'mainTextColor' : 'secondaryTextColor'}
                                 display="inline-flex"
                                 alignItems="center"
-                                h="30px"                 
+                                h="30px"
                                 transform="translateY(0px)"
                                 href={s.href.replace('$account', userAddress || '')}
                               >
-                                {s.label}                                
+                                {s.label}
                               </Link>)
                           }
                         </VStack>

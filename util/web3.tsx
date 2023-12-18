@@ -2,7 +2,7 @@ import { ExternalProvider, JsonRpcFetchFunc, JsonRpcSigner, Web3Provider } from 
 import { BLOCK_SCAN } from '@app/config/constants'
 import { getNetwork } from '@app/util/networks'
 
-import { hexValue, formatUnits, parseUnits } from 'ethers/lib/utils'
+import { hexValue, formatUnits, parseUnits, Interface } from 'ethers/lib/utils'
 import { BigNumber, Contract } from 'ethers';
 import localforage from 'localforage';
 import { BigNumberList, Token } from '@app/types'
@@ -247,4 +247,15 @@ export const forceQuickAccountRefresh = (
 export const getAllowanceOf = async (provider: JsonRpcSigner | Web3Provider, token: string, account: string, spender: string) => {
   const contract = new Contract(token, ERC20_ABI, provider);
   return contract.allowance(account, spender);
+}
+
+export const genTransactionParams = (
+  to: string,
+  func: string,
+  args: any[],
+  value = '0',
+) => {  
+  const contractInterface = new Interface([func]);
+  let fd = Object.values(contractInterface.functions)[0];  
+  return { to, data: contractInterface.encodeFunctionData(fd, args), value }
 }
