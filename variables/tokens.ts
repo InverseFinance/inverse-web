@@ -1930,7 +1930,7 @@ const chainTokens = {
       symbol: 'veAERO',
       image: TOKEN_IMAGES.AERO,
       decimals: 18,
-      // coingeckoId: 'velodrome-finance',
+      coingeckoId: 'aerodrome-finance',
       veNftId: '7',
     },
     [chainTokenAddresses["8453"].AERODOLAMAILP]: {
