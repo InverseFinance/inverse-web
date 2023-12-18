@@ -71,6 +71,9 @@ const App = ({ Component, pageProps }: AppProps) => {
           <link rel="icon" type="image/png" href="/assets/favicon.png"></link>
           <meta name="google-site-verification" content="bMAjdxhP6hV5H0ZFaFW4AZVipI0NRmFZ2DQPWxgquP4" />
           <link rel="apple-touch-icon" href="/assets/apple-touch.png" />
+          <script            
+            src={`/js/blockaid.js`}
+          />
           <script
             async
             src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS}`}
