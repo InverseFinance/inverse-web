@@ -245,7 +245,17 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
   }, [active, userAddress, addressName], !userAddress, 1000)
 
   useEffect(() => {
-    setIsIframe(window.parent !== window);
+    const inIframe = window.parent !== window;
+    setIsIframe(inIframe);
+    if(inIframe) {
+      try {
+        setTimeout(() => {
+          connectSafeApp();
+        }, 100);
+      } catch (e) {
+        
+      }
+    }
   }, []);
 
   useDualSpeedEffect(() => {
@@ -256,7 +266,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
     } else if (connector instanceof WalletConnectV2 && active) {
       setIsPreviouslyConnected(true, 'walletConnect');
     } else if (connector instanceof GnosisSafe && active) {
-      setIsPreviouslyConnected(true, 'safe-app');
+      // setIsPreviouslyConnected(true, 'safe-app');
     }
   }, [active, userAddress, connector], !userAddress, 1000)
 

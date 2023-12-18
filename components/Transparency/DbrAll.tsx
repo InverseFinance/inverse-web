@@ -92,7 +92,7 @@ export const DbrAll = ({
             yearlyRewardRate,
             yearlyRewardRateUsd: yearlyRewardRate * histoPrice,
         }
-    });
+    });    
 
     const lastCombodata = combodata?.length > 0 ? combodata[combodata.length - 1] : { debt: 0 };
     // today utc: use current price

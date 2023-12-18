@@ -417,7 +417,8 @@ export const useDBRDebtHisto = (): SWR & {
     .map((d, i) => {
       return {
         debt: d.reduce((a, b) => a + b, 0),
-        timestamp: data.timestamps[i] * 1000,
+        // TODO: rework quickfix
+        timestamp: data.timestamps[i] > 1000000000000 ? data.timestamps[i] : data.timestamps[i] * 1000,        
       }
     })
     .filter((d, i) => !!d.timestamp)
