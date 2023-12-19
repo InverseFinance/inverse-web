@@ -38,7 +38,7 @@ export default async function handler(req, res) {
     const newEntries = dateBlockValues.filter((d) => d.block > startBlock);
     
     const blocksToFetch = newEntries.map(d => d.block);
-    const timestampsToFetch = newEntries.map(d => utcDateStringToTimestamp(d.date)/1000);
+    const timestampsToFetch = newEntries.map(d => parseInt(utcDateStringToTimestamp(d.date)/1000));
 
     if(!blocksToFetch.length) {
       res.status(200).json(archived);
