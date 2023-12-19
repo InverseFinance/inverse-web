@@ -410,15 +410,14 @@ export const useDBRDebtHisto = (): SWR & {
   timestamp: number,
   history: { debt: number, timestamp: number }[],
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/f2/debt-histo?v1`);
+  const { data, error } = useCacheFirstSWR(`/api/f2/debt-histo?v1.0.7`);
 
   const debts = data?.debts || [];
   const history = debts
     .map((d, i) => {
       return {
-        debt: d.reduce((a, b) => a + b, 0),
-        // TODO: rework quickfix
-        timestamp: data.timestamps[i] > 1000000000000 ? data.timestamps[i] : data.timestamps[i] * 1000,        
+        debt: d.reduce((a, b) => a + b, 0),        
+        timestamp: data.timestamps[i] * 1000,        
       }
     })
     .filter((d, i) => !!d.timestamp)
