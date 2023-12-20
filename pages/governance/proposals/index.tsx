@@ -30,7 +30,7 @@ export const Governance = () => (
           <Proposals
             label="Governance Proposals"
             description="Participate in governance of the DAO"
-            href="https://docs.inverse.finance/inverse-finance/governance"
+            href="https://docs.inverse.finance/inverse-finance/inverse-finance/introduction/governance"
           />
         </Flex>
       </Flex>

@@ -6,7 +6,7 @@ import { GovernanceRules } from './GovernanceRules'
 export const GovernanceInfos = () => {
     return (
         <VStack w='full'>
-            <Link href="https://docs.inverse.finance/inverse-finance/governance" isExternal={true} target="_blank">
+            <Link href="https://docs.inverse.finance/inverse-finance/inverse-finance/introduction/governance" isExternal={true} target="_blank">
                 <Image
                     cursor="pointer"
                     borderRadius="5px"
