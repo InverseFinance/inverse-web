@@ -50,7 +50,7 @@ const HighlightBefore = ({ label, char }: { label: string, char: string }) => {
 }
 
 export const Autocomplete = ({
-    title = '',
+    title = '',    
     list = defaultList,
     defaultValue = '',
     placeholder = '',
@@ -63,6 +63,7 @@ export const Autocomplete = ({
     itemRenderer,
     hideClear = false,
     showChevron = true,
+    allowUnlisted = true,
     ...props
 }: AutocompleteProps) => {
     const preselectedItem = list.find(item => item.value === defaultValue) || { label: defaultValue, value: defaultValue };
@@ -102,16 +103,16 @@ export const Autocomplete = ({
     }, [searchValue, selectedItem, isOpen])
 
     useEffect(() => {
-        const newList = getFilteredList(unfilteredList, searchValue)
+        const newList = getFilteredList(unfilteredList, searchValue)        
         const notFound = newList.length === 0
         setNotFound(notFound)
 
-        if (notFound && searchValue) {
+        if (notFound && searchValue && allowUnlisted) {
             newList.push({ label: `Select "${searchValue}"`, value: searchValue, isSearchValue: true });
         }
 
         setFilteredList(newList)
-    }, [searchValue, unfilteredList, autoSort])
+    }, [searchValue, unfilteredList, autoSort, allowUnlisted])
 
     const getFilteredList = (list: AutocompleteItem[], searchValue: string) => {
         const regEx = new RegExp(searchValue?.replace(/([^a-zA-Z0-9])/g, "\\$1"), 'i')

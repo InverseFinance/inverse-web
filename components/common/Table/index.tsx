@@ -382,6 +382,7 @@ export const Table = ({
                         textTransform="capitalize"
                         w={col.filterWidth}
                         p="0"
+                        allowUnlisted={false}
                         showChevron={false}
                         inputProps={{ p: '0' }}
                         defaultValue={filters[col.field]}
