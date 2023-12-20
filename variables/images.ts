@@ -98,6 +98,7 @@ export const TOKEN_IMAGES = {
     "YCRV": "https://assets.coingecko.com/coins/images/27622/small/yearncrvnew_32.png?1664881722",
     "BEETHOVEN": "https://assets.coingecko.com/coins/images/19158/small/beets-icon-large.png?1696518608",
     "RETRO": "https://assets.coingecko.com/coins/images/31136/small/retro.png?1696529965",
+    "LIQUIS": "https://assets.coingecko.com/coins/images/31587/standard/Liqblue.png?1696530404",
 }
 
 export const PROTOCOL_IMAGES = {
@@ -128,6 +129,8 @@ export const PROTOCOL_IMAGES = {
     "VELOCIMETER": TOKEN_IMAGES.VELOCIMETER,
     "BEETHOVEN": TOKEN_IMAGES.BEETHOVEN,
     "RETRO": TOKEN_IMAGES.RETRO,
+    "BUNNI": "https://icons.llamao.fi/icons/protocols/bunni?w=24&h=24",
+    "LIQUIS": TOKEN_IMAGES.LIQUIS,
 }
 
 export const PROTOCOLS_BY_IMG = Object.fromEntries(
@@ -154,6 +157,8 @@ export const PROTOCOL_DEFILLAMA_MAPPING = {
     "RAMSESV2": "ramses-v2",
     "CHRONOS": "chronos-v1",
     "BEETHOVEN": "beethoven-x",
+    "LIQUIS": "liquis",
+    "BUNNI": "bunni",
     // TODO: check if correct project names for the following when defillama adds support    
     "STERLING": "sterling-exchange",
     "SOLIDLIZARD": "solidlizard",

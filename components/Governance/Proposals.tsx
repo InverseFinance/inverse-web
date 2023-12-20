@@ -147,7 +147,7 @@ export const ActiveProposals = () => {
       contentBgColor="gradient3"
       nbNotif={nbActiveNotif}
       description="Participate in governance of the DAO"
-      href="https://docs.inverse.finance/inverse-finance/governance"
+      href="https://docs.inverse.finance/inverse-finance/inverse-finance/introduction/governance"
     >
       <Stack w="full" spacing={1}>
         {active?.length ? (
