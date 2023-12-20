@@ -8,12 +8,12 @@ import { Multisig, NetworkIds, Token } from '@app/types';
 import { getBnToNumber, getYieldOppys } from '@app/util/markets'
 import { CHAIN_TOKENS } from '@app/variables/tokens';
 import { fedOverviewCacheKey } from './fed-overview';
-import { getDolaFraxUsdcSubData, getLPBalances, getUniV3PositionsOf } from '@app/util/contracts';
+import { getCurveNestedLpData, getLPBalances, getUniV3PositionsOf } from '@app/util/contracts';
 import { pricesCacheKey } from '../prices';
 import { PROTOCOLS_BY_IMG, PROTOCOL_DEFILLAMA_MAPPING } from '@app/variables/images';
 import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 
-export const liquidityCacheKey = `liquidity-v1.1.96`;
+export const liquidityCacheKey = `liquidity-v1.1.97`;
 
 export default async function handler(req, res) {
     const { cacheFirst } = req.query;
@@ -115,18 +115,18 @@ export default async function handler(req, res) {
 
             const mainPart = subBalances.find(d => d.symbol === (isDolaMain ? 'DOLA' : 'INV'));
             const dolaWorth = (mainPart?.balance || 0) * (prices[isDolaMain ? 'dola-usd' : 'inverse-finance'] || 1);
-            // TODO: rework
-            let specialCase;
-            if(lp.address === '0xE57180685E3348589E9521aa53Af0BCD497E884d') {
-                specialCase = await getDolaFraxUsdcSubData(prices['frax'], prices['usd-coin'], provider);
-                specialCase.tvl = specialCase.depth + dolaWorth;
+
+            let dolaFraxBpCase;
+            if(lp.isNestedCrvLp) {
+                dolaFraxBpCase = await getCurveNestedLpData(lp, [prices['frax'], prices['usd-coin']], provider);                
+                dolaFraxBpCase.tvl = dolaFraxBpCase.depth + dolaWorth;
             }
 
             const srcTvl = subBalances.reduce((prev, curr) => prev + curr.balance * (prices[curr.coingeckoId || curr.symbol] || 1), 0);
-            const tvl = specialCase?.tvl || yieldData?.tvlUsd || srcTvl;
+            const tvl = dolaFraxBpCase?.tvl || yieldData?.tvlUsd || srcTvl;
             const virtualLpPrice = tvl / virtualTotalSupply;
             
-            const dolaPerc = specialCase?.tvl ? (dolaWorth / specialCase?.tvl) : (dolaWorth / srcTvl);
+            const dolaPerc = dolaFraxBpCase?.tvl ? (dolaWorth / dolaFraxBpCase?.tvl) : (dolaWorth / srcTvl);
             let ownedAmount = 0;
             const owned: { [key: string]: number } = {};
             if (!fedPolData) {
@@ -176,7 +176,7 @@ export default async function handler(req, res) {
                 networkName: NETWORKS_BY_CHAIN_ID[lp.chainId].name,
                 tvl,
                 srcTvl,
-                specialCase,          
+                dolaFraxBpCase,          
                 owned,
                 ownedAmount,
                 perc,
@@ -202,7 +202,7 @@ export default async function handler(req, res) {
             .forEach((lp) => {
                 const parentLp = liquidity.find(plp => plp?.deduce?.includes(lp.address));
                 if(!!parentLp && parentLp.tvl) {
-                    const ratio = parentLp.specialCase ? parentLp.specialCase.convexRatio : lp.tvl/parentLp.tvl;
+                    const ratio = parentLp.dolaFraxBpCase ? parentLp.dolaFraxBpCase.convexRatio : lp.tvl/parentLp.tvl;
                     lp.mainPartBalance = ratio * parentLp.mainPartBalance;
                     lp.pairingDepth = ratio * parentLp.pairingDepth;
                     lp.parentMainPartBalance = parentLp.mainPartBalance;                    

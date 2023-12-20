@@ -530,7 +530,7 @@ const chainTokens = {
       isCrvLP: true,
       pairs: [
         '0x865377367054516e17014CcdED1e7d814EDC9ce4', chainTokenAddresses["1"].THREECRV
-      ],
+      ],      
       image: TOKEN_IMAGES.DOLA,
       link: 'https://curve.fi/#/ethereum/pools/factory-v2-27/deposit',
     },
@@ -543,8 +543,10 @@ const chainTokens = {
       isLP: true,
       isStable: true,
       isCrvLP: true,
+      isNestedCrvLp: true,
+      nestedLpAddress: '0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2',
       pairs: [
-        '0x865377367054516e17014CcdED1e7d814EDC9ce4', '0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC'
+        '0x865377367054516e17014CcdED1e7d814EDC9ce4', chainTokenAddresses["1"].FRAXUSDC
       ],
       image: TOKEN_IMAGES.DOLA,
       link: 'https://curve.fi/#/ethereum/pools/factory-v2-176/deposit',
@@ -559,7 +561,7 @@ const chainTokens = {
       isLP: true,
       isStable: true,
       pairs: [
-        '0x865377367054516e17014CcdED1e7d814EDC9ce4', '0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC'
+        '0x865377367054516e17014CcdED1e7d814EDC9ce4', chainTokenAddresses["1"].FRAXUSDC
       ],
       image: TOKEN_IMAGES.DOLA,
       link: 'https://www.convexfinance.com/stake/ethereum/115',

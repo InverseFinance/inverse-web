@@ -375,23 +375,26 @@ export const getCurveLpTVL = async (address: string, providerOrSigner?: Provider
   ], chainId);
   return getBnToNumber(results[0]) * getBnToNumber(results[1]);
 }
-
-export const getDolaFraxUsdcSubData = async (fraxPrice: number, usdcPrice: number, providerOrSigner?: Provider | JsonRpcSigner) => {
-  const mainContract = new Contract('0xE57180685E3348589E9521aa53Af0BCD497E884d', ERC20_ABI, providerOrSigner);
-  const fraxUsdcLpContract = new Contract('0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2', DOLA3POOLCRV_ABI, providerOrSigner);
-  const fraxUsdcTokenContract = new Contract('0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC', ERC20_ABI, providerOrSigner);
-  const convexContract = new Contract('0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c', ERC20_ABI, providerOrSigner);
-  const results = await getMulticallOutput([
-    { contract: fraxUsdcLpContract, functionName: 'get_virtual_price' },    
-    { contract: fraxUsdcTokenContract, functionName: 'balanceOf', params: ['0xE57180685E3348589E9521aa53Af0BCD497E884d'] },    
-    { contract: mainContract, functionName: 'totalSupply' }, 
-    { contract: convexContract, functionName: 'totalSupply' },    
-  ], 1);
-  const minPrice = Math.min(fraxPrice, usdcPrice);
+// example for the DOLA-FRAXUSDC lp where FRAXUSDC is another curve LP
+export const getCurveNestedLpData = async (lpToken: Token, nestedPrices: number[], providerOrSigner?: Provider | JsonRpcSigner) => {
+  const mainContract = new Contract(lpToken.address, ERC20_ABI, providerOrSigner);
+  const fraxUsdcLpContract = new Contract(lpToken.nestedLpAddress, DOLA3POOLCRV_ABI, providerOrSigner);
+  const fraxUsdcTokenContract = new Contract(lpToken.pairs[1], ERC20_ABI, providerOrSigner);  
+  const queries = [
+    { contract: fraxUsdcLpContract, functionName: 'get_virtual_price' },
+    { contract: fraxUsdcTokenContract, functionName: 'balanceOf', params: [lpToken.address] },    
+  ];
+  if(lpToken.deduce?.length) {
+    const convexContract = new Contract(lpToken.deduce[0], ERC20_ABI, providerOrSigner);
+    queries.push({ contract: mainContract, functionName: 'totalSupply' });
+    queries.push({ contract: convexContract, functionName: 'totalSupply' });
+  }
+  const results = await getMulticallOutput(queries, 1);
+  const minPrice = Math.min(...nestedPrices);
   const depth = getBnToNumber(results[0]) * getBnToNumber(results[1]) * minPrice;
   return {
     depth,
-    convexRatio: getBnToNumber(results[3]) / getBnToNumber(results[2]),
+    convexRatio: lpToken.deduce?.length ? getBnToNumber(results[3]) / getBnToNumber(results[2]) : undefined,
   };
 }
 

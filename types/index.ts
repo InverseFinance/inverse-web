@@ -16,6 +16,8 @@ export interface Token {
   isLP?: boolean
   isStable?: boolean
   isCrvLP?: boolean
+  isNestedCrvLp?: boolean
+  nestedLpAddress?: string
   isVeloLP?: boolean
   isUniV3?: boolean
   isFusionLP?: boolean
@@ -44,6 +46,7 @@ export interface Token {
   veNftId?: string
   isLockedVeNft?: boolean
   twgAddress?: string
+  deduce?: string[]
 }
 
 export interface TokenWithBalance extends Token {
@@ -322,6 +325,7 @@ export type AutocompleteProps = {
   highlightBeforeChar?: string,
   limit?: number,
   showChevron?: boolean,
+  allowUnlisted?: boolean,
   onItemSelect: (selectedItem?: AutocompleteItem) => any,
   itemRenderer?: (value: string, label: string, filteredIndex: number, search: string, filteredList: AutocompleteItem[]) => JSX.Element;
 } & Partial<BoxProps>
