@@ -749,6 +749,9 @@ export type F2Market = {
   ceiling: number
   oracleStartingBlock?: number
   hasAleFeat?: boolean
+  isPhasingOut?: boolean
+  phasingOutComment?: string
+  phasingOutLink?: string
   aleData: { buySellToken: string, collateral: string, helper: string }
 }
 

@@ -256,6 +256,10 @@ export const F2Markets = ({
         router.push(newPath);
     }
 
+    // hide phasing out markets if user has no debt or deposits in it
+    const accountMarketsWithoutPhasingOutMarkets = accountMarkets
+        .filter(m => !m.isPhasingOut || (m.debt > 0 || m.deposits > 0));
+
     return <Container
         label={
             <Text fontWeight="bold" fontSize={{ base: '14px', md: '16px' }}>
@@ -304,7 +308,7 @@ export const F2Markets = ({
                     pinnedLabels={['Stake', 'New']}
                     noDataMessage="Loading..."
                     columns={columns}
-                    items={accountMarkets.map(m => {
+                    items={accountMarketsWithoutPhasingOutMarkets.map(m => {
                         return { ...m, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
                     })}
                     onClick={openMarket}
