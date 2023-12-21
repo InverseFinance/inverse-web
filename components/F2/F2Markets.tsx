@@ -258,7 +258,7 @@ export const F2Markets = ({
 
     // hide phasing out markets if user has no debt or deposits in it
     const accountMarketsWithoutPhasingOutMarkets = accountMarkets
-        .filter(m => !m.isPhasingOut || (m.debt > 0 || m.deposits > 0));
+        .filter(m => !m.isPhasingOut || (m.debt > 0 || (m.deposits * m.price) >= 1));
 
     return <Container
         label={
