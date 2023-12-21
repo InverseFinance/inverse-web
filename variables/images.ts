@@ -99,6 +99,7 @@ export const TOKEN_IMAGES = {
     "BEETHOVEN": "https://assets.coingecko.com/coins/images/19158/small/beets-icon-large.png?1696518608",
     "RETRO": "https://assets.coingecko.com/coins/images/31136/small/retro.png?1696529965",
     "LIQUIS": "https://assets.coingecko.com/coins/images/31587/standard/Liqblue.png?1696530404",
+    "wstETH": "https://assets.coingecko.com/coins/images/18834/standard/wstETH.png",
 }
 
 export const PROTOCOL_IMAGES = {
