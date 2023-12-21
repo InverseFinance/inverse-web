@@ -7,8 +7,8 @@ export const getFromFrontierGraph = (query) => {
 }
 
 export const getFromGovernanceGraph = (query) => {
-    return theGraphFetch(
-        `https://gateway.thegraph.com/api/${process.env.GRAPH_KEY}/subgraphs/id/EDN34txo8wRceZvye8PkGANsSuf3XUQseG1eWrQiirma`,
+    return theGraphFetch(        
+        `https://gateway.thegraph.com/api/${process.env.GRAPH_KEY}/deployments/id/QmQ88NN6yk31QLGSqgDJzAzgkP2nPgN54q1DKqJyxieWcX`,
         query,
     )
 }
@@ -74,6 +74,7 @@ export const getGovProposals = ({
             canceled
             queued
             calls {
+                id
                 target {
                     id
                 }
