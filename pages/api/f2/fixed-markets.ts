@@ -165,6 +165,7 @@ export default async function handler(req, res) {
     const invFrontierMarket = frontierMarkets.markets.find(m => m.token === '0x1637e4e9941D55703a7A5E7807d6aDA3f7DCD61B')!;
     const externalApys = {
       'stETH': stethData?.apy || 0,
+      'wstETH': stethData?.apy || 0,
       'cvxCRV': Math.max(cvxCrvData?.group1 || 0, cvxCrvData?.group2 || 0),
       'cvxFXS': (cvxFxsData?.fxs || 0) + (cvxFxsData?.cvx || 0),
       'INV': invFrontierMarket.supplyApy || 0,
