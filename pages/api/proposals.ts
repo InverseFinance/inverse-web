@@ -105,8 +105,7 @@ export default async function handler(req, res) {
     const result = {
       blockNumber: blockNumber,
       timestamp: Date.now(),
-      proposals,
-      graphResult,
+      proposals,      
       success: true,
     }
 
