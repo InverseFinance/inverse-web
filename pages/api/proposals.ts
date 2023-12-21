@@ -11,7 +11,6 @@ import { Contract } from 'ethers';
 import { GOVERNANCE_ABI } from '@app/config/abis';
 import { getBnToNumber } from '@app/util/markets';
 import { parseEther } from "@ethersproject/units";
-import { PROPOSAL_159_ACTIONS } from "@app/fixtures/temp-gov-actions-fix";
 
 export const proposalsCacheKey = '1-proposals-v1.0.1';
 
@@ -57,6 +56,20 @@ export default async function handler(req, res) {
 
       let status = getProposalStatus(p.canceled, p.executed, parseInt(p.eta), startBlock, endBlock, blockNumber, againstVotes, forVotes, getBnToNumber(quorumVotes))
 
+      const callsWithOrder = p.calls.map(c => ({
+        ...c,
+        order: parseInt(c.id.replace(`${p.id}/`, '')),
+      }));
+      callsWithOrder.sort((a, b) => a.order - b.order);
+      const functions = callsWithOrder.map(c => {
+        return {
+          target: c.target.id,
+          signature: c.signature,
+          callData: c.calldata,
+          value: parseEther(c.value).toString(),
+        }
+      });
+
       return {        
         id: proposalId,
         proposalNum: proposalId + (era === GovEra.alpha ? 0 : 29),
@@ -76,15 +89,8 @@ export default async function handler(req, res) {
         title: p.description.split("\n")[0].split("# ")[1],
         description: description,
         descriptionAsText: removeMd(description),
-        status,
-        functions: proposalId === 159 ? PROPOSAL_159_ACTIONS : p.calls.map(c => {
-          return {
-            target: c.target.id,
-            signature: c.signature,
-            callData: c.calldata,
-            value: parseEther(c.value).toString(),
-          }
-        }),
+        status,        
+        functions,
         voters: p.receipts.map((vote: any, i) => ({
           id: i+1,
           voter: vote.voter.id,
@@ -100,6 +106,7 @@ export default async function handler(req, res) {
       blockNumber: blockNumber,
       timestamp: Date.now(),
       proposals,
+      graphResult,
       success: true,
     }
 
