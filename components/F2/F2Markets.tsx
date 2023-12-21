@@ -45,7 +45,7 @@ const columns = [
                     {
                         !!badgeInfo && <CellText fontWeight="bold">
                             <Badge fontWeight="normal"
-                                textTransform="capitalize"
+                                textTransform="none"
                                 borderRadius="50px"
                                 px="8px"
                                 {...badgeProps}>
@@ -300,7 +300,7 @@ export const F2Markets = ({
                 <SkeletonList /> :
                 <Table
                     keyName="address"
-                    pinnedItems={['0xb516247596Ca36bf32876199FBdCaD6B3322330B', '0xdc2265cBD15beD67b5F2c0B82e23FcE4a07ddF6b']}
+                    pinnedItems={['0xb516247596Ca36bf32876199FBdCaD6B3322330B', markets?.length > 0 ? markets[markets?.length-1].address : '']}
                     pinnedLabels={['Stake', 'New']}
                     noDataMessage="Loading..."
                     columns={columns}
