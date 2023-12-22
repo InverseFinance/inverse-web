@@ -3,6 +3,7 @@ import { BOND_V2_AGGREGATOR, BOND_V2_FIXED_TERM, BOND_V2_FIXED_TERM_TELLER } fro
 import { BONDS } from '@app/variables/tokens';
 import { DWF_PURCHASER } from './constants';
 import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS } from '@app/util/dbr-auction';
+import { DOLA_SAVINGS_ADDRESS } from '@app/util/dola-staking';
 
 // TODO: Clean-up ABIs
 export const COMPTROLLER_ABI = [
@@ -569,6 +570,17 @@ export const DBR_AUCTION_HELPER_ABI = [
   "function swapDolaForExactDbr(uint dbrOut, uint dolaInMax) external returns (uint dolaIn)",
 ];
 
+export const DOLA_SAVINGS_ABI = [
+  'function setMaxYearlyRewardBudget(uint _max) public',
+  'function setMaxRewardPerDolaMantissa(uint _max) public',
+  'function setYearlyRewardBudget(uint _yearlyRewardBudget) public',
+  'function totalSupply() public view returns (uint)',
+  'function operator() public view returns (address)',
+  'function maxRewardPerDolaMantissa() public view returns (uint)',
+  'function maxYearlyRewardBudget() public view returns (uint)',
+  'function yearlyRewardBudget() public view returns (uint)',
+];
+
 export const SDOLA_ABI = [
   "function getDolaReserve() public view returns (uint256)",
   "function getDbrReserve() public view returns (uint256)",
@@ -658,6 +670,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [F2_DBR_REWARDS_HELPER, DBR_REWARDS_HELPER_ABI],
         [DBR_AUCTION_ADDRESS, DBR_AUCTION_ABI],
         [DBR_AUCTION_HELPER_ADDRESS, DBR_AUCTION_HELPER_ABI],
+        [DOLA_SAVINGS_ADDRESS, DOLA_SAVINGS_ABI],
         ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...MULTISIGS.map((m) => [m.address, MULTISIG_ABI]),
         ...Object.values(BONDS).map((bond) => [bond.bondContract, BONDS_ABIS[bond.abiType]]),
