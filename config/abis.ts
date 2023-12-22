@@ -569,6 +569,19 @@ export const DBR_AUCTION_HELPER_ABI = [
   "function swapDolaForExactDbr(uint dbrOut, uint dolaInMax) external returns (uint dolaIn)",
 ];
 
+export const SDOLA_ABI = [
+  "function getDolaReserve() public view returns (uint256)",
+  "function getDbrReserve() public view returns (uint256)",
+  "function buyDBR(uint exactDolaIn, uint exactDbrOut, address to) external",
+  "function totalAssets() public view returns (uint)",
+];
+export const SDOLA_HELPER_ABI = [
+  "function getDbrOut(uint _dolaIn) public view returns (uint _dbrOut)",
+  "function getDolaIn(uint dbrOut) public view returns (uint dolaIn)",
+  "function swapExactDolaForDbr(uint dolaIn, uint dbrOutMin) external returns (uint dbrOut)",
+  "function swapDolaForExactDbr(uint dbrOut, uint dolaInMax) external returns (uint dolaIn)",
+];
+
 export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {
   const networkConfig = getNetworkConfig(chainId, true)!;
   const {
