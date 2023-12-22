@@ -1,4 +1,4 @@
-import { SDOLA_ABI, SDOLA_HELPER_ABI } from "@app/config/abis";
+import { DOLA_SAVINGS_ABI, SDOLA_ABI, SDOLA_HELPER_ABI } from "@app/config/abis";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 
@@ -10,7 +10,7 @@ export const getSdolaContract = (signerOrProvider: JsonRpcSigner) => {
     return new Contract(SDOLA_ADDRESS, SDOLA_ABI, signerOrProvider);
 }
 
-export const getDbrAuctionHelperContract = (signerOrProvider: JsonRpcSigner) => {
+export const getSDolaHelperContract = (signerOrProvider: JsonRpcSigner) => {
     return new Contract(SDOLA_HELPER_ADDRESS, SDOLA_HELPER_ABI, signerOrProvider);
 }
 
@@ -20,16 +20,27 @@ export const sellDolaForDbr = async (signerOrProvider: JsonRpcSigner, dolaToSell
 }
 
 export const swapExactDolaForDbr = (signerOrProvider: JsonRpcSigner, dolaToSell: BigNumber, minDbrOut: BigNumber) => {
-    const contract = getDbrAuctionHelperContract(signerOrProvider);
+    const contract = getSDolaHelperContract(signerOrProvider);
     return contract.swapExactDolaForDbr(dolaToSell, minDbrOut);
 }
 
 export const swapDolaForExactDbr = (signerOrProvider: JsonRpcSigner, dolaInMax: BigNumber, dbrOut: BigNumber) => {
-    const contract = getDbrAuctionHelperContract(signerOrProvider);
+    const contract = getSDolaHelperContract(signerOrProvider);
     return contract.swapDolaForExactDbr(dbrOut, dolaInMax);
 }
 
 export const getDbrOut = async (signerOrProvider: JsonRpcSigner, dolaToSell: BigNumber) => {
-    const contract = getDbrAuctionHelperContract(signerOrProvider);
+    const contract = getSDolaHelperContract(signerOrProvider);
     return contract.getDbrOut(dolaToSell);
+}
+
+export const stakeDola = async (signerOrProvider: JsonRpcSigner, dolaIn: BigNumber, recipient?: string) => {
+    const contract = getSdolaContract(signerOrProvider);
+    return contract.deposit(dolaIn, recipient || (await signerOrProvider.getAddress()));
+}
+
+export const unstakeDola = async (signerOrProvider: JsonRpcSigner, dolaIn: BigNumber, recipient?: string) => {
+    const contract = getSdolaContract(signerOrProvider);
+    const owner = (await signerOrProvider.getAddress())
+    return contract.withdraw(dolaIn, recipient || owner, owner);
 }
