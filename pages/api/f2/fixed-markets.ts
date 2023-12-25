@@ -14,7 +14,7 @@ import { FEATURE_FLAGS } from '@app/config/features';
 import { getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
 
 const { F2_MARKETS, DOLA, XINV, DBR_DISTRIBUTOR, FEDS } = getNetworkConfigConstants();
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.98`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.99`;
 
 export default async function handler(req, res) {
   const { cacheFirst } = req.query;
@@ -165,6 +165,7 @@ export default async function handler(req, res) {
     const invFrontierMarket = frontierMarkets.markets.find(m => m.token === '0x1637e4e9941D55703a7A5E7807d6aDA3f7DCD61B')!;
     const externalApys = {
       'stETH': stethData?.apy || 0,
+      'wstETH': stethData?.apy || 0,
       'cvxCRV': Math.max(cvxCrvData?.group1 || 0, cvxCrvData?.group2 || 0),
       'cvxFXS': (cvxFxsData?.fxs || 0) + (cvxFxsData?.cvx || 0),
       'INV': invFrontierMarket.supplyApy || 0,

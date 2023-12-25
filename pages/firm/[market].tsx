@@ -27,6 +27,7 @@ import { preciseCommify } from '@app/util/misc'
 import { WorthEvoChartWrapper } from '@app/components/F2/WorthEvoChartContainer'
 import { DbrV1IssueModal } from '@app/components/F2/Modals/DbrV1IssueIModal'
 import { useMultisig } from '@app/hooks/useSafeMultisig'
+import Link from '@app/components/common/Link'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -98,6 +99,18 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                             <Text _hover={{ color: 'inherit' }} color="inherit">Back to Markets</Text>
                                         </HStack>
                                     </HStack>
+                                    {
+                                        f2market.isPhasingOut && <InfoMessage
+                                            alertProps={{ w: 'full' }}
+                                            title="This market is being phased out"
+                                            description={!!f2market.phasingOutComment && <VStack spacing="0" alignItems="flex-start" w='full'>
+                                                <Text>{f2market.phasingOutComment}</Text>
+                                                <Link isExternal={true} target="_blank" textDecoration="underline" href={f2market.phasingOutLink}>
+                                                    Read corresponding Governance proposal
+                                                </Link>
+                                            </VStack>}
+                                        />
+                                    }
                                     <MarketBar
                                         w='full'
                                         minH="64px"
