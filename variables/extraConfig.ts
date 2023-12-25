@@ -198,7 +198,7 @@ const mainConfig = {
             badgeInfo: 'Wrapped stETH',
             rewardTypeLabel: "stETH's APY",
             badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },
-            startingBlock: 18727839,
+            startingBlock: 18862063,
             isInv: false,
             hasStakingLikeRewards: false,
         },
