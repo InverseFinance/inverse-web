@@ -12,7 +12,7 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
         return new JsonRpcProvider('https://rpc.ftm.tools/');
     }
     else if (chainId === NetworkIds.optimism && !specificAlchemyKey) {
-        return new JsonRpcProvider('https://optimism.llamarpc.com');
+        return new JsonRpcProvider('https://mainnet.optimism.io');
     }
     else if (chainId === NetworkIds.bsc && !specificAlchemyKey) {
         return new JsonRpcProvider('https://bsc-dataseed3.binance.org');
