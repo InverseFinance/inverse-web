@@ -1,5 +1,6 @@
 import Link from "@app/components/common/Link"
 import { InfoMessage } from "@app/components/common/Messages"
+import { ONE_DAY_MS } from "@app/config/constants"
 import { useDBRPrice } from "@app/hooks/useDBR"
 import useEtherSWR from "@app/hooks/useEtherSWR"
 import { useDOLAPrice } from "@app/hooks/usePrices"
@@ -15,7 +16,9 @@ const useStakedDola = (): {
     totalSupply: number;
     yearlyRewardBudget: number;
     maxYearlyRewardBudget: number;
-    maxRewardPerDolaMantissa: number;    
+    maxRewardPerDolaMantissa: number;
+    weeklyRevenue: number;
+    pastWeekRevenue: number;
     isLoading: boolean;
     hasError: boolean;
 } => {
@@ -27,22 +30,32 @@ const useStakedDola = (): {
     );
     const { data: maxYearlyRewardBudget, error: maxYearlyRewardBudgetErr } = useEtherSWR(
         [DOLA_SAVINGS_ADDRESS, 'maxYearlyRewardBudget']
-    );    
+    );
     const { data: maxRewardPerDolaMantissa, error: maxRewardPerDolaMantissaErr } = useEtherSWR(
         [DOLA_SAVINGS_ADDRESS, 'maxRewardPerDolaMantissa']
+    );
+    const d = new Date();
+    const weekIndexUtc = Math.floor(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0) / (ONE_DAY_MS * 7));
+    const { data: weeklyRevenueData, error: weeklyRevenueErr } = useEtherSWR(
+        [DOLA_SAVINGS_ADDRESS, 'weeklyRevenue', weekIndexUtc]
+    );
+    const { data: pastWeekRevenueData, error: pastWeekRevenueErr } = useEtherSWR(
+        [DOLA_SAVINGS_ADDRESS, 'weeklyRevenue', weekIndexUtc - 1]
     );
     return {
         totalSupply: totalSupply ? getBnToNumber(totalSupply) : 0,
         yearlyRewardBudget: yearlyRewardBudget ? getBnToNumber(yearlyRewardBudget) : 0,
-        maxYearlyRewardBudget: maxYearlyRewardBudget ? getBnToNumber(maxYearlyRewardBudget) : 0,        
-        maxRewardPerDolaMantissa: maxRewardPerDolaMantissa ? getBnToNumber(maxRewardPerDolaMantissa) : 0,        
+        maxYearlyRewardBudget: maxYearlyRewardBudget ? getBnToNumber(maxYearlyRewardBudget) : 0,
+        maxRewardPerDolaMantissa: maxRewardPerDolaMantissa ? getBnToNumber(maxRewardPerDolaMantissa) : 0,
+        weeklyRevenue: weeklyRevenueData ? getBnToNumber(weeklyRevenueData) : 0,
+        pastWeekRevenue: pastWeekRevenueData ? getBnToNumber(pastWeekRevenueData) : 0,
         isLoading: (!totalSupply && !error) || (!yearlyRewardBudget && !yearlyRewardBudgetErr) || (!maxYearlyRewardBudget && !maxYearlyRewardBudgetErr),
         hasError: !!error || !!yearlyRewardBudgetErr || !!maxYearlyRewardBudgetErr,
     }
 }
 
 export const StakeDolaInfos = () => {
-    const { totalSupply, yearlyRewardBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, isLoading } = useStakedDola();
+    const { totalSupply, yearlyRewardBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, weeklyRevenue, pastWeekRevenue, isLoading } = useStakedDola();
     const { priceUsd: dbrPrice } = useDBRPrice();
     const { price: dolaPrice } = useDOLAPrice();
     return <InfoMessage
@@ -50,28 +63,31 @@ export const StakeDolaInfos = () => {
         alertProps={{ fontSize: '12px', mb: '8' }}
         description={
             <Stack>
-                <Text fontSize="14px" fontWeight="bold">What is DBR?</Text>
+                <Text fontSize="14px" fontWeight="bold">What is sDOLA?</Text>
                 <VStack spacing="0" alignItems="flex-start">
+                    <Text>- sDOLA is staked DOLA</Text>
                     <Text>
-                        - DBR is the DOLA Borrowing Right token
+                        - It uses the ERC4626 standard (Tokenized Vault Token)
                     </Text>
-                    <Text>- One DBR allows to borrow one DOLA for one year</Text>
-                    <Text>- It's also the reward token for INV stakers on FiRM</Text>
-                    <Text>- DBR can be bought to borrow or hedge against interest rates!</Text>
+                    <Text>- It's a decentralized yield-bearing asset</Text>
+                    <Text>- The yield comes from DBR auctions</Text>
+                    <Link textDecoration="underline" href='https://docs.inverse.finance' isExternal target="_blank">
+                        Learn more about sDOLA <ExternalLinkIcon />
+                    </Link>
                 </VStack>
-                <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr' isExternal target="_blank">
-                    Learn more about DBR <ExternalLinkIcon />
-                </Link>
                 <Text fontSize="14px" fontWeight="bold">sDOLA stats</Text>
-                <VStack w='full' spacing="0">
+                <VStack w='full' spacing="0" alignItems="flex-start">
                     <HStack w='full'>
                         <Text>- Total supply:</Text>
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(totalSupply, 0)}</Text>}
                     </HStack>
                     <HStack w='full'>
-                        <Text>- Weekly revenues:</Text>
-                        {/* {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(dbrReserve, 0)} ({preciseCommify(dbrReserve * dbrPrice, 0, true)})</Text>} */}
+                        <Text>- Weekly revenues from auctions:</Text>
+                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(weeklyRevenue, 0)} DOLA</Text>}
                     </HStack>
+                    <Link textDecoration="underline" href='https://docs.inverse.finance/dbr/auction' isExternal target="_blank">
+                        Go to auctions <ExternalLinkIcon />
+                    </Link>
                 </VStack>
                 <Text fontSize="14px" fontWeight="bold">sDOLA Parameters</Text>
                 <VStack w='full' spacing="0">
@@ -85,11 +101,9 @@ export const StakeDolaInfos = () => {
                     </HStack>
                     <HStack w='full'>
                         <Text>- Max. DBR per DOLA:</Text>
-                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(maxRewardPerDolaMantissa, 0)} ({preciseCommify(maxRewardPerDolaMantissa * dbrPrice, 0, true)})</Text>}
-                    </HStack>                    
+                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(maxRewardPerDolaMantissa, 2)} ({preciseCommify(maxRewardPerDolaMantissa * dbrPrice, 2, true)})</Text>}
+                    </HStack>
                 </VStack>
-                <Text fontSize="14px" fontWeight="bold">Where does the yield come from?</Text>                
-                <Text>The yield comes from DBR issuance which is related to DOLA borrowing, the more people borrow DOLA on FiRM, the more DBR can be issued</Text>
             </Stack>
         }
     />

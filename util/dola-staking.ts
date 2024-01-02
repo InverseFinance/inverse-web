@@ -1,10 +1,17 @@
 import { DOLA_SAVINGS_ABI, SDOLA_ABI, SDOLA_HELPER_ABI } from "@app/config/abis";
+import { BURN_ADDRESS } from "@app/config/constants";
+import useEtherSWR from "@app/hooks/useEtherSWR";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
+import { getBnToNumber } from "./markets";
 
-export const DOLA_SAVINGS_ADDRESS = '0x4458AcB1185aD869F982D51b5b0b87e23767A3A9';
-export const SDOLA_ADDRESS = '0x8d375dE3D5DDde8d8caAaD6a4c31bD291756180b';
-export const SDOLA_HELPER_ADDRESS = '0x721a1ecB9105f2335a8EA7505D343a5a09803A06';
+export const DOLA_SAVINGS_ADDRESS = '0xcb0A9835CDf63c84FE80Fcc59d91d7505871c98B';
+export const SDOLA_ADDRESS = '0xFD296cCDB97C605bfdE514e9810eA05f421DEBc2';
+export const SDOLA_HELPER_ADDRESS = '0x8b9d5A75328b5F3167b04B42AD00092E7d6c485c';
+
+export const getDolaSavingsContract = (signerOrProvider: JsonRpcSigner) => {
+    return new Contract(DOLA_SAVINGS_ADDRESS, DOLA_SAVINGS_ABI, signerOrProvider);
+}
 
 export const getSdolaContract = (signerOrProvider: JsonRpcSigner) => {
     return new Contract(SDOLA_ADDRESS, SDOLA_ABI, signerOrProvider);
@@ -36,11 +43,30 @@ export const getDbrOut = async (signerOrProvider: JsonRpcSigner, dolaToSell: Big
 
 export const stakeDola = async (signerOrProvider: JsonRpcSigner, dolaIn: BigNumber, recipient?: string) => {
     const contract = getSdolaContract(signerOrProvider);
-    return contract.deposit(dolaIn, recipient || (await signerOrProvider.getAddress()));
+    const _recipient = !!recipient && recipient !== BURN_ADDRESS ? recipient : (await signerOrProvider.getAddress());
+    return contract.deposit(dolaIn, _recipient);
 }
 
 export const unstakeDola = async (signerOrProvider: JsonRpcSigner, dolaIn: BigNumber, recipient?: string) => {
     const contract = getSdolaContract(signerOrProvider);
+    const _recipient = !!recipient && recipient !== BURN_ADDRESS ? recipient : (await signerOrProvider.getAddress());
     const owner = (await signerOrProvider.getAddress())
-    return contract.withdraw(dolaIn, recipient || owner, owner);
+    return contract.withdraw(dolaIn, _recipient, owner);
 }
+
+export const sdolaDevInit = async (signerOrProvider: JsonRpcSigner) => {
+    const contract = getDolaSavingsContract(signerOrProvider);
+    await contract.setMaxYearlyRewardBudget('9000000000000000000000000');
+    await contract.setMaxRewardPerDolaMantissa('1000000000000000000');
+    await contract.setYearlyRewardBudget('6000000000000000000000000');
+}
+
+export const useStakedDolaBalance = (account: string, ad = SDOLA_ADDRESS) => {
+    const { data, error } = useEtherSWR([ad, 'balanceOf', account]);
+    return {
+      bnBalance: data || BigNumber.from('0'),
+      balance: data ? getBnToNumber(data) : 0,
+      isLoading: !data && !error,
+      hasError: !data && !!error,
+    };
+  }

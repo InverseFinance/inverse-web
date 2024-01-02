@@ -1,6 +1,6 @@
 import { VStack, Text, HStack, Divider } from "@chakra-ui/react"
 // import { SDOLA_HELPER_ADDRESS, swapDolaForExactDbr, swapExactDolaForDbr } from "@app/util/dbr-auction"
-import { SDOLA_HELPER_ADDRESS, stakeDola, swapDolaForExactDbr, swapExactDolaForDbr } from "@app/util/dola-staking"
+import { stakeDola, unstakeDola, useStakedDolaBalance } from "@app/util/dola-staking"
 import useEtherSWR from "@app/hooks/useEtherSWR";
 import { useWeb3React } from "@web3-react/core";
 import { getBnToNumber, getNumberToBn, shortenNumber, smartShortNumber } from "@app/util/markets";
@@ -29,15 +29,13 @@ export const StakeDolaUI = () => {
     const [isConnected, setIsConnected] = useState(true);
     const { signedBalance: dbrBalance, dbrExpiryDate, debt: currentTotalDebt } = useAccountDBR(account);
     const { balance: dolaBalance } = useDOLABalance(account);
+    const { balance: stakedDolaBalance } = useStakedDolaBalance(account);
 
-    const [slippage, setSlippage] = useState('1');
     const [tab, setTab] = useState('Stake');
     const isStake = tab === 'Stake';
 
-    const isInvalidSlippage = !slippage || parseFloat(slippage) <= 0 || parseFloat(slippage) >= 20;
-    const isExactDolaBtnDisabled = isInvalidSlippage || !dolaAmount || parseFloat(dolaAmount) <= 0;
-
-    const handleAction = async () => {          
+    const handleAction = async () => {         
+        // return sdolaDevInit(provider?.getSigner());
         if (isStake) {
             return stakeDola(provider?.getSigner(), parseEther(dolaAmount));
         }
@@ -62,20 +60,20 @@ export const StakeDolaUI = () => {
                     :
                     <>                        
                         <NavButtons active={tab} options={['Stake', 'Unstake']} onClick={(v) => setTab(v)} />
-                        <HStack w='full' justify="space-between">
+                        <HStack w='full' justify="space-between">                            
                             <Text fontSize="14px">
-                                DBR balance: {preciseCommify(dbrBalance, 2)}
+                                DOLA balance: {dolaBalance ? preciseCommify(dolaBalance, 2) : '-'}
                             </Text>
                             <Text fontSize="14px">
-                                DOLA balance: {preciseCommify(dolaBalance, 2)}
+                                sDOLA balance: {stakedDolaBalance ? preciseCommify(stakedDolaBalance, 2) : '-'}
                             </Text>
                         </HStack>
                         {
                             isStake ?
                                 <VStack w='full' alignItems="flex-start">
-                                    <TextInfo message="Exact amount of DOLA in exchange for DBR, the auction formula is of type K=xy">
-                                        <Text fontWeight="bold" fontSize="14px">Exact amount DOLA to sell:</Text>
-                                    </TextInfo>
+                                    <Text fontSize="18px" fontWeight="bold">
+                                        Amount to stake:
+                                    </Text>
                                     <SimpleAmountForm
                                         defaultAmount={dolaAmount}
                                         address={DOLA}
@@ -88,18 +86,16 @@ export const StakeDolaUI = () => {
                                         showMaxBtn={false}
                                         hideInputIfNoAllowance={false}
                                         showBalance={true}
-                                        isDisabled={isExactDolaBtnDisabled}
-                                        checkBalanceOnTopOfIsDisabled={true}
                                     />
                                 </VStack>
                                 :
                                 <VStack w='full' alignItems="flex-start">
-                                    <TextInfo message="Exact amount of DBR in exchange for DOLA, the auction formula is of type K=xy">
-                                        <Text fontWeight="bold" fontSize="14px">Exact amount of DBR to buy:</Text>
-                                    </TextInfo>
+                                    <Text fontSize="18px" fontWeight="bold">
+                                        Amount to unstake:
+                                    </Text>
                                     <SimpleAmountForm
                                         defaultAmount={dolaAmount}
-                                        address={DOLA}
+                                        address={SDOLA_ADDRESS}
                                         destination={SDOLA_ADDRESS}
                                         needApprove={false}
                                         signer={provider?.getSigner()}
@@ -107,12 +103,9 @@ export const StakeDolaUI = () => {
                                         onAction={() => handleAction()}
                                         actionLabel={`Unstake`}
                                         onAmountChange={(v) => setDolaAmount(v)}
-                                        showMaxBtn={false}
-                                        showMax={false}
+                                        showMaxBtn={false}                                        
                                         hideInputIfNoAllowance={false}
-                                        showBalance={false}
-                                        isDisabled={isExactDolaBtnDisabled}
-                                        checkBalanceOnTopOfIsDisabled={true}
+                                        showBalance={true}
                                     />
                                 </VStack>
                         }                        
