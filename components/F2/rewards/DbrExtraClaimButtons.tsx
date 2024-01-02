@@ -41,6 +41,7 @@ export const DbrRewardsModal = ({
     const { provider } = useWeb3React();
     const [isCustomAddress, setIsCustomAddress] = useState(false);
     const [customAddress, setCustomAddress] = useState('');
+    const [isFreshlyAuthorized, setIsFreshlyAuthorized] = useState(false);
     const { debt } = useAccountDBR(isCustomAddress && isAddress(customAddress) ? customAddress : account);
     const { markets } = useDBRMarkets();
     const { escrow } = useStakedInFirm(account);
@@ -52,7 +53,7 @@ export const DbrRewardsModal = ({
             abi: F2_ESCROW_ABI,
         }
     );
-    const isHelperAllowedAsClaimer = claimersData ? claimersData[0] : false;
+    const isHelperAllowedAsClaimer = isFreshlyAuthorized || (claimersData ? claimersData[0] : false);
     const accountMarkets = useAccountF2Markets(markets, account);
     const marketsWithDebt = useMemo(() => {
         return accountMarkets.filter(m => m.debt > 0).sort((a, b) => b.debt - a.debt);
@@ -171,8 +172,8 @@ export const DbrRewardsModal = ({
                 </RadioGroup> */}
                 <VStack w='full' alignItems="flex-start">
                     <HStack w='full' justify="space-between">
-                        <Text fontSize='18px' fontWeight="bold">Percentage to re-invest and stake in INV:</Text>
-                        <Text fontWeight="bold" color="accentTextColor">{shortenNumber(percentageToReinvest, 0)}%</Text>
+                        <Text color="accentTextColor" fontSize='18px' fontWeight="bold">Percentage of rewards to re-invest and stake in INV:</Text>
+                        <Text fontWeight="bold">{shortenNumber(percentageToReinvest, 0)}%</Text>
                     </HStack>
                     <Slider
                         value={percentageToReinvest}
@@ -212,7 +213,7 @@ export const DbrRewardsModal = ({
                     </VStack>
                 }
                 <VStack spacing="0" w='full' alignItems="flex-start">
-                    <TextInfo message="If you wish to assets transferred or deposited to another account address">
+                    <TextInfo message="If you wish the assets to be transferred or deposited to another account address">
                         <HStack spacing="2" cursor="pointer" onClick={v => !!customAddress ? () => { } : setIsCustomAddress(!isCustomAddress)}>
                             <Text>Recipient address (optional)</Text>
                             {!customAddress ? isCustomAddress ? <ChevronDownIcon /> : <ChevronRightIcon /> : null}
@@ -225,7 +226,7 @@ export const DbrRewardsModal = ({
                     percentageToReinvest < 100 && <VStack w='full'>
                         <FormControl display="inline-flex" alignItems="center" w='full'>
                             <Checkbox cursor="pointer" mr="2" id="dbr-rewards-repay-checkbox" onChange={e => { setHasRepay(!hasRepay); }} isChecked={hasRepay}></Checkbox>
-                            <FormLabel fontSize='18px' fontWeight="bold" cursor="pointer" m="0" p="0" htmlFor="dbr-rewards-repay-checkbox">
+                            <FormLabel color="accentTextColor" fontSize='18px' fontWeight="bold" cursor="pointer" m="0" p="0" htmlFor="dbr-rewards-repay-checkbox">
                                 Use some DOLA to repay debt?
                             </FormLabel>
                         </FormControl>
@@ -249,7 +250,7 @@ export const DbrRewardsModal = ({
                                 </Select>
                                 <VStack spacing="2" w='full' alignItems="flex-start">
                                     <HStack w='full' justify="space-between">
-                                        <Text fontWeight="bold">Percentage of the DOLA to use to repay debt:</Text>
+                                        <Text fontWeight="bold" color="accentTextColor">Percentage of the DOLA to use to repay debt:</Text>
                                         <Text fontWeight="bold" color="accentTextColor">{shortenNumber(percentageRepay, 0)}%</Text>
                                     </HStack>
                                     <Slider
@@ -295,8 +296,8 @@ export const DbrRewardsModal = ({
             <VStack alignItems="center" w='full'>
                 {
                     !isHelperAllowedAsClaimer ?
-                        <RSubmitButton refreshOnSuccess={true} onClick={authorizeAsClaimer} p="6" w='fit-content' fontSize="18px">
-                            Authorize DBR Rewards Helper
+                        <RSubmitButton refreshOnSuccess={false} onSuccess={() => setIsFreshlyAuthorized(true)} onClick={authorizeAsClaimer} p="6" w='fit-content' fontSize="18px">
+                            1/2 - Authorize DBR Rewards Helper
                         </RSubmitButton>
                         :
                         <RSubmitButton refreshOnSuccess={true} disabled={(isNotBasicClaim && hasInvalidSlippage) || (hasRepay && !marketToRepay) || (isCustomAddress && (!isAddress(customAddress) || customAddress === BURN_ADDRESS))} onClick={handleClaim} p="6" w='fit-content' fontSize="18px">
