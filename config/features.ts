@@ -8,7 +8,7 @@ type Features = {
 }
 
 const envFlags = process.env.NEXT_PUBLIC_FF?.length
-    ? process.env.NEXT_PUBLIC_FF.split(',') : ['true', 'false', 'false', 'false'];
+    ? process.env.NEXT_PUBLIC_FF.split(',') : ['true', 'true', 'false', 'true'];
 
 const defaultFeatures: Features = {
     firmMinDebt: envFlags[0] === 'true',
