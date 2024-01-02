@@ -299,7 +299,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
             {
                 tooltip: 'The total number of DBRs that will be spent on a monthly bassis',
                 title: 'Monthly DBR spend',
-                value: `-${newMonthlyDBRBurnInMarket ? `${shortenNumber(newMonthlyDBRBurnInMarket, 4)} (${shortenNumber(newMonthlyDBRBurnInMarket * dbrPriceUsd, 2, true)})` : ''}`,
+                value: `-${newMonthlyDBRBurnInMarket ? `${shortenNumber(newMonthlyDBRBurnInMarket, 2)} (${shortenNumber(newMonthlyDBRBurnInMarket * dbrPriceUsd, 2, true)})` : ''}`,
                 isLoading: debtAmountNumInfo > 0 && (isDbrApproxLoading || isLeverageLoadingOrTriggeringLoad),
             },
             {
