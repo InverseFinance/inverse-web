@@ -197,6 +197,7 @@ const chainTokenAddresses = {
     DOLAUSDCALP: '0xAc7025Dec5E216025C76414f6ac1976227c20Ff0',
     BAL: '0x040d1EdC9569d4Bab2D15287Dc5A4F10F56a56B8',
     AURA: '0x1509706a6c66CA549ff0cB464de88231DDBe213B',
+    RAMDOLAUSDCLP2: '0xBa3A2CA37b5208f8efde90dA22060692Dd3De9b1',
     // VLAURA: '',
   },
   "43114": {
@@ -1771,6 +1772,21 @@ const chainTokens = {
       isVeloLP: true,
       pairs: [
         chainTokenAddresses["42161"].DOLA, chainTokenAddresses["42161"].USDCE
+      ],
+      protocolImage: PROTOCOL_IMAGES.RAMSES,
+      twgAddress: '0x23dEDab98D7828AFBD2B7Ab8C71089f2C517774a',
+    },
+    [chainTokenAddresses["42161"].RAMDOLAUSDCLP2]: {
+      address: chainTokenAddresses["42161"].RAMDOLAUSDCLP2,
+      name: 'DOLA-USDC rclp',
+      symbol: 'DOLA-USDC rclp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isUniV3: true,
+      pairs: [
+        chainTokenAddresses["42161"].DOLA, chainTokenAddresses["42161"].USDC
       ],
       protocolImage: PROTOCOL_IMAGES.RAMSES,
       twgAddress: '0x23dEDab98D7828AFBD2B7Ab8C71089f2C517774a',
