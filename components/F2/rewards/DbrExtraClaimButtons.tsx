@@ -1,5 +1,6 @@
 import { ROutlineButton, RSubmitButton } from "@app/components/common/Button/RSubmitButton"
 import { Input } from "@app/components/common/Input"
+import { InfoMessage } from "@app/components/common/Messages"
 import { TextInfo } from "@app/components/common/Messages/TextInfo"
 import { Modal } from "@app/components/common/Modal"
 import { F2_ESCROW_ABI } from "@app/config/abis"
@@ -143,8 +144,13 @@ export const DbrRewardsModal = ({
         <VStack w='full' spacing="8" px="6" py="5" alignItems="flex-start">
             <VStack w='full' spacing="4" alignItems="flex-start">
                 <VStack w='full'>
+                    <InfoMessage
+                        alertProps={{ w: 'full' }}
+                        title="Advanced DBR Claim Options:"
+                        description="Sell your DBR rewards for INV/DOLA, repay debt in a market."
+                    />
                     <HStack w='full' justify="space-between">
-                        <Text>DBR rewards: {smartShortNumber(dbrRewardsInfo.balance)} (~{smartShortNumber(dbrRewardsInfo.balanceUSD, 2, true, true)})</Text>
+                        <Text>DBR rewards: <b>{smartShortNumber(dbrRewardsInfo.balance)} (~{smartShortNumber(dbrRewardsInfo.balanceUSD, 2, true, true)})</b></Text>
                         {
                             debt > 0 && <Text>My total debt: {smartShortNumber(debt, 2)} DOLA</Text>
                         }
