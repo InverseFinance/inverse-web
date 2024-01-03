@@ -12,12 +12,13 @@ import useEtherSWR from "@app/hooks/useEtherSWR"
 import { useStakedInFirm } from "@app/hooks/useFirm"
 import { usePrices } from "@app/hooks/usePrices"
 import { ZapperToken } from "@app/types"
-import { claimDbrAndSell, claimDbrAndSellForDola, claimDbrSellAndDepositInv, claimDbrSellAndRepay } from "@app/util/firm-extra"
+import { claimDbrAndSell } from "@app/util/firm-extra"
 import { getNumberToBn, shortenNumber, smartShortNumber } from "@app/util/markets"
 import { preciseCommify } from "@app/util/misc"
 import { getNetworkConfigConstants } from "@app/util/networks"
+import { TOKEN_IMAGES } from "@app/variables/images"
 import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons"
-import { VStack, useDisclosure, Text, Stack, RadioGroup, Radio, HStack, Select, RangeSlider, RangeSliderTrack, RangeSliderFilledTrack, RangeSliderThumb, Slider, SliderTrack, SliderFilledTrack, SliderThumb, Divider, Checkbox, FormControl, FormLabel } from "@chakra-ui/react"
+import { VStack, Image, useDisclosure, Text, Stack, HStack, Select, RangeSlider, RangeSliderTrack, RangeSliderFilledTrack, RangeSliderThumb, Slider, SliderTrack, SliderFilledTrack, SliderThumb, Divider, Checkbox, FormControl, FormLabel } from "@chakra-ui/react"
 import { useWeb3React } from "@web3-react/core"
 import { Contract } from "ethers"
 import { isAddress } from "ethers/lib/utils"
@@ -60,25 +61,20 @@ export const DbrRewardsModal = ({
         return accountMarkets.filter(m => m.debt > 0).sort((a, b) => b.debt - a.debt);
     }, [accountMarkets.map(m => m.debt).join('-')]);
 
-    const [selected, setSelected] = useState('restake');
     const [slippage, setSlippage] = useState('1');
     const [hasRepay, setHasRepay] = useState(false);
     const [marketToRepay, setMarketToRepay] = useState('');
-    const [percentageToReinvest, setPercentageToReinvest] = useState(100);
+    const [percentageForInv, setPercentageForInv] = useState(100);
+    const [percentageForDola, setPercentageForDola] = useState(0);
     const [percentageRepay, setPercentageRepay] = useState(100);
 
     // amounts of DOLA and INV for selling DBR
     const { amountOut: dolaAmountOut } = useTriCryptoSwap(dbrRewardsInfo.balance, 1, 0);
     const { amountOut: invAmountOut } = useTriCryptoSwap(dbrRewardsInfo.balance, 1, 2);
-
-    const dolaPerc = 100 - percentageToReinvest;
+    const percentageToReinvest = percentageForInv - percentageForDola;
     const slippageFactor = (1 - parseFloat(slippage) / 100);
-    const dolaMinOut = dolaAmountOut ? dolaAmountOut * (dolaPerc / 100) * slippageFactor : 0;
+    const dolaMinOut = dolaAmountOut ? dolaAmountOut * (percentageForDola / 100) * slippageFactor : 0;
     const invMinOut = invAmountOut ? invAmountOut * (percentageToReinvest / 100) * slippageFactor : 0;
-
-    const isRestake = selected === 'restake';
-    const isNotBasicClaim = selected !== 'claim';
-    const isRepay = selected === 'repay';
 
     const dolaPrice = prices ? prices['dola-usd']?.usd : 0;
     const invPrice = prices ? prices['inverse-finance']?.usd : 0;
@@ -98,7 +94,7 @@ export const DbrRewardsModal = ({
         const destinationAddress = isCustomAddress ? customAddress : account;
 
         const invBps = (percentageToReinvest * 100).toString();
-        const dolaBps = (dolaPerc * 100).toString();
+        const dolaBps = (percentageForDola * 100).toString();
         const dolaMinOutBn = getNumberToBn(dolaMinOut);
         const invMinOutBn = getNumberToBn(invMinOut);
         const exchangeData = [destinationAddress, destinationAddress, destinationAddress, dolaMinOutBn, dolaBps, invMinOutBn, invBps];
@@ -106,26 +102,29 @@ export const DbrRewardsModal = ({
             [marketToRepay, destinationAddress, (percentageRepay * 100).toString()]
             : [BURN_ADDRESS, BURN_ADDRESS, '0'];
         return claimDbrAndSell(provider.getSigner(), exchangeData, repayData);
-        // if (selected === 'restake') {
-        //     return claimDbrSellAndDepositInv(minAmountOutBn, provider?.getSigner(), destinationAddress);
-        // } else if (selected === 'sell') {
-        //     return claimDbrAndSellForDola(minAmountOutBn, provider?.getSigner(), destinationAddress);
-        // } else if (selected === 'repay' && !!marketToRepay) {
-        //     return claimDbrSellAndRepay(minAmountOutBn, marketToRepay, provider?.getSigner(), destinationAddress);
-        // } else if (selected === 'claim') {
-        //     return basicClaim(destinationAddress);
-        // }
     }
 
     const hasInvalidSlippage = (!slippage || slippage === '0' || isNaN(parseFloat(slippage)));
 
-    const handleSellSlider = (percToReinvest: number) => {
-        setPercentageToReinvest(percToReinvest);
+    // const handleSellSlider = (percToReinvest: number) => {
+    //     setPercentageToReinvest(percToReinvest);
+    // }
+
+    // first number: perc of dola, second number: INV
+    const handleSellRange = (range: number[]) => {
+        const [dola, inv] = range;
+        setPercentageForInv(inv);
+        setPercentageForDola(dola);
     }
 
     const handleRepaySlider = (percToReinvest: number) => {
         setPercentageRepay(percToReinvest);
     }
+
+    const dolaInvCombo = <HStack justify="center" alignItems="center">
+        <Image borderRadius="50px" src={TOKEN_IMAGES.DOLA} h="14px" w="14px" />
+        <Image borderRadius="50px" src={TOKEN_IMAGES.INV} h="14px" w="14px" />
+    </HStack>
 
     return <Modal
         isOpen={isOpen}
@@ -157,67 +156,68 @@ export const DbrRewardsModal = ({
                     </HStack>
                 </VStack>
                 <Divider borderColor="#ccc" />
-                {/* <Text fontSize='20px' fontWeight="bold">
-                    Choose an action to do with the DBR rewards:
-                </Text> */}
-                {/* <RadioGroup onChange={setSelected} pl="4" defaultValue='restake'>
-                    <Stack spacing="3">
-                        <Radio value='restake'>
-                            <Text fontWeight={selected === 'restake' ? 'bold' : undefined}>Re-invest it in INV and stake</Text>
-                        </Radio>
-                        <Radio value='sell'>
-                            <Text fontWeight={selected === 'sell' ? 'bold' : undefined}>Sell it for DOLA</Text>
-                        </Radio>
-                        <Radio value='claim'>
-                            <Text fontWeight={selected === 'claim' ? 'bold' : undefined}>Simply claim it</Text>
-                        </Radio>
-                        <Radio value='repay' isDisabled={!debt}>
-                            <Text fontWeight={selected === 'repay' ? 'bold' : undefined}>Sell it for DOLA and repay debt in a market</Text>
-                        </Radio>
-                    </Stack>
-                </RadioGroup> */}
                 <VStack w='full' alignItems="flex-start">
+                    <Text>
+                        Claim and sell DBR rewards for:
+                    </Text>
                     <HStack w='full' justify="space-between">
-                        <Text color="accentTextColor" fontSize='18px' fontWeight="bold">Percentage of rewards to re-invest and stake in INV:</Text>
-                        <Text fontWeight="bold">{shortenNumber(percentageToReinvest, 0)}%</Text>
+                        <HStack w="110px" alignItems="center" justify="flex-start">
+                            <Text color="accentTextColor" fontSize='18px' fontWeight="bold">
+                                DOLA:
+                            </Text>
+                            <Text fontWeight="bold">{shortenNumber(percentageForDola, 0)}%</Text>
+                        </HStack>
+                        <HStack w="100px" alignItems="center" justify="center">
+                            <Text color="accentTextColor" fontSize='18px' fontWeight="bold">
+                                INV:
+                            </Text>
+                            <Text fontWeight="bold">{shortenNumber(percentageToReinvest, 0)}%</Text>
+                        </HStack>
+                        <HStack w="100px" alignItems="center" justify="flex-end">
+                            <Text color="accentTextColor" fontSize='18px' fontWeight="bold">
+                                DBR:
+                            </Text>
+                            <Text fontWeight="bold">{shortenNumber(100 - percentageForInv, 0)}%</Text>
+                        </HStack>
                     </HStack>
-                    <Slider
-                        value={percentageToReinvest}
-                        onChange={(v: number) => handleSellSlider(v)}
-                        min={0}
-                        max={100}
-                        step={1}
-                        aria-label='slider-ex-4'
-                        defaultValue={100}>
-                        <SliderTrack h="10px">
-                            <SliderFilledTrack />
-                        </SliderTrack>
-                        <SliderThumb boxSize={6} />
-                    </Slider>
+                    <RangeSlider
+                        aria-label={['min', 'max']}
+                        defaultValue={[0, 100]}
+                        onChange={val => handleSellRange(val)}
+                        value={[percentageForDola, percentageForInv]}
+                    >
+                        <RangeSliderTrack>
+                            <RangeSliderFilledTrack />
+                        </RangeSliderTrack>
+                        <RangeSliderThumb boxSize={8} index={0}>
+                            {percentageForDola === percentageForInv ? dolaInvCombo : <Image borderRadius="50px" src={TOKEN_IMAGES.DOLA} h="20px" w="20px" />}
+                        </RangeSliderThumb>
+                        <RangeSliderThumb boxSize={8} index={1}>
+                            {percentageForDola === percentageForInv ? dolaInvCombo : <Image borderRadius="50px" src={TOKEN_IMAGES.INV} h="20px" w="20px" />}
+                        </RangeSliderThumb>
+                    </RangeSlider>                    
                     <HStack w='full' justify="space-between">
-                        <Text color="mainTextColorLight" w='123px' cursor="pointer" textDecoration="underline" onClick={() => handleSellSlider(0)}>
+                        <Text color="mainTextColorLight" w='123px' cursor="pointer" textDecoration="underline" onClick={() => handleSellRange([100, 100])}>
                             Sell all for DOLA
                         </Text>
-                        <Text color="mainTextColorLight" cursor="pointer" textDecoration="underline" onClick={() => handleSellSlider(50)}>
-                            50%
+                        <Text color="mainTextColorLight" cursor="pointer" textDecoration="underline" onClick={() => handleSellRange([50, 100])}>
+                            50% DOLA / 50% INV
                         </Text>
-                        <Text textAlign="right" color="mainTextColorLight" w='123px' cursor="pointer" textDecoration="underline" onClick={() => handleSellSlider(100)}>
+                        <Text textAlign="right" color="mainTextColorLight" w='123px' cursor="pointer" textDecoration="underline" onClick={() => handleSellRange([0, 100])}>
                             Sell all for INV
                         </Text>
                     </HStack>
                 </VStack>
-                {
-                    isNotBasicClaim && <VStack alignItems="flex-start" justify="space-between" w='full'>
-                        <HStack>
-                            <Text>Max. slippage:</Text>
-                            <Input _focusVisible={false} border={hasInvalidSlippage ? '1px solid red' : undefined} py="0" maxH="30px" w='80px' value={slippage} onChange={(e) => changeSlippage(e)} />
-                        </HStack>
-                        <HStack w='full' justify="space-between">
-                            <Text>Min. DOLA: <b>{dolaMinOut ? `${smartShortNumber(dolaMinOut, 2, false, true)} (${smartShortNumber(dolaMinOut * dolaPrice, 2, true)})` : '-'}</b></Text>
-                            <Text>Min. INV: <b>{invMinOut ? `${smartShortNumber(invMinOut, 2, false, true)} (${smartShortNumber(invMinOut * invPrice, 2, true)})` : '-'}</b></Text>
-                        </HStack>
-                    </VStack>
-                }
+                <VStack alignItems="flex-start" justify="space-between" w='full'>
+                    <HStack>
+                        <Text>Max. slippage:</Text>
+                        <Input _focusVisible={false} border={hasInvalidSlippage ? '1px solid red' : undefined} py="0" maxH="30px" w='80px' value={slippage} onChange={(e) => changeSlippage(e)} />
+                    </HStack>
+                    <HStack w='full' justify="space-between">
+                        <Text>Min. DOLA: <b>{dolaMinOut ? `${smartShortNumber(dolaMinOut, 2, false, true)} (${smartShortNumber(dolaMinOut * dolaPrice, 2, true)})` : '-'}</b></Text>
+                        <Text>Min. INV: <b>{invMinOut ? `${smartShortNumber(invMinOut, 2, false, true)} (${smartShortNumber(invMinOut * invPrice, 2, true)})` : '-'}</b></Text>
+                    </HStack>
+                </VStack>
                 <VStack spacing="0" w='full' alignItems="flex-start">
                     <TextInfo message="If you wish the assets to be transferred or deposited to another account address">
                         <HStack spacing="2" cursor="pointer" onClick={v => !!customAddress ? () => { } : setIsCustomAddress(!isCustomAddress)}>
@@ -229,7 +229,7 @@ export const DbrRewardsModal = ({
                 </VStack>
                 <Divider borderColor="#ccc" />
                 {
-                    percentageToReinvest < 100 && <VStack w='full'>
+                    percentageForDola > 0 && <VStack w='full'>
                         <FormControl display="inline-flex" alignItems="center" w='full'>
                             <Checkbox cursor="pointer" mr="2" id="dbr-rewards-repay-checkbox" onChange={e => { setHasRepay(!hasRepay); }} isChecked={hasRepay}></Checkbox>
                             <FormLabel color="accentTextColor" fontSize='18px' fontWeight="bold" cursor="pointer" m="0" p="0" htmlFor="dbr-rewards-repay-checkbox">
@@ -306,7 +306,7 @@ export const DbrRewardsModal = ({
                             1/2 - Authorize DBR Rewards Helper
                         </RSubmitButton>
                         :
-                        <RSubmitButton refreshOnSuccess={true} disabled={(isNotBasicClaim && hasInvalidSlippage) || (hasRepay && !marketToRepay) || (isCustomAddress && (!isAddress(customAddress) || customAddress === BURN_ADDRESS))} onClick={handleClaim} p="6" w='fit-content' fontSize="18px">
+                        <RSubmitButton refreshOnSuccess={true} disabled={(hasInvalidSlippage) || (hasRepay && !marketToRepay) || (isCustomAddress && (!isAddress(customAddress) || customAddress === BURN_ADDRESS))} onClick={handleClaim} p="6" w='fit-content' fontSize="18px">
                             Confirm
                         </RSubmitButton>
                 }
