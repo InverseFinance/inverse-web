@@ -9,7 +9,7 @@ import { lightTheme } from "@app/variables/theme";
 const MOBILE_NAV_HEIGHT = 72;
 const MOBILE_NAV_HEIGHT_PX = `${MOBILE_NAV_HEIGHT}px`;
 // add some margin to the bottom of the submenu container to avoid the last item to be hidden by the bottom bar
-const SUBMENU_CONTAINER_HEIGHT_PX = `calc(100vh - ${(MOBILE_NAV_HEIGHT+80)}px)`;
+const SUBMENU_CONTAINER_HEIGHT_PX = `calc(100vh - ${(MOBILE_NAV_HEIGHT+130)}px)`;
 
 export const BurgerMenu = ({
     active,
