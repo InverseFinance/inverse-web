@@ -67,11 +67,13 @@ export const BurgerMenu = ({
                     w="full"
                     bgColor={styles.colors.primary['900']}
                     fontWeight="medium"
-                    spacing={6}
+                    spacing={3}
+                    maxH="calc(100vh - 72px)"
                     p={4}
                     borderBottomWidth={1}
-                    borderColor={styles.colors.primary['800']}
+                    borderColor={styles.colors.primary['800']}                    
                     boxShadow={`0 2px 2px 2px ${styles.colors['primary'][500]}`}
+                    overflow="auto"
                 >
                     {
                         navItems.map(({ label, href, submenus }, i) => {
