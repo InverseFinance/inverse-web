@@ -6,6 +6,11 @@ import Link from "../Link";
 import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { lightTheme } from "@app/variables/theme";
 
+const MOBILE_NAV_HEIGHT = 72;
+const MOBILE_NAV_HEIGHT_PX = `${MOBILE_NAV_HEIGHT}px`;
+// add some margin to the bottom of the submenu container to avoid the last item to be hidden by the bottom bar
+const SUBMENU_CONTAINER_HEIGHT_PX = `calc(100vh - ${(MOBILE_NAV_HEIGHT+80)}px)`;
+
 export const BurgerMenu = ({
     active,
     activeSubmenu,
@@ -57,7 +62,7 @@ export const BurgerMenu = ({
                         bgColor={styles.colors.primary['900']}
                         borderBottomWidth={1}
                         borderColor={styles.colors.primary['800']}
-                        h="72px"
+                        h={MOBILE_NAV_HEIGHT_PX}
                         w="full">
                         {filler}
                         {burger}
@@ -68,7 +73,7 @@ export const BurgerMenu = ({
                     bgColor={styles.colors.primary['900']}
                     fontWeight="medium"
                     spacing={3}
-                    maxH="calc(100vh - 72px)"
+                    maxH={SUBMENU_CONTAINER_HEIGHT_PX}
                     p={4}
                     borderBottomWidth={1}
                     borderColor={styles.colors.primary['800']}                    
