@@ -28,11 +28,11 @@ const { F2_DBR_REWARDS_HELPER } = getNetworkConfigConstants();
 
 export const DbrRewardsModal = ({
     isOpen,
-    onClose,    
+    onClose,
     dbrRewardsInfo,
 }: {
     isOpen: boolean,
-    onClose: () => void,    
+    onClose: () => void,
     dbrRewardsInfo: ZapperToken
 }) => {
     const { themeStyles } = useAppTheme();
@@ -141,7 +141,11 @@ export const DbrRewardsModal = ({
                     <InfoMessage
                         alertProps={{ w: 'full' }}
                         title="Advanced DBR Claim Options:"
-                        description="Sell your DBR rewards for INV/DOLA, repay debt in a market."
+                        description={<VStack alignItems="flex-start" spacing="0">
+                            <Text>Sell your DBR rewards for INV/DOLA, repay debt in a market.</Text>
+                            <Text>When choosing INV, it will automatically be staked in FiRM.</Text>
+                        </VStack>
+                        }
                     />
                     <HStack w='full' justify="space-between">
                         <Text>DBR rewards: <b>{smartShortNumber(dbrRewardsInfo.balance)} (~{smartShortNumber(dbrRewardsInfo.balanceUSD, 2, true, true)})</b></Text>
@@ -190,7 +194,7 @@ export const DbrRewardsModal = ({
                         <RangeSliderThumb boxSize={8} index={1}>
                             {percentageForDola === percentageForInv ? dolaInvCombo : <Image borderRadius="50px" src={TOKEN_IMAGES.INV} h="20px" w="20px" />}
                         </RangeSliderThumb>
-                    </RangeSlider>                    
+                    </RangeSlider>
                     <HStack w='full' justify="space-between">
                         <Text color="mainTextColorLight" w='123px' cursor="pointer" textDecoration="underline" onClick={() => handleSellRange([100, 100])}>
                             Sell all for DOLA
@@ -310,9 +314,9 @@ export const DbrRewardsModal = ({
     </Modal>
 }
 
-export const DbrExtraClaimButtons = ({    
+export const DbrExtraClaimButtons = ({
     dbrRewardsInfo,
-}: {    
+}: {
     dbrRewardsInfo: any,
 }) => {
     const { isOpen, onClose, onOpen } = useDisclosure();
