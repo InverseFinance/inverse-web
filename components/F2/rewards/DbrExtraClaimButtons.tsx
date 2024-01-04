@@ -103,6 +103,7 @@ export const DbrRewardsModal = ({
     }
 
     const hasInvalidSlippage = (!slippage || slippage === '0' || isNaN(parseFloat(slippage)));
+    const hasInvalidMins = (percentageForDola > 0 && !dolaMinOut) || (percentageToReinvest > 0 && !invMinOut);
 
     // first number: perc of dola, second number: INV
     const handleSellRange = (range: number[]) => {
@@ -159,19 +160,19 @@ export const DbrRewardsModal = ({
                             <Text color="accentTextColor" fontSize='18px' fontWeight="bold">
                                 DOLA:
                             </Text>
-                            <Text fontWeight="bold">{shortenNumber(percentageForDola, 0)}%</Text>
+                            <Text fontWeight="bold" fontSize='18px'>{shortenNumber(percentageForDola, 0)}%</Text>
                         </HStack>
                         <HStack w="100px" alignItems="center" justify="center">
                             <Text color="accentTextColor" fontSize='18px' fontWeight="bold">
                                 INV:
                             </Text>
-                            <Text fontWeight="bold">{shortenNumber(percentageToReinvest, 0)}%</Text>
+                            <Text fontWeight="bold" fontSize='18px'>{shortenNumber(percentageToReinvest, 0)}%</Text>
                         </HStack>
                         <HStack w="100px" alignItems="center" justify="flex-end">
                             <Text color="accentTextColor" fontSize='18px' fontWeight="bold">
                                 DBR:
                             </Text>
-                            <Text fontWeight="bold">{shortenNumber(100 - percentageForInv, 0)}%</Text>
+                            <Text fontWeight="bold" fontSize='18px'>{shortenNumber(100 - percentageForInv, 0)}%</Text>
                         </HStack>
                     </HStack>
                     <RangeSlider
@@ -300,7 +301,7 @@ export const DbrRewardsModal = ({
                             1/2 - Authorize DBR Rewards Helper
                         </RSubmitButton>
                         :
-                        <RSubmitButton refreshOnSuccess={true} disabled={(hasInvalidSlippage) || (hasRepay && !marketToRepay) || (isCustomAddress && (!isAddress(customAddress) || customAddress === BURN_ADDRESS))} onClick={handleClaim} p="6" w='fit-content' fontSize="18px">
+                        <RSubmitButton refreshOnSuccess={true} disabled={hasInvalidSlippage || hasInvalidMins || (hasRepay && !marketToRepay) || (isCustomAddress && (!isAddress(customAddress) || customAddress === BURN_ADDRESS))} onClick={handleClaim} p="6" w='fit-content' fontSize="18px">
                             Confirm
                         </RSubmitButton>
                 }
