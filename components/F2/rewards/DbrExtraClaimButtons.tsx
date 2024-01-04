@@ -28,13 +28,11 @@ const { F2_DBR_REWARDS_HELPER } = getNetworkConfigConstants();
 
 export const DbrRewardsModal = ({
     isOpen,
-    onClose,
-    basicClaim,
+    onClose,    
     dbrRewardsInfo,
 }: {
     isOpen: boolean,
-    onClose: () => void,
-    basicClaim: () => void,
+    onClose: () => void,    
     dbrRewardsInfo: ZapperToken
 }) => {
     const { themeStyles } = useAppTheme();
@@ -105,10 +103,6 @@ export const DbrRewardsModal = ({
     }
 
     const hasInvalidSlippage = (!slippage || slippage === '0' || isNaN(parseFloat(slippage)));
-
-    // const handleSellSlider = (percToReinvest: number) => {
-    //     setPercentageToReinvest(percToReinvest);
-    // }
 
     // first number: perc of dola, second number: INV
     const handleSellRange = (range: number[]) => {
@@ -315,11 +309,9 @@ export const DbrRewardsModal = ({
     </Modal>
 }
 
-export const DbrExtraClaimButtons = ({
-    basicClaim,
+export const DbrExtraClaimButtons = ({    
     dbrRewardsInfo,
-}: {
-    basicClaim: () => void,
+}: {    
     dbrRewardsInfo: any,
 }) => {
     const { isOpen, onClose, onOpen } = useDisclosure();
@@ -328,7 +320,7 @@ export const DbrExtraClaimButtons = ({
             Advanced Claim Options
         </ROutlineButton>
         {
-            isOpen && <DbrRewardsModal dbrRewardsInfo={dbrRewardsInfo} basicClaim={basicClaim} isOpen={isOpen} onClose={onClose} />
+            isOpen && <DbrRewardsModal dbrRewardsInfo={dbrRewardsInfo} isOpen={isOpen} onClose={onClose} />
         }
     </VStack>
 }
