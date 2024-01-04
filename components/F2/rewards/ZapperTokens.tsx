@@ -48,7 +48,7 @@ export const ZapperTokens = ({
             }
             {
                 showClaimButtons && market.isInv && claimables?.length > 0 && FEATURE_FLAGS.firmDbrRewardsHelper
-                    && <DbrExtraClaimButtons dbrRewardsInfo={claimables[0]} basicClaim={handleClaim} />
+                    && <DbrExtraClaimButtons dbrRewardsInfo={claimables[0]} />
             }
         </Stack>
         <Stack spacing="4" w='full' direction={{ base: 'column', sm: 'row' }}>

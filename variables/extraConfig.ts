@@ -42,7 +42,7 @@ const mainConfig = {
     f2controller: '0x44B7895989Bc7886423F06DeAa844D413384b0d6',
     f2ale: '0x958979432A7c58FD3F30be8071bBa79401BbAE3E',
     f2helper: DEFAULT_FIRM_HELPER_TYPE === 'balancer' ? '0x6c31147E995074eA6aaD2Fbe95060B0Aef7363E1' : '0x0aBb47c564296D34B0F5B068361985f507fe123c',
-    f2dbrRewardsHelper: '0x92b0d1Cc77b84973B7041CB9275d41F09840eaDd',
+    f2dbrRewardsHelper: '0xEc51E66c1e1BFc85aCc3b6847820A3Ff0a38364b',
     f2markets: [
         {
             name: 'WETH',
