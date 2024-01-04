@@ -8,6 +8,7 @@ import { getBnToNumber } from "./markets";
 export const DOLA_SAVINGS_ADDRESS = '0xcb0A9835CDf63c84FE80Fcc59d91d7505871c98B';
 export const SDOLA_ADDRESS = '0xFD296cCDB97C605bfdE514e9810eA05f421DEBc2';
 export const SDOLA_HELPER_ADDRESS = '0x8b9d5A75328b5F3167b04B42AD00092E7d6c485c';
+const WEEKS_PER_YEAR = 365/7;
 
 export const getDolaSavingsContract = (signerOrProvider: JsonRpcSigner) => {
     return new Contract(DOLA_SAVINGS_ADDRESS, DOLA_SAVINGS_ABI, signerOrProvider);
@@ -71,17 +72,19 @@ export const useStakedDolaBalance = (account: string, ad = SDOLA_ADDRESS) => {
     };
 }
 
-export const useStakedDola = (): {
+export const useStakedDola = (supplyDelta = 0): {
     totalSupply: number;
     yearlyRewardBudget: number;
     maxYearlyRewardBudget: number;
     maxRewardPerDolaMantissa: number;
     weeklyRevenue: number;
     pastWeekRevenue: number;
+    apr: number | null;
+    projectedApr: number | null;
     isLoading: boolean;
     hasError: boolean;
 } => {
-    const { data: totalSupply, error } = useEtherSWR(
+    const { data: totalSupplyData, error } = useEtherSWR(
         [DOLA_SAVINGS_ADDRESS, 'totalSupply']
     );
     const { data: yearlyRewardBudget, error: yearlyRewardBudgetErr } = useEtherSWR(
@@ -93,21 +96,36 @@ export const useStakedDola = (): {
     const { data: maxRewardPerDolaMantissa, error: maxRewardPerDolaMantissaErr } = useEtherSWR(
         [DOLA_SAVINGS_ADDRESS, 'maxRewardPerDolaMantissa']
     );
+    const totalSupply = (totalSupplyData ? getBnToNumber(totalSupplyData) : 0) + supplyDelta;
     const d = new Date();
-    const weekIndexUtc = Math.floor(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0) / (ONE_DAY_MS * 7));
+    const weekFloat = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0) / (ONE_DAY_MS * 7);
+    const weekIndexUtc = Math.floor(weekFloat);
+    const nextWeekIndexUtc = weekIndexUtc+1;
+    const remainingWeekPercToStream = nextWeekIndexUtc - weekFloat;
     const { data: weeklyRevenueData, error: weeklyRevenueErr } = useEtherSWR(
         [DOLA_SAVINGS_ADDRESS, 'weeklyRevenue', weekIndexUtc]
     );
     const { data: pastWeekRevenueData, error: pastWeekRevenueErr } = useEtherSWR(
         [DOLA_SAVINGS_ADDRESS, 'weeklyRevenue', weekIndexUtc - 1]
     );
+
+    // weeklyRevenue = in progress
+    const weeklyRevenue = weeklyRevenueData ? getBnToNumber(weeklyRevenueData) : 0;
+    const pastWeekRevenue = pastWeekRevenueData ? getBnToNumber(pastWeekRevenueData) : 0;
+    const remainingRevenueToSteamFromPastWeek = remainingWeekPercToStream * pastWeekRevenue;
+    const projectedRevenue = weeklyRevenue + remainingRevenueToSteamFromPastWeek;
+    const apr = totalSupply ? (pastWeekRevenue * WEEKS_PER_YEAR) / totalSupply * 100 : null;
+    const projectedApr = totalSupply ? (projectedRevenue * WEEKS_PER_YEAR ) / (totalSupply+remainingRevenueToSteamFromPastWeek) * 100 : null;
+
     return {
-        totalSupply: totalSupply ? getBnToNumber(totalSupply) : 0,
+        totalSupply,
         yearlyRewardBudget: yearlyRewardBudget ? getBnToNumber(yearlyRewardBudget) : 0,
         maxYearlyRewardBudget: maxYearlyRewardBudget ? getBnToNumber(maxYearlyRewardBudget) : 0,
         maxRewardPerDolaMantissa: maxRewardPerDolaMantissa ? getBnToNumber(maxRewardPerDolaMantissa) : 0,
-        weeklyRevenue: weeklyRevenueData ? getBnToNumber(weeklyRevenueData) : 0,
-        pastWeekRevenue: pastWeekRevenueData ? getBnToNumber(pastWeekRevenueData) : 0,
+        weeklyRevenue,
+        pastWeekRevenue,
+        apr,
+        projectedApr,
         isLoading: (!totalSupply && !error) || (!yearlyRewardBudget && !yearlyRewardBudgetErr) || (!maxYearlyRewardBudget && !maxYearlyRewardBudgetErr),
         hasError: !!error || !!yearlyRewardBudgetErr || !!maxYearlyRewardBudgetErr,
     }
