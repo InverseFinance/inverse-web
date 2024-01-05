@@ -8,6 +8,7 @@ import { BigNumber, Contract } from "ethers"
 import { getBnToNumber } from "./markets";
 import { getNetworkConfigConstants } from "./networks";
 import { BURN_ADDRESS } from "@app/config/constants";
+import { callWithHigherGL } from "./contracts";
 
 const { F2_DBR_REWARDS_HELPER } = getNetworkConfigConstants();
 
@@ -77,7 +78,7 @@ export const claimDbrAndSell = async (
     repayData: any,
 ) => {
     const contract = new Contract(F2_DBR_REWARDS_HELPER, DBR_REWARDS_HELPER_ABI, signer);
-    return contract.claimAndSell(claimAndSellData, repayData);
+    return callWithHigherGL(contract, 'claimAndSell', [claimAndSellData, repayData], 90000);    
 }
 
 export const claimDbrAndSellForDola = async (minDolaOut: BigNumber, signer: JsonRpcSigner, destinationAddress: string) => {
