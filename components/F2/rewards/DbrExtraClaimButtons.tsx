@@ -22,7 +22,7 @@ import { VStack, Image, useDisclosure, Text, Stack, HStack, Select, RangeSlider,
 import { useWeb3React } from "@web3-react/core"
 import { Contract } from "ethers"
 import { isAddress } from "ethers/lib/utils"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 const { F2_DBR_REWARDS_HELPER } = getNetworkConfigConstants();
 
@@ -116,6 +116,12 @@ export const DbrRewardsModal = ({
         setPercentageRepay(percToReinvest);
     }
 
+    useEffect(() => {
+        if (!marketToRepay && marketsWithDebt?.length === 1) {
+            setMarketToRepay(marketsWithDebt[0].address);
+        }
+    }, [marketToRepay, marketsWithDebt]);
+
     const dolaInvCombo = <HStack justify="center" alignItems="center">
         <Image borderRadius="50px" src={TOKEN_IMAGES.DOLA} h="14px" w="14px" />
         <Image borderRadius="50px" src={TOKEN_IMAGES.INV} h="14px" w="14px" />
@@ -143,7 +149,7 @@ export const DbrRewardsModal = ({
                         title="Advanced DBR Claim Options:"
                         description={<VStack alignItems="flex-start" spacing="0">
                             <Text>Sell your DBR rewards for INV/DOLA, repay debt in a market.</Text>
-                            <Text>When choosing INV, it will automatically be staked in FiRM.</Text>
+                            <Text>When choosing INV, it will <b>automatically be staked in FiRM</b>.</Text>
                         </VStack>
                         }
                     />
@@ -228,7 +234,7 @@ export const DbrRewardsModal = ({
                 </VStack>
                 <Divider borderColor="#ccc" />
                 {
-                    percentageForDola > 0 && <VStack w='full'>
+                    percentageForDola > 0 && marketsWithDebt?.length > 0 && <VStack w='full'>
                         <FormControl display="inline-flex" alignItems="center" w='full'>
                             <Checkbox cursor="pointer" mr="2" id="dbr-rewards-repay-checkbox" onChange={e => { setHasRepay(!hasRepay); }} isChecked={hasRepay}></Checkbox>
                             <FormLabel color="accentTextColor" fontSize='18px' fontWeight="bold" cursor="pointer" m="0" p="0" htmlFor="dbr-rewards-repay-checkbox">
@@ -243,16 +249,21 @@ export const DbrRewardsModal = ({
                                 borderBottomRadius="md"
                                 p="4"
                                 w='full'
+                                alignItems="flex-start"
                             >
-                                <Select onChange={(e) => setMarketToRepay(e.target.value)} value={marketToRepay} placeholder='Select a Market to repay debt'>
-                                    {
-                                        marketsWithDebt.map((m) => {
-                                            return <option key={m.address} value={m.address}>
-                                                {m.name} ({`${preciseCommify(m.debt, 0)} debt`})
-                                            </option>
-                                        })
-                                    }
-                                </Select>
+                                {
+                                    marketsWithDebt?.length === 1 ?
+                                        <Text>Market to repay: {marketsWithDebt[0].name} ({preciseCommify(marketsWithDebt[0].debt, 0)} debt)</Text>
+                                        : <Select onChange={(e) => setMarketToRepay(e.target.value)} value={marketToRepay} placeholder='Select a Market to repay debt'>
+                                            {
+                                                marketsWithDebt.map((m) => {
+                                                    return <option key={m.address} value={m.address}>
+                                                        {m.name} ({`${preciseCommify(m.debt, 0)} debt`})
+                                                    </option>
+                                                })
+                                            }
+                                        </Select>
+                                }
                                 <VStack spacing="2" w='full' alignItems="flex-start">
                                     <HStack w='full' justify="space-between">
                                         <Text fontWeight="bold" color="accentTextColor">Percentage of the DOLA to use to repay debt:</Text>
