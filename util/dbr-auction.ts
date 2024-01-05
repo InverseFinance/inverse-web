@@ -2,8 +2,8 @@ import { DBR_AUCTION_ABI, DBR_AUCTION_HELPER_ABI } from "@app/config/abis";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 
-export const DBR_AUCTION_ADDRESS = '0xf274De14171Ab928A5Ec19928cE35FaD91a42B64';
-export const DBR_AUCTION_HELPER_ADDRESS = '0xcb0A9835CDf63c84FE80Fcc59d91d7505871c98B';
+export const DBR_AUCTION_ADDRESS = '0x933cBE81313d9dD523dF6dC9B899A7AF8Ba073e3';
+export const DBR_AUCTION_HELPER_ADDRESS = '0xC7D5E6FA4D5B4b4A82b14a256008DAfAF5232ADb';
 
 export const getDbrAuctionContract = (signerOrProvider: JsonRpcSigner) => {
     return new Contract(DBR_AUCTION_ADDRESS, DBR_AUCTION_ABI, signerOrProvider);
