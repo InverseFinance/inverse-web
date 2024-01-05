@@ -6,6 +6,7 @@ import { getBnToNumber } from '@app/util/markets'
 import { getDbrAuctionContract } from '@app/util/dbr-auction';
 import { addBlockTimestamps } from '@app/util/timestamps';
 import { NetworkIds } from '@app/types';
+import { CHAIN_ID } from '@app/config/constants';
 
 const DBR_AUCTION_CACHE_KEY = 'dbr-auction-v1.0.0'
 
@@ -19,17 +20,17 @@ export default async function handler(req, res) {
             return
         }
 
-        const provider = getProvider(NetworkIds.mainnet);
+        const provider = getProvider(CHAIN_ID);
         const dbrAuctionContract = getDbrAuctionContract(provider);
 
         const archived = cachedData || { buys: [] };
         const pastTotalEvents = archived?.buys || [];
 
         const lastKnownEvent = pastTotalEvents?.length > 0 ? (pastTotalEvents[pastTotalEvents.length - 1]) : {};
-        const newStartingBlock = lastKnownEvent ? lastKnownEvent?.blockNumber + 1 : 0;
+        const newStartingBlock = lastKnownEvent?.blockNumber ? lastKnownEvent?.blockNumber + 1 : undefined;
 
         const newBuyEvents = await dbrAuctionContract.queryFilter(
-            dbrAuctionContract.filters.Buy(),
+            dbrAuctionContract.filters.Buy(),            
             newStartingBlock ? newStartingBlock : 0x0,
         );
 
@@ -37,11 +38,12 @@ export default async function handler(req, res) {
 
         const timestamps = await addBlockTimestamps(
             blocks,
-            NetworkIds.mainnet,
+            CHAIN_ID,
         );
 
         const newBuys = newBuyEvents.map(e => {
             return {
+                txHash: e.transactionHash,
                 timestamp: timestamps[NetworkIds.mainnet][e.blockNumber] * 1000,
                 blockNumber: e.blockNumber,
                 caller: e.args.caller,
