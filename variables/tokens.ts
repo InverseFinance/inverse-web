@@ -1778,8 +1778,8 @@ const chainTokens = {
     },
     [chainTokenAddresses["42161"].RAMDOLAUSDCLP2]: {
       address: chainTokenAddresses["42161"].RAMDOLAUSDCLP2,
-      name: 'DOLA-USDC rclp',
-      symbol: 'DOLA-USDC rclp',
+      name: 'DOLA-USDC CL',
+      symbol: 'DOLA-USDC CL',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
       isLP: true,
