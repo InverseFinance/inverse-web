@@ -4,9 +4,14 @@ import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
 import { DbrAuctionBuyer } from '@app/components/F2/DbrAuction/DbrAuctionBuyer';
 import { DbrAuctionInfos } from '@app/components/F2/DbrAuction/DbrAuctionInfos';
-import { DbrAuctionBuys } from '@app/components/F2/DbrAuction/DbrAuctionBuys';
+import { DbrAuctionBuys, useDbrAuctionBuys } from '@app/components/F2/DbrAuction/DbrAuctionBuys';
+import { DbrAuctionBuysChart } from '@app/components/F2/DbrAuction/DbrAuctionBuysChart';
+import { useAccount } from '@app/hooks/misc';
+import Container from '@app/components/common/Container';
 
 export const DbrAuctionPage = () => {
+  const account = useAccount();
+  const { accountEvents, events } = useDbrAuctionBuys(account);
   return (
     <Layout>
       <Head>
@@ -19,7 +24,7 @@ export const DbrAuctionPage = () => {
       <AppNav active="Swap" />
       <VStack
         w={{ base: 'full', lg: '1000px' }}
-        mt='6'        
+        mt='6'
         spacing="8"
         px={{ base: '4', lg: '0' }}
       >
@@ -37,7 +42,10 @@ export const DbrAuctionPage = () => {
             <DbrAuctionInfos />
           </Stack>
         </Stack>
-        <DbrAuctionBuys />
+        <DbrAuctionBuys events={accountEvents} />        
+        <Container label="DBR auction stats" noPadding m="0" p="0">
+          <DbrAuctionBuysChart events={events} />
+        </Container>
       </VStack>
     </Layout>
   )

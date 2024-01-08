@@ -45,7 +45,7 @@ const columns = [
         label: 'Buyer',
         header: ({ ...props }) => <ColHeader justify="flex-start" {...props} minWidth="130px" />,
         value: ({ to }) => {
-            return <Cell w="130px" justify="flex-start" position="relative" onClick={(e) => e.stopPropagation()}>                
+            return <Cell w="130px" justify="flex-start" position="relative" onClick={(e) => e.stopPropagation()}>
                 <ScannerLink value={to} />
             </Cell>
         },
@@ -74,30 +74,29 @@ const columns = [
 
 export const useDbrAuctionBuys = (from?: string): SWR & {
     events: any,
+    accountEvents: any,    
     timestamp: number,
 } => {
     const { data, error } = useCustomSWR(`/api/auctions/dbr-buys`, fetcher);
 
-    const events = !from ? (data?.buys || []) : (data?.buys || []).filter(e => e.caller === from);
+    const events = (data?.buys || []);
 
     return {
         events,
+        accountEvents: events.filter(e => e.to === from),    
         timestamp: data ? data.timestamp : 0,
         isLoading: !error && !data,
         isError: error,
     }
 }
 
-export const DbrAuctionBuys = () => {
-    const account = useAccount();
-    const { events } = useDbrAuctionBuys(account);
-    
+export const DbrAuctionBuys = ({ events }) => {
     return <Container
         label="My past DBR buys from the auction"
         noPadding
         m="0"
         p="0"
-        >
+    >
         <Table
             keyName="txHash"
             columns={columns}
