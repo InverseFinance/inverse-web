@@ -313,7 +313,7 @@ export const MENUS = {
         },
         {
           label: 'Audits',
-          href: 'https://docs.inverse.finance/inverse-finance/technical/audits',
+          href: '/audits',
         },
         {
           label: 'Risk Gitbook',
