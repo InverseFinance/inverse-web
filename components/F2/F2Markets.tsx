@@ -1,4 +1,4 @@
-import { Badge, Flex, HStack, Stack, Text, Image, VStack, useMediaQuery, SkeletonText } from "@chakra-ui/react"
+import { Badge, Flex, HStack, Stack, Text, useMediaQuery } from "@chakra-ui/react"
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useAccountDBR, useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
@@ -13,9 +13,9 @@ import { OracleType, OracleTypeTooltipContent } from "./Infos/OracleType";
 import { SkeletonList } from "@app/components/common/Skeleton";
 import { useAppTheme } from "@app/hooks/useAppTheme";
 import { gaEvent } from "@app/util/analytics";
-import Link from "@app/components/common/Link";
 import { DailyLimitCountdown } from "@app/components/common/Countdown";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
+import { SafetyBadges, SafetyMiniCaroussel } from "./SecurityMiniCaroussel";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -292,11 +292,7 @@ export const F2Markets = ({
             align: { base: 'flex-start', md: 'flex-end' },
         }}
         right={
-            <VStack pt={{ base: '4', sm: '0' }} display={{ base: 'none', sm: 'inline-flex' }} spacing="0" alignItems="flex-end">
-                <Link href="https://chain.link/badge" isExternal target="_blank">
-                    <Image ignoreFallback={true} h="50px" src="https://chain.link/badge-market-data-white" alt="market data secured with chainlink" />
-                </Link>
-            </VStack>
+            <SafetyBadges />
         }
     >
         {

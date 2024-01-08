@@ -27,6 +27,9 @@ export const AboutFirm = () => {
                     href="https://docs.inverse.finance/inverse-finance/technical/audits"
                 >
                     <VStack spacing="2" alignItems="flex-start">
+                        <Link color="mainTextColor" fontSize="20px" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" href="https://immunefi.com/bounty/inversefinance/" isExternal target="_blank">
+                            By Immunefi, Nov 30th, 2023
+                        </Link>
                         <Link color="mainTextColor" fontSize="20px" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" href="/audits/firm-nomoi.pdf" isExternal target="_blank">
                             By Nomoi, May 11th, 2023
                         </Link>
