@@ -39,6 +39,15 @@ export const useAccount = (ad?: string) => {
     return ad || viewAs || account;
 }
 
+export const getDateChartInfo = (ts: number) => {
+    const date = new Date(ts);
+    return {        
+            month: date.getUTCMonth(),
+            year: date.getUTCFullYear(),            
+            utcDate: timestampToUTC(ts),
+    }
+}
+
 export const useEventsAsChartData = (
     events: (any & { timestamp: number })[],
     yAccAttribute: string,
@@ -48,26 +57,24 @@ export const useEventsAsChartData = (
 ): SWR & { chartData: any } => {
     const now = new Date();
     let acc = 0;
-    const chartData = [...(events||[]).sort((a, b) => a.timestamp - b.timestamp).map(event => {
-        const date = new Date(event.timestamp);
+    const chartData = [...(events||[]).sort((a, b) => a.timestamp - b.timestamp).map(event => {        
         acc += event[yAttribute];
         return {
             x: event.timestamp,
             y: event[yAccAttribute]??acc,
             yDay: event[yAttribute],
-            month: date.getUTCMonth(),
-            year: date.getUTCFullYear(),
             eventPointLabel: event.eventPointLabel,
-            utcDate: timestampToUTC(event.timestamp),
+            ...getDateChartInfo(event.timestamp),
         }
     })];
     
     if(autoAddZeroYAtStart) {
         const minX = chartData.length > 0 ? Math.min(...chartData.map(d => d.x)) : 1577836800000;
-        chartData.unshift({ x: minX - ONE_DAY_MS, y: 0 });
+        const startTs = minX - ONE_DAY_MS;
+        chartData.unshift({ x: startTs, y: 0, yDay: 0, ...getDateChartInfo(startTs) });
     }
     if(autoAddToday) {
-        chartData.push({ x: now, y: (chartData[chartData.length - 1]?.y||0) });
+        chartData.push({ x: +(now), y: (chartData[chartData.length - 1]?.y||0), ...getDateChartInfo(+(now)) });
     }
 
     return {
