@@ -15,7 +15,7 @@ export const SafetyMiniCaroussel = () => {
     useEffect(() => {        
         const interval = setInterval(() => {
             transition();
-        }, 3000);
+        }, 6000);
          
         return () => clearInterval(interval);
     }, [badgeX]);
