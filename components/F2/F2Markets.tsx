@@ -15,7 +15,7 @@ import { useAppTheme } from "@app/hooks/useAppTheme";
 import { gaEvent } from "@app/util/analytics";
 import { DailyLimitCountdown } from "@app/components/common/Countdown";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
-import { SafetyMiniCaroussel } from "./SecurityMiniCaroussel";
+import { SafetyBadges, SafetyMiniCaroussel } from "./SecurityMiniCaroussel";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -292,7 +292,7 @@ export const F2Markets = ({
             align: { base: 'flex-start', md: 'flex-end' },
         }}
         right={
-            <SafetyMiniCaroussel />
+            <SafetyBadges />
         }
     >
         {
