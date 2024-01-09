@@ -86,14 +86,26 @@ export const useDbrAuctionBuys = (from?: string): SWR & {
     events: any,
     accountEvents: any,    
     timestamp: number,
+    avgDbrPrice: number,
+    nbBuys: number,
+    accDolaIn: number,
+    accDbrOut: number,
 } => {
     const { data, error } = useCustomSWR(`/api/auctions/dbr-buys`, fetcher);
 
     const events = (data?.buys || []).map(e => ({ ...e, priceInDola: (e.dolaIn / e.dbrOut) }));
+    const accDolaIn = events.reduce((prev, curr) => prev + curr.dolaIn, 0);
+    const accDbrOut = events.reduce((prev, curr) => prev + curr.dbrOut, 0);
+    const avgDbrPrice = accDolaIn / accDbrOut;
+    const nbBuys = events.length;
 
     return {
         events,
-        accountEvents: events.filter(e => e.to === from),    
+        accountEvents: events.filter(e => e.to === from),
+        nbBuys,
+        avgDbrPrice,
+        accDolaIn,
+        accDbrOut,
         timestamp: data ? data.timestamp : 0,
         isLoading: !error && !data,
         isError: error,
