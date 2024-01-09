@@ -38,7 +38,7 @@ export default async function handler(req, res) {
 
         const timestamps = await addBlockTimestamps(
             blocks,
-            CHAIN_ID,
+            '1',
         );
 
         const newBuys = newBuyEvents.map(e => {
@@ -46,10 +46,10 @@ export default async function handler(req, res) {
                 txHash: e.transactionHash,
                 timestamp: timestamps[NetworkIds.mainnet][e.blockNumber] * 1000,
                 blockNumber: e.blockNumber,
-                caller: e.args.caller,
-                to: e.args.to,
-                dolaIn: getBnToNumber(e.args.dolaIn),
-                dbrOut: getBnToNumber(e.args.dbrOut),
+                caller: e.args[0],
+                to: e.args[1],
+                dolaIn: getBnToNumber(e.args[2]),
+                dbrOut: getBnToNumber(e.args[3]),
             };
         });
 
