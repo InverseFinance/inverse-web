@@ -109,7 +109,7 @@ export const DbrAuctionBuyer = () => {
         noPadding
         m="0"
         p="0"
-        maxW='450px'>
+        maxW='550px'>
         <VStack spacing="4" alignItems="flex-start" w='full'>
             {
                 !isConnected ? <InfoMessage alertProps={{ w:'full' }} description="Please connect your wallet" />

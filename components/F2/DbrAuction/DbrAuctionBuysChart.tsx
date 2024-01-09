@@ -1,12 +1,12 @@
-import { Stack, VStack, useMediaQuery } from "@chakra-ui/react"
+import { VStack, useMediaQuery } from "@chakra-ui/react"
 import { useEventsAsChartData } from "@app/hooks/misc";
 import { DefaultCharts } from "@app/components/Transparency/DefaultCharts";
 import { useEffect, useState } from "react";
 
-const maxChartWidth = 1000;
+const maxChartWidth = 1200;
 
 export const DbrAuctionBuysChart = ({ events }) => {
-    const { chartData } = useEventsAsChartData(events, 'dolaIn', 'dolaIn', true, true);
+    const { chartData } = useEventsAsChartData(events, 'dolaIn', 'dolaIn', true, true, 0);
     const { chartData: chartDataAcc } = useEventsAsChartData(events, '_acc_', 'dolaIn', true, true);
     const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);

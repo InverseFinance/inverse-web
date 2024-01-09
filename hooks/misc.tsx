@@ -54,6 +54,7 @@ export const useEventsAsChartData = (
     yAttribute: string,
     autoAddToday = true,
     autoAddZeroYAtStart = true,
+    todayValue?: number,
 ): SWR & { chartData: any } => {
     const now = new Date();
     let acc = 0;
@@ -74,7 +75,8 @@ export const useEventsAsChartData = (
         chartData.unshift({ x: startTs, y: 0, yDay: 0, ...getDateChartInfo(startTs) });
     }
     if(autoAddToday) {
-        chartData.push({ x: +(now), y: (chartData[chartData.length - 1]?.y||0), ...getDateChartInfo(+(now)) });
+        const value = todayValue ?? (chartData[chartData.length - 1]?.y||0);
+        chartData.push({ x: +(now), y: value, ...getDateChartInfo(+(now)) });
     }
 
     return {
