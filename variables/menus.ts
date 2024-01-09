@@ -97,6 +97,11 @@ export const MENUS = {
           needReload: true,
         },
         {
+          label: 'Buy DBR (auction)',
+          href: '/dbr/auction',
+          needReload: true,
+        },
+        {
           label: 'Buy DOLA',
           href: '/swap?fromToken=DAI&toToken=DOLA',
           needReload: true,
