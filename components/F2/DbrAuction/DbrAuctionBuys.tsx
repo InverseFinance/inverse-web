@@ -64,9 +64,19 @@ const columns = [
         field: 'dbrOut',
         label: 'Bought',
         header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
-        value: ({ dbrOut, market }) => {
+        value: ({ dbrOut }) => {
             return <Cell minWidth="90px" justify="center" >
                 <CellText>{shortenNumber(dbrOut, 2, false, true)} DBR</CellText>
+            </Cell>
+        },
+    },
+    {
+        field: 'priceInDola',
+        label: 'DBR Price',
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
+        value: ({ priceInDola }) => {
+            return <Cell minWidth="90px" justify="center" >
+                <CellText>{shortenNumber(priceInDola, 5, false, true)} DOLA</CellText>
             </Cell>
         },
     },
@@ -79,7 +89,7 @@ export const useDbrAuctionBuys = (from?: string): SWR & {
 } => {
     const { data, error } = useCustomSWR(`/api/auctions/dbr-buys`, fetcher);
 
-    const events = (data?.buys || []);
+    const events = (data?.buys || []).map(e => ({ ...e, priceInDola: (e.dolaIn / e.dbrOut) }));
 
     return {
         events,
