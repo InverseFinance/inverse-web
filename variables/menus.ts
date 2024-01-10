@@ -96,6 +96,10 @@ export const MENUS = {
           href: '/swap?fromToken=DOLA&toToken=DBR',
           needReload: true,
         },
+        // {
+        //   label: 'Buy DBR (auction)',
+        //   href: '/dbr/auction',        
+        // },
         {
           label: 'Buy DOLA',
           href: '/swap?fromToken=DAI&toToken=DOLA',

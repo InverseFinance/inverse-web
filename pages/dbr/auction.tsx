@@ -1,14 +1,20 @@
-import { HStack, Stack, Text, VStack } from '@chakra-ui/react'
+import { HStack, Stack, VStack, Text } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
-import { InfoMessage } from '@app/components/common/Messages';
-import Link from '@app/components/common/Link';
-import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { DbrAuctionBuyer } from '@app/components/F2/DbrAuction/DbrAuctionBuyer';
 import { DbrAuctionInfos } from '@app/components/F2/DbrAuction/DbrAuctionInfos';
+import { DbrAuctionBuys, useDbrAuctionBuys } from '@app/components/F2/DbrAuction/DbrAuctionBuys';
+import { DbrAuctionBuysChart } from '@app/components/F2/DbrAuction/DbrAuctionBuysChart';
+import { useAccount } from '@app/hooks/misc';
+import Container from '@app/components/common/Container';
+import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader';
+import { shortenNumber } from '@app/util/markets';
+import { preciseCommify } from '@app/util/misc';
 
 export const DbrAuctionPage = () => {
+  const account = useAccount();
+  const { isLoading, accountEvents, events, nbBuys, accDolaIn, accDbrOut, avgDbrPrice } = useDbrAuctionBuys(account);
   return (
     <Layout>
       <Head>
@@ -19,22 +25,73 @@ export const DbrAuctionPage = () => {
         <meta name="keywords" content="Inverse Finance, swap, stablecoin, DOLA, DBR, auction" />
       </Head>
       <AppNav active="Swap" />
-      <Stack
-        w={{ base: 'full', lg: '1000px' }}
-        justify="center"
-        direction={{ base: 'column', xl: 'row' }}
+      <VStack
+        w={{ base: 'full', lg: '1200px' }}
         mt='6'
-        alignItems="flex-start"
         spacing="8"
         px={{ base: '4', lg: '0' }}
       >
-        <VStack w={{ base: 'full', lg: '55%' }}>
-          <DbrAuctionBuyer />
-        </VStack>
-        <Stack w={{ base: 'full', lg: '45%' }} direction="column" justifyContent="space-between">
-          <DbrAuctionInfos />
+        <Stack
+          spacing="0"
+          alignItems="space-between"
+          justify="space-between"
+          w='full'
+          direction={{ base: 'column', xl: 'row' }}
+        >
+          <VStack alignItems="flex-start" w={{ base: 'full', lg: '55%' }}>
+            <DbrAuctionBuyer />
+          </VStack>
+          <Stack alignItems="flex-end" w={{ base: 'full', lg: '45%' }}>
+            <DbrAuctionInfos />
+          </Stack>
         </Stack>
-      </Stack>
+        <DbrAuctionBuys events={accountEvents} />
+        <Container
+          label="DBR auction stats"
+          description="Note: All the DOLA income from the DBR auctions goes to DOLA bad debt repayments."
+          noPadding
+          m="0"
+          p="0"
+          headerProps={{
+            direction: { base: 'column', md: 'row' },
+            align: { base: 'flex-start', md: 'flex-end' },
+          }}
+          right={
+            <HStack justify="space-between" spacing="4">
+              {/* <VStack spacing="0" alignItems={{ base: 'flex-start', sm: 'center' }}>
+                <Text fontWeight="bold">Number of buys</Text>
+                {
+                  isLoading ? <SmallTextLoader width={'50px'} />
+                    : <Text color="secondaryTextColor" fontWeight="bold" fontSize="18px">{commify(nbBuys)}</Text>
+                }
+              </VStack> */}
+              <VStack spacing="0" alignItems="center">
+                <Text textAlign="center" fontWeight="bold">Total DOLA income</Text>
+                {
+                  isLoading ? <SmallTextLoader width={'50px'} />
+                    : <Text textAlign="center" color="secondaryTextColor" fontWeight="bold" fontSize="18px">{preciseCommify(accDolaIn, 2)}</Text>
+                }
+              </VStack>
+              <VStack spacing="0" alignItems="center">
+                <Text textAlign="center" fontWeight="bold">Total DOLA income</Text>
+                {
+                  isLoading ? <SmallTextLoader width={'50px'} />
+                    : <Text textAlign="center" color="secondaryTextColor" fontWeight="bold" fontSize="18px">{preciseCommify(accDbrOut, 2)}</Text>
+                }
+              </VStack>
+              <VStack spacing="0" alignItems="flex-end">
+                <Text textAlign="right" fontWeight="bold">Avg DBR price</Text>
+                {
+                  isLoading ? <SmallTextLoader width={'50px'} />
+                    : <Text textAlign="right" color="secondaryTextColor" fontWeight="bold" fontSize="18px">{shortenNumber(avgDbrPrice, 5)}</Text>
+                }
+              </VStack>
+            </HStack>
+          }
+        >
+          <DbrAuctionBuysChart events={events} />
+        </Container>
+      </VStack>
     </Layout>
   )
 }
