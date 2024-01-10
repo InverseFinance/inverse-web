@@ -110,9 +110,7 @@ export const useProposalsBreakdown = (): SWR & { active: number, passed: number,
   }
 }
 export const useProposals = (filters?: { proposalNum?: number, size?: number, isStatsOnly?: boolean }): SWR & Proposals => {
-  // const router = useRouter()
-  const { chainId } = useWeb3React<Web3Provider>()
-  let uri = `/api/proposals?chainId=${chainId || NetworkIds.mainnet}`;
+  let uri = `/api/proposals`;
   const { proposalNum, size } = filters || {};
   if(!!proposalNum) {
     uri += `&proposalNum=${proposalNum}`;
