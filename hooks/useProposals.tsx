@@ -97,12 +97,33 @@ export const useGovernanceNotifs = (): SWR & {
     isError: error,
   }
 }
+export const useProposalsBreakdown = (): SWR & { active: number, passed: number, failed: number } => {
+  let uri = `/api/proposals?isStatsOnly=true`;
+  const { data, error } = useCustomSWR(uri, fetcher)
 
-export const useProposals = (): SWR & Proposals => {
+  return {
+    active: data?.active || 0,
+    failed: data?.failed || 0,
+    passed: data?.passed || 0,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+export const useProposals = (filters?: { proposalNum?: number, size?: number, isStatsOnly?: boolean }): SWR & Proposals => {
   // const router = useRouter()
   const { chainId } = useWeb3React<Web3Provider>()
-
-  const { data, error } = useCustomSWR(`/api/proposals?chainId=${chainId || NetworkIds.mainnet}`, fetcher)
+  let uri = `/api/proposals?chainId=${chainId || NetworkIds.mainnet}`;
+  const { proposalNum, size } = filters || {};
+  if(!!proposalNum) {
+    uri += `&proposalNum=${proposalNum}`;
+  }
+  if(!!size) {
+    uri += `&size=${size}`;
+  }
+  if(!!filters?.isStatsOnly) {
+    uri += `&isStatsOnly=${filters.isStatsOnly}`;
+  }
+  const { data, error } = useCustomSWR(uri, fetcher)
 
   return {
     proposals: data?.proposals || [],
@@ -112,7 +133,7 @@ export const useProposals = (): SWR & Proposals => {
 }
 // proposalNum !== id
 export const useProposal = (proposalNum: number): SWR & SingleProposal => {
-  const { proposals, isLoading } = useProposals()
+  const { proposals, isLoading } = useProposals({ proposalNum })
 
   if (!proposals || isLoading) {
     return {
