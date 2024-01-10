@@ -122,7 +122,7 @@ export const useProposals = (filters?: { proposalNum?: number, size?: number, is
   }
   if(!!filters?.isStatsOnly) {
     uri += `&isStatsOnly=${filters.isStatsOnly}`;
-  }
+  }  
   const { data, error } = useCustomSWR(uri, fetcher)
 
   return {

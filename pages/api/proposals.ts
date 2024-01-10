@@ -1,7 +1,7 @@
 import "source-map-support";
 import { getNetworkConfigConstants } from '@app/util/networks';
-import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
-import { NetworkIds, GovEra } from '@app/types';
+import { getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis';
+import { NetworkIds, GovEra, ProposalStatus, Proposal } from '@app/types';
 import { getGovProposals } from '@app/util/the-graph';
 import { getProvider } from '@app/util/providers';
 import { SECONDS_PER_BLOCK } from '@app/config/constants';
@@ -19,31 +19,55 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
   try {
     const { sig } = req;
+    const { proposalNum, isStatsOnly } = req.query;
     const { GOVERNANCE } = getNetworkConfigConstants();
 
     const sigAddress = checkDraftRights(sig);
-
-    const validCache = await getCacheFromRedis(proposalsCacheKey, !sigAddress, cacheDuration, true);
-    if (validCache) {
-      res.status(200).json(validCache);
+    const { isValid, data: cachedData } = await getCacheFromRedisAsObj(proposalsCacheKey, !sigAddress, cacheDuration, true);
+    if(isStatsOnly === 'true') {
+      const active = cachedData.proposals?.reduce(
+        (prev: number, curr: Proposal) =>
+          prev + ([ProposalStatus.pending, ProposalStatus.active].includes(curr.status) ? 1 : 0),
+        0
+      )
+      const passed = cachedData.proposals?.reduce(
+        (prev: number, curr: Proposal) =>
+          prev + ([ProposalStatus.executed, ProposalStatus.queued, ProposalStatus.succeeded].includes(curr.status) ? 1 : 0),
+        0
+      )
+      const failed = cachedData.proposals?.reduce(
+        (prev: number, curr: Proposal) =>
+          prev + ([ProposalStatus.expired, ProposalStatus.defeated, ProposalStatus.canceled].includes(curr.status) ? 1 : 0),
+        0
+      )
+      return res.status(200).json({ active, passed, failed, timestamp: cachedData.timestamp });
+    }    
+    else if (isValid && !!cachedData) {
+      const filteredProposals  = !proposalNum ? cachedData.proposals : cachedData.proposals.filter(p => p.proposalNum === parseInt(proposalNum));
+      res.status(200).json({ ...cachedData, proposals: filteredProposals });
       return
     }
 
     const provider = getProvider(NetworkIds.mainnet, process.env.ALCHEMY_CRON, true);
     const govContract = new Contract(GOVERNANCE, GOVERNANCE_ABI, provider);
 
+    // proposals are stored in descending order
+    const lastArchivedProposal = cachedData.proposals.find(p => [ProposalStatus.executed, ProposalStatus.expired, ProposalStatus.defeated, ProposalStatus.canceled].includes(p.status))
+
     const [blockNumber, quorumVotes, graphResult] = await Promise.all([
       provider.getBlockNumber(),
       govContract.quorumVotes(),
-      getGovProposals({ size: 200 }),
+      // only proposals after last archived proposal
+      getGovProposals({ size: 20, afterProposalId: lastArchivedProposal?.id }),
     ]);
+    const archivedProposals = cachedData.proposals.filter(p => p.id <= lastArchivedProposal?.id);
 
     const eras = {
       "0x35d9f4953748b318f18c30634ba299b237eedfff": GovEra.alpha,
       "0xbeccb6bb0aa4ab551966a7e4b97cec74bb359bf6": GovEra.mills,
     }
 
-    const proposals = graphResult.data.proposals.map(p => {
+    const unarchivedProposals = graphResult.data.proposals.map(p => {
       const era = eras[p.id.substring(0, 42)];
       const proposalId = parseInt(p.proposalId);
 
@@ -100,9 +124,11 @@ export default async function handler(req, res) {
       }
     });
 
+    const proposals = archivedProposals.concat(unarchivedProposals);
+
     proposals.sort((a, b) => b.proposalNum - a.proposalNum);
 
-    const result = {
+    const result = {      
       blockNumber: blockNumber,
       timestamp: Date.now(),
       proposals,      

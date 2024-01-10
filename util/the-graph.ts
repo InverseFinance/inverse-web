@@ -1,3 +1,4 @@
+import { GovEra } from "@app/types"
 
 export const getFromFrontierGraph = (query) => {
     return theGraphFetch(
@@ -57,10 +58,15 @@ export const getFrontierLiquidations = ({
 export const getGovProposals = ({
     offset = 0,
     size = 200,
-}) => {
+    afterProposalId,
+}: { offset?: number, size: number, afterProposalId?: number }) => {
     return getFromGovernanceGraph(`
     query {        
-        proposals(first: ${size}) {
+        proposals(
+            first: ${size}            
+            skip: ${offset}
+            where: { ${!!afterProposalId ? `proposalId_gt: "${afterProposalId}"` : ''} }
+            ) {
             id
             proposalId
             description
