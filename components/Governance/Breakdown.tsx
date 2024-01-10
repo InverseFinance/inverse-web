@@ -1,12 +1,11 @@
 import { Flex, FlexProps, Stack, Text } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 import { SkeletonList } from '@app/components/common/Skeleton'
-import { useProposals } from '@app/hooks/useProposals'
-import { Proposal, ProposalStatus } from '@app/types'
+import { useProposalsBreakdown } from '@app/hooks/useProposals'
 import { VictoryPie } from 'victory'
 
 export const Breakdown = (containerProps: Partial<FlexProps>) => {
-  const { proposals, isLoading } = useProposals()
+  const { active, passed, failed, isLoading } = useProposalsBreakdown();
 
   if (isLoading) {
     return (
@@ -14,25 +13,9 @@ export const Breakdown = (containerProps: Partial<FlexProps>) => {
         <SkeletonList />
       </Container>
     )
-  }
+  }  
 
-  const active = proposals?.reduce(
-    (prev: number, curr: Proposal) =>
-      prev + ([ProposalStatus.pending, ProposalStatus.active].includes(curr.status) ? 1 : 0),
-    0
-  )
-  const passed = proposals?.reduce(
-    (prev: number, curr: Proposal) =>
-      prev + ([ProposalStatus.executed, ProposalStatus.queued, ProposalStatus.succeeded].includes(curr.status) ? 1 : 0),
-    0
-  )
-  const failed = proposals?.reduce(
-    (prev: number, curr: Proposal) =>
-      prev + ([ProposalStatus.expired, ProposalStatus.defeated, ProposalStatus.canceled].includes(curr.status) ? 1 : 0),
-    0
-  )
-
-  return proposals ? (
+  return (active+passed+failed) > 0 ? (
     <Container label="Proposals Results" contentBgColor="gradient3"  {...containerProps}>
       <Flex direction="row" align="center" justify="space-around">
         <Flex w="full" align="center" justify="center">
