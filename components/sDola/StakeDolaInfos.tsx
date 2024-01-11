@@ -1,7 +1,6 @@
 import Link from "@app/components/common/Link"
 import { InfoMessage } from "@app/components/common/Messages"
 import { useDBRPrice } from "@app/hooks/useDBR"
-import { useDOLAPrice } from "@app/hooks/usePrices"
 import { useStakedDola } from "@app/util/dola-staking"
 import { preciseCommify } from "@app/util/misc"
 import { ExternalLinkIcon } from "@chakra-ui/icons"
@@ -10,7 +9,7 @@ import { HStack, SkeletonText, Stack, Text, VStack } from "@chakra-ui/react"
 const TextLoader = () => <SkeletonText pt="2" skeletonHeight={2} noOfLines={1} height={'24px'} width={'90px'} />;
 
 export const StakeDolaInfos = () => {
-    const { totalSupply, yearlyRewardBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, weeklyRevenue, pastWeekRevenue, isLoading } = useStakedDola();
+    const { totalSupply, yearlyRewardBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, weeklyRevenue, pastWeekRevenue, isLoading } = useStakedDola();    
     const { priceUsd: dbrPrice } = useDBRPrice();
     return <InfoMessage
         showIcon={false}
@@ -33,15 +32,15 @@ export const StakeDolaInfos = () => {
                 <VStack w='full' spacing="0" alignItems="flex-start">
                     <HStack w='full'>
                         <Text>- Total supply:</Text>
-                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(totalSupply, 0)}</Text>}
+                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(totalSupply, 2)}</Text>}
                     </HStack>
                     <HStack w='full'>
                         <Text>- Past's week revenues from auctions:</Text>
-                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(pastWeekRevenue, 0)} DOLA</Text>}
+                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(pastWeekRevenue, 2)} DOLA</Text>}
                     </HStack>
                     <HStack w='full'>
                         <Text>- Current week's revenues from auctions:</Text>
-                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(weeklyRevenue, 0)} DOLA</Text>}
+                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(weeklyRevenue, 2)} DOLA</Text>}
                     </HStack>
                     <Link textDecoration="underline" href='https://docs.inverse.finance/dbr/auction' isExternal target="_blank">
                         Go to auctions <ExternalLinkIcon />

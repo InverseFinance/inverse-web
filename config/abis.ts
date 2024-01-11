@@ -579,6 +579,7 @@ export const DOLA_SAVINGS_ABI = [
   'function maxRewardPerDolaMantissa() public view returns (uint)',
   'function maxYearlyRewardBudget() public view returns (uint)',
   'function yearlyRewardBudget() public view returns (uint)',
+  'function claimable(address user) public view returns(uint)',
 ];
 // sDOLA is ERC4626, 
 //function deposit(uint256 assets, address receiver) public 
