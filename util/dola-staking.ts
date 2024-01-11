@@ -5,9 +5,9 @@ import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 import { getBnToNumber } from "./markets";
 
-export const DOLA_SAVINGS_ADDRESS = '0xcb0A9835CDf63c84FE80Fcc59d91d7505871c98B';
-export const SDOLA_ADDRESS = '0xFD296cCDB97C605bfdE514e9810eA05f421DEBc2';
-export const SDOLA_HELPER_ADDRESS = '0x8b9d5A75328b5F3167b04B42AD00092E7d6c485c';
+export const DOLA_SAVINGS_ADDRESS = '0x15F2ea83eB97ede71d84Bd04fFF29444f6b7cd52';
+export const SDOLA_ADDRESS = '0x0B32a3F8f5b7E5d315b9E52E640a49A89d89c820';
+export const SDOLA_HELPER_ADDRESS = '0xF357118EBd576f3C812c7875B1A1651a7f140E9C';
 const WEEKS_PER_YEAR = 365/7;
 
 export const getDolaSavingsContract = (signerOrProvider: JsonRpcSigner) => {
@@ -57,6 +57,8 @@ export const unstakeDola = async (signerOrProvider: JsonRpcSigner, dolaIn: BigNu
 
 export const sdolaDevInit = async (signerOrProvider: JsonRpcSigner) => {
     const contract = getDolaSavingsContract(signerOrProvider);
+    // const sdolaContract = getSdolaContract(signerOrProvider);
+    // await sdolaContract.setTargetK('150000000000000000000');
     await contract.setMaxYearlyRewardBudget('9000000000000000000000000');
     await contract.setMaxRewardPerDolaMantissa('1000000000000000000');
     await contract.setYearlyRewardBudget('6000000000000000000000000');
@@ -79,23 +81,29 @@ export const useStakedDola = (supplyDelta = 0): {
     maxRewardPerDolaMantissa: number;
     weeklyRevenue: number;
     pastWeekRevenue: number;
+    sDolaClaimable: number;
     apr: number | null;
     projectedApr: number | null;
     isLoading: boolean;
     hasError: boolean;
 } => {
+    const { data: sDolaClaimable } = useEtherSWR(
+        [DOLA_SAVINGS_ADDRESS, 'claimable', SDOLA_ADDRESS]
+    );    
     const { data: totalSupplyData, error } = useEtherSWR(
         [DOLA_SAVINGS_ADDRESS, 'totalSupply']
     );
+
     const { data: yearlyRewardBudget, error: yearlyRewardBudgetErr } = useEtherSWR(
         [DOLA_SAVINGS_ADDRESS, 'yearlyRewardBudget']
     );
+    
     const { data: maxYearlyRewardBudget, error: maxYearlyRewardBudgetErr } = useEtherSWR(
         [DOLA_SAVINGS_ADDRESS, 'maxYearlyRewardBudget']
     );
     const { data: maxRewardPerDolaMantissa, error: maxRewardPerDolaMantissaErr } = useEtherSWR(
         [DOLA_SAVINGS_ADDRESS, 'maxRewardPerDolaMantissa']
-    );
+    );    
     const totalSupply = (totalSupplyData ? getBnToNumber(totalSupplyData) : 0) + supplyDelta;
     const d = new Date();
     const weekFloat = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0) / (ONE_DAY_MS * 7);
@@ -124,6 +132,7 @@ export const useStakedDola = (supplyDelta = 0): {
         maxRewardPerDolaMantissa: maxRewardPerDolaMantissa ? getBnToNumber(maxRewardPerDolaMantissa) : 0,
         weeklyRevenue,
         pastWeekRevenue,
+        sDolaClaimable: sDolaClaimable ? getBnToNumber(sDolaClaimable) : 0,
         apr,
         projectedApr,
         isLoading: (!totalSupply && !error) || (!yearlyRewardBudget && !yearlyRewardBudgetErr) || (!maxYearlyRewardBudget && !maxYearlyRewardBudgetErr),
