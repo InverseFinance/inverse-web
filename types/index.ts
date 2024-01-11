@@ -804,3 +804,5 @@ export type CoingeckoHistoricalData = {
   market_caps: [number, number][],
   total_volumes: [number, number][],
 }
+
+export type DbrAuctionType = 'classic' | 'sdola'

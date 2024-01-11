@@ -38,7 +38,9 @@ const ListLabelValues = ({ items }: { items: { label: string, value: string | an
     </VStack>
 }
 
-export const DbrAuctionBuyer = () => {
+export const DbrAuctionBuyer = ({
+    helperAddress = DBR_AUCTION_HELPER_ADDRESS,
+}) => {
     const { price: dolaPrice } = useDOLAPriceLive();
     const { provider, account } = useWeb3React();
     const [dolaAmount, setDolaAmount] = useState('');
@@ -52,11 +54,12 @@ export const DbrAuctionBuyer = () => {
     const isExactDola = tab === 'Sell exact DOLA';
     const { price: dbrSwapPrice, isLoading: isCurvePriceLoading } = useTriCryptoSwap(parseFloat(dolaAmount || defaultRefAmount), 0, 1);
     const { data, error } = useEtherSWR([
-        [DBR_AUCTION_HELPER_ADDRESS, 'getDbrOut', parseEther(dolaAmount || defaultRefAmount)],
-        [DBR_AUCTION_HELPER_ADDRESS, 'getDbrOut', parseEther(defaultRefAmount)],
-        [DBR_AUCTION_HELPER_ADDRESS, 'getDolaIn', parseEther(dbrAmount || defaultRefAmount)],
-        [DBR_AUCTION_HELPER_ADDRESS, 'getDolaIn', parseEther(defaultRefAmount)],
+        [helperAddress, 'getDbrOut', parseEther(dolaAmount || defaultRefAmount)],
+        [helperAddress, 'getDbrOut', parseEther(defaultRefAmount)],
+        [helperAddress, 'getDolaIn', parseEther(dbrAmount || defaultRefAmount)],
+        [helperAddress, 'getDolaIn', parseEther(defaultRefAmount)],
     ]);
+    
     const { priceUsd: dbrPrice } = useDBRPrice();
 
     const refDbrOut = data && data[1] ? getBnToNumber(data[1]) : 0;
@@ -93,9 +96,9 @@ export const DbrAuctionBuyer = () => {
 
     const sell = async () => {
         if (isExactDola) {
-            return swapExactDolaForDbr(provider?.getSigner(), parseEther(dolaAmount), minDbrOut);
+            return swapExactDolaForDbr(provider?.getSigner(), parseEther(dolaAmount), minDbrOut, helperAddress);
         }
-        return swapDolaForExactDbr(provider?.getSigner(), maxDolaIn, parseEther(dbrAmount));
+        return swapDolaForExactDbr(provider?.getSigner(), maxDolaIn, parseEther(dbrAmount), helperAddress);
     }
 
     useDebouncedEffect(() => {
@@ -105,7 +108,7 @@ export const DbrAuctionBuyer = () => {
     return <Container
         label="DBR XYK Auction"
         description="See contract"
-        href={`https://etherscan.io/address/${DBR_AUCTION_HELPER_ADDRESS}`}
+        href={`https://etherscan.io/address/${helperAddress}`}
         noPadding
         m="0"
         p="0"
@@ -133,7 +136,7 @@ export const DbrAuctionBuyer = () => {
                                     <SimpleAmountForm
                                         defaultAmount={dolaAmount}
                                         address={DOLA}
-                                        destination={DBR_AUCTION_HELPER_ADDRESS}
+                                        destination={helperAddress}
                                         signer={provider?.getSigner()}
                                         decimals={18}
                                         onAction={() => sell()}
@@ -154,7 +157,7 @@ export const DbrAuctionBuyer = () => {
                                     <SimpleAmountForm
                                         defaultAmount={dbrAmount}
                                         address={DOLA}
-                                        destination={DBR_AUCTION_HELPER_ADDRESS}
+                                        destination={helperAddress}
                                         signer={provider?.getSigner()}
                                         decimals={18}
                                         onAction={() => sell()}

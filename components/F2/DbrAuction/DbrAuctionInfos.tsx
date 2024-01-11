@@ -3,7 +3,9 @@ import { InfoMessage } from "@app/components/common/Messages"
 import { useDBRPrice } from "@app/hooks/useDBR"
 import useEtherSWR from "@app/hooks/useEtherSWR"
 import { useDOLAPrice } from "@app/hooks/usePrices"
+import { DbrAuctionType } from "@app/types"
 import { DBR_AUCTION_ADDRESS } from "@app/util/dbr-auction"
+import { DOLA_SAVINGS_ADDRESS, SDOLA_ADDRESS } from "@app/util/dola-staking"
 import { getBnToNumber } from "@app/util/markets"
 import { preciseCommify } from "@app/util/misc"
 import { ExternalLinkIcon } from "@chakra-ui/icons"
@@ -38,10 +40,70 @@ const useDbrAuction = (): {
     }
 }
 
-export const DbrAuctionInfos = () => {
-    const { dolaReserve, dbrReserve, dbrRatePerYear, maxDbrRatePerYear, isLoading } = useDbrAuction();
+const useDolaSavingsAuction = (): {
+    dolaReserve: number;
+    dbrReserve: number;
+    dbrRatePerYear: number;
+    maxDbrRatePerYear: number;
+    isLoading: boolean;
+    hasError: boolean;
+} => {
+    const { data: reserves, error } = useEtherSWR([
+        [SDOLA_ADDRESS, 'getDolaReserve'],
+        [SDOLA_ADDRESS, 'getDbrReserve'],
+    ]);
+    const { data: dbrRate, error: dbrRateError } = useEtherSWR(
+        [DOLA_SAVINGS_ADDRESS, 'yearlyRewardBudget']
+    );
+    const { data: maxDbrRate, error: maxDbrRateError } = useEtherSWR(
+        [DOLA_SAVINGS_ADDRESS, 'maxYearlyRewardBudget']
+    );
+    return {
+        dolaReserve: reserves ? getBnToNumber(reserves[0]) : 0,
+        dbrReserve: reserves ? getBnToNumber(reserves[1]) : 0,
+        dbrRatePerYear: reserves ? getBnToNumber(dbrRate) : 0,
+        maxDbrRatePerYear: reserves ? getBnToNumber(maxDbrRate) : 0,
+        isLoading: (!reserves && !error) || (!dbrRate && !dbrRateError) || (!maxDbrRate && !maxDbrRateError),
+        hasError: !!error || !!dbrRateError || !!maxDbrRateError,
+    }
+}
+
+export const DbrAuctionInfos = ({ type } : { type: DbrAuctionType }) => {
     const { priceUsd: dbrPrice } = useDBRPrice();
     const { price: dolaPrice } = useDOLAPrice();
+    if(type === 'classic') {
+        return <DbrAuctionInfosClassic dbrPrice={dbrPrice} dolaPrice={dolaPrice} />
+    }
+    return <DbrAuctionInfosSDola dbrPrice={dbrPrice} dolaPrice={dolaPrice} />
+}
+
+export const DbrAuctionInfosSDola = ({ dbrPrice, dolaPrice }) => {
+    const { dolaReserve, dbrReserve, dbrRatePerYear, maxDbrRatePerYear, isLoading } = useDolaSavingsAuction();
+    return <DbrAuctionInfosMsg
+        dolaReserve={dolaReserve}
+        dbrReserve={dbrReserve}
+        dbrRatePerYear={dbrRatePerYear}
+        maxDbrRatePerYear={maxDbrRatePerYear}
+        isLoading={isLoading}
+        dbrPrice={dbrPrice}
+        dolaPrice={dolaPrice}
+    />
+}
+
+export const DbrAuctionInfosClassic = ({ dbrPrice, dolaPrice }) => {
+    const { dolaReserve, dbrReserve, dbrRatePerYear, maxDbrRatePerYear, isLoading } = useDbrAuction();
+    return <DbrAuctionInfosMsg
+        dolaReserve={dolaReserve}
+        dbrReserve={dbrReserve}
+        dbrRatePerYear={dbrRatePerYear}
+        maxDbrRatePerYear={maxDbrRatePerYear}
+        isLoading={isLoading}
+        dbrPrice={dbrPrice}
+        dolaPrice={dolaPrice}
+    />
+}
+
+export const DbrAuctionInfosMsg = ({ dolaReserve, dbrReserve, dbrRatePerYear, maxDbrRatePerYear, isLoading, dbrPrice, dolaPrice }) => {
     return <InfoMessage
         showIcon={false}
         alertProps={{ fontSize: '12px', mb: '8' }}
@@ -79,9 +141,9 @@ export const DbrAuctionInfos = () => {
                     <HStack w='full'>
                         <Text>- Max. DBR rate per year:</Text>
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(maxDbrRatePerYear, 0)} ({preciseCommify(maxDbrRatePerYear * dbrPrice, 0, true)})</Text>}
-                    </HStack>                    
+                    </HStack>
                 </VStack>
-                <Text fontSize="14px" fontWeight="bold">What are XYK Auctions?</Text>                
+                <Text fontSize="14px" fontWeight="bold">What are XYK Auctions?</Text>
                 <Link textDecoration="underline" href="https://docs.inverse.finance" target="_blank" isExternal>
                     Learn more <ExternalLinkIcon />
                 </Link>

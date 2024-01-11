@@ -11,9 +11,25 @@ import Container from '@app/components/common/Container';
 import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader';
 import { shortenNumber } from '@app/util/markets';
 import { preciseCommify } from '@app/util/misc';
+import { useState } from 'react';
+import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS } from '@app/util/dbr-auction';
+import { DOLA_SAVINGS_ADDRESS, SDOLA_HELPER_ADDRESS } from '@app/util/dola-staking';
+import { DbrAuctionType } from '@app/types';
+
+const AUCTION_TYPES = {
+  'classic': {
+    auction: DBR_AUCTION_ADDRESS,
+    helper: DBR_AUCTION_HELPER_ADDRESS,
+  },
+  'sdola': {
+    auction: DOLA_SAVINGS_ADDRESS,
+    helper: SDOLA_HELPER_ADDRESS,
+  },
+}
 
 export const DbrAuctionPage = () => {
   const account = useAccount();
+  const [selectedAuction, setSelectedAuction] = useState<DbrAuctionType>('sdola');
   const { isLoading, accountEvents, events, nbBuys, accDolaIn, accDbrOut, avgDbrPrice } = useDbrAuctionBuys(account);
   return (
     <Layout>
@@ -39,10 +55,10 @@ export const DbrAuctionPage = () => {
           direction={{ base: 'column', xl: 'row' }}
         >
           <VStack alignItems="flex-start" w={{ base: 'full', lg: '55%' }}>
-            <DbrAuctionBuyer />
+            <DbrAuctionBuyer helperAddress={AUCTION_TYPES[selectedAuction].helper} />
           </VStack>
           <Stack alignItems="flex-end" w={{ base: 'full', lg: '45%' }}>
-            <DbrAuctionInfos />
+            <DbrAuctionInfos type={selectedAuction} />
           </Stack>
         </Stack>
         <DbrAuctionBuys events={accountEvents} />
