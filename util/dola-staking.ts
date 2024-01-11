@@ -4,6 +4,7 @@ import useEtherSWR from "@app/hooks/useEtherSWR";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 import { getBnToNumber } from "./markets";
+// import { useDBRPrice } from "@app/hooks/useDBR";
 
 export const DOLA_SAVINGS_ADDRESS = '0x15F2ea83eB97ede71d84Bd04fFF29444f6b7cd52';
 export const SDOLA_ADDRESS = '0x0B32a3F8f5b7E5d315b9E52E640a49A89d89c820';
@@ -74,7 +75,7 @@ export const useStakedDolaBalance = (account: string, ad = SDOLA_ADDRESS) => {
     };
 }
 
-export const useStakedDola = (supplyDelta = 0): {
+export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
     totalSupply: number;
     yearlyRewardBudget: number;
     maxYearlyRewardBudget: number;
@@ -82,11 +83,12 @@ export const useStakedDola = (supplyDelta = 0): {
     weeklyRevenue: number;
     pastWeekRevenue: number;
     sDolaClaimable: number;
+    dbrRatePerDola: number;
     apr: number | null;
     projectedApr: number | null;
     isLoading: boolean;
     hasError: boolean;
-} => {
+} => {    
     const { data: sDolaClaimable } = useEtherSWR(
         [DOLA_SAVINGS_ADDRESS, 'claimable', SDOLA_ADDRESS]
     );    
@@ -94,14 +96,14 @@ export const useStakedDola = (supplyDelta = 0): {
         [DOLA_SAVINGS_ADDRESS, 'totalSupply']
     );
 
-    const { data: yearlyRewardBudget, error: yearlyRewardBudgetErr } = useEtherSWR(
+    const { data: yearlyRewardBudgetData, error: yearlyRewardBudgetErr } = useEtherSWR(
         [DOLA_SAVINGS_ADDRESS, 'yearlyRewardBudget']
     );
     
-    const { data: maxYearlyRewardBudget, error: maxYearlyRewardBudgetErr } = useEtherSWR(
+    const { data: maxYearlyRewardBudgetData, error: maxYearlyRewardBudgetErr } = useEtherSWR(
         [DOLA_SAVINGS_ADDRESS, 'maxYearlyRewardBudget']
     );
-    const { data: maxRewardPerDolaMantissa, error: maxRewardPerDolaMantissaErr } = useEtherSWR(
+    const { data: maxRewardPerDolaMantissaData, error: maxRewardPerDolaMantissaErr } = useEtherSWR(
         [DOLA_SAVINGS_ADDRESS, 'maxRewardPerDolaMantissa']
     );    
     const totalSupply = (totalSupplyData ? getBnToNumber(totalSupplyData) : 0) + supplyDelta;
@@ -116,6 +118,12 @@ export const useStakedDola = (supplyDelta = 0): {
     const { data: pastWeekRevenueData, error: pastWeekRevenueErr } = useEtherSWR(
         [DOLA_SAVINGS_ADDRESS, 'weeklyRevenue', weekIndexUtc - 1]
     );
+    const yearlyRewardBudget = yearlyRewardBudgetData ? getBnToNumber(yearlyRewardBudgetData) : 0;
+    const maxYearlyRewardBudget = maxYearlyRewardBudgetData ? getBnToNumber(maxYearlyRewardBudgetData) : 0;
+    const maxRewardPerDolaMantissa = maxRewardPerDolaMantissaData ? getBnToNumber(maxRewardPerDolaMantissaData) : 0;
+
+    // TODO: verify this is correct
+    const dbrRatePerDola = Math.min(yearlyRewardBudget / totalSupply, maxRewardPerDolaMantissa);    
 
     // weeklyRevenue = in progress
     const weeklyRevenue = weeklyRevenueData ? getBnToNumber(weeklyRevenueData) : 0;
@@ -123,13 +131,14 @@ export const useStakedDola = (supplyDelta = 0): {
     const remainingRevenueToSteamFromPastWeek = remainingWeekPercToStream * pastWeekRevenue;
     const projectedRevenue = weeklyRevenue + remainingRevenueToSteamFromPastWeek;
     const apr = totalSupply ? (pastWeekRevenue * WEEKS_PER_YEAR) / totalSupply * 100 : null;
-    const projectedApr = totalSupply ? (projectedRevenue * WEEKS_PER_YEAR ) / (totalSupply+remainingRevenueToSteamFromPastWeek) * 100 : null;
+    const projectedApr = dbrDolaPrice ? dbrRatePerDola * dbrDolaPrice : null;
 
     return {
         totalSupply,
-        yearlyRewardBudget: yearlyRewardBudget ? getBnToNumber(yearlyRewardBudget) : 0,
-        maxYearlyRewardBudget: maxYearlyRewardBudget ? getBnToNumber(maxYearlyRewardBudget) : 0,
-        maxRewardPerDolaMantissa: maxRewardPerDolaMantissa ? getBnToNumber(maxRewardPerDolaMantissa) : 0,
+        dbrRatePerDola,
+        yearlyRewardBudget,
+        maxYearlyRewardBudget,
+        maxRewardPerDolaMantissa,
         weeklyRevenue,
         pastWeekRevenue,
         sDolaClaimable: sDolaClaimable ? getBnToNumber(sDolaClaimable) : 0,
