@@ -28,7 +28,7 @@ export const FedAreaChart = ({
     return (
         <>
             {
-                !onlyChart && <Flex h="25px" position="relative" alignItems="center">
+                !onlyChart && <Flex h="25px" position="relative" alignItems="center" mb="2">
                     {
                         !!fed.address &&
                         <>
