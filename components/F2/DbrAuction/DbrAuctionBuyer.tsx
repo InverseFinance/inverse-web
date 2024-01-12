@@ -95,7 +95,7 @@ export const DbrAuctionBuyer = ({
     />;
 
     const sell = async () => {
-        if (isExactDola) {
+        if (isExactDola) {            
             return swapExactDolaForDbr(provider?.getSigner(), parseEther(dolaAmount), minDbrOut, helperAddress);
         }
         return swapDolaForExactDbr(provider?.getSigner(), maxDolaIn, parseEther(dbrAmount), helperAddress);
@@ -178,8 +178,8 @@ export const DbrAuctionBuyer = ({
                                 { label: `Estimated amount to receive`, value: estimatedDbrOut > 0 ? `${shortenNumber(estimatedDbrOut, 2)} DBR (${shortenNumber(estimatedDbrOut * dbrPrice, 2, true)})` : '-' }
                                 : { label: `Estimated amount to sell`, value: estimatedDolaIn > 0 ? `${shortenNumber(estimatedDolaIn, 2)} DOLA (${shortenNumber(estimatedDolaIn * dolaPrice||1, 2, true)})` : '-' }
                             ),
-                            { label: `Price via auction`, color: auctionPriceColor, value: dbrAuctionPrice > 0 ? `~${shortenNumber(dbrAuctionPrice, 2)} DBR per DOLA` : '-' },
-                            { label: `Price via Curve`, value: !isCurvePriceLoading && dbrSwapPrice > 0 ? `~${shortenNumber(dbrSwapPrice, 2)} DBR per DOLA` : '-' },
+                            { label: `Price via auction`, color: auctionPriceColor, value: dbrAuctionPrice > 0 ? `~${shortenNumber(1/dbrAuctionPrice, 4)} DOLA (${shortenNumber(1/dbrAuctionPrice* dolaPrice, 4, true)})` : '-' },
+                            { label: `Price via Curve`, value: !isCurvePriceLoading && dbrSwapPrice > 0 ? `~${shortenNumber(1/dbrSwapPrice, 4)} DOLA (${shortenNumber(1/dbrSwapPrice* dolaPrice, 4, true)})` : '-' },
                         ]} />
                         <Divider />
                         <ListLabelValues items={[

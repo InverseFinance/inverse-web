@@ -29,7 +29,7 @@ const AUCTION_TYPES = {
 
 export const DbrAuctionPage = () => {
   const account = useAccount();
-  const [selectedAuction, setSelectedAuction] = useState<DbrAuctionType>('sdola');
+  const [selectedAuction, setSelectedAuction] = useState<DbrAuctionType>('classic');
   const { isLoading, accountEvents, events, nbBuys, accDolaIn, accDbrOut, avgDbrPrice } = useDbrAuctionBuys(account);
   return (
     <Layout>
@@ -89,19 +89,19 @@ export const DbrAuctionPage = () => {
                 }
               </VStack>
               <VStack spacing="0" alignItems="center">
-                <Text textAlign="center" fontWeight="bold">Total DOLA income</Text>
+                <Text textAlign="center" fontWeight="bold">Total DBR auctioned</Text>
                 {
                   isLoading ? <SmallTextLoader width={'50px'} />
                     : <Text textAlign="center" color="secondaryTextColor" fontWeight="bold" fontSize="18px">{preciseCommify(accDbrOut, 2)}</Text>
                 }
               </VStack>
-              <VStack spacing="0" alignItems="flex-end">
+              {/* <VStack spacing="0" alignItems="flex-end">
                 <Text textAlign="right" fontWeight="bold">Avg DBR price</Text>
                 {
                   isLoading ? <SmallTextLoader width={'50px'} />
                     : <Text textAlign="right" color="secondaryTextColor" fontWeight="bold" fontSize="18px">{shortenNumber(avgDbrPrice, 5)}</Text>
                 }
-              </VStack>
+              </VStack> */}
             </HStack>
           }
         >

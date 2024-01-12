@@ -57,7 +57,7 @@ const useDolaSavingsAuction = (): {
     );
     const { data: maxDbrRate, error: maxDbrRateError } = useEtherSWR(
         [DOLA_SAVINGS_ADDRESS, 'maxYearlyRewardBudget']
-    );
+    );    
     return {
         dolaReserve: reserves ? getBnToNumber(reserves[0]) : 0,
         dbrReserve: reserves ? getBnToNumber(reserves[1]) : 0,
