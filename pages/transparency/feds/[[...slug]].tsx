@@ -95,8 +95,8 @@ export const FedPolicyPage = () => {
                                                 domainYpadding={'auto'}
                                                 id='policy-chart'
                                                 yLabel="Supply"
-                                                useRecharts={true}
-                                                strokeColor="#332d69aa"
+                                                useRecharts={true}                                                
+                                                mainColor="info"
                                             />
                                         </Box>
                                         :
