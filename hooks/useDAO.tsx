@@ -180,8 +180,10 @@ export const useFedIncomeChartData = (fedHistoricalEvents: FedEvent[], isAllFeds
 
   // add today's timestamp and zero one day before first supply
   const minX = chartData.length > 0 ? Math.min(...chartData.map(d => d.x)) : 1577836800000;
-  chartData.unshift({ x: minX - ONE_DAY_MS, y: 0 });
-  chartData.push({ x: now, y: chartData[chartData.length - 1].y });
+  if(chartData.length > 0) {
+    chartData.unshift({ x: minX - ONE_DAY_MS, y: 0 });
+    chartData.push({ x: now, y: chartData[chartData.length - 1].y });
+  }
 
   return {
     chartData,

@@ -42,6 +42,8 @@ export const FedBarChart = ({ chartData, maxChartWidth = 900, ...props }: { char
             groupedData={barChartData}
             colorScale={[themeStyles.colors.secondary]}
             isDollars={true}
+            useRecharts={true}
+            yLabel='Profits'
             {...props}
         />
     )
