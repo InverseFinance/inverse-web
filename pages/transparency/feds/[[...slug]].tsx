@@ -45,7 +45,7 @@ export const FedPolicyPage = () => {
         });
 
     const { chartData: chartDataPolicies } = useFedPolicyChartData(fedPolicyEvents, isAllFedsCase);
-    const { chartData: chartDataIncomes } = useFedIncomeChartData(fedProfitsEvents, isAllFedsCase);
+    const { chartData: chartDataIncomes, chartBarData: charBarDataIncomes } = useFedIncomeChartData(fedProfitsEvents, isAllFedsCase);
 
     const chosenFed = FEDS_WITH_ALL[chosenFedIndex];
 
@@ -96,6 +96,7 @@ export const FedPolicyPage = () => {
                                                 id='policy-chart'
                                                 yLabel="Supply"
                                                 useRecharts={true}
+                                                strokeColor="#332d69aa"
                                             />
                                         </Box>
                                         :
@@ -110,7 +111,7 @@ export const FedPolicyPage = () => {
                                                 yLabel="Acc. Income"
                                                 useRecharts={true}
                                             />
-                                            <FedBarChart chartData={chartDataIncomes} />
+                                            <FedBarChart chartData={charBarDataIncomes} />
                                         </Box>
                                 }
                             </Box>

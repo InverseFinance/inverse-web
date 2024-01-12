@@ -30,6 +30,7 @@ export const AreaChartRecharts = ({
     interval = 'preserveEnd',
     showRangeBtns = false,
     rangesToInclude,
+    strokeColor,
 }: {
     combodata: { y: number, x: number, timestamp: number, utcDate: string }[]
     title: string
@@ -52,6 +53,7 @@ export const AreaChartRecharts = ({
     interval?: string | number
     showRangeBtns?: boolean
     rangesToInclude?: string[]
+    strokeColor?: string
 }) => {    
     const { themeStyles } = useAppTheme();
     const { mouseDown, mouseUp, mouseMove, mouseLeave, bottom, top, rangeButtonsBarAbs, zoomReferenceArea, data } = useRechartsZoom({
@@ -132,7 +134,7 @@ export const AreaChartRecharts = ({
                 {
                     showLegend && <Legend wrapperStyle={legendStyle} style={{ cursor: 'pointer' }} formatter={(value) => value} />
                 }
-                <Area syncId="main" syncMethod={'value'} opacity={1} strokeWidth={2} name={yLabel} type={interpolation} dataKey={'y'} stroke={themeStyles.colors[mainColor]} dot={false} fillOpacity={1} fill={`url(#${mainColor}-gradient)`} />
+                <Area syncId="main" syncMethod={'value'} opacity={1} strokeWidth={2} name={yLabel} type={interpolation} dataKey={'y'} stroke={strokeColor||themeStyles.colors[mainColor]} dot={false} fillOpacity={1} fill={`url(#${mainColor}-gradient)`} />
                 {
                     showEvents && events.map(d => {
                         return <ReferenceLine

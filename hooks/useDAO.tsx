@@ -167,7 +167,7 @@ export const useStabilizer = (): SWR & { totalEvents: StabilizerEvent[] } => {
   }
 }
 
-export const useFedIncomeChartData = (fedHistoricalEvents: FedEvent[], isAllFedsCase = false): SWR & { chartData: any } => {
+export const useFedIncomeChartData = (fedHistoricalEvents: FedEvent[], isAllFedsCase = false): SWR & { chartData: any, chartBarData: any } => {
   const now = Date.now();
   const chartData = [...fedHistoricalEvents.sort((a, b) => a.timestamp - b.timestamp).map(event => {
     const date = new Date(event.timestamp);
@@ -186,11 +186,12 @@ export const useFedIncomeChartData = (fedHistoricalEvents: FedEvent[], isAllFeds
     chartData.unshift({ x: minX - ONE_DAY_MS, y: 0 });
     chartData.push({ x: now, y: chartData[chartData.length - 1].y });
   }
-
+  const chartBarData = chartData.map(d => ({ ...d, ...getDateChartInfo(d.x) }));
   return {
     chartData: fillMissingDailyDatesWithMostRecentData(
-      chartData.map(d => ({ ...d, ...getDateChartInfo(d.x) })), 1
+      chartBarData, 1
     ),
+    chartBarData,
   }
 }
 
