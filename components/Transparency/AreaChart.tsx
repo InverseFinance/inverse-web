@@ -47,6 +47,7 @@ export type AreaChartProps = {
     minTickGap?: number
     interval?: number
     rangesToInclude?: string[]
+    strokeColor?: string
 };
 // make sure there is only one data point per x value
 const getSimplifiedData = (data: CoordinatesArray) => {
@@ -86,6 +87,7 @@ export const AreaChart = ({
     interval,
     showRangeBtns,
     rangesToInclude,
+    strokeColor,
 }: AreaChartProps) => {
     const _data = simplifyData ? getSimplifiedData(data) : fillInByDayInterval > 0 ? fillMissingDailyDatesWithMostRecentData(data, fillInByDayInterval) : data;
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
@@ -137,6 +139,7 @@ export const AreaChart = ({
             interval={interval}
             showRangeBtns={showRangeBtns}
             rangesToInclude={rangesToInclude}
+            strokeColor={strokeColor}
         />
     }
 

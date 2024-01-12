@@ -3,6 +3,8 @@ import { getNetworkConfigConstants } from '@app/util/networks';
 import { fetcher } from '@app/util/web3'
 import { useCacheFirstSWR, useCustomSWR } from './useCustomSWR';
 import { ONE_DAY_MS } from '@app/config/constants';
+import { getDateChartInfo } from './misc';
+import { fillMissingDailyDatesWithMostRecentData } from '@app/util/misc';
 
 const { FEDS, DEPLOYER, TREASURY } = getNetworkConfigConstants();
 
@@ -165,8 +167,8 @@ export const useStabilizer = (): SWR & { totalEvents: StabilizerEvent[] } => {
   }
 }
 
-export const useFedIncomeChartData = (fedHistoricalEvents: FedEvent[], isAllFedsCase = false): SWR & { chartData: any } => {
-  const now = new Date()
+export const useFedIncomeChartData = (fedHistoricalEvents: FedEvent[], isAllFedsCase = false): SWR & { chartData: any, chartBarData: any } => {
+  const now = Date.now();
   const chartData = [...fedHistoricalEvents.sort((a, b) => a.timestamp - b.timestamp).map(event => {
     const date = new Date(event.timestamp);
     return {
@@ -180,16 +182,21 @@ export const useFedIncomeChartData = (fedHistoricalEvents: FedEvent[], isAllFeds
 
   // add today's timestamp and zero one day before first supply
   const minX = chartData.length > 0 ? Math.min(...chartData.map(d => d.x)) : 1577836800000;
-  chartData.unshift({ x: minX - ONE_DAY_MS, y: 0 });
-  chartData.push({ x: now, y: chartData[chartData.length - 1].y });
-
+  if (chartData.length > 0) {
+    chartData.unshift({ x: minX - ONE_DAY_MS, y: 0 });
+    chartData.push({ x: now, y: chartData[chartData.length - 1].y });
+  }
+  const chartBarData = chartData.map(d => ({ ...d, ...getDateChartInfo(d.x) }));
   return {
-    chartData,
+    chartData: fillMissingDailyDatesWithMostRecentData(
+      chartBarData, 1
+    ),
+    chartBarData,
   }
 }
 
 export const useFedPolicyChartData = (fedHistoricalEvents: FedEvent[], isAllFedsCase = false): SWR & { chartData: any } => {
-  const now = new Date()
+  const now = Date.now();
   const chartData = [...fedHistoricalEvents.sort((a, b) => a.timestamp - b.timestamp).map(event => {
     return {
       x: event.timestamp,
@@ -199,11 +206,15 @@ export const useFedPolicyChartData = (fedHistoricalEvents: FedEvent[], isAllFeds
 
   // add today's timestamp and zero one day before first supply
   const minX = chartData.length > 0 ? Math.min(...chartData.map(d => d.x)) : 1577836800000;
-  chartData.unshift({ x: minX - ONE_DAY_MS, y: 0 });
-  chartData.push({ x: now, y: chartData[chartData.length - 1].y });
+  if (chartData.length > 0) {
+    chartData.unshift({ x: minX - ONE_DAY_MS, y: 0 });
+    chartData.push({ x: now, y: chartData[chartData.length - 1].y });
+  }
 
   return {
-    chartData,
+    chartData: fillMissingDailyDatesWithMostRecentData(
+      chartData.map(d => ({ ...d, ...getDateChartInfo(d.x) })), 1
+    )
   }
 }
 
