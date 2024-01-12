@@ -52,6 +52,7 @@ export default async function handler(req, res) {
         const projectedApr = dbrDolaPrice ? dbrRatePerDola * dbrDolaPrice * 100 : null;
 
         const resultData = {
+            timestamp: Date.now(),
             totalSupply,
             dbrRatePerDola,
             yearlyRewardBudget,

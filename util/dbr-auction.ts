@@ -6,7 +6,7 @@ export const DBR_AUCTION_ADDRESS = '0x933cBE81313d9dD523dF6dC9B899A7AF8Ba073e3';
 export const DBR_AUCTION_HELPER_ADDRESS = '0xC7D5E6FA4D5B4b4A82b14a256008DAfAF5232ADb';
 
 export const getDbrAuctionContract = (signerOrProvider: JsonRpcSigner, auctionAddress = DBR_AUCTION_ADDRESS) => {
-    return new Contract(DBR_AUCTION_ADDRESS, DBR_AUCTION_ABI, signerOrProvider);
+    return new Contract(auctionAddress, DBR_AUCTION_ABI, signerOrProvider);
 }
 
 export const getDbrAuctionHelperContract = (signerOrProvider: JsonRpcSigner, helperAddress = DBR_AUCTION_HELPER_ADDRESS) => {

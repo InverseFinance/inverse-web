@@ -1,15 +1,13 @@
 import { DOLA_SAVINGS_ABI, SDOLA_ABI, SDOLA_HELPER_ABI } from "@app/config/abis";
-import { BURN_ADDRESS, ONE_DAY_MS } from "@app/config/constants";
+import { BURN_ADDRESS, ONE_DAY_MS, WEEKS_PER_YEAR } from "@app/config/constants";
 import useEtherSWR from "@app/hooks/useEtherSWR";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 import { getBnToNumber } from "./markets";
-// import { useDBRPrice } from "@app/hooks/useDBR";
 
 export const DOLA_SAVINGS_ADDRESS = '0x15F2ea83eB97ede71d84Bd04fFF29444f6b7cd52';
 export const SDOLA_ADDRESS = '0x0B32a3F8f5b7E5d315b9E52E640a49A89d89c820';
 export const SDOLA_HELPER_ADDRESS = '0xF357118EBd576f3C812c7875B1A1651a7f140E9C';
-const WEEKS_PER_YEAR = 365/7;
 
 export const getDolaSavingsContract = (signerOrProvider: JsonRpcSigner) => {
     return new Contract(DOLA_SAVINGS_ADDRESS, DOLA_SAVINGS_ABI, signerOrProvider);
@@ -131,7 +129,7 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
     const remainingRevenueToSteamFromPastWeek = remainingWeekPercToStream * pastWeekRevenue;
     const projectedRevenue = weeklyRevenue + remainingRevenueToSteamFromPastWeek;
     const apr = totalSupply ? (pastWeekRevenue * WEEKS_PER_YEAR) / totalSupply * 100 : null;
-    const projectedApr = dbrDolaPrice ? dbrRatePerDola * dbrDolaPrice : null;
+    const projectedApr = dbrDolaPrice ? dbrRatePerDola * dbrDolaPrice * 100 : null;
 
     return {
         totalSupply,

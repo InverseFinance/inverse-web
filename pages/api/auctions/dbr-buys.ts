@@ -8,13 +8,13 @@ import { addBlockTimestamps } from '@app/util/timestamps';
 import { NetworkIds } from '@app/types';
 import { CHAIN_ID } from '@app/config/constants';
 
-const DBR_AUCTION_CACHE_KEY = 'dbr-auction-v1.0.0'
+const DBR_AUCTION_BUYS_CACHE_KEY = 'dbr-auction-buys-v1.0.0'
 
 export default async function handler(req, res) {
     try {
         const cacheDuration = 60;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-        const { data: cachedData, isValid } = await getCacheFromRedisAsObj(DBR_AUCTION_CACHE_KEY, true, cacheDuration);
+        const { data: cachedData, isValid } = await getCacheFromRedisAsObj(DBR_AUCTION_BUYS_CACHE_KEY, true, cacheDuration);
         if (!!cachedData && isValid) {
             res.status(200).send(cachedData);
             return
@@ -58,14 +58,14 @@ export default async function handler(req, res) {
             buys: pastTotalEvents.concat(newBuys),
         };
 
-        await redisSetWithTimestamp(DBR_AUCTION_CACHE_KEY, resultData);
+        await redisSetWithTimestamp(DBR_AUCTION_BUYS_CACHE_KEY, resultData);
 
         res.status(200).send(resultData);
     } catch (err) {
         console.error(err);
         // if an error occured, try to return last cached results
         try {
-            const cache = await getCacheFromRedis(DBR_AUCTION_CACHE_KEY, false);
+            const cache = await getCacheFromRedis(DBR_AUCTION_BUYS_CACHE_KEY, false);
             if (cache) {
                 console.log('Api call failed, returning last cache found');
                 res.status(200).send(cache);
