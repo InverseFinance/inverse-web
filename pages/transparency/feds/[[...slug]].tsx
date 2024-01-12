@@ -105,7 +105,7 @@ export const FedPolicyPage = () => {
     //     }
     // }
 
-    // const canEditFedPolicy = userAddress === DEPLOYER;
+    // const canEditFedPolicy = userAddress === DEPLOYER;    
     return (
         <Layout>
             <Head>
@@ -143,6 +143,7 @@ export const FedPolicyPage = () => {
                                             fed={chosenFed}
                                             chartData={chartDataPolicies}
                                             domainYpadding={'auto'}
+                                            id='policy-chart'
                                         />
                                         :
                                         <>
@@ -152,6 +153,7 @@ export const FedPolicyPage = () => {
                                                 chartData={chartDataIncomes}
                                                 domainYpadding={'auto'}
                                                 mainColor="secondary"
+                                                id='income-chart'
                                             />
                                             <FedBarChart chartData={chartDataIncomes} />
                                         </>
