@@ -24,7 +24,7 @@ import { DolaSupplies } from '@app/components/common/Dataviz/DolaSupplies'
 const { FEDS, FEDS_WITH_ALL } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 export const FedPolicyPage = () => {
-    const { query } = useRouter();    
+    const { query } = useRouter();
 
     const slug = query?.slug || ['policy', 'all'];
     const queryFedName = slug[1] || 'all';
@@ -74,10 +74,10 @@ export const FedPolicyPage = () => {
                         w={{ base: 'full', lg: '900px' }}
                         label={
                             <HStack alignItems="center" mb="2" spacing="4">
-                                <Text fontSize="18px" fontWeight="bold" cursor="pointer" _hover={{ textDecoration: 'underline' }} opacity={detailsType === 'policy' ? 1 : 0.6 } color={'mainTextColor'} onClick={() => setDetailsType('policy')}>
+                                <Text fontSize="18px" fontWeight="bold" cursor="pointer" _hover={{ textDecoration: 'underline' }} opacity={detailsType === 'policy' ? 1 : 0.6} color={'mainTextColor'} onClick={() => setDetailsType('policy')}>
                                     Policy
                                 </Text>
-                                <Text fontSize="18px" fontWeight="bold" cursor="pointer" _hover={{ textDecoration: 'underline' }} opacity={detailsType === 'income' ? 1 : 0.6 } color={'mainTextColor'} onClick={() => setDetailsType('income')}>
+                                <Text fontSize="18px" fontWeight="bold" cursor="pointer" _hover={{ textDecoration: 'underline' }} opacity={detailsType === 'income' ? 1 : 0.6} color={'mainTextColor'} onClick={() => setDetailsType('income')}>
                                     Income
                                 </Text>
                             </HStack>
@@ -89,12 +89,14 @@ export const FedPolicyPage = () => {
                                     detailsType === 'policy' ?
                                         <Box id='policy-chart-wrapper' w='full' alignItems="center">
                                             <FedAreaChart
-                                            title={`${chosenFed.name} Supply Evolution\n(Current supply: ${fedPolicyEvents.length ? shortenNumber(Math.max(fedPolicyEvents[fedPolicyEvents.length - 1][isAllFedsCase ? 'newTotalSupply' : 'newSupply'], 0), 2) : 0})`}
-                                            fed={chosenFed}
-                                            chartData={chartDataPolicies}
-                                            domainYpadding={'auto'}
-                                            id='policy-chart'
-                                        />
+                                                title={`${chosenFed.name} Supply Evolution\n(Current supply: ${fedPolicyEvents.length ? shortenNumber(Math.max(fedPolicyEvents[fedPolicyEvents.length - 1][isAllFedsCase ? 'newTotalSupply' : 'newSupply'], 0), 2) : 0})`}
+                                                fed={chosenFed}
+                                                chartData={chartDataPolicies}
+                                                domainYpadding={'auto'}
+                                                id='policy-chart'
+                                                yLabel="Supply"
+                                                useRecharts={true}
+                                            />
                                         </Box>
                                         :
                                         <Box id='income-chart-wrapper' w='full' alignItems="center">
@@ -104,7 +106,9 @@ export const FedPolicyPage = () => {
                                                 chartData={chartDataIncomes}
                                                 domainYpadding={'auto'}
                                                 mainColor="secondary"
-                                                id='income-chart'                                                
+                                                id='income-chart'
+                                                yLabel="Acc. Income"
+                                                useRecharts={true}
                                             />
                                             <FedBarChart chartData={chartDataIncomes} />
                                         </Box>

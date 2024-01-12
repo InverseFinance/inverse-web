@@ -6,6 +6,8 @@ import moment from 'moment';
 import { preciseCommify } from '@app/util/misc';
 import { useRechartsZoom } from '@app/hooks/useRechartsZoom';
 
+const CURRENT_YEAR = new Date().getFullYear().toString();
+
 export const AreaChartRecharts = ({
     combodata,
     title,
@@ -50,7 +52,7 @@ export const AreaChartRecharts = ({
     interval?: string | number
     showRangeBtns?: boolean
     rangesToInclude?: string[]
-}) => {
+}) => {    
     const { themeStyles } = useAppTheme();
     const { mouseDown, mouseUp, mouseMove, mouseLeave, bottom, top, rangeButtonsBarAbs, zoomReferenceArea, data } = useRechartsZoom({
         combodata, rangesToInclude        
@@ -71,6 +73,8 @@ export const AreaChartRecharts = ({
         top: -8,
         fontSize: '12px',
     }
+
+    const doesDataSpansSeveralYears = combodata?.filter(d => d.utcDate.endsWith('01-01')).length > 1;
 
     return (
         <VStack position="relative" alignItems="center" maxW={`${chartWidth}px`}>
@@ -157,7 +161,7 @@ export const AreaChartRecharts = ({
                             strokeDasharray={'4 4'}
                             label={{
                                 value: d.utcDate.substring(0, 4),
-                                position: 'insideLeft',
+                                position: d.utcDate.substring(0, 4) === CURRENT_YEAR && doesDataSpansSeveralYears ? 'insideRight' : 'insideLeft',
                                 fill: themeStyles.colors.mainTextColor,
                                 style: { fontSize: '14px', fontWeight: 'bold', userSelect: 'none' },
                             }}
