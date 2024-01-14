@@ -9,8 +9,8 @@ import { HStack, SkeletonText, Stack, Text, VStack } from "@chakra-ui/react"
 const TextLoader = () => <SkeletonText pt="2" skeletonHeight={2} noOfLines={1} height={'24px'} width={'90px'} />;
 
 export const StakeDolaInfos = () => {
-    const { totalSupply, yearlyRewardBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, weeklyRevenue, pastWeekRevenue, isLoading } = useStakedDola();    
-    const { priceUsd: dbrPrice } = useDBRPrice();
+    const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
+    const { totalSupply, yearlyRewardBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, weeklyRevenue, pastWeekRevenue, isLoading } = useStakedDola(dbrDolaPrice);
     return <InfoMessage
         showIcon={false}
         alertProps={{ fontSize: '12px', mb: '8' }}
