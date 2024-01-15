@@ -106,6 +106,8 @@ const namedAddresses: { [key: string]: string } = {
     '0xae8165f37FC453408Fb1cd1064973df3E6499a76': 'FiRMCurveHelper',
     '0xdcd2D918511Ba39F2872EB731BB88681AE184244': 'DbrDistributor',
     '0x958979432A7c58FD3F30be8071bBa79401BbAE3E': 'FirmALE',
+    '0x933cbe81313d9dd523df6dc9b899a7af8ba073e3': 'DbrAuction',
+    '0xC7D5E6FA4D5B4b4A82b14a256008DAfAF5232ADb': 'DbrAuctionHelper',
     // partners
     '0x58dCB47956De1e99B1AF0ceb643727EF66aF4647': 'DWF Swapper',
 }
