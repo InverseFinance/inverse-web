@@ -112,9 +112,9 @@ export const useDbrAuctionBuys = (from?: string): SWR & {
     }
 }
 
-export const DbrAuctionBuys = ({ events }) => {
+export const DbrAuctionBuys = ({ events, title }: { events: any[], title: string }) => {
     return <Container
-        label="My past DBR buys from the auction"
+        label={title}
         noPadding
         m="0"
         p="0"
