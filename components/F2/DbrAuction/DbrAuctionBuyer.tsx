@@ -50,8 +50,8 @@ export const DbrAuctionBuyer = ({
     const { balance: dolaBalance } = useDOLABalance(account);
 
     const [slippage, setSlippage] = useState('1');
-    const [tab, setTab] = useState('Sell exact DOLA');
-    const isExactDola = tab === 'Sell exact DOLA';
+    const [tab, setTab] = useState('Sell DOLA');
+    const isExactDola = tab === 'Sell DOLA';
     const { price: dbrSwapPrice, isLoading: isCurvePriceLoading } = useTriCryptoSwap(parseFloat(dolaAmount || defaultRefAmount), 0, 1);
     const { data, error } = useEtherSWR([
         [helperAddress, 'getDbrOut', parseEther(dolaAmount || defaultRefAmount)],
@@ -106,7 +106,7 @@ export const DbrAuctionBuyer = ({
     }, [account], 500);
 
     return <Container
-        label="DBR XYK Auction"
+        label="DBR XY=K Auction"
         description="See contract"
         href={`https://etherscan.io/address/${helperAddress}`}
         noPadding
@@ -118,7 +118,7 @@ export const DbrAuctionBuyer = ({
                 !isConnected ? <InfoMessage alertProps={{ w:'full' }} description="Please connect your wallet" />
                     :
                     <>                        
-                        <NavButtons active={tab} options={['Sell exact DOLA', 'Buy exact DBR']} onClick={(v) => setTab(v)} />
+                        <NavButtons active={tab} options={['Sell DOLA', 'Buy DBR']} onClick={(v) => setTab(v)} />
                         <HStack w='full' justify="space-between">
                             <Text fontSize="14px">
                                 DBR balance: {preciseCommify(dbrBalance, 2)}
