@@ -85,7 +85,10 @@ const mainConfig = {
             isGovTokenCollateral: true,
             govLink: 'https://snapshot.org/#/olympusdao.eth',
             startingBlock: 16700429,
-            isInv: false,            
+            isInv: false,
+            isPhasingOut: true,
+            phasingOutComment: `Borrowing will remain paused for the gOHM market as it is phasing out.`,
+            phasingOutLink: `https://www.inverse.finance/governance/proposals/mills/163`,
         },
         {
             name: 'CRV',
