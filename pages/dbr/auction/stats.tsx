@@ -12,7 +12,7 @@ import { DbrAuctionTabs } from '@app/components/F2/DbrAuction/DbrAuctionTabs';
 
 export const DbrAuctionStatsPage = () => {
   const account = useAccount();
-  const { isLoading, events, accDolaIn, accDbrOut } = useDbrAuctionBuys(account);
+  const { isLoading, events, accDolaIn, accDbrOut, timestamp } = useDbrAuctionBuys(account);
   return (
     <Layout>
       <Head>
@@ -30,7 +30,7 @@ export const DbrAuctionStatsPage = () => {
         spacing="8"
         px={{ base: '4', lg: '0' }}
       >        
-        <DbrAuctionBuys events={events} title="DBR buys from the auction" />
+        <DbrAuctionBuys lastUpdate={timestamp} events={events} title="DBR buys from the auction" />
         <Container
           label="DBR auction stats"
           description="Note: All the DOLA income from the DBR auctions goes to DOLA bad debt repayments."

@@ -26,7 +26,7 @@ const AUCTION_TYPES = {
 export const DbrAuctionPage = () => {
   const account = useAccount();
   const [selectedAuction, setSelectedAuction] = useState<DbrAuctionType>('classic');
-  const { isLoading, accountEvents, events, nbBuys, accDolaIn, accDbrOut, avgDbrPrice } = useDbrAuctionBuys(account);
+  const { isLoading, accountEvents, events, nbBuys, accDolaIn, accDbrOut, avgDbrPrice, timestamp } = useDbrAuctionBuys(account);
   return (
     <Layout>
       <Head>
@@ -58,7 +58,7 @@ export const DbrAuctionPage = () => {
             <DbrAuctionInfos type={selectedAuction} />
           </Stack>
         </Stack>
-        <DbrAuctionBuys events={accountEvents} title="My past DBR buys from the auction" />       
+        <DbrAuctionBuys lastUpdate={timestamp} events={accountEvents} title="My past DBR buys from the auction" />       
       </VStack>
     </Layout>
   )
