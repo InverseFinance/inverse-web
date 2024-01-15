@@ -18,12 +18,13 @@ import { InfoMessage } from "@app/components/common/Messages";
 import { preciseCommify } from "@app/util/misc";
 import { useDOLABalance } from "@app/hooks/useDOLA";
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
+import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader";
 
 const { DOLA } = getNetworkConfigConstants();
 
 const defaultRefAmount = '1';
 
-const ListLabelValues = ({ items }: { items: { label: string, value: string | any, color?: string }[] }) => {
+const ListLabelValues = ({ items }: { items: { label: string, value: string | any, color?: string, isLoading?: boolean }[] }) => {
     return <VStack w='full' spacing="2" alignItems="flex-start">
         {
             items.map(item => {
@@ -31,7 +32,7 @@ const ListLabelValues = ({ items }: { items: { label: string, value: string | an
                     <Text fontSize="14px" color={item.color}>
                         {item.label}:
                     </Text>
-                    {typeof item.value === 'string' ? <Text color={item.color} fontSize="14px" fontWeight="bold">{item.value}</Text> : item.value}
+                    {item.isLoading ? <SmallTextLoader height="10px" /> : typeof item.value === 'string' ? <Text color={item.color} fontSize="14px" fontWeight="bold">{item.value}</Text> : item.value}
                 </HStack>
             })
         }
@@ -52,13 +53,14 @@ export const DbrAuctionBuyer = ({
     const [slippage, setSlippage] = useState('1');
     const [tab, setTab] = useState('Sell DOLA');
     const isExactDola = tab === 'Sell DOLA';
-    const { price: dbrSwapPrice, isLoading: isCurvePriceLoading } = useTriCryptoSwap(parseFloat(dolaAmount || defaultRefAmount), 0, 1);
+    const { price: dbrSwapPrice, isLoading: isCurvePriceLoading } = useTriCryptoSwap(parseFloat(!dolaAmount || dolaAmount === '0' ? defaultRefAmount : dolaAmount), 0, 1);
     const { data, error } = useEtherSWR([
         [helperAddress, 'getDbrOut', parseEther(dolaAmount || defaultRefAmount)],
         [helperAddress, 'getDbrOut', parseEther(defaultRefAmount)],
         [helperAddress, 'getDolaIn', parseEther(dbrAmount || defaultRefAmount)],
         [helperAddress, 'getDolaIn', parseEther(defaultRefAmount)],
     ]);
+    const isLoading = isCurvePriceLoading || (!data && !error);
     
     const { priceUsd: dbrPrice } = useDBRPrice();
 
@@ -99,6 +101,11 @@ export const DbrAuctionBuyer = ({
             return swapExactDolaForDbr(provider?.getSigner(), parseEther(dolaAmount), minDbrOut, helperAddress);
         }
         return swapDolaForExactDbr(provider?.getSigner(), maxDolaIn, parseEther(dbrAmount), helperAddress);
+    }
+
+    const resetForm = () => {
+        setDolaAmount('');
+        setDbrAmount('');
     }
 
     useDebouncedEffect(() => {
@@ -147,6 +154,7 @@ export const DbrAuctionBuyer = ({
                                         showBalance={true}
                                         isDisabled={isExactDolaBtnDisabled}
                                         checkBalanceOnTopOfIsDisabled={true}
+                                        onSuccess={() => resetForm()}
                                     />
                                 </VStack>
                                 :
@@ -169,25 +177,26 @@ export const DbrAuctionBuyer = ({
                                         showBalance={false}
                                         isDisabled={isExactDbrBtnDisabled}
                                         checkBalanceOnTopOfIsDisabled={true}
+                                        onSuccess={() => resetForm()}
                                     />
                                 </VStack>
                         }
                         <Divider />
                         <ListLabelValues items={[
                             (isExactDola ?
-                                { label: `Estimated amount to receive`, value: estimatedDbrOut > 0 ? `${shortenNumber(estimatedDbrOut, 2)} DBR (${shortenNumber(estimatedDbrOut * dbrPrice, 2, true)})` : '-' }
-                                : { label: `Estimated amount to sell`, value: estimatedDolaIn > 0 ? `${shortenNumber(estimatedDolaIn, 2)} DOLA (${shortenNumber(estimatedDolaIn * dolaPrice||1, 2, true)})` : '-' }
+                                { label: `Estimated amount to receive`, isLoading, value: estimatedDbrOut > 0 ? `${preciseCommify(estimatedDbrOut, 2)} DBR (${shortenNumber(estimatedDbrOut * dbrPrice, 2, true)})` : '-' }
+                                : { label: `Estimated amount to sell`, isLoading, value: estimatedDolaIn > 0 ? `${preciseCommify(estimatedDolaIn, 2)} DOLA (${shortenNumber(estimatedDolaIn * dolaPrice||1, 2, true)})` : '-' }
                             ),
-                            { label: `Price via auction`, color: auctionPriceColor, value: dbrAuctionPrice > 0 ? `~${shortenNumber(1/dbrAuctionPrice, 4)} DOLA (${shortenNumber(1/dbrAuctionPrice* dolaPrice, 4, true)})` : '-' },
-                            { label: `Price via Curve`, value: !isCurvePriceLoading && dbrSwapPrice > 0 ? `~${shortenNumber(1/dbrSwapPrice, 4)} DOLA (${shortenNumber(1/dbrSwapPrice* dolaPrice, 4, true)})` : '-' },
+                            { label: `Price via auction`, color: auctionPriceColor, isLoading, value: dbrAuctionPrice > 0 ? `~${shortenNumber(1/dbrAuctionPrice, 4)} DOLA (${shortenNumber(1/dbrAuctionPrice* dolaPrice, 4, true)})` : '-' },
+                            { label: `Price via Curve`, isLoading, value: !isCurvePriceLoading && dbrSwapPrice > 0 ? `~${shortenNumber(1/dbrSwapPrice, 4)} DOLA (${shortenNumber(1/dbrSwapPrice* dolaPrice, 4, true)})` : '-' },
                         ]} />
                         <Divider />
                         <ListLabelValues items={[
                             { label: `Max. slippage %`, value: auctionSlippageInput },
                             (isExactDola ?
-                                { label: `Min. DBR to receive`, value: minDbrOutNum > 0 ? `${smartShortNumber(minDbrOutNum, 2, false, true)} DBR (${shortenNumber(minDbrOutNum * dbrPrice, 2, true)})` : '-' }
+                                { label: `Min. DBR to receive`, isLoading, value: minDbrOutNum > 0 ? `${preciseCommify(minDbrOutNum, 2, false, true)} DBR (${shortenNumber(minDbrOutNum * dbrPrice, 2, true)})` : '-' }
                                 :
-                                { label: `Max. DOLA to send`, value: maxDolaInNum > 0 ? `${smartShortNumber(maxDolaInNum, 2, false, true)} DBR (${shortenNumber(maxDolaInNum * dolaPrice, 2, true)})` : '-' }
+                                { label: `Max. DOLA to send`, isLoading, value: maxDolaInNum > 0 ? `${preciseCommify(maxDolaInNum, 2, false, true)} DBR (${shortenNumber(maxDolaInNum * dolaPrice, 2, true)})` : '-' }
                             ),
                         ]} />
                     </>
