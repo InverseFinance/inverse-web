@@ -1,5 +1,6 @@
 import Link from "@app/components/common/Link"
 import { InfoMessage } from "@app/components/common/Messages"
+import { useCustomSWR } from "@app/hooks/useCustomSWR"
 import { useDBRPrice } from "@app/hooks/useDBR"
 import useEtherSWR from "@app/hooks/useEtherSWR"
 import { useDOLAPrice } from "@app/hooks/usePrices"
@@ -10,6 +11,7 @@ import { getBnToNumber } from "@app/util/markets"
 import { preciseCommify } from "@app/util/misc"
 import { ExternalLinkIcon } from "@chakra-ui/icons"
 import { HStack, SkeletonText, Stack, Text, VStack } from "@chakra-ui/react"
+import { useWeb3React } from "@web3-react/core"
 
 const TextLoader = () => <SkeletonText pt="2" skeletonHeight={2} noOfLines={1} height={'24px'} width={'90px'} />;
 
@@ -21,6 +23,8 @@ const useDbrAuction = (): {
     isLoading: boolean;
     hasError: boolean;
 } => {
+    const { data: apiData, error: apiErr } = useCustomSWR('/api/auctions/dbr');
+    const { account } = useWeb3React();
     const { data: reserves, error } = useEtherSWR(
         [DBR_AUCTION_ADDRESS, 'getCurrentReserves']
     );
@@ -29,14 +33,14 @@ const useDbrAuction = (): {
     );
     const { data: maxDbrRate, error: maxDbrRateError } = useEtherSWR(
         [DBR_AUCTION_ADDRESS, 'maxDbrRatePerYear']
-    );
+    );    
     return {
-        dolaReserve: reserves ? getBnToNumber(reserves._dolaReserve) : 0,
-        dbrReserve: reserves ? getBnToNumber(reserves._dbrReserve) : 0,
-        dbrRatePerYear: reserves ? getBnToNumber(dbrRate) : 0,
-        maxDbrRatePerYear: reserves ? getBnToNumber(maxDbrRate) : 0,
-        isLoading: (!reserves && !error) || (!dbrRate && !dbrRateError) || (!maxDbrRate && !maxDbrRateError),
-        hasError: !!error || !!dbrRateError || !!maxDbrRateError,
+        dolaReserve: reserves ? getBnToNumber(reserves[0]) : apiData?.dolaReserve||0,
+        dbrReserve: reserves ? getBnToNumber(reserves[1]) : apiData?.dbrReserve||0,
+        dbrRatePerYear: reserves ? getBnToNumber(dbrRate) : apiData?.yearlyRewardBudget||0,
+        maxDbrRatePerYear: reserves ? getBnToNumber(maxDbrRate) : apiData?.maxYearlyRewardBudget||0,
+        isLoading: !account ? !apiData && !apiErr : (!reserves && !error) || (!dbrRate && !dbrRateError) || (!maxDbrRate && !maxDbrRateError),
+        hasError: !account ? apiErr : !!error || !!dbrRateError || !!maxDbrRateError,
     }
 }
 
