@@ -8,6 +8,7 @@ import { useAccount } from "@app/hooks/misc";
 import Table from "@app/components/common/Table";
 import ScannerLink from "@app/components/common/ScannerLink";
 import { Timestamp } from "@app/components/common/BlockTimestamp/Timestamp";
+import moment from "moment";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="12px" fontWeight="extrabold" {...props} />
@@ -115,7 +116,7 @@ export const useDbrAuctionBuys = (from?: string): SWR & {
 export const DbrAuctionBuys = ({ events, title, lastUpdate }: { events: any[], title: string, lastUpdate: number }) => {
     return <Container
         label={title}
-        description={events.length > 0 ? `Last update: ${lastUpdate}` : undefined}
+        description={events.length > 0 ? `Last update: ${moment(lastUpdate).fromNow()}` : undefined}
         noPadding
         m="0"
         p="0"

@@ -32,9 +32,9 @@ export const DbrAuctionBuysChart = ({ events }) => {
             chartWidth={autoChartWidth}
             chartData={chartDataAcc}
             isDollars={false}
-            smoothLineByDefault={false}
+            smoothLineByDefault={false}            
             barProps={{ eventName: 'DBR auction buys' }}
-            areaProps={{ title: 'Cumulated income from DBR auction buys', fillInByDayInterval: true, id: 'dbr-auction-buys-acc', showRangeBtns: false, yLabel: 'Buy', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
+            areaProps={{ title: 'Cumulated income from DBR auction buys', fillInByDayInterval: true, id: 'dbr-auction-buys-acc', showRangeBtns: false, yLabel: 'DOLA Income', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
         />
     </VStack>
 }
