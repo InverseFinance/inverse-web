@@ -250,14 +250,15 @@ const mainConfig = {
             chainId: NetworkIds.mainnet,
             order: 7,
         },
-        {
-            address: '0xa40FBd692350C9Ed22137F97d64E6Baa4f869E8C',
-            name: 'Community Working Group',
-            shortName: 'CWG',
-            purpose: 'Boost Community participation and improve On-Boarding',
-            governanceLink: 'https://www.inverse.finance/governance/proposals/mills/14',
-            chainId: NetworkIds.mainnet,
-        },
+        // {
+        //     address: '0xa40FBd692350C9Ed22137F97d64E6Baa4f869E8C',
+        //     name: 'Community Working Group',
+        //     shortName: 'CWG',
+        //     purpose: 'Boost Community participation and improve On-Boarding',
+        //     governanceLink: 'https://www.inverse.finance/governance/proposals/mills/14',
+        //     chainId: NetworkIds.mainnet,
+        //     active: false,
+        // },
         {
             address: '0x943dBdc995add25A1728A482322F9b3c575b16fb',
             name: 'Bug Bounty Program',
