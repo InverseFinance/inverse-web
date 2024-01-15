@@ -132,6 +132,8 @@ export const ADDRESS_ROLES = {
     '0xD32066c2E31961aDf2A6fd0D57326dFf1e33FC29': 'Moderation, Socials, CEX',
     '0xC8A6fDd2586AF7980776DC610C159A92E9Db11C3': 'Moderation, Socials, CEX',
     '0xb9F43E250dadf6b61872307396AD1b8bEBa27bCD': 'Operations',
+    '0x0447d8B00a82e973149c8414d1830e272b2C782f': 'Treasury',
+    '0xb152FC7E9ddf01A942685E390A74009cd2B9Ca52': 'Analytics',
 }
 
 Object.entries(UNDERLYING).forEach(([key, value]) => {
