@@ -106,6 +106,8 @@ const namedAddresses: { [key: string]: string } = {
     '0xae8165f37FC453408Fb1cd1064973df3E6499a76': 'FiRMCurveHelper',
     '0xdcd2D918511Ba39F2872EB731BB88681AE184244': 'DbrDistributor',
     '0x958979432A7c58FD3F30be8071bBa79401BbAE3E': 'FirmALE',
+    '0x933cbe81313d9dd523df6dc9b899a7af8ba073e3': 'DbrAuction',
+    '0xC7D5E6FA4D5B4b4A82b14a256008DAfAF5232ADb': 'DbrAuctionHelper',
     // partners
     '0x58dCB47956De1e99B1AF0ceb643727EF66aF4647': 'DWF Swapper',
 }
@@ -132,6 +134,8 @@ export const ADDRESS_ROLES = {
     '0xD32066c2E31961aDf2A6fd0D57326dFf1e33FC29': 'Moderation, Socials, CEX',
     '0xC8A6fDd2586AF7980776DC610C159A92E9Db11C3': 'Moderation, Socials, CEX',
     '0xb9F43E250dadf6b61872307396AD1b8bEBa27bCD': 'Operations',
+    '0x0447d8B00a82e973149c8414d1830e272b2C782f': 'Treasury',
+    '0xb152FC7E9ddf01A942685E390A74009cd2B9Ca52': 'Analytics',
 }
 
 Object.entries(UNDERLYING).forEach(([key, value]) => {

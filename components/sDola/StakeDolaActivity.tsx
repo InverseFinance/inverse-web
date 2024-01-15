@@ -1,14 +1,12 @@
 import { Text, Flex, Stack } from "@chakra-ui/react"
-import { shortenNumber } from "@app/util/markets";
-import Container from "../../common/Container";
 import { SWR } from "@app/types";
 import { useCustomSWR } from "@app/hooks/useCustomSWR";
 import { fetcher } from "@app/util/web3";
-import { useAccount } from "@app/hooks/misc";
 import Table from "@app/components/common/Table";
 import ScannerLink from "@app/components/common/ScannerLink";
 import { Timestamp } from "@app/components/common/BlockTimestamp/Timestamp";
-import moment from "moment";
+import Container from "../common/Container";
+import { preciseCommify } from "@app/util/misc";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="12px" fontWeight="extrabold" {...props} />
@@ -52,71 +50,38 @@ const columns = [
         },
     },
     {
-        field: 'dolaIn',
-        label: 'Sold',
+        field: 'amount',
+        label: 'Amount',
         header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
-        value: ({ dolaIn }) => {
+        value: ({ amount }) => {
             return <Cell minWidth="90px" justify="center" >
-                <CellText>{shortenNumber(dolaIn, 2, false, true)} DOLA</CellText>
+                <CellText>{preciseCommify(amount, 2, false, true)} DOLA</CellText>
             </Cell>
         },
-    },
-    {
-        field: 'dbrOut',
-        label: 'Bought',
-        header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
-        value: ({ dbrOut }) => {
-            return <Cell minWidth="90px" justify="center" >
-                <CellText>{shortenNumber(dbrOut, 2, false, true)} DBR</CellText>
-            </Cell>
-        },
-    },
-    {
-        field: 'priceInDola',
-        label: 'DBR Price',
-        header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
-        value: ({ priceInDola }) => {
-            return <Cell minWidth="90px" justify="center" >
-                <CellText>{shortenNumber(priceInDola, 5, false, true)} DOLA</CellText>
-            </Cell>
-        },
-    },
+    },    
 ]
 
-export const useDbrAuctionBuys = (from?: string): SWR & {
+export const useStakedDolaActivity = (account?: string): SWR & {
     events: any,
     accountEvents: any,    
     timestamp: number,
-    avgDbrPrice: number,
-    nbBuys: number,
-    accDolaIn: number,
-    accDbrOut: number,
 } => {
-    const { data, error } = useCustomSWR(`/api/auctions/dbr-buys`, fetcher);
+    const { data, error } = useCustomSWR(`/api/transparency/sdola`, fetcher);
 
-    const events = (data?.buys || []).map(e => ({ ...e, priceInDola: (e.dolaIn / e.dbrOut) }));
-    const accDolaIn = events.reduce((prev, curr) => prev + curr.dolaIn, 0);
-    const accDbrOut = events.reduce((prev, curr) => prev + curr.dbrOut, 0);
-    const avgDbrPrice = accDolaIn / accDbrOut;
-    const nbBuys = events.length;
+    const events = (data?.events || []);
 
     return {
         events,
-        accountEvents: events.filter(e => e.to === from),
-        nbBuys,
-        avgDbrPrice,
-        accDolaIn,
-        accDbrOut,
+        accountEvents: events.filter(e => e.account === account),
         timestamp: data ? data.timestamp : 0,
         isLoading: !error && !data,
         isError: error,
     }
 }
 
-export const DbrAuctionBuys = ({ events, title, lastUpdate }: { events: any[], title: string, lastUpdate: number }) => {
+export const StakeDolaActivity = ({ events }) => {
     return <Container
-        label={title}
-        description={events.length > 0 ? `Last update: ${moment(lastUpdate).fromNow()}` : undefined}
+        label="My past DOLA staking activity"
         noPadding
         m="0"
         p="0"

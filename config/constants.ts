@@ -9,6 +9,7 @@ export const BLOCKS_PER_DAY = BLOCKS_PER_SECOND * SECONDS_PER_DAY;
 export const DAYS_PER_YEAR = 365;
 export const ONE_DAY_SECS = 86400;
 export const ONE_DAY_MS = 86400000;
+export const WEEKS_PER_YEAR = 365 / 7;
 // 2336000
 export const BLOCKS_PER_YEAR = BLOCKS_PER_DAY * DAYS_PER_YEAR;
 
