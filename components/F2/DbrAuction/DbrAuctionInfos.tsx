@@ -15,7 +15,7 @@ import { useWeb3React } from "@web3-react/core"
 
 const TextLoader = () => <SkeletonText pt="2" skeletonHeight={2} noOfLines={1} height={'24px'} width={'90px'} />;
 
-const useDbrAuction = (): {
+export const useDbrAuction = (): {
     dolaReserve: number;
     dbrReserve: number;
     dbrRatePerYear: number;

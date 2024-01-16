@@ -1,11 +1,11 @@
 import { VStack, Text, HStack, Divider } from "@chakra-ui/react"
-import { DBR_AUCTION_HELPER_ADDRESS, swapDolaForExactDbr, swapExactDolaForDbr } from "@app/util/dbr-auction"
+import { DBR_AUCTION_HELPER_ADDRESS, estimateAuctionTimeToReachMarketPrice, swapDolaForExactDbr, swapExactDolaForDbr } from "@app/util/dbr-auction"
 import useEtherSWR from "@app/hooks/useEtherSWR";
 import { useWeb3React } from "@web3-react/core";
-import { getBnToNumber, getNumberToBn, shortenNumber, smartShortNumber } from "@app/util/markets";
+import { getBnToNumber, getNumberToBn, shortenNumber } from "@app/util/markets";
 import { TextInfo } from "../../common/Messages/TextInfo";
 import { SimpleAmountForm } from "../../common/SimpleAmountForm";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { parseEther } from "@ethersproject/units";
 import { BigNumber } from "ethers";
@@ -19,6 +19,9 @@ import { preciseCommify } from "@app/util/misc";
 import { useDOLABalance } from "@app/hooks/useDOLA";
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
 import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader";
+import { useDbrAuction } from "./DbrAuctionInfos";
+import moment from "moment";
+import { ONE_DAY_SECS } from "@app/config/constants";
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -27,7 +30,7 @@ const defaultRefAmount = '1';
 const ListLabelValues = ({ items }: { items: { label: string, value: string | any, color?: string, isLoading?: boolean }[] }) => {
     return <VStack w='full' spacing="2" alignItems="flex-start">
         {
-            items.map(item => {
+            items.filter(item => !!item).map(item => {
                 return <HStack key={item.label} w='full' justify="space-between">
                     <Text fontSize="14px" color={item.color}>
                         {item.label}:
@@ -46,6 +49,7 @@ export const DbrAuctionBuyer = ({
     const { provider, account } = useWeb3React();
     const [dolaAmount, setDolaAmount] = useState('');
     const [dbrAmount, setDbrAmount] = useState('');
+    const [estimatedTimeToReachMarketPrice, setEstimatedTimeToReachMarketPrice] = useState(0);
     const [isConnected, setIsConnected] = useState(true);
     const { signedBalance: dbrBalance, dbrExpiryDate, debt: currentTotalDebt } = useAccountDBR(account);
     const { balance: dolaBalance } = useDOLABalance(account);
@@ -53,6 +57,8 @@ export const DbrAuctionBuyer = ({
     const [slippage, setSlippage] = useState('1');
     const [tab, setTab] = useState('Sell DOLA');
     const isExactDola = tab === 'Sell DOLA';
+    const { dolaReserve, dbrReserve, dbrRatePerYear } = useDbrAuction();
+    const { price: dbrSwapPriceRef } = useTriCryptoSwap(parseFloat(defaultRefAmount), 0, 1);
     const { price: dbrSwapPrice, isLoading: isCurvePriceLoading } = useTriCryptoSwap(parseFloat(!dolaAmount || dolaAmount === '0' ? defaultRefAmount : dolaAmount), 0, 1);
     const { data, error } = useEtherSWR([
         [helperAddress, 'getDbrOut', parseEther(dolaAmount || defaultRefAmount)],
@@ -61,7 +67,7 @@ export const DbrAuctionBuyer = ({
         [helperAddress, 'getDolaIn', parseEther(defaultRefAmount)],
     ]);
     const isLoading = isCurvePriceLoading || (!data && !error);
-    
+
     const { priceUsd: dbrPrice } = useDBRPrice();
 
     const refDbrOut = data && data[1] ? getBnToNumber(data[1]) : 0;
@@ -69,6 +75,7 @@ export const DbrAuctionBuyer = ({
     const minDbrOut = data && data[0] ? getNumberToBn(estimatedDbrOut * (1 - parseFloat(slippage) / 100)) : BigNumber.from('0');
 
     const refDolaIn = data && data[3] ? getBnToNumber(data[3]) : 0;
+    const refAuctionPriceInDola = data ? parseFloat(defaultRefAmount) / refDbrOut : 0;
 
     const estimatedDolaIn = data && data[2] && !!dbrAmount ? getBnToNumber(data[2]) : 0;
     const maxDolaIn = data && data[2] ? getNumberToBn(estimatedDolaIn * (1 + parseFloat(slippage) / 100)) : BigNumber.from('0');
@@ -80,6 +87,12 @@ export const DbrAuctionBuyer = ({
         (estimatedDbrOut > 0 ? estimatedDbrOut / parseFloat(dolaAmount) : refDbrOut / parseFloat(defaultRefAmount))
         :
         (estimatedDolaIn > 0 ? parseFloat(dbrAmount) / estimatedDolaIn : refDolaIn > 0 ? parseFloat(defaultRefAmount) / refDolaIn : 0);
+
+    const dbrAuctionPriceInDola = dbrAuctionPrice ? 1 / dbrAuctionPrice : 0;
+    const dbrSwapPriceInDola = dbrSwapPrice ? 1 / dbrSwapPrice : 0;
+    const dbrSwapPriceRefInDola = dbrSwapPriceRef ? 1 / dbrSwapPriceRef : 0;
+    const estimatedTimestampToReachMarketPrice = (estimatedTimeToReachMarketPrice * 1000) + Date.now();
+
     const auctionPriceColor = !dbrSwapPrice || !dbrAuctionPrice ? undefined : dbrAuctionPrice >= dbrSwapPrice ? 'success' : 'warning';
 
     const isInvalidSlippage = !slippage || parseFloat(slippage) <= 0 || parseFloat(slippage) >= 20;
@@ -97,7 +110,7 @@ export const DbrAuctionBuyer = ({
     />;
 
     const sell = async () => {
-        if (isExactDola) {            
+        if (isExactDola) {
             return swapExactDolaForDbr(provider?.getSigner(), parseEther(dolaAmount), minDbrOut, helperAddress);
         }
         return swapDolaForExactDbr(provider?.getSigner(), maxDolaIn, parseEther(dbrAmount), helperAddress);
@@ -112,6 +125,17 @@ export const DbrAuctionBuyer = ({
         setIsConnected(!!account)
     }, [account], 500);
 
+    useEffect(() => {
+        if (!dbrSwapPriceRefInDola || !dolaReserve || !dbrRatePerYear || !dbrReserve) return;
+        if (dbrSwapPriceRefInDola > refAuctionPriceInDola) {
+            setEstimatedTimeToReachMarketPrice(0);
+            return;
+        }
+        setEstimatedTimeToReachMarketPrice(
+            estimateAuctionTimeToReachMarketPrice(dolaReserve, dbrReserve, dbrRatePerYear, dbrSwapPriceRefInDola)
+        );
+    }, [dbrSwapPriceRefInDola, refAuctionPriceInDola, dolaReserve, dbrReserve, dbrRatePerYear]);
+
     return <Container
         label="DBR XY=K Auction"
         description="See contract"
@@ -122,9 +146,9 @@ export const DbrAuctionBuyer = ({
         maxW='550px'>
         <VStack spacing="4" alignItems="flex-start" w='full'>
             {
-                !isConnected ? <InfoMessage alertProps={{ w:'full' }} description="Please connect your wallet" />
+                !isConnected ? <InfoMessage alertProps={{ w: 'full' }} description="Please connect your wallet" />
                     :
-                    <>                        
+                    <>
                         <NavButtons active={tab} options={['Sell DOLA', 'Buy DBR']} onClick={(v) => setTab(v)} />
                         <HStack w='full' justify="space-between">
                             <Text fontSize="14px">
@@ -185,10 +209,11 @@ export const DbrAuctionBuyer = ({
                         <ListLabelValues items={[
                             (isExactDola ?
                                 { label: `Estimated amount to receive`, isLoading, value: estimatedDbrOut > 0 ? `${preciseCommify(estimatedDbrOut, 2)} DBR (${shortenNumber(estimatedDbrOut * dbrPrice, 2, true)})` : '-' }
-                                : { label: `Estimated amount to sell`, isLoading, value: estimatedDolaIn > 0 ? `${preciseCommify(estimatedDolaIn, 2)} DOLA (${shortenNumber(estimatedDolaIn * dolaPrice||1, 2, true)})` : '-' }
+                                : { label: `Estimated amount to sell`, isLoading, value: estimatedDolaIn > 0 ? `${preciseCommify(estimatedDolaIn, 2)} DOLA (${shortenNumber(estimatedDolaIn * dolaPrice || 1, 2, true)})` : '-' }
                             ),
-                            { label: `Price via auction`, color: auctionPriceColor, isLoading, value: dbrAuctionPrice > 0 ? `~${shortenNumber(1/dbrAuctionPrice, 4)} DOLA (${shortenNumber(1/dbrAuctionPrice* dolaPrice, 4, true)})` : '-' },
-                            { label: `Price via Curve`, isLoading, value: !isCurvePriceLoading && dbrSwapPrice > 0 ? `~${shortenNumber(1/dbrSwapPrice, 4)} DOLA (${shortenNumber(1/dbrSwapPrice* dolaPrice, 4, true)})` : '-' },
+                            { label: `Price via auction`, color: auctionPriceColor, isLoading, value: dbrAuctionPrice > 0 ? `~${shortenNumber(dbrAuctionPriceInDola, 4)} DOLA (${shortenNumber(dbrAuctionPriceInDola * dolaPrice, 4, true)})` : '-' },
+                            { label: `Market price via Curve`, isLoading, value: !isCurvePriceLoading && dbrSwapPrice > 0 ? `~${shortenNumber(dbrSwapPriceInDola, 4)} DOLA (${shortenNumber(dbrSwapPriceInDola * dolaPrice, 4, true)})` : '-' },
+                            estimatedTimeToReachMarketPrice <= 300 ? undefined : { label: `Est. time for the auction to reach the market price`, isLoading, value: estimatedTimeToReachMarketPrice > ONE_DAY_SECS ? `~${shortenNumber((estimatedTimeToReachMarketPrice / ONE_DAY_SECS), 2)} days` : `${moment(estimatedTimestampToReachMarketPrice).fromNow()}` },
                         ]} />
                         <Divider />
                         <ListLabelValues items={[
