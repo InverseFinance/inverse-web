@@ -279,7 +279,21 @@ export const Liquidity = () => {
                 <Text>Current {histoAttributeLabel}: <b>{preciseCommify(_chartData[_chartData.length - 1].y, histoIsPerc ? 2 : 0, !histoIsPerc)}{histoIsPerc ? '%' : ''}</b></Text>
               </HStack>
               {
-                !isOpen ? null : isLoadingAggregatedHistory ? <SkeletonBlob h="300px" pt="50px" /> : <DefaultCharts chartData={_chartData} isDollars={!histoIsPerc} isPerc={histoIsPerc} areaProps={{ autoMinY: true }} />
+                !isOpen ? null : isLoadingAggregatedHistory ?
+                  <SkeletonBlob h="300px" pt="50px" />
+                  :
+                  <DefaultCharts
+                    chartData={_chartData}
+                    isDollars={!histoIsPerc}
+                    isPerc={histoIsPerc}
+                    containerProps={{ pt: '50px' }}
+                    areaProps={{
+                      autoMinY: true,
+                      useRecharts: true,
+                      showRangeBtns: true,
+                      yLabel: histoAttributeLabel,
+                    }}
+                  />
               }
             </>
           }
