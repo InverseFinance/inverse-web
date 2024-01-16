@@ -140,6 +140,7 @@ export const AreaChart = ({
             showRangeBtns={showRangeBtns}
             rangesToInclude={rangesToInclude}
             strokeColor={strokeColor}
+            isPerc={isPerc}
         />
     }
 
