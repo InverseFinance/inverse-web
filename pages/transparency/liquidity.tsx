@@ -286,7 +286,7 @@ export const Liquidity = () => {
                     chartData={_chartData}
                     isDollars={!histoIsPerc}
                     isPerc={histoIsPerc}
-                    containerProps={{ pt: '50px' }}
+                    containerProps={{ pt: '60px' }}
                     areaProps={{
                       autoMinY: true,
                       useRecharts: true,
