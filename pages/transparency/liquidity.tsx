@@ -291,7 +291,9 @@ export const Liquidity = () => {
                       autoMinY: true,
                       useRecharts: true,
                       showRangeBtns: true,
+                      rangesToInclude: ['All', '1Y', '6M', '3M', '1M', 'YTD'],
                       yLabel: histoAttributeLabel,
+                      mainColor: 'info',
                     }}
                   />
               }
