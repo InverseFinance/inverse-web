@@ -31,6 +31,7 @@ export const AreaChartRecharts = ({
     showRangeBtns = false,
     rangesToInclude,
     strokeColor,
+    isPerc,
 }: {
     combodata: { y: number, x: number, timestamp: number, utcDate: string }[]
     title: string
@@ -54,6 +55,7 @@ export const AreaChartRecharts = ({
     showRangeBtns?: boolean
     rangesToInclude?: string[]
     strokeColor?: string
+    isPerc?: boolean
 }) => {    
     const { themeStyles } = useAppTheme();
     const { mouseDown, mouseUp, mouseMove, mouseLeave, bottom, top, rangeButtonsBarAbs, zoomReferenceArea, data } = useRechartsZoom({
@@ -117,7 +119,7 @@ export const AreaChartRecharts = ({
                         return moment(v).format('MMM Do')
                     }}
                 />
-                <YAxis domain={[bottom, top]} style={_axisStyle.tickLabels} tickFormatter={(v) => v === 0 ? '' : smartShortNumber(v, 2, useUsd)} />
+                <YAxis domain={[bottom, top]} style={_axisStyle.tickLabels} tickFormatter={(v) => v === 0 ? '' : isPerc ? `${smartShortNumber(v, 2)}%` : smartShortNumber(v, 2, useUsd)} />
                 {
                     showTooltips && <Tooltip
                         wrapperStyle={_axisStyle.tickLabels}
@@ -127,7 +129,7 @@ export const AreaChartRecharts = ({
                         itemStyle={{ fontWeight: 'bold' }}
                         formatter={(value, name) => {
                             const isPrice = name === 'Price';
-                            return !value ? 'none' : isPrice ? shortenNumber(value, 4, true) : preciseCommify(value, 0, useUsd)
+                            return !value ? 'none' : isPerc ? `${shortenNumber(value, 2)}%` : isPrice ? shortenNumber(value, 4, true) : preciseCommify(value, 0, useUsd)
                         }}
                     />
                 }
