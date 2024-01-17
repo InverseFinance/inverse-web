@@ -1,14 +1,14 @@
 import 'source-map-support'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { Contract, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { submitProposal } from '@app/util/governance';
 import { CURRENT_ERA } from '@app/config/constants';
 import { getGovernanceContract } from '@app/util/contracts';
 import { FunctionFragment } from 'ethers/lib/utils';
-import { INV_ABI } from '@app/config/abis';
 import { ProposalStatus } from '@app/types';
+import { genTransactionParams } from '@app/util/web3';
 
-const { TREASURY, INV } = getNetworkConfigConstants();
+const { TREASURY, DEPLOYER } = getNetworkConfigConstants();
 
 const { TENDERLY_USER, TENDERLY_KEY } = process.env;
 
@@ -52,17 +52,17 @@ export default async function handler(req, res) {
       [TREASURY],
       ethers.utils.hexValue(ethers.utils.parseUnits('1', 'ether').toHexString()),
     ]);
-
-    const invContract = new Contract(INV, INV_ABI, forkProvider);
+    
     const govContract = getGovernanceContract(forkProposerSigner, CURRENT_ERA);
 
+    // if draft simulate submitting proposal
     if (!isNotDraft) {
       await forkProvider.send("eth_sendTransaction", [
         {
           from: TREASURY,
-          to: INV,
-          data: invContract.interface.encodeFunctionData('delegate', [
-            forkProposer,
+          to: govContract.address,
+          data: govContract.interface.encodeFunctionData('updateProposerWhitelist', [
+            forkProposer, true
           ]),
         }
       ]);
@@ -73,29 +73,51 @@ export default async function handler(req, res) {
       proposalId = form.id;
     }
 
-    if (!form.status || form.status === ProposalStatus.active) {
+    if (!form.status || form.status === ProposalStatus.active) {      
       await forkProvider.send('evm_increaseBlocks', [
         ethers.utils.hexValue(1000)
       ]);
-      // // vote
-      await govContract.castVote(proposalId, true);
+      // try make vote two biggest delegates   
+      try {
+        await forkProvider.send("eth_sendTransaction", [
+          {
+            ...genTransactionParams(govContract.address, 'function castVote(uint256, bool)', [proposalId, true]),
+            from: DEPLOYER,
+            value: undefined,
+          }
+        ]);
+      } catch (e) {}
+      try {
+        await forkProvider.send("eth_sendTransaction", [
+          {
+            ...genTransactionParams(govContract.address, 'function castVote(uint256, bool)', [proposalId, true]),
+            from: '0x759a159D78342340EbACffB027c05910c093f430',
+            value: undefined,
+          }
+        ]);
+      } catch (e) {}
       // pass blocks
       await forkProvider.send('evm_increaseBlocks', [
         ethers.utils.hexValue(17281)
       ]);
+      await forkProvider.send('evm_increaseTime', [
+        ethers.utils.hexValue(60 * 60 * 24 * 3)
+      ]);
+      form.status = ProposalStatus.succeeded;
     }
 
-    if (!form.status || form.status === ProposalStatus.succeeded) {
+    if (!form.status || form.status === ProposalStatus.succeeded) {      
       await govContract.queue(proposalId);
+      form.status = ProposalStatus.queued;
     }
 
-    if (!form.status || form.status === ProposalStatus.queued) {
+    if (!form.status || form.status === ProposalStatus.queued) {      
       //pass time      
-      if(!form.status || (!!form.etaTimestamp && Date.now() < form.etaTimestamp)) {
+      if(!form.status || !form.etaTimestamp || (!!form.etaTimestamp && Date.now() < form.etaTimestamp)) {
         await forkProvider.send('evm_increaseTime', [
           ethers.utils.hexValue(60 * 60 * 24 * 5)
         ]);
-      }
+      }      
       await govContract.execute(proposalId, {
         gasLimit: 8000000,
       });
@@ -106,7 +128,7 @@ export default async function handler(req, res) {
     // await forkProvider.send("evm_revert", [snapStart]);
 
     // share
-    await fetch(`https://api.tenderly.co/api/v1/account/theAlienTourist/project/inverse-finance/fork/${forkId}/share`, {
+    await fetch(`https://api.tenderly.co/api/v1/account/${TENDERLY_USER}/project/inverse-finance/fork/${forkId}/share`, {
       method: 'POST',
       headers: {
         'X-Access-Key': TENDERLY_KEY as string,

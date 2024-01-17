@@ -141,6 +141,7 @@ export const GOVERNANCE_ABI = [
   "function xinv() public view returns (address)",
   "function timelock() public view returns (address)",
   "function propose(address[] targets, uint256[] values, string[] signatures, bytes[] calldata, string description) public returns (uint)",
+  "function updateProposerWhitelist(address proposer, bool value) public",
   "event ProposalExecuted (uint256 id)",
   "event ProposalCreated (uint256 id, address proposer, address[] targets, uint256[] values, string[] signatures, bytes[] calldatas, uint256 startBlock, uint256 endBlock, string description)",
   "event VoteCast (address voter, uint256 proposalId, bool support, uint256 votes)",
