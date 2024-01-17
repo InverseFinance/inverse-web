@@ -165,6 +165,7 @@ export const DbrAuctionBuyer = ({
                                         <Text fontWeight="bold" fontSize="14px">Exact amount DOLA to sell:</Text>
                                     </TextInfo>
                                     <SimpleAmountForm
+                                        btnProps={{ needPoaFirst:true }}
                                         defaultAmount={dolaAmount}
                                         address={DOLA}
                                         destination={helperAddress}
@@ -187,6 +188,7 @@ export const DbrAuctionBuyer = ({
                                         <Text fontWeight="bold" fontSize="14px">Exact amount of DBR to buy:</Text>
                                     </TextInfo>
                                     <SimpleAmountForm
+                                        btnProps={{ needPoaFirst:true }}
                                         defaultAmount={dbrAmount}
                                         address={DOLA}
                                         destination={helperAddress}
