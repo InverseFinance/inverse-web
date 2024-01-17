@@ -149,7 +149,11 @@ export const useFedOverview = (): SWR & { fedOverviews: any[] } => {
   const { data, error } = useCacheFirstSWR(`/api/transparency/fed-overview`)
 
   return {
-    fedOverviews: (data?.fedOverviews || []).map(f => ({ ...f, dolaBalance: (f.subBalances?.find(b => b.symbol === 'DOLA')?.balance || 0) * f.lpPol })),
+    fedOverviews: (data?.fedOverviews || []).map(f => ({
+      ...f,
+      dolaBalance: (f.subBalances?.find(b => b.symbol === 'DOLA')?.balance || 0) * f.lpPol,
+      polUsd: f.lpBalance * f.lpPrice,
+    })),
     isLoading: !error && !data,
     isError: error,
   }
