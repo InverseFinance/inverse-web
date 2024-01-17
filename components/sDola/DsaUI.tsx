@@ -1,5 +1,5 @@
 import { VStack, Text, HStack, Divider } from "@chakra-ui/react"
-import { sdolaDevInit, stakeDolaToSavings, unstakeDolaFromSavings, useDSABalance, useStakedDola } from "@app/util/dola-staking"
+import { dsaClaimRewards, sdolaDevInit, stakeDolaToSavings, unstakeDolaFromSavings, useDSABalance, useStakedDola } from "@app/util/dola-staking"
 import { useWeb3React } from "@web3-react/core";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
 import { useState } from "react";
@@ -7,7 +7,7 @@ import { getNetworkConfigConstants } from "@app/util/networks";
 import { parseEther } from "@ethersproject/units";
 import Container from "../common/Container";
 import { NavButtons } from "@app/components/common/Button";
-import { InfoMessage } from "@app/components/common/Messages";
+import { InfoMessage, SuccessMessage } from "@app/components/common/Messages";
 import { preciseCommify } from "@app/util/misc";
 import { useDOLABalance } from "@app/hooks/useDOLA";
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
@@ -16,8 +16,9 @@ import { useDBRPrice } from "@app/hooks/useDBR";
 import { shortenNumber } from "@app/util/markets";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { TextInfo } from "../common/Messages/TextInfo";
+import { ZapperTokens } from "../F2/rewards/ZapperTokens";
 
-const { DOLA } = getNetworkConfigConstants();
+const { DOLA, DBR } = getNetworkConfigConstants();
 
 const StatBasic = ({ value, name, message, onClick = undefined, isLoading = false }: { value: string, message: any, onClick?: () => void, name: string, isLoading?: boolean }) => {
     return <VStack>
@@ -37,9 +38,11 @@ export const DsaUI = () => {
     const [dolaAmount, setDolaAmount] = useState('');
     const [isConnected, setIsConnected] = useState(true);
     const [tab, setTab] = useState('Stake');
+    const [isJustClaimed, setIsJustClaimed] = useState(false);
     const isStake = tab === 'Stake';
 
-    const { savingsApr, isLoading } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
+    const { savingsApr, accountRewardsClaimable, isLoading } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
+    const claimables = [{ balance: accountRewardsClaimable, price: dbrPrice, address: DBR }];
     const { balance: dolaBalance } = useDOLABalance(account);
     const { balance: dolaSavingsBalance } = useDSABalance(account);
 
@@ -51,16 +54,40 @@ export const DsaUI = () => {
         return unstakeDolaFromSavings(provider?.getSigner(), parseEther(dolaAmount));
     }
 
+    const handleClaim = () => {
+        return dsaClaimRewards(provider?.getSigner());
+    }
+
+    const handleClaimSuccess = () => {
+        setIsJustClaimed(true);
+    }
+
     useDebouncedEffect(() => {
         setIsConnected(!!account)
     }, [account], 500);
 
+    const totalRewardsUSD = accountRewardsClaimable * dbrPrice;
+
     return <VStack w='full' maxW='450px' spacing="4">
-        <HStack justify="space-between" w='full'>            
+        <HStack justify="space-between" w='full'>
             <StatBasic message="Annual Percentage Rate of DBR rewards" isLoading={isLoading} name="DSA APR" value={`${shortenNumber(savingsApr, 2)}%`} />
             <StatBasic message="Market price of DBR on Curve" isLoading={isLoading} name="DBR price" value={`${shortenNumber(dbrPrice, 4, true)}`} />
         </HStack>
         <Divider borderColor="mainTextColor" />
+        {
+            isJustClaimed ? <SuccessMessage
+                alertProps={{ w: 'full' }}
+                description="Rewards claimed!"
+            />
+                :
+                totalRewardsUSD >= 0.1 && <ZapperTokens
+                    market={{ address: DOLA_SAVINGS_ADDRESS }}
+                    claimables={claimables}
+                    totalRewardsUSD={totalRewardsUSD}
+                    handleClaim={() => handleClaim()}
+                    onSuccess={handleClaimSuccess}
+                />
+        }
         <Container
             label="DOLA Savings Account"
             description="See contract"
@@ -89,7 +116,7 @@ export const DsaUI = () => {
                                             Amount to stake:
                                         </Text>
                                         <SimpleAmountForm
-                                            btnProps={{ needPoaFirst:true }}
+                                            btnProps={{ needPoaFirst: true }}
                                             defaultAmount={dolaAmount}
                                             address={DOLA}
                                             destination={DOLA_SAVINGS_ADDRESS}
@@ -109,7 +136,7 @@ export const DsaUI = () => {
                                             Amount to unstake:
                                         </Text>
                                         <SimpleAmountForm
-                                            btnProps={{ needPoaFirst:true }}
+                                            btnProps={{ needPoaFirst: true }}
                                             defaultAmount={dolaAmount}
                                             address={DOLA_SAVINGS_ADDRESS}
                                             destination={DOLA_SAVINGS_ADDRESS}

@@ -4,6 +4,7 @@ import useEtherSWR from "@app/hooks/useEtherSWR";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 import { getBnToNumber } from "./markets";
+import { useAccount } from "@app/hooks/misc";
 
 export const DOLA_SAVINGS_ADDRESS = '0x15F2ea83eB97ede71d84Bd04fFF29444f6b7cd52';
 export const SDOLA_ADDRESS = '0x0B32a3F8f5b7E5d315b9E52E640a49A89d89c820';
@@ -65,6 +66,12 @@ export const unstakeDolaFromSavings = async (signerOrProvider: JsonRpcSigner, do
     return contract.unstake(dolaIn);
 }
 
+export const dsaClaimRewards = async (signerOrProvider: JsonRpcSigner, recipient?: string) => {
+    const contract = getDolaSavingsContract(signerOrProvider);
+    const _recipient = !!recipient && recipient !== BURN_ADDRESS ? recipient : (await signerOrProvider.getAddress());
+    return contract.claim(_recipient);
+}
+
 export const sdolaDevInit = async (signerOrProvider: JsonRpcSigner) => {
     const contract = getDolaSavingsContract(signerOrProvider);
     // const sdolaContract = getSdolaContract(signerOrProvider);
@@ -104,16 +111,20 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
     weeklyRevenue: number;
     pastWeekRevenue: number;
     sDolaClaimable: number;
+    accountRewardsClaimable: number;
     dbrRatePerDola: number;
     apr: number | null;
     projectedApr: number | null;
     savingsApr: number | null;
     isLoading: boolean;
     hasError: boolean;
-} => {    
-    const { data: sDolaClaimable } = useEtherSWR(
-        [DOLA_SAVINGS_ADDRESS, 'claimable', SDOLA_ADDRESS]
-    );    
+} => {
+    const account = useAccount();
+    const { data: savingsClaimableData } = useEtherSWR([
+        [DOLA_SAVINGS_ADDRESS, 'claimable', SDOLA_ADDRESS],
+        [DOLA_SAVINGS_ADDRESS, 'claimable', account],
+    ]);
+    
     const { data: savingsTotalSupplyData } = useEtherSWR(
         [DOLA_SAVINGS_ADDRESS, 'totalSupply']
     );   
@@ -173,7 +184,8 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
         maxRewardPerDolaMantissa,
         weeklyRevenue,
         pastWeekRevenue,
-        sDolaClaimable: sDolaClaimable ? getBnToNumber(sDolaClaimable) : 0,
+        sDolaClaimable: savingsClaimableData ? getBnToNumber(savingsClaimableData[0]) : 0,
+        accountRewardsClaimable: savingsClaimableData ? getBnToNumber(savingsClaimableData[1]) : 0,
         apr,
         projectedApr,
         savingsApr,
