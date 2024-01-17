@@ -61,12 +61,12 @@ const columns = [
     },    
 ]
 
-export const useStakedDolaActivity = (account?: string): SWR & {
+export const useStakedDolaActivity = (account?: string, type = 'sdola'): SWR & {
     events: any,
     accountEvents: any,    
     timestamp: number,
 } => {
-    const { data, error } = useCustomSWR(`/api/transparency/sdola`, fetcher);
+    const { data, error } = useCustomSWR(`/api/transparency/${type}`, fetcher);
 
     const events = (data?.events || []);
 

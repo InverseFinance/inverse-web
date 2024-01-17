@@ -62,9 +62,7 @@ export const stakeDolaToSavings = async (signerOrProvider: JsonRpcSigner, dolaIn
 
 export const unstakeDolaFromSavings = async (signerOrProvider: JsonRpcSigner, dolaIn: BigNumber, recipient?: string) => {
     const contract = getDolaSavingsContract(signerOrProvider);
-    const _recipient = !!recipient && recipient !== BURN_ADDRESS ? recipient : (await signerOrProvider.getAddress());
-    const owner = (await signerOrProvider.getAddress())
-    return contract.unstake(dolaIn, _recipient, owner);
+    return contract.unstake(dolaIn);
 }
 
 export const sdolaDevInit = async (signerOrProvider: JsonRpcSigner) => {
@@ -87,7 +85,7 @@ export const useStakedDolaBalance = (account: string, ad = SDOLA_ADDRESS) => {
 }
 
 export const useDSABalance = (account: string, ad = DOLA_SAVINGS_ADDRESS) => {
-    const { data, error } = useEtherSWR([ad, 'balanceOf', account]);
+    const { data, error } = useEtherSWR([ad, 'balanceOf', account]);    
     return {
         bnBalance: data || BigNumber.from('0'),
         balance: data ? getBnToNumber(data) : 0,
@@ -98,7 +96,9 @@ export const useDSABalance = (account: string, ad = DOLA_SAVINGS_ADDRESS) => {
 
 export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
     totalSupply: number;
+    savingsTotalSupply: number;
     yearlyRewardBudget: number;
+    savingsYearlyBudget: number;
     maxYearlyRewardBudget: number;
     maxRewardPerDolaMantissa: number;
     weeklyRevenue: number;
@@ -144,8 +144,9 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
     );
     const { data: pastWeekRevenueData, error: pastWeekRevenueErr } = useEtherSWR(
         [SDOLA_ADDRESS, 'weeklyRevenue', weekIndexUtc - 1]
-    );
-    const yearlyRewardBudget = yearlyRewardBudgetData ? getBnToNumber(yearlyRewardBudgetData) : 0;
+    );    
+    const savingsYearlyBudget = yearlyRewardBudgetData ? getBnToNumber(yearlyRewardBudgetData) : 0;
+    const yearlyRewardBudget = savingsYearlyBudget * sDolaSupplyRatio;
     const maxYearlyRewardBudget = maxYearlyRewardBudgetData ? getBnToNumber(maxYearlyRewardBudgetData) : 0;
     const maxRewardPerDolaMantissa = maxRewardPerDolaMantissaData ? getBnToNumber(maxRewardPerDolaMantissaData) : 0;
 
@@ -164,8 +165,10 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
 
     return {
         totalSupply,
+        savingsTotalSupply,
         dbrRatePerDola,
         yearlyRewardBudget,
+        savingsYearlyBudget,
         maxYearlyRewardBudget,
         maxRewardPerDolaMantissa,
         weeklyRevenue,

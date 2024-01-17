@@ -1,5 +1,5 @@
-import { VStack, Text, HStack, SimpleGrid, Divider } from "@chakra-ui/react"
-import { sdolaDevInit, stakeDola, unstakeDola, useStakedDola, useStakedDolaBalance } from "@app/util/dola-staking"
+import { VStack, Text, HStack, Divider } from "@chakra-ui/react"
+import { sdolaDevInit, stakeDolaToSavings, unstakeDolaFromSavings, useDSABalance, useStakedDola } from "@app/util/dola-staking"
 import { useWeb3React } from "@web3-react/core";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
 import { useState } from "react";
@@ -11,7 +11,7 @@ import { InfoMessage } from "@app/components/common/Messages";
 import { preciseCommify } from "@app/util/misc";
 import { useDOLABalance } from "@app/hooks/useDOLA";
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
-import { SDOLA_ADDRESS } from "@app/util/dola-staking";
+import { DOLA_SAVINGS_ADDRESS } from "@app/util/dola-staking";
 import { useDBRPrice } from "@app/hooks/useDBR";
 import { shortenNumber } from "@app/util/markets";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
@@ -31,7 +31,7 @@ const StatBasic = ({ value, name, message, onClick = undefined, isLoading = fals
     </VStack>
 }
 
-export const StakeDolaUI = () => {
+export const DsaUI = () => {
     const { provider, account } = useWeb3React();
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
     const [dolaAmount, setDolaAmount] = useState('');
@@ -39,16 +39,16 @@ export const StakeDolaUI = () => {
     const [tab, setTab] = useState('Stake');
     const isStake = tab === 'Stake';
 
-    const { apr, projectedApr, isLoading } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
+    const { savingsApr, isLoading } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
     const { balance: dolaBalance } = useDOLABalance(account);
-    const { balance: stakedDolaBalance } = useStakedDolaBalance(account);
+    const { balance: dolaSavingsBalance } = useDSABalance(account);
 
     const handleAction = async () => {
         // return sdolaDevInit(provider?.getSigner());
         if (isStake) {
-            return stakeDola(provider?.getSigner(), parseEther(dolaAmount));
+            return stakeDolaToSavings(provider?.getSigner(), parseEther(dolaAmount));
         }
-        return unstakeDola(provider?.getSigner(), parseEther(dolaAmount));
+        return unstakeDolaFromSavings(provider?.getSigner(), parseEther(dolaAmount));
     }
 
     useDebouncedEffect(() => {
@@ -56,15 +56,15 @@ export const StakeDolaUI = () => {
     }, [account], 500);
 
     return <VStack w='full' maxW='450px' spacing="4">
-        <HStack justify="space-between" w='full'>
-            <StatBasic message="This week's APR is calculated with last week's DBR auction revenues" isLoading={isLoading} name="APR" value={apr ? `${shortenNumber(apr, 2)}%` : 'TBD'} />
-            <StatBasic message="The projected APR is calculated with the dbrRatePerDOLA and the current DBR price in DOLA" isLoading={isLoading} name="Projected APR" value={`${shortenNumber(projectedApr, 2)}%`} />
+        <HStack justify="space-between" w='full'>            
+            <StatBasic message="Annual Percentage Rate of DBR rewards" isLoading={isLoading} name="DSA APR" value={`${shortenNumber(savingsApr, 2)}%`} />
+            <StatBasic message="Market price of DBR on Curve" isLoading={isLoading} name="DBR price" value={`${shortenNumber(dbrPrice, 4, true)}`} />
         </HStack>
         <Divider borderColor="mainTextColor" />
         <Container
-            label="sDOLA - Yield-Bearing stablecoin"
+            label="DOLA Savings Account"
             description="See contract"
-            href={`https://etherscan.io/address/${SDOLA_ADDRESS}`}
+            href={`https://etherscan.io/address/${DOLA_SAVINGS_ADDRESS}`}
             noPadding
             m="0"
             p="0">
@@ -79,7 +79,7 @@ export const StakeDolaUI = () => {
                                     DOLA balance: {dolaBalance ? preciseCommify(dolaBalance, 2) : '-'}
                                 </Text>
                                 <Text fontSize="14px">
-                                    sDOLA balance: {stakedDolaBalance ? preciseCommify(stakedDolaBalance, 2) : '-'}
+                                    Savings balance: {dolaSavingsBalance ? preciseCommify(dolaSavingsBalance, 2) : '-'}
                                 </Text>
                             </HStack>
                             {
@@ -92,7 +92,7 @@ export const StakeDolaUI = () => {
                                             btnProps={{ needPoaFirst:true }}
                                             defaultAmount={dolaAmount}
                                             address={DOLA}
-                                            destination={SDOLA_ADDRESS}
+                                            destination={DOLA_SAVINGS_ADDRESS}
                                             signer={provider?.getSigner()}
                                             decimals={18}
                                             onAction={() => handleAction()}
@@ -111,8 +111,8 @@ export const StakeDolaUI = () => {
                                         <SimpleAmountForm
                                             btnProps={{ needPoaFirst:true }}
                                             defaultAmount={dolaAmount}
-                                            address={SDOLA_ADDRESS}
-                                            destination={SDOLA_ADDRESS}
+                                            address={DOLA_SAVINGS_ADDRESS}
+                                            destination={DOLA_SAVINGS_ADDRESS}
                                             needApprove={false}
                                             signer={provider?.getSigner()}
                                             decimals={18}
