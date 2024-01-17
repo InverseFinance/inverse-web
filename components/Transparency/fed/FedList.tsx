@@ -102,14 +102,25 @@ const columns = [
             </Cell>
         },
     },
+    // {
+    //     field: 'dolaBalance',
+    //     label: 'PoL Balance',
+    //     header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
+    //     tooltip: 'DOLA balance owned by the Fed in the liquidity pool',
+    //     value: ({ dolaBalance }) => {
+    //         return <Cell minWidth="120px" justify="center">
+    //             <CellText>{dolaBalance > 0 ? shortenNumber(dolaBalance, 2) : '-'}</CellText>
+    //         </Cell>
+    //     },
+    // }, 
     {
-        field: 'dolaBalance',
-        label: 'PoL Balance',
+        field: 'polUsd',
+        label: 'PoL $',
         header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
-        tooltip: 'DOLA balance owned by the Fed in the liquidity pool',
-        value: ({ dolaBalance }) => {
+        tooltip: 'Protocol-Owned-Liquidity worth in USD',
+        value: ({ polUsd }) => {
             return <Cell minWidth="120px" justify="center">
-                <CellText>{dolaBalance > 0 ? shortenNumber(dolaBalance, 2) : '-'}</CellText>
+                <CellText>{polUsd > 0 ? shortenNumber(polUsd, 2, true) : '-'}</CellText>
             </Cell>
         },
     }, 
