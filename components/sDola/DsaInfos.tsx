@@ -18,7 +18,7 @@ export const DsaInfos = () => {
             <Stack>
                 <Text fontSize="14px" fontWeight="bold">What is the DOLA Savings Account?</Text>
                 <VStack spacing="0" alignItems="flex-start">
-                    <Text>The DOLA Savings Account (DSA) is staking contract for DOLA that yields claimable DBR rewards, the yield comes from an annual DBR budget.</Text>
+                    <Text>The DOLA Savings Account (DSA) is staking contract for DOLA that yields <b>claimable DBR rewards</b>, the yield comes from an annual DBR budget.</Text>
                     <Link textDecoration="underline" href='https://docs.inverse.finance' isExternal target="_blank">
                         Learn more about DSA <ExternalLinkIcon />
                     </Link>
