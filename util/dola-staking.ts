@@ -54,6 +54,19 @@ export const unstakeDola = async (signerOrProvider: JsonRpcSigner, dolaIn: BigNu
     return contract.withdraw(dolaIn, _recipient, owner);
 }
 
+export const stakeDolaToSavings = async (signerOrProvider: JsonRpcSigner, dolaIn: BigNumber, recipient?: string) => {
+    const contract = getDolaSavingsContract(signerOrProvider);
+    const _recipient = !!recipient && recipient !== BURN_ADDRESS ? recipient : (await signerOrProvider.getAddress());
+    return contract.stake(dolaIn, _recipient);
+}
+
+export const unstakeDolaFromSavings = async (signerOrProvider: JsonRpcSigner, dolaIn: BigNumber, recipient?: string) => {
+    const contract = getDolaSavingsContract(signerOrProvider);
+    const _recipient = !!recipient && recipient !== BURN_ADDRESS ? recipient : (await signerOrProvider.getAddress());
+    const owner = (await signerOrProvider.getAddress())
+    return contract.unstake(dolaIn, _recipient, owner);
+}
+
 export const sdolaDevInit = async (signerOrProvider: JsonRpcSigner) => {
     const contract = getDolaSavingsContract(signerOrProvider);
     // const sdolaContract = getSdolaContract(signerOrProvider);
@@ -64,6 +77,16 @@ export const sdolaDevInit = async (signerOrProvider: JsonRpcSigner) => {
 }
 
 export const useStakedDolaBalance = (account: string, ad = SDOLA_ADDRESS) => {
+    const { data, error } = useEtherSWR([ad, 'balanceOf', account]);
+    return {
+        bnBalance: data || BigNumber.from('0'),
+        balance: data ? getBnToNumber(data) : 0,
+        isLoading: !data && !error,
+        hasError: !data && !!error,
+    };
+}
+
+export const useDSABalance = (account: string, ad = DOLA_SAVINGS_ADDRESS) => {
     const { data, error } = useEtherSWR([ad, 'balanceOf', account]);
     return {
         bnBalance: data || BigNumber.from('0'),
@@ -84,14 +107,18 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
     dbrRatePerDola: number;
     apr: number | null;
     projectedApr: number | null;
+    savingsApr: number | null;
     isLoading: boolean;
     hasError: boolean;
 } => {    
     const { data: sDolaClaimable } = useEtherSWR(
         [DOLA_SAVINGS_ADDRESS, 'claimable', SDOLA_ADDRESS]
     );    
-    const { data: totalSupplyData, error } = useEtherSWR(
+    const { data: savingsTotalSupplyData } = useEtherSWR(
         [DOLA_SAVINGS_ADDRESS, 'totalSupply']
+    );   
+    const { data: totalSupplyData, error } = useEtherSWR(
+        [SDOLA_ADDRESS, 'totalSupply']
     );
 
     const { data: yearlyRewardBudgetData, error: yearlyRewardBudgetErr } = useEtherSWR(
@@ -104,24 +131,27 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
     const { data: maxRewardPerDolaMantissaData, error: maxRewardPerDolaMantissaErr } = useEtherSWR(
         [DOLA_SAVINGS_ADDRESS, 'maxRewardPerDolaMantissa']
     );    
+    const savingsTotalSupply = (savingsTotalSupplyData ? getBnToNumber(savingsTotalSupplyData) : 0) + supplyDelta;
     const totalSupply = (totalSupplyData ? getBnToNumber(totalSupplyData) : 0) + supplyDelta;
+    const sDolaSupplyRatio = savingsTotalSupply > 0 ? totalSupply / savingsTotalSupply : 0;
     const d = new Date();
     const weekFloat = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0) / (ONE_DAY_MS * 7);
     const weekIndexUtc = Math.floor(weekFloat);
     const nextWeekIndexUtc = weekIndexUtc+1;
     const remainingWeekPercToStream = nextWeekIndexUtc - weekFloat;
     const { data: weeklyRevenueData, error: weeklyRevenueErr } = useEtherSWR(
-        [DOLA_SAVINGS_ADDRESS, 'weeklyRevenue', weekIndexUtc]
+        [SDOLA_ADDRESS, 'weeklyRevenue', weekIndexUtc]
     );
     const { data: pastWeekRevenueData, error: pastWeekRevenueErr } = useEtherSWR(
-        [DOLA_SAVINGS_ADDRESS, 'weeklyRevenue', weekIndexUtc - 1]
+        [SDOLA_ADDRESS, 'weeklyRevenue', weekIndexUtc - 1]
     );
     const yearlyRewardBudget = yearlyRewardBudgetData ? getBnToNumber(yearlyRewardBudgetData) : 0;
     const maxYearlyRewardBudget = maxYearlyRewardBudgetData ? getBnToNumber(maxYearlyRewardBudgetData) : 0;
     const maxRewardPerDolaMantissa = maxRewardPerDolaMantissaData ? getBnToNumber(maxRewardPerDolaMantissaData) : 0;
 
     // TODO: verify this is correct
-    const dbrRatePerDola = Math.min(yearlyRewardBudget / totalSupply, maxRewardPerDolaMantissa);    
+    const savingsDbrRatePerDola = Math.min(yearlyRewardBudget / totalSupply, maxRewardPerDolaMantissa);    
+    const dbrRatePerDola = Math.min(yearlyRewardBudget * sDolaSupplyRatio / totalSupply, maxRewardPerDolaMantissa);    
 
     // weeklyRevenue = in progress
     const weeklyRevenue = weeklyRevenueData ? getBnToNumber(weeklyRevenueData) : 0;
@@ -130,6 +160,7 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
     const projectedRevenue = weeklyRevenue + remainingRevenueToSteamFromPastWeek;
     const apr = totalSupply ? (pastWeekRevenue * WEEKS_PER_YEAR) / totalSupply * 100 : null;
     const projectedApr = dbrDolaPrice ? dbrRatePerDola * dbrDolaPrice * 100 : null;
+    const savingsApr = dbrDolaPrice ? savingsDbrRatePerDola * dbrDolaPrice * 100 : null;
 
     return {
         totalSupply,
@@ -142,6 +173,7 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
         sDolaClaimable: sDolaClaimable ? getBnToNumber(sDolaClaimable) : 0,
         apr,
         projectedApr,
+        savingsApr,
         isLoading: (!totalSupply && !error) || (!yearlyRewardBudget && !yearlyRewardBudgetErr) || (!maxYearlyRewardBudget && !maxYearlyRewardBudgetErr),
         hasError: !!error || !!yearlyRewardBudgetErr || !!maxYearlyRewardBudgetErr,
     }
