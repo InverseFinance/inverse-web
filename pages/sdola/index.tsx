@@ -6,6 +6,7 @@ import { StakeDolaUI } from '@app/components/sDola/StakeDolaUI';
 import { StakeDolaInfos } from '@app/components/sDola/StakeDolaInfos';
 import { useAccount } from '@app/hooks/misc';
 import { StakeDolaActivity, useStakedDolaActivity } from '@app/components/sDola/StakeDolaActivity';
+import { DolaStakingTabs } from '@app/components/F2/DolaStaking/DolaStakingTabs';
 
 export const SdolaPage = () => {
   const account = useAccount();
@@ -20,6 +21,7 @@ export const SdolaPage = () => {
         <meta name="keywords" content="Inverse Finance, swap, stablecoin, DOLA, DBR" />
       </Head>
       <AppNav active="Swap" />
+      <DolaStakingTabs />
       <VStack
         w={{ base: 'full', lg: '1000px' }}
         mt='6'

@@ -6,6 +6,7 @@ import { useAccount } from '@app/hooks/misc';
 import { DsaUI } from '@app/components/sDola/DsaUI';
 import { DsaInfos } from '@app/components/sDola/DsaInfos';
 import { useStakedDolaActivity } from '@app/components/sDola/StakeDolaActivity';
+import { DolaStakingTabs } from '@app/components/F2/DolaStaking/DolaStakingTabs';
 
 export const DOLASavingsAccountPage = () => {
   // const account = useAccount();
@@ -20,6 +21,7 @@ export const DOLASavingsAccountPage = () => {
         <meta name="keywords" content="Inverse Finance, swap, stablecoin, DOLA, DBR" />
       </Head>
       <AppNav active="Swap" />
+      <DolaStakingTabs defaultIndex={1} />
       <VStack
         w={{ base: 'full', lg: '1000px' }}
         mt='6'
