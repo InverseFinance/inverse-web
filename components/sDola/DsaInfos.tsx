@@ -18,7 +18,7 @@ export const DsaInfos = () => {
             <Stack>
                 <Text fontSize="14px" fontWeight="bold">What is the DOLA Savings Account?</Text>
                 <VStack spacing="0" alignItems="flex-start">
-                    <Text>The DOLA Savings Account (DSA) is staking contract for DOLA that yields <b>claimable DBR rewards</b>, the yield comes from an annual DBR budget.</Text>
+                    <Text>The DOLA Savings Account (DSA) is a staking contract for DOLA that yields <b>claimable DBR rewards</b>, the yield comes from an annual DBR budget. There is <b>no lock period</b>.</Text>
                     <Link textDecoration="underline" href='https://docs.inverse.finance' isExternal target="_blank">
                         Learn more about DSA <ExternalLinkIcon />
                     </Link>
@@ -41,6 +41,13 @@ export const DsaInfos = () => {
                         <Text>- Max. DBR per DOLA:</Text>
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(maxRewardPerDolaMantissa, 2)} ({preciseCommify(maxRewardPerDolaMantissa * dbrPrice, 2, true)})</Text>}
                     </HStack>
+                </VStack>
+                <Text fontSize="14px" fontWeight="bold">Looking for sDOLA?</Text>
+                <VStack w='full' spacing="0" alignItems="flex-start">
+                    <Text>sDOLA is a Tokenized Vault Token while DSA is a simple staking contract.</Text>
+                    <Link textDecoration="underline" href='/sdola' isExternal target="_blank">
+                        Go to sDOLA <ExternalLinkIcon />
+                    </Link>
                 </VStack>
             </Stack>
         }
