@@ -585,6 +585,9 @@ export const DOLA_SAVINGS_ABI = [
   'function unstake(uint amount) public',
   'function claim(address to) external',
   "function balanceOf(address) external view returns (uint256)",
+  "event Stake(address indexed caller, address indexed recipient, uint amount)",
+  "event Unstake(address indexed caller, uint amount)",  
+  "event Claim(address indexed caller, address indexed recipient)",
 ];
 // sDOLA is ERC4626, 
 //function deposit(uint256 assets, address receiver) public 
