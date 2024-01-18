@@ -41,8 +41,9 @@ export const DsaUI = () => {
     const [isJustClaimed, setIsJustClaimed] = useState(false);
     const isStake = tab === 'Stake';
 
-    const { savingsApr, accountRewardsClaimable, isLoading } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
-    const claimables = [{ balance: accountRewardsClaimable, price: dbrPrice, address: DBR }];
+    const { savingsApr, accountRewardsClaimable, isLoading } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));    
+    const totalRewardsUSD = accountRewardsClaimable * dbrPrice;
+    const claimables = [{ balance: accountRewardsClaimable, price: dbrPrice, balanceUSD: totalRewardsUSD, address: DBR }];
     const { balance: dolaBalance } = useDOLABalance(account);
     const { balance: dolaSavingsBalance } = useDSABalance(account);
 
@@ -64,9 +65,7 @@ export const DsaUI = () => {
 
     useDebouncedEffect(() => {
         setIsConnected(!!account)
-    }, [account], 500);
-
-    const totalRewardsUSD = accountRewardsClaimable * dbrPrice;
+    }, [account], 500);    
 
     return <VStack w='full' maxW='450px' spacing="4">
         <HStack justify="space-between" w='full'>
@@ -106,7 +105,7 @@ export const DsaUI = () => {
                                     DOLA balance: {dolaBalance ? preciseCommify(dolaBalance, 2) : '-'}
                                 </Text>
                                 <Text fontSize="14px">
-                                    Savings balance: {dolaSavingsBalance ? preciseCommify(dolaSavingsBalance, 2) : '-'}
+                                    DSA balance: {dolaSavingsBalance ? preciseCommify(dolaSavingsBalance, 2) : '-'}
                                 </Text>
                             </HStack>
                             {

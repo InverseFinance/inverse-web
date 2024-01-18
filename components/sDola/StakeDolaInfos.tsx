@@ -42,8 +42,8 @@ export const StakeDolaInfos = () => {
                         <Text>- Current week's revenues from auctions:</Text>
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(weeklyRevenue, 2)} DOLA</Text>}
                     </HStack>
-                    <Link textDecoration="underline" href='/dbr/auction' isExternal target="_blank">
-                        Go to auctions <ExternalLinkIcon />
+                    <Link textDecoration="underline" href='/dbr/auction'>
+                        Go to auctions
                     </Link>
                 </VStack>
                 <Text fontSize="14px" fontWeight="bold">sDOLA Parameters</Text>

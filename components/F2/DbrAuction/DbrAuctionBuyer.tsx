@@ -17,11 +17,11 @@ import { useDOLAPriceLive } from "@app/hooks/usePrices";
 import { InfoMessage } from "@app/components/common/Messages";
 import { preciseCommify } from "@app/util/misc";
 import { useDOLABalance } from "@app/hooks/useDOLA";
-import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
 import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader";
 import { useDbrAuction } from "./DbrAuctionInfos";
 import moment from "moment";
 import { ONE_DAY_SECS } from "@app/config/constants";
+import { useDualSpeedEffect } from "@app/hooks/useDualSpeedEffect";
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -126,9 +126,9 @@ export const DbrAuctionBuyer = ({
         setDbrAmount('');
     }
 
-    useDebouncedEffect(() => {
-        setIsConnected(!!account)
-    }, [account], 500);
+    useDualSpeedEffect(() => {
+        setIsConnected(!!account);
+    }, [account], !!account, 1000, 0);
 
     useEffect(() => {
         if (!dbrSwapPriceRefInDola || !dolaReserve || !dbrRatePerYear || !dbrReserve) return;

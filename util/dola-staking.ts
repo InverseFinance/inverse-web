@@ -107,9 +107,11 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
     yearlyRewardBudget: number;
     savingsYearlyBudget: number;
     maxYearlyRewardBudget: number;
+    dolaBalInDsaFromSDola: number;
     maxRewardPerDolaMantissa: number;
     weeklyRevenue: number;
     pastWeekRevenue: number;
+    sDolaDsaShare: number;
     sDolaClaimable: number;
     accountRewardsClaimable: number;
     dbrRatePerDola: number;
@@ -120,13 +122,14 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
     hasError: boolean;
 } => {
     const account = useAccount();
-    const { data: savingsClaimableData } = useEtherSWR([
+    const { data: savingsData } = useEtherSWR([
         [DOLA_SAVINGS_ADDRESS, 'claimable', SDOLA_ADDRESS],
         [DOLA_SAVINGS_ADDRESS, 'claimable', account],
+        [DOLA_SAVINGS_ADDRESS, 'balanceOf', SDOLA_ADDRESS],
     ]);
     
     const { data: savingsTotalSupplyData } = useEtherSWR(
-        [DOLA_SAVINGS_ADDRESS, 'totalSupply']
+        [DOLA_SAVINGS_ADDRESS, 'totalSupply'],
     );   
     const { data: totalSupplyData, error } = useEtherSWR(
         [SDOLA_ADDRESS, 'totalSupply']
@@ -143,8 +146,9 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
         [DOLA_SAVINGS_ADDRESS, 'maxRewardPerDolaMantissa']
     );    
     const savingsTotalSupply = (savingsTotalSupplyData ? getBnToNumber(savingsTotalSupplyData) : 0) + supplyDelta;
-    const totalSupply = (totalSupplyData ? getBnToNumber(totalSupplyData) : 0) + supplyDelta;    
-    const sDolaSupplyRatio = savingsTotalSupply > 0 ? totalSupply / savingsTotalSupply : 0;
+    const totalSupply = (totalSupplyData ? getBnToNumber(totalSupplyData) : 0) + supplyDelta;        
+    const dolaBalInDsaFromSDola = savingsData ? getBnToNumber(savingsData[2]) : 0;
+    const sDolaDsaShare = savingsTotalSupply > 0 ? dolaBalInDsaFromSDola / savingsTotalSupply : 1;    
     const d = new Date();
     const weekFloat = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0) / (ONE_DAY_MS * 7);
     const weekIndexUtc = Math.floor(weekFloat);
@@ -157,35 +161,37 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
         [SDOLA_ADDRESS, 'weeklyRevenue', weekIndexUtc - 1]
     );    
     const savingsYearlyBudget = yearlyRewardBudgetData ? getBnToNumber(yearlyRewardBudgetData) : 0;
-    const yearlyRewardBudget = savingsYearlyBudget * sDolaSupplyRatio;
+    const yearlyRewardBudget = sDolaDsaShare > 0 ? savingsYearlyBudget * sDolaDsaShare : savingsYearlyBudget;
     const maxYearlyRewardBudget = maxYearlyRewardBudgetData ? getBnToNumber(maxYearlyRewardBudgetData) : 0;
     const maxRewardPerDolaMantissa = maxRewardPerDolaMantissaData ? getBnToNumber(maxRewardPerDolaMantissaData) : 0;
 
     // TODO: verify this is correct
-    const savingsDbrRatePerDola = savingsTotalSupply > 0 ? Math.min(yearlyRewardBudget / savingsTotalSupply, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;
-    const dbrRatePerDola = totalSupply > 0 ? Math.min(yearlyRewardBudget * sDolaSupplyRatio / totalSupply, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;
+    const savingsDbrRatePerDola = savingsTotalSupply > 0 ? Math.min(savingsYearlyBudget / savingsTotalSupply, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;    
+    const dbrRatePerDola = dolaBalInDsaFromSDola > 0 ? Math.min(yearlyRewardBudget / dolaBalInDsaFromSDola, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;
 
     // weeklyRevenue = in progress
     const weeklyRevenue = weeklyRevenueData ? getBnToNumber(weeklyRevenueData) : 0;
     const pastWeekRevenue = pastWeekRevenueData ? getBnToNumber(pastWeekRevenueData) : 0;
     const remainingRevenueToSteamFromPastWeek = remainingWeekPercToStream * pastWeekRevenue;
     const projectedRevenue = weeklyRevenue + remainingRevenueToSteamFromPastWeek;
-    const apr = totalSupply > 0 ? (pastWeekRevenue * WEEKS_PER_YEAR) / totalSupply * 100 : null;
+    const apr = dolaBalInDsaFromSDola > 0 ? (pastWeekRevenue * WEEKS_PER_YEAR) / dolaBalInDsaFromSDola * 100 : null;
     const projectedApr = dbrDolaPrice ? dbrRatePerDola * dbrDolaPrice * 100 : null;
-    const savingsApr = dbrDolaPrice ? savingsDbrRatePerDola * dbrDolaPrice * 100 : null;
+    const savingsApr = dbrDolaPrice ? savingsDbrRatePerDola * dbrDolaPrice * 100 : null;    
 
     return {
         totalSupply,
         savingsTotalSupply,
+        sDolaDsaShare,
         dbrRatePerDola,
+        dolaBalInDsaFromSDola,
         yearlyRewardBudget,
         savingsYearlyBudget,
         maxYearlyRewardBudget,
         maxRewardPerDolaMantissa,
         weeklyRevenue,
         pastWeekRevenue,
-        sDolaClaimable: savingsClaimableData ? getBnToNumber(savingsClaimableData[0]) : 0,
-        accountRewardsClaimable: savingsClaimableData ? getBnToNumber(savingsClaimableData[1]) : 0,
+        sDolaClaimable: savingsData ? getBnToNumber(savingsData[0]) : 0,
+        accountRewardsClaimable: savingsData ? getBnToNumber(savingsData[1]) : 0,
         apr,
         projectedApr,
         savingsApr,
