@@ -24,7 +24,7 @@ export const FedBarChart = ({ chartData, maxChartWidth = 900, ...props }: { char
             const date = Date.UTC(currentYear, currentMonth - 11 + month);
             const filterMonth = new Date(date).getUTCMonth();
             const filterYear = new Date(date).getUTCFullYear();
-            const y = chartData.filter(d => d.month === filterMonth && d.year === filterYear).reduce((p, c) => p + c.profit, 0);
+            const y = chartData.filter(d => d.month === filterMonth && d.year === filterYear).reduce((p, c) => p + (c.profit||0), 0);
 
             return {
                 label: `${event}s: ${shortenNumber(y, 2, true)}`,
