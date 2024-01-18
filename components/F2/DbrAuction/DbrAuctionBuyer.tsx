@@ -25,7 +25,8 @@ import { ONE_DAY_SECS } from "@app/config/constants";
 
 const { DOLA } = getNetworkConfigConstants();
 
-const defaultRefAmount = '1';
+const defaultRefClassicAmount = '1';
+const defaultRefSdolaAmount = '0.999';
 
 const ListLabelValues = ({ items }: { items: { label: string, value: string | any, color?: string, isLoading?: boolean }[] }) => {
     return <VStack w='full' spacing="2" alignItems="flex-start">
@@ -57,7 +58,10 @@ export const DbrAuctionBuyer = ({
     const [slippage, setSlippage] = useState('1');
     const [tab, setTab] = useState('Sell DOLA');
     const isExactDola = tab === 'Sell DOLA';
-    const { dolaReserve, dbrReserve, dbrRatePerYear } = useDbrAuction();
+    const isClassicDbrAuction = helperAddress === DBR_AUCTION_HELPER_ADDRESS;
+    const defaultRefAmount = isClassicDbrAuction ? defaultRefClassicAmount : defaultRefSdolaAmount;
+    const { dolaReserve, dbrReserve, dbrRatePerYear } = useDbrAuction(isClassicDbrAuction);
+
     const { price: dbrSwapPriceRef } = useTriCryptoSwap(parseFloat(defaultRefAmount), 0, 1);
     const { price: dbrSwapPrice, isLoading: isCurvePriceLoading } = useTriCryptoSwap(parseFloat(!dolaAmount || dolaAmount === '0' ? defaultRefAmount : dolaAmount), 0, 1);
     const { data, error } = useEtherSWR([
@@ -66,6 +70,7 @@ export const DbrAuctionBuyer = ({
         [helperAddress, 'getDolaIn', parseEther(dbrAmount || defaultRefAmount)],
         [helperAddress, 'getDolaIn', parseEther(defaultRefAmount)],
     ]);
+    
     const isLoading = isCurvePriceLoading || (!data && !error);
 
     const { priceUsd: dbrPrice } = useDBRPrice();

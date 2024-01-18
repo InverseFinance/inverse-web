@@ -58,7 +58,7 @@ export const StakeDolaInfos = () => {
                     </HStack>
                     <HStack w='full'>
                         <Text>- Max. DBR per DOLA:</Text>
-                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(maxRewardPerDolaMantissa, 2)} ({preciseCommify(maxRewardPerDolaMantissa * dbrPrice, 2, true)})</Text>}
+                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(maxRewardPerDolaMantissa, 2)} ({preciseCommify(maxRewardPerDolaMantissa * dbrPrice, 4, true)})</Text>}
                     </HStack>
                 </VStack>
             </Stack>
