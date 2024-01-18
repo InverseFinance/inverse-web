@@ -7,7 +7,7 @@ import { useDOLAPrice } from "@app/hooks/usePrices"
 import { DbrAuctionType } from "@app/types"
 import { DBR_AUCTION_ADDRESS } from "@app/util/dbr-auction"
 import { DOLA_SAVINGS_ADDRESS, SDOLA_ADDRESS } from "@app/util/dola-staking"
-import { getBnToNumber } from "@app/util/markets"
+import { getBnToNumber, shortenNumber } from "@app/util/markets"
 import { preciseCommify } from "@app/util/misc"
 import { ExternalLinkIcon } from "@chakra-ui/icons"
 import { HStack, SkeletonText, Stack, Text, VStack } from "@chakra-ui/react"
@@ -129,11 +129,11 @@ export const DbrAuctionInfosMsg = ({ dolaReserve, dbrReserve, dbrRatePerYear, ma
                 <VStack w='full' spacing="0">
                     <HStack w='full'>
                         <Text>- DOLA reserves:</Text>
-                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(dolaReserve, 0)} ({preciseCommify(dolaReserve * dolaPrice, 0, true)})</Text>}
+                        {isLoading ? <TextLoader /> : dolaReserve < 1 ? <Text fontWeight="bold">{shortenNumber(dolaReserve, 2, false, true)}</Text> : <Text fontWeight="bold">{preciseCommify(dolaReserve, 0)} ({preciseCommify(dolaReserve * dolaPrice, 0, true)})</Text>}
                     </HStack>
                     <HStack w='full'>
                         <Text>- DBR reserves:</Text>
-                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(dbrReserve, 0)} ({preciseCommify(dbrReserve * dbrPrice, 0, true)})</Text>}
+                        {isLoading ? <TextLoader /> : dbrReserve < 1 ? <Text fontWeight="bold">{shortenNumber(dbrReserve, 2, false, true)}</Text> : <Text fontWeight="bold">{preciseCommify(dbrReserve, 0)} ({preciseCommify(dbrReserve * dbrPrice, 0, true)})</Text>}
                     </HStack>
                 </VStack>
                 <Text fontSize="14px" fontWeight="bold">Auction Contract Parameters</Text>
