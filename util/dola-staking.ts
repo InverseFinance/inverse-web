@@ -6,9 +6,9 @@ import { BigNumber, Contract } from "ethers";
 import { getBnToNumber } from "./markets";
 import { useAccount } from "@app/hooks/misc";
 
-export const DOLA_SAVINGS_ADDRESS = '0x15F2ea83eB97ede71d84Bd04fFF29444f6b7cd52';
-export const SDOLA_ADDRESS = '0x0B32a3F8f5b7E5d315b9E52E640a49A89d89c820';
-export const SDOLA_HELPER_ADDRESS = '0xF357118EBd576f3C812c7875B1A1651a7f140E9C';
+export const DOLA_SAVINGS_ADDRESS = '0x3C2BafebbB0c8c58f39A976e725cD20D611d01e9';
+export const SDOLA_ADDRESS = '0x5f246ADDCF057E0f778CD422e20e413be70f9a0c';
+export const SDOLA_HELPER_ADDRESS = '0xaD82Ecf79e232B0391C5479C7f632aA1EA701Ed1';
 
 export const getDolaSavingsContract = (signerOrProvider: JsonRpcSigner) => {
     return new Contract(DOLA_SAVINGS_ADDRESS, DOLA_SAVINGS_ABI, signerOrProvider);
@@ -130,7 +130,7 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
     );   
     const { data: totalSupplyData, error } = useEtherSWR(
         [SDOLA_ADDRESS, 'totalSupply']
-    );
+    );    
 
     const { data: yearlyRewardBudgetData, error: yearlyRewardBudgetErr } = useEtherSWR(
         [DOLA_SAVINGS_ADDRESS, 'yearlyRewardBudget']
@@ -143,7 +143,7 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
         [DOLA_SAVINGS_ADDRESS, 'maxRewardPerDolaMantissa']
     );    
     const savingsTotalSupply = (savingsTotalSupplyData ? getBnToNumber(savingsTotalSupplyData) : 0) + supplyDelta;
-    const totalSupply = (totalSupplyData ? getBnToNumber(totalSupplyData) : 0) + supplyDelta;
+    const totalSupply = (totalSupplyData ? getBnToNumber(totalSupplyData) : 0) + supplyDelta;    
     const sDolaSupplyRatio = savingsTotalSupply > 0 ? totalSupply / savingsTotalSupply : 0;
     const d = new Date();
     const weekFloat = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0) / (ONE_DAY_MS * 7);
@@ -162,15 +162,15 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
     const maxRewardPerDolaMantissa = maxRewardPerDolaMantissaData ? getBnToNumber(maxRewardPerDolaMantissaData) : 0;
 
     // TODO: verify this is correct
-    const savingsDbrRatePerDola = Math.min(yearlyRewardBudget / totalSupply, maxRewardPerDolaMantissa);    
-    const dbrRatePerDola = Math.min(yearlyRewardBudget * sDolaSupplyRatio / totalSupply, maxRewardPerDolaMantissa);    
+    const savingsDbrRatePerDola = savingsTotalSupply > 0 ? Math.min(yearlyRewardBudget / savingsTotalSupply, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;
+    const dbrRatePerDola = totalSupply > 0 ? Math.min(yearlyRewardBudget * sDolaSupplyRatio / totalSupply, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;
 
     // weeklyRevenue = in progress
     const weeklyRevenue = weeklyRevenueData ? getBnToNumber(weeklyRevenueData) : 0;
     const pastWeekRevenue = pastWeekRevenueData ? getBnToNumber(pastWeekRevenueData) : 0;
     const remainingRevenueToSteamFromPastWeek = remainingWeekPercToStream * pastWeekRevenue;
     const projectedRevenue = weeklyRevenue + remainingRevenueToSteamFromPastWeek;
-    const apr = totalSupply ? (pastWeekRevenue * WEEKS_PER_YEAR) / totalSupply * 100 : null;
+    const apr = totalSupply > 0 ? (pastWeekRevenue * WEEKS_PER_YEAR) / totalSupply * 100 : null;
     const projectedApr = dbrDolaPrice ? dbrRatePerDola * dbrDolaPrice * 100 : null;
     const savingsApr = dbrDolaPrice ? savingsDbrRatePerDola * dbrDolaPrice * 100 : null;
 
@@ -189,7 +189,7 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
         apr,
         projectedApr,
         savingsApr,
-        isLoading: (!totalSupply && !error) || (!yearlyRewardBudget && !yearlyRewardBudgetErr) || (!maxYearlyRewardBudget && !maxYearlyRewardBudgetErr),
+        isLoading: (!totalSupplyData && !error) || (!yearlyRewardBudgetData && !yearlyRewardBudgetErr) || (!maxYearlyRewardBudgetData && !maxYearlyRewardBudgetErr),
         hasError: !!error || !!yearlyRewardBudgetErr || !!maxYearlyRewardBudgetErr,
     }
 }
