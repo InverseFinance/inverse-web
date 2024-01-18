@@ -31,7 +31,7 @@ export const StakeDolaInfos = () => {
                 <Text fontSize="14px" fontWeight="bold">sDOLA stats</Text>
                 <VStack w='full' spacing="0" alignItems="flex-start">
                     <HStack w='full'>
-                        <Text>- Total supply:</Text>
+                        <Text>- Total DOLA staked as sDOLA:</Text>
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(totalSupply, 2)}</Text>}
                     </HStack>
                     <HStack w='full'>
@@ -42,7 +42,7 @@ export const StakeDolaInfos = () => {
                         <Text>- Current week's revenues from auctions:</Text>
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(weeklyRevenue, 2)} DOLA</Text>}
                     </HStack>
-                    <Link textDecoration="underline" href='https://docs.inverse.finance/dbr/auction' isExternal target="_blank">
+                    <Link textDecoration="underline" href='/dbr/auction' isExternal target="_blank">
                         Go to auctions <ExternalLinkIcon />
                     </Link>
                 </VStack>
