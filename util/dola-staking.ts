@@ -5,6 +5,7 @@ import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 import { getBnToNumber } from "./markets";
 import { useAccount } from "@app/hooks/misc";
+import { useCustomSWR } from "@app/hooks/useCustomSWR";
 
 export const DOLA_SAVINGS_ADDRESS = '0x3C2BafebbB0c8c58f39A976e725cD20D611d01e9';
 export const SDOLA_ADDRESS = '0x5f246ADDCF057E0f778CD422e20e413be70f9a0c';
@@ -102,10 +103,10 @@ export const useDSABalance = (account: string, ad = DOLA_SAVINGS_ADDRESS) => {
 }
 
 export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
-    totalSupply: number;
-    savingsTotalSupply: number;
+    sDolaSupply: number;
+    dsaTotalSupply: number;
     yearlyRewardBudget: number;
-    savingsYearlyBudget: number;
+    dsaYearlyBudget: number;
     maxYearlyRewardBudget: number;
     dolaBalInDsaFromSDola: number;
     maxRewardPerDolaMantissa: number;
@@ -122,80 +123,66 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
     hasError: boolean;
 } => {
     const account = useAccount();
-    const { data: savingsData } = useEtherSWR([
-        [DOLA_SAVINGS_ADDRESS, 'claimable', SDOLA_ADDRESS],
-        [DOLA_SAVINGS_ADDRESS, 'claimable', account],
-        [DOLA_SAVINGS_ADDRESS, 'balanceOf', SDOLA_ADDRESS],
-    ]);
-    
-    const { data: savingsTotalSupplyData } = useEtherSWR(
-        [DOLA_SAVINGS_ADDRESS, 'totalSupply'],
-    );   
-    const { data: totalSupplyData, error } = useEtherSWR(
-        [SDOLA_ADDRESS, 'totalSupply']
-    );    
-
-    const { data: yearlyRewardBudgetData, error: yearlyRewardBudgetErr } = useEtherSWR(
-        [DOLA_SAVINGS_ADDRESS, 'yearlyRewardBudget']
-    );
-    
-    const { data: maxYearlyRewardBudgetData, error: maxYearlyRewardBudgetErr } = useEtherSWR(
-        [DOLA_SAVINGS_ADDRESS, 'maxYearlyRewardBudget']
-    );
-    const { data: maxRewardPerDolaMantissaData, error: maxRewardPerDolaMantissaErr } = useEtherSWR(
-        [DOLA_SAVINGS_ADDRESS, 'maxRewardPerDolaMantissa']
-    );    
-    const savingsTotalSupply = (savingsTotalSupplyData ? getBnToNumber(savingsTotalSupplyData) : 0) + supplyDelta;
-    const totalSupply = (totalSupplyData ? getBnToNumber(totalSupplyData) : 0) + supplyDelta;        
-    const dolaBalInDsaFromSDola = savingsData ? getBnToNumber(savingsData[2]) : 0;
-    const sDolaDsaShare = savingsTotalSupply > 0 ? dolaBalInDsaFromSDola / savingsTotalSupply : 1;    
+    const { data: apiData, error: apiErr } = useCustomSWR(`/api/dola-staking`);
     const d = new Date();
     const weekFloat = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0) / (ONE_DAY_MS * 7);
     const weekIndexUtc = Math.floor(weekFloat);
-    const nextWeekIndexUtc = weekIndexUtc+1;
-    const remainingWeekPercToStream = nextWeekIndexUtc - weekFloat;
-    const { data: weeklyRevenueData, error: weeklyRevenueErr } = useEtherSWR(
-        [SDOLA_ADDRESS, 'weeklyRevenue', weekIndexUtc]
-    );
-    const { data: pastWeekRevenueData, error: pastWeekRevenueErr } = useEtherSWR(
-        [SDOLA_ADDRESS, 'weeklyRevenue', weekIndexUtc - 1]
-    );    
-    const savingsYearlyBudget = yearlyRewardBudgetData ? getBnToNumber(yearlyRewardBudgetData) : 0;
-    const yearlyRewardBudget = sDolaDsaShare > 0 ? savingsYearlyBudget * sDolaDsaShare : savingsYearlyBudget;
-    const maxYearlyRewardBudget = maxYearlyRewardBudgetData ? getBnToNumber(maxYearlyRewardBudgetData) : 0;
-    const maxRewardPerDolaMantissa = maxRewardPerDolaMantissaData ? getBnToNumber(maxRewardPerDolaMantissaData) : 0;
+  
+    const { data: dolaStakingData, error } = useEtherSWR([
+        [DOLA_SAVINGS_ADDRESS, 'claimable', SDOLA_ADDRESS],
+        [DOLA_SAVINGS_ADDRESS, 'claimable', account],
+        [DOLA_SAVINGS_ADDRESS, 'balanceOf', SDOLA_ADDRESS],
+        [DOLA_SAVINGS_ADDRESS, 'totalSupply'],
+        [DOLA_SAVINGS_ADDRESS, 'yearlyRewardBudget'],
+        [DOLA_SAVINGS_ADDRESS, 'maxYearlyRewardBudget'],
+        [DOLA_SAVINGS_ADDRESS, 'maxRewardPerDolaMantissa'],
+        [SDOLA_ADDRESS, 'totalSupply'],
+        [SDOLA_ADDRESS, 'weeklyRevenue', weekIndexUtc],
+        [SDOLA_ADDRESS, 'weeklyRevenue', weekIndexUtc - 1],
+    ]);
 
+    const sDolaClaimable = dolaStakingData ? getBnToNumber(dolaStakingData[0]) : apiData?.sDolaClaimable || 0;
+    const accountRewardsClaimable = dolaStakingData ? getBnToNumber(dolaStakingData[1]) : 0;
+    const dolaBalInDsaFromSDola = dolaStakingData ? getBnToNumber(dolaStakingData[2]) : apiData?.dolaBalInDsaFromSDola || 0;
+    const dsaTotalSupply = (dolaStakingData ? getBnToNumber(dolaStakingData[3]) : apiData?.dsaTotalSupply || 0) + supplyDelta;    
+
+    const dsaYearlyBudget = dolaStakingData ? getBnToNumber(dolaStakingData[4]) : apiData?.dsaYearlyBudget || 0;    
+    const maxYearlyRewardBudget = dolaStakingData ? getBnToNumber(dolaStakingData[5]) : apiData?.maxYearlyRewardBudget || 0;
+    const maxRewardPerDolaMantissa = dolaStakingData ? getBnToNumber(dolaStakingData[6]) : apiData?.maxRewardPerDolaMantissa || 0;
+    const sDolaSupply = (dolaStakingData ? getBnToNumber(dolaStakingData[7]) : apiData?.sDolaSupply || 0) + supplyDelta;
+    const weeklyRevenue = dolaStakingData ? getBnToNumber(dolaStakingData[8]) : apiData?.weeklyRevenue || 0;
+    const pastWeekRevenue = dolaStakingData ? getBnToNumber(dolaStakingData[9]) : apiData?.pastWeekRevenue || 0;
+
+    const sDolaDsaShare = dsaTotalSupply > 0 ? dolaBalInDsaFromSDola / dsaTotalSupply : 1;
+    // sDOLA budget share
+    const yearlyRewardBudget = sDolaDsaShare > 0 ? dsaYearlyBudget * sDolaDsaShare : dsaYearlyBudget;
+    
     // TODO: verify this is correct
-    const savingsDbrRatePerDola = savingsTotalSupply > 0 ? Math.min(savingsYearlyBudget / savingsTotalSupply, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;    
+    const savingsDbrRatePerDola = dsaTotalSupply > 0 ? Math.min(dsaYearlyBudget / dsaTotalSupply, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;    
     const dbrRatePerDola = dolaBalInDsaFromSDola > 0 ? Math.min(yearlyRewardBudget / dolaBalInDsaFromSDola, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;
 
-    // weeklyRevenue = in progress
-    const weeklyRevenue = weeklyRevenueData ? getBnToNumber(weeklyRevenueData) : 0;
-    const pastWeekRevenue = pastWeekRevenueData ? getBnToNumber(pastWeekRevenueData) : 0;
-    const remainingRevenueToSteamFromPastWeek = remainingWeekPercToStream * pastWeekRevenue;
-    const projectedRevenue = weeklyRevenue + remainingRevenueToSteamFromPastWeek;
     const apr = dolaBalInDsaFromSDola > 0 ? (pastWeekRevenue * WEEKS_PER_YEAR) / dolaBalInDsaFromSDola * 100 : null;
     const projectedApr = dbrDolaPrice ? dbrRatePerDola * dbrDolaPrice * 100 : null;
     const savingsApr = dbrDolaPrice ? savingsDbrRatePerDola * dbrDolaPrice * 100 : null;    
 
     return {
-        totalSupply,
-        savingsTotalSupply,
+        sDolaSupply,
+        dsaTotalSupply,
         sDolaDsaShare,
         dbrRatePerDola,
         dolaBalInDsaFromSDola,
         yearlyRewardBudget,
-        savingsYearlyBudget,
+        dsaYearlyBudget,
         maxYearlyRewardBudget,
         maxRewardPerDolaMantissa,
         weeklyRevenue,
         pastWeekRevenue,
-        sDolaClaimable: savingsData ? getBnToNumber(savingsData[0]) : 0,
-        accountRewardsClaimable: savingsData ? getBnToNumber(savingsData[1]) : 0,
+        sDolaClaimable,
+        accountRewardsClaimable,
         apr,
         projectedApr,
         savingsApr,
-        isLoading: (!totalSupplyData && !error) || (!yearlyRewardBudgetData && !yearlyRewardBudgetErr) || (!maxYearlyRewardBudgetData && !maxYearlyRewardBudgetErr),
-        hasError: !!error || !!yearlyRewardBudgetErr || !!maxYearlyRewardBudgetErr,
+        isLoading: (!dolaStakingData && !error) && (!apiData && !apiErr),
+        hasError: !!error || !!apiErr,
     }
 }

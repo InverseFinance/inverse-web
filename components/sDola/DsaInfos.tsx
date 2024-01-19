@@ -11,7 +11,7 @@ const TextLoader = () => <SkeletonText pt="2" skeletonHeight={2} noOfLines={1} h
 
 export const DsaInfos = () => {
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
-    const { savingsTotalSupply, savingsYearlyBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, sDolaDsaShare, dolaBalInDsaFromSDola, isLoading } = useStakedDola(dbrDolaPrice);
+    const { dsaTotalSupply, dsaYearlyBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, sDolaDsaShare, dolaBalInDsaFromSDola, isLoading } = useStakedDola(dbrDolaPrice);
     return <InfoMessage
         showIcon={false}
         alertProps={{ fontSize: '12px', mb: '8' }}
@@ -33,7 +33,7 @@ export const DsaInfos = () => {
                 <VStack w='full' spacing="0" alignItems="flex-start">
                     <HStack w='full'>
                         <Text>- Total staked in DSA:</Text>
-                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(savingsTotalSupply, 2)}</Text>}
+                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(dsaTotalSupply, 2)}</Text>}
                     </HStack>
                     <HStack w='full'>
                         <Text>- sDOLA's DSA share:</Text>
@@ -41,7 +41,7 @@ export const DsaInfos = () => {
                     </HStack>
                     <HStack w='full'>
                         <Text>- DBR annual budget for DSA:</Text>
-                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(savingsYearlyBudget, 0)} ({preciseCommify(savingsYearlyBudget * dbrPrice, 0, true)})</Text>}
+                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(dsaYearlyBudget, 0)} ({preciseCommify(dsaYearlyBudget * dbrPrice, 0, true)})</Text>}
                     </HStack>
                     <HStack w='full'>
                         <Text>- Max. annual budget set by Governance:</Text>

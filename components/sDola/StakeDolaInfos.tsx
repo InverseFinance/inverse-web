@@ -10,7 +10,7 @@ const TextLoader = () => <SkeletonText pt="2" skeletonHeight={2} noOfLines={1} h
 
 export const StakeDolaInfos = () => {
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
-    const { totalSupply, yearlyRewardBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, weeklyRevenue, pastWeekRevenue, isLoading } = useStakedDola(dbrDolaPrice);
+    const { sDolaSupply, yearlyRewardBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, weeklyRevenue, pastWeekRevenue, isLoading } = useStakedDola(dbrDolaPrice);
     return <InfoMessage
         showIcon={false}
         alertProps={{ fontSize: '12px', mb: '8' }}
@@ -32,7 +32,7 @@ export const StakeDolaInfos = () => {
                 <VStack w='full' spacing="0" alignItems="flex-start">
                     <HStack w='full'>
                         <Text>- Total DOLA staked as sDOLA:</Text>
-                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(totalSupply, 2)}</Text>}
+                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(sDolaSupply, 2)}</Text>}
                     </HStack>
                     <HStack w='full'>
                         <Text>- Past's week revenues from auctions:</Text>
