@@ -48,7 +48,7 @@ export const BarChart12Months = ({
             const date = Date.UTC(currentYear, currentMonth - (nbMonths-1) + month);
             const filterMonth = new Date(date).getUTCMonth();
             const filterYear = new Date(date).getUTCFullYear();
-            const y = chartData.filter(d => d.month === filterMonth && d.year === filterYear).reduce((p, c) => p + c[yAttribute], 0);
+            const y = chartData.filter(d => d.month === filterMonth && d.year === filterYear).reduce((p, c) => p + (c[yAttribute]||0), 0);
 
             return {
                 label: `${event}s: ${smartShortNumber(y, 2, isDollars)}`,

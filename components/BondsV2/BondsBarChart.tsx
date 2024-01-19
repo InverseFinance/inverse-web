@@ -34,7 +34,7 @@ export const BondsBarChart = ({
             const date = Date.UTC(currentYear, currentMonth - 11 + month);
             const filterMonth = new Date(date).getUTCMonth();
             const filterYear = new Date(date).getUTCFullYear();
-            const y = chartData.filter(d => d.type === type && d.month === filterMonth && d.year === filterYear).reduce((p, c) => p + c.amount, 0);
+            const y = chartData.filter(d => d.type === type && d.month === filterMonth && d.year === filterYear).reduce((p, c) => p + (c.amount||0), 0);
 
             return {
                 label: `${type.replace(/(-)([0-9]+$)/, ' ($2 days vesting)')}: ${shortenNumber(y, 2, false)}`,
