@@ -22,6 +22,12 @@ const CellText = ({ ...props }) => {
     return <Text fontSize="12px" {...props} />
 }
 
+const ACTION_COLORS = {
+    'Stake': 'info',
+    'Unstake': 'warning',
+    'Claim': 'success',
+}
+
 const columns = [
     {
         field: 'txHash',
@@ -53,11 +59,11 @@ const columns = [
     },
     {
         field: 'name',
-        label: 'Event',
+        label: 'Action',
         header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
         value: ({ name }) => {
             return <Cell minWidth="90px" justify="center" >
-                <CellText>{name}</CellText>
+                <CellText color={ACTION_COLORS[name]} fontWeight="bold">{name}</CellText>
             </Cell>
         },
     },
@@ -67,25 +73,25 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
         value: ({ amount, name }) => {
             return <Cell minWidth="90px" justify="center" >
-                <CellText>{shortenNumber(amount, 2, false, true)} {name === 'Claim' ? 'DBR' : 'DOLA'}</CellText>
+                <CellText color={ACTION_COLORS[name]} fontWeight="bold">{shortenNumber(amount, 2, false, true)} {name === 'Claim' ? 'DBR' : 'DOLA'}</CellText>
             </Cell>
         },
     },
 ]
 
-export const useDolaStakingActivity = (from?: string, isDsa = false): SWR & {
+export const useDolaStakingActivity = (from?: string, type = 'dsa'): SWR & {
     events: any,
     accountEvents: any,
     timestamp: number,
 } => {
-    const liveEvents = useDolaStakingEvents();    
+    const liveEvents = useDolaStakingEvents();
     const { data, error } = useCustomSWR(`/api/dola-staking/activity`, fetcher);
 
-    const events = (liveEvents || (data?.events || [])).filter(e => e.isDirectlyDsa === isDsa);
+    const events = (liveEvents || (data?.events || [])).filter(e => e.type === type);
 
     return {
         events,
-        accountEvents: events.filter(e => e.recipient === from),
+        accountEvents: events.filter(e => !from || e.recipient === from),
         timestamp: data ? data.timestamp : 0,
         isLoading: !error && !data,
         isError: error,
@@ -105,6 +111,8 @@ export const DolaStakingActivity = ({ events, title, lastUpdate }: { events: any
             columns={columns}
             items={events}
             noDataMessage="No staking activity yet"
+            defaultSort="timestamp"
+            defaultSortDir="desc"
         />
     </Container>
 }

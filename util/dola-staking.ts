@@ -8,6 +8,7 @@ import { useAccount } from "@app/hooks/misc";
 import { useCustomSWR } from "@app/hooks/useCustomSWR";
 import { useContractEvents } from "@app/hooks/useContractEvents";
 import { ascendingEventsSorter } from "./misc";
+import { useBlocksTimestamps } from "@app/hooks/useBlockTimestamp";
 
 export const DOLA_SAVINGS_ADDRESS = '0x3C2BafebbB0c8c58f39A976e725cD20D611d01e9';
 export const SDOLA_ADDRESS = '0x5f246ADDCF057E0f778CD422e20e413be70f9a0c';
@@ -233,7 +234,10 @@ export const useDolaStakingEvents = () => {
         .concat(depositEventsData)
         .concat(withdrawEventsData);
     const sortedEvents = eventsData.sort(ascendingEventsSorter);
-    return formatDolaStakingEvents(sortedEvents);
+    const uniqueBlocks = [...new Set(sortedEvents.map(e => e.blockNumber))];
+    const { timestamps } = useBlocksTimestamps(uniqueBlocks);
+    const timestampsAsObj = timestamps.reduce((prev, curr, i) => ({ ...prev, [uniqueBlocks[i]]: curr/1000 }), {});    
+    return formatDolaStakingEvents(sortedEvents, timestampsAsObj);
 }
 
 export const formatDolaStakingEvents = (events: any[], timestamps?: any) => {
@@ -246,8 +250,10 @@ export const formatDolaStakingEvents = (events: any[], timestamps?: any) => {
             recipient: e.args.recipient || e.args.owner,
             isDirectlyDsa: e.args.caller !== SDOLA_ADDRESS,
             amount: getBnToNumber(e.args.amount || e.args.assets || '0'),
+            // Stake, Unstake, Claim are from DSA directly
             type: ['Deposit', 'Withdraw'].includes(e.event) ? 'sdola' : 'dsa',
-            name: e.event,
+            event: e.event,
+            name: ['Deposit', 'Stake'].includes(e.event) ? 'Stake' : ['Withdraw', 'Unstake'].includes(e.event) ? 'Unstake' : 'Claim',
         };
     });
 }

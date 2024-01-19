@@ -5,12 +5,11 @@ import Head from 'next/head';
 import { useAccount } from '@app/hooks/misc';
 import { DsaUI } from '@app/components/sDola/DsaUI';
 import { DsaInfos } from '@app/components/sDola/DsaInfos';
-import { useStakedDolaActivity } from '@app/components/sDola/StakeDolaActivity';
 import { DolaStakingTabs } from '@app/components/F2/DolaStaking/DolaStakingTabs';
 import { DolaStakingActivity, useDolaStakingActivity } from '@app/components/sDola/DolaStakingActivity';
 
 export const DOLASavingsAccountPage = () => {
-  // const account = useAccount();
+  const account = useAccount();
   const { isLoading, accountEvents, events } = useDolaStakingActivity(account, 'dsa');
   return (
     <Layout>

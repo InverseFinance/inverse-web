@@ -2,13 +2,11 @@
 import 'source-map-support'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
-import { getBnToNumber } from '@app/util/markets'
-import { getDbrAuctionContract } from '@app/util/dbr-auction';
 import { addBlockTimestamps } from '@app/util/timestamps';
 import { NetworkIds } from '@app/types';
 import { CHAIN_ID } from '@app/config/constants';
 import { ascendingEventsSorter } from '@app/util/misc';
-import { formatDolaStakingEvents } from '@app/util/dola-staking';
+import { formatDolaStakingEvents, getDolaSavingsContract, getSdolaContract } from '@app/util/dola-staking';
 
 const DOLA_STAKING_CACHE_KEY = 'dola-staking-v1.0.0'
 
@@ -23,7 +21,8 @@ export default async function handler(req, res) {
         }
 
         const provider = getProvider(CHAIN_ID);
-        const dbrAuctionContract = getDbrAuctionContract(provider);
+        const sdolaContract = getSdolaContract(provider);
+        const dsaContract = getDolaSavingsContract(provider);
 
         const archived = cachedData || { events: [] };
         const pastTotalEvents = archived?.events || [];
@@ -32,23 +31,35 @@ export default async function handler(req, res) {
         const newStartingBlock = lastKnownEvent?.blockNumber ? lastKnownEvent?.blockNumber + 1 : undefined;
 
         const [
-            stakeEventsData, unstakeEventsData, claimEventsData
+            stakeEventsData, unstakeEventsData, claimEventsData, depositEventsData, withdrawEventsData
         ] =  await Promise.all([
-            dbrAuctionContract.queryFilter(
-                dbrAuctionContract.filters.Stake(),            
+            dsaContract.queryFilter(
+                dsaContract.filters.Stake(),            
                 newStartingBlock ? newStartingBlock : 0x0,
             ),
-            dbrAuctionContract.queryFilter(
-                dbrAuctionContract.filters.Unstake(),            
+            dsaContract.queryFilter(
+                dsaContract.filters.Unstake(),            
                 newStartingBlock ? newStartingBlock : 0x0,
             ),
-            dbrAuctionContract.queryFilter(
-                dbrAuctionContract.filters.Claim(),
+            dsaContract.queryFilter(
+                dsaContract.filters.Claim(),
+                newStartingBlock ? newStartingBlock : 0x0,
+            ),
+            sdolaContract.queryFilter(
+                sdolaContract.filters.Claim(),
+                newStartingBlock ? newStartingBlock : 0x0,
+            ),
+            sdolaContract.queryFilter(
+                sdolaContract.filters.Claim(),
                 newStartingBlock ? newStartingBlock : 0x0,
             ),
         ]);
 
-        const eventsData = stakeEventsData.concat(unstakeEventsData).concat(claimEventsData);
+        const eventsData = stakeEventsData
+            .concat(unstakeEventsData)
+            .concat(claimEventsData)
+            .concat(depositEventsData)
+            .concat(withdrawEventsData);
         const sortedEvents = eventsData.sort(ascendingEventsSorter);
 
         const blocks = sortedEvents.map(e => e.blockNumber);

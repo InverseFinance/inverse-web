@@ -10,7 +10,7 @@ import { DolaStakingActivity, useDolaStakingActivity } from '@app/components/sDo
 
 export const SdolaPage = () => {
   const account = useAccount();
-  const { isLoading, accountEvents, events } = useDolaStakingActivity(account);
+  const { isLoading, accountEvents, events } = useDolaStakingActivity(account, 'sdola');
   return (
     <Layout>
       <Head>
