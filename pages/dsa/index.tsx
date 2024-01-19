@@ -7,10 +7,11 @@ import { DsaUI } from '@app/components/sDola/DsaUI';
 import { DsaInfos } from '@app/components/sDola/DsaInfos';
 import { useStakedDolaActivity } from '@app/components/sDola/StakeDolaActivity';
 import { DolaStakingTabs } from '@app/components/F2/DolaStaking/DolaStakingTabs';
+import { DolaStakingActivity, useDolaStakingActivity } from '@app/components/sDola/DolaStakingActivity';
 
 export const DOLASavingsAccountPage = () => {
   // const account = useAccount();
-  // const { isLoading, accountEvents, events } = useStakedDolaActivity(account, 'dsa');
+  const { isLoading, accountEvents, events } = useDolaStakingActivity(account, 'dsa');
   return (
     <Layout>
       <Head>
@@ -42,7 +43,7 @@ export const DOLASavingsAccountPage = () => {
             <DsaInfos />
           </Stack>
         </Stack>
-        {/* <StakeDolaActivity events={accountEvents} /> */}
+        <DolaStakingActivity events={accountEvents} title="My Staking activity" />
       </VStack>
     </Layout>
   )

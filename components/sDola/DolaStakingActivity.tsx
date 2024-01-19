@@ -73,16 +73,15 @@ const columns = [
     },
 ]
 
-export const useDolaStakingActivity = (from?: string): SWR & {
+export const useDolaStakingActivity = (from?: string, isDsa = false): SWR & {
     events: any,
     accountEvents: any,
     timestamp: number,
 } => {
-    const liveEvents = useDolaStakingEvents();
-    console.log(liveEvents)
+    const liveEvents = useDolaStakingEvents();    
     const { data, error } = useCustomSWR(`/api/dola-staking/activity`, fetcher);
 
-    const events = liveEvents || (data?.events || []);
+    const events = (liveEvents || (data?.events || [])).filter(e => e.isDirectlyDsa === isDsa);
 
     return {
         events,

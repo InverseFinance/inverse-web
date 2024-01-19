@@ -230,6 +230,7 @@ export const formatDolaStakingEvents = (events: any[], timestamps?: any) => {
             blockNumber: e.blockNumber,
             caller: e.args.caller,
             recipient: e.args.recipient,
+            isDirectlyDsa: e.args.caller !== SDOLA_ADDRESS,
             amount: getBnToNumber(e.args.amount || '0'),
             name: e.event,
         };
