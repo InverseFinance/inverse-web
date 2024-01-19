@@ -65,7 +65,7 @@ export default async function handler(req, res) {
                 caller: e.args.caller,
                 recipient: e.args.recipient,
                 amount: getBnToNumber(e.args.amount||'0'),
-                name: e.name,
+                name: e.event,                
             };
         });
 
