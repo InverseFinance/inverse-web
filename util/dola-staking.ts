@@ -6,6 +6,8 @@ import { BigNumber, Contract } from "ethers";
 import { getBnToNumber } from "./markets";
 import { useAccount } from "@app/hooks/misc";
 import { useCustomSWR } from "@app/hooks/useCustomSWR";
+import { useContractEvents } from "@app/hooks/useContractEvents";
+import { ascendingEventsSorter } from "./misc";
 
 export const DOLA_SAVINGS_ADDRESS = '0x3C2BafebbB0c8c58f39A976e725cD20D611d01e9';
 export const SDOLA_ADDRESS = '0x5f246ADDCF057E0f778CD422e20e413be70f9a0c';
@@ -93,7 +95,7 @@ export const useStakedDolaBalance = (account: string, ad = SDOLA_ADDRESS) => {
 }
 
 export const useDSABalance = (account: string, ad = DOLA_SAVINGS_ADDRESS) => {
-    const { data, error } = useEtherSWR([ad, 'balanceOf', account]);    
+    const { data, error } = useEtherSWR([ad, 'balanceOf', account]);
     return {
         bnBalance: data || BigNumber.from('0'),
         balance: data ? getBnToNumber(data) : 0,
@@ -127,9 +129,9 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
     const d = new Date();
     const weekFloat = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0) / (ONE_DAY_MS * 7);
     const weekIndexUtc = Math.floor(weekFloat);
-  
+
     const { data: dolaStakingData, error } = useEtherSWR([
-        [DOLA_SAVINGS_ADDRESS, 'claimable', SDOLA_ADDRESS],        
+        [DOLA_SAVINGS_ADDRESS, 'claimable', SDOLA_ADDRESS],
         [DOLA_SAVINGS_ADDRESS, 'balanceOf', SDOLA_ADDRESS],
         [DOLA_SAVINGS_ADDRESS, 'totalSupply'],
         [DOLA_SAVINGS_ADDRESS, 'yearlyRewardBudget'],
@@ -154,11 +156,11 @@ export const formatDolaStakingData = (
     fallbackData?: any,
     supplyDelta = 0,
 ) => {
-    const sDolaClaimable = dolaStakingData ? getBnToNumber(dolaStakingData[0]) : fallbackData?.sDolaClaimable || 0;    
+    const sDolaClaimable = dolaStakingData ? getBnToNumber(dolaStakingData[0]) : fallbackData?.sDolaClaimable || 0;
     const dolaBalInDsaFromSDola = dolaStakingData ? getBnToNumber(dolaStakingData[1]) : fallbackData?.dolaBalInDsaFromSDola || 0;
-    const dsaTotalSupply = (dolaStakingData ? getBnToNumber(dolaStakingData[2]) : fallbackData?.dsaTotalSupply || 0) + supplyDelta;    
+    const dsaTotalSupply = (dolaStakingData ? getBnToNumber(dolaStakingData[2]) : fallbackData?.dsaTotalSupply || 0) + supplyDelta;
 
-    const dsaYearlyBudget = dolaStakingData ? getBnToNumber(dolaStakingData[3]) : fallbackData?.dsaYearlyBudget || 0;    
+    const dsaYearlyBudget = dolaStakingData ? getBnToNumber(dolaStakingData[3]) : fallbackData?.dsaYearlyBudget || 0;
     const maxYearlyRewardBudget = dolaStakingData ? getBnToNumber(dolaStakingData[4]) : fallbackData?.maxYearlyRewardBudget || 0;
     const maxRewardPerDolaMantissa = dolaStakingData ? getBnToNumber(dolaStakingData[5]) : fallbackData?.maxRewardPerDolaMantissa || 0;
     const sDolaSupply = (dolaStakingData ? getBnToNumber(dolaStakingData[6]) : fallbackData?.sDolaSupply || 0) + supplyDelta;
@@ -170,14 +172,14 @@ export const formatDolaStakingData = (
     const sDolaDsaShare = dsaTotalSupply > 0 ? dolaBalInDsaFromSDola / dsaTotalSupply : 1;
     // sDOLA budget share
     const yearlyRewardBudget = sDolaDsaShare > 0 ? dsaYearlyBudget * sDolaDsaShare : dsaYearlyBudget;
-    
+
     // TODO: verify this is correct
-    const savingsDbrRatePerDola = dsaTotalSupply > 0 ? Math.min(dsaYearlyBudget / dsaTotalSupply, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;    
+    const savingsDbrRatePerDola = dsaTotalSupply > 0 ? Math.min(dsaYearlyBudget / dsaTotalSupply, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;
     const dbrRatePerDola = dolaBalInDsaFromSDola > 0 ? Math.min(yearlyRewardBudget / dolaBalInDsaFromSDola, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;
 
     const apr = dolaBalInDsaFromSDola > 0 ? (pastWeekRevenue * WEEKS_PER_YEAR) / dolaBalInDsaFromSDola * 100 : null;
     const projectedApr = dbrDolaPrice ? dbrRatePerDola * dbrDolaPrice * 100 : null;
-    const savingsApr = dbrDolaPrice ? savingsDbrRatePerDola * dbrDolaPrice * 100 : null;    
+    const savingsApr = dbrDolaPrice ? savingsDbrRatePerDola * dbrDolaPrice * 100 : null;
 
     return {
         sDolaSupply,
@@ -197,4 +199,39 @@ export const formatDolaStakingData = (
         projectedApr,
         savingsApr,
     }
+}
+
+export const useDolaStakingEvents = () => {
+    const { events: stakeEventsData } = useContractEvents(
+        DOLA_SAVINGS_ADDRESS,
+        DOLA_SAVINGS_ABI,
+        'Stake',
+    );    
+    const { events: unstakeEventsData } = useContractEvents(
+        DOLA_SAVINGS_ADDRESS,
+        DOLA_SAVINGS_ABI,
+        'Unstake',
+    );
+    const { events: claimEventsData } = useContractEvents(
+        DOLA_SAVINGS_ADDRESS,
+        DOLA_SAVINGS_ABI,
+        'Claim',
+    );
+    const eventsData = stakeEventsData.concat(unstakeEventsData).concat(claimEventsData);
+    const sortedEvents = eventsData.sort(ascendingEventsSorter);
+    return formatDolaStakingEvents(sortedEvents);
+}
+
+export const formatDolaStakingEvents = (events: any[], timestamps?: any) => {
+    return events.map(e => {
+        return {
+            txHash: e.transactionHash,
+            timestamp: timestamps ? timestamps[e.blockNumber] * 1000 : undefined,
+            blockNumber: e.blockNumber,
+            caller: e.args.caller,
+            recipient: e.args.recipient,
+            amount: getBnToNumber(e.args.amount || '0'),
+            name: e.event,
+        };
+    });
 }

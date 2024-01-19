@@ -5,12 +5,12 @@ import Head from 'next/head';
 import { StakeDolaUI } from '@app/components/sDola/StakeDolaUI';
 import { StakeDolaInfos } from '@app/components/sDola/StakeDolaInfos';
 import { useAccount } from '@app/hooks/misc';
-import { StakeDolaActivity, useStakedDolaActivity } from '@app/components/sDola/StakeDolaActivity';
 import { DolaStakingTabs } from '@app/components/F2/DolaStaking/DolaStakingTabs';
+import { DolaStakingActivity, useDolaStakingActivity } from '@app/components/sDola/DolaStakingActivity';
 
 export const SdolaPage = () => {
   const account = useAccount();
-  // const { isLoading, accountEvents, events } = useStakedDolaActivity(account);
+  const { isLoading, accountEvents, events } = useDolaStakingActivity(account);
   return (
     <Layout>
       <Head>
@@ -42,7 +42,7 @@ export const SdolaPage = () => {
             <StakeDolaInfos />
           </Stack>
         </Stack>
-        {/* <StakeDolaActivity events={accountEvents} /> */}
+        <DolaStakingActivity events={accountEvents} title="My Staking activity" />
       </VStack>
     </Layout>
   )

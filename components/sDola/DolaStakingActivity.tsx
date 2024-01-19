@@ -8,6 +8,7 @@ import ScannerLink from "@app/components/common/ScannerLink";
 import { Timestamp } from "@app/components/common/BlockTimestamp/Timestamp";
 import moment from "moment";
 import Container from "../common/Container";
+import { useDolaStakingEvents } from "@app/util/dola-staking";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="12px" fontWeight="extrabold" {...props} />
@@ -44,9 +45,9 @@ const columns = [
         field: 'recipient',
         label: 'Staker',
         header: ({ ...props }) => <ColHeader justify="flex-start" {...props} minWidth="130px" />,
-        value: ({ to }) => {
+        value: ({ recipient }) => {
             return <Cell w="130px" justify="flex-start" position="relative" onClick={(e) => e.stopPropagation()}>
-                <ScannerLink value={to} />
+                <ScannerLink value={recipient} />
             </Cell>
         },
     },
@@ -74,12 +75,14 @@ const columns = [
 
 export const useDolaStakingActivity = (from?: string): SWR & {
     events: any,
-    accountEvents: any,    
+    accountEvents: any,
     timestamp: number,
 } => {
-    const { data, error } = useCustomSWR(`/api/sdola/staking`, fetcher);
+    const liveEvents = useDolaStakingEvents();
+    console.log(liveEvents)
+    const { data, error } = useCustomSWR(`/api/dola-staking/activity`, fetcher);
 
-    const events = (data?.events || []);
+    const events = liveEvents || (data?.events || []);
 
     return {
         events,
