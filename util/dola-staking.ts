@@ -212,12 +212,12 @@ export const useDolaStakingEvents = () => {
         DOLA_SAVINGS_ADDRESS,
         DOLA_SAVINGS_ABI,
         'Unstake',
-    );
+    );    
     const { events: claimEventsData } = useContractEvents(
         DOLA_SAVINGS_ADDRESS,
         DOLA_SAVINGS_ABI,
         'Claim',
-    );
+    );    
     const { events: depositEventsData } = useContractEvents(
         SDOLA_ADDRESS,
         SDOLA_ABI,
@@ -240,20 +240,32 @@ export const useDolaStakingEvents = () => {
     return formatDolaStakingEvents(sortedEvents, timestampsAsObj);
 }
 
-export const formatDolaStakingEvents = (events: any[], timestamps?: any) => {
+export const formatDolaStakingEvents = (events: any[], timestamps?: any, alreadyStaked = 0, sDolaAlreadyStaked = 0) => {
+    let totalDolaStaked = alreadyStaked;
+    let sDolaStaking = sDolaAlreadyStaked;
     return events.map(e => {
+        const action = ['Deposit', 'Stake'].includes(e.event) ? 'Stake' : ['Withdraw', 'Unstake'].includes(e.event) ? 'Unstake' : 'Claim';
+        const type = ['Deposit', 'Withdraw'].includes(e.event) ? 'sdola' : 'dsa';
+        const amount = getBnToNumber(e.args.amount || e.args.assets || '0');
+        if(action !== 'Claim' && type === 'dsa') {
+            totalDolaStaked += (action === 'Stake' ? amount : -amount);
+        } else if(type === 'sdola') {
+            sDolaStaking += (action === 'Stake' ? amount : -amount);
+        }
         return {
             txHash: e.transactionHash,
             timestamp: timestamps ? timestamps[e.blockNumber] * 1000 : undefined,
             blockNumber: e.blockNumber,
             caller: e.args.caller,
-            recipient: e.args.recipient || e.args.owner,
+            recipient: e.args.recipient || e.args.owner || e.args.caller,
             isDirectlyDsa: e.args.caller !== SDOLA_ADDRESS,
-            amount: getBnToNumber(e.args.amount || e.args.assets || '0'),
+            amount,
             // Stake, Unstake, Claim are from DSA directly
-            type: ['Deposit', 'Withdraw'].includes(e.event) ? 'sdola' : 'dsa',
+            type,
             event: e.event,
-            name: ['Deposit', 'Stake'].includes(e.event) ? 'Stake' : ['Withdraw', 'Unstake'].includes(e.event) ? 'Unstake' : 'Claim',
+            name: action,
+            totalDolaStaked,
+            sDolaStaking,
         };
     });
 }
