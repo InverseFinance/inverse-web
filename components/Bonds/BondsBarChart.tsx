@@ -36,7 +36,7 @@ export const BondsBarChart = ({
             const filterMonth = new Date(date).getUTCMonth();
             const filterYear = new Date(date).getUTCFullYear();
             
-            const y = chartData.filter(d => d.type === type && d.month === filterMonth && d.year === filterYear).reduce((p, c) => p + c.amount, 0);
+            const y = chartData.filter(d => d.type === type && d.month === filterMonth && d.year === filterYear).reduce((p, c) => p + (c.amount||0), 0);
             const bondVersion = type.indexOf('-v2') !== -1 ? 2 : 1;
             return {
                 label: `${type.replace(/-v2/, '')
