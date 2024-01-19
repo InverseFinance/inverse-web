@@ -206,7 +206,7 @@ export const useDolaStakingEvents = () => {
         DOLA_SAVINGS_ADDRESS,
         DOLA_SAVINGS_ABI,
         'Stake',
-    );    
+    );
     const { events: unstakeEventsData } = useContractEvents(
         DOLA_SAVINGS_ADDRESS,
         DOLA_SAVINGS_ABI,
@@ -217,7 +217,21 @@ export const useDolaStakingEvents = () => {
         DOLA_SAVINGS_ABI,
         'Claim',
     );
-    const eventsData = stakeEventsData.concat(unstakeEventsData).concat(claimEventsData);
+    const { events: depositEventsData } = useContractEvents(
+        SDOLA_ADDRESS,
+        SDOLA_ABI,
+        'Deposit',
+    );
+    const { events: withdrawEventsData } = useContractEvents(
+        SDOLA_ADDRESS,
+        SDOLA_ABI,
+        'Withdraw',
+    );
+    const eventsData = stakeEventsData
+        .concat(unstakeEventsData)
+        .concat(claimEventsData)
+        .concat(depositEventsData)
+        .concat(withdrawEventsData);
     const sortedEvents = eventsData.sort(ascendingEventsSorter);
     return formatDolaStakingEvents(sortedEvents);
 }
@@ -229,9 +243,10 @@ export const formatDolaStakingEvents = (events: any[], timestamps?: any) => {
             timestamp: timestamps ? timestamps[e.blockNumber] * 1000 : undefined,
             blockNumber: e.blockNumber,
             caller: e.args.caller,
-            recipient: e.args.recipient,
+            recipient: e.args.recipient || e.args.owner,
             isDirectlyDsa: e.args.caller !== SDOLA_ADDRESS,
-            amount: getBnToNumber(e.args.amount || '0'),
+            amount: getBnToNumber(e.args.amount || e.args.assets || '0'),
+            type: ['Deposit', 'Withdraw'].includes(e.event) ? 'sdola' : 'dsa',
             name: e.event,
         };
     });
