@@ -129,8 +129,7 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
     const weekIndexUtc = Math.floor(weekFloat);
   
     const { data: dolaStakingData, error } = useEtherSWR([
-        [DOLA_SAVINGS_ADDRESS, 'claimable', SDOLA_ADDRESS],
-        [DOLA_SAVINGS_ADDRESS, 'claimable', account],
+        [DOLA_SAVINGS_ADDRESS, 'claimable', SDOLA_ADDRESS],        
         [DOLA_SAVINGS_ADDRESS, 'balanceOf', SDOLA_ADDRESS],
         [DOLA_SAVINGS_ADDRESS, 'totalSupply'],
         [DOLA_SAVINGS_ADDRESS, 'yearlyRewardBudget'],
@@ -139,19 +138,34 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
         [SDOLA_ADDRESS, 'totalSupply'],
         [SDOLA_ADDRESS, 'weeklyRevenue', weekIndexUtc],
         [SDOLA_ADDRESS, 'weeklyRevenue', weekIndexUtc - 1],
+        [DOLA_SAVINGS_ADDRESS, 'claimable', account],
     ]);
 
-    const sDolaClaimable = dolaStakingData ? getBnToNumber(dolaStakingData[0]) : apiData?.sDolaClaimable || 0;
-    const accountRewardsClaimable = dolaStakingData ? getBnToNumber(dolaStakingData[1]) : 0;
-    const dolaBalInDsaFromSDola = dolaStakingData ? getBnToNumber(dolaStakingData[2]) : apiData?.dolaBalInDsaFromSDola || 0;
-    const dsaTotalSupply = (dolaStakingData ? getBnToNumber(dolaStakingData[3]) : apiData?.dsaTotalSupply || 0) + supplyDelta;    
+    return {
+        ...formatDolaStakingData(dbrDolaPrice, dolaStakingData, apiData, supplyDelta),
+        isLoading: (!dolaStakingData && !error) && (!apiData && !apiErr),
+        hasError: !!error || !!apiErr,
+    }
+}
 
-    const dsaYearlyBudget = dolaStakingData ? getBnToNumber(dolaStakingData[4]) : apiData?.dsaYearlyBudget || 0;    
-    const maxYearlyRewardBudget = dolaStakingData ? getBnToNumber(dolaStakingData[5]) : apiData?.maxYearlyRewardBudget || 0;
-    const maxRewardPerDolaMantissa = dolaStakingData ? getBnToNumber(dolaStakingData[6]) : apiData?.maxRewardPerDolaMantissa || 0;
-    const sDolaSupply = (dolaStakingData ? getBnToNumber(dolaStakingData[7]) : apiData?.sDolaSupply || 0) + supplyDelta;
-    const weeklyRevenue = dolaStakingData ? getBnToNumber(dolaStakingData[8]) : apiData?.weeklyRevenue || 0;
-    const pastWeekRevenue = dolaStakingData ? getBnToNumber(dolaStakingData[9]) : apiData?.pastWeekRevenue || 0;
+export const formatDolaStakingData = (
+    dbrDolaPrice: number,
+    dolaStakingData: any[],
+    fallbackData?: any,
+    supplyDelta = 0,
+) => {
+    const sDolaClaimable = dolaStakingData ? getBnToNumber(dolaStakingData[0]) : fallbackData?.sDolaClaimable || 0;    
+    const dolaBalInDsaFromSDola = dolaStakingData ? getBnToNumber(dolaStakingData[1]) : fallbackData?.dolaBalInDsaFromSDola || 0;
+    const dsaTotalSupply = (dolaStakingData ? getBnToNumber(dolaStakingData[2]) : fallbackData?.dsaTotalSupply || 0) + supplyDelta;    
+
+    const dsaYearlyBudget = dolaStakingData ? getBnToNumber(dolaStakingData[3]) : fallbackData?.dsaYearlyBudget || 0;    
+    const maxYearlyRewardBudget = dolaStakingData ? getBnToNumber(dolaStakingData[4]) : fallbackData?.maxYearlyRewardBudget || 0;
+    const maxRewardPerDolaMantissa = dolaStakingData ? getBnToNumber(dolaStakingData[5]) : fallbackData?.maxRewardPerDolaMantissa || 0;
+    const sDolaSupply = (dolaStakingData ? getBnToNumber(dolaStakingData[6]) : fallbackData?.sDolaSupply || 0) + supplyDelta;
+    const weeklyRevenue = dolaStakingData ? getBnToNumber(dolaStakingData[7]) : fallbackData?.weeklyRevenue || 0;
+    const pastWeekRevenue = dolaStakingData ? getBnToNumber(dolaStakingData[8]) : fallbackData?.pastWeekRevenue || 0;
+    // optional
+    const accountRewardsClaimable = dolaStakingData && dolaStakingData[9] ? getBnToNumber(dolaStakingData[9]) : 0;
 
     const sDolaDsaShare = dsaTotalSupply > 0 ? dolaBalInDsaFromSDola / dsaTotalSupply : 1;
     // sDOLA budget share
@@ -182,7 +196,5 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
         apr,
         projectedApr,
         savingsApr,
-        isLoading: (!dolaStakingData && !error) && (!apiData && !apiErr),
-        hasError: !!error || !!apiErr,
     }
 }
