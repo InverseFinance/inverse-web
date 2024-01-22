@@ -2,7 +2,7 @@ import { VStack, Text, HStack, SimpleGrid, Divider } from "@chakra-ui/react"
 import { sdolaDevInit, stakeDola, unstakeDola, useStakedDola, useStakedDolaBalance } from "@app/util/dola-staking"
 import { useWeb3React } from "@web3-react/core";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { parseEther } from "@ethersproject/units";
 import Container from "../common/Container";
@@ -13,7 +13,7 @@ import { useDOLABalance } from "@app/hooks/useDOLA";
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
 import { SDOLA_ADDRESS } from "@app/util/dola-staking";
 import { useDBRPrice } from "@app/hooks/useDBR";
-import { shortenNumber } from "@app/util/markets";
+import { getMonthlyRate, shortenNumber } from "@app/util/markets";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { TextInfo } from "../common/Messages/TextInfo";
 
@@ -43,6 +43,14 @@ export const StakeDolaUI = () => {
     const { balance: dolaBalance } = useDOLABalance(account);
     const { balance: stakedDolaBalance } = useStakedDolaBalance(account);
 
+    const monthlyProjectedDolaRewards = useMemo(() => {
+        return (projectedApr > 0 && stakedDolaBalance > 0 ? getMonthlyRate(stakedDolaBalance, projectedApr) : 0);
+    }, [stakedDolaBalance, projectedApr]);
+
+    const monthlyDolaRewards = useMemo(() => {
+        return (apr > 0 && stakedDolaBalance > 0 ? getMonthlyRate(stakedDolaBalance, apr) : 0);
+    }, [stakedDolaBalance, apr]);
+
     const handleAction = async () => {
         // return sdolaDevInit(provider?.getSigner());
         if (isStake) {
@@ -55,11 +63,23 @@ export const StakeDolaUI = () => {
         setIsConnected(!!account)
     }, [account], 500);
 
-    return <VStack w='full' maxW='450px' spacing="4">
+    return <VStack w='full' maxW='470px' spacing="4">
         <HStack justify="space-between" w='full'>
             <StatBasic message="This week's APR is calculated with last week's DBR auction revenues" isLoading={isLoading} name="APR" value={apr ? `${shortenNumber(apr, 2)}%` : 'TBD'} />
             <StatBasic message="The projected APR is calculated with the dbrRatePerDOLA and the current DBR price in DOLA" isLoading={isLoading} name="Projected APR" value={`${shortenNumber(projectedApr, 2)}%`} />
         </HStack>
+        {
+            (monthlyProjectedDolaRewards > 0 || monthlyDolaRewards > 0) && <InfoMessage
+                alertProps={{ w: 'full' }}
+                description={
+                    <VStack alignItems="flex-start">
+                        <Text>Your projected monthly rewards: <b>~{preciseCommify(monthlyProjectedDolaRewards, 2)} DOLA</b></Text>
+                        {/* {apr > 0 && <Text>Your monthly rewards: ~{preciseCommify(monthlyDolaRewards, 2)} DOLA</Text>} */}
+                        <Text>Note: actual rewards depend on past revenue</Text>
+                    </VStack>
+                }
+            />
+        }
         <Divider borderColor="mainTextColor" />
         <Container
             label="sDOLA - Yield-Bearing stablecoin"
@@ -89,7 +109,7 @@ export const StakeDolaUI = () => {
                                             Amount to stake:
                                         </Text>
                                         <SimpleAmountForm
-                                            btnProps={{ needPoaFirst:true }}
+                                            btnProps={{ needPoaFirst: true }}
                                             defaultAmount={dolaAmount}
                                             address={DOLA}
                                             destination={SDOLA_ADDRESS}
@@ -109,7 +129,7 @@ export const StakeDolaUI = () => {
                                             Amount to unstake:
                                         </Text>
                                         <SimpleAmountForm
-                                            btnProps={{ needPoaFirst:true }}
+                                            btnProps={{ needPoaFirst: true }}
                                             defaultAmount={dolaAmount}
                                             address={SDOLA_ADDRESS}
                                             destination={SDOLA_ADDRESS}

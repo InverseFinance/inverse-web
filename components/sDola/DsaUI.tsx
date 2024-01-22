@@ -49,7 +49,7 @@ export const DsaUI = () => {
 
     const monthlyDbrRewards = useMemo(() => {
         return (savingsApr > 0 && dolaSavingsBalance > 0 && dbrDolaPrice > 0 ? getMonthlyRate(dolaSavingsBalance, savingsApr)/dbrDolaPrice : 0);
-    }, [dolaSavingsBalance, savingsApr, dbrDolaPrice, dbrDolaPrice]);
+    }, [dolaSavingsBalance, savingsApr, dbrDolaPrice]);
 
     const handleAction = async () => {
         // return sdolaDevInit(provider?.getSigner());
@@ -71,18 +71,20 @@ export const DsaUI = () => {
         setIsConnected(!!account)
     }, [account], 500);    
 
-    return <VStack w='full' maxW='450px' spacing="4">
+    return <VStack w='full' maxW='470px' spacing="4">
         <HStack justify="space-between" w='full'>
             <StatBasic message="Annual Percentage Rate of DBR rewards" isLoading={isLoading} name="DSA APR" value={`${shortenNumber(savingsApr, 2)}%`} />
             <StatBasic message="Market price of DBR on Curve" isLoading={isLoading} name="DBR price" value={`${shortenNumber(dbrPrice, 4, true)}`} />
         </HStack>
-        <Divider borderColor="mainTextColor" />
         {
             monthlyDbrRewards > 0 && <InfoMessage
                 alertProps={{ w: 'full' }}
-                description={`Your monthly rewards: ~${preciseCommify(monthlyDbrRewards, 2)} DBR (~${preciseCommify(monthlyDbrRewards * dbrPrice, 2, true)})`}
+                description={
+                    <Text>Your monthly rewards: <b>~${preciseCommify(monthlyDbrRewards, 2)} DBR (~${preciseCommify(monthlyDbrRewards * dbrPrice, 2, true)})</b></Text>
+                }
             />
         }
+        <Divider borderColor="mainTextColor" />
         {
             isJustClaimed ? <SuccessMessage
                 alertProps={{ w: 'full' }}
