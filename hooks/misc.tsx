@@ -70,7 +70,7 @@ export const useEventsAsChartData = (
     })];
     
     if(autoAddZeroYAtStart) {
-        const minX = chartData.length > 0 ? Math.min(...chartData.map(d => d.x)) : 1577836800000;
+        const minX = chartData.length > 0 ? Math.min(...chartData.filter(d => d.x > 0).map(d => d.x)) : 1577836800000;
         const startTs = minX - ONE_DAY_MS;
         chartData.unshift({ x: startTs, y: 0, yDay: 0, ...getDateChartInfo(startTs) });
     }
