@@ -114,7 +114,7 @@ export const AreaChartRecharts = ({
                     type={'number'}
                     allowDataOverflow={true}
                     domain={['dataMin', 'dataMax']}
-                    // domain={[left, right]}`                    
+                    // domain={[left, right]}`  
                     tickFormatter={(v, i) => {
                         return moment(v).format('MMM Do')
                     }}

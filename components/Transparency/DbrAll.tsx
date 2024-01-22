@@ -12,6 +12,7 @@ import { useDBRPrice } from "@app/hooks/useDBR";
 import { shortenNumber } from "@app/util/markets";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { useHistoricalInvMarketCap } from "@app/hooks/useHistoricalMarketCap";
+import { DefaultCharts } from "./DefaultCharts";
 
 const streamingStartTs = 1684713600000;
 
@@ -124,7 +125,7 @@ export const DbrAll = ({
 
     useEffect(() => {
         setChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width))
-    }, [isLargerThan]);
+    }, [isLargerThan]);    
 
     return <Stack spacing="3" w='full' direction={{ base: 'column' }}>
         <FormControl cursor="pointer" w='full' justifyContent={{ base: 'center', sm: 'flex-start' }} display='flex' alignItems='center'>
@@ -155,6 +156,17 @@ export const DbrAll = ({
             colorScale={defaultColorScale}
             isDollars={useUsd}
             useRecharts={true}
+        />
+        <DefaultCharts
+            showMonthlyBarChart={false}
+            maxChartWidth={chartWidth}
+            chartWidth={chartWidth}
+            chartData={burnChartData}
+            isDollars={useUsd}
+            smoothLineByDefault={false}
+            containerProps={{ alignItems: 'flex-start' }}
+            barProps={{ eventName: 'Burn', yAttribute: 'yDay', title: 'DBR burned in the last 12 months' }}
+            areaProps={{ title: 'Accumulated DBR burned', fillInByDayInterval: true, showRangeBtns: false, yLabel: 'Acc. DBR burn', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
         />
         <DbrEmissions
             emissionEvents={emissionEvents}
