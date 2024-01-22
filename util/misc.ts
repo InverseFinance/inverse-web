@@ -331,7 +331,7 @@ export const getEveryXthElement = (arr: any[], X = 1) => {
 
 // gross estimation
 export const estimateBlockTimestamp = (pastBlock: number, nowTs: number, nowBlock: number) => {
-    return nowTs - ((nowBlock - pastBlock) * SECONDS_PER_BLOCK);
+    return nowTs - ((nowBlock - pastBlock) * SECONDS_PER_BLOCK * 1000);
 }
 export const estimateBlocksTimestamps = (pastBlocks: number[], nowTs: number, nowBlock: number) => {
     return pastBlocks.map(pastBlock => estimateBlockTimestamp(pastBlock, nowTs, nowBlock));

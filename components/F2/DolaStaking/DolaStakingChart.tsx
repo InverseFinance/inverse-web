@@ -22,7 +22,7 @@ export const DsaStakingChart = ({ events }) => {
             chartData={chartData}
             isDollars={false}
             smoothLineByDefault={false}                        
-            areaProps={{ title: 'DOLA staked over time in DSA', id: 'dola-staking-acc', showRangeBtns: true, yLabel: 'DOLA staked', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
+            areaProps={{ title: 'DOLA staked in DSA over time', id: 'dola-staking-dsa', showRangeBtns: true, yLabel: 'DOLA staked', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
         />
     </VStack>
 }
@@ -44,7 +44,7 @@ export const SDolaStakingChart = ({ events }) => {
             chartData={chartData}
             isDollars={false}
             smoothLineByDefault={false}
-            areaProps={{ title: 'DOLA staked in sDOLA over time', id: 'dola-staking-acc', showRangeBtns: true, yLabel: 'DOLA staked', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
+            areaProps={{ title: 'DOLA staked in sDOLA over time', id: 'dola-staking-sdola', showRangeBtns: true, yLabel: 'DOLA staked', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
         />
     </VStack>
 }

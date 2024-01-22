@@ -84,7 +84,7 @@ export const useDolaStakingActivity = (from?: string, type = 'dsa'): SWR & {
     accountEvents: any,
     timestamp: number,
 } => {
-    const liveEvents = useDolaStakingEvents();    
+    const liveEvents = useDolaStakingEvents();
     const { data, error } = useCustomSWR(`/api/dola-staking/activity`, fetcher);
 
     const events = (liveEvents || (data?.events || [])).filter(e => e.type === type);    
