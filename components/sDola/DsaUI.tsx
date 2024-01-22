@@ -2,7 +2,7 @@ import { VStack, Text, HStack, Divider } from "@chakra-ui/react"
 import { dsaClaimRewards, sdolaDevInit, stakeDolaToSavings, unstakeDolaFromSavings, useDSABalance, useStakedDola } from "@app/util/dola-staking"
 import { useWeb3React } from "@web3-react/core";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { parseEther } from "@ethersproject/units";
 import Container from "../common/Container";
@@ -13,7 +13,7 @@ import { useDOLABalance } from "@app/hooks/useDOLA";
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
 import { DOLA_SAVINGS_ADDRESS } from "@app/util/dola-staking";
 import { useDBRPrice } from "@app/hooks/useDBR";
-import { shortenNumber } from "@app/util/markets";
+import { getMonthlyRate, shortenNumber } from "@app/util/markets";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { TextInfo } from "../common/Messages/TextInfo";
 import { ZapperTokens } from "../F2/rewards/ZapperTokens";
@@ -47,6 +47,10 @@ export const DsaUI = () => {
     const { balance: dolaBalance } = useDOLABalance(account);
     const { balance: dolaSavingsBalance } = useDSABalance(account);
 
+    const monthlyDbrRewards = useMemo(() => {
+        return (savingsApr > 0 && dolaSavingsBalance > 0 && dbrDolaPrice > 0 ? getMonthlyRate(dolaSavingsBalance, savingsApr)/dbrDolaPrice : 0);
+    }, [dolaSavingsBalance, savingsApr, dbrDolaPrice, dbrDolaPrice]);
+
     const handleAction = async () => {
         // return sdolaDevInit(provider?.getSigner());
         if (isStake) {
@@ -73,6 +77,12 @@ export const DsaUI = () => {
             <StatBasic message="Market price of DBR on Curve" isLoading={isLoading} name="DBR price" value={`${shortenNumber(dbrPrice, 4, true)}`} />
         </HStack>
         <Divider borderColor="mainTextColor" />
+        {
+            monthlyDbrRewards > 0 && <InfoMessage
+                alertProps={{ w: 'full' }}
+                description={`Your monthly rewards: ~${preciseCommify(monthlyDbrRewards, 2)} DBR (~${preciseCommify(monthlyDbrRewards * dbrPrice, 2, true)})`}
+            />
+        }
         {
             isJustClaimed ? <SuccessMessage
                 alertProps={{ w: 'full' }}
