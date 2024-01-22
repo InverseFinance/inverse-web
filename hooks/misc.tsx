@@ -41,10 +41,10 @@ export const useAccount = (ad?: string) => {
 
 export const getDateChartInfo = (ts: number) => {
     const date = new Date(ts);
-    return {        
-            month: date.getUTCMonth(),
-            year: date.getUTCFullYear(),            
-            utcDate: timestampToUTC(ts),
+    return {
+        month: date.getUTCMonth(),
+        year: date.getUTCFullYear(),
+        utcDate: timestampToUTC(ts),
     }
 }
 
@@ -58,24 +58,26 @@ export const useEventsAsChartData = (
 ): SWR & { chartData: any } => {
     const now = new Date();
     let acc = 0;
-    const chartData = [...(events||[]).sort((a, b) => a.timestamp - b.timestamp).map(event => {        
-        acc += event[yAttribute];
-        return {
-            x: event.timestamp,
-            y: event[yAccAttribute]??acc,
-            yDay: event[yAttribute],
-            eventPointLabel: event.eventPointLabel,
-            ...getDateChartInfo(event.timestamp),
-        }
-    })];
-    
-    if(autoAddZeroYAtStart) {
+    const chartData = [...(events || [])
+        .map((d, i) => (!d.timestamp && i > 0 ? ({ ...d, timestamp: events.find((e, j) => j > i && e.timestamp > 0)?.timestamp }) : d))
+        .sort((a, b) => a.timestamp - b.timestamp).map(event => {
+            acc += event[yAttribute];
+            return {
+                x: event.timestamp,
+                y: event[yAccAttribute] ?? acc,
+                yDay: event[yAttribute],
+                eventPointLabel: event.eventPointLabel,
+                ...getDateChartInfo(event.timestamp),
+            }
+        })];
+
+    if (autoAddZeroYAtStart) {
         const minX = chartData.length > 0 ? Math.min(...chartData.filter(d => d.x > 0).map(d => d.x)) : 1577836800000;
         const startTs = minX - ONE_DAY_MS;
         chartData.unshift({ x: startTs, y: 0, yDay: 0, ...getDateChartInfo(startTs) });
     }
-    if(autoAddToday) {
-        const value = todayValue ?? (chartData[chartData.length - 1]?.y||0);
+    if (autoAddToday) {
+        const value = todayValue ?? (chartData[chartData.length - 1]?.y || 0);
         chartData.push({ x: +(now), y: value, ...getDateChartInfo(+(now)) });
     }
 
