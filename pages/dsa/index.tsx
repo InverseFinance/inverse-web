@@ -6,7 +6,8 @@ import { useAccount } from '@app/hooks/misc';
 import { DsaUI } from '@app/components/sDola/DsaUI';
 import { DsaInfos } from '@app/components/sDola/DsaInfos';
 import { DolaStakingTabs } from '@app/components/F2/DolaStaking/DolaStakingTabs';
-import { DolaStakingActivity, useDolaStakingActivity } from '@app/components/sDola/DolaStakingActivity';
+import { DolaStakingActivity } from '@app/components/sDola/DolaStakingActivity';
+import { useDolaStakingActivity } from '@app/util/dola-staking';
 
 export const DOLASavingsAccountPage = () => {
   const account = useAccount();

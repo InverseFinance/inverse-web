@@ -4,14 +4,14 @@ import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
 import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader';
 import { preciseCommify } from '@app/util/misc';
-import { DolaStakingActivity, useDolaStakingActivity } from '@app/components/sDola/DolaStakingActivity';
-import { useStakedDola } from '@app/util/dola-staking';
+import { DolaStakingActivity } from '@app/components/sDola/DolaStakingActivity';
+import { useDolaStakingActivity, useStakedDola } from '@app/util/dola-staking';
 import { useDBRPrice } from '@app/hooks/useDBR';
 import { DolaStakingTabs } from '@app/components/F2/DolaStaking/DolaStakingTabs';
 import { SDolaStakingChart } from '@app/components/F2/DolaStaking/DolaStakingChart';
 
 export const SDolaStatsPage = () => {
-  const { events } = useDolaStakingActivity(undefined, 'sdola');
+  const { events, timestamp } = useDolaStakingActivity(undefined, 'sdola');
   const { priceDola: dbrDolaPrice } = useDBRPrice();
   const { sDolaSupply, isLoading } = useStakedDola(dbrDolaPrice);
   return (
@@ -34,6 +34,7 @@ export const SDolaStatsPage = () => {
         <SDolaStakingChart events={events} />
         <DolaStakingActivity
           events={events}
+          lastUpdate={timestamp}
           title="sDOLA Staking activity"
           headerProps={{
             direction: { base: 'column', md: 'row' },

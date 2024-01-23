@@ -9,6 +9,8 @@ import { useCustomSWR } from "@app/hooks/useCustomSWR";
 import { useContractEvents } from "@app/hooks/useContractEvents";
 import { ascendingEventsSorter } from "./misc";
 import { useBlocksTimestamps } from "@app/hooks/useBlockTimestamp";
+import { SWR } from "@app/types";
+import { fetcher } from "./web3";
 
 export const DOLA_SAVINGS_ADDRESS = '0x3C2BafebbB0c8c58f39A976e725cD20D611d01e9';
 export const SDOLA_ADDRESS = '0x5f246ADDCF057E0f778CD422e20e413be70f9a0c';
@@ -199,6 +201,24 @@ export const formatDolaStakingData = (
         apr,
         projectedApr,
         savingsApr,
+    }
+}
+
+export const useDolaStakingActivity = (from?: string, type = 'dsa'): SWR & {
+    events: any,
+    accountEvents: any,
+    timestamp: number,
+} => {
+    const liveEvents = useDolaStakingEvents();
+    const { data, error } = useCustomSWR(`/api/dola-staking/activity`, fetcher);
+
+    const events = (liveEvents || (data?.events || [])).filter(e => e.type === type);    
+    return {
+        events,
+        accountEvents: events.filter(e => !from || e.recipient === from),
+        timestamp: data ? data.timestamp : 0,
+        isLoading: !error && !data,
+        isError: error,
     }
 }
 

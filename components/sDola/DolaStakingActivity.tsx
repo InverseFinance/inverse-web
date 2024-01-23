@@ -1,14 +1,10 @@
 import { Text, Flex, Stack, ContainerProps } from "@chakra-ui/react"
 import { shortenNumber } from "@app/util/markets";
-import { SWR } from "@app/types";
-import { useCustomSWR } from "@app/hooks/useCustomSWR";
-import { fetcher } from "@app/util/web3";
 import Table from "@app/components/common/Table";
 import ScannerLink from "@app/components/common/ScannerLink";
 import { Timestamp } from "@app/components/common/BlockTimestamp/Timestamp";
 import moment from "moment";
 import Container from "../common/Container";
-import { useDolaStakingEvents } from "@app/util/dola-staking";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="12px" fontWeight="extrabold" {...props} />
@@ -79,28 +75,10 @@ const columns = [
     },
 ]
 
-export const useDolaStakingActivity = (from?: string, type = 'dsa'): SWR & {
-    events: any,
-    accountEvents: any,
-    timestamp: number,
-} => {
-    const liveEvents = useDolaStakingEvents();
-    const { data, error } = useCustomSWR(`/api/dola-staking/activity`, fetcher);
-
-    const events = (liveEvents || (data?.events || [])).filter(e => e.type === type);    
-    return {
-        events,
-        accountEvents: events.filter(e => !from || e.recipient === from),
-        timestamp: data ? data.timestamp : 0,
-        isLoading: !error && !data,
-        isError: error,
-    }
-}
-
 export const DolaStakingActivity = ({ events, title, lastUpdate, ...containerProps }: { events: any[], title: string, lastUpdate: number, containerProps?: ContainerProps }) => {
     return <Container
         label={title}
-        description={events.length > 0 ? `Last update: ${moment(lastUpdate).fromNow()}` : undefined}
+        description={lastUpdate > 0 ? `Last update: ${moment(lastUpdate).fromNow()}` : undefined}
         noPadding
         m="0"
         p="0"
