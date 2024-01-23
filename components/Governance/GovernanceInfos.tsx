@@ -3,7 +3,11 @@ import { Link } from '@app/components/common/Link'
 import { VStack, Image } from '@chakra-ui/react'
 import { GovernanceRules } from './GovernanceRules'
 
-export const GovernanceInfos = () => {
+export const GovernanceInfos = ({
+    proposalBlock
+}: {
+    proposalBlock?: number
+}) => {
     return (
         <VStack w='full'>
             <Link href="https://docs.inverse.finance/inverse-finance/inverse-finance/introduction/governance" isExternal={true} target="_blank">
@@ -17,7 +21,7 @@ export const GovernanceInfos = () => {
                 alertProps={{ fontSize: '12px', w: 'full' }}
                 title="Governance data is updated every 15 min"
             />
-            <GovernanceRules />
+            <GovernanceRules proposalBlock={proposalBlock} />
         </VStack>
     )
 }
