@@ -139,8 +139,8 @@ export const useDbrAuctionBuyEvents = (account: string) => {
     return formatDbrAuctionBuys(sortedEvents, timestampsAsObj);
 }
 
-export const formatDbrAuctionBuys = (events: any[], timestamps?: any, alreadyBought = 0) => {
-    let totalBuys = alreadyBought;
+export const formatDbrAuctionBuys = (events: any[], timestamps?: any) => {
+    let totalBuys = 0;
     return events.map(e => {
         const amount = getBnToNumber(e.args.amount || e.args.assets || '0');
         totalBuys += amount;
