@@ -22,16 +22,19 @@ export const AboutFirm = () => {
             <AppNav active="Learn" activeSubmenu="Audits" />
             <VStack alignItems="flex-start" w='full'>
                 <Container
-                    label="FiRM audits"
+                    label="FiRM & sDOLA audits"
                     description="Go to the audits documentation page"
                     href="https://docs.inverse.finance/inverse-finance/technical/audits"
                 >
                     <VStack spacing="2" alignItems="flex-start">
+                        <Link color="mainTextColor" fontSize="20px" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" href="/audits/sDOLA-yAudit.pdf" isExternal target="_blank">
+                            sDOLA, by yAudit, Jan 23th, 2024
+                        </Link>
                         <Link color="mainTextColor" fontSize="20px" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" href="/audits/firm-nomoi.pdf" isExternal target="_blank">
-                            By Nomoi, May 11th, 2023
+                            Firm, by Nomoi, May 11th, 2023
                         </Link>
                         <Link color="mainTextColor" fontSize="20px" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" href="https://code4rena.com/reports/2022-10-inverse/" isExternal target="_blank">
-                            By Code4rena, December 20th, 2022
+                            Firm, by Code4rena, December 20th, 2022
                         </Link>
                     </VStack>
                 </Container>
