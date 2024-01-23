@@ -76,8 +76,8 @@ export const Landing = ({ posts }: {
 
   const audits = [
     {
-      name: 'Full Audits',
-      value: 2,
+      name: 'External Audits',
+      value: 3,
     },
     {
       name: 'DefiSafety Score',
@@ -376,8 +376,8 @@ export const Landing = ({ posts }: {
               <VStack as="a" href="https://code4rena.com/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
                 <Image maxW="150px" src="/assets/v2/landing/code4arena.png" />
               </VStack>
-              <VStack as="a" href="https://hats.finance/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
-                <Image maxW="150px" src="/assets/v2/landing/hats.png" />
+              <VStack as="a" href="https://immunefi.com/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
+                <Image maxW="150px" src="/assets/partners/immunefi.svg" />
               </VStack>
               <VStack as="a" href="https://defimoon.org/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
                 <Image maxW="150px" src="/assets/v2/landing/defimoon.png?v2" />
