@@ -27,18 +27,18 @@ export default async function handler(req, res) {
         const archived = cachedData || { events: [] };
         const pastTotalEvents = archived?.events || [];
 
-        const lastKnownEvent = pastTotalEvents?.length > 0 ? (pastTotalEvents[pastTotalEvents.length - 1]) : {};
+        const lastKnownEvent = pastTotalEvents?.length > 0 ? (pastTotalEvents[pastTotalEvents.length - 1]) : { sDolaStaking: 0, totalDolaStaked: 0 };
         const newStartingBlock = lastKnownEvent?.blockNumber ? lastKnownEvent?.blockNumber + 1 : undefined;
 
         const [
             stakeEventsData, unstakeEventsData, claimEventsData, depositEventsData, withdrawEventsData
-        ] =  await Promise.all([
+        ] = await Promise.all([
             dsaContract.queryFilter(
-                dsaContract.filters.Stake(),            
+                dsaContract.filters.Stake(),
                 newStartingBlock ? newStartingBlock : 0x0,
             ),
             dsaContract.queryFilter(
-                dsaContract.filters.Unstake(),            
+                dsaContract.filters.Unstake(),
                 newStartingBlock ? newStartingBlock : 0x0,
             ),
             dsaContract.queryFilter(
@@ -69,7 +69,12 @@ export default async function handler(req, res) {
             '1',
         );
 
-        const newEvents = formatDolaStakingEvents(sortedEvents, timestamps[NetworkIds.mainnet]);
+        const newEvents = formatDolaStakingEvents(
+            sortedEvents,
+            timestamps[NetworkIds.mainnet],
+            lastKnownEvent.totalDolaStaked,
+            lastKnownEvent.sDolaStaking,
+        );
 
         const resultData = {
             timestamp: Date.now(),
