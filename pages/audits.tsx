@@ -28,13 +28,13 @@ export const AboutFirm = () => {
                 >
                     <VStack spacing="2" alignItems="flex-start">
                         <Link color="mainTextColor" fontSize="20px" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" href="/audits/sDOLA-yAudit.pdf" isExternal target="_blank">
-                            sDOLA, By yAudit, Jan 23th, 2024
+                            sDOLA, by yAudit, Jan 23th, 2024
                         </Link>
                         <Link color="mainTextColor" fontSize="20px" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" href="/audits/firm-nomoi.pdf" isExternal target="_blank">
-                            Firm, By Nomoi, May 11th, 2023
+                            Firm, by Nomoi, May 11th, 2023
                         </Link>
                         <Link color="mainTextColor" fontSize="20px" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" href="https://code4rena.com/reports/2022-10-inverse/" isExternal target="_blank">
-                            Firm, By Code4rena, December 20th, 2022
+                            Firm, by Code4rena, December 20th, 2022
                         </Link>
                     </VStack>
                 </Container>
