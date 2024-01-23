@@ -2,17 +2,16 @@ import { HStack, VStack, Text } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
-import { DbrAuctionBuys, useDbrAuctionBuys } from '@app/components/F2/DbrAuction/DbrAuctionBuys';
+import { DbrAuctionBuys } from '@app/components/F2/DbrAuction/DbrAuctionBuys';
 import { DbrAuctionBuysChart } from '@app/components/F2/DbrAuction/DbrAuctionBuysChart';
-import { useAccount } from '@app/hooks/misc';
 import Container from '@app/components/common/Container';
 import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader';
 import { preciseCommify } from '@app/util/misc';
 import { DbrAuctionTabs } from '@app/components/F2/DbrAuction/DbrAuctionTabs';
+import { useDbrAuctionActivity } from '@app/util/dbr-auction';
 
-export const DbrAuctionStatsPage = () => {
-  const account = useAccount();
-  const { isLoading, events, accDolaIn, accDbrOut, timestamp } = useDbrAuctionBuys(account);
+export const DbrAuctionStatsPage = () => {  
+  const { isLoading, events, accDolaIn, accDbrOut, timestamp } = useDbrAuctionActivity();
   return (
     <Layout>
       <Head>

@@ -4,10 +4,10 @@ import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
 import { DbrAuctionBuyer } from '@app/components/F2/DbrAuction/DbrAuctionBuyer';
 import { DbrAuctionInfos } from '@app/components/F2/DbrAuction/DbrAuctionInfos';
-import { DbrAuctionBuys, useDbrAuctionBuys } from '@app/components/F2/DbrAuction/DbrAuctionBuys';
+import { DbrAuctionBuys } from '@app/components/F2/DbrAuction/DbrAuctionBuys';
 import { useAccount } from '@app/hooks/misc';
 import { useState } from 'react';
-import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS } from '@app/util/dbr-auction';
+import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, useDbrAuctionActivity } from '@app/util/dbr-auction';
 import { DOLA_SAVINGS_ADDRESS, SDOLA_HELPER_ADDRESS } from '@app/util/dola-staking';
 import { DbrAuctionType } from '@app/types';
 import { DbrAuctionTabs } from '@app/components/F2/DbrAuction/DbrAuctionTabs';
@@ -26,7 +26,7 @@ const AUCTION_TYPES = {
 export const DbrAuctionPage = () => {
   const account = useAccount();
   const [selectedAuction, setSelectedAuction] = useState<DbrAuctionType>('classic');
-  const { isLoading, accountEvents, events, nbBuys, accDolaIn, accDbrOut, avgDbrPrice, timestamp } = useDbrAuctionBuys(account);
+  const { isLoading, accountEvents, events, nbBuys, accDolaIn, accDbrOut, avgDbrPrice, timestamp } = useDbrAuctionActivity(account);
   return (
     <Layout>
       <Head>
