@@ -332,6 +332,10 @@ export const MENUS = {
           href: '/whitepaper',
         },
         {
+          label: 'sDOLA',
+          href: '/whitepaper/sDOLA',
+        },
+        {
           label: 'About FiRM',
           href: '/about-firm',
         },
