@@ -77,7 +77,7 @@ export const Governance = ({ proposal }: { proposal: Proposal }) => {
               <Flex direction="column">
                 <Flex w={{ base: 'full', xl: 'sm' }} justify="center">
                   <Flex w="full" m={6} mb={0} mt="14">
-                    <GovernanceInfos />
+                    <GovernanceInfos proposalBlock={proposal.startBlock} />
                   </Flex>
                 </Flex>
                 <Flex w={{ base: 'full', xl: 'sm' }} justify="center">

@@ -534,11 +534,19 @@ export const triggerProposalUpdate = async (
     }
 }
 
+// No need for api, does not often change. not necessarily exact block numbers
 export const getHistoricalGovParams = (block: number) => {
-    if(block > 15666400) {
+    if(block > 19069443) {
+        return { quorum: 15500, threshold: 1900 };
+    } else if(block > 15666400) {
         return { quorum: 9500, threshold: 1900 };
     } else if(block > 14834695) {
         return { quorum: 7000, threshold: 1400 };
     }
     return { quorum: 4000, threshold: 1000 };
+}
+
+export const getHistoricalGovParamsAsArray = (block: number) => {
+    const params = getHistoricalGovParams(block);
+    return [params.quorum, params.threshold];
 }
