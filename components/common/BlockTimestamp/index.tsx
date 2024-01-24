@@ -22,14 +22,14 @@ export const BlockTimestamp = ({
     textProps?: TextProps,
     direction?: StackDirection,
 }) => {
-    const { timestamp: _timestamp } = useBlockTimestamp(blockNumber);
+    const { timestamp: _timestamp, isUsingEstimate } = useBlockTimestamp(blockNumber);
     const ts = timestamp || _timestamp;
     const isCol = direction!.indexOf('column') !== -1;
 
     return <Stack direction={direction} spacing={isCol ? '0' : '1'} {...props}>
         {
             ts > 0 ?
-                <TimestampInfo isCol={isCol} timestamp={ts} format={format} textProps={textProps} />
+                <TimestampInfo isUsingEstimate={isUsingEstimate} isCol={isCol} timestamp={ts} format={format} textProps={textProps} />
                 :
                 <>
                     <Text {...textProps}>Fetching...</Text>
@@ -45,15 +45,17 @@ export const TimestampInfo = ({
     textProps,
     format,
     isCol = true,
+    isUsingEstimate = false,
 }: {
     timestamp: number
     textProps?: TextProps,
     format?: string,
     isCol?: boolean,
+    isUsingEstimate?: boolean,
 }) => {
     return <>
         <Text {...textProps}>{moment(timestamp).fromNow()}</Text>
         {!isCol && <Text {...textProps}>-</Text>}
-        <Text {...textProps}>{moment(timestamp).format(format)}</Text>
+        <Text {...textProps}>{isUsingEstimate ? '~' : ''}{moment(timestamp).format(format)}</Text>
     </>
 }
