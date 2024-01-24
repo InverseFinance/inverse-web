@@ -212,7 +212,7 @@ export const useDolaStakingActivity = (from?: string, type = 'dsa'): SWR & {
     const liveEvents = useDolaStakingEvents();
     const { data, error } = useCustomSWR(`/api/dola-staking/activity`, fetcher);
 
-    const events = (liveEvents || (data?.events || [])).filter(e => e.type === type);    
+    const events = (liveEvents || (data?.events || [])).filter(e => e.type === type);
     return {
         events,
         accountEvents: events.filter(e => !from || e.recipient === from),
@@ -220,6 +220,35 @@ export const useDolaStakingActivity = (from?: string, type = 'dsa'): SWR & {
         isLoading: !error && !data,
         isError: error,
     }
+}
+
+export const useDolaStakingEarnings = (account: string) => {
+    const { events: depositEventsData } = useContractEvents(
+        SDOLA_ADDRESS,
+        SDOLA_ABI,
+        'Deposit',
+        [account],
+    );
+    const { events: withdrawEventsData } = useContractEvents(
+        SDOLA_ADDRESS,
+        SDOLA_ABI,
+        'Withdraw',
+        [account],
+    );
+    const { balance: stakedDolaBalance } = useStakedDolaBalance(account); 
+    const deposited = depositEventsData.reduce((prev, curr) => {
+        return prev + getBnToNumber(curr.args[2]);
+    }, 0);
+    const withdrawn = withdrawEventsData.reduce((prev, curr) => {
+        return prev + getBnToNumber(curr.args[3]);
+    }, 0);
+
+    return {
+        earnings: stakedDolaBalance - deposited + withdrawn,
+        deposited,
+        withdrawn,
+        stakedDolaBalance,
+    };
 }
 
 export const useDolaStakingEvents = () => {
@@ -232,12 +261,12 @@ export const useDolaStakingEvents = () => {
         DOLA_SAVINGS_ADDRESS,
         DOLA_SAVINGS_ABI,
         'Unstake',
-    );    
+    );
     const { events: claimEventsData } = useContractEvents(
         DOLA_SAVINGS_ADDRESS,
         DOLA_SAVINGS_ABI,
         'Claim',
-    );    
+    );
     const { events: depositEventsData } = useContractEvents(
         SDOLA_ADDRESS,
         SDOLA_ABI,
@@ -256,7 +285,7 @@ export const useDolaStakingEvents = () => {
     const sortedEvents = eventsData.sort(ascendingEventsSorter);
     const uniqueBlocks = [...new Set(sortedEvents.map(e => e.blockNumber))];
     const { timestamps } = useBlocksTimestamps(uniqueBlocks);
-    const timestampsAsObj = timestamps.reduce((prev, curr, i) => ({ ...prev, [uniqueBlocks[i]]: curr/1000 }), {});    
+    const timestampsAsObj = timestamps.reduce((prev, curr, i) => ({ ...prev, [uniqueBlocks[i]]: curr / 1000 }), {});
     return formatDolaStakingEvents(sortedEvents, timestampsAsObj);
 }
 
@@ -267,9 +296,9 @@ export const formatDolaStakingEvents = (events: any[], timestamps?: any, already
         const action = ['Deposit', 'Stake'].includes(e.event) ? 'Stake' : ['Withdraw', 'Unstake'].includes(e.event) ? 'Unstake' : 'Claim';
         const type = ['Deposit', 'Withdraw'].includes(e.event) ? 'sdola' : 'dsa';
         const amount = getBnToNumber(e.args.amount || e.args.assets || '0');
-        if(action !== 'Claim' && type === 'dsa') {
+        if (action !== 'Claim' && type === 'dsa') {
             totalDolaStaked += (action === 'Stake' ? amount : -amount);
-        } else if(type === 'sdola') {
+        } else if (type === 'sdola') {
             sDolaStaking += (action === 'Stake' ? amount : -amount);
         }
         return {

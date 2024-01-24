@@ -1,5 +1,5 @@
 import { VStack, Text, HStack, SimpleGrid, Divider } from "@chakra-ui/react"
-import { sdolaDevInit, stakeDola, unstakeDola, useStakedDola, useStakedDolaBalance } from "@app/util/dola-staking"
+import { sdolaDevInit, stakeDola, unstakeDola, useDolaStakingEarnings, useStakedDola, useStakedDolaBalance } from "@app/util/dola-staking"
 import { useWeb3React } from "@web3-react/core";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
 import { useMemo, useState } from "react";
@@ -41,7 +41,7 @@ export const StakeDolaUI = () => {
 
     const { apr, projectedApr, isLoading } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
     const { balance: dolaBalance } = useDOLABalance(account);
-    const { balance: stakedDolaBalance } = useStakedDolaBalance(account);
+    const { stakedDolaBalance, earnings } = useDolaStakingEarnings(account);
 
     const monthlyProjectedDolaRewards = useMemo(() => {
         return (projectedApr > 0 && stakedDolaBalance > 0 ? getMonthlyRate(stakedDolaBalance, projectedApr) : 0);
@@ -73,6 +73,7 @@ export const StakeDolaUI = () => {
                 alertProps={{ w: 'full' }}
                 description={
                     <VStack alignItems="flex-start">
+                        { earnings > 0.1 && <Text>Your cumulated earnings: <b>{preciseCommify(earnings, 2)} DOLA</b></Text> }
                         <Text>Your projected monthly rewards: <b>~{preciseCommify(monthlyProjectedDolaRewards, 2)} DOLA</b></Text>
                         {/* {apr > 0 && <Text>Your monthly rewards: ~{preciseCommify(monthlyDolaRewards, 2)} DOLA</Text>} */}
                         <Text>Note: actual rewards depend on past revenue</Text>
