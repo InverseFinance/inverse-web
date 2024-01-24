@@ -2,7 +2,7 @@ import { estimateBlockTimestamp, estimateBlocksTimestamps } from '@app/util/misc
 import useEtherSWR from './useEtherSWR';
 
 export const useBlockTimestamp = (blockNumber: number): { timestamp: number, isUsingEstimate: boolean } => {
-    const { data, error } = useEtherSWR(
+    const { data } = useEtherSWR(
         ['getBlock', blockNumber]
     );
     const { data: currentBlock } = useEtherSWR(
@@ -12,7 +12,7 @@ export const useBlockTimestamp = (blockNumber: number): { timestamp: number, isU
 
     return {
         timestamp: (data?.timestamp * 1000) || estimatedTimestamp || 0,
-        isUsingEstimate: !data || !!error,
+        isUsingEstimate: !data,
     }
 }
 
@@ -26,6 +26,6 @@ export const useBlocksTimestamps = (blockNumbers: number[]): { timestamps: numbe
     const estimatedTimestamps = estimateBlocksTimestamps(blockNumbers, currentBlock?.timestamp * 1000, currentBlock?.number);
     return {
         timestamps: (data?.map(d => d.timestamp * 1000)) || estimatedTimestamps || blockNumbers.map(n => 0),
-        isUsingEstimate: !data || !!error,
+        isUsingEstimate: !data,
     }
 }
