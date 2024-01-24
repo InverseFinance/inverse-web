@@ -28,30 +28,30 @@ export default async function handler(req, res) {
         const pastTotalEvents = archived?.events || [];
 
         const lastKnownEvent = pastTotalEvents?.length > 0 ? (pastTotalEvents[pastTotalEvents.length - 1]) : { sDolaStaking: 0, totalDolaStaked: 0 };
-        const newStartingBlock = lastKnownEvent?.blockNumber ? lastKnownEvent?.blockNumber + 1 : undefined;
+        const newStartingBlock = lastKnownEvent?.blockNumber ? lastKnownEvent?.blockNumber + 1 : 0x0;
 
         const [
             stakeEventsData, unstakeEventsData, claimEventsData, depositEventsData, withdrawEventsData
         ] = await Promise.all([
             dsaContract.queryFilter(
                 dsaContract.filters.Stake(),
-                newStartingBlock ? newStartingBlock : 0x0,
+                newStartingBlock,
             ),
             dsaContract.queryFilter(
                 dsaContract.filters.Unstake(),
-                newStartingBlock ? newStartingBlock : 0x0,
+                newStartingBlock,
             ),
             dsaContract.queryFilter(
                 dsaContract.filters.Claim(),
-                newStartingBlock ? newStartingBlock : 0x0,
+                newStartingBlock,
             ),
             sdolaContract.queryFilter(
                 sdolaContract.filters.Claim(),
-                newStartingBlock ? newStartingBlock : 0x0,
+                newStartingBlock,
             ),
             sdolaContract.queryFilter(
                 sdolaContract.filters.Claim(),
-                newStartingBlock ? newStartingBlock : 0x0,
+                newStartingBlock,
             ),
         ]);
 
