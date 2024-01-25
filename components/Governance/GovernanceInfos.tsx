@@ -14,7 +14,7 @@ export const GovernanceInfos = ({
                 <Image
                     cursor="pointer"
                     borderRadius="5px"
-                    src="https://images.ctfassets.net/kfs9y9ojngfc/6yAG6AVICeMaq6CPntNZqZ/d25e6524959cbba190f4af4b42dbfb83/cover-governance.png?w=3840&q=75"
+                    src="https://images.ctfassets.net/kfs9y9ojngfc/6yAG6AVICeMaq6CPntNZqZ/d25e6524959cbba190f4af4b42dbfb83/cover-governance.png?w=600&q=80"
                 />
             </Link>
             <InfoMessage

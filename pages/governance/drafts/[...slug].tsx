@@ -36,7 +36,7 @@ export const Drafts = ({ proposal }) => {
         <title>Inverse Finance - Draft Details</title>
         <meta name="og:title" content={`Inverse Finance - Draft Proposal`} />
         <meta name="og:description" content={`${proposal?.title || 'Draft'}`} />
-        <meta name="og:image" content="https://images.ctfassets.net/kfs9y9ojngfc/6yAG6AVICeMaq6CPntNZqZ/d25e6524959cbba190f4af4b42dbfb83/cover-governance.png?w=3840&q=75" />
+        <meta name="og:image" content="https://images.ctfassets.net/kfs9y9ojngfc/6yAG6AVICeMaq6CPntNZqZ/d25e6524959cbba190f4af4b42dbfb83/cover-governance.png?w=600&q=80" />
         <meta name="description" content={`Inverse Finance DAO's Draft Proposal`} />
         <meta name="keywords" content={`Inverse Finance, DAO, governance, proposal, draft`} />
       </Head>

@@ -29,10 +29,12 @@ const { F2_DBR_REWARDS_HELPER } = getNetworkConfigConstants();
 export const DbrRewardsModal = ({
     isOpen,
     onClose,
+    onSuccess,
     dbrRewardsInfo,
 }: {
     isOpen: boolean,
     onClose: () => void,
+    onSuccess: () => void,
     dbrRewardsInfo: ZapperToken
 }) => {
     const { themeStyles } = useAppTheme();
@@ -316,7 +318,7 @@ export const DbrRewardsModal = ({
                             1/2 - Authorize DBR Rewards Helper
                         </RSubmitButton>
                         :
-                        <RSubmitButton refreshOnSuccess={true} disabled={hasInvalidSlippage || hasInvalidMins || (hasRepay && !marketToRepay) || (isCustomAddress && (!isAddress(customAddress) || customAddress === BURN_ADDRESS))} onClick={handleClaim} p="6" w='fit-content' fontSize="18px">
+                        <RSubmitButton onSuccess={onSuccess} refreshOnSuccess={true} disabled={hasInvalidSlippage || hasInvalidMins || (hasRepay && !marketToRepay) || (isCustomAddress && (!isAddress(customAddress) || customAddress === BURN_ADDRESS))} onClick={handleClaim} p="6" w='fit-content' fontSize="18px">
                             Confirm
                         </RSubmitButton>
                 }
@@ -327,8 +329,10 @@ export const DbrRewardsModal = ({
 
 export const DbrExtraClaimButtons = ({
     dbrRewardsInfo,
+    onSuccess,
 }: {
     dbrRewardsInfo: any,
+    onSuccess: () => void,
 }) => {
     const { isOpen, onClose, onOpen } = useDisclosure();
     return <VStack>
@@ -336,7 +340,7 @@ export const DbrExtraClaimButtons = ({
             Advanced Claim Options
         </ROutlineButton>
         {
-            isOpen && <DbrRewardsModal dbrRewardsInfo={dbrRewardsInfo} isOpen={isOpen} onClose={onClose} />
+            isOpen && <DbrRewardsModal onSuccess={onSuccess} dbrRewardsInfo={dbrRewardsInfo} isOpen={isOpen} onClose={onClose} />
         }
     </VStack>
 }
