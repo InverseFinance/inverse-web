@@ -456,7 +456,7 @@ export const Stake = () => (
       <title>Inverse Finance - Delegates</title>
       <meta name="og:title" content="Inverse Finance - Governance" />
       <meta name="og:description" content="Top 100 delegates" />
-      <meta name="og:image" content="https://images.ctfassets.net/kfs9y9ojngfc/6yAG6AVICeMaq6CPntNZqZ/d25e6524959cbba190f4af4b42dbfb83/cover-governance.png?w=3840&q=75" />
+      <meta name="og:image" content="https://images.ctfassets.net/kfs9y9ojngfc/6yAG6AVICeMaq6CPntNZqZ/d25e6524959cbba190f4af4b42dbfb83/cover-governance.png?w=600&q=80" />
       <meta name="description" content="Inverse Finance DAO's top 100 delegates" />
       <meta name="keywords" content="Inverse Finance, dao, inv, token, proposal, governance, voting power, delegates" />
     </Head>
