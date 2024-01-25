@@ -6,12 +6,13 @@ import { SDOLA_ADDRESS, formatDolaStakingData, getDolaSavingsContract, getSdolaC
 import { getMulticallOutput } from '@app/util/multicall';
 import { getDbrPriceOnCurve } from '@app/util/f2';
 
-export default async function handler(req, res) {
-    const cacheKey = `dola-staking-v1.0.0`;
+export const dolaStakingCacheKey = `dola-staking-v1.0.0`;
+
+export default async function handler(req, res) {    
     const cacheDuration = 600;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     try {
-        const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
+        const validCache = await getCacheFromRedis(dolaStakingCacheKey, true, cacheDuration);
         if(validCache) {
           res.status(200).json(validCache);
           return
@@ -44,14 +45,14 @@ export default async function handler(req, res) {
             ...formatDolaStakingData(dbrDolaPrice, dolaStakingData),
         }
 
-        await redisSetWithTimestamp(cacheKey, resultData);
+        await redisSetWithTimestamp(dolaStakingCacheKey, resultData);
 
         res.status(200).json(resultData)
     } catch (err) {
         console.error(err);
         // if an error occured, try to return last cached results
         try {
-            const cache = await getCacheFromRedis(cacheKey, false);
+            const cache = await getCacheFromRedis(dolaStakingCacheKey, false);
             if (cache) {
                 console.log('Api call failed, returning last cache found');
                 res.status(200).json(cache);

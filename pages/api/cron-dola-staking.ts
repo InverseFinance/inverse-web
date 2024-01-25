@@ -1,26 +1,26 @@
 import 'source-map-support'
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
 import { timestampToUTC } from '@app/util/misc';
-import { liquidityCacheKey } from './transparency/liquidity';
+import { dolaStakingCacheKey } from './dola-staking';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ success: false });
   else if (req.headers.authorization !== `Bearer ${process.env.API_SECRET_KEY}`) return res.status(401).json({ success: false });
 
   try {
-    const liquidityData = await (await fetch('https://www.inverse.finance/api/transparency/liquidity'))?.json();
+    const data = await (await fetch('https://www.inverse.finance/api/dola-staking'))?.json();
     const now = Date.now();
     const utcDate = timestampToUTC(now);
 
-    await redisSetWithTimestamp(`liquidity-snapshot-${utcDate}`, {
-      liquidityApiVersion: liquidityCacheKey,
-      ...liquidityData,
+    await redisSetWithTimestamp(`dola-staking-snapshot-${utcDate}`, {
+      apiVersion: dolaStakingCacheKey,
+      ...data,
     });
 
-    const history = await getCacheFromRedis(`liquidity-history`, false, 0, true) || { entries: [] };
-    history.entries = history.entries.concat(liquidityData);
+    const history = await getCacheFromRedis(`dola-staking`, false, 0, true) || { entries: [] };
+    history.entries = history.entries.concat(data);
 
-    await redisSetWithTimestamp(`liquidity-history`, {
+    await redisSetWithTimestamp(`dola-staking`, {
       timestamp: now,
       entries: history.entries,
     }, true);
@@ -28,9 +28,8 @@ export default async function handler(req, res) {
     res.status(200).json({
       utcDate,
       success: true,
-      dataTimestamp: liquidityData?.timestamp,
-      nbPools: liquidityData?.liquidity?.length,
-      liquidityApiVersion: liquidityCacheKey,
+      dataTimestamp: data?.timestamp,      
+      apiVersion: dolaStakingCacheKey,
       historyEntries: history.entries.length,
     });
   } catch (err) {
