@@ -51,8 +51,11 @@ export const AboutFirm = () => {
                     label="Safety score and other audits"
                 >
                     <VStack spacing="2" alignItems="flex-start">
+                        <Link color="mainTextColor" fontSize="20px" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" href="https://defisafety.com/app/pqrs/567" isExternal target="_blank">
+                            DefiSafety score: 87% (Oct 23th, 2023)
+                        </Link>
                         <Link color="mainTextColor" fontSize="20px" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" href="https://defisafety.com/app/pqrs/199" isExternal target="_blank">
-                            DefiSafety score: 87%
+                            DefiSafety score: 87% (Feb 27th, 2023)
                         </Link>
                         <Link color="mainTextColor" fontSize="20px" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" href="https://docs.inverse.finance/inverse-finance/technical/audits" isExternal target="_blank">
                             Peckshield and Defimoon
