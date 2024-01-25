@@ -9,8 +9,9 @@ import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader'
 import { preciseCommify } from '@app/util/misc';
 import { DbrAuctionTabs } from '@app/components/F2/DbrAuction/DbrAuctionTabs';
 import { useDbrAuctionActivity } from '@app/util/dbr-auction';
+import { SkeletonBlob } from '@app/components/common/Skeleton';
 
-export const DbrAuctionStatsPage = () => {  
+export const DbrAuctionStatsPage = () => {
   const { isLoading, events, accDolaIn, accDbrOut, timestamp } = useDbrAuctionActivity();
   return (
     <Layout>
@@ -22,13 +23,13 @@ export const DbrAuctionStatsPage = () => {
         <meta name="keywords" content="Inverse Finance, swap, stablecoin, DOLA, DBR, auction" />
       </Head>
       <AppNav active="Swap" activeSubmenu="Buy DBR (auction)" />
-      <DbrAuctionTabs defaultIndex={1} />      
+      <DbrAuctionTabs defaultIndex={1} />
       <VStack
         w={{ base: 'full', lg: '1200px' }}
         mt='6'
         spacing="8"
         px={{ base: '4', lg: '0' }}
-      >        
+      >
         <DbrAuctionBuys lastUpdate={timestamp} events={events} title="DBR buys from the auction" />
         <Container
           label="DBR auction stats"
@@ -59,7 +60,11 @@ export const DbrAuctionStatsPage = () => {
             </HStack>
           }
         >
-          <DbrAuctionBuysChart events={events} />
+          {
+            isLoading ?
+              <SkeletonBlob />
+              : <DbrAuctionBuysChart events={events} />
+          }
         </Container>
       </VStack>
     </Layout>

@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 const maxChartWidth = 1200;
 
 export const DbrAuctionBuysChart = ({ events }) => {
-    const { chartData } = useEventsAsChartData(events, 'dolaIn', 'dolaIn', true, true, 0);
+    // const { chartData } = useEventsAsChartData(events, 'dolaIn', 'dolaIn', true, true, 0);
     const { chartData: chartDataAcc } = useEventsAsChartData(events, '_acc_', 'dolaIn', true, true);
     const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
@@ -32,7 +32,7 @@ export const DbrAuctionBuysChart = ({ events }) => {
             chartWidth={autoChartWidth}
             chartData={chartDataAcc}
             isDollars={false}
-            smoothLineByDefault={false}            
+            smoothLineByDefault={false}
             barProps={{ eventName: 'DBR auction buys' }}
             areaProps={{ title: 'Cumulated income from DBR auction buys', fillInByDayInterval: true, id: 'dbr-auction-buys-acc', showRangeBtns: false, yLabel: 'DOLA Income', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
         />

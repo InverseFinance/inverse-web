@@ -9,6 +9,7 @@ import { useDolaStakingActivity, useStakedDola } from '@app/util/dola-staking';
 import { useDBRPrice } from '@app/hooks/useDBR';
 import { DolaStakingTabs } from '@app/components/F2/DolaStaking/DolaStakingTabs';
 import { DsaStakingChart } from '@app/components/F2/DolaStaking/DolaStakingChart';
+import { SkeletonBlob } from '@app/components/common/Skeleton';
 
 export const DsaStatsPage = () => {
   const { events, timestamp } = useDolaStakingActivity(undefined, 'dsa');
@@ -31,7 +32,9 @@ export const DsaStatsPage = () => {
         spacing="8"
         px={{ base: '4', lg: '0' }}
       >
-        <DsaStakingChart events={events} />
+        {
+          isLoading ? <SkeletonBlob /> : <DsaStakingChart events={events} />
+        }
         <DolaStakingActivity
           events={events}
           lastUpdate={timestamp}
