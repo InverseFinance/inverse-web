@@ -17,10 +17,10 @@ export default async function handler(req, res) {
       ...data,
     });
 
-    const history = await getCacheFromRedis(`dola-staking`, false, 0, true) || { entries: [] };
+    const history = await getCacheFromRedis(`dola-staking-history`, false, 0, true) || { entries: [] };
     history.entries = history.entries.concat(data);
 
-    await redisSetWithTimestamp(`dola-staking`, {
+    await redisSetWithTimestamp(`dola-staking-history`, {
       timestamp: now,
       entries: history.entries,
     }, true);
