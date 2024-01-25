@@ -56,6 +56,36 @@ export const MENUS = {
       label: 'Bond',
       href: '/bonds',
     },
+    // {
+    //   label: 'sDOLA',
+    //   href: '/sdola',
+    //   submenus: [
+    //     {
+    //       label: 'sDOLA',
+    //       href: '/sdola',
+    //     },
+    //     {
+    //       label: 'sDOLA stats',
+    //       href: '/sdola/stats',
+    //     },
+    //     {
+    //       label: 'DOLA Savings Account',
+    //       href: '/dsa',
+    //     },
+    //     {
+    //       label: 'DSA stats',
+    //       href: '/dsa/stats',
+    //     },
+    //     {
+    //       label: 'DBR auctions',
+    //       href: '/dbr/auction',
+    //     },  
+    //     {
+    //       label: 'DBR auctions stats',
+    //       href: '/dbr/auction/stats',
+    //     },  
+    //   ],
+    // },
     {
       label: 'Earn',
       href: '/yield-opportunities',
