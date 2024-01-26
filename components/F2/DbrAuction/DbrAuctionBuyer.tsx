@@ -1,5 +1,5 @@
 import { VStack, Text, HStack, Divider } from "@chakra-ui/react"
-import { estimateAuctionTimeToReachMarketPrice, swapDolaForExactDbr, swapExactDolaForDbr } from "@app/util/dbr-auction"
+import { estimateAuctionTimeToReachMarketPrice, swapDolaForExactDbr, swapExactDolaForDbr, useDbrAuctionPricing } from "@app/util/dbr-auction"
 import useEtherSWR from "@app/hooks/useEtherSWR";
 import { useWeb3React } from "@web3-react/core";
 import { getBnToNumber, getNumberToBn, shortenNumber } from "@app/util/markets";
@@ -18,10 +18,11 @@ import { InfoMessage } from "@app/components/common/Messages";
 import { preciseCommify } from "@app/util/misc";
 import { useDOLABalance } from "@app/hooks/useDOLA";
 import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader";
-import { DbrAuctionParameters, DbrAuctionParametersWrapper, useDbrAuction } from "./DbrAuctionInfos";
+import { DbrAuctionParametersWrapper, useDbrAuction } from "./DbrAuctionInfos";
 import moment from "moment";
-import { DBR_AUCTION_HELPER_ADDRESS, ONE_DAY_SECS } from "@app/config/constants";
+import { DBR_AUCTION_HELPER_ADDRESS, ONE_DAY_SECS, SDOLA_HELPER_ADDRESS } from "@app/config/constants";
 import { useDualSpeedEffect } from "@app/hooks/useDualSpeedEffect";
+import { RadioCardGroup } from "@app/components/common/Input/RadioCardGroup";
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -45,6 +46,13 @@ const ListLabelValues = ({ items }: { items: { label: string, value: string | an
     </VStack>
 }
 
+const AuctionRadioOption = ({ label, dbrAuctionPriceInDola }) => {
+    return <VStack>
+        <Text>{label}</Text>
+        <Text>{shortenNumber(dbrAuctionPriceInDola, 4)}</Text>
+    </VStack>
+}
+
 export const DbrAuctionBuyer = ({
     helperAddress = DBR_AUCTION_HELPER_ADDRESS,
     title,
@@ -53,6 +61,7 @@ export const DbrAuctionBuyer = ({
     const { provider, account } = useWeb3React();
     const [dolaAmount, setDolaAmount] = useState('');
     const [dbrAmount, setDbrAmount] = useState('');
+    const [selectedAuction, setSelectedAuction] = useState('classic');
     const [estimatedTimeToReachMarketPrice, setEstimatedTimeToReachMarketPrice] = useState(0);
     const [isConnected, setIsConnected] = useState(true);
     const { signedBalance: dbrBalance, dbrExpiryDate, debt: currentTotalDebt } = useAccountDBR(account);
@@ -106,6 +115,9 @@ export const DbrAuctionBuyer = ({
     const isInvalidSlippage = !slippage || parseFloat(slippage) <= 0 || parseFloat(slippage) >= 20;
     const isExactDolaBtnDisabled = isInvalidSlippage || !dolaAmount || parseFloat(dolaAmount) <= 0;
     const isExactDbrBtnDisabled = isInvalidSlippage || !dbrAmount || parseFloat(dbrAmount) <= 0;
+
+    const classicAuctionPricingData = useDbrAuctionPricing({ helperAddress: DBR_AUCTION_HELPER_ADDRESS, dolaAmount, dbrAmount, slippage, isExactDola, dbrSwapPriceRefInDola });
+    const sdolaAuctionPricingData = useDbrAuctionPricing({ helperAddress: SDOLA_HELPER_ADDRESS, dolaAmount, dbrAmount, slippage, isExactDola, dbrSwapPriceRefInDola });
 
     const auctionSlippageInput = <Input
         py="0"
@@ -172,6 +184,19 @@ export const DbrAuctionBuyer = ({
                                             DOLA balance: {preciseCommify(dolaBalance, 2)}
                                         </Text>
                                     </HStack>
+                                    <RadioCardGroup
+                                        wrapperProps={{ w: 'full', alignItems: 'center', justify: { base: 'center', sm: 'left' } }}
+                                        group={{
+                                            name: 'auctionSel',
+                                            value: selectedAuction,
+                                            onChange: (v) => setSelectedAuction(v),
+                                        }}
+                                        radioCardProps={{ py: 0, px: '2', mr: '4', w: { base: 'full', sm: '135px' } }}
+                                        options={[
+                                            { value: 'classic', label: <AuctionRadioOption label="General" dbrAuctionPriceInDola={classicAuctionPricingData.dbrAuctionPriceInDola} /> },
+                                            { value: 'sdola', label: <AuctionRadioOption label="sDOLA" dbrAuctionPriceInDola={sdolaAuctionPricingData.dbrAuctionPriceInDola} /> },
+                                        ]}
+                                    />
                                     {
                                         tab === TAB_OPTIONS[0] &&
                                         <VStack w='full' alignItems="flex-start">
@@ -232,7 +257,7 @@ export const DbrAuctionBuyer = ({
                                         { label: `Price via auction`, color: auctionPriceColor, isLoading, value: dbrAuctionPrice > 0 ? `~${shortenNumber(dbrAuctionPriceInDola, 4)} DOLA (${shortenNumber(dbrAuctionPriceInDola * dolaPrice, 4, true)})` : '-' },
                                         { label: `Market price via Curve`, isLoading, value: !isCurvePriceLoading && dbrSwapPrice > 0 ? `~${shortenNumber(dbrSwapPriceInDola, 4)} DOLA (${shortenNumber(dbrSwapPriceInDola * dolaPrice, 4, true)})` : '-' },
                                         estimatedTimeToReachMarketPrice <= 300 ? undefined : { label: `Est. time for the auction to reach the market price`, isLoading, value: estimatedTimeToReachMarketPrice > ONE_DAY_SECS ? `~${shortenNumber((estimatedTimeToReachMarketPrice / ONE_DAY_SECS), 2)} days` : `${moment(estimatedTimestampToReachMarketPrice).fromNow()}` },
-                                    ]} />
+                                    ]} />                                    
                                     <Divider />
                                     <ListLabelValues items={[
                                         { label: `Max. slippage %`, value: auctionSlippageInput },

@@ -4,11 +4,15 @@ import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 import { ascendingEventsSorter } from "./misc";
 import { useBlocksTimestamps } from "@app/hooks/useBlockTimestamp";
-import { getBnToNumber } from "./markets";
+import { getBnToNumber, getNumberToBn } from "./markets";
 import { useCustomSWR } from "@app/hooks/useCustomSWR";
 import { SWR } from "@app/types";
 import { fetcher } from "./web3";
 import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS } from "@app/config/constants";
+import useEtherSWR from "@app/hooks/useEtherSWR";
+import { parseEther } from "@ethersproject/units";
+import { useEffect, useState } from "react";
+import { useDbrAuction } from "@app/components/F2/DbrAuction/DbrAuctionInfos";
 
 export const getDbrAuctionContract = (signerOrProvider: JsonRpcSigner, auctionAddress = DBR_AUCTION_ADDRESS) => {
     return new Contract(auctionAddress, DBR_AUCTION_ABI, signerOrProvider);
@@ -153,4 +157,81 @@ export const formatDbrAuctionBuys = (events: any[], timestamps?: any) => {
             dbrOut: getBnToNumber(e.args[3]),
         };
     });
+}
+
+const defaultRefClassicAmount = '1';
+const defaultRefSdolaAmount = '0.999';
+
+export const useDbrAuctionPricing = ({    
+    dolaAmount,
+    dbrAmount,
+    helperAddress,
+    slippage,
+    isExactDola,
+    dbrSwapPriceRefInDola,
+}: {
+    dolaAmount: string,
+    dbrAmount: string,
+    helperAddress: string,
+    slippage: string,
+    isExactDola: boolean,
+    dbrSwapPriceRefInDola: number,
+}) => {
+    const [estimatedTimeToReachMarketPrice, setEstimatedTimeToReachMarketPrice] = useState(0);
+    const isClassicDbrAuction = helperAddress?.toString() === DBR_AUCTION_HELPER_ADDRESS.toString();
+    const defaultRefAmount = isClassicDbrAuction ? defaultRefClassicAmount : defaultRefSdolaAmount;
+    const { dolaReserve, dbrReserve, dbrRatePerYear } = useDbrAuction(isClassicDbrAuction);
+
+    const { data, error } = useEtherSWR([
+        [helperAddress, 'getDbrOut', parseEther(dolaAmount || defaultRefAmount)],
+        [helperAddress, 'getDbrOut', parseEther(defaultRefAmount)],
+        [helperAddress, 'getDolaIn', parseEther(dbrAmount || defaultRefAmount)],
+        [helperAddress, 'getDolaIn', parseEther(defaultRefAmount)],
+    ]);
+
+    const isLoading = (!data && !error);
+    const refDbrOut = data && data[1] ? getBnToNumber(data[1]) : 0;
+    const estimatedDbrOut = data && data[0] && !!dolaAmount ? getBnToNumber(data[0]) : 0;
+    const minDbrOut = data && data[0] ? getNumberToBn(estimatedDbrOut * (1 - parseFloat(slippage) / 100)) : BigNumber.from('0');
+
+    const refDolaIn = data && data[3] ? getBnToNumber(data[3]) : 0;
+    const refAuctionPriceInDola = data ? parseFloat(defaultRefAmount) / refDbrOut : 0;
+
+    const estimatedDolaIn = data && data[2] && !!dbrAmount ? getBnToNumber(data[2]) : 0;
+    const maxDolaIn = data && data[2] ? getNumberToBn(estimatedDolaIn * (1 + parseFloat(slippage) / 100)) : BigNumber.from('0');
+
+    const minDbrOutNum = getBnToNumber(minDbrOut);
+    const maxDolaInNum = getBnToNumber(maxDolaIn);
+
+    const dbrAuctionPrice = isExactDola ?
+        (estimatedDbrOut > 0 ? estimatedDbrOut / parseFloat(dolaAmount) : refDbrOut / parseFloat(defaultRefAmount))
+        :
+        (estimatedDolaIn > 0 ? parseFloat(dbrAmount) / estimatedDolaIn : refDolaIn > 0 ? parseFloat(defaultRefAmount) / refDolaIn : 0);
+
+    const dbrAuctionPriceInDola = dbrAuctionPrice ? 1 / dbrAuctionPrice : 0;
+    const estimatedTimestampToReachMarketPrice = (estimatedTimeToReachMarketPrice * 1000) + Date.now();
+
+    useEffect(() => {
+        if (!dbrSwapPriceRefInDola || !dolaReserve || !dbrRatePerYear || !dbrReserve) return;
+        if (dbrSwapPriceRefInDola > refAuctionPriceInDola) {
+            setEstimatedTimeToReachMarketPrice(0);
+            return;
+        }
+        setEstimatedTimeToReachMarketPrice(
+            estimateAuctionTimeToReachMarketPrice(dolaReserve, dbrReserve, dbrRatePerYear, dbrSwapPriceRefInDola)
+        );
+    }, [dbrSwapPriceRefInDola, refAuctionPriceInDola, dolaReserve, dbrReserve, dbrRatePerYear]);
+
+    return {
+        isLoading,
+        estimatedTimestampToReachMarketPrice,
+        dbrSwapPriceRefInDola,        
+        dbrAuctionPriceInDola,
+        minDbrOutNum,
+        maxDolaInNum,
+        helperAddress,
+        isClassicDbrAuction,
+        estimatedDolaIn,
+        estimatedDbrOut,
+    }
 }
