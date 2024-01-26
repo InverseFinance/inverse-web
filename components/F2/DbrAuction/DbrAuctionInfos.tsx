@@ -64,18 +64,18 @@ export const useDbrAuction = (isClassicDbrAuction: boolean): {
     }
 }
 
-export const DbrAuctionInfos = ({ type }: { type: DbrAuctionType }) => {
+export const DbrAuctionParametersWrapper = ({ type }: { type: DbrAuctionType }) => {
     const { priceUsd: dbrPrice } = useDBRPrice();
     const { price: dolaPrice } = useDOLAPrice();
     if (type === 'classic') {
-        return <DbrAuctionInfosClassic dbrPrice={dbrPrice} dolaPrice={dolaPrice} />
+        return <DbrAuctionClassicParameters dbrPrice={dbrPrice} dolaPrice={dolaPrice} />
     }
-    return <DbrAuctionInfosSDola dbrPrice={dbrPrice} dolaPrice={dolaPrice} />
+    return <DbrAuctionSDolaParameters dbrPrice={dbrPrice} dolaPrice={dolaPrice} />
 }
 
-export const DbrAuctionInfosSDola = ({ dbrPrice, dolaPrice }) => {
+export const DbrAuctionSDolaParameters = ({ dbrPrice, dolaPrice }) => {
     const { dolaReserve, dbrReserve, dbrRatePerYear, maxDbrRatePerYear, isLoading } = useDbrAuction(false);
-    return <DbrAuctionInfosMsg
+    return <DbrAuctionParameters
         dolaReserve={dolaReserve}
         dbrReserve={dbrReserve}
         dbrRatePerYear={dbrRatePerYear}
@@ -86,9 +86,9 @@ export const DbrAuctionInfosSDola = ({ dbrPrice, dolaPrice }) => {
     />
 }
 
-export const DbrAuctionInfosClassic = ({ dbrPrice, dolaPrice }) => {
+export const DbrAuctionClassicParameters = ({ dbrPrice, dolaPrice }) => {
     const { dolaReserve, dbrReserve, dbrRatePerYear, maxDbrRatePerYear, isLoading } = useDbrAuction(true);
-    return <DbrAuctionInfosMsg
+    return <DbrAuctionParameters
         dolaReserve={dolaReserve}
         dbrReserve={dbrReserve}
         dbrRatePerYear={dbrRatePerYear}
@@ -99,15 +99,15 @@ export const DbrAuctionInfosClassic = ({ dbrPrice, dolaPrice }) => {
     />
 }
 
-export const DbrAuctionInfosMsg = ({ dolaReserve, dbrReserve, dbrRatePerYear, maxDbrRatePerYear, isLoading, dbrPrice, dolaPrice }) => {
+export const DbrAuctionIntroMsg = () => {
     return <InfoMessage
         showIcon={false}
-        alertProps={{ fontSize: '12px', mb: '8' }}
+        alertProps={{ fontSize: '12px', mb: '8', w: 'full' }}
         description={
             <Stack>
                 <Text fontSize="14px" fontWeight="bold">What are XY=K Auctions?</Text>
                 <Text>
-                    XY=K auctions operate as a virtual xy = k constant function market maker auction, it allows users to buy DBR using DOLA. In the auction, the price of DBR (per DOLA) continuously reduces every second, until a DBR purchase is made at which point the price increases.
+                    XY=K auctions operate as a <b>virtual xy = k constant function market maker auction</b>, it allows users to buy DBR using DOLA. In the auction, the price of DBR (per DOLA) continuously reduces every second, until a DBR purchase is made at which point the price increases. There is a "general" DBR auction and a "sDOLA" DBR auction, depending on usage and auction parameters, the cheapest DBR price will be one or the other. The proceeds from the general auction go to DOLA bad debt repayment while the proceeds from the sDOLA proceeds go to sDOLA stakers.
                 </Text>
                 <Link textDecoration="underline" href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr#buying-dbr" target="_blank" isExternal>
                     Learn more <ExternalLinkIcon />
@@ -123,7 +123,18 @@ export const DbrAuctionInfosMsg = ({ dolaReserve, dbrReserve, dbrRatePerYear, ma
                 </VStack>
                 <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr' isExternal target="_blank">
                     Learn more about DBR <ExternalLinkIcon />
-                </Link>
+                </Link>                
+            </Stack>
+        }
+    />
+}
+
+export const DbrAuctionParameters = ({ dolaReserve, dbrReserve, dbrRatePerYear, maxDbrRatePerYear, isLoading, dbrPrice, dolaPrice }) => {
+    return <InfoMessage
+        showIcon={false}
+        alertProps={{ fontSize: '12px', w: 'full' }}
+        description={
+            <Stack>                
                 <Text fontSize="14px" fontWeight="bold">Auction Current Reserves</Text>
                 <VStack w='full' spacing="0">
                     <HStack w='full'>

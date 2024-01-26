@@ -1,5 +1,5 @@
 import { VStack, Text, HStack, Divider } from "@chakra-ui/react"
-import { DBR_AUCTION_HELPER_ADDRESS, estimateAuctionTimeToReachMarketPrice, swapDolaForExactDbr, swapExactDolaForDbr } from "@app/util/dbr-auction"
+import { estimateAuctionTimeToReachMarketPrice, swapDolaForExactDbr, swapExactDolaForDbr } from "@app/util/dbr-auction"
 import useEtherSWR from "@app/hooks/useEtherSWR";
 import { useWeb3React } from "@web3-react/core";
 import { getBnToNumber, getNumberToBn, shortenNumber } from "@app/util/markets";
@@ -18,15 +18,17 @@ import { InfoMessage } from "@app/components/common/Messages";
 import { preciseCommify } from "@app/util/misc";
 import { useDOLABalance } from "@app/hooks/useDOLA";
 import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader";
-import { useDbrAuction } from "./DbrAuctionInfos";
+import { DbrAuctionParameters, DbrAuctionParametersWrapper, useDbrAuction } from "./DbrAuctionInfos";
 import moment from "moment";
-import { ONE_DAY_SECS } from "@app/config/constants";
+import { DBR_AUCTION_HELPER_ADDRESS, ONE_DAY_SECS } from "@app/config/constants";
 import { useDualSpeedEffect } from "@app/hooks/useDualSpeedEffect";
 
 const { DOLA } = getNetworkConfigConstants();
 
 const defaultRefClassicAmount = '1';
 const defaultRefSdolaAmount = '0.999';
+
+const TAB_OPTIONS = ['Sell DOLA', 'Buy DBR', 'Infos'];
 
 const ListLabelValues = ({ items }: { items: { label: string, value: string | any, color?: string, isLoading?: boolean }[] }) => {
     return <VStack w='full' spacing="2" alignItems="flex-start">
@@ -45,6 +47,7 @@ const ListLabelValues = ({ items }: { items: { label: string, value: string | an
 
 export const DbrAuctionBuyer = ({
     helperAddress = DBR_AUCTION_HELPER_ADDRESS,
+    title,
 }) => {
     const { price: dolaPrice } = useDOLAPriceLive();
     const { provider, account } = useWeb3React();
@@ -56,9 +59,9 @@ export const DbrAuctionBuyer = ({
     const { balance: dolaBalance } = useDOLABalance(account);
 
     const [slippage, setSlippage] = useState('1');
-    const [tab, setTab] = useState('Sell DOLA');
-    const isExactDola = tab === 'Sell DOLA';
-    const isClassicDbrAuction = helperAddress === DBR_AUCTION_HELPER_ADDRESS;
+    const [tab, setTab] = useState(TAB_OPTIONS[0]);
+    const isExactDola = tab === TAB_OPTIONS[0];
+    const isClassicDbrAuction = helperAddress?.toString() === DBR_AUCTION_HELPER_ADDRESS.toString();
     const defaultRefAmount = isClassicDbrAuction ? defaultRefClassicAmount : defaultRefSdolaAmount;
     const { dolaReserve, dbrReserve, dbrRatePerYear } = useDbrAuction(isClassicDbrAuction);
 
@@ -70,7 +73,7 @@ export const DbrAuctionBuyer = ({
         [helperAddress, 'getDolaIn', parseEther(dbrAmount || defaultRefAmount)],
         [helperAddress, 'getDolaIn', parseEther(defaultRefAmount)],
     ]);
-    
+
     const isLoading = isCurvePriceLoading || (!data && !error);
 
     const { priceUsd: dbrPrice } = useDBRPrice();
@@ -142,7 +145,7 @@ export const DbrAuctionBuyer = ({
     }, [dbrSwapPriceRefInDola, refAuctionPriceInDola, dolaReserve, dbrReserve, dbrRatePerYear]);
 
     return <Container
-        label="DBR XY=K Auction"
+        label={title}
         description="See contract"
         href={`https://etherscan.io/address/${helperAddress}`}
         noPadding
@@ -154,83 +157,93 @@ export const DbrAuctionBuyer = ({
                 !isConnected ? <InfoMessage alertProps={{ w: 'full' }} description="Please connect your wallet" />
                     :
                     <>
-                        <NavButtons active={tab} options={['Sell DOLA', 'Buy DBR']} onClick={(v) => setTab(v)} />
-                        <HStack w='full' justify="space-between">
-                            <Text fontSize="14px">
-                                DBR balance: {preciseCommify(dbrBalance, 2)}
-                            </Text>
-                            <Text fontSize="14px">
-                                DOLA balance: {preciseCommify(dolaBalance, 2)}
-                            </Text>
-                        </HStack>
+                        <NavButtons active={tab} options={TAB_OPTIONS} onClick={(v) => setTab(v)} />
                         {
-                            isExactDola ?
+                            tab === TAB_OPTIONS[2] ?
                                 <VStack w='full' alignItems="flex-start">
-                                    <TextInfo message="Exact amount of DOLA in exchange for DBR, the auction formula is of type K=xy">
-                                        <Text fontWeight="bold" fontSize="14px">Exact amount DOLA to sell:</Text>
-                                    </TextInfo>
-                                    <SimpleAmountForm
-                                        btnProps={{ needPoaFirst:true }}
-                                        defaultAmount={dolaAmount}
-                                        address={DOLA}
-                                        destination={helperAddress}
-                                        signer={provider?.getSigner()}
-                                        decimals={18}
-                                        onAction={() => sell()}
-                                        actionLabel={`Sell DOLA for DBR`}
-                                        onAmountChange={(v) => setDolaAmount(v)}
-                                        showMaxBtn={false}
-                                        hideInputIfNoAllowance={false}
-                                        showBalance={true}
-                                        isDisabled={isExactDolaBtnDisabled}
-                                        checkBalanceOnTopOfIsDisabled={true}
-                                        onSuccess={() => resetForm()}
-                                    />
+                                    <DbrAuctionParametersWrapper type={isClassicDbrAuction ? 'classic' : 'sdola'} />
                                 </VStack>
-                                :
-                                <VStack w='full' alignItems="flex-start">
-                                    <TextInfo message="Exact amount of DBR in exchange for DOLA, the auction formula is of type K=xy">
-                                        <Text fontWeight="bold" fontSize="14px">Exact amount of DBR to buy:</Text>
-                                    </TextInfo>
-                                    <SimpleAmountForm
-                                        btnProps={{ needPoaFirst:true }}
-                                        defaultAmount={dbrAmount}
-                                        address={DOLA}
-                                        destination={helperAddress}
-                                        signer={provider?.getSigner()}
-                                        decimals={18}
-                                        onAction={() => sell()}
-                                        actionLabel={`Buy a precise amount of DBR`}
-                                        onAmountChange={(v) => setDbrAmount(v)}
-                                        showMaxBtn={false}
-                                        showMax={false}
-                                        hideInputIfNoAllowance={false}
-                                        showBalance={false}
-                                        isDisabled={isExactDbrBtnDisabled}
-                                        checkBalanceOnTopOfIsDisabled={true}
-                                        onSuccess={() => resetForm()}
-                                    />
-                                </VStack>
+                                : <>
+                                    <HStack w='full' justify="space-between">
+                                        <Text fontSize="14px">
+                                            DBR balance: {preciseCommify(dbrBalance, 2)}
+                                        </Text>
+                                        <Text fontSize="14px">
+                                            DOLA balance: {preciseCommify(dolaBalance, 2)}
+                                        </Text>
+                                    </HStack>
+                                    {
+                                        tab === TAB_OPTIONS[0] &&
+                                        <VStack w='full' alignItems="flex-start">
+                                            <TextInfo message="Exact amount of DOLA in exchange for DBR, the auction formula is of type K=xy">
+                                                <Text fontWeight="bold" fontSize="14px">Exact amount DOLA to sell:</Text>
+                                            </TextInfo>
+                                            <SimpleAmountForm
+                                                btnProps={{ needPoaFirst: true }}
+                                                defaultAmount={dolaAmount}
+                                                address={DOLA}
+                                                destination={helperAddress}
+                                                signer={provider?.getSigner()}
+                                                decimals={18}
+                                                onAction={() => sell()}
+                                                actionLabel={`Sell DOLA for DBR`}
+                                                onAmountChange={(v) => setDolaAmount(v)}
+                                                showMaxBtn={false}
+                                                hideInputIfNoAllowance={false}
+                                                showBalance={true}
+                                                isDisabled={isExactDolaBtnDisabled}
+                                                checkBalanceOnTopOfIsDisabled={true}
+                                                onSuccess={() => resetForm()}
+                                            />
+                                        </VStack>
+                                    }
+                                    {
+                                        tab === TAB_OPTIONS[1] &&
+                                        <VStack w='full' alignItems="flex-start">
+                                            <TextInfo message="Exact amount of DBR in exchange for DOLA, the auction formula is of type K=xy">
+                                                <Text fontWeight="bold" fontSize="14px">Exact amount of DBR to buy:</Text>
+                                            </TextInfo>
+                                            <SimpleAmountForm
+                                                btnProps={{ needPoaFirst: true }}
+                                                defaultAmount={dbrAmount}
+                                                address={DOLA}
+                                                destination={helperAddress}
+                                                signer={provider?.getSigner()}
+                                                decimals={18}
+                                                onAction={() => sell()}
+                                                actionLabel={`Buy a precise amount of DBR`}
+                                                onAmountChange={(v) => setDbrAmount(v)}
+                                                showMaxBtn={false}
+                                                showMax={false}
+                                                hideInputIfNoAllowance={false}
+                                                showBalance={false}
+                                                isDisabled={isExactDbrBtnDisabled}
+                                                checkBalanceOnTopOfIsDisabled={true}
+                                                onSuccess={() => resetForm()}
+                                            />
+                                        </VStack>
+                                    }
+                                    <Divider />
+                                    <ListLabelValues items={[
+                                        (isExactDola ?
+                                            { label: `Estimated amount to receive`, isLoading, value: estimatedDbrOut > 0 ? `${preciseCommify(estimatedDbrOut, 2)} DBR (${shortenNumber(estimatedDbrOut * dbrPrice, 2, true)})` : '-' }
+                                            : { label: `Estimated amount to sell`, isLoading, value: estimatedDolaIn > 0 ? `${preciseCommify(estimatedDolaIn, 2)} DOLA (${shortenNumber(estimatedDolaIn * dolaPrice || 1, 2, true)})` : '-' }
+                                        ),
+                                        { label: `Price via auction`, color: auctionPriceColor, isLoading, value: dbrAuctionPrice > 0 ? `~${shortenNumber(dbrAuctionPriceInDola, 4)} DOLA (${shortenNumber(dbrAuctionPriceInDola * dolaPrice, 4, true)})` : '-' },
+                                        { label: `Market price via Curve`, isLoading, value: !isCurvePriceLoading && dbrSwapPrice > 0 ? `~${shortenNumber(dbrSwapPriceInDola, 4)} DOLA (${shortenNumber(dbrSwapPriceInDola * dolaPrice, 4, true)})` : '-' },
+                                        estimatedTimeToReachMarketPrice <= 300 ? undefined : { label: `Est. time for the auction to reach the market price`, isLoading, value: estimatedTimeToReachMarketPrice > ONE_DAY_SECS ? `~${shortenNumber((estimatedTimeToReachMarketPrice / ONE_DAY_SECS), 2)} days` : `${moment(estimatedTimestampToReachMarketPrice).fromNow()}` },
+                                    ]} />
+                                    <Divider />
+                                    <ListLabelValues items={[
+                                        { label: `Max. slippage %`, value: auctionSlippageInput },
+                                        (isExactDola ?
+                                            { label: `Min. DBR to receive`, isLoading, value: minDbrOutNum > 0 ? `${preciseCommify(minDbrOutNum, 2, false, true)} DBR (${shortenNumber(minDbrOutNum * dbrPrice, 2, true)})` : '-' }
+                                            :
+                                            { label: `Max. DOLA to send`, isLoading, value: maxDolaInNum > 0 ? `${preciseCommify(maxDolaInNum, 2, false, true)} DOLA (${shortenNumber(maxDolaInNum * dolaPrice, 2, true)})` : '-' }
+                                        ),
+                                    ]} />
+                                </>
                         }
-                        <Divider />
-                        <ListLabelValues items={[
-                            (isExactDola ?
-                                { label: `Estimated amount to receive`, isLoading, value: estimatedDbrOut > 0 ? `${preciseCommify(estimatedDbrOut, 2)} DBR (${shortenNumber(estimatedDbrOut * dbrPrice, 2, true)})` : '-' }
-                                : { label: `Estimated amount to sell`, isLoading, value: estimatedDolaIn > 0 ? `${preciseCommify(estimatedDolaIn, 2)} DOLA (${shortenNumber(estimatedDolaIn * dolaPrice || 1, 2, true)})` : '-' }
-                            ),
-                            { label: `Price via auction`, color: auctionPriceColor, isLoading, value: dbrAuctionPrice > 0 ? `~${shortenNumber(dbrAuctionPriceInDola, 4)} DOLA (${shortenNumber(dbrAuctionPriceInDola * dolaPrice, 4, true)})` : '-' },
-                            { label: `Market price via Curve`, isLoading, value: !isCurvePriceLoading && dbrSwapPrice > 0 ? `~${shortenNumber(dbrSwapPriceInDola, 4)} DOLA (${shortenNumber(dbrSwapPriceInDola * dolaPrice, 4, true)})` : '-' },
-                            estimatedTimeToReachMarketPrice <= 300 ? undefined : { label: `Est. time for the auction to reach the market price`, isLoading, value: estimatedTimeToReachMarketPrice > ONE_DAY_SECS ? `~${shortenNumber((estimatedTimeToReachMarketPrice / ONE_DAY_SECS), 2)} days` : `${moment(estimatedTimestampToReachMarketPrice).fromNow()}` },
-                        ]} />
-                        <Divider />
-                        <ListLabelValues items={[
-                            { label: `Max. slippage %`, value: auctionSlippageInput },
-                            (isExactDola ?
-                                { label: `Min. DBR to receive`, isLoading, value: minDbrOutNum > 0 ? `${preciseCommify(minDbrOutNum, 2, false, true)} DBR (${shortenNumber(minDbrOutNum * dbrPrice, 2, true)})` : '-' }
-                                :
-                                { label: `Max. DOLA to send`, isLoading, value: maxDolaInNum > 0 ? `${preciseCommify(maxDolaInNum, 2, false, true)} DOLA (${shortenNumber(maxDolaInNum * dolaPrice, 2, true)})` : '-' }
-                            ),
-                        ]} />
                     </>
             }
         </VStack>

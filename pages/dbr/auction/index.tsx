@@ -3,7 +3,7 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
 import { DbrAuctionBuyer } from '@app/components/F2/DbrAuction/DbrAuctionBuyer';
-import { DbrAuctionInfos } from '@app/components/F2/DbrAuction/DbrAuctionInfos';
+import { DbrAuctionIntroMsg } from '@app/components/F2/DbrAuction/DbrAuctionInfos';
 import { DbrAuctionBuys } from '@app/components/F2/DbrAuction/DbrAuctionBuys';
 import { useAccount } from '@app/hooks/misc';
 import { useState } from 'react';
@@ -43,22 +43,25 @@ export const DbrAuctionPage = () => {
         mt='6'
         spacing="8"
         px={{ base: '4', lg: '0' }}
-      >        
-        <Stack
-          spacing="0"
-          alignItems="space-between"
-          justify="space-between"
-          w='full'
-          direction={{ base: 'column', xl: 'row' }}
-        >
-          <VStack alignItems="flex-start" w={{ base: 'full', lg: '55%' }}>
-            <DbrAuctionBuyer helperAddress={AUCTION_TYPES[selectedAuction].helper} />
-          </VStack>
-          <Stack alignItems="flex-end" w={{ base: 'full', lg: '45%' }}>
-            <DbrAuctionInfos type={selectedAuction} />
+      >
+        <VStack spacing="4">          
+          <Stack
+            spacing="0"
+            alignItems="space-between"
+            justify="space-between"
+            w='full'
+            direction={{ base: 'column', xl: 'row' }}
+          >
+            <VStack alignItems="flex-start" w={{ base: 'full', lg: '55%' }}>
+              <DbrAuctionBuyer title="General DBR XY=K Auction" helperAddress={AUCTION_TYPES['classic'].helper} />
+            </VStack>
+            <Stack alignItems="flex-end" w={{ base: 'full', lg: '45%' }}>
+              <DbrAuctionBuyer title="sDOLA DBR XY=K Auction" helperAddress={AUCTION_TYPES['sdola'].helper} />
+            </Stack>
           </Stack>
-        </Stack>
-        <DbrAuctionBuys lastUpdate={timestamp} events={accountEvents} title="My past DBR buys from the auction" />       
+          <DbrAuctionIntroMsg />
+        </VStack>
+        <DbrAuctionBuys lastUpdate={timestamp} events={accountEvents} title="My past DBR buys from the auction" />
       </VStack>
     </Layout>
   )
