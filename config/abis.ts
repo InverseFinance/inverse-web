@@ -1,9 +1,7 @@
 import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks';
 import { BOND_V2_AGGREGATOR, BOND_V2_FIXED_TERM, BOND_V2_FIXED_TERM_TELLER } from '@app/variables/bonds';
 import { BONDS } from '@app/variables/tokens';
-import { DWF_PURCHASER } from './constants';
-import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS } from '@app/util/dbr-auction';
-import { DOLA_SAVINGS_ADDRESS, SDOLA_ADDRESS, SDOLA_HELPER_ADDRESS } from '@app/util/dola-staking';
+import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, DOLA_SAVINGS_ADDRESS, DWF_PURCHASER, SDOLA_ADDRESS, SDOLA_HELPER_ADDRESS } from './constants';
 
 // TODO: Clean-up ABIs
 export const COMPTROLLER_ABI = [
@@ -581,6 +579,13 @@ export const DOLA_SAVINGS_ABI = [
   'function maxYearlyRewardBudget() public view returns (uint)',
   'function yearlyRewardBudget() public view returns (uint)',
   'function claimable(address user) public view returns(uint)',
+  'function stake(uint amount, address recipient) public',
+  'function unstake(uint amount) public',
+  'function claim(address to) external',
+  "function balanceOf(address) external view returns (uint256)",
+  "event Stake(address indexed caller, address indexed recipient, uint amount)",
+  "event Unstake(address indexed caller, uint amount)",  
+  "event Claim(address indexed caller, address indexed recipient)",
 ];
 // sDOLA is ERC4626, 
 //function deposit(uint256 assets, address receiver) public 

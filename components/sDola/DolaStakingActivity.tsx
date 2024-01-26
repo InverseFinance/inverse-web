@@ -1,12 +1,10 @@
-import { Text, Flex, Stack } from "@chakra-ui/react"
-import { SWR } from "@app/types";
-import { useCustomSWR } from "@app/hooks/useCustomSWR";
-import { fetcher } from "@app/util/web3";
+import { Text, Flex, Stack, ContainerProps } from "@chakra-ui/react"
+import { shortenNumber } from "@app/util/markets";
 import Table from "@app/components/common/Table";
 import ScannerLink from "@app/components/common/ScannerLink";
 import { Timestamp } from "@app/components/common/BlockTimestamp/Timestamp";
+import moment from "moment";
 import Container from "../common/Container";
-import { preciseCommify } from "@app/util/misc";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="12px" fontWeight="extrabold" {...props} />
@@ -18,6 +16,12 @@ const Cell = ({ ...props }) => {
 
 const CellText = ({ ...props }) => {
     return <Text fontSize="12px" {...props} />
+}
+
+const ACTION_COLORS = {
+    'Stake': 'info',
+    'Unstake': 'warning',
+    'Claim': 'success',
 }
 
 const columns = [
@@ -40,12 +44,22 @@ const columns = [
         </Cell>,
     },
     {
-        field: 'to',
-        label: 'Buyer',
+        field: 'recipient',
+        label: 'Staker',
         header: ({ ...props }) => <ColHeader justify="flex-start" {...props} minWidth="130px" />,
-        value: ({ to }) => {
+        value: ({ recipient }) => {
             return <Cell w="130px" justify="flex-start" position="relative" onClick={(e) => e.stopPropagation()}>
-                <ScannerLink value={to} />
+                <ScannerLink value={recipient} />
+            </Cell>
+        },
+    },
+    {
+        field: 'name',
+        label: 'Action',
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
+        value: ({ name }) => {
+            return <Cell minWidth="90px" justify="center" >
+                <CellText color={ACTION_COLORS[name]} fontWeight="bold">{name}</CellText>
             </Cell>
         },
     },
@@ -53,44 +67,30 @@ const columns = [
         field: 'amount',
         label: 'Amount',
         header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
-        value: ({ amount }) => {
+        value: ({ amount, name }) => {
             return <Cell minWidth="90px" justify="center" >
-                <CellText>{preciseCommify(amount, 2, false, true)} DOLA</CellText>
+                <CellText color={ACTION_COLORS[name]} fontWeight="bold">{shortenNumber(amount, 2, false, true)} {name === 'Claim' ? 'DBR' : 'DOLA'}</CellText>
             </Cell>
         },
-    },    
+    },
 ]
 
-export const useStakedDolaActivity = (account?: string): SWR & {
-    events: any,
-    accountEvents: any,    
-    timestamp: number,
-} => {
-    const { data, error } = useCustomSWR(`/api/transparency/sdola`, fetcher);
-
-    const events = (data?.events || []);
-
-    return {
-        events,
-        accountEvents: events.filter(e => e.account === account),
-        timestamp: data ? data.timestamp : 0,
-        isLoading: !error && !data,
-        isError: error,
-    }
-}
-
-export const StakeDolaActivity = ({ events }) => {
+export const DolaStakingActivity = ({ events, title, lastUpdate, ...containerProps }: { events: any[], title: string, lastUpdate: number, containerProps?: ContainerProps }) => {
     return <Container
-        label="My past DOLA staking activity"
+        label={title}
+        description={lastUpdate > 0 ? `Last update: ${moment(lastUpdate).fromNow()}` : undefined}
         noPadding
         m="0"
         p="0"
+        {...containerProps}
     >
         <Table
             keyName="txHash"
             columns={columns}
             items={events}
-            noDataMessage="No DBR buys yet"
+            noDataMessage="No staking activity yet"
+            defaultSort="timestamp"
+            defaultSortDir="desc"
         />
     </Container>
 }

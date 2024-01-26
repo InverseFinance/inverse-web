@@ -2,17 +2,18 @@ import { HStack, VStack, Text } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
-import { DbrAuctionBuys, useDbrAuctionBuys } from '@app/components/F2/DbrAuction/DbrAuctionBuys';
+import { DbrAuctionBuys } from '@app/components/F2/DbrAuction/DbrAuctionBuys';
 import { DbrAuctionBuysChart } from '@app/components/F2/DbrAuction/DbrAuctionBuysChart';
-import { useAccount } from '@app/hooks/misc';
 import Container from '@app/components/common/Container';
 import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader';
 import { preciseCommify } from '@app/util/misc';
 import { DbrAuctionTabs } from '@app/components/F2/DbrAuction/DbrAuctionTabs';
+import { useDbrAuctionActivity } from '@app/util/dbr-auction';
+import { SkeletonBlob } from '@app/components/common/Skeleton';
 
 export const DbrAuctionStatsPage = () => {
-  const account = useAccount();
-  const { isLoading, events, accDolaIn, accDbrOut, timestamp } = useDbrAuctionBuys(account);
+  const { isLoading, events, accDolaIn, accDbrOut, timestamp } = useDbrAuctionActivity();
+  console.log(events)
   return (
     <Layout>
       <Head>
@@ -23,13 +24,13 @@ export const DbrAuctionStatsPage = () => {
         <meta name="keywords" content="Inverse Finance, swap, stablecoin, DOLA, DBR, auction" />
       </Head>
       <AppNav active="Swap" activeSubmenu="Buy DBR (auction)" />
-      <DbrAuctionTabs defaultIndex={1} />      
+      <DbrAuctionTabs defaultIndex={1} />
       <VStack
         w={{ base: 'full', lg: '1200px' }}
         mt='6'
         spacing="8"
         px={{ base: '4', lg: '0' }}
-      >        
+      >
         <DbrAuctionBuys lastUpdate={timestamp} events={events} title="DBR buys from the auction" />
         <Container
           label="DBR auction stats"
@@ -60,7 +61,11 @@ export const DbrAuctionStatsPage = () => {
             </HStack>
           }
         >
-          <DbrAuctionBuysChart events={events} />
+          {
+            isLoading ?
+              <SkeletonBlob />
+              : <DbrAuctionBuysChart events={events} />
+          }
         </Container>
       </VStack>
     </Layout>

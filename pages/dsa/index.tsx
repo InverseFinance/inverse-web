@@ -2,27 +2,27 @@ import { Stack, VStack } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
-import { StakeDolaUI } from '@app/components/sDola/StakeDolaUI';
-import { StakeDolaInfos } from '@app/components/sDola/StakeDolaInfos';
 import { useAccount } from '@app/hooks/misc';
+import { DsaUI } from '@app/components/sDola/DsaUI';
+import { DsaInfos } from '@app/components/sDola/DsaInfos';
 import { DolaStakingTabs } from '@app/components/F2/DolaStaking/DolaStakingTabs';
 import { DolaStakingActivity } from '@app/components/sDola/DolaStakingActivity';
 import { useDolaStakingActivity } from '@app/util/dola-staking';
 
-export const SdolaPage = () => {
+export const DOLASavingsAccountPage = () => {
   const account = useAccount();
-  const { isLoading, accountEvents, events } = useDolaStakingActivity(account, 'sdola');
+  const { isLoading, accountEvents, events } = useDolaStakingActivity(account, 'dsa');
   return (
     <Layout>
       <Head>
-        <title>Inverse Finance - sDOLA</title>
-        <meta name="og:title" content="Inverse Finance - sDOLA" />
-        <meta name="og:description" content="sDOLA" />
-        <meta name="description" content="sDOLA" />
+        <title>Inverse Finance - DOLA Savings Account</title>
+        <meta name="og:title" content="Inverse Finance - DOLA Savings Account" />
+        <meta name="og:description" content="DOLA Savings Account" />
+        <meta name="description" content="DOLA Savings Account" />
         <meta name="keywords" content="Inverse Finance, swap, stablecoin, DOLA, DBR" />
       </Head>
       <AppNav active="Swap" />
-      <DolaStakingTabs />
+      <DolaStakingTabs defaultIndex={1} />
       <VStack
         w={{ base: 'full', lg: '1000px' }}
         mt='6'
@@ -37,10 +37,10 @@ export const SdolaPage = () => {
           direction={{ base: 'column', xl: 'row' }}
         >
           <VStack alignItems="flex-start" w={{ base: 'full', lg: '55%' }}>
-            <StakeDolaUI />
+            <DsaUI />
           </VStack>
           <Stack alignItems="flex-end" w={{ base: 'full', lg: '45%' }}>
-            <StakeDolaInfos />
+            <DsaInfos />
           </Stack>
         </Stack>
         <DolaStakingActivity events={accountEvents} title="My Staking activity" />
@@ -49,4 +49,4 @@ export const SdolaPage = () => {
   )
 }
 
-export default SdolaPage
+export default DOLASavingsAccountPage

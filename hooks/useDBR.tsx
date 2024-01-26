@@ -44,14 +44,14 @@ export const useAccountDBR = (
     [DBR, 'debts', account],
     [DBR, 'dueTokensAccrued', account],
     [DBR, 'signedBalanceOf', account],
-    [DBR, 'lastUpdated', account],
+    // [DBR, 'lastUpdated', account],
   ]);
-  const blockTimestamp = useBlockTimestamp('latest');
+  // const blockTimestamp = useBlockTimestamp('latest');
 
   const [balance, debt, interests, signedBalance] = (data || [zero, zero, zero, zero])
     .map(v => getBnToNumber(v));
   // const [balance, allowance, debt, interests, signedBalance] = [100, 0, 5000, 0, 2500];  
-  const lastUpdate = data ? getBnToNumber(data[4], 0) * 1000 : 0;  
+  // const lastUpdate = data ? getBnToNumber(data[4], 0) * 1000 : 0;  
 
   // interests are not auto-compounded
   const _debt = previewDebt ?? debt;
@@ -64,10 +64,10 @@ export const useAccountDBR = (
   const dbrDepletionPerc = dbrNbDaysExpiry / 365 * 100;
 
   // dbr v1 edge issue
-  const hasDbrV1NewBorrowIssue = lastUpdate > 0 && debt === 0 && lastUpdate !== (blockTimestamp?.timestamp||0);
+  // const hasDbrV1NewBorrowIssue = lastUpdate > 0 && debt === 0 && lastUpdate !== (blockTimestamp?.timestamp||0);
 
   return {
-    hasDbrV1NewBorrowIssue,
+    hasDbrV1NewBorrowIssue: false,
     bnBalance: data ? data[0] : BigNumber.from('0'),
     balance,
     debt: _debt,

@@ -1,5 +1,5 @@
-import { VStack, Text, HStack, SimpleGrid, Divider } from "@chakra-ui/react"
-import { sdolaDevInit, stakeDola, unstakeDola, useDolaStakingEarnings, useStakedDola, useStakedDolaBalance } from "@app/util/dola-staking"
+import { VStack, Text, HStack, Divider } from "@chakra-ui/react"
+import { dsaClaimRewards, sdolaDevInit, stakeDolaToSavings, unstakeDolaFromSavings, useDSABalance, useStakedDola } from "@app/util/dola-staking"
 import { useWeb3React } from "@web3-react/core";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
 import { useMemo, useState } from "react";
@@ -7,17 +7,18 @@ import { getNetworkConfigConstants } from "@app/util/networks";
 import { parseEther } from "@ethersproject/units";
 import Container from "../common/Container";
 import { NavButtons } from "@app/components/common/Button";
-import { InfoMessage } from "@app/components/common/Messages";
+import { InfoMessage, SuccessMessage } from "@app/components/common/Messages";
 import { preciseCommify } from "@app/util/misc";
 import { useDOLABalance } from "@app/hooks/useDOLA";
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
-import { SDOLA_ADDRESS } from "@app/util/dola-staking";
+import { DOLA_SAVINGS_ADDRESS } from "@app/util/dola-staking";
 import { useDBRPrice } from "@app/hooks/useDBR";
 import { getMonthlyRate, shortenNumber } from "@app/util/markets";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { TextInfo } from "../common/Messages/TextInfo";
+import { ZapperTokens } from "../F2/rewards/ZapperTokens";
 
-const { DOLA } = getNetworkConfigConstants();
+const { DOLA, DBR } = getNetworkConfigConstants();
 
 const StatBasic = ({ value, name, message, onClick = undefined, isLoading = false }: { value: string, message: any, onClick?: () => void, name: string, isLoading?: boolean }) => {
     return <VStack>
@@ -31,61 +32,77 @@ const StatBasic = ({ value, name, message, onClick = undefined, isLoading = fals
     </VStack>
 }
 
-export const StakeDolaUI = () => {
+export const DsaUI = () => {
     const { provider, account } = useWeb3React();
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
     const [dolaAmount, setDolaAmount] = useState('');
     const [isConnected, setIsConnected] = useState(true);
     const [tab, setTab] = useState('Stake');
+    const [isJustClaimed, setIsJustClaimed] = useState(false);
     const isStake = tab === 'Stake';
 
-    const { apr, projectedApr, isLoading } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
+    const { savingsApr, accountRewardsClaimable, isLoading } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));    
+    const totalRewardsUSD = accountRewardsClaimable * dbrPrice;
+    const claimables = [{ balance: accountRewardsClaimable, price: dbrPrice, balanceUSD: totalRewardsUSD, address: DBR }];
     const { balance: dolaBalance } = useDOLABalance(account);
-    const { stakedDolaBalance, earnings } = useDolaStakingEarnings(account);
+    const { balance: dolaSavingsBalance } = useDSABalance(account);
 
-    const monthlyProjectedDolaRewards = useMemo(() => {
-        return (projectedApr > 0 && stakedDolaBalance > 0 ? getMonthlyRate(stakedDolaBalance, projectedApr) : 0);
-    }, [stakedDolaBalance, projectedApr]);
-
-    const monthlyDolaRewards = useMemo(() => {
-        return (apr > 0 && stakedDolaBalance > 0 ? getMonthlyRate(stakedDolaBalance, apr) : 0);
-    }, [stakedDolaBalance, apr]);
+    const monthlyDbrRewards = useMemo(() => {
+        return (savingsApr > 0 && dolaSavingsBalance > 0 && dbrDolaPrice > 0 ? getMonthlyRate(dolaSavingsBalance, savingsApr)/dbrDolaPrice : 0);
+    }, [dolaSavingsBalance, savingsApr, dbrDolaPrice]);
 
     const handleAction = async () => {
         // return sdolaDevInit(provider?.getSigner());
         if (isStake) {
-            return stakeDola(provider?.getSigner(), parseEther(dolaAmount));
+            return stakeDolaToSavings(provider?.getSigner(), parseEther(dolaAmount));
         }
-        return unstakeDola(provider?.getSigner(), parseEther(dolaAmount));
+        return unstakeDolaFromSavings(provider?.getSigner(), parseEther(dolaAmount));
+    }
+
+    const handleClaim = () => {
+        return dsaClaimRewards(provider?.getSigner());
+    }
+
+    const handleClaimSuccess = () => {
+        setIsJustClaimed(true);
     }
 
     useDebouncedEffect(() => {
         setIsConnected(!!account)
-    }, [account], 500);
+    }, [account], 500);    
 
     return <VStack w='full' maxW='470px' spacing="4">
         <HStack justify="space-between" w='full'>
-            <StatBasic message="This week's APR is calculated with last week's DBR auction revenues" isLoading={isLoading} name="APR" value={apr ? `${shortenNumber(apr, 2)}%` : 'TBD'} />
-            <StatBasic message="The projected APR is calculated with the dbrRatePerDOLA and the current DBR price in DOLA" isLoading={isLoading} name="Projected APR" value={`${shortenNumber(projectedApr, 2)}%`} />
+            <StatBasic message="Annual Percentage Rate of DBR rewards" isLoading={isLoading} name="DSA APR" value={`${shortenNumber(savingsApr, 2)}%`} />
+            <StatBasic message="Market price of DBR on Curve" isLoading={isLoading} name="DBR price" value={`${shortenNumber(dbrPrice, 4, true)}`} />
         </HStack>
         {
-            (monthlyProjectedDolaRewards > 0 || monthlyDolaRewards > 0) && <InfoMessage
+            monthlyDbrRewards > 0 && <InfoMessage
                 alertProps={{ w: 'full' }}
                 description={
-                    <VStack alignItems="flex-start">
-                        { earnings > 0.1 && <Text>Your cumulated earnings: <b>{preciseCommify(earnings, 2)} DOLA</b></Text> }
-                        <Text>Your projected monthly rewards: <b>~{preciseCommify(monthlyProjectedDolaRewards, 2)} DOLA</b></Text>
-                        {/* {apr > 0 && <Text>Your monthly rewards: ~{preciseCommify(monthlyDolaRewards, 2)} DOLA</Text>} */}
-                        <Text>Note: actual rewards depend on past revenue</Text>
-                    </VStack>
+                    <Text>Your monthly rewards: <b>~${preciseCommify(monthlyDbrRewards, 2)} DBR (~${preciseCommify(monthlyDbrRewards * dbrPrice, 2, true)})</b></Text>
                 }
             />
         }
         <Divider borderColor="mainTextColor" />
+        {
+            isJustClaimed ? <SuccessMessage
+                alertProps={{ w: 'full' }}
+                description="Rewards claimed!"
+            />
+                :
+                totalRewardsUSD >= 0.1 && <ZapperTokens
+                    market={{ address: DOLA_SAVINGS_ADDRESS }}
+                    claimables={claimables}
+                    totalRewardsUSD={totalRewardsUSD}
+                    handleClaim={() => handleClaim()}
+                    onSuccess={handleClaimSuccess}
+                />
+        }
         <Container
-            label="sDOLA - Yield-Bearing stablecoin"
+            label="DOLA Savings Account"
             description="See contract"
-            href={`https://etherscan.io/address/${SDOLA_ADDRESS}`}
+            href={`https://etherscan.io/address/${DOLA_SAVINGS_ADDRESS}`}
             noPadding
             m="0"
             p="0">
@@ -100,7 +117,7 @@ export const StakeDolaUI = () => {
                                     DOLA balance: {dolaBalance ? preciseCommify(dolaBalance, 2) : '-'}
                                 </Text>
                                 <Text fontSize="14px">
-                                    sDOLA balance: {stakedDolaBalance ? preciseCommify(stakedDolaBalance, 2) : '-'}
+                                    DSA balance: {dolaSavingsBalance ? preciseCommify(dolaSavingsBalance, 2) : '-'}
                                 </Text>
                             </HStack>
                             {
@@ -113,7 +130,7 @@ export const StakeDolaUI = () => {
                                             btnProps={{ needPoaFirst: true }}
                                             defaultAmount={dolaAmount}
                                             address={DOLA}
-                                            destination={SDOLA_ADDRESS}
+                                            destination={DOLA_SAVINGS_ADDRESS}
                                             signer={provider?.getSigner()}
                                             decimals={18}
                                             onAction={() => handleAction()}
@@ -132,8 +149,8 @@ export const StakeDolaUI = () => {
                                         <SimpleAmountForm
                                             btnProps={{ needPoaFirst: true }}
                                             defaultAmount={dolaAmount}
-                                            address={SDOLA_ADDRESS}
-                                            destination={SDOLA_ADDRESS}
+                                            address={DOLA_SAVINGS_ADDRESS}
+                                            destination={DOLA_SAVINGS_ADDRESS}
                                             needApprove={false}
                                             signer={provider?.getSigner()}
                                             decimals={18}

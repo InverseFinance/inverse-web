@@ -1,9 +1,14 @@
 import { DBR_AUCTION_ABI, DBR_AUCTION_HELPER_ABI } from "@app/config/abis";
+import { useContractEvents } from "@app/hooks/useContractEvents";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
-
-export const DBR_AUCTION_ADDRESS = '0x933cBE81313d9dD523dF6dC9B899A7AF8Ba073e3';
-export const DBR_AUCTION_HELPER_ADDRESS = '0xC7D5E6FA4D5B4b4A82b14a256008DAfAF5232ADb';
+import { ascendingEventsSorter } from "./misc";
+import { useBlocksTimestamps } from "@app/hooks/useBlockTimestamp";
+import { getBnToNumber } from "./markets";
+import { useCustomSWR } from "@app/hooks/useCustomSWR";
+import { SWR } from "@app/types";
+import { fetcher } from "./web3";
+import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS } from "@app/config/constants";
 
 export const getDbrAuctionContract = (signerOrProvider: JsonRpcSigner, auctionAddress = DBR_AUCTION_ADDRESS) => {
     return new Contract(auctionAddress, DBR_AUCTION_ABI, signerOrProvider);
@@ -84,4 +89,68 @@ export const estimateAuctionTimeToReachMarketPrice = (
     }
 
     return timeToAddSec;
+}
+
+export const useDbrAuctionActivity = (from?: string): SWR & {
+    events: any,
+    accountEvents: any,    
+    timestamp: number,
+    avgDbrPrice: number,
+    nbBuys: number,
+    accDolaIn: number,
+    accDbrOut: number,
+} => {
+    const liveEvents = useDbrAuctionBuyEvents(from);
+    const { data, error } = useCustomSWR(`/api/auctions/dbr-buys`, fetcher);
+
+    const events = (liveEvents?.length > data?.buys?.length ? liveEvents : data?.buys || [])
+        .map(e => ({ ...e, priceInDola: (e.dolaIn / e.dbrOut) }));
+    const accDolaIn = events.reduce((prev, curr) => prev + curr.dolaIn, 0);
+    const accDbrOut = events.reduce((prev, curr) => prev + curr.dbrOut, 0);
+    const avgDbrPrice = accDolaIn / accDbrOut;
+    const nbBuys = events.length;
+
+    return {
+        events,
+        accountEvents: events.filter(e => e.to === from),
+        nbBuys,
+        avgDbrPrice,
+        accDolaIn,
+        accDbrOut,
+        timestamp: !from ? data?.timestamp : 0,
+        isLoading: !error && !data,
+        isError: error,
+    }
+}
+
+export const useDbrAuctionBuyEvents = (account: string) => {
+    const { events: buyEventsData } = useContractEvents(
+        DBR_AUCTION_ADDRESS,
+        DBR_AUCTION_ABI,
+        'Buy',
+        !!account ? [undefined, account] : undefined,
+    );
+    const eventsData = buyEventsData;
+    const sortedEvents = eventsData.sort(ascendingEventsSorter);
+    const uniqueBlocks = [...new Set(sortedEvents.map(e => e.blockNumber))];
+    const { timestamps } = useBlocksTimestamps(uniqueBlocks);
+    const timestampsAsObj = timestamps.reduce((prev, curr, i) => ({ ...prev, [uniqueBlocks[i]]: curr / 1000 }), {});
+    return formatDbrAuctionBuys(sortedEvents, timestampsAsObj);
+}
+
+export const formatDbrAuctionBuys = (events: any[], timestamps?: any) => {
+    let totalBuys = 0;
+    return events.map(e => {
+        const amount = getBnToNumber(e.args.amount || e.args.assets || '0');
+        totalBuys += amount;
+        return {
+            txHash: e.transactionHash,
+            timestamp: timestamps ? timestamps[e.blockNumber] * 1000 : undefined,
+            blockNumber: e.blockNumber,
+            caller: e.args[0],
+            to: e.args[1],
+            dolaIn: getBnToNumber(e.args[2]),
+            dbrOut: getBnToNumber(e.args[3]),
+        };
+    });
 }

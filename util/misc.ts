@@ -1,6 +1,6 @@
 import { commify } from '@ethersproject/units';
 import { showToast } from './notify';
-import { ONE_DAY_MS } from '@app/config/constants';
+import { ONE_DAY_MS, SECONDS_PER_BLOCK } from '@app/config/constants';
 
 export const capitalize = (v: string) => v[0].toUpperCase() + v.substring(1, v.length).toLowerCase();
 
@@ -327,4 +327,12 @@ export const getEveryXthElement = (arr: any[], X = 1) => {
         result.push(arr[i]);
     }
     return result;
+}
+
+// gross estimation
+export const estimateBlockTimestamp = (pastBlock: number, nowTs: number, nowBlock: number) => {
+    return nowTs - ((nowBlock - pastBlock) * SECONDS_PER_BLOCK * 1000);
+}
+export const estimateBlocksTimestamps = (pastBlocks: number[], nowTs: number, nowBlock: number) => {
+    return pastBlocks.map(pastBlock => estimateBlockTimestamp(pastBlock, nowTs, nowBlock));
 }

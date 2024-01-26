@@ -17,15 +17,16 @@ import { useDOLAPriceLive } from "@app/hooks/usePrices";
 import { InfoMessage } from "@app/components/common/Messages";
 import { preciseCommify } from "@app/util/misc";
 import { useDOLABalance } from "@app/hooks/useDOLA";
-import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
 import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader";
 import { useDbrAuction } from "./DbrAuctionInfos";
 import moment from "moment";
 import { ONE_DAY_SECS } from "@app/config/constants";
+import { useDualSpeedEffect } from "@app/hooks/useDualSpeedEffect";
 
 const { DOLA } = getNetworkConfigConstants();
 
-const defaultRefAmount = '1';
+const defaultRefClassicAmount = '1';
+const defaultRefSdolaAmount = '0.999';
 
 const ListLabelValues = ({ items }: { items: { label: string, value: string | any, color?: string, isLoading?: boolean }[] }) => {
     return <VStack w='full' spacing="2" alignItems="flex-start">
@@ -57,7 +58,10 @@ export const DbrAuctionBuyer = ({
     const [slippage, setSlippage] = useState('1');
     const [tab, setTab] = useState('Sell DOLA');
     const isExactDola = tab === 'Sell DOLA';
-    const { dolaReserve, dbrReserve, dbrRatePerYear } = useDbrAuction();
+    const isClassicDbrAuction = helperAddress === DBR_AUCTION_HELPER_ADDRESS;
+    const defaultRefAmount = isClassicDbrAuction ? defaultRefClassicAmount : defaultRefSdolaAmount;
+    const { dolaReserve, dbrReserve, dbrRatePerYear } = useDbrAuction(isClassicDbrAuction);
+
     const { price: dbrSwapPriceRef } = useTriCryptoSwap(parseFloat(defaultRefAmount), 0, 1);
     const { price: dbrSwapPrice, isLoading: isCurvePriceLoading } = useTriCryptoSwap(parseFloat(!dolaAmount || dolaAmount === '0' ? defaultRefAmount : dolaAmount), 0, 1);
     const { data, error } = useEtherSWR([
@@ -66,6 +70,7 @@ export const DbrAuctionBuyer = ({
         [helperAddress, 'getDolaIn', parseEther(dbrAmount || defaultRefAmount)],
         [helperAddress, 'getDolaIn', parseEther(defaultRefAmount)],
     ]);
+    
     const isLoading = isCurvePriceLoading || (!data && !error);
 
     const { priceUsd: dbrPrice } = useDBRPrice();
@@ -121,9 +126,9 @@ export const DbrAuctionBuyer = ({
         setDbrAmount('');
     }
 
-    useDebouncedEffect(() => {
-        setIsConnected(!!account)
-    }, [account], 500);
+    useDualSpeedEffect(() => {
+        setIsConnected(!!account);
+    }, [account], !!account, 1000, 0);
 
     useEffect(() => {
         if (!dbrSwapPriceRefInDola || !dolaReserve || !dbrRatePerYear || !dbrReserve) return;
@@ -165,6 +170,7 @@ export const DbrAuctionBuyer = ({
                                         <Text fontWeight="bold" fontSize="14px">Exact amount DOLA to sell:</Text>
                                     </TextInfo>
                                     <SimpleAmountForm
+                                        btnProps={{ needPoaFirst:true }}
                                         defaultAmount={dolaAmount}
                                         address={DOLA}
                                         destination={helperAddress}
@@ -187,6 +193,7 @@ export const DbrAuctionBuyer = ({
                                         <Text fontWeight="bold" fontSize="14px">Exact amount of DBR to buy:</Text>
                                     </TextInfo>
                                     <SimpleAmountForm
+                                        btnProps={{ needPoaFirst:true }}
                                         defaultAmount={dbrAmount}
                                         address={DOLA}
                                         destination={helperAddress}

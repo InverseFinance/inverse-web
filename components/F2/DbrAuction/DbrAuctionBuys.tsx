@@ -1,10 +1,6 @@
 import { Text, Flex, Stack } from "@chakra-ui/react"
 import { shortenNumber } from "@app/util/markets";
 import Container from "../../common/Container";
-import { SWR } from "@app/types";
-import { useCustomSWR } from "@app/hooks/useCustomSWR";
-import { fetcher } from "@app/util/web3";
-import { useAccount } from "@app/hooks/misc";
 import Table from "@app/components/common/Table";
 import ScannerLink from "@app/components/common/ScannerLink";
 import { Timestamp } from "@app/components/common/BlockTimestamp/Timestamp";
@@ -83,40 +79,10 @@ const columns = [
     },
 ]
 
-export const useDbrAuctionBuys = (from?: string): SWR & {
-    events: any,
-    accountEvents: any,    
-    timestamp: number,
-    avgDbrPrice: number,
-    nbBuys: number,
-    accDolaIn: number,
-    accDbrOut: number,
-} => {
-    const { data, error } = useCustomSWR(`/api/auctions/dbr-buys`, fetcher);
-
-    const events = (data?.buys || []).map(e => ({ ...e, priceInDola: (e.dolaIn / e.dbrOut) }));
-    const accDolaIn = events.reduce((prev, curr) => prev + curr.dolaIn, 0);
-    const accDbrOut = events.reduce((prev, curr) => prev + curr.dbrOut, 0);
-    const avgDbrPrice = accDolaIn / accDbrOut;
-    const nbBuys = events.length;
-
-    return {
-        events,
-        accountEvents: events.filter(e => e.to === from),
-        nbBuys,
-        avgDbrPrice,
-        accDolaIn,
-        accDbrOut,
-        timestamp: data ? data.timestamp : 0,
-        isLoading: !error && !data,
-        isError: error,
-    }
-}
-
 export const DbrAuctionBuys = ({ events, title, lastUpdate }: { events: any[], title: string, lastUpdate: number }) => {
     return <Container
         label={title}
-        description={events.length > 0 ? `Last update: ${moment(lastUpdate).fromNow()}` : undefined}
+        description={lastUpdate > 0 ? `Last update: ${moment(lastUpdate).fromNow()}` : undefined}
         noPadding
         m="0"
         p="0"
