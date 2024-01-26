@@ -8,9 +8,7 @@ import { getBnToNumber } from "./markets";
 import { useCustomSWR } from "@app/hooks/useCustomSWR";
 import { SWR } from "@app/types";
 import { fetcher } from "./web3";
-
-export const DBR_AUCTION_ADDRESS = '0x933cBE81313d9dD523dF6dC9B899A7AF8Ba073e3';
-export const DBR_AUCTION_HELPER_ADDRESS = '0xC7D5E6FA4D5B4b4A82b14a256008DAfAF5232ADb';
+import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS } from "@app/config/constants";
 
 export const getDbrAuctionContract = (signerOrProvider: JsonRpcSigner, auctionAddress = DBR_AUCTION_ADDRESS) => {
     return new Contract(auctionAddress, DBR_AUCTION_ABI, signerOrProvider);
@@ -102,10 +100,11 @@ export const useDbrAuctionActivity = (from?: string): SWR & {
     accDolaIn: number,
     accDbrOut: number,
 } => {
-    const liveEvents = useDbrAuctionBuyEvents(from);    
+    const liveEvents = useDbrAuctionBuyEvents(from);
     const { data, error } = useCustomSWR(`/api/auctions/dbr-buys`, fetcher);
 
-    const events = (liveEvents || data?.buys || []).map(e => ({ ...e, priceInDola: (e.dolaIn / e.dbrOut) }));
+    const events = (liveEvents?.length > data?.buys?.length ? liveEvents : data?.buys || [])
+        .map(e => ({ ...e, priceInDola: (e.dolaIn / e.dbrOut) }));
     const accDolaIn = events.reduce((prev, curr) => prev + curr.dolaIn, 0);
     const accDbrOut = events.reduce((prev, curr) => prev + curr.dbrOut, 0);
     const avgDbrPrice = accDolaIn / accDbrOut;

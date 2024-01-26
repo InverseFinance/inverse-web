@@ -1,5 +1,5 @@
 import { DOLA_SAVINGS_ABI, SDOLA_ABI, SDOLA_HELPER_ABI } from "@app/config/abis";
-import { BURN_ADDRESS, ONE_DAY_MS, WEEKS_PER_YEAR } from "@app/config/constants";
+import { BURN_ADDRESS, DOLA_SAVINGS_ADDRESS, ONE_DAY_MS, SDOLA_ADDRESS, SDOLA_HELPER_ADDRESS, WEEKS_PER_YEAR } from "@app/config/constants";
 import useEtherSWR from "@app/hooks/useEtherSWR";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
@@ -11,10 +11,6 @@ import { ascendingEventsSorter } from "./misc";
 import { useBlocksTimestamps } from "@app/hooks/useBlockTimestamp";
 import { SWR } from "@app/types";
 import { fetcher } from "./web3";
-
-export const DOLA_SAVINGS_ADDRESS = '0x3C2BafebbB0c8c58f39A976e725cD20D611d01e9';
-export const SDOLA_ADDRESS = '0x5f246ADDCF057E0f778CD422e20e413be70f9a0c';
-export const SDOLA_HELPER_ADDRESS = '0xaD82Ecf79e232B0391C5479C7f632aA1EA701Ed1';
 
 export const getDolaSavingsContract = (signerOrProvider: JsonRpcSigner) => {
     return new Contract(DOLA_SAVINGS_ADDRESS, DOLA_SAVINGS_ABI, signerOrProvider);
@@ -212,7 +208,8 @@ export const useDolaStakingActivity = (from?: string, type = 'dsa'): SWR & {
     const liveEvents = useDolaStakingEvents();
     const { data, error } = useCustomSWR(`/api/dola-staking/activity`, fetcher);
 
-    const events = (liveEvents || (data?.events || [])).filter(e => e.type === type);
+    const events = (liveEvents?.length > data?.events?.length ? liveEvents : data?.events || [])
+        .filter(e => e.type === type);
     return {
         events,
         accountEvents: events.filter(e => !from || e.recipient === from),

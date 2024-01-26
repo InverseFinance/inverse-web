@@ -7,10 +7,10 @@ import { DbrAuctionInfos } from '@app/components/F2/DbrAuction/DbrAuctionInfos';
 import { DbrAuctionBuys } from '@app/components/F2/DbrAuction/DbrAuctionBuys';
 import { useAccount } from '@app/hooks/misc';
 import { useState } from 'react';
-import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, useDbrAuctionActivity } from '@app/util/dbr-auction';
-import { DOLA_SAVINGS_ADDRESS, SDOLA_HELPER_ADDRESS } from '@app/util/dola-staking';
+import { useDbrAuctionActivity } from '@app/util/dbr-auction';
 import { DbrAuctionType } from '@app/types';
 import { DbrAuctionTabs } from '@app/components/F2/DbrAuction/DbrAuctionTabs';
+import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, DOLA_SAVINGS_ADDRESS, SDOLA_HELPER_ADDRESS } from '@app/config/constants';
 
 const AUCTION_TYPES = {
   'classic': {
