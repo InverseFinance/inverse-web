@@ -27,7 +27,7 @@ export const DsaStakingChart = ({ events }) => {
     </VStack>
 }
 
-export const SDolaStakingChart = ({ events }) => {
+export const SDolaStakingChart = ({ events, evolution }) => {
     const { chartData } = useEventsAsChartData(events, 'sDolaStaking', 'sDolaStaking', true, true, 0);    
     const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
@@ -45,6 +45,28 @@ export const SDolaStakingChart = ({ events }) => {
             isDollars={false}
             smoothLineByDefault={false}
             areaProps={{ title: 'DOLA staked in sDOLA over time', id: 'dola-staking-sdola', showRangeBtns: true, yLabel: 'DOLA staked', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
+        />
+    </VStack>
+}
+
+export const SDolaStakingEvolutionChart = ({ evolution, attribute, yLabel, title }) => {
+    const { chartData } = useEventsAsChartData(evolution, attribute, attribute, true, true, 0);    
+    const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
+    const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
+
+    useEffect(() => {
+        setAutoChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 80)
+    }, [isLargerThan]);
+
+    return <VStack pt="8">
+        <DefaultCharts
+            showMonthlyBarChart={false}
+            maxChartWidth={autoChartWidth}
+            chartWidth={autoChartWidth}
+            chartData={chartData}
+            isDollars={false}
+            smoothLineByDefault={false}
+            areaProps={{ title, id: 'dola-staking-evolution', showRangeBtns: true, yLabel, useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
         />
     </VStack>
 }

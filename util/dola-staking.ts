@@ -222,6 +222,21 @@ export const useDolaStakingActivity = (from?: string, type = 'dsa'): SWR & {
     }
 }
 
+export const useDolaStakingEvolution = (): SWR & {
+    evolution: any[],
+    timestamp: number,
+} => {    
+    const { data, error } = useCustomSWR(`/api/dola-staking/history`, fetcher);
+
+    const evolution = (data?.totalEntries || []);
+    return {
+        evolution,        
+        timestamp: data ? data.timestamp : 0,
+        isLoading: !error && !data,
+        isError: error,
+    }
+}
+
 export const useDolaStakingEarnings = (account: string) => {
     const { events: depositEventsData } = useContractEvents(
         SDOLA_ADDRESS,
