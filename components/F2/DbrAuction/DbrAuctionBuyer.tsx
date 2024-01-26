@@ -1,5 +1,5 @@
 import { VStack, Text, HStack, Divider } from "@chakra-ui/react"
-import { DBR_AUCTION_HELPER_ADDRESS, estimateAuctionTimeToReachMarketPrice, swapDolaForExactDbr, swapExactDolaForDbr } from "@app/util/dbr-auction"
+import { estimateAuctionTimeToReachMarketPrice, swapDolaForExactDbr, swapExactDolaForDbr } from "@app/util/dbr-auction"
 import useEtherSWR from "@app/hooks/useEtherSWR";
 import { useWeb3React } from "@web3-react/core";
 import { getBnToNumber, getNumberToBn, shortenNumber } from "@app/util/markets";
@@ -20,7 +20,7 @@ import { useDOLABalance } from "@app/hooks/useDOLA";
 import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader";
 import { useDbrAuction } from "./DbrAuctionInfos";
 import moment from "moment";
-import { ONE_DAY_SECS } from "@app/config/constants";
+import { DBR_AUCTION_HELPER_ADDRESS, ONE_DAY_SECS } from "@app/config/constants";
 import { useDualSpeedEffect } from "@app/hooks/useDualSpeedEffect";
 
 const { DOLA } = getNetworkConfigConstants();
