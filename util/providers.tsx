@@ -18,7 +18,7 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
         return new JsonRpcProvider('https://bsc-dataseed3.binance.org');
     }
     else if (chainId === NetworkIds.arbitrum && !specificAlchemyKey) {
-        return new JsonRpcProvider('https://arbitrum.llamarpc.com');
+        return new JsonRpcProvider('https://arb1.arbitrum.io/rpc');
     }
     else if (chainId === NetworkIds.polygon && !specificAlchemyKey) {
         return new JsonRpcProvider('https://rpc.ankr.com/polygon');
