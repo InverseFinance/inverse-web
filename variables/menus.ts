@@ -371,7 +371,7 @@ export const MENUS = {
         },
         {
           label: 'Brand Assets',
-          href: '/brand-assets.pdf',
+          href: '/brand-assets-2024.pdf',
         },
       ],
     },
