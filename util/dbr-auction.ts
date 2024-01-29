@@ -225,10 +225,13 @@ export const useDbrAuctionPricing = ({
     return {
         isLoading,
         estimatedTimestampToReachMarketPrice,
+        estimatedTimeToReachMarketPrice,
         dbrSwapPriceRefInDola,        
         dbrAuctionPriceInDola,
         minDbrOutNum,
         maxDolaInNum,
+        minDbrOut,
+        maxDolaIn,
         helperAddress,
         isClassicDbrAuction,
         estimatedDolaIn,

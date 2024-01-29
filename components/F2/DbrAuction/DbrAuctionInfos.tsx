@@ -22,7 +22,7 @@ export const useDbrAuction = (isClassicDbrAuction: boolean): {
     K: number;
     isLoading: boolean;
     hasError: boolean;
-} => {    
+} => {
     const { data: apiData, error: apiErr } = useCustomSWR(`/api/auctions/dbr?isClassic=${isClassicDbrAuction}`);
     const { account } = useWeb3React();
     // reserves is an array
@@ -64,13 +64,15 @@ export const useDbrAuction = (isClassicDbrAuction: boolean): {
     }
 }
 
-export const DbrAuctionParametersWrapper = ({ type }: { type: DbrAuctionType }) => {
+export const DbrAuctionParametersWrapper = () => {
     const { priceUsd: dbrPrice } = useDBRPrice();
     const { price: dolaPrice } = useDOLAPrice();
-    if (type === 'classic') {
-        return <DbrAuctionClassicParameters dbrPrice={dbrPrice} dolaPrice={dolaPrice} />
-    }
-    return <DbrAuctionSDolaParameters dbrPrice={dbrPrice} dolaPrice={dolaPrice} />
+    return <VStack w='full'>
+        <Text>General auction infos</Text>
+        <DbrAuctionClassicParameters dbrPrice={dbrPrice} dolaPrice={dolaPrice} />
+        <Text>sDOLA auction infos</Text>
+        <DbrAuctionSDolaParameters dbrPrice={dbrPrice} dolaPrice={dolaPrice} />
+    </VStack>
 }
 
 export const DbrAuctionSDolaParameters = ({ dbrPrice, dolaPrice }) => {
@@ -123,18 +125,18 @@ export const DbrAuctionIntroMsg = () => {
                 </VStack>
                 <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr' isExternal target="_blank">
                     Learn more about DBR <ExternalLinkIcon />
-                </Link>                
+                </Link>
             </Stack>
         }
     />
 }
 
 export const DbrAuctionParameters = ({ dolaReserve, dbrReserve, dbrRatePerYear, maxDbrRatePerYear, isLoading, dbrPrice, dolaPrice }) => {
-    return <InfoMessage
+    return <InfoMessage        
         showIcon={false}
         alertProps={{ fontSize: '12px', w: 'full' }}
         description={
-            <Stack>                
+            <Stack>
                 <Text fontSize="14px" fontWeight="bold">Auction Current Reserves</Text>
                 <VStack w='full' spacing="0">
                     <HStack w='full'>

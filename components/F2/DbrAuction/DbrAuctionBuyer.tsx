@@ -20,14 +20,15 @@ import { useDOLABalance } from "@app/hooks/useDOLA";
 import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader";
 import { DbrAuctionParametersWrapper, useDbrAuction } from "./DbrAuctionInfos";
 import moment from "moment";
-import { DBR_AUCTION_HELPER_ADDRESS, ONE_DAY_SECS, SDOLA_HELPER_ADDRESS } from "@app/config/constants";
+import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, DOLA_SAVINGS_ADDRESS, ONE_DAY_SECS, SDOLA_HELPER_ADDRESS } from "@app/config/constants";
 import { useDualSpeedEffect } from "@app/hooks/useDualSpeedEffect";
 import { RadioCardGroup } from "@app/components/common/Input/RadioCardGroup";
+import { DbrAuctionType } from "@app/types";
 
 const { DOLA } = getNetworkConfigConstants();
 
 const defaultRefClassicAmount = '1';
-const defaultRefSdolaAmount = '0.999';
+const defaultRefSdolaAmount = '0.5';
 
 const TAB_OPTIONS = ['Sell DOLA', 'Buy DBR', 'Infos'];
 
@@ -46,23 +47,32 @@ const ListLabelValues = ({ items }: { items: { label: string, value: string | an
     </VStack>
 }
 
-const AuctionRadioOption = ({ label, dbrAuctionPriceInDola }) => {
+const AuctionRadioOption = ({ label, dbrAuctionPriceInDola, dolaPrice }) => {
     return <VStack>
         <Text>{label}</Text>
-        <Text>{shortenNumber(dbrAuctionPriceInDola, 4)}</Text>
+        <Text>{shortenNumber(dbrAuctionPriceInDola, 4)} ({shortenNumber(dolaPrice * dbrAuctionPriceInDola, 2, true)})</Text>
     </VStack>
 }
 
-export const DbrAuctionBuyer = ({
-    helperAddress = DBR_AUCTION_HELPER_ADDRESS,
+const AUCTION_TYPES = {
+    'classic': {
+        auction: DBR_AUCTION_ADDRESS,
+        helper: DBR_AUCTION_HELPER_ADDRESS,
+    },
+    'sdola': {
+        auction: DOLA_SAVINGS_ADDRESS,
+        helper: SDOLA_HELPER_ADDRESS,
+    },
+}
+
+export const DbrAuctionBuyer = ({    
     title,
 }) => {
     const { price: dolaPrice } = useDOLAPriceLive();
     const { provider, account } = useWeb3React();
     const [dolaAmount, setDolaAmount] = useState('');
     const [dbrAmount, setDbrAmount] = useState('');
-    const [selectedAuction, setSelectedAuction] = useState('classic');
-    const [estimatedTimeToReachMarketPrice, setEstimatedTimeToReachMarketPrice] = useState(0);
+    const [selectedAuction, setSelectedAuction] = useState<DbrAuctionType>('classic');    
     const [isConnected, setIsConnected] = useState(true);
     const { signedBalance: dbrBalance, dbrExpiryDate, debt: currentTotalDebt } = useAccountDBR(account);
     const { balance: dolaBalance } = useDOLABalance(account);
@@ -70,54 +80,40 @@ export const DbrAuctionBuyer = ({
     const [slippage, setSlippage] = useState('1');
     const [tab, setTab] = useState(TAB_OPTIONS[0]);
     const isExactDola = tab === TAB_OPTIONS[0];
-    const isClassicDbrAuction = helperAddress?.toString() === DBR_AUCTION_HELPER_ADDRESS.toString();
+    const isClassicDbrAuction = selectedAuction === 'classic';
+    const helperAddress = AUCTION_TYPES[selectedAuction].helper;
     const defaultRefAmount = isClassicDbrAuction ? defaultRefClassicAmount : defaultRefSdolaAmount;
-    const { dolaReserve, dbrReserve, dbrRatePerYear } = useDbrAuction(isClassicDbrAuction);
 
     const { price: dbrSwapPriceRef } = useTriCryptoSwap(parseFloat(defaultRefAmount), 0, 1);
     const { price: dbrSwapPrice, isLoading: isCurvePriceLoading } = useTriCryptoSwap(parseFloat(!dolaAmount || dolaAmount === '0' ? defaultRefAmount : dolaAmount), 0, 1);
-    const { data, error } = useEtherSWR([
-        [helperAddress, 'getDbrOut', parseEther(dolaAmount || defaultRefAmount)],
-        [helperAddress, 'getDbrOut', parseEther(defaultRefAmount)],
-        [helperAddress, 'getDolaIn', parseEther(dbrAmount || defaultRefAmount)],
-        [helperAddress, 'getDolaIn', parseEther(defaultRefAmount)],
-    ]);
 
-    const isLoading = isCurvePriceLoading || (!data && !error);
+    const dbrSwapPriceInDola = dbrSwapPrice ? 1 / dbrSwapPrice : 0;
+    const dbrSwapPriceRefInDola = dbrSwapPriceRef ? 1 / dbrSwapPriceRef : 0;
+
+    const classicAuctionPricingData = useDbrAuctionPricing({ helperAddress: DBR_AUCTION_HELPER_ADDRESS, dolaAmount, dbrAmount, slippage, isExactDola, dbrSwapPriceRefInDola });
+    const sdolaAuctionPricingData = useDbrAuctionPricing({ helperAddress: SDOLA_HELPER_ADDRESS, dolaAmount, dbrAmount, slippage, isExactDola, dbrSwapPriceRefInDola });
+    const selectedAuctionData = (isClassicDbrAuction ? classicAuctionPricingData : sdolaAuctionPricingData);
+    const {
+        estimatedTimestampToReachMarketPrice,
+        estimatedTimeToReachMarketPrice,
+        dbrAuctionPriceInDola,
+        minDbrOut,
+        maxDolaIn,
+        minDbrOutNum,
+        maxDolaInNum,
+        estimatedDolaIn,
+        estimatedDbrOut,
+    } = selectedAuctionData;
+
+    const isLoading = isCurvePriceLoading || (!selectedAuctionData);
 
     const { priceUsd: dbrPrice } = useDBRPrice();
 
-    const refDbrOut = data && data[1] ? getBnToNumber(data[1]) : 0;
-    const estimatedDbrOut = data && data[0] && !!dolaAmount ? getBnToNumber(data[0]) : 0;
-    const minDbrOut = data && data[0] ? getNumberToBn(estimatedDbrOut * (1 - parseFloat(slippage) / 100)) : BigNumber.from('0');
-
-    const refDolaIn = data && data[3] ? getBnToNumber(data[3]) : 0;
-    const refAuctionPriceInDola = data ? parseFloat(defaultRefAmount) / refDbrOut : 0;
-
-    const estimatedDolaIn = data && data[2] && !!dbrAmount ? getBnToNumber(data[2]) : 0;
-    const maxDolaIn = data && data[2] ? getNumberToBn(estimatedDolaIn * (1 + parseFloat(slippage) / 100)) : BigNumber.from('0');
-
-    const minDbrOutNum = getBnToNumber(minDbrOut);
-    const maxDolaInNum = getBnToNumber(maxDolaIn);
-
-    const dbrAuctionPrice = isExactDola ?
-        (estimatedDbrOut > 0 ? estimatedDbrOut / parseFloat(dolaAmount) : refDbrOut / parseFloat(defaultRefAmount))
-        :
-        (estimatedDolaIn > 0 ? parseFloat(dbrAmount) / estimatedDolaIn : refDolaIn > 0 ? parseFloat(defaultRefAmount) / refDolaIn : 0);
-
-    const dbrAuctionPriceInDola = dbrAuctionPrice ? 1 / dbrAuctionPrice : 0;
-    const dbrSwapPriceInDola = dbrSwapPrice ? 1 / dbrSwapPrice : 0;
-    const dbrSwapPriceRefInDola = dbrSwapPriceRef ? 1 / dbrSwapPriceRef : 0;
-    const estimatedTimestampToReachMarketPrice = (estimatedTimeToReachMarketPrice * 1000) + Date.now();
-
-    const auctionPriceColor = !dbrSwapPrice || !dbrAuctionPrice ? undefined : dbrAuctionPrice >= dbrSwapPrice ? 'success' : 'warning';
+    const auctionPriceColor = !dbrSwapPriceInDola || !dbrAuctionPriceInDola ? undefined : dbrAuctionPriceInDola >= dbrSwapPriceInDola ? 'success' : 'warning';
 
     const isInvalidSlippage = !slippage || parseFloat(slippage) <= 0 || parseFloat(slippage) >= 20;
     const isExactDolaBtnDisabled = isInvalidSlippage || !dolaAmount || parseFloat(dolaAmount) <= 0;
     const isExactDbrBtnDisabled = isInvalidSlippage || !dbrAmount || parseFloat(dbrAmount) <= 0;
-
-    const classicAuctionPricingData = useDbrAuctionPricing({ helperAddress: DBR_AUCTION_HELPER_ADDRESS, dolaAmount, dbrAmount, slippage, isExactDola, dbrSwapPriceRefInDola });
-    const sdolaAuctionPricingData = useDbrAuctionPricing({ helperAddress: SDOLA_HELPER_ADDRESS, dolaAmount, dbrAmount, slippage, isExactDola, dbrSwapPriceRefInDola });
 
     const auctionSlippageInput = <Input
         py="0"
@@ -145,17 +141,6 @@ export const DbrAuctionBuyer = ({
         setIsConnected(!!account);
     }, [account], !!account, 1000, 0);
 
-    useEffect(() => {
-        if (!dbrSwapPriceRefInDola || !dolaReserve || !dbrRatePerYear || !dbrReserve) return;
-        if (dbrSwapPriceRefInDola > refAuctionPriceInDola) {
-            setEstimatedTimeToReachMarketPrice(0);
-            return;
-        }
-        setEstimatedTimeToReachMarketPrice(
-            estimateAuctionTimeToReachMarketPrice(dolaReserve, dbrReserve, dbrRatePerYear, dbrSwapPriceRefInDola)
-        );
-    }, [dbrSwapPriceRefInDola, refAuctionPriceInDola, dolaReserve, dbrReserve, dbrRatePerYear]);
-
     return <Container
         label={title}
         description="See contract"
@@ -173,7 +158,7 @@ export const DbrAuctionBuyer = ({
                         {
                             tab === TAB_OPTIONS[2] ?
                                 <VStack w='full' alignItems="flex-start">
-                                    <DbrAuctionParametersWrapper type={isClassicDbrAuction ? 'classic' : 'sdola'} />
+                                    <DbrAuctionParametersWrapper />
                                 </VStack>
                                 : <>
                                     <HStack w='full' justify="space-between">
@@ -191,10 +176,10 @@ export const DbrAuctionBuyer = ({
                                             value: selectedAuction,
                                             onChange: (v) => setSelectedAuction(v),
                                         }}
-                                        radioCardProps={{ py: 0, px: '2', mr: '4', w: { base: 'full', sm: '135px' } }}
+                                        radioCardProps={{ py: 0, px: '2', mr: '4', w: { base: 'full', sm: '150px' } }}
                                         options={[
-                                            { value: 'classic', label: <AuctionRadioOption label="General" dbrAuctionPriceInDola={classicAuctionPricingData.dbrAuctionPriceInDola} /> },
-                                            { value: 'sdola', label: <AuctionRadioOption label="sDOLA" dbrAuctionPriceInDola={sdolaAuctionPricingData.dbrAuctionPriceInDola} /> },
+                                            { value: 'classic', label: <AuctionRadioOption label="General auction price" dbrAuctionPriceInDola={classicAuctionPricingData.dbrAuctionPriceInDola} dolaPrice={dolaPrice} /> },
+                                            { value: 'sdola', label: <AuctionRadioOption label="sDOLA auction price" dbrAuctionPriceInDola={sdolaAuctionPricingData.dbrAuctionPriceInDola} dolaPrice={dolaPrice} /> },
                                         ]}
                                     />
                                     {
@@ -254,10 +239,10 @@ export const DbrAuctionBuyer = ({
                                             { label: `Estimated amount to receive`, isLoading, value: estimatedDbrOut > 0 ? `${preciseCommify(estimatedDbrOut, 2)} DBR (${shortenNumber(estimatedDbrOut * dbrPrice, 2, true)})` : '-' }
                                             : { label: `Estimated amount to sell`, isLoading, value: estimatedDolaIn > 0 ? `${preciseCommify(estimatedDolaIn, 2)} DOLA (${shortenNumber(estimatedDolaIn * dolaPrice || 1, 2, true)})` : '-' }
                                         ),
-                                        { label: `Price via auction`, color: auctionPriceColor, isLoading, value: dbrAuctionPrice > 0 ? `~${shortenNumber(dbrAuctionPriceInDola, 4)} DOLA (${shortenNumber(dbrAuctionPriceInDola * dolaPrice, 4, true)})` : '-' },
-                                        { label: `Market price via Curve`, isLoading, value: !isCurvePriceLoading && dbrSwapPrice > 0 ? `~${shortenNumber(dbrSwapPriceInDola, 4)} DOLA (${shortenNumber(dbrSwapPriceInDola * dolaPrice, 4, true)})` : '-' },
+                                        { label: `Price via auction`, color: auctionPriceColor, isLoading, value: dbrAuctionPriceInDola > 0 ? `~${shortenNumber(dbrAuctionPriceInDola, 4)} DOLA (${shortenNumber(dbrAuctionPriceInDola * dolaPrice, 4, true)})` : '-' },
+                                        { label: `Market price via Curve`, isLoading, value: !isCurvePriceLoading && dbrSwapPriceInDola > 0 ? `~${shortenNumber(dbrSwapPriceInDola, 4)} DOLA (${shortenNumber(dbrSwapPriceInDola * dolaPrice, 4, true)})` : '-' },
                                         estimatedTimeToReachMarketPrice <= 300 ? undefined : { label: `Est. time for the auction to reach the market price`, isLoading, value: estimatedTimeToReachMarketPrice > ONE_DAY_SECS ? `~${shortenNumber((estimatedTimeToReachMarketPrice / ONE_DAY_SECS), 2)} days` : `${moment(estimatedTimestampToReachMarketPrice).fromNow()}` },
-                                    ]} />                                    
+                                    ]} />
                                     <Divider />
                                     <ListLabelValues items={[
                                         { label: `Max. slippage %`, value: auctionSlippageInput },
