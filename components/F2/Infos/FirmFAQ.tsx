@@ -67,8 +67,11 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                     title: 'What is DOLA?',
                     body: <FaqStack alignItems="flex-start">
                         <FaqText>
-                            DOLA is a <b>debt-backed stablecoin</b> that is pegged to the US Dollar, ensuring minimal volatility and a value close to $1. Contrary to algorithmic stablecoins, DOLA's value is <b>backed by retractable debt</b>.
+                            DOLA is a <b>debt-backed stablecoin</b> that is soft-pegged to the US Dollar, ensuring minimal volatility and a value close to $1. Contrary to algorithmic stablecoins, DOLA's value is <b>backed by retractable debt</b>.
                         </FaqText>
+                        <FaqLink href="/sdola">
+                            Stake DOLA
+                        </FaqLink>
                         <FaqLink href="/transparency/dola">
                             Transparency page
                         </FaqLink>
@@ -89,14 +92,17 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                     title: 'How can I get DBR tokens?',
                     body: <FaqStack fontSize={props.smaller ? '14px' : undefined}>
                         <FaqText color="secondaryTextColor">
-                            Either via the airdrop if you're eligible, on DEXes, or via the auto-buy DBR feature when borrowing.
+                            There are multiple ways to get DBR: by simply buying it on DEXes, by staking INV and getting DBR rewards, by buying it from DBR auctions or via the auto-buy DBR feature when borrowing.
                         </FaqText>
                         <FaqLink href={BUY_LINKS.DBR}>
-                            Buy DBR
+                            Buy DBR via an aggregator
                         </FaqLink>
-                        <FaqLink href={'/claim-dbr'}>
+                        <FaqLink href={'/dbr/auction'}>
+                            Buy DBR via auction
+                        </FaqLink>
+                        {/* <FaqLink href={'/claim-dbr'}>
                             Check DBR airdrop eligibility
-                        </FaqLink>
+                        </FaqLink> */}
                     </FaqStack>
                 },
                 {
