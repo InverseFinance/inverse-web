@@ -188,6 +188,7 @@ type AccountDBRMarket = F2Market & {
   account: string | undefined | null
   escrow: string | undefined
   deposits: number
+  depositsUsd: number
   bnDeposits: BigNumber
   creditLimit: number
   bnCreditLimit: BigNumber
@@ -270,6 +271,7 @@ export const useAccountDBRMarket = (
     escrow,
     deposits,
     bnDeposits,
+    depositsUsd: deposits * market.price,
     creditLimit,
     bnCreditLimit,
     withdrawalLimit,
