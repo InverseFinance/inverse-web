@@ -1,5 +1,5 @@
-import { SimpleGrid, Stack, StackProps, Text, VStack } from "@chakra-ui/react"
-import { smartShortNumber } from "@app/util/markets";
+import { SimpleGrid, Stack, StackProps, Text, VStack, HStack } from "@chakra-ui/react"
+import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import { useAccountDBR, useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
 import { useAccount } from '@app/hooks/misc';
 import { SkeletonList } from "@app/components/common/Skeleton";
@@ -12,23 +12,26 @@ import { usePrices } from "@app/hooks/usePrices";
 import { BigTextLoader } from "../common/Loaders/BigTextLoader";
 
 const DashBoardCard = (props: StackProps) => {
-    return <Stack direction={'row'} borderRadius="5px" bgColor="white" p="8" alignItems="flex-start" boxShadow="0 4px 5px 5px #33333322" {...props} />
+    return <Stack direction={'row'} borderRadius="5px" bgColor="white" p="8" alignItems="center" boxShadow="0 4px 5px 5px #33333322" {...props} />
 }
 
-const NumberItem = ({ isLoading = false, value = 0, price = undefined, label = '', isUsd = false, precision = 0 }) => {
-    return <VStack alignItems="flex-end" w='full'>
-        {
-            isLoading ? <BigTextLoader /> : <Text fontWeight="extrabold" fontSize="32px" color={lightTheme.colors.mainTextColor}>
-                {!value ? '-' : preciseCommify(value, precision, isUsd)}{!!price || !value ? ` (${smartShortNumber(value * price, 2, true)})` : ''}
-            </Text>
-        }
-        <Text fontSize="20px" fontWeight="bold" color={lightTheme.colors.mainTextColorLight}>{label}</Text>
+const NumberItem = ({ footer = undefined, isLoading = false, value = 0, price = undefined, label = '', isUsd = false, precision = 0 }) => {
+    return <VStack position="relative" spacing="0" justify="center" alignItems="flex-end" w='full'>
+        <VStack alignItems="flex-end" spacing="2">
+            {
+                isLoading ? <BigTextLoader /> : <Text fontWeight="extrabold" fontSize={price ? '28px' : '36px'} color={lightTheme.colors.mainTextColor}>
+                    {!value ? '-' : value > 100000 ? smartShortNumber(value, 2, isUsd) : preciseCommify(value, precision, isUsd)}{!!price && !!value ? ` (${smartShortNumber(value * price, 2, true)})` : ''}
+                </Text>
+            }
+            <Text fontSize="20px" fontWeight="bold" color={lightTheme.colors.mainTextColorLight}>{label}</Text>
+        </VStack>
+        {footer}
     </VStack>
 }
 
-const NumberCard = ({ isLoading = false, value = 0, label = '', price = undefined, isUsd = false, precision = 0 }) => {
+const NumberCard = ({ footer = undefined, isLoading = false, value = 0, label = '', price = undefined, isUsd = false, precision = 0 }) => {
     return <DashBoardCard>
-        <NumberItem isLoading={isLoading} price={price} value={value} label={label} isUsd={isUsd} precision={precision} />
+        <NumberItem isLoading={isLoading} price={price} value={value} label={label} isUsd={isUsd} precision={precision} footer={footer} />
     </DashBoardCard>
 }
 
@@ -77,9 +80,10 @@ export const UserDashboard = ({
     account: string
 }) => {
     const { markets, isLoading } = useDBRMarkets();
-    const { prices } = usePrices();    
+    const { prices } = usePrices();
     const { priceUsd: dbrPrice } = useDBRPrice();
     const accountMarkets = useAccountF2Markets(markets, account);
+    const invMarket = markets?.find(m => m.isInv);
     const { stakedInFirm } = useStakedInFirm(account);
     const { debt, dbrExpiryDate, signedBalance: dbrBalance } = useAccountDBR(account);
 
@@ -93,11 +97,18 @@ export const UserDashboard = ({
                 <SkeletonList /> :
                 <>
                     <SimpleGrid columns={{ base: 1, sm: 2 }} pb="4" spacing="8" w="100%" >
-                        <NumberAndPieCard isLoading={isLoading} value={totalTotalSuppliedUsd} label="Total supplied" precision={0} isUsd={true} data={marketsWithDeposits} dataKey="depositsUsd" />
-                        <NumberAndPieCard isLoading={isLoading} fill={lightTheme.colors.warning} activeFill={lightTheme.colors.error} value={debt} label="DOLA debt" precision={0} isUsd={false} data={marketsWithDebt} dataKey="debt" />
+                        <NumberAndPieCard isLoading={isLoading} value={totalTotalSuppliedUsd} label="My collaterals" precision={0} isUsd={true} data={marketsWithDeposits} dataKey="depositsUsd" />
+                        <NumberAndPieCard isLoading={isLoading} fill={lightTheme.colors.warning} activeFill={lightTheme.colors.error} value={debt} label="My DOLA debt" precision={0} isUsd={false} data={marketsWithDebt} dataKey="debt" />
                     </SimpleGrid>
                     <SimpleGrid columns={{ base: 1, sm: 4 }} pb="4" spacing="8" w="100%" >
-                        <NumberCard isLoading={isLoading} price={prices?.['inverse-finance']?.usd} value={stakedInFirm} label="INV staked in FiRM" precision={0} />
+                        <NumberCard footer={<HStack position="absolute" bottom="-25px" w='full' justify="space-between">
+                            <Text color={lightTheme.colors.mainTextColorLight} fontSize="14px">
+                                INV APR: <b>{shortenNumber(invMarket?.supplyApy, 2)}%</b>
+                            </Text>
+                            <Text color={lightTheme.colors.mainTextColorLight} fontSize="14px">
+                                DBR APR: <b>{shortenNumber(invMarket?.dbrApr, 2)}%</b>
+                            </Text>
+                        </HStack>} isLoading={isLoading} price={prices?.['inverse-finance']?.usd} value={stakedInFirm} label="INV staked in FiRM" precision={0} />
                         <NumberCard isLoading={isLoading} value={8000} label="DOLA staked" precision={0} />
                         <NumberCard isLoading={isLoading} price={dbrPrice} value={dbrBalance} label="DBR balance" precision={0} />
                         <StringCard isLoading={isLoading} value={debt > 0 ? moment(dbrExpiryDate).format('MMM Do YYYY') : '-'} label="DBR depletion date" />
