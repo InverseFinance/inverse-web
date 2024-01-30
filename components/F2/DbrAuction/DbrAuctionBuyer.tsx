@@ -48,9 +48,9 @@ const ListLabelValues = ({ items }: { items: { label: string, value: string | an
 }
 
 const AuctionRadioOption = ({ label, dbrAuctionPriceInDola, dolaPrice }) => {
-    return <VStack>
+    return <VStack spacing="1">
         <Text>{label}</Text>
-        <Text>{shortenNumber(dbrAuctionPriceInDola, 4)} ({shortenNumber(dolaPrice * dbrAuctionPriceInDola, 2, true)})</Text>
+        <Text>{shortenNumber(dbrAuctionPriceInDola, 4)} DOLA ({shortenNumber(dolaPrice * dbrAuctionPriceInDola, 2, true)})</Text>
     </VStack>
 }
 
@@ -65,14 +65,15 @@ const AUCTION_TYPES = {
     },
 }
 
-export const DbrAuctionBuyer = ({    
+export const DbrAuctionBuyer = ({
     title,
 }) => {
     const { price: dolaPrice } = useDOLAPriceLive();
     const { provider, account } = useWeb3React();
     const [dolaAmount, setDolaAmount] = useState('');
     const [dbrAmount, setDbrAmount] = useState('');
-    const [selectedAuction, setSelectedAuction] = useState<DbrAuctionType>('classic');    
+    const [selectedAuction, setSelectedAuction] = useState<DbrAuctionType>('classic');
+    const [isInited, setIsInited] = useState(false);
     const [isConnected, setIsConnected] = useState(true);
     const { signedBalance: dbrBalance, dbrExpiryDate, debt: currentTotalDebt } = useAccountDBR(account);
     const { balance: dolaBalance } = useDOLABalance(account);
@@ -141,6 +142,20 @@ export const DbrAuctionBuyer = ({
         setIsConnected(!!account);
     }, [account], !!account, 1000, 0);
 
+    useEffect(() => {
+        if(isInited || classicAuctionPricingData?.isLoading || sdolaAuctionPricingData?.isLoading) {
+            return;
+        }
+        setSelectedAuction(classicAuctionPricingData?.dbrAuctionPriceInDola <= sdolaAuctionPricingData?.dbrAuctionPriceInDola ? 'classic' : 'sdola');
+        setIsInited(true);
+    }, [
+        classicAuctionPricingData?.dbrAuctionPriceInDola,
+        sdolaAuctionPricingData?.dbrAuctionPriceInDola,
+        classicAuctionPricingData?.isLoading,
+        sdolaAuctionPricingData?.isLoading,
+        isInited,
+    ]);
+
     return <Container
         label={title}
         description="See contract"
@@ -163,10 +178,10 @@ export const DbrAuctionBuyer = ({
                                 : <>
                                     <HStack w='full' justify="space-between">
                                         <Text fontSize="14px">
-                                            DBR balance: {preciseCommify(dbrBalance, 2)}
+                                            DBR balance: <b>{preciseCommify(dbrBalance, 2)}</b>
                                         </Text>
                                         <Text fontSize="14px">
-                                            DOLA balance: {preciseCommify(dolaBalance, 2)}
+                                            DOLA balance: <b>{preciseCommify(dolaBalance, 2)}</b>
                                         </Text>
                                     </HStack>
                                     <RadioCardGroup
@@ -176,17 +191,17 @@ export const DbrAuctionBuyer = ({
                                             value: selectedAuction,
                                             onChange: (v) => setSelectedAuction(v),
                                         }}
-                                        radioCardProps={{ py: 0, px: '2', mr: '4', w: { base: 'full', sm: '150px' } }}
+                                        radioCardProps={{ py: 2, px: '2', mr: '4', w: { base: 'full', sm: '230px' } }}
                                         options={[
-                                            { value: 'classic', label: <AuctionRadioOption label="General auction price" dbrAuctionPriceInDola={classicAuctionPricingData.dbrAuctionPriceInDola} dolaPrice={dolaPrice} /> },
-                                            { value: 'sdola', label: <AuctionRadioOption label="sDOLA auction price" dbrAuctionPriceInDola={sdolaAuctionPricingData.dbrAuctionPriceInDola} dolaPrice={dolaPrice} /> },
+                                            { value: 'classic', label: <AuctionRadioOption label="General auction DBR price" dbrAuctionPriceInDola={classicAuctionPricingData.dbrAuctionPriceInDola} dolaPrice={dolaPrice} /> },
+                                            { value: 'sdola', label: <AuctionRadioOption label="sDOLA auction DBR price" dbrAuctionPriceInDola={sdolaAuctionPricingData.dbrAuctionPriceInDola} dolaPrice={dolaPrice} /> },
                                         ]}
                                     />
                                     {
                                         tab === TAB_OPTIONS[0] &&
                                         <VStack w='full' alignItems="flex-start">
                                             <TextInfo message="Exact amount of DOLA in exchange for DBR, the auction formula is of type K=xy">
-                                                <Text fontWeight="bold" fontSize="14px">Exact amount DOLA to sell:</Text>
+                                                <Text fontWeight="bold" fontSize="16px">Exact amount DOLA to sell:</Text>
                                             </TextInfo>
                                             <SimpleAmountForm
                                                 btnProps={{ needPoaFirst: true }}

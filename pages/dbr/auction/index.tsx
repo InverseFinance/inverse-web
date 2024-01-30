@@ -40,7 +40,7 @@ export const DbrAuctionPage = () => {
             direction={{ base: 'column', xl: 'row' }}
           >
             <VStack alignItems="flex-start" w={{ base: 'full', lg: '55%' }}>
-              <DbrAuctionBuyer title="General DBR XY=K Auction" />
+              <DbrAuctionBuyer title="DBR XY=K Auction" />
             </VStack>
             <Stack alignItems="flex-end" w={{ base: 'full', lg: '45%' }}>
               <DbrAuctionIntroMsg />
