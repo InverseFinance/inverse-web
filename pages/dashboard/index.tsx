@@ -5,6 +5,7 @@ import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { useAccount } from '@app/hooks/misc'
 import { UserDashboard } from '@app/components/F2/UserDashboard'
+import { useAppTheme } from '@app/hooks/useAppTheme'
 
 const firmImages = {
     'dark': 'firm-final-logo-white.png',
@@ -13,6 +14,7 @@ const firmImages = {
 
 export const UserDashboardPage = () => {
     const account = useAccount();
+    const { themeName } = useAppTheme();
     return (
         <Layout>
             <Head>
