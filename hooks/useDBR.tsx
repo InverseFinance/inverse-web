@@ -38,6 +38,7 @@ export const useAccountDBR = (
   bnDebt: BigNumber,
   bnBalance: BigNumber,
   hasDbrV1NewBorrowIssue: boolean,
+  needsRechargeSoon: boolean,
 } => {
   const { data, error } = useEtherSWR([
     [DBR, 'balanceOf', account],
@@ -66,8 +67,12 @@ export const useAccountDBR = (
   // dbr v1 edge issue
   // const hasDbrV1NewBorrowIssue = lastUpdate > 0 && debt === 0 && lastUpdate !== (blockTimestamp?.timestamp||0);
 
+  const hasDebt = monthlyDebtAccrual !== 0;
+  const needsRechargeSoon = dbrNbDaysExpiry <= 30 && hasDebt;
+
   return {
     hasDbrV1NewBorrowIssue: false,
+    needsRechargeSoon,
     bnBalance: data ? data[0] : BigNumber.from('0'),
     balance,
     debt: _debt,

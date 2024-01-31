@@ -13,7 +13,7 @@ import { RSubmitButton } from "../common/Button/RSubmitButton";
 import Link from "../common/Link";
 
 
-const DashBoardCard = (props: StackProps) => {
+const DashBoardCard = (props: StackProps & { href?: string }) => {
     if (props.href) {
         return <Popover trigger="hover">
             <PopoverTrigger>
@@ -47,24 +47,24 @@ const NumberItem = ({ noDataFallback = '-', footer = undefined, isLoading = fals
     </VStack>
 }
 
-const NumberCard = ({ noDataFallback = undefined, href = '', footer = undefined, isLoading = false, value = 0, label = '', price = undefined, isUsd = false, precision = 0 }) => {
+const NumberCard = ({ noDataFallback = undefined, href = undefined, footer = undefined, isLoading = false, value = 0, label = '', price = undefined, isUsd = false, precision = 0 }) => {
     return <DashBoardCard href={href}>
         <NumberItem noDataFallback={noDataFallback} isLoading={isLoading} price={price} value={value} label={label} isUsd={isUsd} precision={precision} footer={footer} />
     </DashBoardCard>
 }
 
-const StringItem = ({ value = '', label = '', isLoading = false }) => {
+const StringItem = ({ color = lightTheme.colors.mainTextColor, value = '', label = '', isLoading = false }) => {
     return <VStack alignItems="flex-end" w='full'>
         {
-            isLoading ? <BigTextLoader /> : <Text fontWeight="extrabold" fontSize="36px" color={lightTheme.colors.mainTextColor}>{value}</Text>
+            isLoading ? <BigTextLoader /> : <Text fontWeight="extrabold" fontSize="36px" color={color}>{value}</Text>
         }
         <Text fontSize="20px" fontWeight="bold" color={lightTheme.colors.mainTextColorLight}>{label}</Text>
     </VStack>
 }
 
-const StringCard = ({ value = '', label = '', isLoading = false }) => {
+const StringCard = ({ color = undefined, value = '', label = '', isLoading = false }) => {
     return <DashBoardCard>
-        <StringItem isLoading={isLoading} value={value} label={label} />
+        <StringItem color={color} isLoading={isLoading} value={value} label={label} />
     </DashBoardCard>
 }
 
@@ -133,50 +133,45 @@ export const UserDashboard = ({
 }: {
     account: string
 }) => {
-    const { markets, isLoading } = useDBRMarkets();
-    const { prices } = usePrices();
+    const { markets, isLoading: isLoadingMarkets } = useDBRMarkets();
+    const { prices, isLoading: isLoadingPrices } = usePrices();
     const { priceUsd: dbrPrice } = useDBRPrice();
     const accountMarkets = useAccountF2Markets(markets, account);
     const invMarket = markets?.find(m => m.isInv);
-    const { stakedInFirm } = useStakedInFirm(account);
-    const { debt, dbrExpiryDate, signedBalance: dbrBalance } = useAccountDBR(account);
+    const { stakedInFirm, isLoading: isLoadingInvStaked } = useStakedInFirm(account);
+    const { debt, dbrExpiryDate, signedBalance: dbrBalance, needsRechargeSoon, isLoading: isLoadingAccount } = useAccountDBR(account);
+
+    const isLoading = isLoadingMarkets || isLoadingAccount || isLoadingInvStaked || isLoadingPrices;
 
     const totalTotalSuppliedUsd = accountMarkets.reduce((prev, curr) => prev + curr.deposits * curr.price, 0);
     const marketsWithDeposits = accountMarkets.filter(m => m.depositsUsd > 1).sort((a, b) => b.depositsUsd - a.depositsUsd);
     const marketsWithDebt = accountMarkets.filter(m => m.debt > 0).sort((a, b) => b.debt - a.debt);
 
     return <VStack w='full'>
-        {
-            isLoading ?
-                <SkeletonList /> :
-                <>
-                    <SimpleGrid columns={{ base: 1, sm: 2 }} pb="4" spacing="8" w="100%" >
-                        <NumberAndPieCard noDataFallback={SupplyAssets} isLoading={isLoading} value={totalTotalSuppliedUsd} label="My collaterals" precision={0} isUsd={true} data={marketsWithDeposits} dataKey="depositsUsd" />
-                        <NumberAndPieCard noDataFallback={BorrowDola} isLoading={isLoading} fill={lightTheme.colors.warning} activeFill={lightTheme.colors.error} value={debt} label="My DOLA debt" precision={0} isUsd={false} data={marketsWithDebt} dataKey="debt" />
-                    </SimpleGrid>
-                    <SimpleGrid columns={{ base: 1, sm: 4 }} pb="4" spacing="8" w="100%" >
-                        <NumberCard footer={
-                            <CardFooter
-                                labelLeft={<>INV APR: <b>{shortenNumber(invMarket?.supplyApy, 2)}%</b></>}
-                                labelRight={<>DBR APR: <b>{shortenNumber(invMarket?.dbrApr, 2)}%</b></>}
-                            />
-                        } noDataFallback={StakeINV} isLoading={isLoading} price={prices?.['inverse-finance']?.usd} value={stakedInFirm} label="INV staked in FiRM" precision={0} />
-                        <NumberCard footer={
-                            <CardFooter
-                                labelRight={<>sDOLA APY: <b>{shortenNumber(5, 2)}%</b></>}
-                            />
-                        } isLoading={isLoading} value={8000} label="DOLA staked" precision={0} />
-                        <NumberCard
-                            footer={
-                                <CardFooter
-                                    labelRight={<>Price: <b>{shortenNumber(dbrPrice, 4, true)}</b></>}
-                                />
-                            }
-                            isLoading={isLoading} price={dbrPrice} value={dbrBalance} label="DBR balance" precision={0} />
-                        <StringCard isLoading={isLoading} value={debt > 0 ? moment(dbrExpiryDate).format('MMM Do YYYY') : '-'} label="DBR depletion date" />
-                    </SimpleGrid>
-                </>
-
-        }
+        <SimpleGrid columns={{ base: 1, sm: 2 }} pb="4" spacing="8" w="100%" >
+            <NumberAndPieCard noDataFallback={SupplyAssets} isLoading={isLoading} value={totalTotalSuppliedUsd} label="My deposits" precision={0} isUsd={true} data={marketsWithDeposits} dataKey="depositsUsd" />
+            <NumberAndPieCard noDataFallback={BorrowDola} isLoading={isLoading} fill={lightTheme.colors.warning} activeFill={lightTheme.colors.error} value={debt} label="My DOLA debt" precision={0} isUsd={false} data={marketsWithDebt} dataKey="debt" />
+        </SimpleGrid>
+        <SimpleGrid columns={{ base: 1, sm: 4 }} pb="4" spacing="8" w="100%" >
+            <NumberCard footer={
+                <CardFooter
+                    labelLeft={<>INV APR: <b>{shortenNumber(invMarket?.supplyApy, 2)}%</b></>}
+                    labelRight={<>DBR APR: <b>{shortenNumber(invMarket?.dbrApr, 2)}%</b></>}
+                />
+            } noDataFallback={StakeINV} isLoading={isLoading} price={prices?.['inverse-finance']?.usd} value={stakedInFirm} label="INV staked in FiRM" precision={2} />
+            <NumberCard footer={
+                <CardFooter
+                    labelRight={<>sDOLA APY: <b>{shortenNumber(5, 2)}%</b></>}
+                />
+            } isLoading={isLoading} value={8000} label="DOLA staked" precision={0} />
+            <NumberCard
+                footer={
+                    <CardFooter
+                        labelRight={<>Price: <b>{shortenNumber(dbrPrice, 4, true)}</b></>}
+                    />
+                }
+                isLoading={isLoading} price={dbrPrice} value={dbrBalance} label="DBR balance" precision={0} />
+            <StringCard color={needsRechargeSoon ? 'error' : undefined} isLoading={isLoading} value={debt > 0 ? dbrBalance < 0 ? 'Depleted' : moment(dbrExpiryDate).format('MMM Do YYYY') : '-'} label="DBR depletion date" />
+        </SimpleGrid>
     </VStack>
 }
