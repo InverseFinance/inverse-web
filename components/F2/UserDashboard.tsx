@@ -103,7 +103,7 @@ const PieItem = ({ data, activeFill = lightTheme.colors.mainTextColor, fill = li
 }
 
 const NumberAndPieCard = ({ isLoading, noDataFallback = undefined, fill, activeFill, data, value, label, width = 350, height = 250, dataKey = 'value', nameKey = 'name', precision = 2, isUsd = false }) => {
-    return <DashBoardCard direction={{ base: 'column', sm: 'row' }} alignItems="center" justify="space-around" px="16">
+    return <DashBoardCard minH="314px" direction={{ base: 'column', sm: 'row' }} alignItems="center" justify="space-around" px="16">
         {
             !isLoading && !data?.length ? noDataFallback : <PieItem fill={fill} activeFill={activeFill} data={data} width={width} height={height} dataKey={dataKey} nameKey={nameKey} precision={precision} isUsd={isUsd} />
         }
@@ -156,19 +156,10 @@ export const UserDashboard = ({
     const { priceUsd: dbrPrice } = useDBRPrice();
     const accountMarkets = useAccountF2Markets(markets, account);
     const stakedDolaBalance = 0;
-    const invMarket = markets?.find(m => m.isInv);
-    const [extraUsd, setExtraUsd] = useState(0);
+    const invMarket = markets?.find(m => m.isInv);    
     const { themeStyles } = useAppTheme();
     const { stakedInFirm, isLoading: isLoadingInvStaked } = useStakedInFirm(account);
     const { debt, dbrExpiryDate, signedBalance: dbrBalance, needsRechargeSoon, isLoading: isLoadingAccount } = useAccountDBR(account);
-
-    const { appGroupPositions, isLoading: isLoadingRewards } = useUserRewards(account);
-
-    // const totalRewardsUSD = extraUsd + appGroupPositions?.reduce((prev, curr) => {
-    //     return prev + curr.tokens
-    //         .filter(t => t.metaType === 'claimable')
-    //         .reduce((tprev, tcurr) => tprev + tcurr.balanceUSD, 0);
-    // }, 0);
 
     const isLoading = !account ? false : isLoadingMarkets || isLoadingAccount || isLoadingInvStaked || isLoadingPrices;
 
@@ -214,7 +205,7 @@ export const UserDashboard = ({
         </SimpleGrid>
         <SimpleGrid columns={{ base: 1, sm: 2 }} spacing="8" w="100%">
             {
-                accountMarkets
+                marketsWithDeposits
                     .filter(market => market.hasClaimableRewards)
                     .map(market => {
                         // via on chain data
@@ -224,8 +215,7 @@ export const UserDashboard = ({
                                 market={market}
                                 showMarketBtn={true}
                                 extraAtBottom={true}
-                                escrow={market.escrow}
-                                onLoad={(v) => setExtraUsd(v)}
+                                escrow={market.escrow}                                
                             />
                         }
                     })
