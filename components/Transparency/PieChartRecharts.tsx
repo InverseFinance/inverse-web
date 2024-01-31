@@ -1,10 +1,12 @@
+import { smartShortNumber } from "@app/util/markets";
 import { preciseCommify } from "@app/util/misc";
+import { useMediaQuery } from "@chakra-ui/react";
 import { useCallback, useState } from "react";
 import { Pie, PieChart, Sector } from "recharts";
 
 const renderActiveShape = (props) => {
     const RADIAN = Math.PI / 180;
-    const { precision, activeFill, nameKey, isUsd, cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent, value } = props;
+    const { isMobile, precision, activeFill, nameKey, isUsd, cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent, value } = props;
     const sin = Math.sin(-RADIAN * midAngle);
     const cos = Math.cos(-RADIAN * midAngle);
     const sx = cx + (outerRadius + 10) * cos;
@@ -40,7 +42,7 @@ const renderActiveShape = (props) => {
             />
             <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={activeFill} fill="none" />
             <circle cx={ex} cy={ey} r={2} fill={activeFill} stroke="none" />
-            <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fontSize={18} fill={activeFill}>{`${preciseCommify(value, precision, isUsd)}`}</text>
+            <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fontSize={18} fill={activeFill}>{isMobile ? smartShortNumber(value, 2, isUsd)  : `${preciseCommify(value, precision, isUsd)}`}</text>
             <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill="#999">
                 {`${(percent * 100).toFixed(2)}%`}
             </text>
@@ -56,12 +58,13 @@ export const PieChartRecharts = ({ data, activeFill = '#8884d8', fill = '#8884d8
         },
         [setActiveIndex]
     );
+    const [isSmallerThan400] = useMediaQuery('(max-width: 400px)')
 
     return (
         <PieChart width={width} height={height} overflow="visible">
             <Pie
                 activeIndex={activeIndex}
-                activeShape={(props) => renderActiveShape({...props, precision, isUsd, nameKey, activeFill })}                                
+                activeShape={(props) => renderActiveShape({...props, precision, isUsd, nameKey, activeFill, isMobile: isSmallerThan400 })}                                
                 data={data}
                 cx={cx}
                 cy={cy}

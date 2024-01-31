@@ -86,7 +86,7 @@ const PieItem = ({ data, activeFill = lightTheme.colors.mainTextColor, fill = li
 }
 
 const NumberAndPieCard = ({ isLoading, noDataFallback = undefined, fill, activeFill, data, value, label, width = 350, height = 250, dataKey = 'value', nameKey = 'name', precision = 2, isUsd = false }) => {
-    return <DashBoardCard alignItems="center" justify="space-around" px="16">
+    return <DashBoardCard direction={{ base: 'column', sm: 'row' }} alignItems="center" justify="space-around" px="16">
         {
             !isLoading && !data?.length ? noDataFallback : <PieItem fill={fill} activeFill={activeFill} data={data} width={width} height={height} dataKey={dataKey} nameKey={nameKey} precision={precision} isUsd={isUsd} />
         }
@@ -127,6 +127,7 @@ const SmallLinkBtn = ({ href = '', ...props }) => {
 const BorrowDola = <BigLinkBtn href="/firm">Borrow DOLA</BigLinkBtn>;
 const SupplyAssets = <BigLinkBtn href="/firm">Supply Assets</BigLinkBtn>;
 const StakeINV = <BigLinkBtn href="/firm">Stake INV</BigLinkBtn>;
+const StakeDOLA = <BigLinkBtn disabled={true} href="/sdola">Stake DOLA</BigLinkBtn>;
 
 export const UserDashboard = ({
     account
@@ -137,11 +138,11 @@ export const UserDashboard = ({
     const { prices, isLoading: isLoadingPrices } = usePrices();
     const { priceUsd: dbrPrice } = useDBRPrice();
     const accountMarkets = useAccountF2Markets(markets, account);
+    const stakedDolaBalance = 0;
     const invMarket = markets?.find(m => m.isInv);
     const { stakedInFirm, isLoading: isLoadingInvStaked } = useStakedInFirm(account);
-    const { debt, dbrExpiryDate, signedBalance: dbrBalance, needsRechargeSoon, isLoading: isLoadingAccount } = useAccountDBR(account);
-
-    const isLoading = isLoadingMarkets || isLoadingAccount || isLoadingInvStaked || isLoadingPrices;
+    const { debt, dbrExpiryDate, signedBalance: dbrBalance, needsRechargeSoon, isLoading: isLoadingAccount } = useAccountDBR(account);    
+    const isLoading = !account ? false : isLoadingMarkets || isLoadingAccount || isLoadingInvStaked || isLoadingPrices;
 
     const totalTotalSuppliedUsd = accountMarkets.reduce((prev, curr) => prev + curr.deposits * curr.price, 0);
     const marketsWithDeposits = accountMarkets.filter(m => m.depositsUsd > 1).sort((a, b) => b.depositsUsd - a.depositsUsd);
@@ -159,11 +160,16 @@ export const UserDashboard = ({
                     labelRight={<>DBR APR: <b>{shortenNumber(invMarket?.dbrApr, 2)}%</b></>}
                 />
             } noDataFallback={StakeINV} isLoading={isLoading} price={prices?.['inverse-finance']?.usd} value={stakedInFirm} label="INV staked in FiRM" precision={2} />
-            <NumberCard footer={
+            {/* <NumberCard footer={
                 <CardFooter
                     labelRight={<>sDOLA APY: <b>{shortenNumber(5, 2)}%</b></>}
                 />
-            } isLoading={isLoading} value={8000} label="DOLA staked" precision={0} />
+            } noDataFallback={StakeDOLA} isLoading={isLoading} value={stakedDolaBalance} label="DOLA staked" precision={0} /> */}
+            <NumberCard footer={
+                <CardFooter
+                    labelRight={<>Coming soon</>}
+                />
+            } noDataFallback={StakeDOLA} isLoading={isLoading} value={stakedDolaBalance} label="DOLA staked" precision={0} />
             <NumberCard
                 footer={
                     <CardFooter

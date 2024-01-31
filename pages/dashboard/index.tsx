@@ -25,10 +25,10 @@ export const UserDashboardPage = () => {
             </Head>
             <AppNav active="Borrow" activeSubmenu="FiRM" />
             <ErrorBoundary>
-                <VStack pt="4" spacing="4" w='full' maxW={{ base: '75rem', '2xl': '90rem' }}>
+                <VStack pt="4" spacing="4" w='full' maxW={{ base: '94%', '2xl': '90rem' }}>
                     <HStack alignItems="center" justify="space-between" w='full'>
                         <Text fontWeight="extrabold" fontSize="40px">My Dashboard</Text>
-                        <Image w='200px' src={`/assets/firm/${firmImages[themeName]}`} />
+                        <Image display={{ base: 'none', sm: 'inline-block' }} w='200px' src={`/assets/firm/${firmImages[themeName]}`} />
                     </HStack>
                     <ErrorBoundary description="Failed to Markets">
                         <UserDashboard account={account} />
