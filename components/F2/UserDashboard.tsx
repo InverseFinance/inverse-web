@@ -1,4 +1,4 @@
-import { SimpleGrid, Stack, StackProps, Text, VStack, HStack, Popover, PopoverTrigger, PopoverContent, PopoverBody, Flex } from "@chakra-ui/react"
+import { SimpleGrid, Stack, StackProps, Text, VStack, HStack, Image, Popover, PopoverTrigger, PopoverContent, PopoverBody, Flex } from "@chakra-ui/react"
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import { useAccountDBR, useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
 import { preciseCommify } from "@app/util/misc";
@@ -14,7 +14,7 @@ import { BURN_ADDRESS, BUY_LINKS } from "@app/config/constants";
 import { useState } from "react";
 import { FirmRewardWrapper } from "./rewards/FirmRewardWrapper";
 import { useAppTheme } from "@app/hooks/useAppTheme";
-
+import { TOKEN_IMAGES } from "@app/variables/images";
 
 const DashBoardCard = (props: StackProps & { href?: string }) => {
     if (props.href) {
@@ -61,8 +61,9 @@ const NumberItem = ({ noDataFallback = '-', footer = undefined, isLoading = fals
     </VStack>
 }
 
-const NumberCard = ({ noDataFallback = undefined, href = undefined, footer = undefined, isLoading = false, value = 0, label = '', price = undefined, isUsd = false, precision = 0 }) => {
+const NumberCard = ({ imageSrc = '', noDataFallback = undefined, href = undefined, footer = undefined, isLoading = false, value = 0, label = '', price = undefined, isUsd = false, precision = 0 }) => {
     return <DashBoardCard href={href}>
+        {!!imageSrc && <Image borderRadius="50px" src={imageSrc} w="30px" h="30px" position="absolute" left="10px" top="10px" />}
         <NumberItem noDataFallback={noDataFallback} isLoading={isLoading} price={price} value={value} label={label} isUsd={isUsd} precision={precision} footer={footer} />
     </DashBoardCard>
 }
@@ -173,7 +174,7 @@ export const UserDashboard = ({
             <NumberAndPieCard noDataFallback={BorrowDola} isLoading={isLoading} fill={themeStyles.colors.warning} activeFill={themeStyles.colors.error} value={debt} label="My DOLA debt" precision={0} isUsd={false} data={marketsWithDebt} dataKey="debt" />
         </SimpleGrid>
         <SimpleGrid columns={{ base: 1, sm: 4 }} spacing="8" w="100%">
-            <NumberCard footer={
+            <NumberCard imageSrc={TOKEN_IMAGES.INV} footer={
                 <CardFooter
                     labelLeft={<>INV APR: <b>{shortenNumber(invMarket?.supplyApy, 2)}%</b></>}
                     labelRight={<>DBR APR: <b>{shortenNumber(invMarket?.dbrApr, 2)}%</b></>}
@@ -184,12 +185,13 @@ export const UserDashboard = ({
                     labelRight={<>sDOLA APY: <b>{shortenNumber(5, 2)}%</b></>}
                 />
             } noDataFallback={StakeDOLA} isLoading={isLoading} value={stakedDolaBalance} label="DOLA staked" precision={0} /> */}
-            <NumberCard footer={
+            <NumberCard imageSrc={TOKEN_IMAGES.DOLA} footer={
                 <CardFooter
                     labelRight={<>Coming soon</>}
                 />
             } noDataFallback={StakeDOLA} isLoading={isLoading} value={stakedDolaBalance} label="DOLA staked" precision={0} />
             <NumberCard
+                imageSrc={TOKEN_IMAGES.DBR}
                 footer={
                     <CardFooter
                         labelRight={<>Price: <b>{shortenNumber(dbrPrice, 4, true)}</b></>}
