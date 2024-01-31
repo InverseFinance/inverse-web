@@ -1,16 +1,19 @@
-import { SimpleGrid, Stack, StackProps, Text, VStack, HStack, Popover, PopoverTrigger, PopoverContent, PopoverBody } from "@chakra-ui/react"
+import { SimpleGrid, Stack, StackProps, Text, VStack, HStack, Popover, PopoverTrigger, PopoverContent, PopoverBody, Flex } from "@chakra-ui/react"
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import { useAccountDBR, useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
-import { SkeletonList } from "@app/components/common/Skeleton";
 import { preciseCommify } from "@app/util/misc";
 import { lightTheme } from "@app/variables/theme";
 import moment from "moment";
 import { PieChartRecharts } from "../Transparency/PieChartRecharts";
-import { useStakedInFirm } from "@app/hooks/useFirm";
+import { useStakedInFirm, useUserRewards } from "@app/hooks/useFirm";
 import { usePrices } from "@app/hooks/usePrices";
 import { BigTextLoader } from "../common/Loaders/BigTextLoader";
 import { RSubmitButton } from "../common/Button/RSubmitButton";
 import Link from "../common/Link";
+import { BURN_ADDRESS, BUY_LINKS } from "@app/config/constants";
+import { useState } from "react";
+import { FirmRewardWrapper } from "./rewards/FirmRewardWrapper";
+import { useAppTheme } from "@app/hooks/useAppTheme";
 
 
 const DashBoardCard = (props: StackProps & { href?: string }) => {
@@ -28,19 +31,30 @@ const DashBoardCard = (props: StackProps & { href?: string }) => {
             </PopoverContent>
         </Popover>
     }
-    return <Stack position="relative" direction={'row'} borderRadius="5px" bgColor="white" p="8" alignItems="center" boxShadow="0 4px 5px 5px #33333322" {...props} />
+    // return <Stack position="relative" direction={'row'} borderRadius="5px" bgColor="white" p="8" alignItems="center" boxShadow="0 4px 5px 5px #33333322" {...props} />
+    return <Flex
+        w="full"
+        borderRadius={8}
+        mt={0}
+        p={8}
+        position="relative"
+        alignItems="center"         
+        shadow="0 0 0px 1px rgba(0, 0, 0, 0.25)"
+        bg={'containerContentBackground'}
+        {...props}
+    />
 }
 
 const NumberItem = ({ noDataFallback = '-', footer = undefined, isLoading = false, value = 0, price = undefined, label = '', isUsd = false, precision = 0 }) => {
     return <VStack spacing="0" justify="center" alignItems="flex-end" w='full'>
         <VStack alignItems="flex-end" spacing="2">
             {
-                isLoading ? <BigTextLoader /> : <Text fontWeight="extrabold" fontSize={price ? '28px' : '36px'} color={lightTheme.colors.mainTextColor}>
+                isLoading ? <BigTextLoader /> : <Text fontWeight="extrabold" fontSize={price ? '28px' : '36px'} color={'mainTextColor'}>
                     {!value ? noDataFallback : value > 100000 ? smartShortNumber(value, 2, isUsd) : preciseCommify(value, precision, isUsd)}{!!price && !!value ? ` (${smartShortNumber(value * price, 2, true)})` : ''}
                 </Text>
             }
             {
-                (!!value || (!value && noDataFallback === '-')) && <Text fontSize="20px" fontWeight="bold" color={lightTheme.colors.mainTextColorLight}>{label}</Text>
+                (!!value || (!value && noDataFallback === '-')) && <Text fontSize="20px" fontWeight="bold" color={'mainTextColorLight'}>{label}</Text>
             }
         </VStack>
         {footer}
@@ -53,18 +67,21 @@ const NumberCard = ({ noDataFallback = undefined, href = undefined, footer = und
     </DashBoardCard>
 }
 
-const StringItem = ({ color = lightTheme.colors.mainTextColor, value = '', label = '', isLoading = false }) => {
-    return <VStack alignItems="flex-end" w='full'>
-        {
-            isLoading ? <BigTextLoader /> : <Text fontWeight="extrabold" fontSize="36px" color={color}>{value}</Text>
-        }
-        <Text fontSize="20px" fontWeight="bold" color={lightTheme.colors.mainTextColorLight}>{label}</Text>
+const StringItem = ({ footer = undefined, color = 'mainTextColor', value = '', label = '', isLoading = false }) => {
+    return <VStack spacing="0" justify="center" alignItems="flex-end" w='full'>
+        <VStack alignItems="flex-end" w='full' spacing="2">
+            {
+                isLoading ? <BigTextLoader /> : <Text fontWeight="extrabold" fontSize="36px" color={color}>{value}</Text>
+            }
+            <Text fontSize="20px" fontWeight="bold" color={'mainTextColorLight'}>{label}</Text>
+            {footer}
+        </VStack>
     </VStack>
 }
 
-const StringCard = ({ color = undefined, value = '', label = '', isLoading = false }) => {
+const StringCard = ({ footer = undefined, color = undefined, value = '', label = '', isLoading = false }) => {
     return <DashBoardCard>
-        <StringItem color={color} isLoading={isLoading} value={value} label={label} />
+        <StringItem footer={footer} color={color} isLoading={isLoading} value={value} label={label} />
     </DashBoardCard>
 }
 
@@ -96,21 +113,21 @@ const NumberAndPieCard = ({ isLoading, noDataFallback = undefined, fill, activeF
 
 const CardFooter = ({ labelLeft = '', labelRight = '' }) => {
     return <HStack position="absolute" left="0" right="0" px="8" bottom="8px" w='full' justify="space-between">
-        <Text color={lightTheme.colors.mainTextColorLight} fontSize="14px">
+        <Text color={'mainTextColorLight'} fontSize="14px">
             {labelLeft}
         </Text>
-        <Text color={lightTheme.colors.mainTextColorLight} fontSize="14px">
+        <Text color={'mainTextColorLight'} fontSize="14px">
             {labelRight}
         </Text>
     </HStack>
 }
 
 const CallToAction = ({ href = '', ...props }) => {
-    return <RSubmitButton bgColor="accentTextColor" px="8" h="60px" fontSize="28px" fontWeight="bold" {...props} />
+    return <RSubmitButton px="8" h="60px" fontSize="28px" fontWeight="bold" {...props} />
 }
 
 const SmallCallToAction = ({ href = '', ...props }) => {
-    return <RSubmitButton fontSize="18px" bgColor="accentTextColor" {...props} />
+    return <RSubmitButton fontSize="18px" {...props} />
 }
 
 const BigLinkBtn = ({ href = '', ...props }) => {
@@ -140,20 +157,31 @@ export const UserDashboard = ({
     const accountMarkets = useAccountF2Markets(markets, account);
     const stakedDolaBalance = 0;
     const invMarket = markets?.find(m => m.isInv);
+    const [extraUsd, setExtraUsd] = useState(0);
+    const { themeStyles } = useAppTheme();
     const { stakedInFirm, isLoading: isLoadingInvStaked } = useStakedInFirm(account);
-    const { debt, dbrExpiryDate, signedBalance: dbrBalance, needsRechargeSoon, isLoading: isLoadingAccount } = useAccountDBR(account);    
+    const { debt, dbrExpiryDate, signedBalance: dbrBalance, needsRechargeSoon, isLoading: isLoadingAccount } = useAccountDBR(account);
+
+    const { appGroupPositions, isLoading: isLoadingRewards } = useUserRewards(account);
+
+    // const totalRewardsUSD = extraUsd + appGroupPositions?.reduce((prev, curr) => {
+    //     return prev + curr.tokens
+    //         .filter(t => t.metaType === 'claimable')
+    //         .reduce((tprev, tcurr) => tprev + tcurr.balanceUSD, 0);
+    // }, 0);
+
     const isLoading = !account ? false : isLoadingMarkets || isLoadingAccount || isLoadingInvStaked || isLoadingPrices;
 
     const totalTotalSuppliedUsd = accountMarkets.reduce((prev, curr) => prev + curr.deposits * curr.price, 0);
     const marketsWithDeposits = accountMarkets.filter(m => m.depositsUsd > 1).sort((a, b) => b.depositsUsd - a.depositsUsd);
     const marketsWithDebt = accountMarkets.filter(m => m.debt > 0).sort((a, b) => b.debt - a.debt);
 
-    return <VStack w='full'>
-        <SimpleGrid columns={{ base: 1, sm: 2 }} pb="4" spacing="8" w="100%" >
-            <NumberAndPieCard noDataFallback={SupplyAssets} isLoading={isLoading} value={totalTotalSuppliedUsd} label="My deposits" precision={0} isUsd={true} data={marketsWithDeposits} dataKey="depositsUsd" />
-            <NumberAndPieCard noDataFallback={BorrowDola} isLoading={isLoading} fill={lightTheme.colors.warning} activeFill={lightTheme.colors.error} value={debt} label="My DOLA debt" precision={0} isUsd={false} data={marketsWithDebt} dataKey="debt" />
+    return <VStack w='full' spacing="8">
+        <SimpleGrid columns={{ base: 1, sm: 2 }} spacing="8" w="100%" >
+            <NumberAndPieCard noDataFallback={SupplyAssets} isLoading={isLoading} fill={themeStyles.colors.mainTextColorLight} activeFill={themeStyles.colors.mainTextColor} value={totalTotalSuppliedUsd} label="My deposits" precision={0} isUsd={true} data={marketsWithDeposits} dataKey="depositsUsd" />
+            <NumberAndPieCard noDataFallback={BorrowDola} isLoading={isLoading} fill={themeStyles.colors.warning} activeFill={themeStyles.colors.error} value={debt} label="My DOLA debt" precision={0} isUsd={false} data={marketsWithDebt} dataKey="debt" />
         </SimpleGrid>
-        <SimpleGrid columns={{ base: 1, sm: 4 }} pb="4" spacing="8" w="100%" >
+        <SimpleGrid columns={{ base: 1, sm: 4 }} spacing="8" w="100%">
             <NumberCard footer={
                 <CardFooter
                     labelLeft={<>INV APR: <b>{shortenNumber(invMarket?.supplyApy, 2)}%</b></>}
@@ -177,7 +205,31 @@ export const UserDashboard = ({
                     />
                 }
                 isLoading={isLoading} price={dbrPrice} value={dbrBalance} label="DBR balance" precision={0} />
-            <StringCard color={needsRechargeSoon ? 'error' : undefined} isLoading={isLoading} value={debt > 0 ? dbrBalance < 0 ? 'Depleted' : moment(dbrExpiryDate).format('MMM Do YYYY') : '-'} label="DBR depletion date" />
+            <StringCard footer={
+                <CardFooter
+                    labelLeft={<Link isExternal target="_blank" textDecoration="underline" href={BUY_LINKS.DBR}>Buy via DEX</Link>}
+                    labelRight={<Link textDecoration="underline" href="/dbr/auction">Buy via auctions</Link>}
+                />
+            } color={needsRechargeSoon ? 'error' : undefined} isLoading={isLoading} value={debt > 0 ? dbrBalance < 0 ? 'Depleted' : moment(dbrExpiryDate).format('MMM Do YYYY') : '-'} label="DBR depletion date" />
+        </SimpleGrid>
+        <SimpleGrid columns={{ base: 1, sm: 2 }} spacing="8" w="100%">
+            {
+                accountMarkets
+                    .filter(market => market.hasClaimableRewards)
+                    .map(market => {
+                        // via on chain data
+                        if (market.escrow && market.escrow !== BURN_ADDRESS && (market.isInv || market.name === 'cvxFXS' || market.name === 'cvxCRV')) {
+                            return <FirmRewardWrapper
+                                key={market.address}
+                                market={market}
+                                showMarketBtn={true}
+                                extraAtBottom={true}
+                                escrow={market.escrow}
+                                onLoad={(v) => setExtraUsd(v)}
+                            />
+                        }
+                    })
+            }
         </SimpleGrid>
     </VStack>
 }

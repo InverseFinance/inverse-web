@@ -16,6 +16,7 @@ export const FirmRewardWrapper = ({
     market,
     label,
     showMarketBtn = false,
+    extraAtBottom = false,
     escrow,
     onLoad
 }: {
@@ -23,6 +24,7 @@ export const FirmRewardWrapper = ({
     label?: string
     escrow?: string
     showMarketBtn?: boolean
+    extraAtBottom?: boolean
     onLoad?: (v: number) => void
 }) => {
     const { escrow: escrowFromContext } = useContext(F2MarketContext);
@@ -34,6 +36,7 @@ export const FirmRewardWrapper = ({
             market={market}
             label={label}
             showMarketBtn={showMarketBtn}
+            extraAtBottom={extraAtBottom}
             escrow={_escrow}
             onLoad={onLoad}
         />
@@ -42,6 +45,7 @@ export const FirmRewardWrapper = ({
             market={market}
             label={label}
             showMarketBtn={showMarketBtn}
+            extraAtBottom={extraAtBottom}
             escrow={_escrow}
             onLoad={onLoad}
         />
@@ -50,6 +54,7 @@ export const FirmRewardWrapper = ({
             market={market}
             label={label}
             showMarketBtn={showMarketBtn}
+            extraAtBottom={extraAtBottom}
             escrow={_escrow}
             onLoad={onLoad}
         />
@@ -58,6 +63,7 @@ export const FirmRewardWrapper = ({
             market={market}
             label={label}
             showMarketBtn={showMarketBtn}
+            extraAtBottom={extraAtBottom}
             escrow={_escrow}
             onLoad={onLoad}
         />
@@ -67,6 +73,7 @@ export const FirmRewardWrapper = ({
         market={market}
         label={label}
         showMarketBtn={showMarketBtn}
+        extraAtBottom={extraAtBottom}
         escrow={_escrow}
     />
 }
@@ -75,6 +82,7 @@ export const FirmCvxCrvRewardWrapperContent = ({
     market,
     label,
     showMarketBtn = false,
+    extraAtBottom = false,
     escrow,
     onLoad,
 }: {
@@ -82,6 +90,7 @@ export const FirmCvxCrvRewardWrapperContent = ({
     label?: string
     escrow?: string
     showMarketBtn?: boolean
+    extraAtBottom?: boolean
     onLoad?: (v: number) => void
 }) => {
     const { rewardsInfos, isLoading } = useCvxCrvRewards(escrow);
@@ -99,6 +108,7 @@ export const FirmCvxCrvRewardWrapperContent = ({
         rewardsInfos={rewardsInfos}
         label={label}
         showMarketBtn={showMarketBtn}
+        extraAtBottom={extraAtBottom}
         isLoading={isLoading}
     />
 }
@@ -107,6 +117,7 @@ export const FirmCvxRewardWrapperContent = ({
     market,
     label,
     showMarketBtn = false,
+    extraAtBottom = false,
     escrow,
     onLoad,
 }: {
@@ -114,6 +125,7 @@ export const FirmCvxRewardWrapperContent = ({
     label?: string
     escrow?: string
     showMarketBtn?: boolean
+    extraAtBottom?: boolean
     onLoad?: (v: number) => void
 }) => {
     const { rewardsInfos, extraRewards, isLoading } = useCvxRewards(escrow);
@@ -139,10 +151,11 @@ export const FirmCvxRewardWrapperContent = ({
         extraRewards={extraRewards}
         label={label}
         showMarketBtn={showMarketBtn}
+        extraAtBottom={extraAtBottom}
         isLoading={isLoading}
         showMonthlyRewards={false}
         extra={
-            cvxCrvPrice > 0 && <VStack alignItems="flex-end" justify="center" w={{ base: 'auto', md: '700px' }}>
+            cvxCrvPrice > 0 && <VStack alignItems="flex-start" justify="center" w={{ base: 'auto', md: '700px' }}>
                 <InfoMessage
                     alertProps={{ fontSize: '18px' }}
                     description={
@@ -161,6 +174,7 @@ export const FirmCvxFxsRewardWrapperContent = ({
     market,
     label,
     showMarketBtn = false,
+    extraAtBottom = false,
     escrow,
     onLoad,
 }: {
@@ -168,6 +182,7 @@ export const FirmCvxFxsRewardWrapperContent = ({
     label?: string
     escrow?: string
     showMarketBtn?: boolean
+    extraAtBottom?: boolean
     onLoad?: (v: number) => void
 }) => {
     const { rewardsInfos, isLoading } = useCvxFxsRewards(escrow);
@@ -185,6 +200,7 @@ export const FirmCvxFxsRewardWrapperContent = ({
         rewardsInfos={rewardsInfos}
         label={label}
         showMarketBtn={showMarketBtn}
+        extraAtBottom={extraAtBottom}
         isLoading={isLoading}
     />
 }
@@ -193,12 +209,14 @@ export const FirmRewardWrapperContent = ({
     market,
     label,
     showMarketBtn = false,
+    extraAtBottom = false,
     escrow,
 }: {
     market: F2Market
     label?: string
     escrow?: string
     showMarketBtn?: boolean
+    extraAtBottom?: boolean
 }) => {
     const { needRefreshRewards, setNeedRefreshRewards, account } = useContext(F2MarketContext);
     const { appGroupPositions, isLoading } = useEscrowRewards(escrow);
@@ -216,6 +234,7 @@ export const FirmRewardWrapperContent = ({
         rewardsInfos={rewardsInfos}
         label={label}
         showMarketBtn={showMarketBtn}
+        extraAtBottom={extraAtBottom}
         isLoading={isLoading}
     />
 }
@@ -224,6 +243,7 @@ export const FirmINVRewardWrapperContent = ({
     market,
     label,
     showMarketBtn = false,
+    extraAtBottom = false,
     escrow,
     onLoad,
 }: {
@@ -231,6 +251,7 @@ export const FirmINVRewardWrapperContent = ({
     label?: string
     escrow?: string
     showMarketBtn?: boolean
+    extraAtBottom?: boolean
     onLoad?: (v: number) => void
 }) => {
     const account = useAccount();
@@ -256,9 +277,10 @@ export const FirmINVRewardWrapperContent = ({
         rewardsInfos={rewardsInfos}
         label={label}
         showMarketBtn={showMarketBtn}
+        extraAtBottom={extraAtBottom}
         isLoading={isLoading}
         escrow={escrow}
-        extra={<VStack alignItems="flex-end" justify="center" w={{ base: 'auto', md: '700px' }}>
+        extra={<VStack alignItems="flex-start" justify="center" w={{ base: 'auto', md: '700px' }}>
             {
                 market?.invStakedViaDistributor &&
                 <InfoMessage
@@ -287,6 +309,7 @@ export const FirmRewards = ({
     extraRewards,
     label,
     showMarketBtn = false,
+    extraAtBottom = false,
     isLoading,
     escrow,
     extra,
@@ -297,6 +320,7 @@ export const FirmRewards = ({
     label?: string
     escrow?: string
     showMarketBtn?: boolean
+    extraAtBottom?: boolean
     isLoading?: boolean
     extra?: any
 }) => {
@@ -318,6 +342,7 @@ export const FirmRewards = ({
         totalRewardsUSD={totalRewardsUSD}
         market={market}
         showMarketBtn={showMarketBtn}
+        extraAtBottom={extraAtBottom}
         defaultCollapse={false}
         extra={extra}
         extraRewards={extraRewards}
