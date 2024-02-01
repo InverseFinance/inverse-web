@@ -32,6 +32,7 @@ export const AreaChartRecharts = ({
     rangesToInclude,
     strokeColor,
     isPerc,
+    forceStaticRangeBtns,
 }: {
     combodata: { y: number, x: number, timestamp: number, utcDate: string }[]
     title: string
@@ -56,10 +57,11 @@ export const AreaChartRecharts = ({
     rangesToInclude?: string[]
     strokeColor?: string
     isPerc?: boolean
+    forceStaticRangeBtns?: boolean
 }) => {    
     const { themeStyles } = useAppTheme();
     const { mouseDown, mouseUp, mouseMove, mouseLeave, bottom, top, rangeButtonsBarAbs, zoomReferenceArea, data } = useRechartsZoom({
-        combodata, rangesToInclude        
+        combodata, rangesToInclude, forceStaticRangeBtns        
     });
 
     const _data = data || combodata;

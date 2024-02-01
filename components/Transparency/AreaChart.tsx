@@ -42,6 +42,7 @@ export type AreaChartProps = {
     showEventsLabels?: boolean
     showRangeBtns?: boolean
     showLegend?: boolean
+    forceStaticRangeBtns?: boolean
     fillInByDayInterval?: number
     yLabel?: string
     minTickGap?: number
@@ -87,6 +88,7 @@ export const AreaChart = ({
     interval,
     showRangeBtns,
     rangesToInclude,
+    forceStaticRangeBtns,
     strokeColor,
 }: AreaChartProps) => {
     const _data = simplifyData ? getSimplifiedData(data) : fillInByDayInterval > 0 ? fillMissingDailyDatesWithMostRecentData(data, fillInByDayInterval) : data;
@@ -139,6 +141,7 @@ export const AreaChart = ({
             interval={interval}
             showRangeBtns={showRangeBtns}
             rangesToInclude={rangesToInclude}
+            forceStaticRangeBtns={forceStaticRangeBtns}
             strokeColor={strokeColor}
             isPerc={isPerc}
         />
