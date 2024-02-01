@@ -17,7 +17,8 @@ import { useAppTheme } from "@app/hooks/useAppTheme";
 import { TOKEN_IMAGES } from "@app/variables/images";
 import { useFirmUserPositionEvolution } from "./WorthEvoChartContainer";
 import { AccountDBRMarket } from "@app/types";
-import { WorthEvoChartSimplified } from "./WorthEvoChart";
+import { WorthEvoChart } from "./WorthEvoChart";
+import { DbrHistoBalanceChart } from "./Infos/DbrHistoBalanceChart";
 
 const FirmInvEvoChart = ({
     market
@@ -39,12 +40,13 @@ const FirmInvEvoChart = ({
         return null
     }
 
-    return <WorthEvoChartSimplified
+    return <WorthEvoChart
         isLoading={isLoading}
         market={market}
         chartWidth={chartWidth}
         data={data}
         priceRef={'comboPrice'}
+        isSimplified={true}
     />
 }
 
@@ -241,6 +243,9 @@ export const UserDashboard = ({
             invMarket?.depositsUsd > 1 && <SimpleGrid columns={{ base: 1, sm: 2 }} spacing="8" w="100%">
                 <DashBoardCard>
                     <FirmInvEvoChart market={invMarket} />
+                </DashBoardCard>
+                <DashBoardCard>
+                    <DbrHistoBalanceChart account={account} />
                 </DashBoardCard>
             </SimpleGrid>
         }
