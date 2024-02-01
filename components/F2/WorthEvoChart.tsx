@@ -88,15 +88,15 @@ export const WorthEvoChart = ({
     const { themeStyles, themeName } = useAppTheme();
 
     const keyNames = {
-        'histoPrice': `${market.name} oracle or coingecko price`,
+        'histoPrice': isSimplified ? 'Price' : `${market.name} oracle or coingecko price`,
         'oracleHistoPrice': `${market.name} oracle price`,
         'cgHistoPrice': `${market.name} coingecko price`,
         'comboPrice': `${market.name} cg/oracle price`,
         'dbrPrice': 'DBR market price',
         'totalRewardsUsd': 'Total rewards',
-        'balanceWorth': 'Collateral balance worth',
+        'balanceWorth': isSimplified ? 'Balance USD worth' : 'Collateral balance worth',
         'totalWorth': market.hasStakingLikeRewards ? 'Balance + All Rewards worth' : 'Balance worth',
-        'balance': 'Total collateral balance',
+        'balance': isSimplified ? 'Balance' : 'Total collateral balance',
         'dbrRewards': 'DBR rewards',
         'rewardsUsd': 'DBR rewards',
         'dbrClaimed': 'DBR claimed',
@@ -248,7 +248,7 @@ export const WorthEvoChart = ({
 
     const ChartComposition = () => <VStack alignItems="center" maxW={`${chartWidth}px`}>
         <Stack w='full' justify="flex-start" alignItems="flex-start" direction="column">
-            <Stack alignItems="center" w='full' spacing={{ base: '2', lg: '4' }} direction={{ base: 'column', lg: 'row' }}>
+            <Stack alignItems="center" w='full' spacing={{ base: '2', lg: '4' }} direction={{ base: 'column', lg: isSimplified ? 'row-reverse' : 'row' }}>
                 {
                     !isSimplified && <VStack alignItems="center" maxW={{ base: 'full', sm: '800px' }} w='full'>
                         <NavButtons
@@ -262,7 +262,7 @@ export const WorthEvoChart = ({
                 }
                 <HStack h="30px" alignItems="center" spacing="3">
                     {
-                        !isSimplified && canShowNonUsdAmounts
+                        canShowNonUsdAmounts
                         && <FormControl w='fit-content' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
                             <Text fontSize={defaultFontSize} whitespace="no-wrap" w='fit-content' mr="1" onClick={() => setUseUsd(!useUsd)}>
                                 Show in USD
@@ -344,7 +344,7 @@ export const WorthEvoChart = ({
                 }}
             />
             {
-                !isSimplified && <Legend wrapperStyle={{
+                <Legend wrapperStyle={{
                     ..._axisStyle.tickLabels,
                     userSelect: 'none',
                     fontSize: chartWidth <= 400 ? defaultFontSize : '16px',

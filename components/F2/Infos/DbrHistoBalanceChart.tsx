@@ -1,7 +1,6 @@
 import { DefaultCharts } from "@app/components/Transparency/DefaultCharts";
 import { SkeletonBlob } from "@app/components/common/Skeleton";
 import { useDBRBalanceHisto } from "@app/hooks/useDBR";
-import { smartShortNumber } from "@app/util/markets";
 import { VStack, useMediaQuery, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 
@@ -29,7 +28,7 @@ export const DbrHistoBalanceChart = ({
             </VStack>
         }
         {
-            !isLoading && evolution?.length > 0 && <DefaultCharts                
+            !isLoading && evolution?.length > 0 && <DefaultCharts
                 showMonthlyBarChart={false}
                 maxChartWidth={autoChartWidth}
                 chartWidth={autoChartWidth}

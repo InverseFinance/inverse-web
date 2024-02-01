@@ -27,7 +27,7 @@ export const ZapperTokens = ({
     const showClaimButtons = (totalRewardsUSD > 0.1 || !!claimables.find(c => !c.price && c.balance > 0));
     const isUnknownPricing = !claimables.find(c => !!c.price);// 0 asset with known price (in case ref price source is down)
     return <VStack spacing='4' w='full' alignItems="flex-start">
-        <Stack spacing={{ base: '2', sm: '8' }} direction={{ base: 'column', sm: 'row' }}>
+        <Stack spacing={{ base: '2', xl: '8' }} direction={{ base: 'column', xl: 'row' }}>
             <HStack>
                 <Text whiteSpace='nowrap' fontSize="18px" fontWeight="bold">Total Rewards:</Text>
                 {

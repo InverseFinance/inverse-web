@@ -1,11 +1,11 @@
-import { SimpleGrid, Stack, StackProps, Text, VStack, HStack, Image, Popover, PopoverTrigger, PopoverContent, PopoverBody, Flex, useMediaQuery } from "@chakra-ui/react"
+import { SimpleGrid, Stack, StackProps, Text, VStack, HStack, Image, Flex, useMediaQuery } from "@chakra-ui/react"
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
-import { useAccountDBR, useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
-import { preciseCommify } from "@app/util/misc";
+import { useAccountDBR, useAccountF2Markets, useDBR, useDBRBalanceHisto, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
+import { getClosestPreviousHistoValue, preciseCommify, timestampToUTC } from "@app/util/misc";
 import { lightTheme } from "@app/variables/theme";
 import moment from "moment";
 import { PieChartRecharts } from "../Transparency/PieChartRecharts";
-import { useINVEscrowRewards, useStakedInFirm, useUserRewards } from "@app/hooks/useFirm";
+import { useINVEscrowRewards, useStakedInFirm } from "@app/hooks/useFirm";
 import { usePrices } from "@app/hooks/usePrices";
 import { BigTextLoader } from "../common/Loaders/BigTextLoader";
 import { RSubmitButton } from "../common/Button/RSubmitButton";
@@ -18,7 +18,8 @@ import { TOKEN_IMAGES } from "@app/variables/images";
 import { useFirmUserPositionEvolution } from "./WorthEvoChartContainer";
 import { AccountDBRMarket } from "@app/types";
 import { WorthEvoChart } from "./WorthEvoChart";
-import { DbrHistoBalanceChart } from "./Infos/DbrHistoBalanceChart";
+
+const MAX_AREA_CHART_WIDTH = 600;
 
 const FirmInvEvoChart = ({
     market
@@ -26,15 +27,16 @@ const FirmInvEvoChart = ({
     market: AccountDBRMarket,
 }) => {
     const { escrow } = market;
-    const maxWidth = 600;
-    const [chartWidth, setChartWidth] = useState<number>(maxWidth);
-    const [isLargerThan] = useMediaQuery(`(min-width: ${maxWidth + 50}px)`);
     const { rewards } = useINVEscrowRewards(escrow);
-    const { data, isLoading, walletSupportsEvents } = useFirmUserPositionEvolution(market, 'comboPrice', rewards);
+    const { data, isLoading } = useFirmUserPositionEvolution(market, 'comboPrice', rewards);
+
+    const [chartWidth, setChartWidth] = useState<number>(MAX_AREA_CHART_WIDTH);
+    const [isLargerThan] = useMediaQuery(`(min-width: 48em)`);
 
     useEffect(() => {
-        setChartWidth(isLargerThan ? maxWidth : (screen.availWidth || screen.width) - 50)
-    }, [isLargerThan, maxWidth]);
+        const optimal2ColWidth = ((screen.availWidth || screen.width))/2.2-100;
+        setChartWidth(isLargerThan ? optimal2ColWidth : (optimal2ColWidth * 2.2 + 100));
+    }, [isLargerThan, MAX_AREA_CHART_WIDTH, screen?.availWidth]);
 
     if (!escrow || escrow === BURN_ADDRESS) {
         return null
@@ -50,22 +52,44 @@ const FirmInvEvoChart = ({
     />
 }
 
-const DashBoardCard = (props: StackProps & { href?: string }) => {
-    // if (props.href) {
-    //     return <Popover trigger="hover">
-    //         <PopoverTrigger>
-    //             <Stack direction={'row'} borderRadius="5px" bgColor="white" p="8" alignItems="center" boxShadow="0 4px 5px 5px #33333322" {...props} />
-    //         </PopoverTrigger>
-    //         <PopoverContent border="1px solid #ccc" _focus={{ outline: 'none' }} maxW="70px">
-    //             <PopoverBody>
-    //                 <Link href={props.href}>
-    //                     Go to
-    //                 </Link>
-    //             </PopoverBody>
-    //         </PopoverContent>
-    //     </Popover>
-    // }
-    // return <Stack position="relative" direction={'row'} borderRadius="5px" bgColor="white" p="8" alignItems="center" boxShadow="0 4px 5px 5px #33333322" {...props} />
+const DbrEvoChart = ({
+    account,
+}: {
+    account: string
+}) => {
+    const { evolution, isLoading } = useDBRBalanceHisto(account);
+    const { historicalData } = useDBR();
+    const histoPrices = historicalData && !!historicalData?.prices ? historicalData.prices.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr[0])]: curr[1] }), {}) : {};
+
+    const formattedData = evolution?.map(e => {
+        const utcDay = timestampToUTC(e.timestamp);
+        const histoPrice = histoPrices[utcDay] || getClosestPreviousHistoValue(histoPrices, utcDay, 0);
+        return {
+            ...e,
+            balanceWorth: e.balance * histoPrice,
+            histoPrice,
+        }
+    })
+
+    const [chartWidth, setChartWidth] = useState<number>(MAX_AREA_CHART_WIDTH);
+    const [isLargerThan] = useMediaQuery(`(min-width: 48em)`);
+
+    useEffect(() => {
+        const optimal2ColWidth = ((screen.availWidth || screen.width))/2.2-100;
+        setChartWidth(isLargerThan ? optimal2ColWidth : (optimal2ColWidth * 2.2 + 100));
+    }, [isLargerThan, MAX_AREA_CHART_WIDTH, screen?.availWidth]);
+
+    return <WorthEvoChart
+        isLoading={isLoading}
+        market={{ name: 'DBR' }}
+        chartWidth={chartWidth}
+        data={formattedData}
+        priceRef={'histoPrice'}
+        isSimplified={true}
+    />
+}
+
+const DashBoardCard = (props: StackProps & { cardTitle?: string, href?: string, imageSrc?: string }) => {
     return <Flex
         w="full"
         borderRadius={8}
@@ -77,7 +101,7 @@ const DashBoardCard = (props: StackProps & { href?: string }) => {
         bg={'containerContentBackground'}
         {...props}
     >
-        {!!props.title && <Text fontSize="18px" fontWeight="bold" mx="auto" w='fit-content' position="absolute" left="0" right="0" top="30px">{props.title}</Text>}
+        {!!props.cardTitle && <Text fontSize="18px" fontWeight="bold" mx="auto" w='200px' position="absolute" left="0" right="0" top={{ base: '5px', xl: '32px' }}>{props.cardTitle}</Text>}
         {!!props.imageSrc && <Image borderRadius="50px" src={props.imageSrc} w="30px" h="30px" position="absolute" left="10px" top="10px" />}
         {props.children}
     </Flex>
@@ -100,7 +124,7 @@ const NumberItem = ({ noDataFallback = '-', footer = undefined, isLoading = fals
 }
 
 const NumberCard = ({ imageSrc = '', noDataFallback = undefined, href = undefined, footer = undefined, isLoading = false, value = 0, label = '', price = undefined, isUsd = false, precision = 0 }) => {
-    return <DashBoardCard imageSrc={imageSrc} href={href}>        
+    return <DashBoardCard imageSrc={imageSrc} href={href}>
         <NumberItem noDataFallback={noDataFallback} isLoading={isLoading} price={price} value={value} label={label} isUsd={isUsd} precision={precision} footer={footer} />
     </DashBoardCard>
 }
@@ -206,11 +230,11 @@ export const UserDashboard = ({
     const marketsWithDebt = accountMarkets.filter(m => m.debt > 0).sort((a, b) => b.debt - a.debt);
 
     return <VStack w='full' spacing="8">
-        <SimpleGrid columns={{ base: 1, sm: 2 }} spacing="8" w="100%" >
+        <SimpleGrid columns={{ base: 1, xl: 2 }} spacing="8" w="100%" >
             <NumberAndPieCard noDataFallback={SupplyAssets} isLoading={isLoading} fill={themeStyles.colors.mainTextColorLight} activeFill={themeStyles.colors.mainTextColor} value={totalTotalSuppliedUsd} label="My deposits" precision={0} isUsd={true} data={marketsWithDeposits} dataKey="depositsUsd" />
             <NumberAndPieCard noDataFallback={BorrowDola} isLoading={isLoading} fill={themeStyles.colors.warning} activeFill={themeStyles.colors.error} value={debt} label="My DOLA debt" precision={0} isUsd={false} data={marketsWithDebt} dataKey="debt" />
         </SimpleGrid>
-        <SimpleGrid columns={{ base: 1, sm: 4 }} spacing="8" w="100%">
+        <SimpleGrid columns={{ base: 1, md: 2, xl: 4 }} spacing="8" w="100%">
             <NumberCard imageSrc={TOKEN_IMAGES.INV} footer={
                 <CardFooter
                     labelLeft={<>INV APR: <b>{shortenNumber(invMarket?.supplyApy, 2)}%</b></>}
@@ -243,12 +267,12 @@ export const UserDashboard = ({
             } color={needsRechargeSoon ? 'error' : undefined} isLoading={isLoading} value={debt > 0 ? dbrBalance < 0 ? 'Depleted' : moment(dbrExpiryDate).format('MMM Do YYYY') : '-'} label="DBR depletion date" />
         </SimpleGrid>
         {
-            invMarket?.depositsUsd > 1 && <SimpleGrid columns={{ base: 1, sm: 2 }} spacing="8" w="100%">
-                <DashBoardCard title="Staked INV evolution" imageSrc={TOKEN_IMAGES.INV}>                    
+            invMarket?.depositsUsd > 1 && <SimpleGrid columns={{ base: 1, md: 2 }} spacing="8" w="100%">
+                <DashBoardCard cardTitle="Staked INV evolution" imageSrc={TOKEN_IMAGES.INV}>
                     <FirmInvEvoChart market={invMarket} />
                 </DashBoardCard>
-                <DashBoardCard pt="10" title="DBR balance evolution" imageSrc={TOKEN_IMAGES.DBR}>
-                    <DbrHistoBalanceChart account={account} />
+                <DashBoardCard cardTitle="DBR balance evolution" imageSrc={TOKEN_IMAGES.DBR}>
+                    <DbrEvoChart account={account} />
                 </DashBoardCard>
             </SimpleGrid>
         }
