@@ -51,20 +51,20 @@ const FirmInvEvoChart = ({
 }
 
 const DashBoardCard = (props: StackProps & { href?: string }) => {
-    if (props.href) {
-        return <Popover trigger="hover">
-            <PopoverTrigger>
-                <Stack direction={'row'} borderRadius="5px" bgColor="white" p="8" alignItems="center" boxShadow="0 4px 5px 5px #33333322" {...props} />
-            </PopoverTrigger>
-            <PopoverContent border="1px solid #ccc" _focus={{ outline: 'none' }} maxW="70px">
-                <PopoverBody>
-                    <Link href={props.href}>
-                        Go to
-                    </Link>
-                </PopoverBody>
-            </PopoverContent>
-        </Popover>
-    }
+    // if (props.href) {
+    //     return <Popover trigger="hover">
+    //         <PopoverTrigger>
+    //             <Stack direction={'row'} borderRadius="5px" bgColor="white" p="8" alignItems="center" boxShadow="0 4px 5px 5px #33333322" {...props} />
+    //         </PopoverTrigger>
+    //         <PopoverContent border="1px solid #ccc" _focus={{ outline: 'none' }} maxW="70px">
+    //             <PopoverBody>
+    //                 <Link href={props.href}>
+    //                     Go to
+    //                 </Link>
+    //             </PopoverBody>
+    //         </PopoverContent>
+    //     </Popover>
+    // }
     // return <Stack position="relative" direction={'row'} borderRadius="5px" bgColor="white" p="8" alignItems="center" boxShadow="0 4px 5px 5px #33333322" {...props} />
     return <Flex
         w="full"
@@ -76,7 +76,11 @@ const DashBoardCard = (props: StackProps & { href?: string }) => {
         shadow="0 0 0px 1px rgba(0, 0, 0, 0.25)"
         bg={'containerContentBackground'}
         {...props}
-    />
+    >
+        {!!props.title && <Text fontSize="18px" fontWeight="bold" mx="auto" w='fit-content' position="absolute" left="0" right="0" top="30px">{props.title}</Text>}
+        {!!props.imageSrc && <Image borderRadius="50px" src={props.imageSrc} w="30px" h="30px" position="absolute" left="10px" top="10px" />}
+        {props.children}
+    </Flex>
 }
 
 const NumberItem = ({ noDataFallback = '-', footer = undefined, isLoading = false, value = 0, price = undefined, label = '', isUsd = false, precision = 0 }) => {
@@ -96,8 +100,7 @@ const NumberItem = ({ noDataFallback = '-', footer = undefined, isLoading = fals
 }
 
 const NumberCard = ({ imageSrc = '', noDataFallback = undefined, href = undefined, footer = undefined, isLoading = false, value = 0, label = '', price = undefined, isUsd = false, precision = 0 }) => {
-    return <DashBoardCard href={href}>
-        {!!imageSrc && <Image borderRadius="50px" src={imageSrc} w="30px" h="30px" position="absolute" left="10px" top="10px" />}
+    return <DashBoardCard imageSrc={imageSrc} href={href}>        
         <NumberItem noDataFallback={noDataFallback} isLoading={isLoading} price={price} value={value} label={label} isUsd={isUsd} precision={precision} footer={footer} />
     </DashBoardCard>
 }
@@ -241,10 +244,10 @@ export const UserDashboard = ({
         </SimpleGrid>
         {
             invMarket?.depositsUsd > 1 && <SimpleGrid columns={{ base: 1, sm: 2 }} spacing="8" w="100%">
-                <DashBoardCard>
+                <DashBoardCard title="Staked INV evolution" imageSrc={TOKEN_IMAGES.INV}>                    
                     <FirmInvEvoChart market={invMarket} />
                 </DashBoardCard>
-                <DashBoardCard>
+                <DashBoardCard pt="10" title="DBR balance evolution" imageSrc={TOKEN_IMAGES.DBR}>
                     <DbrHistoBalanceChart account={account} />
                 </DashBoardCard>
             </SimpleGrid>

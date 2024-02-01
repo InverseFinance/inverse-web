@@ -12,7 +12,7 @@ export const DbrHistoBalanceChart = ({
 }: {
     account: string
 }) => {
-    const { evolution, currentBalance, isLoading } = useDBRBalanceHisto(account);
+    const { evolution, isLoading } = useDBRBalanceHisto(account);
 
     const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
@@ -29,14 +29,14 @@ export const DbrHistoBalanceChart = ({
             </VStack>
         }
         {
-            !isLoading && evolution?.length > 0 && <DefaultCharts
+            !isLoading && evolution?.length > 0 && <DefaultCharts                
                 showMonthlyBarChart={false}
                 maxChartWidth={autoChartWidth}
                 chartWidth={autoChartWidth}
                 chartData={evolution}
                 isDollars={false}
                 smoothLineByDefault={true}
-                areaProps={{ title: typeof currentBalance === 'number' ? `Current DBR balance: ${smartShortNumber(currentBalance, 2)}` : undefined, id: 'dbr-balance-histo-chart', showRangeBtns: true, yLabel: 'Historical DBR balance', useRecharts: true, simplifyData: true, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
+                areaProps={{ title: <>&nbsp;</>, forceStaticRangeBtns: true, id: 'dbr-balance-histo-chart', showRangeBtns: true, yLabel: 'Historical DBR balance', useRecharts: true, simplifyData: true, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
             />
         }
     </VStack>

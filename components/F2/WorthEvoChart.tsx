@@ -181,7 +181,7 @@ export const WorthEvoChart = ({
     });
     const chartData = dataWithZoom || data;
 
-    const defaultFontSize = isSimplified ? '16px' : '12px';
+    const defaultFontSize = isSimplified ? '14px' : '12px';
 
     const _axisStyle = axisStyle || {
         tickLabels: { fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: defaultFontSize },
@@ -262,7 +262,7 @@ export const WorthEvoChart = ({
                 }
                 <HStack h="30px" alignItems="center" spacing="3">
                     {
-                        canShowNonUsdAmounts
+                        !isSimplified && canShowNonUsdAmounts
                         && <FormControl w='fit-content' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
                             <Text fontSize={defaultFontSize} whitespace="no-wrap" w='fit-content' mr="1" onClick={() => setUseUsd(!useUsd)}>
                                 Show in USD
@@ -296,7 +296,7 @@ export const WorthEvoChart = ({
             </Stack>
         </Stack>
         <Stack w='full' position="relative" justify="center" alignItems="center" mt={{ base: '0', lg: '2' }} direction={{ base: 'column', lg: 'row' }}>
-            {!isSimplified && rangeButtonsBar}
+            {rangeButtonsBar}
             {
                 !isSimplified && <HStack position={{ base: 'static', lg: 'absolute' }} right="20px" justify="flex-end">
                     <Text userSelect="none" color="mainTextColorLight" fontSize="14px">
@@ -343,13 +343,16 @@ export const WorthEvoChart = ({
                     return !value ? 'none' : isPerc ? `${shortenNumber(value, 2)}%` : isPrice ? preciseCommify(value, value < 1 ? 4 : 2, true) : preciseCommify(value, !useUsd ? 2 : 0, useUsd)
                 }}
             />
-            <Legend wrapperStyle={{
-                ..._axisStyle.tickLabels,
-                userSelect: 'none',
-                fontSize: chartWidth <= 400 ? defaultFontSize : '16px',
-                fontWeight: 'bold',
-            }}
-                onClick={toggleChart} style={{ cursor: 'pointer' }} formatter={(value) => value + (actives[value] ? '' : ' (hidden)')} />
+            {
+                !isSimplified && <Legend wrapperStyle={{
+                    ..._axisStyle.tickLabels,
+                    userSelect: 'none',
+                    fontSize: chartWidth <= 400 ? defaultFontSize : '16px',
+                    fontWeight: 'bold',
+                }}
+                    onClick={toggleChart} style={{ cursor: 'pointer' }} formatter={(value) => value + (actives[value] ? '' : ' (hidden)')}
+                />
+            }
             {
                 showTotal && <Area opacity={actives[keyNames[totalKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[totalKey]} yAxisId="left" type="monotone" dataKey={totalKey} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
             }
