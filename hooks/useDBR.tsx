@@ -1,5 +1,5 @@
 import { BALANCER_VAULT_ABI, F2_ESCROW_ABI } from "@app/config/abis";
-import { CoingeckoHistoricalData, F2Market, SWR } from "@app/types"
+import { AccountDBRMarket, CoingeckoHistoricalData, F2Market, SWR } from "@app/types"
 import { getBnToNumber, getNumberToBn } from "@app/util/markets";
 import { getNetworkConfigConstants } from "@app/util/networks"
 import { TOKENS } from "@app/variables/tokens";
@@ -187,31 +187,6 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
       }
     }),
   }
-}
-
-type AccountDBRMarket = F2Market & {
-  account: string | undefined | null
-  escrow: string | undefined
-  deposits: number
-  depositsUsd: number
-  bnDeposits: BigNumber
-  creditLimit: number
-  bnCreditLimit: BigNumber
-  withdrawalLimit: number
-  bnWithdrawalLimit: BigNumber
-  creditLeft: number
-  perc: number
-  debt: number
-  bnDebt: BigNumber
-  bnCollateralBalance: BigNumber
-  collateralBalance: number
-  hasDebt: boolean
-  liquidationPrice: number | null
-  liquidatableDebtBn: BigNumber
-  liquidatableDebt: number
-  seizableWorth: number,
-  seizable: number,
-  underlyingExRate?: number,
 }
 
 export const useAccountDBRMarket = (

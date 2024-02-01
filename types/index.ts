@@ -805,4 +805,29 @@ export type CoingeckoHistoricalData = {
   total_volumes: [number, number][],
 }
 
-export type DbrAuctionType = 'classic' | 'sdola'
+export type DbrAuctionType = 'classic' | 'sdola';
+
+export type AccountDBRMarket = F2Market & {
+  account: string | undefined | null
+  escrow: string | undefined
+  deposits: number
+  depositsUsd: number
+  bnDeposits: BigNumber
+  creditLimit: number
+  bnCreditLimit: BigNumber
+  withdrawalLimit: number
+  bnWithdrawalLimit: BigNumber
+  creditLeft: number
+  perc: number
+  debt: number
+  bnDebt: BigNumber
+  bnCollateralBalance: BigNumber
+  collateralBalance: number
+  hasDebt: boolean
+  liquidationPrice: number | null
+  liquidatableDebtBn: BigNumber
+  liquidatableDebt: number
+  seizableWorth: number,
+  seizable: number,
+  underlyingExRate?: number,
+}

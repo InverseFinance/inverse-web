@@ -14,7 +14,7 @@ import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect'
 
 const maxWidth = 1200;
 
-const useFirmUserPositionEvolution = (
+export const useFirmUserPositionEvolution = (
     market: F2Market,
     priceRef: 'oracleHistoPrice' | 'cgHistoPrice' | 'comboPrice' = 'oracleHistoPrice',
     currentClaimableDbrRewards = 0,

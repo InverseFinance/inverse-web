@@ -168,8 +168,7 @@ export const WorthEvoChart = ({
     const [showStaking, setShowStaking] = useState(false);
     const [showEvents, setShowEvents] = useState(false);
     const [showDebt, setShowDebt] = useState(true);
-    const [showEventsLabel, setShowEventsLabel] = useState(false);
-    const [brushIndexes, setBrushIndexes] = useState({ startIndex: undefined, endIndex: undefined });
+    const [showEventsLabel, setShowEventsLabel] = useState(false);    
     const [actives, setActives] = useState(Object.values(keyNames).reduce((acc, cur) => ({ ...acc, [cur]: true }), {}));
 
     const { mouseDown, mouseUp, mouseMove, mouseLeave, rangeButtonsBar, zoomReferenceArea, data: dataWithZoom } = useRechartsZoom({
@@ -395,4 +394,179 @@ export const WorthEvoChart = ({
             </ComposedChart>
         </VStack>
     </Cont>
+}
+
+export const WorthEvoChartSimplified = ({
+    chartWidth,
+    data,
+    axisStyle,
+    market,
+    isLoading,
+    priceRef = 'oracleHistoPrice',
+}: {
+    chartWidth: number,
+    data: any[] | null,
+    axisStyle?: any,
+    market: F2Market,
+    isLoading?: boolean,
+    priceRef?: string,
+}) => {
+    const { themeStyles } = useAppTheme();
+
+    const keyNames = {
+        'histoPrice': `${market.name} oracle or coingecko price`,
+        'oracleHistoPrice': `${market.name} oracle price`,
+        'cgHistoPrice': `${market.name} coingecko price`,
+        'comboPrice': `${market.name} cg/oracle price`,
+        'dbrPrice': 'DBR market price',
+        'totalRewardsUsd': 'Total rewards',
+        'balanceWorth': 'Collateral balance worth',        
+        'balance': 'Total collateral balance',
+    }
+
+    const tabOptions = [CHART_TABS.collateral];  
+
+    const [activeTab, setActiveTab] = useState(CHART_TABS.collateral);
+    const [useUsd, setUseUsd] = useState(true);    
+    const [showCollateral, setShowCollateral] = useState(true);    
+    const [showBorrowLimit, setShowBorrowLimit] = useState(false);
+    const [showDbr, setShowDbr] = useState(false);
+    const [showPrice, setShowPrice] = useState(true);
+    const [showDbrPrice, setShowDbrPrice] = useState(false);
+    const [showStaking, setShowStaking] = useState(false);
+    const [showEvents, setShowEvents] = useState(false);
+    const [showDebt, setShowDebt] = useState(true);
+    const [showEventsLabel, setShowEventsLabel] = useState(false);    
+    const [actives, setActives] = useState(Object.values(keyNames).reduce((acc, cur) => ({ ...acc, [cur]: true }), {}));
+
+    const { mouseDown, mouseUp, mouseMove, mouseLeave, rangeButtonsBar, zoomReferenceArea, data: dataWithZoom } = useRechartsZoom({
+        combodata: data, xKey: 'timestamp', yAxisId: 'left',
+        rangesToInclude: ['All', '6M', '3M', '1M', 'YTD'],
+    });
+    const chartData = dataWithZoom || data;
+
+    const _axisStyle = axisStyle || {
+        tickLabels: { fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '12px' },
+        grid: {
+            stroke: '#66666633',
+            strokeDasharray: '4 4',
+        }
+    }
+
+    const toggleChart = (params) => {
+        setActives({ ...actives, [params.value]: !actives[params.value] })
+    }
+
+    const totalKey = 'totalWorth';
+    const totalRewardsUsd = 'totalRewardsUsd';
+    const balanceKey = useUsd ? 'balanceWorth' : 'balance';
+    const debtKey = useUsd ? 'debtUsd' : 'debt';
+    const claimsKey = useUsd ? 'rewardsUsd' : 'dbrRewards';
+    const stakingKey = useUsd ? 'estimatedStakedBonusUsd' : 'estimatedStakedBonus';
+
+    useEffect(() => {
+        handleTabChange(CHART_TABS.collateral);
+    }, [])
+
+    const canShowNonUsdAmounts = [CHART_TABS.collateral, CHART_TABS.dbrRewards, CHART_TABS.staking, CHART_TABS.invStaking].includes(activeTab);
+
+    const handleTabChange = (v: string) => {
+        if (!canShowNonUsdAmounts && !useUsd) {
+            setUseUsd(true);
+        }
+        setActiveTab(v);
+        setShowTotal([CHART_TABS.overview].includes(v));
+        setShowCollateral([CHART_TABS.collateral].includes(v));
+        setShowCreditWorth([CHART_TABS.borrowLimit].includes(v));
+        setShowBorrowLimit([CHART_TABS.borrowLimit].includes(v));
+        setShowPrice([CHART_TABS.collateral, CHART_TABS.overview, CHART_TABS.debt, CHART_TABS.invDbr, CHART_TABS.invStaking, CHART_TABS.staking].includes(v));
+        setShowDebt(tabOptions.includes(CHART_TABS.debt) && [CHART_TABS.debt, CHART_TABS.overview, CHART_TABS.borrowLimit].includes(v));
+        setShowDbr(tabOptions.includes(CHART_TABS.dbrRewards) && [CHART_TABS.dbrRewards, CHART_TABS.invDbr, CHART_TABS.overview].includes(v));
+        setShowDbrPrice(tabOptions.includes(CHART_TABS.dbrRewards) && [CHART_TABS.overview, CHART_TABS.dbrRewards, CHART_TABS.invDbr].includes(v));
+        setShowStaking((tabOptions.includes(CHART_TABS.staking) || tabOptions.includes(CHART_TABS.invStaking)) && [CHART_TABS.invStaking, CHART_TABS.invDbr, CHART_TABS.staking, CHART_TABS.overview].includes(v));
+    }
+
+    const containerLabel = `Your Position Evolution in the ${market.name} Market - Beta`;
+    const contProps = {
+        label: containerLabel,
+        description: market.isInv ? "Historical prices according to the pessimistic oracle (or coingecko when borrowing was not enabled yet)" : "Historical prices according to the pessimistic oracle",
+        // href: market.isInv ? `https://www.coingecko.com/en/coins/${market.underlying.coingeckoId}` : undefined,
+    }
+
+    if (isLoading) {
+        return <SkeletonBlob />
+    } else if (!data?.length) {
+        return null;
+    }
+
+    return <VStack alignItems="center" maxW={`${chartWidth}px`}>
+    <Stack w='full' justify="flex-start" alignItems="flex-start" direction="column">
+        <Stack alignItems="center" w='full' spacing={{ base: '2', lg: '4' }} direction={{ base: 'column', lg: 'row' }}>                    
+            <HStack h="30px" alignItems="center" spacing="3">
+                {
+                    canShowNonUsdAmounts
+                    && <FormControl w='fit-content' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
+                        <Text fontSize="12px" whitespace="no-wrap" w='fit-content' mr="1" onClick={() => setUseUsd(!useUsd)}>
+                            Show in USD
+                        </Text>
+                        <Switch onChange={(e) => setUseUsd(!useUsd)} size="sm" colorScheme="purple" isChecked={useUsd} />
+                    </FormControl>
+                }                                         
+            </HStack>
+        </Stack>
+    </Stack>            
+    <ComposedChart
+        width={chartWidth}
+        height={400}
+        data={chartData}
+        margin={{
+            top: 20,
+            right: 0,
+            left: 0,
+            bottom: 20,
+        }}
+        onMouseDown={e => mouseDown(e)}
+        onMouseMove={mouseMove}
+        // // eslint-disable-next-line react/jsx-no-bind
+        onMouseUp={mouseUp}
+        onMouseLeave={mouseLeave}
+    >
+        <CartesianGrid fill={themeStyles.colors.accentChartBgColor} stroke="#66666633" strokeDasharray={_axisStyle.grid.strokeDasharray} />
+        <XAxis minTickGap={28} interval="preserveStartEnd" style={_axisStyle.tickLabels} dataKey="timestamp" scale="time" type={'number'} allowDataOverflow={true} domain={['dataMin', 'dataMax']} tickFormatter={(v) => {
+            return moment(v).format('MMM Do')
+        }} />
+        <YAxis allowDataOverflow={true} style={_axisStyle.tickLabels} yAxisId="left" tickFormatter={(v) => smartShortNumber(v, 2, useUsd)} domain={[0, 'auto']} />
+        {
+            showBorrowLimit ?
+                <YAxis allowDataOverflow={true} domain={[0, 100]} style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => `${shortenNumber(v, 2)}%`} />
+                : <YAxis allowDataOverflow={true} style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => shortenNumber(v, 4, true)} />
+        }
+        <Tooltip
+            wrapperStyle={{ ..._axisStyle.tickLabels }}
+            contentStyle={{ backgroundColor: themeStyles.colors.mainBackgroundColor }}
+            labelFormatter={v => moment(v).format('MMM Do YYYY')}
+            labelStyle={{ fontWeight: 'bold' }}
+            itemStyle={{ fontWeight: 'bold' }}
+            formatter={(value, name) => {                        
+                const isPrice = [keyNames['dbrPrice'], keyNames['histoPrice'], keyNames['cgHistoPrice'], keyNames['oracleHistoPrice'], keyNames['comboPrice']].includes(name);
+                const isPerc = [keyNames['borrowLimit'], keyNames['collateralFactor']].includes(name);
+                return !value ? 'none' : isPerc ? `${shortenNumber(value, 2)}%` : isPrice ? preciseCommify(value, value < 1 ? 4 : 2, true) : preciseCommify(value, !useUsd ? 2 : 0, useUsd)
+            }}
+        />
+        <Legend wrapperStyle={{
+            ..._axisStyle.tickLabels,
+            userSelect: 'none',
+            fontSize: chartWidth <= 400 ? '12px' : '16px',
+            fontWeight: 'bold',
+        }}
+            onClick={toggleChart} style={{ cursor: 'pointer' }} formatter={(value) => value + (actives[value] ? '' : ' (hidden)')} />               
+        {
+            showCollateral && <Area opacity={actives[keyNames[balanceKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[balanceKey]} yAxisId="left" type="monotone" dataKey={balanceKey} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
+        }                                                           
+        {
+            showPrice && <Line opacity={actives[keyNames[priceRef]] ? 1 : 0} strokeWidth={2} name={keyNames[priceRef]} yAxisId="right" type="monotone" dataKey={priceRef} stroke={themeStyles.colors.info} dot={false} />
+        }                                               
+        {zoomReferenceArea}                
+    </ComposedChart>
+</VStack>
 }

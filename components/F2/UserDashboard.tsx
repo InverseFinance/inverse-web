@@ -1,20 +1,52 @@
-import { SimpleGrid, Stack, StackProps, Text, VStack, HStack, Image, Popover, PopoverTrigger, PopoverContent, PopoverBody, Flex } from "@chakra-ui/react"
+import { SimpleGrid, Stack, StackProps, Text, VStack, HStack, Image, Popover, PopoverTrigger, PopoverContent, PopoverBody, Flex, useMediaQuery } from "@chakra-ui/react"
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import { useAccountDBR, useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
 import { preciseCommify } from "@app/util/misc";
 import { lightTheme } from "@app/variables/theme";
 import moment from "moment";
 import { PieChartRecharts } from "../Transparency/PieChartRecharts";
-import { useStakedInFirm, useUserRewards } from "@app/hooks/useFirm";
+import { useINVEscrowRewards, useStakedInFirm, useUserRewards } from "@app/hooks/useFirm";
 import { usePrices } from "@app/hooks/usePrices";
 import { BigTextLoader } from "../common/Loaders/BigTextLoader";
 import { RSubmitButton } from "../common/Button/RSubmitButton";
 import Link from "../common/Link";
 import { BURN_ADDRESS, BUY_LINKS } from "@app/config/constants";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FirmRewardWrapper } from "./rewards/FirmRewardWrapper";
 import { useAppTheme } from "@app/hooks/useAppTheme";
 import { TOKEN_IMAGES } from "@app/variables/images";
+import { useFirmUserPositionEvolution } from "./WorthEvoChartContainer";
+import { AccountDBRMarket } from "@app/types";
+import { WorthEvoChartSimplified } from "./WorthEvoChart";
+
+const FirmInvEvoChart = ({
+    market
+}: {
+    market: AccountDBRMarket,
+}) => {
+    const { escrow } = market;
+    const maxWidth = 600;
+    const [chartWidth, setChartWidth] = useState<number>(maxWidth);
+    const [isLargerThan] = useMediaQuery(`(min-width: ${maxWidth + 50}px)`);
+    const { rewards } = useINVEscrowRewards(escrow);
+    const { data, isLoading, walletSupportsEvents } = useFirmUserPositionEvolution(market, 'comboPrice', rewards);
+
+    useEffect(() => {
+        setChartWidth(isLargerThan ? maxWidth : (screen.availWidth || screen.width) - 50)
+    }, [isLargerThan, maxWidth]);
+
+    if (!escrow || escrow === BURN_ADDRESS) {
+        return null
+    }
+
+    return <WorthEvoChartSimplified
+        isLoading={isLoading}
+        market={market}
+        chartWidth={chartWidth}
+        data={data}
+        priceRef={'comboPrice'}
+    />
+}
 
 const DashBoardCard = (props: StackProps & { href?: string }) => {
     if (props.href) {
@@ -38,7 +70,7 @@ const DashBoardCard = (props: StackProps & { href?: string }) => {
         mt={0}
         p={8}
         position="relative"
-        alignItems="center"         
+        alignItems="center"
         shadow="0 0 0px 1px rgba(0, 0, 0, 0.25)"
         bg={'containerContentBackground'}
         {...props}
@@ -157,7 +189,7 @@ export const UserDashboard = ({
     const { priceUsd: dbrPrice } = useDBRPrice();
     const accountMarkets = useAccountF2Markets(markets, account);
     const stakedDolaBalance = 0;
-    const invMarket = markets?.find(m => m.isInv);    
+    const invMarket = accountMarkets?.find(m => m.isInv);
     const { themeStyles } = useAppTheme();
     const { stakedInFirm, isLoading: isLoadingInvStaked } = useStakedInFirm(account);
     const { debt, dbrExpiryDate, signedBalance: dbrBalance, needsRechargeSoon, isLoading: isLoadingAccount } = useAccountDBR(account);
@@ -205,6 +237,13 @@ export const UserDashboard = ({
                 />
             } color={needsRechargeSoon ? 'error' : undefined} isLoading={isLoading} value={debt > 0 ? dbrBalance < 0 ? 'Depleted' : moment(dbrExpiryDate).format('MMM Do YYYY') : '-'} label="DBR depletion date" />
         </SimpleGrid>
+        {
+            invMarket?.depositsUsd > 1 && <SimpleGrid columns={{ base: 1, sm: 2 }} spacing="8" w="100%">
+                <DashBoardCard>
+                    <FirmInvEvoChart market={invMarket} />
+                </DashBoardCard>
+            </SimpleGrid>
+        }
         <SimpleGrid columns={{ base: 1, sm: 2 }} spacing="8" w="100%">
             {
                 marketsWithDeposits
@@ -217,7 +256,7 @@ export const UserDashboard = ({
                                 market={market}
                                 showMarketBtn={true}
                                 extraAtBottom={true}
-                                escrow={market.escrow}                                
+                                escrow={market.escrow}
                             />
                         }
                     })
