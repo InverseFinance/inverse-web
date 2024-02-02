@@ -6,7 +6,7 @@ import { fetcher30sectimeout } from "@app/util/web3";
 
 export default async (req, res) => {
     const cacheDuration = 900;
-    const cacheKey = 'dola-modal-v1.0.8';
+    const cacheKey = 'dola-modal-v1.0.9';
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
 
     try {
@@ -15,13 +15,14 @@ export default async (req, res) => {
             getCacheFromRedis(repaymentsCacheKey, false),
         ]);
 
-        // feds + exceptions, dolacrvusd, dolausd+, dola-usdc op aura, dola-usdc uni v3, dola-inv uni v3
+        // feds + exceptions, dolacrvusd, dolausd+, dola-usdc op aura, dola-usdc uni v3, dola-inv uni v3, dola-3pool
         const exceptions = [
             '0x8272e1a3dbef607c04aa6e5bd3a1a134c8ac063b',
             '0x5a473b418193C6a3967aF0913135534B7b3B23E9',
             '0x8E9154AC849e839d60299E85156bcb589De2693A',
             '0x7c082BF85e01f9bB343dbb460A14e51F67C58cFB',
             '0xbD1F921786e12a80F2184E4d6A5cAcB25dc673c9',
+            '0xAA5A67c256e27A5d80712c51971408db3370927D',
         ].map(ad => ad.toLowerCase());
         const feds = liquidityData.liquidity.filter(d => d.isFed || exceptions.includes(d.address.toLowerCase()));
         const totalBorrowsOnFirm = liquidityData.firmBorrows;
