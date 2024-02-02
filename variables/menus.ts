@@ -387,6 +387,10 @@ export const MENUS = {
           href: 'https://discord.gg/YpYJC7R5nv',
         },
         {
+          label: 'Debank',
+          href: 'https://debank.com/official/Inverse_Finance/follower',
+        },
+        {
           label: 'Telegram',
           href: 'https://t.me/InverseFinance',
         },
