@@ -1,4 +1,4 @@
-import { SimpleGrid, Stack, StackProps, Text, VStack, HStack, Image, Flex, useMediaQuery } from "@chakra-ui/react"
+import { SimpleGrid, StackProps, Text, VStack, HStack, Image, Flex } from "@chakra-ui/react"
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import { useAccountDBR, useAccountF2Markets, useDBR, useDBRBalanceHisto, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
 import { getClosestPreviousHistoValue, preciseCommify, timestampToUTC } from "@app/util/misc";
@@ -11,15 +11,16 @@ import { BigTextLoader } from "../common/Loaders/BigTextLoader";
 import { RSubmitButton } from "../common/Button/RSubmitButton";
 import Link from "../common/Link";
 import { BURN_ADDRESS, BUY_LINKS } from "@app/config/constants";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FirmRewardWrapper } from "./rewards/FirmRewardWrapper";
 import { useAppTheme } from "@app/hooks/useAppTheme";
 import { TOKEN_IMAGES } from "@app/variables/images";
 import { useFirmUserPositionEvolution } from "./WorthEvoChartContainer";
 import { AccountDBRMarket } from "@app/types";
 import { WorthEvoChart } from "./WorthEvoChart";
+import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
 
-const MAX_AREA_CHART_WIDTH = 600;
+const MAX_AREA_CHART_WIDTH = 800;
 
 const FirmInvEvoChart = ({
     market
@@ -30,25 +31,23 @@ const FirmInvEvoChart = ({
     const { rewards } = useINVEscrowRewards(escrow);
     const { data, isLoading } = useFirmUserPositionEvolution(market, 'comboPrice', rewards);
 
-    const [chartWidth, setChartWidth] = useState<number>(MAX_AREA_CHART_WIDTH);
-    const [isLargerThan] = useMediaQuery(`(min-width: 48em)`);
-
-    useEffect(() => {
-        const optimal2ColWidth = ((screen.availWidth || screen.width))/2.2-100;
-        setChartWidth(isLargerThan ? optimal2ColWidth : (optimal2ColWidth * 2.2 + 100));
-    }, [isLargerThan, MAX_AREA_CHART_WIDTH, screen?.availWidth]);
-
-    if (!escrow || escrow === BURN_ADDRESS) {
+    if (!escrow || escrow === BURN_ADDRESS || isLoading) {
         return null
     }
 
-    return <WorthEvoChart
+    return <DashboardAreaChart
         isLoading={isLoading}
-        market={market}
-        chartWidth={chartWidth}
+        market={market}        
         data={data}
         priceRef={'comboPrice'}
         isSimplified={true}
+    />
+}
+
+const DashboardAreaChart = (props) => {
+    return <WorthEvoChart
+        chartWidth={MAX_AREA_CHART_WIDTH}
+        {...props}
     />
 }
 
@@ -57,8 +56,8 @@ const DbrEvoChart = ({
 }: {
     account: string
 }) => {
-    const { evolution, isLoading } = useDBRBalanceHisto(account);
-    const { historicalData } = useDBR();
+    const { evolution, isLoading: isLoadingHisto } = useDBRBalanceHisto(account);
+    const { historicalData, isLoading: isLoadingDBR } = useDBR();
     const histoPrices = historicalData && !!historicalData?.prices ? historicalData.prices.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr[0])]: curr[1] }), {}) : {};
 
     const formattedData = evolution?.map(e => {
@@ -71,18 +70,15 @@ const DbrEvoChart = ({
         }
     })
 
-    const [chartWidth, setChartWidth] = useState<number>(MAX_AREA_CHART_WIDTH);
-    const [isLargerThan] = useMediaQuery(`(min-width: 48em)`);
+    const isLoading = isLoadingHisto || isLoadingDBR;
 
-    useEffect(() => {
-        const optimal2ColWidth = ((screen.availWidth || screen.width))/2.2-100;
-        setChartWidth(isLargerThan ? optimal2ColWidth : (optimal2ColWidth * 2.2 + 100));
-    }, [isLargerThan, MAX_AREA_CHART_WIDTH, screen?.availWidth]);
+    if(isLoading) {
+        return null;
+    }
 
-    return <WorthEvoChart
+    return <DashboardAreaChart
         isLoading={isLoading}
-        market={{ name: 'DBR' }}
-        chartWidth={chartWidth}
+        market={{ name: 'DBR' }}        
         data={formattedData}
         priceRef={'histoPrice'}
         isSimplified={true}
@@ -267,7 +263,7 @@ export const UserDashboard = ({
             } color={needsRechargeSoon ? 'error' : undefined} isLoading={isLoading} value={debt > 0 ? dbrBalance < 0 ? 'Depleted' : moment(dbrExpiryDate).format('MMM Do YYYY') : '-'} label="DBR depletion date" />
         </SimpleGrid>
         {
-            invMarket?.depositsUsd > 1 && <SimpleGrid columns={{ base: 1, md: 2 }} spacing="8" w="100%">
+            invMarket?.depositsUsd > 1 && <SimpleGrid columns={{ base: 1, lg: 2 }} spacing="8" w="100%">
                 <DashBoardCard cardTitle="Staked INV evolution" imageSrc={TOKEN_IMAGES.INV}>
                     <FirmInvEvoChart market={invMarket} />
                 </DashBoardCard>
@@ -276,7 +272,7 @@ export const UserDashboard = ({
                 </DashBoardCard>
             </SimpleGrid>
         }
-        <SimpleGrid columns={{ base: 1, sm: 2 }} spacing="8" w="100%">
+        <SimpleGrid columns={{ base: 1, xl: 2 }} spacing="8" w="100%">
             {
                 marketsWithDeposits
                     .filter(market => market.hasClaimableRewards)

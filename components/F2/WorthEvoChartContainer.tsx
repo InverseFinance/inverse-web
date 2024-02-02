@@ -30,12 +30,12 @@ export const useFirmUserPositionEvolution = (
     const { prices, isLoading: isLoadingPrices } = usePrices();
     const { priceUsd: dbrPriceUsd } = useDBRPrice();
     // events from user wallet, can be not fetched for some wallet providers
-    const { events: _events, depositedByUser: depositedByUserLive } = useFirmMarketEvolution(market, account);
+    const { events: _events, depositedByUser: depositedByUserLive, isLoading: isLoadingMarketEvo } = useFirmMarketEvolution(market, account);
     const [isLoadingDebounced, setIsLoadingDebounced] = useState(true);
     // from api
     const { evolution: escrowBalanceEvolution, timestamps, isLoading: isLoadingEscrowEvo, formattedEvents, depositedByUser: depositedByUserApi } = useEscrowBalanceEvolution(account, escrow, market.address, firmActionIndex);
     const events = !_events?.length ? formattedEvents : _events?.map(e => ({ ...e, timestamp: e.timestamp || timestamps[e.blockNumber] })).filter(e => !!e.timestamp);    
-    const isLoading = isLoadingOracleHistoPrices || isLoadingHistoPrices || isLoadingPrices || isLoadingEscrowEvo;
+    const isLoading = isLoadingOracleHistoPrices || isLoadingHistoPrices || isLoadingPrices || isLoadingEscrowEvo || isLoadingMarketEvo;
 
     useDualSpeedEffect(() => {
         setIsLoadingDebounced(isLoading);
