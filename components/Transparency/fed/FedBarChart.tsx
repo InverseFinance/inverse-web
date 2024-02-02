@@ -38,7 +38,7 @@ export const FedBarChart = ({ chartData, maxChartWidth = 900, ...props }: { char
         <BarChart
             width={chartWidth}
             height={300}
-            title="Monthly profits for the last 12 months"
+            title="On-chain Fed revenue for the last 12 months"
             groupedData={barChartData}
             colorScale={[themeStyles.colors.secondary]}
             isDollars={true}
