@@ -6,9 +6,10 @@ import { getBnToNumber } from '@app/util/markets'
 import { getDbrAuctionContract } from '@app/util/dbr-auction';
 import { addBlockTimestamps } from '@app/util/timestamps';
 import { NetworkIds } from '@app/types';
-import { CHAIN_ID } from '@app/config/constants';
+import { getSdolaContract } from '@app/util/dola-staking';
+import { ascendingEventsSorter } from '@app/util/misc';
 
-const DBR_AUCTION_BUYS_CACHE_KEY = 'dbr-auction-buys-v1.0.0'
+const DBR_AUCTION_BUYS_CACHE_KEY = 'dbr-auction-buys-v1.0.1'
 
 export default async function handler(req, res) {
     try {
@@ -20,8 +21,9 @@ export default async function handler(req, res) {
             return
         }
 
-        const provider = getProvider(CHAIN_ID);
+        const provider = getProvider(NetworkIds.mainnet);
         const dbrAuctionContract = getDbrAuctionContract(provider);
+        const sdolaContract = getSdolaContract(provider);
 
         const archived = cachedData || { buys: [] };
         const pastTotalEvents = archived?.buys || [];
@@ -29,10 +31,19 @@ export default async function handler(req, res) {
         const lastKnownEvent = pastTotalEvents?.length > 0 ? (pastTotalEvents[pastTotalEvents.length - 1]) : {};
         const newStartingBlock = lastKnownEvent?.blockNumber ? lastKnownEvent?.blockNumber + 1 : undefined;
 
-        const newBuyEvents = await dbrAuctionContract.queryFilter(
-            dbrAuctionContract.filters.Buy(),            
-            newStartingBlock ? newStartingBlock : 0x0,
-        );
+        const [generalAuctionBuys, sdolaAuctionBuys] = await Promise.all([
+            dbrAuctionContract.queryFilter(
+                dbrAuctionContract.filters.Buy(),            
+                newStartingBlock ? newStartingBlock : 0x0,
+            ),
+            sdolaContract.queryFilter(
+                sdolaContract.filters.Buy(),            
+                newStartingBlock ? newStartingBlock : 0x0,
+            )
+        ]);
+
+        const newBuyEvents = generalAuctionBuys.concat(sdolaAuctionBuys);
+        newBuyEvents.sort(ascendingEventsSorter);
 
         const blocks = newBuyEvents.map(e => e.blockNumber);
 
@@ -50,6 +61,7 @@ export default async function handler(req, res) {
                 to: e.args[1],
                 dolaIn: getBnToNumber(e.args[2]),
                 dbrOut: getBnToNumber(e.args[3]),
+                auctionType: e.address === sdolaContract.address ? 'sDOLA' : 'General',
             };
         });
 

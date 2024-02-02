@@ -105,7 +105,7 @@ export const useDbrAuctionActivity = (from?: string): SWR & {
     accDbrOut: number,
 } => {
     const liveEvents = useDbrAuctionBuyEvents(from);
-    const { data, error } = useCustomSWR(`/api/auctions/dbr-buys`, fetcher);
+    const { data, error } = useCustomSWR(`/api/auctions/dbr-buys?v=1.0.1`, fetcher);
 
     const events = (liveEvents?.length > data?.buys?.length ? liveEvents : data?.buys || [])
         .map(e => ({ ...e, priceInDola: (e.dolaIn / e.dbrOut) }));

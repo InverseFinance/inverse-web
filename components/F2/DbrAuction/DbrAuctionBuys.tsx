@@ -76,6 +76,16 @@ const columns = [
                 <CellText>{shortenNumber(priceInDola, 5, false, true)} DOLA</CellText>
             </Cell>
         },
+    }, 
+    {
+        field: 'auctionType',
+        label: 'Auction Type',
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
+        value: ({ auctionType }) => {
+            return <Cell minWidth="90px" justify="center" >
+                <CellText>{auctionType}</CellText>
+            </Cell>
+        },
     },
 ]
 
