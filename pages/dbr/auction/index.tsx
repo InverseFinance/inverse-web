@@ -6,9 +6,7 @@ import { DbrAuctionBuyer } from '@app/components/F2/DbrAuction/DbrAuctionBuyer';
 import { DbrAuctionIntroMsg } from '@app/components/F2/DbrAuction/DbrAuctionInfos';
 import { DbrAuctionBuys } from '@app/components/F2/DbrAuction/DbrAuctionBuys';
 import { useAccount } from '@app/hooks/misc';
-import { useState } from 'react';
 import { useDbrAuctionActivity } from '@app/util/dbr-auction';
-import { DbrAuctionType } from '@app/types';
 import { DbrAuctionTabs } from '@app/components/F2/DbrAuction/DbrAuctionTabs';
 
 export const DbrAuctionPage = () => {

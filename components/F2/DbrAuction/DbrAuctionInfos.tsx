@@ -68,9 +68,9 @@ export const DbrAuctionParametersWrapper = () => {
     const { priceUsd: dbrPrice } = useDBRPrice();
     const { price: dolaPrice } = useDOLAPrice();
     return <VStack w='full' alignItems="flex-start">
-        <Text>General auction infos</Text>
+        <Text fontWeight="bold">General auction infos:</Text>
         <DbrAuctionClassicParameters dbrPrice={dbrPrice} dolaPrice={dolaPrice} />
-        <Text>sDOLA auction infos</Text>
+        <Text fontWeight="bold">sDOLA auction infos:</Text>
         <DbrAuctionSDolaParameters dbrPrice={dbrPrice} dolaPrice={dolaPrice} />
     </VStack>
 }
@@ -155,7 +155,7 @@ export const DbrAuctionParameters = ({ dolaReserve, dbrReserve, dbrRatePerYear, 
                 <VStack w='full' spacing="0">
                     <HStack w='full'>
                         <Text>- DBR rate per year:</Text>
-                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(dbrRatePerYear, 0)} ({preciseCommify(dbrRatePerYear * dbrPrice, 0, true)})</Text>}
+                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{ !dbrRatePerYear ? '-' : `${preciseCommify(dbrRatePerYear, 0)} (${preciseCommify(dbrRatePerYear * dbrPrice, 0, true)})` }</Text>}
                     </HStack>
                     <HStack w='full'>
                         <Text>- Max. DBR rate per year:</Text>

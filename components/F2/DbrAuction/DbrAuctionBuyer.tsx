@@ -1,14 +1,12 @@
-import { VStack, Text, HStack, Divider } from "@chakra-ui/react"
-import { estimateAuctionTimeToReachMarketPrice, swapDolaForExactDbr, swapExactDolaForDbr, useDbrAuctionPricing } from "@app/util/dbr-auction"
-import useEtherSWR from "@app/hooks/useEtherSWR";
+import { VStack, Text, HStack, Divider, Badge } from "@chakra-ui/react"
+import { swapDolaForExactDbr, swapExactDolaForDbr, useDbrAuctionPricing } from "@app/util/dbr-auction"
 import { useWeb3React } from "@web3-react/core";
-import { getBnToNumber, getNumberToBn, shortenNumber } from "@app/util/markets";
+import { shortenNumber } from "@app/util/markets";
 import { TextInfo } from "../../common/Messages/TextInfo";
 import { SimpleAmountForm } from "../../common/SimpleAmountForm";
 import { useEffect, useState } from "react";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { parseEther } from "@ethersproject/units";
-import { BigNumber } from "ethers";
 import { Input } from "../../common/Input";
 import Container from "../../common/Container";
 import { useAccountDBR, useDBRPrice, useTriCryptoSwap } from "@app/hooks/useDBR";
@@ -47,10 +45,27 @@ const ListLabelValues = ({ items }: { items: { label: string, value: string | an
     </VStack>
 }
 
-const AuctionRadioOption = ({ label, dbrAuctionPriceInDola, dolaPrice }) => {
-    return <VStack spacing="1">
+const AuctionRadioOption = ({ label, dbrAuctionPriceInDola, dolaPrice, isBest }) => {
+    return <VStack position="relative" spacing="1">
+        {
+            isBest && <Badge
+                bgColor="secondary"
+                textTransform="none"
+                fontSize="14px"
+                color="contrastMainTextColor"
+                position="absolute"
+                top="-8"
+                right="-4"
+                px="2"
+                py="1"
+            >
+                Best rate
+            </Badge>
+        }
         <Text>{label}</Text>
-        <Text>{shortenNumber(dbrAuctionPriceInDola, 4)} DOLA ({shortenNumber(dolaPrice * dbrAuctionPriceInDola, 2, true)})</Text>
+        <Text fontWeight="bold">
+            {!dbrAuctionPriceInDola ? '-' : `${shortenNumber(dbrAuctionPriceInDola, 4)} DOLA (${shortenNumber(dolaPrice * dbrAuctionPriceInDola, 4, true)})`}
+        </Text>
     </VStack>
 }
 
@@ -65,6 +80,15 @@ const AUCTION_TYPES = {
     },
 }
 
+const getArbitrageValue = (dolaAmount: string, auctionPrice: number, marketSwapPrice: number, dbrPrice: number) => {
+    if (!(auctionPrice > 0 && marketSwapPrice > 0 && dbrPrice > 0)) {
+        return;
+    }
+    const auctionWorth = parseFloat(dolaAmount) * 1 / auctionPrice * dbrPrice;
+    const swapWorth = parseFloat(dolaAmount) * 1 / marketSwapPrice * dbrPrice;
+    return auctionWorth - swapWorth;
+}
+
 export const DbrAuctionBuyer = ({
     title,
 }) => {
@@ -74,6 +98,7 @@ export const DbrAuctionBuyer = ({
     const [dbrAmount, setDbrAmount] = useState('');
     const [selectedAuction, setSelectedAuction] = useState<DbrAuctionType>('classic');
     const [isInited, setIsInited] = useState(false);
+    const [bestAuctionSrc, setBestAuctionSrc] = useState('');
     const [isConnected, setIsConnected] = useState(true);
     const { signedBalance: dbrBalance, dbrExpiryDate, debt: currentTotalDebt } = useAccountDBR(account);
     const { balance: dolaBalance } = useDOLABalance(account);
@@ -93,6 +118,7 @@ export const DbrAuctionBuyer = ({
 
     const classicAuctionPricingData = useDbrAuctionPricing({ helperAddress: DBR_AUCTION_HELPER_ADDRESS, dolaAmount, dbrAmount, slippage, isExactDola, dbrSwapPriceRefInDola });
     const sdolaAuctionPricingData = useDbrAuctionPricing({ helperAddress: SDOLA_HELPER_ADDRESS, dolaAmount, dbrAmount, slippage, isExactDola, dbrSwapPriceRefInDola });
+
     const selectedAuctionData = (isClassicDbrAuction ? classicAuctionPricingData : sdolaAuctionPricingData);
     const {
         estimatedTimestampToReachMarketPrice,
@@ -106,11 +132,11 @@ export const DbrAuctionBuyer = ({
         estimatedDbrOut,
     } = selectedAuctionData;
 
-    const isLoading = isCurvePriceLoading || (!selectedAuctionData);
+    const isLoading = isCurvePriceLoading || classicAuctionPricingData?.isLoading || sdolaAuctionPricingData?.isLoading || (!selectedAuctionData);
 
     const { priceUsd: dbrPrice } = useDBRPrice();
 
-    const auctionPriceColor = !dbrSwapPriceInDola || !dbrAuctionPriceInDola ? undefined : dbrAuctionPriceInDola >= dbrSwapPriceInDola ? 'success' : 'warning';
+    const auctionPriceColor = !dbrSwapPriceInDola || !selectedAuctionData?.dbrAuctionPriceInDola ? undefined : selectedAuctionData?.dbrAuctionPriceInDola < dbrSwapPriceInDola ? 'success' : 'warning';
 
     const isInvalidSlippage = !slippage || parseFloat(slippage) <= 0 || parseFloat(slippage) >= 20;
     const isExactDolaBtnDisabled = isInvalidSlippage || !dolaAmount || parseFloat(dolaAmount) <= 0;
@@ -140,21 +166,28 @@ export const DbrAuctionBuyer = ({
 
     useDualSpeedEffect(() => {
         setIsConnected(!!account);
-    }, [account], !!account, 1000, 0);
+    }, [account], !account, 1000, 0);
 
     useEffect(() => {
-        if(isInited || classicAuctionPricingData?.isLoading || sdolaAuctionPricingData?.isLoading) {
+        if (isLoading) {
             return;
         }
-        setSelectedAuction(classicAuctionPricingData?.dbrAuctionPriceInDola <= sdolaAuctionPricingData?.dbrAuctionPriceInDola ? 'classic' : 'sdola');
+        const bestPriceSrc = (classicAuctionPricingData?.dbrAuctionPriceInDola < sdolaAuctionPricingData?.dbrAuctionPriceInDola ? 'classic' : 'sdola');
+        setBestAuctionSrc(bestPriceSrc);
+        if (isInited) {
+            return;
+        }
+        setSelectedAuction(bestPriceSrc);
         setIsInited(true);
     }, [
         classicAuctionPricingData?.dbrAuctionPriceInDola,
         sdolaAuctionPricingData?.dbrAuctionPriceInDola,
-        classicAuctionPricingData?.isLoading,
-        sdolaAuctionPricingData?.isLoading,
+        isLoading,
         isInited,
     ]);
+
+    const arbitrageOpportunity = (isExactDola && !dolaAmount) || (dbrSwapPriceInDola < dbrAuctionPriceInDola) || (!isExactDola && !dbrAmount)
+        ? 0 : getArbitrageValue(dolaAmount, dbrAuctionPriceInDola, dbrSwapPriceInDola, dbrPrice);
 
     return <Container
         label={title}
@@ -185,16 +218,16 @@ export const DbrAuctionBuyer = ({
                                         </Text>
                                     </HStack>
                                     <RadioCardGroup
-                                        wrapperProps={{ w: 'full', alignItems: 'center', justify: { base: 'center', sm: 'left' } }}
+                                        wrapperProps={{ w: 'full', pt: '2', alignItems: 'center', justify: { base: 'center', sm: 'space-between' } }}
                                         group={{
                                             name: 'auctionSel',
                                             value: selectedAuction,
                                             onChange: (v) => setSelectedAuction(v),
                                         }}
-                                        radioCardProps={{ py: 2, px: '2', mr: '4', w: { base: 'full', sm: '230px' } }}
+                                        radioCardProps={{ fontSize: '15px', py: 3, px: '2', mr: '4', w: { base: 'full', sm: '100%' } }}
                                         options={[
-                                            { value: 'classic', label: <AuctionRadioOption label="General auction DBR price" dbrAuctionPriceInDola={classicAuctionPricingData.dbrAuctionPriceInDola} dolaPrice={dolaPrice} /> },
-                                            { value: 'sdola', label: <AuctionRadioOption label="sDOLA auction DBR price" dbrAuctionPriceInDola={sdolaAuctionPricingData.dbrAuctionPriceInDola} dolaPrice={dolaPrice} /> },
+                                            { value: 'classic', label: <AuctionRadioOption isBest={bestAuctionSrc === 'classic'} label="General auction DBR price" dbrAuctionPriceInDola={classicAuctionPricingData.dbrAuctionPriceInDola} dolaPrice={dolaPrice} /> },
+                                            { value: 'sdola', label: <AuctionRadioOption isBest={bestAuctionSrc === 'sdola'} label="sDOLA auction DBR price" dbrAuctionPriceInDola={sdolaAuctionPricingData.dbrAuctionPriceInDola} dolaPrice={dolaPrice} /> },
                                         ]}
                                     />
                                     {
@@ -254,9 +287,10 @@ export const DbrAuctionBuyer = ({
                                             { label: `Estimated amount to receive`, isLoading, value: estimatedDbrOut > 0 ? `${preciseCommify(estimatedDbrOut, 2)} DBR (${shortenNumber(estimatedDbrOut * dbrPrice, 2, true)})` : '-' }
                                             : { label: `Estimated amount to sell`, isLoading, value: estimatedDolaIn > 0 ? `${preciseCommify(estimatedDolaIn, 2)} DOLA (${shortenNumber(estimatedDolaIn * dolaPrice || 1, 2, true)})` : '-' }
                                         ),
-                                        { label: `Price via auction`, color: auctionPriceColor, isLoading, value: dbrAuctionPriceInDola > 0 ? `~${shortenNumber(dbrAuctionPriceInDola, 4)} DOLA (${shortenNumber(dbrAuctionPriceInDola * dolaPrice, 4, true)})` : '-' },
+                                        { label: `Price via selected auction`, color: auctionPriceColor, isLoading, value: dbrAuctionPriceInDola > 0 ? `~${shortenNumber(dbrAuctionPriceInDola, 4)} DOLA (${shortenNumber(dbrAuctionPriceInDola * dolaPrice, 4, true)})` : '-' },
                                         { label: `Market price via Curve`, isLoading, value: !isCurvePriceLoading && dbrSwapPriceInDola > 0 ? `~${shortenNumber(dbrSwapPriceInDola, 4)} DOLA (${shortenNumber(dbrSwapPriceInDola * dolaPrice, 4, true)})` : '-' },
                                         estimatedTimeToReachMarketPrice <= 300 ? undefined : { label: `Est. time for the auction to reach the market price`, isLoading, value: estimatedTimeToReachMarketPrice > ONE_DAY_SECS ? `~${shortenNumber((estimatedTimeToReachMarketPrice / ONE_DAY_SECS), 2)} days` : `${moment(estimatedTimestampToReachMarketPrice).fromNow()}` },
+                                        arbitrageOpportunity <= 0 ? undefined : { label: `Arbitrage opportunity`, isLoading, value: `${preciseCommify(arbitrageOpportunity, 2, true)}` },
                                     ]} />
                                     <Divider />
                                     <ListLabelValues items={[
