@@ -126,7 +126,14 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                 },
                 {
                     title: 'Can I borrow DOLA with my INV tokens?',
-                    body: `Not at the moment but borrowing will be enabled in the INV market soon.`
+                    body: <FaqStack fontSize={props.smaller ? '14px' : undefined}>
+                    <FaqText>
+                        Yes borrowing DOLA with INV is possible when there's liquidity in the INV market.
+                    </FaqText>
+                    <FaqLink href="/firm/INV">
+                        Stake INV & borrow DOLA
+                    </FaqLink>                    
+                </FaqStack>
                 },
                 {
                     title: 'How does INV stakers benefit from FiRM?',
