@@ -60,7 +60,10 @@ const DashboardAreaChart = (props) => {
         }
     }, [data, isLoading, oldJson]);
 
-    if(!chartData) {        
+    if(!chartData && isLoading) {
+        return <BigTextLoader />
+    }
+    else if(!chartData) {
         return null;
     }
 
@@ -127,7 +130,7 @@ const NumberItem = ({ noDataFallback = '-', footer = undefined, isLoading = fals
     return <VStack spacing="0" justify="center" alignItems="flex-end" w='full'>
         <VStack alignItems="flex-end" spacing="2">
             {
-                isLoading ? <BigTextLoader /> : <Text fontWeight="extrabold" fontSize={price ? '28px' : '36px'} color={'mainTextColor'}>
+                isLoading ? <BigTextLoader /> : <Text fontWeight="extrabold" fontSize={price ? '24px' : { base: '30px', '2xl': '36px' }} color={'mainTextColor'}>
                     {!value ? noDataFallback : value > 100000 ? smartShortNumber(value, 2, isUsd) : preciseCommify(value, precision, isUsd)}{!!price && !!value ? ` (${smartShortNumber(value * price, 2, true)})` : ''}
                 </Text>
             }
@@ -149,7 +152,7 @@ const StringItem = ({ footer = undefined, color = 'mainTextColor', value = '', l
     return <VStack spacing="0" justify="center" alignItems="flex-end" w='full'>
         <VStack alignItems="flex-end" w='full' spacing="2">
             {
-                isLoading ? <BigTextLoader /> : <Text fontWeight="extrabold" fontSize="36px" color={color}>{value}</Text>
+                isLoading ? <BigTextLoader /> : <Text fontWeight="extrabold" fontSize="30px" color={color}>{value}</Text>
             }
             <Text fontSize="20px" fontWeight="bold" color={'mainTextColorLight'}>{label}</Text>
             {footer}
@@ -191,10 +194,10 @@ const NumberAndPieCard = ({ isLoading, noDataFallback = undefined, fill, activeF
 
 const CardFooter = ({ labelLeft = '', labelRight = '' }) => {
     return <HStack position="absolute" left="0" right="0" px="8" bottom="8px" w='full' justify="space-between">
-        <Text color={'mainTextColorLight'} fontSize="14px">
+        <Text textAlign="left" color={'mainTextColorLight'} fontSize="14px">
             {labelLeft}
         </Text>
-        <Text color={'mainTextColorLight'} fontSize="14px">
+        <Text textAlign="right" color={'mainTextColorLight'} fontSize="14px">
             {labelRight}
         </Text>
     </HStack>
@@ -205,7 +208,7 @@ const CallToAction = ({ href = '', ...props }) => {
 }
 
 const SmallCallToAction = ({ href = '', ...props }) => {
-    return <RSubmitButton fontSize="18px" {...props} />
+    return <RSubmitButton  px="6" h="40px" fontSize="20px" fontWeight="bold"  {...props} />
 }
 
 const BigLinkBtn = ({ href = '', ...props }) => {
@@ -221,8 +224,8 @@ const SmallLinkBtn = ({ href = '', ...props }) => {
 
 const BorrowDola = <BigLinkBtn href="/firm">Borrow DOLA</BigLinkBtn>;
 const SupplyAssets = <BigLinkBtn href="/firm">Supply Assets</BigLinkBtn>;
-const StakeINV = <BigLinkBtn href="/firm">Stake INV</BigLinkBtn>;
-const StakeDOLA = <BigLinkBtn disabled={true} href="/sdola">Stake DOLA</BigLinkBtn>;
+const StakeINV = <SmallLinkBtn href="/firm">Stake INV</SmallLinkBtn>;
+const StakeDOLA = <SmallLinkBtn disabled={true} href="/sdola">Stake DOLA</SmallLinkBtn>;
 
 export const UserDashboard = ({
     account
@@ -247,8 +250,8 @@ export const UserDashboard = ({
 
     return <VStack w='full' spacing="8">
         <SimpleGrid columns={{ base: 1, xl: 2 }} spacing="8" w="100%" >
-            <NumberAndPieCard noDataFallback={SupplyAssets} isLoading={isLoading} fill={themeStyles.colors.mainTextColorLight} activeFill={themeStyles.colors.mainTextColor} value={totalTotalSuppliedUsd} label="My deposits" precision={0} isUsd={true} data={marketsWithDeposits} dataKey="depositsUsd" />
-            <NumberAndPieCard noDataFallback={BorrowDola} isLoading={isLoading} fill={themeStyles.colors.warning} activeFill={themeStyles.colors.error} value={debt} label="My DOLA debt" precision={0} isUsd={false} data={marketsWithDebt} dataKey="debt" />
+            <NumberAndPieCard noDataFallback={SupplyAssets} isLoading={isLoading} fill={themeStyles.colors.mainTextColorLight} activeFill={themeStyles.colors.mainTextColor} value={totalTotalSuppliedUsd} label="Deposits" precision={0} isUsd={true} data={marketsWithDeposits} dataKey="depositsUsd" />
+            <NumberAndPieCard noDataFallback={BorrowDola} isLoading={isLoading} fill={themeStyles.colors.warning} activeFill={themeStyles.colors.error} value={debt} label="DOLA debt" precision={0} isUsd={false} data={marketsWithDebt} dataKey="debt" />
         </SimpleGrid>
         <SimpleGrid columns={{ base: 1, md: 2, xl: 4 }} spacing="8" w="100%">
             <NumberCard imageSrc={TOKEN_IMAGES.INV} footer={
@@ -292,7 +295,7 @@ export const UserDashboard = ({
                 </DashBoardCard>
             </SimpleGrid>
         }
-        <SimpleGrid columns={{ base: 1, xl: 2 }} spacing="8" w="100%">
+        <SimpleGrid columns={{ base: 1, '2xl': 2 }} spacing="8" w="100%">
             {
                 marketsWithDeposits
                     .filter(market => market.hasClaimableRewards)

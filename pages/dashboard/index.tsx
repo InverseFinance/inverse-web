@@ -13,8 +13,7 @@ const firmImages = {
 }
 
 export const UserDashboardPage = () => {
-    const account = useAccount();
-    const { themeName } = useAppTheme();
+    const account = useAccount();    
     return (
         <Layout>
             <Head>
@@ -23,7 +22,7 @@ export const UserDashboardPage = () => {
                 <meta name="description" content="FiRM is Inverse Finance's Fixed Rate Market, borrow DOLA with the DOLA Borrowing Right token DBR. Rethink the way you borrow!" />
                 <meta name="og:image" content="https://inverse.finance/assets/social-previews/firm-page.png" />
             </Head>
-            <AppNav active="Borrow" activeSubmenu="FiRM" />
+            <AppNav active="Dashboard" />
             <ErrorBoundary>
                 <VStack pt="4" spacing="4" w='full' maxW={{ base: '94%', '2xl': '90rem' }}>
                     <HStack alignItems="center" justify="space-between" w='full'>
