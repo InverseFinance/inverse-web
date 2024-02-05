@@ -15,7 +15,7 @@ export const DbrAuctionBuysChart = ({ events }) => {
         setAutoChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 80)
     }, [isLargerThan]);
 
-    return <VStack>
+    return <VStack pt="10">
         {/* <DefaultCharts
             showMonthlyBarChart={false}
             maxChartWidth={autoChartWidth}
@@ -34,7 +34,7 @@ export const DbrAuctionBuysChart = ({ events }) => {
             isDollars={false}
             smoothLineByDefault={false}
             barProps={{ eventName: 'DBR auction buys' }}
-            areaProps={{ title: 'Cumulated income from DBR auction buys', fillInByDayInterval: true, id: 'dbr-auction-buys-acc', showRangeBtns: false, yLabel: 'DOLA Income', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
+            areaProps={{ title: 'Cumulated income from DBR auction buys', fillInByDayInterval: true, id: 'dbr-auction-buys-acc', showRangeBtns: true, yLabel: 'DOLA Income', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W','YTD'] }}
         />
     </VStack>
 }
