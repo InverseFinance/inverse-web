@@ -20,6 +20,7 @@ export const useFirmUserPositionEvolution = (
     currentClaimableDbrRewards = 0,
 ) => {
     const account = useAccount();
+    const [now, setNow] = useState(Date.now());
 
     const { deposits, escrow, debt, firmActionIndex } = useContext(F2MarketContext);
     const { prices: cgHistoPrices, isLoading: isLoadingHistoPrices } = useHistoricalPrices(market.underlying.coingeckoId);
@@ -48,9 +49,7 @@ export const useFirmUserPositionEvolution = (
     const pricesAtEvents = events.map(e => {
         const price = cgHistoPrices.find(p => timestampToUTC(p[0]) === timestampToUTC(e.timestamp))?.[1];
         return [e.timestamp, price];
-    }).filter(p => p[0] && !!p[1]);
-
-    const now = Date.now();
+    }).filter(p => p[0] && !!p[1]);    
 
     const allPrices = [
         ...pricesAtEvents,

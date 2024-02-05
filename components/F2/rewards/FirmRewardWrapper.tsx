@@ -284,7 +284,7 @@ export const FirmINVRewardWrapperContent = ({
             {
                 market?.invStakedViaDistributor &&
                 <InfoMessage
-                    alertProps={{ fontSize: '18px' }}
+                    alertProps={{ fontSize: '16px' }}
                     description={
                         <VStack alignItems="flex-start">
                             <HStack w='full' justify="space-between" spacing="2">

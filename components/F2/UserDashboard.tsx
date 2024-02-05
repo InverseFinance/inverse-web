@@ -29,9 +29,9 @@ const FirmInvEvoChart = ({
 }) => {
     const { escrow } = market;
     const { rewards } = useINVEscrowRewards(escrow);
-    const { data, isLoading } = useFirmUserPositionEvolution(market, 'comboPrice', rewards);
+    const { data, isLoading } = useFirmUserPositionEvolution(market, 'comboPrice', rewards);    
 
-    if (!escrow || escrow === BURN_ADDRESS || isLoading) {
+    if (!escrow || escrow === BURN_ADDRESS) {
         return null
     }
 
@@ -45,9 +45,29 @@ const FirmInvEvoChart = ({
 }
 
 const DashboardAreaChart = (props) => {
+    const { isLoading, data } = props;
+    const [chartData, setChartData] = useState(null);
+    const [oldJson, setOldJson] = useState('');
+
+    useDebouncedEffect(() => {
+        const len = data?.length || 0;
+        if (len > 0 && !isLoading) {
+            const json = len > 3 ? JSON.stringify([data[0], data[len - 2]]) : JSON.stringify(data);
+            if(oldJson !== json) {
+                setChartData(data);            
+                setOldJson(json);                
+            }            
+        }
+    }, [data, isLoading, oldJson]);
+
+    if(!chartData) {        
+        return null;
+    }
+
     return <WorthEvoChart
         chartWidth={MAX_AREA_CHART_WIDTH}
         {...props}
+        data={chartData}
     />
 }
 

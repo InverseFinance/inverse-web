@@ -13,8 +13,8 @@ import { parseUnits } from "@ethersproject/units";
 import useSWR from "swr";
 import { useWeb3React } from "@web3-react/core";
 import { useDOLAPriceLive } from "./usePrices";
-import { useBlockTimestamp } from "./useBlockTimestamp";
 import { timestampToUTC } from "@app/util/misc";
+import { useState } from "react";
 
 const { DBR, DBR_AIRDROP, F2_MARKETS, F2_ORACLE, DOLA, DBR_DISTRIBUTOR, F2_HELPER, F2_ALE } = getNetworkConfigConstants();
 
@@ -526,6 +526,7 @@ export const useCheckDBRAirdrop = (account: string): SWR & {
 
 export const useDBRBalanceHisto = (account: string): { evolution: any, currentBalance: number | null, isLoading: boolean } => {
   const { account: connectedUser } = useWeb3React();
+  const [now, setNow] = useState(Date.now());
   const { data, isLoading } = useCustomSWR(!account ? '-' : `/api/f2/dbr-balance-histo?account=${account}&v=1`, fetcher60sectimeout);
   const { signedBalance } = useAccountDBR(account);  
 
@@ -534,8 +535,7 @@ export const useDBRBalanceHisto = (account: string): { evolution: any, currentBa
     return { utcDate: timestampToUTC(ts), debt: data?.debts[i], balance: bal, timestamp: ts, x: ts, y: bal };
   });
   evolution?.sort((a,b) => a.x - b.x);
-  if(evolution?.length > 0 && !!connectedUser) {
-    const now = Date.now();
+  if(evolution?.length > 0 && !!connectedUser) {    
     evolution.push({ x: now, utcDate: timestampToUTC(now), balance: signedBalance, timestamp: now, y: signedBalance });
   }
   return {
