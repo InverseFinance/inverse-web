@@ -234,7 +234,7 @@ export const WorthEvoChart = ({
     if (isSimplified) {
         if (isLoading) {
             return <SkeletonBlob />
-        } else if (!data?.length) {
+        } else if (!data?.length) {            
             return null;
         }
     }

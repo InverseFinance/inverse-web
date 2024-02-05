@@ -19,6 +19,7 @@ import { useFirmUserPositionEvolution } from "./WorthEvoChartContainer";
 import { AccountDBRMarket } from "@app/types";
 import { WorthEvoChart } from "./WorthEvoChart";
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
+import { SkeletonBlob } from "../common/Skeleton";
 
 const MAX_AREA_CHART_WIDTH = 800;
 
@@ -31,7 +32,7 @@ const FirmInvEvoChart = ({
     const { rewards } = useINVEscrowRewards(escrow);
     const { data, isLoading } = useFirmUserPositionEvolution(market, 'comboPrice', rewards);    
 
-    if (!escrow || escrow === BURN_ADDRESS) {
+    if (!escrow || escrow === BURN_ADDRESS) {        
         return null
     }
 
@@ -51,19 +52,19 @@ const DashboardAreaChart = (props) => {
 
     useDebouncedEffect(() => {
         const len = data?.length || 0;
-        if (len > 0 && !isLoading) {
+        if (len > 0 && !isLoading && !chartData) {
             const json = len > 3 ? JSON.stringify([data[0], data[len - 2]]) : JSON.stringify(data);
             if(oldJson !== json) {
                 setChartData(data);            
                 setOldJson(json);                
             }            
         }
-    }, [data, isLoading, oldJson]);
+    }, [data, isLoading, oldJson, chartData]);
 
     if(!chartData && isLoading) {
-        return <BigTextLoader />
+        return <SkeletonBlob mt="10" />
     }
-    else if(!chartData) {
+    else if(!chartData) {        
         return null;
     }
 
@@ -91,13 +92,9 @@ const DbrEvoChart = ({
             balanceWorth: e.balance * histoPrice,
             histoPrice,
         }
-    })
+    });
 
     const isLoading = isLoadingHisto || isLoadingDBR;
-
-    if(isLoading) {
-        return null;
-    }
 
     return <DashboardAreaChart
         isLoading={isLoading}
@@ -135,7 +132,7 @@ const NumberItem = ({ noDataFallback = '-', footer = undefined, isLoading = fals
                 </Text>
             }
             {
-                (!!value || (!value && noDataFallback === '-')) && <Text fontSize="20px" fontWeight="bold" color={'mainTextColorLight'}>{label}</Text>
+                (!!value || (!value && noDataFallback === '-')) && <Text fontSize="18px" fontWeight="bold" color={'mainTextColorLight'}>{label}</Text>
             }
         </VStack>
         {footer}
@@ -154,7 +151,7 @@ const StringItem = ({ footer = undefined, color = 'mainTextColor', value = '', l
             {
                 isLoading ? <BigTextLoader /> : <Text fontWeight="extrabold" fontSize="30px" color={color}>{value}</Text>
             }
-            <Text fontSize="20px" fontWeight="bold" color={'mainTextColorLight'}>{label}</Text>
+            <Text fontSize="18px" fontWeight="bold" color={'mainTextColorLight'}>{label}</Text>
             {footer}
         </VStack>
     </VStack>
@@ -183,12 +180,12 @@ const PieItem = ({ data, activeFill = lightTheme.colors.mainTextColor, fill = li
     />
 }
 
-const NumberAndPieCard = ({ isLoading, noDataFallback = undefined, fill, activeFill, data, value, label, width = 350, height = 250, dataKey = 'value', nameKey = 'name', precision = 2, isUsd = false }) => {
+const NumberAndPieCard = ({ isLoading, footer = undefined, noDataFallback = undefined, fill, activeFill, data, value, label, width = 350, height = 250, dataKey = 'value', nameKey = 'name', precision = 2, isUsd = false }) => {
     return <DashBoardCard minH="314px" direction={{ base: 'column', sm: 'row' }} alignItems="center" justify="space-around" px="16">
         {
             !isLoading && !data?.length ? noDataFallback : <PieItem fill={fill} activeFill={activeFill} data={data} width={width} height={height} dataKey={dataKey} nameKey={nameKey} precision={precision} isUsd={isUsd} />
         }
-        <NumberItem isLoading={isLoading} value={value} label={label} precision={precision} isUsd={isUsd} />
+        <NumberItem footer={footer} isLoading={isLoading} value={value} label={label} precision={precision} isUsd={isUsd} />
     </DashBoardCard>
 }
 
@@ -250,7 +247,11 @@ export const UserDashboard = ({
 
     return <VStack w='full' spacing="8">
         <SimpleGrid columns={{ base: 1, xl: 2 }} spacing="8" w="100%" >
-            <NumberAndPieCard noDataFallback={SupplyAssets} isLoading={isLoading} fill={themeStyles.colors.mainTextColorLight} activeFill={themeStyles.colors.mainTextColor} value={totalTotalSuppliedUsd} label="Deposits" precision={0} isUsd={true} data={marketsWithDeposits} dataKey="depositsUsd" />
+            <NumberAndPieCard footer={
+                <CardFooter                    
+                    labelRight={<Link textDecoration="underline" href="/firm">Go to markets</Link>}
+                />
+            } noDataFallback={SupplyAssets} isLoading={isLoading} fill={themeStyles.colors.mainTextColorLight} activeFill={themeStyles.colors.mainTextColor} value={totalTotalSuppliedUsd} label="Deposits" precision={0} isUsd={true} data={marketsWithDeposits} dataKey="depositsUsd" />
             <NumberAndPieCard noDataFallback={BorrowDola} isLoading={isLoading} fill={themeStyles.colors.warning} activeFill={themeStyles.colors.error} value={debt} label="DOLA debt" precision={0} isUsd={false} data={marketsWithDebt} dataKey="debt" />
         </SimpleGrid>
         <SimpleGrid columns={{ base: 1, md: 2, xl: 4 }} spacing="8" w="100%">
