@@ -1,4 +1,4 @@
-import { SimpleGrid, StackProps, Text, VStack, HStack, Image, Flex } from "@chakra-ui/react"
+import { SimpleGrid, StackProps, Text, VStack, HStack, Image, Flex, useMediaQuery, useDimensions } from "@chakra-ui/react"
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import { useAccountDBR, useAccountF2Markets, useDBR, useDBRBalanceHisto, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
 import { getClosestPreviousHistoValue, preciseCommify, timestampToUTC } from "@app/util/misc";
@@ -11,7 +11,7 @@ import { BigTextLoader } from "../common/Loaders/BigTextLoader";
 import { RSubmitButton } from "../common/Button/RSubmitButton";
 import Link from "../common/Link";
 import { BURN_ADDRESS, BUY_LINKS } from "@app/config/constants";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FirmRewardWrapper } from "./rewards/FirmRewardWrapper";
 import { useAppTheme } from "@app/hooks/useAppTheme";
 import { TOKEN_IMAGES } from "@app/variables/images";
@@ -21,7 +21,7 @@ import { WorthEvoChart } from "./WorthEvoChart";
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
 import { SkeletonBlob } from "../common/Skeleton";
 
-const MAX_AREA_CHART_WIDTH = 800;
+const MAX_AREA_CHART_WIDTH = 625;
 
 const FirmInvEvoChart = ({
     market
@@ -30,15 +30,15 @@ const FirmInvEvoChart = ({
 }) => {
     const { escrow } = market;
     const { rewards } = useINVEscrowRewards(escrow);
-    const { data, isLoading } = useFirmUserPositionEvolution(market, 'comboPrice', rewards);    
+    const { data, isLoading } = useFirmUserPositionEvolution(market, 'comboPrice', rewards);
 
-    if (!escrow || escrow === BURN_ADDRESS) {        
+    if (!escrow || escrow === BURN_ADDRESS) {
         return null
     }
 
     return <DashboardAreaChart
         isLoading={isLoading}
-        market={market}        
+        market={market}
         data={data}
         priceRef={'comboPrice'}
         isSimplified={true}
@@ -49,27 +49,41 @@ const DashboardAreaChart = (props) => {
     const { isLoading, data } = props;
     const [chartData, setChartData] = useState(null);
     const [oldJson, setOldJson] = useState('');
+    const [chartWidth, setChartWidth] = useState<number>(MAX_AREA_CHART_WIDTH);
+    const [isLargerThan2xl, isLargerThanLg, isLargerThanXs] = useMediaQuery([
+        "(min-width: 96em)",
+        "(min-width: 62em)",
+        "(min-width: 250px)",
+    ]);
+
+    useEffect(() => {
+        const optimal2ColWidth = ((screen.availWidth || screen.width)) / 2;        
+        const optimal1ColWidth = ((screen.availWidth || screen.width)) * 0.95 - 50;
+        const w = !isLargerThanXs ? 250 : isLargerThan2xl ? MAX_AREA_CHART_WIDTH : isLargerThanLg ? optimal2ColWidth : optimal1ColWidth;        
+        setChartWidth(w);
+    }, [isLargerThan2xl, isLargerThanXs, isLargerThanLg, screen?.availWidth]);
 
     useDebouncedEffect(() => {
         const len = data?.length || 0;
         if (len > 0 && !isLoading && !chartData) {
             const json = len > 3 ? JSON.stringify([data[0], data[len - 2]]) : JSON.stringify(data);
-            if(oldJson !== json) {
-                setChartData(data);            
-                setOldJson(json);                
-            }            
+            if (oldJson !== json) {
+                setChartData(data);
+                setOldJson(json);
+            }
         }
     }, [data, isLoading, oldJson, chartData]);
 
-    if(!chartData && isLoading) {
+    if (!chartData && isLoading) {
         return <SkeletonBlob mt="10" />
     }
-    else if(!chartData) {        
+    else if (!chartData) {
         return null;
     }
 
+    // too much flickering when using the responsive container
     return <WorthEvoChart
-        chartWidth={MAX_AREA_CHART_WIDTH}
+        chartWidth={chartWidth}
         {...props}
         data={chartData}
     />
@@ -98,7 +112,7 @@ const DbrEvoChart = ({
 
     return <DashboardAreaChart
         isLoading={isLoading}
-        market={{ name: 'DBR' }}        
+        market={{ name: 'DBR' }}
         data={formattedData}
         priceRef={'histoPrice'}
         isSimplified={true}
@@ -205,7 +219,7 @@ const CallToAction = ({ href = '', ...props }) => {
 }
 
 const SmallCallToAction = ({ href = '', ...props }) => {
-    return <RSubmitButton  px="6" h="40px" fontSize="20px" fontWeight="bold"  {...props} />
+    return <RSubmitButton px="6" h="40px" fontSize="20px" fontWeight="bold"  {...props} />
 }
 
 const BigLinkBtn = ({ href = '', ...props }) => {
@@ -248,7 +262,7 @@ export const UserDashboard = ({
     return <VStack w='full' spacing="8">
         <SimpleGrid columns={{ base: 1, xl: 2 }} spacing="8" w="100%" >
             <NumberAndPieCard footer={
-                <CardFooter                    
+                <CardFooter
                     labelRight={<Link textDecoration="underline" href="/firm">Go to markets</Link>}
                 />
             } noDataFallback={SupplyAssets} isLoading={isLoading} fill={themeStyles.colors.mainTextColorLight} activeFill={themeStyles.colors.mainTextColor} value={totalTotalSuppliedUsd} label="Deposits" precision={0} isUsd={true} data={marketsWithDeposits} dataKey="depositsUsd" />

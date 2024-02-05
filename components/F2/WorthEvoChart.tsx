@@ -75,6 +75,7 @@ export const WorthEvoChart = ({
     walletSupportsEvents,
     priceRef = 'oracleHistoPrice',
     isSimplified = false,
+    useResponsive = false,
 }: {
     chartWidth: number,
     data: any[] | null,
@@ -84,6 +85,7 @@ export const WorthEvoChart = ({
     walletSupportsEvents?: boolean,
     priceRef?: string,
     isSimplified?: boolean
+    useResponsive?: boolean
 }) => {
     const { themeStyles, themeName } = useAppTheme();
 
@@ -234,7 +236,7 @@ export const WorthEvoChart = ({
     if (isSimplified) {
         if (isLoading) {
             return <SkeletonBlob />
-        } else if (!data?.length) {            
+        } else if (!data?.length) {
             return null;
         }
     }
@@ -246,7 +248,116 @@ export const WorthEvoChart = ({
         return null;
     }
 
-    const ChartComposition = () => <VStack w='full' alignItems="center" maxW={`${chartWidth}px`}>
+    const ChartComposition = () => {
+        return <ComposedChart
+            width={useResponsive ? undefined : chartWidth}
+            height={useResponsive ? undefined : isSimplified ? 300 : 400}
+            data={chartData}
+            margin={{
+                top: 20,
+                right: 0,
+                left: 0,
+                bottom: 20,
+            }}
+            onMouseDown={e => mouseDown(e)}
+            onMouseMove={mouseMove}
+            // // eslint-disable-next-line react/jsx-no-bind
+            onMouseUp={mouseUp}
+            onMouseLeave={mouseLeave}
+        >
+            <CartesianGrid fill={themeStyles.colors.accentChartBgColor} stroke="#66666633" strokeDasharray={_axisStyle.grid.strokeDasharray} />
+            <XAxis minTickGap={28} interval="preserveStartEnd" style={_axisStyle.tickLabels} dataKey="timestamp" scale="time" type={'number'} allowDataOverflow={true} domain={['dataMin', 'dataMax']} tickFormatter={(v) => {
+                return moment(v).format('MMM Do')
+            }} />
+            <YAxis allowDataOverflow={true} style={_axisStyle.tickLabels} yAxisId="left" tickFormatter={(v) => smartShortNumber(v, 2, useUsd)} domain={[0, 'auto']} />
+            {
+                showBorrowLimit ?
+                    <YAxis allowDataOverflow={true} domain={[0, 100]} style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => `${shortenNumber(v, 2)}%`} />
+                    : <YAxis allowDataOverflow={true} style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => shortenNumber(v, 4, true)} />
+            }
+            <Tooltip
+                wrapperStyle={{ ..._axisStyle.tickLabels }}
+                contentStyle={{ backgroundColor: themeStyles.colors.mainBackgroundColor }}
+                labelFormatter={v => moment(v).format('MMM Do YYYY')}
+                labelStyle={{ fontWeight: 'bold', color: themeStyles.colors.mainTextColor }}
+                itemStyle={{ fontWeight: 'bold' }}
+                formatter={(value, name) => {
+                    const isPrice = [keyNames['dbrPrice'], keyNames['histoPrice'], keyNames['cgHistoPrice'], keyNames['oracleHistoPrice'], keyNames['comboPrice']].includes(name);
+                    const isPerc = [keyNames['borrowLimit'], keyNames['collateralFactor']].includes(name);
+                    return !value ? 'none' : isPerc ? `${shortenNumber(value, 2)}%` : isPrice ? preciseCommify(value, value < 1 ? 4 : 2, true) : preciseCommify(value, !useUsd ? 2 : 0, useUsd)
+                }}
+            />
+            {
+                <Legend wrapperStyle={{
+                    ..._axisStyle.tickLabels,
+                    userSelect: 'none',
+                    fontSize: chartWidth <= 400 ? defaultFontSize : '16px',
+                    fontWeight: 'bold',
+                }}
+                    onClick={toggleChart} style={{ cursor: 'pointer' }} formatter={(value) => value + (actives[value] ? '' : ' (hidden)')}
+                />
+            }
+            {
+                showTotal && <Area isAnimationActive={!isSimplified} opacity={actives[keyNames[totalKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[totalKey]} yAxisId="left" type="monotone" dataKey={totalKey} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
+            }
+            {
+                showCollateral && <Area isAnimationActive={false} opacity={actives[keyNames[balanceKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[balanceKey]} yAxisId="left" type="monotone" dataKey={balanceKey} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
+            }
+            {
+                showCreditWorth && <Area isAnimationActive={!isSimplified} opacity={actives[keyNames['creditWorth']] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames['creditWorth']} yAxisId="left" type="monotone" dataKey={'creditWorth'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
+            }
+            {
+                showDebt && <Area isAnimationActive={!isSimplified} opacity={actives[keyNames[debtKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[debtKey]} yAxisId="left" type="monotone" dataKey={debtKey} stroke={themeStyles.colors.warning} dot={false} fillOpacity={0.5} fill="url(#warning-gradient)" />
+            }
+            {
+                showDbr && showStaking && <Area isAnimationActive={!isSimplified} opacity={actives[keyNames[totalRewardsUsd]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[totalRewardsUsd]} yAxisId="left" type="monotone" dataKey={totalRewardsUsd} stroke={totalRewardsColor} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
+            }
+            {
+                showStaking && <Area isAnimationActive={!isSimplified} opacity={actives[keyNames[stakingKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[stakingKey]} yAxisId="left" type="basis" dataKey={stakingKey} stroke={stakingColor} dot={false} fillOpacity={0.5} fill={`url(${stakingGradient})`} />
+            }
+            {
+                showDbr && <Area isAnimationActive={!isSimplified} opacity={actives[keyNames[claimsKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[claimsKey]} yAxisId="left" type="basis" dataKey={claimsKey} stroke={'gold'} dot={false} fillOpacity={0.5} fill="url(#gold-gradient)" />
+            }
+            {
+                showBorrowLimit && <Line isAnimationActive={!isSimplified} opacity={actives[keyNames['collateralFactor']] ? 1 : 0} strokeWidth={2} name={keyNames['collateralFactor']} yAxisId="right" type="basis" dataKey={'collateralFactor'} stroke={themeStyles.colors.info} dot={false} />
+            }
+            {
+                showBorrowLimit && <Line isAnimationActive={!isSimplified} opacity={actives[keyNames['borrowLimit']] ? 1 : 0} strokeWidth={2} name={keyNames['borrowLimit']} yAxisId="right" type="basis" dataKey={'borrowLimit'} stroke={themeStyles.colors.error} dot={false} />
+            }
+            {
+                showPrice && <Line isAnimationActive={false} opacity={actives[keyNames[priceRef]] ? 1 : 0} strokeWidth={2} name={keyNames[priceRef]} yAxisId="right" type="monotone" dataKey={priceRef} stroke={themeStyles.colors.info} dot={false} />
+            }
+            {
+                showDbrPrice && <Line isAnimationActive={!isSimplified} opacity={actives[keyNames["dbrPrice"]] ? 1 : 0} strokeWidth={2} name={keyNames["dbrPrice"]} yAxisId="right" type="monotone" dataKey="dbrPrice" stroke={'green'} dot={false} />
+            }
+            {
+                showEvents && data
+                    .filter(d => d.isClaimEvent)
+                    .map(d => {
+                        return <ReferenceLine position="start" isFront={true} yAxisId="left" x={d.timestamp}
+                            stroke={LABEL_COLORS[d.eventName]}
+                            strokeDasharray={EVENT_DASHES[d.eventName]}
+                            label={!showEventsLabel ? undefined : { value: 'Claim', position: LABEL_POSITIONS[d.eventName], fill: LABEL_COLORS[d.eventName] }}
+                        />
+                    })
+            }
+            {
+                !isSimplified && showEvents && data
+                    .filter(d => !d.isClaimEvent && d.isEvent)
+                    .map(d => {
+                        return <ReferenceLine position="start" isFront={true} yAxisId="left" x={d.timestamp}
+                            stroke={LABEL_COLORS[d.eventName]}
+                            strokeDasharray={EVENT_DASHES[d.eventName]}
+                            strokeWidth={`${(EVENT_WIDTHS[d.eventName] || 2)}px`}
+                            label={!showEventsLabel ? undefined : { value: d.eventName, position: LABEL_POSITIONS[d.eventName], fill: LABEL_COLORS[d.eventName] }}
+                        />
+                    })
+            }
+            {zoomReferenceArea}
+        </ComposedChart>
+    }
+
+    const ChartContainer = () => <VStack w='full' alignItems="center" maxW={`${chartWidth}px`}>
         <Stack w='full' justify="flex-start" alignItems="flex-start" direction="column">
             <Stack alignItems="center" w='full' spacing={{ base: '2', lg: '4' }} direction={{ base: 'column', lg: isSimplified ? 'row-reverse' : 'row' }}>
                 {
@@ -305,119 +416,23 @@ export const WorthEvoChart = ({
                 </HStack>
             }
         </Stack>
-        <ResponsiveContainer width={'100%'} height={isSimplified ? 300 : 400}>
-            <ComposedChart
-                data={chartData}
-                margin={{
-                    top: 20,
-                    right: 0,
-                    left: 0,
-                    bottom: 20,
-                }}                
-                onMouseDown={e => mouseDown(e)}
-                onMouseMove={mouseMove}
-                // // eslint-disable-next-line react/jsx-no-bind
-                onMouseUp={mouseUp}
-                onMouseLeave={mouseLeave}
+        {
+            useResponsive ? <ResponsiveContainer
+                width={'100%'}
+                height={isSimplified ? 300 : 400}
             >
-                <CartesianGrid fill={themeStyles.colors.accentChartBgColor} stroke="#66666633" strokeDasharray={_axisStyle.grid.strokeDasharray} />
-                <XAxis minTickGap={28} interval="preserveStartEnd" style={_axisStyle.tickLabels} dataKey="timestamp" scale="time" type={'number'} allowDataOverflow={true} domain={['dataMin', 'dataMax']} tickFormatter={(v) => {
-                    return moment(v).format('MMM Do')
-                }} />
-                <YAxis allowDataOverflow={true} style={_axisStyle.tickLabels} yAxisId="left" tickFormatter={(v) => smartShortNumber(v, 2, useUsd)} domain={[0, 'auto']} />
-                {
-                    showBorrowLimit ?
-                        <YAxis allowDataOverflow={true} domain={[0, 100]} style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => `${shortenNumber(v, 2)}%`} />
-                        : <YAxis allowDataOverflow={true} style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => shortenNumber(v, 4, true)} />
-                }
-                <Tooltip
-                    wrapperStyle={{ ..._axisStyle.tickLabels }}
-                    contentStyle={{ backgroundColor: themeStyles.colors.mainBackgroundColor }}
-                    labelFormatter={v => moment(v).format('MMM Do YYYY')}
-                    labelStyle={{ fontWeight: 'bold', color: themeStyles.colors.mainTextColor }}
-                    itemStyle={{ fontWeight: 'bold' }}
-                    formatter={(value, name) => {
-                        const isPrice = [keyNames['dbrPrice'], keyNames['histoPrice'], keyNames['cgHistoPrice'], keyNames['oracleHistoPrice'], keyNames['comboPrice']].includes(name);
-                        const isPerc = [keyNames['borrowLimit'], keyNames['collateralFactor']].includes(name);
-                        return !value ? 'none' : isPerc ? `${shortenNumber(value, 2)}%` : isPrice ? preciseCommify(value, value < 1 ? 4 : 2, true) : preciseCommify(value, !useUsd ? 2 : 0, useUsd)
-                    }}
-                />
-                {
-                    <Legend wrapperStyle={{
-                        ..._axisStyle.tickLabels,
-                        userSelect: 'none',
-                        fontSize: chartWidth <= 400 ? defaultFontSize : '16px',
-                        fontWeight: 'bold',
-                    }}
-                        onClick={toggleChart} style={{ cursor: 'pointer' }} formatter={(value) => value + (actives[value] ? '' : ' (hidden)')}
-                    />
-                }
-                {
-                    showTotal && <Area  isAnimationActive={!isSimplified} opacity={actives[keyNames[totalKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[totalKey]} yAxisId="left" type="monotone" dataKey={totalKey} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
-                }
-                {
-                    showCollateral && <Area isAnimationActive={false} opacity={actives[keyNames[balanceKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[balanceKey]} yAxisId="left" type="monotone" dataKey={balanceKey} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
-                }
-                {
-                    showCreditWorth && <Area  isAnimationActive={!isSimplified} opacity={actives[keyNames['creditWorth']] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames['creditWorth']} yAxisId="left" type="monotone" dataKey={'creditWorth'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
-                }
-                {
-                    showDebt && <Area  isAnimationActive={!isSimplified} opacity={actives[keyNames[debtKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[debtKey]} yAxisId="left" type="monotone" dataKey={debtKey} stroke={themeStyles.colors.warning} dot={false} fillOpacity={0.5} fill="url(#warning-gradient)" />
-                }
-                {
-                    showDbr && showStaking && <Area  isAnimationActive={!isSimplified} opacity={actives[keyNames[totalRewardsUsd]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[totalRewardsUsd]} yAxisId="left" type="monotone" dataKey={totalRewardsUsd} stroke={totalRewardsColor} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
-                }
-                {
-                    showStaking && <Area  isAnimationActive={!isSimplified} opacity={actives[keyNames[stakingKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[stakingKey]} yAxisId="left" type="basis" dataKey={stakingKey} stroke={stakingColor} dot={false} fillOpacity={0.5} fill={`url(${stakingGradient})`} />
-                }
-                {
-                    showDbr && <Area  isAnimationActive={!isSimplified} opacity={actives[keyNames[claimsKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[claimsKey]} yAxisId="left" type="basis" dataKey={claimsKey} stroke={'gold'} dot={false} fillOpacity={0.5} fill="url(#gold-gradient)" />
-                }
-                {
-                    showBorrowLimit && <Line  isAnimationActive={!isSimplified} opacity={actives[keyNames['collateralFactor']] ? 1 : 0} strokeWidth={2} name={keyNames['collateralFactor']} yAxisId="right" type="basis" dataKey={'collateralFactor'} stroke={themeStyles.colors.info} dot={false} />
-                }
-                {
-                    showBorrowLimit && <Line  isAnimationActive={!isSimplified} opacity={actives[keyNames['borrowLimit']] ? 1 : 0} strokeWidth={2} name={keyNames['borrowLimit']} yAxisId="right" type="basis" dataKey={'borrowLimit'} stroke={themeStyles.colors.error} dot={false} />
-                }
-                {
-                    showPrice && <Line isAnimationActive={false} opacity={actives[keyNames[priceRef]] ? 1 : 0} strokeWidth={2} name={keyNames[priceRef]} yAxisId="right" type="monotone" dataKey={priceRef} stroke={themeStyles.colors.info} dot={false} />
-                }
-                {
-                    showDbrPrice && <Line  isAnimationActive={!isSimplified} opacity={actives[keyNames["dbrPrice"]] ? 1 : 0} strokeWidth={2} name={keyNames["dbrPrice"]} yAxisId="right" type="monotone" dataKey="dbrPrice" stroke={'green'} dot={false} />
-                }
-                {
-                    showEvents && data
-                        .filter(d => d.isClaimEvent)
-                        .map(d => {
-                            return <ReferenceLine position="start" isFront={true} yAxisId="left" x={d.timestamp}
-                                stroke={LABEL_COLORS[d.eventName]}
-                                strokeDasharray={EVENT_DASHES[d.eventName]}
-                                label={!showEventsLabel ? undefined : { value: 'Claim', position: LABEL_POSITIONS[d.eventName], fill: LABEL_COLORS[d.eventName] }}
-                            />
-                        })
-                }
-                {
-                    !isSimplified && showEvents && data
-                        .filter(d => !d.isClaimEvent && d.isEvent)
-                        .map(d => {
-                            return <ReferenceLine position="start" isFront={true} yAxisId="left" x={d.timestamp}
-                                stroke={LABEL_COLORS[d.eventName]}
-                                strokeDasharray={EVENT_DASHES[d.eventName]}
-                                strokeWidth={`${(EVENT_WIDTHS[d.eventName] || 2)}px`}
-                                label={!showEventsLabel ? undefined : { value: d.eventName, position: LABEL_POSITIONS[d.eventName], fill: LABEL_COLORS[d.eventName] }}
-                            />
-                        })
-                }
-                {zoomReferenceArea}
-            </ComposedChart>
-        </ResponsiveContainer>
+                <ChartComposition />
+            </ResponsiveContainer>
+                :
+                <ChartComposition />
+        }
     </VStack>
 
     if (isSimplified) {
-        return <ChartComposition />
+        return <ChartContainer />
     }
 
     return <Cont {...contProps}>
-        <ChartComposition />
+        <ChartContainer />
     </Cont>
 }

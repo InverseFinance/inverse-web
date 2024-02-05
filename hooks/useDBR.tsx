@@ -377,9 +377,10 @@ export const useDBR = (): {
   maxRewardRate: number,
   maxYearlyRewardRate: number,
   operator: string,
-  historicalData: CoingeckoHistoricalData
+  historicalData: CoingeckoHistoricalData,
+  isLoading: boolean,
 } => {
-  const { data: apiData } = useCustomSWR(`/api/dbr?withExtra=true`, fetcher);
+  const { data: apiData, isLoading } = useCustomSWR(`/api/dbr?withExtra=true`, fetcher);
   const { priceUsd: livePrice, priceDola } = useDBRPriceLive();
 
   const { data: extraData } = useEtherSWR([
@@ -412,6 +413,7 @@ export const useDBR = (): {
     maxRewardRate,
     maxYearlyRewardRate,
     minYearlyRewardRate,
+    isLoading: !!isLoading,
   }
 }
 
