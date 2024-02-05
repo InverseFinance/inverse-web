@@ -11,7 +11,7 @@ import { BigTextLoader } from "../common/Loaders/BigTextLoader";
 import { RSubmitButton } from "../common/Button/RSubmitButton";
 import Link from "../common/Link";
 import { BURN_ADDRESS, BUY_LINKS } from "@app/config/constants";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FirmRewardWrapper } from "./rewards/FirmRewardWrapper";
 import { useAppTheme } from "@app/hooks/useAppTheme";
 import { TOKEN_IMAGES } from "@app/variables/images";
@@ -47,7 +47,9 @@ const FirmInvEvoChart = ({
 
 const DashboardAreaChart = (props) => {
     const { isLoading, data } = props;
+    const refElement = useRef();
     const [chartData, setChartData] = useState(null);
+    const [refElementWidth, setRefElementWidth] = useState(MAX_AREA_CHART_WIDTH);
     const [oldJson, setOldJson] = useState('');
     const [chartWidth, setChartWidth] = useState<number>(MAX_AREA_CHART_WIDTH);
     const [isLargerThan2xl, isLargerThanLg, isLargerThanXs] = useMediaQuery([
@@ -57,9 +59,14 @@ const DashboardAreaChart = (props) => {
     ]);
 
     useEffect(() => {
-        const optimal2ColWidth = ((screen.availWidth || screen.width)) / 2;        
-        const optimal1ColWidth = ((screen.availWidth || screen.width)) * 0.95 - 50;
-        const w = !isLargerThanXs ? 250 : isLargerThan2xl ? MAX_AREA_CHART_WIDTH : isLargerThanLg ? optimal2ColWidth : optimal1ColWidth;        
+        if(!refElement?.current) return;
+        setRefElementWidth(refElement.current.clientWidth);
+    }, [refElement?.current])
+
+    useEffect(() => {
+        const optimal2ColWidth = ((screen.availWidth || screen.width)) / 2 - 50;
+        const optimal1ColWidth = ((screen.availWidth || screen.width)) * 0.94 - 50;
+        const w = !isLargerThanXs ? 250 : isLargerThan2xl ? MAX_AREA_CHART_WIDTH : isLargerThanLg ? Math.min(optimal2ColWidth, refElementWidth) : optimal1ColWidth;
         setChartWidth(w);
     }, [isLargerThan2xl, isLargerThanXs, isLargerThanLg, screen?.availWidth]);
 
@@ -82,11 +89,13 @@ const DashboardAreaChart = (props) => {
     }
 
     // too much flickering when using the responsive container
-    return <WorthEvoChart
-        chartWidth={chartWidth}
-        {...props}
-        data={chartData}
-    />
+    return <VStack w='full' ref={refElement}>
+        <WorthEvoChart
+            chartWidth={chartWidth}
+            {...props}
+            data={chartData}
+        />
+    </VStack>
 }
 
 const DbrEvoChart = ({
@@ -127,6 +136,7 @@ const DashBoardCard = (props: StackProps & { cardTitle?: string, href?: string, 
         p={8}
         position="relative"
         alignItems="center"
+        minH="150px"
         shadow="0 0 0px 1px rgba(0, 0, 0, 0.25)"
         bg={'containerContentBackground'}
         {...props}
@@ -139,9 +149,9 @@ const DashBoardCard = (props: StackProps & { cardTitle?: string, href?: string, 
 
 const NumberItem = ({ noDataFallback = '-', footer = undefined, isLoading = false, value = 0, price = undefined, label = '', isUsd = false, precision = 0 }) => {
     return <VStack spacing="0" justify="center" alignItems="flex-end" w='full'>
-        <VStack alignItems="flex-end" spacing="2">
+        <VStack alignItems="flex-end" spacing="1">
             {
-                isLoading ? <BigTextLoader /> : <Text fontWeight="extrabold" fontSize={price ? '24px' : { base: '30px', '2xl': '36px' }} color={'mainTextColor'}>
+                isLoading ? <BigTextLoader /> : <Text fontWeight="extrabold" fontSize={price ? { base: '22px', '2xl': '24px' } : { base: '30px', '2xl': '36px' }} color={'mainTextColor'}>
                     {!value ? noDataFallback : value > 100000 ? smartShortNumber(value, 2, isUsd) : preciseCommify(value, precision, isUsd)}{!!price && !!value ? ` (${smartShortNumber(value * price, 2, true)})` : ''}
                 </Text>
             }
@@ -161,7 +171,7 @@ const NumberCard = ({ imageSrc = '', noDataFallback = undefined, href = undefine
 
 const StringItem = ({ footer = undefined, color = 'mainTextColor', value = '', label = '', isLoading = false }) => {
     return <VStack spacing="0" justify="center" alignItems="flex-end" w='full'>
-        <VStack alignItems="flex-end" w='full' spacing="2">
+        <VStack alignItems="flex-end" w='full' spacing="1">
             {
                 isLoading ? <BigTextLoader /> : <Text fontWeight="extrabold" fontSize="30px" color={color}>{value}</Text>
             }
@@ -205,10 +215,10 @@ const NumberAndPieCard = ({ isLoading, footer = undefined, noDataFallback = unde
 
 const CardFooter = ({ labelLeft = '', labelRight = '' }) => {
     return <HStack position="absolute" left="0" right="0" px="8" bottom="8px" w='full' justify="space-between">
-        <Text textAlign="left" color={'mainTextColorLight'} fontSize="14px">
+        <Text whiteSpace="nowrap" textAlign="left" color={'mainTextColorLight'} fontSize="14px">
             {labelLeft}
         </Text>
-        <Text textAlign="right" color={'mainTextColorLight'} fontSize="14px">
+        <Text whiteSpace="nowrap" textAlign="right" color={'mainTextColorLight'} fontSize="14px">
             {labelRight}
         </Text>
     </HStack>
