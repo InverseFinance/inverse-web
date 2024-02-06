@@ -3,11 +3,13 @@ import { useEventsAsChartData } from "@app/hooks/misc";
 import { DefaultCharts } from "@app/components/Transparency/DefaultCharts";
 import { useEffect, useState } from "react";
 import { PieChartRecharts } from "@app/components/Transparency/PieChartRecharts";
+import { useAppTheme } from "@app/hooks/useAppTheme";
 
 const maxChartWidth = 1200;
 
 export const DbrAuctionBuysChart = ({ events }) => {    
     const { chartData: chartDataAcc } = useEventsAsChartData(events, '_acc_', 'dolaIn', true, true);
+    const { themeStyles } = useAppTheme();
     const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
 
@@ -48,7 +50,9 @@ export const DbrAuctionBuysChart = ({ events }) => {
             nameKey={'name'}
             cx="50%"
             cy="50%"
-            outerRadius={50}       
+            outerRadius={50}
+            activeFill={themeStyles.colors.mainTextColor}
+            fill={themeStyles.colors.mainTextColorLight}   
         />
     </Stack>
 }
