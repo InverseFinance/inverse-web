@@ -1,5 +1,5 @@
 import { BALANCER_VAULT_ABI, F2_ESCROW_ABI } from "@app/config/abis";
-import { CoingeckoHistoricalData, F2Market, SWR } from "@app/types"
+import { AccountDBRMarket, CoingeckoHistoricalData, F2Market, SWR } from "@app/types"
 import { getBnToNumber, getNumberToBn } from "@app/util/markets";
 import { getNetworkConfigConstants } from "@app/util/networks"
 import { TOKENS } from "@app/variables/tokens";
@@ -13,8 +13,8 @@ import { parseUnits } from "@ethersproject/units";
 import useSWR from "swr";
 import { useWeb3React } from "@web3-react/core";
 import { useDOLAPriceLive } from "./usePrices";
-import { useBlockTimestamp } from "./useBlockTimestamp";
 import { timestampToUTC } from "@app/util/misc";
+import { useState } from "react";
 
 const { DBR, DBR_AIRDROP, F2_MARKETS, F2_ORACLE, DOLA, DBR_DISTRIBUTOR, F2_HELPER, F2_ALE } = getNetworkConfigConstants();
 
@@ -38,6 +38,7 @@ export const useAccountDBR = (
   bnDebt: BigNumber,
   bnBalance: BigNumber,
   hasDbrV1NewBorrowIssue: boolean,
+  needsRechargeSoon: boolean,
 } => {
   const { data, error } = useEtherSWR([
     [DBR, 'balanceOf', account],
@@ -66,8 +67,12 @@ export const useAccountDBR = (
   // dbr v1 edge issue
   // const hasDbrV1NewBorrowIssue = lastUpdate > 0 && debt === 0 && lastUpdate !== (blockTimestamp?.timestamp||0);
 
+  const hasDebt = monthlyDebtAccrual !== 0;
+  const needsRechargeSoon = dbrNbDaysExpiry <= 30 && hasDebt;
+
   return {
     hasDbrV1NewBorrowIssue: false,
+    needsRechargeSoon,
     bnBalance: data ? data[0] : BigNumber.from('0'),
     balance,
     debt: _debt,
@@ -184,30 +189,6 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
   }
 }
 
-type AccountDBRMarket = F2Market & {
-  account: string | undefined | null
-  escrow: string | undefined
-  deposits: number
-  bnDeposits: BigNumber
-  creditLimit: number
-  bnCreditLimit: BigNumber
-  withdrawalLimit: number
-  bnWithdrawalLimit: BigNumber
-  creditLeft: number
-  perc: number
-  debt: number
-  bnDebt: BigNumber
-  bnCollateralBalance: BigNumber
-  collateralBalance: number
-  hasDebt: boolean
-  liquidationPrice: number | null
-  liquidatableDebtBn: BigNumber
-  liquidatableDebt: number
-  seizableWorth: number,
-  seizable: number,
-  underlyingExRate?: number,
-}
-
 export const useAccountDBRMarket = (
   market: F2Market,
   account: string,
@@ -270,6 +251,7 @@ export const useAccountDBRMarket = (
     escrow,
     deposits,
     bnDeposits,
+    depositsUsd: deposits * market.price,
     creditLimit,
     bnCreditLimit,
     withdrawalLimit,
@@ -395,9 +377,10 @@ export const useDBR = (): {
   maxRewardRate: number,
   maxYearlyRewardRate: number,
   operator: string,
-  historicalData: CoingeckoHistoricalData
+  historicalData: CoingeckoHistoricalData,
+  isLoading: boolean,
 } => {
-  const { data: apiData } = useCustomSWR(`/api/dbr?withExtra=true`, fetcher);
+  const { data: apiData, isLoading } = useCustomSWR(`/api/dbr?withExtra=true`, fetcher);
   const { priceUsd: livePrice, priceDola } = useDBRPriceLive();
 
   const { data: extraData } = useEtherSWR([
@@ -430,6 +413,7 @@ export const useDBR = (): {
     maxRewardRate,
     maxYearlyRewardRate,
     minYearlyRewardRate,
+    isLoading: !!isLoading,
   }
 }
 
@@ -544,6 +528,7 @@ export const useCheckDBRAirdrop = (account: string): SWR & {
 
 export const useDBRBalanceHisto = (account: string): { evolution: any, currentBalance: number | null, isLoading: boolean } => {
   const { account: connectedUser } = useWeb3React();
+  const [now, setNow] = useState(Date.now());
   const { data, isLoading } = useCustomSWR(!account ? '-' : `/api/f2/dbr-balance-histo?account=${account}&v=1`, fetcher60sectimeout);
   const { signedBalance } = useAccountDBR(account);  
 
@@ -552,8 +537,7 @@ export const useDBRBalanceHisto = (account: string): { evolution: any, currentBa
     return { utcDate: timestampToUTC(ts), debt: data?.debts[i], balance: bal, timestamp: ts, x: ts, y: bal };
   });
   evolution?.sort((a,b) => a.x - b.x);
-  if(evolution?.length > 0 && !!connectedUser) {
-    const now = Date.now();
+  if(evolution?.length > 0 && !!connectedUser) {    
     evolution.push({ x: now, utcDate: timestampToUTC(now), balance: signedBalance, timestamp: now, y: signedBalance });
   }
   return {

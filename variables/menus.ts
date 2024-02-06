@@ -1,6 +1,10 @@
 export const MENUS = {
   "nav": [
     {
+      label: 'Dashboard',
+      href: '/dashboard',
+    },
+    {
       label: 'Borrow',
       href: '/firm',
       submenus: [
@@ -52,10 +56,10 @@ export const MENUS = {
         },
       ]
     },
-    {
-      label: 'Bond',
-      href: '/bonds',
-    },
+    // {
+    //   label: 'Bond',
+    //   href: '/bonds',
+    // },
     // {
     //   label: 'sDOLA',
     //   href: '/sdola',
