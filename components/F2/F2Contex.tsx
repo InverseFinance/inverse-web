@@ -97,13 +97,13 @@ export const F2Context = ({
     const { balance: dolaBalance, bnBalance: bnDolaBalance } = useDOLABalance(account);
     const { price: dolaPrice, isLoading: isDolaPriceLoading } = useDOLAPrice();
 
-    // if true and leverage switched is enabled, the user will see the INV prime msg
-    const userNotEligibleForLeverage = !isInvPrimeMember && INV_STAKERS_ONLY.firmLeverage;
-    // if true, the leverage UI will show and leverage is relevant to the mode
-    const useLeverageInMode = useLeverage && !userNotEligibleForLeverage && (mode === 'Deposit & Borrow' || (mode === 'Borrow' && deposits > 0) || (['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1))
-
     const debtAmountNum = parseFloat(debtAmount || '0') || 0;// NaN => 0
     const collateralAmountNum = parseFloat(collateralAmount || '0') || 0;
+
+    // if true and leverage switched is enabled, the user will see the INV prime msg
+    const userNotEligibleForLeverage = !isInvPrimeMember && INV_STAKERS_ONLY.firmLeverage;
+    // if true, leverage is relevant to the mode and conditions
+    const useLeverageInMode = useLeverage && !userNotEligibleForLeverage && ((mode === 'Deposit & Borrow' && (deposits > 0 || collateralAmountNum > 0)) || (mode === 'Borrow' && deposits > 0) || (['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1))    
 
     const leverageDebtAmountNum = parseFloat(leverageDebtAmount || '0') || 0;// NaN => 0
     const leverageCollateralAmountNum = parseFloat(leverageCollateralAmount || '0') || 0;

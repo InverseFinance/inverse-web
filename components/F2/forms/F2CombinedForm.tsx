@@ -29,6 +29,7 @@ import { BigNumber } from 'ethers'
 import { isAddress } from 'ethers/lib/utils'
 import { BURN_ADDRESS } from '@app/config/constants'
 import { useMultisig } from '@app/hooks/useSafeMultisig'
+import { InfoMessage } from '@app/components/common/Messages'
 
 const { DOLA, F2_HELPER, F2_ALE } = getNetworkConfigConstants();
 
@@ -108,7 +109,7 @@ export const F2CombinedForm = ({
         newDeposits,
         userNotEligibleForLeverage,
         setLeverageLoading,
-        leverageLoading,        
+        leverageLoading,
         isTriggerLeverageFetch,
         account,
         setCustomRecipient,
@@ -278,7 +279,7 @@ export const F2CombinedForm = ({
                     showToast({ status: 'warning', description: errorMsg, title: 'Api error' })
                     return
                 }
-                setLeverageDebtAmount(Math.abs(dolaAmount).toFixed(2));                
+                setLeverageDebtAmount(Math.abs(dolaAmount).toFixed(2));
             }
         }
         if (timeout !== -1) {
@@ -327,7 +328,8 @@ export const F2CombinedForm = ({
     const notEnoughToBorrowWithAutobuy = isBorrowCase && market.leftToBorrow > 1 && deltaDebt > 0 && market.leftToBorrow < (isAutoDBR ? deltaDebt + (dbrCoverDebt * (1 + parseFloat(dbrBuySlippage || 0) / 100)) : deltaDebt);
     const minDebtDisabledCondition = FEATURE_FLAGS.firmMinDebt && newTotalDebtInMarket > 0 && newTotalDebtInMarket < market.minDebt;
     const isDeleverageCase = useLeverageInMode && !isDeposit;
-    const canUseLeverage = !isMultisig && FEATURE_FLAGS.firmLeverage && market.hasAleFeat && !isUseNativeCoin && ((mode === 'Deposit & Borrow' && (deposits > 0 || collateralAmountNum > 0)) || (mode === 'Borrow' && deposits > 0) || (['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1));
+    const canShowLeverage = !isMultisig && FEATURE_FLAGS.firmLeverage && market.hasAleFeat && !isUseNativeCoin && ((['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1) || ['Deposit & Borrow', 'Borrow'].includes(mode));
+    const canActivateLeverage = ((mode === 'Deposit & Borrow' && (deposits > 0 || collateralAmountNum > 0)) || (mode === 'Borrow' && deposits > 0) || (['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1));
     const showMinDebtMessage = !notEnoughToBorrowWithAutobuy && minDebtDisabledCondition && (debtAmountNum > 0 || isDeleverageCase);
     const showNeedDbrMessage = isDeposit && !isAutoDBR && dbrBalance <= 0;
     const showNotEnoughDolaToRepayMessage = isRepayCase && debtAmountNum > 0 && dolaBalance < debtAmountNum;
@@ -392,7 +394,7 @@ export const F2CombinedForm = ({
                                 customRecipient={customRecipient}
                                 placeholder={account}
                             />
-                        }                        
+                        }
                     </>
                         : <Text>Nothing to withdraw</Text>
                 }
@@ -438,7 +440,7 @@ export const F2CombinedForm = ({
                                 hideInputIfNoAllowance={false}
                                 hideButtons={true}
                                 inputRight={<MarketImage pr="2" image={dolaToken.image} size={25} />}
-                                isError={isDeposit ? debtAmountNum > 0 && newPerc < 1 : debtAmountNum > debt}                            
+                                isError={isDeposit ? debtAmountNum > 0 && newPerc < 1 : debtAmountNum > debt}
                             />
                             {
                                 isRepayCase ? <FirmRepayInputSubline
@@ -468,10 +470,12 @@ export const F2CombinedForm = ({
                         />
                     }
                     {
-                        canUseLeverage && <FirmLeverageSwitch isDeposit={isDeposit} useLeverage={useLeverage} onChange={(isDeposit) => {
+                        canShowLeverage && <FirmLeverageSwitch isDeposit={isDeposit} useLeverage={useLeverage} onChange={(isDeposit) => {
                             const isActivatingLeverage = !useLeverage;
                             setUseLeverage(isActivatingLeverage);
-                            retriggerLeverage(isDeposit, debtAmount, debtAmountNum, true, collateralAmountNum);
+                            if (canActivateLeverage) {                                
+                                retriggerLeverage(isDeposit, debtAmount, debtAmountNum, true, collateralAmountNum);
+                            }
                         }} />
                     }
                 </HStack>
@@ -557,22 +561,27 @@ export const F2CombinedForm = ({
                 <Stack justify="space-between" w='full' spacing="4" direction={{ base: 'column' }}>
                     {mainFormInputs}
                     {
-                        canUseLeverage && <VStack display={(useLeverageInMode || (useLeverage && userNotEligibleForLeverage)) ? 'inline-block' : 'none'}>
-                            <FirmBoostInfos
-                                type={isDeposit ? 'up' : 'down'}
-                                triggerCollateralAndOrLeverageChange={triggerCollateralAndOrLeverageChange}
-                                onLeverageChange={({
-                                    dolaAmount, collateralAmount, isLeverageUp
-                                }) => {
-                                    if (isLeverageUp) {
-                                        handleDebtChange(Math.abs(dolaAmount).toFixed(2));
-                                        setLeverageCollateralAmount(Math.abs(collateralAmount).toFixed(8));
-                                    } else {
-                                        handleCollateralChange(Math.abs(collateralAmount).toFixed(8));
-                                        setLeverageDebtAmount(Math.abs(dolaAmount).toFixed(2));
-                                    }
-                                }}
-                            />
+                        canShowLeverage && <VStack display={(useLeverageInMode || (useLeverage && userNotEligibleForLeverage)) ? 'inline-block' : 'none'}>
+                            {
+                                canActivateLeverage ? <FirmBoostInfos
+                                    type={isDeposit ? 'up' : 'down'}
+                                    triggerCollateralAndOrLeverageChange={triggerCollateralAndOrLeverageChange}
+                                    onLeverageChange={({
+                                        dolaAmount, collateralAmount, isLeverageUp
+                                    }) => {
+                                        if (isLeverageUp) {
+                                            handleDebtChange(Math.abs(dolaAmount).toFixed(2));
+                                            setLeverageCollateralAmount(Math.abs(collateralAmount).toFixed(8));
+                                        } else {
+                                            handleCollateralChange(Math.abs(collateralAmount).toFixed(8));
+                                            setLeverageDebtAmount(Math.abs(dolaAmount).toFixed(2));
+                                        }
+                                    }}
+                                /> : <InfoMessage
+                                    alertProps={{ w: 'full' }}
+                                    description="Please fill in the deposit field to use leverage."
+                                />
+                            }
                         </VStack>
                     }
                     {['d&b', 'borrow'].includes(MODES[mode]) && isAutoDBR && <Divider borderColor="#cccccc66" />}

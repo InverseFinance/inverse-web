@@ -232,12 +232,8 @@ export const DbrBar = ({
 }: {
     account: string
 } & Partial<StackProps>) => {
-    const { dbrNbDaysExpiry, signedBalance: dbrBalance, monthlyDebtAccrual, dbrExpiryDate, debt } = useAccountDBR(account);
+    const { signedBalance: dbrBalance, monthlyDebtAccrual, dbrExpiryDate, debt, needsRechargeSoon } = useAccountDBR(account);
     const { replenishmentDailyRate } = useDBRReplenishmentPrice();
-
-    const hasDebt = monthlyDebtAccrual !== 0;
-
-    const needsRechargeSoon = dbrNbDaysExpiry <= 30 && hasDebt;
 
     const { priceUsd: dbrPriceUsd } = useDBRPrice();
     const needTopUp = dbrBalance < 0 || (dbrBalance === 0 && debt > 0);

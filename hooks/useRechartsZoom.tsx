@@ -52,6 +52,7 @@ export const useRechartsZoom = ({
     allowZoom = true,
     showRangeBtns = true,
     yAxisId = undefined,
+    forceStaticRangeBtns = false,
     rangesToInclude = DEFAULT_RANGES_TO_INCLUDE,
 }: {
     combodata: any[]
@@ -59,6 +60,7 @@ export const useRechartsZoom = ({
     yKey?: string
     allowZoom?: boolean
     showRangeBtns?: boolean
+    forceStaticRangeBtns?: boolean
     yAxisId?: string
     rangesToInclude?: string[]
 }) => {
@@ -153,7 +155,7 @@ export const useRechartsZoom = ({
     }
 
     const rangeButtons = <>{ranges.map((range, i) => <RSubmitButton key={range.label} bgColor={range.label === lastRangeType ? 'accentTextColor' : undefined} onClick={() => changeToRange(range)} maxH="30px" py="1" px="2" fontSize="12px">{range.label}</RSubmitButton>)}</>
-    const rangeButtonsBarAbs = !showRangeBtns || !allowZoom ? null : <HStack position={{ base: 'static', md: 'absolute' }} top="-43px">
+    const rangeButtonsBarAbs = !showRangeBtns || !allowZoom ? null : <HStack position={forceStaticRangeBtns ? 'static' : { base: 'static', md: 'absolute' }} top="-43px">
         {rangeButtons}
     </HStack>
     const rangeButtonsBar = !showRangeBtns || !allowZoom ? null : <HStack>

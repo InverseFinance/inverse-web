@@ -535,10 +535,7 @@ export const Landing = ({ posts }: {
               </Text>
               <Text color={lightTheme.colors.mainTextColor} fontSize={smallerSize}>
                 We are the most transparent DAO in DeFi with unprecedented levels of operational visibility.
-              </Text>
-              <Link fontSize={smallerSize} href="/claim-dbr" fontWeight="bold" color={lightTheme.colors.mainTextColor} textDecoration="underline">
-                Airdrop Info >>
-              </Link>
+              </Text>             
               <ResponsiveStack justify={{ base: 'center', md: 'flex-start' }} direction={{ base: 'column', sm: 'row', md: 'column', lg: 'row' }} w={{ base: 'full', lg: 'auto' }}>
                 <LandingSubmitButton w={{ base: 'full', sm: '200px', '2xl': 'auto' }} href="https://discord.gg/YpYJC7R5nv" target="_blank">
                   <Image src="/assets/socials/discord.svg" h={btnIconSize} mr={{ base: '1', '2xl': 2 }} />

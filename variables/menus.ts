@@ -1,6 +1,10 @@
 export const MENUS = {
   "nav": [
     {
+      label: 'Dashboard',
+      href: '/dashboard',
+    },
+    {
       label: 'Borrow',
       href: '/firm',
       submenus: [
@@ -52,10 +56,10 @@ export const MENUS = {
         },
       ]
     },
-    {
-      label: 'Bond',
-      href: '/bonds',
-    },
+    // {
+    //   label: 'Bond',
+    //   href: '/bonds',
+    // },
     // {
     //   label: 'sDOLA',
     //   href: '/sdola',
@@ -371,7 +375,7 @@ export const MENUS = {
         },
         {
           label: 'Brand Assets',
-          href: '/brand-assets.pdf',
+          href: '/brand-assets-2024.pdf',
         },
       ],
     },
@@ -385,6 +389,10 @@ export const MENUS = {
         {
           label: 'Discord',
           href: 'https://discord.gg/YpYJC7R5nv',
+        },
+        {
+          label: 'Debank',
+          href: 'https://debank.com/official/Inverse_Finance/follower',
         },
         {
           label: 'Telegram',

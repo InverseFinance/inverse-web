@@ -407,7 +407,7 @@ export const FirmBoostInfos = ({
                     <Text>Quote:</Text>
                     {
                         leverageLoading || isTriggerLeverageFetch ? <SkeletonText pt="2px" skeletonHeight={3} height={'16px'} width={'90px'} noOfLines={1} />
-                            : <Text>{estimatedAmount > 0 && knownFixedAmount > 0 ? `~${preciseCommify(isLeverageUp ? knownFixedAmount / estimatedAmount : estimatedAmount / knownFixedAmount, 6)} DOLA per ${market.underlying.symbol}` : '-'}</Text>
+                            : <Text>{estimatedAmount > 0 && knownFixedAmount > 0 ? `~${preciseCommify(isLeverageUp ? knownFixedAmount / estimatedAmount : estimatedAmount / knownFixedAmount, 2)} DOLA per ${market.underlying.symbol}` : '-'}</Text>
                     }
                 </TextInfo>
             </HStack>

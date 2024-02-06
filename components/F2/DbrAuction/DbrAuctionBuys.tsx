@@ -99,6 +99,8 @@ export const DbrAuctionBuys = ({ events, title, lastUpdate }: { events: any[], t
     >
         <Table
             keyName="txHash"
+            defaultSort="timestamp"
+            defaultSortDir="desc"
             columns={columns}
             items={events}
             noDataMessage="No DBR buys yet"
