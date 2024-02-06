@@ -8,7 +8,7 @@ import { getBnToNumber, getNumberToBn } from "./markets";
 import { useCustomSWR } from "@app/hooks/useCustomSWR";
 import { SWR } from "@app/types";
 import { fetcher } from "./web3";
-import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS } from "@app/config/constants";
+import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, SDOLA_ADDRESS } from "@app/config/constants";
 import useEtherSWR from "@app/hooks/useEtherSWR";
 import { parseEther } from "@ethersproject/units";
 import { useEffect, useState } from "react";
@@ -128,18 +128,24 @@ export const useDbrAuctionActivity = (from?: string): SWR & {
 }
 
 export const useDbrAuctionBuyEvents = (account: string) => {
-    const { events: buyEventsData } = useContractEvents(
+    const { events: generalAuctionBuys } = useContractEvents(
         DBR_AUCTION_ADDRESS,
         DBR_AUCTION_ABI,
         'Buy',
         !!account ? [undefined, account] : undefined,
     );
-    const eventsData = buyEventsData;
-    const sortedEvents = eventsData.sort(ascendingEventsSorter);
-    const uniqueBlocks = [...new Set(sortedEvents.map(e => e.blockNumber))];
+    const { events: sdolaAuctionBuys } = useContractEvents(
+        SDOLA_ADDRESS,
+        DBR_AUCTION_ABI,
+        'Buy',
+        !!account ? [undefined, account] : undefined,
+    );
+    const buyEvents = generalAuctionBuys.concat(sdolaAuctionBuys);
+    buyEvents.sort(ascendingEventsSorter);    
+    const uniqueBlocks = [...new Set(buyEvents.map(e => e.blockNumber))];
     const { timestamps } = useBlocksTimestamps(uniqueBlocks);
     const timestampsAsObj = timestamps.reduce((prev, curr, i) => ({ ...prev, [uniqueBlocks[i]]: curr / 1000 }), {});
-    return formatDbrAuctionBuys(sortedEvents, timestampsAsObj);
+    return formatDbrAuctionBuys(buyEvents, timestampsAsObj);
 }
 
 export const formatDbrAuctionBuys = (events: any[], timestamps?: any) => {
@@ -155,6 +161,7 @@ export const formatDbrAuctionBuys = (events: any[], timestamps?: any) => {
             to: e.args[1],
             dolaIn: getBnToNumber(e.args[2]),
             dbrOut: getBnToNumber(e.args[3]),
+            auctionType: e.address === SDOLA_ADDRESS ? 'sDOLA' : 'Virtual',
         };
     });
 }
