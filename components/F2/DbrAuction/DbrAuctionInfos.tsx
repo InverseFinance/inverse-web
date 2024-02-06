@@ -68,7 +68,7 @@ export const DbrAuctionParametersWrapper = () => {
     const { priceUsd: dbrPrice } = useDBRPrice();
     const { price: dolaPrice } = useDOLAPrice();
     return <VStack w='full' alignItems="flex-start">
-        <Text fontWeight="bold">General auction infos:</Text>
+        <Text fontWeight="bold">Virtual auction infos:</Text>
         <DbrAuctionClassicParameters dbrPrice={dbrPrice} dolaPrice={dolaPrice} />
         <Text fontWeight="bold">sDOLA auction infos:</Text>
         <DbrAuctionSDolaParameters dbrPrice={dbrPrice} dolaPrice={dolaPrice} />
@@ -112,7 +112,7 @@ export const DbrAuctionIntroMsg = () => {
                     XY=K auctions operate as a <b>virtual xy = k constant function market maker auction</b>, it allows users to buy DBR using DOLA. In the auction, the price of DBR (per DOLA) continuously reduces every second, until a DBR purchase is made at which point the price increases.
                 </Text>
                 <Text>
-                    There is a "general" DBR auction and a "sDOLA" DBR auction, depending on usage and auction parameters, the cheapest DBR price will be one or the other. The proceeds from the general auction go to DOLA bad debt repayment while the proceeds from the sDOLA proceeds go to sDOLA stakers.
+                    There is a "general" DBR auction and a "sDOLA" DBR auction, depending on usage and auction parameters, the cheapest DBR price will be one or the other. The proceeds from the virtual auction go to DOLA bad debt repayment while the proceeds from the sDOLA proceeds go to sDOLA stakers.
                 </Text>
                 <Link textDecoration="underline" href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr#buying-dbr" target="_blank" isExternal>
                     Learn more <ExternalLinkIcon />

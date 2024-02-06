@@ -61,7 +61,7 @@ export default async function handler(req, res) {
                 to: e.args[1],
                 dolaIn: getBnToNumber(e.args[2]),
                 dbrOut: getBnToNumber(e.args[3]),
-                auctionType: e.address === sdolaContract.address ? 'sDOLA' : 'General',
+                auctionType: e.address === sdolaContract.address ? 'sDOLA' : 'Virtual',
             };
         });
 

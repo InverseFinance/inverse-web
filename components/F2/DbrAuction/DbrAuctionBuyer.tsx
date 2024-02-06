@@ -139,8 +139,9 @@ export const DbrAuctionBuyer = ({
     const auctionPriceColor = !dbrSwapPriceInDola || !selectedAuctionData?.dbrAuctionPriceInDola ? undefined : selectedAuctionData?.dbrAuctionPriceInDola < dbrSwapPriceInDola ? 'success' : 'warning';
 
     const isInvalidSlippage = !slippage || parseFloat(slippage) <= 0 || parseFloat(slippage) >= 20;
+    const notEnoughDola = isExactDola ? dolaBalance < parseFloat(dolaAmount) : dolaBalance < maxDolaInNum;
     const isExactDolaBtnDisabled = isInvalidSlippage || !dolaAmount || parseFloat(dolaAmount) <= 0;
-    const isExactDbrBtnDisabled = isInvalidSlippage || !dbrAmount || parseFloat(dbrAmount) <= 0;
+    const isExactDbrBtnDisabled = isInvalidSlippage || !dbrAmount || parseFloat(dbrAmount) <= 0 || (notEnoughDola);
 
     const auctionSlippageInput = <Input
         py="0"
@@ -226,7 +227,7 @@ export const DbrAuctionBuyer = ({
                                         }}
                                         radioCardProps={{ fontSize: '15px', py: 3, px: '2', mr: '4', w: { base: 'full', sm: '100%' } }}
                                         options={[
-                                            { value: 'classic', label: <AuctionRadioOption isBest={bestAuctionSrc === 'classic'} label="General auction DBR price" dbrAuctionPriceInDola={classicAuctionPricingData.dbrAuctionPriceInDola} dolaPrice={dolaPrice} /> },
+                                            { value: 'classic', label: <AuctionRadioOption isBest={bestAuctionSrc === 'classic'} label="Virtual auction DBR price" dbrAuctionPriceInDola={classicAuctionPricingData.dbrAuctionPriceInDola} dolaPrice={dolaPrice} /> },
                                             { value: 'sdola', label: <AuctionRadioOption isBest={bestAuctionSrc === 'sdola'} label="sDOLA auction DBR price" dbrAuctionPriceInDola={sdolaAuctionPricingData.dbrAuctionPriceInDola} dolaPrice={dolaPrice} /> },
                                         ]}
                                     />
@@ -276,10 +277,13 @@ export const DbrAuctionBuyer = ({
                                                 hideInputIfNoAllowance={false}
                                                 showBalance={false}
                                                 isDisabled={isExactDbrBtnDisabled}
-                                                checkBalanceOnTopOfIsDisabled={true}
+                                                checkBalanceOnTopOfIsDisabled={false}
                                                 onSuccess={() => resetForm()}
                                             />
                                         </VStack>
+                                    }
+                                    {
+                                        !isExactDola && notEnoughDola && <InfoMessage alertProps={{ w: 'full' }} description="Not enough DOLA balance" />
                                     }
                                     <Divider />
                                     <ListLabelValues items={[
