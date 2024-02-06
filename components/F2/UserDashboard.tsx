@@ -276,7 +276,7 @@ export const UserDashboard = ({
                     labelRight={<Link textDecoration="underline" href="/firm">Go to markets</Link>}
                 />
             } noDataFallback={SupplyAssets} isLoading={isLoading} fill={themeStyles.colors.mainTextColorLight} activeFill={themeStyles.colors.mainTextColor} value={totalTotalSuppliedUsd} label="Deposits" precision={0} isUsd={true} data={marketsWithDeposits} dataKey="depositsUsd" />
-            <NumberAndPieCard noDataFallback={BorrowDola} isLoading={isLoading} fill={themeStyles.colors.warning} activeFill={themeStyles.colors.error} value={debt} label="DOLA debt" precision={0} isUsd={false} data={marketsWithDebt} dataKey="debt" />
+            <NumberAndPieCard noDataFallback={BorrowDola} isLoading={isLoading} fill={themeStyles.colors.lightWarning} activeFill={themeStyles.colors.warning} value={debt} label="DOLA debt" precision={0} isUsd={false} data={marketsWithDebt} dataKey="debt" />
         </SimpleGrid>
         <SimpleGrid columns={{ base: 1, md: 2, xl: 4 }} spacing="8" w="100%">
             <NumberCard imageSrc={TOKEN_IMAGES.INV} footer={
