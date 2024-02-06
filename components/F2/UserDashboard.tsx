@@ -253,8 +253,7 @@ export const UserDashboard = ({
 }: {
     account: string
 }) => {
-    const { markets, isLoading: isLoadingMarkets } = useDBRMarkets();
-    const { prices, isLoading: isLoadingPrices } = usePrices();
+    const { markets, isLoading: isLoadingMarkets } = useDBRMarkets();    
     const { priceUsd: dbrPrice } = useDBRPrice();
     const accountMarkets = useAccountF2Markets(markets, account);
     const stakedDolaBalance = 0;
@@ -263,7 +262,7 @@ export const UserDashboard = ({
     const { stakedInFirm, isLoading: isLoadingInvStaked } = useStakedInFirm(account);
     const { debt, dbrExpiryDate, signedBalance: dbrBalance, needsRechargeSoon, isLoading: isLoadingAccount } = useAccountDBR(account);
 
-    const isLoading = !account ? false : isLoadingMarkets || isLoadingAccount || isLoadingInvStaked || isLoadingPrices;
+    const isLoading = !account ? false : isLoadingMarkets || isLoadingAccount || isLoadingInvStaked;
 
     const totalTotalSuppliedUsd = accountMarkets.reduce((prev, curr) => prev + curr.deposits * curr.price, 0);
     const marketsWithDeposits = accountMarkets.filter(m => m.depositsUsd > 1).sort((a, b) => b.depositsUsd - a.depositsUsd);
@@ -284,7 +283,7 @@ export const UserDashboard = ({
                     labelLeft={<>INV APR: <b>{shortenNumber(invMarket?.supplyApy, 2)}%</b></>}
                     labelRight={<>DBR APR: <b>{shortenNumber(invMarket?.dbrApr, 2)}%</b></>}
                 />
-            } noDataFallback={StakeINV} isLoading={isLoading} price={prices?.['inverse-finance']?.usd} value={stakedInFirm} label="INV staked in FiRM" precision={2} />
+            } noDataFallback={StakeINV} isLoading={isLoading} price={invMarket?.price} value={stakedInFirm} label="INV staked in FiRM" precision={2} />
             {/* <NumberCard footer={
                 <CardFooter
                     labelRight={<>sDOLA APY: <b>{shortenNumber(5, 2)}%</b></>}
