@@ -31,7 +31,7 @@ export const DbrAuctionPage = () => {
       >
         <VStack spacing="4">
           <Stack
-            spacing="0"
+            spacing={{ base: '2', xl: '0' }}
             alignItems="space-between"
             justify="space-between"
             w='full'
