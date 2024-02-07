@@ -234,10 +234,10 @@ const firmImages = {
 const responsiveThreshold = 1260;
 
 export const F2Markets = ({
-
+    isDashboardPage = false
 }: {
-
-    }) => {
+    isDashboardPage?: boolean
+}) => {
     const { markets } = useDBRMarkets();
     const account = useAccount();
     const { priceUsd: dbrPrice } = useDBRPrice();
@@ -260,7 +260,8 @@ export const F2Markets = ({
     const accountMarketsWithoutPhasingOutMarkets = accountMarkets
         .filter(m => !m.isPhasingOut || (m.debt > 0 || (m.deposits * m.price) >= 1));
 
-    return <Container
+    return <Container        
+        p={isDashboardPage ? '0' : '6'}
         label={
             <Text fontWeight="bold" fontSize={{ base: '14px', md: '16px' }}>
                 {
@@ -270,7 +271,6 @@ export const F2Markets = ({
                         <b style={{ color: themeStyles.colors.success, fontSize: '18px', fontWeight: '900' }}>
                             {shortenNumber(dbrPrice * 100, 2)}
                         </b>
-                        
                 }
                 <b style={{ color: themeStyles.colors.success, fontSize: '18px', fontWeight: '900' }}>%</b> Fixed Borrow APR, Unlimited Duration
             </Text>
@@ -300,7 +300,7 @@ export const F2Markets = ({
                 <SkeletonList /> :
                 <Table
                     keyName="address"
-                    pinnedItems={['0xb516247596Ca36bf32876199FBdCaD6B3322330B', markets?.length > 0 ? markets[markets?.length-1].address : '']}
+                    pinnedItems={['0xb516247596Ca36bf32876199FBdCaD6B3322330B', markets?.length > 0 ? markets[markets?.length - 1].address : '']}
                     pinnedLabels={['Stake', 'New']}
                     noDataMessage="Loading..."
                     columns={columns}
