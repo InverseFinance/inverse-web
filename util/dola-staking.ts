@@ -176,6 +176,7 @@ export const formatDolaStakingData = (
         dsaTotalSupply,
         sDolaDsaShare,
         dbrRatePerDola,
+        yearlyDbrEarnings: dbrRatePerDola * dolaBalInDsaFromSDola,
         dolaBalInDsaFromSDola,
         yearlyRewardBudget,
         dsaYearlyBudget,
