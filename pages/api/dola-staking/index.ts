@@ -1,12 +1,12 @@
 import 'source-map-support'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
-import { CHAIN_ID, ONE_DAY_MS } from '@app/config/constants';
-import { SDOLA_ADDRESS, formatDolaStakingData, getDolaSavingsContract, getSdolaContract } from '@app/util/dola-staking';
+import { CHAIN_ID, ONE_DAY_MS, SDOLA_ADDRESS } from '@app/config/constants';
+import { formatDolaStakingData, getDolaSavingsContract, getSdolaContract } from '@app/util/dola-staking';
 import { getMulticallOutput } from '@app/util/multicall';
 import { getDbrPriceOnCurve } from '@app/util/f2';
 
-export const dolaStakingCacheKey = `dola-staking-v1.0.0`;
+export const dolaStakingCacheKey = `dola-staking-v1.0.1`;
 
 export default async function handler(req, res) {    
     const cacheDuration = 600;
@@ -24,7 +24,7 @@ export default async function handler(req, res) {
 
         const d = new Date();
         const weekFloat = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0) / (ONE_DAY_MS * 7);
-        const weekIndexUtc = Math.floor(weekFloat);
+        const weekIndexUtc = Math.floor(weekFloat);        
 
         const dolaStakingData = await getMulticallOutput([
             { contract: savingsContract, functionName: 'claimable', params: [SDOLA_ADDRESS] },
@@ -37,8 +37,8 @@ export default async function handler(req, res) {
             { contract: sDolaContract, functionName: 'weeklyRevenue', params: [weekIndexUtc] },
             { contract: sDolaContract, functionName: 'weeklyRevenue', params: [weekIndexUtc - 1] },            
         ]);
-
-        const { priceInDola: dbrDolaPrice } = await getDbrPriceOnCurve(provider);
+       
+        const { priceInDola: dbrDolaPrice } = await getDbrPriceOnCurve(provider);        
 
         const resultData = {
             timestamp: Date.now(),
@@ -56,9 +56,12 @@ export default async function handler(req, res) {
             if (cache) {
                 console.log('Api call failed, returning last cache found');
                 res.status(200).json(cache);
+            } else {
+                res.status(500).json({ error: true });
             }
         } catch (e) {
             console.error(e);
+            res.status(500).json({ error: true });
         }
     }
 }

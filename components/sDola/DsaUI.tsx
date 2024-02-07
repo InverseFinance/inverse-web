@@ -1,5 +1,5 @@
 import { VStack, Text, HStack, Divider } from "@chakra-ui/react"
-import { dsaClaimRewards, sdolaDevInit, stakeDolaToSavings, unstakeDolaFromSavings, useDSABalance, useStakedDola } from "@app/util/dola-staking"
+import { dsaClaimRewards, stakeDolaToSavings, unstakeDolaFromSavings, useDSABalance, useStakedDola } from "@app/util/dola-staking"
 import { useWeb3React } from "@web3-react/core";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
 import { useMemo, useState } from "react";
@@ -11,12 +11,12 @@ import { InfoMessage, SuccessMessage } from "@app/components/common/Messages";
 import { preciseCommify } from "@app/util/misc";
 import { useDOLABalance } from "@app/hooks/useDOLA";
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
-import { DOLA_SAVINGS_ADDRESS } from "@app/util/dola-staking";
 import { useDBRPrice } from "@app/hooks/useDBR";
 import { getMonthlyRate, shortenNumber } from "@app/util/markets";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { TextInfo } from "../common/Messages/TextInfo";
 import { ZapperTokens } from "../F2/rewards/ZapperTokens";
+import { DOLA_SAVINGS_ADDRESS } from "@app/config/constants";
 
 const { DOLA, DBR } = getNetworkConfigConstants();
 
@@ -51,8 +51,7 @@ export const DsaUI = () => {
         return (savingsApr > 0 && dolaSavingsBalance > 0 && dbrDolaPrice > 0 ? getMonthlyRate(dolaSavingsBalance, savingsApr)/dbrDolaPrice : 0);
     }, [dolaSavingsBalance, savingsApr, dbrDolaPrice]);
 
-    const handleAction = async () => {
-        // return sdolaDevInit(provider?.getSigner());
+    const handleAction = async () => {        
         if (isStake) {
             return stakeDolaToSavings(provider?.getSigner(), parseEther(dolaAmount));
         }

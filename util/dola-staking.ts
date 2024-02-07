@@ -74,15 +74,6 @@ export const dsaClaimRewards = async (signerOrProvider: JsonRpcSigner, recipient
     return contract.claim(_recipient);
 }
 
-export const sdolaDevInit = async (signerOrProvider: JsonRpcSigner) => {
-    const contract = getDolaSavingsContract(signerOrProvider);
-    // const sdolaContract = getSdolaContract(signerOrProvider);
-    // await sdolaContract.setTargetK('150000000000000000000');
-    await contract.setMaxYearlyRewardBudget('9000000000000000000000000');
-    await contract.setMaxRewardPerDolaMantissa('1000000000000000000');
-    await contract.setYearlyRewardBudget('6000000000000000000000000');
-}
-
 export const useStakedDolaBalance = (account: string, ad = SDOLA_ADDRESS) => {
     const { data, error } = useEtherSWR([ad, 'balanceOf', account]);
     return {
