@@ -313,12 +313,13 @@ export const formatDolaStakingEvents = (events: any[], timestamps?: any, already
         } else if (type === 'sdola') {
             sDolaStaking += (action === 'Stake' ? amount : -amount);
         }
+        const recipient = e.args.recipient || e.args.owner || e.args.caller;
         return {
             txHash: e.transactionHash,
             timestamp: timestamps ? timestamps[e.blockNumber] * 1000 : undefined,
             blockNumber: e.blockNumber,
             caller: e.args.caller,
-            recipient: e.args.recipient || e.args.owner || e.args.caller,
+            recipient,
             isDirectlyDsa: e.args.caller !== SDOLA_ADDRESS,
             amount,
             // Stake, Unstake, Claim are from DSA directly

@@ -66,7 +66,7 @@ const columns = [
         },
         showFilter: true,
         filterWidth: '90px',
-    },
+    },    
     {
         field: 'amount',
         label: 'Amount',
@@ -79,7 +79,7 @@ const columns = [
     },
 ]
 
-export const DolaStakingActivity = ({ events, title, lastUpdate, ...containerProps }: { events: any[], title: string, lastUpdate: number, containerProps?: ContainerProps }) => {
+export const DolaStakingActivity = ({ events, title, lastUpdate, ...containerProps }: { events: any[], title: string, lastUpdate: number, containerProps?: ContainerProps }) => {    
     return <Container
         label={title}
         description={lastUpdate > 0 ? `Last update: ${moment(lastUpdate).fromNow()}` : undefined}

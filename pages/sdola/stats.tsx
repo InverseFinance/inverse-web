@@ -34,7 +34,7 @@ export const SDolaStatsPage = () => {
         px={{ base: '4', lg: '0' }}
       >
         { isLoading ? <SkeletonBlob /> : <SDolaStakingChart events={events} /> }
-        { isLoading ? <SkeletonBlob /> : <SDolaStakingEvolutionChart evolution={evolution} attribute="apr" yLabel="APR" title="APR evolution" /> }
+        {/* { isLoading ? <SkeletonBlob /> : <SDolaStakingEvolutionChart evolution={evolution} attribute="apr" yLabel="APR" title="APR evolution" /> } */}
         <DolaStakingActivity
           events={events}
           lastUpdate={timestamp}

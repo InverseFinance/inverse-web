@@ -1,4 +1,4 @@
-import { Stack, VStack, useMediaQuery } from "@chakra-ui/react"
+import { Stack, VStack, useMediaQuery, Text } from "@chakra-ui/react"
 import { useEventsAsChartData } from "@app/hooks/misc";
 import { DefaultCharts } from "@app/components/Transparency/DefaultCharts";
 import { useEffect, useState } from "react";
@@ -7,7 +7,7 @@ import { useAppTheme } from "@app/hooks/useAppTheme";
 
 const maxChartWidth = 1200;
 
-export const DbrAuctionBuysChart = ({ events }) => {    
+export const DbrAuctionBuysChart = ({ events }) => {
     const { chartData: chartDataAcc } = useEventsAsChartData(events, '_acc_', 'dolaIn', true, true);
     const { themeStyles } = useAppTheme();
     const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
@@ -29,12 +29,12 @@ export const DbrAuctionBuysChart = ({ events }) => {
         setAutoChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 80)
     }, [isLargerThan]);
 
-    return <Stack direction={{ base: 'column', '2xl': 'row' }} alignItems="center">        
+    return <Stack direction={{ base: 'column', '2xl': 'row' }} alignItems="center">
         <VStack pt="10">
             <DefaultCharts
                 showMonthlyBarChart={false}
-                maxChartWidth={isLargerThan2xl ? autoChartWidth/2 : autoChartWidth}
-                chartWidth={isLargerThan2xl ? autoChartWidth/2 : autoChartWidth}
+                maxChartWidth={isLargerThan2xl ? autoChartWidth / 2 : autoChartWidth}
+                chartWidth={isLargerThan2xl ? autoChartWidth / 2 : autoChartWidth}
                 chartData={chartDataAcc}
                 isDollars={false}
                 smoothLineByDefault={false}
@@ -42,18 +42,21 @@ export const DbrAuctionBuysChart = ({ events }) => {
                 areaProps={{ title: 'Cumulated income from DBR auction buys', fillInByDayInterval: true, id: 'dbr-auction-buys-acc', showRangeBtns: true, yLabel: 'DOLA Income', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
             />
         </VStack>
-        <PieChartRecharts
-            precision={0}
-            width={isLargerThan2xl ? autoChartWidth/2 : autoChartWidth}
-            height={300}
-            data={pieChartData}
-            dataKey={'value'}
-            nameKey={'name'}
-            cx="50%"
-            cy="50%"
-            outerRadius={50}
-            activeFill={themeStyles.colors.mainTextColor}
-            fill={themeStyles.colors.mainTextColorLight}   
-        />
+        <VStack pt='10'>
+            <Text fontWeight="bold">Buys repartition</Text>
+            <PieChartRecharts
+                precision={0}
+                width={isLargerThan2xl ? autoChartWidth / 2 : autoChartWidth}
+                height={300}
+                data={pieChartData}
+                dataKey={'value'}
+                nameKey={'name'}
+                cx="50%"
+                cy="50%"
+                outerRadius={50}
+                activeFill={themeStyles.colors.mainTextColor}
+                fill={themeStyles.colors.mainTextColorLight}
+            />
+        </VStack>
     </Stack>
 }
