@@ -31,10 +31,9 @@ export const DbrAuctionStatsPage = () => {
         spacing="8"
         px={{ base: '4', lg: '0' }}
       >
-        <DbrAuctionBuys lastUpdate={timestamp} events={events} title="DBR buys from the auction" />
         <Container
           label="DBR auction stats"
-          description="Note: All the DOLA income from the DBR auctions goes to DOLA bad debt repayments."
+          description="Note: Virtual auction income goes to bad debt reduction while sDOLA auction income goes to sDOLA stakers"
           noPadding
           m="0"
           p="0"
@@ -67,6 +66,7 @@ export const DbrAuctionStatsPage = () => {
               : <DbrAuctionBuysChart events={events} />
           }
         </Container>
+        <DbrAuctionBuys lastUpdate={timestamp} events={events} title="DBR buys from the auction" />
       </VStack>
     </Layout>
   )

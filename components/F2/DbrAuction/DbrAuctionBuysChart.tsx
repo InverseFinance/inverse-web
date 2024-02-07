@@ -12,6 +12,7 @@ export const DbrAuctionBuysChart = ({ events }) => {
     const { themeStyles } = useAppTheme();
     const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
+    const [isLargerThan2xl] = useMediaQuery(`(min-width: 96em)`);
 
     const generalAuctionBuys = events.filter(e => e.auctionType === 'Virtual')
         .reduce((prev, curr) => prev + curr.dolaIn, 0);
@@ -28,12 +29,12 @@ export const DbrAuctionBuysChart = ({ events }) => {
         setAutoChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 80)
     }, [isLargerThan]);
 
-    return <Stack>        
+    return <Stack direction={{ base: 'column', '2xl': 'row' }} alignItems="center">        
         <VStack pt="10">
             <DefaultCharts
                 showMonthlyBarChart={false}
-                maxChartWidth={autoChartWidth}
-                chartWidth={autoChartWidth}
+                maxChartWidth={isLargerThan2xl ? autoChartWidth/2 : autoChartWidth}
+                chartWidth={isLargerThan2xl ? autoChartWidth/2 : autoChartWidth}
                 chartData={chartDataAcc}
                 isDollars={false}
                 smoothLineByDefault={false}
@@ -43,7 +44,7 @@ export const DbrAuctionBuysChart = ({ events }) => {
         </VStack>
         <PieChartRecharts
             precision={0}
-            width={autoChartWidth}
+            width={isLargerThan2xl ? autoChartWidth/2 : autoChartWidth}
             height={300}
             data={pieChartData}
             dataKey={'value'}

@@ -46,6 +46,8 @@ const columns = [
                 <ScannerLink value={to} />
             </Cell>
         },
+        showFilter: true,
+        filterWidth: '100px',
     },
     {
         field: 'dolaIn',
@@ -86,6 +88,8 @@ const columns = [
                 <CellText>{auctionType}</CellText>
             </Cell>
         },
+        showFilter: true,
+        filterWidth: '90px',
     },
 ]
 
