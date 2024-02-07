@@ -3,7 +3,7 @@ import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
 import { TOKENS, UNDERLYING, getToken } from "@app/variables/tokens";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { Contract } from "ethers";
-import { COMPTROLLER_ABI, CTOKEN_ABI, DEBT_CONVERTER_ABI, DEBT_REPAYER_ABI, DWF_PURCHASER_ABI, FED_ABI } from "@app/config/abis";
+import { COMPTROLLER_ABI, CTOKEN_ABI, DEBT_CONVERTER_ABI, DEBT_REPAYER_ABI, DWF_PURCHASER_ABI } from "@app/config/abis";
 import { getHistoricValue, getProvider } from "@app/util/providers";
 import { getBnToNumber } from "@app/util/markets";
 import { DWF_PURCHASER, ONE_DAY_SECS } from "@app/config/constants";
@@ -18,6 +18,7 @@ const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
 const TWG = '0x9D5Df30F475CEA915b1ed4C0CCa59255C897b61B';
 const TREASURY = '0x926dF14a23BE491164dCF93f4c468A50ef659D5B';
 const RWG = '0xE3eD95e130ad9E15643f5A5f232a3daE980784cd';
+const DBR_AUCTION_REPAYMENT_HANDLER = '0xB4497A7351e4915182b3E577B3A2f411FA66b27f';
 
 const frontierBadDebtEvoCacheKey = 'dola-frontier-evo-v1.0.x';
 export const repaymentsCacheKey = `repayments-v1.0.96`;
@@ -132,7 +133,7 @@ export default async function handler(req, res) {
         const blocksNeedingTs =
             [wbtcRepayEvents, ethRepayEvents, yfiRepayEvents, dolaFrontierRepayEvents, dolaB1RepayEvents, dolaFuse6RepayEvents, dolaBadgerRepayEvents].map((arr, i) => {
                 return arr.filter(event => {
-                    return [TREASURY, TWG, RWG].includes(event.args.payer);
+                    return [TREASURY, TWG, RWG, DBR_AUCTION_REPAYMENT_HANDLER].includes(event.args.payer);
                 }).map(event => event.blockNumber);
             })
                 .flat()
@@ -145,7 +146,7 @@ export default async function handler(req, res) {
         const [wbtcRepaidByDAO, ethRepaidByDAO, yfiRepaidByDAO, dolaFrontierRepaidByDAO, dolaB1RepaidByDAO, dolaFuse6RepaidByDAO, dolaBadgerRepaidByDAO] =
             [wbtcRepayEvents, ethRepayEvents, yfiRepayEvents, dolaFrontierRepayEvents, dolaB1RepayEvents, dolaFuse6RepayEvents, dolaBadgerRepayEvents].map((arr, i) => {
                 return arr.filter(event => {
-                    return [TREASURY, TWG, RWG].includes(event.args.payer);
+                    return [TREASURY, TWG, RWG, DBR_AUCTION_REPAYMENT_HANDLER].includes(event.args.payer);
                 }).map(event => {
                     const timestamp = timestamps['1'][event.blockNumber] * 1000;
                     return {
