@@ -22,7 +22,7 @@ export const StakeDolaInfos = () => {
                     <Text>
                         - It uses the ERC4626 standard (Tokenized Vault Token)
                     </Text>
-                    <Text>- It's a decentralized yield-bearing asset</Text>
+                    <Text>- It's a decentralized yield-bearing fungible asset</Text>
                     <Text>- The yield comes from DBR auctions</Text>
                     <Link textDecoration="underline" href='https://docs.inverse.finance' isExternal target="_blank">
                         Learn more about sDOLA <ExternalLinkIcon />
@@ -42,9 +42,6 @@ export const StakeDolaInfos = () => {
                         <Text>- Current week's revenues from auctions:</Text>
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(weeklyRevenue, 2)} DOLA</Text>}
                     </HStack>
-                    <Link textDecoration="underline" href='/dbr/auction'>
-                        Go to auctions
-                    </Link>
                 </VStack>
                 <Text fontSize="14px" fontWeight="bold">sDOLA Parameters</Text>
                 <VStack w='full' spacing="0">
@@ -61,6 +58,10 @@ export const StakeDolaInfos = () => {
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(maxRewardPerDolaMantissa, 2)} ({preciseCommify(maxRewardPerDolaMantissa * dbrPrice, 4, true)})</Text>}
                     </HStack>
                 </VStack>
+                <Text fontSize="14px" fontWeight="bold">Looking for the sDOLA auction?</Text>
+                <Link textDecoration="underline" href='/dbr/auction'>
+                    Go to auctions
+                </Link>
             </Stack>
         }
     />

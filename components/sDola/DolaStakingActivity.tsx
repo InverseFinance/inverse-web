@@ -46,12 +46,14 @@ const columns = [
     {
         field: 'recipient',
         label: 'Staker',
-        header: ({ ...props }) => <ColHeader justify="flex-start" {...props} minWidth="130px" />,
+        header: ({ ...props }) => <ColHeader justify="center" {...props} minWidth="130px" />,
         value: ({ recipient }) => {
-            return <Cell w="130px" justify="flex-start" position="relative" onClick={(e) => e.stopPropagation()}>
+            return <Cell w="130px" justify="center" position="relative" onClick={(e) => e.stopPropagation()}>
                 <ScannerLink value={recipient} />
             </Cell>
         },
+        showFilter: true,
+        filterWidth: '130px',
     },
     {
         field: 'name',
@@ -62,6 +64,8 @@ const columns = [
                 <CellText color={ACTION_COLORS[name]} fontWeight="bold">{name}</CellText>
             </Cell>
         },
+        showFilter: true,
+        filterWidth: '90px',
     },
     {
         field: 'amount',
