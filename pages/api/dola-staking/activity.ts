@@ -46,11 +46,11 @@ export default async function handler(req, res) {
                 newStartingBlock,
             ),
             sdolaContract.queryFilter(
-                sdolaContract.filters.Claim(),
+                sdolaContract.filters.Deposit(),
                 newStartingBlock,
             ),
             sdolaContract.queryFilter(
-                sdolaContract.filters.Claim(),
+                sdolaContract.filters.Withdraw(),
                 newStartingBlock,
             ),
         ]);
