@@ -20,12 +20,12 @@ export const SDolaStatsPage = () => {
     <Layout>
       <Head>
         <title>Inverse Finance - sDOLA stats</title>
-        <meta name="og:title" content="Inverse Finance - DSA stats" />
+        <meta name="og:title" content="Inverse Finance - sDOLA stats" />
         <meta name="og:description" content="sDOLA stats" />
         <meta name="description" content="sDOLA stats" />
-        <meta name="keywords" content="Inverse Finance, swap, stablecoin, DOLA, DBR, sDOLA" />
+        <meta name="keywords" content="Inverse Finance, sDOLA, yield-bearing stablecoin, staked DOLA, stats" />
       </Head>
-      <AppNav active="Swap" activeSubmenu="Buy DBR (auction)" />
+      <AppNav active="Stake" activeSubmenu="Stake DOLA" />
       <DolaStakingTabs defaultIndex={2} />
       <VStack
         w={{ base: 'full', lg: '1200px' }}

@@ -43,11 +43,15 @@ export const MENUS = {
       href: '/firm/INV',
       submenus: [
         {
-          label: 'Stake (FiRM)',
+          label: 'Stake INV (FiRM)',
           href: '/firm/INV',
         },
         {
-          label: 'Stake (Frontier, deprecated)',
+          label: 'Stake DOLA',
+          href: '/sDOLA',
+        },        
+        {
+          label: 'Frontier (deprecated)',
           href: '/frontier',
         },
         {
