@@ -1,4 +1,4 @@
-import { SimpleGrid, StackProps, Text, VStack, HStack, Image, Flex, useMediaQuery, useDimensions } from "@chakra-ui/react"
+import { SimpleGrid, StackProps, Text, VStack, HStack, Image, Flex, useMediaQuery } from "@chakra-ui/react"
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import { useAccountDBR, useAccountF2Markets, useDBR, useDBRBalanceHisto, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
 import { getClosestPreviousHistoValue, preciseCommify, timestampToUTC } from "@app/util/misc";
@@ -6,7 +6,6 @@ import { lightTheme } from "@app/variables/theme";
 import moment from "moment";
 import { PieChartRecharts } from "../Transparency/PieChartRecharts";
 import { useINVEscrowRewards, useStakedInFirm } from "@app/hooks/useFirm";
-import { usePrices } from "@app/hooks/usePrices";
 import { BigTextLoader } from "../common/Loaders/BigTextLoader";
 import { RSubmitButton } from "../common/Button/RSubmitButton";
 import Link from "../common/Link";
@@ -20,6 +19,8 @@ import { AccountDBRMarket } from "@app/types";
 import { WorthEvoChart } from "./WorthEvoChart";
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
 import { SkeletonBlob } from "../common/Skeleton";
+import { F2Markets } from "./F2Markets";
+import { InfoMessage } from "../common/Messages";
 
 const MAX_AREA_CHART_WIDTH = 625;
 
@@ -59,7 +60,7 @@ const DashboardAreaChart = (props) => {
     ]);
 
     useEffect(() => {
-        if(!refElement?.current) return;
+        if (!refElement?.current) return;
         setRefElementWidth(refElement.current.clientWidth);
     }, [refElement?.current])
 
@@ -253,7 +254,8 @@ export const UserDashboard = ({
 }: {
     account: string
 }) => {
-    const { markets, isLoading: isLoadingMarkets } = useDBRMarkets();    
+    const { markets, isLoading: isLoadingMarkets } = useDBRMarkets();
+    const [isVirginFirmUser, setIsVirginFirmUser] = useState(false);
     const { priceUsd: dbrPrice } = useDBRPrice();
     const accountMarkets = useAccountF2Markets(markets, account);
     const stakedDolaBalance = 0;
@@ -268,15 +270,30 @@ export const UserDashboard = ({
     const marketsWithDeposits = accountMarkets.filter(m => m.depositsUsd > 1).sort((a, b) => b.depositsUsd - a.depositsUsd);
     const marketsWithDebt = accountMarkets.filter(m => m.debt > 0).sort((a, b) => b.debt - a.debt);
 
+    useDebouncedEffect(() => {
+        setIsVirginFirmUser(!isLoading && !marketsWithDeposits?.length);
+    }, [isLoading, marketsWithDeposits]);
+
     return <VStack w='full' spacing="8">
-        <SimpleGrid columns={{ base: 1, xl: 2 }} spacing="8" w="100%" >
-            <NumberAndPieCard footer={
-                <CardFooter
-                    labelRight={<Link textDecoration="underline" href="/firm">Go to markets</Link>}
+        {
+            isVirginFirmUser ? <VStack w='full' alignItems="flex-start">
+                <InfoMessage
+                    alertProps={{ w: 'full' }}
+                    title='No position in FiRM at the moment'
+                    description="Once you have assets in one the markets below, more data will be shown in the dashboard"
                 />
-            } noDataFallback={SupplyAssets} isLoading={isLoading} fill={themeStyles.colors.mainTextColorLight} activeFill={themeStyles.colors.mainTextColor} value={totalTotalSuppliedUsd} label="Deposits" precision={0} isUsd={true} data={marketsWithDeposits} dataKey="depositsUsd" />
-            <NumberAndPieCard noDataFallback={BorrowDola} isLoading={isLoading} fill={themeStyles.colors.warning} activeFill={themeStyles.colors.error} value={debt} label="DOLA debt" precision={0} isUsd={false} data={marketsWithDebt} dataKey="debt" />
-        </SimpleGrid>
+                <F2Markets isDashboardPage={true} />
+            </VStack>
+                :
+                <SimpleGrid columns={{ base: 1, xl: 2 }} spacing="8" w="100%" >
+                    <NumberAndPieCard footer={
+                        <CardFooter
+                            labelRight={<Link textDecoration="underline" href="/firm">Go to markets</Link>}
+                        />
+                    } noDataFallback={SupplyAssets} isLoading={isLoading} fill={themeStyles.colors.mainTextColorLight} activeFill={themeStyles.colors.mainTextColor} value={totalTotalSuppliedUsd} label="Deposits" precision={0} isUsd={true} data={marketsWithDeposits} dataKey="depositsUsd" />
+                    <NumberAndPieCard noDataFallback={BorrowDola} isLoading={isLoading} fill={themeStyles.colors.warning} activeFill={themeStyles.colors.error} value={debt} label="DOLA debt" precision={0} isUsd={false} data={marketsWithDebt} dataKey="debt" />
+                </SimpleGrid>
+        }
         <SimpleGrid columns={{ base: 1, md: 2, xl: 4 }} spacing="8" w="100%">
             <NumberCard imageSrc={TOKEN_IMAGES.INV} footer={
                 <CardFooter

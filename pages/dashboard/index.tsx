@@ -5,12 +5,6 @@ import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { useAccount } from '@app/hooks/misc'
 import { UserDashboard } from '@app/components/F2/UserDashboard'
-import { useAppTheme } from '@app/hooks/useAppTheme'
-
-const firmImages = {
-    'dark': 'firm-final-logo-white.png',
-    'light': 'firm-final-logo.png',
-}
 
 export const UserDashboardPage = () => {
     const account = useAccount();    
@@ -29,7 +23,7 @@ export const UserDashboardPage = () => {
                         <Text fontWeight="extrabold" fontSize="40px">My Dashboard</Text>
                         <Image borderRadius="5px" display={{ base: 'none', sm: 'inline-block' }} w='200px' src={`/assets/inverse-logo-banner.png?`} />
                     </HStack>
-                    <ErrorBoundary description="Failed to Markets">
+                    <ErrorBoundary description="Failed to Dashboard">
                         <UserDashboard account={account} />
                     </ErrorBoundary>
                 </VStack>
