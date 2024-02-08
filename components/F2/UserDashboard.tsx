@@ -149,7 +149,7 @@ const DashBoardCard = (props: StackProps & { cardTitle?: string, href?: string, 
     </Flex>
 }
 
-const NumberItem = ({ noDataFallback = '-', footer = undefined, isLoading = false, value = 0, price = undefined, label = '', isUsd = false, precision = 0 }) => {
+const NumberItem = ({ noDataFallback = '-', href = '', footer = undefined, isLoading = false, value = 0, price = undefined, label = '', isUsd = false, precision = 0 }) => {
     return <VStack spacing="0" justify="center" alignItems="flex-end" w='full'>
         <VStack alignItems="flex-end" spacing="1">
             {
@@ -158,7 +158,10 @@ const NumberItem = ({ noDataFallback = '-', footer = undefined, isLoading = fals
                 </Text>
             }
             {
-                (!!value || (!value && noDataFallback === '-')) && <Text fontSize="18px" fontWeight="bold" color={'mainTextColorLight'}>{label}</Text>
+                (!!value || (!value && noDataFallback === '-'))
+                    && !href || !value ? <Text fontSize="18px" fontWeight="bold" color={'mainTextColorLight'}>
+                    {label}
+                </Text> : <Link fontSize="18px" fontWeight="bold" color={'mainTextColorLight'} textDecoration="underline" href={href}>{label}</Link>
             }
         </VStack>
         {footer}
@@ -166,8 +169,8 @@ const NumberItem = ({ noDataFallback = '-', footer = undefined, isLoading = fals
 }
 
 const NumberCard = ({ imageSrc = '', noDataFallback = undefined, href = undefined, footer = undefined, isLoading = false, value = 0, label = '', price = undefined, isUsd = false, precision = 0 }) => {
-    return <DashBoardCard imageSrc={imageSrc} href={href}>
-        <NumberItem noDataFallback={noDataFallback} isLoading={isLoading} price={price} value={value} label={label} isUsd={isUsd} precision={precision} footer={footer} />
+    return <DashBoardCard imageSrc={imageSrc}>
+        <NumberItem href={href} noDataFallback={noDataFallback} isLoading={isLoading} price={price} value={value} label={label} isUsd={isUsd} precision={precision} footer={footer} />
     </DashBoardCard>
 }
 
@@ -259,7 +262,7 @@ export const UserDashboard = ({
     const [isVirginFirmUser, setIsVirginFirmUser] = useState(false);
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
     const accountMarkets = useAccountF2Markets(markets, account);
-    const { balance: stakedDolaBalance } = useStakedDolaBalance(account); 
+    const { balance: stakedDolaBalance } = useStakedDolaBalance(account);
     const { apr: sDolaApr, projectedApr: sDolaProjectedApr, sDolaExRate } = useStakedDola(dbrDolaPrice);
     const dolaStakedInSDola = sDolaExRate && stakedDolaBalance ? sDolaExRate * stakedDolaBalance : 0;
     const invMarket = accountMarkets?.find(m => m.isInv);
@@ -303,13 +306,13 @@ export const UserDashboard = ({
                     labelLeft={<>INV APR: <b>{shortenNumber(invMarket?.supplyApy, 2)}%</b></>}
                     labelRight={<>DBR APR: <b>{shortenNumber(invMarket?.dbrApr, 2)}%</b></>}
                 />
-            } noDataFallback={StakeINV} isLoading={isLoading} price={invMarket?.price} value={stakedInFirm} label="INV staked in FiRM" precision={2} />
+            } href="/firm/INV" noDataFallback={StakeINV} isLoading={isLoading} price={invMarket?.price} value={stakedInFirm} label="INV staked in FiRM" precision={2} />
             <NumberCard footer={
                 <CardFooter
                     labelLeft={<>APR: <b>{shortenNumber(sDolaApr, 2)}%</b></>}
                     labelRight={<>proj. APR: <b>{shortenNumber(sDolaProjectedApr, 2)}%</b></>}
                 />
-            } noDataFallback={StakeDOLA} isLoading={isLoading} value={dolaStakedInSDola} label="DOLA staked" precision={2} />            
+            } href="/sDOLA" noDataFallback={StakeDOLA} isLoading={isLoading} value={dolaStakedInSDola} label="DOLA staked" precision={2} />
             <NumberCard
                 imageSrc={TOKEN_IMAGES.DBR}
                 footer={
