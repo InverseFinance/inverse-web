@@ -1,5 +1,5 @@
 import { VStack, Text, HStack, Divider } from "@chakra-ui/react"
-import { stakeDola, unstakeDola, useDolaStakingEarnings, useStakedDola } from "@app/util/dola-staking"
+import { redeemSDola, stakeDola, unstakeDola, useDolaStakingEarnings, useStakedDola } from "@app/util/dola-staking"
 import { useWeb3React } from "@web3-react/core";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
 import { useMemo, useState } from "react";
@@ -43,12 +43,12 @@ export const StakeDolaUI = () => {
 
     const { apr, projectedApr, isLoading, sDolaExRate } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
     const { balance: dolaBalance } = useDOLABalance(account);
-    const { stakedDolaBalance } = useDolaStakingEarnings(account);
-    const dolaStakedInSDola = sDolaExRate * stakedDolaBalance;
+    const { stakedDolaBalance, stakedDolaBalanceBn } = useDolaStakingEarnings(account);
+    const dolaStakedInSDola = sDolaExRate * stakedDolaBalance;    
 
-    const monthlyProjectedDolaRewards = useMemo(() => {
-        return (projectedApr > 0 && stakedDolaBalance > 0 ? getMonthlyRate(stakedDolaBalance, projectedApr) : 0);
-    }, [stakedDolaBalance, projectedApr]);
+    // const monthlyProjectedDolaRewards = useMemo(() => {
+    //     return (projectedApr > 0 && stakedDolaBalance > 0 ? getMonthlyRate(stakedDolaBalance, projectedApr) : 0);
+    // }, [stakedDolaBalance, projectedApr]);
 
     const monthlyDolaRewards = useMemo(() => {
         return (apr > 0 && stakedDolaBalance > 0 ? getMonthlyRate(stakedDolaBalance, apr) : 0);
@@ -59,6 +59,10 @@ export const StakeDolaUI = () => {
             return stakeDola(provider?.getSigner(), parseEther(dolaAmount));
         }
         return unstakeDola(provider?.getSigner(), parseEther(dolaAmount));
+    }
+
+    const unstakeAll = async () => {
+        return redeemSDola(provider?.getSigner(), stakedDolaBalanceBn);
     }
 
     useDebouncedEffect(() => {
@@ -120,10 +124,12 @@ export const StakeDolaUI = () => {
                                             decimals={18}
                                             onAction={() => handleAction()}
                                             actionLabel={`Stake`}
+                                            maxActionLabel={`Stake all`}
                                             onAmountChange={(v) => setDolaAmount(v)}
                                             showMaxBtn={false}
+                                            showMax={true}
                                             hideInputIfNoAllowance={false}
-                                            showBalance={true}
+                                            showBalance={false}
                                         />
                                     </VStack>
                                     :
@@ -140,12 +146,18 @@ export const StakeDolaUI = () => {
                                             signer={provider?.getSigner()}
                                             decimals={18}
                                             onAction={() => handleAction()}
+                                            onMaxAction={() => unstakeAll()}
+                                            maxActionLabel={`Unstake all`}
                                             actionLabel={`Unstake`}
                                             onAmountChange={(v) => setDolaAmount(v)}
-                                            showMaxBtn={false}
+                                            showMaxBtn={true}
+                                            showMax={false}
                                             hideInputIfNoAllowance={false}
-                                            showBalance={true}
+                                            showBalance={false}
                                         />
+                                        {
+                                            <InfoMessage description="Note: to unstake everything use the unstake all button to avoid leaving dust" />
+                                        }
                                     </VStack>
                             }
                         </>
