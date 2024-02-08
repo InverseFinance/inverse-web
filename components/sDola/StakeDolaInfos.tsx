@@ -31,7 +31,7 @@ export const StakeDolaInfos = () => {
                 <Text fontSize="14px" fontWeight="bold">sDOLA stats</Text>
                 <VStack w='full' spacing="0" alignItems="flex-start">
                     <HStack w='full'>
-                        <Text>- Total DOLA staked as sDOLA:</Text>
+                        <Text>- Total DOLA staked in sDOLA:</Text>
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(sDolaTotalAssets, 2)}</Text>}
                     </HStack>
                     <HStack w='full'>
