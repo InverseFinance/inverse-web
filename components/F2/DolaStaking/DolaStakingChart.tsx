@@ -44,7 +44,7 @@ export const SDolaStakingChart = ({ events }) => {
             chartData={chartData}
             isDollars={false}
             smoothLineByDefault={false}
-            areaProps={{ title: 'sDOLA supply evolution', id: 'sdola-supply-evo-chart', showRangeBtns: true, yLabel: 'DOLA staked', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '2W', 'YTD'], }}
+            areaProps={{ title: 'sDOLA supply evolution', id: 'sdola-supply-evo-chart', showRangeBtns: true, yLabel: 'sDOLA supply', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '2W', 'YTD'], }}
         />
     </VStack>
 }
