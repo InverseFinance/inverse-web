@@ -22,7 +22,7 @@ export const DOLASavingsAccountPage = () => {
         <meta name="keywords" content="Inverse Finance, DOLA, DBR, DOLA Savings Account" />
       </Head>
       <AppNav active="sDOLA" activeSubmenu="DSA" />
-      <DolaStakingTabs defaultIndex={1} />
+      <DolaStakingTabs defaultIndex={2} />
       <VStack
         w={{ base: 'full', lg: '1000px' }}
         mt='6'
