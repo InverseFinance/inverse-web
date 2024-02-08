@@ -21,7 +21,7 @@ export const SdolaPage = () => {
         <meta name="description" content="sDOLA is a decentralized yield-bearing stablecoin that leverages organic yield from the DOLA Savings Account" />
         <meta name="keywords" content="Inverse Finance, sDOLA, yield-bearing stablecoin, staked DOLA" />
       </Head>
-      <AppNav active="Stake" activeSubmenu="Stake DOLA" />
+      <AppNav active="sDOLA" activeSubmenu="sDOLA" />
       <DolaStakingTabs />
       <VStack
         w={{ base: 'full', lg: '1000px' }}
@@ -30,16 +30,16 @@ export const SdolaPage = () => {
         px={{ base: '4', lg: '0' }}
       >
         <Stack
-          spacing="0"
+          spacing={{ base: 4, xl: 0 }}
           alignItems="space-between"
           justify="space-between"
           w='full'
           direction={{ base: 'column', xl: 'row' }}
         >
-          <VStack alignItems="flex-start" w={{ base: 'full', lg: '55%' }}>
+          <VStack alignItems={{ base: 'center', xl: 'flex-start' }} w={{ base: 'full', lg: '55%' }}>
             <StakeDolaUI />
           </VStack>
-          <Stack alignItems="flex-end" w={{ base: 'full', lg: '45%' }}>
+          <Stack alignItems={{ base: 'center', xl: 'flex-start' }} w={{ base: 'full', lg: '45%' }}>
             <StakeDolaInfos />
           </Stack>
         </Stack>

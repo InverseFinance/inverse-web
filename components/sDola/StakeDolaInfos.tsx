@@ -13,9 +13,9 @@ export const StakeDolaInfos = () => {
     const { sDolaTotalAssets, yearlyRewardBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, weeklyRevenue, pastWeekRevenue, isLoading } = useStakedDola(dbrDolaPrice);
     return <InfoMessage
         showIcon={false}
-        alertProps={{ fontSize: '12px', mb: '8' }}
+        alertProps={{ fontSize: '12px', mb: '8', w: 'full', maxW: '470px' }}
         description={
-            <Stack>
+            <Stack w='full'>
                 <Text fontSize="14px" fontWeight="bold">What is sDOLA?</Text>
                 <VStack spacing="0" alignItems="flex-start">
                     <Text>- sDOLA is staked DOLA</Text>
