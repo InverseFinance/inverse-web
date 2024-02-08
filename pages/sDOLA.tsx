@@ -43,7 +43,9 @@ export const SdolaPage = () => {
             <StakeDolaInfos />
           </Stack>
         </Stack>
-        <DolaStakingActivity events={accountEvents} title="My Staking activity" />
+        {
+          !!account && <DolaStakingActivity events={accountEvents} title="My Staking activity" />
+        }
       </VStack>
     </Layout>
   )
