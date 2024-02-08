@@ -16,7 +16,7 @@ import { InfoMessage } from "@app/components/common/Messages";
 import { preciseCommify } from "@app/util/misc";
 import { useDOLABalance } from "@app/hooks/useDOLA";
 import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader";
-import { DbrAuctionParametersWrapper, useDbrAuction } from "./DbrAuctionInfos";
+import { DbrAuctionParametersWrapper } from "./DbrAuctionInfos";
 import moment from "moment";
 import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, DOLA_SAVINGS_ADDRESS, ONE_DAY_SECS, SDOLA_HELPER_ADDRESS } from "@app/config/constants";
 import { useDualSpeedEffect } from "@app/hooks/useDualSpeedEffect";
@@ -26,7 +26,7 @@ import { DbrAuctionType } from "@app/types";
 const { DOLA } = getNetworkConfigConstants();
 
 const defaultRefClassicAmount = '1';
-const defaultRefSdolaAmount = '0.5';
+const defaultRefSdolaAmount = '1';
 
 const TAB_OPTIONS = ['Sell DOLA', 'Buy DBR', 'Infos'];
 
