@@ -129,10 +129,10 @@ export const DbrAuctionIntroMsg = () => {
                 <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr' isExternal target="_blank">
                     Learn more about DBR <ExternalLinkIcon />
                 </Link>
-                {/* <Text fontSize="14px" fontWeight="bold">Looking for sDOLA?</Text>
+                <Text fontSize="14px" fontWeight="bold">Looking for sDOLA?</Text>
                 <Link textDecoration="underline" href='/sDOLA'>
                     Go to the DOLA staking page
-                </Link> */}
+                </Link>
             </Stack>
         }
     />
