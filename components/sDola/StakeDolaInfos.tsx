@@ -24,7 +24,7 @@ export const StakeDolaInfos = () => {
                     </Text>
                     <Text>- It's a decentralized yield-bearing fungible asset</Text>
                     <Text>- The yield comes from DBR auctions</Text>
-                    <Link textDecoration="underline" href='https://docs.inverse.finance' isExternal target="_blank">
+                    <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/sdola' isExternal target="_blank">
                         Learn more about sDOLA <ExternalLinkIcon />
                     </Link>
                 </VStack>
