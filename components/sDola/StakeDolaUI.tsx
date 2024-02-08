@@ -150,7 +150,7 @@ export const StakeDolaUI = () => {
                                             maxActionLabel={`Unstake all`}
                                             actionLabel={`Unstake`}
                                             onAmountChange={(v) => setDolaAmount(v)}
-                                            showMaxBtn={true}
+                                            showMaxBtn={stakedDolaBalance > 0}
                                             showMax={false}
                                             hideInputIfNoAllowance={false}
                                             showBalance={false}
