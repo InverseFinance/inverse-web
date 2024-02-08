@@ -15,17 +15,17 @@ export const SDolaStatsPage = () => {
   const { events, timestamp } = useDolaStakingActivity(undefined, 'sdola');
   const { evolution } = useDolaStakingEvolution();
   const { priceDola: dbrDolaPrice } = useDBRPrice();
-  const { sDolaSupply, isLoading } = useStakedDola(dbrDolaPrice);
+  const { sDolaSupply, sDolaTotalAssets, isLoading } = useStakedDola(dbrDolaPrice);
   return (
     <Layout>
       <Head>
         <title>Inverse Finance - sDOLA stats</title>
-        <meta name="og:title" content="Inverse Finance - DSA stats" />
+        <meta name="og:title" content="Inverse Finance - sDOLA stats" />
         <meta name="og:description" content="sDOLA stats" />
         <meta name="description" content="sDOLA stats" />
-        <meta name="keywords" content="Inverse Finance, swap, stablecoin, DOLA, DBR, sDOLA" />
+        <meta name="keywords" content="Inverse Finance, sDOLA, yield-bearing stablecoin, staked DOLA, stats" />
       </Head>
-      <AppNav active="Swap" activeSubmenu="Buy DBR (auction)" />
+      <AppNav active="Stake" activeSubmenu="Stake DOLA" />
       <DolaStakingTabs defaultIndex={2} />
       <VStack
         w={{ base: 'full', lg: '1200px' }}
@@ -33,7 +33,7 @@ export const SDolaStatsPage = () => {
         spacing="8"
         px={{ base: '4', lg: '0' }}
       >
-        { isLoading ? <SkeletonBlob /> : <SDolaStakingChart events={events} /> }
+        {isLoading ? <SkeletonBlob /> : <SDolaStakingChart events={events} />}
         { isLoading ? <SkeletonBlob /> : <SDolaStakingEvolutionChart evolution={evolution} attribute="apr" yLabel="APR" title="APR evolution" /> }
         <DolaStakingActivity
           events={events}
@@ -46,10 +46,21 @@ export const SDolaStatsPage = () => {
           right={
             <HStack justify="space-between" spacing="4">
               <VStack spacing="0" alignItems="center">
+                <Text textAlign="center" fontWeight="bold">sDOLA supply</Text>
+                {
+                  isLoading ? <SmallTextLoader width={'50px'} />
+                    : <Text textAlign="center" color="secondaryTextColor" fontWeight="bold" fontSize="18px">
+                      {preciseCommify(sDolaSupply, 2)}
+                    </Text>
+                }
+              </VStack>
+              <VStack spacing="0" alignItems="center">
                 <Text textAlign="center" fontWeight="bold">Total DOLA staked</Text>
                 {
                   isLoading ? <SmallTextLoader width={'50px'} />
-                    : <Text textAlign="center" color="secondaryTextColor" fontWeight="bold" fontSize="18px">{preciseCommify(sDolaSupply, 2)}</Text>
+                    : <Text textAlign="center" color="secondaryTextColor" fontWeight="bold" fontSize="18px">
+                      {preciseCommify(sDolaTotalAssets, 2)}
+                    </Text>
                 }
               </VStack>
             </HStack>

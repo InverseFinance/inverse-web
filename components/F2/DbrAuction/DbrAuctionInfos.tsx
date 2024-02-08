@@ -22,7 +22,7 @@ export const useDbrAuction = (isClassicDbrAuction: boolean): {
     K: number;
     isLoading: boolean;
     hasError: boolean;
-} => {    
+} => {
     const { data: apiData, error: apiErr } = useCustomSWR(`/api/auctions/dbr?isClassic=${isClassicDbrAuction}`);
     const { account } = useWeb3React();
     // reserves is an array
@@ -64,18 +64,20 @@ export const useDbrAuction = (isClassicDbrAuction: boolean): {
     }
 }
 
-export const DbrAuctionInfos = ({ type }: { type: DbrAuctionType }) => {
+export const DbrAuctionParametersWrapper = () => {
     const { priceUsd: dbrPrice } = useDBRPrice();
     const { price: dolaPrice } = useDOLAPrice();
-    if (type === 'classic') {
-        return <DbrAuctionInfosClassic dbrPrice={dbrPrice} dolaPrice={dolaPrice} />
-    }
-    return <DbrAuctionInfosSDola dbrPrice={dbrPrice} dolaPrice={dolaPrice} />
+    return <VStack w='full' alignItems="flex-start">
+        <Text fontWeight="bold">Virtual auction infos:</Text>
+        <DbrAuctionClassicParameters dbrPrice={dbrPrice} dolaPrice={dolaPrice} />
+        <Text fontWeight="bold">sDOLA auction infos:</Text>
+        <DbrAuctionSDolaParameters dbrPrice={dbrPrice} dolaPrice={dolaPrice} />
+    </VStack>
 }
 
-export const DbrAuctionInfosSDola = ({ dbrPrice, dolaPrice }) => {
+export const DbrAuctionSDolaParameters = ({ dbrPrice, dolaPrice }) => {
     const { dolaReserve, dbrReserve, dbrRatePerYear, maxDbrRatePerYear, isLoading } = useDbrAuction(false);
-    return <DbrAuctionInfosMsg
+    return <DbrAuctionParameters
         dolaReserve={dolaReserve}
         dbrReserve={dbrReserve}
         dbrRatePerYear={dbrRatePerYear}
@@ -86,9 +88,9 @@ export const DbrAuctionInfosSDola = ({ dbrPrice, dolaPrice }) => {
     />
 }
 
-export const DbrAuctionInfosClassic = ({ dbrPrice, dolaPrice }) => {
+export const DbrAuctionClassicParameters = ({ dbrPrice, dolaPrice }) => {
     const { dolaReserve, dbrReserve, dbrRatePerYear, maxDbrRatePerYear, isLoading } = useDbrAuction(true);
-    return <DbrAuctionInfosMsg
+    return <DbrAuctionParameters
         dolaReserve={dolaReserve}
         dbrReserve={dbrReserve}
         dbrRatePerYear={dbrRatePerYear}
@@ -99,15 +101,18 @@ export const DbrAuctionInfosClassic = ({ dbrPrice, dolaPrice }) => {
     />
 }
 
-export const DbrAuctionInfosMsg = ({ dolaReserve, dbrReserve, dbrRatePerYear, maxDbrRatePerYear, isLoading, dbrPrice, dolaPrice }) => {
+export const DbrAuctionIntroMsg = () => {
     return <InfoMessage
         showIcon={false}
-        alertProps={{ fontSize: '12px', mb: '8' }}
+        alertProps={{ fontSize: '12px', mb: '8', w: 'full' }}
         description={
             <Stack>
                 <Text fontSize="14px" fontWeight="bold">What are XY=K Auctions?</Text>
                 <Text>
-                    XY=K auctions operate as a virtual xy = k constant function market maker auction, it allows users to buy DBR using DOLA. In the auction, the price of DBR (per DOLA) continuously reduces every second, until a DBR purchase is made at which point the price increases.
+                    XY=K auctions operate as a <b>virtual xy = k constant function market maker auction</b>, it allows users to buy DBR using DOLA. In the auction, the price of DBR (per DOLA) continuously reduces every second, until a DBR purchase is made at which point the price increases.
+                </Text>
+                <Text>
+                    The "Virtual" auction and "sDOLA" auction offer different DBR pricing depending on usage and auction parameters. The proceeds from the Virtual auction go to DOLA bad debt repayment while the proceeds from the sDOLA proceeds go to sDOLA stakers.
                 </Text>
                 <Link textDecoration="underline" href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr#buying-dbr" target="_blank" isExternal>
                     Learn more <ExternalLinkIcon />
@@ -124,6 +129,21 @@ export const DbrAuctionInfosMsg = ({ dolaReserve, dbrReserve, dbrRatePerYear, ma
                 <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr' isExternal target="_blank">
                     Learn more about DBR <ExternalLinkIcon />
                 </Link>
+                {/* <Text fontSize="14px" fontWeight="bold">Looking for sDOLA?</Text>
+                <Link textDecoration="underline" href='/sDOLA'>
+                    Go to the DOLA staking page
+                </Link> */}
+            </Stack>
+        }
+    />
+}
+
+export const DbrAuctionParameters = ({ dolaReserve, dbrReserve, dbrRatePerYear, maxDbrRatePerYear, isLoading, dbrPrice, dolaPrice }) => {
+    return <InfoMessage
+        showIcon={false}
+        alertProps={{ fontSize: '12px', w: 'full' }}
+        description={
+            <Stack>
                 <Text fontSize="14px" fontWeight="bold">Auction Current Reserves</Text>
                 <VStack w='full' spacing="0">
                     <HStack w='full'>
@@ -139,7 +159,7 @@ export const DbrAuctionInfosMsg = ({ dolaReserve, dbrReserve, dbrRatePerYear, ma
                 <VStack w='full' spacing="0">
                     <HStack w='full'>
                         <Text>- DBR rate per year:</Text>
-                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(dbrRatePerYear, 0)} ({preciseCommify(dbrRatePerYear * dbrPrice, 0, true)})</Text>}
+                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{ !dbrRatePerYear ? '-' : `${preciseCommify(dbrRatePerYear, 0)} (${preciseCommify(dbrRatePerYear * dbrPrice, 0, true)})` }</Text>}
                     </HStack>
                     <HStack w='full'>
                         <Text>- Max. DBR rate per year:</Text>

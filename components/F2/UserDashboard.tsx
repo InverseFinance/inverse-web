@@ -247,7 +247,7 @@ const SmallLinkBtn = ({ href = '', ...props }) => {
 const BorrowDola = <BigLinkBtn href="/firm">Borrow DOLA</BigLinkBtn>;
 const SupplyAssets = <BigLinkBtn href="/firm">Supply Assets</BigLinkBtn>;
 const StakeINV = <SmallLinkBtn href="/firm">Stake INV</SmallLinkBtn>;
-const StakeDOLA = <SmallLinkBtn disabled={true} href="/sdola">Stake DOLA</SmallLinkBtn>;
+const StakeDOLA = <SmallLinkBtn disabled={true} href="/sDOLA">Stake DOLA</SmallLinkBtn>;
 
 export const UserDashboard = ({
     account

@@ -46,6 +46,8 @@ const columns = [
                 <ScannerLink value={to} />
             </Cell>
         },
+        showFilter: true,
+        filterWidth: '100px',
     },
     {
         field: 'dolaIn',
@@ -76,6 +78,18 @@ const columns = [
                 <CellText>{shortenNumber(priceInDola, 5, false, true)} DOLA</CellText>
             </Cell>
         },
+    }, 
+    {
+        field: 'auctionType',
+        label: 'Auction Type',
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
+        value: ({ auctionType }) => {
+            return <Cell minWidth="90px" justify="center" >
+                <CellText>{auctionType}</CellText>
+            </Cell>
+        },
+        showFilter: true,
+        filterWidth: '90px',
     },
 ]
 

@@ -118,7 +118,6 @@ export const SwapFooter = ({
                 <Switch value="true" isChecked={includeCostInBestRate} onChange={onIncludeTxCostChange} />
             </HStack>
             <Flex alignItems="flex-start" flexDirection={{ base: 'column', sm: 'row' }} w='full' justifyContent="space-between">
-
                 <VStack textAlign="left" w='full'>
                     <RadioCardGroup
                         wrapperProps={{ w: 'full', alignItems: 'center', justify: { base: 'center', sm: 'left' } }}

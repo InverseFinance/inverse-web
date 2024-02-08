@@ -1,5 +1,5 @@
-import { VStack, Text, HStack, SimpleGrid, Divider } from "@chakra-ui/react"
-import { sdolaDevInit, stakeDola, unstakeDola, useDolaStakingEarnings, useStakedDola, useStakedDolaBalance } from "@app/util/dola-staking"
+import { VStack, Text, HStack, Divider } from "@chakra-ui/react"
+import { stakeDola, unstakeDola, useDolaStakingEarnings, useStakedDola } from "@app/util/dola-staking"
 import { useWeb3React } from "@web3-react/core";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
 import { useMemo, useState } from "react";
@@ -11,11 +11,11 @@ import { InfoMessage } from "@app/components/common/Messages";
 import { preciseCommify } from "@app/util/misc";
 import { useDOLABalance } from "@app/hooks/useDOLA";
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
-import { SDOLA_ADDRESS } from "@app/util/dola-staking";
 import { useDBRPrice } from "@app/hooks/useDBR";
 import { getMonthlyRate, shortenNumber } from "@app/util/markets";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { TextInfo } from "../common/Messages/TextInfo";
+import { SDOLA_ADDRESS } from "@app/config/constants";
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -51,8 +51,7 @@ export const StakeDolaUI = () => {
         return (apr > 0 && stakedDolaBalance > 0 ? getMonthlyRate(stakedDolaBalance, apr) : 0);
     }, [stakedDolaBalance, apr]);
 
-    const handleAction = async () => {
-        // return sdolaDevInit(provider?.getSigner());
+    const handleAction = async () => {        
         if (isStake) {
             return stakeDola(provider?.getSigner(), parseEther(dolaAmount));
         }
@@ -73,7 +72,7 @@ export const StakeDolaUI = () => {
                 alertProps={{ w: 'full' }}
                 description={
                     <VStack alignItems="flex-start">
-                        { earnings > 0.1 && <Text>Your cumulated earnings: <b>{preciseCommify(earnings, 2)} DOLA</b></Text> }
+                        {/* { earnings > 0.1 && <Text>Your cumulated earnings: <b>{preciseCommify(earnings, 2)} DOLA</b></Text> } */}
                         <Text>Your projected monthly rewards: <b>~{preciseCommify(monthlyProjectedDolaRewards, 2)} DOLA</b></Text>
                         {/* {apr > 0 && <Text>Your monthly rewards: ~{preciseCommify(monthlyDolaRewards, 2)} DOLA</Text>} */}
                         <Text>Note: actual rewards depend on past revenue</Text>
@@ -147,7 +146,7 @@ export const StakeDolaUI = () => {
                                     </VStack>
                             }
                         </>
-                }
+                }                
             </VStack>
         </Container>
     </VStack>

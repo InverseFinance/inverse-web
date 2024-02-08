@@ -101,7 +101,7 @@ export const getMulticallOutput = async (
     const forcedFallbacksIndexes = callRequests.map((v, idx) => idx).filter((idx) => callRequests[idx].forceFallback);
 
     const calls = _callRequests.map((callRequest) => {
-        const fd = callRequest.contract.interface.fragments.find(f => f.name.includes(callRequest.functionName));
+        const fd = callRequest.contract.interface.fragments.find(f => f.name?.includes(callRequest.functionName));
         const data = callRequest.contract.interface.encodeFunctionData(fd, callRequest.params || []);
         return {
             to: callRequest.contract.address,
@@ -115,7 +115,7 @@ export const getMulticallOutput = async (
         let output: any;
         const call = _callRequests[index];
         const contractInterface = _callRequests[index].contract.interface;
-        const fd = call.contract.interface.fragments.find(f => f.name.includes(call.functionName));
+        const fd = call.contract.interface.fragments.find(f => f.name?.includes(call.functionName));
 
         try {
             output = contractInterface.decodeFunctionResult(fd, values);

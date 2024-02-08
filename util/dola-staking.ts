@@ -74,15 +74,6 @@ export const dsaClaimRewards = async (signerOrProvider: JsonRpcSigner, recipient
     return contract.claim(_recipient);
 }
 
-export const sdolaDevInit = async (signerOrProvider: JsonRpcSigner) => {
-    const contract = getDolaSavingsContract(signerOrProvider);
-    // const sdolaContract = getSdolaContract(signerOrProvider);
-    // await sdolaContract.setTargetK('150000000000000000000');
-    await contract.setMaxYearlyRewardBudget('9000000000000000000000000');
-    await contract.setMaxRewardPerDolaMantissa('1000000000000000000');
-    await contract.setYearlyRewardBudget('6000000000000000000000000');
-}
-
 export const useStakedDolaBalance = (account: string, ad = SDOLA_ADDRESS) => {
     const { data, error } = useEtherSWR([ad, 'balanceOf', account]);
     return {
@@ -105,6 +96,7 @@ export const useDSABalance = (account: string, ad = DOLA_SAVINGS_ADDRESS) => {
 
 export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
     sDolaSupply: number;
+    sDolaTotalAssets: number;
     dsaTotalSupply: number;
     yearlyRewardBudget: number;
     dsaYearlyBudget: number;
@@ -138,7 +130,8 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
         [DOLA_SAVINGS_ADDRESS, 'maxRewardPerDolaMantissa'],
         [SDOLA_ADDRESS, 'totalSupply'],
         [SDOLA_ADDRESS, 'weeklyRevenue', weekIndexUtc],
-        [SDOLA_ADDRESS, 'weeklyRevenue', weekIndexUtc - 1],
+        [SDOLA_ADDRESS, 'weeklyRevenue', weekIndexUtc - 1],        
+        [SDOLA_ADDRESS, 'totalAssets'],
         [DOLA_SAVINGS_ADDRESS, 'claimable', account],
     ]);
 
@@ -165,8 +158,9 @@ export const formatDolaStakingData = (
     const sDolaSupply = (dolaStakingData ? getBnToNumber(dolaStakingData[6]) : fallbackData?.sDolaSupply || 0) + supplyDelta;
     const weeklyRevenue = dolaStakingData ? getBnToNumber(dolaStakingData[7]) : fallbackData?.weeklyRevenue || 0;
     const pastWeekRevenue = dolaStakingData ? getBnToNumber(dolaStakingData[8]) : fallbackData?.pastWeekRevenue || 0;
+    const sDolaTotalAssets = (dolaStakingData ? getBnToNumber(dolaStakingData[9]) : fallbackData?.sDolaTotalAssets || 0) + supplyDelta;
     // optional
-    const accountRewardsClaimable = dolaStakingData && dolaStakingData[9] ? getBnToNumber(dolaStakingData[9]) : 0;
+    const accountRewardsClaimable = dolaStakingData && dolaStakingData[10] ? getBnToNumber(dolaStakingData[10]) : 0;    
 
     const sDolaDsaShare = dsaTotalSupply > 0 ? dolaBalInDsaFromSDola / dsaTotalSupply : 1;
     // sDOLA budget share
@@ -182,9 +176,11 @@ export const formatDolaStakingData = (
 
     return {
         sDolaSupply,
+        sDolaTotalAssets,
         dsaTotalSupply,
         sDolaDsaShare,
         dbrRatePerDola,
+        yearlyDbrEarnings: dbrRatePerDola * dolaBalInDsaFromSDola,
         dolaBalInDsaFromSDola,
         yearlyRewardBudget,
         dsaYearlyBudget,
@@ -313,12 +309,13 @@ export const formatDolaStakingEvents = (events: any[], timestamps?: any, already
         } else if (type === 'sdola') {
             sDolaStaking += (action === 'Stake' ? amount : -amount);
         }
+        const recipient = e.args.recipient || e.args.owner || e.args.caller;
         return {
             txHash: e.transactionHash,
             timestamp: timestamps ? timestamps[e.blockNumber] * 1000 : undefined,
             blockNumber: e.blockNumber,
             caller: e.args.caller,
-            recipient: e.args.recipient || e.args.owner || e.args.caller,
+            recipient,
             isDirectlyDsa: e.args.caller !== SDOLA_ADDRESS,
             amount,
             // Stake, Unstake, Claim are from DSA directly

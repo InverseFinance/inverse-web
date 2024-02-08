@@ -19,9 +19,9 @@ export const SdolaPage = () => {
         <meta name="og:title" content="Inverse Finance - sDOLA" />
         <meta name="og:description" content="sDOLA" />
         <meta name="description" content="sDOLA" />
-        <meta name="keywords" content="Inverse Finance, swap, stablecoin, DOLA, DBR" />
+        <meta name="keywords" content="Inverse Finance, sDOLA, yield-bearing stablecoin, staked DOLA" />
       </Head>
-      <AppNav active="Swap" />
+      <AppNav active="Stake" activeSubmenu="Stake DOLA" />
       <DolaStakingTabs />
       <VStack
         w={{ base: 'full', lg: '1000px' }}

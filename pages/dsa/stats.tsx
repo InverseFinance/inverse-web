@@ -22,9 +22,9 @@ export const DsaStatsPage = () => {
         <meta name="og:title" content="Inverse Finance - DSA stats" />
         <meta name="og:description" content="DSA stats" />
         <meta name="description" content="DSA stats" />
-        <meta name="keywords" content="Inverse Finance, swap, stablecoin, DOLA, DBR, DSA" />
+        <meta name="keywords" content="Inverse Finance, DOLA, DBR, DOLA Savings Account, stats" />
       </Head>
-      <AppNav active="Swap" activeSubmenu="Buy DBR (auction)" />
+      <AppNav active="Stake" />
       <DolaStakingTabs defaultIndex={3} />
       <VStack
         w={{ base: 'full', lg: '1200px' }}

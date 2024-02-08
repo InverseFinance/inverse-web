@@ -19,9 +19,9 @@ export const DOLASavingsAccountPage = () => {
         <meta name="og:title" content="Inverse Finance - DOLA Savings Account" />
         <meta name="og:description" content="DOLA Savings Account" />
         <meta name="description" content="DOLA Savings Account" />
-        <meta name="keywords" content="Inverse Finance, swap, stablecoin, DOLA, DBR" />
+        <meta name="keywords" content="Inverse Finance, DOLA, DBR, DOLA Savings Account" />
       </Head>
-      <AppNav active="Swap" />
+      <AppNav active="Stake" />
       <DolaStakingTabs defaultIndex={1} />
       <VStack
         w={{ base: 'full', lg: '1000px' }}
