@@ -155,6 +155,28 @@ export const MENUS = {
         },
       ]
     },
+    {
+      label: 'sDOLA',
+      href: '/sDOLA',
+      submenus: [
+        {
+          label: 'sDOLA',
+          href: '/sDOLA',
+        },
+        {
+          label: 'sDOLA Stats',
+          href: '/sdola/stats',
+        },
+        {
+          label: 'DSA',
+          href: '/dsa',
+        },
+        {
+          label: 'DSA Stats',
+          href: '/dsa/stats',
+        },
+      ],
+    },  
     // {
     //   label: 'Swap',
     //   href: '/swap/DAI/DOLA',
@@ -214,10 +236,10 @@ export const MENUS = {
         },       
       ]
     },
-    {
-      label: 'Blog',
-      href: '/blog',
-    },
+    // {
+    //   label: 'Blog',
+    //   href: '/blog',
+    // },
     {
       label: 'Transparency',
       href: '/transparency/overview',
@@ -391,6 +413,10 @@ export const MENUS = {
       groupLabel: 'Community',
       items: [
         {
+          label: 'Blog',
+          href: '/blog',
+        },
+        {
           label: 'Bug Bounty',
           href: 'https://discord.gg/YpYJC7R5nv',
         },
@@ -405,11 +431,7 @@ export const MENUS = {
         {
           label: 'Telegram',
           href: 'https://t.me/InverseFinance',
-        },
-        {
-          label: 'Blog',
-          href: '/blog',
-        },
+        },        
         {
           label: 'Newsletter',
           href: '/newsletter',

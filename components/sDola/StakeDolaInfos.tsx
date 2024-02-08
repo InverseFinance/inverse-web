@@ -13,9 +13,9 @@ export const StakeDolaInfos = () => {
     const { sDolaTotalAssets, yearlyRewardBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, weeklyRevenue, pastWeekRevenue, isLoading } = useStakedDola(dbrDolaPrice);
     return <InfoMessage
         showIcon={false}
-        alertProps={{ fontSize: '12px', mb: '8' }}
+        alertProps={{ fontSize: '12px', mb: '8', w: 'full', maxW: '470px' }}
         description={
-            <Stack>
+            <Stack w='full'>
                 <Text fontSize="14px" fontWeight="bold">What is sDOLA?</Text>
                 <VStack spacing="0" alignItems="flex-start">
                     <Text>- sDOLA is staked DOLA</Text>
@@ -24,9 +24,12 @@ export const StakeDolaInfos = () => {
                     </Text>
                     <Text>- It's a decentralized yield-bearing fungible asset</Text>
                     <Text>- The yield comes from DBR auctions</Text>
+                    <Link textDecoration="underline" href='https://twitter.com/InverseFinance/status/1755593147285905683' isExternal target="_blank">
+                        Watch the launch video <ExternalLinkIcon />
+                    </Link>
                     <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/sdola' isExternal target="_blank">
                         Learn more about sDOLA <ExternalLinkIcon />
-                    </Link>
+                    </Link>                    
                 </VStack>
                 <Text fontSize="14px" fontWeight="bold">sDOLA stats</Text>
                 <VStack w='full' spacing="0" alignItems="flex-start">
