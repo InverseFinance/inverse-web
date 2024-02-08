@@ -96,6 +96,7 @@ export const useDSABalance = (account: string, ad = DOLA_SAVINGS_ADDRESS) => {
 
 export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
     sDolaSupply: number;
+    sDolaTotalAssets: number;
     dsaTotalSupply: number;
     yearlyRewardBudget: number;
     dsaYearlyBudget: number;
@@ -129,7 +130,8 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
         [DOLA_SAVINGS_ADDRESS, 'maxRewardPerDolaMantissa'],
         [SDOLA_ADDRESS, 'totalSupply'],
         [SDOLA_ADDRESS, 'weeklyRevenue', weekIndexUtc],
-        [SDOLA_ADDRESS, 'weeklyRevenue', weekIndexUtc - 1],
+        [SDOLA_ADDRESS, 'weeklyRevenue', weekIndexUtc - 1],        
+        [SDOLA_ADDRESS, 'totalAssets'],
         [DOLA_SAVINGS_ADDRESS, 'claimable', account],
     ]);
 
@@ -156,8 +158,9 @@ export const formatDolaStakingData = (
     const sDolaSupply = (dolaStakingData ? getBnToNumber(dolaStakingData[6]) : fallbackData?.sDolaSupply || 0) + supplyDelta;
     const weeklyRevenue = dolaStakingData ? getBnToNumber(dolaStakingData[7]) : fallbackData?.weeklyRevenue || 0;
     const pastWeekRevenue = dolaStakingData ? getBnToNumber(dolaStakingData[8]) : fallbackData?.pastWeekRevenue || 0;
+    const sDolaTotalAssets = (dolaStakingData ? getBnToNumber(dolaStakingData[9]) : fallbackData?.sDolaTotalAssets || 0) + supplyDelta;
     // optional
-    const accountRewardsClaimable = dolaStakingData && dolaStakingData[9] ? getBnToNumber(dolaStakingData[9]) : 0;
+    const accountRewardsClaimable = dolaStakingData && dolaStakingData[10] ? getBnToNumber(dolaStakingData[10]) : 0;    
 
     const sDolaDsaShare = dsaTotalSupply > 0 ? dolaBalInDsaFromSDola / dsaTotalSupply : 1;
     // sDOLA budget share
@@ -173,6 +176,7 @@ export const formatDolaStakingData = (
 
     return {
         sDolaSupply,
+        sDolaTotalAssets,
         dsaTotalSupply,
         sDolaDsaShare,
         dbrRatePerDola,

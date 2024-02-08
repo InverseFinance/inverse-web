@@ -46,10 +46,10 @@ export const MENUS = {
           label: 'Stake INV (FiRM)',
           href: '/firm/INV',
         },
-        {
-          label: 'Stake DOLA',
-          href: '/sDOLA',
-        },        
+        // {
+        //   label: 'Stake DOLA',
+        //   href: '/sDOLA',
+        // },    
         {
           label: 'Frontier (deprecated)',
           href: '/frontier',
@@ -303,6 +303,10 @@ export const MENUS = {
     {
       groupLabel: 'Products',
       items: [
+        // {
+        //   label: 'sDOLA',
+        //   href: '/sDOLA',
+        // },
         {
           label: 'DOLA',
           href: 'https://docs.inverse.finance/inverse-finance/using-dola',
@@ -317,12 +321,12 @@ export const MENUS = {
         },
         {
           label: 'FiRM',
-          href: '/frontier',
+          href: '/firm',
         },
-        {
-          label: 'Bonds',
-          href: '/bonds',
-        },
+        // {
+        //   label: 'Bonds',
+        //   href: '/bonds',
+        // },
       ],
     },
     {

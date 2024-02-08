@@ -32,7 +32,7 @@ export const DsaInfos = () => {
                 <Text fontSize="14px" fontWeight="bold">DSA stats & Parameters</Text>
                 <VStack w='full' spacing="0" alignItems="flex-start">
                     <HStack w='full'>
-                        <Text>- Total staked in DSA:</Text>
+                        <Text>- Total DOLA staked in DSA:</Text>
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(dsaTotalSupply, 2)}</Text>}
                     </HStack>
                     <HStack w='full'>

@@ -15,7 +15,7 @@ export const SDolaStatsPage = () => {
   const { events, timestamp } = useDolaStakingActivity(undefined, 'sdola');
   const { evolution } = useDolaStakingEvolution();
   const { priceDola: dbrDolaPrice } = useDBRPrice();
-  const { sDolaSupply, isLoading } = useStakedDola(dbrDolaPrice);
+  const { sDolaSupply, sDolaTotalAssets, isLoading } = useStakedDola(dbrDolaPrice);
   return (
     <Layout>
       <Head>
@@ -33,8 +33,8 @@ export const SDolaStatsPage = () => {
         spacing="8"
         px={{ base: '4', lg: '0' }}
       >
-        { isLoading ? <SkeletonBlob /> : <SDolaStakingChart events={events} /> }
-        {/* { isLoading ? <SkeletonBlob /> : <SDolaStakingEvolutionChart evolution={evolution} attribute="apr" yLabel="APR" title="APR evolution" /> } */}
+        {isLoading ? <SkeletonBlob /> : <SDolaStakingChart events={events} />}
+        { isLoading ? <SkeletonBlob /> : <SDolaStakingEvolutionChart evolution={evolution} attribute="apr" yLabel="APR" title="APR evolution" /> }
         <DolaStakingActivity
           events={events}
           lastUpdate={timestamp}
@@ -46,10 +46,21 @@ export const SDolaStatsPage = () => {
           right={
             <HStack justify="space-between" spacing="4">
               <VStack spacing="0" alignItems="center">
+                <Text textAlign="center" fontWeight="bold">sDOLA supply</Text>
+                {
+                  isLoading ? <SmallTextLoader width={'50px'} />
+                    : <Text textAlign="center" color="secondaryTextColor" fontWeight="bold" fontSize="18px">
+                      {preciseCommify(sDolaSupply, 2)}
+                    </Text>
+                }
+              </VStack>
+              <VStack spacing="0" alignItems="center">
                 <Text textAlign="center" fontWeight="bold">Total DOLA staked</Text>
                 {
                   isLoading ? <SmallTextLoader width={'50px'} />
-                    : <Text textAlign="center" color="secondaryTextColor" fontWeight="bold" fontSize="18px">{preciseCommify(sDolaSupply, 2)}</Text>
+                    : <Text textAlign="center" color="secondaryTextColor" fontWeight="bold" fontSize="18px">
+                      {preciseCommify(sDolaTotalAssets, 2)}
+                    </Text>
                 }
               </VStack>
             </HStack>

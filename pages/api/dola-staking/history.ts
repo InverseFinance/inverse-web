@@ -8,7 +8,7 @@ export default async function handler(req, res) {
         res.status(400).json({ msg: 'invalid request' });
         return;
     }
-    const cacheKey = `dola-staking-history-aggregated${chainId ? '-c'+chainId+'-' : ''}-${isExlcudeCurrent ? '-exclude-current' : ''}v1.0.1`
+    const cacheKey = `dola-staking-history-aggregated${chainId ? '-c'+chainId+'-' : ''}-${isExlcudeCurrent ? '-exclude-current' : ''}v1.0.2`
 
     try {
         const cacheDuration = 60;

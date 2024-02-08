@@ -36,7 +36,8 @@ export default async function handler(req, res) {
             { contract: sDolaContract, functionName: 'totalSupply' },
             { contract: sDolaContract, functionName: 'weeklyRevenue', params: [weekIndexUtc] },
             { contract: sDolaContract, functionName: 'weeklyRevenue', params: [weekIndexUtc - 1] },            
-        ]);
+            { contract: sDolaContract, functionName: 'totalAssets' },
+        ]);        
        
         const { priceInDola: dbrDolaPrice } = await getDbrPriceOnCurve(provider);        
 
