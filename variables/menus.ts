@@ -413,6 +413,10 @@ export const MENUS = {
       groupLabel: 'Community',
       items: [
         {
+          label: 'Blog',
+          href: '/blog',
+        },
+        {
           label: 'Bug Bounty',
           href: 'https://discord.gg/YpYJC7R5nv',
         },
@@ -427,11 +431,7 @@ export const MENUS = {
         {
           label: 'Telegram',
           href: 'https://t.me/InverseFinance',
-        },
-        {
-          label: 'Blog',
-          href: '/blog',
-        },
+        },        
         {
           label: 'Newsletter',
           href: '/newsletter',
