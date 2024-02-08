@@ -4,8 +4,8 @@ import { timestampToUTC } from '@app/util/misc';
 import { dolaStakingCacheKey } from './dola-staking';
 
 export default async function handler(req, res) {
-  // if (req.method !== 'POST') return res.status(405).json({ success: false });
-  // else if (req.headers.authorization !== `Bearer ${process.env.API_SECRET_KEY}`) return res.status(401).json({ success: false });
+  if (req.method !== 'POST') return res.status(405).json({ success: false });
+  else if (req.headers.authorization !== `Bearer ${process.env.API_SECRET_KEY}`) return res.status(401).json({ success: false });
 
   try {
     const data = await (await fetch('https://www.inverse.finance/api/dola-staking'))?.json();

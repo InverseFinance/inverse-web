@@ -27,7 +27,7 @@ export const DsaStakingChart = ({ events }) => {
     </VStack>
 }
 
-export const SDolaStakingChart = ({ events, evolution }) => {
+export const SDolaStakingChart = ({ events }) => {
     const { chartData } = useEventsAsChartData(events, 'sDolaStaking', 'sDolaStaking', true, true);    
     const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
@@ -44,13 +44,13 @@ export const SDolaStakingChart = ({ events, evolution }) => {
             chartData={chartData}
             isDollars={false}
             smoothLineByDefault={false}
-            areaProps={{ title: 'DOLA staked in sDOLA over time', id: 'dola-staking-sdola', showRangeBtns: true, yLabel: 'DOLA staked', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
+            areaProps={{ title: 'sDOLA supply evolution', id: 'sdola-supply-evo-chart', showRangeBtns: true, yLabel: 'DOLA staked', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
         />
     </VStack>
 }
 
-export const SDolaStakingEvolutionChart = ({ evolution, attribute, yLabel, title }) => {
-    const { chartData } = useEventsAsChartData(evolution, attribute, attribute, true, true, 0);    
+export const SDolaStakingEvolutionChart = ({ evolution, attribute, yLabel, title, isPerc = false }) => {
+    const { chartData } = useEventsAsChartData(evolution, attribute, attribute, true, true);    
     const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
 
@@ -66,7 +66,7 @@ export const SDolaStakingEvolutionChart = ({ evolution, attribute, yLabel, title
             chartData={chartData}
             isDollars={false}
             smoothLineByDefault={false}
-            areaProps={{ title, id: 'dola-staking-evolution', showRangeBtns: true, yLabel, useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
+            areaProps={{ title, isPerc, id: 'dola-staking-evolution', showRangeBtns: true, yLabel, useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
         />
     </VStack>
 }
