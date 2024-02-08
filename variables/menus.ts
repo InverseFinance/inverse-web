@@ -154,29 +154,7 @@ export const MENUS = {
           needReload: true,
         },
       ]
-    },
-    {
-      label: 'sDOLA',
-      href: '/sDOLA',
-      submenus: [
-        {
-          label: 'sDOLA',
-          href: '/sDOLA',
-        },
-        {
-          label: 'sDOLA Stats',
-          href: '/sdola/stats',
-        },
-        {
-          label: 'DSA',
-          href: '/dsa',
-        },
-        {
-          label: 'DSA Stats',
-          href: '/dsa/stats',
-        },
-      ],
-    },  
+    },     
     // {
     //   label: 'Swap',
     //   href: '/swap/DAI/DOLA',
@@ -236,6 +214,28 @@ export const MENUS = {
         },       
       ]
     },
+    {
+      label: 'sDOLA',
+      href: '/sDOLA',
+      submenus: [
+        {
+          label: 'sDOLA',
+          href: '/sDOLA',
+        },
+        {
+          label: 'sDOLA Stats',
+          href: '/sdola/stats',
+        },
+        {
+          label: 'DSA',
+          href: '/dsa',
+        },
+        {
+          label: 'DSA Stats',
+          href: '/dsa/stats',
+        },
+      ],
+    }, 
     // {
     //   label: 'Blog',
     //   href: '/blog',
