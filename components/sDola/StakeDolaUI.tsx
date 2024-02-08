@@ -156,7 +156,7 @@ export const StakeDolaUI = () => {
                                             showBalance={false}
                                         />
                                         {
-                                            <InfoMessage description="Note: to unstake everything use the unstake all button to avoid leaving dust" />
+                                            stakedDolaBalance > 0 && <InfoMessage description="Note: to unstake everything use the unstake all button to avoid leaving dust" />
                                         }
                                     </VStack>
                             }
