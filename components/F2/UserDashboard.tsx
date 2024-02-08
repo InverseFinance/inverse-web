@@ -260,7 +260,8 @@ export const UserDashboard = ({
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
     const accountMarkets = useAccountF2Markets(markets, account);
     const { balance: stakedDolaBalance } = useStakedDolaBalance(account); 
-    const { apr: sDolaApr, projectedApr: sDolaProjectedApr } = useStakedDola(dbrDolaPrice);
+    const { apr: sDolaApr, projectedApr: sDolaProjectedApr, sDolaExRate } = useStakedDola(dbrDolaPrice);
+    const dolaStakedInSDola = sDolaExRate && stakedDolaBalance ? sDolaExRate * stakedDolaBalance : 0;
     const invMarket = accountMarkets?.find(m => m.isInv);
     const { themeStyles } = useAppTheme();
     const { stakedInFirm, isLoading: isLoadingInvStaked } = useStakedInFirm(account);
@@ -308,7 +309,7 @@ export const UserDashboard = ({
                     labelLeft={<>APR: <b>{shortenNumber(sDolaApr, 2)}%</b></>}
                     labelRight={<>proj. APR: <b>{shortenNumber(sDolaProjectedApr, 2)}%</b></>}
                 />
-            } noDataFallback={StakeDOLA} isLoading={isLoading} value={stakedDolaBalance} label="DOLA staked" precision={0} />            
+            } noDataFallback={StakeDOLA} isLoading={isLoading} value={dolaStakedInSDola} label="DOLA staked" precision={2} />            
             <NumberCard
                 imageSrc={TOKEN_IMAGES.DBR}
                 footer={
