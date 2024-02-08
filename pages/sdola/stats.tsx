@@ -10,12 +10,13 @@ import { useDBRPrice } from '@app/hooks/useDBR';
 import { DolaStakingTabs } from '@app/components/F2/DolaStaking/DolaStakingTabs';
 import { SDolaStakingChart, SDolaStakingEvolutionChart } from '@app/components/F2/DolaStaking/DolaStakingChart';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
+import { shortenNumber } from '@app/util/markets';
 
 export const SDolaStatsPage = () => {
   const { events, timestamp } = useDolaStakingActivity(undefined, 'sdola');
   const { evolution } = useDolaStakingEvolution();
   const { priceDola: dbrDolaPrice } = useDBRPrice();
-  const { sDolaSupply, sDolaTotalAssets, isLoading } = useStakedDola(dbrDolaPrice);
+  const { sDolaSupply, sDolaTotalAssets, apr, isLoading } = useStakedDola(dbrDolaPrice);
   return (
     <Layout>
       <Head>
@@ -34,7 +35,8 @@ export const SDolaStatsPage = () => {
         px={{ base: '4', lg: '0' }}
       >
         {isLoading ? <SkeletonBlob /> : <SDolaStakingChart events={events} />}
-        { isLoading ? <SkeletonBlob /> : <SDolaStakingEvolutionChart evolution={evolution} attribute="apr" yLabel="APR" title="APR evolution" /> }
+        {/* {isLoading ? <SkeletonBlob /> : <SDolaStakingEvolutionChart evolution={evolution} attribute="sDolaTotalAssets" yLabel="DOLA staked" title="DOLA staked in sDOLA" />} */}
+        { isLoading ? <SkeletonBlob /> : <SDolaStakingEvolutionChart isPerc={true} evolution={evolution} attribute="apr" yLabel="APR" title={`APR evolution (current: ${shortenNumber(apr||0, 2)}%)`} /> }
         <DolaStakingActivity
           events={events}
           lastUpdate={timestamp}

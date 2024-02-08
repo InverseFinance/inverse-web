@@ -24,14 +24,14 @@ export const StakeDolaInfos = () => {
                     </Text>
                     <Text>- It's a decentralized yield-bearing fungible asset</Text>
                     <Text>- The yield comes from DBR auctions</Text>
-                    <Link textDecoration="underline" href='https://docs.inverse.finance' isExternal target="_blank">
+                    <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/sdola' isExternal target="_blank">
                         Learn more about sDOLA <ExternalLinkIcon />
                     </Link>
                 </VStack>
                 <Text fontSize="14px" fontWeight="bold">sDOLA stats</Text>
                 <VStack w='full' spacing="0" alignItems="flex-start">
                     <HStack w='full'>
-                        <Text>- Total DOLA staked as sDOLA:</Text>
+                        <Text>- Total DOLA staked in sDOLA:</Text>
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(sDolaTotalAssets, 2)}</Text>}
                     </HStack>
                     <HStack w='full'>

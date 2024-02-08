@@ -50,11 +50,18 @@ export const stakeDola = async (signerOrProvider: JsonRpcSigner, dolaIn: BigNumb
     return contract.deposit(dolaIn, _recipient);
 }
 
-export const unstakeDola = async (signerOrProvider: JsonRpcSigner, dolaIn: BigNumber, recipient?: string) => {
+export const unstakeDola = async (signerOrProvider: JsonRpcSigner, dolaOut: BigNumber, recipient?: string) => {
     const contract = getSdolaContract(signerOrProvider);
     const _recipient = !!recipient && recipient !== BURN_ADDRESS ? recipient : (await signerOrProvider.getAddress());
     const owner = (await signerOrProvider.getAddress())
-    return contract.withdraw(dolaIn, _recipient, owner);
+    return contract.withdraw(dolaOut, _recipient, owner);
+}
+
+export const redeemSDola = async (signerOrProvider: JsonRpcSigner, sDolaAmount: BigNumber, recipient?: string) => {
+    const contract = getSdolaContract(signerOrProvider);
+    const _recipient = !!recipient && recipient !== BURN_ADDRESS ? recipient : (await signerOrProvider.getAddress());
+    const owner = (await signerOrProvider.getAddress())
+    return contract.redeem(sDolaAmount, _recipient, owner);
 }
 
 export const stakeDolaToSavings = async (signerOrProvider: JsonRpcSigner, dolaIn: BigNumber, recipient?: string) => {
@@ -63,9 +70,9 @@ export const stakeDolaToSavings = async (signerOrProvider: JsonRpcSigner, dolaIn
     return contract.stake(dolaIn, _recipient);
 }
 
-export const unstakeDolaFromSavings = async (signerOrProvider: JsonRpcSigner, dolaIn: BigNumber, recipient?: string) => {
+export const unstakeDolaFromSavings = async (signerOrProvider: JsonRpcSigner, dolaOut: BigNumber, recipient?: string) => {
     const contract = getDolaSavingsContract(signerOrProvider);
-    return contract.unstake(dolaIn);
+    return contract.unstake(dolaOut);
 }
 
 export const dsaClaimRewards = async (signerOrProvider: JsonRpcSigner, recipient?: string) => {
@@ -114,6 +121,7 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
     savingsApr: number | null;
     isLoading: boolean;
     hasError: boolean;
+    sDolaExRate: number;
 } => {
     const account = useAccount();
     const { data: apiData, error: apiErr } = useCustomSWR(`/api/dola-staking`);
@@ -175,6 +183,7 @@ export const formatDolaStakingData = (
     const savingsApr = dbrDolaPrice ? savingsDbrRatePerDola * dbrDolaPrice * 100 : null;
 
     return {
+        sDolaExRate: sDolaTotalAssets && sDolaSupply ? sDolaTotalAssets / sDolaSupply : 0,
         sDolaSupply,
         sDolaTotalAssets,
         dsaTotalSupply,
@@ -243,7 +252,7 @@ export const useDolaStakingEarnings = (account: string) => {
         'Withdraw',
         [account],
     );
-    const { balance: stakedDolaBalance } = useStakedDolaBalance(account); 
+    const { balance: stakedDolaBalance, bnBalance } = useStakedDolaBalance(account); 
     const deposited = depositEventsData.reduce((prev, curr) => {
         return prev + getBnToNumber(curr.args[2]);
     }, 0);
@@ -255,7 +264,8 @@ export const useDolaStakingEarnings = (account: string) => {
         earnings: stakedDolaBalance - deposited + withdrawn,
         deposited,
         withdrawn,
-        stakedDolaBalance,
+        stakedDolaBalance,     
+        stakedDolaBalanceBn: bnBalance,     
     };
 }
 
