@@ -16,6 +16,7 @@ import { getMonthlyRate, shortenNumber } from "@app/util/markets";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { TextInfo } from "../common/Messages/TextInfo";
 import { SDOLA_ADDRESS } from "@app/config/constants";
+import { useAccount } from "@app/hooks/misc";
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -32,16 +33,18 @@ const StatBasic = ({ value, name, message, onClick = undefined, isLoading = fals
 }
 
 export const StakeDolaUI = () => {
-    const { provider, account } = useWeb3React();
+    const account = useAccount();
+    const { provider, account: connectedAccount } = useWeb3React();
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
     const [dolaAmount, setDolaAmount] = useState('');
     const [isConnected, setIsConnected] = useState(true);
     const [tab, setTab] = useState('Stake');
     const isStake = tab === 'Stake';
 
-    const { apr, projectedApr, isLoading } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
+    const { apr, projectedApr, isLoading, sDolaExRate } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
     const { balance: dolaBalance } = useDOLABalance(account);
-    const { stakedDolaBalance, earnings } = useDolaStakingEarnings(account);
+    const { stakedDolaBalance } = useDolaStakingEarnings(account);
+    const dolaStakedInSDola = sDolaExRate * stakedDolaBalance;
 
     const monthlyProjectedDolaRewards = useMemo(() => {
         return (projectedApr > 0 && stakedDolaBalance > 0 ? getMonthlyRate(stakedDolaBalance, projectedApr) : 0);
@@ -59,23 +62,23 @@ export const StakeDolaUI = () => {
     }
 
     useDebouncedEffect(() => {
-        setIsConnected(!!account)
-    }, [account], 500);
+        setIsConnected(!!connectedAccount)
+    }, [connectedAccount], 500);
 
     return <VStack w='full' maxW='470px' spacing="4">
         <HStack justify="space-between" w='full'>
-            <StatBasic message="This week's APR is calculated with last week's DBR auction revenues" isLoading={isLoading} name="APR" value={apr ? `${shortenNumber(apr, 2)}%` : 'TBD'} />
+            <StatBasic message="This week's APR is calculated with last week's DBR auction revenues" isLoading={isLoading} name="Initial APR" value={apr ? `${shortenNumber(apr, 2)}%` : 'TBD'} />
             <StatBasic message="The projected APR is calculated with the dbrRatePerDOLA and the current DBR price in DOLA" isLoading={isLoading} name="Projected APR" value={`${shortenNumber(projectedApr, 2)}%`} />
         </HStack>
         {
-            (monthlyProjectedDolaRewards > 0 || monthlyDolaRewards > 0) && <InfoMessage
+            (monthlyDolaRewards > 0) && <InfoMessage
                 alertProps={{ w: 'full' }}
                 description={
                     <VStack alignItems="flex-start">
                         {/* { earnings > 0.1 && <Text>Your cumulated earnings: <b>{preciseCommify(earnings, 2)} DOLA</b></Text> } */}
-                        <Text>Your projected monthly rewards: <b>~{preciseCommify(monthlyProjectedDolaRewards, 2)} DOLA</b></Text>
-                        {/* {apr > 0 && <Text>Your monthly rewards: ~{preciseCommify(monthlyDolaRewards, 2)} DOLA</Text>} */}
-                        <Text>Note: actual rewards depend on past revenue</Text>
+                        {/* <Text>Your projected monthly rewards: <b>~{preciseCommify(monthlyProjectedDolaRewards, 2)} DOLA</b></Text> */}
+                        {apr > 0 && <Text>Your monthly rewards (current APR): ~{preciseCommify(monthlyDolaRewards, 2)} DOLA</Text>}
+                        {/* <Text>Note: actual rewards depend on past revenue</Text> */}
                     </VStack>
                 }
             />
@@ -99,7 +102,7 @@ export const StakeDolaUI = () => {
                                     DOLA balance: {dolaBalance ? preciseCommify(dolaBalance, 2) : '-'}
                                 </Text>
                                 <Text fontSize="14px">
-                                    sDOLA balance: {stakedDolaBalance ? preciseCommify(stakedDolaBalance, 2) : '-'}
+                                    DOLA staked: {dolaStakedInSDola ? preciseCommify(dolaStakedInSDola, 2) : '-'}
                                 </Text>
                             </HStack>
                             {

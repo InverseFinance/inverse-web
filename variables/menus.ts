@@ -43,7 +43,7 @@ export const MENUS = {
       href: '/firm/INV',
       submenus: [
         {
-          label: 'Stake INV (FiRM)',
+          label: 'Stake INV',
           href: '/firm/INV',
         },
         {

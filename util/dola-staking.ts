@@ -114,6 +114,7 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
     savingsApr: number | null;
     isLoading: boolean;
     hasError: boolean;
+    sDolaExRate: number;
 } => {
     const account = useAccount();
     const { data: apiData, error: apiErr } = useCustomSWR(`/api/dola-staking`);
@@ -175,6 +176,7 @@ export const formatDolaStakingData = (
     const savingsApr = dbrDolaPrice ? savingsDbrRatePerDola * dbrDolaPrice * 100 : null;
 
     return {
+        sDolaExRate: sDolaTotalAssets && sDolaSupply ? sDolaTotalAssets / sDolaSupply : 0,
         sDolaSupply,
         sDolaTotalAssets,
         dsaTotalSupply,
@@ -255,7 +257,7 @@ export const useDolaStakingEarnings = (account: string) => {
         earnings: stakedDolaBalance - deposited + withdrawn,
         deposited,
         withdrawn,
-        stakedDolaBalance,
+        stakedDolaBalance,        
     };
 }
 

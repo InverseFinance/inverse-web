@@ -21,6 +21,7 @@ import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
 import { SkeletonBlob } from "../common/Skeleton";
 import { F2Markets } from "./F2Markets";
 import { InfoMessage } from "../common/Messages";
+import { useStakedDola, useStakedDolaBalance } from "@app/util/dola-staking";
 
 const MAX_AREA_CHART_WIDTH = 625;
 
@@ -247,7 +248,7 @@ const SmallLinkBtn = ({ href = '', ...props }) => {
 const BorrowDola = <BigLinkBtn href="/firm">Borrow DOLA</BigLinkBtn>;
 const SupplyAssets = <BigLinkBtn href="/firm">Supply Assets</BigLinkBtn>;
 const StakeINV = <SmallLinkBtn href="/firm">Stake INV</SmallLinkBtn>;
-const StakeDOLA = <SmallLinkBtn disabled={true} href="/sDOLA">Stake DOLA</SmallLinkBtn>;
+const StakeDOLA = <SmallLinkBtn href="/sDOLA">Stake DOLA</SmallLinkBtn>;
 
 export const UserDashboard = ({
     account
@@ -256,9 +257,10 @@ export const UserDashboard = ({
 }) => {
     const { markets, isLoading: isLoadingMarkets } = useDBRMarkets();
     const [isVirginFirmUser, setIsVirginFirmUser] = useState(false);
-    const { priceUsd: dbrPrice } = useDBRPrice();
+    const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
     const accountMarkets = useAccountF2Markets(markets, account);
-    const stakedDolaBalance = 0;
+    const { balance: stakedDolaBalance } = useStakedDolaBalance(account); 
+    const { apr: sDolaApr, projectedApr: sDolaProjectedApr } = useStakedDola(dbrDolaPrice);
     const invMarket = accountMarkets?.find(m => m.isInv);
     const { themeStyles } = useAppTheme();
     const { stakedInFirm, isLoading: isLoadingInvStaked } = useStakedInFirm(account);
@@ -301,16 +303,12 @@ export const UserDashboard = ({
                     labelRight={<>DBR APR: <b>{shortenNumber(invMarket?.dbrApr, 2)}%</b></>}
                 />
             } noDataFallback={StakeINV} isLoading={isLoading} price={invMarket?.price} value={stakedInFirm} label="INV staked in FiRM" precision={2} />
-            {/* <NumberCard footer={
+            <NumberCard footer={
                 <CardFooter
-                    labelRight={<>sDOLA APY: <b>{shortenNumber(5, 2)}%</b></>}
+                    labelLeft={<>APR: <b>{shortenNumber(sDolaApr, 2)}%</b></>}
+                    labelRight={<>proj. APR: <b>{shortenNumber(sDolaProjectedApr, 2)}%</b></>}
                 />
-            } noDataFallback={StakeDOLA} isLoading={isLoading} value={stakedDolaBalance} label="DOLA staked" precision={0} /> */}
-            <NumberCard imageSrc={TOKEN_IMAGES.DOLA} footer={
-                <CardFooter
-                    labelRight={<>Coming soon</>}
-                />
-            } noDataFallback={StakeDOLA} isLoading={isLoading} value={stakedDolaBalance} label="DOLA staked" precision={0} />
+            } noDataFallback={StakeDOLA} isLoading={isLoading} value={stakedDolaBalance} label="DOLA staked" precision={0} />            
             <NumberCard
                 imageSrc={TOKEN_IMAGES.DBR}
                 footer={
