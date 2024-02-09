@@ -175,12 +175,12 @@ export const formatDolaStakingData = (
     const yearlyRewardBudget = sDolaDsaShare > 0 ? dsaYearlyBudget * sDolaDsaShare : dsaYearlyBudget;
 
     // TODO: verify this is correct
-    const savingsDbrRatePerDola = dsaTotalSupply > 0 ? Math.min(dsaYearlyBudget / dsaTotalSupply, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;
+    const dsaDbrRatePerDola = dsaTotalSupply > 0 ? Math.min(dsaYearlyBudget / dsaTotalSupply, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;
     const dbrRatePerDola = dolaBalInDsaFromSDola > 0 ? Math.min(yearlyRewardBudget / dolaBalInDsaFromSDola, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;
 
     const apr = dolaBalInDsaFromSDola > 0 ? (pastWeekRevenue * WEEKS_PER_YEAR) / dolaBalInDsaFromSDola * 100 : null;
     const projectedApr = dbrDolaPrice ? dbrRatePerDola * dbrDolaPrice * 100 : null;
-    const savingsApr = dbrDolaPrice ? savingsDbrRatePerDola * dbrDolaPrice * 100 : null;
+    const savingsApr = dbrDolaPrice ? dsaDbrRatePerDola * dbrDolaPrice * 100 : null;
 
     return {
         sDolaExRate: sDolaTotalAssets && sDolaSupply ? sDolaTotalAssets / sDolaSupply : 0,
@@ -189,6 +189,8 @@ export const formatDolaStakingData = (
         dsaTotalSupply,
         sDolaDsaShare,
         dbrRatePerDola,
+        dsaDbrRatePerDola,
+        dsaYearlyDbrEarnings: dsaDbrRatePerDola * dsaTotalSupply,
         yearlyDbrEarnings: dbrRatePerDola * dolaBalInDsaFromSDola,
         dolaBalInDsaFromSDola,
         yearlyRewardBudget,
