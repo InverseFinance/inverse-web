@@ -158,10 +158,11 @@ const NumberItem = ({ noDataFallback = '-', href = '', footer = undefined, isLoa
                 </Text>
             }
             {
-                (!!value || (!value && noDataFallback === '-'))
-                    && !href || !value ? <Text fontSize="18px" fontWeight="bold" color={'mainTextColorLight'}>
-                    {label}
-                </Text> : <Link fontSize="18px" fontWeight="bold" color={'mainTextColorLight'} textDecoration="underline" href={href}>{label}</Link>
+                !!value && !!href ?
+                    <Link fontSize="18px" fontWeight="bold" color={'mainTextColorLight'} textDecoration="underline" href={href}>{label}</Link>
+                    : !!value && !href ? <Text fontSize="18px" fontWeight="bold" color={'mainTextColorLight'}>
+                        {label}
+                    </Text> : null
             }
         </VStack>
         {footer}
@@ -340,19 +341,16 @@ export const UserDashboard = ({
         }
         <SimpleGrid columns={{ base: 1, '2xl': 2 }} spacing="8" w="100%">
             {
-                marketsWithDeposits
-                    .filter(market => market.hasClaimableRewards)
+                accountMarkets
+                    .filter(market => market.hasClaimableRewards && !!market.escrow && market.escrow !== BURN_ADDRESS)
                     .map(market => {
-                        // via on chain data
-                        if (market.escrow && market.escrow !== BURN_ADDRESS && (market.isInv || market.name === 'cvxFXS' || market.name === 'cvxCRV')) {
-                            return <FirmRewardWrapper
-                                key={market.address}
-                                market={market}
-                                showMarketBtn={true}
-                                extraAtBottom={true}
-                                escrow={market.escrow}
-                            />
-                        }
+                        return <FirmRewardWrapper
+                            key={market.address}
+                            market={market}
+                            showMarketBtn={true}
+                            extraAtBottom={true}
+                            escrow={market.escrow}
+                        />
                     })
             }
         </SimpleGrid>

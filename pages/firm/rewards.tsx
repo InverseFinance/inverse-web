@@ -68,7 +68,7 @@ export const FirmRewardsPage = () => {
                                 .filter(market => market.hasClaimableRewards)
                                 .map(market => {
                                     // via on chain data
-                                    if (market.escrow &&  market.escrow !== BURN_ADDRESS && (market.isInv || market.name === 'cvxFXS' || market.name === 'cvxCRV')) {
+                                    if (market.escrow && market.escrow !== BURN_ADDRESS) {
                                         return <FirmRewardWrapper
                                             key={market.address}
                                             market={market}
@@ -76,16 +76,16 @@ export const FirmRewardsPage = () => {
                                             escrow={market.escrow}
                                             onLoad={(v) => setExtraUsd(v)}
                                         />
+                                    } else {
+                                        const rewardsInfos = appGroupPositions.find(a => a.appGroup === market.zapperAppGroup);
+                                        return <FirmRewards
+                                            key={market.address}
+                                            market={market}
+                                            rewardsInfos={rewardsInfos}
+                                            showMarketBtn={true}
+                                            escrow={market.escrow}
+                                        />
                                     }
-                                    // via on zapper api
-                                    const rewardsInfos = appGroupPositions.find(a => a.appGroup === market.zapperAppGroup);
-                                    return <FirmRewards
-                                        key={market.address}
-                                        market={market}
-                                        rewardsInfos={rewardsInfos}
-                                        showMarketBtn={true}
-                                        escrow={market.escrow}
-                                    />
                                 })
                     }
                 </VStack>
