@@ -197,6 +197,10 @@ export const MENUS = {
           label: 'Docs',
         },
         {
+          label: 'Blog',
+          href: '/blog',
+        },
+        {
           label: 'Audits',
           href: '/audits',
         },
