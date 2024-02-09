@@ -87,10 +87,26 @@ const Chart = (props) => {
 
 export const SDolaStatsPage = () => {
   const { events, timestamp } = useDolaStakingActivity(undefined, 'sdola');
-  const { evolution } = useDolaStakingEvolution();
+  const { evolution, timestamp: lastDailySnapTs } = useDolaStakingEvolution();
   const { priceDola: dbrDolaPrice } = useDBRPrice();
   const { sDolaSupply, sDolaTotalAssets, apr, isLoading } = useStakedDola(dbrDolaPrice);
   const [isInited, setInited] = useState(false);
+  const [histoData, setHistoData] = useState([]);
+
+  useEffect(() => {
+    if (isLoading) return;    
+    setHistoData(
+      evolution.concat([
+        {
+          ...evolution[evolution.length - 1],
+          timestamp: Date.now() - (1000 * 120),
+          apr,
+          sDolaTotalAssets,
+          sDolaSupply,
+        }
+      ])
+    )
+  }, [lastDailySnapTs, evolution, sDolaTotalAssets, apr, isLoading]);
 
   useEffect(() => {
     setInited(true);
@@ -116,10 +132,10 @@ export const SDolaStatsPage = () => {
       >
         <SimpleGrid columns={{ base: 1, xl: 2 }} spacing="8" w="100%">
           <ChartCard subtitle={sDolaTotalAssets > 0 ? `(current: ${preciseCommify(sDolaTotalAssets || 0, 0)})` : ''} cardTitle={`DOLA staked in sDOLA`}>
-            {isInited && <Chart isLoading={isLoading} currentValue={sDolaTotalAssets} data={evolution} attribute="sDolaTotalAssets" yLabel="DOLA staked" />}
+            {isInited && <Chart isLoading={isLoading} currentValue={sDolaTotalAssets} data={histoData} attribute="sDolaTotalAssets" yLabel="DOLA staked" />}
           </ChartCard>
           <ChartCard cardTitle={`APR evolution`} subtitle={`(current: ${shortenNumber(apr || 0, 2)}%)`}>
-            {isInited && <Chart currentValue={apr} isPerc={true} data={evolution} attribute="apr" yLabel="APR" />}
+            {isInited && <Chart currentValue={apr} isPerc={true} data={histoData} attribute="apr" yLabel="APR" />}
           </ChartCard>
         </SimpleGrid>
         <DolaStakingActivity
