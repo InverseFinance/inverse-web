@@ -48,10 +48,6 @@ export const useDbrAuction = (isClassicDbrAuction: boolean): {
             : [
                 [DOLA_SAVINGS_ADDRESS, 'yearlyRewardBudget'],
                 [DOLA_SAVINGS_ADDRESS, 'maxYearlyRewardBudget'],
-                [SDOLA_ADDRESS, 'getK'],
-                [SDOLA_ADDRESS, 'targetK'],
-                [SDOLA_ADDRESS, 'prevK'],
-                [SDOLA_ADDRESS, 'lastKUpdate'],
             ]
     );
 
