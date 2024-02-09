@@ -23,18 +23,23 @@ export const useDbrAuction = (isClassicDbrAuction: boolean): {
     isLoading: boolean;
     hasError: boolean;
 } => {
-    const { data: apiData, error: apiErr } = useCustomSWR(`/api/auctions/dbr?isClassic=${isClassicDbrAuction}`);
     const { account } = useWeb3React();
-    // reserves is an array
+    // reserves is an array    
     const { data: reserves, error: reservesError } = useEtherSWR(
         isClassicDbrAuction ?
             [DBR_AUCTION_ADDRESS, 'getCurrentReserves']
             :
-            [
-                [SDOLA_ADDRESS, 'getDolaReserve'],
-                [SDOLA_ADDRESS, 'getDbrReserve'],
-            ]
-    );
+            {
+                abi: [
+                    'function getDolaReserve() public view returns (uint)',
+                    'function getDbrReserve() public view returns (uint)',
+                ],
+                args: [
+                    [SDOLA_ADDRESS, 'getDolaReserve'],
+                    [SDOLA_ADDRESS, 'getDbrReserve'],
+                ],
+            },
+    );   
     const { data: otherData, error: otherDataError } = useEtherSWR(
         isClassicDbrAuction ? [
             [DBR_AUCTION_ADDRESS, 'dbrRatePerYear'],
@@ -43,24 +48,20 @@ export const useDbrAuction = (isClassicDbrAuction: boolean): {
             : [
                 [DOLA_SAVINGS_ADDRESS, 'yearlyRewardBudget'],
                 [DOLA_SAVINGS_ADDRESS, 'maxYearlyRewardBudget'],
-                [SDOLA_ADDRESS, 'getK'],
-                [SDOLA_ADDRESS, 'targetK'],
-                [SDOLA_ADDRESS, 'prevK'],
-                [SDOLA_ADDRESS, 'lastKUpdate'],
             ]
     );
 
-    const dolaReserve = reserves ? getBnToNumber(reserves[0]) : apiData?.dolaReserve || 0;
-    const dbrReserve = reserves ? getBnToNumber(reserves[1]) : apiData?.dbrReserve || 0;
+    const dolaReserve = reserves ? getBnToNumber(reserves[0]) : 0;
+    const dbrReserve = reserves ? getBnToNumber(reserves[1]) : 0;    
 
-    return {
+    return {        
         dolaReserve,
-        dbrReserve,
-        dbrRatePerYear: otherData ? getBnToNumber(otherData[0]) : apiData?.yearlyRewardBudget || 0,
-        maxDbrRatePerYear: otherData ? getBnToNumber(otherData[1]) : apiData?.maxYearlyRewardBudget || 0,
-        K: reserves ? getBnToNumber(reserves[0].mul(reserves[1])) : apiData?.K || 0,
-        isLoading: !account ? !apiData && !apiErr : (!reserves && !reservesError) || (!otherData && !otherDataError),
-        hasError: !account ? apiErr : !!reservesError || !!otherDataError,
+        dbrReserve,        
+        dbrRatePerYear: otherData ? getBnToNumber(otherData[0]) : 0,
+        maxDbrRatePerYear: otherData ? getBnToNumber(otherData[1]) : 0,
+        K: reserves ? getBnToNumber(reserves[0].mul(reserves[1])) : 0,
+        isLoading: !account ? false : (!reserves && !reservesError) || (!otherData && !otherDataError),
+        hasError: !account ? false : !!reservesError || !!otherDataError,
     }
 }
 
@@ -159,7 +160,7 @@ export const DbrAuctionParameters = ({ dolaReserve, dbrReserve, dbrRatePerYear, 
                 <VStack w='full' spacing="0">
                     <HStack w='full'>
                         <Text>- DBR rate per year:</Text>
-                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{ !dbrRatePerYear ? '-' : `${preciseCommify(dbrRatePerYear, 0)} (${preciseCommify(dbrRatePerYear * dbrPrice, 0, true)})` }</Text>}
+                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{!dbrRatePerYear ? '-' : `${preciseCommify(dbrRatePerYear, 0)} (${preciseCommify(dbrRatePerYear * dbrPrice, 0, true)})`}</Text>}
                     </HStack>
                     <HStack w='full'>
                         <Text>- Max. DBR rate per year:</Text>

@@ -428,10 +428,10 @@ export const MENUS = {
           label: 'Debank',
           href: 'https://debank.com/official/Inverse_Finance/follower',
         },
-        {
-          label: 'Telegram',
-          href: 'https://t.me/InverseFinance',
-        },        
+        // {
+        //   label: 'Telegram',
+        //   href: 'https://t.me/InverseFinance',
+        // },        
         {
           label: 'Newsletter',
           href: '/newsletter',
@@ -449,9 +449,13 @@ export const MENUS = {
       image: '/assets/socials/discord.svg',
     },
     {
-      href: 'https://t.me/InverseFinance',
-      image: '/assets/socials/telegram.svg',
+      href: 'https://warpcast.com/inversefinance',
+      image: '/assets/socials/warpcast-white.webp',
     },
+    // {
+    //   href: 'https://t.me/InverseFinance',
+    //   image: '/assets/socials/telegram.svg',
+    // },
     {
       href: 'https://github.com/InverseFinance',
       image: '/assets/socials/github.svg',
