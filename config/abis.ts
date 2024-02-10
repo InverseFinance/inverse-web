@@ -598,6 +598,7 @@ export const SDOLA_ABI = [
   "function getDolaReserve() public view returns (uint)",
   "function getDbrReserve() public view returns (uint)",
   "function weeklyRevenue(uint) public view returns (uint)",
+  "function balanceOf(address) public view returns (uint)",
   "event Buy(address indexed caller, address indexed to, uint dolaIn, uint dbrOut)",
   "event Deposit(address indexed caller, address indexed owner, uint assets, uint shares)",
   "event Withdraw(address indexed caller, address indexed receiver, address indexed owner, uint assets, uint shares)",  
