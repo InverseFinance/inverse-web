@@ -134,8 +134,8 @@ export const SDolaStatsPage = () => {
           <ChartCard subtitle={sDolaTotalAssets > 0 ? `(current: ${preciseCommify(sDolaTotalAssets || 0, 0)})` : ''} cardTitle={`DOLA staked in sDOLA`}>
             {isInited && <Chart isLoading={isLoading} currentValue={sDolaTotalAssets} data={histoData} attribute="sDolaTotalAssets" yLabel="DOLA staked" />}
           </ChartCard>
-          <ChartCard cardTitle={`APR evolution`} subtitle={`(current: ${shortenNumber(apr || 0, 2)}%)`}>
-            {isInited && <Chart currentValue={apr} isPerc={true} data={histoData} attribute="apr" yLabel="APR" />}
+          <ChartCard cardTitle={`APY evolution`} subtitle={`(current: ${shortenNumber(apr || 0, 2)}%)`}>
+            {isInited && <Chart currentValue={apr} isPerc={true} data={histoData} attribute="apr" yLabel="APY" />}
           </ChartCard>
         </SimpleGrid>
         <DolaStakingActivity

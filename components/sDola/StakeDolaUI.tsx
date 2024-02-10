@@ -71,8 +71,8 @@ export const StakeDolaUI = () => {
 
     return <VStack w='full' maxW='470px' spacing="4">
         <HStack justify="space-between" w='full'>
-            <StatBasic message="This week's APR is calculated with last week's DBR auction revenues" isLoading={isLoading} name="Initial APR" value={apr ? `${shortenNumber(apr, 2)}%` : 'TBD'} />
-            <StatBasic message="The projected APR is calculated with the dbrRatePerDOLA and the current DBR price in DOLA" isLoading={isLoading} name="Projected APR" value={`${shortenNumber(projectedApr, 2)}%`} />
+            <StatBasic message="This week's APY is calculated with last week's DBR auction revenues" isLoading={isLoading} name="Initial APR" value={apr ? `${shortenNumber(apr, 2)}%` : 'TBD'} />
+            <StatBasic message="The projected APY is calculated with the dbrRatePerDOLA and the current DBR price in DOLA" isLoading={isLoading} name="Projected APR" value={`${shortenNumber(projectedApr, 2)}%`} />
         </HStack>
         {
             (monthlyDolaRewards > 0) && <InfoMessage
@@ -81,7 +81,7 @@ export const StakeDolaUI = () => {
                     <VStack alignItems="flex-start">
                         {/* { earnings > 0.1 && <Text>Your cumulated earnings: <b>{preciseCommify(earnings, 2)} DOLA</b></Text> } */}
                         {/* <Text>Your projected monthly rewards: <b>~{preciseCommify(monthlyProjectedDolaRewards, 2)} DOLA</b></Text> */}
-                        {apr > 0 && <Text>Your monthly rewards (current APR): ~{preciseCommify(monthlyDolaRewards, 2)} DOLA</Text>}
+                        {apr > 0 && <Text>Your monthly rewards (current APY): ~{preciseCommify(monthlyDolaRewards, 2)} DOLA</Text>}
                         {/* <Text>Note: actual rewards depend on past revenue</Text> */}
                     </VStack>
                 }
