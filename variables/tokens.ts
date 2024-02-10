@@ -66,6 +66,8 @@ const chainTokenAddresses = {
     AURA: '0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF',
     DOLAUSDCBALANCER: '0xFf4ce5AAAb5a627bf82f4A571AB1cE94Aa365eA6',
     DBRDOLABALANCER: '0x445494F823f3483ee62d854eBc9f58d5B9972A25',
+    DOLAMKUSDBALANCER: '0x383e7859271B2D0589B013b6d944572a0a8bE3cB',
+    MKUSD: '0x4591DBfF62656E7859Afe5e45f6f47D3669fBB28',
     // DOLABBEUSD: '0x133d241F225750D2c92948E464A5a80111920331',
     // DOLABBEUSDALP: '0xFdbd847B7593Ef0034C58258aD5a18b34BA6cB29',
     // BBEUSD: '0x50Cf90B954958480b8DF7958A9E965752F627124',
@@ -631,6 +633,24 @@ const chainTokens = {
       ],
       image: TOKEN_IMAGES.DOLA
     },
+    [chainTokenAddresses["1"].DOLAMKUSDBALANCER]: {
+      address: chainTokenAddresses["1"].DOLAMKUSDBALANCER,
+      name: 'DOLA-MKUSD blp',
+      symbol: 'DOLA-MKUSD blp',
+      protocolImage: PROTOCOL_IMAGES.BAL,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      balancerInfos: {
+        poolId: '0x383e7859271b2d0589b013b6d944572a0a8be3cb000000000000000000000657',
+        vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
+      },
+      isComposableMetapool: true,
+      pairs: [
+        chainTokenAddresses["1"].DOLAMKUSDBALANCER, chainTokenAddresses["1"].MKUSD, chainTokenAddresses["1"].DOLA,
+      ],
+      image: TOKEN_IMAGES.DOLA
+    },
     // [chainTokenAddresses["1"].DOLABBEUSD]: {
     //   address: chainTokenAddresses["1"].DOLABBEUSD,
     //   name: 'DOLA-BB-E-USD blp',
@@ -676,6 +696,14 @@ const chainTokens = {
     //   protocolImage: PROTOCOL_IMAGES.EULER,
     //   decimals: 18,
     // },
+    [chainTokenAddresses["1"].MKUSD]: {
+      address: chainTokenAddresses["1"].MKUSD,
+      name: 'MKUSD',
+      symbol: 'MKUSD',
+      coingeckoId: 'prisma-mkusd',
+      image: TOKEN_IMAGES.MKUSD,
+      decimals: 18,
+    },
     [chainTokenAddresses["1"].THREECRV]: {
       address: chainTokenAddresses["1"].THREECRV,
       name: 'lp-3pool-curve',

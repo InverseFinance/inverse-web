@@ -28,6 +28,7 @@ export const TOKEN_IMAGES = {
     "INV": IMAGES.INV,
     "DBR": IMAGES.DBR,
     "THREECRV": IMAGES["3CRV"],
+    "MKUSD": "https://assets.coingecko.com/coins/images/31519/standard/mkUSD_200.png?1696530329",
     "WUSDR": "https://assets.coingecko.com/coins/images/28800/small/wUSDRlogo.png?1674283345",
     "RUSDR": "https://assets.coingecko.com/coins/images/27973/small/USDR-200x200.png?1666772134",
     "CHRONOS": "https://assets.coingecko.com/coins/images/29622/small/chronos_icono-01.png?1680077336",
