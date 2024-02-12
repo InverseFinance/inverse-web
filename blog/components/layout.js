@@ -7,7 +7,7 @@ export default function Layout({ preview, isNewsletter = false, children }) {
     <>
       <div className="min-h-screen">
         <main>
-          <AppNav active={isNewsletter ? '' : 'Blog'} isBlog={true} />
+          <AppNav active={isNewsletter ? '' : 'More'} activeSubmenu="Blog" isBlog={true} />
           <Box pt="74px">
             {children}
           </Box>

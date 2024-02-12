@@ -30,7 +30,7 @@ export const DebtConverterRepaymentsPage = () => {
             <Head>
                 <title>Inverse Finance - Debt Converter Repayments</title>
             </Head>
-            <AppNav active="Frontier" activeSubmenu="Debt Converter" />
+            <AppNav active="More" activeSubmenu="Frontier - Debt Converter" />
             <ErrorBoundary>
                 <VStack maxWidth="1200px">
                     {

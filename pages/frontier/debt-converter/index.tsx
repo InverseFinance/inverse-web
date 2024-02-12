@@ -122,7 +122,7 @@ export const DebtConverterPage = () => {
             <Head>
                 <title>Inverse Finance - Debt Converter</title>
             </Head>
-            <AppNav active="Borrow" activeSubmenu="Frontier - Debt Converter" />
+            <AppNav active="More" activeSubmenu="Frontier - Debt Converter" />
             <ErrorBoundary>
                 <VStack maxWidth="1200px">
                     <VStack maxW={"700px"}>
