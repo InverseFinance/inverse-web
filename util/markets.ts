@@ -172,6 +172,10 @@ export const toApy = (rate: number) =>
     (Math.pow((rate / ETH_MANTISSA) * BLOCKS_PER_DAY + 1, DAYS_PER_YEAR) - 1) *
     100;
 
+// apr input directly in %, not decimal
+export const aprToApy = (apr: number, compoundingsPerYear: number) =>
+    !compoundingsPerYear ? apr : (Math.pow(1 + (apr / 100) / compoundingsPerYear, compoundingsPerYear) - 1) * 100;
+
 export const getYearnVaults = async () => {
     try {
         const results = await fetch('https://d28fcsszptni1s.cloudfront.net/v1/chains/1/vaults/all');

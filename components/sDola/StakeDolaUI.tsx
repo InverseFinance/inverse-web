@@ -41,18 +41,18 @@ export const StakeDolaUI = () => {
     const [tab, setTab] = useState('Stake');
     const isStake = tab === 'Stake';
 
-    const { apr, projectedApr, isLoading, sDolaExRate } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
+    const { apy, projectedApy, isLoading, sDolaExRate } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
     const { balance: dolaBalance } = useDOLABalance(account);
     const { stakedDolaBalance, stakedDolaBalanceBn } = useDolaStakingEarnings(account);
     const dolaStakedInSDola = sDolaExRate * stakedDolaBalance;    
 
     // const monthlyProjectedDolaRewards = useMemo(() => {
-    //     return (projectedApr > 0 && stakedDolaBalance > 0 ? getMonthlyRate(stakedDolaBalance, projectedApr) : 0);
-    // }, [stakedDolaBalance, projectedApr]);
+    //     return (projectedApy > 0 && stakedDolaBalance > 0 ? getMonthlyRate(stakedDolaBalance, projectedApy) : 0);
+    // }, [stakedDolaBalance, projectedApy]);
 
     const monthlyDolaRewards = useMemo(() => {
-        return (apr > 0 && stakedDolaBalance > 0 ? getMonthlyRate(stakedDolaBalance, apr) : 0);
-    }, [stakedDolaBalance, apr]);
+        return (apy > 0 && stakedDolaBalance > 0 ? getMonthlyRate(stakedDolaBalance, apy) : 0);
+    }, [stakedDolaBalance, apy]);
 
     const handleAction = async () => {        
         if (isStake) {
@@ -71,8 +71,8 @@ export const StakeDolaUI = () => {
 
     return <VStack w='full' maxW='470px' spacing="4">
         <HStack justify="space-between" w='full'>
-            <StatBasic message="This week's APY is calculated with last week's DBR auction revenues" isLoading={isLoading} name="Initial APY" value={apr ? `${shortenNumber(apr, 2)}%` : 'TBD'} />
-            <StatBasic message="The projected APY is calculated with the dbrRatePerDOLA and the current DBR price in DOLA" isLoading={isLoading} name="Projected APY" value={`${shortenNumber(projectedApr, 2)}%`} />
+            <StatBasic message="This week's APY is calculated with last week's DBR auction revenues" isLoading={isLoading} name="Initial APY" value={apy ? `${shortenNumber(apy, 2)}%` : '0% this week'} />
+            <StatBasic message="The projected APY is calculated with the dbrRatePerDOLA and the current DBR price in DOLA" isLoading={isLoading} name="Projected APY" value={`${shortenNumber(projectedApy, 2)}%`} />
         </HStack>
         {
             (monthlyDolaRewards > 0) && <InfoMessage
@@ -81,7 +81,7 @@ export const StakeDolaUI = () => {
                     <VStack alignItems="flex-start">
                         {/* { earnings > 0.1 && <Text>Your cumulated earnings: <b>{preciseCommify(earnings, 2)} DOLA</b></Text> } */}
                         {/* <Text>Your projected monthly rewards: <b>~{preciseCommify(monthlyProjectedDolaRewards, 2)} DOLA</b></Text> */}
-                        {apr > 0 && <Text>Your monthly rewards (current APY): ~{preciseCommify(monthlyDolaRewards, 2)} DOLA</Text>}
+                        {apy > 0 && <Text>Your monthly rewards (current APY): ~{preciseCommify(monthlyDolaRewards, 2)} DOLA</Text>}
                         {/* <Text>Note: actual rewards depend on past revenue</Text> */}
                     </VStack>
                 }

@@ -3,7 +3,7 @@ import { BURN_ADDRESS, DOLA_SAVINGS_ADDRESS, ONE_DAY_MS, SDOLA_ADDRESS, SDOLA_HE
 import useEtherSWR from "@app/hooks/useEtherSWR";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
-import { getBnToNumber } from "./markets";
+import { aprToApy, getBnToNumber } from "./markets";
 import { useAccount } from "@app/hooks/misc";
 import { useCustomSWR } from "@app/hooks/useCustomSWR";
 import { useContractEvents } from "@app/hooks/useContractEvents";
@@ -11,6 +11,7 @@ import { ascendingEventsSorter } from "./misc";
 import { useBlocksTimestamps } from "@app/hooks/useBlockTimestamp";
 import { SWR } from "@app/types";
 import { fetcher } from "./web3";
+import { useMemo } from "react";
 
 export const getDolaSavingsContract = (signerOrProvider: JsonRpcSigner) => {
     return new Contract(DOLA_SAVINGS_ADDRESS, DOLA_SAVINGS_ABI, signerOrProvider);
@@ -116,8 +117,10 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
     sDolaClaimable: number;
     accountRewardsClaimable: number;
     dbrRatePerDola: number;
-    apr: number | null;
-    projectedApr: number | null;
+    apr: number;
+    apy: number;
+    projectedApr: number;
+    projectedApy: number;
     dsaApr: number | null;
     isLoading: boolean;
     hasError: boolean;
@@ -144,7 +147,7 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
     ]);
 
     return {
-        ...formatDolaStakingData(dbrDolaPrice, dolaStakingData, apiData, supplyDelta),
+        ...formatDolaStakingData(dbrDolaPrice, dolaStakingData, apiData, supplyDelta, true),
         isLoading: (!dolaStakingData && !error) && (!apiData && !apiErr),
         hasError: !!error || !!apiErr,
     }
@@ -155,6 +158,7 @@ export const formatDolaStakingData = (
     dolaStakingData: any[],
     fallbackData?: any,
     supplyDelta = 0,
+    isAccountCase = false,
 ) => {
     const sDolaClaimable = dolaStakingData ? getBnToNumber(dolaStakingData[0]) : fallbackData?.sDolaClaimable || 0;
     const dolaBalInDsaFromSDola = dolaStakingData ? getBnToNumber(dolaStakingData[1]) : fallbackData?.dolaBalInDsaFromSDola || 0;
@@ -168,7 +172,7 @@ export const formatDolaStakingData = (
     const pastWeekRevenue = dolaStakingData ? getBnToNumber(dolaStakingData[8]) : fallbackData?.pastWeekRevenue || 0;
     const sDolaTotalAssets = (dolaStakingData ? getBnToNumber(dolaStakingData[9]) : fallbackData?.sDolaTotalAssets || 0) + supplyDelta;
     // optional
-    const accountRewardsClaimable = dolaStakingData && dolaStakingData[10] ? getBnToNumber(dolaStakingData[10]) : 0;    
+    const accountRewardsClaimable = isAccountCase ? dolaStakingData && dolaStakingData[10] ? getBnToNumber(dolaStakingData[10]) : 0 : undefined;
 
     const sDolaDsaShare = dsaTotalSupply > 0 ? dolaBalInDsaFromSDola / dsaTotalSupply : 1;
     // sDOLA budget share
@@ -178,9 +182,9 @@ export const formatDolaStakingData = (
     const dsaDbrRatePerDola = dsaTotalSupply > 0 ? Math.min(dsaYearlyBudget / dsaTotalSupply, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;
     const dbrRatePerDola = dolaBalInDsaFromSDola > 0 ? Math.min(yearlyRewardBudget / dolaBalInDsaFromSDola, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;
 
-    const apr = dolaBalInDsaFromSDola > 0 ? (pastWeekRevenue * WEEKS_PER_YEAR) / dolaBalInDsaFromSDola * 100 : null;
-    const projectedApr = dbrDolaPrice ? dbrRatePerDola * dbrDolaPrice * 100 : null;
-    const dsaApr = dbrDolaPrice ? dsaDbrRatePerDola * dbrDolaPrice * 100 : null;
+    const apr = dolaBalInDsaFromSDola > 0 ? (pastWeekRevenue * WEEKS_PER_YEAR) / dolaBalInDsaFromSDola * 100 : 0;
+    const projectedApr = dbrDolaPrice ? dbrRatePerDola * dbrDolaPrice * 100 : 0;
+    const dsaApr = dbrDolaPrice ? dsaDbrRatePerDola * dbrDolaPrice * 100 : 0;
 
     return {
         sDolaExRate: sDolaTotalAssets && sDolaSupply ? sDolaTotalAssets / sDolaSupply : 0,
@@ -202,7 +206,10 @@ export const formatDolaStakingData = (
         sDolaClaimable,
         accountRewardsClaimable,
         apr,
+        // weekly compounding
+        apy: aprToApy(apr, 52),
         projectedApr,
+        projectedApy: aprToApy(projectedApr, 52),
         dsaApr,
     }
 }
@@ -230,11 +237,14 @@ export const useDolaStakingEvolution = (): SWR & {
     evolution: any[],
     timestamp: number,
 } => {    
-    const { data, error } = useCustomSWR(`/api/dola-staking/history`, fetcher);
+    const { data, error } = useCustomSWR(`/api/dola-staking/history?`, fetcher);
 
-    const evolution = (data?.totalEntries || []);
+    const evolution = useMemo(() => {
+        return (data?.totalEntries || []).map((e) => ({ ...e, apy: aprToApy(e.apr, 52) }));
+    }, [data?.timestamp, data?.totalEntries]);
+
     return {
-        evolution,        
+        evolution,
         timestamp: data ? data.timestamp : 0,
         isLoading: !error && !data,
         isError: error,
