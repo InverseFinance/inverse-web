@@ -625,7 +625,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
           <Link href="/">
             <Logo minW='40px' boxSize={10} noFilter={true} />
           </Link>
-          <Stack direction="row" align="center" spacing={isLargerThan || isBlog ? 6 : 5} display={{ base: 'none', lg: 'flex' }}>
+          <Stack direction="row" align="center" spacing={isLargerThan || isBlog ? 7 : 6} display={{ base: 'none', lg: 'flex' }}>
             {NAV_ITEMS.map(({ label, href, submenus }, i) => (
               <Box
                 key={i}

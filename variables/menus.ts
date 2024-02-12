@@ -5,7 +5,7 @@ export const MENUS = {
       href: '/dashboard',
     },
     {
-      label: 'Borrow',
+      label: 'Markets',
       href: '/firm',
       submenus: [
         {
@@ -13,94 +13,8 @@ export const MENUS = {
           href: '/firm',
         },
         {
-          label: 'FiRM rewards',
-          href: '/firm/rewards',
-        },
-        // {
-        //   label: 'WETH Market',
-        //   href: '/firm/WETH',
-        // },
-        {
-          label: 'Frontier (deprecated)',
-          href: '/frontier',
-        },
-        {
-          label: 'Frontier - Debt Converter',
-          href: '/frontier/debt-converter',
-        },
-        {
-          label: 'Frontier - Debt Repayer',
-          href: '/frontier/debt-repayer',
-        },
-        // {
-        //   label: 'Borrow DOLA',
-        //   href: '/frontier?marketType=borrow&market=dola#',
-        // },
-      ],
-    },
-    {
-      label: 'Stake',
-      href: '/firm/INV',
-      submenus: [
-        {
           label: 'Stake INV',
           href: '/firm/INV',
-        },
-        {
-          label: 'Stake DOLA',
-          href: '/sDOLA',
-        },  
-        {
-          label: 'Frontier (deprecated)',
-          href: '/frontier',
-        },
-        {
-          label: 'FiRM stakers',
-          href: '/firm/stakers',
-        },
-      ]
-    },
-    // {
-    //   label: 'Bond',
-    //   href: '/bonds',
-    // },
-    // {
-    //   label: 'sDOLA',
-    //   href: '/sdola',
-    //   submenus: [
-    //     {
-    //       label: 'sDOLA',
-    //       href: '/sdola',
-    //     },
-    //     {
-    //       label: 'sDOLA stats',
-    //       href: '/sdola/stats',
-    //     },
-    //     {
-    //       label: 'DOLA Savings Account',
-    //       href: '/dsa',
-    //     },
-    //     {
-    //       label: 'DSA stats',
-    //       href: '/dsa/stats',
-    //     },
-    //     {
-    //       label: 'DBR auctions',
-    //       href: '/dbr/auction',
-    //     },  
-    //     {
-    //       label: 'DBR auctions stats',
-    //       href: '/dbr/auction/stats',
-    //     },  
-    //   ],
-    // },
-    {
-      label: 'Earn',
-      href: '/yield-opportunities',
-      submenus: [
-        {
-          label: 'Yield Opportunities',
-          href: '/yield-opportunities',
         },
         {
           label: 'FiRM rewards',
@@ -110,113 +24,23 @@ export const MENUS = {
           label: 'Liquidate Loans',
           href: '/firm/positions',
         },
-        {
-          label: 'Replenish DBR',
-          href: '/transparency/dbr#Spenders',
-        },
+        // {
+        //   label: 'FiRM stakers',
+        //   href: '/firm/stakers',
+        // },
+        // {
+        //   label: 'Liquidate Loans',
+        //   href: '/firm/positions',
+        // },
+        // {
+        //   label: 'WETH Market',
+        //   href: '/firm/WETH',
+        // },        
+        // {
+        //   label: 'Borrow DOLA',
+        //   href: '/frontier?marketType=borrow&market=dola#',
+        // },
       ],
-    },
-    // {
-    //   label: 'Claim',
-    //   href: '/claim-dbr',
-    // },
-    {
-      label: 'Swap',
-      href: '/swap',
-      submenus: [
-        {
-          label: 'Buy INV',
-          href: '/swap?fromToken=DOLA&toToken=INV',
-          needReload: true,
-        },
-        {
-          label: 'Buy DBR',
-          href: '/swap?fromToken=DOLA&toToken=DBR',
-          needReload: true,
-        },
-        {
-          label: 'Buy DBR (auction)',
-          href: '/dbr/auction',        
-        },
-        {
-          label: 'Buy DOLA',
-          href: '/swap?fromToken=DAI&toToken=DOLA',
-          needReload: true,
-        },
-        {
-          label: 'Bridge DOLA',
-          href: '/swap?fromToken=DOLA&toToken=DOLA&fromChain=ethereum&toChain=optimism',
-          needReload: true,
-        },
-        {
-          label: 'Native Base Bridge',
-          href: '/base',
-          needReload: true,
-        },
-      ]
-    },     
-    // {
-    //   label: 'Swap',
-    //   href: '/swap/DAI/DOLA',
-    //   submenus: [
-    //     {
-    //       label: 'Buy DOLA with DAI',
-    //       href: '/swap/DAI/DOLA',
-    //     },
-    //     {
-    //       label: 'Buy DOLA with USDC',
-    //       href: '/swap/USDC/DOLA',
-    //     },
-    //     {
-    //       label: 'Buy DOLA with USDT',
-    //       href: '/swap/USDT/USDT',
-    //     },
-    //   ]
-    // },
-
-    // {
-    //   label: 'Bonds',
-    //   href: '/bonds',
-    //   submenus: [
-    //     {
-    //       label: 'Bonds',
-    //       href: '/bonds',
-    //     },
-    //     {
-    //       label: 'Bonds Stats',
-    //       href: '/bonds/stats',
-    //     },
-    //   ],
-    // },
-    {
-      label: 'Learn',
-      href: 'https://docs.inverse.finance',
-      submenus: [
-        {
-          href: 'https://docs.inverse.finance',
-          label: 'Docs',
-        },
-        {
-          label: 'Blog',
-          href: '/blog',
-        },
-        {
-          label: 'Audits',
-          href: '/audits',
-        },
-        {
-          label: 'About FiRM',
-          href: '/about-firm',
-        },
-        {
-          label: 'FiRM Whitepaper',
-          href: '/whitepaper',
-        },
-        {
-          href: '/analytics',
-          label: 'Analytics',
-        },       
-      ]
     },
     {
       label: 'sDOLA',
@@ -238,12 +62,38 @@ export const MENUS = {
           label: 'DSA Stats',
           href: '/dsa/stats',
         },
+        {
+          label: 'Buy DBR (auction)',
+          href: '/dbr/auction',        
+        },
       ],
-    }, 
-    // {
-    //   label: 'Blog',
-    //   href: '/blog',
-    // },
+    },
+    {
+      label: 'Governance',
+      href: '/governance',
+      submenus: [
+        {
+          label: 'Drafts & Proposals',
+          href: '/governance',
+        },
+        {
+          label: 'Passed Proposals',
+          href: '/governance/proposals',
+        },
+        {
+          label: 'Create a Draft',
+          href: '/governance/propose?proposalLinkData=%7B"title"%3A"Draft"%2C"description"%3A"Forum+post+link,+Draft+content"%2C"actions"%3A%5B%5D%7D#',
+        },
+        {
+          label: 'Delegates',
+          href: '/governance/delegates',
+        },
+        {
+          label: 'Your Profile',
+          href: '/governance/delegates/$account',
+        },
+      ]
+    },
     {
       label: 'Transparency',
       href: '/transparency/overview',
@@ -297,33 +147,207 @@ export const MENUS = {
           label: 'Frontier & Other',
         },
       ],
-    },
+    }, 
+    // {
+    //   label: 'Bond',
+    //   href: '/bonds',
+    // },
+    // {
+    //   label: 'sDOLA',
+    //   href: '/sdola',
+    //   submenus: [
+    //     {
+    //       label: 'sDOLA',
+    //       href: '/sdola',
+    //     },
+    //     {
+    //       label: 'sDOLA stats',
+    //       href: '/sdola/stats',
+    //     },
+    //     {
+    //       label: 'DOLA Savings Account',
+    //       href: '/dsa',
+    //     },
+    //     {
+    //       label: 'DSA stats',
+    //       href: '/dsa/stats',
+    //     },
+    //     {
+    //       label: 'DBR auctions',
+    //       href: '/dbr/auction',
+    //     },  
+    //     {
+    //       label: 'DBR auctions stats',
+    //       href: '/dbr/auction/stats',
+    //     },  
+    //   ],
+    // },
     {
-      label: 'Governance',
-      href: '/governance',
+      label: 'More',
+      href: 'https://docs.inverse.finance',
       submenus: [
         {
-          label: 'Drafts & Proposals',
-          href: '/governance',
+          href: 'https://docs.inverse.finance',
+          label: 'Docs',
         },
         {
-          label: 'Passed Proposals',
-          href: '/governance/proposals',
+          label: 'Blog',
+          href: '/blog',
         },
         {
-          label: 'Create a Draft',
-          href: '/governance/propose?proposalLinkData=%7B"title"%3A"Draft"%2C"description"%3A"Forum+post+link,+Draft+content"%2C"actions"%3A%5B%5D%7D#',
+          label: 'Audits',
+          href: '/audits',
         },
         {
-          label: 'Delegates',
-          href: '/governance/delegates',
+          label: 'Yield Opportunities',
+          href: '/yield-opportunities',
         },
         {
-          label: 'Your Profile',
-          href: '/governance/delegates/$account',
+          label: 'Swap',
+          href: '/swap?fromToken=DOLA&toToken=INV',
+          needReload: true,
         },
-      ]
+        {
+          label: 'Native Base Bridge',
+          href: '/base',
+          needReload: true,
+        },
+        {
+          label: 'Analytics',
+          href: 'https://inverse.watch/',
+        },
+        // {
+        //   label: 'About FiRM',
+        //   href: '/about-firm',
+        // },
+        {
+          label: 'FiRM Whitepaper',
+          href: '/whitepaper',
+        },
+        {
+          label: 'sDOLA Whitepaper',
+          href: '/whitepaper/sDOLA',
+        },
+        {
+          label: 'Frontier (deprecated)',
+          href: '/frontier',
+        },
+        {
+          label: 'Frontier - Debt Converter',
+          href: '/frontier/debt-converter',
+        },
+        {
+          label: 'Frontier - Debt Repayer',
+          href: '/frontier/debt-repayer',
+        },
+      ],
     },
+    // {
+    //   label: 'Claim',
+    //   href: '/claim-dbr',
+    // },
+    // {
+    //   label: 'Swap',
+    //   href: '/swap',
+    //   submenus: [
+    //     {
+    //       label: 'Buy INV',
+    //       href: '/swap?fromToken=DOLA&toToken=INV',
+    //       needReload: true,
+    //     },
+    //     {
+    //       label: 'Buy DBR',
+    //       href: '/swap?fromToken=DOLA&toToken=DBR',
+    //       needReload: true,
+    //     },
+    //     {
+    //       label: 'Buy DBR (auction)',
+    //       href: '/dbr/auction',        
+    //     },
+    //     {
+    //       label: 'Buy DOLA',
+    //       href: '/swap?fromToken=DAI&toToken=DOLA',
+    //       needReload: true,
+    //     },
+    //     {
+    //       label: 'Bridge DOLA',
+    //       href: '/swap?fromToken=DOLA&toToken=DOLA&fromChain=ethereum&toChain=optimism',
+    //       needReload: true,
+    //     },
+    //     {
+    //       label: 'Native Base Bridge',
+    //       href: '/base',
+    //       needReload: true,
+    //     },
+    //   ]
+    // },     
+    // {
+    //   label: 'Swap',
+    //   href: '/swap/DAI/DOLA',
+    //   submenus: [
+    //     {
+    //       label: 'Buy DOLA with DAI',
+    //       href: '/swap/DAI/DOLA',
+    //     },
+    //     {
+    //       label: 'Buy DOLA with USDC',
+    //       href: '/swap/USDC/DOLA',
+    //     },
+    //     {
+    //       label: 'Buy DOLA with USDT',
+    //       href: '/swap/USDT/USDT',
+    //     },
+    //   ]
+    // },
+
+    // {
+    //   label: 'Bonds',
+    //   href: '/bonds',
+    //   submenus: [
+    //     {
+    //       label: 'Bonds',
+    //       href: '/bonds',
+    //     },
+    //     {
+    //       label: 'Bonds Stats',
+    //       href: '/bonds/stats',
+    //     },
+    //   ],
+    // },
+    // {
+    //   label: 'Learn',
+    //   href: 'https://docs.inverse.finance',
+    //   submenus: [
+    //     {
+    //       href: 'https://docs.inverse.finance',
+    //       label: 'Docs',
+    //     },
+    //     {
+    //       label: 'Blog',
+    //       href: '/blog',
+    //     },
+    //     {
+    //       label: 'Audits',
+    //       href: '/audits',
+    //     },
+    //     {
+    //       label: 'About FiRM',
+    //       href: '/about-firm',
+    //     },
+    //     {
+    //       label: 'FiRM Whitepaper',
+    //       href: '/whitepaper',
+    //     },
+    //     {
+    //       href: '/analytics',
+    //       label: 'Analytics',
+    //     },       
+    //   ]
+    // },    
+    // {
+    //   label: 'Blog',
+    //   href: '/blog',
+    // },       
   ],
   "footerGroups": [
     {

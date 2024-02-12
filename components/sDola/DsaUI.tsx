@@ -41,15 +41,15 @@ export const DsaUI = () => {
     const [isJustClaimed, setIsJustClaimed] = useState(false);
     const isStake = tab === 'Stake';
 
-    const { savingsApr, accountRewardsClaimable, isLoading } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));    
+    const { dsaApr, accountRewardsClaimable, isLoading } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));    
     const totalRewardsUSD = accountRewardsClaimable * dbrPrice;
     const claimables = [{ balance: accountRewardsClaimable, price: dbrPrice, balanceUSD: totalRewardsUSD, address: DBR }];
     const { balance: dolaBalance } = useDOLABalance(account);
     const { balance: dolaSavingsBalance } = useDSABalance(account);
 
     const monthlyDbrRewards = useMemo(() => {
-        return (savingsApr > 0 && dolaSavingsBalance > 0 && dbrDolaPrice > 0 ? getMonthlyRate(dolaSavingsBalance, savingsApr)/dbrDolaPrice : 0);
-    }, [dolaSavingsBalance, savingsApr, dbrDolaPrice]);
+        return (dsaApr > 0 && dolaSavingsBalance > 0 && dbrDolaPrice > 0 ? getMonthlyRate(dolaSavingsBalance, dsaApr)/dbrDolaPrice : 0);
+    }, [dolaSavingsBalance, dsaApr, dbrDolaPrice]);
 
     const handleAction = async () => {        
         if (isStake) {
@@ -72,7 +72,7 @@ export const DsaUI = () => {
 
     return <VStack w='full' maxW='470px' spacing="4">
         <HStack justify="space-between" w='full'>
-            <StatBasic message="Annual Percentage Rate of DBR rewards" isLoading={isLoading} name="DSA APR" value={`${shortenNumber(savingsApr, 2)}%`} />
+            <StatBasic message="Annual Percentage Rate of DBR rewards" isLoading={isLoading} name="DSA APR" value={`${shortenNumber(dsaApr, 2)}%`} />
             <StatBasic message="Market price of DBR on Curve" isLoading={isLoading} name="DBR price" value={`${shortenNumber(dbrPrice, 4, true)}`} />
         </HStack>
         {
