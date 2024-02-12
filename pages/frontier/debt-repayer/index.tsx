@@ -130,7 +130,7 @@ export const DebtRepayerPage = () => {
             <Head>
                 <title>Inverse Finance - Debt Repayer</title>
             </Head>
-            <AppNav active="Borrow" activeSubmenu="Frontier - Debt Repayer" />
+            <AppNav active="More" activeSubmenu="Frontier - Debt Repayer" />
             <ErrorBoundary>
                 <Flex direction="column" w={{ base: 'full' }} maxWidth="700px">
                     {

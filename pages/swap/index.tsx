@@ -21,7 +21,7 @@ export const Swap = () => {
         <meta name="description" content="Swap and Bridge DOLA and other assets" />
         <meta name="keywords" content="Inverse Finance, swap, bridge, stablecoin, DOLA, DAI, USDT, USDC, INV, DBR" />
       </Head>
-      <AppNav active="Swap" />
+      <AppNav active="More" activeSubmenu="Swap" />
       <Stack
         w={{ base: 'full', lg: '1000px' }}
         justify="center"

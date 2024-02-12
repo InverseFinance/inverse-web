@@ -12,7 +12,7 @@ export const F2PositionsPage = () => {
             <Head>
                 <title>Inverse Finance - FiRM Positions</title>
             </Head>
-            <AppNav active="Earn" activeSubmenu="Liquidate Loans" />
+            <AppNav active="Markets" activeSubmenu="Liquidate Loans" />
             <ErrorBoundary>
                 <VStack w='full' maxW="1200px" mt="4">
                     <FirmPositions />

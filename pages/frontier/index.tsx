@@ -30,7 +30,7 @@ export const Anchor = () => {
         <title>Inverse Finance - Frontier</title>
         <meta name="og:image" content="https://images.ctfassets.net/kfs9y9ojngfc/4sS7NplccirIT7nEm1CEb7/407061e0f56f7d725b7ab51ba2247b8e/Final_INV_x_1-14.png?w=3840&q=75" />
       </Head>
-      <AppNav active="Stake" activeSubmenu="Frontier (deprecated)" />
+      <AppNav active="More" activeSubmenu="Frontier (deprecated)" />
       <ErrorBoundary>
         <Flex w={{ base: 'full' }} maxW="84rem" justify="flex-start">
           <ErrorBoundary description="Failed to load header">

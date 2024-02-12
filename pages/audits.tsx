@@ -19,7 +19,7 @@ export const AboutFirm = () => {
                 <meta name="twitter:image:alt" content="" />
                 <meta property="twitter:card" content="" />
             </Head>
-            <AppNav active="Learn" activeSubmenu="Audits" />
+            <AppNav active="More" activeSubmenu="Audits" />
             <VStack alignItems="flex-start" w='full'>
                 <Container
                     label="FiRM & sDOLA audits"

@@ -18,7 +18,7 @@ export const BasePage = () => {
         <meta name="description" content="Base bridging" />
         <meta name="keywords" content="Inverse Finance, base, bridge, stablecoin, DOLA" />
       </Head>
-      <AppNav active="Swap" activeSubmenu="Native Base Bridge" />
+      <AppNav active="More" activeSubmenu="Native Base Bridge" />
       <VStack
         w={{ base: 'full', lg: '1200px' }}
         justify="center"

@@ -65,7 +65,7 @@ export const F2PAGE = ({
                         </>                        
                 }      
             </Head>
-            <AppNav active="Borrow" activeSubmenu="FiRM" />
+            <AppNav active="Markets" activeSubmenu="FiRM" />
             {
                 !!ACTIVE_POLL && POLLS[ACTIVE_POLL] && <SlideModal closeOnOutsideClick={false} closeIconInside={true} isOpen={isOpen} onClose={handleManualClose} contentProps={{ maxW: '500px', className: '', backgroundColor: 'navBarBackgroundColor' }}>
                     <VStack w='full' justify="flex-start" alignItems="flex-start">
