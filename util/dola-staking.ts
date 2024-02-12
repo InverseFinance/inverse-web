@@ -118,7 +118,7 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
     dbrRatePerDola: number;
     apr: number | null;
     projectedApr: number | null;
-    savingsApr: number | null;
+    dsaApr: number | null;
     isLoading: boolean;
     hasError: boolean;
     sDolaExRate: number;
@@ -180,7 +180,7 @@ export const formatDolaStakingData = (
 
     const apr = dolaBalInDsaFromSDola > 0 ? (pastWeekRevenue * WEEKS_PER_YEAR) / dolaBalInDsaFromSDola * 100 : null;
     const projectedApr = dbrDolaPrice ? dbrRatePerDola * dbrDolaPrice * 100 : null;
-    const savingsApr = dbrDolaPrice ? dsaDbrRatePerDola * dbrDolaPrice * 100 : null;
+    const dsaApr = dbrDolaPrice ? dsaDbrRatePerDola * dbrDolaPrice * 100 : null;
 
     return {
         sDolaExRate: sDolaTotalAssets && sDolaSupply ? sDolaTotalAssets / sDolaSupply : 0,
@@ -203,7 +203,7 @@ export const formatDolaStakingData = (
         accountRewardsClaimable,
         apr,
         projectedApr,
-        savingsApr,
+        dsaApr,
     }
 }
 

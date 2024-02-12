@@ -6,7 +6,7 @@ import { formatDolaStakingData, getDolaSavingsContract, getSdolaContract } from 
 import { getMulticallOutput } from '@app/util/multicall';
 import { getDbrPriceOnCurve } from '@app/util/f2';
 
-export const dolaStakingCacheKey = `dola-staking-v1.0.2`;
+export const dolaStakingCacheKey = `dola-staking-v1.0.3`;
 
 export default async function handler(req, res) {    
     const cacheDuration = 600;
