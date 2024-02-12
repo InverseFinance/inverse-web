@@ -39,9 +39,8 @@ const MAX_AREA_CHART_WIDTH = 600;
 const Chart = (props) => {
   const { isLoading, data } = props;
   const refElement = useRef();
-  const [chartData, setChartData] = useState(null);
   const [refElementWidth, setRefElementWidth] = useState(MAX_AREA_CHART_WIDTH);
-  const [oldJson, setOldJson] = useState('');
+  // const [oldJson, setOldJson] = useState('');
   const [chartWidth, setChartWidth] = useState<number>(MAX_AREA_CHART_WIDTH);
   const [isLargerThan2xl, isLargerThanLg, isLargerThanXs] = useMediaQuery([
     "(min-width: 96em)",
@@ -61,27 +60,16 @@ const Chart = (props) => {
     setChartWidth(w);
   }, [isLargerThan2xl, isLargerThanXs, isLargerThanLg, screen?.availWidth]);
 
-  useDebouncedEffect(() => {
-    const len = data?.length || 0;
-    if (len > 0 && !isLoading && !chartData) {
-      const json = len > 3 ? JSON.stringify([data[0], data[len - 2]]) : JSON.stringify(data);
-      if (oldJson !== json) {
-        setChartData(data);
-        setOldJson(json);
-      }
-    }
-  }, [data, isLoading, oldJson, chartData]);
-
-  if (!chartData && isLoading) {
+  if (data?.length < 2) {
     return <SkeletonBlob mt="10" />
   }
-  else if (!chartData) {
+  else if (!data) {
     return null;
   }
 
   // too much flickering when using the responsive container
   return <VStack w='full' ref={refElement}>
-    <SDolaStakingEvolutionChart chartWidth={chartWidth} {...props} data={chartData} />
+    <SDolaStakingEvolutionChart chartWidth={chartWidth} {...props} data={data} />
   </VStack>
 }
 
