@@ -28,6 +28,10 @@ export const MENUS = {
           label: 'Liquidate Loans',
           href: '/firm/positions',
         },
+        {
+          label: 'Frontier (deprecated)',
+          href: '/frontier',
+        },
         // {
         //   label: 'Liquidate Loans',
         //   href: '/firm/positions',
@@ -227,11 +231,7 @@ export const MENUS = {
         {
           label: 'sDOLA Whitepaper',
           href: '/whitepaper/sDOLA',
-        },
-        {
-          label: 'Frontier (deprecated)',
-          href: '/frontier',
-        },
+        },        
         {
           label: 'Frontier - Debt Converter',
           href: '/frontier/debt-converter',
