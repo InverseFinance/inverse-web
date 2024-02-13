@@ -1,5 +1,5 @@
 import { DOLA_SAVINGS_ABI, SDOLA_ABI, SDOLA_HELPER_ABI } from "@app/config/abis";
-import { BURN_ADDRESS, DOLA_SAVINGS_ADDRESS, ONE_DAY_MS, SDOLA_ADDRESS, SDOLA_HELPER_ADDRESS, WEEKS_PER_YEAR } from "@app/config/constants";
+import { BURN_ADDRESS, DOLA_SAVINGS_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS, SDOLA_ADDRESS, SDOLA_HELPER_ADDRESS, WEEKS_PER_YEAR } from "@app/config/constants";
 import useEtherSWR from "@app/hooks/useEtherSWR";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
@@ -121,6 +121,8 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
     apy: number;
     projectedApr: number;
     projectedApy: number;
+    nextApr: number;
+    nextApy: number;
     dsaApr: number | null;
     isLoading: boolean;
     hasError: boolean;
@@ -141,7 +143,7 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
         [DOLA_SAVINGS_ADDRESS, 'maxRewardPerDolaMantissa'],
         [SDOLA_ADDRESS, 'totalSupply'],
         [SDOLA_ADDRESS, 'weeklyRevenue', weekIndexUtc],
-        [SDOLA_ADDRESS, 'weeklyRevenue', weekIndexUtc - 1],        
+        [SDOLA_ADDRESS, 'weeklyRevenue', weekIndexUtc - 1],
         [SDOLA_ADDRESS, 'totalAssets'],
         [DOLA_SAVINGS_ADDRESS, 'claimable', account],
     ]);
@@ -181,10 +183,18 @@ export const formatDolaStakingData = (
     // TODO: verify this is correct
     const dsaDbrRatePerDola = dsaTotalSupply > 0 ? Math.min(dsaYearlyBudget / dsaTotalSupply, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;
     const dbrRatePerDola = dolaBalInDsaFromSDola > 0 ? Math.min(yearlyRewardBudget / dolaBalInDsaFromSDola, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;
-
+    const now = Date.now();
+    const secondsPastEpoch = (now - getLastThursdayTimestamp()) / 1000;   
+    const realizedTimeInDays = secondsPastEpoch / ONE_DAY_SECS;
+    const nextTotalAssets = sDolaTotalAssets + weeklyRevenue;
+    const realized = (weeklyRevenue * realizedTimeInDays/7 * WEEKS_PER_YEAR) / sDolaTotalAssets;
+    const forecasted = (nextTotalAssets * dbrDolaPrice * dbrRatePerDola) / sDolaTotalAssets;
+    // we use two week revenu epoch for the projected apr
+    const calcPeriodSeconds = 14 * ONE_DAY_SECS;
+    const projectedApr = dbrDolaPrice ? ((secondsPastEpoch/calcPeriodSeconds) * realized + ((calcPeriodSeconds-secondsPastEpoch)/calcPeriodSeconds) * forecasted) * 100 : 0;
     const apr = dolaBalInDsaFromSDola > 0 ? (pastWeekRevenue * WEEKS_PER_YEAR) / dolaBalInDsaFromSDola * 100 : 0;
-    const projectedApr = dbrDolaPrice ? dbrRatePerDola * dbrDolaPrice * 100 : 0;
-    const dsaApr = dbrDolaPrice ? dsaDbrRatePerDola * dbrDolaPrice * 100 : 0;
+    const nextApr = dolaBalInDsaFromSDola > 0 ? (weeklyRevenue * WEEKS_PER_YEAR) / dolaBalInDsaFromSDola * 100 : 0;
+    const dsaApr = dbrDolaPrice ? dsaDbrRatePerDola * dbrDolaPrice * 100 : 0;    
 
     return {
         sDolaExRate: sDolaTotalAssets && sDolaSupply ? sDolaTotalAssets / sDolaSupply : 0,
@@ -207,9 +217,11 @@ export const formatDolaStakingData = (
         accountRewardsClaimable,
         apr,
         // weekly compounding
-        apy: aprToApy(apr, 52),
+        apy: aprToApy(apr, WEEKS_PER_YEAR),
+        nextApr,
+        nextApy: aprToApy(apr, WEEKS_PER_YEAR),
         projectedApr,
-        projectedApy: aprToApy(projectedApr, 52),
+        projectedApy: aprToApy(projectedApr, WEEKS_PER_YEAR),
         dsaApr,
     }
 }
@@ -236,11 +248,11 @@ export const useDolaStakingActivity = (from?: string, type = 'dsa'): SWR & {
 export const useDolaStakingEvolution = (): SWR & {
     evolution: any[],
     timestamp: number,
-} => {    
+} => {
     const { data, error } = useCustomSWR(`/api/dola-staking/history?`, fetcher);
 
     const evolution = useMemo(() => {
-        return (data?.totalEntries || []).map((e) => ({ ...e, apy: aprToApy(e.apr, 52) }));
+        return (data?.totalEntries || []).map((e) => ({ ...e, apy: aprToApy(e.apr, WEEKS_PER_YEAR) }));
     }, [data?.timestamp, data?.totalEntries]);
 
     return {
@@ -264,7 +276,7 @@ export const useDolaStakingEarnings = (account: string) => {
         'Withdraw',
         [account],
     );
-    const { balance: stakedDolaBalance, bnBalance } = useStakedDolaBalance(account); 
+    const { balance: stakedDolaBalance, bnBalance } = useStakedDolaBalance(account);
     const deposited = depositEventsData.reduce((prev, curr) => {
         return prev + getBnToNumber(curr.args[2]);
     }, 0);
@@ -276,8 +288,8 @@ export const useDolaStakingEarnings = (account: string) => {
         earnings: stakedDolaBalance - deposited + withdrawn,
         deposited,
         withdrawn,
-        stakedDolaBalance,     
-        stakedDolaBalanceBn: bnBalance,     
+        stakedDolaBalance,
+        stakedDolaBalanceBn: bnBalance,
     };
 }
 
@@ -348,4 +360,17 @@ export const formatDolaStakingEvents = (events: any[], timestamps?: any, already
             sDolaStaking,
         };
     });
+}
+
+const getLastThursdayTimestamp = () => {
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+
+    let dayOfWeek = today.getUTCDay();
+    let daysToLastThursday = (dayOfWeek + 3) % 7 || 7;
+
+    // Subtract days to get last Thursday
+    today.setUTCDate(today.getUTCDate() - daysToLastThursday);
+
+    return today.getTime();
 }
