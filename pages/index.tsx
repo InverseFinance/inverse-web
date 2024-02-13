@@ -57,13 +57,13 @@ export const Landing = ({ posts }: {
   const [videoOpHeight, setVideoOpHeight] = useState('750');
 
   useEffect(() => {
-    if (onScreen && !autoplay) {      
+    if (onScreen && !autoplay) {
       setAutoplay(true);
     }
   }, [onScreen, autoplay]);
 
   useEffect(() => {
-    if(screen.availWidth < 768) {
+    if (screen.availWidth < 768) {
       setVideoOpHeight('300');
     }
   }, []);
@@ -255,35 +255,42 @@ export const Landing = ({ posts }: {
             </LandingOutlineButton>
           </Stack>
         </VStack>
-        <VStack mt="150px" alignItems="flex-start" spacing="2" w='full' bgImage="/assets/v2/landing/part2.png" position="relative">
-          <SplashedText
-            as="h3"
-            color={`${lightTheme?.colors.mainTextColor}`}
-            fontSize={biggerSize}
-            fontWeight="extrabold"
-            splash="horizontal-wave"
-            splashProps={{ right: '-30px', left: { base: 0, md: 'inherit' }, bottom: { base: 0, '2xl': '1vh' }, top: 'inherit' }}
-          >
-            Organic Fat Yield with sDOLA
-          </SplashedText>
-          <HStack spacing="0" ref={ref}>
-            <Text mr="1" color={`${lightTheme?.colors.success}`} fontWeight="extrabold" fontSize={slightlyBiggerSize2}>
-              {shortenNumber(apy, 2)}%
-            </Text>
-            <Text mr='1' fontWeight="extrabold" fontSize={normalSize}>
-              APY
-            </Text>
-            <Text mr='1' fontWeight="extrabold" fontSize={normalSize}>
-              (Projected:
-            </Text>
-            <Text color={`${lightTheme?.colors.success}`} fontWeight="extrabold" fontSize={slightlyBiggerSize2}>
-              {shortenNumber(projectedApy, 2)}%
-            </Text>
-            <Text fontWeight="extrabold" fontSize={normalSize}>
-              )
-            </Text>
-          </HStack>          
+        <VStack mt="150px" alignItems="center" spacing="2" w='full' bgImage="/assets/v2/landing/part2.png" position="relative">
+          <VStack spacing="2" w='full' alignItems="flex-start">
+            <ResponsiveStack w='full' alignItems={{ base: 'flex-start', sm: 'flex-start' }}>
+              <SplashedText
+                as="h3"
+                color={`${lightTheme?.colors.mainTextColor}`}
+                fontSize={biggerSize}
+                fontWeight="extrabold"
+                splash="horizontal-wave"
+                splashProps={{ right: '-30px', left: { base: 0, md: 'inherit' }, bottom: { base: 0, '2xl': '1vh' }, top: 'inherit' }}
+              >
+                Organic Fat Yield with sDOLA
+              </SplashedText>
+            </ResponsiveStack>
+            <HStack spacing="0" ref={ref}>
+              <Text mr="1" color={`${lightTheme?.colors.success}`} fontWeight="extrabold" fontSize={slightlyBiggerSize2}>
+                {shortenNumber(apy, 2)}%
+              </Text>
+              <Text mr='1' fontWeight="extrabold" fontSize={normalSize}>
+                APY
+              </Text>
+              <Text mr='1' fontWeight="extrabold" fontSize={normalSize}>
+                (Projected:
+              </Text>
+              <Text color={`${lightTheme?.colors.success}`} fontWeight="extrabold" fontSize={slightlyBiggerSize2}>
+                {shortenNumber(projectedApy, 2)}%
+              </Text>
+              <Text fontWeight="extrabold" fontSize={normalSize}>
+                )
+              </Text>
+            </HStack>
+          </VStack>
           <iframe mt="20px" style={{ zIndex: 10 }} width="100%" height={videoOpHeight} src={`https://www.youtube.com/embed/w1f5ShMX3Aw?mute=0${autoplay ? '&autoplay=1' : ''}`} title="sDOLA: The Organic, Yield-Bearing Stablecoin" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+          <LandingSubmitButton mt="8" w={{ base: 'full', sm: '200px', '2xl': 'auto' }} href="/sDOLA">
+            Stake DOLA
+          </LandingSubmitButton>
         </VStack>
         <SplashedText
           splash="circle-dirty"
@@ -406,7 +413,7 @@ export const Landing = ({ posts }: {
               </LandingSubmitButton>
             </SimpleCard>
           </ResponsiveStack>
-        </VStack>        
+        </VStack>
         <Image zIndex="-1" src="/assets/v2/landing/building4.png" w="300px" position="absolute" bottom="450px" right="-100px" />
         <VStack w='full' alignItems="center" mt="150px" spacing="8">
           <SplashedText
