@@ -287,7 +287,7 @@ export const Landing = ({ posts }: {
               </Text>
             </HStack>
           </VStack>
-          <iframe mt="20px" style={{ zIndex: 10 }} width="100%" height={videoOpHeight} src={`https://www.youtube.com/embed/w1f5ShMX3Aw?mute=0${autoplay ? '&autoplay=1' : ''}`} title="sDOLA: The Organic, Yield-Bearing Stablecoin" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+          <iframe mt="20px" style={{ zIndex: 10 }} width="100%" height={videoOpHeight} src={`https://www.youtube.com/embed/w1f5ShMX3Aw?mute=1${autoplay ? '&autoplay=1' : ''}`} title="sDOLA: The Organic, Yield-Bearing Stablecoin" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
           <LandingSubmitButton mt="8" w={{ base: 'full', sm: '200px', '2xl': 'auto' }} href="/sDOLA">
             Stake DOLA
           </LandingSubmitButton>
