@@ -21,13 +21,13 @@ export const MENUS = {
           href: '/firm/rewards',
         },
         {
+          label: 'FiRM stakers',
+          href: '/firm/stakers',
+        },
+        {
           label: 'Liquidate Loans',
           href: '/firm/positions',
         },
-        // {
-        //   label: 'FiRM stakers',
-        //   href: '/firm/stakers',
-        // },
         // {
         //   label: 'Liquidate Loans',
         //   href: '/firm/positions',
@@ -191,6 +191,11 @@ export const MENUS = {
           label: 'Docs',
         },
         {
+          label: 'Swap',
+          href: '/swap?fromToken=DOLA&toToken=INV',
+          needReload: true,
+        },
+        {
           label: 'Blog',
           href: '/blog',
         },
@@ -201,12 +206,7 @@ export const MENUS = {
         {
           label: 'Yield Opportunities',
           href: '/yield-opportunities',
-        },
-        {
-          label: 'Swap',
-          href: '/swap?fromToken=DOLA&toToken=INV',
-          needReload: true,
-        },
+        },        
         {
           label: 'Native Base Bridge',
           href: '/base',
