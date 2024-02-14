@@ -249,7 +249,7 @@ export const useDolaStakingEvolution = (): SWR & {
     evolution: any[],
     timestamp: number,
 } => {
-    const { data, error } = useCustomSWR(`/api/dola-staking/history?`, fetcher);
+    const { data, error } = useCustomSWR(`/api/dola-staking/history?v=1.0.2`, fetcher);
 
     const evolution = useMemo(() => {
         return (data?.totalEntries || []).map((e) => ({ ...e, apy: aprToApy(e.apr, WEEKS_PER_YEAR) }));

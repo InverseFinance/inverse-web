@@ -12,7 +12,7 @@ export const FirmStakers = () => {
             <Head>
                 <title>Inverse Finance - INV stakers</title>
             </Head>
-            <AppNav active="FiRM" activeSubmenu="Stakers" />
+            <AppNav active="Markets" activeSubmenu="FiRM stakers" />
             <ErrorBoundary>
                 <VStack w='full' maxW="1200px" mt="4">
                     <DbrPendingRewards />

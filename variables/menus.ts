@@ -21,13 +21,17 @@ export const MENUS = {
           href: '/firm/rewards',
         },
         {
+          label: 'FiRM stakers',
+          href: '/firm/stakers',
+        },
+        {
           label: 'Liquidate Loans',
           href: '/firm/positions',
         },
-        // {
-        //   label: 'FiRM stakers',
-        //   href: '/firm/stakers',
-        // },
+        {
+          label: 'Frontier (deprecated)',
+          href: '/frontier',
+        },
         // {
         //   label: 'Liquidate Loans',
         //   href: '/firm/positions',
@@ -191,6 +195,11 @@ export const MENUS = {
           label: 'Docs',
         },
         {
+          label: 'Swap',
+          href: '/swap?fromToken=DOLA&toToken=INV',
+          needReload: true,
+        },
+        {
           label: 'Blog',
           href: '/blog',
         },
@@ -201,12 +210,7 @@ export const MENUS = {
         {
           label: 'Yield Opportunities',
           href: '/yield-opportunities',
-        },
-        {
-          label: 'Swap',
-          href: '/swap?fromToken=DOLA&toToken=INV',
-          needReload: true,
-        },
+        },        
         {
           label: 'Native Base Bridge',
           href: '/base',
@@ -227,11 +231,7 @@ export const MENUS = {
         {
           label: 'sDOLA Whitepaper',
           href: '/whitepaper/sDOLA',
-        },
-        {
-          label: 'Frontier (deprecated)',
-          href: '/frontier',
-        },
+        },        
         {
           label: 'Frontier - Debt Converter',
           href: '/frontier/debt-converter',
