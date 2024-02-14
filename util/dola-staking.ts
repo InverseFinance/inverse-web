@@ -5,7 +5,7 @@ import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 import { aprToApy, getBnToNumber } from "./markets";
 import { useAccount } from "@app/hooks/misc";
-import { useCustomSWR } from "@app/hooks/useCustomSWR";
+import { useCacheFirstSWR, useCustomSWR } from "@app/hooks/useCustomSWR";
 import { useContractEvents } from "@app/hooks/useContractEvents";
 import { ascendingEventsSorter } from "./misc";
 import { useBlocksTimestamps } from "@app/hooks/useBlockTimestamp";
@@ -127,7 +127,7 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
     sDolaExRate: number;
 } => {
     const account = useAccount();
-    const { data: apiData, error: apiErr } = useCustomSWR(`/api/dola-staking`);
+    const { data: apiData, error: apiErr } = useCacheFirstSWR(`/api/dola-staking`);
     const d = new Date();
     const weekFloat = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0) / (ONE_DAY_MS * 7);
     const weekIndexUtc = Math.floor(weekFloat);
@@ -237,7 +237,7 @@ export const useDolaStakingEvolution = (): SWR & {
     evolution: any[],
     timestamp: number,
 } => {    
-    const { data, error } = useCustomSWR(`/api/dola-staking/history?v=1.0.2`, fetcher);
+    const { data, error } = useCacheFirstSWR(`/api/dola-staking/history?v=1.0.2`, fetcher);
 
     const evolution = useMemo(() => {
         return (data?.totalEntries || []).map((e) => ({ ...e, apy: aprToApy(e.apr, 52) }));

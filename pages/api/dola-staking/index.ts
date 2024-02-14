@@ -9,10 +9,11 @@ import { getDbrPriceOnCurve } from '@app/util/f2';
 export const dolaStakingCacheKey = `dola-staking-v1.0.3`;
 
 export default async function handler(req, res) {    
-    const cacheDuration = 600;
+    const { cacheFirst } = req.query;
+    const cacheDuration = 300;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     try {
-        const validCache = await getCacheFromRedis(dolaStakingCacheKey, true, cacheDuration);
+        const validCache = await getCacheFromRedis(dolaStakingCacheKey, cacheFirst !== 'true', cacheDuration);
         if(validCache) {
           res.status(200).json(validCache);
           return
