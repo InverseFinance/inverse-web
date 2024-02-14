@@ -41,7 +41,7 @@ export const StakeDolaUI = () => {
     const [tab, setTab] = useState('Stake');
     const isStake = tab === 'Stake';
 
-    const { apy, projectedApy, isLoading, sDolaExRate } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
+    const { apy, projectedApy, isLoading, sDolaExRate, nextApy } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
     const { balance: dolaBalance } = useDOLABalance(account);
     const { stakedDolaBalance, stakedDolaBalanceBn } = useDolaStakingEarnings(account);
     const dolaStakedInSDola = sDolaExRate * stakedDolaBalance;    
@@ -72,7 +72,7 @@ export const StakeDolaUI = () => {
     return <VStack w='full' maxW='470px' spacing="4">
         <HStack justify="space-between" w='full'>
             <StatBasic message="This week's APY is calculated with last week's DBR auction revenues" isLoading={isLoading} name="Initial APY" value={apy ? `${shortenNumber(apy, 2)}%` : '0% this week'} />
-            <StatBasic message="The projected APY is calculated with the dbrRatePerDOLA and the current DBR price in DOLA" isLoading={isLoading} name="Projected APY" value={`${shortenNumber(projectedApy, 2)}%`} />
+            <StatBasic message={"The projected APY is a theoretical estimation of where the APY should tend to go. It's calculated by considering current's week auction revenue and a forecast that considers the DBR incentives, where the forecast portion has a weight of more than 50%"} isLoading={isLoading} name="Projected APY" value={`${shortenNumber(projectedApy, 2)}%`} />
         </HStack>
         {
             (monthlyDolaRewards > 0) && <InfoMessage
