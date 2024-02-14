@@ -21,8 +21,6 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { BurgerMenu } from '@app/components/common/Navbar/BurgerMenu'
 import { MENUS } from '@app/variables/menus'
 import { useStakedDola } from '@app/util/dola-staking'
-import { useOnScreen } from '@app/hooks/misc'
-import { useEffect, useRef, useState } from 'react'
 
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
 
@@ -50,23 +48,7 @@ export const Landing = ({ posts }: {
   const { tvl } = useTVL();
   const { firmTotalTvl } = useFirmTVL();
   const { data: dolaData } = useDOLAMarketData();
-  const { apy, projectedApy } = useStakedDola(dbrPriceDola);
-  const ref = useRef();
-  const onScreen = useOnScreen(ref);
-  const [autoplay, setAutoplay] = useState(false);
-  const [videoOpHeight, setVideoOpHeight] = useState('750');
-
-  // useEffect(() => {
-  //   if (onScreen && !autoplay) {
-  //     setAutoplay(true);
-  //   }
-  // }, [onScreen, autoplay]);
-
-  useEffect(() => {
-    if (screen.availWidth < 768) {
-      setVideoOpHeight('300');
-    }
-  }, []);
+  const { apy, projectedApy, isLoading: isLoadingSDola } = useStakedDola(dbrPriceDola);
 
   const invPrice = prices[RTOKEN_CG_ID] ? prices[RTOKEN_CG_ID].usd : 0;
 
@@ -308,7 +290,7 @@ export const Landing = ({ posts }: {
       <Flex zIndex="1" px="8%" py="20" w="full" bg={lightTheme.colors.mainTextColor} bgColor={lightTheme.colors.mainTextColor} direction="column">
         <ResponsiveStack spacing="8" justifyContent="space-evenly" w='full' direction={{ base: 'column-reverse', md: 'row' }}>
           <VStack justify="center" minH="400px" position="relative">
-            <iframe style={{ zIndex: 10, maxWidth: '98%' }} width="500" height={400} src={`https://www.youtube.com/embed/w1f5ShMX3Aw?controls=0&iv_load_policy=3&rel=1&modestbranding=1&mute=0${autoplay ? '&autoplay=1' : ''}`} title="sDOLA: The Organic, Yield-Bearing Stablecoin" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            <iframe style={{ zIndex: 10, maxWidth: '98%' }} width="500" height={400} src={`https://www.youtube.com/embed/w1f5ShMX3Aw?controls=0&iv_load_policy=3&rel=1&modestbranding=1&mute=0`} title="sDOLA: The Organic, Yield-Bearing Stablecoin" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
           </VStack>
           <VStack spacing="6" justify="center" alignItems="flex-start">
             <VStack w='full' spacing="1" alignItems="flex-start">
@@ -325,7 +307,7 @@ export const Landing = ({ posts }: {
             </VStack>
             <UnorderedList fontSize={smallerSize} color="white" pl="5">
               <ListItem>
-                APY currently {shortenNumber(apy, 2)}% (projected {shortenNumber(projectedApy, 2)}%)
+                APY currently {isLoadingSDola ? '...' : shortenNumber(apy, 2)}% (projected {isLoadingSDola ? '...' : shortenNumber(projectedApy, 2)}%)
               </ListItem>
               <ListItem>
                 100% Organic, On-chain Yield
