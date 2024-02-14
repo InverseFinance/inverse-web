@@ -192,8 +192,8 @@ export const formatDolaStakingData = (
     // we use two week revenu epoch for the projected apr
     const calcPeriodSeconds = 14 * ONE_DAY_SECS;
     const projectedApr = dbrDolaPrice ? ((secondsPastEpoch/calcPeriodSeconds) * realized + ((calcPeriodSeconds-secondsPastEpoch)/calcPeriodSeconds) * forecasted) * 100 : 0;
-    const apr = dolaBalInDsaFromSDola > 0 ? (pastWeekRevenue * WEEKS_PER_YEAR) / dolaBalInDsaFromSDola * 100 : 0;
-    const nextApr = dolaBalInDsaFromSDola > 0 ? (weeklyRevenue * WEEKS_PER_YEAR) / dolaBalInDsaFromSDola * 100 : 0;
+    const apr = sDolaTotalAssets > 0 ? (pastWeekRevenue * WEEKS_PER_YEAR) / sDolaTotalAssets * 100 : 0;
+    const nextApr = sDolaTotalAssets > 0 ? (weeklyRevenue * WEEKS_PER_YEAR) / sDolaTotalAssets * 100 : 0;
     const dsaApr = dbrDolaPrice ? dsaDbrRatePerDola * dbrDolaPrice * 100 : 0;    
 
     return {
