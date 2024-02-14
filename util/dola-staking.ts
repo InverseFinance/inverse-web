@@ -187,7 +187,7 @@ export const formatDolaStakingData = (
     const secondsPastEpoch = (now - getLastThursdayTimestamp()) / 1000;   
     const realizedTimeInDays = secondsPastEpoch / ONE_DAY_SECS;
     const nextTotalAssets = sDolaTotalAssets + weeklyRevenue;
-    const realized = (weeklyRevenue * realizedTimeInDays/7 * WEEKS_PER_YEAR) / sDolaTotalAssets;
+    const realized = ((weeklyRevenue / realizedTimeInDays) * 365) / sDolaTotalAssets;    
     const forecasted = (nextTotalAssets * dbrDolaPrice * dbrRatePerDola) / sDolaTotalAssets;
     // we use two week revenu epoch for the projected apr
     const calcPeriodSeconds = 14 * ONE_DAY_SECS;
@@ -219,7 +219,7 @@ export const formatDolaStakingData = (
         // weekly compounding
         apy: aprToApy(apr, WEEKS_PER_YEAR),
         nextApr,
-        nextApy: aprToApy(apr, WEEKS_PER_YEAR),
+        nextApy: aprToApy(nextApr, WEEKS_PER_YEAR),
         projectedApr,
         projectedApy: aprToApy(projectedApr, WEEKS_PER_YEAR),
         dsaApr,
