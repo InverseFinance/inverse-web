@@ -6,7 +6,6 @@ import { LandingNav } from '@app/components/common/Navbar'
 import { useDOLA, useDOLAMarketData } from '@app/hooks/useDOLA'
 import { useDOLAPrice, usePrices } from '@app/hooks/usePrices'
 import { useFirmTVL, useTVL } from '@app/hooks/useTVL'
-import Link from '@app/components/common/Link'
 import Head from 'next/head'
 import { lightTheme } from '@app/variables/theme'
 import { SplashedText } from '@app/components/common/SplashedText'
@@ -21,6 +20,7 @@ import { biggestSize, smallerSize, biggerSize, normalSize, btnIconSize, smallerS
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { BurgerMenu } from '@app/components/common/Navbar/BurgerMenu'
 import { MENUS } from '@app/variables/menus'
+import { useStakedDola } from '@app/util/dola-staking'
 
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
 
@@ -43,11 +43,12 @@ export const Landing = ({ posts }: {
 }) => {
   const { totalSupply } = useDOLA();
   const { prices } = usePrices();
-  const { priceUsd: dbrPriceUsd } = useDBRPrice();
+  const { priceUsd: dbrPriceUsd, priceDola: dbrPriceDola } = useDBRPrice();
   const { price: dolaPrice } = useDOLAPrice();
   const { tvl } = useTVL();
   const { firmTotalTvl } = useFirmTVL();
   const { data: dolaData } = useDOLAMarketData();
+  const { apy, projectedApy, isLoading: isLoadingSDola } = useStakedDola(dbrPriceDola);
 
   const invPrice = prices[RTOKEN_CG_ID] ? prices[RTOKEN_CG_ID].usd : 0;
 
@@ -102,7 +103,7 @@ export const Landing = ({ posts }: {
       <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{invPrice ? shortenNumber(invPrice, 2, true) : '-'}</Text>
     </HStack>
   </HStack>
-  
+
   return (
     <Layout isLanding={true} pt="0" overflow="hidden">
       <Head>
@@ -210,7 +211,6 @@ export const Landing = ({ posts }: {
             </Text> */}
             {/* <Image zIndex="2" borderRadius="999px" src="/assets/v2/landing/interests.png" w='200px' h="200px" /> */}
           </VStack>
-
           <SplashedText
             as="h3"
             color={`${lightTheme?.colors.mainTextColor}`}
@@ -237,6 +237,43 @@ export const Landing = ({ posts }: {
             </LandingOutlineButton>
           </Stack>
         </VStack>
+        {/* <VStack mt="150px" alignItems="center" spacing="2" w='full' bgImage="/assets/v2/landing/part2.png" position="relative">
+          <VStack spacing="2" w='full' alignItems="flex-start">
+            <ResponsiveStack w='full' alignItems={{ base: 'flex-start', sm: 'flex-start' }}>
+              <SplashedText
+                as="h3"
+                color={`${lightTheme?.colors.mainTextColor}`}
+                fontSize={biggerSize}
+                fontWeight="extrabold"
+                splash="horizontal-wave"
+                splashProps={{ right: '-30px', left: { base: 0, md: 'inherit' }, bottom: { base: 0, '2xl': '1vh' }, top: 'inherit' }}
+              >
+                Organic Fat Yield with sDOLA
+              </SplashedText>
+            </ResponsiveStack>
+            <HStack spacing="0" ref={ref}>
+              <Text mr="1" color={`${lightTheme?.colors.success}`} fontWeight="extrabold" fontSize={slightlyBiggerSize2}>
+                {shortenNumber(apy, 2)}%
+              </Text>
+              <Text mr='1' fontWeight="extrabold" fontSize={normalSize}>
+                APY
+              </Text>
+              <Text mr='1' fontWeight="extrabold" fontSize={normalSize}>
+                (Projected:
+              </Text>
+              <Text color={`${lightTheme?.colors.success}`} fontWeight="extrabold" fontSize={slightlyBiggerSize2}>
+                {shortenNumber(projectedApy, 2)}%
+              </Text>
+              <Text fontWeight="extrabold" fontSize={normalSize}>
+                )
+              </Text>
+            </HStack>
+          </VStack>
+          <iframe mt="20px" style={{ zIndex: 10 }} width="100%" height={videoOpHeight} src={`https://www.youtube.com/embed/w1f5ShMX3Aw?mute=1${autoplay ? '&autoplay=1' : ''}`} title="sDOLA: The Organic, Yield-Bearing Stablecoin" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+          <LandingSubmitButton mt="8" w={{ base: 'full', sm: '200px', '2xl': 'auto' }} href="/sDOLA">
+            Stake DOLA
+          </LandingSubmitButton>
+        </VStack> */}
         <SplashedText
           splash="circle-dirty"
           splashProps={{
@@ -251,11 +288,7 @@ export const Landing = ({ posts }: {
         ></SplashedText>
       </Flex>
       <Flex zIndex="1" px="8%" py="20" w="full" bg={lightTheme.colors.mainTextColor} bgColor={lightTheme.colors.mainTextColor} direction="column">
-        <ResponsiveStack justifyContent="space-evenly" w='full'>
-          <VStack justify="center" minH="260px" position="relative">
-            <Image borderRadius="999px" src="/assets/v2/landing/placeholder.png" w={{ base: '200px', '2xl': '300px' }} h={{ base: '200px', '2xl': '300px' }} />
-            <Image transform="rotate(43deg)" borderRadius="999px" src="/assets/v2/landing/spike-impact.gif" w='200px' h="200px" position="absolute" left={{ base: 0, sm: '-60px', '2xl': '0' }} />
-          </VStack>
+        <ResponsiveStack spacing="8" justifyContent="space-evenly" w='full' direction={{ base: 'column', md: 'row' }}>
           <VStack spacing="6" justify="center" alignItems="flex-start">
             <VStack w='full' spacing="1" alignItems="flex-start">
               <Text
@@ -263,27 +296,24 @@ export const Landing = ({ posts }: {
                 color={`white`}
                 fontSize={biggerSize}
               >
-                Smarter Collateral
+                Introducing sDOLA
               </Text>
               <Text color="white" fontWeight="bold" fontSize={normalSize}>
-                Introducing Personal Collateral Escrows
+                Inverse's new Yield-bearing Stablecoin
               </Text>
             </VStack>
             <UnorderedList fontSize={smallerSize} color="white" pl="5">
               <ListItem>
-                Isolates deposits by user
+                APY currently {isLoadingSDola ? '...' : shortenNumber(apy, 2)}% (projected {isLoadingSDola ? '...' : shortenNumber(projectedApy, 2)}%)
               </ListItem>
               <ListItem>
-                Retains governance rights
+                100% Organic, On-chain Yield
               </ListItem>
               <ListItem>
-                User collateral can never be borrowed
+                Fully Decentralized, No Third Party Custodians
               </ListItem>
               <ListItem>
-                Improved price oracle technology
-              </ListItem>
-              <ListItem>
-                Highly customizable
+                Withdraw Anytime Without Penalty
               </ListItem>
             </UnorderedList>
             <LandingSubmitButton
@@ -291,9 +321,16 @@ export const Landing = ({ posts }: {
               maxW={{ sm: '200px', '2xl': 'none' }}
               bgColor="white"
               color={lightTheme.colors.mainTextColor}
-              href="/whitepaper" target="_blank">
+              href="/whitepaper/sDOLA" target="_blank">
               View Whitepaper
             </LandingSubmitButton>
+          </VStack>
+          <VStack justify="center" minH="200px" position="relative">
+            <video width="600" height="330" style={{ zIndex: 10, maxWidth: '98%' }} controls>
+              <source src="sDOLA.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+            {/* <iframe style={{ zIndex: 10, maxWidth: '98%' }} width="500" height={400} src={`https://www.youtube.com/embed/w1f5ShMX3Aw?controls=0&iv_load_policy=3&rel=1&modestbranding=1&mute=0`} title="sDOLA: The Organic, Yield-Bearing Stablecoin" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe> */}
           </VStack>
         </ResponsiveStack>
       </Flex>
@@ -535,7 +572,7 @@ export const Landing = ({ posts }: {
               </Text>
               <Text color={lightTheme.colors.mainTextColor} fontSize={smallerSize}>
                 We are the most transparent DAO in DeFi with unprecedented levels of operational visibility.
-              </Text>             
+              </Text>
               <ResponsiveStack justify={{ base: 'center', md: 'flex-start' }} direction={{ base: 'column', sm: 'row', md: 'column', lg: 'row' }} w={{ base: 'full', lg: 'auto' }}>
                 <LandingSubmitButton w={{ base: 'full', sm: '200px', '2xl': 'auto' }} href="https://discord.gg/YpYJC7R5nv" target="_blank">
                   <Image src="/assets/socials/discord.svg" h={btnIconSize} mr={{ base: '1', '2xl': 2 }} />
