@@ -326,8 +326,8 @@ export const Landing = ({ posts }: {
             </LandingSubmitButton>
           </VStack>
           <VStack justify="center" minH="200px" position="relative">
-            <video width="600" height="330" style={{ zIndex: 10, maxWidth: '98%' }} controls>
-              <source src="sDOLA.mp4" type="video/mp4" />
+            <video preload="metadata" width="600" height="330" style={{ zIndex: 10, maxWidth: '98%' }} controls>
+              <source src="sDOLA.mp4#t=0.1" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
             {/* <iframe style={{ zIndex: 10, maxWidth: '98%' }} width="500" height={400} src={`https://www.youtube.com/embed/w1f5ShMX3Aw?controls=0&iv_load_policy=3&rel=1&modestbranding=1&mute=0`} title="sDOLA: The Organic, Yield-Bearing Stablecoin" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe> */}
