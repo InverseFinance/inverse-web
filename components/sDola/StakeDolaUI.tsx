@@ -1,8 +1,8 @@
-import { VStack, Text, HStack, Divider } from "@chakra-ui/react"
+import { VStack, Text, HStack, Divider, useInterval } from "@chakra-ui/react"
 import { redeemSDola, stakeDola, unstakeDola, useDolaStakingEarnings, useStakedDola } from "@app/util/dola-staking"
 import { useWeb3React } from "@web3-react/core";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { parseEther } from "@ethersproject/units";
 import Container from "../common/Container";
@@ -15,7 +15,7 @@ import { useDBRPrice } from "@app/hooks/useDBR";
 import { getMonthlyRate, shortenNumber } from "@app/util/markets";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { TextInfo } from "../common/Messages/TextInfo";
-import { SDOLA_ADDRESS } from "@app/config/constants";
+import { ONE_DAY_MS, SDOLA_ADDRESS, SECONDS_PER_BLOCK } from "@app/config/constants";
 import { useAccount } from "@app/hooks/misc";
 
 const { DOLA } = getNetworkConfigConstants();
@@ -32,6 +32,9 @@ const StatBasic = ({ value, name, message, onClick = undefined, isLoading = fals
     </VStack>
 }
 
+const STAKE_BAL_INC_INTERVAL = 100;
+const MS_PER_BLOCK = SECONDS_PER_BLOCK * 1000;
+
 export const StakeDolaUI = () => {
     const account = useAccount();
     const { provider, account: connectedAccount } = useWeb3React();
@@ -39,12 +42,45 @@ export const StakeDolaUI = () => {
     const [dolaAmount, setDolaAmount] = useState('');
     const [isConnected, setIsConnected] = useState(true);
     const [tab, setTab] = useState('Stake');
+    const [baseBalance, setBaseBalance] = useState(0);
+    const [realTimeBalance, setRealTimeBalance] = useState(0);
     const isStake = tab === 'Stake';
 
     const { apy, projectedApy, isLoading, sDolaExRate, nextApy } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
     const { balance: dolaBalance } = useDOLABalance(account);
     const { stakedDolaBalance, stakedDolaBalanceBn } = useDolaStakingEarnings(account);
-    const dolaStakedInSDola = sDolaExRate * stakedDolaBalance;    
+    const [previouseStakedDolaBalance, setPrevStakedDolaBalance] = useState(stakedDolaBalance);
+    const dolaStakedInSDola = sDolaExRate * stakedDolaBalance;
+    
+    useInterval(() => {            
+        const curr = (realTimeBalance||baseBalance);
+        const incPerInterval = ((curr * (apy / 100)) * (STAKE_BAL_INC_INTERVAL/(ONE_DAY_MS * 365)));
+        const neo = curr + incPerInterval;        
+        setRealTimeBalance(neo);
+    }, STAKE_BAL_INC_INTERVAL);
+
+    // every ~12s recheck base balance
+    useInterval(() => {
+        if(realTimeBalance > dolaStakedInSDola) return;
+        setRealTimeBalance(dolaStakedInSDola);
+        setBaseBalance(dolaStakedInSDola);
+    }, MS_PER_BLOCK);
+
+    useEffect(() => {
+        if(previouseStakedDolaBalance === stakedDolaBalance) return;
+        setBaseBalance(dolaStakedInSDola);
+        setRealTimeBalance(dolaStakedInSDola);
+        setPrevStakedDolaBalance(stakedDolaBalance);
+    }, [stakedDolaBalance, previouseStakedDolaBalance, dolaStakedInSDola]);    
+
+    useEffect(() => {
+        if(!!baseBalance || !dolaStakedInSDola) return;
+        setBaseBalance(dolaStakedInSDola);
+    }, [baseBalance, dolaStakedInSDola]);
+
+    useDebouncedEffect(() => {
+        setIsConnected(!!connectedAccount);
+    }, [connectedAccount], 500);
 
     // const monthlyProjectedDolaRewards = useMemo(() => {
     //     return (projectedApy > 0 && stakedDolaBalance > 0 ? getMonthlyRate(stakedDolaBalance, projectedApy) : 0);
@@ -65,9 +101,12 @@ export const StakeDolaUI = () => {
         return redeemSDola(provider?.getSigner(), stakedDolaBalanceBn);
     }
 
-    useDebouncedEffect(() => {
-        setIsConnected(!!connectedAccount)
-    }, [connectedAccount], 500);
+    const resetRealTime = () => {        
+        setTimeout(() => {            
+            setBaseBalance(dolaStakedInSDola);
+            setRealTimeBalance(dolaStakedInSDola);
+        }, 250);
+    }
 
     return <VStack w='full' maxW='470px' spacing="4">
         <HStack justify="space-between" w='full'>
@@ -95,24 +134,24 @@ export const StakeDolaUI = () => {
             noPadding
             m="0"
             p="0">
-            <VStack spacing="4" alignItems="flex-start" w='full'>
+            <VStack spacing="4" alignItems="flex-start" w='full'>                
                 {
                     !isConnected ? <InfoMessage alertProps={{ w: 'full' }} description="Please connect your wallet" />
                         :
                         <>
                             <NavButtons active={tab} options={['Stake', 'Unstake']} onClick={(v) => setTab(v)} />
-                            <HStack w='full' justify="space-between">
-                                <Text fontSize="14px">
-                                    DOLA balance: {dolaBalance ? preciseCommify(dolaBalance, 2) : '-'}
+                            <VStack alignItems="flex-start" w='full' justify="space-between">
+                                <Text fontSize="20px">
+                                    DOLA balance in wallet: <b>{dolaBalance ? preciseCommify(dolaBalance, 2) : '-'}</b>
                                 </Text>
-                                <Text fontSize="14px">
-                                    DOLA staked: {dolaStakedInSDola ? preciseCommify(dolaStakedInSDola, 2) : '-'}
+                                <Text fontSize="20px">
+                                    DOLA staked: <b>{dolaStakedInSDola ? preciseCommify(realTimeBalance, 8) : '-'}</b>
                                 </Text>
-                            </HStack>
+                            </VStack>
                             {
                                 isStake ?
                                     <VStack w='full' alignItems="flex-start">
-                                        <Text fontSize="18px" fontWeight="bold">
+                                        <Text fontSize="22px" fontWeight="bold">
                                             Amount to stake:
                                         </Text>
                                         <SimpleAmountForm
@@ -130,11 +169,12 @@ export const StakeDolaUI = () => {
                                             showMax={true}
                                             hideInputIfNoAllowance={false}
                                             showBalance={false}
+                                            onSuccess={() => resetRealTime()}
                                         />
                                     </VStack>
                                     :
                                     <VStack w='full' alignItems="flex-start">
-                                        <Text fontSize="18px" fontWeight="bold">
+                                        <Text fontSize="22px" fontWeight="bold">
                                             Amount to unstake:
                                         </Text>
                                         <SimpleAmountForm
@@ -154,6 +194,7 @@ export const StakeDolaUI = () => {
                                             showMax={false}
                                             hideInputIfNoAllowance={false}
                                             showBalance={false}
+                                            onSuccess={() => resetRealTime()}
                                         />
                                         {
                                             <InfoMessage description="Note: to unstake everything use the unstake all button to avoid leaving dust" />
