@@ -56,11 +56,11 @@ export const Landing = ({ posts }: {
   const [autoplay, setAutoplay] = useState(false);
   const [videoOpHeight, setVideoOpHeight] = useState('750');
 
-  useEffect(() => {
-    if (onScreen && !autoplay) {
-      setAutoplay(true);
-    }
-  }, [onScreen, autoplay]);
+  // useEffect(() => {
+  //   if (onScreen && !autoplay) {
+  //     setAutoplay(true);
+  //   }
+  // }, [onScreen, autoplay]);
 
   useEffect(() => {
     if (screen.availWidth < 768) {
@@ -255,7 +255,7 @@ export const Landing = ({ posts }: {
             </LandingOutlineButton>
           </Stack>
         </VStack>
-        <VStack mt="150px" alignItems="center" spacing="2" w='full' bgImage="/assets/v2/landing/part2.png" position="relative">
+        {/* <VStack mt="150px" alignItems="center" spacing="2" w='full' bgImage="/assets/v2/landing/part2.png" position="relative">
           <VStack spacing="2" w='full' alignItems="flex-start">
             <ResponsiveStack w='full' alignItems={{ base: 'flex-start', sm: 'flex-start' }}>
               <SplashedText
@@ -291,7 +291,7 @@ export const Landing = ({ posts }: {
           <LandingSubmitButton mt="8" w={{ base: 'full', sm: '200px', '2xl': 'auto' }} href="/sDOLA">
             Stake DOLA
           </LandingSubmitButton>
-        </VStack>
+        </VStack> */}
         <SplashedText
           splash="circle-dirty"
           splashProps={{
@@ -306,10 +306,9 @@ export const Landing = ({ posts }: {
         ></SplashedText>
       </Flex>
       <Flex zIndex="1" px="8%" py="20" w="full" bg={lightTheme.colors.mainTextColor} bgColor={lightTheme.colors.mainTextColor} direction="column">
-        <ResponsiveStack justifyContent="space-evenly" w='full'>
-          <VStack justify="center" minH="260px" position="relative">
-            <Image borderRadius="999px" src="/assets/v2/landing/placeholder.png" w={{ base: '200px', '2xl': '300px' }} h={{ base: '200px', '2xl': '300px' }} />
-            <Image transform="rotate(43deg)" borderRadius="999px" src="/assets/v2/landing/spike-impact.gif" w='200px' h="200px" position="absolute" left={{ base: 0, sm: '-60px', '2xl': '0' }} />
+        <ResponsiveStack spacing="8" justifyContent="space-evenly" w='full' direction={{ base: 'column-reverse', md: 'row' }}>
+          <VStack justify="center" minH="400px" position="relative">
+            <iframe style={{ zIndex: 10, maxWidth: '98%' }} width="500" height={400} src={`https://www.youtube.com/embed/w1f5ShMX3Aw?mute=0${autoplay ? '&autoplay=1' : ''}`} title="sDOLA: The Organic, Yield-Bearing Stablecoin" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
           </VStack>
           <VStack spacing="6" justify="center" alignItems="flex-start">
             <VStack w='full' spacing="1" alignItems="flex-start">
@@ -318,27 +317,24 @@ export const Landing = ({ posts }: {
                 color={`white`}
                 fontSize={biggerSize}
               >
-                Smarter Collateral
+                Introducing sDOLA
               </Text>
               <Text color="white" fontWeight="bold" fontSize={normalSize}>
-                Introducing Personal Collateral Escrows
+                Inverse's new Yield-bearing Stablecoin
               </Text>
             </VStack>
             <UnorderedList fontSize={smallerSize} color="white" pl="5">
               <ListItem>
-                Isolates deposits by user
+                APY is currently {shortenNumber(apy, 2)}%
               </ListItem>
               <ListItem>
-                Retains governance rights
+                100% Organic, On-chain yield
               </ListItem>
               <ListItem>
-                User collateral can never be borrowed
+                Fully decentralized, no Third Party Custodians
               </ListItem>
               <ListItem>
-                Improved price oracle technology
-              </ListItem>
-              <ListItem>
-                Highly customizable
+                Withdraw Anytime Without Penalty
               </ListItem>
             </UnorderedList>
             <LandingSubmitButton
@@ -346,7 +342,7 @@ export const Landing = ({ posts }: {
               maxW={{ sm: '200px', '2xl': 'none' }}
               bgColor="white"
               color={lightTheme.colors.mainTextColor}
-              href="/whitepaper" target="_blank">
+              href="/whitepaper/sDOLA" target="_blank">
               View Whitepaper
             </LandingSubmitButton>
           </VStack>
