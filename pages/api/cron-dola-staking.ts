@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   else if (req.headers.authorization !== `Bearer ${process.env.API_SECRET_KEY}`) return res.status(401).json({ success: false });
 
   try {
-    const data = await (await fetch('https://www.inverse.finance/api/dola-staking'))?.json();
+    const data = await (await fetch('https://www.inverse.finance/api/dola-staking?ignoreCache=true'))?.json();
     const now = Date.now();
     const utcDate = timestampToUTC(now);
 
