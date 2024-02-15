@@ -184,7 +184,7 @@ export const formatDolaStakingData = (
     const dsaDbrRatePerDola = dsaTotalSupply > 0 ? Math.min(dsaYearlyBudget / dsaTotalSupply, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;
     const dbrRatePerDola = dolaBalInDsaFromSDola > 0 ? Math.min(yearlyRewardBudget / dolaBalInDsaFromSDola, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;
     const now = Date.now();
-    const secondsPastEpoch = (now - getLastThursdayTimestamp()) / 1000;    
+    const secondsPastEpoch = (now - getLastThursdayTimestamp()) / 1000;
     const realizedTimeInDays = secondsPastEpoch / ONE_DAY_SECS;
     const nextTotalAssets = sDolaTotalAssets + weeklyRevenue;
     const realized = ((weeklyRevenue / realizedTimeInDays) * 365) / sDolaTotalAssets;
@@ -192,9 +192,7 @@ export const formatDolaStakingData = (
     // we use two week revenu epoch for the projected apr
     const calcPeriodSeconds = 14 * ONE_DAY_SECS;
     const projectedApr = dbrDolaPrice ?
-        realized > 0 ? ((secondsPastEpoch / calcPeriodSeconds) * realized + ((calcPeriodSeconds - secondsPastEpoch) / calcPeriodSeconds) * forecasted) * 100
-            : dbrDolaPrice * dbrRatePerDola * 100
-        : 0;
+        ((secondsPastEpoch / calcPeriodSeconds) * realized + ((calcPeriodSeconds - secondsPastEpoch) / calcPeriodSeconds) * forecasted) * 100 : 0;
     const apr = sDolaTotalAssets > 0 ? (pastWeekRevenue * WEEKS_PER_YEAR) / sDolaTotalAssets * 100 : 0;
     const nextApr = sDolaTotalAssets > 0 ? (weeklyRevenue * WEEKS_PER_YEAR) / sDolaTotalAssets * 100 : 0;
     const dsaApr = dbrDolaPrice ? dsaDbrRatePerDola * dbrDolaPrice * 100 : 0;
@@ -365,15 +363,15 @@ export const formatDolaStakingEvents = (events: any[], timestamps?: any, already
     });
 }
 
-const getLastThursdayTimestamp = () => {
-    const today = new Date();
-    today.setUTCHours(0, 0, 0, 0);
-
-    let dayOfWeek = today.getUTCDay();
-    let daysToLastThursday = (dayOfWeek + 3) % 7 || 7;
-
-    // Subtract days to get last Thursday
-    today.setUTCDate(today.getUTCDate() - daysToLastThursday);
-
-    return today.getTime();
+function getLastThursdayTimestamp() {
+    const now = new Date();
+    const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
+    const today = new Date(nowUTC);
+    const dayOfWeek = today.getUTCDay();
+    const daysSinceLastThursday = (dayOfWeek + 3) % 7 + 1;
+    today.setUTCDate(today.getUTCDate() - daysSinceLastThursday);
+    today.setUTCMinutes(0);
+    today.setUTCSeconds(0);
+    today.setUTCHours(0);
+    return +(today);
 }
