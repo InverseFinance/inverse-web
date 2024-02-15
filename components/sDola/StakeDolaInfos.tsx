@@ -1,16 +1,48 @@
 import Link from "@app/components/common/Link"
 import { InfoMessage } from "@app/components/common/Messages"
+import { ONE_DAY_MS, SECONDS_PER_BLOCK } from "@app/config/constants"
 import { useDBRPrice } from "@app/hooks/useDBR"
 import { useStakedDola } from "@app/util/dola-staking"
 import { preciseCommify } from "@app/util/misc"
 import { ExternalLinkIcon } from "@chakra-ui/icons"
-import { HStack, SkeletonText, Stack, Text, VStack } from "@chakra-ui/react"
+import { HStack, SkeletonText, Stack, Text, VStack, useInterval } from "@chakra-ui/react"
+import { useEffect, useState } from "react"
 
 const TextLoader = () => <SkeletonText pt="2" skeletonHeight={2} noOfLines={1} height={'24px'} width={'90px'} />;
 
+const STAKE_BAL_INC_INTERVAL = 100;
+const MS_PER_BLOCK = SECONDS_PER_BLOCK * 1000;
+
 export const StakeDolaInfos = () => {
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
-    const { sDolaTotalAssets, yearlyRewardBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, weeklyRevenue, pastWeekRevenue, isLoading } = useStakedDola(dbrDolaPrice);
+    const { apy, sDolaSupply, sDolaTotalAssets, yearlyRewardBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, weeklyRevenue, pastWeekRevenue, isLoading } = useStakedDola(dbrDolaPrice);
+    const [previousSupply, setPreviousSupply] = useState(sDolaSupply);    
+    const [realTimeBalance, setRealTimeBalance] = useState(0);
+
+    useInterval(() => {            
+        const curr = (realTimeBalance);
+        const incPerInterval = ((curr * (apy / 100)) * (STAKE_BAL_INC_INTERVAL/(ONE_DAY_MS * 365)));
+        const neo = curr + incPerInterval;        
+        setRealTimeBalance(neo);
+    }, STAKE_BAL_INC_INTERVAL);
+
+    // every ~12s recheck base balance
+    useInterval(() => {
+        if(realTimeBalance > sDolaTotalAssets) return;
+        setRealTimeBalance(sDolaTotalAssets);        
+    }, MS_PER_BLOCK);
+
+    useEffect(() => {
+        if(previousSupply === sDolaSupply) return;        
+        setRealTimeBalance(sDolaTotalAssets);
+        setPreviousSupply(sDolaSupply);
+    }, [sDolaSupply, previousSupply, sDolaTotalAssets]);    
+
+    useEffect(() => {
+        if(realTimeBalance > sDolaTotalAssets) return;        
+        setRealTimeBalance(sDolaTotalAssets);
+    }, [realTimeBalance, sDolaTotalAssets]);
+
     return <InfoMessage
         showIcon={false}
         alertProps={{ fontSize: '12px', mb: '8', w: 'full', maxW: '470px' }}
@@ -35,7 +67,7 @@ export const StakeDolaInfos = () => {
                 <VStack w='full' spacing="0" alignItems="flex-start">
                     <HStack w='full'>
                         <Text>- Total DOLA staked in sDOLA:</Text>
-                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(sDolaTotalAssets, 2)}</Text>}
+                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(realTimeBalance, 4)}</Text>}
                     </HStack>
                     <HStack w='full'>
                         <Text>- Past's week revenues from auctions:</Text>
