@@ -184,17 +184,20 @@ export const formatDolaStakingData = (
     const dsaDbrRatePerDola = dsaTotalSupply > 0 ? Math.min(dsaYearlyBudget / dsaTotalSupply, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;
     const dbrRatePerDola = dolaBalInDsaFromSDola > 0 ? Math.min(yearlyRewardBudget / dolaBalInDsaFromSDola, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;
     const now = Date.now();
-    const secondsPastEpoch = (now - getLastThursdayTimestamp()) / 1000;   
+    const secondsPastEpoch = (now - getLastThursdayTimestamp()) / 1000;    
     const realizedTimeInDays = secondsPastEpoch / ONE_DAY_SECS;
     const nextTotalAssets = sDolaTotalAssets + weeklyRevenue;
-    const realized = ((weeklyRevenue / realizedTimeInDays) * 365) / sDolaTotalAssets;    
+    const realized = ((weeklyRevenue / realizedTimeInDays) * 365) / sDolaTotalAssets;
     const forecasted = (nextTotalAssets * dbrDolaPrice * dbrRatePerDola) / sDolaTotalAssets;
     // we use two week revenu epoch for the projected apr
     const calcPeriodSeconds = 14 * ONE_DAY_SECS;
-    const projectedApr = dbrDolaPrice ? ((secondsPastEpoch/calcPeriodSeconds) * realized + ((calcPeriodSeconds-secondsPastEpoch)/calcPeriodSeconds) * forecasted) * 100 : 0;
+    const projectedApr = dbrDolaPrice ?
+        realized > 0 ? ((secondsPastEpoch / calcPeriodSeconds) * realized + ((calcPeriodSeconds - secondsPastEpoch) / calcPeriodSeconds) * forecasted) * 100
+            : dbrDolaPrice * dbrRatePerDola * 100
+        : 0;
     const apr = sDolaTotalAssets > 0 ? (pastWeekRevenue * WEEKS_PER_YEAR) / sDolaTotalAssets * 100 : 0;
     const nextApr = sDolaTotalAssets > 0 ? (weeklyRevenue * WEEKS_PER_YEAR) / sDolaTotalAssets * 100 : 0;
-    const dsaApr = dbrDolaPrice ? dsaDbrRatePerDola * dbrDolaPrice * 100 : 0;    
+    const dsaApr = dbrDolaPrice ? dsaDbrRatePerDola * dbrDolaPrice * 100 : 0;
 
     return {
         sDolaExRate: sDolaTotalAssets && sDolaSupply ? sDolaTotalAssets / sDolaSupply : 0,
@@ -248,7 +251,7 @@ export const useDolaStakingActivity = (from?: string, type = 'dsa'): SWR & {
 export const useDolaStakingEvolution = (): SWR & {
     evolution: any[],
     timestamp: number,
-} => {    
+} => {
     const { data, error } = useCacheFirstSWR(`/api/dola-staking/history?v=1.0.2`, fetcher);
 
     const evolution = useMemo(() => {
