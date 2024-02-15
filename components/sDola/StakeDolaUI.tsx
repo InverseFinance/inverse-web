@@ -41,15 +41,15 @@ export const StakeDolaUI = () => {
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
     const [dolaAmount, setDolaAmount] = useState('');
     const [isConnected, setIsConnected] = useState(true);
-    const [tab, setTab] = useState('Stake');
-    const [baseBalance, setBaseBalance] = useState(0);
-    const [realTimeBalance, setRealTimeBalance] = useState(0);
+    const [tab, setTab] = useState('Stake');    
     const isStake = tab === 'Stake';
 
     const { apy, projectedApy, isLoading, sDolaExRate, nextApy } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
     const { balance: dolaBalance } = useDOLABalance(account);
     const { stakedDolaBalance, stakedDolaBalanceBn } = useDolaStakingEarnings(account);
-    const [previouseStakedDolaBalance, setPrevStakedDolaBalance] = useState(stakedDolaBalance);
+    const [previousStakedDolaBalance, setPrevStakedDolaBalance] = useState(stakedDolaBalance);
+    const [baseBalance, setBaseBalance] = useState(0);
+    const [realTimeBalance, setRealTimeBalance] = useState(0);
     const dolaStakedInSDola = sDolaExRate * stakedDolaBalance;
     
     useInterval(() => {            
@@ -67,11 +67,11 @@ export const StakeDolaUI = () => {
     }, MS_PER_BLOCK);
 
     useEffect(() => {
-        if(previouseStakedDolaBalance === stakedDolaBalance) return;
+        if(previousStakedDolaBalance === stakedDolaBalance) return;
         setBaseBalance(dolaStakedInSDola);
         setRealTimeBalance(dolaStakedInSDola);
         setPrevStakedDolaBalance(stakedDolaBalance);
-    }, [stakedDolaBalance, previouseStakedDolaBalance, dolaStakedInSDola]);    
+    }, [stakedDolaBalance, previousStakedDolaBalance, dolaStakedInSDola]);    
 
     useEffect(() => {
         if(!!baseBalance || !dolaStakedInSDola) return;
@@ -101,7 +101,7 @@ export const StakeDolaUI = () => {
         return redeemSDola(provider?.getSigner(), stakedDolaBalanceBn);
     }
 
-    const resetRealTime = () => {        
+    const resetRealTime = () => {    
         setTimeout(() => {            
             setBaseBalance(dolaStakedInSDola);
             setRealTimeBalance(dolaStakedInSDola);
