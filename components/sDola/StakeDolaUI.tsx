@@ -110,7 +110,7 @@ export const StakeDolaUI = () => {
 
     return <VStack w='full' maxW='470px' spacing="4">
         <HStack justify="space-between" w='full'>
-            <StatBasic message="This week's APY is calculated with last week's DBR auction revenues" isLoading={isLoading} name="Initial APY" value={apy ? `${shortenNumber(apy, 2)}%` : '0% this week'} />
+            <StatBasic message="This week's APY is calculated with last week's DBR auction revenues and assuming a weekly auto-compounding" isLoading={isLoading} name="APY" value={apy ? `${shortenNumber(apy, 2)}%` : '0% this week'} />
             <StatBasic message={"The projected APY is a theoretical estimation of where the APY should tend to go. It's calculated by considering current's week auction revenue and a forecast that considers the DBR incentives, where the forecast portion has a weight of more than 50%"} isLoading={isLoading} name="Projected APY" value={`${shortenNumber(projectedApy, 2)}%`} />
         </HStack>
         {
