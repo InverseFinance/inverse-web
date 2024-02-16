@@ -3,7 +3,8 @@ import { getFramePngBuffer } from '@app/util/frames-server';
 export default async function handler(req, res) {
     try {
         const pngBuffer = await getFramePngBuffer({
-            title: 'Your entry has been received!',            
+            title: 'Get a chance to win 10 INV!',
+            subtitle: 'Participate before the Feb 29th',                 
         });
         // Set the content type to PNG and send the response
         res.setHeader('Content-Type', 'image/png');

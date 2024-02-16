@@ -4,13 +4,12 @@ import { getFramePngBuffer } from '@app/util/frames-server';
 export default async function handler(req, res) {
     try {
         const pngBuffer = await getFramePngBuffer({
-            title: 'Stay in-the-know about sDOLA',
-            subtitle: 'Subscribe to get a chance to win 10 INV!',
-            imageSrc: `${FRAME_BASE_URL}/assets/sDOLAx512.png`,       
+            title: 'Stay in-the-know about sDOLA and subscribe to The Recap',
+            subtitle: 'Inverse Finance’s weekly newsletter',            
         });
         // Set the content type to PNG and send the response
         res.setHeader('Content-Type', 'image/png');
-        res.setHeader('Cache-Control', 'max-age=60');
+        // res.setHeader('Cache-Control', 'max-age=31536000');
         res.send(pngBuffer);
     } catch (error) {
         console.error(error);

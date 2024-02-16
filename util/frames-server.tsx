@@ -90,12 +90,13 @@ export const getFramePngBuffer = async ({
     return pngBuffer;
 }
 
-export const setFrameCheckAction = async (frameId, step, value, fid) => {
+export const setFrameCheckAction = async (frameId, step, valueObj, fid) => {
     const key = `frames:${frameId}-${step}-fid${fid}`;
     const { data } = (await getCacheFromRedisAsObj(key)) || {};
     if (!!data) {
-        return { alreadyUsed: true };
+        return { alreadyUsed: true, data };
     } else {
-        await redisSetWithTimestamp(key, { value });
+        await redisSetWithTimestamp(key, valueObj);
+        return { saved: true };
     }
 }

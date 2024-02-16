@@ -3,7 +3,7 @@ import Head from 'next/head';
 
 export default function Page() {
   const title = `sDOLA Quiz Bowl`;
-  const image = `api/frames/newsletter/image-start?xx=9`;
+  const image = `api/frames/newsletter/image-start?xx=91`;
   return (
     <>
       <Head>
@@ -12,9 +12,8 @@ export default function Page() {
         <meta name="og:description" content="" />
         <meta property="fc:frame" content="vNext" />
         <meta property="fc:frame:image" content={`${FRAME_BASE_URL}/${image}`} />
-        <meta property="og:image" content={`${FRAME_BASE_URL}/${image}`} />
-        <meta property="fc:frame:input:text" content="Please enter your e-mail:" />
-        <meta property="fc:frame:button:1" content="Subscribe" />
+        <meta property="og:image" content={`${FRAME_BASE_URL}/${image}`} />        
+        <meta property="fc:frame:button:1" content="Let me in!" />
         <meta property="fc:frame:post_url" content={`${FRAME_BASE_URL}/api/frames/newsletter/submit`} />        
       </Head>
       <body>

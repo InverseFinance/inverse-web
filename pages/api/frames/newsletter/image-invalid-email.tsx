@@ -8,7 +8,7 @@ export default async function handler(req, res) {
         });
         // Set the content type to PNG and send the response
         res.setHeader('Content-Type', 'image/png');
-        res.setHeader('Cache-Control', 'max-age=60');
+        res.setHeader('Cache-Control', 'max-age=31536000');
         res.send(pngBuffer);
     } catch (error) {
         console.error(error);
