@@ -1,3 +1,4 @@
+import { getQuizzQ1Frame } from "@app/frames/quizz/q1-frame";
 import { getErrorFrame } from "@app/util/frames";
 
 const options = {
@@ -12,21 +13,12 @@ export default async function handler(req, res) {
   const fid = data?.untrustedData?.fid;
   const url = data?.untrustedData?.url;
 
-  if (!fid || !options[buttonId]) {
+  if(req?.query?.ask === 'true') {    
+    return res.status(200).send(getQuizzQ1Frame());
+  }
+  else if (!fid || !options[buttonId]) {
     return res.status(200).send(getErrorFrame(url));
   }
 
-  return res.status(200).send(`<!DOCTYPE html><html><head>
-    <title>Question 1: sDOLA is a:</title>
-    <meta property="og:title" content="Question 1: sDOLA is a:" />
-    <meta property="fc:frame" content="vNext" />
-    <meta property="fc:frame:image" content="https://inverse.finance/assets/sDOLAx512.png" />
-    <meta property="og:image" content="https://inverse.finance/assets/sDOLAx512.png" />    
-    <meta property="fc:frame:button:1" content="Next question" />
-    <meta property="fc:frame:post_url" content="https://inverse.finance/frames/quizz/q2" />
-  </head>
-  <body>
-    <p>Result: ${options[buttonId] || 'Invalid answer'}</p>
-  </body>
-  </html>`);
+  return res.status(200).send(getQuizzQ1Frame(options[buttonId]));
 }

@@ -1,17 +1,20 @@
+import { FRAME_BASE_URL } from '@app/util/frames';
 import Head from 'next/head';
 
-export default function Page() {  
+export default function Page() {
+  const title = `sDOLA Quiz Bowl`;
+  const image = `assets/sDOLAx512.png`;
   return (
     <>
-      <Head>        
+      <Head>
         <title>sDOLA Quiz Bowl</title>
-        <meta property="og:title" content="sDOLA Quiz Bowl" />
+        <meta property="og:title" content={title} />
         <meta name="og:description" content="" />
         <meta property="fc:frame" content="vNext" />
-        <meta property="fc:frame:image" content="https://inverse.finance/assets/sDOLAx512.png" />
-        <meta property="og:image" content="https://inverse.finance/assets/sDOLAx512.png" />
-        <meta property="fc:frame:button:1" content="GO" />                
-        <meta property="fc:frame:post_url" content="https://inverse.finance/frames/quizz/q1" />        
+        <meta property="fc:frame:image" content={`${FRAME_BASE_URL}/${image}`} />
+        <meta property="og:image" content={`${FRAME_BASE_URL}/${image}`} />
+        <meta property="fc:frame:button:1" content="GO" />
+        <meta property="fc:frame:post_url" content={`${FRAME_BASE_URL}/api/frames/quizz/q1?ask=true`} />        
       </Head>
       <body>
         <p>Hello!</p>
