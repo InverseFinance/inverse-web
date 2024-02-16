@@ -365,13 +365,10 @@ export const formatDolaStakingEvents = (events: any[], timestamps?: any, already
 
 export function getLastThursdayTimestamp() {
     const now = new Date();
-    const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
+    const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0);
     const today = new Date(nowUTC);
     const dayOfWeek = today.getUTCDay();
-    const daysSinceLastThursday = (dayOfWeek + 3) % 7 + 1;
+    const daysSinceLastThursday = dayOfWeek >= 4 ? dayOfWeek - 4 : 7 - (4-dayOfWeek);
     today.setUTCDate(today.getUTCDate() - daysSinceLastThursday);
-    today.setUTCMinutes(0);
-    today.setUTCSeconds(0);
-    today.setUTCHours(0);
     return +(today);
 }
