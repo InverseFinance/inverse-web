@@ -5,7 +5,7 @@ import { join } from 'path';
 import * as fs from "fs";
 import { lightTheme } from '@app/variables/theme';
 
-const fontPath = join(process.cwd(), '/node_modules/@fontsource/inter/files/inter-all-700-normal.woff')
+const fontPath = join(process.cwd(), '/frames/inter-all-700-normal.woff')
 const fontData = fs.readFileSync(fontPath);
 
 const imgHeight = 600;
