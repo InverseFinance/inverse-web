@@ -363,7 +363,7 @@ export const formatDolaStakingEvents = (events: any[], timestamps?: any, already
     });
 }
 
-function getLastThursdayTimestamp() {
+export function getLastThursdayTimestamp() {
     const now = new Date();
     const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
     const today = new Date(nowUTC);

@@ -1,10 +1,14 @@
-import { Text, Flex, Stack } from "@chakra-ui/react"
+import { Text, Flex, Stack, VStack } from "@chakra-ui/react"
 import { shortenNumber } from "@app/util/markets";
 import Container from "../../common/Container";
 import Table from "@app/components/common/Table";
 import ScannerLink from "@app/components/common/ScannerLink";
 import { Timestamp } from "@app/components/common/BlockTimestamp/Timestamp";
 import moment from "moment";
+import { getLastThursdayTimestamp, useStakedDola } from "@app/util/dola-staking";
+import { useDBRPrice } from "@app/hooks/useDBR";
+import { ONE_DAY_MS } from "@app/config/constants";
+import { preciseCommify } from "@app/util/misc";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="12px" fontWeight="extrabold" {...props} />
@@ -55,7 +59,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
         value: ({ dolaIn }) => {
             return <Cell minWidth="90px" justify="center" >
-                <CellText>{shortenNumber(dolaIn, 2, false, true)} DOLA</CellText>
+                <CellText fontWeight="bold">{shortenNumber(dolaIn, 2, false, true)} DOLA</CellText>
             </Cell>
         },
     },
@@ -91,12 +95,14 @@ const columns = [
         showFilter: true,
         filterWidth: '90px',
     },
-]
+];
 
-export const DbrAuctionBuys = ({ events, title, lastUpdate }: { events: any[], title: string, lastUpdate: number }) => {
+const sDOLAColumns = columns.slice(0, columns.length - 1).map(c => ({ ...c, showFilter: false}));
+
+export const DbrAuctionBuys = ({ events, title, subtitle, lastUpdate }: { events: any[], title: string, subtitle: string, lastUpdate: number }) => {
     return <Container
         label={title}
-        description={lastUpdate > 0 ? `Last update: ${moment(lastUpdate).fromNow()}` : undefined}
+        description={subtitle || (lastUpdate > 0 ? `Last update: ${moment(lastUpdate).fromNow()}` : undefined)}
         noPadding
         m="0"
         p="0"
@@ -108,6 +114,41 @@ export const DbrAuctionBuys = ({ events, title, lastUpdate }: { events: any[], t
             columns={columns}
             items={events}
             noDataMessage="No DBR buys yet"
+        />
+    </Container>
+}
+
+export const DbrAuctionBuysSDola = ({ events, title, subtitle, lastUpdate }: { events: any[], title: string, subtitle: string, lastUpdate: number }) => {
+    const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
+    const { apy, pastWeekRevenue } = useStakedDola(dbrDolaPrice);
+    const lastWeekEnd = getLastThursdayTimestamp();
+    const lastWeekStart = lastWeekEnd - (ONE_DAY_MS * 7);
+    const pastWeekEvents = events.filter(e => e.timestamp < lastWeekEnd && e.timestamp >= lastWeekStart);
+
+    return <Container
+        label={`Where does the ${shortenNumber(apy, 2)}% APY come from?`}
+        description={`Easily verify below the on-chain source of the sDOLA real-yield`}
+        noPadding
+        m="0"
+        p="0"
+        right={
+            <VStack spacing="0" alignItems="flex-end">
+                <Text>Last week's revenue to distribute this week:</Text>
+                <Text fontWeight="bold">{preciseCommify(pastWeekRevenue, 2)} DOLA</Text>
+            </VStack>
+        }
+        headerProps={{
+            direction: { base: 'column', md: 'row' },
+            align: { base: 'flex-start', md: 'flex-end' },
+        }}
+    >
+        <Table
+            keyName="txHash"
+            defaultSort="timestamp"
+            defaultSortDir="desc"
+            columns={sDOLAColumns}
+            items={pastWeekEvents}
+            noDataMessage="No DBR buys in the sDOLA auction last week"
         />
     </Container>
 }
