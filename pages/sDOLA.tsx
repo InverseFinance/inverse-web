@@ -8,10 +8,15 @@ import { useAccount } from '@app/hooks/misc';
 import { DolaStakingTabs } from '@app/components/F2/DolaStaking/DolaStakingTabs';
 import { DolaStakingActivity } from '@app/components/sDola/DolaStakingActivity';
 import { useDolaStakingActivity } from '@app/util/dola-staking';
+import { DbrAuctionBuys, DbrAuctionBuysSDola } from '@app/components/F2/DbrAuction/DbrAuctionBuys';
+import { useDbrAuctionActivity } from '@app/util/dbr-auction';
+import { shortenNumber } from '@app/util/markets';
 
 export const SdolaPage = () => {
   const account = useAccount();
   const { isLoading, accountEvents, events } = useDolaStakingActivity(account, 'sdola');
+  const { isLoading: isLoadingBuys, events: buyEvents, timestamp: buysTimestamp } = useDbrAuctionActivity();
+  const sdolaBuyEvents = buyEvents.filter(e => e.auctionType === 'sDOLA');
   return (
     <Layout>
       <Head>
@@ -44,8 +49,11 @@ export const SdolaPage = () => {
           </Stack>
         </Stack>
         {
-          !!account && <DolaStakingActivity events={accountEvents} title="My Staking activity" />
+          !!account && accountEvents?.length > 0 &&  <DolaStakingActivity events={accountEvents} title="My Staking activity" />
         }
+        <DbrAuctionBuysSDola
+          events={sdolaBuyEvents}
+        />
       </VStack>
     </Layout>
   )
