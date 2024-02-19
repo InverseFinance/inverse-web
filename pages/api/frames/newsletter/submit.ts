@@ -22,6 +22,7 @@ export default async function handler(req, res) {
     const unverifiedEmail = data?.untrustedData?.inputText;
     const unverifiedFid = data?.untrustedData?.fid;    
     const backUrl = FRAME_BASE_URL+'/api/frames/newsletter/submit';
+    const contestId = 'newsletter-contest-feb';
 
     const now = Date.now();
 
@@ -47,7 +48,7 @@ export default async function handler(req, res) {
             return res.status(200).send(getRetryFrame(backUrl));
         }
         const fid = isLocal ? unverifiedFid : verifiedMessage.message.data.fid;
-        const email = isLocal ? unverifiedEmail : Buffer.from(verifiedMessage.message.data.frameActionBody.inputText, 'base64');
+        const email = isLocal ? unverifiedEmail : Buffer.from(verifiedMessage.message.data.frameActionBody.inputText, 'base64').toString();
         
         if (!email || !isValidEmail(email)) {
             return res.status(200).send(getRetryFrame(backUrl, 'api/frames/newsletter/image-invalid-email?'));
@@ -59,14 +60,14 @@ export default async function handler(req, res) {
         }
 
         const dataToSave = { sub: true, email, timestamp: now, verifiedMessage, fidAddresses };
-        const check = await setFrameCheckAction('newsletter-contest-1', 'subscribe', dataToSave, fid);
+        const check = await setFrameCheckAction(contestId, 'subscribe', dataToSave, fid);
 
         if(check.alreadyUsed) {
             return res.status(200).send(getSuccessFrame('api/frames/newsletter/image-success?v=4'));
         } else if(check.saved) {
-            const subscribersData = await getCacheFromRedis('frames:newsletter-contest-1', false) || { subscribers: [] };
+            const subscribersData = await getCacheFromRedis('frames:'+contestId, false) || { subscribers: [] };
             const newList = subscribersData?.subscribers.concat([{ email, timestamp: now, mainAddress: fidAddresses[0], fidAddresses }]);
-            await redisSetWithTimestamp('frames:newsletter-contest-1', { ...subscribersData, subscribers: newList, timestamp: now });            
+            await redisSetWithTimestamp('frames:'+contestId, { ...subscribersData, subscribers: newList, timestamp: now });            
             return res.status(200).send(getSuccessFrame('api/frames/newsletter/image-success?v=4'));
         }
         return res.status(200).send(getRetryFrame(backUrl, 'api/frames/newsletter/something-went-wrong'));
