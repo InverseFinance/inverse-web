@@ -123,7 +123,7 @@ export const DbrReplenishmentForm = ({
                     description={
                         !isLoading && !hasEnoughLiquidityForReward ?
                             `Not enough DOLA liquidity in the market at the moment to pay the reward.`
-                            : `You only pay a transaction fee and get a DOLA reward while the borrower has their debt increased.`
+                            : `You only pay a transaction fee and get a DOLA reward while the borrower has their debt increased. Note: use flashbot rpc to not be frontrun by a bot.`
                     }
                 />
                 <HStack w='full' justify="space-between">
