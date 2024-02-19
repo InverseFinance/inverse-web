@@ -1,5 +1,5 @@
 import { getErrorFrame, getSuccessFrame } from "@app/util/frames";
-import { setFrameCheckAction } from "@app/util/frames-server";
+import { getFarcasterUserAddresses, setFrameCheckAction, validateFrameMessage } from "@app/util/frames-server";
 import { getTimestampFromUTCDate } from "@app/util/misc";
 import { getNewsletterRegisterFrame } from "./register-frame";
 
@@ -21,6 +21,15 @@ export default async function handler(req, res) {
     const url = data?.untrustedData?.url;    
 
     const now = Date.now();
+    
+    if(!data?.trustedData?.messageBytes) {        
+        return res.status(200).send(getErrorFrame(url));
+    }
+
+    const verifiedMessage = await validateFrameMessage(data?.trustedData?.messageBytes);    
+    if (!verifiedMessage.valid || !verifiedMessage.message.data.fid) {
+        return res.status(200).send(getErrorFrame(url));
+    }    
 
     if(now > contestEndTimestamp) {
         return res.status(200).send(getErrorFrame(url, 'api/frames/newsletter/image-contest-ended'));
@@ -34,7 +43,8 @@ export default async function handler(req, res) {
     else if (!email || !isValidEmail(email)) {
         return res.status(200).send(getErrorFrame(url, 'api/frames/newsletter/image-invalid-email?'));
     }
+    const fidAddresses = await getFarcasterUserAddresses(fid);
     
-    setFrameCheckAction('newsletter-contest', 'subscribe', { sub: true, email: email, timestamp: now, fid }, fid);    
+    setFrameCheckAction('newsletter-contest', 'subscribe', { sub: true, email: email, timestamp: now, fid, verifiedMessage, fidAddresses }, fid);    
     return res.status(200).send(getSuccessFrame('api/frames/newsletter/image-success?'));
 }

@@ -2,7 +2,7 @@ import { FRAME_BASE_URL } from '@app/util/frames';
 
 export const getNewsletterRegisterFrame = () => {
   const title = ``;
-  const image = `api/frames/newsletter/image-register`;
+  const image = `api/frames/newsletter/image-register`;  
   return `<!DOCTYPE html>
 <html>
 
