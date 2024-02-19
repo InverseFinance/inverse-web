@@ -19,7 +19,7 @@ export default async function handler(req, res) {
 
     const buttonId = data?.untrustedData?.buttonIndex;
     const unverifiedEmail = data?.untrustedData?.inputText;
-    const unverifiedFid = data?.untrustedData?.fid;
+    const unverifiedFid = 260027//data?.untrustedData?.fid;
     // const url = data?.untrustedData?.url;
     const backUrl = FRAME_BASE_URL+'/api/frames/newsletter/submit';
 

@@ -143,10 +143,10 @@ export const isFollowingInverseFarcaster = async (fid: string) => {
     const u = new URL(`${endpoint}/${version}/linkById`);
     u.searchParams.append("link_type", 'follow');
     u.searchParams.append("fid", fid);
-    u.searchParams.append("target_fid", inverseFinanceFid);
+    u.searchParams.append("target_fid", inverseFinanceFid);    
     const response = await fetch(u.toString());
     const followResult = await response.json();
-    return followResult?.type === 'MESSAGE_TYPE_LINK_ADD';
+    return followResult?.data?.type === 'MESSAGE_TYPE_LINK_ADD';
 };
 
 export const getFarcasterUserAddresses = async (fid: string) => {
