@@ -63,7 +63,7 @@ export default async function handler(req, res) {
         const check = await setFrameCheckAction(contestId, 'subscribe', dataToSave, fid);
 
         if(check.alreadyUsed) {
-            return res.status(200).send(getSuccessFrame('api/frames/newsletter/image-success?v=4'));
+            return res.status(200).send(getSuccessFrame('api/frames/newsletter/already-participated'));
         } else if(check.saved) {
             const subscribersData = await getCacheFromRedis('frames:'+contestId, false) || { subscribers: [] };
             const newList = subscribersData?.subscribers.concat([{ email, timestamp: now, mainAddress: fidAddresses[0], fidAddresses }]);
