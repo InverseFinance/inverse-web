@@ -1,5 +1,5 @@
 import { FRAME_BASE_URL, getErrorFrame, getSuccessFrame } from "@app/util/frames";
-import { getFarcasterUserAddresses, setFrameCheckAction, validateFrameMessage } from "@app/util/frames-server";
+import { getFarcasterUserAddresses, isFollowingInverseFarcaster, setFrameCheckAction, validateFrameMessage } from "@app/util/frames-server";
 import { getTimestampFromUTCDate } from "@app/util/misc";
 import { getNewsletterRegisterFrame } from "./register-frame";
 import { BURN_ADDRESS } from "@app/config/constants";
@@ -23,6 +23,11 @@ export default async function handler(req, res) {
     const url = data?.untrustedData?.url;
 
     const now = Date.now();
+
+    const isFollowingInverse = await isFollowingInverseFarcaster(unverifiedFid);
+    if (!isFollowingInverse) {
+        return res.status(200).send(getErrorFrame(url, '/api/frames/follow-inverse-first?v=1'));
+    }
 
     if (now > contestEndTimestamp) {
         return res.status(200).send(getErrorFrame(url, 'api/frames/newsletter/image-contest-ended'));

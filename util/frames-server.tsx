@@ -11,6 +11,7 @@ const fontData = fs.readFileSync(fontPath);
 const imgHeight = 600;
 // should be 1.91 or 1;
 const aspectRatio = 1.91;
+const inverseFinanceFid = '254450';
 
 export const getFramePngBuffer = async ({
     title,
@@ -136,6 +137,16 @@ export const getFarcasterUserProfile = async (fid: string) => {
     u.searchParams.append("fid", fid);
     const response = await fetch(u.toString());
     return response.json();
+};
+
+export const isFollowingInverseFarcaster = async (fid: string) => {
+    const u = new URL(`${endpoint}/${version}/linkById`);
+    u.searchParams.append("link_type", 'follow');
+    u.searchParams.append("fid", fid);
+    u.searchParams.append("target_fid", inverseFinanceFid);
+    const response = await fetch(u.toString());
+    const followResult = await response.json();
+    return followResult?.type === 'MESSAGE_TYPE_LINK_ADD';
 };
 
 export const getFarcasterUserAddresses = async (fid: string) => {
