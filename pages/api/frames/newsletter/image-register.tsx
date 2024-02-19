@@ -5,7 +5,7 @@ export default async function handler(req, res) {
     try {
         const pngBuffer = await getFramePngBuffer({
             title: 'Get a chance to win 10 INV!',
-            subtitle: 'Participate before the Feb 29th',
+            subtitle: 'Participate before Feb 29th',
             imageSrc: FRAME_BASE_URL+'/assets/logo.png',              
         });
         // Set the content type to PNG and send the response
