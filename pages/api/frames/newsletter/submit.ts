@@ -24,34 +24,33 @@ export default async function handler(req, res) {
 
     const now = Date.now();
 
-    const isLocal = FRAME_BASE_URL.includes('localhost');
-    if (!isLocal && !data?.trustedData?.messageBytes) {
-        return res.status(200).send(getErrorFrame(url));
-    }
-
-    const verifiedMessage = !isLocal ? await validateFrameMessage(data?.trustedData?.messageBytes) : {};
-    if (!isLocal && (!verifiedMessage.valid || !verifiedMessage.message.data.fid)) {
-        return res.status(200).send(getErrorFrame(url));
-    }
-    const fid = isLocal ? unverifiedFid : verifiedMessage.message.data.fid;
-    const email = isLocal ? unverifiedEmail : Buffer.from(verifiedMessage.message.data.frameActionBody.inputText, 'base64');
-
     if (now > contestEndTimestamp) {
         return res.status(200).send(getErrorFrame(url, 'api/frames/newsletter/image-contest-ended'));
     }
-    else if (!fid) {
-        return res.status(200).send(getErrorFrame(url));
-    }
-    else if (buttonId === 1 && !email) {
+    else if (buttonId === 1 && !unverifiedEmail) {
         return res.status(200).send(getNewsletterRegisterFrame());
     }
-    else if (!email || !isValidEmail(email)) {
-        return res.status(200).send(getErrorFrame(url, 'api/frames/newsletter/image-invalid-email?'));
+    else {
+        const isLocal = FRAME_BASE_URL.includes('localhost');
+        if (!isLocal && !data?.trustedData?.messageBytes) {
+            return res.status(200).send(getErrorFrame(url));
+        }
+
+        const verifiedMessage = !isLocal ? await validateFrameMessage(data?.trustedData?.messageBytes) : {};
+        if (!isLocal && (!verifiedMessage.valid || !verifiedMessage.message.data.fid)) {
+            return res.status(200).send(getErrorFrame(url));
+        }
+        const fid = isLocal ? unverifiedFid : verifiedMessage.message.data.fid;
+        const email = isLocal ? unverifiedEmail : Buffer.from(verifiedMessage.message.data.frameActionBody.inputText, 'base64');
+        
+        if (!email || !isValidEmail(email)) {
+            return res.status(200).send(getErrorFrame(url, 'api/frames/newsletter/image-invalid-email?'));
+        }
+        const fidAddresses = isLocal ? [BURN_ADDRESS] : await getFarcasterUserAddresses(fid);
+
+        const dataToSave = { sub: true, email, timestamp: now, verifiedMessage, fidAddresses };
+        setFrameCheckAction('newsletter-contest', 'subscribe', dataToSave, fid);
     }
-    const fidAddresses = isLocal ? [BURN_ADDRESS] : await getFarcasterUserAddresses(fid);
 
-    const dataToSave = { sub: true, email, timestamp: now, verifiedMessage, fidAddresses };
-    setFrameCheckAction('newsletter-contest', 'subscribe', dataToSave, fid);    
-
-    return res.status(200).send(getSuccessFrame('api/frames/newsletter/image-success?'));
+    return res.status(200).send(getSuccessFrame('api/frames/newsletter/image-success?v=4'));
 }

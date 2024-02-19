@@ -15,11 +15,13 @@ const aspectRatio = 1.91;
 export const getFramePngBuffer = async ({
     title,
     subtitle,
+    footer,
     imageSrc,
     containerProps,
     subContainerProps,
     titleProps,
     subtitleProps,
+    footerProps,
     imageProps,
     imageWidth = '100px',
     imageHeight = '100px',
@@ -27,6 +29,7 @@ export const getFramePngBuffer = async ({
     title: string,
     subtitle?: string,
     imageSrc?: string,
+    footer?: string,
     containerProps?: any
     subContainerProps?: any
     titleProps?: any
@@ -67,6 +70,11 @@ export const getFramePngBuffer = async ({
                 {
                     !!subtitle && <h3 style={{ fontSize: 48, color: lightTheme.colors.mainTextColorLight, ...subtitleProps }}>
                         {subtitle}
+                    </h3>
+                }
+                {
+                    !!footer && <h3 style={{ fontSize: 40, color: lightTheme.colors.mainTextColorLight2, ...footerProps }}>
+                        {footer}
                     </h3>
                 }
             </div>
