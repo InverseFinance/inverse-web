@@ -236,7 +236,8 @@ export const useDolaStakingActivity = (from?: string, type = 'dsa'): SWR & {
     const { data, error } = useCustomSWR(`/api/dola-staking/activity`, fetcher);
 
     const events = (liveEvents?.length > data?.events?.length ? liveEvents : data?.events || [])
-        .filter(e => e.type === type);
+        .filter(e => e.type === type)
+        .map((e, i) => ({...e, key: `${e.txHash}-${i}` }));
     return {
         events,
         accountEvents: events.filter(e => !from || e.recipient === from),

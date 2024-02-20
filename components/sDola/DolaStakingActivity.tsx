@@ -89,7 +89,7 @@ export const DolaStakingActivity = ({ events, title, lastUpdate, ...containerPro
         {...containerProps}
     >
         <Table
-            keyName="txHash"
+            keyName="key"
             columns={columns}
             items={events}
             noDataMessage="No staking activity yet"

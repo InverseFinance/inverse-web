@@ -108,7 +108,7 @@ export const DbrAuctionBuys = ({ events, title, subtitle, lastUpdate }: { events
         p="0"
     >
         <Table
-            keyName="txHash"
+            keyName="key"
             defaultSort="timestamp"
             defaultSortDir="desc"
             columns={columns}
