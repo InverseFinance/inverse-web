@@ -8,6 +8,7 @@ export const DbrEmissions = ({
     maxChartWidth = 800,
     chartWidth,
     replenishments,
+    auctionBuys,
     histoPrices,
     useUsd = false,
     emissionEvents,
@@ -15,6 +16,7 @@ export const DbrEmissions = ({
     maxChartWidth: number
     chartWidth: number
     replenishments: any[]
+    auctionBuys: any[]
     histoPrices: { [key: string]: number }
     useUsd?: boolean
     emissionEvents: any[]
@@ -22,18 +24,21 @@ export const DbrEmissions = ({
     const [includeTreasuryTransfers, setIncludeTreasuryTransfers] = useState(false);
     const [includeTreasuryMints, setIncludeTreasuryMints] = useState(false);
     const [includeReplenishments, setIncludeReplenishments] = useState(true);
+    const [includeAuctionMints, setIncludeAuctionMints] = useState(true);
     const [includeClaims, setIncludeClaims] = useState(true);
 
     const repHashes = replenishments?.map(r => r.txHash) || [];
+    const auctionHashes = auctionBuys?.map(r => r.txHash) || [];
 
-    const filteredEvents = includeReplenishments && includeClaims && includeTreasuryMints ?
+    const filteredEvents = includeReplenishments && includeClaims && includeTreasuryMints && includeAuctionMints ?
         emissionEvents :
         emissionEvents?.filter(e => {
+            const auctionCondition = includeAuctionMints ? auctionHashes.includes(e.txHash) : false;
             const repCondition = includeReplenishments ? repHashes.includes(e.txHash) : false;
-            const claimCondition = includeClaims ? !repHashes.includes(e.txHash) && !e.isTreasuryMint && !e.isTreasuryTransfer : false;
+            const claimCondition = includeClaims ? !repHashes.includes(e.txHash) && !auctionHashes.includes(e.txHash) && !e.isTreasuryMint && !e.isTreasuryTransfer : false;
             const treasuryMintCondition = includeTreasuryMints ? e.isTreasuryMint : false;
             const treasuryTransferCondition = includeTreasuryTransfers ? e.isTreasuryTransfer : false;
-            return repCondition || claimCondition || treasuryMintCondition || treasuryTransferCondition;
+            return repCondition || claimCondition || treasuryMintCondition || treasuryTransferCondition || auctionCondition;
         });
 
     const _events = filteredEvents?.map(e => {
@@ -68,8 +73,14 @@ export const DbrEmissions = ({
                     <Switch onChange={(e) => setIncludeReplenishments(!includeReplenishments)} size="sm" colorScheme="purple" isChecked={includeReplenishments} />
                 </FormControl>
                 <FormControl w='auto' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
+                    <Text mr="2" onClick={() => setIncludeAuctionMints(!includeAuctionMints)}>
+                        Auction mints
+                    </Text>
+                    <Switch onChange={(e) => setIncludeAuctionMints(!includeAuctionMints)} size="sm" colorScheme="purple" isChecked={includeAuctionMints} />
+                </FormControl>
+                <FormControl w='auto' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
                     <Text mr="2" onClick={() => setIncludeClaims(!includeClaims)}>
-                        Claims
+                        Claims & Other
                     </Text>
                     <Switch onChange={(e) => setIncludeClaims(!includeClaims)} size="sm" colorScheme="purple" isChecked={includeClaims} />
                 </FormControl>

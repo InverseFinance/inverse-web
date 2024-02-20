@@ -29,6 +29,7 @@ const StatBasic = ({ value, name, isLoading = false }: { value: string, name: st
 export const DbrAll = ({
     history,
     burnEvents,
+    auctionBuys,
     histoPrices,
     replenishments,
     maxChartWidth = 800,
@@ -44,9 +45,10 @@ export const DbrAll = ({
     const { events: emissionEvents, rewardRatesHistory, isLoading: isEmmissionLoading } = useDBREmissions();
 
     const repHashes = replenishments?.map(r => r.txHash) || [];
+    const auctionBuysHashes = auctionBuys?.map(r => r.txHash) || [];
 
     const claimEvents = emissionEvents?.filter(e => {
-        return !repHashes.includes(e.txHash) && !e.isTreasuryMint && !e.isTreasuryTransfer;
+        return !repHashes.includes(e.txHash) && !auctionBuysHashes.includes(e.txHash) && !e.isTreasuryMint && !e.isTreasuryTransfer;
     });
 
     const totalClaimed = claimEvents.reduce((acc, e) => acc + e.amount, 0);
@@ -174,6 +176,7 @@ export const DbrAll = ({
             chartWidth={chartWidth}
             histoPrices={histoPrices}
             replenishments={replenishments}
+            auctionBuys={auctionBuys}
             useUsd={useUsd}
         />
     </Stack>
