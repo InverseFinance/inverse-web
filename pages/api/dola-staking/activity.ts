@@ -8,7 +8,7 @@ import { CHAIN_ID } from '@app/config/constants';
 import { ascendingEventsSorter } from '@app/util/misc';
 import { formatDolaStakingEvents, getDolaSavingsContract, getSdolaContract } from '@app/util/dola-staking';
 
-const DOLA_STAKING_CACHE_KEY = 'dola-staking-v1.0.0'
+const DOLA_STAKING_CACHE_KEY = 'dola-staking-v1.0.1'
 
 export default async function handler(req, res) {
     try {

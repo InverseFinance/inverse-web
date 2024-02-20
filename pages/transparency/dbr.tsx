@@ -22,6 +22,7 @@ import { useRouter } from 'next/router'
 import { timestampToUTC } from '@app/util/misc'
 import { DbrAll } from '@app/components/Transparency/DbrAll'
 import { useDbrAuctionActivity } from '@app/util/dbr-auction'
+import { useDolaStakingActivity } from '@app/util/dola-staking'
 
 const { TOKENS, TREASURY, DBR } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -32,6 +33,7 @@ export const DBRTransparency = () => {
     const { totalSupply, operator, priceUsd, yearlyRewardRate, rewardRate, minYearlyRewardRate, maxYearlyRewardRate, historicalData } = useDBR();
     const { events } = useDBRReplenishments();
     const { events: auctionBuys } = useDbrAuctionActivity();
+    const { events: dsaEvents } = useDolaStakingActivity(undefined, 'dsa');
     const mintsFromAuctionBuys = auctionBuys.filter(b => b.auctionType === 'Virtual');
     const { events: burnEvents } = useDBRBurns();
     const { history } = useDBRDebtHisto();
@@ -90,7 +92,7 @@ export const DBRTransparency = () => {
                         }
                         {
                             tab === 'Issuance' && <VStack w='full'>                                
-                                <DbrAll histoPrices={histoPrices} history={history} burnEvents={burnEvents} replenishments={events} auctionBuys={mintsFromAuctionBuys} yearlyRewardRate={yearlyRewardRate} />
+                                <DbrAll histoPrices={histoPrices} history={history} burnEvents={burnEvents} dsaEvents={dsaEvents} replenishments={events} auctionBuys={mintsFromAuctionBuys} yearlyRewardRate={yearlyRewardRate} />
                             </VStack>
                         }
                     </VStack>

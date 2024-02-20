@@ -5,7 +5,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
-import { BURN_ADDRESS, CHAIN_ID } from '@app/config/constants';
+import { BURN_ADDRESS, CHAIN_ID, DBR_AUCTION_ADDRESS, DOLA_SAVINGS_ADDRESS, SDOLA_ADDRESS } from '@app/config/constants';
 import { addBlockTimestamps } from '@app/util/timestamps';
 import { NetworkIds } from '@app/types';
 import { dbrRewardRatesCacheKey, initialDbrRewardRates } from '../cron-dbr-distributor';
@@ -14,6 +14,7 @@ const { DBR, TREASURY } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
     const cacheKey = `dbr-emissions-v1.0.91`;
+    const newCacheKey = `dbr-emissions-v1.1.0`;
     const { cacheFirst } = req.query;
 
     try {        
@@ -36,9 +37,11 @@ export default async function handler(req, res) {
         const provider = getProvider(CHAIN_ID);
         const contract = new Contract(DBR, DBR_ABI, provider);
 
-        const pastTotalEvents = cachedData?.totalEmissions || [];
+        // temp
+        const dsaCreationBlock = 19084053;
+        const pastTotalEvents = (cachedData?.totalEmissions || []).filter(d => d.blockNumber <= dsaCreationBlock);
 
-        const lastKnownEvent = pastTotalEvents?.length > 0 ? (pastTotalEvents[pastTotalEvents.length - 1]) : {};
+        const lastKnownEvent = pastTotalEvents?.length > 0 ? (pastTotalEvents[pastTotalEvents.length - 1]) : {};        
         const newStartingBlock = lastKnownEvent ? lastKnownEvent?.blockNumber + 1 : 0;
 
         const [
@@ -69,7 +72,8 @@ export default async function handler(req, res) {
                 txHash: e.transactionHash,
                 timestamp: timestamps[NetworkIds.mainnet][e.blockNumber] * 1000,
                 blockNumber: e.blockNumber,
-                amount: getBnToNumber(e.args[2]),
+                amount: getBnToNumber(e.args[2]),          
+                isSDolaClaim: e.args[1].toLowerCase() === SDOLA_ADDRESS.toLowerCase(),
                 isTreasuryMint: e.args[1].toLowerCase() === TREASURY.toLowerCase(),
                 isTreasuryTransfer: e.args[0].toLowerCase() === TREASURY.toLowerCase(),
             };
@@ -86,7 +90,7 @@ export default async function handler(req, res) {
             rewardRatesHistory: (ratesCache || initialDbrRewardRates),
         };
 
-        await redisSetWithTimestamp(cacheKey, resultData, true);
+        await redisSetWithTimestamp(newCacheKey, resultData, true);
 
         res.status(200).json(resultData)
     } catch (err) {
