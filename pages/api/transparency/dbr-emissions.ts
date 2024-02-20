@@ -12,9 +12,8 @@ import { dbrRewardRatesCacheKey, initialDbrRewardRates } from '../cron-dbr-distr
 
 const { DBR, TREASURY } = getNetworkConfigConstants();
 
-export default async function handler(req, res) {
-    const cacheKey = `dbr-emissions-v1.0.91`;
-    const newCacheKey = `dbr-emissions-v1.1.0`;
+export default async function handler(req, res) {    
+    const cacheKey = `dbr-emissions-v1.1.0`;
     const { cacheFirst } = req.query;
 
     try {        
@@ -36,10 +35,8 @@ export default async function handler(req, res) {
 
         const provider = getProvider(CHAIN_ID);
         const contract = new Contract(DBR, DBR_ABI, provider);
-
-        // temp
-        const dsaCreationBlock = 19084053;
-        const pastTotalEvents = (cachedData?.totalEmissions || []).filter(d => d.blockNumber <= dsaCreationBlock);
+                
+        const pastTotalEvents = (cachedData?.totalEmissions || []);
 
         const lastKnownEvent = pastTotalEvents?.length > 0 ? (pastTotalEvents[pastTotalEvents.length - 1]) : {};        
         const newStartingBlock = lastKnownEvent ? lastKnownEvent?.blockNumber + 1 : 0;
@@ -90,7 +87,7 @@ export default async function handler(req, res) {
             rewardRatesHistory: (ratesCache || initialDbrRewardRates),
         };
 
-        await redisSetWithTimestamp(newCacheKey, resultData, true);
+        await redisSetWithTimestamp(cacheKey, resultData, true);
 
         res.status(200).json(resultData)
     } catch (err) {
