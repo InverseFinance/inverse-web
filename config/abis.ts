@@ -584,8 +584,8 @@ export const DOLA_SAVINGS_ABI = [
   'function claim(address to) external',
   "function balanceOf(address) external view returns (uint)",
   "event Stake(address indexed caller, address indexed recipient, uint amount)",
-  "event Unstake(address indexed caller, uint amount)",  
-  "event Claim(address indexed caller, address indexed recipient)",
+  "event Unstake(address indexed caller, uint amount)",
+  "event Claim(address indexed caller, address indexed recipient, uint amount)",
 ];
 // sDOLA is ERC4626, 
 export const SDOLA_ABI = [
