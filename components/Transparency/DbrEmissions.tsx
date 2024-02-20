@@ -40,7 +40,7 @@ export const DbrEmissions = ({
             const auctionCondition = includeAuctionMints ? auctionHashes.includes(e.txHash) && !e.isSDolaClaim : false;
             const repCondition = includeReplenishments ? repHashes.includes(e.txHash) : false;
             const claimCondition = includeClaims ? !repHashes.includes(e.txHash) && !auctionHashes.includes(e.txHash) && !dsaClaimEventsHashes.includes(e.txHash) && !e.isTreasuryMint && !e.isTreasuryTransfer && !e.isSDolaClaim : false;
-            const dsaClaimCondition = includeDsaClaims ? dsaClaimEventsHashes.includes(e.txHash) && (!auctionHashes.includes(e.txHash) || e.isSDolaClaim) : false;
+            const dsaClaimCondition = includeDsaClaims ? dsaClaimEventsHashes.includes(e.txHash) && (!auctionHashes.includes(e.txHash) || !!e.isSDolaClaim) : false;
             const treasuryMintCondition = includeTreasuryMints ? e.isTreasuryMint : false;
             const treasuryTransferCondition = includeTreasuryTransfers ? e.isTreasuryTransfer : false;
             return repCondition || claimCondition || treasuryMintCondition || treasuryTransferCondition || auctionCondition || dsaClaimCondition;
