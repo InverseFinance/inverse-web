@@ -187,8 +187,8 @@ const StringItem = ({ footer = undefined, color = 'mainTextColor', value = '', l
     </VStack>
 }
 
-const StringCard = ({ footer = undefined, color = undefined, value = '', label = '', isLoading = false }) => {
-    return <DashBoardCard>
+const StringCard = ({ imageSrc = '', footer = undefined, color = undefined, value = '', label = '', isLoading = false }) => {
+    return <DashBoardCard imageSrc={imageSrc}>
         <StringItem footer={footer} color={color} isLoading={isLoading} value={value} label={label} />
     </DashBoardCard>
 }
@@ -308,12 +308,14 @@ export const UserDashboard = ({
                     labelRight={<>DBR APR: <b>{shortenNumber(invMarket?.dbrApr, 2)}%</b></>}
                 />
             } href="/firm/INV" noDataFallback={StakeINV} isLoading={isLoading} price={invMarket?.price} value={stakedInFirm} label="INV staked in FiRM" precision={2} />
-            <NumberCard footer={
-                <CardFooter
-                    labelLeft={<>APR: <b>{shortenNumber(sDolaApr, 2)}%</b></>}
-                    labelRight={<>proj. APR: <b>{shortenNumber(sDolaProjectedApr, 2)}%</b></>}
-                />
-            } href="/sDOLA" noDataFallback={StakeDOLA} isLoading={isLoading} value={dolaStakedInSDola} label="DOLA staked" precision={2} />
+            <NumberCard
+                imageSrc={TOKEN_IMAGES.DOLA}
+                footer={
+                    <CardFooter
+                        labelLeft={<>APR: <b>{shortenNumber(sDolaApr, 2)}%</b></>}
+                        labelRight={<>proj. APR: <b>{shortenNumber(sDolaProjectedApr, 2)}%</b></>}
+                    />
+                } href="/sDOLA" noDataFallback={StakeDOLA} isLoading={isLoading} value={dolaStakedInSDola} label="DOLA staked" precision={2} />
             <NumberCard
                 imageSrc={TOKEN_IMAGES.DBR}
                 footer={
@@ -322,12 +324,14 @@ export const UserDashboard = ({
                     />
                 }
                 isLoading={isLoading} price={dbrPrice} value={dbrBalance} label="DBR balance" precision={0} />
-            <StringCard footer={
-                <CardFooter
-                    labelLeft={<Link isExternal target="_blank" textDecoration="underline" href={BUY_LINKS.DBR}>Buy via DEX</Link>}
-                    labelRight={<Link textDecoration="underline" href="/dbr/auction">Buy via auctions</Link>}
-                />
-            } color={needsRechargeSoon ? 'error' : undefined} isLoading={isLoading} value={debt > 0 ? dbrBalance < 0 ? 'Depleted' : moment(dbrExpiryDate).format('MMM Do YYYY') : '-'} label="DBR depletion date" />
+            <StringCard
+                imageSrc={TOKEN_IMAGES.DBR}
+                footer={
+                    <CardFooter
+                        labelLeft={<Link isExternal target="_blank" textDecoration="underline" href={BUY_LINKS.DBR}>Buy via DEX</Link>}
+                        labelRight={<Link textDecoration="underline" href="/dbr/auction">Buy via auctions</Link>}
+                    />
+                } color={needsRechargeSoon ? 'error' : undefined} isLoading={isLoading} value={debt > 0 ? dbrBalance < 0 ? 'Depleted' : moment(dbrExpiryDate).format('MMM Do YYYY') : '-'} label="DBR depletion date" />
         </SimpleGrid>
         {
             invMarket?.depositsUsd > 1 && <SimpleGrid columns={{ base: 1, lg: 2 }} spacing="8" w="100%">
