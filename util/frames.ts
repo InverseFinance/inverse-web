@@ -1,6 +1,6 @@
 export const FRAME_BASE_URL = process.env.VERCEL_ENV === 'production' ? 'https://inverse.finance' : !process.env.VERCEL_URL ? 'http://localhost:3000' : `https://${process.env.VERCEL_URL}`;
 
-export const getErrorFrame = (url: string, imageUrl = 'api/frames/invalid-image') => {
+export const getErrorFrame = (url: string, imageUrl = 'api/frames/images/invalid-data') => {
     return `<!DOCTYPE html><html><head>
     <title>Invalid request</title>
     <meta property="og:title" content="Invalid request:" />
@@ -16,7 +16,7 @@ export const getErrorFrame = (url: string, imageUrl = 'api/frames/invalid-image'
   </html>`
 }
 
-export const getRetryFrame = (url: string, imageUrl = 'api/frames/invalid-image') => {
+export const getRetryFrame = (url: string, imageUrl = 'api/frames/images/invalid-data') => {
   return `<!DOCTYPE html><html><head>
   <title>Invalid request</title>
   <meta property="og:title" content="Invalid request:" />
@@ -32,7 +32,7 @@ export const getRetryFrame = (url: string, imageUrl = 'api/frames/invalid-image'
 </html>`
 }
 
-export const getSuccessFrame = (imageUrl = 'api/frames/invalid-image') => {
+export const getSuccessFrame = (imageUrl = 'api/frames/images/invalid-data') => {
   return `<!DOCTYPE html><html><head>
   <title>Success</title>
   <meta property="og:title" content="Success" />

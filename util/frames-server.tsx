@@ -4,6 +4,7 @@ import satori from "satori";
 import { join } from 'path';
 import * as fs from "fs";
 import { lightTheme } from '@app/variables/theme';
+import { FRAME_BASE_URL } from "./frames";
 
 const fontPath = join(process.cwd(), '/frames/inter-all-700-normal.woff')
 const fontData = fs.readFileSync(fontPath);
@@ -98,6 +99,20 @@ export const getFramePngBuffer = async ({
 
     return pngBuffer;
 }
+
+export const getCorrectImage = (props: { title?: string, subtitle?: string, imageSrc?: string }) => getFramePngBuffer({
+    title: 'Correct!',
+    subtitle: '',
+    imageSrc: FRAME_BASE_URL+'/assets/misc-icons/correct.png',
+    ...props,             
+});
+
+export const getIncorrectImage = (props: { title?: string, subtitle?: string, imageSrc?: string }) => getFramePngBuffer({
+    title: 'Incorrect!',
+    subtitle: '',
+    imageSrc: FRAME_BASE_URL+'/assets/misc-icons/incorrect.png',
+    ...props,             
+});
 
 export const setFrameCheckAction = async (frameId, step, valueObj, fid) => {
     const key = `frames:${frameId}-${step}-fid${fid}`;

@@ -26,50 +26,52 @@ export default async function handler(req, res) {
 
     const now = Date.now();
 
-    const isFollowingInverse = await isFollowingInverseFarcaster(unverifiedFid);
+    const isLocal = FRAME_BASE_URL.includes('localhost');
+
+    const verifiedMessage = !isLocal ? await validateFrameMessage(data?.trustedData?.messageBytes) : {};
+    const fid = isLocal ? unverifiedFid : verifiedMessage.message.data.fid;
+    const isFollowingInverse = await isFollowingInverseFarcaster(fid);
+
     if (!isFollowingInverse) {
-        return res.status(200).send(getRetryFrame(backUrl, '/api/frames/follow-inverse-first?v=1'));
+        return res.status(200).send(getRetryFrame(backUrl, '/api/frames/images/follow-inverse-first'));
     }
 
     if (now > contestEndTimestamp) {
-        return res.status(200).send(getRetryFrame(backUrl, 'api/frames/newsletter/image-contest-ended'));
+        return res.status(200).send(getRetryFrame(backUrl, 'api/frames/images/contest-ended'));
     }
     else if (buttonId === 1 && !unverifiedEmail) {
         return res.status(200).send(getNewsletterRegisterFrame());
     }
-    else {
-        const isLocal = FRAME_BASE_URL.includes('localhost');
+    else {        
         if (!isLocal && !data?.trustedData?.messageBytes) {
             return res.status(200).send(getRetryFrame(backUrl));
         }
-
-        const verifiedMessage = !isLocal ? await validateFrameMessage(data?.trustedData?.messageBytes) : {};
+        
         if (!isLocal && (!verifiedMessage.valid || !verifiedMessage.message.data.fid)) {
             return res.status(200).send(getRetryFrame(backUrl));
-        }
-        const fid = isLocal ? unverifiedFid : verifiedMessage.message.data.fid;
+        }        
         const email = isLocal ? unverifiedEmail : Buffer.from(verifiedMessage.message.data.frameActionBody.inputText, 'base64').toString();
         
         if (!email || !isValidEmail(email)) {
-            return res.status(200).send(getRetryFrame(backUrl, 'api/frames/newsletter/image-invalid-email?'));
+            return res.status(200).send(getRetryFrame(backUrl, 'api/frames/images/invalid-email?'));
         }
         const fidAddresses = isLocal ? [BURN_ADDRESS] : await getFarcasterUserAddresses(fid);
 
         if(!fidAddresses?.length) {
-            return res.status(200).send(getRetryFrame(backUrl, 'api/frames/no-wallet'));
+            return res.status(200).send(getRetryFrame(backUrl, 'api/frames/images/no-wallet'));
         }
 
         const dataToSave = { sub: true, email, timestamp: now, verifiedMessage, fidAddresses };
         const check = await setFrameCheckAction(contestId, 'subscribe', dataToSave, fid);
 
         if(check.alreadyUsed) {
-            return res.status(200).send(getSuccessFrame('api/frames/newsletter/already-participated'));
+            return res.status(200).send(getSuccessFrame('api/frames/images/already-participated'));
         } else if(check.saved) {
             const subscribersData = await getCacheFromRedis('frames:'+contestId, false) || { subscribers: [] };
             const newList = subscribersData?.subscribers.concat([{ email, timestamp: now, mainAddress: fidAddresses[0], fidAddresses }]);
             await redisSetWithTimestamp('frames:'+contestId, { ...subscribersData, subscribers: newList, timestamp: now });            
-            return res.status(200).send(getSuccessFrame('api/frames/newsletter/image-success?v=4'));
+            return res.status(200).send(getSuccessFrame('api/frames/images/sDOLA-success'));
         }
-        return res.status(200).send(getRetryFrame(backUrl, 'api/frames/newsletter/something-went-wrong'));
+        return res.status(200).send(getRetryFrame(backUrl, 'api/frames/images/something-went-wrong'));
     }    
 }
