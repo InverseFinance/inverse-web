@@ -164,7 +164,7 @@ export const ProposalForm = ({
         if (!provider?.getSigner()) { return }
         const tx = await submitProposal(provider?.getSigner(), form);
         return handleTx(tx, {
-            onSuccess: (tx, receipt) => {
+            onSuccess: (tx, receipt) => {                
                 setHasSuccess(true);
                 const canDraft = DRAFT_WHITELIST.includes((account || '')?.toLowerCase());
                 if (draftId && isPublicDraft && canDraft) {
@@ -204,6 +204,15 @@ export const ProposalForm = ({
             return;
         }
         return deleteDraft(draftId!, provider.getSigner(), () => router.push('/governance'));
+    }
+
+    const handleLinkAndDelete = () => {        
+        const proposalId = window.prompt(`Please provide the proposal ID to link the draft to (note: the last submitted proposal has the ID ${lastProposalId})`);
+        if(!proposalId || !/^[1-9][0-9]*$/.test(proposalId) || parseInt(proposalId) > lastProposalId) {
+            return showToast({ description: 'Invalid proposal ID provided!', status: 'error' });
+        } else {
+            return linkDraft(draftId!, parseInt(proposalId), provider?.getSigner());
+        }        
     }
 
     const showTemplateModal = () => {
@@ -321,6 +330,7 @@ export const ProposalForm = ({
                 isFormValid={isFormValid}
                 hasSuccess={hasSuccess}
                 previewMode={previewMode}
+                handleLinkAndDelete={handleLinkAndDelete}
                 handleSubmitProposal={handleSubmitProposal}
                 handlePublishDraft={handlePublishDraft}
                 handleDeleteDraft={handleDeleteDraft}
