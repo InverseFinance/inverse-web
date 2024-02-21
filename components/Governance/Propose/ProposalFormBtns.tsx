@@ -1,6 +1,6 @@
 import { Flex, Stack } from '@chakra-ui/react';
 import { SuccessMessage } from '@app/components/common/Messages';
-import { PlusSquareIcon, ViewIcon, EditIcon, CheckIcon, CheckCircleIcon, DeleteIcon, HamburgerIcon, ExternalLinkIcon } from '@chakra-ui/icons';
+import { PlusSquareIcon, ViewIcon, EditIcon, CheckIcon, CheckCircleIcon, DeleteIcon, HamburgerIcon, ExternalLinkIcon, LinkIcon } from '@chakra-ui/icons';
 import { RSubmitButton } from '@app/components/common/Button/RSubmitButton';
 import Link from '@app/components/common/Link';
 
@@ -13,6 +13,7 @@ export const ProposalFormBtns = ({
     nbActions,
     draftId,
     simulationUrl,
+    handleLinkAndDelete,
     handleSubmitProposal,
     handlePublishDraft,
     handleDeleteDraft,
@@ -29,6 +30,7 @@ export const ProposalFormBtns = ({
     nbActions: number,
     draftId?: number,
     simulationUrl: string,
+    handleLinkAndDelete: () => void,
     handleSubmitProposal: () => void,
     handlePublishDraft: () => void,
     handleDeleteDraft: () => void,
@@ -36,7 +38,7 @@ export const ProposalFormBtns = ({
     showTemplateModal: () => void,
     handleSimulation: () => void,
     addAction: () => void,
-}) => {
+}) => {    
     return (
         <>
             <Flex justify="center" pt="5">
@@ -86,8 +88,11 @@ export const ProposalFormBtns = ({
             </Link>}
             {
                 previewMode && isPublicDraft && !!draftId && <Flex alignItems="center" justify="center" w="full" pt="10">
-                    <RSubmitButton themeColor="red.500" w={{ base: 'full', sm:'fit-content' }}  onClick={handleDeleteDraft}>
+                    <RSubmitButton mr='4' themeColor="red.500" w={{ base: 'full', sm:'fit-content' }}  onClick={handleDeleteDraft}>
                         <DeleteIcon mr="1" /> Delete the Draft
+                    </RSubmitButton>
+                    <RSubmitButton themeColor="orange.500" w={{ base: 'full', sm:'fit-content' }}  onClick={handleLinkAndDelete}>
+                        <LinkIcon mr="1" /> Link reviews & delete draft
                     </RSubmitButton>
                 </Flex>
             }
