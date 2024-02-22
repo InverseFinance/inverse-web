@@ -6,8 +6,8 @@ import { fetcher30sectimeout } from "@app/util/web3";
 import { dolaStakingCacheKey } from "../dola-staking";
 
 export default async (req, res) => {
-    const cacheDuration = 900;    
-    const cacheKey = 'dola-modal-2-v1.0.1';
+    const cacheDuration = 900;
+    const cacheKey = 'dola-modal-2-v1.0.2';
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
 
     try {
@@ -31,7 +31,7 @@ export default async (req, res) => {
         const currentDolaBadDebt = badDebtData.badDebts.DOLA.badDebtBalance;
 
         let csvData = `DOLA bad debt:,${currentDolaBadDebt},FiRM borrows:,${totalBorrowsOnFirm},DSA DOLA bal:,${dolaStakingData.dsaTotalSupply},DSA dbrYearlyEarnings:,${dolaStakingData.dsaYearlyDbrEarnings}\n`;
-        csvData += `Liquidity Cache:,~5min,Liquidity timestamp:,${liquidityData.timestamp},Bad debt timestamp:,${badDebtData.timestamp}, DSA timestamp:${dolaStakingData.timestamp},\n`;
+        csvData += `Liquidity Cache:,~5min,Liquidity timestamp:,${liquidityData.timestamp},Bad debt timestamp:,${badDebtData.timestamp}, DSA timestamp:,${dolaStakingData.timestamp},\n`;
         csvData += `LP,Fed or Project,Fed Supply,RootLP DOLA balance,Pairing Depth $,Fed PoL\n`;
         feds.forEach((lp) => {
             const parentLp = liquidityData.liquidity.filter(l => !!l.deduce).find(l => l.deduce.includes(lp.address));
