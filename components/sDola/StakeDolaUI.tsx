@@ -41,7 +41,7 @@ export const StakeDolaUI = () => {
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
     const [dolaAmount, setDolaAmount] = useState('');
     const [isConnected, setIsConnected] = useState(true);
-    const [tab, setTab] = useState('Stake');    
+    const [tab, setTab] = useState('Stake');
     const isStake = tab === 'Stake';
 
     const { apy, projectedApy, isLoading, sDolaExRate, nextApy } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
@@ -51,30 +51,31 @@ export const StakeDolaUI = () => {
     const [baseBalance, setBaseBalance] = useState(0);
     const [realTimeBalance, setRealTimeBalance] = useState(0);
     const dolaStakedInSDola = sDolaExRate * stakedDolaBalance;
-    
-    useInterval(() => {            
-        const curr = (realTimeBalance||baseBalance);
-        const incPerInterval = ((curr * (apy / 100)) * (STAKE_BAL_INC_INTERVAL/(ONE_DAY_MS * 365)));
-        const neo = curr + incPerInterval;        
+    const sDOLAamount = dolaAmount ? parseFloat(dolaAmount) / sDolaExRate : '';
+
+    useInterval(() => {
+        const curr = (realTimeBalance || baseBalance);
+        const incPerInterval = ((curr * (apy / 100)) * (STAKE_BAL_INC_INTERVAL / (ONE_DAY_MS * 365)));
+        const neo = curr + incPerInterval;
         setRealTimeBalance(neo);
     }, STAKE_BAL_INC_INTERVAL);
 
     // every ~12s recheck base balance
     useInterval(() => {
-        if(realTimeBalance > dolaStakedInSDola) return;
+        if (realTimeBalance > dolaStakedInSDola) return;
         setRealTimeBalance(dolaStakedInSDola);
         setBaseBalance(dolaStakedInSDola);
     }, MS_PER_BLOCK);
 
     useEffect(() => {
-        if(previousStakedDolaBalance === stakedDolaBalance) return;
+        if (previousStakedDolaBalance === stakedDolaBalance) return;
         setBaseBalance(dolaStakedInSDola);
         setRealTimeBalance(dolaStakedInSDola);
         setPrevStakedDolaBalance(stakedDolaBalance);
-    }, [stakedDolaBalance, previousStakedDolaBalance, dolaStakedInSDola]);    
+    }, [stakedDolaBalance, previousStakedDolaBalance, dolaStakedInSDola]);
 
     useEffect(() => {
-        if(!!baseBalance || !dolaStakedInSDola) return;
+        if (!!baseBalance || !dolaStakedInSDola) return;
         setBaseBalance(dolaStakedInSDola);
     }, [baseBalance, dolaStakedInSDola]);
 
@@ -90,7 +91,7 @@ export const StakeDolaUI = () => {
         return (apy > 0 && stakedDolaBalance > 0 ? getMonthlyRate(stakedDolaBalance, apy) : 0);
     }, [stakedDolaBalance, apy]);
 
-    const handleAction = async () => {        
+    const handleAction = async () => {
         if (isStake) {
             return stakeDola(provider?.getSigner(), parseEther(dolaAmount));
         }
@@ -101,8 +102,8 @@ export const StakeDolaUI = () => {
         return redeemSDola(provider?.getSigner(), stakedDolaBalanceBn);
     }
 
-    const resetRealTime = () => {    
-        setTimeout(() => {            
+    const resetRealTime = () => {
+        setTimeout(() => {
             setBaseBalance(dolaStakedInSDola);
             setRealTimeBalance(dolaStakedInSDola);
         }, 250);
@@ -134,7 +135,7 @@ export const StakeDolaUI = () => {
             noPadding
             m="0"
             p="0">
-            <VStack spacing="4" alignItems="flex-start" w='full'>                
+            <VStack spacing="4" alignItems="flex-start" w='full'>
                 {
                     !isConnected ? <InfoMessage alertProps={{ w: 'full' }} description="Please connect your wallet" />
                         :
@@ -145,14 +146,14 @@ export const StakeDolaUI = () => {
                                     DOLA balance in wallet: <b>{dolaBalance ? preciseCommify(dolaBalance, 2) : '-'}</b>
                                 </Text>
                                 <Text fontSize="20px">
-                                    DOLA staked: <b>{dolaStakedInSDola ? preciseCommify(realTimeBalance, 8) : '-'}</b>
+                                    Staked DOLA: <b>{dolaStakedInSDola ? preciseCommify(realTimeBalance, 8) : '-'}</b>
                                 </Text>
                             </VStack>
                             {
                                 isStake ?
                                     <VStack w='full' alignItems="flex-start">
                                         <Text fontSize="22px" fontWeight="bold">
-                                            Amount to stake:
+                                            DOLA amount to stake:
                                         </Text>
                                         <SimpleAmountForm
                                             btnProps={{ needPoaFirst: true }}
@@ -175,7 +176,7 @@ export const StakeDolaUI = () => {
                                     :
                                     <VStack w='full' alignItems="flex-start">
                                         <Text fontSize="22px" fontWeight="bold">
-                                            Amount to unstake:
+                                            DOLA amount to unstake:
                                         </Text>
                                         <SimpleAmountForm
                                             btnProps={{ needPoaFirst: true }}
@@ -201,8 +202,26 @@ export const StakeDolaUI = () => {
                                         }
                                     </VStack>
                             }
+                            <VStack alignItems="flex-start">                                
+                                <HStack>
+                                    <Text fontSize="16px" color="mainTextColorLight2">
+                                        {isStake ? 'sDOLA to receive' : 'sDOLA to exchange'}:
+                                    </Text>
+                                    <Text fontSize="16px" color="mainTextColorLight2">
+                                        {sDOLAamount ? preciseCommify(sDOLAamount, 2) : '-'}
+                                    </Text>
+                                </HStack>
+                                <HStack>
+                                    <Text fontSize="16px" color="mainTextColorLight2">
+                                        DOLA-sDOLA exchange rate:
+                                    </Text>
+                                    <Text fontSize="16px" color="mainTextColorLight2">
+                                        {sDolaExRate ? shortenNumber(1/sDolaExRate, 6) : '-'}
+                                    </Text>
+                                </HStack>
+                            </VStack>
                         </>
-                }                
+                }
             </VStack>
         </Container>
     </VStack>
