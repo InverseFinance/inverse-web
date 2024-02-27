@@ -1,7 +1,6 @@
 import 'source-map-support'
-import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
-
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.99`;
+import { getCacheFromRedis, getCacheFromRedisAsObj } from '@app/util/redis'
+import { F2_MARKETS_CACHE_KEY } from '../f2/fixed-markets';
 
 export default async function handler(req, res) {
   try {
@@ -21,9 +20,7 @@ export default async function handler(req, res) {
     const resultData = {
       timestamp: cachedData.timestamp,
       markets: simplifiedMarkets,      
-    }
-
-    await redisSetWithTimestamp(F2_MARKETS_CACHE_KEY, resultData);
+    }    
 
     res.status(200).json(resultData)
   } catch (err) {
