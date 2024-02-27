@@ -17,6 +17,7 @@ import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { TextInfo } from "../common/Messages/TextInfo";
 import { ZapperTokens } from "../F2/rewards/ZapperTokens";
 import { DOLA_SAVINGS_ADDRESS } from "@app/config/constants";
+import { useAccount } from "@app/hooks/misc";
 
 const { DOLA, DBR } = getNetworkConfigConstants();
 
@@ -33,7 +34,8 @@ const StatBasic = ({ value, name, message, onClick = undefined, isLoading = fals
 }
 
 export const DsaUI = () => {
-    const { provider, account } = useWeb3React();
+    const account = useAccount();
+    const { provider } = useWeb3React();
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
     const [dolaAmount, setDolaAmount] = useState('');
     const [isConnected, setIsConnected] = useState(true);
