@@ -27,7 +27,7 @@ export const getCombineCgAndCurveDbrPrices = async (provider: Web3Provider, past
     startingBlock = POST_COINGECKO_ERA_BLOCK;
   }
 
-  const intIncrement = Math.floor(BLOCKS_PER_DAY);
+  const intIncrement = Math.floor(BLOCKS_PER_DAY/2);
   const nbIntervals = Math.floor((currentBlock - startingBlock) / intIncrement);
   // new blocks since last cache
   const newBlocks = [...Array(nbIntervals).keys()].map((i) => startingBlock + (i * intIncrement)).filter(bn => bn <= currentBlock);
@@ -79,9 +79,12 @@ const getHistoPrices = async (contract: Contract, blocks: number[]) => {
   return values;
 }
 
+export const DBR_EXTRA_CACHE_KEY = `dbr-cache-extra-v1.0.7`
+export const DBR_CACHE_KEY = `dbr-cache-v1.0.7`
+
 export default async function handler(req, res) {
   const withExtra = req.query.withExtra === 'true';
-  const cacheKey = `dbr-cache${withExtra ? '-extra' : ''}-v1.0.7`;
+  const cacheKey = withExtra ? DBR_EXTRA_CACHE_KEY : DBR_CACHE_KEY;
   const triDbrKey = 'tridbr-histo-prices-v1.0.1';
   try {
     const cacheDuration = 300;
