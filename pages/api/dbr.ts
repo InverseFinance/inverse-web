@@ -27,7 +27,7 @@ export const getCombineCgAndCurveDbrPrices = async (provider: Web3Provider, past
     startingBlock = POST_COINGECKO_ERA_BLOCK;
   }
 
-  const intIncrement = Math.floor(BLOCKS_PER_DAY);
+  const intIncrement = Math.floor(BLOCKS_PER_DAY/2);
   const nbIntervals = Math.floor((currentBlock - startingBlock) / intIncrement);
   // new blocks since last cache
   const newBlocks = [...Array(nbIntervals).keys()].map((i) => startingBlock + (i * intIncrement)).filter(bn => bn <= currentBlock);
