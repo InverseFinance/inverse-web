@@ -113,7 +113,7 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
             const histoDateDDMMYYYY = `${dateSplit[2]}-${dateSplit[1]}-${dateSplit[0]}`;
             await Promise.all(filteredEvents.map(async e => {
                 // high volatilty case, adjust to aero @ $0.226
-                if (item.transactionHash === '0x8bb1ca0ed7f9fa5b24004faba73e9749c3d7d313bfcb250f8409f4bce7eff615') {
+                if (item.tx_hash === '0x8bb1ca0ed7f9fa5b24004faba73e9749c3d7d313bfcb250f8409f4bce7eff615') {
                     income += 186219;
                 } else {
                     const amount = getBnToNumber(parseUnits(e.decoded.params[2].value, 0));
@@ -164,7 +164,7 @@ export default async function handler(req, res) {
     const { FEDS, DOLA, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
 
     const archiveCacheKey = `revenues-v1.0.22`;
-    const cacheKey = `revenues-v1.0.24`;
+    const cacheKey = `revenues-v1.0.25`;
 
     try {
 
