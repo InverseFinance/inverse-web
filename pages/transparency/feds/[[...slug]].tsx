@@ -25,6 +25,7 @@ const { FEDS, FEDS_WITH_ALL } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 export const FedPolicyPage = () => {
     const { query } = useRouter();
+    const [isInited, setIsInited] = useState(false);
 
     const slug = query?.slug || ['policy', 'all'];
     const queryFedName = slug[1] || 'all';
@@ -50,10 +51,12 @@ export const FedPolicyPage = () => {
     const chosenFed = FEDS_WITH_ALL[chosenFedIndex];
 
     useEffect(() => {
+        if(isInited) return;
         const queryFedIndex = FEDS_WITH_ALL.findIndex(fed => fed.name.replace(' Fed', '').toLowerCase() === queryFedName.toLowerCase())
         setChosenFedIndex(queryFedIndex === -1 ? 0 : queryFedIndex)
         setDetailsType(slug && slug[0] ? slug[0] : 'policy')
-    }, [queryFedIndex, queryFedName, slug])
+        setIsInited(true)
+    }, [isInited, queryFedIndex, queryFedName, slug])
 
     return (
         <Layout>
@@ -68,7 +71,7 @@ export const FedPolicyPage = () => {
             <AppNav active="Transparency" activeSubmenu="Feds Policy & Income" hideAnnouncement={true} />
             <TransparencyTabs active="feds" />
             <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
-                <Flex direction="column">
+                <Flex direction="column">                    
                     <Container
                         noPadding={true}
                         w={{ base: 'full', lg: '900px' }}
