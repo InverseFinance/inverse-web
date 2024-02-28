@@ -1,5 +1,6 @@
 import { useAppTheme } from '@app/hooks/useAppTheme';
 import { Tabs, TabList, Tab, VStack, Text, HStack, Image } from '@chakra-ui/react'
+import Link from '../common/Link';
 
 type TabsType = 'overview' | 'treasury' | 'liquidity' | 'inv' | 'dola' | 'dbr' | 'multisigs' | 'interest-model' | 'feds' | 'stabilizer' | 'dao' | 'liquidations' | 'shortfalls' | 'bad-debts' | 'firm-users';
 
@@ -43,10 +44,10 @@ export const TransparencyTabs = ({
 }: TransparencyTabsProps) => {
     const { themeParams, themeName } = useAppTheme();
     const { TABS_COLOR_SCHEME, TABS_VARIANT } = themeParams;
-    const handleTab = (newIndex: number) => {
-        // cleaner visually than router.push
-        window.location.pathname = `/transparency/${tabs[newIndex].page}`
-    }
+    // const handleTab = (newIndex: number) => {
+    //     // cleaner visually than router.push
+    //     window.location.pathname = `/transparency/${tabs[newIndex].page}`
+    // }
 
     const activeIndex = tabs.findIndex(tab => tab.page === active);
 
@@ -59,9 +60,11 @@ export const TransparencyTabs = ({
                     <Text as="i" fontWeight="bold" fontSize="14px" color="secondaryTextColor">Don't trust, verify</Text>
                 </VStack>
             </HStack>
-            <Tabs onChange={handleTab} defaultIndex={activeIndex} mt="5" mb="2" overflow="auto" w="full" colorScheme={TABS_COLOR_SCHEME} variant={TABS_VARIANT}>
+            <Tabs defaultIndex={activeIndex} mt="5" mb="2" overflow="auto" w="full" colorScheme={TABS_COLOR_SCHEME} variant={TABS_VARIANT}>
                 <TabList justifyContent={{ base: 'flex-start', sm: 'center' }}>
-                    {tabs.map(tab => <Tab px={{ base: '3', '2xl': '4' }} fontSize={{ base: '14px', '2xl': '16px' }} _focus={{ outline: 'none' }} key={tab.page}>{tab.label}</Tab>)}
+                    {tabs.map((tab, tabIdx) => <Tab px={{ base: '3', '2xl': '4' }} fontSize={{ base: '14px', '2xl': '16px' }} _focus={{ outline: 'none' }} key={tab.page}>
+                        <Link color={activeIndex === tabIdx ? 'mainTextColor' : 'mainTextColorLight'} href={`/transparency/${tabs[tabIdx].page}`}>{tab.label}</Link>
+                    </Tab>)}
                 </TabList>
             </Tabs>
         </VStack>
