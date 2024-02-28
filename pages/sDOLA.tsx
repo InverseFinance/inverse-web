@@ -8,9 +8,8 @@ import { useAccount } from '@app/hooks/misc';
 import { DolaStakingTabs } from '@app/components/F2/DolaStaking/DolaStakingTabs';
 import { DolaStakingActivity } from '@app/components/sDola/DolaStakingActivity';
 import { useDolaStakingActivity } from '@app/util/dola-staking';
-import { DbrAuctionBuys, DbrAuctionBuysSDola } from '@app/components/F2/DbrAuction/DbrAuctionBuys';
+import { DbrAuctionBuysSDola } from '@app/components/F2/DbrAuction/DbrAuctionBuys';
 import { useDbrAuctionActivity } from '@app/util/dbr-auction';
-import { shortenNumber } from '@app/util/markets';
 
 export const SdolaPage = () => {
   const account = useAccount();
