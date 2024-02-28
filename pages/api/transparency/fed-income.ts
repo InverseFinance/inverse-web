@@ -57,7 +57,7 @@ const getXchainMainnetProfits = async (FEDS: Fed[], DOLA: string, TREASURY: stri
         })
     );
     const uniqueBlocks = [...new Set(transfersToTreasury.map((fedTransfers, i) => fedTransfers.map(ev => ev.blockNumber)).flat())];
-    const timestamps = await addBlockTimestamps(uniqueBlocks, NetworkIds.mainnet);    
+    const timestamps = await addBlockTimestamps(uniqueBlocks, NetworkIds.mainnet);
     return xchainFeds.map((fed, i) => {
         return {
             fedAddress: fed.address,
@@ -97,50 +97,55 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
             .filter(item => item.successful)
             .filter(item => !archivedFedData.find(archTx => archTx.transactionHash === item.tx_hash && archTx.fedIndex === i))
             .filter(item => !!item.log_events?.find(e => !!e.decoded && e.decoded.name === eventName
-                    && e?.decoded?.params[0]?.value?.toLowerCase() == srcAddress
-                    && e?.decoded?.params[1]?.value?.toLowerCase() == toAddress
-                ))
+                && e?.decoded?.params[0]?.value?.toLowerCase() == srcAddress
+                && e?.decoded?.params[1]?.value?.toLowerCase() == toAddress
+            ))
             .sort((a, b) => a.block_height - b.block_height);
 
         const unarchivedData = await Promise.all(items.map(async item => {
             const filteredEvents = item.log_events?.filter(e => !!e.decoded && e.decoded.name === eventName
-                    && e?.decoded?.params[0]?.value?.toLowerCase() == srcAddress
-                    && e?.decoded?.params[1]?.value?.toLowerCase() == toAddress
-                )
+                && e?.decoded?.params[0]?.value?.toLowerCase() == srcAddress
+                && e?.decoded?.params[1]?.value?.toLowerCase() == toAddress
+            )
             let income = 0;
             const timestamp = +(new Date(item.block_signed_at));
             const dateSplit = item.block_signed_at.substring(0, 10).split('-');
             const histoDateDDMMYYYY = `${dateSplit[2]}-${dateSplit[1]}-${dateSplit[0]}`;
             await Promise.all(filteredEvents.map(async e => {
-                const amount = getBnToNumber(parseUnits(e.decoded.params[2].value, 0));
-                if (['CRV', 'CVX', 'VELO', 'BAL', 'AURA', 'AERO'].includes(e.sender_contract_ticker_symbol)) {
-                    const cgId = COINGECKO_IDS[e.sender_contract_ticker_symbol];
-                    let histoPrice = 1;
-                    const histoCacheKey = `price-${cgId}-${histoDateDDMMYYYY}`;
-                    const cachedHistoPrice = await getCacheFromRedis(histoCacheKey, false);
-
-                    if (!cachedHistoPrice) {
-                        // TODO: use historical api with daily data
-                        const histoPriceUrl = `https://api.coingecko.com/api/v3/coins/${cgId}/history?date=${histoDateDDMMYYYY}&localization=false`;
-                        const res = await fetch(histoPriceUrl);
-                        const historicalData = await res.json();
-                        try {
-                            histoPrice = historicalData.market_data.current_price.usd;
-                            await redisSetWithTimestamp(histoCacheKey, { usd: histoPrice });
-                        } catch (err) {
-                            console.log('err fetching histo price');
-                            console.log(histoPriceUrl);
-                            console.log(e.sender_contract_ticker_symbol)
-                            console.log('-- Falling back on cached current price', cachedCurrentPrices[cgId])
-                            histoPrice = cachedCurrentPrices[cgId] || 1;
-                        }
-                    } else {
-                        console.log('found cached histo price', cachedHistoPrice.usd)
-                        histoPrice = cachedHistoPrice.usd;
-                    }
-                    income += histoPrice * amount;
+                // high volatilty case, adjust to aero @ $0.226
+                if (item.transactionHash === '0x8bb1ca0ed7f9fa5b24004faba73e9749c3d7d313bfcb250f8409f4bce7eff615') {
+                    income += 186219;
                 } else {
-                    income += amount;
+                    const amount = getBnToNumber(parseUnits(e.decoded.params[2].value, 0));
+                    if (['CRV', 'CVX', 'VELO', 'BAL', 'AURA', 'AERO'].includes(e.sender_contract_ticker_symbol)) {
+                        const cgId = COINGECKO_IDS[e.sender_contract_ticker_symbol];
+                        let histoPrice = 1;
+                        const histoCacheKey = `price-${cgId}-${histoDateDDMMYYYY}`;
+                        const cachedHistoPrice = await getCacheFromRedis(histoCacheKey, false);
+
+                        if (!cachedHistoPrice) {
+                            // TODO: use historical api with daily data
+                            const histoPriceUrl = `https://api.coingecko.com/api/v3/coins/${cgId}/history?date=${histoDateDDMMYYYY}&localization=false`;
+                            const res = await fetch(histoPriceUrl);
+                            const historicalData = await res.json();
+                            try {
+                                histoPrice = historicalData.market_data.current_price.usd;
+                                await redisSetWithTimestamp(histoCacheKey, { usd: histoPrice });
+                            } catch (err) {
+                                console.log('err fetching histo price');
+                                console.log(histoPriceUrl);
+                                console.log(e.sender_contract_ticker_symbol)
+                                console.log('-- Falling back on cached current price', cachedCurrentPrices[cgId])
+                                histoPrice = cachedCurrentPrices[cgId] || 1;
+                            }
+                        } else {
+                            console.log('found cached histo price', cachedHistoPrice.usd)
+                            histoPrice = cachedHistoPrice.usd;
+                        }
+                        income += histoPrice * amount;
+                    } else {
+                        income += amount;
+                    }
                 }
             }))
             return {
@@ -170,7 +175,7 @@ export default async function handler(req, res) {
             getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration)
         ]);
 
-        const { data: archived } = archive;     
+        const { data: archived } = archive;
         const { data: cachedData, isValid } = cache;
 
         if (isValid) {
@@ -193,8 +198,8 @@ export default async function handler(req, res) {
         // const [filteredTransfers, oldFilteredTransfers] = await Promise.all(
         const [filteredTransfers, xchainMainnetTransfers] = await Promise.all(
             [
-                getProfits(FEDS, TREASURY, cachedCurrentPrices, archived?.totalEvents||[]),
-                getXchainMainnetProfits(FEDS, DOLA, TREASURY, archived?.totalEvents||[]),
+                getProfits(FEDS, TREASURY, cachedCurrentPrices, archived?.totalEvents || []),
+                getXchainMainnetProfits(FEDS, DOLA, TREASURY, archived?.totalEvents || []),
                 // getProfits(withOldAddresses.map(f => ({
                 //     ...f,
                 //     address: f.oldAddress || f.address,
