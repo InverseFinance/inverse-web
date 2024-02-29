@@ -2,6 +2,7 @@ import { getCacheFromRedis, redisSetWithTimestamp } from "@app/util/redis";
 import { NETWORKS_BY_CHAIN_ID } from "@app/config/networks";
 import { fetcher30sectimeout } from "@app/util/web3";
 
+// external use in spreadsheet
 export default async (req, res) => {
     const cacheDuration = 900;
     const cacheKey = 'csv-liquidity-pools-v1.0.6';

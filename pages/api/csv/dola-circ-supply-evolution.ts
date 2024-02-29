@@ -1,6 +1,7 @@
 import { getCacheFromRedis, redisSetWithTimestamp } from "@app/util/redis";
 import { DOLA_CIRC_SUPPLY_EVO_CACHE_KEY } from "../dola/circulating-supply-evolution";
 
+// external use in spreadsheet
 export default async (req, res) => {
     const cacheDuration = 3600;
     const cacheKey = 'csv-dola-circ-supply-evolution-v1.0.1';

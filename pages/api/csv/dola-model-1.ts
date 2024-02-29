@@ -4,6 +4,7 @@ import { NETWORKS_BY_CHAIN_ID } from "@app/config/networks";
 import { capitalize } from "@app/util/misc";
 import { fetcher30sectimeout } from "@app/util/web3";
 
+// external use in spreadsheet
 export default async (req, res) => {
     const cacheDuration = 900;
     const cacheKey = 'dola-modal-v1.0.9';

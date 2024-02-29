@@ -219,7 +219,7 @@ export default async function handler(req, res) {
 
     const resultData = {
       markets,
-      timestamp: +(new Date()),
+      timestamp: Date.now(),
     }
 
     await redisSetWithTimestamp(F2_MARKETS_CACHE_KEY, resultData);
