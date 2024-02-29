@@ -65,8 +65,7 @@ export default async function handler(req, res) {
       }
     });
 
-    const resultData = {
-      dbrUsers,
+    const resultData = {      
       activeDbrHolders,
       timestamp: +(new Date()),
     }
