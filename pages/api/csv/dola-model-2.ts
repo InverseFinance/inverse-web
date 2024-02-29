@@ -5,6 +5,7 @@ import { capitalize } from "@app/util/misc";
 import { fetcher30sectimeout } from "@app/util/web3";
 import { dolaStakingCacheKey } from "../dola-staking";
 
+// external use in spreadsheet
 export default async (req, res) => {
     const cacheDuration = 900;
     const cacheKey = 'dola-modal-2-v1.0.2';

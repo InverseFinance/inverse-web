@@ -2,6 +2,7 @@ import { getCacheFromRedis, redisSetWithTimestamp } from "@app/util/redis";
 import { liquidityCacheKey } from "../../transparency/liquidity";
 import { repaymentsCacheKey } from "../../transparency/repayments";
 
+// external use in spreadsheet
 export default async (req, res) => {
     const cacheDuration = 240;
     const cacheKey = 'feds-csv-v1';

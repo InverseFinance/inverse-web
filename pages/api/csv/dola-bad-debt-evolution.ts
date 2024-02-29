@@ -2,6 +2,7 @@ import { getCacheFromRedis, redisSetWithTimestamp } from "@app/util/redis";
 import { repaymentsCacheKey } from "../transparency/repayments";
 import { fillMissingDailyDatesWithMostRecentData, timestampToUTC, uniqueBy } from "@app/util/misc";
 
+// external use in spreadsheet
 export default async (req, res) => {
     const cacheDuration = 3600;
     const cacheKey = 'csv-dola-bad-debt-evolution-v1.0.0';
