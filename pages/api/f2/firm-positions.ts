@@ -1,6 +1,6 @@
 import { Contract } from 'ethers'
 import 'source-map-support'
-import { F2_MARKET_ABI, F2_ESCROW_ABI } from '@app/config/abis'
+import { F2_MARKET_ABI, F2_ESCROW_ABI, DBR_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
@@ -11,9 +11,9 @@ import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
 import { uniqueBy } from '@app/util/misc';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
 
-const { F2_MARKETS } = getNetworkConfigConstants();
+const { F2_MARKETS, DBR } = getNetworkConfigConstants();
 
-export const F2_POSITIONS_CACHE_KEY = 'f2positions-v1.0.9'
+export const F2_POSITIONS_CACHE_KEY = 'f2positions-v1.0.91'
 export const F2_UNIQUE_USERS_CACHE_KEY = 'f2unique-users-v1.0.91'
 
 export const getFirmMarketUsers = async (provider) => {
@@ -84,6 +84,27 @@ export default async function handler(req, res) {
     const { firmMarketUsers, marketUsersAndEscrows } = marketUsersCache;
     const _markets = marketsCache?.markets || F2_MARKETS;
 
+    let dbrUsers: string[] = [];
+    const dbrContract = new Contract(DBR, DBR_ABI, provider);
+
+    _markets.map(market => {
+      const marketUsers = marketUsersAndEscrows[market.address]?.users || [];
+      dbrUsers = dbrUsers.concat(marketUsers);
+    });
+
+    dbrUsers = [...new Set(dbrUsers)];
+
+    const [dbrSignedBalanceBn, totalDebtsBn] = await getGroupedMulticallOutputs(
+      [
+        dbrUsers.map(u => {
+          return { contract: dbrContract, functionName: 'signedBalanceOf', params: [u] }
+        }),
+        dbrUsers.map(u => {
+          return { contract: dbrContract, functionName: 'debts', params: [u] }
+        }),
+      ]
+    );
+
     const [debtsBn, depositsBn, creditLimitsBn] = await getGroupedMulticallOutputs(
       [
         firmMarketUsers.map((f, i) => {
@@ -110,11 +131,14 @@ export default async function handler(req, res) {
     const liquidableDebts = creditLimits.map((creditLimit, i) => (creditLimit >= debts[i] ? 0 : debts[i] * (_markets[firmMarketUsers[i].marketIndex]?.liquidationFactor || 0.5)));
 
     const positions = firmMarketUsers.map((f, i) => {
+      const dbrIdx = dbrUsers.findIndex(du => du === f.user);
       return {
         ...f,
         liquidatableDebt: liquidableDebts[i],
         deposits: deposits[i],
         debt: debts[i],
+        totalDebt: getBnToNumber(totalDebtsBn[dbrIdx]),
+        dbrBalance: getBnToNumber(dbrSignedBalanceBn[dbrIdx]),
       }
     });
 
