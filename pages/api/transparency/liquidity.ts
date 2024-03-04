@@ -111,10 +111,11 @@ export default async function handler(req, res) {
 
             const subBalances = fedPol?.subBalances || (await getLPBalances(lp, lp.chainId, provider));
             const isDolaMain = lp.symbol.includes('DOLA');
+            const isSDolaMain = lp.symbol.includes('SDOLA') && !/(^DOLA|.*-DOLA.*)/.test(lp.symbol);
             const virtualTotalSupply = subBalances.reduce((prev, curr) => prev + curr.balance, 0);
 
-            const mainPart = subBalances.find(d => d.symbol === (isDolaMain ? 'DOLA' : 'INV'));
-            const dolaWorth = (mainPart?.balance || 0) * (prices[isDolaMain ? 'dola-usd' : 'inverse-finance'] || 1);
+            const mainPart = subBalances.find(d => d.symbol === (isSDolaMain ? 'SDOLA' : isDolaMain ? 'DOLA' : 'INV'));
+            const dolaWorth = (mainPart?.balance || 0) * (prices[isSDolaMain ? 'staked-dola' : isDolaMain ? 'dola-usd' : 'inverse-finance'] || 1);           
 
             let dolaFraxBpCase;
             if(lp.isNestedCrvLp) {

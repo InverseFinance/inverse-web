@@ -10,6 +10,7 @@ import { BigNumber, Contract } from 'ethers'
 import { formatUnits } from '@ethersproject/units'
 import { getTokenData } from '@app/util/livecoinwatch'
 import { getDolaUsdPriceOnCurve } from '@app/util/f2'
+import { dolaStakingCacheKey } from './dola-staking'
 
 export const pricesCacheKey = `prices-v1.0.7`;
 export const cgPricesCacheKey = `cg-prices-v1.0.0`;
@@ -76,7 +77,7 @@ export default async function handler(req, res) {
       await redisSetWithTimestamp(cgPricesCacheKey, geckoPrices);
     } catch (e) {
       console.log('Error fetching gecko prices');
-      geckoPrices = (await getCacheFromRedis(cgPricesCacheKey, false)) || {};
+      geckoPrices = (await getCacheFromRedis(cgPricesCacheKey, false)) || {};      
     }
     
     try {
@@ -92,8 +93,14 @@ export default async function handler(req, res) {
     Object.entries(geckoPrices).forEach(([key, value]) => {
       prices[key] = value.usd;
     });
-
-    const { price: dolaOnChainPrice, tvl: crvUsdDolaTvl } = await getDolaUsdPriceOnCurve(getProvider(NetworkIds.mainnet));        
+    
+    const [dolaUsdCurveData, dolaStakingData] = await Promise.all([
+      getDolaUsdPriceOnCurve(getProvider(NetworkIds.mainnet)),
+      getCacheFromRedis(dolaStakingCacheKey, false)
+    ]);
+    
+    const { price: dolaOnChainPrice, tvl: crvUsdDolaTvl } = dolaUsdCurveData;
+    const { sDolaExRate } = dolaStakingData;
     prices['dola-onchain-usd'] = dolaOnChainPrice;
     prices['dola-usd'] = crvUsdDolaTvl >= 1000000 ? dolaOnChainPrice : prices['dola-usd-cg'] || prices['dola-usd-lcw'];
 
@@ -120,6 +127,9 @@ export default async function handler(req, res) {
         prices[lpToken.token.symbol] = lpData[i];
       }
     });
+
+    prices['staked-dola'] = prices['dola-usd'] * sDolaExRate;
+    prices['SDOLA'] = prices['staked-dola'];
 
     prices['_timestamp'] = +(new Date());
 
