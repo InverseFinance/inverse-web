@@ -1,7 +1,7 @@
 import { RSubmitButton } from "@app/components/common/Button/RSubmitButton";
 import { ONE_DAY_MS } from "@app/config/constants";
 import { HStack } from '@chakra-ui/react'
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ReferenceArea } from "recharts";
 
 const initialState = {
@@ -54,6 +54,7 @@ export const useRechartsZoom = ({
     yAxisId = undefined,
     forceStaticRangeBtns = false,
     rangesToInclude = DEFAULT_RANGES_TO_INCLUDE,
+    defaultRange,
 }: {
     combodata: any[]
     xKey?: string
@@ -63,13 +64,21 @@ export const useRechartsZoom = ({
     forceStaticRangeBtns?: boolean
     yAxisId?: string
     rangesToInclude?: string[]
+    defaultRange?: string
 }) => {
     const ranges = RANGES.filter(r => rangesToInclude.includes(r.label));
     const [state, setState] = useState({ ...initialState, data: null });
     const [refAreaLeft, setRefAreaLeft] = useState(initialState.refAreaLeft);
     const [refAreaRight, setRefAreaRight] = useState(initialState.refAreaRight);
     const [lastRangeType, setLastRangeType] = useState(ranges[0].label);
+    const [isInited, setIsInited] = useState(false);
     const { data, left, right, top, bottom } = state
+
+    useEffect(() => {
+        if(isInited || !combodata.length) return;
+        changeToRange(ranges.find(r => r.label === defaultRange) || ranges[0]);
+        setIsInited(true);
+    }, [ranges, defaultRange, isInited, combodata])
 
     const zoomOut = () => {
         setRefAreaLeft('');

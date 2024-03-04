@@ -48,6 +48,7 @@ export type AreaChartProps = {
     minTickGap?: number
     interval?: number
     rangesToInclude?: string[]
+    defaultRange?: string
     strokeColor?: string
 };
 // make sure there is only one data point per x value
@@ -88,6 +89,7 @@ export const AreaChart = ({
     interval,
     showRangeBtns,
     rangesToInclude,
+    defaultRange,
     forceStaticRangeBtns,
     strokeColor,
 }: AreaChartProps) => {
@@ -141,6 +143,7 @@ export const AreaChart = ({
             interval={interval}
             showRangeBtns={showRangeBtns}
             rangesToInclude={rangesToInclude}
+            defaultRange={defaultRange}
             forceStaticRangeBtns={forceStaticRangeBtns}
             strokeColor={strokeColor}
             isPerc={isPerc}
