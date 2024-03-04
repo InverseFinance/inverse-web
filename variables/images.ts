@@ -28,6 +28,8 @@ export const TOKEN_IMAGES = {
     "INV": IMAGES.INV,
     "DBR": IMAGES.DBR,
     "THREECRV": IMAGES["3CRV"],
+    "SDOLA": "https://assets.coingecko.com/coins/images/35495/standard/sDOLAlogoFINAL.png?1708922289",
+    "PYUSD": "https://assets.coingecko.com/coins/images/31212/standard/PYUSD_Logo_%282%29.png?1696530039",
     "MKUSD": "https://assets.coingecko.com/coins/images/31519/standard/mkUSD_200.png?1696530329",
     "WUSDR": "https://assets.coingecko.com/coins/images/28800/small/wUSDRlogo.png?1674283345",
     "RUSDR": "https://assets.coingecko.com/coins/images/27973/small/USDR-200x200.png?1666772134",

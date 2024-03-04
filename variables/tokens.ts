@@ -30,6 +30,8 @@ const chainTokenAddresses = {
   "1": {
     INV: '0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68',
     DOLA: '0x865377367054516e17014CcdED1e7d814EDC9ce4',
+    SDOLA: '0xb45ad160634c528Cc3D2926d9807104FA3157305',
+    PYUSD: '0x6c3ea9036406852006290770BEdFcAbA0e23A0e8',
     DAI: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
     USDC: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
     USDT: '0xdac17f958d2ee523a2206206994597c13d831ec7',
@@ -65,6 +67,8 @@ const chainTokenAddresses = {
     BAL: '0xba100000625a3754423978a60c9317c58a424e3D',
     AURA: '0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF',
     DOLAUSDCBALANCER: '0xFf4ce5AAAb5a627bf82f4A571AB1cE94Aa365eA6',
+    SDOLADOLABALANCER: '0x264062CA46A1322c2E6464471764089E01F22F19',
+    SDOLAPYUSDBALANCER: '0x09B03b7cBB19b3daE94F884cF60dBc3c99a3947b',
     DBRDOLABALANCER: '0x445494F823f3483ee62d854eBc9f58d5B9972A25',
     DOLAMKUSDBALANCER: '0x383e7859271B2D0589B013b6d944572a0a8bE3cB',
     MKUSD: '0x4591DBfF62656E7859Afe5e45f6f47D3669fBB28',
@@ -276,6 +280,20 @@ const chainTokens = {
       ...ETH,
     },
     // Tokens
+    [chainTokenAddresses["1"].SDOLA]: {
+      ...DOLA,
+      image: TOKEN_IMAGES.SDOLA,
+      address: chainTokenAddresses["1"].SDOLA,
+      symbol: 'sDOLA',
+      name: 'sDOLA',
+    },
+    [chainTokenAddresses["1"].PYUSD]: {
+      decimals: 6,
+      image: TOKEN_IMAGES.PYUSD,
+      address: chainTokenAddresses["1"].PYUSD,
+      symbol: 'PYUSD',
+      name: 'PayPal USD',
+    },
     [chainTokenAddresses["1"].DAI]: {
       address: chainTokenAddresses["1"].DAI,
       name: 'Dai',
@@ -618,6 +636,42 @@ const chainTokens = {
       ],
       image: TOKEN_IMAGES.DOLA,
       deduce: [chainTokenAddresses["1"].DOLAUSDCALP2],
+    },
+    [chainTokenAddresses["1"].SDOLADOLABALANCER]: {
+      address: chainTokenAddresses["1"].SDOLADOLABALANCER,
+      name: 'DOLA-SDOLA blp',
+      symbol: 'DOLA-SDOLA blp',
+      protocolImage: PROTOCOL_IMAGES.BAL,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      balancerInfos: {
+        poolId: '0x264062ca46a1322c2e6464471764089e01f22f1900000000000000000000066b',
+        vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
+      },     
+      isComposableMetapool: true,
+      pairs: [
+        chainTokenAddresses["1"].SDOLADOLABALANCER, chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].SDOLA
+      ],
+      image: TOKEN_IMAGES.DOLA,      
+    },
+    [chainTokenAddresses["1"].SDOLAPYUSDBALANCER]: {
+      address: chainTokenAddresses["1"].SDOLAPYUSDBALANCER,
+      name: 'SDOLA-PYUSD blp',
+      symbol: 'SDOLA-PYUSD blp',
+      protocolImage: PROTOCOL_IMAGES.BAL,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      balancerInfos: {
+        poolId: '0x09b03b7cbb19b3dae94f884cf60dbc3c99a3947b00000000000000000000066c',
+        vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
+      },     
+      isComposableMetapool: true,
+      pairs: [
+        chainTokenAddresses["1"].SDOLAPYUSDBALANCER, chainTokenAddresses["1"].PYUSD, chainTokenAddresses["1"].SDOLA
+      ],
+      image: TOKEN_IMAGES.DOLA,      
     },
     [chainTokenAddresses["1"].DBRDOLABALANCER]: {
       address: chainTokenAddresses["1"].DBRDOLABALANCER,
