@@ -310,7 +310,7 @@ export const useFirmMarketEvents = (market: F2Market, account: string, firmActio
       amount,
       isLeverage: !!leverageEvent,
       isCombined: !!combinedEvent || !!leverageEvent,
-      amountCombined: combinedEvent?.args?.amount ? getBnToNumber(combinedEvent.args.amount, decimals) : undefined,
+      amountCombined: combinedEvent?.args?.amount ? getBnToNumber(combinedEvent.args.amount, !isCollateralEvent ? market.underlying.decimals : 18) : undefined,
       deficit: e.args?.deficit ? getBnToNumber(e.args?.deficit, 18) : undefined,
       repaidDebt: e.args?.repaidDebt ? getBnToNumber(e.args?.repaidDebt, 18) : undefined,
       liquidatorReward,

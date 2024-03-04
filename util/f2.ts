@@ -531,7 +531,6 @@ export const formatFirmEvents = (
             debt,
         }
     });
-
     return {
         events,
         debt,
