@@ -13,7 +13,7 @@ import { pricesCacheKey } from '../prices';
 import { PROTOCOLS_BY_IMG, PROTOCOL_DEFILLAMA_MAPPING } from '@app/variables/images';
 import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 
-export const liquidityCacheKey = `liquidity-v1.1.994`;
+export const liquidityCacheKey = `liquidity-v1.1.995`;
 
 export default async function handler(req, res) {
     const { cacheFirst } = req.query;
@@ -115,6 +115,7 @@ export default async function handler(req, res) {
             const virtualTotalSupply = subBalances.reduce((prev, curr) => prev + curr.balance, 0);
 
             const mainPart = subBalances.find(d => d.symbol === (isSDolaMain ? 'SDOLA' : isDolaMain ? 'DOLA' : 'INV'));
+            const pairPart = subBalances.find(d => d.symbol !== (isSDolaMain ? 'SDOLA' : isDolaMain ? 'DOLA' : 'INV'));
             const dolaWorth = (mainPart?.balance || 0) * (prices[isSDolaMain ? 'staked-dola' : isDolaMain ? 'dola-usd' : 'inverse-finance'] || 1);           
 
             let dolaFraxBpCase;
@@ -190,6 +191,7 @@ export default async function handler(req, res) {
                 fedSupply: isFed ? fedPol.supply : undefined,
                 fedBorrows: isFed ? fedPol.borrows||0 : undefined,
                 mainPartBalance: mainPart?.balance,                
+                pairPartBalance: pairPart?.balance,
             }
         }
 
