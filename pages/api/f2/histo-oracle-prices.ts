@@ -121,7 +121,7 @@ export default async function handler(req, res) {
       100,
     );
 
-    const newOraclePrices = oraclePricesData.flat().map(p => getBnToNumber(p));
+    const newOraclePrices = oraclePricesData.flat().map(p => getBnToNumber(p, (36 - _market.underlying.decimals)));
     const resultTimestamps = archived.timestamps.concat(allUniqueBlocksToCheck.map(b => timestamps[CHAIN_ID][b] * 1000));
 
     const resultData = {
