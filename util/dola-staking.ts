@@ -169,10 +169,11 @@ export const formatDolaStakingData = (
     const dsaYearlyBudget = dolaStakingData ? getBnToNumber(dolaStakingData[3]) : fallbackData?.dsaYearlyBudget || 0;
     const maxYearlyRewardBudget = dolaStakingData ? getBnToNumber(dolaStakingData[4]) : fallbackData?.maxYearlyRewardBudget || 0;
     const maxRewardPerDolaMantissa = dolaStakingData ? getBnToNumber(dolaStakingData[5]) : fallbackData?.maxRewardPerDolaMantissa || 0;
-    const sDolaSupply = (dolaStakingData ? getBnToNumber(dolaStakingData[6]) : fallbackData?.sDolaSupply || 0) + supplyDelta;
+    const sDolaSupply = (dolaStakingData ? getBnToNumber(dolaStakingData[6]) : fallbackData?.sDolaSupply || 0);
     const weeklyRevenue = dolaStakingData ? getBnToNumber(dolaStakingData[7]) : fallbackData?.weeklyRevenue || 0;
     const pastWeekRevenue = dolaStakingData ? getBnToNumber(dolaStakingData[8]) : fallbackData?.pastWeekRevenue || 0;
-    const sDolaTotalAssets = (dolaStakingData ? getBnToNumber(dolaStakingData[9]) : fallbackData?.sDolaTotalAssets || 0) + supplyDelta;
+    const sDolaTotalAssetsCurrent = (dolaStakingData ? getBnToNumber(dolaStakingData[9]) : fallbackData?.sDolaTotalAssets || 0);
+    const sDolaTotalAssets = sDolaTotalAssetsCurrent + supplyDelta;
     // optional
     const accountRewardsClaimable = isAccountCase ? dolaStakingData && dolaStakingData[10] ? getBnToNumber(dolaStakingData[10]) : 0 : undefined;
 
@@ -195,10 +196,11 @@ export const formatDolaStakingData = (
         ((secondsPastEpoch / calcPeriodSeconds) * realized + ((calcPeriodSeconds - secondsPastEpoch) / calcPeriodSeconds) * forecasted) * 100 : 0;
     const apr = sDolaTotalAssets > 0 ? (pastWeekRevenue * WEEKS_PER_YEAR) / sDolaTotalAssets * 100 : 0;
     const nextApr = sDolaTotalAssets > 0 ? (weeklyRevenue * WEEKS_PER_YEAR) / sDolaTotalAssets * 100 : 0;
-    const dsaApr = dbrDolaPrice ? dsaDbrRatePerDola * dbrDolaPrice * 100 : 0;
+    const dsaApr = dbrDolaPrice ? dsaDbrRatePerDola * dbrDolaPrice * 100 : 0;    
+    const sDolaExRate = sDolaTotalAssetsCurrent && sDolaSupply ? sDolaTotalAssetsCurrent / sDolaSupply : 0;
 
     return {
-        sDolaExRate: sDolaTotalAssets && sDolaSupply ? sDolaTotalAssets / sDolaSupply : 0,
+        sDolaExRate,
         sDolaSupply,
         sDolaTotalAssets,
         dsaTotalSupply,
