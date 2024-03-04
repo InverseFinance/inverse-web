@@ -503,7 +503,7 @@ export const BadDebtPage = () => {
                     </HStack>
                   }
                   barProps={{ eventName: 'Repayment' }}
-                  areaProps={{ id: 'bad-debt-chart', showRangeBtns: true, rangesToInclude: ['All', 'YTD', '1Y', '6M', '3M', '7D'], yLabel: 'DOLA bad debt', useRecharts: true, fillInByDayInterval: 1, simplifyData: false, showEvents: true, showEventsLabels: true, domainYpadding: 1000000, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
+                  areaProps={{ id: 'bad-debt-chart', showRangeBtns: true, defaultRange: '1Y', rangesToInclude: ['All', 'YTD', '1Y', '6M', '3M', '7D'], yLabel: 'DOLA bad debt', useRecharts: true, fillInByDayInterval: 1, simplifyData: false, showEvents: true, showEventsLabels: true, domainYpadding: 1000000, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
                 />
               </VStack>
             </Container>
