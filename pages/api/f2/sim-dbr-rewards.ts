@@ -33,7 +33,7 @@ export default async function handler(req, res) {
       namespace: { option: "fork" },
       fork: {
         url: process.env.NEXT_PUBLIC_CHAIN_ID === '31337' ?
-          'http://localhost:8545' : `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_CRON2}`,
+          'http://127.0.0.1:8545' : `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_CRON2}`,
       },
       wallet: {
         // unlock account account to use as "from"
