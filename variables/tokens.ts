@@ -129,8 +129,10 @@ const chainTokenAddresses = {
     VELODOLAUSDplusLP: '0xa99817d2d286C894F8f3888096A5616d06F20d46',
     VELOV2DOLAUSDplusLP: '0x0b28C2e41058EDc7D66c516c617b664Ea86eeC5d',
     VELOV2DOLAERNLP: '0xEea82dCab12C855E3736558d80500ED52c8598cd',
+    VELOV2DOLAUSDC2LP: '0xA56a25Dee5B3199A9198Bbd48715EE3D0ed98378',
     ERN: '0xc5b001DC33727F8F26880B184090D3E252470D45',
-    USDC: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
+    USDCE: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
+    USDC: '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85',
     USDplus: '0x73cb180bf0521828d8849bc8CF2B920918e23032',
     MAI: '0xdFA46478F9e5EA86d57387849598dbFB2e964b02',
     VELODOLAFRAXLP: '0xD29DE64c1a9Dd3e829A7345BE1E9c32a9414541f',
@@ -1190,6 +1192,11 @@ const chainTokens = {
       ...USDC,
       address: chainTokenAddresses["10"].USDC,
     },
+    [chainTokenAddresses["10"].USDCE]: {
+      ...USDC,
+      symbol: 'USDCe',
+      address: chainTokenAddresses["10"].USDCE,
+    },
     [chainTokenAddresses["10"].VELO]: {
       address: chainTokenAddresses["10"].VELO,
       name: 'VELO',
@@ -1241,22 +1248,37 @@ const chainTokens = {
     },
     [chainTokenAddresses["10"].VELODOLAUSDCLP]: {
       address: chainTokenAddresses["10"].VELODOLAUSDCLP,
-      name: 'DOLA-USDC',
-      symbol: 'DOLA-USDC',
+      name: 'DOLA-USDCe',
+      symbol: 'DOLA-USDCe vlp',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
       isLP: true,
       isStable: true,
       isVeloLP: true,
       pairs: [
-        chainTokenAddresses["10"].USDC, chainTokenAddresses["10"].DOLA
+        chainTokenAddresses["10"].USDCE, chainTokenAddresses["10"].DOLA
       ],
       protocolImage: PROTOCOL_IMAGES.VELO,
     },
     [chainTokenAddresses["10"].VELOV2DOLAUSDCLP]: {
       address: chainTokenAddresses["10"].VELOV2DOLAUSDCLP,
+      name: 'DOLA-USDCe',
+      symbol: 'DOLA-USDCe vlp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isVeloLP: true,
+      pairs: [
+        chainTokenAddresses["10"].USDCE, chainTokenAddresses["10"].DOLA
+      ],
+      protocolImage: PROTOCOL_IMAGES.VELOV2,
+    },
+    // native usdc
+    [chainTokenAddresses["10"].VELOV2DOLAUSDC2LP]: {
+      address: chainTokenAddresses["10"].VELOV2DOLAUSDC2LP,
       name: 'DOLA-USDC',
-      symbol: 'DOLA-USDC',
+      symbol: 'DOLA-USDC vlp',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
       isLP: true,
@@ -1338,15 +1360,15 @@ const chainTokens = {
     },
     [chainTokenAddresses["10"].ARCHLYDOLAUSDCLP]: {
       address: chainTokenAddresses["10"].ARCHLYDOLAUSDCLP,
-      name: 'DOLA-USDC archlp',
-      symbol: 'DOLA-USDC archlp',
+      name: 'DOLA-USDCe archlp',
+      symbol: 'DOLA-USDCe archlp',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
       isLP: true, 
       isVeloLP: true,
       isStable: true,
       pairs: [
-        chainTokenAddresses["10"].USDC, chainTokenAddresses["10"].DOLA
+        chainTokenAddresses["10"].USDCE, chainTokenAddresses["10"].DOLA
       ],
       protocolImage: PROTOCOL_IMAGES.ARCHLY,
     },
@@ -1397,8 +1419,8 @@ const chainTokens = {
     },
     [chainTokenAddresses["10"].DOLAUSDCBEETLP]: {
       address: chainTokenAddresses["10"].DOLAUSDCBEETLP,
-      name: 'DOLA-USDC',
-      symbol: 'DOLA-USDC beetlp',
+      name: 'DOLA-USDCe',
+      symbol: 'DOLA-USDCe beetlp',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
       isLP: true,
@@ -1407,7 +1429,7 @@ const chainTokens = {
         vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
       },
       pairs: [
-        chainTokenAddresses["10"].USDC, chainTokenAddresses["10"].DOLA, chainTokenAddresses["10"].DOLAUSDCBEETLP
+        chainTokenAddresses["10"].USDCE, chainTokenAddresses["10"].DOLA, chainTokenAddresses["10"].DOLAUSDCBEETLP
       ],
       isStable: true,
       isComposableMetapool: true,
@@ -1416,8 +1438,8 @@ const chainTokens = {
     },
     [chainTokenAddresses["10"].DOLAUSDCALP]: {
       address: chainTokenAddresses["10"].DOLAUSDCALP,
-      name: 'DOLA-USDC',
-      symbol: 'DOLA-USDC opalp',
+      name: 'DOLA-USDCe',
+      symbol: 'DOLA-USDCe opalp',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
       isLP: true,
@@ -1427,7 +1449,7 @@ const chainTokens = {
         vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
       },
       pairs: [
-        chainTokenAddresses["10"].USDC, chainTokenAddresses["10"].DOLA, chainTokenAddresses["10"].DOLAUSDCBEETLP
+        chainTokenAddresses["10"].USDCE, chainTokenAddresses["10"].DOLA, chainTokenAddresses["10"].DOLAUSDCBEETLP
       ],
       isComposableMetapool: true,
       protocolImage: PROTOCOL_IMAGES.AURA,
