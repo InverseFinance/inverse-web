@@ -146,8 +146,8 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
         [SDOLA_ADDRESS, 'totalSupply'],
         [SDOLA_ADDRESS, 'weeklyRevenue', weekIndexUtc],
         [SDOLA_ADDRESS, 'weeklyRevenue', weekIndexUtc - 1],
-        [SDOLA_ADDRESS, 'totalAssets'],     
-    ]);
+        [SDOLA_ADDRESS, 'totalAssets'],
+    ]);    
     
     const dolaStakingData = dsaData && sdolaData ? dsaData.concat(sdolaData) : undefined;
    
