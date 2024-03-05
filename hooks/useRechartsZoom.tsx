@@ -75,7 +75,7 @@ export const useRechartsZoom = ({
     const { data, left, right, top, bottom } = state
 
     useEffect(() => {
-        if(isInited || !combodata.length || !defaultRange) return;
+        if(isInited || !combodata?.length || !defaultRange) return;
         changeToRange(ranges.find(r => r.label === defaultRange) || ranges[0]);
         setIsInited(true);
     }, [ranges, defaultRange, isInited, combodata])
