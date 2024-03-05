@@ -134,22 +134,32 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
     const weekFloat = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0) / (ONE_DAY_MS * 7);
     const weekIndexUtc = Math.floor(weekFloat);
 
-    const { data: dolaStakingData, error } = useEtherSWR([
+    const { data: dsaData, error } = useEtherSWR([
         [DOLA_SAVINGS_ADDRESS, 'claimable', SDOLA_ADDRESS],
         [DOLA_SAVINGS_ADDRESS, 'balanceOf', SDOLA_ADDRESS],
         [DOLA_SAVINGS_ADDRESS, 'totalSupply'],
         [DOLA_SAVINGS_ADDRESS, 'yearlyRewardBudget'],
         [DOLA_SAVINGS_ADDRESS, 'maxYearlyRewardBudget'],
-        [DOLA_SAVINGS_ADDRESS, 'maxRewardPerDolaMantissa'],
+        [DOLA_SAVINGS_ADDRESS, 'maxRewardPerDolaMantissa'],       
+    ]);
+    const { data: sdolaData } = useEtherSWR([
         [SDOLA_ADDRESS, 'totalSupply'],
         [SDOLA_ADDRESS, 'weeklyRevenue', weekIndexUtc],
         [SDOLA_ADDRESS, 'weeklyRevenue', weekIndexUtc - 1],
-        [SDOLA_ADDRESS, 'totalAssets'],
+        [SDOLA_ADDRESS, 'totalAssets'],     
+    ]);
+    
+    const dolaStakingData = dsaData && sdolaData ? dsaData.concat(sdolaData) : undefined;
+   
+    const { data: claimableData } = useEtherSWR([
         [DOLA_SAVINGS_ADDRESS, 'claimable', account],
     ]);
 
+    const accountRewardsClaimable = claimableData ? getBnToNumber(claimableData[0]) : 0;
+
     return {
-        ...formatDolaStakingData(dbrDolaPrice, dolaStakingData, apiData, supplyDelta, true),
+        ...formatDolaStakingData(dbrDolaPrice, dolaStakingData, apiData, supplyDelta),
+        accountRewardsClaimable,
         isLoading: (!dolaStakingData && !error) && (!apiData && !apiErr),
         hasError: !!error || !!apiErr,
     }
@@ -160,7 +170,6 @@ export const formatDolaStakingData = (
     dolaStakingData: any[],
     fallbackData?: any,
     supplyDelta = 0,
-    isAccountCase = false,
 ) => {
     const sDolaClaimable = dolaStakingData ? getBnToNumber(dolaStakingData[0]) : fallbackData?.sDolaClaimable || 0;
     const dolaBalInDsaFromSDola = dolaStakingData ? getBnToNumber(dolaStakingData[1]) : fallbackData?.dolaBalInDsaFromSDola || 0;
@@ -173,9 +182,7 @@ export const formatDolaStakingData = (
     const weeklyRevenue = dolaStakingData ? getBnToNumber(dolaStakingData[7]) : fallbackData?.weeklyRevenue || 0;
     const pastWeekRevenue = dolaStakingData ? getBnToNumber(dolaStakingData[8]) : fallbackData?.pastWeekRevenue || 0;
     const sDolaTotalAssetsCurrent = (dolaStakingData ? getBnToNumber(dolaStakingData[9]) : fallbackData?.sDolaTotalAssets || 0);
-    const sDolaTotalAssets = sDolaTotalAssetsCurrent + supplyDelta;
-    // optional
-    const accountRewardsClaimable = isAccountCase ? dolaStakingData && dolaStakingData[10] ? getBnToNumber(dolaStakingData[10]) : 0 : undefined;
+    const sDolaTotalAssets = sDolaTotalAssetsCurrent + supplyDelta;        
 
     const sDolaDsaShare = dsaTotalSupply > 0 ? dolaBalInDsaFromSDola / dsaTotalSupply : 1;
     // sDOLA budget share
@@ -216,8 +223,7 @@ export const formatDolaStakingData = (
         maxRewardPerDolaMantissa,
         weeklyRevenue,
         pastWeekRevenue,
-        sDolaClaimable,
-        accountRewardsClaimable,
+        sDolaClaimable,        
         apr,
         // weekly compounding
         apy: aprToApy(apr, WEEKS_PER_YEAR),
