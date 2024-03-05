@@ -614,7 +614,8 @@ export const VE_NFT_ABI = [
   "function tokensOfOwner(address) view returns (uint256[])",
   "function ownerToNFTokenIdList(address, uint256) view returns (uint256)",
   "function tokenOfOwnerByIndex(address _owner, uint256 _tokenIndex) view returns (uint256)",
-  "function locked(uint256 _tokenId) view returns (tuple(int128 amount, uint256 end))"
+  "function locked(uint256 _tokenId) view returns (tuple(int128 amount, uint256 end))",
+  "function balanceOfNFT(uint) public view returns (uint)",
 ]
 
 export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {
