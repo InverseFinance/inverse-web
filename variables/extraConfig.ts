@@ -214,7 +214,7 @@ const mainConfig = {
             oracleType: "chainlink",
             badgeInfo: 'Wrapped BTC',            
             badgeProps: { bgColor: 'gold', color: '#333333' },
-            startingBlock: 19306976,
+            startingBlock: 19372769,
             isInv: false,
             hasStakingLikeRewards: false,
         },
