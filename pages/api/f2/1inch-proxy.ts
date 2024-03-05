@@ -2,7 +2,7 @@ import { getNetworkConfigConstants } from '@app/util/networks';
 import { isAddress } from 'ethers/lib/utils';
 import 'source-map-support'
 
-const BASE_URL = 'https://api.1inch.dev/swap/v5.2/1';
+const BASE_URL = 'https://api.1inch.dev/swap/v6.0/1';
 
 const { F2_ALE } = getNetworkConfigConstants();
 
@@ -31,6 +31,11 @@ const fetch1inchWithRetry = async (
   return response;
 }
 
+const connectors = {
+  // cvxFXS
+  '0xfeef77d3f69374f66429c91d732a244f074bdf74': ['0x853d955acef822db058eb8505911ed77f175b99e','0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48','0x3432b6a60d23ca0dfca7761b7ab56459d9c964d0'],
+}
+
 export default async function handler(req, res) {
   const { method, buyToken, buyAmount, sellToken, sellAmount, slippagePercentage, isFullDeleverage } = req.query;
   if (!['swap', 'quote'].includes(method) || !isAddress(buyToken) || !isAddress(sellToken) || (!/^[1-9]+[0-9]*$/.test(sellAmount) && isFullDeleverage !== 'true')) {
@@ -42,17 +47,28 @@ export default async function handler(req, res) {
     let url = `${BASE_URL}/${method}?dst=${buyToken}&src=${sellToken}&slippage=${slippagePercentage}&disableEstimate=true&from=${F2_ALE}`;
     url += `&amount=${sellAmount || ''}`;
 
-    const response = await fetch1inchWithRetry(url);
+    if(connectors[buyToken?.toLowerCase()] || connectors[sellToken?.toLowerCase()]) {
+      const connectorsList = (connectors[buyToken?.toLowerCase()] || connectors[sellToken?.toLowerCase()]).join(',');
+      url += `&connectorTokens=${connectorsList}`;
+    }    
+    
+    const [response, allowanceResponse] = await Promise.all([
+      fetch1inchWithRetry(url),
+      fetch1inchWithRetry('https://api.1inch.dev/swap/v6.0/1/approve/spender'),      
+    ]);
+
     if(!response) {
       return res.status(500).json({ error: true, msg: 'Failed to fecth swap data, please try again' });
     }
 
     const responseData = await response?.json();
+    const allowanceResponseData = await allowanceResponse?.json();
     return res.status(response.status).json({
       ...responseData,      
-      buyAmount: responseData?.toAmount,
+      buyAmount: responseData?.toAmount||responseData?.dstAmount,
       // 1inch router v5
-      allowanceTarget: '0x1111111254EEB25477B68fb85Ed929f73A960582',
+      // allowanceTarget: '0x1111111254EEB25477B68fb85Ed929f73A960582',
+      allowanceTarget: allowanceResponseData.address,
       data: responseData?.tx?.data,
       gasPrice: responseData?.tx?.gasPrice,
     });

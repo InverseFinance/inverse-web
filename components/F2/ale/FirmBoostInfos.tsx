@@ -116,7 +116,7 @@ export const getLeverageImpact = async ({
         }
 
         // in the end the reference is always a number of dola sold (as it's what we need to sign, or part of it if with dbr)
-        const { buyAmount, validationErrors, msg } = await getAleSellQuote(market.collateral, DOLA, borrowStringToSign, aleSlippage, true);
+        const { buyAmount, validationErrors, msg } = await getAleSellQuote(market.collateral, DOLA, borrowStringToSign, aleSlippage, true);        
         const errorMsg = validationErrors?.length > 0 ?
             `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
             : msg;
@@ -308,7 +308,7 @@ export const FirmBoostInfos = ({
     const editLeverageIsInvalid = isInvalidLeverage(parseFloat(editLeverageLevel), isLeverageUp);
     const knownFixedAmount = isLeverageUp ? debtAmountNum : collateralAmountNum;
     const aleSlippageFactor = (1 - parseFloat(aleSlippage) / 100);
-    const estimatedAmount = leverageLevel > 1 ? parseFloat(isLeverageUp ? leverageCollateralAmount : leverageDebtAmount) : 0;
+    const estimatedAmount = leverageLevel > 1 ? parseFloat(isLeverageUp ? leverageCollateralAmount : leverageDebtAmount) : 0;    
     const minAmount = aleSlippage ? aleSlippageFactor * estimatedAmount : 0;
     // when leveraging down min amount (or debt) is always the amount repaid, the slippage impacts amount of dola received in wallet
     const amountOfDebtReduced = !isLeverageUp ? Math.min(minAmount, debt) : 0;
