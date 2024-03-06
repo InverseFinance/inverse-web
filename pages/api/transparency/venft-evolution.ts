@@ -12,14 +12,15 @@ import { getHistoricalProvider } from '@app/util/providers';
 import { getClosestPreviousHistoValue, timestampToUTC } from '@app/util/misc';
 
 export default async function handler(req, res) {
-  const cacheKey = `venfts-evolution-v1.0.1`;
+  const { updateChainId, ignoreCache } = req.query;
+  const cacheKey = `venfts-evolution-v1.0.2`;
   try {
     const cacheDuration = 3600;
     // res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);    
     const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, false, cacheDuration);
     const { data: utcKeyBlockValues } = await getCacheFromRedisAsObj(DAILY_UTC_CACHE_KEY, false) || { data: ARCHIVED_UTC_DATES_BLOCKS, isValid: false };
-
-    if (isValid) {
+    
+    if (ignoreCache !== 'true' && isValid) {
       res.status(200).send(cachedData);
       return
     }
@@ -34,9 +35,9 @@ export default async function handler(req, res) {
       ...Object
         .values(CHAIN_TOKENS[NetworkIds.bsc]).filter(({ veNftId }) => !!veNftId)
         .map((lp) => ({ chainId: NetworkIds.bsc, ...lp })),
-      // ...Object
-      //   .values(CHAIN_TOKENS[NetworkIds.arbitrum]).filter(({ veNftId }) => !!veNftId)
-      //   .map((lp) => ({ chainId: NetworkIds.arbitrum, ...lp })),
+      ...Object
+        .values(CHAIN_TOKENS[NetworkIds.arbitrum]).filter(({ veNftId }) => !!veNftId)
+        .map((lp) => ({ chainId: NetworkIds.arbitrum, ...lp })),
       ...Object
         .values(CHAIN_TOKENS[NetworkIds.polygon]).filter(({ veNftId }) => !!veNftId)
         .map((lp) => ({ chainId: NetworkIds.polygon, ...lp })),
@@ -46,7 +47,7 @@ export default async function handler(req, res) {
       ...Object
         .values(CHAIN_TOKENS[NetworkIds.base]).filter(({ veNftId }) => !!veNftId)
         .map((lp) => ({ chainId: NetworkIds.base, ...lp })),
-    ];
+    ].filter(lp => !updateChainId || lp.chainId === updateChainId);
 
     for (let token of veNfts) {
       const histoPrices = (await getHistoricalTokenData(token.coingeckoId))?.prices || [];
@@ -54,7 +55,7 @@ export default async function handler(req, res) {
         continue;
       }
       const utcDateBlocks = Object.entries(utcKeyBlockValues[token.chainId]).map(([key, value]) => ({ date: key, block: value }));
-      const archivedEvolution = cachedData?.veNfts?.evolution || [];
+      const archivedEvolution = cachedData?.veNfts?.find(_t => _t.address === token.address)?.evolution || [];
       const archivedDataBlocks = archivedEvolution.map(e => e.block);
       const blocks = utcDateBlocks.map(d => d.block).filter(b => !archivedDataBlocks.includes(b));
       const contract = new Contract(token.address, VE_NFT_ABI, getHistoricalProvider(token.chainId));
