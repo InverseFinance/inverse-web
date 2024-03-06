@@ -34,7 +34,7 @@ export default function useSpecificChainBalance(
 
 export const getPublicRpcProvider = (chainId: NetworkIds) => {
     if(chainId?.toString() === '31337') {
-        return new JsonRpcProvider('http://localhost:8545/');
+        return new JsonRpcProvider('http://127.0.0.1:8545/');
     }
     else if(chainId === NetworkIds.mainnet) {
         return new JsonRpcProvider('https://rpc.ankr.com/eth');

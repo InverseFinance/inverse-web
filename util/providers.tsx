@@ -6,7 +6,7 @@ import { AbiCoder } from "ethers/lib/utils";
 
 export const getProvider = (chainId: string | number, specificAlchemyKey?: string, onlyAlchemy = false): FallbackProvider | JsonRpcProvider => {
     if (chainId === '31337') {
-        return new JsonRpcProvider('http://localhost:8545/');
+        return new JsonRpcProvider('http://127.0.0.1:8545/');
     }
     else if (chainId === NetworkIds.ftm && !specificAlchemyKey) {
         return new JsonRpcProvider('https://rpc.ftm.tools/');

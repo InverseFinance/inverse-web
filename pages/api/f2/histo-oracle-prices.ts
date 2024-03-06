@@ -73,6 +73,10 @@ export default async function handler(req, res) {
     const blocksFromStartUntilCurrent = [...Array(nbIntervals).keys()].map((i) => startingBlock + (i * intIncrement));
     const allUniqueBlocksToCheck = [...new Set([...relevantBlockNumbers, ...blocksFromStartUntilCurrent])];
     allUniqueBlocksToCheck.sort((a, b) => a - b);
+    
+    if(!archived.blocks.length && !archived.blocks.includes(startingBlock)) {
+      allUniqueBlocksToCheck.push(startingBlock)
+    }
 
     if (!allUniqueBlocksToCheck.length || ((currentBlock - lastMarketEventBlock) < BLOCKS_PER_DAY && lastArchivedBlock === lastMarketEventBlock)) {
       res.status(200).json(archived);
@@ -121,7 +125,7 @@ export default async function handler(req, res) {
       100,
     );
 
-    const newOraclePrices = oraclePricesData.flat().map(p => getBnToNumber(p));
+    const newOraclePrices = oraclePricesData.flat().map(p => getBnToNumber(p, (36 - _market.underlying.decimals)));
     const resultTimestamps = archived.timestamps.concat(allUniqueBlocksToCheck.map(b => timestamps[CHAIN_ID][b] * 1000));
 
     const resultData = {
