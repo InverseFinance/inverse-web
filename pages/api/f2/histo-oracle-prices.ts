@@ -73,6 +73,10 @@ export default async function handler(req, res) {
     const blocksFromStartUntilCurrent = [...Array(nbIntervals).keys()].map((i) => startingBlock + (i * intIncrement));
     const allUniqueBlocksToCheck = [...new Set([...relevantBlockNumbers, ...blocksFromStartUntilCurrent])];
     allUniqueBlocksToCheck.sort((a, b) => a - b);
+    
+    if(!archived.blocks.length && !archived.blocks.includes(startingBlock)) {
+      allUniqueBlocksToCheck.push(startingBlock)
+    }
 
     if (!allUniqueBlocksToCheck.length || ((currentBlock - lastMarketEventBlock) < BLOCKS_PER_DAY && lastArchivedBlock === lastMarketEventBlock)) {
       res.status(200).json(archived);
