@@ -210,7 +210,7 @@ const PieItem = ({ data, activeFill = lightTheme.colors.mainTextColor, fill = li
     />
 }
 
-const NumberAndPieCard = ({ isLoading, footer = undefined, noDataFallback = undefined, fill, activeFill, data, value, label, width = 350, height = 250, dataKey = 'value', nameKey = 'name', precision = 2, isUsd = false }) => {
+export const NumberAndPieCard = ({ isLoading, footer = undefined, noDataFallback = undefined, fill, activeFill, data, value, label, width = 350, height = 250, dataKey = 'value', nameKey = 'name', precision = 2, isUsd = false }) => {
     return <DashBoardCard minH="314px" direction={{ base: 'column', sm: 'row' }} alignItems="center" justify="space-around" px="16">
         {
             !isLoading && !data?.length ? noDataFallback : <PieItem fill={fill} activeFill={activeFill} data={data} width={width} height={height} dataKey={dataKey} nameKey={nameKey} precision={precision} isUsd={isUsd} />
