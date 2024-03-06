@@ -63,7 +63,7 @@ export default async function handler(req, res) {
           return getMulticallOutput([
             { contract, functionName: token.isLockedVeNft ? 'locked' : 'balanceOfNFT', params: [token.veNftId] },
           ], Number(token.chainId), block)
-        });
+        })
       );
       const histoPricesAsObj = histoPrices.reduce((acc, [ts, price]) => ({ ...acc, [timestampToUTC(ts)]: price }), {});      
       const newData = utcDateBlocks.map((d, i) => {
