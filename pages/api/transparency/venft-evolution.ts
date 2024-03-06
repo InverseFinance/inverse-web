@@ -1,5 +1,5 @@
 import 'source-map-support'
-import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
+import { getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types';
 import { CHAIN_TOKENS } from '@app/variables/tokens';
 import { ARCHIVED_UTC_DATES_BLOCKS } from '@app/fixtures/utc-dates-blocks';
@@ -9,17 +9,22 @@ import { getMulticallOutput } from '@app/util/multicall';
 import { Contract } from 'ethers';
 import { VE_NFT_ABI } from '@app/config/abis';
 import { getHistoricalProvider } from '@app/util/providers';
-import { getClosestPreviousHistoValue, timestampToUTC } from '@app/util/misc';
+import { getOrClosest, timestampToUTC } from '@app/util/misc';
+
+const startingBlocks = {
+  [NetworkIds.optimism]: 105896834,
+  [NetworkIds.base]: 3200584,
+}
 
 export default async function handler(req, res) {
   const { updateChainId, ignoreCache } = req.query;
-  const cacheKey = `venfts-evolution-v1.0.2`;
+  const cacheKey = `venfts-evolution-v1.0.4`;
+  const cacheDuration = 3600;
+  // res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);    
+  const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, false, cacheDuration);
   try {
-    const cacheDuration = 3600;
-    // res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);    
-    const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, false, cacheDuration);
     const { data: utcKeyBlockValues } = await getCacheFromRedisAsObj(DAILY_UTC_CACHE_KEY, false) || { data: ARCHIVED_UTC_DATES_BLOCKS, isValid: false };
-    
+
     if (ignoreCache !== 'true' && isValid) {
       res.status(200).send(cachedData);
       return
@@ -50,14 +55,22 @@ export default async function handler(req, res) {
     ].filter(lp => !updateChainId || lp.chainId === updateChainId);
 
     for (let token of veNfts) {
-      const histoPrices = (await getHistoricalTokenData(token.coingeckoId))?.prices || [];
-      if(!utcKeyBlockValues[token.chainId]) {
+      if (!utcKeyBlockValues[token.chainId]) {
         continue;
       }
       const utcDateBlocks = Object.entries(utcKeyBlockValues[token.chainId]).map(([key, value]) => ({ date: key, block: value }));
       const archivedEvolution = cachedData?.veNfts?.find(_t => _t.address === token.address)?.evolution || [];
       const archivedDataBlocks = archivedEvolution.map(e => e.block);
-      const blocks = utcDateBlocks.map(d => d.block).filter(b => !archivedDataBlocks.includes(b));
+      const blocks = utcDateBlocks.map(d => d.block)
+        .filter(b => !archivedDataBlocks.includes(b) && b >= startingBlocks[token.chainId]);
+         
+      if (!blocks.length) {
+        continue;
+      }
+      const histoPrices = (await getHistoricalTokenData(token.coingeckoId))?.prices || [];
+      if(!histoPrices.length) {
+        continue;
+      }
       const contract = new Contract(token.address, VE_NFT_ABI, getHistoricalProvider(token.chainId));
       const veNftBalances = await Promise.all(
         blocks.map(block => {
@@ -66,12 +79,13 @@ export default async function handler(req, res) {
           ], Number(token.chainId), block)
         })
       );
-      const histoPricesAsObj = histoPrices.reduce((acc, [ts, price]) => ({ ...acc, [timestampToUTC(ts)]: price }), {});      
-      const newData = utcDateBlocks.map((d, i) => {
-        const histoPrice = histoPricesAsObj[d.date] || getClosestPreviousHistoValue(histoPricesAsObj, d.date, 0);
+      const histoPricesAsObj = histoPrices.reduce((acc, [ts, price]) => ({ ...acc, [timestampToUTC(ts)]: price }), {});
+      const newData = blocks.map((block, i) => {
+        const utcData = utcDateBlocks.find(utc => utc.block === block);
+        const histoPrice = histoPricesAsObj[utcData.date] || getOrClosest(histoPricesAsObj, utcData.date, 100);        
         const amount = Array.isArray(veNftBalances[i][0]) ? veNftBalances[i][0][0] : veNftBalances[i][0];
         return {
-          ...d,
+          ...utcData,
           balance: getBnToNumber(amount),
           price: histoPrice,
         }
@@ -89,14 +103,15 @@ export default async function handler(req, res) {
     console.error(err);
     // if an error occured, try to return last cached results
     try {
-      const cache = await getCacheFromRedis(cacheKey, false);
-      if (cache) {
+      if (cachedData) {
         console.log('Api call failed, returning last cache found');
-        res.status(200).send(cache);
+        res.status(200).send(cachedData);
+      } else {
+        res.status(500).send({ success: false });
       }
     } catch (e) {
       console.error(e);
-      res.status(500);
+      res.status(500).send({ success: false });
     }
   }
 }
