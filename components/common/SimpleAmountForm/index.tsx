@@ -121,8 +121,8 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
     } = props;
     const [amount, setAmount] = useState(!defaultAmount ? '' : defaultAmount);
     const [isInfiniteApprovalMode, setIsInfiniteApprovalMode] = useState(defaultInfiniteApprovalMode);
-    const [tokenApproved, setTokenApproved] = useState(false);
-    const [freshTokenApproved, setFreshTokenApproved] = useState(false);
+    const [tokenApproved, setTokenApproved] = useState(false);    
+    const [freshAmountApproved, setFreshAmountApproved] = useState(0);
     const { approvals } = useAllowances([address], destination);
     const { balances } = useBalances([address]);
     const _tokenAddress = address || 'CHAIN_COIN';
@@ -147,13 +147,13 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         setAmount(defaultAmount);
     }, [defaultAmount])
 
-    useEffect(() => {        
-        setFreshTokenApproved(false);
+    useEffect(() => {
+        setFreshAmountApproved(0);
     }, [address, destination]);
 
-    useEffect(() => {
-        setTokenApproved(freshTokenApproved || !address || hasAllowance(approvals, address, decimals, amount));
-    }, [approvals, address, freshTokenApproved]);
+    useEffect(() => {        
+        setTokenApproved((!!amount && !isNaN(parseFloat(amount)) && freshAmountApproved >= parseFloat(amount)) || !address || hasAllowance(approvals, address, decimals, amount));
+    }, [approvals, address, freshAmountApproved, amount, decimals]);
 
     const setToMaxDeposit = () => {
         const max = formatUnits(maxBn[0], decimals);
@@ -216,15 +216,15 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                             toAddress={destination}
                             signer={signer}
                             isDisabled={(isInfiniteApprovalMode ? balance <= 0 : !parseFloat(_amount)) || (!!alsoDisableApprove && !!isDisabled)}
-                            onSuccess={() => {
-                                setFreshTokenApproved(isInfiniteApprovalMode);
+                            onSuccess={() => {                                
+                                setFreshAmountApproved(isInfiniteApprovalMode ? Infinity : parseFloat(_amount));
                                 if(onApprove){
                                     onApprove();
                                 }
                             }}
                             ButtonComp={ButtonComp}
                             amount={isInfiniteApprovalMode ? undefined : _bnAmount}
-                            forceRefresh={approveForceRefresh}
+                            forceRefresh={approveForceRefresh || !isInfiniteApprovalMode}
                             {...btnProps}
                         >
                             {approveLabel}
