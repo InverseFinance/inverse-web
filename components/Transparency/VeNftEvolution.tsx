@@ -149,7 +149,7 @@ export const VeNftEvolutionWrapper = () => {
                 y: currentTotalUsd,
                 yDay: currentTotalUsd,
             }
-        ]: []);
+        ] : []);
 
     if (!inited) return null
 
@@ -163,14 +163,14 @@ export const VeNftEvolutionWrapper = () => {
             activeFill={themeStyles.colors.mainTextColor}
             isUsd={true}
             value={currentTotalUsd}
-            label="Total veNfts worth"            
+            label="Total veNfts worth"
             isLoading={isLoading || isLoadingPrices}
             precision={0}
         />
         <DashBoardCard>
             <VStack>
                 <VStack>
-                    <Text fontSize="26px" fontWeight="extrabold">Total veNfts worth evolution</Text>                    
+                    <Text fontSize="26px" fontWeight="extrabold">Total veNfts worth evolution</Text>
                 </VStack>
                 <VeNftDashboardAreaChart
                     data={accChartData}
@@ -178,7 +178,6 @@ export const VeNftEvolutionWrapper = () => {
                     isDollars={true}
                     containerProps={{ pt: '10' }}
                     areaProps={{
-                        title: `Total veNfts worth evolution (current: ${shortenNumber(currentTotalUsd, 2, true)})`,
                         id: "veNfts-all",
                         autoMinY: true,
                         useRecharts: true,
@@ -194,7 +193,9 @@ export const VeNftEvolutionWrapper = () => {
         </DashBoardCard>
         {
             chartList.map(item => {
-                return <DashBoardCard key={item.symbol} imageSrc={getNetworkImage(item.chainId)}>
+                return <DashBoardCard key={item.symbol}
+                    imageSrc={getNetworkImage(item.chainId)}
+                >
                     <VStack>
                         <HStack>
                             <Image src={item.image} h="30px" w="30px" borderRadius="40px" />
@@ -204,7 +205,7 @@ export const VeNftEvolutionWrapper = () => {
                             data={item.chartData}
                             isLoading={isLoading}
                             isDollars={true}
-                            containerProps={{ pt: '12' }}
+                            containerProps={{ pt: '10' }}
                             areaProps={{
                                 id: `veNfts-${item.symbol}`,
                                 autoMinY: true,
