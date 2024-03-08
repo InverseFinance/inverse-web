@@ -20,7 +20,7 @@ const startingBlocks = {
 
 export default async function handler(req, res) {
   const { updateChainId, ignoreCache } = req.query;
-  const cacheKey = `venfts-evolution-v1.0.4`;
+  const cacheKey = `venfts-evolution-v1.0.5`;
   const cacheDuration = 9999;
   res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
   const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, false, cacheDuration);
