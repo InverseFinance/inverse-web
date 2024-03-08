@@ -140,7 +140,7 @@ export const VeNftEvolutionWrapper = () => {
         return { ...d, utcDate: d.date, x: d.timestamp, y: d['all'], yDay: d['all'] };
     })
         .filter(item => !!item.x && item['all'] != undefined && veNftsWithEvolution.every(veNft => item[`${veNft.symbol}-balance`] !== undefined))
-        .concat([
+        .concat(Object.keys(prices).length > 0 ? [
             {
                 x: now,
                 all: currentTotalUsd,
@@ -149,7 +149,7 @@ export const VeNftEvolutionWrapper = () => {
                 y: currentTotalUsd,
                 yDay: currentTotalUsd,
             }
-        ]);
+        ]: []);
 
     if (!inited) return null
 
