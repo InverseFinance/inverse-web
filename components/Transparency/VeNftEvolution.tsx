@@ -114,7 +114,7 @@ export const VeNftEvolutionWrapper = () => {
             chartData: accumulatedEvolution.map(d => {
                 return { ...d, utcDate: d.date, x: d.timestamp, y: d[veNft.symbol], yDay: d[veNft.symbol] };
             })
-                .concat([
+                .concat(currentPrice ? [
                     {
                         x: now,
                         timestamp: now,
@@ -126,7 +126,7 @@ export const VeNftEvolutionWrapper = () => {
                         [`${veNft.symbol}-price`]: currentPrice,
                         [`${veNft.symbol}-balance`]: veNft.currentBalance,
                     }
-                ])
+                ] : [])
                 .filter(item => !!item.x && item[veNft.symbol] != undefined),
         }
     });
@@ -163,7 +163,7 @@ export const VeNftEvolutionWrapper = () => {
             activeFill={themeStyles.colors.mainTextColor}
             isUsd={true}
             value={currentTotalUsd}
-            label="Total veNfts worth"
+            label="Total veNfts worth"            
             isLoading={isLoading || isLoadingPrices}
             precision={0}
         />
@@ -174,6 +174,7 @@ export const VeNftEvolutionWrapper = () => {
                 </VStack>
                 <VeNftDashboardAreaChart
                     data={accChartData}
+                    isLoading={isLoading}
                     isDollars={true}
                     containerProps={{ pt: '10' }}
                     areaProps={{
@@ -201,6 +202,7 @@ export const VeNftEvolutionWrapper = () => {
                         </HStack>
                         <VeNftDashboardAreaChart
                             data={item.chartData}
+                            isLoading={isLoading}
                             isDollars={true}
                             containerProps={{ pt: '12' }}
                             areaProps={{
