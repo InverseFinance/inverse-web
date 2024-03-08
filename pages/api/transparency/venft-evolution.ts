@@ -10,6 +10,7 @@ import { Contract } from 'ethers';
 import { VE_NFT_ABI } from '@app/config/abis';
 import { getHistoricalProvider, getProvider } from '@app/util/providers';
 import { getOrClosest, timestampToUTC } from '@app/util/misc';
+import { ONE_DAY_SECS } from '@app/config/constants';
 
 const startingBlocks = {
   [NetworkIds.optimism]: 105896834,
@@ -21,7 +22,7 @@ const startingBlocks = {
 export default async function handler(req, res) {
   const { updateChainId, ignoreCache } = req.query;
   const cacheKey = `venfts-evolution-v1.0.5`;
-  const cacheDuration = 9999;
+  const cacheDuration = ONE_DAY_SECS;
   res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
   const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, false, cacheDuration);
   try {

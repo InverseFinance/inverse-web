@@ -155,7 +155,7 @@ export const VeNftEvolutionWrapper = () => {
 
     return <SimpleGrid columns={{ base: 1, md: 2, xl: 2 }} spacing="8" w="100%">
         <NumberAndPieCard
-            title="Current veNfts distribution"
+            title="Current veNfts portfolio"
             cardTitleProps={{ w: "fit-content", fontSize: '26px', fontWeight: 'extrabold' }}
             data={chartList}
             dataKey="currentWorth"
