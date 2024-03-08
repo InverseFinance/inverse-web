@@ -111,6 +111,10 @@ export const MENUS = {
           label: 'Treasury',
         },
         {
+          href: '/transparency/veNfts',
+          label: 'veNfts',
+        },
+        {
           label: 'FiRM users',
           href: '/transparency/firm-users',
         },
