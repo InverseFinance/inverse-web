@@ -178,7 +178,7 @@ export const VeNftEvolutionWrapper = () => {
                     isDollars={true}
                     containerProps={{ pt: '10' }}
                     areaProps={{
-                        title: `Total veNfts worth evolution (current: ${shortenNumber(accChartData[accChartData.length - 1].y, 2, true)})`,
+                        title: `Total veNfts worth evolution (current: ${shortenNumber(currentTotalUsd, 2, true)})`,
                         id: "veNfts-all",
                         autoMinY: true,
                         useRecharts: true,
