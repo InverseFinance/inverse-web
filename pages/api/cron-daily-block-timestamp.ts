@@ -1,25 +1,10 @@
 import 'source-map-support'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
-import { getNetworkConfigConstants } from '@app/util/networks';
 import { timestampToUTC } from '@app/util/misc';
 import { NetworkIds } from '@app/types';
 import { ARCHIVED_UTC_DATES_BLOCKS } from '@app/fixtures/utc-dates-blocks';
-
-const {
-    FEDS,
-} = getNetworkConfigConstants();
-
-const FARMERS = FEDS.filter(fed => !!fed.incomeChainId && !!fed.incomeSrcAd)
-    .map(fed => {
-        return [[fed.incomeSrcAd, fed.incomeChainId]].concat(fed.oldIncomeSrcAds ? fed.oldIncomeSrcAds.map(ad => [ad, fed.incomeChainId]) : []);
-    })
-    .flat()
-    .map(fedData => {
-        return [fedData[0], fedData[1]];
-    });
-
-const FARMERS_CHAIN_IDS = [...new Set(FARMERS.map(f => f[1]))];
+import { DOLA_BRIDGED_CHAINS } from '@app/config/constants';
 
 export const DAILY_UTC_CACHE_KEY = `utc-dates-blocks`;
 
@@ -40,7 +25,7 @@ export default async function handler(req, res) {
 
         const utcDate = timestampToUTC(Date.now());
 
-        for (let chainId of [NetworkIds.mainnet, ...FARMERS_CHAIN_IDS]) {
+        for (let chainId of [NetworkIds.mainnet, ...DOLA_BRIDGED_CHAINS]) {
             const provider = getProvider(chainId);
             const currentBlock = await provider.getBlockNumber();
 

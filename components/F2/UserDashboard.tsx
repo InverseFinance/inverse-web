@@ -1,4 +1,4 @@
-import { SimpleGrid, StackProps, Text, VStack, HStack, Image, Flex, useMediaQuery } from "@chakra-ui/react"
+import { SimpleGrid, StackProps, Text, VStack, HStack, Image, Flex, useMediaQuery, TextProps } from "@chakra-ui/react"
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import { useAccountDBR, useAccountF2Markets, useDBR, useDBRBalanceHisto, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
 import { getClosestPreviousHistoValue, preciseCommify, timestampToUTC } from "@app/util/misc";
@@ -130,7 +130,7 @@ const DbrEvoChart = ({
     />
 }
 
-const DashBoardCard = (props: StackProps & { cardTitle?: string, href?: string, imageSrc?: string }) => {
+export const DashBoardCard = (props: StackProps & { cardTitle?: string, cardTitleProps?: TextProps, href?: string, imageSrc?: string }) => {
     return <Flex
         w="full"
         borderRadius={8}
@@ -143,7 +143,7 @@ const DashBoardCard = (props: StackProps & { cardTitle?: string, href?: string, 
         bg={'containerContentBackground'}
         {...props}
     >
-        {!!props.cardTitle && <Text fontSize="18px" fontWeight="bold" mx="auto" w='200px' position="absolute" left="0" right="0" top={{ base: '5px', xl: '32px' }}>{props.cardTitle}</Text>}
+        {!!props.cardTitle && <Text fontSize="18px" fontWeight="bold" mx="auto" w='200px' position="absolute" left="0" right="0" top={{ base: '5px', xl: '32px' }} {...props.cardTitleProps}>{props.cardTitle}</Text>}
         {!!props.imageSrc && <Image borderRadius="50px" src={props.imageSrc} w="30px" h="30px" position="absolute" left="10px" top="10px" />}
         {props.children}
     </Flex>
@@ -210,8 +210,8 @@ const PieItem = ({ data, activeFill = lightTheme.colors.mainTextColor, fill = li
     />
 }
 
-const NumberAndPieCard = ({ isLoading, footer = undefined, noDataFallback = undefined, fill, activeFill, data, value, label, width = 350, height = 250, dataKey = 'value', nameKey = 'name', precision = 2, isUsd = false }) => {
-    return <DashBoardCard minH="314px" direction={{ base: 'column', sm: 'row' }} alignItems="center" justify="space-around" px="16">
+export const NumberAndPieCard = ({ isLoading, title, footer = undefined, noDataFallback = undefined, fill, activeFill, data, value, label, width = 350, height = 250, dataKey = 'value', nameKey = 'name', precision = 2, isUsd = false, ...props }) => {
+    return <DashBoardCard cardTitle={title} minH="314px" direction={{ base: 'column', sm: 'row' }} alignItems="center" justify="space-around" px="16" {...props}>
         {
             !isLoading && !data?.length ? noDataFallback : <PieItem fill={fill} activeFill={activeFill} data={data} width={width} height={height} dataKey={dataKey} nameKey={nameKey} precision={precision} isUsd={isUsd} />
         }

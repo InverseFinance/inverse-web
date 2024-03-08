@@ -92,6 +92,7 @@ export const AreaChart = ({
     defaultRange,
     forceStaticRangeBtns,
     strokeColor,
+    ...otherProps
 }: AreaChartProps) => {
     const _data = simplifyData ? getSimplifiedData(data) : fillInByDayInterval > 0 ? fillMissingDailyDatesWithMostRecentData(data, fillInByDayInterval) : data;
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
@@ -121,7 +122,7 @@ export const AreaChart = ({
 
     const events = _data.filter(d => !!d.eventPointLabel);
 
-    if (useRecharts) {
+    if (useRecharts) {        
         return <AreaChartRecharts
             title={title}
             rightPadding={rightPadding}
@@ -147,6 +148,7 @@ export const AreaChart = ({
             forceStaticRangeBtns={forceStaticRangeBtns}
             strokeColor={strokeColor}
             isPerc={isPerc}
+            {...otherProps}
         />
     }
 
