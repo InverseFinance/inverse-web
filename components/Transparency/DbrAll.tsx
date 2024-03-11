@@ -13,7 +13,7 @@ import { shortenNumber } from "@app/util/markets";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { useHistoricalInvMarketCap } from "@app/hooks/useHistoricalMarketCap";
 import { DefaultCharts } from "./DefaultCharts";
-import { useStakedDola } from "@app/util/dola-staking";
+import { useDolaStakingEvolution, useStakedDola } from "@app/util/dola-staking";
 import { useDbrAuction } from "../F2/DbrAuction/DbrAuctionInfos";
 
 const streamingStartTs = 1684713600000;
@@ -48,6 +48,7 @@ export const DbrAll = ({
     const { events: emissionEvents, rewardRatesHistory, isLoading: isEmmissionLoading } = useDBREmissions();
     const { dsaYearlyDbrEarnings } = useStakedDola(dbrPriceDola);
     const { dbrRatePerYear } = useDbrAuction(true);
+    const { evolution: dolaStakingEvolution } = useDolaStakingEvolution();
 
     const repHashes = replenishments?.map(r => r.txHash) || [];
     const auctionBuysHashes = auctionBuys?.map(r => r.txHash) || [];    
@@ -92,6 +93,9 @@ export const DbrAll = ({
         const invHistoCircSupply = (circSupplyAsObj[date] || getClosestPreviousHistoValue(circSupplyAsObj, date, 0));
         const invHistoMarketCap = invHistoPrice * invHistoCircSupply;
         const yearlyRewardRate = rateChanges.findLast(rd => date >= rd.date)?.yearlyRewardRate || 0;
+        const dsaIssuance = dolaStakingEvolution.findLast(rd => date >= timestampToUTC(rd.timestamp))?.dsaYearlyDbrEarnings || 0;
+        // TODO: use auction rate change event
+        const totalAnnualizedIssuance =  date >= '2024-01-15' ? dbrRatePerYear + yearlyRewardRate + dsaIssuance : yearlyRewardRate + dsaIssuance;
         return {
             ...d,
             time: (new Date(date)),
@@ -100,8 +104,8 @@ export const DbrAll = ({
             debtUsd: d.debt * histoPrice,
             histoPrice,
             invHistoMarketCap,
-            yearlyRewardRate,
-            yearlyRewardRateUsd: yearlyRewardRate * histoPrice,
+            yearlyRewardRate: totalAnnualizedIssuance,
+            yearlyRewardRateUsd: totalAnnualizedIssuance * histoPrice,
         }
     });    
 
