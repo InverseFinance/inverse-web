@@ -13,6 +13,8 @@ import { shortenNumber } from "@app/util/markets";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { useHistoricalInvMarketCap } from "@app/hooks/useHistoricalMarketCap";
 import { DefaultCharts } from "./DefaultCharts";
+import { useStakedDola } from "@app/util/dola-staking";
+import { useDbrAuction } from "../F2/DbrAuction/DbrAuctionInfos";
 
 const streamingStartTs = 1684713600000;
 
@@ -41,9 +43,11 @@ export const DbrAll = ({
     const { evolution: circSupplyEvolution } = useHistoricalInvMarketCap();
     const circSupplyAsObj = !!circSupplyEvolution ? circSupplyEvolution.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr.timestamp)]: curr.circSupply }), {}) : {};
     const invHistoPricesAsObj = !!invHistoPrices ? invHistoPrices.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr[0])]: curr[1] }), {}) : {};
-    const { priceUsd: dbrPriceUsd } = useDBRPrice();
+    const { priceUsd: dbrPriceUsd, priceDola: dbrPriceDola } = useDBRPrice();
 
     const { events: emissionEvents, rewardRatesHistory, isLoading: isEmmissionLoading } = useDBREmissions();
+    const { dsaYearlyDbrEarnings } = useStakedDola(dbrPriceDola);
+    const { dbrRatePerYear } = useDbrAuction(true);
 
     const repHashes = replenishments?.map(r => r.txHash) || [];
     const auctionBuysHashes = auctionBuys?.map(r => r.txHash) || [];    
@@ -120,7 +124,7 @@ export const DbrAll = ({
     }
 
     const annualizedBurn = lastCombodata.debt;
-    const annualizedIssuance = yearlyRewardRate;
+    const annualizedIssuance = yearlyRewardRate + dsaYearlyDbrEarnings + dbrRatePerYear;
 
     const { chartData: burnChartData } = useEventsAsChartData(_burnEvents, useUsd ? 'accBurnUsd' : 'accBurn', useUsd ? 'amountUsd' : 'amount');
 
@@ -145,7 +149,7 @@ export const DbrAll = ({
             <SimpleGrid gap="2" w='full' columns={{ base: 2, sm: 4 }} >
                 <StatBasic isLoading={!annualizedIssuance} name="Annualized Issuance" value={`${shortenNumber(annualizedIssuance, 2)} (${shortenNumber(annualizedIssuance * dbrPriceUsd, 2, true)})`} />
                 <StatBasic isLoading={!annualizedBurn} name="Annualized Burn" value={`${shortenNumber(annualizedBurn, 2)} (${shortenNumber(annualizedBurn * dbrPriceUsd, 2, true)})`} />
-                <StatBasic isLoading={isEmmissionLoading} name="Claimed by stakers" value={`${shortenNumber(totalClaimed, 2)} (${shortenNumber(useUsd ? totalClaimedUsd : totalClaimed * dbrPriceUsd, 2, true)})`} />
+                <StatBasic isLoading={isEmmissionLoading} name="Claimed by INV stakers" value={`${shortenNumber(totalClaimed, 2)} (${shortenNumber(useUsd ? totalClaimedUsd : totalClaimed * dbrPriceUsd, 2, true)})`} />
                 <StatBasic isLoading={!burnEvents?.length} name="Burned by borrowers" value={`${shortenNumber(totalBurned, 2)} (${shortenNumber(useUsd ? accBurnUsd : totalBurned * dbrPriceUsd, 2, true)})`} />
             </SimpleGrid>
             <Divider />
