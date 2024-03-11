@@ -42,7 +42,7 @@ const chainTokenAddresses = {
     STETH: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
     WSTETH: '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0',
     INVDOLASLP: '0x5BA61c0a8c4DccCc200cd0ccC40a5725a426d002',
-    INVDOLAAURA: '0xA5D7A7690B72a89B7b720E43fC9cBda5419d0C71',
+    INVDOLAAURA: '0x6992299d078858C2f64D046A172AC963b89038f7',
     INVDOLABLP: '0x441b8a1980f2F2E43A9397099d15CC2Fe6D36250',
     INVDOLAULP: '0xb268c1c44a349d06a42cf24988162dadc48d839e',
     INVETHSLP: '0x328dFd0139e26cB0FEF7B0742B49b0fe4325F821',
@@ -68,6 +68,7 @@ const chainTokenAddresses = {
     AURA: '0xC0c293ce456fF0ED870ADd98a0828Dd4d2903DBF',
     DOLAUSDCBALANCER: '0xFf4ce5AAAb5a627bf82f4A571AB1cE94Aa365eA6',
     SDOLADOLABALANCER: '0x264062CA46A1322c2E6464471764089E01F22F19',
+    SDOLADOLAAUR: '0xA36d3799eA28f4B75653EBF9D91DDA4519578086',
     SDOLAPYUSDBALANCER: '0x09B03b7cBB19b3daE94F884cF60dBc3c99a3947b',
     DBRDOLABALANCER: '0x445494F823f3483ee62d854eBc9f58d5B9972A25',
     DOLAMKUSDBALANCER: '0x383e7859271B2D0589B013b6d944572a0a8bE3cB',
@@ -89,6 +90,9 @@ const chainTokenAddresses = {
     YVCRV3CRYPTO: '0xE537B5cc158EB71037D4125BDD7538421981E6AA',
     YVCRVSTEHWETH: '0x5faF6a2D186448Dfa667c51CB3D695c7A6E52d8E',
     DOLAFRAXUSDC: '0xE57180685E3348589E9521aa53Af0BCD497E884d',
+    DOLAFRAXPYUSD: '0xef484de8C07B6e2d732A92B5F78e81B38f99f95E',
+    DOLAFRAXPYUSDCVX: '0xE8cBdBFD4A1D776AB1146B63ABD1718b2F92a823',
+    FRAXPYUSD: '0xA5588F7cdf560811710A2D82D3C9c99769DB1Dcb',
     INVETHCLP: '0xEAc004214F2ACa7a6BA01C7558cb4a85E7958ddD',
     DOLADBRCLP: '0x0a6B1d9F920019BAbc4De3F10c94ECB822106104',
     FRAXUSDC: '0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC',
@@ -565,7 +569,7 @@ const chainTokens = {
       isStable: true,
       isCrvLP: true,
       pairs: [
-        '0x865377367054516e17014CcdED1e7d814EDC9ce4', chainTokenAddresses["1"].THREECRV
+        chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].THREECRV
       ],      
       image: TOKEN_IMAGES.DOLA,
       link: 'https://curve.fi/#/ethereum/pools/factory-v2-27/deposit',
@@ -582,7 +586,7 @@ const chainTokens = {
       isNestedCrvLp: true,
       nestedLpAddress: '0xDcEF968d416a41Cdac0ED8702fAC8128A64241A2',
       pairs: [
-        '0x865377367054516e17014CcdED1e7d814EDC9ce4', chainTokenAddresses["1"].FRAXUSDC
+        chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].FRAXUSDC
       ],
       image: TOKEN_IMAGES.DOLA,
       link: 'https://curve.fi/#/ethereum/pools/factory-v2-176/deposit',
@@ -601,6 +605,35 @@ const chainTokens = {
       ],
       image: TOKEN_IMAGES.DOLA,
       link: 'https://www.convexfinance.com/stake/ethereum/115',
+    },
+    [chainTokenAddresses["1"].DOLAFRAXPYUSD]: {
+      address: chainTokenAddresses["1"].DOLAFRAXPYUSD,
+      name: 'DOLA-FRAX-PYUSD',
+      symbol: 'DOLA-FRAX-PYUSD',      
+      protocolImage: PROTOCOL_IMAGES.CRV,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isCrvLP: true,            
+      pairs: [
+        chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].FRAXPYUSD
+      ],
+      image: TOKEN_IMAGES.DOLA,
+      link: 'https://curve.fi/#/ethereum/pools/factory-stable-ng-96/deposit',
+      deduce: [chainTokenAddresses["1"].DOLAFRAXPYUSDCVX],
+    },    
+    [chainTokenAddresses["1"].DOLAFRAXPYUSDCVX]: {
+      address: chainTokenAddresses["1"].DOLAFRAXPYUSDCVX,
+      name: 'DOLA-FRAX-PYUSD',
+      symbol: 'DOLA-FRAX-PYUSD cvxlp',
+      protocolImage: PROTOCOL_IMAGES.CVX,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      pairs: [
+        chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].FRAXPYUSD
+      ],
+      image: TOKEN_IMAGES.DOLA,      
     },
     // [chainTokenAddresses["1"].DOLACUSDALP]: {
     //   address: chainTokenAddresses["1"].DOLACUSDALP,
@@ -642,6 +675,25 @@ const chainTokens = {
       name: 'DOLA-SDOLA blp',
       symbol: 'DOLA-SDOLA blp',
       protocolImage: PROTOCOL_IMAGES.BAL,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      balancerInfos: {
+        poolId: '0x264062ca46a1322c2e6464471764089e01f22f1900000000000000000000066b',
+        vault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
+      },     
+      isComposableMetapool: true,
+      pairs: [
+        chainTokenAddresses["1"].SDOLADOLABALANCER, chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].SDOLA
+      ],
+      image: TOKEN_IMAGES.DOLA,      
+      deduce: [chainTokenAddresses["1"].SDOLADOLAAUR],
+    },
+    [chainTokenAddresses["1"].SDOLADOLAAUR]: {
+      address: chainTokenAddresses["1"].SDOLADOLAAUR,
+      name: 'DOLA-SDOLA alp',
+      symbol: 'DOLA-SDOLA alp',
+      protocolImage: PROTOCOL_IMAGES.AURA,
       decimals: 18,
       isLP: true,
       isStable: true,
@@ -775,6 +827,15 @@ const chainTokens = {
       coingeckoId: 'curve-fi-frax-usdc',
       image: TOKEN_IMAGES.FRAX,
       protocolImage: TOKEN_IMAGES.USDC,
+      decimals: 18,
+    },
+    [chainTokenAddresses["1"].FRAXPYUSD]: {
+      address: chainTokenAddresses["1"].FRAXPYUSD,
+      name: 'FRAXPYUSD',
+      symbol: 'FRAXPYUSD',
+      coingeckoId: 'paypal-usd',
+      image: TOKEN_IMAGES.FRAX,
+      protocolImage: TOKEN_IMAGES.PYUSD,
       decimals: 18,
     },
     [chainTokenAddresses["1"].FRAX]: {
