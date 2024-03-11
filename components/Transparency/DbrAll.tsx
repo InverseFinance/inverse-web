@@ -114,7 +114,8 @@ export const DbrAll = ({
     if (combodata?.length > 0 && !!dbrPriceUsd && !!yearlyRewardRate) {
         const now = Date.now();
         const todayUTC = timestampToUTC(now);
-        const todayIndex = combodata.findIndex(d => d.date === todayUTC);        
+        const todayIndex = combodata.findIndex(d => d.date === todayUTC);
+        const totalAnnualizedIssuance = dbrRatePerYear + yearlyRewardRate + dsaYearlyDbrEarnings;
         combodata.splice(todayIndex, combodata.length - (todayIndex), {
             ...lastCombodata,
             timestamp: now,
@@ -122,8 +123,8 @@ export const DbrAll = ({
             debtUsd: lastCombodata.debt * dbrPriceUsd,
             histoPrice: dbrPriceUsd,
             date: timestampToUTC(now),
-            yearlyRewardRate: yearlyRewardRate,
-            yearlyRewardRateUsd: yearlyRewardRate * dbrPriceUsd,
+            yearlyRewardRate: totalAnnualizedIssuance,
+            yearlyRewardRateUsd: totalAnnualizedIssuance * dbrPriceUsd,
         });
     }
 
