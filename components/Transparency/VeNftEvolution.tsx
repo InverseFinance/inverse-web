@@ -2,7 +2,6 @@ import { useCacheFirstSWR } from "@app/hooks/useCustomSWR"
 import { DefaultCharts } from "./DefaultCharts";
 import { timestampToUTC, utcDateStringToTimestamp } from "@app/util/misc";
 import { HStack, VStack, Text, Image, SimpleGrid, useMediaQuery } from "@chakra-ui/react";
-import { shortenNumber } from "@app/util/markets";
 import { usePrices } from "@app/hooks/usePrices";
 import { DashBoardCard, NumberAndPieCard } from "../F2/UserDashboard";
 import { useAppTheme } from "@app/hooks/useAppTheme";
@@ -155,7 +154,7 @@ export const VeNftEvolutionWrapper = () => {
 
     return <SimpleGrid columns={{ base: 1, md: 2, xl: 2 }} spacing="8" w="100%">
         <NumberAndPieCard
-            title="Current veNfts portfolio"
+            title="Current veNFTs portfolio"
             cardTitleProps={{ w: "fit-content", fontSize: '26px', fontWeight: 'extrabold' }}
             data={chartList}
             dataKey="currentWorth"
@@ -163,14 +162,14 @@ export const VeNftEvolutionWrapper = () => {
             activeFill={themeStyles.colors.mainTextColor}
             isUsd={true}
             value={currentTotalUsd}
-            label="Total veNfts worth"
+            label="Total veNFTs worth"
             isLoading={isLoading || isLoadingPrices}
             precision={0}
         />
         <DashBoardCard>
             <VStack>
                 <VStack>
-                    <Text fontSize="26px" fontWeight="extrabold">Total veNfts worth evolution</Text>
+                    <Text fontSize="26px" fontWeight="extrabold">Total veNFTs worth evolution</Text>
                 </VStack>
                 <VeNftDashboardAreaChart
                     data={accChartData}
