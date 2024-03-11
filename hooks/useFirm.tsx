@@ -377,7 +377,7 @@ export const useDBRBurns = (): SWR & {
   events: any,
   timestamp: number,
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/transparency/dbr-burns`);
+  const { data, error } = useCacheFirstSWR(`/api/transparency/dbr-burns?`);
 
   return {
     events: data ? data.totalBurns : [],
@@ -410,7 +410,7 @@ export const useDBRDebtHisto = (): SWR & {
   timestamp: number,
   history: { debt: number, timestamp: number }[],
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/f2/debt-histo?v1.0.7`);
+  const { data, error } = useCacheFirstSWR(`/api/f2/debt-histo?v1.0.7b`);
 
   const debts = data?.debts || [];
   const history = debts
