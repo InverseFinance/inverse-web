@@ -151,10 +151,7 @@ export default async function handler(req, res) {
       veNfts,
     };
 
-    // avoid faulty rewrite
-    if(JSON.stringify(results).length > JSON.stringify(cachedData).length) {
-      await redisSetWithTimestamp(cacheKey, results);
-    }
+    await redisSetWithTimestamp(cacheKey, results);    
     
     return res.status(200).send(results);
   } catch (err) {

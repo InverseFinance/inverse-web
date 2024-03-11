@@ -10,14 +10,14 @@ export const veNftsPage = () => {
     return (
         <Layout>
             <Head>
-                <title>Inverse Finance - VeNfts</title>
+                <title>Inverse Finance - veNFTs</title>
             </Head>
             <AppNav active="Transparency" activeSubmenu="veNfts" hideAnnouncement={true} />
             <TransparencyTabs active="veNfts" />            
             <ErrorBoundary>
                 <VStack pt="4" spacing="4" w='full' maxW={{ base: '94%', '2xl': '90rem' }}>
                     <HStack alignItems="center" justify="space-between" w='full'>
-                        <Text fontWeight="extrabold" fontSize="40px">Inverse Finance's veNfts Dashboard</Text>
+                        <Text fontWeight="extrabold" fontSize="40px">Inverse Finance's veNFTs Dashboard</Text>
                         {/* <Image borderRadius="5px" display={{ base: 'none', sm: 'inline-block' }} w='200px' src={`/assets/inverse-logo-banner.png?`} /> */}
                     </HStack>
                     <ErrorBoundary description="Failed to Dashboard">
