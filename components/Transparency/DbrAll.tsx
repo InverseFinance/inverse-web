@@ -46,8 +46,8 @@ export const DbrAll = ({
     const { priceUsd: dbrPriceUsd, priceDola: dbrPriceDola } = useDBRPrice();
 
     const { events: emissionEvents, rewardRatesHistory, isLoading: isEmmissionLoading } = useDBREmissions();
-    const { dsaYearlyDbrEarnings } = useStakedDola(dbrPriceDola);
-    const { dbrRatePerYear: auctionYearlyRate, historicalRates: auctionHistoricalRates } = useDbrAuction(true);
+    const { dsaYearlyDbrEarnings, isLoading: isLoadingStakedDola } = useStakedDola(dbrPriceDola);
+    const { dbrRatePerYear: auctionYearlyRate, historicalRates: auctionHistoricalRates, isLoading: isLoadingAuction } = useDbrAuction(true);
     const { evolution: dolaStakingEvolution } = useDolaStakingEvolution();
     const { positions } = useFirmUsers();
     const totalDebt = positions.reduce((prev, curr) => prev + curr.debt, 0);
@@ -167,7 +167,7 @@ export const DbrAll = ({
         <VStack spacing="3">
             <Divider />
             <SimpleGrid gap="2" w='full' columns={{ base: 2, sm: 4 }} >
-                <StatBasic isLoading={!annualizedIssuance} name="Annualized Issuance" value={`${shortenNumber(annualizedIssuance, 2)} (${shortenNumber(annualizedIssuance * dbrPriceUsd, 2, true)})`} />
+                <StatBasic isLoading={!yearlyRewardRate || isLoadingStakedDola || isLoadingAuction} name="Annualized Issuance" value={`${shortenNumber(annualizedIssuance, 2)} (${shortenNumber(annualizedIssuance * dbrPriceUsd, 2, true)})`} />
                 <StatBasic isLoading={!totalDebt} name="Annualized Burn" value={`${shortenNumber(totalDebt, 2)} (${shortenNumber(totalDebt * dbrPriceUsd, 2, true)})`} />
                 <StatBasic isLoading={isEmmissionLoading} name="Claimed by INV stakers" value={`${shortenNumber(totalClaimed, 2)} (${shortenNumber(useUsd ? totalClaimedUsd : totalClaimed * dbrPriceUsd, 2, true)})`} />
                 <StatBasic isLoading={!burnEvents?.length} name="Burned by borrowers" value={`${shortenNumber(totalBurned, 2)} (${shortenNumber(useUsd ? accBurnUsd : totalBurned * dbrPriceUsd, 2, true)})`} />
