@@ -561,6 +561,7 @@ export const DBR_AUCTION_ABI = [
   "function setDolaReserve(uint _dolaReserve) external",
   "function buyDBR(uint exactDolaIn, uint exactDbrOut, address to) external",
   "event Buy(address indexed caller, address indexed to, uint dolaIn, uint dbrOut)",
+  "event RateUpdate(uint newRate)",
 ];
 export const DBR_AUCTION_HELPER_ABI = [
   "function getDbrOut(uint _dolaIn) public view returns (uint _dbrOut)",

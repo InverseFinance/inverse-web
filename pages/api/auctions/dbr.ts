@@ -5,6 +5,8 @@ import { getBnToNumber } from '@app/util/markets'
 import { CHAIN_ID } from '@app/config/constants';
 import { getMulticallOutput } from '@app/util/multicall';
 import { getDbrAuctionContract } from '@app/util/dbr-auction';
+import { addBlockTimestamps } from '@app/util/timestamps';
+import { NetworkIds } from '@app/types';
 
 export default async function handler(req, res) {
     const cacheKey = `dbr-auction-v1.0.0`;
@@ -24,7 +26,10 @@ export default async function handler(req, res) {
             { contract: auctionContract, functionName: 'getCurrentReserves' },
             { contract: auctionContract, functionName: 'dbrRatePerYear' },
             { contract: auctionContract, functionName: 'maxDbrRatePerYear' },
-        ]);        
+        ]);
+
+        const rateUpdates = await auctionContract.queryFilter(auctionContract.filters.RateUpdate(), 0);
+        const rateUpdatesTs = await addBlockTimestamps(rateUpdates.map(e => e.blockNumber), NetworkIds.mainnet);        
 
         const dolaReserve = getBnToNumber(auctionData[0][0]);
         const dbrReserve = getBnToNumber(auctionData[0][1]);
@@ -37,6 +42,9 @@ export default async function handler(req, res) {
             dbrReserve,
             yearlyRewardBudget,
             maxYearlyRewardBudget,
+            historicalRates: rateUpdates.map((e, i) => {
+                return { timestamp: rateUpdatesTs[NetworkIds.mainnet][e.blockNumber] * 1000, block: e.blockNumber, rate: getBnToNumber(e.args[0]) }
+            }),
         }
 
         await redisSetWithTimestamp(cacheKey, resultData);
