@@ -108,27 +108,30 @@ export const DBRTransparency = () => {
                                 <Link textDecoration="underline" color="secondaryTextColor" href="https://www.inverse.finance/governance/proposals/mills/109" isExternal target="_blank">
                                     See DBR streaming proposal.
                                 </Link>
+                                <Link textDecoration="underline" color="secondaryTextColor" href="https://www.inverse.finance/governance/proposals/mills/164" isExternal target="_blank">
+                                    See DBR auction proposal.
+                                </Link>
+                                <Link textDecoration="underline" color="secondaryTextColor" href="https://www.inverse.finance/governance/proposals/mills/167" isExternal target="_blank">
+                                    See DSA & sDOLA proposal.
+                                </Link>
                                 <Link textDecoration="underline" color="secondaryTextColor" href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr#dbr-issuance" isExternal target="_blank">
                                     DBR issuance documentation
                                 </Link>
                                 <Text fontWeight="bold">
-                                    Current yearly rewards: {smartShortNumber(yearlyRewardRate)} DBR.
+                                    Yearly rewards to stakers: {smartShortNumber(yearlyRewardRate)} DBR.
                                 </Text>
-                                <Text>
+                                {/* <Text>
                                     Current min. yearly rewards: {smartShortNumber(minYearlyRewardRate)} DBR.
                                 </Text>
                                 <Text>
                                     Current max. yearly rewards: {smartShortNumber(maxYearlyRewardRate)} DBR.
-                                </Text>
+                                </Text> */}
                                 <Text pt="4">
                                     There is no max supply.
                                 </Text>
                                 <Text>
-                                    New emissions are via DBR streaming to INV stakers on FiRM.
-                                </Text>
-                                <Text>
-                                    The current reward rate is decided by the FedChair depending on the burn rate while the min and max can be changed by Governance only.
-                                </Text>
+                                    New emissions are via DBR streaming to INV stakers on FiRM, DSA and Virtual DBR auctions.
+                                </Text>                                
                             </VStack>
                         }
                     />
