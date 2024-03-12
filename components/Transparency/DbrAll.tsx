@@ -106,6 +106,8 @@ export const DbrAll = ({
             debtUsd: d.debt * histoPrice,
             histoPrice,
             invHistoMarketCap,
+            stakersYearlyRewardRate: yearlyRewardRate,
+            stakersYearlyRewardRateUsd: yearlyRewardRate * histoPrice,
             yearlyRewardRate: totalAnnualizedIssuance,
             yearlyRewardRateUsd: totalAnnualizedIssuance * histoPrice,
         }
@@ -126,6 +128,8 @@ export const DbrAll = ({
             debtUsd: totalDebt * dbrPriceUsd,
             histoPrice: dbrPriceUsd,
             date: timestampToUTC(now),
+            stakersYearlyRewardRate: yearlyRewardRate,
+            stakersYearlyRewardRateUsd: yearlyRewardRate * dbrPriceUsd,
             yearlyRewardRate: totalAnnualizedIssuance,
             yearlyRewardRateUsd: totalAnnualizedIssuance * dbrPriceUsd,
         });
