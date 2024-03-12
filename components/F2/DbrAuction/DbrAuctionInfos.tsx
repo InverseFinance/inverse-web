@@ -20,6 +20,7 @@ export const useDbrAuction = (isClassicDbrAuction: boolean): {
     dbrRatePerYear: number;
     maxDbrRatePerYear: number;
     K: number;
+    historicalRates: { timestamp: number, rate: number, block: number }[];
     isLoading: boolean;
     hasError: boolean;
 } => {
@@ -55,7 +56,8 @@ export const useDbrAuction = (isClassicDbrAuction: boolean): {
     const dolaReserve = reserves ? getBnToNumber(reserves[0]) : 0;
     const dbrReserve = reserves ? getBnToNumber(reserves[1]) : 0;    
 
-    return {        
+    return {
+        historicalRates: apiData?.historicalRates || [],
         dolaReserve,
         dbrReserve,        
         dbrRatePerYear: otherData ? getBnToNumber(otherData[0]) : isClassicDbrAuction ? apiData?.yearlyRewardBudget||0 : 0,

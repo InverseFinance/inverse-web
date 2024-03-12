@@ -9,7 +9,7 @@ import { addBlockTimestamps } from '@app/util/timestamps';
 import { NetworkIds } from '@app/types';
 
 export default async function handler(req, res) {
-    const cacheKey = `dbr-auction-v1.0.0`;
+    const cacheKey = `dbr-auction-v1.0.1`;
     const cacheDuration = 60;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     try {
