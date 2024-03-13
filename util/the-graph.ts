@@ -9,7 +9,7 @@ export const getFromFrontierGraph = (query) => {
 
 export const getFromGovernanceGraph = (query) => {
     return theGraphFetch(        
-        `https://gateway.thegraph.com/api/${process.env.GRAPH_KEY}/deployments/id/QmQ88NN6yk31QLGSqgDJzAzgkP2nPgN54q1DKqJyxieWcX`,
+        `https://gateway.thegraph.com/api/${process.env.GRAPH_KEY}/deployments/id/QmV39tQSf3W6gd9TM3M1jWvqLcYoTz2tUi4ZVAsUpq7uYd`,
         query,
     )
 }
