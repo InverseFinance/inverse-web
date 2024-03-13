@@ -36,6 +36,7 @@ import { parseEther } from 'ethers/lib/utils';
 import Link from '@app/components/common/Link'
 import { UNDERLYING } from '@app/variables/tokens'
 import { useAccountLiquidity } from '@app/hooks/useAccountLiquidity'
+import { ExternalLinkIcon } from '@chakra-ui/icons'
 
 const { DEBT_CONVERTER } = getNetworkConfigConstants();
 
@@ -158,10 +159,13 @@ export const DebtConverterPage = () => {
                                                         <b>Convert</b> your v1 Frontier stuck tokens (ETH-V1, WBTC-v1 or YFI-V1) into DOLA IOUs.
                                                     </Text>
                                                     <Text>
-                                                        Note: you will be able to <b>progressively redeem</b> your DOLA IOUs and get DOLA against them <b>each time the Inverse Treasury makes a Debt Repayment</b> to the Debt Converter contract. The redeemable part of the IOUs will be <b>proportional</b> to the size of the repayment compared to the total debt put into the contract. Please remember that <b>your borrowing limit will be impacted</b>, if you have a loan it's recommended to repay some debt first (the transaction may fail if it induces a shortfall).
+                                                        Note: the DAO voted to shift prioritization towards paying DOLA bad debt, new capital won't be added to the contracts for a while. You will be able to <b>progressively redeem</b> your DOLA IOUs and get DOLA against them <b>each time the Inverse Treasury makes a Debt Repayment</b> to the Debt Converter contract. The redeemable part of the IOUs will be <b>proportional</b> to the size of the repayment compared to the total debt put into the contract. Please remember that <b>your borrowing limit will be impacted</b>, if you have a loan it's recommended to repay some debt first (the transaction may fail if it induces a shortfall).
                                                     </Text>
+                                                    <Link isExternal target="_blank" color="secondaryTextColor" href="https://www.inverse.finance/governance/proposals/mills/156">
+                                                        Governance proposal priorizing DOLA bad debt repayment <ExternalLinkIcon />
+                                                    </Link>
                                                     <Link isExternal target="_blank" color="secondaryTextColor" href="https://docs.inverse.finance/inverse-finance/using-frontier/debt-converter-and-repayer">
-                                                        Learn more in the docs
+                                                        Learn more about the DebtConverter in the docs
                                                     </Link>
                                                 </VStack>
                                             }
