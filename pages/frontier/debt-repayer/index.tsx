@@ -32,6 +32,7 @@ import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { commify, parseUnits } from '@ethersproject/units'
 import { useAccountLiquidity } from '@app/hooks/useAccountLiquidity'
 import { useAccount } from '@app/hooks/misc'
+import { ExternalLinkIcon } from '@chakra-ui/icons'
 
 const { TOKENS, DEBT_REPAYER } = getNetworkConfigConstants();
 
@@ -153,8 +154,12 @@ export const DebtRepayerPage = () => {
                                                     The main purpose of the <b>DebtRepayer</b> is to give <b>priority to users</b> regarding available liquidity, avoiding liquidators taking it all. Please remember that <b>your borrowing limit will be impacted</b>, if you have a loan it's recommended to repay some debt first (the transaction may fail if it induces a shortfall).
                                                 </Text>
                                                 <Text>The DebtRepayer liquidity is distinct from the v1 markets liquidity.</Text>
+                                                <Text>Note: <b>the DAO voted to shift prioritization towards paying DOLA bad debt</b>, new capital won't be added to the contracts for a while.</Text>
+                                                <Link isExternal target="_blank" color="secondaryTextColor" href="https://www.inverse.finance/governance/proposals/mills/156">
+                                                    Governance proposal priorizing DOLA bad debt repayment <ExternalLinkIcon />
+                                                </Link>
                                                 <Link isExternal target="_blank" color="secondaryTextColor" href="https://docs.inverse.finance/inverse-finance/using-frontier/debt-converter-and-repayer">
-                                                    Learn more in the docs
+                                                    Learn more about the DebtRepayer in the docs
                                                 </Link>
                                             </VStack>
                                         }

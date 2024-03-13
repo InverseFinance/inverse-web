@@ -162,14 +162,14 @@ export const VeNftEvolutionWrapper = () => {
             activeFill={themeStyles.colors.mainTextColor}
             isUsd={true}
             value={currentTotalUsd}
-            label="Total veNFTs worth"
+            label="Total veNFTs value"
             isLoading={isLoading || isLoadingPrices}
             precision={0}
         />
         <DashBoardCard>
             <VStack>
                 <VStack>
-                    <Text fontSize="26px" fontWeight="extrabold">Total veNFTs worth evolution</Text>
+                    <Text fontSize="26px" fontWeight="extrabold">Total veNFTs value evolution</Text>
                 </VStack>
                 <VeNftDashboardAreaChart
                     data={accChartData}
@@ -198,7 +198,7 @@ export const VeNftEvolutionWrapper = () => {
                     <VStack>
                         <HStack>
                             <Image src={item.image} h="30px" w="30px" borderRadius="40px" />
-                            <Text fontSize="26px" fontWeight="extrabold">{item.symbol} worth evolution</Text>
+                            <Text fontSize="26px" fontWeight="extrabold">{item.symbol} value evolution</Text>
                         </HStack>
                         <VeNftDashboardAreaChart
                             data={item.chartData}
