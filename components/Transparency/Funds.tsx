@@ -111,8 +111,13 @@ export const getFundsTotalUsd = (funds, prices, fundsType: 'balance' | 'allowanc
         return getFundsTotalUsd(funds, prices, 'balance') + getFundsTotalUsd(funds, prices, 'allowance');
     }
     return (funds || prices).reduce((prev, curr) => {
-        const price = curr.usdPrice ?? getPrice(prices, curr.token);
-        const value = price && curr[fundsType] ? curr[fundsType] * price : 0;
+        let value;
+        if(Array.isArray(curr)) {
+            value = getFundsTotalUsd(curr, prices, fundsType);
+        } else {
+            const price = curr.usdPrice ?? getPrice(prices, curr.token);
+            value = price && curr[fundsType] ? curr[fundsType] * price : 0;
+        }
         return prev + value;
     }, 0);
 }

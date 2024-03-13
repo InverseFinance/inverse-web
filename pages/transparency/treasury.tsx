@@ -18,16 +18,16 @@ export const Overview = () => {
   const TWGmultisigs = multisigs?.filter(m => m.shortName.includes('TWG')) || [];
   const TWGfunds = TWGmultisigs.map(m => m.funds);
 
-  const totalHoldings = [
-    { label: 'Treasury Contract', balance: getFundsTotalUsd(treasury, prices), usdPrice: 1, drill: treasury },
-    { label: 'Frontier Reserves', balance: getFundsTotalUsd(anchorReserves, prices), usdPrice: 1, drill: anchorReserves },
-    // { label: 'Bonds Manager Contract', balance: getFundsTotalUsd(bonds.balances, prices), usdPrice: 1, drill: bonds.balances },
-    { label: 'Multisigs', balance: getFundsTotalUsd(TWGfunds, prices), usdPrice: 1, drill: TWGfunds },
-  ];
-
   const totalMultisigs = multisigs?.map(m => {
     return { label: m.name, balance: getFundsTotalUsd(m.funds, prices, 'balance'), usdPrice: 1, drill: m.funds }
   });
+
+  const totalHoldings = [
+    { label: 'Treasury Contract', balance: getFundsTotalUsd(treasury, prices, 'balance'), usdPrice: 1, drill: treasury },
+    { label: 'Frontier Reserves', balance: getFundsTotalUsd(anchorReserves, prices, 'balance'), usdPrice: 1, drill: anchorReserves },
+    // { label: 'Bonds Manager Contract', balance: getFundsTotalUsd(bonds.balances, prices), usdPrice: 1, drill: bonds.balances },
+    { label: 'Multisigs (includes veNFTs)', balance: getFundsTotalUsd(multisigs?.map(m => m.funds), prices, 'balance'), usdPrice: 1, drill: totalMultisigs },
+  ];
 
   return (
     <Layout>
