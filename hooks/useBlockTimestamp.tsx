@@ -25,7 +25,7 @@ export const useBlocksTimestamps = (blockNumbers: number[]): { timestamps: numbe
     );
     const estimatedTimestamps = estimateBlocksTimestamps(blockNumbers, currentBlock?.timestamp * 1000, currentBlock?.number);
     return {
-        timestamps: (data?.map(d => d.timestamp * 1000)) || estimatedTimestamps || blockNumbers.map(n => 0),
+        timestamps: (data?.map((d, i) => d?.timestamp ? d.timestamp * 1000 : estimatedTimestamps[i])) || estimatedTimestamps || blockNumbers.map(n => 0),
         isUsingEstimate: !data,
     }
 }
