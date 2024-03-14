@@ -264,8 +264,9 @@ export const DelegateView = () => {
 
   const userAddress = (query.viewAddress as string) || account;
 
-  const address = query.address as string
-  const title = isAddress(address) ? namedAddress(address, chainId) : address
+  const isValidAddress = !!query.address && isAddress(query.address as string);
+  const address = isValidAddress ? (query.address as string) : ''
+  const title = isValidAddress ? namedAddress(address, chainId) : ''
 
   return (
     <Layout>
@@ -283,7 +284,7 @@ export const DelegateView = () => {
         breadcrumbs={[
           { label: 'Governance', href: '/governance' },
           { label: 'Delegates', href: '/governance/delegates' },
-          { label: title, href: `/governance/delegates/${address}` },
+          isValidAddress ? { label: title, href: `/governance/delegates/${address}` } : { label: 'Profile not found', href: `/governance/delegates` },
         ]}
       />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
