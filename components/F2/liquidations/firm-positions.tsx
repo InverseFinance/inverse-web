@@ -1,4 +1,4 @@
-import { HStack, Stack, Text, useDisclosure, VStack } from "@chakra-ui/react"
+import { HStack, Stack, Text, useDisclosure, useMediaQuery, VStack } from "@chakra-ui/react"
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { getRiskColor } from "@app/util/f2";
@@ -31,6 +31,9 @@ export const FirmPositions = ({
     const { positions, timestamp, isLoading } = useFirmPositions();
     const { onOpen, onClose, isOpen } = useDisclosure();
     const [position, setPosition] = useState(null);
+    const [isLargerThan] = useMediaQuery(`(min-width: 48em)`); 
+    
+    const pieSize = isLargerThan ? 300 : 250;
 
     const openLiquidation = async (data) => {
         setPosition(data);
@@ -52,28 +55,32 @@ export const FirmPositions = ({
     })
     const barColors = groupMarketsByBorrowLimit.map(f => getRiskColor(100 - f.balance));
 
-    return <VStack w='full'>
-        <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-around" >
-            <VStack display={{ base: 'none', md :'block' }} alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
-                <Text fontWeight="bold">Avg Borrow Limit By Markets</Text>
-                <BarChart
-                    width={550}
-                    height={300}
-                    isPercentages={true}
-                    groupedData={barData}
-                    colorScale={barColors}
-                    isDollars={false}
-                />
+    return <VStack w='full' alignItems="center">
+        <VStack direction={{ base: 'column', md: 'row' }} w='full' justify="space-around" >
+            <VStack w='full' display={{ base: 'none', md: 'block' }} alignItems='center' direction="column-reverse">
+                <VStack>
+                    <Text fontWeight="bold">Avg Borrow Limit By Markets</Text>
+                    <BarChart
+                        width={850}
+                        height={300}
+                        isPercentages={true}
+                        groupedData={barData}
+                        colorScale={barColors}
+                        isDollars={false}
+                    />
+                </VStack>
             </VStack>
-            <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
-                <Text fontWeight="bold">TVL By Markets</Text>
-                <Funds isLoading={isLoading} labelWithPercInChart={true} funds={groupMarketsByDeposits} chartMode={true} showTotal={false} showChartTotal={true} />
-            </VStack>
-            <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
-                <Text fontWeight="bold">Debt By Markets</Text>
-                <Funds isLoading={isLoading} labelWithPercInChart={true} funds={groupMarketsByDebt} chartMode={true} showTotal={false} showChartTotal={true} />
-            </VStack>
-        </Stack>
+            <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-around" >
+                <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
+                    <Text fontWeight="bold">TVL By Markets</Text>
+                    <Funds isLoading={isLoading} labelWithPercInChart={true} skipLineForPerc={true} funds={groupMarketsByDeposits} chartMode={true} showTotal={false} showChartTotal={true} chartProps={{ width: pieSize, height: pieSize }} />
+                </VStack>
+                <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
+                    <Text fontWeight="bold">Debt By Markets</Text>
+                    <Funds isLoading={isLoading} labelWithPercInChart={true} skipLineForPerc={true} funds={groupMarketsByDebt} chartMode={true} showTotal={false} showChartTotal={true} chartProps={{ width: pieSize, height: pieSize }} />
+                </VStack>
+            </Stack>
+        </VStack>
         <Container
             label="FiRM Positions"
             description={timestamp ? `Last update ${moment(timestamp).fromNow()}` : `Loading...`}

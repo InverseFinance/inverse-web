@@ -95,6 +95,7 @@ type FundsProps = {
     showTotal?: boolean,
     showChartTotal?: boolean,
     labelWithPercInChart?: boolean,
+    skipLineForPerc?: boolean,
     chartMode?: boolean,
     showPrice?: boolean
     handleDrill?: (datum: any) => void
@@ -104,6 +105,7 @@ type FundsProps = {
     noImage?: boolean
     innerRadius?: number
     isLoading?: boolean
+    chartProps?: any
 };
 
 export const getFundsTotalUsd = (funds, prices, fundsType: 'balance' | 'allowance' | 'both' = 'balance'): number => {
@@ -131,6 +133,7 @@ export const Funds = ({
     showTotal = true,
     showChartTotal = true,
     labelWithPercInChart = false,
+    skipLineForPerc = false,
     chartMode = false,
     showPrice = false,
     handleDrill,
@@ -140,6 +143,7 @@ export const Funds = ({
     innerRadius,
     noImage = false,
     isLoading,
+    chartProps,
 }: FundsProps) => {
     const usdTotals = { balance: 0, allowance: 0, overall: 0 };
 
@@ -191,7 +195,7 @@ export const Funds = ({
                         .filter(({ usdBalance, usdAllowance }) => (usdAllowance > 0 || usdBalance > 0))
                         .map(fund => {
                             return {
-                                x: `${fund.label || fund.token?.symbol}${labelWithPercInChart ? ` ${shortenNumber(fund.overallPerc, 2)}%` : ''}`,
+                                x: `${fund.label || fund.token?.symbol}${labelWithPercInChart ? `${skipLineForPerc ? '\r\n' : ' '}${shortenNumber(fund.overallPerc, 2)}%` : ''}`,
                                 y: fund.totalUsd,
                                 perc: fund.overallPerc,
                                 fund,
@@ -200,6 +204,7 @@ export const Funds = ({
                             }
                         })
                 }
+                {...chartProps}
                 />
                     :
                     <>
