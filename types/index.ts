@@ -47,6 +47,7 @@ export interface Token {
   isLockedVeNft?: boolean
   twgAddress?: string
   deduce?: string[]
+  defillamaPoolId?: string
 }
 
 export interface TokenWithBalance extends Token {

@@ -13,7 +13,7 @@ import { pricesCacheKey } from '../prices';
 import { PROTOCOLS_BY_IMG, PROTOCOL_DEFILLAMA_MAPPING } from '@app/variables/images';
 import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 
-export const liquidityCacheKey = `liquidity-v1.1.996`;
+export const liquidityCacheKey = `liquidity-v1.1.998`;
 
 export default async function handler(req, res) {
     const { cacheFirst } = req.query;
@@ -105,8 +105,8 @@ export default async function handler(req, res) {
             const lpName = lp.symbol.replace(/(-LP|-SLP|-AURA| [a-zA-Z0-9]*lp)/ig, '').replace(/-ETH/ig, '-WETH');
             const balancerPoolAd = lp.balancerInfos?.poolId?.substring(0, 42)?.toLowerCase();
             const yieldData = yields.find(y => {
-                return defiLlamaProjectName === y.project
-                    && (y.underlyingTokens?.length > 0 ? y.underlyingTokens.join(',').toLowerCase() === lp.pairs?.filter(pa => pa.toLowerCase() !== balancerPoolAd).join(',').toLowerCase() : y.symbol === lpName)
+                return y.pool === lp.defillamaPoolId || (defiLlamaProjectName === y.project
+                    && (y.underlyingTokens?.length > 0 ? y.underlyingTokens.join(',').toLowerCase() === lp.pairs?.filter(pa => pa.toLowerCase() !== balancerPoolAd).join(',').toLowerCase() : y.symbol === lpName))
             });
 
             const subBalances = fedPol?.subBalances || (await getLPBalances(lp, lp.chainId, provider));
