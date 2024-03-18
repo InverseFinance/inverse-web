@@ -46,11 +46,13 @@ export const StakeDolaUI = () => {
 
     const { apy, projectedApy, isLoading, sDolaExRate, nextApy } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
     const { balance: dolaBalance } = useDOLABalance(account);
+    // value in sDOLA terms
     const { stakedDolaBalance, stakedDolaBalanceBn } = useDolaStakingEarnings(account);
     const [previousStakedDolaBalance, setPrevStakedDolaBalance] = useState(stakedDolaBalance);
     const [baseBalance, setBaseBalance] = useState(0);
     const [realTimeBalance, setRealTimeBalance] = useState(0);
-    const dolaStakedInSDola = sDolaExRate * stakedDolaBalance;
+    // value in DOLA terms
+    const dolaStakedInSDola = sDolaExRate * stakedDolaBalance;    
     const sDOLAamount = dolaAmount ? parseFloat(dolaAmount) / sDolaExRate : '';
 
     useInterval(() => {
@@ -88,8 +90,8 @@ export const StakeDolaUI = () => {
     // }, [stakedDolaBalance, projectedApy]);
 
     const monthlyDolaRewards = useMemo(() => {
-        return (apy > 0 && stakedDolaBalance > 0 ? getMonthlyRate(stakedDolaBalance, apy) : 0);
-    }, [stakedDolaBalance, apy]);
+        return (apy > 0 && dolaStakedInSDola > 0 ? getMonthlyRate(dolaStakedInSDola, apy) : 0);
+    }, [dolaStakedInSDola, apy]);
 
     const handleAction = async () => {
         if (isStake) {
