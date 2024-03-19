@@ -146,7 +146,7 @@ export const DashBoardCard = (props: StackProps & { cardTitle?: string, cardTitl
     >
         {!!props.cardTitle && <Text fontSize="18px" fontWeight="bold" mx="auto" w='200px' position="absolute" left="0" right="0" top={{ base: '5px', xl: '32px' }} {...props.cardTitleProps}>{props.cardTitle}</Text>}
         {!!props.imageSrc && imgList.map((image, i) => {
-            return <Image key={image} borderRadius="50px" src={image} w="30px" h="30px" position="absolute" left="10px" top={`${10+40*i}px`} />
+            return <Image key={image} borderRadius="50px" src={image} w="30px" h="30px" position="absolute" left="10px" top={`${10 + 40 * i}px`} />
         })}
         {props.children}
     </Flex>
@@ -348,14 +348,16 @@ export const UserDashboard = ({
                 } color={needsRechargeSoon ? 'error' : undefined} isLoading={isLoading} value={debt > 0 ? dbrBalance < 0 ? 'Depleted' : moment(dbrExpiryDate).format('MMM Do YYYY') : '-'} label="DBR depletion date" />
             {
                 totalRewardsUsd > 1 && <>
-                    <MonthlyRewards cardProps={{ imageSrc: TOKEN_IMAGES.INV }} value={invMonthlyRewards} price={invPrice} label="INV monthly rewards" noDataFallback="No INV rewards" />
-                    <MonthlyRewards cardProps={{ imageSrc: TOKEN_IMAGES.DOLA }} value={dolaMonthlyRewards} price={dolaPrice} label="sDOLA monthly rewards" noDataFallback="No sDOLA rewards" />
+                    <MonthlyRewards cardProps={{
+                        imageSrc: [
+                            TOKEN_IMAGES.INV,
+                            TOKEN_IMAGES.DOLA,
+                            TOKEN_IMAGES.DBR,
+                        ]
+                    }} value={totalRewardsUsd} label="Staking monthly rewards" noDataFallback="No INV/DOLA/DBR rewards" isUsd={true} />
+                    <MonthlyRewards cardProps={{ imageSrc: TOKEN_IMAGES.INV }} value={invMonthlyRewards} price={invPrice} label="INV monthly rewards" noDataFallback="No INV rewards" precision={2} />
                     <MonthlyRewards cardProps={{ imageSrc: TOKEN_IMAGES.DBR }} value={dbrMonthlyRewards} price={dbrPrice} label="DBR monthly rewards" noDataFallback="No DBR rewards" />
-                    <MonthlyRewards cardProps={{ imageSrc: [
-                        TOKEN_IMAGES.INV,
-                        TOKEN_IMAGES.DOLA,
-                        TOKEN_IMAGES.DBR,
-                    ] }} value={totalRewardsUsd} label="Monthly rewards" noDataFallback="No INV/DOLA/DBR rewards" isUsd={true} />
+                    <MonthlyRewards cardProps={{ imageSrc: TOKEN_IMAGES.DOLA }} value={dolaMonthlyRewards} price={dolaPrice} label="sDOLA monthly rewards" noDataFallback="No sDOLA rewards" />
                 </>
             }
         </SimpleGrid>
