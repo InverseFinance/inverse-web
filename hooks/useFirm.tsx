@@ -14,11 +14,12 @@ import useEtherSWR from "./useEtherSWR";
 import { useAccount } from "./misc";
 import { useBlocksTimestamps } from "./useBlockTimestamp";
 import { TOKENS, getToken } from "@app/variables/tokens";
-import { usePrices } from "./usePrices";
+import { useDOLAPrice, usePrices } from "./usePrices";
 import { getCvxCrvRewards, getCvxRewards } from "@app/util/firm-extra";
 import { useWeb3React } from "@web3-react/core";
 import useSWR from "swr";
 import { FEATURE_FLAGS, isInvPrimeMember } from "@app/config/features";
+import { useDolaStakingEarnings, useStakedDola } from "@app/util/dola-staking";
 
 const oneYear = ONE_DAY_MS * 365;
 
@@ -134,7 +135,7 @@ export const useDBRActiveHolders = (): SWR & {
     const marketPositions = firmPositions?.filter(p => p.user === s.user) || [];
     const marketIcons = marketPositions?.map(p => p.market.underlying.image) || [];
     const dailyBurn = s.debt / oneYear * ONE_DAY_MS;
-    const monthlyBurn = dailyBurn * 365/12;
+    const monthlyBurn = dailyBurn * 365 / 12;
     const dbrNbDaysExpiry = dailyBurn ? s.signedBalance / dailyBurn : 0;
     const dbrExpiryDate = !s.debt ? null : (+new Date() + dbrNbDaysExpiry * ONE_DAY_MS);
     return {
@@ -223,7 +224,7 @@ export const useFirmMarketEvents = (market: F2Market, account: string, firmActio
   lastBlock: number
   depositsOnTopOfLeverageEvents: any[]
   repaysOnTopOfDeleverageEvents: any[]
-} => {  
+} => {
   const eventQueries = [
     [market.address, F2_MARKET_ABI, 'Deposit', [account]],
     [market.address, F2_MARKET_ABI, 'Withdraw', [account]],
@@ -234,7 +235,7 @@ export const useFirmMarketEvents = (market: F2Market, account: string, firmActio
     [DBR, DBR_ABI, 'ForceReplenish', [account, undefined, market.address]],
   ];
   const needAleEvents = FEATURE_FLAGS.firmLeverage && market.hasAleFeat;
-  if(needAleEvents) {
+  if (needAleEvents) {
     eventQueries.push([F2_ALE, F2_ALE_ABI, 'LeverageUp', [market.address, account]]);
     eventQueries.push([F2_ALE, F2_ALE_ABI, 'LeverageDown', [market.address, account]]);
   }
@@ -261,7 +262,7 @@ export const useFirmMarketEvents = (market: F2Market, account: string, firmActio
 
   const events = flatenedEvents.map(e => {
     const isCollateralEvent = ['Deposit', 'Withdraw', 'Liquidate'].includes(e.event);
-    const isLeverageEvent = ['LeverageUp', 'LeverageDown'].includes(e.event);    
+    const isLeverageEvent = ['LeverageUp', 'LeverageDown'].includes(e.event);
     const decimals = isCollateralEvent ? market.underlying.decimals : 18;
 
     // Deposit can be associated with Borrow, withdraw with repay
@@ -296,7 +297,7 @@ export const useFirmMarketEvents = (market: F2Market, account: string, firmActio
     } else if (e.event === 'Liquidate' && !!liquidatorReward) {
       liquidated += liquidatorReward;
     }
-  
+
     const depositOnTopOfLeverageEvent = actionName === 'LeverageUp' ? depositsOnTopOfLeverageEvents?.find(e2 => e2.transactionHash.toLowerCase() === e.transactionHash.toLowerCase()) : undefined;
     const depositOnTopOfLeverage = depositOnTopOfLeverageEvent ? getBnToNumber(depositOnTopOfLeverageEvent.args.amount, market.underlying.decimals) : 0;
     const repayOnTopOfDeleverageEvent = actionName === 'LeverageDown' ? repaysOnTopOfDeleverageEvents?.find(e2 => e2.transactionHash.toLowerCase() === e.transactionHash.toLowerCase()) : undefined;
@@ -416,8 +417,8 @@ export const useDBRDebtHisto = (): SWR & {
   const history = debts
     .map((d, i) => {
       return {
-        debt: d.reduce((a, b) => a + b, 0),        
-        timestamp: data.timestamps[i] * 1000,        
+        debt: d.reduce((a, b) => a + b, 0),
+        timestamp: data.timestamps[i] * 1000,
       }
     })
     .filter((d, i) => !!d.timestamp)
@@ -656,6 +657,39 @@ export const useStakedInFirm = (userAddress: string): {
   };
 }
 
+export const useAccountRewards = (account: string, invMarket: F2Market) => {
+  const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
+  const { prices } = usePrices();
+  const { price: dolaPriceUsd } = useDOLAPrice();
+
+  const { stakedInFirm } = useStakedInFirm(account);  
+  const { apy: sDolaApy, sDolaExRate } = useStakedDola(dbrDolaPrice);
+  const { stakedDolaBalance } = useDolaStakingEarnings(account);
+  const dolaStakedInSDola = sDolaExRate * stakedDolaBalance;      
+
+  const share = !invMarket ? 0 : invMarket.invStakedViaDistributor ? stakedInFirm / invMarket.invStakedViaDistributor : 0;
+
+  const invMonthlyRewards = getMonthlyRate(stakedInFirm, invMarket?.supplyApy);
+  const dbrMonthlyRewards = share * invMarket?.dbrYearlyRewardRate / 12;
+  const dolaMonthlyRewards = sDolaApy > 0 && dolaStakedInSDola > 0 ? getMonthlyRate(dolaStakedInSDola, sDolaApy) : 0;
+
+  const invPriceCg = prices ? prices['inverse-finance']?.usd : 0;  
+  const { priceUsd: dbrPriceUsd } = useDBRPrice();
+
+  return {
+    invMonthlyRewards,
+    dbrMonthlyRewards,
+    dolaMonthlyRewards,
+    invMonthlyRewardsUsd: invMonthlyRewards * invPriceCg,
+    dbrMonthlyRewardsUsd: dbrMonthlyRewards * dbrPriceUsd,
+    dolaMonthlyRewardsUsd: dolaMonthlyRewards * dolaPriceUsd,
+    invPrice: invPriceCg,
+    dbrPrice: dbrPriceUsd,
+    dolaPrice: dolaPriceUsd,
+    totalRewardsUsd: invMonthlyRewards * invPriceCg + dbrMonthlyRewards * dbrPriceUsd + dolaMonthlyRewards * dolaPriceUsd,
+  }
+}
+
 export const useHistoricalPrices = (cgId: string) => {
   const { data, error } = useCustomSWR(`cg-histo-prices-${cgId}`, async () => {
     return await getHistoricalTokenData(cgId);
@@ -763,15 +797,15 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
     [DBR, DBR_ABI, 'ForceReplenish', [account, undefined, market.address]],
     [market.address, F2_MARKET_ABI, 'Liquidate', [account]],
   ];
-  
+
   if (market.isInv) {
     // DBR transfers = dbr claims, only for the INV market
     toQuery.push([DBR, DBR_ABI, 'Transfer', [BURN_ADDRESS, account]])
   }
   const needAleEvents = FEATURE_FLAGS.firmLeverage && market.hasAleFeat;
-  if(needAleEvents) {
+  if (needAleEvents) {
     toQuery.push([F2_ALE, F2_ALE_ABI, 'LeverageUp', [market.address, account]]);
-    toQuery.push([F2_ALE, F2_ALE_ABI, 'LeverageDown', [market.address, account]]);    
+    toQuery.push([F2_ALE, F2_ALE_ABI, 'LeverageDown', [market.address, account]]);
   }
   // else if (market.name === 'cvxCRV') {
   // TODO: add cvxCRV claims
