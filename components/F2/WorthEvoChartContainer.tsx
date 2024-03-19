@@ -35,7 +35,7 @@ export const useFirmUserPositionEvolution = (
     const [isLoadingDebounced, setIsLoadingDebounced] = useState(true);
     // from api
     const { evolution: escrowBalanceEvolution, timestamps, isLoading: isLoadingEscrowEvo, formattedEvents, depositedByUser: depositedByUserApi } = useEscrowBalanceEvolution(account, escrow, market.address, firmActionIndex);
-    const events = !_events?.length ? formattedEvents : _events?.map(e => ({ ...e, timestamp: e.timestamp || timestamps[e.blockNumber] })).filter(e => !!e.timestamp);    
+    const events = _events?.length <= formattedEvents?.length ? formattedEvents : _events?.map(e => ({ ...e, timestamp: e.timestamp || timestamps[e.blockNumber] })).filter(e => !!e.timestamp);    
     const isLoading = isLoadingOracleHistoPrices || isLoadingHistoPrices || isLoadingPrices || isLoadingEscrowEvo || isLoadingMarketEvo;
 
     useDualSpeedEffect(() => {
@@ -197,6 +197,7 @@ export const WorthEvoChartContainer = ({
         data={data}
         priceRef={'oracleHistoPrice'}
         walletSupportsEvents={walletSupportsEvents}
+        noAnimation={true}
     />
 }
 
