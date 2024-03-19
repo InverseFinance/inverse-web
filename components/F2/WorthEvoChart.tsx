@@ -76,6 +76,7 @@ export const WorthEvoChart = ({
     priceRef = 'oracleHistoPrice',
     isSimplified = false,
     useResponsive = false,
+    noAnimation = false,
 }: {
     chartWidth: number,
     data: any[] | null,
@@ -86,6 +87,7 @@ export const WorthEvoChart = ({
     priceRef?: string,
     isSimplified?: boolean
     useResponsive?: boolean
+    noAnimation?: boolean
 }) => {
     const { themeStyles, themeName } = useAppTheme();
 
@@ -107,6 +109,7 @@ export const WorthEvoChart = ({
         'estimatedStakedBonus': market.isInv ? 'INV anti-dilution rewards' : 'Staking earnings',
         'creditWorth': 'Credit Limit',
         'borrowLimit': 'Borrow Limit',
+        'liquidationPrice': 'Liquidation Price',
         'collateralFactor': 'Collateral Factor',
     }
 
@@ -168,6 +171,7 @@ export const WorthEvoChart = ({
     const [showCollateral, setShowCollateral] = useState(false);
     const [showCreditWorth, setShowCreditWorth] = useState(false);
     const [showBorrowLimit, setShowBorrowLimit] = useState(false);
+    const [showLiquidationPrice, setShowLiquidationPrice] = useState(false);
     const [showDbr, setShowDbr] = useState(false);
     const [showPrice, setShowPrice] = useState(true);
     const [showDbrPrice, setShowDbrPrice] = useState(false);
@@ -219,6 +223,7 @@ export const WorthEvoChart = ({
         setShowCollateral([CHART_TABS.collateral].includes(v));
         setShowCreditWorth([CHART_TABS.borrowLimit].includes(v));
         setShowBorrowLimit([CHART_TABS.borrowLimit].includes(v));
+        setShowLiquidationPrice([CHART_TABS.overview, CHART_TABS.collateral].includes(v));
         setShowPrice([CHART_TABS.collateral, CHART_TABS.overview, CHART_TABS.debt, CHART_TABS.invDbr, CHART_TABS.invStaking, CHART_TABS.staking].includes(v));
         setShowDebt(tabOptions.includes(CHART_TABS.debt) && [CHART_TABS.debt, CHART_TABS.overview, CHART_TABS.borrowLimit].includes(v));
         setShowDbr(tabOptions.includes(CHART_TABS.dbrRewards) && [CHART_TABS.dbrRewards, CHART_TABS.invDbr, CHART_TABS.overview].includes(v));
@@ -282,7 +287,7 @@ export const WorthEvoChart = ({
                 labelStyle={{ fontWeight: 'bold', color: themeStyles.colors.mainTextColor }}
                 itemStyle={{ fontWeight: 'bold' }}
                 formatter={(value, name) => {
-                    const isPrice = [keyNames['dbrPrice'], keyNames['histoPrice'], keyNames['cgHistoPrice'], keyNames['oracleHistoPrice'], keyNames['comboPrice']].includes(name);
+                    const isPrice = [keyNames['dbrPrice'], keyNames['histoPrice'], keyNames['cgHistoPrice'], keyNames['oracleHistoPrice'], keyNames['comboPrice'], keyNames['liquidationPrice']].includes(name);
                     const isPerc = [keyNames['borrowLimit'], keyNames['collateralFactor']].includes(name);
                     return !value ? 'none' : isPerc ? `${shortenNumber(value, 2)}%` : isPrice ? preciseCommify(value, value < 1 ? 4 : 2, true) : preciseCommify(value, !useUsd ? 2 : 0, useUsd)
                 }}
@@ -298,37 +303,40 @@ export const WorthEvoChart = ({
                 />
             }
             {
-                showTotal && <Area isAnimationActive={!isSimplified} opacity={actives[keyNames[totalKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[totalKey]} yAxisId="left" type="monotone" dataKey={totalKey} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
+                showTotal && <Area isAnimationActive={!isSimplified && !noAnimation} opacity={actives[keyNames[totalKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[totalKey]} yAxisId="left" type="monotone" dataKey={totalKey} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
             }
             {
                 showCollateral && <Area isAnimationActive={false} opacity={actives[keyNames[balanceKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[balanceKey]} yAxisId="left" type="monotone" dataKey={balanceKey} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
             }
             {
-                showCreditWorth && <Area isAnimationActive={!isSimplified} opacity={actives[keyNames['creditWorth']] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames['creditWorth']} yAxisId="left" type="monotone" dataKey={'creditWorth'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
+                showCreditWorth && <Area isAnimationActive={!isSimplified && !noAnimation} opacity={actives[keyNames['creditWorth']] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames['creditWorth']} yAxisId="left" type="monotone" dataKey={'creditWorth'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
             }
             {
-                showDebt && <Area isAnimationActive={!isSimplified} opacity={actives[keyNames[debtKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[debtKey]} yAxisId="left" type="monotone" dataKey={debtKey} stroke={themeStyles.colors.warning} dot={false} fillOpacity={0.5} fill="url(#warning-gradient)" />
+                showDebt && <Area isAnimationActive={!isSimplified && !noAnimation} opacity={actives[keyNames[debtKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[debtKey]} yAxisId="left" type="monotone" dataKey={debtKey} stroke={themeStyles.colors.warning} dot={false} fillOpacity={0.5} fill="url(#warning-gradient)" />
             }
             {
-                showDbr && showStaking && <Area isAnimationActive={!isSimplified} opacity={actives[keyNames[totalRewardsUsd]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[totalRewardsUsd]} yAxisId="left" type="monotone" dataKey={totalRewardsUsd} stroke={totalRewardsColor} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
+                showDbr && showStaking && <Area isAnimationActive={!isSimplified && !noAnimation} opacity={actives[keyNames[totalRewardsUsd]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[totalRewardsUsd]} yAxisId="left" type="monotone" dataKey={totalRewardsUsd} stroke={totalRewardsColor} dot={false} fillOpacity={0.5} fill="url(#secondary-gradient)" />
             }
             {
-                showStaking && <Area isAnimationActive={!isSimplified} opacity={actives[keyNames[stakingKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[stakingKey]} yAxisId="left" type="basis" dataKey={stakingKey} stroke={stakingColor} dot={false} fillOpacity={0.5} fill={`url(${stakingGradient})`} />
+                showStaking && <Area isAnimationActive={!isSimplified && !noAnimation} opacity={actives[keyNames[stakingKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[stakingKey]} yAxisId="left" type="basis" dataKey={stakingKey} stroke={stakingColor} dot={false} fillOpacity={0.5} fill={`url(${stakingGradient})`} />
             }
             {
-                showDbr && <Area isAnimationActive={!isSimplified} opacity={actives[keyNames[claimsKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[claimsKey]} yAxisId="left" type="basis" dataKey={claimsKey} stroke={'gold'} dot={false} fillOpacity={0.5} fill="url(#gold-gradient)" />
+                showDbr && <Area isAnimationActive={!isSimplified && !noAnimation} opacity={actives[keyNames[claimsKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[claimsKey]} yAxisId="left" type="basis" dataKey={claimsKey} stroke={'gold'} dot={false} fillOpacity={0.5} fill="url(#gold-gradient)" />
             }
             {
-                showBorrowLimit && <Line isAnimationActive={!isSimplified} opacity={actives[keyNames['collateralFactor']] ? 1 : 0} strokeWidth={2} name={keyNames['collateralFactor']} yAxisId="right" type="basis" dataKey={'collateralFactor'} stroke={themeStyles.colors.info} dot={false} />
+                showLiquidationPrice && <Line isAnimationActive={!isSimplified && !noAnimation} opacity={actives[keyNames['liquidationPrice']] ? 1 : 0} strokeWidth={2} name={keyNames['liquidationPrice']} yAxisId="right" type="basis" dataKey={'liquidationPrice'} stroke={themeStyles.colors.error} dot={false} />
             }
             {
-                showBorrowLimit && <Line isAnimationActive={!isSimplified} opacity={actives[keyNames['borrowLimit']] ? 1 : 0} strokeWidth={2} name={keyNames['borrowLimit']} yAxisId="right" type="basis" dataKey={'borrowLimit'} stroke={themeStyles.colors.error} dot={false} />
+                showBorrowLimit && <Line isAnimationActive={!isSimplified && !noAnimation} opacity={actives[keyNames['collateralFactor']] ? 1 : 0} strokeWidth={2} name={keyNames['collateralFactor']} yAxisId="right" type="basis" dataKey={'collateralFactor'} stroke={themeStyles.colors.info} dot={false} />
+            }
+            {
+                showBorrowLimit && <Line isAnimationActive={!isSimplified && !noAnimation} opacity={actives[keyNames['borrowLimit']] ? 1 : 0} strokeWidth={2} name={keyNames['borrowLimit']} yAxisId="right" type="basis" dataKey={'borrowLimit'} stroke={themeStyles.colors.error} dot={false} />
             }
             {
                 showPrice && <Line isAnimationActive={false} opacity={actives[keyNames[priceRef]] ? 1 : 0} strokeWidth={2} name={keyNames[priceRef]} yAxisId="right" type="monotone" dataKey={priceRef} stroke={themeStyles.colors.info} dot={false} />
             }
             {
-                showDbrPrice && <Line isAnimationActive={!isSimplified} opacity={actives[keyNames["dbrPrice"]] ? 1 : 0} strokeWidth={2} name={keyNames["dbrPrice"]} yAxisId="right" type="monotone" dataKey="dbrPrice" stroke={'green'} dot={false} />
+                showDbrPrice && <Line isAnimationActive={!isSimplified && !noAnimation} opacity={actives[keyNames["dbrPrice"]] ? 1 : 0} strokeWidth={2} name={keyNames["dbrPrice"]} yAxisId="right" type="monotone" dataKey="dbrPrice" stroke={'green'} dot={false} />
             }
             {
                 showEvents && data
