@@ -103,6 +103,7 @@ export const useFirmUserPositionEvolution = (
             depositsOnlyWorth: unstakedCollateralBalance * priceToUse,
             balanceWorth: balance * priceToUse,
             borrowLimit: creditWorth > 0 ? Math.min((debt/creditWorth) * 100, 100) : 0,
+            liquidationPrice: creditWorth > 0 ? debt / (cf * balance) : 0,
             creditWorth,
             totalWorth: rewardsUsd + balance * priceToUse,
             totalRewardsUsd: rewardsUsd + estimatedStakedBonusUsd,

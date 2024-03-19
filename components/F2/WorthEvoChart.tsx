@@ -107,6 +107,7 @@ export const WorthEvoChart = ({
         'estimatedStakedBonus': market.isInv ? 'INV anti-dilution rewards' : 'Staking earnings',
         'creditWorth': 'Credit Limit',
         'borrowLimit': 'Borrow Limit',
+        'liquidationPrice': 'Liquidation Price',
         'collateralFactor': 'Collateral Factor',
     }
 
@@ -168,6 +169,7 @@ export const WorthEvoChart = ({
     const [showCollateral, setShowCollateral] = useState(false);
     const [showCreditWorth, setShowCreditWorth] = useState(false);
     const [showBorrowLimit, setShowBorrowLimit] = useState(false);
+    const [showLiquidationPrice, setShowLiquidationPrice] = useState(false);
     const [showDbr, setShowDbr] = useState(false);
     const [showPrice, setShowPrice] = useState(true);
     const [showDbrPrice, setShowDbrPrice] = useState(false);
@@ -219,6 +221,7 @@ export const WorthEvoChart = ({
         setShowCollateral([CHART_TABS.collateral].includes(v));
         setShowCreditWorth([CHART_TABS.borrowLimit].includes(v));
         setShowBorrowLimit([CHART_TABS.borrowLimit].includes(v));
+        setShowLiquidationPrice([CHART_TABS.overview, CHART_TABS.collateral].includes(v));
         setShowPrice([CHART_TABS.collateral, CHART_TABS.overview, CHART_TABS.debt, CHART_TABS.invDbr, CHART_TABS.invStaking, CHART_TABS.staking].includes(v));
         setShowDebt(tabOptions.includes(CHART_TABS.debt) && [CHART_TABS.debt, CHART_TABS.overview, CHART_TABS.borrowLimit].includes(v));
         setShowDbr(tabOptions.includes(CHART_TABS.dbrRewards) && [CHART_TABS.dbrRewards, CHART_TABS.invDbr, CHART_TABS.overview].includes(v));
@@ -282,7 +285,7 @@ export const WorthEvoChart = ({
                 labelStyle={{ fontWeight: 'bold', color: themeStyles.colors.mainTextColor }}
                 itemStyle={{ fontWeight: 'bold' }}
                 formatter={(value, name) => {
-                    const isPrice = [keyNames['dbrPrice'], keyNames['histoPrice'], keyNames['cgHistoPrice'], keyNames['oracleHistoPrice'], keyNames['comboPrice']].includes(name);
+                    const isPrice = [keyNames['dbrPrice'], keyNames['histoPrice'], keyNames['cgHistoPrice'], keyNames['oracleHistoPrice'], keyNames['comboPrice'], keyNames['liquidationPrice']].includes(name);
                     const isPerc = [keyNames['borrowLimit'], keyNames['collateralFactor']].includes(name);
                     return !value ? 'none' : isPerc ? `${shortenNumber(value, 2)}%` : isPrice ? preciseCommify(value, value < 1 ? 4 : 2, true) : preciseCommify(value, !useUsd ? 2 : 0, useUsd)
                 }}
@@ -317,6 +320,9 @@ export const WorthEvoChart = ({
             }
             {
                 showDbr && <Area isAnimationActive={!isSimplified} opacity={actives[keyNames[claimsKey]] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={keyNames[claimsKey]} yAxisId="left" type="basis" dataKey={claimsKey} stroke={'gold'} dot={false} fillOpacity={0.5} fill="url(#gold-gradient)" />
+            }
+            {
+                showLiquidationPrice && <Line isAnimationActive={!isSimplified} opacity={actives[keyNames['liquidationPrice']] ? 1 : 0} strokeWidth={2} name={keyNames['liquidationPrice']} yAxisId="right" type="basis" dataKey={'liquidationPrice'} stroke={themeStyles.colors.error} dot={false} />
             }
             {
                 showBorrowLimit && <Line isAnimationActive={!isSimplified} opacity={actives[keyNames['collateralFactor']] ? 1 : 0} strokeWidth={2} name={keyNames['collateralFactor']} yAxisId="right" type="basis" dataKey={'collateralFactor'} stroke={themeStyles.colors.info} dot={false} />
