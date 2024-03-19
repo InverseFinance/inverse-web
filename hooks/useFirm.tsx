@@ -683,6 +683,10 @@ export const useAccountRewards = (account: string, invMarket: F2Market) => {
     invMonthlyRewardsUsd: invMonthlyRewards * invPriceCg,
     dbrMonthlyRewardsUsd: dbrMonthlyRewards * dbrPriceUsd,
     dolaMonthlyRewardsUsd: dolaMonthlyRewards * dolaPriceUsd,
+    invPrice: invPriceCg,
+    dbrPrice: dbrPriceUsd,
+    dolaPrice: dolaPriceUsd,
+    totalRewardsUsd: invMonthlyRewards * invPriceCg + dbrMonthlyRewards * dbrPriceUsd + dolaMonthlyRewards * dolaPriceUsd,
   }
 }
 

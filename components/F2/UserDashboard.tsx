@@ -5,7 +5,7 @@ import { getClosestPreviousHistoValue, preciseCommify, timestampToUTC } from "@a
 import { lightTheme } from "@app/variables/theme";
 import moment from "moment";
 import { PieChartRecharts } from "../Transparency/PieChartRecharts";
-import { useINVEscrowRewards, useStakedInFirm } from "@app/hooks/useFirm";
+import { useINVEscrowRewards, useStakedInFirm, useAccountRewards } from "@app/hooks/useFirm";
 import { BigTextLoader } from "../common/Loaders/BigTextLoader";
 import { RSubmitButton } from "../common/Button/RSubmitButton";
 import Link from "../common/Link";
@@ -130,7 +130,8 @@ const DbrEvoChart = ({
     />
 }
 
-export const DashBoardCard = (props: StackProps & { cardTitle?: string, cardTitleProps?: TextProps, href?: string, imageSrc?: string }) => {
+export const DashBoardCard = (props: StackProps & { cardTitle?: string, cardTitleProps?: TextProps, href?: string, imageSrc?: string, imageList?: string[] }) => {
+    const imgList = Array.isArray(props.imageSrc) ? props.imageSrc : [props.imageSrc];
     return <Flex
         w="full"
         borderRadius={8}
@@ -144,9 +145,20 @@ export const DashBoardCard = (props: StackProps & { cardTitle?: string, cardTitl
         {...props}
     >
         {!!props.cardTitle && <Text fontSize="18px" fontWeight="bold" mx="auto" w='200px' position="absolute" left="0" right="0" top={{ base: '5px', xl: '32px' }} {...props.cardTitleProps}>{props.cardTitle}</Text>}
-        {!!props.imageSrc && <Image borderRadius="50px" src={props.imageSrc} w="30px" h="30px" position="absolute" left="10px" top="10px" />}
+        {!!props.imageSrc && imgList.map((image, i) => {
+            return <Image key={image} borderRadius="50px" src={image} w="30px" h="30px" position="absolute" left="10px" top={`${10+40*i}px`} />
+        })}
         {props.children}
     </Flex>
+}
+
+export const MonthlyRewards = ({
+    cardProps,
+    ...props
+}) => {
+    return <DashBoardCard {...cardProps}>
+        <NumberItem {...props} />
+    </DashBoardCard>
 }
 
 const NumberItem = ({ noDataFallback = '-', href = '', footer = undefined, isLoading = false, value = 0, price = undefined, label = '', isUsd = false, precision = 0 }) => {
@@ -263,10 +275,12 @@ export const UserDashboard = ({
     const [isVirginFirmUser, setIsVirginFirmUser] = useState(false);
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
     const accountMarkets = useAccountF2Markets(markets, account);
+    const invMarket = accountMarkets?.find(m => m.isInv);
+    const { invMonthlyRewards, dbrMonthlyRewards, dolaMonthlyRewards, totalRewardsUsd, invPrice, dolaPrice } = useAccountRewards(account, invMarket);
+
     const { balance: stakedDolaBalance } = useStakedDolaBalance(account);
     const { apr: sDolaApr, projectedApr: sDolaProjectedApr, sDolaExRate } = useStakedDola(dbrDolaPrice);
     const dolaStakedInSDola = sDolaExRate && stakedDolaBalance ? sDolaExRate * stakedDolaBalance : 0;
-    const invMarket = accountMarkets?.find(m => m.isInv);
     const { themeStyles } = useAppTheme();
     const { stakedInFirm, isLoading: isLoadingInvStaked } = useStakedInFirm(account);
     const { debt, dbrExpiryDate, signedBalance: dbrBalance, needsRechargeSoon, isLoading: isLoadingAccount } = useAccountDBR(account);
@@ -332,6 +346,18 @@ export const UserDashboard = ({
                         labelRight={<Link textDecoration="underline" href="/dbr/auction">Buy via auctions</Link>}
                     />
                 } color={needsRechargeSoon ? 'error' : undefined} isLoading={isLoading} value={debt > 0 ? dbrBalance < 0 ? 'Depleted' : moment(dbrExpiryDate).format('MMM Do YYYY') : '-'} label="DBR depletion date" />
+            {
+                totalRewardsUsd > 1 && <>
+                    <MonthlyRewards cardProps={{ imageSrc: TOKEN_IMAGES.INV }} value={invMonthlyRewards} price={invPrice} label="INV monthly rewards" noDataFallback="No INV rewards" />
+                    <MonthlyRewards cardProps={{ imageSrc: TOKEN_IMAGES.DOLA }} value={dolaMonthlyRewards} price={dolaPrice} label="sDOLA monthly rewards" noDataFallback="No sDOLA rewards" />
+                    <MonthlyRewards cardProps={{ imageSrc: TOKEN_IMAGES.DBR }} value={dbrMonthlyRewards} price={dbrPrice} label="DBR monthly rewards" noDataFallback="No DBR rewards" />
+                    <MonthlyRewards cardProps={{ imageSrc: [
+                        TOKEN_IMAGES.INV,
+                        TOKEN_IMAGES.DOLA,
+                        TOKEN_IMAGES.DBR,
+                    ] }} value={totalRewardsUsd} label="Monthly rewards" noDataFallback="No INV/DOLA/DBR rewards" isUsd={true} />
+                </>
+            }
         </SimpleGrid>
         {
             invMarket?.depositsUsd > 1 && <SimpleGrid columns={{ base: 1, lg: 2 }} spacing="8" w="100%">
