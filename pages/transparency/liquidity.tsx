@@ -1,4 +1,4 @@
-import { Flex, Stack, VStack, Text, Divider, HStack, useDisclosure, Select } from '@chakra-ui/react'
+import { Flex, Stack, VStack, Text, Divider, HStack, useDisclosure, Select, SimpleGrid } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
@@ -306,7 +306,7 @@ export const Liquidity = () => {
           <Text fontSize="12px">
             {`Last update: ${timestamp ? moment(timestamp).fromNow() : ''}`}
           </Text>
-          <Stack direction={{ base: 'column', sm: 'row' }}>
+          <Stack direction={{ base: 'column', md: 'row' }}>
             <RadioSelector
               defaultValue="DOLA"
               value={category}
@@ -316,15 +316,16 @@ export const Liquidity = () => {
                 { value: 'INV', label: <UnderlyingItemBlock symbol="INV" /> },
                 { value: 'DBR', label: <UnderlyingItemBlock symbol="DBR" /> },
               ]}
+              maxW='320px'
             />
-            <HStack>
-              <VStack w='130px' spacing="0" alignItems={{ base: 'flex-start', sm: "flex-end" }}>
+            <HStack alignItems="flex-start" justifyContent="flex-start">
+              <VStack w='130px' spacing="0" alignItems={{ base: 'flex-start', md: "flex-end" }}>
                 <Text>{category} 24h Vol.</Text>
                 <Link textDecoration="underline" style={{ 'text-decoration-skip-ink': 'none' }} isExternal={true} target="_blank" fontWeight="bold" href={LINKS[category]}>
                   {volumes[category] ? preciseCommify(volumes[category], 0, true) : '-'}
                 </Link>
               </VStack>
-              <VStack w='130px' spacing="0" alignItems={{ base: 'flex-start', sm: "flex-end" }}>
+              <VStack w='130px' spacing="0" alignItems={{ base: 'flex-start', md: "flex-end" }}>
                 <Text>{category} Price</Text>
                 <Link textDecoration="underline" style={{ 'text-decoration-skip-ink': 'none' }} isExternal={true} target="_blank" fontWeight="bold" href={LINKS[category]}>
                   {!!categoryPrice ? preciseCommify(categoryPrice, 4, true) : '-'}
@@ -334,36 +335,36 @@ export const Liquidity = () => {
           </Stack>
           {
             category === 'DOLA' ?
-              <Stack py='4' direction={{ base: 'column', md: 'row' }} w='full' alignItems='flex-start'>
+              <Stack py='4' direction={{ base: 'column', md: 'row' }} overflowX="scroll" w='full' alignItems='flex-start'>
                 <AggregatedLiquidityData handleClick={handleOpenHistoChart} items={liquidity} include='DOLA' containerProps={{ label: `TOTAL DOLA Liquidity` }} />
                 <AggregatedLiquidityData handleClick={handleOpenHistoChart} items={liquidity} include='DOLA' isStable={true} containerProps={{ label: 'DOLA Stable Liquidity' }} />
                 <AggregatedLiquidityData handleClick={handleOpenHistoChart} items={liquidity} include='DOLA' isStable={false} containerProps={{ label: 'DOLA Volatile Liquidity' }} />
               </Stack>
               :
-              <Stack py='4' direction={{ base: 'column', md: 'row' }} w='full' alignItems='flex-start'>
+              <Stack py='4' direction={{ base: 'column', md: 'row' }} w='full' overflowX="scroll" alignItems='flex-start'>
                 <AggregatedLiquidityData handleClick={handleOpenHistoChart} items={liquidity} include={category} containerProps={{ label: `TOTAL ${category} Liquidity` }} />
                 <AggregatedLiquidityData handleClick={handleOpenHistoChart} items={liquidity} include={[category, 'DOLA']} containerProps={{ label: `${category}-DOLA Liquidity` }} />
                 <AggregatedLiquidityData handleClick={handleOpenHistoChart} items={liquidity} include={category} exclude='DOLA' containerProps={{ label: `${category}-NON_DOLA Liquidity` }} />
               </Stack>
           }
-          <Stack direction={{ base: 'column', md: 'row' }} pt='2' w='full' justify="space-between" >
-            <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap="4" mt="2" w='full' alignItems="center">
+            <VStack alignItems={{ base: 'center', lg: 'flex-start' }} direction="column-reverse">
               <Text fontWeight="bold">{category} LPs TVL By Pair</Text>
               <Funds innerRadius={5} funds={byPairs} chartMode={true} showTotal={false} showChartTotal={false} />
             </VStack>
-            <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
+            <VStack alignItems={{ base: 'center', lg: 'flex-start' }} direction="column-reverse">
               <Text fontWeight="bold">{category} LPs TVL By Chain</Text>
               <Funds innerRadius={5} funds={byChain} chartMode={true} showTotal={false} showChartTotal={false} />
             </VStack>
-            <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
+            <VStack alignItems={{ base: 'center', lg: 'flex-start' }} direction="column-reverse">
               <Text fontWeight="bold">{category} LPs TVL By Protocol</Text>
               <Funds innerRadius={5} funds={byProtocol} chartMode={true} showTotal={false} showChartTotal={false} />
             </VStack>
-            <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
+            <VStack alignItems={{ base: 'center', lg: 'flex-start' }} direction="column-reverse">
               <Text fontWeight="bold">{category} LPs TVL By Strategy</Text>
               <Funds innerRadius={5} funds={byFed} chartMode={true} showTotal={false} showChartTotal={false} />
             </VStack>
-          </Stack>
+          </SimpleGrid>
           <Divider my="4" />
           <LiquidityPoolsTable
             onRowClick={(item, e) => handleOpenHistoChartFromTable(item, e, liquidityWithEnso)}

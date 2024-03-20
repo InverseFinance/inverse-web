@@ -1,7 +1,7 @@
 import { useCacheFirstSWR } from "@app/hooks/useCustomSWR"
 import { DefaultCharts } from "./DefaultCharts";
 import { timestampToUTC, utcDateStringToTimestamp } from "@app/util/misc";
-import { HStack, VStack, Text, Image, SimpleGrid, useMediaQuery } from "@chakra-ui/react";
+import { HStack, VStack, Text, Image, SimpleGrid, useMediaQuery, useInterval } from "@chakra-ui/react";
 import { usePrices } from "@app/hooks/usePrices";
 import { DashBoardCard, NumberAndPieCard } from "../F2/UserDashboard";
 import { useAppTheme } from "@app/hooks/useAppTheme";
@@ -40,29 +40,28 @@ export const useVeNftEvolution = () => {
 
 const MAX_AREA_CHART_WIDTH = 625;
 const VeNftDashboardAreaChart = (props) => {
-    const { isLoading, data } = props;
-    const refElement = useRef();
+    const { isLoading, data, areaProps } = props;
     const [chartData, setChartData] = useState(null);
     const [refElementWidth, setRefElementWidth] = useState(MAX_AREA_CHART_WIDTH);
     const [oldJson, setOldJson] = useState('');
     const [chartWidth, setChartWidth] = useState<number>(MAX_AREA_CHART_WIDTH);
-    const [isLargerThan2xl, isLargerThanLg, isLargerThanXs] = useMediaQuery([
+    const [isLargerThan2xl, isLargerThanLg, isLargerThanMd, isLargerThanXs] = useMediaQuery([
         "(min-width: 96em)",
         "(min-width: 62em)",
+        "(min-width: 48em)",
         "(min-width: 250px)",
     ]);
 
-    useEffect(() => {
-        if (!refElement?.current) return;
-        setRefElementWidth(refElement.current.clientWidth);
-    }, [refElement?.current])
+    useInterval(() => {
+        setRefElementWidth(document.querySelector('.app-dashboard-card')?.clientWidth);
+    }, 1000)
 
     useEffect(() => {
         const optimal2ColWidth = ((screen.availWidth || screen.width)) / 2 - 50;
-        const optimal1ColWidth = ((screen.availWidth || screen.width)) * 0.94 - 50;
-        const w = !isLargerThanXs ? 250 : isLargerThan2xl ? MAX_AREA_CHART_WIDTH : isLargerThanLg ? Math.min(optimal2ColWidth, refElementWidth) : optimal1ColWidth;
+        const optimal1ColWidth = refElementWidth - 60//(areaProps.showPrice ? 60 : 60);
+        const w = isLargerThanXs && !isLargerThan2xl ? optimal1ColWidth : !isLargerThanXs ? 250 : isLargerThan2xl ? MAX_AREA_CHART_WIDTH : isLargerThanLg ? Math.min(optimal2ColWidth, refElementWidth) : optimal1ColWidth;
         setChartWidth(w);
-    }, [isLargerThan2xl, isLargerThanXs, isLargerThanLg, screen?.availWidth]);
+    }, [isLargerThan2xl, areaProps, isLargerThanXs, isLargerThanLg, isLargerThanMd, refElementWidth, screen?.availWidth]);
 
     useDebouncedEffect(() => {
         const len = data?.length || 0;
@@ -83,7 +82,7 @@ const VeNftDashboardAreaChart = (props) => {
     }
 
     // too much flickering when using the responsive container
-    return <VStack w='full' ref={refElement}>
+    return <VStack w='full'>
         <DefaultCharts
             chartWidth={chartWidth}
             {...props}
@@ -96,6 +95,10 @@ export const VeNftEvolutionWrapper = () => {
     const { themeStyles } = useAppTheme();
     const [now, setNow] = useState(Date.now());
     const [inited, setInited] = useState(false);
+
+    const [isLargerThan2xl] = useMediaQuery([
+        "(min-width: 96em)",
+    ]);
 
     useEffect(() => {
         setInited(true);
@@ -150,12 +153,15 @@ export const VeNftEvolutionWrapper = () => {
             }
         ] : []);
 
+    const rangesToInclude = isLargerThan2xl ? ['All', '1Y', '6M', '3M', '1M', 'YTD'] : ['All', '1Y', '6M', '3M', 'YTD'];
+    const mainFontSize = { base: '16px', sm: '20px', md: '26px' };
+
     if (!inited) return null
 
-    return <SimpleGrid columns={{ base: 1, md: 2, xl: 2 }} spacing="8" w="100%">
+    return <SimpleGrid columns={{ base: 1, xl: 2 }} spacing="8" w="100%">
         <NumberAndPieCard
             title="Current veNFTs portfolio"
-            cardTitleProps={{ w: "fit-content", fontSize: '26px', fontWeight: 'extrabold' }}
+            cardTitleProps={{ w: "fit-content", fontSize: mainFontSize, fontWeight: 'extrabold' }}
             data={chartList}
             dataKey="currentWorth"
             fill={themeStyles.colors.mainTextColorLight}
@@ -169,13 +175,13 @@ export const VeNftEvolutionWrapper = () => {
         <DashBoardCard>
             <VStack>
                 <VStack>
-                    <Text fontSize="26px" fontWeight="extrabold">Total veNFTs value evolution</Text>
+                    <Text fontSize={mainFontSize} fontWeight="extrabold">Total veNFTs value evolution</Text>
                 </VStack>
                 <VeNftDashboardAreaChart
                     data={accChartData}
                     isLoading={isLoading}
                     isDollars={true}
-                    containerProps={{ pt: '10' }}
+                    containerProps={{ pt: '0' }}
                     areaProps={{
                         id: "veNfts-all",
                         autoMinY: true,
@@ -183,28 +189,30 @@ export const VeNftEvolutionWrapper = () => {
                         showRangeBtns: true,
                         fillInByDayInterval: 1,
                         showPrice: false,
-                        rangesToInclude: ['All', '1Y', '6M', '3M', '1M', 'YTD'],
+                        rangesToInclude,
                         yLabel: 'Total value',
                         mainColor: 'secondary',
+                        forceStaticRangeBtns: true,
                     }}
                 />
             </VStack>
         </DashBoardCard>
         {
             chartList.map(item => {
-                return <DashBoardCard key={item.symbol}
+                return <DashBoardCard
+                    key={item.symbol}
                     imageSrc={getNetworkImage(item.chainId)}
                 >
                     <VStack>
                         <HStack>
                             <Image src={item.image} h="30px" w="30px" borderRadius="40px" />
-                            <Text fontSize="26px" fontWeight="extrabold">{item.symbol} value evolution</Text>
+                            <Text fontSize={mainFontSize} fontWeight="extrabold">{item.symbol} value evolution</Text>
                         </HStack>
                         <VeNftDashboardAreaChart
                             data={item.chartData}
                             isLoading={isLoading}
                             isDollars={true}
-                            containerProps={{ pt: '10' }}
+                            containerProps={{ pt: '0' }}
                             areaProps={{
                                 id: `veNfts-${item.symbol}`,
                                 autoMinY: true,
@@ -214,8 +222,10 @@ export const VeNftEvolutionWrapper = () => {
                                 showPrice: true,
                                 priceRef: `${item.symbol}-price`,
                                 yLabel: `${item.symbol} value`,
-                                rangesToInclude: ['All', '1Y', '6M', '3M', '1M', 'YTD'],
+                                rangesToInclude,
                                 mainColor: 'secondary',
+                                forceStaticRangeBtns: true,
+                                rightPadding: isLargerThan2xl ? 0 : undefined,
                             }}
                         />
                     </VStack>
