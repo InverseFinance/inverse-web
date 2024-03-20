@@ -142,6 +142,7 @@ export const DashBoardCard = (props: StackProps & { cardTitle?: string, cardTitl
         minH="150px"
         shadow="0 0 0px 1px rgba(0, 0, 0, 0.25)"
         bg={'containerContentBackground'}
+        className="app-dashboard-card"
         {...props}
     >
         {!!props.cardTitle && <Text fontSize="18px" fontWeight="bold" mx="auto" w='200px' position="absolute" left="0" right="0" top={{ base: '5px', xl: '32px' }} {...props.cardTitleProps}>{props.cardTitle}</Text>}
