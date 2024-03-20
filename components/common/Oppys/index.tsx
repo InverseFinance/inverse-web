@@ -301,7 +301,7 @@ export const OppysTable = ({
 
     return <Container
         noPadding
-        contentProps={{ p: { base: '2', sm: '8' } }}
+        contentProps={{ p: { base: '2', sm: '8' }, overflowX: 'scroll' }}
         label="All yield opportunities"
         description={`DeFi yield opportunities on ${yieldChains} `}
         href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola#yield-opportunities"
@@ -482,7 +482,7 @@ export const Oppys = () => {
             ensoPoolsLike={ensoPoolsLike}
             resultAsset={resultAsset}
         />
-        <Stack direction={{ base: 'column', md: 'row' }} w='full'>
+        <Stack direction={{ base: 'column', lg: 'row' }} w='full'>
             <OppysTop5 onClick={handleClick} isLargerThan={isLargerThan} title={'Top 5 stablecoin pool APYs'} isLoading={isLoading} oppys={top5Stable} />
             <OppysTop5 onClick={handleClick} isLargerThan={isLargerThan} title={'Top 5 volatile pool APYs'} isLoading={isLoading} oppys={top5Volatile} />
         </Stack>
