@@ -238,6 +238,7 @@ export const LiquidityPoolsTable = ({
         description={`Last update: ${timestamp ? moment(timestamp).fromNow() : ''}`}
         contentProps={{
             direction: 'column',
+            overflowX: 'scroll',
         }}
         headerProps={{
             direction: { base: 'column', md: 'row' },

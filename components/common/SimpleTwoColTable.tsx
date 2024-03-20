@@ -15,7 +15,7 @@ export const SimpleTwoColTable = ({
     valueProps?: TextProps
 }) => {
     return <Container noPadding p="0" {...containerProps}>
-        <VStack alignItems="flex-start" w='300px' {...vstackProps}>
+        <VStack alignItems="flex-start" minW='300px' w='full' {...vstackProps}>
             {
                 items.map(item => {
                     const lprops = { ...labelProps, ...item.labelProps };
