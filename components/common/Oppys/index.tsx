@@ -271,6 +271,7 @@ const columnsShort = [
 const columnsShortMobile = [
     columnsShort[1],
     columnsShort[3],
+    columnsShort[4],
 ];
 
 export const OppysTable = ({
