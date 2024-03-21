@@ -92,7 +92,7 @@ export const InvPage = () => {
       <TransparencyTabs active="inv" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="2">
-          <InvFlowChart {...invFlowChartData} />
+          {/* <InvFlowChart {...invFlowChartData} /> */}
         </Flex>
         <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
           <SupplyInfos isLoading={isLoadingSupplies} token={TOKENS[INV]} supplies={invSupplies} />

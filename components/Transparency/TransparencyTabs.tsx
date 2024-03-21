@@ -2,22 +2,22 @@ import { useAppTheme } from '@app/hooks/useAppTheme';
 import { Tabs, TabList, Tab, VStack, Text, HStack, Image } from '@chakra-ui/react'
 import Link from '../common/Link';
 
-type TabsType = 'overview' | 'treasury' | 'veNfts' | 'liquidity' | 'inv' | 'dola' | 'dbr' | 'multisigs' | 'interest-model' | 'feds' | 'stabilizer' | 'dao' | 'liquidations' | 'shortfalls' | 'bad-debts' | 'firm-users';
+type TabsType = 'overview' | 'treasury' | 'veNfts' | 'liquidity' | 'inv' | 'dola' | 'dbr' | 'multisigs' | 'interest-model' | 'feds' | 'stabilizer' | 'dao' | 'shortfalls' | 'bad-debts';
 
 const TABS = [
     { page: 'overview', label: 'Overview' },
     { page: 'treasury', label: 'Treasury' },
     { page: 'veNfts', label: 'veNfts' },
     { page: 'liquidity', label: 'Liquidity' },
-    { page: 'dao', label: 'DAO' },
-    { page: 'inv', label: 'INV' },    
+    { page: 'dao', label: 'DAO & INV' },
+    // { page: 'inv', label: 'INV' },    
     { page: 'dbr', label: 'DBR' },
     { page: 'dola', label: 'DOLA & Feds' },
     { page: 'feds', label: 'Feds Policy' },
     // { page: 'interest-model', label: 'Interest Rates' },
     { page: 'multisigs', label: 'Multisig Wallets' },
-    { page: 'firm-users', label: 'FiRM users' },
-    { page: 'liquidations', label: 'Liquidations' },
+    // { page: 'firm-users', label: 'FiRM users' },
+    // { page: 'liquidations', label: 'Liquidations' },
     { page: 'bad-debts', label: 'Bad debts' },
     { page: 'frontier-overview', label: 'Frontier & Other' },
 ];
