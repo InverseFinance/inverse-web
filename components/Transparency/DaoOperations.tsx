@@ -139,6 +139,7 @@ export const DaoOperationsTable = () => {
             label="DAO Transactions on Ethereum"
             description="Taken into consideration: GovMills txs, Multisig txs, Delegations, Fed actions, Inv oracle txs"
             noPadding
+            p="0"
             contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto', direction: 'column' }}            
         >
             {

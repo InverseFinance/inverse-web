@@ -24,9 +24,10 @@ import { useDbrAuctionActivity } from '@app/util/dbr-auction'
 import { useDolaStakingActivity } from '@app/util/dola-staking'
 import { FirmUsers } from '@app/components/F2/Infos/FirmUsers'
 import { FirmLiquidations } from '@app/components/F2/liquidations/FirmLiquidations'
+import { FirmPositions } from '@app/components/F2/liquidations/firm-positions'
 const { TOKENS, DBR } = getNetworkConfigConstants(NetworkIds.mainnet);
 
-const tabsOptions = ['Issuance', 'Spenders', 'Replenishments', 'Income', 'Users', 'Liquidations'];
+const tabsOptions = ['Issuance', 'Spenders', 'Replenishments', 'Users', 'Positions', 'Liquidations'];
 
 export const DBRTransparency = () => {
     const router = useRouter();
@@ -64,14 +65,14 @@ export const DBRTransparency = () => {
                 <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-dbr.png" />
                 <meta name="keywords" content="Inverse Finance, dao, transparency, dbr, dola, supply" />
             </Head>
-            <AppNav active="Transparency" activeSubmenu="DBR" hideAnnouncement={true} />
+            <AppNav active="Transparency" activeSubmenu="DBR & FiRM" hideAnnouncement={true} />
             <TransparencyTabs active="dbr" />
             <VStack alignItems="flex-start" maxW={{ base: '300px', sm: '600px' }} w='full'>
                 <NavButtons
                     onClick={handleTabChange}
                     active={tab}
                     options={tabsOptions}
-                    textProps={{ p: '1', fontSize: { base: '12px', sm: '14px' } }}
+                    textProps={{ p: '1', px: '2', fontSize: { base: '12px', sm: '14px' } }}
                     overflow={{ base: 'scroll', sm: 'auto' }}
                 />
             </VStack>
@@ -82,13 +83,16 @@ export const DBRTransparency = () => {
                             tab === 'Spenders' && <DbrSpenders />
                         }
                         {
-                            tab === 'Replenishments' && <DbrReplenishments />
+                            tab === 'Replenishments' && <>
+                                <DbrIncome chartData={chartData} />
+                                <DbrReplenishments />
+                            </>
                         }
                         {
                             tab === 'Users' && <FirmUsers />
                         }
                         {
-                            tab === 'Income' && <DbrIncome chartData={chartData} />
+                            tab === 'Positions' && <FirmPositions />
                         }
                         {
                             tab === 'Issuance' && <VStack w='full'>

@@ -6,7 +6,7 @@ import { useAppTheme } from "@app/hooks/useAppTheme";
 
 export const DbrIncome = ({
     chartData,
-    maxChartWidth = 800,
+    maxChartWidth = 1200,
 }) => {
     const [chartWidth, setChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
@@ -27,7 +27,8 @@ export const DbrIncome = ({
             mainColor="secondary"
             isDollars={true}
             title="Replenishments income over time"
+            useRecharts={true}
         />
-        <BarChart12Months title="Replenishments income in the last 12 months" chartData={chartData} maxChartWidth={chartWidth} eventName="Income" yAttribute="yDay" colorScale={defaultColorScale} isDollars={true} />
+        <BarChart12Months useRecharts={true} title="Replenishments income in the last 12 months" chartData={chartData} maxChartWidth={chartWidth} chartWidth={chartWidth} eventName="Income" yAttribute="yDay" colorScale={defaultColorScale} isDollars={true} />
     </Stack>
 }

@@ -18,12 +18,13 @@ import { PayrollDetails } from '@app/components/Transparency/PayrollDetails'
 import { useMarkets } from '@app/hooks/useMarkets'
 import { useDBRMarkets } from '@app/hooks/useDBR'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import useEtherSWR from '@app/hooks/useEtherSWR'
 import { ShrinkableInfoMessage } from '@app/components/common/Messages'
 import { SupplyInfos } from '@app/components/common/Dataviz/SupplyInfos'
 import { SkeletonBlob } from '@app/components/common/Skeleton'
 import { RTOKEN_CG_ID, RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { preciseCommify } from '@app/util/misc'
+import { MultisigsDiagram } from '@app/components/Transparency/MultisigsDiagram'
+import Container from '@app/components/common/Container'
 
 const hasPayrollOrVester = (
     payrolls: Payroll[],
@@ -46,7 +47,7 @@ const getProposalStatusType = (status: ProposalStatus) => {
 
 const FounderAddresses = ['0x16EC2AeA80863C1FB4e13440778D0c9967fC51cb', '0x3FcB35a1CbFB6007f9BC638D388958Bc4550cB28'];
 
-const { INV, XINV, ESCROW, COMPTROLLER, TREASURY, XINV_MANAGER, POLICY_COMMITTEE, GOVERNANCE, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { INV, XINV, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 export const GovTransparency = () => {
     const { currentPayrolls, currentVesters, currentInvBalances, isLoading } = useCompensations();
@@ -58,33 +59,10 @@ export const GovTransparency = () => {
     const { markets: dbrMarkets, isLoading: isLoadingFirm } = useDBRMarkets();
     const isLoadingStaking = isLoadingFrontier || isLoadingFirm;
     const { invTotalSupply, invSupplies, isLoading: isLoadingSupplies } = useDAO();
-    const [isLargerThan] = useMediaQuery(`(min-width: 450px)`)
-
-    const { data: xinvData } = useEtherSWR([
-        [XINV, 'admin'],
-        [XINV, 'escrow'],
-        [XINV, 'comptroller'],
-        [XINV, 'underlying'],
-    ])
-
-    const [xinvAdmin, xinvEscrow, comptroller, xinvUnderlying] = xinvData || [XINV_MANAGER, ESCROW, COMPTROLLER, INV]
-
-    const { data: daoData } = useEtherSWR([
-        [xinvEscrow?.toLowerCase(), 'governance'],
-        [comptroller, 'admin'],
-        [comptroller, 'pauseGuardian'],
-        [TREASURY, 'admin'],
-        [GOVERNANCE, 'guardian'],
-        [GOVERNANCE, 'inv'],
-        [GOVERNANCE, 'xinv'],
-        [GOVERNANCE, 'timelock'],
+    const [isLargerThan, isLargerThan2xl] = useMediaQuery([
+        "(min-width: 450px)",
+        "(min-width: 96em)",
     ]);
-
-    const [escrowGov, govTreasury] = daoData
-        || [TREASURY, TREASURY];
-
-    // const fetchedValues = { xinvAdmin, xinvEscrow, xinvUnderlying, escrowGov, govTreasury }
-    // const invFlowChartData = { ...defaultValues, ...fetchedValues };
 
     // Frontier staking (includes staked via FiRM)
     const invFrontierMarket = markets?.find(market => market.token === XINV);
@@ -127,7 +105,7 @@ export const GovTransparency = () => {
     const votingPowerDist = [
         { label: `Founder`, balance: founderInherentPower, perc: founderInherentPower / totalPower * 100, usdPrice: 1 },
         { label: `Active Contributors`, balance: teamInherentPower, perc: teamInherentPower / totalPower * 100, usdPrice: 1 },
-        { label: `Delegated to Contributors / Founder`, balance: delegatedExternally, perc: delegatedExternally / totalPower * 100, usdPrice: 1 },
+        { label: `Delegated to Team / Founder`, balance: delegatedExternally, perc: delegatedExternally / totalPower * 100, usdPrice: 1 },
         { label: `Others`, balance: nonTeamPowerToUse, perc: nonTeamPowerToUse / totalPower * 100, usdPrice: 1 },
     ];
 
@@ -172,115 +150,145 @@ export const GovTransparency = () => {
         <Layout>
             <Head>
                 <title>Inverse Finance - Dao Transparency</title>
-                <meta name="og:title" content="Inverse Finance - DAO Transparency" />
-                <meta name="og:description" content="DAO Transparency" />
+                <meta name="og:title" content="Inverse Finance - INV & DAO Transparency" />
+                <meta name="og:description" content="INV & DAO Transparency" />
                 <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-portal.png" />
-                <meta name="description" content="DAO Transparency" />
+                <meta name="description" content="INV & DAO Transparency" />
                 <meta name="keywords" content="Inverse Finance, dao, transparency, delegates, proposals" />
             </Head>
-            <AppNav active="Transparency" activeSubmenu="DAO & INV" hideAnnouncement={true} />
+            <AppNav active="Transparency" activeSubmenu="INV & DAO" hideAnnouncement={true} />
             <TransparencyTabs active="dao" />
-            {/* <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}></Flex> */}
-            <Stack spacing="8" w="full" alignItems="flex-start" justify="center" justifyContent="center" direction={{ base: 'column', xl: 'row' }}>
-                <Flex direction="column" py="2" px="5" maxWidth="900px" w='full'>
-                    <Stack spacing="5" direction='column' w="full" justify="space-around">
-                        <SimpleGrid minChildWidth={{ base: '300px', sm: '300px' }} spacingX="100px" spacingY="40px">
-                            <FundsDetails
-                                title="Voting Power Distribution"
-                                totalLabel="Total Distribution:"
-                                funds={votingPowerDist}
-                                isLoading={isLoading}
-                                type="balance"
-                                prices={{}}
-                                labelWithPercInChart={true}
-                                showAsAmountOnly={true}
-                            />
+            <VStack maxW='1400px' spacing='8'>
+                <Container
+                    noPadding
+                    p="0"
+                    label="DAO voting & INV"
+                    description="INV holders and stakers govern the DAO - learn more"
+                    href={'https://docs.inverse.finance/inverse-finance/inverse-finance/introduction/governance'}
+                    contentProps={{ maxW: '94vw' }}
+                >
+                    <VStack spacing="8" w="full" alignItems="flex-start" justify="space-between">
+                        <SimpleGrid columns={{ base: 1, xl: 2 }} justifyContent="center" alignContent="center" spacingX="50px" spacingY="40px" w='full'>
+                            <VStack w='full'>
+                                <FundsDetails
+                                    title="Voting Power Distribution"
+                                    totalLabel="Total Distribution:"
+                                    funds={votingPowerDist}
+                                    isLoading={isLoading}
+                                    type="balance"
+                                    prices={{}}
+                                    labelWithPercInChart={true}
+                                    showAsAmountOnly={true}
+                                    useRecharts={true}
+                                    maxW='400px'
+                                    chartMode={isLargerThan}
+                                />
+                            </VStack>
                             <VStack w='full' justify="flex-start" alignItems="center">
                                 <Text textAlign="center" mt="1" color="accentTextColor" fontSize="20px" fontWeight="extrabold">
                                     DAO Proposals (12 month):
                                 </Text>
                                 <ProposalBarChart maxChartWidth={isLargerThan ? 450 : 320} chartData={chartData} />
                             </VStack>
-                            <PayrollDetails isLoading={isLoading} currentPayrolls={currentPayrolls} prices={prices} />
-                            <FundsDetails
-                                title="INV Granted (xInv scaled, 2y vesting)"
-                                funds={vestersByRole}
-                                type="balance"
-                                prices={{}}
-                                labelWithPercInChart={false}
-                                showAsAmountOnly={true}
-                                isLoading={isLoading}
-                                totalLabel="- TOTAL:"
-                            />
+                            <VStack w='full'>
+                                <PayrollDetails chartMode={isLargerThan} maxW='400px' isLoading={isLoading} currentPayrolls={currentPayrolls} prices={prices} useRecharts={true} />
+                            </VStack>
+                            <VStack w='full'>
+                                <FundsDetails
+                                    title="INV Granted (xInv scaled, 2y vesting)"
+                                    funds={vestersByRole}
+                                    type="balance"
+                                    prices={{}}
+                                    labelWithPercInChart={false}
+                                    showAsAmountOnly={true}
+                                    isLoading={isLoading}
+                                    totalLabel="- TOTAL:"
+                                    useRecharts={true}
+                                    maxW='400px'
+                                    chartMode={isLargerThan}
+                                />
+                            </VStack>
                         </SimpleGrid>
-                    </Stack>                    
-                </Flex>
-                <VStack alignItems="flex-start" spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
-                    <SupplyInfos isLoading={isLoadingSupplies} token={TOKENS[INV]} supplies={invSupplies} />
-                    <ShrinkableInfoMessage
-                        description={
-                            isLoadingStaking ?
-                                <SkeletonBlob /> :
-                                <>
-                                    <Text fontWeight="bold">{RTOKEN_SYMBOL} staking:</Text>
-                                    <Funds noImage={true} showTotal={false} showPerc={true} funds={
-                                        [
-                                            {
-                                                label: 'Total staked',
-                                                balance: stakedOnFrontier,
-                                                usdPrice: geckoPrices[RTOKEN_CG_ID]?.usd!,
-                                            },
-                                            {
-                                                label: 'Not staked',
-                                                balance: notStaked,
-                                                usdPrice: geckoPrices[RTOKEN_CG_ID]?.usd!,
+                        <Stack alignItems="flex-start" spacing={4} direction={{ base: 'column', lg: 'row' }} pt="4" px={{ base: '4', xl: '0' }} w='full'>
+                            <SupplyInfos isLoading={isLoadingSupplies} token={TOKENS[INV]} supplies={invSupplies} />
+                            <ShrinkableInfoMessage
+                                description={
+                                    isLoadingStaking ?
+                                        <SkeletonBlob /> :
+                                        <>
+                                            <Text fontWeight="bold">{RTOKEN_SYMBOL} staking:</Text>
+                                            <Funds noImage={true} showTotal={false} showPerc={true} useRecharts={true} funds={
+                                                [
+                                                    {
+                                                        label: 'Total staked',
+                                                        balance: stakedOnFrontier,
+                                                        usdPrice: geckoPrices[RTOKEN_CG_ID]?.usd!,
+                                                    },
+                                                    {
+                                                        label: 'Not staked',
+                                                        balance: notStaked,
+                                                        usdPrice: geckoPrices[RTOKEN_CG_ID]?.usd!,
+                                                    }
+                                                ]
                                             }
-                                        ]
-                                    }
-                                    />
-                                    <Text fontWeight="bold">{RTOKEN_SYMBOL} staking repartition:</Text>
-                                    <Funds noImage={true} showTotal={false} showPerc={true} funds={
-                                        [
-                                            {
-                                                label: 'Staked via FiRM',
-                                                balance: stakedViaFirm,
-                                                usdPrice: geckoPrices[RTOKEN_CG_ID]?.usd!,
-                                            },
-                                            {
-                                                label: 'Staked via Frontier',
-                                                balance: stakedViaFrontier,
-                                                usdPrice: geckoPrices[RTOKEN_CG_ID]?.usd!,
-                                            },
-                                        ]
-                                    }
-                                    />
-                                    <Text fontWeight="bold">Monthly distribution to stakers:</Text>
-                                    <Text>{preciseCommify(rewardsPerMonth, 0)} {RTOKEN_SYMBOL} (~{preciseCommify(rewardsPerMonth * geckoPrices[RTOKEN_CG_ID]?.usd, 0, true)})</Text>
-                                </>
-                        }
-                    />
-                    <ShrinkableInfoMessage
-                        title="⚡ Roles & Powers"
-                        description={
-                            <>
-                                <Flex direction="row" w='full' justify="space-between">
-                                    <Text fontWeight="bold">- x{RTOKEN_SYMBOL} Admin:</Text>
-                                    <Text>Change {RTOKEN_SYMBOL} APY</Text>
-                                </Flex>
-                                <Flex direction="row" w='full' justify="space-between">
-                                    <Text fontWeight="bold">- Escrow Admin:</Text>
-                                    <Text>Change x{RTOKEN_SYMBOL} escrow duration</Text>
-                                </Flex>
-                                <Flex direction="row" w='full' justify="space-between">
-                                    <Text fontWeight="bold">- Policy Committee:</Text>
-                                    <Text>Handle Reward Rates Policies</Text>
-                                </Flex>
-                            </>
-                        }
-                    />
-                </VStack>
-            </Stack>
-            <DaoOperationsTable />
+                                            />
+                                            <Text fontWeight="bold">{RTOKEN_SYMBOL} staking repartition:</Text>
+                                            <Funds noImage={true} showTotal={false} showPerc={true} funds={
+                                                [
+                                                    {
+                                                        label: 'Staked via FiRM',
+                                                        balance: stakedViaFirm,
+                                                        usdPrice: geckoPrices[RTOKEN_CG_ID]?.usd!,
+                                                    },
+                                                    {
+                                                        label: 'Staked via Frontier',
+                                                        balance: stakedViaFrontier,
+                                                        usdPrice: geckoPrices[RTOKEN_CG_ID]?.usd!,
+                                                    },
+                                                ]
+                                            }
+                                            />
+                                            <Text fontWeight="bold">Monthly distribution to stakers:</Text>
+                                            <Text>{preciseCommify(rewardsPerMonth, 0)} {RTOKEN_SYMBOL} (~{preciseCommify(rewardsPerMonth * geckoPrices[RTOKEN_CG_ID]?.usd, 0, true)})</Text>
+                                        </>
+                                }
+                            />
+                            <ShrinkableInfoMessage
+                                title="⚡ Roles & Powers"
+                                description={
+                                    <>
+                                        <Flex direction="row" w='full' justify="space-between">
+                                            <Text fontWeight="bold">- x{RTOKEN_SYMBOL} Admin:</Text>
+                                            <Text>Change {RTOKEN_SYMBOL} APY</Text>
+                                        </Flex>
+                                        <Flex direction="row" w='full' justify="space-between">
+                                            <Text fontWeight="bold">- Escrow Admin:</Text>
+                                            <Text>Change x{RTOKEN_SYMBOL} escrow duration</Text>
+                                        </Flex>
+                                        <Flex direction="row" w='full' justify="space-between">
+                                            <Text fontWeight="bold">- Policy Committee:</Text>
+                                            <Text>Handle Reward Rates Policies</Text>
+                                        </Flex>
+                                    </>
+                                }
+                            />
+                        </Stack>
+                    </VStack>
+                </Container>
+                <Container
+                    noPadding
+                    p="0"
+                    label="Multisigs"
+                    description="Learn about the Working Groups"
+                    href={'https://docs.inverse.finance/inverse-finance/inverse-finance/introduction/organization#working-groups'}
+                    contentProps={{ maxW: '94vw' }}
+                >
+                    <MultisigsDiagram />
+                </Container>
+                {
+                    isLargerThan2xl && <DaoOperationsTable />
+                }
+            </VStack>
         </Layout>
     )
 }

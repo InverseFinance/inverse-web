@@ -23,6 +23,7 @@ export const PayrollDetails = ({
     title = 'DOLA monthly payrolls',
     toMonthly = true,
     isLoading,
+    ...props
 }: Props) => {
     const divFactor = toMonthly ? 12 : 1;
     const totalDolaMonthly = currentPayrolls.reduce((prev, curr) => prev + curr[fundKey] / divFactor, 0);
@@ -51,5 +52,6 @@ export const PayrollDetails = ({
         isLoading={isLoading}
         labelWithPercInChart={false}
         useRecharts={true}
+        {...props}
     />
 }

@@ -124,11 +124,11 @@ export const MENUS = {
         },
         {
           href: '/transparency/dao',
-          label: 'DAO & INV',
+          label: 'INV & DAO',
         },
         {
           href: '/transparency/dbr',
-          label: 'DBR',
+          label: 'DBR & FiRM',
         },
         {
           href: '/transparency/dola',
