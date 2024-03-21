@@ -17,6 +17,7 @@ export const FundsDetails = ({
     totalLabel,
     description = '',
     isLoading,
+    useRecharts = false,
 }: {
     funds: Fund[],
     title: string,
@@ -27,6 +28,7 @@ export const FundsDetails = ({
     showAsAmountOnly?: boolean,
     totalLabel?: string
     isLoading?: boolean
+    useRecharts?: boolean
 }) => {
     const [data, setData] = useState(funds);
     const [isDrilled, setIsDrilled] = useState(false);
@@ -78,7 +80,7 @@ export const FundsDetails = ({
                     </Flex>
                 }
                 {
-                    data?.length && !isLoading && <Funds isLoading={isLoading} totalLabel={totalLabel} showAsAmountOnly={showAsAmountOnly} type={type} minUsd={1} handleDrill={isDrilled ? undefined : handleDrill} prices={prices} funds={data} chartMode={true} showTotal={true} labelWithPercInChart={labelWithPercInChart} />
+                    data?.length && !isLoading && <Funds isLoading={isLoading} totalLabel={totalLabel} showAsAmountOnly={showAsAmountOnly} type={type} minUsd={1} handleDrill={isDrilled ? undefined : handleDrill} prices={prices} funds={data} chartMode={true} useRecharts={useRecharts} showTotal={true} labelWithPercInChart={labelWithPercInChart} />
                 }
                 {
                     isLoading && <SkeletonBlob />

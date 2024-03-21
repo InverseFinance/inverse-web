@@ -50,5 +50,6 @@ export const PayrollDetails = ({
         prices={{}}
         isLoading={isLoading}
         labelWithPercInChart={false}
+        useRecharts={true}
     />
 }

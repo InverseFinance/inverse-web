@@ -45,17 +45,17 @@ export const Overview = () => {
         <Flex direction="column" py="4" px="5" maxWidth="1200px" w='full'>
           <Stack spacing="5" direction={{ base: 'column', lg: 'column' }} w="full" justify="space-around">
             <SimpleGrid minChildWidth={{ base: '300px', sm: '400px' }} spacingX="100px" spacingY="40px">
-              <FundsDetails title="Total Treasury Holdings" funds={totalHoldings} prices={prices} type='balance' />
-              <FundsDetails title="Multisigs's Holdings" funds={totalMultisigs} prices={prices} type='balance' />
-              <FundsDetails title="In Treasury Contract" funds={treasury} prices={prices} type='balance' />
-              <FundsDetails title="In Frontier Reserves" funds={anchorReserves} prices={prices} type='balance' />
+              <FundsDetails title="Total Treasury Holdings" funds={totalHoldings} prices={prices} type='balance' useRecharts={true} />
+              <FundsDetails title="Multisigs's Holdings" funds={totalMultisigs} prices={prices} type='balance' useRecharts={true} />
+              <FundsDetails title="In Treasury Contract" funds={treasury} prices={prices} type='balance' useRecharts={true} />
+              <FundsDetails title="In Frontier Reserves" funds={anchorReserves} prices={prices} type='balance' useRecharts={true} />
               <PayrollDetails currentPayrolls={currentPayrolls} prices={prices} title="DOLA Monthly Payrolls" />
               <PayrollDetails currentPayrolls={currentPayrolls} prices={prices} fundKey={'unclaimed'} title="Unclaimed Payrolls" toMonthly={false} />
               {/* <FundsDetails title="Reserved For Bonds" funds={bonds?.balances.filter(({ token }) => token.symbol === RTOKEN_SYMBOL)} prices={prices} /> */}
               {/* <FundsDetails title="Kept in the Bonds Manager" funds={bonds?.balances.filter(({ token }) => token.symbol !== RTOKEN_SYMBOL)} prices={prices} /> */}
               {
                 TWGfunds.map((mf, i) => {
-                  return <FundsDetails title={TWGmultisigs[i].name} funds={mf} prices={prices} type='balance' />
+                  return <FundsDetails title={TWGmultisigs[i].name} funds={mf} prices={prices} type='balance' useRecharts={true} />
                 })
               }
             </SimpleGrid>

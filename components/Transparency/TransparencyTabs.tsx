@@ -5,7 +5,7 @@ import Link from '../common/Link';
 type TabsType = 'overview' | 'treasury' | 'veNfts' | 'liquidity' | 'inv' | 'dola' | 'dbr' | 'multisigs' | 'interest-model' | 'feds' | 'stabilizer' | 'dao' | 'shortfalls' | 'bad-debts';
 
 const TABS = [
-    { page: 'overview', label: 'Overview' },
+    // { page: 'overview', label: 'Overview' },
     { page: 'treasury', label: 'Treasury' },
     { page: 'veNfts', label: 'veNfts' },
     { page: 'liquidity', label: 'Liquidity' },
