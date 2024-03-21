@@ -20,7 +20,7 @@ export const PayrollDetails = ({
     currentPayrolls,
     prices,
     fundKey = 'amount',
-    title = 'DOLA monthly payrolls',
+    title = '',
     toMonthly = true,
     isLoading,
     ...props

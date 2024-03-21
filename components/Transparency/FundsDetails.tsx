@@ -66,7 +66,7 @@ export const FundsDetails = ({
 
     return <Stack p={'1'} direction="column" minW={{ base: 'full', sm: '400px' }} {...stackProps}>
         <Stack>
-            <Text textAlign="center" color="accentTextColor" fontSize="20px" fontWeight="extrabold">{title}:</Text>
+            { !!title && <Text textAlign="center" color="accentTextColor" fontSize="20px" fontWeight="extrabold">{title}:</Text>}
             {
                 !!description && <Text textAlign="center" color="mainTextColor" fontSize="14px" fontWeight="extrabold">{description}:</Text>
             }
