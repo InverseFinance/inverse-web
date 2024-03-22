@@ -42,9 +42,9 @@ const MAX_AREA_CHART_WIDTH = 625;
 const VeNftDashboardAreaChart = (props) => {
     const { isLoading, data, areaProps } = props;
     const [chartData, setChartData] = useState(null);
-    const [refElementWidth, setRefElementWidth] = useState(MAX_AREA_CHART_WIDTH);
+    const [refElementWidth, setRefElementWidth] = useState(0);
     const [oldJson, setOldJson] = useState('');
-    const [chartWidth, setChartWidth] = useState<number>(MAX_AREA_CHART_WIDTH);
+    const [chartWidth, setChartWidth] = useState<number>(0);
     const [isLargerThan2xl, isLargerThanLg, isLargerThanMd, isLargerThanXs] = useMediaQuery([
         "(min-width: 96em)",
         "(min-width: 62em)",
@@ -83,11 +83,13 @@ const VeNftDashboardAreaChart = (props) => {
 
     // too much flickering when using the responsive container
     return <VStack w='full'>
-        <DefaultCharts
-            chartWidth={chartWidth}
-            {...props}
-            chartData={chartData}
-        />
+        {
+            chartWidth && <DefaultCharts
+                chartWidth={chartWidth}
+                {...props}
+                chartData={chartData}
+            />
+        }
     </VStack>
 }
 
@@ -183,7 +185,7 @@ export const VeNftEvolutionWrapper = () => {
                     data={accChartData}
                     isLoading={isLoading}
                     isDollars={true}
-                    containerProps={{ pt: '0' }}                    
+                    containerProps={{ pt: '0' }}
                     areaProps={{
                         id: "veNfts-all",
                         autoMinY: true,
@@ -203,7 +205,7 @@ export const VeNftEvolutionWrapper = () => {
             chartList.map(item => {
                 return <DashBoardCard
                     key={item.symbol}
-                    imageSrc={getNetworkImage(item.chainId)}                    
+                    imageSrc={getNetworkImage(item.chainId)}
                     {...commonCardProps}
                 >
                     <VStack>
