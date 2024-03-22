@@ -7,7 +7,7 @@ import { Cell, Pie, PieChart, Sector } from "recharts";
 
 const renderActiveShape = (props) => {
     const RADIAN = Math.PI / 180;
-    const { isMobile, precision, activeFill, centralFill, nameKey, isUsd, cx, cy, centralNameKey, midAngle, innerRadius, outerRadius, startAngle, endAngle, activeSubtextFill, activeTextFill, payload, percent, value, isShortenNumbers } = props;
+    const { isMobile, precision, activeFill, centralFill, nameKey, isUsd, cx, cy, centralValue, centralNameKey, midAngle, innerRadius, outerRadius, startAngle, endAngle, activeSubtextFill, activeTextFill, payload, percent, value, isShortenNumbers } = props;
     const sin = Math.sin(-RADIAN * midAngle);
     const cos = Math.cos(-RADIAN * midAngle);
     const isPosCos = cos >= 0;
@@ -25,10 +25,12 @@ const renderActiveShape = (props) => {
     const formattedValueAndPerc = `${formattedValue} (${formattedPerc})`;
     const x = isMobile ? mx : (ex + (isPosCos ? 1 : -1) * 12);
 
+    const isCustomCentral = centralValue || centralNameKey;
+
     return (
         <g>
             <text x={cx} y={cy} dy={8} textAnchor="middle" fontWeight="bold" fill={centralFill || activeFill}>
-                {payload[centralNameKey || nameKey]}
+                {centralValue || payload[centralNameKey || nameKey]}
             </text>
             <Sector
                 cx={cx}
@@ -55,16 +57,16 @@ const renderActiveShape = (props) => {
                 !isMobile && <circle cx={ex} cy={ey} r={2} fill={activeFill} stroke="none" />
             }
             <text x={x} y={ey} fontWeight="bold" textAnchor={textAnchor} fontSize={16} fill={activeTextFill || activeFill}>
-                {centralNameKey ? payload[nameKey] : formattedValue}
+                {isCustomCentral ? payload[nameKey] : formattedValue}
             </text>
             <text x={x} y={ey} dy={20} textAnchor={textAnchor} fill={activeSubtextFill || '#999'} fontSize={14} >
-                {centralNameKey ? formattedValueAndPerc : formattedPerc}
+                {isCustomCentral ? formattedValueAndPerc : formattedPerc}
             </text>
         </g>
     );
 };
 
-export const PieChartRecharts = ({ data, colorScale, centralFill = '', activeFill = '#8884d8', activeTextFill = '', activeSubtextFill = '', fill = '', cx, cy, dataKey = 'value', nameKey = 'name', centralNameKey = '', width = 300, height = 300, precision = 2, isUsd = false, isShortenNumbers = false }) => {
+export const PieChartRecharts = ({ data, centralValue = '', colorScale, centralFill = '', activeFill = '#8884d8', activeTextFill = '', activeSubtextFill = '', fill = '', cx, cy, dataKey = 'value', nameKey = 'name', centralNameKey = '', width = 300, height = 300, precision = 2, isUsd = false, isShortenNumbers = false }) => {
     const [activeIndex, setActiveIndex] = useState(0);
     const { themeParams } = useAppTheme();
     const { CHART_COLORS } = themeParams;
@@ -82,7 +84,7 @@ export const PieChartRecharts = ({ data, colorScale, centralFill = '', activeFil
         <PieChart width={width} height={height} overflow="visible">
             <Pie
                 activeIndex={activeIndex}
-                activeShape={(props) => renderActiveShape({ ...props, centralFill, activeSubtextFill, activeTextFill, isShortenNumbers, precision, isUsd, centralNameKey, nameKey, activeFill, isMobile: isSmallerThan400 })}
+                activeShape={(props) => renderActiveShape({ ...props, centralFill, activeSubtextFill, activeTextFill, isShortenNumbers, precision, isUsd, centralNameKey, centralValue, nameKey, activeFill, isMobile: isSmallerThan400 })}
                 data={data}
                 cx={cx}
                 cy={cy}
@@ -92,7 +94,7 @@ export const PieChartRecharts = ({ data, colorScale, centralFill = '', activeFil
                 onMouseEnter={onPieEnter}
             >
                 {data.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={fill || _colorScale[index % _colorScale.length]} />
+                    <Cell key={`cell-${index}`} fill={data[index]['fillColor'] || fill || _colorScale[index % _colorScale.length]} />
                 ))}
             </Pie>
         </PieChart>
