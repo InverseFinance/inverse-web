@@ -23,7 +23,7 @@ const TABS = [
 ];
 
 const TABS_OTHER = [
-    { page: 'overview', label: 'Main Portal' },
+    { page: 'treasury', label: 'Main Portal' },
     { page: 'frontier-overview', label: 'Frontier Overview' },
     { page: 'frontier-shortfalls', label: 'Frontier Shortfalls' },
     { page: 'frontier-liquidations', label: 'Frontier Liquidations' },
