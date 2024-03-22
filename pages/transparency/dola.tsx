@@ -4,9 +4,6 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { ShrinkableInfoMessage } from '@app/components/common/Messages'
-import { getNetworkConfigConstants } from '@app/util/networks';
-import { NetworkIds } from '@app/types'
-import { DolaFlowChart } from '@app/components/Transparency/DolaFlowChart'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 import { useDAO, useFedOverview } from '@app/hooks/useDAO'
 import { DolaMoreInfos } from '@app/components/Transparency/DolaMoreInfos'
@@ -14,15 +11,40 @@ import { FedList } from '@app/components/Transparency/fed/FedList'
 import { usePrices } from '@app/hooks/usePrices'
 import { DolaSupplies } from '@app/components/common/Dataviz/DolaSupplies'
 import { DolaCircSupplyEvolution } from '@app/components/Transparency/DolaCircSupplyEvolution'
-
-const { DOLA, TOKENS, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
+import { PieChartRecharts } from '@app/components/Transparency/PieChartRecharts'
+import { shortenNumber } from '@app/util/markets'
+import { useAppTheme } from '@app/hooks/useAppTheme'
+import { DashBoardCard } from '@app/components/F2/UserDashboard'
+import { useDBRMarkets } from '@app/hooks/useDBR'
 
 export const DolaDiagram = () => {
-  const { dolaOperator, dolaSupplies, feds, isLoading } = useDAO();
+  const { themeStyles } = useAppTheme();
+  const { dolaSupplies } = useDAO();
+  const { markets } = useDBRMarkets();
   const { fedOverviews, isLoading: isLoadingOverview } = useFedOverview();
   const { prices } = usePrices(['velodrome-finance']);
 
-  const fedsWithData = feds;
+  const fedsPieChartData = fedOverviews.map(f => {
+    return {
+      ...f,
+      sliceName: f.type === 'AMM' ? (f.subBalances.reduce((acc, curr) => acc ? acc + '-' + curr.symbol : curr.symbol, '') + ' LP') : f.name,
+      sliceValue: f.type === 'AMM' ? f.supply : f.borrows,
+      fillColor: ['Frontier', 'Fuse'].includes(f.protocol) ? themeStyles.colors.error : themeStyles.colors.info,
+    }
+  }).filter(d => d.sliceValue > 0);
+
+  const fedsTotal = fedsPieChartData.reduce((acc, curr) => acc + (curr.sliceValue || 0), 0);
+
+  const firmPieChartData = markets.map(f => {
+    return {
+      ...f,
+      sliceName: f.name,
+      sliceValue: f.totalDebt,
+      fillColor: themeStyles.colors.info,
+    }
+  }).filter(d => d.sliceValue > 0);
+  
+  const firmTotal = firmPieChartData.reduce((acc, curr) => acc + (curr.sliceValue || 0), 0);
 
   return (
     <Layout>
@@ -38,6 +60,25 @@ export const DolaDiagram = () => {
       <TransparencyTabs active="dola" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }} ml="2">
         <Flex direction="column">
+          <DashBoardCard cardTitle='DOLA backing'>
+            <PieChartRecharts
+              data={fedsPieChartData}
+              dataKey="sliceValue"
+              nameKey="sliceName"
+              centralValue={shortenNumber(fedsTotal, 2)}
+              activeFill={themeStyles.colors.mainTextColor}
+              activeSubtextFill={themeStyles.colors.mainTextColor}
+            />
+          </DashBoardCard>
+          <DashBoardCard cardTitle='FiRM DOLA backing'>
+            <PieChartRecharts
+              data={firmPieChartData}
+              dataKey="sliceValue"
+              nameKey="sliceName"
+              centralValue={shortenNumber(firmTotal, 2)}
+              activeFill={themeStyles.colors.mainTextColor}              
+            />
+          </DashBoardCard>
           <FedList prices={prices} feds={fedOverviews.filter(f => !f.hasEnded)} isLoading={isLoadingOverview} />
           <DolaCircSupplyEvolution />
         </Flex>
