@@ -76,7 +76,7 @@ export const DBRTransparency = () => {
                     overflow={{ base: 'scroll', sm: 'auto' }}
                 />
             </VStack>
-            <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }} ml="2" maxW='1200px'>
+            <Flex w="full" justify="space-between" direction={{ base: 'column', xl: 'row' }} ml="2" maxW='1300px'>
                 <VStack w={{ base: 'full', xl: tab === 'Issuance' ? '900px' : undefined }}>
                     <VStack mt="4" spacing="8" w='full'>
                         {

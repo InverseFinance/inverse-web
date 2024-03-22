@@ -155,6 +155,7 @@ export const VeNftEvolutionWrapper = () => {
 
     const rangesToInclude = isLargerThan2xl ? ['All', '1Y', '6M', '3M', '1M', 'YTD'] : ['All', '1Y', '6M', '3M', 'YTD'];
     const mainFontSize = { base: '16px', sm: '20px', md: '26px' };
+    const cardMinH = { xl: '457px' };
 
     if (!inited) return null
 
@@ -171,8 +172,9 @@ export const VeNftEvolutionWrapper = () => {
             label="Total veNFTs value"
             isLoading={isLoading || isLoadingPrices}
             precision={0}
+            minH={cardMinH}
         />
-        <DashBoardCard>
+        <DashBoardCard minH={cardMinH}>
             <VStack>
                 <VStack>
                     <Text fontSize={mainFontSize} fontWeight="extrabold">Total veNFTs value evolution</Text>
@@ -202,6 +204,7 @@ export const VeNftEvolutionWrapper = () => {
                 return <DashBoardCard
                     key={item.symbol}
                     imageSrc={getNetworkImage(item.chainId)}
+                    minH={cardMinH}
                 >
                     <VStack>
                         <HStack>

@@ -6,7 +6,7 @@ import { useAppTheme } from "@app/hooks/useAppTheme";
 
 export const DbrIncome = ({
     chartData,
-    maxChartWidth = 1200,
+    maxChartWidth = 1300,
 }) => {
     const [chartWidth, setChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
