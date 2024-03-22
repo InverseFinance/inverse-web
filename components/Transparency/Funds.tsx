@@ -5,6 +5,8 @@ import { shortenNumber } from '@app/util/markets';
 import { PieChart } from './PieChart';
 import { RTOKEN_SYMBOL } from '@app/variables/tokens';
 import { MarketImage } from '@app/components/common/Assets/MarketImage';
+import { PieChartRecharts } from './PieChartRecharts';
+import { useAppTheme } from '@app/hooks/useAppTheme';
 
 const FundLine = ({
     token,
@@ -105,6 +107,7 @@ type FundsProps = {
     noImage?: boolean
     innerRadius?: number
     isLoading?: boolean
+    useRecharts?: boolean
     chartProps?: any
 };
 
@@ -114,7 +117,7 @@ export const getFundsTotalUsd = (funds, prices, fundsType: 'balance' | 'allowanc
     }
     return (funds || prices).reduce((prev, curr) => {
         let value;
-        if(Array.isArray(curr)) {
+        if (Array.isArray(curr)) {
             value = getFundsTotalUsd(curr, prices, fundsType);
         } else {
             const price = curr.usdPrice ?? getPrice(prices, curr.token);
@@ -144,7 +147,9 @@ export const Funds = ({
     noImage = false,
     isLoading,
     chartProps,
+    useRecharts = false,
 }: FundsProps) => {
+    const { themeStyles } = useAppTheme();
     const usdTotals = { balance: 0, allowance: 0, overall: 0 };
 
     const positiveFunds = (funds || [])
@@ -187,25 +192,45 @@ export const Funds = ({
             return <FundLine noImage={noImage} key={ctoken || token?.address || label || token?.symbol} showAsAmountOnly={showAsAmountOnly} label={label} showPrice={showPrice} usdPrice={usdPrice} token={token} value={allowance!} usdValue={usdAllowance} perc={allowancePerc} showPerc={showPerc} />
         })
 
+    const chartData = fundsWithPerc
+        .filter(({ usdBalance, usdAllowance }) => (usdAllowance > 0 || usdBalance > 0))
+        .map(fund => {
+            return {
+                x: `${fund.label || fund.token?.symbol}${labelWithPercInChart ? `${skipLineForPerc ? '\r\n' : ' '}${shortenNumber(fund.overallPerc, 2)}%` : ''}`,
+                y: fund.totalUsd,
+                perc: fund.overallPerc,
+                fund,
+                fill: fund.chartFillColor,
+                labelFill: fund.chartLabelFillColor,
+                totalUsd: shortenNumber(usdTotals.overall, 2, true),
+                totalBalance: shortenNumber(usdTotals.balance, 2, true),
+            }
+        });
+
     return (
         <>
             {
-                chartMode ? <PieChart innerRadius={innerRadius} showTotalUsd={showChartTotal} handleDrill={handleDrill} showAsAmountOnly={showAsAmountOnly} data={
-                    fundsWithPerc
-                        .filter(({ usdBalance, usdAllowance }) => (usdAllowance > 0 || usdBalance > 0))
-                        .map(fund => {
-                            return {
-                                x: `${fund.label || fund.token?.symbol}${labelWithPercInChart ? `${skipLineForPerc ? '\r\n' : ' '}${shortenNumber(fund.overallPerc, 2)}%` : ''}`,
-                                y: fund.totalUsd,
-                                perc: fund.overallPerc,
-                                fund,
-                                fill: fund.chartFillColor,
-                                labelFill: fund.chartLabelFillColor,
-                            }
-                        })
-                }
-                {...chartProps}
-                />
+                chartMode ?
+                    useRecharts
+                        ?
+                        <PieChartRecharts
+                            data={chartData}
+                            dataKey={'y'}
+                            nameKey={'x'}
+                            centralNameKey={showAsAmountOnly ? 'totalBalance' : 'totalUsd'}
+                            cx="50%"
+                            cy="50%"
+                            isShortenNumbers={true}
+                            isUsd={!showAsAmountOnly}
+                            activeFill={themeStyles.colors.mainTextColor}
+                            activeTextFill={themeStyles.colors.mainTextColor}
+                            activeSubtextFill={themeStyles.colors.mainTextColorLight2}
+                            {...chartProps}                            
+                        />
+                        : <PieChart innerRadius={innerRadius} showTotalUsd={showChartTotal} handleDrill={handleDrill} showAsAmountOnly={showAsAmountOnly}
+                            data={chartData}
+                            {...chartProps}
+                        />
                     :
                     <>
                         {

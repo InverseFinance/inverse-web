@@ -100,12 +100,12 @@ export const MENUS = {
     },
     {
       label: 'Transparency',
-      href: '/transparency/overview',
+      href: '/transparency/treasury',
       submenus: [
-        {
-          href: '/transparency/overview',
-          label: 'Overview',
-        },
+        // {
+        //   href: '/transparency/overview',
+        //   label: 'Overview',
+        // },
         {
           href: '/transparency/treasury',
           label: 'Treasury',
@@ -116,7 +116,7 @@ export const MENUS = {
         },
         {
           label: 'FiRM users',
-          href: '/transparency/firm-users',
+          href: '/transparency/dbr#Users',
         },
         {
           href: '/transparency/liquidity',
@@ -124,15 +124,11 @@ export const MENUS = {
         },
         {
           href: '/transparency/dao',
-          label: 'DAO',
-        },
-        {
-          href: '/transparency/inv',
-          label: 'INV',
+          label: 'INV & DAO',
         },
         {
           href: '/transparency/dbr',
-          label: 'DBR',
+          label: 'DBR & FiRM',
         },
         {
           href: '/transparency/dola',

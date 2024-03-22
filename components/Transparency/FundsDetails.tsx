@@ -17,6 +17,9 @@ export const FundsDetails = ({
     totalLabel,
     description = '',
     isLoading,
+    useRecharts = false,
+    chartMode = true,
+    ...stackProps
 }: {
     funds: Fund[],
     title: string,
@@ -27,6 +30,8 @@ export const FundsDetails = ({
     showAsAmountOnly?: boolean,
     totalLabel?: string
     isLoading?: boolean
+    useRecharts?: boolean
+    chartMode?: boolean
 }) => {
     const [data, setData] = useState(funds);
     const [isDrilled, setIsDrilled] = useState(false);
@@ -59,9 +64,9 @@ export const FundsDetails = ({
         setIsAfterSlideEffect(isDrilled);
     }, [isDrilled], isDrilled, 500, 500);
 
-    return <Stack p={'1'} direction="column" minW={{ base: 'full', sm: '400px' }}>
+    return <Stack p={'1'} direction="column" minW={{ base: 'full', sm: '400px' }} {...stackProps}>
         <Stack>
-            <Text textAlign="center" color="accentTextColor" fontSize="20px" fontWeight="extrabold">{title}:</Text>
+            { !!title && <Text textAlign="center" color="accentTextColor" fontSize="20px" fontWeight="extrabold">{title}:</Text>}
             {
                 !!description && <Text textAlign="center" color="mainTextColor" fontSize="14px" fontWeight="extrabold">{description}:</Text>
             }
@@ -78,7 +83,7 @@ export const FundsDetails = ({
                     </Flex>
                 }
                 {
-                    data?.length && !isLoading && <Funds isLoading={isLoading} totalLabel={totalLabel} showAsAmountOnly={showAsAmountOnly} type={type} minUsd={1} handleDrill={isDrilled ? undefined : handleDrill} prices={prices} funds={data} chartMode={true} showTotal={true} labelWithPercInChart={labelWithPercInChart} />
+                    data?.length && !isLoading && chartMode && <Funds isLoading={isLoading} totalLabel={totalLabel} showAsAmountOnly={showAsAmountOnly} type={type} minUsd={1} handleDrill={isDrilled ? undefined : handleDrill} prices={prices} funds={data} chartMode={true} useRecharts={useRecharts} showTotal={true} labelWithPercInChart={labelWithPercInChart} />
                 }
                 {
                     isLoading && <SkeletonBlob />

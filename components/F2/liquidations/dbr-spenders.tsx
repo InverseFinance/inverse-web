@@ -165,7 +165,7 @@ export const DbrSpenders = ({
             <StatBasic isLoading={isLoading} name="DBR Monthly spend" value={`${shortenNumber(monthlyBurn, 2)} (${shortenNumber(dbrPriceUsd * monthlyBurn, 2, true)})`} />
             <StatBasic isLoading={isLoading} name="DBR Yearly spend" value={`${shortenNumber(yearlyBurn, 2)} (${shortenNumber(dbrPriceUsd * yearlyBurn, 2, true)})`} />
         </SimpleGrid>
-        {/* <Divider /> */}
+        <Divider />
         <Container
             label="Active DBR Spenders"
             noPadding

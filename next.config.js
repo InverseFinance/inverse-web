@@ -3,6 +3,26 @@ const { PHASE_DEVELOPMENT_SERVER } = require('next/constants')
 const redirects = async () => {
   return [
     {
+      source: '/transparency/overview',
+      destination: '/transparency/treasury',
+      permanent: false,
+    },
+    {
+      source: '/firm/users',
+      destination: '/transparency/dbr#Users',
+      permanent: false,
+    },
+    {
+      source: '/transparency/inv',
+      destination: '/transparency/dao',
+      permanent: false,
+    },
+    {
+      source: '/transparency/multisigs',
+      destination: '/transparency/dao',
+      permanent: false,
+    },
+    {
       source: '/whitepaper/sDOLA',
       destination: '/sDOLA.pdf',
       permanent: false,

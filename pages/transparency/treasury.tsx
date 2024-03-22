@@ -9,17 +9,18 @@ import { useCompensations, useDAO } from '@app/hooks/useDAO'
 import { getFundsTotalUsd } from '@app/components/Transparency/Funds'
 import { FundsDetails } from '@app/components/Transparency/FundsDetails'
 import { PayrollDetails } from '@app/components/Transparency/PayrollDetails'
+import { DashBoardCard } from '@app/components/F2/UserDashboard'
 
 export const Overview = () => {
-  const { prices } = usePricesV2(true)
-  const { treasury, anchorReserves, multisigs } = useDAO();
+  const { prices, isLoading: isLoadingPrices } = usePricesV2(true)
+  const { treasury, anchorReserves, multisigs, isLoading: isLoadingDao } = useDAO();
   const { currentPayrolls } = useCompensations();
 
   const TWGmultisigs = multisigs?.filter(m => m.shortName.includes('TWG')) || [];
   const TWGfunds = TWGmultisigs.map(m => m.funds);
 
   const totalMultisigs = multisigs?.map(m => {
-    return { label: m.name, balance: getFundsTotalUsd(m.funds, prices, 'balance'), usdPrice: 1, drill: m.funds }
+    return { label: m.shortName, balance: getFundsTotalUsd(m.funds, prices, 'balance'), usdPrice: 1, drill: m.funds }
   });
 
   const totalHoldings = [
@@ -28,6 +29,10 @@ export const Overview = () => {
     // { label: 'Bonds Manager Contract', balance: getFundsTotalUsd(bonds.balances, prices), usdPrice: 1, drill: bonds.balances },
     { label: 'Multisigs (includes veNFTs)', balance: getFundsTotalUsd(multisigs?.map(m => m.funds), prices, 'balance'), usdPrice: 1, drill: totalMultisigs },
   ];
+
+  const isLoading = isLoadingDao || isLoadingPrices;
+  const dashboardCardTitleProps = { w: 'fit-content', position: 'static' };
+  const dashboardCardProps = {  direction: 'column' };
 
   return (
     <Layout>
@@ -44,18 +49,32 @@ export const Overview = () => {
       <Flex w="full" justify="center" justifyContent="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="4" px="5" maxWidth="1200px" w='full'>
           <Stack spacing="5" direction={{ base: 'column', lg: 'column' }} w="full" justify="space-around">
-            <SimpleGrid minChildWidth={{ base: '300px', sm: '400px' }} spacingX="100px" spacingY="40px">
-              <FundsDetails title="Total Treasury Holdings" funds={totalHoldings} prices={prices} type='balance' />
-              <FundsDetails title="Multisigs's Holdings" funds={totalMultisigs} prices={prices} type='balance' />
-              <FundsDetails title="In Treasury Contract" funds={treasury} prices={prices} type='balance' />
-              <FundsDetails title="In Frontier Reserves" funds={anchorReserves} prices={prices} type='balance' />
-              <PayrollDetails currentPayrolls={currentPayrolls} prices={prices} title="DOLA Monthly Payrolls" />
-              <PayrollDetails currentPayrolls={currentPayrolls} prices={prices} fundKey={'unclaimed'} title="Unclaimed Payrolls" toMonthly={false} />
+            <SimpleGrid minChildWidth={{ base: '300px', sm: '400px' }} spacingX="50px" spacingY="40px">
+              <DashBoardCard cardTitle="Total Treasury Holdings" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
+                <FundsDetails w='full' isLoading={isLoading} funds={totalHoldings} prices={prices} type='balance' useRecharts={false} />
+              </DashBoardCard>
+              <DashBoardCard cardTitle="Multisigs's Holdings" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
+                <FundsDetails w='full' isLoading={isLoading} funds={totalMultisigs} prices={prices} type='balance' useRecharts={false} />
+              </DashBoardCard>
+              <DashBoardCard cardTitle="In Treasury Contract" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
+                <FundsDetails w='full' isLoading={isLoading} funds={treasury} prices={prices} type='balance' useRecharts={false} />
+              </DashBoardCard>
+              <DashBoardCard cardTitle="In Frontier Reserves" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
+                <FundsDetails w='full' isLoading={isLoading} funds={anchorReserves} prices={prices} type='balance' useRecharts={false} />
+              </DashBoardCard>
+              <DashBoardCard cardTitle="DOLA Monthly Payrolls" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
+                <PayrollDetails w='full' isLoading={isLoading} currentPayrolls={currentPayrolls} prices={prices}  useRecharts={false}  />
+              </DashBoardCard>
+              <DashBoardCard cardTitle="Unclaimed Payrolls" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
+                <PayrollDetails w='full' isLoading={isLoading} currentPayrolls={currentPayrolls} prices={prices} fundKey={'unclaimed'} toMonthly={false}  useRecharts={false}  />
+              </DashBoardCard>
               {/* <FundsDetails title="Reserved For Bonds" funds={bonds?.balances.filter(({ token }) => token.symbol === RTOKEN_SYMBOL)} prices={prices} /> */}
               {/* <FundsDetails title="Kept in the Bonds Manager" funds={bonds?.balances.filter(({ token }) => token.symbol !== RTOKEN_SYMBOL)} prices={prices} /> */}
               {
                 TWGfunds.map((mf, i) => {
-                  return <FundsDetails title={TWGmultisigs[i].name} funds={mf} prices={prices} type='balance' />
+                  return <DashBoardCard cardTitle={TWGmultisigs[i].name} cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
+                    <FundsDetails w='full' isLoading={isLoading} funds={mf} prices={prices} type='balance' useRecharts={false} />
+                  </DashBoardCard>
                 })
               }
             </SimpleGrid>

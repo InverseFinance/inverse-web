@@ -40,9 +40,6 @@ export const DolaDiagram = () => {
         <Flex direction="column">
           <FedList prices={prices} feds={fedOverviews.filter(f => !f.hasEnded)} isLoading={isLoadingOverview} />
           <DolaCircSupplyEvolution />
-          <Flex mt="4" p="2">
-            <DolaFlowChart dola={DOLA} dolaOperator={dolaOperator || TREASURY} feds={fedsWithData} />
-          </Flex>
         </Flex>
         <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
           <DolaMoreInfos />
