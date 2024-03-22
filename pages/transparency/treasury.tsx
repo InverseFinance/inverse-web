@@ -27,12 +27,13 @@ export const Overview = () => {
     { label: 'Treasury Contract', balance: getFundsTotalUsd(treasury, prices, 'balance'), usdPrice: 1, drill: treasury },
     { label: 'Frontier Reserves', balance: getFundsTotalUsd(anchorReserves, prices, 'balance'), usdPrice: 1, drill: anchorReserves },
     // { label: 'Bonds Manager Contract', balance: getFundsTotalUsd(bonds.balances, prices), usdPrice: 1, drill: bonds.balances },
-    { label: 'Multisigs (includes veNFTs)', balance: getFundsTotalUsd(multisigs?.map(m => m.funds), prices, 'balance'), usdPrice: 1, drill: totalMultisigs },
+    { label: 'Multisigs', balance: getFundsTotalUsd(multisigs?.map(m => m.funds), prices, 'balance'), usdPrice: 1, drill: totalMultisigs },
   ];
 
   const isLoading = isLoadingDao || isLoadingPrices;
-  const dashboardCardTitleProps = { w: 'fit-content', position: 'static' };
-  const dashboardCardProps = {  direction: 'column' };
+  const mainFontSize = { base: '16px', sm: '20px', md: '26px' };
+  const dashboardCardTitleProps = { w: 'fit-content', position: 'static', fontSize: mainFontSize, fontWeight: 'extrabold' };
+  const dashboardCardProps = {  direction: 'column', mx: '0', w: { base: '100vw', lg: '600px' }, borderRadius: { base: '0', sm: '8' } };
 
   return (
     <Layout>
@@ -47,33 +48,33 @@ export const Overview = () => {
       <AppNav active="Transparency" activeSubmenu="Treasury" hideAnnouncement={true} />
       <TransparencyTabs active="treasury" />
       <Flex w="full" justify="center" justifyContent="center" direction={{ base: 'column', xl: 'row' }}>
-        <Flex direction="column" py="4" px="5" maxWidth="1200px" w='full'>
-          <Stack spacing="5" direction={{ base: 'column', lg: 'column' }} w="full" justify="space-around">
-            <SimpleGrid minChildWidth={{ base: '300px', sm: '400px' }} spacingX="50px" spacingY="40px">
+        <Flex direction="column" py="4" px={{ base: '0', sm: '5' }} maxWidth="1400px" w='full'>
+          <Stack spacing="5" direction={{ base: 'column', lg: 'column' }} w="full" justify="space-around" alignItems={{ base: 'center', xl: 'unset' }}>
+            <SimpleGrid minChildWidth={{ base: '300px', sm: '500px' }} spacingX="50px" spacingY="40px">
               <DashBoardCard cardTitle="Total Treasury Holdings" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
-                <FundsDetails w='full' isLoading={isLoading} funds={totalHoldings} prices={prices} type='balance' useRecharts={false} />
+                <FundsDetails w='full' isLoading={isLoading} funds={totalHoldings} prices={prices} type='balance' useRecharts={true} />
               </DashBoardCard>
               <DashBoardCard cardTitle="Multisigs's Holdings" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
-                <FundsDetails w='full' isLoading={isLoading} funds={totalMultisigs} prices={prices} type='balance' useRecharts={false} />
+                <FundsDetails w='full' isLoading={isLoading} funds={totalMultisigs} prices={prices} type='balance' useRecharts={true} />
               </DashBoardCard>
               <DashBoardCard cardTitle="In Treasury Contract" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
-                <FundsDetails w='full' isLoading={isLoading} funds={treasury} prices={prices} type='balance' useRecharts={false} />
+                <FundsDetails w='full' isLoading={isLoading} funds={treasury} prices={prices} type='balance' useRecharts={true} />
               </DashBoardCard>
               <DashBoardCard cardTitle="In Frontier Reserves" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
-                <FundsDetails w='full' isLoading={isLoading} funds={anchorReserves} prices={prices} type='balance' useRecharts={false} />
+                <FundsDetails w='full' isLoading={isLoading} funds={anchorReserves} prices={prices} type='balance' useRecharts={true} />
               </DashBoardCard>
               <DashBoardCard cardTitle="DOLA Monthly Payrolls" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
-                <PayrollDetails w='full' isLoading={isLoading} currentPayrolls={currentPayrolls} prices={prices}  useRecharts={false}  />
+                <PayrollDetails w='full' isLoading={isLoading} currentPayrolls={currentPayrolls} prices={prices}  useRecharts={true}  />
               </DashBoardCard>
               <DashBoardCard cardTitle="Unclaimed Payrolls" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
-                <PayrollDetails w='full' isLoading={isLoading} currentPayrolls={currentPayrolls} prices={prices} fundKey={'unclaimed'} toMonthly={false}  useRecharts={false}  />
+                <PayrollDetails w='full' isLoading={isLoading} currentPayrolls={currentPayrolls} prices={prices} fundKey={'unclaimed'} toMonthly={false}  useRecharts={true}  />
               </DashBoardCard>
               {/* <FundsDetails title="Reserved For Bonds" funds={bonds?.balances.filter(({ token }) => token.symbol === RTOKEN_SYMBOL)} prices={prices} /> */}
               {/* <FundsDetails title="Kept in the Bonds Manager" funds={bonds?.balances.filter(({ token }) => token.symbol !== RTOKEN_SYMBOL)} prices={prices} /> */}
               {
                 TWGfunds.map((mf, i) => {
                   return <DashBoardCard cardTitle={TWGmultisigs[i].name} cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
-                    <FundsDetails w='full' isLoading={isLoading} funds={mf} prices={prices} type='balance' useRecharts={false} />
+                    <FundsDetails w='full' isLoading={isLoading} funds={mf} prices={prices} type='balance' useRecharts={true} />
                   </DashBoardCard>
                 })
               }

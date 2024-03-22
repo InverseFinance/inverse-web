@@ -155,6 +155,7 @@ export const VeNftEvolutionWrapper = () => {
 
     const rangesToInclude = isLargerThan2xl ? ['All', '1Y', '6M', '3M', '1M', 'YTD'] : ['All', '1Y', '6M', '3M', 'YTD'];
     const mainFontSize = { base: '16px', sm: '20px', md: '26px' };
+    const commonCardProps = { minH: { xl: '457px' }, borderRadius: { base: '0', sm: '8' }, w: { base: '100vw', sm: 'auto' } };
 
     if (!inited) return null
 
@@ -171,8 +172,9 @@ export const VeNftEvolutionWrapper = () => {
             label="Total veNFTs value"
             isLoading={isLoading || isLoadingPrices}
             precision={0}
+            {...commonCardProps}
         />
-        <DashBoardCard>
+        <DashBoardCard {...commonCardProps}>
             <VStack>
                 <VStack>
                     <Text fontSize={mainFontSize} fontWeight="extrabold">Total veNFTs value evolution</Text>
@@ -181,7 +183,7 @@ export const VeNftEvolutionWrapper = () => {
                     data={accChartData}
                     isLoading={isLoading}
                     isDollars={true}
-                    containerProps={{ pt: '0' }}
+                    containerProps={{ pt: '0' }}                    
                     areaProps={{
                         id: "veNfts-all",
                         autoMinY: true,
@@ -201,7 +203,8 @@ export const VeNftEvolutionWrapper = () => {
             chartList.map(item => {
                 return <DashBoardCard
                     key={item.symbol}
-                    imageSrc={getNetworkImage(item.chainId)}
+                    imageSrc={getNetworkImage(item.chainId)}                    
+                    {...commonCardProps}
                 >
                     <VStack>
                         <HStack>
@@ -213,6 +216,7 @@ export const VeNftEvolutionWrapper = () => {
                             isLoading={isLoading}
                             isDollars={true}
                             containerProps={{ pt: '0' }}
+                            {...commonCardProps}
                             areaProps={{
                                 id: `veNfts-${item.symbol}`,
                                 autoMinY: true,

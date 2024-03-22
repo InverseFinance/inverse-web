@@ -10,17 +10,20 @@ const renderActiveShape = (props) => {
     const { isMobile, precision, activeFill, centralFill, nameKey, isUsd, cx, cy, centralNameKey, midAngle, innerRadius, outerRadius, startAngle, endAngle, activeSubtextFill, activeTextFill, payload, percent, value, isShortenNumbers } = props;
     const sin = Math.sin(-RADIAN * midAngle);
     const cos = Math.cos(-RADIAN * midAngle);
+    const isPosCos = cos >= 0;
     const sx = cx + (outerRadius + 10) * cos;
     const sy = cy + (outerRadius + 10) * sin;
     const mx = cx + (outerRadius + 30) * cos;
     const my = cy + (outerRadius + 30) * sin;
-    const ex = mx + (cos >= 0 ? 1 : -1) * 22;
+    const ex = mx + (isPosCos ? 1 : -1) * 22;
     const ey = my;
-    const textAnchor = cos >= 0 ? 'start' : 'end';
+    
+    const textAnchor = isPosCos ? 'start' : 'end';
 
     const formattedValue = isMobile || isShortenNumbers ? smartShortNumber(value, 2, isUsd) : `${preciseCommify(value, precision, isUsd)}`;
     const formattedPerc = `${(percent * 100).toFixed(2)}%`;
     const formattedValueAndPerc = `${formattedValue} (${formattedPerc})`;
+    const x = ex + (isPosCos ? 1 : -1) * 12;    
 
     return (
         <g>
@@ -46,11 +49,11 @@ const renderActiveShape = (props) => {
                 fill={activeFill}
             />
             <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={activeFill} fill="none" />
-            <circle cx={ex} cy={ey} r={2} fill={activeFill} stroke="none" />
-            <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} fontWeight="bold" textAnchor={textAnchor} fontSize={18} fill={activeTextFill || activeFill}>
+            <circle cx={ex} cy={ey} r={2} fill={activeFill} stroke="none" />            
+            <text x={x} y={ey} fontWeight="bold" textAnchor={textAnchor} fontSize={16} fill={activeTextFill || activeFill}>
                 {centralNameKey ? payload[nameKey] : formattedValue}
             </text>
-            <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill={activeSubtextFill || '#999'}>
+            <text x={x} y={ey} dy={20} textAnchor={textAnchor} fill={activeSubtextFill || '#999'} fontSize={14} >
                 {centralNameKey ? formattedValueAndPerc : formattedPerc}
             </text>
         </g>

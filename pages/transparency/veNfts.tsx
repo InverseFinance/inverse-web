@@ -15,7 +15,7 @@ export const veNftsPage = () => {
             <AppNav active="Transparency" activeSubmenu="veNfts" hideAnnouncement={true} />
             <TransparencyTabs active="veNfts" />            
             <ErrorBoundary>
-                <VStack pt="4" spacing="4" w='full' maxW={{ base: '94%', '2xl': '90rem' }}>
+                <VStack pt="4" spacing="4" w='full' maxW={{ base: '100%', sm: '94%', '2xl': '90rem' }}>
                     <ErrorBoundary description="Failed to Dashboard">
                         <VeNftEvolutionWrapper />
                     </ErrorBoundary>
