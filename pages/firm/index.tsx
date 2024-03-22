@@ -96,7 +96,7 @@ export const F2PAGE = ({
                 </SlideModal>
             }
             <ErrorBoundary>
-                <VStack pt={{ base: 4, md: 8, '2xl': 20 }} w='full' maxW={{ base: '84rem', '2xl': '90rem' }}>
+                <VStack pt={{ base: 4, md: 8 }} w='full' maxW={{ base: '84rem', '2xl': '90rem' }}>
                     <ErrorBoundary description="Failed to FiRM header">
                         <VStack px='6' w='full'>
                             <FirmBar />
