@@ -4,11 +4,15 @@ import { NETWORKS_BY_CHAIN_ID } from "@app/config/networks";
 import { capitalize } from "@app/util/misc";
 import { fetcher30sectimeout } from "@app/util/web3";
 import { dolaStakingCacheKey } from "../dola-staking";
+import { isAddress } from "ethers/lib/utils";
 
 // external use in spreadsheet
 export default async (req, res) => {
+    const { include } = req.query;
+    const includeList = include ? include.split(',').filter(ad => isAddress(ad)) : [];
     const cacheDuration = 900;
-    const cacheKey = 'dola-modal-2-v1.0.2';
+    const cacheKey = `dola-modal-2-v1.0.2${include ? includeList.join(',') : ''}`;
+
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
 
     try {
@@ -26,7 +30,7 @@ export default async (req, res) => {
             '0x7c082BF85e01f9bB343dbb460A14e51F67C58cFB',
             '0xbD1F921786e12a80F2184E4d6A5cAcB25dc673c9',
             '0xAA5A67c256e27A5d80712c51971408db3370927D',
-        ].map(ad => ad.toLowerCase());
+        ].concat(includeList).map(ad => ad.toLowerCase());
         const feds = liquidityData.liquidity.filter(d => d.isFed || exceptions.includes(d.address.toLowerCase()));
         const totalBorrowsOnFirm = liquidityData.firmBorrows;
         const currentDolaBadDebt = badDebtData.badDebts.DOLA.badDebtBalance;
