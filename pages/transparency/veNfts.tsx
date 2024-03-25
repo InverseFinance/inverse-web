@@ -4,7 +4,7 @@ import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 import { VeNftEvolutionWrapper } from '@app/components/Transparency/VeNftEvolution'
-import { HStack, VStack, Text } from '@chakra-ui/react'
+import { VStack } from '@chakra-ui/react'
 
 export const veNftsPage = () => {
     return (
