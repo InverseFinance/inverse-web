@@ -1155,13 +1155,16 @@ const chainTokens = {
     [chainTokenAddresses["1"].INVTRICRYPTOCVX]: {
       address: chainTokenAddresses["1"].INVTRICRYPTOCVX,      
       name: 'TricryptoINV',
-      symbol: 'TricryptoINV clp',
-      image: TOKEN_IMAGES.DOLA,
+      symbol: 'TricryptoINV cvxlp',
+      image: TOKEN_IMAGES.INV,
       decimals: 18,
       isLP: true,    
       pairs: [
         chainTokenAddresses["1"].USDC, chainTokenAddresses["1"].WETH, chainTokenAddresses["1"].INV
       ],
+      convexInfos:{
+        fromPrice: chainTokenAddresses["1"].INVTRICRYPTO,
+      },
       protocolImage: PROTOCOL_IMAGES.CVX,      
     },
     [chainTokenAddresses["1"].DBRTRICRYPTO]: {
@@ -1185,6 +1188,9 @@ const chainTokens = {
       image: TOKEN_IMAGES.DBR,
       decimals: 18,
       isLP: true,
+      convexInfos:{
+        fromPrice: chainTokenAddresses["1"].DBRTRICRYPTO,
+      },
       pairs: [
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].DBR, chainTokenAddresses["1"].INV
       ],

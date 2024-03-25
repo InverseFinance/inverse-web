@@ -168,7 +168,7 @@ export default async function handler(req, res) {
           chainFundsToCheck.map(tokenAddress => {
             const token = CHAIN_TOKENS[m.chainId][tokenAddress]
             const isTWGtype = m.shortName.includes('TWG');
-            const isLockedConvexPool = !!token && !!token.convexInfos && m.shortName === 'TWG';
+            const isLockedConvexPool = !!token && !!token.convexInfos?.account && m.shortName === 'TWG';
             if (
               // reduce numbers of check
               (!isTWGtype && m.shortName !== 'BBP' && !['DOLA', 'INV'].includes(token?.symbol))
