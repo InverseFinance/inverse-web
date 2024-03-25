@@ -109,6 +109,8 @@ const chainTokenAddresses = {
     CRVUSD: '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
     INVTRICRYPTO: '0x5426178799ee0a0181A89b4f57eFddfAb49941Ec',
     DBRTRICRYPTO: '0xC7DE47b9Ca2Fc753D6a2F167D8b3e19c6D18b19a',
+    INVTRICRYPTOCVX: '0x21E2d7f66DF6F4e8199210b9490a51831C9847C7',
+    DBRTRICRYPTOCVX: '0x9a2d1b49b7c8783E37780AcE4ffA3416Eea64357',
     STYCRV: '0x27B5739e22ad9033bcBf192059122d163b60349D',
     YCRV: '0xFCc5c47bE19d06BF83eB04298b026F81069ff65b',
     STCVX: '0xCF50b810E57Ac33B91dCF525C6ddd9881B139332',
@@ -1150,6 +1152,18 @@ const chainTokens = {
       protocolImage: PROTOCOL_IMAGES.CRV,
       link: 'https://curve.fi/#/ethereum/pools/factory-tricrypto-3/deposit',
     },
+    [chainTokenAddresses["1"].INVTRICRYPTOCVX]: {
+      address: chainTokenAddresses["1"].INVTRICRYPTOCVX,      
+      name: 'TricryptoINV',
+      symbol: 'TricryptoINV clp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,    
+      pairs: [
+        chainTokenAddresses["1"].USDC, chainTokenAddresses["1"].WETH, chainTokenAddresses["1"].INV
+      ],
+      protocolImage: PROTOCOL_IMAGES.CVX,      
+    },
     [chainTokenAddresses["1"].DBRTRICRYPTO]: {
       address: chainTokenAddresses["1"].DBRTRICRYPTO,      
       name: 'INV-DBR-DOLA',
@@ -1163,6 +1177,18 @@ const chainTokens = {
       ],
       protocolImage: PROTOCOL_IMAGES.CRV,
       link: 'https://curve.fi/#/ethereum/pools/factory-tricrypto-18/deposit',
+    },
+    [chainTokenAddresses["1"].DBRTRICRYPTOCVX]: {
+      address: chainTokenAddresses["1"].DBRTRICRYPTOCVX,      
+      name: 'INV-DBR-DOLA',
+      symbol: 'INV-DBR-DOLA cvxlp',
+      image: TOKEN_IMAGES.DBR,
+      decimals: 18,
+      isLP: true,
+      pairs: [
+        chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].DBR, chainTokenAddresses["1"].INV
+      ],
+      protocolImage: PROTOCOL_IMAGES.CVX,      
     },
   },
   "43114": {
