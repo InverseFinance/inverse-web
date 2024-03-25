@@ -21,6 +21,7 @@ export const AreaChartRecharts = ({
     yLabel,
     showTooltips = true,
     showLegend = false,
+    legendPosition = 'top',
     allowZoom = false,
     showEvents = false,
     showEventsLabels = false,
@@ -34,9 +35,11 @@ export const AreaChartRecharts = ({
     strokeColor,
     isPerc,
     forceStaticRangeBtns,
-    showPrice = false,
-    priceRef = 'price',
-    priceName = 'Price',
+    showSecondary = false,
+    secondaryRef = 'price',
+    secondaryLabel = 'Price',
+    secondaryAsUsd = true,
+    secondaryPrecision = 4,
 }: {
     combodata: { y: number, x: number, timestamp: number, utcDate: string }[]
     title: string
@@ -45,6 +48,7 @@ export const AreaChartRecharts = ({
     chartHeight?: number
     useUsd?: boolean
     showLegend?: boolean
+    legendPosition?: 'top' | 'bottom'
     showTooltips?: boolean
     allowZoom?: boolean
     mainColor?: string
@@ -63,9 +67,11 @@ export const AreaChartRecharts = ({
     strokeColor?: string
     isPerc?: boolean
     forceStaticRangeBtns?: boolean
-    showPrice?: boolean
-    priceName?: string
-    priceRef?: string
+    showSecondary?: boolean
+    secondaryRef?: string
+    secondaryLabel?: string
+    secondaryAsUsd?: boolean
+    secondaryPrecision?: number
 }) => {    
     const { themeStyles } = useAppTheme();
     const { mouseDown, mouseUp, mouseMove, mouseLeave, bottom, top, rangeButtonsBarAbs, zoomReferenceArea, data } = useRechartsZoom({
@@ -84,7 +90,8 @@ export const AreaChartRecharts = ({
 
     const legendStyle = {
         ..._axisStyle.tickLabels,
-        top: -8,
+        verticalAlign: legendPosition,
+        top: legendPosition === 'top' ? -8 : undefined,
         fontSize: '12px',
     }    
     const doesDataSpansSeveralYears = combodata?.filter(d => d.utcDate.endsWith('01-01')).length > 1;
@@ -130,10 +137,10 @@ export const AreaChartRecharts = ({
                 />
                 <YAxis domain={[bottom, top]} yAxisId="left" style={_axisStyle.tickLabels} tickFormatter={(v) => v === 0 ? '' : isPerc ? `${smartShortNumber(v, 2)}%` : smartShortNumber(v, 2, useUsd)} />
                 {
-                    showPrice && <YAxis allowDataOverflow={true} style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => shortenNumber(v, 4, true)} />
+                    showSecondary && <YAxis allowDataOverflow={true} style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => shortenNumber(v, secondaryPrecision, secondaryAsUsd)} />
                 }
                 {
-                    showPrice && <Line isAnimationActive={false} opacity={1} strokeWidth={2} name={priceName} yAxisId="right" type="monotone" dataKey={priceRef} stroke={themeStyles.colors.info} dot={false} />
+                    showSecondary && <Line isAnimationActive={false} opacity={1} strokeWidth={2} name={secondaryLabel} yAxisId="right" type="monotone" dataKey={secondaryRef} stroke={themeStyles.colors.info} dot={false} />
                 }
                 {
                     showTooltips && <Tooltip
@@ -144,7 +151,8 @@ export const AreaChartRecharts = ({
                         itemStyle={{ fontWeight: 'bold' }}
                         formatter={(value, name) => {
                             const isPrice = name === 'Price';
-                            return !value ? 'none' : isPerc ? `${shortenNumber(value, 2)}%` : isPrice ? shortenNumber(value, 4, true) : preciseCommify(value, 0, useUsd)
+                            const isSecondary = name === secondaryLabel;
+                            return !value ? 'none' : isPerc ? `${shortenNumber(value, 2)}%` : isPrice ? shortenNumber(value, 4, true) : preciseCommify(value, 0, isSecondary ? secondaryAsUsd : useUsd)
                         }}
                     />
                 }
