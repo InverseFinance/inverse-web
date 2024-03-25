@@ -116,7 +116,7 @@ export const VeNftEvolutionWrapper = () => {
             ...veNft,
             currentWorth: (veNft.currentBalance || 0) * currentPrice,
             chartData: accumulatedEvolution.map(d => {
-                return { ...d, utcDate: d.date, x: d.timestamp, y: d[veNft.symbol], yDay: d[veNft.symbol] };
+                return { ...d, utcDate: d.date, x: d.timestamp, y: d[veNft.symbol], yDay: d[veNft.symbol], y2: d[`${veNft.symbol}-balance`] };
             })
                 .concat(currentPrice ? [
                     {
@@ -125,6 +125,7 @@ export const VeNftEvolutionWrapper = () => {
                         date: timestampToUTC(now),
                         utcDate: timestampToUTC(now),
                         y: (veNft.currentBalance || 0) * currentPrice,
+                        y2: (veNft.currentBalance || 0),
                         yDay: (veNft.currentBalance || 0) * currentPrice,
                         [`${veNft.symbol}`]: (veNft.currentBalance || 0) * currentPrice,
                         [`${veNft.symbol}-price`]: currentPrice,
@@ -191,8 +192,7 @@ export const VeNftEvolutionWrapper = () => {
                         autoMinY: true,
                         useRecharts: true,
                         showRangeBtns: true,
-                        fillInByDayInterval: 1,
-                        showPrice: false,
+                        fillInByDayInterval: 1,                        
                         rangesToInclude,
                         yLabel: 'Total value',
                         mainColor: 'secondary',
@@ -225,10 +225,15 @@ export const VeNftEvolutionWrapper = () => {
                                 useRecharts: true,
                                 showRangeBtns: true,
                                 fillInByDayInterval: 1,
-                                showPrice: true,
-                                priceRef: `${item.symbol}-price`,
-                                yLabel: `${item.symbol} value`,
+                                showSecondary: true,
+                                secondaryRef: 'y2',
+                                secondaryLabel: 'Locked amount',
+                                secondaryAsUsd: false,
+                                secondaryPrecision: 2,                                
+                                yLabel: `Value`,
                                 rangesToInclude,
+                                showLegend: true,
+                                legendPosition: 'bottom',
                                 mainColor: 'secondary',
                                 forceStaticRangeBtns: true,
                                 rightPadding: isLargerThan2xl ? 0 : undefined,
