@@ -5,17 +5,15 @@ import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { usePricesV2 } from '@app/hooks/usePrices'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs';
-import { useCompensations, useDAO } from '@app/hooks/useDAO'
+import { useDAO } from '@app/hooks/useDAO'
 import { getFundsTotalUsd } from '@app/components/Transparency/Funds'
 import { FundsDetails } from '@app/components/Transparency/FundsDetails'
-import { PayrollDetails } from '@app/components/Transparency/PayrollDetails'
 import { DashBoardCard } from '@app/components/F2/UserDashboard'
 import { getNetworkImage } from '@app/util/networks'
 
 export const Overview = () => {
   const { prices, isLoading: isLoadingPrices } = usePricesV2(true)
   const { treasury, anchorReserves, multisigs, isLoading: isLoadingDao } = useDAO();
-  const { currentPayrolls } = useCompensations();
 
   const TWGmultisigs = multisigs?.filter(m => m.shortName.includes('TWG')) || [];
   const TWGfunds = TWGmultisigs.map(m => m.funds);
@@ -28,7 +26,8 @@ export const Overview = () => {
     { label: 'Treasury Contract', balance: getFundsTotalUsd(treasury, prices, 'balance'), usdPrice: 1, drill: treasury },
     { label: 'Frontier Reserves', balance: getFundsTotalUsd(anchorReserves, prices, 'balance'), usdPrice: 1, drill: anchorReserves },
     // { label: 'Bonds Manager Contract', balance: getFundsTotalUsd(bonds.balances, prices), usdPrice: 1, drill: bonds.balances },
-    { label: 'Multisigs', balance: getFundsTotalUsd(multisigs?.map(m => m.funds), prices, 'balance'), usdPrice: 1, drill: totalMultisigs },
+    { label: 'veNFTs', balance: getFundsTotalUsd(multisigs?.map(m => m.funds.filter(fund => !!fund.token.veNftId)), prices, 'balance'), usdPrice: 1, drill: totalMultisigs },
+    { label: 'Multisigs (excl. veNFTs)', balance: getFundsTotalUsd(multisigs?.map(m => m.funds.filter(fund => !fund.token.veNftId)), prices, 'balance'), usdPrice: 1, drill: totalMultisigs },
   ];
 
   const isLoading = isLoadingDao || isLoadingPrices;
@@ -64,17 +63,12 @@ export const Overview = () => {
               <DashBoardCard cardTitle="In Frontier Reserves" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
                 <FundsDetails w='full' isLoading={isLoading} funds={anchorReserves} prices={prices} type='balance' useRecharts={true} />
               </DashBoardCard>
-              <DashBoardCard cardTitle="DOLA Monthly Payrolls" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
-                <PayrollDetails w='full' isLoading={isLoading} currentPayrolls={currentPayrolls} prices={prices}  useRecharts={true}  />
-              </DashBoardCard>
-              <DashBoardCard cardTitle="Unclaimed Payrolls" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
-                <PayrollDetails w='full' isLoading={isLoading} currentPayrolls={currentPayrolls} prices={prices} fundKey={'unclaimed'} toMonthly={false}  useRecharts={true}  />
-              </DashBoardCard>
+
               {/* <FundsDetails title="Reserved For Bonds" funds={bonds?.balances.filter(({ token }) => token.symbol === RTOKEN_SYMBOL)} prices={prices} /> */}
               {/* <FundsDetails title="Kept in the Bonds Manager" funds={bonds?.balances.filter(({ token }) => token.symbol !== RTOKEN_SYMBOL)} prices={prices} /> */}
               {
                 TWGfunds.map((mf, i) => {
-                  return <DashBoardCard imageSrc={getNetworkImage(TWGmultisigs[i].chainId)} cardTitle={TWGmultisigs[i].shortName} cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
+                  return <DashBoardCard imageSrc={getNetworkImage(TWGmultisigs[i].chainId)} cardTitle={TWGmultisigs[i].shortName === 'TWG' ? 'TWG on Mainnet' : TWGmultisigs[i].shortName} cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
                     <FundsDetails w='full' isLoading={isLoading} funds={mf} prices={prices} type='balance' useRecharts={true} />
                   </DashBoardCard>
                 })
