@@ -93,10 +93,13 @@ const chainTokenAddresses = {
     DOLAFRAXPYUSD: '0xef484de8C07B6e2d732A92B5F78e81B38f99f95E',
     DOLAFRAXPYUSDCVX: '0xE8cBdBFD4A1D776AB1146B63ABD1718b2F92a823',
     FRAXPYUSD: '0xA5588F7cdf560811710A2D82D3C9c99769DB1Dcb',
+    DOLAFXUSDLP: '0x189B4e49B5cAf33565095097b4B960F14032C7D0',
+    DOLAFXUSDLPCVX: '0x2ef1dA0368470B2603BAb392932E70205eEb9046',
     INVETHCLP: '0xEAc004214F2ACa7a6BA01C7558cb4a85E7958ddD',
     DOLADBRCLP: '0x0a6B1d9F920019BAbc4De3F10c94ECB822106104',
     FRAXUSDC: '0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC',
     FRAX: '0x853d955acef822db058eb8505911ed77f175b99e',
+    FXUSD: '0x085780639CC2cACd35E474e71f4d000e2405d8f6',
     DBR: '0xAD038Eb671c44b853887A7E32528FaB35dC5D710',
     GOHM: '0x0ab87046fBb341D058F17CBC4c1133F25a20a52f',
     CUSD: '0xC285B7E09A4584D027E5BC36571785B515898246',
@@ -108,6 +111,7 @@ const chainTokenAddresses = {
     DOLACRVUSDLP: '0x8272e1a3dbef607c04aa6e5bd3a1a134c8ac063b',
     CRVUSD: '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
     INVTRICRYPTO: '0x5426178799ee0a0181A89b4f57eFddfAb49941Ec',
+    INVTRICRYPTOYEARNV2: '0x6949145469362F9eeaB3c96Ea41b51D9B4cC2b21',
     DBRTRICRYPTO: '0xC7DE47b9Ca2Fc753D6a2F167D8b3e19c6D18b19a',
     INVTRICRYPTOCVX: '0x21E2d7f66DF6F4e8199210b9490a51831C9847C7',
     DBRTRICRYPTOCVX: '0x9a2d1b49b7c8783E37780AcE4ffA3416Eea64357',
@@ -626,19 +630,22 @@ const chainTokens = {
       link: 'https://curve.fi/#/ethereum/pools/factory-stable-ng-96/deposit',
       deduce: [chainTokenAddresses["1"].DOLAFRAXPYUSDCVX],
     },    
-    // [chainTokenAddresses["1"].DOLAFRAXPYUSDCVX]: {
-    //   address: chainTokenAddresses["1"].DOLAFRAXPYUSDCVX,
-    //   name: 'DOLA-FRAX-PYUSD',
-    //   symbol: 'DOLA-FRAX-PYUSD cvxlp',
-    //   protocolImage: PROTOCOL_IMAGES.CVX,
-    //   decimals: 18,
-    //   isLP: true,
-    //   isStable: true,
-    //   pairs: [
-    //     chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].FRAXPYUSD
-    //   ],
-    //   image: TOKEN_IMAGES.DOLA,      
-    // },
+    [chainTokenAddresses["1"].DOLAFRAXPYUSDCVX]: {
+      address: chainTokenAddresses["1"].DOLAFRAXPYUSDCVX,      
+      name: 'DOLA-FRAX-PYUSD',
+      symbol: 'DOLA-FRAX-PYUSD cvxlp', 
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      pairs: [
+        chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].FRAXPYUSD
+      ],
+      convexInfos:{
+        fromPrice: chainTokenAddresses["1"].DOLAFRAXPYUSD,
+        priceField: 'lp_price',
+      },
+      protocolImage: PROTOCOL_IMAGES.CVX,      
+    },
     // [chainTokenAddresses["1"].DOLACUSDALP]: {
     //   address: chainTokenAddresses["1"].DOLACUSDALP,
     //   name: 'DOLA-FRAX-USDC',
@@ -1138,6 +1145,36 @@ const chainTokens = {
       image: TOKEN_IMAGES.YCRV,
       decimals: 18,
     },
+    [chainTokenAddresses["1"].DOLAFXUSDLP]: {
+      address: chainTokenAddresses["1"].DOLAFXUSDLP,      
+      name: 'DOLA-FXUSD',
+      symbol: 'DOLA-FXUSD clp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isCrvLP: true,
+      pairs: [
+        chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].FXUSD
+      ],
+      protocolImage: PROTOCOL_IMAGES.CRV,
+      deduce: [chainTokenAddresses["1"].DOLAFXUSDLPCVX],  
+    },
+    [chainTokenAddresses["1"].DOLAFXUSDLPCVX]: {
+      address: chainTokenAddresses["1"].DOLAFXUSDLPCVX,      
+      name: 'DOLA-FXUSD',
+      symbol: 'DOLA-FXUSD cvxlp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,    
+      pairs: [
+        chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].FXUSD
+      ],
+      convexInfos:{
+        fromPrice: chainTokenAddresses["1"].DOLAFXUSDLP,
+        // priceField: 'lp_price',
+      },
+      protocolImage: PROTOCOL_IMAGES.CVX,   
+    },
     [chainTokenAddresses["1"].INVTRICRYPTO]: {
       address: chainTokenAddresses["1"].INVTRICRYPTO,      
       name: 'TricryptoINV',
@@ -1151,7 +1188,22 @@ const chainTokens = {
       ],
       protocolImage: PROTOCOL_IMAGES.CRV,
       link: 'https://curve.fi/#/ethereum/pools/factory-tricrypto-3/deposit',
+      deduce: [chainTokenAddresses["1"].INVTRICRYPTOCVX, chainTokenAddresses["1"].INVTRICRYPTOYEARNV2],
     },
+    [chainTokenAddresses["1"].INVTRICRYPTOYEARNV2]: {
+      address: chainTokenAddresses["1"].INVTRICRYPTOYEARNV2,    
+      rootCrvPool: chainTokenAddresses["1"].INVTRICRYPTO,  
+      name: 'yvTricryptoINV',
+      symbol: 'TricryptoINV yclp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isYearnV2LP: true,
+      pairs: [
+        chainTokenAddresses["1"].USDC, chainTokenAddresses["1"].WETH, chainTokenAddresses["1"].INV
+      ],
+      protocolImage: PROTOCOL_IMAGES.YEARN,
+    },    
     [chainTokenAddresses["1"].INVTRICRYPTOCVX]: {
       address: chainTokenAddresses["1"].INVTRICRYPTOCVX,      
       name: 'TricryptoINV',
@@ -1164,6 +1216,7 @@ const chainTokens = {
       ],
       convexInfos:{
         fromPrice: chainTokenAddresses["1"].INVTRICRYPTO,
+        priceField: 'lp_price',
       },
       protocolImage: PROTOCOL_IMAGES.CVX,      
     },
@@ -1180,6 +1233,7 @@ const chainTokens = {
       ],
       protocolImage: PROTOCOL_IMAGES.CRV,
       link: 'https://curve.fi/#/ethereum/pools/factory-tricrypto-18/deposit',
+      deduce: [chainTokenAddresses["1"].DBRTRICRYPTOCVX],  
     },
     [chainTokenAddresses["1"].DBRTRICRYPTOCVX]: {
       address: chainTokenAddresses["1"].DBRTRICRYPTOCVX,      
@@ -1190,6 +1244,7 @@ const chainTokens = {
       isLP: true,
       convexInfos:{
         fromPrice: chainTokenAddresses["1"].DBRTRICRYPTO,
+        priceField: 'lp_price',
       },
       pairs: [
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].DBR, chainTokenAddresses["1"].INV

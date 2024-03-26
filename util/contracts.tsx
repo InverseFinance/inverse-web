@@ -467,8 +467,17 @@ export const getLPPrice = async (LPToken: Token, chainId = process.env.NEXT_PUBL
   else if (!providerOrSigner) { return new Promise(r => r(0)) }
   else if (LPToken.isCrvLP) {
     return getBnToNumber(await (new Contract(LPToken.poolAddress || LPToken.address, DOLA3POOLCRV_ABI, providerOrSigner).get_virtual_price()), LPToken.decimals);
-  } else if (LPToken.convexInfos) {
-    return getBnToNumber(await (new Contract(LPToken.convexInfos.fromPrice, DOLA3POOLCRV_ABI, providerOrSigner).get_virtual_price()), LPToken.decimals);
+  } 
+  else if(LPToken.isYearnV2LP) {
+    const [price, pricePerShare] = await getMulticallOutput([
+      { contract: new Contract(LPToken.rootCrvPool, DOLA3POOLCRV_ABI, providerOrSigner), functionName: 'lp_price' },
+      { contract: new Contract(LPToken.address, ['function pricePerShare() public view returns (uint)'], providerOrSigner), functionName: 'pricePerShare' },
+    ], Number(chainId));
+    return getBnToNumber(price) * getBnToNumber(pricePerShare);
+  } 
+  else if (LPToken.convexInfos) {
+    const priceField = LPToken.convexInfos?.priceField || 'get_virtual_price';
+    return getBnToNumber(await (new Contract(LPToken.convexInfos.fromPrice, DOLA3POOLCRV_ABI, providerOrSigner)[priceField]()), LPToken.decimals);
   } // treat uniV3 nft pos as $1
   else if (LPToken.isUniV3) {
     return new Promise(r => r(1))
@@ -478,7 +487,6 @@ export const getLPPrice = async (LPToken: Token, chainId = process.env.NEXT_PUBL
 
   try {
     const tokens = LPToken.pairs.map(address => CHAIN_TOKENS[chainId][address]);
-
     const coingeckoIds = tokens
       .map(({ coingeckoId }) => coingeckoId)
 

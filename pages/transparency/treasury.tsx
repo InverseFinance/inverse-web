@@ -10,6 +10,7 @@ import { getFundsTotalUsd } from '@app/components/Transparency/Funds'
 import { FundsDetails } from '@app/components/Transparency/FundsDetails'
 import { PayrollDetails } from '@app/components/Transparency/PayrollDetails'
 import { DashBoardCard } from '@app/components/F2/UserDashboard'
+import { getNetworkImage } from '@app/util/networks'
 
 export const Overview = () => {
   const { prices, isLoading: isLoadingPrices } = usePricesV2(true)
@@ -73,7 +74,7 @@ export const Overview = () => {
               {/* <FundsDetails title="Kept in the Bonds Manager" funds={bonds?.balances.filter(({ token }) => token.symbol !== RTOKEN_SYMBOL)} prices={prices} /> */}
               {
                 TWGfunds.map((mf, i) => {
-                  return <DashBoardCard cardTitle={TWGmultisigs[i].name} cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
+                  return <DashBoardCard imageSrc={getNetworkImage(TWGmultisigs[i].chainId)} cardTitle={TWGmultisigs[i].shortName} cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
                     <FundsDetails w='full' isLoading={isLoading} funds={mf} prices={prices} type='balance' useRecharts={true} />
                   </DashBoardCard>
                 })
