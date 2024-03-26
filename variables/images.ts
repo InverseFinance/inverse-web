@@ -116,6 +116,7 @@ export const PROTOCOL_IMAGES = {
     "YFI": TOKEN_IMAGES.YFI,
     "CVX": TOKEN_IMAGES.CVX,
     "SOLISNEK": TOKEN_IMAGES.SOLISNEK,
+    "YEARN": TOKEN_IMAGES.YFI,
     "SUSHI": "https://assets.coingecko.com/coins/images/12271/small/512x512_Logo_no_chop.png?1606986688",
     "UNI": "https://assets.coingecko.com/coins/images/12504/small/uniswap-uni.png?1600306604",
     "UNIV3": "https://assets.coingecko.com/markets/images/665/small/uniswap-v3.png?1620241698",

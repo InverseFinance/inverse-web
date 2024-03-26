@@ -146,6 +146,10 @@ export const GovTransparency = () => {
             }
         })];
 
+    const mainFontSize = { base: '16px', sm: '20px', md: '26px' };
+    const dashboardCardTitleProps = { w: 'fit-content', position: 'static', fontSize: mainFontSize, fontWeight: 'extrabold' };
+    const dashboardCardProps = { direction: 'column', mx: '0', w: { base: '100vw', lg: '600px' }, borderRadius: { base: '0', sm: '8' } };
+
     return (
         <Layout>
             <Head>
@@ -191,7 +195,10 @@ export const GovTransparency = () => {
                                 <ProposalBarChart maxChartWidth={isLargerThan ? 450 : 320} chartData={chartData} />
                             </VStack>
                             <VStack w='full'>
-                                <PayrollDetails chartMode={isLargerThan} maxW='400px' isLoading={isLoading} currentPayrolls={currentPayrolls} prices={prices} useRecharts={true} />
+                                <PayrollDetails title="DOLA monthly payrolls" chartMode={isLargerThan} maxW='400px' isLoading={isLoading} currentPayrolls={currentPayrolls} prices={prices} useRecharts={true} />
+                            </VStack>
+                            <VStack w='full'>
+                                <PayrollDetails title="Unclaimed payrolls" chartMode={isLargerThan} maxW='400px' isLoading={isLoading} currentPayrolls={currentPayrolls} fundKey={'unclaimed'}  prices={prices} useRecharts={true} />
                             </VStack>
                             <VStack w='full'>
                                 <FundsDetails

@@ -30,9 +30,12 @@ export interface Token {
     poolId: string
     vault: string
   }
+  rootCrvPool?: string
+  isYearnV2LP?: boolean
   convexInfos?: {
-    account: string
+    account?: string
     fromPrice: string
+    priceField?: string
   }
   pairs?: string[]
   badge?: {

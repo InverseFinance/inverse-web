@@ -12,7 +12,7 @@ import { getTokenData } from '@app/util/livecoinwatch'
 import { getDolaUsdPriceOnCurve } from '@app/util/f2'
 import { dolaStakingCacheKey } from './dola-staking'
 
-export const pricesCacheKey = `prices-v1.0.7`;
+export const pricesCacheKey = `prices-v1.0.8`;
 export const cgPricesCacheKey = `cg-prices-v1.0.0`;
 
 export default async function handler(req, res) {
