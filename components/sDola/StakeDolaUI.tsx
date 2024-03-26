@@ -1,4 +1,4 @@
-import { VStack, Text, HStack, Divider, useInterval } from "@chakra-ui/react"
+import { VStack, Text, HStack, Divider, Image, useInterval } from "@chakra-ui/react"
 import { redeemSDola, stakeDola, unstakeDola, useDolaStakingEarnings, useStakedDola } from "@app/util/dola-staking"
 import { useWeb3React } from "@web3-react/core";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
@@ -23,7 +23,7 @@ const { DOLA } = getNetworkConfigConstants();
 const StatBasic = ({ value, name, message, onClick = undefined, isLoading = false }: { value: string, message: any, onClick?: () => void, name: string, isLoading?: boolean }) => {
     return <VStack>
         {
-            !isLoading ? <Text color={'secondary'} fontSize={{ base: '20px', sm: '26px' }} fontWeight="extrabold">{value}</Text>
+            !isLoading ? <Text color={'secondary'} fontSize={{ base: '32px', sm: '40px' }} fontWeight="extrabold">{value}</Text>
                 : <SmallTextLoader width={'100px'} />
         }
         <TextInfo message={message}>
@@ -44,7 +44,7 @@ export const StakeDolaUI = () => {
     const [tab, setTab] = useState('Stake');
     const isStake = tab === 'Stake';
 
-    const { apy, projectedApy, isLoading, sDolaExRate, nextApy } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
+    const { apy, projectedApy, isLoading, sDolaExRate, sDolaTotalAssets } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
     const { balance: dolaBalance } = useDOLABalance(account);
     // value in sDOLA terms
     const { stakedDolaBalance, stakedDolaBalanceBn } = useDolaStakingEarnings(account);
@@ -52,7 +52,7 @@ export const StakeDolaUI = () => {
     const [baseBalance, setBaseBalance] = useState(0);
     const [realTimeBalance, setRealTimeBalance] = useState(0);
     // value in DOLA terms
-    const dolaStakedInSDola = sDolaExRate * stakedDolaBalance;    
+    const dolaStakedInSDola = sDolaExRate * stakedDolaBalance;
     const sDOLAamount = dolaAmount ? parseFloat(dolaAmount) / sDolaExRate : '';
 
     useInterval(() => {
@@ -111,7 +111,13 @@ export const StakeDolaUI = () => {
         }, 250);
     }
 
-    return <VStack w='full' maxW='470px' spacing="4">
+    return <VStack alignItems="flex-start" w='full' maxW='470px' spacing="8">
+        <HStack justify="space-around" w='full'>
+            <VStack>
+                <Image src="/assets/sDOLAx512.png" h="120px" w="120px" />
+                <Text fontSize="20px" fontWeight="bold">sDOLA</Text>
+            </VStack>
+        </HStack>
         <HStack justify="space-between" w='full'>
             <StatBasic message="This week's APY is calculated with last week's DBR auction revenues and assuming a weekly auto-compounding" isLoading={isLoading} name="Current APY" value={apy ? `${shortenNumber(apy, 2)}%` : '0% this week'} />
             <StatBasic message={"The projected APY is a theoretical estimation of where the APY should tend to go. It's calculated by considering current's week auction revenue and a forecast that considers the DBR incentives, where the forecast portion has a weight of more than 50%"} isLoading={isLoading} name="Projected APY" value={`${shortenNumber(projectedApy, 2)}%`} />
@@ -204,7 +210,7 @@ export const StakeDolaUI = () => {
                                         }
                                     </VStack>
                             }
-                            <VStack alignItems="flex-start">                                
+                            <VStack alignItems="flex-start">
                                 <HStack>
                                     <Text fontSize="16px" color="mainTextColorLight2">
                                         {isStake ? 'sDOLA to receive' : 'sDOLA to exchange'}:
@@ -218,7 +224,7 @@ export const StakeDolaUI = () => {
                                         DOLA-sDOLA exchange rate:
                                     </Text>
                                     <Text fontSize="16px" color="mainTextColorLight2">
-                                        {sDolaExRate ? shortenNumber(1/sDolaExRate, 6) : '-'}
+                                        {sDolaExRate ? shortenNumber(1 / sDolaExRate, 6) : '-'}
                                     </Text>
                                 </HStack>
                             </VStack>
