@@ -1,4 +1,4 @@
-import { VStack, Text, HStack, Divider, Image, useInterval } from "@chakra-ui/react"
+import { VStack, Text, HStack, Stack, Image, useInterval } from "@chakra-ui/react"
 import { redeemSDola, stakeDola, unstakeDola, useDolaStakingEarnings, useStakedDola } from "@app/util/dola-staking"
 import { useWeb3React } from "@web3-react/core";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
@@ -7,7 +7,7 @@ import { getNetworkConfigConstants } from "@app/util/networks";
 import { parseEther } from "@ethersproject/units";
 import Container from "../common/Container";
 import { NavButtons } from "@app/components/common/Button";
-import { InfoMessage } from "@app/components/common/Messages";
+import { InfoMessage, SuccessMessage } from "@app/components/common/Messages";
 import { preciseCommify } from "@app/util/misc";
 import { useDOLABalance } from "@app/hooks/useDOLA";
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
@@ -17,6 +17,8 @@ import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { TextInfo } from "../common/Messages/TextInfo";
 import { ONE_DAY_MS, SDOLA_ADDRESS, SECONDS_PER_BLOCK } from "@app/config/constants";
 import { useAccount } from "@app/hooks/misc";
+import { useDbrAuctionActivity } from "@app/util/dbr-auction";
+import { StakeDolaInfos } from "./StakeDolaInfos";
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -39,12 +41,14 @@ export const StakeDolaUI = () => {
     const account = useAccount();
     const { provider, account: connectedAccount } = useWeb3React();
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
+    const { events: auctionBuys } = useDbrAuctionActivity();
+
     const [dolaAmount, setDolaAmount] = useState('');
     const [isConnected, setIsConnected] = useState(true);
     const [tab, setTab] = useState('Stake');
     const isStake = tab === 'Stake';
 
-    const { apy, projectedApy, isLoading, sDolaExRate, sDolaTotalAssets } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
+    const { apy, projectedApy, isLoading, sDolaExRate, sDolaTotalAssets, weeklyRevenue } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
     const { balance: dolaBalance } = useDOLABalance(account);
     // value in sDOLA terms
     const { stakedDolaBalance, stakedDolaBalanceBn } = useDolaStakingEarnings(account);
@@ -54,6 +58,10 @@ export const StakeDolaUI = () => {
     // value in DOLA terms
     const dolaStakedInSDola = sDolaExRate * stakedDolaBalance;
     const sDOLAamount = dolaAmount ? parseFloat(dolaAmount) / sDolaExRate : '';
+
+    const sDolaAuctionBuys = auctionBuys.filter(e => e.auctionType === 'sDOLA')
+        .reduce((prev, curr) => prev + curr.dolaIn, 0);
+    const sDolaHoldersTotalEarnings = sDolaAuctionBuys - weeklyRevenue;
 
     useInterval(() => {
         const curr = (realTimeBalance || baseBalance);
@@ -111,54 +119,68 @@ export const StakeDolaUI = () => {
         }, 250);
     }
 
-    return <VStack alignItems="flex-start" w='full' maxW='470px' spacing="8">
-        <HStack justify="space-around" w='full'>
-            <VStack>
-                <Image src="/assets/sDOLAx512.png" h="120px" w="120px" />
-                <Text fontSize="20px" fontWeight="bold">sDOLA</Text>
-            </VStack>
-        </HStack>
-        <HStack justify="space-between" w='full'>
-            <StatBasic message="This week's APY is calculated with last week's DBR auction revenues and assuming a weekly auto-compounding" isLoading={isLoading} name="Current APY" value={apy ? `${shortenNumber(apy, 2)}%` : '0% this week'} />
-            <StatBasic message={"The projected APY is a theoretical estimation of where the APY should tend to go. It's calculated by considering current's week auction revenue and a forecast that considers the DBR incentives, where the forecast portion has a weight of more than 50%"} isLoading={isLoading} name="Projected APY" value={`${shortenNumber(projectedApy, 2)}%`} />
-        </HStack>
-        {
-            (monthlyDolaRewards > 0) && <InfoMessage
+    return <Stack direction={{ base: 'column', lg: 'row' }} alignItems={{ base: 'center', lg: 'flex-start' }} justify="space-around" w='full' spacing="12">
+        <VStack w='full' maxW='450px' spacing='4' pt='10'>
+            <HStack justify="space-around" w='full'>
+                <VStack>
+                    <Image src="/assets/sDOLAx512.png" h="120px" w="120px" />
+                    <Text fontSize="20px" fontWeight="bold">sDOLA</Text>
+                </VStack>
+            </HStack>
+            <HStack justify="space-between" w='full'>
+                <StatBasic message="This week's APY is calculated with last week's DBR auction revenues and assuming a weekly auto-compounding" isLoading={isLoading} name="Current APY" value={apy ? `${shortenNumber(apy, 2)}%` : '0% this week'} />
+                <StatBasic message={"The projected APY is a theoretical estimation of where the APY should tend to go. It's calculated by considering current's week auction revenue and a forecast that considers the DBR incentives, where the forecast portion has a weight of more than 50%"} isLoading={isLoading} name="Projected APY" value={`${shortenNumber(projectedApy, 2)}%`} />
+            </HStack>
+            <SuccessMessage
+                showIcon={false}
                 alertProps={{ w: 'full' }}
                 description={
                     <VStack alignItems="flex-start">
-                        {/* { earnings > 0.1 && <Text>Your cumulated earnings: <b>{preciseCommify(earnings, 2)} DOLA</b></Text> } */}
-                        {/* <Text>Your projected monthly rewards: <b>~{preciseCommify(monthlyProjectedDolaRewards, 2)} DOLA</b></Text> */}
-                        {apy > 0 && <Text>Your monthly rewards (current APY): ~{preciseCommify(monthlyDolaRewards, 2)} DOLA</Text>}
-                        {/* <Text>Note: actual rewards depend on past revenue</Text> */}
+                        {
+                            monthlyDolaRewards > 0 && <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
+                                <Text>- Your rewards: </Text>
+                                <Text><b>~{preciseCommify(monthlyDolaRewards, 2)} DOLA per month</b></Text>
+                            </Stack>
+                        }
+                        <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
+                            <Text>- Total earnings by all holders:</Text>
+                            <Text><b>{shortenNumber(sDolaHoldersTotalEarnings, 2)} DOLA</b></Text>
+                        </Stack>
+                        <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
+                            <Text>- Total staked:</Text>
+                            <Text><b>{shortenNumber(sDolaTotalAssets, 2)} DOLA</b></Text>
+                        </Stack>
                     </VStack>
                 }
             />
-        }
-        <Divider borderColor="mainTextColor" />
+        </VStack>
         <Container
             label="sDOLA - Yield-Bearing stablecoin"
             description="See contract"
             href={`https://etherscan.io/address/${SDOLA_ADDRESS}`}
             noPadding
             m="0"
-            p="0">
+            p="0"
+            maxW='450px'
+        >
             <VStack spacing="4" alignItems="flex-start" w='full'>
                 {
                     !isConnected ? <InfoMessage alertProps={{ w: 'full' }} description="Please connect your wallet" />
                         :
                         <>
-                            <NavButtons active={tab} options={['Stake', 'Unstake']} onClick={(v) => setTab(v)} />
-                            <VStack alignItems="flex-start" w='full' justify="space-between">
-                                <Text fontSize="20px">
-                                    DOLA balance in wallet: <b>{dolaBalance ? preciseCommify(dolaBalance, 2) : '-'}</b>
-                                </Text>
-                                <Text fontSize="20px">
-                                    Staked DOLA: <b>{dolaStakedInSDola ? preciseCommify(realTimeBalance, 8) : '-'}</b>
-                                </Text>
-                            </VStack>
+                            <NavButtons active={tab} options={['Stake', 'Unstake', 'Infos']} onClick={(v) => setTab(v)} />
                             {
-                                isStake ?
+                                tab !== 'Infos' && <VStack alignItems="flex-start" w='full' justify="space-between">
+                                    <Text fontSize="18px">
+                                        DOLA balance in wallet: <b>{dolaBalance ? preciseCommify(dolaBalance, 2) : '-'}</b>
+                                    </Text>
+                                    <Text fontSize="18px">
+                                        Staked DOLA: <b>{dolaStakedInSDola ? preciseCommify(realTimeBalance, 8) : '-'}</b>
+                                    </Text>
+                                </VStack>
+                            }
+                            {
+                                tab === 'Infos' ? <StakeDolaInfos /> : isStake ?
                                     <VStack w='full' alignItems="flex-start">
                                         <Text fontSize="22px" fontWeight="bold">
                                             DOLA amount to stake:
@@ -210,27 +232,29 @@ export const StakeDolaUI = () => {
                                         }
                                     </VStack>
                             }
-                            <VStack alignItems="flex-start">
-                                <HStack>
-                                    <Text fontSize="16px" color="mainTextColorLight2">
-                                        {isStake ? 'sDOLA to receive' : 'sDOLA to exchange'}:
-                                    </Text>
-                                    <Text fontSize="16px" color="mainTextColorLight2">
-                                        {sDOLAamount ? preciseCommify(sDOLAamount, 2) : '-'}
-                                    </Text>
-                                </HStack>
-                                <HStack>
-                                    <Text fontSize="16px" color="mainTextColorLight2">
-                                        DOLA-sDOLA exchange rate:
-                                    </Text>
-                                    <Text fontSize="16px" color="mainTextColorLight2">
-                                        {sDolaExRate ? shortenNumber(1 / sDolaExRate, 6) : '-'}
-                                    </Text>
-                                </HStack>
-                            </VStack>
+                            {
+                                tab !== 'Infos' && <VStack alignItems="flex-start">
+                                    <HStack>
+                                        <Text fontSize="16px" color="mainTextColorLight2">
+                                            {isStake ? 'sDOLA to receive' : 'sDOLA to exchange'}:
+                                        </Text>
+                                        <Text fontSize="16px" color="mainTextColorLight2">
+                                            {sDOLAamount ? preciseCommify(sDOLAamount, 2) : '-'}
+                                        </Text>
+                                    </HStack>
+                                    <HStack>
+                                        <Text fontSize="16px" color="mainTextColorLight2">
+                                            DOLA-sDOLA exchange rate:
+                                        </Text>
+                                        <Text fontSize="16px" color="mainTextColorLight2">
+                                            {sDolaExRate ? shortenNumber(1 / sDolaExRate, 6) : '-'}
+                                        </Text>
+                                    </HStack>
+                                </VStack>
+                            }
                         </>
                 }
             </VStack>
         </Container>
-    </VStack>
+    </Stack>
 }

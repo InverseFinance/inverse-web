@@ -28,7 +28,7 @@ export const SdolaPage = () => {
       <AppNav active="sDOLA" activeSubmenu="sDOLA" />
       <DolaStakingTabs />
       <VStack
-        w={{ base: 'full', lg: '1000px' }}
+        w={{ base: 'full', lg: '1200px' }}
         mt='6'
         spacing="8"
         px={{ base: '4', lg: '0' }}
@@ -40,12 +40,9 @@ export const SdolaPage = () => {
           w='full'
           direction={{ base: 'column', xl: 'row' }}
         >
-          <VStack alignItems={{ base: 'center', xl: 'flex-start' }} w={{ base: 'full', lg: '55%' }}>
+          <VStack alignItems={{ base: 'center', xl: 'flex-start' }} w={{ base: 'full' }}>
             <StakeDolaUI />
           </VStack>
-          <Stack alignItems={{ base: 'center', xl: 'flex-start' }} w={{ base: 'full', lg: '45%' }}>
-            <StakeDolaInfos />
-          </Stack>
         </Stack>
         {
           !!account && accountEvents?.length > 0 &&  <DolaStakingActivity events={accountEvents} title="My Staking activity" />
