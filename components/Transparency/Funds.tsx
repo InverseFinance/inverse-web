@@ -203,7 +203,7 @@ export const Funds = ({
                 fill: fund.chartFillColor,
                 labelFill: fund.chartLabelFillColor,
                 totalUsd: shortenNumber(usdTotals.overall, 2, true),
-                totalBalance: shortenNumber(usdTotals.balance, 2, true),
+                totalBalance: shortenNumber(usdTotals.balance, 2),
             }
         });
 
