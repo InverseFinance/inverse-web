@@ -200,7 +200,7 @@ export default async function handler(req, res) {
               if(liquidityCacheData?.liquidity) {
                 const lpData = liquidityCacheData.liquidity.find(lp => lp.address === (token.uniV3Pool||tokenAddress));
                 if(lpData) {
-                  return getNumberToBn(lpData.ownedAmount, lpData.decimals);
+                  return getNumberToBn(token.uniV3Pool ? lpData.srcTvl : lpData.ownedAmount, lpData.decimals);
                 }
               }
               return new Promise((res) => res(BigNumber.from('0')));
