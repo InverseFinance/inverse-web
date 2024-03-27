@@ -43,8 +43,19 @@ export const DolaDiagram = () => {
       fillColor: themeStyles.colors.info,
     }
   }).filter(d => d.sliceValue > 0);
-  
+
+  const underlyingPieChartData = fedsPieChartData
+    .filter(slice => slice.name !== 'FiRM Fed')
+    .concat(firmPieChartData);
+
   const firmTotal = firmPieChartData.reduce((acc, curr) => acc + (curr.sliceValue || 0), 0);
+
+  const commonProps = {
+    dataKey: "sliceValue",
+    nameKey: "sliceName",
+    activeFill: themeStyles.colors.mainTextColor,
+    activeSubtextFill: themeStyles.colors.mainTextColor,
+  };
 
   return (
     <Layout>
@@ -60,29 +71,37 @@ export const DolaDiagram = () => {
       <TransparencyTabs active="dola" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }} ml="2">
         <Flex direction="column">
-          <DashBoardCard cardTitle='DOLA backing'>
+          <DashBoardCard cardTitle='DOLA backing by Feds'>
             <PieChartRecharts
               data={fedsPieChartData}
-              dataKey="sliceValue"
-              nameKey="sliceName"
+              {...commonProps}
               centralValue={shortenNumber(fedsTotal, 2)}
-              activeFill={themeStyles.colors.mainTextColor}
-              activeSubtextFill={themeStyles.colors.mainTextColor}
+            />
+          </DashBoardCard>
+          <DashBoardCard cardTitle='FiRM DOLA backing'>
+            <PieChartRecharts
+              data={underlyingPieChartData}
+              centralValue={shortenNumber(fedsTotal, 2)}
+              {...commonProps}
+            />
+          </DashBoardCard>
+          <DashBoardCard cardTitle='FiRM DOLA backing'>
+            <PieChartRecharts
+              data={underlyingPieChartData}
+              centralValue={shortenNumber(fedsTotal, 2)}
+              {...commonProps}
             />
           </DashBoardCard>
           <DashBoardCard cardTitle='FiRM DOLA backing'>
             <PieChartRecharts
               data={firmPieChartData}
-              dataKey="sliceValue"
-              nameKey="sliceName"
               centralValue={shortenNumber(firmTotal, 2)}
-              activeFill={themeStyles.colors.mainTextColor}              
             />
           </DashBoardCard>
           <FedList prices={prices} feds={fedOverviews.filter(f => !f.hasEnded)} isLoading={isLoadingOverview} />
           <DolaCircSupplyEvolution />
         </Flex>
-        <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
+        {/* <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
           <DolaMoreInfos />
           <DolaSupplies supplies={dolaSupplies.filter(chain => chain.supply > 0)} />
           <ShrinkableInfoMessage
@@ -104,9 +123,9 @@ export const DolaDiagram = () => {
               </>
             }
           />
-        </VStack>
+        </VStack> */}
       </Flex>
-    </Layout>
+    </Layout >
   )
 }
 
