@@ -26,13 +26,13 @@ const ANCHOR_RESERVES_TO_CHECK = [
   '0xde2af899040536884e062D3a334F2dD36F34b4a4',
 ];
 
-export const cacheMultisigMetaKey = `dao-multisigs-meta-v1.0.8`;
+export const cacheMultisigMetaKey = `dao-multisigs-meta-v1.0.9`;
 export const cacheFedsMetaKey = `dao-feds-meta-v1.0.3`;
-export const cacheMulBalKey = `dao-multisigs-bal-v1.0.93`;
-export const cacheMulAllKey = `dao-multisigs-all-v1.0.53`;
+export const cacheMulBalKey = `dao-multisigs-bal-v1.0.94`;
+export const cacheMulAllKey = `dao-multisigs-all-v1.0.54`;
 export const cacheDolaSupplies = `dao-dola-supplies-v1.0.1`;
 export const cacheFedDataKey = `dao-feds-datas-v1.0.3`;
-export const cacheMultisigDataKey = `dao-multisigs-data-v1.0.91`;
+export const cacheMultisigDataKey = `dao-multisigs-data-v1.0.92`;
 
 export default async function handler(req, res) {
 
@@ -198,7 +198,7 @@ export default async function handler(req, res) {
             } // for uniV3 nft pos, we treat lp price as $1 and balance = ownedAmount $
             else if (token.isUniV3) {
               if(liquidityCacheData?.liquidity) {
-                const lpData = liquidityCacheData.liquidity.find(lp => lp.address === tokenAddress);
+                const lpData = liquidityCacheData.liquidity.find(lp => lp.address === (token.uniV3Pool||tokenAddress));
                 if(lpData) {
                   return getNumberToBn(lpData.ownedAmount, lpData.decimals);
                 }

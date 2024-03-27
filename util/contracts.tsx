@@ -432,11 +432,11 @@ export const getLPBalances = async (LPToken: Token, chainId = process.env.NEXT_P
       });
     }
     // UniV3
-    else if (LPToken.isUniV3 && !!LPToken.pairs) {
+    else if (LPToken.isUniV3 && !!LPToken.pairs) {  
       const balancesBn = await Promise.all(
-        tokens.map((token, tokenIndex) => new Contract(token.address, ERC20_ABI, providerOrSigner).balanceOf(LPToken.address))
+        tokens.map((token, tokenIndex) => new Contract(token.address, ERC20_ABI, providerOrSigner).balanceOf((LPToken.uniV3Pool||LPToken.address)))
       );
-      const balances = balancesBn.map((bn, i) => getBnToNumber(bn, tokens[i].decimals));
+      const balances = balancesBn.map((bn, i) => getBnToNumber(bn, tokens[i].decimals));      
       const total = balances.reduce((prev, curr) => prev + curr, 0);
       return tokens.map((token, i) => {
         return { ...token, balance: balances[i], perc: total > 0 ? balances[i] / total * 100 : 0 };
