@@ -73,6 +73,7 @@ const chainTokenAddresses = {
     DBRDOLABALANCER: '0x445494F823f3483ee62d854eBc9f58d5B9972A25',
     DOLAMKUSDBALANCER: '0x383e7859271B2D0589B013b6d944572a0a8bE3cB',
     MKUSD: '0x4591DBfF62656E7859Afe5e45f6f47D3669fBB28',
+    INVDOLALIQUIS: '0x21e83dbfD8F11d885eBA9f9ba126Da11AE0671b7',
     // DOLABBEUSD: '0x133d241F225750D2c92948E464A5a80111920331',
     // DOLABBEUSDALP: '0xFdbd847B7593Ef0034C58258aD5a18b34BA6cB29',
     // BBEUSD: '0x50Cf90B954958480b8DF7958A9E965752F627124',
@@ -512,6 +513,20 @@ const chainTokens = {
         chainTokenAddresses["1"].INV, chainTokenAddresses["1"].DOLA
       ],
       protocolImage: PROTOCOL_IMAGES.UNIV3,
+    },
+    [chainTokenAddresses["1"].INVDOLALIQUIS]: {
+      address: chainTokenAddresses["1"].INVDOLALIQUIS,
+      name: 'DOLA-INV LP',
+      symbol: 'DOLA-INV liqlp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isUniV3: true,
+      uniV3Pool: chainTokenAddresses["1"].DOLAINVUNIV3,      
+      pairs: [
+        chainTokenAddresses["1"].INV, chainTokenAddresses["1"].DOLA
+      ],
+      protocolImage: PROTOCOL_IMAGES.LIQUIS,
     },
     [chainTokenAddresses["1"].INVETHSLP]: {
       address: chainTokenAddresses["1"].INVETHSLP,

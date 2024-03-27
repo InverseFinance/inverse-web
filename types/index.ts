@@ -25,6 +25,7 @@ export interface Token {
   lpBalanceContract?: string
   // crv pool where lp token != pool contract
   poolAddress?: string
+  uniV3Pool?: string
   lpPrice?: number
   balancerInfos?: {
     poolId: string
