@@ -12,7 +12,6 @@ import { SDolaStakingEvolutionChart } from '@app/components/F2/DolaStaking/DolaS
 import { SkeletonBlob } from '@app/components/common/Skeleton';
 import { shortenNumber } from '@app/util/markets';
 import { useEffect, useRef, useState } from 'react';
-import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect';
 
 const ChartCard = (props: StackProps & { cardTitle?: string, subtitle?: string, href?: string, imageSrc?: string }) => {
   return <Flex
@@ -82,7 +81,7 @@ export const SDolaStatsPage = () => {
   const [histoData, setHistoData] = useState([]);
 
   useEffect(() => {
-    if (isLoading) return;    
+    if (isLoading) return;
     setHistoData(
       evolution.concat([
         {

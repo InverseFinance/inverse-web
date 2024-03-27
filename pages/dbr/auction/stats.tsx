@@ -12,8 +12,7 @@ import { useDbrAuctionActivity } from '@app/util/dbr-auction';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
 
 export const DbrAuctionStatsPage = () => {
-  const { isLoading, events, accDolaIn, accDbrOut, timestamp } = useDbrAuctionActivity();
-  console.log(events)
+  const { isLoading, events, accDolaIn, accDbrOut, timestamp } = useDbrAuctionActivity();  
   return (
     <Layout>
       <Head>
