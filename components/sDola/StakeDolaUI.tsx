@@ -131,28 +131,28 @@ export const StakeDolaUI = () => {
                 <StatBasic message="This week's APY is calculated with last week's DBR auction revenues and assuming a weekly auto-compounding" isLoading={isLoading} name="Current APY" value={apy ? `${shortenNumber(apy, 2)}%` : '0% this week'} />
                 <StatBasic message={"The projected APY is a theoretical estimation of where the APY should tend to go. It's calculated by considering current's week auction revenue and a forecast that considers the DBR incentives, where the forecast portion has a weight of more than 50%"} isLoading={isLoading} name="Projected APY" value={`${shortenNumber(projectedApy, 2)}%`} />
             </HStack>
-            {
-                (monthlyDolaRewards > 0) && <SuccessMessage
-                    showIcon={false}
-                    alertProps={{ w: 'full' }}
-                    description={
-                        <VStack alignItems="flex-start">
-                            <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
+            <SuccessMessage
+                showIcon={false}
+                alertProps={{ w: 'full' }}
+                description={
+                    <VStack alignItems="flex-start">
+                        {
+                            monthlyDolaRewards > 0 && <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
                                 <Text>- Your rewards: </Text>
                                 <Text><b>~{preciseCommify(monthlyDolaRewards, 2)} DOLA per month</b></Text>
                             </Stack>
-                            <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
-                                <Text>- Total earnings by all holders:</Text>
-                                <Text><b>{shortenNumber(sDolaHoldersTotalEarnings, 2)} DOLA</b></Text>
-                            </Stack>
-                            <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
-                                <Text>- Total staked:</Text>
-                                <Text><b>{shortenNumber(sDolaTotalAssets, 2)} DOLA</b></Text>
-                            </Stack>
-                        </VStack>
-                    }
-                />
-            }
+                        }
+                        <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
+                            <Text>- Total earnings by all holders:</Text>
+                            <Text><b>{shortenNumber(sDolaHoldersTotalEarnings, 2)} DOLA</b></Text>
+                        </Stack>
+                        <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
+                            <Text>- Total staked:</Text>
+                            <Text><b>{shortenNumber(sDolaTotalAssets, 2)} DOLA</b></Text>
+                        </Stack>
+                    </VStack>
+                }
+            />
         </VStack>
         <Container
             label="sDOLA - Yield-Bearing stablecoin"
