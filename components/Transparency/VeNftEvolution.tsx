@@ -11,7 +11,7 @@ import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
 import { SkeletonBlob } from "../common/Skeleton";
 
 export const useVeNftEvolution = () => {
-    const { data, error } = useCacheFirstSWR(`/api/transparency/venft-evolution?v=1.0.1`);
+    const { data, error } = useCacheFirstSWR(`/api/transparency/venft-evolution?v=1.0.2`);
     const veNfts = data?.veNfts || [];
     const accumulatedEvolutionObj = {};
     veNfts.forEach((veNft) => {
