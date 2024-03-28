@@ -14,6 +14,7 @@ import { ONE_DAY_SECS } from '@app/config/constants';
 import { cgPricesCacheKey } from '../prices';
 
 const startingBlocks = {
+  // [NetworkIds.optimism]: 10078713,//veNft v1
   [NetworkIds.optimism]: 105896834,
   [NetworkIds.base]: 3200584,
   [NetworkIds.bsc]: 24435328,
