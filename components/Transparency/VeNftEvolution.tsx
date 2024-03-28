@@ -1,6 +1,6 @@
 import { useCacheFirstSWR } from "@app/hooks/useCustomSWR"
 import { DefaultCharts } from "./DefaultCharts";
-import { timestampToUTC, utcDateStringToTimestamp } from "@app/util/misc";
+import { fillMissingDailyDatesWithMostRecentData, timestampToUTC, utcDateStringToTimestamp } from "@app/util/misc";
 import { HStack, VStack, Text, Image, SimpleGrid, useMediaQuery, useInterval } from "@chakra-ui/react";
 import { usePrices } from "@app/hooks/usePrices";
 import { DashBoardCard, NumberAndPieCard } from "../F2/UserDashboard";
@@ -14,7 +14,10 @@ export const useVeNftEvolution = () => {
     const { data, error } = useCacheFirstSWR(`/api/transparency/venft-evolution?v=1.0.2`);
     const veNfts = data?.veNfts || [];
     const accumulatedEvolutionObj = {};
-    veNfts.forEach((veNft) => {
+    const _veNfts = veNfts.map(veNft => {
+        return { ...veNft, evolution: fillMissingDailyDatesWithMostRecentData(veNft.evolution, 1, "date") }
+    })
+    _veNfts.forEach((veNft) => {
         veNft.evolution?.forEach((dailyData) => {
             if (!accumulatedEvolutionObj[dailyData.date]) {
                 accumulatedEvolutionObj[dailyData.date] = { all: 0 };
@@ -30,7 +33,7 @@ export const useVeNftEvolution = () => {
     const accumulatedEvolution = Object.entries(accumulatedEvolutionObj).map(([date, obj]) => ({ date, ...obj }));
     accumulatedEvolution.sort((a, b) => a.timestamp - b.timestamp)
     return {
-        veNfts,
+        veNfts: _veNfts,
         accumulatedEvolution,
         accumulatedEvolutionObj,
         isLoading: !error && !data,
@@ -144,7 +147,7 @@ export const VeNftEvolutionWrapper = () => {
     const accChartData = accumulatedEvolution.map(d => {
         return { ...d, utcDate: d.date, x: d.timestamp, y: d['all'], yDay: d['all'] };
     })
-        .filter(item => !!item.x && item['all'] != undefined && veNftsWithEvolution.every(veNft => item[`${veNft.symbol}-balance`] !== undefined))
+        .filter(item => !!item.x && item['all'] != undefined)
         .concat(Object.keys(prices).length > 0 ? [
             {
                 x: now,

@@ -231,18 +231,18 @@ export const preciseCommify = (v: number, precision = 2, isDollar = false, isRem
 }
 
 // array needs to be already sorted
-export const fillMissingDailyDatesWithMostRecentData = (arr: any[], minDayInterval: number) => {
+export const fillMissingDailyDatesWithMostRecentData = (arr: any[], minDayInterval: number, dateKey = 'utcDate') => {
     const filledArray = [];
     for (let i = 0; i < arr.length; i++) {
         const currentEntry = arr[i];
-        const currentDateTs = getTimestampFromUTCDate(currentEntry.utcDate);
+        const currentDateTs = getTimestampFromUTCDate(currentEntry[dateKey]);
 
         // Add the current entry to the filledArray
         filledArray.push(currentEntry);
 
         if (i !== arr.length - 1) {
             const nextEntry = arr[i + 1];
-            const nextDateTs = getTimestampFromUTCDate(nextEntry.utcDate);
+            const nextDateTs = getTimestampFromUTCDate(nextEntry[dateKey]);
             const diffTime = Math.abs(nextDateTs - currentDateTs);
             const intervalDays = minDayInterval * ONE_DAY_MS;
             const diffDays = Math.ceil(diffTime / intervalDays);
@@ -254,7 +254,7 @@ export const fillMissingDailyDatesWithMostRecentData = (arr: any[], minDayInterv
                         ...currentEntry,
                         timestamp: ts,
                         x: ts,
-                        utcDate: timestampToUTC(ts),
+                        [dateKey]: timestampToUTC(ts),
                         eventPointLabel: undefined,
                     };
                     filledArray.push(missingEntry);
