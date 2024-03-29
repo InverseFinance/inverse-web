@@ -76,7 +76,7 @@ const getXchainMainnetProfits = async (FEDS: Fed[], DOLA: string, TREASURY: stri
 
 const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { [key: string]: number }, cachedTotalEvents?: any) => {
     const transfers = await throttledPromises(
-        (fed: Fed) => getLast100TxsOf(fed.incomeSrcAd || fed.address, fed.incomeChainId || fed.chainId),
+        (fed: Fed) => getLast100TxsOf(fed.incomeSrcAd || fed.address, fed.incomeChainId || fed.chainId, true),
         FEDS,
         // max 5 req per sec
         5,
@@ -164,7 +164,7 @@ export default async function handler(req, res) {
     const { FEDS, DOLA, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
 
     const archiveCacheKey = `revenues-v1.0.25`;
-    const cacheKey = `revenues-v1.0.26`;
+    const cacheKey = `revenues-v1.0.271`;
 
     try {
 
