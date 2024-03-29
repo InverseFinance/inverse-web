@@ -164,7 +164,10 @@ export default async function handler(req, res) {
     const { FEDS, DOLA, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
 
     const archiveCacheKey = `revenues-v1.0.25`;
-    const cacheKey = `revenues-v1.0.26`;
+    const cacheKey = `revenues-v1.0.27`;
+
+    // const test = await getLast100TxsOf('0x2457937668a345305FE08736F407Fba3F39cbF2f', NetworkIds.base);
+    // return res.status(200).json(test);
 
     try {
 
