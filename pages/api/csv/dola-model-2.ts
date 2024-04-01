@@ -5,6 +5,7 @@ import { capitalize } from "@app/util/misc";
 import { fetcher30sectimeout } from "@app/util/web3";
 import { dolaStakingCacheKey } from "../dola-staking";
 import { isAddress } from "ethers/lib/utils";
+import { SERVER_BASE_URL } from "@app/config/constants";
 
 // external use in spreadsheet
 export default async (req, res) => {
@@ -17,7 +18,7 @@ export default async (req, res) => {
 
     try {
         const [liquidityData, badDebtData, dolaStakingData] = await Promise.all([
-            fetcher30sectimeout('https://www.inverse.finance/api/transparency/liquidity'),            
+            fetcher30sectimeout(`${SERVER_BASE_URL}/api/transparency/liquidity`),
             getCacheFromRedis(repaymentsCacheKey, false),
             getCacheFromRedis(dolaStakingCacheKey, false),            
         ]);
