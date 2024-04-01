@@ -371,6 +371,14 @@ const chainTokens = {
       decimals: 18,
       protocolImage: PROTOCOL_IMAGES.LIDO,
     },
+    [chainTokenAddresses["1"].FXUSD]: {
+      address: chainTokenAddresses["1"].FXUSD,
+      name: 'fxUSD',
+      symbol: 'fxUSD',
+      coingeckoId: 'f-x-protocol-fxusd',
+      image: TOKEN_IMAGES.FXUSD,
+      decimals: 18,      
+    },
     [chainTokenAddresses["1"].WSTETH]: {
       address: chainTokenAddresses["1"].WSTETH,
       name: 'Lido Wrapped Staked Ether',
