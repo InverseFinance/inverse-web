@@ -15,6 +15,8 @@ export const BLOCKS_PER_YEAR = BLOCKS_PER_DAY * DAYS_PER_YEAR;
 
 export const BLOCK_SCAN = 'https://blockscan.com';
 
+export const SERVER_BASE_URL = process.env.VERCEL_ENV === 'production' ? 'https://inverse.finance' : !process.env.VERCEL_URL ? 'http://localhost:3000' : `https://${process.env.VERCEL_URL}`;
+
 // Governance
 export const QUORUM_VOTES = 7000;
 export const OLD_QUORUM_VOTES = 4000;
