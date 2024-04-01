@@ -162,6 +162,7 @@ export default async function handler(req, res) {
             } else {
                 ownedAmount = fedPolData.dontUseSupplyForPolCalc ? fedPolData.lpBalance * fedPolData.lpPrice : fedPolData.supply;
             }
+            ownedAmount = ownedAmount || 0;
             const perc = Math.min(ownedAmount / tvl * 100, 100);
 
             // bb-e-usd exception due to euler exploit to not throw off avgs
