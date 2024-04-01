@@ -6,7 +6,7 @@ import { dolaStakingCacheKey } from "../dola-staking";
 // external use in spreadsheet
 export default async (req, res) => {
     const cacheDuration = 900;
-    const cacheKey = 'csv-liquidity-pools-v1.0.7';
+    const cacheKey = 'csv-liquidity-pools-v1.0.8';
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
 
     try {
@@ -19,10 +19,13 @@ export default async (req, res) => {
         csvData += `Pool,Protocol,Chain,Has Fed,TVL,Pairing depth,DOLA balance (not $),DOLA weight,APY,Pool dom,Pol,$/day,Is stable\n`;
         liquidityData.liquidity.sort((a,b) => b.tvl - a.tvl);
         liquidityData.liquidity.forEach((lp) => {
-            const isSDolaPairingDepth = /(SDOLA-DOLA|DOLA-SDOLA)/.test(lp.symbol);
-            // if pairing is sDOLA, use dola amount
-            const pairingDepth = isSDolaPairingDepth ? lp.pairPartBalance * dolaStakingData.sDolaExRate : lp.pairingDepth;                        
-            csvData += `${lp.lpName},${lp.project.toLowerCase()},${NETWORKS_BY_CHAIN_ID[lp.chainId].name},${lp.isFed},${lp.tvl},${pairingDepth},${lp.mainPartBalance},${lp.dolaWeight},${lp.apy||''},${lp.perc},${lp.ownedAmount},${lp.rewardDay},${lp.isStable||false}\n`;
+            // for sDOLA convert to DOLA and pair amounts
+            const hasSDola = /SDOLA/i.test(lp.symbol);
+            const isSDolaMain = hasSDola && !/(^DOLA|.*-DOLA.*)/i.test(lp.symbol);      
+            const pairingValue = hasSDola ? (isSDolaMain ? lp?.pairPartBalance : lp?.pairPartBalance * dolaStakingData.sDolaExRate) : lp?.pairingDepth;
+            const mainValue = lp?.mainPartBalance * (isSDolaMain ? dolaStakingData.sDolaExRate : 1);
+
+            csvData += `${lp.lpName},${lp.project.toLowerCase()},${NETWORKS_BY_CHAIN_ID[lp.chainId].name},${lp.isFed},${lp.tvl},${pairingValue},${mainValue},${lp.dolaWeight},${lp.apy||''},${lp.perc},${lp.ownedAmount},${lp.rewardDay},${lp.isStable||false}\n`;
         });
 
         redisSetWithTimestamp(cacheKey, { csvData });

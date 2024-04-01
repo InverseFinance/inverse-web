@@ -11,7 +11,7 @@ export default async (req, res) => {
     const { include } = req.query;
     const includeList = include ? include.split(',').filter(ad => isAddress(ad)) : [];
     const cacheDuration = 900;
-    const cacheKey = `dola-modal-2-v1.0.2${include ? includeList.join(',') : ''}`;
+    const cacheKey = `dola-modal-2-v1.0.3${include ? includeList.join(',') : ''}`;
 
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
 
@@ -37,11 +37,16 @@ export default async (req, res) => {
 
         let csvData = `DOLA bad debt:,${currentDolaBadDebt},FiRM borrows:,${totalBorrowsOnFirm},DSA DOLA bal:,${dolaStakingData.dsaTotalSupply},DSA dbrYearlyEarnings:,${dolaStakingData.dsaYearlyDbrEarnings}\n`;
         csvData += `Liquidity Cache:,~5min,Liquidity timestamp:,${liquidityData.timestamp},Bad debt timestamp:,${badDebtData.timestamp}, DSA timestamp:,${dolaStakingData.timestamp},\n`;
-        csvData += `LP,Fed or Project,Fed Supply,RootLP DOLA balance,Pairing Depth $,Fed PoL\n`;
+        csvData += `LP,Fed or Project,Fed Supply,RootLP DOLA balance,Pairing Depth ($ or amount),Fed PoL\n`;
         feds.forEach((lp) => {
             const parentLp = liquidityData.liquidity.filter(l => !!l.deduce).find(l => l.deduce.includes(lp.address));
             const balanceSource = parentLp || lp;
-            csvData += `${lp.lpName},${lp.fedName || (capitalize(lp.project)+ ' ' + NETWORKS_BY_CHAIN_ID[lp.chainId].name)},${lp.fedSupply || 0},${balanceSource?.mainPartBalance || 0},${balanceSource?.pairingDepth || 0},${lp.ownedAmount || 0}\n`;
+            // for sDOLA convert to DOLA and pair amounts
+            const hasSDola = /SDOLA/i.test(lp.symbol);
+            const isSDolaMain = hasSDola && !/(^DOLA|.*-DOLA.*)/i.test(lp.symbol);                        
+            const pairingValue = hasSDola ? (isSDolaMain ? balanceSource?.pairPartBalance : balanceSource?.pairPartBalance * dolaStakingData.sDolaExRate) : balanceSource?.pairingDepth;
+            const mainValue = balanceSource?.mainPartBalance * (isSDolaMain ? dolaStakingData.sDolaExRate : 1);
+            csvData += `${lp.lpName},${lp.fedName || (capitalize(lp.project)+ ' ' + NETWORKS_BY_CHAIN_ID[lp.chainId].name)},${lp.fedSupply || 0},${mainValue || 0},${pairingValue || 0},${lp.ownedAmount || 0}\n`;
         });
 
         redisSetWithTimestamp(cacheKey, { csvData });
