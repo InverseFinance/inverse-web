@@ -1177,6 +1177,7 @@ const chainTokens = {
       decimals: 18,
       isLP: true,
       isCrvLP: true,
+      isStable: true,
       pairs: [
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].FXUSD
       ],
@@ -1189,7 +1190,8 @@ const chainTokens = {
       symbol: 'DOLA-FXUSD cvxlp',
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
-      isLP: true,    
+      isLP: true,
+      isStable: true, 
       pairs: [
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].FXUSD
       ],
