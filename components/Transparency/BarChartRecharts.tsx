@@ -31,6 +31,7 @@ export const BarChartRecharts = ({
     showLegend = false,
     allowZoom = false,
     rightPadding = 0,
+    showLabel = true,
 }: {
     combodata: { y: number, x: number, timestamp: number, utcDate: string }[]
     title: string
@@ -49,6 +50,7 @@ export const BarChartRecharts = ({
     showEventsLabels?: boolean
     events?: any[]
     rightPadding?: number
+    showLabel?: boolean
 }) => {
     const { themeStyles } = useAppTheme();
 
@@ -109,7 +111,7 @@ export const BarChartRecharts = ({
                 {
                     showLegend && <Legend wrapperStyle={legendStyle} style={{ cursor: 'pointer' }} formatter={(value) => value} />
                 }
-                <Bar label={(props) => <CustomizedLabel {...props} useUsd={useUsd} color={color} />} maxBarSize={25} name={yLabel} dataKey={'y'} stroke={color} fillOpacity={1} fill={color} />
+                <Bar label={showLabel ? (props) => <CustomizedLabel {...props} useUsd={useUsd} color={color} /> : undefined} maxBarSize={25} name={yLabel} dataKey={'y'} stroke={color} fillOpacity={1} fill={color} />
             </ComposedChart>
         </VStack>
     );

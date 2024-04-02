@@ -17,6 +17,7 @@ export type BarChart12MonthsProps = {
     xDateFormat?: string,
     months?: number[],
     useRecharts?: boolean,
+    showLabel?: boolean,
 }
 
 export const BarChart12Months = ({
@@ -27,7 +28,7 @@ export const BarChart12Months = ({
     yAttribute,
     isDollars,
     xDateFormat = '',
-    months = DEFAULT_MONTHS,
+    months = DEFAULT_MONTHS,    
     ...props
 }: BarChart12MonthsProps & Omit<BarChartProps, "groupedData">) => {
     const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);

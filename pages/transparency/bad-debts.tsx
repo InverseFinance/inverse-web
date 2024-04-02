@@ -562,7 +562,7 @@ export const BadDebtPage = () => {
                     chartData={barChartData}
                     isDollars={isAllCase ? true : useUsd}
                     areaProps={{ showMaxY: false, yLabel: 'Value', interval: selected === 'nonFrontierDola' ? 30 : undefined, useRecharts: true, fillInByDayInterval: 1, simplifyData: false, showTooltips: true, id: 'repayments-chart', allowZoom: false }}
-                    barProps={{ useRecharts: true, months: [...Array(barChartNbMonths).keys()], eventName: 'Repayment' }}
+                    barProps={{ useRecharts: true, showLabel: false, months: [...Array(barChartNbMonths).keys()], eventName: 'Repayment' }}
                   /> :
                     <SkeletonBlob />
                 }
