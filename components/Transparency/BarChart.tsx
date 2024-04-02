@@ -23,6 +23,7 @@ export type BarChartProps = {
     useRecharts?: boolean
     axisStyle?: VictoryAxisProps["style"]
     yLabel?: string
+    showLabel?: boolean
 }
 
 export const BarChart = ({
@@ -40,6 +41,7 @@ export const BarChart = ({
     useRecharts = false,
     axisStyle,
     yLabel,
+    showLabel = true
 }: BarChartProps) => {
     const [isLargerThan] = useMediaQuery(`(min-width: 900px)`);
     const [rightPadding, setRightPadding] = useState(useRecharts ? 50 : 65);
@@ -60,6 +62,7 @@ export const BarChart = ({
             chartWidth={width}
             chartHeight={height}
             rightPadding={rightPadding}
+            showLabel={showLabel}
         />
     }
 
@@ -113,7 +116,7 @@ export const BarChart = ({
                 />
                 <VictoryBar
                     alignment="middle"
-                    labelComponent={<VictoryLabel style={{ fontFamily: 'Inter', fontSize: '13px', fill: lightMode ? 'transparent' : themeStyles.colors.secondary, fontWeight: '600' }} dy={-10} {...labelProps} />}
+                    labelComponent={showLabel ? <VictoryLabel style={{ fontFamily: 'Inter', fontSize: '13px', fill: lightMode ? 'transparent' : themeStyles.colors.secondary, fontWeight: '600' }} dy={-10} {...labelProps} /> : undefined}
                     data={Object.entries(totals).map(([key, value]) => ({ x: key, y: value, label: value ? smartShortNumber(value, precision, isDollars) : '' }))}
                     style={{
                         data: { strokeWidth: 0, fill: 'transparent', fontWeight: 'bold' }
