@@ -13,7 +13,7 @@ import { pricesCacheKey } from '../prices';
 import { PROTOCOLS_BY_IMG, PROTOCOL_DEFILLAMA_MAPPING } from '@app/variables/images';
 import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 
-export const liquidityCacheKey = `liquidity-v1.1.9993`;
+export const liquidityCacheKey = `liquidity-v1.1.9994`;
 
 export default async function handler(req, res) {
     const { cacheFirst } = req.query;
@@ -62,7 +62,7 @@ export default async function handler(req, res) {
             ...Object
                 .values(CHAIN_TOKENS[NetworkIds.base]).filter(({ isLP }) => isLP)
                 .map((lp) => ({ chainId: NetworkIds.base, ...lp })),
-        ];
+        ]
 
         const TWG = multisigsToShow.find(m => m.shortName === 'TWG')!;
 
@@ -140,13 +140,13 @@ export default async function handler(req, res) {
                     ]);
                     const share = getBnToNumber(lpBal) / getBnToNumber(lpSupply);
                     owned.twg = share * tvl;
-                } else if (!lp.isUniV3) {
+                } else if (!lp.isUniV3) {                    
                     owned.twg = getBnToNumber(await contract.balanceOf(lp.twgAddress || chainTWG[lp.chainId].address));
                     if (lp.chainId === NetworkIds.mainnet) {
                         // no more
                         // owned.bondsManager = getBnToNumber(await contract.balanceOf(OP_BOND_MANAGER));
                         owned.treasuryContract = getBnToNumber(await contract.balanceOf(TREASURY));
-                    }
+                    }                
                 } else {
                     // univ3 pool liquidity
                     const univ3liquidity = getBnToNumber(await (new Contract((lp.uniV3Pool||lp.address), ['function liquidity() public view returns (uint)'], provider)).liquidity());
@@ -158,7 +158,7 @@ export default async function handler(req, res) {
                     owned.twg = share * tvl;
                 }
                 ownedAmount = Object.values(owned).reduce((prev, curr) => prev + curr, 0)
-                    * (lp.isStable ? virtualLpPrice : (prices[lp.coingeckoId || lp.symbol] || 1));
+                    * (lp.isStable && !/SDOLA/i.test(lp.symbol) ? virtualLpPrice : (prices[lp.coingeckoId || lp.symbol] || 1));
             } else {
                 ownedAmount = fedPolData.dontUseSupplyForPolCalc ? fedPolData.lpBalance * fedPolData.lpPrice : fedPolData.supply;
             }
