@@ -17,6 +17,7 @@ export type BarChart12MonthsProps = {
     xDateFormat?: string,
     months?: number[],
     useRecharts?: boolean,
+    showLabel?: boolean,
 }
 
 export const BarChart12Months = ({
