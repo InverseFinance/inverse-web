@@ -58,7 +58,7 @@ export const formatZerionWalletResponse = async (response) => {
         const splitData = item.id.split('-');
         const isVeNft = item.attributes.position_type === 'locked' && SOLIDLY_PROTOCOLS.includes(item.attributes.protocol.toUpperCase());
         // let address = splitData[0];
-        const chainCodeName = splitData[1].toLowerCase();
+        const chainCodeName = splitData[1].toLowerCase().replace('binance', 'binance-smart-chain');
         const chainTokens = CHAIN_TOKENS[NETWORKS.find(net => (net.zerionId || net.codename) === chainCodeName)?.id] || {};
         const veNftToken = getToken(chainTokens, `ve${item.attributes.fungible_info.symbol.replace('THE', 'THENA')}`);
         const firstToken = getToken(chainTokens, item.attributes.fungible_info.symbol);
