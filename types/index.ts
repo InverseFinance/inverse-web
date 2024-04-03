@@ -240,6 +240,7 @@ export type NetworkConfig = {
 export type Network = {
   id: string;
   codename: string;
+  zerionId?: string;
   name: string;
   isTestnet?: boolean;
   isSupported?: boolean;

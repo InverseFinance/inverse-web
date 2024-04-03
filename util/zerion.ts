@@ -1,9 +1,11 @@
 import { NETWORKS } from "@app/config/networks";
-import { PROTOCOL_IMAGES, TOKEN_IMAGES } from "@app/variables/images";
+import { PROTOCOL_IMAGES, PROTOCOL_ZERION_MAPPING } from "@app/variables/images";
 import { CHAIN_TOKENS, getToken } from "@app/variables/tokens";
 import { isAddress } from "ethers/lib/utils";
 
 const WALLET_ZERION_URL = 'https://api.zerion.io/v1/wallets';
+
+const SOLIDLY_PROTOCOLS = ['AERODROME', 'VELODROME', 'THENA', 'RAMSES', 'SOLIDLIZARD'];
 
 export const fetchZerionWithRetry = async (
     wallet = '',
@@ -53,18 +55,26 @@ export const formatZerionWalletResponse = async (response) => {
     const nonWalletPositions = uniqueNonWalletsKeys.map(key => {
         const item = cleanData.find((position) => `${position.attributes.protocol}-${position.attributes.name}` === key);
         const totalValue = cleanData.filter(r => `${r.attributes.protocol}-${r.attributes.name}` === key).reduce((prev, curr) => prev + curr.attributes.value, 0);
+        const splitData = item.id.split('-');
+        const isVeNft = item.attributes.position_type === 'locked' && SOLIDLY_PROTOCOLS.includes(item.attributes.protocol.toUpperCase());
+        // let address = splitData[0];
+        const chainCodeName = splitData[1].toLowerCase();
+        const chainTokens = CHAIN_TOKENS[NETWORKS.find(net => (net.zerionId || net.codename) === chainCodeName)?.id] || {};
+        const veNftToken = getToken(chainTokens, `ve${item.attributes.fungible_info.symbol.replace('THE', 'THENA')}`);
+        const firstToken = getToken(chainTokens, item.attributes.fungible_info.symbol);
+        const token = isVeNft && veNftToken?.symbol ? veNftToken : {
+            decimals: 18,
+            name: item.attributes.name === 'Asset' ? item.attributes.fungible_info.name : item.attributes.name,
+            symbol: item.attributes.name === 'Asset' ? item.attributes.fungible_info.symbol : item.attributes.name,
+            image: firstToken?.image,
+            protocolImage: PROTOCOL_IMAGES[(PROTOCOL_ZERION_MAPPING[(item.attributes.protocol || '')]||'')],
+        };
         return {
             balance: totalValue,
             price: 1,
             onlyUsdValue: true,
             allowance: 0,
-            token: {
-                decimals: 18,
-                name: item.attributes.name,
-                symbol: item.attributes.name,
-                image: TOKEN_IMAGES.DOLA,
-                protocolImage: PROTOCOL_IMAGES[(item.attributes.protocol || '').toUpperCase()],
-            }
+            token,
         }
     })
 
@@ -77,22 +87,22 @@ export const formatZerionWalletResponse = async (response) => {
             if (!isAddress(address)) {
                 address = position.attributes.fungible_info?.implementations.find(imp => imp.chain_id === chainCodeName)?.address;
             }
-            const chainTokens = CHAIN_TOKENS[NETWORKS.find(net => net.codename === chainCodeName)?.id] || {};
+            const chainTokens = CHAIN_TOKENS[NETWORKS.find(net => (net.zerionId || net.codename) === chainCodeName)?.id] || {};
             const listedToken = getToken(chainTokens, address);
-            const token = listedToken?.symbol ? listedToken : {         
+            const token = listedToken?.symbol ? listedToken : {
                 address,
                 decimals: position.attributes.quantity?.decimals || 18,
-                name: position.attributes.fungible_info.name || position.attributes.name,
-                symbol: position.attributes.fungible_info.symbol || position.attributes.name,
-                image: position.attributes.fungible_info?.icon?.url || TOKEN_IMAGES.DOLA,
-                protocolImage: PROTOCOL_IMAGES[(position.attributes.protocol || '').toUpperCase()],
-            }                        
+                name: position.attributes.name === 'Asset' ? position.attributes.fungible_info.name : position.attributes.name,
+                symbol: position.attributes.name === 'Asset' ? position.attributes.fungible_info.symbol : position.attributes.name,
+                image: position.attributes.fungible_info?.icon?.url,
+                protocolImage: PROTOCOL_IMAGES[(PROTOCOL_ZERION_MAPPING[(position.attributes.protocol || '')]||'')],
+            }
             return {
-                token,                
+                token,
                 balance: position.attributes?.quantity?.float || 0,
                 price: position.attributes?.price,
                 allowance: 0,
             };
-        });    
+        });
     return [...walletPositions, ...nonWalletPositions];
 }

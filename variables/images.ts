@@ -174,3 +174,19 @@ export const PROTOCOL_DEFILLAMA_MAPPING = {
     "PEARL": "pearl-exchange",
     "RETRO": "retro-finance",
 }
+
+export const PROTOCOL_ZERION_MAPPING = {
+    "Velodrome": 'VELO',
+    "Aerodrome": 'AERO',
+    "Thena": 'THENA',
+    "Aura": 'AURA',
+    "Convex": 'CVX',
+    "Curve": 'CRV',
+    "Uniswap": 'UNI',
+    "Yearn": 'YFI',
+    "Yearn V2": 'YFI',
+    "Balancer": "BAL",
+    "Ramses": "RAMSES",
+    "RAMSES": "RAMSES",
+    "Liquis": "LIQUIS",    
+}
