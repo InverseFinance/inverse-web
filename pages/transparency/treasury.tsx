@@ -41,21 +41,21 @@ export const Overview = () => {
   const TWGfunds = TWGmultisigs.map(m => m.funds);
 
   const totalMultisigs = multisigs?.map(m => {
-    return { label: m.shortName, balance: getFundsTotalUsd(m.funds, prices, 'balance'), usdPrice: 1, drill: m.funds }
+    return { label: m.shortName, balance: getFundsTotalUsd(m.funds, prices, 'balance'),  onlyUsdValue: true, usdPrice: 1, drill: m.funds }
   });
 
   const totalHoldings = [
-    { label: 'Treasury Contract', balance: getFundsTotalUsd(treasury, prices, 'balance'), usdPrice: 1, drill: treasury },
-    { label: 'Frontier Reserves', balance: getFundsTotalUsd(anchorReserves, prices, 'balance'), usdPrice: 1, drill: anchorReserves },
-    { label: 'veNFTs', balance: getFundsTotalUsd(multisigs?.map(m => m.funds.filter(fund => !!fund.token.veNftId)), prices, 'balance'), usdPrice: 1, drill: totalMultisigs },
-    { label: 'Multisigs (excl. veNFTs)', balance: getFundsTotalUsd(multisigs?.map(m => m.funds.filter(fund => !fund.token.veNftId)), prices, 'balance'), usdPrice: 1, drill: totalMultisigs },
+    { label: 'Treasury Contract', balance: getFundsTotalUsd(treasury, prices, 'balance'), onlyUsdValue: true, usdPrice: 1, drill: treasury },
+    { label: 'Frontier Reserves', balance: getFundsTotalUsd(anchorReserves, prices, 'balance'),  onlyUsdValue: true, usdPrice: 1, drill: anchorReserves },
+    { label: 'veNFTs', balance: getFundsTotalUsd(multisigs?.map(m => m.funds.filter(fund => !!fund.token.veNftId)), prices, 'balance'),  onlyUsdValue: true, usdPrice: 1, drill: totalMultisigs },
+    { label: 'Multisigs (excl. veNFTs)', balance: getFundsTotalUsd(multisigs?.map(m => m.funds.filter(fund => !fund.token.veNftId)), prices, 'balance'),  onlyUsdValue: true, usdPrice: 1, drill: totalMultisigs },
   ];
 
   const totalHoldingsExcludeOwnTokens = [
-    { label: 'Treasury Contract', balance: getFundsTotalUsd(treasury.filter(t => !OWN_TOKENS.includes(t.token.symbol)), prices, 'balance'), usdPrice: 1, drill: treasury },
+    { label: 'Treasury Contract', balance: getFundsTotalUsd(treasury.filter(t => !OWN_TOKENS.includes(t.token.symbol)), prices, 'balance'),  onlyUsdValue: true, usdPrice: 1, drill: treasury },
     { label: 'Frontier Reserves', balance: getFundsTotalUsd(anchorReserves, prices, 'balance'), usdPrice: 1, drill: anchorReserves },
-    { label: 'veNFTs', balance: getFundsTotalUsd(multisigs?.map(m => m.funds.filter(fund => !!fund.token.veNftId)), prices, 'balance'), usdPrice: 1, drill: totalMultisigs },
-    { label: 'Multisigs (excl. veNFTs)', balance: getFundsTotalUsd(multisigs?.map(m => m.funds.filter(fund => !fund.token.veNftId).filter(t => !OWN_TOKENS.includes(t.token.symbol))), prices, 'balance'), usdPrice: 1, drill: totalMultisigs },
+    { label: 'veNFTs', balance: getFundsTotalUsd(multisigs?.map(m => m.funds.filter(fund => !!fund.token.veNftId)), prices, 'balance'),  onlyUsdValue: true, usdPrice: 1, drill: totalMultisigs },
+    { label: 'Multisigs (excl. veNFTs)', balance: getFundsTotalUsd(multisigs?.map(m => m.funds.filter(fund => !fund.token.veNftId).filter(t => !OWN_TOKENS.includes(t.token.symbol))), prices, 'balance'),  onlyUsdValue: true, usdPrice: 1, drill: totalMultisigs },
   ];
 
   const treasuryHoldings = excludeOwnTokens2 ? treasury.filter(t => !OWN_TOKENS.includes(t.token.symbol)) : treasury;
