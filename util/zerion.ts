@@ -40,7 +40,7 @@ export const formatZerionWalletResponse = async (response) => {
     const responseData = await response.json();
 
     // filter out Frontier
-    const cleanData = responseData.filter(p => p.attributes.name !== 'Inverse Lending');
+    const cleanData = responseData.data.filter(p => p.attributes.name !== 'Inverse Lending');
 
     const uniqueNonWalletsKeys = [
         ...new Set(
