@@ -38,10 +38,10 @@ export const cacheMultisigDataKey = `dao-multisigs-data-v1.0.92`;
 export default async function handler(req, res) {
 
   const { DOLA, INV, ANCHOR_TOKENS, UNDERLYING, FEDS, TREASURY, MULTISIGS, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `dao-cache-v1.4.0`;
+  const cacheKey = `dao-cache-v1.4.1`;
 
   try {
-    const cacheDuration = 900000;
+    const cacheDuration = 360;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
     if (validCache) {
