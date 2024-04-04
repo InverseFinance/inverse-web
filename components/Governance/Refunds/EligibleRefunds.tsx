@@ -240,6 +240,27 @@ export const EligibleRefunds = () => {
         return addTxToRefund(txHash, provider?.getSigner(), () => reloadData());
     }
 
+    const handleExportAllVisibleCsv = () => {
+        const data = visibleItems.map(({ txHash, timestamp, fees, name, from, type, to, refunded, refundTxHash }) => {
+            return {
+                TxHash: txHash,
+                Timestamp: timestamp,
+                DateUTC: timestampToUTC(timestamp),
+                From: from,
+                FromName: namedAddress(from),
+                EventName: name,
+                TxType: type,
+                To: to || '',
+                ToName: to && isAddress(to) ? namedAddress(to) : '',
+                Fees: fees,
+                Refunded: refunded,
+                RefundTxHash: refundTxHash || '',
+            };
+        });
+        data.sort((a, b) => b.Timestamp - a.Timestamp);
+        exportToCsv(data, 'refunds_all_visible');
+    }
+
     const handleExportCsv = () => {
         const data = txsToRefund.map(({ txHash, timestamp, fees, name, from, type, to, refunded, refundTxHash }) => {
             return {
@@ -269,6 +290,14 @@ export const EligibleRefunds = () => {
             themeColor="green.500"
         >
             Inspect {txsToRefund.length} Txs
+        </SubmitButton>
+        <SubmitButton
+            disabled={!visibleItems.length || !account}
+            w="180px"
+            onClick={() => handleExportAllVisibleCsv()}
+            themeColor="green.500"
+        >
+            Export all visible
         </SubmitButton>
     </HStack>
 
