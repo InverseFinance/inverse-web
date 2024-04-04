@@ -646,7 +646,7 @@ const chainTokens = {
       decimals: 18,
       isLP: true,
       isStable: true,
-      isCrvLP: true,            
+      isCrvLP: true,
       pairs: [
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].FRAXPYUSD
       ],
@@ -654,22 +654,24 @@ const chainTokens = {
       link: 'https://curve.fi/#/ethereum/pools/factory-stable-ng-96/deposit',
       deduce: [chainTokenAddresses["1"].DOLAFRAXPYUSDCVX],
     },    
-    // [chainTokenAddresses["1"].DOLAFRAXPYUSDCVX]: {
-    //   address: chainTokenAddresses["1"].DOLAFRAXPYUSDCVX,      
-    //   name: 'DOLA-FRAX-PYUSD',
-    //   symbol: 'DOLA-FRAX-PYUSD cvxlp', 
-    //   image: TOKEN_IMAGES.DOLA,
-    //   decimals: 18,
-    //   isLP: true,
-    //   pairs: [
-    //     chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].FRAXPYUSD
-    //   ],
-    //   convexInfos:{
-    //     fromPrice: chainTokenAddresses["1"].DOLAFRAXPYUSD,
-    //     priceField: 'lp_price',
-    //   },
-    //   protocolImage: PROTOCOL_IMAGES.CVX,      
-    // },
+    [chainTokenAddresses["1"].DOLAFRAXPYUSDCVX]: {
+      address: chainTokenAddresses["1"].DOLAFRAXPYUSDCVX,
+      isCrvLP: true,
+      poolAddress: chainTokenAddresses["1"].DOLAFRAXPYUSD,
+      name: 'DOLA-FRAX-PYUSD',
+      symbol: 'DOLA-FRAX-PYUSD cvxlp', 
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      pairs: [
+        chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].FRAXPYUSD
+      ],
+      convexInfos:{
+        fromPrice: chainTokenAddresses["1"].DOLAFRAXPYUSD,
+      },
+      protocolImage: PROTOCOL_IMAGES.CVX,      
+    },
     // [chainTokenAddresses["1"].DOLACUSDALP]: {
     //   address: chainTokenAddresses["1"].DOLACUSDALP,
     //   name: 'DOLA-FRAX-USDC',
