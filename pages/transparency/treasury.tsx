@@ -11,6 +11,7 @@ import { FundsDetails } from '@app/components/Transparency/FundsDetails'
 import { DashBoardCard } from '@app/components/F2/UserDashboard'
 import { getNetworkImage } from '@app/util/networks'
 import { useState } from 'react'
+import { NetworkIds } from '@app/types'
 
 const OWN_TOKENS = ['DBR', 'INV'];
 
@@ -31,31 +32,33 @@ const ExcludeOwnTokens = ({
     <Checkbox onChange={() => setter(!value)} isChecked={value} id={id} />
   </FormControl>
 
+const above100UsdFilter = (item) => item.balance * (item.price || item.usdPrice) >= 100;
+
 export const Overview = () => {
   const { prices, isLoading: isLoadingPrices } = usePricesV2(true)
   const { treasury, anchorReserves, multisigs, isLoading: isLoadingDao } = useDAO();
   const [excludeOwnTokens, setExcludeOwnTokens] = useState(false);
   const [excludeOwnTokens2, setExcludeOwnTokens2] = useState(false);
 
-  const TWGmultisigs = multisigs?.filter(m => m.shortName.includes('TWG')) || [];
+  const TWGmultisigs = multisigs?.filter(m => m.shortName.includes('TWG') && m.chainId !== NetworkIds.ftm) || [];
   const TWGfunds = TWGmultisigs.map(m => m.funds);
 
   const totalMultisigs = multisigs?.map(m => {
-    return { label: m.shortName, balance: getFundsTotalUsd(m.funds, prices, 'balance'), usdPrice: 1, drill: m.funds }
+    return { label: m.shortName, balance: getFundsTotalUsd(m.funds.filter(above100UsdFilter), prices, 'balance'),  onlyUsdValue: true, usdPrice: 1, drill: m.funds }
   });
 
   const totalHoldings = [
-    { label: 'Treasury Contract', balance: getFundsTotalUsd(treasury, prices, 'balance'), usdPrice: 1, drill: treasury },
-    { label: 'Frontier Reserves', balance: getFundsTotalUsd(anchorReserves, prices, 'balance'), usdPrice: 1, drill: anchorReserves },
-    { label: 'veNFTs', balance: getFundsTotalUsd(multisigs?.map(m => m.funds.filter(fund => !!fund.token.veNftId)), prices, 'balance'), usdPrice: 1, drill: totalMultisigs },
-    { label: 'Multisigs (excl. veNFTs)', balance: getFundsTotalUsd(multisigs?.map(m => m.funds.filter(fund => !fund.token.veNftId)), prices, 'balance'), usdPrice: 1, drill: totalMultisigs },
+    { label: 'Treasury Contract', balance: getFundsTotalUsd(treasury, prices, 'balance'), onlyUsdValue: true, usdPrice: 1, drill: treasury },
+    { label: 'Frontier Reserves', balance: getFundsTotalUsd(anchorReserves, prices, 'balance'),  onlyUsdValue: true, usdPrice: 1, drill: anchorReserves },
+    { label: 'veNFTs', balance: getFundsTotalUsd(multisigs?.map(m => m.funds.filter(fund => !!fund.token.veNftId)), prices, 'balance'),  onlyUsdValue: true, usdPrice: 1, drill: totalMultisigs },
+    { label: 'Multisigs (excl. veNFTs)', balance: getFundsTotalUsd(multisigs?.map(m => m.funds.filter(fund => !fund.token.veNftId)), prices, 'balance'),  onlyUsdValue: true, usdPrice: 1, drill: totalMultisigs },
   ];
 
   const totalHoldingsExcludeOwnTokens = [
-    { label: 'Treasury Contract', balance: getFundsTotalUsd(treasury.filter(t => !OWN_TOKENS.includes(t.token.symbol)), prices, 'balance'), usdPrice: 1, drill: treasury },
+    { label: 'Treasury Contract', balance: getFundsTotalUsd(treasury.filter(t => !OWN_TOKENS.includes(t.token.symbol)), prices, 'balance'),  onlyUsdValue: true, usdPrice: 1, drill: treasury },
     { label: 'Frontier Reserves', balance: getFundsTotalUsd(anchorReserves, prices, 'balance'), usdPrice: 1, drill: anchorReserves },
-    { label: 'veNFTs', balance: getFundsTotalUsd(multisigs?.map(m => m.funds.filter(fund => !!fund.token.veNftId)), prices, 'balance'), usdPrice: 1, drill: totalMultisigs },
-    { label: 'Multisigs (excl. veNFTs)', balance: getFundsTotalUsd(multisigs?.map(m => m.funds.filter(fund => !fund.token.veNftId).filter(t => !OWN_TOKENS.includes(t.token.symbol))), prices, 'balance'), usdPrice: 1, drill: totalMultisigs },
+    { label: 'veNFTs', balance: getFundsTotalUsd(multisigs?.map(m => m.funds.filter(fund => !!fund.token.veNftId)), prices, 'balance'),  onlyUsdValue: true, usdPrice: 1, drill: totalMultisigs },
+    { label: 'Multisigs (excl. veNFTs)', balance: getFundsTotalUsd(multisigs?.map(m => m.funds.filter(fund => !fund.token.veNftId).filter(t => !OWN_TOKENS.includes(t.token.symbol))), prices, 'balance'),  onlyUsdValue: true, usdPrice: 1, drill: totalMultisigs },
   ];
 
   const treasuryHoldings = excludeOwnTokens2 ? treasury.filter(t => !OWN_TOKENS.includes(t.token.symbol)) : treasury;
@@ -63,7 +66,7 @@ export const Overview = () => {
   const isLoading = isLoadingDao || isLoadingPrices;
   const mainFontSize = { base: '16px', sm: '20px', md: '26px' };
   const dashboardCardTitleProps = { w: 'fit-content', position: 'static', fontSize: mainFontSize, fontWeight: 'extrabold' };
-  const dashboardCardProps = { direction: 'column', mx: '0', w: { base: '100vw', lg: '600px' }, borderRadius: { base: '0', sm: '8' } };
+  const dashboardCardProps = { direction: 'column', mx: '0', w: { base: '100vw', sm: '95vw', lg: '600px' }, borderRadius: { base: '0', sm: '8' } };
 
   return (
     <Layout>
@@ -79,21 +82,21 @@ export const Overview = () => {
       <TransparencyTabs active="treasury" />
       <Flex w="full" justify="center" justifyContent="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="4" px={{ base: '0', sm: '5' }} maxWidth="1400px" w='full'>
-          <Stack spacing="5" direction={{ base: 'column', lg: 'column' }} w="full" justify="space-around" alignItems={{ base: 'center', xl: 'unset' }}>
-            <SimpleGrid minChildWidth={{ base: '300px', sm: '500px' }} spacingX="50px" spacingY="40px">
+          <Stack spacing="5" direction="column" w="full" justify="space-around" alignItems={'center'}>
+            <SimpleGrid columns={{ base: 1, xl: 2 }} spacingX="50px" spacingY="40px">
               <DashBoardCard cardTitle="Total Treasury Holdings" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
                 <ExcludeOwnTokens label="Exclude Treasury INV & DBR" setter={setExcludeOwnTokens} value={excludeOwnTokens} id='exclude-1' />
-                <FundsDetails w='full' isLoading={isLoading} funds={excludeOwnTokens ? totalHoldingsExcludeOwnTokens : totalHoldings} prices={prices} type='balance' useRecharts={true} />
+                <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={excludeOwnTokens ? totalHoldingsExcludeOwnTokens : totalHoldings} prices={prices} type='balance' useRecharts={true} />
               </DashBoardCard>
               <DashBoardCard cardTitle="Multisigs's Holdings" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
-                <FundsDetails w='full' isLoading={isLoading} funds={totalMultisigs} prices={prices} type='balance' useRecharts={true} />
+                <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={totalMultisigs} prices={prices} type='balance' useRecharts={true} />
               </DashBoardCard>
               <DashBoardCard cardTitle="In Treasury Contract" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
                 <ExcludeOwnTokens label="Exclude INV & DBR" setter={setExcludeOwnTokens2} value={excludeOwnTokens2} id='exclude-2' />
-                <FundsDetails w='full' isLoading={isLoading} funds={treasuryHoldings} prices={prices} type='balance' useRecharts={true} />
+                <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={treasuryHoldings} prices={prices} type='balance' useRecharts={true} />
               </DashBoardCard>
               <DashBoardCard cardTitle="In Frontier Reserves" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
-                <FundsDetails w='full' isLoading={isLoading} funds={anchorReserves} prices={prices} type='balance' useRecharts={true} />
+                <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={anchorReserves} prices={prices} type='balance' useRecharts={true} />
               </DashBoardCard>
 
               {/* <FundsDetails title="Reserved For Bonds" funds={bonds?.balances.filter(({ token }) => token.symbol === RTOKEN_SYMBOL)} prices={prices} /> */}
@@ -101,7 +104,7 @@ export const Overview = () => {
               {
                 TWGfunds.map((mf, i) => {
                   return <DashBoardCard imageSrc={getNetworkImage(TWGmultisigs[i].chainId)} cardTitle={TWGmultisigs[i].shortName === 'TWG' ? 'TWG on Mainnet' : TWGmultisigs[i].shortName} cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
-                    <FundsDetails w='full' isLoading={isLoading} funds={mf} prices={prices} type='balance' useRecharts={true} />
+                    <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={mf.filter(above100UsdFilter)} prices={prices} type='balance' useRecharts={true} />
                   </DashBoardCard>
                 })
               }

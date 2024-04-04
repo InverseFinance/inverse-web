@@ -19,6 +19,7 @@ export const FundsDetails = ({
     isLoading,
     useRecharts = false,
     chartMode = true,
+    leftSideMaxW,
     ...stackProps
 }: {
     funds: Fund[],
@@ -32,6 +33,7 @@ export const FundsDetails = ({
     isLoading?: boolean
     useRecharts?: boolean
     chartMode?: boolean
+    leftSideMaxW?: string
 }) => {
     const [data, setData] = useState(funds);
     const [isDrilled, setIsDrilled] = useState(false);
@@ -83,7 +85,7 @@ export const FundsDetails = ({
                     </Flex>
                 }
                 {
-                    data?.length && !isLoading && chartMode && <Funds isLoading={isLoading} totalLabel={totalLabel} showAsAmountOnly={showAsAmountOnly} type={type} minUsd={1} handleDrill={isDrilled ? undefined : handleDrill} prices={prices} funds={data} chartMode={true} useRecharts={useRecharts} showTotal={true} labelWithPercInChart={labelWithPercInChart} />
+                    data?.length && !isLoading && chartMode && <Funds leftSideMaxW={leftSideMaxW} isLoading={isLoading} totalLabel={totalLabel} showAsAmountOnly={showAsAmountOnly} type={type} minUsd={1} handleDrill={isDrilled ? undefined : handleDrill} prices={prices} funds={data} chartMode={true} useRecharts={useRecharts} showTotal={true} labelWithPercInChart={labelWithPercInChart} />
                 }
                 {
                     isLoading && <SkeletonBlob />
@@ -93,13 +95,13 @@ export const FundsDetails = ({
 
         <SlideFade in={!isDrilled} unmountOnExit={true}>
             <Stack fontSize="12px" spacing="2">
-                <Funds isLoading={isLoading} totalLabel={totalLabel} showAsAmountOnly={showAsAmountOnly} type={type} minUsd={1} prices={prices} funds={funds} showPrice={false} showTotal={false} />
+                <Funds leftSideMaxW={leftSideMaxW} isLoading={isLoading} totalLabel={totalLabel} showAsAmountOnly={showAsAmountOnly} type={type} minUsd={1} prices={prices} funds={funds} showPrice={false} showTotal={false} />
             </Stack>
         </SlideFade>
         {
             isAfterSlideEffect && <SlideFade in={isDrilled} unmountOnExit={true}>
                 <Stack fontSize="12px" spacing="2">
-                    <Funds isLoading={isLoading} totalLabel={totalLabel} showAsAmountOnly={showAsAmountOnly} type={type} minUsd={1} prices={prices} funds={data} showPrice={false} showTotal={false} />
+                    <Funds leftSideMaxW={leftSideMaxW} isLoading={isLoading} totalLabel={totalLabel} showAsAmountOnly={showAsAmountOnly} type={type} minUsd={1} prices={prices} funds={data} showPrice={false} showTotal={false} />
                 </Stack>
             </SlideFade>
         }

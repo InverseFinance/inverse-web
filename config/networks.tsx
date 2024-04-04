@@ -116,6 +116,7 @@ const networks: Network[] = [
   {
     id: '56',
     codename: NETWORK_CODENAMES.bsc,
+    zerionId: 'binance-smart-chain',
     name: 'BSC',
     coinSymbol: 'bnb',
     isTestnet: false,
