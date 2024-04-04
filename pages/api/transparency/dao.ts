@@ -1,7 +1,7 @@
 import { BigNumber, Contract } from 'ethers'
 import 'source-map-support'
 import { CTOKEN_ABI, DOLA_ABI, ERC20_ABI, INV_ABI, MULTISIG_ABI } from '@app/config/abis'
-import { getNetworkConfigConstants } from '@app/util/networks'
+import { getNetwork, getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { Fed, Multisig, NetworkIds, Token } from '@app/types';
@@ -11,6 +11,7 @@ import { isAddress } from 'ethers/lib/utils';
 import { DOLA_BRIDGED_CHAINS, INV_BRIDGED_CHAINS, ONE_DAY_SECS } from '@app/config/constants';
 import { liquidityCacheKey } from './liquidity';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
+import { fetchZerionWithRetry } from '@app/util/zerion';
 
 const formatBn = (bn: BigNumber, token: Token) => {
   return { token, balance: getBnToNumber(bn, token.decimals) }
@@ -28,8 +29,8 @@ const ANCHOR_RESERVES_TO_CHECK = [
 
 export const cacheMultisigMetaKey = `dao-multisigs-meta-v1.0.9`;
 export const cacheFedsMetaKey = `dao-feds-meta-v1.0.3`;
-export const cacheMulBalKey = `dao-multisigs-bal-v1.0.94`;
-export const cacheMulAllKey = `dao-multisigs-all-v1.0.54`;
+export const cacheMulBalKey = `dao-multisigs-bal-v1.0.96`;
+export const cacheMulAllKey = `dao-multisigs-all-v1.0.55`;
 export const cacheDolaSupplies = `dao-dola-supplies-v1.0.1`;
 export const cacheFedDataKey = `dao-feds-datas-v1.0.3`;
 export const cacheMultisigDataKey = `dao-multisigs-data-v1.0.92`;
@@ -37,10 +38,10 @@ export const cacheMultisigDataKey = `dao-multisigs-data-v1.0.92`;
 export default async function handler(req, res) {
 
   const { DOLA, INV, ANCHOR_TOKENS, UNDERLYING, FEDS, TREASURY, MULTISIGS, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `dao-cache-v1.3.98`;
+  const cacheKey = `dao-cache-v1.4.0`;
 
   try {
-    const cacheDuration = 300;
+    const cacheDuration = 900000;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
     if (validCache) {
@@ -118,7 +119,7 @@ export default async function handler(req, res) {
       }),
       ANCHOR_TOKENS.map((ad: string) => {
         const contract = new Contract(ad, CTOKEN_ABI, provider);
-        return { contract, functionName: 'totalReserves', params: [], forceFallback: !ANCHOR_RESERVES_TO_CHECK.includes(ad), fallbackValue: BigNumber.from('0') };        
+        return { contract, functionName: 'totalReserves', params: [], forceFallback: !ANCHOR_RESERVES_TO_CHECK.includes(ad), fallbackValue: BigNumber.from('0') };
       })
     ]);
 
@@ -156,68 +157,68 @@ export default async function handler(req, res) {
       [NetworkIds.base]: Object.keys(CHAIN_TOKENS[NetworkIds.base]).filter(key => isAddress(key)),
     }
 
-    const [multisigBalCache, liquidityCacheData] = await Promise.all([
-      getCacheFromRedis(cacheMulBalKey, true, 300),
-      getCacheFromRedis(liquidityCacheKey, false),
-    ]);
-    const multisigsBalanceValues: BigNumber[][] = multisigBalCache?.map(bns => bns.map(bn => Array.isArray(bn) ? BigNumber.from(bn[0]) : BigNumber.from(bn))) || (await Promise.all([
-      ...multisigsToShow.map((m) => {
-        const provider = getProvider(m.chainId);
-        const chainFundsToCheck = multisigsFundsToCheck[m.chainId];
-        return Promise.all(
-          chainFundsToCheck.map(tokenAddress => {
-            const token = CHAIN_TOKENS[m.chainId][tokenAddress]
-            const isTWGtype = m.shortName.includes('TWG');
-            const isLockedConvexPool = !!token && !!token.convexInfos?.account && m.shortName === 'TWG';
-            if (
-              // reduce numbers of check
-              (!isTWGtype && m.shortName !== 'BBP' && !['DOLA', 'INV'].includes(token?.symbol))
-              || (m.shortName === 'BBP' && !['DOLA', 'INV', 'USDC', 'USDT', 'DAI'].includes(token?.symbol))
-              // skip yearn vaults
-              || token?.symbol?.startsWith('yv')
-              // skip token with specific twg address if diff
-              || (!!token?.twgAddress && token?.twgAddress !== m.address)
-            ) {
-              return new Promise((res) => res(BigNumber.from('0')));
-            }
-            // non-standard balance cases first
-            else if (!!token.veNftId) {
-              if(token.isLockedVeNft) {
-                const contract = new Contract(token.address, ['function locked(uint) public view returns (uint, uint)'], provider);
-                return contract.locked(token.veNftId);  
-              } else {
-                const contract = new Contract(token.address, ['function balanceOfNFT(uint) public view returns (uint)'], provider);
-                return contract.balanceOfNFT(token.veNftId);
-              }
-            } else if (token.symbol === 'vlAURA') {
-              const contract = new Contract(token.address, ['function balances(address) public view returns (tuple(uint, uint))'], provider);
-              return contract.balances(m.address);
-            } else if (isLockedConvexPool) {
-              const contract = new Contract(token.address, ['function totalBalanceOf(address) public view returns (uint)'], provider);
-              return contract.totalBalanceOf(token.convexInfos.account);
-            } // for uniV3 nft pos, we treat lp price as $1 and balance = ownedAmount $
-            else if (token.isUniV3) {
-              if(liquidityCacheData?.liquidity) {
-                const lpData = liquidityCacheData.liquidity.find(lp => lp.address === (token.uniV3Pool||tokenAddress));
-                if(lpData) {
-                  return getNumberToBn(token.uniV3Pool ? lpData.srcTvl : lpData.ownedAmount, lpData.decimals);
-                }
-              }
-              return new Promise((res) => res(BigNumber.from('0')));
-            } else {
-              const contract = new Contract(tokenAddress, ERC20_ABI, provider);
-              return contract.balanceOf(m.address);
-            }
-          })
-            .concat([
-              provider.getBalance(m.address),
-            ])
-        )
-      })
-    ]));
-    if (!multisigBalCache) {
-      await redisSetWithTimestamp(cacheMulBalKey, multisigsBalanceValues);
-    }
+    // const [multisigBalCache, liquidityCacheData] = await Promise.all([
+    //   getCacheFromRedis(cacheMulBalKey, true, 300),
+    //   getCacheFromRedis(liquidityCacheKey, false),
+    // ]);
+    // const multisigsBalanceValues: BigNumber[][] = multisigBalCache?.map(bns => bns.map(bn => Array.isArray(bn) ? BigNumber.from(bn[0]) : BigNumber.from(bn))) || (await Promise.all([
+    //   ...multisigsToShow.map((m) => {
+    //     const provider = getProvider(m.chainId);
+    //     const chainFundsToCheck = multisigsFundsToCheck[m.chainId];
+    //     return Promise.all(
+    //       chainFundsToCheck.map(tokenAddress => {
+    //         const token = CHAIN_TOKENS[m.chainId][tokenAddress]
+    //         const isTWGtype = m.shortName.includes('TWG');
+    //         const isLockedConvexPool = !!token && !!token.convexInfos?.account && m.shortName === 'TWG';
+    //         if (
+    //           // reduce numbers of check
+    //           (!isTWGtype && m.shortName !== 'BBP' && !['DOLA', 'INV'].includes(token?.symbol))
+    //           || (m.shortName === 'BBP' && !['DOLA', 'INV', 'USDC', 'USDT', 'DAI'].includes(token?.symbol))
+    //           // skip yearn vaults
+    //           || token?.symbol?.startsWith('yv')
+    //           // skip token with specific twg address if diff
+    //           || (!!token?.twgAddress && token?.twgAddress !== m.address)
+    //         ) {
+    //           return new Promise((res) => res(BigNumber.from('0')));
+    //         }
+    //         // non-standard balance cases first
+    //         else if (!!token.veNftId) {
+    //           if(token.isLockedVeNft) {
+    //             const contract = new Contract(token.address, ['function locked(uint) public view returns (uint, uint)'], provider);
+    //             return contract.locked(token.veNftId);  
+    //           } else {
+    //             const contract = new Contract(token.address, ['function balanceOfNFT(uint) public view returns (uint)'], provider);
+    //             return contract.balanceOfNFT(token.veNftId);
+    //           }
+    //         } else if (token.symbol === 'vlAURA') {
+    //           const contract = new Contract(token.address, ['function balances(address) public view returns (tuple(uint, uint))'], provider);
+    //           return contract.balances(m.address);
+    //         } else if (isLockedConvexPool) {
+    //           const contract = new Contract(token.address, ['function totalBalanceOf(address) public view returns (uint)'], provider);
+    //           return contract.totalBalanceOf(token.convexInfos.account);
+    //         } // for uniV3 nft pos, we treat lp price as $1 and balance = ownedAmount $
+    //         else if (token.isUniV3) {
+    //           if(liquidityCacheData?.liquidity) {
+    //             const lpData = liquidityCacheData.liquidity.find(lp => lp.address === (token.uniV3Pool||tokenAddress));
+    //             if(lpData) {
+    //               return getNumberToBn(token.uniV3Pool ? lpData.srcTvl : lpData.ownedAmount, lpData.decimals);
+    //             }
+    //           }
+    //           return new Promise((res) => res(BigNumber.from('0')));
+    //         } else {
+    //           const contract = new Contract(tokenAddress, ERC20_ABI, provider);
+    //           return contract.balanceOf(m.address);
+    //         }
+    //       })
+    //         .concat([
+    //           provider.getBalance(m.address),
+    //         ])
+    //     )
+    //   })
+    // ]));
+    // if (!multisigBalCache) {
+    //   await redisSetWithTimestamp(cacheMulBalKey, multisigsBalanceValues);
+    // }
 
     const multisigAllCache = await getCacheFromRedis(cacheMulAllKey, true, 300);
     const multisigsAllowanceValues: BigNumber[][] = multisigAllCache?.map(bns => bns.map(bn => BigNumber.from(bn))) || ((await Promise.all([
@@ -249,20 +250,48 @@ export default async function handler(req, res) {
       await redisSetWithTimestamp(cacheMulAllKey, multisigsAllowanceValues);
     }
 
-    const multisigsFunds = multisigsBalanceValues.map((bns, i) => {
+    const multisigsFunds = await Promise.all(
+      multisigsToShow.map(multisig => {
+        const net = getNetwork(multisig.chainId);
+        return fetchZerionWithRetry(multisig.address, net.zerionId || net.codename)
+      })
+    );
+
+    multisigsAllowanceValues.map((bns, i) => {
       const multisig = multisigsToShow[i];
       const chainFundsToCheck = multisigsFundsToCheck[multisig.chainId];
       return bns.map((bn, j) => {
-        const token = CHAIN_TOKENS[multisig.chainId][chainFundsToCheck[j]] || CHAIN_TOKENS[multisig.chainId]['CHAIN_COIN'];
-        const allowance = multisigsAllowanceValues[i][j]
-        return {
-          token,
-          // handle non-standard vlAURA, locked veThena balance in array case
-          balance: getBnToNumber(Array.isArray(bn) ? bn[0] : bn, token.decimals),
-          allowance: allowance !== undefined ? getBnToNumber(allowance, token.decimals) : null,
+        const token = CHAIN_TOKENS[multisig.chainId][chainFundsToCheck[j]]
+        if (!!token?.address) {
+          const allowance = multisigsAllowanceValues[i][j]
+          const alreadyInFundsIndex = multisigsFunds[i].findIndex(mf => mf.token.address?.toLowerCase() === token.address?.toLowerCase());
+          if (alreadyInFundsIndex !== -1) {
+            multisigsFunds[i][alreadyInFundsIndex].allowance = allowance !== undefined ? getBnToNumber(allowance, token.decimals) : null;
+          } else {
+            multisigsFunds[i].push({
+              token,
+              balance: 0,
+              allowance: allowance !== undefined ? getBnToNumber(allowance, token.decimals) : null,
+            });
+          }
         }
       })
     })
+
+    // const multisigsFunds = multisigsBalanceValues.map((bns, i) => {
+    //   const multisig = multisigsToShow[i];
+    //   const chainFundsToCheck = multisigsFundsToCheck[multisig.chainId];
+    //   return bns.map((bn, j) => {
+    //     const token = CHAIN_TOKENS[multisig.chainId][chainFundsToCheck[j]] || CHAIN_TOKENS[multisig.chainId]['CHAIN_COIN'];
+    //     const allowance = multisigsAllowanceValues[i][j]
+    //     return {
+    //       token,
+    //       // handle non-standard vlAURA, locked veThena balance in array case
+    //       balance: getBnToNumber(Array.isArray(bn) ? bn[0] : bn, token.decimals),
+    //       allowance: allowance !== undefined ? getBnToNumber(allowance, token.decimals) : null,
+    //     }
+    //   })
+    // })
 
     // Bonds v2 - no more used
     // const bondTokens = [INV, DOLA, DOLA3POOLCRV, INVDOLASLP];
@@ -277,7 +306,7 @@ export default async function handler(req, res) {
       return [
         {
           chainId: NetworkIds.mainnet,
-          supply: total - bridgedSupplies.reduce((prev, curr) => prev+getBnToNumber(curr), 0),
+          supply: total - bridgedSupplies.reduce((prev, curr) => prev + getBnToNumber(curr), 0),
         },
         ...bridgedSupplies.map((bn, i) => {
           return { chainId: bridgedChains[i], supply: getBnToNumber(bn) };
@@ -300,13 +329,13 @@ export default async function handler(req, res) {
     const multisigData = multisigsToShow.map((m, i) => ({
       ...m,
       owners: multisigsOwners[i],
-      funds: multisigsFunds[i].filter(d => d.balance||0 > 0 || d.allowance||0 > 0),
+      funds: multisigsFunds[i].filter(d => d.balance || 0 > 0 || d.allowance || 0 > 0),
       // when multisigsThresholds is from cache, type is not BN object
       threshold: parseInt(BigNumber.from(multisigsThresholds[i]).toString()),
     }));
 
     const resultData = {
-      timestamp: +(new Date()),      
+      timestamp: Date.now(),
       dolaTotalSupply: dolaTotalSupplyNum,
       invTotalSupply: invTotalSupplyNum,
       dolaOperator,
@@ -325,7 +354,7 @@ export default async function handler(req, res) {
       dolaTotalSupply: resultData.dolaTotalSupply,
       dolaSupplies,
     });
-    
+
     redisSetWithTimestamp(cacheFedDataKey, fedsData);
     redisSetWithTimestamp(cacheMultisigDataKey, multisigData);
 
