@@ -20,6 +20,7 @@ const FundLine = ({
     showAsAmountOnly,
     noImage = false,
     onlyUsdValue = false,
+    leftSideMaxW,
 }: {
     token: Token,
     value: number,
@@ -32,6 +33,7 @@ const FundLine = ({
     showAsAmountOnly?: boolean
     noImage?: boolean
     onlyUsdValue?: boolean
+    leftSideMaxW?: string
 }) => {
     const rightSideContent = <>
         <Text textAlign="right">
@@ -43,6 +45,7 @@ const FundLine = ({
             </Text>
         }
     </>
+    const limitLeftSideProps = leftSideMaxW ? { maxW: { lg: leftSideMaxW }, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace:{ base: 'normal', lg: 'nowrap' } } : {};
     return (
         <Flex direction="row" w='full' alignItems="center" justify="space-between">
             <Flex alignItems="center">
@@ -56,7 +59,7 @@ const FundLine = ({
                         mx="1"
                     />
                 }
-                <Text maxW={{ lg: '300px' }} overflow='hidden' textOverflow='ellipsis' whiteSpace={{ base: 'normal', lg: 'nowrap' }} ml={noImage ? 0 : 1} lineHeight="15px">{label || token?.symbol}{token?.address === OLD_XINV && ' (old)'}</Text>
+                <Text {...limitLeftSideProps} ml={noImage ? 0 : 1} lineHeight="15px">{label || token?.symbol}{token?.address === OLD_XINV && ' (old)'}</Text>
                 <Text>:</Text>
             </Flex>
             {
@@ -112,6 +115,7 @@ type FundsProps = {
     isLoading?: boolean
     useRecharts?: boolean
     chartProps?: any
+    leftSideMaxW?: string
 };
 
 export const getFundsTotalUsd = (funds, prices, fundsType: 'balance' | 'allowance' | 'both' = 'balance'): number => {
@@ -151,6 +155,7 @@ export const Funds = ({
     isLoading,
     chartProps,
     useRecharts = false,
+    leftSideMaxW,
 }: FundsProps) => {
     const { themeStyles } = useAppTheme();
     const usdTotals = { balance: 0, allowance: 0, overall: 0 };
@@ -184,7 +189,7 @@ export const Funds = ({
 
     const balancesContent = positiveBalances
         .map(({ token, balance, usdBalance, balancePerc, onlyUsdValue, usdPrice, ctoken, label }) => {
-            return <FundLine noImage={noImage} onlyUsdValue={onlyUsdValue} key={ctoken || token?.address || label || token?.symbol} showAsAmountOnly={showAsAmountOnly} label={label} token={token} showPrice={showPrice} usdPrice={usdPrice} value={balance} usdValue={usdBalance} perc={balancePerc} showPerc={showPerc} />
+            return <FundLine leftSideMaxW={leftSideMaxW} noImage={noImage} onlyUsdValue={onlyUsdValue} key={ctoken || token?.address || label || token?.symbol} showAsAmountOnly={showAsAmountOnly} label={label} token={token} showPrice={showPrice} usdPrice={usdPrice} value={balance} usdValue={usdBalance} perc={balancePerc} showPerc={showPerc} />
         })
 
     const positiveAllowances = fundsWithPerc.filter(({ allowance }) => (allowance || 0) > 0);
@@ -192,7 +197,7 @@ export const Funds = ({
 
     const allowancesContent = positiveAllowances
         .map(({ token, allowance, usdAllowance, allowancePerc, onlyUsdValue, usdPrice, ctoken, label }) => {
-            return <FundLine noImage={noImage} onlyUsdValue={onlyUsdValue} key={ctoken || token?.address || label || token?.symbol} showAsAmountOnly={showAsAmountOnly} label={label} showPrice={showPrice} usdPrice={usdPrice} token={token} value={allowance!} usdValue={usdAllowance} perc={allowancePerc} showPerc={showPerc} />
+            return <FundLine leftSideMaxW={leftSideMaxW} noImage={noImage} onlyUsdValue={onlyUsdValue} key={ctoken || token?.address || label || token?.symbol} showAsAmountOnly={showAsAmountOnly} label={label} showPrice={showPrice} usdPrice={usdPrice} token={token} value={allowance!} usdValue={usdAllowance} perc={allowancePerc} showPerc={showPerc} />
         })
 
     const chartData = fundsWithPerc

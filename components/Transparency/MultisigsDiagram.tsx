@@ -97,7 +97,7 @@ export const MultisigsDiagram = () => {
                                 <Flex direction="row" w='full' justify="space-between">
                                     <Text fontWeight="bold">Multisig Wallet Funds (over $100):</Text>
                                 </Flex>
-                                <Funds prices={prices} funds={multisig.funds.filter((item) => (item.balance * (item.price || item.usdPrice) >= 100) || (!!item.allowance))} showPerc={false} />
+                                <Funds leftSideMaxW='200px' prices={prices} funds={multisig.funds.filter((item) => (item.balance * (item.price || item.usdPrice) >= 100) || (!!item.allowance))} showPerc={false} />
                             </VStack>
                         </VStack>
                     }

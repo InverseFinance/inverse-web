@@ -86,17 +86,17 @@ export const Overview = () => {
             <SimpleGrid columns={{ base: 1, xl: 2 }} spacingX="50px" spacingY="40px">
               <DashBoardCard cardTitle="Total Treasury Holdings" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
                 <ExcludeOwnTokens label="Exclude Treasury INV & DBR" setter={setExcludeOwnTokens} value={excludeOwnTokens} id='exclude-1' />
-                <FundsDetails w='full' isLoading={isLoading} funds={excludeOwnTokens ? totalHoldingsExcludeOwnTokens : totalHoldings} prices={prices} type='balance' useRecharts={true} />
+                <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={excludeOwnTokens ? totalHoldingsExcludeOwnTokens : totalHoldings} prices={prices} type='balance' useRecharts={true} />
               </DashBoardCard>
               <DashBoardCard cardTitle="Multisigs's Holdings" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
-                <FundsDetails w='full' isLoading={isLoading} funds={totalMultisigs} prices={prices} type='balance' useRecharts={true} />
+                <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={totalMultisigs} prices={prices} type='balance' useRecharts={true} />
               </DashBoardCard>
               <DashBoardCard cardTitle="In Treasury Contract" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
                 <ExcludeOwnTokens label="Exclude INV & DBR" setter={setExcludeOwnTokens2} value={excludeOwnTokens2} id='exclude-2' />
-                <FundsDetails w='full' isLoading={isLoading} funds={treasuryHoldings} prices={prices} type='balance' useRecharts={true} />
+                <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={treasuryHoldings} prices={prices} type='balance' useRecharts={true} />
               </DashBoardCard>
               <DashBoardCard cardTitle="In Frontier Reserves" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
-                <FundsDetails w='full' isLoading={isLoading} funds={anchorReserves} prices={prices} type='balance' useRecharts={true} />
+                <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={anchorReserves} prices={prices} type='balance' useRecharts={true} />
               </DashBoardCard>
 
               {/* <FundsDetails title="Reserved For Bonds" funds={bonds?.balances.filter(({ token }) => token.symbol === RTOKEN_SYMBOL)} prices={prices} /> */}
@@ -104,7 +104,7 @@ export const Overview = () => {
               {
                 TWGfunds.map((mf, i) => {
                   return <DashBoardCard imageSrc={getNetworkImage(TWGmultisigs[i].chainId)} cardTitle={TWGmultisigs[i].shortName === 'TWG' ? 'TWG on Mainnet' : TWGmultisigs[i].shortName} cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
-                    <FundsDetails w='full' isLoading={isLoading} funds={mf.filter(above100UsdFilter)} prices={prices} type='balance' useRecharts={true} />
+                    <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={mf.filter(above100UsdFilter)} prices={prices} type='balance' useRecharts={true} />
                   </DashBoardCard>
                 })
               }
