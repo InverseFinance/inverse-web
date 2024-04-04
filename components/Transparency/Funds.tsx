@@ -56,7 +56,8 @@ const FundLine = ({
                         mx="1"
                     />
                 }
-                <Text ml={noImage ? 0 : 1} lineHeight="15px">{label || token?.symbol}{token?.address === OLD_XINV && ' (old)'}:</Text>
+                <Text maxW={{ lg: '300px' }} overflow='hidden' textOverflow='ellipsis' whiteSpace={{ base: 'normal', lg: 'nowrap' }} ml={noImage ? 0 : 1} lineHeight="15px">{label || token?.symbol}{token?.address === OLD_XINV && ' (old)'}</Text>
+                <Text>:</Text>
             </Flex>
             {
                 !!showAsAmountOnly ? <SimpleGrid w="140px" spacing="1" columns={2} alignItems="center">
