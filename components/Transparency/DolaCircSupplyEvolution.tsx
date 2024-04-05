@@ -17,7 +17,7 @@ export const DolaCircSupplyEvolution = () => {
         setAutoChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 80)
     }, [isLargerThan]);
 
-    return <Container label="DOLA Circulating Supply Evolution" description="Excluded from circulation: DOLAs sitting in markets and in Fed Farmers; Precision: daily on mainnet, weekly on L2s">
+    return <Container noPadding m="0" p="0" label="DOLA Circulating Supply Evolution" description="Excluded from circulation: DOLAs sitting in markets and in Fed Farmers; Precision: daily on mainnet, weekly on L2s">
         <VStack pt="10" position="relative">
             {
                 isLoading ? <SkeletonBlob />

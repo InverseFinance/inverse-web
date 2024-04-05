@@ -20,6 +20,7 @@ export const FundsDetails = ({
     useRecharts = false,
     chartMode = true,
     leftSideMaxW,
+    chartProps,
     ...stackProps
 }: {
     funds: Fund[],
@@ -34,6 +35,7 @@ export const FundsDetails = ({
     useRecharts?: boolean
     chartMode?: boolean
     leftSideMaxW?: string
+    chartProps?: any
 }) => {
     const [data, setData] = useState(funds);
     const [isDrilled, setIsDrilled] = useState(false);
@@ -85,7 +87,7 @@ export const FundsDetails = ({
                     </Flex>
                 }
                 {
-                    data?.length && !isLoading && chartMode && <Funds leftSideMaxW={leftSideMaxW} isLoading={isLoading} totalLabel={totalLabel} showAsAmountOnly={showAsAmountOnly} type={type} minUsd={1} handleDrill={isDrilled ? undefined : handleDrill} prices={prices} funds={data} chartMode={true} useRecharts={useRecharts} showTotal={true} labelWithPercInChart={labelWithPercInChart} />
+                    data?.length && !isLoading && chartMode && <Funds chartProps={chartProps} leftSideMaxW={leftSideMaxW} isLoading={isLoading} totalLabel={totalLabel} showAsAmountOnly={showAsAmountOnly} type={type} minUsd={1} handleDrill={isDrilled ? undefined : handleDrill} prices={prices} funds={data} chartMode={true} useRecharts={useRecharts} showTotal={true} labelWithPercInChart={labelWithPercInChart} />
                 }
                 {
                     isLoading && <SkeletonBlob />

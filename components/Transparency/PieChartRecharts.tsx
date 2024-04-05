@@ -25,11 +25,12 @@ const renderActiveShape = (props) => {
     const formattedValueAndPerc = `${formattedValue} (${formattedPerc})`;
     const x = isMobile ? mx : (ex + (isPosCos ? 1 : -1) * 12);
 
-    const isCustomCentral = centralValue || centralNameKey;
+    const isCustomCentral = centralValue || centralNameKey;    
+    const activeColor = activeFill === 'keep' && payload.fillColor ? payload.fillColor : activeFill;
 
     return (
         <g>
-            <text x={cx} y={cy} dy={8} textAnchor="middle" fontWeight="bold" fill={centralFill || activeFill}>
+            <text x={cx} y={cy} dy={8} textAnchor="middle" fontWeight="bold" fill={centralFill || activeColor}>
                 {centralValue || payload[centralNameKey || nameKey]}
             </text>
             <Sector
@@ -39,7 +40,7 @@ const renderActiveShape = (props) => {
                 outerRadius={outerRadius}
                 startAngle={startAngle}
                 endAngle={endAngle}
-                fill={activeFill}
+                fill={activeColor}
             />
             <Sector
                 cx={cx}
@@ -48,15 +49,15 @@ const renderActiveShape = (props) => {
                 endAngle={endAngle}
                 innerRadius={outerRadius + 6}
                 outerRadius={outerRadius + 10}
-                fill={activeFill}
+                fill={activeColor}
             />
             {
-                !isMobile && <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={activeFill} fill="none" />
+                !isMobile && <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={activeColor} fill="none" />
             }
             {
-                !isMobile && <circle cx={ex} cy={ey} r={2} fill={activeFill} stroke="none" />
+                !isMobile && <circle cx={ex} cy={ey} r={2} fill={activeColor} stroke="none" />
             }
-            <text x={x} y={ey} fontWeight="bold" textAnchor={textAnchor} fontSize={16} fill={activeTextFill || activeFill}>
+            <text x={x} y={ey} fontWeight="bold" textAnchor={textAnchor} fontSize={16} fill={activeTextFill || activeColor}>
                 {isCustomCentral ? payload[nameKey] : formattedValue}
             </text>
             <text x={x} y={ey} dy={20} textAnchor={textAnchor} fill={activeSubtextFill || '#999'} fontSize={14} >
@@ -84,7 +85,7 @@ export const PieChartRecharts = ({ data, centralValue = '', colorScale, centralF
         <PieChart width={width} height={height} overflow="visible">
             <Pie
                 activeIndex={activeIndex}
-                activeShape={(props) => renderActiveShape({ ...props, centralFill, activeSubtextFill, activeTextFill, isShortenNumbers, precision, isUsd, centralNameKey, centralValue, nameKey, activeFill, isMobile: isSmallerThan400 })}
+                activeShape={(props) => renderActiveShape({ ...props, centralFill, activeSubtextFill, activeTextFill, isShortenNumbers, precision, isUsd, centralNameKey, centralValue, nameKey, activeFill, fill, isMobile: isSmallerThan400 })}
                 data={data}
                 cx={cx}
                 cy={cy}

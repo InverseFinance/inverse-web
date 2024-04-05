@@ -21,6 +21,7 @@ const FundLine = ({
     noImage = false,
     onlyUsdValue = false,
     leftSideMaxW,
+    color,
 }: {
     token: Token,
     value: number,
@@ -34,13 +35,14 @@ const FundLine = ({
     noImage?: boolean
     onlyUsdValue?: boolean
     leftSideMaxW?: string
+    color?: string
 }) => {
     const rightSideContent = <>
-        <Text textAlign="right">
+        <Text color={color} textAlign="right">
             {!onlyUsdValue && shortenNumber(value, 2, false, true)} {showPrice && `at ${shortenNumber(usdPrice, 2, true)} `}{!showAsAmountOnly && (!onlyUsdValue ? `(${shortenNumber(usdValue, 2, true, true)})` : shortenNumber(usdValue, 2, true, true))}
         </Text>
         {
-            showPerc && <Text ml="2px" minW="53px" textAlign="right" fontWeight='bold'>
+            showPerc && <Text color={color} ml="2px" minW="53px" textAlign="right" fontWeight='bold'>
                 {!!showAsAmountOnly && `  `}{shortenNumber(perc, 2, false, true).padStart(5, '  ')}%
             </Text>
         }
@@ -49,7 +51,7 @@ const FundLine = ({
     return (
         <Flex direction="row" w='full' alignItems="center" justify="space-between">
             <Flex alignItems="center">
-                <Text>-</Text>
+                <Text color={color}>-</Text>
                 {
                     !noImage && <MarketImage
                         image={token?.image}
@@ -59,8 +61,8 @@ const FundLine = ({
                         mx="1"
                     />
                 }
-                <Text {...limitLeftSideProps} ml={noImage ? 0 : 1} lineHeight="15px">{label || token?.symbol}{token?.address === OLD_XINV && ' (old)'}</Text>
-                <Text>:</Text>
+                <Text color={color} {...limitLeftSideProps} ml={noImage ? 0 : 1} lineHeight="15px">{label || token?.symbol}{token?.address === OLD_XINV && ' (old)'}</Text>
+                <Text color={color}>:</Text>
             </Flex>
             {
                 !!showAsAmountOnly ? <SimpleGrid w="140px" spacing="1" columns={2} alignItems="center">
@@ -89,6 +91,7 @@ export type Fund = {
     usdPrice?: number,
     chartFillColor?: string,
     chartLabelFillColor?: string,
+    textColor?: string,
     ctoken?: string,
     label?: string,
     drill?: Fund[],
@@ -161,7 +164,7 @@ export const Funds = ({
     const usdTotals = { balance: 0, allowance: 0, overall: 0 };
 
     const positiveFunds = (funds || [])
-        .map(({ token, balance, allowance, usdPrice, price: _price, ctoken, label, drill, chartFillColor, chartLabelFillColor, onlyUsdValue }) => {
+        .map(({ token, balance, allowance, usdPrice, price: _price, ctoken, label, drill, chartFillColor, chartLabelFillColor, textColor, onlyUsdValue }) => {
             const price = showAsAmountOnly ? 1 : (usdPrice||_price) ?? getPrice(prices, token);
             const usdBalance = price && balance ? balance * price : 0;
             const usdAllowance = price && allowance ? allowance * price : 0;
@@ -171,7 +174,7 @@ export const Funds = ({
             usdTotals.allowance += usdAllowance;
             usdTotals.overall += totalUsd;
             const _token = ctoken === OLD_XINV ? { ...token, symbol: `${RTOKEN_SYMBOL}-old` } : token;
-            return { token: _token, ctoken, balance, allowance, usdBalance, usdAllowance, totalBalance, totalUsd, usdPrice: price, label, drill, chartFillColor, chartLabelFillColor, onlyUsdValue };
+            return { token: _token, ctoken, balance, allowance, usdBalance, usdAllowance, totalBalance, totalUsd, usdPrice: price, label, drill, chartFillColor, chartLabelFillColor, textColor, onlyUsdValue };
         })
         .filter(({ totalBalance }) => totalBalance > 0)
         .filter(({ totalUsd }) => totalUsd >= minUsd)
@@ -188,8 +191,8 @@ export const Funds = ({
     positiveBalances.sort((a, b) => b.usdBalance - a.usdBalance);
 
     const balancesContent = positiveBalances
-        .map(({ token, balance, usdBalance, balancePerc, onlyUsdValue, usdPrice, ctoken, label }) => {
-            return <FundLine leftSideMaxW={leftSideMaxW} noImage={noImage} onlyUsdValue={onlyUsdValue} key={ctoken || token?.address || label || token?.symbol} showAsAmountOnly={showAsAmountOnly} label={label} token={token} showPrice={showPrice} usdPrice={usdPrice} value={balance} usdValue={usdBalance} perc={balancePerc} showPerc={showPerc} />
+        .map(({ token, balance, usdBalance, balancePerc, onlyUsdValue, usdPrice, ctoken, label, textColor }) => {
+            return <FundLine color={textColor} leftSideMaxW={leftSideMaxW} noImage={noImage} onlyUsdValue={onlyUsdValue} key={ctoken || token?.address || label || token?.symbol} showAsAmountOnly={showAsAmountOnly} label={label} token={token} showPrice={showPrice} usdPrice={usdPrice} value={balance} usdValue={usdBalance} perc={balancePerc} showPerc={showPerc} />
         })
 
     const positiveAllowances = fundsWithPerc.filter(({ allowance }) => (allowance || 0) > 0);
@@ -209,6 +212,7 @@ export const Funds = ({
                 perc: fund.overallPerc,
                 fund,
                 fill: fund.chartFillColor,
+                fillColor: fund.chartFillColor,
                 labelFill: fund.chartLabelFillColor,
                 totalUsd: shortenNumber(usdTotals.overall, 2, true),
                 totalBalance: shortenNumber(usdTotals.balance, 2),
