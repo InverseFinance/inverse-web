@@ -19,7 +19,7 @@ const defaultFedsData = FEDS.map(((fed) => {
 }))
 
 export const useDAO = (): SWR & DAO => {
-  const { data, error } = useCustomSWR(`/api/transparency/dao?v=4`, fetcher)
+  const { data, error } = useCacheFirstSWR(`/api/transparency/dao?v=4`, fetcher)
 
   return {
     dolaTotalSupply: data?.dolaTotalSupply || 0,
