@@ -36,6 +36,7 @@ export const cacheFedDataKey = `dao-feds-datas-v1.0.3`;
 export const cacheMultisigDataKey = `dao-multisigs-data-v1.0.92`;
 
 export default async function handler(req, res) {
+  const { cacheFirst } = req.query;
 
   const { DOLA, INV, ANCHOR_TOKENS, UNDERLYING, FEDS, TREASURY, MULTISIGS, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
   const cacheKey = `dao-cache-v1.4.1`;
@@ -43,7 +44,7 @@ export default async function handler(req, res) {
   try {
     const cacheDuration = 360;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
+    const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
     if (validCache) {
       res.status(200).json(validCache);
       return
