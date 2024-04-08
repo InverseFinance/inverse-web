@@ -1,4 +1,4 @@
-import { Flex, SimpleGrid, VStack } from '@chakra-ui/react'
+import { Flex, HStack, SimpleGrid, VStack, Text } from '@chakra-ui/react'
 
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
@@ -12,6 +12,40 @@ import { useAppTheme } from '@app/hooks/useAppTheme'
 import { DashBoardCard } from '@app/components/F2/UserDashboard'
 import { useDBRMarkets } from '@app/hooks/useDBR'
 import { FundsDetails } from '@app/components/Transparency/FundsDetails'
+import { lightTheme } from '@app/variables/theme'
+
+const LEGEND_ITEMS = [
+  {
+    color: lightTheme.colors.info,
+    label: 'Backed by a Liquidity Position on a AMM',
+  },
+  {
+    color: lightTheme.colors.success,
+    label: 'Backed by a collateral on FiRM',
+  },
+  {
+    color: lightTheme.colors.error,
+    label: 'Unbacked or mostly unhealthy',
+  },
+];
+
+const Legend = () => {
+  return <HStack w='full'  justify="space-around">
+    {
+      LEGEND_ITEMS.map((item, index) => {
+        return <HStack spacing="2" key={item.color}>
+          <Text
+            minW="1px"
+            h="20px"
+            borderColor={item.color}
+            // borderStyle={EVENT_DASHES[eventType] ? 'dashed' : undefined}
+            borderWidth={'2px'}></Text>
+          <Text>{item.label}</Text>          
+        </HStack>
+      })
+    }
+  </HStack>
+}
 
 export const DolaDiagram = () => {
   const { themeStyles } = useAppTheme();
@@ -82,6 +116,7 @@ export const DolaDiagram = () => {
       <TransparencyTabs active="dola" />
       <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }} ml="2">
         <VStack spacing="8">
+          <Legend />
           <SimpleGrid columns={{ base: 1, lg: 2 }} spacingX="8">
             <DashBoardCard cardTitle='DOLA backing sources overview' {...dashboardCardProps}>
               <FundsDetails
@@ -91,7 +126,7 @@ export const DolaDiagram = () => {
                 isLoading={isLoading}
                 funds={fedsPieChartData}
                 type='balance'
-                useRecharts={true}                
+                useRecharts={true}
               />
             </DashBoardCard>
             <DashBoardCard cardTitle='Detailed DOLA backing sources'  {...dashboardCardProps}>
@@ -102,7 +137,7 @@ export const DolaDiagram = () => {
                 isLoading={isLoading}
                 funds={underlyingPieChartData}
                 type='balance'
-                useRecharts={true}                
+                useRecharts={true}
               />
             </DashBoardCard>
           </SimpleGrid>
