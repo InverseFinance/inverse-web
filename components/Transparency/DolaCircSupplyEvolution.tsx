@@ -5,7 +5,7 @@ import { SkeletonBlob } from "../common/Skeleton";
 import Container from "../common/Container";
 import { useEffect, useState } from "react";
 
-const maxChartWidth= 820
+const maxChartWidth= 1300
 
 export const DolaCircSupplyEvolution = () => {
     const { evolution, isLoading, isError } = useDolaCirculatingSupplyEvolution();
