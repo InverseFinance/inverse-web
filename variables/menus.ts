@@ -200,6 +200,11 @@ export const MENUS = {
           needReload: true,
         },
         {
+          label: 'On-ramp / Off-ramp',
+          href: '/buy',
+          needReload: true,
+        },
+        {
           label: 'Blog',
           href: '/blog',
         },
