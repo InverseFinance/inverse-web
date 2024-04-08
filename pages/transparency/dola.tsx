@@ -1,10 +1,10 @@
-import { Flex, HStack, SimpleGrid, VStack, Text } from '@chakra-ui/react'
+import { Flex, HStack, Stack, VStack, Text } from '@chakra-ui/react'
 
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
-import { useFedOverview } from '@app/hooks/useDAO'
+import { useDAO, useFedOverview } from '@app/hooks/useDAO'
 import { FedList } from '@app/components/Transparency/fed/FedList'
 import { usePrices } from '@app/hooks/usePrices'
 import { DolaCircSupplyEvolution } from '@app/components/Transparency/DolaCircSupplyEvolution'
@@ -13,6 +13,10 @@ import { DashBoardCard } from '@app/components/F2/UserDashboard'
 import { useDBRMarkets } from '@app/hooks/useDBR'
 import { FundsDetails } from '@app/components/Transparency/FundsDetails'
 import { lightTheme } from '@app/variables/theme'
+import { InfoMessage, ShrinkableInfoMessage } from '@app/components/common/Messages'
+import Link from '@app/components/common/Link'
+import { DolaMoreInfos } from '@app/components/Transparency/DolaMoreInfos'
+import { DolaSupplies } from '@app/components/common/Dataviz/DolaSupplies'
 
 const LEGEND_ITEMS = [
   {
@@ -30,7 +34,7 @@ const LEGEND_ITEMS = [
 ];
 
 const Legend = () => {
-  return <HStack w='full'  justify="space-around">
+  return <HStack w='full' justify="space-around">
     {
       LEGEND_ITEMS.map((item, index) => {
         return <HStack spacing="2" key={item.color}>
@@ -40,7 +44,7 @@ const Legend = () => {
             borderColor={item.color}
             // borderStyle={EVENT_DASHES[eventType] ? 'dashed' : undefined}
             borderWidth={'2px'}></Text>
-          <Text>{item.label}</Text>          
+          <Text>{item.label}</Text>
         </HStack>
       })
     }
@@ -49,6 +53,7 @@ const Legend = () => {
 
 export const DolaDiagram = () => {
   const { themeStyles } = useAppTheme();
+  const { dolaSupplies } = useDAO();
   const { markets, isLoading } = useDBRMarkets();
   const { fedOverviews, isLoading: isLoadingOverview } = useFedOverview();
   const { prices } = usePrices(['velodrome-finance']);
@@ -114,10 +119,23 @@ export const DolaDiagram = () => {
       </Head>
       <AppNav active="Transparency" activeSubmenu="DOLA & Feds" hideAnnouncement={true} />
       <TransparencyTabs active="dola" />
-      <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }} ml="2">
+      <Flex maxW='1300px' w="full" justify="center" direction={{ base: 'column', xl: 'row' }} ml="2">
         <VStack spacing="8">
+          <InfoMessage
+            description={
+              <VStack alignItems="flex-start">
+                <Text>DOLA is a decentralized stablecoin soft-pegged to the US Dollar. It is backed by a diversified set of assets, including liquidity positions on AMMs and isolated collaterals on FiRM. Even though it has some bad debt since April 2022, it is being repaid over time and it has operated at peg thanks to strong peg mechanisms.</Text>
+                <Link
+                  isExternal
+                  about="_blank"
+                  href={"https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola#dola-usd-peg-management"}>
+                  Learn more about peg management
+                </Link>
+              </VStack>
+            }
+          />
           <Legend />
-          <SimpleGrid columns={{ base: 1, lg: 2 }} spacingX="8">
+          <Stack direction={{ base: 'column', lg: 'row' }} justify="space-between" w='full'>
             <DashBoardCard cardTitle='DOLA backing sources overview' {...dashboardCardProps}>
               <FundsDetails
                 {...commonProps}
@@ -140,33 +158,35 @@ export const DolaDiagram = () => {
                 useRecharts={true}
               />
             </DashBoardCard>
-          </SimpleGrid>
+          </Stack>
           <FedList prices={prices} feds={fedOverviews.filter(f => !f.hasEnded)} isLoading={isLoadingOverview} />
           <DolaCircSupplyEvolution />
+          <Stack spacing={4} direction={{ base: 'column', lg: 'row' }} >
+            <DolaMoreInfos />
+            <VStack spacing='4' minW='250px' w='50%' maxW='400px'>
+              <DolaSupplies supplies={dolaSupplies.filter(chain => chain.supply > 0)} />
+              <ShrinkableInfoMessage
+                title="⚡&nbsp;&nbsp;Roles & Powers"
+                description={
+                  <>
+                    <Flex direction="row" w='full' justify="space-between">
+                      <Text fontWeight="bold">- Dola operator:</Text>
+                      <Text>Add/remove DOLA minters</Text>
+                    </Flex>
+                    <Flex direction="row" w='full' justify="space-between">
+                      <Text fontWeight="bold">- Fed Chair:</Text>
+                      <Text>Resize the amount of DOLA supplied</Text>
+                    </Flex>
+                    <Flex direction="row" w='full' justify="space-between">
+                      <Text fontWeight="bold">- Fed Gov:</Text>
+                      <Text>Change the Fed Chair</Text>
+                    </Flex>
+                  </>
+                }
+              />
+            </VStack>
+          </Stack>
         </VStack>
-        {/* <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
-          <DolaMoreInfos />
-          <DolaSupplies supplies={dolaSupplies.filter(chain => chain.supply > 0)} />
-          <ShrinkableInfoMessage
-            title="⚡&nbsp;&nbsp;Roles & Powers"
-            description={
-              <>
-                <Flex direction="row" w='full' justify="space-between">
-                  <Text fontWeight="bold">- Dola operator:</Text>
-                  <Text>Add/remove DOLA minters</Text>
-                </Flex>
-                <Flex direction="row" w='full' justify="space-between">
-                  <Text fontWeight="bold">- Fed Chair:</Text>
-                  <Text>Resize the amount of DOLA supplied</Text>
-                </Flex>
-                <Flex direction="row" w='full' justify="space-between">
-                  <Text fontWeight="bold">- Fed Gov:</Text>
-                  <Text>Change the Fed Chair</Text>
-                </Flex>
-              </>
-            }
-          />
-        </VStack> */}
       </Flex>
     </Layout >
   )
