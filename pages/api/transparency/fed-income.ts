@@ -11,6 +11,7 @@ import { Contract } from 'ethers';
 import { getProvider } from '@app/util/providers';
 import { addBlockTimestamps } from '@app/util/timestamps';
 import { DOLA_ABI } from '@app/config/abis';
+import { ONE_DAY_MS } from '@app/config/constants';
 
 const COINGECKO_IDS = {
     'CRV': 'curve-dao-token',
@@ -159,23 +160,25 @@ const getProfits = async (FEDS: Fed[], TREASURY: string, cachedCurrentPrices: { 
     }));
 }
 
+const ARCHIVE_DAYS_DIFF = ONE_DAY_MS * 30;
+
 export default async function handler(req, res) {
     const { cacheFirst } = req.query;
     const { FEDS, DOLA, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
 
-    const archiveCacheKey = `revenues-v1.0.25`;
-    const cacheKey = `revenues-v1.0.271`;
+    const archiveKey = `revenues-v1.0.25`;
+    const cacheKey = `revenues-v1.0.272`;
 
     try {
 
         const cacheDuration = 1800;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
         const [archive, cache] = await Promise.all([
-            getCacheFromRedisAsObj(archiveCacheKey, false, cacheDuration),
+            getCacheFromRedisAsObj(archiveKey, false, cacheDuration),
             getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration)
         ]);
 
-        const { data: archived } = archive;
+        const { data: archived, timestamp: archiveTimestamp } = archive;
         const { data: cachedData, isValid } = cache;
 
         if (isValid) {
@@ -241,13 +244,18 @@ export default async function handler(req, res) {
                 return { ...event, totalAccProfit: total, _key: _key++ }
             });
 
+        const now = Date.now();
         const resultData = {
-            timestamp: +(new Date()),
+            timestamp: now,
             totalFedsIncomes: accProfits,
             totalEvents: fedsIncomes,
             feds: FEDS,
         }
 
+        // update archive cache if it's been more than 30 days
+        if ((now - archiveTimestamp) >= ARCHIVE_DAYS_DIFF) {
+            await redisSetWithTimestamp(archiveKey, resultData);
+        }
         await redisSetWithTimestamp(cacheKey, resultData);
 
         res.status(200).json(resultData)
