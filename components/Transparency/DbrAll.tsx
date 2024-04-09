@@ -4,7 +4,7 @@ import { BarChart12Months } from "./BarChart12Months";
 import { useAppTheme } from "@app/hooks/useAppTheme";
 import { useEventsAsChartData } from "@app/hooks/misc";
 import { getClosestPreviousHistoValue, timestampToUTC } from "@app/util/misc";
-import { useDBREmissions, useFirmUsers, useHistoricalPrices } from "@app/hooks/useFirm";
+import { useDBREmissions, useFirmUsers } from "@app/hooks/useFirm";
 import { ONE_DAY_MS } from "@app/config/constants";
 import { DbrComboChart } from "./DbrComboChart";
 import { DbrEmissions } from "./DbrEmissions";
@@ -15,6 +15,7 @@ import { useHistoricalInvMarketCap } from "@app/hooks/useHistoricalMarketCap";
 import { DefaultCharts } from "./DefaultCharts";
 import { useDolaStakingEvolution, useStakedDola } from "@app/util/dola-staking";
 import { useDbrAuction } from "../F2/DbrAuction/DbrAuctionInfos";
+import { useHistoInvPrices } from "@app/hooks/usePrices";
 
 const streamingStartTs = 1684713600000;
 
@@ -39,7 +40,7 @@ export const DbrAll = ({
     yearlyRewardRate,
 }) => {
     const [useUsd, setUseUsd] = useState(false);
-    const { prices: invHistoPrices } = useHistoricalPrices('inverse-finance');
+    const { prices: invHistoPrices } = useHistoInvPrices();
     const { evolution: circSupplyEvolution } = useHistoricalInvMarketCap();
     const circSupplyAsObj = !!circSupplyEvolution ? circSupplyEvolution.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr.timestamp)]: curr.circSupply }), {}) : {};
     const invHistoPricesAsObj = !!invHistoPrices ? invHistoPrices.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr[0])]: curr[1] }), {}) : {};

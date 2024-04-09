@@ -421,10 +421,11 @@ export const triggerBorrow = (marketName: string) => {
     document.dispatchEvent(customEvent);
 }
 
-export const getHistoricalTokenData = async (cgId: string, from?: number, to?: number) => {
-    const now = Date.now();
+export const getHistoricalTokenData = async (cgId: string, fromTsSec?: number, toTsSec?: number) => {
+    const now = Math.floor(Date.now() / 1000);
     try {
-        const res = await fetch(`https://api.coingecko.com/api/v3/coins/${cgId}/market_chart/range?vs_currency=usd&from=${from || 1392577232}&to=${to || now}`);
+        // 1year max
+        const res = await fetch(`https://api.coingecko.com/api/v3/coins/${cgId}/market_chart/range?vs_currency=usd&from=${fromTsSec || 1392577232}&to=${toTsSec || now}`);
         return res.json();
     } catch (e) {
         console.log(e);
