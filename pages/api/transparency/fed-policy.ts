@@ -2,11 +2,12 @@ import { Contract, Event } from 'ethers'
 import 'source-map-support'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
-import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
+import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { Fed, FedEvent, NetworkIds } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
 import { cacheDolaSupplies } from './dao';
 import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestamps';
+import { ONE_DAY_MS } from '@app/config/constants';
 
 const getEvents = (fedAd: string, abi: string[], chainId: NetworkIds, startBlock = 0x0) => {
   const provider = getProvider(chainId);
@@ -15,14 +16,6 @@ const getEvents = (fedAd: string, abi: string[], chainId: NetworkIds, startBlock
     contract.queryFilter(contract.filters.Contraction(), startBlock),
     contract.queryFilter(contract.filters.Expansion(), startBlock),
   ])
-}
-
-const getTimestamps = (rawEvents: [Event[], Event[]], chainId: NetworkIds) => {
-  const provider = getProvider(chainId);
-  const events = rawEvents[0].concat(rawEvents[1]);
-  return Promise.all(
-    events.map(rawEvent => provider.getBlock(rawEvent.blockNumber))
-  )
 }
 
 const getEventDetails = (log: Event, timestampInSec: number, fedIndex: number, isFirm?: boolean) => {
@@ -40,26 +33,28 @@ const getEventDetails = (log: Event, timestampInSec: number, fedIndex: number, i
   }
 }
 
+const ARCHIVE_DAYS_DIFF = ONE_DAY_MS * 30;
+
 export default async function handler(req, res) {
   const { cacheFirst } = req.query;
 
   const { FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
-  // to keep for archive
-  const cacheKeyOld = `fed-policy-cache-v1.1.0`;
-  // temp migration
-  const cacheKeyNew = `fed-policy-cache-v1.1.11`;
+  // we keep two cache entries, one "archived" that is up to ~30 days old and one "current"
+  // makes potential fed migrations easier
+  const archiveKey = `fed-policy-cache-v1.1.0`;
+  const cacheKey = `fed-policy-cache-v1.1.12`;
 
   try {
     const cacheDuration = 60;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const validCache = await getCacheFromRedis(cacheKeyNew, cacheFirst !== 'true', cacheDuration);
+    const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
 
     if (validCache) {
       res.status(200).json(validCache);
       return
     }
-
-    const archived = await getCacheFromRedis(cacheKeyOld, false);
+    
+    const { data: archived, timestamp: archiveTimestamp } = await getCacheFromRedisAsObj(archiveKey, cacheFirst !== 'true', cacheDuration);
     const _pastTotalEvents = archived?.totalEvents || [];
     let pastTotalEvents;
     // Euler Fed closure fixture (no Contraction event was emitted)
@@ -184,8 +179,10 @@ export default async function handler(req, res) {
       }
     });
 
+    const now = Date.now();
+
     const resultData = {
-      timestamp: +(new Date()),
+      timestamp: now,
       fedPolicyMsg,
       totalEvents,
       feds: FEDS.map(fed => {
@@ -194,14 +191,18 @@ export default async function handler(req, res) {
       dolaSupplies: dolaSuppliesCacheData?.dolaSupplies,
     }
 
-    await redisSetWithTimestamp(cacheKeyNew, resultData);
+    // update archive cache if it's been more than 30 days
+    if((now - archiveTimestamp) >= ARCHIVE_DAYS_DIFF) {
+      await redisSetWithTimestamp(archiveKey, resultData);
+    }
+    await redisSetWithTimestamp(cacheKey, resultData);
 
     res.status(200).json(resultData)
   } catch (err) {
     console.error(err);
     // if an error occured, try to return last cached results
     try {
-      const cache = await getCacheFromRedis(cacheKeyNew, false);
+      const cache = await getCacheFromRedis(cacheKey, false);
       if (cache) {
         console.log('Api call failed, returning last cache found');
         res.status(200).json(cache);
