@@ -208,3 +208,13 @@ export const useStabilizerFees = (): SWR & { buyFee: number, sellFee: number } =
     isError: error,
   }
 }
+
+export const useHistoInvPrices = (): SWR & { prices: number[][] } => {
+  const { data, error } = useCacheFirstSWR(`/api/inv/histo-prices`);
+
+  return {
+    prices: data.prices || [],
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
