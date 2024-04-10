@@ -7,6 +7,7 @@ import { getBnToNumber } from '@app/util/markets';
 import { getTokenHolders } from '@app/util/covalent';
 import { formatUnits } from '@ethersproject/units';
 import { throttledPromises } from '@app/util/misc';
+import { getGroupedMulticallOutputs, getMulticallOutput } from "./multicall";
 
 const fillPositionsWithRetry = async (
     positions: [number, BigNumber, BigNumber, string, number][],
@@ -122,7 +123,7 @@ export const getPositionsDetails = async ({
             });
         });
 
-        uniqueUsers = Array.from(usersSet);
+        uniqueUsers = Array.from(usersSet);        
 
         lastUpdate = Date.now();
     } else {
@@ -145,8 +146,21 @@ export const getPositionsDetails = async ({
         batchUsers = uniqueUsers.slice(+pageOffset, +pageOffset + (+pageSize) - 1);
     }
 
-    const positions = batchUsers.map((account, i) => [1, BigNumber.from('0'), BigNumber.from('0'), account, i]);
-    await fillPositionsWithRetry(positions, comptroller, 4, 0);
+    // const positions = batchUsers.map((account, i) => [1, BigNumber.from('0'), BigNumber.from('0'), account, i]);
+    const [positions, borrowedAssets] = await getGroupedMulticallOutputs(
+        [
+            batchUsers.map(a => {       
+                return { contract: comptroller, functionName: 'getAccountLiquidity', params:[a]  }
+            }),
+            batchUsers.map(a => {
+                return contracts.map(contract => {
+                    return { contract, functionName: 'borrowBalanceStored', params:[a]  }
+                })
+            })
+        ],
+        1,
+    );
+    // await fillPositionsWithRetry(positions, comptroller, 4, 0);
 
     let shortfallAccounts = batchUsers.map((account, i) => {
         const [accLiqErr, extraBorrowableAmount, shortfallAmount] = positions[i];
@@ -161,27 +175,29 @@ export const getPositionsDetails = async ({
         shortfallAccounts = shortfallAccounts.filter(p => p.usdShortfall > 0.1);
     }
 
-    const borrowedAssets = await throttledPromises(
-        (p) => {
-            return Promise.all(
-                contracts.map((contract, i) => {
-                    return !borrowPaused[i] || [
-                        '0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670',
-                        '0x17786f3813E6bA35343211bd8Fe18EC4de14F28b',
-                        '0xde2af899040536884e062D3a334F2dD36F34b4a4',
-                        '0x697b4acAa24430F254224eB794d2a85ba1Fa1FB8',
-                        '0xD60B06B457bFf7fc38AC5E7eCE2b5ad16B288326',
-                    ].includes(contract.address) ?
-                        contract.borrowBalanceStored(p.account)
-                        :
-                        BigNumber.from('0');
-                })
-            );
-        },
-        shortfallAccounts,
-        20,
-        100
-    )
+    // const borrowedAssets = 
+
+    // const borrowedAssets = await throttledPromises(
+    //     (p) => {
+    //         return Promise.all(
+    //             contracts.map((contract, i) => {
+    //                 return !borrowPaused[i] || [
+    //                     '0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670',
+    //                     '0x17786f3813E6bA35343211bd8Fe18EC4de14F28b',
+    //                     '0xde2af899040536884e062D3a334F2dD36F34b4a4',
+    //                     '0x697b4acAa24430F254224eB794d2a85ba1Fa1FB8',
+    //                     '0xD60B06B457bFf7fc38AC5E7eCE2b5ad16B288326',
+    //                 ].includes(contract.address) ?
+    //                     contract.borrowBalanceStored(p.account)
+    //                     :
+    //                     BigNumber.from('0');
+    //             })
+    //         );
+    //     },
+    //     shortfallAccounts,
+    //     20,
+    //     100
+    // )
 
     const [
         assetsIn,
@@ -213,11 +229,19 @@ export const getPositionsDetails = async ({
             const anBalance = parseFloat(formatUnits(balances[account][marketAd] || 0, marketDecimals[marketIndex]));
             const exRate = exRates[marketIndex];
             const tokenBalance = anBalance * exRate;
+            const liquidPrice = ([
+                '0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670',
+                '0x17786f3813E6bA35343211bd8Fe18EC4de14F28b',
+                '0xde2af899040536884e062D3a334F2dD36F34b4a4',
+                '0x697b4acAa24430F254224eB794d2a85ba1Fa1FB8',
+            ].includes(marketAd) ? 0 : prices[marketIndex]);
 
             return {
                 balance: tokenBalance,
                 marketIndex,
-                usdWorth: tokenBalance * prices[marketIndex]
+                usdWorth: tokenBalance * prices[marketIndex],
+                usdWorthLiquid: tokenBalance * liquidPrice,
+                usdWorthLiquidWithCf: tokenBalance * liquidPrice * collateralFactors[marketIndex]/100,
             }
         }).filter(s => s.balance > 0);
 
@@ -225,6 +249,7 @@ export const getPositionsDetails = async ({
             ...position,
             usdBorrowed: borrowed.reduce((prev, curr) => prev + curr.usdWorth, 0),
             usdSupplied: supplied.reduce((prev, curr) => prev + curr.usdWorth, 0),
+            usdSuppliedLiquid: supplied.reduce((prev, curr) => prev + curr.usdWorthLiquid, 0),
             assetsIn: assetsInMarketIndexes,
             borrowed,
             supplied,
