@@ -61,7 +61,7 @@ export const getPositionsDetails = async ({
     const provider = getProvider(process.env.NEXT_PUBLIC_CHAIN_ID!, process.env.POSITIONS_ALCHEMY_API, true);
     const comptroller = new Contract(COMPTROLLER, COMPTROLLER_ABI, provider);
     const oracle = new Contract(ORACLE, ORACLE_ABI, provider);
-    const allMarkets: string[] = marketsData?.allMarkets || [...await comptroller.getAllMarkets()].filter(address => !!UNDERLYING[address])
+    const allMarkets: string[] = marketsData?.allMarkets || marketsData?.markets || [...await comptroller.getAllMarkets()].filter(address => !!UNDERLYING[address])
 
     const contracts = allMarkets
         .map((address: string) => new Contract(address, CTOKEN_ABI, provider));
@@ -85,8 +85,8 @@ export const getPositionsDetails = async ({
             Promise.all(contracts.map((contract) => contract.callStatic.exchangeRateCurrent())),
             Promise.all(allMarkets.map(address => oracle.getUnderlyingPrice(address))),
             Promise.all(
-                contracts.map((contract) =>
-                    [XINV, XINV_V1].includes(contract.address) ? new Promise((r) => r(true)) : comptroller.borrowGuardianPaused(contract.address)
+                contracts.map((contract) => new Promise((r) => r(true))
+                    // [XINV, XINV_V1].includes(contract.address) ? new Promise((r) => r(true)) : comptroller.borrowGuardianPaused(contract.address)
                 )
             ),
             Promise.all(contracts.map((contract) => comptroller.markets(contract.address))),
@@ -146,21 +146,32 @@ export const getPositionsDetails = async ({
         batchUsers = uniqueUsers.slice(+pageOffset, +pageOffset + (+pageSize) - 1);
     }
 
-    // const positions = batchUsers.map((account, i) => [1, BigNumber.from('0'), BigNumber.from('0'), account, i]);
-    const [positions, borrowedAssets] = await getGroupedMulticallOutputs(
+    const marketsWithBorrowingHistory = [
+        '0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670',
+        '0x17786f3813E6bA35343211bd8Fe18EC4de14F28b',
+        '0xde2af899040536884e062D3a334F2dD36F34b4a4',
+        '0x697b4acAa24430F254224eB794d2a85ba1Fa1FB8',
+        '0xD60B06B457bFf7fc38AC5E7eCE2b5ad16B288326',
+    ];    
+
+    const [positions, assetsIn, borrowedAssetsFlat] = await getGroupedMulticallOutputs(
         [
-            batchUsers.map(a => {       
+            batchUsers.map(a => {
                 return { contract: comptroller, functionName: 'getAccountLiquidity', params:[a]  }
+            }),            
+            batchUsers.map(a => {       
+                return { contract: comptroller, functionName: 'getAssetsIn', params:[a]  }
             }),
             batchUsers.map(a => {
                 return contracts.map(contract => {
-                    return { contract, functionName: 'borrowBalanceStored', params:[a]  }
+                    return { contract, functionName: 'borrowBalanceStored', params:[a], forceFallback: !marketsWithBorrowingHistory.includes(contract.address), fallbackValue: BigNumber.from('0') }
                 })
-            })
+            }).flat().filter(callReq => !!callReq.contract?.address),
         ],
-        1,
     );
-    // await fillPositionsWithRetry(positions, comptroller, 4, 0);
+    const borrowedAssets = batchUsers.map((account, i) => {
+        return borrowedAssetsFlat.slice(i * allMarkets.length, (i + 1) * allMarkets.length);
+    });
 
     let shortfallAccounts = batchUsers.map((account, i) => {
         const [accLiqErr, extraBorrowableAmount, shortfallAmount] = positions[i];
@@ -199,16 +210,16 @@ export const getPositionsDetails = async ({
     //     100
     // )
 
-    const [
-        assetsIn,
-    ] = await Promise.all([
-        throttledPromises(
-            position => comptroller.getAssetsIn(position.account),
-            shortfallAccounts,
-            20,
-            100,
-        )
-    ])
+    // const [
+    //     assetsIn,
+    // ] = await Promise.all([
+    //     throttledPromises(
+    //         position => comptroller.getAssetsIn(position.account),
+    //         shortfallAccounts,
+    //         20,
+    //         100,
+    //     )
+    // ])
 
     const positionDetails = shortfallAccounts.map((position, i) => {
         const { account } = position;
@@ -241,7 +252,7 @@ export const getPositionsDetails = async ({
                 marketIndex,
                 usdWorth: tokenBalance * prices[marketIndex],
                 usdWorthLiquid: tokenBalance * liquidPrice,
-                usdWorthLiquidWithCf: tokenBalance * liquidPrice * collateralFactors[marketIndex]/100,
+                usdWorthLiquidWithCf: tokenBalance * liquidPrice * collateralFactors[marketIndex],
             }
         }).filter(s => s.balance > 0);
 
