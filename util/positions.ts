@@ -221,12 +221,13 @@ export const getPositionsDetails = async ({
                 balance: tokenBalance,
                 marketIndex,
                 usdWorth: tokenBalance * prices[marketIndex],
+                usdBackingPower: tokenBalance * prices[marketIndex] * collateralFactors[marketIndex],
                 usdLiquidBacking: tokenBalance * liquidPrice,
                 usdLiquidBackingPower: tokenBalance * liquidPrice * collateralFactors[marketIndex],
             }
         }).filter(s => s.balance > 0);
 
-        const usdBackingPower = supplied.reduce((prev, curr) => prev + curr.usdWorth, 0);
+        const usdBackingPower = supplied.reduce((prev, curr) => prev + curr.usdBackingPower, 0);
         const usdLiquidBackingPower = supplied.reduce((prev, curr) => prev + curr.usdLiquidBackingPower, 0);
         const usdBorrowed = borrowed.reduce((prev, curr) => prev + curr.usdWorth, 0);
         const liquidHealth = usdLiquidBackingPower - usdBorrowed;
