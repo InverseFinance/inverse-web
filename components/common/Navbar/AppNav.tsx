@@ -450,6 +450,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const { isOpen: isTosOpen, onOpen: onTosOpen, onClose: onTosClose } = useDisclosure()
   const [onTosOk, setOnTosOk] = useState(() => () => { });
   const [tosApproved, setTosApproved] = useState(false);
+  const [gnosisSafeToastAlreadyShowed, setGnosisSafeToastAlreadyShowed] = useState(false);
   const isMountedRef = useRef(false);
 
   useEffect(() => {
@@ -513,7 +514,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
 
   useEffect(() => {
     const init = async () => {
-      if (!!account && isMultisig && !isSafeMultisigConnector) {
+      if (!!account && isMultisig && !isSafeMultisigConnector && !gnosisSafeToastAlreadyShowed) {        
         showToast({
           status: 'info',
           title: 'Using a multisig?',
@@ -527,12 +528,13 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
               <Image mr="1" borderRadius="50px" src="/assets/wallets/gnosis-safe.jpeg" h="20px" w="20px" />
              Click here to use the Safe app for a better experience
           </Link>,
-          duration: 30000,
+          duration: null,
         });
+        setGnosisSafeToastAlreadyShowed(true);
       }
     }
     init()
-  }, [isMultisig, isSafeMultisigConnector, account]);
+  }, [isMultisig, isSafeMultisigConnector, account, gnosisSafeToastAlreadyShowed]);
 
   useEffect(() => {
     if (!isUnsupportedNetwork && !isActive && isPreviouslyConnected()) {
