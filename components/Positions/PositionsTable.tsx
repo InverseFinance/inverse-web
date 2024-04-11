@@ -68,10 +68,10 @@ const getColumns = () => {
         {
             field: 'account',
             label: 'Account',
-            header: ({ ...props }) => <Flex justify="start" {...props} w="100px" />,
+            header: ({ ...props }) => <Flex justify="start" {...props} w="120px" />,
             value: ({ account, usdShortfall }: AccountPositionDetailed) => {
                 const color = usdShortfall > 0 ? 'error' : 'secondary'
-                return <HStack w="100px" position="relative" color={color} onClick={(e) => e.stopPropagation()}>
+                return <HStack w="120px" position="relative" color={color} onClick={(e) => e.stopPropagation()}>
                     <Link isExternal href={`/anchor?viewAddress=${account}`}>
                         <ViewIcon color="blue.600" boxSize={3} />
                     </Link>
@@ -82,9 +82,9 @@ const getColumns = () => {
         {
             field: 'borrowed',
             label: 'Borrowed',
-            header: ({ ...props }) => <Flex justify="flex-start" {...props} w="120px" />,
+            header: ({ ...props }) => <Flex justify="flex-start" {...props} w="130px" />,
             value: ({ borrowed }: AccountPositionDetailed) => {
-                return <AssetIcons list={borrowed} minW="120px" />
+                return <AssetIcons list={borrowed} minW="130px" />
             },
         },
         {
@@ -97,67 +97,80 @@ const getColumns = () => {
         },
         {
             field: 'usdSupplied',
-            label: 'Supplied Worth',
+            label: 'Supplied',
             header: ({ ...props }) => <Flex justify="start" {...props} w="80px" />,
             value: ({ usdSupplied }: AccountPositionDetailed) => {
                 return <Text w="80px">{shortenNumber(usdSupplied, 2, true)}</Text>
             },
         },
         {
-            field: 'usdBorrowingPower',
-            label: 'Borrowing Power',
-            header: ({ ...props }) => <Flex justify="start" {...props} w="80px" />,
-            value: ({ usdBorrowingPower }: AccountPositionDetailed) => {
-                return <Text w="80px">{shortenNumber(usdBorrowingPower, 2, true)}</Text>
+            field: 'usdLiquidBacking',
+            label: 'Supplied (Liquid)',
+            header: ({ ...props }) => <Flex justify="start" {...props} w="100px" />,
+            value: ({ usdLiquidBacking }: AccountPositionDetailed) => {
+                return <Text w="100px">{shortenNumber(usdLiquidBacking, 2, true)}</Text>
+            },
+        },
+        {
+            field: 'usdLiquidBackingPower',
+            label: 'Borrowing Power (liquid)',
+            header: ({ ...props }) => <Flex justify="start" {...props} w="150px" />,
+            value: ({ usdLiquidBackingPower }: AccountPositionDetailed) => {
+                return <Text w="150px">{shortenNumber(usdLiquidBackingPower, 2, true)}</Text>
             },
         },
         {
             field: 'usdBorrowed',
             label: 'Borrowed Worth',
-            header: ({ ...props }) => <Flex justify="start" {...props} minW="80px" />,
+            header: ({ ...props }) => <Flex justify="start" {...props} minW="100px" />,
             value: ({ usdBorrowed }: AccountPosition) => {
-                return <Text w="80px">{shortenNumber(usdBorrowed, 2, true)}</Text>
+                return <Text w="100px">{shortenNumber(usdBorrowed, 2, true)}</Text>
+            },
+        },
+        {
+            field: 'dolaBorrowed',
+            label: 'DOLA borrowed',
+            header: ({ ...props }) => <Flex justify="start" {...props} minW="100px" />,
+            value: ({ dolaBorrowed }: AccountPosition) => {
+                return <Text w="100px">{shortenNumber(dolaBorrowed, 2, true)}</Text>
+            },
+        },
+        {
+            field: 'dolaBadDebt',
+            label: 'DOLA bad debt',
+            header: ({ ...props }) => <Flex justify="start" {...props} minW="100px" />,
+            value: ({ dolaBadDebt }: AccountPosition) => {
+                const color = dolaBadDebt > 0 ? 'error' : 'mainTextColor'
+                return <Text  color={color} w="100px">{shortenNumber(dolaBadDebt, 2, true)}</Text>
             },
         },
         {
             field: 'usdShortfall',
-            label: 'Shortfall',
-            header: ({ ...props }) => <Flex justify="start" {...props} minW="80px" />,
+            label: 'Shortfall (contract)',
+            header: ({ ...props }) => <Flex justify="start" {...props} minW="120px" />,
             value: ({ usdShortfall }: AccountPositionDetailed) => {
                 const color = usdShortfall > 0 ? 'error' : 'mainTextColor'
-                return <Stack minW="80px" position="relative" color={color}>
+                return <Stack minW="120px" position="relative" color={color}>
                     <Text color={color}>{shortenNumber(usdShortfall, 2, true)}</Text>
+                </Stack>
+            },
+        },
+        {
+            field: 'liquidShortfall',
+            label: 'Shortfall (liquid)',
+            header: ({ ...props }) => <Flex justify="start" {...props} minW="100px" />,
+            value: ({ liquidShortfall }: AccountPositionDetailed) => {
+                const color = liquidShortfall > 0 ? 'error' : 'mainTextColor'
+                return <Stack minW="100px" position="relative" color={color}>
+                    <Text color={color}>{shortenNumber(liquidShortfall, 2, true)}</Text>
                 </Stack>
             },
         },
     ]
 }
 
-export const PositionsTable = ({
-    markets,
-    prices,
-    positions,
-    collateralFactors,
-    defaultSort = "usdShortfall",
-    defaultSortDir = "desc",
-}: {
-    markets: string[],
-    prices: number[],
-    positions: AccountPosition[],
-    collateralFactors: number[],
-    defaultSort?: string,
-    defaultSortDir?: string,
-}) => {
-    const { isOpen, onOpen, onClose } = useDisclosure();
-    const [selectedPosition, setSelectedPosition] = useState<AccountPositionDetailed | null>(null);
-    const columns = getColumns();
-
-    const handleDetails = (item: AccountPositionDetailed) => {
-        setSelectedPosition(item);
-        onOpen();
-    }
-
-    const detailedPositions: AccountPositionsDetailed["positions"] = positions.map(p => {
+const toDetailedPositions = (positions, prices, markets, collateralFactors) => {
+    return positions.map(p => {
         const borrowTotal = p.usdBorrowable + p.usdBorrowed;
         const borrowLimitPercent = borrowTotal ? Math.floor((p.usdBorrowed / (borrowTotal)) * 100) : 0;
 
@@ -198,6 +211,72 @@ export const PositionsTable = ({
             })
         }
     })
+}
+
+export const PositionsTable = ({
+    markets,
+    prices,
+    positions,
+    collateralFactors,
+    defaultSort = "usdShortfall",
+    defaultSortDir = "desc",
+}: {
+    markets: string[],
+    prices: number[],
+    positions: AccountPosition[],
+    collateralFactors: number[],
+    defaultSort?: string,
+    defaultSortDir?: string,
+}) => {
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const [selectedPosition, setSelectedPosition] = useState<AccountPositionDetailed | null>(null);
+    const columns = getColumns();
+
+    const handleDetails = (item: AccountPositionDetailed) => {
+        setSelectedPosition(item);
+        onOpen();
+    }
+
+    const detailedPositions: AccountPositionsDetailed["positions"] = toDetailedPositions(positions, prices, markets, collateralFactors)
+
+    return <>
+        <PositionSlide position={selectedPosition} isOpen={isOpen} onClose={onClose} needFresh={true} />
+        <Table
+            keyName="account"
+            defaultSort={defaultSort}
+            defaultSortDir={defaultSortDir}
+            columns={columns}
+            items={detailedPositions}
+            onClick={handleDetails}
+        />
+    </>
+}
+
+export const PositionsTableV2 = ({
+    markets,
+    prices,
+    positions,
+    collateralFactors,
+    defaultSort = "liquidShortfall",
+    defaultSortDir = "desc",
+}: {
+    markets: string[],
+    prices: number[],
+    positions: AccountPosition[],
+    collateralFactors: number[],
+    defaultSort?: string,
+    defaultSortDir?: string,
+}) => {
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const [selectedPosition, setSelectedPosition] = useState<AccountPositionDetailed | null>(null);
+    const columns = getColumns();
+
+    const handleDetails = (item: AccountPositionDetailed) => {
+        setSelectedPosition(item);
+        onOpen();
+    }
+
+    const detailedPositions: AccountPositionsDetailed["positions"] = toDetailedPositions(positions, prices, markets, collateralFactors)
 
     return <>
         <PositionSlide position={selectedPosition} isOpen={isOpen} onClose={onClose} needFresh={true} />
