@@ -28,7 +28,7 @@ const { DEBT_CONVERTER, DEBT_REPAYER } = getNetworkConfigConstants();
 export default async function handler(req, res) {
     const { cacheFirst, ignoreCache } = req.query;
     // defaults to mainnet data if unsupported network    
-    const frontierShortfallsKey = `1-positions-v1.1.0`;
+    const frontierShortfallsKey = `1-positions-v1.2.0`;
     const histoPricesCacheKey = `historic-prices-v1.0.4`;
 
     try {
@@ -47,7 +47,7 @@ export default async function handler(req, res) {
         const provider = getProvider(1);
 
         frontierShortfalls.positions
-            .filter(({ usdShortfall, usdBorrowed }) => usdShortfall > 0 && usdBorrowed > 0)
+            .filter(({ liquidShortfall, usdBorrowed }) => liquidShortfall > 0 && usdBorrowed > 0)
             .forEach(position => {
                 position.borrowed.forEach(({ marketIndex, balance }) => {
                     const marketAddress = frontierShortfalls.markets[marketIndex];
@@ -393,6 +393,10 @@ const getBadDebtEvolution = async (repaymentBlocks: number[]) => {
         '0xE69A81190F3A3a388E2b9e1C1075664252A8Ea7C',
         '0x0e81F7af4698Cfe49cF5099A7D1e3E4421D5d1AF',
         '0x6B92686c40747C85809a6772D0eda8e22a77C60c',
+        '0x3f7c10cbbb1ea1046a80b738b9eaf3217410c7f6',
+        '0x736dde3e0f5c588ddc53ad7f0f65667c0cca2801',
+        '0x97b90FBc8904F861F76CB06BFa0A465b72C5E662',
+        '0x9b422e571eb2cb9837efDc4F9087194d65Fb070A',
     ];
 
     const pastData = await getCacheFromRedis(frontierBadDebtEvoCacheKey, false, 3600) || DOLA_FRONTIER_DEBTS;

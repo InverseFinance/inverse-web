@@ -65,12 +65,12 @@ export const ShortfallsPage = () => {
                 <Text>{preciseCommify(totalDolaBorrowed, 0)} DOLA</Text>
               </HStack> */}
               <HStack>
-                <Text>- As per contracts:</Text>
-                <Text>{preciseCommify(dolaBadDebtAsPerContract, 0)} DOLA</Text>
+                <Text>- According to the Comptroller contract (does not account for collateral liquidity):</Text>
+                <Text fontWeight="bold">{preciseCommify(dolaBadDebtAsPerContract, 0)} DOLA</Text>
               </HStack>
               <HStack>
                 <Text>- Accounting collaterals with no liquidity:</Text>
-                <Text>{preciseCommify(dolaBadDebtAccountingLiquidity, 0)} DOLA</Text>
+                <Text fontWeight="bold">{preciseCommify(dolaBadDebtAccountingLiquidity, 0)} DOLA</Text>
               </HStack>
             </VStack>
           </Container>

@@ -9,7 +9,7 @@ const client = getRedisClient();
 export default async function handler(req, res) {
     const { accounts = '' } = req.query;
     // defaults to mainnet data if unsupported network
-    const cacheKey = `1-positions-v1.1.0`;
+    const cacheKey = `1-positions-v1.2.0`;
 
     try {
         const cacheDuration = 60;
