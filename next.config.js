@@ -23,6 +23,11 @@ const redirects = async () => {
       permanent: false,
     },
     {
+      source: '/brand-assets-2024.pdf',
+      destination: '/brand-assets-2024-v1.0.1.pdf',
+      permanent: false,
+    },
+    {
       source: '/whitepaper/sDOLA',
       destination: '/sDOLA.pdf',
       permanent: false,
