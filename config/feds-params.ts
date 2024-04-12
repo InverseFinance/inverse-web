@@ -348,7 +348,7 @@ export const FEDS_PARAMS = [
             pools: [
                 {
                     address: '0xef484de8C07B6e2d732A92B5F78e81B38f99f95E',
-                    name: 'Curve DOLA/FRAXBP',
+                    name: 'Curve DOLA/FRAXPYUSD',
                     link: 'https://curve.fi/#/ethereum/pools/factory-v2-176/deposit',
                     image: 'https://assets.coingecko.com/coins/images/12124/small/Curve.png?1597369484',
                 },
