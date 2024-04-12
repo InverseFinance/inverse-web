@@ -3,6 +3,7 @@ import { getNetworkConfig } from '@app/util/networks';
 import { getCacheFromRedis, getRedisClient, redisSetWithTimestamp } from '@app/util/redis';
 import { getPositionsDetails } from '@app/util/positions';
 import { uniqueBy } from "@app/util/misc";
+import { FRONTIER_POSITIONS_SNAPSHOT } from "@app/fixtures/frontier";
 
 const client = getRedisClient();
 
@@ -12,13 +13,19 @@ export default async function handler(req, res) {
     const cacheKey = `1-positions-v1.2.0`;
 
     try {
-        const cacheDuration = 60;
+        const cacheDuration = 600;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-        const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
+        // temp        
+        const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration, true);
         if(validCache && !accounts) {
           res.status(200).json(validCache);
           return
+        }         
+        else {
+            await redisSetWithTimestamp(cacheKey, FRONTIER_POSITIONS_SNAPSHOT, true);            
         }
+        // temp
+        return res.status(200).json(FRONTIER_POSITIONS_SNAPSHOT)
 
         let meta, positions;
 
@@ -47,7 +54,7 @@ export default async function handler(req, res) {
         };
 
         if(!accounts) {
-            await redisSetWithTimestamp(cacheKey, resultData);
+            await redisSetWithTimestamp(cacheKey, resultData, true);
         }
 
         res.status(200).json(resultData);

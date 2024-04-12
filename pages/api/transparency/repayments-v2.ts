@@ -32,20 +32,19 @@ export default async function handler(req, res) {
     const histoPricesCacheKey = `historic-prices-v1.0.4`;
 
     try {
-        res.setHeader('Cache-Control', `public, max-age=${60}`);
-        const validCache = await getCacheFromRedis(repaymentsCacheKey, cacheFirst !== 'true', ONE_DAY_SECS);
+        res.setHeader('Cache-Control', `public, max-age=${60}`);        
+        const validCache = await getCacheFromRedis(repaymentsCacheKey, cacheFirst !== 'true', ONE_DAY_SECS);        
         if (validCache && !ignoreCache) {
             res.status(200).json(validCache);
             return
         }
-
-        const frontierShortfalls = await getCacheFromRedis(frontierShortfallsKey, false, 99999);
+        
+        const frontierShortfalls = await getCacheFromRedis(frontierShortfallsKey, false, 99999, true);    
 
         const badDebts = {};
         const repayments = { iou: 0 };
 
-        const provider = getProvider(1);
-
+        const provider = getProvider(1);        
         frontierShortfalls.positions
             .filter(({ liquidShortfall, usdBorrowed }) => liquidShortfall > 0 && usdBorrowed > 0)
             .forEach(position => {
@@ -81,7 +80,7 @@ export default async function handler(req, res) {
         const anDolaB1 = new Contract('0xC1Fb01415f08Fbd71623aded6Ac8ec74F974Fdc1', CTOKEN_ABI, provider);
         const anDolaFuse6 = new Contract('0xf65155C9595F99BFC193CaFF0AAb6e2a98cf68aE', CTOKEN_ABI, provider);
         const anDolaBadger = new Contract('0x5117D9453cC9Be8c3fBFbA4aE3B858D18fe45903', CTOKEN_ABI, provider);        
-
+        
         const [
             debtConverterRepaymentsEvents,
             debtConverterConversionsEvents,
@@ -117,8 +116,7 @@ export default async function handler(req, res) {
             // getCacheFromRedis(fedOverviewCacheKey, false),
             // iou holders
             getTokenHolders(DEBT_CONVERTER, 100, 0, '1'),
-        ]);
-
+        ]);            
         // const fedOverviews = fedsOverviewData?.fedOverviews || [];
         // const nonFrontierDolaBadDebt = fedOverviews
         //     .filter(({ name }) => ['Badger Fed', '0xb1 Fed', 'AuraEuler Fed'].includes(name))
@@ -127,9 +125,8 @@ export default async function handler(req, res) {
         // badDebts['DOLA'].badDebtBalance += nonFrontierDolaBadDebt;
         // badDebts['DOLA'].nonFrontierBadDebtBalance = nonFrontierDolaBadDebt;
 
-        const dolaRepaymentsBlocks = dolaFrontierRepayEvents.map(e => e.blockNumber);
-        const dolaFrontierDebts = await getBadDebtEvolution(dolaRepaymentsBlocks);
-
+        const dolaRepaymentsBlocks = dolaFrontierRepayEvents.map(e => e.blockNumber);        
+        const dolaFrontierDebts = await getBadDebtEvolution(dolaRepaymentsBlocks);        
         const blocksNeedingTs =
             [wbtcRepayEvents, ethRepayEvents, yfiRepayEvents, dolaFrontierRepayEvents, dolaB1RepayEvents, dolaFuse6RepayEvents, dolaBadgerRepayEvents].map((arr, i) => {
                 return arr.filter(event => {
@@ -142,7 +139,6 @@ export default async function handler(req, res) {
                 .concat(dolaFrontierDebts.blocks);
 
         const timestamps = await addBlockTimestamps(blocksNeedingTs, '1');        
-
         const [wbtcRepaidByDAO, ethRepaidByDAO, yfiRepaidByDAO, dolaFrontierRepaidByDAO, dolaB1RepaidByDAO, dolaFuse6RepaidByDAO, dolaBadgerRepaidByDAO] =
             [wbtcRepayEvents, ethRepayEvents, yfiRepayEvents, dolaFrontierRepayEvents, dolaB1RepayEvents, dolaFuse6RepayEvents, dolaBadgerRepayEvents].map((arr, i) => {
                 return arr.filter(event => {
@@ -160,8 +156,7 @@ export default async function handler(req, res) {
                         logIndex: event.logIndex,
                     }
                 });
-            });
-
+            });            
         const dolaEulerRepaidByDAO = [
             {
                 blocknumber: 17636172,
@@ -213,8 +208,7 @@ export default async function handler(req, res) {
         });
 
         // get and save histo prices
-        const histoPrices = await getCacheFromRedis(histoPricesCacheKey, false) || HISTO_PRICES;
-
+        const histoPrices = await getCacheFromRedis(histoPricesCacheKey, false) || HISTO_PRICES;        
         const [dolaPrices, wbtcPrices, ethPrices, yfiPrices] = await Promise.all([
             getHistoPrices('dola-usd', totalDolaRepaidByDAO.concat(dolaForIOUsRepaidByDAO).map(d => d.timestamp), histoPrices),
             getHistoPrices('wrapped-bitcoin', wbtcRepaidByDAO.map(d => d.timestamp), histoPrices),
