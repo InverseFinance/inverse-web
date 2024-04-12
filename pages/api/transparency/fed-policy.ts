@@ -42,7 +42,7 @@ export default async function handler(req, res) {
   // we keep two cache entries, one "archived" that is up to ~30 days old and one "current"
   // makes potential fed migrations easier
   const archiveKey = `fed-policy-cache-v1.1.0`;
-  const cacheKey = `fed-policy-cache-v1.1.12`;
+  const cacheKey = `fed-policy-cache-v1.1.13`;
 
   try {
     const cacheDuration = 60;
