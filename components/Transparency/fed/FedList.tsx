@@ -30,11 +30,11 @@ const columns = [
     {
         field: 'name',
         label: 'Fed',
-        header: ({ ...props }) => <ColHeader minWidth="105px" justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="110px" justify="flex-start"  {...props} />,
         tooltip: 'Fed name, can also indicate the protocol used',
         value: ({ name, projectImage, badgeInfo, badgeProps }) => {
-            return <Cell minWidth="105px">
-                <Cell minWidth='105px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
+            return <Cell minWidth="110px">
+                <Cell minWidth='110px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
                     <HStack justify="flex-start" alignItems="center" spacing="1" w='full'>
                         <BigImageButton bg={`url('${projectImage}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
                         <CellText fontWeight="bold">{name?.replace(/ fed/i, '')}</CellText>

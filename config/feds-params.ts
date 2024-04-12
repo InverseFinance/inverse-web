@@ -334,4 +334,47 @@ export const FEDS_PARAMS = [
             },
         },
     },
+    {
+        chainId: NetworkIds.mainnet,
+        type: FedTypes.LP,
+        protocol: "Convex",
+        address: "0x83FB6f6524eb8c85bDAB818981E918dB17e723CD",        
+        name: "Convex Fed v2",
+        projectImage:
+            "https://assets.coingecko.com/coins/images/15585/small/convex.png?1621256328",
+        supplyFuncName: "dolaSupply",
+        strategy: {
+            description: 'The minted DOLA is added to the Curve DOLA/FRAXPYUSD liquidity pool, the resulting Curve LP token is then deposited in the Convex booster. This Fed gets rewards in CRV and CVX tokens.',
+            pools: [
+                {
+                    address: '0xef484de8C07B6e2d732A92B5F78e81B38f99f95E',
+                    name: 'Curve DOLA/FRAXBP',
+                    link: 'https://curve.fi/#/ethereum/pools/factory-v2-176/deposit',
+                    image: 'https://assets.coingecko.com/coins/images/12124/small/Curve.png?1597369484',
+                },
+                {
+                    address: '0xE8cBdBFD4A1D776AB1146B63ABD1718b2F92a823',
+                    name: 'Convex Reward Pool',
+                    link: 'https://www.convexfinance.com/stake',
+                    image: 'https://assets.coingecko.com/coins/images/15585/small/convex.png?1621256328',
+                },
+            ],
+            type: 'convex',
+            lpBalanceContract: '0xE8cBdBFD4A1D776AB1146B63ABD1718b2F92a823',
+            rewardPools: [
+                { address: '0xE8cBdBFD4A1D776AB1146B63ABD1718b2F92a823', method: 'earned', underlying: '0xD533a949740bb3306d119CC777fa900bA034cd52' },
+                { isCVXreward: true, underlying: '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b' },
+            ],
+            multisig: {
+                address: '0x9D5Df30F475CEA915b1ed4C0CCa59255C897b61B',
+                relevantAssets: [
+                    '0xD533a949740bb3306d119CC777fa900bA034cd52',
+                    '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b',
+                    '0x72a19342e8F1838460eBFCCEf09F6585e32db86E',
+                    '0xd1b5651e55d4ceed36251c61c50c889b36f6abb5',
+                    '0x7f50786A0b15723D741727882ee99a0BF34e3466',
+                ]
+            },
+        },
+    },
 ];
