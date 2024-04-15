@@ -73,10 +73,15 @@ const redirects = async () => {
       permanent: true,
     },
     {
-      source: '/transparency/feds/policy',
+      source: '/transparency/feds/policy/all',
       destination: '/transparency/feds#All_Feds-policy',
       permanent: true,
     },
+    {
+      source: '/transparency/feds/policy',
+      destination: '/transparency/feds#All_Feds-policy',
+      permanent: true,
+    },    
     {
       source: '/transparency/frontier-overview',
       destination: '/transparency/frontier/overview',

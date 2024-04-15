@@ -374,7 +374,7 @@ export const FirmBar = ({
             </HStack>
             <HStack w={{ base: 'full', md: 'auto' }} alignItems="flex-start" justify="space-between" spacing={{ base: '2', md: '8' }}>
                 <VStack w={{ base: '33%', md: 'auto' }} spacing="1" alignItems={{ base: 'flex-start', md: 'center' }}>
-                    <Link textAlign="center" textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/transparency/feds/policy/all">
+                    <Link textAlign="center" textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/transparency/feds">
                         {isLargerThan ? 'Total ' : ''}DOLA Supply
                     </Link>
                     {
