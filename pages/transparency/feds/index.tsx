@@ -20,12 +20,34 @@ import { useEffect } from 'react';
 import { FedBarChart } from '@app/components/Transparency/fed/FedBarChart'
 import { FedIncomeTable } from '@app/components/Transparency/fed/FedIncomeTable'
 import { DolaSupplies } from '@app/components/common/Dataviz/DolaSupplies'
+import { LinkIcon } from '@chakra-ui/icons';
 
 const { FEDS, FEDS_WITH_ALL } = getNetworkConfigConstants(NetworkIds.mainnet);
 
+const toPathFedName = (name: string) => name.replace(/ Fed$/, '').replace(' ', '_');
+const paths = ['policy', 'income'].concat(FEDS_WITH_ALL.map(fed => [`${toPathFedName(fed.name)}-policy`, `${toPathFedName(fed.name)}-income`]).flat());
+
 export const FedPolicyPage = () => {
-    const { query } = useRouter();
-    const [isInited, setIsInited] = useState(false);
+    const router = useRouter();
+    const { query } = router;
+    const [hash, setHash] = useState('All-policy');
+    const [tempHash, setTempHash] = useState('All-policy');
+
+    const handleHashChange = (v: string) => {
+        location.hash = v;
+        setTempHash(v);
+    }
+
+    useEffect(() => {
+        const _hash = location.hash.replace('#', '');
+        if (paths.includes(_hash) && (tempHash !== hash || hash !== _hash)) {            
+            const split = _hash.split('-');
+            setHash(tempHash);
+            const queryFedIndex = FEDS_WITH_ALL.findIndex(fed => toPathFedName(fed.name) === split[0])
+            setChosenFedIndex(queryFedIndex === -1 ? 0 : queryFedIndex);
+            setDetailsType(split && split[1] ? split[1] : 'policy');
+        }
+    }, [router, tempHash, hash]);
 
     const slug = query?.slug || ['policy', 'all'];
     const queryFedName = slug[1] || 'all';
@@ -50,13 +72,14 @@ export const FedPolicyPage = () => {
 
     const chosenFed = FEDS_WITH_ALL[chosenFedIndex];
 
-    useEffect(() => {
-        if(isInited) return;
-        const queryFedIndex = FEDS_WITH_ALL.findIndex(fed => fed.name.replace(' Fed', '').toLowerCase() === queryFedName.toLowerCase())
-        setChosenFedIndex(queryFedIndex === -1 ? 0 : queryFedIndex)
-        setDetailsType(slug && slug[0] ? slug[0] : 'policy')
-        setIsInited(true)
-    }, [isInited, queryFedIndex, queryFedName, slug])
+    const handleDetailType = (type: string) => {
+        handleHashChange(`${toPathFedName(FEDS_WITH_ALL[chosenFedIndex].name)}-${type}`);        
+    }
+
+    const handleSelectFed = (index: number) => {
+        const selectedFed = FEDS_WITH_ALL[index];
+        handleHashChange(`${toPathFedName(selectedFed.name)}-${detailsType}`)
+    }
 
     return (
         <Layout>
@@ -71,23 +94,29 @@ export const FedPolicyPage = () => {
             <AppNav active="Transparency" activeSubmenu="Feds Policy & Income" hideAnnouncement={true} />
             <TransparencyTabs active="feds" />
             <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
-                <Flex direction="column">                    
+                <Flex direction="column">
                     <Container
                         noPadding={true}
                         w={{ base: 'full', lg: '900px' }}
                         label={
                             <HStack alignItems="center" mb="2" spacing="4">
-                                <Text fontSize="18px" fontWeight="bold" cursor="pointer" _hover={{ textDecoration: 'underline' }} opacity={detailsType === 'policy' ? 1 : 0.6} color={'mainTextColor'} onClick={() => setDetailsType('policy')}>
+                                <Text fontSize="18px" fontWeight="bold" cursor="pointer" _hover={{ textDecoration: 'underline' }} opacity={detailsType === 'policy' ? 1 : 0.6} color={'mainTextColor'} onClick={() => handleDetailType('policy')}>
                                     Policy
                                 </Text>
-                                <Text fontSize="18px" fontWeight="bold" cursor="pointer" _hover={{ textDecoration: 'underline' }} opacity={detailsType === 'income' ? 1 : 0.6} color={'mainTextColor'} onClick={() => setDetailsType('income')}>
+                                <Text fontSize="18px" fontWeight="bold" cursor="pointer" _hover={{ textDecoration: 'underline' }} opacity={detailsType === 'income' ? 1 : 0.6} color={'mainTextColor'} onClick={() => handleDetailType('income')}>
                                     Income
                                 </Text>
                             </HStack>
                         }
+                        right={
+                            <HStack alignItems="center">
+                                <Text>Share link</Text>
+                                <LinkIcon />
+                            </HStack>
+                        }
                         description={
                             <Box w={{ base: '90vw', sm: '100%' }} overflow="auto">
-                                <FedsSelector pb="2" feds={FEDS_WITH_ALL} setChosenFedIndex={setChosenFedIndex} value={chosenFedIndex} />
+                                <FedsSelector pb="2" feds={FEDS_WITH_ALL} setChosenFedIndex={(index: number) => handleSelectFed(index, detailsType)} value={chosenFedIndex} />
                                 {
                                     detailsType === 'policy' ?
                                         <Box id='policy-chart-wrapper' w='full' alignItems="center">
@@ -98,7 +127,7 @@ export const FedPolicyPage = () => {
                                                 domainYpadding={'auto'}
                                                 id='policy-chart'
                                                 yLabel="Supply"
-                                                useRecharts={true}                                                
+                                                useRecharts={true}
                                                 mainColor="info"
                                             />
                                         </Box>
