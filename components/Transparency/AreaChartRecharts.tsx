@@ -40,6 +40,7 @@ export const AreaChartRecharts = ({
     secondaryLabel = 'Price',
     secondaryAsUsd = true,
     secondaryPrecision = 4,
+    yDomainAsInteger = false
 }: {
     combodata: { y: number, x: number, timestamp: number, utcDate: string }[]
     title: string
@@ -72,6 +73,7 @@ export const AreaChartRecharts = ({
     secondaryLabel?: string
     secondaryAsUsd?: boolean
     secondaryPrecision?: number
+    yDomainAsInteger?: boolean
 }) => {    
     const { themeStyles } = useAppTheme();
     const { mouseDown, mouseUp, mouseMove, mouseLeave, bottom, top, rangeButtonsBarAbs, zoomReferenceArea, data } = useRechartsZoom({
@@ -95,6 +97,8 @@ export const AreaChartRecharts = ({
         fontSize: '12px',
     }    
     const doesDataSpansSeveralYears = combodata?.filter(d => d.utcDate.endsWith('01-01')).length > 1;
+
+    const _yDomain = yDomain || [bottom, top];
 
     return (
         <VStack position="relative" alignItems="center" maxW={`${chartWidth}px`}>
@@ -135,7 +139,7 @@ export const AreaChartRecharts = ({
                         return moment(v).format('MMM Do')
                     }}
                 />
-                <YAxis domain={[bottom, top]} yAxisId="left" style={_axisStyle.tickLabels} tickFormatter={(v) => v === 0 ? '' : isPerc ? `${smartShortNumber(v, 2)}%` : smartShortNumber(v, 2, useUsd)} />
+                <YAxis domain={_yDomain} yAxisId="left" style={_axisStyle.tickLabels} tickFormatter={(v) => v === 0 ? '' : isPerc ? `${smartShortNumber(v, 2)}%` : yDomainAsInteger ? smartShortNumber(v, 0, useUsd) : smartShortNumber(v, 2, useUsd)} />
                 {
                     showSecondary && <YAxis allowDataOverflow={true} style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => shortenNumber(v, secondaryPrecision, secondaryAsUsd)} />
                 }

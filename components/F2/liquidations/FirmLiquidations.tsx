@@ -13,8 +13,9 @@ import { DefaultCharts } from "@app/components/Transparency/DefaultCharts";
 import { uniqueBy } from "@app/util/misc";
 import { useEventsAsChartData } from "@app/hooks/misc";
 import { lightTheme } from "@app/variables/theme";
-import { DashBoardCard } from "../UserDashboard";
+import { DashBoardCard, NumberCard } from "../UserDashboard";
 import { useEffect, useState } from "react";
+import { ONE_DAY_MS } from "@app/config/constants";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="12px" fontWeight="extrabold" {...props} />
@@ -118,11 +119,27 @@ export const FirmLiquidations = ({
 }: {
 
     }) => {
+    const [now] = useState(Date.now());
+    const [twentyFourHoursTs] = useState(now - ONE_DAY_MS);
+    const [sevenDaysTs] = useState(now - 7 * ONE_DAY_MS);
     const { liquidations, timestamp, isLoading } = useFirmLiquidations();
     const { chartData: repaidChartData } = useEventsAsChartData(liquidations, 'repaidDebt', 'repaidDebt', true, true, 0);
 
     const [autoChartWidth, setAutoChartWidth] = useState<number>(null);
     const [isLargerThanxl] = useMediaQuery(`(min-width: 80em)`);
+
+    const last24h = liquidations.filter(liq => liq.timestamp >= twentyFourHoursTs);
+    const last7days = liquidations.filter(liq => liq.timestamp >= sevenDaysTs);
+    const nbLiq24h = last24h.length;
+    const dolaRepaid24h = last24h.reduce((prev, curr) => prev + curr.repaidDebt, 0);
+
+    const repaidDailyChart = uniqueBy(
+        repaidChartData.map(l => {
+            const nbRepaid = repaidChartData.filter(d => d.y > 0 && d.utcDate === l.utcDate).reduce((prev, curr) => prev + curr.y, 0);
+            return { ...l, y: nbRepaid, yDay: nbRepaid };
+        }),
+        (a, b) => a.utcDate === b.utcDate,
+    );    
 
     const nbLiqChartData = uniqueBy(
         repaidChartData.map(l => {
@@ -131,28 +148,38 @@ export const FirmLiquidations = ({
         }),
         (a, b) => a.utcDate === b.utcDate,
     );
+    repaidDailyChart.sort((a, b) => a.x - b.x);
+    nbLiqChartData.sort((a, b) => a.x - b.x);
 
     useEffect(() => {
         setAutoChartWidth(isLargerThanxl ? maxChartWidth : (screen.availWidth || screen.width) - 80)
     }, [isLargerThanxl]);
 
+    const defaultRange = last7days.length > 0 ? '7D' : '1M';
+
     return <VStack w='full' maxW={'96vw'}>
         {
-            autoChartWidth !== null && <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={4}>
+            autoChartWidth !== null && liquidations?.length > 0 && <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={4}>
+                {
+                    nbLiq24h > 0 && <>
+                        <NumberCard label="24h Nb Liquidations" value={nbLiq24h} />
+                        <NumberCard label="24h DOLA repaid" value={dolaRepaid24h} />
+                    </>
+                }
                 <DashBoardCard>
                     <DefaultCharts
                         showMonthlyBarChart={true}
                         maxChartWidth={autoChartWidth}
                         chartWidth={autoChartWidth}
-                        chartData={repaidChartData}
+                        chartData={repaidDailyChart}
                         isDollars={false}
                         smoothLineByDefault={false}
                         containerProps={{ pt: 8 }}
                         barProps={{ useRecharts: true, yLabel: 'DOLA repaid', mainColor: lightTheme.colors.info }}
-                        areaProps={{ title: 'DOLA repaid', id: 'firm-repaid-liquidations', showRangeBtns: true, yLabel: 'Liquidation', useRecharts: true, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, fillInByDayInterval: 1, fillInValue: 0, rangesToInclude: ['All', '1Y', '3M', '1M', '7D'] }}
+                        areaProps={{ title: 'DOLA repaid from liquidations', interpolation: 'linear', id: 'firm-repaid-liquidations', showRangeBtns: true, yLabel: 'DOLA repaid', useRecharts: true, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, fillInByDayInterval: 1, fillInValue: 0, rangesToInclude: ['All', '1Y', '3M', '1M', '7D'], defaultRange }}
                     />
                 </DashBoardCard>
-                <DashBoardCard title="DOLA repaid">
+                <DashBoardCard>
                     <DefaultCharts
                         showMonthlyBarChart={true}
                         maxChartWidth={autoChartWidth}
@@ -162,7 +189,7 @@ export const FirmLiquidations = ({
                         smoothLineByDefault={false}
                         containerProps={{ pt: 8 }}
                         barProps={{ useRecharts: true, yLabel: 'Number of liquidations', mainColor: lightTheme.colors.info }}
-                        areaProps={{ title: 'Number of liquidations', id: 'firm-nb-liquidations', showRangeBtns: true, yLabel: 'Liquidation', useRecharts: true, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, fillInByDayInterval: 1, fillInValue: 0, rangesToInclude: ['All', '1Y', '3M', '1M', '7D'] }}
+                        areaProps={{ title: 'Number of liquidations', interpolation: 'linear', yDomainAsInteger: true, id: 'firm-nb-liquidations', showRangeBtns: true, yLabel: 'Nb liquidation', useRecharts: true, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, fillInByDayInterval: 1, fillInValue: 0, rangesToInclude: ['All', '1Y', '3M', '1M', '7D'], defaultRange }}
                     />
                 </DashBoardCard>
             </SimpleGrid>

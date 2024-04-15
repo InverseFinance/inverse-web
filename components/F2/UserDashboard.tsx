@@ -182,7 +182,7 @@ const NumberItem = ({ noDataFallback = '-', href = '', footer = undefined, isLoa
     </VStack>
 }
 
-const NumberCard = ({ imageSrc = '', noDataFallback = undefined, href = undefined, footer = undefined, isLoading = false, value = 0, label = '', price = undefined, isUsd = false, precision = 0 }) => {
+export const NumberCard = ({ imageSrc = '', noDataFallback = undefined, href = undefined, footer = undefined, isLoading = false, value = 0, label = '', price = undefined, isUsd = false, precision = 0 }) => {
     return <DashBoardCard imageSrc={imageSrc}>
         <NumberItem href={href} noDataFallback={noDataFallback} isLoading={isLoading} price={price} value={value} label={label} isUsd={isUsd} precision={precision} footer={footer} />
     </DashBoardCard>
