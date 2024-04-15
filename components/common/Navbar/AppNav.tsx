@@ -443,8 +443,8 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const { isSafeMultisigConnector, isMultisig } = useMultisig();
 
   const userAddress = useAccount();
-  const { isEligible, hasClaimed, isLoading } = useCheckDBRAirdrop(userAddress);
-  const [showAirdropModal, setShowAirdropModal] = useState(false);
+  // const { isEligible, hasClaimed, isLoading } = useCheckDBRAirdrop(userAddress);
+  // const [showAirdropModal, setShowAirdropModal] = useState(false);
   const { isOpen: isWrongNetOpen, onOpen: onWrongNetOpen, onClose: onWrongNetClose } = useDisclosure()
   const { isOpen: isAirdropOpen, onOpen: onAirdropOpen, onClose: onAirdropClose } = useDisclosure()
   const { isOpen: isTosOpen, onOpen: onTosOpen, onClose: onTosClose } = useDisclosure()
@@ -491,10 +491,10 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const [badgeChainId, setBadgeChainId] = useState(chainId)
   const { nbNotif } = useGovernanceNotifs();
 
-  useDebouncedEffect(() => {
-    if (isLoading) return
-    setShowAirdropModal(isEligible && !hasClaimed);
-  }, [isEligible, hasClaimed, isLoading], 5000);
+  // useDebouncedEffect(() => {
+  //   if (isLoading) return
+  //   setShowAirdropModal(isEligible && !hasClaimed);
+  // }, [isEligible, hasClaimed, isLoading], 5000);
 
   useEffect(() => {
     const init = async () => {
@@ -603,13 +603,13 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
         isOpen={isWrongNetOpen && !isBlog}
         onClose={onWrongNetClose}
       />
-      {
+      {/* {
         showAirdropModal && <AirdropModalCheck
           isOpen={isAirdropOpen}
           onOpen={onAirdropOpen}
           onClose={onAirdropClose}
         />
-      }
+      } */}
       <Flex
         w={'100vw'}
         background="navBarBackground"
