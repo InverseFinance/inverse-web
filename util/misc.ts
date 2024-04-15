@@ -231,7 +231,7 @@ export const preciseCommify = (v: number, precision = 2, isDollar = false, isRem
 }
 
 // array needs to be already sorted
-export const fillMissingDailyDatesWithMostRecentData = (arr: any[], minDayInterval: number, dateKey = 'utcDate') => {
+export const fillMissingDailyDatesWithMostRecentData = (arr: any[], minDayInterval: number, dateKey = 'utcDate', fillInValue?: number) => {
     const filledArray = [];
     for (let i = 0; i < arr.length; i++) {
         const currentEntry = arr[i];
@@ -256,7 +256,11 @@ export const fillMissingDailyDatesWithMostRecentData = (arr: any[], minDayInterv
                         x: ts,
                         [dateKey]: timestampToUTC(ts),
                         eventPointLabel: undefined,
+                        _isFilledIn: true,
                     };
+                    if(fillInValue !== undefined) {
+                        missingEntry.y = fillInValue;
+                    }
                     filledArray.push(missingEntry);
                 }
             }

@@ -73,11 +73,11 @@ export const FirmPositions = ({
             <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-around" >
                 <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
                     <Text fontWeight="bold">TVL By Markets</Text>
-                    <Funds isLoading={isLoading} labelWithPercInChart={true} skipLineForPerc={true} funds={groupMarketsByDeposits} chartMode={true} showTotal={false} showChartTotal={true} chartProps={{ width: pieSize, height: pieSize }} />
+                    <Funds isLoading={isLoading} labelWithPercInChart={true} skipLineForPerc={true} funds={groupMarketsByDeposits} chartMode={true} showTotal={false} showChartTotal={true} chartProps={{ width: pieSize, height: pieSize }} useRecharts={true} />
                 </VStack>
                 <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
                     <Text fontWeight="bold">Debt By Markets</Text>
-                    <Funds isLoading={isLoading} labelWithPercInChart={true} skipLineForPerc={true} funds={groupMarketsByDebt} chartMode={true} showTotal={false} showChartTotal={true} chartProps={{ width: pieSize, height: pieSize }} />
+                    <Funds isLoading={isLoading} labelWithPercInChart={true} skipLineForPerc={true} funds={groupMarketsByDebt} chartMode={true} showTotal={false} showChartTotal={true} chartProps={{ width: pieSize, height: pieSize }} useRecharts={true} />
                 </VStack>
             </Stack>
         </VStack>

@@ -24,6 +24,7 @@ export type BarChartProps = {
     axisStyle?: VictoryAxisProps["style"]
     yLabel?: string
     showLabel?: boolean
+    mainColor?: string
 }
 
 export const BarChart = ({
@@ -41,7 +42,8 @@ export const BarChart = ({
     useRecharts = false,
     axisStyle,
     yLabel,
-    showLabel = true
+    showLabel = true,
+    mainColor,
 }: BarChartProps) => {
     const [isLargerThan] = useMediaQuery(`(min-width: 900px)`);
     const [rightPadding, setRightPadding] = useState(useRecharts ? 50 : 65);
@@ -63,6 +65,7 @@ export const BarChart = ({
             chartHeight={height}
             rightPadding={rightPadding}
             showLabel={showLabel}
+            mainColor={mainColor}
         />
     }
 
