@@ -1,4 +1,4 @@
-import { Flex, SimpleGrid, Stack, Text, VStack } from "@chakra-ui/react"
+import { Flex, SimpleGrid, Stack, Text, useMediaQuery, VStack } from "@chakra-ui/react"
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useFirmLiquidations } from "@app/hooks/useFirm";
@@ -14,6 +14,7 @@ import { uniqueBy } from "@app/util/misc";
 import { useEventsAsChartData } from "@app/hooks/misc";
 import { lightTheme } from "@app/variables/theme";
 import { DashBoardCard } from "../UserDashboard";
+import { useEffect, useState } from "react";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="12px" fontWeight="extrabold" {...props} />
@@ -110,6 +111,8 @@ const columns = [
     },
 ]
 
+const maxChartWidth = 600;
+
 export const FirmLiquidations = ({
 
 }: {
@@ -117,6 +120,9 @@ export const FirmLiquidations = ({
     }) => {
     const { liquidations, timestamp, isLoading } = useFirmLiquidations();
     const { chartData: repaidChartData } = useEventsAsChartData(liquidations, 'repaidDebt', 'repaidDebt', true, true, 0);
+
+    const [autoChartWidth, setAutoChartWidth] = useState<number>(null);
+    const [isLargerThanxl] = useMediaQuery(`(min-width: 80em)`);
 
     const nbLiqChartData = uniqueBy(
         repaidChartData.map(l => {
@@ -126,45 +132,49 @@ export const FirmLiquidations = ({
         (a, b) => a.utcDate === b.utcDate,
     );
 
-    return <VStack w='full'>
-        <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={4}>
-            <DashBoardCard>
-                <DefaultCharts
-                    showMonthlyBarChart={true}
-                    maxChartWidth={600}
-                    chartWidth={600}
-                    chartData={repaidChartData}
-                    isDollars={false}
-                    smoothLineByDefault={false}      
-                    containerProps={{ pt: 8 }}              
-                    barProps={{ useRecharts: true, yLabel: 'DOLA repaid', mainColor: lightTheme.colors.info }}
-                    areaProps={{ title: 'DOLA repaid', id: 'firm-repaid-liquidations', showRangeBtns: true, yLabel: 'Liquidation', useRecharts: true, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, fillInByDayInterval: 1, fillInValue: 0, rangesToInclude: ['All', '1Y', '3M', '1M', '7D'] }}
-                />
-            </DashBoardCard>
-            <DashBoardCard title="DOLA repaid">
-                <DefaultCharts
-                    showMonthlyBarChart={true}
-                    maxChartWidth={600}
-                    chartWidth={600}
-                    chartData={nbLiqChartData}
-                    isDollars={false}
-                    smoothLineByDefault={false}
-                    containerProps={{ pt: 8 }}              
-                    barProps={{ useRecharts: true, yLabel: 'Number of liquidations', mainColor: lightTheme.colors.info }}
-                    areaProps={{ title: 'Number of liquidations', id: 'firm-nb-liquidations', showRangeBtns: true, yLabel: 'Liquidation', useRecharts: true, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, fillInByDayInterval: 1, fillInValue: 0, rangesToInclude: ['All', '1Y', '3M', '1M', '7D'] }}
-                />
-            </DashBoardCard>
-        </SimpleGrid>        
+    useEffect(() => {
+        setAutoChartWidth(isLargerThanxl ? maxChartWidth : (screen.availWidth || screen.width) - 80)
+    }, [isLargerThanxl]);
+
+    return <VStack w='full' maxW={'96vw'}>
+        {
+            autoChartWidth !== null && <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={4}>
+                <DashBoardCard>
+                    <DefaultCharts
+                        showMonthlyBarChart={true}
+                        maxChartWidth={autoChartWidth}
+                        chartWidth={autoChartWidth}
+                        chartData={repaidChartData}
+                        isDollars={false}
+                        smoothLineByDefault={false}
+                        containerProps={{ pt: 8 }}
+                        barProps={{ useRecharts: true, yLabel: 'DOLA repaid', mainColor: lightTheme.colors.info }}
+                        areaProps={{ title: 'DOLA repaid', id: 'firm-repaid-liquidations', showRangeBtns: true, yLabel: 'Liquidation', useRecharts: true, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, fillInByDayInterval: 1, fillInValue: 0, rangesToInclude: ['All', '1Y', '3M', '1M', '7D'] }}
+                    />
+                </DashBoardCard>
+                <DashBoardCard title="DOLA repaid">
+                    <DefaultCharts
+                        showMonthlyBarChart={true}
+                        maxChartWidth={autoChartWidth}
+                        chartWidth={autoChartWidth}
+                        chartData={nbLiqChartData}
+                        isDollars={false}
+                        smoothLineByDefault={false}
+                        containerProps={{ pt: 8 }}
+                        barProps={{ useRecharts: true, yLabel: 'Number of liquidations', mainColor: lightTheme.colors.info }}
+                        areaProps={{ title: 'Number of liquidations', id: 'firm-nb-liquidations', showRangeBtns: true, yLabel: 'Liquidation', useRecharts: true, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, fillInByDayInterval: 1, fillInValue: 0, rangesToInclude: ['All', '1Y', '3M', '1M', '7D'] }}
+                    />
+                </DashBoardCard>
+            </SimpleGrid>
+        }
         <Container
-            label="Liquidation transactions on FiRM"
+            label="Last 100 liquidation transactions on FiRM"
             noPadding
+            m='0'
+            px='0'
             py="4"
             description={timestamp ? `Last update ${moment(timestamp).fromNow()}` : `Loading...`}
-            contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
-            headerProps={{
-                direction: { base: 'column', md: 'row' },
-                align: { base: 'flex-start', md: 'flex-end' },
-            }}
+            contentProps={{ overflowX: 'scroll' }}
         >
             <Table
                 keyName="key"
