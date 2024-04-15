@@ -74,17 +74,37 @@ const redirects = async () => {
     },
     {
       source: '/transparency/feds',
-      destination: '/transparency/feds/policy/all',
+      destination: '/transparency/feds#All_Feds-policy',
+      permanent: true,
+    },
+    {
+      source: '/transparency/feds/policy/all',
+      destination: '/transparency/feds#All_Feds-policy',
       permanent: true,
     },
     {
       source: '/transparency/feds/policy',
-      destination: '/transparency/feds/policy/all',
+      destination: '/transparency/feds#All_Feds-policy',
+      permanent: true,
+    },
+    {
+      source: '/transparency/feds/income',
+      destination: '/transparency/feds#All_Feds-income',
+      permanent: true,
+    },
+    {
+      source: '/transparency/feds/income/all',
+      destination: '/transparency/feds#All_Feds-income',
+      permanent: true,
+    },
+    {
+      source: '/transparency/feds/policy',
+      destination: '/transparency/feds#All_Feds-policy',
       permanent: true,
     },
     {
       source: '/transparency/fed-income',
-      destination: '/transparency/feds/income/all',
+      destination: '/transparency/feds#All_Feds-income',
       permanent: true,
     },
     {
