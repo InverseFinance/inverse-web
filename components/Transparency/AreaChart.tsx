@@ -44,6 +44,7 @@ export type AreaChartProps = {
     showLegend?: boolean
     forceStaticRangeBtns?: boolean
     fillInByDayInterval?: number
+    fillInValue?: number
     yLabel?: string
     minTickGap?: number
     interval?: number
@@ -84,6 +85,7 @@ export const AreaChart = ({
     showEvents = false,
     showEventsLabels = false,
     fillInByDayInterval = 0,
+    fillInValue,
     yLabel,
     minTickGap,
     interval,
@@ -94,7 +96,7 @@ export const AreaChart = ({
     strokeColor,
     ...otherProps
 }: AreaChartProps) => {
-    const _data = simplifyData ? getSimplifiedData(data) : fillInByDayInterval > 0 ? fillMissingDailyDatesWithMostRecentData(data, fillInByDayInterval) : data;
+    const _data = simplifyData ? getSimplifiedData(data) : fillInByDayInterval > 0 ? fillMissingDailyDatesWithMostRecentData(data, fillInByDayInterval, 'utcDate', fillInValue) : data;
     const [isLargerThan] = useMediaQuery('(min-width: 900px)');
     const [rightPadding, setRightPadding] = useState(50);
     const [selectedDomain, setSelectedDomain] = useState(undefined);

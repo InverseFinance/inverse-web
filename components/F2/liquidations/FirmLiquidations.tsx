@@ -1,4 +1,4 @@
-import { Flex, Stack, Text } from "@chakra-ui/react"
+import { Flex, SimpleGrid, Stack, Text, VStack } from "@chakra-ui/react"
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useFirmLiquidations } from "@app/hooks/useFirm";
@@ -9,6 +9,11 @@ import moment from 'moment'
 import Table from "@app/components/common/Table";
 import { BigImageButton } from "@app/components/common/Button/BigImageButton";
 import { Timestamp } from "@app/components/common/BlockTimestamp/Timestamp";
+import { DefaultCharts } from "@app/components/Transparency/DefaultCharts";
+import { uniqueBy } from "@app/util/misc";
+import { useEventsAsChartData } from "@app/hooks/misc";
+import { lightTheme } from "@app/variables/theme";
+import { DashBoardCard } from "../UserDashboard";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="12px" fontWeight="extrabold" {...props} />
@@ -111,25 +116,64 @@ export const FirmLiquidations = ({
 
     }) => {
     const { liquidations, timestamp, isLoading } = useFirmLiquidations();
+    const { chartData: repaidChartData } = useEventsAsChartData(liquidations, 'repaidDebt', 'repaidDebt', true, true, 0);
 
-    return <Container
-        label="Last 100 Liquidations on FiRM"
-        noPadding
-        py="4"
-        description={timestamp ? `Last update ${moment(timestamp).fromNow()}` : `Loading...`}
-        contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
-        headerProps={{
-            direction: { base: 'column', md: 'row' },
-            align: { base: 'flex-start', md: 'flex-end' },
-        }}
-    >
-        <Table
-            keyName="key"
-            noDataMessage={isLoading ? 'Loading' : "No Liquidations"}
-            columns={columns}
-            items={liquidations.slice(0, 100)}         
-            defaultSort={'timestamp'}
-            defaultSortDir="desc"
-        />
-    </Container>
+    const nbLiqChartData = uniqueBy(
+        repaidChartData.map(l => {
+            const nbLiq = repaidChartData.filter(d => d.y > 0 && d.utcDate === l.utcDate).length;
+            return { ...l, y: nbLiq, yDay: nbLiq };
+        }),
+        (a, b) => a.utcDate === b.utcDate,
+    );
+
+    return <VStack w='full'>
+        <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={4}>
+            <DashBoardCard>
+                <DefaultCharts
+                    showMonthlyBarChart={true}
+                    maxChartWidth={600}
+                    chartWidth={600}
+                    chartData={repaidChartData}
+                    isDollars={false}
+                    smoothLineByDefault={false}      
+                    containerProps={{ pt: 8 }}              
+                    barProps={{ useRecharts: true, yLabel: 'DOLA repaid', mainColor: lightTheme.colors.info }}
+                    areaProps={{ title: 'DOLA repaid', id: 'firm-repaid-liquidations', showRangeBtns: true, yLabel: 'Liquidation', useRecharts: true, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, fillInByDayInterval: 1, fillInValue: 0, rangesToInclude: ['All', '1Y', '3M', '1M', '7D'] }}
+                />
+            </DashBoardCard>
+            <DashBoardCard title="DOLA repaid">
+                <DefaultCharts
+                    showMonthlyBarChart={true}
+                    maxChartWidth={600}
+                    chartWidth={600}
+                    chartData={nbLiqChartData}
+                    isDollars={false}
+                    smoothLineByDefault={false}
+                    containerProps={{ pt: 8 }}              
+                    barProps={{ useRecharts: true, yLabel: 'Number of liquidations', mainColor: lightTheme.colors.info }}
+                    areaProps={{ title: 'Number of liquidations', id: 'firm-nb-liquidations', showRangeBtns: true, yLabel: 'Liquidation', useRecharts: true, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, fillInByDayInterval: 1, fillInValue: 0, rangesToInclude: ['All', '1Y', '3M', '1M', '7D'] }}
+                />
+            </DashBoardCard>
+        </SimpleGrid>        
+        <Container
+            label="Liquidation transactions on FiRM"
+            noPadding
+            py="4"
+            description={timestamp ? `Last update ${moment(timestamp).fromNow()}` : `Loading...`}
+            contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
+            headerProps={{
+                direction: { base: 'column', md: 'row' },
+                align: { base: 'flex-start', md: 'flex-end' },
+            }}
+        >
+            <Table
+                keyName="key"
+                noDataMessage={isLoading ? 'Loading' : "No Liquidations"}
+                columns={columns}
+                items={liquidations.slice(0, 100)}
+                defaultSort={'timestamp'}
+                defaultSortDir="desc"
+            />
+        </Container>
+    </VStack>
 }
