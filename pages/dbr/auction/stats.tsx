@@ -42,18 +42,18 @@ export const DbrAuctionStatsPage = () => {
           }}
           right={
             <HStack justify="space-between" spacing="4">
-              <VStack spacing="0" alignItems="center">
-                <Text textAlign="center" fontWeight="bold">Total DOLA income</Text>
+              <VStack spacing="0" alignItems={{ base: 'left', md: 'center' }}>
+                <Text textAlign={{ base: 'left', md: 'center' }} fontWeight="bold">Total DOLA income</Text>
                 {
                   isLoading ? <SmallTextLoader width={'50px'} />
-                    : <Text textAlign="center" color="secondaryTextColor" fontWeight="bold" fontSize="18px">{preciseCommify(accDolaIn, 2)}</Text>
+                    : <Text textAlign={{ base: 'left', md: 'center' }} color="secondaryTextColor" fontWeight="bold" fontSize="18px">{preciseCommify(accDolaIn, 2)}</Text>
                 }
               </VStack>
-              <VStack spacing="0" alignItems="center">
-                <Text textAlign="center" fontWeight="bold">Total DBR auctioned</Text>
+              <VStack spacing="0" alignItems={{ base: 'left', md: 'center' }}>
+                <Text textAlign={{ base: 'left', md: 'center' }} fontWeight="bold">Total DBR auctioned</Text>
                 {
                   isLoading ? <SmallTextLoader width={'50px'} />
-                    : <Text textAlign="center" color="secondaryTextColor" fontWeight="bold" fontSize="18px">{preciseCommify(accDbrOut, 2)}</Text>
+                    : <Text textAlign={{ base: 'left', md: 'center' }} color="secondaryTextColor" fontWeight="bold" fontSize="18px">{preciseCommify(accDbrOut, 2)}</Text>
                 }
               </VStack>
             </HStack>
