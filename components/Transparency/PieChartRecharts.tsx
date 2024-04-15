@@ -23,7 +23,7 @@ const renderActiveShape = (props) => {
     const formattedValue = isMobile || isShortenNumbers ? smartShortNumber(value, 2, isUsd) : `${preciseCommify(value, precision, isUsd)}`;
     const formattedPerc = `${(percent * 100).toFixed(2)}%`;
     const formattedValueAndPerc = `${formattedValue} (${formattedPerc})`;
-    const x = ex + (isPosCos ? 1 : -1) * 12;    
+    const x = isMobile ? mx : (ex + (isPosCos ? 1 : -1) * 12);
 
     return (
         <g>
@@ -48,8 +48,12 @@ const renderActiveShape = (props) => {
                 outerRadius={outerRadius + 10}
                 fill={activeFill}
             />
-            <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={activeFill} fill="none" />
-            <circle cx={ex} cy={ey} r={2} fill={activeFill} stroke="none" />            
+            {
+                !isMobile && <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={activeFill} fill="none" />
+            }
+            {
+                !isMobile && <circle cx={ex} cy={ey} r={2} fill={activeFill} stroke="none" />
+            }
             <text x={x} y={ey} fontWeight="bold" textAnchor={textAnchor} fontSize={16} fill={activeTextFill || activeFill}>
                 {centralNameKey ? payload[nameKey] : formattedValue}
             </text>
