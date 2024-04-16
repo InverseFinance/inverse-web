@@ -339,7 +339,7 @@ export const FEDS_PARAMS = [
         type: FedTypes.LP,
         protocol: "Convex",
         address: "0x83FB6f6524eb8c85bDAB818981E918dB17e723CD",        
-        name: "Convex Fed v2",
+        name: "FraxPyusd Fed",
         projectImage:
             "https://assets.coingecko.com/coins/images/15585/small/convex.png?1621256328",
         supplyFuncName: "dolaSupply",
