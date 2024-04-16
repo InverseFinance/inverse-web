@@ -23,6 +23,7 @@ const namedAddresses: { [key: string]: string } = {
     '0xCBF33D02f4990BaBcba1974F1A5A8Aea21080E36': 'Fed Fuse24',
     '0xcc180262347F84544c3a4854b87C34117ACADf94': 'Fed Yearn',
     '0xF382d062DF29CF5E400c131C1383c9E6Cd174305': 'Fed Convex',
+    '0x83FB6f6524eb8c85bDAB818981E918dB17e723CD': 'Fed FraxPyusd',
     '0xfEd533e0Ec584D6FF40281a7850c4621D258b43d': 'Fed Velo',
     '0x5C16aE212f8d721FAb74164d1039d4514b11DB54': 'Fed Aura',
     '0x1CD24E3FBae88BECbaFED4b8Cda765D1e6e3BC03': 'Fed Aura (old)',

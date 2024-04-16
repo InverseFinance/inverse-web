@@ -96,6 +96,7 @@ const addFedInfosToEvent = (totalEvents, feds) => {
         ...e,
         chainId: fed.chainId,
         fedName: fed.name,
+        shortname: fed.name.replace(/ Fed$/, ''),
         projectImage: fed.projectImage,
       }
     })

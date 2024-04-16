@@ -19,13 +19,13 @@ const SupplyChange = ({ newSupply, changeAmount, isContraction }: { newSupply: n
 
 const columns = [
     {
-        field: 'fedName',
+        field: 'shortname',
         label: 'Fed',
         header: ({ ...props }) => <Flex minW="120px" {...props} />,
-        value: ({ fedName, isContraction, projectImage }) =>
+        value: ({ shortname, isContraction, projectImage }) =>
             <Flex alignItems="center" color={isContraction ? 'info' : 'secondary'} minW="120px">
                 <Image ignoreFallback={true} src={`${projectImage}`} w={'15px'} h={'15px'} mr="2" />
-                {fedName}
+                {shortname}
             </Flex>,
     },
     {
