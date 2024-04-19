@@ -387,7 +387,7 @@ export const Landing = ({ posts }: {
                 <Image src="/assets/v2/landing/stake.png?" width="full" w="150px" h="150px" mt="6" />
                 <Text color={lightTheme.colors.mainTextColor} fontWeight="extrabold" fontSize={biggerSize}>Real yield</Text>
                 <Text color={lightTheme.colors.mainTextColor} textAlign="center" fontSize={normalSize}>
-                  Buy INV and stake on FiRM to earn DBR real yield, you direclty benefit from FiRM's success. Participate in Governance.
+                  Buy INV and stake on FiRM to earn DBR real yield, you directly benefit from FiRM's success. Participate in Governance.
                 </Text>
               </VStack>
               <LandingSubmitButton href="/firm/INV">
