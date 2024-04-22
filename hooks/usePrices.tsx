@@ -32,13 +32,15 @@ export const usePrices = (extras?: string[]): SWR & Prices => {
     .filter(t => !!t.coingeckoId)
     .map(({ coingeckoId }) => coingeckoId)
     .concat(extras || []);
+
   const { data, error } = useCustomSWR(
     `${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoIds.join(',')}`,
     (url) => fetcherWithFallback(url, `/api/prices-cg-proxy`)
   )
+  const { data: cachedProxyData } = useCustomSWR(`/api/prices-cg-proxy?cacheFirst=true`)
 
   return {
-    prices: data || {},
+    prices: data || cachedProxyData || {},
     isLoading: !error && !data,
     isError: error,
   }

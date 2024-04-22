@@ -6,10 +6,11 @@ import { CHAIN_TOKENS } from '@app/variables/tokens'
 export const cgPricesCacheKey = `cg-prices-v1.0.0`;
 // proxy api for cg as fallback to direct call to cg api from client side (can be blocked in some regions)
 export default async function handler(req, res) {
+  const { cacheFirst } = req.query;
   try {
     const cacheDuration = 90;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cgPricesCacheKey, true, cacheDuration);
+    const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cgPricesCacheKey, cacheFirst !== 'true', cacheDuration);
     if (cachedData && isValid) {
       res.status(200).json(cachedData);
       return
