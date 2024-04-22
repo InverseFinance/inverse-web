@@ -7,9 +7,9 @@ export const cgPricesCacheKey = `cg-prices-v1.0.0`;
 // proxy api for cg as fallback to direct call to cg api from client side (can be blocked in some regions)
 export default async function handler(req, res) {
   const { cacheFirst, ids, isDefault } = req.query;
-  const idsArray = (ids || '')?.split(',');
+  const idsArray = ((ids || '')?.split(',')?.filter(id => !!id) || []);
   if (idsArray.some(id => isInvalidGenericParam(id))) {
-    return res.status(400).json({ msg: 'invalid request' });    
+    return res.status(400).json({ msg: 'invalid request' });  
   }
   const cacheKey = isDefault === 'true' ? cgPricesCacheKey : `${cgPricesCacheKey}-${ids}`;
   try {
@@ -22,14 +22,13 @@ export default async function handler(req, res) {
     }
 
     let coingeckoIds: string[] = [];
-
     if (!idsArray.length) {
       Object.values(CHAIN_TOKENS)
         .forEach(tokenList => {
           Object.values(tokenList)
             .filter(t => !!t.coingeckoId)
             .forEach(t => coingeckoIds.push(t.coingeckoId!))
-        })
+        });
     } else {
       coingeckoIds = idsArray;
     }
