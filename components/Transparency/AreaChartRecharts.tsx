@@ -167,6 +167,7 @@ export const AreaChartRecharts = ({
                 {
                     showEvents && events.map(d => {
                         return <ReferenceLine
+                            key={`x-${d.x}`}
                             yAxisId="left"
                             position="start"
                             isFront={true}
@@ -185,6 +186,7 @@ export const AreaChartRecharts = ({
                 {
                     combodata.filter(d => d.utcDate.endsWith('01-01')).map(d => {
                         return <ReferenceLine
+                            key={`x-${d.x}`}
                             yAxisId="left"
                             position="start"
                             isFront={true}
