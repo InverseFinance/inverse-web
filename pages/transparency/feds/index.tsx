@@ -25,7 +25,7 @@ import { LinkIcon } from '@chakra-ui/icons';
 const { FEDS, FEDS_WITH_ALL } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const toPathFedName = (name: string) => name.replace(/ Fed$/, '').replace(' ', '_');
-const paths = ['policy', 'income'].concat(FEDS_WITH_ALL.map(fed => [`${toPathFedName(fed.name)}-policy`, `${toPathFedName(fed.name)}-income`]).flat());
+const paths = ['policy', 'revenue'].concat(FEDS_WITH_ALL.map(fed => [`${toPathFedName(fed.name)}-policy`, `${toPathFedName(fed.name)}-revenue`]).flat());
 
 export const FedPolicyPage = () => {
     const router = useRouter();
@@ -45,7 +45,7 @@ export const FedPolicyPage = () => {
             setHash(tempHash);
             const queryFedIndex = FEDS_WITH_ALL.findIndex(fed => toPathFedName(fed.name) === split[0])
             setChosenFedIndex(queryFedIndex === -1 ? 0 : queryFedIndex);
-            setDetailsType(split && split[1] ? split[1] : 'policy');
+            setDetailsType(split && split[1] ? split[1]?.replace('income', 'revenue') : 'policy');
         }
     }, [router, tempHash, hash]);
 
@@ -86,12 +86,12 @@ export const FedPolicyPage = () => {
             <Head>
                 <title>Inverse Finance - Transparency Feds</title>
                 <meta name="og:title" content="Inverse Finance - Transparency" />
-                <meta name="og:description" content="Feds Policy & Income" />
+                <meta name="og:description" content="Feds Policy & Revenue" />
                 <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-portal.png" />
-                <meta name="description" content="Feds Policy & Income" />
-                <meta name="keywords" content="Inverse Finance, dao, transparency, dola, fed, expansion, contraction, supply, income" />
+                <meta name="description" content="Feds Policy & Revenue" />
+                <meta name="keywords" content="Inverse Finance, dao, transparency, dola, fed, expansion, contraction, supply, revenue" />
             </Head>
-            <AppNav active="Transparency" activeSubmenu="Feds Policy & Income" hideAnnouncement={true} />
+            <AppNav active="Transparency" activeSubmenu="Feds Policy & Revenue" hideAnnouncement={true} />
             <TransparencyTabs active="feds" />
             <Flex w="full" justify="center" direction={{ base: 'column', xl: 'row' }}>
                 <Flex direction="column">
@@ -103,8 +103,8 @@ export const FedPolicyPage = () => {
                                 <Text fontSize="18px" fontWeight="bold" cursor="pointer" _hover={{ textDecoration: 'underline' }} opacity={detailsType === 'policy' ? 1 : 0.6} color={'mainTextColor'} onClick={() => handleDetailType('policy')}>
                                     Policy
                                 </Text>
-                                <Text fontSize="18px" fontWeight="bold" cursor="pointer" _hover={{ textDecoration: 'underline' }} opacity={detailsType === 'income' ? 1 : 0.6} color={'mainTextColor'} onClick={() => handleDetailType('income')}>
-                                    Income
+                                <Text fontSize="18px" fontWeight="bold" cursor="pointer" _hover={{ textDecoration: 'underline' }} opacity={detailsType === 'revenue' ? 1 : 0.6} color={'mainTextColor'} onClick={() => handleDetailType('revenue')}>
+                                    Revenue
                                 </Text>
                             </HStack>
                         }
@@ -132,15 +132,15 @@ export const FedPolicyPage = () => {
                                             />
                                         </Box>
                                         :
-                                        <Box id='income-chart-wrapper' w='full' alignItems="center">
+                                        <Box id='revenue-chart-wrapper' w='full' alignItems="center">
                                             <FedAreaChart
-                                                title={`${chosenFed.name} Income Evolution\n(Current accumulated income: ${chartDataIncomes.length ? shortenNumber(chartDataIncomes[chartDataIncomes.length - 1].y, 2) : 0})`}
+                                                title={`${chosenFed.name} Revenue Evolution\n(Current accumulated revenue: ${chartDataIncomes.length ? shortenNumber(chartDataIncomes[chartDataIncomes.length - 1].y, 2) : 0})`}
                                                 fed={chosenFed}
                                                 chartData={chartDataIncomes}
                                                 domainYpadding={'auto'}
                                                 mainColor="secondary"
-                                                id='income-chart'
-                                                yLabel="Acc. Income"
+                                                id='revenue-chart'
+                                                yLabel="Acc. Revenue"
                                                 useRecharts={true}
                                             />
                                             <FedBarChart chartData={charBarDataIncomes} />
@@ -186,7 +186,7 @@ export const FedPolicyPage = () => {
                         }
                     />
                     <SupplyInfos
-                        title="🦅&nbsp;&nbsp;DOLA Fed Incomes"
+                        title="🦅&nbsp;&nbsp;DOLA Fed Revenue"
                         supplies={
                             FEDS.map((fed, fedIndex) => {
                                 return { supply: totalFedsIncomes[fedIndex], chainId: fed.chainId, name: fed.name, projectImage: fed.projectImage }
