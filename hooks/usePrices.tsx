@@ -34,15 +34,26 @@ export const usePrices = (extras?: string[]): SWR & Prices => {
     .concat(extras || []);
 
   const { data, error } = useCustomSWR(
-    `${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoIds.join(',')}`,
-    (url) => fetcherWithFallback(url, `/api/prices-cg-proxy`)
-  )
-  const { data: cachedProxyData, error: errorProxy } = useCustomSWR(`/api/prices-cg-proxy?cacheFirst=true`)
-
+    `${process.env.COINGECKO_PRICE_API}?/yolo/vs_currencies=usd&ids=${coingeckoIds.join(',')}`,
+    (url) => fetcherWithFallback(url, `/api/prices-cg-proxy?isDefault=${!extras?.length}&ids=${coingeckoIds.join(',')}`, async (res: Response) => {      
+      if (!res.ok || res.status >= 400) {        
+        return true;
+      };      
+      try {
+        const json = await res.json();
+        if (!json?.['inverse-finance']?.usd) {
+          return true;
+        }
+      } catch (e) {        
+        return true;
+      }
+      return false;
+    }),
+  );  
   return {
-    prices: data || cachedProxyData || {},
-    isLoading: (!error && !data) && (!errorProxy && !cachedProxyData),
-    isError: !!error && !!errorProxy,
+    prices: data || {},
+    isLoading: (!error && !data),
+    isError: !!error,
   }
 }
 
