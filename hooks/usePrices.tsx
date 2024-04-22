@@ -11,6 +11,7 @@ import { formatUnits } from '@ethersproject/units'
 import { TOKENS, UNDERLYING } from '@app/variables/tokens'
 import { getLPPrice } from '@app/util/contracts'
 import { getBnToNumber } from '@app/util/markets';
+import useSWR from 'swr'
 
 const { ORACLE } = getNetworkConfigConstants();
 
@@ -49,11 +50,13 @@ export const usePrices = (extras?: string[]): SWR & Prices => {
       }
       return false;
     }),
-  );  
+  );
+  const { data: cachedProxyData, error: cachedProxyError } = useSWR(`/api/prices-cg-proxy?cacheFirst=true&isDefault=${!extras?.length}&ids=${coingeckoIds.join(',')}`)
+
   return {
-    prices: data || {},
-    isLoading: (!error && !data),
-    isError: !!error,
+    prices: data || cachedProxyData || {},
+    isLoading: (!data && !error && !cachedProxyData && !cachedProxyError),
+    isError: !!error && !!cachedProxyError,
   }
 }
 
