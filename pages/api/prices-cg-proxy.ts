@@ -1,16 +1,21 @@
 import 'source-map-support'
-import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
+import { getCacheFromRedis, getCacheFromRedisAsObj, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { Prices } from '@app/types'
 import { CHAIN_TOKENS } from '@app/variables/tokens'
 
 export const cgPricesCacheKey = `cg-prices-v1.0.0`;
 // proxy api for cg as fallback to direct call to cg api from client side (can be blocked in some regions)
 export default async function handler(req, res) {
-  const { cacheFirst } = req.query;
+  const { cacheFirst, ids, isDefault } = req.query;
+  const idsArray = (ids || '')?.split(',');
+  if (idsArray.some(id => isInvalidGenericParam(id))) {
+    return res.status(400).json({ msg: 'invalid request' });    
+  }
+  const cacheKey = isDefault === 'true' ? cgPricesCacheKey : `${cgPricesCacheKey}-${ids}`;
   try {
     const cacheDuration = 90;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cgPricesCacheKey, cacheFirst !== 'true', cacheDuration);
+    const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration);
     if (cachedData && isValid) {
       res.status(200).json(cachedData);
       return
@@ -18,12 +23,16 @@ export default async function handler(req, res) {
 
     let coingeckoIds: string[] = [];
 
-    Object.values(CHAIN_TOKENS)
-      .forEach(tokenList => {
-        Object.values(tokenList)
-          .filter(t => !!t.coingeckoId)
-          .forEach(t => coingeckoIds.push(t.coingeckoId!))
-      })
+    if (!idsArray.length) {
+      Object.values(CHAIN_TOKENS)
+        .forEach(tokenList => {
+          Object.values(tokenList)
+            .filter(t => !!t.coingeckoId)
+            .forEach(t => coingeckoIds.push(t.coingeckoId!))
+        })
+    } else {
+      coingeckoIds = idsArray;
+    }
 
     const uniqueCgIds = [...new Set(coingeckoIds)];
     let geckoPrices: Prices["prices"] = {};
@@ -38,7 +47,7 @@ export default async function handler(req, res) {
     console.error(err);
     // if an error occured, try to return last cached results
     try {
-      const cache = await getCacheFromRedis(cgPricesCacheKey, false);
+      const cache = await getCacheFromRedis(cacheKey, false);
       if (cache) {
         console.log('Api call failed, returning last cache found');
         res.status(200).json(cache);
