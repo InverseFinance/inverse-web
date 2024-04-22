@@ -54,13 +54,19 @@ function isServer() {
 
 export const fetcher60sectimeout = (input: RequestInfo, init?: RequestInit) => fetcher(input, init, 60000);
 export const fetcher30sectimeout = (input: RequestInfo, init?: RequestInit) => fetcher(input, init, 30000);
-export const fetcherWithFallback = (input: RequestInfo, fallbackUrl: string) => fetcher(input, undefined, 60000, fallbackUrl);
+export const fetcherWithFallback = (input: RequestInfo, fallbackUrl: string, customFallbackCondition?: (r: Response) => Promise<boolean>) => fetcher(input, undefined, 60000, fallbackUrl, customFallbackCondition);
 
-export const fetcher = async (input: RequestInfo, init?: RequestInit, timeout = 6000, fallbackUrl?: string) => {
+export const fetcher = async (input: RequestInfo, init?: RequestInit, timeout = 6000, fallbackUrl?: string, customFallbackCondition?: (r: Response) => Promise<boolean>) => {
   if (typeof input === 'string' && input.startsWith('-')) {
     return {};
   }
   const res = await fetchWithTimeout(input, init, timeout);
+
+  if(!!fallbackUrl && !!customFallbackCondition) {
+    if(await customFallbackCondition(res)) {
+      return fetcher(fallbackUrl, init, timeout);
+    };
+  }
 
   if (!res?.ok) {
     // if api call fails, return cached results in browser

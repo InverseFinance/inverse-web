@@ -11,6 +11,7 @@ import { formatUnits } from '@ethersproject/units'
 import { TOKENS, UNDERLYING } from '@app/variables/tokens'
 import { getLPPrice } from '@app/util/contracts'
 import { getBnToNumber } from '@app/util/markets';
+import useSWR from 'swr'
 
 const { ORACLE } = getNetworkConfigConstants();
 
@@ -35,14 +36,27 @@ export const usePrices = (extras?: string[]): SWR & Prices => {
 
   const { data, error } = useCustomSWR(
     `${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoIds.join(',')}`,
-    (url) => fetcherWithFallback(url, `/api/prices-cg-proxy`)
-  )
-  const { data: cachedProxyData, error: errorProxy } = useCustomSWR(`/api/prices-cg-proxy?cacheFirst=true`)
+    (url) => fetcherWithFallback(url, `/api/prices-cg-proxy?isDefault=${!extras?.length}&ids=${coingeckoIds.join(',')}`, async (res: Response) => {      
+      if (!res.ok || res.status >= 400) {        
+        return true;
+      };      
+      try {
+        const json = await res.json();
+        if (!json?.['inverse-finance']?.usd) {
+          return true;
+        }
+      } catch (e) {        
+        return true;
+      }
+      return false;
+    }),
+  );
+  const { data: cachedProxyData, error: cachedProxyError } = useSWR(`/api/prices-cg-proxy?cacheFirst=true&isDefault=${!extras?.length}&ids=${coingeckoIds.join(',')}`)
 
   return {
     prices: data || cachedProxyData || {},
-    isLoading: (!error && !data) && (!errorProxy && !cachedProxyData),
-    isError: !!error && !!errorProxy,
+    isLoading: (!data && !error && !cachedProxyData && !cachedProxyError),
+    isError: !!error && !!cachedProxyError,
   }
 }
 
