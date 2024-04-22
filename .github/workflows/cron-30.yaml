@@ -11,3 +11,7 @@ jobs:
           curl -v --request POST \
           --url 'https://www.inverse.finance/api/revalidate?type=blog' \
           --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
+      - name: Cg proxy revalidation
+        run: |
+          curl -v --request GET \
+          --url 'https://www.inverse.finance/api/prices-cg-proxy?isDefault=true'          
