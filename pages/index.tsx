@@ -1,10 +1,9 @@
 // TODO: Clean up the landing page, this was rushed in a few hours
 import { Flex, HStack, Image, UnorderedList, ListItem, Stack, Text, VStack, SimpleGrid, StackProps, Divider } from '@chakra-ui/react'
-import { RTOKEN_CG_ID } from '@app/variables/tokens'
 import Layout from '@app/components/common/Layout'
 import { LandingNav } from '@app/components/common/Navbar'
 import { useDOLA, useDOLAMarketData } from '@app/hooks/useDOLA'
-import { useDOLAPrice, usePrices } from '@app/hooks/usePrices'
+import { useDOLAPrice } from '@app/hooks/usePrices'
 import { useFirmTVL, useTVL } from '@app/hooks/useTVL'
 import Head from 'next/head'
 import { lightTheme } from '@app/variables/theme'
@@ -41,8 +40,7 @@ const StatBasic = ({ value, name }: { value: number, name: string }) => {
 export const Landing = ({ posts }: {
   posts: any[]
 }) => {
-  const { totalSupply } = useDOLA();
-  const { prices } = usePrices();
+  const { totalSupply } = useDOLA();  
   const { priceUsd: dbrPriceUsd, priceDola: dbrPriceDola } = useDBRPrice();
   const { price: dolaPrice } = useDOLAPrice();
   const { tvl } = useTVL();
@@ -52,7 +50,7 @@ export const Landing = ({ posts }: {
   const invFirmPrice = markets?.find(m => m.isInv)?.price || 0;
   const { apy, projectedApy, isLoading: isLoadingSDola } = useStakedDola(dbrPriceDola);
 
-  const invPrice = invFirmPrice || (prices[RTOKEN_CG_ID] ? prices[RTOKEN_CG_ID].usd : 0);
+  const invPrice = invFirmPrice;
 
   const stats = [
     {
