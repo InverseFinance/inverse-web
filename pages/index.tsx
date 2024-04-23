@@ -14,7 +14,7 @@ import { SimpleCard } from '@app/components/common/Cards/Simple'
 import { shortenNumber } from '@app/util/markets'
 import { getLandingProps } from '@app/blog/lib/utils'
 import LightPostPreview from '@app/blog/components/light-post-preview'
-import { useDBRPrice } from '@app/hooks/useDBR'
+import { useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR'
 import { Ecosystem } from '@app/components/Landing/Ecosystem'
 import { biggestSize, smallerSize, biggerSize, normalSize, btnIconSize, smallerSize2, slightlyBiggerSize2 } from '@app/variables/responsive'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
@@ -48,9 +48,11 @@ export const Landing = ({ posts }: {
   const { tvl } = useTVL();
   const { firmTotalTvl } = useFirmTVL();
   const { data: dolaData } = useDOLAMarketData();
+  const { markets } = useDBRMarkets();
+  const invFirmPrice = markets?.find(m => m.isInv)?.price || 0;
   const { apy, projectedApy, isLoading: isLoadingSDola } = useStakedDola(dbrPriceDola);
 
-  const invPrice = prices[RTOKEN_CG_ID] ? prices[RTOKEN_CG_ID].usd : 0;
+  const invPrice = invFirmPrice || (prices[RTOKEN_CG_ID] ? prices[RTOKEN_CG_ID].usd : 0);
 
   const stats = [
     {
