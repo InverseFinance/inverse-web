@@ -13,7 +13,7 @@ export default async function handler(req, res) {
   }
   const cacheKey = isDefault === 'true' ? cgPricesCacheKey : `${cgPricesCacheKey}-${ids}`;
   try {
-    const cacheDuration = 90;
+    const cacheDuration = 300;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration);
     if (cachedData && isValid) {
