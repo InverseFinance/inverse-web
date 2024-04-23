@@ -39,7 +39,7 @@ export default async function handler(req, res) {
     const result = await fetch(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${uniqueCgIds.join(',')}`);
     geckoPrices = await result.json();
 
-    await redisSetWithTimestamp(cgPricesCacheKey, geckoPrices);
+    await redisSetWithTimestamp(cacheKey, geckoPrices);
 
     return res.status(200).json({ _timestamp: Date.now(), ...geckoPrices });
   } catch (err) {
