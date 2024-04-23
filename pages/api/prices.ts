@@ -74,10 +74,15 @@ export default async function handler(req, res) {
       const res = await fetch(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${uniqueCgIds.join(',')}`);
       geckoPrices = await res.json();
 
-      await redisSetWithTimestamp(cgPricesCacheKey, geckoPrices);
+      const cgOk = !!geckoPrices?.['inverse-finance']?.usd;
+      if(cgOk) {
+        await redisSetWithTimestamp(cgPricesCacheKey, geckoPrices);
+      } else {
+        geckoPrices = (await getCacheFromRedis(cgPricesCacheKey, false)) || {};
+      }
     } catch (e) {
       console.log('Error fetching gecko prices');
-      geckoPrices = (await getCacheFromRedis(cgPricesCacheKey, false)) || {};      
+      geckoPrices = (await getCacheFromRedis(cgPricesCacheKey, false)) || {};
     }
     
     try {

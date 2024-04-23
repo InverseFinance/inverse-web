@@ -52,10 +52,11 @@ export const usePrices = (extras?: string[]): SWR & Prices => {
     }),
   );
   const { data: cachedProxyData, error: cachedProxyError } = useSWR(`/api/prices-cg-proxy?cacheFirst=true&isDefault=${!extras?.length}&ids=${coingeckoIds.join(',')}`)
+  const cgOk = !!data?.['inverse-finance']?.usd;
 
   return {
-    prices: data || cachedProxyData || {},
-    isLoading: (!data && !error && !cachedProxyData && !cachedProxyError),
+    prices: cgOk ? data : cachedProxyData || {},
+    isLoading: (!cgOk && !error && !cachedProxyData && !cachedProxyError),
     isError: !!error && !!cachedProxyError,
   }
 }

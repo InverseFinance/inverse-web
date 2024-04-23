@@ -10,7 +10,7 @@ import { F2MarketContext } from "../F2Contex"
 import moment from 'moment'
 import Container from "@app/components/common/Container"
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect"
-import { useDOLAPrice, usePrices } from "@app/hooks/usePrices"
+import { useDOLAPrice } from "@app/hooks/usePrices"
 import { useDOLA } from "@app/hooks/useDOLA"
 import { BUY_LINKS } from "@app/config/constants"
 import { useFirmTVL } from "@app/hooks/useTVL"
@@ -352,8 +352,7 @@ const BarBlock = ({
 export const FirmBar = ({
     ...props
 }: {
-} & Partial<StackProps>) => {
-    const { prices } = usePrices();
+} & Partial<StackProps>) => {    
     const { priceUsd: dbrPriceUsd } = useDBRPrice();
     const { totalSupply, isLoading: isDolaDataLoading } = useDOLA();
     const { price: dolaPrice, isLoading: isDolaPriceLoading } = useDOLAPrice();
@@ -362,6 +361,7 @@ export const FirmBar = ({
     const [isLargerThan] = useMediaQuery('(min-width: 600px)');
     const totalDebt = markets?.reduce((prev, curr) => prev + curr.totalDebt, 0) || 0;
     const totalDebtUsd = totalDebt * dolaPrice;
+    const invFirmPrice = markets?.find(m => m.isInv)?.price || 0;    
 
     return <VStack w='full' {...props}>
         <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
@@ -369,7 +369,7 @@ export const FirmBar = ({
                 <HStack spacing="8" w={{ base: 'full', md: 'auto' }} justify={{ base: 'space-between', md: 'flex-start' }}>
                     <BarBlock label="Buy DBR" isLargerThan={isLargerThan} precision={4} price={dbrPriceUsd} href={BUY_LINKS.DBR} imgSrc={`/assets/v2/dbr.png`} />
                     <BarBlock label="Buy DOLA" isLoading={isDolaPriceLoading} isLargerThan={isLargerThan} precision={4} price={dolaPrice} href={'/swap'} imgSrc={`/assets/v2/dola-512.jpg`} vstackProps={{ alignItems: { base: 'center', md: 'flex-start' } }} />
-                    <BarBlock label="Buy INV" isLargerThan={isLargerThan} price={prices?.['inverse-finance']?.usd} href={BUY_LINKS.INV} imgSrc={`/assets/inv-square-dark.jpeg`} vstackProps={{ alignItems: { base: 'flex-end', md: 'flex-start' } }} />
+                    <BarBlock label="Buy INV" isLargerThan={isLargerThan} price={invFirmPrice} href={BUY_LINKS.INV} imgSrc={`/assets/inv-square-dark.jpeg`} vstackProps={{ alignItems: { base: 'flex-end', md: 'flex-start' } }} />
                 </HStack>
             </HStack>
             <HStack w={{ base: 'full', md: 'auto' }} alignItems="flex-start" justify="space-between" spacing={{ base: '2', md: '8' }}>

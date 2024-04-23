@@ -13,7 +13,7 @@ export default async function handler(req, res) {
   }
   const cacheKey = isDefault === 'true' ? cgPricesCacheKey : `${cgPricesCacheKey}-${ids}`;
   try {
-    const cacheDuration = 90;
+    const cacheDuration = 300;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration);
     if (cachedData && isValid) {
@@ -38,8 +38,11 @@ export default async function handler(req, res) {
 
     const result = await fetch(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${uniqueCgIds.join(',')}`);
     geckoPrices = await result.json();
-
-    await redisSetWithTimestamp(cgPricesCacheKey, geckoPrices);
+    const cgOk = !!geckoPrices?.['inverse-finance']?.usd;
+    if(!cgOk) {
+      return res.status(200).json(cachedData);
+    }
+    await redisSetWithTimestamp(cacheKey, geckoPrices);
 
     return res.status(200).json({ _timestamp: Date.now(), ...geckoPrices });
   } catch (err) {
