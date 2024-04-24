@@ -112,10 +112,694 @@ export const DOLA_FRONTIER_DEBT_V2 = [
       "block": 14886680
     },
     {
+      "dolaBadDebt": 5817548.386444524,
+      "dolaBorrowed": 6643262.916381348,
+      "dolaBadDebtClassic": 3947901.1854801564,
+      "block": 14906686
+    },
+    {
+      "dolaBadDebt": 5819222.703746409,
+      "dolaBorrowed": 6653416.48524868,
+      "dolaBadDebtClassic": 3949355.3107933546,
+      "block": 14908936
+    },
+    {
+      "dolaBadDebt": 5828621.026127729,
+      "dolaBorrowed": 6759969.511957913,
+      "dolaBadDebtClassic": 3951780.171060095,
+      "block": 14918936
+    },
+    {
+      "dolaBadDebt": 5249038.624284778,
+      "dolaBorrowed": 6745280.910185177,
+      "dolaBadDebtClassic": 3924165.6836387394,
+      "block": 14922869
+    },
+    {
+      "dolaBadDebt": 5255138.275079968,
+      "dolaBorrowed": 6747732.690933368,
+      "dolaBadDebtClassic": 3937815.7412053915,
+      "block": 14931165
+    },
+    {
+      "dolaBadDebt": 5256444.431513049,
+      "dolaBorrowed": 6751845.127030137,
+      "dolaBadDebtClassic": 3939512.614483846,
+      "block": 14932759
+    },
+    {
+      "dolaBadDebt": 5276914.84113956,
+      "dolaBorrowed": 6751017.487122238,
+      "dolaBadDebtClassic": 3953745.8340502377,
+      "block": 14942240
+    },
+    {
+      "dolaBadDebt": 5292861.026615941,
+      "dolaBorrowed": 6747410.191268933,
+      "dolaBadDebtClassic": 3958646.9574622773,
+      "block": 14943430
+    },
+    {
+      "dolaBadDebt": 5290889.1834930945,
+      "dolaBorrowed": 6744099.343119493,
+      "dolaBadDebtClassic": 3957928.9121106337,
+      "block": 14943702
+    },
+    {
+      "dolaBadDebt": 5295192.77704967,
+      "dolaBorrowed": 6743803.976038679,
+      "dolaBadDebtClassic": 3961598.898572126,
+      "block": 14943953
+    },
+    {
+      "dolaBadDebt": 5297215.547052962,
+      "dolaBorrowed": 6743260.006330724,
+      "dolaBadDebtClassic": 3961605.0468962328,
+      "block": 14944038
+    },
+    {
+      "dolaBadDebt": 5302365.056714946,
+      "dolaBorrowed": 6743314.483083083,
+      "dolaBadDebtClassic": 3966532.194957321,
+      "block": 14944808
+    },
+    {
+      "dolaBadDebt": 5195044.110014195,
+      "dolaBorrowed": 6740379.174688571,
+      "dolaBadDebtClassic": 3975506.423676494,
+      "block": 14947699
+    },
+    {
+      "dolaBadDebt": 5198334.874006741,
+      "dolaBorrowed": 6738440.248128473,
+      "dolaBadDebtClassic": 3980374.791653953,
+      "block": 14947745
+    },
+    {
       "dolaBadDebt": 5240435.817306848,
       "dolaBorrowed": 6764904.124312448,
       "dolaBadDebtClassic": 4003962.8329009837,
       "block": 14953269
+    },
+    {
+      "dolaBadDebt": 5247593.886062149,
+      "dolaBorrowed": 6764437.730212517,
+      "dolaBadDebtClassic": 4010179.735082562,
+      "block": 14953364
+    },
+    {
+      "dolaBadDebt": 5246730.440927088,
+      "dolaBorrowed": 6763440.569027327,
+      "dolaBadDebtClassic": 4013029.191326072,
+      "block": 14953418
+    },
+    {
+      "dolaBadDebt": 5247342.365485462,
+      "dolaBorrowed": 6761946.641489214,
+      "dolaBadDebtClassic": 4018175.2642057026,
+      "block": 14953523
+    },
+    {
+      "dolaBadDebt": 5250308.260128895,
+      "dolaBorrowed": 6760872.897023809,
+      "dolaBadDebtClassic": 4027234.5506186914,
+      "block": 14953695
+    },
+    {
+      "dolaBadDebt": 5255864.705946634,
+      "dolaBorrowed": 6759894.897751718,
+      "dolaBadDebtClassic": 4033947.541250663,
+      "block": 14954419
+    },
+    {
+      "dolaBadDebt": 5271737.006474089,
+      "dolaBorrowed": 6753575.716385234,
+      "dolaBadDebtClassic": 4050423.6518101157,
+      "block": 14954903
+    },
+    {
+      "dolaBadDebt": 5269452.370089363,
+      "dolaBorrowed": 6746869.361334857,
+      "dolaBadDebtClassic": 4050170.383496933,
+      "block": 14954907
+    },
+    {
+      "dolaBadDebt": 5267451.100406045,
+      "dolaBorrowed": 6744869.43215659,
+      "dolaBadDebtClassic": 4049990.856394178,
+      "block": 14954908
+    },
+    {
+      "dolaBadDebt": 5285738.972889437,
+      "dolaBorrowed": 6744923.244171181,
+      "dolaBadDebtClassic": 4070316.2923095077,
+      "block": 14955145
+    },
+    {
+      "dolaBadDebt": 5284210.583605612,
+      "dolaBorrowed": 6740488.779736658,
+      "dolaBadDebtClassic": 4069937.4636607002,
+      "block": 14955169
+    },
+    {
+      "dolaBadDebt": 5280975.854381779,
+      "dolaBorrowed": 6740003.058839935,
+      "dolaBadDebtClassic": 4076953.663992686,
+      "block": 14955371
+    },
+    {
+      "dolaBadDebt": 5277634.738466636,
+      "dolaBorrowed": 6736251.900355446,
+      "dolaBadDebtClassic": 4075177.0115798446,
+      "block": 14955374
+    },
+    {
+      "dolaBadDebt": 5276815.211315906,
+      "dolaBorrowed": 6735424.674917915,
+      "dolaBadDebtClassic": 4074112.3919996507,
+      "block": 14955381
+    },
+    {
+      "dolaBadDebt": 5276055.869586854,
+      "dolaBorrowed": 6732061.947889627,
+      "dolaBadDebtClassic": 4073339.6979445415,
+      "block": 14955395
+    },
+    {
+      "dolaBadDebt": 5271885.183790307,
+      "dolaBorrowed": 6733364.416415359,
+      "dolaBadDebtClassic": 4068118.9272343763,
+      "block": 14955430
+    },
+    {
+      "dolaBadDebt": 5272935.037647197,
+      "dolaBorrowed": 6724296.319046343,
+      "dolaBadDebtClassic": 4070368.950380973,
+      "block": 14955457
+    },
+    {
+      "dolaBadDebt": 5262563.873213252,
+      "dolaBorrowed": 6714293.274062621,
+      "dolaBadDebtClassic": 4056763.1201067637,
+      "block": 14955568
+    },
+    {
+      "dolaBadDebt": 5265353.341284349,
+      "dolaBorrowed": 6702182.497351312,
+      "dolaBadDebtClassic": 4059576.05113675,
+      "block": 14955614
+    },
+    {
+      "dolaBadDebt": 5268092.481488112,
+      "dolaBorrowed": 6701365.353705014,
+      "dolaBadDebtClassic": 4061301.089373156,
+      "block": 14955686
+    },
+    {
+      "dolaBadDebt": 5268093.827289719,
+      "dolaBorrowed": 6701365.423508479,
+      "dolaBadDebtClassic": 4061301.1677047717,
+      "block": 14955687
+    },
+    {
+      "dolaBadDebt": 5269588.075283347,
+      "dolaBorrowed": 6696422.447809024,
+      "dolaBadDebtClassic": 4065095.1868506973,
+      "block": 14955716
+    },
+    {
+      "dolaBadDebt": 5811243.785007479,
+      "dolaBorrowed": 6685285.104570304,
+      "dolaBadDebtClassic": 4071382.9763967576,
+      "block": 14955744
+    },
+    {
+      "dolaBadDebt": 5810251.017857272,
+      "dolaBorrowed": 6684294.804441811,
+      "dolaBadDebtClassic": 4074528.948404041,
+      "block": 14955749
+    },
+    {
+      "dolaBadDebt": 5807090.445698829,
+      "dolaBorrowed": 6678896.108260681,
+      "dolaBadDebtClassic": 4073289.7692525657,
+      "block": 14955779
+    },
+    {
+      "dolaBadDebt": 5804443.063883843,
+      "dolaBorrowed": 6678047.088328439,
+      "dolaBadDebtClassic": 4073181.6589986,
+      "block": 14955854
+    },
+    {
+      "dolaBadDebt": 5264841.077604117,
+      "dolaBorrowed": 6666578.50861965,
+      "dolaBadDebtClassic": 4063511.362072539,
+      "block": 14956163
+    },
+    {
+      "dolaBadDebt": 5266650.130163025,
+      "dolaBorrowed": 6665781.006968669,
+      "dolaBadDebtClassic": 4071601.0787372566,
+      "block": 14956452
+    },
+    {
+      "dolaBadDebt": 5806642.354002377,
+      "dolaBorrowed": 6664737.98300513,
+      "dolaBadDebtClassic": 4079140.838700761,
+      "block": 14956544
+    },
+    {
+      "dolaBadDebt": 5804950.767148208,
+      "dolaBorrowed": 6652304.566590741,
+      "dolaBadDebtClassic": 4085676.32111875,
+      "block": 14956556
+    },
+    {
+      "dolaBadDebt": 5806322.906495526,
+      "dolaBorrowed": 6651633.676398554,
+      "dolaBadDebtClassic": 4089982.8668144313,
+      "block": 14956575
+    },
+    {
+      "dolaBadDebt": 5252710.503006822,
+      "dolaBorrowed": 6651751.491568935,
+      "dolaBadDebtClassic": 4077388.607145313,
+      "block": 14958288
+    },
+    {
+      "dolaBadDebt": 5254453.551893273,
+      "dolaBorrowed": 6651752.933649369,
+      "dolaBadDebtClassic": 4077540.8333618436,
+      "block": 14958309
+    },
+    {
+      "dolaBadDebt": 5258132.524547599,
+      "dolaBorrowed": 6651234.595811643,
+      "dolaBadDebtClassic": 4086133.351242932,
+      "block": 14958511
+    },
+    {
+      "dolaBadDebt": 5261875.47403786,
+      "dolaBorrowed": 6650322.752137009,
+      "dolaBadDebtClassic": 4091994.620906702,
+      "block": 14958572
+    },
+    {
+      "dolaBadDebt": 5264856.713285511,
+      "dolaBorrowed": 6649411.254824862,
+      "dolaBadDebtClassic": 4103370.2458716137,
+      "block": 14958616
+    },
+    {
+      "dolaBadDebt": 5263638.310370088,
+      "dolaBorrowed": 6648239.688372686,
+      "dolaBadDebtClassic": 4106230.45125718,
+      "block": 14958623
+    },
+    {
+      "dolaBadDebt": 5260135.899626962,
+      "dolaBorrowed": 6638140.55775881,
+      "dolaBadDebtClassic": 4103000.3906038827,
+      "block": 14958625
+    },
+    {
+      "dolaBadDebt": 5257588.378084473,
+      "dolaBorrowed": 6635890.301229743,
+      "dolaBadDebtClassic": 4113459.543904964,
+      "block": 14959060
+    },
+    {
+      "dolaBadDebt": 5791556.7431226745,
+      "dolaBorrowed": 6619671.577453677,
+      "dolaBadDebtClassic": 4120987.4666892653,
+      "block": 14959088
+    },
+    {
+      "dolaBadDebt": 5790763.162116825,
+      "dolaBorrowed": 6617404.473580403,
+      "dolaBadDebtClassic": 4124081.715630116,
+      "block": 14959139
+    },
+    {
+      "dolaBadDebt": 5789404.428512534,
+      "dolaBorrowed": 6602180.850308515,
+      "dolaBadDebtClassic": 4132524.0170711884,
+      "block": 14959182
+    },
+    {
+      "dolaBadDebt": 5789649.148789783,
+      "dolaBorrowed": 6588171.834832527,
+      "dolaBadDebtClassic": 4137565.518703939,
+      "block": 14959211
+    },
+    {
+      "dolaBadDebt": 5786885.468118812,
+      "dolaBorrowed": 6572503.218112421,
+      "dolaBadDebtClassic": 4139996.361675923,
+      "block": 14959244
+    },
+    {
+      "dolaBadDebt": 5782990.057291651,
+      "dolaBorrowed": 6555956.278066682,
+      "dolaBadDebtClassic": 4142349.52086124,
+      "block": 14959264
+    },
+    {
+      "dolaBadDebt": 5782575.569246966,
+      "dolaBorrowed": 6546398.930348187,
+      "dolaBadDebtClassic": 4143230.9766396857,
+      "block": 14959389
+    },
+    {
+      "dolaBadDebt": 5781412.823620342,
+      "dolaBorrowed": 6545226.3884120565,
+      "dolaBadDebtClassic": 4140863.7011680016,
+      "block": 14959407
+    },
+    {
+      "dolaBadDebt": 5776728.739209654,
+      "dolaBorrowed": 6539489.580350164,
+      "dolaBadDebtClassic": 4130103.0734575572,
+      "block": 14959509
+    },
+    {
+      "dolaBadDebt": 5221805.931641887,
+      "dolaBorrowed": 6538982.297936272,
+      "dolaBadDebtClassic": 4093441.7419530116,
+      "block": 14960297
+    },
+    {
+      "dolaBadDebt": 5218469.177103525,
+      "dolaBorrowed": 6538998.458452037,
+      "dolaBadDebtClassic": 4094560.583615922,
+      "block": 14960541
+    },
+    {
+      "dolaBadDebt": 5217259.272888738,
+      "dolaBorrowed": 6539002.427538496,
+      "dolaBadDebtClassic": 4089506.624116342,
+      "block": 14960601
+    },
+    {
+      "dolaBadDebt": 5217837.251261283,
+      "dolaBorrowed": 6538997.577694228,
+      "dolaBadDebtClassic": 4084225.1674650093,
+      "block": 14960906
+    },
+    {
+      "dolaBadDebt": 5219372.588254676,
+      "dolaBorrowed": 6532087.580978022,
+      "dolaBadDebtClassic": 4119615.7335149525,
+      "block": 14965411
+    },
+    {
+      "dolaBadDebt": 5757501.3631867,
+      "dolaBorrowed": 6526580.18386623,
+      "dolaBadDebtClassic": 4119616.7681754273,
+      "block": 14965431
+    },
+    {
+      "dolaBadDebt": 5766887.502266038,
+      "dolaBorrowed": 6525498.377219284,
+      "dolaBadDebtClassic": 4138630.12716531,
+      "block": 14965636
+    },
+    {
+      "dolaBadDebt": 5735403.292955928,
+      "dolaBorrowed": 6524154.498851713,
+      "dolaBadDebtClassic": 4156716.9804788455,
+      "block": 14966489
+    },
+    {
+      "dolaBadDebt": 5737716.40577102,
+      "dolaBorrowed": 6523152.468579779,
+      "dolaBadDebtClassic": 4160555.073004247,
+      "block": 14966623
+    },
+    {
+      "dolaBadDebt": 5170141.897162285,
+      "dolaBorrowed": 6371459.426862827,
+      "dolaBadDebtClassic": 4089276.5859312513,
+      "block": 14969805
+    },
+    {
+      "dolaBadDebt": 11497802.127049122,
+      "dolaBorrowed": 16498181.038528912,
+      "dolaBadDebtClassic": 10420311.3650052,
+      "block": 14972539
+    },
+    {
+      "dolaBadDebt": 11502728.131152071,
+      "dolaBorrowed": 16496665.439713076,
+      "dolaBadDebtClassic": 10429949.78518863,
+      "block": 14972556
+    },
+    {
+      "dolaBadDebt": 11524744.511786012,
+      "dolaBorrowed": 16492340.789916195,
+      "dolaBadDebtClassic": 10456276.396242283,
+      "block": 14972618
+    },
+    {
+      "dolaBadDebt": 11524770.37276642,
+      "dolaBorrowed": 16492360.331631597,
+      "dolaBadDebtClassic": 10456294.204627063,
+      "block": 14972624
+    },
+    {
+      "dolaBadDebt": 11523785.765784178,
+      "dolaBorrowed": 16483750.727732632,
+      "dolaBadDebtClassic": 10455283.963835414,
+      "block": 14972633
+    },
+    {
+      "dolaBadDebt": 11525597.493538328,
+      "dolaBorrowed": 16467173.680293048,
+      "dolaBadDebtClassic": 10455825.34223656,
+      "block": 14972687
+    },
+    {
+      "dolaBadDebt": 11515111.400526688,
+      "dolaBorrowed": 16448640.7605767,
+      "dolaBadDebtClassic": 10446250.151952084,
+      "block": 14972712
+    },
+    {
+      "dolaBadDebt": 11521231.659045463,
+      "dolaBorrowed": 16428115.814429574,
+      "dolaBadDebtClassic": 10451153.058399469,
+      "block": 14972752
+    },
+    {
+      "dolaBadDebt": 11518781.64818411,
+      "dolaBorrowed": 16405260.95240286,
+      "dolaBadDebtClassic": 10448476.535441425,
+      "block": 14972796
+    },
+    {
+      "dolaBadDebt": 11541945.070999155,
+      "dolaBorrowed": 16374741.181740835,
+      "dolaBadDebtClassic": 10472513.321968427,
+      "block": 14972811
+    },
+    {
+      "dolaBadDebt": 11538990.286920555,
+      "dolaBorrowed": 16349480.891499437,
+      "dolaBadDebtClassic": 10469500.511188874,
+      "block": 14972828
+    },
+    {
+      "dolaBadDebt": 11539002.053339832,
+      "dolaBorrowed": 16298541.97570328,
+      "dolaBadDebtClassic": 10469506.199518025,
+      "block": 14972830
+    },
+    {
+      "dolaBadDebt": 11559442.014900822,
+      "dolaBorrowed": 16290073.458948944,
+      "dolaBadDebtClassic": 10494942.553452922,
+      "block": 14972856
+    },
+    {
+      "dolaBadDebt": 11563703.505836232,
+      "dolaBorrowed": 16262315.543999182,
+      "dolaBadDebtClassic": 10498200.240205424,
+      "block": 14972881
+    },
+    {
+      "dolaBadDebt": 11560156.19860685,
+      "dolaBorrowed": 16231531.536574747,
+      "dolaBadDebtClassic": 10495391.51569067,
+      "block": 14972915
+    },
+    {
+      "dolaBadDebt": 11513965.424553815,
+      "dolaBorrowed": 16197153.502937926,
+      "dolaBadDebtClassic": 10442904.147873528,
+      "block": 14972946
+    },
+    {
+      "dolaBadDebt": 11514069.636301417,
+      "dolaBorrowed": 16196358.525604788,
+      "dolaBadDebtClassic": 10442885.531303383,
+      "block": 14972981
+    },
+    {
+      "dolaBadDebt": 11502283.022698766,
+      "dolaBorrowed": 16158247.521413606,
+      "dolaBadDebtClassic": 10431952.532027302,
+      "block": 14973012
+    },
+    {
+      "dolaBadDebt": 11497510.966525394,
+      "dolaBorrowed": 16118268.283687728,
+      "dolaBadDebtClassic": 10427168.48294976,
+      "block": 14973019
+    },
+    {
+      "dolaBadDebt": 11500059.110299084,
+      "dolaBorrowed": 16078353.27843433,
+      "dolaBadDebtClassic": 10428676.248895757,
+      "block": 14973048
+    },
+    {
+      "dolaBadDebt": 11508863.328690808,
+      "dolaBorrowed": 16036324.986630065,
+      "dolaBadDebtClassic": 10439179.855305633,
+      "block": 14973070
+    },
+    {
+      "dolaBadDebt": 11504086.796625372,
+      "dolaBorrowed": 15996339.28217773,
+      "dolaBadDebtClassic": 10434392.838291913,
+      "block": 14973075
+    },
+    {
+      "dolaBadDebt": 11489083.4750388,
+      "dolaBorrowed": 15946401.41773035,
+      "dolaBadDebtClassic": 10420560.839803938,
+      "block": 14973097
+    },
+    {
+      "dolaBadDebt": 11483581.181992386,
+      "dolaBorrowed": 15900320.885391746,
+      "dolaBadDebtClassic": 10415045.776408859,
+      "block": 14973104
+    },
+    {
+      "dolaBadDebt": 11476665.750729015,
+      "dolaBorrowed": 15842348.299370548,
+      "dolaBadDebtClassic": 10408112.063007552,
+      "block": 14973114
+    },
+    {
+      "dolaBadDebt": 11469037.393293586,
+      "dolaBorrowed": 15778394.058541376,
+      "dolaBadDebtClassic": 10400471.80649572,
+      "block": 14973131
+    },
+    {
+      "dolaBadDebt": 11470793.775258604,
+      "dolaBorrowed": 15727463.881961834,
+      "dolaBadDebtClassic": 10401098.993632505,
+      "block": 14973137
+    },
+    {
+      "dolaBadDebt": 11463125.723418824,
+      "dolaBorrowed": 15663469.070193367,
+      "dolaBadDebtClassic": 10393423.208711319,
+      "block": 14973139
+    },
+    {
+      "dolaBadDebt": 11453832.808660256,
+      "dolaBorrowed": 15585514.794851206,
+      "dolaBadDebtClassic": 10384101.388089387,
+      "block": 14973157
+    },
+    {
+      "dolaBadDebt": 11463000.849672636,
+      "dolaBorrowed": 15540549.44641503,
+      "dolaBadDebtClassic": 10394287.343015328,
+      "block": 14973171
+    },
+    {
+      "dolaBadDebt": 11456017.617140245,
+      "dolaBorrowed": 15484884.137406053,
+      "dolaBadDebtClassic": 10387713.384324359,
+      "block": 14973184
+    },
+    {
+      "dolaBadDebt": 11450049.468558349,
+      "dolaBorrowed": 15434903.271702658,
+      "dolaBadDebtClassic": 10381737.730651863,
+      "block": 14973192
+    },
+    {
+      "dolaBadDebt": 11437017.096523259,
+      "dolaBorrowed": 15379938.532714028,
+      "dolaBadDebtClassic": 10369670.491603078,
+      "block": 14973207
+    },
+    {
+      "dolaBadDebt": 11376590.875408567,
+      "dolaBorrowed": 14876217.629851915,
+      "dolaBadDebtClassic": 10309234.179599036,
+      "block": 14973213
+    },
+    {
+      "dolaBadDebt": 11309508.30870498,
+      "dolaBorrowed": 14317297.613320213,
+      "dolaBadDebtClassic": 10242148.901753996,
+      "block": 14973218
+    },
+    {
+      "dolaBadDebt": 11234023.097483134,
+      "dolaBorrowed": 13758693.912234386,
+      "dolaBadDebtClassic": 10164974.664000535,
+      "block": 14973223
+    },
+    {
+      "dolaBadDebt": 11167020.901112806,
+      "dolaBorrowed": 13200360.01159006,
+      "dolaBadDebtClassic": 10097972.090096451,
+      "block": 14973224
+    },
+    {
+      "dolaBadDebt": 11159823.817337092,
+      "dolaBorrowed": 13140360.178770628,
+      "dolaBadDebtClassic": 10090772.330135731,
+      "block": 14973225
+    },
+    {
+      "dolaBadDebt": 11092854.689234857,
+      "dolaBorrowed": 12582284.239130326,
+      "dolaBadDebtClassic": 10023802.733222205,
+      "block": 14973226
+    },
+    {
+      "dolaBadDebt": 11085668.574319731,
+      "dolaBorrowed": 12522285.302521281,
+      "dolaBadDebtClassic": 10016603.611746125,
+      "block": 14973233
+    },
+    {
+      "dolaBadDebt": 11066971.61246175,
+      "dolaBorrowed": 12366428.50023223,
+      "dolaBadDebtClassic": 9997901.116775947,
+      "block": 14973237
+    },
+    {
+      "dolaBadDebt": 11046328.530030705,
+      "dolaBorrowed": 12194398.762976237,
+      "dolaBadDebtClassic": 9977257.567839112,
+      "block": 14973238
+    },
+    {
+      "dolaBadDebt": 11038931.718698747,
+      "dolaBorrowed": 12132610.475433944,
+      "dolaBadDebtClassic": 9968991.327940837,
+      "block": 14973250
     },
     {
       "dolaBadDebt": 11040562.601514995,
@@ -124,16 +808,334 @@ export const DOLA_FRONTIER_DEBT_V2 = [
       "block": 14973269
     },
     {
+      "dolaBadDebt": 11036614.040523749,
+      "dolaBorrowed": 12108551.44215747,
+      "dolaBadDebtClassic": 9963852.295503765,
+      "block": 14973540
+    },
+    {
+      "dolaBadDebt": 11048190.414507806,
+      "dolaBorrowed": 12108624.716555256,
+      "dolaBadDebtClassic": 9986542.70226987,
+      "block": 14977051
+    },
+    {
+      "dolaBadDebt": 11053507.975456301,
+      "dolaBorrowed": 12095280.013798088,
+      "dolaBadDebtClassic": 10015471.92749332,
+      "block": 14983631
+    },
+    {
+      "dolaBadDebt": 11051232.509612802,
+      "dolaBorrowed": 12081348.88902412,
+      "dolaBadDebtClassic": 10027177.326858565,
+      "block": 14983638
+    },
+    {
+      "dolaBadDebt": 11051112.044828726,
+      "dolaBorrowed": 12080163.684652098,
+      "dolaBadDebtClassic": 10028343.143832985,
+      "block": 14983667
+    },
+    {
+      "dolaBadDebt": 11049494.358811801,
+      "dolaBorrowed": 12079679.000913594,
+      "dolaBadDebtClassic": 10027221.533962714,
+      "block": 14983698
+    },
+    {
+      "dolaBadDebt": 11048988.368106816,
+      "dolaBorrowed": 12079171.466722788,
+      "dolaBadDebtClassic": 10026713.684801152,
+      "block": 14983704
+    },
+    {
+      "dolaBadDebt": 11049837.495380078,
+      "dolaBorrowed": 12077833.375676583,
+      "dolaBadDebtClassic": 10027103.703552656,
+      "block": 14983717
+    },
+    {
+      "dolaBadDebt": 11049619.651712324,
+      "dolaBorrowed": 12075998.333695583,
+      "dolaBadDebtClassic": 10027077.987330835,
+      "block": 14983722
+    },
+    {
+      "dolaBadDebt": 11048097.774213823,
+      "dolaBorrowed": 12067212.804572526,
+      "dolaBadDebtClassic": 10028698.687439214,
+      "block": 14983735
+    },
+    {
+      "dolaBadDebt": 11049205.097144475,
+      "dolaBorrowed": 12062395.446186746,
+      "dolaBadDebtClassic": 10031769.37286416,
+      "block": 14983748
+    },
+    {
+      "dolaBadDebt": 11046990.433369031,
+      "dolaBorrowed": 12061275.723119173,
+      "dolaBadDebtClassic": 10033723.381419476,
+      "block": 14983772
+    },
+    {
+      "dolaBadDebt": 11046048.61670471,
+      "dolaBorrowed": 12049464.802484535,
+      "dolaBadDebtClassic": 10044014.129655764,
+      "block": 14983954
+    },
+    {
+      "dolaBadDebt": 11045593.600022674,
+      "dolaBorrowed": 12047967.657093793,
+      "dolaBadDebtClassic": 10043996.802782554,
+      "block": 14983960
+    },
+    {
+      "dolaBadDebt": 11043225.071634818,
+      "dolaBorrowed": 12047372.754142068,
+      "dolaBadDebtClassic": 10036853.616243225,
+      "block": 14984281
+    },
+    {
+      "dolaBadDebt": 11041845.077327076,
+      "dolaBorrowed": 12047248.411532529,
+      "dolaBadDebtClassic": 10034960.121215843,
+      "block": 14985415
+    },
+    {
+      "dolaBadDebt": 11038418.91733809,
+      "dolaBorrowed": 12040401.111216053,
+      "dolaBadDebtClassic": 10054216.845240429,
+      "block": 14986261
+    },
+    {
+      "dolaBadDebt": 11036707.068449665,
+      "dolaBorrowed": 12032273.655836033,
+      "dolaBadDebtClassic": 10055598.204210477,
+      "block": 14986276
+    },
+    {
+      "dolaBadDebt": 11035586.772170193,
+      "dolaBorrowed": 12030211.237010289,
+      "dolaBadDebtClassic": 10057991.974008378,
+      "block": 14986397
+    },
+    {
+      "dolaBadDebt": 11033092.299895965,
+      "dolaBorrowed": 12019887.918408688,
+      "dolaBadDebtClassic": 10061100.927264437,
+      "block": 14986402
+    },
+    {
+      "dolaBadDebt": 11032486.623017237,
+      "dolaBorrowed": 12009677.135087488,
+      "dolaBadDebtClassic": 10067784.339618979,
+      "block": 14986586
+    },
+    {
+      "dolaBadDebt": 11032112.099991363,
+      "dolaBorrowed": 12000397.476959266,
+      "dolaBadDebtClassic": 10073662.973490762,
+      "block": 14986772
+    },
+    {
+      "dolaBadDebt": 11032147.903194685,
+      "dolaBorrowed": 11999412.42079843,
+      "dolaBadDebtClassic": 10077544.116419632,
+      "block": 14986800
+    },
+    {
+      "dolaBadDebt": 11031263.488691945,
+      "dolaBorrowed": 11990520.33129652,
+      "dolaBadDebtClassic": 10080330.158409286,
+      "block": 14986878
+    },
+    {
+      "dolaBadDebt": 11029988.224968024,
+      "dolaBorrowed": 11989654.985442545,
+      "dolaBadDebtClassic": 10085984.178296171,
+      "block": 14987012
+    },
+    {
+      "dolaBadDebt": 11030060.919701327,
+      "dolaBorrowed": 11988135.372851245,
+      "dolaBadDebtClassic": 10089959.87505958,
+      "block": 14987042
+    },
+    {
+      "dolaBadDebt": 11030066.911259012,
+      "dolaBorrowed": 11986632.335447948,
+      "dolaBadDebtClassic": 10089964.245806824,
+      "block": 14987053
+    },
+    {
+      "dolaBadDebt": 11027965.597983804,
+      "dolaBorrowed": 11978128.921140492,
+      "dolaBadDebtClassic": 10091318.36060832,
+      "block": 14987069
+    },
+    {
+      "dolaBadDebt": 11014578.495644178,
+      "dolaBorrowed": 11855450.608101178,
+      "dolaBadDebtClassic": 10039423.944377525,
+      "block": 14987511
+    },
+    {
+      "dolaBadDebt": 11003430.256284937,
+      "dolaBorrowed": 11845151.86157492,
+      "dolaBadDebtClassic": 10041416.744510854,
+      "block": 14987618
+    },
+    {
+      "dolaBadDebt": 10998658.545019452,
+      "dolaBorrowed": 11846225.37140658,
+      "dolaBadDebtClassic": 10030126.6631605,
+      "block": 14991244
+    },
+    {
+      "dolaBadDebt": 10989902.494109021,
+      "dolaBorrowed": 11847119.862312067,
+      "dolaBadDebtClassic": 10008074.69811039,
+      "block": 14992460
+    },
+    {
       "dolaBadDebt": 10985412.590910234,
       "dolaBorrowed": 11847131.635732867,
       "dolaBadDebtClassic": 9985581.662505932,
       "block": 14993269
     },
     {
+      "dolaBadDebt": 10991679.714254428,
+      "dolaBorrowed": 11852553.900114223,
+      "dolaBadDebtClassic": 9990426.140819361,
+      "block": 14999850
+    },
+    {
+      "dolaBadDebt": 10995874.598093528,
+      "dolaBorrowed": 11856420.89525909,
+      "dolaBadDebtClassic": 9990270.118681276,
+      "block": 15005204
+    },
+    {
+      "dolaBadDebt": 11007002.740924306,
+      "dolaBorrowed": 11876737.088918472,
+      "dolaBadDebtClassic": 9957520.757178001,
+      "block": 15029748
+    },
+    {
+      "dolaBadDebt": 11006913.866844293,
+      "dolaBorrowed": 11876691.98771578,
+      "dolaBadDebtClassic": 9956910.284446763,
+      "block": 15029781
+    },
+    {
+      "dolaBadDebt": 11024316.187769542,
+      "dolaBorrowed": 11882578.516714208,
+      "dolaBadDebtClassic": 10016372.492058534,
+      "block": 15042359
+    },
+    {
+      "dolaBadDebt": 11028790.58703529,
+      "dolaBorrowed": 11883484.894372249,
+      "dolaBadDebtClassic": 10027309.033873271,
+      "block": 15045044
+    },
+    {
+      "dolaBadDebt": 11030799.870820208,
+      "dolaBorrowed": 11882750.117010951,
+      "dolaBadDebtClassic": 10033260.531467771,
+      "block": 15045996
+    },
+    {
+      "dolaBadDebt": 11050025.827911865,
+      "dolaBorrowed": 11896246.09757433,
+      "dolaBadDebtClassic": 10074796.89108896,
+      "block": 15060829
+    },
+    {
+      "dolaBadDebt": 11048123.283356685,
+      "dolaBorrowed": 11899225.702426689,
+      "dolaBadDebtClassic": 10063071.041679576,
+      "block": 15066377
+    },
+    {
+      "dolaBadDebt": 11025700.034814306,
+      "dolaBorrowed": 11890435.219209462,
+      "dolaBadDebtClassic": 10047971.989128545,
+      "block": 15076014
+    },
+    {
+      "dolaBadDebt": 11024780.886040598,
+      "dolaBorrowed": 11889523.111228943,
+      "dolaBadDebtClassic": 10047767.13470374,
+      "block": 15076054
+    },
+    {
+      "dolaBadDebt": 11025913.713171322,
+      "dolaBorrowed": 11892357.450064685,
+      "dolaBadDebtClassic": 10023149.945116937,
+      "block": 15091429
+    },
+    {
+      "dolaBadDebt": 11026991.526962765,
+      "dolaBorrowed": 11895195.07274039,
+      "dolaBadDebtClassic": 9992625.479588803,
+      "block": 15106819
+    },
+    {
+      "dolaBadDebt": 11029975.27606326,
+      "dolaBorrowed": 11895958.327610921,
+      "dolaBadDebtClassic": 10006148.934199043,
+      "block": 15112826
+    },
+    {
+      "dolaBadDebt": 11029471.361894868,
+      "dolaBorrowed": 11895569.350113139,
+      "dolaBadDebtClassic": 10001826.197035834,
+      "block": 15113950
+    },
+    {
+      "dolaBadDebt": 10991820.400500678,
+      "dolaBorrowed": 11895698.64888402,
+      "dolaBadDebtClassic": 10005965.06081754,
+      "block": 15114651
+    },
+    {
+      "dolaBadDebt": 10988739.613515383,
+      "dolaBorrowed": 11895727.976436414,
+      "dolaBadDebtClassic": 10005972.146536563,
+      "block": 15114810
+    },
+    {
+      "dolaBadDebt": 11252722.471233811,
+      "dolaBorrowed": 11908398.77127288,
+      "dolaBadDebtClassic": 9909097.413864749,
+      "block": 15240078
+    },
+    {
+      "dolaBadDebt": 11256007.176029913,
+      "dolaBorrowed": 11902930.35174901,
+      "dolaBadDebtClassic": 9898451.392635085,
+      "block": 15243874
+    },
+    {
       "dolaBadDebt": 11229085.836217461,
       "dolaBorrowed": 11866296.632352546,
       "dolaBadDebtClassic": 9894005.363880526,
       "block": 15278636
+    },
+    {
+      "dolaBadDebt": 11224629.205810219,
+      "dolaBorrowed": 11868823.009695664,
+      "dolaBadDebtClassic": 9886698.904178336,
+      "block": 15292398
+    },
+    {
+      "dolaBadDebt": 11222716.837954247,
+      "dolaBorrowed": 11869683.031517796,
+      "dolaBadDebtClassic": 9884439.253769971,
+      "block": 15297082
     },
     {
       "dolaBadDebt": 11206320.07513278,
@@ -148,6 +1150,24 @@ export const DOLA_FRONTIER_DEBT_V2 = [
       "block": 15304239
     },
     {
+      "dolaBadDebt": 11170136.88718652,
+      "dolaBorrowed": 11830300.27261603,
+      "dolaBadDebtClassic": 9846055.558091758,
+      "block": 15316871
+    },
+    {
+      "dolaBadDebt": 10906352.620608557,
+      "dolaBorrowed": 11828094.09648132,
+      "dolaBadDebtClassic": 9847986.161780657,
+      "block": 15324059
+    },
+    {
+      "dolaBadDebt": 10906394.36078235,
+      "dolaBorrowed": 11828116.674415324,
+      "dolaBadDebtClassic": 9848005.878332391,
+      "block": 15324185
+    },
+    {
       "dolaBadDebt": 10906588.96982791,
       "dolaBorrowed": 11822246.724041587,
       "dolaBadDebtClassic": 9857884.030288802,
@@ -158,6 +1178,12 @@ export const DOLA_FRONTIER_DEBT_V2 = [
       "dolaBorrowed": 11791271.301122408,
       "dolaBadDebtClassic": 9825804.668974828,
       "block": 15360983
+    },
+    {
+      "dolaBadDebt": 10903504.35540662,
+      "dolaBorrowed": 11791220.77334115,
+      "dolaBadDebtClassic": 9887788.43393366,
+      "block": 15382790
     },
     {
       "dolaBadDebt": 10893184.347803038,
@@ -172,10 +1198,28 @@ export const DOLA_FRONTIER_DEBT_V2 = [
       "block": 15434086
     },
     {
+      "dolaBadDebt": 10880484.611944623,
+      "dolaBorrowed": 11764382.334281968,
+      "dolaBadDebtClassic": 9879416.91486479,
+      "block": 15437366
+    },
+    {
       "dolaBadDebt": 10848967.168132968,
       "dolaBorrowed": 11736652.872352978,
       "dolaBadDebtClassic": 9852226.086680993,
       "block": 15455493
+    },
+    {
+      "dolaBadDebt": 10848783.782997958,
+      "dolaBorrowed": 11741180.484240934,
+      "dolaBadDebtClassic": 9858678.137362592,
+      "block": 15482187
+    },
+    {
+      "dolaBadDebt": 10861129.276509844,
+      "dolaBorrowed": 11742509.50954736,
+      "dolaBadDebtClassic": 9895598.591784362,
+      "block": 15489582
     },
     {
       "dolaBadDebt": 10823551.155102266,
@@ -190,10 +1234,100 @@ export const DOLA_FRONTIER_DEBT_V2 = [
       "block": 15523438
     },
     {
+      "dolaBadDebt": 10849482.023143763,
+      "dolaBorrowed": 11702873.296161465,
+      "dolaBadDebtClassic": 9843277.763388474,
+      "block": 15547499
+    },
+    {
+      "dolaBadDebt": 10858127.672633732,
+      "dolaBorrowed": 11697079.694474038,
+      "dolaBadDebtClassic": 9887593.050790794,
+      "block": 15584365
+    },
+    {
+      "dolaBadDebt": 10858414.100107118,
+      "dolaBorrowed": 11695442.926799063,
+      "dolaBadDebtClassic": 9886715.3876637,
+      "block": 15586563
+    },
+    {
+      "dolaBadDebt": 10856765.465964025,
+      "dolaBorrowed": 11699179.839360172,
+      "dolaBadDebtClassic": 9878248.229844535,
+      "block": 15607535
+    },
+    {
+      "dolaBadDebt": 10858745.991763666,
+      "dolaBorrowed": 11702890.020671621,
+      "dolaBadDebtClassic": 9867269.874574885,
+      "block": 15636761
+    },
+    {
+      "dolaBadDebt": 10858759.370715473,
+      "dolaBorrowed": 11702439.390419334,
+      "dolaBadDebtClassic": 9867132.78119773,
+      "block": 15636864
+    },
+    {
+      "dolaBadDebt": 10882414.394833822,
+      "dolaBorrowed": 11690312.251232434,
+      "dolaBadDebtClassic": 9877004.146541292,
+      "block": 15649013
+    },
+    {
+      "dolaBadDebt": 10893005.935622368,
+      "dolaBorrowed": 11660340.587589059,
+      "dolaBadDebtClassic": 9877281.306040362,
+      "block": 15649172
+    },
+    {
+      "dolaBadDebt": 10905875.594156176,
+      "dolaBorrowed": 11660167.896545444,
+      "dolaBadDebtClassic": 9875358.550965467,
+      "block": 15650764
+    },
+    {
+      "dolaBadDebt": 10891128.404914452,
+      "dolaBorrowed": 11661626.369234428,
+      "dolaBadDebtClassic": 9882518.03673708,
+      "block": 15659103
+    },
+    {
+      "dolaBadDebt": 10891107.057169536,
+      "dolaBorrowed": 11661604.323624052,
+      "dolaBadDebtClassic": 9882465.495903816,
+      "block": 15659180
+    },
+    {
+      "dolaBadDebt": 10891089.977732092,
+      "dolaBorrowed": 11661557.948769577,
+      "dolaBadDebtClassic": 9882362.713717155,
+      "block": 15659223
+    },
+    {
+      "dolaBadDebt": 10894182.17584278,
+      "dolaBorrowed": 11661911.007822368,
+      "dolaBadDebtClassic": 9889570.120242976,
+      "block": 15661214
+    },
+    {
       "dolaBadDebt": 10885536.652949542,
       "dolaBorrowed": 11660359.469476473,
       "dolaBadDebtClassic": 9872676.093525864,
       "block": 15703232
+    },
+    {
+      "dolaBadDebt": 10889973.448589602,
+      "dolaBorrowed": 11660778.139748007,
+      "dolaBadDebtClassic": 9878487.219989946,
+      "block": 15743160
+    },
+    {
+      "dolaBadDebt": 10890954.500387758,
+      "dolaBorrowed": 11661125.488178885,
+      "dolaBadDebtClassic": 9881216.637117792,
+      "block": 15745121
     },
     {
       "dolaBadDebt": 10887471.421609625,
@@ -208,10 +1342,22 @@ export const DOLA_FRONTIER_DEBT_V2 = [
       "block": 15804221
     },
     {
+      "dolaBadDebt": 10860625.54182056,
+      "dolaBorrowed": 11660412.746631838,
+      "dolaBadDebtClassic": 9850650.307497535,
+      "block": 15842849
+    },
+    {
       "dolaBadDebt": 11109726.948820455,
       "dolaBorrowed": 11654685.697475903,
       "dolaBadDebtClassic": 9831095.79456793,
       "block": 15861339
+    },
+    {
+      "dolaBadDebt": 11108666.120778492,
+      "dolaBorrowed": 11655619.141083404,
+      "dolaBadDebtClassic": 9835656.151129577,
+      "block": 15874716
     },
     {
       "dolaBadDebt": 11097380.023549754,
@@ -220,16 +1366,82 @@ export const DOLA_FRONTIER_DEBT_V2 = [
       "block": 15898338
     },
     {
+      "dolaBadDebt": 11097369.751562871,
+      "dolaBorrowed": 11644020.166258834,
+      "dolaBadDebtClassic": 9825212.391136369,
+      "block": 15898436
+    },
+    {
+      "dolaBadDebt": 10830736.797635539,
+      "dolaBorrowed": 11638703.770133361,
+      "dolaBadDebtClassic": 9819976.92485109,
+      "block": 15898621
+    },
+    {
+      "dolaBadDebt": 11171704.340435363,
+      "dolaBorrowed": 11624016.839681834,
+      "dolaBadDebtClassic": 9966680.557224635,
+      "block": 15931837
+    },
+    {
+      "dolaBadDebt": 10889133.398058994,
+      "dolaBorrowed": 11619694.32954322,
+      "dolaBadDebtClassic": 10025756.796414595,
+      "block": 15935755
+    },
+    {
+      "dolaBadDebt": 10876083.984406386,
+      "dolaBorrowed": 11620321.36168104,
+      "dolaBadDebtClassic": 9995592.365054332,
+      "block": 15939317
+    },
+    {
+      "dolaBadDebt": 10894170.20664552,
+      "dolaBorrowed": 11618594.316959366,
+      "dolaBadDebtClassic": 9962357.724437805,
+      "block": 15943993
+    },
+    {
+      "dolaBadDebt": 10894924.607151318,
+      "dolaBorrowed": 11615643.058951516,
+      "dolaBadDebtClassic": 9979167.503156547,
+      "block": 15947364
+    },
+    {
       "dolaBadDebt": 10889385.364106197,
       "dolaBorrowed": 11606201.18542866,
       "dolaBadDebtClassic": 9992263.075418785,
       "block": 15964751
     },
     {
+      "dolaBadDebt": 10881805.269082576,
+      "dolaBorrowed": 11606419.907536758,
+      "dolaBadDebtClassic": 9966757.023630464,
+      "block": 15968823
+    },
+    {
+      "dolaBadDebt": 10880489.310521036,
+      "dolaBorrowed": 11595565.325343352,
+      "dolaBadDebtClassic": 9966691.227063807,
+      "block": 15972292
+    },
+    {
       "dolaBadDebt": 11131726.92244824,
       "dolaBorrowed": 11591440.180668648,
       "dolaBadDebtClassic": 9991834.780319072,
       "block": 16020070
+    },
+    {
+      "dolaBadDebt": 11119644.663699547,
+      "dolaBorrowed": 11590530.095092606,
+      "dolaBadDebtClassic": 9971210.661638614,
+      "block": 16031999
+    },
+    {
+      "dolaBadDebt": 11120125.738389557,
+      "dolaBorrowed": 11590821.150736552,
+      "dolaBadDebtClassic": 9976371.589457456,
+      "block": 16033662
     },
     {
       "dolaBadDebt": 11101811.99927718,
@@ -256,10 +1468,34 @@ export const DOLA_FRONTIER_DEBT_V2 = [
       "block": 16225516
     },
     {
+      "dolaBadDebt": 11125671.239955787,
+      "dolaBorrowed": 11577116.192572657,
+      "dolaBadDebtClassic": 9962621.777975371,
+      "block": 16249393
+    },
+    {
       "dolaBadDebt": 11119394.123926926,
       "dolaBorrowed": 11569183.630603015,
       "dolaBadDebtClassic": 9955614.693166813,
       "block": 16255506
+    },
+    {
+      "dolaBadDebt": 11126481.530823955,
+      "dolaBorrowed": 11572752.22258697,
+      "dolaBadDebtClassic": 9963328.46937368,
+      "block": 16277692
+    },
+    {
+      "dolaBadDebt": 11137209.034695113,
+      "dolaBorrowed": 11581976.364512676,
+      "dolaBadDebtClassic": 9966011.42088155,
+      "block": 16330805
+    },
+    {
+      "dolaBadDebt": 11119917.268433984,
+      "dolaBorrowed": 11565107.622373393,
+      "dolaBadDebtClassic": 9965198.633508462,
+      "block": 16354644
     },
     {
       "dolaBadDebt": 11148645.100719895,
@@ -274,10 +1510,40 @@ export const DOLA_FRONTIER_DEBT_V2 = [
       "block": 16400813
     },
     {
+      "dolaBadDebt": 10825899.155876894,
+      "dolaBorrowed": 11529794.816489212,
+      "dolaBadDebtClassic": 9826048.3024347,
+      "block": 16401523
+    },
+    {
+      "dolaBadDebt": 10828363.135152034,
+      "dolaBorrowed": 11526243.110087125,
+      "dolaBadDebtClassic": 9827056.390998902,
+      "block": 16401568
+    },
+    {
+      "dolaBadDebt": 10832605.008109417,
+      "dolaBorrowed": 11524462.000763822,
+      "dolaBadDebtClassic": 9837093.297175247,
+      "block": 16434856
+    },
+    {
       "dolaBadDebt": 10809371.048859837,
       "dolaBorrowed": 11519209.644499786,
       "dolaBadDebtClassic": 9794530.648252178,
       "block": 16450731
+    },
+    {
+      "dolaBadDebt": 11011341.348159406,
+      "dolaBorrowed": 11529031.769545645,
+      "dolaBadDebtClassic": 9783016.862443922,
+      "block": 16507558
+    },
+    {
+      "dolaBadDebt": 11011344.084954519,
+      "dolaBorrowed": 11529032.288893592,
+      "dolaBadDebtClassic": 9783017.328729318,
+      "block": 16507561
     },
     {
       "dolaBadDebt": 11004106.726683695,
@@ -298,10 +1564,22 @@ export const DOLA_FRONTIER_DEBT_V2 = [
       "block": 16600845
     },
     {
+      "dolaBadDebt": 11087911.210764255,
+      "dolaBorrowed": 11521626.87084739,
+      "dolaBadDebtClassic": 9813436.749649376,
+      "block": 16618902
+    },
+    {
       "dolaBadDebt": 11022658.72433349,
       "dolaBorrowed": 11479918.630951274,
       "dolaBadDebtClassic": 9708100.121482559,
       "block": 16667073
+    },
+    {
+      "dolaBadDebt": 11030442.91355493,
+      "dolaBorrowed": 11482453.57987598,
+      "dolaBadDebtClassic": 9702561.437027074,
+      "block": 16687547
     },
     {
       "dolaBadDebt": 11015947.064567782,
@@ -310,10 +1588,88 @@ export const DOLA_FRONTIER_DEBT_V2 = [
       "block": 16700672
     },
     {
+      "dolaBadDebt": 11053525.166830085,
+      "dolaBorrowed": 11471068.249666154,
+      "dolaBadDebtClassic": 9689316.885198852,
+      "block": 16740697
+    },
+    {
+      "dolaBadDebt": 11053527.838598004,
+      "dolaBorrowed": 11470271.510453854,
+      "dolaBadDebtClassic": 9689319.723029315,
+      "block": 16740716
+    },
+    {
+      "dolaBadDebt": 11053073.40073879,
+      "dolaBorrowed": 11469275.800367452,
+      "dolaBadDebtClassic": 9688693.92587882,
+      "block": 16740741
+    },
+    {
+      "dolaBadDebt": 11053080.550188463,
+      "dolaBorrowed": 11467601.755643744,
+      "dolaBadDebtClassic": 9688701.776953295,
+      "block": 16740794
+    },
+    {
+      "dolaBadDebt": 11053083.271848202,
+      "dolaBorrowed": 11464915.909285784,
+      "dolaBadDebtClassic": 9688704.613966838,
+      "block": 16740813
+    },
+    {
+      "dolaBadDebt": 11053087.573509168,
+      "dolaBorrowed": 11461734.572958913,
+      "dolaBadDebtClassic": 9688708.346550317,
+      "block": 16740838
+    },
+    {
+      "dolaBadDebt": 11053090.273836203,
+      "dolaBorrowed": 11458889.125107136,
+      "dolaBadDebtClassic": 9688711.34060593,
+      "block": 16740858
+    },
+    {
+      "dolaBadDebt": 11053097.22575236,
+      "dolaBorrowed": 11453917.595202904,
+      "dolaBadDebtClassic": 9688716.861100873,
+      "block": 16740895
+    },
+    {
+      "dolaBadDebt": 11053746.288931798,
+      "dolaBorrowed": 11448423.5839618,
+      "dolaBadDebtClassic": 9688723.544687118,
+      "block": 16740930
+    },
+    {
+      "dolaBadDebt": 11053752.58110721,
+      "dolaBorrowed": 11442070.199234346,
+      "dolaBadDebtClassic": 9688726.82488391,
+      "block": 16740952
+    },
+    {
+      "dolaBadDebt": 11053763.445163138,
+      "dolaBorrowed": 11440783.232965276,
+      "dolaBadDebtClassic": 9688941.72294541,
+      "block": 16741010
+    },
+    {
       "dolaBadDebt": 11001532.054502267,
       "dolaBorrowed": 11382190.01464521,
       "dolaBadDebtClassic": 9637828.023978105,
       "block": 16749886
+    },
+    {
+      "dolaBadDebt": 11034230.51381027,
+      "dolaBorrowed": 11390521.837417595,
+      "dolaBadDebtClassic": 9725279.131528007,
+      "block": 16811648
+    },
+    {
+      "dolaBadDebt": 11032130.928619726,
+      "dolaBorrowed": 11388414.492947228,
+      "dolaBadDebtClassic": 9725288.708979528,
+      "block": 16811711
     },
     {
       "dolaBadDebt": 10969557.574795432,
@@ -328,6 +1684,12 @@ export const DOLA_FRONTIER_DEBT_V2 = [
       "block": 16856037
     },
     {
+      "dolaBadDebt": 10935043.69500924,
+      "dolaBorrowed": 11293693.914089631,
+      "dolaBadDebtClassic": 9505318.086445883,
+      "block": 16895254
+    },
+    {
       "dolaBadDebt": 10872373.194250017,
       "dolaBorrowed": 11233620.611993238,
       "dolaBadDebtClassic": 9446530.373136472,
@@ -338,6 +1700,18 @@ export const DOLA_FRONTIER_DEBT_V2 = [
       "dolaBorrowed": 11197527.455948018,
       "dolaBadDebtClassic": 9405377.81364827,
       "block": 16955050
+    },
+    {
+      "dolaBadDebt": 10732558.659212029,
+      "dolaBorrowed": 10881765.251384445,
+      "dolaBadDebtClassic": 9309350.00430793,
+      "block": 16990636
+    },
+    {
+      "dolaBadDebt": 10732677.90708896,
+      "dolaBorrowed": 10892169.671334686,
+      "dolaBadDebtClassic": 9293254.27651714,
+      "block": 17056703
     },
     {
       "dolaBadDebt": 10558818.222254854,
@@ -364,9 +1738,261 @@ export const DOLA_FRONTIER_DEBT_V2 = [
       "block": 17284658
     },
     {
+      "dolaBadDebt": 10452146.368959377,
+      "dolaBorrowed": 10662171.310896454,
+      "dolaBadDebtClassic": 9109069.831491597,
+      "block": 17313982
+    },
+    {
+      "dolaBadDebt": 10560263.780986926,
+      "dolaBorrowed": 10694481.783734921,
+      "dolaBadDebtClassic": 9119932.56671607,
+      "block": 17527605
+    },
+    {
+      "dolaBadDebt": 10555599.288487246,
+      "dolaBorrowed": 10694738.479915367,
+      "dolaBadDebtClassic": 9105204.567156196,
+      "block": 17533554
+    },
+    {
+      "dolaBadDebt": 10554752.299763832,
+      "dolaBorrowed": 10693940.278369725,
+      "dolaBadDebtClassic": 9105315.923494058,
+      "block": 17533988
+    },
+    {
+      "dolaBadDebt": 10554990.672877671,
+      "dolaBorrowed": 10693992.618745381,
+      "dolaBadDebtClassic": 9105317.224938823,
+      "block": 17534332
+    },
+    {
+      "dolaBadDebt": 10474087.759899309,
+      "dolaBorrowed": 10610410.589366637,
+      "dolaBadDebtClassic": 9092557.450205628,
+      "block": 17592945
+    },
+    {
+      "dolaBadDebt": 10209019.289190479,
+      "dolaBorrowed": 10351468.145102944,
+      "dolaBadDebtClassic": 8825193.32494004,
+      "block": 17613355
+    },
+    {
+      "dolaBadDebt": 10207859.68075831,
+      "dolaBorrowed": 10350181.479790106,
+      "dolaBadDebtClassic": 8823093.26919431,
+      "block": 17616183
+    },
+    {
+      "dolaBadDebt": 10207170.727933392,
+      "dolaBorrowed": 10349489.883183343,
+      "dolaBadDebtClassic": 8822934.387105756,
+      "block": 17616185
+    },
+    {
+      "dolaBadDebt": 9964985.436159885,
+      "dolaBorrowed": 10103367.373404961,
+      "dolaBadDebtClassic": 8582053.637597049,
+      "block": 17643376
+    },
+    {
+      "dolaBadDebt": 9967328.026061017,
+      "dolaBorrowed": 10105488.75731871,
+      "dolaBadDebtClassic": 8584671.43509547,
+      "block": 17658978
+    },
+    {
+      "dolaBadDebt": 9967420.652307244,
+      "dolaBorrowed": 10106827.659424325,
+      "dolaBadDebtClassic": 8582034.289498556,
+      "block": 17668821
+    },
+    {
+      "dolaBadDebt": 9962919.110174036,
+      "dolaBorrowed": 10109476.59973456,
+      "dolaBadDebtClassic": 8576119.73207113,
+      "block": 17688293
+    },
+    {
+      "dolaBadDebt": 9962962.044154681,
+      "dolaBorrowed": 10109491.978966372,
+      "dolaBadDebtClassic": 8576181.582659682,
+      "block": 17688406
+    },
+    {
+      "dolaBadDebt": 9774055.541265264,
+      "dolaBorrowed": 9884262.00281392,
+      "dolaBadDebtClassic": 8619901.734916367,
+      "block": 18037785
+    },
+    {
+      "dolaBadDebt": 9774055.541265264,
+      "dolaBorrowed": 9884262.00281392,
+      "dolaBadDebtClassic": 8619901.734916367,
+      "block": 18037785
+    },
+    {
+      "dolaBadDebt": 9807528.288964089,
+      "dolaBorrowed": 9898277.003942437,
+      "dolaBadDebtClassic": 8627721.707561033,
+      "block": 18147561
+    },
+    {
+      "dolaBadDebt": 9816861.80198498,
+      "dolaBorrowed": 9903555.140033927,
+      "dolaBadDebtClassic": 8634815.590708889,
+      "block": 18187996
+    },
+    {
+      "dolaBadDebt": 9801198.349151509,
+      "dolaBorrowed": 9915062.509963648,
+      "dolaBadDebtClassic": 8638165.239234537,
+      "block": 18276738
+    },
+    {
+      "dolaBadDebt": 9805111.343706546,
+      "dolaBorrowed": 9917599.928537056,
+      "dolaBadDebtClassic": 8639488.328185303,
+      "block": 18296112
+    },
+    {
+      "dolaBadDebt": 9807304.407461066,
+      "dolaBorrowed": 9915160.313857678,
+      "dolaBadDebtClassic": 8641853.465911236,
+      "block": 18315751
+    },
+    {
+      "dolaBadDebt": 9807304.407461066,
+      "dolaBorrowed": 9915160.313857678,
+      "dolaBadDebtClassic": 8641853.465911236,
+      "block": 18315751
+    },
+    {
+      "dolaBadDebt": 9807304.407461066,
+      "dolaBorrowed": 9915160.313857678,
+      "dolaBadDebtClassic": 8641853.465911236,
+      "block": 18315751
+    },
+    {
+      "dolaBadDebt": 9806878.453902576,
+      "dolaBorrowed": 9919142.557437794,
+      "dolaBadDebtClassic": 8648856.502995165,
+      "block": 18346186
+    },
+    {
+      "dolaBadDebt": 9806879.030688107,
+      "dolaBorrowed": 9919156.400921851,
+      "dolaBadDebtClassic": 8648869.07402013,
+      "block": 18346293
+    },
+    {
+      "dolaBadDebt": 9806862.971407376,
+      "dolaBorrowed": 9919161.700714277,
+      "dolaBadDebtClassic": 8648873.878771972,
+      "block": 18346334
+    },
+    {
+      "dolaBadDebt": 9806821.66166689,
+      "dolaBorrowed": 9919901.68712431,
+      "dolaBadDebtClassic": 8650509.42089824,
+      "block": 18352073
+    },
+    {
+      "dolaBadDebt": 9809735.605258398,
+      "dolaBorrowed": 9920821.69007743,
+      "dolaBadDebtClassic": 8648366.812730601,
+      "block": 18359225
+    },
+    {
+      "dolaBadDebt": 9825132.724750105,
+      "dolaBorrowed": 9929351.731208554,
+      "dolaBadDebtClassic": 8646217.305389512,
+      "block": 18442128
+    },
+    {
+      "dolaBadDebt": 8828499.665943535,
+      "dolaBorrowed": 8928014.958101412,
+      "dolaBadDebtClassic": 7643997.286483578,
+      "block": 18463923
+    },
+    {
+      "dolaBadDebt": 8831994.36763563,
+      "dolaBorrowed": 8930853.619587531,
+      "dolaBadDebtClassic": 7646794.31921068,
+      "block": 18491221
+    },
+    {
+      "dolaBadDebt": 8590577.294952875,
+      "dolaBorrowed": 8722940.133514583,
+      "dolaBadDebtClassic": 7433123.676802974,
+      "block": 18684157
+    },
+    {
+      "dolaBadDebt": 8568864.246060835,
+      "dolaBorrowed": 8705969.819598507,
+      "dolaBadDebtClassic": 7427997.089671884,
+      "block": 18721095
+    },
+    {
+      "dolaBadDebt": 8575924.17925349,
+      "dolaBorrowed": 8709062.747968854,
+      "dolaBadDebtClassic": 7432537.7632137,
+      "block": 18786728
+    },
+    {
+      "dolaBadDebt": 8615561.455601322,
+      "dolaBorrowed": 8739123.991755791,
+      "dolaBadDebtClassic": 7459176.673322439,
+      "block": 19090141
+    },
+    {
+      "dolaBadDebt": 8615920.07899513,
+      "dolaBorrowed": 8731793.176470222,
+      "dolaBadDebtClassic": 7449747.063354347,
+      "block": 19172293
+    },
+    {
+      "dolaBadDebt": 8582765.744435113,
+      "dolaBorrowed": 8710519.436861964,
+      "dolaBadDebtClassic": 7424391.941779673,
+      "block": 19328644
+    },
+    {
+      "dolaBadDebt": 8539972.475635769,
+      "dolaBorrowed": 8693109.442840982,
+      "dolaBadDebtClassic": 7406157.395949525,
+      "block": 19373182
+    },
+    {
+      "dolaBadDebt": 8481787.502202215,
+      "dolaBorrowed": 8647959.194248216,
+      "dolaBadDebtClassic": 7359792.20413738,
+      "block": 19436550
+    },
+    {
+      "dolaBadDebt": 8369939.212725472,
+      "dolaBorrowed": 8579713.265895097,
+      "dolaBadDebtClassic": 7290190.981559247,
+      "block": 19546672
+    },
+    {
+      "dolaBadDebt": 8364597.9248851435,
+      "dolaBorrowed": 8574474.498783918,
+      "dolaBadDebtClassic": 7284829.264766944,
+      "block": 19554381
+    },
+    {
+      "dolaBadDebt": 8278598.300931222,
+      "dolaBorrowed": 8488474.88240269,
+      "dolaBadDebtClassic": 7198829.5908091515,
+      "block": 19554385
+    },
+    {
       "dolaBadDebt": 8302341.545077696,
       "dolaBorrowed": 8488491.33473505,
       "dolaBadDebtClassic": 7199231.164862196,
       "block": 19723682
     }
-  ];
+  ]
