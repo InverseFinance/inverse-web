@@ -22,7 +22,7 @@ const RWG = '0xE3eD95e130ad9E15643f5A5f232a3daE980784cd';
 const DBR_AUCTION_REPAYMENT_HANDLER = '0xB4497A7351e4915182b3E577B3A2f411FA66b27f';
 
 const frontierBadDebtEvoCacheKey = 'dola-frontier-evo-v1.0.x';
-const frontierBadDebtEvoCacheKeyNext = 'dola-frontier-evo-v1.1.x';
+const frontierBadDebtEvoCacheKeyNext = 'dola-frontier-evo-v2.0.x';
 export const repaymentsCacheKey = `repayments-v1.0.97`;
 
 const { DEBT_CONVERTER, DEBT_REPAYER } = getNetworkConfigConstants();
@@ -35,14 +35,13 @@ export default async function handler(req, res) {
 
     try {
         res.setHeader('Cache-Control', `public, max-age=${60}`);        
-        const validCache = await getCacheFromRedis(repaymentsCacheKey, cacheFirst !== 'true', ONE_DAY_SECS);        
-        const frontierShortfalls = await getCacheFromRedis(frontierShortfallsKey, false, 99999, true);
+        const validCache = await getCacheFromRedis(repaymentsCacheKey, cacheFirst !== 'true', ONE_DAY_SECS);                
         if (validCache && !ignoreCache) {
             res.status(200).json(UNDERLYING);
             return
         }
         
-        // const frontierShortfalls = await getCacheFromRedis(frontierShortfallsKey, false, 99999, true);        
+        const frontierShortfalls = await getCacheFromRedis(frontierShortfallsKey, false, 99999, true);        
         const badDebts = {};
         const repayments = { iou: 0 };
 
@@ -402,7 +401,7 @@ const getBadDebtEvolution = async (repaymentBlocks: number[]) => {
         'allSettled',
     );
 
-    const summary = blocks.map((block, i) => {
+    const newData = blocks.map((block, i) => {
         const hasData = results[i]?.status === 'fulfilled';
         return {
             dolaBadDebt: hasData ? results[i]?.value.positionDetails.reduce((acc, pos) => acc + pos.dolaBadDebt, 0) : null,
@@ -413,8 +412,8 @@ const getBadDebtEvolution = async (repaymentBlocks: number[]) => {
     }).filter(d => d.dolaBadDebt !== null);
 
     const resultData = {
-        totals: pastData?.totals.concat(newTotals),                
-        blocks: pastData?.blocks.concat(blocks),
+        totals: pastData?.map(p => p.dolaBadDebt).concat(newData.map(d => d.dolaBadDebt)),
+        blocks: pastData?.map(p => p.block).concat(newData.map(d => d.block)),
         timestamp: Date.now(),
     }
     await redisSetWithTimestamp(frontierBadDebtEvoCacheKeyNext, resultData);
