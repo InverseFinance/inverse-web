@@ -37,7 +37,7 @@ export default async function handler(req, res) {
         res.setHeader('Cache-Control', `public, max-age=${60}`);        
         const validCache = await getCacheFromRedis(repaymentsCacheKey, cacheFirst !== 'true', ONE_DAY_SECS);                
         if (validCache && !ignoreCache) {
-            res.status(200).json(UNDERLYING);
+            res.status(200).json(validCache);
             return
         }
         
@@ -116,7 +116,7 @@ export default async function handler(req, res) {
             // getCacheFromRedis(fedOverviewCacheKey, false),
             // iou holders
             getTokenHolders(DEBT_CONVERTER, 100, 0, '1'),
-        ]);            
+        ]);    
         // const fedOverviews = fedsOverviewData?.fedOverviews || [];
         // const nonFrontierDolaBadDebt = fedOverviews
         //     .filter(({ name }) => ['Badger Fed', '0xb1 Fed', 'AuraEuler Fed'].includes(name))
@@ -210,7 +210,7 @@ export default async function handler(req, res) {
         });
         
         // get and save histo prices
-        const histoPrices = await getCacheFromRedis(histoPricesCacheKey, false) || HISTO_PRICES;        
+        const histoPrices = await getCacheFromRedis(histoPricesCacheKey, false) || HISTO_PRICES;
         
         const [dolaPrices, wbtcPrices, ethPrices, yfiPrices] = await Promise.all([
             getHistoPrices('dola-usd', totalDolaRepaidByDAO.concat(dolaForIOUsRepaidByDAO).map(d => d.timestamp), histoPrices),
@@ -379,8 +379,8 @@ const getBadDebtEvolution = async (repaymentBlocks: number[]) => {
 
     const currentBlock = await provider.getBlockNumber();
 
-    const pastData = await getCacheFromRedis(frontierBadDebtEvoCacheKeyNext, false, 3600) || DOLA_FRONTIER_DEBT_V2;
-    const newBlocks = [...repaymentBlocks, currentBlock].filter(block => block > pastData.blocks[pastData.blocks.length - 1]);
+    const pastData = await getCacheFromRedis(frontierBadDebtEvoCacheKeyNext, false, 3600) || DOLA_FRONTIER_DEBT_V2;        
+    const newBlocks = [...repaymentBlocks, currentBlock].filter(block => block > pastData.blocks[pastData.blocks.length - 1]);    
     const blocks = [...new Set(newBlocks)].sort((a, b) => a - b);
 
     if (!blocks.length) {
@@ -393,6 +393,7 @@ const getBadDebtEvolution = async (repaymentBlocks: number[]) => {
                 pageOffset: 0,
                 pageSize: 2000,
                 blockNumber: block,
+                useShortlist: true,
             });
         },
         blocks,
@@ -412,8 +413,8 @@ const getBadDebtEvolution = async (repaymentBlocks: number[]) => {
     }).filter(d => d.dolaBadDebt !== null);
 
     const resultData = {
-        totals: pastData?.map(p => p.dolaBadDebt).concat(newData.map(d => d.dolaBadDebt)),
-        blocks: pastData?.map(p => p.block).concat(newData.map(d => d.block)),
+        totals: pastData?.totals.concat(newData.map(d => d.dolaBadDebt)),
+        blocks: pastData?.blocks.concat(newData.map(d => d.block)),
         timestamp: Date.now(),
     }
     await redisSetWithTimestamp(frontierBadDebtEvoCacheKeyNext, resultData);
