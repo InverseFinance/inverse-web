@@ -14,7 +14,7 @@ import { getLPBalances, getLPPrice, getPoolRewards } from '@app/util/contracts';
 import { CHAIN_TOKENS } from '@app/variables/tokens';
 import { pricesCacheKey } from '../prices';
 
-const { FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { FEDS, ANCHOR_DOLA } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const FUSE_CTOKENS = {
   '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664': '0xf65155C9595F99BFC193CaFF0AAb6e2a98cf68aE',
@@ -44,6 +44,7 @@ export default async function handler(req, res) {
     const prices = (await getCacheFromRedis(pricesCacheKey, false)) || {};
 
     const provider = getProvider(NetworkIds.mainnet);
+    const anDolaContract = new Contract(ANCHOR_DOLA, CTOKEN_ABI, provider);
 
     const [
       _fedsData,
@@ -51,6 +52,7 @@ export default async function handler(req, res) {
       firmTvlData,
       firmMarketsData,
       _multisigData,
+      anDolaBorrows,
       fuseDolaBorrowsBn,
       lpBalancesBn,
       lpSupplyBn,
@@ -63,6 +65,7 @@ export default async function handler(req, res) {
       getCacheFromRedis(firmTvlCacheKey, false),
       getCacheFromRedis(F2_MARKETS_CACHE_KEY, false),
       getCacheFromRedis(cacheMultisigDataKey, false),
+      anDolaContract.totalBorrows(),
       Promise.all(
         FUSE_FEDS.map(fuseFed => {
           const contract = new Contract(fuseFed.ctoken, CTOKEN_ABI, provider);
@@ -143,7 +146,7 @@ export default async function handler(req, res) {
       if (fedConfig.address === '0x5E075E40D01c82B6Bf0B0ecdb4Eb1D6984357EF7') {
         const market = frontierMarkets.find(m => m.underlying.symbol === 'DOLA')
         tvl = market?.supplied || 0;
-        borrows = market?.totalBorrows || 0;
+        borrows = getBnToNumber(anDolaBorrows);
         detailsLink = 'https://lookerstudio.google.com/embed/u/0/reporting/cb58a483-78a0-4f08-9625-25ea42a2bd12/page/p_e7r2kvhhtc'
         detailsLinkName = 'Analytics'
       } else if (fedConfig.isFirm) {
