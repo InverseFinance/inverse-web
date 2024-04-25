@@ -57,7 +57,7 @@ export const ShortfallsPage = () => {
           </Container> */}
           <Container
             noPadding
-            label={`DOLA bad debt`}
+            label={`DOLA bad debt in Frontier`}
           >
             <VStack alignItems="flex-start">
               {/* <HStack>

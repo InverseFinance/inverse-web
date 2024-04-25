@@ -577,7 +577,7 @@ export const BadDebtPage = () => {
           // href={'https://docs.inverse.finance/inverse-finance/inverse-finance/other/frontier'}
           >
             <Table
-              items={items}
+              items={items.filter(item => item.symbol !== 'xSUSHI')}
               columns={columns}
               enableMobileRender={false}
               keyName="symbol"
@@ -603,7 +603,7 @@ export const BadDebtPage = () => {
             }
           >
             <Table
-              items={indirectItems}
+              items={indirectItems.filter(item => item.symbol !== 'xSUSHI')}
               columns={indirectRepaymentsColumns}
               enableMobileRender={false}
               showTotalRow={true}
