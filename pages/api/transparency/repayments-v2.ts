@@ -43,7 +43,7 @@ export default async function handler(req, res) {
         const badDebts = {};
         const repayments = { iou: 0 };
 
-        const provider = getProvider(1);        
+        const provider = getProvider(1);
         frontierShortfalls.positions
             .filter(({ liquidShortfall, usdBorrowed }) => liquidShortfall > 0 && usdBorrowed > 0)
             .forEach(position => {
@@ -65,7 +65,8 @@ export default async function handler(req, res) {
                     badDebts[symbol].badDebtBalance += balance;
                     badDebts[symbol].frontierBadDebtBalance += balance;
                 });
-            });            
+            });        
+    
         const debtConverter = new Contract(DEBT_CONVERTER, DEBT_CONVERTER_ABI, provider);
         const debtRepayer = new Contract(DEBT_REPAYER, DEBT_REPAYER_ABI, provider);
         const dwfOtc = new Contract(DWF_PURCHASER, DWF_PURCHASER_ABI, provider);

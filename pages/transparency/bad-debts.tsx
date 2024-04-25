@@ -21,6 +21,7 @@ import { Timestamp } from '@app/components/common/BlockTimestamp/Timestamp'
 import { SkeletonBlob } from '@app/components/common/Skeleton'
 import { lightTheme } from '@app/variables/theme'
 import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader'
+import { InfoMessage } from '@app/components/common/Messages'
 
 const ColHeader = ({ ...props }) => {
   return <Flex justify="center" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -505,7 +506,8 @@ export const BadDebtPage = () => {
                   barProps={{ eventName: 'Repayment' }}
                   areaProps={{ id: 'bad-debt-chart', showRangeBtns: true, defaultRange: '1Y', rangesToInclude: ['All', 'YTD', '1Y', '6M', '3M', '7D'], yLabel: 'DOLA bad debt', useRecharts: true, fillInByDayInterval: 1, simplifyData: false, showEvents: true, showEventsLabels: true, domainYpadding: 1000000, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
                 />
-              </VStack>
+                <InfoMessage alertProps={{ w: 'full' }} description="Note: calculation is now using a more accurate off-chain method rather than the on-chain Comptroller shortfall calculation" />
+              </VStack>              
             </Container>
             <Container
               noPadding
