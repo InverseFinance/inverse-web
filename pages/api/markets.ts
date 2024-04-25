@@ -14,13 +14,13 @@ import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks'
 import { StringNumMap } from '@app/types';
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
-import { getBnToNumber, getPoolYield, getStethData, getXSushiData, getYearnVaults, toApr, toApy } from '@app/util/markets';
+import { getBnToNumber, getPoolYield, getStethData, getXSushiData, toApr, toApy } from '@app/util/markets';
 import { REPAY_ALL_CONTRACTS } from '@app/variables/tokens';
 import { getGroupedMulticallOutputs } from "@app/util/multicall";
 
 const NB_DAYS_MONTH = 365/12;
 
-export const frontierMarketsCacheKey = `1-markets-cache-v1.4.5`;
+export const frontierMarketsCacheKey = `1-markets-cache-v1.4.6`;
 
 export default async function handler(req, res) {
   const { cacheFirst } = req.query;
@@ -142,14 +142,13 @@ export default async function handler(req, res) {
     });
 
     // external yield bearing apys
-    const externalYieldResults = await Promise.allSettled([
-      getYearnVaults(),
+    const externalYieldResults = await Promise.allSettled([      
       getStethData(),
       getXSushiData(),
       getPoolYield('a6aee229-3a38-47a1-a664-d142a4184ec9'),
     ]);
 
-    const [yearnVaults, stethData, xSushiData, dola3poolYield] = externalYieldResults.map(r => {
+    const [stethData, xSushiData, dola3poolYield] = externalYieldResults.map(r => {
       return r.status === 'fulfilled' ? r.value : {};
     });
 
@@ -168,10 +167,6 @@ export default async function handler(req, res) {
 
       const utilisationRate = borrows === 0 ? 0 : borrows / (liquidity + borrows - reserves)
 
-      const yearnVaultApy = underlying.symbol.startsWith('yv') ?
-        yearnVaults?.find(v => v.address.toLowerCase() === underlying.address.toLowerCase())?.apy?.net_apy
-        : 0;
-
       const externalApy = externalApys[underlying.symbol] || 0;
 
       const isEthMarket = !underlying.address;
@@ -179,7 +174,7 @@ export default async function handler(req, res) {
       return {
         token: address,
         underlying,
-        supplyApy: supplyApys[i] + (((yearnVaultApy||0) * 100) || externalApy || 0),
+        supplyApy: supplyApys[i] + (externalApy || 0),
         borrowApy: borrowApys[i] || 0,
         supplyApr: supplyAprs[i] || 0,
         borrowApr: borrowAprs[i] || 0,
@@ -256,7 +251,7 @@ export default async function handler(req, res) {
       await addXINV(XINV, ESCROW, true);
     }
 
-    const resultData = { markets };
+    const resultData = { timestamp: Date.now(), markets };
 
     await redisSetWithTimestamp(frontierMarketsCacheKey, resultData);
     res.status(200).json(resultData);
