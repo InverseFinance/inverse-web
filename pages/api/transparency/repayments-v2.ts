@@ -21,16 +21,14 @@ const TREASURY = '0x926dF14a23BE491164dCF93f4c468A50ef659D5B';
 const RWG = '0xE3eD95e130ad9E15643f5A5f232a3daE980784cd';
 const DBR_AUCTION_REPAYMENT_HANDLER = '0xB4497A7351e4915182b3E577B3A2f411FA66b27f';
 
-const frontierBadDebtEvoCacheKey = 'dola-frontier-evo-v1.0.x';
-const frontierBadDebtEvoCacheKeyNext = 'dola-frontier-evo-v2.0.x';
-export const repaymentsCacheKey = `repayments-v1.0.97`;
+const frontierBadDebtEvoCacheKey = 'dola-frontier-evo-v2.0.x';
+export const repaymentsCacheKey = `repayments-v2.0.0`;
 
 const { DEBT_CONVERTER, DEBT_REPAYER } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
-    const { cacheFirst, ignoreCache } = req.query;
-    // defaults to mainnet data if unsupported network    
-    const frontierShortfallsKey = `1-positions-v1.2.0`;
+    const { cacheFirst, ignoreCache } = req.query;    
+    const frontierShortfallsKey = `frontier-positions-v2`;
     const histoPricesCacheKey = `historic-prices-v1.0.4`;
 
     try {
@@ -41,7 +39,7 @@ export default async function handler(req, res) {
             return
         }
         
-        const frontierShortfalls = await getCacheFromRedis(frontierShortfallsKey, false, 99999, true);        
+        const frontierShortfalls = await getCacheFromRedis(frontierShortfallsKey, false, 99999);        
         const badDebts = {};
         const repayments = { iou: 0 };
 
@@ -379,7 +377,7 @@ const getBadDebtEvolution = async (repaymentBlocks: number[]) => {
 
     const currentBlock = await provider.getBlockNumber();
 
-    const pastData = await getCacheFromRedis(frontierBadDebtEvoCacheKeyNext, false, 3600) || DOLA_FRONTIER_DEBT_V2;        
+    const pastData = await getCacheFromRedis(frontierBadDebtEvoCacheKey, false, 3600) || DOLA_FRONTIER_DEBT_V2;        
     const newBlocks = [...repaymentBlocks, currentBlock].filter(block => block > pastData.blocks[pastData.blocks.length - 1]);    
     const blocks = [...new Set(newBlocks)].sort((a, b) => a - b);
 
@@ -393,7 +391,7 @@ const getBadDebtEvolution = async (repaymentBlocks: number[]) => {
                 pageOffset: 0,
                 pageSize: 2000,
                 blockNumber: block,
-                useShortlist: true,
+                useDolaShortlist: true,
             });
         },
         blocks,
@@ -417,7 +415,7 @@ const getBadDebtEvolution = async (repaymentBlocks: number[]) => {
         blocks: pastData?.blocks.concat(newData.map(d => d.block)),
         timestamp: Date.now(),
     }
-    await redisSetWithTimestamp(frontierBadDebtEvoCacheKeyNext, resultData);
+    await redisSetWithTimestamp(frontierBadDebtEvoCacheKey, resultData);
     return resultData;
 }
 
