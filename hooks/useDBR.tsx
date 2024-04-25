@@ -380,7 +380,7 @@ export const useDBR = (): {
   historicalData: CoingeckoHistoricalData,
   isLoading: boolean,
 } => {
-  const { data: apiData, isLoading } = useCustomSWR(`/api/dbr?withExtra=true`, fetcher);
+  const { data: apiData, isLoading } = useCustomSWR(`/api/dbr?v=2&withExtra=true`, fetcher);
   const { priceUsd: livePrice, priceDola } = useDBRPriceLive();
 
   const { data: extraData } = useEtherSWR([
