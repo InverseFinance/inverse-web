@@ -40,7 +40,7 @@ export const getCombineCgAndCurveDbrPrices = async (provider: Web3Provider, past
   return {
     blocks: (pastData?.blocks||[]).concat(newBlocks),
     // [timestamp, price][] format
-    prices: (pastData?.prices||DBR_CG_HISTO_PRICES).concat(crvPrices.map(((crvPrice, i) => [timestamps[CHAIN_ID][newBlocks[i]] * 1000, crvPrice] ))),
+    prices: (pastData?.prices||DBR_CG_HISTO_PRICES).concat(crvPrices.map(((crvPrice, i) => [timestamps[CHAIN_ID][newBlocks[i]] * 1000, crvPrice] ))).filter(p => p[0] !== null),
   };
 }
 
@@ -79,8 +79,8 @@ const getHistoPrices = async (contract: Contract, blocks: number[]) => {
   return values;
 }
 
-export const DBR_EXTRA_CACHE_KEY = `dbr-cache-extra-v1.0.7`
-export const DBR_CACHE_KEY = `dbr-cache-v1.0.7`
+export const DBR_EXTRA_CACHE_KEY = `dbr-cache-extra-v1.0.8`
+export const DBR_CACHE_KEY = `dbr-cache-v1.0.8`
 
 export default async function handler(req, res) {
   const withExtra = req.query.withExtra === 'true';
