@@ -1,28 +1,18 @@
 import "source-map-support";
-import { getNetworkConfig } from '@app/util/networks';
-import { getCacheFromRedis, getRedisClient, redisSetWithTimestamp } from '@app/util/redis';
+import { getCacheFromRedis } from '@app/util/redis';
+import { ONE_DAY_SECS } from "@app/config/constants";
 
 export default async function handler(req, res) { 
     const cacheKey = `frontier-positions-v2`;
 
     try {
-        const cacheDuration = 600;
+        const cacheDuration = ONE_DAY_SECS;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-        const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
+        const validCache = await getCacheFromRedis(cacheKey, false, cacheDuration);
         if(validCache) {
-          res.status(200).json(validCache);
+          res.status(200).json({ ...validCache.meta, ...validCache });
           return
-        }         
-
-        const { meta, positionDetails: positions } = validCache;
-
-        const resultData = {
-            ...meta,
-            nbPositions: positions.length,
-            positions: positions,
-        };
-
-        res.status(200).json(resultData);
+        }
     } catch (err) {
         console.error(err);
         // if an error occured, try to return last cached results
