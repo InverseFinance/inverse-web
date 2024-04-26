@@ -17,6 +17,8 @@ import { InfoMessage, ShrinkableInfoMessage } from '@app/components/common/Messa
 import Link from '@app/components/common/Link'
 import { DolaMoreInfos } from '@app/components/Transparency/DolaMoreInfos'
 import { DolaSupplies } from '@app/components/common/Dataviz/DolaSupplies'
+import { useRepayments } from '@app/hooks/useRepayments'
+import { shortenNumber } from '@app/util/markets'
 
 const LEGEND_ITEMS = [
   {
@@ -56,6 +58,7 @@ export const DolaDiagram = () => {
   const { dolaSupplies } = useDAO();
   const { markets, isLoading } = useDBRMarkets();
   const { fedOverviews, isLoading: isLoadingOverview } = useFedOverview();
+  const { data } = useRepayments();
   const { prices } = usePrices(['velodrome-finance']);
 
   const fedsPieChartData = fedOverviews.map(f => {
@@ -95,6 +98,10 @@ export const DolaDiagram = () => {
     .filter(slice => slice.name !== 'FiRM Fed')
     .concat(firmPieChartData);
 
+  const totalDolaBadDebt = data?.dolaBadDebtEvolution ? data.dolaBadDebtEvolution[data.dolaBadDebtEvolution.length - 1].badDebt : 0;
+  const totalCircSupply = fedsPieChartData.reduce((prev, curr) => prev + curr.sliceValue, 0);
+  const currentBacking = (totalCircSupply - totalDolaBadDebt) / totalCircSupply * 100;
+
   const commonProps = {
     dataKey: "sliceValue",
     nameKey: "sliceName",
@@ -132,12 +139,23 @@ export const DolaDiagram = () => {
             description={
               <VStack alignItems="flex-start">
                 <Text>DOLA is a decentralized stablecoin soft-pegged to the US Dollar. It is backed by a diversified set of assets, including liquidity positions on AMMs and isolated collaterals on FiRM. Even though it has some bad debt since April 2022, it is being repaid over time and it has operated at peg thanks to strong peg mechanisms.</Text>
-                <Link
-                  isExternal
-                  about="_blank"
-                  href={"https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola#dola-usd-peg-management"}>
-                  Learn more about peg management
-                </Link>
+                <Text>Current backing: {shortenNumber(currentBacking, 2)}%</Text>
+                <Stack direction={{ base: 'column', 'xl': 'row' }}>
+                  <Link
+                    textDecoration="underline"
+                    isExternal
+                    about="_blank"
+                    href={"https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola#dola-usd-peg-management"}>
+                    Learn more about peg management
+                  </Link>
+                  {/* <Link
+                    textDecoration="underline"
+                    isExternal
+                    about="_blank"
+                    href={"https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola#dola-usd-peg-management"}>
+                    See bad debt repayments
+                  </Link> */}
+                </Stack>
               </VStack>
             }
           />
@@ -147,7 +165,7 @@ export const DolaDiagram = () => {
               <FundsDetails
                 {...commonProps}
                 isLoading={isLoading}
-                funds={fedsPieChartData}            
+                funds={fedsPieChartData}
               />
             </DashBoardCard>
             <DashBoardCard cardTitle='Detailed DOLA backing sources'  {...dashboardCardProps}>
