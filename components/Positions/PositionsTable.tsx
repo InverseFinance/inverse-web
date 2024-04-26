@@ -157,7 +157,7 @@ const getColumns = () => {
         },
         {
             field: 'liquidShortfall',
-            label: 'Shortfall (liquid)',
+            label: 'Shortfall',
             header: ({ ...props }) => <Flex justify="start" {...props} minW="100px" />,
             value: ({ liquidShortfall }: AccountPositionDetailed) => {
                 const color = liquidShortfall > 0 ? 'error' : 'mainTextColor'
