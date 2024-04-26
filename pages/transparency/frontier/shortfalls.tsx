@@ -66,11 +66,11 @@ export const ShortfallsPage = () => {
               </HStack> */}
               <HStack>
                 <Text>- Shortfall in the Comptroller contract:</Text>
-                <Text fontWeight="bold">{preciseCommify(dolaBadDebtAsPerContract, 0)} DOLA</Text>
+                <Text fontWeight="bold">{dolaBadDebtAsPerContract ? preciseCommify(dolaBadDebtAsPerContract, 0)+ ' DOLA' : '-'}</Text>
               </HStack>
               <HStack>
                 <Text>- Shortfall accounting collaterals with no liquidity:</Text>
-                <Text fontWeight="bold">{preciseCommify(dolaBadDebtAccountingLiquidity, 0)} DOLA</Text>
+                <Text fontWeight="bold">{dolaBadDebtAccountingLiquidity ? preciseCommify(dolaBadDebtAccountingLiquidity, 0)+ ' DOLA' : '-'}</Text>
               </HStack>
             </VStack>
           </Container>
