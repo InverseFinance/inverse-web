@@ -14,6 +14,7 @@ export const FundsDetails = ({
     type = 'both',
     labelWithPercInChart = false,
     showAsAmountOnly = false,
+    asStable = false,
     totalLabel,
     description = '',
     isLoading,
@@ -30,6 +31,7 @@ export const FundsDetails = ({
     type?: 'both' | 'balance' | 'allowance',
     labelWithPercInChart?: boolean,
     showAsAmountOnly?: boolean,
+    asStable?: boolean,
     totalLabel?: string
     isLoading?: boolean
     useRecharts?: boolean
@@ -87,7 +89,7 @@ export const FundsDetails = ({
                     </Flex>
                 }
                 {
-                    data?.length && !isLoading && chartMode && <Funds chartProps={chartProps} leftSideMaxW={leftSideMaxW} isLoading={isLoading} totalLabel={totalLabel} showAsAmountOnly={showAsAmountOnly} type={type} minUsd={1} handleDrill={isDrilled ? undefined : handleDrill} prices={prices} funds={data} chartMode={true} useRecharts={useRecharts} showTotal={true} labelWithPercInChart={labelWithPercInChart} />
+                    data?.length && !isLoading && chartMode && <Funds chartProps={chartProps} leftSideMaxW={leftSideMaxW} isLoading={isLoading} totalLabel={totalLabel} showAsAmountOnly={showAsAmountOnly} asStable={asStable} type={type} minUsd={1} handleDrill={isDrilled ? undefined : handleDrill} prices={prices} funds={data} chartMode={true} useRecharts={useRecharts} showTotal={true} labelWithPercInChart={labelWithPercInChart} />
                 }
                 {
                     isLoading && <SkeletonBlob />
@@ -97,13 +99,13 @@ export const FundsDetails = ({
 
         <SlideFade in={!isDrilled} unmountOnExit={true}>
             <Stack fontSize="12px" spacing="2">
-                <Funds leftSideMaxW={leftSideMaxW} isLoading={isLoading} totalLabel={totalLabel} showAsAmountOnly={showAsAmountOnly} type={type} minUsd={1} prices={prices} funds={funds} showPrice={false} showTotal={false} />
+                <Funds leftSideMaxW={leftSideMaxW} isLoading={isLoading} totalLabel={totalLabel} showAsAmountOnly={showAsAmountOnly} asStable={asStable} type={type} minUsd={1} prices={prices} funds={funds} showPrice={false} showTotal={false} />
             </Stack>
         </SlideFade>
         {
             isAfterSlideEffect && <SlideFade in={isDrilled} unmountOnExit={true}>
                 <Stack fontSize="12px" spacing="2">
-                    <Funds leftSideMaxW={leftSideMaxW} isLoading={isLoading} totalLabel={totalLabel} showAsAmountOnly={showAsAmountOnly} type={type} minUsd={1} prices={prices} funds={data} showPrice={false} showTotal={false} />
+                    <Funds leftSideMaxW={leftSideMaxW} isLoading={isLoading} totalLabel={totalLabel} showAsAmountOnly={showAsAmountOnly} asStable={asStable} type={type} minUsd={1} prices={prices} funds={data} showPrice={false} showTotal={false} />
                 </Stack>
             </SlideFade>
         }

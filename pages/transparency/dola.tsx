@@ -43,7 +43,7 @@ const Legend = () => {
             h="20px"
             borderColor={item.color}
             // borderStyle={EVENT_DASHES[eventType] ? 'dashed' : undefined}
-            borderWidth={'2px'}></Text>
+            borderWidth={'9px'}></Text>
           <Text>{item.label}</Text>
         </HStack>
       })
@@ -99,7 +99,14 @@ export const DolaDiagram = () => {
     dataKey: "sliceValue",
     nameKey: "sliceName",
     activeFill: 'keep',
-    chartProps: { activeFill: 'keep', centralFill: themeStyles.colors.mainTextColor }
+    totalLabel: "- Total circulating supply:",
+    asStable: true,
+    type: 'balance',
+    useRecharts: true,
+    isLoading,
+    w: 'full',
+    leftSideMaxW: '300px',
+    chartProps: { activeFill: 'keep', centralFill: themeStyles.colors.mainTextColor, isUsd: false }
     // activeSubtextFill: themeStyles.colors.mainTextColor,
   };
 
@@ -139,23 +146,15 @@ export const DolaDiagram = () => {
             <DashBoardCard cardTitle='DOLA backing sources overview' {...dashboardCardProps}>
               <FundsDetails
                 {...commonProps}
-                leftSideMaxW='300px'
-                w='full'
                 isLoading={isLoading}
-                funds={fedsPieChartData}
-                type='balance'
-                useRecharts={true}
+                funds={fedsPieChartData}            
               />
             </DashBoardCard>
             <DashBoardCard cardTitle='Detailed DOLA backing sources'  {...dashboardCardProps}>
               <FundsDetails
                 {...commonProps}
-                leftSideMaxW='300px'
-                w='full'
                 isLoading={isLoading}
                 funds={underlyingPieChartData}
-                type='balance'
-                useRecharts={true}
               />
             </DashBoardCard>
           </Stack>

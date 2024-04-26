@@ -18,6 +18,7 @@ const FundLine = ({
     showPrice = false,
     label,
     showAsAmountOnly,
+    asStable = false,
     noImage = false,
     onlyUsdValue = false,
     leftSideMaxW,
@@ -32,6 +33,7 @@ const FundLine = ({
     showPrice?: boolean,
     label?: string,
     showAsAmountOnly?: boolean
+    asStable?: boolean
     noImage?: boolean
     onlyUsdValue?: boolean
     leftSideMaxW?: string
@@ -39,7 +41,7 @@ const FundLine = ({
 }) => {
     const rightSideContent = <>
         <Text color={color} textAlign="right">
-            {!onlyUsdValue && shortenNumber(value, 2, false, true)} {showPrice && `at ${shortenNumber(usdPrice, 2, true)} `}{!showAsAmountOnly && (!onlyUsdValue ? `(${shortenNumber(usdValue, 2, true, true)})` : shortenNumber(usdValue, 2, true, true))}
+            {!onlyUsdValue && shortenNumber(value, 2, false, true)} {showPrice && `at ${shortenNumber(usdPrice, 2, !asStable)} `}{!showAsAmountOnly && (!onlyUsdValue ? `(${shortenNumber(usdValue, 2, true, true)})` : shortenNumber(usdValue, 2, !asStable, true))}
         </Text>
         {
             showPerc && <Text color={color} ml="2px" minW="53px" textAlign="right" fontWeight='bold'>
@@ -113,6 +115,7 @@ type FundsProps = {
     minUsd?: number
     type?: 'both' | 'allowance' | 'balance'
     showAsAmountOnly?: boolean
+    asStable?: boolean
     noImage?: boolean
     innerRadius?: number
     isLoading?: boolean
@@ -153,6 +156,7 @@ export const Funds = ({
     minUsd = 0,
     type = 'both',
     showAsAmountOnly = false,
+    asStable = false,
     innerRadius,
     noImage = false,
     isLoading,
@@ -164,7 +168,7 @@ export const Funds = ({
     const usdTotals = { balance: 0, allowance: 0, overall: 0 };
 
     const positiveFunds = (funds || [])
-        .map(({ token, balance, allowance, usdPrice, price: _price, ctoken, label, drill, chartFillColor, chartLabelFillColor, textColor, onlyUsdValue }) => {
+        .map(({ token, balance, allowance, usdPrice, price: _price, ctoken, label, drill, chartFillColor, chartLabelFillColor, textColor, onlyUsdValue, asStable }) => {
             const price = showAsAmountOnly ? 1 : (usdPrice||_price) ?? getPrice(prices, token);
             const usdBalance = price && balance ? balance * price : 0;
             const usdAllowance = price && allowance ? allowance * price : 0;
@@ -174,7 +178,7 @@ export const Funds = ({
             usdTotals.allowance += usdAllowance;
             usdTotals.overall += totalUsd;
             const _token = ctoken === OLD_XINV ? { ...token, symbol: `${RTOKEN_SYMBOL}-old` } : token;
-            return { token: _token, ctoken, balance, allowance, usdBalance, usdAllowance, totalBalance, totalUsd, usdPrice: price, label, drill, chartFillColor, chartLabelFillColor, textColor, onlyUsdValue };
+            return { token: _token, ctoken, balance, allowance, usdBalance, usdAllowance, totalBalance, totalUsd, usdPrice: price, label, drill, chartFillColor, chartLabelFillColor, textColor, onlyUsdValue, asStable };
         })
         .filter(({ totalBalance }) => totalBalance > 0)
         .filter(({ totalUsd }) => totalUsd >= minUsd)
@@ -192,7 +196,7 @@ export const Funds = ({
 
     const balancesContent = positiveBalances
         .map(({ token, balance, usdBalance, balancePerc, onlyUsdValue, usdPrice, ctoken, label, textColor }) => {
-            return <FundLine color={textColor} leftSideMaxW={leftSideMaxW} noImage={noImage} onlyUsdValue={onlyUsdValue} key={ctoken || token?.address || label || token?.symbol} showAsAmountOnly={showAsAmountOnly} label={label} token={token} showPrice={showPrice} usdPrice={usdPrice} value={balance} usdValue={usdBalance} perc={balancePerc} showPerc={showPerc} />
+            return <FundLine color={textColor} leftSideMaxW={leftSideMaxW} noImage={noImage} onlyUsdValue={onlyUsdValue} key={ctoken || token?.address || label || token?.symbol} showAsAmountOnly={showAsAmountOnly} asStable={asStable} label={label} token={token} showPrice={showPrice} usdPrice={usdPrice} value={balance} usdValue={usdBalance} perc={balancePerc} showPerc={showPerc} />
         })
 
     const positiveAllowances = fundsWithPerc.filter(({ allowance }) => (allowance || 0) > 0);
@@ -200,7 +204,7 @@ export const Funds = ({
 
     const allowancesContent = positiveAllowances
         .map(({ token, allowance, usdAllowance, allowancePerc, onlyUsdValue, usdPrice, ctoken, label }) => {
-            return <FundLine leftSideMaxW={leftSideMaxW} noImage={noImage} onlyUsdValue={onlyUsdValue} key={ctoken || token?.address || label || token?.symbol} showAsAmountOnly={showAsAmountOnly} label={label} showPrice={showPrice} usdPrice={usdPrice} token={token} value={allowance!} usdValue={usdAllowance} perc={allowancePerc} showPerc={showPerc} />
+            return <FundLine leftSideMaxW={leftSideMaxW} noImage={noImage} onlyUsdValue={onlyUsdValue} key={ctoken || token?.address || label || token?.symbol} showAsAmountOnly={showAsAmountOnly} asStable={asStable} label={label} showPrice={showPrice} usdPrice={usdPrice} token={token} value={allowance!} usdValue={usdAllowance} perc={allowancePerc} showPerc={showPerc} />
         })
 
     const chartData = fundsWithPerc
@@ -229,17 +233,17 @@ export const Funds = ({
                             data={chartData}
                             dataKey={'y'}
                             nameKey={'x'}
-                            centralNameKey={showAsAmountOnly ? 'totalBalance' : 'totalUsd'}
+                            centralNameKey={showAsAmountOnly || asStable ? 'totalBalance' : 'totalUsd'}
                             cx="50%"
                             cy="50%"
                             isShortenNumbers={true}
-                            isUsd={!showAsAmountOnly}
+                            isUsd={!showAsAmountOnly && !asStable}
                             activeFill={themeStyles.colors.mainTextColor}
                             activeTextFill={themeStyles.colors.mainTextColor}
                             activeSubtextFill={themeStyles.colors.mainTextColorLight2}
                             {...chartProps}                            
                         />
-                        : <PieChart innerRadius={innerRadius} showTotalUsd={showChartTotal} handleDrill={handleDrill} showAsAmountOnly={showAsAmountOnly}
+                        : <PieChart innerRadius={innerRadius} showTotalUsd={showChartTotal} handleDrill={handleDrill} showAsAmountOnly={showAsAmountOnly} asStable={asStable}
                             data={chartData}
                             {...chartProps}
                         />
@@ -270,7 +274,7 @@ export const Funds = ({
                     showTotal &&
                     <Flex fontWeight={boldTotal ? 'bold' : undefined} direction="row" w='full' justify="space-between">
                         <Text>{totalLabel}</Text>
-                        <Text>{shortenNumber(usdTotals.overall, 2, !showAsAmountOnly, true)}</Text>
+                        <Text>{shortenNumber(usdTotals.overall, 2, !showAsAmountOnly && !asStable, true)}</Text>
                     </Flex>
             }
         </>
