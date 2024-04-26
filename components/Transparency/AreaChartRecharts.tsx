@@ -76,11 +76,11 @@ export const AreaChartRecharts = ({
     yDomainAsInteger?: boolean
 }) => {    
     const { themeStyles } = useAppTheme();
-    const { mouseDown, mouseUp, mouseMove, mouseLeave, bottom, top, rangeButtonsBarAbs, zoomReferenceArea, data } = useRechartsZoom({
+    const { mouseDown, mouseUp, mouseMove, mouseLeave, bottom, top, rangeButtonsBarAbs, zoomReferenceArea, data: zoomedData } = useRechartsZoom({
         combodata, rangesToInclude, forceStaticRangeBtns, defaultRange    
     });
 
-    const _data = data || combodata;
+    const _data = zoomedData || combodata;
 
     const _axisStyle = axisStyle || {
         tickLabels: { fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '14px', userSelect: 'none' },
@@ -97,8 +97,7 @@ export const AreaChartRecharts = ({
         fontSize: '12px',
     }    
     const doesDataSpansSeveralYears = combodata?.filter(d => d.utcDate.endsWith('01-01')).length > 1;
-
-    const _yDomain = yDomain || [bottom, top];
+    const _yDomain = zoomedData ? [bottom, top] : yDomain || [bottom, top];
 
     return (
         <VStack position="relative" alignItems="center" maxW={`${chartWidth}px`}>
