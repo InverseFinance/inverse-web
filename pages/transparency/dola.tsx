@@ -19,6 +19,7 @@ import { DolaMoreInfos } from '@app/components/Transparency/DolaMoreInfos'
 import { DolaSupplies } from '@app/components/common/Dataviz/DolaSupplies'
 import { useRepayments } from '@app/hooks/useRepayments'
 import { shortenNumber } from '@app/util/markets'
+import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader'
 
 const LEGEND_ITEMS = [
   {
@@ -58,7 +59,7 @@ export const DolaDiagram = () => {
   const { dolaSupplies } = useDAO();
   const { markets, isLoading } = useDBRMarkets();
   const { fedOverviews, isLoading: isLoadingOverview } = useFedOverview();
-  const { data } = useRepayments();
+  const { data, isLoading: isLoadingRepayments } = useRepayments();
   const { prices } = usePrices(['velodrome-finance']);
 
   const fedsPieChartData = fedOverviews.map(f => {
@@ -133,13 +134,16 @@ export const DolaDiagram = () => {
       </Head>
       <AppNav active="Transparency" activeSubmenu="DOLA & Feds" hideAnnouncement={true} />
       <TransparencyTabs active="dola" />
-      <Flex maxW='1300px' w="full" justify="center" direction={{ base: 'column', xl: 'row' }} ml="2">
+      <Flex maxW='1200px' w="full" justify="center" direction={{ base: 'column', xl: 'row' }} ml="2">
         <VStack spacing="8">
           <InfoMessage
             description={
               <VStack alignItems="flex-start">
                 <Text>DOLA is a decentralized stablecoin soft-pegged to the US Dollar. It is backed by a diversified set of assets, including liquidity positions on AMMs and isolated collaterals on FiRM. Even though it has some bad debt since April 2022, it is being repaid over time and it has operated at peg thanks to strong peg mechanisms.</Text>
-                <Text>Current backing: {shortenNumber(currentBacking, 2)}%</Text>
+                <HStack spacing="1">
+                  <Text>Current backing:</Text>
+                  { isLoading || isLoadingRepayments || isLoadingOverview ? <SmallTextLoader pt="2" w='50px' /> : <Text>{shortenNumber(currentBacking, 2)}%</Text> }
+                </HStack>
                 <Stack direction={{ base: 'column', 'xl': 'row' }}>
                   <Link
                     textDecoration="underline"
