@@ -7,7 +7,7 @@ import { SERVER_BASE_URL } from "@app/config/constants";
 // external use in spreadsheet
 export default async (req, res) => {
     const cacheDuration = 900;
-    const cacheKey = 'csv-liquidity-pools-v1.0.8';
+    const cacheKey = 'csv-liquidity-pools-v1.0.9';
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
 
     try {
