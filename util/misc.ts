@@ -359,3 +359,12 @@ export const getWeekYear = function (ts: number) {
     date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
     return date.getFullYear();
 }
+export function getPreviousThursdayUtcDateOfTimestamp(ts: number) {
+    const now = new Date(ts);
+    const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0);
+    const today = new Date(nowUTC);
+    const dayOfWeek = today.getUTCDay();
+    const daysSinceLastThursday = dayOfWeek >= 4 ? dayOfWeek - 4 : 7 - (4-dayOfWeek);
+    today.setUTCDate(today.getUTCDate() - daysSinceLastThursday);
+    return timestampToUTC(+(today));
+}

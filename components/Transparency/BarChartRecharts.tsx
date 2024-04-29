@@ -4,7 +4,7 @@ import { shortenNumber, smartShortNumber } from '@app/util/markets';
 import { Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ComposedChart } from 'recharts';
 import { preciseCommify } from '@app/util/misc';
 
-const CustomizedLabel = ({x, y, fill, value, color, useUsd}) => {
+const CustomizedLabel = ({x, y, fill, value, color, useUsd, precision = 2 }) => {
     return <text
         x={x}
         y={y}
@@ -14,7 +14,7 @@ const CustomizedLabel = ({x, y, fill, value, color, useUsd}) => {
         fontFamily='sans-serif'
         fontWeight="bold" 
         fill={color}
-        textAnchor="middle">{value ? smartShortNumber(value, 2, useUsd): ''}</text>
+        textAnchor="middle">{value ? smartShortNumber(value, precision, useUsd): ''}</text>
 };
 
 export const BarChartRecharts = ({
@@ -32,6 +32,7 @@ export const BarChartRecharts = ({
     allowZoom = false,
     rightPadding = 0,
     showLabel = true,
+    precision = 2,
 }: {
     combodata: { y: number, x: number, timestamp: number, utcDate: string }[]
     title: string
@@ -51,6 +52,7 @@ export const BarChartRecharts = ({
     events?: any[]
     rightPadding?: number
     showLabel?: boolean
+    precision?: number
 }) => {
     const { themeStyles } = useAppTheme();
 
@@ -104,14 +106,14 @@ export const BarChartRecharts = ({
                         itemStyle={{ fontWeight: 'bold' }}
                         formatter={(value, name) => {
                             const isPrice = name === 'Price';
-                            return !value ? 'none' : isPrice ? shortenNumber(value, 4, true) : preciseCommify(value, 0, useUsd)
+                            return !value ? 'none' : isPrice ? shortenNumber(value, 4, useUsd) : preciseCommify(value, 0, useUsd)
                         }}
                     />
                 }
                 {
                     showLegend && <Legend wrapperStyle={legendStyle} style={{ cursor: 'pointer' }} formatter={(value) => value} />
                 }
-                <Bar label={showLabel ? (props) => <CustomizedLabel {...props} useUsd={useUsd} color={color} /> : undefined} maxBarSize={25} name={yLabel} dataKey={'y'} stroke={color} fillOpacity={1} fill={color} />
+                <Bar label={showLabel ? (props) => <CustomizedLabel {...props} useUsd={useUsd} color={color} precision={precision} /> : undefined} maxBarSize={25} name={yLabel} dataKey={'y'} stroke={color} fillOpacity={1} fill={color} />
             </ComposedChart>
         </VStack>
     );
