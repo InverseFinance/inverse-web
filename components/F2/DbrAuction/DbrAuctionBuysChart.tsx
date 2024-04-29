@@ -4,6 +4,7 @@ import { DefaultCharts } from "@app/components/Transparency/DefaultCharts";
 import { useEffect, useState } from "react";
 import { PieChartRecharts } from "@app/components/Transparency/PieChartRecharts";
 import { useAppTheme } from "@app/hooks/useAppTheme";
+import { getWeek, getWeekYear } from "@app/util/misc";
 
 const maxChartWidth = 1200;
 
@@ -19,6 +20,14 @@ export const DbrAuctionBuysChart = ({ events }) => {
 
     const sDolaAuctionBuys = events.filter(e => e.auctionType === 'sDOLA')
         .reduce((prev, curr) => prev + curr.dolaIn, 0);
+    
+    const uniqueWeeks = [...new Set(events.map(e => `${getWeekYear(e.timestamp)}-${getWeek(e.timestamp)}`))];
+    
+    const avgPrices = uniqueWeeks.map(week => {
+        const weekEvents = events.filter(e => `${getWeekYear(e.timestamp)}-${getWeek(e.timestamp)}` === week);
+        const nbWeekEvents = weekEvents.length;
+        return { week, avgPrice: weekEvents.reduce((prev, curr) => prev+curr.priceInDola, 0)/nbWeekEvents }
+    });
 
     const pieChartData = [
         { name: 'Virtual', value: generalAuctionBuys },
@@ -58,5 +67,15 @@ export const DbrAuctionBuysChart = ({ events }) => {
                 fill={themeStyles.colors.mainTextColorLight}
             />
         </VStack>
+        <DefaultCharts
+                showMonthlyBarChart={false}
+                maxChartWidth={isLargerThan2xl ? autoChartWidth / 2 : autoChartWidth}
+                chartWidth={isLargerThan2xl ? autoChartWidth / 2 : autoChartWidth}
+                chartData={chartDataAcc}
+                isDollars={false}
+                smoothLineByDefault={false}
+                barProps={{ eventName: 'DBR auction buys' }}
+                areaProps={{ title: 'Acc. income from DBR auction buys', fillInByDayInterval: true, id: 'dbr-auction-buys-acc', showRangeBtns: true, yLabel: 'DOLA Income', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
+            />
     </Stack>
 }
