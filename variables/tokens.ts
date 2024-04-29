@@ -120,6 +120,8 @@ const chainTokenAddresses = {
     YCRV: '0xFCc5c47bE19d06BF83eB04298b026F81069ff65b',
     STCVX: '0xCF50b810E57Ac33B91dCF525C6ddd9881B139332',
     DOLAINVUNIV3: '0xbD1F921786e12a80F2184E4d6A5cAcB25dc673c9',
+    RGUSD: '0x78da5799CF427Fee11e9996982F4150eCe7a99A7',
+    DOLARGUSDCRVLP: '0x20BB4a325924917E3336753BA5350a84F70f392e',
   },
   "250": {
     DOLA2POOLCRV: '0x28368d7090421ca544bc89799a2ea8489306e3e5',
@@ -522,6 +524,29 @@ const chainTokens = {
         chainTokenAddresses["1"].INV, chainTokenAddresses["1"].DOLA
       ],
       protocolImage: PROTOCOL_IMAGES.UNIV3,
+    },
+    [chainTokenAddresses["1"].RGUSD]: {
+      address: chainTokenAddresses["1"].RGUSD,
+      name: 'RGUSD',
+      symbol: 'RGUSD',
+      // coingeckoId: '',
+      image: TOKEN_IMAGES.RGUSD,
+      decimals: 18,   
+    },
+    [chainTokenAddresses["1"].DOLARGUSDCRVLP]: {
+      address: chainTokenAddresses["1"].DOLARGUSDCRVLP,
+      name: 'DOLA-RGUSD',
+      symbol: 'DOLA-RGUSD clp', 
+      protocolImage: PROTOCOL_IMAGES.CRV,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isCrvLP: true,
+      pairs: [
+        chainTokenAddresses["1"].RGUSD, chainTokenAddresses["1"].DOLA
+      ],
+      image: TOKEN_IMAGES.DOLA,
+      link: 'https://curve.fi/#/ethereum/pools/factory-stable-ng-126/deposit',
     },
     [chainTokenAddresses["1"].INVDOLALIQUIS]: {
       address: chainTokenAddresses["1"].INVDOLALIQUIS,
