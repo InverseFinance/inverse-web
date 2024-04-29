@@ -28,6 +28,7 @@ export const TOKEN_IMAGES = {
     "INV": IMAGES.INV,
     "DBR": IMAGES.DBR,
     "THREECRV": IMAGES["3CRV"],
+    "RGUSD": "https://cdn.jsdelivr.net/gh/curvefi/curve-assets/images/assets/0x78da5799cf427fee11e9996982f4150ece7a99a7.png",
     "FXUSD": "https://assets.coingecko.com/coins/images/36202/standard/fxUSD.jpg?1710833113",
     "ALUSD": "https://assets.coingecko.com/coins/images/14114/standard/Alchemix_USD.png?1696513835",
     "SDOLA": "https://assets.coingecko.com/coins/images/35495/standard/sDOLAlogoFINAL.png?1708922289",
