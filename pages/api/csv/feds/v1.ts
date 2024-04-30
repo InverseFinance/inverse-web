@@ -1,6 +1,6 @@
 import { getCacheFromRedis, redisSetWithTimestamp } from "@app/util/redis";
 import { liquidityCacheKey } from "../../transparency/liquidity";
-import { repaymentsCacheKey } from "../../transparency/repayments";
+import { repaymentsCacheKeyV2 } from "../../transparency/repayments-v2";
 
 // external use in spreadsheet
 export default async (req, res) => {
@@ -16,7 +16,7 @@ export default async (req, res) => {
 
         const [liquidityData, badDebtData] = await Promise.all([
             getCacheFromRedis(liquidityCacheKey, false),
-            getCacheFromRedis(repaymentsCacheKey, false),
+            getCacheFromRedis(repaymentsCacheKeyV2, false),
         ]);
 
         const feds = liquidityData.liquidity.filter(d => d.isFed);

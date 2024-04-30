@@ -22,7 +22,7 @@ const RWG = '0xE3eD95e130ad9E15643f5A5f232a3daE980784cd';
 const DBR_AUCTION_REPAYMENT_HANDLER = '0xB4497A7351e4915182b3E577B3A2f411FA66b27f';
 
 const frontierBadDebtEvoCacheKey = 'dola-frontier-evo-v2.0.x';
-export const repaymentsCacheKey = `repayments-v2.0.0`;
+export const repaymentsCacheKeyV2 = `repayments-v2.0.0`;
 
 const { DEBT_CONVERTER, DEBT_REPAYER } = getNetworkConfigConstants();
 
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
 
     try {
         res.setHeader('Cache-Control', `public, max-age=${60}`);        
-        const validCache = await getCacheFromRedis(repaymentsCacheKey, cacheFirst !== 'true', ONE_DAY_SECS);                
+        const validCache = await getCacheFromRedis(repaymentsCacheKeyV2, cacheFirst !== 'true', ONE_DAY_SECS);                
         if (validCache && !ignoreCache) {
             res.status(200).json(validCache);
             return
@@ -336,13 +336,13 @@ export default async function handler(req, res) {
             debtRepayerRepayments,
         };
 
-        await redisSetWithTimestamp(repaymentsCacheKey, resultData);
+        await redisSetWithTimestamp(repaymentsCacheKeyV2, resultData);
         res.status(200).json(resultData);
     } catch (err) {
         console.error(err);
         // if an error occured, try to return last cached results
         try {
-            const cache = await getCacheFromRedis(repaymentsCacheKey, false);
+            const cache = await getCacheFromRedis(repaymentsCacheKeyV2, false);
             if (cache) {
                 console.log('Api call failed, returning last cache found');
                 res.status(200).json(cache);

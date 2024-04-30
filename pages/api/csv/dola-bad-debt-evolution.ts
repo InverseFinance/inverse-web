@@ -1,5 +1,5 @@
 import { getCacheFromRedis, redisSetWithTimestamp } from "@app/util/redis";
-import { repaymentsCacheKey } from "../transparency/repayments";
+import { repaymentsCacheKeyV2 } from "../transparency/repayments-v2";
 import { fillMissingDailyDatesWithMostRecentData, timestampToUTC, uniqueBy } from "@app/util/misc";
 
 // external use in spreadsheet
@@ -9,8 +9,7 @@ export default async (req, res) => {
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
 
     try {
-        const repaymentsData = (await getCacheFromRedis(repaymentsCacheKey, false)) || { dolaBadDebtEvolution: [] };
-
+        const repaymentsData = (await getCacheFromRedis(repaymentsCacheKeyV2, false)) || { dolaBadDebtEvolution: [] };
 
         const oneDayBeforeExploitDate = '2022-04-01';
         const evolutionWithUtcDate = repaymentsData.dolaBadDebtEvolution
