@@ -8,6 +8,7 @@ import { addBlockTimestamps } from '@app/util/timestamps';
 import { NetworkIds } from '@app/types';
 import { getSdolaContract } from '@app/util/dola-staking';
 import { ascendingEventsSorter } from '@app/util/misc';
+import { getHistoricDbrPriceOnCurve } from '@app/util/f2';
 
 const DBR_AUCTION_BUYS_CACHE_KEY = 'dbr-auction-buys-v1.0.1'
 
@@ -46,6 +47,7 @@ export default async function handler(req, res) {
         newBuyEvents.sort(ascendingEventsSorter);
 
         const blocks = newBuyEvents.map(e => e.blockNumber);
+        const marketPriceBlocks = blocks.map(block => (block - 1));
 
         const timestamps = await addBlockTimestamps(
             blocks,
@@ -64,6 +66,14 @@ export default async function handler(req, res) {
                 auctionType: e.address === sdolaContract.address ? 'sDOLA' : 'Virtual',
             };
         });
+
+        // take market price one block before
+        const newMarketPrices = await Promise.all(
+            marketPriceBlocks.map(block => {
+            return getHistoricDbrPriceOnCurve(provider, block)
+        }));
+        
+        newMarketPrices.forEach((m, i) => newBuys[i].marketPriceInDola = m.priceInDola);
 
         const resultData = {
             timestamp: Date.now(),

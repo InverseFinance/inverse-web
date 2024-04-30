@@ -416,6 +416,19 @@ export const getDbrPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3P
     return { priceInDolaBn: priceInDolaBn, priceInDola: priceInDola };
 }
 
+export const getHistoricDbrPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3Provider, block: number) => {
+    const crvPool = new Contract(
+        '0xC7DE47b9Ca2Fc753D6a2F167D8b3e19c6D18b19a',
+        ['function price_oracle(uint) public view returns(uint)'],
+        SignerOrProvider,
+    );
+    const [priceInDolaBn] = await getMulticallOutput([
+        { contract: crvPool, functionName: 'price_oracle', params: ['0'] }
+    ], 1, block);
+    const priceInDola = getBnToNumber(priceInDolaBn);
+    return { priceInDolaBn: priceInDolaBn, priceInDola: priceInDola };
+}
+
 export const getDolaUsdPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3Provider, block?: BlockTag) => {
     try {
         const crvPool = new Contract(
