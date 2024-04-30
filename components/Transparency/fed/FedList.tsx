@@ -160,6 +160,8 @@ export const FedList = ({ feds, isLoading, prices }: { feds: FedEvent[], isLoadi
     return (
         <Container
             noPadding
+            p="0"
+            m="0"
             label="Active DOLA Feds Overview"
             description="Fed contracts handle the DOLA supply in a lending protocol or liquidity pool via expansions and contractions"
         >

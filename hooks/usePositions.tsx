@@ -12,13 +12,14 @@ type OptionProps = {
 }
 
 export const usePositions = (options?: OptionProps): SWR & AccountPositions => {
-  const { data, error } = useCustomSWR(`/api/positions?accounts=${options?.accounts}`, (url) => fetcher(url, undefined, 30000))
+  const { data, error } = useCustomSWR(`/api/positions?v=2&accounts=${options?.accounts}`, (url) => fetcher(url, undefined, 30000))
 
   return {
     lastUpdate: data?.lastUpdate || 0,
     positions: data?.positions || [],
     markets: data?.markets || [],
     prices: data?.prices || [],
+    liquidPrices: data?.liquidPrices || [],
     collateralFactors: data?.collateralFactors || [],
     nbPositions: data?.nbPositions || 0,
     isLoading: !error && !data,

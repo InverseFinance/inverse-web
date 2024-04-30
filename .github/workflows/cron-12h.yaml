@@ -6,27 +6,12 @@ jobs:
   cron:
     runs-on: ubuntu-latest
     steps:
-      - name: Positions init
-        run: |
-          curl -v --request POST \
-          --url 'https://www.inverse.finance/api/cron-positions?pageSize=50&pageOffset=0' \
-          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
       - name: Positions
         run: |
           curl -v --request POST \
-          --url 'https://www.inverse.finance/api/cron-positions?pageSize=600&pageOffset=50' \
-          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
-      - name: Positions
-        run: |
-          curl -v --request POST \
-          --url 'https://www.inverse.finance/api/cron-positions?pageSize=600&pageOffset=650' \
-          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
-      - name: Positions
-        run: |
-          curl -v --request POST \
-          --url 'https://www.inverse.finance/api/cron-positions?pageSize=600&pageOffset=1250' \
+          --url 'https://www.inverse.finance/api/cron-positions' \
           --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
       - name: Bad debt
         run: |
           curl -v --request GET \
-          --url 'https://www.inverse.finance/api/transparency/repayments'          
+          --url 'https://www.inverse.finance/api/transparency/repayments-v2'          
