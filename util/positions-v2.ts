@@ -6,7 +6,7 @@ import { getProvider } from '@app/util/providers';
 import { getBnToNumber } from '@app/util/markets';
 import { formatUnits } from '@ethersproject/units';
 import { getGroupedMulticallOutputs } from "./multicall";
-import { FRONTIER_POSITIONS_SNAPSHOT } from "@app/fixtures/frontier";
+import { FRONTIER_POSITIONS_SNAPSHOT } from "@app/fixtures/frontier-snapshot";
 
 const ILLIQUID_MARKETS = [
     '0x17786f3813E6bA35343211bd8Fe18EC4de14F28b',

@@ -140,10 +140,10 @@ export const DolaDiagram = () => {
             description={
               <VStack alignItems="flex-start">
                 <Text>DOLA is a decentralized stablecoin soft-pegged to the US Dollar. It is backed by a diversified set of assets, including liquidity positions on AMMs and isolated collaterals on FiRM. Even though it has some bad debt since April 2022, it is being repaid over time and it has operated at peg thanks to strong peg mechanisms.</Text>
-                <HStack spacing="1">
+                {/* <HStack spacing="1">
                   <Text>Current backing:</Text>
                   { isLoading || isLoadingRepayments || isLoadingOverview ? <SmallTextLoader pt="2" w='50px' /> : <Text>{shortenNumber(currentBacking, 2)}%</Text> }
-                </HStack>
+                </HStack> */}
                 <Stack direction={{ base: 'column', 'xl': 'row' }}>
                   <Link
                     textDecoration="underline"
