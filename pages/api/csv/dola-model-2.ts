@@ -1,5 +1,5 @@
 import { getCacheFromRedis, redisSetWithTimestamp } from "@app/util/redis";
-import { repaymentsCacheKey } from "../transparency/repayments";
+import { repaymentsCacheKeyV2 } from "../transparency/repayments-v2";
 import { NETWORKS_BY_CHAIN_ID } from "@app/config/networks";
 import { capitalize } from "@app/util/misc";
 import { fetcher30sectimeout } from "@app/util/web3";
@@ -19,7 +19,7 @@ export default async (req, res) => {
     try {
         const [liquidityData, badDebtData, dolaStakingData] = await Promise.all([
             fetcher30sectimeout(`${SERVER_BASE_URL}/api/transparency/liquidity`),
-            getCacheFromRedis(repaymentsCacheKey, false),
+            getCacheFromRedis(repaymentsCacheKeyV2, false),
             getCacheFromRedis(dolaStakingCacheKey, false),            
         ]);
 
