@@ -1,4 +1,4 @@
-import { Flex, Stack, Text, HStack, useDisclosure } from '@chakra-ui/react'
+import { Flex, Stack, Text, HStack, useDisclosure, useMediaQuery } from '@chakra-ui/react'
 
 import Table from '@app/components/common/Table'
 import ScannerLink from '@app/components/common/ScannerLink'
@@ -63,8 +63,8 @@ const AssetIcons = ({ list, minW = '100px' }: {
     </HStack>
 }
 
-const getColumns = () => {
-    return [
+const getColumns = (isSmall = false) => {
+    const cols =  [
         {
             field: 'account',
             label: 'Account',
@@ -113,18 +113,18 @@ const getColumns = () => {
         },
         {
             field: 'usdLiquidBackingPower',
-            label: 'Borrowing Power (liquid)',
-            header: ({ ...props }) => <Flex justify="start" {...props} w="150px" />,
+            label: 'B. Power (liquid)',
+            header: ({ ...props }) => <Flex justify="start" {...props} w="140px" />,
             value: ({ usdLiquidBackingPower }: AccountPositionDetailed) => {
-                return <Text w="150px">{shortenNumber(usdLiquidBackingPower, 2, true)}</Text>
+                return <Text w="140px">{shortenNumber(usdLiquidBackingPower, 2, true)}</Text>
             },
         },
         {
             field: 'usdBorrowed',
-            label: 'Borrowed Worth',
-            header: ({ ...props }) => <Flex justify="start" {...props} minW="100px" />,
+            label: 'Borrowed $',
+            header: ({ ...props }) => <Flex justify="start" {...props} minW="90px" />,
             value: ({ usdBorrowed }: AccountPosition) => {
-                return <Text w="100px">{shortenNumber(usdBorrowed, 2, true)}</Text>
+                return <Text w="90px">{shortenNumber(usdBorrowed, 2, true)}</Text>
             },
         },
         {
@@ -167,6 +167,10 @@ const getColumns = () => {
             },
         },
     ]
+    if(isSmall) {
+        cols.splice(1, 2);
+    }
+    return cols;
 }
 
 const toDetailedPositions = (positions, prices, markets, collateralFactors) => {
@@ -269,7 +273,10 @@ export const PositionsTableV2 = ({
 }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [selectedPosition, setSelectedPosition] = useState<AccountPositionDetailed | null>(null);
-    const columns = getColumns();
+    const columnsLarge = getColumns();
+    const columnsSmall = getColumns(true);
+    const [isSmallerThan] = useMediaQuery('(max-width: 1300px)')
+    const columns = isSmallerThan ? columnsSmall : columnsLarge;
 
     const handleDetails = (item: AccountPositionDetailed) => {
         setSelectedPosition(item);

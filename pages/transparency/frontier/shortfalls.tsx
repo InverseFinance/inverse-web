@@ -66,11 +66,11 @@ export const ShortfallsPage = () => {
               </HStack> */}
               <HStack>
                 <Text>- Shortfall in the Comptroller contract:</Text>
-                <Text fontWeight="bold">{dolaBadDebtAsPerContract ? preciseCommify(dolaBadDebtAsPerContract, 0)+ ' DOLA' : '-'}</Text>
+                <Text fontWeight="bold">{dolaBadDebtAsPerContract ? preciseCommify(dolaBadDebtAsPerContract, 0) + ' DOLA' : '-'}</Text>
               </HStack>
               <HStack>
                 <Text>- Shortfall accounting collaterals with no liquidity:</Text>
-                <Text fontWeight="bold">{dolaBadDebtAccountingLiquidity ? preciseCommify(dolaBadDebtAccountingLiquidity, 0)+ ' DOLA' : '-'}</Text>
+                <Text fontWeight="bold">{dolaBadDebtAccountingLiquidity ? preciseCommify(dolaBadDebtAccountingLiquidity, 0) + ' DOLA' : '-'}</Text>
               </HStack>
             </VStack>
           </Container>
@@ -78,6 +78,10 @@ export const ShortfallsPage = () => {
             label={`${accounts ? shortenAddress(accounts) + "'s Positions" : 'Shortfalling Positions'} - ${!lastUpdate ? 'Loading...' : 'Last update ' + moment(lastUpdate).fromNow()}`}
             description="Only shortfalls above or equal to $0.1 are shown"
             right={<InfoMessage description="Asset icon sizes reflects the usd worth size" />}
+            contentProps={{
+              direction: 'column',
+              overflowX: 'scroll',
+            }}
           >
             {/* <PositionsTable collateralFactors={collateralFactors} markets={markets} prices={prices} positions={shortfallsLiquid} /> */}
             <PositionsTableV2 collateralFactors={collateralFactors} markets={markets} prices={prices} positions={shortfallsLiquid} />
