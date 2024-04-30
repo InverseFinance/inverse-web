@@ -3,17 +3,16 @@ import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
 import { TOKENS, UNDERLYING, getToken } from "@app/variables/tokens";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { Contract } from "ethers";
-import { CTOKEN_ABI, DEBT_CONVERTER_ABI, DEBT_REPAYER_ABI, DWF_PURCHASER_ABI } from "@app/config/abis";
+import { COMPTROLLER_ABI, CTOKEN_ABI, DEBT_CONVERTER_ABI, DEBT_REPAYER_ABI, DWF_PURCHASER_ABI } from "@app/config/abis";
 import { getHistoricValue, getProvider } from "@app/util/providers";
 import { getBnToNumber } from "@app/util/markets";
 import { DWF_PURCHASER, ONE_DAY_SECS } from "@app/config/constants";
 import { addBlockTimestamps } from '@app/util/timestamps';
-import { DOLA_FRONTIER_DEBT_V2 } from "@app/fixtures/frontier-dola";
+import { DOLA_FRONTIER_DEBTS } from "@app/fixtures/frontier-dola";
 import { throttledPromises, timestampToUTC, utcDateToDDMMYYYY } from "@app/util/misc";
 import { getTokenHolders } from "@app/util/covalent";
 import { parseUnits } from "@ethersproject/units";
 import { HISTO_PRICES } from "@app/fixtures/histo-prices";
-import { getHistoricalFrontierPositionsDetails } from "@app/util/positions-v2";
 
 const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
 const TWG = '0x9D5Df30F475CEA915b1ed4C0CCa59255C897b61B';
@@ -21,31 +20,34 @@ const TREASURY = '0x926dF14a23BE491164dCF93f4c468A50ef659D5B';
 const RWG = '0xE3eD95e130ad9E15643f5A5f232a3daE980784cd';
 const DBR_AUCTION_REPAYMENT_HANDLER = '0xB4497A7351e4915182b3E577B3A2f411FA66b27f';
 
-const frontierBadDebtEvoCacheKey = 'dola-frontier-evo-v2.0.x';
-export const repaymentsCacheKeyV2 = `repayments-v2.0.0`;
+const frontierBadDebtEvoCacheKey = 'dola-frontier-evo-v1.0.x';
+export const repaymentsCacheKey = `repayments-v1.0.96`;
 
 const { DEBT_CONVERTER, DEBT_REPAYER } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
-    const { cacheFirst, ignoreCache } = req.query;    
-    const frontierShortfallsKey = `frontier-positions-v2`;
+    const { cacheFirst, ignoreCache } = req.query;
+    // defaults to mainnet data if unsupported network    
+    const frontierShortfallsKey = `1-positions-v1.1.0`;
     const histoPricesCacheKey = `historic-prices-v1.0.4`;
 
     try {
-        res.setHeader('Cache-Control', `public, max-age=${60}`);        
-        const validCache = await getCacheFromRedis(repaymentsCacheKeyV2, cacheFirst !== 'true', ONE_DAY_SECS);                
+        res.setHeader('Cache-Control', `public, max-age=${60}`);
+        const validCache = await getCacheFromRedis(repaymentsCacheKey, cacheFirst !== 'true', ONE_DAY_SECS);
         if (validCache && !ignoreCache) {
             res.status(200).json(validCache);
             return
         }
-        
-        const frontierShortfalls = await getCacheFromRedis(frontierShortfallsKey, false, 99999);        
+
+        const frontierShortfalls = await getCacheFromRedis(frontierShortfallsKey, false, 99999);
+
         const badDebts = {};
         const repayments = { iou: 0 };
 
         const provider = getProvider(1);
+
         frontierShortfalls.positions
-            .filter(({ liquidShortfall, usdBorrowed }) => liquidShortfall > 0 && usdBorrowed > 0)
+            .filter(({ usdShortfall, usdBorrowed }) => usdShortfall > 0 && usdBorrowed > 0)
             .forEach(position => {
                 position.borrowed.forEach(({ marketIndex, balance }) => {
                     const marketAddress = frontierShortfalls.markets[marketIndex];
@@ -65,8 +67,8 @@ export default async function handler(req, res) {
                     badDebts[symbol].badDebtBalance += balance;
                     badDebts[symbol].frontierBadDebtBalance += balance;
                 });
-            });        
-    
+            });
+
         const debtConverter = new Contract(DEBT_CONVERTER, DEBT_CONVERTER_ABI, provider);
         const debtRepayer = new Contract(DEBT_REPAYER, DEBT_REPAYER_ABI, provider);
         const dwfOtc = new Contract(DWF_PURCHASER, DWF_PURCHASER_ABI, provider);
@@ -79,7 +81,7 @@ export default async function handler(req, res) {
         const anDolaB1 = new Contract('0xC1Fb01415f08Fbd71623aded6Ac8ec74F974Fdc1', CTOKEN_ABI, provider);
         const anDolaFuse6 = new Contract('0xf65155C9595F99BFC193CaFF0AAb6e2a98cf68aE', CTOKEN_ABI, provider);
         const anDolaBadger = new Contract('0x5117D9453cC9Be8c3fBFbA4aE3B858D18fe45903', CTOKEN_ABI, provider);        
-        
+
         const [
             debtConverterRepaymentsEvents,
             debtConverterConversionsEvents,
@@ -115,7 +117,8 @@ export default async function handler(req, res) {
             // getCacheFromRedis(fedOverviewCacheKey, false),
             // iou holders
             getTokenHolders(DEBT_CONVERTER, 100, 0, '1'),
-        ]);    
+        ]);
+
         // const fedOverviews = fedsOverviewData?.fedOverviews || [];
         // const nonFrontierDolaBadDebt = fedOverviews
         //     .filter(({ name }) => ['Badger Fed', '0xb1 Fed', 'AuraEuler Fed'].includes(name))
@@ -123,10 +126,10 @@ export default async function handler(req, res) {
 
         // badDebts['DOLA'].badDebtBalance += nonFrontierDolaBadDebt;
         // badDebts['DOLA'].nonFrontierBadDebtBalance = nonFrontierDolaBadDebt;
-        
-        const dolaRepaymentsBlocks = dolaFrontierRepayEvents.map(e => e.blockNumber);        
+
+        const dolaRepaymentsBlocks = dolaFrontierRepayEvents.map(e => e.blockNumber);
         const dolaFrontierDebts = await getBadDebtEvolution(dolaRepaymentsBlocks);
-        
+
         const blocksNeedingTs =
             [wbtcRepayEvents, ethRepayEvents, yfiRepayEvents, dolaFrontierRepayEvents, dolaB1RepayEvents, dolaFuse6RepayEvents, dolaBadgerRepayEvents].map((arr, i) => {
                 return arr.filter(event => {
@@ -137,9 +140,9 @@ export default async function handler(req, res) {
                 .concat(debtConverterRepaymentsEvents.map(e => e.blockNumber))
                 .concat(debtRepayerRepaymentsEvents.map(e => e.blockNumber))                
                 .concat(dolaFrontierDebts.blocks);
-                
-        const timestamps = await addBlockTimestamps(blocksNeedingTs, '1');
-        
+
+        const timestamps = await addBlockTimestamps(blocksNeedingTs, '1');        
+
         const [wbtcRepaidByDAO, ethRepaidByDAO, yfiRepaidByDAO, dolaFrontierRepaidByDAO, dolaB1RepaidByDAO, dolaFuse6RepaidByDAO, dolaBadgerRepaidByDAO] =
             [wbtcRepayEvents, ethRepayEvents, yfiRepayEvents, dolaFrontierRepayEvents, dolaB1RepayEvents, dolaFuse6RepayEvents, dolaBadgerRepayEvents].map((arr, i) => {
                 return arr.filter(event => {
@@ -157,7 +160,8 @@ export default async function handler(req, res) {
                         logIndex: event.logIndex,
                     }
                 });
-            });                  
+            });
+
         const dolaEulerRepaidByDAO = [
             {
                 blocknumber: 17636172,
@@ -207,17 +211,17 @@ export default async function handler(req, res) {
             const date = timestampToUTC(timestamp);
             return { sold, soldFor, symbol, cgId: underlying.coingeckoId?.replace('weth', 'ethereum'), timestamp, date };
         });
-        
+
         // get and save histo prices
         const histoPrices = await getCacheFromRedis(histoPricesCacheKey, false) || HISTO_PRICES;
-        
+
         const [dolaPrices, wbtcPrices, ethPrices, yfiPrices] = await Promise.all([
             getHistoPrices('dola-usd', totalDolaRepaidByDAO.concat(dolaForIOUsRepaidByDAO).map(d => d.timestamp), histoPrices),
             getHistoPrices('wrapped-bitcoin', wbtcRepaidByDAO.map(d => d.timestamp), histoPrices),
             getHistoPrices('ethereum', ethRepaidByDAO.map(d => d.timestamp), histoPrices),
             getHistoPrices('yearn-finance', yfiRepaidByDAO.map(d => d.timestamp), histoPrices),
         ]);
-        
+
         histoPrices['dola-usd'] = { ...histoPrices['dola-usd'], ...dolaPrices };
         histoPrices['wrapped-bitcoin'] = { ...histoPrices['wrapped-bitcoin'], ...wbtcPrices };
         histoPrices['ethereum'] = { ...histoPrices['ethereum'], ...ethPrices };
@@ -336,13 +340,13 @@ export default async function handler(req, res) {
             debtRepayerRepayments,
         };
 
-        await redisSetWithTimestamp(repaymentsCacheKeyV2, resultData);
+        await redisSetWithTimestamp(repaymentsCacheKey, resultData);
         res.status(200).json(resultData);
     } catch (err) {
         console.error(err);
         // if an error occured, try to return last cached results
         try {
-            const cache = await getCacheFromRedis(repaymentsCacheKeyV2, false);
+            const cache = await getCacheFromRedis(repaymentsCacheKey, false);
             if (cache) {
                 console.log('Api call failed, returning last cache found');
                 res.status(200).json(cache);
@@ -377,44 +381,86 @@ const getBadDebtEvolution = async (repaymentBlocks: number[]) => {
     const provider = getProvider('1', '', true);
 
     const currentBlock = await provider.getBlockNumber();
+    const anDola = new Contract('0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670', CTOKEN_ABI, provider);
+    const comptroller = new Contract('0x4dCf7407AE5C07f8681e1659f626E114A7667339', COMPTROLLER_ABI, provider);
 
-    const pastData = await getCacheFromRedis(frontierBadDebtEvoCacheKey, false, 3600) || DOLA_FRONTIER_DEBT_V2;        
-    const newBlocks = [...repaymentBlocks, currentBlock].filter(block => block > pastData.blocks[pastData.blocks.length - 1]);    
+    const mainBadDebtAddresses = [
+        '0xeA0c959BBb7476DDD6cD4204bDee82b790AA1562',
+        '0xf508c58ce37ce40a40997C715075172691F92e2D',
+        '0xe2e4f2a725e42d0f0ef6291f46c430f963482001',
+        '0x86426c098e1ad3d96a62cc267d55c5258ddf686a',
+        '0x1991059f78026D50739100d5Eeda2723f8d9DD52',
+        '0xE69A81190F3A3a388E2b9e1C1075664252A8Ea7C',
+        '0x0e81F7af4698Cfe49cF5099A7D1e3E4421D5d1AF',
+        '0x6B92686c40747C85809a6772D0eda8e22a77C60c',
+    ];
+
+    const pastData = await getCacheFromRedis(frontierBadDebtEvoCacheKey, false, 3600) || DOLA_FRONTIER_DEBTS;
+    // return pastData;
+    const newBlocks = [...repaymentBlocks, currentBlock].filter(block => block > pastData.blocks[pastData.blocks.length - 1]);
     const blocks = [...new Set(newBlocks)].sort((a, b) => a - b);
 
     if (!blocks.length) {
         return pastData;
     };
 
-    const results = await throttledPromises(
-        (block: number) => {
-            return getHistoricalFrontierPositionsDetails({
-                pageOffset: 0,
-                pageSize: 2000,
-                blockNumber: block,
-                useDolaShortlist: true,
-            });
-        },
-        blocks,
-        5,
-        1000,
-        'allSettled',
-    );
+    const newDebtsBn =
+        await throttledPromises(
+            (address: string) => {
+                return Promise.all(
+                    blocks.map(block => {
+                        return getHistoricValue(anDola, block, 'borrowBalanceStored', [address]);
+                    })
+                )
+            },
+            mainBadDebtAddresses,
+            5,
+            100,
+        );
 
-    const newData = blocks.map((block, i) => {
-        const hasData = results[i]?.status === 'fulfilled';
-        return {
-            dolaBadDebt: hasData ? results[i]?.value.positionDetails.reduce((acc, pos) => acc + pos.dolaBadDebt, 0) : null,
-            dolaBorrowed: hasData ? results[i]?.value.positionDetails.reduce((acc, pos) => acc + pos.dolaBorrowed, 0) : null,
-            dolaBadDebtClassic: hasData ? results[i]?.value.positionDetails.reduce((acc, pos) => acc + pos.dolaBadDebtClassic, 0) : null,
-            block,
-        };
-    }).filter(d => d.dolaBadDebt !== null);
+    const dolaDebts = newDebtsBn.map((userDebts, i) => {
+        return userDebts.map((d, i) => {
+            return getBnToNumber(anDola.interface.decodeFunctionResult('borrowBalanceStored', d)[0]);
+        })
+    });
+
+    const accountLiqs =
+        await throttledPromises(
+            (address: string) => {
+                return Promise.all(
+                    blocks.map(block => {
+                        return getHistoricValue(comptroller, block, 'getAccountLiquidity', [address]);
+                    })
+                )
+            },
+            mainBadDebtAddresses,
+            5,
+            100,
+        );
+
+    const shortfalls = accountLiqs.map((accountLiq, i) => {
+        return accountLiq.map((d, i) => {
+            return getBnToNumber(comptroller.interface.decodeFunctionResult('getAccountLiquidity', d)[2]);
+        })
+    });
+
+    const userBadDebts = dolaDebts.map((userDebts, i) => {
+        return userDebts.map((debt, j) => {
+            return shortfalls[i][j] > 0 ? debt : 0;
+        });
+    });
+
+    const newTotals = blocks.map((a, i) => mainBadDebtAddresses.reduce((prev, curr) => prev + userBadDebts[mainBadDebtAddresses.indexOf(curr)][i], 0));
 
     const resultData = {
-        totals: pastData?.totals.concat(newData.map(d => d.dolaBadDebt)),
-        blocks: pastData?.blocks.concat(newData.map(d => d.block)),
-        timestamp: Date.now(),
+        totals: pastData?.totals.concat(newTotals),
+        old: pastData?.shortfalls,
+        new: shortfalls,
+        shortfalls: pastData?.shortfalls.map((d, i) => d.concat(shortfalls[i])),
+        dolaDebts: pastData?.dolaDebts.map((d, i) => d.concat(dolaDebts[i])),
+        userBadDebts: pastData?.userBadDebts.map((d, i) => d.concat(userBadDebts[i])),
+        blocks: pastData?.blocks.concat(blocks),
+        timestamp: +(new Date()),
     }
     await redisSetWithTimestamp(frontierBadDebtEvoCacheKey, resultData);
     return resultData;
