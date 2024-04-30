@@ -42,7 +42,7 @@ export default async function handler(req, res) {
   // we keep two cache entries, one "archived" that is up to ~30 days old and one "current"
   // makes potential fed migrations easier
   const archiveKey = `fed-policy-cache-v1.1.0`;
-  const cacheKey = `fed-policy-cache-v1.1.13`;
+  const cacheKey = `fed-policy-cache-v1.1.14`;
 
   try {
     const cacheDuration = 60;
@@ -58,7 +58,7 @@ export default async function handler(req, res) {
     const _pastTotalEvents = archived?.totalEvents || [];
     let pastTotalEvents;
     // Euler Fed closure fixture (no Contraction event was emitted)
-    if (!_pastTotalEvents.find(e => e.txHash === '0xd402c7521272ea2ff718a8706a79aedf4c916208a6f3e8172aae4ffb54338e2f' && e.value < 0)) {
+    if (false && !_pastTotalEvents.find(e => e.txHash === '0xd402c7521272ea2ff718a8706a79aedf4c916208a6f3e8172aae4ffb54338e2f' && e.value < 0)) {
       pastTotalEvents = _pastTotalEvents.filter(e => e.timestamp < 1688663111000);
       const lastEventBeforeEulerFedClosure = pastTotalEvents[pastTotalEvents.length - 1];
       const eulerFedClosure = {

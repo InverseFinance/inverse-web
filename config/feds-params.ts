@@ -377,4 +377,80 @@ export const FEDS_PARAMS = [
             },
         },
     },
+    {
+        chainId: NetworkIds.mainnet,
+        type: FedTypes.LP,
+        protocol: "Aerodrome",
+        address: "0x783719dDf09D2ee0960BB365f7Ef652bfE35F54d",
+        name: "BaseCCTP Fed",
+        projectImage:
+            "https://assets.coingecko.com/coins/images/31745/small/token.png?1694749704",
+        supplyFuncName: "dolaSupply",
+        incomeChainId: NetworkIds.base,
+        incomeSrcAd: "0xe96e99a5A3512468A4aaFC317D77C6Fa0289F5f3",
+        incomeTargetAd: "0x586CF50c2874f3e3997660c0FD0996B090FB9764",
+        dontUseSupplyForPolCalc: true,
+        strategy: {
+            description: 'The minted DOLA is bridged to a AeroFarmer contract on Base, this contract can swap DOLA for native USDC and deposit DOLA+USDC to the Velodrome DOLA-USDC liquidity pool. \n\nThis Fed gets rewards in AERO tokens which can then be locked to increase voting power on Aerodrome further increasing efficiency.',
+            pools: [
+                {
+                    address: '0xf213F2D02837012dC0236cC105061e121bB03e37',
+                    name: 'Aerodrome DOLA-USDC',
+                    link: 'https://aerodrome.finance/deposit?token0=0x4621b7a9c75199271f773ebd9a499dbd165c3191&token1=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913&stable=true',
+                    image: 'https://assets.coingecko.com/coins/images/31745/small/token.png?1694749704',
+                },
+            ],
+            type: 'solidly',
+            lpBalanceContract: '0xCCff5627cd544b4cBb7d048139C1A6b6Bde67885',
+            rewardPools: [
+                { address: '0xCCff5627cd544b4cBb7d048139C1A6b6Bde67885', method: 'earned', underlying: '0x940181a94A35A4569E4529A3CDfB74e38FD98631' }
+            ],
+            multisig: {
+                address: '0x586CF50c2874f3e3997660c0FD0996B090FB9764',
+                relevantAssets: [
+                    '0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA',
+                    '0x4621b7A9c75199271F773Ebd9A499dbd165c3191',
+                    '0x940181a94A35A4569E4529A3CDfB74e38FD98631',
+                ]
+            },
+        },
+    },
+    {
+        chainId: NetworkIds.mainnet,
+        type: FedTypes.LP,
+        protocol: "Velodrome",
+        address: "0x52FFD313cc11882b75879C41d837b20F974ea88f",
+        name: "OptiCCTP Fed",
+        projectImage:
+            "https://assets.coingecko.com/coins/images/25783/small/velo.png",
+        supplyFuncName: "dolaSupply",
+        incomeChainId: NetworkIds.optimism,
+        incomeSrcAd: "0x9060A61994F700632D16D6d2938CA3C7a1D344Cb",
+        incomeTargetAd: "0xa283139017a2f5BAdE8d8e25412C600055D318F8",
+        dontUseSupplyForPolCalc: true,
+        strategy: {
+            description: 'The minted DOLA is bridged to a VeloFarmer contract on Optimism, this contract can swap DOLA for native USDC and deposit DOLA+USDC to the Velodrome DOLA-USDC liquidity pool. \n\nThis Fed gets rewards in VELO tokens which can then be locked to increase voting power on Velodrome further increasing efficiency.',
+            pools: [
+                {
+                    address: '0xA56a25Dee5B3199A9198Bbd48715EE3D0ed98378',
+                    name: 'Velodrome DOLA-USDC',
+                    link: 'https://app.velodrome.finance/deposit?token0=0x7f5c764cbc14f9669b88837ca1490cca17c31607&token1=0x8ae125e8653821e851f12a49f7765db9a9ce7384&stable=true',
+                    image: 'https://assets.coingecko.com/coins/images/25783/small/velo.png',
+                },
+            ],
+            type: 'solidly',
+            lpBalanceContract: '0x853CAcEc83e4183eF78d6b64ccca3de365861CaF',
+            rewardPools: [
+                { address: '0x853CAcEc83e4183eF78d6b64ccca3de365861CaF', method: 'earned', underlying: '0x9560e827af36c94d2ac33a39bce1fe78631088db' }
+            ],
+            multisig: {
+                address: '0xa283139017a2f5BAdE8d8e25412C600055D318F8',
+                relevantAssets: [
+                    '0xFAf8FD17D9840595845582fCB047DF13f006787d',
+                    '0x3c8B650257cFb5f272f799F5e2b4e65093a11a05',
+                    '0x9560e827af36c94d2ac33a39bce1fe78631088db',
+                ]
+            },
+        },
+    },
 ];
