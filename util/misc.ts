@@ -172,13 +172,13 @@ export const getTimestampFromUTCDate = (utcDate: string) => {
 export const utcDateStringToTimestamp = (dateString: string) => {
     // Validate the input format using a regular expression
     if (!/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
-      throw new Error('Invalid date format. Please use "yyyy-mm-dd" format.');
+        throw new Error('Invalid date format. Please use "yyyy-mm-dd" format.');
     }
     // Parse the date string and convert it to a UTC date object
     const date = new Date(`${dateString}T00:00:00Z`);
     // Check for invalid dates (e.g., "2023-02-30")
     if (isNaN(date.getTime())) {
-      throw new Error('Invalid date.');
+        throw new Error('Invalid date.');
     }
     return date.getTime();
 }
@@ -221,7 +221,7 @@ export const preciseCommify = (v: number, precision = 2, isDollar = false, isRem
     let result
     try {
         result = `${isDollar ? '$' : ''}${commify(split[0])}.${split[1]}`.replace('$-', '-$');
-        if(isRemoveTrailingZeros) {
+        if (isRemoveTrailingZeros) {
             result = removeTrailingZeros(result);
         }
     } catch (e) {
@@ -258,7 +258,7 @@ export const fillMissingDailyDatesWithMostRecentData = (arr: any[], minDayInterv
                         eventPointLabel: undefined,
                         _isFilledIn: true,
                     };
-                    if(fillInValue !== undefined) {
+                    if (fillInValue !== undefined) {
                         missingEntry.y = fillInValue;
                     }
                     filledArray.push(missingEntry);
@@ -304,7 +304,7 @@ export const getOrClosest = (data: { [key: string]: number }, targetDateStr: str
 
     let date = new Date(targetDateStr);
     for (let i = 0; i < maxTries; i++) {
-        const delta = i+1;
+        const delta = i + 1;
         // Try the next date
         date.setDate(date.getDate() + delta);
         let nextDateStr = date.toISOString().split('T')[0];
@@ -313,7 +313,7 @@ export const getOrClosest = (data: { [key: string]: number }, targetDateStr: str
         }
 
         // Try the previous date
-        date.setDate(date.getDate() - 2*delta);  // subtract 2 because we added 1 in the above step
+        date.setDate(date.getDate() - 2 * delta);  // subtract 2 because we added 1 in the above step
         let prevDateStr = date.toISOString().split('T')[0];
         if (data[prevDateStr] !== undefined) {
             return data[prevDateStr];
@@ -339,4 +339,32 @@ export const estimateBlockTimestamp = (pastBlock: number, nowTs: number, nowBloc
 }
 export const estimateBlocksTimestamps = (pastBlocks: number[], nowTs: number, nowBlock: number) => {
     return pastBlocks.map(pastBlock => estimateBlockTimestamp(pastBlock, nowTs, nowBlock));
+}
+
+export const getWeek = function (ts: number) {
+    const date = new Date(ts);
+    date.setHours(0, 0, 0, 0);
+    // Thursday in current week decides the year.
+    date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+    // January 4 is always in week 1.
+    const week1 = new Date(date.getFullYear(), 0, 4);
+    // Adjust to Thursday in week 1 and count number of weeks from date to week1.
+    return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000
+        - 3 + (week1.getDay() + 6) % 7) / 7);
+}
+
+// Returns the four-digit year corresponding to the ISO week of the date.
+export const getWeekYear = function (ts: number) {
+    const date = new Date(ts);
+    date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+    return date.getFullYear();
+}
+export function getPreviousThursdayUtcDateOfTimestamp(ts: number) {
+    const now = new Date(ts);
+    const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0);
+    const today = new Date(nowUTC);
+    const dayOfWeek = today.getUTCDay();
+    const daysSinceLastThursday = dayOfWeek >= 4 ? dayOfWeek - 4 : 7 - (4-dayOfWeek);
+    today.setUTCDate(today.getUTCDate() - daysSinceLastThursday);
+    return timestampToUTC(+(today));
 }

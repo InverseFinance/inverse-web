@@ -4,7 +4,7 @@ import { shortenNumber, smartShortNumber } from '@app/util/markets';
 import { Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ComposedChart } from 'recharts';
 import { preciseCommify } from '@app/util/misc';
 
-const CustomizedLabel = ({x, y, fill, value, color, useUsd}) => {
+const CustomizedLabel = ({x, y, fill, value, color, useUsd, precision = 2 }) => {
     return <text
         x={x}
         y={y}
@@ -14,7 +14,7 @@ const CustomizedLabel = ({x, y, fill, value, color, useUsd}) => {
         fontFamily='sans-serif'
         fontWeight="bold" 
         fill={color}
-        textAnchor="middle">{value ? smartShortNumber(value, 2, useUsd): ''}</text>
+        textAnchor="middle">{value ? smartShortNumber(value, precision, useUsd): ''}</text>
 };
 
 export const BarChartRecharts = ({
@@ -27,13 +27,17 @@ export const BarChartRecharts = ({
     mainColor,
     yDomain,
     yLabel,
+    secondaryColor,
+    yLabel2,
     showTooltips = true,
     showLegend = false,
     allowZoom = false,
     rightPadding = 0,
     showLabel = true,
+    precision = 2,
+    isDoubleBar = false,
 }: {
-    combodata: { y: number, x: number, timestamp: number, utcDate: string }[]
+    combodata: { y: number, y2? :number, x: number, timestamp: number, utcDate: string }[]
     title: string
     axisStyle?: any
     chartWidth?: number
@@ -43,14 +47,18 @@ export const BarChartRecharts = ({
     showTooltips?: boolean
     allowZoom?: boolean
     mainColor?: string
+    secondaryColor?: string
     interpolation?: string
     yLabel?: string
+    yLabel2?: string
     yDomain?: [any, any]
     showEvents?: boolean
     showEventsLabels?: boolean
     events?: any[]
     rightPadding?: number
     showLabel?: boolean
+    isDoubleBar?: boolean
+    precision?: number
 }) => {
     const { themeStyles } = useAppTheme();
 
@@ -69,7 +77,8 @@ export const BarChartRecharts = ({
     }
 
     const defaultColor = themeStyles.colors.success;
-    const color = mainColor || defaultColor;    
+    const color = mainColor || defaultColor;
+    const color2 = secondaryColor || themeStyles.colors.info;
 
     return (
         <VStack position="relative" alignItems="center" maxW={`${chartWidth}px`}>
@@ -94,7 +103,7 @@ export const BarChartRecharts = ({
                     style={_axisStyle.tickLabels}
                     dataKey="x"
                 />
-                <YAxis style={_axisStyle.tickLabels} tickFormatter={(v) => v === 0 ? '' : smartShortNumber(v, 2, useUsd)} />
+                <YAxis domain={yDomain} style={_axisStyle.tickLabels} tickFormatter={(v) => v === 0 ? '' : smartShortNumber(v, 2, useUsd)} />
                 {
                     showTooltips && <Tooltip
                         wrapperStyle={_axisStyle.tickLabels}
@@ -104,14 +113,15 @@ export const BarChartRecharts = ({
                         itemStyle={{ fontWeight: 'bold' }}
                         formatter={(value, name) => {
                             const isPrice = name === 'Price';
-                            return !value ? 'none' : isPrice ? shortenNumber(value, 4, true) : preciseCommify(value, 0, useUsd)
+                            return !value ? 'none' : isPrice ? shortenNumber(value, 4, useUsd) : preciseCommify(value, precision, useUsd)
                         }}
                     />
                 }
                 {
                     showLegend && <Legend wrapperStyle={legendStyle} style={{ cursor: 'pointer' }} formatter={(value) => value} />
                 }
-                <Bar label={showLabel ? (props) => <CustomizedLabel {...props} useUsd={useUsd} color={color} /> : undefined} maxBarSize={25} name={yLabel} dataKey={'y'} stroke={color} fillOpacity={1} fill={color} />
+                <Bar label={showLabel ? (props) => <CustomizedLabel {...props} useUsd={useUsd} color={color} precision={precision} /> : undefined} maxBarSize={25} name={yLabel} dataKey={'y'} stroke={color} fillOpacity={1} fill={color} />
+                { isDoubleBar && <Bar label={showLabel ? (props) => <CustomizedLabel {...props} useUsd={useUsd} color={color2} precision={precision} /> : undefined} maxBarSize={25} name={yLabel2 || yLabel} dataKey={'y2'} stroke={color2} fillOpacity={1} fill={color2} /> }
             </ComposedChart>
         </VStack>
     );
