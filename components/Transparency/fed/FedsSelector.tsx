@@ -17,7 +17,7 @@ export const FedsSelector = ({ feds, setChosenFedIndex, defaultValue = '0', valu
         <Box maxW="850px" {...props}>
             <RadioGridCardGroup
                 wrapperProps={{
-                    minChildWidth: '95px',
+                    minChildWidth: '105px',
                     spacing: '2',
                     overflow: 'auto',
                     position: 'relative',
@@ -31,7 +31,7 @@ export const FedsSelector = ({ feds, setChosenFedIndex, defaultValue = '0', valu
                     value: value !== undefined ? value.toString() : undefined,
                     onChange: (v: string) => setChosenFedIndex(parseInt(v)),
                 }}
-                radioCardProps={{ w: '95px', fontSize: '13px', textAlign: 'center', p: '2', position: 'relative' }}
+                radioCardProps={{ w: '105px', fontSize: '13px', textAlign: 'center', p: '2', position: 'relative' }}
                 options={fedOptionList}
             />
         </Box>
