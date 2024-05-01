@@ -49,8 +49,8 @@ export const SDolaStakingChart = ({ events }) => {
     </VStack>
 }
 
-export const SDolaStakingEvolutionChart = ({ data, chartWidth, attribute, yLabel, isPerc = false }) => {
-    const { chartData } = useEventsAsChartData(data, attribute, attribute, true, true);
+export const SDolaStakingEvolutionChart = ({ data, chartWidth, attribute, yLabel, isPerc = false, areaProps }) => {
+    const { chartData } = useEventsAsChartData(data, attribute, attribute, false, true);
     return <DefaultCharts
         showMonthlyBarChart={false}
         maxChartWidth={chartWidth}
@@ -58,6 +58,6 @@ export const SDolaStakingEvolutionChart = ({ data, chartWidth, attribute, yLabel
         chartData={chartData}
         isDollars={false}
         smoothLineByDefault={false}
-        areaProps={{ isPerc, id: 'dola-staking-evolution', forceStaticRangeBtns: true, showRangeBtns: true, yLabel, useRecharts: true, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '2W', 'YTD'], }}
+        areaProps={{ isPerc, id: 'dola-staking-evolution-'+attribute, forceStaticRangeBtns: true, showRangeBtns: true, yLabel, useRecharts: true, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '2W', 'YTD'], ...areaProps }}
     />
 }

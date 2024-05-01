@@ -3,7 +3,7 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
 import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader';
-import { preciseCommify } from '@app/util/misc';
+import { getAvgOnLastItems, preciseCommify, timestampToUTC } from '@app/util/misc';
 import { DolaStakingActivity } from '@app/components/sDola/DolaStakingActivity';
 import { useDolaStakingActivity, useDolaStakingEvolution, useStakedDola } from '@app/util/dola-staking';
 import { useDBRPrice } from '@app/hooks/useDBR';
@@ -12,6 +12,7 @@ import { SDolaStakingEvolutionChart } from '@app/components/F2/DolaStaking/DolaS
 import { SkeletonBlob } from '@app/components/common/Skeleton';
 import { shortenNumber } from '@app/util/markets';
 import { useEffect, useRef, useState } from 'react';
+import { useAppTheme } from '@app/hooks/useAppTheme';
 
 const ChartCard = (props: StackProps & { cardTitle?: string, subtitle?: string, href?: string, imageSrc?: string }) => {
   return <Flex
@@ -73,32 +74,39 @@ const Chart = (props) => {
 }
 
 export const SDolaStatsPage = () => {
+  const { themeStyles } = useAppTheme();
   const { events, timestamp } = useDolaStakingActivity(undefined, 'sdola');
-  const { evolution, timestamp: lastDailySnapTs } = useDolaStakingEvolution();
+  const { evolution, timestamp: lastDailySnapTs, isLoading: isLoadingEvolution } = useDolaStakingEvolution();
   const { priceDola: dbrDolaPrice } = useDBRPrice();
   const { sDolaSupply, sDolaTotalAssets, apr, apy, isLoading } = useStakedDola(dbrDolaPrice);
   const [isInited, setInited] = useState(false);
   const [histoData, setHistoData] = useState([]);
+  const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading || isLoadingEvolution || !evolution?.length) return;
+    const nowUtcDate = timestampToUTC(now);
     setHistoData(
-      evolution.concat([
-        {
-          ...evolution[evolution.length - 1],
-          timestamp: Date.now() - (1000 * 120),
-          apr,
-          apy,
-          sDolaTotalAssets,
-          sDolaSupply,
-        }
-      ])
+      evolution
+        .filter(d => timestampToUTC(d.timestamp) !== nowUtcDate)
+        .concat([
+          {
+            ...evolution[evolution.length - 1],
+            timestamp: Date.now() - (1000 * 120),
+            apr,
+            apy,
+            sDolaTotalAssets,
+            sDolaSupply,
+          }
+        ])
     )
-  }, [lastDailySnapTs, evolution, sDolaTotalAssets, apr, apy, isLoading]);
+  }, [lastDailySnapTs, isLoadingEvolution, evolution, sDolaTotalAssets, apr, apy, isLoading, now]);
 
   useEffect(() => {
     setInited(true);
   }, []);
+
+  const thirtyDayAvg = getAvgOnLastItems(histoData, 'apy', 30);
 
   return (
     <Layout>
@@ -119,11 +127,11 @@ export const SDolaStatsPage = () => {
         px={{ base: '4', lg: '0' }}
       >
         <SimpleGrid columns={{ base: 1, xl: 2 }} spacing="8" w="100%">
+          <ChartCard cardTitle={`APY evolution`} subtitle={`(30 day avg: ${shortenNumber(thirtyDayAvg, 2)}%, Current: ${shortenNumber(apy || 0, 2)}%)`}>
+            {isInited && <Chart currentValue={apy} isPerc={true} data={histoData} attribute="apy" yLabel="APY" areaProps={{ addDayAvg: true, avgDayNumber: 30, avgLineProps: { stroke: themeStyles.colors.success } }} />}
+          </ChartCard>
           <ChartCard subtitle={sDolaTotalAssets > 0 ? `(current: ${preciseCommify(sDolaTotalAssets || 0, 0)})` : ''} cardTitle={`DOLA staked in sDOLA`}>
             {isInited && <Chart isLoading={isLoading} currentValue={sDolaTotalAssets} data={histoData} attribute="sDolaTotalAssets" yLabel="DOLA staked" />}
-          </ChartCard>
-          <ChartCard cardTitle={`APY evolution`} subtitle={`(current: ${shortenNumber(apy || 0, 2)}%)`}>
-            {isInited && <Chart currentValue={apy} isPerc={true} data={histoData} attribute="apy" yLabel="APY" />}
           </ChartCard>
         </SimpleGrid>
         <DolaStakingActivity

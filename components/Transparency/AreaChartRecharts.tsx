@@ -8,6 +8,27 @@ import { useRechartsZoom } from '@app/hooks/useRechartsZoom';
 
 const CURRENT_YEAR = new Date().getFullYear().toString();
 
+const getAddDaysAvg = (evoData: any[], period: number) => {
+    const ignoreFirst = evoData?.length > 0 ? evoData[0].y === 0 : true;    
+    return evoData.map((d,i) => {
+        if(ignoreFirst && i === 0) return { ...d, yAvg: d.y }
+        else if(ignoreFirst && i < period) {
+            const nb = Math.min(i-1, period-1) + 1;
+            const slice = evoData.slice(i+1-nb, i+1);
+            const yAvg = slice.reduce((prev, curr) => prev+curr.y, 0)/slice.length;
+            return {
+                ...d, yAvg,
+            }
+        }
+        const nb = Math.min(i, period-1) + 1;
+        const slice = evoData.slice(i+1-nb, i+1);
+        const yAvg =slice.reduce((prev, curr) => prev+curr.y, 0)/slice.length;
+        return {
+            ...d, yAvg,
+        }
+    })
+}
+
 export const AreaChartRecharts = ({
     combodata,
     title,
@@ -40,7 +61,10 @@ export const AreaChartRecharts = ({
     secondaryLabel = 'Price',
     secondaryAsUsd = true,
     secondaryPrecision = 4,
-    yDomainAsInteger = false
+    yDomainAsInteger = false,
+    addDayAvg = false,
+    avgDayNumber = 30,
+    avgLineProps,
 }: {
     combodata: { y: number, x: number, timestamp: number, utcDate: string }[]
     title: string
@@ -74,13 +98,17 @@ export const AreaChartRecharts = ({
     secondaryAsUsd?: boolean
     secondaryPrecision?: number
     yDomainAsInteger?: boolean
-}) => {    
+    addDayAvg?: boolean
+    avgDayNumber?: number
+    avgLineProps?: any
+}) => {        
+    const _combodata = addDayAvg ? getAddDaysAvg(combodata, avgDayNumber) : combodata;
     const { themeStyles } = useAppTheme();
     const { mouseDown, mouseUp, mouseMove, mouseLeave, bottom, top, rangeButtonsBarAbs, zoomReferenceArea, data: zoomedData } = useRechartsZoom({
-        combodata, rangesToInclude, forceStaticRangeBtns, defaultRange    
+        combodata: _combodata, rangesToInclude, forceStaticRangeBtns, defaultRange    
     });
 
-    const _data = zoomedData || combodata;
+    const _data = zoomedData || _combodata;
 
     const _axisStyle = axisStyle || {
         tickLabels: { fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '14px', userSelect: 'none' },
@@ -144,6 +172,9 @@ export const AreaChartRecharts = ({
                 }
                 {
                     showSecondary && <Line isAnimationActive={false} opacity={1} strokeWidth={2} name={secondaryLabel} yAxisId="right" type="monotone" dataKey={secondaryRef} stroke={themeStyles.colors.info} dot={false} />
+                }
+                {
+                    addDayAvg && <Line isAnimationActive={false} opacity={1} strokeWidth={2} name={`${avgDayNumber} day avg`} yAxisId="left" type="monotone" dataKey={'yAvg'} stroke={themeStyles.colors.info} dot={false} {...avgLineProps} />
                 }
                 {
                     showTooltips && <Tooltip
