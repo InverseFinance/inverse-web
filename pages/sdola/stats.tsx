@@ -12,6 +12,7 @@ import { SDolaStakingEvolutionChart } from '@app/components/F2/DolaStaking/DolaS
 import { SkeletonBlob } from '@app/components/common/Skeleton';
 import { shortenNumber } from '@app/util/markets';
 import { useEffect, useRef, useState } from 'react';
+import { useAppTheme } from '@app/hooks/useAppTheme';
 
 const ChartCard = (props: StackProps & { cardTitle?: string, subtitle?: string, href?: string, imageSrc?: string }) => {
   return <Flex
@@ -73,6 +74,7 @@ const Chart = (props) => {
 }
 
 export const SDolaStatsPage = () => {
+  const { themeStyles } = useAppTheme();
   const { events, timestamp } = useDolaStakingActivity(undefined, 'sdola');
   const { evolution, timestamp: lastDailySnapTs } = useDolaStakingEvolution();
   const { priceDola: dbrDolaPrice } = useDBRPrice();
@@ -120,7 +122,7 @@ export const SDolaStatsPage = () => {
       >
         <SimpleGrid columns={{ base: 1, xl: 2 }} spacing="8" w="100%">
           <ChartCard cardTitle={`APY evolution`} subtitle={`(current: ${shortenNumber(apy || 0, 2)}%)`}>
-            {isInited && <Chart currentValue={apy} isPerc={true} data={histoData} attribute="apy" yLabel="APY" areaProps={{ add30DayAvg: true }} />}
+            {isInited && <Chart currentValue={apy} isPerc={true} data={histoData} attribute="apy" yLabel="APY" areaProps={{ addDayAvg: true, avgDayNumber: 30, avgLineProps: { stroke: themeStyles.colors.success } }} />}
           </ChartCard>
           <ChartCard subtitle={sDolaTotalAssets > 0 ? `(current: ${preciseCommify(sDolaTotalAssets || 0, 0)})` : ''} cardTitle={`DOLA staked in sDOLA`}>
             {isInited && <Chart isLoading={isLoading} currentValue={sDolaTotalAssets} data={histoData} attribute="sDolaTotalAssets" yLabel="DOLA staked" />}

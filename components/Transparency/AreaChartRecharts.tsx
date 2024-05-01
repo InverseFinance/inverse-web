@@ -8,11 +8,21 @@ import { useRechartsZoom } from '@app/hooks/useRechartsZoom';
 
 const CURRENT_YEAR = new Date().getFullYear().toString();
 
-const getAdd30DaysAvg = (evoData: any[]) => {
+const getAddDaysAvg = (evoData: any[], period: number) => {
+    const ignoreFirst = evoData?.length > 0 ? evoData[0].y === 0 : true;    
     return evoData.map((d,i) => {
-        const y30DayAvg = i < 30 ? 0 : evoData.slice(i-30, i-1).reduce((prev, curr) => prev+curr.y, 0)/30;
+        if(ignoreFirst && i === 0) return { ...d, yAvg: d.y }
+        else if(ignoreFirst && i < period) {
+            const nb = Math.min(i-1, period-1) + 1;
+            const yAvg = evoData.slice(i+1-nb, i+1).reduce((prev, curr) => prev+curr.y, 0)/nb;
+            return {
+                ...d, yAvg,
+            }
+        }
+        const nb = Math.min(i, period-1) + 1;
+        const yAvg = evoData.slice(i+1-nb, i+1).reduce((prev, curr) => prev+curr.y, 0)/nb;
         return {
-            ...d, y30DayAvg
+            ...d, yAvg,
         }
     })
 }
@@ -50,7 +60,9 @@ export const AreaChartRecharts = ({
     secondaryAsUsd = true,
     secondaryPrecision = 4,
     yDomainAsInteger = false,
-    add30DayAvg = false,
+    addDayAvg = false,
+    avgDayNumber = 30,
+    avgLineProps,
 }: {
     combodata: { y: number, x: number, timestamp: number, utcDate: string }[]
     title: string
@@ -84,9 +96,11 @@ export const AreaChartRecharts = ({
     secondaryAsUsd?: boolean
     secondaryPrecision?: number
     yDomainAsInteger?: boolean
-    add30DayAvg?: boolean
+    addDayAvg?: boolean
+    avgDayNumber?: number
+    avgLineProps?: any
 }) => {        
-    const _combodata = add30DayAvg ? getAdd30DaysAvg(combodata) : combodata;
+    const _combodata = addDayAvg ? getAddDaysAvg(combodata, avgDayNumber) : combodata;
     const { themeStyles } = useAppTheme();
     const { mouseDown, mouseUp, mouseMove, mouseLeave, bottom, top, rangeButtonsBarAbs, zoomReferenceArea, data: zoomedData } = useRechartsZoom({
         combodata: _combodata, rangesToInclude, forceStaticRangeBtns, defaultRange    
@@ -158,7 +172,7 @@ export const AreaChartRecharts = ({
                     showSecondary && <Line isAnimationActive={false} opacity={1} strokeWidth={2} name={secondaryLabel} yAxisId="right" type="monotone" dataKey={secondaryRef} stroke={themeStyles.colors.info} dot={false} />
                 }
                 {
-                    add30DayAvg && <Line isAnimationActive={false} opacity={1} strokeWidth={2} name={'30 day avg'} yAxisId="left" type="monotone" dataKey={'y30DayAvg'} stroke={themeStyles.colors.info} dot={false} />
+                    addDayAvg && <Line isAnimationActive={false} opacity={1} strokeWidth={2} name={`${avgDayNumber} day avg`} yAxisId="left" type="monotone" dataKey={'yAvg'} stroke={themeStyles.colors.info} dot={false} {...avgLineProps} />
                 }
                 {
                     showTooltips && <Tooltip
