@@ -8,6 +8,15 @@ import { useRechartsZoom } from '@app/hooks/useRechartsZoom';
 
 const CURRENT_YEAR = new Date().getFullYear().toString();
 
+const getAdd30DaysAvg = (evoData: any[]) => {
+    return evoData.map((d,i) => {
+        const y30DayAvg = i < 30 ? 0 : evoData.slice(i-30, i-1).reduce((prev, curr) => prev+curr.y, 0)/30;
+        return {
+            ...d, y30DayAvg
+        }
+    })
+}
+
 export const AreaChartRecharts = ({
     combodata,
     title,
@@ -40,7 +49,8 @@ export const AreaChartRecharts = ({
     secondaryLabel = 'Price',
     secondaryAsUsd = true,
     secondaryPrecision = 4,
-    yDomainAsInteger = false
+    yDomainAsInteger = false,
+    add30DayAvg = false,
 }: {
     combodata: { y: number, x: number, timestamp: number, utcDate: string }[]
     title: string
@@ -74,13 +84,15 @@ export const AreaChartRecharts = ({
     secondaryAsUsd?: boolean
     secondaryPrecision?: number
     yDomainAsInteger?: boolean
-}) => {    
+    add30DayAvg?: boolean
+}) => {        
+    const _combodata = add30DayAvg ? getAdd30DaysAvg(combodata) : combodata;
     const { themeStyles } = useAppTheme();
     const { mouseDown, mouseUp, mouseMove, mouseLeave, bottom, top, rangeButtonsBarAbs, zoomReferenceArea, data: zoomedData } = useRechartsZoom({
-        combodata, rangesToInclude, forceStaticRangeBtns, defaultRange    
+        combodata: _combodata, rangesToInclude, forceStaticRangeBtns, defaultRange    
     });
 
-    const _data = zoomedData || combodata;
+    const _data = zoomedData || _combodata;
 
     const _axisStyle = axisStyle || {
         tickLabels: { fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '14px', userSelect: 'none' },
@@ -144,6 +156,9 @@ export const AreaChartRecharts = ({
                 }
                 {
                     showSecondary && <Line isAnimationActive={false} opacity={1} strokeWidth={2} name={secondaryLabel} yAxisId="right" type="monotone" dataKey={secondaryRef} stroke={themeStyles.colors.info} dot={false} />
+                }
+                {
+                    add30DayAvg && <Line isAnimationActive={false} opacity={1} strokeWidth={2} name={'30 day avg'} yAxisId="left" type="monotone" dataKey={'y30DayAvg'} stroke={themeStyles.colors.info} dot={false} />
                 }
                 {
                     showTooltips && <Tooltip
