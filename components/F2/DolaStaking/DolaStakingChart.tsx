@@ -50,7 +50,7 @@ export const SDolaStakingChart = ({ events }) => {
 }
 
 export const SDolaStakingEvolutionChart = ({ data, chartWidth, attribute, yLabel, isPerc = false, areaProps }) => {
-    const { chartData } = useEventsAsChartData(data, attribute, attribute, true, true);
+    const { chartData } = useEventsAsChartData(data, attribute, attribute, false, true);
     return <DefaultCharts
         showMonthlyBarChart={false}
         maxChartWidth={chartWidth}

@@ -3,7 +3,7 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
 import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader';
-import { getAvgOnLastItems, preciseCommify } from '@app/util/misc';
+import { getAvgOnLastItems, preciseCommify, timestampToUTC } from '@app/util/misc';
 import { DolaStakingActivity } from '@app/components/sDola/DolaStakingActivity';
 import { useDolaStakingActivity, useDolaStakingEvolution, useStakedDola } from '@app/util/dola-staking';
 import { useDBRPrice } from '@app/hooks/useDBR';
@@ -76,30 +76,31 @@ const Chart = (props) => {
 export const SDolaStatsPage = () => {
   const { themeStyles } = useAppTheme();
   const { events, timestamp } = useDolaStakingActivity(undefined, 'sdola');
-  const { evolution, timestamp: lastDailySnapTs } = useDolaStakingEvolution();
+  const { evolution, timestamp: lastDailySnapTs, isLoading: isLoadingEvolution } = useDolaStakingEvolution();
   const { priceDola: dbrDolaPrice } = useDBRPrice();
   const { sDolaSupply, sDolaTotalAssets, apr, apy, isLoading } = useStakedDola(dbrDolaPrice);
   const [isInited, setInited] = useState(false);
   const [histoData, setHistoData] = useState([]);
+  const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
-    if (isLoading || !evolution?.length) return;
-    const clone = [...evolution];
-    // replace last entry (today) with current data
-    clone.splice(clone.length-1, 1,
-      {
-        ...evolution[evolution.length - 1],
-        timestamp: Date.now() - (1000 * 120),
-        apr,
-        apy,
-        sDolaTotalAssets,
-        sDolaSupply,
-      }
-    )
+    if (isLoading || isLoadingEvolution || !evolution?.length) return;
+    const nowUtcDate = timestampToUTC(now);
     setHistoData(
-     clone 
+      evolution
+        .filter(d => timestampToUTC(d.timestamp) !== nowUtcDate)
+        .concat([
+          {
+            ...evolution[evolution.length - 1],
+            timestamp: Date.now() - (1000 * 120),
+            apr,
+            apy,
+            sDolaTotalAssets,
+            sDolaSupply,
+          }
+        ])
     )
-  }, [lastDailySnapTs, evolution, sDolaTotalAssets, apr, apy, isLoading]);
+  }, [lastDailySnapTs, isLoadingEvolution, evolution, sDolaTotalAssets, apr, apy, isLoading, now]);
 
   useEffect(() => {
     setInited(true);
