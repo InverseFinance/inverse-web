@@ -14,13 +14,15 @@ const getAddDaysAvg = (evoData: any[], period: number) => {
         if(ignoreFirst && i === 0) return { ...d, yAvg: d.y }
         else if(ignoreFirst && i < period) {
             const nb = Math.min(i-1, period-1) + 1;
-            const yAvg = evoData.slice(i+1-nb, i+1).reduce((prev, curr) => prev+curr.y, 0)/nb;
+            const slice = evoData.slice(i+1-nb, i+1);
+            const yAvg = slice.reduce((prev, curr) => prev+curr.y, 0)/slice.length;
             return {
                 ...d, yAvg,
             }
         }
         const nb = Math.min(i, period-1) + 1;
-        const yAvg = evoData.slice(i+1-nb, i+1).reduce((prev, curr) => prev+curr.y, 0)/nb;
+        const slice = evoData.slice(i+1-nb, i+1);
+        const yAvg =slice.reduce((prev, curr) => prev+curr.y, 0)/slice.length;
         return {
             ...d, yAvg,
         }

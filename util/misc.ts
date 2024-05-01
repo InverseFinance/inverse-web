@@ -368,3 +368,10 @@ export function getPreviousThursdayUtcDateOfTimestamp(ts: number) {
     today.setUTCDate(today.getUTCDate() - daysSinceLastThursday);
     return timestampToUTC(+(today));
 }
+
+export const getAvgOnLastItems = (data: any[], attribute: string, nbLastItems: number) => {
+    if(!data?.length) return 0;
+    const start = Math.max(0, data.length-nbLastItems);
+    const slice = data.slice(start, data.length);
+    return slice.reduce((prev, curr) => prev+curr[attribute], 0)/slice.length;
+}
