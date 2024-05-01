@@ -83,18 +83,21 @@ export const SDolaStatsPage = () => {
   const [histoData, setHistoData] = useState([]);
 
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading || !evolution?.length) return;
+    const clone = [...evolution];
+    // replace last entry (today) with current data
+    clone.splice(clone.length-1, 1,
+      {
+        ...evolution[evolution.length - 1],
+        timestamp: Date.now() - (1000 * 120),
+        apr,
+        apy,
+        sDolaTotalAssets,
+        sDolaSupply,
+      }
+    )
     setHistoData(
-      evolution.concat([
-        {
-          ...evolution[evolution.length - 1],
-          timestamp: Date.now() - (1000 * 120),
-          apr,
-          apy,
-          sDolaTotalAssets,
-          sDolaSupply,
-        }
-      ])
+     clone 
     )
   }, [lastDailySnapTs, evolution, sDolaTotalAssets, apr, apy, isLoading]);
 
@@ -102,7 +105,7 @@ export const SDolaStatsPage = () => {
     setInited(true);
   }, []);
 
-  const thirtyDayAvg = getAvgOnLastItems(evolution, 'apy', 30);
+  const thirtyDayAvg = getAvgOnLastItems(histoData, 'apy', 30);
 
   return (
     <Layout>
