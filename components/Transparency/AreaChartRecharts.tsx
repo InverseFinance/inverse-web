@@ -8,25 +8,31 @@ import { useRechartsZoom } from '@app/hooks/useRechartsZoom';
 
 const CURRENT_YEAR = new Date().getFullYear().toString();
 
-const getAddDaysAvg = (evoData: any[], period: number) => {
-    const ignoreFirst = evoData?.length > 0 ? evoData[0].y === 0 : true;    
-    return evoData.map((d,i) => {
-        if(ignoreFirst && i === 0) return { ...d, yAvg: d.y }
-        else if(ignoreFirst && i < period) {
-            const nb = Math.min(i-1, period-1) + 1;
-            const slice = evoData.slice(i+1-nb, i+1);
-            const yAvg = slice.reduce((prev, curr) => prev+curr.y, 0)/slice.length;
+const getAddDaysAvg = (evoData: any[], periods: number[]) => {
+    const ignoreFirst = evoData?.length > 0 ? evoData[0].y === 0 : true;
+    const [period, ...remainingPeriods] = periods;
+    const avgKeyName = `yAvg${period}`;
+    const data = evoData.map((d, i) => {
+        if (ignoreFirst && i === 0) return { ...d, [avgKeyName]: d.y }
+        else if (ignoreFirst && i < period) {
+            const nb = Math.min(i - 1, period - 1) + 1;
+            const slice = evoData.slice(i + 1 - nb, i + 1);
+            const yAvg = slice.reduce((prev, curr) => prev + curr.y, 0) / slice.length;
             return {
-                ...d, yAvg,
+                ...d, [avgKeyName]: yAvg,
             }
         }
-        const nb = Math.min(i, period-1) + 1;
-        const slice = evoData.slice(i+1-nb, i+1);
-        const yAvg =slice.reduce((prev, curr) => prev+curr.y, 0)/slice.length;
+        const nb = Math.min(i, period - 1) + 1;
+        const slice = evoData.slice(i + 1 - nb, i + 1);
+        const yAvg = slice.reduce((prev, curr) => prev + curr.y, 0) / slice.length;
         return {
-            ...d, yAvg,
+            ...d, [avgKeyName]: yAvg,
         }
-    })
+    });
+    if (remainingPeriods.length > 0) {
+        return getAddDaysAvg(data, remainingPeriods)
+    }
+    return data;
 }
 
 export const AreaChartRecharts = ({
@@ -63,7 +69,7 @@ export const AreaChartRecharts = ({
     secondaryPrecision = 4,
     yDomainAsInteger = false,
     addDayAvg = false,
-    avgDayNumber = 30,
+    avgDayNumbers,
     avgLineProps,
 }: {
     combodata: { y: number, x: number, timestamp: number, utcDate: string }[]
@@ -99,13 +105,13 @@ export const AreaChartRecharts = ({
     secondaryPrecision?: number
     yDomainAsInteger?: boolean
     addDayAvg?: boolean
-    avgDayNumber?: number
-    avgLineProps?: any
-}) => {        
-    const _combodata = addDayAvg ? getAddDaysAvg(combodata, avgDayNumber) : combodata;
+    avgDayNumbers?: number[]
+    avgLineProps?: any[]
+}) => {
+    const _combodata = addDayAvg && avgDayNumbers?.length ? getAddDaysAvg(combodata, avgDayNumbers) : combodata;
     const { themeStyles } = useAppTheme();
     const { mouseDown, mouseUp, mouseMove, mouseLeave, bottom, top, rangeButtonsBarAbs, zoomReferenceArea, data: zoomedData } = useRechartsZoom({
-        combodata: _combodata, rangesToInclude, forceStaticRangeBtns, defaultRange    
+        combodata: _combodata, rangesToInclude, forceStaticRangeBtns, defaultRange
     });
 
     const _data = zoomedData || _combodata;
@@ -123,7 +129,8 @@ export const AreaChartRecharts = ({
         verticalAlign: legendPosition,
         top: legendPosition === 'top' ? -8 : undefined,
         fontSize: '12px',
-    }    
+        left: rightPadding / 2,
+    }
     const doesDataSpansSeveralYears = combodata?.filter(d => d.utcDate.endsWith('01-01')).length > 1;
     const _yDomain = zoomedData ? [bottom, top] : yDomain || [bottom, top];
 
@@ -174,15 +181,19 @@ export const AreaChartRecharts = ({
                     showSecondary && <Line isAnimationActive={false} opacity={1} strokeWidth={2} name={secondaryLabel} yAxisId="right" type="monotone" dataKey={secondaryRef} stroke={themeStyles.colors.info} dot={false} />
                 }
                 {
-                    addDayAvg && <Line isAnimationActive={false} opacity={1} strokeWidth={2} name={`${avgDayNumber} day avg`} yAxisId="left" type="monotone" dataKey={'yAvg'} stroke={themeStyles.colors.info} dot={false} {...avgLineProps} />
+                    addDayAvg && avgDayNumbers?.map((period, periodIndex) => {
+                        const _avgLineProps = avgLineProps ? avgLineProps[periodIndex] : {};
+                        return <Line key={'avg-period-'+period} isAnimationActive={false} opacity={1} strokeWidth={2} name={`${period} day avg`} yAxisId="left" type="monotone" dataKey={'yAvg'+period} stroke={themeStyles.colors.info} dot={false} {..._avgLineProps} />
+                    })
                 }
                 {
                     showTooltips && <Tooltip
-                        wrapperStyle={_axisStyle.tickLabels}
+                        wrapperStyle={{ ..._axisStyle.tickLabels, zIndex: 1 }}
                         contentStyle={{ backgroundColor: themeStyles.colors.mainBackgroundColor }}
                         labelFormatter={v => moment(v).format('MMM Do YYYY')}
                         labelStyle={{ fontWeight: 'bold', color: themeStyles.colors.mainTextColor }}
                         itemStyle={{ fontWeight: 'bold' }}
+                        allowEscapeViewBox={{ x: true, y: true }}                        
                         formatter={(value, name) => {
                             const isPrice = name === 'Price';
                             const isSecondary = name === secondaryLabel;
@@ -193,7 +204,7 @@ export const AreaChartRecharts = ({
                 {
                     showLegend && <Legend wrapperStyle={legendStyle} style={{ cursor: 'pointer' }} formatter={(value) => value} />
                 }
-                <Area syncId="main" yAxisId="left" syncMethod={'value'} opacity={1} strokeWidth={2} name={yLabel} type={interpolation} dataKey={'y'} stroke={strokeColor||themeStyles.colors[mainColor]} dot={false} fillOpacity={1} fill={`url(#${mainColor}-gradient)`} />
+                <Area syncId="main" yAxisId="left" syncMethod={'value'} opacity={1} strokeWidth={2} name={yLabel} type={interpolation} dataKey={'y'} stroke={strokeColor || themeStyles.colors[mainColor]} dot={false} fillOpacity={1} fill={`url(#${mainColor}-gradient)`} />
                 {
                     showEvents && events.map(d => {
                         return <ReferenceLine
