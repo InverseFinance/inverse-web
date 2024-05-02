@@ -128,8 +128,8 @@ export const StakeDolaUI = () => {
                 </VStack>
             </HStack>
             <HStack justify="space-between" w='full'>
-                <StatBasic message="This week's APY is calculated with last week's DBR auction revenues and assuming a weekly auto-compounding" isLoading={isLoading} name="Current APY" value={apy ? `${shortenNumber(apy, 2)}%` : '0% this week'} />
-                <StatBasic message={"The projected APY is a theoretical estimation of where the APY should tend to go. It's calculated by considering current's week auction revenue and a forecast that considers the DBR incentives, where the forecast portion has a weight of more than 50%"} isLoading={isLoading} name="Projected APY" value={`${shortenNumber(projectedApy, 2)}%`} />
+                <StatBasic message="This week's APY is calculated with last week's DBR auction revenues and assuming a weekly auto-compounding" isLoading={isLoading} name="Current APY" value={apy ? `${shortenNumber(apy, 2)}%` : '-'} />
+                <StatBasic message={"The projected APY is a theoretical estimation of where the APY should tend to go. It's calculated by considering current's week auction revenue and a forecast that considers the DBR incentives, where the forecast portion has a weight of more than 50%"} isLoading={isLoading} name="Projected APY" value={projectedApy ? '-' : `${shortenNumber(projectedApy, 2)}%`} />
             </HStack>
             <SuccessMessage
                 showIcon={false}
@@ -144,11 +144,11 @@ export const StakeDolaUI = () => {
                         }
                         <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
                             <Text>- Total earnings by all holders:</Text>
-                            <Text><b>{shortenNumber(sDolaHoldersTotalEarnings, 2)} DOLA</b></Text>
+                            <Text><b>{sDolaHoldersTotalEarnings ? `${shortenNumber(sDolaHoldersTotalEarnings, 2)} DOLA` : '-'}</b></Text>
                         </Stack>
                         <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
                             <Text>- Total staked:</Text>
-                            <Text><b>{shortenNumber(sDolaTotalAssets, 2)} DOLA</b></Text>
+                            <Text><b>{sDolaTotalAssets ? `${shortenNumber(sDolaTotalAssets, 2)} DOLA` : '-'}</b></Text>
                         </Stack>
                     </VStack>
                 }
