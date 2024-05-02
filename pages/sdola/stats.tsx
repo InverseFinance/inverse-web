@@ -127,8 +127,8 @@ export const SDolaStatsPage = () => {
         px={{ base: '4', lg: '0' }}
       >
         <SimpleGrid columns={{ base: 1, xl: 2 }} spacing="8" w="100%">
-          <ChartCard cardTitle={`APY evolution`} subtitle={`(30 day avg: ${shortenNumber(thirtyDayAvg, 2)}%, Current: ${shortenNumber(apy || 0, 2)}%)`}>
-            {isInited && <Chart currentValue={apy} isPerc={true} data={histoData} attribute="apy" yLabel="APY" areaProps={{ addDayAvg: true, avgDayNumber: 30, avgLineProps: { stroke: themeStyles.colors.success } }} />}
+          <ChartCard cardTitle={`sDOLA APY evolution`} subtitle={`(30 day avg: ${shortenNumber(thirtyDayAvg, 2)}%, Current: ${shortenNumber(apy || 0, 2)}%)`}>
+            {isInited && <Chart currentValue={apy} isPerc={true} data={histoData} attribute="apy" yLabel="APY" areaProps={{ addDayAvg: true, showLegend: true, legendPosition: 'bottom', avgDayNumber: 30, avgLineProps: { stroke: themeStyles.colors.success } }} />}
           </ChartCard>
           <ChartCard subtitle={sDolaTotalAssets > 0 ? `(current: ${preciseCommify(sDolaTotalAssets || 0, 0)})` : ''} cardTitle={`DOLA staked in sDOLA`}>
             {isInited && <Chart isLoading={isLoading} currentValue={sDolaTotalAssets} data={histoData} attribute="sDolaTotalAssets" yLabel="DOLA staked" />}

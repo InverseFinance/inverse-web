@@ -123,6 +123,7 @@ export const AreaChartRecharts = ({
         verticalAlign: legendPosition,
         top: legendPosition === 'top' ? -8 : undefined,
         fontSize: '12px',
+        left: rightPadding/2,
     }    
     const doesDataSpansSeveralYears = combodata?.filter(d => d.utcDate.endsWith('01-01')).length > 1;
     const _yDomain = zoomedData ? [bottom, top] : yDomain || [bottom, top];
