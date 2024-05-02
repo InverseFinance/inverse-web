@@ -188,11 +188,12 @@ export const AreaChartRecharts = ({
                 }
                 {
                     showTooltips && <Tooltip
-                        wrapperStyle={_axisStyle.tickLabels}
+                        wrapperStyle={{ ..._axisStyle.tickLabels, zIndex: 1 }}
                         contentStyle={{ backgroundColor: themeStyles.colors.mainBackgroundColor }}
                         labelFormatter={v => moment(v).format('MMM Do YYYY')}
                         labelStyle={{ fontWeight: 'bold', color: themeStyles.colors.mainTextColor }}
                         itemStyle={{ fontWeight: 'bold' }}
+                        allowEscapeViewBox={{ x: true, y: true }}                        
                         formatter={(value, name) => {
                             const isPrice = name === 'Price';
                             const isSecondary = name === secondaryLabel;
