@@ -12,6 +12,7 @@ import { BalanceInput } from "@app/components/common//Input"
 import { roundFloorString } from "@app/util/misc";
 import { InfoMessage } from "../Messages";
 import { RSubmitButton } from "../Button/RSubmitButton";
+import useStorage from "@app/hooks/useStorage";
 
 type Props = {
     defaultAmount?: string
@@ -120,7 +121,9 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
         approveForceRefresh = false,
     } = props;
     const [amount, setAmount] = useState(!defaultAmount ? '' : defaultAmount);
+    const { value: infApprovPref, setter: saveInfApprovPref } = useStorage('infinite-approval-preference')
     const [isInfiniteApprovalMode, setIsInfiniteApprovalMode] = useState(defaultInfiniteApprovalMode);
+    const [infApprovPrefInited, setInfApprovPrefInited] = useState(false);
     const [tokenApproved, setTokenApproved] = useState(false);    
     const [freshAmountApproved, setFreshAmountApproved] = useState(0);
     const { approvals } = useAllowances([address], destination);
@@ -142,6 +145,12 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
 
     const _amount = (amount || '')?.toString()?.startsWith('.') ? `0${amount}` : amount;
     const _bnAmount = parseUnits((roundFloorString(_amount, decimals) || '0'), decimals);
+
+    useEffect(() => {
+        if(!enableCustomApprove || typeof infApprovPref !== 'boolean' || infApprovPrefInited) return;
+        setIsInfiniteApprovalMode(infApprovPref);
+        setInfApprovPrefInited(true);
+    }, [enableCustomApprove, infApprovPref, infApprovPrefInited])
 
     useEffect(() => {
         setAmount(defaultAmount);
@@ -232,7 +241,10 @@ export const SimpleAmountForm = (props: SimpleAmountFormProps) => {
                         {
                             enableCustomApprove && <Checkbox
                                 isChecked={isInfiniteApprovalMode}
-                                onChange={() => setIsInfiniteApprovalMode(!isInfiniteApprovalMode)}
+                                onChange={() => {
+                                    setIsInfiniteApprovalMode(!isInfiniteApprovalMode);
+                                    saveInfApprovPref(!isInfiniteApprovalMode);
+                                }}
                                 isDisabled={balance <= 0}
                             >
                                 Infinite Approval

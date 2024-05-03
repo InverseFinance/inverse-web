@@ -57,6 +57,7 @@ export const DbrRewardsModal = ({
     );
     const isHelperAllowedAsClaimer = isFreshlyAuthorized || (claimersData ? claimersData[0] : false);
     const accountMarkets = useAccountF2Markets(markets, account);
+    const invMarket = accountMarkets?.find(m => m.isInv);
     const marketsWithDebt = useMemo(() => {
         return accountMarkets.filter(m => m.debt > 0).sort((a, b) => b.debt - a.debt);
     }, [accountMarkets.map(m => m.debt).join('-')]);
@@ -66,18 +67,19 @@ export const DbrRewardsModal = ({
     const [marketToRepay, setMarketToRepay] = useState('');
     const [percentageForInv, setPercentageForInv] = useState(100);
     const [percentageForDola, setPercentageForDola] = useState(0);
+    const [percentageForDbr, setPercentageForDbr] = useState(0);
     const [percentageRepay, setPercentageRepay] = useState(100);
+    const isValidPercentages = (percentageForInv + percentageForDola) <= 100;
 
     // amounts of DOLA and INV for selling DBR
     const { amountOut: dolaAmountOut } = useTriCryptoSwap(dbrRewardsInfo.balance, 1, 0);
     const { amountOut: invAmountOut } = useTriCryptoSwap(dbrRewardsInfo.balance, 1, 2);
-    const percentageToReinvest = percentageForInv - percentageForDola;
     const slippageFactor = (1 - parseFloat(slippage) / 100);
     const dolaMinOut = dolaAmountOut ? dolaAmountOut * (percentageForDola / 100) * slippageFactor : 0;
-    const invMinOut = invAmountOut ? invAmountOut * (percentageToReinvest / 100) * slippageFactor : 0;
+    const invMinOut = invAmountOut ? invAmountOut * (percentageForInv / 100) * slippageFactor : 0;
 
     const dolaPrice = prices ? prices['dola-usd']?.usd : 0;
-    const invPrice = prices ? prices['inverse-finance']?.usd : 0;
+    const invPrice = prices ? prices['inverse-finance']?.usd : invMarket?.price||0;
 
     const changeSlippage = (e) => {
         setSlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'));
@@ -93,7 +95,7 @@ export const DbrRewardsModal = ({
         if (!account) return;
         const destinationAddress = isCustomAddress ? customAddress : account;
 
-        const invBps = (percentageToReinvest * 100).toString();
+        const invBps = (percentageForInv * 100).toString();
         const dolaBps = (percentageForDola * 100).toString();
         const dolaMinOutBn = getNumberToBn(dolaMinOut);
         const invMinOutBn = getNumberToBn(invMinOut);
@@ -105,13 +107,19 @@ export const DbrRewardsModal = ({
     }
 
     const hasInvalidSlippage = (!slippage || slippage === '0' || isNaN(parseFloat(slippage)));
-    const hasInvalidMins = (percentageForDola > 0 && !dolaMinOut) || (percentageToReinvest > 0 && !invMinOut);
+    const hasInvalidMins = (percentageForDola > 0 && !dolaMinOut) || (percentageForInv > 0 && !invMinOut);
 
     // first number: perc of dola, second number: INV
     const handleSellRange = (range: number[]) => {
         const [dola, inv] = range;
         setPercentageForInv(inv);
         setPercentageForDola(dola);
+    }
+
+    const handleSellPercentages = (range: number[]) => {
+        const [dola, inv] = range;
+        setPercentageForDola(dola);
+        setPercentageForInv(inv);
     }
 
     const handleRepaySlider = (percToReinvest: number) => {
@@ -124,10 +132,20 @@ export const DbrRewardsModal = ({
         }
     }, [marketToRepay, marketsWithDebt]);
 
+    useEffect(() => {
+        setPercentageForDbr(Math.max(100 - percentageForInv - percentageForDola, 0));
+    }, [percentageForInv, percentageForDola])
+
     const dolaInvCombo = <HStack justify="center" alignItems="center">
         <Image borderRadius="50px" src={TOKEN_IMAGES.DOLA} h="14px" w="14px" />
         <Image borderRadius="50px" src={TOKEN_IMAGES.INV} h="14px" w="14px" />
     </HStack>
+
+    const cleanTextValue = (value: string) => {
+        if(!value) return 0;
+        const v = value.replace(/[^0-9]/, '');
+        return parseInt(v);
+    }
 
     return <Modal
         isOpen={isOpen}
@@ -164,30 +182,35 @@ export const DbrRewardsModal = ({
                 </VStack>
                 <Divider borderColor="#ccc" />
                 <VStack w='full' alignItems="flex-start">
-                    <Text>
-                        Claim and sell DBR rewards for:
+                    <Text fontSize="18px" fontWeight="bold">
+                        Sell DBR to other assets:
                     </Text>
                     <HStack w='full' justify="space-between">
-                        <HStack w="110px" alignItems="center" justify="flex-start">
-                            <Text color="accentTextColor" fontSize='18px' fontWeight="bold">
-                                DOLA:
-                            </Text>
-                            <Text fontWeight="bold" fontSize='18px'>{shortenNumber(percentageForDola, 0)}%</Text>
+                        <Text color="mainTextColorLight" w='123px' cursor="pointer" textDecoration="underline" onClick={() => handleSellPercentages([100, 0])}>
+                            Sell all for DOLA
+                        </Text>
+                        <Text color="mainTextColorLight" cursor="pointer" textDecoration="underline" onClick={() => handleSellPercentages([50, 50])}>
+                            50% DOLA / 50% INV
+                        </Text>
+                        <Text textAlign="right" color="mainTextColorLight" w='123px' cursor="pointer" textDecoration="underline" onClick={() => handleSellPercentages([0, 100])}>
+                            Sell all for INV
+                        </Text>
+                    </HStack>
+                    <HStack w='full' justify="space-between">
+                        <HStack>
+                            <Text>DOLA %</Text>
+                            <Input fontSize="14px" _focusVisible={false} border={!isValidPercentages ? '1px solid red' : undefined} py="0" maxH="30px" w='80px' value={percentageForDola} onChange={(e) => setPercentageForDola(cleanTextValue(e.target.value))} />
                         </HStack>
-                        <HStack w="100px" alignItems="center" justify="center">
-                            <Text color="accentTextColor" fontSize='18px' fontWeight="bold">
-                                INV:
-                            </Text>
-                            <Text fontWeight="bold" fontSize='18px'>{shortenNumber(percentageToReinvest, 0)}%</Text>
-                        </HStack>
-                        <HStack w="100px" alignItems="center" justify="flex-end">
-                            <Text color="accentTextColor" fontSize='18px' fontWeight="bold">
-                                DBR:
-                            </Text>
-                            <Text fontWeight="bold" fontSize='18px'>{shortenNumber(100 - percentageForInv, 0)}%</Text>
+                        {/* <HStack>
+                            <Text>DBR</Text>
+                            <Input value={percentageForDbr} onChange={(e) => setPercentageForDbr(cleanTextValue(e.target.value))} />
+                        </HStack> */}
+                        <HStack>
+                            <Text>INV %</Text>
+                            <Input fontSize="14px" _focusVisible={false} border={!isValidPercentages ? '1px solid red' : undefined} py="0" maxH="30px" w='80px' value={percentageForInv} onChange={(e) => setPercentageForInv(cleanTextValue(e.target.value))} />
                         </HStack>
                     </HStack>
-                    <RangeSlider
+                    {/* <RangeSlider
                         aria-label={['min', 'max']}
                         defaultValue={[0, 100]}
                         onChange={val => handleSellRange(val)}
@@ -202,18 +225,35 @@ export const DbrRewardsModal = ({
                         <RangeSliderThumb boxSize={8} index={1}>
                             {percentageForDola === percentageForInv ? dolaInvCombo : <Image borderRadius="50px" src={TOKEN_IMAGES.INV} h="20px" w="20px" />}
                         </RangeSliderThumb>
-                    </RangeSlider>
-                    <HStack w='full' justify="space-between">
-                        <Text color="mainTextColorLight" w='123px' cursor="pointer" textDecoration="underline" onClick={() => handleSellRange([100, 100])}>
-                            Sell all for DOLA
+                    </RangeSlider> */}
+                    <Divider borderColor="#ccc" />
+                    <Text fontSize="18px" fontWeight="bold">
+                        Result:
+                    </Text>
+                    {
+                        isValidPercentages ? <HStack w='full' justify="space-between">
+                            <HStack w="110px" alignItems="center" justify="flex-start">
+                                <Text color="accentTextColor" fontSize='18px' fontWeight="bold">
+                                    DOLA:
+                                </Text>
+                                <Text fontWeight="bold" fontSize='18px'>{shortenNumber(percentageForDola, 0)}%</Text>
+                            </HStack>
+                            <HStack w="100px" alignItems="center" justify="center">
+                                <Text color="accentTextColor" fontSize='18px' fontWeight="bold">
+                                    INV:
+                                </Text>
+                                <Text fontWeight="bold" fontSize='18px'>{shortenNumber(percentageForInv, 0)}%</Text>
+                            </HStack>
+                            <HStack w="100px" alignItems="center" justify="flex-end">
+                                <Text color="accentTextColor" fontSize='18px' fontWeight="bold">
+                                    DBR:
+                                </Text>
+                                <Text fontWeight="bold" fontSize='18px'>{shortenNumber(percentageForDbr, 0)}%</Text>
+                            </HStack>
+                        </HStack> : <Text fontWeight="extrabold" color="warning">
+                            You cannot sell more than 100% of the DBR
                         </Text>
-                        <Text color="mainTextColorLight" cursor="pointer" textDecoration="underline" onClick={() => handleSellRange([50, 100])}>
-                            50% DOLA / 50% INV
-                        </Text>
-                        <Text textAlign="right" color="mainTextColorLight" w='123px' cursor="pointer" textDecoration="underline" onClick={() => handleSellRange([0, 100])}>
-                            Sell all for INV
-                        </Text>
-                    </HStack>
+                    }
                 </VStack>
                 <VStack alignItems="flex-start" justify="space-between" w='full'>
                     <HStack>
@@ -318,7 +358,7 @@ export const DbrRewardsModal = ({
                             1/2 - Authorize DBR Rewards Helper
                         </RSubmitButton>
                         :
-                        <RSubmitButton onSuccess={onSuccess} refreshOnSuccess={true} disabled={hasInvalidSlippage || hasInvalidMins || (hasRepay && !marketToRepay) || (isCustomAddress && (!isAddress(customAddress) || customAddress === BURN_ADDRESS))} onClick={handleClaim} p="6" w='fit-content' fontSize="18px">
+                        <RSubmitButton onSuccess={onSuccess} refreshOnSuccess={true} disabled={!isValidPercentages || hasInvalidSlippage || hasInvalidMins || (hasRepay && !marketToRepay) || (isCustomAddress && (!isAddress(customAddress) || customAddress === BURN_ADDRESS))} onClick={handleClaim} p="6" w='fit-content' fontSize="18px">
                             Confirm
                         </RSubmitButton>
                 }

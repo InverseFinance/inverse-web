@@ -140,6 +140,7 @@ export const DsaUI = () => {
                                             showMaxBtn={false}
                                             hideInputIfNoAllowance={false}
                                             showBalance={true}
+                                            enableCustomApprove={true}
                                         />
                                     </VStack>
                                     :
