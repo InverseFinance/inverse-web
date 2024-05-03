@@ -57,6 +57,7 @@ export const DbrRewardsModal = ({
     );
     const isHelperAllowedAsClaimer = isFreshlyAuthorized || (claimersData ? claimersData[0] : false);
     const accountMarkets = useAccountF2Markets(markets, account);
+    const invMarket = accountMarkets?.find(m => m.isInv);
     const marketsWithDebt = useMemo(() => {
         return accountMarkets.filter(m => m.debt > 0).sort((a, b) => b.debt - a.debt);
     }, [accountMarkets.map(m => m.debt).join('-')]);
@@ -73,13 +74,12 @@ export const DbrRewardsModal = ({
     // amounts of DOLA and INV for selling DBR
     const { amountOut: dolaAmountOut } = useTriCryptoSwap(dbrRewardsInfo.balance, 1, 0);
     const { amountOut: invAmountOut } = useTriCryptoSwap(dbrRewardsInfo.balance, 1, 2);
-    const percentageToReinvest = percentageForInv// - percentageForDola;
     const slippageFactor = (1 - parseFloat(slippage) / 100);
     const dolaMinOut = dolaAmountOut ? dolaAmountOut * (percentageForDola / 100) * slippageFactor : 0;
-    const invMinOut = invAmountOut ? invAmountOut * (percentageToReinvest / 100) * slippageFactor : 0;
+    const invMinOut = invAmountOut ? invAmountOut * (percentageForInv / 100) * slippageFactor : 0;
 
     const dolaPrice = prices ? prices['dola-usd']?.usd : 0;
-    const invPrice = prices ? prices['inverse-finance']?.usd : 0;
+    const invPrice = prices ? prices['inverse-finance']?.usd : invMarket?.price||0;
 
     const changeSlippage = (e) => {
         setSlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'));
@@ -95,7 +95,7 @@ export const DbrRewardsModal = ({
         if (!account) return;
         const destinationAddress = isCustomAddress ? customAddress : account;
 
-        const invBps = (percentageToReinvest * 100).toString();
+        const invBps = (percentageForInv * 100).toString();
         const dolaBps = (percentageForDola * 100).toString();
         const dolaMinOutBn = getNumberToBn(dolaMinOut);
         const invMinOutBn = getNumberToBn(invMinOut);
@@ -107,7 +107,7 @@ export const DbrRewardsModal = ({
     }
 
     const hasInvalidSlippage = (!slippage || slippage === '0' || isNaN(parseFloat(slippage)));
-    const hasInvalidMins = (percentageForDola > 0 && !dolaMinOut) || (percentageToReinvest > 0 && !invMinOut);
+    const hasInvalidMins = (percentageForDola > 0 && !dolaMinOut) || (percentageForInv > 0 && !invMinOut);
 
     // first number: perc of dola, second number: INV
     const handleSellRange = (range: number[]) => {
@@ -242,7 +242,7 @@ export const DbrRewardsModal = ({
                                 <Text color="accentTextColor" fontSize='18px' fontWeight="bold">
                                     INV:
                                 </Text>
-                                <Text fontWeight="bold" fontSize='18px'>{shortenNumber(percentageToReinvest, 0)}%</Text>
+                                <Text fontWeight="bold" fontSize='18px'>{shortenNumber(percentageForInv, 0)}%</Text>
                             </HStack>
                             <HStack w="100px" alignItems="center" justify="flex-end">
                                 <Text color="accentTextColor" fontSize='18px' fontWeight="bold">
