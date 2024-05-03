@@ -93,10 +93,6 @@ export const StakeDolaUI = () => {
         setIsConnected(!!connectedAccount);
     }, [connectedAccount], 500);
 
-    // const monthlyProjectedDolaRewards = useMemo(() => {
-    //     return (projectedApy > 0 && stakedDolaBalance > 0 ? getMonthlyRate(stakedDolaBalance, projectedApy) : 0);
-    // }, [stakedDolaBalance, projectedApy]);
-
     const monthlyDolaRewards = useMemo(() => {
         return (apy > 0 && dolaStakedInSDola > 0 ? getMonthlyRate(dolaStakedInSDola, apy) : 0);
     }, [dolaStakedInSDola, apy]);
@@ -201,6 +197,7 @@ export const StakeDolaUI = () => {
                                             hideInputIfNoAllowance={false}
                                             showBalance={false}
                                             onSuccess={() => resetRealTime()}
+                                            enableCustomApprove={true}
                                         />
                                     </VStack>
                                     :
