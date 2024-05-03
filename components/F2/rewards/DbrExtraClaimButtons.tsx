@@ -142,7 +142,7 @@ export const DbrRewardsModal = ({
     </HStack>
 
     const cleanTextValue = (value: string) => {
-        if(!v) return 0;
+        if(!value) return 0;
         const v = value.replace(/[^0-9]/, '');
         return parseInt(v);
     }
@@ -182,8 +182,8 @@ export const DbrRewardsModal = ({
                 </VStack>
                 <Divider borderColor="#ccc" />
                 <VStack w='full' alignItems="flex-start">
-                    <Text fontWeight="bold">
-                        Sell a percentage of DBR to other assets:
+                    <Text fontSize="18px" fontWeight="bold">
+                        Sell DBR to other assets:
                     </Text>
                     <HStack w='full' justify="space-between">
                         <Text color="mainTextColorLight" w='123px' cursor="pointer" textDecoration="underline" onClick={() => handleSellPercentages([100, 0])}>
@@ -199,7 +199,7 @@ export const DbrRewardsModal = ({
                     <HStack w='full' justify="space-between">
                         <HStack>
                             <Text>DOLA %</Text>
-                            <Input _focusVisible={false} border={!isValidPercentages ? '1px solid red' : undefined} py="0" maxH="30px" w='80px' value={percentageForDola} onChange={(e) => setPercentageForDola(cleanTextValue(e.target.value))} />
+                            <Input fontSize="14px" _focusVisible={false} border={!isValidPercentages ? '1px solid red' : undefined} py="0" maxH="30px" w='80px' value={percentageForDola} onChange={(e) => setPercentageForDola(cleanTextValue(e.target.value))} />
                         </HStack>
                         {/* <HStack>
                             <Text>DBR</Text>
@@ -207,7 +207,7 @@ export const DbrRewardsModal = ({
                         </HStack> */}
                         <HStack>
                             <Text>INV %</Text>
-                            <Input _focusVisible={false} border={!isValidPercentages ? '1px solid red' : undefined} py="0" maxH="30px" w='80px' value={percentageForInv} onChange={(e) => setPercentageForInv(cleanTextValue(e.target.value))} />
+                            <Input fontSize="14px" _focusVisible={false} border={!isValidPercentages ? '1px solid red' : undefined} py="0" maxH="30px" w='80px' value={percentageForInv} onChange={(e) => setPercentageForInv(cleanTextValue(e.target.value))} />
                         </HStack>
                     </HStack>
                     {/* <RangeSlider
@@ -226,7 +226,8 @@ export const DbrRewardsModal = ({
                             {percentageForDola === percentageForInv ? dolaInvCombo : <Image borderRadius="50px" src={TOKEN_IMAGES.INV} h="20px" w="20px" />}
                         </RangeSliderThumb>
                     </RangeSlider> */}
-                    <Text fontWeight="bold">
+                    <Divider borderColor="#ccc" />
+                    <Text fontSize="18px" fontWeight="bold">
                         Result:
                     </Text>
                     {
