@@ -161,12 +161,12 @@ export const StakeDolaUI = () => {
                             <Text><b>{thirtyDayAvg ? `${shortenNumber(thirtyDayAvg, 2)}%` : '-'}</b></Text>
                         </Stack>
                         <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
-                            <Text>- Total earnings by all holders:</Text>
-                            <Text><b>{sDolaHoldersTotalEarnings ? `${shortenNumber(sDolaHoldersTotalEarnings, 2)} DOLA` : '-'}</b></Text>
-                        </Stack>
-                        <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
                             <Text>- Total staked:</Text>
                             <Text><b>{sDolaTotalAssets ? `${shortenNumber(sDolaTotalAssets, 2)} DOLA` : '-'}</b></Text>
+                        </Stack>
+                        <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
+                            <Text>- Total earnings by all holders:</Text>
+                            <Text><b>{sDolaHoldersTotalEarnings ? `${shortenNumber(sDolaHoldersTotalEarnings, 2)} DOLA` : '-'}</b></Text>
                         </Stack>
                     </VStack>
                 }
