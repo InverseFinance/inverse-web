@@ -157,7 +157,7 @@ export const StakeDolaUI = () => {
                             </Stack>
                         }
                         <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
-                            <Text>- 30 day average APY:</Text>
+                            <Text>- 30-day average APY:</Text>
                             <Text><b>{thirtyDayAvg ? `${shortenNumber(thirtyDayAvg, 2)}%` : '-'}</b></Text>
                         </Stack>
                         <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
