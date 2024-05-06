@@ -1,5 +1,5 @@
 import { VStack, Text, HStack, Stack, Image, useInterval } from "@chakra-ui/react"
-import { redeemSDola, stakeDola, unstakeDola, useDolaStakingEarnings, useStakedDola } from "@app/util/dola-staking"
+import { redeemSDola, stakeDola, unstakeDola, useDolaStakingEarnings, useDolaStakingEvolution, useStakedDola } from "@app/util/dola-staking"
 import { useWeb3React } from "@web3-react/core";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
 import { useEffect, useMemo, useState } from "react";
@@ -8,7 +8,7 @@ import { parseEther } from "@ethersproject/units";
 import Container from "../common/Container";
 import { NavButtons } from "@app/components/common/Button";
 import { InfoMessage, SuccessMessage } from "@app/components/common/Messages";
-import { preciseCommify } from "@app/util/misc";
+import { getAvgOnLastItems, preciseCommify, timestampToUTC } from "@app/util/misc";
 import { useDOLABalance } from "@app/hooks/useDOLA";
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
 import { useDBRPrice } from "@app/hooks/useDBR";
@@ -45,10 +45,13 @@ export const StakeDolaUI = () => {
 
     const [dolaAmount, setDolaAmount] = useState('');
     const [isConnected, setIsConnected] = useState(true);
+    const [thirtyDayAvg, setThirtyDayAvg] = useState(0);
+    const [now, setNow] = useState(Date.now());
     const [tab, setTab] = useState('Stake');
     const isStake = tab === 'Stake';
 
     const { apy, projectedApy, isLoading, sDolaExRate, sDolaTotalAssets, weeklyRevenue } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
+    const { evolution, timestamp: lastDailySnapTs, isLoading: isLoadingEvolution } = useDolaStakingEvolution();
     const { balance: dolaBalance } = useDOLABalance(account);
     // value in sDOLA terms
     const { stakedDolaBalance, stakedDolaBalanceBn } = useDolaStakingEarnings(account);
@@ -62,6 +65,21 @@ export const StakeDolaUI = () => {
     const sDolaAuctionBuys = auctionBuys.filter(e => e.auctionType === 'sDOLA')
         .reduce((prev, curr) => prev + curr.dolaIn, 0);
     const sDolaHoldersTotalEarnings = sDolaAuctionBuys - weeklyRevenue;
+
+    useEffect(() => {
+        if (isLoading || isLoadingEvolution || !evolution?.length) return;
+        const nowUtcDate = timestampToUTC(now);
+        const data = evolution
+            .filter(d => timestampToUTC(d.timestamp) !== nowUtcDate)
+            .concat([
+                {
+                    ...evolution[evolution.length - 1],
+                    timestamp: Date.now() - (1000 * 120),
+                    apy,
+                }
+            ]);
+        setThirtyDayAvg(getAvgOnLastItems(data, 'apy', 30));
+    }, [lastDailySnapTs, isLoadingEvolution, evolution, sDolaTotalAssets, apy, isLoading, now]);
 
     useInterval(() => {
         const curr = (realTimeBalance || baseBalance);
@@ -139,12 +157,16 @@ export const StakeDolaUI = () => {
                             </Stack>
                         }
                         <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
-                            <Text>- Total earnings by all holders:</Text>
-                            <Text><b>{sDolaHoldersTotalEarnings ? `${shortenNumber(sDolaHoldersTotalEarnings, 2)} DOLA` : '-'}</b></Text>
+                            <Text>- 30-day average APY:</Text>
+                            <Text><b>{thirtyDayAvg ? `${shortenNumber(thirtyDayAvg, 2)}%` : '-'}</b></Text>
                         </Stack>
                         <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
                             <Text>- Total staked:</Text>
                             <Text><b>{sDolaTotalAssets ? `${shortenNumber(sDolaTotalAssets, 2)} DOLA` : '-'}</b></Text>
+                        </Stack>
+                        <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
+                            <Text>- Total earnings by all holders:</Text>
+                            <Text><b>{sDolaHoldersTotalEarnings ? `${shortenNumber(sDolaHoldersTotalEarnings, 2)} DOLA` : '-'}</b></Text>
                         </Stack>
                     </VStack>
                 }
