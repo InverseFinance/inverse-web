@@ -260,8 +260,12 @@ export const genTransactionParams = (
   func: string,
   args: any[],
   value = '0',
-) => {  
+) => { 
+  return { to, data: getTransactionData(func, args), value }
+}
+
+export const getTransactionData = (func: string, args: any[]) => {
   const contractInterface = new Interface([func]);
   let fd = Object.values(contractInterface.functions)[0];  
-  return { to, data: contractInterface.encodeFunctionData(fd, args), value }
+  return contractInterface.encodeFunctionData(fd, args);
 }
