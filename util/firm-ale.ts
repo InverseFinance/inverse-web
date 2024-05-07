@@ -7,7 +7,7 @@ import { F2Market } from "@app/types";
 import { getBnToNumber, getNumberToBn } from "./markets";
 import { callWithHigherGL } from "./contracts";
 import { parseUnits } from "@ethersproject/units";
-import { genTransactionParams } from "./web3";
+import { getTransactionData } from "./web3";
 
 const { F2_ALE, DOLA } = getNetworkConfigConstants();
 
@@ -228,12 +228,25 @@ export const getAleSellEnoughToRepayDebt = async (
     const response = await fetch(url);
     return response.json();
 }
-
-export const getTransformerBuyData = (market: F2Market, amount: string) => {
-    const { data } = genTransactionParams(
-        market.transformer,
-        'wrapAndDeposit',
-        [market.helper, amount],
+// Data for the transform helper, when depositing, Vault case
+export const getVaultHelperDepositData = (
+    escrowOwner: string,
+    assets: string, // vault underlying units
+) => {
+    return getTransactionData(
+        'function wrapAndDeposit(address escrowOwner, uint assets)',
+        [escrowOwner, assets],
     );
-    return data;
+}
+
+// Data for the transform helper, when withdrawing, Vault case
+export const getVaultHelperWithdrawData = (
+    escrowOwner: string,
+    shares: string, // vault units
+    permitData: any[], // [deadline, v, r, s];
+) => {
+    return getTransactionData(
+        'function withdrawAndUnwrap(address escrowOwner, uint shares, uint deadline, uint8 v, bytes32 r, bytes32 s)',
+        [escrowOwner, shares, ...permitData],
+    );
 }
