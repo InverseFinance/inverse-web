@@ -135,7 +135,7 @@ export const prepareDeleveragePosition = async (
     // we need the quote first
     try {
         // the dola swapped for collateral is dolaToRepayToSellCollateral not totalDolaToBorrow (a part is for dbr)
-        aleQuoteResult = await getAleSellQuote(DOLA, market.collateral, collateralToWithdraw.toString(), slippagePerc, false);
+        aleQuoteResult = await getAleSellQuote(DOLA, market.aleData?.buySellToken||market.collateral, collateralToWithdraw.toString(), slippagePerc, false);
         if (!aleQuoteResult?.data || !!aleQuoteResult.msg) {
             const msg = aleQuoteResult?.validationErrors?.length > 0 ?
                 `Swap validation failed with: ${aleQuoteResult?.validationErrors[0].field} ${aleQuoteResult?.validationErrors[0].reason}`
@@ -154,11 +154,16 @@ export const prepareDeleveragePosition = async (
 
         const { data: swapData, allowanceTarget, value, buyAmount } = aleQuoteResult;
         const permitData = [deadline, v, r, s];
-        const helperTransformData = '0x';
+        let helperTransformData = '0x';        
         const dolaBuyAmount = parseUnits(buyAmount, 0);
         const userDebt = await (new Contract(market.address, F2_MARKET_ABI, signer)).debts(await signer.getAddress());
         const minDolaAmountFromSwap = getNumberToBn(getBnToNumber(dolaBuyAmount) * (1 - parseFloat(slippagePerc) / 100));
         const minDolaOrMaxRepayable = minDolaAmountFromSwap.gt(userDebt) ? userDebt : minDolaAmountFromSwap;
+
+        if(market.aleData?.buySellToken) {
+            const sharesEstimation = getBnToNumber(dolaBuyAmount) / market.price;
+            helperTransformData = getVaultHelperWithdrawData(await signer.getAddress(), getNumberToBn(sharesEstimation), [deadline, r, s, v]);
+        }
 
         // dolaIn, minDbrOut, extraDolaToRepay
         const dbrData = [dbrToSell, minDolaOut, extraDolaToRepay];
@@ -245,7 +250,7 @@ export const getVaultHelperDepositData = (
 // Data for the transform helper, when withdrawing, Vault case
 export const getVaultHelperWithdrawData = (
     escrowOwner: string,
-    shares: string, // vault units
+    shares: string | BigNumber, // vault units
     permitData: any[], // [deadline, v, r, s];
 ) => {
     return getTransactionData(
