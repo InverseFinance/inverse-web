@@ -7,6 +7,7 @@ import { F2Market } from "@app/types";
 import { getBnToNumber, getNumberToBn } from "./markets";
 import { callWithHigherGL } from "./contracts";
 import { parseUnits } from "@ethersproject/units";
+import { genTransactionParams } from "./web3";
 
 const { F2_ALE, DOLA } = getNetworkConfigConstants();
 
@@ -27,7 +28,7 @@ export const prepareLeveragePosition = async (
 ) => {
     let dbrApprox;
     let dbrInputs = { dolaParam: '0', dbrParam: '0' };
-    if(durationDays && dbrBuySlippage) {
+    if (durationDays && dbrBuySlippage) {
         dbrApprox = await f2approxDbrAndDolaNeeded(signer, dolaToBorrowToBuyCollateral, dbrBuySlippage, durationDays);
         dbrInputs = getHelperDolaAndDbrParams('curve-v2', durationDays, dbrApprox);
     }
@@ -55,7 +56,7 @@ export const prepareLeveragePosition = async (
         const permitData = [deadline, v, r, s];
         const helperTransformData = '0x';
         // dolaIn, minDbrOut
-        const dbrData = [dbrInputs.dolaParam, dbrInputs.dbrParam, '0'];        
+        const dbrData = [dbrInputs.dolaParam, dbrInputs.dbrParam, '0'];
         if (initialDeposit && initialDeposit.gt(0)) {
             return depositAndLeveragePosition(
                 signer,
@@ -153,9 +154,9 @@ export const prepareDeleveragePosition = async (
         const helperTransformData = '0x';
         const dolaBuyAmount = parseUnits(buyAmount, 0);
         const userDebt = await (new Contract(market.address, F2_MARKET_ABI, signer)).debts(await signer.getAddress());
-        const minDolaAmountFromSwap = getNumberToBn(getBnToNumber(dolaBuyAmount) * (1-parseFloat(slippagePerc)/100));
+        const minDolaAmountFromSwap = getNumberToBn(getBnToNumber(dolaBuyAmount) * (1 - parseFloat(slippagePerc) / 100));
         const minDolaOrMaxRepayable = minDolaAmountFromSwap.gt(userDebt) ? userDebt : minDolaAmountFromSwap;
-        
+
         // dolaIn, minDbrOut, extraDolaToRepay
         const dbrData = [dbrToSell, minDolaOut, extraDolaToRepay];
         return deleveragePosition(
@@ -211,7 +212,7 @@ export const getAleSellQuote = async (
     slippagePercentage = '1',
     getPriceOnly = false,
 ) => {
-    const method = getPriceOnly ? 'quote' : 'swap';    
+    const method = getPriceOnly ? 'quote' : 'swap';
     let url = `/api/f2/1inch-proxy?method=${method}&buyToken=${buyAd.toLowerCase()}&sellToken=${sellAd.toLowerCase()}&sellAmount=${sellAmount}&slippagePercentage=${slippagePercentage}`;
     const response = await fetch(url);
     return response.json();
@@ -221,9 +222,18 @@ export const getAleSellEnoughToRepayDebt = async (
     buyAd: string,
     sellAd: string,
     debt: string,
-    deposits: string,    
-) => {    
+    deposits: string,
+) => {
     let url = `/api/f2/1inch-proxy?isFullDeleverage=true&method=quote&buyToken=${buyAd.toLowerCase()}&sellToken=${sellAd.toLowerCase()}&debt=${debt}&deposits=${deposits}`;
     const response = await fetch(url);
     return response.json();
+}
+
+export const getTransformerBuyData = (market: F2Market, amount: string) => {
+    const { data } = genTransactionParams(
+        market.transformer,
+        'wrapAndDeposit',
+        [market.helper, amount],
+    );
+    return data;
 }
