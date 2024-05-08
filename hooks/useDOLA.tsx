@@ -8,7 +8,7 @@ import { getNetworkConfigConstants } from '@app/util/networks';
 import useEtherSWR from './useEtherSWR';
 import { getBnToNumber } from '@app/util/markets';
 import { BigNumber } from 'ethers';
-import { utcDateStringToTimestamp } from '@app/util/misc';
+import { timestampToUTC, utcDateStringToTimestamp } from '@app/util/misc';
 
 type DolaSupply = {
   totalSupply: number,
@@ -103,6 +103,25 @@ export const useDolaCirculatingSupplyEvolution = () => {
   return {
     currentCirculatingSupply,
     evolution,
+    isLoading: !error && !data,
+    isError: !!error,
+  }
+}
+
+export const useDolaVolumes = () => {
+  const { data, error } = useCustomSWR(`/api/dola/prices-volumes`);    
+
+  const volumes = (data?.volumes || []);
+
+  return {
+    evolution: volumes.map((d) => {
+      const [ts, vol] = d;
+      return {
+        utcDate: timestampToUTC(ts),
+        x: ts,
+        y: vol,
+      }
+    }),
     isLoading: !error && !data,
     isError: !!error,
   }
