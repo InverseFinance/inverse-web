@@ -364,14 +364,56 @@ export function getPreviousThursdayUtcDateOfTimestamp(ts: number) {
     const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0);
     const today = new Date(nowUTC);
     const dayOfWeek = today.getUTCDay();
-    const daysSinceLastThursday = dayOfWeek >= 4 ? dayOfWeek - 4 : 7 - (4-dayOfWeek);
+    const daysSinceLastThursday = dayOfWeek >= 4 ? dayOfWeek - 4 : 7 - (4 - dayOfWeek);
     today.setUTCDate(today.getUTCDate() - daysSinceLastThursday);
     return timestampToUTC(+(today));
 }
 
 export const getAvgOnLastItems = (data: any[], attribute: string, nbLastItems: number) => {
-    if(!data?.length) return 0;
-    const start = Math.max(0, data.length-nbLastItems);
+    if (!data?.length) return 0;
+    const start = Math.max(0, data.length - nbLastItems);
     const slice = data.slice(start, data.length);
-    return slice.reduce((prev, curr) => prev+curr[attribute], 0)/slice.length;
+    return slice.reduce((prev, curr) => prev + curr[attribute], 0) / slice.length;
+}
+
+const avgWithQualifier = function (array: number[], qualifier?: (val: number) => boolean) {
+    let sum = 0, count = 0, val;
+    for (var i in array) {
+        val = array[i];
+        if (!qualifier || qualifier(val)) {
+            sum += val;
+            count++;
+        }
+    }
+    return sum / count;
+};
+
+export const getMovingAvg = (array: number[], count: number, qualifier?: (val: number) => boolean) => {
+    const result = [];
+    let val;
+
+    // pad beginning of result with null values
+    for (var i = 0; i < count - 1; i++)
+        result.push(null);
+
+    // calculate average for each subarray and add to result
+    for (let i = 0, len = array.length - count; i <= len; i++) {
+        val = avgWithQualifier(array.slice(i, i + count), qualifier);
+        if (isNaN(val))
+            result.push(null);
+        else
+            result.push(val);
+    }
+
+    return result;
+}
+
+export const getExponentialMovingAvg = (array: number[], count: number) => {
+    var k = 2 / (count + 1);
+    const emaArray = [null];
+    const len = array.length;
+    for (var i = 1; i < len; i++) {
+        emaArray.push(array[i] * k + emaArray[i - 1] * (1 - k));
+    }
+    return emaArray;
 }

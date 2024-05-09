@@ -3,34 +3,43 @@ import { VStack, Text } from '@chakra-ui/react'
 import { shortenNumber, smartShortNumber } from '@app/util/markets';
 import { Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ComposedChart, ReferenceLine, Line } from 'recharts';
 import moment from 'moment';
-import { preciseCommify } from '@app/util/misc';
+import { getExponentialMovingAvg, getMovingAvg, preciseCommify } from '@app/util/misc';
 import { useRechartsZoom } from '@app/hooks/useRechartsZoom';
 
 const CURRENT_YEAR = new Date().getFullYear().toString();
 
-const getAddDaysAvg = (evoData: any[], periods: number[]) => {
+const avgFunctions = {
+    'moving-avg': getMovingAvg,
+    'ema': getExponentialMovingAvg,
+}
+
+const getAddDaysAvg = (evoData: any[], periods: number[], avgTypes) => {
     const ignoreFirst = evoData?.length > 0 ? evoData[0].y === 0 : true;
     const [period, ...remainingPeriods] = periods;
-    const avgKeyName = `yAvg${period}`;
+    const [_avgType, ...remainingAvgTypes] = (avgTypes||['avg']);
+    const avgType = _avgType || 'avg';
+    const avgKeyName = `y${period}${avgType}`;
+    const isSimpleAvg = !avgType || avgType === 'avg';
+    const movingAvgs = isSimpleAvg ? [] : avgFunctions[avgType](evoData.map(s => s.y), period, (val: number) => val!==0);
     const data = evoData.map((d, i) => {
         if (ignoreFirst && i === 0) return { ...d, [avgKeyName]: d.y }
         else if (ignoreFirst && i < period) {
             const nb = Math.min(i - 1, period - 1) + 1;
             const slice = evoData.slice(i + 1 - nb, i + 1);
-            const yAvg = slice.reduce((prev, curr) => prev + curr.y, 0) / slice.length;
+            const yAvg = !isSimpleAvg ? movingAvgs[i] : slice.reduce((prev, curr) => prev + curr.y, 0) / slice.length;
             return {
                 ...d, [avgKeyName]: yAvg,
             }
         }
         const nb = Math.min(i, period - 1) + 1;
         const slice = evoData.slice(i + 1 - nb, i + 1);
-        const yAvg = slice.reduce((prev, curr) => prev + curr.y, 0) / slice.length;
+        const yAvg = !isSimpleAvg ? movingAvgs[i] : slice.reduce((prev, curr) => prev + curr.y, 0) / slice.length;
         return {
             ...d, [avgKeyName]: yAvg,
         }
     });
     if (remainingPeriods.length > 0) {
-        return getAddDaysAvg(data, remainingPeriods)
+        return getAddDaysAvg(data, remainingPeriods, remainingAvgTypes)
     }
     return data;
 }
@@ -69,6 +78,8 @@ export const AreaChartRecharts = ({
     secondaryPrecision = 4,
     yDomainAsInteger = false,
     addDayAvg = false,
+    avgTypes,
+    allowEscapeViewBox = true,
     avgDayNumbers,
     avgLineProps,
 }: {
@@ -105,10 +116,12 @@ export const AreaChartRecharts = ({
     secondaryPrecision?: number
     yDomainAsInteger?: boolean
     addDayAvg?: boolean
+    avgTypes?: ('avg' | 'moving-avg' | 'ema')[]
+    allowEscapeViewBox?: boolean
     avgDayNumbers?: number[]
     avgLineProps?: any[]
 }) => {
-    const _combodata = addDayAvg && avgDayNumbers?.length ? getAddDaysAvg(combodata, avgDayNumbers) : combodata;
+    const _combodata = addDayAvg && avgDayNumbers?.length ? getAddDaysAvg(combodata, avgDayNumbers, avgTypes) : combodata;
     const { themeStyles } = useAppTheme();
     const { mouseDown, mouseUp, mouseMove, mouseLeave, bottom, top, rangeButtonsBarAbs, zoomReferenceArea, data: zoomedData } = useRechartsZoom({
         combodata: _combodata, rangesToInclude, forceStaticRangeBtns, defaultRange
@@ -179,13 +192,7 @@ export const AreaChartRecharts = ({
                 }
                 {
                     showSecondary && <Line isAnimationActive={false} opacity={1} strokeWidth={2} name={secondaryLabel} yAxisId="right" type="monotone" dataKey={secondaryRef} stroke={themeStyles.colors.info} dot={false} />
-                }
-                {
-                    addDayAvg && avgDayNumbers?.map((period, periodIndex) => {
-                        const _avgLineProps = avgLineProps ? avgLineProps[periodIndex] : {};
-                        return <Line key={'avg-period-'+period} isAnimationActive={false} opacity={1} strokeWidth={2} name={`${period} day avg`} yAxisId="left" type="monotone" dataKey={'yAvg'+period} stroke={themeStyles.colors.info} dot={false} {..._avgLineProps} />
-                    })
-                }
+                }                
                 {
                     showTooltips && <Tooltip
                         wrapperStyle={{ ..._axisStyle.tickLabels, zIndex: 1 }}
@@ -193,7 +200,7 @@ export const AreaChartRecharts = ({
                         labelFormatter={v => moment(v).format('MMM Do YYYY')}
                         labelStyle={{ fontWeight: 'bold', color: themeStyles.colors.mainTextColor }}
                         itemStyle={{ fontWeight: 'bold' }}
-                        allowEscapeViewBox={{ x: true, y: true }}                        
+                        allowEscapeViewBox={allowEscapeViewBox ? { x: true, y: true } : undefined}
                         formatter={(value, name) => {
                             const isPrice = name === 'Price';
                             const isSecondary = name === secondaryLabel;
@@ -205,6 +212,13 @@ export const AreaChartRecharts = ({
                     showLegend && <Legend wrapperStyle={legendStyle} style={{ cursor: 'pointer' }} formatter={(value) => value} />
                 }
                 <Area syncId="main" yAxisId="left" syncMethod={'value'} opacity={1} strokeWidth={2} name={yLabel} type={interpolation} dataKey={'y'} stroke={strokeColor || themeStyles.colors[mainColor]} dot={false} fillOpacity={1} fill={`url(#${mainColor}-gradient)`} />
+                {
+                    addDayAvg && avgDayNumbers?.map((period, periodIndex) => {
+                        const _avgLineProps = avgLineProps ? avgLineProps[periodIndex] : {};
+                        const avgType = avgTypes ? avgTypes[periodIndex] : 'avg';
+                        return <Line key={period+'-'+avgType} isAnimationActive={false} opacity={1} strokeWidth={2} name={`${period}-day ${avgType.replace('-', ' ').replace('ema', 'EMA')}`} yAxisId="left" type="monotone" dataKey={'y'+period+avgType} stroke={themeStyles.colors.info} dot={false} {..._avgLineProps} />
+                    })
+                }
                 {
                     showEvents && events.map(d => {
                         return <ReferenceLine

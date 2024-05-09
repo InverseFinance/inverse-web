@@ -20,6 +20,7 @@ import { DolaSupplies } from '@app/components/common/Dataviz/DolaSupplies'
 import { useRepayments } from '@app/hooks/useRepayments'
 import { shortenNumber } from '@app/util/markets'
 import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader'
+import { DolaVolumes } from '@app/components/Transparency/DolaVolumes'
 
 const LEGEND_ITEMS = [
   {
@@ -182,6 +183,7 @@ export const DolaDiagram = () => {
           </Stack>
           <FedList prices={prices} feds={fedOverviews.filter(f => !f.hasEnded)} isLoading={isLoadingOverview} />
           <DolaCircSupplyEvolution />
+          <DolaVolumes />
           <Stack spacing={4} direction={{ base: 'column', lg: 'row' }} >
             <DolaMoreInfos />
             <VStack spacing='4' minW='250px' w='50%' maxW='400px'>
