@@ -1,4 +1,4 @@
-import { Stack, VStack, useMediaQuery, Text } from "@chakra-ui/react"
+import { Stack, VStack, useMediaQuery, Text, Divider } from "@chakra-ui/react"
 import { useEventsAsChartData } from "@app/hooks/misc";
 import { DefaultCharts } from "@app/components/Transparency/DefaultCharts";
 import { useEffect, useState } from "react";
@@ -11,15 +11,21 @@ const maxChartWidth = 1200;
 
 export const DbrAuctionBuysChart = ({ events }) => {
     const { chartData: chartDataAcc } = useEventsAsChartData(events, '_acc_', 'dolaIn', true, true);
+    const virtualAuctionBuysEvents = events.filter(e => e.auctionType === 'Virtual');
+    const sdolaAuctionBuysEvents = events.filter(e => e.auctionType === 'sDOLA');
+
+    const { chartData: chartDataAccVirtual } = useEventsAsChartData(virtualAuctionBuysEvents, '_acc_', 'dolaIn', true, true);
+    const { chartData: chartDataAccSdola } = useEventsAsChartData(sdolaAuctionBuysEvents, '_acc_', 'dolaIn', true, true);
+
     const { themeStyles } = useAppTheme();
     const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
     const [isLargerThan2xl] = useMediaQuery(`(min-width: 96em)`);
 
-    const generalAuctionBuys = events.filter(e => e.auctionType === 'Virtual')
+    const generalAuctionBuys = virtualAuctionBuysEvents
         .reduce((prev, curr) => prev + curr.dolaIn, 0);
 
-    const sDolaAuctionBuys = events.filter(e => e.auctionType === 'sDOLA')
+    const sDolaAuctionBuys = sdolaAuctionBuysEvents
         .reduce((prev, curr) => prev + curr.dolaIn, 0);
 
     const uniqueWeeks = [...new Set(events.map(e => getPreviousThursdayUtcDateOfTimestamp(e.timestamp)))];
@@ -58,7 +64,7 @@ export const DbrAuctionBuysChart = ({ events }) => {
                     isDollars={false}
                     smoothLineByDefault={false}
                     barProps={{ eventName: 'DBR auction buys' }}
-                    areaProps={{ title: 'Acc. income from DBR auction buys', fillInByDayInterval: true, id: 'dbr-auction-buys-acc', showRangeBtns: true, yLabel: 'DOLA Income', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
+                    areaProps={{ title: 'Acc. income from all DBR auction buys', fillInByDayInterval: true, id: 'dbr-auction-buys-acc', showRangeBtns: true, yLabel: 'DOLA Income', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
                 />
             </VStack>
             <VStack pt='10'>
@@ -75,6 +81,35 @@ export const DbrAuctionBuysChart = ({ events }) => {
                     outerRadius={50}
                     activeFill={themeStyles.colors.mainTextColor}
                     fill={themeStyles.colors.mainTextColorLight}
+                />
+            </VStack>
+        </Stack>
+        <VStack w='98%' py="4">
+            <Divider />
+        </VStack>
+        <Stack direction={{ base: 'column', '2xl': 'row' }} alignItems="center">
+            <VStack pt="10">
+                <DefaultCharts
+                    showMonthlyBarChart={false}
+                    maxChartWidth={isLargerThan2xl ? autoChartWidth / 2 : autoChartWidth}
+                    chartWidth={isLargerThan2xl ? autoChartWidth / 2 : autoChartWidth}
+                    chartData={chartDataAccVirtual}
+                    isDollars={false}
+                    smoothLineByDefault={false}
+                    barProps={{ eventName: 'DBR Virtual Auction buys' }}
+                    areaProps={{ title: 'Virtual Auction: Acc. income from buys', fillInByDayInterval: true, id: 'dbr-auction-buys-acc-virtual', showRangeBtns: true, yLabel: 'DOLA Income', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
+                />
+            </VStack>
+            <VStack pt='10'>
+                <DefaultCharts
+                    showMonthlyBarChart={false}
+                    maxChartWidth={isLargerThan2xl ? autoChartWidth / 2 : autoChartWidth}
+                    chartWidth={isLargerThan2xl ? autoChartWidth / 2 : autoChartWidth}
+                    chartData={chartDataAccSdola}
+                    isDollars={false}
+                    smoothLineByDefault={false}
+                    barProps={{ eventName: 'DBR sDOLA Auction buys' }}
+                    areaProps={{ title: 'sDOLA Auction: Acc. income from buys', fillInByDayInterval: true, id: 'dbr-auction-buys-acc-sdola', showRangeBtns: true, yLabel: 'DOLA Income', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
                 />
             </VStack>
         </Stack>
