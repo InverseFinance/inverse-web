@@ -30,7 +30,7 @@ export const DolaVolumes = () => {
                         chartData={evolution}
                         isDollars={false}
                         smoothLineByDefault={true}
-                        areaProps={{ id: 'dola-volumes-chart', addDayAvg: true, allowEscapeViewBox: false, useMovingAvg: true, avgDayNumbers: [30], avgLineProps: [{ stroke: themeStyles.colors.success, strokeDasharray: '4 4' }], showRangeBtns: true, yLabel: 'DOLA 24h volume', useRecharts: true, simplifyData: true, domainYpadding: 1000000, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, rangesToInclude: ['All', '1Y', '3M', '1M', '7D'], defaultRange: '1M' }}
+                        areaProps={{ id: 'dola-volumes-chart', addDayAvg: true, allowEscapeViewBox: false, avgTypes: ['ema'], avgDayNumbers: [30], avgLineProps: [{ stroke: themeStyles.colors.success, strokeDasharray: '4 4' }], showRangeBtns: true, yLabel: 'DOLA 24h volume', useRecharts: true, simplifyData: true, domainYpadding: 1000000, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, rangesToInclude: ['All', '1Y', '3M', '1M', '7D'], defaultRange: '1M' }}
                     />
             }
         </VStack>
