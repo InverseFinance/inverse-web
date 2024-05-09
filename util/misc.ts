@@ -408,12 +408,12 @@ export const getMovingAvg = (array: number[], count: number, qualifier?: (val: n
     return result;
 }
 
-export const getExponentialMovingAvg =(array: number[], count: number) => {
-    var k = 2/(count + 1);
+export const getExponentialMovingAvg = (array: number[], count: number) => {
+    var k = 2 / (count + 1);
     const emaArray = [null];
     const len = array.length;
     for (var i = 1; i < len; i++) {
-      emaArray.push(array[i] * k + emaArray[i - 1] * (1 - k));
+        emaArray.push(array[i] * k + emaArray[i - 1] * (1 - k));
     }
     return emaArray;
-  }
+}
