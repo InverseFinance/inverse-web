@@ -186,16 +186,16 @@ const columns = [
     //     },
     // },
     {
-        field: 'deposits',
+        field: 'depositsUsd',
         label: 'Your Deposits',
         header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
         tooltip: 'Amount of Collateral you deposited in the Market',
-        value: ({ deposits, price, account }) => {
+        value: ({ depositsUsd, deposits, account }) => {
             return <Cell minWidth="120px" justify="center" alignItems="center" direction={{ base: 'row', sm: 'column' }} spacing={{ base: '1', sm: '0' }}>
                 {
                     account && deposits > 0 ? <>
                         <CellText>{smartShortNumber(deposits, 2)}</CellText>
-                        <CellText>({smartShortNumber(deposits * price, 2, true)})</CellText>
+                        <CellText>({smartShortNumber(depositsUsd, 2, true)})</CellText>
                     </> : <>-</>
                 }
             </Cell>
@@ -308,8 +308,9 @@ export const F2Markets = ({
                         return { ...m, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
                     })}
                     onClick={openMarket}
-                    defaultSort={debt > 0 ? 'deposits' : 'leftToBorrow'}
+                    defaultSort={debt > 0 ? 'depositsUsd' : 'leftToBorrow'}
                     defaultSortDir="desc"
+                    secondarySortField={debt > 0 ? 'leftToBorrow' : 'tvl'}
                     enableMobileRender={true}
                     mobileClickBtnLabel={'View Market'}
                     mobileThreshold={responsiveThreshold}
