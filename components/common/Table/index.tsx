@@ -50,6 +50,7 @@ type TableProps = {
   mobileClickBtnLabel?: string
   showHeader?: boolean
   showTotalRow?: boolean
+  secondarySortField?: string
 }
 
 const emptyObj = {};
@@ -153,6 +154,7 @@ export const Table = ({
   showTotalRow = false,
   pinnedItems,
   pinnedLabels,
+  secondarySortField,
   ...props
 }: TableProps) => {
   const { themeStyles } = useAppTheme();
@@ -203,12 +205,18 @@ export const Table = ({
     setSortedItems([...itemsToSort].sort((a, b) => {
       const returnVal = sortDir === 'asc' ? -1 : 1;
       const aVal = Array.isArray(a[sortBy]) ? a[sortBy].length : a[sortBy];
-      const bVal = Array.isArray(b[sortBy]) ? b[sortBy].length : b[sortBy];
+      const bVal = Array.isArray(b[sortBy]) ? b[sortBy].length : b[sortBy];      
       if (aVal < bVal) { return 1 * returnVal; }
       if (aVal > bVal) { return -1 * returnVal; }
+      if(!!secondarySortField) {
+        const aValSec = Array.isArray(a[secondarySortField]) ? a[secondarySortField].length : a[secondarySortField];
+        const bValSec = Array.isArray(b[secondarySortField]) ? b[secondarySortField].length : b[secondarySortField];
+        if (aValSec < bValSec) { return 1 * returnVal; }
+        if (aValSec > bValSec) { return -1 * returnVal; }
+      }
       return 0;
     }))
-  }, [sortBy, sortDir, items]);
+  }, [sortBy, sortDir, items, secondarySortField]);
 
   const toggleSort = (col: Column) => {
     if (col.field === sortBy) {
