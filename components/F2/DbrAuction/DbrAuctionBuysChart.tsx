@@ -11,6 +11,7 @@ const maxChartWidth = 1200;
 
 export const DbrAuctionBuysChart = ({ events, isTotal = false }) => {
     const { chartData: chartDataAcc } = useEventsAsChartData(events, '_acc_', 'dolaIn', true, true);
+    const { chartData: chartDataArb } = useEventsAsChartData(events.filter(e => e.arb > 0), 'arbPerc', 'arbPerc', true, true);
     const virtualAuctionBuysEvents = events.filter(e => e.auctionType === 'Virtual');
     const sdolaAuctionBuysEvents = events.filter(e => e.auctionType === 'sDOLA');
 
@@ -61,7 +62,7 @@ export const DbrAuctionBuysChart = ({ events, isTotal = false }) => {
                     isDollars={false}
                     smoothLineByDefault={false}
                     barProps={{ eventName: 'DBR auction buys' }}
-                    areaProps={{ title: 'Acc. income from all DBR auction buys', fillInByDayInterval: true, id: 'dbr-auction-buys-acc', showRangeBtns: true, yLabel: 'DOLA Income', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
+                    areaProps={{ title: 'Acc. income from all DBR auction buys', fillInByDayInterval: true, id: 'dbr-auction-buys-arb', showRangeBtns: true, yLabel: 'DOLA Income', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
                 />
             </VStack>
             {
@@ -82,7 +83,7 @@ export const DbrAuctionBuysChart = ({ events, isTotal = false }) => {
                     />
                 </VStack>
             }
-        </Stack>        
+        </Stack>
         <BarChartRecharts
             title={`Weekly average prices in the last ${nbWeeksToShow} weeks`}
             combodata={last8WeeksDbrPricesStats}
@@ -95,5 +96,22 @@ export const DbrAuctionBuysChart = ({ events, isTotal = false }) => {
             showLabel={isLargerThan}
             isDoubleBar={true}
         />
+        <VStack pt="10">
+            <DefaultCharts
+                showMonthlyBarChart={false}
+                maxChartWidth={autoChartWidth}
+                chartWidth={autoChartWidth}
+                chartData={chartDataArb}
+                isDollars={false}
+                smoothLineByDefault={false}
+                areaProps={{ 
+                    lineItems: [
+                        { dataKey: 'priceInDola', name: 'Auction price', axisId: 'right', stroke: themeStyles.colors.info },
+                        { dataKey: 'marketPriceInDola', name: 'Market price', axisId: 'right', stroke: themeStyles.colors.success },
+                    ],
+                    showSecondary: true,
+                    title: 'Prices at auction buys and price diff %', fillInByDayInterval: true, id: 'dbr-auction-buys-acc', showRangeBtns: true, yLabel: 'Difference', useRecharts: true, showMaxY: false, isPerc: true, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
+            />
+        </VStack>
     </VStack>
 }

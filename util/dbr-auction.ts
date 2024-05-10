@@ -96,31 +96,58 @@ export const estimateAuctionTimeToReachMarketPrice = (
 }
 
 export const useDbrAuctionActivity = (from?: string): SWR & {
-    events: any,
+    events: any[],
+    virtualAuctionEvents: any[],
+    sdolaAuctionEvents: any[],
     accountEvents: any,    
     timestamp: number,
     avgDbrPrice: number,
     nbBuys: number,
     accDolaIn: number,
     accDbrOut: number,
+    accDolaInVirtual: number,
+    accDolaInSdola: number,
+    accDbrOutVirtual: number,
+    accDbrOutSdola: number,
 } => {
     const liveEvents = useDbrAuctionBuyEvents(from);
     const { data, error } = useCustomSWR(`/api/auctions/dbr-buys?v=1.0.1`, fetcher);
 
     const events = (liveEvents?.length > data?.buys?.length ? liveEvents : data?.buys || [])
-        .map((e,i) => ({ ...e, key: `${e.txHash}-${i}`, priceInDola: (e.dolaIn / e.dbrOut) }));
+        .map((e,i) => {
+            const priceInDola = (e.dolaIn / e.dbrOut);
+            const arb = e.marketPriceInDola - priceInDola;
+            return ({ ...e, key: `${e.txHash}-${i}`, priceInDola, arb, arbPerc: arb/((priceInDola+e.marketPriceInDola)/2)*100 })
+        });
+
     const accDolaIn = events.reduce((prev, curr) => prev + curr.dolaIn, 0);
     const accDbrOut = events.reduce((prev, curr) => prev + curr.dbrOut, 0);
+
+    const virtualAuctionEvents = events.filter(e => e.auctionType === 'Virtual');
+    const sdolaAuctionEvents = events.filter(e => e.auctionType === 'sDOLA');
+
+    const accDolaInVirtual = virtualAuctionEvents.reduce((prev, curr) => prev + curr.dolaIn, 0);
+    const accDbrOutVirtual = virtualAuctionEvents.reduce((prev, curr) => prev + curr.dbrOut, 0);
+
+    const accDolaInSdola = sdolaAuctionEvents.reduce((prev, curr) => prev + curr.dolaIn, 0);
+    const accDbrOutSdola = sdolaAuctionEvents.reduce((prev, curr) => prev + curr.dbrOut, 0);
+
     const avgDbrPrice = accDolaIn / accDbrOut;
     const nbBuys = events.length;
 
     return {
         events,
+        virtualAuctionEvents,
+        sdolaAuctionEvents,
         accountEvents: events.filter(e => e.to === from),
         nbBuys,
         avgDbrPrice,
         accDolaIn,
         accDbrOut,
+        accDolaInVirtual,
+        accDbrOutVirtual,
+        accDolaInSdola,
+        accDbrOutSdola,
         timestamp: !from ? data?.timestamp : 0,
         isLoading: !error && !data,
         isError: error,
