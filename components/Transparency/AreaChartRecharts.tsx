@@ -82,6 +82,7 @@ export const AreaChartRecharts = ({
     allowEscapeViewBox = true,
     avgDayNumbers,
     avgLineProps,
+    lineItems,
 }: {
     combodata: { y: number, x: number, timestamp: number, utcDate: string }[]
     title: string
@@ -120,6 +121,7 @@ export const AreaChartRecharts = ({
     allowEscapeViewBox?: boolean
     avgDayNumbers?: number[]
     avgLineProps?: any[]
+    lineItems?: any[]
 }) => {
     const _combodata = addDayAvg && avgDayNumbers?.length ? getAddDaysAvg(combodata, avgDayNumbers, avgTypes) : combodata;
     const { themeStyles } = useAppTheme();
@@ -191,8 +193,13 @@ export const AreaChartRecharts = ({
                     showSecondary && <YAxis allowDataOverflow={true} style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => shortenNumber(v, secondaryPrecision, secondaryAsUsd)} />
                 }
                 {
-                    showSecondary && <Line isAnimationActive={false} opacity={1} strokeWidth={2} name={secondaryLabel} yAxisId="right" type="monotone" dataKey={secondaryRef} stroke={themeStyles.colors.info} dot={false} />
-                }                
+                    showSecondary && secondaryRef && <Line isAnimationActive={false} opacity={1} strokeWidth={2} name={secondaryLabel} yAxisId="right" type="monotone" dataKey={secondaryRef} stroke={themeStyles.colors.info} dot={false} />
+                }
+                {
+                    lineItems?.map(lineItem => {
+                        return <Line key={`line-${lineItem.dataKey}`} isAnimationActive={false} opacity={lineItem.opacity??1} strokeWidth={lineItem.strokeWidth||2} name={lineItem.name||secondaryLabel} yAxisId={lineItem.axisId||'left'} type={lineItem.type||'monotone'} dataKey={lineItem.dataKey} stroke={lineItem.stroke||themeStyles.colors.info} dot={lineItem.dot||false} />
+                    })
+                }
                 {
                     showTooltips && <Tooltip
                         wrapperStyle={{ ..._axisStyle.tickLabels, zIndex: 1 }}
@@ -202,9 +209,9 @@ export const AreaChartRecharts = ({
                         itemStyle={{ fontWeight: 'bold' }}
                         allowEscapeViewBox={allowEscapeViewBox ? { x: true, y: true } : undefined}
                         formatter={(value, name) => {
-                            const isPrice = name === 'Price';
+                            const isPrice = /price/i.test(name);
                             const isSecondary = name === secondaryLabel;
-                            return !value ? 'none' : isPerc ? `${shortenNumber(value, 2)}%` : isPrice ? shortenNumber(value, 4, true) : preciseCommify(value, 0, isSecondary ? secondaryAsUsd : useUsd)
+                            return !value ? 'none' : !isPrice && isPerc ? `${shortenNumber(value, 2)}%` : isPrice ? shortenNumber(value, 4, true) : preciseCommify(value, value < 1 ? 4 : 0, isSecondary ? secondaryAsUsd : useUsd)
                         }}
                     />
                 }
