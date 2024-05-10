@@ -9,13 +9,10 @@ import { BarChartRecharts } from "@app/components/Transparency/BarChartRecharts"
 
 const maxChartWidth = 1200;
 
-export const DbrAuctionBuysChart = ({ events }) => {
+export const DbrAuctionBuysChart = ({ events, isTotal = false }) => {
     const { chartData: chartDataAcc } = useEventsAsChartData(events, '_acc_', 'dolaIn', true, true);
     const virtualAuctionBuysEvents = events.filter(e => e.auctionType === 'Virtual');
     const sdolaAuctionBuysEvents = events.filter(e => e.auctionType === 'sDOLA');
-
-    const { chartData: chartDataAccVirtual } = useEventsAsChartData(virtualAuctionBuysEvents, '_acc_', 'dolaIn', true, true);
-    const { chartData: chartDataAccSdola } = useEventsAsChartData(sdolaAuctionBuysEvents, '_acc_', 'dolaIn', true, true);
 
     const { themeStyles } = useAppTheme();
     const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
@@ -58,8 +55,8 @@ export const DbrAuctionBuysChart = ({ events }) => {
             <VStack pt="10">
                 <DefaultCharts
                     showMonthlyBarChart={false}
-                    maxChartWidth={isLargerThan2xl ? autoChartWidth / 2 : autoChartWidth}
-                    chartWidth={isLargerThan2xl ? autoChartWidth / 2 : autoChartWidth}
+                    maxChartWidth={isLargerThan2xl && isTotal ? autoChartWidth / 2 : autoChartWidth}
+                    chartWidth={isLargerThan2xl && isTotal ? autoChartWidth / 2 : autoChartWidth}
                     chartData={chartDataAcc}
                     isDollars={false}
                     smoothLineByDefault={false}
@@ -67,58 +64,31 @@ export const DbrAuctionBuysChart = ({ events }) => {
                     areaProps={{ title: 'Acc. income from all DBR auction buys', fillInByDayInterval: true, id: 'dbr-auction-buys-acc', showRangeBtns: true, yLabel: 'DOLA Income', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
                 />
             </VStack>
-            <VStack pt='10'>
-                <Text fontWeight="bold">Buys repartition</Text>
-                <PieChartRecharts
-                    precision={0}
-                    width={isLargerThan2xl ? autoChartWidth / 2 : autoChartWidth}
-                    height={300}
-                    data={pieChartData}
-                    dataKey={'value'}
-                    nameKey={'name'}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={50}
-                    activeFill={themeStyles.colors.mainTextColor}
-                    fill={themeStyles.colors.mainTextColorLight}
-                />
-            </VStack>
-        </Stack>
-        <VStack w='98%' py="4">
-            <Divider />
-        </VStack>
-        <Stack direction={{ base: 'column', '2xl': 'row' }} alignItems="center">
-            <VStack pt="10">
-                <DefaultCharts
-                    showMonthlyBarChart={false}
-                    maxChartWidth={isLargerThan2xl ? autoChartWidth / 2 : autoChartWidth}
-                    chartWidth={isLargerThan2xl ? autoChartWidth / 2 : autoChartWidth}
-                    chartData={chartDataAccVirtual}
-                    isDollars={false}
-                    smoothLineByDefault={false}
-                    barProps={{ eventName: 'DBR Virtual Auction buys' }}
-                    areaProps={{ title: 'Virtual Auction: Acc. income from buys', fillInByDayInterval: true, id: 'dbr-auction-buys-acc-virtual', showRangeBtns: true, yLabel: 'DOLA Income', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
-                />
-            </VStack>
-            <VStack pt='10'>
-                <DefaultCharts
-                    showMonthlyBarChart={false}
-                    maxChartWidth={isLargerThan2xl ? autoChartWidth / 2 : autoChartWidth}
-                    chartWidth={isLargerThan2xl ? autoChartWidth / 2 : autoChartWidth}
-                    chartData={chartDataAccSdola}
-                    isDollars={false}
-                    smoothLineByDefault={false}
-                    barProps={{ eventName: 'DBR sDOLA Auction buys' }}
-                    areaProps={{ title: 'sDOLA Auction: Acc. income from buys', fillInByDayInterval: true, id: 'dbr-auction-buys-acc-sdola', showRangeBtns: true, yLabel: 'DOLA Income', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
-                />
-            </VStack>
-        </Stack>
+            {
+                isTotal && <VStack pt='10'>
+                    <Text fontWeight="bold">Buys repartition</Text>
+                    <PieChartRecharts
+                        precision={0}
+                        width={isLargerThan2xl ? autoChartWidth / 2 : autoChartWidth}
+                        height={300}
+                        data={pieChartData}
+                        dataKey={'value'}
+                        nameKey={'name'}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={50}
+                        activeFill={themeStyles.colors.mainTextColor}
+                        fill={themeStyles.colors.mainTextColorLight}
+                    />
+                </VStack>
+            }
+        </Stack>        
         <BarChartRecharts
             title={`Weekly average prices in the last ${nbWeeksToShow} weeks`}
             combodata={last8WeeksDbrPricesStats}
             precision={4}
             yDomain={[0.05, 0.25]}
-            chartWidth={autoChartWidth * 0.9}
+            chartWidth={autoChartWidth - 50}
             yLabel="Avg. Auction Price"
             yLabel2="Avg. Market Price"
             useUsd={false}
