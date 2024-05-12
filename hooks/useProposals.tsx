@@ -110,7 +110,7 @@ export const useProposalsBreakdown = (): SWR & { active: number, passed: number,
   }
 }
 export const useProposals = (filters?: { proposalNum?: number, size?: number, isStatsOnly?: boolean }): SWR & Proposals => {
-  let uri = `/api/proposals`;
+  let uri = `/api/proposals?`;
   const { proposalNum, size } = filters || {};
   if(!!proposalNum) {
     uri += `&proposalNum=${proposalNum}`;
