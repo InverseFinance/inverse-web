@@ -52,7 +52,9 @@ export default async function handler(req, res) {
     const govContract = new Contract(GOVERNANCE, GOVERNANCE_ABI, provider);
 
     // proposals are stored in descending order
-    const lastArchivedProposal = cachedData.proposals.find(p => [ProposalStatus.executed, ProposalStatus.expired, ProposalStatus.defeated, ProposalStatus.canceled].includes(p.status))
+    // const lastArchivedProposal = cachedData.proposals.find(p => [ProposalStatus.executed, ProposalStatus.expired, ProposalStatus.defeated, ProposalStatus.canceled].includes(p.status))
+    // temp fix
+    const lastArchivedProposal = { id: 180 }
 
     const [blockNumber, quorumVotes, graphResult] = await Promise.all([
       provider.getBlockNumber(),
