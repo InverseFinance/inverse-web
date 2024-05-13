@@ -1,7 +1,7 @@
-import { Badge, Flex, HStack, Stack, Text, useMediaQuery } from "@chakra-ui/react"
+import { Badge, Divider, Flex, HStack, Stack, Text, useMediaQuery, VStack } from "@chakra-ui/react"
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
-import { useAccountDBR, useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
+import { useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
 import { useRouter } from 'next/router';
 import { useAccount } from '@app/hooks/misc';
 import { getRiskColor } from "@app/util/f2";
@@ -15,7 +15,11 @@ import { useAppTheme } from "@app/hooks/useAppTheme";
 import { gaEvent } from "@app/util/analytics";
 import { DailyLimitCountdown } from "@app/components/common/Countdown";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
-import { SafetyBadges, SafetyMiniCaroussel } from "./SecurityMiniCaroussel";
+import { SafetyBadges } from "./SecurityMiniCaroussel";
+import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import { SplashedText } from "../common/SplashedText";
+import { lightTheme } from "@app/variables/theme";
+import { useState } from "react";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -38,9 +42,9 @@ const columns = [
         value: ({ name, icon, marketIcon, underlying, badgeInfo, badgeProps }) => {
             return <Cell minWidth="110px">
                 <Cell minWidth='110px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
-                    <HStack justify="flex-start" alignItems="center" spacing="1" w='full'>
+                    <HStack justify="flex-start" alignItems="center" spacing="2" w='full'>
                         <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
-                        <CellText fontWeight="bold">{name}</CellText>
+                        <CellText fontWeight="bold" fontSize={{ base: '18px', '2xl': '20px' }}>{name}</CellText>
                     </HStack>
                     {
                         !!badgeInfo && <CellText fontWeight="bold">
@@ -226,6 +230,8 @@ const columns = [
     },
 ]
 
+const columnsWithout = columns.slice(0, 8);
+
 const firmImages = {
     'dark': 'firm-final-logo-white.png',
     'light': 'firm-final-logo.png',
@@ -242,10 +248,11 @@ export const F2Markets = ({
     const account = useAccount();
     const { priceUsd: dbrPrice } = useDBRPrice();
     const accountMarkets = useAccountF2Markets(markets, account);
-    const { debt } = useAccountDBR(account);
     const router = useRouter();
     const { firmTvls, isLoading: tvlLoading } = useFirmTVL();
     const { themeStyles, themeName } = useAppTheme();
+    const [showMyPositions, setShowMyPositions] = useState(true);
+    const [showOther, setShowOther] = useState(true);
     const [isSmallerThan] = useMediaQuery(`(max-width: ${responsiveThreshold}px)`);
 
     const isLoading = tvlLoading || !markets?.length;
@@ -260,7 +267,31 @@ export const F2Markets = ({
     const accountMarketsWithoutPhasingOutMarkets = accountMarkets
         .filter(m => !m.isPhasingOut || (m.debt > 0 || (m.deposits * m.price) >= 1));
 
-    return <Container        
+    const withDeposits = accountMarketsWithoutPhasingOutMarkets
+        .filter(m => m.depositsUsd > 1 || m.debt > 1);
+
+    const withoutDeposits = accountMarketsWithoutPhasingOutMarkets
+        .filter(m => m.deposits <= 1 && m.debt <= 1);
+
+    const depositsUsd = withDeposits.reduce((prev, curr) => prev + curr.depositsUsd, 0);
+
+    const toggleMyPositions = () => {
+        setShowMyPositions(!showMyPositions);
+    }
+
+    const toggleOther = () => {
+        setShowOther(!showOther);
+    }
+
+    const invMarketIsInOtherSection = withoutDeposits.some(m => m.isInv);
+
+    const pinnedItems = invMarketIsInOtherSection ? 
+        ['0xb516247596Ca36bf32876199FBdCaD6B3322330B', (markets?.length > 0 ? markets[markets?.length - 1].address : '')]
+        : [(markets?.length > 0 ? markets[markets?.length - 1].address : '')];
+
+    const pinnedLabels = invMarketIsInOtherSection ? ['Stake', 'New'] : ['New'];
+
+    return <Container
         p={isDashboardPage ? '0' : '6'}
         label={
             <Text fontWeight="bold" fontSize={{ base: '14px', md: '16px' }}>
@@ -285,6 +316,7 @@ export const F2Markets = ({
             p: isSmallerThan ? '0' : '4',
             shadow: isSmallerThan ? '0' : '0 0 0px 1px rgba(0, 0, 0, 0.25)',
             borderRadius: isSmallerThan ? '0' : '8px',
+            direction: 'column',
         }}
         contentBgColor={isSmallerThan ? 'transparent' : undefined}
         headerProps={{
@@ -298,25 +330,90 @@ export const F2Markets = ({
         {
             isLoading ?
                 <SkeletonList /> :
-                <Table
-                    keyName="address"
-                    pinnedItems={['0xb516247596Ca36bf32876199FBdCaD6B3322330B', markets?.length > 0 ? markets[markets?.length - 1].address : '']}
-                    pinnedLabels={['Stake', 'New']}
-                    noDataMessage="Loading..."
-                    columns={columns}
-                    items={accountMarketsWithoutPhasingOutMarkets.map(m => {
-                        return { ...m, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
-                    })}
-                    onClick={openMarket}
-                    defaultSort={debt > 0 ? 'depositsUsd' : 'leftToBorrow'}
-                    defaultSortDir="desc"
-                    secondarySortField={debt > 0 ? 'leftToBorrow' : 'tvl'}
-                    enableMobileRender={true}
-                    mobileClickBtnLabel={'View Market'}
-                    mobileThreshold={responsiveThreshold}
-                    showRowBorder={true}
-                    spacing="0"
-                />
+                <VStack alignItems="flex-start" spacing="6">
+                    {
+                        withDeposits.length > 0 && <>
+                            <HStack _hover={{ filter: 'brightness(1.5)', transition: '400ms all' }} cursor="pointer" onClick={() => toggleMyPositions()}>
+                                <SplashedText
+                                    as="h3"
+                                    color={`${lightTheme?.colors.mainTextColor}`}
+                                    fontSize={'20px'}
+                                    fontWeight="extrabold"
+                                    color={`${themeStyles?.colors.mainTextColor}`}
+                                    splashColor={`${themeStyles?.colors.accentTextColor}`}
+                                    lineHeight='1'
+                                    splashProps={{
+                                        top: '-10px',
+                                        left: '-14px',
+                                        w: '300px',
+                                        opacity: 0.3,
+                                    }}
+                                >
+                                    Your Positions ({shortenNumber(depositsUsd, 2, true)}) {showMyPositions ? <ChevronDownIcon fontSize="24px" /> : <ChevronRightIcon fontSize="24px" />}
+                                </SplashedText>
+                            </HStack>
+                            {
+                                showMyPositions && <Table
+                                    keyName="address"
+                                    noDataMessage="Loading..."
+                                    columns={columns}
+                                    items={withDeposits.map(m => {
+                                        return { ...m, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
+                                    })}
+                                    onClick={openMarket}
+                                    defaultSort={'depositsUsd'}
+                                    defaultSortDir="desc"
+                                    secondarySortField={'leftToBorrow'}
+                                    enableMobileRender={true}
+                                    mobileClickBtnLabel={'View Market'}
+                                    mobileThreshold={responsiveThreshold}
+                                    showRowBorder={true}
+                                    spacing="0"
+                                />
+                            }
+                            <HStack _hover={{ filter: 'brightness(1.5)', transition: '400ms all' }} cursor="pointer" onClick={() => toggleOther()}>
+                                <SplashedText
+                                    as="h3"
+                                    splash="horizontal-lr2"
+                                    color={`${themeStyles?.colors.mainTextColor}`}
+                                    splashColor={`${themeStyles?.colors.accentTextColor}`}
+                                    fontSize={'20px'}
+                                    fontWeight="extrabold"
+                                    lineHeight='1'
+                                    splashProps={{
+                                        top: '-10px',
+                                        left: '-10px',
+                                        w: '180px',
+                                        opacity: 0.3,
+                                    }}
+                                >
+                                    Other Markets{showOther ? <ChevronDownIcon fontSize="24px" /> : <ChevronRightIcon fontSize="24px" />}
+                                </SplashedText>
+                            </HStack>
+                        </>
+                    }
+                    {
+                        showOther && <Table
+                            keyName="address"
+                            pinnedItems={pinnedItems}
+                            pinnedLabels={pinnedLabels}
+                            noDataMessage="Loading..."
+                            columns={columnsWithout}
+                            items={withoutDeposits.map(m => {
+                                return { ...m, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
+                            })}
+                            onClick={openMarket}
+                            defaultSort={'leftToBorrow'}
+                            defaultSortDir="desc"
+                            secondarySortField={'tvl'}
+                            enableMobileRender={true}
+                            mobileClickBtnLabel={'View Market'}
+                            mobileThreshold={responsiveThreshold}
+                            showRowBorder={true}
+                            spacing="0"
+                        />
+                    }
+                </VStack>
         }
     </Container>
 }
