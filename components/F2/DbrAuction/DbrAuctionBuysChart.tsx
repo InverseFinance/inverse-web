@@ -9,6 +9,7 @@ import { BarChartRecharts } from "@app/components/Transparency/BarChartRecharts"
 
 const maxChartWidth = 1200;
 
+// make the chart look better, => buys appear as spikes
 const surroundByZero = (chartDataAcc: { x: number, y: number }[]) => {
     const cloned = [...chartDataAcc];
     for(let i = 0;i < cloned.length;i++){
