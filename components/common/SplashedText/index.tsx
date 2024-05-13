@@ -5,6 +5,7 @@ export const SplashedText = ({
     containerProps,
     splash = 'horizontal-lr',
     splashProps,
+    splashColor,
     ...props
 }: {
     containerProps?: StackProps
@@ -22,7 +23,7 @@ export const SplashedText = ({
             h="40px"
             top="20px"
             left="-25px"
-            bgColor={lightTheme.colors.success}
+            bgColor={splashColor||lightTheme.colors.success}
             mask={`url(${splashSrc}) no-repeat center / cover`}
             sx={{
                 '-webkit-mask': `url(${splashSrc}) no-repeat 0 0/100% 100%`
