@@ -325,7 +325,7 @@ export const F2Markets = ({
                 <VStack alignItems="flex-start" spacing="6">
                     {
                         withDeposits.length > 0 && <>
-                            <HStack cursor="pointer" onClick={() => toggleMyPositions()}>
+                            <HStack _hover={{ filter: 'brightness(1.5)', transition: '400ms all' }} cursor="pointer" onClick={() => toggleMyPositions()}>
                                 <SplashedText
                                     as="h3"
                                     color={`${lightTheme?.colors.mainTextColor}`}
@@ -363,7 +363,7 @@ export const F2Markets = ({
                                     spacing="0"
                                 />
                             }
-                            <HStack cursor="pointer" onClick={() => toggleOther()}>
+                            <HStack _hover={{ filter: 'brightness(1.5)', transition: '400ms all' }} cursor="pointer" onClick={() => toggleOther()}>
                                 <SplashedText
                                     as="h3"
                                     splash="horizontal-lr2"
