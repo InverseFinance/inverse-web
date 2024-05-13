@@ -271,7 +271,7 @@ export const F2Markets = ({
         .filter(m => m.depositsUsd > 1 || m.debt > 1);
 
     const withoutDeposits = accountMarketsWithoutPhasingOutMarkets
-        .filter(m => !m.deposits && !m.debt);
+        .filter(m => m.deposits <= 1 && m.debt <= 1);
 
     const depositsUsd = withDeposits.reduce((prev, curr) => prev + curr.depositsUsd, 0);
 
@@ -282,6 +282,14 @@ export const F2Markets = ({
     const toggleOther = () => {
         setShowOther(!showOther);
     }
+
+    const invMarketIsInOtherSection = withoutDeposits.some(m => m.isInv);
+
+    const pinnedItems = invMarketIsInOtherSection ? 
+        ['0xb516247596Ca36bf32876199FBdCaD6B3322330B', (markets?.length > 0 ? markets[markets?.length - 1].address : '')]
+        : [(markets?.length > 0 ? markets[markets?.length - 1].address : '')];
+
+    const pinnedLabels = invMarketIsInOtherSection ? ['Stake', 'New'] : ['New'];
 
     return <Container
         p={isDashboardPage ? '0' : '6'}
@@ -387,8 +395,8 @@ export const F2Markets = ({
                     {
                         showOther && <Table
                             keyName="address"
-                            pinnedItems={['0xb516247596Ca36bf32876199FBdCaD6B3322330B', markets?.length > 0 ? markets[markets?.length - 1].address : '']}
-                            pinnedLabels={['Stake', 'New']}
+                            pinnedItems={pinnedItems}
+                            pinnedLabels={pinnedLabels}
                             noDataMessage="Loading..."
                             columns={columnsWithout}
                             items={withoutDeposits.map(m => {
