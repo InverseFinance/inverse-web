@@ -82,6 +82,8 @@ export default async function handler(req, res) {
 
         await redisSetWithTimestamp(DBR_AUCTION_BUYS_CACHE_KEY, resultData);
 
+        resultData.buys.sort((a, b) => b.timestamp - a.timestamp);
+
         res.status(200).send(resultData);
     } catch (err) {
         console.error(err);
