@@ -51,18 +51,16 @@ export default async function handler(req, res) {
     const provider = getProvider(NetworkIds.mainnet, process.env.ALCHEMY_CRON, true);
     const govContract = new Contract(GOVERNANCE, GOVERNANCE_ABI, provider);
 
-    // proposals are stored in descending order
-    // const lastArchivedProposal = cachedData.proposals.find(p => [ProposalStatus.executed, ProposalStatus.expired, ProposalStatus.defeated, ProposalStatus.canceled].includes(p.status))
-    // temp fix
-    const lastArchivedProposal = { id: 180 }
+    // 20 is a safe margin, proposals should be in a definitive state and considered archived
+    const lastRefProposalId = cachedData.proposals[0].id - 20;
 
     const [blockNumber, quorumVotes, graphResult] = await Promise.all([
       provider.getBlockNumber(),
       govContract.quorumVotes(),
       // only proposals after last archived proposal
-      getGovProposals({ size: 20, afterProposalId: lastArchivedProposal?.id }),
+      getGovProposals({ size: 20, afterProposalId: lastRefProposalId }),
     ]);
-    const archivedProposals = cachedData.proposals.filter(p => p.id <= lastArchivedProposal?.id);
+    const archivedProposals = cachedData.proposals.filter(p => p.id <= lastRefProposalId);
 
     const eras = {
       "0x35d9f4953748b318f18c30634ba299b237eedfff": GovEra.alpha,
