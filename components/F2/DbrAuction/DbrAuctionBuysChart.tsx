@@ -9,8 +9,18 @@ import { BarChartRecharts } from "@app/components/Transparency/BarChartRecharts"
 
 const maxChartWidth = 1200;
 
+const surroundByZero = (chartDataAcc: { x: number, y: number }[]) => {
+    const cloned = [...chartDataAcc];
+    for(let i = 0;i < cloned.length;i++){
+        if(cloned[i].y > 0 && i > 0) {
+            cloned.splice(i+1, 0, { ...cloned[i], x: cloned[i].x + 1000 * 60, y: 0 });            
+        }
+    }
+    return cloned;
+}
+
 export const DbrAuctionBuysChart = ({ events, isTotal = false }) => {
-    const { chartData: chartDataAcc } = useEventsAsChartData(events, '_acc_', 'dolaIn', true, true);
+    const { chartData: chartDataAcc } = useEventsAsChartData(events, 'dolaIn', 'dolaIn', true, true);
     const { chartData: chartDataArb } = useEventsAsChartData(events.filter(e => e.arb > 0), 'arbPerc', 'arbPerc', true, true);
     const virtualAuctionBuysEvents = events.filter(e => e.auctionType === 'Virtual');
     const sdolaAuctionBuysEvents = events.filter(e => e.auctionType === 'sDOLA');
@@ -66,16 +76,16 @@ export const DbrAuctionBuysChart = ({ events, isTotal = false }) => {
                     showMonthlyBarChart={false}
                     maxChartWidth={isLargerThan2xl && isTotal ? autoChartWidth / 2 : autoChartWidth}
                     chartWidth={isLargerThan2xl && isTotal ? autoChartWidth / 2 : autoChartWidth}
-                    chartData={chartDataAcc}
+                    chartData={surroundByZero(chartDataAcc)}
                     isDollars={false}
                     smoothLineByDefault={false}
                     barProps={{ eventName: 'DBR auction buys' }}
-                    areaProps={{ title: 'Income from all DBR auction buys', fillInByDayInterval: true, id: 'dbr-auction-buys-arb', showRangeBtns: true, yLabel: 'DOLA Income', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
+                    areaProps={{ title: 'Income from all DBR auction buys', defaultRange: '1M', fillInByDayInterval: true, id: 'dbr-auction-buys-arb', showRangeBtns: true, yLabel: 'DOLA Income', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
                 />
             </VStack>
             {
                 isTotal && <VStack pt='10'>
-                    <Text fontWeight="bold">Buys repartition</Text>
+                    <Text fontWeight="bold">Total buys repartition</Text>
                     <PieChartRecharts
                         precision={0}
                         width={isLargerThan2xl ? autoChartWidth / 2 : autoChartWidth}
@@ -129,7 +139,7 @@ export const DbrAuctionBuysChart = ({ events, isTotal = false }) => {
                     ],
                     showSecondary: true,
                     secondaryRef: '',
-                    interpolation: 'linear',
+                    interpolation: 'step',
                     showLegend: true,
                     title: 'Prices at auction buys and price diff %', fillInByDayInterval: true, id: 'dbr-auction-buys-acc', showRangeBtns: true, yLabel: 'Difference', useRecharts: true, showMaxY: false, isPerc: true, showTooltips: true, autoMinY: true, mainColor: 'gold', strokeColor: 'orange', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
             />
