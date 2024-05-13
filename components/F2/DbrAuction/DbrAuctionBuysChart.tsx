@@ -39,6 +39,14 @@ export const DbrAuctionBuysChart = ({ events, isTotal = false }) => {
         const avgMarketPrice = marketPrices.reduce((prev, curr) => prev + curr, 0) / nbWeekEvents;
         return { week, avg, avgMarketPrice, min, max, y: avg, y2: avgMarketPrice, x: week }
     });
+
+    const dbrWeeklyIncomeStats = uniqueWeeks.map(week => {
+        const weekEvents = events.filter(e => getPreviousThursdayUtcDateOfTimestamp(e.timestamp) === week);
+        const dolaIn = weekEvents.map(e => e.dolaIn);
+        const total = dolaIn.reduce((prev, curr) => prev + curr, 0);
+        return { week, y: total, x: week }
+    });
+
     const nbWeeksToShow = isLargerThan ? 8 : 6;
     const last8WeeksDbrPricesStats = dbrPricesStats.slice(dbrPricesStats.length - nbWeeksToShow, dbrPricesStats.length);
 
@@ -62,7 +70,7 @@ export const DbrAuctionBuysChart = ({ events, isTotal = false }) => {
                     isDollars={false}
                     smoothLineByDefault={false}
                     barProps={{ eventName: 'DBR auction buys' }}
-                    areaProps={{ title: 'Acc. income from all DBR auction buys', fillInByDayInterval: true, id: 'dbr-auction-buys-arb', showRangeBtns: true, yLabel: 'DOLA Income', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
+                    areaProps={{ title: 'Income from all DBR auction buys', fillInByDayInterval: true, id: 'dbr-auction-buys-arb', showRangeBtns: true, yLabel: 'DOLA Income', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
                 />
             </VStack>
             {
@@ -84,6 +92,16 @@ export const DbrAuctionBuysChart = ({ events, isTotal = false }) => {
                 </VStack>
             }
         </Stack>
+        <BarChartRecharts
+            title={`Weekly DOLA income in the last ${nbWeeksToShow} weeks`}
+            combodata={dbrWeeklyIncomeStats}
+            precision={2}
+            // yDomain={[0.05, 0.25]}
+            chartWidth={autoChartWidth - 50}
+            yLabel="Weekly income"
+            useUsd={false}
+            showLabel={isLargerThan}
+        />
         <BarChartRecharts
             title={`Weekly average prices in the last ${nbWeeksToShow} weeks`}
             combodata={last8WeeksDbrPricesStats}
@@ -110,7 +128,10 @@ export const DbrAuctionBuysChart = ({ events, isTotal = false }) => {
                         { dataKey: 'marketPriceInDola', name: 'Market price', axisId: 'right', stroke: themeStyles.colors.success },
                     ],
                     showSecondary: true,
-                    title: 'Prices at auction buys and price diff %', fillInByDayInterval: true, id: 'dbr-auction-buys-acc', showRangeBtns: true, yLabel: 'Difference', useRecharts: true, showMaxY: false, isPerc: true, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
+                    secondaryRef: '',
+                    interpolation: 'linear',
+                    showLegend: true,
+                    title: 'Prices at auction buys and price diff %', fillInByDayInterval: true, id: 'dbr-auction-buys-acc', showRangeBtns: true, yLabel: 'Difference', useRecharts: true, showMaxY: false, isPerc: true, showTooltips: true, autoMinY: true, mainColor: 'gold', strokeColor: 'orange', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
             />
         </VStack>
     </VStack>
