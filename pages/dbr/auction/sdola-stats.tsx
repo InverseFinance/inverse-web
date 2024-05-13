@@ -11,19 +11,19 @@ import { DbrAuctionTabs } from '@app/components/F2/DbrAuction/DbrAuctionTabs';
 import { useDbrAuctionActivity } from '@app/util/dbr-auction';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
 
-export const DbrAuctionStatsPage = () => {
-  const { isLoading, events, accDolaIn, accDbrOut, timestamp } = useDbrAuctionActivity();  
+export const DbrAuctionSdolaStatsPage = () => {
+  const { isLoading, sdolaAuctionEvents: events, accDolaInSdola: accDolaIn, accDbrOutSdola: accDbrOut, timestamp } = useDbrAuctionActivity();  
   return (
     <Layout>
       <Head>
-        <title>Inverse Finance - DBR auction</title>
-        <meta name="og:title" content="Inverse Finance - DBR auction stats" />
-        <meta name="og:description" content="DBR auction stats" />
-        <meta name="description" content="DBR auction stats" />
+        <title>Inverse Finance - DBR Virtual Auction</title>
+        <meta name="og:title" content="Inverse Finance - DBR sDOLA Auction" />
+        <meta name="og:description" content="DBR sDOLA Auction" />
+        <meta name="description" content="DBR sDOLA Auction" />
         <meta name="keywords" content="Inverse Finance, swap, stablecoin, DOLA, DBR, auction" />
       </Head>
       <AppNav active="Swap" activeSubmenu="Buy DBR (auction)" />
-      <DbrAuctionTabs defaultIndex={1} />
+      <DbrAuctionTabs defaultIndex={3} />
       <VStack
         w={{ base: 'full', lg: '1200px' }}
         mt='6'
@@ -31,8 +31,8 @@ export const DbrAuctionStatsPage = () => {
         px={{ base: '4', lg: '0' }}
       >
         <Container
-          label="DBR auction stats"
-          description="Note: Virtual auction income goes to bad debt reduction while sDOLA auction income goes to sDOLA stakers"
+          label="DBR sDOLA Auction"
+          description="Note: sDOLA auction income goes to sDOLA yield"
           noPadding
           m="0"
           p="0"
@@ -62,7 +62,7 @@ export const DbrAuctionStatsPage = () => {
           {
             isLoading ?
               <SkeletonBlob />
-              : <DbrAuctionBuysChart isTotal={true} events={events} />
+              : <DbrAuctionBuysChart isTotal={false} events={events} />
           }
         </Container>
         <DbrAuctionBuys lastUpdate={timestamp} events={events} title="DBR buys from the auction" />
@@ -71,4 +71,4 @@ export const DbrAuctionStatsPage = () => {
   )
 }
 
-export default DbrAuctionStatsPage
+export default DbrAuctionSdolaStatsPage

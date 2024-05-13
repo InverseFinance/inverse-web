@@ -63,6 +63,7 @@ export const useEventsAsChartData = (
         .sort((a, b) => a.timestamp - b.timestamp).map(event => {
             acc += event[yAttribute];
             return {
+                ...event,
                 x: event.timestamp,
                 y: event[yAccAttribute] ?? acc,
                 yDay: event[yAttribute],
