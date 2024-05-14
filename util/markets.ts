@@ -1,10 +1,12 @@
 import { CHAIN_TOKENS, TOKENS } from '@app/variables/tokens';
-import { BigNumberList, Market, TokenList } from '@app/types';
+import { BigNumberList, Market, NetworkIds, TokenList } from '@app/types';
 import { BigNumber, Contract } from 'ethers';
 import { formatUnits, commify, isAddress, parseUnits, parseEther } from 'ethers/lib/utils';
-import { ETH_MANTISSA, BLOCKS_PER_YEAR, DAYS_PER_YEAR, BLOCKS_PER_DAY, ONE_DAY_SECS } from '@app/config/constants';
+import { ETH_MANTISSA, BLOCKS_PER_YEAR, DAYS_PER_YEAR, BLOCKS_PER_DAY, ONE_DAY_SECS, WEEKS_PER_YEAR, ONE_DAY_MS } from '@app/config/constants';
 
 import { lowercaseObjectKeys, removeTrailingZeros, toFixed } from './misc';
+import { getProvider } from './providers';
+import { getNextThursdayTimestamp } from './dola-staking';
 
 export const getMonthlyRate = (balance: number, apy: number) => {
     return (balance || 0) * (apy || 0) / 100 / 12;
@@ -196,6 +198,30 @@ export const getStethData = async () => {
         return getPoolYield('747c1d2a-c668-4682-b9f9-296708a3dd90');
     } catch (e) { console.log(e) }
     return [];
+}
+
+export const getStYethData = async () => {
+    try {
+        const now = Date.now();        
+
+        const stYethContract = new Contract('0x583019fF0f430721aDa9cfb4fac8F06cA104d0B4', [
+            'function totalAssets() public view returns(uint)',
+            'function get_amounts() public view returns(tuple(uint,uint,uint,uint))',
+        ], getProvider(NetworkIds.mainnet));
+
+        const [totalAssets, amounts] = await Promise.all([
+            stYethContract.totalAssets(),
+            stYethContract.get_amounts(),
+        ]);
+        // yEth amount to redistribute the remaining time of the week
+        const remainingAmountInTheWeek = getBnToNumber(amounts[1]);
+        // remaining time in the week
+        const remainingMs = (getNextThursdayTimestamp() - now);
+        const apr = remainingAmountInTheWeek * ((ONE_DAY_MS * 7) / remainingMs) * WEEKS_PER_YEAR / getBnToNumber(totalAssets);
+        const apy = aprToApy(apr, WEEKS_PER_YEAR);
+        return { apr: apr * 100, apy: apy * 100 };
+    } catch (e) { console.log(e) }
+    return {};
 }
 
 export const getCvxCrvData = async () => {
