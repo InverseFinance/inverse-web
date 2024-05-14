@@ -172,6 +172,7 @@ export default async function handler(req, res) {
       'st-yCRV': stYcrvData?.apy || 0,
       'DAI': dsrData?.apy || 0,
       'CVX': stCvxData?.apy || 0,
+      'st-yETH': 5.41,
     };
 
     const xinvExRate = getBnToNumber(xinvExRateBn);
