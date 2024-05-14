@@ -93,7 +93,7 @@ const columns = [
         tooltip: <OracleTypeTooltipContent />,
         header: ({ ...props }) => <ColHeader minWidth="110px" justify="center"  {...props} />,
         value: ({ oracleType, underlying }) => {
-            return <Cell alignItems="center" minWidth="110px" justify="center" fontSize="14px">
+            return <Cell alignItems="center" minWidth="110px" justify="center" fontSize="12px">
                 <OracleType showTooltip={true} showImage={false} oracleType={oracleType} subText={underlying.symbol === 'gOHM' ? 'index' : undefined} />
             </Cell>
         },

@@ -160,6 +160,7 @@ const mainConfig = {
             hasClaimableRewards: false,            
             startingBlock: 17777986,
             rewardTypeLabel: 'yCrv APY',
+            underlyingSymbol: 'yCRV',
             isInv: false,            
         },
         {
@@ -227,7 +228,8 @@ const mainConfig = {
         //     oracleType: "chainlink-curve",
         //     badgeInfo: 'Yield-Bearing',
         //     badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },
-        //     hasClaimableRewards: false,      
+        //     hasClaimableRewards: false,
+        //     underlyingSymbol: 'yETH', 
         //     // startingBlock: 19372769,
         //     rewardTypeLabel: 'yEth APY',
         //     isInv: false,            

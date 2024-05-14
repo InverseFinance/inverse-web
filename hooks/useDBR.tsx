@@ -57,7 +57,7 @@ export const useAccountDBR = (
   // interests are not auto-compounded
   const _debt = previewDebt ?? debt;
   const dailyDebtAccrual = Math.max(0, (ONE_DAY_MS * _debt / oneYear));
-  const monthlyDebtAccrual = dailyDebtAccrual * 365/12;
+  const monthlyDebtAccrual = dailyDebtAccrual * 365 / 12;
   const balanceWithDelta = signedBalance + deltaDBR;
   // at current debt accrual rate, when will DBR be depleted?
   const dbrNbDaysExpiry = dailyDebtAccrual ? balanceWithDelta <= 0 ? 0 : balanceWithDelta / dailyDebtAccrual : 0;
@@ -92,7 +92,7 @@ export const useAccountDBR = (
 export const useDBRMarkets = (marketOrList?: string | string[]): {
   markets: F2Market[]
   isLoading: boolean
-} => {  
+} => {
   const { data: apiData, isLoading } = useCacheFirstSWR(`/api/f2/fixed-markets?v12`);
   const _markets = Array.isArray(marketOrList) ? marketOrList : !!marketOrList ? [marketOrList] : [];
 
@@ -131,7 +131,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
     }),
     ...markets.map(m => {
       return [m.address, 'borrowPaused']
-    }),    
+    }),
     ...markets.map(m => {
       return [F2_ALE, 'markets', m.address]
     }),
@@ -239,11 +239,15 @@ export const useAccountDBRMarket = (
   const liquidatableDebtBn = getNumberToBn(liquidatableDebt);
   const seizableWorth = liquidatableDebt + market.liquidationIncentive * liquidatableDebt;
 
-  const { data: stYcrvPriceShareData } = useEtherSWR({
-    args: market.name === 'st-yCRV' ? [[market.collateral, 'pricePerShare']] : [],
-    abi: ['function pricePerShare() public view returns (uint)'],
+  const { data: underlyingExRateData } = useEtherSWR({
+    args: market.name === 'st-yCRV' ?
+      [[market.collateral, 'pricePerShare']] :
+      market.name === 'st-yETH' ?
+        [[market.collateral, 'convertToAssets', '1000000000000000000']]
+        : [],
+    abi: ['function pricePerShare() public view returns (uint)', 'function convertToAssets(uint) public view returns (uint)'],
   });
-  const stYcrvPriceShare = stYcrvPriceShareData?.length ? getBnToNumber(stYcrvPriceShareData[0]) : undefined;
+  const underlyingExRate = underlyingExRateData?.length ? getBnToNumber(underlyingExRateData[0]) : undefined;
 
   return {
     ...market,
@@ -268,7 +272,7 @@ export const useAccountDBRMarket = (
     liquidatableDebt: liquidatableDebtBn ? getBnToNumber(liquidatableDebtBn) : 0,
     seizableWorth,
     seizable: seizableWorth / market.price,
-    underlyingExRate: stYcrvPriceShare,
+    underlyingExRate,
   }
 }
 
@@ -330,7 +334,7 @@ export const useDBRSwapPrice = (dolaWorthOfDbrAsk = '1000'): { price: number | u
     abi: ['function get_dy(uint i, uint j, uint dx) public view returns(uint)'],
   });
 
-  const price = data && data[0] ? 1/(getBnToNumber(data[0])/parseFloat(_ask)) : undefined;
+  const price = data && data[0] ? 1 / (getBnToNumber(data[0]) / parseFloat(_ask)) : undefined;
 
   return {
     price,
@@ -338,29 +342,29 @@ export const useDBRSwapPrice = (dolaWorthOfDbrAsk = '1000'): { price: number | u
   }
 }
 
-export const useTriCryptoSwap = (amountToSell: number, srcIdx = 1, dstIdx = 0): { amountOut: number | null, price: number | null, isLoading: boolean, isError: boolean } => {  
+export const useTriCryptoSwap = (amountToSell: number, srcIdx = 1, dstIdx = 0): { amountOut: number | null, price: number | null, isLoading: boolean, isError: boolean } => {
   const { data, error } = useEtherSWR({
     args: [
       ['0xC7DE47b9Ca2Fc753D6a2F167D8b3e19c6D18b19a', 'get_dy', srcIdx, dstIdx, parseUnits(amountToSell.toString(), 18)],
     ],
     abi: ['function get_dy(uint i, uint j, uint dx) public view returns(uint)'],
   });
-  
+
   return {
     amountOut: data ? getBnToNumber(data[0]) : null,
-    price: data ? getBnToNumber(data[0])/amountToSell : null,
+    price: data ? getBnToNumber(data[0]) / amountToSell : null,
     isLoading: !error && !data,
     isError: !!error,
   }
 }
 
 export const useDBRPrice = (): { priceUsd: number, priceDola: number | undefined } => {
-  const { data: apiData } = useCustomSWR(`/api/dbr`, fetcher);  
+  const { data: apiData } = useCustomSWR(`/api/dbr`, fetcher);
   const { priceUsd: livePriceUsd, priceDola: livePriceDola } = useDBRPriceLive();
 
   return {
     priceUsd: livePriceUsd ?? (apiData?.priceUsd || 0),
-    priceDola: livePriceDola ?? (apiData?.priceDola || 0),    
+    priceDola: livePriceDola ?? (apiData?.priceDola || 0),
   }
 }
 
@@ -436,7 +440,7 @@ export const useBorrowLimits = (market: F2Market) => {
 
   const dolaLiquidity = data ? getBnToNumber(data[0]) : 0;
   const dailyLimit = !noBorrowController && data ? getBnToNumber(data[1]) : 0;
-  const dailyBorrows = !noBorrowController && data ? getBnToNumber(data[2]) : 0;  
+  const dailyBorrows = !noBorrowController && data ? getBnToNumber(data[2]) : 0;
   const borrowPaused = data ? data[3] : market.borrowPaused ?? false;
   const leftToBorrow = borrowPaused ? 0 : !dailyLimit ? dolaLiquidity : Math.min(dailyLimit - dailyBorrows, dolaLiquidity);
 
@@ -473,7 +477,7 @@ export const useDBRNeeded = (borrowAmount: string, durationDays: number, iterati
   dbrNeeded: number,
 } => {
   const { provider } = useWeb3React();
- 
+
   const { data, error } = useSWR(`dbr-helper-approx-${borrowAmount}-${durationDays}-${iterations}`, async () => {
     if (!borrowAmount) {
       return undefined;
@@ -530,14 +534,14 @@ export const useDBRBalanceHisto = (account: string): { evolution: any, currentBa
   const { account: connectedUser } = useWeb3React();
   const [now, setNow] = useState(Date.now());
   const { data, isLoading } = useCustomSWR(!account ? '-' : `/api/f2/dbr-balance-histo?account=${account}&v=1`, fetcher60sectimeout);
-  const { signedBalance } = useAccountDBR(account);  
+  const { signedBalance } = useAccountDBR(account);
 
   const evolution = data?.balances?.map((bal, i) => {
     const ts = data?.timestamps[i];
     return { utcDate: timestampToUTC(ts), debt: data?.debts[i], balance: bal, timestamp: ts, x: ts, y: bal };
   });
-  evolution?.sort((a,b) => a.x - b.x);
-  if(evolution?.length > 0 && !!connectedUser) {    
+  evolution?.sort((a, b) => a.x - b.x);
+  if (evolution?.length > 0 && !!connectedUser) {
     evolution.push({ x: now, utcDate: timestampToUTC(now), balance: signedBalance, timestamp: now, y: signedBalance });
   }
   return {

@@ -758,6 +758,7 @@ export type F2Market = {
   isPhasingOut?: boolean
   phasingOutComment?: string
   phasingOutLink?: string
+  underlyingSymbol?: string
   aleData: { buySellToken: string, collateral: string, helper: string }
 }
 

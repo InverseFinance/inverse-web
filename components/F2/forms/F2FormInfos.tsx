@@ -314,7 +314,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
 
     let alternativeBalanceValue = '';
     if (underlyingExRate > 0) {
-        alternativeBalanceValue = `${newDeposits ? `Underlying amount: ${shortenNumber(newDeposits * underlyingExRate, 2)} yCrv` : ''}`
+        alternativeBalanceValue = `${newDeposits ? `Underlying amount: ${shortenNumber(newDeposits * underlyingExRate, 2)} ${market.underlyingSymbol}` : ''}`
     }
 
     const positionInfos = [
