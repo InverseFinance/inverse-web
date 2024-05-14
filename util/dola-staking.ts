@@ -381,3 +381,7 @@ export function getLastThursdayTimestamp() {
     today.setUTCDate(today.getUTCDate() - daysSinceLastThursday);
     return +(today);
 }
+
+export function getNextThursdayTimestamp() {
+    return getLastThursdayTimestamp() + 7 * ONE_DAY_MS;
+}

@@ -5,7 +5,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { TOKENS } from '@app/variables/tokens'
-import { getBnToNumber, getCvxCrvAPRs, getCvxFxsAPRs, getDSRData, getStCvxData, getStYcrvData, getStethData } from '@app/util/markets'
+import { getBnToNumber, getCvxCrvAPRs, getCvxFxsAPRs, getDSRData, getStCvxData, getStYcrvData, getStYethData, getStethData } from '@app/util/markets'
 import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_MS, ONE_DAY_SECS } from '@app/config/constants';
 import { frontierMarketsCacheKey } from '../markets';
 import { cgPricesCacheKey } from '../prices';
@@ -148,9 +148,10 @@ export default async function handler(req, res) {
       getCvxFxsAPRs(provider),
       getDSRData(),
       getStCvxData(),
+      getStYethData(),
     ]);
 
-    let [stethData, stYcrvData, cvxCrvData, cvxFxsData, dsrData, stCvxData] = externalYieldResults.map(r => {
+    let [stethData, stYcrvData, cvxCrvData, cvxFxsData, dsrData, stCvxData, stYethData] = externalYieldResults.map(r => {
       return r.status === 'fulfilled' ? r.value : {};
     });
 
@@ -172,7 +173,7 @@ export default async function handler(req, res) {
       'st-yCRV': stYcrvData?.apy || 0,
       'DAI': dsrData?.apy || 0,
       'CVX': stCvxData?.apy || 0,
-      'st-yETH': 5.41,
+      'st-yETH': stYethData?.apy || 0,
     };
 
     const xinvExRate = getBnToNumber(xinvExRateBn);
