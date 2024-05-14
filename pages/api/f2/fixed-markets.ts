@@ -14,7 +14,7 @@ import { FEATURE_FLAGS } from '@app/config/features';
 import { getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
 
 const { F2_MARKETS, DOLA, XINV, DBR_DISTRIBUTOR, FEDS } = getNetworkConfigConstants();
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.991`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.993`;
 
 export default async function handler(req, res) {
   const { cacheFirst } = req.query;
@@ -172,6 +172,7 @@ export default async function handler(req, res) {
       'st-yCRV': stYcrvData?.apy || 0,
       'DAI': dsrData?.apy || 0,
       'CVX': stCvxData?.apy || 0,
+      'st-yETH': 5.41,
     };
 
     const xinvExRate = getBnToNumber(xinvExRateBn);

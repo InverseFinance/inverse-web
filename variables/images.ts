@@ -106,6 +106,7 @@ export const TOKEN_IMAGES = {
     "RETRO": "https://assets.coingecko.com/coins/images/31136/small/retro.png?1696529965",
     "LIQUIS": "https://assets.coingecko.com/coins/images/31587/standard/Liqblue.png?1696530404",
     "wstETH": "https://assets.coingecko.com/coins/images/18834/standard/wstETH.png",
+    "stYETH": "https://assets.coingecko.com/coins/images/32222/standard/st-yETH-128px.png?1696914941",
 }
 
 export const PROTOCOL_IMAGES = {
