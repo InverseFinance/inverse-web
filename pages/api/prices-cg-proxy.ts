@@ -40,7 +40,7 @@ export default async function handler(req, res) {
     geckoPrices = await result.json();
     const cgOk = !!geckoPrices?.['inverse-finance']?.usd;
     if(!cgOk) {
-      return res.status(200).json(cachedData);
+      return res.status(200).json({ isCached: true, ...cachedData });
     }
     await redisSetWithTimestamp(cacheKey, geckoPrices);
 
