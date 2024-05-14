@@ -230,7 +230,7 @@ const mainConfig = {
             badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },
             hasClaimableRewards: false,
             underlyingSymbol: 'yETH', 
-            // startingBlock: 19372769,
+            startingBlock: 19867770,
             rewardTypeLabel: 'yEth APY',
             isInv: false,            
         },
