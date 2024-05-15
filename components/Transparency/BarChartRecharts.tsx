@@ -109,7 +109,7 @@ export const BarChartRecharts = ({
                         wrapperStyle={_axisStyle.tickLabels}
                         contentStyle={{ backgroundColor: themeStyles.colors.mainBackgroundColor }}
                         labelFormatter={v => v}
-                        labelStyle={{ fontWeight: 'bold' }}
+                        labelStyle={{ fontWeight: 'bold', color: themeStyles.colors.mainTextColor }}
                         itemStyle={{ fontWeight: 'bold' }}
                         formatter={(value, name) => {
                             const isPrice = name === 'Price';

@@ -28,6 +28,7 @@ export const DbrIncome = ({
             isDollars={true}
             title="Replenishments income over time"
             useRecharts={true}
+            yLabel="Accumulated replenishment income"
         />
         <BarChart12Months useRecharts={true} title="Replenishments income in the last 12 months" chartData={chartData} maxChartWidth={chartWidth} chartWidth={chartWidth} eventName="Income" yAttribute="yDay" colorScale={defaultColorScale} isDollars={true} />
     </Stack>
