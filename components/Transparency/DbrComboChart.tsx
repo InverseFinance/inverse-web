@@ -6,6 +6,7 @@ import moment from 'moment';
 import { preciseCommify } from '@app/util/misc';
 import { useState } from 'react';
 import { useRechartsZoom } from '@app/hooks/useRechartsZoom';
+import { lightTheme } from '@app/variables/theme';
 
 const KEYS = {
     BURN: 'Annualized burn',
@@ -114,7 +115,7 @@ export const DbrComboChart = ({
                 />
                 <Area opacity={actives[KEYS.BURN] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.BURN} yAxisId="left" type="monotone" dataKey={useUsd ? 'debtUsd' : 'debt'} stroke={themeStyles.colors.warning} dot={false} fillOpacity={1} fill="url(#warning-gradient)" />
                 <Area opacity={actives[KEYS.ISSUANCE] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.ISSUANCE} yAxisId="left" type="monotone" dataKey={useUsd ? 'yearlyRewardRateUsd' : 'yearlyRewardRate'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={1} fill="url(#secondary-gradient)" />
-                <Area opacity={actives[KEYS.STAKERS_ISSUANCE] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.STAKERS_ISSUANCE} yAxisId="left" type="monotone" dataKey={useUsd ? 'stakersYearlyRewardRateUsd' : 'stakersYearlyRewardRate'} stroke={themeStyles.colors.mainTextColor} dot={false} fillOpacity={1} fill="url(#primary-gradient)" />
+                <Area opacity={actives[KEYS.STAKERS_ISSUANCE] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.STAKERS_ISSUANCE} yAxisId="left" type="monotone" dataKey={useUsd ? 'stakersYearlyRewardRateUsd' : 'stakersYearlyRewardRate'} stroke={lightTheme.colors.mainTextColor} dot={false} fillOpacity={1} fill="url(#primary-gradient)" />
                 <Line opacity={actives[KEYS.DBR_PRICE] ? 1 : 0} strokeWidth={2} name={KEYS.DBR_PRICE} yAxisId="right" type="monotone" dataKey={priceKey} stroke={dbrPriceColor} dot={false} />
                 <Line opacity={actives[KEYS.INV_MC] ? 1 : 0} strokeWidth={2} name={KEYS.INV_MC} yAxisId="right" type="monotone" dataKey={priceKey} stroke={invPriceColor} dot={false} />
                 <Legend wrapperStyle={legendStyle} onClick={toggleChart} style={{ cursor: 'pointer' }} formatter={(value) => value + (actives[value] ? '' : ' (hidden)')} />
