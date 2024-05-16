@@ -12,9 +12,9 @@ const maxChartWidth = 1200;
 // make the chart look better, => buys appear as spikes
 const surroundByZero = (chartDataAcc: { x: number, y: number }[]) => {
     const cloned = [...chartDataAcc];
-    for(let i = 0;i < cloned.length;i++){
-        if(cloned[i].y > 0 && i > 0) {
-            cloned.splice(i+1, 0, { ...cloned[i], x: cloned[i].x + 1000 * 60, y: 0 });            
+    for (let i = 0; i < cloned.length; i++) {
+        if (cloned[i].y > 0 && i > 0) {
+            cloned.splice(i + 1, 0, { ...cloned[i], x: cloned[i].x + 1000 * 60, y: 0 });
         }
     }
     return cloned;
@@ -106,16 +106,6 @@ export const DbrAuctionBuysChart = ({ events, isTotal = false }) => {
             }
         </Stack>
         <BarChartRecharts
-            title={`Weekly DOLA income in the last ${nbWeeksToShow} weeks`}
-            combodata={last8WeeksIncomeStats}
-            precision={2}
-            // yDomain={[0.05, 0.25]}
-            chartWidth={autoChartWidth - 50}
-            yLabel="Weekly income"
-            useUsd={false}
-            showLabel={isLargerThan}
-        />
-        <BarChartRecharts
             title={`Weekly average prices in the last ${nbWeeksToShow} weeks`}
             combodata={last8WeeksDbrPricesStats}
             precision={4}
@@ -127,6 +117,16 @@ export const DbrAuctionBuysChart = ({ events, isTotal = false }) => {
             showLabel={isLargerThan}
             isDoubleBar={true}
         />
+        <BarChartRecharts
+            title={`Weekly DOLA income in the last ${nbWeeksToShow} weeks`}
+            combodata={last8WeeksIncomeStats}
+            precision={2}
+            // yDomain={[0.05, 0.25]}
+            chartWidth={autoChartWidth - 50}
+            yLabel="Weekly income"
+            useUsd={false}
+            showLabel={isLargerThan}
+        />
         <VStack pt="10">
             <DefaultCharts
                 showMonthlyBarChart={false}
@@ -135,7 +135,7 @@ export const DbrAuctionBuysChart = ({ events, isTotal = false }) => {
                 chartData={chartDataArb}
                 isDollars={false}
                 smoothLineByDefault={false}
-                areaProps={{ 
+                areaProps={{
                     lineItems: [
                         { dataKey: 'priceInDola', name: 'Auction price', axisId: 'right', stroke: themeStyles.colors.info },
                         { dataKey: 'marketPriceInDola', name: 'Market price', axisId: 'right', stroke: themeStyles.colors.success },
@@ -144,7 +144,8 @@ export const DbrAuctionBuysChart = ({ events, isTotal = false }) => {
                     secondaryRef: '',
                     interpolation: 'step',
                     showLegend: true,
-                    title: 'Prices at auction buys and price diff %', fillInByDayInterval: true, id: 'dbr-auction-buys-acc', showRangeBtns: true, yLabel: 'Difference', useRecharts: true, showMaxY: false, isPerc: true, showTooltips: true, autoMinY: true, mainColor: 'gold', strokeColor: 'orange', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
+                    title: 'Prices at auction buys and price diff %', fillInByDayInterval: true, id: 'dbr-auction-buys-acc', showRangeBtns: true, yLabel: 'Difference', useRecharts: true, showMaxY: false, isPerc: true, showTooltips: true, autoMinY: true, mainColor: 'gold', strokeColor: 'orange', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD']
+                }}
             />
         </VStack>
     </VStack>
