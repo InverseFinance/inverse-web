@@ -1,6 +1,7 @@
 import { commify } from '@ethersproject/units';
 import { showToast } from './notify';
 import { ONE_DAY_MS, SECONDS_PER_BLOCK } from '@app/config/constants';
+import moment from 'moment';
 
 export const capitalize = (v: string) => v[0].toUpperCase() + v.substring(1, v.length).toLowerCase();
 
@@ -416,4 +417,13 @@ export const getExponentialMovingAvg = (array: number[], count: number) => {
         emaArray.push(array[i] * k + emaArray[i - 1] * (1 - k));
     }
     return emaArray;
+}
+
+export function formatDuration(seconds: number) {
+    const duration = moment.duration(seconds, 'seconds');
+    const days = Math.floor(duration.asDays());
+    const hours = duration.hours();
+    const minutes = duration.minutes();
+    const secs = duration.seconds();
+    return `${days > 0 ? String(days).padStart(2, '0') + 'd:' : ''}${String(hours).padStart(2, '0')}h:${String(minutes).padStart(2, '0')}m:${String(secs).padStart(2, '0')}s`;
 }
