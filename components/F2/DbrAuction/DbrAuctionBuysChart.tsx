@@ -38,6 +38,7 @@ export const DbrAuctionBuysChart = ({ events, isTotal = false }) => {
         .reduce((prev, curr) => prev + curr.dolaIn, 0);
 
     const uniqueWeeks = [...new Set(events.map(e => getPreviousThursdayUtcDateOfTimestamp(e.timestamp)))];
+    uniqueWeeks.sort((a, b) => a > b ? 1 : -1);
 
     const dbrPricesStats = uniqueWeeks.map(week => {
         const weekEvents = events.filter(e => getPreviousThursdayUtcDateOfTimestamp(e.timestamp) === week);
@@ -60,6 +61,7 @@ export const DbrAuctionBuysChart = ({ events, isTotal = false }) => {
 
     const nbWeeksToShow = isLargerThan ? 8 : 6;
     const last8WeeksDbrPricesStats = dbrPricesStats.slice(dbrPricesStats.length - nbWeeksToShow, dbrPricesStats.length);
+    const last8WeeksIncomeStats = dbrWeeklyIncomeStats.slice(dbrWeeklyIncomeStats.length - nbWeeksToShow, dbrWeeklyIncomeStats.length);
 
     const pieChartData = [
         { name: 'Virtual', value: generalAuctionBuys },
@@ -105,7 +107,7 @@ export const DbrAuctionBuysChart = ({ events, isTotal = false }) => {
         </Stack>
         <BarChartRecharts
             title={`Weekly DOLA income in the last ${nbWeeksToShow} weeks`}
-            combodata={dbrWeeklyIncomeStats}
+            combodata={last8WeeksIncomeStats}
             precision={2}
             // yDomain={[0.05, 0.25]}
             chartWidth={autoChartWidth - 50}
