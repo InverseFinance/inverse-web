@@ -4,7 +4,7 @@ import { Stack, Flex, Text, StackProps } from '@chakra-ui/react';
 import Link from '@app/components/common/Link'
 import { namedAddress, shortenAddress } from '@app/util';
 import { REWARD_TOKEN, TOKENS, UNDERLYING } from '@app/variables/tokens';
-import { capitalize, removeScientificFormat, _getProp, preciseCommify } from '@app/util/misc';
+import { capitalize, removeScientificFormat, _getProp, preciseCommify, formatDuration } from '@app/util/misc';
 import { formatUnits } from 'ethers/lib/utils';
 import { getNetworkConfigConstants } from '@app/util/networks';
 import ScannerLink from '@app/components/common/ScannerLink';
@@ -26,11 +26,11 @@ const firmMarketsFunctions = [
 
 const Amount = ({ value, decimals, isPerc = false }: { value: string, decimals: number, isPerc?: boolean }) => {
     let number = parseFloat(formatUnits(value, decimals)) * (isPerc ? 100 : 1);
-    if(isPerc) {
+    if (isPerc) {
         // handle javascript float precision, eg: 0.29 * 100 would show 28.999999999999996
         number = parseFloat(number.toFixed(2));
     }
-    return <Text display="inline-block" fontWeight="bold" color="secondary">        
+    return <Text display="inline-block" fontWeight="bold" color="secondary">
         {commify(removeScientificFormat(number)).replace(/\.0$/, '')}{isPerc && '%'}
     </Text>;
 }
@@ -132,7 +132,7 @@ const FirmMarketHumanReadableActionLabel = ({
                 Set <ScannerLink color="info" value={market} /> <b>Collateral Factor</b> to {amount}
             </Flex>
             break;
-        case 'setLiquidationFactorBps':            
+        case 'setLiquidationFactorBps':
             amount = <Amount value={callDatas[0]} decimals={4} isPerc={true} />;
             text = <Flex display="inline-block">
                 Set <ScannerLink color="info" value={market} /> <b>Liquidation Factor</b> to {amount}
@@ -180,6 +180,19 @@ const FirmControllerHumanReadableActionLabel = ({
             amount = <Amount value={callDatas[1]} decimals={18} />;
             text = <Flex display="inline-block">
                 Set <ScannerLink color="info" value={callDatas[0]} /> <b>Daily Borrow Limit</b> to {amount} DOLA
+            </Flex>
+            break;
+        case 'setMinDebt':
+            amount = <Amount value={callDatas[1]} decimals={18} />;
+            text = <Flex display="inline-block">
+                Set <ScannerLink color="info" value={callDatas[0]} /> <b>minimum debt</b> to {amount} DOLA
+            </Flex>
+            break;
+        case 'setStalenessThreshold':
+            amount = <Amount value={callDatas[1]} decimals={0} />;
+            const floatAmount = getBnToNumber(callDatas[1], 0);
+            text = <Flex display="inline-block">
+                Set <ScannerLink color="info" value={callDatas[0]} /> <b>staleness threshold</b> to {amount} seconds ({formatDuration(floatAmount)})
             </Flex>
             break;
     }
@@ -475,6 +488,8 @@ export const ProposalActionPreview = (({
         'changeMarketCeiling',
         'changeSupplyCeiling',
         'setDailyLimit',
+        'setMinDebt',
+        'setStalenessThreshold',
         'setRewardRate',
         'setRewardRateConstraints',
         ...firmMarketsFunctions,
