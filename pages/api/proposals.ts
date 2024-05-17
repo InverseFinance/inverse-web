@@ -52,13 +52,13 @@ export default async function handler(req, res) {
     const govContract = new Contract(GOVERNANCE, GOVERNANCE_ABI, provider);
 
     // 20 is a safe margin, proposals should be in a definitive state and considered archived
-    const lastRefProposalId = cachedData.proposals[0].id - 20;
+    const lastRefProposalId = cachedData.proposals[0].id - 30;
 
     const [blockNumber, quorumVotes, graphResult] = await Promise.all([
       provider.getBlockNumber(),
       govContract.quorumVotes(),
       // only proposals after last archived proposal
-      getGovProposals({ size: 20, afterProposalId: lastRefProposalId }),
+      getGovProposals({ size: 30, afterProposalId: lastRefProposalId }),
     ]);
     const archivedProposals = cachedData.proposals.filter(p => p.id <= lastRefProposalId);
 
