@@ -51,8 +51,8 @@ export default async function handler(req, res) {
     const provider = getProvider(NetworkIds.mainnet, process.env.ALCHEMY_CRON, true);
     const govContract = new Contract(GOVERNANCE, GOVERNANCE_ABI, provider);
 
-    // 20 is a safe margin, proposals should be in a definitive state and considered archived
-    const lastRefProposalId = cachedData.proposals[0].id - 30;
+    // temp fix
+    const lastRefProposalId = 188;
 
     const [blockNumber, quorumVotes, graphResult] = await Promise.all([
       provider.getBlockNumber(),
