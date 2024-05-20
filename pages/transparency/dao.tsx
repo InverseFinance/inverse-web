@@ -198,7 +198,7 @@ export const GovTransparency = () => {
                                 <PayrollDetails title="DOLA monthly payrolls" chartMode={isLargerThan} maxW='400px' isLoading={isLoading} currentPayrolls={currentPayrolls} prices={prices} useRecharts={true} />
                             </VStack>
                             <VStack w='full'>
-                                <PayrollDetails title="Unclaimed payrolls" chartMode={isLargerThan} maxW='400px' isLoading={isLoading} currentPayrolls={currentPayrolls} fundKey={'unclaimed'}  prices={prices} useRecharts={true} />
+                                <PayrollDetails title="Unclaimed payrolls" toMonthly={false} chartMode={isLargerThan} maxW='400px' isLoading={isLoading} currentPayrolls={currentPayrolls} fundKey={'unclaimed'}  prices={prices} useRecharts={true} />
                             </VStack>
                             <VStack w='full'>
                                 <FundsDetails
