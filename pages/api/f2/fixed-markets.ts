@@ -5,7 +5,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { TOKENS } from '@app/variables/tokens'
-import { getBnToNumber, getCvxCrvAPRs, getCvxFxsAPRs, getDSRData, getStCvxData, getStYcrvData, getStYethData, getStethData } from '@app/util/markets'
+import { getBnToNumber, getCvxCrvAPRs, getCvxFxsAPRs, getDSRData, getSFraxData, getStCvxData, getStYcrvData, getStYethData, getStethData } from '@app/util/markets'
 import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_MS, ONE_DAY_SECS } from '@app/config/constants';
 import { frontierMarketsCacheKey } from '../markets';
 import { cgPricesCacheKey } from '../prices';
@@ -14,7 +14,7 @@ import { FEATURE_FLAGS } from '@app/config/features';
 import { getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
 
 const { F2_MARKETS, DOLA, XINV, DBR_DISTRIBUTOR, FEDS } = getNetworkConfigConstants();
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.993`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.1.994`;
 
 export default async function handler(req, res) {
   const { cacheFirst } = req.query;
@@ -149,9 +149,10 @@ export default async function handler(req, res) {
       getDSRData(),
       getStCvxData(),
       getStYethData(),
+      getSFraxData(),
     ]);
 
-    let [stethData, stYcrvData, cvxCrvData, cvxFxsData, dsrData, stCvxData, stYethData] = externalYieldResults.map(r => {
+    let [stethData, stYcrvData, cvxCrvData, cvxFxsData, dsrData, stCvxData, stYethData, sFraxData] = externalYieldResults.map(r => {
       return r.status === 'fulfilled' ? r.value : {};
     });
 
@@ -174,6 +175,7 @@ export default async function handler(req, res) {
       'DAI': dsrData?.apy || 0,
       'CVX': stCvxData?.apy || 0,
       'st-yETH': stYethData?.apy || 0,
+      'sFRAX': sFraxData?.apy || 0,
     };
 
     const xinvExRate = getBnToNumber(xinvExRateBn);
