@@ -127,10 +127,11 @@ export default async function handler(req, res) {
         delegates[delegate] = {
           ...delegates[delegate],
           delegators: uniqueDelegators,
-          votes: votes.map(({ args }) => ({
+          votes: votes.map(({ args, blockNumber }) => ({
             proposalId: args.proposalId.toNumber(),
             support: args.support,
             votes: parseFloat(formatUnits(args.votes)),
+            bn: blockNumber,
           })),
         };
       });
