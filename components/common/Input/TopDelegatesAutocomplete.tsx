@@ -13,10 +13,33 @@ export const TopDelegatesAutocomplete = ({
     title = 'Top Delegates',
     placeholder = 'Paste an Address or Choose an example from the list',
     limit = 50,
+    labelFormatter,
+}: AddressAutocompleteProps) => {
+    const { delegates } = useTopDelegates();
+
+    return <DelegatesAutocomplete
+        delegates={delegates}
+        onItemSelect={onItemSelect}
+        defaultValue={defaultValue}
+        title={title}
+        placeholder={placeholder}
+        limit={limit}
+        labelFormatter={labelFormatter}
+    />
+}
+
+export const DelegatesAutocomplete = ({
+    onItemSelect,
+    delegates,
+    defaultValue = '',
+    title = 'Top Delegates',
+    placeholder = 'Paste an Address or Choose an example from the list',
+    limit = 50,
+    labelFormatter,
+    ...props
 }: AddressAutocompleteProps) => {
     const [address, setAddress] = useState<string>(defaultValue);
     const [addressList, setAddressList] = useState<AutocompleteItem[]>([]);
-    const { delegates } = useTopDelegates();
 
     useEffect(() => {
         if (!delegates || !delegates.length || addressList.length) { return }
@@ -26,7 +49,7 @@ export const TopDelegatesAutocomplete = ({
                 .slice(0, limit)
                 .map((d, i) => ({
                     value: d.address,
-                    label: `#${(i + 1).toString().padStart(2, '0')} ${namedAddress(d.address)}`,
+                    label: labelFormatter ? labelFormatter(d, i) : `#${(i + 1).toString().padStart(2, '0')} ${namedAddress(d.address)}`,
                 }))
         )
     }, [delegates, addressList])
@@ -51,6 +74,7 @@ export const TopDelegatesAutocomplete = ({
                     </Text>
                 </Flex>
             )}
+            {...props}
         />
     )
 }

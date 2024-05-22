@@ -21,7 +21,10 @@ import { BURN_ADDRESS } from "@app/config/constants";
 import { useStakedInFirm } from "@app/hooks/useFirm";
 import { useAccount } from "@app/hooks/misc";
 import useStorage from "@app/hooks/useStorage";
-import { getBnToNumber } from "@app/util/markets";
+import { getBnToNumber, shortenNumber } from "@app/util/markets";
+import { useTopAndSmallDelegates } from "@app/hooks/useDelegates";
+import { DelegatesAutocomplete } from "@app/components/common/Input/TopDelegatesAutocomplete";
+import { namedAddress } from "@app/util";
 
 const CONTAINER_ID = 'firm-gov-token-container'
 
@@ -93,6 +96,7 @@ export const FirmGovDelegationModal = ({
     const account = useAccount();
     const [hasError, setHasError] = useState(false);
     const [newDelegate, setNewDelegate] = useState('');
+    const { topDelegates, smallButActive } = useTopAndSmallDelegates()
 
     const handleOk = async () => {
         const contract = new Contract(escrow, F2_ESCROW_ABI, provider?.getSigner());
@@ -121,10 +125,11 @@ export const FirmGovDelegationModal = ({
         onCancel={handleClose}
         okDisabled={hasError}
         okLabel="Change"
+        modalProps={{ minW: { base: '98vw', lg: '600px' } }}
     >
         <VStack spacing="4" p="4" w='full' alignItems="flex-start">
             {
-                !!suggestedValue && suggestedValue !== delegatingTo  && <HStack>
+                !!suggestedValue && suggestedValue !== delegatingTo && <HStack>
                     <Text cursor="pointer" fontWeight="bold" textDecoration="underline" onClick={() => setNewDelegate(suggestedValue)}>
                         Click here to sync with my non-FiRM delegation
                     </Text>
@@ -135,6 +140,35 @@ export const FirmGovDelegationModal = ({
                 delegatingTo?.toLowerCase() === newDelegate.toLowerCase() && !!delegatingTo && !!newDelegate
                 && <InfoMessage alertProps={{ w: 'full' }} description="You already delegate to that address" />
             }
+            <Text fontWeight="bold">Voters active in the last 90 days with less than 15k Voting Power:</Text>            
+            <DelegatesAutocomplete
+                delegates={smallButActive}
+                onItemSelect={(item) => console.log(item)}
+                defaultValue={''}
+                title={'Recent active voters with smaller voting power'}
+                placeholder={'Choose'}
+                limit={50}
+                w='full'
+                labelFormatter={(data, index) => {
+                    return `#${(index + 1).toString().padStart(2, '0')} ${namedAddress(data.address)} (VP: ${shortenNumber(data.votingPower, 2)}, Recent votes: ${data.nbRecentVotes})`
+                }}
+            />
+            <InfoMessage
+                description="Note: choosing a recent active voter with lower voting power help decentralize the DAO"
+            />
+            <Text fontWeight="bold">Or choose from the top delegates:</Text>
+            <DelegatesAutocomplete
+                delegates={topDelegates}
+                onItemSelect={(item) => console.log(item)}
+                labelFormatter={(data, index) => {
+                    return `#${(index + 1).toString().padStart(2, '0')} ${namedAddress(data.address)} (VP: ${shortenNumber(data.votingPower, 2)}, Recent votes: ${data.nbRecentVotes})`
+                }}
+                defaultValue={''}
+                title={'Delegates with the most voting power'}
+                placeholder={'Choose'}
+                limit={50}
+                w='full'
+            />
         </VStack>
     </ConfirmModal>
 }
