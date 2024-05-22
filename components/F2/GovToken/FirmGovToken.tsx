@@ -14,7 +14,7 @@ import { Contract } from "ethers";
 import { useWeb3React } from "@web3-react/core";
 import { Web3Provider } from "@ethersproject/providers";
 import Link from "@app/components/common/Link";
-import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { ArrowLeftIcon, ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { NetworkIds } from "@app/types";
 import { BURN_ADDRESS } from "@app/config/constants";
@@ -25,6 +25,7 @@ import { getBnToNumber, shortenNumber } from "@app/util/markets";
 import { useTopAndSmallDelegates } from "@app/hooks/useDelegates";
 import { DelegatesAutocomplete } from "@app/components/common/Input/TopDelegatesAutocomplete";
 import { namedAddress } from "@app/util";
+import { useAppTheme } from "@app/hooks/useAppTheme";
 
 const CONTAINER_ID = 'firm-gov-token-container'
 
@@ -93,11 +94,13 @@ export const FirmGovDelegationModal = ({
     escrow,
 }) => {
     const { provider } = useWeb3React<Web3Provider>();
+    const { themeStyles } = useAppTheme();
     const account = useAccount();
     const [hasError, setHasError] = useState(false);
     const [newDelegate, setNewDelegate] = useState('');
     const [topDefault, setTopDefault] = useState('');
     const [activeDefault, setActiveDefault] = useState('');
+    const [showSelectors, setShowSelectors] = useState(true);
     const { topDelegates, smallButActive } = useTopAndSmallDelegates()
 
     const handleOk = async () => {
@@ -130,8 +133,23 @@ export const FirmGovDelegationModal = ({
         modalProps={{ minW: { base: '98vw', lg: '600px' } }}
     >
         <VStack spacing="4" p="4" w='full' alignItems="flex-start">
+
+            <HStack onClick={() => setShowSelectors(!showSelectors)} cursor="pointer">
+                <Text>
+                    Delegator lists
+                </Text>
+                {showSelectors ? <ChevronDownIcon /> : <ChevronRightIcon />}
+            </HStack>
             {
-                (!newDelegate || newDelegate === BURN_ADDRESS)  && <>
+                showSelectors && <VStack
+                    alignItems='flex-start'
+                    px="4"
+                    pb='4'
+                    borderLeft={`1px solid ${themeStyles.colors.mainTextColor}`}
+                    borderRight={`1px solid ${themeStyles.colors.mainTextColor}`}
+                    borderBottom={`1px solid ${themeStyles.colors.mainTextColor}`}
+                    borderBottomRadius="5px"
+                >
                     <Text fontWeight="bold">Voters active in the last 90 days with less than 15k Voting Power:</Text>
                     <DelegatesAutocomplete
                         delegates={smallButActive}
@@ -139,6 +157,7 @@ export const FirmGovDelegationModal = ({
                             setNewDelegate(item.value);
                             setTopDefault('');
                             setActiveDefault(item.value);
+                            setShowSelectors(false);
                         }}
                         defaultValue={activeDefault}
                         title={'Recent active voters with smaller voting power'}
@@ -159,6 +178,7 @@ export const FirmGovDelegationModal = ({
                             setNewDelegate(item.value);
                             setActiveDefault('');
                             setTopDefault(item.value);
+                            setShowSelectors(false);
                         }}
                         labelFormatter={(data, index) => {
                             return `#${(index + 1).toString().padStart(2, '0')} ${namedAddress(data.address)} (VP: ${shortenNumber(data.votingPower, 2)}, Recent votes: ${data.nbRecentVotes})`
@@ -169,7 +189,7 @@ export const FirmGovDelegationModal = ({
                         limit={50}
                         w='full'
                     />
-                </>
+                </VStack>
             }
 
             {
