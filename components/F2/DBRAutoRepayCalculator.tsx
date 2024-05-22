@@ -46,7 +46,7 @@ export const DBRAutoRepayCalculator = ({
 
     return <VStack w='full' alignItems="flex-start">
         <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify="space-between">
-            <TextInfo message="By having more DBR rewards than DBR burns, you can borrow for free (in DBR terms). As the DBR APR is volatile, it's better to stake more than what is suggested for the current APR.">
+            <TextInfo message="By having more DBR rewards than DBR burns, you can borrow for free (in DBR terms). As the DBR APR is volatile, it's best to stake more than what is suggested for the current APR.">
                 <Text fontWeight="bold">
                     Interest-free borrowing calculator
                 </Text>
@@ -109,8 +109,8 @@ export const DBRAutoRepayCalculator = ({
         {
             (newDeposits > 0 || deposits > 0 || userBurnsForDuration > 0) && <HStack>
                 <Text fontWeight="bold">
-                    Note: the DBR APR being volatile, {
-                        userBurnsForDuration > 0 ? `it's better to stake more than needed.` : `this is for information only.`
+                Note: With DBR APR being volatile, {
+                        userBurnsForDuration > 0 ? `it's best to stake more than needed.` : `this is for information only.`
                     }
                 </Text>
             </HStack>
