@@ -57,6 +57,7 @@ export const TOKEN_IMAGES = {
     "3CRV": IMAGES["3CRV"],
     "crvFRAX": "https://assets.coingecko.com/coins/images/13422/small/frax_logo.png?1608476506",
     "FRAX": "https://assets.coingecko.com/coins/images/13422/small/ethCanonicalFRAX.png?1669277108",
+    "sFRAX": "https://assets.coingecko.com/coins/images/35383/standard/sfrax.png?1708445569",
     "FXS": "https://assets.coingecko.com/coins/images/13423/small/Frax_Shares_icon.png?1679886947",
     "FLOKI": "https://assets.coingecko.com/coins/images/16746/small/FLOKI.png?1625835665",
     "WFTM": "https://assets.coingecko.com/coins/images/4001/small/Fantom.png?1558015016",

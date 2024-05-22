@@ -123,6 +123,7 @@ const chainTokenAddresses = {
     RGUSD: '0x78da5799CF427Fee11e9996982F4150eCe7a99A7',
     DOLARGUSDCRVLP: '0x20BB4a325924917E3336753BA5350a84F70f392e',
     STYETH: '0x583019fF0f430721aDa9cfb4fac8F06cA104d0B4',
+    SFRAX: '0xA663B02CF0a4b149d2aD41910CB81e23e1c41c32',
   },
   "250": {
     DOLA2POOLCRV: '0x28368d7090421ca544bc89799a2ea8489306e3e5',
@@ -1195,6 +1196,14 @@ const chainTokens = {
       symbol: 'st-yETH',
       coingeckoId: 'staked-yearn-ether',
       image: TOKEN_IMAGES.stYETH,
+      decimals: 18,
+    },
+    [chainTokenAddresses["1"].SFRAX]: {
+      address: chainTokenAddresses["1"].SFRAX,
+      name: 'sFRAX',
+      symbol: 'sFRAX',
+      coingeckoId: 'staked-frax',
+      image: TOKEN_IMAGES.sFRAX,
       decimals: 18,
     },
     [chainTokenAddresses["1"].YCRV]: {

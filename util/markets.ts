@@ -193,6 +193,13 @@ export const getStYcrvData = async () => {
     return [];
 }
 
+export const getSFraxData = async () => {
+    try {
+        return getPoolYield('55de30c3-bf9f-4d4e-9e0b-536a8ef5ab35');
+    } catch (e) { console.log(e) }
+    return [];
+}
+
 export const getStethData = async () => {
     try {
         return getPoolYield('747c1d2a-c668-4682-b9f9-296708a3dd90');
