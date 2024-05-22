@@ -109,7 +109,7 @@ export const DBRAutoRepayCalculator = ({
         {
             (newDeposits > 0 || deposits > 0 || userBurnsForDuration > 0) && <HStack>
                 <Text fontWeight="bold">
-                    Note: the DBR APR being volatile, {
+                Note: With DBR APR being volatile, {
                         userBurnsForDuration > 0 ? `it's best to stake more than needed.` : `this is for information only.`
                     }
                 </Text>
