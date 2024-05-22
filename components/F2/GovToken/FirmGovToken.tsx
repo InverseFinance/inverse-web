@@ -24,8 +24,9 @@ import useStorage from "@app/hooks/useStorage";
 import { getBnToNumber, shortenNumber } from "@app/util/markets";
 import { useTopAndSmallDelegates } from "@app/hooks/useDelegates";
 import { DelegatesAutocomplete } from "@app/components/common/Input/TopDelegatesAutocomplete";
-import { namedAddress } from "@app/util";
+import { namedAddress, shortenAddress } from "@app/util";
 import { useAppTheme } from "@app/hooks/useAppTheme";
+import { useNamedAddress } from "@app/hooks/useNamedAddress";
 
 const CONTAINER_ID = 'firm-gov-token-container'
 
@@ -101,6 +102,7 @@ export const FirmGovDelegationModal = ({
     const [topDefault, setTopDefault] = useState('');
     const [activeDefault, setActiveDefault] = useState('');
     const [showSelectors, setShowSelectors] = useState(true);
+    const { addressName } = useNamedAddress(newDelegate);
     const { topDelegates, smallButActive } = useTopAndSmallDelegates()
 
     const handleOk = async () => {
@@ -150,14 +152,16 @@ export const FirmGovDelegationModal = ({
                     borderBottom={`1px solid ${themeStyles.colors.mainTextColor}`}
                     borderBottomRadius="5px"
                 >
-                    <Text fontWeight="bold">Voters active in the last 90 days with less than 15k Voting Power:</Text>
+                    <Text fontWeight="bold">Recent (90 days) active voters with less than 15k Voting Power:</Text>
                     <DelegatesAutocomplete
                         delegates={smallButActive}
                         onItemSelect={(item) => {
                             setNewDelegate(item.value);
                             setTopDefault('');
                             setActiveDefault(item.value);
-                            setShowSelectors(false);
+                            if (item.value) {
+                                setShowSelectors(false);
+                            }
                         }}
                         defaultValue={activeDefault}
                         title={'Recent active voters with smaller voting power'}
@@ -179,6 +183,9 @@ export const FirmGovDelegationModal = ({
                             setActiveDefault('');
                             setTopDefault(item.value);
                             setShowSelectors(false);
+                            if (item.value) {
+                                setShowSelectors(false);
+                            }
                         }}
                         labelFormatter={(data, index) => {
                             return `#${(index + 1).toString().padStart(2, '0')} ${namedAddress(data.address)} (VP: ${shortenNumber(data.votingPower, 2)}, Recent votes: ${data.nbRecentVotes})`
@@ -191,7 +198,6 @@ export const FirmGovDelegationModal = ({
                     />
                 </VStack>
             }
-
             {
                 !!suggestedValue && suggestedValue !== delegatingTo && <HStack>
                     <Text cursor="pointer" fontWeight="bold" textDecoration="underline" onClick={() => setNewDelegate(suggestedValue)}>
@@ -200,7 +206,16 @@ export const FirmGovDelegationModal = ({
                 </HStack>
             }
             <Text fontWeight="bold">Chosen delegate:</Text>
-            <Input _hover={hasError ? {} : undefined} borderWidth="1" borderColor={hasError ? !!newDelegate ? 'error' : undefined : 'success'} onChange={(e) => setNewDelegate(e.target.value)} fontSize="14px" value={newDelegate} placeholder={'New delegate address'} />
+            <VStack spacing="1" alignItems='flex-end' w='full'>
+                <Input _hover={hasError ? {} : undefined} borderWidth="1" borderColor={hasError ? !!newDelegate ? 'error' : undefined : 'success'} onChange={(e) => setNewDelegate(e.target.value)} fontSize="14px" value={newDelegate} placeholder={'New delegate address'} />
+                {
+                    !!newDelegate && !!addressName && addressName != '...' && addressName !== shortenAddress(newDelegate)
+                    && <Text fontWeight="bold" fontSize="12px" textAlign="right">
+                        {addressName}
+                    </Text>
+                }
+            </VStack>
+
             {
                 delegatingTo?.toLowerCase() === newDelegate.toLowerCase() && !!delegatingTo && !!newDelegate
                 && <InfoMessage alertProps={{ w: 'full' }} description="You already delegate to that address" />
