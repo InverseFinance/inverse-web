@@ -96,6 +96,8 @@ export const FirmGovDelegationModal = ({
     const account = useAccount();
     const [hasError, setHasError] = useState(false);
     const [newDelegate, setNewDelegate] = useState('');
+    const [topDefault, setTopDefault] = useState('');
+    const [activeDefault, setActiveDefault] = useState('');
     const { topDelegates, smallButActive } = useTopAndSmallDelegates()
 
     const handleOk = async () => {
@@ -129,46 +131,60 @@ export const FirmGovDelegationModal = ({
     >
         <VStack spacing="4" p="4" w='full' alignItems="flex-start">
             {
+                (!newDelegate || newDelegate === BURN_ADDRESS)  && <>
+                    <Text fontWeight="bold">Voters active in the last 90 days with less than 15k Voting Power:</Text>
+                    <DelegatesAutocomplete
+                        delegates={smallButActive}
+                        onItemSelect={(item) => {
+                            setNewDelegate(item.value);
+                            setTopDefault('');
+                            setActiveDefault(item.value);
+                        }}
+                        defaultValue={activeDefault}
+                        title={'Recent active voters with smaller voting power'}
+                        placeholder={'Choose'}
+                        limit={50}
+                        w='full'
+                        labelFormatter={(data, index) => {
+                            return `#${(index + 1).toString().padStart(2, '0')} ${namedAddress(data.address)} (VP: ${shortenNumber(data.votingPower, 2)}, Recent votes: ${data.nbRecentVotes})`
+                        }}
+                    />
+                    <InfoMessage
+                        description="Note: choosing a recent active voter with lower voting power help decentralize the DAO"
+                    />
+                    <Text fontWeight="bold">Or choose from the top delegates:</Text>
+                    <DelegatesAutocomplete
+                        delegates={topDelegates}
+                        onItemSelect={(item) => {
+                            setNewDelegate(item.value);
+                            setActiveDefault('');
+                            setTopDefault(item.value);
+                        }}
+                        labelFormatter={(data, index) => {
+                            return `#${(index + 1).toString().padStart(2, '0')} ${namedAddress(data.address)} (VP: ${shortenNumber(data.votingPower, 2)}, Recent votes: ${data.nbRecentVotes})`
+                        }}
+                        defaultValue={topDefault}
+                        title={'Delegates with the most voting power'}
+                        placeholder={'Choose'}
+                        limit={50}
+                        w='full'
+                    />
+                </>
+            }
+
+            {
                 !!suggestedValue && suggestedValue !== delegatingTo && <HStack>
                     <Text cursor="pointer" fontWeight="bold" textDecoration="underline" onClick={() => setNewDelegate(suggestedValue)}>
                         Click here to sync with my non-FiRM delegation
                     </Text>
                 </HStack>
             }
+            <Text fontWeight="bold">Chosen delegate:</Text>
             <Input _hover={hasError ? {} : undefined} borderWidth="1" borderColor={hasError ? !!newDelegate ? 'error' : undefined : 'success'} onChange={(e) => setNewDelegate(e.target.value)} fontSize="14px" value={newDelegate} placeholder={'New delegate address'} />
             {
                 delegatingTo?.toLowerCase() === newDelegate.toLowerCase() && !!delegatingTo && !!newDelegate
                 && <InfoMessage alertProps={{ w: 'full' }} description="You already delegate to that address" />
             }
-            <Text fontWeight="bold">Voters active in the last 90 days with less than 15k Voting Power:</Text>            
-            <DelegatesAutocomplete
-                delegates={smallButActive}
-                onItemSelect={(item) => console.log(item)}
-                defaultValue={''}
-                title={'Recent active voters with smaller voting power'}
-                placeholder={'Choose'}
-                limit={50}
-                w='full'
-                labelFormatter={(data, index) => {
-                    return `#${(index + 1).toString().padStart(2, '0')} ${namedAddress(data.address)} (VP: ${shortenNumber(data.votingPower, 2)}, Recent votes: ${data.nbRecentVotes})`
-                }}
-            />
-            <InfoMessage
-                description="Note: choosing a recent active voter with lower voting power help decentralize the DAO"
-            />
-            <Text fontWeight="bold">Or choose from the top delegates:</Text>
-            <DelegatesAutocomplete
-                delegates={topDelegates}
-                onItemSelect={(item) => console.log(item)}
-                labelFormatter={(data, index) => {
-                    return `#${(index + 1).toString().padStart(2, '0')} ${namedAddress(data.address)} (VP: ${shortenNumber(data.votingPower, 2)}, Recent votes: ${data.nbRecentVotes})`
-                }}
-                defaultValue={''}
-                title={'Delegates with the most voting power'}
-                placeholder={'Choose'}
-                limit={50}
-                w='full'
-            />
         </VStack>
     </ConfirmModal>
 }

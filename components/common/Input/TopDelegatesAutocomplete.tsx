@@ -42,6 +42,10 @@ export const DelegatesAutocomplete = ({
     const [addressList, setAddressList] = useState<AutocompleteItem[]>([]);
 
     useEffect(() => {
+        setAddress(defaultValue);
+    }, [defaultValue])
+
+    useEffect(() => {
         if (!delegates || !delegates.length || addressList.length) { return }
 
         setAddressList(
