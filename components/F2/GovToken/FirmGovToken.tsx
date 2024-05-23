@@ -148,10 +148,11 @@ export const FirmGovDelegationModal = ({
                     px="4"
                     pb='4'
                     spacing='4'
-                    borderLeft={`1px solid ${themeStyles.colors.mainTextColor}`}
-                    borderRight={`1px solid ${themeStyles.colors.mainTextColor}`}
-                    borderBottom={`1px solid ${themeStyles.colors.mainTextColor}`}
+                    borderLeft={`1px solid ${themeStyles.colors.mainTextColorLight}`}
+                    borderRight={`1px solid ${themeStyles.colors.mainTextColorLight}`}
+                    borderBottom={`1px solid ${themeStyles.colors.mainTextColorLight}`}
                     borderBottomRadius="5px"
+                    w='full'
                 >
                     <VStack w='full' alignItems='flex-start'>
                         <Text fontWeight="bold">Recent (90 days) active voters with less than 15k Voting Power:</Text>
