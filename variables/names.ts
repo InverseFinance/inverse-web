@@ -80,6 +80,7 @@ const namedAddresses: { [key: string]: string } = {
     '0xC253Af7B80F3DD3d469bf4b94AA9e3df59e71e43': 'yellowtail2',
     '0x1748E0d9F554Fb8341784C644FFaC933De792e56': 'CryptoHarry2',
     '0x80C67fe70d7D6cC488782439fad381d8646640c4': 'CryptoHarry3',
+    '0x0447d8B00a82e973149c8414d1830e272b2C782f': 'CryptoHarry4',
     '0xEC092c15e8D5A48a77Cde36827F8e228CE39471a': 'HarryGasWallet',
     '0x3D1579B42a9e1D8E6a9b740A2F6A1161B93698Fe': 'CMeth',
     '0x1ff9c712B011cBf05B67A6850281b13cA27eCb2A': 'DebtConverter',

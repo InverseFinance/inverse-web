@@ -14,14 +14,19 @@ import { Contract } from "ethers";
 import { useWeb3React } from "@web3-react/core";
 import { Web3Provider } from "@ethersproject/providers";
 import Link from "@app/components/common/Link";
-import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { ArrowLeftIcon, ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { NetworkIds } from "@app/types";
 import { BURN_ADDRESS } from "@app/config/constants";
 import { useStakedInFirm } from "@app/hooks/useFirm";
 import { useAccount } from "@app/hooks/misc";
 import useStorage from "@app/hooks/useStorage";
-import { getBnToNumber } from "@app/util/markets";
+import { getBnToNumber, shortenNumber } from "@app/util/markets";
+import { useTopAndSmallDelegates } from "@app/hooks/useDelegates";
+import { DelegatesAutocomplete } from "@app/components/common/Input/TopDelegatesAutocomplete";
+import { namedAddress, shortenAddress } from "@app/util";
+import { useAppTheme } from "@app/hooks/useAppTheme";
+import { useNamedAddress } from "@app/hooks/useNamedAddress";
 
 const CONTAINER_ID = 'firm-gov-token-container'
 
@@ -90,9 +95,15 @@ export const FirmGovDelegationModal = ({
     escrow,
 }) => {
     const { provider } = useWeb3React<Web3Provider>();
+    const { themeStyles } = useAppTheme();
     const account = useAccount();
     const [hasError, setHasError] = useState(false);
     const [newDelegate, setNewDelegate] = useState('');
+    const [topDefault, setTopDefault] = useState('');
+    const [activeDefault, setActiveDefault] = useState('');
+    const [showSelectors, setShowSelectors] = useState(true);
+    const { addressName } = useNamedAddress(newDelegate);
+    const { topDelegates, smallButActive } = useTopAndSmallDelegates(!isOpen)
 
     const handleOk = async () => {
         const contract = new Contract(escrow, F2_ESCROW_ABI, provider?.getSigner());
@@ -121,16 +132,95 @@ export const FirmGovDelegationModal = ({
         onCancel={handleClose}
         okDisabled={hasError}
         okLabel="Change"
+        modalProps={{ minW: { base: '98vw', lg: '600px' } }}
     >
         <VStack spacing="4" p="4" w='full' alignItems="flex-start">
+
+            <HStack _hover={{ filter: 'brightness(1.5)' }} onClick={() => setShowSelectors(!showSelectors)} cursor="pointer">
+                <Text>
+                    Delegator lists
+                </Text>
+                {showSelectors ? <ChevronDownIcon /> : <ChevronRightIcon />}
+            </HStack>
             {
-                !!suggestedValue && suggestedValue !== delegatingTo  && <HStack>
+                showSelectors && <VStack
+                    alignItems='flex-start'
+                    px="4"
+                    pb='4'
+                    spacing='4'
+                    borderLeft={`1px solid ${themeStyles.colors.mainTextColor}`}
+                    borderRight={`1px solid ${themeStyles.colors.mainTextColor}`}
+                    borderBottom={`1px solid ${themeStyles.colors.mainTextColor}`}
+                    borderBottomRadius="5px"
+                >
+                    <VStack w='full' alignItems='flex-start'>
+                        <Text fontWeight="bold">Recent (90 days) active voters with less than 15k Voting Power:</Text>
+                        <DelegatesAutocomplete
+                            delegates={smallButActive}
+                            onItemSelect={(item) => {
+                                setNewDelegate(item.value);
+                                setTopDefault('');
+                                setActiveDefault(item.value);
+                                if (item.value) {
+                                    setShowSelectors(false);
+                                }
+                            }}
+                            defaultValue={activeDefault}
+                            title={'Recent active voters with smaller voting power'}
+                            placeholder={'Choose'}
+                            limit={50}
+                            w='full'
+                            labelFormatter={(data, index) => {
+                                return `#${(index + 1).toString().padStart(2, '0')} ${namedAddress(data.address)} (VP: ${shortenNumber(data.votingPower, 2)}, Recent votes: ${data.nbRecentVotes})`
+                            }}
+                        />
+                        <InfoMessage
+                            description="Note: this is the best option to help decentralize the DAO"
+                        />
+                    </VStack>
+                    <VStack w='full' alignItems='flex-start'>
+                        <Text fontWeight="bold">Or choose from the top delegates:</Text>
+                        <DelegatesAutocomplete
+                            delegates={topDelegates}
+                            onItemSelect={(item) => {
+                                setNewDelegate(item.value);
+                                setActiveDefault('');
+                                setTopDefault(item.value);
+                                setShowSelectors(false);
+                                if (item.value) {
+                                    setShowSelectors(false);
+                                }
+                            }}
+                            labelFormatter={(data, index) => {
+                                return `#${(index + 1).toString().padStart(2, '0')} ${namedAddress(data.address)} (VP: ${shortenNumber(data.votingPower, 2)}, Recent votes: ${data.nbRecentVotes})`
+                            }}
+                            defaultValue={topDefault}
+                            title={'Delegates with the most voting power'}
+                            placeholder={'Choose'}
+                            limit={50}
+                            w='full'
+                        />
+                    </VStack>
+                </VStack>
+            }
+            {
+                !!suggestedValue && suggestedValue !== delegatingTo && <HStack>
                     <Text cursor="pointer" fontWeight="bold" textDecoration="underline" onClick={() => setNewDelegate(suggestedValue)}>
                         Click here to sync with my non-FiRM delegation
                     </Text>
                 </HStack>
             }
-            <Input _hover={hasError ? {} : undefined} borderWidth="1" borderColor={hasError ? !!newDelegate ? 'error' : undefined : 'success'} onChange={(e) => setNewDelegate(e.target.value)} fontSize="14px" value={newDelegate} placeholder={'New delegate address'} />
+            <Text fontWeight="bold">New delegate:</Text>
+            <VStack spacing="1" alignItems='flex-end' w='full'>
+                <Input _hover={hasError ? {} : undefined} borderWidth="1" borderColor={hasError ? !!newDelegate ? 'error' : undefined : 'success'} onChange={(e) => setNewDelegate(e.target.value)} fontSize="14px" value={newDelegate} placeholder={'New delegate address'} />
+                {
+                    !!newDelegate && !!addressName && addressName != '...' && addressName !== shortenAddress(newDelegate)
+                    && <Text fontWeight="bold" fontSize="12px" textAlign="right">
+                        {addressName}
+                    </Text>
+                }
+            </VStack>
+
             {
                 delegatingTo?.toLowerCase() === newDelegate.toLowerCase() && !!delegatingTo && !!newDelegate
                 && <InfoMessage alertProps={{ w: 'full' }} description="You already delegate to that address" />

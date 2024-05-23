@@ -18,7 +18,7 @@ import { useBreakpointValue } from '@chakra-ui/media-query'
 import { Web3Provider } from '@ethersproject/providers'
 import Link from '@app/components/common/Link'
 import Logo from '@app/components/common/Logo'
-import { ETH_MANTISSA } from '@app/config/constants'
+import { BURN_ADDRESS, ETH_MANTISSA } from '@app/config/constants'
 import useEtherSWR from '@app/hooks/useEtherSWR'
 import { ethereumReady, getPreviousConnectorType, setIsPreviouslyConnected, setPreviousChainId } from '@app/util/web3'
 import { useWeb3React } from '@web3-react/core'
@@ -66,6 +66,7 @@ import { checkPoaSig } from '@app/util/poa'
 import { smartShortNumber } from '@app/util/markets'
 import useSWR from 'swr'
 import { useMultisig } from '@app/hooks/useSafeMultisig'
+import { FirmGovDelegationModal } from '@app/components/F2/GovToken/FirmGovToken'
 const NAV_ITEMS = MENUS.nav
 
 export const ThemeBtn = () => {
@@ -139,18 +140,39 @@ const INVBalance = () => {
   const userAddress = (query?.viewAddress as string) || account;
   const { INV, XINV } = getNetworkConfigConstants(chainId);
   const { exchangeRates } = useExchangeRatesV2()
+  const [delegatingMessageAlreadyShowed, setDelegatingMessageAlreadyShowed] = useState(false);
   const { data } = useEtherSWR([
     [INV, 'balanceOf', userAddress],
     [XINV, 'balanceOf', userAddress],
   ])
+  const { isOpen: isFirmModalOpen, onOpen: firmOnOpen, onClose: firmOnClose } = useDisclosure()
 
-  const { stakedInFirm } = useStakedInFirm(userAddress);
+  const { stakedInFirm, delegate, escrow } = useStakedInFirm(userAddress);
 
   const [invBalance, xinvBalance] = data || [0, 0]
   const exRate = exchangeRates ? exchangeRates[XINV] : 0;
   const inv = invBalance / ETH_MANTISSA
   const xinv = (xinvBalance / ETH_MANTISSA) * (exRate / ETH_MANTISSA) + stakedInFirm
   const hasUnstakedBal = inv >= 0.01;
+
+  useEffect(() => {
+    setDelegatingMessageAlreadyShowed(false);
+  }, [account])
+
+  useEffect(() => {
+    if (!delegatingMessageAlreadyShowed && stakedInFirm >= 10 && delegate === BURN_ADDRESS) {
+      setDelegatingMessageAlreadyShowed(true);
+      showToast({
+        id: 'delegate-firm-inv-staked-notif',
+        status: 'info',
+        title: 'Not delegating your staked INV?',
+        description: <Text cursor="pointer" textDecoration="underline" onClick={() => firmOnOpen()}>
+          Delegate my staked INV
+        </Text>,
+        duration: null,
+      });
+    }
+  }, [delegatingMessageAlreadyShowed, stakedInFirm, delegate])
 
   if (!data) {
     return <></>
@@ -181,6 +203,15 @@ const INVBalance = () => {
         </Text>
         ({smartShortNumber(xinv, 2)} x{RTOKEN_SYMBOL})
       </>
+      {
+        stakedInFirm >= 10 &&  <FirmGovDelegationModal
+          isOpen={isFirmModalOpen}
+          onClose={firmOnClose}
+          delegatingTo={delegate}
+          suggestedValue={''}
+          escrow={escrow}
+        />
+      }
     </NavBadge>
   )
 }
@@ -247,13 +278,13 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
   useEffect(() => {
     const inIframe = window.parent !== window;
     setIsIframe(inIframe);
-    if(inIframe) {
+    if (inIframe) {
       try {
         setTimeout(() => {
           connectSafeApp();
         }, 100);
       } catch (e) {
-        
+
       }
     }
   }, []);
@@ -514,7 +545,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
 
   useEffect(() => {
     const init = async () => {
-      if (!!account && isMultisig && !isSafeMultisigConnector && !gnosisSafeToastAlreadyShowed) {        
+      if (!!account && isMultisig && !isSafeMultisigConnector && !gnosisSafeToastAlreadyShowed) {
         showToast({
           status: 'info',
           title: 'Using a multisig?',
@@ -525,8 +556,8 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
             display="inline-flex"
             alignItems="center"
             href={`https://app.safe.global/apps/open?safe=${account}&appUrl=${encodeURIComponent(window.location.href)}`}>
-              <Image mr="1" borderRadius="50px" src="/assets/wallets/gnosis-safe.jpeg" h="20px" w="20px" />
-             Click here to use the Safe app for a better experience
+            <Image mr="1" borderRadius="50px" src="/assets/wallets/gnosis-safe.jpeg" h="20px" w="20px" />
+            Click here to use the Safe app for a better experience
           </Link>,
           duration: null,
         });
