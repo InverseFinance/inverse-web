@@ -160,7 +160,7 @@ const INVBalance = () => {
   }, [account])
 
   useEffect(() => {
-    if (!delegatingMessageAlreadyShowed && stakedInFirm >= 10 && (!delegate || delegate === BURN_ADDRESS)) {
+    if (!delegatingMessageAlreadyShowed && stakedInFirm >= 10 && delegate === BURN_ADDRESS) {
       setDelegatingMessageAlreadyShowed(true);
       showToast({
         id: 'delegate-firm-inv-staked-notif',
