@@ -1,5 +1,5 @@
 import Container from "@app/components/common/Container"
-import { HStack, Stack, Text, VStack, useDisclosure } from "@chakra-ui/react"
+import { Flex, HStack, Stack, Text, VStack, useDisclosure } from "@chakra-ui/react"
 import { F2MarketContext } from "../F2Contex";
 import { useContext, useEffect, useState } from "react";
 import ScannerLink from "@app/components/common/ScannerLink";
@@ -14,7 +14,8 @@ import { Contract } from "ethers";
 import { useWeb3React } from "@web3-react/core";
 import { Web3Provider } from "@ethersproject/providers";
 import Link from "@app/components/common/Link";
-import { ArrowLeftIcon, ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon } from "@chakra-ui/icons";
+import { Avatar } from '@app/components/common/Avatar';
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { NetworkIds } from "@app/types";
 import { BURN_ADDRESS } from "@app/config/constants";
@@ -85,6 +86,21 @@ export const InvInconsistentFirmDelegation = () => {
         </>
     }
     return null
+}
+
+const delegateItemRenderer = (value, label, index, searchValue, filteredList) => {
+    const data = filteredList[index]._data;
+    return <HStack alignItems="center" justify="flex-start" w='full'>
+        <Avatar address={data.address} sizePx={20} />
+        <HStack px="2" w='full' justify="space-between">
+            <Text>{`#${(index + 1).toString().padStart(2, '0')}`} <b>{namedAddress(data.address)}</b></Text>
+            <HStack spacing="1" justify="flex-end">
+                <Text textAlign="right">(VP: <b>{shortenNumber(data.votingWeight, 2)}%</b>,</Text>
+                <Text textAlign="right">Recent votes:</Text>
+                <Text textAlign="right" w='26px'><b>{data.nbRecentVotes}</b>)</Text>
+            </HStack>
+        </HStack>
+    </HStack>
 }
 
 export const FirmGovDelegationModal = ({
@@ -166,14 +182,12 @@ export const FirmGovDelegationModal = ({
                                     setShowSelectors(false);
                                 }
                             }}
+                            itemRenderer={delegateItemRenderer}
                             defaultValue={activeDefault}
                             title={'Sorted by most recent votes & least VP'}
                             placeholder={'Choose'}
                             limit={50}
                             w='full'
-                            labelFormatter={(data, index) => {
-                                return `#${(index + 1).toString().padStart(2, '0')} ${namedAddress(data.address)} (VP: ${shortenNumber(data.votingWeight, 2)}%, Recent votes: ${data.nbRecentVotes})`
-                            }}
                         />
                         <InfoMessage
                             description="Note: this is the best option to help spread out Voting Power"
@@ -193,9 +207,7 @@ export const FirmGovDelegationModal = ({
                                     setShowSelectors(false);
                                 }
                             }}
-                            labelFormatter={(data, index) => {
-                                return `#${(index + 1).toString().padStart(2, '0')} ${namedAddress(data.address)} (VP: ${shortenNumber(data.votingPower, 2)}, Recent votes: ${data.nbRecentVotes})`
-                            }}
+                            itemRenderer={delegateItemRenderer}
                             defaultValue={topDefault}
                             title={'Delegates with the most voting power'}
                             placeholder={'Choose'}
@@ -212,7 +224,15 @@ export const FirmGovDelegationModal = ({
                     </Text>
                 </HStack>
             }
-            <Text fontWeight="bold">New delegate:</Text>
+            <HStack w='full' justify="space-between">
+                <Text fontWeight="bold">New delegate:</Text>
+                <Text onClick={() => {
+                    setNewDelegate(account);
+                    setActiveDefault('');
+                    setTopDefault('');
+                    setShowSelectors(false);
+                }} _hover={{ filter: 'brightness(1.2)' }} color="secondaryTextColor" textDecoration="underline" cursor="pointer">Self-delegate</Text>
+            </HStack>
             <VStack spacing="1" alignItems='flex-end' w='full'>
                 <Input _hover={hasError ? {} : undefined} borderWidth="1" borderColor={hasError ? !!newDelegate ? 'error' : undefined : 'success'} onChange={(e) => setNewDelegate(e.target.value)} fontSize="14px" value={newDelegate} placeholder={'New delegate address'} />
                 {

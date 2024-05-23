@@ -54,6 +54,7 @@ export const DelegatesAutocomplete = ({
                 .map((d, i) => ({
                     value: d.address,
                     label: labelFormatter ? labelFormatter(d, i) : `#${(i + 1).toString().padStart(2, '0')} ${namedAddress(d.address)}`,
+                    _data: d,
                 }))
         )
     }, [delegates, addressList])
