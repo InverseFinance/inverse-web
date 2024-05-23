@@ -57,30 +57,35 @@ export const useTopAndSmallDelegates = (isOpen = false, filter?: string): SWR & 
     }
   }
 
+  const delegatesArray = Object.values(delegates).filter(({votingPower}) => votingPower);
+  const totalVotes = delegatesArray.reduce((totalVotes: number, { votingPower }: Delegate) => (totalVotes += votingPower), 0)
+
   // only consider votes in the last 90 days
   const minBlockCheck = blockNumber - BLOCKS_PER_DAY * 90;
 
-  const relevantDelegates = Object.values(delegates)
+  const relevantDelegates = delegatesArray
     .filter(({ votingPower, votes }) => votingPower >= 10)
     .map(d => {
       const relevantVotes = d.votes.filter(vote => vote.bn >= minBlockCheck);
       // the closer the vote the higher the score for that vote
       const recentVotingScore = (relevantVotes.length +
-         relevantVotes.reduce((prev, curr) => prev + Math.min((curr.bn - minBlockCheck)/(blockNumber-minBlockCheck), 1), 0)
-    ) / Math.sqrt(d.votingPower)
-         ;
+        relevantVotes.reduce((prev, curr) => prev + Math.min((curr.bn - minBlockCheck) / (blockNumber - minBlockCheck), 1), 0)
+      ) / Math.sqrt(d.votingPower)
+        ;
       // the more active (and recent) voter but lower voting power the higher the score
-      return { ...d, decentralizationScore: recentVotingScore, nbRecentVotes: relevantVotes.length }
+      return { ...d, votingWeight: d.votingPower / totalVotes * 100, decentralizationScore: recentVotingScore, nbRecentVotes: relevantVotes.length }
     });
 
   const topDelegates = relevantDelegates.filter(d => d.votingPower >= 10)
     .sort((a, b) => b.votingPower - a.votingPower)
     .slice(0, 50);
 
-  const smallButActive = relevantDelegates.filter(d => d.votingPower >= 10 && d.votingPower <= 15000 && d.nbRecentVotes > 0)
-    .sort((a, b) => b.decentralizationScore - a.decentralizationScore)
+  const smallButActive = relevantDelegates.filter(d => d.votingPower >= 10 && d.votingWeight <= 20 && d.nbRecentVotes > 0)
+    .sort((a, b) => {
+      return b.nbRecentVotes - a.nbRecentVotes || a.votingWeight - b.votingWeight || b.decentralizationScore - a.decentralizationScore
+    })
     .slice(0, 50);
-    
+
   return {
     topDelegates,
     smallButActive,

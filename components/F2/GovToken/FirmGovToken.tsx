@@ -155,7 +155,7 @@ export const FirmGovDelegationModal = ({
                     w='full'
                 >
                     <VStack w='full' alignItems='flex-start'>
-                        <Text fontWeight="bold">Recent (90 days) active voters with less than 15k Voting Power:</Text>
+                        <Text fontWeight="bold">Recent (90 days) active voters with less than 20% Voting Power:</Text>
                         <DelegatesAutocomplete
                             delegates={smallButActive}
                             onItemSelect={(item) => {
@@ -167,16 +167,16 @@ export const FirmGovDelegationModal = ({
                                 }
                             }}
                             defaultValue={activeDefault}
-                            title={'Recent active voters with smaller voting power'}
+                            title={'Sorted by most recent votes & least VP'}
                             placeholder={'Choose'}
                             limit={50}
                             w='full'
                             labelFormatter={(data, index) => {
-                                return `#${(index + 1).toString().padStart(2, '0')} ${namedAddress(data.address)} (VP: ${shortenNumber(data.votingPower, 2)}, Recent votes: ${data.nbRecentVotes})`
+                                return `#${(index + 1).toString().padStart(2, '0')} ${namedAddress(data.address)} (VP: ${shortenNumber(data.votingWeight, 2)}%, Recent votes: ${data.nbRecentVotes})`
                             }}
                         />
                         <InfoMessage
-                            description="Note: this is the best option to help decentralize the DAO"
+                            description="Note: this is the best option to help spread out Voting Power"
                             alertProps={{ w: 'full' }}
                         />
                     </VStack>
