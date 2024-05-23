@@ -177,6 +177,7 @@ export const FirmGovDelegationModal = ({
                         />
                         <InfoMessage
                             description="Note: this is the best option to help decentralize the DAO"
+                            alertProps={{ w: 'full' }}
                         />
                     </VStack>
                     <VStack w='full' alignItems='flex-start'>
