@@ -103,7 +103,7 @@ export const FirmGovDelegationModal = ({
     const [activeDefault, setActiveDefault] = useState('');
     const [showSelectors, setShowSelectors] = useState(true);
     const { addressName } = useNamedAddress(newDelegate);
-    const { topDelegates, smallButActive } = useTopAndSmallDelegates()
+    const { topDelegates, smallButActive } = useTopAndSmallDelegates(!isOpen)
 
     const handleOk = async () => {
         const contract = new Contract(escrow, F2_ESCROW_ABI, provider?.getSigner());
@@ -136,7 +136,7 @@ export const FirmGovDelegationModal = ({
     >
         <VStack spacing="4" p="4" w='full' alignItems="flex-start">
 
-            <HStack onClick={() => setShowSelectors(!showSelectors)} cursor="pointer">
+            <HStack _hover={{ filter: 'brightness(1.5)' }} onClick={() => setShowSelectors(!showSelectors)} cursor="pointer">
                 <Text>
                     Delegator lists
                 </Text>
@@ -147,55 +147,60 @@ export const FirmGovDelegationModal = ({
                     alignItems='flex-start'
                     px="4"
                     pb='4'
+                    spacing='4'
                     borderLeft={`1px solid ${themeStyles.colors.mainTextColor}`}
                     borderRight={`1px solid ${themeStyles.colors.mainTextColor}`}
                     borderBottom={`1px solid ${themeStyles.colors.mainTextColor}`}
                     borderBottomRadius="5px"
                 >
-                    <Text fontWeight="bold">Recent (90 days) active voters with less than 15k Voting Power:</Text>
-                    <DelegatesAutocomplete
-                        delegates={smallButActive}
-                        onItemSelect={(item) => {
-                            setNewDelegate(item.value);
-                            setTopDefault('');
-                            setActiveDefault(item.value);
-                            if (item.value) {
+                    <VStack w='full' alignItems='flex-start'>
+                        <Text fontWeight="bold">Recent (90 days) active voters with less than 15k Voting Power:</Text>
+                        <DelegatesAutocomplete
+                            delegates={smallButActive}
+                            onItemSelect={(item) => {
+                                setNewDelegate(item.value);
+                                setTopDefault('');
+                                setActiveDefault(item.value);
+                                if (item.value) {
+                                    setShowSelectors(false);
+                                }
+                            }}
+                            defaultValue={activeDefault}
+                            title={'Recent active voters with smaller voting power'}
+                            placeholder={'Choose'}
+                            limit={50}
+                            w='full'
+                            labelFormatter={(data, index) => {
+                                return `#${(index + 1).toString().padStart(2, '0')} ${namedAddress(data.address)} (VP: ${shortenNumber(data.votingPower, 2)}, Recent votes: ${data.nbRecentVotes})`
+                            }}
+                        />
+                        <InfoMessage
+                            description="Note: this is the best option to help decentralize the DAO"
+                        />
+                    </VStack>
+                    <VStack w='full' alignItems='flex-start'>
+                        <Text fontWeight="bold">Or choose from the top delegates:</Text>
+                        <DelegatesAutocomplete
+                            delegates={topDelegates}
+                            onItemSelect={(item) => {
+                                setNewDelegate(item.value);
+                                setActiveDefault('');
+                                setTopDefault(item.value);
                                 setShowSelectors(false);
-                            }
-                        }}
-                        defaultValue={activeDefault}
-                        title={'Recent active voters with smaller voting power'}
-                        placeholder={'Choose'}
-                        limit={50}
-                        w='full'
-                        labelFormatter={(data, index) => {
-                            return `#${(index + 1).toString().padStart(2, '0')} ${namedAddress(data.address)} (VP: ${shortenNumber(data.votingPower, 2)}, Recent votes: ${data.nbRecentVotes})`
-                        }}
-                    />
-                    <InfoMessage
-                        description="Note: choosing a recent active voter with lower voting power help decentralize the DAO"
-                    />
-                    <Text fontWeight="bold">Or choose from the top delegates:</Text>
-                    <DelegatesAutocomplete
-                        delegates={topDelegates}
-                        onItemSelect={(item) => {
-                            setNewDelegate(item.value);
-                            setActiveDefault('');
-                            setTopDefault(item.value);
-                            setShowSelectors(false);
-                            if (item.value) {
-                                setShowSelectors(false);
-                            }
-                        }}
-                        labelFormatter={(data, index) => {
-                            return `#${(index + 1).toString().padStart(2, '0')} ${namedAddress(data.address)} (VP: ${shortenNumber(data.votingPower, 2)}, Recent votes: ${data.nbRecentVotes})`
-                        }}
-                        defaultValue={topDefault}
-                        title={'Delegates with the most voting power'}
-                        placeholder={'Choose'}
-                        limit={50}
-                        w='full'
-                    />
+                                if (item.value) {
+                                    setShowSelectors(false);
+                                }
+                            }}
+                            labelFormatter={(data, index) => {
+                                return `#${(index + 1).toString().padStart(2, '0')} ${namedAddress(data.address)} (VP: ${shortenNumber(data.votingPower, 2)}, Recent votes: ${data.nbRecentVotes})`
+                            }}
+                            defaultValue={topDefault}
+                            title={'Delegates with the most voting power'}
+                            placeholder={'Choose'}
+                            limit={50}
+                            w='full'
+                        />
+                    </VStack>
                 </VStack>
             }
             {
@@ -205,7 +210,7 @@ export const FirmGovDelegationModal = ({
                     </Text>
                 </HStack>
             }
-            <Text fontWeight="bold">Chosen delegate:</Text>
+            <Text fontWeight="bold">New delegate:</Text>
             <VStack spacing="1" alignItems='flex-end' w='full'>
                 <Input _hover={hasError ? {} : undefined} borderWidth="1" borderColor={hasError ? !!newDelegate ? 'error' : undefined : 'success'} onChange={(e) => setNewDelegate(e.target.value)} fontSize="14px" value={newDelegate} placeholder={'New delegate address'} />
                 {

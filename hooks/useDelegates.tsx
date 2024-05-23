@@ -18,8 +18,8 @@ type TopDelegates = {
   delegates: Delegate[]
 }
 
-export const useDelegates = (filter?: string): SWR & Delegates => {
-  const { data, error } = useCustomSWR(`/api/delegates?filter=${filter || ''}`, fetcher)
+export const useDelegates = (ignore = false, filter?: string): SWR & Delegates => {
+  const { data, error } = useCustomSWR(ignore ? '-' : `/api/delegates?filter=${filter || ''}`, fetcher)
 
   return {
     blockNumber: data?.blockNumber,
@@ -47,8 +47,8 @@ export const useTopDelegates = (): SWR & TopDelegates => {
   }
 }
 
-export const useTopAndSmallDelegates = (): SWR & TopDelegates => {
-  const { delegates, blockNumber, isLoading } = useDelegates()
+export const useTopAndSmallDelegates = (isOpen = false, filter?: string): SWR & TopDelegates => {
+  const { delegates, blockNumber, isLoading } = useDelegates(isOpen, filter)
 
   if (!delegates || isLoading) {
     return {

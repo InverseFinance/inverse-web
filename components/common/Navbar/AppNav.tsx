@@ -204,7 +204,7 @@ const INVBalance = () => {
         ({smartShortNumber(xinv, 2)} x{RTOKEN_SYMBOL})
       </>
       {
-        stakedInFirm >= 10 && <FirmGovDelegationModal
+        stakedInFirm >= 10 &&  <FirmGovDelegationModal
           isOpen={isFirmModalOpen}
           onClose={firmOnClose}
           delegatingTo={delegate}
