@@ -114,6 +114,7 @@ export const F2CombinedForm = ({
         account,
         setCustomRecipient,
         customRecipient,
+        underlyingExRate,
     } = useContext(F2MarketContext);
 
     const { isMultisig } = useMultisig();
@@ -273,7 +274,7 @@ export const F2CombinedForm = ({
                     return
                 }
                 const { dolaAmount, errorMsg } = await getLeverageImpact({
-                    deposits, debt, leverageLevel: leverage, market, isUp: false, dolaPrice, setLeverageLoading, viaInput: true
+                    deposits, debt, leverageLevel: leverage, market, isUp: false, dolaPrice, setLeverageLoading, viaInput: true, underlyingExRate
                 });
                 if (!!errorMsg) {
                     showToast({ status: 'warning', description: errorMsg, title: 'Api error' })
@@ -303,7 +304,7 @@ export const F2CombinedForm = ({
                     return
                 }
                 const { collateralAmount, errorMsg } = await getLeverageImpact({
-                    deposits, debt, leverageLevel: leverage, market, isUp: true, dolaPrice, setLeverageLoading, viaInput, dolaInput: viaInput ? debtString : undefined, initialDeposit
+                    deposits, debt, leverageLevel: leverage, market, isUp: true, dolaPrice, setLeverageLoading, viaInput, dolaInput: viaInput ? debtString : undefined, initialDeposit, underlyingExRate
                 });
                 if (!!errorMsg) {
                     showToast({ status: 'warning', description: errorMsg, title: 'Api error' })
