@@ -40,7 +40,7 @@ export const prepareLeveragePosition = async (
         let aleQuoteResult;
         try {
             // the dola swapped for collateral is dolaToBorrowToBuyCollateral not totalDolaToBorrow (a part is for dbr)
-            aleQuoteResult = await getAleSellQuote(market.collateral, DOLA, dolaToBorrowToBuyCollateral.toString(), slippagePerc, false);
+            aleQuoteResult = await getAleSellQuote(market.aleData?.buySellToken||market.collateral, DOLA, dolaToBorrowToBuyCollateral.toString(), slippagePerc, false);
             if (!aleQuoteResult?.data || !!aleQuoteResult.msg) {
                 const msg = aleQuoteResult?.validationErrors?.length > 0 ?
                     `Swap validation failed with: ${aleQuoteResult?.validationErrors[0].field} ${aleQuoteResult?.validationErrors[0].reason}`
@@ -51,9 +51,12 @@ export const prepareLeveragePosition = async (
             console.log(e);
             return Promise.reject(`Getting a quote from ${ALE_SWAP_PARTNER} failed`);
         }
-        const { data: swapData, allowanceTarget, value } = aleQuoteResult;
+        const { data: swapData, allowanceTarget, value, buyAmount } = aleQuoteResult;
         const permitData = [deadline, v, r, s];
-        const helperTransformData = '0x';
+        let helperTransformData = '0x';
+        if(market.aleData?.buySellToken) {
+            //
+        }
         // dolaIn, minDbrOut
         const dbrData = [dbrInputs.dolaParam, dbrInputs.dbrParam, '0'];        
         if (initialDeposit && initialDeposit.gt(0)) {
@@ -131,7 +134,7 @@ export const prepareDeleveragePosition = async (
     // we need the quote first
     try {
         // the dola swapped for collateral is dolaToRepayToSellCollateral not totalDolaToBorrow (a part is for dbr)
-        aleQuoteResult = await getAleSellQuote(DOLA, market.collateral, collateralToWithdraw.toString(), slippagePerc, false);
+        aleQuoteResult = await getAleSellQuote(DOLA, market.aleData?.buySellToken||market.collateral, collateralToWithdraw.toString(), slippagePerc, false);
         if (!aleQuoteResult?.data || !!aleQuoteResult.msg) {
             const msg = aleQuoteResult?.validationErrors?.length > 0 ?
                 `Swap validation failed with: ${aleQuoteResult?.validationErrors[0].field} ${aleQuoteResult?.validationErrors[0].reason}`
@@ -150,11 +153,15 @@ export const prepareDeleveragePosition = async (
 
         const { data: swapData, allowanceTarget, value, buyAmount } = aleQuoteResult;
         const permitData = [deadline, v, r, s];
-        const helperTransformData = '0x';
+        let helperTransformData = '0x';   
         const dolaBuyAmount = parseUnits(buyAmount, 0);
         const userDebt = await (new Contract(market.address, F2_MARKET_ABI, signer)).debts(await signer.getAddress());
         const minDolaAmountFromSwap = getNumberToBn(getBnToNumber(dolaBuyAmount) * (1-parseFloat(slippagePerc)/100));
         const minDolaOrMaxRepayable = minDolaAmountFromSwap.gt(userDebt) ? userDebt : minDolaAmountFromSwap;
+
+        if(market.aleData?.buySellToken) {
+            //
+        }
         
         // dolaIn, minDbrOut, extraDolaToRepay
         const dbrData = [dbrToSell, minDolaOut, extraDolaToRepay];
