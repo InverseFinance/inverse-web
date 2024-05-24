@@ -1,4 +1,4 @@
-import { BigNumber, Contract } from "ethers";
+import { BigNumber, Contract, utils } from "ethers";
 import { getNetworkConfigConstants } from "./networks";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { F2_ALE_ABI, F2_MARKET_ABI } from "@app/config/abis";
@@ -15,6 +15,14 @@ export const getAleContract = (signer: JsonRpcSigner) => {
 }
 
 export const ALE_SWAP_PARTNER = '1inch'
+
+// by default 0x as transformerData, others listed below something else
+const aleTransformers = {
+    'marketAddress': (market: F2Market) => {
+        const abi = new utils.AbiCoder();
+        return abi.encode(['address'], [market.address]);
+    },
+}
 
 export const prepareLeveragePosition = async (
     signer: JsonRpcSigner,
@@ -51,11 +59,11 @@ export const prepareLeveragePosition = async (
             console.log(e);
             return Promise.reject(`Getting a quote from ${ALE_SWAP_PARTNER} failed`);
         }
-        const { data: swapData, allowanceTarget, value, buyAmount } = aleQuoteResult;
+        const { data: swapData, allowanceTarget, value } = aleQuoteResult;
         const permitData = [deadline, v, r, s];
         let helperTransformData = '0x';
-        if(market.aleData?.buySellToken) {
-            //
+        if(market.aleData?.buySellToken && !!market.aleTransformerType && aleTransformers[market.aleTransformerType]) {
+            helperTransformData = aleTransformers[market.aleTransformerType](market);
         }
         // dolaIn, minDbrOut
         const dbrData = [dbrInputs.dolaParam, dbrInputs.dbrParam, '0'];        
@@ -159,8 +167,8 @@ export const prepareDeleveragePosition = async (
         const minDolaAmountFromSwap = getNumberToBn(getBnToNumber(dolaBuyAmount) * (1-parseFloat(slippagePerc)/100));
         const minDolaOrMaxRepayable = minDolaAmountFromSwap.gt(userDebt) ? userDebt : minDolaAmountFromSwap;
 
-        if(market.aleData?.buySellToken) {
-            //
+        if(market.aleData?.buySellToken && !!market.aleTransformerType && aleTransformers[market.aleTransformerType]) {
+            helperTransformData = aleTransformers[market.aleTransformerType](market);
         }
         
         // dolaIn, minDbrOut, extraDolaToRepay

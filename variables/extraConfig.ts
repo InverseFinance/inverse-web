@@ -232,7 +232,8 @@ const mainConfig = {
             underlyingSymbol: 'yETH', 
             startingBlock: 19867770,
             rewardTypeLabel: 'yEth APY',
-            isInv: false,            
+            isInv: false,
+            aleTransformerType: 'marketAddress',  
         },
         {
             name: 'sFRAX',
