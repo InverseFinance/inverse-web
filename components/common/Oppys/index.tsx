@@ -479,7 +479,7 @@ export const Oppys = () => {
         <HStack px="6" w='full' justify="center">
             <HStack as="a" href="https://defillama.com/yields?token=DOLA&token=INV&token=DBR" target="_blank">
                 <Text textDecoration="underline" color="secondaryTextColor">
-                    Powered By DefiLlama <ExternalLinkIcon />
+                    Data source: DefiLlama <ExternalLinkIcon />
                 </Text>                
                 <Image borderRadius="50px" w="40px" src="/assets/projects/defi-llama.jpg" />
             </HStack>
