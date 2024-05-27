@@ -368,12 +368,6 @@ export const OppysTable = ({
                             </VStack>
                         }
                     />
-                    <HStack as="a" href="https://defillama.com/" target="_blank">
-                        <Text color="secondaryTextColor">
-                            Powered By Defi Llama
-                        </Text>
-                        <Image borderRadius="50px" w="40px" src="/assets/projects/defi-llama.jpg" />
-                    </HStack>
                 </VStack>
         }
     </Container>
@@ -482,6 +476,14 @@ export const Oppys = () => {
             ensoPoolsLike={ensoPoolsLike}
             resultAsset={resultAsset}
         />
+        <HStack px="6" w='full' justify="center">
+            <HStack as="a" href="https://defillama.com/yields?token=DOLA&token=INV&token=DBR" target="_blank">
+                <Text textDecoration="underline" color="secondaryTextColor">
+                    Data source: DefiLlama <ExternalLinkIcon />
+                </Text>                
+                <Image borderRadius="50px" w="40px" src="/assets/projects/defi-llama.jpg" />
+            </HStack>
+        </HStack>
         <Stack direction={{ base: 'column', lg: 'row' }} w='full'>
             <OppysTop5 onClick={handleClick} isLargerThan={isLargerThan} title={'Top 5 stablecoin pool APYs'} isLoading={isLoading} oppys={top5Stable} />
             <OppysTop5 onClick={handleClick} isLargerThan={isLargerThan} title={'Top 5 volatile pool APYs'} isLoading={isLoading} oppys={top5Volatile} />
