@@ -2038,6 +2038,7 @@ const chainTokens = {
     },
     [chainTokenAddresses["42161"].USDCE]: {
       ...USDC,
+      symbol: 'USDC.E',
       address: chainTokenAddresses["42161"].USDCE,
     },
     [chainTokenAddresses["42161"].USDC]: {
