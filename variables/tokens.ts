@@ -124,6 +124,7 @@ const chainTokenAddresses = {
     DOLARGUSDCRVLP: '0x20BB4a325924917E3336753BA5350a84F70f392e',
     STYETH: '0x583019fF0f430721aDa9cfb4fac8F06cA104d0B4',
     SFRAX: '0xA663B02CF0a4b149d2aD41910CB81e23e1c41c32',
+    // PAL: '0xAB846Fb6C81370327e784Ae7CbB6d6a6af6Ff4BF',
   },
   "250": {
     DOLA2POOLCRV: '0x28368d7090421ca544bc89799a2ea8489306e3e5',
@@ -246,6 +247,8 @@ const chainTokenAddresses = {
     AERODOLAUSDCLP: '0xf213F2D02837012dC0236cC105061e121bB03e37',
     // native usdc
     USDC: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+    PAL: '0x224114c444e3C3d936532fE08351648700570909',
+    RGUSD: '0x8E5E9DF4F0EA39aE5270e79bbABFCc34203A3470',
   },
 }
 chainTokenAddresses["31337"] = chainTokenAddresses["1"];
@@ -1206,6 +1209,14 @@ const chainTokens = {
       image: TOKEN_IMAGES.sFRAX,
       decimals: 18,
     },
+    // [chainTokenAddresses["1"].PAL]: {
+    //   address: chainTokenAddresses["1"].PAL,
+    //   name: 'PAL',
+    //   symbol: 'PAL',
+    //   coingeckoId: 'paladin',
+    //   image: TOKEN_IMAGES.PAL,
+    //   decimals: 18,
+    // },
     [chainTokenAddresses["1"].YCRV]: {
       address: chainTokenAddresses["1"].YCRV,
       name: 'yCRV',
@@ -2381,6 +2392,22 @@ const chainTokens = {
         chainTokenAddresses["8453"].DOLA, chainTokenAddresses["8453"].USDPLUS
       ],
       protocolImage: PROTOCOL_IMAGES.AERO,
+    },
+    [chainTokenAddresses["8453"].PAL]: {
+      address: chainTokenAddresses["8453"].PAL,
+      name: 'PAL',
+      symbol: 'PAL',
+      coingeckoId: 'paladin',
+      image: TOKEN_IMAGES.PAL,
+      decimals: 18,
+    },
+    [chainTokenAddresses["8453"].RGUSD]: {
+      address: chainTokenAddresses["8453"].RGUSD,
+      name: 'RGUSD',
+      symbol: 'RGUSD',
+      coingeckoId: 'revenue-generating-usd',
+      image: TOKEN_IMAGES.RGUSD,
+      decimals: 18,   
     },
   },
 }

@@ -399,6 +399,7 @@ export const homogeneizeLpName = (value: string) => {
         .replace(/^(.*)-(DOLA|INV)$/i, '$2-$1')
         .replace(/DOLA-YVCURVE/i, 'DOLA-3POOL')
         .replace(/-?SAMMV2-?/i, '')
+        .replace(/SAMM-?/i, '')
         .replace(/DOLAUSDC/i, 'DOLA-USDC')
         .replace(/DOLAFRAX/i, 'DOLA-FRAX')
         .replace(/OPUSDCE/i, 'USDC')
