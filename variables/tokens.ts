@@ -531,7 +531,7 @@ const chainTokens = {
       address: chainTokenAddresses["1"].RGUSD,
       name: 'RGUSD',
       symbol: 'RGUSD',
-      // coingeckoId: '',
+      coingeckoId: 'revenue-generating-usd',
       image: TOKEN_IMAGES.RGUSD,
       decimals: 18,   
     },
