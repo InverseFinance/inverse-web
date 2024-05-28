@@ -1,4 +1,4 @@
-import { Badge, Divider, Flex, HStack, Stack, Text, useMediaQuery, VStack } from "@chakra-ui/react"
+import { Badge, Divider, Flex, HStack, Stack, Text, useMediaQuery, VStack, Image } from "@chakra-ui/react"
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
@@ -16,10 +16,11 @@ import { gaEvent } from "@app/util/analytics";
 import { DailyLimitCountdown } from "@app/components/common/Countdown";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { SafetyBadges } from "./SecurityMiniCaroussel";
-import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import { SplashedText } from "../common/SplashedText";
 import { lightTheme } from "@app/variables/theme";
 import { useState } from "react";
+import Link from "../common/Link";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -285,7 +286,7 @@ export const F2Markets = ({
 
     const invMarketIsInOtherSection = withoutDeposits.some(m => m.isInv);
 
-    const pinnedItems = invMarketIsInOtherSection ? 
+    const pinnedItems = invMarketIsInOtherSection ?
         ['0xb516247596Ca36bf32876199FBdCaD6B3322330B', (markets?.length > 0 ? markets[markets?.length - 1].address : '')]
         : [(markets?.length > 0 ? markets[markets?.length - 1].address : '')];
 
@@ -294,22 +295,27 @@ export const F2Markets = ({
     return <Container
         p={isDashboardPage ? '0' : '6'}
         label={
-            <Text fontWeight="bold" fontSize={{ base: '14px', md: '16px' }}>
-                {
-                    !dbrPrice ?
-                        <SmallTextLoader pt="13px" width="42px" />
-                        :
-                        <b style={{ color: themeStyles.colors.success, fontSize: '18px', fontWeight: '900' }}>
-                            {shortenNumber(dbrPrice * 100, 2)}
-                        </b>
-                }
-                <b style={{ color: themeStyles.colors.success, fontSize: '18px', fontWeight: '900' }}>%</b> Fixed Borrow APR, Unlimited Duration
-            </Text>
+            <Stack direction={{ base: 'column', xl: 'row' }} alignItems="flex-start" justify="center">
+                <Image transform="translateY(4px)" src={`/assets/firm/${firmImages[themeName]}`} w='110px' h="auto" />
+                <VStack spacing="0" alignItems="flex-start">
+                    <Text fontWeight="bold" fontSize={{ base: '14px', md: '16px' }}>
+                        {
+                            !dbrPrice ?
+                                <SmallTextLoader pt="13px" width="42px" />
+                                :
+                                <b style={{ color: themeStyles.colors.success, fontSize: '18px', fontWeight: '900' }}>
+                                    {shortenNumber(dbrPrice * 100, 2)}
+                                </b>
+                        }
+                        <b style={{ color: themeStyles.colors.success, fontSize: '18px', fontWeight: '900' }}>%</b> Fixed Borrow APR, Unlimited Duration
+                    </Text>
+                    <Link fontSize='14px' textDecoration="underline" href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/firm" isExternal target="_blank">
+                        Learn more <ExternalLinkIcon />
+                    </Link>
+                </VStack>
+            </Stack>
         }
         labelProps={{ fontSize: { base: '14px', sm: '18px' }, fontWeight: 'extrabold' }}
-        description={`Learn more`}
-        href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/firm"
-        image={<BigImageButton transform="translateY(5px)" bg={`url('/assets/firm/${firmImages[themeName]}')`} h={{ base: '50px' }} w={{ base: '110px' }} borderRadius="0" />}
         contentProps={{
             maxW: { base: '90vw', sm: '100%' },
             overflowX: 'auto',
