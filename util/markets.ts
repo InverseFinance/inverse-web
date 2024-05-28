@@ -417,6 +417,11 @@ export const getSymbolFromUnderlyingTokens = (chainId: string | number, underlyi
     return tokens.join('-');
 }
 
+const poolsToExclude = [
+    // dola-inv aura mainnet
+    '8ef7e85e-d27a-4471-87db-18b6cc7dddc4',
+];
+
 export const getYieldOppys = async () => {
     const url = `https://yields.llama.fi/pools`;
     try {
@@ -425,6 +430,8 @@ export const getYieldOppys = async () => {
         const pools = data.status === 'success' ? data.data : [];
         return pools
             .filter(p => /^(inv-|dola-|dbr-)/i.test(p.symbol) || /(-inv|-dola|-dbr)$/i.test(p.symbol) || /(-inv-|-dola-|-dbr-)/i.test(p.symbol))
+            // filter pools with known incorrect data
+            .filter(p => !poolsToExclude.includes(p.pool))
             .map(p => {
                 return {
                     ...p,
