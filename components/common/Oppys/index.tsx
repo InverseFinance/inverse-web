@@ -42,8 +42,8 @@ const ENSO_DEFILLAMA_MAPPING = {
 const poolLinks = {
     'f763842a-e4db-418c-a0cb-9390b61cece8': 'https://app.balancer.fi/#/ethereum/pool/0x5b3240b6be3e7487d61cd1afdfc7fe4fa1d81e6400000000000000000000037b',
     'faf2dccc-dba6-476a-a7df-ba771927d62d': 'https://app.balancer.fi/#/ethereum/pool/0x441b8a1980f2f2e43a9397099d15cc2fe6d3625000020000000000000000035f',
-    '8cd47cd4-7824-4a8d-aebd-d703d86beae2': 'https://app.velodrome.finance/liquidity/manage?address=0x43ce87a1ad20277b78cae52c7bcd5fc82a297551',
-    '17f0492d-6279-46b4-a637-40e542130954': 'https://app.velodrome.finance/liquidity/manage?address=0x6c5019d345ec05004a7e7b0623a91a0d9b8d590d',
+    '8cd47cd4-7824-4a8d-aebd-d703d86beae2': 'https://velodrome.finance/liquidity/manage?address=0x43ce87a1ad20277b78cae52c7bcd5fc82a297551',
+    '17f0492d-6279-46b4-a637-40e542130954': 'https://velodrome.finance/liquidity/manage?address=0x6c5019d345ec05004a7e7b0623a91a0d9b8d590d',
     '2cb9f208-36e7-4505-be1c-9010c5d65317': 'https://ftm.curve.fi/factory/14/deposit',
     'a6aee229-3a38-47a1-a664-d142a4184ec9': 'https://curve.fi/factory/27/deposit',
     '0x73e02eaab68a41ea63bdae9dbd4b7678827b2352': 'https://v2.info.uniswap.org/pair/0x73e02eaab68a41ea63bdae9dbd4b7678827b2352',
@@ -65,11 +65,16 @@ const projectLinks = {
     'balancer-v2': 'https://app.balancer.fi/#/ethereum',
     'uniswap-v2': 'https://app.uniswap.org/#/add/v2',
     'velodrome-v1': 'https://v1.velodrome.finance/liquidity/manage',
-    'velodrome-v2': 'https://app.velodrome.finance/liquidity/manage',
+    'velodrome-v2': 'https://velodrome.finance/liquidity/manage',
     'pickle': 'https://app.pickle.finance/farms',
     'ramses-v1': 'https://app.ramses.exchange/liquidity',
     'ramses-v2': 'https://app.ramses.exchange/liquidity',
     'gamma': 'https://app.gamma.xyz/dashboard',
+    'liquis': 'https://www.liquis.app/stake',
+    'bunni': 'https://bunni.pro/pools',
+    'extra-finance': 'https://app.extrafi.io/farm',
+    'aerodrome-v1': 'https://aerodrome.finance/liquidity',
+    'harvest-finance': 'https://app.harvest.finance/farms',
 }
 
 const getPoolLink = (project, pool, underlyingTokens, symbol, isStable = true) => {
@@ -86,17 +91,22 @@ const getPoolLink = (project, pool, underlyingTokens, symbol, isStable = true) =
             url = `https://info.uniswap.org/#/pools/${_pool}`
             break;
         case 'velodrome-v2':
+        case 'aerodrome-v1':
             const [sym0, sym1] = symbol.split('-');
-            const token0 = getToken(CHAIN_TOKENS[NetworkIds.optimism], sym0);
-            const token1 = getToken(CHAIN_TOKENS[NetworkIds.optimism], sym1);
-            url = token0?.address && token1?.address ? `https://app.velodrome.finance/deposit?token0=${token0.address.toLowerCase()}&token1=${token1.address.toLowerCase()}&stable=${isStable}` : 'https://app.velodrome.finance/liquidity'
+            const chainId = project === 'aerodrome-v1' ? NetworkIds.base : NetworkIds.optimism;
+            const token0 = getToken(CHAIN_TOKENS[chainId], sym0);
+            const token1 = getToken(CHAIN_TOKENS[chainId], sym1);
+            const baseUrl = project === 'aerodrome-v1' ? 'https://aerodrome.finance' : 'https://velodrome.finance';
+            url = token0?.address && token1?.address ? `${baseUrl}/pools?token0=${token0.address}&token1=${token1.address}&type=${isStable ? '0' : '-1'}` : baseUrl+'/liquidity'
             break;
         case 'uniswap-v2':
             url = underlyingTokens?.length > 0 ? `https://app.uniswap.org/#/add/v2/${underlyingTokens.join('/')}` : '';
             break;
         case 'ramses-v1':
+            url = `https://app.ramses.exchange/liquidity/v1/${_pool.toLowerCase()}`;
+            break;
         case 'ramses-v2':
-            url = `https://app.ramses.exchange/liquidity/${_pool.toLowerCase()}`;
+            url = `https://app.ramses.exchange/liquidity/v2/${_pool.toLowerCase()}`;
             break;
     }
     return poolLinks[_pool] || url || projectLinks[project];
