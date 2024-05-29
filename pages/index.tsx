@@ -1,4 +1,3 @@
-// TODO: Clean up the landing page, this was rushed in a few hours
 import { Flex, HStack, Image, UnorderedList, ListItem, Stack, Text, VStack, SimpleGrid, StackProps, Divider } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { LandingNav } from '@app/components/common/Navbar'

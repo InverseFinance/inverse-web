@@ -62,7 +62,6 @@ export const DBRTransparency = () => {
                 <meta name="og:title" content="Inverse Finance - Transparency" />
                 <meta name="og:description" content="DBR Transparency" />
                 <meta name="description" content="DBR Transparency" />
-                <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-dbr.png" />
                 <meta name="keywords" content="Inverse Finance, dao, transparency, dbr, dola, supply" />
             </Head>
             <AppNav active="Transparency" activeSubmenu="DBR & FiRM" hideAnnouncement={true} />

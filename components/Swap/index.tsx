@@ -40,7 +40,6 @@ const DEFAULT_STAB_BUY_COST = 0.000117044;
 const DEFAULT_STAB_SELL_COST = 0.000145434;
 const DEFAULT_CRV_COST = 0.000319716;
 
-// TODO: refacto + add INV
 export const SwapView = ({ from = '', to = '' }: { from?: string, to?: string }) => {
   const { account, provider, chainId } = useWeb3React<Web3Provider>()
   const gasPrice = useGasPrice();
