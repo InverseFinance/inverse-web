@@ -807,9 +807,6 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
     toQuery.push([F2_ALE, F2_ALE_ABI, 'LeverageUp', [market.address, account]]);
     toQuery.push([F2_ALE, F2_ALE_ABI, 'LeverageDown', [market.address, account]]);
   }
-  // else if (market.name === 'cvxCRV') {
-  // TODO: add cvxCRV claims
-  // }
 
   const { groupedEvents, isLoading, error } = useMultiContractEvents(
     toQuery,

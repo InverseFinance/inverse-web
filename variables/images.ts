@@ -169,8 +169,7 @@ export const PROTOCOL_DEFILLAMA_MAPPING = {
     "CHRONOS": "chronos-v1",
     "BEETHOVEN": "beethoven-x",
     "LIQUIS": "liquis",
-    "BUNNI": "bunni",
-    // TODO: check if correct project names for the following when defillama adds support    
+    "BUNNI": "bunni", 
     "STERLING": "sterling-exchange",
     "SOLIDLIZARD": "solidlizard",
     "SATIN": "satin-exchange",
