@@ -23,6 +23,17 @@ export const getSiloRate = async () => {
     return { borrowRate: 0 };
 }
 
+export const getCompoundRate = async () => {
+    try {
+        const res = await fetch("https://v3-api.compound.finance/market/all-networks/all-contracts/summary");
+        const data = await res.json();
+        return { borrowRate: parseFloat(data.find(r => r.comet.address === '0xc3d688b66703497daa19211eedff47f25384cdc3').borrow_apr)*100 }
+    } catch (e) {
+        console.log('Err fetching compound rate');
+    }
+    return { borrowRate: 0 };
+}
+
 export const getAaveV3Rate = async (provider) => {
     try {
         const contract = new Contract('0x7B4EB56E7CD4b454BA8ff71E4518426369a138a3', [{ "inputs": [{ "internalType": "address", "name": "asset", "type": "address" }], "name": "getReserveData", "outputs": [{ "internalType": "uint256", "name": "unbacked", "type": "uint256" }, { "internalType": "uint256", "name": "accruedToTreasuryScaled", "type": "uint256" }, { "internalType": "uint256", "name": "totalAToken", "type": "uint256" }, { "internalType": "uint256", "name": "totalStableDebt", "type": "uint256" }, { "internalType": "uint256", "name": "totalVariableDebt", "type": "uint256" }, { "internalType": "uint256", "name": "liquidityRate", "type": "uint256" }, { "internalType": "uint256", "name": "variableBorrowRate", "type": "uint256" }, { "internalType": "uint256", "name": "stableBorrowRate", "type": "uint256" }, { "internalType": "uint256", "name": "averageStableBorrowRate", "type": "uint256" }, { "internalType": "uint256", "name": "liquidityIndex", "type": "uint256" }, { "internalType": "uint256", "name": "variableBorrowIndex", "type": "uint256" }, { "internalType": "uint40", "name": "lastUpdateTimestamp", "type": "uint40" }], "stateMutability": "view", "type": "function" }], provider);
