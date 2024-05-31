@@ -99,10 +99,10 @@ export const MobileTable = ({
 
                 return <HStack position="relative" alignItems="flex-start" spacing="0" key={j} w='full' justify={isNotFirstCol ? 'space-between' : 'center'}>
                   {
-                    !isNotFirstCol && item._isPinned &&
+                    !isNotFirstCol && item._isPinned && !!item._pinLabel &&
                     <Badge textTransform="capitalize" borderRadius="50px"
                       px="8px" fontWeight="normal" bgColor="mainTextColor" color="contrastMainTextColor" w='fit-content' mr="1" position="absolute" top="-10px" left="-10px">
-                      New
+                      {item._pinLabel}
                     </Badge>
                   }
                   <HStack display={isNotFirstCol ? 'inline-flex' : 'none'}>
@@ -205,10 +205,10 @@ export const Table = ({
     setSortedItems([...itemsToSort].sort((a, b) => {
       const returnVal = sortDir === 'asc' ? -1 : 1;
       const aVal = Array.isArray(a[sortBy]) ? a[sortBy].length : a[sortBy];
-      const bVal = Array.isArray(b[sortBy]) ? b[sortBy].length : b[sortBy];      
+      const bVal = Array.isArray(b[sortBy]) ? b[sortBy].length : b[sortBy];
       if (aVal < bVal) { return 1 * returnVal; }
       if (aVal > bVal) { return -1 * returnVal; }
-      if(!!secondarySortField) {
+      if (!!secondarySortField) {
         const aValSec = Array.isArray(a[secondarySortField]) ? a[secondarySortField].length : a[secondarySortField];
         const bValSec = Array.isArray(b[secondarySortField]) ? b[secondarySortField].length : b[secondarySortField];
         if (aValSec < bValSec) { return 1 * returnVal; }
