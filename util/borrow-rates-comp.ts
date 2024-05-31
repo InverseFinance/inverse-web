@@ -1,5 +1,6 @@
 import { Contract } from "ethers";
 import { formatUnits } from "viem";
+import { getDbrPriceOnCurve } from "./f2";
 
 const USDC = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
 
@@ -16,31 +17,40 @@ export const getSiloRate = async () => {
             "method": "POST",
         });
         const { data } = await res.json();
-        return { borrowRate: data.silo.rates.find(r => r.side === 'BORROWER' && r.token.symbol === 'USDC').interestRateDaily[0].rateAvg }
+        return { project: 'Silo', type: 'variable', borrowRate: parseFloat(data.silo.rates.find(r => r.side === 'BORROWER' && r.token.symbol === 'USDC').interestRateDaily[0].rateAvg) }
     } catch (e) {
         console.log('Err fetching silo rate')
     }
-    return { borrowRate: 0 };
+    return { project: 'Silo', type: 'variable', borrowRate: 0 };
 }
 
 export const getCompoundRate = async () => {
     try {
         const res = await fetch("https://v3-api.compound.finance/market/all-networks/all-contracts/summary");
         const data = await res.json();
-        return { borrowRate: parseFloat(data.find(r => r.comet.address === '0xc3d688b66703497daa19211eedff47f25384cdc3').borrow_apr)*100 }
+        return { project: 'Compound', type: 'variable', borrowRate: parseFloat(data.find(r => r.comet.address === '0xc3d688b66703497daa19211eedff47f25384cdc3').borrow_apr) * 100 }
     } catch (e) {
         console.log('Err fetching compound rate');
     }
-    return { borrowRate: 0 };
+    return { project: 'Compound', type: 'variable', borrowRate: 0 };
 }
 
 export const getAaveV3Rate = async (provider) => {
     try {
         const contract = new Contract('0x7B4EB56E7CD4b454BA8ff71E4518426369a138a3', [{ "inputs": [{ "internalType": "address", "name": "asset", "type": "address" }], "name": "getReserveData", "outputs": [{ "internalType": "uint256", "name": "unbacked", "type": "uint256" }, { "internalType": "uint256", "name": "accruedToTreasuryScaled", "type": "uint256" }, { "internalType": "uint256", "name": "totalAToken", "type": "uint256" }, { "internalType": "uint256", "name": "totalStableDebt", "type": "uint256" }, { "internalType": "uint256", "name": "totalVariableDebt", "type": "uint256" }, { "internalType": "uint256", "name": "liquidityRate", "type": "uint256" }, { "internalType": "uint256", "name": "variableBorrowRate", "type": "uint256" }, { "internalType": "uint256", "name": "stableBorrowRate", "type": "uint256" }, { "internalType": "uint256", "name": "averageStableBorrowRate", "type": "uint256" }, { "internalType": "uint256", "name": "liquidityIndex", "type": "uint256" }, { "internalType": "uint256", "name": "variableBorrowIndex", "type": "uint256" }, { "internalType": "uint40", "name": "lastUpdateTimestamp", "type": "uint40" }], "stateMutability": "view", "type": "function" }], provider);
         const reserveData = await contract.getReserveData(USDC);
-        return { borrowRate: parseFloat(formatUnits(reserveData[6], 25)) }
+        return { project: 'Aave V3', type: 'variable', borrowRate: parseFloat(formatUnits(reserveData[6], 25)) }
     } catch (e) {
         console.log('Err fetching aave rate')
     }
-    return { borrowRate: 0 };
+    return { project: 'Aave V3', type: 'variable', borrowRate: 0 };
+}
+
+export const getFirmRate = async (provider) => {
+    try {
+        return { project: 'FiRM', borrowRate: (await getDbrPriceOnCurve(provider)).priceInDola * 100, type: 'fixed' }
+    } catch (e) {
+        console.log('Err fetching compound rate');
+    }
+    return { project: 'FiRM', borrowRate: 0, type: 'fixed' };
 }

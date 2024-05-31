@@ -2,7 +2,7 @@ import 'source-map-support'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types';
-import { getAaveV3Rate, getCompoundRate, getSiloRate } from '@app/util/borrow-rates-comp';
+import { getAaveV3Rate, getCompoundRate, getFirmRate, getSiloRate } from '@app/util/borrow-rates-comp';
 
 export default async function handler(req, res) {
   const cacheKey = `borrow-rates-compare-v1.0.0`;
@@ -19,21 +19,20 @@ export default async function handler(req, res) {
 
     const provider = getProvider(NetworkIds.mainnet);
 
-    const [
-      silo,
-      aave,
-      compound,
-    ] = await Promise.all([
+    const rates = await Promise.all([
       getSiloRate(),
       getAaveV3Rate(provider),
       getCompoundRate(),
+      getFirmRate(provider),
     ]);
+
+    rates.sort((a ,b) => {
+      return a.type === 'fixed' || a.borrowRate < b.borrowRate ? -1 : a.borrowRate - b.borrowRate;
+    });
 
     const result = {
       timestamp: Date.now(),
-      silo,
-      aave,
-      compound,
+      rates,
     };
 
     await redisSetWithTimestamp(cacheKey, result);
