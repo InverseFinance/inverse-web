@@ -200,6 +200,10 @@ export const MENUS = {
           needReload: true,
         },
         {
+          label: 'Compare Rates',
+          href: '/firm/comparator',
+        },
+        {
           label: 'Blog',
           href: '/blog',
         },

@@ -65,7 +65,7 @@ export const RateComparator = () => {
     return <Container
         noPadding
         contentProps={{ p: { base: '2', sm: '8' } }}
-        label="Borrow Rate comparator"
+        label="Borrow Rate Comparator"
         description="Accross major DeFi lending protocols on Ethereum for DOLA & USDC"
         contentBgColor="gradient3"
     >

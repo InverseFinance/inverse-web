@@ -11,7 +11,7 @@ export const RateComparatorPage = () => {
             <Head>
                 <title>Inverse Finance - Rate Comparator</title>
             </Head>
-            <AppNav active="Borrow" activeSubmenu="FiRM" />
+            <AppNav active="More" activeSubmenu="Compare Rates" />
             <ErrorBoundary>
                 <VStack w='full' maxW="64rem" mt="4">
                     <RateComparator />
