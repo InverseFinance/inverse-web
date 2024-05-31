@@ -10,6 +10,10 @@ export const RateComparatorPage = () => {
         <Layout>
             <Head>
                 <title>Inverse Finance - Rate Comparison</title>
+                <meta name="og:title" content="Inverse Finance - Rate Comparison" />
+                <meta name="og:description" content="Compare Borrowing Rates accross Ethereum" />
+                <meta name="description" content="Compare Borrowing Rates accross Ethereum" />
+                <meta name="keywords" content="Inverse Finance, borrow rates comparison" />
             </Head>
             <AppNav active="More" activeSubmenu="Compare Rates" />
             <ErrorBoundary>
