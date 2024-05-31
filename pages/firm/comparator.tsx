@@ -9,7 +9,7 @@ export const RateComparatorPage = () => {
     return (
         <Layout>
             <Head>
-                <title>Inverse Finance - Rate Comparator</title>
+                <title>Inverse Finance - Rate Comparison</title>
             </Head>
             <AppNav active="More" activeSubmenu="Compare Rates" />
             <ErrorBoundary>
