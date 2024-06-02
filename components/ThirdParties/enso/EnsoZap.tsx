@@ -231,7 +231,6 @@ function EnsoZap({
                                 defaultAmount={amountIn}
                                 address={tokenIn === EthXe ? '' : tokenIn}
                                 decimals={tokenInObj?.decimals}
-                                // destination={routeTx?.to}
                                 destination={approveDestinationAddress}
                                 hideInput={true}
                                 showMaxBtn={false}
