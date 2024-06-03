@@ -597,7 +597,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   useEffect(() => {
     if (!badgeChainId) { return }
     // swap page: any network is fine
-    const isSupported = ['/swap', '/base', '/zap', '/transparency/liquidity', '/tokens/yield-opportunities'].includes(location.pathname) || isSupportedNetwork(badgeChainId);
+    const isSupported = ['/swap', '/base', '/blast', '/zap', '/transparency/liquidity', '/tokens/yield-opportunities'].includes(location.pathname) || isSupportedNetwork(badgeChainId);
     setIsUsupportedNetwork(!isSupported)
     if (!isSupported) {
       onWrongNetOpen();

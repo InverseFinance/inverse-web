@@ -29,6 +29,9 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
     else if (chainId === NetworkIds.base && !specificAlchemyKey) {
         return new JsonRpcProvider('https://mainnet.base.org');
     }
+    else if (chainId === NetworkIds.base && !specificAlchemyKey) {
+        return new JsonRpcProvider('https://rpc.blast.io');
+    }
     const network = Number(chainId);
     const providers = [new AlchemyProvider(network, specificAlchemyKey || getRandomFromStringList(process.env.ALCHEMY_KEYS!))];
 

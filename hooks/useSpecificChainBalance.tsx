@@ -59,6 +59,9 @@ export const getPublicRpcProvider = (chainId: NetworkIds) => {
     }
     else if (chainId === NetworkIds.base) {
         return new JsonRpcProvider('https://mainnet.base.org');
+    } 
+    else if (chainId === NetworkIds.blast) {
+        return new JsonRpcProvider('https://rpc.blast.io');
     }
     return null;
 }
