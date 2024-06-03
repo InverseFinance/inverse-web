@@ -139,28 +139,29 @@ export const RateComparator = () => {
 
     return <Container
         noPadding
-        contentProps={{ p: { base: '2', sm: '8' }, overflowX: 'scroll' }}
+        contentProps={{ p: { base: '2', sm: '8' } }}
         label="Borrow Rate Comparison"
         description="Accross major DeFi lending protocols on Ethereum for DOLA & USDC"
         contentBgColor="gradient3"
     >
         {
-            data?.rates && isSmallerThan && <Table
+            data?.rates?.length && isSmallerThan && <Table
                 keyName="project"
                 pinnedItems={['FiRM']}
                 pinnedLabels={['']}
                 noDataMessage="Loading..."
                 columns={columns}
                 items={data?.rates}
-                // onClick={openMarket}
                 defaultSort={'borrowRate'}
                 defaultSortDir="asc"
                 enableMobileRender={true}
-                // mobileClickBtnLabel={'View Market'}
                 mobileThreshold={mobileThreshold}
                 showRowBorder={true}
                 spacing="0"
             />
+        }
+        {
+            !data?.rates?.length && isSmallerThan && <SkeletonBlob w='full' />
         }
         {
             !isSmallerThan && <SimpleGrid gap="4" w='full' columns={4}>
