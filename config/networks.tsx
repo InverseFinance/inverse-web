@@ -53,6 +53,7 @@ export enum NETWORK_CODENAMES {
   moonriver = 'moonriver',
   base = 'base',
   ethftm = 'eth-ftm',
+  blast = 'blast',
 }
 
 const networks: Network[] = [
@@ -240,6 +241,16 @@ const networks: Network[] = [
     coinSymbol: 'movr',
     isTestnet: false,
     isSupported: false,
+  },
+  {
+    id: '81457',
+    codename: NETWORK_CODENAMES.blast,
+    name: 'Blast',
+    coinSymbol: 'eth',
+    isTestnet: false,
+    isSupported: true,
+    scan: 'https://blastscan.io',
+    image: `https://icons.llamao.fi/icons/chains/rsz_blast?w=48&h=48`,
   },
   // "x-chains"
   {
