@@ -145,22 +145,23 @@ export const RateComparator = () => {
         contentBgColor="gradient3"
     >
         {
-            data?.rates && isSmallerThan && <Table
+            data?.rates?.length && isSmallerThan && <Table
                 keyName="project"
                 pinnedItems={['FiRM']}
                 pinnedLabels={['']}
                 noDataMessage="Loading..."
                 columns={columns}
                 items={data?.rates}
-                // onClick={openMarket}
                 defaultSort={'borrowRate'}
                 defaultSortDir="asc"
                 enableMobileRender={true}
-                // mobileClickBtnLabel={'View Market'}
                 mobileThreshold={mobileThreshold}
                 showRowBorder={true}
                 spacing="0"
             />
+        }
+        {
+            !data?.rates?.length && isSmallerThan && <SkeletonBlob w='full' />
         }
         {
             !isSmallerThan && <SimpleGrid gap="4" w='full' columns={4}>
