@@ -196,7 +196,7 @@ export const BlastBridge = () => {
                                                     <Text>To withdraw from Blast, there will be three transactions required:</Text>
                                                     <Text>- Initiate withdrawal (Tx on Blast)</Text>
                                                     <Text>- After 1h, verify the withdrawal (Tx on Ethereum)</Text>
-                                                    <Text>- 7 days after the verification, claim (Tx on Ethereum)</Text>
+                                                    <Text>- 14 days after the verification, claim (Tx on Ethereum)</Text>
                                                 </VStack>}
                                             />
                                         }

@@ -225,7 +225,7 @@ export const getStatusShortDescription = (status: MessageStatus) => {
         case MessageStatus.READY_TO_PROVE:
             return '2/5 - Ready to prove'
         case MessageStatus.IN_CHALLENGE_PERIOD:
-            return '3/5 - 7 days challenge period'
+            return '3/5 - 14 days challenge period'
         case MessageStatus.READY_FOR_RELAY:
             return '4/5 - Ready to be relayed'
         case MessageStatus.RELAYED:
@@ -249,7 +249,6 @@ export const getMessenger = (l1SignerOrProvider: SignerOrProviderLike, l2SignerO
                 L1CrossDomainMessenger: '0x5D4472f31Bd9385709ec61305AFc749F0fA8e9d0',
                 OptimismPortal: BLAST_OPTIMISIM_PORTAL,
                 L2OutputOracle: '0x826D1B0D4111Ad9146Eb8941D7Ca2B6a44215c76',
-
                 StateCommitmentChain: BURN_ADDRESS,
                 CanonicalTransactionChain: BURN_ADDRESS,
                 BondManager: BURN_ADDRESS,
