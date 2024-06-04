@@ -4,12 +4,15 @@ import { DefaultCharts } from "./DefaultCharts";
 import { SkeletonBlob } from "../common/Skeleton";
 import Container from "../common/Container";
 import { useEffect, useState } from "react";
+import { shortenNumber } from "@app/util/markets";
+import { useDOLAPrice } from "@app/hooks/usePrices";
 
-const maxChartWidth= 1300
+const maxChartWidth = 1300
 
 export const DolaCircSupplyEvolution = () => {
-    const { evolution, isLoading, isError } = useDolaCirculatingSupplyEvolution();
-    
+    const { evolution, isLoading, currentCirculatingSupply } = useDolaCirculatingSupplyEvolution();
+    const { price } = useDOLAPrice();
+
     const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
 
@@ -17,7 +20,26 @@ export const DolaCircSupplyEvolution = () => {
         setAutoChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 80)
     }, [isLargerThan]);
 
-    return <Container noPadding m="0" p="0" label="DOLA Circulating Supply Evolution" description="Excluded from circulation: DOLAs sitting in markets and in Fed Farmers; Precision: daily on mainnet, weekly on L2s">
+    const fontSize = { base: '16px', sm: '28px' };
+    const fontSize2 = { base: '13px', sm: '16px' };
+
+    return <Container
+        noPadding
+        m="0"
+        p="0"
+        label="DOLA Circulating Supply Evolution"
+        description="Excluded from circulation: DOLAs sitting in markets and in Fed Farmers; Precision: daily on mainnet, weekly on L2s"
+        headerProps={{
+            direction: { base: 'column', md: 'row' },
+            align: { base: 'flex-start', md: 'flex-end' },
+        }}
+        right={
+            currentCirculatingSupply && <VStack spacing="0" alignItems="flex-end">
+                <Text textAlign="right" fontSize={fontSize} fontWeight="extrabold">{shortenNumber(currentCirculatingSupply * price, 2, true)}</Text>
+                <Text fontWeight="bold" textAlign="right" fontSize={fontSize2} color="accentTextColor">Current circulating supply</Text>
+            </VStack>
+        }
+    >
         <VStack pt="10" position="relative">
             {
                 isLoading ? <SkeletonBlob />
