@@ -14,9 +14,9 @@ export const BlastPage = () => {
       <Head>
         <title>Inverse Finance - Blast</title>
         <meta name="og:title" content="Inverse Finance - Blast" />
-        <meta name="og:description" content="Base bridging" />
+        <meta name="og:description" content="Blast bridging" />
         <meta name="description" content="Blast bridging" />
-        <meta name="keywords" content="Inverse Finance, base, bridge, stablecoin, DOLA" />
+        <meta name="keywords" content="Inverse Finance, blast, bridge, stablecoin, DOLA" />
       </Head>
       <AppNav active="More" activeSubmenu="Native Blast Bridge" />
       <VStack
