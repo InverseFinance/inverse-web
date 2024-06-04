@@ -250,6 +250,9 @@ const chainTokenAddresses = {
     PAL: '0x224114c444e3C3d936532fE08351648700570909',
     RGUSD: '0x8E5E9DF4F0EA39aE5270e79bbABFCc34203A3470',
   },
+  "81457": {
+    DOLA: "0x8e38179D361402f6a94767757e807146609E9B3d",
+  },
 }
 chainTokenAddresses["31337"] = chainTokenAddresses["1"];
 
@@ -2298,6 +2301,15 @@ const chainTokens = {
       coingeckoId: 'balancer',
       image: TOKEN_IMAGES.BAL,     
       decimals: 18,
+    },
+  },
+  "81457": {
+    CHAIN_COIN: {
+      ...ETH,
+    },
+    [chainTokenAddresses["81457"].DOLA]: {
+      address: chainTokenAddresses["81457"].DOLA,
+      ...DOLA,
     },
   },
   "8453": {

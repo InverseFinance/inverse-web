@@ -191,6 +191,7 @@ export enum NetworkIds {
   polygon = '137',
   avalanche = '43114',
   base = '8453',
+  blast = '81457',
   // xchain
   ethftm = '1-250',
   ethop = '1-10',

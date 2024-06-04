@@ -46,8 +46,11 @@ export const getNetworkConfigConstants = (
     if(!['1', '31337'].includes(process.env.NEXT_PUBLIC_CHAIN_ID) && config === undefined) {
         config = { anchor: {} };
     }
+    if(!config) {
+        config = getNetworkConfig(NetworkIds.mainnet)
+    }
     const MULTISIGS: Multisig[] = config?.multisigs || [];
-
+    
     // Anchor
     const LENS = config.anchor.lens;
     const COMPTROLLER = config.anchor.comptroller;
