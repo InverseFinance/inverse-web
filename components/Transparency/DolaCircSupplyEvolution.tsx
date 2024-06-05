@@ -12,10 +12,11 @@ const maxChartWidth = 1300
 export const DolaCircSupplyEvolution = () => {
     const { evolution, isLoading, currentCirculatingSupply } = useDolaCirculatingSupplyEvolution();
     const { evolution: priceEvolution } = useDolaPrices();
-    const evolutionWithPrice = priceEvolution.map(d => {
-        const cs = evolution.find(e => e.utcDate === d.utcDate)
-        return { ...cs, mkcap: cs ? cs.y * d.y : 0 }
-    }).filter(d => d.mkcap);
+    
+    const evolutionWithPrice = evolution.map(d => {
+        const price = priceEvolution.find(e => e.utcDate === d.utcDate)
+        return { ...d, mkcap: (price?.y || 1) * d.y }
+    });
 
     const currentMkcap = evolutionWithPrice?.length ? evolutionWithPrice[evolutionWithPrice.length-1].mkcap : 0;
 
