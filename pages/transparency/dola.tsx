@@ -186,10 +186,11 @@ export const DolaDiagram = () => {
           <DolaVolumes />
           <Stack spacing={4} direction={{ base: 'column', lg: 'row' }} >
             <DolaMoreInfos />
-            <VStack spacing='4' minW='250px' w='50%' maxW='400px'>
+            <VStack spacing='4' minW='250px' w={{ base: '100%', lg: '50%' }} maxW={{ base: 'full', lg: '400px' }}>
               <DolaSupplies supplies={dolaSupplies.filter(chain => chain.supply > 0)} />
               <ShrinkableInfoMessage
                 title="⚡&nbsp;&nbsp;Roles & Powers"
+                alertProps={{ w:'full' }}
                 description={
                   <>
                     <Flex direction="row" w='full' justify="space-between">

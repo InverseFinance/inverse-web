@@ -16,11 +16,11 @@ const avgFunctions = {
 const getAddDaysAvg = (evoData: any[], periods: number[], avgTypes) => {
     const ignoreFirst = evoData?.length > 0 ? evoData[0].y === 0 : true;
     const [period, ...remainingPeriods] = periods;
-    const [_avgType, ...remainingAvgTypes] = (avgTypes||['avg']);
+    const [_avgType, ...remainingAvgTypes] = (avgTypes || ['avg']);
     const avgType = _avgType || 'avg';
     const avgKeyName = `y${period}${avgType}`;
     const isSimpleAvg = !avgType || avgType === 'avg';
-    const movingAvgs = isSimpleAvg ? [] : avgFunctions[avgType](evoData.map(s => s.y), period, (val: number) => val!==0);
+    const movingAvgs = isSimpleAvg ? [] : avgFunctions[avgType](evoData.map(s => s.y), period, (val: number) => val !== 0);
     const data = evoData.map((d, i) => {
         if (ignoreFirst && i === 0) return { ...d, [avgKeyName]: d.y }
         else if (ignoreFirst && i < period) {
@@ -76,6 +76,7 @@ export const AreaChartRecharts = ({
     secondaryLabel = 'Price',
     secondaryAsUsd = true,
     secondaryPrecision = 4,
+    secondaryOpacity = 1,
     yDomainAsInteger = false,
     addDayAvg = false,
     avgTypes,
@@ -83,6 +84,7 @@ export const AreaChartRecharts = ({
     avgDayNumbers,
     avgLineProps,
     lineItems,
+    duplicateYAxis = false,
 }: {
     combodata: { y: number, x: number, timestamp: number, utcDate: string }[]
     title: string
@@ -115,7 +117,9 @@ export const AreaChartRecharts = ({
     secondaryLabel?: string
     secondaryAsUsd?: boolean
     secondaryPrecision?: number
+    secondaryOpacity?: number
     yDomainAsInteger?: boolean
+    duplicateYAxis?: boolean
     addDayAvg?: boolean
     avgTypes?: ('avg' | 'moving-avg' | 'ema')[]
     allowEscapeViewBox?: boolean
@@ -190,14 +194,17 @@ export const AreaChartRecharts = ({
                 />
                 <YAxis domain={_yDomain} yAxisId="left" style={_axisStyle.tickLabels} tickFormatter={(v) => v === 0 ? '' : isPerc ? `${smartShortNumber(v, 2)}%` : yDomainAsInteger ? smartShortNumber(v, 0, useUsd) : smartShortNumber(v, 2, useUsd)} />
                 {
+                    duplicateYAxis && chartWidth >= 400 && <YAxis domain={_yDomain} yAxisId="right" orientation="right" style={_axisStyle.tickLabels} tickFormatter={(v) => v === 0 ? '' : isPerc ? `${smartShortNumber(v, 2)}%` : yDomainAsInteger ? smartShortNumber(v, 0, useUsd) : smartShortNumber(v, 2, useUsd)} />
+                }
+                {
                     showSecondary && <YAxis allowDataOverflow={true} style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => shortenNumber(v, secondaryPrecision, secondaryAsUsd)} />
                 }
                 {
-                    showSecondary && !!secondaryRef && <Line isAnimationActive={false} opacity={1} strokeWidth={2} name={secondaryLabel} yAxisId="right" type="monotone" dataKey={secondaryRef} stroke={themeStyles.colors.info} dot={false} />
+                    showSecondary && !!secondaryRef && <Line isAnimationActive={false} opacity={secondaryOpacity} strokeWidth={2} name={secondaryLabel} yAxisId="right" type="monotone" dataKey={secondaryRef} stroke={themeStyles.colors.info} dot={false} />
                 }
                 {
                     lineItems?.map(lineItem => {
-                        return <Line key={`line-${lineItem.dataKey}`} isAnimationActive={false} opacity={lineItem.opacity??1} strokeWidth={lineItem.strokeWidth||2} name={lineItem.name||secondaryLabel} yAxisId={lineItem.axisId||'left'} type={lineItem.type||'monotone'} dataKey={lineItem.dataKey} stroke={lineItem.stroke||themeStyles.colors.info} dot={lineItem.dot||false} />
+                        return <Line key={`line-${lineItem.dataKey}`} isAnimationActive={false} opacity={lineItem.opacity ?? 1} strokeWidth={lineItem.strokeWidth || 2} name={lineItem.name || secondaryLabel} yAxisId={lineItem.axisId || 'left'} type={lineItem.type || 'monotone'} dataKey={lineItem.dataKey} stroke={lineItem.stroke || themeStyles.colors.info} dot={lineItem.dot || false} />
                     })
                 }
                 {
@@ -223,7 +230,7 @@ export const AreaChartRecharts = ({
                     addDayAvg && avgDayNumbers?.map((period, periodIndex) => {
                         const _avgLineProps = avgLineProps ? avgLineProps[periodIndex] : {};
                         const avgType = avgTypes ? avgTypes[periodIndex] : 'avg';
-                        return <Line key={period+'-'+avgType} isAnimationActive={false} opacity={1} strokeWidth={2} name={`${period}-day ${avgType.replace('-', ' ').replace('ema', 'EMA')}`} yAxisId="left" type="monotone" dataKey={'y'+period+avgType} stroke={themeStyles.colors.info} dot={false} {..._avgLineProps} />
+                        return <Line key={period + '-' + avgType} isAnimationActive={false} opacity={1} strokeWidth={2} name={`${period}-day ${avgType.replace('-', ' ').replace('ema', 'EMA')}`} yAxisId="left" type="monotone" dataKey={'y' + period + avgType} stroke={themeStyles.colors.info} dot={false} {..._avgLineProps} />
                     })
                 }
                 {

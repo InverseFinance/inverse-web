@@ -51,6 +51,7 @@ export type AreaChartProps = {
     rangesToInclude?: string[]
     defaultRange?: string
     strokeColor?: string
+    duplicateYAxis?: boolean
 };
 // make sure there is only one data point per x value
 const getSimplifiedData = (data: CoordinatesArray) => {

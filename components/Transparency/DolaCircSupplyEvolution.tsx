@@ -1,4 +1,4 @@
-import { useDolaCirculatingSupplyEvolution } from "@app/hooks/useDOLA"
+import { useDolaCirculatingSupplyEvolution, useDolaPrices, useDolaVolumes } from "@app/hooks/useDOLA"
 import { Text, VStack, useMediaQuery } from "@chakra-ui/react";
 import { DefaultCharts } from "./DefaultCharts";
 import { SkeletonBlob } from "../common/Skeleton";
@@ -11,7 +11,14 @@ const maxChartWidth = 1300
 
 export const DolaCircSupplyEvolution = () => {
     const { evolution, isLoading, currentCirculatingSupply } = useDolaCirculatingSupplyEvolution();
-    const { price } = useDOLAPrice();
+    const { evolution: priceEvolution } = useDolaPrices();
+    
+    const evolutionWithPrice = evolution.map(d => {
+        const price = priceEvolution.find(e => e.utcDate === d.utcDate)
+        return { ...d, mkcap: (price?.y || 1) * d.y }
+    });
+
+    const currentMkcap = evolutionWithPrice?.length ? evolutionWithPrice[evolutionWithPrice.length-1].mkcap : 0;
 
     const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
@@ -34,8 +41,8 @@ export const DolaCircSupplyEvolution = () => {
             align: { base: 'flex-start', md: 'flex-end' },
         }}
         right={
-            currentCirculatingSupply && <VStack spacing="0" alignItems="flex-end">
-                <Text textAlign="right" fontSize={fontSize} fontWeight="extrabold">{shortenNumber(currentCirculatingSupply * price, 2, true)}</Text>
+            currentCirculatingSupply && <VStack spacing="0" alignItems={{ base: 'flex-start', md: 'flex-end' }}>
+                <Text textAlign="right" fontSize={fontSize} fontWeight="extrabold">{currentMkcap ? shortenNumber(currentMkcap, 2, true) : '-'}</Text>
                 <Text fontWeight="bold" textAlign="right" fontSize={fontSize2} color="accentTextColor">Current circulating supply</Text>
             </VStack>
         }
@@ -47,11 +54,11 @@ export const DolaCircSupplyEvolution = () => {
                         showMonthlyBarChart={false}
                         maxChartWidth={autoChartWidth}
                         chartWidth={autoChartWidth}
-                        chartData={evolution}
+                        chartData={evolutionWithPrice}
                         isDollars={false}
                         smoothLineByDefault={true}
                         barProps={{ eventName: 'Circ. Supply' }}
-                        areaProps={{ id: 'dola-circ-supply-chart', showRangeBtns: true, yLabel: 'DOLA Circ. supply', useRecharts: true, simplifyData: true, domainYpadding: 1000000, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
+                        areaProps={{ id: 'dola-circ-supply-chart', duplicateYAxis: false, secondaryAsUsd: true, secondaryOpacity: 0, showSecondary: true, secondaryLabel: 'Market Cap', secondaryRef: 'mkcap', showRangeBtns: true, yLabel: 'DOLA Circ. supply', useRecharts: true, simplifyData: true, domainYpadding: 1000000, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
                     />
             }
         </VStack>
