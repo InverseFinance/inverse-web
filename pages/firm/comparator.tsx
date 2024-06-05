@@ -17,7 +17,7 @@ export const RateComparatorPage = () => {
             </Head>
             <AppNav active="More" activeSubmenu="Compare Rates" />
             <ErrorBoundary>
-                <VStack w='full' maxW="64rem" mt="4">
+                <VStack w='full' maxW="80rem" mt="4">
                     <RateComparator />
                 </VStack>
             </ErrorBoundary>
