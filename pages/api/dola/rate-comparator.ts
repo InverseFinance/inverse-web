@@ -5,7 +5,7 @@ import { NetworkIds } from '@app/types';
 import { getAaveV3Rate, getAaveV3RateDAI, getCompoundRate, getCrvUSDRate, getFirmRate, getSiloRate } from '@app/util/borrow-rates-comp';
 
 export default async function handler(req, res) {
-  const cacheKey = `borrow-rates-compare-v1.0.2`;
+  const cacheKey = `borrow-rates-compare-v1.0.3`;
 
   try {
     const cacheDuration = 600;
@@ -37,7 +37,7 @@ export default async function handler(req, res) {
 
     const result = {
       timestamp: Date.now(),
-      rates,
+      rates: rates.map(rate => ({ ...rate, key: `${rate.project}-${rate.collateral}-${rate.borrowToken}` })),
     };
 
     await redisSetWithTimestamp(cacheKey, result);

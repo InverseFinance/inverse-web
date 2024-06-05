@@ -154,7 +154,7 @@ const columns = [
 const mobileThreshold = 1000;
 
 export const RateComparator = () => {
-    const { data } = useCustomSWR('/api/dola/rate-comparator?v=7');
+    const { data } = useCustomSWR('/api/dola/rate-comparator?v=8');
     const [isSmallerThan] = useMediaQuery(`(max-width: ${mobileThreshold}px)`);
 
     return <Container
@@ -166,7 +166,7 @@ export const RateComparator = () => {
     >
         {
             data?.rates?.length && isSmallerThan && <Table
-                keyName="project"
+                keyName="key"
                 pinnedItems={['FiRM']}
                 pinnedLabels={['']}
                 noDataMessage="Loading..."
@@ -211,7 +211,7 @@ export const RateComparator = () => {
                 }
                 {
                     data?.rates.map((rate, i) => {
-                        return <RateListItem key={rate.project} {...rate} />
+                        return <RateListItem key={rate.key} {...rate} />
                     })
                 }
             </SimpleGrid>
