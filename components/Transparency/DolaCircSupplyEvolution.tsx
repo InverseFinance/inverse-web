@@ -43,7 +43,7 @@ export const DolaCircSupplyEvolution = () => {
         right={
             currentCirculatingSupply && <VStack spacing="0" alignItems={{ base: 'flex-start', md: 'flex-end' }}>
                 <Text textAlign="right" fontSize={fontSize} fontWeight="extrabold">{currentMkcap ? shortenNumber(currentMkcap, 2, true) : '-'}</Text>
-                <Text fontWeight="bold" textAlign="right" fontSize={fontSize2} color="accentTextColor">Current circulating supply</Text>
+                <Text fontWeight="bold" textAlign="right" fontSize={fontSize2} color="accentTextColor">Current Circulating Supply</Text>
             </VStack>
         }
     >

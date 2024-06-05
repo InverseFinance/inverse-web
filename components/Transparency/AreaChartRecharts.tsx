@@ -136,7 +136,7 @@ export const AreaChartRecharts = ({
     const _data = zoomedData || _combodata;
 
     const _axisStyle = axisStyle || {
-        tickLabels: { fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '14px', userSelect: 'none' },
+        tickLabels: { fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '13px', userSelect: 'none' },
         grid: {
             stroke: '#66666633',
             strokeDasharray: '4 4',
