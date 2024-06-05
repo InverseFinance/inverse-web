@@ -9,6 +9,8 @@ import useEtherSWR from './useEtherSWR';
 import { getBnToNumber } from '@app/util/markets';
 import { BigNumber } from 'ethers';
 import { timestampToUTC, utcDateStringToTimestamp } from '@app/util/misc';
+import { useDOLAPrice } from './usePrices';
+import { useState } from 'react';
 
 type DolaSupply = {
   totalSupply: number,
@@ -81,24 +83,24 @@ export const useDOLAMarketData = (): SWR & { hasError: boolean, data: { market_d
 }
 
 export const useDolaCirculatingSupplyEvolution = () => {
-  const { data, error } = useCustomSWR(`/api/dola/circulating-supply-evolution?`);  
+  const { data, error } = useCustomSWR(`/api/dola/circulating-supply-evolution?`);
   const { data: currentCirculatingSupply } = useCustomSWR(`/api/dola/circulating-supply`);
 
   const array = (data?.evolution || []);
-  if(array.length > 0 && !!currentCirculatingSupply) {
+  if (array.length > 0 && !!currentCirculatingSupply) {
     array.push({ circSupply: currentCirculatingSupply, utcDate: new Date().toISOString().substring(0, 10) });
   }
 
   const evolution = array.map((v, i) => {
     const ts = utcDateStringToTimestamp(v.utcDate);
-    return ({ 
+    return ({
       ...v,
       timestamp: ts,
       x: ts,
       y: v.circSupply,
     });
   });
-  evolution.sort((a,b) => a.x - b.x);
+  evolution.sort((a, b) => a.x - b.x);
 
   return {
     currentCirculatingSupply,
@@ -109,7 +111,7 @@ export const useDolaCirculatingSupplyEvolution = () => {
 }
 
 export const useDolaVolumes = () => {
-  const { data, error } = useCustomSWR(`/api/dola/prices-volumes`);    
+  const { data, error } = useCustomSWR(`/api/dola/prices-volumes`);
 
   const volumes = (data?.volumes || []);
 
@@ -120,6 +122,30 @@ export const useDolaVolumes = () => {
         utcDate: timestampToUTC(ts),
         x: ts,
         y: vol,
+      }
+    }),
+    isLoading: !error && !data,
+    isError: !!error,
+  }
+}
+
+export const useDolaPrices = () => {
+  const { data, error } = useCustomSWR(`/api/dola/prices-volumes`);
+  const { price } = useDOLAPrice();
+  const [now, setNow] = useState(Date.now());
+
+  const prices = (data?.prices || []);
+  if (prices.length > 0 && !!price) {
+    prices.push([now, price]);
+  }
+
+  return {
+    evolution: prices.map((d) => {
+      const [ts, price] = d;
+      return {
+        utcDate: timestampToUTC(ts),
+        x: ts,
+        y: price,
       }
     }),
     isLoading: !error && !data,
