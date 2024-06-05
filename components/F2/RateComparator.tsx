@@ -9,18 +9,27 @@ import { useAppTheme } from "@app/hooks/useAppTheme";
 import Table from "../common/Table";
 
 const projectImages = {
+    'Curve': 'https://icons.llamao.fi/icons/protocols/curve?w=48&h=48',
     'Aave V3': 'https://icons.llamao.fi/icons/protocols/aave-v3?w=48&h=48',
     'Silo': 'https://icons.llamao.fi/icons/protocols/silo?w=48&h=48',
     'Compound': 'https://icons.llamao.fi/icons/protocols/compound?w=48&h=48',
     'FiRM': 'https://icons.llamao.fi/icons/protocols/inverse-finance?w=48&h=48',
 }
 
-const ProjectToken = ({ project, isMobile = false }: { project: string }) => {
-    const borrowToken = (project === 'FiRM' ? 'DOLA' : 'USDC')
+const ProjectToken = ({ project, borrowToken, isMobile = false }: { project: string }) => {
+    const _borrowToken = borrowToken || (project === 'FiRM' ? 'DOLA' : 'USDC')
     return <HStack spacing='4'>
-        <Image src={TOKEN_IMAGES[borrowToken]} h={isMobile ? '20px' : '40px'} />
-        <Text fontWeight="extrabold" fontSize={isMobile ? '16px' : '24px'} textTransform="capitalize">
-            {borrowToken}
+        <Image borderRadius="50px" src={TOKEN_IMAGES[_borrowToken]} h={isMobile ? '20px' : '40px'} />
+        <Text fontWeight="extrabold" fontSize={isMobile ? '16px' : '24px'}>
+            {_borrowToken}
+        </Text>
+    </HStack>
+}
+
+const CollateralToken = ({ collateral, isMobile = false }: { project: string }) => {
+    return <HStack spacing='4'>
+        <Text fontWeight="extrabold" fontSize={isMobile ? '16px' : '24px'}>
+            {collateral}
         </Text>
     </HStack>
 }
@@ -63,13 +72,14 @@ const RateType = ({ type, isMobile = false }: { type: string, isMobile: boolean 
     </HStack>
 }
 
-const RateListItem = ({ project, borrowRate, type }) => {
+const RateListItem = ({ project, borrowRate, borrowToken, collateral, type }) => {
     return <>
         <Project project={project} />
+        <CollateralToken project={project} collateral={collateral || 'Misc'} />
         <Text fontWeight="extrabold" fontSize="24px">
             {borrowRate ? shortenNumber(borrowRate, 2) + '%' : '-'}
         </Text>
-        <ProjectToken project={project} />
+        <ProjectToken project={project} borrowToken={borrowToken} />
         <RateType type={type} />
     </>
 }
@@ -100,12 +110,22 @@ const columns = [
         },
     },
     {
+        field: 'collateral',
+        label: 'Collateral',
+        header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
+        value: ({ project, collateral }) => {
+            return <Cell minWidth="70px" alignItems="center" justify="center" >
+                <CollateralToken isMobile={true} project={project} collateral={collateral || 'Misc'} />
+            </Cell>
+        },
+    },
+    {
         field: 'borrowRate',
         label: 'Borrow Rate',
         header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
         value: ({ borrowRate }) => {
             return <Cell minWidth="70px" alignItems="center" justify="center" >
-                <CellText>{shortenNumber(borrowRate, 0)}%</CellText>
+                <CellText>~{shortenNumber(borrowRate, 0)}%</CellText>
             </Cell>
         },
     },
@@ -113,9 +133,9 @@ const columns = [
         field: 'project',
         label: 'Borrow Token',
         header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
-        value: ({ project }) => {
+        value: ({ project, borrowToken }) => {
             return <Cell minWidth="70px" alignItems="center" justify="center" >
-                <ProjectToken project={project} isMobile={true} />
+                <ProjectToken project={project} isMobile={true} borrowToken={borrowToken} />
             </Cell>
         },
     },
@@ -134,14 +154,14 @@ const columns = [
 const mobileThreshold = 1000;
 
 export const RateComparator = () => {
-    const { data } = useCustomSWR('/api/dola/rate-comparator');
+    const { data } = useCustomSWR('/api/dola/rate-comparator?v=7');
     const [isSmallerThan] = useMediaQuery(`(max-width: ${mobileThreshold}px)`);
 
     return <Container
         noPadding
         contentProps={{ p: { base: '2', sm: '8' } }}
         label="Borrow Rate Comparison"
-        description="Accross major DeFi lending protocols on Ethereum for DOLA & USDC"
+        description="Accross major DeFi lending protocols on Ethereum for DOLA, USDC or DAI"
         contentBgColor="gradient3"
     >
         {
@@ -164,13 +184,16 @@ export const RateComparator = () => {
             !data?.rates?.length && isSmallerThan && <SkeletonBlob w='full' />
         }
         {
-            !isSmallerThan && <SimpleGrid gap="4" w='full' columns={4}>
+            !isSmallerThan && <SimpleGrid gap="4" w='full' columns={5}>
                 <Text fontWeight="extrabold" fontSize="28px">
                     Project
                 </Text>
                 <Text fontWeight="extrabold" fontSize="28px">
-                    Borrow Rate
+                    Collateral
                 </Text>
+                <Text fontWeight="extrabold" fontSize="28px">
+                    Borrow Rate
+                </Text>                
                 <Text fontWeight="extrabold" fontSize="28px">
                     Borrow Token
                 </Text>
@@ -179,6 +202,7 @@ export const RateComparator = () => {
                 </Text>
                 {
                     !data?.rates && <>
+                        <SkeletonBlob w='full' />
                         <SkeletonBlob w='full' />
                         <SkeletonBlob w='full' />
                         <SkeletonBlob w='full' />

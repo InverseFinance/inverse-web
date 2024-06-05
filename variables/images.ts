@@ -102,6 +102,7 @@ export const TOKEN_IMAGES = {
     "VELOCIMETER": "https://assets.coingecko.com/markets/images/1066/small/velocimeter.jpeg?1677577182",
     "ERN": "https://assets.coingecko.com/coins/images/29744/small/ERN200x200.png?1681106290",
     "CRVUSD": "https://assets.coingecko.com/coins/images/30118/small/crvusd.jpeg?1683171990",
+    "crvUSD": "https://assets.coingecko.com/coins/images/30118/small/crvusd.jpeg?1683171990",
     "STYCRV": "https://assets.coingecko.com/coins/images/27623/small/st-yCRV-128-0x27B5739e22ad9033bcBf192059122d163b60349D.png?1674200862",
     "YCRV": "https://assets.coingecko.com/coins/images/27622/small/yearncrvnew_32.png?1664881722",
     "BEETHOVEN": "https://assets.coingecko.com/coins/images/19158/small/beets-icon-large.png?1696518608",
