@@ -184,7 +184,7 @@ export const RateComparator = () => {
             !data?.rates?.length && isSmallerThan && <SkeletonBlob w='full' />
         }
         {
-            !isSmallerThan && <SimpleGrid gap="4" w='full' columns={5}>
+            !isSmallerThan && <SimpleGrid gap="5" w='full' columns={5}>
                 <Text fontWeight="extrabold" fontSize="28px">
                     Project
                 </Text>
