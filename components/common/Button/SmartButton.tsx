@@ -9,6 +9,7 @@ import { forceQuickAccountRefresh } from '@app/util/web3';
 import { useRouter } from 'next/dist/client/router';
 import { gaEvent } from '@app/util/analytics';
 import { handleApiResponse } from '@app/util/misc';
+import { useMultisig } from '@app/hooks/useSafeMultisig';
 
 /**
  * "Smart" Button :
@@ -17,6 +18,7 @@ import { handleApiResponse } from '@app/util/misc';
  * If there's an error there will be a notification (transaction case or not)
  *  **/
 export const SmartButton = (props: SmartButtonProps) => {
+    const { isMultisig } = useMultisig();
     const { connector } = useWeb3React<Web3Provider>();
 
     const { query } = useRouter();
@@ -77,7 +79,7 @@ export const SmartButton = (props: SmartButtonProps) => {
             }
         }
 
-        if(btnProps.needPoaFirst) {
+        if(!isMultisig && btnProps.needPoaFirst) {
             const customEvent = new CustomEvent('poa-modal', { detail: { onOk: () => () => submitClick() } });
             document.dispatchEvent(customEvent);
         } else {
