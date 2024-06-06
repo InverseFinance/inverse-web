@@ -165,13 +165,6 @@ export const RateComparator = () => {
         label="Stablecoin Borrow Rate Comparison"
         description="Across major DeFi lending protocols on Ethereum"
         contentBgColor="gradient3"
-        headerProps={{
-            direction: { base: 'column', md: 'row' },
-            align: { base: 'flex-start', md: 'flex-end' },
-        }}
-        right={
-            <Text fontWeight="extrabold" fontSize={isSmallerThan ? '16px' : '24px'}>Rethink the Way You Borrow!</Text>
-        }
     >
         {
             data?.rates?.length && isSmallerThan && <Table

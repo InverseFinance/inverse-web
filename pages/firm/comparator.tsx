@@ -1,18 +1,20 @@
-import { HStack, Stack, Text, VStack } from '@chakra-ui/react'
+import { HStack, SimpleGrid, Text, VStack } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { RateComparator } from '@app/components/F2/RateComparator'
-import { InfoMessage } from '@app/components/common/Messages'
 import { useDBRMarkets } from '@app/hooks/useDBR'
 import { MarketImage } from '@app/components/common/Assets/MarketImage'
 import Link from '@app/components/common/Link'
 import { FirmFAQ } from '@app/components/F2/Infos/FirmFAQ'
 import Container from '@app/components/common/Container'
+import { SplashedText } from '@app/components/common/SplashedText'
+import { useAppTheme } from '@app/hooks/useAppTheme'
 
 export const RateComparatorPage = () => {
     const { markets, isLoading } = useDBRMarkets();
+    const { themeStyles } = useAppTheme();
     markets.sort((a, b) => a.name < b.name ? -1 : 1)
     return (
         <Layout>
@@ -26,7 +28,26 @@ export const RateComparatorPage = () => {
             </Head>
             <AppNav active="More" activeSubmenu="Compare Rates" />
             <ErrorBoundary>
-                <VStack spacing='8' w='full' w="80rem" maxW="95vw" mt="4">
+                <VStack spacing='8' w="80rem" maxW="95vw" mt="4">
+                    <SplashedText
+                        as="h1"
+                        color={`${themeStyles?.colors.mainTextColor}`}
+                        fontSize={{ base: '24px', lg: '38px' }}
+                        fontWeight="800"
+                        lineHeight='1'
+                        splashProps={{
+                            opacity: 0.6,
+                            minH: '10px',
+                            h: { base: '10px', lg: '30px' },
+                            w: { base: '110px', lg: '200px' },
+                            left: '-50px',
+                            top: { base: '15px', lg: '10px' }
+                        }
+                        }
+                    >
+                        Rethink The Way You Borrow
+                    </SplashedText>
+                    {/* <Image src="/assets/social-previews/firm.png" w="600px"  /> */}
                     <RateComparator />
                     <Container
                         noPadding
@@ -35,20 +56,20 @@ export const RateComparatorPage = () => {
                         description="Go to FiRM"
                         href="/firm"
                     >
-                        <Stack spacing="4" direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
+                        <SimpleGrid minChildWidth="120px" gap="4" w='full'>
                             {
                                 isLoading ? <Text>...</Text> : markets
                                     .filter(m => !m.borrowPaused)
                                     .map(m => {
                                         return <HStack key={m.name}>
                                             <MarketImage imgProps={{ borderRadius: '50px' }}  {...m} size={30} image={m.underlying.image} />
-                                            <Link target="_blank" fontSize="20px" fontWeight='extrabold' href={`/firm/${m.name}`} textDecoration="underline" cursor="pointer">
+                                            <Link isExternal={true} target="_blank" fontSize="20px" fontWeight='extrabold' href={`/firm/${m.name}`} textDecoration="underline" cursor="pointer">
                                                 {m.name}
                                             </Link>
                                         </HStack>
                                     })
                             }
-                        </Stack>
+                        </SimpleGrid>
                     </Container>
                     <FirmFAQ />
                 </VStack>

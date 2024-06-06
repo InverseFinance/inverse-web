@@ -50,13 +50,12 @@ export const FAQ = ({
         label={label}
         labelProps={labelProps}
         noPadding
-        p="0"
+        p="0"        
         collapsable={collapsable}
-        defaultCollapse={defaultCollapse}
-        lineHeight="0"
-        fontSize={smaller ? '14px' : undefined}
+        defaultCollapse={defaultCollapse}        
+        fontSize={smaller ? '14px' : undefined}        
     >
-        <Accordion w='full' allowMultiple>
+        <Accordion w='full'  allowMultiple>
             {
                 items.map((item, i) => {
                     return <AccordionItem border="none" borderBottom={i < (items.length - 1) ? `1px solid ${themeStyles.colors.mainTextColor}33` : 'none'} key={item.title}>
