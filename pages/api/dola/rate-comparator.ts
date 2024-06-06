@@ -5,7 +5,7 @@ import { NetworkIds } from '@app/types';
 import { getAaveV3Rate, getAaveV3RateDAI, getCompoundRate, getCrvUSDRate, getFirmRate, getSiloRate } from '@app/util/borrow-rates-comp';
 
 export default async function handler(req, res) {
-  const cacheKey = `borrow-rates-compare-v1.0.3`;
+  const cacheKey = `borrow-rates-compare-v1.1.0`;
 
   try {
     const cacheDuration = 600;
@@ -21,8 +21,8 @@ export default async function handler(req, res) {
 
     const rates = await Promise.all([
       getSiloRate(),
-      getAaveV3Rate(),
-      getAaveV3RateDAI(),
+      getAaveV3Rate(provider),
+      getAaveV3RateDAI(provider),
       getCompoundRate(),
       // WBTC market
       getCrvUSDRate('0xE0438Eb3703bF871E31Ce639bd351109c88666ea', 'WBTC', provider),
