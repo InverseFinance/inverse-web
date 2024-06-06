@@ -75,7 +75,7 @@ const RateType = ({ type, isMobile = false }: { type: string, isMobile: boolean 
 const RateListItem = ({ project, borrowRate, borrowToken, collateral, type }) => {
     return <>
         <Project project={project} />
-        <CollateralToken project={project} collateral={collateral || 'Misc'} />
+        <CollateralToken project={project} collateral={collateral || 'Multiple'} />
         <Text fontWeight="extrabold" fontSize="24px">
             {borrowRate ? shortenNumber(borrowRate, 2) + '%' : '-'}
         </Text>
@@ -115,7 +115,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
         value: ({ project, collateral }) => {
             return <Cell minWidth="70px" alignItems="center" justify="center" >
-                <CollateralToken isMobile={true} project={project} collateral={collateral || 'Misc'} />
+                <CollateralToken isMobile={true} project={project} collateral={collateral || 'Multiple'} />
             </Cell>
         },
     },
@@ -161,7 +161,7 @@ export const RateComparator = () => {
         noPadding
         contentProps={{ p: { base: '2', sm: '8' } }}
         label="Stablecoin Borrow Rate Comparison"
-        description="Accross major DeFi lending protocols on Ethereum for DOLA, USDC, DAI & crvUSD"
+        description="Across major DeFi lending protocols on Ethereum for DOLA, USDC, DAI & crvUSD"
         contentBgColor="gradient3"
     >
         {
