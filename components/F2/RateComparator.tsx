@@ -169,7 +169,7 @@ export const RateComparator = () => {
         {
             data?.rates?.length && isSmallerThan && <Table
                 keyName="key"
-                pinnedItems={['FiRM']}
+                pinnedItems={['FiRM-multiple-DOLA']}
                 pinnedLabels={['']}
                 noDataMessage="Loading..."
                 columns={columns}
