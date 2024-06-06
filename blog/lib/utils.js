@@ -1,9 +1,20 @@
 import { getPinnedPost, getAllPostsForHome, getAuthors, getCategories, getPostAndMorePosts, getTag, getLandingPosts } from './api';
 import { BLOG_PAGINATION_SIZE } from './constants';
+import { isInvalidGenericParam } from '@app/util/redis';
 
 export const getBlogContext = (context) => {
     const { slug } = context.params || { slug: ['en-US'] };
     const { previewKey } = context.query || {};
+
+    if (slug.some(p => isInvalidGenericParam(p))) {
+        return {
+            locale: 'en-US',
+            category: 'home',
+            byAuthor: '',
+            byTag: '',
+            isPreviewUrl: false,
+        }
+    }
 
     return {
         locale: (slug[0] || 'en-US').replace('undefined', 'en-US'),
