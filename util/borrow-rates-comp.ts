@@ -1,5 +1,9 @@
 import { Contract } from "ethers";
 import { getDbrPriceOnCurve } from "./f2";
+import { formatUnits } from "@ethersproject/units";
+
+const USDC = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
+const DAI = '0x6B175474E89094C44Da98b954EedeAC495271d0F'
 
 export const getSiloRate = async () => {
     try {
@@ -56,34 +60,54 @@ export const getCrvUSDRate = async (market: string, collateral: string, provider
 //     return { project: 'Aave V3', type: 'variable', borrowRate: 0 };
 // }
 
-export const getAaveV3RateDAI = async () => {
-    const from = Math.floor(+(new Date()) / 1000) - 40000;
+export const getAaveV3RateDAI = async (provider) => {
+    // const from = Math.floor(+(new Date()) / 1000) - 40000;
     try {
-        const res = await fetch(`https://aave-api-v2.aave.com/data/rates-history?reserveId=0x6b175474e89094c44da98b954eedeac495271d0f0x2f39d218133AFaB8F2B819B1066c7E434Ad94E9e1&from=${from}&resolutionInHours=6`, {
-            "headers": {
-                "accept": "*/*",
-                "accept-language": "en-GB,en;q=0.6",
-            },
-        });
-        const data = await res.json();
-        return { project: 'Aave V3', type: 'variable', borrowRate: data[data.length - 1].variableBorrowRate_avg * 100, borrowToken: 'DAI' }
+        const contract = new Contract('0x7B4EB56E7CD4b454BA8ff71E4518426369a138a3', [{ "inputs": [{ "internalType": "address", "name": "asset", "type": "address" }], "name": "getReserveData", "outputs": [{ "internalType": "uint256", "name": "unbacked", "type": "uint256" }, { "internalType": "uint256", "name": "accruedToTreasuryScaled", "type": "uint256" }, { "internalType": "uint256", "name": "totalAToken", "type": "uint256" }, { "internalType": "uint256", "name": "totalStableDebt", "type": "uint256" }, { "internalType": "uint256", "name": "totalVariableDebt", "type": "uint256" }, { "internalType": "uint256", "name": "liquidityRate", "type": "uint256" }, { "internalType": "uint256", "name": "variableBorrowRate", "type": "uint256" }, { "internalType": "uint256", "name": "stableBorrowRate", "type": "uint256" }, { "internalType": "uint256", "name": "averageStableBorrowRate", "type": "uint256" }, { "internalType": "uint256", "name": "liquidityIndex", "type": "uint256" }, { "internalType": "uint256", "name": "variableBorrowIndex", "type": "uint256" }, { "internalType": "uint40", "name": "lastUpdateTimestamp", "type": "uint40" }], "stateMutability": "view", "type": "function" }], provider);
+        const [
+            // res, 
+            reserveData,
+        ] = await Promise.all([
+            // fetch(`https://aave-api-v2.aave.com/data/rates-history?reserveId=0x6b175474e89094c44da98b954eedeac495271d0f0x2f39d218133AFaB8F2B819B1066c7E434Ad94E9e1&from=${from}&resolutionInHours=6`, {
+            //     "headers": {
+            //         "accept": "*/*",
+            //         "accept-language": "en-GB,en;q=0.6",
+            //     },
+            // }),
+            contract.getReserveData(DAI),
+        ],
+        );
+        // const data = await res.json();
+        const reserveDataBorrowRate = parseFloat(formatUnits(reserveData[6], 25));
+        return { project: 'Aave V3', type: 'variable', borrowRate: reserveDataBorrowRate, borrowToken: 'DAI' }
+        // return { project: 'Aave V3', type: 'variable', borrowRate: data[data.length - 1].variableBorrowRate_avg * 100, borrowToken: 'DAI' }
     } catch (e) {
         console.log('Err fetching aave rate')
     }
     return { project: 'Aave V3', type: 'variable', borrowRate: 0, borrowToken: 'DAI' };
 }
 
-export const getAaveV3Rate = async () => {
-    const from = Math.floor(+(new Date()) / 1000) - 40000;
+export const getAaveV3Rate = async (provider) => {
+    // const from = Math.floor(+(new Date()) / 1000) - 40000;
     try {
-        const res = await fetch(`https://aave-api-v2.aave.com/data/rates-history?reserveId=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb480x2f39d218133AFaB8F2B819B1066c7E434Ad94E9e1&from=${from}&resolutionInHours=6`, {
-            "headers": {
-                "accept": "*/*",
-                "accept-language": "en-GB,en;q=0.6",
-            },
-        });
-        const data = await res.json();
-        return { project: 'Aave V3', type: 'variable', borrowRate: data[data.length - 1].variableBorrowRate_avg * 100 }
+        const contract = new Contract('0x7B4EB56E7CD4b454BA8ff71E4518426369a138a3', [{ "inputs": [{ "internalType": "address", "name": "asset", "type": "address" }], "name": "getReserveData", "outputs": [{ "internalType": "uint256", "name": "unbacked", "type": "uint256" }, { "internalType": "uint256", "name": "accruedToTreasuryScaled", "type": "uint256" }, { "internalType": "uint256", "name": "totalAToken", "type": "uint256" }, { "internalType": "uint256", "name": "totalStableDebt", "type": "uint256" }, { "internalType": "uint256", "name": "totalVariableDebt", "type": "uint256" }, { "internalType": "uint256", "name": "liquidityRate", "type": "uint256" }, { "internalType": "uint256", "name": "variableBorrowRate", "type": "uint256" }, { "internalType": "uint256", "name": "stableBorrowRate", "type": "uint256" }, { "internalType": "uint256", "name": "averageStableBorrowRate", "type": "uint256" }, { "internalType": "uint256", "name": "liquidityIndex", "type": "uint256" }, { "internalType": "uint256", "name": "variableBorrowIndex", "type": "uint256" }, { "internalType": "uint40", "name": "lastUpdateTimestamp", "type": "uint40" }], "stateMutability": "view", "type": "function" }], provider);
+        const [
+            // res,
+            reserveData,
+        ] = await Promise.all([
+            // fetch(`https://aave-api-v2.aave.com/data/rates-history?reserveId=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb480x2f39d218133AFaB8F2B819B1066c7E434Ad94E9e1&from=${from}&resolutionInHours=6`, {
+            //     "headers": {
+            //         "accept": "*/*",
+            //         "accept-language": "en-GB,en;q=0.6",
+            //     },
+            // }),
+            contract.getReserveData(USDC),
+        ],
+        );
+        // const data = await res.json();
+        const reserveDataBorrowRate = parseFloat(formatUnits(reserveData[6], 25));
+        // return { project: 'Aave V3', type: 'variable', borrowRate: data[data.length - 1].variableBorrowRate_avg * 100 }
+        return { project: 'Aave V3', type: 'variable', borrowRate: reserveDataBorrowRate }
     } catch (e) {
         console.log('Err fetching aave rate')
     }
