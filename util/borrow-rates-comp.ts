@@ -1,7 +1,7 @@
 import { Contract } from "ethers";
 import { getDbrPriceOnCurve } from "./f2";
 import { formatUnits } from "@ethersproject/units";
-import { aprToApy } from "./markets";
+import { aprToApy, getBnToNumber } from "./markets";
 
 const USDC = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
 const DAI = '0x6B175474E89094C44Da98b954EedeAC495271d0F'
@@ -63,6 +63,20 @@ const getAaveRate = async (provider, underlying: string, symbol: string) => {
     return { project: 'Aave V3', type: 'variable', borrowRate: 0, borrowToken: symbol };
 }
 
+export const getFraxRate = async (provider, fraxlendMarket: string, collateral: string) => {
+    try {
+        const contract = new Contract(fraxlendMarket, ["function currentRateInfo() public view returns(tuple(uint64,uint64,uint64,uint64))"], provider);
+        const infos = await contract.currentRateInfo();
+        const ratePerSec = getBnToNumber(infos[3]);
+        const apr = ratePerSec * 86400 * 365 * 100;
+        const apy = aprToApy(apr, 365);
+        return { project: 'Frax', type: 'variable', borrowRate: apy, borrowToken: 'FRAX', collateral, ratePerSec }
+    } catch (e) {
+        console.log('Err fetching frax rate')
+    }
+    return { project: 'Frax', type: 'variable', borrowRate: 0, borrowToken: 'FRAX', collateral };
+}
+
 export const getAaveV3RateDAI = async (provider) => {
     return getAaveRate(provider, DAI, 'DAI');
 }
@@ -73,9 +87,9 @@ export const getAaveV3Rate = async (provider) => {
 
 export const getFirmRate = async (provider) => {
     try {
-        return { project: 'FiRM', borrowRate: (await getDbrPriceOnCurve(provider)).priceInDola * 100, type: 'fixed' }
+        return { project: 'FiRM', borrowRate: (await getDbrPriceOnCurve(provider)).priceInDola * 100, type: 'fixed', borrowToken: 'DOLA' }
     } catch (e) {
         console.log('Err fetching compound rate');
     }
-    return { project: 'FiRM', borrowRate: 0, type: 'fixed' };
+    return { project: 'FiRM', borrowRate: 0, type: 'fixed', borrowToken: 'DOLA' };
 }

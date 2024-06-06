@@ -9,6 +9,7 @@ import { useAppTheme } from "@app/hooks/useAppTheme";
 import Table from "../common/Table";
 
 const projectImages = {
+    'Frax': 'https://icons.llamao.fi/icons/protocols/frax?w=48&h=48',
     'Curve': 'https://icons.llamao.fi/icons/protocols/curve?w=48&h=48',
     'Aave V3': 'https://icons.llamao.fi/icons/protocols/aave-v3?w=48&h=48',
     'Silo': 'https://icons.llamao.fi/icons/protocols/silo?w=48&h=48',
@@ -154,14 +155,15 @@ const columns = [
 const mobileThreshold = 1000;
 
 export const RateComparator = () => {
-    const { data } = useCustomSWR('/api/dola/rate-comparator');
+    const { data } = useCustomSWR('/api/dola/rate-comparator?');
     const [isSmallerThan] = useMediaQuery(`(max-width: ${mobileThreshold}px)`);
 
     return <Container
         noPadding
+        p='0'
         contentProps={{ p: { base: '2', sm: '8' } }}
         label="Stablecoin Borrow Rate Comparison"
-        description="Across major DeFi lending protocols on Ethereum for DOLA, USDC, DAI & crvUSD"
+        description="Across major DeFi lending protocols on Ethereum"
         contentBgColor="gradient3"
     >
         {

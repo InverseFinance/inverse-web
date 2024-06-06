@@ -2,7 +2,7 @@ import 'source-map-support'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types';
-import { getAaveV3Rate, getAaveV3RateDAI, getCompoundRate, getCrvUSDRate, getFirmRate, getSiloRate } from '@app/util/borrow-rates-comp';
+import { getAaveV3Rate, getAaveV3RateDAI, getCompoundRate, getCrvUSDRate, getFirmRate, getFraxRate, getSiloRate } from '@app/util/borrow-rates-comp';
 
 export default async function handler(req, res) {
   const cacheKey = `borrow-rates-compare-v1.1.0`;
@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     const provider = getProvider(NetworkIds.mainnet);
 
     const rates = await Promise.all([
-      getSiloRate(),
+      // getSiloRate(),
       getAaveV3Rate(provider),
       getAaveV3RateDAI(provider),
       getCompoundRate(),
@@ -28,6 +28,8 @@ export default async function handler(req, res) {
       getCrvUSDRate('0xE0438Eb3703bF871E31Ce639bd351109c88666ea', 'WBTC', provider),
       // wstETH
       getCrvUSDRate('0x37417B2238AA52D0DD2D6252d989E728e8f706e4', 'wstETH', provider),
+      getFraxRate(provider, '0x32467a5fc2d72D21E8DCe990906547A2b012f382', 'WBTC'),
+      getFraxRate(provider, '0x78bB3aEC3d855431bd9289fD98dA13F9ebB7ef15', 'sfrxETH'),
       getFirmRate(provider),
     ]);
 
@@ -37,7 +39,7 @@ export default async function handler(req, res) {
 
     const result = {
       timestamp: Date.now(),
-      rates: rates.map(rate => ({ ...rate, key: `${rate.project}-${rate.collateral}-${rate.borrowToken}` })),
+      rates: rates.map(rate => ({ ...rate, key: `${rate.project}-${rate.collateral||'multiple'}-${rate.borrowToken||'USDC'}` })),
     };
 
     await redisSetWithTimestamp(cacheKey, result);
