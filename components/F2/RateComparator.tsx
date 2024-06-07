@@ -46,7 +46,7 @@ const Project = ({ project }: { project: string }) => {
 
 const RateType = ({ type, isMobile = false }: { type: string, isMobile: boolean }) => {
     const { themeStyles } = useAppTheme();
-    const fontSize = isMobile ? '16px' : '24px';
+    const fontSize = isMobile ? '16px' : '26px';
     return <HStack spacing="0">
         <Text zIndex="9" fontWeight="extrabold" fontSize={fontSize} color={type === 'fixed' ? 'success' : 'warning'} textTransform="capitalize">
             {type}
@@ -122,7 +122,7 @@ const columns = [
     },
     {
         field: 'borrowRate',
-        label: 'Borrow Rate',
+        label: 'Borrow APY',
         header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
         value: ({ borrowRate }) => {
             return <Cell minWidth="70px" alignItems="center" justify="center" >
@@ -155,7 +155,7 @@ const columns = [
 const mobileThreshold = 1000;
 
 export const RateComparator = () => {
-    const { data } = useCustomSWR('/api/dola/rate-comparator?');
+    const { data } = useCustomSWR('/api/dola/rate-comparator?v=1.1.1');
     const [isSmallerThan] = useMediaQuery(`(max-width: ${mobileThreshold}px)`);
     const rates = (data?.rates?.filter(r => !!r.borrowRate) || []);
 
@@ -184,7 +184,7 @@ export const RateComparator = () => {
             />
         }
         {
-            rates.length && isSmallerThan && <SkeletonBlob w='full' />
+            !rates.length && isSmallerThan && <SkeletonBlob w='full' />
         }
         {
             !isSmallerThan && <SimpleGrid gap="5" w='full' columns={5}>
@@ -195,7 +195,7 @@ export const RateComparator = () => {
                     Collateral
                 </Text>
                 <Text fontWeight="extrabold" fontSize="28px">
-                    Borrow Rate
+                    Borrow APY
                 </Text>                
                 <Text fontWeight="extrabold" fontSize="28px">
                     Borrow Token

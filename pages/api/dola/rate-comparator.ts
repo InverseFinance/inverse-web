@@ -2,10 +2,10 @@ import 'source-map-support'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types';
-import { getAaveV3Rate, getAaveV3RateDAI, getCompoundRate, getCrvUSDRate, getFirmRate, getFraxRate, getSiloRate } from '@app/util/borrow-rates-comp';
+import { getAaveV3Rate, getAaveV3RateDAI, getCompoundRate, getCrvUSDRate, getFirmRate, getFraxRate } from '@app/util/borrow-rates-comp';
 
 export default async function handler(req, res) {
-  const cacheKey = `borrow-rates-compare-v1.1.0`;
+  const cacheKey = `borrow-rates-compare-v1.1.1`;
 
   try {
     const cacheDuration = 600;
@@ -20,10 +20,9 @@ export default async function handler(req, res) {
     const provider = getProvider(NetworkIds.mainnet);
 
     const rates = await Promise.all([
-      // getSiloRate(),
       getAaveV3Rate(provider),
       getAaveV3RateDAI(provider),
-      getCompoundRate(),
+      getCompoundRate(provider),
       // WBTC market
       getCrvUSDRate('0xE0438Eb3703bF871E31Ce639bd351109c88666ea', 'WBTC', provider),
       // wstETH

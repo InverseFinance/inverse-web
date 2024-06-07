@@ -40,14 +40,13 @@ export const RateComparatorPage = () => {
                             minH: '10px',
                             h: { base: '10px', lg: '30px' },
                             w: { base: '110px', lg: '200px' },
-                            left: '-50px',
+                            left: { base: '-20px', lg: '-50px' },
                             top: { base: '15px', lg: '10px' }
                         }
                         }
                     >
                         Rethink The Way You Borrow
                     </SplashedText>
-                    {/* <Image src="/assets/social-previews/firm.png" w="600px"  /> */}
                     <RateComparator />
                     <Container
                         noPadding
