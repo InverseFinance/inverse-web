@@ -2,6 +2,7 @@ import { Contract } from "ethers";
 import { getDbrPriceOnCurve } from "./f2";
 import { formatUnits } from "@ethersproject/units";
 import { aprToApy, getBnToNumber } from "./markets";
+import { BLOCKS_PER_YEAR } from "@app/config/constants";
 
 const USDC = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
 const DAI = '0x6B175474E89094C44Da98b954EedeAC495271d0F'
@@ -24,11 +25,17 @@ export const getSiloRate = async () => {
     return { project: 'Silo', type: 'variable', borrowRate: 0 };
 }
 
-export const getCompoundRate = async () => {
+export const getCompoundRate = async (provider) => {
     try {
-        const res = await fetch("https://v3-api.compound.finance/market/all-networks/all-contracts/summary");
-        const data = await res.json();
-        return { project: 'Compound', type: 'variable', borrowRate: parseFloat(data.find(r => r.comet.address === '0xc3d688b66703497daa19211eedff47f25384cdc3').borrow_apr) * 100 }
+        const contract = new Contract('0xc3d688B66703497DAA19211EEdff47f25384cdc3', [
+            'function getUtilization() public view returns(uint)',
+            'function getBorrowRate(uint) public view returns(uint)',
+        ], provider);
+        const utilization = await contract.getUtilization();
+        const ratePerSec = await contract.getBorrowRate(utilization);
+        const borrowApr = ratePerSec * 365 * 86400 / 1e18 * 100;
+        const borrowApy = aprToApy(borrowApr, BLOCKS_PER_YEAR);
+        return { project: 'Compound', type: 'variable', borrowRate: borrowApy, borrowApr }
     } catch (e) {
         console.log('Err fetching compound rate');
     }
@@ -41,7 +48,7 @@ export const getCrvUSDRate = async (market: string, collateral: string, provider
         const contract = new Contract(market, ['function rate() public view returns (uint)'], provider);
         const rate = await contract.rate();
         const borrowApr = rate * 365 * 86400 / 1e18;
-        const borrowApy = (Math.pow(1 + (borrowApr) / 2609750, 2609750) - 1) * 100;
+        const borrowApy = (Math.pow(1 + (borrowApr) / BLOCKS_PER_YEAR, BLOCKS_PER_YEAR) - 1) * 100;
         return { project: 'Curve', type: 'variable', collateral, borrowRate: borrowApy, borrowToken: 'crvUSD' }
     } catch (e) {
         console.log('Err fetching crvUsd rate');
@@ -69,7 +76,7 @@ export const getFraxRate = async (provider, fraxlendMarket: string, collateral: 
         const infos = await contract.currentRateInfo();
         const ratePerSec = getBnToNumber(infos[3]);
         const apr = ratePerSec * 86400 * 365 * 100;
-        const apy = aprToApy(apr, 365);
+        const apy = aprToApy(apr, BLOCKS_PER_YEAR);
         return { project: 'Frax', type: 'variable', borrowRate: apy, borrowToken: 'FRAX', collateral, ratePerSec }
     } catch (e) {
         console.log('Err fetching frax rate')
