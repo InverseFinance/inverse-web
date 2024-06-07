@@ -157,7 +157,7 @@ const mobileThreshold = 1000;
 export const RateComparator = () => {
     const { data } = useCustomSWR('/api/dola/rate-comparator?');
     const [isSmallerThan] = useMediaQuery(`(max-width: ${mobileThreshold}px)`);
-    const rates = data?.rates?.filter(r => !!r.borrowRate);
+    const rates = (data?.rates?.filter(r => !!r.borrowRate) || []);
 
     return <Container
         noPadding
