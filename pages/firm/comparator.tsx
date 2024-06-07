@@ -11,6 +11,7 @@ import { FirmFAQ } from '@app/components/F2/Infos/FirmFAQ'
 import Container from '@app/components/common/Container'
 import { SplashedText } from '@app/components/common/SplashedText'
 import { useAppTheme } from '@app/hooks/useAppTheme'
+import { SkeletonBlob } from '@app/components/common/Skeleton'
 
 export const RateComparatorPage = () => {
     const { markets, isLoading } = useDBRMarkets();
@@ -57,7 +58,7 @@ export const RateComparatorPage = () => {
                     >
                         <SimpleGrid minChildWidth="120px" gap="4" w='full'>
                             {
-                                isLoading ? <Text>...</Text> : markets
+                                isLoading ? <SkeletonBlob noOfLines={1} w='full' h='30px' /> : markets
                                     .filter(m => !m.borrowPaused)
                                     .map(m => {
                                         return <HStack key={m.name}>
