@@ -157,6 +157,7 @@ const mobileThreshold = 1000;
 export const RateComparator = () => {
     const { data } = useCustomSWR('/api/dola/rate-comparator?');
     const [isSmallerThan] = useMediaQuery(`(max-width: ${mobileThreshold}px)`);
+    const rates = data?.rates?.filter(r => !!r.borrowRate);
 
     return <Container
         noPadding
@@ -167,13 +168,13 @@ export const RateComparator = () => {
         contentBgColor="gradient3"
     >
         {
-            data?.rates?.length && isSmallerThan && <Table
+            rates.length && isSmallerThan && <Table
                 keyName="key"
                 pinnedItems={['FiRM-multiple-DOLA']}
                 pinnedLabels={['']}
                 noDataMessage="Loading..."
                 columns={columns}
-                items={data?.rates}
+                items={rates}
                 defaultSort={'borrowRate'}
                 defaultSortDir="asc"
                 enableMobileRender={true}
@@ -183,7 +184,7 @@ export const RateComparator = () => {
             />
         }
         {
-            !data?.rates?.length && isSmallerThan && <SkeletonBlob w='full' />
+            rates.length && isSmallerThan && <SkeletonBlob w='full' />
         }
         {
             !isSmallerThan && <SimpleGrid gap="5" w='full' columns={5}>
@@ -203,7 +204,7 @@ export const RateComparator = () => {
                     Rate type
                 </Text>
                 {
-                    !data?.rates && <>
+                    !rates && <>
                         <SkeletonBlob w='full' />
                         <SkeletonBlob w='full' />
                         <SkeletonBlob w='full' />
@@ -212,7 +213,7 @@ export const RateComparator = () => {
                     </>
                 }
                 {
-                    data?.rates.map((rate, i) => {
+                    rates.map((rate, i) => {
                         return <RateListItem key={rate.key} {...rate} />
                     })
                 }
