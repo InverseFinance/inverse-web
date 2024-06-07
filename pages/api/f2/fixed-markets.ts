@@ -149,7 +149,7 @@ export default async function handler(req, res) {
       getDSRData(),
       getStCvxData(),
       getStYethData(),
-      getSFraxData(),
+      getSFraxData(provider),
     ]);
 
     let [stethData, stYcrvData, cvxCrvData, cvxFxsData, dsrData, stCvxData, stYethData, sFraxData] = externalYieldResults.map(r => {
