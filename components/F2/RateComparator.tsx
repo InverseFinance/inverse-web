@@ -183,6 +183,10 @@ export const RateComparator = () => {
                 mobileThreshold={mobileThreshold}
                 showRowBorder={true}
                 spacing="0"
+                onClick={(item) => {
+                    window.open(item.link, '_blank')
+                }}
+                mobileClickBtnLabel="View Market"
             />
         }
         {
