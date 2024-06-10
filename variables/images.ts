@@ -28,6 +28,7 @@ export const TOKEN_IMAGES = {
     "INV": IMAGES.INV,
     "DBR": IMAGES.DBR,
     "THREECRV": IMAGES["3CRV"],
+    "EUSD": 'https://assets.coingecko.com/coins/images/28445/standard/0xa0d69e286b938e21cbf7e51d71f6a4c8918f482f.png?1696527441',
     "sfrxETH": "https://assets.coingecko.com/coins/images/28285/standard/sfrxETH_icon.png?1696527285",    
     "PAL": "https://assets.coingecko.com/coins/images/24558/standard/Circle-Logo.png?1696523734",
     "RGUSD": "https://cdn.jsdelivr.net/gh/curvefi/curve-assets/images/assets/0x78da5799cf427fee11e9996982f4150ece7a99a7.png",
