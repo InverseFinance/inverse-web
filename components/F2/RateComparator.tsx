@@ -168,7 +168,7 @@ export const RateComparator = () => {
         contentBgColor="gradient3"
     >
         {
-            rates.length && isSmallerThan && <Table
+            rates.length > 0 && isSmallerThan && <Table
                 keyName="key"
                 pinnedItems={['FiRM-multiple-DOLA']}
                 pinnedLabels={['']}
@@ -204,7 +204,7 @@ export const RateComparator = () => {
                     Rate type
                 </Text>
                 {
-                    !rates && <>
+                    !rates?.length && <>
                         <SkeletonBlob w='full' />
                         <SkeletonBlob w='full' />
                         <SkeletonBlob w='full' />
