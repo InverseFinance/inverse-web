@@ -249,6 +249,9 @@ const chainTokenAddresses = {
     USDC: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
     PAL: '0x224114c444e3C3d936532fE08351648700570909',
     RGUSD: '0x8E5E9DF4F0EA39aE5270e79bbABFCc34203A3470',
+    AERODOLARGUSD: '0xBA15D0494fE4f0cAECD7730F6D77BeB6DD0feca9',
+    EUSD: '0xCfA3Ef56d303AE4fAabA0592388F19d7C3399FB4',
+    AERODOLAEUSD: '0x867dFdb75786c58f6fDf64d955EA2524A147a98C',
   },
   "81457": {
     DOLA: "0x8e38179D361402f6a94767757e807146609E9B3d",
@@ -2341,6 +2344,14 @@ const chainTokens = {
       decimals: 6,
       coingeckoId: 'usd',
     },
+    [chainTokenAddresses["8453"].EUSD]: {
+      address: chainTokenAddresses["8453"].EUSD,
+      name: 'EUSD',
+      symbol: 'EUSD',
+      image: TOKEN_IMAGES['EUSD'],
+      decimals: 18,
+      coingeckoId: 'electronic-usd',
+    },
     [chainTokenAddresses["8453"].VEAERO]: {
       address: chainTokenAddresses["8453"].VEAERO,
       name: 'veAERO',
@@ -2375,6 +2386,34 @@ const chainTokens = {
       isStable: true,
       pairs: [
         chainTokenAddresses["8453"].DOLA, chainTokenAddresses["8453"].USDC
+      ],
+      protocolImage: PROTOCOL_IMAGES.AERO,
+    },
+    [chainTokenAddresses["8453"].AERODOLARGUSD]: {
+      address: chainTokenAddresses["8453"].AERODOLARGUSD,
+      name: 'DOLA-RGUSD',
+      symbol: 'DOLA-RGUSD aerolp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,      
+      isVeloLP: true,
+      isStable: true,
+      pairs: [
+        chainTokenAddresses["8453"].DOLA, chainTokenAddresses["8453"].RGUSD
+      ],
+      protocolImage: PROTOCOL_IMAGES.AERO,
+    },
+    [chainTokenAddresses["8453"].AERODOLAEUSD]: {
+      address: chainTokenAddresses["8453"].AERODOLAEUSD,
+      name: 'DOLA-EUSD',
+      symbol: 'DOLA-EUSD aerolp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,      
+      isVeloLP: true,
+      isStable: true,
+      pairs: [
+        chainTokenAddresses["8453"].DOLA, chainTokenAddresses["8453"].EUSD
       ],
       protocolImage: PROTOCOL_IMAGES.AERO,
     },
