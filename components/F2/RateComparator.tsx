@@ -1,5 +1,5 @@
 import { useCustomSWR } from "@app/hooks/useCustomSWR"
-import { Text, Image, HStack, SimpleGrid, Stack, Flex, useMediaQuery } from "@chakra-ui/react";
+import { Text, Image, HStack, SimpleGrid, Stack, Flex, useMediaQuery, VStack } from "@chakra-ui/react";
 import Container from "../common/Container";
 import { shortenNumber } from "@app/util/markets";
 import { TOKEN_IMAGES } from "@app/variables/images";
@@ -7,6 +7,7 @@ import { SkeletonBlob } from "../common/Skeleton";
 import { SplashedText } from "../common/SplashedText";
 import { useAppTheme } from "@app/hooks/useAppTheme";
 import Table from "../common/Table";
+import Link from "../common/Link";
 
 const projectImages = {
     'Frax': 'https://icons.llamao.fi/icons/protocols/frax?w=48&h=48',
@@ -158,11 +159,12 @@ export const RateComparator = () => {
     const { data } = useCustomSWR('/api/dola/rate-comparator?v=1.1.1');
     const [isSmallerThan] = useMediaQuery(`(max-width: ${mobileThreshold}px)`);
     const rates = (data?.rates?.filter(r => !!r.borrowRate) || []);
+    const { themeStyles } = useAppTheme();
 
     return <Container
         noPadding
         p='0'
-        contentProps={{ p: { base: '2', sm: '8' } }}
+        contentProps={{ p: { base: '2', sm: '8' }, direction: 'column' }}
         label="Stablecoin Borrow Rate Comparison"
         description="Across major DeFi lending protocols on Ethereum"
         contentBgColor="gradient3"
@@ -187,37 +189,45 @@ export const RateComparator = () => {
             !rates.length && isSmallerThan && <SkeletonBlob w='full' />
         }
         {
-            !isSmallerThan && <SimpleGrid gap="5" w='full' columns={5}>
-                <Text fontWeight="extrabold" fontSize="28px">
-                    Project
-                </Text>
-                <Text fontWeight="extrabold" fontSize="28px">
-                    Collateral
-                </Text>
-                <Text fontWeight="extrabold" fontSize="28px">
-                    Borrow APY
-                </Text>                
-                <Text fontWeight="extrabold" fontSize="28px">
-                    Borrow Token
-                </Text>
-                <Text fontWeight="extrabold" fontSize="28px">
-                    Rate type
-                </Text>
-                {
-                    !rates?.length && <>
-                        <SkeletonBlob w='full' />
-                        <SkeletonBlob w='full' />
-                        <SkeletonBlob w='full' />
-                        <SkeletonBlob w='full' />
-                        <SkeletonBlob w='full' />
-                    </>
-                }
-                {
-                    rates.map((rate, i) => {
-                        return <RateListItem key={rate.key} {...rate} />
-                    })
-                }
-            </SimpleGrid>
+            !isSmallerThan && <>
+                <SimpleGrid gap="5" w='full' columns={5}>
+                    <Text fontWeight="extrabold" fontSize="28px">
+                        Project
+                    </Text>
+                    <Text fontWeight="extrabold" fontSize="28px">
+                        Collateral
+                    </Text>
+                    <Text fontWeight="extrabold" fontSize="28px">
+                        Borrow APY
+                    </Text>
+                    <Text fontWeight="extrabold" fontSize="28px">
+                        Borrow Token
+                    </Text>
+                    <Text fontWeight="extrabold" fontSize="28px">
+                        Rate type
+                    </Text>
+                    {
+                        !rates?.length && <>
+                            <SkeletonBlob w='full' />
+                            <SkeletonBlob w='full' />
+                            <SkeletonBlob w='full' />
+                            <SkeletonBlob w='full' />
+                            <SkeletonBlob w='full' />
+                        </>
+                    }
+                </SimpleGrid>
+                <VStack pt='5' spacing="0" w='full'>
+                    {
+                        rates.map((rate, i) => {
+                            return <Link borderBottom="1px solid transparent" borderTop={`1px solid ${themeStyles.colors.mainTextColorAlpha}`} py="2" transition="200 ms all" _hover={{ borderY:`1px solid ${themeStyles.colors.mainTextColor}` }} w='full' isExternal target="_blank" href={rate.link} key={rate.key}>
+                                <SimpleGrid gap="5" w='full' columns={5}>
+                                    <RateListItem {...rate} />
+                                </SimpleGrid>
+                            </Link>
+                        })
+                    }
+                </VStack>
+            </>
         }
     </Container>
 }
