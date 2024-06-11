@@ -98,8 +98,8 @@ export const CollateralRequestForm = () => {
                             onItemSelect={selectItem}
                             // InputComp={(p) => <Input isInvalid={!!defaultValue && !isAddress(defaultValue)} {...p} />}
                             list={tokens}
-                            title={"Select from the list or type a token symbol / address"}
-                            placeholder={"Select from the list or type a symbol / address"}
+                            title={"Select from the list or type in any token symbol / address"}
+                            placeholder={"Select from the list or type in any symbol / address"}
                             itemRenderer={(value, label, i, searchValue, filteredList) => {
                                 const item = filteredList[i];
                                 if (!!item?.symbol) {
