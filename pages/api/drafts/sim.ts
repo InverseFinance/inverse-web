@@ -119,7 +119,7 @@ export default async function handler(req, res) {
         ]);
       }      
       await govContract.execute(proposalId, {
-        gasLimit: 8000000,
+        gasLimit: 20000000,
       });
     }
 
