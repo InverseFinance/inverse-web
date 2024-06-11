@@ -204,6 +204,10 @@ export const MENUS = {
           href: '/firm/comparator',
         },
         {
+          label: 'Request Collateral',
+          href: '/firm/request-collateral',
+        },
+        {
           label: 'Blog',
           href: '/blog',
         },
