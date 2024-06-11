@@ -26,7 +26,7 @@ export async function fetchWithTimeout(input: RequestInfo, options: RequestInit 
     const controller = new AbortController();
 
     const id = setTimeout(async () => {
-      controller.abort();
+      controller.abort("timeout");
       if (typeof input === 'string') {
         const cachedResults: any = await localforage.getItem(input).catch(() => undefined);
         if (cachedResults) {

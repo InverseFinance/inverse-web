@@ -2,12 +2,12 @@ import { SubmitButton } from "@app/components/common/Button";
 import Container from "@app/components/common/Container";
 import { Input, Textarea } from "@app/components/common/Input";
 import { Autocomplete } from "@app/components/common/Input/Autocomplete"
-import { SuccessMessage } from "@app/components/common/Messages";
+import { InfoMessage, SuccessMessage } from "@app/components/common/Messages";
 import { UNISWAP_TOKENS } from "@app/components/ThirdParties/uniswaptokens"
 import { shortenAddress } from "@app/util";
 import { requestNewFirmCollateral } from "@app/util/analytics";
 import { getNetworkConfigConstants } from "@app/util/networks";
-import { VStack, Text, Image, Flex } from "@chakra-ui/react"
+import { VStack, Text, Image, Flex, Checkbox } from "@chakra-ui/react"
 import { useWeb3React } from "@web3-react/core";
 import { isAddress } from "ethers/lib/utils";
 import { useState } from "react"
@@ -41,6 +41,7 @@ export const CollateralRequestForm = () => {
     const [symbol, setSymbol] = useState('');
     const [description, setDescription] = useState('');
     const [isSuccess, setIsSuccess] = useState(false);
+    const [wouldUse, setWouldUse] = useState(false);
 
     const selectItem = (item) => {
         if (!!item.address) {
@@ -57,15 +58,15 @@ export const CollateralRequestForm = () => {
     }
 
     const submit = () => {
-        return requestNewFirmCollateral(value, symbol, description, account, showSuccess);
+        return requestNewFirmCollateral(value, symbol, description, wouldUse, account, showSuccess);
     }
 
     return <Container noPadding p="0" label="Request a new Collateral on FiRM">
         {
-            isSuccess ? <SuccessMessage alertProps={{ fontSize: '18px', fontWeight: 'bold', w: 'full' }} iconProps={{ height: 50, width: 50 }} description="Request submitted!" />
-                : <VStack spacing="4" w='full' alignItems="flex-start">
+            isSuccess ? <SuccessMessage alertProps={{ fontSize: '18px', fontWeight: 'bold', w: 'full' }} iconProps={{ height: 50, width: 50 }} title="Request submitted!" />
+                : <VStack spacing="6" w='full' alignItems="flex-start">
                     <VStack w='full' alignItems="flex-start">
-                        <Text fontSize="16px" fontWeight="bold">Collateral *:</Text>
+                        <Text fontSize="18px" fontWeight="bold">Collateral *:</Text>
                         <Autocomplete
                             w='full'
                             onItemSelect={selectItem}
@@ -97,12 +98,26 @@ export const CollateralRequestForm = () => {
                     </VStack>
 
                     <VStack w='full' alignItems="flex-start">
-                        <Text fontSize="16px" fontWeight="bold">Reasons why it could be a good collateral option for FiRM:</Text>
-                        <Textarea maxlength="250" w='full' minHeight="100px" resize="vertical" onChange={(e: any) => setDescription(e.target.value)} value={description} fontSize="14" placeholder={"Give a short description"} />
-                        <Text w='full' textAlign="right" fontSize="14px">{description.length} / 250 characters</Text>
+                        <Text fontSize="18px" fontWeight="bold">Would you use this new market yourself?</Text>
+                        <Checkbox isChecked={wouldUse} onChange={e => setWouldUse(!wouldUse)}>
+                            Yes I have this collateral and I would use the market
+                        </Checkbox>
                     </VStack>
 
-                    <SubmitButton isDisabled={!value && !symbol} onClick={() => submit()}>
+                    <VStack w='full' alignItems="flex-start">
+                        <Text fontSize="18px" fontWeight="bold">Reasons why it could be a good collateral option for FiRM:</Text>
+                        <Textarea maxlength="500" w='full' minHeight="200px" resize="vertical" onChange={(e: any) => setDescription(e.target.value)} value={description} fontSize="14" placeholder={"Give a short description"} />
+                        <Text w='full' textAlign="right" fontSize="14px">{description.length} / 500 characters</Text>
+                    </VStack>
+
+                    {
+                        !account && <InfoMessage
+                            alertProps={{ w: 'full' }}
+                            description="Please connect your wallet"
+                        />
+                    }
+
+                    <SubmitButton isDisabled={!account || (!value && !symbol)} onClick={() => submit()}>
                         Submit the request
                     </SubmitButton>
 
