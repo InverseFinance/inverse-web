@@ -1,14 +1,17 @@
 import { SubmitButton } from "@app/components/common/Button";
 import Container from "@app/components/common/Container";
-import { Input, Textarea } from "@app/components/common/Input";
+import { Textarea } from "@app/components/common/Input";
 import { Autocomplete } from "@app/components/common/Input/Autocomplete"
 import { InfoMessage, SuccessMessage } from "@app/components/common/Messages";
 import { UNISWAP_TOKENS } from "@app/components/ThirdParties/uniswaptokens"
+import { ERC20_ABI } from "@app/config/abis";
 import { shortenAddress } from "@app/util";
 import { requestNewFirmCollateral } from "@app/util/analytics";
 import { getNetworkConfigConstants } from "@app/util/networks";
+import { showToast } from "@app/util/notify";
 import { VStack, Text, Image, Flex, Checkbox } from "@chakra-ui/react"
 import { useWeb3React } from "@web3-react/core";
+import { Contract } from "ethers";
 import { isAddress } from "ethers/lib/utils";
 import { useState } from "react"
 
@@ -30,15 +33,17 @@ const tokens = uniqueTokens.map(t => {
         value: t.address,
         address: t.address,
         label: `${t.symbol} - ${shortenAddress(t.address)}`,
-        symbol: t?.symbol,
-        logoURI: t?.logoURI,
+        symbol: t.symbol,
+        logoURI: t.logoURI,
+        decimals: t.decimals,
     };
 })
 
 export const CollateralRequestForm = () => {
-    const { account } = useWeb3React();
+    const { account, provider } = useWeb3React();
     const [value, setValue] = useState('');
     const [symbol, setSymbol] = useState('');
+    const [decimals, setDecimals] = useState('');
     const [description, setDescription] = useState('');
     const [isSuccess, setIsSuccess] = useState(false);
     const [wouldUse, setWouldUse] = useState(false);
@@ -47,18 +52,39 @@ export const CollateralRequestForm = () => {
         if (!!item.address) {
             setValue(item?.address);
             setSymbol(item?.symbol);
+            setDecimals(item?.decimals);
         } else {
             setValue(isAddress(item?.value) ? item.value : '');
             setSymbol(isAddress(item?.value) ? '' : item.value);
+            setDecimals('');
         }
     }
 
     const showSuccess = () => {
-        setIsSuccess(true)
+        // setIsSuccess(true)
     }
 
-    const submit = () => {
-        return requestNewFirmCollateral(value, symbol, description, wouldUse, account, showSuccess);
+    const onFail = (result: any) => {
+        showToast({ title: result.message })
+    }
+
+    const submit = async () => {
+        let _symbol, _decimals;
+        if (isAddress(value) && !symbol) {
+            try {
+                const contract = new Contract(value, ERC20_ABI, provider?.getSigner());
+                const [s, d] = await Promise.all([
+                    contract.symbol(),
+                    contract.decimals(),
+                ]);
+                _symbol = s;
+                _decimals = d;
+            } catch (e) {
+                showToast({ title: 'Invalid token address', status: 'error' });
+                return;
+            }
+        }
+        return requestNewFirmCollateral(value, _symbol||symbol, description, wouldUse, account, _decimals||decimals, showSuccess, onFail);
     }
 
     return <Container noPadding p="0" label="Request a new Collateral on FiRM">

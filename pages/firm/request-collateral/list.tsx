@@ -13,7 +13,7 @@ export const F2PAGE = () => {
             </Head>
             <AppNav active="More" activeSubmenu="Request Collateral" />
             <ErrorBoundary>
-                <VStack w='full' maxW="1000px" mt="4">
+                <VStack w='full' maxW="1200px" mt="4">
                     <CollateralRequestList />
                 </VStack>
             </ErrorBoundary>

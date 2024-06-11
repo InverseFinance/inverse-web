@@ -3,8 +3,12 @@ import { InfoMessage } from "@app/components/common/Messages"
 import ScannerLink from "@app/components/common/ScannerLink"
 import { SkeletonBlob } from "@app/components/common/Skeleton"
 import Table from "@app/components/common/Table"
+import { UNISWAP_TOKENS } from "@app/components/ThirdParties/uniswaptokens"
+import { ERC20_ABI } from "@app/config/abis"
 import { useCustomSWR } from "@app/hooks/useCustomSWR"
+import useEtherSWR from "@app/hooks/useEtherSWR"
 import { NetworkIds } from "@app/types"
+import { getBnToNumber, shortenNumber } from "@app/util/markets"
 import { Flex, Text, Stack } from "@chakra-ui/react"
 import moment from "moment"
 
@@ -24,10 +28,10 @@ const columns = [
     {
         field: 'timestamp',
         label: 'Time',
-        header: ({ ...props }) => <Flex minW="100px" {...props} />,
+        header: ({ ...props }) => <Flex minW="120px" {...props} />,
         value: ({ timestamp }) => {
             return (
-                <Cell spacing="0" direction="column" w="100px" justify="flex-start">
+                <Cell spacing="0" direction="column" w="120px" justify="flex-start">
                     <Text fontWeight="bold" fontSize="12px">{moment(timestamp).fromNow()}</Text>
                     <Text fontSize="12px">{moment(timestamp).format('MMM Do YYYY')}</Text>
                 </Cell>
@@ -53,7 +57,7 @@ const columns = [
         value: ({ value }) => {
             return <Cell w="120px" justify="flex-start" position="relative" onClick={(e) => e.stopPropagation()}>
                 {
-                    !!value && <ScannerLink value={value} type="tx" chainId={NetworkIds.mainnet} />
+                    !!value ? <ScannerLink value={value} type="tx" chainId={NetworkIds.mainnet} /> : <CellText>n/a</CellText>
                 }
             </Cell>
         },
@@ -69,8 +73,20 @@ const columns = [
         },
     },
     {
+        field: 'balance',
+        label: 'User Balance',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        value: ({ value, balance }) => {            
+            return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
+                <CellText>
+                    {value ? shortenNumber(balance, 2) : 'n/a'}
+                </CellText>
+            </Cell>
+        },
+    },
+    {
         field: 'wouldUse',
-        label: 'Would use?',
+        label: 'Will use?',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ wouldUse }) => {
             return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
@@ -92,6 +108,21 @@ const columns = [
 
 export const CollateralRequestList = () => {
     const { data, error } = useCustomSWR(`/api/f2/request-collateral`);
+    const requests = data?.requests || [];
+
+    const { data: balances } = useEtherSWR({
+        abi: ERC20_ABI,
+        args: requests.map(r => {
+            return r.value ? [r.value, 'balanceOf', r.account] : ['getBalance', r.account]
+        })
+    });
+    
+    balances?.forEach((b, i) => {
+        if(requests[i].decimals) {
+            requests[i].balance = getBnToNumber(b, requests[i].decimals);
+        }        
+    });
+
     const isLoading = !data && !error;
 
     return <Container label="Collateral Requests" noPadding p="0">
@@ -99,15 +130,15 @@ export const CollateralRequestList = () => {
             isLoading && <SkeletonBlob />
         }
         {
-            !isLoading && !data?.requests?.length && <InfoMessage alertProps={{ w: 'full' }} description="No collateral requests yet" />
+            !isLoading && !requests.length && <InfoMessage alertProps={{ w: 'full' }} description="No collateral requests yet" />
         }
         {
-            data?.requests?.length > 0 && <Table
+            !!balances && requests.length > 0 && <Table
                 keyName="key"
                 columns={columns}
-                items={data?.requests}
-                sortBy="timestamp"
-                sortDir="desc"
+                items={requests}
+                defaultSort="timestamp"
+                defaultSortDir="desc"
             />
         }
     </Container>
