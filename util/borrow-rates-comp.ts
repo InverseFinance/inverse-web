@@ -38,7 +38,7 @@ export const getSiloRate = async () => {
 }
 
 export const getCompoundRate = async (provider) => {
-    const result = { project: 'Compound', type: 'variable', borrowRate: 0, link: links["compound-usdc"] }
+    const result = { project: 'Compound', type: 'variable', collateral: 'Multiple', borrowToken: 'USDC', borrowRate: 0, link: links["compound-usdc"] }
     try {
         const contract = new Contract('0xc3d688B66703497DAA19211EEdff47f25384cdc3', [
             'function getUtilization() public view returns(uint)',
@@ -72,7 +72,7 @@ export const getCrvUSDRate = async (market: string, collateral: string, provider
 
 
 const getAaveRate = async (provider, underlying: string, symbol: string) => {
-    const aaveRate = { project: 'Aave V3', type: 'variable', borrowRate: 0, borrowToken: symbol, link: links[`aave-${symbol.toLowerCase()}`] };
+    const aaveRate = { project: 'Aave V3', type: 'variable', borrowRate: 0, collateral: 'Multiple', borrowToken: symbol, link: links[`aave-${symbol.toLowerCase()}`] };
     try {
         const contract = new Contract('0x7B4EB56E7CD4b454BA8ff71E4518426369a138a3', [{ "inputs": [{ "internalType": "address", "name": "asset", "type": "address" }], "name": "getReserveData", "outputs": [{ "internalType": "uint256", "name": "unbacked", "type": "uint256" }, { "internalType": "uint256", "name": "accruedToTreasuryScaled", "type": "uint256" }, { "internalType": "uint256", "name": "totalAToken", "type": "uint256" }, { "internalType": "uint256", "name": "totalStableDebt", "type": "uint256" }, { "internalType": "uint256", "name": "totalVariableDebt", "type": "uint256" }, { "internalType": "uint256", "name": "liquidityRate", "type": "uint256" }, { "internalType": "uint256", "name": "variableBorrowRate", "type": "uint256" }, { "internalType": "uint256", "name": "stableBorrowRate", "type": "uint256" }, { "internalType": "uint256", "name": "averageStableBorrowRate", "type": "uint256" }, { "internalType": "uint256", "name": "liquidityIndex", "type": "uint256" }, { "internalType": "uint256", "name": "variableBorrowIndex", "type": "uint256" }, { "internalType": "uint40", "name": "lastUpdateTimestamp", "type": "uint40" }], "stateMutability": "view", "type": "function" }], provider);
         const reserveData = await contract.getReserveData(underlying);
@@ -109,7 +109,7 @@ export const getAaveV3Rate = async (provider) => {
 }
 
 export const getFirmRate = async (provider) => {
-    const firmRate = { project: 'FiRM', borrowRate: 0, type: 'fixed', borrowToken: 'DOLA', link: '/firm' };
+    const firmRate = { project: 'FiRM', borrowRate: 0, type: 'fixed', collateral: 'Multiple', borrowToken: 'DOLA', link: '/firm' };
     try {
         return { ...firmRate, borrowRate: (await getDbrPriceOnCurve(provider)).priceInDola * 100 }
     } catch (e) {
