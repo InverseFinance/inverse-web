@@ -61,7 +61,7 @@ export const CollateralRequestForm = () => {
     }
 
     const showSuccess = () => {
-        // setIsSuccess(true)
+        setIsSuccess(true);
     }
 
     const onFail = (result: any) => {
