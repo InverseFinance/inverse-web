@@ -10,6 +10,10 @@ export const F2PAGE = () => {
         <Layout>
             <Head>
                 <title>Inverse Finance - Requested Collaterals</title>
+                <meta name="og:title" content="Inverse Finance - Requested Requested" />
+                <meta name="og:description" content="Requested collaterals" />
+                <meta name="description" content="Requested collaterals" />
+                <meta name="keywords" content="Inverse Finance, FiRM, collateral request, collateral" />
             </Head>
             <AppNav active="More" activeSubmenu="Request Collateral" />
             <ErrorBoundary>
