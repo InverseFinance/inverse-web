@@ -12,10 +12,14 @@ import { useWeb3React } from "@web3-react/core";
 import { isAddress } from "ethers/lib/utils";
 import { useState } from "react"
 
+const { F2_MARKETS } = getNetworkConfigConstants();
+const alreadyListed = F2_MARKETS.map(m => m.collateral.toLowerCase());
+
 const uniqueAddresses = [
     ...new Set(
         UNISWAP_TOKENS
             .filter(t => t.chainId === 1)
+            .filter(t => !alreadyListed.includes(t.address.toLowerCase()))
             .map(t => t.address)
     )
 ];
@@ -31,8 +35,6 @@ const tokens = uniqueTokens.map(t => {
     };
 })
 
-const { F2_MARKETS } = getNetworkConfigConstants();
-
 export const CollateralRequestForm = () => {
     const { account } = useWeb3React();
     const [value, setValue] = useState('');
@@ -41,13 +43,13 @@ export const CollateralRequestForm = () => {
     const [isSuccess, setIsSuccess] = useState(false);
 
     const selectItem = (item) => {
-        if(!!item.address) {
+        if (!!item.address) {
             setValue(item?.address);
             setSymbol(item?.symbol);
         } else {
             setValue(isAddress(item?.value) ? item.value : '');
             setSymbol(isAddress(item?.value) ? '' : item.value);
-        }     
+        }
     }
 
     const showSuccess = () => {
@@ -60,49 +62,51 @@ export const CollateralRequestForm = () => {
 
     return <Container noPadding p="0" label="Request a new Collateral on FiRM">
         {
-            isSuccess ? <VStack spacing="4" w='full' alignItems="flex-start">
-            <VStack w='full' alignItems="flex-start">
-                <Text fontSize="16px" fontWeight="bold">Collateral:</Text>
-                <Autocomplete
-                    w='full'
-                    onItemSelect={selectItem}
-                    // InputComp={(p) => <Input isInvalid={!!defaultValue && !isAddress(defaultValue)} {...p} />}
-                    list={tokens}
-                    title={"Select from the list or type a token symbol / address"}
-                    placeholder={"Select from the list or type a symbol / address"}
-                    itemRenderer={(value, label, i, searchValue, filteredList) => {
-                        const item = filteredList[i];
-                        if (!!item?.symbol) {
-                            return (
-                                <Flex alignItems="center">
-                                    <Image src={item.logoURI} h="20px" w="20px" />
-                                    <Text ml="2" fontWeight="bold">
-                                        {item.symbol}
-                                    </Text>
-                                    <Text ml="2">
-                                        - {shortenAddress(item.value)}
-                                    </Text>
+            isSuccess ? <SuccessMessage alertProps={{ fontSize: '18px', fontWeight: 'bold', w: 'full' }} iconProps={{ height: 50, width: 50 }} description="Request submitted!" />
+                : <VStack spacing="4" w='full' alignItems="flex-start">
+                    <VStack w='full' alignItems="flex-start">
+                        <Text fontSize="16px" fontWeight="bold">Collateral *:</Text>
+                        <Autocomplete
+                            w='full'
+                            onItemSelect={selectItem}
+                            // InputComp={(p) => <Input isInvalid={!!defaultValue && !isAddress(defaultValue)} {...p} />}
+                            list={tokens}
+                            title={"Select from the list or type a token symbol / address"}
+                            placeholder={"Select from the list or type a symbol / address"}
+                            itemRenderer={(value, label, i, searchValue, filteredList) => {
+                                const item = filteredList[i];
+                                if (!!item?.symbol) {
+                                    return (
+                                        <Flex alignItems="center">
+                                            <Image src={item.logoURI} h="20px" w="20px" />
+                                            <Text ml="2" fontWeight="bold">
+                                                {item.symbol}
+                                            </Text>
+                                            <Text ml="2">
+                                                - {shortenAddress(item.value)}
+                                            </Text>
+                                        </Flex>
+                                    )
+                                }
+                                return <Flex alignItems="center">
+                                    <Text>Select unlisted item: </Text>
+                                    <Text fontWeight="bold" ml="2">{value}</Text>
                                 </Flex>
-                            )
-                        }
-                        return <Flex alignItems="center">
-                            <Text>Select unlisted item: </Text>
-                            <Text fontWeight="bold" ml="2">{value}</Text>
-                        </Flex>
-                    }}
-                />
-            </VStack>
+                            }}
+                        />
+                    </VStack>
 
-            <VStack w='full' alignItems="flex-start">
-                <Text fontSize="16px" fontWeight="bold">Why could it be a good collateral for FiRM?</Text>
-                <Textarea maxlength="250" w='full' minHeight="100px" resize="vertical" onChange={(e: any) => setDescription(e.target.value)} value={description} fontSize="14" placeholder={"Give a short description"} />
-            </VStack>
+                    <VStack w='full' alignItems="flex-start">
+                        <Text fontSize="16px" fontWeight="bold">Reasons why it could be a good collateral option for FiRM:</Text>
+                        <Textarea maxlength="250" w='full' minHeight="100px" resize="vertical" onChange={(e: any) => setDescription(e.target.value)} value={description} fontSize="14" placeholder={"Give a short description"} />
+                        <Text w='full' textAlign="right" fontSize="14px">{description.length} / 250 characters</Text>
+                    </VStack>
 
-            <SubmitButton onClick={() => submit()}>
-                Submit the request
-            </SubmitButton>
+                    <SubmitButton isDisabled={!value && !symbol} onClick={() => submit()}>
+                        Submit the request
+                    </SubmitButton>
 
-        </VStack> : <SuccessMessage alertProps={{ fontSize: '18px', fontWeight: 'bold', w: 'full' }} iconProps={{ height: 50, width: 50 }} description="Request submitted!" />
+                </VStack>
         }
     </Container>
 }

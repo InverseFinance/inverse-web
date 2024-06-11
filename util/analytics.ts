@@ -49,7 +49,7 @@ export const requestNewFirmCollateral = async (value: string, symbol: string, de
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ value, symbol, description }),
+        body: JSON.stringify({ value, symbol, description, account }),
     });
     const result = await rawResponse.json();
     if (onSuccess && result.status === 'success') { onSuccess() }
