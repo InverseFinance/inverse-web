@@ -45,7 +45,7 @@ export default async function handler(req, res) {
         const { price: dolaOnChainPrice, tvl: crvUsdDolaTvl } = await getDolaUsdPriceOnCurve(getProvider(NetworkIds.mainnet));
         
         prices['dola-onchain-usd'] = dolaOnChainPrice;
-        prices['dola-usd'] = crvUsdDolaTvl >= 1000000 ? dolaOnChainPrice : prices['dola-usd-cg'] || prices['dola-usd-lcw'];
+        prices['dola-usd'] = crvUsdDolaTvl >= 500000 ? dolaOnChainPrice : prices['dola-usd-cg'] || prices['dola-usd-lcw'];
 
         prices['_timestamp'] = +(new Date());
 
