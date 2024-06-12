@@ -156,7 +156,7 @@ const columns = [
 const mobileThreshold = 1000;
 
 export const RateComparator = () => {
-    const { data } = useCustomSWR('/api/dola/rate-comparator?v=1.1.1');
+    const { data } = useCustomSWR('/api/dola/rate-comparator?v=1.1.2');
     const [isSmallerThan] = useMediaQuery(`(max-width: ${mobileThreshold}px)`);
     const rates = (data?.rates?.filter(r => !!r.borrowRate) || []);
     const { themeStyles } = useAppTheme();
