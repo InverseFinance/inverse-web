@@ -15,6 +15,7 @@ import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
 import { answerPoll } from '@app/util/analytics'
 import { showToast } from '@app/util/notify'
 import { POLLS, ACTIVE_POLL } from '@app/variables/poll-data'
+import Link from '@app/components/common/Link'
 
 export const F2PAGE = ({
     isTwitterAlert = false
@@ -23,13 +24,26 @@ export const F2PAGE = ({
     const [radioValue, setRadioValue] = useState('');
     const { debt } = useAccountDBR(account);
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const { isOpen: crIsOpen, onOpen: crOnOpen, onClose: crOnClose } = useDisclosure();
     const { value: alreadyAnswered, setter } = useStorage(`poll-${ACTIVE_POLL}`);
+    const { value: colReqShown, setter: setColReqShown } = useStorage(`collateral-req-popup`);
 
     useDebouncedEffect(() => {
         if (!alreadyAnswered && !!ACTIVE_POLL) {
             onOpen();
         }
     }, [alreadyAnswered, ACTIVE_POLL], 2000);
+
+    useDebouncedEffect(() => {
+        if (!colReqShown) {
+            crOnOpen();
+        }
+    }, [colReqShown], 2000);
+
+    const handleColReqClose = () => {
+        setColReqShown(true);
+        crOnClose();
+    }
 
     const handleManualClose = () => {
         answerPoll(ACTIVE_POLL, 'abstain', () => {
@@ -58,14 +72,26 @@ export const F2PAGE = ({
                 <meta name="og:image" content="https://inverse.finance/assets/social-previews/firm-page.png" />
                 {
                     isTwitterAlert &&
-                        <>
-                            <meta property="twitter:card" content="summary_large_image" />
-                            <meta name="twitter:image" content="https://inverse.finance/assets/social-previews/inverse-alert.jpg" />
-                            <meta name="twitter:image:alt" content="FiRM" />
-                        </>                        
-                }      
+                    <>
+                        <meta property="twitter:card" content="summary_large_image" />
+                        <meta name="twitter:image" content="https://inverse.finance/assets/social-previews/inverse-alert.jpg" />
+                        <meta name="twitter:image:alt" content="FiRM" />
+                    </>
+                }
             </Head>
             <AppNav active="Markets" activeSubmenu="FiRM" />
+            {
+                !colReqShown && <SlideModal closeOnOutsideClick={false} closeIconInside={true} isOpen={crIsOpen} onClose={handleColReqClose} contentProps={{ maxW: '500px', className: '', backgroundColor: 'navBarBackgroundColor' }}>
+                    <VStack w='full' justify="flex-start" alignItems="flex-start">
+                        <Text fontWeight="bold" fontSize='18px'>
+                            Would you like to suggest a new Collateral on FiRM?
+                        </Text>
+                        <Link onClick={() => setColReqShown(true)} textDecoration="underline" href="/firm/request-collateral" isExternal target="_blank">
+                            Yes, take me there!
+                        </Link>
+                    </VStack>
+                </SlideModal>
+            }
             {
                 !!ACTIVE_POLL && POLLS[ACTIVE_POLL] && <SlideModal closeOnOutsideClick={false} closeIconInside={true} isOpen={isOpen} onClose={handleManualClose} contentProps={{ maxW: '500px', className: '', backgroundColor: 'navBarBackgroundColor' }}>
                     <VStack w='full' justify="flex-start" alignItems="flex-start">
