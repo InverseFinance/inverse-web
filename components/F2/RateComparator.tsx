@@ -8,6 +8,7 @@ import { SplashedText } from "../common/SplashedText";
 import { useAppTheme } from "@app/hooks/useAppTheme";
 import Table from "../common/Table";
 import Link from "../common/Link";
+import { useRouter } from "next/router";
 
 const projectImages = {
     'Frax': 'https://icons.llamao.fi/icons/protocols/frax?w=48&h=48',
@@ -74,15 +75,22 @@ const RateType = ({ type, isMobile = false }: { type: string, isMobile: boolean 
     </HStack>
 }
 
-const RateListItem = ({ project, borrowRate, borrowToken, collateral, type }) => {
-    return <>
-        <Project project={project} />
-        <CollateralToken project={project} collateral={collateral || 'Multiple'} />
-        <Text fontWeight="extrabold" fontSize="24px">
+const RateListItem = ({ fields, project, borrowRate, borrowToken, collateral, type }) => {
+    const comps = {
+        'project': <Project project={project} />,
+        'collateral': <CollateralToken project={project} collateral={collateral || 'Multiple'} />,
+        'borrowRate': <Text fontWeight="extrabold" fontSize="24px">
             {borrowRate ? shortenNumber(borrowRate, 2) + '%' : '-'}
-        </Text>
-        <ProjectToken project={project} borrowToken={borrowToken} />
-        <RateType type={type} />
+        </Text>,
+        'borrowToken': <ProjectToken project={project} borrowToken={borrowToken} />,
+        'type': <RateType type={type} />,
+    }
+    return <>
+        {
+            fields.map(f => {
+                return comps[f];
+            })
+        }
     </>
 }
 
@@ -132,7 +140,7 @@ const columns = [
         },
     },
     {
-        field: 'project',
+        field: 'borrowToken',
         label: 'Borrow Token',
         header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
         value: ({ project, borrowToken }) => {
@@ -155,10 +163,21 @@ const columns = [
 
 const mobileThreshold = 1000;
 
+const FIELDS = columns.reduce((prev, curr) => ({ ...prev, [curr.field]: curr.label }), {});
+const defaultFields = columns.map(c => c.field);
+
 export const RateComparator = () => {
+    const { query } = useRouter();
+    const fields = (query?.fields?.split(',').filter(c => defaultFields.includes(c))) || defaultFields;
+    const exclude = ((query?.exclude?.split(',')) || []).map(e => e.toLowerCase());
+    const excludeProject = ((query?.excludeProject?.split(',')) || []).map(e => e.toLowerCase());
     const { data } = useCustomSWR('/api/dola/rate-comparator?v=1.1.2');
     const [isSmallerThan] = useMediaQuery(`(max-width: ${mobileThreshold}px)`);
-    const rates = (data?.rates?.filter(r => !!r.borrowRate) || []);
+
+    const rates = (data?.rates?.filter(r => !!r.borrowRate) || [])
+        .filter(r => !exclude.includes(r.key.toLowerCase()))
+        .filter(r => !excludeProject.includes(r.project.toLowerCase()));
+
     const { themeStyles } = useAppTheme();
 
     return <Container
@@ -194,38 +213,30 @@ export const RateComparator = () => {
         }
         {
             !isSmallerThan && <>
-                <SimpleGrid gap="5" w='full' columns={5}>
-                    <Text fontWeight="extrabold" fontSize="28px">
-                        Project
-                    </Text>
-                    <Text fontWeight="extrabold" fontSize="28px">
-                        Collateral
-                    </Text>
-                    <Text fontWeight="extrabold" fontSize="28px">
-                        Borrow APY
-                    </Text>
-                    <Text fontWeight="extrabold" fontSize="28px">
-                        Borrow Token
-                    </Text>
-                    <Text fontWeight="extrabold" fontSize="28px">
-                        Rate type
-                    </Text>
+                <SimpleGrid gap="5" width={`${fields.length*250}px`} columns={fields.length}>
+                    {
+                        fields.map(f => {
+                            return <Text key={f} fontWeight="extrabold" fontSize="28px">
+                                {FIELDS[f]}
+                            </Text>
+                        })
+                    }
                     {
                         !rates?.length && <>
-                            <SkeletonBlob w='full' />
-                            <SkeletonBlob w='full' />
-                            <SkeletonBlob w='full' />
-                            <SkeletonBlob w='full' />
-                            <SkeletonBlob w='full' />
+                            {
+                                fields.map(f => {
+                                    return <SkeletonBlob key={f} w='full' />
+                                })
+                            }
                         </>
                     }
                 </SimpleGrid>
-                <VStack pt='5' spacing="0" w='full'>
+                <VStack pt='5' spacing="0" >
                     {
                         rates.map((rate, i) => {
-                            return <Link borderBottom="1px solid transparent" borderTop={`1px solid ${themeStyles.colors.mainTextColorAlpha}`} py="2" transition="200 ms all" _hover={{ borderY:`1px solid ${themeStyles.colors.mainTextColor}` }} w='full' isExternal target="_blank" href={rate.link} key={rate.key}>
-                                <SimpleGrid gap="5" w='full' columns={5}>
-                                    <RateListItem {...rate} />
+                            return <Link borderBottom="1px solid transparent" borderTop={`1px solid ${themeStyles.colors.mainTextColorAlpha}`} py="2" transition="200 ms all" _hover={{ borderY: `1px solid ${themeStyles.colors.mainTextColor}` }} w='full' isExternal target="_blank" href={rate.link} key={rate.key}>
+                                <SimpleGrid gap="5" width={`${fields.length*250}px`} columns={fields.length}>
+                                    <RateListItem fields={fields} {...rate} />
                                 </SimpleGrid>
                             </Link>
                         })
