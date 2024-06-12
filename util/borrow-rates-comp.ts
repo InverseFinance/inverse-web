@@ -1,5 +1,5 @@
 import { Contract } from "ethers";
-import { getDbrPriceOnCurve } from "./f2";
+import { getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from "./f2";
 import { formatUnits } from "@ethersproject/units";
 import { aprToApy, getBnToNumber } from "./markets";
 import { BLOCKS_PER_YEAR } from "@app/config/constants";
@@ -111,7 +111,8 @@ export const getAaveV3Rate = async (provider) => {
 export const getFirmRate = async (provider) => {
     const firmRate = { project: 'FiRM', borrowRate: 0, type: 'fixed', collateral: 'Multiple', borrowToken: 'DOLA', link: '/firm' };
     try {
-        return { ...firmRate, borrowRate: (await getDbrPriceOnCurve(provider)).priceInDola * 100 }
+        const { price: dolaPrice } = await getDolaUsdPriceOnCurve(provider);
+        return { ...firmRate, borrowRate: (await getDbrPriceOnCurve(provider)).priceInDola * dolaPrice * 100 }
     } catch (e) {
         console.log('Err fetching compound rate');
     }
