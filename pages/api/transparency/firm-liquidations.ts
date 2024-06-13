@@ -8,7 +8,7 @@ export default async function handler(req, res) {
         res.status(400).json({ msg: 'invalid request' });
         return;
     }
-    const cacheKey = `firm-${borrower?.toLowerCase() || ''}-liquidations-v1.0.0`;
+    const cacheKey = `firm-${borrower?.toLowerCase() || ''}-liquidations-v1.0.1`;
 
     try {
         const cacheDuration = 30;
@@ -21,7 +21,8 @@ export default async function handler(req, res) {
         }
 
         const result = await getFirmLiquidations({
-            borrower: borrower || ''
+            borrower: borrower || '',
+            size: 1000,
         });
 
         const liquidations = result.data.liquidates.map(d => {            
