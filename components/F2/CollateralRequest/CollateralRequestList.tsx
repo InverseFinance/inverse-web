@@ -66,7 +66,7 @@ const columns = [
         label: 'Collateral Symbol',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ symbol }) => {
-            return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
+            return <Cell w="100px" overflow="hidden" textOverflow="ellipsis" justify="center" alignItems="center" direction="column" spacing="0">
                 <CellText>{symbol}</CellText>
             </Cell>
         },
@@ -122,7 +122,7 @@ export const CollateralRequestList = () => {
         }        
     });
 
-    const isLoading = !data && !error;
+    const isLoading = !balances || (!data && !error);
 
     return <Container label="Collateral Requests" noPadding p="0">
         {
