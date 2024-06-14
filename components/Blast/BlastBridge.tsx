@@ -34,16 +34,16 @@ export const BlastBridge = () => {
     const { provider, chainId } = useWeb3React();
     const account = useAccount();
     const { themeStyles } = useAppTheme();
-    const { query } = useRouter();
+    // const { query } = useRouter();
     const isMainnet = chainId?.toString() === NetworkIds.mainnet;
 
     const [l1token, setL1token] = useState(DOLAmain);
     const [l2token, setL2token] = useState(DOLAl2);
     const [inited, setInited] = useState(false);
     const [isEthCase, setIsEthCase] = useState(false);
-    const { symbol: l2tokenSymbol, decimals: l2tokenDecimals, l1Token: l1tokenDetected } = useBlastToken(l2token);
-    const symbol = isEthCase ? 'Ether' : l2tokenSymbol;
-    const decimals = isEthCase ? 18 : l2tokenDecimals;
+    // const { symbol: l2tokenSymbol, decimals: l2tokenDecimals, l1Token: l1tokenDetected } = useBlastToken(l2token);
+    const symbol = isEthCase ? 'Ether' : 'DOLA';
+    const decimals = 18//isEthCase ? 18 : l2tokenDecimals;
 
     const { bnBalance: bnConnectedTokenBalance } = useToken(!account ? l1token : (isMainnet ? l1token : l2token), account);
     const { data: bnConnectedEthBalance } = useEtherSWR(['getBalance', account, 'latest']);
@@ -64,15 +64,15 @@ export const BlastBridge = () => {
     const [mode, setMode] = useState<'Deposit' | 'Withdraw'>('Deposit');
     const isDeposit = mode === 'Deposit';
 
-    useEffect(() => {
-        if (!query?.l2token || !utils.isAddress(query?.l2token)) return;
-        setL2token(query.l2token);
-    }, [query]);
+    // useEffect(() => {
+    //     if (!query?.l2token || !utils.isAddress(query?.l2token)) return;
+    //     setL2token(query.l2token);
+    // }, [query]);
 
-    useEffect(() => {
-        if (!l2token) return;
-        setL1token(l1tokenDetected);
-    }, [l2token, l1tokenDetected]);
+    // useEffect(() => {
+    //     if (!l2token) return;
+    //     setL1token(l1tokenDetected);
+    // }, [l2token, l1tokenDetected]);
 
     useEffect(() => {
         if (inited || !chainId) return;
