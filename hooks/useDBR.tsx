@@ -242,7 +242,7 @@ export const useAccountDBRMarket = (
   const { data: underlyingExRateData } = useEtherSWR({
     args: market.name === 'st-yCRV' ?
       [[market.collateral, 'pricePerShare']] :
-      market.name === 'st-yETH' ?
+      market.isERC4626Collateral ?
         [[market.collateral, 'convertToAssets', '1000000000000000000']]
         : [],
     abi: ['function pricePerShare() public view returns (uint)', 'function convertToAssets(uint) public view returns (uint)'],

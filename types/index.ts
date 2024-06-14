@@ -762,6 +762,7 @@ export type F2Market = {
   underlyingSymbol?: string
   aleData: { buySellToken: string, collateral: string, helper: string }
   aleTransformerType?: 'marketAddress' | ''
+  isERC4626Collateral?: boolean
 }
 
 export type FirmAction = {
