@@ -85,7 +85,10 @@ export const getLeverageImpact = async ({
     aleSlippage,
     viaInput = false,
     dolaInput,
+    underlyingExRate = 1,
 }) => {
+    // only when there is a transformation needed when using ALE, otherwise the underlyingExRate is just a ui info
+    const exRate = market?.aleData?.buySellToken?.toLowerCase() !== market?.collateral?.toLowerCase() ? underlyingExRate : 1;
     const collateralPrice = market?.price;
     if (!collateralPrice || leverageLevel <= 1) {
         return
@@ -99,10 +102,10 @@ export const getLeverageImpact = async ({
         const baseColAmountForLeverage = deposits > 0 ? deposits : initialDeposit;
         const baseWorth = baseColAmountForLeverage * collateralPrice;
         let borrowStringToSign, borrowNumToSign;
-        // precision is focused on collateral amount, only with 0x
+        // precision is focused on collateral amount, only with 0x api
         if (!viaInput) {
             const amountUp = baseColAmountForLeverage * leverageLevel - baseColAmountForLeverage;
-            const { buyAmount } = await getAleSellQuote(DOLA, market.collateral, getNumberToBn(amountUp, market.underlying.decimals).toString(), aleSlippage, true);
+            const { buyAmount } = await getAleSellQuote(DOLA, market.aleData.buySellToken||market.collateral, getNumberToBn(amountUp, market.underlying.decimals).toString(), aleSlippage, true);
             borrowStringToSign = buyAmount;
             borrowNumToSign = parseFloat(borrowStringToSign) / (1e18);
         }
@@ -116,15 +119,15 @@ export const getLeverageImpact = async ({
         }
 
         // in the end the reference is always a number of dola sold (as it's what we need to sign, or part of it if with dbr)
-        const { buyAmount, validationErrors, msg } = await getAleSellQuote(market.collateral, DOLA, borrowStringToSign, aleSlippage, true);        
+        const { buyAmount, validationErrors, msg } = await getAleSellQuote(market.aleData.buySellToken||market.collateral, DOLA, borrowStringToSign, aleSlippage, true);        
         const errorMsg = validationErrors?.length > 0 ?
             `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
             : msg;
-        if (setLeverageLoading) setLeverageLoading(false);        
+        if (setLeverageLoading) setLeverageLoading(false);  
         return {
             errorMsg,
             dolaAmount: borrowNumToSign,
-            collateralAmount: parseFloat(buyAmount) / (10 ** market.underlying.decimals),
+            collateralAmount: (parseFloat(buyAmount) / exRate) / (10 ** market.underlying.decimals),
         }
     } else {
         // leverage down: dola amount is variable, collateral amount is fixed
@@ -134,7 +137,7 @@ export const getLeverageImpact = async ({
         const targetWorth = Math.max(0, baseWorth * (1 / leverageLevel));        
         const targetCollateralBalance = targetWorth / collateralPrice;
         const withdrawAmountToSign = targetCollateralBalance - baseColAmountForLeverage;
-        const { buyAmount, validationErrors, msg } = await getAleSellQuote(DOLA, market.collateral, getNumberToBn(Math.abs(withdrawAmountToSign), market.underlying.decimals).toString(), aleSlippage, true);
+        const { buyAmount, validationErrors, msg } = await getAleSellQuote(DOLA, market.aleData.buySellToken||market.collateral, getNumberToBn(Math.abs(withdrawAmountToSign) * exRate, market.underlying.decimals).toString(), aleSlippage, true);
         const errorMsg = validationErrors?.length > 0 ?
             `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
             : msg;
@@ -175,6 +178,7 @@ export const FirmBoostInfos = ({
         setLeverageLoading,
         isInvPrimeMember,        
         isTriggerLeverageFetch,
+        underlyingExRate,
     } = useContext(F2MarketContext);
     const newBorrowLimit = 100 - newPerc;
     const showBorrowLimitTooHighMsg = newBorrowLimit >= 99 && !leverageLoading && !isTriggerLeverageFetch;
@@ -259,6 +263,7 @@ export const FirmBoostInfos = ({
             isUp: isLeverageUp,
             aleSlippage,
             dolaPrice,
+            underlyingExRate,
         });
 
         if (!!errorMsg) {

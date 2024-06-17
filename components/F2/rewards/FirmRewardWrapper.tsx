@@ -280,7 +280,7 @@ export const FirmINVRewardWrapperContent = ({
         extraAtBottom={extraAtBottom}
         isLoading={isLoading}
         escrow={escrow}
-        extra={<VStack alignItems="flex-start" justify="center" w={{ base: 'auto', md: '700px' }}>
+        extra={<VStack alignItems="flex-end" justify="center" w={{ base: 'auto', md: '700px' }}>
             {
                 market?.invStakedViaDistributor &&
                 <InfoMessage

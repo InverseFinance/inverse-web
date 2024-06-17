@@ -1,4 +1,4 @@
-import { BigNumber, Contract } from "ethers";
+import { BigNumber, Contract, utils } from "ethers";
 import { getNetworkConfigConstants } from "./networks";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { F2_ALE_ABI, F2_MARKET_ABI } from "@app/config/abis";
@@ -15,6 +15,14 @@ export const getAleContract = (signer: JsonRpcSigner) => {
 }
 
 export const ALE_SWAP_PARTNER = '1inch'
+
+// by default 0x as transformerData, others listed below something else
+const aleTransformers = {
+    'marketAddress': (market: F2Market) => {
+        const abi = new utils.AbiCoder();
+        return abi.encode(['address'], [market.address]);
+    },
+}
 
 export const prepareLeveragePosition = async (
     signer: JsonRpcSigner,
@@ -40,7 +48,7 @@ export const prepareLeveragePosition = async (
         let aleQuoteResult;
         try {
             // the dola swapped for collateral is dolaToBorrowToBuyCollateral not totalDolaToBorrow (a part is for dbr)
-            aleQuoteResult = await getAleSellQuote(market.collateral, DOLA, dolaToBorrowToBuyCollateral.toString(), slippagePerc, false);
+            aleQuoteResult = await getAleSellQuote(market.aleData?.buySellToken||market.collateral, DOLA, dolaToBorrowToBuyCollateral.toString(), slippagePerc, false);
             if (!aleQuoteResult?.data || !!aleQuoteResult.msg) {
                 const msg = aleQuoteResult?.validationErrors?.length > 0 ?
                     `Swap validation failed with: ${aleQuoteResult?.validationErrors[0].field} ${aleQuoteResult?.validationErrors[0].reason}`
@@ -53,7 +61,10 @@ export const prepareLeveragePosition = async (
         }
         const { data: swapData, allowanceTarget, value } = aleQuoteResult;
         const permitData = [deadline, v, r, s];
-        const helperTransformData = '0x';
+        let helperTransformData = '0x';
+        if(market.aleData?.buySellToken && !!market.aleTransformerType && aleTransformers[market.aleTransformerType]) {
+            helperTransformData = aleTransformers[market.aleTransformerType](market);
+        }
         // dolaIn, minDbrOut
         const dbrData = [dbrInputs.dolaParam, dbrInputs.dbrParam, '0'];        
         if (initialDeposit && initialDeposit.gt(0)) {
@@ -131,7 +142,7 @@ export const prepareDeleveragePosition = async (
     // we need the quote first
     try {
         // the dola swapped for collateral is dolaToRepayToSellCollateral not totalDolaToBorrow (a part is for dbr)
-        aleQuoteResult = await getAleSellQuote(DOLA, market.collateral, collateralToWithdraw.toString(), slippagePerc, false);
+        aleQuoteResult = await getAleSellQuote(DOLA, market.aleData?.buySellToken||market.collateral, collateralToWithdraw.toString(), slippagePerc, false);
         if (!aleQuoteResult?.data || !!aleQuoteResult.msg) {
             const msg = aleQuoteResult?.validationErrors?.length > 0 ?
                 `Swap validation failed with: ${aleQuoteResult?.validationErrors[0].field} ${aleQuoteResult?.validationErrors[0].reason}`
@@ -150,11 +161,15 @@ export const prepareDeleveragePosition = async (
 
         const { data: swapData, allowanceTarget, value, buyAmount } = aleQuoteResult;
         const permitData = [deadline, v, r, s];
-        const helperTransformData = '0x';
+        let helperTransformData = '0x';   
         const dolaBuyAmount = parseUnits(buyAmount, 0);
         const userDebt = await (new Contract(market.address, F2_MARKET_ABI, signer)).debts(await signer.getAddress());
         const minDolaAmountFromSwap = getNumberToBn(getBnToNumber(dolaBuyAmount) * (1-parseFloat(slippagePerc)/100));
         const minDolaOrMaxRepayable = minDolaAmountFromSwap.gt(userDebt) ? userDebt : minDolaAmountFromSwap;
+
+        if(market.aleData?.buySellToken && !!market.aleTransformerType && aleTransformers[market.aleTransformerType]) {
+            helperTransformData = aleTransformers[market.aleTransformerType](market);
+        }
         
         // dolaIn, minDbrOut, extraDolaToRepay
         const dbrData = [dbrToSell, minDolaOut, extraDolaToRepay];
