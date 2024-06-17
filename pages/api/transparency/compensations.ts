@@ -55,7 +55,7 @@ export default async function handler(req, res) {
     const currentLiabilities = currentPayrolls.reduce((prev, curr) => prev + curr.unclaimed, 0);
 
     // vesters
-    const vestersToCheck = [...Array(currentPayrolls.length * 2 + 20).keys()];
+    const vestersToCheck = [...Array(currentPayrolls.length * 2 + 30).keys()];
 
     const vesterFactory = new Contract(XINV_VESTOR_FACTORY, VESTER_FACTORY_ABI, provider);
     const vestersResults = await Promise.allSettled([
