@@ -253,6 +253,11 @@ export const getMessenger = (l1SignerOrProvider: SignerOrProviderLike, l2SignerO
                 CanonicalTransactionChain: BURN_ADDRESS,
                 BondManager: BURN_ADDRESS,
             },
+            l2: {
+                L2ToL1MessagePasser: '0x4200000000000000000000000000000000000016',
+                L2CrossDomainMessenger: '0x4200000000000000000000000000000000000007',
+                L2StandardBridge: '0x4200000000000000000000000000000000000010',
+            }
         }
     });
 }
