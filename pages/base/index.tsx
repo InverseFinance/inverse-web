@@ -1,4 +1,4 @@
-import { Stack, VStack } from '@chakra-ui/react'
+import { Stack, VStack, Text } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
@@ -6,6 +6,8 @@ import { BaseBridge } from '@app/components/Base/BaseBridge';
 import { BaseWithdrawlsSection } from '@app/components/Base/BaseWithdrawlsSection';
 import { BaseBridgeInformations } from '@app/components/Base/BaseBridgeInformations';
 import { useWeb3React } from '@web3-react/core';
+import { InfoMessage } from '@app/components/common/Messages';
+import Link from '@app/components/common/Link';
 
 export const BasePage = () => {
   const { account } = useWeb3React();
@@ -19,6 +21,16 @@ export const BasePage = () => {
         <meta name="keywords" content="Inverse Finance, base, bridge, stablecoin, DOLA" />
       </Head>
       <AppNav active="More" activeSubmenu="Native Base Bridge" />
+      <InfoMessage
+        alertProps={{ w: { base: 'full', lg: '1200px' }, mt: '4' }}
+        description={
+          <VStack spacing="0" alignItems="flex-start">
+            <Text>We now recommend to use the Superbridge app which has more advanced features:</Text>
+            <Link textDecoration="underline" href="https://superbridge.app/base" isExternal target="_blank">
+              Open the Superbridge app
+            </Link>
+          </VStack>
+        } />
       <VStack
         w={{ base: 'full', lg: '1200px' }}
         justify="center"
