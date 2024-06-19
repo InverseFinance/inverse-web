@@ -25,6 +25,7 @@ import { useRouter } from "next/router";
 import { BURN_ADDRESS } from "@app/config/constants";
 import useEtherSWR from "@app/hooks/useEtherSWR";
 import { useAccount } from "@app/hooks/misc";
+import Link from "../common/Link";
 
 const DOLAmain = '0x865377367054516e17014CcdED1e7d814EDC9ce4';
 const DOLAl2 = '0x8e38179D361402f6a94767757e807146609E9B3d';
@@ -140,69 +141,85 @@ export const BlastBridge = () => {
                                 </HStack>
                                 <Checkbox isChecked={isEthCase} onChange={e => setIsEthCase(!isEthCase)}>Bridge Ether</Checkbox>
                             </Stack>
-                            <VStack alignItems="flex-start" w='full'>
-                                <TextInfo message="From source chain to destination chain, you will pay gas on the source chain">
-                                    <Text><b>{symbol}</b> amount to bridge:</Text>
-                                </TextInfo>
-                            </VStack>
-                            <SimpleAmountForm
-                                showBalance={true}
-                                defaultAmount={amount}
-                                address={isDeposit ? l1token : l2token}
-                                destination={isDeposit ? BLAST_L1_ERC20_BRIDGE : BLAST_L2_ERC20_BRIDGE}
-                                signer={signer}
-                                decimals={decimals}
-                                hideInputIfNoAllowance={false}
-                                onAction={({ bnAmount }) => handleAction(bnAmount)}
-                                onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
-                                actionLabel={`${mode} ${symbol}`}
-                                maxActionLabel={`${mode} all ${symbol}`}
-                                onAmountChange={(v) => setAmount(v)}
-                                showMaxBtn={!isEthCase}
-                                onSuccess={() => handleSuccess()}
-                                enableCustomApprove={true}
-                                containerProps={{ spacing: '4' }}
-                                isDisabled={isDisabled}
-                                isMaxDisabled={isDisabledMax}
-                                alsoDisableApprove={true}
-                                needApprove={isDeposit && !isEthCase}
-                                includeBalanceInMax={true}
-                                customBalance={bnBalance}
-                                inputRight={symbol === 'DOLA' ? <MarketImage pr="2" image={TOKEN_IMAGES.DOLA} size={25} /> : undefined}
-                                btnProps={{
-                                    needPoaFirst: true,
-                                }}
-                                extraBeforeButton={
-                                    <VStack alignItems="flex-start" w='full'>
-                                        <TextInfo message="If you wish to receive the asset on another address than the current connected wallet address">
-                                            <HStack spacing="1" cursor="pointer" onClick={v => !!to ? () => { } : setIsCustomAddress(!isCustomAddress)}>
-                                                <Text>Recipient address (optional)</Text>
-                                                {!to ? isCustomAddress ? <ChevronDownIcon /> : <ChevronRightIcon /> : null}
-                                            </HStack>
-                                        </TextInfo>
-                                        <Input borderColor={isWrongAddress ? `${themeStyles.colors.error}` : undefined} borderWidth={isWrongAddress ? '1px' : '0'} display={isCustomAddress ? 'block' : 'none'} w='full' placeholder={account} value={to} onChange={e => setTo(e.target.value)} />
-                                        {
-                                            isWrongNetwork && <WarningMessage alertProps={{ w: 'full' }} title={`Wrong network`} description={
-                                                <Text textDecoration="underline" cursor="pointer"
-                                                    onClick={() => switchWalletNetwork(isMainnet ? NetworkIds.blast : NetworkIds.mainnet)}
-                                                >
-                                                    Switch to {isMainnet ? 'Blast' : 'Ethereum'}
+                            {
+                                mode === 'Withdraw' ?
+                                    <InfoMessage
+                                        alertProps={{ w: 'full' }}
+                                        description={
+                                            <VStack alignItems="flex-start">
+                                                <Text>
+                                                    This user-interface does not fully support withdrawing from Blast yet, stay tuned for updates.
                                                 </Text>
-                                            } />
+                                            </VStack>
                                         }
-                                        {
-                                            !isDeposit && <InfoMessage alertProps={{ w: 'full' }}
-                                                description={<VStack w='full' alignItems="flex-start" >
-                                                    <Text>To withdraw from Blast, there will be three transactions required:</Text>
-                                                    <Text>- Initiate withdrawal (Tx on Blast)</Text>
-                                                    <Text>- After 1h, verify the withdrawal (Tx on Ethereum)</Text>
-                                                    <Text>- 14 days after the verification, claim (Tx on Ethereum)</Text>
-                                                </VStack>}
-                                            />
-                                        }
-                                    </VStack>
-                                }
-                            />
+                                    />
+                                    :
+                                    <>
+                                        <VStack alignItems="flex-start" w='full'>
+                                            <TextInfo message="From source chain to destination chain, you will pay gas on the source chain">
+                                                <Text><b>{symbol}</b> amount to bridge:</Text>
+                                            </TextInfo>
+                                        </VStack>
+                                        <SimpleAmountForm
+                                            showBalance={true}
+                                            defaultAmount={amount}
+                                            address={isDeposit ? l1token : l2token}
+                                            destination={isDeposit ? BLAST_L1_ERC20_BRIDGE : BLAST_L2_ERC20_BRIDGE}
+                                            signer={signer}
+                                            decimals={decimals}
+                                            hideInputIfNoAllowance={false}
+                                            onAction={({ bnAmount }) => handleAction(bnAmount)}
+                                            onMaxAction={({ bnAmount }) => handleAction(bnAmount)}
+                                            actionLabel={`${mode} ${symbol}`}
+                                            maxActionLabel={`${mode} all ${symbol}`}
+                                            onAmountChange={(v) => setAmount(v)}
+                                            showMaxBtn={!isEthCase}
+                                            onSuccess={() => handleSuccess()}
+                                            enableCustomApprove={true}
+                                            containerProps={{ spacing: '4' }}
+                                            isDisabled={isDisabled}
+                                            isMaxDisabled={isDisabledMax}
+                                            alsoDisableApprove={true}
+                                            needApprove={isDeposit && !isEthCase}
+                                            includeBalanceInMax={true}
+                                            customBalance={bnBalance}
+                                            inputRight={symbol === 'DOLA' ? <MarketImage pr="2" image={TOKEN_IMAGES.DOLA} size={25} /> : undefined}
+                                            btnProps={{
+                                                needPoaFirst: true,
+                                            }}
+                                            extraBeforeButton={
+                                                <VStack alignItems="flex-start" w='full'>
+                                                    <TextInfo message="If you wish to receive the asset on another address than the current connected wallet address">
+                                                        <HStack spacing="1" cursor="pointer" onClick={v => !!to ? () => { } : setIsCustomAddress(!isCustomAddress)}>
+                                                            <Text>Recipient address (optional)</Text>
+                                                            {!to ? isCustomAddress ? <ChevronDownIcon /> : <ChevronRightIcon /> : null}
+                                                        </HStack>
+                                                    </TextInfo>
+                                                    <Input borderColor={isWrongAddress ? `${themeStyles.colors.error}` : undefined} borderWidth={isWrongAddress ? '1px' : '0'} display={isCustomAddress ? 'block' : 'none'} w='full' placeholder={account} value={to} onChange={e => setTo(e.target.value)} />
+                                                    {
+                                                        isWrongNetwork && <WarningMessage alertProps={{ w: 'full' }} title={`Wrong network`} description={
+                                                            <Text textDecoration="underline" cursor="pointer"
+                                                                onClick={() => switchWalletNetwork(isMainnet ? NetworkIds.blast : NetworkIds.mainnet)}
+                                                            >
+                                                                Switch to {isMainnet ? 'Blast' : 'Ethereum'}
+                                                            </Text>
+                                                        } />
+                                                    }
+                                                    {
+                                                        !isDeposit && <InfoMessage alertProps={{ w: 'full' }}
+                                                            description={<VStack w='full' alignItems="flex-start" >
+                                                                <Text>To withdraw from Blast, there will be three transactions required:</Text>
+                                                                <Text>- Initiate withdrawal (Tx on Blast)</Text>
+                                                                <Text>- After 1h, verify the withdrawal (Tx on Ethereum)</Text>
+                                                                <Text>- 14 days after the verification, claim (Tx on Ethereum)</Text>
+                                                            </VStack>}
+                                                        />
+                                                    }
+                                                </VStack>
+                                            }
+                                        />
+                                    </>
+                            }
                             {
                                 chainId?.toString() === NetworkIds.blast
                                 && <Text cursor="pointer" color="mainTextColorLight" fontSize='14px' textDecoration="underline" onClick={() => {
