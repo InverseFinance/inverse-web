@@ -13,6 +13,7 @@ export const BlastBridgeInformations = () => {
                     <VStack spacing="0" alignItems="flex-start">
                         <Text>- From Ethereum to Blast: a few minutes usually.</Text>
                         <Text>- From Blast to Ethereum: 14 days, 3 txs required.</Text>
+                        <Text>Note: Withdrawing from Blast using this UI is not fully supported yet.</Text>
                     </VStack>
                 }
             />
