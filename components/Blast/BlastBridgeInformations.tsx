@@ -24,6 +24,9 @@ export const BlastBridgeInformations = () => {
                             <Link ml="1" textDecoration="underline" href="https://blast.io/en/bridge" isExternal target="_blank">
                                 The official Blast UI
                             </Link>
+                            <Link ml="1" textDecoration="underline" href="https://blast.gfxlabs.io/" isExternal target="_blank">
+                                Alternative bridge UI
+                            </Link>
                         </Box>                        
                         <Box w='full'>
                             <Text display="inline">
