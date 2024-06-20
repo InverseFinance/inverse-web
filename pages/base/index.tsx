@@ -30,8 +30,7 @@ export const BasePage = () => {
               Open the Superbridge app
             </Link>
           </VStack>
-        }
-      />
+        } />
       <VStack
         w={{ base: 'full', lg: '1200px' }}
         justify="center"
