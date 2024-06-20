@@ -64,6 +64,13 @@ export const BlastBridge = () => {
     const [mode, setMode] = useState<'Deposit' | 'Withdraw'>('Deposit');
     const isDeposit = mode === 'Deposit';
 
+    // eth withdrawal not supported on this ui with blast
+    useEffect(() => {
+        if (mode === 'Withdraw' && isEthCase) {
+            setIsEthCase(false)
+        }
+    }, [mode, isEthCase]);
+
     // useEffect(() => {
     //     if (!query?.l2token || !utils.isAddress(query?.l2token)) return;
     //     setL2token(query.l2token);
@@ -138,7 +145,7 @@ export const BlastBridge = () => {
                                         <Text color="mainTextColorLight">Blast</Text>
                                     </VStack>
                                 </HStack>
-                                <Checkbox isChecked={isEthCase} onChange={e => setIsEthCase(!isEthCase)}>Bridge Ether</Checkbox>
+                                <Checkbox visibility={mode !== 'Withdraw' ? 'visible' : 'hidden'} isChecked={isEthCase} onChange={e => setIsEthCase(!isEthCase)}>Bridge Ether</Checkbox>
                             </Stack>
                             <VStack alignItems="flex-start" w='full'>
                                 <TextInfo message="From source chain to destination chain, you will pay gas on the source chain">
@@ -223,7 +230,7 @@ export const BlastBridge = () => {
                                                 </Text>
                                                 :
                                                 <Text>
-                                                    Bridging back to Ethereum initiated, after one hour you will be able to verify the withdrawal on Ethereum, then after 7 days you can claim on Ethereum.
+                                                    Bridging back to Ethereum initiated, after one hour you will be able to verify the withdrawal on Ethereum, then after 14 days you can claim on Ethereum.
                                                 </Text>
                                         }
                                         <RSubmitButton onClick={reset}>
