@@ -39,7 +39,7 @@ const StatBasic = ({ value, name }: { value: number, name: string }) => {
 export const Landing = ({ posts }: {
   posts: any[]
 }) => {
-  const { totalSupply } = useDOLA();  
+  const { totalSupply } = useDOLA();
   const { priceUsd: dbrPriceUsd, priceDola: dbrPriceDola } = useDBRPrice();
   const { price: dolaPrice } = useDOLAPrice();
   const { tvl } = useTVL();
@@ -285,6 +285,53 @@ export const Landing = ({ posts }: {
             bgColor: `${lightTheme?.colors.accentTextColor}`,
           }}
         ></SplashedText>
+      </Flex>
+      <Flex zIndex="1" px="8%" py="20" w="full" bg={lightTheme.colors.mainTextColor} bgColor={lightTheme.colors.mainTextColor} direction="column">
+        <ResponsiveStack justifyContent="space-evenly" w='full'>
+          <VStack justify="center" minH="260px" position="relative">
+            <Image borderRadius="999px" src="/assets/v2/landing/placeholder.png" w={{ base: '200px', '2xl': '300px' }} h={{ base: '200px', '2xl': '300px' }} />
+            <Image transform="rotate(43deg)" borderRadius="999px" src="/assets/v2/landing/spike-impact.gif" w='200px' h="200px" position="absolute" left={{ base: 0, sm: '-60px', '2xl': '0' }} />
+          </VStack>
+          <VStack spacing="6" justify="center" alignItems="flex-start">
+            <VStack w='full' spacing="1" alignItems="flex-start">
+              <Text
+                fontWeight="extrabold"
+                color={`white`}
+                fontSize={biggerSize}
+              >
+                Smarter Collateral
+              </Text>
+              <Text color="white" fontWeight="bold" fontSize={normalSize}>
+                Introducing Personal Collateral Escrows
+              </Text>
+            </VStack>
+            <UnorderedList fontSize={smallerSize} color="white" pl="5">
+              <ListItem>
+                Isolates deposits by user
+              </ListItem>
+              <ListItem>
+                Retains governance rights
+              </ListItem>
+              <ListItem>
+                User collateral can never be borrowed
+              </ListItem>
+              <ListItem>
+                Improved price oracle technology
+              </ListItem>
+              <ListItem>
+                Highly customizable
+              </ListItem>
+            </UnorderedList>
+            <LandingSubmitButton
+              w={{ base: 'full', sm: 'auto' }}
+              maxW={{ sm: '200px', '2xl': 'none' }}
+              bgColor="white"
+              color={lightTheme.colors.mainTextColor}
+              href="/whitepaper" target="_blank">
+              View Whitepaper
+            </LandingSubmitButton>
+          </VStack>
+        </ResponsiveStack>
       </Flex>
       <Flex zIndex="1" px="8%" py="20" w="full" bg={lightTheme.colors.mainTextColor} bgColor={lightTheme.colors.mainTextColor} direction="column">
         <ResponsiveStack spacing="8" justifyContent="space-evenly" w='full' direction={{ base: 'column', md: 'row' }}>
