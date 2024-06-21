@@ -310,7 +310,7 @@ export const F2Markets = ({
                         <b style={{ color: themeStyles.colors.success, fontSize: '18px', fontWeight: '900' }}>%</b> Fixed Borrow APR, Unlimited Duration
                     </Text>
                     <Link fontSize='14px' textDecoration="underline" href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/firm" isExternal target="_blank">
-                        Learn more <ExternalLinkIcon />
+                        All markets are isolated - Learn more about FiRM <ExternalLinkIcon />
                     </Link>
                 </VStack>
             </Stack>
@@ -351,11 +351,11 @@ export const F2Markets = ({
                                     splashProps={{
                                         top: '-10px',
                                         left: '-14px',
-                                        w: '300px',
+                                        w: '370px',
                                         opacity: 0.3,
                                     }}
                                 >
-                                    Your Positions ({shortenNumber(depositsUsd, 2, true)}) {showMyPositions ? <ChevronDownIcon fontSize="24px" /> : <ChevronRightIcon fontSize="24px" />}
+                                    Your Isolated Markets ({shortenNumber(depositsUsd, 2, true)}) {showMyPositions ? <ChevronDownIcon fontSize="24px" /> : <ChevronRightIcon fontSize="24px" />}
                                 </SplashedText>
                             </HStack>
                             {
@@ -393,7 +393,7 @@ export const F2Markets = ({
                                         opacity: 0.3,
                                     }}
                                 >
-                                    Other Markets{showOther ? <ChevronDownIcon fontSize="24px" /> : <ChevronRightIcon fontSize="24px" />}
+                                    Other Isolated Markets{showOther ? <ChevronDownIcon fontSize="24px" /> : <ChevronRightIcon fontSize="24px" />}
                                 </SplashedText>
                             </HStack>
                         </>
