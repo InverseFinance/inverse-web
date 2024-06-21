@@ -9,6 +9,7 @@ import { useAppTheme } from "@app/hooks/useAppTheme";
 import Table from "../common/Table";
 import Link from "../common/Link";
 import { useRouter } from "next/router";
+import { useDBRMarkets } from "@app/hooks/useDBR";
 
 const projectImages = {
     'Frax': 'https://icons.llamao.fi/icons/protocols/frax?w=48&h=48',
@@ -17,6 +18,14 @@ const projectImages = {
     'Silo': 'https://icons.llamao.fi/icons/protocols/silo?w=48&h=48',
     'Compound': 'https://icons.llamao.fi/icons/protocols/compound?w=48&h=48',
     'FiRM': 'https://icons.llamao.fi/icons/protocols/inverse-finance?w=48&h=48',
+}
+
+const projectCollaterals = {
+    'Frax': ['WETH', 'WBTC', 'SFRXETH', 'FXS', 'CVX', 'CRV', 'WSTETH', 'SFRAX'],
+    'Curve': ['WETH', 'WBTC', 'WSTETH'],
+    'Aave V3': ['WETH', 'WBTC', 'CRV', 'WSTETH'],
+    'Compound': ['WETH', 'WBTC', 'COMP', 'LINK', 'UNI'],
+    'FiRM': [],
 }
 
 const ProjectToken = ({ project, borrowToken, isMobile = false }: { project: string }) => {
@@ -171,12 +180,18 @@ export const RateComparator = () => {
     const fields = (query?.fields?.split(',').filter(c => defaultFields.includes(c))) || defaultFields;
     const exclude = ((query?.exclude?.split(',')) || []).map(e => e.toLowerCase());
     const excludeProject = ((query?.excludeProject?.split(',')) || []).map(e => e.toLowerCase());
+    const collateralFilter = query?.collateral?.toUpperCase() || '';
+    const { markets } = useDBRMarkets();
     const { data } = useCustomSWR('/api/dola/rate-comparator?v=1.1.2');
     const [isSmallerThan] = useMediaQuery(`(max-width: ${mobileThreshold}px)`);
 
+    projectCollaterals['FiRM'] = markets?.filter(m => !m.borrowPaused).map(m => m.underlying.symbol.toUpperCase())
+
     const rates = (data?.rates?.filter(r => !!r.borrowRate) || [])
         .filter(r => !exclude.includes(r.key.toLowerCase()))
-        .filter(r => !excludeProject.includes(r.project.toLowerCase()));
+        .filter(r => !excludeProject.includes(r.project.toLowerCase()))
+        .filter(r => !collateralFilter || (!!collateralFilter && (r.collateral.replace(/^ETH$/, 'WETH') === collateralFilter || (r.collateral === 'Multiple' && projectCollaterals[r.project].includes(collateralFilter.replace(/^ETH$/, 'WETH'))))))
+        .map(r => !collateralFilter ? r : ({ ...r, collateral: query?.collateral }))
 
     const { themeStyles } = useAppTheme();
 
