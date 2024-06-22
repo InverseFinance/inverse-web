@@ -251,6 +251,7 @@ const mainConfig = {
             underlyingSymbol: 'FRAX',
             isInv: false,
             isERC4626Collateral: true,
+            aleTransformerType: 'marketAddress',
         },
     ],
     feds: FEDS_PARAMS,
