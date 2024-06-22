@@ -46,7 +46,7 @@ const getSteps = (
     const collateralPrice = market.price;
     const targetCollateralBalance = collateralPrice ? desiredWorth / collateralPrice : 0;
 
-    const {        
+    const {
         newDebtSigned,
         newPerc,
     } = f2CalcNewHealth(
@@ -75,12 +75,12 @@ const riskLevels = {
 }
 
 export const getLeverageImpact = async ({
-    setLeverageLoading,    
+    setLeverageLoading,
     leverageLevel,
     market,
     isUp,
     deposits,
-    initialDeposit,    
+    initialDeposit,
     dolaPrice = 1,
     aleSlippage,
     viaInput = false,
@@ -105,7 +105,7 @@ export const getLeverageImpact = async ({
         // precision is focused on collateral amount, only with 0x api
         if (!viaInput) {
             const amountUp = baseColAmountForLeverage * leverageLevel - baseColAmountForLeverage;
-            const { buyAmount } = await getAleSellQuote(DOLA, market.aleData.buySellToken||market.collateral, getNumberToBn(amountUp, market.underlying.decimals).toString(), aleSlippage, true);
+            const { buyAmount } = await getAleSellQuote(DOLA, market.aleData.buySellToken || market.collateral, getNumberToBn(amountUp, market.underlying.decimals).toString(), aleSlippage, true);
             borrowStringToSign = buyAmount;
             borrowNumToSign = parseFloat(borrowStringToSign) / (1e18);
         }
@@ -119,11 +119,11 @@ export const getLeverageImpact = async ({
         }
 
         // in the end the reference is always a number of dola sold (as it's what we need to sign, or part of it if with dbr)
-        const { buyAmount, validationErrors, msg } = await getAleSellQuote(market.aleData.buySellToken||market.collateral, DOLA, borrowStringToSign, aleSlippage, true);        
+        const { buyAmount, validationErrors, msg } = await getAleSellQuote(market.aleData.buySellToken || market.collateral, DOLA, borrowStringToSign, aleSlippage, true);
         const errorMsg = validationErrors?.length > 0 ?
             `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
             : msg;
-        if (setLeverageLoading) setLeverageLoading(false);  
+        if (setLeverageLoading) setLeverageLoading(false);
         return {
             errorMsg,
             dolaAmount: borrowNumToSign,
@@ -134,16 +134,16 @@ export const getLeverageImpact = async ({
         // when deleveraging base is always current deposits
         const baseColAmountForLeverage = deposits;
         const baseWorth = baseColAmountForLeverage * collateralPrice;
-        const targetWorth = Math.max(0, baseWorth * (1 / leverageLevel));        
+        const targetWorth = Math.max(0, baseWorth * (1 / leverageLevel));
         const targetCollateralBalance = targetWorth / collateralPrice;
         const withdrawAmountToSign = targetCollateralBalance - baseColAmountForLeverage;
-        const { buyAmount, validationErrors, msg } = await getAleSellQuote(DOLA, market.aleData.buySellToken||market.collateral, getNumberToBn(Math.abs(withdrawAmountToSign) * exRate, market.underlying.decimals).toString(), aleSlippage, true);
+        const { buyAmount, validationErrors, msg } = await getAleSellQuote(DOLA, market.aleData.buySellToken || market.collateral, getNumberToBn(Math.abs(withdrawAmountToSign) * exRate, market.underlying.decimals).toString(), aleSlippage, true);
         const errorMsg = validationErrors?.length > 0 ?
             `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
             : msg;
-        if (setLeverageLoading) setLeverageLoading(false);        
+        if (setLeverageLoading) setLeverageLoading(false);
         return {
-            errorMsg,            
+            errorMsg,
             dolaAmount: parseFloat(buyAmount) / 1e18,
             collateralAmount: withdrawAmountToSign,
         }
@@ -160,7 +160,7 @@ export const FirmBoostInfos = ({
     triggerCollateralAndOrLeverageChange,
 }) => {
     const {
-        market,  
+        market,
         deposits,
         debt,
         perc,
@@ -176,16 +176,18 @@ export const FirmBoostInfos = ({
         dolaPrice,
         leverageLoading,
         setLeverageLoading,
-        isInvPrimeMember,        
+        isInvPrimeMember,
         isTriggerLeverageFetch,
         underlyingExRate,
+        mode,
     } = useContext(F2MarketContext);
+    
     const newBorrowLimit = 100 - newPerc;
     const showBorrowLimitTooHighMsg = newBorrowLimit >= 99 && !leverageLoading && !isTriggerLeverageFetch;
     const { isOpen, onOpen, onClose } = useDisclosure();
     const minLeverage = 1;
     // const [leverageLevel, setLeverageLevel] = useState(minLeverage || _leverageLevel);
-    const [editLeverageLevel, setEditLeverageLevel] = useState(leverageLevel.toString());    
+    const [editLeverageLevel, setEditLeverageLevel] = useState(leverageLevel.toString());
     const [debounced, setDebounced] = useState(true);
     const [debouncedShowdBorrowLimitMsg, setDebouncedShowdBorrowLimitMsg] = useState(showBorrowLimitTooHighMsg);
 
@@ -215,7 +217,7 @@ export const FirmBoostInfos = ({
 
     const handleSliderLeverage = (value: string, isLeverageUp: boolean) => {
         setDebounced(false);
-        setLeverageLevel(value);        
+        setLeverageLevel(value);
 
         const debouncedAction = () => {
             validatePendingLeverage(value, isLeverageUp);
@@ -257,7 +259,7 @@ export const FirmBoostInfos = ({
         const { dolaAmount, collateralAmount, errorMsg, estimatedPriceImpact } = await getLeverageImpact({
             setLeverageLoading,
             leverageLevel: parseFloat(v),
-            market,            
+            market,
             deposits,
             initialDeposit: collateralAmountNum,
             isUp: isLeverageUp,
@@ -313,7 +315,7 @@ export const FirmBoostInfos = ({
     const editLeverageIsInvalid = isInvalidLeverage(parseFloat(editLeverageLevel), isLeverageUp);
     const knownFixedAmount = isLeverageUp ? debtAmountNum : collateralAmountNum;
     const aleSlippageFactor = (1 - parseFloat(aleSlippage) / 100);
-    const estimatedAmount = leverageLevel > 1 ? parseFloat(isLeverageUp ? leverageCollateralAmount : leverageDebtAmount) : 0;    
+    const estimatedAmount = leverageLevel > 1 ? parseFloat(isLeverageUp ? leverageCollateralAmount : leverageDebtAmount) : 0;
     const minAmount = aleSlippage ? aleSlippageFactor * estimatedAmount : 0;
     // when leveraging down min amount (or debt) is always the amount repaid, the slippage impacts amount of dola received in wallet
     const amountOfDebtReduced = !isLeverageUp ? Math.min(minAmount, debt) : 0;
@@ -321,6 +323,12 @@ export const FirmBoostInfos = ({
 
     return <Stack fontSize="14px" spacing="4" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
         <VStack position="relative" w='full' alignItems="center" justify="center">
+            {
+                market.isERC4626Collateral && ['Deposit & Borrow', 'Repay & Withdraw'].includes(mode) &&
+                <InfoMessage alertProps={{ w: 'full' }} description={
+                    <Text><b>In this market</b> it's currently <b>not possible to both deposit and leverage at the same time</b> (or withdraw and deleverage), <b>these actions have to be seperated</b>, if you don't have any deposit yet please only do a deposit first.</Text>
+                } />
+            }
             <HStack spacing="8" w='full' justify="space-between" alignItems="center">
                 <InputGroup
                     w='fit-content'
@@ -442,6 +450,6 @@ export const FirmBoostInfos = ({
             {
                 debouncedShowdBorrowLimitMsg && <WarningMessage description="New borrow limit would be too high" />
             }
-        </VStack>        
+        </VStack>
     </Stack>
 }
