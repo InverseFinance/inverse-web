@@ -30,6 +30,7 @@ import { isAddress } from 'ethers/lib/utils'
 import { BURN_ADDRESS } from '@app/config/constants'
 import { useMultisig } from '@app/hooks/useSafeMultisig'
 import { InfoMessage } from '@app/components/common/Messages'
+import { TOKEN_IMAGES } from '@app/variables/images'
 
 const { DOLA, F2_HELPER, F2_ALE } = getNetworkConfigConstants();
 
@@ -132,6 +133,9 @@ export const F2CombinedForm = ({
     const isWithdrawOnlyCase = 'withdraw' === MODES[mode];
     const isDepositOnlyCase = 'deposit' === MODES[mode];
     const isSigNeeded = useLeverageInMode || ((isBorrowCase || isWithdrawCase) && isAutoDBR) || ((isDepositCase || isWithdrawCase) && isUseNativeCoin);
+    // at the moment ALE only support the underlying when depositing and leveraging up
+    const isUnderlyingAsInputCase = isDepositCase && !isDepositOnlyCase && useLeverageInMode;
+    const inputToken = isUnderlyingAsInputCase && market.isERC4626Collateral ? market.collateral : market.aleData.buySellToken;
 
     const handleWithdrawMax = () => {
         if (!signer) { return }
@@ -354,12 +358,12 @@ export const F2CombinedForm = ({
     const mainFormInputs = <Stack direction={{ base: 'column' }} spacing="4" w='full'>
         {
             hasCollateralChange && <VStack w='full' alignItems="flex-start">
-                <FirmCollateralInputTitle isDeposit={isDeposit} market={market} deposits={deposits} isWethMarket={isWethMarket} isUseNativeCoin={isUseNativeCoin} useLeverageInMode={useLeverageInMode} />
+                <FirmCollateralInputTitle isDeposit={isDeposit} market={market} deposits={deposits} isWethMarket={isWethMarket} isUseNativeCoin={isUseNativeCoin} useLeverageInMode={useLeverageInMode} isUnderlyingAsInputCase={isUnderlyingAsInputCase} />
                 {
                     deposits > 0 || isDeposit ? <>
                         <SimpleAmountForm
                             defaultAmount={collateralAmount}
-                            address={isUseNativeCoin ? '' : market.collateral}
+                            address={isUseNativeCoin ? '' : inputToken}
                             destination={isAutoDBR ? F2_HELPER : market.address}
                             signer={signer}
                             decimals={colDecimals}
@@ -377,7 +381,7 @@ export const F2CombinedForm = ({
                             showMax={!isDeleverageCase}
                             showBalance={isDeposit}
                             inputProps={isDeleverageCase ? { disabled: false } : undefined}
-                            inputRight={<MarketImage pr="2" image={isWethMarket ? (isUseNativeCoin ? market.icon : market.underlying.image) : market.icon || market.underlying.image} size={25} />}
+                            inputRight={<MarketImage pr="2" image={isWethMarket ? (isUseNativeCoin ? market.icon : market.underlying.image) : isUnderlyingAsInputCase ? TOKEN_IMAGES[market.underlyingSymbol] : (market.icon || market.underlying.image)} size={25} />}
                             isError={isDeposit ? collateralAmountNum > collateralBalance : collateralAmountNum > deposits}
                         />
                         {
@@ -424,7 +428,7 @@ export const F2CombinedForm = ({
                         <>
                             <SimpleAmountForm
                                 defaultAmount={debtAmount}
-                                address={market.collateral}
+                                address={inputToken}
                                 destination={isAutoDBR ? F2_HELPER : market.address}
                                 signer={signer}
                                 decimals={18}
@@ -507,7 +511,7 @@ export const F2CombinedForm = ({
     const actionBtn = <HStack>
         <SimpleAmountForm
             defaultAmount={isRepayCase ? debtAmount : collateralAmount}
-            address={isWithdrawOnlyCase || isBorrowOnlyCase ? '' : isRepayCase ? DOLA : isUseNativeCoin ? '' : market.collateral}
+            address={isWithdrawOnlyCase || isBorrowOnlyCase ? '' : isRepayCase ? DOLA : isUseNativeCoin ? '' : inputToken}
             destination={useLeverageInMode ? F2_ALE : isAutoDBR || isUseNativeCoin ? F2_HELPER : market.address}
             needApprove={(!isDeleverageCase || (isDeleverageCase && debtAmountNum > 0)) && !(useLeverageInMode && isDeposit && !collateralAmountNum)}
             signer={signer}

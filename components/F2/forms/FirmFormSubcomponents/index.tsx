@@ -171,6 +171,7 @@ export const FirmCollateralInputTitle = ({
     isUseNativeCoin,
     useLeverageInMode,
     deposits,
+    isUnderlyingAsInputCase
 }: {
     isDeposit: boolean
     market: F2Market
@@ -178,12 +179,13 @@ export const FirmCollateralInputTitle = ({
     isUseNativeCoin: boolean
     useLeverageInMode: boolean
     deposits: number
+    isUnderlyingAsInputCase: boolean
 }) => {
     const depositWording = market.isInv ? 'Stake' : 'Deposit';
     const withdrawWording = useLeverageInMode ? 'Sell' : market.isInv ? 'Unstake' : 'Withdraw';
     const wording = isDeposit ? depositWording : withdrawWording;
     const leverageExtraWording = useLeverageInMode ? isDeposit && deposits > 0 ? ` (on top of leverage)` : isDeposit && !deposits ? '' : ' (to deleverage)' : '';
-    const assetName = isWethMarket && isUseNativeCoin ? 'ETH' : market.underlying.symbol;
+    const assetName = isWethMarket && isUseNativeCoin ? 'ETH' : isUnderlyingAsInputCase ? market.underlyingSymbol : market.underlying.symbol;
     return <TextInfo message={
         isDeposit ?
             market.isInv ?

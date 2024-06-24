@@ -324,9 +324,9 @@ export const FirmBoostInfos = ({
     return <Stack fontSize="14px" spacing="4" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
         <VStack position="relative" w='full' alignItems="center" justify="center">
             {
-                market.isERC4626Collateral && ['Deposit & Borrow', 'Repay & Withdraw'].includes(mode) &&
+                market.isERC4626Collateral && ['Deposit & Borrow'].includes(mode) &&
                 <InfoMessage alertProps={{ w: 'full' }} description={
-                    <Text><b>In this market</b> it's currently <b>not possible to both deposit and leverage at the same time</b> (or withdraw and deleverage), <b>these actions have to be seperated</b>, if you don't have any deposit yet please only do a deposit first.</Text>
+                    <Text><b>Note: In this market</b> it's currently <b>not possible to both deposit {market.underlying.symbol} and leverage at the same time</b>, but you can deposit {market.underlyingSymbol} and leverage at the same time or if you want to use {market.underlying.symbol} you can deposit it first and then use leverage in a second transaction.</Text>
                 } />
             }
             <HStack spacing="8" w='full' justify="space-between" alignItems="center">
