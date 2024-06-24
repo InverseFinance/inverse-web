@@ -1,4 +1,4 @@
-import { VStack } from '@chakra-ui/react'
+import { Link, VStack } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
@@ -17,8 +17,9 @@ export const F2PAGE = () => {
             </Head>
             <AppNav active="More" activeSubmenu="Request Collateral" />
             <ErrorBoundary>
-                <VStack w='full' maxW="1200px" mt="4">
+                <VStack w='full' maxW="1200px" mt="4" spacing="8">
                     <CollateralRequestList />
+                    <Link href="/firm/request-collateral" textDecoration="underline">Submit a collateral request</Link>
                 </VStack>
             </ErrorBoundary>
         </Layout>

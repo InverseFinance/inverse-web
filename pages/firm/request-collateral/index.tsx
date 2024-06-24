@@ -4,6 +4,7 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { CollateralRequestForm } from '@app/components/F2/CollateralRequest/CollateralRequestForm'
+import Link from '@app/components/common/Link'
 
 export const F2PAGE = () => {
     return (
@@ -17,8 +18,9 @@ export const F2PAGE = () => {
             </Head>
             <AppNav active="More" activeSubmenu="Request Collateral" />
             <ErrorBoundary>
-                <VStack w='full' maxW="600px" mt="4">
+                <VStack w='full' maxW="600px" mt="4" spacing="8">
                     <CollateralRequestForm />
+                    <Link href="/firm/request-collateral/list" textDecoration="underline">See the list of submitted requests</Link>
                 </VStack>
             </ErrorBoundary>
         </Layout>

@@ -3,11 +3,9 @@ import { InfoMessage } from "@app/components/common/Messages"
 import ScannerLink from "@app/components/common/ScannerLink"
 import { SkeletonBlob } from "@app/components/common/Skeleton"
 import Table from "@app/components/common/Table"
-import { ERC20_ABI } from "@app/config/abis"
 import { useCustomSWR } from "@app/hooks/useCustomSWR"
-import useEtherSWR from "@app/hooks/useEtherSWR"
 import { NetworkIds } from "@app/types"
-import { getBnToNumber, shortenNumber } from "@app/util/markets"
+import { shortenNumber } from "@app/util/markets"
 import { Flex, Text, Stack } from "@chakra-ui/react"
 import moment from "moment"
 
@@ -107,22 +105,9 @@ const columns = [
 
 export const CollateralRequestList = () => {
     const { data, error } = useCustomSWR(`/api/f2/request-collateral`);
-    const requests = data?.requests || [];
+    const requests = data?.requests || [];   
 
-    const { data: balances } = useEtherSWR({
-        abi: ERC20_ABI,
-        args: requests.map(r => {
-            return r.value ? [r.value, 'balanceOf', r.account] : ['getBalance', r.account]
-        })
-    });
-    
-    balances?.forEach((b, i) => {
-        if(requests[i].decimals) {
-            requests[i].balance = getBnToNumber(b, requests[i].decimals);
-        }        
-    });
-
-    const isLoading = !balances || (!data && !error);
+    const isLoading = (!data && !error);
 
     return <Container label="Collateral Requests" noPadding p="0">
         {
@@ -132,7 +117,7 @@ export const CollateralRequestList = () => {
             !isLoading && !requests.length && <InfoMessage alertProps={{ w: 'full' }} description="No collateral requests yet" />
         }
         {
-            !!balances && requests.length > 0 && <Table
+            requests.length > 0 && <Table
                 keyName="key"
                 columns={columns}
                 items={requests}
