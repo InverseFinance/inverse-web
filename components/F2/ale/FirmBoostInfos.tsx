@@ -326,7 +326,7 @@ export const FirmBoostInfos = ({
             {
                 market.isERC4626Collateral && ['Deposit & Borrow'].includes(mode) &&
                 <InfoMessage alertProps={{ w: 'full' }} description={
-                    <Text><b>Note: In this market</b> it's currently <b>not possible to both deposit {market.underlying.symbol} and leverage at the same time</b>, but you can deposit {market.underlyingSymbol} instead and leverage at the same time, if you want to use {market.underlying.symbol} you can deposit it first and then use leverage in a second transaction.</Text>
+                    <Text><b>Note: In this market</b> it's currently <b>not possible to both deposit {market.underlying.symbol} and leverage at the same time</b>, but <b>you can deposit {market.underlyingSymbol} instead and leverage</b> at the same time, if you want to use {market.underlying.symbol} you can deposit it first and then use leverage in a second transaction.</Text>
                 } />
             }
             <HStack spacing="8" w='full' justify="space-between" alignItems="center">
