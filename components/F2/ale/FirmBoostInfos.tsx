@@ -322,13 +322,7 @@ export const FirmBoostInfos = ({
     const extraDolaReceivedInWallet = isLeverageUp ? 0 : estimatedAmount - amountOfDebtReduced;
 
     return <Stack fontSize="14px" spacing="4" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
-        <VStack position="relative" w='full' alignItems="center" justify="center">
-            {
-                market.isERC4626Collateral && ['Deposit & Borrow'].includes(mode) &&
-                <InfoMessage alertProps={{ w: 'full' }} description={
-                    <Text><b>Note: In this market</b> it's currently <b>not possible to both deposit {market.underlying.symbol} and leverage at the same time</b>, but <b>you can deposit {market.underlyingSymbol} instead and leverage</b> at the same time, if you want to use {market.underlying.symbol} you can deposit it first and then use leverage in a second transaction.</Text>
-                } />
-            }
+        <VStack position="relative" w='full' alignItems="center" justify="center">            
             <HStack spacing="8" w='full' justify="space-between" alignItems="center">
                 <InputGroup
                     w='fit-content'
