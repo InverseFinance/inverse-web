@@ -112,6 +112,7 @@ export const TOKEN_IMAGES = {
     "LIQUIS": "https://assets.coingecko.com/coins/images/31587/standard/Liqblue.png?1696530404",
     "wstETH": "https://assets.coingecko.com/coins/images/18834/standard/wstETH.png",
     "stYETH": "https://assets.coingecko.com/coins/images/32222/standard/st-yETH-128px.png?1696914941",
+    "yETH": "https://assets.coingecko.com/coins/images/32220/standard/yETH-128px.png?1696914909",
 }
 
 export const PROTOCOL_IMAGES = {
