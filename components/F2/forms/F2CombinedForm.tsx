@@ -61,7 +61,6 @@ export const F2CombinedForm = ({
         handleDebtChange,
         handleCollateralChange,
         handleInputChange,
-        inputAmount,
         duration,
         durationType,
         durationTypedValue,
@@ -120,6 +119,7 @@ export const F2CombinedForm = ({
         underlyingExRate,
         isUnderlyingAsInputCase,
         inputToken,
+        inputAmount,
         inputAmountNum,
         inputBalance,
         bnInputBalance,
@@ -307,7 +307,7 @@ export const F2CombinedForm = ({
 
         const debouncedZeroXCall = async () => {
             if (leverageInMode || useLeverageInMode && !isDeleverageCase && !!debtNum && debtNum > 0) {
-                const baseColAmountForLeverage = deposits > 0 ? deposits : collateralAmountNum;
+                const baseColAmountForLeverage = deposits > 0 ? deposits + collateralAmountNum : collateralAmountNum;
                 const baseWorth = baseColAmountForLeverage * market.price;
                 const leverage = (debtNum + baseWorth) / baseWorth;
                 if (!market.price || leverage <= 1) {

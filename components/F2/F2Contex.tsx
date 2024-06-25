@@ -370,6 +370,7 @@ export const F2Context = ({
             onDbrV1NewBorrowIssueModalClose,
             isUnderlyingAsInputCase,
             inputToken,
+            inputAmount,
             inputAmountNum,
             inputBalance,
             bnInputBalance,

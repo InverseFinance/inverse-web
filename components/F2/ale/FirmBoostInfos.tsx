@@ -99,7 +99,7 @@ export const getLeverageImpact = async ({
     if (isUp) {
         // leverage up: dola amount is fixed, collateral amount is variable
         // if already has deposits, base is deposits, if not (=depositAndLeverage case), base is initialDeposit
-        const baseColAmountForLeverage = deposits > 0 ? deposits : initialDeposit;
+        const baseColAmountForLeverage = deposits > 0 ? deposits + initialDeposit : initialDeposit;
         const baseWorth = baseColAmountForLeverage * collateralPrice;
         let borrowStringToSign, borrowNumToSign;
         // precision is focused on collateral amount, only with 0x api
@@ -292,7 +292,7 @@ export const FirmBoostInfos = ({
         handleLeverageChange(input);
     }
 
-    const baseColAmountForLeverage = deposits > 0 ? deposits : collateralAmountNum;
+    const baseColAmountForLeverage = deposits > 0 ? deposits + collateralAmountNum : collateralAmountNum;
     const leverageSteps = useMemo(() => getSteps(market, baseColAmountForLeverage, debt, perc, type, 1, aleSlippage, []), [market, baseColAmountForLeverage, debt, perc, type, undefined, aleSlippage]);
     // when deleveraging we want the max to be higher what's required to repay all debt, the extra dola is sent to the wallet
     const maxLeverage = isLeverageUp ? roundDown(leverageSteps[leverageSteps.length - 1]) : roundUp(leverageSteps[leverageSteps.length - 1]);
