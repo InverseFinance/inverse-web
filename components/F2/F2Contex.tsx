@@ -60,6 +60,7 @@ export const F2Context = ({
     const [durationType, setDurationType] = useState('months');
     const [durationTypedValue, setDurationTypedValue] = useState(12);
     const [collateralAmount, setCollateralAmount] = useState('');
+    const [inputAmount, setInputAmount] = useState('');
     const [debtAmount, setDebtAmount] = useState('');
     const [leverageCollateralAmount, setLeverageCollateralAmount] = useState('');
     const [leverageDebtAmount, setLeverageDebtAmount] = useState('');    
@@ -83,7 +84,7 @@ export const F2Context = ({
     const { value: cachedFirmActionIndex, setter: setCachedFirmActionIndex } = useStorage('firm-action-index');    
     const [firmActionIndex, setFirmActionIndex] = useState(cachedFirmActionIndex === undefined ? null : cachedFirmActionIndex||0);    
     const [isSmallerThan728] = useMediaQuery('(max-width: 728px)');
-    const { isInvPrimeMember } = useStakedInFirm(account);
+    const { isInvPrimeMember } = useStakedInFirm(account);    
 
     const isMountedRef = useRef(true)
     const firstTimeModalResolverRef = useRef(() => {});
@@ -93,24 +94,30 @@ export const F2Context = ({
     const { value: notFirstTime, setter: setNotFirstTime } = useStorage('firm-first-time-modal-no-more');
     const colDecimals = market.underlying.decimals;
 
-    const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt, bnLeftToBorrow, leftToBorrow, liquidationPrice, escrow, underlyingExRate } = useAccountDBRMarket(market, account, isUseNativeCoin);
+    // at the moment ALE only support the underlying when depositing and leveraging up
+    const isUnderlyingAsInputCase = mode === 'Deposit & Borrow' && useLeverage && market.isERC4626Collateral;
+    const inputToken = isUnderlyingAsInputCase && market.isERC4626Collateral ? market.aleData.buySellToken : market.collateral;    
+
+    const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt, bnLeftToBorrow, leftToBorrow, liquidationPrice, escrow, underlyingExRate, inputBalance, bnInputBalance } = useAccountDBRMarket(market, account, isUseNativeCoin, inputToken);   
     const { balance: dolaBalance, bnBalance: bnDolaBalance } = useDOLABalance(account);
     const { price: dolaPrice, isLoading: isDolaPriceLoading } = useDOLAPrice();
 
     const debtAmountNum = parseFloat(debtAmount || '0') || 0;// NaN => 0
-    const collateralAmountNum = parseFloat(collateralAmount || '0') || 0;
+    const inputAmountNum = parseFloat(inputAmount || '0') || 0;
+    const collateralAmountNum = isUnderlyingAsInputCase ? inputAmountNum / underlyingExRate : inputAmountNum;
 
     // if true and leverage switched is enabled, the user will see the INV prime msg
     const userNotEligibleForLeverage = !isInvPrimeMember && INV_STAKERS_ONLY.firmLeverage;
     // if true, leverage is relevant to the mode and conditions
-    const useLeverageInMode = useLeverage && !userNotEligibleForLeverage && ((mode === 'Deposit & Borrow' && (deposits > 0 || collateralAmountNum > 0)) || (mode === 'Borrow' && deposits > 0) || (['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1))    
+    const useLeverageInMode = useLeverage && !userNotEligibleForLeverage && ((mode === 'Deposit & Borrow' && (deposits > 0 || collateralAmountNum > 0)) || (mode === 'Borrow' && deposits > 0) || (['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1))        
 
     const leverageDebtAmountNum = parseFloat(leverageDebtAmount || '0') || 0;// NaN => 0
     const leverageCollateralAmountNum = parseFloat(leverageCollateralAmount || '0') || 0;
 
     const totalDebtAmountNum = debtAmountNum + (useLeverageInMode ? leverageDebtAmountNum * (1-parseFloat(aleSlippage)/100) : 0);
+    
     const totalCollateralAmountNum = (!(useLeverageInMode && mode === 'Borrow') ? collateralAmountNum : 0) + (isDeposit && useLeverageInMode ? leverageCollateralAmountNum : 0)//(isDeposit || !useLeverageInMode || (!isDeposit && useLeverageInMode) ? collateralAmountNum : 0) + (useLeverageInMode ? leverageCollateralAmountNum : 0);    
-
+    
     const dbrApproxData = useDBRNeeded(debtAmount, duration);
 
     const dbrCover = totalDebtAmountNum > 0 ? isAutoDBR ? dbrApproxData.dbrNeededNum : debtAmountNum / (365 / duration) : 0;
@@ -120,7 +127,7 @@ export const F2Context = ({
     const dbrCoverDebt = dbrCover * dbrSwapPrice;
 
     const hasCollateralChange = (!customRecipient || !!customRecipient && MODES[mode] !== 'deposit') && (['deposit', 'd&b', 'withdraw', 'r&w'].includes(MODES[mode]) || useLeverageInMode);
-    const hasDebtChange = ['borrow', 'd&b', 'repay', 'r&w'].includes(MODES[mode]) || useLeverageInMode;
+    const hasDebtChange = ['borrow', 'd&b', 'repay', 'r&w'].includes(MODES[mode]) || useLeverageInMode;    
 
     const deltaCollateral = isDeposit ? totalCollateralAmountNum : -totalCollateralAmountNum;    
     const deltaDebt = isDeposit ? totalDebtAmountNum : -totalDebtAmountNum;
@@ -208,8 +215,14 @@ export const F2Context = ({
         init();
     }, [market, deposits, debt, debtAmountNum, totalDebtAmountNum, dbrPriceInDola, deltaCollateral, duration, collateralAmount, maxBorrow, perc, isDeposit, isAutoDBR]);
 
+    const handleInputChange = (stringNumber: string) => {
+        setInputAmount(stringNumber);
+        setCollateralAmount(isUnderlyingAsInputCase && stringNumber && parseFloat(stringNumber) ? parseFloat(stringNumber) / underlyingExRate : stringNumber);
+    }
+
     const handleCollateralChange = (stringNumber: string) => {
         setCollateralAmount(stringNumber);
+        setInputAmount(isUnderlyingAsInputCase && stringNumber && parseFloat(stringNumber) ? parseFloat(stringNumber) * underlyingExRate : stringNumber);
     }
 
     const handleDebtChange = (stringNumber: string) => {
@@ -317,6 +330,7 @@ export const F2Context = ({
             handleDurationChange,
             handleDebtChange,
             handleCollateralChange,
+            handleInputChange,
             notFirstTime,
             setNotFirstTime,
             isFirmLeverageEngineOpen,
@@ -354,6 +368,11 @@ export const F2Context = ({
                 onDbrV1NewBorrowIssueModalOpen();
             },
             onDbrV1NewBorrowIssueModalClose,
+            isUnderlyingAsInputCase,
+            inputToken,
+            inputAmountNum,
+            inputBalance,
+            bnInputBalance,
         }}
         {...props}
     />
