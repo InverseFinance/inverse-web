@@ -832,7 +832,9 @@ export type AccountDBRMarket = F2Market & {
   debt: number
   bnDebt: BigNumber
   bnCollateralBalance: BigNumber
+  bnInputBalance: BigNumber
   collateralBalance: number
+  inputBalance: number
   hasDebt: boolean
   liquidationPrice: number | null
   liquidatableDebtBn: BigNumber

@@ -1,4 +1,4 @@
-import { BALANCER_VAULT_ABI, F2_ESCROW_ABI } from "@app/config/abis";
+import { BALANCER_VAULT_ABI, ERC20_ABI, F2_ESCROW_ABI } from "@app/config/abis";
 import { AccountDBRMarket, CoingeckoHistoricalData, F2Market, SWR } from "@app/types"
 import { getBnToNumber, getNumberToBn } from "@app/util/markets";
 import { getNetworkConfigConstants } from "@app/util/networks"
@@ -193,6 +193,7 @@ export const useAccountDBRMarket = (
   market: F2Market,
   account: string,
   isUseNativeCoin = false,
+  inputToken?: string
 ): AccountDBRMarket => {
   const { data: escrow } = useEtherSWR([market.address, 'escrows', account]);
   const { data: accountMarketData } = useEtherSWR(
@@ -209,13 +210,20 @@ export const useAccountDBRMarket = (
     ]
   );
 
-  const { data: balances } = useEtherSWR([
-    isUseNativeCoin ? ['getBalance', account, 'latest'] : [market.collateral, 'balanceOf', account],
-  ]);
+  // in some cases with ale+transformers the input token is not the collateral token
+  const _inputToken = inputToken || market.collateral;
+  const { data: balances } = useEtherSWR({
+    abi: ERC20_ABI,
+    args: [
+      isUseNativeCoin ? ['getBalance', account, 'latest'] : [market.collateral, 'balanceOf', account],
+      isUseNativeCoin ? ['getBalance', account, 'latest'] : [_inputToken, 'balanceOf', account],
+    ],
+  });
 
   const [bnWithdrawalLimit, bnDebt] = accountMarketData || [zero, zero];
   const [bnCreditLimit] = accountMarketDataWithValidFeed || [zero];
   const bnCollateralBalance: BigNumber = balances ? balances[0] : zero;
+  const bnInputBalance: BigNumber = balances ? balances[1] : zero;
   const creditLimit = bnCreditLimit ? getBnToNumber(bnCreditLimit) : 0;
 
   const { data: escrowData } = useEtherSWR({
@@ -267,7 +275,9 @@ export const useAccountDBRMarket = (
     hasDebt,
     liquidationPrice,
     bnCollateralBalance,
+    bnInputBalance,
     collateralBalance: (bnCollateralBalance ? getBnToNumber(bnCollateralBalance, decimals) : 0),
+    inputBalance: (bnInputBalance ? getBnToNumber(bnInputBalance, decimals) : 0),
     liquidatableDebtBn,
     liquidatableDebt: liquidatableDebtBn ? getBnToNumber(liquidatableDebtBn) : 0,
     seizableWorth,
