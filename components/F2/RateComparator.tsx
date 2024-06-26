@@ -1,5 +1,5 @@
 import { useCustomSWR } from "@app/hooks/useCustomSWR"
-import { Text, Image, HStack, SimpleGrid, Stack, Flex, useMediaQuery, VStack } from "@chakra-ui/react";
+import { Text, Image, HStack, SimpleGrid, Stack, Flex, useMediaQuery, VStack, useDisclosure, Select, Box } from "@chakra-ui/react";
 import Container from "../common/Container";
 import { shortenNumber } from "@app/util/markets";
 import { TOKEN_IMAGES } from "@app/variables/images";
@@ -10,6 +10,10 @@ import Table from "../common/Table";
 import Link from "../common/Link";
 import { useRouter } from "next/router";
 import { useDBRMarkets } from "@app/hooks/useDBR";
+import { SettingsIcon } from "@chakra-ui/icons";
+import InfoModal from "../common/Modal/InfoModal";
+import { Input } from "../common/Input";
+import { useState } from "react";
 
 const projectImages = {
     'Frax': 'https://icons.llamao.fi/icons/protocols/frax?w=48&h=48',
@@ -21,9 +25,9 @@ const projectImages = {
 }
 
 const projectCollaterals = {
-    'Frax': ['WETH', 'WBTC', 'SFRXETH', 'FXS', 'CVX', 'CRV', 'WSTETH', 'SFRAX'],
-    'Curve': ['WETH', 'WBTC', 'WSTETH'],
-    'Aave V3': ['WETH', 'WBTC', 'CRV', 'WSTETH'],
+    'Frax': ['WETH', 'WBTC', 'sfrxETH', 'FXS', 'CVX', 'CRV', 'wstETH', 'sFRAX'],
+    'Curve': ['WETH', 'WBTC', 'wstETH'],
+    'Aave V3': ['WETH', 'WBTC', 'CRV', 'wstETH'],
     'Compound': ['WETH', 'WBTC', 'COMP', 'LINK', 'UNI'],
     'FiRM': [],
 }
@@ -174,26 +178,53 @@ const mobileThreshold = 1000;
 
 const FIELDS = columns.reduce((prev, curr) => ({ ...prev, [curr.field]: curr.label }), {});
 const defaultFields = columns.map(c => c.field);
+const defaultProjects = Object.keys(projectCollaterals);
 
 export const RateComparator = () => {
     const { query } = useRouter();
-    const fields = (query?.fields?.split(',').filter(c => defaultFields.includes(c))) || defaultFields;
-    const exclude = ((query?.exclude?.split(',')) || []).map(e => e.toLowerCase());
+    const [fieldsText, setFieldsText] = useState(defaultFields.join(','));
+    const [fields, setFields] = useState(defaultFields);
+    const [collateralFilter, setCollateralFilter] = useState('');
+    const [includeProjectsText, setIncludeProjectsText] = useState(defaultProjects.join(','));
+    const [includeProjects, setIncludeProjects] = useState(defaultProjects);
+    const [excludeText, setExcludeText] = useState('');
+    const [exclude, setExclude] = useState([]);
+    
     const excludeProject = ((query?.excludeProject?.split(',')) || []).map(e => e.toLowerCase());
-    const collateralFilter = query?.collateral?.toUpperCase() || '';
     const { markets } = useDBRMarkets();
     const { data } = useCustomSWR('/api/dola/rate-comparator?v=1.1.2');
     const [isSmallerThan] = useMediaQuery(`(max-width: ${mobileThreshold}px)`);
+    const { onOpen, onClose, isOpen } = useDisclosure();
 
-    projectCollaterals['FiRM'] = markets?.filter(m => !m.borrowPaused).map(m => m.underlying.symbol.toUpperCase())
+    projectCollaterals['FiRM'] = markets?.filter(m => !m.borrowPaused).map(m => m.underlying.symbol)
 
     const rates = (data?.rates?.filter(r => !!r.borrowRate) || [])
         .filter(r => !exclude.includes(r.key.toLowerCase()))
         .filter(r => !excludeProject.includes(r.project.toLowerCase()))
+        .filter(r => includeProjects.includes(r.project))
         .filter(r => !collateralFilter || (!!collateralFilter && (r.collateral.replace(/^ETH$/, 'WETH') === collateralFilter || (r.collateral === 'Multiple' && projectCollaterals[r.project].includes(collateralFilter.replace(/^ETH$/, 'WETH'))))))
-        .map(r => !collateralFilter ? r : ({ ...r, collateral: query?.collateral }))
+        .map(r => !collateralFilter ? r : ({ ...r, collateral: collateralFilter }))
 
     const { themeStyles } = useAppTheme();
+
+    const openSettings = () => {
+        onOpen();
+    }
+
+    const handleFieldsChange = (value: string) => {
+        setFieldsText(value);
+        setFields((value.replace(/\s+/, '').split(',').filter(c => defaultFields.includes(c))) || defaultFields);
+    }
+
+    const handleIncludeProjects = (value: string) => {
+        setIncludeProjectsText(value);
+        setIncludeProjects((value.replace(/\s+/, '').split(',').filter(c => defaultProjects.includes(c))) || defaultProjects);
+    }
+
+    const handleExclude = (value: string) => {
+        setExcludeText(value);
+        setExclude(value.toLowerCase().split(','));
+    }
 
     return <Container
         noPadding
@@ -202,7 +233,59 @@ export const RateComparator = () => {
         label="Stablecoin Borrow Rate Comparison"
         description="Across major DeFi lending protocols on Ethereum"
         contentBgColor="gradient3"
+        right={
+            query?.customize && <SettingsIcon _hover={{ filter: 'brightness(1.2)' }} cursor="pointer" onClick={() => openSettings()} color="mainTextColor" fontSize={40} />
+        }
     >
+        <InfoModal title="Filter & Customize" onOk={onClose} isOpen={isOpen} onClose={onClose} minW='800px'>
+            <VStack spacing="4" alignItems="flex-start" p="4" w='full'>
+                <VStack w='full' alignItems="flex-start">
+                    <HStack w='full' justify="space-between">
+                        <Text fontSize="20px" fontWeight="extrabold">Columns:</Text>
+                        <Text onClick={() => handleFieldsChange(defaultFields.join(','))} cursor="pointer" textDecoration="underline" fontSize="18px" fontWeight="bold">Reset</Text>
+                    </HStack>
+                    <Input textAlign="left" value={fieldsText} onChange={(e) => handleFieldsChange(e.target.value)} />
+                </VStack>
+                <VStack w='full' alignItems="flex-start">
+                    <HStack w='full' justify="space-between">
+                        <Text fontSize="20px" fontWeight="extrabold">Filter by collateral:</Text>
+                        <Text onClick={() => setCollateralFilter('')} cursor="pointer" textDecoration="underline" fontSize="18px" fontWeight="bold">Reset</Text>
+                    </HStack>
+                    <Select value={collateralFilter} fontWeight="500" fontSize="18px" h="48px" bgColor="mainBackgroundColor" onChange={(v) => setCollateralFilter(v.target.value)}>
+                        <option style={{ paddingLeft: '74px' }}>All</option>
+                        {
+                            projectCollaterals['FiRM'].map(c => {
+                                return <option key={c} value={c}>{c === 'DAI' ? 'DAI (sDAI)' : c}</option>
+                            })
+                        }
+                    </Select>
+                </VStack>
+                <VStack w='full' alignItems="flex-start">
+                    <HStack w='full' justify="space-between">
+                        <Text fontSize="20px" fontWeight="extrabold">Include projects:</Text>
+                        <Text onClick={() => handleIncludeProjects(defaultProjects.join(','))} cursor="pointer" textDecoration="underline" fontSize="18px" fontWeight="bold">Reset</Text>
+                    </HStack>
+                    <Input textAlign="left" value={includeProjectsText} onChange={(e) => handleIncludeProjects(e.target.value)} />
+                </VStack>
+                <VStack w='full' alignItems="flex-start">
+                    <HStack w='full' justify="space-between">
+                        <Text fontSize="20px" fontWeight="extrabold">
+                            Exclude specific items:
+                        </Text>
+                        <Text onClick={() => handleExclude('')} cursor="pointer" textDecoration="underline" fontSize="18px" fontWeight="bold">Reset</Text>
+                    </HStack>
+                    <Input textAlign="left" value={excludeText} onChange={(e) => handleExclude(e.target.value)} />
+                    <Box>
+                        <Text fontWeight="bold">Click an item to exclude it:</Text>
+                        {
+                            data?.rates.filter(r => !exclude.includes(r.key.toLowerCase())).map(r => {
+                                return <Text onClick={() => handleExclude([...exclude, r.key].filter(e => !!e).join(','))} textDecoration="underline" cursor="pointer" mr="2" display="inline-block" key={r.key}>{r.key}</Text>
+                            })
+                        }
+                    </Box>
+                </VStack>
+            </VStack>
+        </InfoModal>
         {
             rates.length > 0 && isSmallerThan && <Table
                 keyName="key"
@@ -228,7 +311,7 @@ export const RateComparator = () => {
         }
         {
             !isSmallerThan && <>
-                <SimpleGrid gap="5" width={`${fields.length*250}px`} columns={fields.length}>
+                <SimpleGrid gap="5" width={`${fields.length * 250}px`} columns={fields.length}>
                     {
                         fields.map(f => {
                             return <Text key={f} fontWeight="extrabold" fontSize="28px">
@@ -250,7 +333,7 @@ export const RateComparator = () => {
                     {
                         rates.map((rate, i) => {
                             return <Link borderBottom="1px solid transparent" borderTop={`1px solid ${themeStyles.colors.mainTextColorAlpha}`} py="2" transition="200 ms all" _hover={{ borderY: `1px solid ${themeStyles.colors.mainTextColor}` }} w='full' isExternal target="_blank" href={rate.link} key={rate.key}>
-                                <SimpleGrid gap="5" width={`${fields.length*250}px`} columns={fields.length}>
+                                <SimpleGrid gap="5" width={`${fields.length * 250}px`} columns={fields.length}>
                                     <RateListItem fields={fields} {...rate} />
                                 </SimpleGrid>
                             </Link>
