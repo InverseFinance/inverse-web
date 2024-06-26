@@ -15,8 +15,10 @@ const links = {
     // 'compound-usdc': 'https://app.compound.finance/markets/usdc-mainnet',
     'curve-wbtc': 'https://crvusd.curve.fi/#/ethereum/markets/wbtc/create',
     'curve-wsteth': 'https://crvusd.curve.fi/#/ethereum/markets/wsteth/create',
+    'curve-weth': 'https://crvusd.curve.fi/#/ethereum/markets/eth/create',
     'frax-wbtc': 'https://app.frax.finance/fraxlend/pair?address=0x32467a5fc2d72D21E8DCe990906547A2b012f382',
     'frax-sfrxeth': 'https://app.frax.finance/fraxlend/pair?address=0x78bB3aEC3d855431bd9289fD98dA13F9ebB7ef15',
+    'frax-wsteth': 'https://app.frax.finance/fraxlend/pair?address=0xb5a46f712F03808aE5c4B885C6F598fA06442684',
 }
 
 export const getSiloRate = async () => {

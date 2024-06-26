@@ -5,7 +5,7 @@ import { NetworkIds } from '@app/types';
 import { getAaveV3Rate, getAaveV3RateDAI, getCompoundRate, getCrvUSDRate, getFirmRate, getFraxRate } from '@app/util/borrow-rates-comp';
 
 export default async function handler(req, res) {
-  const cacheKey = `borrow-rates-compare-v1.1.2`;
+  const cacheKey = `borrow-rates-compare-v1.1.3`;
 
   try {
     const cacheDuration = 600;
@@ -27,8 +27,10 @@ export default async function handler(req, res) {
       getCrvUSDRate('0xE0438Eb3703bF871E31Ce639bd351109c88666ea', 'WBTC', provider),
       // wstETH
       getCrvUSDRate('0x37417B2238AA52D0DD2D6252d989E728e8f706e4', 'wstETH', provider),
+      getCrvUSDRate('0x1681195c176239ac5e72d9aebacf5b2492e0c4ee', 'WETH', provider),
       getFraxRate(provider, '0x32467a5fc2d72D21E8DCe990906547A2b012f382', 'WBTC'),
       getFraxRate(provider, '0x78bB3aEC3d855431bd9289fD98dA13F9ebB7ef15', 'sfrxETH'),
+      getFraxRate(provider, '0xb5a46f712F03808aE5c4B885C6F598fA06442684', 'wstETH'),
       getFirmRate(provider),
     ]);
 
