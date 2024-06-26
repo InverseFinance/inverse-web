@@ -217,12 +217,12 @@ export const F2Context = ({
 
     const handleInputChange = (stringNumber: string) => {
         setInputAmount(stringNumber);
-        setCollateralAmount(isUnderlyingAsInputCase && stringNumber && parseFloat(stringNumber) ? parseFloat(stringNumber) / underlyingExRate : stringNumber);
+        setCollateralAmount(isUnderlyingAsInputCase && stringNumber && parseFloat(stringNumber) ? (parseFloat(stringNumber) / underlyingExRate).toFixed(6) : stringNumber);
     }
 
     const handleCollateralChange = (stringNumber: string) => {
         setCollateralAmount(stringNumber);
-        setInputAmount(isUnderlyingAsInputCase && stringNumber && parseFloat(stringNumber) ? parseFloat(stringNumber) * underlyingExRate : stringNumber);
+        setInputAmount(isUnderlyingAsInputCase && stringNumber && parseFloat(stringNumber) ? (parseFloat(stringNumber) * underlyingExRate).toFixed(6) : stringNumber);
     }
 
     const handleDebtChange = (stringNumber: string) => {

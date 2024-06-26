@@ -259,7 +259,6 @@ export const F2CombinedForm = ({
     const resetForm = (disableLeverage = true) => {
         handleDebtChange('');
         handleInputChange('');
-        handleCollateralChange('');
         setDbrSellAmount('');
         setUseLeverage(!disableLeverage);
         resetLeverage();
