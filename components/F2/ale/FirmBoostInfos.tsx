@@ -99,7 +99,7 @@ export const getLeverageImpact = async ({
     if (isUp) {
         // leverage up: dola amount is fixed, collateral amount is variable
         // if already has deposits, base is deposits, if not (=depositAndLeverage case), base is initialDeposit
-        const baseColAmountForLeverage = deposits > 0 ? deposits : initialDeposit;
+        const baseColAmountForLeverage = deposits > 0 ? deposits + initialDeposit : initialDeposit;
         const baseWorth = baseColAmountForLeverage * collateralPrice;
         let borrowStringToSign, borrowNumToSign;
         // precision is focused on collateral amount, only with 0x api
@@ -292,7 +292,7 @@ export const FirmBoostInfos = ({
         handleLeverageChange(input);
     }
 
-    const baseColAmountForLeverage = deposits > 0 ? deposits : collateralAmountNum;
+    const baseColAmountForLeverage = deposits > 0 ? deposits + collateralAmountNum : collateralAmountNum;
     const leverageSteps = useMemo(() => getSteps(market, baseColAmountForLeverage, debt, perc, type, 1, aleSlippage, []), [market, baseColAmountForLeverage, debt, perc, type, undefined, aleSlippage]);
     // when deleveraging we want the max to be higher what's required to repay all debt, the extra dola is sent to the wallet
     const maxLeverage = isLeverageUp ? roundDown(leverageSteps[leverageSteps.length - 1]) : roundUp(leverageSteps[leverageSteps.length - 1]);
@@ -322,13 +322,7 @@ export const FirmBoostInfos = ({
     const extraDolaReceivedInWallet = isLeverageUp ? 0 : estimatedAmount - amountOfDebtReduced;
 
     return <Stack fontSize="14px" spacing="4" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
-        <VStack position="relative" w='full' alignItems="center" justify="center">
-            {
-                market.isERC4626Collateral && ['Deposit & Borrow', 'Repay & Withdraw'].includes(mode) &&
-                <InfoMessage alertProps={{ w: 'full' }} description={
-                    <Text><b>In this market</b> it's currently <b>not possible to both deposit and leverage at the same time</b> (or withdraw and deleverage), <b>these actions have to be seperated</b>, if you don't have any deposit yet please only do a deposit first.</Text>
-                } />
-            }
+        <VStack position="relative" w='full' alignItems="center" justify="center">            
             <HStack spacing="8" w='full' justify="space-between" alignItems="center">
                 <InputGroup
                     w='fit-content'

@@ -30,6 +30,7 @@ import { isAddress } from 'ethers/lib/utils'
 import { BURN_ADDRESS } from '@app/config/constants'
 import { useMultisig } from '@app/hooks/useSafeMultisig'
 import { InfoMessage } from '@app/components/common/Messages'
+import { TOKEN_IMAGES } from '@app/variables/images'
 
 const { DOLA, F2_HELPER, F2_ALE } = getNetworkConfigConstants();
 
@@ -59,6 +60,7 @@ export const F2CombinedForm = ({
         handleDurationChange,
         handleDebtChange,
         handleCollateralChange,
+        handleInputChange,
         duration,
         durationType,
         durationTypedValue,
@@ -115,6 +117,12 @@ export const F2CombinedForm = ({
         setCustomRecipient,
         customRecipient,
         underlyingExRate,
+        isUnderlyingAsInputCase,
+        inputToken,
+        inputAmount,
+        inputAmountNum,
+        inputBalance,
+        bnInputBalance,
     } = useContext(F2MarketContext);
 
     const { isMultisig } = useMultisig();
@@ -177,7 +185,7 @@ export const F2CombinedForm = ({
                     market,
                     parseUnits(debtAmount),
                     // deposit in addition to collateral increase due to leverage
-                    action === 'borrow' ? BigNumber.from('0') : parseUnits(collateralAmount || '0', market.underlying.decimals),
+                    action === 'borrow' ? BigNumber.from('0') : parseUnits(inputAmount || '0', market.underlying.decimals),
                     aleSlippage,
                     isAutoDBR ? dbrBuySlippage : undefined,
                     isAutoDBR ? duration : 0,
@@ -250,7 +258,7 @@ export const F2CombinedForm = ({
 
     const resetForm = (disableLeverage = true) => {
         handleDebtChange('');
-        handleCollateralChange('');
+        handleInputChange('');
         setDbrSellAmount('');
         setUseLeverage(!disableLeverage);
         resetLeverage();
@@ -262,8 +270,10 @@ export const F2CombinedForm = ({
         setLeverage(1);
     }
 
-    const triggerCollateralAndOrLeverageChange = async (collateralString: string, collateralNum: number) => {
-        handleCollateralChange(collateralString);
+    const triggerCollateralAndOrLeverageChange = async (collateralString: string, collateralNum: number, isSkipSetter = false) => {
+        if (!isSkipSetter) {
+            handleCollateralChange(collateralString);
+        }
         const debouncedZeroXCall = async () => {
             if (useLeverageInMode && isDeleverageCase) {
                 const desiredWorth = (deposits - collateralNum) * market.price;
@@ -296,7 +306,7 @@ export const F2CombinedForm = ({
 
         const debouncedZeroXCall = async () => {
             if (leverageInMode || useLeverageInMode && !isDeleverageCase && !!debtNum && debtNum > 0) {
-                const baseColAmountForLeverage = deposits > 0 ? deposits : collateralAmountNum;
+                const baseColAmountForLeverage = deposits > 0 ? deposits + collateralAmountNum : collateralAmountNum;
                 const baseWorth = baseColAmountForLeverage * market.price;
                 const leverage = (debtNum + baseWorth) / baseWorth;
                 if (!market.price || leverage <= 1) {
@@ -338,7 +348,7 @@ export const F2CombinedForm = ({
     const isWrongCustomRecipient = !!customRecipient ? !isAddress(customRecipient) || customRecipient === BURN_ADDRESS : false;
     const disabledDueToLeverage = useLeverageInMode && (leverage <= 1 || leverageLoading || isTriggerLeverageFetch || !aleSlippage || aleSlippage === '0' || isNaN(parseFloat(aleSlippage)));
     const disabledConditions = {
-        'deposit': ((collateralAmountNum <= 0 && !useLeverageInMode) || collateralBalance < collateralAmountNum) || (isWrongCustomRecipient && isDepositOnlyCase),
+        'deposit': ((collateralAmountNum <= 0 && !useLeverageInMode) || inputBalance < inputAmountNum) || (isWrongCustomRecipient && isDepositOnlyCase),
         'borrow': duration <= 0 || debtAmountNum <= 0 || newPerc < 1 || showNeedDbrMessage || market.leftToBorrow < 1 || debtAmountNum > market.leftToBorrow || notEnoughToBorrowWithAutobuy || minDebtDisabledCondition || disabledDueToLeverage || showMinDebtMessage || isMultisig,
         'repay': (debtAmountNum <= 0 && !useLeverageInMode) || debtAmountNum > debt || showNotEnoughDolaToRepayMessage || (isAutoDBR && !parseFloat(dbrSellAmount)) || disabledDueToLeverage || showMinDebtMessage,
         'withdraw': ((collateralAmountNum <= 0 && !useLeverageInMode) || collateralAmountNum > deposits || newPerc < 1 || dbrBalance < 0),
@@ -354,22 +364,25 @@ export const F2CombinedForm = ({
     const mainFormInputs = <Stack direction={{ base: 'column' }} spacing="4" w='full'>
         {
             hasCollateralChange && <VStack w='full' alignItems="flex-start">
-                <FirmCollateralInputTitle isDeposit={isDeposit} market={market} deposits={deposits} isWethMarket={isWethMarket} isUseNativeCoin={isUseNativeCoin} useLeverageInMode={useLeverageInMode} />
+                <FirmCollateralInputTitle isDeposit={isDeposit} market={market} deposits={deposits} isWethMarket={isWethMarket} isUseNativeCoin={isUseNativeCoin} useLeverageInMode={useLeverageInMode} isUnderlyingAsInputCase={isUnderlyingAsInputCase} />
                 {
                     deposits > 0 || isDeposit ? <>
                         <SimpleAmountForm
-                            defaultAmount={collateralAmount}
-                            address={isUseNativeCoin ? '' : market.collateral}
+                            defaultAmount={inputAmount}
+                            address={isUseNativeCoin ? '' : inputToken}
                             destination={isAutoDBR ? F2_HELPER : market.address}
                             signer={signer}
                             decimals={colDecimals}
-                            maxAmountFrom={isDeposit ? isUseNativeCoin ? undefined : [bnCollateralBalance] : [bnDeposits].concat(isWithdrawOnlyCase ? [bnWithdrawalLimit] : [])}
+                            maxAmountFrom={isDeposit ? isUseNativeCoin ? undefined : [bnInputBalance] : [bnDeposits].concat(isWithdrawOnlyCase ? [bnWithdrawalLimit] : [])}
                             onAction={handleAction}
                             onMaxAction={handleAction}
                             actionLabel={btnLabel}
                             maxActionLabel={btnMaxlabel}
-                            onAmountChange={(v, s) => {
-                                triggerCollateralAndOrLeverageChange(v, s);
+                            onAmountChange={(v, num) => {
+                                const collateralString = isUnderlyingAsInputCase ? (num / underlyingExRate).toFixed(6) : v;
+                                const collateralNum = isUnderlyingAsInputCase ? (num / underlyingExRate) : num;
+                                handleInputChange(v);
+                                triggerCollateralAndOrLeverageChange(collateralString, collateralNum, true);
                             }}
                             showMaxBtn={isDeposit || !debt}
                             hideInputIfNoAllowance={false}
@@ -377,8 +390,8 @@ export const F2CombinedForm = ({
                             showMax={!isDeleverageCase}
                             showBalance={isDeposit}
                             inputProps={isDeleverageCase ? { disabled: false } : undefined}
-                            inputRight={<MarketImage pr="2" image={isWethMarket ? (isUseNativeCoin ? market.icon : market.underlying.image) : market.icon || market.underlying.image} size={25} />}
-                            isError={isDeposit ? collateralAmountNum > collateralBalance : collateralAmountNum > deposits}
+                            inputRight={<MarketImage pr="2" image={isWethMarket ? (isUseNativeCoin ? market.icon : market.underlying.image) : isUnderlyingAsInputCase ? TOKEN_IMAGES[market.underlyingSymbol] : (market.icon || market.underlying.image)} size={25} />}
+                            isError={isDeposit ? inputAmountNum > inputBalance : collateralAmountNum > deposits}
                         />
                         {
                             isWethMarket && !!market.helper && !isDeleverageCase && !isMultisig
@@ -395,6 +408,12 @@ export const F2CombinedForm = ({
                                 customRecipient={customRecipient}
                                 placeholder={account}
                             />
+                        }
+                        {
+                            useLeverageInMode && market.isERC4626Collateral && ['Deposit & Borrow'].includes(mode) &&
+                            <InfoMessage alertProps={{ w: 'full' }} description={
+                                <Text><b>Note:</b> in this market the <b>deposit and leverage action uses {market.underlyingSymbol} as the deposit asset instead of {market.underlying.symbol}</b>, if you prefer using {market.underlying.symbol}, you can deposit it first and then borrow with the leverage enabled in a second transaction.</Text>
+                            } />
                         }
                     </>
                         : <Text>Nothing to withdraw</Text>
@@ -424,7 +443,7 @@ export const F2CombinedForm = ({
                         <>
                             <SimpleAmountForm
                                 defaultAmount={debtAmount}
-                                address={market.collateral}
+                                address={inputToken}
                                 destination={isAutoDBR ? F2_HELPER : market.address}
                                 signer={signer}
                                 decimals={18}
@@ -474,7 +493,7 @@ export const F2CombinedForm = ({
                         canShowLeverage && <FirmLeverageSwitch isDeposit={isDeposit} useLeverage={useLeverage} onChange={(isDeposit) => {
                             const isActivatingLeverage = !useLeverage;
                             setUseLeverage(isActivatingLeverage);
-                            if (canActivateLeverage) {                                
+                            if (canActivateLeverage) {
                                 retriggerLeverage(isDeposit, debtAmount, debtAmountNum, true, collateralAmountNum);
                             }
                         }} />
@@ -506,19 +525,19 @@ export const F2CombinedForm = ({
 
     const actionBtn = <HStack>
         <SimpleAmountForm
-            defaultAmount={isRepayCase ? debtAmount : collateralAmount}
-            address={isWithdrawOnlyCase || isBorrowOnlyCase ? '' : isRepayCase ? DOLA : isUseNativeCoin ? '' : market.collateral}
+            defaultAmount={isRepayCase ? debtAmount : inputAmount}
+            address={isWithdrawOnlyCase || isBorrowOnlyCase ? '' : isRepayCase ? DOLA : isUseNativeCoin ? '' : inputToken}
             destination={useLeverageInMode ? F2_ALE : isAutoDBR || isUseNativeCoin ? F2_HELPER : market.address}
             needApprove={(!isDeleverageCase || (isDeleverageCase && debtAmountNum > 0)) && !(useLeverageInMode && isDeposit && !collateralAmountNum)}
             signer={signer}
             decimals={colDecimals}
-            maxAmountFrom={isDeposit ? [bnCollateralBalance] : [bnDeposits, bnWithdrawalLimit]}
+            maxAmountFrom={isDeposit ? [bnInputBalance] : [bnDeposits, bnWithdrawalLimit]}
             onAction={({ bnAmount }) => handleAction()}
             onMaxAction={({ bnAmount }) => handleWithdrawMax()}
             actionLabel={actionBtnLabel}
             approveLabel={(isAutoDBR || useLeverage) && isDeposit ? 'Step 1/3 - Approve' : undefined}
             maxActionLabel={'Unstake all'}
-            onAmountChange={handleCollateralChange}
+            onAmountChange={handleInputChange}
             showMaxBtn={market.isInv && isWithdrawCase && !debt}
             isDisabled={disabledConditions[MODES[mode]]}
             hideInputIfNoAllowance={false}
@@ -590,7 +609,7 @@ export const F2CombinedForm = ({
                     {['r&w', 'repay'].includes(MODES[mode]) && isAutoDBR && sellDbrInput}
                 </Stack>
                 {
-                    collateralAmountNum > collateralBalance && isDeposit && <NotEnoughCollateralMessage />
+                    inputAmountNum > inputBalance && isDeposit && <NotEnoughCollateralMessage />
                 }
                 {
                     market.isInv && <>
