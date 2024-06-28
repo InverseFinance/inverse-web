@@ -303,7 +303,7 @@ export const getCvxCrvAPRs = async (provider, _prices?: any) => {
         const [mainRewardRates, extraRewardRates, pricesRes] = await Promise.all([
             utilContract.mainRewardRates(),
             utilContract.extraRewardRates(),
-            !!_prices ? Promise.resolve() : fetch(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=curve-dao-token,convex-finance,convex-crv,lp-3pool-curve`)
+            !!_prices ? Promise.resolve() : fetch(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=curve-dao-token,convex-finance,convex-crv,lp-3pool-curve,crvusd`)
         ]);
 
         const prices = _prices || await pricesRes.json();
@@ -313,6 +313,7 @@ export const getCvxCrvAPRs = async (provider, _prices?: any) => {
             '0x6c3f90f043a72fa612cbac8115ee7e52bde6e490': 'lp-3pool-curve',
             '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b': 'convex-finance',
             '0xd533a949740bb3306d119cc777fa900ba034cd52': 'curve-dao-token',
+            '0xf939e0a03fb07f59a73314e73794be0e57ac1b4e': 'crvusd',
         }
 
         const aprs = await Promise.all(
@@ -333,10 +334,13 @@ export const getCvxCrvAPRs = async (provider, _prices?: any) => {
             crv: getBnToNumber(aprs[0]) * 100,
             cvx: getBnToNumber(aprs[1]) * 100,
             '3crv': getBnToNumber(aprs[2]) * 100,
+            'crvusd': getBnToNumber(aprs[3]) * 100,
             group1: (getBnToNumber(aprs[0]) * 100) + (getBnToNumber(aprs[1]) * 100),
-            group2: getBnToNumber(aprs[2]) * 100,
+            group2: getBnToNumber(aprs[3]) * 100,
         };
-    } catch (e) { console.log(e) }
+    } catch (e) {
+        console.log(e)
+    }
     return {};
 }
 
