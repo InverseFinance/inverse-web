@@ -85,10 +85,10 @@ export const CvxCrvPreferences = () => {
                             </Text>
                         }
                         <Text>
-                            Staked cvxCRV can earn two types of rewards: CRV+CVX or 3CRV, or a combination of both types.
+                            Staked cvxCRV can earn two types of rewards: CRV+CVX or crvUSD, or a combination of both types.
                         </Text>
                         <Text>
-                            By default the weight of the 3CRV rewards are 0% and the weight of the CRV+CVX reward is 100%.
+                            By default the weight of the crvUSD rewards are 0% and the weight of the CRV+CVX reward is 100%.
                         </Text>
                         <Link href="https://docs.convexfinance.com/convexfinance/guides/depositing/crv" isExternal target="_blank">
                             Read more about how weights work.
@@ -125,7 +125,7 @@ export const CvxCrvPreferences = () => {
                         <CvxCrvWeightBar perc={perc} onChange={setPerc} />
                         <PercentagesBar
                             leftLabel={isLargerThan ? '100% Crv & Cvx' : ''}
-                            rightLabel={isLargerThan ? '100% 3crv' : ''}
+                            rightLabel={isLargerThan ? '100% crvUSD' : ''}
                             ticks={[0, 50, 100]}
                             showAsRepartition={false}
                             onChange={setPerc}
