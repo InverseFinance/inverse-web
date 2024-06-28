@@ -158,7 +158,7 @@ export const FirmLeverageSwitch = ({
 }) => {
     return <FormControl w='fit-content' display='flex' alignItems='center'>
         <FormLabel fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='leverage-switch' mb='0'>
-            {isDeposit ? 'L' : 'Del'}everage?
+            {isDeposit ? 'L' : 'Del'}everage / Looping
         </FormLabel>
         <Switch onChange={() => onChange(isDeposit)} isChecked={useLeverage} id='leverage-switch' />
     </FormControl>
