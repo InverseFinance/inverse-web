@@ -240,6 +240,93 @@ const firmImages = {
 
 const responsiveThreshold = 1260;
 
+export const MARKET_INFOS = {
+    'INV': {
+        name: 'INV',
+        fullname: 'Inverse Finance',
+        description: 'The Governance token of the Inverse Finance DAO, staking it prevents from being diluted if new tokens are minted and the stakers also get real-yield with DBR rewards.',
+        getLink: 'https://swap.defillama.com/?chain=ethereum&from=0x865377367054516e17014ccded1e7d814edc9ce4&to=0x41d5d79431a913c4ae7d69a668ecdfe5ff9dfb68',
+    },
+    'WETH': {
+        name: 'WETH',
+        fullname: 'Wrapped ETH',
+        description: 'In this market you can use ETH or Wrapped ETH',
+        getLink: 'https://swap.defillama.com/?chain=ethereum&from=0x865377367054516e17014ccded1e7d814edc9ce4&to=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+    },
+    'sFRAX': {
+        name: 'sFRAX',
+        fullname: 'Staked FRAX',
+        description: 'sFRAX is an ERC4626 staking vault that distributes part of the Frax Protocol yield weekly to stakers denominated in FRAX stablecoins.',
+        getLink: 'https://app.frax.finance/sfrax/stake',
+    },
+    'DAI': {
+        name: 'DAI',
+        fullname: 'Dai Stablecoin',
+        description: 'When DAI is deposited on FiRM it is automatically staked in the DAI Savings Rate contract to benefit from the yield, the staked version of DAI is known as sDAI.',
+        getLink: 'https://app.spark.fi/',
+    },
+    'CVX': {
+        name: 'CVX',
+        fullname: 'Convex Token',
+        description: 'CVX is the native platform token for Convex Finance',
+        getLink: 'https://swap.defillama.com/?chain=ethereum&from=0x865377367054516e17014ccded1e7d814edc9ce4&to=0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b',
+    },
+    'cvxCRV': {
+        name: 'cvxCRV',
+        fullname: 'Convex CRV',
+        description: 'Stake the CRV token to get cvxCRV, when deposited on FiRM you still get all the rewards of cvxCRV',
+        getLink: 'https://curve.convexfinance.com/stake',
+    },
+    'cvxFXS': {
+        name: 'cvxFX',
+        fullname: 'Convex FXS',
+        description: 'Stake the FXS (Frax Share token) to get cvxFXS, when deposited on FiRM you still get all the rewards of cvxFXS',
+        getLink: 'https://frax.convexfinance.com/stake',
+    },
+    'CRV': {
+        name: 'CRV',
+        fullname: 'Curve Token',
+        description: 'CRV is the native platform token for Curve Finance',
+        getLink: 'https://swap.defillama.com/?chain=ethereum&from=0x865377367054516e17014ccded1e7d814edc9ce4&to=0xd533a949740bb3306d119cc777fa900ba034cd52',
+    },
+    'stETH': {
+        name: 'stETH',
+        fullname: 'Staked ETH',
+        description: 'Liquid staked ETH by Lido, rebasing token',
+        getLink: 'https://stake.lido.fi/',
+    },
+    'wstETH': {
+        name: 'wstETH',
+        fullname: 'Wrapped Staked ETH',
+        description: 'Wrapped version of stETH with no rebasing',
+        getLink: 'https://stake.lido.fi/wrap',
+    },
+    'st-yETH': {
+        name: 'st-yETH',
+        fullname: 'Staked yETH',
+        description: 'Staked version of yETH, a user-governed liquidity pool token consisting of various Ethereum Liquid Staking Derivatives (LSTs), by Yearn',
+        getLink: 'https://yeth.yearn.fi/',
+    },
+    'st-yCRV': {
+        name: 'st-yCRV',
+        fullname: 'Staked yCRV',
+        description: "Staked version of yCRV, which is Yearn's veCRV yLocker product. It is designed to tokenize the different benefits of a veCRV position in a simple, user-friendly way",
+        getLink: 'https://ycrv.yearn.fi/app/deposit'
+    },
+    'WBTC': {
+        name: 'WBTC',
+        fullname: 'Wrapped Bitcoin',
+        description: 'Wrapped “There is no second best”',
+        getLink: 'https://swap.defillama.com/?chain=ethereum&from=0x865377367054516e17014ccded1e7d814edc9ce4&to=0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+    },
+    'gOHM': {
+        name: 'gOHM',
+        fullname: 'Governance OHM',
+        description: 'gOHM, or Governance OHM, is an ERC-20 token that is the only token used for proposing upgrades to Olympus protocol. gOHM can be obtained by wrapping OHM, and vice versa. The only use cases of gOHM today is for voting in governance and as collateral to take a Cooler Loan.',
+        getLink: 'https://app.olympusdao.finance/#/my-balances',
+    },
+}
+
 export const F2Markets = ({
     isDashboardPage = false
 }: {
