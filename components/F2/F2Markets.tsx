@@ -1,4 +1,4 @@
-import { Badge, Divider, Flex, HStack, Stack, Text, useMediaQuery, VStack, Image } from "@chakra-ui/react"
+import { Badge, Divider, Flex, HStack, Stack, Text, useMediaQuery, VStack, Image, PopoverBody, Popover, PopoverTrigger, PopoverContent } from "@chakra-ui/react"
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
@@ -16,11 +16,99 @@ import { gaEvent } from "@app/util/analytics";
 import { DailyLimitCountdown } from "@app/components/common/Countdown";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { SafetyBadges } from "./SecurityMiniCaroussel";
-import { ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon, InfoIcon } from "@chakra-ui/icons";
 import { SplashedText } from "../common/SplashedText";
 import { lightTheme } from "@app/variables/theme";
 import { useState } from "react";
 import Link from "../common/Link";
+
+
+export const MARKET_INFOS = {
+    'INV': {
+        name: 'INV',
+        fullname: 'Inverse DAO',
+        description: 'The Governance token of the Inverse Finance DAO, staking it prevents from being diluted if new tokens are minted and the stakers also get real-yield with DBR rewards.',
+        getLink: 'https://swap.defillama.com/?chain=ethereum&from=0x865377367054516e17014ccded1e7d814edc9ce4&to=0x41d5d79431a913c4ae7d69a668ecdfe5ff9dfb68',
+    },
+    'WETH': {
+        name: 'WETH',
+        fullname: 'Wrapped ETH',
+        description: 'In this market you can use ETH or Wrapped ETH',
+        getLink: 'https://swap.defillama.com/?chain=ethereum&from=0x865377367054516e17014ccded1e7d814edc9ce4&to=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+    },
+    'sFRAX': {
+        name: 'sFRAX',
+        fullname: 'Staked FRAX',
+        description: 'sFRAX is an ERC4626 staking vault that distributes part of the Frax Protocol yield weekly to stakers denominated in FRAX stablecoins.',
+        getLink: 'https://app.frax.finance/sfrax/stake',
+    },
+    'DAI': {
+        name: 'DAI',
+        fullname: 'Dai Stablecoin',
+        description: 'When DAI is deposited on FiRM it is automatically staked in the DAI Savings Rate contract to benefit from the yield, the staked version of DAI is known as sDAI.',
+        getLink: 'https://app.spark.fi/',
+    },
+    'CVX': {
+        name: 'CVX',
+        fullname: 'Convex Token',
+        description: 'CVX is the native platform token for Convex Finance',
+        getLink: 'https://swap.defillama.com/?chain=ethereum&from=0x865377367054516e17014ccded1e7d814edc9ce4&to=0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b',
+    },
+    'cvxCRV': {
+        name: 'cvxCRV',
+        fullname: 'Convex CRV',
+        description: 'Stake the CRV token to get cvxCRV, when deposited on FiRM you still get all the rewards of cvxCRV',
+        getLink: 'https://curve.convexfinance.com/stake',
+    },
+    'cvxFXS': {
+        name: 'cvxFX',
+        fullname: 'Convex FXS',
+        description: 'Stake the FXS (Frax Share token) to get cvxFXS, when deposited on FiRM you still get all the rewards of cvxFXS',
+        getLink: 'https://frax.convexfinance.com/stake',
+    },
+    'CRV': {
+        name: 'CRV',
+        fullname: 'Curve Token',
+        description: 'CRV is the native platform token for Curve Finance',
+        getLink: 'https://swap.defillama.com/?chain=ethereum&from=0x865377367054516e17014ccded1e7d814edc9ce4&to=0xd533a949740bb3306d119cc777fa900ba034cd52',
+    },
+    'stETH': {
+        name: 'stETH',
+        fullname: 'Staked ETH',
+        description: 'Liquid staked ETH by Lido, rebasing token',
+        getLink: 'https://stake.lido.fi/',
+    },
+    'wstETH': {
+        name: 'wstETH',
+        fullname: 'Wrapped Staked ETH',
+        description: 'Wrapped version of stETH with no rebasing',
+        getLink: 'https://stake.lido.fi/wrap',
+    },
+    'st-yETH': {
+        name: 'st-yETH',
+        fullname: 'Staked yETH',
+        description: 'Staked version of yETH, a user-governed liquidity pool token consisting of various Ethereum Liquid Staking Derivatives (LSTs), by Yearn',
+        getLink: 'https://yeth.yearn.fi/',
+    },
+    'st-yCRV': {
+        name: 'st-yCRV',
+        fullname: 'Staked yCRV',
+        description: "Staked version of yCRV, which is Yearn's veCRV yLocker product. It is designed to tokenize the different benefits of a veCRV position in a simple, user-friendly way",
+        getLink: 'https://ycrv.yearn.fi/app/deposit'
+    },
+    'WBTC': {
+        name: 'WBTC',
+        fullname: 'Wrapped Bitcoin',
+        description: 'Wrapped “There is no second best”',
+        getLink: 'https://swap.defillama.com/?chain=ethereum&from=0x865377367054516e17014ccded1e7d814edc9ce4&to=0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+    },
+    'gOHM': {
+        name: 'gOHM',
+        fullname: 'Governance OHM',
+        description: 'gOHM, or Governance OHM, is an ERC-20 token that is the only token used for proposing upgrades to Olympus protocol. gOHM can be obtained by wrapping OHM, and vice versa. The only use cases of gOHM today is for voting in governance and as collateral to take a Cooler Loan.',
+        getLink: 'https://app.olympusdao.finance/#/my-balances',
+    },
+}
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -34,6 +122,29 @@ const CellText = ({ ...props }) => {
     return <Text fontSize="14px" {...props} />
 }
 
+export const MarketInfos = ({ name, nameAndIcon, ...props }) => {
+    return <VStack py="4" px="4" cursor="default" w='full' alignItems="flex-start" {...props}>
+        <HStack spacing="4" alignItems="center" justify="flex-start" w='full'>
+            <Stack>
+                {nameAndIcon}
+            </Stack>
+            <Text>-</Text>
+            <Text fontSize="18px" fontWeight="extrabold">{MARKET_INFOS[name].fullname}</Text>
+        </HStack>
+        <Text fontSize="16px" color="mainTextColorLight">{MARKET_INFOS[name].description}</Text>
+        <Link fontSize="14px" textDecoration="underline" href={MARKET_INFOS[name].getLink} isExternal target="_blank">
+            Get {name} <ExternalLinkIcon />
+        </Link>
+    </VStack>
+}
+
+export const MarketNameAndIcon = ({ marketIcon, icon, underlying, name }) => {
+    return <HStack justify="flex-start" alignItems="center" spacing="2" w='full'>
+        <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
+        <CellText fontWeight="bold" fontSize={{ base: '18px', '2xl': '20px' }}>{name}</CellText>
+    </HStack>
+}
+
 const columns = [
     {
         field: 'name',
@@ -41,24 +152,33 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="110px" justify="flex-start"  {...props} />,
         tooltip: 'Market type, each market have an underlying token and strategy',
         value: ({ name, icon, marketIcon, underlying, badgeInfo, badgeProps }) => {
-            return <Cell minWidth="110px">
-                <Cell minWidth='110px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
-                    <HStack justify="flex-start" alignItems="center" spacing="2" w='full'>
-                        <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
-                        <CellText fontWeight="bold" fontSize={{ base: '18px', '2xl': '20px' }}>{name}</CellText>
-                    </HStack>
-                    {
-                        !!badgeInfo && <CellText fontWeight="bold">
-                            <Badge fontWeight="normal"
-                                textTransform="none"
-                                borderRadius="50px"
-                                px="8px"
-                                {...badgeProps}>
-                                {badgeInfo}
-                            </Badge>
-                        </CellText>
-                    }
-                </Cell>
+            const nameAndIcon = <MarketNameAndIcon name={name} icon={icon} marketIcon={marketIcon} underlying={underlying} />
+            return <Cell minWidth="110px" position="relative">
+                <Popover closeOnBlur={true} trigger="hover" isLazy placement="right-end" strategy="absolute">
+                    <PopoverTrigger>
+                        <Cell minWidth='110px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
+                            <HStack spacing="1" w="fit-content">
+                                {nameAndIcon}<InfoIcon position="absolute" right="-18px" opacity="0.5" color="mainTextColor" />
+                            </HStack>
+                            {
+                                !!badgeInfo && <CellText fontWeight="bold">
+                                    <Badge fontWeight="normal"
+                                        textTransform="none"
+                                        borderRadius="50px"
+                                        px="8px"
+                                        {...badgeProps}>
+                                        {badgeInfo}
+                                    </Badge>
+                                </CellText>
+                            }
+                        </Cell>
+                    </PopoverTrigger>
+                    <PopoverContent transform="translateX(300px)" bgColor="containerContentBackground" zIndex="99" border="1px solid #ccc" _focus={{ outline: 'none' }} maxW="98vw" w='600px'>
+                        <PopoverBody>
+                            <MarketInfos nameAndIcon={nameAndIcon} name={name} />
+                        </PopoverBody>
+                    </PopoverContent>
+                </Popover>
             </Cell>
         },
     },
@@ -318,7 +438,7 @@ export const F2Markets = ({
         labelProps={{ fontSize: { base: '14px', sm: '18px' }, fontWeight: 'extrabold' }}
         contentProps={{
             maxW: { base: '90vw', sm: '100%' },
-            overflowX: 'auto',
+            overflow: 'visible',
             p: isSmallerThan ? '0' : '4',
             shadow: isSmallerThan ? '0' : '0 0 0px 1px rgba(0, 0, 0, 0.25)',
             borderRadius: isSmallerThan ? '0' : '8px',

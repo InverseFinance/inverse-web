@@ -18,6 +18,7 @@ import { OracleType } from '../Infos/OracleType'
 import { gaEvent } from '@app/util/analytics'
 import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader'
 import { useAppTheme } from '@app/hooks/useAppTheme'
+import { MarketInfos, MarketNameAndIcon } from '../F2Markets'
 
 type Data = {
     tooltip: string
@@ -314,7 +315,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
 
     let alternativeBalanceValue = '';
     if (underlyingExRate > 0) {
-        alternativeBalanceValue = `${newDeposits ? `Underlying amount: ${shortenNumber(newDeposits * underlyingExRate, 2)} ${market.underlyingSymbol||''}` : ''}`
+        alternativeBalanceValue = `${newDeposits ? `Underlying amount: ${shortenNumber(newDeposits * underlyingExRate, 2)} ${market.underlyingSymbol || ''}` : ''}`
     }
 
     const positionInfos = [
@@ -425,6 +426,9 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
 
     const tabItems = lists[infoTab];
 
+    const marketNameAndIcon = <MarketNameAndIcon {...market} />
+    const marketDescription = <MarketInfos p="0" mt="4" nameAndIcon={marketNameAndIcon} name={market.name} />
+
     const handleTabChange = (v: string) => {
         setInfoTab(v);
         gaEvent({ action: `FiRM-info-tab-${v.toLowerCase().replace(' ', '_')}` });
@@ -449,22 +453,29 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
                     />
                 </VStack>
                 :
-                infoTab === 'My Activity' ?
-                    <VStack pt="4" w='full' alignItems="flex-start">
-                        <Text color="secondaryTextColor">
-                            Most recent events in this market about my account:
-                        </Text>
-                        {
-                            !_events?.length && !isLoadingEvents && (!isLoadingEventsFromApi || !lastFirmActionIndexLoaded) ?
-                                <InfoMessage alertProps={{ w: 'full' }} description="No event yet" />
-                                :
-                                <ErrorBoundary description={'Something went wrong getting activity'}>
-                                    <FirmAccountEvents events={_events} account={account} overflowY="auto" maxH="300px" />
-                                </ErrorBoundary>
-                        }
-                    </VStack>
-                    :
-                    <ListInfos listInfos={tabItems} />
+                <>
+                    {
+                        infoTab === 'Market Details' && marketDescription
+                    }
+                    {
+                        infoTab === 'My Activity' ?
+                            <VStack pt="4" w='full' alignItems="flex-start">
+                                <Text color="secondaryTextColor">
+                                    Most recent events in this market about my account:
+                                </Text>
+                                {
+                                    !_events?.length && !isLoadingEvents && (!isLoadingEventsFromApi || !lastFirmActionIndexLoaded) ?
+                                        <InfoMessage alertProps={{ w: 'full' }} description="No event yet" />
+                                        :
+                                        <ErrorBoundary description={'Something went wrong getting activity'}>
+                                            <FirmAccountEvents events={_events} account={account} overflowY="auto" maxH="300px" />
+                                        </ErrorBoundary>
+                                }
+                            </VStack>
+                            :
+                            <ListInfos listInfos={tabItems} />
+                    }
+                </>
         }
     </VStack>
 }
