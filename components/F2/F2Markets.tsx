@@ -438,7 +438,7 @@ export const F2Markets = ({
         labelProps={{ fontSize: { base: '14px', sm: '18px' }, fontWeight: 'extrabold' }}
         contentProps={{
             maxW: { base: '90vw', sm: '100%' },
-            overflowX: 'auto',
+            overflow: 'visible',
             p: isSmallerThan ? '0' : '4',
             shadow: isSmallerThan ? '0' : '0 0 0px 1px rgba(0, 0, 0, 0.25)',
             borderRadius: isSmallerThan ? '0' : '8px',
