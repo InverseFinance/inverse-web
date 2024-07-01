@@ -122,8 +122,8 @@ const CellText = ({ ...props }) => {
     return <Text fontSize="14px" {...props} />
 }
 
-const MarketInfos = ({ name, nameAndIcon }) => {
-    return <VStack py="4" px="4" cursor="default" w='full' alignItems="flex-start">
+export const MarketInfos = ({ name, nameAndIcon, ...props }) => {
+    return <VStack py="4" px="4" cursor="default" w='full' alignItems="flex-start" {...props}>
         <HStack spacing="4" alignItems="center" justify="flex-start" w='full'>
             <Stack>
                 {nameAndIcon}
@@ -138,7 +138,7 @@ const MarketInfos = ({ name, nameAndIcon }) => {
     </VStack>
 }
 
-const MarketNameAndIcon = ({ marketIcon, icon, underlying, name }) => {
+export const MarketNameAndIcon = ({ marketIcon, icon, underlying, name }) => {
     return <HStack justify="flex-start" alignItems="center" spacing="2" w='full'>
         <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
         <CellText fontWeight="bold" fontSize={{ base: '18px', '2xl': '20px' }}>{name}</CellText>
@@ -158,7 +158,7 @@ const columns = [
                     <PopoverTrigger>
                         <Cell minWidth='110px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
                             <HStack spacing="1" w="fit-content">
-                                {nameAndIcon}<InfoIcon position="absolute" right="-15px" opacity="0.5" color="mainTextColor" />
+                                {nameAndIcon}<InfoIcon position="absolute" right="-18px" opacity="0.5" color="mainTextColor" />
                             </HStack>
                             {
                                 !!badgeInfo && <CellText fontWeight="bold">
