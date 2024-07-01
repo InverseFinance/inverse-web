@@ -36,7 +36,7 @@ export default async function handler(req, res) {
             res.json({ ...data, requests: arr });
             break
         case 'POST':
-            if (!account || (!!decimals && isNaN(decimals)) || (!['true', 'false'].includes(wouldUse.toString())) || !isAddress(account) || (!value && !symbol) || description?.length > 500 || value?.length > 250 || symbol?.length > 250) {
+            if (!account || /[^0-9a-z]/i.test(symbol) || /[<>/\\{}]/i.test(description) || (!!decimals && isNaN(decimals)) || (!['true', 'false'].includes(wouldUse.toString())) || !isAddress(account) || (!!value && !isAddress(value)) || typeof wouldUse !== 'boolean' || (!value && !symbol) || description?.length > 500 || value?.length > 250 || symbol?.length > 250) {
                 res.status(400).json({ status: 'error', message: 'Invalid values' })
                 return
             }
