@@ -188,7 +188,11 @@ export const getYearnVaults = async () => {
 
 export const getStYcrvData = async () => {
     try {
-        return getPoolYield('ab10cba6-ae66-4a91-9544-499c375853f9');
+        const results = await fetch('https://ydaemon.yearn.fi/1/vault/0x27B5739e22ad9033bcBf192059122d163b60349D');
+        const data = await results.json();
+        const netAPR = data.apr.netAPR;
+        const estimatedApy = aprToApy(100 * (netAPR + (data.apr.fees.performance+data.apr.fees.management) * netAPR), 365);
+        return { apy: estimatedApy };
     } catch (e) { console.log(e) }
     return [];
 }
