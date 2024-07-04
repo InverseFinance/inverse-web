@@ -14,6 +14,7 @@ import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect'
 
 const maxWidth = 1200;
 
+// TODO: clean & optimize
 export const useFirmUserPositionEvolution = (
     market: F2Market,
     priceRef: 'oracleHistoPrice' | 'cgHistoPrice' | 'comboPrice' = 'oracleHistoPrice',
@@ -25,7 +26,7 @@ export const useFirmUserPositionEvolution = (
     const { deposits, escrow, debt, firmActionIndex } = useContext(F2MarketContext);
     const { prices: cgHistoPrices, isLoading: isLoadingHistoPrices } = useHistoricalPrices(market.underlying.coingeckoId);
     const { evolution: histoOraclePricesEvolution, isLoading: isLoadingOracleHistoPrices } = useHistoOraclePrices(market.address);
-    const { historicalData: dbrHistoricalData } = useDBR();
+    const { historicalData: dbrHistoricalData, isLoading: isLoadingDBR } = useDBR();
     const dbrPrices = (dbrHistoricalData?.prices || []);
     const dbrPricesAsObj = !!dbrPrices ? dbrPrices.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr[0])]: curr[1] }), {}) : {};
     const { prices, isLoading: isLoadingPrices } = usePrices();
@@ -35,13 +36,13 @@ export const useFirmUserPositionEvolution = (
     const [isLoadingDebounced, setIsLoadingDebounced] = useState(true);
     // from api
     const { evolution: escrowBalanceEvolution, timestamps, isLoading: isLoadingEscrowEvo, formattedEvents, depositedByUser: depositedByUserApi } = useEscrowBalanceEvolution(account, escrow, market.address, firmActionIndex);
-    const events = _events?.length <= formattedEvents?.length ? formattedEvents : _events?.map(e => ({ ...e, timestamp: e.timestamp || timestamps[e.blockNumber] })).filter(e => !!e.timestamp);    
-    const isLoading = isLoadingOracleHistoPrices || isLoadingHistoPrices || isLoadingPrices || isLoadingEscrowEvo || isLoadingMarketEvo;
+    const events = _events?.length <= formattedEvents?.length ? formattedEvents : _events?.map(e => ({ ...e, timestamp: e.timestamp || timestamps[e.blockNumber] })).filter(e => !!e.timestamp);
+    const isLoading = isLoadingOracleHistoPrices || isLoadingHistoPrices || isLoadingPrices || isLoadingEscrowEvo || isLoadingMarketEvo || isLoadingDBR;
 
     useDualSpeedEffect(() => {
         setIsLoadingDebounced(isLoading);
     }, [isLoading], isLoading, 7000, 1000);
-    
+
     const start = events.find(e => e.actionName === 'Deposit' || 'LeverageUp')?.timestamp;
     const _depositedByUser = depositedByUserLive || depositedByUserApi;
     const collateralRewards = _depositedByUser > 0 ? Math.max((deposits) - _depositedByUser, 0) : 0;
@@ -49,7 +50,7 @@ export const useFirmUserPositionEvolution = (
     const pricesAtEvents = events.map(e => {
         const price = cgHistoPrices.find(p => timestampToUTC(p[0]) === timestampToUTC(e.timestamp))?.[1];
         return [e.timestamp, price];
-    }).filter(p => p[0] && !!p[1]);    
+    }).filter(p => p[0] && !!p[1]);
 
     const allPrices = [
         ...pricesAtEvents,
@@ -66,7 +67,14 @@ export const useFirmUserPositionEvolution = (
 
     const currentPrice = priceRef === 'cgHistoPrice' ? (!!prices ? prices[market.underlying.coingeckoId] : 0) : market.price;
 
-    const data = relevantPrices.map((p, i) => {
+    const relevantPricesWithDate = relevantPrices.map((p, i) => {
+        const event = events.find(e => !e.isClaim && e.timestamp === p[0]);
+        return [p[0], p[1], p[2], !!event, timestampToUTC(p[0])]
+    });
+    // keep data with events or one price data a day
+    const simplifiedPrices = relevantPricesWithDate.filter((p,i) => p[3] || relevantPricesWithDate.findIndex(pf => pf[4] === p[4]) === i);
+
+    const data = simplifiedPrices.map((p, i) => {
         const event = events.find(e => !e.isClaim && e.timestamp === p[0]);
         const histoEscrowDataFromApi = escrowBalanceEvolution?.findLast(e => e.timestamp <= p[0]);
         const histoEscrowBalance = histoEscrowDataFromApi?.balance;
@@ -85,11 +93,12 @@ export const useFirmUserPositionEvolution = (
         const rewardsUsd = ((claims + histoEscrowDbrClaimable) * dbrHistoPrice) || 0;
         const estimatedStakedBonusUsd = estimatedStakedBonus * p[1];
         let priceToUse = p[1];
-        let cf = p[2]||0;
-        
+        let cf = p[2] || 0;
+
         const creditWorth = balance * priceToUse * cf;
         return {
             timestamp: p[0],
+            utcDate: timestampToUTC(p[0]),
             collateralFactor: cf * 100,
             comboPrice: priceToUse,
             cgHistoPrice: priceToUse,
@@ -102,7 +111,7 @@ export const useFirmUserPositionEvolution = (
             event,
             depositsOnlyWorth: unstakedCollateralBalance * priceToUse,
             balanceWorth: balance * priceToUse,
-            borrowLimit: creditWorth > 0 ? Math.min((debt/creditWorth) * 100, 100) : 0,
+            borrowLimit: creditWorth > 0 ? Math.min((debt / creditWorth) * 100, 100) : 0,
             liquidationPrice: creditWorth > 0 ? debt / (cf * balance) : 0,
             creditWorth,
             totalWorth: rewardsUsd + balance * priceToUse,
@@ -113,7 +122,7 @@ export const useFirmUserPositionEvolution = (
             balance,
             depositedByUser: _depositedByUser,
             dbrClaimed: claims,
-            dbrRewards: (claims + histoEscrowDbrClaimable||0)||0,
+            dbrRewards: (claims + histoEscrowDbrClaimable || 0) || 0,
             dbrClaimable: histoEscrowDbrClaimable,
             estimatedStakedBonus,
             estimatedStakedBonusUsd,
@@ -142,7 +151,7 @@ export const useFirmUserPositionEvolution = (
         debt,
         debtUsd: debt,
         balance: deposits,
-        borrowLimit: deposits > 0 ? Math.min(debt/(deposits * currentPrice * market.collateralFactor) * 100, 100) : 0,
+        borrowLimit: deposits > 0 ? Math.min(debt / (deposits * currentPrice * market.collateralFactor) * 100, 100) : 0,
         collateralFactor: market.collateralFactor * 100,
         creditWorth: deposits * currentPrice * market.collateralFactor,
         balanceWorth: deposits * currentPrice,
@@ -154,7 +163,7 @@ export const useFirmUserPositionEvolution = (
         dbrRewards,
     });
 
-    return { data, walletSupportsEvents: events?.length > 0, isLoading: isLoadingDebounced, isError: !isLoadingDebounced && !hasData };
+    return { data, firmActionIndex, walletSupportsEvents: events?.length > 0, isLoading: isLoadingDebounced, isError: !isLoadingDebounced && !hasData };
 }
 
 export const WorthEvoChartWrapper = ({
@@ -170,11 +179,11 @@ export const WorthEvoChartWrapper = ({
         setChartWidth(isLargerThan ? maxWidth : (screen.availWidth || screen.width) - 50)
     }, [isLargerThan, maxWidth]);
 
-    if(!escrow || escrow === BURN_ADDRESS) {
+    if (!escrow || escrow === BURN_ADDRESS) {
         return null
     }
 
-    if(market.isInv) {
+    if (market.isInv) {
         return <WorthEvoChartContainerINV chartWidth={chartWidth} market={market} />
     }
 
