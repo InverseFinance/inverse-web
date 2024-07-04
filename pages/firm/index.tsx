@@ -38,7 +38,7 @@ export const F2PAGE = ({
         if (!colReqShown) {
             crOnOpen();
         }
-    }, [colReqShown], 2000);
+    }, [colReqShown], 4000);
 
     const handleColReqClose = () => {
         setColReqShown(true);
