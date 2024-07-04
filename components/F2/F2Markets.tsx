@@ -415,13 +415,13 @@ export const F2Markets = ({
     return <Container
         p={isDashboardPage ? '0' : '6'}
         label={
-            <Stack direction={{ base: 'column', xl: 'row' }} alignItems="flex-start" justify="center">
+            <Stack h={{ base: 'auto', xl: '56px' }} direction={{ base: 'column', xl: 'row' }} alignItems="flex-start" justify="center">
                 <Image transform="translateY(4px)" src={`/assets/firm/${firmImages[themeName]}`} w='110px' h="auto" />
-                <VStack spacing="0" alignItems="flex-start">
+                <VStack h={{ base: 'auto', xl: '56px' }} overflow="hidden" spacing="0" alignItems="flex-start">
                     <Text fontWeight="bold" fontSize={{ base: '14px', md: '16px' }}>
                         {
                             !dbrPrice ?
-                                <SmallTextLoader pt="13px" width="42px" />
+                                <SmallTextLoader h="16px" pt="8px" width="42px" />
                                 :
                                 <b style={{ color: themeStyles.colors.success, fontSize: '18px', fontWeight: '900' }}>
                                     {shortenNumber(dbrPrice * 100, 2)}
