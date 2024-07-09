@@ -28,6 +28,7 @@ import { WorthEvoChartWrapper } from '@app/components/F2/WorthEvoChartContainer'
 import { DbrV1IssueModal } from '@app/components/F2/Modals/DbrV1IssueIModal'
 import { useMultisig } from '@app/hooks/useSafeMultisig'
 import Link from '@app/components/common/Link'
+import { FirmInsuranceCover } from '@app/components/common/InsuranceCover'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -179,6 +180,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                             <ErrorBoundary description="The portfolio value chart could not load">
                                                 <WorthEvoChartWrapper market={f2market} />
                                             </ErrorBoundary>
+                                            <FirmInsuranceCover />
                                         </VStack>
                                 }
                                 <FirmFAQ collapsable={true} defaultCollapse={false} />
