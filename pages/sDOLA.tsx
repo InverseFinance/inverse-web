@@ -10,6 +10,7 @@ import { DolaStakingActivity } from '@app/components/sDola/DolaStakingActivity';
 import { useDolaStakingActivity } from '@app/util/dola-staking';
 import { DbrAuctionBuysSDola } from '@app/components/F2/DbrAuction/DbrAuctionBuys';
 import { useDbrAuctionActivity } from '@app/util/dbr-auction';
+import { SDolaInsuranceCover } from '@app/components/common/InsuranceCover';
 
 export const SdolaPage = () => {
   const account = useAccount();
@@ -41,8 +42,9 @@ export const SdolaPage = () => {
           w='full'
           direction={{ base: 'column', xl: 'row' }}
         >
-          <VStack alignItems={{ base: 'center', xl: 'flex-start' }} w={{ base: 'full' }}>
+          <VStack spacing="10" alignItems={{ base: 'center', xl: 'flex-start' }} w={{ base: 'full' }}>
             <StakeDolaUI />
+            <SDolaInsuranceCover />
           </VStack>
         </Stack>
         {
