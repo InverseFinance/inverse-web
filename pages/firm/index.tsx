@@ -16,6 +16,7 @@ import { answerPoll } from '@app/util/analytics'
 import { showToast } from '@app/util/notify'
 import { POLLS, ACTIVE_POLL } from '@app/variables/poll-data'
 import Link from '@app/components/common/Link'
+import { FirmInsuranceCover } from '@app/components/common/InsuranceCover'
 
 export const F2PAGE = ({
     isTwitterAlert = false
@@ -139,7 +140,8 @@ export const F2PAGE = ({
                     <ErrorBoundary description="Failed to Markets">
                         <F2Markets />
                     </ErrorBoundary>
-                    <VStack py="6" px='6' w='full'>
+                    <VStack py="6" px='6' w='full' spacing="6">
+                        <FirmInsuranceCover />
                         <FirmFAQ collapsable={true} defaultCollapse={false} />
                     </VStack>
                 </VStack>
