@@ -25,7 +25,7 @@ export const InsuranceCover = ({
             <SuccessMessage alertProps={{ w: { base: 'full', xl: 'auto'} }} iconProps={{ height: 40, width: 40 }} description={description} />
             {/* <Text>{description}</Text> */}
             <LinkOutlineButton _hover={{ filter: 'brightness(1.5)' }} w='fit-content' target="_blank" href={productLink}>
-                Buy a Cover for {productName} <ExternalLinkIcon ml="1" />
+                Buy Cover for {productName} <ExternalLinkIcon ml="1" />
             </LinkOutlineButton>
         </Stack>
     </DashBoardCard>
