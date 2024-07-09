@@ -22,6 +22,7 @@ import { SkeletonBlob } from "../common/Skeleton";
 import { F2Markets } from "./F2Markets";
 import { InfoMessage } from "../common/Messages";
 import { useStakedDola, useStakedDolaBalance } from "@app/util/dola-staking";
+import { FirmInsuranceCover, SDolaInsuranceCover } from "../common/InsuranceCover";
 
 const MAX_AREA_CHART_WIDTH = 625;
 
@@ -387,5 +388,6 @@ export const UserDashboard = ({
                     })
             }
         </SimpleGrid>
+        <FirmInsuranceCover />        
     </VStack>
 }
