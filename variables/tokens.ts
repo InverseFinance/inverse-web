@@ -263,8 +263,9 @@ const chainTokenAddresses = {
   "81457": {
     DOLA: "0x8e38179D361402f6a94767757e807146609E9B3d",
     USDB: "0x4300000000000000000000000000000000000003",
-    // v1?
     DOLAUSDBFENIX: "0xD49AD1DD6C5eaE53ABDaFEAED1866330C42CcAE4",
+    // uni v3 fork
+    DOLAUSDBTHRUSTER: "0x30A379721Ba4B901668c486680CF18D1f5D74d02",
   },
   // mode
   "34443": {
@@ -2351,6 +2352,20 @@ const chainTokens = {
         chainTokenAddresses["81457"].DOLA, chainTokenAddresses["81457"].USDB
       ],
       protocolImage: PROTOCOL_IMAGES.FENIX,
+    },
+    [chainTokenAddresses["81457"].DOLAUSDBTHRUSTER]: {
+      address: chainTokenAddresses["81457"].DOLAUSDBTHRUSTER,
+      name: 'DOLA-USDB LP',
+      symbol: 'DOLA-USDB thrusterlp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isUniV3: true,
+      pairs: [
+        chainTokenAddresses["81457"].USDB, chainTokenAddresses["81457"].DOLA
+      ],
+      protocolImage: PROTOCOL_IMAGES.THRUSTER,
     },
   },
   "34443": {
