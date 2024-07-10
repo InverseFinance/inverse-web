@@ -46,6 +46,7 @@ export default async function handler(req, res) {
             NetworkIds.avalanche,
             NetworkIds.base,
             NetworkIds.mode,
+            NetworkIds.blast,
         ];
         const lps = chainLpsToCheck.map(chainId => {
             return Object

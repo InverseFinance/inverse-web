@@ -263,7 +263,8 @@ const chainTokenAddresses = {
   "81457": {
     DOLA: "0x8e38179D361402f6a94767757e807146609E9B3d",
     USDB: "0x4300000000000000000000000000000000000003",
-    // DOLAUSDBFENIX: "",
+    // v1?
+    DOLAUSDBFENIX: "0xD49AD1DD6C5eaE53ABDaFEAED1866330C42CcAE4",
   },
   // mode
   "34443": {
@@ -2328,6 +2329,28 @@ const chainTokens = {
     [chainTokenAddresses["81457"].DOLA]: {
       address: chainTokenAddresses["81457"].DOLA,
       ...DOLA,
+    },
+    [chainTokenAddresses["81457"].USDB]: {
+      address: chainTokenAddresses["81457"].USDB,
+      symbol: 'USDB',
+      name: 'USDB',
+      decimals: 18,
+      image: TOKEN_IMAGES.USDB,
+      coingeckoId: 'usdb',
+    },
+    [chainTokenAddresses["81457"].DOLAUSDBFENIX]: {
+      address: chainTokenAddresses["81457"].DOLAUSDBFENIX,
+      name: 'DOLA-USDB',
+      symbol: 'DOLA-USDB fenixlp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,      
+      isVeloLP: true,
+      isStable: true,
+      pairs: [
+        chainTokenAddresses["81457"].DOLA, chainTokenAddresses["81457"].USDB
+      ],
+      protocolImage: PROTOCOL_IMAGES.FENIX,
     },
   },
   "34443": {
