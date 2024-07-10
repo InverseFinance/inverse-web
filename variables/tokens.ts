@@ -265,6 +265,12 @@ const chainTokenAddresses = {
     USDB: "0x4300000000000000000000000000000000000003",
     // DOLAUSDBFENIX: "",
   },
+  // mode
+  "34443": {
+    DOLA: "0x00eA4344e90c741560f08667961A8dE39FF506D7",
+    USDC: "0xd988097fb8612cc24eeC14542bC03424c656005f",
+    VELODOLAUSDCLP: "0x90a0b21936785164103eb9AC7d76792EB5F6c49C",    
+  },
 }
 chainTokenAddresses["31337"] = chainTokenAddresses["1"];
 
@@ -2322,6 +2328,33 @@ const chainTokens = {
     [chainTokenAddresses["81457"].DOLA]: {
       address: chainTokenAddresses["81457"].DOLA,
       ...DOLA,
+    },
+  },
+  "34443": {
+    CHAIN_COIN: {
+      ...ETH,
+    },
+    [chainTokenAddresses["34443"].DOLA]: {
+      address: chainTokenAddresses["34443"].DOLA,
+      ...DOLA,
+    },
+    [chainTokenAddresses["34443"].USDC]: {
+      address: chainTokenAddresses["34443"].USDC,
+      ...USDC,
+    },
+    [chainTokenAddresses["34443"].VELODOLAUSDCLP]: {
+      address: chainTokenAddresses["34443"].VELODOLAUSDCLP,
+      name: 'DOLA-USDC',
+      symbol: 'DOLA-USDC mvelolp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,      
+      isVeloLP: true,
+      isStable: true,
+      pairs: [
+        chainTokenAddresses["34443"].DOLA, chainTokenAddresses["34443"].USDC
+      ],
+      protocolImage: PROTOCOL_IMAGES.VELO,
     },
   },
   "8453": {

@@ -13,7 +13,7 @@ import { pricesCacheKey } from '../prices';
 import { PROTOCOLS_BY_IMG, PROTOCOL_DEFILLAMA_MAPPING } from '@app/variables/images';
 import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 
-export const liquidityCacheKey = `liquidity-v1.1.9998`;
+export const liquidityCacheKey = `liquidity-v1.2.0`;
 
 export default async function handler(req, res) {
     const { cacheFirst } = req.query;
@@ -34,35 +34,24 @@ export default async function handler(req, res) {
             // fetch('https://www.inverse.finance/api/prices'),
         ]);
         const fedsOverviewCache = await getCacheFromRedis(fedOverviewCacheKey, false);
-        
+
         const multisigsToShow = MULTISIGS;
-        // POL
-        const lps = [
-            ...Object
-                .values(CHAIN_TOKENS[NetworkIds.mainnet]).filter(({ isLP }) => isLP)
-                .map((lp) => ({ chainId: NetworkIds.mainnet, ...lp })),
-            ...Object
-                .values(CHAIN_TOKENS[NetworkIds.optimism]).filter(({ isLP }) => isLP)
-                .map((lp) => ({ chainId: NetworkIds.optimism, ...lp })),
-            ...Object
-                .values(CHAIN_TOKENS[NetworkIds.bsc]).filter(({ isLP }) => isLP)
-                .map((lp) => ({ chainId: NetworkIds.bsc, ...lp })),
-            ...Object
-                .values(CHAIN_TOKENS[NetworkIds.arbitrum]).filter(({ isLP }) => isLP)
-                .map((lp) => ({ chainId: NetworkIds.arbitrum, ...lp })),
-            ...Object
-                .values(CHAIN_TOKENS[NetworkIds.polygon]).filter(({ isLP }) => isLP)
-                .map((lp) => ({ chainId: NetworkIds.polygon, ...lp })),
-            ...Object
-                .values(CHAIN_TOKENS[NetworkIds.avalanche]).filter(({ isLP }) => isLP)
-                .map((lp) => ({ chainId: NetworkIds.avalanche, ...lp })),
-            ...Object
-                .values(CHAIN_TOKENS[NetworkIds.ftm]).filter(({ isLP }) => isLP)
-                .map((lp) => ({ chainId: NetworkIds.ftm, ...lp })),
-            ...Object
-                .values(CHAIN_TOKENS[NetworkIds.base]).filter(({ isLP }) => isLP)
-                .map((lp) => ({ chainId: NetworkIds.base, ...lp })),
-        ]
+
+        const chainLpsToCheck = [
+            NetworkIds.mainnet,
+            NetworkIds.optimism,
+            NetworkIds.bsc,
+            NetworkIds.arbitrum,
+            NetworkIds.polygon,
+            NetworkIds.avalanche,
+            NetworkIds.base,
+            NetworkIds.mode,
+        ];
+        const lps = chainLpsToCheck.map(chainId => {
+            return Object
+            .values(CHAIN_TOKENS[chainId]).filter(({ isLP }) => isLP)
+            .map((lp) => ({ chainId, ...lp }))
+        }).flat();        
 
         const TWG = multisigsToShow.find(m => m.shortName === 'TWG')!;
 
@@ -80,6 +69,7 @@ export default async function handler(req, res) {
             [NetworkIds.polygon]: multisigsToShow.find(m => m.shortName === 'TWG on PLG')!,
             [NetworkIds.avalanche]: multisigsToShow.find(m => m.shortName === 'TWG on AVAX')!,
             [NetworkIds.base]: multisigsToShow.find(m => m.shortName === 'TWG on BASE')!,
+            [NetworkIds.mode]: multisigsToShow.find(m => m.shortName === 'TWG on MODE')!,
         }
 
         const fedPols = fedsOverviewCache?.fedOverviews || [];
@@ -140,16 +130,17 @@ export default async function handler(req, res) {
                     ]);
                     const share = getBnToNumber(lpBal) / getBnToNumber(lpSupply);
                     owned.twg = share * tvl;
-                } else if (!lp.isUniV3) {                    
-                    owned.twg = getBnToNumber(await contract.balanceOf(lp.twgAddress || chainTWG[lp.chainId].address));
+                } else if (!lp.isUniV3) {
+                    const twgAd = lp.twgAddress || chainTWG[lp.chainId]?.address;
+                    owned.twg = !twgAd ? 0 : getBnToNumber(await contract.balanceOf(twgAd));
                     if (lp.chainId === NetworkIds.mainnet) {
                         // no more
                         // owned.bondsManager = getBnToNumber(await contract.balanceOf(OP_BOND_MANAGER));
                         owned.treasuryContract = getBnToNumber(await contract.balanceOf(TREASURY));
-                    }                
+                    }
                 } else {
                     // univ3 pool liquidity
-                    const univ3liquidity = getBnToNumber(await (new Contract((lp.uniV3Pool||lp.address), ['function liquidity() public view returns (uint)'], provider)).liquidity());
+                    const univ3liquidity = getBnToNumber(await (new Contract((lp.uniV3Pool || lp.address), ['function liquidity() public view returns (uint)'], provider)).liquidity());
                     // share of twg
                     const univ3liquidityOwnedByTWG = univ3TWGpositions
                         .filter(p => p.token0 === lp.pairs[0] && p.token1 === lp.pairs[1])
@@ -198,7 +189,7 @@ export default async function handler(req, res) {
         const liquidity = (await Promise.all([
             ...lps.map(lp => getPol(lp))
         ])).filter(d => d.tvl > 1);
-        
+
         // readjust dola balances of child pools
         liquidity
             .filter(lp => ['aura', 'convex-finance'].includes(lp.project))
