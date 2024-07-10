@@ -13,13 +13,15 @@ const { TREASURY, DEPLOYER } = getNetworkConfigConstants();
 
 const { TENDERLY_USER, TENDERLY_KEY } = process.env;
 
+export const SLUG_BASE = process.env.VERCEL_ENV === 'production' ? 'p' : 'd';
+
 async function mainnetFork(newSimId: number) {
   return await fetch(
     `https://api.tenderly.co/api/v1/account/${TENDERLY_USER}/project/inverse-finance/vnets`,
     {
       method: 'POST',
       body: JSON.stringify({
-        "slug": "prop-sim-"+newSimId,
+        "slug": SLUG_BASE+"prop-sim-"+newSimId,
         "display_name": "Gov prop sim "+newSimId,
         "fork_config": {
           "network_id": 1,
@@ -51,7 +53,7 @@ export default async function handler(req, res) {
   const form = req.body;
   const isNotDraft = !!form.id;
   let proposalId;
-  const cacheKey = 'prop-sim-id';
+  const cacheKey = 'gp-sim-id';
 
   try {
     const cached = (await getCacheFromRedis(cacheKey, false));    
