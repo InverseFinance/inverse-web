@@ -32,9 +32,9 @@ export const InsuranceCover = ({
 }
 
 export const FirmInsuranceCover = () => {
-    return <InsuranceCover productName="FiRM" productLink="https://v2.nexusmutual.io/cover/product/207" />
+    return <InsuranceCover productName="FiRM" productLink="https://opencover.com/app/?invite=FRENS10K&cover=207" />
 }
 
 export const SDolaInsuranceCover = () => {
-    return <InsuranceCover productName="sDOLA" productLink="https://v2.nexusmutual.io/cover/product/208" description="Covers smart contract exploits, governance attacks" />
+    return <InsuranceCover productName="sDOLA" productLink="https://opencover.com/app/?invite=FRENS10K&cover=208" description="Covers smart contract exploits, governance attacks" />
 }
