@@ -1,6 +1,7 @@
 import { NetworkConfig, Network } from '@app/types'
 import { EXTRA_CONFIG } from '@app/variables/extraConfig';
 import { checkEnv } from '@app/util';
+import { TOKEN_IMAGES } from '@app/variables/images';
 
 checkEnv();
 
@@ -195,7 +196,7 @@ const networks: Network[] = [
     coinSymbol: 'eth',
     isTestnet: false,
     isSupported: false,
-    image: `/assets/networks/${NETWORK_CODENAMES.mode}.svg`,
+    image: TOKEN_IMAGES.MODE,
     scan: 'https://modescan.io',
   },
   {
