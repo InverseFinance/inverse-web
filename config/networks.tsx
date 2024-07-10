@@ -1,6 +1,7 @@
 import { NetworkConfig, Network } from '@app/types'
 import { EXTRA_CONFIG } from '@app/variables/extraConfig';
 import { checkEnv } from '@app/util';
+import { TOKEN_IMAGES } from '@app/variables/images';
 
 checkEnv();
 
@@ -54,6 +55,7 @@ export enum NETWORK_CODENAMES {
   base = 'base',
   ethftm = 'eth-ftm',
   blast = 'blast',
+  mode = 'mode',
 }
 
 const networks: Network[] = [
@@ -186,6 +188,16 @@ const networks: Network[] = [
     isSupported: false,
     image: `/assets/networks/${NETWORK_CODENAMES.optimism}.svg`,
     scan: 'https://optimistic.etherscan.io',
+  },
+  {
+    id: '34443',
+    codename: NETWORK_CODENAMES.mode,
+    name: 'Mode',
+    coinSymbol: 'eth',
+    isTestnet: false,
+    isSupported: false,
+    image: TOKEN_IMAGES.MODE,
+    scan: 'https://modescan.io',
   },
   {
     id: '8453',

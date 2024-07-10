@@ -192,6 +192,7 @@ export enum NetworkIds {
   avalanche = '43114',
   base = '8453',
   blast = '81457',
+  mode = '34443',
   // xchain
   ethftm = '1-250',
   ethop = '1-10',

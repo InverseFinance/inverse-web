@@ -20,6 +20,8 @@ const chainBridgeTypes = {
     [NetworkIds.optimism]: bridgeTypes.native,
     [NetworkIds.arbitrum]: bridgeTypes.native,
     [NetworkIds.polygon]: bridgeTypes.native,
+    [NetworkIds.blast]: bridgeTypes.native,
+    [NetworkIds.mode]: bridgeTypes.native,
 }
 
 const dola = TOKENS[DOLA];

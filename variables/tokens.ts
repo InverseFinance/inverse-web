@@ -263,7 +263,15 @@ const chainTokenAddresses = {
   "81457": {
     DOLA: "0x8e38179D361402f6a94767757e807146609E9B3d",
     USDB: "0x4300000000000000000000000000000000000003",
-    // DOLAUSDBFENIX: "",
+    DOLAUSDBFENIX: "0xD49AD1DD6C5eaE53ABDaFEAED1866330C42CcAE4",
+    // uni v3 fork
+    DOLAUSDBTHRUSTER: "0x30A379721Ba4B901668c486680CF18D1f5D74d02",
+  },
+  // mode
+  "34443": {
+    DOLA: "0x00eA4344e90c741560f08667961A8dE39FF506D7",
+    USDC: "0xd988097fb8612cc24eeC14542bC03424c656005f",
+    VELODOLAUSDCLP: "0x90a0b21936785164103eb9AC7d76792EB5F6c49C",    
   },
 }
 chainTokenAddresses["31337"] = chainTokenAddresses["1"];
@@ -2322,6 +2330,69 @@ const chainTokens = {
     [chainTokenAddresses["81457"].DOLA]: {
       address: chainTokenAddresses["81457"].DOLA,
       ...DOLA,
+    },
+    [chainTokenAddresses["81457"].USDB]: {
+      address: chainTokenAddresses["81457"].USDB,
+      symbol: 'USDB',
+      name: 'USDB',
+      decimals: 18,
+      image: TOKEN_IMAGES.USDB,
+      coingeckoId: 'usdb',
+    },
+    [chainTokenAddresses["81457"].DOLAUSDBFENIX]: {
+      address: chainTokenAddresses["81457"].DOLAUSDBFENIX,
+      name: 'DOLA-USDB',
+      symbol: 'DOLA-USDB fenixlp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,      
+      isVeloLP: true,
+      isStable: true,
+      pairs: [
+        chainTokenAddresses["81457"].DOLA, chainTokenAddresses["81457"].USDB
+      ],
+      protocolImage: PROTOCOL_IMAGES.FENIX,
+    },
+    [chainTokenAddresses["81457"].DOLAUSDBTHRUSTER]: {
+      address: chainTokenAddresses["81457"].DOLAUSDBTHRUSTER,
+      name: 'DOLA-USDB LP',
+      symbol: 'DOLA-USDB thrusterlp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isUniV3: true,
+      pairs: [
+        chainTokenAddresses["81457"].USDB, chainTokenAddresses["81457"].DOLA
+      ],
+      protocolImage: PROTOCOL_IMAGES.THRUSTER,
+    },
+  },
+  "34443": {
+    CHAIN_COIN: {
+      ...ETH,
+    },
+    [chainTokenAddresses["34443"].DOLA]: {
+      address: chainTokenAddresses["34443"].DOLA,
+      ...DOLA,
+    },
+    [chainTokenAddresses["34443"].USDC]: {
+      address: chainTokenAddresses["34443"].USDC,
+      ...USDC,
+    },
+    [chainTokenAddresses["34443"].VELODOLAUSDCLP]: {
+      address: chainTokenAddresses["34443"].VELODOLAUSDCLP,
+      name: 'DOLA-USDC',
+      symbol: 'DOLA-USDC mvelolp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,      
+      isVeloLP: true,
+      isStable: true,
+      pairs: [
+        chainTokenAddresses["34443"].DOLA, chainTokenAddresses["34443"].USDC
+      ],
+      protocolImage: PROTOCOL_IMAGES.VELO,
     },
   },
   "8453": {

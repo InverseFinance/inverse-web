@@ -48,7 +48,7 @@ export const BUY_LINKS = {
     'DBR': 'https://swap.defillama.com/?chain=ethereum&from=0x865377367054516e17014ccded1e7d814edc9ce4&to=0xAD038Eb671c44b853887A7E32528FaB35dC5D710',
 }
 
-export const DOLA_BRIDGED_CHAINS = [NetworkIds.ftm, NetworkIds.optimism, NetworkIds.bsc, NetworkIds.arbitrum, NetworkIds.polygon, NetworkIds.avalanche, NetworkIds.base];
+export const DOLA_BRIDGED_CHAINS = [NetworkIds.ftm, NetworkIds.optimism, NetworkIds.bsc, NetworkIds.arbitrum, NetworkIds.polygon, NetworkIds.avalanche, NetworkIds.base, NetworkIds.mode, NetworkIds.blast];
 export const INV_BRIDGED_CHAINS = [NetworkIds.ftm];
 
 export const DWF_PURCHASER = '0x58dCB47956De1e99B1AF0ceb643727EF66aF4647';
