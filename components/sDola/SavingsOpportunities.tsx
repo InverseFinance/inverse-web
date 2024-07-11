@@ -12,6 +12,7 @@ import { UnderlyingItemBlock } from "../common/Assets/UnderlyingItemBlock";
 import { ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 import Link from "../common/Link";
+import { SDOLA_ADDRESS } from "@app/config/constants";
 
 const USDC = getToken(TOKENS, 'USDC');
 const DAI = getToken(TOKENS, 'DAI');
@@ -85,22 +86,27 @@ export const SavingsOpportunities = () => {
                     </Text>
                     {
                         showTokens && <>
-                            <HStack w='300px' justify="space-between">
-                                <Text w="30%" color="mainTextColorLight">Token</Text>
-                                <Text w="30%" color="mainTextColorLight">Balance</Text>
-                                <Text w="40%">&nbsp;</Text>
+                            <HStack w={{ base: '300px', md: '600px' }} justify="space-between">
+                                <Text w={{ base: '29%', md: '20%' }} color="mainTextColorLight">Token</Text>
+                                <Text w={{ base: '29%', md: '20%' }} color="mainTextColorLight">Balance</Text>
+                                <Text w={{ base: '42%', md: '60%' }}>&nbsp;</Text>
                             </HStack>
                             {
                                 balances
                                     .filter(b => b.balance > 1)
                                     .map(b => {
-                                        return <HStack key={b.token.address} w='300px' justify="space-between">
-                                            <UnderlyingItemBlock {...b.token} label={b.token.symbol} w="30%"/>
-                                            <Text w="30%">{shortenNumber(b.balance, 2)}</Text>
+                                        return <HStack key={b.token.address} w={{ base: '300px', md: '600px' }} justify="space-between">
+                                            <UnderlyingItemBlock {...b.token} label={b.token.symbol} w={{ base: '29%', md: '20%' }} />
+                                            <Text w={{ base: '29%', md: '20%' }}>{shortenNumber(b.balance, 2)}</Text>
                                             {
-                                                b.token.symbol !== 'DOLA' ? <Link w="40%" href={`https://swap.defillama.com/?chain=ethereum&from=${b.token.address}&tab=swap&to=${DOLA.address}`} textDecoration="underline">
-                                                    Swap it first <ExternalLinkIcon />
-                                                </Link> : <Text w='40%'>&nbsp;</Text>
+                                                b.token.symbol !== 'DOLA' ? <HStack spacing="4" justify="flex-start" w={{ base: '42%', md: '60%' }}>
+                                                    <Link target="_blank" isExternal fontSize="14px"  href={`https://swap.defillama.com/?chain=ethereum&from=${b.token.address}&tab=swap&to=${DOLA.address}`} textDecoration="underline">
+                                                        Swap to DOLA <ExternalLinkIcon />
+                                                    </Link>
+                                                    <Link display={{ base: 'none', md: 'inline-block' }} target="_blank" isExternal fontSize="14px"  href={`https://swap.defillama.com/?chain=ethereum&from=${b.token.address}&tab=swap&to=${SDOLA_ADDRESS}`} textDecoration="underline">
+                                                        Swap to sDOLA <ExternalLinkIcon />
+                                                    </Link>
+                                                </HStack> : <Text w={{ base: '42%', md: '60%' }}>&nbsp;</Text>
                                             }
                                         </HStack>
                                     })
