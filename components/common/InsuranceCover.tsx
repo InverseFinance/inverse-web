@@ -16,10 +16,10 @@ export const InsuranceCover = ({
     return <DashBoardCard px="8" py="4" minH="none">
         <Stack spacing={{ base: '4', xl: "2" }} alignItems={{ base: 'flex-start', xl: 'center' }} justify="space-between" direction={{ base: 'column', xl: 'row' }} w='full'>
             <VStack spacing="0" alignItems="flex-start">
-                <Text fontSize="18px" fontWeight="extrabold">Insurance</Text>
+                <Text fontSize="18px" fontWeight="extrabold">Cover</Text>
                 <Box spacing="2" display="inline-block">
-                    <Text display="inline-block" mr="1" fontSize="14px">Offered by Nexus Mutual</Text>
-                    <Image display="inline-block" src={"/assets/projects/nexus.ico"} w='auto' h="20px" />
+                    <Text display="inline-block" mr="1" fontSize="12px">Protection Offered by Nexus Mutual</Text>
+                    {/* <Image display="inline-block" src={"/assets/projects/nexus.ico"} w='auto' h="20px" /> */}
                 </Box>
             </VStack>
             <SuccessMessage alertProps={{ w: { base: 'full', xl: 'auto'} }} iconProps={{ height: 40, width: 40 }} description={description} />
