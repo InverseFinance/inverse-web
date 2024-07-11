@@ -86,21 +86,21 @@ export const SavingsOpportunities = () => {
                     {
                         showTokens && <>
                             <HStack w='300px' justify="space-between">
-                                <Text w="33%" color="mainTextColorLight">Token</Text>
-                                <Text w="33%" color="mainTextColorLight">Balance</Text>
-                                <Text w="33%">&nbsp;</Text>
+                                <Text w="30%" color="mainTextColorLight">Token</Text>
+                                <Text w="30%" color="mainTextColorLight">Balance</Text>
+                                <Text w="40%">&nbsp;</Text>
                             </HStack>
                             {
                                 balances
                                     .filter(b => b.balance > 1)
                                     .map(b => {
                                         return <HStack key={b.token.address} w='300px' justify="space-between">
-                                            <UnderlyingItemBlock {...b.token} label={b.token.symbol} w="33%"/>
-                                            <Text w="33%">{shortenNumber(b.balance, 2)}</Text>
+                                            <UnderlyingItemBlock {...b.token} label={b.token.symbol} w="30%"/>
+                                            <Text w="30%">{shortenNumber(b.balance, 2)}</Text>
                                             {
-                                                b.token.symbol !== 'DOLA' ? <Link w="33%" href={`https://swap.defillama.com/?chain=ethereum&from=${b.token.address}&tab=swap&to=${DOLA.address}`} textDecoration="underline">
-                                                    Swap it <ExternalLinkIcon />
-                                                </Link> : <Text w='33%'>&nbsp;</Text>
+                                                b.token.symbol !== 'DOLA' ? <Link w="40%" href={`https://swap.defillama.com/?chain=ethereum&from=${b.token.address}&tab=swap&to=${DOLA.address}`} textDecoration="underline">
+                                                    Swap it first <ExternalLinkIcon />
+                                                </Link> : <Text w='40%'>&nbsp;</Text>
                                             }
                                         </HStack>
                                     })
