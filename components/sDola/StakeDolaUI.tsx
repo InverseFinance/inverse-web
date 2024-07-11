@@ -39,8 +39,7 @@ const MS_PER_BLOCK = SECONDS_PER_BLOCK * 1000;
 
 export const StakeDolaUI = () => {
     const account = useAccount();
-    const { provider, account: connectedAccount } = useWeb3React();
-    const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
+    const { provider, account: connectedAccount } = useWeb3React();    
     const { events: auctionBuys } = useDbrAuctionActivity();
 
     const [dolaAmount, setDolaAmount] = useState('');
@@ -50,6 +49,7 @@ export const StakeDolaUI = () => {
     const [tab, setTab] = useState('Stake');
     const isStake = tab === 'Stake';
 
+    const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
     const { apy, projectedApy, isLoading, sDolaExRate, sDolaTotalAssets, weeklyRevenue } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
     const { evolution, timestamp: lastDailySnapTs, isLoading: isLoadingEvolution } = useDolaStakingEvolution();
     const { balance: dolaBalance } = useDOLABalance(account);
