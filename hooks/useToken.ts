@@ -3,6 +3,32 @@ import useEtherSWR from "./useEtherSWR";
 import { getBnToNumber } from "@app/util/markets";
 import { ERC20_ABI } from "@app/config/abis";
 
+export const useTokenBalances = (ads: string[], account: string | undefined) => {
+    const decimalArgs = ads.map(ad => {
+        return [ad, 'decimals'];
+    });
+    const balanceArgs = ads.map(ad => {
+        return [ad, 'balanceOf', account];
+    });
+
+    const { data: decimalData, error: decimalErr } = useEtherSWR({
+        abi: ERC20_ABI,
+        args: decimalArgs,
+    });
+    const { data: balanceData, error: balanceErr } = useEtherSWR({
+        abi: ERC20_ABI,
+        args: balanceArgs,
+    });
+    
+    return {
+        balances: ads.map((ad,i) => {
+            return balanceData && decimalData ? { address: ad, balance: getBnToNumber(balanceData[i], decimalData[i]) } : { address: ad, balance: 0 };
+        }),        
+        isLoading: (!balanceData && !balanceErr) || (!decimalData || !decimalErr),
+        hasError: (!balanceData && !!balanceErr) || (!decimalData && !!decimalErr),
+    };
+}
+
 export const useToken = (ad: string, account: string | undefined) => {
     const args = [
         [ad, 'decimals'],
