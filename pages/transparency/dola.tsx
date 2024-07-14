@@ -67,7 +67,7 @@ export const DolaDiagram = () => {
     const name = f.type === 'AMM' ?
       `${f.name} ` + (f.subBalances.reduce((acc, curr) => acc ? acc + '-' + curr.symbol : curr.symbol, '') + ' LP')
       : f.name;
-    const balance = f.protocol === 'FiRM' ? f.borrows : f.supply;
+    const balance = ['FiRM', 'Frontier'].includes(f.protocol) ? f.borrows : f.supply;
     const color = ['Frontier', 'Fuse'].includes(f.protocol) ? themeStyles.colors.error : f.protocol === 'FiRM' ? themeStyles.colors.success : themeStyles.colors.info;
     return {
       ...f,
