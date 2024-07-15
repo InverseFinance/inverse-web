@@ -71,7 +71,7 @@ const App = ({ Component, pageProps }: AppProps) => {
           <link rel="icon" type="image/png" href="/assets/favicon.png"></link>
           <meta name="google-site-verification" content="bMAjdxhP6hV5H0ZFaFW4AZVipI0NRmFZ2DQPWxgquP4" />
           <link rel="apple-touch-icon" href="/assets/apple-touch.png" />
-          <script            
+          <script
             src={`/js/blockaid.js`}
           />
           <script
@@ -133,6 +133,7 @@ const App = ({ Component, pageProps }: AppProps) => {
         </SWRConfig>
       </Web3ReactProvider>
       <ToastContainer />
+      <script src="./qualaroo.js" />
     </ChakraProvider>
   )
 }
