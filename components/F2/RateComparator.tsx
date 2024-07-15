@@ -13,7 +13,7 @@ import { useDBRMarkets } from "@app/hooks/useDBR";
 import { SettingsIcon } from "@chakra-ui/icons";
 import InfoModal from "../common/Modal/InfoModal";
 import { Input } from "../common/Input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const projectImages = {
     'Frax': 'https://icons.llamao.fi/icons/protocols/frax?w=48&h=48',
@@ -189,6 +189,7 @@ export const RateComparator = () => {
     const [includeProjects, setIncludeProjects] = useState(defaultProjects);
     const [excludeText, setExcludeText] = useState('');
     const [exclude, setExclude] = useState([]);
+    const [initedQuery, setInitedQuery] = useState(false);
     
     const excludeProject = ((query?.excludeProject?.split(',')) || []).map(e => e.toLowerCase());
     const { markets } = useDBRMarkets();
@@ -197,6 +198,12 @@ export const RateComparator = () => {
     const { onOpen, onClose, isOpen } = useDisclosure();
 
     projectCollaterals['FiRM'] = markets?.filter(m => !m.borrowPaused).map(m => m.underlying.symbol)
+
+    useEffect(() => {
+        if(!query?.collateral || initedQuery) return
+        setCollateralFilter(query.collateral);
+        setInitedQuery(true);
+    }, [query, initedQuery]);
 
     const rates = (data?.rates?.filter(r => !!r.borrowRate) || [])
         .filter(r => !exclude.includes(r.key.toLowerCase()))
@@ -234,7 +241,7 @@ export const RateComparator = () => {
         description="Across major DeFi lending protocols on Ethereum"
         contentBgColor="gradient3"
         right={
-            query?.customize && <SettingsIcon _hover={{ filter: 'brightness(1.2)' }} cursor="pointer" onClick={() => openSettings()} color="mainTextColor" fontSize={40} />
+            <SettingsIcon _hover={{ filter: 'brightness(1.2)' }} cursor="pointer" onClick={() => openSettings()} color="mainTextColor" fontSize={40} />
         }
     >
         <InfoModal title="Filter & Customize" onOk={onClose} isOpen={isOpen} onClose={onClose} minW='800px'>
