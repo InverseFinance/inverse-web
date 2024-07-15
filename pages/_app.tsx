@@ -133,7 +133,7 @@ const App = ({ Component, pageProps }: AppProps) => {
         </SWRConfig>
       </Web3ReactProvider>
       <ToastContainer />
-      <script src="./qualaroo.js" />
+      <script src="/qualaroo.js" />
     </ChakraProvider>
   )
 }
