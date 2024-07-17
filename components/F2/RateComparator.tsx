@@ -18,7 +18,7 @@ import { useEffect, useState } from "react";
 const projectImages = {
     'Frax': 'https://icons.llamao.fi/icons/protocols/frax?w=48&h=48',
     'Curve': 'https://icons.llamao.fi/icons/protocols/curve?w=48&h=48',
-    'Aave V3': 'https://icons.llamao.fi/icons/protocols/aave-v3?w=48&h=48',
+    'Aave-V3': 'https://icons.llamao.fi/icons/protocols/aave-v3?w=48&h=48',
     'Silo': 'https://icons.llamao.fi/icons/protocols/silo?w=48&h=48',
     'Compound': 'https://icons.llamao.fi/icons/protocols/compound?w=48&h=48',
     'FiRM': 'https://icons.llamao.fi/icons/protocols/inverse-finance?w=48&h=48',
@@ -27,7 +27,7 @@ const projectImages = {
 const projectCollaterals = {
     'Frax': ['WETH', 'WBTC', 'sfrxETH', 'FXS', 'CVX', 'CRV', 'wstETH', 'sFRAX'],
     'Curve': ['WETH', 'WBTC', 'wstETH'],
-    'Aave V3': ['WETH', 'WBTC', 'CRV', 'wstETH'],
+    'Aave-V3': ['WETH', 'WBTC', 'CRV', 'wstETH'],
     'Compound': ['WETH', 'WBTC', 'COMP', 'LINK', 'UNI'],
     'FiRM': [],
 }
@@ -54,7 +54,7 @@ const Project = ({ project }: { project: string }) => {
     return <HStack spacing='4'>
         <Image borderRadius='40px' src={projectImages[project]} h='40px' />
         <Text fontWeight="extrabold" fontSize="24px" textTransform="capitalize">
-            {project}
+            {project.replace('-', ' ')}
         </Text>
     </HStack>
 }
