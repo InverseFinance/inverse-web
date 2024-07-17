@@ -144,7 +144,7 @@ export default async function handler(req, res) {
 
     const resultData = {
       nbUniqueUsers: uniqueBy(positions, (a, b) => a.user === b.user).length,
-      positions: positions.filter(p => p.debt > 0 || p.deposits > 0.01),
+      positions: positions.filter((p, i) => p.debt > 0 || (p.deposits * _markets[firmMarketUsers[i].marketIndex].price >= 1)),
       // marketUsersAndEscrows,
       timestamp: +(new Date()),
     }
