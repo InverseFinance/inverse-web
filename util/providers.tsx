@@ -24,7 +24,8 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
         return new JsonRpcProvider('https://rpc.ankr.com/polygon');
     }
     else if (chainId === NetworkIds.avalanche && !specificAlchemyKey) {
-        return new JsonRpcProvider('https://rpc.ankr.com/avalanche');
+        // return new JsonRpcProvider('https://rpc.ankr.com/avalanche');
+        return new JsonRpcProvider('https://api.avax.network/ext/bc/C/rpc');
     }
     else if (chainId === NetworkIds.base && !specificAlchemyKey) {
         return new JsonRpcProvider('https://mainnet.base.org');
