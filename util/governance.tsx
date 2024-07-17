@@ -323,10 +323,11 @@ export const linkDraft = async (publicDraftId: number, proposalId: string, signe
                 status: isSuccess ? 'success' : 'warning',
                 id: 'linkDraft',
                 title: 'Link Proof of Reviews to Proposal',
+                description: result.message,
                 duration: 6000,
             });
 
-            if(triggerProposalsResult.success){
+            if(triggerProposalsResult.success && !result.skipRedirect){
                 window.location.href = `/governance/proposals/${CURRENT_ERA}/${proposalId}`;
             }
             resolve(result);

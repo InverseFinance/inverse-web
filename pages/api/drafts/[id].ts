@@ -59,6 +59,11 @@ export default async function handler(req, res) {
                     // submitted the proposal
                     if (proposalId) {
                         const draftReviews = JSON.parse(await client.get(`reviews-${id}`) || '[]');
+                        const prKey = `proposal-reviews-${CURRENT_ERA}-${proposalId}`;
+                        const draftLinkedData = await client.get(prKey);
+                        if (!!draftLinkedData) {
+                            return res.status(200).json({ status: 'warning', skipRedirect: true, message: `Proposal has been already linked to draft reviews` });
+                        }
                         await client.set(`proposal-reviews-${CURRENT_ERA}-${proposalId}`, JSON.stringify(draftReviews));
                         drafts.splice(index, 1);
                         client.del(`reviews-${id}`);
