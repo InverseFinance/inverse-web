@@ -67,6 +67,7 @@ import { smartShortNumber } from '@app/util/markets'
 import useSWR from 'swr'
 import { useMultisig } from '@app/hooks/useSafeMultisig'
 import { FirmGovDelegationModal } from '@app/components/F2/GovToken/FirmGovToken'
+import { TOKEN_IMAGES } from '@app/variables/images'
 const NAV_ITEMS = MENUS.nav
 
 export const ThemeBtn = () => {
@@ -122,7 +123,7 @@ const NetworkBadge = ({
       onClick={isWrongNetwork ? showWrongNetworkModal : undefined}
     // bg={'primary.800'}
     >
-      <NetworkItem isSupported={!isWrongNetwork} chainId={chainId} networkAttribute={isSmallerThan1000 ? null : isSmallerThan1470 && !isSmallerThan1000 && chainId?.toString() !== '8453' ? 'coinSymbol' : 'name'} />
+      <NetworkItem isSupported={!isWrongNetwork} chainId={chainId} networkAttribute={isSmallerThan1000 ? null : isSmallerThan1470 && !isSmallerThan1000 && chainId?.toString() !== '8453' ? 'coinSymbol' : 'coinSymbol'} />
       <Flex direction="row" color="red" ml="1">
         {
           !!gasPrice &&
@@ -204,7 +205,7 @@ const INVBalance = () => {
         ({smartShortNumber(xinv, 2)} x{RTOKEN_SYMBOL})
       </>
       {
-        stakedInFirm >= 10 &&  <FirmGovDelegationModal
+        stakedInFirm >= 10 && <FirmGovDelegationModal
           isOpen={isFirmModalOpen}
           onClose={firmOnClose}
           delegatingTo={delegate}
@@ -713,6 +714,11 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
               </Box>
             ))}
           </Stack>
+          <NavBadge>
+            <Image src={"https://assets.coingecko.com/markets/images/544/small/AAVE.png"} w="24px" h="24px" />
+            <Text ml="2" fontSize="12px">Aave frens get their gas costs refunded.</Text>
+              <Text ml="2" textDecoration="underline" fontSize="12px">Redeem</Text>
+          </NavBadge>
         </Stack>
         {
           isBlog ?
