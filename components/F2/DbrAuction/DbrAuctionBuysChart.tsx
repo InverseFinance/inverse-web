@@ -1,4 +1,4 @@
-import { Stack, VStack, useMediaQuery, Text, Divider } from "@chakra-ui/react"
+import { Stack, VStack, useMediaQuery, Text } from "@chakra-ui/react"
 import { useEventsAsChartData } from "@app/hooks/misc";
 import { DefaultCharts } from "@app/components/Transparency/DefaultCharts";
 import { useEffect, useState } from "react";
@@ -13,15 +13,15 @@ const maxChartWidth = 1200;
 const surroundByZero = (chartDataAcc: { x: number, y: number }[]) => {
     const cloned = [...chartDataAcc];
     for (let i = 0; i < cloned.length; i++) {
-        if (cloned[i].y > 0 && i > 0) {
-            cloned.splice(i + 1, 0, { ...cloned[i], x: cloned[i].x + 1000 * 60, y: 0 });
+        if (cloned[i].yDay > 0 && i > 0) {
+            cloned.splice(i + 1, 0, { ...cloned[i], x: cloned[i].x + 1000 * 60, yDay: 0 });
         }
     }
     return cloned;
 }
 
 export const DbrAuctionBuysChart = ({ events, isTotal = false }) => {
-    const { chartData: chartDataAcc } = useEventsAsChartData(events, 'dolaIn', 'dolaIn', true, true);
+    const { chartData: chartDataAcc } = useEventsAsChartData(events, '_acc_', 'dolaIn', true, true);
     const { chartData: chartDataArb } = useEventsAsChartData(events.filter(e => e.arb > 0), 'arbPerc', 'arbPerc', true, true);
     const virtualAuctionBuysEvents = events.filter(e => e.auctionType === 'Virtual');
     const sdolaAuctionBuysEvents = events.filter(e => e.auctionType === 'sDOLA');
@@ -70,40 +70,21 @@ export const DbrAuctionBuysChart = ({ events, isTotal = false }) => {
 
     useEffect(() => {
         setAutoChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 80)
-    }, [isLargerThan]);
+    }, [isLargerThan]);    
 
     return <VStack alignItems="flex-start">
-        <Stack direction={{ base: 'column', '2xl': 'row' }} alignItems="center">
-            <VStack pt="10">
-                <DefaultCharts
-                    showMonthlyBarChart={false}
-                    maxChartWidth={isLargerThan2xl && isTotal ? autoChartWidth / 2 : autoChartWidth}
-                    chartWidth={isLargerThan2xl && isTotal ? autoChartWidth / 2 : autoChartWidth}
-                    chartData={surroundByZero(chartDataAcc)}
-                    isDollars={false}
-                    smoothLineByDefault={false}
-                    barProps={{ eventName: 'DBR auction buys' }}
-                    areaProps={{ title: 'Income from all DBR auction buys', defaultRange: '1M', fillInByDayInterval: true, id: 'dbr-auction-buys-arb', showRangeBtns: true, yLabel: 'DOLA Income', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
-                />
-            </VStack>
-            {
-                isTotal && <VStack pt='10'>
-                    <Text fontWeight="bold">Total buys repartition</Text>
-                    <PieChartRecharts
-                        precision={0}
-                        width={isLargerThan2xl ? autoChartWidth / 2 : autoChartWidth}
-                        height={300}
-                        data={pieChartData}
-                        dataKey={'value'}
-                        nameKey={'name'}
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={50}
-                        activeFill={themeStyles.colors.mainTextColor}
-                        fill={themeStyles.colors.mainTextColorLight}
-                    />
-                </VStack>
-            }
+        <Stack pt="10" direction={{ base: 'column', '2xl': 'row' }} alignItems="center">
+            <DefaultCharts
+                showMonthlyBarChart={false}
+                // maxChartWidth={isLargerThan2xl && isTotal ? autoChartWidth / 2 : autoChartWidth}
+                maxChartWidth={autoChartWidth}
+                chartWidth={autoChartWidth}
+                chartData={surroundByZero(chartDataAcc)}
+                isDollars={false}
+                smoothLineByDefault={false}
+                barProps={{ eventName: 'DBR auction buys' }}
+                areaProps={{ secondaryRef: 'yDay', secondaryAsLeftAxis: true, secondaryAsUsd: false, secondaryPrecision: 2, secondaryLabel: 'DOLA income', secondaryType: 'stepAfter', showSecondary: true, title: 'Income from all DBR auction buys', defaultRange: '1M', fillInByDayInterval: true, id: 'dbr-auction-buys-arb', showRangeBtns: true, yLabel: 'Acc. DOLA Income', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'secondary', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
+            />
         </Stack>
         <BarChartRecharts
             title={`Weekly average prices in the last ${nbWeeksToShow} weeks`}
@@ -148,5 +129,25 @@ export const DbrAuctionBuysChart = ({ events, isTotal = false }) => {
                 }}
             />
         </VStack>
+        <Stack w='full' direction={{ base: 'column', '2xl': 'row' }} alignItems="center">
+            {
+                isTotal && <VStack pt='10' w='full' alignItems="center">
+                    <Text fontWeight="bold">Total buys repartition</Text>
+                    <PieChartRecharts
+                        precision={0}
+                        width={isLargerThan2xl ? autoChartWidth / 2 : autoChartWidth}
+                        height={300}
+                        data={pieChartData}
+                        dataKey={'value'}
+                        nameKey={'name'}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={50}
+                        activeFill={themeStyles.colors.mainTextColor}
+                        fill={themeStyles.colors.mainTextColorLight}
+                    />
+                </VStack>
+            }
+        </Stack>
     </VStack>
 }
