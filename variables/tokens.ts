@@ -124,6 +124,7 @@ const chainTokenAddresses = {
     DOLARGUSDCRVLP: '0x20BB4a325924917E3336753BA5350a84F70f392e',
     STYETH: '0x583019fF0f430721aDa9cfb4fac8F06cA104d0B4',
     SFRAX: '0xA663B02CF0a4b149d2aD41910CB81e23e1c41c32',
+    COMP: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
     // PAL: '0xAB846Fb6C81370327e784Ae7CbB6d6a6af6Ff4BF',
   },
   "250": {
@@ -1222,6 +1223,14 @@ const chainTokens = {
       symbol: 'st-yETH',
       coingeckoId: 'staked-yearn-ether',
       image: TOKEN_IMAGES.stYETH,
+      decimals: 18,
+    },
+    [chainTokenAddresses["1"].COMP]: {
+      address: chainTokenAddresses["1"].COMP,
+      name: 'COMP',
+      symbol: 'COMP',
+      coingeckoId: 'compound-governance-token',
+      image: TOKEN_IMAGES.COMP,
       decimals: 18,
     },
     [chainTokenAddresses["1"].SFRAX]: {

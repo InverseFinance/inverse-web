@@ -253,6 +253,18 @@ const mainConfig = {
             isERC4626Collateral: true,
             aleTransformerType: 'marketAddress',
         },
+        {
+            name: 'COMP',
+            collateral: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
+            address: '0x29fe42F4F71Ba5b9a7aaE794468e7ca4128a93b8',
+            helper: true,
+            oracleType: "chainlink",
+            badgeInfo: 'Keep Gov. rights',
+            isGovTokenCollateral: true,
+            govLink: 'https://app.compound.finance/vote?market=usdc-mainnet',
+            startingBlock: 20332725,
+            isInv: false,
+        },
     ],
     feds: FEDS_PARAMS,
     multisigs: [

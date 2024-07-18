@@ -28,6 +28,7 @@ export const TOKEN_IMAGES = {
     "INV": IMAGES.INV,
     "DBR": IMAGES.DBR,
     "THREECRV": IMAGES["3CRV"],
+    "COMP": "https://assets.coingecko.com/coins/images/10775/standard/COMP.png?1696510737",
     "FEI": "https://assets.coingecko.com/coins/images/14570/standard/ZqsF51Re_400x400.png?1696514251",
     "MIM": "https://assets.coingecko.com/coins/images/16786/standard/mimlogopng.png?1696516358",
     "USD3": "https://assets.coingecko.com/coins/images/38073/standard/usd3%28200_x_200_px%29.png?1716449060",
