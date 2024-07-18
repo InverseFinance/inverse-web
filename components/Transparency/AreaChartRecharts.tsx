@@ -73,10 +73,12 @@ export const AreaChartRecharts = ({
     forceStaticRangeBtns,
     showSecondary = false,
     secondaryRef = 'price',
+    secondaryType = 'monotone',
     secondaryLabel = 'Price',
     secondaryAsUsd = true,
     secondaryPrecision = 4,
     secondaryOpacity = 1,
+    secondaryAsLeftAxis = false,
     yDomainAsInteger = false,
     addDayAvg = false,
     avgTypes,
@@ -114,8 +116,10 @@ export const AreaChartRecharts = ({
     forceStaticRangeBtns?: boolean
     showSecondary?: boolean
     secondaryRef?: string
+    secondaryType?: string
     secondaryLabel?: string
     secondaryAsUsd?: boolean
+    secondaryAsLeftAxis?: boolean
     secondaryPrecision?: number
     secondaryOpacity?: number
     yDomainAsInteger?: boolean
@@ -152,6 +156,8 @@ export const AreaChartRecharts = ({
     }
     const doesDataSpansSeveralYears = combodata?.filter(d => d.utcDate.endsWith('01-01')).length > 1;
     const _yDomain = zoomedData ? [bottom, top] : yDomain || [bottom, top];
+    const mainAxisId = secondaryAsLeftAxis ? 'right' : 'left';
+    const secAxisId = secondaryAsLeftAxis ? 'left' : 'right';
 
     return (
         <VStack position="relative" alignItems="center" maxW={`${chartWidth}px`}>
@@ -192,15 +198,15 @@ export const AreaChartRecharts = ({
                         return moment(v).format('MMM Do')
                     }}
                 />
-                <YAxis domain={_yDomain} yAxisId="left" style={_axisStyle.tickLabels} tickFormatter={(v) => v === 0 ? '' : isPerc ? `${smartShortNumber(v, 2)}%` : yDomainAsInteger ? smartShortNumber(v, 0, useUsd) : smartShortNumber(v, 2, useUsd)} />
+                <YAxis domain={_yDomain} yAxisId={mainAxisId} orientation={mainAxisId} style={_axisStyle.tickLabels} tickFormatter={(v) => v === 0 ? '' : isPerc ? `${smartShortNumber(v, 2)}%` : yDomainAsInteger ? smartShortNumber(v, 0, useUsd) : smartShortNumber(v, 2, useUsd)} />
                 {
                     duplicateYAxis && chartWidth >= 400 && <YAxis domain={_yDomain} yAxisId="right" orientation="right" style={_axisStyle.tickLabels} tickFormatter={(v) => v === 0 ? '' : isPerc ? `${smartShortNumber(v, 2)}%` : yDomainAsInteger ? smartShortNumber(v, 0, useUsd) : smartShortNumber(v, 2, useUsd)} />
                 }
                 {
-                    showSecondary && <YAxis allowDataOverflow={true} style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => shortenNumber(v, secondaryPrecision, secondaryAsUsd)} />
+                    showSecondary && <YAxis allowDataOverflow={true} style={_axisStyle.tickLabels} yAxisId={secAxisId} orientation={secAxisId} tickFormatter={(v) => shortenNumber(v, secondaryPrecision, secondaryAsUsd)} />
                 }
                 {
-                    showSecondary && !!secondaryRef && <Line isAnimationActive={false} opacity={secondaryOpacity} strokeWidth={2} name={secondaryLabel} yAxisId="right" type="monotone" dataKey={secondaryRef} stroke={themeStyles.colors.info} dot={false} />
+                    showSecondary && !!secondaryRef && <Line isAnimationActive={false} opacity={secondaryOpacity} strokeWidth={2} name={secondaryLabel} yAxisId={secAxisId} type={secondaryType} dataKey={secondaryRef} stroke={themeStyles.colors.info} dot={false} />
                 }
                 {
                     lineItems?.map(lineItem => {
@@ -225,19 +231,19 @@ export const AreaChartRecharts = ({
                 {
                     showLegend && <Legend wrapperStyle={legendStyle} style={{ cursor: 'pointer' }} formatter={(value) => value} />
                 }
-                <Area syncId="main" yAxisId="left" syncMethod={'value'} opacity={1} strokeWidth={2} name={yLabel} type={interpolation} dataKey={'y'} stroke={strokeColor || themeStyles.colors[mainColor]} dot={false} fillOpacity={1} fill={`url(#${mainColor}-gradient)`} />
+                <Area syncId="main" yAxisId={mainAxisId} syncMethod={'value'} opacity={1} strokeWidth={2} name={yLabel} type={interpolation} dataKey={'y'} stroke={strokeColor || themeStyles.colors[mainColor]} dot={false} fillOpacity={1} fill={`url(#${mainColor}-gradient)`} />
                 {
                     addDayAvg && avgDayNumbers?.map((period, periodIndex) => {
                         const _avgLineProps = avgLineProps ? avgLineProps[periodIndex] : {};
                         const avgType = avgTypes ? avgTypes[periodIndex] : 'avg';
-                        return <Line key={period + '-' + avgType} isAnimationActive={false} opacity={1} strokeWidth={2} name={`${period}-day ${avgType.replace('-', ' ').replace('ema', 'EMA')}`} yAxisId="left" type="monotone" dataKey={'y' + period + avgType} stroke={themeStyles.colors.info} dot={false} {..._avgLineProps} />
+                        return <Line key={period + '-' + avgType} isAnimationActive={false} opacity={1} strokeWidth={2} name={`${period}-day ${avgType.replace('-', ' ').replace('ema', 'EMA')}`} yAxisId={mainAxisId} type="monotone" dataKey={'y' + period + avgType} stroke={themeStyles.colors.info} dot={false} {..._avgLineProps} />
                     })
                 }
                 {
                     showEvents && events.map(d => {
                         return <ReferenceLine
                             key={`x-${d.x}`}
-                            yAxisId="left"
+                            yAxisId={mainAxisId}
                             position="start"
                             isFront={true}
                             x={d.x}
@@ -256,7 +262,7 @@ export const AreaChartRecharts = ({
                     combodata.filter(d => d.utcDate.endsWith('01-01')).map(d => {
                         return <ReferenceLine
                             key={`x-${d.x}`}
-                            yAxisId="left"
+                            yAxisId={mainAxisId}
                             position="start"
                             isFront={true}
                             x={d.x}
