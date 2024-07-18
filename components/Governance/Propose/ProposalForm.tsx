@@ -24,6 +24,7 @@ import { DRAFT_WHITELIST } from '@app/config/constants';
 import { handleApiResponse } from '@app/util/misc';
 import { InfoMessage } from '@app/components/common/Messages';
 import Container from '@app/components/common/Container';
+import { getGovernanceContract } from '@app/util/contracts';
 
 const EMPTY_ACTION = {
     actionId: 0,
@@ -206,9 +207,11 @@ export const ProposalForm = ({
         return deleteDraft(draftId!, provider.getSigner(), () => router.push('/governance'));
     }
 
-    const handleLinkAndDelete = () => {        
-        const proposalId = window.prompt(`Please provide the proposal ID to link the draft to (note: the last submitted proposal has the ID ${lastProposalId})`);
-        if(!proposalId || !/^[1-9][0-9]*$/.test(proposalId) || parseInt(proposalId) > lastProposalId) {
+    const handleLinkAndDelete = async () => {
+        const govContract = getGovernanceContract(provider?.getSigner(), GovEra.current);
+        const lastId = await govContract.proposalCount();
+        const proposalId = window.prompt(`Please provide the proposal ID to link the draft to (note: the last known proposal has the ID ${lastId})`);
+        if(!proposalId || !/^[1-9][0-9]*$/.test(proposalId)) {
             return showToast({ description: 'Invalid proposal ID provided!', status: 'error' });
         } else {
             return linkDraft(draftId!, parseInt(proposalId), provider?.getSigner());
