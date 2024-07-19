@@ -489,6 +489,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const [onTosOk, setOnTosOk] = useState(() => () => { });
   const [tosApproved, setTosApproved] = useState(false);
   const [gnosisSafeToastAlreadyShowed, setGnosisSafeToastAlreadyShowed] = useState(false);
+  const [inited, setInited] = useState(false);
   const isMountedRef = useRef(false);
 
   useEffect(() => {
@@ -614,6 +615,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   useEffect(() => {
     // we can know the injected provider's network and show the badge even if the user is not connected to our app
     const init = async () => {
+      setInited(true);
       const isReady = await ethereumReady(10000);
       if (!isReady) { return }
       // use chainId not networkVersion
@@ -745,7 +747,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
 
               <Stack direction="row" align="center" display={{ base: 'none', lg: 'flex' }}>
                 {
-                  isLargerThan1150 && vampireComp
+                  isLargerThan1150 && inited && vampireComp
                 }
                 {
                   isLargerThan1300 && <INVBalance />
@@ -768,7 +770,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
       </Flex>
       {isLargerThan768 && !!process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG && !hideAnnouncement && <Announcement />}
       {
-        !isLargerThan1150 && <VStack mt="4">
+        !isLargerThan1150 && inited && <VStack mt="4">
           {vampireComp}
         </VStack>
       }
