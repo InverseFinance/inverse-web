@@ -67,6 +67,8 @@ import { smartShortNumber } from '@app/util/markets'
 import useSWR from 'swr'
 import { useMultisig } from '@app/hooks/useSafeMultisig'
 import { FirmGovDelegationModal } from '@app/components/F2/GovToken/FirmGovToken'
+import { TOKEN_IMAGES } from '@app/variables/images'
+import { VampireModal } from '../Modal/VampireModal'
 const NAV_ITEMS = MENUS.nav
 
 export const ThemeBtn = () => {
@@ -122,7 +124,7 @@ const NetworkBadge = ({
       onClick={isWrongNetwork ? showWrongNetworkModal : undefined}
     // bg={'primary.800'}
     >
-      <NetworkItem isSupported={!isWrongNetwork} chainId={chainId} networkAttribute={isSmallerThan1000 ? null : isSmallerThan1470 && !isSmallerThan1000 && chainId?.toString() !== '8453' ? 'coinSymbol' : 'name'} />
+      <NetworkItem isSupported={!isWrongNetwork} chainId={chainId} networkAttribute={isSmallerThan1000 ? null : isSmallerThan1470 && !isSmallerThan1000 && chainId?.toString() !== '8453' ? 'coinSymbol' : 'coinSymbol'} />
       <Flex direction="row" color="red" ml="1">
         {
           !!gasPrice &&
@@ -198,13 +200,16 @@ const INVBalance = () => {
           : null
       }
       <>
-        <Text onClick={goToSupply} cursor={hasUnstakedBal ? 'pointer' : undefined} mr="1" color={hasUnstakedBal ? 'orange.300' : 'mainTextColor'}>
-          {smartShortNumber(inv, 2)} {RTOKEN_SYMBOL}
-        </Text>
-        ({smartShortNumber(xinv, 2)} x{RTOKEN_SYMBOL})
+        {
+          inv > 0.01 ? <>
+            <Text onClick={goToSupply} cursor={hasUnstakedBal ? 'pointer' : undefined} mr="1" color={hasUnstakedBal ? 'orange.300' : 'mainTextColor'}>
+              {smartShortNumber(inv, 2)} {RTOKEN_SYMBOL}
+            </Text>&nbsp;({smartShortNumber(xinv, 2)} x{RTOKEN_SYMBOL})
+          </> : <>{smartShortNumber(xinv, 2)} x{RTOKEN_SYMBOL}</>
+        }
       </>
       {
-        stakedInFirm >= 10 &&  <FirmGovDelegationModal
+        stakedInFirm >= 10 && <FirmGovDelegationModal
           isOpen={isFirmModalOpen}
           onClose={firmOnClose}
           delegatingTo={delegate}
@@ -467,6 +472,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const { query } = useRouter()
   const [isLargerThan] = useMediaQuery('(min-width: 1330px)');
   const [isLargerThan1300] = useMediaQuery('(min-width: 1300px)');
+  const [isLargerThan1500] = useMediaQuery('(min-width: 1500px)');
   const [isLargerThan1150] = useMediaQuery('(min-width: 1150px)');
   const [isLargerThan768] = useMediaQuery('(min-width: 768px)');
   const { themeName } = useAppTheme();
@@ -479,9 +485,11 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const { isOpen: isWrongNetOpen, onOpen: onWrongNetOpen, onClose: onWrongNetClose } = useDisclosure()
   const { isOpen: isAirdropOpen, onOpen: onAirdropOpen, onClose: onAirdropClose } = useDisclosure()
   const { isOpen: isTosOpen, onOpen: onTosOpen, onClose: onTosClose } = useDisclosure()
+  const { isOpen: isVampireOpen, onOpen: onVampireOpen, onClose: onVampireClose } = useDisclosure()
   const [onTosOk, setOnTosOk] = useState(() => () => { });
   const [tosApproved, setTosApproved] = useState(false);
   const [gnosisSafeToastAlreadyShowed, setGnosisSafeToastAlreadyShowed] = useState(false);
+  const [inited, setInited] = useState(false);
   const isMountedRef = useRef(false);
 
   useEffect(() => {
@@ -607,6 +615,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   useEffect(() => {
     // we can know the injected provider's network and show the badge even if the user is not connected to our app
     const init = async () => {
+      setInited(true);
       const isReady = await ethereumReady(10000);
       if (!isReady) { return }
       // use chainId not networkVersion
@@ -627,6 +636,17 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
     init();
   }, []);
 
+  const openRefund = () => {
+    onVampireOpen();
+  }
+
+  const vampireComp = <NavBadge position="relative">
+    {/* <Image display="inline-block" src={"https://assets.coingecko.com/markets/images/544/small/AAVE.png"} w="24px" h="24px" /> */}
+    <Image mr="2" top="-9px" position={isLargerThan1500 ? 'static' : 'absolute'} display="inline-block" src={"https://assets.coingecko.com/coins/images/12645/standard/aave-token-round.png"} w="18px" h="18px" />
+    <Text ml="0" fontSize="12px">Aave frens get their gas costs refunded.</Text>
+    <Text cursor="pointer" onClick={openRefund} ml="1" textDecoration="underline" fontSize="12px">Redeem</Text>
+  </NavBadge>;
+
   return (
     <VStack w='full' spacing="0">
       <PoaModal isOpen={isTosOpen} onClose={onTosClose} onOk={() => onTosOk()} onSuccess={() => setTosApproved(true)} />
@@ -634,6 +654,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
         isOpen={isWrongNetOpen && !isBlog}
         onClose={onWrongNetClose}
       />
+      <VampireModal isOpen={isVampireOpen} onClose={onVampireClose} />
       {/* {
         showAirdropModal && <AirdropModalCheck
           isOpen={isAirdropOpen}
@@ -658,7 +679,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
           <Link href="/">
             <Logo minW='40px' boxSize={10} noFilter={true} />
           </Link>
-          <Stack direction="row" align="center" spacing={isLargerThan || isBlog ? 7 : 6} display={{ base: 'none', lg: 'flex' }}>
+          <Stack direction="row" align="center" spacing={6} display={{ base: 'none', lg: 'flex' }}>
             {NAV_ITEMS.map(({ label, href, submenus }, i) => (
               <Box
                 key={i}
@@ -726,10 +747,14 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
 
               <Stack direction="row" align="center" display={{ base: 'none', lg: 'flex' }}>
                 {
+                  isLargerThan1150 && inited && vampireComp
+                }
+                {
                   isLargerThan1300 && <INVBalance />
                 }
                 {
-                  isLargerThan1150 && <ETHBalance />
+                  // isLargerThan1150 && <ETHBalance />
+                  isLargerThan1500 && <ETHBalance />
                 }
                 {
                   badgeChainId ?
@@ -744,6 +769,11 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
         <BurgerMenu active={active} activeSubmenu={activeSubmenu} userAddress={userAddress} nbNotif={nbNotif} navItems={NAV_ITEMS} />
       </Flex>
       {isLargerThan768 && !!process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG && !hideAnnouncement && <Announcement />}
+      {
+        !isLargerThan1150 && inited && <VStack mt="4">
+          {vampireComp}
+        </VStack>
+      }
     </VStack>
   )
 }

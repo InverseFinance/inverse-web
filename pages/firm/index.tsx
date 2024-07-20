@@ -81,7 +81,7 @@ export const F2PAGE = ({
                 }
             </Head>
             <AppNav active="Markets" activeSubmenu="FiRM" />
-            {
+            {/* {
                 !colReqShown && <SlideModal closeOnOutsideClick={false} closeIconInside={true} isOpen={crIsOpen} onClose={handleColReqClose} contentProps={{ maxW: '500px', className: '', backgroundColor: 'navBarBackgroundColor' }}>
                     <VStack w='full' justify="flex-start" alignItems="flex-start">
                         <Text fontWeight="bold" fontSize='18px'>
@@ -92,7 +92,7 @@ export const F2PAGE = ({
                         </Link>
                     </VStack>
                 </SlideModal>
-            }
+            } */}
             {
                 !!ACTIVE_POLL && POLLS[ACTIVE_POLL] && <SlideModal closeOnOutsideClick={false} closeIconInside={true} isOpen={isOpen} onClose={handleManualClose} contentProps={{ maxW: '500px', className: '', backgroundColor: 'navBarBackgroundColor' }}>
                     <VStack w='full' justify="flex-start" alignItems="flex-start">
