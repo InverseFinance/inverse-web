@@ -18,7 +18,7 @@ import { useBreakpointValue } from '@chakra-ui/media-query'
 import { Web3Provider } from '@ethersproject/providers'
 import Link from '@app/components/common/Link'
 import Logo from '@app/components/common/Logo'
-import { BURN_ADDRESS, ETH_MANTISSA } from '@app/config/constants'
+import { BURN_ADDRESS, ETH_MANTISSA, ONE_DAY_MS } from '@app/config/constants'
 import useEtherSWR from '@app/hooks/useEtherSWR'
 import { ethereumReady, getPreviousConnectorType, setIsPreviouslyConnected, setPreviousChainId } from '@app/util/web3'
 import { useWeb3React } from '@web3-react/core'
@@ -40,7 +40,7 @@ import { showToast } from '@app/util/notify'
 import { useGovernanceNotifs } from '@app/hooks/useProposals';
 import { NotifBadge } from '../NotifBadge'
 import { ViewAsModal } from './ViewAsModal'
-import { getEnsName, namedAddress } from '@app/util'
+import { getEnsName, namedAddress, shortenAddress } from '@app/util'
 import { Avatar } from '@app/components/common/Avatar';
 import { MENUS } from '@app/variables/menus'
 import { metamaskInjector, walletConnectV2, coinbaseWallet, gnosisSafe } from '@app/variables/connectors'
@@ -69,6 +69,7 @@ import { useMultisig } from '@app/hooks/useSafeMultisig'
 import { FirmGovDelegationModal } from '@app/components/F2/GovToken/FirmGovToken'
 import { TOKEN_IMAGES } from '@app/variables/images'
 import { VampireModal } from '../Modal/VampireModal'
+import useStorage from '@app/hooks/useStorage'
 const NAV_ITEMS = MENUS.nav
 
 export const ThemeBtn = () => {
@@ -488,7 +489,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const { isOpen: isVampireOpen, onOpen: onVampireOpen, onClose: onVampireClose } = useDisclosure()
   const [onTosOk, setOnTosOk] = useState(() => () => { });
   const [tosApproved, setTosApproved] = useState(false);
-  const [gnosisSafeToastAlreadyShowed, setGnosisSafeToastAlreadyShowed] = useState(false);
+  const { value: gnosisSafeToastAlreadyShowed, setter: setGnosisSafeToastAlreadyShowed } = useStorage('gnosis-safe-toast');
   const [inited, setInited] = useState(false);
   const isMountedRef = useRef(false);
 
@@ -553,10 +554,12 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
 
   useEffect(() => {
     const init = async () => {
-      if (!!account && isMultisig && !isSafeMultisigConnector && !gnosisSafeToastAlreadyShowed) {
+      const now = Date.now();
+      if (!!account && isMultisig && !isSafeMultisigConnector && !gnosisSafeToastAlreadyShowed || gnosisSafeToastAlreadyShowed?.timestamp < (now - ONE_DAY_MS)) {
         showToast({
           status: 'info',
-          title: 'Using a multisig?',
+          id: 'multisig-safe-toast',
+          title: `Using a multisig?`,
           description: <Link
             color="mainTextColor"
             textDecoration="underline"
@@ -569,7 +572,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
           </Link>,
           duration: null,
         });
-        setGnosisSafeToastAlreadyShowed(true);
+        setGnosisSafeToastAlreadyShowed({ showed: true, timestamp: now });
       }
     }
     init()
