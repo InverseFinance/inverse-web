@@ -555,7 +555,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   useEffect(() => {
     const init = async () => {
       const now = Date.now();
-      if (!!account && isMultisig && !isSafeMultisigConnector && !gnosisSafeToastAlreadyShow || gnosisSafeToastAlreadyShowed?.timestamp < (now - ONE_DAY_MS)) {
+      if (!!account && isMultisig && !isSafeMultisigConnector && !gnosisSafeToastAlreadyShowed || gnosisSafeToastAlreadyShowed?.timestamp < (now - ONE_DAY_MS)) {
         showToast({
           status: 'info',
           id: 'multisig-safe-toast',
