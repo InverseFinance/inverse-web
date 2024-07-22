@@ -261,7 +261,7 @@ const mainConfig = {
             escrowImplementation: FIRM_ESCROWS.COMP,
             helper: true,
             oracleType: "chainlink",
-            badgeInfo: 'Keep Gov. rights',
+            badgeInfo: 'Keep Gov. Rights',
             isGovTokenCollateral: true,
             govLink: 'https://app.compound.finance/vote?market=usdc-mainnet',
             startingBlock: 20348975,

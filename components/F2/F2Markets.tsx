@@ -427,7 +427,8 @@ export const F2Markets = ({
                     <Text display="inline-block" fontWeight="bold" fontSize={{ base: '14px', md: '16px' }}>
                         {
                             !dbrPrice ?
-                                <SmallTextLoader h="16px" pt="8px" width="42px" />
+                                null
+                                // <SmallTextLoader h="16px" pt="8px" width="42px" />
                                 :
                                 <b style={{ color: themeStyles.colors.success, fontSize: '18px', fontWeight: '900' }}>
                                     {shortenNumber(dbrPrice * 100, 2)}%
