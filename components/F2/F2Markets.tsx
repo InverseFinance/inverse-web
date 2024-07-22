@@ -418,16 +418,16 @@ export const F2Markets = ({
             <Stack h={{ base: 'auto', xl: '56px' }} direction={{ base: 'column', xl: 'row' }} alignItems="flex-start" justify="center">
                 <Image transform="translateY(4px)" src={`/assets/firm/${firmImages[themeName]}`} w='110px' h="auto" />
                 <VStack h={{ base: 'auto', xl: '56px' }} overflow="hidden" spacing="0" alignItems="flex-start">
-                    <Text fontWeight="bold" fontSize={{ base: '14px', md: '16px' }}>
+                    <Text display="inline-block" fontWeight="bold" fontSize={{ base: '14px', md: '16px' }}>
                         {
                             !dbrPrice ?
                                 <SmallTextLoader h="16px" pt="8px" width="42px" />
                                 :
                                 <b style={{ color: themeStyles.colors.success, fontSize: '18px', fontWeight: '900' }}>
-                                    {shortenNumber(dbrPrice * 100, 2)}
+                                    {shortenNumber(dbrPrice * 100, 2)}%
                                 </b>
                         }
-                        <b style={{ color: themeStyles.colors.success, fontSize: '18px', fontWeight: '900' }}>%</b> Fixed Borrow APR, Unlimited Duration
+                        &nbsp;Fixed Borrow APR, Unlimited Duration
                     </Text>
                     <Link fontSize='14px' textDecoration="underline" href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/firm" isExternal target="_blank">
                         All markets are isolated - Learn more about FiRM <ExternalLinkIcon />
