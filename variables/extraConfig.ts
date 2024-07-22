@@ -264,7 +264,7 @@ const mainConfig = {
             badgeInfo: 'Keep Gov. rights',
             isGovTokenCollateral: true,
             govLink: 'https://app.compound.finance/vote?market=usdc-mainnet',
-            startingBlock: 20332725,
+            startingBlock: 20348975,
             isInv: false,
         },
     ],
