@@ -10,6 +10,7 @@ export enum FIRM_ESCROWS {
     'cvxFXS' = '0xCa78ee4544ec5a33Af86F1E786EfC7d3652bf005',
     'DSR' = '0xCcABAD4923c14E48C9C27e6C4556C1CAf4E91eBB',
     'stCVX' = '0xf2a2b6c1F47c75FFacDbF60B35F2Ed2d35f0a9C1',
+    'COMP' = '0x882d00508BbF32874f48EB739515cF3Cb6fC94e0', 
 }
 
 const mainConfig = {
@@ -240,7 +241,7 @@ const mainConfig = {
             name: 'sFRAX',
             collateral: '0xA663B02CF0a4b149d2aD41910CB81e23e1c41c32',
             address: '0xFEA3A862eE4b3F9b6015581d6d2D25AF816C54f1',
-            escrowImplementation: FIRM_ESCROWS.simple,            
+            escrowImplementation: FIRM_ESCROWS.simple,
             helper: true,
             oracleType: "chainlink-based",
             badgeInfo: 'Yield-Bearing',
@@ -252,6 +253,19 @@ const mainConfig = {
             isInv: false,
             isERC4626Collateral: true,
             aleTransformerType: 'marketAddress',
+        },
+        {
+            name: 'COMP',
+            collateral: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
+            address: '0x29fe42F4F71Ba5b9a7aaE794468e7ca4128a93b8',
+            escrowImplementation: FIRM_ESCROWS.COMP,
+            helper: true,
+            oracleType: "chainlink",
+            badgeInfo: 'Keep Gov. rights',
+            isGovTokenCollateral: true,
+            govLink: 'https://app.compound.finance/vote?market=usdc-mainnet',
+            startingBlock: 20348975,
+            isInv: false,
         },
     ],
     feds: FEDS_PARAMS,

@@ -108,6 +108,12 @@ export const MARKET_INFOS = {
         description: 'gOHM, or Governance OHM, is an ERC-20 token that is the only token used for proposing upgrades to Olympus protocol. gOHM can be obtained by wrapping OHM, and vice versa. The only use cases of gOHM today is for voting in governance and as collateral to take a Cooler Loan.',
         getLink: 'https://app.olympusdao.finance/#/my-balances',
     },
+    'COMP': {
+        name: 'COMP',
+        fullname: 'Compound Finance',
+        description: 'COMP is the native platform token for Compound Finance, when depositing COMP on FiRM you keep your Governance Rights thanks to the Personal Collateral Escrow design.',
+        getLink: 'https://swap.defillama.com/?chain=ethereum&from=0x865377367054516e17014ccded1e7d814edc9ce4&tab=swap&to=0xc00e94cb662c3520282e6f5717214004a7f26888',
+    },
 }
 
 const ColHeader = ({ ...props }) => {
