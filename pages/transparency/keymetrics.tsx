@@ -3,19 +3,15 @@ import { Flex, FormControl, FormLabel, SimpleGrid, Stack, Switch, Text, Checkbox
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
-import { usePricesV2 } from '@app/hooks/usePrices'
+import { useDOLAPrice, usePricesV2 } from '@app/hooks/usePrices'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs';
 import { useDAO } from '@app/hooks/useDAO'
 import { Funds, getFundsTotalUsd } from '@app/components/Transparency/Funds'
-import { FundsDetails } from '@app/components/Transparency/FundsDetails'
 import { DashBoardCard, NumberCard } from '@app/components/F2/UserDashboard'
-import { getNetworkImage } from '@app/util/networks'
 import { useState } from 'react'
-import { NetworkIds } from '@app/types'
-import { useFirmPositions, useFirmUsers } from '@app/hooks/useFirm'
+import { useFirmUsers } from '@app/hooks/useFirm'
 import { groupPositionsBy } from '@app/components/F2/liquidations/firm-positions'
 import { useCustomSWR } from '@app/hooks/useCustomSWR'
-import { shortenNumber } from '@app/util/markets'
 import { useAppTheme } from '@app/hooks/useAppTheme'
 
 const OWN_TOKENS = ['DBR', 'INV'];
@@ -42,9 +38,12 @@ const above100UsdFilter = (item) => item.balance * (item.price || item.usdPrice)
 export const Overview = () => {
   const { themeName } = useAppTheme();
   const { prices, isLoading: isLoadingPrices } = usePricesV2(true);
+  const { price: dolaPrice, isLoading: isDolaPriceLoading } = useDOLAPrice();
   const { positions, userPositions, isLoading: isLoadingPositions } = useFirmUsers();
   const { treasury, anchorReserves, multisigs, isLoading: isLoadingDao } = useDAO();
   const { data: currentCirculatingSupply } = useCustomSWR(`/api/dola/circulating-supply`);
+  const { data: invCirculatingSupply } = useCustomSWR(`/api/inv/circulating-supply`);
+  const invMarketCap = prices["inverse-finance"]?.usd * invCirculatingSupply; 
   const [excludeOwnTokens, setExcludeOwnTokens] = useState(false);
 
   const totalMultisigs = multisigs?.map(m => {
@@ -78,7 +77,7 @@ export const Overview = () => {
   const groupMarketsByDeposits = groupPositionsBy(positionsWithDeposits, 'marketName', 'tvl');
   const groupMarketsByDebt = groupPositionsBy(positionsWithDebt, 'marketName', 'debt');
 
-  const isLoading = isLoadingDao || isLoadingPrices;
+  const isLoading = isLoadingDao || isLoadingPrices || isDolaPriceLoading || isLoadingPositions;
   const mainFontSize = { base: '16px', sm: '20px', md: '26px' };
   const dashboardCardTitleProps = { w: 'fit-content', position: 'static', fontSize: mainFontSize, fontWeight: 'extrabold' };
   const dashboardCardProps = { direction: 'column', mx: '0', w: { base: '100vw', sm: '95vw', lg: '600px' }, borderRadius: { base: '0', sm: '8' } };
@@ -97,27 +96,27 @@ export const Overview = () => {
       <TransparencyTabs active="treasury" />
       <Flex w="full" justify="center" justifyContent="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="4" px={{ base: '0', sm: '5' }} maxWidth="1400px" w='full'>
-          <Stack spacing="5" direction="column" w="full" justify="space-around" alignItems={'center'}>
-            <SimpleGrid columns={{ base: 2, md: 3, xl: 5 }} spacingX="50px" spacingY="40px" w='full'>
-              <NumberCard isUsd={true} value={totalTvl} label="FiRM TVL" />
-              <NumberCard value={totalDebt} label="FiRM Borrows" />
-              <NumberCard value={nbUsers} label="Nb Users" />
-              <NumberCard value={currentCirculatingSupply} label="DOLA Circ. Supply" />
-              {/* <NumberCard value={nbStakers} label="Nb Stakers" /> */}
+          <Stack spacing="50px" direction="column" w="full" justify="space-around" alignItems={'center'}>
+            <SimpleGrid columns={{ base: 1, md: 3, xl: 5 }} spacingX="50px" spacingY="40px" w='full'>
+              <NumberCard isLoading={isLoading} value={totalTvl} label="FiRM TVL" isUsd={true} />
+              <NumberCard isLoading={isLoading} value={totalDebt * dolaPrice} label="FiRM Borrows" isUsd={true} />
+              <NumberCard isLoading={isLoading} value={nbUsers} label="Nb Users" />
+              <NumberCard isLoading={isLoading} value={currentCirculatingSupply * dolaPrice} label="DOLA Circ. Supply" isUsd={true} />
+              <NumberCard isLoading={isLoading} value={invMarketCap} label="INV Market Cap." isUsd={true} />
               {/* <NumberCard value={nbBorrowers} label="Nb Borrowers" /> */}
             </SimpleGrid>
-            <SimpleGrid columns={{ base: 1, xl: 2 }} spacingX="50px" spacingY="40px" w='full'>
-              <DashBoardCard cardTitle="TVL by Market" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
+            <Stack w='full' direction={{ base: 'column', xl: 'row' }} spacing="50px" justifyContent="space-between">
+              <DashBoardCard cardTitle="TVL by Market" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps} w={{ base: '100%', xl: '50%' }}>
                 <Funds isLoading={isLoading} labelWithPercInChart={true} skipLineForPerc={true} funds={groupMarketsByDeposits} chartMode={true} showTotal={false} showChartTotal={true} chartProps={{ width: pieSize, height: pieSize }} useRecharts={true} />
               </DashBoardCard>
               {/* <DashBoardCard cardTitle="Debt by Market" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
                 <Funds isLoading={isLoading} labelWithPercInChart={true} skipLineForPerc={true} funds={groupMarketsByDebt} chartMode={true} showTotal={false} showChartTotal={true} chartProps={{ width: pieSize, height: pieSize }} useRecharts={true} />
               </DashBoardCard> */}
-              <DashBoardCard cardTitle="Total Treasury Holdings" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
+              <DashBoardCard cardTitle="Total Treasury Holdings" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}  w={{ base: '100%', xl: '50%' }}>
                 <ExcludeOwnTokens label="Exclude Treasury INV & DBR" setter={setExcludeOwnTokens} value={excludeOwnTokens} id='exclude-1' />
                 <Funds chartMode={true} leftSideMaxW='300px' w='full' isLoading={isLoading} funds={excludeOwnTokens ? totalHoldingsExcludeOwnTokens : totalHoldings} prices={prices} showTotal={false} showChartTotal={true} type='balance' useRecharts={true} chartProps={{ width: pieSize, height: pieSize }} />
               </DashBoardCard>
-            </SimpleGrid>
+            </Stack>
             <DashBoardCard cardTitle="Fees & Revenues" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps} w='full'>
               <iframe width="100%" height="360px" src={`https://defillama.com/chart/protocol/inverse-finance-firm?mcap=false&tokenPrice=false&fees=true&revenue=true&events=false&tvl=false&include_pool2_in_tvl=true&include_staking_in_tvl=true&include_govtokens_in_tvl=true&theme=${themeName}`} title="DefiLlama" frameborder="0"></iframe>
             </DashBoardCard>
