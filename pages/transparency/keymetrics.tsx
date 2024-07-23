@@ -92,8 +92,8 @@ export const Overview = () => {
         <meta name="description" content="Inverse Finance Treasury Details" />
         <meta name="keywords" content="Inverse Finance, dao, transparency, treasury, funds, liquidity, pol, holdings" />
       </Head>
-      <AppNav active="Transparency" activeSubmenu="Treasury" hideAnnouncement={true} />
-      <TransparencyTabs active="treasury" />
+      <AppNav active="Transparency" activeSubmenu="Key Metrics" hideAnnouncement={true} />
+      <TransparencyTabs active="keymetrics" />
       <Flex w="full" justify="center" justifyContent="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="4" px={{ base: '0', sm: '5' }} maxWidth="1400px" w='full'>
           <Stack spacing="50px" direction="column" w="full" justify="space-around" alignItems={'center'}>
