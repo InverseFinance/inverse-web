@@ -163,12 +163,13 @@ export const MonthlyRewards = ({
     </DashBoardCard>
 }
 
-const NumberItem = ({ noDataFallback = '-', href = '', footer = undefined, isLoading = false, value = 0, price = undefined, label = '', isUsd = false, precision = 0 }) => {
+const NumberItem = ({ noDataFallback = '-', href = '', footer = undefined, isLoading = false, value = 0, price = undefined, label = '', isUsd = false, precision = 0, isPerc = false }) => {
     return <VStack spacing="0" justify="center" alignItems="flex-end" w='full'>
         <VStack alignItems="flex-end" spacing="1">
             {
                 isLoading ? <BigTextLoader /> : <Text fontWeight="extrabold" fontSize={price ? { base: '22px', '2xl': '24px' } : { base: '30px', '2xl': '36px' }} color={'mainTextColor'}>
                     {!value ? noDataFallback : value > 100000 ? smartShortNumber(value, 2, isUsd) : preciseCommify(value, precision, isUsd)}{!!price && !!value ? ` (${smartShortNumber(value * price, 2, true)})` : ''}
+                    {!!value && isPerc ? "%" : null}
                 </Text>
             }
             {
@@ -183,9 +184,9 @@ const NumberItem = ({ noDataFallback = '-', href = '', footer = undefined, isLoa
     </VStack>
 }
 
-export const NumberCard = ({ imageSrc = '', noDataFallback = undefined, href = undefined, footer = undefined, isLoading = false, value = 0, label = '', price = undefined, isUsd = false, precision = 0 }) => {
+export const NumberCard = ({ imageSrc = '', noDataFallback = undefined, href = undefined, footer = undefined, isLoading = false, value = 0, label = '', price = undefined, isUsd = false, precision = 0, isPerc = false }) => {
     return <DashBoardCard imageSrc={imageSrc}>
-        <NumberItem href={href} noDataFallback={noDataFallback} isLoading={isLoading} price={price} value={value} label={label} isUsd={isUsd} precision={precision} footer={footer} />
+        <NumberItem href={href} noDataFallback={noDataFallback} isLoading={isLoading} price={price} value={value} label={label} isUsd={isUsd} precision={precision} footer={footer} isPerc={isPerc} />
     </DashBoardCard>
 }
 
