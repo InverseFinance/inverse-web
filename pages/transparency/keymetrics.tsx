@@ -36,7 +36,7 @@ const ExcludeOwnTokens = ({
 
 const above100UsdFilter = (item) => item.balance * (item.price || item.usdPrice) >= 100;
 
-export const Overview = () => {
+export const KeymetricsPage = () => {
   const { themeName, themeStyles } = useAppTheme();
   const { prices, isLoading: isLoadingPrices } = usePricesV2(true);
   const { price: dolaPrice, isLoading: isDolaPriceLoading } = useDOLAPrice();
@@ -104,10 +104,10 @@ export const Overview = () => {
       <Head>
         <title>Inverse Finance - Transparency Treasury</title>
         <meta name="og:title" content="Inverse Finance - Transparency" />
-        <meta name="og:description" content="Treasury Details" />
+        <meta name="og:description" content="Inverse Finance Key Metrics" />
         <meta name="og:image" content="https://inverse.finance/assets/social-previews/transparency-portal.png" />
-        <meta name="description" content="Inverse Finance Treasury Details" />
-        <meta name="keywords" content="Inverse Finance, dao, transparency, treasury, funds, liquidity, pol, holdings" />
+        <meta name="description" content="Inverse Finance Key Metrics" />
+        <meta name="keywords" content="Inverse Finance, transparency, key metrics, treasury, market cap, fees, revenues, dola backing, firm, tvl" />
       </Head>
       <AppNav active="Transparency" activeSubmenu="Key Metrics" hideAnnouncement={true} />
       <TransparencyTabs active="keymetrics" />
@@ -120,15 +120,11 @@ export const Overview = () => {
               <NumberCard isLoading={isLoading} value={nbUsers} label="Nb Users" />
               <NumberCard isLoading={isLoading} value={currentCirculatingSupply * dolaPrice} label="DOLA Circ. Supply" isUsd={true} />
               <NumberCard isLoading={isLoading} value={invMarketCap} label="INV Market Cap." isUsd={true} />
-              {/* <NumberCard value={nbBorrowers} label="Nb Borrowers" /> */}
             </SimpleGrid>
             <Stack w='full' direction={{ base: 'column', xl: 'row' }} spacing="50px" justifyContent="space-between">
               <DashBoardCard cardTitle="TVL by Market" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps} w={{ base: '100%', xl: '50%' }}>
                 <Funds isLoading={isLoading} labelWithPercInChart={true} skipLineForPerc={true} funds={groupMarketsByDeposits} chartMode={true} showTotal={false} showChartTotal={true} chartProps={{ width: pieSize, height: pieSize }} useRecharts={true} />
               </DashBoardCard>
-              {/* <DashBoardCard cardTitle="Debt by Market" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
-                <Funds isLoading={isLoading} labelWithPercInChart={true} skipLineForPerc={true} funds={groupMarketsByDebt} chartMode={true} showTotal={false} showChartTotal={true} chartProps={{ width: pieSize, height: pieSize }} useRecharts={true} />
-              </DashBoardCard> */}
               <DashBoardCard cardTitle="Total Treasury Holdings" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps} w={{ base: '100%', xl: '50%' }}>
                 <ExcludeOwnTokens label="Exclude Treasury INV & DBR" setter={setExcludeOwnTokens} value={excludeOwnTokens} id='exclude-1' />
                 <Funds chartMode={true} leftSideMaxW='300px' w='full' isLoading={isLoading} funds={excludeOwnTokens ? totalHoldingsExcludeOwnTokens : totalHoldings} prices={prices} showTotal={false} showChartTotal={true} type='balance' useRecharts={true} chartProps={{ width: pieSize, height: pieSize }} />
@@ -159,4 +155,4 @@ export const Overview = () => {
   )
 }
 
-export default Overview
+export default KeymetricsPage
