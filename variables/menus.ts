@@ -100,12 +100,12 @@ export const MENUS = {
     },
     {
       label: 'Transparency',
-      href: '/transparency/treasury',
+      href: '/transparency/keymetrics',
       submenus: [
-        // {
-        //   href: '/transparency/overview',
-        //   label: 'Overview',
-        // },
+        {
+          href: '/transparency/keymetrics',
+          label: 'Key Metrics',
+        },
         {
           href: '/transparency/treasury',
           label: 'Treasury',

@@ -12,7 +12,7 @@ import { SkeletonBlob } from "@app/components/common/Skeleton";
 import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader";
 import { FirmPositionsTable } from "../Infos/FirmPositionsTable";
 
-const groupPositionsBy = (positions: any[], groupBy: string, attributeToSum: string) => {
+export const groupPositionsBy = (positions: any[], groupBy: string, attributeToSum: string) => {
     return Object.entries(
         positions.reduce((prev, curr) => {
             return { ...prev, [curr[groupBy]]: (prev[curr[groupBy]] || 0) + curr[attributeToSum] };

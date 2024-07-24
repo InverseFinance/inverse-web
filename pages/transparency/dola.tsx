@@ -25,11 +25,11 @@ import { DolaVolumes } from '@app/components/Transparency/DolaVolumes'
 const LEGEND_ITEMS = [
   {
     color: lightTheme.colors.info,
-    label: 'Backed by a Liquidity Position on a AMM',
+    label: 'LP on a AMM',
   },
   {
     color: lightTheme.colors.success,
-    label: 'Backed by a collateral on FiRM',
+    label: 'Collateral on FiRM',
   },
   {
     color: lightTheme.colors.error,
@@ -37,8 +37,8 @@ const LEGEND_ITEMS = [
   },
 ];
 
-const Legend = () => {
-  return <HStack w='full' justify="space-around">
+export const DolaBackingLegend = (props) => {
+  return <Stack direction={{ base: 'column', xl: 'row' }} w='full' justify="space-around" {...props}>
     {
       LEGEND_ITEMS.map((item, index) => {
         return <HStack spacing="2" key={item.color}>
@@ -52,23 +52,16 @@ const Legend = () => {
         </HStack>
       })
     }
-  </HStack>
+  </Stack>
 }
 
-export const DolaDiagram = () => {
-  const { themeStyles } = useAppTheme();
-  const { dolaSupplies } = useDAO();
-  const { markets, isLoading } = useDBRMarkets();
-  const { fedOverviews, isLoading: isLoadingOverview } = useFedOverview();
-  const { data, isLoading: isLoadingRepayments } = useRepayments();
-  const { prices } = usePrices(['velodrome-finance']);
-
-  const fedsPieChartData = fedOverviews.map(f => {
+export const fedsDataToPieChart = (fedOverviews: any[], colors) => {
+  return fedOverviews.map(f => {
     const name = f.type === 'AMM' ?
       `${f.name} ` + (f.subBalances.reduce((acc, curr) => acc ? acc + '-' + curr.symbol : curr.symbol, '') + ' LP')
       : f.name;
     const balance = ['FiRM', 'Frontier'].includes(f.protocol) ? f.borrows : f.supply;
-    const color = ['Frontier', 'Fuse'].includes(f.protocol) ? themeStyles.colors.error : f.protocol === 'FiRM' ? themeStyles.colors.success : themeStyles.colors.info;
+    const color = ['Frontier', 'Fuse'].includes(f.protocol) ? colors.error : f.protocol === 'FiRM' ? colors.success : colors.info;
     return {
       ...f,
       token: { symbol: name },
@@ -81,6 +74,17 @@ export const DolaDiagram = () => {
       textColor: color,
     }
   }).filter(d => d.sliceValue > 0);
+}
+
+export const DolaDiagram = () => {
+  const { themeStyles } = useAppTheme();
+  const { dolaSupplies } = useDAO();
+  const { markets, isLoading } = useDBRMarkets();
+  const { fedOverviews, isLoading: isLoadingOverview } = useFedOverview();
+  const { data, isLoading: isLoadingRepayments } = useRepayments();
+  const { prices } = usePrices(['velodrome-finance']);
+
+  const fedsPieChartData = fedsDataToPieChart(fedOverviews, themeStyles?.colors);
 
   const firmPieChartData = markets.map(f => {
     return {
@@ -164,7 +168,7 @@ export const DolaDiagram = () => {
               </VStack>
             }
           />
-          <Legend />
+          <DolaBackingLegend />
           <Stack direction={{ base: 'column', lg: 'row' }} justify="space-between" w='full'>
             <DashBoardCard cardTitle='DOLA backing sources overview' {...dashboardCardProps}>
               <FundsDetails

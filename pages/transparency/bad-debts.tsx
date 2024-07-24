@@ -45,6 +45,32 @@ const defaultTotalValue = (field, items) => {
   </Cell>
 }
 
+export const DolaBadDebtRepaymentProgressBar = ({
+  progress,
+}: {
+  progress: number
+}) => {
+  const [isSmallerThan] = useMediaQuery('(max-width: 1150px)');
+  return <Container label="DOLA Bad Debt Repayment Progress" noPadding>
+    <HStack justify="center" alignItems="center" w='full'>
+      {!isSmallerThan && <Text textAlign="left">0%</Text>}
+      <HStack w='full' position="relative" justify="center" alignItems="center">
+        {progress > 0 && !isSmallerThan && <Text fontSize={{ base: '18px', lg: '24px' }} fontWeight="bold" zIndex="1" position="absolute" left={`${progress - 10}%`}>{shortenNumber(progress, 2)}%</Text>}
+        {
+          !isSmallerThan ?
+            <Progress isAnimated={true} borderRadius="8px" width={'1000px'} colorScheme="green" hasStripe={true} height='40px' value={progress} />
+            : <HStack borderRadius="4px" w='full' bgColor="barUnfilledColor">
+              <HStack position="relative" borderRadius='4px' height="30px" bgColor="barFilledColor" width={`${progress}%`}>
+                <Text zIndex="3" color="white" fontSize={'16px'} fontWeight="bold" position="absolute" right={'15px'}>{shortenNumber(progress, 2)}%</Text>
+              </HStack>
+            </HStack>
+        }
+      </HStack>
+      {!isSmallerThan! && <Text textAlign="right">100%</Text>}
+    </HStack>
+  </Container>
+}
+
 const transactionsColumns = [
   {
     field: 'symbol',
@@ -353,8 +379,7 @@ export const BadDebtPage = () => {
   const { prices } = usePrices();
   const [selected, setSelected] = useState('all');
   const isAllCase = selected === 'all';
-  const isDolaCase = selected.toLowerCase().includes('dola');
-  const [isSmallerThan] = useMediaQuery('(max-width: 1150px)')
+  const isDolaCase = selected.toLowerCase().includes('dola');  
   const dolaPrice = !!prices ? prices['dola-usd']?.usd : 1;
 
   const totalDirectRepaymentsForTable = totalRepaymentKeys.map(key => {
@@ -452,24 +477,7 @@ export const BadDebtPage = () => {
       <ErrorBoundary>
         <Flex w="full" maxW='6xl' direction="column" justify="center">
           <Stack w='full' alignItems='center' justify="center" direction={{ base: 'column', lg: 'column' }}>
-            <Container label="DOLA Bad Debt Repayment Progress" noPadding>
-              <HStack justify="center" alignItems="center" w='full'>
-                {!isSmallerThan && <Text textAlign="left">0%</Text>}
-                <HStack w='full' position="relative" justify="center" alignItems="center">
-                  {dolaBadDebtRepaidProgress > 0 && !isSmallerThan && <Text fontSize={{ base: '18px', lg: '24px' }} fontWeight="bold" zIndex="1" position="absolute" left={`${dolaBadDebtRepaidProgress - 10}%`}>{shortenNumber(dolaBadDebtRepaidProgress, 2)}%</Text>}
-                  {
-                    !isSmallerThan ?
-                      <Progress isAnimated={true} borderRadius="8px" width={'1000px'} colorScheme="green" hasStripe={true} height='40px' value={dolaBadDebtRepaidProgress} />
-                      : <HStack borderRadius="4px" w='full' bgColor="barUnfilledColor">
-                        <HStack position="relative" borderRadius='4px' height="30px" bgColor="barFilledColor" width={`${dolaBadDebtRepaidProgress}%`}>
-                          <Text zIndex="3" color="white" fontSize={'16px'} fontWeight="bold" position="absolute" right={'15px'}>{shortenNumber(dolaBadDebtRepaidProgress, 2)}%</Text>
-                        </HStack>
-                      </HStack>
-                  }
-                </HStack>
-                {!isSmallerThan! && <Text textAlign="right">100%</Text>}
-              </HStack>
-            </Container>
+            <DolaBadDebtRepaymentProgressBar progress={dolaBadDebtRepaidProgress} />
             <Container
               label="DOLA Bad Debt Evolution"
               description={data?.timestamp ? `Last update: ${moment(data?.timestamp).fromNow()}` : 'Loading...'}
@@ -505,10 +513,6 @@ export const BadDebtPage = () => {
                   }
                   barProps={{ eventName: 'Repayment' }}
                   areaProps={{ id: 'bad-debt-chart', showRangeBtns: true, defaultRange: '1Y', rangesToInclude: ['All', 'YTD', '1Y', '6M', '3M', '7D'], yLabel: 'DOLA bad debt', useRecharts: true, fillInByDayInterval: 1, simplifyData: false, showEvents: true, showEventsLabels: true, domainYpadding: 1000000, showMaxY: false, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
-                />
-                <InfoMessage
-                  alertProps={{ w: 'full' }}
-                  description="Note: calculation is now using a more accurate off-chain method rather than the on-chain Comptroller shortfall calculation"
                 />
               </VStack>
             </Container>

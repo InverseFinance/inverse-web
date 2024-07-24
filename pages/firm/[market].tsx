@@ -21,7 +21,7 @@ import { FirmRewardWrapper } from '@app/components/F2/rewards/FirmRewardWrapper'
 import { CvxCrvPreferences } from '@app/components/F2/rewards/CvxCrvPreferences'
 import { DailyLimitCountdown } from '@app/components/common/Countdown'
 import Container from '@app/components/common/Container'
-import { InfoMessage } from '@app/components/common/Messages'
+import { InfoMessage, WarningMessage } from '@app/components/common/Messages'
 import { shortenNumber } from '@app/util/markets'
 import { preciseCommify } from '@app/util/misc'
 import { WorthEvoChartWrapper } from '@app/components/F2/WorthEvoChartContainer'
@@ -136,7 +136,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                 <InvInconsistentFirmDelegation />
                                             </ErrorBoundary>
                                             {
-                                                isMultisig && <InfoMessage
+                                                isMultisig && <WarningMessage
                                                     alertProps={{ w: 'full' }}
                                                     title="Using a Multisig:"
                                                     description="Please note that borrowing is not allowed for multisigs / contracts."
