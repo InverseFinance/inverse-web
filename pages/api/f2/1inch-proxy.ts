@@ -2,8 +2,8 @@ import { getNetworkConfigConstants } from '@app/util/networks';
 import { isAddress } from 'ethers/lib/utils';
 import 'source-map-support'
 
-const BASE_URL = 'https://api.1inch.dev/swap/v5.2/1';
-// const BASE_URL = 'https://api.1inch.dev/swap/v6.0/1';
+// const BASE_URL = 'https://api.1inch.dev/swap/v5.2/1';
+const BASE_URL = 'https://api.1inch.dev/swap/v6.0/1';
 
 const { F2_ALE } = getNetworkConfigConstants();
 
@@ -55,10 +55,10 @@ export default async function handler(req, res) {
 
     const [
       response,
-      // allowanceResponse,
+      allowanceResponse,
     ] = await Promise.all([
       fetch1inchWithRetry(url),
-      // fetch1inchWithRetry('https://api.1inch.dev/swap/v6.0/1/approve/spender'),      
+      fetch1inchWithRetry('https://api.1inch.dev/swap/v6.0/1/approve/spender'),      
     ]);
 
     if (!response) {
@@ -66,13 +66,14 @@ export default async function handler(req, res) {
     }
 
     const responseData = await response?.json();
-    // const allowanceResponseData = await allowanceResponse?.json();
+    const allowanceResponseData = await allowanceResponse?.json();
     return res.status(response.status).json({
       ...responseData,
+      url,
       buyAmount: responseData?.toAmount || responseData?.dstAmount,
       // 1inch router v5
-      allowanceTarget: '0x1111111254EEB25477B68fb85Ed929f73A960582',
-      // allowanceTarget: allowanceResponseData.address,
+      // allowanceTarget: '0x1111111254EEB25477B68fb85Ed929f73A960582',
+      allowanceTarget: allowanceResponseData.address,
       data: responseData?.tx?.data,
       gasPrice: responseData?.tx?.gasPrice,
     });
