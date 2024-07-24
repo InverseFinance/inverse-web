@@ -119,8 +119,8 @@ const redirects = async () => {
     },
     {
       source: '/transparency',
-      destination: '/transparency/overview',
-      permanent: true,
+      destination: '/transparency/keymetrics',
+      permanent: false,
     },
     {
       source: '/banking',
