@@ -1,13 +1,24 @@
 import { VStack, Text } from "@chakra-ui/react"
 import ConfirmModal from "./ConfirmModal"
 import { useWeb3React } from "@web3-react/core";
-import { savePoaSig } from "@app/util/poa";
 import { InfoMessage } from "../Messages";
 import { Input } from "../Input";
 import { useEffect, useState } from "react";
 import { isAddress } from "ethers/lib/utils";
 
 export const REFERRAL_MSG = 'I have been referred by: ';
+
+export const saveReferral = async (referrer: string, sig: string) => {
+    const res = await fetch(`/api/referral?r=${referrer}`, {
+        method: 'POST',
+        body: JSON.stringify({ sig }),
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+    });
+    return res;
+}
 
 export const ReferralModal = ({
     referrer,
@@ -36,8 +47,7 @@ export const ReferralModal = ({
             const signer = provider?.getSigner();
             const sig = await signer.signMessage(REFERRAL_MSG + refAddress).catch(() => '');
             if (!!sig) {
-                const saveRes = await savePoaSig(account, sig);
-                console.log(saveRes);
+                const saveRes = await saveReferral(account, sig);
                 if (saveRes.status === 200) {
                     if (onSuccess) {
                         onSuccess();
