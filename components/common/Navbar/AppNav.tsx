@@ -55,7 +55,7 @@ import PostSearch from 'blog/components/post-search'
 import { switchTheme } from '@app/util/theme'
 import { useAppTheme, useAppThemeParams } from '@app/hooks/useAppTheme'
 import { CoinbasePayButton } from '@app/components/ThirdParties/CoinbasePay'
-import { useCheckDBRAirdrop } from '@app/hooks/useDBR'
+// import { useCheckDBRAirdrop } from '@app/hooks/useDBR'
 import { AirdropModalCheck } from '@app/components/F2/Infos/AirdropModalCheck'
 import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
 import { BurgerMenu } from './BurgerMenu'
@@ -70,6 +70,7 @@ import { FirmGovDelegationModal } from '@app/components/F2/GovToken/FirmGovToken
 import { TOKEN_IMAGES } from '@app/variables/images'
 import { VampireModal } from '../Modal/VampireModal'
 import useStorage from '@app/hooks/useStorage'
+import { ReferralModal } from '../Modal/ReferralModal'
 const NAV_ITEMS = MENUS.nav
 
 export const ThemeBtn = () => {
@@ -487,6 +488,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const { isOpen: isAirdropOpen, onOpen: onAirdropOpen, onClose: onAirdropClose } = useDisclosure()
   const { isOpen: isTosOpen, onOpen: onTosOpen, onClose: onTosClose } = useDisclosure()
   const { isOpen: isVampireOpen, onOpen: onVampireOpen, onClose: onVampireClose } = useDisclosure()
+  const { isOpen: isReferralOpen, onOpen: onReferralOpen, onClose: onReferralClose } = useDisclosure()
   const [onTosOk, setOnTosOk] = useState(() => () => { });
   const [tosApproved, setTosApproved] = useState(false);
   const { value: gnosisSafeToastAlreadyShowed, setter: setGnosisSafeToastAlreadyShowed } = useStorage('gnosis-safe-toast');
@@ -658,6 +660,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
         onClose={onWrongNetClose}
       />
       <VampireModal isOpen={isVampireOpen} onClose={onVampireClose} />
+      <ReferralModal onOpen={onReferralOpen} isOpen={isReferralOpen} onClose={onReferralClose} />
       {/* {
         showAirdropModal && <AirdropModalCheck
           isOpen={isAirdropOpen}
