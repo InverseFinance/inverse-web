@@ -122,5 +122,5 @@ export const getFirmRate = async (provider) => {
 }
 
 export const getSparkRate = async () => {
-    return { project: 'Spark', borrowRate: 8, type: 'fixed', collateral: 'Multiple', borrowToken: 'DAI', link: 'https://app.spark.fi' };
+    return { project: 'Spark', borrowRate: 8, type: 'variable', collateral: 'Multiple', borrowToken: 'DAI', link: 'https://app.spark.fi' };
 }
