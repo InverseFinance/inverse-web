@@ -22,6 +22,7 @@ const projectImages = {
     'Silo': 'https://icons.llamao.fi/icons/protocols/silo?w=48&h=48',
     'Compound': 'https://icons.llamao.fi/icons/protocols/compound?w=48&h=48',
     'FiRM': 'https://icons.llamao.fi/icons/protocols/inverse-finance?w=48&h=48',
+    'Spark': 'https://icons.llamao.fi/icons/protocols/spark?w=48&h=48',
 }
 
 const projectCollaterals = {
@@ -29,6 +30,7 @@ const projectCollaterals = {
     'Curve': ['WETH', 'WBTC', 'wstETH'],
     'Aave-V3': ['WETH', 'WBTC', 'CRV', 'wstETH'],
     'Compound': ['WETH', 'WBTC', 'COMP', 'LINK', 'UNI'],
+    'Spark': ['WETH', 'WBTC', 'wstETH', 'rETH'],
     'FiRM': [],
 }
 
