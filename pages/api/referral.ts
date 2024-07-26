@@ -1,6 +1,5 @@
-import { REFERRAL_MSG } from '@app/components/common/Modal/ReferralModal';
+import { getReferralMsg } from '@app/components/common/Modal/ReferralModal';
 import { BURN_ADDRESS } from '@app/config/constants';
-import { POA_CURRENT_MSG_TO_SIGN, POA_VERSION } from '@app/config/proof-of-agreement-texts';
 import { verifyMultisigMessage } from '@app/util/multisig';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
 import { verifyMessage, hashMessage, isAddress } from 'ethers/lib/utils';
@@ -11,9 +10,9 @@ export default async function handler(req, res) {
         method,
     } = req
 
-    const { r } = query;
+    const { r, account } = query;
 
-    if (!r || !isAddress(r) || r === BURN_ADDRESS) {
+    if (!r || !isAddress(r) || r === BURN_ADDRESS || !account || !isAddress(account) || account === BURN_ADDRESS || r.toLowerCase() === account.toLowerCase()) {
         res.status(400).json({ status: 'error', message: 'Invalid address' });
         return;
     }
@@ -29,9 +28,8 @@ export default async function handler(req, res) {
 
             const { sig } = req.body
             let sigAddress = '';
-            let isMultisig = false;
 
-            const sigText = REFERRAL_MSG + r;
+            const sigText = getReferralMsg(account, r);
 
             try {
                 sigAddress = verifyMessage(sigText, sig);
@@ -39,11 +37,11 @@ export default async function handler(req, res) {
                 console.log(e);
             }
 
-            if (sigAddress?.toLowerCase() !== r.toLowerCase() || !sigAddress) {
+            if (sigAddress?.toLowerCase() !== account.toLowerCase() || !sigAddress) {
                 // try to verify as multisig
                 let multisigVerifyResult;
                 try {
-                    multisigVerifyResult = await verifyMultisigMessage(r, hashMessage(sigText), sig);
+                    multisigVerifyResult = await verifyMultisigMessage(account, hashMessage(sigText), sig);
                 } catch (e) {
                     console.log('multisig verify error');
                     console.log(e);
@@ -51,8 +49,6 @@ export default async function handler(req, res) {
                 if (!multisigVerifyResult?.valid) {
                     res.status(401).json({ status: 'warning', message: 'Unauthorized' })
                     return
-                } else {
-                    isMultisig = true;
                 }
             };
 
