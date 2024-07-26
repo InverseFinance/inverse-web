@@ -2,7 +2,7 @@ import 'source-map-support'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types';
-import { getAaveV3Rate, getAaveV3RateDAI, getCompoundRate, getCrvUSDRate, getFirmRate, getFraxRate } from '@app/util/borrow-rates-comp';
+import { getAaveV3Rate, getAaveV3RateDAI, getCompoundRate, getCrvUSDRate, getFirmRate, getFraxRate, getSparkRate } from '@app/util/borrow-rates-comp';
 
 export default async function handler(req, res) {
   const cacheKey = `borrow-rates-compare-v1.1.3`;
@@ -34,6 +34,7 @@ export default async function handler(req, res) {
       getFraxRate(provider, '0x78bB3aEC3d855431bd9289fD98dA13F9ebB7ef15', 'sfrxETH'),
       getFraxRate(provider, '0xb5a46f712F03808aE5c4B885C6F598fA06442684', 'wstETH'),
       getFraxRate(provider, '0xa1D100a5bf6BFd2736837c97248853D989a9ED84', 'CVX'),
+      getSparkRate(),
       getFirmRate(provider),
     ]);
 
