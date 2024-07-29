@@ -81,7 +81,7 @@ export const ReferralModal = ({
     }
 
     return <ConfirmModal
-        title={`Referral Program`}
+        title={`Referral Program 🤝`}
         onClose={onClose}
         onCancel={onClose}
         onOk={() => {
@@ -92,15 +92,20 @@ export const ReferralModal = ({
         modalProps={{ scrollBehavior: 'inside', minW: { base: '98vw', lg: '700px' } }}
         okDisabled={isInvalid || !refAddress}
     >
-        <VStack p='4' spacing="4" alignItems="flex-start">
+        <VStack p='6' spacing="4" alignItems="flex-start">
             {
                 isSuccess ? <SuccessMessage alertProps={{ fontSize: '18px', fontWeight: 'bold', w: { base: 'full', sm: 'auto' } }} iconProps={{ height: 50, width: 50 }} description="Referrer registration complete!" />
                     : <>
                         <VStack alignItems="flex-start" w='full'>
-                            <Text fontWeight="bold">Referrer's address:</Text>
-                            <Input isInvalid={isInvalid} border={isInvalid ? '1px solid red' : ''} type="string" value={refAddress} onChange={(e) => handleRefAddress(e.target.value)} />
+                            <Text fontWeight="bold">Your Referrer:</Text>
+                            <Input textAlign="left" isInvalid={isInvalid} border={isInvalid ? '1px solid red' : ''} type="string" value={refAddress} onChange={(e) => handleRefAddress(e.target.value)} />
                         </VStack>
-                        <InfoMessage alertProps={{ w: 'full' }} description="Please sign a message with your wallet to confirm who is your referrer. This action does not cost you anything" />
+                        <InfoMessage alertProps={{ w: 'full' }} description={
+                            <VStack spacing="0" alignItems="flex-start">
+                                <Text>Please sign a message with your wallet to confirm the referral.</Text>
+                                <Text>This action does not cost you anything.</Text>
+                            </VStack>
+                        } />
                     </>
             }
         </VStack>
