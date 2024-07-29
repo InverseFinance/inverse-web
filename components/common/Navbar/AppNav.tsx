@@ -71,6 +71,7 @@ import { TOKEN_IMAGES } from '@app/variables/images'
 import { VampireModal } from '../Modal/VampireModal'
 import useStorage from '@app/hooks/useStorage'
 import { ReferralModal } from '../Modal/ReferralModal'
+import { ReferToModal } from '../Modal/ReferToModal'
 const NAV_ITEMS = MENUS.nav
 
 export const ThemeBtn = () => {
@@ -260,7 +261,7 @@ const ConnectionMenuItem = ({ ...props }: StackProps) => {
   />
 }
 
-const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwork: boolean, showWrongNetworkModal: () => void }) => {
+const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal, onReferToOpen }: { isWrongNetwork: boolean, showWrongNetworkModal: () => void, onReferToOpen: () => void }) => {
   const web3react = useWeb3React<Web3Provider>()
   const { account, isActive: active, connector, chainId } = web3react
   const { deactivate: _deactivate } = connector || { activate: () => { }, deactivate: () => { } };
@@ -445,6 +446,14 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
               <ViewIcon color="blue.600" boxSize={3} />
               <Text fontWeight="semibold">View Address</Text>
             </ConnectionMenuItem>
+            <ConnectionMenuItem
+              onClick={() => {
+                onReferToOpen();
+                gaEvent({ action: 'use-refer' });
+              }}
+            >
+              <Text fontWeight="semibold">🤝 Refer to a fren</Text>
+            </ConnectionMenuItem>
             {
               query?.viewAddress && <ConnectionMenuItem
                 onClick={() => window.location.search = ''}
@@ -489,6 +498,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const { isOpen: isTosOpen, onOpen: onTosOpen, onClose: onTosClose } = useDisclosure()
   const { isOpen: isVampireOpen, onOpen: onVampireOpen, onClose: onVampireClose } = useDisclosure()
   const { isOpen: isReferralOpen, onOpen: onReferralOpen, onClose: onReferralClose } = useDisclosure()
+  const { isOpen: isReferToOpen, onOpen: onReferToOpen, onClose: onReferToClose } = useDisclosure()
   const [onTosOk, setOnTosOk] = useState(() => () => { });
   const [tosApproved, setTosApproved] = useState(false);
   const { value: gnosisSafeToastAlreadyShowed, setter: setGnosisSafeToastAlreadyShowed } = useStorage('gnosis-safe-toast');
@@ -660,7 +670,10 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
         onClose={onWrongNetClose}
       />
       <VampireModal isOpen={isVampireOpen} onClose={onVampireClose} />
-      <ReferralModal onOpen={onReferralOpen} isOpen={isReferralOpen} onClose={onReferralClose} />
+      <ReferToModal isOpen={isReferToOpen} onClose={onReferToClose} />
+      {
+        !!account && <ReferralModal onOpen={onReferralOpen} isOpen={isReferralOpen} onClose={onReferralClose} />
+      }
       {/* {
         showAirdropModal && <AirdropModalCheck
           isOpen={isAirdropOpen}
@@ -748,7 +761,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
             <>
               <Stack display={{ base: 'flex', lg: 'none' }} direction="row" align="center">
                 <ThemeBtn />
-                <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} />
+                <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} onReferToOpen={onReferToOpen} />
               </Stack>
 
               <Stack direction="row" align="center" display={{ base: 'none', lg: 'flex' }}>
@@ -768,7 +781,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
                     : null
                 }
                 <ThemeBtn />
-                <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} />
+                <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} onReferToOpen={onReferToOpen} />
               </Stack>
             </>
         }
