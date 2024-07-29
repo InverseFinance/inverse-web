@@ -1,4 +1,4 @@
-import { VStack, Image, Stack } from "@chakra-ui/react"
+import { VStack, Image, Stack, RadioGroup, Radio, Text } from "@chakra-ui/react"
 import { SuccessMessage } from "../Messages";
 import SimpleModal from "./SimpleModal";
 import { Input } from "../Input";
@@ -6,14 +6,17 @@ import { CopyIcon } from "@chakra-ui/icons";
 import { useWeb3React } from "@web3-react/core";
 import { RSubmitButton } from "../Button/RSubmitButton";
 import { useState } from "react";
+import { useRouter } from "next/router";
 
 export const ReferToModal = ({
     isOpen = false,
     onClose = () => { },
 }) => {
     const { account } = useWeb3React();
+    const router = useRouter();
     const [isCopied, setIsCopied] = useState(false);
-    const refLink = `https://inverse.finance?referrer=${account}`;
+    const [refPage, setRefPage] = useState('/');
+    const refLink = `https://inverse.finance${refPage}?referrer=${account}`;
     const twitterShareLink = `https://x.com/intent/tweet?text=${encodeURIComponent(`Borrow at a Fixed-Rate on FiRM!\nUse my Referral link to get rewards 👇\n${refLink}`)}`
 
     const copyRefLink = () => {
@@ -29,9 +32,19 @@ export const ReferToModal = ({
         onCancel={onClose}
         isOpen={isOpen}
         okLabel="Sign"
-        modalProps={{ minW: { base: '98vw', lg: '800px' }, scrollBehavior: 'inside' }}
+        modalProps={{ minW: { base: '98vw', lg: '700px' }, scrollBehavior: 'inside' }}
     >
-        <VStack p='6' spacing="4" alignItems="flex-start">
+        <VStack p='6' spacing="8" alignItems="flex-start">
+            <VStack w='full' alignItems="flex-start">
+                <Text fontWeight="bold">Link destination:</Text>
+                <RadioGroup w='full' bgColor="mainBackground" p="2" onChange={setRefPage} value={refPage}>
+                    <Stack direction='row' w='full' spacing="4">
+                        <Radio value='/'>Homepage</Radio>
+                        <Radio value={router?.pathname}>Current page</Radio>
+                        <Radio value='/firm'>FiRM page</Radio>
+                    </Stack>
+                </RadioGroup>
+            </VStack>
             <Input value={refLink} disabled />
             <VStack spacing="4" w='full'>
                 <Stack direction={{ base: 'column', xl: 'row' }} w='full'>
