@@ -40,12 +40,14 @@ export const ReferralModal = ({
     const [isInited, setIsInited] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
 
+    const isOwnAccount = !!account && !!refAddress && refAddress?.toLowerCase() === account?.toLowerCase();
+
     const handleRefAddress = (address: string) => {
         setRefAddress(address);
     }
 
     useEffect(() => {
-        setIsInvalid(!refAddress ? false : !isAddress(refAddress));
+        setIsInvalid(!refAddress ? false : !isAddress(refAddress) || isOwnAccount);
     }, [refAddress]);
 
     useEffect(() => {
@@ -100,6 +102,15 @@ export const ReferralModal = ({
                             <Text fontWeight="bold">Your Referrer:</Text>
                             <Input textAlign="left" isInvalid={isInvalid} border={isInvalid ? '1px solid red' : ''} type="string" value={refAddress} onChange={(e) => handleRefAddress(e.target.value)} />
                         </VStack>
+
+                        {
+                            isOwnAccount && <InfoMessage alertProps={{ w: 'full' }} description={
+                                <VStack spacing="0" alignItems="flex-start">
+                                    <Text>You cannot refer to yourself :)</Text>
+                                </VStack>
+                            } />
+                        }
+
                         <InfoMessage alertProps={{ w: 'full' }} description={
                             <VStack spacing="0" alignItems="flex-start">
                                 <Text>Please sign a message with your wallet to confirm the referral.</Text>
