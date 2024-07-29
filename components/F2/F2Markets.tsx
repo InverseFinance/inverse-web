@@ -442,15 +442,15 @@ export const F2Markets = ({
         p={isDashboardPage ? '0' : '6'}
         label={
             <Stack h={{ base: 'auto', xl: '56px' }} direction={{ base: 'column', xl: 'row' }} alignItems="flex-start" justify="center">
-                <Image transform="translateY(4px)" src={`/assets/firm/${firmImages[themeName]}`} w='110px' h="auto" />
+                <Image transform="translateY(6px)" src={`/assets/firm/${firmImages[themeName]}`} w='110px' h="auto" />
                 <VStack h={{ base: 'auto', xl: '56px' }} overflow="hidden" spacing="0" alignItems="flex-start">
-                    <Text display="inline-block" fontWeight="bold" fontSize={{ base: '14px', md: '16px' }}>
+                    <Text display="inline-block" fontWeight="bold" fontSize={{ base: '14px', md: '16px', 'xl': '20px' }}>
                         {
                             !dbrPrice ?
                                 null
                                 // <SmallTextLoader h="16px" pt="8px" width="42px" />
                                 :
-                                <b style={{ color: themeStyles.colors.success, fontSize: '18px', fontWeight: '900' }}>
+                                <b style={{ color: themeStyles.colors.success, fontSize: '20px', fontWeight: '900' }}>
                                     {shortenNumber(dbrPrice * 100, 2)}%
                                 </b>
                         }
