@@ -9,9 +9,10 @@ export const Link = (props: any) => {
 
   const urlParamsToKeepWhenChangingPage = ((q) => {
     if (!q) { return {} }
-    const { viewAddress } = q;
+    const { viewAddress, referrer } = q;
     const params: any = {}
     if (viewAddress) { params['viewAddress'] = viewAddress }
+    if (referrer) { params['referrer'] = referrer }
     return params
   })(query);
   return (
