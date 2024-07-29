@@ -437,6 +437,12 @@ export const FirmBoostInfos = ({
                     </TextInfo>
                 </HStack>
             }
+            {
+                extraDolaReceivedInWallet > 10_000_0000 && <WarningMessage
+                    alertProps={{ w: 'full' }}
+                    description="Warning: there seem to be a routing issue with 1inch at the moment, we don't advise to continue, the transaction will likely fail."
+                />
+            }
             <AboutAleModal isOpen={isOpen} onClose={onClose} />
             <Text cursor="pointer" w='full' textAlign="left" textDecoration="underline" onClick={onOpen}>
                 About the Accelerated Leverage Engine
