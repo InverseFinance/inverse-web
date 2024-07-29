@@ -440,7 +440,7 @@ export const FirmBoostInfos = ({
             {
                 extraDolaReceivedInWallet > 10_000_0000 && <WarningMessage
                     alertProps={{ w: 'full' }}
-                    description="Warning: there seem to be a routing issue with 1inch at the moment, we don't advise to continue, the transaction will likely fail."
+                    description="Warning: there seems to be a routing issue with 1inch at the moment, we don't advise to continue, the transaction will likely fail."
                 />
             }
             <AboutAleModal isOpen={isOpen} onClose={onClose} />
