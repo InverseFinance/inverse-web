@@ -10,21 +10,32 @@ export default async function handler(req, res) {
         method,
     } = req
 
-    const { r, account } = query;
-
-    if (!r || !isAddress(r) || r === BURN_ADDRESS || !account || !isAddress(account) || account === BURN_ADDRESS || r.toLowerCase() === account.toLowerCase()) {
-        res.status(400).json({ status: 'error', message: 'Invalid address' });
-        return;
-    }
+    const { r, account, csv } = query;
 
     const key = `referrals`;
     const cachedResult = await getCacheFromRedis(key, false, 600);
 
     switch (method) {
         case 'GET':
-            res.status(200).json(cachedResult || { referrals: {} });
+            if(csv === 'true') {
+                let CSV = `Account,Referrer,Date\n`;
+                const arr = Object.entries(cachedResult?.referrals||[]);
+                arr.forEach(([account, accountRefData]) => {
+                    CSV += `${account.toLowerCase()},${accountRefData.ref.toLowerCase()},${(new Date(accountRefData.timestamp).toUTCString()).replace(/,/g, '')}\n`;
+                });
+                res.setHeader("Content-Type", "text/csv");
+                res.setHeader("Content-Disposition", "attachment; filename=referrals.csv");
+                res.status(200).send(CSV);
+            } else {
+                res.status(200).json(cachedResult || { referrals: {} });
+            }
             break
         case 'POST':
+
+            if (!r || !isAddress(r) || r === BURN_ADDRESS || !account || !isAddress(account) || account === BURN_ADDRESS || r.toLowerCase() === account.toLowerCase()) {
+                res.status(400).json({ status: 'error', message: 'Invalid address' });
+                return;
+            }
 
             const { sig } = req.body
             let sigAddress = '';
