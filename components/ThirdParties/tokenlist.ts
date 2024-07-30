@@ -9,7 +9,7 @@ const orders = {
     "DBR": 3,
 }
 
-const MAIN_SYMBOLS = ['INV', 'DOLA', 'DBR', 'USDC', 'USDT', 'DAI', 'WETH', 'FRAX', 'WBTC', 'MATIC', 'OP', 'ARB', 'BNB', 'ETH', 'AVAX'];
+const MAIN_SYMBOLS = ['INV', 'DOLA', 'DBR', 'sDOLA', 'USDC', 'USDT', 'DAI', 'WETH', 'FRAX', 'WBTC', 'MATIC', 'OP', 'ARB', 'BNB', 'ETH', 'AVAX'];
 
 export const TOKENS_ARRAY = entries.flatMap(([chainId, chainList]) => {
     const tokens = Object.values(chainList)
