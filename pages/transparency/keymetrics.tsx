@@ -117,7 +117,7 @@ export const KeymetricsPage = () => {
             <SimpleGrid columns={{ base: 1, md: 3, xl: 5 }} spacingX="50px" spacingY="40px" w='full'>
               <NumberCard isLoading={isLoading} value={totalTvl} label="FiRM TVL" isUsd={true} />
               <NumberCard isLoading={isLoading} value={totalDebt * dolaPrice} label="FiRM Borrows" isUsd={true} />
-              <NumberCard isLoading={isLoading} value={nbUsers} label="Nb Users" />
+              <NumberCard isLoading={isLoading} value={nbUsers} label="FiRM Users" />
               <NumberCard isLoading={isLoading} value={currentCirculatingSupply * dolaPrice} label="DOLA Circ. Supply" isUsd={true} />
               <NumberCard isLoading={isLoading} value={invMarketCap} label="INV Market Cap." isUsd={true} />
             </SimpleGrid>
