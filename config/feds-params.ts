@@ -42,6 +42,7 @@ export const FEDS_PARAMS = [
         protocol: "Fuse",
         address: "0x7765996dAe0Cf3eCb0E74c016fcdFf3F055A5Ad8",
         name: "Badger Fed",
+        hasEnded: true,
         projectImage: "/assets/projects/Fuse.png",
     },
     {
@@ -51,6 +52,7 @@ export const FEDS_PARAMS = [
         protocol: "Fuse",
         address: "0x5Fa92501106d7E4e8b4eF3c4d08112b6f306194C",
         name: "0xb1 Fed",
+        hasEnded: true,
         projectImage: "/assets/projects/Fuse.png",
     },
     {
