@@ -41,8 +41,8 @@ export default async function handler(req, res) {
   const { FEDS } = getNetworkConfigConstants(NetworkIds.mainnet);
   // we keep two cache entries, one "archived" that is up to ~30 days old and one "current"
   // makes potential fed migrations easier
-  const archiveKey = `fed-policy-cache-v1.1.0`;
-  const cacheKey = `fed-policy-cache-v1.1.14`;
+  const archiveKey = `fed-policy-cache-v1.2.0`;
+  const cacheKey = `fed-policy-cache-v1.2.1`;
 
   try {
     const cacheDuration = 60;
@@ -84,9 +84,12 @@ export default async function handler(req, res) {
 
     const rawEvents = await Promise.all([
       ...FEDS.map(fed => {
+        const pastFedEvents = pastTotalEvents?.filter(e => e.fedAddress === fed.address) || [];
+        const lastKnownFedEvent = pastFedEvents.length > 0 ? (pastFedEvents[pastFedEvents.length - 1]) : {};
+        const newStartingBlock = lastKnownFedEvent ? lastKnownFedEvent?.blockNumber + 1 : 0;
         return fed.hasEnded ?
           new Promise((res) => res([[], []]))
-          : getEvents(fed.address, fed.abi, fed.chainId, !pastTotalEvents.find(e => e.fedAddress === fed.address) ? 0x0 : newStartingBlock)
+          : getEvents(fed.address, fed.abi, fed.chainId, !pastFedEvents.find(e => e.fedAddress === fed.address) ? 0x0 : newStartingBlock)
       }
       )
     ]);
@@ -149,7 +152,7 @@ export default async function handler(req, res) {
               }
               return {
                 ...e,
-                newSupply: accumulatedSupplies[fed.address],
+                newSupply: accumulatedSupplies[fed.address]||0,
               }
             })
         }
@@ -186,7 +189,8 @@ export default async function handler(req, res) {
       fedPolicyMsg,
       totalEvents,
       feds: FEDS.map(fed => {
-        return { ...fed, supply: accumulatedSupplies[fed.address], strategy: undefined }
+        const accSupply = accumulatedSupplies[fed.address]||0;
+        return { ...fed, supply: accSupply < 1 ? 0 : accSupply, strategy: undefined }
       }),
       dolaSupplies: dolaSuppliesCacheData?.dolaSupplies,
     }
