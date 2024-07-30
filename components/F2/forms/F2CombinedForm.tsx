@@ -284,13 +284,23 @@ export const F2CombinedForm = ({
                     return
                 }
                 const { dolaAmount, errorMsg } = await getLeverageImpact({
-                    deposits, debt, leverageLevel: leverage, market, isUp: false, dolaPrice, setLeverageLoading, viaInput: true, underlyingExRate
+                    deposits, leverageLevel: leverage, market, isUp: false, dolaPrice, setLeverageLoading, viaInput: true, underlyingExRate
                 });
                 if (!!errorMsg) {
                     showToast({ status: 'warning', description: errorMsg, title: 'Api error' })
                     return
                 }
                 setLeverageDebtAmount(Math.abs(dolaAmount).toFixed(2));
+            } else if (useLeverageInMode && !isDeleverageCase && !deposits && collateralNum > 0 && leverage >= 1) {
+                const { dolaAmount, errorMsg, collateralAmount } = await getLeverageImpact({
+                    deposits, initialDeposit: collateralNum, leverageLevel: leverage, market, isUp: true, dolaPrice, setLeverageLoading, viaInput: true, underlyingExRate
+                });
+                if (!!errorMsg) {
+                    showToast({ status: 'warning', description: errorMsg, title: 'Api error' })
+                    return
+                }
+                handleDebtChange(Math.abs(dolaAmount).toFixed(2));
+                setLeverageCollateralAmount(removeTrailingZeros(collateralAmount.toFixed(8)));
             }
         }
         if (timeout !== -1) {
@@ -480,7 +490,7 @@ export const F2CombinedForm = ({
                 {showMinDebtMessage && <MinDebtBorrowMessage debt={debt} minDebt={market.minDebt} />}
                 {showNeedDbrMessage && <NoDbrInWalletMessage />}
                 {showNotEnoughDolaToRepayMessage && <NotEnoughDolaToRepayMessage amount={debtAmountNum} />}
-                <HStack justify="space-between" alignItems="space-between" w='full'>
+                <HStack pt="2" justify="space-between" alignItems="space-between" w='full'>
                     {
                         (hasDebtChange || hasCollateralChange) && !isMultisig && <DbrHelperSwitch
                             isDeposit={isDeposit}
@@ -581,7 +591,7 @@ export const F2CombinedForm = ({
                 <Stack justify="space-between" w='full' spacing="4" direction={{ base: 'column' }}>
                     {mainFormInputs}
                     {
-                        canShowLeverage && <VStack display={(useLeverageInMode || (useLeverage && userNotEligibleForLeverage)) ? 'inline-block' : 'none'}>
+                        canShowLeverage && <VStack display={useLeverage ? 'inline-block' : 'none'}>
                             {
                                 canActivateLeverage ? <FirmBoostInfos
                                     type={isDeposit ? 'up' : 'down'}
