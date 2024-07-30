@@ -1,5 +1,5 @@
 import { TextInfo } from "@app/components/common/Messages/TextInfo"
-import { HStack, VStack, Text, FormControl, FormLabel, Switch, Badge } from "@chakra-ui/react"
+import { HStack, VStack, Text, FormControl, FormLabel, Switch, Badge, Image } from "@chakra-ui/react"
 import { F2DurationInput } from "../F2DurationInput"
 import { AmountInfos } from "@app/components/common/Messages/AmountInfos"
 import { Input } from "@app/components/common/Input"
@@ -10,6 +10,7 @@ import { TOKENS } from "@app/variables/tokens"
 import { getNetworkConfigConstants } from "@app/util/networks"
 import { InfoMessage } from "@app/components/common/Messages"
 import { BigNumber } from "ethers"
+import { TOKEN_IMAGES } from "@app/variables/images"
 
 const { DBR } = getNetworkConfigConstants();
 
@@ -125,7 +126,8 @@ export const DbrHelperSwitch = ({
     hasHelper: boolean
 }) => {
     return <FormControl w='fit-content' display='flex' alignItems='center'>
-        <FormLabel w='110px' fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-dbr' mb='0'>
+        <FormLabel alignItems="center" display="inline-flex" w='130px' fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-dbr' mb='0'>
+            <Image src={TOKEN_IMAGES.DBR} display="inline-block" w="20px" h="20px" mr="2" />
             Auto-{isDeposit ? 'buy' : 'sell'} DBR?
         </FormLabel>
         <Switch isDisabled={!hasHelper} onChange={() => setIsAutoDBR(!isAutoDBR)} isChecked={isAutoDBR} id='auto-dbr' />
