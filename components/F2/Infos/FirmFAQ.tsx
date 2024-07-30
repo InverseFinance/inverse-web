@@ -110,7 +110,7 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                     body: `No, DBRs should stay in your wallet to pay the fee when you have a loan. Your DBR wallet balance will decrease only if you have a DOLA loan in FiRM.`
                 },
                 {
-                    title: 'Why does my DBR balance decreases?',
+                    title: 'Why does my DBR balance decrease?',
                     body: `DBRs are "spent" over time when you have a loan, the rate depends on your amount of debt. If you don't have a loan the balance does not decrease.`
                 },
                 {
