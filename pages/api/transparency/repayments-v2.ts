@@ -136,17 +136,6 @@ export default async function handler(req, res) {
                 logIndex: 273,
             }
         });
-        dolaBadgerRepayEvents.push({
-            transactionHash: '0x1fdb790234dce1f430da820c2c00b84fad92d6286c909e403778ee658bcfb242',
-            blockNumber: 20412936,
-            args: {
-                payer: TWG,
-                repayAmount: parseUnits('2619662057235255544046', 0),
-                accountBorrows: BigNumber.from('0'),
-                totalBorrows: BigNumber.from('0'),
-                logIndex: 267,
-            }
-        });
         
         const dolaRepaymentsBlocks = dolaFrontierRepayEvents.map(e => e.blockNumber);        
         const dolaFrontierDebts = await getBadDebtEvolution(dolaRepaymentsBlocks);
