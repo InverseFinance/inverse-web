@@ -20,6 +20,7 @@ import { WarningTwoIcon } from "@chakra-ui/icons"
 import { WarningMessage } from "@app/components/common/Messages"
 import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader"
 import { SkeletonBlob } from "@app/components/common/Skeleton"
+import { useCustomSWR } from "@app/hooks/useCustomSWR"
 
 const Title = (props: TextProps) => <Text textAlign="center" fontWeight="extrabold" fontSize={{ base: '13px', md: '18px' }} {...props} />;
 const SubTitle = (props: TextProps) => <Text textAlign="center" color="secondaryTextColor" fontSize={{ base: '13px', md: '16px' }} {...props} />;
@@ -354,7 +355,7 @@ export const FirmBar = ({
 }: {
 } & Partial<StackProps>) => {    
     const { priceUsd: dbrPriceUsd } = useDBRPrice();
-    const { totalSupply, isLoading: isDolaDataLoading } = useDOLA();
+    const { data: currentCirculatingSupply } = useCustomSWR(`/api/dola/circulating-supply`);
     const { price: dolaPrice, isLoading: isDolaPriceLoading } = useDOLAPrice();
     const { firmTotalTvl, isLoading: isFirmTvlLoading } = useFirmTVL();
     const { markets } = useDBRMarkets();
@@ -374,14 +375,14 @@ export const FirmBar = ({
             </HStack>
             <HStack w={{ base: 'full', md: 'auto' }} alignItems="flex-start" justify="space-between" spacing={{ base: '2', md: '8' }}>
                 <VStack w={{ base: '33%', md: 'auto' }} spacing="1" alignItems={{ base: 'flex-start', md: 'center' }}>
-                    <Link textAlign="center" textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/transparency/feds">
-                        {isLargerThan ? 'Total ' : ''}DOLA Supply
+                    <Link textAlign="center" textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/transparency/dola">
+                        DOLA {isLargerThan ? 'Circulating ' : ' '}Supply
                     </Link>
                     {
-                        isDolaDataLoading ?
+                        !currentCirculatingSupply ?
                             <SmallTextLoader width={'50px'} /> :
                             <SubTitle>
-                                {shortenNumber(totalSupply, 2)}
+                                {shortenNumber(currentCirculatingSupply, 2)}
                             </SubTitle>
                     }
                 </VStack>
