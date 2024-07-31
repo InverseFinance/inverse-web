@@ -321,8 +321,13 @@ const columns = [
         label: 'Your Deposits',
         header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
         tooltip: 'Amount of Collateral you deposited in the Market',
-        value: ({ depositsUsd, deposits, account }) => {
+        value: ({ depositsUsd, deposits, account, collateralBalance, collateralBalanceUsd, underlying }) => {
             return <Cell minWidth="120px" justify="center" alignItems="center" direction={{ base: 'row', sm: 'column' }} spacing={{ base: '1', sm: '0' }}>
+                {
+                    account && collateralBalanceUsd > 1 && <Badge display={{ base: 'none', xl: 'inline-block' }} bgColor="mainTextColor" color="contrastMainTextColor" position="absolute" top="-4.5px" textTransform="none">
+                        {shortenNumber(collateralBalance, 2)} {underlying.symbol} available in your wallet
+                    </Badge>
+                }
                 {
                     account && deposits > 0 ? <>
                         <CellText>{smartShortNumber(deposits, 2)}</CellText>
@@ -357,7 +362,7 @@ const columns = [
     },
 ]
 
-const columnsWithout = columns.slice(0, 8);
+const columnsWithout = columns.slice(0, 9);
 
 const firmImages = {
     'dark': 'firm-final-logo-white.png',
@@ -496,7 +501,7 @@ export const F2Markets = ({
                                     onClick={openMarket}
                                     defaultSort={'depositsUsd'}
                                     defaultSortDir="desc"
-                                    secondarySortField={'leftToBorrow'}
+                                    secondarySortFields={['maxBorrowableByUserWallet', 'leftToBorrow']}
                                     enableMobileRender={true}
                                     mobileClickBtnLabel={'View Market'}
                                     mobileThreshold={responsiveThreshold}
@@ -531,14 +536,14 @@ export const F2Markets = ({
                             pinnedItems={pinnedItems}
                             pinnedLabels={pinnedLabels}
                             noDataMessage="Loading..."
-                            columns={columnsWithout}
+                            columns={withDeposits.length > 0 ? columns : columnsWithout}
                             items={withoutDeposits.map(m => {
                                 return { ...m, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
                             })}
                             onClick={openMarket}
-                            defaultSort={'leftToBorrow'}
+                            defaultSort={'maxBorrowableByUserWallet'}
                             defaultSortDir="desc"
-                            secondarySortField={'tvl'}
+                            secondarySortFields={['maxBorrowableByUserWallet', 'leftToBorrow', 'tvl']}
                             enableMobileRender={true}
                             mobileClickBtnLabel={'View Market'}
                             mobileThreshold={responsiveThreshold}

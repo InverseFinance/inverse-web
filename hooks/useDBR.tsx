@@ -257,6 +257,9 @@ export const useAccountDBRMarket = (
   });
   const underlyingExRate = underlyingExRateData?.length ? getBnToNumber(underlyingExRateData[0]) : undefined;
 
+  const collateralBalance = (bnCollateralBalance ? getBnToNumber(bnCollateralBalance, decimals) : 0);
+  const collateralBalanceUsd = collateralBalance * market.price;
+
   return {
     ...market,
     account,
@@ -276,10 +279,12 @@ export const useAccountDBRMarket = (
     liquidationPrice,
     bnCollateralBalance,
     bnInputBalance,
-    collateralBalance: (bnCollateralBalance ? getBnToNumber(bnCollateralBalance, decimals) : 0),
+    collateralBalance,
+    collateralBalanceUsd,
     inputBalance: (bnInputBalance ? getBnToNumber(bnInputBalance, decimals) : 0),
     liquidatableDebtBn,
     liquidatableDebt: liquidatableDebtBn ? getBnToNumber(liquidatableDebtBn) : 0,
+    maxBorrowableByUserWallet: Math.min(collateralBalanceUsd * market.collateralFactor/100, market.leftToBorrow),
     seizableWorth,
     seizable: seizableWorth / market.price,
     underlyingExRate,

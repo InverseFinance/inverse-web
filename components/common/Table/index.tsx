@@ -50,7 +50,7 @@ type TableProps = {
   mobileClickBtnLabel?: string
   showHeader?: boolean
   showTotalRow?: boolean
-  secondarySortField?: string
+  secondarySortFields?: string[]
 }
 
 const emptyObj = {};
@@ -154,7 +154,7 @@ export const Table = ({
   showTotalRow = false,
   pinnedItems,
   pinnedLabels,
-  secondarySortField,
+  secondarySortFields,
   ...props
 }: TableProps) => {
   const { themeStyles } = useAppTheme();
@@ -208,15 +208,25 @@ export const Table = ({
       const bVal = Array.isArray(b[sortBy]) ? b[sortBy].length : b[sortBy];
       if (aVal < bVal) { return 1 * returnVal; }
       if (aVal > bVal) { return -1 * returnVal; }
-      if (!!secondarySortField) {
-        const aValSec = Array.isArray(a[secondarySortField]) ? a[secondarySortField].length : a[secondarySortField];
-        const bValSec = Array.isArray(b[secondarySortField]) ? b[secondarySortField].length : b[secondarySortField];
-        if (aValSec < bValSec) { return 1 * returnVal; }
-        if (aValSec > bValSec) { return -1 * returnVal; }
+      if (!!secondarySortFields) {
+        for(let i = 0;i<secondarySortFields.length;i++) {
+          const secSortField = secondarySortFields[i];
+          const aValSec = Array.isArray(a[secSortField]) ? a[secSortField].length : a[secSortField];
+          const bValSec = Array.isArray(b[secSortField]) ? b[secSortField].length : b[secSortField];
+          if (aValSec < bValSec) { return 1 * returnVal; }
+          if (aValSec > bValSec) { return -1 * returnVal; }
+        }
+        // secondarySortFields.forEach(sortField => {
+        //   const aValSec = Array.isArray(a[sortField]) ? a[sortField].length : a[sortField];
+        //   const bValSec = Array.isArray(b[sortField]) ? b[sortField].length : b[sortField];
+        //   if (aValSec < bValSec) { return 1 * returnVal; }
+        //   if (aValSec > bValSec) { return -1 * returnVal; }
+        //   return 0
+        // });
       }
       return 0;
     }))
-  }, [sortBy, sortDir, items, secondarySortField]);
+  }, [sortBy, sortDir, items, secondarySortFields]);
 
   const toggleSort = (col: Column) => {
     if (col.field === sortBy) {
