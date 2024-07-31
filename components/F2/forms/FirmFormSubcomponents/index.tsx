@@ -57,13 +57,14 @@ export const FirmBorroInputwSubline = ({
     bnLeftToBorrow: BigNumber
     handleDebtChange: (value: string, num: number) => void
 }) => {
+    const numInt = parseInt(formatUnits(bnLeftToBorrow, 18));
     return <HStack w='full' justify="space-between">
         <AmountInfos
             label="Available DOLA"
             value={leftToBorrow < 1 ? 0 : leftToBorrow}
             textProps={{
                 fontSize: '14px',
-                onClick: leftToBorrow > 1 ? () => handleDebtChange(formatUnits(bnLeftToBorrow, 18), getBnToNumber(bnLeftToBorrow)) : undefined
+                onClick: leftToBorrow > 1 ? () => handleDebtChange(numInt.toString(), numInt) : undefined
             }}
         />
     </HStack>
