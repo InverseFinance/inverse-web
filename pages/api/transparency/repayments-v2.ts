@@ -2,7 +2,7 @@ import "source-map-support";
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
 import { TOKENS, UNDERLYING, getToken } from "@app/variables/tokens";
 import { getNetworkConfigConstants } from "@app/util/networks";
-import { Contract } from "ethers";
+import { BigNumber, Contract } from "ethers";
 import { CTOKEN_ABI, DEBT_CONVERTER_ABI, DEBT_REPAYER_ABI, DWF_PURCHASER_ABI } from "@app/config/abis";
 import { getHistoricValue, getProvider } from "@app/util/providers";
 import { getBnToNumber } from "@app/util/markets";
@@ -123,6 +123,30 @@ export default async function handler(req, res) {
 
         // badDebts['DOLA'].badDebtBalance += nonFrontierDolaBadDebt;
         // badDebts['DOLA'].nonFrontierBadDebtBalance = nonFrontierDolaBadDebt;
+
+        // non-standard "repayment" via contraction
+        dolaB1RepayEvents.push({
+            transactionHash: '0x1fdb790234dce1f430da820c2c00b84fad92d6286c909e403778ee658bcfb242',
+            blockNumber: 20412936,
+            args: {
+                payer: TWG,
+                repayAmount: parseUnits('165779523966637727284013', 0),
+                accountBorrows: BigNumber.from('0'),
+                totalBorrows: BigNumber.from('0'),
+                logIndex: 273,
+            }
+        });
+        dolaBadgerRepayEvents.push({
+            transactionHash: '0x1fdb790234dce1f430da820c2c00b84fad92d6286c909e403778ee658bcfb242',
+            blockNumber: 20412936,
+            args: {
+                payer: TWG,
+                repayAmount: parseUnits('2619662057235255544046', 0),
+                accountBorrows: BigNumber.from('0'),
+                totalBorrows: BigNumber.from('0'),
+                logIndex: 267,
+            }
+        });
         
         const dolaRepaymentsBlocks = dolaFrontierRepayEvents.map(e => e.blockNumber);        
         const dolaFrontierDebts = await getBadDebtEvolution(dolaRepaymentsBlocks);
