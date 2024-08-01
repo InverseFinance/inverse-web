@@ -147,7 +147,10 @@ const mainConfig = {
             hasClaimableRewards: true,
             // zapperAppGroup: 'convex-frax+staked-cvx-fxs',
             startingBlock: 17721106,
-            isInv: false,            
+            isInv: false,
+            isPhasingOut: true,
+            phasingOutComment: `Borrowing will remain paused for the cvxFXS market as it is phasing out due to most of the liquidity going to the Fraxtal chain.`,
+            phasingOutLink: `https://www.inverse.finance/governance/proposals/mills/199`,     
         },
         {
             name: 'st-yCRV',
