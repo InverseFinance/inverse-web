@@ -109,7 +109,7 @@ export const Landing = ({ posts }: {
         <title>Inverse Finance</title>
         <meta name="og:image" content="https://inverse.finance/assets/social-previews/landing.png" />
       </Head>
-      <video autoPlay muted loop style={{
+      <video autoPlay muted loop playsInline playsinline webkit-playsinline style={{
         position: 'absolute',
         width: '100vw',
         top: 0,
@@ -325,7 +325,7 @@ export const Landing = ({ posts }: {
             </LandingSubmitButton>
           </VStack>
           <VStack justify="center" minH="200px" position="relative">
-            <video preload="metadata" width="600" height="330" style={{ zIndex: 10, maxWidth: '98%' }} controls>
+            <video preload="metadata" width="600" height="330" style={{ zIndex: 10, maxWidth: '98%' }} controls playsInline playsinline webkit-playsinline>
               <source src="sDOLA.mp4#t=0.1" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
@@ -547,7 +547,7 @@ export const Landing = ({ posts }: {
           <ResponsiveStack pt="8" w='full' alignItems="center" justify="space-around" zIndex="1">
             <VStack position="relative" spacing="0" w={{ md: '33%', '2xl': '25%' }}>
               <SimpleCard zIndex="1" spacing="0" p="0" >
-                <video autoPlay muted loop style={{
+                <video autoPlay muted loop playsInline playsinline webkit-playsinline style={{
                   width: '100%',
                 }}>
                   <source src="/assets/v2/landing/dao.mp4" type="video/mp4" />
