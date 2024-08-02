@@ -300,7 +300,7 @@ export const Landing = ({ posts }: {
         ></SplashedText>
       </Flex>
       <Flex display={{ base: 'none', xl: 'flex' }} zIndex="1" px="8%" py="20" w="full" bg={lightTheme.colors.mainTextColor} bgColor={lightTheme.colors.mainTextColor} direction="column">
-        <Text as="h3" fontWeight="bold" color={lightTheme.colors.contrastMainTextColor} zIndex="2" textAlign="left" fontSize={normalSize}>
+        <Text as="h2" fontWeight="bold" color={lightTheme.colors.contrastMainTextColor} zIndex="2" textAlign="left" fontSize={normalSize}>
           Compare Fixed Rate and Variable Rates accross DeFi protocols
         </Text>
         <RateComparator themeStyles={lightTheme} showLabel={false} />
