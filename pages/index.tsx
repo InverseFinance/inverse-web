@@ -108,6 +108,7 @@ export const Landing = ({ posts }: {
       <Head>
         <title>Inverse Finance - Fixed-Rate DeFi borrowing</title>
         <meta name="og:image" content="https://inverse.finance/assets/social-previews/landing.png" />
+        <link rel="canonical" href="https://inverse.finance"/>
       </Head>
       <video autoPlay muted loop webkit-playsinline style={{
         position: 'absolute',
