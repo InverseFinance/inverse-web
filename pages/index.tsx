@@ -19,6 +19,7 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { BurgerMenu } from '@app/components/common/Navbar/BurgerMenu'
 import { MENUS } from '@app/variables/menus'
 import { useStakedDola } from '@app/util/dola-staking'
+import { useCustomSWR } from '@app/hooks/useCustomSWR'
 
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
 
@@ -39,7 +40,7 @@ const StatBasic = ({ value, name }: { value: number, name: string }) => {
 export const Landing = ({ posts }: {
   posts: any[]
 }) => {
-  const { totalSupply } = useDOLA();  
+  const { data: currentCirculatingSupply } = useCustomSWR(`/api/dola/circulating-supply`);
   const { priceUsd: dbrPriceUsd, priceDola: dbrPriceDola } = useDBRPrice();
   const { price: dolaPrice } = useDOLAPrice();
   const { tvl } = useTVL();
@@ -54,7 +55,7 @@ export const Landing = ({ posts }: {
   const stats = [
     {
       name: 'DOLA Circulation',
-      value: totalSupply,
+      value: currentCirculatingSupply,
     },
     {
       name: 'DOLA 24h Vol.',
@@ -66,7 +67,7 @@ export const Landing = ({ posts }: {
     },
     {
       name: 'TVL',
-      value: firmTotalTvl + tvl,
+      value: firmTotalTvl,
     },
     {
       name: 'DBR price',
@@ -92,12 +93,12 @@ export const Landing = ({ posts }: {
       <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{dolaPrice ? shortenNumber(dolaPrice, 3, true) : '-'}</Text>
     </HStack>
     <HStack>
-      <Image borderRadius='50px' minH="20px" minW="20px" height="2vmax" src="/assets/v2/dbr.png" alt="dbr"/>
+      <Image borderRadius='50px' minH="20px" minW="20px" height="2vmax" src="/assets/v2/dbr.png" alt="dbr" />
       <Text fontSize={smallerSize2} display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>DBR</Text>
       <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{dbrPriceUsd ? shortenNumber(dbrPriceUsd, 3, true) : '-'}</Text>
     </HStack>
     <HStack>
-      <Image borderRadius='50px' minH="20px" minW="20px" height="2vmax" src="/assets/v2/inv.jpg" alt="inv"/>
+      <Image borderRadius='50px' minH="20px" minW="20px" height="2vmax" src="/assets/v2/inv.jpg" alt="inv" />
       <Text fontSize={smallerSize2} display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>INV</Text>
       <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{invPrice ? shortenNumber(invPrice, 2, true) : '-'}</Text>
     </HStack>
@@ -108,7 +109,7 @@ export const Landing = ({ posts }: {
       <Head>
         <title>Inverse Finance - Fixed-Rate DeFi borrowing</title>
         <meta name="og:image" content="https://inverse.finance/assets/social-previews/landing.png" />
-        <link rel="canonical" href="https://inverse.finance"/>
+        <link rel="canonical" href="https://inverse.finance" />
       </Head>
       <video autoPlay muted loop webkit-playsinline style={{
         position: 'absolute',
@@ -152,16 +153,16 @@ export const Landing = ({ posts }: {
                 Rethink<br />The Way<br />You Borrow
               </SplashedText>
               <VStack spacing="2vh" alignItems="flex-start" zIndex="1">
-                <Text w={{ base: 'auto', 'xl': '580px', '2xl': '1000px' }} fontWeight="400" fontSize={{ base: '20px', '2xl': '1.5vw' }} maxW={{ base: 'none', xl: '460px', '2xl': '40vw' }} as="h3" color={`${lightTheme?.colors.mainTextColor}`}>
-                  DOLA Borrowing Rights replace interest rates with a fixed fee that can earn you more.
+                <Text w={{ base: 'auto', 'xl': '580px', '2xl': '1000px' }} fontWeight="400" fontSize={{ base: '20px', '2xl': '1.5vw' }} maxW={{ base: 'none', xl: '460px', '2xl': '40vw' }} as="h2" color={`${lightTheme?.colors.mainTextColor}`}>
+                  The best Fixed-Rate borrowing DeFi protocol with the highest yield opportunities.
                 </Text>
                 <Stack direction={{ base: 'column', sm: 'row' }} justify={'flex-start'} w={{ base: 'full', sm: 'auto' }}>
                   <LandingSubmitButton w={{ base: 'full', sm: 'auto' }} href="/firm">
                     Enter App
                   </LandingSubmitButton>
-                  <LandingOutlineButton w={{ base: 'full', sm: 'auto' }} href="https://docs.inverse.finance" target="_blank">
+                  {/* <LandingOutlineButton w={{ base: 'full', sm: 'auto' }} href="https://docs.inverse.finance" target="_blank">
                     Read Docs <ExternalLinkIcon ml="1" />
-                  </LandingOutlineButton>
+                  </LandingOutlineButton> */}
                 </Stack>
               </VStack>
             </VStack>
@@ -321,7 +322,7 @@ export const Landing = ({ posts }: {
               maxW={{ sm: '200px', '2xl': 'none' }}
               bgColor="white"
               color={lightTheme.colors.mainTextColor}
-              href="/whitepaper/sDOLA" target="_blank">
+              href="/whitepaper/sDOLA">
               View Whitepaper
             </LandingSubmitButton>
           </VStack>
@@ -346,9 +347,9 @@ export const Landing = ({ posts }: {
           >
             Try Inverse
           </SplashedText>
-          <Text fontWeight="bold" fontSize={normalSize}>
+          {/* <Text color="mainTextColorLight" fontWeight="bold" fontSize={normalSize}>
             Put our protocol to work for you
-          </Text>
+          </Text> */}
         </VStack>
         <VStack spacing="0" mt="4" position="relative">
           <SplashedText
@@ -363,7 +364,7 @@ export const Landing = ({ posts }: {
                 <Image src="/assets/v2/landing/borrow.png?1" alt="borrow" width="full" w="160px" h="150px" mt="6" />
                 <Text color={lightTheme.colors.mainTextColor} fontWeight="extrabold" fontSize={biggerSize}>Borrow</Text>
                 <Text color={lightTheme.colors.mainTextColor} textAlign="center" fontSize={normalSize}>
-                  Borrow DOLA for a fixed-rate for an unlimited duration with DOLA Borrowing Rights.
+                  Borrow the DOLA stablecoin at a fixed-rate for an unlimited duration with DOLA Borrowing Rights.
                 </Text>
               </VStack>
               <LandingSubmitButton href="/firm">
@@ -375,7 +376,7 @@ export const Landing = ({ posts }: {
                 <Image src="/assets/v2/landing/earn.png" alt="earn" width="full" w="150px" h="150px" mt="6" />
                 <Text color={lightTheme.colors.mainTextColor} fontWeight="extrabold" fontSize={biggerSize}>Earn</Text>
                 <Text color={lightTheme.colors.mainTextColor} textAlign="center" fontSize={normalSize}>
-                  Earn attractive returns when you provide liquidity to a trading pair on Curve, Convex, Balancer and others.
+                  Benefit from DOLA's high-yield opportunities when you provide liquidity to a trading pair on Curve, Convex, Balancer and others.
                 </Text>
               </VStack>
               <LandingSubmitButton href="/yield-opportunities">
@@ -440,7 +441,7 @@ export const Landing = ({ posts }: {
               <Text color={lightTheme.colors.mainTextColor} fontSize={smallerSize}>
                 We know the importance of security, especially for new lending protocols. Read our audit reports or work with us as we expand our third party security efforts.
               </Text>
-              <LandingOutlineButton w={{ base: 'full', sm: '200px', '2xl': 'auto' }} href="/audits" target="_blank">
+              <LandingOutlineButton w={{ base: 'full', sm: '200px', '2xl': 'auto' }} href="/audits">
                 Audit Reports <ExternalLinkIcon ml="1" />
               </LandingOutlineButton>
             </VStack>
@@ -452,7 +453,7 @@ export const Landing = ({ posts }: {
           <Text fontSize={smallerSize} color="white" maxW={{ md: '600px', '2xl': '40%' }}>
             Inverse Finance invites developers and security researches to take a look at our repos on Github and earn bug bounty rewards.
           </Text>
-          <LandingOutlineButton w={{ base: 'full', sm: '220px', '2xl': 'auto' }} boxShadow="none" href="https://docs.inverse.finance/inverse-finance/technical/bug-bounty" target="_blank">
+          <LandingOutlineButton w={{ base: 'full', sm: '220px', '2xl': 'auto' }} boxShadow="none" href="https://docs.inverse.finance/inverse-finance/technical/bug-bounty">
             Bug Bounty Program
           </LandingOutlineButton>
         </ResponsiveStack>
