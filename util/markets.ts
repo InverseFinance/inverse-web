@@ -7,6 +7,7 @@ import { ETH_MANTISSA, BLOCKS_PER_YEAR, DAYS_PER_YEAR, BLOCKS_PER_DAY, ONE_DAY_S
 import { lowercaseObjectKeys, removeTrailingZeros, toFixed } from './misc';
 import { getProvider } from './providers';
 import { getNextThursdayTimestamp } from './dola-staking';
+import { NETWORKS_BY_NAME } from '@app/config/networks';
 
 export const getMonthlyRate = (balance: number, apy: number) => {
     return (balance || 0) * (apy || 0) / 100 / 12;
@@ -450,6 +451,7 @@ export const getYieldOppys = async () => {
         const data = await results.json();
         const pools = data.status === 'success' ? data.data : [];
         return pools
+            .filter(p => !!NETWORKS_BY_NAME[p.chain])
             .filter(p => /^(inv-|dola-|dbr-)/i.test(p.symbol) || /(-inv|-dola|-dbr)$/i.test(p.symbol) || /(-inv-|-dola-|-dbr-)/i.test(p.symbol))
             // filter pools with known incorrect data
             .filter(p => !poolsToExclude.includes(p.pool))
