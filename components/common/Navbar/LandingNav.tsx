@@ -27,7 +27,7 @@ export const LandingNav = ({
       >
         <Stack alignItems="center" spacing={{ base: '2', '2xl': '1vw' }} direction="row" align="center">
           <Logo minH="30px" minW="30px" boxSize={isBottom ? '1.8vmax' : '3.8vmax'} filter={isBottom ? "brightness(0) invert(1)" : 'unset'} />
-          <Text color={isBottom ? lightTheme.colors.contrastMainTextColor : lightTheme.colors.mainTextColor}
+          <Text as="h1" color={isBottom ? lightTheme.colors.contrastMainTextColor : lightTheme.colors.mainTextColor}
             fontWeight="bold"
             fontSize={isBottom ? normalSize : slightlyBiggerSize}            
           >

@@ -87,17 +87,17 @@ export const Landing = ({ posts }: {
 
   const priceBar = <HStack spacing="2.5vw">
     <HStack>
-      <Image borderRadius='50px' minH="20px" minW="20px" height="2vmax" src="/assets/v2/dola.jpg" />
+      <Image borderRadius='50px' minH="20px" minW="20px" height="2vmax" src="/assets/v2/dola.jpg" alt="dola" />
       <Text fontSize={smallerSize2} display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>DOLA</Text>
       <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{dolaPrice ? shortenNumber(dolaPrice, 3, true) : '-'}</Text>
     </HStack>
     <HStack>
-      <Image borderRadius='50px' minH="20px" minW="20px" height="2vmax" src="/assets/v2/dbr.png" />
+      <Image borderRadius='50px' minH="20px" minW="20px" height="2vmax" src="/assets/v2/dbr.png" alt="dbr"/>
       <Text fontSize={smallerSize2} display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>DBR</Text>
       <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{dbrPriceUsd ? shortenNumber(dbrPriceUsd, 3, true) : '-'}</Text>
     </HStack>
     <HStack>
-      <Image borderRadius='50px' minH="20px" minW="20px" height="2vmax" src="/assets/v2/inv.jpg" />
+      <Image borderRadius='50px' minH="20px" minW="20px" height="2vmax" src="/assets/v2/inv.jpg" alt="inv"/>
       <Text fontSize={smallerSize2} display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>INV</Text>
       <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{invPrice ? shortenNumber(invPrice, 2, true) : '-'}</Text>
     </HStack>
@@ -106,7 +106,7 @@ export const Landing = ({ posts }: {
   return (
     <Layout isLanding={true} pt="0" overflow="hidden">
       <Head>
-        <title>Inverse Finance</title>
+        <title>Inverse Finance - Fixed-Rate DeFi borrowing</title>
         <meta name="og:image" content="https://inverse.finance/assets/social-previews/landing.png" />
       </Head>
       <video autoPlay muted loop webkit-playsinline style={{
@@ -134,7 +134,7 @@ export const Landing = ({ posts }: {
               spacing="2vh"
             >
               <SplashedText
-                as="h1"
+                as="h2"
                 color={`${lightTheme?.colors.mainTextColor}`}
                 fontSize={{ base: '50px', sm: '58px', lg: '66px', 'xl': '70px', '2xl': "5vw" }}
                 fontWeight="800"
@@ -151,7 +151,7 @@ export const Landing = ({ posts }: {
                 Rethink<br />The Way<br />You Borrow
               </SplashedText>
               <VStack spacing="2vh" alignItems="flex-start" zIndex="1">
-                <Text w={{ base: 'auto', 'xl': '580px', '2xl': '1000px' }} fontWeight="400" fontSize={{ base: '20px', '2xl': '1.5vw' }} maxW={{ base: 'none', xl: '460px', '2xl': '40vw' }} as="h2" color={`${lightTheme?.colors.mainTextColor}`}>
+                <Text w={{ base: 'auto', 'xl': '580px', '2xl': '1000px' }} fontWeight="400" fontSize={{ base: '20px', '2xl': '1.5vw' }} maxW={{ base: 'none', xl: '460px', '2xl': '40vw' }} as="h3" color={`${lightTheme?.colors.mainTextColor}`}>
                   DOLA Borrowing Rights replace interest rates with a fixed fee that can earn you more.
                 </Text>
                 <Stack direction={{ base: 'column', sm: 'row' }} justify={'flex-start'} w={{ base: 'full', sm: 'auto' }}>
@@ -159,7 +159,7 @@ export const Landing = ({ posts }: {
                     Enter App
                   </LandingSubmitButton>
                   <LandingOutlineButton w={{ base: 'full', sm: 'auto' }} href="https://docs.inverse.finance" target="_blank">
-                    Learn More <ExternalLinkIcon ml="1" />
+                    Read Docs <ExternalLinkIcon ml="1" />
                   </LandingOutlineButton>
                 </Stack>
               </VStack>
@@ -183,7 +183,7 @@ export const Landing = ({ posts }: {
             }}
           >
           </SplashedText>
-          <Image width="400px" zIndex="0" top="-200px" left="-200px" position="absolute" src="/assets/v2/landing/building1.png" />
+          <Image width="400px" zIndex="0" top="-200px" left="-200px" position="absolute" src="/assets/v2/landing/building1.png" alt="building" />
 
           <VStack spacing="0" pt="0" pb="4" alignItems="center" w='200px' position="relative">
             <SplashedText
@@ -232,7 +232,7 @@ export const Landing = ({ posts }: {
               Enter App
             </LandingSubmitButton>
             <LandingOutlineButton w={{ base: 'full', sm: 'auto' }} href="https://docs.inverse.finance" target="_blank">
-              Learn More <ExternalLinkIcon ml="1" />
+              Read Docs <ExternalLinkIcon ml="1" />
             </LandingOutlineButton>
           </Stack>
         </VStack>
@@ -359,7 +359,7 @@ export const Landing = ({ posts }: {
           <ResponsiveStack zIndex="1" justify="space-between" w='full' spacing="8" alignItems={{ base: 'center', md: 'unset' }}>
             <SimpleCard spacing="1vh" position="relative" minH="470px" w={{ base: 'full', md: '33%' }} maxW="600px" alignItems="center" justify="space-between">
               <VStack w='full'>
-                <Image src="/assets/v2/landing/borrow.png?1" width="full" w="160px" h="150px" mt="6" />
+                <Image src="/assets/v2/landing/borrow.png?1" alt="borrow" width="full" w="160px" h="150px" mt="6" />
                 <Text color={lightTheme.colors.mainTextColor} fontWeight="extrabold" fontSize={biggerSize}>Borrow</Text>
                 <Text color={lightTheme.colors.mainTextColor} textAlign="center" fontSize={normalSize}>
                   Borrow DOLA for a fixed-rate for an unlimited duration with DOLA Borrowing Rights.
@@ -371,7 +371,7 @@ export const Landing = ({ posts }: {
             </SimpleCard>
             <SimpleCard spacing="1vh" minH="470px" w={{ base: 'full', md: '33%' }} maxW="600px" alignItems="center" justify="space-between">
               <VStack w='full'>
-                <Image src="/assets/v2/landing/earn.png" width="full" w="150px" h="150px" mt="6" />
+                <Image src="/assets/v2/landing/earn.png" alt="earn" width="full" w="150px" h="150px" mt="6" />
                 <Text color={lightTheme.colors.mainTextColor} fontWeight="extrabold" fontSize={biggerSize}>Earn</Text>
                 <Text color={lightTheme.colors.mainTextColor} textAlign="center" fontSize={normalSize}>
                   Earn attractive returns when you provide liquidity to a trading pair on Curve, Convex, Balancer and others.
@@ -383,7 +383,7 @@ export const Landing = ({ posts }: {
             </SimpleCard>
             <SimpleCard spacing="1vh" minH="470px" w={{ base: 'full', md: '33%' }} maxW="600px" alignItems="center" justify="space-between">
               <VStack w='full'>
-                <Image src="/assets/v2/landing/stake.png?" width="full" w="150px" h="150px" mt="6" />
+                <Image src="/assets/v2/landing/stake.png?" alt="stake" width="full" w="150px" h="150px" mt="6" />
                 <Text color={lightTheme.colors.mainTextColor} fontWeight="extrabold" fontSize={biggerSize}>Real yield</Text>
                 <Text color={lightTheme.colors.mainTextColor} textAlign="center" fontSize={normalSize}>
                   Buy INV and stake on FiRM to earn DBR real yield, you directly benefit from FiRM's success. Participate in Governance.
@@ -395,7 +395,7 @@ export const Landing = ({ posts }: {
             </SimpleCard>
           </ResponsiveStack>
         </VStack>
-        <Image zIndex="-1" src="/assets/v2/landing/building4.png" w="300px" position="absolute" bottom="450px" right="-100px" />
+        <Image zIndex="-1" src="/assets/v2/landing/building4.png" alt="building" w="300px" position="absolute" bottom="450px" right="-100px" />
         <VStack w='full' alignItems="center" mt="150px" spacing="8">
           <SplashedText
             as="h4"
@@ -410,22 +410,22 @@ export const Landing = ({ posts }: {
           <ResponsiveStack spacing="8" pt="4" justify="center" alignItems={{ base: 'center' }}>
             <SimpleGrid columns={{ base: 1, md: 2 }} gap={4} w={{ base: 'full', md: '50%' }} maxW="800px">
               <VStack as="a" href="https://code4rena.com/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
-                <Image maxW="150px" src="/assets/v2/landing/code4arena.png" />
+                <Image maxW="150px" src="/assets/v2/landing/code4arena.png" alt="code4arena" />
               </VStack>
               <VStack as="a" href="https://immunefi.com/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
-                <Image maxW="150px" src="/assets/partners/immunefi.svg" />
+                <Image maxW="150px" src="/assets/partners/immunefi.svg" alt="immunefi" />
               </VStack>
               <VStack as="a" href="https://defimoon.org/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
-                <Image maxW="150px" src="/assets/v2/landing/defimoon.png?v2" />
+                <Image maxW="150px" src="/assets/v2/landing/defimoon.png?v2" alt="defimoon" />
               </VStack>
               <VStack as="a" href="https://peckshield.com/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
-                <Image maxW="150px" src="/assets/v2/landing/peckshield.png" />
+                <Image maxW="150px" src="/assets/v2/landing/peckshield.png" alt="peckshield" />
               </VStack>
               <VStack as="a" href="https://defisafety.com/app/pqrs/199" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
-                <Image maxW="150px" src="/assets/v2/landing/defisafety.png" />
+                <Image maxW="150px" src="/assets/v2/landing/defisafety.png" alt="defisafety" />
               </VStack>
               <VStack as="a" href="https://www.nomoi.xyz/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
-                <Image maxW="150px" src="/assets/v2/landing/nomoi.png" />
+                <Image maxW="150px" src="/assets/v2/landing/nomoi.png" alt="nomoi" />
               </VStack>
             </SimpleGrid>
             <VStack alignItems={{ base: 'center', sm: 'flex-start' }} w={{ base: 'full', md: '40%' }} spacing='4' pt={{ base: '4', md: '0' }}>
@@ -542,7 +542,7 @@ export const Landing = ({ posts }: {
                 DAO Transparency
               </LandingSubmitButton>
             </ResponsiveStack>
-            <Image zIndex="0" src="/assets/v2/landing/building5.png" h='600px' mr="1" position="absolute" right="-16%" top="-120px" />
+            <Image zIndex="0" src="/assets/v2/landing/building5.png" alt="building" h='600px' mr="1" position="absolute" right="-16%" top="-120px" />
           </VStack>
           <ResponsiveStack pt="8" w='full' alignItems="center" justify="space-around" zIndex="1">
             <VStack position="relative" spacing="0" w={{ md: '33%', '2xl': '25%' }}>
@@ -574,7 +574,7 @@ export const Landing = ({ posts }: {
               </Text>
               <ResponsiveStack justify={{ base: 'center', md: 'flex-start' }} direction={{ base: 'column', sm: 'row', md: 'column', lg: 'row' }} w={{ base: 'full', lg: 'auto' }}>
                 <LandingSubmitButton w={{ base: 'full', sm: '200px', '2xl': 'auto' }} href="https://discord.gg/YpYJC7R5nv" target="_blank">
-                  <Image src="/assets/socials/discord.svg" h={btnIconSize} mr={{ base: '1', '2xl': 2 }} />
+                  <Image src="/assets/socials/discord.svg" alt="discord" h={btnIconSize} mr={{ base: '1', '2xl': 2 }} />
                   Join our Discord
                 </LandingSubmitButton>
                 <LandingOutlineButton w={{ base: 'full', sm: '200px', '2xl': 'auto' }} href="/governance">
@@ -600,7 +600,7 @@ export const Landing = ({ posts }: {
             </SplashedText>
             <ResponsiveStack direction={{ base: 'column', sm: 'row' }} w={{ base: 'full', sm: 'auto' }}>
               <LandingSubmitButton w={{ base: 'full', sm: '200px', '2xl': 'auto' }} href="https://twitter.com/InverseFinance" target="_blank">
-                <Image src="/assets/socials/twitter.svg" h={btnIconSize} mr={{ base: '1', '2xl': 2 }} />
+                <Image src="/assets/socials/twitter.svg" alt="twitter" h={btnIconSize} mr={{ base: '1', '2xl': 2 }} />
                 Follow on Twitter
               </LandingSubmitButton>
               <LandingSubmitButton w={{ base: 'full', md: 'auto' }} href="/blog">
