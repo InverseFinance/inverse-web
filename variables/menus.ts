@@ -188,20 +188,20 @@ export const MENUS = {
     // },
     {
       label: 'More',
-      href: 'https://docs.inverse.finance',
+      href: undefined,
       submenus: [
         {
           href: 'https://docs.inverse.finance',
           label: 'Docs',
         },
         {
+          label: 'Compare Rates',
+          href: '/firm/comparator',
+        },
+        {
           label: 'Swap',
           href: '/swap?fromToken=DOLA&toToken=INV',
           needReload: true,
-        },
-        {
-          label: 'Compare Rates',
-          href: '/firm/comparator',
         },
         {
           label: 'Request Collateral',
