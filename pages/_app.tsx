@@ -56,12 +56,12 @@ const App = ({ Component, pageProps }: AppProps) => {
         ]
       }>
         <Head>
-          <title>Inverse Finance</title>
-          <meta name="description" content="Inverse Finance is an Open Source Protocol for borrowing at a fixed-rate. Stake INV to earn real yield through DBR streaming." />
-          <meta name="keywords" content="Decentralized Finance, DeFi, lending, borrowing, DAO, stablecoins, Ethereum, stEth, ETH, CRV, cvxCRV, INV, DOLA, gOHM, real yield, audited, borrow, lend, bonds, rewards, transparency, FiRM, DBR, DOLA borrowing right, Fixed Rate, Fixed Rate Market" />
+          <title>Inverse Finance - Fixed-Rate DeFi borrowing</title>
+          <meta name="description" content="Inverse Finance is an Open Source Protocol for fixed-rate borrowing. Earn high yields with the DOLA stablecoin. Stake INV to earn real yield through DBR streaming." />
+          <meta name="keywords" content="Fixed-Rate, Decentralized Finance, DeFi, lending, borrowing, DAO, stablecoins, Ethereum, wstEth, ETH, CRV, cvxCRV, INV, DOLA, WBTC, real yield, audited, safe, borrow, lend, rewards, transparency, FiRM, DBR, DOLA borrowing right, Fixed Rate, Fixed Rate Market" />
 
-          <meta name="og:title" content="Inverse Finance" />
-          <meta name="og:description" content="Inverse Finance is an Open Source Protocol for borrowing at a fixed-rate. Stake INV to earn real yield through DBR streaming." />
+          <meta name="og:title" content="Inverse Finance - Fixed-Rate DeFi borrowing" />
+          <meta name="og:description" content="Inverse Finance is an Open Source Protocol for Fixed-Rate borrowing. Earn high yields with the DOLA stablecoin. Stake INV to earn real yield through DBR streaming." />
           {/* <meta name="og:image" content="https://images.ctfassets.net/kfs9y9ojngfc/1Ma9aOfVoZhPqBSfWypXPO/51c94241f900cd3f3252e4628916250e/inv_medium_article_image_1.png?w=3840&q=75" /> */}
           <meta name="twitter:site" content="@InverseFinance" />
           <meta name="twitter:image:alt" content="inverse finance" />
