@@ -111,7 +111,7 @@ export default async function handler(req, res) {
 
     const mainnetTokens = CHAIN_TOKEN_ADDRESSES["1"];
     const treasuryFundsToCheck = [
-      mainnetTokens.INV, mainnetTokens.DOLA, mainnetTokens.DAI, mainnetTokens.USDC, mainnetTokens.USDT, mainnetTokens.WETH, mainnetTokens.WBTC, mainnetTokens.INVETHLP, mainnetTokens.INVETHSLP, mainnetTokens.CRV, mainnetTokens.CVX, mainnetTokens.BAL, mainnetTokens.AURA, mainnetTokens.DBR, mainnetTokens.YFI, mainnetTokens.FRAX
+      mainnetTokens.INV, mainnetTokens.DOLA, mainnetTokens.SDOLA, mainnetTokens.DAI, mainnetTokens.USDC, mainnetTokens.USDT, mainnetTokens.WETH, mainnetTokens.WBTC, mainnetTokens.INVETHLP, mainnetTokens.INVETHSLP, mainnetTokens.CRV, mainnetTokens.CVX, mainnetTokens.BAL, mainnetTokens.AURA, mainnetTokens.DBR, mainnetTokens.YFI, mainnetTokens.FRAX
     ];
     const [treasuryBalances, anchorReserves] = await getGroupedMulticallOutputs([
       treasuryFundsToCheck.map((ad: string) => {
