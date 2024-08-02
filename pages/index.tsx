@@ -154,7 +154,7 @@ export const Landing = ({ posts }: {
               </SplashedText>
               <VStack spacing="2vh" alignItems="flex-start" zIndex="1">
                 <Text w={{ base: 'auto', 'xl': '580px', '2xl': '1000px' }} fontWeight="400" fontSize={{ base: '20px', '2xl': '1.5vw' }} maxW={{ base: 'none', xl: '460px', '2xl': '40vw' }} as="h2" color={`${lightTheme?.colors.mainTextColor}`}>
-                  The best Fixed-Rate borrowing DeFi protocol with the highest yield opportunities.
+                  The best Fixed-Rate borrowing DeFi protocol with the highest yield opportunities stablecoin
                 </Text>
                 <Stack direction={{ base: 'column', sm: 'row' }} justify={'flex-start'} w={{ base: 'full', sm: 'auto' }}>
                   <LandingSubmitButton w={{ base: 'full', sm: 'auto' }} href="/firm">
@@ -224,10 +224,10 @@ export const Landing = ({ posts }: {
             Never Pay Interest Again
           </SplashedText>
           <Text color={lightTheme.colors.mainTextColor} zIndex="2" textAlign="center" fontWeight="bold" fontSize={normalSize} maxW={{ base: '350px', '2xl': '33%' }}>
-            High-volatility interest rates don't work for long-term borrowers.
+            Ideal for stress-free borrowing and long-term borrowers.
           </Text>
           <Text color={lightTheme.colors.mainTextColor} zIndex="2" textAlign="center" fontSize={smallerSize} maxW={{ base: '350px', '2xl': '33%' }}>
-            DOLA Borrowing Rights (DBRs) allow you to fix a rate today and borrow later
+            DOLA Borrowing Rights (DBRs) allow you to get a fixed rate today and borrow later
           </Text>
           <Stack zIndex="2" direction={{ base: 'column', sm: 'row' }} justify={'flex-start'} w={{ base: 'full', sm: 'auto' }}>
             <LandingSubmitButton w={{ base: 'full', sm: 'auto' }} href="/firm">
