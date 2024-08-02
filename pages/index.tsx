@@ -20,6 +20,7 @@ import { BurgerMenu } from '@app/components/common/Navbar/BurgerMenu'
 import { MENUS } from '@app/variables/menus'
 import { useStakedDola } from '@app/util/dola-staking'
 import { useCustomSWR } from '@app/hooks/useCustomSWR'
+import { RateComparator } from '@app/components/F2/RateComparator'
 
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
 
@@ -275,6 +276,16 @@ export const Landing = ({ posts }: {
             Stake DOLA
           </LandingSubmitButton>
         </VStack> */}
+        {/* <SplashedText
+            as="h3"
+            color={`${lightTheme?.colors.mainTextColor}`}
+            fontSize={biggerSize}
+            fontWeight="extrabold"
+            splash="horizontal-wave"
+            splashProps={{ right: '-30px', left: 'inherit', bottom: { base: 0, '2xl': '1vh' }, top: 'inherit' }}
+          >
+            Compare Borrow Rates
+          </SplashedText> */}
         <SplashedText
           splash="circle-dirty"
           splashProps={{
@@ -288,8 +299,12 @@ export const Landing = ({ posts }: {
           }}
         ></SplashedText>
       </Flex>
-      <Flex zIndex="1" px="8%" py="20" w="full" bg={lightTheme.colors.mainTextColor} bgColor={lightTheme.colors.mainTextColor} direction="column">
-        <ResponsiveStack spacing="8" justifyContent="space-evenly" w='full' direction={{ base: 'column', md: 'row' }}>
+      <Flex display={{ base: 'none', xl: 'flex' }} zIndex="1" px="8%" py="20" w="full" bg={lightTheme.colors.mainTextColor} bgColor={lightTheme.colors.mainTextColor} direction="column">
+        <Text as="h3" fontWeight="bold" color={lightTheme.colors.contrastMainTextColor} zIndex="2" textAlign="left" fontSize={normalSize}>
+          Compare Fixed Rate and Variable Rates accross DeFi protocols
+        </Text>
+        <RateComparator themeStyles={lightTheme} showLabel={false} />
+        {/* <ResponsiveStack spacing="8" justifyContent="space-evenly" w='full' direction={{ base: 'column', md: 'row' }}>
           <VStack spacing="6" justify="center" alignItems="flex-start">
             <VStack w='full' spacing="1" alignItems="flex-start">
               <Text
@@ -331,9 +346,8 @@ export const Landing = ({ posts }: {
               <source src="sDOLA.mp4#t=0.1" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
-            {/* <iframe style={{ zIndex: 10, maxWidth: '98%' }} width="500" height={400} src={`https://www.youtube.com/embed/w1f5ShMX3Aw?controls=0&iv_load_policy=3&rel=1&modestbranding=1&mute=0`} title="sDOLA: The Organic, Yield-Bearing Stablecoin" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe> */}
           </VStack>
-        </ResponsiveStack>
+        </ResponsiveStack> */}
       </Flex>
       <Flex px="8%" py="20" w="full" bgImage="/assets/v2/landing/wall.png" bgRepeat="no-repeat" backgroundSize="cover" direction="column" position="relative">
         <VStack alignItems="flex-start" spacing="2" w='full' bgImage="/assets/v2/landing/part2.png" position="relative">
