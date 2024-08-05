@@ -13,6 +13,7 @@ import { useDBRMarkets } from "@app/hooks/useDBR";
 import { SettingsIcon } from "@chakra-ui/icons";
 import InfoModal from "../common/Modal/InfoModal";
 import { Input } from "../common/Input";
+import { lightTheme } from '@app/variables/theme'
 import { useEffect, useState } from "react";
 
 const projectImages = {
@@ -34,38 +35,45 @@ const projectCollaterals = {
     'FiRM': [],
 }
 
-const ProjectToken = ({ project, borrowToken, isMobile = false }: { project: string }) => {
+const ProjectToken = ({ project, borrowToken, isMobile = false, themeStyles }: { project: string }) => {
+    const { themeStyles: prefThemeStyles } = useAppTheme();
+    const _themeStyles = themeStyles || prefThemeStyles;
     const _borrowToken = borrowToken || (project === 'FiRM' ? 'DOLA' : 'USDC')
     return <HStack spacing='4'>
         <Image borderRadius="50px" src={TOKEN_IMAGES[_borrowToken]} h={isMobile ? '20px' : '40px'} />
-        <Text fontWeight="extrabold" fontSize={isMobile ? '16px' : '24px'}>
+        <Text color={_themeStyles.colors.mainTextColor} fontWeight="extrabold" fontSize={isMobile ? '16px' : '24px'}>
             {_borrowToken}
         </Text>
     </HStack>
 }
 
-const CollateralToken = ({ collateral, isMobile = false }: { project: string }) => {
+const CollateralToken = ({ collateral, isMobile = false, themeStyles }: { project: string }) => {
+    const { themeStyles: prefThemeStyles } = useAppTheme();
+    const _themeStyles = themeStyles || prefThemeStyles;
     return <HStack spacing='4'>
-        <Text fontWeight="extrabold" fontSize={isMobile ? '16px' : '24px'}>
+        <Text color={_themeStyles.colors.mainTextColor} fontWeight="extrabold" fontSize={isMobile ? '16px' : '24px'}>
             {collateral}
         </Text>
     </HStack>
 }
 
-const Project = ({ project }: { project: string }) => {
+const Project = ({ project, themeStyles }: { project: string }) => {
+    const { themeStyles: prefThemeStyles } = useAppTheme();
+    const _themeStyles = themeStyles || prefThemeStyles;
     return <HStack spacing='4'>
         <Image borderRadius='40px' src={projectImages[project]} h='40px' />
-        <Text fontWeight="extrabold" fontSize="24px" textTransform="capitalize">
+        <Text color={_themeStyles.colors.mainTextColor} fontWeight="extrabold" fontSize="24px" textTransform="capitalize">
             {project.replace('-', ' ')}
         </Text>
     </HStack>
 }
 
-const RateType = ({ type, isMobile = false }: { type: string, isMobile: boolean }) => {
-    const { themeStyles } = useAppTheme();
+const RateType = ({ type, isMobile = false, themeStyles }: { type: string, isMobile: boolean }) => {
+    const { themeStyles: prefThemeStyles } = useAppTheme();
+    const _themeStyles = themeStyles || prefThemeStyles;
     const fontSize = isMobile ? '16px' : '26px';
     return <HStack spacing="0">
-        <Text zIndex="9" fontWeight="extrabold" fontSize={fontSize} color={type === 'fixed' ? 'success' : 'warning'} textTransform="capitalize">
+        <Text zIndex="9" fontWeight="extrabold" fontSize={fontSize} color={type === 'fixed' ? _themeStyles.colors.success : _themeStyles.colors.warning} textTransform="capitalize">
             {type}
         </Text>
         {
@@ -73,9 +81,9 @@ const RateType = ({ type, isMobile = false }: { type: string, isMobile: boolean 
                 containerProps={{ alignItems: 'flex-start', spacing: '0', h: isMobile ? '20px' : '40px' }}
                 fontWeight="extrabold"
                 fontSize={fontSize}
-                color={'success'}
+                color={_themeStyles.colors.success}
                 textTransform="capitalize"
-                splashColor={`${themeStyles?.colors.success}`}
+                splashColor={`${_themeStyles?.colors.success}`}
                 lineHeight='1'
                 h={isMobile ? '20px' : '40px'}
                 splashProps={{
@@ -90,15 +98,15 @@ const RateType = ({ type, isMobile = false }: { type: string, isMobile: boolean 
     </HStack>
 }
 
-const RateListItem = ({ fields, project, borrowRate, borrowToken, collateral, type }) => {
+const RateListItem = ({ fields, project, borrowRate, borrowToken, collateral, type, themeStyles }) => {
     const comps = {
-        'project': <Project project={project} />,
-        'collateral': <CollateralToken project={project} collateral={collateral || 'Multiple'} />,
-        'borrowRate': <Text fontWeight="extrabold" fontSize="24px">
+        'project': <Project project={project} themeStyles={themeStyles} />,
+        'collateral': <CollateralToken project={project} collateral={collateral || 'Multiple'} themeStyles={themeStyles} />,
+        'borrowRate': <Text fontWeight="extrabold" fontSize="24px" color={themeStyles.colors.mainTextColor}>
             {borrowRate ? shortenNumber(borrowRate, 2) + '%' : '-'}
         </Text>,
-        'borrowToken': <ProjectToken project={project} borrowToken={borrowToken} />,
-        'type': <RateType type={type} />,
+        'borrowToken': <ProjectToken project={project} borrowToken={borrowToken} themeStyles={themeStyles}  />,
+        'type': <RateType type={type} themeStyles={themeStyles} />,
     }
     return <>
         {
@@ -182,7 +190,10 @@ const FIELDS = columns.reduce((prev, curr) => ({ ...prev, [curr.field]: curr.lab
 const defaultFields = columns.map(c => c.field);
 const defaultProjects = Object.keys(projectCollaterals);
 
-export const RateComparator = () => {
+export const RateComparator = ({
+    themeStyles,
+    showLabel = true,
+}) => {
     const { query } = useRouter();
     const [fieldsText, setFieldsText] = useState(defaultFields.join(','));
     const [fields, setFields] = useState(defaultFields);
@@ -214,7 +225,8 @@ export const RateComparator = () => {
         .filter(r => !collateralFilter || (!!collateralFilter && (r.collateral.replace(/^ETH$/, 'WETH') === collateralFilter || (r.collateral === 'Multiple' && projectCollaterals[r.project].includes(collateralFilter.replace(/^ETH$/, 'WETH'))))))
         .map(r => !collateralFilter ? r : ({ ...r, collateral: collateralFilter }))
 
-    const { themeStyles } = useAppTheme();
+    const { themeStyles: prefThemeStyles } = useAppTheme();
+    const _themeStyles = themeStyles || prefThemeStyles || lightTheme;
 
     const openSettings = () => {
         onOpen();
@@ -238,12 +250,14 @@ export const RateComparator = () => {
     return <Container
         noPadding
         p='0'
-        contentProps={{ p: { base: '2', sm: '8' }, direction: 'column' }}
-        label="Stablecoin Borrow Rate Comparison"
-        description="Across major DeFi lending protocols on Ethereum"
-        contentBgColor="gradient3"
+        contentProps={{ p: { base: '0', sm: '8' }, direction: 'column' }}
+        label={showLabel ? "Stablecoin Borrow Rate Comparison" : null}
+        labelProps={showLabel ? { color: _themeStyles.colors.mainTextColor } : null}
+        description={showLabel ? "Across major DeFi lending protocols on Ethereum" : null }
+        contentBgColor={_themeStyles.colors.gradient3}
+        descriptionProps={{ color: _themeStyles.colors.mainTextColorLight }}
         right={
-            <SettingsIcon _hover={{ filter: 'brightness(1.2)' }} cursor="pointer" onClick={() => openSettings()} color="mainTextColor" fontSize={40} />
+            <SettingsIcon _hover={{ filter: 'brightness(1.2)' }} cursor="pointer" onClick={() => openSettings()} color={showLabel ? _themeStyles.colors.mainTextColor :  _themeStyles.colors.contrastMainTextColor} fontSize={40} />
         }
     >
         <InfoModal title="Filter & Customize" onOk={onClose} isOpen={isOpen} onClose={onClose} minW='800px'>
@@ -260,7 +274,7 @@ export const RateComparator = () => {
                         <Text fontSize="20px" fontWeight="extrabold">Filter by collateral:</Text>
                         <Text onClick={() => setCollateralFilter('')} cursor="pointer" textDecoration="underline" fontSize="18px" fontWeight="bold">Reset</Text>
                     </HStack>
-                    <Select value={collateralFilter} fontWeight="500" fontSize="18px" h="48px" bgColor="mainBackgroundColor" onChange={(v) => setCollateralFilter(v.target.value)}>
+                    <Select value={collateralFilter} fontWeight="500" fontSize="18px" h="48px" bgColor={_themeStyles.colors.mainBackgroundColor} onChange={(v) => setCollateralFilter(v.target.value)}>
                         <option style={{ paddingLeft: '74px' }}>All</option>
                         {
                             projectCollaterals['FiRM'].map(c => {
@@ -303,7 +317,8 @@ export const RateComparator = () => {
                 noDataMessage="Loading..."
                 columns={columns}
                 items={rates}
-                defaultSort={'borrowRate'}
+                defaultSort={'type'}
+                secondarySortFields={['borrowRate']}
                 defaultSortDir="asc"
                 enableMobileRender={true}
                 mobileThreshold={mobileThreshold}
@@ -323,7 +338,7 @@ export const RateComparator = () => {
                 <SimpleGrid gap="5" width={`${fields.length * 250}px`} columns={fields.length}>
                     {
                         fields.map(f => {
-                            return <Text key={f} fontWeight="extrabold" fontSize="28px">
+                            return <Text color={_themeStyles.colors.mainTextColor} key={f} fontWeight="extrabold" fontSize="28px">
                                 {FIELDS[f]}
                             </Text>
                         })
@@ -341,9 +356,9 @@ export const RateComparator = () => {
                 <VStack pt='5' spacing="0" >
                     {
                         rates.map((rate, i) => {
-                            return <Link borderBottom="1px solid transparent" borderTop={`1px solid ${themeStyles.colors.mainTextColorAlpha}`} py="2" transition="200 ms all" _hover={{ borderY: `1px solid ${themeStyles.colors.mainTextColor}` }} w='full' isExternal target="_blank" href={rate.link} key={rate.key}>
+                            return <Link borderBottom="1px solid transparent" borderTop={`1px solid ${_themeStyles.colors.mainTextColorAlpha}`} py="2" transition="200 ms all" _hover={{ borderY: `1px solid ${_themeStyles.colors.mainTextColor}` }} w='full' isExternal target="_blank" href={rate.link} key={rate.key}>
                                 <SimpleGrid gap="5" width={`${fields.length * 250}px`} columns={fields.length}>
-                                    <RateListItem fields={fields} {...rate} />
+                                    <RateListItem fields={fields} {...rate} themeStyles={_themeStyles} />
                                 </SimpleGrid>
                             </Link>
                         })

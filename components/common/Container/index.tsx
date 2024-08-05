@@ -36,6 +36,7 @@ export const Container = ({
   defaultCollapse = false,
   headerProps,
   labelProps,
+  descriptionProps,
   ...props
 }: AppContainerProps) => {
   const [collapsed, setCollapsed] = useState(defaultCollapse);
@@ -58,11 +59,11 @@ export const Container = ({
   const desc = (
     <Flex>
       {href ? (
-        <Link href={href} fontSize="sm" fontWeight="medium" isExternal>
+        <Link href={href} fontSize="sm" fontWeight="medium" isExternal {...descriptionProps}>
           {description} <ExternalLinkIcon />
         </Link>
       ) : typeof description === 'string' ? (
-        <Text fontSize="sm" fontWeight="medium" color="secondaryTextColor">
+        <Text fontSize="sm" fontWeight="medium" color="secondaryTextColor" {...descriptionProps}>
           {description}
         </Text>
       ) : (

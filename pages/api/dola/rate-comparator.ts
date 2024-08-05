@@ -21,14 +21,14 @@ export default async function handler(req, res) {
 
     const rates = await Promise.all([
       getAaveV3Rate(provider),
-      getAaveV3RateDAI(provider),
+      // getAaveV3RateDAI(provider),
       getCompoundRate(provider),
       // WBTC market
       getCrvUSDRate('0xE0438Eb3703bF871E31Ce639bd351109c88666ea', 'WBTC', provider),
       // wstETH
       getCrvUSDRate('0x37417B2238AA52D0DD2D6252d989E728e8f706e4', 'wstETH', provider),
       getCrvUSDRate('0x1681195c176239ac5e72d9aebacf5b2492e0c4ee', 'WETH', provider),
-      getFraxRate(provider, '0x3835a58CA93Cdb5f912519ad366826aC9a752510', 'CRV'),
+      // getFraxRate(provider, '0x3835a58CA93Cdb5f912519ad366826aC9a752510', 'CRV'),
       getFraxRate(provider, '0x794F6B13FBd7EB7ef10d1ED205c9a416910207Ff', 'WETH'),
       getFraxRate(provider, '0x32467a5fc2d72D21E8DCe990906547A2b012f382', 'WBTC'),
       getFraxRate(provider, '0x78bB3aEC3d855431bd9289fD98dA13F9ebB7ef15', 'sfrxETH'),
