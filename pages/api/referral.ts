@@ -10,7 +10,7 @@ export default async function handler(req, res) {
         method,
     } = req
 
-    const { r, account, csv } = query;
+    const { r, account, csv, affiliate } = query;
 
     const key = `referrals`;
     const cachedResult = await getCacheFromRedis(key, false, 600);
@@ -26,8 +26,19 @@ export default async function handler(req, res) {
                 res.setHeader("Content-Type", "text/csv");
                 res.setHeader("Content-Disposition", "attachment; filename=referrals.csv");
                 res.status(200).send(CSV);
-            } else {
-                res.status(200).json(cachedResult || { referrals: {} });
+            } 
+            else if(!!affiliate && isAddress(affiliate)) {
+                return res.status(200).json(cachedResult || { referrals: {} });
+            }
+            else {
+                const affiliateReferrals = Object.entries(cachedResult?.referrals||{})
+                    .filter(([referee, aff]) => aff.toLowerCase() === affiliate.toLowerCase())
+                    .map(([ref, aff]) => ref);
+                    
+                return res.status(200).json({
+                    timestamp: Date.now(),
+                    referrals: affiliateReferrals,
+                });
             }
             break
         case 'POST':
