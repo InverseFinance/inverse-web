@@ -27,7 +27,7 @@ export const ReferToModal = ({
 
     return <SimpleModal
         title={
-            "Refer to a Fren!"
+            "Refer a Fren!"
         }
         onClose={onClose}
         onCancel={onClose}
