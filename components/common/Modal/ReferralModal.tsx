@@ -6,6 +6,7 @@ import { Input } from "../Input";
 import { useEffect, useState } from "react";
 import { isAddress } from "ethers/lib/utils";
 import { useRouter } from "next/router";
+import useStorage from "@app/hooks/useStorage";
 
 export const getReferralMsg = (account: string, referrer: string) => {
     return `Referral proof signature\n\nMy account:\n${account}\n\nMy referrer:\n ` + referrer;
@@ -39,6 +40,7 @@ export const ReferralModal = ({
     const [isInvalid, setIsInvalid] = useState(false);
     const [isInited, setIsInited] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const { value: alreadyConfirmedRef, setter: saveConfirmedRef } = useStorage('confirmed-referral');
 
     const isOwnAccount = !!account && !!refAddress && refAddress?.toLowerCase() === account?.toLowerCase();
 
@@ -51,19 +53,20 @@ export const ReferralModal = ({
     }, [refAddress]);
 
     useEffect(() => {
-        if (!isInited && !refAddress && !!query?.referrer && isAddress(query?.referrer)) {
+        if (alreadyConfirmedRef === null && !isInited && !refAddress && !!query?.referrer && isAddress(query?.referrer)) {
             setIsInited(true);
             setRefAddress(query.referrer);
             onOpen();
         }
-    }, [query, refAddress, isInited]);
+    }, [query, refAddress, isInited, alreadyConfirmedRef]);
 
     const onSuccess = () => {
         setIsSuccess(true);
+        saveConfirmedRef(true);
         setTimeout(() => {
             // onClose();
             // onOk();
-            window.location.href = window.location.href.replace('referrer=', 'wasReferredBy=');
+            window.location.replace(window.location.href.replace('referrer=', 'wasReferredBy='));
         }, 1300);
     }
 
@@ -96,10 +99,10 @@ export const ReferralModal = ({
     >
         <VStack p='6' spacing="4" alignItems="flex-start">
             {
-                isSuccess ? <SuccessMessage alertProps={{ fontSize: '18px', fontWeight: 'bold', w: { base: 'full', sm: 'auto' } }} iconProps={{ height: 50, width: 50 }} description="Referrer registration complete!" />
+                isSuccess ? <SuccessMessage alertProps={{ fontSize: '18px', fontWeight: 'bold', w: 'full' }} iconProps={{ height: 50, width: 50 }} description="Referrer registration complete!" />
                     : <>
                         <VStack alignItems="flex-start" w='full'>
-                            <Text fontWeight="bold">Your Referrer:</Text>
+                            <Text fontWeight="bold">You followed a referral link, your referrer is:</Text>
                             <Input textAlign="left" isInvalid={isInvalid} border={isInvalid ? '1px solid red' : ''} type="string" value={refAddress} onChange={(e) => handleRefAddress(e.target.value)} />
                         </VStack>
 
