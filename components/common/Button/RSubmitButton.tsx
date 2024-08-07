@@ -1,23 +1,20 @@
 
-import { Link, LinkProps } from '@chakra-ui/react'
-import NextLink from 'next/link'
 import { SubmitButton } from "."
 import { lightTheme } from '@app/variables/theme'
 import { smallerSize2 } from '@app/variables/responsive'
 import { useAppTheme } from '@app/hooks/useAppTheme'
 import { SmartButtonProps } from '@app/types'
+import Link from "../Link"
 
 type Props = SmartButtonProps & { href?: string, target?: string, linkProps?: LinkProps }
 
 export const RSubmitButton = (props: Props) => {
     const _props = { borderLeftRadius: { base: '30px', '2xl': '50vmax' }, borderRightRadius: { base: '30px', '2xl': '50vmax' }, ...props }
     if (_props?.href) {
-        const { target, linkProps, ...btnProps } = _props;
-        return <NextLink href={_props.href} passHref legacyBehavior>
-            <Link target={target} textDecoration="none" _hover={{ textDecoration: 'none' }} {...linkProps}>
+        const { target, href, linkProps, ...btnProps } = _props;
+        return <Link as="a" target={target} textDecoration="none" _hover={{ textDecoration: 'none' }} href={href} {...linkProps}>
                 <SubmitButton textTransform="inherit" w='full' {...btnProps} />
             </Link>
-        </NextLink>
     }
     return <SubmitButton textTransform="inherit" {..._props} />
 }
