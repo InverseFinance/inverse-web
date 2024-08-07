@@ -17,28 +17,33 @@ export default async function handler(req, res) {
 
     switch (method) {
         case 'GET':
-            if(csv === 'true') {
+            if (csv === 'true') {
                 let CSV = `Account,Referrer,Date\n`;
-                const arr = Object.entries(cachedResult?.referrals||[]);
+                const arr = Object.entries(cachedResult?.referrals || []);
                 arr.forEach(([account, accountRefData]) => {
                     CSV += `${account.toLowerCase()},${accountRefData.ref.toLowerCase()},${(new Date(accountRefData.timestamp).toUTCString()).replace(/,/g, '')}\n`;
                 });
                 res.setHeader("Content-Type", "text/csv");
                 res.setHeader("Content-Disposition", "attachment; filename=referrals.csv");
                 res.status(200).send(CSV);
-            } 
-            else if(!!affiliate && isAddress(affiliate)) {
-                return res.status(200).json(cachedResult || { referrals: {} });
             }
-            else {
-                const affiliateReferrals = Object.entries(cachedResult?.referrals||{})
-                    .filter(([referee, aff]) => aff.toLowerCase() === affiliate.toLowerCase())
-                    .map(([ref, aff]) => ref);
-                    
+            else if (!!affiliate && isAddress(affiliate)) {
+                const affiliateReferrals = Object.entries(cachedResult?.referrals || {})
+                    .filter(([referred, refData]) => refData.ref.toLowerCase() === affiliate.toLowerCase())
+                    .map(([referred, refData]) => ({
+                        referred,
+                        referrer: refData.ref,
+                        timestamp: refData.timestamp,
+                    }));
+
                 return res.status(200).json({
                     timestamp: Date.now(),
                     referrals: affiliateReferrals,
+                    referralAddresses: affiliateReferrals.map(rd => rd.referred),
                 });
+            }
+            else {
+                return res.status(200).json(cachedResult || { referrals: {} });
             }
             break
         case 'POST':
