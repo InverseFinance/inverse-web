@@ -453,7 +453,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal, onReferToOpen }:
                 gaEvent({ action: 'use-refer' });
               }}
             >
-              <Text fontWeight="semibold">🤝 Refer to a fren</Text>
+              <Text fontWeight="semibold">🤝 Refer a fren</Text>
             </ConnectionMenuItem>
             {
               query?.viewAddress && <ConnectionMenuItem
@@ -683,7 +683,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
       <SlideModal closeOnOutsideClick={false} closeIconInside={true} isOpen={isReferralPopOpen} onClose={handleCloseRefPop} contentProps={{ maxW: '500px', className: '', backgroundColor: 'navBarBackgroundColor' }}>
         <VStack w='full' justify="flex-start" alignItems="flex-start">
           <Text fontWeight="bold" fontSize='18px'>
-            Refer to a fren and earn rewards!
+            Refer a fren and earn rewards!
           </Text>
           <Text cursor="pointer" onClick={() => onReferToOpen()} textDecoration="underline">
             Yes, take me there!
