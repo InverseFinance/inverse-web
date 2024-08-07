@@ -1,5 +1,5 @@
 import { VStack, Image, Stack, RadioGroup, Radio, Text } from "@chakra-ui/react"
-import { SuccessMessage } from "../Messages";
+import { InfoMessage, SuccessMessage } from "../Messages";
 import SimpleModal from "./SimpleModal";
 import { Input } from "../Input";
 import { CopyIcon } from "@chakra-ui/icons";
@@ -7,6 +7,7 @@ import { useWeb3React } from "@web3-react/core";
 import { RSubmitButton } from "../Button/RSubmitButton";
 import { useState } from "react";
 import { useRouter } from "next/router";
+import Link from "../Link";
 
 export const ReferToModal = ({
     isOpen = false,
@@ -64,6 +65,23 @@ export const ReferToModal = ({
                 {
                     isCopied && <SuccessMessage alertProps={{ w: 'full' }} description="The Referral Link has been copied!" />
                 }
+                <Link href="" target="_blank" isExternal>
+                    Register your application as an Affiliate
+                </Link>                
+                <InfoMessage
+                    alertProps={{ w: 'full' }}
+                    description={
+                        <VStack>
+                            <Text>- Rewards are paid against DBR that is spent on new DOLA loans for up to 12 months</Text>
+                            <Text>- Rewards are paid against user wallet addresses with a Maximum of one Affiliate per wallet</Text>
+                            <Text>- Rewards are viewable on the Affiliate Dashboard & are issued monthly directly yo your wallet</Text>
+                            <Text>- Minimum loan size: $3,000. Maximum monthly payout per Affiliate: $10,000</Text>
+                            <Text>- 90 days test program runs from August 15th thru November 15th. Program may be extended by Governance</Text>
+                            <Text>- Refferals made from prohibited Jurisdictions, via sybil attacks or other prohibited means may be denied payment</Text>
+                            <Text>- Open to approved participants only. Governance reserves the right to make changes to the program at any time</Text>
+                        </VStack>
+                    }
+                />
             </VStack>
         </VStack>
     </SimpleModal>
