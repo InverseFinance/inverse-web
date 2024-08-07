@@ -2,7 +2,7 @@ import { VStack, Image, Stack, RadioGroup, Radio, Text } from "@chakra-ui/react"
 import { InfoMessage, SuccessMessage } from "../Messages";
 import SimpleModal from "./SimpleModal";
 import { Input } from "../Input";
-import { CopyIcon } from "@chakra-ui/icons";
+import { CopyIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import { useWeb3React } from "@web3-react/core";
 import { RSubmitButton } from "../Button/RSubmitButton";
 import { useState } from "react";
@@ -33,7 +33,7 @@ export const ReferToModal = ({
         onCancel={onClose}
         isOpen={isOpen}
         okLabel="Sign"
-        modalProps={{ minW: { base: '98vw', lg: '700px' }, scrollBehavior: 'inside' }}
+        modalProps={{ minW: { base: '98vw', lg: '900px' }, scrollBehavior: 'inside' }}
     >
         <VStack p='6' spacing="8" alignItems="flex-start">
             <VStack w='full' alignItems="flex-start">
@@ -65,13 +65,13 @@ export const ReferToModal = ({
                 {
                     isCopied && <SuccessMessage alertProps={{ w: 'full' }} description="The Referral Link has been copied!" />
                 }
-                <Link href="" target="_blank" isExternal>
-                    Register your application as an Affiliate
-                </Link>                
                 <InfoMessage
                     alertProps={{ w: 'full' }}
                     description={
-                        <VStack>
+                        <VStack alignItems="flex-start" spacing="0">
+                            <Link pb="2" textDecoration="underline" href="" target="_blank" isExternal>
+                                Register your application as an Affiliate <ExternalLinkIcon />
+                            </Link>
                             <Text>- Rewards are paid against DBR that is spent on new DOLA loans for up to 12 months</Text>
                             <Text>- Rewards are paid against user wallet addresses with a Maximum of one Affiliate per wallet</Text>
                             <Text>- Rewards are viewable on the Affiliate Dashboard & are issued monthly directly yo your wallet</Text>
