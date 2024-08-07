@@ -82,7 +82,7 @@ const columns = [
                 <CellText color={dbrSignedBalance < 0 ? 'error' : undefined}>{dbrSignedBalance !== 0 ? shortenNumber(dbrSignedBalance, 2) : '-'}</CellText>
             </Cell>
         },
-    },    
+    },
     {
         field: 'depositsUsd',
         label: 'Deposits',
@@ -95,11 +95,31 @@ const columns = [
     },
     {
         field: 'debt',
-        label: 'Debt',
+        label: 'Current Debt',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ debt }) => {
             return <Cell minWidth="100px" justify="center" >
                 <CellText>{debt > 0 ? shortenNumber(debt, 2) : '-'}</CellText>
+            </Cell>
+        },
+    },
+    {
+        field: 'dueTokensAccrued',
+        label: 'Acc. DBR spent',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        value: ({ dueTokensAccrued }) => {
+            return <Cell minWidth="100px" justify="center">
+                <CellText>{dueTokensAccrued > 0 ? shortenNumber(dueTokensAccrued, 2) : '-'}</CellText>
+            </Cell>
+        },
+    },
+    {
+        field: 'affiliateReward',
+        label: 'Your DBR reward',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        value: ({ affiliateReward }) => {
+            return <Cell minWidth="100px" justify="center">
+                <CellText>{affiliateReward > 0 ? shortenNumber(affiliateReward, 2) : '-'}</CellText>
             </Cell>
         },
     },
@@ -129,7 +149,7 @@ export const FirmAffiliateDashboard = ({
         .filter(up => referralAddresses.includes(up.user))
         .map(up => {
             const refData = referrals.find(rd => rd.referred === up.user)
-            return { ...up, refTimestamp: refData?.timestamp }
+            return { ...up, affiliateReward: (up.dueTokensAccrued || 0) * 0.1, refTimestamp: refData?.timestamp }
         })
 
     const { onOpen, onClose, isOpen } = useDisclosure();
@@ -145,18 +165,25 @@ export const FirmAffiliateDashboard = ({
     const nbStakers = referredPositions.filter(p => p.stakedInv > 0).length;
     const totalTvl = referredPositions.reduce((prev, curr) => prev + (curr.depositsUsd), 0);
     const totalDebt = referredPositions.reduce((prev, curr) => prev + curr.debt, 0);
+    const totalAffiliateReward = referredPositions.reduce((prev, curr) => prev + curr.affiliateReward, 0);
+    const totalDbrAccrued = referredPositions.reduce((prev, curr) => prev + curr.dueTokensAccrued, 0);
+
+    const monthlySpending = totalDebt / 12;
+    const monthlyReward = monthlySpending * 0.1;
 
     return <VStack w='full' spacing={{ base: '4', sm: '8' }}>
         {
             !!position && <FirmUserModal userData={position} isOpen={isOpen} onClose={onClose} />
         }
         <SimpleGrid justify="space-between" w='full' columns={{ base: 2, sm: 4 }} spacing={{ base: '4', sm: '6' }}>
-            <StatBasic isLoading={isLoading} name="Users" value={`${preciseCommify(nbUsers, 0)}`} />
-            <StatBasic isLoading={isLoading} name="Stakers" value={`${preciseCommify(nbStakers, 0)}`} />
-            <StatBasic isLoading={isLoading} name="Borrowers" value={`${preciseCommify(nbBorrowers, 0)}`} />
-            <StatBasic isLoading={isLoading} name="DBR Yearly Spend" value={`${smartShortNumber(totalDebt, 2)} (${smartShortNumber(totalDebt * dbrPriceUsd, 2, true)})`} />
+            {/* <StatBasic isLoading={isLoading} name="Users" value={`${preciseCommify(nbUsers, 0)}`} /> */}
+            {/* <StatBasic isLoading={isLoading} name="Stakers" value={`${preciseCommify(nbStakers, 0)}`} /> */}
+            {/* <StatBasic isLoading={isLoading} name="Borrowers" value={`${preciseCommify(nbBorrowers, 0)}`} /> */}
+            <StatBasic isLoading={isLoading} name="DBR Monthly Spending" value={`${smartShortNumber(monthlySpending, 2)} (${smartShortNumber(monthlySpending * dbrPriceUsd, 2, true)})`} />
+            <StatBasic isLoading={isLoading} name="DBR Monthly Reward" value={`${smartShortNumber(monthlyReward, 2)} (${smartShortNumber(monthlyReward * dbrPriceUsd, 2, true)})`} />
+            <StatBasic isLoading={isLoading} name="Total DBR spent" value={`${smartShortNumber(totalDbrAccrued, 2)} (${smartShortNumber(totalDbrAccrued * dbrPriceUsd, 2, true)})`} />
+            <StatBasic isLoading={isLoading} name="Total DBR rewards" value={`${smartShortNumber(totalAffiliateReward, 2)} (${smartShortNumber(totalAffiliateReward * dbrPriceUsd, 2, true)})`} />
         </SimpleGrid>
-        <Divider />
         <Container
             py="0"
             label="Referred Users"
@@ -195,7 +222,7 @@ export const FirmAffiliateDashboard = ({
                         columns={columns}
                         items={referredPositions}
                         onClick={openUserDetails}
-                        defaultSort="debt"
+                        defaultSort="affiliateReward"
                         defaultSortDir="desc"
                     />
             }
