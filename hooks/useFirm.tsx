@@ -862,3 +862,11 @@ export const useFirmLiquidations = (user?: string): SWR & {
     isError: error,
   }
 }
+
+export const useFirmAffiliate = (affiliate: string) => {
+  const { data, error } = useCustomSWR(!affiliate ? '-' : `/api/referral?affiliate=${affiliate}`, fetcher);
+  return {
+    referrals: data?.referrals || [],
+    referralAddresses: data?.referralAddresses || [],
+  }
+}

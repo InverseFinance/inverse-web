@@ -3,7 +3,7 @@ import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
-import { FirmUsers } from '@app/components/F2/Infos/FirmUsers'
+import { FirmAffiliateDashboard } from '@app/components/F2/Infos/FirmAffiliateDashboard'
 
 export const FirmAffiliatePage = () => {
 
@@ -15,7 +15,7 @@ export const FirmAffiliatePage = () => {
             <AppNav active="More" activeSubmenu="Affiliate Dashboard" hideAnnouncement={true} />
             <ErrorBoundary>
                 <VStack w='full' maxW="1200px" mt="4">
-                    <FirmUsers />
+                    <FirmAffiliateDashboard />
                 </VStack>
             </ErrorBoundary>
         </Layout>
