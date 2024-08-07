@@ -81,8 +81,9 @@ export const useFirmUsers = (): SWR & {
 
   const uniqueUsers = [...new Set(positions.map(d => d.user))];
   const now = Date.now();
-  const positionsAggregatedByUser = uniqueUsers.map(user => {
+  const positionsAggregatedByUser = uniqueUsers.map(user => {    
     const userPositions = positions.filter(p => p.user === user).sort((a, b) => b.debt - a.debt);
+    const dueTokensAccrued = userPositions[0]?.dueTokensAccrued||0;
     const debt = userPositions.reduce((prev, curr) => prev + (curr.debt), 0);
     const creditLimit = userPositions.reduce((prev, curr) => prev + (curr.creditLimit), 0);
     const liquidatableDebt = userPositions.reduce((prev, curr) => prev + (curr.liquidatableDebt), 0);
@@ -104,6 +105,7 @@ export const useFirmUsers = (): SWR & {
       stakedInv: userPositions.filter(p => p.market.isInv).reduce((prev, curr) => prev + (curr.deposits), 0),
       stakedInvUsd: userPositions.filter(p => p.market.isInv).reduce((prev, curr) => prev + (curr.tvl), 0),
       dailyBurn,
+      dueTokensAccrued,
       dbrNbDaysExpiry,
       dbrExpiryDate,
       dbrSignedBalance: dbrPos?.signedBalance || 0,

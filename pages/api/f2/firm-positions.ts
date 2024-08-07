@@ -94,13 +94,16 @@ export default async function handler(req, res) {
 
     dbrUsers = [...new Set(dbrUsers)];
 
-    const [dbrSignedBalanceBn, totalDebtsBn] = await getGroupedMulticallOutputs(
+    const [dbrSignedBalanceBn, totalDebtsBn, dueTokensAccruedBn] = await getGroupedMulticallOutputs(
       [
         dbrUsers.map(u => {
           return { contract: dbrContract, functionName: 'signedBalanceOf', params: [u] }
         }),
         dbrUsers.map(u => {
           return { contract: dbrContract, functionName: 'debts', params: [u] }
+        }),
+        dbrUsers.map(u => {
+          return { contract: dbrContract, functionName: 'dueTokensAccrued', params: [u] }
         }),
       ]
     );
@@ -139,6 +142,7 @@ export default async function handler(req, res) {
         debt: debts[i],
         totalDebt: getBnToNumber(totalDebtsBn[dbrIdx]),
         dbrBalance: getBnToNumber(dbrSignedBalanceBn[dbrIdx]),
+        dueTokensAccrued: getBnToNumber(dueTokensAccruedBn[dbrIdx]),
       }
     });
 
