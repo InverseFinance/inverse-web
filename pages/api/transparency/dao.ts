@@ -232,7 +232,7 @@ export default async function handler(req, res) {
             const isTWGtype = m.shortName.includes('TWG');
             if (
               // reduce numbers of check
-              (!isTWGtype && m.shortName !== 'BBP' && !['DOLA', 'INV'].includes(token?.symbol))
+              (!isTWGtype && m.shortName !== 'BBP' && !['DOLA', 'INV', 'DBR'].includes(token?.symbol))
               || (m.shortName === 'BBP' && !['DOLA', 'INV', 'USDC', 'USDT', 'DAI'].includes(token?.symbol))
               || (['TWG on FTM', 'TWG on OP', 'TWG on BSC', 'TWG on ARB 1', 'TWG on ARB 2', 'AWG', 'RWG', 'FedChair'].includes(m.shortName))
               // skip yearn vaults
