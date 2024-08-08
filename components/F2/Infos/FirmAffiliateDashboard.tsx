@@ -181,8 +181,8 @@ export const FirmAffiliateDashboard = ({
             {/* <StatBasic isLoading={isLoading} name="Borrowers" value={`${preciseCommify(nbBorrowers, 0)}`} /> */}
             <StatBasic isLoading={isLoading} name="DBR Monthly Spending" value={`${smartShortNumber(monthlySpending, 2)} (${smartShortNumber(monthlySpending * dbrPriceUsd, 2, true)})`} />
             <StatBasic isLoading={isLoading} name="DBR Monthly Reward" value={`${smartShortNumber(monthlyReward, 2)} (${smartShortNumber(monthlyReward * dbrPriceUsd, 2, true)})`} />
-            <StatBasic isLoading={isLoading} name="Total DBR spent" value={`${smartShortNumber(totalDbrAccrued, 2)} (${smartShortNumber(totalDbrAccrued * dbrPriceUsd, 2, true)})`} />
-            <StatBasic isLoading={isLoading} name="Total DBR rewards" value={`${smartShortNumber(totalAffiliateReward, 2)} (${smartShortNumber(totalAffiliateReward * dbrPriceUsd, 2, true)})`} />
+            <StatBasic isLoading={isLoading} name="Acc. DBR spending" value={`${smartShortNumber(totalDbrAccrued, 2)} (${smartShortNumber(totalDbrAccrued * dbrPriceUsd, 2, true)})`} />
+            <StatBasic isLoading={isLoading} name="Acc. DBR rewards" value={`${smartShortNumber(totalAffiliateReward, 2)} (${smartShortNumber(totalAffiliateReward * dbrPriceUsd, 2, true)})`} />
         </SimpleGrid>
         <Container
             py="0"
