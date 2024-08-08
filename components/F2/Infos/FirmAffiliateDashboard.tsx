@@ -11,11 +11,11 @@ import Table from "@app/components/common/Table";
 import { SkeletonBlob } from "@app/components/common/Skeleton";
 import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader";
 import { MarketImage } from "@app/components/common/Assets/MarketImage";
-import { preciseCommify } from "@app/util/misc";
 import { FirmUserModal } from "./FirmUserModal";
 import { useDBRPrice } from "@app/hooks/useDBR";
 import { useAccount } from "@app/hooks/misc";
 import { Timestamp } from "@app/components/common/BlockTimestamp/Timestamp";
+import { commify } from "@ethersproject/units";
 
 const StatBasic = ({ value, name, onClick = undefined, isLoading = false }: { value: string, onClick?: () => void, name: string, isLoading?: boolean }) => {
     return <VStack>
@@ -104,18 +104,18 @@ const columns = [
         },
     },
     {
-        field: 'dueTokensAccrued',
+        field: 'accSinceRef',
         label: 'Acc. DBR spent',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        value: ({ dueTokensAccrued }) => {
+        value: ({ accSinceRef }) => {
             return <Cell minWidth="100px" justify="center">
-                <CellText>{dueTokensAccrued > 0 ? shortenNumber(dueTokensAccrued, 2) : '-'}</CellText>
+                <CellText>{accSinceRef > 0 ? shortenNumber(accSinceRef, 2) : '-'}</CellText>
             </Cell>
         },
     },
     {
         field: 'affiliateReward',
-        label: 'Your DBR reward',
+        label: 'Acc. DBR reward',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ affiliateReward }) => {
             return <Cell minWidth="100px" justify="center">
@@ -135,6 +135,39 @@ const columns = [
     },
 ]
 
+const columnsPayments = [
+    {
+        field: 'txHash',
+        label: 'Transaction',
+        header: ({ ...props }) => <ColHeader justify="flex-start" {...props} minWidth="130px" />,
+        value: ({ txHash }) => {
+            return <Cell w="130px" justify="flex-start" position="relative" onClick={(e) => e.stopPropagation()}>
+                <ScannerLink value={txHash} type="tx" />
+            </Cell>
+        },
+        showFilter: true,
+        filterWidth: '100px',
+    },
+    {
+        field: 'timestamp',
+        label: 'Date',
+        header: ({ ...props }) => <ColHeader justify="flex-start" minWidth={'100px'} {...props} />,
+        value: ({ timestamp }) => <Cell justify="flex-start" minWidth="100px">
+            <Timestamp timestamp={timestamp} text1Props={{ fontSize: '12px' }} text2Props={{ fontSize: '12px' }} />
+        </Cell>,
+    },
+    {
+        field: 'amount',
+        label: 'Amount',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        value: ({ amount }) => {
+            return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
+                <CellText>{amount > 0 ? commify(amount, 2, true) : '-'}</CellText>
+            </Cell>
+        },
+    },
+]
+
 export const FirmAffiliateDashboard = ({
 
 }: {
@@ -142,15 +175,22 @@ export const FirmAffiliateDashboard = ({
     }) => {
     const account = useAccount();
     const { priceUsd: dbrPriceUsd } = useDBRPrice();
-    const { referrals, referralAddresses } = useFirmAffiliate(account);
+    const { referrals, referralAddresses, affiliatePaymentEvents } = useFirmAffiliate(account);
     const { userPositions, timestamp, isLoading } = useFirmUsers();
 
     const referredPositions = userPositions
         .filter(up => referralAddresses.includes(up.user))
         .map(up => {
-            const refData = referrals.find(rd => rd.referred === up.user)
-            return { ...up, affiliateReward: (up.dueTokensAccrued || 0) * 0.1, refTimestamp: refData?.timestamp }
-        })
+            const refData = referrals.find(rd => rd.referred === up.user);
+            const accSinceRef = (up.dueTokensAccrued - refData.beforeReferralDueTokensAccrued);
+            const affiliateReward = accSinceRef * 0.1;
+            return {
+                ...up,
+                affiliateReward,
+                accSinceRef,
+                refTimestamp: refData?.timestamp,
+            }
+        });
 
     const { onOpen, onClose, isOpen } = useDisclosure();
     const [position, setPosition] = useState(null);
@@ -166,7 +206,10 @@ export const FirmAffiliateDashboard = ({
     const totalTvl = referredPositions.reduce((prev, curr) => prev + (curr.depositsUsd), 0);
     const totalDebt = referredPositions.reduce((prev, curr) => prev + curr.debt, 0);
     const totalAffiliateReward = referredPositions.reduce((prev, curr) => prev + curr.affiliateReward, 0);
-    const totalDbrAccrued = referredPositions.reduce((prev, curr) => prev + curr.dueTokensAccrued, 0);
+    const totalDbrAccrued = referredPositions.reduce((prev, curr) => prev + curr.accSinceRef, 0);
+    const totalDbrPaid = affiliatePaymentEvents
+        .filter(e => e.affiliate === account)
+        .reduce((prev, curr) => prev + curr.amount, 0);
 
     const monthlySpending = totalDebt / 12;
     const monthlyReward = monthlySpending * 0.1;
@@ -175,15 +218,18 @@ export const FirmAffiliateDashboard = ({
         {
             !!position && <FirmUserModal userData={position} isOpen={isOpen} onClose={onClose} />
         }
-        <SimpleGrid justify="space-between" w='full' columns={{ base: 2, sm: 4 }} spacing={{ base: '4', sm: '6' }}>
-            {/* <StatBasic isLoading={isLoading} name="Users" value={`${preciseCommify(nbUsers, 0)}`} /> */}
-            {/* <StatBasic isLoading={isLoading} name="Stakers" value={`${preciseCommify(nbStakers, 0)}`} /> */}
-            {/* <StatBasic isLoading={isLoading} name="Borrowers" value={`${preciseCommify(nbBorrowers, 0)}`} /> */}
-            <StatBasic isLoading={isLoading} name="DBR Monthly Spending" value={`${smartShortNumber(monthlySpending, 2)} (${smartShortNumber(monthlySpending * dbrPriceUsd, 2, true)})`} />
-            <StatBasic isLoading={isLoading} name="DBR Monthly Reward" value={`${smartShortNumber(monthlyReward, 2)} (${smartShortNumber(monthlyReward * dbrPriceUsd, 2, true)})`} />
-            <StatBasic isLoading={isLoading} name="Acc. DBR spending" value={`${smartShortNumber(totalDbrAccrued, 2)} (${smartShortNumber(totalDbrAccrued * dbrPriceUsd, 2, true)})`} />
-            <StatBasic isLoading={isLoading} name="Acc. DBR rewards" value={`${smartShortNumber(totalAffiliateReward, 2)} (${smartShortNumber(totalAffiliateReward * dbrPriceUsd, 2, true)})`} />
+        <SimpleGrid justify="space-between" w='full' columns={{ base: 2, sm: 4 }}  spacing={{ base: '4', sm: '6' }}>
+            <StatBasic isLoading={isLoading} name="DBR price" value={`${smartShortNumber(dbrPriceUsd, 4, true)}`} />
+            <StatBasic isLoading={isLoading} name="Affiliate Reward" value={`10%`} />
+            <StatBasic isLoading={isLoading} name="DBR Monthly Reward" value={!monthlyReward ? '-' : `${smartShortNumber(monthlyReward, 2)} (${smartShortNumber(monthlyReward * dbrPriceUsd, 2, true)})`} />
+            <StatBasic isLoading={isLoading} name="Acc. DBR rewards" value={!totalAffiliateReward ? '-' : `${smartShortNumber(totalAffiliateReward, 2)} (${smartShortNumber(totalAffiliateReward * dbrPriceUsd, 2, true)})`} />
         </SimpleGrid>
+        {/* <SimpleGrid justify="space-between" w='full' columns={{ base: 2, sm: 4 }} spacing={{ base: '4', sm: '6' }}>
+            <StatBasic isLoading={isLoading} name="DBR Monthly Spending" value={`${smartShortNumber(monthlySpending, 2)} (${smartShortNumber(monthlySpending * dbrPriceUsd, 2, true)})`} />
+            
+            <StatBasic isLoading={isLoading} name="Acc. DBR spending" value={`${smartShortNumber(totalDbrAccrued, 2)} (${smartShortNumber(totalDbrAccrued * dbrPriceUsd, 2, true)})`} />
+            
+        </SimpleGrid> */}
         <Container
             py="0"
             label="Referred Users"
@@ -223,6 +269,43 @@ export const FirmAffiliateDashboard = ({
                         items={referredPositions}
                         onClick={openUserDetails}
                         defaultSort="affiliateReward"
+                        defaultSortDir="desc"
+                    />
+            }
+        </Container>
+        <Container
+            py="0"
+            label="Reward Payments"
+            description={timestamp ? `Last update ${moment(timestamp).fromNow()}` : `Loading...`}
+            contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
+            headerProps={{
+                direction: { base: 'column', md: 'row' },
+                align: { base: 'flex-start', md: 'flex-end' },
+            }}
+            right={
+                <HStack justify="space-between" spacing="4">
+                    <VStack alignItems="flex-end">
+                        <Text textAlign="right" fontWeight="bold">Total Rewards Paid</Text>
+                        {
+                            isLoading ? <SmallTextLoader width={'50px'} />
+                                : <Text textAlign="right" color="secondaryTextColor">
+                                    {shortenNumber(totalDbrPaid, 2)} DBR
+                                </Text>
+                        }
+                    </VStack>
+                </HStack>
+            }
+        >
+            {
+                isLoading ?
+                    <SkeletonBlob />
+                    :
+                    <Table
+                        keyName="transactionHash"
+                        noDataMessage="No payments made yet"
+                        columns={columnsPayments}
+                        items={affiliatePaymentEvents}
+                        defaultSort="blockNumber"
                         defaultSortDir="desc"
                     />
             }

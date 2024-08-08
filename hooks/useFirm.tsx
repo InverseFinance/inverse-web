@@ -866,9 +866,11 @@ export const useFirmLiquidations = (user?: string): SWR & {
 }
 
 export const useFirmAffiliate = (affiliate: string) => {
-  const { data, error } = useCustomSWR(!affiliate ? '-' : `/api/referral?affiliate=${affiliate}`, fetcher);
+  const { data, error } = useCustomSWR(`/api/referral`, fetcher);
+  const referrals = (data?.referrals || []).filter(d => affiliate === 'all' || d.affiliate === affiliate);
   return {
-    referrals: data?.referrals || [],
-    referralAddresses: data?.referralAddresses || [],
+    referrals,
+    referralAddresses: referrals.map(d => d.referred),
+    affiliatePaymentEvents: data?.affiliatePaymentEvents || [],
   }
 }
