@@ -1,4 +1,4 @@
-import { Flex, HStack, SimpleGrid, Stack, Text, VStack } from "@chakra-ui/react"
+import { Flex, HStack, SimpleGrid, Stack, Text, useDisclosure, VStack } from "@chakra-ui/react"
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useFirmAffiliate, useFirmUsers } from "@app/hooks/useFirm";
@@ -12,6 +12,9 @@ import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader"
 import { useDBRPrice } from "@app/hooks/useDBR";
 import { Timestamp } from "@app/components/common/BlockTimestamp/Timestamp";
 import { commify } from "@ethersproject/units";
+import InfoModal from "@app/components/common/Modal/InfoModal";
+import { useState } from "react";
+import { ReferredUsersTable } from "./FirmAffiliateDashboard";
 
 const StatBasic = ({ value, name, onClick = undefined, isLoading = false }: { value: string, onClick?: () => void, name: string, isLoading?: boolean }) => {
     return <VStack>
@@ -42,7 +45,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader justify="flex-start" {...props} minWidth="130px" />,
         value: ({ affiliate }) => {
             return <Cell w="130px" justify="flex-start" position="relative" onClick={(e) => e.stopPropagation()}>
-                <Link isExternal href={`/firm?viewAddress=${affiliate}`}>
+                <Link isExternal href={`/partners/affiliate?viewAddress=${affiliate}`}>
                     <ViewIcon color="blue.600" boxSize={3} />
                 </Link>
                 <ScannerLink value={affiliate} />
@@ -149,6 +152,8 @@ export const FirmAffiliateList = ({
     const { priceUsd: dbrPriceUsd } = useDBRPrice();
     const { referrals, referralAddresses, affiliatePaymentEvents, affiliateAddresses } = useFirmAffiliate('all');
     const { userPositions, timestamp, isLoading } = useFirmUsers();
+    const [selectedAffiliate, setSelectedAffiliate] = useState('');
+    const { isOpen, onOpen, onClose } = useDisclosure();
 
     const referredPositions = userPositions
         .filter(up => referralAddresses.includes(up.user))
@@ -183,7 +188,9 @@ export const FirmAffiliateList = ({
     const totalDebt = referredPositions.reduce((prev, curr) => prev + curr.debt, 0);
     const totalAffiliateRewards = referredPositions.reduce((prev, curr) => prev + curr.affiliateReward, 0);    
     const totalPaidRewards = referredPositions.reduce((prev, curr) => prev + curr.paidRewards, 0);    
-    const totalPendingRewards = referredPositions.reduce((prev, curr) => prev + curr.pendingRewards, 0);    
+    const totalPendingRewards = referredPositions.reduce((prev, curr) => prev + curr.pendingRewards, 0);
+    
+    const selectedAffiliateReferrals = referredPositions.filter(rp => rp.affiliate === selectedAffiliate);
 
     return <VStack w='full' spacing={{ base: '4', sm: '8' }}>
         <SimpleGrid justify="space-between" w='full' columns={{ base: 2, sm: 4 }}  spacing={{ base: '4', sm: '6' }}>
@@ -192,6 +199,9 @@ export const FirmAffiliateList = ({
             <StatBasic isLoading={isLoading} name="Paid rewards" value={!totalPaidRewards ? '-' : `${smartShortNumber(totalPaidRewards, 2)} (${smartShortNumber(totalPaidRewards * dbrPriceUsd, 2, true)})`} />
             <StatBasic isLoading={isLoading} name="Pending rewards" value={!totalPendingRewards ? '-' : `${smartShortNumber(totalPendingRewards, 2)} (${smartShortNumber(totalPendingRewards * dbrPriceUsd, 2, true)})`} />
         </SimpleGrid>
+        <InfoModal modalProps={{ minW: { base: '98vw', xl: '1200px' } }} title="Affiliate Referrals" isOpen={isOpen} onClose={onClose} onOk={onClose}>
+            <ReferredUsersTable referredPositions={selectedAffiliateReferrals} />
+        </InfoModal>
         <Container
             py="0"
             label="Affiliates"
@@ -207,10 +217,14 @@ export const FirmAffiliateList = ({
                     <SkeletonBlob />
                     :
                     <Table
-                        keyName="user"
+                        keyName="affiliate"
                         noDataMessage="No affiliates yet"
                         columns={columns}
                         items={affiliateList}
+                        onClick={(item) => {
+                            setSelectedAffiliate(item.affiliate);
+                            onOpen();
+                        }}
                         defaultSort="affiliateRewards"
                         defaultSortDir="desc"
                     />
@@ -218,7 +232,7 @@ export const FirmAffiliateList = ({
         </Container>
         <Container
             py="0"
-            label="Reward Payments"
+            label="Reward Payments by GWG"
             description={timestamp ? `Last update ${moment(timestamp).fromNow()}` : `Loading...`}
             contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
             headerProps={{
