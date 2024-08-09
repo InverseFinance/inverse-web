@@ -57,7 +57,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ nbReferred }) => {
             return <Cell minWidth="100px" justify="center">
-                <CellText>{nbReferred > 0 ? shortenNumber(nbReferred, 2) : '-'}</CellText>
+                <CellText>{nbReferred > 0 ? nbReferred : '-'}</CellText>
             </Cell>
         },
     },
@@ -194,31 +194,13 @@ export const FirmAffiliateList = ({
         </SimpleGrid>
         <Container
             py="0"
-            label="Referred Users"
+            label="Affiliates"
             description={timestamp ? `Last update ${moment(timestamp).fromNow()}` : `Loading...`}
             contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
             headerProps={{
                 direction: { base: 'column', md: 'row' },
                 align: { base: 'flex-start', md: 'flex-end' },
             }}
-            right={
-                <HStack justify="space-between" spacing="4">
-                    <VStack alignItems="center">
-                        <Text textAlign="center" fontWeight="bold">Deposits</Text>
-                        {
-                            isLoading ? <SmallTextLoader width={'50px'} />
-                                : <Text textAlign="center" color="secondaryTextColor">{shortenNumber(totalTvl, 2, true)}</Text>
-                        }
-                    </VStack>
-                    <VStack alignItems="flex-end">
-                        <Text textAlign="right" fontWeight="bold">Debt</Text>
-                        {
-                            isLoading ? <SmallTextLoader width={'50px'} />
-                                : <Text textAlign="right" color="secondaryTextColor">{shortenNumber(totalDebt, 2, 0)}</Text>
-                        }
-                    </VStack>
-                </HStack>
-            }
         >
             {
                 isLoading ?

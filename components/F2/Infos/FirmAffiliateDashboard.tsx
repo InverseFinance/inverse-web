@@ -168,6 +168,20 @@ const columnsPayments = [
     },
 ]
 
+export const ReferredUsersTable = ({
+    referredPositions,
+}) => {
+    return <Table
+        keyName="user"
+        noDataMessage="No confirmed referred user yet"
+        columns={columns}
+        items={referredPositions}
+        // onClick={openUserDetails}
+        defaultSort="affiliateReward"
+        defaultSortDir="desc"
+    />
+}
+
 export const FirmAffiliateDashboard = ({
 
 }: {
@@ -218,7 +232,7 @@ export const FirmAffiliateDashboard = ({
         {
             !!position && <FirmUserModal userData={position} isOpen={isOpen} onClose={onClose} />
         }
-        <SimpleGrid justify="space-between" w='full' columns={{ base: 2, sm: 4 }}  spacing={{ base: '4', sm: '6' }}>
+        <SimpleGrid justify="space-between" w='full' columns={{ base: 2, sm: 4 }} spacing={{ base: '4', sm: '6' }}>
             <StatBasic isLoading={isLoading} name="DBR price" value={`${smartShortNumber(dbrPriceUsd, 4, true)}`} />
             <StatBasic isLoading={isLoading} name="Affiliate Reward" value={`10%`} />
             <StatBasic isLoading={isLoading} name="DBR Monthly Reward" value={!monthlyReward ? '-' : `${smartShortNumber(monthlyReward, 2)} (${smartShortNumber(monthlyReward * dbrPriceUsd, 2, true)})`} />
@@ -262,15 +276,7 @@ export const FirmAffiliateDashboard = ({
                 isLoading ?
                     <SkeletonBlob />
                     :
-                    <Table
-                        keyName="user"
-                        noDataMessage="No confirmed referred user yet"
-                        columns={columns}
-                        items={referredPositions}
-                        onClick={openUserDetails}
-                        defaultSort="affiliateReward"
-                        defaultSortDir="desc"
-                    />
+                    <ReferredUsersTable referredPositions={referredPositions} />
             }
         </Container>
         <Container
