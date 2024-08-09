@@ -872,5 +872,6 @@ export const useFirmAffiliate = (affiliate: string) => {
     referrals,
     referralAddresses: referrals.map(d => d.referred),
     affiliatePaymentEvents: data?.affiliatePaymentEvents || [],
+    affiliateAddresses: data?.affiliateAddresses || [],
   }
 }
