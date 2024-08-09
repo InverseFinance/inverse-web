@@ -6,7 +6,7 @@ import { getBnToNumber } from '@app/util/markets';
 import { verifyMultisigMessage } from '@app/util/multisig';
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { getProvider } from '@app/util/providers';
-import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
+import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis';
 import { Contract } from 'ethers';
 import { verifyMessage, hashMessage, isAddress } from 'ethers/lib/utils';
 
@@ -20,8 +20,10 @@ export default async function handler(req, res) {
 
     const { r, account, csv } = query;
 
-    const key = `referrals`;
-    const cachedResult = await getCacheFromRedis(key, false, 600);
+    const referralsKey = `referrals`;
+    const apiDataKey = `affiliation-v1.0.0`;
+    const referralData = await getCacheFromRedis(referralsKey, false, 600);
+    const { data: cachedResult, isValid: isCacheValid } = await getCacheFromRedisAsObj(apiDataKey, true, 60);
 
     const provider = getProvider(NetworkIds.mainnet);
 
@@ -29,7 +31,7 @@ export default async function handler(req, res) {
         case 'GET':
             if (csv === 'true') {
                 let CSV = `Account,Referrer,Date\n`;
-                const arr = Object.entries(cachedResult?.referrals || []);
+                const arr = Object.entries(referralData?.referrals || []);
                 arr.forEach(([account, accountRefData]) => {
                     CSV += `${account.toLowerCase()},${accountRefData.affiliate.toLowerCase()},${(new Date(accountRefData.timestamp).toUTCString()).replace(/,/g, '')}\n`;
                 });
@@ -38,7 +40,10 @@ export default async function handler(req, res) {
                 res.status(200).send(CSV);
                 return;
             }
-            const affiliateReferrals = Object.entries(cachedResult?.referrals || {})
+            if(isCacheValid) {
+                return res.status(200).json(cachedResult);
+            }
+            const affiliateReferrals = Object.entries(referralData?.referrals || {})
                 .map(([referred, refData]) => ({
                     referred,
                     affiliate: refData.affiliate,
@@ -73,19 +78,21 @@ export default async function handler(req, res) {
                 }
             });
 
-            return res.status(200).json({
+            const affiliateResults = {
                 timestamp: Date.now(),
                 referrals: affiliateReferrals,
                 affiliateAddresses: affiliates,
                 affiliatePaymentEvents,
-            });
+            };
+            await redisSetWithTimestamp(apiDataKey, affiliateResults);
+            return res.status(200).json(affiliateResults);
             break
         case 'POST':
 
             if (!r || !isAddress(r) || r === BURN_ADDRESS || !account || !isAddress(account) || account === BURN_ADDRESS || r.toLowerCase() === account.toLowerCase()) {
                 res.status(400).json({ status: 'error', message: 'Invalid address' });
                 return;
-            } else if (!!cachedResult?.referrals[account]) {
+            } else if (!!referralData?.referrals[account]) {
                 return res.status(400).json({ status: 'error', message: 'A referral has been already registered' });
             }
 
@@ -131,7 +138,7 @@ export default async function handler(req, res) {
                 },
             };
 
-            await redisSetWithTimestamp(key, result);
+            await redisSetWithTimestamp(referralsKey, result);
             res.status(200).json(result);
             break
         default:
