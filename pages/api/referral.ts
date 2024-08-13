@@ -1,8 +1,9 @@
 import { getReferralMsg } from '@app/components/common/Modal/ReferralModal';
 import { DBR_ABI } from '@app/config/abis';
-import { BURN_ADDRESS } from '@app/config/constants';
+import { BURN_ADDRESS, ONE_DAY_MS } from '@app/config/constants';
 import { NetworkIds } from '@app/types';
 import { getBnToNumber } from '@app/util/markets';
+import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { verifyMultisigMessage } from '@app/util/multisig';
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { getProvider } from '@app/util/providers';
@@ -40,7 +41,7 @@ export default async function handler(req, res) {
                 res.status(200).send(CSV);
                 return;
             }
-            if(isCacheValid) {
+            if (isCacheValid) {
                 return res.status(200).json(cachedResult);
             }
             const affiliateReferrals = Object.entries(referralData?.referrals || {})
@@ -122,11 +123,26 @@ export default async function handler(req, res) {
                 }
             };
 
-            const blockNumber = await provider.getBlockNumber();
-            const beforeReferralDueTokensAccrued = getBnToNumber((await dbrContract.dueTokensAccrued(sigAddress)));
+            const block = await provider.getBlock('latest');
+            const { number: blockNumber, timestamp: blockTs } = block;
+            const now = blockTs * 1000;
+
+            const [
+                lastUpdated,
+                debt,
+                dueTokensAccrued,
+            ] = await getGroupedMulticallOutputs([
+                { contract: dbrContract, functionName: 'lastUpdated', params: [sigAddress] },
+                { contract: dbrContract, functionName: 'debts', params: [sigAddress] },
+                { contract: dbrContract, functionName: 'dueTokensAccrued', params: [sigAddress] },
+            ]);
+
+            const lastUpdatedMs = getBnToNumber(lastUpdated, 0) * 1000;
+            const dueTokensAccruedSinceLastUpdate = (now - lastUpdatedMs) * getBnToNumber(debt) / ONE_DAY_MS * 365;
+            const beforeReferralDueTokensAccrued = getBnToNumber(dueTokensAccrued) + dueTokensAccruedSinceLastUpdate;
 
             const result = {
-                timestamp: Date.now(),
+                timestamp: now,
                 referrals: {
                     ...cachedResult?.referrals,
                     [sigAddress]: {
