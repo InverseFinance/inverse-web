@@ -14,7 +14,7 @@ import { FEATURE_FLAGS } from '@app/config/features';
 import { getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
 
 const { F2_MARKETS, DOLA, XINV, DBR_DISTRIBUTOR, FEDS } = getNetworkConfigConstants();
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.2.3`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.2.4`;
 
 export default async function handler(req, res) {
   const { cacheFirst } = req.query;
@@ -150,10 +150,12 @@ export default async function handler(req, res) {
       getStCvxData(),
       getStYethData(),
       getSFraxData(provider),
-      getSUSDEData(),
+      // getSUSDEData(),
     ]);
 
-    let [stethData, stYcrvData, cvxCrvData, cvxFxsData, dsrData, stCvxData, stYethData, sFraxData, sUSDEData] = externalYieldResults.map(r => {
+    let [stethData, stYcrvData, cvxCrvData, cvxFxsData, dsrData, stCvxData, stYethData, sFraxData, 
+      // sUSDEData,
+    ] = externalYieldResults.map(r => {
       return r.status === 'fulfilled' ? r.value : {};
     });
 
@@ -177,7 +179,8 @@ export default async function handler(req, res) {
       'CVX': stCvxData?.apy || 0,
       'st-yETH': stYethData?.apy || 0,
       'sFRAX': sFraxData?.apy || 0,
-      'sUSDE': sUSDEData?.apy || 0,
+      // temp - ethenaapi throws forbidden from prod env
+      'sUSDe': 3.7857142857142856,//sUSDEData?.apy || 0,
     };
 
     const xinvExRate = getBnToNumber(xinvExRateBn);

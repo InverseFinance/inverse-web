@@ -114,10 +114,10 @@ export const MARKET_INFOS = {
         description: 'COMP is the native platform token for Compound Finance, when depositing COMP on FiRM you keep your Governance Rights thanks to the Personal Collateral Escrow design.',
         getLink: 'https://swap.defillama.com/?chain=ethereum&from=0x865377367054516e17014ccded1e7d814edc9ce4&tab=swap&to=0xc00e94cb662c3520282e6f5717214004a7f26888',
     },
-    'sUSDE': {
-        name: 'sUSDE',
-        fullname: 'Staked USDE',
-        description: 'sUSDE is staked USDE which is a synthetic stablecoin by etherfi, backed with crypto assets and corresponding short futures positions.',
+    'sUSDe': {
+        name: 'sUSDe',
+        fullname: 'Staked sUSDe',
+        description: 'sUSDe is staked USDe which is a synthetic stablecoin by etherfi, backed with crypto assets and corresponding short futures positions.',
         getLink: 'https://app.ethena.fi/stake',
     },
 }
