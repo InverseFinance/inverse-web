@@ -282,7 +282,7 @@ const mainConfig = {
             underlyingSymbol: 'USDE',
             badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },
             isERC4626Collateral: true,
-            startingBlock: 20518365,
+            startingBlock: 20519771,
             isInv: false,
         },
     ],
