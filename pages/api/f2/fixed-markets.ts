@@ -180,7 +180,7 @@ export default async function handler(req, res) {
       'st-yETH': stYethData?.apy || 0,
       'sFRAX': sFraxData?.apy || 0,
       // temp - ethenaapi throws forbidden from prod env
-      'sUSDE': 3.7857142857142856,//sUSDEData?.apy || 0,
+      'sUSDe': 3.7857142857142856,//sUSDEData?.apy || 0,
     };
 
     const xinvExRate = getBnToNumber(xinvExRateBn);
