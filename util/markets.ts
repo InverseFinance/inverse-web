@@ -202,8 +202,14 @@ export const getSUSDEData = async () => {
     try {
         const results = await fetch('https://app.ethena.fi/api/yields/protocol-and-staking-yield');
         const data = await results.json();
+        console.log('susde test', data)
+        if(!results.stakingYield) {
+            console.log(results);
+        }
         return { apy: data.stakingYield.value };
-    } catch (e) { console.log(e) }
+    } catch (e) { 
+        console.log('usde err', e)
+    }
     return [];
 }
 
