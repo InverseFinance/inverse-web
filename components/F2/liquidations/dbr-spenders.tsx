@@ -13,6 +13,8 @@ import Table from "@app/components/common/Table";
 import { useDBRPrice } from "@app/hooks/useDBR";
 import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader";
 import { DbrHistoBalanceModal } from "../Infos/DbrHistoBalanceModal";
+import { useNamedAddress } from "@app/hooks/useNamedAddress";
+import { shortenAddress } from "@app/util";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -34,6 +36,16 @@ const StatBasic = ({ value, name, isLoading = false }: { value: string, name: st
         }
         <Text textAlign="center" color={'mainTextColor'} fontSize={{ base: '14px', sm: '16px' }} fontWeight="bold">{name}</Text>
     </VStack>
+}
+
+const Spender = ({user}) => {
+    const { addressName } = useNamedAddress(user);
+    return <Cell w="100px" justify="flex-start" position="relative" onClick={(e) => e.stopPropagation()}>
+        <Link isExternal href={`/firm?viewAddress=${user}`}>
+            <ViewIcon color="blue.600" boxSize={3} />
+        </Link>
+        <ScannerLink value={user} label={addressName||shortenAddress(user)} />
+    </Cell>
 }
 
 export const DbrSpenders = ({
@@ -58,14 +70,7 @@ export const DbrSpenders = ({
             field: 'user',
             label: 'Borrower',
             header: ({ ...props }) => <ColHeader justify="flex-start" {...props} minWidth="100px" />,
-            value: ({ user }) => {
-                return <Cell w="100px" justify="flex-start" position="relative" onClick={(e) => e.stopPropagation()}>
-                    <Link isExternal href={`/firm?viewAddress=${user}`}>
-                        <ViewIcon color="blue.600" boxSize={3} />
-                    </Link>
-                    <ScannerLink value={user} />
-                </Cell>
-            },
+            value: ({ user }) => <Spender user={user} />,
             showFilter: true,
             filterWidth: '100px',
         },
