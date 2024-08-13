@@ -5,7 +5,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
-import { CHAIN_ID } from '@app/config/constants';
+import { CHAIN_ID, ONE_DAY_MS } from '@app/config/constants';
 import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
 import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
 import { uniqueBy } from '@app/util/misc';
@@ -13,7 +13,7 @@ import { getGroupedMulticallOutputs } from '@app/util/multicall';
 
 const { F2_MARKETS, DBR } = getNetworkConfigConstants();
 
-export const F2_POSITIONS_CACHE_KEY = 'f2positions-v1.0.91'
+export const F2_POSITIONS_CACHE_KEY = 'f2positions-v1.0.92'
 export const F2_UNIQUE_USERS_CACHE_KEY = 'f2unique-users-v1.0.91'
 
 export const getFirmMarketUsers = async (provider) => {
@@ -94,7 +94,7 @@ export default async function handler(req, res) {
 
     dbrUsers = [...new Set(dbrUsers)];
 
-    const [dbrSignedBalanceBn, totalDebtsBn, dueTokensAccruedBn] = await getGroupedMulticallOutputs(
+    const [dbrSignedBalanceBn, totalDebtsBn, dueTokensAccruedBn, lastUpdated] = await getGroupedMulticallOutputs(
       [
         dbrUsers.map(u => {
           return { contract: dbrContract, functionName: 'signedBalanceOf', params: [u] }
@@ -104,6 +104,9 @@ export default async function handler(req, res) {
         }),
         dbrUsers.map(u => {
           return { contract: dbrContract, functionName: 'dueTokensAccrued', params: [u] }
+        }),
+        dbrUsers.map(u => {
+          return { contract: dbrContract, functionName: 'lastUpdated', params: [u] }
         }),
       ]
     );
@@ -132,17 +135,23 @@ export default async function handler(req, res) {
     const debts = debtsBn.map((bn) => getBnToNumber(bn));
     const creditLimits = creditLimitsBn.map((bn) => getBnToNumber(bn));
     const liquidableDebts = creditLimits.map((creditLimit, i) => (creditLimit >= debts[i] ? 0 : debts[i] * (_markets[firmMarketUsers[i].marketIndex]?.liquidationFactor || 0.5)));
+    const now = Date.now();
 
     const positions = firmMarketUsers.map((f, i) => {
       const dbrIdx = dbrUsers.findIndex(du => du === f.user);
+      const lastUpdatedMs = getBnToNumber(lastUpdated, 0) * 1000;
+      const dueTokensStored = getBnToNumber(dueTokensAccruedBn[dbrIdx]);
+      const totalDebt = getBnToNumber(totalDebtsBn[dbrIdx]);
       return {
         ...f,
         liquidatableDebt: liquidableDebts[i],
         deposits: deposits[i],
         debt: debts[i],
-        totalDebt: getBnToNumber(totalDebtsBn[dbrIdx]),
+        totalDebt: totalDebt,
         dbrBalance: getBnToNumber(dbrSignedBalanceBn[dbrIdx]),
-        dueTokensAccrued: getBnToNumber(dueTokensAccruedBn[dbrIdx]),
+        dueTokensAccruedStored: dueTokensStored,
+        dueTokensAccrued: dueTokensStored+ (now - lastUpdatedMs) * totalDebt / 365 * ONE_DAY_MS,
+        lastAccrualUpdate: lastUpdatedMs,
       }
     });
 
@@ -150,7 +159,7 @@ export default async function handler(req, res) {
       nbUniqueUsers: uniqueBy(positions, (a, b) => a.user === b.user).length,
       positions: positions.filter((p, i) => p.debt > 0 || (p.deposits * _markets[firmMarketUsers[i].marketIndex].price >= 1)),
       // marketUsersAndEscrows,
-      timestamp: +(new Date()),
+      timestamp: now,
     }
 
     await redisSetWithTimestamp(F2_POSITIONS_CACHE_KEY, resultData);
