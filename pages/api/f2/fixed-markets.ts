@@ -5,7 +5,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { TOKENS } from '@app/variables/tokens'
-import { getBnToNumber, getCvxCrvAPRs, getCvxFxsAPRs, getDSRData, getSFraxData, getStCvxData, getStYcrvData, getStYethData, getStethData } from '@app/util/markets'
+import { getBnToNumber, getCvxCrvAPRs, getCvxFxsAPRs, getDSRData, getSFraxData, getSUSDEData, getStCvxData, getStYcrvData, getStYethData, getStethData } from '@app/util/markets'
 import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_MS, ONE_DAY_SECS } from '@app/config/constants';
 import { frontierMarketsCacheKey } from '../markets';
 import { cgPricesCacheKey } from '../prices';
@@ -150,9 +150,10 @@ export default async function handler(req, res) {
       getStCvxData(),
       getStYethData(),
       getSFraxData(provider),
+      getSUSDEData(),
     ]);
 
-    let [stethData, stYcrvData, cvxCrvData, cvxFxsData, dsrData, stCvxData, stYethData, sFraxData] = externalYieldResults.map(r => {
+    let [stethData, stYcrvData, cvxCrvData, cvxFxsData, dsrData, stCvxData, stYethData, sFraxData, sUSDEData] = externalYieldResults.map(r => {
       return r.status === 'fulfilled' ? r.value : {};
     });
 
@@ -176,6 +177,7 @@ export default async function handler(req, res) {
       'CVX': stCvxData?.apy || 0,
       'st-yETH': stYethData?.apy || 0,
       'sFRAX': sFraxData?.apy || 0,
+      'sUSDE': sUSDEData?.apy || 0,
     };
 
     const xinvExRate = getBnToNumber(xinvExRateBn);
