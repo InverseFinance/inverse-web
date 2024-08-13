@@ -281,6 +281,7 @@ const mainConfig = {
             rewardTypeLabel: 'sUSDE\'s Annual Yield',
             underlyingSymbol: 'USDE',
             badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },
+            isERC4626Collateral: true,
             startingBlock: 20518365,
             isInv: false,
         },
