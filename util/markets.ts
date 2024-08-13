@@ -198,6 +198,15 @@ export const getStYcrvData = async () => {
     return [];
 }
 
+export const getSUSDEData = async () => {
+    try {
+        const results = await fetch('https://app.ethena.fi/api/yields/protocol-and-staking-yield');
+        const data = await results.json();
+        return { apy: data.stakingYield.value };
+    } catch (e) { console.log(e) }
+    return [];
+}
+
 export const getSFraxData = async (provider) => {
     try {
         // return getPoolYield('55de30c3-bf9f-4d4e-9e0b-536a8ef5ab35');

@@ -145,10 +145,10 @@ export const MarketInfos = ({ name, nameAndIcon, ...props }) => {
                 {nameAndIcon}
             </Stack>
             <Text>-</Text>
-            <Text fontSize="18px" fontWeight="extrabold">{marketInfos[name].fullname}</Text>
+            <Text fontSize="18px" fontWeight="extrabold">{marketInfos.fullname}</Text>
         </HStack>
-        <Text fontSize="16px" color="mainTextColorLight">{marketInfos[name].description}</Text>
-        <Link fontSize="14px" textDecoration="underline" href={marketInfos[name].getLink} isExternal target="_blank">
+        <Text fontSize="16px" color="mainTextColorLight">{marketInfos.description}</Text>
+        <Link fontSize="14px" textDecoration="underline" href={marketInfos.getLink} isExternal target="_blank">
             Get {name} <ExternalLinkIcon />
         </Link>
     </VStack>
