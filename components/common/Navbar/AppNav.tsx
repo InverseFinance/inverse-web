@@ -504,7 +504,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const [onTosOk, setOnTosOk] = useState(() => () => { });
   const [tosApproved, setTosApproved] = useState(false);
   const { value: gnosisSafeToastAlreadyShowed, setter: setGnosisSafeToastAlreadyShowed } = useStorage('gnosis-safe-toast');
-  const { value: isRefPop, setter: setIsRefPop } = useStorage('referral-pop-bool');
+  const { value: isRefPop, setter: setIsRefPop } = useStorage('referral-pop-v1');
   const [inited, setInited] = useState(false);
   const [refPopInited, setRefPopInited] = useState(false);
   const isMountedRef = useRef(false);
@@ -569,7 +569,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   }, [query])
 
   useEffect(() => {
-    if(!refPopInited && !!account && isRefPop === null) {
+    if(!window.location.pathname.includes('affiliate') && !refPopInited && !!account && isRefPop === null) {
       onReferralPopOpen();
       setRefPopInited(true);
     }
@@ -671,6 +671,11 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
     onReferralPopClose();
   }
 
+  const handleReferTo = () => {
+    window.location.href = window.location.origin + '/affiliate/register';
+    // onReferToOpen()
+  }
+
   const vampireComp = <NavBadge position="relative">
     {/* <Image display="inline-block" src={"https://assets.coingecko.com/markets/images/544/small/AAVE.png"} w="24px" h="24px" /> */}
     <Image mr="2" top="-9px" position={isLargerThan1500 ? 'static' : 'absolute'} display="inline-block" src={"https://assets.coingecko.com/coins/images/12645/standard/aave-token-round.png"} w="18px" h="18px" />
@@ -685,7 +690,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
           <Text fontWeight="bold" fontSize='18px'>
             Refer a fren and earn rewards!
           </Text>
-          <Text cursor="pointer" onClick={() => onReferToOpen()} textDecoration="underline">
+          <Text cursor="pointer" onClick={() => handleReferTo()} textDecoration="underline">
             Yes, take me there!
           </Text>
         </VStack>

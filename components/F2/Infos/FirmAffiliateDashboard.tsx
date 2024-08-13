@@ -173,7 +173,7 @@ export const ReferredUsersTable = ({
 }) => {
     return <Table
         keyName="user"
-        noDataMessage="No confirmed referred user yet"
+        noDataMessage="No confirmed referred users yet"
         columns={columns}
         items={referredPositions}
         // onClick={openUserDetails}
@@ -259,14 +259,14 @@ export const FirmAffiliateDashboard = ({
                         <Text textAlign="center" fontWeight="bold">Deposits</Text>
                         {
                             isLoading ? <SmallTextLoader width={'50px'} />
-                                : <Text textAlign="center" color="secondaryTextColor">{shortenNumber(totalTvl, 2, true)}</Text>
+                                : <Text textAlign="center" color="secondaryTextColor">{!totalTvl ? '-' : shortenNumber(totalTvl, 2, true)}</Text>
                         }
                     </VStack>
                     <VStack alignItems="flex-end">
                         <Text textAlign="right" fontWeight="bold">Debt</Text>
                         {
                             isLoading ? <SmallTextLoader width={'50px'} />
-                                : <Text textAlign="right" color="secondaryTextColor">{shortenNumber(totalDebt, 2, 0)}</Text>
+                                : <Text textAlign="right" color="secondaryTextColor">{!totalDebt ? '-' : shortenNumber(totalDebt, 2, 0)}</Text>
                         }
                     </VStack>
                 </HStack>

@@ -45,7 +45,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader justify="flex-start" {...props} minWidth="130px" />,
         value: ({ affiliate }) => {
             return <Cell w="130px" justify="flex-start" position="relative" onClick={(e) => e.stopPropagation()}>
-                <Link isExternal href={`/partners/affiliate?viewAddress=${affiliate}`}>
+                <Link isExternal href={`/affiliate?viewAddress=${affiliate}`}>
                     <ViewIcon color="blue.600" boxSize={3} />
                 </Link>
                 <ScannerLink value={affiliate} />
