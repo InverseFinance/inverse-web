@@ -125,6 +125,7 @@ const chainTokenAddresses = {
     STYETH: '0x583019fF0f430721aDa9cfb4fac8F06cA104d0B4',
     SFRAX: '0xA663B02CF0a4b149d2aD41910CB81e23e1c41c32',
     COMP: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
+    sUSDE: '0x9D39A5DE30e57443BfF2A8307A4256c8797A3497',
     // PAL: '0xAB846Fb6C81370327e784Ae7CbB6d6a6af6Ff4BF',
   },
   "250": {
@@ -1231,6 +1232,14 @@ const chainTokens = {
       symbol: 'COMP',
       coingeckoId: 'compound-governance-token',
       image: TOKEN_IMAGES.COMP,
+      decimals: 18,
+    },
+    [chainTokenAddresses["1"].sUSDE]: {
+      address: chainTokenAddresses["1"].sUSDE,
+      name: 'sUSDE',
+      symbol: 'sUSDE',
+      coingeckoId: 'ethena-staked-usde',
+      image: TOKEN_IMAGES.sUSDE,
       decimals: 18,
     },
     [chainTokenAddresses["1"].SFRAX]: {
