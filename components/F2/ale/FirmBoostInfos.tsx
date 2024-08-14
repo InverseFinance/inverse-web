@@ -321,7 +321,7 @@ export const FirmBoostInfos = ({
     const amountOfDebtReduced = !isLeverageUp ? Math.min(minAmount, debt) : 0;
     const extraDolaReceivedInWallet = isLeverageUp ? 0 : estimatedAmount - amountOfDebtReduced;
 
-    return <Stack fontSize="14px" spacing="4" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
+    return <Stack borderRadius='5px' p='4' bgColor="infoAlpha" fontSize="14px" spacing="4" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
         <VStack position="relative" w='full' alignItems="center" justify="center">            
             <HStack spacing="8" w='full' justify="space-between" alignItems="center">
                 <InputGroup
@@ -329,11 +329,11 @@ export const FirmBoostInfos = ({
                     alignItems="center"
                 >
                     <InputLeftElement
-                        children={<Text cursor="text" as="label" for="boostInput" color="secondaryTextColor" whiteSpace="nowrap" transform="translateX(60px)" fontSize="20px" fontWeight="extrabold">
+                        children={<Text cursor="text" as="label" for="boostInput" color="secondaryTextColor" whiteSpace="nowrap" transform="translateX(60px)" fontSize={{ base: '20px', lg: '22px' }} fontWeight="extrabold">
                             {boostLabel}:
                         </Text>}
                     />
-                    <Input _focusVisible={false} isInvalid={editLeverageIsInvalid} autocomplete="off" onKeyPress={handleKeyPress} id="boostInput" color={risk.color} py="0" pl="60px" onChange={(e) => handleEditLeverage(e.target.value, minLeverage, maxLeverage)} width="220px" value={editLeverageLevel} min={minLeverage} max={maxLeverage} />
+                    <Input border="1px solid #aaa" fontWeight="extrabold" fontSize={{ base: '20px', lg: '24px' }} _focusVisible={false} isInvalid={editLeverageIsInvalid} autocomplete="off" onKeyPress={handleKeyPress} id="boostInput" color={risk.color} py="0" pl="60px" onChange={(e) => handleEditLeverage(e.target.value, minLeverage, maxLeverage)} width="225px" value={editLeverageLevel} min={minLeverage} max={maxLeverage} />
                     {
                         editLeverageLevel !== leverageLevel.toFixed(2) && debounced && !editLeverageIsInvalid &&
                         <InputRightElement cursor="pointer" transform="translateX(40px)" onClick={() => validatePendingLeverage(editLeverageLevel, isLeverageUp)}
@@ -396,10 +396,10 @@ export const FirmBoostInfos = ({
                 defaultValue={leverageLevel}
                 focusThumbOnChange={false}
             >
-                <SliderTrack h="10px" bg='red.100'>
+                <SliderTrack borderRadius="50px" h="15px" bg='red.100'>
                     <SliderFilledTrack bg={risk.color} />
                 </SliderTrack>
-                <SliderThumb h="20px" w="10px" />
+                <SliderThumb h="30px" w="20px" />
             </Slider>
             <HStack w='full' justify="space-between" alignItems="center">
                 <Text fontWeight="bold" color={riskLevels.safer.color}>
@@ -425,7 +425,7 @@ export const FirmBoostInfos = ({
                         Max. swap slippage for leverage %:
                     </Text>
                 </TextInfo>
-                <Input py="0" maxH="30px" w='90px' value={aleSlippage} onChange={(e) => setAleSlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'))} />
+                <Input border="1px solid #aaa" py="0" maxH="30px" w='90px' value={aleSlippage} onChange={(e) => setAleSlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'))} />
             </HStack>
             {
                 leverageLevel > 1 && <HStack w='full' justify="space-between">
@@ -444,7 +444,7 @@ export const FirmBoostInfos = ({
                 />
             }
             <AboutAleModal isOpen={isOpen} onClose={onClose} />
-            <Text cursor="pointer" w='full' textAlign="left" textDecoration="underline" onClick={onOpen}>
+            <Text fontWeight="bold" cursor="pointer" w='full' textAlign="left" textDecoration="underline" onClick={onOpen}>
                 About the Accelerated Leverage Engine
             </Text>
             {

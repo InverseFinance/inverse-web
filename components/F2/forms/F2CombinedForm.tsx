@@ -349,7 +349,7 @@ export const F2CombinedForm = ({
     const notEnoughToBorrowWithAutobuy = isBorrowCase && market.leftToBorrow > 1 && deltaDebt > 0 && market.leftToBorrow < (isAutoDBR ? deltaDebt + (dbrCoverDebt * (1 + parseFloat(dbrBuySlippage || 0) / 100)) : deltaDebt);
     const minDebtDisabledCondition = FEATURE_FLAGS.firmMinDebt && newTotalDebtInMarket > 0 && newTotalDebtInMarket < market.minDebt;
     const isDeleverageCase = useLeverageInMode && !isDeposit;
-    const canShowLeverage = !isMultisig && FEATURE_FLAGS.firmLeverage && market.hasAleFeat && !isUseNativeCoin && ((['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1) || ['Deposit & Borrow', 'Borrow'].includes(mode));
+    const canShowLeverage = FEATURE_FLAGS.firmLeverage && (market.hasAleFeat || !account) && !isUseNativeCoin && ((['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1) || ['Deposit & Borrow', 'Borrow'].includes(mode));
     const canActivateLeverage = ((mode === 'Deposit & Borrow' && (deposits > 0 || collateralAmountNum > 0)) || (mode === 'Borrow' && deposits > 0) || (['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1));
     const showMinDebtMessage = !notEnoughToBorrowWithAutobuy && minDebtDisabledCondition && (debtAmountNum > 0 || isDeleverageCase);
     const showNeedDbrMessage = isDeposit && !isAutoDBR && dbrBalance <= 0;
@@ -420,7 +420,7 @@ export const F2CombinedForm = ({
                             />
                         }
                         {
-                            useLeverageInMode && market.isERC4626Collateral && ['Deposit & Borrow'].includes(mode) &&
+                            useLeverage && market.isERC4626Collateral && ['Deposit & Borrow'].includes(mode) &&
                             <InfoMessage alertProps={{ w: 'full' }} description={
                                 <Text><b>Note:</b> in this market the <b>deposit and leverage action uses {market.underlyingSymbol} as the deposit asset instead of {market.underlying.symbol}</b>, if you prefer using {market.underlying.symbol}, you can deposit it first and then borrow with the leverage enabled in a second transaction.</Text>
                             } />
