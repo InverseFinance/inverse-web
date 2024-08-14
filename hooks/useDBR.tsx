@@ -94,6 +94,9 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
   isLoading: boolean
 } => {
   const { data: apiData, isLoading } = useCacheFirstSWR(`/api/f2/fixed-markets?v12`);
+  // no access from backend
+  const { data: susdeData } = useCustomSWR(`https://app.ethena.fi/api/yields/protocol-and-staking-yield`, fetcher, { refreshInterval: 60000 });
+  const sUsdeApy = susdeData?.stakingYield?.value;
   const _markets = Array.isArray(marketOrList) ? marketOrList : !!marketOrList ? [marketOrList] : [];
 
   const cachedMarkets = (apiData?.markets || F2_MARKETS)
@@ -171,6 +174,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
       return {
         ...m,
         ...cachedMarkets[i],
+        supplyApy: m.name === 'sUSDe' ? sUsdeApy : cachedMarkets[i].supplyApy||m.supplyApy,
         price: data && data[i] ? getBnToNumber(data[i], (36 - m.underlying.decimals)) : cachedMarkets[i]?.price ?? 0,
         collateralFactor: data ? getBnToNumber(data[i + nbMarkets], 4) : cachedMarkets[i]?.collateralFactor ?? 0,
         totalDebt: data ? getBnToNumber(data[i + 2 * nbMarkets]) : cachedMarkets[i]?.totalDebt ?? 0,
