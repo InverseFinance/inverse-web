@@ -490,7 +490,7 @@ export const F2CombinedForm = ({
                 {showMinDebtMessage && <MinDebtBorrowMessage debt={debt} minDebt={market.minDebt} />}
                 {showNeedDbrMessage && <NoDbrInWalletMessage />}
                 {showNotEnoughDolaToRepayMessage && <NotEnoughDolaToRepayMessage amount={debtAmountNum} />}
-                <HStack pt="2" justify="space-between" alignItems="space-between" w='full'>
+                <Stack direction={{ base: 'column', xl: 'row' }} pt="2" justify="space-between" alignItems="space-between" w='full'>
                     {
                         (hasDebtChange || hasCollateralChange) && !isMultisig && <DbrHelperSwitch
                             isDeposit={isDeposit}
@@ -508,7 +508,7 @@ export const F2CombinedForm = ({
                             }
                         }} />
                     }
-                </HStack>
+                </Stack>
             </VStack>
         }
     </Stack>

@@ -2,6 +2,7 @@ import { Input } from "@app/components/common/Input"
 import { InfoMessage } from "@app/components/common/Messages"
 import { AmountInfos } from "@app/components/common/Messages/AmountInfos"
 import { TextInfo } from "@app/components/common/Messages/TextInfo"
+import { AnimatedInfoTooltip } from "@app/components/common/Tooltip"
 import { BURN_ADDRESS } from "@app/config/constants"
 import { F2Market } from "@app/types"
 import { getBnToNumber } from "@app/util/markets"
@@ -158,8 +159,12 @@ export const FirmLeverageSwitch = ({
     useLeverage: boolean
 }) => {
     return <FormControl w='fit-content' display='flex' alignItems='center'>
+        <AnimatedInfoTooltip
+            iconProps={{ color: 'secondaryTextColor', fontSize: '12px', mr: '2' }}
+            message="This feature allows you to easily do leverage / looping on your collateral in just one transaction"
+        />
         <FormLabel cursor="pointer" fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='leverage-switch' mb='0'>
-            🔥 {isDeposit ? 'L' : 'Del'}everage / Looping
+            {isDeposit ? 'L' : 'Del'}everage / Looping 🔥
         </FormLabel>
         <Switch onChange={() => onChange(isDeposit)} isChecked={useLeverage} id='leverage-switch' />
     </FormControl>
