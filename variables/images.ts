@@ -41,6 +41,7 @@ export const TOKEN_IMAGES = {
     "GUSD": "https://assets.coingecko.com/coins/images/5992/standard/gemini-dollar-gusd.png?1696506408",
     "TUSD": "https://assets.coingecko.com/coins/images/3449/standard/tusd.png?1696504140",
     "USDE": "https://assets.coingecko.com/coins/images/33613/standard/USDE.png?1716355685",
+    "USDe": "https://assets.coingecko.com/coins/images/33613/standard/USDE.png?1716355685",
     "LUSD": "https://assets.coingecko.com/coins/images/14666/standard/Group_3.png?1696514341",
     "USDP": "https://assets.coingecko.com/coins/images/6013/standard/Pax_Dollar.png?1696506427",
     "USD0": "https://assets.coingecko.com/coins/images/38272/standard/USD0LOGO.png?1716962811",

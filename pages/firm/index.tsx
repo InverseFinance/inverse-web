@@ -137,7 +137,7 @@ export const F2PAGE = ({
                             </VStack>
                         </ErrorBoundary>
                     }
-                    <ErrorBoundary description="Failed to Markets">
+                    <ErrorBoundary description="Failed to load Markets">
                         <F2Markets />
                     </ErrorBoundary>
                     <VStack py="6" px='6' w='full' spacing="6">

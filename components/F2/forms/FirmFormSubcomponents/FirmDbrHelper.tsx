@@ -11,6 +11,7 @@ import { getNetworkConfigConstants } from "@app/util/networks"
 import { InfoMessage } from "@app/components/common/Messages"
 import { BigNumber } from "ethers"
 import { TOKEN_IMAGES } from "@app/variables/images"
+import { AnimatedInfoTooltip } from "@app/components/common/Tooltip"
 
 const { DBR } = getNetworkConfigConstants();
 
@@ -126,9 +127,13 @@ export const DbrHelperSwitch = ({
     hasHelper: boolean
 }) => {
     return <FormControl w='fit-content' display='flex' alignItems='center'>
-        <FormLabel alignItems="center" display="inline-flex" w='130px' fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-dbr' mb='0'>
-            <Image src={TOKEN_IMAGES.DBR} display="inline-block" w="20px" h="20px" mr="2" />
-            Auto-{isDeposit ? 'buy' : 'sell'} DBR?
+        <AnimatedInfoTooltip
+            iconProps={{ color: 'secondaryTextColor', fontSize: '12px', mr: '2' }}
+            message="This feature allows you to automatically buy DBR alongside your borrow"
+        />
+        <FormLabel cursor="pointer" alignItems="center" display="inline-flex" w='130px' fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor='auto-dbr' mb='0'>            
+            Auto-{isDeposit ? 'buy' : 'sell'} DBR
+            <Image ml="2" src={TOKEN_IMAGES.DBR} display="inline-block" w="20px" h="20px"/>
         </FormLabel>
         <Switch isDisabled={!hasHelper} onChange={() => setIsAutoDBR(!isAutoDBR)} isChecked={isAutoDBR} id='auto-dbr' />
         {
