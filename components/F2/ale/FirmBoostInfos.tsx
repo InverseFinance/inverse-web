@@ -333,7 +333,7 @@ export const FirmBoostInfos = ({
                             {boostLabel}:
                         </Text>}
                     />
-                    <Input border="1px solid #aaa" fontWeight="extrabold" fontSize={{ base: '20px', lg: '24px' }} _focusVisible={false} isInvalid={editLeverageIsInvalid} autocomplete="off" onKeyPress={handleKeyPress} id="boostInput" color={risk.color} py="0" pl="60px" onChange={(e) => handleEditLeverage(e.target.value, minLeverage, maxLeverage)} width="225px" value={editLeverageLevel} min={minLeverage} max={maxLeverage} />
+                    <Input shadow="0 0 0px 1px rgba(0, 0, 0, 0.25)" fontWeight="extrabold" fontSize={{ base: '20px', lg: '24px' }} _focusVisible={false} isInvalid={editLeverageIsInvalid} autocomplete="off" onKeyPress={handleKeyPress} id="boostInput" color={risk.color} py="0" pl="60px" onChange={(e) => handleEditLeverage(e.target.value, minLeverage, maxLeverage)} width="225px" value={editLeverageLevel} min={minLeverage} max={maxLeverage} />
                     {
                         editLeverageLevel !== leverageLevel.toFixed(2) && debounced && !editLeverageIsInvalid &&
                         <InputRightElement cursor="pointer" transform="translateX(40px)" onClick={() => validatePendingLeverage(editLeverageLevel, isLeverageUp)}
@@ -425,7 +425,7 @@ export const FirmBoostInfos = ({
                         Max. swap slippage for leverage %:
                     </Text>
                 </TextInfo>
-                <Input border="1px solid #aaa" py="0" maxH="30px" w='90px' value={aleSlippage} onChange={(e) => setAleSlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'))} />
+                <Input shadow="0 0 0px 1px rgba(0, 0, 0, 0.25)" py="0" maxH="30px" w='90px' value={aleSlippage} onChange={(e) => setAleSlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'))} />
             </HStack>
             {
                 leverageLevel > 1 && <HStack w='full' justify="space-between">
