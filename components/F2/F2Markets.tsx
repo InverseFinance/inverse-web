@@ -136,7 +136,7 @@ const CellText = ({ ...props }) => {
 
 export const MarketInfos = ({ name, nameAndIcon, ...props }) => {
     const marketInfos = MARKET_INFOS[name];
-    if(!marketInfos) {
+    if (!marketInfos) {
         return null;
     }
     return <VStack py="4" px="4" cursor="default" w='full' alignItems="flex-start" {...props}>
@@ -161,41 +161,46 @@ export const MarketNameAndIcon = ({ marketIcon, icon, underlying, name }) => {
     </HStack>
 }
 
+const MarketCell = ({ icon, marketIcon, underlying, badgeInfo, badgeProps, name }) => {
+    const [isSmallerThan] = useMediaQuery(`(max-width: ${responsiveThreshold}px)`);
+    const nameAndIcon = <MarketNameAndIcon name={name} icon={icon} marketIcon={marketIcon} underlying={underlying} />
+    return <Cell minWidth="110px" position="relative">
+        <Popover closeOnBlur={true} trigger="hover" isLazy placement="right-end" strategy={isSmallerThan ? 'fixed' : 'absolute'}>
+            <PopoverTrigger>
+                <Cell minWidth='110px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
+                    <HStack onClick={(e) => e.stopPropagation()} spacing="1" w="fit-content">
+                        {nameAndIcon}<InfoIcon cursor="default" position="absolute" right="-18px" opacity="0.5" color="mainTextColor" />
+                    </HStack>
+                    {
+                        !!badgeInfo && <CellText fontWeight="bold">
+                            <Badge fontWeight="normal"
+                                textTransform="none"
+                                borderRadius="50px"
+                                px="8px"
+                                {...badgeProps}>
+                                {badgeInfo}
+                            </Badge>
+                        </CellText>
+                    }
+                </Cell>
+            </PopoverTrigger>
+            <PopoverContent transform="translateX(300px)" bgColor="containerContentBackground" zIndex="99" border="1px solid #ccc" _focus={{ outline: 'none' }} maxW={isSmallerThan ? '100vw' : '98vw'} w='600px'>
+                <PopoverBody>
+                    <MarketInfos nameAndIcon={nameAndIcon} name={name} />
+                </PopoverBody>
+            </PopoverContent>
+        </Popover>
+    </Cell>
+}
+
 const columns = [
     {
         field: 'name',
         label: 'Market',
         header: ({ ...props }) => <ColHeader minWidth="110px" justify="flex-start"  {...props} />,
         tooltip: 'Market type, each market have an underlying token and strategy',
-        value: ({ name, icon, marketIcon, underlying, badgeInfo, badgeProps }) => {
-            const nameAndIcon = <MarketNameAndIcon name={name} icon={icon} marketIcon={marketIcon} underlying={underlying} />
-            return <Cell minWidth="110px" position="relative">
-                <Popover closeOnBlur={true} trigger="hover" isLazy placement="right-end" strategy="absolute">
-                    <PopoverTrigger>
-                        <Cell minWidth='110px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
-                            <HStack spacing="1" w="fit-content">
-                                {nameAndIcon}<InfoIcon position="absolute" right="-18px" opacity="0.5" color="mainTextColor" />
-                            </HStack>
-                            {
-                                !!badgeInfo && <CellText fontWeight="bold">
-                                    <Badge fontWeight="normal"
-                                        textTransform="none"
-                                        borderRadius="50px"
-                                        px="8px"
-                                        {...badgeProps}>
-                                        {badgeInfo}
-                                    </Badge>
-                                </CellText>
-                            }
-                        </Cell>
-                    </PopoverTrigger>
-                    <PopoverContent transform="translateX(300px)" bgColor="containerContentBackground" zIndex="99" border="1px solid #ccc" _focus={{ outline: 'none' }} maxW="98vw" w='600px'>
-                        <PopoverBody>
-                            <MarketInfos nameAndIcon={nameAndIcon} name={name} />
-                        </PopoverBody>
-                    </PopoverContent>
-                </Popover>
-            </Cell>
+        value: (props) => {
+            return <MarketCell {...props} />
         },
     },
     {
