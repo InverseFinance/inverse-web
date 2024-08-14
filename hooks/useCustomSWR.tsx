@@ -3,10 +3,11 @@ import { fetcher as defaultFetcher, fetcher30sectimeout } from '@app/util/web3'
 import useSWR from 'swr'
 import useStorage from '@app/hooks/useStorage';
 import { useEffect } from 'react';
+import { PublicConfiguration } from 'swr/dist/types';
 
-export const useCustomSWR = (key: string, fetcher = defaultFetcher): SWR & { data: any, error: any } => {
+export const useCustomSWR = (key: string, fetcher = defaultFetcher, config?: Partial<PublicConfiguration>): SWR & { data: any, error: any } => {
   const { value, setter } = useStorage(key);
-  const { data, error } = useSWR(key, fetcher);
+  const { data, error } = useSWR(key, fetcher, config);
 
   useEffect(() => {
     if(typeof data !== 'undefined') {
