@@ -1,5 +1,5 @@
 import { DeleteIcon, ExternalLinkIcon } from '@chakra-ui/icons'
-import { Flex, Stack, Text, Box, Input as ChakraInput, InputGroup, InputRightElement } from '@chakra-ui/react'
+import { Flex, Stack, Text, Box, Input as ChakraInput, InputGroup, InputRightElement, VStack } from '@chakra-ui/react'
 import { Web3Provider } from '@ethersproject/providers'
 import { Avatar } from '@app/components/common/Avatar'
 import { NavButtons, SubmitButton } from '@app/components/common/Button'
@@ -297,7 +297,10 @@ export const SubmitDelegationsModal = ({ isOpen, onClose, onNewDelegate }: Modal
       }
     >
       <Stack p={4}>
-        <InfoMessage alertProps={{ w: 'full' }} description="Paste signed delegations sent by your supporters below and submit them on-chain in 1 transaction." />
+        <InfoMessage alertProps={{ w: 'full' }} description={<VStack alignItems="flex-start">
+          <Text>Note: this is for the delegation by signature case.</Text>
+          <Text>Paste signed delegations sent by your supporters below and submit them on-chain in 1 transaction.</Text>
+        </VStack>} />
         <Stack maxHeight={'50vh'} overflow='auto'>
           {signatureInputs}
         </Stack>

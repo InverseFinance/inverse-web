@@ -17,6 +17,7 @@ import { useNamedAddress } from '@app/hooks/useNamedAddress'
 import { useStakedInFirm } from '@app/hooks/useFirm'
 import { BURN_ADDRESS } from '@app/config/constants'
 import { FirmGovDelegationModal } from '../F2/GovToken/FirmGovToken'
+import { getBnToNumber } from '@app/util/markets'
 
 type VotingWalletFieldProps = {
   label: string
@@ -83,7 +84,8 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
 
   const needToShowXinvDelegate = parseFloat(formatUnits(xinvBalance)) > 0 && invDelegate !== xinvDelegate
   const hasFirmEscrow = !!escrow && !!escrow.replace(BURN_ADDRESS, '');
-  const rtokenSymbol = process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL!
+  const rtokenSymbol = process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL!;
+  const needToShowNonFirmDelegateCta = data ? getBnToNumber(invBalance) >= 1 || getBnToNumber(xinvBalance) >= 1 : false;
 
   return (
     <Container label="Your Current Voting Power" contentBgColor="gradient3">
@@ -123,26 +125,27 @@ export const VotingWallet = ({ address, onNewDelegate }: { address?: string, onN
           stakedInFirm > 0 && <DelegatingTo label={'FiRM Delegating To'}
             delegate={firmDelegate} account={userAddress} chainId={chainId?.toString()} />
         }
+        {
+          hasFirmEscrow && <Text mt="2" fontSize="md" fontWeight="semibold" textTransform="uppercase" textAlign="center" textDecoration="underline" _hover={{ color: 'secondary' }} cursor="pointer" onClick={firmOnOpen}>
+            Change {needToShowNonFirmDelegateCta ? 'FiRM INV' : 'INV'} Delegate
+          </Text>
+        }
         <Flex
           w="full"
-          pt="4"
           justify='space-around'
           fontSize="xs"
           fontWeight="semibold"
           textTransform="uppercase"
         >
-          <Text textDecoration="underline" _hover={{ color: 'secondary' }} cursor="pointer" onClick={changeDelOnOpen}>
-            Change INV Delegate
-          </Text>
+          {
+            needToShowNonFirmDelegateCta && <Text textDecoration="underline" _hover={{ color: 'secondary' }} cursor="pointer" onClick={changeDelOnOpen}>
+              Change INV Delegate
+            </Text>
+          }
           <Text textDecoration="underline" _hover={{ color: 'secondary' }} cursor="pointer" onClick={submitDelOnOpen}>
             Submit INV Signatures
           </Text>
         </Flex>
-        {
-          hasFirmEscrow && <Text fontSize="xs" fontWeight="semibold" textTransform="uppercase" textAlign="center" textDecoration="underline" _hover={{ color: 'secondary' }} cursor="pointer" onClick={firmOnOpen}>
-            Change FiRM Delegate
-          </Text>
-        }
       </Stack>
       {
         stakedInFirm > 0 && <FirmGovDelegationModal
