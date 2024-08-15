@@ -150,11 +150,11 @@ export default async function handler(req, res) {
       getStCvxData(),
       getStYethData(),
       getSFraxData(provider),
-      // getSUSDEData(),
+      getSUSDEData(),
     ]);
 
     let [stethData, stYcrvData, cvxCrvData, cvxFxsData, dsrData, stCvxData, stYethData, sFraxData, 
-      // sUSDEData,
+      sUSDEData,
     ] = externalYieldResults.map(r => {
       return r.status === 'fulfilled' ? r.value : {};
     });
@@ -180,7 +180,7 @@ export default async function handler(req, res) {
       'st-yETH': stYethData?.apy || 0,
       'sFRAX': sFraxData?.apy || 0,
       // temp - ethenaapi throws forbidden from prod env
-      // 'sUSDe': sUSDEData?.apy || 0,
+      'sUSDe': sUSDEData?.apy || 0,
     };
 
     const xinvExRate = getBnToNumber(xinvExRateBn);
