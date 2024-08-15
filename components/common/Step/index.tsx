@@ -7,14 +7,12 @@ export const Step = ({
     text: any,
 }) => {
     return <HStack spacing="4" justify="flex-start" position="relative">
-        <VStack borderRadius="50px" w='35px' h='35px' bgColor='infoAlpha' alignItems="center" justify="center">
+        <VStack zIndex="2" borderRadius="50px" minW='35px' minH='35px' bgColor='infoAlpha' alignItems="center" justify="center">
             <Text>{num}</Text>
         </VStack>
-        <Box>{text}</Box>
+        <Box zIndex="2">{text}</Box>
         {
-            num !== 1 && <Box top="-20px" left="16px" bgColor="infoAlpha" h="15px" w="2px" position="absolute">
-
-            </Box>
+            num !== 1 && <Box zIndex="1" top="-20px" left="16px" bgColor="infoAlpha" h="15px" w="2px" position="absolute"></Box>
         }
     </HStack>
 }

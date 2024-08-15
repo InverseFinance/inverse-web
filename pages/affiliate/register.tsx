@@ -1,4 +1,4 @@
-import { VStack, Text, Stack } from '@chakra-ui/react'
+import { VStack, Text, Stack, RadioGroup, Radio } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
@@ -9,13 +9,16 @@ import { DashBoardCard } from '@app/components/F2/UserDashboard'
 import { RSubmitButton } from '@app/components/common/Button/RSubmitButton'
 import { SplashedText } from '@app/components/common/SplashedText'
 import { lightTheme } from '@app/variables/theme'
+import { Input } from '@app/components/common/Input'
+import { useState } from 'react'
+import { InfoMessage } from '@app/components/common/Messages'
 
 const steps = [
     {
-        text: <Text>Fill out the application form below to become a FiRM Affiliate. Our team will review your application to ensure you meet the criteria.</Text>,
+        text: <Text>Fill out the application form to become a FiRM Affiliate. Our team will review your application to ensure you meet the criteria.</Text>,
     },
     {
-        text: <Text>Once approved, create and share your unique Affiliate link with your audiences. Promote FIRM to your audiences as much or as little as you like.</Text>,
+        text: <Text>Once approved, create and share your unique Affiliate link with your audiences.</Text>,
     },
     {
         text: <Text>Sit back and earn! As the borrowers you refer spend DBR on new DOLA loans, you'll receive 10% of their spent DBR.</Text>,
@@ -26,7 +29,33 @@ const BigTitle = (props) => <Text fontWeight="bold" fontSize="28px" {...props} /
 const Title = (props) => <Text fontWeight="bold" fontSize="20px" {...props} />
 const SimpleText = (props) => <Text color="mainTextColorLight2" {...props} />
 
+const InputZone = ({
+    text,
+    value,
+    setter,
+    placeholder,
+}) => {
+    return <VStack w='full' spacing="0" alignItems="flex-start">
+        <Text>
+            {text}
+        </Text>
+        <Input w='full' placeholder={placeholder} value={value} onChange={e => setter(e.target.value)} />
+    </VStack>
+}
+
+
+
 export const FirmAffiliateRegisterPage = () => {
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [emailConfirm, setEmailConfirm] = useState('');
+    const [affiliateType, setAffiliateType] = useState('individual');
+    const [infos, setInfos] = useState({});
+
+    const individualInputs = [
+        { text: 'Twitter (X)', key: 'x' },
+        { text: 'Instagram', key: 'ig' },
+    ];
 
     return (
         <Layout>
@@ -35,7 +64,7 @@ export const FirmAffiliateRegisterPage = () => {
             </Head>
             <AppNav active="More" activeSubmenu="Affiliate Dashboard" hideAnnouncement={true} />
             <ErrorBoundary>
-                <VStack spacing="8" w='full' maxW="1200px" mt="8">
+                <VStack spacing="20" w='full' maxW="1200px" mt="8">
                     <SplashedText
                         as="h1"
                         color={`mainTextColor`}
@@ -93,10 +122,67 @@ export const FirmAffiliateRegisterPage = () => {
                             </BigTitle>
                         </VStack>
                     </Stack>
-                    <BigTitle>
-                        How does it work? It's simple:
-                    </BigTitle>
-                    <Steps steps={steps} />
+                    <VStack alignItems="">
+                        <Stack justify="space-between" spacing="10" direction={{ base: 'column', xl: 'row' }}>
+                            <VStack w='full'>
+                                <BigTitle>
+                                    How does it work? It's simple:
+                                </BigTitle>
+                                <Steps steps={steps} />
+                            </VStack>
+                            <DashBoardCard spacing="2">
+                                <VStack spacing="4" w='full'>
+                                    <VStack w='full' spacing="0" alignItems="flex-start">
+                                        <Text>
+                                            Name / Alias *
+                                        </Text>
+                                        <Input w='full' placeholder="Satoshi" value={name} onChange={e => setName(e.target.value)} />
+                                    </VStack>
+                                    <VStack w='full' spacing="0" alignItems="flex-start">
+                                        <Text>
+                                            Email *
+                                        </Text>
+                                        <Input w='full' placeholder="satoshi@gmail.com" type="email" name="email" value={email} onChange={e => setEmail(e.target.value)} />
+                                    </VStack>
+                                    <VStack w='full' spacing="0" alignItems="flex-start">
+                                        <Text>
+                                            Confirm Email *
+                                        </Text>
+                                        <Input w='full' placeholder="satoshi@gmail.com" value={emailConfirm} onChange={e => setEmailConfirm(e.target.value)} />
+                                    </VStack>
+                                    <VStack w='full' spacing="0" alignItems="flex-start">
+                                        <Text>
+                                            Affiliate Type *
+                                        </Text>
+                                        <RadioGroup w='full' bgColor="mainBackground" p="2" onChange={setAffiliateType} value={affiliateType}>
+                                            <Stack direction='row' w='full' justify="space-between">
+                                                <Radio value='individual'>Individual / Influencer</Radio>
+                                                <Radio value="business">Business / Organization</Radio>
+                                            </Stack>
+                                        </RadioGroup>
+                                    </VStack>
+                                    <VStack w='full' spacing="0" alignItems="flex-start">
+                                        {
+                                            affiliateType === 'individual' ?
+                                                <>
+                                                    <InfoMessage alertProps={{ w: 'full' }} description="Social media influencers with 5,000+ followers or subscribers on one or more social media platforms.  Financial leaders or opinion leaders with a community of 500+ members on one or more community groups" />
+                                                    <VStack pt="4" pl="4" w='full'>
+                                                        {
+                                                            individualInputs.map(({ key, text, placeholder }) => {
+                                                                return <InputZone key={key} text={text} placeholder={placeholder} value={infos[key]} setter={e => setInfos({ ...infos, [key]: e.target.value })} />
+                                                            })
+                                                        }
+                                                    </VStack>
+                                                </>
+                                                : <>
+                                                    <InfoMessage alertProps={{ w: 'full' }} description="User base of 2,000+, Market Analysis platform with 5,000+ daily visits" />
+                                                </>
+                                        }
+                                    </VStack>
+                                </VStack>
+                            </DashBoardCard>
+                        </Stack>
+                    </VStack>
                     <BigTitle>Who is Eligible?</BigTitle>
                     <VStack alignItems="flex-start">
                         <SimpleText>The program is brand new and we're initially limiting signups to influencers, community leaders, and others with a sizeable audience, including:</SimpleText>
