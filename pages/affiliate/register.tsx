@@ -1,4 +1,4 @@
-import { VStack, Text, Stack, RadioGroup, Radio, SimpleGrid, Divider, Checkbox } from '@chakra-ui/react'
+import { VStack, Text, Stack, RadioGroup, Radio, SimpleGrid, Divider, Checkbox, TextProps, Textarea } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
@@ -11,9 +11,11 @@ import { SplashedText } from '@app/components/common/SplashedText'
 import { lightTheme } from '@app/variables/theme'
 import { Input } from '@app/components/common/Input'
 import { useState } from 'react'
-import { InfoMessage } from '@app/components/common/Messages'
+import { InfoMessage, SuccessMessage } from '@app/components/common/Messages'
 import { isAddress } from 'ethers/lib/utils'
 import { BURN_ADDRESS } from '@app/config/constants'
+import Link from '@app/components/common/Link'
+import { FAQ } from '@app/components/common/FAQ'
 
 const steps = [
     {
@@ -70,7 +72,28 @@ const CheckboxZone = ({
     </VStack>
 }
 
+const FaqText = (props: TextProps) => <Text color="secondaryTextColor" lineHeight="1.5" {...props} />
+const FaqStack = (props: TextProps) => <VStack alignItems="flex-start" spacing="2" {...props} />
+const FaqLink = (props: TextProps) => <Link fontWeight="bold" style={{ 'text-decoration-skip-ink': 'none' }} mt="10px" color="mainTextColor" textDecoration="underline" isExternal target="_blank" {...props} />
 
+export const individualInputs = [
+    { text: 'X (Twitter)', key: 'x' },
+    { text: 'Instagram', key: 'instagram' },
+    { text: 'Telegram', key: 'telegram' },
+    { text: 'Discord', key: 'discord' },
+    { text: 'Youtube', key: 'youtube' },
+    { text: 'TikTok', key: 'tiktok' },
+    { text: 'Facebook', key: 'facebook' },
+    { text: 'Other', key: 'other' },
+];
+
+export const businessChecks = [
+    { text: 'Crypto media platform', key: 'crypto-media' },
+    { text: 'Crypto Fund', key: 'crypto-fund' },
+    { text: 'DEX', key: 'dex' },
+    { text: 'Yield Aggregator', key: 'yield' },
+    { text: 'Other', key: 'other-business' },
+];
 
 export const FirmAffiliateRegisterPage = () => {
     const [name, setName] = useState('');
@@ -80,27 +103,36 @@ export const FirmAffiliateRegisterPage = () => {
     const [infos, setInfos] = useState({});
     const [wallet, setWallet] = useState('');
     const [otherInfo, setOtherInfo] = useState('');
+    const [isSuccess, setIsSuccess] = useState(false);
 
-    const individualInputs = [
-        { text: 'X (Twitter)', key: 'x' },
-        { text: 'Instagram', key: 'instagram' },
-        { text: 'Telegram', key: 'telegram' },
-        { text: 'Discord', key: 'discord' },
-        { text: 'Youtube', key: 'youtube' },
-        { text: 'TikTok', key: 'tiktok' },
-        { text: 'Facebook', key: 'facebook' },
-        { text: 'Other', key: 'other' },
-    ];
+    const isInvalidWallet = !!wallet && (!isAddress(wallet) || wallet === BURN_ADDRESS);
+    const isInvalidEmail = !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-    const businessChecks = [
-        { text: 'Crypto media platform', key: 'crypto-media' },
-        { text: 'Crypto Fund', key: 'crypto-fund' },
-        { text: 'DEX', key: 'dex' },
-        { text: 'Yield Aggregator', key: 'yield' },
-        { text: 'Other', key: 'other-business' },
-    ];
+    const isFormValid = !!wallet && !isInvalidWallet && !!email && email === emailConfirm && !isInvalidEmail && !!name.trim();
 
-    const isInvalidWallet = !!wallet && (isAddress(wallet) || wallet === BURN_ADDRESS);
+    const register = async () => {
+        const res = await fetch(`/api/referral?isApply=true`, {
+            method: 'POST',
+            body: JSON.stringify({
+                wallet,
+                name,
+                email,
+                emailConfirm,
+                affiliateType,
+                infos,
+                otherInfo,
+            }),
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+        });
+        return res.json();
+    }
+
+    const handleSuccess = () => {
+        setIsSuccess(true);
+    }
 
     return (
         <Layout>
@@ -197,8 +229,8 @@ export const FirmAffiliateRegisterPage = () => {
                                 <VStack spacing="4" w='full'>
                                     <SimpleGrid w='full' columns={{ base: 1, lg: 1 }} gap="2">
                                         <InputZone text="Name / Alias *" placeholder={'Satoshi'} fontSize="14px" value={name} setter={setName} />
-                                        <InputZone text="Email *" placeholder={'satoshi@gmail.com'} fontSize="14px" value={email} setter={setEmail} />
-                                        <InputZone text="Confirm Email *" placeholder={'satoshi@gmail.com'} fontSize="14px" value={emailConfirm} setter={setEmailConfirm} />
+                                        <InputZone text="Email *" isInvalid={!!email && isInvalidEmail} placeholder={'satoshi@gmail.com'} fontSize="14px" value={email} setter={setEmail} />
+                                        <InputZone text="Confirm Email *" placeholder={'satoshi@gmail.com'} fontSize="14px" value={emailConfirm} isInvalid={!!email && !!emailConfirm && email !== emailConfirm} setter={setEmailConfirm} />
                                     </SimpleGrid>
                                     <VStack w='full' spacing="0" alignItems="flex-start">
                                         <Text fontWeight="bold">
@@ -248,10 +280,16 @@ export const FirmAffiliateRegisterPage = () => {
                                     </VStack>
                                     <Divider />
                                     <InputZone text="Wallet Address" placeholder={BURN_ADDRESS} fontSize="14px" value={wallet} setter={setWallet} isInvalid={isInvalidWallet} />
-                                    <InputZone text="Other informations we should know" fontSize="14px" value={otherInfo} setter={setOtherInfo} />
-                                    <RSubmitButton p="8" fontSize="22px" href="/firm">
-                                        Become an Affiliate
-                                    </RSubmitButton>
+                                    <Text w='full' fontWeight="bold">
+                                        Other informations we should know:
+                                    </Text>
+                                    <Textarea placeholder="I'm also interested as a borrower / I have feedback about the product / Other" fontSize="14px" value={otherInfo} onChange={e => setOtherInfo(e.target.value)} />
+                                    {
+                                        !isSuccess ? <SuccessMessage alertProps={{ w: 'full' }} iconProps={{ height: 40, width: 40 }} title="Affiliation request submitted!" description="We will get back to you shortly" />
+                                            : <RSubmitButton onSuccess={handleSuccess} disabled={!isFormValid} p="8" fontSize="22px" onClick={register}>
+                                                Become an Affiliate
+                                            </RSubmitButton>
+                                    }
                                 </VStack>
                             </DashBoardCard>
                         </Stack>
@@ -275,6 +313,57 @@ export const FirmAffiliateRegisterPage = () => {
                     <SimpleText color="mainTextColorLight">
                         Note: Governance reserves the right to make changes to the program at any time.
                     </SimpleText>
+                    <FAQ
+                        label="Frequently Asked Questions"
+                        items={
+                            [
+                                {
+                                    title: 'What is the criteria to become a FiRM Affiliate?',
+                                    body: <FaqStack fontSize={'14px'}>
+                                        <FaqText>
+                                            It varies depending on the category of Affiliate but we’re seeking leaders and influencers with a verifiable following or community that we think can help bring new users to FiRM. For questions, try @patb on Twitter.
+                                        </FaqText>
+                                    </FaqStack>
+                                },
+                                {
+                                    title: 'How do I earn commissions as an affiliate?',
+                                    body: <FaqStack fontSize={'14px'}>
+                                        <FaqText>
+                                            You earn commissions when the borrowers you refer borrow on FiRM. When they borrow, you’ll receive a commission, paid in DBR, equal to 10% of the DBR they spend on their loan.
+                                        </FaqText>
+                                    </FaqStack>
+                                },
+                                {
+                                    title: 'How will I receive my commissions and how often will I be paid?',
+                                    body: <FaqStack fontSize={'14px'}>
+                                        <FaqText>
+                                            You will receive your commissions on a monthly basis. This means that you will receive payments for your commissions earned in the previous month at the beginning of each month.
+                                            You will be able to see the details of each payment in your affiliate dashboard, including the amount, date, and status of each payment.
+
+                                        </FaqText>
+                                    </FaqStack>
+                                },
+                                {
+                                    title: 'How do I track my referrals and commissions?',
+                                    body: <FaqStack fontSize={'14px'}>
+                                        <FaqText>
+                                            Affiliates can login to the affiliate dashboard and view referral and commission information.
+                                            Your referrals will be listed in your affiliate dashboard, along with the date they were made, their status, and the commission amount earned
+                                        </FaqText>
+                                    </FaqStack>
+                                },
+                                {
+                                    title: 'Is there a limited number of referrals i can refer?',
+                                    body: <FaqStack fontSize={'14px'}>
+                                        <FaqText>
+                                            No. Affiliates can refer as many borrowers as they wish
+                                        </FaqText>
+                                    </FaqStack>
+                                },
+                            ]
+                        }
+                    />
+
                 </VStack>
             </ErrorBoundary>
         </Layout>

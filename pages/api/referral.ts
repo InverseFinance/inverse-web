@@ -10,6 +10,7 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis';
 import { Contract } from 'ethers';
 import { verifyMessage, hashMessage, isAddress } from 'ethers/lib/utils';
+import { businessChecks, individualInputs } from '../affiliate/register';
 
 const { DBR, MULTISIGS } = getNetworkConfigConstants();
 
@@ -19,9 +20,10 @@ export default async function handler(req, res) {
         method,
     } = req
 
-    const { r, account, csv } = query;
+    const { r, account, csv, isApply } = query;
 
     const referralsKey = `referrals`;
+    const affiliatesKey = `affiliate-applications`;
     const apiDataKey = `affiliation-v1.0.0`;
     const referralData = await getCacheFromRedis(referralsKey, false, 600);
     const { data: cachedResult, isValid: isCacheValid } = await getCacheFromRedisAsObj(apiDataKey, true, 60);
@@ -89,73 +91,128 @@ export default async function handler(req, res) {
             return res.status(200).json(affiliateResults);
             break
         case 'POST':
+            if (!!r) {
+                if (!r || !isAddress(r) || r === BURN_ADDRESS || !account || !isAddress(account) || account === BURN_ADDRESS || r.toLowerCase() === account.toLowerCase()) {
+                    res.status(400).json({ status: 'error', message: 'Invalid address' });
+                    return;
+                } else if (!!referralData?.referrals[account]) {
+                    return res.status(400).json({ status: 'error', message: 'A referral has been already registered' });
+                }
 
-            if (!r || !isAddress(r) || r === BURN_ADDRESS || !account || !isAddress(account) || account === BURN_ADDRESS || r.toLowerCase() === account.toLowerCase()) {
-                res.status(400).json({ status: 'error', message: 'Invalid address' });
-                return;
-            } else if (!!referralData?.referrals[account]) {
-                return res.status(400).json({ status: 'error', message: 'A referral has been already registered' });
-            }
+                const { sig } = req.body
+                let sigAddress = '';
 
-            const { sig } = req.body
-            let sigAddress = '';
+                const sigText = getReferralMsg(account, r);
 
-            const sigText = getReferralMsg(account, r);
-
-            try {
-                sigAddress = verifyMessage(sigText, sig);
-            } catch (e) {
-                console.log(e);
-            }
-
-            if (sigAddress?.toLowerCase() !== account.toLowerCase() || !sigAddress) {
-                // try to verify as multisig
-                let multisigVerifyResult;
                 try {
-                    multisigVerifyResult = await verifyMultisigMessage(account, hashMessage(sigText), sig);
+                    sigAddress = verifyMessage(sigText, sig);
                 } catch (e) {
-                    console.log('multisig verify error');
                     console.log(e);
                 }
-                if (!multisigVerifyResult?.valid) {
-                    res.status(401).json({ status: 'warning', message: 'Unauthorized' })
-                    return
-                }
-            };
 
-            const block = await provider.getBlock('latest');
-            const { number: blockNumber, timestamp: blockTs } = block;
-            const now = blockTs * 1000;
+                if (sigAddress?.toLowerCase() !== account.toLowerCase() || !sigAddress) {
+                    // try to verify as multisig
+                    let multisigVerifyResult;
+                    try {
+                        multisigVerifyResult = await verifyMultisigMessage(account, hashMessage(sigText), sig);
+                    } catch (e) {
+                        console.log('multisig verify error');
+                        console.log(e);
+                    }
+                    if (!multisigVerifyResult?.valid) {
+                        res.status(401).json({ status: 'warning', message: 'Unauthorized' })
+                        return
+                    }
+                };
 
-            const [
-                lastUpdated,
-                debt,
-                dueTokensAccrued,
-            ] = await getGroupedMulticallOutputs([
-                { contract: dbrContract, functionName: 'lastUpdated', params: [sigAddress] },
-                { contract: dbrContract, functionName: 'debts', params: [sigAddress] },
-                { contract: dbrContract, functionName: 'dueTokensAccrued', params: [sigAddress] },
-            ]);
+                const block = await provider.getBlock('latest');
+                const { number: blockNumber, timestamp: blockTs } = block;
+                const now = blockTs * 1000;
 
-            const lastUpdatedMs = getBnToNumber(lastUpdated, 0) * 1000;
-            const dueTokensAccruedSinceLastUpdate = (now - lastUpdatedMs) * getBnToNumber(debt) / ONE_DAY_MS * 365;
-            const beforeReferralDueTokensAccrued = getBnToNumber(dueTokensAccrued) + dueTokensAccruedSinceLastUpdate;
+                const [
+                    lastUpdated,
+                    debt,
+                    dueTokensAccrued,
+                ] = await getGroupedMulticallOutputs([
+                    { contract: dbrContract, functionName: 'lastUpdated', params: [sigAddress] },
+                    { contract: dbrContract, functionName: 'debts', params: [sigAddress] },
+                    { contract: dbrContract, functionName: 'dueTokensAccrued', params: [sigAddress] },
+                ]);
 
-            const result = {
-                timestamp: now,
-                referrals: {
-                    ...cachedResult?.referrals,
-                    [sigAddress]: {
-                        affiliate: r,
-                        timestamp: Date.now(),
-                        beforeReferralDueTokensAccrued,
-                        blockNumber,
+                const lastUpdatedMs = getBnToNumber(lastUpdated, 0) * 1000;
+                const dueTokensAccruedSinceLastUpdate = (now - lastUpdatedMs) * getBnToNumber(debt) / ONE_DAY_MS * 365;
+                const beforeReferralDueTokensAccrued = getBnToNumber(dueTokensAccrued) + dueTokensAccruedSinceLastUpdate;
+
+                const result = {
+                    timestamp: now,
+                    referrals: {
+                        ...cachedResult?.referrals,
+                        [sigAddress]: {
+                            affiliate: r,
+                            timestamp: Date.now(),
+                            beforeReferralDueTokensAccrued,
+                            blockNumber,
+                        },
                     },
-                },
-            };
+                };
 
-            await redisSetWithTimestamp(referralsKey, result);
-            res.status(200).json(result);
+                await redisSetWithTimestamp(referralsKey, result);
+                res.status(200).json(result);
+            } else if (isApply === 'true') {
+                const {
+                    wallet,
+                    name,
+                    email,
+                    emailConfirm,
+                    affiliateType,
+                    infos,
+                    otherInfo,
+                } = req.body;
+                if (!wallet || !isAddress(wallet) || wallet === BURN_ADDRESS) {
+                    res.status(400).json({ status: 'error', message: 'Invalid address' });
+                    return;
+                }
+                else if (
+                    !name
+                    || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+                    || email !== emailConfirm
+                    || !['individual', 'business'].includes(affiliateType)
+                    || Object.keys(infos).some(key => !individualInputs.map(ii => ii.key).concat(businessChecks.map(ii => ii.key)).includes(key))
+                    || otherInfo.length > 1000
+                ) {
+                    res.status(400).json({ status: 'error', message: 'Invalid request' });
+                    return;
+                }
+                
+                const affiliatesData = await getCacheFromRedis(affiliatesKey, false, 600) || { affiliates: [] };
+
+                const found = affiliatesData?.affiliates.find(d => d.affiliate.toLowerCase() === wallet.toLowerCase());
+                if(!!found) {
+                    return res.status(400).json({ status: 'error', message: 'Wallet already registered' });
+                }
+
+                const affiliate = {
+                    affiliate: wallet,
+                    name,
+                    email,
+                    emailConfirm,
+                    affiliateType,
+                    infos,
+                    otherInfo,
+                };
+                affiliatesData.affiliates.push(affiliate);
+                
+                const affiliateResults = {
+                    timestamp: Date.now(),
+                    affiliates: affiliatesData.affiliates,
+                };
+                await redisSetWithTimestamp(affiliatesKey, affiliateResults);
+                return res.status(200).json({
+                    affiliate,
+                    affiliates: affiliatesData.affiliates,
+                });
+            }
+            res.status(400).json({ status: 'error', message: 'Invalid request' });
             break
         default:
             res.setHeader('Allow', ['GET', 'POST'])
