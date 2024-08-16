@@ -21,6 +21,7 @@ import { WarningMessage } from "@app/components/common/Messages"
 import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader"
 import { SkeletonBlob } from "@app/components/common/Skeleton"
 import { useCustomSWR } from "@app/hooks/useCustomSWR"
+import { AnimatedInfoTooltip } from "@app/components/common/Tooltip"
 
 const Title = (props: TextProps) => <Text textAlign="center" fontWeight="extrabold" fontSize={{ base: '13px', md: '18px' }} {...props} />;
 const SubTitle = (props: TextProps) => <Text textAlign="center" color="secondaryTextColor" fontSize={{ base: '13px', md: '16px' }} {...props} />;
@@ -142,7 +143,7 @@ export const MarketBar = ({
     </>;
 
     if (!inited) {
-        return <Container noPadding p="0"><SkeletonBlob skeletonHeight={2} noOfLines={2}  /></Container>
+        return <Container noPadding p="0"><SkeletonBlob skeletonHeight={2} noOfLines={2} /></Container>
     }
 
     return <Container noPadding p="0">
@@ -319,6 +320,7 @@ const BarBlock = ({
     vstackProps,
     precision = 2,
     isLoading = false,
+    tooltip,
 }: {
     label: string,
     isLargerThan: boolean,
@@ -328,15 +330,19 @@ const BarBlock = ({
     precision?: number,
     href: string,
     vstackProps?: StackProps,
+    tooltip?: string
 }) => {
     return <HStack spacing="4">
         {
             isLargerThan && !!imgSrc && <MarketImage image={imgSrc} size={40} imgProps={{ borderRadius: '100px' }} />
         }
         <VStack spacing="1" alignItems="flex-start" {...vstackProps}>
-            <Link textDecoration="underline" fontWeight="extrabold" fontSize={{ base: '14px', md: '18px' }} color="mainTextColor" textAlign="left" href={href} isExternal target='_blank'>
-                {label}
-            </Link>
+            <HStack spacing="2" alignItems="center">
+                <Link textDecoration="underline" fontWeight="extrabold" fontSize={{ base: '14px', md: '18px' }} color="mainTextColor" textAlign="left" href={href} isExternal target='_blank'>
+                    {label}
+                </Link>
+                <AnimatedInfoTooltip message={tooltip} iconProps={{ transform: 'translateY(1px)', fontSize:' 15px' }} />
+            </HStack>
 
             {
                 isLoading || !price ?
@@ -353,7 +359,7 @@ const BarBlock = ({
 export const FirmBar = ({
     ...props
 }: {
-} & Partial<StackProps>) => {    
+} & Partial<StackProps>) => {
     const { priceUsd: dbrPriceUsd } = useDBRPrice();
     const { data: currentCirculatingSupply } = useCustomSWR(`/api/dola/circulating-supply`);
     const { price: dolaPrice, isLoading: isDolaPriceLoading } = useDOLAPrice();
@@ -362,15 +368,15 @@ export const FirmBar = ({
     const [isLargerThan] = useMediaQuery('(min-width: 600px)');
     const totalDebt = markets?.reduce((prev, curr) => prev + curr.totalDebt, 0) || 0;
     const totalDebtUsd = totalDebt * dolaPrice;
-    const invFirmPrice = markets?.find(m => m.isInv)?.price || 0;    
+    const invFirmPrice = markets?.find(m => m.isInv)?.price || 0;
 
     return <VStack w='full' {...props}>
         <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
             <HStack alignItems="flex-start" w={{ base: 'full', md: 'auto' }} justify="flex-start">
                 <HStack spacing="8" w={{ base: 'full', md: 'auto' }} justify={{ base: 'space-between', md: 'flex-start' }}>
-                    <BarBlock label="Buy DBR" isLargerThan={isLargerThan} precision={4} price={dbrPriceUsd} href={BUY_LINKS.DBR} imgSrc={`/assets/v2/dbr.png`} />
-                    <BarBlock label="Buy DOLA" isLoading={isDolaPriceLoading} isLargerThan={isLargerThan} precision={4} price={dolaPrice} href={'/swap'} imgSrc={`/assets/v2/dola-512.jpg`} vstackProps={{ alignItems: { base: 'center', md: 'flex-start' } }} />
-                    <BarBlock label="Buy INV" isLargerThan={isLargerThan} price={invFirmPrice} href={BUY_LINKS.INV} imgSrc={`/assets/inv-square-dark.jpeg`} vstackProps={{ alignItems: { base: 'flex-end', md: 'flex-start' } }} />
+                    <BarBlock tooltip="DBR are borrowing credits you can buy and sell at a market price, they are consumed at a constant rate according to your loan size if any" label="Buy DBR" isLargerThan={isLargerThan} precision={4} price={dbrPriceUsd} href={BUY_LINKS.DBR} imgSrc={`/assets/v2/dbr.png`} />
+                    <BarBlock tooltip="DOLA is a stablecoin soft-pegged to $1, can be borrowed on FiRM or bought on markets" label="Buy DOLA" isLoading={isDolaPriceLoading} isLargerThan={isLargerThan} precision={4} price={dolaPrice} href={'/swap'} imgSrc={`/assets/v2/dola-512.jpg`} vstackProps={{ alignItems: { base: 'center', md: 'flex-start' } }} />
+                    <BarBlock tooltip="INV is Inverse Finance's Governance token" label="Buy INV" isLargerThan={isLargerThan} price={invFirmPrice} href={BUY_LINKS.INV} imgSrc={`/assets/inv-square-dark.jpeg`} vstackProps={{ alignItems: { base: 'flex-end', md: 'flex-start' } }} />
                 </HStack>
             </HStack>
             <HStack w={{ base: 'full', md: 'auto' }} alignItems="flex-start" justify="space-between" spacing={{ base: '2', md: '8' }}>
