@@ -27,27 +27,29 @@ export const LandingNav = ({
       >
         <Stack alignItems="center" spacing={{ base: '2', '2xl': '1vw' }} direction="row" align="center">
           <Logo minH="30px" minW="30px" boxSize={isBottom ? '1.8vmax' : '3.8vmax'} filter={isBottom ? "brightness(0) invert(1)" : 'unset'} />
-          <Text color={isBottom ? lightTheme.colors.contrastMainTextColor : lightTheme.colors.mainTextColor}
+          <Text as={isBottom ? 'h3' : 'h1'} color={isBottom ? lightTheme.colors.contrastMainTextColor : lightTheme.colors.mainTextColor}
             fontWeight="bold"
-            fontSize={isBottom ? normalSize : slightlyBiggerSize}            
+            fontSize={isBottom ? normalSize : slightlyBiggerSize}
           >
             Inverse Finance
           </Text>
         </Stack>
         <Stack spacing="1.4vw" direction="row" fontWeight="semibold" align="center" display={{ base: 'none', lg: 'flex' }}>
-          {NAV_ITEMS.map(({ label, href }, i) => (
-            <Link
-              key={i}
-              fontWeight="bold"
-              href={href}
-              isExternal
-              color={isBottom ? lightTheme.colors.contrastMainTextColor : lightTheme.colors.mainTextColor}
-              _hover={{ textDecoration: 'underline' }}
-              fontSize={smallerSize3}
-            >
-              {label}
-            </Link>
-          ))}
+          {NAV_ITEMS
+            .filter(({ label }) => label !== 'More')
+            .map(({ label, href }, i) => (
+              <Link
+                key={i}
+                fontWeight="bold"
+                href={href}
+                isExternal
+                color={isBottom ? lightTheme.colors.contrastMainTextColor : lightTheme.colors.mainTextColor}
+                _hover={{ textDecoration: 'underline' }}
+                fontSize={smallerSize3}
+              >
+                {label}
+              </Link>
+            ))}
           <Btn
             href="/firm"
             fontWeight="bold"
@@ -57,7 +59,7 @@ export const LandingNav = ({
             // h="50px"
             // py="2.2vmax"
             // px="3vmax"
-            py={{ base: '26px', '2xl': '36px', '3xl': '40px', '4xl': '48px' }}            
+            py={{ base: '26px', '2xl': '36px', '3xl': '40px', '4xl': '48px' }}
             transition="transform ease-in-out 200ms"
             _hover={{ transform: 'scale(1.03)' }}
             maxW={{ base: '145px', '2xl': 'none' }}
