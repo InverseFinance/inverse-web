@@ -56,7 +56,7 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                     <b>One DBR gives the right to borrow one DOLA for one year</b> (or 2 DOLA for 6 months etc). This is assuming you have deposited enough collateral.
                 </FaqText>
                 <FaqText>
-                    Thanks to this system, you can get a fixed-rate, lock it, borrow now or later, or resell it at a profit if DBR market priced increased.
+                    Thanks to this system, you can get a fixed-rate, borrow now or later, or resell it at a profit if DBR market priced increased.
                 </FaqText>
                 <FaqLink href="/transparency/dbr">
                     Transparency page
