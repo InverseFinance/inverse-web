@@ -341,7 +341,7 @@ const BarBlock = ({
                 <Link textDecoration="underline" fontWeight="extrabold" fontSize={{ base: '14px', md: '18px' }} color="mainTextColor" textAlign="left" href={href} isExternal target='_blank'>
                     {label}
                 </Link>
-                <AnimatedInfoTooltip message={tooltip} iconProps={{ transform: 'translateY(1px)', fontSize:' 15px' }} />
+                <AnimatedInfoTooltip message={tooltip} iconProps={{ transform: 'translateY(1px)', fontSize:' 15px', color: 'mainTextColor' }} />
             </HStack>
 
             {
