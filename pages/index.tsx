@@ -155,7 +155,7 @@ export const Landing = ({ posts }: {
               </SplashedText>
               <VStack spacing="2vh" alignItems="flex-start" zIndex="1">
                 <Text w={{ base: 'auto', 'xl': '580px', '2xl': '1000px' }} fontWeight="400" fontSize={{ base: '20px', '2xl': '1.5vw' }} maxW={{ base: 'none', xl: '460px', '2xl': '40vw' }} as="h2" color={`${lightTheme?.colors.mainTextColor}`}>
-                  The best Fixed-Rate borrowing DeFi protocol with the highest yield opportunities stablecoin
+                  DOLA Borrowing Rights replace interest rates with a fixed fee that can earn you more.
                 </Text>
                 <Stack direction={{ base: 'column', sm: 'row' }} justify={'flex-start'} w={{ base: 'full', sm: 'auto' }}>
                   <LandingSubmitButton w={{ base: 'full', sm: 'auto' }} href="/firm">
@@ -225,7 +225,7 @@ export const Landing = ({ posts }: {
             Never Pay Interest Again
           </SplashedText>
           <Text color={lightTheme.colors.mainTextColor} zIndex="2" textAlign="center" fontWeight="bold" fontSize={normalSize} maxW={{ base: '350px', '2xl': '33%' }}>
-            Ideal for stress-free borrowing and long-term borrowers.
+            High-volatility interest rates don't work for long-term borrowers.
           </Text>
           <Text color={lightTheme.colors.mainTextColor} zIndex="2" textAlign="center" fontSize={smallerSize} maxW={{ base: '350px', '2xl': '33%' }}>
             DOLA Borrowing Rights (DBRs) allow you to get a fixed rate today and borrow later
@@ -300,11 +300,11 @@ export const Landing = ({ posts }: {
         ></SplashedText>
       </Flex>
       <Flex display={{ base: 'none', xl: 'flex' }} zIndex="1" px="8%" py="20" w="full" bg={lightTheme.colors.mainTextColor} bgColor={lightTheme.colors.mainTextColor} direction="column">
-        <Text as="h2" fontWeight="bold" color={lightTheme.colors.contrastMainTextColor} zIndex="2" textAlign="left" fontSize={normalSize}>
+        {/* <Text as="h2" fontWeight="bold" color={lightTheme.colors.contrastMainTextColor} zIndex="2" textAlign="left" fontSize={normalSize}>
           Compare Fixed Rate and Variable Rates accross DeFi protocols
         </Text>
-        <RateComparator themeStyles={lightTheme} showLabel={false} />
-        {/* <ResponsiveStack spacing="8" justifyContent="space-evenly" w='full' direction={{ base: 'column', md: 'row' }}>
+        <RateComparator themeStyles={lightTheme} showLabel={false} /> */}
+        <ResponsiveStack spacing="8" justifyContent="space-evenly" w='full' direction={{ base: 'column', md: 'row' }}>
           <VStack spacing="6" justify="center" alignItems="flex-start">
             <VStack w='full' spacing="1" alignItems="flex-start">
               <Text
@@ -347,7 +347,7 @@ export const Landing = ({ posts }: {
               Your browser does not support the video tag.
             </video>
           </VStack>
-        </ResponsiveStack> */}
+        </ResponsiveStack>
       </Flex>
       <Flex px="8%" py="20" w="full" bgImage="/assets/v2/landing/wall.png" bgRepeat="no-repeat" backgroundSize="cover" direction="column" position="relative">
         <VStack alignItems="flex-start" spacing="2" w='full' bgImage="/assets/v2/landing/part2.png" position="relative">
