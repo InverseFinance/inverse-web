@@ -1,9 +1,11 @@
 import Link from "@app/components/common/Link"
 import { InfoMessage, WarningMessage } from "@app/components/common/Messages"
+import InfoModal from "@app/components/common/Modal/InfoModal"
 import { BUY_LINKS } from "@app/config/constants"
 import { shortenNumber } from "@app/util/markets"
 import { preciseCommify } from "@app/util/misc"
-import { Flex } from "@chakra-ui/react"
+import { Flex, Text, useDisclosure, VStack } from "@chakra-ui/react"
+import { FirmFAQ } from "../../Infos/FirmFAQ"
 
 export const MinDebtBorrowMessage = ({
     minDebt,
@@ -19,17 +21,28 @@ export const MinDebtBorrowMessage = ({
 }
 
 export const NoDbrInWalletMessage = () => {
-    return <InfoMessage
-        title="No DBRs in wallet"
-        alertProps={{ w: 'full' }}
-        description={
-            <Flex display="inline-block">
-                To borrow DOLA you need to first <Link textDecoration="underline" color="accentTextColor" display="inline-block" href={BUY_LINKS.DBR} isExternal target="_blank">
-                    buy DBR tokens
-                </Link> OR use the auto-buy option which adds the DBR cost to your DOLA loan.
-            </Flex>
-        }
-    />
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    return <>
+        <InfoMessage
+            title="No DBRs in wallet"
+            alertProps={{ w: 'full' }}
+            description={
+                <Flex display="inline-block">
+                    To borrow DOLA you need to first <Link textDecoration="underline" color="accentTextColor" display="inline-block" href={BUY_LINKS.DBR} isExternal target="_blank">
+                        buy DBR tokens
+                    </Link> OR use the <b>auto-buy</b> option which adds the DBR cost to your DOLA loan.
+                    <Text onClick={onOpen} cursor="pointer" textDecoration="underline" mt="2">
+                        New to FiRM? Discover how DBR powers FiRM loans
+                    </Text>
+                </Flex>
+            }
+        />
+        <InfoModal modalProps={{ minW: { base: '98vw', lg: '1000px' }, scrollBehavior: 'inside' }} title="DBR powers DOLA loans on FiRM" isOpen={isOpen} onClose={onClose}>
+            <VStack p="4">
+                <FirmFAQ showTitle={false} dbrOnly={true} smaller={false} labelProps={{ fontSize: '14px' }} />
+            </VStack>
+        </InfoModal>
+    </>
 }
 
 export const NotEnoughDolaToRepayMessage = ({
@@ -37,7 +50,7 @@ export const NotEnoughDolaToRepayMessage = ({
 }: {
     amount: number
 }) => {
-    return <InfoMessage    
+    return <InfoMessage
         alertProps={{ w: 'full' }}
         description={`Not enough DOLA in wallet to repay ${preciseCommify(amount, 2)} DOLA`}
     />
