@@ -1,4 +1,4 @@
-import { VStack, Text, Stack, RadioGroup, Radio } from '@chakra-ui/react'
+import { VStack, Text, Stack, RadioGroup, Radio, SimpleGrid, Divider, Checkbox } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
@@ -12,6 +12,8 @@ import { lightTheme } from '@app/variables/theme'
 import { Input } from '@app/components/common/Input'
 import { useState } from 'react'
 import { InfoMessage } from '@app/components/common/Messages'
+import { isAddress } from 'ethers/lib/utils'
+import { BURN_ADDRESS } from '@app/config/constants'
 
 const steps = [
     {
@@ -34,12 +36,37 @@ const InputZone = ({
     value,
     setter,
     placeholder,
+    ...props
+}: {
+    text: string,
+    value: string,
+    setter: () => void,
+    placeholder?: string,
 }) => {
     return <VStack w='full' spacing="0" alignItems="flex-start">
-        <Text>
+        <Text fontWeight="bold">
             {text}
         </Text>
-        <Input w='full' placeholder={placeholder} value={value} onChange={e => setter(e.target.value)} />
+        <Input w='full' placeholder={placeholder} value={value} onChange={e => setter(e.target.value)} {...props} />
+    </VStack>
+}
+
+const CheckboxZone = ({
+    text,
+    value,
+    setter,
+    placeholder,
+    ...props
+}: {
+    text: string,
+    value: string,
+    setter: () => void,
+    placeholder?: string,
+}) => {
+    return <VStack w='full' spacing="0" alignItems="flex-start">
+        <Checkbox w='full' value={value} onClick={e => setter(!value)} {...props}>
+            {text}
+        </Checkbox>
     </VStack>
 }
 
@@ -51,11 +78,29 @@ export const FirmAffiliateRegisterPage = () => {
     const [emailConfirm, setEmailConfirm] = useState('');
     const [affiliateType, setAffiliateType] = useState('individual');
     const [infos, setInfos] = useState({});
+    const [wallet, setWallet] = useState('');
+    const [otherInfo, setOtherInfo] = useState('');
 
     const individualInputs = [
-        { text: 'Twitter (X)', key: 'x' },
-        { text: 'Instagram', key: 'ig' },
+        { text: 'X (Twitter)', key: 'x' },
+        { text: 'Instagram', key: 'instagram' },
+        { text: 'Telegram', key: 'telegram' },
+        { text: 'Discord', key: 'discord' },
+        { text: 'Youtube', key: 'youtube' },
+        { text: 'TikTok', key: 'tiktok' },
+        { text: 'Facebook', key: 'facebook' },
+        { text: 'Other', key: 'other' },
     ];
+
+    const businessChecks = [
+        { text: 'Crypto media platform', key: 'crypto-media' },
+        { text: 'Crypto Fund', key: 'crypto-fund' },
+        { text: 'DEX', key: 'dex' },
+        { text: 'Yield Aggregator', key: 'yield' },
+        { text: 'Other', key: 'other-business' },
+    ];
+
+    const isInvalidWallet = !!wallet && (isAddress(wallet) || wallet === BURN_ADDRESS);
 
     return (
         <Layout>
@@ -124,34 +169,39 @@ export const FirmAffiliateRegisterPage = () => {
                     </Stack>
                     <VStack alignItems="">
                         <Stack justify="space-between" spacing="10" direction={{ base: 'column', xl: 'row' }}>
-                            <VStack w='full'>
+                            <VStack w='full' spacing="6">
                                 <BigTitle>
                                     How does it work? It's simple:
                                 </BigTitle>
                                 <Steps steps={steps} />
+                                <BigTitle>Who is Eligible?</BigTitle>
+                                <VStack alignItems="flex-start">
+                                    <SimpleText>The program is brand new and we're initially limiting signups to influencers, community leaders, and others with a sizeable audience, including:</SimpleText>
+                                    <SimpleText fontWeight="bold">- Individuals</SimpleText>
+                                    <VStack spacing="0" pl="8" alignItems="flex-start">
+                                        <SimpleText>- Social media influencers with 5,000+ followers or subscribers on one or more social media platforms including Twitter, YouTube, Facebook, and Instagram.</SimpleText>
+                                        <SimpleText>- Financial leaders or opinion leaders with a community of 500+ members on one or more community groups on Telegram, Facebook, Discord, WeChat, and/or Reddit.</SimpleText>
+                                    </VStack>
+                                    <SimpleText fontWeight="bold">- Businesses or organizations</SimpleText>
+                                    <VStack spacing="0" pl="8" alignItems="flex-start">
+                                        <SimpleText>- Those with a user base of 2,000+</SimpleText>
+                                        <SimpleText>- Market analysis platforms with 5,000+ daily visits</SimpleText>
+                                        <SimpleText>- Industry Media Platforms</SimpleText>
+                                        <SimpleText>- Crypto Funds</SimpleText>
+                                        <SimpleText>- DEX or Similar Trading Platforms</SimpleText>
+                                    </VStack>
+                                    <SimpleText>The program is brand new and we're initially limiting signups to influencers, community leaders, and others with a sizeable audience, including:</SimpleText>
+                                </VStack>
                             </VStack>
-                            <DashBoardCard spacing="2">
+                            <DashBoardCard spacing="2" alignItems="flex-start">
                                 <VStack spacing="4" w='full'>
+                                    <SimpleGrid w='full' columns={{ base: 1, lg: 1 }} gap="2">
+                                        <InputZone text="Name / Alias *" placeholder={'Satoshi'} fontSize="14px" value={name} setter={setName} />
+                                        <InputZone text="Email *" placeholder={'satoshi@gmail.com'} fontSize="14px" value={email} setter={setEmail} />
+                                        <InputZone text="Confirm Email *" placeholder={'satoshi@gmail.com'} fontSize="14px" value={emailConfirm} setter={setEmailConfirm} />
+                                    </SimpleGrid>
                                     <VStack w='full' spacing="0" alignItems="flex-start">
-                                        <Text>
-                                            Name / Alias *
-                                        </Text>
-                                        <Input w='full' placeholder="Satoshi" value={name} onChange={e => setName(e.target.value)} />
-                                    </VStack>
-                                    <VStack w='full' spacing="0" alignItems="flex-start">
-                                        <Text>
-                                            Email *
-                                        </Text>
-                                        <Input w='full' placeholder="satoshi@gmail.com" type="email" name="email" value={email} onChange={e => setEmail(e.target.value)} />
-                                    </VStack>
-                                    <VStack w='full' spacing="0" alignItems="flex-start">
-                                        <Text>
-                                            Confirm Email *
-                                        </Text>
-                                        <Input w='full' placeholder="satoshi@gmail.com" value={emailConfirm} onChange={e => setEmailConfirm(e.target.value)} />
-                                    </VStack>
-                                    <VStack w='full' spacing="0" alignItems="flex-start">
-                                        <Text>
+                                        <Text fontWeight="bold">
                                             Affiliate Type *
                                         </Text>
                                         <RadioGroup w='full' bgColor="mainBackground" p="2" onChange={setAffiliateType} value={affiliateType}>
@@ -161,45 +211,50 @@ export const FirmAffiliateRegisterPage = () => {
                                             </Stack>
                                         </RadioGroup>
                                     </VStack>
+                                    <Divider />
                                     <VStack w='full' spacing="0" alignItems="flex-start">
                                         {
                                             affiliateType === 'individual' ?
                                                 <>
-                                                    <InfoMessage alertProps={{ w: 'full' }} description="Social media influencers with 5,000+ followers or subscribers on one or more social media platforms.  Financial leaders or opinion leaders with a community of 500+ members on one or more community groups" />
-                                                    <VStack pt="4" pl="4" w='full'>
-                                                        {
-                                                            individualInputs.map(({ key, text, placeholder }) => {
-                                                                return <InputZone key={key} text={text} placeholder={placeholder} value={infos[key]} setter={e => setInfos({ ...infos, [key]: e.target.value })} />
-                                                            })
-                                                        }
+                                                    {/* <InfoMessage alertProps={{ w: 'full' }} description="Social media influencers with 5,000+ followers or subscribers on one or more social media platforms.  Financial leaders or opinion leaders with a community of 500+ members on one or more community groups" /> */}
+                                                    <VStack w='full' alignItems="flex-start">
+                                                        <Text>
+                                                            Please fill out any relevant social media account:
+                                                        </Text>
+                                                        <SimpleGrid columns={{ base: 2, lg: 3 }} gap="2">
+                                                            {
+                                                                individualInputs.map(({ key, text, placeholder }) => {
+                                                                    return <InputZone fontSize="14px" key={key} text={text} placeholder={placeholder} value={infos[key]} setter={(v) => setInfos({ ...infos, [key]: v })} />
+                                                                })
+                                                            }
+                                                        </SimpleGrid>
                                                     </VStack>
                                                 </>
-                                                : <>
-                                                    <InfoMessage alertProps={{ w: 'full' }} description="User base of 2,000+, Market Analysis platform with 5,000+ daily visits" />
-                                                </>
+                                                : <VStack w='full' alignItems="flex-start">
+                                                    <Text>
+                                                        Please check all that apply:
+                                                    </Text>
+                                                    <SimpleGrid w='full' columns={{ base: 2, lg: 2 }} gap="2">
+                                                        {
+                                                            businessChecks.map(({ key, text }) => {
+                                                                return <CheckboxZone key={key} text={text} value={infos[key]} setter={(v) => setInfos({ ...infos, [key]: v })} />
+                                                            })
+                                                        }
+                                                    </SimpleGrid>
+
+                                                    {/* <InfoMessage alertProps={{ w: 'full' }} description="User base of 2,000+, Market Analysis platform with 5,000+ daily visits" /> */}
+                                                </VStack>
                                         }
                                     </VStack>
+                                    <Divider />
+                                    <InputZone text="Wallet Address" placeholder={BURN_ADDRESS} fontSize="14px" value={wallet} setter={setWallet} isInvalid={isInvalidWallet} />
+                                    <InputZone text="Other informations we should know" fontSize="14px" value={otherInfo} setter={setOtherInfo} />
+                                    <RSubmitButton p="8" fontSize="22px" href="/firm">
+                                        Become an Affiliate
+                                    </RSubmitButton>
                                 </VStack>
                             </DashBoardCard>
                         </Stack>
-                    </VStack>
-                    <BigTitle>Who is Eligible?</BigTitle>
-                    <VStack alignItems="flex-start">
-                        <SimpleText>The program is brand new and we're initially limiting signups to influencers, community leaders, and others with a sizeable audience, including:</SimpleText>
-                        <SimpleText fontWeight="bold">- Individuals</SimpleText>
-                        <VStack spacing="0" pl="8" alignItems="flex-start">
-                            <SimpleText>- Social media influencers with 5,000+ followers or subscribers on one or more social media platforms including Twitter, YouTube, Facebook, and Instagram.</SimpleText>
-                            <SimpleText>- Financial leaders or opinion leaders with a community of 500+ members on one or more community groups on Telegram, Facebook, Discord, WeChat, and/or Reddit.</SimpleText>
-                        </VStack>
-                        <SimpleText fontWeight="bold">- Businesses or organizations</SimpleText>
-                        <VStack spacing="0" pl="8" alignItems="flex-start">
-                            <SimpleText>- Those with a user base of 2,000+</SimpleText>
-                            <SimpleText>- Market analysis platforms with 5,000+ daily visits</SimpleText>
-                            <SimpleText>- Industry Media Platforms</SimpleText>
-                            <SimpleText>- Crypto Funds</SimpleText>
-                            <SimpleText>- DEX or Similar Trading Platforms</SimpleText>
-                        </VStack>
-                        <SimpleText>The program is brand new and we're initially limiting signups to influencers, community leaders, and others with a sizeable audience, including:</SimpleText>
                     </VStack>
                     <BigTitle>What Else?</BigTitle>
                     <VStack alignItems="flex-start">
@@ -212,11 +267,11 @@ export const FirmAffiliateRegisterPage = () => {
                     <SimpleText>
                         Don't miss out on this opportunity to be one of our first FiRM Affiliates and begin earning today! Apply now and start making a difference in the world of finance!
                     </SimpleText>
-                    <VStack alignItems="center" w='full'>
+                    {/* <VStack alignItems="center" w='full'>
                         <RSubmitButton p="8" fontSize="22px" href="/firm">
                             Become an Affiliate
                         </RSubmitButton>
-                    </VStack>
+                    </VStack> */}
                     <SimpleText color="mainTextColorLight">
                         Note: Governance reserves the right to make changes to the program at any time.
                     </SimpleText>
