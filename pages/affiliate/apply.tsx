@@ -16,6 +16,7 @@ import { isAddress } from 'ethers/lib/utils'
 import { BURN_ADDRESS } from '@app/config/constants'
 import Link from '@app/components/common/Link'
 import { FAQ } from '@app/components/common/FAQ'
+import { ExternalLinkIcon } from '@chakra-ui/icons'
 
 const steps = [
     {
@@ -93,12 +94,99 @@ export const businessChecks = [
 ];
 
 const mainColor = "#252627";
+const cardBg = "#323334";
+const cardBorder = "#57595C";
+
+const DarkCard = (props) => <DashBoardCard position="relative" p="0" gap="8" direction="column" color="white" bgColor={cardBg} border={`1px solid ${cardBorder}`} {...props} />
+
 const MainTitle = (props) => <Text fontWeight="extrabold" fontSize="9vw" color={mainColor} {...props} />
-const BigTitle = (props) => <Text fontWeight="bold" fontSize="28px" color={mainColor} {...props} />
+const BigTitle = (props) => <Text fontWeight="bold" fontSize="48px" color={mainColor} {...props} />
 const Title = (props) => <Text fontWeight="bold" fontSize="20px" color={mainColor} {...props} />
 const SimpleText = (props) => <Text color={mainColor} {...props} />
 
 const OrangeBubble = (props) => <VStack transform="rotate(-5deg)" borderRadius="120px" lineHeight="normal" p="8" fontSize={{ base: "18px", lg: "34px" }} border="8px solid white" bgColor="secAccentTextColor" {...props} />
+
+const SectionOne = () => <VStack alignItems="flex-start" position="relative" p={{ base: 8, lg: 20 }} borderRadius="50px" bgImage="/assets/affiliate/bg1.png">
+    <VStack alignItems="flex-start">
+        <HStack w='full' justify="flex-start" spacing={{ base: "20px", lg: "40px" }}>
+            <MainTitle>
+                Become a
+            </MainTitle>
+            <Image src="/assets/firm/firm-big.png" alt="FiRM" minW='100px' maxW='33vw' w={"45vh"} />
+        </HStack>
+        <HStack>
+            <MainTitle>
+                Affiliate
+            </MainTitle>
+        </HStack>
+    </VStack>
+    <Stack direction={{ base: 'column', lg: 'row' }}>
+        <VStack w={{ base: 'full', lg: '60%' }} alignItems="flex-start">
+            <Title fontWeight="bold">
+                Ready to join the fixed-rate DeFi lending rebellion and start earning serious commissions?
+            </Title>
+            <SimpleText>
+                As a FiRM Affiliate, you'll have the opportunity to earn a whopping 10% of the DBR spent by borrowers you refer. That's right, you'll be making money while helping to spread the word about the incredible potential of FiRM!
+            </SimpleText>
+        </VStack>
+        <VStack right="-120px" bottom="0" position={{ base: 'relative', lg: 'absolute' }}>
+            <OrangeBubble transform={{ base: "translate3D(-90px, 40px, 0) rotate(-5deg)", lg: 'translate3D(-200px, 40px, 0) rotate(-5deg)' }}>
+                <VStack alignItems="flex-start" w='full'>
+                    <Text>Earn <b>10%</b> Commissions</Text>
+                    <Text>By Promoting <b>FiRM</b></Text>
+                </VStack>
+            </OrangeBubble>
+            <Image zIndex="1" src="/assets/affiliate/megaphone.png" minW='150px' w="20vw" />
+        </VStack>
+    </Stack>
+</VStack>
+
+const InfoBar = () => <VStack zIndex="2" overflow="hidden" transform="translateY(-40px) rotate(2deg)" bgColor={lightTheme.colors.accentTextColor} w='110%'>
+    <Text fontWeight="extrabold" whiteSpace="nowrap" textOverflow="clip" color="white" fontSize="68px">
+        INFO INFO INFO INFO INFO INFO INFO INFO INFO INFO INFO INFO INFO INFO
+    </Text>
+</VStack>
+
+const FaqBar = () => <VStack zIndex="2" overflow="hidden" transform="translateY(-40px) rotate(-2deg)" bgColor={lightTheme.colors.accentTextColor} w='110%'>
+    <Text fontWeight="extrabold" whiteSpace="nowrap" textOverflow="clip" color="white" fontSize="68px">
+        FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ
+    </Text>
+</VStack>
+
+const HowDoesItWorkSection = () => <VStack spacing="8" transform="translateY(-70px)" w='full' alignItems="flex-start" position="relative" px={{ base: 8, lg: 20 }} py="20" bgColor={mainColor}>
+    <Stack w='full' pl={{ base: 0, lg: '20%' }} spacing="8" color="white" direction={{ base: 'column', lg: 'row' }} alignItems={{ base: 'flex-start', lg: 'flex-end' }}>
+        <VStack spacing="0" alignItems="flex-start">
+            <BigTitle whiteSpace="nowrap" color="white" textTransform="uppercase">How does</BigTitle>
+            <BigTitle color="white" textTransform="uppercase">it work?</BigTitle>
+        </VStack>
+        <Title transform="translateY(-11px)" color="white" borderBottom={`1px solid ${lightTheme.colors.secAccentTextColor}`}>
+            It's quite simple
+        </Title>
+    </Stack>
+    <SimpleGrid gap="8" columns={{ base: 1, lg: 3 }}>
+        <DarkCard alignItems="flex-start">
+            <Text px="8" pt="8" color="white">
+                <b style={{ color: lightTheme.colors.secAccentTextColor }}>Fill out the application form below to become a FiRM Affiliate</b>. Our team will review your application to ensure you meet the criteria.
+            </Text>
+            <Link href="/affiliate/register" textDecoration="underline" px="8" mb="140px" color={lightTheme.colors.secAccentTextColor}>
+                Application Form <ExternalLinkIcon color={lightTheme.colors.secAccentTextColor} />
+            </Link>
+            <Image right="0" position="absolute" bottom="0" src="/assets/affiliate/step1.png" w="100px" />
+        </DarkCard>
+        <DarkCard>
+            <Text mb="140px" p="8" color="white">
+                Once approved, create and share your unique Affiliate link with your audiences. <b style={{ color: lightTheme.colors.secAccentTextColor }}>Promote FIRM to your audiences</b> as much or as little as you like.
+            </Text>
+            <Image transform="translate3d(-41px, 30px, 0)" position="absolute" bottom="0" src="/assets/affiliate/step2.png" w="90%" />
+        </DarkCard>
+        <DarkCard>
+            <Text mb="140px" p="8" color="white">
+                <b style={{ color: lightTheme.colors.secAccentTextColor }}>Sit back and earn!</b> As the borrowers you refer spend DBR on new DOLA loans, you'll receive 10% of their spent DBR.
+            </Text>
+            <Image position="absolute" left="0" bottom="0" src="/assets/affiliate/step3.png" w="75%" />
+        </DarkCard>
+    </SimpleGrid>
+</VStack>
 
 export const FirmAffiliateRegisterPage = () => {
     const [name, setName] = useState('');
@@ -147,41 +235,10 @@ export const FirmAffiliateRegisterPage = () => {
             </Head>
             <AppNav active="More" activeSubmenu="Affiliate Dashboard" hideAnnouncement={true} hideVampireBar={true} />
             <ErrorBoundary>
-                <VStack spacing="20" w='full' maxW="1307px" mt="8">
-                    <VStack alignItems="flex-start" position="relative" p={{ base: 8, lg: 20 }} borderRadius="50px" bgImage="/assets/affiliate/bg1.png">
-                        <VStack alignItems="flex-start">
-                            <HStack w='full' justify="flex-start" spacing={{ base: "20px", lg: "40px" }}>
-                                <MainTitle>
-                                    Become a
-                                </MainTitle>
-                                <Image src="/assets/firm/firm-big.png" alt="FiRM" minW='100px' maxW='33vw' w={"45vh"} />
-                            </HStack>
-                            <HStack>
-                                <MainTitle>
-                                    Affiliate
-                                </MainTitle>
-                            </HStack>
-                        </VStack>
-                        <Stack direction={{ base: 'column', lg: 'row' }}>
-                            <VStack w={{ base: 'full', lg: '60%' }} alignItems="flex-start">
-                                <Title fontWeight="bold">
-                                    Ready to join the fixed-rate DeFi lending rebellion and start earning serious commissions?
-                                </Title>
-                                <SimpleText>
-                                    As a FiRM Affiliate, you'll have the opportunity to earn a whopping 10% of the DBR spent by borrowers you refer. That's right, you'll be making money while helping to spread the word about the incredible potential of FiRM!
-                                </SimpleText>
-                            </VStack>
-                            <VStack right="-120px" bottom="0" position={{ base: 'relative', lg: 'absolute' }}>
-                                <OrangeBubble transform={{ base: "translate3D(-90px, 40px, 0) rotate(-5deg)", lg: 'translate3D(-200px, 40px, 0) rotate(-5deg)' }}>
-                                    <VStack alignItems="flex-start" w='full'>
-                                        <Text>Earn 10% Commissions</Text>
-                                        <Text>By Promoting <b>FiRM</b></Text>
-                                    </VStack>
-                                </OrangeBubble>
-                                <Image zIndex="1" src="/assets/affiliate/megaphone.png" minW='150px' w="20vw" />
-                            </VStack>
-                        </Stack>
-                    </VStack>
+                <VStack overflow="hidden" spacing="0" w='full' maxW="1307px" mt="8">
+                    <SectionOne />
+                    <InfoBar />
+                    <HowDoesItWorkSection />
                 </VStack>
             </ErrorBoundary>
         </Layout>
