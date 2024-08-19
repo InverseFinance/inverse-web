@@ -29,11 +29,6 @@ const steps = [
     },
 ]
 
-const mainColor = "#252627";
-const MainTitle = (props) => <Text fontWeight="extrabold" fontSize="150px" color={mainColor} {...props} />
-const BigTitle = (props) => <Text fontWeight="bold" fontSize="28px" {...props} />
-const Title = (props) => <Text fontWeight="bold" fontSize="20px" {...props} />
-const SimpleText = (props) => <Text color="mainTextColorLight2" {...props} />
 
 const InputZone = ({
     text,
@@ -97,7 +92,13 @@ export const businessChecks = [
     { text: 'Other', key: 'other-business' },
 ];
 
-const OrangeBubble = (props) => <VStack transform="rotate(-5deg)" borderRadius="120px" lineHeight="normal" p="8" fontSize="41px" border="8px solid white" bgColor="secAccentTextColor" {...props} />
+const mainColor = "#252627";
+const MainTitle = (props) => <Text fontWeight="extrabold" fontSize="9vw" color={mainColor} {...props} />
+const BigTitle = (props) => <Text fontWeight="bold" fontSize="28px" color={mainColor} {...props} />
+const Title = (props) => <Text fontWeight="bold" fontSize="20px" color={mainColor} {...props} />
+const SimpleText = (props) => <Text color={mainColor} {...props} />
+
+const OrangeBubble = (props) => <VStack transform="rotate(-5deg)" borderRadius="120px" lineHeight="normal" p="8" fontSize={{ base: "18px", lg: "34px" }} border="8px solid white" bgColor="secAccentTextColor" {...props} />
 
 export const FirmAffiliateRegisterPage = () => {
     const [name, setName] = useState('');
@@ -142,68 +143,46 @@ export const FirmAffiliateRegisterPage = () => {
     return (
         <Layout bgColor="white" bg="white">
             <Head>
-                <title>Inverse Finance - Affiliate Program Registeration</title>
+                <title>Inverse Finance - Affiliate Program Registration</title>
             </Head>
             <AppNav active="More" activeSubmenu="Affiliate Dashboard" hideAnnouncement={true} hideVampireBar={true} />
             <ErrorBoundary>
-                <Flex
-                    // bg={`url(/assets/social-previews/everything-about-firm.png)`}
-                    bgSize="cover"
-                    bgPosition="0 -50px"
-                    maxW="100vw"
-                    direction="column"
-                    w={{ base: 'full' }}
-                    alignItems="center"
-                    pt="0"
-                >                    
-                    <Text transform="translateY(100px)">
-                        Loading...
-                    </Text>
-                    <Image
-                        zIndex="1"
-                        mt="5"
-                        width="100%"
-                        maxW="100vw"
-                        src={"/assets/affiliate/brochure-cropped-optimized.png"}
-                    />
-                    {/* <Text mt="50px" textAlign="center" fontSize="14px" color="secondaryTextColor">
-            Please read our <Link href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/firm" isExternal target="_blank" as="a" textDecoration="underline" color="secondaryTextColor">
-              Docs
-            </Link> for further details.
-          </Text> */}
-                </Flex>
-                {/* <VStack spacing="20" w='full' maxW="1307px" mt="8"> */}
-                {/* <Image  */}
-                {/* <VStack p="20" borderRadius="50px" bgImage="/assets/affiliate/bg1.png">
+                <VStack spacing="20" w='full' maxW="1307px" mt="8">
+                    <VStack alignItems="flex-start" position="relative" p={{ base: 8, lg: 20 }} borderRadius="50px" bgImage="/assets/affiliate/bg1.png">
                         <VStack alignItems="flex-start">
-                            <HStack spacing="40px">
+                            <HStack w='full' justify="flex-start" spacing={{ base: "20px", lg: "40px" }}>
                                 <MainTitle>
                                     Become a
                                 </MainTitle>
-                                <Image src="/assets/firm/firm-big.png" alt="FiRM" h="120px" />
+                                <Image src="/assets/firm/firm-big.png" alt="FiRM" minW='100px' maxW='33vw' w={"45vh"} />
                             </HStack>
                             <HStack>
                                 <MainTitle>
                                     Affiliate
                                 </MainTitle>
-                                <OrangeBubble>
-                                    <Text>and Earn Commissions By Promoting <b>FiRM</b></Text>
-                                </OrangeBubble>
                             </HStack>
                         </VStack>
                         <Stack direction={{ base: 'column', lg: 'row' }}>
-                            <VStack alignItems="flex-start">
-                                <Text fontWeight="bold">
+                            <VStack w={{ base: 'full', lg: '60%' }} alignItems="flex-start">
+                                <Title fontWeight="bold">
                                     Ready to join the fixed-rate DeFi lending rebellion and start earning serious commissions?
-                                </Text>
+                                </Title>
                                 <SimpleText>
                                     As a FiRM Affiliate, you'll have the opportunity to earn a whopping 10% of the DBR spent by borrowers you refer. That's right, you'll be making money while helping to spread the word about the incredible potential of FiRM!
                                 </SimpleText>
                             </VStack>
-                            <Image src="/assets/affiliate/megaphone.png" h="200px" />
+                            <VStack right="-120px" bottom="0" position={{ base: 'relative', lg: 'absolute' }}>
+                                <OrangeBubble transform={{ base: "translate3D(-90px, 40px, 0) rotate(-5deg)", lg: 'translate3D(-200px, 40px, 0) rotate(-5deg)' }}>
+                                    <VStack alignItems="flex-start" w='full'>
+                                        <Text>Earn 10% Commissions</Text>
+                                        <Text>By Promoting <b>FiRM</b></Text>
+                                    </VStack>
+                                </OrangeBubble>
+                                <Image zIndex="1" src="/assets/affiliate/megaphone.png" minW='150px' w="20vw" />
+                            </VStack>
                         </Stack>
-                    </VStack> */}
-                {/* </VStack> */}
+                    </VStack>
+                </VStack>
             </ErrorBoundary>
         </Layout>
     )
