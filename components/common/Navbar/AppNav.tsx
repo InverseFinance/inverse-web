@@ -479,7 +479,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal, onReferToOpen }:
   )
 }
 
-export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = false, hideAnnouncement = false }: { active?: string, activeSubmenu?: string, isBlog?: boolean, isClaimPage?: boolean, hideAnnouncement?: boolean }) => {
+export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = false, hideAnnouncement = false, hideVampireBar = false }: { active?: string, activeSubmenu?: string, isBlog?: boolean, isClaimPage?: boolean, hideAnnouncement?: boolean, hideVampireBar?: boolean }) => {
   const { account } = useWeb3React<Web3Provider>();
   const { query } = useRouter()
   const [isLargerThan] = useMediaQuery('(min-width: 1330px)');
@@ -506,7 +506,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const { value: gnosisSafeToastAlreadyShowed, setter: setGnosisSafeToastAlreadyShowed } = useStorage('gnosis-safe-toast');
   const { value: isRefPop, setter: setIsRefPop } = useStorage('referral-pop-v1');
   const [inited, setInited] = useState(false);
-  const [refPopInited, setRefPopInited] = useState(false);
+  const [refPopInited, setRefPopInited] = useState(false);  
   const isMountedRef = useRef(false);
 
   useEffect(() => {
@@ -568,12 +568,12 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
     init()
   }, [query])
 
-  useEffect(() => {
-    if(!window.location.pathname.includes('affiliate') && !refPopInited && !!account && isRefPop === null) {
-      onReferralPopOpen();
-      setRefPopInited(true);
-    }
-  }, [isRefPop, account, refPopInited])
+  // useEffect(() => {
+  //   if(!window.location.pathname.includes('affiliate') && !refPopInited && !!account && isRefPop === null) {
+  //     onReferralPopOpen();
+  //     setRefPopInited(true);
+  //   }
+  // }, [isRefPop, account, refPopInited])
 
   useEffect(() => {
     const init = async () => {
@@ -820,7 +820,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
       </Flex>
       {isLargerThan768 && !!process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG && !hideAnnouncement && <Announcement />}
       {
-        !isLargerThan1150 && inited && <VStack mt="4">
+        !isLargerThan1150 && inited && !hideVampireBar && <VStack mt="4">
           {vampireComp}
         </VStack>
       }
