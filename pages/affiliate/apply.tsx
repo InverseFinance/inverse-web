@@ -162,7 +162,7 @@ const HowDoesItWorkSection = () => <VStack spacing="8" transform="translateY(-70
             <BigTitle whiteSpace="nowrap" color={whitish} textTransform="uppercase">How does</BigTitle>
             <BigTitle color={whitish} textTransform="uppercase">it <b className="splash-orange-circled">work</b>?</BigTitle>
         </VStack>
-        <Title transform="translateY(-11px)" color={whitish} borderBottom={`1px solid ${lightTheme.colors.secAccentTextColor}`}>
+        <Title ml={{ base: 0, lg: 8 }} transform="translateY(-11px)" color={whitish} borderBottom={`1px solid ${lightTheme.colors.secAccentTextColor}`}>
             It's quite simple
         </Title>
     </Stack>
@@ -309,6 +309,42 @@ const WhatElseSection = () => <VStack transform="translateY(-70px)" spacing="8" 
     </DarkCard>
 </VStack>
 
+const faq = [
+    { 
+        title: <Title><b className="splash-underline">What is the criteria</b> to become a FiRM Affiliate?</Title>,
+        answer: "It varies depending on the category of Affiliate but we're seeking leaders and influencers with a verifiable following or community that we think can help bring new users to FiRM. For questions, try @patb on Twitter.",
+    },
+    { 
+        title: <Title><b className="splash-underline">How do I earn</b> commissions as an affiliate?</Title>,
+        answer: "You earn commissions when the borrowers you refer borrow on FiRM. When they borrow, you’ll receive a commission, paid in DBR, equal to 10% of the DBR they spend on their loan.",
+    },
+    { 
+        title: <Title>How will I receive my commissions and <b className="splash-underline">how often will I be paid</b>?</Title>,
+        answer: "You will receive your commissions on a monthly basis. This means that you will receive payments for your commissions earned in the previous month at the beginning of each month. You will be able to see the details of each payment in your affiliate dashboard, including the amount, date, and status of each payment.",
+    },
+    { 
+        title: <Title><b className="splash-underline">How do I track</b> my referrals and commissions?</Title>,
+        answer: "Affiliates can login to the affiliate dashboard and view referral and commission information. Your referrals will be listed in your affiliate dashboard, along with the date they were made, their status, and the commission amount earned",
+    },
+    { 
+        title: <Title><b className="splash-underline">Is there a limited number</b> of referrals i can refer?</Title>,
+        answer: "No. Affiliates can refer as many borrowers as they wish",
+    },
+];
+
+const FaqSection = (props) => <VStack alignItems="flex-start" position="relative" p={{ base: 8, lg: 20 }} borderRadius="50px" bgImage="/assets/affiliate/bg1.png">
+    <VStack spacing="4" w='full' alignItems="flex-start">
+        {
+            faq.map(({ title, answer }, i) => {
+                return <VStack key={i} alignItems="flex-start">
+                    {title}
+                    <Text>{answer}</Text>
+                </VStack>
+            })
+        }
+    </VStack>
+</VStack>
+
 const personas = [
     { title: 'Individuals', imageProps: { w: "80%" } },
     { title: 'Social media\nInfluencers', imageProps: { maxH: "220px" }, subtitle: 'with 5,000+ followers or subscribers on one or more social media platforms including Twitter, YouTube, Facebook, and Instagram.' },
@@ -375,6 +411,7 @@ export const FirmAffiliateRegisterPage = () => {
                     <HowDoesItWorkSection />
                     <WhoIsEligibleSection />
                     <WhatElseSection />
+                    <FaqSection />
                 </VStack>
             </ErrorBoundary>
         </Layout>
