@@ -135,8 +135,8 @@ const SectionOne = () => <VStack alignItems="flex-start" position="relative" p={
         <VStack right="-120px" bottom="0" position={{ base: 'relative', lg: 'absolute' }}>
             <OrangeBubble transform={{ base: "translate3D(-90px, 40px, 0) rotate(-5deg)", lg: 'translate3D(-200px, 40px, 0) rotate(-5deg)' }}>
                 <VStack alignItems="flex-start" w='full'>
-                    <Text>Earn <b>10%</b> Commissions</Text>
-                    <Text>By Promoting <b>FiRM</b></Text>
+                    <Text color={mainColor}>Earn <b>10%</b> Commissions</Text>
+                    <Text color={mainColor}>By Promoting <b>FiRM</b></Text>
                 </VStack>
             </OrangeBubble>
             <Image zIndex="1" src="/assets/affiliate/megaphone.png" minW='150px' w="20vw" />
@@ -192,7 +192,7 @@ const HowDoesItWorkSection = () => <VStack spacing="8" transform="translateY(-70
 </VStack>
 
 const WhoIsEligibleSection = () => <VStack spacing="8" transform="translateY(-70px)" w='full' alignItems="flex-start" position="relative" px={{ base: 8, lg: 20 }} py="20" bgColor={mainColor}>
-    <Stack w='full' pl={{ base: 0, lg: '20%' }} spacing="8" color={whitish} direction={{ base: 'column', lg: 'row' }} alignItems={{ base: 'flex-start', lg: 'flex-end' }}>
+    <Stack w='full' pl={{ base: 0, lg: '20%' }} spacing={{ base: '20', lg: '8' }} color={whitish} direction={{ base: 'column', lg: 'row' }} alignItems={{ base: 'flex-start', lg: 'flex-end' }}>
         <VStack spacing="0" alignItems="flex-start">
             <BigTitle whiteSpace="nowrap" color={whitish} textTransform="uppercase">Who is</BigTitle>
             <BigTitle color={whitish} textTransform="uppercase">eligible?</BigTitle>
@@ -206,10 +206,10 @@ const WhoIsEligibleSection = () => <VStack spacing="8" transform="translateY(-70
             </Text>
         </VStack>
     </Stack>
-    <SimpleGrid mt="10" gap="8" columns={{ base: 1, lg: 5 }}>
+    <SimpleGrid justifyContent="center" mt="10" gap="8" columns={{ base: 1, lg: 5 }}>
         {
             personas.map((persona, i) => {
-                return <VStack alignItems="flex-start">
+                return <VStack alignItems={{ base: 'center', lg: 'flex-start' }}>
                     <GrayCard h="200px" w="200px">
                         <Image position="absolute" bottom="0" src={`/assets/affiliate/persona${i + 1}.png`} w="100%" {...persona.imageProps} />
                     </GrayCard>
@@ -225,6 +225,11 @@ const WhoIsEligibleSection = () => <VStack spacing="8" transform="translateY(-70
             })
         }
     </SimpleGrid>
+    <VStack w='full' alignItems="center">
+        <Title p="20" w="66%" fontSize="30px" textAlign="center" color={whitish}>
+            The <b>FiRM</b> <b style={{ color: lightTheme.colors.secAccentTextColor }}>Affiliate Program</b> offers a <b>no-hassle opportunity</b> to <b className="splash-underline">introduce FiRM</b> to your audience while adding to your topline revenue number!
+        </Title>
+    </VStack>
 </VStack>
 
 const personas = [
@@ -236,7 +241,7 @@ const personas = [
     { title: 'Businesses or\nOrganizations' },
     { title: 'Those with a user\nbase of 2,000+' },
     { title: 'Market analysis\nplatforms with\n5,000+ daily visits' },
-    { title: 'Industry Media\nPlatforms', imageProps: { left: '-4px' }  },
+    { title: 'Industry Media\nPlatforms' },
     { title: 'Crypto Funds', imageProps: { left: '-18px' } },
 ]
 

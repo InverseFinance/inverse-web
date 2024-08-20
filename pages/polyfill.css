@@ -115,3 +115,15 @@ body {
         background-color: #ed8936dd !important;
     }
   }
+
+.splash-underline::before {
+  position: absolute;
+  transform: translateY(30px);
+  content: " ";
+  background-image: url(/assets/affiliate/underline.svg);
+  background-size: 240px 20px;
+  background-repeat: no-repeat;
+  width: 240px;
+  height: 20px;
+  opacity: 0.9;
+}
