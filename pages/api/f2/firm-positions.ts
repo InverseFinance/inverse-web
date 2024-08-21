@@ -94,7 +94,7 @@ export default async function handler(req, res) {
 
     dbrUsers = [...new Set(dbrUsers)];
 
-    const [dbrSignedBalanceBn, totalDebtsBn, dueTokensAccruedBn, lastUpdated] = await getGroupedMulticallOutputs(
+    const [dbrSignedBalanceBn, totalDebtsBn, dueTokensAccruedBn, lastUpdatedBn] = await getGroupedMulticallOutputs(
       [
         dbrUsers.map(u => {
           return { contract: dbrContract, functionName: 'signedBalanceOf', params: [u] }
@@ -130,7 +130,7 @@ export default async function handler(req, res) {
         }),
       ]
     );
-   
+
     const deposits = depositsBn.map((bn, i) => getBnToNumber(bn, getToken(CHAIN_TOKENS[CHAIN_ID], F2_MARKETS[firmMarketUsers[i].marketIndex].collateral)?.decimals));
     const debts = debtsBn.map((bn) => getBnToNumber(bn));
     const creditLimits = creditLimitsBn.map((bn) => getBnToNumber(bn));
@@ -139,7 +139,7 @@ export default async function handler(req, res) {
 
     const positions = firmMarketUsers.map((f, i) => {
       const dbrIdx = dbrUsers.findIndex(du => du === f.user);
-      const lastUpdatedMs = getBnToNumber(lastUpdated, 0) * 1000;
+      const lastUpdatedMs = getBnToNumber(lastUpdatedBn[dbrIdx], 0) * 1000;
       const dueTokensStored = getBnToNumber(dueTokensAccruedBn[dbrIdx]);
       const totalDebt = getBnToNumber(totalDebtsBn[dbrIdx]);
       return {
@@ -150,7 +150,8 @@ export default async function handler(req, res) {
         totalDebt: totalDebt,
         dbrBalance: getBnToNumber(dbrSignedBalanceBn[dbrIdx]),
         dueTokensAccruedStored: dueTokensStored,
-        dueTokensAccrued: dueTokensStored+ (now - lastUpdatedMs) * totalDebt / 365 * ONE_DAY_MS,
+        // live
+        dueTokensAccrued: dueTokensStored + (now - lastUpdatedMs) * totalDebt / (365 * ONE_DAY_MS),
         lastAccrualUpdate: lastUpdatedMs,
       }
     });
@@ -166,7 +167,7 @@ export default async function handler(req, res) {
 
     res.status(200).json(resultData)
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     // if an error occured, try to return last cached results
     try {
       const cache = await getCacheFromRedis(F2_POSITIONS_CACHE_KEY, false);
