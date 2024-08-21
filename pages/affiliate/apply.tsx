@@ -102,7 +102,7 @@ const lightish = "#D9D9D9";
 const DarkCard = (props) => <DashBoardCard position="relative" p="0" gap="8" direction="column" color={whitish} bgColor={cardBg} border={`1px solid ${cardBorder}`} {...props} />
 const GrayCard = (props) => <DashBoardCard position="relative" p="0" gap="8" direction="column" color={whitish} bgColor={'#7C7F83'} border={`1px solid ${'#A4A6A8'}`} {...props} />
 
-const MainTitle = (props) => <Text fontWeight="extrabold" fontSize="7.5vw" color={mainColor} {...props} />
+const MainTitle = (props) => <Text fontWeight="extrabold" fontSize={{ base: '7.5vw', '2xl': '115px' }} color={mainColor} {...props} />
 const BigTitle = (props) => <Text fontWeight="extrabold" fontSize="48px" color={mainColor} {...props} />
 const Title = (props) => <Text fontWeight="bold" fontSize="20px" color={mainColor} {...props} />
 const SimpleText = (props) => <Text color={mainColor} {...props} />
@@ -113,13 +113,13 @@ const RegisterBtn = (props) => <RSubmitButton _hover={{ bgColor: lightTheme.colo
     Become an Affiliate
 </RSubmitButton>
 
-const SectionOne = () => <VStack w="90%" alignItems="flex-start" position="relative" p={{ base: 8, lg: 20 }} borderRadius="50px" bgImage="/assets/affiliate/bg1.png" bgRepeat="no-repeat" bgSize="cover">
+const SectionOne = () => <VStack maxW="1300px" w="100%" alignItems="flex-start" position="relative" p={{ base: 8, lg: 20 }} borderRadius="50px" bgImage="/assets/affiliate/bg1.png" bgRepeat="no-repeat" bgSize="cover">
     <VStack alignItems="flex-start">
         <HStack w='full' justify="flex-start" spacing={{ base: "20px", lg: "40px" }}>
             <MainTitle>
                 Become a
             </MainTitle>
-            <Image src="/assets/firm/firm-big.png" alt="FiRM" minW='100px' maxW='30vw' w={"38vh"} />
+            <Image src="/assets/firm/firm-big.png" alt="FiRM" minW='100px' maxW='330px' w={{ base: '100px', lg: '38vh' }} />
         </HStack>
         <HStack>
             <MainTitle>
@@ -146,178 +146,184 @@ const SectionOne = () => <VStack w="90%" alignItems="flex-start" position="relat
                     <Text color={mainColor}>By Promoting <b>FiRM</b></Text>
                 </VStack>
             </OrangeBubble>
-            <Image zIndex="1" src="/assets/affiliate/megaphone.png" minW='150px' w="29.5vw" />
+            <Image zIndex="1" src="/assets/affiliate/megaphone.png" minW='150px' w="29.5vw" maxW='475px' />
         </VStack>
     </Stack>
 </VStack>
 
-const INFOitem =  <Text fontWeight="extrabold" textOverflow="clip" color={whitish} fontSize="68px">INFO</Text>
+const INFOitem = <Text fontWeight="extrabold" textOverflow="clip" color={whitish}  fontSize={{ base: '30px', lg: '68px' }}>INFO</Text>
 
-const InfoBar = () => <VStack zIndex="2" overflow="hidden" transform="translateY(-40px) rotate(2deg)" bgColor={lightTheme.colors.accentTextColor} w='110%'>
+const InfoBar = () => <VStack zIndex="2" overflow="hidden" transform="translateY(-40px) rotate(1deg)" bgColor={lightTheme.colors.accentTextColor} w='110%'>
     <HStack spacing="20">
-        {INFOitem}{INFOitem}{INFOitem}{INFOitem}{INFOitem}{INFOitem}{INFOitem}{INFOitem}{INFOitem}
+        {INFOitem}{INFOitem}{INFOitem}{INFOitem}{INFOitem}{INFOitem}{INFOitem}{INFOitem}{INFOitem}{INFOitem}{INFOitem}{INFOitem}{INFOitem}
     </HStack>
 </VStack>
 
-const FAQitem =  <Text fontWeight="extrabold" textOverflow="clip" color={whitish} fontSize="68px">FAQ</Text>
+const FAQitem = <Text fontWeight="extrabold" textOverflow="clip" color={whitish} fontSize={{ base: '30px', lg: '68px' }}>FAQ</Text>
 
 const FaqBar = () => <VStack zIndex="2" overflow="hidden" transform="translateY(-40px) rotate(-2deg)" bgColor={lightTheme.colors.accentTextColor} w='110%'>
     <HStack spacing="20">
-        {FAQitem}{FAQitem}{FAQitem}{FAQitem}{FAQitem}{FAQitem}{FAQitem}{FAQitem}{FAQitem}
+        {FAQitem}{FAQitem}{FAQitem}{FAQitem}{FAQitem}{FAQitem}{FAQitem}{FAQitem}{FAQitem}{FAQitem}{FAQitem}{FAQitem}{FAQitem}
     </HStack>
 </VStack>
 
-const HowDoesItWorkSection = () => <VStack spacing="8" transform="translateY(-70px)" w='full' alignItems="flex-start" position="relative" px={{ base: 8, lg: 20 }} py="20" bgColor={mainColor}>
-    <Stack w='full' pl={{ base: 0, lg: '20%' }} spacing="8" color={whitish} direction={{ base: 'column', lg: 'row' }} alignItems={{ base: 'flex-start', lg: 'flex-end' }}>
-        <VStack spacing="0" alignItems="flex-start">
-            <BigTitle whiteSpace="nowrap" color={whitish} textTransform="uppercase">How does</BigTitle>
-            <BigTitle color={whitish} textTransform="uppercase">it <b className="splash-orange-circled">work</b>?</BigTitle>
-        </VStack>
-        <Title ml={{ base: 0, lg: 8 }} transform="translateY(-11px)" color={whitish} borderBottom={`1px solid ${lightTheme.colors.secAccentTextColor}`}>
-            It's quite simple
-        </Title>
-    </Stack>
-    <SimpleGrid gap="8" columns={{ base: 1, lg: 3 }}>
-        <DarkCard alignItems="flex-start">
-            <Text px="8" pt="8" color={whitish}>
-                <b style={{ color: lightTheme.colors.secAccentTextColor }}>Fill out the application form below to become a FiRM Affiliate</b>. Our team will review your application to ensure you meet the criteria.
-            </Text>
-            <Link href="/affiliate/register" textDecoration="underline" px="8" mb="140px" color={lightTheme.colors.secAccentTextColor}>
-                Application Form <ExternalLinkIcon color={lightTheme.colors.secAccentTextColor} />
-            </Link>
-            <Image right="0" position="absolute" bottom="0" src="/assets/affiliate/step1.png" w="100px" />
-        </DarkCard>
-        <DarkCard>
-            <Text mb="140px" p="8" color={whitish}>
-                Once approved, create and share your unique Affiliate link with your audiences. <b style={{ color: lightTheme.colors.secAccentTextColor }}>Promote FIRM to your audiences</b> as much or as little as you like.
-            </Text>
-            <Image transform="translate3d(-41px, 30px, 0)" position="absolute" bottom="0" src="/assets/affiliate/step2.png" w="90%" />
-        </DarkCard>
-        <DarkCard>
-            <Text mb="140px" p="8" color={whitish}>
-                <b style={{ color: lightTheme.colors.secAccentTextColor }}>Sit back and earn!</b> As the borrowers you refer spend DBR on new DOLA loans, you'll receive 10% of their spent DBR.
-            </Text>
-            <Image position="absolute" left="0" bottom="0" src="/assets/affiliate/step3.png" w="75%" />
-        </DarkCard>
-    </SimpleGrid>
-</VStack>
-
-const WhoIsEligibleSection = () => <VStack spacing="8" transform="translateY(-70px)" w='full' alignItems="flex-start" position="relative" px={{ base: 8, lg: 20 }} py="20" bgColor={mainColor}>
-    <Stack w='full' pl={{ base: 0, lg: '20%' }} spacing={{ base: '20', lg: '8' }} color={whitish} direction={{ base: 'column', lg: 'row' }} alignItems={{ base: 'flex-start', lg: 'flex-end' }}>
-        <VStack spacing="0" alignItems="flex-start">
-            <BigTitle whiteSpace="nowrap" color={whitish} textTransform="uppercase">Who is</BigTitle>
-            <BigTitle color={whitish} textTransform="uppercase" className="splash-orange-circled">eligible?</BigTitle>
-        </VStack>
-        <VStack w="345px" alignItems="center">
-            <GrayCard>
-                <Image right="0" position="absolute" bottom="-5px" src="/assets/affiliate/influencers.png" w="343px" h="200px" />
-            </GrayCard>
-            <Text textAlign="justify" p="4" color={whitish} fontSize="16px">
-                The program is brand new and we're initially limiting signups to influencers, community leaders, and others with a sizeable audience, including:
-            </Text>
-        </VStack>
-    </Stack>
-    <SimpleGrid justifyContent="center" mt="10" gap="8" columns={{ base: 1, lg: 5 }}>
-        {
-            personas.map((persona, i) => {
-                return <VStack alignItems={{ base: 'center', lg: 'flex-start' }}>
-                    <GrayCard h="200px" w="200px">
-                        <Image position="absolute" bottom="0" src={`/assets/affiliate/persona${i + 1}.png`} w="100%" {...persona.imageProps} />
-                    </GrayCard>
-                    <Text whiteSpace="break-spaces" fontWeight="bold" pt="4" pb="2" color={whitish} fontSize="16px">
-                        {persona.title}
-                    </Text>
-                    {
-                        !!persona.subtitle && <Text color={lightish} fontSize="14px">
-                            {persona.subtitle}
-                        </Text>
-                    }
-                </VStack>
-            })
-        }
-    </SimpleGrid>
-    <VStack w='full' alignItems="center">
-        <Title fontSize={{ base: '30px', lg: '30px' }} p={{ base: 2, lg: 20 }} w={{ base: '90%', lg: '66%' }} textAlign="center" color={whitish}>
-            The <b>FiRM</b> <b style={{ color: lightTheme.colors.secAccentTextColor }}>Affiliate Program</b> offers a <b>no-hassle opportunity</b> to <b className="splash-underline">introduce FiRM</b> to your audience while adding to your topline revenue number!
-        </Title>
+const HowDoesItWorkSection = () => <VStack transform="translateY(-70px)" w='full' alignItems="center" position="relative" px={{ base: 8, lg: 20 }} py="20" bgColor={mainColor}>
+    <VStack spacing="8" maxW='1307px' alignItems="center" justify="center" w='full'>
+        <Stack w='full' pl={{ base: 0, lg: '20%' }} spacing="8" color={whitish} direction={{ base: 'column', lg: 'row' }} alignItems={{ base: 'flex-start', lg: 'flex-end' }}>
+            <VStack spacing="0" alignItems="flex-start">
+                <BigTitle whiteSpace="nowrap" color={whitish} textTransform="uppercase">How does</BigTitle>
+                <BigTitle color={whitish} textTransform="uppercase">it <b className="splash-orange-circled">work</b>?</BigTitle>
+            </VStack>
+            <Title ml={{ base: 0, lg: 8 }} transform="translateY(-11px)" color={whitish} borderBottom={`1px solid ${lightTheme.colors.secAccentTextColor}`}>
+                It's quite simple
+            </Title>
+        </Stack>
+        <SimpleGrid gap="8" columns={{ base: 1, lg: 3 }}>
+            <DarkCard alignItems="flex-start">
+                <Text px="8" pt="8" color={whitish}>
+                    <b style={{ color: lightTheme.colors.secAccentTextColor }}>Fill out the application form below to become a FiRM Affiliate</b>. Our team will review your application to ensure you meet the criteria.
+                </Text>
+                <Link href="/affiliate/register" textDecoration="underline" px="8" mb="140px" color={lightTheme.colors.secAccentTextColor}>
+                    Application Form <ExternalLinkIcon color={lightTheme.colors.secAccentTextColor} />
+                </Link>
+                <Image right="0" position="absolute" bottom="0" src="/assets/affiliate/step1.png" w="100px" />
+            </DarkCard>
+            <DarkCard>
+                <Text mb="140px" p="8" color={whitish}>
+                    Once approved, create and share your unique Affiliate link with your audiences. <b style={{ color: lightTheme.colors.secAccentTextColor }}>Promote FIRM to your audiences</b> as much or as little as you like.
+                </Text>
+                <Image transform="translate3d(-41px, 30px, 0)" position="absolute" bottom="0" src="/assets/affiliate/step2.png" w="90%" />
+            </DarkCard>
+            <DarkCard>
+                <Text mb="140px" p="8" color={whitish}>
+                    <b style={{ color: lightTheme.colors.secAccentTextColor }}>Sit back and earn!</b> As the borrowers you refer spend DBR on new DOLA loans, you'll receive 10% of their spent DBR.
+                </Text>
+                <Image position="absolute" left="0" bottom="0" src="/assets/affiliate/step3.png" w="75%" />
+            </DarkCard>
+        </SimpleGrid>
     </VStack>
 </VStack>
 
-const WhatElseSection = () => <VStack transform="translateY(-70px)" spacing="8" w='full' alignItems="flex-start" position="relative" px={{ base: 8, lg: 20 }} pb="20" bgColor={mainColor}>
-    <Stack spacing="8" direction={{ base: 'column', lg: 'row' }}>
-        <DarkCard justifyContent="center" w={{ base: 'full', lg: '40%' }} bgColor={lightTheme.colors.secAccentTextColor} bgImage="url(/assets/affiliate/splash-bowl.png)" bgPosition="0 0" bgSize="75%" bgRepeat="no-repeat">
-            <VStack spacing="0" alignItems="flex-start" py="10" px="20">
-                <BigTitle whiteSpace="nowrap" color={mainColor} textTransform="uppercase">what</BigTitle>
-                <BigTitle color={mainColor} textTransform="uppercase" className="splash-circled">else?</BigTitle>
+const WhoIsEligibleSection = () => <VStack spacing="8" transform="translateY(-70px)" w='full' alignItems="center" position="relative" px={{ base: 8, lg: 20 }} py="20" bgColor={mainColor}>
+    <VStack spacing="8" maxW='1307px' w='full'>
+        <Stack w='full' pl={{ base: 0, lg: '20%' }} spacing={{ base: '20', lg: '8' }} color={whitish} direction={{ base: 'column', lg: 'row' }} alignItems={{ base: 'flex-start', lg: 'flex-end' }}>
+            <VStack spacing="0" alignItems="flex-start">
+                <BigTitle whiteSpace="nowrap" color={whitish} textTransform="uppercase">Who is</BigTitle>
+                <BigTitle color={whitish} textTransform="uppercase" className="splash-orange-circled">eligible?</BigTitle>
             </VStack>
-        </DarkCard>
-        <DarkCard w={{ base: 'full', lg: '30%' }}>
-            <Text mb="100px" p="8" color={whitish}>
-                When a new borrower uses the dedicated Affiliate URL, the borrower <b>signs a message</b> confirming the referral from an Affiliate's address.
-            </Text>
-            <Image position="absolute" bottom="-7px" maxW="200px" src="/assets/affiliate/sign.png" w="100%" />
-        </DarkCard>
-        <DarkCard w={{ base: 'full', lg: '30%' }}>
-            <Text mb="100px" p="8" color={whitish}>
-                Affiliates reward activity is viewable via an <b style={{ color: lightTheme.colors.secAccentTextColor }}>Affiliate dashboard</b> and a dedicated Discord channel is available to Affiliates for support.
-            </Text>
-            <Image position="absolute" bottom="0" src="/assets/affiliate/dashboard.png" w="50%" />
-        </DarkCard>
-    </Stack>
-    <DarkCard w='full' p="8">
-        <SimpleGrid gap="4" columns={{ base: 1, lg: 2 }}>
-            <GrayCard p="8">
-                <Stack alignItems="center" direction={{ base: 'column', lg: 'row' }}>
-                    <Image src="/assets/affiliate/calendar.png" w="200px" />
-                    <VStack alignItems="flex-start">
-                        <Title color={whitish}>Monthly Payments</Title>
-                        <Text textAlign="justify" color={whitish}>Payments are sent to the Affiliate wallet address monthly.</Text>
-                    </VStack>
-                </Stack>
-            </GrayCard>
-            <GrayCard p="8">
-                <Stack alignItems="center" direction={{ base: 'column', lg: 'row' }}>
-                    <Image src="/assets/affiliate/matrix.png" w="130px" />
-                    <VStack pl={{ base: 0, lg: 8 }} alignItems="flex-start">
-                        <Title color={whitish}>Eligibility</Title>
-                        <Text textAlign="justify" color={whitish}>Affiliates are eligible for reward payments for each borrower they bring to FiRM for up to <b>12 consecutive months</b>.</Text>
-                    </VStack>
-                </Stack>
-            </GrayCard>
-            <GrayCard p="8">
-                <VStack spacing="4">
-                    <Image src="/assets/affiliate/progress.png" w="100%" />
-                    <VStack alignItems="flex-start" w='full'>
-                        <Text textAlign="justify" color={whitish}>For the sake of clarity, the DAO will pay an Affiliate reward for a 12 month DOLA loan from a single borrower, but for a 13 month DOLA loan, the Affiliate payments for that borrower would end after the 12th month. </Text>
-                    </VStack>
-                </VStack>
-            </GrayCard>
-            <GrayCard p="8">
-                <Stack alignItems="center" direction={{ base: 'column', lg: 'row' }}>
-                    <Image src="/assets/affiliate/dbr-meter.png" w="140px" transform="translateY(-25px)" />
-                    <VStack pl={{ base: 0, lg: 8 }} alignItems="flex-start">
-                        <Title color={whitish}>Maximum Pay</Title>
-                        <Text textAlign="justify" color={whitish}>The maximum monthly payout to any single Affiliate during the beta test period is <b>200,000 DBR</b>.</Text>
-                    </VStack>
-                </Stack>
-            </GrayCard>
-        </SimpleGrid>
-    </DarkCard>
-    <Stack w='full' spacing="8" direction={{ base: 'column', lg: 'row' }}>
-        <DarkCard justifyContent="center" w={{ base: 'full', lg: '50%' }}>
-            <Text py="4" px="8" color={whitish}>90-day beta test runs from August 15 thru November 15th. Program may be extended by governance.</Text>
-        </DarkCard>
-        <DarkCard justifyContent="center" w={{ base: 'full', lg: '50%' }}>
-            <Text py="4" px="8" color={whitish}>Referrals made via sybil attacks or other prohibited means may be denied payment.</Text>
-        </DarkCard>
-    </Stack>
-    <DarkCard w='full'>
-        <Text py="4" px="8" color={whitish}>Don't miss out on this opportunity to be one of our first FiRM Affiliates and begin earning today! Apply now and start making a difference in the world of finance!</Text>
-        <Stack alignItems="center" py="4" px="8" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between">
-            <RegisterBtn />
-            <Text color={lightish}><b>* Note</b>: Governance reserves the right to make changes to the program at any time.</Text>
+            <VStack w="345px" alignItems="center">
+                <GrayCard>
+                    <Image right="0" position="absolute" bottom="-5px" src="/assets/affiliate/influencers.png" w="343px" h="200px" />
+                </GrayCard>
+                <Text textAlign="justify" p="4" color={whitish} fontSize="16px">
+                    The program is brand new and we're initially limiting signups to influencers, community leaders, and others with a sizeable audience, including:
+                </Text>
+            </VStack>
         </Stack>
-    </DarkCard>
+        <SimpleGrid justifyContent="center" mt="10" gap="8" columns={{ base: 1, lg: 5 }}>
+            {
+                personas.map((persona, i) => {
+                    return <VStack alignItems={{ base: 'center', lg: 'flex-start' }}>
+                        <GrayCard h="200px" w="200px">
+                            <Image position="absolute" bottom="0" src={`/assets/affiliate/persona${i + 1}.png`} w="100%" {...persona.imageProps} />
+                        </GrayCard>
+                        <Text whiteSpace="break-spaces" fontWeight="bold" pt="4" pb="2" color={whitish} fontSize="16px">
+                            {persona.title}
+                        </Text>
+                        {
+                            !!persona.subtitle && <Text color={lightish} fontSize="14px">
+                                {persona.subtitle}
+                            </Text>
+                        }
+                    </VStack>
+                })
+            }
+        </SimpleGrid>
+        <VStack w='full' alignItems="center">
+            <Title fontSize={{ base: '30px', lg: '30px' }} p={{ base: 2, lg: 20 }} w={{ base: '90%', lg: '66%' }} textAlign="center" color={whitish}>
+                The <b>FiRM</b> <b style={{ color: lightTheme.colors.secAccentTextColor }}>Affiliate Program</b> offers a <b>no-hassle opportunity</b> to <b className="splash-underline">introduce FiRM</b> to your audience while adding to your topline revenue number!
+            </Title>
+        </VStack>
+    </VStack>
+</VStack>
+
+const WhatElseSection = () => <VStack transform="translateY(-70px)" spacing="8" w='full' alignItems="center" position="relative" px={{ base: 8, lg: 20 }} pb="20" bgColor={mainColor}>
+    <VStack spacing="8" maxW='1307px' w='full'>
+        <Stack spacing="8" direction={{ base: 'column', lg: 'row' }}>
+            <DarkCard justifyContent="center" w={{ base: 'full', lg: '40%' }} bgColor={lightTheme.colors.secAccentTextColor} bgImage="url(/assets/affiliate/splash-bowl.png)" bgPosition="0 0" bgSize="75%" bgRepeat="no-repeat">
+                <VStack spacing="0" alignItems="flex-start" py="10" px="20">
+                    <BigTitle whiteSpace="nowrap" color={mainColor} textTransform="uppercase">what</BigTitle>
+                    <BigTitle color={mainColor} textTransform="uppercase" className="splash-circled">else?</BigTitle>
+                </VStack>
+            </DarkCard>
+            <DarkCard w={{ base: 'full', lg: '30%' }}>
+                <Text mb="100px" p="8" color={whitish}>
+                    When a new borrower uses the dedicated Affiliate URL, the borrower <b>signs a message</b> confirming the referral from an Affiliate's address.
+                </Text>
+                <Image position="absolute" bottom="-7px" maxW="200px" src="/assets/affiliate/sign.png" w="100%" />
+            </DarkCard>
+            <DarkCard w={{ base: 'full', lg: '30%' }}>
+                <Text mb="100px" p="8" color={whitish}>
+                    Affiliates reward activity is viewable via an <b style={{ color: lightTheme.colors.secAccentTextColor }}>Affiliate dashboard</b> and a dedicated Discord channel is available to Affiliates for support.
+                </Text>
+                <Image position="absolute" bottom="0" src="/assets/affiliate/dashboard.png" w="50%" />
+            </DarkCard>
+        </Stack>
+        <DarkCard w='full' p="8">
+            <SimpleGrid gap="4" columns={{ base: 1, lg: 2 }}>
+                <GrayCard p="8">
+                    <Stack alignItems="center" direction={{ base: 'column', lg: 'row' }}>
+                        <Image src="/assets/affiliate/calendar.png" w="200px" />
+                        <VStack alignItems="flex-start">
+                            <Title color={whitish}>Monthly Payments</Title>
+                            <Text textAlign="justify" color={whitish}>Payments are sent to the Affiliate wallet address monthly.</Text>
+                        </VStack>
+                    </Stack>
+                </GrayCard>
+                <GrayCard p="8">
+                    <Stack alignItems="center" direction={{ base: 'column', lg: 'row' }}>
+                        <Image src="/assets/affiliate/matrix.png" w="130px" />
+                        <VStack pl={{ base: 0, lg: 8 }} alignItems="flex-start">
+                            <Title color={whitish}>Eligibility</Title>
+                            <Text textAlign="justify" color={whitish}>Affiliates are eligible for reward payments for each borrower they bring to FiRM for up to <b>12 consecutive months</b>.</Text>
+                        </VStack>
+                    </Stack>
+                </GrayCard>
+                <GrayCard p="8">
+                    <VStack spacing="4">
+                        <Image src="/assets/affiliate/progress.png" w="100%" />
+                        <VStack alignItems="flex-start" w='full'>
+                            <Text textAlign="justify" color={whitish}>For the sake of clarity, the DAO will pay an Affiliate reward for a 12 month DOLA loan from a single borrower, but for a 13 month DOLA loan, the Affiliate payments for that borrower would end after the 12th month. </Text>
+                        </VStack>
+                    </VStack>
+                </GrayCard>
+                <GrayCard p="8">
+                    <Stack alignItems="center" direction={{ base: 'column', lg: 'row' }}>
+                        <Image src="/assets/affiliate/dbr-meter.png" w="140px" transform="translateY(-25px)" />
+                        <VStack pl={{ base: 0, lg: 8 }} alignItems="flex-start">
+                            <Title color={whitish}>Maximum Pay</Title>
+                            <Text textAlign="justify" color={whitish}>The maximum monthly payout to any single Affiliate during the beta test period is <b>200,000 DBR</b>.</Text>
+                        </VStack>
+                    </Stack>
+                </GrayCard>
+            </SimpleGrid>
+        </DarkCard>
+        <Stack w='full' spacing="8" direction={{ base: 'column', lg: 'row' }}>
+            <DarkCard justifyContent="center" w={{ base: 'full', lg: '50%' }}>
+                <Text py="4" px="8" color={whitish}>90-day beta test runs from August 15 thru November 15th. Program may be extended by governance.</Text>
+            </DarkCard>
+            <DarkCard justifyContent="center" w={{ base: 'full', lg: '50%' }}>
+                <Text py="4" px="8" color={whitish}>Referrals made via sybil attacks or other prohibited means may be denied payment.</Text>
+            </DarkCard>
+        </Stack>
+        <DarkCard w='full'>
+            <Text py="4" px="8" color={whitish}>Don't miss out on this opportunity to be one of our first FiRM Affiliates and begin earning today! Apply now and start making a difference in the world of finance!</Text>
+            <Stack alignItems="center" py="4" px="8" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between">
+                <RegisterBtn />
+                <Text color={lightish}><b>* Note</b>: Governance reserves the right to make changes to the program at any time.</Text>
+            </Stack>
+        </DarkCard>
+    </VStack>
 </VStack>
 
 const faq = [
@@ -343,18 +349,20 @@ const faq = [
     },
 ];
 
-const FaqSection = (props) => <VStack px="10" transform="translateY(-70px)" w='full' bgColor={'white'} bgImage="/assets/affiliate/black-splash.png" bgRepeat="no-repeat" bgSize="contain" pt="250px" pb="10">
+const FaqSection = (props) => <VStack px="0" alignItems="center" transform="translateY(-70px)" w='full' bgColor={'white'} bgImage="/assets/affiliate/black-splash.png" bgRepeat="no-repeat" bgSize={{ base: 'contain', '2xl': 'cover' }} pt={{ base: '100px', lg: '250px' }} pb="10">
     <FaqBar />
-    <VStack alignItems="flex-start" position="relative" p={{ base: 8, lg: 20 }} borderRadius="50px" bgImage="/assets/affiliate/bg1.png" mt="250px">
-        <VStack spacing="4" w='full' alignItems="flex-start">
-            {
-                faq.map(({ title, answer }, i) => {
-                    return <VStack key={i} alignItems="flex-start">
-                        {title}
-                        <Text>{answer}</Text>
-                    </VStack>
-                })
-            }
+    <VStack spacing="8" maxW='1307px' w='full' px="4">
+        <VStack alignItems="flex-start" position="relative" p={{ base: 8, lg: 20 }} bgImage="/assets/affiliate/bg1.png" bgRepeat="no-repeat" bgSize="cover" mt={{ base: '0', lg: '250px' }} borderRadius={'50px'}>
+            <VStack spacing="4" w='full' alignItems="flex-start">
+                {
+                    faq.map(({ title, answer }, i) => {
+                        return <VStack key={i} alignItems="flex-start">
+                            {title}
+                            <Text>{answer}</Text>
+                        </VStack>
+                    })
+                }
+            </VStack>
         </VStack>
     </VStack>
 </VStack>
@@ -419,7 +427,7 @@ export const FirmAffiliateRegisterPage = () => {
             </Head>
             <AppNav active="More" activeSubmenu="Affiliate Dashboard" hideAnnouncement={true} hideVampireBar={true} />
             <ErrorBoundary>
-                <VStack overflow="hidden" spacing="0" w='full' maxW="1307px" mt="8">
+                <VStack overflow="hidden" spacing="0" w='full' mt="8">
                     <SectionOne />
                     <InfoBar />
                     <HowDoesItWorkSection />
