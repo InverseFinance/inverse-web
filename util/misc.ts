@@ -197,10 +197,13 @@ export const getRandomFromStringList = (commaSeparatedList: string) => {
     return keys[Math.floor(Math.random() * keys.length)];
 }
 
-export const handleApiResponse = (promiseResult: any) => {
+export const handleApiResponse = (promiseResult: any, onSuccess?: (o?: any) => void) => {
     if (promiseResult?.status && promiseResult?.message) {
         const statusType = ["success", "warning", "info", "error"].includes(promiseResult?.status) ? promiseResult?.status : 'info';
-        showToast({ status: statusType, description: promiseResult?.message });
+        showToast({ status: statusType, description: promiseResult?.message });        
+    }
+    if(!!onSuccess && ["ok", "success"].includes(promiseResult?.status)) {
+        onSuccess(promiseResult);
     }
 }
 
