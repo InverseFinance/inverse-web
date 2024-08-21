@@ -102,20 +102,24 @@ const lightish = "#D9D9D9";
 const DarkCard = (props) => <DashBoardCard position="relative" p="0" gap="8" direction="column" color={whitish} bgColor={cardBg} border={`1px solid ${cardBorder}`} {...props} />
 const GrayCard = (props) => <DashBoardCard position="relative" p="0" gap="8" direction="column" color={whitish} bgColor={'#7C7F83'} border={`1px solid ${'#A4A6A8'}`} {...props} />
 
-const MainTitle = (props) => <Text fontWeight="extrabold" fontSize="9vw" color={mainColor} {...props} />
+const MainTitle = (props) => <Text fontWeight="extrabold" fontSize="7.5vw" color={mainColor} {...props} />
 const BigTitle = (props) => <Text fontWeight="extrabold" fontSize="48px" color={mainColor} {...props} />
 const Title = (props) => <Text fontWeight="bold" fontSize="20px" color={mainColor} {...props} />
 const SimpleText = (props) => <Text color={mainColor} {...props} />
 
 const OrangeBubble = (props) => <VStack transform="rotate(-5deg)" borderRadius="120px" lineHeight="normal" p="8" fontSize={{ base: "18px", lg: "34px" }} border="8px solid white" bgColor="secAccentTextColor" {...props} />
 
-const SectionOne = () => <VStack alignItems="flex-start" position="relative" p={{ base: 8, lg: 20 }} borderRadius="50px" bgImage="/assets/affiliate/bg1.png">
+const RegisterBtn = (props) => <RSubmitButton _hover={{ bgColor: lightTheme.colors.secAccentTextColor }} fontSize={{ base: '16px', lg: '18px' }} w='fit-content' color={mainColor} bgColor="#C7CCDB" p={{ base: 6, lg: 8 }}>
+    Become an Affiliate
+</RSubmitButton>
+
+const SectionOne = () => <VStack w="90%" alignItems="flex-start" position="relative" p={{ base: 8, lg: 20 }} borderRadius="50px" bgImage="/assets/affiliate/bg1.png" bgRepeat="no-repeat" bgSize="cover">
     <VStack alignItems="flex-start">
         <HStack w='full' justify="flex-start" spacing={{ base: "20px", lg: "40px" }}>
             <MainTitle>
                 Become a
             </MainTitle>
-            <Image src="/assets/firm/firm-big.png" alt="FiRM" minW='100px' maxW='33vw' w={"45vh"} />
+            <Image src="/assets/firm/firm-big.png" alt="FiRM" minW='100px' maxW='30vw' w={"38vh"} />
         </HStack>
         <HStack>
             <MainTitle>
@@ -131,29 +135,36 @@ const SectionOne = () => <VStack alignItems="flex-start" position="relative" p={
             <SimpleText>
                 As a FiRM Affiliate, you'll have the opportunity to earn a whopping 10% of the DBR spent by borrowers you refer. That's right, you'll be making money while helping to spread the word about the incredible potential of FiRM!
             </SimpleText>
+            <VStack pt="10">
+                <RegisterBtn />
+            </VStack>
         </VStack>
-        <VStack right="-120px" bottom="0" position={{ base: 'relative', lg: 'absolute' }}>
+        <VStack right={{ base: '-40%', lg: '-42px' }} bottom="0" position={{ base: 'relative', lg: 'absolute' }}>
             <OrangeBubble transform={{ base: "translate3D(-90px, 40px, 0) rotate(-5deg)", lg: 'translate3D(-200px, 40px, 0) rotate(-5deg)' }}>
                 <VStack alignItems="flex-start" w='full'>
                     <Text color={mainColor}>Earn <b>10%</b> Commissions</Text>
                     <Text color={mainColor}>By Promoting <b>FiRM</b></Text>
                 </VStack>
             </OrangeBubble>
-            <Image zIndex="1" src="/assets/affiliate/megaphone.png" minW='150px' w="20vw" />
+            <Image zIndex="1" src="/assets/affiliate/megaphone.png" minW='150px' w="29.5vw" />
         </VStack>
     </Stack>
 </VStack>
 
+const INFOitem =  <Text fontWeight="extrabold" textOverflow="clip" color={whitish} fontSize="68px">INFO</Text>
+
 const InfoBar = () => <VStack zIndex="2" overflow="hidden" transform="translateY(-40px) rotate(2deg)" bgColor={lightTheme.colors.accentTextColor} w='110%'>
-    <Text fontWeight="extrabold" whiteSpace="nowrap" textOverflow="clip" color={whitish} fontSize="68px">
-        INFO INFO INFO INFO INFO INFO INFO INFO INFO INFO INFO INFO INFO INFO
-    </Text>
+    <HStack spacing="20">
+        {INFOitem}{INFOitem}{INFOitem}{INFOitem}{INFOitem}{INFOitem}{INFOitem}{INFOitem}{INFOitem}
+    </HStack>
 </VStack>
 
+const FAQitem =  <Text fontWeight="extrabold" textOverflow="clip" color={whitish} fontSize="68px">FAQ</Text>
+
 const FaqBar = () => <VStack zIndex="2" overflow="hidden" transform="translateY(-40px) rotate(-2deg)" bgColor={lightTheme.colors.accentTextColor} w='110%'>
-    <Text fontWeight="extrabold" whiteSpace="nowrap" textOverflow="clip" color={whitish} fontSize="68px">
-        FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ FAQ
-    </Text>
+    <HStack spacing="20">
+        {FAQitem}{FAQitem}{FAQitem}{FAQitem}{FAQitem}{FAQitem}{FAQitem}{FAQitem}{FAQitem}
+    </HStack>
 </VStack>
 
 const HowDoesItWorkSection = () => <VStack spacing="8" transform="translateY(-70px)" w='full' alignItems="flex-start" position="relative" px={{ base: 8, lg: 20 }} py="20" bgColor={mainColor}>
@@ -232,7 +243,7 @@ const WhoIsEligibleSection = () => <VStack spacing="8" transform="translateY(-70
     </VStack>
 </VStack>
 
-const WhatElseSection = () => <VStack transform="translateY(-70px)" spacing="8" w='full' alignItems="flex-start" position="relative" px={{ base: 8, lg: 20 }} py="20" bgColor={mainColor}>
+const WhatElseSection = () => <VStack transform="translateY(-70px)" spacing="8" w='full' alignItems="flex-start" position="relative" px={{ base: 8, lg: 20 }} pb="20" bgColor={mainColor}>
     <Stack spacing="8" direction={{ base: 'column', lg: 'row' }}>
         <DarkCard justifyContent="center" w={{ base: 'full', lg: '40%' }} bgColor={lightTheme.colors.secAccentTextColor} bgImage="url(/assets/affiliate/splash-bowl.png)" bgPosition="0 0" bgSize="75%" bgRepeat="no-repeat">
             <VStack spacing="0" alignItems="flex-start" py="10" px="20">
@@ -276,7 +287,7 @@ const WhatElseSection = () => <VStack transform="translateY(-70px)" spacing="8" 
             <GrayCard p="8">
                 <VStack spacing="4">
                     <Image src="/assets/affiliate/progress.png" w="100%" />
-                    <VStack alignItems="flex-start" w='full'>                        
+                    <VStack alignItems="flex-start" w='full'>
                         <Text textAlign="justify" color={whitish}>For the sake of clarity, the DAO will pay an Affiliate reward for a 12 month DOLA loan from a single borrower, but for a 13 month DOLA loan, the Affiliate payments for that borrower would end after the 12th month. </Text>
                     </VStack>
                 </VStack>
@@ -302,46 +313,49 @@ const WhatElseSection = () => <VStack transform="translateY(-70px)" spacing="8" 
     </Stack>
     <DarkCard w='full'>
         <Text py="4" px="8" color={whitish}>Don't miss out on this opportunity to be one of our first FiRM Affiliates and begin earning today! Apply now and start making a difference in the world of finance!</Text>
-        <Stack w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between">
-            <Text>&nbsp;</Text>
-            <Text color={lightish}>* Note: Governance reserves the right to make changes to the program at any time.</Text>
+        <Stack alignItems="center" py="4" px="8" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between">
+            <RegisterBtn />
+            <Text color={lightish}><b>* Note</b>: Governance reserves the right to make changes to the program at any time.</Text>
         </Stack>
     </DarkCard>
 </VStack>
 
 const faq = [
-    { 
+    {
         title: <Title><b className="splash-underline">What is the criteria</b> to become a FiRM Affiliate?</Title>,
         answer: "It varies depending on the category of Affiliate but we're seeking leaders and influencers with a verifiable following or community that we think can help bring new users to FiRM. For questions, try @patb on Twitter.",
     },
-    { 
+    {
         title: <Title><b className="splash-underline">How do I earn</b> commissions as an affiliate?</Title>,
         answer: "You earn commissions when the borrowers you refer borrow on FiRM. When they borrow, you’ll receive a commission, paid in DBR, equal to 10% of the DBR they spend on their loan.",
     },
-    { 
+    {
         title: <Title>How will I receive my commissions and <b className="splash-underline">how often will I be paid</b>?</Title>,
         answer: "You will receive your commissions on a monthly basis. This means that you will receive payments for your commissions earned in the previous month at the beginning of each month. You will be able to see the details of each payment in your affiliate dashboard, including the amount, date, and status of each payment.",
     },
-    { 
+    {
         title: <Title><b className="splash-underline">How do I track</b> my referrals and commissions?</Title>,
         answer: "Affiliates can login to the affiliate dashboard and view referral and commission information. Your referrals will be listed in your affiliate dashboard, along with the date they were made, their status, and the commission amount earned",
     },
-    { 
+    {
         title: <Title><b className="splash-underline">Is there a limited number</b> of referrals i can refer?</Title>,
         answer: "No. Affiliates can refer as many borrowers as they wish",
     },
 ];
 
-const FaqSection = (props) => <VStack alignItems="flex-start" position="relative" p={{ base: 8, lg: 20 }} borderRadius="50px" bgImage="/assets/affiliate/bg1.png">
-    <VStack spacing="4" w='full' alignItems="flex-start">
-        {
-            faq.map(({ title, answer }, i) => {
-                return <VStack key={i} alignItems="flex-start">
-                    {title}
-                    <Text>{answer}</Text>
-                </VStack>
-            })
-        }
+const FaqSection = (props) => <VStack px="10" transform="translateY(-70px)" w='full' bgColor={'white'} bgImage="/assets/affiliate/black-splash.png" bgRepeat="no-repeat" bgSize="contain" pt="250px" pb="10">
+    <FaqBar />
+    <VStack alignItems="flex-start" position="relative" p={{ base: 8, lg: 20 }} borderRadius="50px" bgImage="/assets/affiliate/bg1.png" mt="250px">
+        <VStack spacing="4" w='full' alignItems="flex-start">
+            {
+                faq.map(({ title, answer }, i) => {
+                    return <VStack key={i} alignItems="flex-start">
+                        {title}
+                        <Text>{answer}</Text>
+                    </VStack>
+                })
+            }
+        </VStack>
     </VStack>
 </VStack>
 
