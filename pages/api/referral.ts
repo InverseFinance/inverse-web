@@ -22,9 +22,9 @@ export default async function handler(req, res) {
 
     const { r, account, csv, isApply } = query;
 
-    const referralsKey = `referrals-v1.0.0`;
+    const referralsKey = `referrals-v1.0.1`;
     const affiliatesKey = `affiliate-applications-v1.0.2`;
-    const apiDataKey = `affiliation-v1.0.1`;
+    const apiDataKey = `affiliation-v1.0.2`;
     const referralData = await getCacheFromRedis(referralsKey, false, 600);
     const { data: cachedResult, isValid: isCacheValid } = await getCacheFromRedisAsObj(apiDataKey, true, 60);
 
@@ -161,7 +161,7 @@ export default async function handler(req, res) {
                 ]);
 
                 const lastUpdatedMs = getBnToNumber(lastUpdated, 0) * 1000;
-                const dueTokensAccruedSinceLastUpdate = (now - lastUpdatedMs) * getBnToNumber(debt) / ONE_DAY_MS * 365;
+                const dueTokensAccruedSinceLastUpdate = (now - lastUpdatedMs) * getBnToNumber(debt) / (ONE_DAY_MS * 365);
                 const beforeReferralDueTokensAccrued = getBnToNumber(dueTokensAccrued) + dueTokensAccruedSinceLastUpdate;
 
                 const result = {

@@ -40,7 +40,7 @@ export const ReferralModal = ({
     const [isInvalid, setIsInvalid] = useState(false);
     const [isInited, setIsInited] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
-    const { value: alreadyConfirmedRef, setter: saveConfirmedRef } = useStorage('confirmed-referral-v1');
+    const { value: alreadyConfirmedRef, setter: saveConfirmedRef } = useStorage('confirmed-referral-v1.0.1');
 
     const isOwnAccount = !!account && !!refAddress && refAddress?.toLowerCase() === account?.toLowerCase();
 
@@ -53,11 +53,6 @@ export const ReferralModal = ({
     }, [refAddress]);
 
     useEffect(() => {
-        console.log('--')
-        console.log(alreadyConfirmedRef)
-        console.log(refAddress)
-        console.log(isInited)
-        console.log(query?.referrer )
         if (alreadyConfirmedRef === null && !isInited && !refAddress && !!query?.referrer && isAddress(query?.referrer)) {
             setIsInited(true);
             setRefAddress(query.referrer);

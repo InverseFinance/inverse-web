@@ -219,7 +219,7 @@ export const FirmAffiliateDashboard = ({
     const nbStakers = referredPositions.filter(p => p.stakedInv > 0).length;
     const totalTvl = referredPositions.reduce((prev, curr) => prev + (curr.depositsUsd), 0);
     const totalDebt = referredPositions.reduce((prev, curr) => prev + curr.debt, 0);
-    const totalAffiliateRewards = referredPositions.reduce((prev, curr) => prev + curr.affiliateReward, 0);
+    const totalAffiliateRewards = Math.max(referredPositions.reduce((prev, curr) => prev + curr.affiliateReward, 0), 0);
     const totalDbrAccrued = referredPositions.reduce((prev, curr) => prev + curr.accSinceRef, 0);
     const totalDbrPaid = affiliatePaymentEvents
         .filter(e => e.affiliate === account)

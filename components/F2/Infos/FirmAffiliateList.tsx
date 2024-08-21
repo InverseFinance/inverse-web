@@ -215,7 +215,7 @@ export const FirmAffiliateList = ({
 
     const totalTvl = referredPositions.reduce((prev, curr) => prev + (curr.depositsUsd), 0);
     const totalDebt = referredPositions.reduce((prev, curr) => prev + curr.debt, 0);
-    const totalAffiliateRewards = referredPositions.reduce((prev, curr) => prev + curr.affiliateReward, 0);    
+    const totalAffiliateRewards = Math.max(referredPositions.reduce((prev, curr) => prev + curr.affiliateReward, 0), 0);
     const totalPaidRewards = referredPositions.reduce((prev, curr) => prev + curr.paidRewards, 0);    
     const totalPendingRewards = referredPositions.reduce((prev, curr) => prev + curr.pendingRewards, 0);
     
