@@ -146,8 +146,44 @@ body {
 .splash-underline-sm,
 .splash-underline-xs,
 .splash-circled,
-.splash-orange-circled {
+.splash-orange-circled,
+.graffiti-1-reverse,
+.graffiti-1 {
     position: relative;
+}
+
+.graffiti-1::after {
+    position: absolute;
+    bottom: -50%;
+    content: " ";
+    background-image: url(/assets/affiliate/graffiti1.svg);
+    background-size: 100% 300px;
+    background-repeat: no-repeat;
+    left: -25%;
+    width: 150%;
+    height: 300px;
+    opacity: 0.9;
+    z-index: -1;
+}
+
+.graffiti-1-reverse::after {
+    position: absolute;
+    bottom: -50%;
+    content: " ";
+    background-image: url(/assets/affiliate/graffiti1.svg);
+    background-size: 100% 300px;
+    background-repeat: no-repeat;
+    left: -50%;
+    width: 150%;
+    height: 300px;
+    opacity: 0.9;
+    z-index: -1;
+    transform:rotate(45deg);
+}
+
+.graffiti-bg {
+    z-index: -1;
+    opacity: 0.9;
 }
 
 .splash-underline::after {

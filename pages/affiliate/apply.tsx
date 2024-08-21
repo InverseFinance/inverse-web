@@ -167,10 +167,11 @@ const FaqBar = () => <VStack zIndex="2" overflow="hidden" transform="translateY(
     </HStack>
 </VStack>
 
-const HowDoesItWorkSection = () => <VStack transform="translateY(-70px)" w='full' alignItems="center" position="relative" px={{ base: 8, lg: 20 }} py="20" bgColor={mainColor}>
-    <VStack spacing="8" maxW='1307px' alignItems="center" justify="center" w='full'>
+const HowDoesItWorkSection = () => <VStack spacing="0" transform="translateY(-70px)" w='full' alignItems="center" position="relative" px={{ base: 8, lg: 20 }} py="20" bgColor={mainColor}>
+    <Image display={{ base: 'none', sm: 'block' }} src="/assets/affiliate/graffiti2.svg" right="0" w="300px" position="absolute" className="graffiti-bg"/>    
+    <VStack spacing={{ base: 10, lg: 20 }} maxW='1307px' alignItems="center" justify="center" w='full'>
         <Stack w='full' pl={{ base: 0, lg: '20%' }} spacing="8" color={whitish} direction={{ base: 'column', lg: 'row' }} alignItems={{ base: 'flex-start', lg: 'flex-end' }}>
-            <VStack spacing="0" alignItems="flex-start">
+            <VStack className="graffiti-1" spacing="0" alignItems="flex-start">
                 <BigTitle whiteSpace="nowrap" color={whitish} textTransform="uppercase">How does</BigTitle>
                 <BigTitle color={whitish} textTransform="uppercase">it <b className="splash-orange-circled">work</b>?</BigTitle>
             </VStack>
@@ -204,10 +205,14 @@ const HowDoesItWorkSection = () => <VStack transform="translateY(-70px)" w='full
     </VStack>
 </VStack>
 
-const WhoIsEligibleSection = () => <VStack spacing="8" transform="translateY(-70px)" w='full' alignItems="center" position="relative" px={{ base: 8, md: 20 }} py="20" bgColor={mainColor}>
+const WhoIsEligibleSection = () => <VStack spacing="0" transform="translateY(-70px)" w='full' alignItems="center" position="relative" px={{ base: 8, md: 20 }} py="20" bgColor={mainColor}>
+    <Image display={{ base: 'none', sm: 'block' }} src="/assets/affiliate/graffiti3.svg" top="-200px" left="0" w="300px" position="absolute" className="graffiti-bg" />
+    <Image display={{ base: 'none', sm: 'block' }} src="/assets/affiliate/graffiti4.png" top="-100px" right="0" w="300px" position="absolute" className="graffiti-bg" />
+    <Image display={{ base: 'none', sm: 'block' }} src="/assets/affiliate/graffiti5.svg" bottom="150px" left="0" w="300px" position="absolute" className="graffiti-bg"/>
+    <Image display={{ base: 'none', sm: 'block' }} src="/assets/affiliate/graffiti6.svg" bottom="250px" left="0" w="300px" position="absolute" className="graffiti-bg"/>    
     <VStack spacing="8" maxW='1307px' w='full'>
         <Stack w='full' pl={{ base: 0, lg: '20%' }} spacing={{ base: '20', md: '8' }} color={whitish} direction={{ base: 'column', md: 'row' }} alignItems={{ base: 'center', md: 'flex-end' }}>
-            <VStack spacing="0" alignItems={{ base: 'center', md: 'flex-start' }}>
+            <VStack className="graffiti-1-reverse" spacing="0" alignItems={{ base: 'center', md: 'flex-start' }}>
                 <BigTitle whiteSpace="nowrap" color={whitish} textTransform="uppercase">Who is</BigTitle>
                 <BigTitle color={whitish} textTransform="uppercase" className="splash-orange-circled">eligible?</BigTitle>
             </VStack>
@@ -241,7 +246,7 @@ const WhoIsEligibleSection = () => <VStack spacing="8" transform="translateY(-70
                 })
             }
         </SimpleGrid>
-        <VStack w='full' alignItems="center">
+        <VStack w='full' alignItems="center" py={{ base: 10, lg: 20 }}>
             <Title fontSize={{ base: '30px', lg: '30px' }} p={{ base: 2, lg: 20 }} w={{ base: '90%', lg: '66%' }} textAlign="center" color={whitish}>
                 The <b>FiRM</b> <b style={{ color: lightTheme.colors.secAccentTextColor }}>Affiliate Program</b> offers a <b>no-hassle opportunity</b> to <b className="splash-underline">introduce FiRM</b> to your audience while adding to your topline revenue number!
             </Title>
@@ -249,9 +254,10 @@ const WhoIsEligibleSection = () => <VStack spacing="8" transform="translateY(-70
     </VStack>
 </VStack>
 
-const WhatElseSection = () => <VStack transform="translateY(-70px)" spacing="8" w='full' alignItems="center" position="relative" px={{ base: 8, lg: 20 }} pb="20" bgColor={mainColor}>
+const WhatElseSection = () => <VStack spacing="0" transform="translateY(-70px)" spacing="8" w='full' alignItems="center" position="relative" px={{ base: 8, lg: 20 }} pb="20" bgColor={mainColor}>
+    <Image display={{ base: 'none', sm: 'block' }} src="/assets/affiliate/graffiti3.svg" top="-200px" right="0" transform="rotate(180deg)" w="300px" position="absolute" className="graffiti-bg"/>
     <VStack spacing="8" maxW='1307px' w='full'>
-        <Stack spacing="8" direction={{ base: 'column', lg: 'row' }}  maxW={{ base: '400px', lg: 'full' }}>
+        <Stack spacing="8" direction={{ base: 'column', lg: 'row' }} maxW={{ base: '400px', lg: 'full' }}>
             <DarkCard justifyContent="center" w={{ base: 'full', xl: '40%' }} bgColor={lightTheme.colors.secAccentTextColor} bgImage="url(/assets/affiliate/splash-bowl.png)" bgPosition="0 0" bgSize="75%" bgRepeat="no-repeat">
                 <VStack spacing="0" alignItems="flex-start" py="10" px="20">
                     <BigTitle whiteSpace="nowrap" color={mainColor} textTransform="uppercase">what</BigTitle>
