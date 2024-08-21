@@ -219,11 +219,14 @@ export const FirmAffiliateDashboard = ({
     const nbStakers = referredPositions.filter(p => p.stakedInv > 0).length;
     const totalTvl = referredPositions.reduce((prev, curr) => prev + (curr.depositsUsd), 0);
     const totalDebt = referredPositions.reduce((prev, curr) => prev + curr.debt, 0);
-    const totalAffiliateReward = referredPositions.reduce((prev, curr) => prev + curr.affiliateReward, 0);
+    const totalAffiliateRewards = referredPositions.reduce((prev, curr) => prev + curr.affiliateReward, 0);
     const totalDbrAccrued = referredPositions.reduce((prev, curr) => prev + curr.accSinceRef, 0);
     const totalDbrPaid = affiliatePaymentEvents
         .filter(e => e.affiliate === account)
         .reduce((prev, curr) => prev + curr.amount, 0);
+    
+    const totalPaidRewards = referredPositions.reduce((prev, curr) => prev + curr.paidRewards, 0);    
+    const totalPendingRewards = referredPositions.reduce((prev, curr) => prev + curr.pendingRewards, 0);
 
     const monthlySpending = totalDebt / 12;
     const monthlyReward = monthlySpending * 0.1;
@@ -233,10 +236,12 @@ export const FirmAffiliateDashboard = ({
             !!position && <FirmUserModal userData={position} isOpen={isOpen} onClose={onClose} />
         }
         <SimpleGrid justify="space-between" w='full' columns={{ base: 2, sm: 4 }} spacing={{ base: '4', sm: '6' }}>
-            <StatBasic isLoading={isLoading} name="DBR price" value={`${smartShortNumber(dbrPriceUsd, 4, true)}`} />
-            <StatBasic isLoading={isLoading} name="Affiliate Reward" value={`10%`} />
+            {/* <StatBasic isLoading={isLoading} name="DBR price" value={`${smartShortNumber(dbrPriceUsd, 4, true)}`} /> */}
+            {/* <StatBasic isLoading={isLoading} name="Affiliate Reward" value={`10%`} /> */}
             <StatBasic isLoading={isLoading} name="DBR Monthly Reward" value={!monthlyReward ? '-' : `${smartShortNumber(monthlyReward, 2)} (${smartShortNumber(monthlyReward * dbrPriceUsd, 2, true)})`} />
-            <StatBasic isLoading={isLoading} name="Acc. DBR rewards" value={!totalAffiliateReward ? '-' : `${smartShortNumber(totalAffiliateReward, 2)} (${smartShortNumber(totalAffiliateReward * dbrPriceUsd, 2, true)})`} />
+            <StatBasic isLoading={isLoading} name="Acc. DBR rewards" value={!totalAffiliateRewards ? '-' : `${smartShortNumber(totalAffiliateRewards, 2)} (${smartShortNumber(totalAffiliateRewards * dbrPriceUsd, 2, true)})`} />
+            <StatBasic isLoading={isLoading} name="Paid rewards" value={!totalPaidRewards ? '-' : `${smartShortNumber(totalPaidRewards, 2)} (${smartShortNumber(totalPaidRewards * dbrPriceUsd, 2, true)})`} />
+            <StatBasic isLoading={isLoading} name="Pending rewards" value={!totalPendingRewards ? '-' : `${smartShortNumber(totalPendingRewards, 2)} (${smartShortNumber(totalPendingRewards * dbrPriceUsd, 2, true)})`} />
         </SimpleGrid>
         {/* <SimpleGrid justify="space-between" w='full' columns={{ base: 2, sm: 4 }} spacing={{ base: '4', sm: '6' }}>
             <StatBasic isLoading={isLoading} name="DBR Monthly Spending" value={`${smartShortNumber(monthlySpending, 2)} (${smartShortNumber(monthlySpending * dbrPriceUsd, 2, true)})`} />

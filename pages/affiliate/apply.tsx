@@ -324,48 +324,9 @@ const personas = [
     { title: 'Market analysis\nplatforms with\n5,000+ daily visits' },
     { title: 'Industry Media\nPlatforms' },
     { title: 'Crypto Funds', imageProps: { left: '-18px' } },
-]
+];
 
 export const FirmAffiliateRegisterPage = () => {
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [emailConfirm, setEmailConfirm] = useState('');
-    const [affiliateType, setAffiliateType] = useState('individual');
-    const [infos, setInfos] = useState({});
-    const [wallet, setWallet] = useState('');
-    const [otherInfo, setOtherInfo] = useState('');
-    const [isSuccess, setIsSuccess] = useState(false);
-    const [isLargerThan] = useMediaQuery('(min-width: 768px)')
-
-    const isInvalidWallet = !!wallet && (!isAddress(wallet) || wallet === BURN_ADDRESS);
-    const isInvalidEmail = !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
-    const isFormValid = !!wallet && !isInvalidWallet && !!email && email === emailConfirm && !isInvalidEmail && !!name.trim();
-
-    const register = async () => {
-        const res = await fetch(`/api/referral?isApply=true`, {
-            method: 'POST',
-            body: JSON.stringify({
-                wallet,
-                name,
-                email,
-                emailConfirm,
-                affiliateType,
-                infos,
-                otherInfo,
-            }),
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-        });
-        return res.json();
-    }
-
-    const handleSuccess = () => {
-        setIsSuccess(true);
-    }
-
     return (
         <Layout bgColor="white" bg="white">
             <Head>

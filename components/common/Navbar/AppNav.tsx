@@ -447,14 +447,14 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal, onReferToOpen }:
               <ViewIcon color="blue.600" boxSize={3} />
               <Text fontWeight="semibold">View Address</Text>
             </ConnectionMenuItem>
-            <ConnectionMenuItem
+            {/* <ConnectionMenuItem
               onClick={() => {
                 onReferToOpen();
                 gaEvent({ action: 'use-refer' });
               }}
             >
               <Text fontWeight="semibold">🤝 Refer a fren</Text>
-            </ConnectionMenuItem>
+            </ConnectionMenuItem> */}
             {
               query?.viewAddress && <ConnectionMenuItem
                 onClick={() => window.location.search = ''}
@@ -701,7 +701,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
         onClose={onWrongNetClose}
       />
       <VampireModal isOpen={isVampireOpen} onClose={onVampireClose} />
-      <ReferToModal isOpen={isReferToOpen} onClose={onReferToClose} />
+      {/* <ReferToModal isOpen={isReferToOpen} onClose={onReferToClose} /> */}
       {
         !!account && <ReferralModal onOpen={onReferralOpen} isOpen={isReferralOpen} onClose={onReferralClose} />
       }

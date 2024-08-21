@@ -869,9 +869,11 @@ export const useFirmAffiliate = (affiliate: string) => {
   const { data, error } = useCustomSWR(`/api/referral`, fetcher);
   const referrals = (data?.referrals || []).filter(d => affiliate === 'all' || d.affiliate === affiliate);
   return {
+    timestamp: data?.timestamp,
     referrals,
     referralAddresses: referrals.map(d => d.referred),
     affiliatePaymentEvents: data?.affiliatePaymentEvents || [],
     affiliateAddresses: data?.affiliateAddresses || [],
+    affiliatesPublicData: data?.affiliatesPublicData || [],
   }
 }

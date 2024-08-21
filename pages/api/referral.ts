@@ -22,13 +22,14 @@ export default async function handler(req, res) {
 
     const { r, account, csv, isApply } = query;
 
-    const referralsKey = `referrals`;
-    const affiliatesKey = `affiliate-applications`;
-    const apiDataKey = `affiliation-v1.0.0`;
+    const referralsKey = `referrals-v1.0.0`;
+    const affiliatesKey = `affiliate-applications-v1.0.2`;
+    const apiDataKey = `affiliation-v1.0.1`;
     const referralData = await getCacheFromRedis(referralsKey, false, 600);
     const { data: cachedResult, isValid: isCacheValid } = await getCacheFromRedisAsObj(apiDataKey, true, 60);
 
     const provider = getProvider(NetworkIds.mainnet);
+    const dbrContract = new Contract(DBR, DBR_ABI, provider);
 
     switch (method) {
         case 'GET':
@@ -46,6 +47,20 @@ export default async function handler(req, res) {
             if (isCacheValid) {
                 return res.status(200).json(cachedResult);
             }
+
+            const affiliatesData = await getCacheFromRedis(affiliatesKey, false, 600) || { affiliates: [] };
+            const affiliates = affiliatesData?.affiliates.map(afData => afData);
+            const affiliatesPublicData = affiliates.map(afData => {
+                return {
+                    name: afData.name,
+                    affiliate: afData.affiliate,
+                    affiliateType: afData.affiliateType,
+                    timestamp: afData.timestamp,
+                    status: afData.status,
+                }
+            });
+            const affiliateAddresses = affiliatesPublicData.map(afData => afData.affiliate);
+
             const affiliateReferrals = Object.entries(referralData?.referrals || {})
                 .map(([referred, refData]) => ({
                     referred,
@@ -53,11 +68,8 @@ export default async function handler(req, res) {
                     timestamp: refData.timestamp,
                     beforeReferralDueTokensAccrued: refData.beforeReferralDueTokensAccrued,
                     blockNumber: refData.blockNumber,
-                }));
-
-            const affiliates = [...new Set(affiliateReferrals.map(rd => rd.affiliate))];
-
-            const dbrContract = new Contract(DBR, DBR_ABI, provider);
+                }));         
+            
             const GWGaddress = MULTISIGS.find(m => m.shortName === 'GWG')?.address;
 
             // gwg dbr transfer events
@@ -66,7 +78,7 @@ export default async function handler(req, res) {
             const affiliatePaymentEvents = [];
 
             gwgPaymentEvents.forEach(event => {
-                if (affiliates.includes(event.args.to)) {
+                if (affiliateAddresses.includes(event.args.to)) {
                     if (!affiliatePayments[event.args.to]) {
                         affiliatePayments[event.args.to] = 0;
                     }
@@ -84,7 +96,8 @@ export default async function handler(req, res) {
             const affiliateResults = {
                 timestamp: Date.now(),
                 referrals: affiliateReferrals,
-                affiliateAddresses: affiliates,
+                affiliatesPublicData,
+                affiliateAddresses,
                 affiliatePaymentEvents,
             };
             await redisSetWithTimestamp(apiDataKey, affiliateResults);
@@ -98,6 +111,14 @@ export default async function handler(req, res) {
                 } else if (!!referralData?.referrals[account]) {
                     return res.status(400).json({ status: 'error', message: 'A referral has been already registered' });
                 }
+
+                const affiliatesData = await getCacheFromRedis(affiliatesKey, false, 600) || { affiliates: [] };                
+
+                const affData = affiliatesData?.affiliates.find(a => a.affiliate.toLowerCase() === r.toLowerCase());
+
+                // if (affData?.status !== 'active') {
+                //     return res.status(400).json({ status: 'error', message: 'This Affiliate address is not active yet.' });
+                // }
 
                 const { sig } = req.body
                 let sigAddress = '';
@@ -187,29 +208,37 @@ export default async function handler(req, res) {
                 const affiliatesData = await getCacheFromRedis(affiliatesKey, false, 600) || { affiliates: [] };
 
                 const found = affiliatesData?.affiliates.find(d => d.affiliate.toLowerCase() === wallet.toLowerCase());
+
                 if(!!found) {
                     return res.status(400).json({ status: 'error', message: 'Wallet already registered' });
                 }
 
+                const now = Date.now();
+
                 const affiliate = {
                     affiliate: wallet,
                     name,
-                    email,
-                    emailConfirm,
+                    email,                    
                     affiliateType,
                     infos,
                     otherInfo,
+                    timestamp: now,
+                    status: 'pending',
                 };
+
                 affiliatesData.affiliates.push(affiliate);
                 
                 const affiliateResults = {
-                    timestamp: Date.now(),
+                    timestamp: now,
                     affiliates: affiliatesData.affiliates,
                 };
+
                 await redisSetWithTimestamp(affiliatesKey, affiliateResults);
+                
                 return res.status(200).json({
                     affiliate,
-                    affiliates: affiliatesData.affiliates,
+                    status: "ok",
+                    message: "Application registered!",
                 });
             }
             res.status(400).json({ status: 'error', message: 'Invalid request' });

@@ -49,7 +49,7 @@ const InputZone = ({
         <Text fontWeight="bold">
             {text}
         </Text>
-        <Input w='full' placeholder={placeholder} value={value} onChange={e => setter(e.target.value)} {...props} />
+        <Input color="mainTextColor" w='full' placeholder={placeholder} value={value} onChange={e => setter(e.target.value)} {...props} />
     </VStack>
 }
 
@@ -219,7 +219,7 @@ export const FirmAffiliateRegisterPage = () => {
                                     <Text w='full' fontWeight="bold">
                                         Other informations we should know:
                                     </Text>
-                                    <Textarea placeholder="I'm also interested as a borrower / I have feedback about the product / Other" fontSize="14px" value={otherInfo} onChange={e => setOtherInfo(e.target.value)} />
+                                    <Textarea color="mainTextColor" placeholder="I'm also interested as a borrower / I have feedback about the product / Other" fontSize="14px" value={otherInfo} onChange={e => setOtherInfo(e.target.value)} />
                                     {
                                         isSuccess ? <SuccessMessage alertProps={{ w: 'full' }} iconProps={{ height: 40, width: 40 }} title="Affiliation request submitted!" description="We will get back to you shortly" />
                                             : <RSubmitButton onSuccess={() => handleSuccess()} disabled={!isFormValid} p="8" fontSize="22px" onClick={register}>

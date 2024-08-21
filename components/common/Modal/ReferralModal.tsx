@@ -40,7 +40,7 @@ export const ReferralModal = ({
     const [isInvalid, setIsInvalid] = useState(false);
     const [isInited, setIsInited] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
-    const { value: alreadyConfirmedRef, setter: saveConfirmedRef } = useStorage('confirmed-referral');
+    const { value: alreadyConfirmedRef, setter: saveConfirmedRef } = useStorage('confirmed-referral-v1');
 
     const isOwnAccount = !!account && !!refAddress && refAddress?.toLowerCase() === account?.toLowerCase();
 
@@ -53,6 +53,11 @@ export const ReferralModal = ({
     }, [refAddress]);
 
     useEffect(() => {
+        console.log('--')
+        console.log(alreadyConfirmedRef)
+        console.log(refAddress)
+        console.log(isInited)
+        console.log(query?.referrer )
         if (alreadyConfirmedRef === null && !isInited && !refAddress && !!query?.referrer && isAddress(query?.referrer)) {
             setIsInited(true);
             setRefAddress(query.referrer);
@@ -116,7 +121,7 @@ export const ReferralModal = ({
 
                         <InfoMessage alertProps={{ w: 'full' }} description={
                             <VStack spacing="0" alignItems="flex-start">
-                                <Text>Please sign a message with your wallet to confirm the referral.</Text>
+                                <Text>If you want to confirm the referral, please sign a message with your wallet.</Text>
                                 <Text>This action does not cost you anything.</Text>
                             </VStack>
                         } />

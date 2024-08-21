@@ -55,6 +55,34 @@ const columns = [
         filterWidth: '100px',
     },
     {
+        field: 'timestamp',
+        label: 'Application Date',
+        header: ({ ...props }) => <ColHeader justify="flex-start" minWidth={'100px'} {...props} />,
+        value: ({ timestamp }) => <Cell justify="flex-start" minWidth="100px">
+            <Timestamp timestamp={timestamp} text1Props={{ fontSize: '12px' }} text2Props={{ fontSize: '12px' }} />
+        </Cell>,
+    },
+    {
+        field: 'status',
+        label: 'Status',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        value: ({ status }) => {
+            return <Cell minWidth="100px" justify="center">
+                <CellText>{status}</CellText>
+            </Cell>
+        },
+    },
+    {
+        field: 'affiliateType',
+        label: 'Type',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        value: ({ affiliateType }) => {
+            return <Cell minWidth="100px" justify="center">
+                <CellText>{affiliateType}</CellText>
+            </Cell>
+        },
+    },
+    {
         field: 'nbReferred',
         label: 'Referred Users',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
@@ -150,8 +178,8 @@ export const FirmAffiliateList = ({
 
     }) => {
     const { priceUsd: dbrPriceUsd } = useDBRPrice();
-    const { referrals, referralAddresses, affiliatePaymentEvents, affiliateAddresses } = useFirmAffiliate('all');
-    const { userPositions, timestamp, isLoading } = useFirmUsers();
+    const { referrals, referralAddresses, affiliatePaymentEvents, affiliateAddresses, affiliatesPublicData, timestamp } = useFirmAffiliate('all');
+    const { userPositions, isLoading } = useFirmUsers();
     const [selectedAffiliate, setSelectedAffiliate] = useState('');
     const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -170,12 +198,13 @@ export const FirmAffiliateList = ({
             }
         });
 
-    const affiliateList = affiliateAddresses.map(affiliate => {
+    const affiliateList = affiliatesPublicData.map(affiliateData => {
+        const affiliate = affiliateData.affiliate;
         const referredList = referredPositions.filter(rp => rp.affiliate === affiliate);
         const affiliateRewards = referredList.reduce((prev, curr) => prev + curr.affiliateReward, 0);
         const paidRewards = affiliatePaymentEvents.filter(pe => pe.affiliate === affiliate).reduce((prev, curr) => prev + curr.amount, 0);
         return {
-            affiliate,
+            ...affiliateData,
             nbReferred: referredList.length,
             accSinceRef: referredList.reduce((prev, curr) => prev + curr.accSinceRef, 0),
             affiliateRewards,
