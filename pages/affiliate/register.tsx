@@ -137,7 +137,7 @@ export const FirmAffiliateRegisterPage = () => {
             </Head>
             <AppNav active="More" activeSubmenu="Affiliate Dashboard" hideAnnouncement={true} />
             <ErrorBoundary>
-                <VStack spacing="20" w='full' maxW="1200px" mt="8">
+                <VStack spacing="10" w='full' maxW="1200px" mt="8">
                     <SplashedText
                         as="h1"
                         color={`mainTextColor`}
@@ -215,7 +215,7 @@ export const FirmAffiliateRegisterPage = () => {
                                         }
                                     </VStack>
                                     <Divider />
-                                    <InputZone text="Wallet Address" placeholder={BURN_ADDRESS} fontSize="14px" value={wallet} setter={setWallet} isInvalid={isInvalidWallet} />
+                                    <InputZone text="Wallet Address (for payments)" placeholder={BURN_ADDRESS} fontSize="14px" value={wallet} setter={setWallet} isInvalid={isInvalidWallet} />
                                     <Text w='full' fontWeight="bold">
                                         Other informations we should know:
                                     </Text>
