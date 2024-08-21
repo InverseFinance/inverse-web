@@ -1,78 +1,16 @@
-import { VStack, Text, Stack, RadioGroup, Radio, SimpleGrid, Divider, Checkbox, TextProps, Textarea, Flex, Image, HStack, useMediaQuery } from '@chakra-ui/react'
+import { VStack, Text, Stack, SimpleGrid, Image, HStack, useMediaQuery } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
-import { FirmAffiliateDashboard } from '@app/components/F2/Infos/FirmAffiliateDashboard'
-import { Steps } from '@app/components/common/Step'
 import { DashBoardCard } from '@app/components/F2/UserDashboard'
 import { RSubmitButton } from '@app/components/common/Button/RSubmitButton'
-import { SplashedText } from '@app/components/common/SplashedText'
 import { lightTheme } from '@app/variables/theme'
-import { Input } from '@app/components/common/Input'
 import { useState } from 'react'
-import { InfoMessage, SuccessMessage } from '@app/components/common/Messages'
 import { isAddress } from 'ethers/lib/utils'
 import { BURN_ADDRESS } from '@app/config/constants'
 import Link from '@app/components/common/Link'
-import { FAQ } from '@app/components/common/FAQ'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-
-const steps = [
-    {
-        text: <Text>Fill out the application form to become a FiRM Affiliate. Our team will review your application to ensure you meet the criteria.</Text>,
-    },
-    {
-        text: <Text>Once approved, create and share your unique Affiliate link with your audiences.</Text>,
-    },
-    {
-        text: <Text>Sit back and earn! As the borrowers you refer spend DBR on new DOLA loans, you'll receive 10% of their spent DBR.</Text>,
-    },
-]
-
-
-const InputZone = ({
-    text,
-    value,
-    setter,
-    placeholder,
-    ...props
-}: {
-    text: string,
-    value: string,
-    setter: () => void,
-    placeholder?: string,
-}) => {
-    return <VStack w='full' spacing="0" alignItems="flex-start">
-        <Text fontWeight="bold">
-            {text}
-        </Text>
-        <Input w='full' placeholder={placeholder} value={value} onChange={e => setter(e.target.value)} {...props} />
-    </VStack>
-}
-
-const CheckboxZone = ({
-    text,
-    value,
-    setter,
-    placeholder,
-    ...props
-}: {
-    text: string,
-    value: string,
-    setter: () => void,
-    placeholder?: string,
-}) => {
-    return <VStack w='full' spacing="0" alignItems="flex-start">
-        <Checkbox w='full' value={value} onClick={e => setter(!value)} {...props}>
-            {text}
-        </Checkbox>
-    </VStack>
-}
-
-const FaqText = (props: TextProps) => <Text color="secondaryTextColor" lineHeight="1.5" {...props} />
-const FaqStack = (props: TextProps) => <VStack alignItems="flex-start" spacing="2" {...props} />
-const FaqLink = (props: TextProps) => <Link fontWeight="bold" style={{ 'text-decoration-skip-ink': 'none' }} mt="10px" color="mainTextColor" textDecoration="underline" isExternal target="_blank" {...props} />
 
 export const individualInputs = [
     { text: 'X (Twitter)', key: 'x' },
@@ -193,7 +131,7 @@ const HowDoesItWorkSection = () => <VStack spacing="0" transform="translateY(-70
                 <Text mb="140px" p="8" color={whitish}>
                     Once approved, create and share your unique Affiliate link with your audiences. <b style={{ color: lightTheme.colors.secAccentTextColor }}>Promote FIRM to your audiences</b> as much or as little as you like.
                 </Text>
-                <Image transform="translate3d(-41px, 30px, 0)" position="absolute" bottom="0" src="/assets/affiliate/step2.png" w="90%" />
+                <Image transform="translate3d(-47px, 30px, 0)" position="absolute" bottom="0" src="/assets/affiliate/step2.png" w="90%" />
             </DarkCard>
             <DarkCard>
                 <Text mb="140px" p="8" color={whitish}>
@@ -377,7 +315,7 @@ const FaqSection = (props) => <VStack px="0" alignItems="center" transform="tran
 
 const personas = [
     { title: 'Individuals', imageProps: { w: "80%" } },
-    { title: 'Social media\nInfluencers', imageProps: { maxH: "220px" }, subtitle: 'with 5,000+ followers or subscribers on one or more social media platforms including Twitter, YouTube, Facebook, and Instagram.' },
+    { title: 'Social media\nInfluencers', imageProps: { w: '80%' }, subtitle: 'with 5,000+ followers or subscribers on one or more social media platforms including Twitter, YouTube, Facebook, and Instagram.' },
     { title: 'Financial\nLeaders', subtitle: 'with a community of 500+ members on one or more community groups on Telegram, Facebook, Discord, WeChat, and/or Reddit.' },
     { title: 'Opinion\nLeaders', imageProps: { bottom: "-7px", left: "-8px" }, subtitle: 'with a community of 500+ members on one or more community groups on Telegram, Facebook, Discord, WeChat, and/or Reddit.' },
     { title: 'DEX or Similar\nTrading Platforms' },
