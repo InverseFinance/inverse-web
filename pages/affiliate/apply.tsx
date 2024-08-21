@@ -140,7 +140,7 @@ const SectionOne = () => <VStack maxW="1300px" w="100%" alignItems="flex-start" 
             </VStack>
         </VStack>
         <VStack right={{ base: '-40%', lg: '-42px' }} bottom="0" position={{ base: 'relative', lg: 'absolute' }}>
-            <OrangeBubble transform={{ base: "translate3D(-90px, 40px, 0) rotate(-5deg)", lg: 'translate3D(-200px, 40px, 0) rotate(-5deg)' }}>
+            <OrangeBubble transform={{ base: "translate3D(-90px, 40px, 0) rotate(-5deg)", md: 'translate3D(-70px, 40px, 0) rotate(-5deg) scale(0.8)', 'xl': 'translate3D(-200px, 40px, 0) rotate(-5deg)' }}>
                 <VStack alignItems="flex-start" w='full'>
                     <Text color={mainColor}>Earn <b>10%</b> Commissions</Text>
                     <Text color={mainColor}>By Promoting <b>FiRM</b></Text>
@@ -151,7 +151,7 @@ const SectionOne = () => <VStack maxW="1300px" w="100%" alignItems="flex-start" 
     </Stack>
 </VStack>
 
-const INFOitem = <Text fontWeight="extrabold" textOverflow="clip" color={whitish}  fontSize={{ base: '30px', lg: '68px' }}>INFO</Text>
+const INFOitem = <Text fontWeight="extrabold" textOverflow="clip" color={whitish} fontSize={{ base: '30px', lg: '68px' }}>INFO</Text>
 
 const InfoBar = () => <VStack zIndex="2" overflow="hidden" transform="translateY(-40px) rotate(1deg)" bgColor={lightTheme.colors.accentTextColor} w='110%'>
     <HStack spacing="20">
@@ -178,7 +178,7 @@ const HowDoesItWorkSection = () => <VStack transform="translateY(-70px)" w='full
                 It's quite simple
             </Title>
         </Stack>
-        <SimpleGrid gap="8" columns={{ base: 1, lg: 3 }}>
+        <SimpleGrid gap="8" columns={{ base: 1, xl: 3 }} maxW={{ base: '400px', xl: 'full' }}>
             <DarkCard alignItems="flex-start">
                 <Text px="8" pt="8" color={whitish}>
                     <b style={{ color: lightTheme.colors.secAccentTextColor }}>Fill out the application form below to become a FiRM Affiliate</b>. Our team will review your application to ensure you meet the criteria.
@@ -204,26 +204,28 @@ const HowDoesItWorkSection = () => <VStack transform="translateY(-70px)" w='full
     </VStack>
 </VStack>
 
-const WhoIsEligibleSection = () => <VStack spacing="8" transform="translateY(-70px)" w='full' alignItems="center" position="relative" px={{ base: 8, lg: 20 }} py="20" bgColor={mainColor}>
+const WhoIsEligibleSection = () => <VStack spacing="8" transform="translateY(-70px)" w='full' alignItems="center" position="relative" px={{ base: 8, md: 20 }} py="20" bgColor={mainColor}>
     <VStack spacing="8" maxW='1307px' w='full'>
-        <Stack w='full' pl={{ base: 0, lg: '20%' }} spacing={{ base: '20', lg: '8' }} color={whitish} direction={{ base: 'column', lg: 'row' }} alignItems={{ base: 'flex-start', lg: 'flex-end' }}>
-            <VStack spacing="0" alignItems="flex-start">
+        <Stack w='full' pl={{ base: 0, lg: '20%' }} spacing={{ base: '20', md: '8' }} color={whitish} direction={{ base: 'column', md: 'row' }} alignItems={{ base: 'center', md: 'flex-end' }}>
+            <VStack spacing="0" alignItems={{ base: 'center', md: 'flex-start' }}>
                 <BigTitle whiteSpace="nowrap" color={whitish} textTransform="uppercase">Who is</BigTitle>
                 <BigTitle color={whitish} textTransform="uppercase" className="splash-orange-circled">eligible?</BigTitle>
             </VStack>
-            <VStack w="345px" alignItems="center">
-                <GrayCard>
-                    <Image right="0" position="absolute" bottom="-5px" src="/assets/affiliate/influencers.png" w="343px" h="200px" />
-                </GrayCard>
-                <Text textAlign="justify" p="4" color={whitish} fontSize="16px">
-                    The program is brand new and we're initially limiting signups to influencers, community leaders, and others with a sizeable audience, including:
-                </Text>
+            <VStack alignItems="center" w={{ base: 'full' }}>
+                <VStack w="345px" alignItems="center">
+                    <GrayCard>
+                        <Image right="0" position="absolute" bottom="-5px" src="/assets/affiliate/influencers.png" w="343px" h="200px" />
+                    </GrayCard>
+                    <Text textAlign="justify" p="4" color={whitish} fontSize="16px">
+                        The program is brand new and we're initially limiting signups to influencers, community leaders, and others with a sizeable audience, including:
+                    </Text>
+                </VStack>
             </VStack>
         </Stack>
-        <SimpleGrid justifyContent="center" mt="10" gap="8" columns={{ base: 1, lg: 5 }}>
+        <SimpleGrid justifyContent="center" mt="10" gap="8" columns={{ base: 1, md: 2, xl: 5 }}>
             {
                 personas.map((persona, i) => {
-                    return <VStack alignItems={{ base: 'center', lg: 'flex-start' }}>
+                    return <VStack alignItems={{ base: 'center', xl: 'flex-start' }}>
                         <GrayCard h="200px" w="200px">
                             <Image position="absolute" bottom="0" src={`/assets/affiliate/persona${i + 1}.png`} w="100%" {...persona.imageProps} />
                         </GrayCard>
@@ -249,27 +251,27 @@ const WhoIsEligibleSection = () => <VStack spacing="8" transform="translateY(-70
 
 const WhatElseSection = () => <VStack transform="translateY(-70px)" spacing="8" w='full' alignItems="center" position="relative" px={{ base: 8, lg: 20 }} pb="20" bgColor={mainColor}>
     <VStack spacing="8" maxW='1307px' w='full'>
-        <Stack spacing="8" direction={{ base: 'column', lg: 'row' }}>
-            <DarkCard justifyContent="center" w={{ base: 'full', lg: '40%' }} bgColor={lightTheme.colors.secAccentTextColor} bgImage="url(/assets/affiliate/splash-bowl.png)" bgPosition="0 0" bgSize="75%" bgRepeat="no-repeat">
+        <Stack spacing="8" direction={{ base: 'column', lg: 'row' }}  maxW={{ base: '400px', lg: 'full' }}>
+            <DarkCard justifyContent="center" w={{ base: 'full', xl: '40%' }} bgColor={lightTheme.colors.secAccentTextColor} bgImage="url(/assets/affiliate/splash-bowl.png)" bgPosition="0 0" bgSize="75%" bgRepeat="no-repeat">
                 <VStack spacing="0" alignItems="flex-start" py="10" px="20">
                     <BigTitle whiteSpace="nowrap" color={mainColor} textTransform="uppercase">what</BigTitle>
                     <BigTitle color={mainColor} textTransform="uppercase" className="splash-circled">else?</BigTitle>
                 </VStack>
             </DarkCard>
-            <DarkCard w={{ base: 'full', lg: '30%' }}>
+            <DarkCard w={{ base: 'full', xl: '30%' }}>
                 <Text mb="100px" p="8" color={whitish}>
                     When a new borrower uses the dedicated Affiliate URL, the borrower <b>signs a message</b> confirming the referral from an Affiliate's address.
                 </Text>
                 <Image position="absolute" bottom="-7px" maxW="200px" src="/assets/affiliate/sign.png" w="100%" />
             </DarkCard>
-            <DarkCard w={{ base: 'full', lg: '30%' }}>
+            <DarkCard w={{ base: 'full', xl: '30%' }}>
                 <Text mb="100px" p="8" color={whitish}>
                     Affiliates reward activity is viewable via an <b style={{ color: lightTheme.colors.secAccentTextColor }}>Affiliate dashboard</b> and a dedicated Discord channel is available to Affiliates for support.
                 </Text>
                 <Image position="absolute" bottom="0" src="/assets/affiliate/dashboard.png" w="50%" />
             </DarkCard>
         </Stack>
-        <DarkCard w='full' p="8">
+        <DarkCard maxW={{ base: '400px', lg: 'full' }} p="8">
             <SimpleGrid gap="4" columns={{ base: 1, lg: 2 }}>
                 <GrayCard p="8">
                     <Stack alignItems="center" direction={{ base: 'column', lg: 'row' }}>
@@ -308,7 +310,7 @@ const WhatElseSection = () => <VStack transform="translateY(-70px)" spacing="8" 
                 </GrayCard>
             </SimpleGrid>
         </DarkCard>
-        <Stack w='full' spacing="8" direction={{ base: 'column', lg: 'row' }}>
+        <Stack maxW={{ base: '400px', lg: 'full' }} spacing="8" direction={{ base: 'column', lg: 'row' }}>
             <DarkCard justifyContent="center" w={{ base: 'full', lg: '50%' }}>
                 <Text py="4" px="8" color={whitish}>90-day beta test runs from August 15 thru November 15th. Program may be extended by governance.</Text>
             </DarkCard>
@@ -316,7 +318,7 @@ const WhatElseSection = () => <VStack transform="translateY(-70px)" spacing="8" 
                 <Text py="4" px="8" color={whitish}>Referrals made via sybil attacks or other prohibited means may be denied payment.</Text>
             </DarkCard>
         </Stack>
-        <DarkCard w='full'>
+        <DarkCard maxW={{ base: '400px', lg: 'full' }}>
             <Text py="4" px="8" color={whitish}>Don't miss out on this opportunity to be one of our first FiRM Affiliates and begin earning today! Apply now and start making a difference in the world of finance!</Text>
             <Stack alignItems="center" py="4" px="8" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between">
                 <RegisterBtn />
