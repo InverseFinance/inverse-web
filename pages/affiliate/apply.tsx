@@ -109,7 +109,7 @@ const SimpleText = (props) => <Text color={mainColor} {...props} />
 
 const OrangeBubble = (props) => <VStack transform="rotate(-5deg)" borderRadius="120px" lineHeight="normal" p="8" fontSize={{ base: "18px", lg: "34px" }} border="8px solid white" bgColor="secAccentTextColor" {...props} />
 
-const RegisterBtn = (props) => <RSubmitButton _hover={{ bgColor: lightTheme.colors.secAccentTextColor }} fontSize={{ base: '16px', lg: '18px' }} w='fit-content' color={mainColor} bgColor="#C7CCDB" p={{ base: 6, lg: 8 }}>
+const RegisterBtn = (props) => <RSubmitButton href="/affiliate/register" _hover={{ bgColor: lightTheme.colors.secAccentTextColor }} fontSize={{ base: '16px', lg: '18px' }} w='fit-content' color={mainColor} bgColor="#C7CCDB" p={{ base: 6, lg: 8 }}>
     Become an Affiliate
 </RSubmitButton>
 
@@ -183,7 +183,7 @@ const HowDoesItWorkSection = () => <VStack transform="translateY(-70px)" w='full
                 <Text px="8" pt="8" color={whitish}>
                     <b style={{ color: lightTheme.colors.secAccentTextColor }}>Fill out the application form below to become a FiRM Affiliate</b>. Our team will review your application to ensure you meet the criteria.
                 </Text>
-                <Link href="/affiliate/register" textDecoration="underline" px="8" mb="140px" color={lightTheme.colors.secAccentTextColor}>
+                <Link _hover={{ color: lightTheme.colors.secAccentTextColor }} href="/affiliate/register" textDecoration="underline" px="8" mb="140px" color={lightTheme.colors.secAccentTextColor}>
                     Application Form <ExternalLinkIcon color={lightTheme.colors.secAccentTextColor} />
                 </Link>
                 <Image right="0" position="absolute" bottom="0" src="/assets/affiliate/step1.png" w="100px" />
