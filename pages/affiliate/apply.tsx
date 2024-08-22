@@ -1,4 +1,4 @@
-import { VStack, Text, Stack, SimpleGrid, Image, HStack, useMediaQuery } from '@chakra-ui/react'
+import { VStack, Text, Stack, SimpleGrid, Image, HStack } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
@@ -6,9 +6,6 @@ import Head from 'next/head'
 import { DashBoardCard } from '@app/components/F2/UserDashboard'
 import { RSubmitButton } from '@app/components/common/Button/RSubmitButton'
 import { lightTheme } from '@app/variables/theme'
-import { useState } from 'react'
-import { isAddress } from 'ethers/lib/utils'
-import { BURN_ADDRESS } from '@app/config/constants'
 import Link from '@app/components/common/Link'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 
@@ -47,7 +44,7 @@ const SimpleText = (props) => <Text color={mainColor} {...props} />
 
 const OrangeBubble = (props) => <VStack transform="rotate(-5deg)" borderRadius="120px" lineHeight="normal" p="8" fontSize={{ base: "18px", lg: "34px" }} border="8px solid white" bgColor="secAccentTextColor" {...props} />
 
-const RegisterBtn = (props) => <RSubmitButton target="_blank" href="/affiliate/register" _hover={{ bgColor: lightTheme.colors.secAccentTextColor }} fontSize={{ base: '16px', lg: '18px' }} w='fit-content' color={mainColor} bgColor="#C7CCDB" p={{ base: 6, lg: 8 }}>
+const RegisterBtn = (props) => <RSubmitButton target="_blank" href="/affiliate/register" _hover={{ bgColor: lightTheme.colors.secAccentTextColor, color: lightTheme.colors.mainTextColor }} fontSize={{ base: '16px', lg: '18px' }} w='fit-content' color={whitish} bgColor={lightTheme.colors.mainTextColor} p={{ base: 6, lg: 8 }}>
     Become an Affiliate
 </RSubmitButton>
 
@@ -106,7 +103,7 @@ const FaqBar = () => <VStack zIndex="2" overflow="hidden" transform="translateY(
 </VStack>
 
 const HowDoesItWorkSection = () => <VStack spacing="0" transform="translateY(-70px)" w='full' alignItems="center" position="relative" px={{ base: 8, lg: 20 }} py="20" bgColor={mainColor}>
-    <Image display={{ base: 'none', sm: 'block' }} src="/assets/affiliate/graffiti2.svg" right="0" w="300px" position="absolute" className="graffiti-bg"/>    
+    <Image display={{ base: 'none', sm: 'block' }} src="/assets/affiliate/graffiti2.svg" right="0" w="300px" position="absolute" className="graffiti-bg" />
     <VStack spacing={{ base: 10, lg: 20 }} maxW='1307px' alignItems="center" justify="center" w='full'>
         <Stack w='full' pl={{ base: 0, lg: '20%' }} spacing="8" color={whitish} direction={{ base: 'column', lg: 'row' }} alignItems={{ base: 'flex-start', lg: 'flex-end' }}>
             <VStack className="graffiti-1" spacing="0" alignItems="flex-start">
@@ -146,8 +143,8 @@ const HowDoesItWorkSection = () => <VStack spacing="0" transform="translateY(-70
 const WhoIsEligibleSection = () => <VStack spacing="0" transform="translateY(-70px)" w='full' alignItems="center" position="relative" px={{ base: 8, md: 20 }} py="20" bgColor={mainColor}>
     <Image display={{ base: 'none', sm: 'block' }} src="/assets/affiliate/graffiti3.svg" top="-200px" left="0" w="300px" position="absolute" className="graffiti-bg" />
     <Image display={{ base: 'none', sm: 'block' }} src="/assets/affiliate/graffiti4.png" top="-100px" right="0" w="300px" position="absolute" className="graffiti-bg" />
-    <Image display={{ base: 'none', sm: 'block' }} src="/assets/affiliate/graffiti5.svg" bottom="150px" left="0" w="300px" position="absolute" className="graffiti-bg"/>
-    <Image display={{ base: 'none', sm: 'block' }} src="/assets/affiliate/graffiti6.svg" bottom="250px" left="0" w="300px" position="absolute" className="graffiti-bg"/>    
+    <Image display={{ base: 'none', sm: 'block' }} src="/assets/affiliate/graffiti5.svg" bottom="150px" left="0" w="300px" position="absolute" className="graffiti-bg" />
+    <Image display={{ base: 'none', sm: 'block' }} src="/assets/affiliate/graffiti6.svg" bottom="250px" left="0" w="300px" position="absolute" className="graffiti-bg" />
     <VStack spacing="8" maxW='1307px' w='full'>
         <Stack w='full' pl={{ base: 0, lg: '20%' }} spacing={{ base: '20', md: '8' }} color={whitish} direction={{ base: 'column', md: 'row' }} alignItems={{ base: 'center', md: 'flex-end' }}>
             <VStack className="graffiti-1-reverse" spacing="0" alignItems={{ base: 'center', md: 'flex-start' }}>
@@ -193,7 +190,7 @@ const WhoIsEligibleSection = () => <VStack spacing="0" transform="translateY(-70
 </VStack>
 
 const WhatElseSection = () => <VStack spacing="0" transform="translateY(-70px)" spacing="8" w='full' alignItems="center" position="relative" px={{ base: 8, lg: 20 }} pb="20" bgColor={mainColor}>
-    <Image display={{ base: 'none', sm: 'block' }} src="/assets/affiliate/graffiti3.svg" top="-200px" right="0" transform="rotate(180deg)" w="300px" position="absolute" className="graffiti-bg"/>
+    <Image display={{ base: 'none', sm: 'block' }} src="/assets/affiliate/graffiti3.svg" top="-200px" right="0" transform="rotate(180deg)" w="300px" position="absolute" className="graffiti-bg" />
     <VStack spacing="8" maxW='1307px' w='full'>
         <Stack spacing="8" direction={{ base: 'column', lg: 'row' }} maxW={{ base: '400px', lg: 'full' }}>
             <DarkCard justifyContent="center" w={{ base: 'full', xl: '40%' }} bgColor={lightTheme.colors.secAccentTextColor} bgImage="url(/assets/affiliate/splash-bowl.png)" bgPosition="0 0" bgSize="75%" bgRepeat="no-repeat">
@@ -331,6 +328,10 @@ export const FirmAffiliateRegisterPage = () => {
         <Layout bgColor="white" bg="white">
             <Head>
                 <title>Inverse Finance - Affiliate Program Registration</title>
+                <meta name="description" content="As a FiRM Affiliate, you'll have the opportunity to earn a whopping 10% of the DBR spent by borrowers you refer" />
+                <meta name="keywords" content="Inverse Finance, FiRM, affiliate, affiliation, commission, rewards" />
+                <meta name="og:title" content="Inverse Finance - Affiliate Program Registration" />
+                <meta name="og:description" content="As a FiRM Affiliate, you'll have the opportunity to earn a whopping 10% of the DBR spent by borrowers you refer" />
             </Head>
             <AppNav active="More" activeSubmenu="Affiliate Dashboard" hideAnnouncement={true} hideVampireBar={true} />
             <ErrorBoundary>

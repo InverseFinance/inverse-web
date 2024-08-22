@@ -22,7 +22,7 @@ export const FirmPositionsTable = ({
         noDataMessage="No live positions in last update"
         columns={isOneUserOnly ? oneUserOnlyColumns : columns}
         items={positions}
-        onClick={(v) => onClick(v)}
+        onClick={onClick}
         defaultSort="debt"
         defaultSortDir="desc"
     />

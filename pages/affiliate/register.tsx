@@ -188,7 +188,7 @@ export const FirmAffiliateRegisterPage = () => {
                                                     <InfoMessage alertProps={{ w: 'full' }} description="Social media influencers with 5,000+ followers or subscribers on one or more social media platforms.  Financial leaders or opinion leaders with a community of 500+ members on one or more community groups" />
                                                     <VStack w='full' alignItems="flex-start">
                                                         <Text fontStyle="italic">
-                                                            Please fill out any relevant social media account:
+                                                            please share relevant social media accounts here:
                                                         </Text>
                                                         <SimpleGrid columns={{ base: 2, lg: 3 }} gap="2">
                                                             {

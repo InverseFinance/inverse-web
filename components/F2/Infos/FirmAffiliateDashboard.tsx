@@ -170,13 +170,14 @@ const columnsPayments = [
 
 export const ReferredUsersTable = ({
     referredPositions,
+    openUserDetails,
 }) => {
     return <Table
         keyName="user"
         noDataMessage="No confirmed referred users yet"
         columns={columns}
         items={referredPositions}
-        // onClick={openUserDetails}
+        onClick={(item) => openUserDetails(item)}
         defaultSort="affiliateReward"
         defaultSortDir="desc"
     />
@@ -224,17 +225,25 @@ export const FirmAffiliateDashboard = ({
     const totalDbrPaid = affiliatePaymentEvents
         .filter(e => e.affiliate === account)
         .reduce((prev, curr) => prev + curr.amount, 0);
-    
-    const totalPaidRewards = referredPositions.reduce((prev, curr) => prev + curr.paidRewards, 0);    
+
+    const totalPaidRewards = referredPositions.reduce((prev, curr) => prev + curr.paidRewards, 0);
     const totalPendingRewards = referredPositions.reduce((prev, curr) => prev + curr.pendingRewards, 0);
 
     const monthlySpending = totalDebt / 12;
     const monthlyReward = monthlySpending * 0.1;
 
-    return <VStack w='full' spacing={{ base: '4', sm: '8' }}>
+    return <VStack alignItems="flex-start" w='full' spacing={{ base: '4', sm: '8' }}>
         {
-            !!position && <FirmUserModal userData={position} isOpen={isOpen} onClose={onClose} />
+            !!position && <FirmUserModal useSimple={true} userData={position} isOpen={isOpen} onClose={onClose} />
         }
+        <VStack w='full' pl="6" alignItems="flex-start">
+            <Text fontWeight="bold" fontSize="30px">
+                Your FiRM Affiliate Program Dashboard
+            </Text>
+            <Text color="mainTextColorLight" fontWeight="bold" fontSize="20px">
+                Track the loan activity of your referred users as well as your accumulated rewards!
+            </Text>
+        </VStack>
         <SimpleGrid justify="space-between" w='full' columns={{ base: 2, sm: 4 }} spacing={{ base: '4', sm: '6' }}>
             {/* <StatBasic isLoading={isLoading} name="DBR price" value={`${smartShortNumber(dbrPriceUsd, 4, true)}`} /> */}
             {/* <StatBasic isLoading={isLoading} name="Affiliate Reward" value={`10%`} /> */}
@@ -281,7 +290,7 @@ export const FirmAffiliateDashboard = ({
                 isLoading ?
                     <SkeletonBlob />
                     :
-                    <ReferredUsersTable referredPositions={referredPositions} />
+                    <ReferredUsersTable referredPositions={referredPositions} openUserDetails={openUserDetails} />
             }
         </Container>
         <Container
