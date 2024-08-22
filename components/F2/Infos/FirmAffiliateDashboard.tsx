@@ -1,4 +1,4 @@
-import { Divider, Flex, HStack, SimpleGrid, Stack, Text, useDisclosure, VStack } from "@chakra-ui/react"
+import { Flex, HStack, SimpleGrid, Stack, Text, useDisclosure, VStack } from "@chakra-ui/react"
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useFirmAffiliate, useFirmUsers } from "@app/hooks/useFirm";
@@ -16,6 +16,10 @@ import { useDBRPrice } from "@app/hooks/useDBR";
 import { useAccount } from "@app/hooks/misc";
 import { Timestamp } from "@app/components/common/BlockTimestamp/Timestamp";
 import { commify } from "@ethersproject/units";
+import { RSubmitButton } from "@app/components/common/Button/RSubmitButton";
+import { ReferToModal } from "@app/components/common/Modal/ReferToModal";
+import { DashBoardCard } from "../UserDashboard";
+import { InfoMessage } from "@app/components/common/Messages";
 
 const StatBasic = ({ value, name, onClick = undefined, isLoading = false }: { value: string, onClick?: () => void, name: string, isLoading?: boolean }) => {
     return <VStack>
@@ -192,6 +196,7 @@ export const FirmAffiliateDashboard = ({
     const { priceUsd: dbrPriceUsd } = useDBRPrice();
     const { referrals, referralAddresses, affiliatePaymentEvents } = useFirmAffiliate(account);
     const { userPositions, timestamp, isLoading } = useFirmUsers();
+    const { isOpen: isReferralOpen, onOpen: onReferralOpen, onClose: onReferralClose } = useDisclosure();
 
     const referredPositions = userPositions
         .filter(up => referralAddresses.includes(up.user))
@@ -239,30 +244,44 @@ export const FirmAffiliateDashboard = ({
         {
             !!position && <FirmUserModal useSimple={true} userData={position} isOpen={isOpen} onClose={onClose} />
         }
-        <VStack w='full' pl="6" alignItems="flex-start">
-            <Text fontWeight="bold" fontSize="30px">
-                Your FiRM Affiliate Program Dashboard
-            </Text>
-            <Text color="mainTextColorLight" fontWeight="bold" fontSize="20px">
-                Track the loan activity of your referred users as well as your accumulated rewards!
-            </Text>
+        {
+            !!account && <ReferToModal onOpen={onReferralOpen} isOpen={isReferralOpen} onClose={onReferralClose} />
+        }
+        <Stack justify="space-between" direction={{ base: 'column', xl: 'row' }} w='full' alignItems="center">
+            <VStack alignItems="flex-start">
+                <Text fontWeight="bold" fontSize="30px">
+                    Your FiRM Affiliate Program Dashboard
+                </Text>
+                <Text color="mainTextColorLight" fontWeight="bold" fontSize="20px">
+                    Track the loan activity of your referred users as well as your accumulated rewards!
+                </Text>
+            </VStack>
+            <RSubmitButton p="6" fontSize="18px" w="fit-content" onClick={onReferralOpen}>
+                Get your referral link
+            </RSubmitButton>
+        </Stack>
+        <InfoMessage alertProps={{ w: 'full' }} description="Note: this dashboard is for information purposes only" />
+        <VStack w='full'>
+            <DashBoardCard  w='full'>
+                <SimpleGrid justify="space-between" w='full' columns={{ base: 2, sm: 4 }} spacing={{ base: '4', sm: '6' }}>
+                    {/* <StatBasic isLoading={isLoading} name="DBR price" value={`${smartShortNumber(dbrPriceUsd, 4, true)}`} /> */}
+                    {/* <StatBasic isLoading={isLoading} name="Affiliate Reward" value={`10%`} /> */}
+                    <StatBasic isLoading={isLoading} name="DBR Monthly Reward" value={!monthlyReward ? '-' : `${smartShortNumber(monthlyReward, 2)} (${smartShortNumber(monthlyReward * dbrPriceUsd, 2, true)})`} />
+                    <StatBasic isLoading={isLoading} name="Acc. DBR rewards" value={!totalAffiliateRewards ? '-' : `${smartShortNumber(totalAffiliateRewards, 2)} (${smartShortNumber(totalAffiliateRewards * dbrPriceUsd, 2, true)})`} />
+                    <StatBasic isLoading={isLoading} name="Paid rewards" value={!totalPaidRewards ? '-' : `${smartShortNumber(totalPaidRewards, 2)} (${smartShortNumber(totalPaidRewards * dbrPriceUsd, 2, true)})`} />
+                    <StatBasic isLoading={isLoading} name="Pending rewards" value={!totalPendingRewards ? '-' : `${smartShortNumber(totalPendingRewards, 2)} (${smartShortNumber(totalPendingRewards * dbrPriceUsd, 2, true)})`} />
+                </SimpleGrid>
+            </DashBoardCard>
         </VStack>
-        <SimpleGrid justify="space-between" w='full' columns={{ base: 2, sm: 4 }} spacing={{ base: '4', sm: '6' }}>
-            {/* <StatBasic isLoading={isLoading} name="DBR price" value={`${smartShortNumber(dbrPriceUsd, 4, true)}`} /> */}
-            {/* <StatBasic isLoading={isLoading} name="Affiliate Reward" value={`10%`} /> */}
-            <StatBasic isLoading={isLoading} name="DBR Monthly Reward" value={!monthlyReward ? '-' : `${smartShortNumber(monthlyReward, 2)} (${smartShortNumber(monthlyReward * dbrPriceUsd, 2, true)})`} />
-            <StatBasic isLoading={isLoading} name="Acc. DBR rewards" value={!totalAffiliateRewards ? '-' : `${smartShortNumber(totalAffiliateRewards, 2)} (${smartShortNumber(totalAffiliateRewards * dbrPriceUsd, 2, true)})`} />
-            <StatBasic isLoading={isLoading} name="Paid rewards" value={!totalPaidRewards ? '-' : `${smartShortNumber(totalPaidRewards, 2)} (${smartShortNumber(totalPaidRewards * dbrPriceUsd, 2, true)})`} />
-            <StatBasic isLoading={isLoading} name="Pending rewards" value={!totalPendingRewards ? '-' : `${smartShortNumber(totalPendingRewards, 2)} (${smartShortNumber(totalPendingRewards * dbrPriceUsd, 2, true)})`} />
-        </SimpleGrid>
         {/* <SimpleGrid justify="space-between" w='full' columns={{ base: 2, sm: 4 }} spacing={{ base: '4', sm: '6' }}>
             <StatBasic isLoading={isLoading} name="DBR Monthly Spending" value={`${smartShortNumber(monthlySpending, 2)} (${smartShortNumber(monthlySpending * dbrPriceUsd, 2, true)})`} />
             
             <StatBasic isLoading={isLoading} name="Acc. DBR spending" value={`${smartShortNumber(totalDbrAccrued, 2)} (${smartShortNumber(totalDbrAccrued * dbrPriceUsd, 2, true)})`} />
             
         </SimpleGrid> */}
-        <Container
-            py="0"
+        <Container            
+            p="0"
+            noPadding
             label="Referred Users"
             description={timestamp ? `Last update ${moment(timestamp).fromNow()}` : `Loading...`}
             contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
@@ -297,7 +316,8 @@ export const FirmAffiliateDashboard = ({
             }
         </Container>
         <Container
-            py="0"
+            p="0"
+            noPadding
             label="Reward Payments"
             description={timestamp ? `Last update ${moment(timestamp).fromNow()}` : `Loading...`}
             contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
