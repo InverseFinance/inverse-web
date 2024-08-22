@@ -124,7 +124,7 @@ const HowDoesItWorkSection = () => <VStack spacing="0" transform="translateY(-70
                 </Link>
                 <Image right="0" position="absolute" bottom="0" src="/assets/affiliate/step1.png" w="100px" />
             </DarkCard>
-            <DarkCard>
+            <DarkCard overflow="hidden">
                 <Text mb="140px" p="8" color={whitish}>
                     Once approved, create and share your unique Affiliate link with your audiences. <b style={{ color: lightTheme.colors.secAccentTextColor }}>Promote FIRM to your audiences</b> as much or as little as you like.
                 </Text>
@@ -154,7 +154,7 @@ const WhoIsEligibleSection = () => <VStack spacing="0" transform="translateY(-70
             <VStack alignItems="center" w={{ base: 'full' }}>
                 <VStack w="345px" alignItems="center">
                     <GrayCard>
-                        <Image right="0" position="absolute" bottom="-5px" src="/assets/affiliate/influencers.png" w="343px" h="200px" />
+                        <Image position="absolute" bottom="-7px" left="25%" src="/assets/affiliate/persona4.png" h="170px" />
                     </GrayCard>
                     <Text textAlign="justify" p="4" color={whitish} fontSize="16px">
                         The program is brand new and we're initially limiting signups to influencers, community leaders, and others with a sizeable audience, including:
@@ -166,8 +166,8 @@ const WhoIsEligibleSection = () => <VStack spacing="0" transform="translateY(-70
             {
                 personas.map((persona, i) => {
                     return <VStack key={i} alignItems={{ base: 'center', xl: 'flex-start' }}>
-                        <GrayCard h="200px" w="200px">
-                            <Image position="absolute" bottom="0" src={`/assets/affiliate/persona${i + 1}.png`} w="100%" {...persona.imageProps} />
+                        <GrayCard h="200px" w="200px" bgImage={persona.src} bgPosition="center" bgSize="50%" bgRepeat="no-repeat">
+                            &nbsp;
                         </GrayCard>
                         <Text whiteSpace="break-spaces" fontWeight="bold" pt="4" pb="2" color={whitish} fontSize="16px">
                             {persona.title}
@@ -311,16 +311,16 @@ const FaqSection = (props) => <VStack px="0" alignItems="center" transform="tran
 </VStack>
 
 const personas = [
-    { title: 'Individuals', imageProps: { w: "80%" } },
-    { title: 'Social media\nInfluencers', imageProps: { w: '80%' }, subtitle: 'with 5,000+ followers or subscribers on one or more social media platforms including Twitter, YouTube, Facebook, and Instagram.' },
-    { title: 'Financial\nLeaders', subtitle: 'with a community of 500+ members on one or more community groups on Telegram, Facebook, Discord, WeChat, and/or Reddit.' },
-    { title: 'Opinion\nLeaders', imageProps: { bottom: "-7px", left: "-8px" }, subtitle: 'with a community of 500+ members on one or more community groups on Telegram, Facebook, Discord, WeChat, and/or Reddit.' },
-    { title: 'DEX or Similar\nTrading Platforms' },
-    { title: 'Businesses or\nOrganizations' },
-    { title: 'Those with a user\nbase of 2,000+' },
-    { title: 'Market analysis\nplatforms with\n5,000+ daily visits' },
-    { title: 'Industry Media\nPlatforms' },
-    { title: 'Crypto Funds', imageProps: { left: '-18px' } },
+    { title: 'Individuals', src: '/assets/affiliate/person.png' },
+    { title: 'Social media\nInfluencers', src: '/assets/affiliate/x.png', subtitle: 'with 5,000+ followers or subscribers on one or more social media platforms including Twitter, YouTube, Facebook, and Instagram.' },
+    { title: 'Financial\nLeaders', src: '/assets/affiliate/finance.png', subtitle: 'with a community of 500+ members on one or more community groups on Telegram, Facebook, Discord, WeChat, and/or Reddit.' },
+    { title: 'Opinion\nLeaders', src: '/assets/affiliate/opinion.png', subtitle: 'with a community of 500+ members on one or more community groups on Telegram, Facebook, Discord, WeChat, and/or Reddit.' },
+    { title: 'DEX or Similar\nTrading Platforms', src: '/assets/affiliate/dex.png' },
+    { title: 'Businesses or\nOrganizations', src: '/assets/affiliate/business.png' },
+    { title: 'Those with a user\nbase of 2,000+', src: '/assets/affiliate/users.png' },
+    { title: 'Market analysis\nplatforms with\n5,000+ daily visits', src: '/assets/affiliate/activity.png' },
+    { title: 'Industry Media\nPlatforms', src: '/assets/affiliate/media.png' },
+    { title: 'Crypto Funds', src: '/assets/affiliate/fund.png' },
 ];
 
 export const FirmAffiliateRegisterPage = () => {
