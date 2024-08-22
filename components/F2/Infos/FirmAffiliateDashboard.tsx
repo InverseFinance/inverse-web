@@ -117,9 +117,9 @@ const columns = [
         field: 'affiliateReward',
         label: 'Acc. DBR reward',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        value: ({ affiliateReward }) => {
+        value: ({ affiliateRewards }) => {
             return <Cell minWidth="100px" justify="center">
-                <CellText>{affiliateReward > 0 ? shortenNumber(affiliateReward, 2) : '-'}</CellText>
+                <CellText>{affiliateRewards > 0 ? shortenNumber(affiliateRewards, 2) : '-'}</CellText>
             </Cell>
         },
     },
@@ -178,7 +178,7 @@ export const ReferredUsersTable = ({
         columns={columns}
         items={referredPositions}
         onClick={(item) => openUserDetails(item)}
-        defaultSort="affiliateReward"
+        defaultSort="affiliateRewards"
         defaultSortDir="desc"
     />
 }
@@ -198,10 +198,13 @@ export const FirmAffiliateDashboard = ({
         .map(up => {
             const refData = referrals.find(rd => rd.referred === up.user);
             const accSinceRef = (up.dueTokensAccrued - refData.beforeReferralDueTokensAccrued);
-            const affiliateReward = accSinceRef * 0.1;
+            const affiliateRewards = accSinceRef * 0.1;
+            const paidRewards = affiliatePaymentEvents.filter(pe => pe.affiliate === account).reduce((prev, curr) => prev + curr.amount, 0);
             return {
                 ...up,
-                affiliateReward,
+                affiliateRewards,
+                paidRewards,
+                pendingRewards: affiliateRewards - paidRewards,
                 accSinceRef,
                 refTimestamp: refData?.timestamp,
             }
@@ -220,7 +223,7 @@ export const FirmAffiliateDashboard = ({
     const nbStakers = referredPositions.filter(p => p.stakedInv > 0).length;
     const totalTvl = referredPositions.reduce((prev, curr) => prev + (curr.depositsUsd), 0);
     const totalDebt = referredPositions.reduce((prev, curr) => prev + curr.debt, 0);
-    const totalAffiliateRewards = Math.max(referredPositions.reduce((prev, curr) => prev + curr.affiliateReward, 0), 0);
+    const totalAffiliateRewards = Math.max(referredPositions.reduce((prev, curr) => prev + curr.affiliateRewards, 0), 0);
     const totalDbrAccrued = referredPositions.reduce((prev, curr) => prev + curr.accSinceRef, 0);
     const totalDbrPaid = affiliatePaymentEvents
         .filter(e => e.affiliate === account)

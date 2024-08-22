@@ -188,10 +188,10 @@ export const FirmAffiliateList = ({
         .map(up => {
             const refData = referrals.find(rd => rd.referred === up.user);
             const accSinceRef = (up.dueTokensAccrued - refData.beforeReferralDueTokensAccrued);
-            const affiliateReward = accSinceRef * 0.1;
+            const affiliateRewards = accSinceRef * 0.1;
             return {
                 ...up,
-                affiliateReward,
+                affiliateRewards,
                 accSinceRef,
                 refTimestamp: refData.timestamp,
                 affiliate: refData.affiliate,
@@ -201,7 +201,7 @@ export const FirmAffiliateList = ({
     const affiliateList = affiliatesPublicData.map(affiliateData => {
         const affiliate = affiliateData.affiliate;
         const referredList = referredPositions.filter(rp => rp.affiliate === affiliate);
-        const affiliateRewards = referredList.reduce((prev, curr) => prev + curr.affiliateReward, 0);
+        const affiliateRewards = referredList.reduce((prev, curr) => prev + curr.affiliateRewards, 0);
         const paidRewards = affiliatePaymentEvents.filter(pe => pe.affiliate === affiliate).reduce((prev, curr) => prev + curr.amount, 0);
         return {
             ...affiliateData,
@@ -215,9 +215,9 @@ export const FirmAffiliateList = ({
 
     const totalTvl = referredPositions.reduce((prev, curr) => prev + (curr.depositsUsd), 0);
     const totalDebt = referredPositions.reduce((prev, curr) => prev + curr.debt, 0);
-    const totalAffiliateRewards = Math.max(referredPositions.reduce((prev, curr) => prev + curr.affiliateReward, 0), 0);
-    const totalPaidRewards = referredPositions.reduce((prev, curr) => prev + curr.paidRewards, 0);    
-    const totalPendingRewards = referredPositions.reduce((prev, curr) => prev + curr.pendingRewards, 0);
+    const totalAffiliateRewards = Math.max(affiliateList.reduce((prev, curr) => prev + curr.affiliateRewards, 0), 0);
+    const totalPaidRewards = affiliateList.reduce((prev, curr) => prev + curr.paidRewards, 0);    
+    const totalPendingRewards = affiliateList.reduce((prev, curr) => prev + curr.pendingRewards, 0);    
     
     const selectedAffiliateReferrals = referredPositions.filter(rp => rp.affiliate === selectedAffiliate);
 
