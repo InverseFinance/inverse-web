@@ -37,7 +37,7 @@ const lightish = "#D9D9D9";
 const DarkCard = (props) => <DashBoardCard position="relative" p="0" gap="8" direction="column" color={whitish} bgColor={cardBg} border={`1px solid ${cardBorder}`} {...props} />
 const GrayCard = (props) => <DashBoardCard position="relative" p="0" gap="8" direction="column" color={whitish} bgColor={'#7C7F83'} border={`1px solid ${'#A4A6A8'}`} {...props} />
 
-const MainTitle = (props) => <Text fontWeight="extrabold" fontSize={{ base: '7.5vw', '2xl': '115px' }} color={mainColor} {...props} />
+const MainTitle = (props) => <Text fontWeight="extrabold" fontSize={{ base: '28px', sm: '6vw', 'xl': '80px' }} color={mainColor} {...props} />
 const BigTitle = (props) => <Text fontWeight="extrabold" fontSize="48px" color={mainColor} {...props} />
 const Title = (props) => <Text fontWeight="bold" fontSize="20px" color={mainColor} {...props} />
 const SimpleText = (props) => <Text color={mainColor} {...props} />
@@ -50,38 +50,38 @@ const RegisterBtn = (props) => <RSubmitButton target="_blank" href="/affiliate/r
 
 const SectionOne = () => <VStack maxW="1300px" w="100%" alignItems="flex-start" position="relative" p={{ base: 8, lg: 20 }} borderRadius="50px" bgImage="/assets/affiliate/bg1.png" bgRepeat="no-repeat" bgSize="cover">
     <VStack alignItems="flex-start">
-        <HStack w='full' justify="flex-start" spacing={{ base: "20px", lg: "40px" }}>
-            <MainTitle>
-                Become a
-            </MainTitle>
-            <Image src="/assets/firm/firm-big.png" alt="FiRM" minW='100px' maxW='330px' w={{ base: '100px', lg: '38vh' }} />
-        </HStack>
-        <HStack>
+        <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify="flex-start" spacing={{ base: "0px", sm: '20px', lg: "40px" }}>
+            <HStack spacing={{ base: "15px", sm: '20px', lg: "40px" }}>
+                <MainTitle>
+                    Become a
+                </MainTitle>
+                <Image src="/assets/firm/firm-big.png" alt="FiRM" minW='60px' maxW='330px' w={{ base: '30%', sm: '100px', md: '20vw' }} />
+            </HStack>
             <MainTitle>
                 Affiliate
             </MainTitle>
-        </HStack>
+        </Stack>
     </VStack>
-    <Stack direction={{ base: 'column', lg: 'row' }}>
-        <VStack w={{ base: 'full', lg: '60%' }} alignItems="flex-start">
+    <Stack direction={{ base: 'column', md: 'row' }} pt={{ base: '30px', lg: '75px' }} pb={{ base: '0px', lg: '80px' }}>
+        <VStack w={{ base: 'full', md: '50%' }} alignItems="flex-start">
             <Title fontWeight="bold">
                 Ready to join the fixed-rate DeFi lending rebellion and start earning serious commissions?
             </Title>
             <SimpleText>
                 As a FiRM Affiliate, you'll have the opportunity to earn a whopping 10% of the DBR spent by borrowers you refer. That's right, you'll be making money while helping to spread the word about the incredible potential of FiRM!
             </SimpleText>
-            <VStack pt="10">
+            <VStack pt={{ base: 8, lg: '20' }} pb={{ base: 0, sm: 10, lg: 0 }}>
                 <RegisterBtn />
             </VStack>
         </VStack>
-        <VStack right={{ base: '-40%', lg: '-42px' }} bottom="0" position={{ base: 'relative', lg: 'absolute' }}>
-            <OrangeBubble transform={{ base: "translate3D(-90px, 40px, 0) rotate(-5deg)", md: 'translate3D(-70px, 40px, 0) rotate(-5deg) scale(0.8)', 'xl': 'translate3D(-200px, 40px, 0) rotate(-5deg)' }}>
+        <VStack right={{ base: '-40%', md: '-42px' }} bottom="0" position={{ base: 'relative', md: 'absolute' }}>
+            <OrangeBubble transform={{ base: "translate3D(-90px, 40px, 0) rotate(-5deg)", 'xl': 'translate3D(-200px, 40px, 0) rotate(-5deg)' }}>
                 <VStack alignItems="flex-start" w='full'>
                     <Text color={mainColor}>Earn <b>10%</b> Commissions</Text>
                     <Text color={mainColor}>By Promoting <b>FiRM</b></Text>
                 </VStack>
             </OrangeBubble>
-            <Image zIndex="1" src="/assets/affiliate/megaphone.png" minW='150px' w="29.5vw" maxW='475px' />
+            <Image zIndex="1" src="/assets/affiliate/megaphone.png" minW='200px' w="29.5vw" maxW='475px' />
         </VStack>
     </Stack>
 </VStack>
