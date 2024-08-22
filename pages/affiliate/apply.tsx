@@ -165,7 +165,7 @@ const WhoIsEligibleSection = () => <VStack spacing="0" transform="translateY(-70
         <SimpleGrid justifyContent="center" mt="10" gap="8" columns={{ base: 1, md: 2, xl: 5 }}>
             {
                 personas.map((persona, i) => {
-                    return <VStack alignItems={{ base: 'center', xl: 'flex-start' }}>
+                    return <VStack key={i} alignItems={{ base: 'center', xl: 'flex-start' }}>
                         <GrayCard h="200px" w="200px">
                             <Image position="absolute" bottom="0" src={`/assets/affiliate/persona${i + 1}.png`} w="100%" {...persona.imageProps} />
                         </GrayCard>

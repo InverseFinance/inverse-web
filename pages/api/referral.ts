@@ -189,6 +189,10 @@ export default async function handler(req, res) {
                     infos,
                     otherInfo,
                 } = req.body;
+
+                const isInvalidIndividual = affiliateType === 'individual' && !Object.entries(infos).filter(([key, value]) => individualInputs.map(ii => ii.key).includes(key)).some(([key, value]) => !!value.trim());
+                const isInvalidBusiness = affiliateType === 'business' && !Object.entries(infos).filter(([key, value]) => businessChecks.map(ii => ii.key).includes(key)).some(([key, value]) => !!value);
+
                 if (!wallet || !isAddress(wallet) || wallet === BURN_ADDRESS) {
                     res.status(400).json({ status: 'error', message: 'Invalid address' });
                     return;
@@ -199,6 +203,8 @@ export default async function handler(req, res) {
                     || email !== emailConfirm
                     || !['individual', 'business'].includes(affiliateType)
                     || Object.keys(infos).some(key => !individualInputs.map(ii => ii.key).concat(businessChecks.map(ii => ii.key)).includes(key))
+                    || isInvalidIndividual
+                    || isInvalidBusiness
                     || otherInfo.length > 1000
                 ) {
                     res.status(400).json({ status: 'error', message: 'Invalid request' });

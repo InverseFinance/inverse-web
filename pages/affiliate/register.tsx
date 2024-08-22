@@ -61,12 +61,14 @@ const CheckboxZone = ({
     ...props
 }: {
     text: string,
-    value: string,
+    value: boolean,
     setter: () => void,
     placeholder?: string,
 }) => {
     return <VStack w='full' spacing="0" alignItems="flex-start">
-        <Checkbox color="mainTextColor" w='full' value={value} onClick={e => setter(!value)} {...props}>
+        <Checkbox color="mainTextColor" w='full' isChecked={value} onChange={e => {
+            setter(!value)
+        }} {...props}>
             {text}
         </Checkbox>
     </VStack>
@@ -95,7 +97,7 @@ export const FirmAffiliateRegisterPage = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [emailConfirm, setEmailConfirm] = useState('');
-    const [affiliateType, setAffiliateType] = useState('individual');
+    const [affiliateType, setAffiliateType] = useState<'individual' | 'business'>('individual');
     const [infos, setInfos] = useState({});
     const [wallet, setWallet] = useState('');
     const [otherInfo, setOtherInfo] = useState('');
@@ -104,7 +106,9 @@ export const FirmAffiliateRegisterPage = () => {
     const isInvalidWallet = !!wallet && (!isAddress(wallet) || wallet === BURN_ADDRESS);
     const isInvalidEmail = !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-    const isFormValid = !!wallet && !isInvalidWallet && !!email && email === emailConfirm && !isInvalidEmail && !!name.trim();
+    const isInvalidIndividual = affiliateType === 'individual' && !Object.entries(infos).filter(([key, value]) => individualInputs.map(ii => ii.key).includes(key)).some(([key, value]) => !!value.trim());
+    const isInvalidBusiness = affiliateType === 'business' && !Object.entries(infos).filter(([key, value]) => businessChecks.map(ii => ii.key).includes(key)).some(([key, value]) => !!value);
+    const isFormValid = !!wallet && !isInvalidWallet && !!email && email === emailConfirm && !isInvalidEmail && !!name.trim() && !isInvalidIndividual && !isInvalidBusiness;
 
     const register = async () => {
         const res = await fetch(`/api/referral?isApply=true`, {
@@ -207,7 +211,9 @@ export const FirmAffiliateRegisterPage = () => {
                                                     <SimpleGrid w='full' columns={{ base: 2, lg: 2 }} gap="2">
                                                         {
                                                             businessChecks.map(({ key, text }) => {
-                                                                return <CheckboxZone key={key} text={text} value={infos[key]} setter={(v) => setInfos({ ...infos, [key]: v })} />
+                                                                return <CheckboxZone key={key} text={text} value={infos[key]} setter={(v) => {
+                                                                    setInfos({ ...infos, [key]: v })
+                                                                }} />
                                                             })
                                                         }
                                                     </SimpleGrid>
