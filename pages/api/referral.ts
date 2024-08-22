@@ -14,6 +14,36 @@ import { businessChecks, individualInputs } from '../affiliate/register';
 
 const { DBR, MULTISIGS } = getNetworkConfigConstants();
 
+const sendNotifToTeam = async (data: any) => {
+    const basics = { name: data.name, email: data.email, affiliateType: data.affiliateType, affiliate: data.affiliate }
+    let html = `<ul>${Object.entries(basics).map(([key, value]) => {
+        return `<li>${key}: ${value}</li>`;
+    })}</ul>`
+
+    html += `</br>${data.affiliateType === 'individual' ? '<p><strong>Socials:</strong></p>' : '<p><strong>Business sectors:</strong></p>'}<ul>${Object.entries(data.infos).map(([key, value]) => {
+        return `<li>${key}: ${value}</li>`;
+    })}</ul>`
+
+    html += `</br><p><strong>Other infos</strong>:</p>${data.otherInfos}`;
+
+    const res = await fetch('https://api.postmarkapp.com/email', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Postmark-Server-Token': process.env.EMAIL_TOKEN,
+        },
+        body: JSON.stringify({
+            From: 'hello@inverse.finance',
+            To: 'hello@inverse.finance',
+            Subject: 'New Affiliate Application',
+            TextBody: 'New Affiliate Application',
+            HtmlBody: `<html><body>${html}</body></html>`,
+            MessageStream: 'outbound',
+        }),
+    });    
+}
+
 export default async function handler(req, res) {
     const {
         query,
@@ -68,8 +98,8 @@ export default async function handler(req, res) {
                     timestamp: refData.timestamp,
                     beforeReferralDueTokensAccrued: refData.beforeReferralDueTokensAccrued,
                     blockNumber: refData.blockNumber,
-                }));         
-            
+                }));
+
             const GWGaddress = MULTISIGS.find(m => m.shortName === 'GWG')?.address;
 
             // gwg dbr transfer events
@@ -112,7 +142,7 @@ export default async function handler(req, res) {
                     return res.status(400).json({ status: 'error', message: 'A referral has been already registered' });
                 }
 
-                const affiliatesData = await getCacheFromRedis(affiliatesKey, false, 600) || { affiliates: [] };                
+                const affiliatesData = await getCacheFromRedis(affiliatesKey, false, 600) || { affiliates: [] };
 
                 const affData = affiliatesData?.affiliates.find(a => a.affiliate.toLowerCase() === r.toLowerCase());
 
@@ -210,12 +240,12 @@ export default async function handler(req, res) {
                     res.status(400).json({ status: 'error', message: 'Invalid request' });
                     return;
                 }
-                
+
                 const affiliatesData = await getCacheFromRedis(affiliatesKey, false, 600) || { affiliates: [] };
 
                 const found = affiliatesData?.affiliates.find(d => d.affiliate.toLowerCase() === wallet.toLowerCase());
 
-                if(!!found) {
+                if (!!found) {
                     return res.status(400).json({ status: 'error', message: 'Wallet already registered' });
                 }
 
@@ -224,7 +254,7 @@ export default async function handler(req, res) {
                 const affiliate = {
                     affiliate: wallet,
                     name,
-                    email,                    
+                    email,
                     affiliateType,
                     infos,
                     otherInfo,
@@ -232,15 +262,21 @@ export default async function handler(req, res) {
                     status: 'pending',
                 };
 
+                try {
+                    await sendNotifToTeam(affiliate);
+                } catch (e) {
+                    console.log('email failed')
+                }
+
                 affiliatesData.affiliates.push(affiliate);
-                
+
                 const affiliateResults = {
                     timestamp: now,
                     affiliates: affiliatesData.affiliates,
                 };
 
                 await redisSetWithTimestamp(affiliatesKey, affiliateResults);
-                
+
                 return res.status(200).json({
                     affiliate,
                     status: "ok",
