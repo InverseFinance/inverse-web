@@ -53,42 +53,67 @@ const sendNotifToTeam = async (data: any) => {
     });    
 }
 
+const toCsv = (affiliates: any) => {
+    const socialColumns = individualInputs.map(ii => ii.text).join(',');
+    const businessColumns = businessChecks.map(ii => ii.text).join(',');
+    const columns = `Affiliate,Name,Email,Type,Application Date,Remark,${socialColumns},${businessColumns}`
+    let CSV = `${columns}\n`;
+    
+    affiliates.forEach((a) => {
+        const socialValues = individualInputs.map(ii => a.infos[ii.key]).join(',');
+        const businessValues = businessChecks.map(ii => a.infos[ii.key]).join(',');
+        CSV += `${a.affiliate},${a.name},${a.email},${a.affiliateType},${(new Date(a.timestamp).toUTCString()).replace(/,/g, '')},${a.otherInfo||""},${socialValues},${businessValues}\n`;
+    });
+    return CSV;
+}
+
 export default async function handler(req, res) {
+    res.setHeader('Cache-Control', `public, max-age=60`);
     const {
         query,
         method,
     } = req
 
-    const { r, account, csv, isApply } = query;
+    const { r, account, csv, isApply, csv_access } = query;
 
     const referralsKey = `referrals-v1.0.1`;
     const affiliatesKey = `affiliate-applications-v1.0.2`;
     const apiDataKey = `affiliation-v1.0.2`;
+    const csvDataKey = `affiliation-csv-v1.0.2`;
+
+    if(csv === 'true' && csv_access !== process.env.REF_CSV_ACCESS) {
+        return res.status(400).json({ status: 'error', message: 'Invalid request' });
+    }
+
     const referralData = await getCacheFromRedis(referralsKey, false, 600);
-    const { data: cachedResult, isValid: isCacheValid } = await getCacheFromRedisAsObj(apiDataKey, true, 60);
+    const { data: cachedResult, isValid: isCacheValid } = await getCacheFromRedisAsObj(csv === 'true' ? csvDataKey : apiDataKey, true, 60);
 
     const provider = getProvider(NetworkIds.mainnet);
     const dbrContract = new Contract(DBR, DBR_ABI, provider);
 
     switch (method) {
         case 'GET':
-            if (csv === 'true') {
-                let CSV = `Account,Referrer,Date\n`;
-                const arr = Object.entries(referralData?.referrals || []);
-                arr.forEach(([account, accountRefData]) => {
-                    CSV += `${account.toLowerCase()},${accountRefData.affiliate.toLowerCase()},${(new Date(accountRefData.timestamp).toUTCString()).replace(/,/g, '')}\n`;
-                });
-                res.setHeader("Content-Type", "text/csv");
-                res.setHeader("Content-Disposition", "attachment; filename=referrals.csv");
-                res.status(200).send(CSV);
-                return;
-            }
             if (isCacheValid) {
+                if(csv === 'true') {
+                    res.setHeader("Content-Type", "text/csv");
+                    res.setHeader("Content-Disposition", "attachment; filename=affiliates.csv");
+                    res.status(200).send(cachedResult.csvData);
+                }
                 return res.status(200).json(cachedResult);
             }
 
             const affiliatesData = await getCacheFromRedis(affiliatesKey, false, 600) || { affiliates: [] };
             const affiliates = affiliatesData?.affiliates.map(afData => afData);
+
+            if (csv === 'true') {
+                const CSV = toCsv(affiliates);
+                await redisSetWithTimestamp(csvDataKey, { csvData: CSV });
+                res.setHeader("Content-Type", "text/csv");
+                res.setHeader("Content-Disposition", "attachment; filename=affiliates.csv");
+                res.status(200).send(CSV);
+                return;
+            }
+
             const affiliatesPublicData = affiliates.map(afData => {
                 return {
                     name: afData.name,
@@ -155,9 +180,9 @@ export default async function handler(req, res) {
 
                 const affData = affiliatesData?.affiliates.find(a => a.affiliate.toLowerCase() === r.toLowerCase());
 
-                // if (affData?.status !== 'active') {
-                //     return res.status(400).json({ status: 'error', message: 'This Affiliate address is not active yet.' });
-                // }
+                if (affData?.status !== 'active') {
+                    return res.status(400).json({ status: 'error', message: 'This Affiliate address is not active yet.' });
+                }
 
                 const { sig } = req.body
                 let sigAddress = '';
@@ -274,7 +299,7 @@ export default async function handler(req, res) {
                 try {
                     await sendNotifToTeam(affiliate);
                 } catch (e) {
-                    console.log('email failed')
+                    console.log('email failed');
                 }
 
                 affiliatesData.affiliates.push(affiliate);
