@@ -15,16 +15,24 @@ import { businessChecks, individualInputs } from '../affiliate/register';
 const { DBR, MULTISIGS } = getNetworkConfigConstants();
 
 const sendNotifToTeam = async (data: any) => {
-    const basics = { name: data.name, email: data.email, affiliateType: data.affiliateType, affiliate: data.affiliate }
-    let html = `<ul>${Object.entries(basics).map(([key, value]) => {
-        return `<li>${key}: ${value}</li>`;
-    })}</ul>`
+    const basics = { name: data.name, email: data.email, affiliate: data.affiliate, affiliateType: data.affiliateType };
+    const isIndividual = data.affiliateType === 'individual';
 
-    html += `</br>${data.affiliateType === 'individual' ? '<p><strong>Socials:</strong></p>' : '<p><strong>Business sectors:</strong></p>'}<ul>${Object.entries(data.infos).map(([key, value]) => {
-        return `<li>${key}: ${value}</li>`;
-    })}</ul>`
+    const mainValues = Object.entries(basics).map(([key, value]) => {
+        return `<li>${key}: <strong>${value}</strong></li>`;
+    }).join('');
 
-    html += `</br><p><strong>Other infos</strong>:</p>${data.otherInfos}`;
+    let html = `<h1>A new Affiliate applied!</h1></br></br><p><strong>Main informations:</strong></p><ul>${mainValues}</ul>`
+
+    const socialsAndBusinessInfos = Object.entries(data.infos).map(([key, value]) => {
+        const arr = isIndividual ? individualInputs : businessChecks;
+        const item = arr.find(item => item.key === key);
+        return !!item ? `<li>${item.text}${isIndividual ? `: <strong>${value}</strong></li>` : ''}` : '';
+    }).join('');
+
+    html += `</br></br>${isIndividual ? '<p><strong>Socials:</strong></p>' : '<p><strong>Business sectors:</strong></p>'}<ul>${socialsAndBusinessInfos}</ul>`;
+
+    html += `</br></br><p><strong>Remark</strong>:</p></br><p><i>${data.otherInfo}</i></p>`;
 
     const res = await fetch('https://api.postmarkapp.com/email', {
         method: 'POST',
@@ -34,10 +42,11 @@ const sendNotifToTeam = async (data: any) => {
             'X-Postmark-Server-Token': process.env.EMAIL_TOKEN,
         },
         body: JSON.stringify({
-            From: 'hello@inverse.finance',
-            To: 'hello@inverse.finance',
-            Subject: 'New Affiliate Application',
-            TextBody: 'New Affiliate Application',
+            From: process.env.REF_EMAIL_FROM,
+            To: process.env.REF_EMAIL_TO,
+            Cc: process.env.REF_EMAIL_FROM,
+            Subject: 'New Affiliate Applied',
+            TextBody: 'New Affiliate Applied',
             HtmlBody: `<html><body>${html}</body></html>`,
             MessageStream: 'outbound',
         }),
