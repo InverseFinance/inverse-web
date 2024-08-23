@@ -1,4 +1,4 @@
-import { VStack, Text, Stack, SimpleGrid, Image, HStack } from '@chakra-ui/react'
+import { VStack, Text, Stack, SimpleGrid, Image, HStack, Flex } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
@@ -7,7 +7,7 @@ import { DashBoardCard } from '@app/components/F2/UserDashboard'
 import { RSubmitButton } from '@app/components/common/Button/RSubmitButton'
 import { lightTheme } from '@app/variables/theme'
 import Link from '@app/components/common/Link'
-import { ExternalLinkIcon } from '@chakra-ui/icons'
+import { ArrowForwardIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 
 export const individualInputs = [
     { text: 'X (Twitter)', key: 'x' },
@@ -33,9 +33,10 @@ const cardBg = "#323334";
 const cardBorder = "#57595C";
 const whitish = "#FFFCF9";
 const lightish = "#D9D9D9";
+const grayColor = "#7C7F83";
 
 const DarkCard = (props) => <DashBoardCard position="relative" p="0" gap="8" direction="column" color={whitish} bgColor={cardBg} border={`1px solid ${cardBorder}`} {...props} />
-const GrayCard = (props) => <DashBoardCard position="relative" p="0" gap="8" direction="column" color={whitish} bgColor={'#7C7F83'} border={`1px solid ${'#A4A6A8'}`} {...props} />
+const GrayCard = (props) => <DashBoardCard position="relative" p="0" gap="8" direction="column" color={whitish} bgColor={grayColor} border={`1px solid ${'#A4A6A8'}`} {...props} />
 
 const MainTitle = (props) => <Text fontWeight="extrabold" fontSize={{ base: '28px', sm: '6vw', 'xl': '80px' }} color={mainColor} {...props} />
 const BigTitle = (props) => <Text fontWeight="extrabold" fontSize="48px" color={mainColor} {...props} />
@@ -162,12 +163,20 @@ const WhoIsEligibleSection = () => <VStack spacing="0" transform="translateY(-70
                 </VStack>
             </VStack>
         </Stack>
-        <SimpleGrid justifyContent="center" mt="10" gap="8" columns={{ base: 1, md: 2, xl: 5 }}>
+        <SimpleGrid justifyContent="center" mt="10" gap="8" columns={{ base: 1, xl: 5 }}>
             {
                 personas.map((persona, i) => {
-                    return <VStack key={i} alignItems={{ base: 'center', xl: 'flex-start' }}>
-                        <GrayCard h="200px" w="200px" bgImage={persona.src} bgPosition="center" bgSize="50%" bgRepeat="no-repeat">
+                    return <VStack key={i} alignItems={{ base: 'center', xl: 'flex-start' }} position="relative">
+                        <GrayCard position="relative" h="200px" w="200px" bgImage={persona.src} bgPosition={persona.bgPosition || 'center'} bgSize={persona.bgSize || '50%'} bgRepeat="no-repeat">
                             &nbsp;
+                            {
+                                !!persona.badge && <Flex>
+                                    <Text width="180px" textAlign="center" left="10px" borderBottomRadius="5px" position="absolute" top="-1px" bgColor={cardBg} whiteSpace="break-spaces" fontWeight="bold" pt="4" pb="2" color={whitish} fontSize="16px">
+                                        {persona.badge}
+                                    </Text>
+                                    <ArrowForwardIcon position="absolute" right={{ base: '0', xl: '-30%' }} left={{ base: '0', xl: 'unset' }} margin="auto" h="200px" top={{ base: 'unset', xl: '0' }} transform={{ base: 'rotate(90deg)', xl: 'unset' }} bottom={{ base: '-133px', xl: '0' }} fontSize="50px" color={grayColor} />
+                                </Flex>
+                            }
                         </GrayCard>
                         <Text whiteSpace="break-spaces" fontWeight="bold" pt="4" pb="2" color={whitish} fontSize="16px">
                             {persona.title}
@@ -311,12 +320,12 @@ const FaqSection = (props) => <VStack px="0" alignItems="center" transform="tran
 </VStack>
 
 const personas = [
-    { title: 'Individuals', src: '/assets/affiliate/person.png' },
+    { badge: 'Individuals', src: '/assets/affiliate/person.png' },
     { title: 'Social media\nInfluencers', src: '/assets/affiliate/x.png', subtitle: 'with 5,000+ followers or subscribers on one or more social media platforms including Twitter, YouTube, Facebook, and Instagram.' },
     { title: 'Financial\nLeaders', src: '/assets/affiliate/finance.png', subtitle: 'with a community of 500+ members on one or more community groups on Telegram, Facebook, Discord, WeChat, and/or Reddit.' },
     { title: 'Opinion\nLeaders', src: '/assets/affiliate/opinion.png', subtitle: 'with a community of 500+ members on one or more community groups on Telegram, Facebook, Discord, WeChat, and/or Reddit.' },
     { title: 'DEX or Similar\nTrading Platforms', src: '/assets/affiliate/dex.png' },
-    { title: 'Businesses or\nOrganizations', src: '/assets/affiliate/business.png' },
+    { badge: 'Businesses or\nOrganizations', src: '/assets/affiliate/business.png', bgPosition: "center 80%" },
     { title: 'Those with a user\nbase of 2,000+', src: '/assets/affiliate/users.png' },
     { title: 'Market analysis\nplatforms with\n5,000+ daily visits', src: '/assets/affiliate/activity.png' },
     { title: 'Industry Media\nPlatforms', src: '/assets/affiliate/media.png' },

@@ -207,7 +207,7 @@ export const FirmAffiliateRegisterPage = () => {
                                     <Divider />
                                     <InputZone text="Wallet Address (for payments)" placeholder={BURN_ADDRESS} fontSize="14px" value={wallet} setter={setWallet} isInvalid={isInvalidWallet} />
                                     <Text w='full' fontWeight="bold">
-                                        Other informations we should know:
+                                        Other information we should know:
                                     </Text>
                                     <Textarea color="mainTextColor" placeholder="I'm also interested as a borrower / I have feedback about the product / Other" fontSize="14px" value={otherInfo} onChange={e => setOtherInfo(e.target.value)} />
                                     {
