@@ -201,8 +201,10 @@ export const handleApiResponse = (promiseResult: any, onSuccess?: (o?: any) => v
     if (promiseResult?.status && promiseResult?.message) {
         const statusType = ["success", "warning", "info", "error"].includes(promiseResult?.status) ? promiseResult?.status : 'info';
         showToast({ status: statusType, description: promiseResult?.message });        
+    } else if(typeof promiseResult?.status === 'number' && promiseResult?.status >= 400) {
+        showToast({ status: 'warning', description: promiseResult?.statusText });
     }
-    if(!!onSuccess && ["ok", "success"].includes(promiseResult?.status)) {
+    if(!!onSuccess && ["ok", "success", 200].includes(promiseResult?.status)) {
         onSuccess(promiseResult);
     }
 }

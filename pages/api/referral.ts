@@ -1,6 +1,6 @@
 import { getReferralMsg } from '@app/components/common/Modal/ReferralModal';
 import { DBR_ABI } from '@app/config/abis';
-import { BURN_ADDRESS, ONE_DAY_MS } from '@app/config/constants';
+import { BURN_ADDRESS, DRAFT_WHITELIST, ONE_DAY_MS } from '@app/config/constants';
 import { NetworkIds } from '@app/types';
 import { getBnToNumber } from '@app/util/markets';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
@@ -11,6 +11,7 @@ import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from
 import { Contract } from 'ethers';
 import { verifyMessage, hashMessage, isAddress } from 'ethers/lib/utils';
 import { businessChecks, individualInputs } from '../affiliate/register';
+import { getAffiliateStatusMsg } from '@app/components/F2/Infos/FirmAffiliateList';
 
 const { DBR, MULTISIGS } = getNetworkConfigConstants();
 
@@ -56,13 +57,13 @@ const sendNotifToTeam = async (data: any) => {
 const toCsv = (affiliates: any) => {
     const socialColumns = individualInputs.map(ii => ii.text).join(',');
     const businessColumns = businessChecks.map(ii => ii.text).join(',');
-    const columns = `Affiliate,Name,Email,Type,Application Date,Remark,${socialColumns},${businessColumns}`
+    const columns = `Affiliate,Name,Email,Type,Application Date,Status,Remark,${socialColumns},${businessColumns}`
     let CSV = `${columns}\n`;
     
     affiliates.forEach((a) => {
         const socialValues = individualInputs.map(ii => a.infos[ii.key]).join(',');
         const businessValues = businessChecks.map(ii => a.infos[ii.key]).join(',');
-        CSV += `${a.affiliate},${a.name},${a.email},${a.affiliateType},${(new Date(a.timestamp).toUTCString()).replace(/,/g, '')},${a.otherInfo||""},${socialValues},${businessValues}\n`;
+        CSV += `${a.affiliate},${a.name},${a.email},${a.affiliateType},${(new Date(a.timestamp).toUTCString()).replace(/,/g, '')},${a.status},${a.otherInfo||""},${socialValues},${businessValues}\n`;
     });
     return CSV;
 }
@@ -74,7 +75,7 @@ export default async function handler(req, res) {
         method,
     } = req
 
-    const { r, account, csv, isApply, csv_access } = query;
+    const { r, account, csv, isApply, csv_access, statuate, updateIndex } = query;
 
     const referralsKey = `referrals-v1.0.1`;
     const affiliatesKey = `affiliate-applications-v1.0.2`;
@@ -93,7 +94,7 @@ export default async function handler(req, res) {
 
     switch (method) {
         case 'GET':
-            if (isCacheValid) {
+            if (isCacheValid && (updateIndex === '0') || !updateIndex) {
                 if(csv === 'true') {
                     res.setHeader("Content-Type", "text/csv");
                     res.setHeader("Content-Disposition", "attachment; filename=affiliates.csv");
@@ -168,7 +169,45 @@ export default async function handler(req, res) {
             return res.status(200).json(affiliateResults);
             break
         case 'POST':
-            if (!!r) {
+            if(statuate === 'true') {
+                const { sig, newStatus, signer } = req.body
+                let sigAddress = '';
+                const sigText = getAffiliateStatusMsg(r, newStatus);
+
+                try {
+                    sigAddress = verifyMessage(sigText, sig);
+                } catch (e) {
+                    console.log(e);
+                }
+
+                if(!['approved', 'pending', 'rejected', 'revoked'].includes(newStatus) || signer !== sigAddress || !DRAFT_WHITELIST.map(d => d.toLowerCase()).includes(sigAddress.toLowerCase())) {
+                    return res.status(400).json({ status: 'error', message: 'Invalid request' });
+                }
+
+                const affiliatesData = await getCacheFromRedis(affiliatesKey, false, 600) || { affiliates: [] };
+                const affiliateIdx = affiliatesData.affiliates.findIndex(a => a.affiliate === r);
+
+                if(affiliateIdx === -1) {
+                    return res.status(400).json({ status: 'error', message: 'Affiliate not found' });
+                }                
+
+                const now = Date.now();
+                affiliatesData.affiliates[affiliateIdx].status = newStatus;
+                affiliatesData.affiliates[affiliateIdx].statusUpdated = now;
+
+                const affiliateResults = {
+                    timestamp: now,
+                    affiliates: affiliatesData.affiliates,
+                };
+
+                await redisSetWithTimestamp(affiliatesKey, affiliateResults);
+
+                return res.status(200).json({
+                    status: "ok",
+                    message: "Application "+newStatus,
+                });
+            }
+            else if (!!r) {
                 if (!r || !isAddress(r) || r === BURN_ADDRESS || !account || !isAddress(account) || account === BURN_ADDRESS || r.toLowerCase() === account.toLowerCase()) {
                     res.status(400).json({ status: 'error', message: 'Invalid address' });
                     return;
@@ -180,7 +219,7 @@ export default async function handler(req, res) {
 
                 const affData = affiliatesData?.affiliates.find(a => a.affiliate.toLowerCase() === r.toLowerCase());
 
-                if (affData?.status !== 'active') {
+                if (affData?.status !== 'approved') {
                     return res.status(400).json({ status: 'error', message: 'This Affiliate address is not active yet.' });
                 }
 

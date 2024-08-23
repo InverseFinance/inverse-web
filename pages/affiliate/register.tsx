@@ -1,37 +1,16 @@
-import { VStack, Text, Stack, RadioGroup, Radio, SimpleGrid, Divider, Checkbox, TextProps, Textarea } from '@chakra-ui/react'
+import { VStack, Text, Stack, RadioGroup, Radio, SimpleGrid, Divider, Checkbox, Textarea } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
-import { FirmAffiliateDashboard } from '@app/components/F2/Infos/FirmAffiliateDashboard'
-import { Steps } from '@app/components/common/Step'
 import { DashBoardCard } from '@app/components/F2/UserDashboard'
 import { RSubmitButton } from '@app/components/common/Button/RSubmitButton'
 import { SplashedText } from '@app/components/common/SplashedText'
-import { lightTheme } from '@app/variables/theme'
 import { Input } from '@app/components/common/Input'
 import { useState } from 'react'
 import { InfoMessage, SuccessMessage } from '@app/components/common/Messages'
 import { isAddress } from 'ethers/lib/utils'
 import { BURN_ADDRESS } from '@app/config/constants'
-import Link from '@app/components/common/Link'
-import { FAQ } from '@app/components/common/FAQ'
-
-const steps = [
-    {
-        text: <Text>Fill out the application form to become a FiRM Affiliate. Our team will review your application to ensure you meet the criteria.</Text>,
-    },
-    {
-        text: <Text>Once approved, create and share your unique Affiliate link with your audiences.</Text>,
-    },
-    {
-        text: <Text>Sit back and earn! As the borrowers you refer spend DBR on new DOLA loans, you'll receive 10% of their spent DBR.</Text>,
-    },
-]
-
-const BigTitle = (props) => <Text fontWeight="bold" fontSize="28px" {...props} />
-const Title = (props) => <Text fontWeight="bold" fontSize="20px" {...props} />
-const SimpleText = (props) => <Text color="mainTextColorLight2" {...props} />
 
 const InputZone = ({
     text,

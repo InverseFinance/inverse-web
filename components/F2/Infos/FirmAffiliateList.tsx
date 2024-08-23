@@ -15,6 +15,8 @@ import { commify } from "@ethersproject/units";
 import InfoModal from "@app/components/common/Modal/InfoModal";
 import { useState } from "react";
 import { ReferredUsersTable } from "./FirmAffiliateDashboard";
+import { RSubmitButton } from "@app/components/common/Button/RSubmitButton";
+import { useWeb3React } from "@web3-react/core";
 
 const StatBasic = ({ value, name, onClick = undefined, isLoading = false }: { value: string, onClick?: () => void, name: string, isLoading?: boolean }) => {
     return <VStack>
@@ -38,6 +40,10 @@ const CellText = ({ ...props }) => {
     return <Text fontSize="16px" {...props} />
 }
 
+export const getAffiliateStatusMsg = (referrer: string, newStatus: string) => {
+    return `Affiliate Program Status Change signature\n\nAffiliate account:\n${referrer}\n\nNew status:\n${newStatus}`;
+}
+
 const columns = [
     {
         field: 'affiliate',
@@ -55,22 +61,16 @@ const columns = [
         filterWidth: '100px',
     },
     {
-        field: 'timestamp',
-        label: 'Application Date',
-        header: ({ ...props }) => <ColHeader justify="flex-start" minWidth={'100px'} {...props} />,
-        value: ({ timestamp }) => <Cell justify="flex-start" minWidth="100px">
-            <Timestamp timestamp={timestamp} text1Props={{ fontSize: '12px' }} text2Props={{ fontSize: '12px' }} />
-        </Cell>,
-    },
-    {
         field: 'status',
         label: 'Status',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ status }) => {
             return <Cell minWidth="100px" justify="center">
-                <CellText>{status}</CellText>
+                <CellText color={ status === 'approved' ? 'success' : status === 'rejected' ? 'warning' : undefined }>{status}</CellText>
             </Cell>
         },
+        showFilter: true,
+        filterWidth: '100px',
     },
     {
         field: 'affiliateType',
@@ -81,7 +81,17 @@ const columns = [
                 <CellText>{affiliateType}</CellText>
             </Cell>
         },
+        showFilter: true,
+        filterWidth: '100px',
     },
+    {
+        field: 'timestamp',
+        label: 'Application Date',
+        header: ({ ...props }) => <ColHeader justify="flex-start" minWidth={'100px'} {...props} />,
+        value: ({ timestamp }) => <Cell justify="flex-start" minWidth="100px">
+            <Timestamp timestamp={timestamp} text1Props={{ fontSize: '12px' }} text2Props={{ fontSize: '12px' }} />
+        </Cell>,
+    },    
     {
         field: 'nbReferred',
         label: 'Referred Users',
@@ -172,15 +182,34 @@ const columnsPayments = [
     },
 ]
 
+export const changeAffiliateStatus = async (affiliate: string, signer: string, newStatus: string, sig: string) => {
+    const res = await fetch(`/api/referral?statuate=true&r=${affiliate}`, {
+        method: 'POST',
+        body: JSON.stringify({ sig, newStatus, signer }),
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+    });
+    try {
+        return await res.json();
+    } catch (e) {
+        return res;
+    }
+}
+
 export const FirmAffiliateList = ({
 
 }: {
 
     }) => {
+    const { account, provider } = useWeb3React()
     const { priceUsd: dbrPriceUsd } = useDBRPrice();
-    const { referrals, referralAddresses, affiliatePaymentEvents, affiliateAddresses, affiliatesPublicData, timestamp } = useFirmAffiliate('all');
+    const [updateIndex, setUpdateIndex] = useState(0);
+    const { referrals, referralAddresses, affiliatePaymentEvents, affiliatesPublicData, timestamp } = useFirmAffiliate('all', updateIndex);
     const { userPositions, isLoading } = useFirmUsers();
     const [selectedAffiliate, setSelectedAffiliate] = useState('');
+    const [selectedAffiliateItem, setSelectedAffiliateItem] = useState({});
     const { isOpen, onOpen, onClose } = useDisclosure();
 
     const referredPositions = userPositions
@@ -216,20 +245,54 @@ export const FirmAffiliateList = ({
     const totalTvl = referredPositions.reduce((prev, curr) => prev + (curr.depositsUsd), 0);
     const totalDebt = referredPositions.reduce((prev, curr) => prev + curr.debt, 0);
     const totalAffiliateRewards = Math.max(affiliateList.reduce((prev, curr) => prev + curr.affiliateRewards, 0), 0);
-    const totalPaidRewards = affiliateList.reduce((prev, curr) => prev + curr.paidRewards, 0);    
-    const totalPendingRewards = affiliateList.reduce((prev, curr) => prev + curr.pendingRewards, 0);    
-    
+    const totalPaidRewards = affiliateList.reduce((prev, curr) => prev + curr.paidRewards, 0);
+    const totalPendingRewards = affiliateList.reduce((prev, curr) => prev + curr.pendingRewards, 0);
+
     const selectedAffiliateReferrals = referredPositions.filter(rp => rp.affiliate === selectedAffiliate);
 
+    const changeStatus = async (newStatus: string) => {
+        if (provider && !!account) {
+            const signer = provider?.getSigner();
+            const sig = await signer.signMessage(getAffiliateStatusMsg(selectedAffiliate, newStatus)).catch(() => '');
+            if (!!sig) {
+                return changeAffiliateStatus(selectedAffiliate, account, newStatus, sig);
+            }
+        } else {
+            window.alert('Wallet not connected')
+        }
+    }
+
+    const handleStatusUpdate = () => {
+        onClose();
+        setUpdateIndex(updateIndex+1);
+    }
+
     return <VStack w='full' spacing={{ base: '4', sm: '8' }}>
-        <SimpleGrid justify="space-between" w='full' columns={{ base: 2, sm: 4 }}  spacing={{ base: '4', sm: '6' }}>
-            <StatBasic isLoading={isLoading} name="DBR price" value={`${smartShortNumber(dbrPriceUsd, 4, true)}`} />            
+        <SimpleGrid justify="space-between" w='full' columns={{ base: 2, sm: 4 }} spacing={{ base: '4', sm: '6' }}>
+            <StatBasic isLoading={isLoading} name="DBR price" value={`${smartShortNumber(dbrPriceUsd, 4, true)}`} />
             <StatBasic isLoading={isLoading} name="Acc. rewards" value={!totalAffiliateRewards ? '-' : `${smartShortNumber(totalAffiliateRewards, 2)} (${smartShortNumber(totalAffiliateRewards * dbrPriceUsd, 2, true)})`} />
             <StatBasic isLoading={isLoading} name="Paid rewards" value={!totalPaidRewards ? '-' : `${smartShortNumber(totalPaidRewards, 2)} (${smartShortNumber(totalPaidRewards * dbrPriceUsd, 2, true)})`} />
             <StatBasic isLoading={isLoading} name="Pending rewards" value={!totalPendingRewards ? '-' : `${smartShortNumber(totalPendingRewards, 2)} (${smartShortNumber(totalPendingRewards * dbrPriceUsd, 2, true)})`} />
         </SimpleGrid>
-        <InfoModal modalProps={{ minW: { base: '98vw', xl: '1200px' } }} title="Affiliate Referrals" isOpen={isOpen} onClose={onClose} onOk={onClose}>
-            <ReferredUsersTable referredPositions={selectedAffiliateReferrals} />
+        <InfoModal okLabel="Close" modalProps={{ minW: { base: '98vw', xl: selectedAffiliateItem?.status === 'pending' ? '500px' : '1200px' } }} title={selectedAffiliateItem?.status === 'pending' ? 'Affiliate Status' : 'Affiliate Referrals'} isOpen={isOpen} onClose={onClose} onOk={onClose}>
+            <VStack alignItems="flex-start" p="4" spacing="4">
+                {
+                    selectedAffiliateItem?.status !== 'approved' ? <VStack spacing="4" p="4" alignItems="center" w='full'>
+                        <Text fontSize="22px">Current status: <b>{selectedAffiliateItem?.status}</b></Text>
+                        {
+                            selectedAffiliateItem?.status === 'pending' && <HStack spacing="4">
+                                <RSubmitButton w='150px' onSuccess={() => handleStatusUpdate()} onClick={() => changeStatus('approved')}>
+                                    Approve
+                                </RSubmitButton>
+                                <RSubmitButton bgColor="warning" w='150px' onSuccess={() => handleStatusUpdate()} onClick={() => changeStatus('rejected')}>
+                                    Reject
+                                </RSubmitButton>
+                            </HStack>
+                        }
+                    </VStack> :
+                        <ReferredUsersTable referredPositions={selectedAffiliateReferrals} />
+                }
+            </VStack>
         </InfoModal>
         <Container
             py="0"
@@ -252,6 +315,7 @@ export const FirmAffiliateList = ({
                         items={affiliateList}
                         onClick={(item) => {
                             setSelectedAffiliate(item.affiliate);
+                            setSelectedAffiliateItem(item);
                             onOpen();
                         }}
                         defaultSort="affiliateRewards"
