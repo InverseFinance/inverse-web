@@ -116,9 +116,14 @@ export const FirmAffiliateRegisterPage = () => {
     return (
         <Layout>
             <Head>
-                <title>Inverse Finance - Affiliate Program Registeration</title>
+                <title>Inverse Finance - Affiliate Program Registration</title>
+                <meta name="description" content="As a FiRM Affiliate, you'll have the opportunity to earn a whopping 10% of the DBR spent by borrowers you refer" />
+                <meta name="keywords" content="Inverse Finance, FiRM, affiliate, affiliation, commission, rewards" />
+                <meta name="og:title" content="Inverse Finance - Affiliate Program Registration" />
+                <meta name="og:description" content="As a FiRM Affiliate, you'll have the opportunity to earn a whopping 10% of the DBR spent by borrowers you refer" />
+                <meta name="og:image" content="https://inverse.finance/assets/social-previews/affiliate.png" />
             </Head>
-            <AppNav active="More" activeSubmenu="Affiliate Dashboard" hideAnnouncement={true} />
+            <AppNav active="More" activeSubmenu="Affiliate Dashboard" hideAnnouncement={true} hideVampireBar={true} />
             <ErrorBoundary>
                 <VStack spacing="10" w='full' maxW="1200px" mt="8">
                     <SplashedText
