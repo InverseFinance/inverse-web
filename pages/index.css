@@ -9,83 +9,104 @@ body {
 .app-anim-box-no-pointer * {
     cursor: default;
 }
-    
+
 @supports (-webkit-backdrop-filter: none) or (backdrop-filter: none) {
     .blurred-container {
-      -webkit-backdrop-filter: blur(1.5rem);
-      backdrop-filter: blur(1.5rem);
+        -webkit-backdrop-filter: blur(1.5rem);
+        backdrop-filter: blur(1.5rem);
     }
+
     .infoLight-bg {
         background-color: #4299e144 !important;
-    }  
+    }
+
     .info-bg {
         background-color: #4299e122 !important;
-    }    
+    }
+
     .primary-bg {
         background-color: #5E17EB22 !important;
     }
+
     .dark-bg {
         background-color: #5E17EB22 !important;
     }
+
     .light-bg {
         background-color: rgba(250, 250, 250, 0.8) !important;
     }
+
     .loading-bg {
         background-color: #4299e122 !important;
     }
+
     .success-bg {
         background-color: #25C9A122 !important;
-    }    
+    }
+
     .error-bg {
         background-color: #F4406166 !important;
     }
+
     .warning-bg {
         background-color: #ed893622 !important;
     }
 
     .infoLight-bg2 {
         background-color: #4299e1bb !important;
-    }  
+    }
+
     .info-bg2 {
         background-color: #4299e188 !important;
-    }    
+    }
+
     .primary-bg2 {
         background-color: #5E17EB88 !important;
     }
+
     .dark-bg2 {
         background-color: #5E17EB88 !important;
     }
+
     .light-bg2 {
         background-color: rgba(250, 250, 250, 0.8) !important;
     }
+
     .loading-bg2 {
         background-color: #4299e188 !important;
     }
+
     .success-bg2 {
         background-color: #25C9A188 !important;
-    }    
+    }
+
     .error-bg2 {
         background-color: #F4406188 !important;
     }
+
     .warning-bg2 {
         background-color: #ed893688 !important;
     }
-  }
-  
-  /* slightly transparent fallback for Firefox (not supporting backdrop-filter) */
-  @supports not ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
+}
+
+/* slightly transparent fallback for Firefox (not supporting backdrop-filter) */
+@supports not ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
     .compat-mode.info-bg {
         background: linear-gradient(125deg, #4299e1 0%, #105b99 50%, #4299e1 100%);
     }
+
     .compat-mode.loading-bg {
         background: linear-gradient(125deg, #4299e1 0%, #2e81c5 50%, #4299e1 100%);
     }
+
     .compat-mode.success-bg {
         background: linear-gradient(125deg, #25C9A1 0%, #15b38b 50%, #25C9A1 100%)
-    }    
+    }
+
     .compat-mode.error-bg {
         background: linear-gradient(125deg, #F44061 0%, #d32a49 50%, #F44061 100%);
     }
+
     .compat-mode.warning-bg {
         background: linear-gradient(125deg, #ed8936 0%, #d17225 50%, #ed8936 100%);
     }
@@ -94,6 +115,7 @@ body {
         background-color: #221d45 !important;
         opacity: 0.98;
     }
+
     .compat-mode2.dark-bg {
         background-color: #221d45 !important;
         opacity: 0.98;
@@ -102,16 +124,104 @@ body {
     .info-bg {
         background-color: #4299e1dd !important;
     }
+
     .loading-bg {
         background-color: #4299e1dd !important;
     }
+
     .success-bg {
         background-color: #25C9A1dd !important;
-    }    
+    }
+
     .error-bg {
         background-color: #F44061dd !important;
     }
+
     .warning-bg {
         background-color: #ed8936dd !important;
     }
-  }
+}
+
+.splash-underline,
+.splash-underline-sm,
+.splash-underline-xs,
+.splash-circled,
+.splash-orange-circled,
+.graffiti-1-reverse,
+.graffiti-1 {
+    position: relative;
+}
+
+.graffiti-1::after {
+    position: absolute;
+    bottom: -50%;
+    content: " ";
+    background-image: url(/assets/affiliate/graffiti1.svg);
+    background-size: 100% 300px;
+    background-repeat: no-repeat;
+    left: -25%;
+    width: 150%;
+    height: 300px;
+    opacity: 0.9;
+    z-index: -1;
+}
+
+.graffiti-1-reverse::after {
+    position: absolute;
+    bottom: -50%;
+    content: " ";
+    background-image: url(/assets/affiliate/graffiti1.svg);
+    background-size: 100% 300px;
+    background-repeat: no-repeat;
+    left: -50%;
+    width: 150%;
+    height: 300px;
+    opacity: 0.9;
+    z-index: -1;
+    transform:rotate(45deg);
+}
+
+.graffiti-bg {
+    z-index: -1;
+    opacity: 0.9;
+}
+
+.splash-underline::after {
+    position: absolute;
+    bottom: -13px;
+    content: " ";
+    background-image: url(/assets/design/underline.svg);
+    background-size: 100% 20px;
+    background-repeat: no-repeat;
+    left: 0;
+    width: 105%;
+    height: 20px;
+    opacity: 0.9;
+}
+
+.splash-circled::after {
+    position: absolute;
+    transform: translate3d(-50px, -2px, 0);
+    content: " ";
+    left: 0;
+    background-image: url(/assets/design/circled.svg);
+    background-size: 240px 65px;
+    background-repeat: no-repeat;
+    width: 240px;
+    height: 65px;
+    opacity: 0.9;
+}
+
+.splash-orange-circled::after {
+    position: absolute;
+    transform: translate3d(-90px, -15px, 0);
+    content: " ";
+    left: 0;
+    mask-size: 400px 80px;
+    mask-repeat: no-repeat;
+    mask-image: url(/assets/design/circled.svg);
+    background-color: #FFC35C;
+    background-repeat: no-repeat;
+    width: 400px;
+    height: 80px;
+}

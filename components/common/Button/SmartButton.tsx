@@ -69,7 +69,7 @@ export const SmartButton = (props: SmartButtonProps) => {
                         }
                         await handleTx(promiseResult, { onSuccess: handleSuccess, onFail, onPending });
                     } else {
-                        handleApiResponse(promiseResult);
+                        handleApiResponse(promiseResult, onSuccess);
                     }
                 } catch (e) {
                     showFailNotif(e)

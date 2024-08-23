@@ -12,10 +12,12 @@ export const FirmUserModal = ({
     userData,
     onClose,
     isOpen,
+    useSimple = false,
 }: {
     userData: any,
     onClose: () => void,
     isOpen: boolean,
+    useSimple?: boolean,
 }) => {
     const [active, setActive] = useState('Markets');
     const { isOpen: isOpenMarket, onOpen: onOpenMarket, onClose: onCloseMarket } = useDisclosure();
@@ -46,7 +48,9 @@ export const FirmUserModal = ({
         size="lg"
         scrollBehavior="inside"
     >
-        <NavButtons options={['Markets', 'DBR replenishment']} onClick={(v) => setActive(v)} active={active} />
+        {
+            !useSimple && <NavButtons options={['Markets', 'DBR replenishment']} onClick={(v) => setActive(v)} active={active} />
+        }
         <VStack w='100%' alignItems="center">
             <VStack w='100%' px="2" py="4">
                 {
@@ -55,7 +59,7 @@ export const FirmUserModal = ({
                 {
                     active === 'Markets' ?
                         !isOpenMarket ?
-                            <FirmPositionsTable isOneUserOnly={true} onClick={openLiquidation} positions={userData.marketPositions} />
+                            <FirmPositionsTable isOneUserOnly={true} onClick={useSimple ? undefined : openLiquidation} positions={userData.marketPositions} />
                             : <VStack w='full' alignItems="flex-start">
                                 <HStack cursor="pointer" spacing="1" onClick={back}>
                                     <ArrowBackIcon size="20px" />

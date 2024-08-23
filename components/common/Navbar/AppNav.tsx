@@ -55,7 +55,7 @@ import PostSearch from 'blog/components/post-search'
 import { switchTheme } from '@app/util/theme'
 import { useAppTheme, useAppThemeParams } from '@app/hooks/useAppTheme'
 import { CoinbasePayButton } from '@app/components/ThirdParties/CoinbasePay'
-import { useCheckDBRAirdrop } from '@app/hooks/useDBR'
+// import { useCheckDBRAirdrop } from '@app/hooks/useDBR'
 import { AirdropModalCheck } from '@app/components/F2/Infos/AirdropModalCheck'
 import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
 import { BurgerMenu } from './BurgerMenu'
@@ -70,6 +70,9 @@ import { FirmGovDelegationModal } from '@app/components/F2/GovToken/FirmGovToken
 import { TOKEN_IMAGES } from '@app/variables/images'
 import { VampireModal } from '../Modal/VampireModal'
 import useStorage from '@app/hooks/useStorage'
+import { ReferralModal } from '../Modal/ReferralModal'
+import { ReferToModal } from '../Modal/ReferToModal'
+import { SlideModal } from '../Modal/SlideModal'
 const NAV_ITEMS = MENUS.nav
 
 export const ThemeBtn = () => {
@@ -259,7 +262,7 @@ const ConnectionMenuItem = ({ ...props }: StackProps) => {
   />
 }
 
-const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwork: boolean, showWrongNetworkModal: () => void }) => {
+const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal, onReferToOpen }: { isWrongNetwork: boolean, showWrongNetworkModal: () => void, onReferToOpen: () => void }) => {
   const web3react = useWeb3React<Web3Provider>()
   const { account, isActive: active, connector, chainId } = web3react
   const { deactivate: _deactivate } = connector || { activate: () => { }, deactivate: () => { } };
@@ -444,6 +447,14 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
               <ViewIcon color="blue.600" boxSize={3} />
               <Text fontWeight="semibold">View Address</Text>
             </ConnectionMenuItem>
+            {/* <ConnectionMenuItem
+              onClick={() => {
+                onReferToOpen();
+                gaEvent({ action: 'use-refer' });
+              }}
+            >
+              <Text fontWeight="semibold">🤝 Refer a fren</Text>
+            </ConnectionMenuItem> */}
             {
               query?.viewAddress && <ConnectionMenuItem
                 onClick={() => window.location.search = ''}
@@ -468,7 +479,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal }: { isWrongNetwo
   )
 }
 
-export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = false, hideAnnouncement = false }: { active?: string, activeSubmenu?: string, isBlog?: boolean, isClaimPage?: boolean, hideAnnouncement?: boolean }) => {
+export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = false, hideAnnouncement = false, hideVampireBar = false }: { active?: string, activeSubmenu?: string, isBlog?: boolean, isClaimPage?: boolean, hideAnnouncement?: boolean, hideVampireBar?: boolean }) => {
   const { account } = useWeb3React<Web3Provider>();
   const { query } = useRouter()
   const [isLargerThan] = useMediaQuery('(min-width: 1330px)');
@@ -487,10 +498,15 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const { isOpen: isAirdropOpen, onOpen: onAirdropOpen, onClose: onAirdropClose } = useDisclosure()
   const { isOpen: isTosOpen, onOpen: onTosOpen, onClose: onTosClose } = useDisclosure()
   const { isOpen: isVampireOpen, onOpen: onVampireOpen, onClose: onVampireClose } = useDisclosure()
+  const { isOpen: isReferralOpen, onOpen: onReferralOpen, onClose: onReferralClose } = useDisclosure()
+  const { isOpen: isReferralPopOpen, onOpen: onReferralPopOpen, onClose: onReferralPopClose } = useDisclosure()
+  const { isOpen: isReferToOpen, onOpen: onReferToOpen, onClose: onReferToClose } = useDisclosure()
   const [onTosOk, setOnTosOk] = useState(() => () => { });
   const [tosApproved, setTosApproved] = useState(false);
   const { value: gnosisSafeToastAlreadyShowed, setter: setGnosisSafeToastAlreadyShowed } = useStorage('gnosis-safe-toast');
+  const { value: isRefPop, setter: setIsRefPop } = useStorage('referral-pop-v1');
   const [inited, setInited] = useState(false);
+  const [refPopInited, setRefPopInited] = useState(false);  
   const isMountedRef = useRef(false);
 
   useEffect(() => {
@@ -551,6 +567,13 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
     }
     init()
   }, [query])
+
+  // useEffect(() => {
+  //   if(!window.location.pathname.includes('affiliate') && !refPopInited && !!account && isRefPop === null) {
+  //     onReferralPopOpen();
+  //     setRefPopInited(true);
+  //   }
+  // }, [isRefPop, account, refPopInited])
 
   useEffect(() => {
     const init = async () => {
@@ -643,6 +666,16 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
     onVampireOpen();
   }
 
+  const handleCloseRefPop = () => {
+    setIsRefPop(true);
+    onReferralPopClose();
+  }
+
+  const handleReferTo = () => {
+    window.location.href = window.location.origin + '/affiliate/register';
+    // onReferToOpen()
+  }
+
   const vampireComp = <NavBadge position="relative">
     {/* <Image display="inline-block" src={"https://assets.coingecko.com/markets/images/544/small/AAVE.png"} w="24px" h="24px" /> */}
     <Image mr="2" top="-9px" position={isLargerThan1500 ? 'static' : 'absolute'} display="inline-block" src={"https://assets.coingecko.com/coins/images/12645/standard/aave-token-round.png"} w="18px" h="18px" />
@@ -652,12 +685,26 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
 
   return (
     <VStack w='full' spacing="0">
+      <SlideModal closeOnOutsideClick={false} closeIconInside={true} isOpen={isReferralPopOpen} onClose={handleCloseRefPop} contentProps={{ maxW: '500px', className: '', backgroundColor: 'navBarBackgroundColor' }}>
+        <VStack w='full' justify="flex-start" alignItems="flex-start">
+          <Text fontWeight="bold" fontSize='18px'>
+            Refer a fren and earn rewards!
+          </Text>
+          <Text cursor="pointer" onClick={() => handleReferTo()} textDecoration="underline">
+            Yes, take me there!
+          </Text>
+        </VStack>
+      </SlideModal>
       <PoaModal isOpen={isTosOpen} onClose={onTosClose} onOk={() => onTosOk()} onSuccess={() => setTosApproved(true)} />
       <WrongNetworkModal
         isOpen={isWrongNetOpen && !isBlog}
         onClose={onWrongNetClose}
       />
       <VampireModal isOpen={isVampireOpen} onClose={onVampireClose} />
+      {/* <ReferToModal isOpen={isReferToOpen} onClose={onReferToClose} /> */}
+      {
+        !!account && <ReferralModal onOpen={onReferralOpen} isOpen={isReferralOpen} onClose={onReferralClose} />
+      }
       {/* {
         showAirdropModal && <AirdropModalCheck
           isOpen={isAirdropOpen}
@@ -745,7 +792,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
             <>
               <Stack display={{ base: 'flex', lg: 'none' }} direction="row" align="center">
                 <ThemeBtn />
-                <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} />
+                <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} onReferToOpen={onReferToOpen} />
               </Stack>
 
               <Stack direction="row" align="center" display={{ base: 'none', lg: 'flex' }}>
@@ -765,7 +812,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
                     : null
                 }
                 <ThemeBtn />
-                <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} />
+                <AppNavConnect isWrongNetwork={isUnsupportedNetwork} showWrongNetworkModal={onWrongNetOpen} onReferToOpen={onReferToOpen} />
               </Stack>
             </>
         }
@@ -773,7 +820,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
       </Flex>
       {isLargerThan768 && !!process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG && !hideAnnouncement && <Announcement />}
       {
-        !isLargerThan1150 && inited && <VStack mt="4">
+        !isLargerThan1150 && inited && !hideVampireBar && <VStack mt="4">
           {vampireComp}
         </VStack>
       }
