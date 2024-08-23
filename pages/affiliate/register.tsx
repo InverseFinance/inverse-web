@@ -125,27 +125,11 @@ export const FirmAffiliateRegisterPage = () => {
             </Head>
             <AppNav active="More" activeSubmenu="Affiliate Dashboard" hideAnnouncement={true} hideVampireBar={true} />
             <ErrorBoundary>
-                <VStack spacing="10" w='full' maxW="1200px" mt="8">
-                    <SplashedText
-                        as="h1"
-                        color={`mainTextColor`}
-                        fontSize={'40px'}
-                        fontWeight="extrabold"
-                        color={`mainTextColor`}
-                        splashColor={`success`}
-                        lineHeight='1'
-                        splashProps={{
-                            top: '20px',
-                            left: '-14px',
-                            w: '500px',
-                            opacity: 0.3,
-                        }}
-                    >
-                        Become a FiRM Affiliate
-                    </SplashedText>
+                <VStack spacing="10" alignItems="center" w='full' maxW="1200px" mt="8">
+                    <Text fontWeight="bold" fontSize={{ base: '22px', md: '30px' }} as="h1" className="splash-underline">Become a FiRM Affiliate</Text>
 
-                    <VStack alignItems="">
-                        <Stack justify="space-between" spacing="10" direction={{ base: 'column', xl: 'row' }}>
+                    <VStack alignItems="center">
+                        <Stack alignItems="center" justify="space-between" spacing="10" direction={{ base: 'column', xl: 'row' }}>
                             <DashBoardCard w={{ base: '95%', lg: '600px' }} spacing="2" alignItems="flex-start">
                                 <VStack spacing="4" w='full'>
                                     <SimpleGrid w='full' columns={{ base: 1, lg: 1 }} gap="2">
