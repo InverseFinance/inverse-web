@@ -21,7 +21,7 @@ import { SplashedText } from "../common/SplashedText";
 import { lightTheme } from "@app/variables/theme";
 import { useState } from "react";
 import Link from "../common/Link";
-
+import { calculateMaxLeverage } from "@app/util/misc";
 
 export const MARKET_INFOS = {
     'INV': {
@@ -222,7 +222,7 @@ const columns = [
                     hasClaimableRewards={hasClaimableRewards}
                 />
                 {
-                    supplyApy > 0 && <Text fontSize="12px" color="mainTextColorLight2">
+                    supplyApy > 0 && <Text fontSize="12px" color="mainTextColorLight">
                         {rewardTypeLabel || (isInv ? 'INV + DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY')}
                     </Text>
                 }
@@ -254,10 +254,19 @@ const columns = [
         field: 'collateralFactor',
         label: 'CF',
         header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
-        tooltip: 'Collateral Factor: maximum percentage of collateral value that can be used for borrowing',
-        value: ({ collateralFactor }) => {
-            return <Cell minWidth="70px" alignItems="center" justify="center" >
+        tooltip: <VStack>
+            <Text><b>Collateral Factor</b>: maximum percentage of collateral value that can be used for borrowing.</Text>
+            <Text><b>Long up to</b>: theoretical maximum leverage with DOLA at $1 and borrow limit at 100%</Text>
+        </VStack>,
+        value: ({ collateralFactor, borrowPaused }) => {
+            return <Cell spacing="0" direction="column" minWidth="70px" alignItems="center" justify="center" >
                 <CellText>{shortenNumber(collateralFactor * 100, 0)}%</CellText>
+                {
+                    !borrowPaused && <>
+                        <CellText>&nbsp;</CellText>
+                        <CellText color="mainTextColorLight" transform="translateY(10px)" position="absolute" fontSize="12px">Long up to x{calculateMaxLeverage(collateralFactor).toFixed(2)}</CellText>
+                    </>
+                }
             </Cell>
         },
     },
