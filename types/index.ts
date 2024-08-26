@@ -348,6 +348,8 @@ export enum ProposalTemplates {
   dolaApprove = 'dolaApprove',
   daiTransfer = 'daiTransfer',
   daiApprove = 'daiApprove',
+  dbrTransfer = 'dbrTransfer',
+  dbrApprove = 'dbrApprove',
   payrollAdd = 'payrollAdd',
   payrollRemove = 'payrollRemove',
   vestorAdd = 'vestorAdd',

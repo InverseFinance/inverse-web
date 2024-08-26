@@ -21,7 +21,7 @@ type Props = {
     onAddTemplate: (action: TemplateProposalFormActionFields) => void
 }
 
-const { INV, DOLA, DAI, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet)
+const { INV, DOLA, DAI, TOKENS, DBR } = getNetworkConfigConstants(NetworkIds.mainnet)
 
 const templates = [
     // tokens
@@ -31,6 +31,8 @@ const templates = [
     { label: 'DOLA: Approve funding', value: ProposalTemplates.dolaApprove },
     { label: 'DAI: Send tokens', value: ProposalTemplates.daiTransfer },
     { label: 'DAI: Approve funding', value: ProposalTemplates.daiApprove },
+    { label: 'DBR: Send tokens', value: ProposalTemplates.dbrTransfer },
+    { label: 'DBR: Approve funding', value: ProposalTemplates.dbrApprove },
     { label: 'Payroll: Add', value: ProposalTemplates.payrollAdd },
     { label: 'Payroll: Remove', value: ProposalTemplates.payrollRemove },
     { label: 'Vestor: Add', value: ProposalTemplates.vestorAdd },
@@ -72,6 +74,8 @@ export const ActionTemplateModal = ({ onClose, isOpen, onAddTemplate }: Props) =
         [ProposalTemplates.dolaApprove]: { comp: TokenTemplate, props: { token: TOKENS[DOLA], type: 'approve' } },
         [ProposalTemplates.daiTransfer]: { comp: TokenTemplate, props: { token: TOKENS[DAI], type: 'transfer' } },
         [ProposalTemplates.daiApprove]: { comp: TokenTemplate, props: { token: TOKENS[DAI], type: 'approve' } },
+        [ProposalTemplates.dbrTransfer]: { comp: TokenTemplate, props: { token: TOKENS[DBR], type: 'transfer' } },
+        [ProposalTemplates.dbrApprove]: { comp: TokenTemplate, props: { token: TOKENS[DBR], type: 'approve' } },
         [ProposalTemplates.payrollAdd]: { comp: DolaPayrollTemplate, props: { type: 'add' } },
         [ProposalTemplates.payrollRemove]: { comp: DolaPayrollTemplate, props: { type: 'remove' }  },
         [ProposalTemplates.vestorAdd]: { comp: XinvVestor },

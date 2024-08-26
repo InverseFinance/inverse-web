@@ -200,11 +200,11 @@ export const getRandomFromStringList = (commaSeparatedList: string) => {
 export const handleApiResponse = (promiseResult: any, onSuccess?: (o?: any) => void) => {
     if (promiseResult?.status && promiseResult?.message) {
         const statusType = ["success", "warning", "info", "error"].includes(promiseResult?.status) ? promiseResult?.status : 'info';
-        showToast({ status: statusType, description: promiseResult?.message });        
-    } else if(typeof promiseResult?.status === 'number' && promiseResult?.status >= 400) {
+        showToast({ status: statusType, description: promiseResult?.message });
+    } else if (typeof promiseResult?.status === 'number' && promiseResult?.status >= 400) {
         showToast({ status: 'warning', description: promiseResult?.statusText });
     }
-    if(!!onSuccess && ["ok", "success", 200].includes(promiseResult?.status)) {
+    if (!!onSuccess && ["ok", "success", 200].includes(promiseResult?.status)) {
         onSuccess(promiseResult);
     }
 }
@@ -431,4 +431,24 @@ export function formatDuration(seconds: number) {
     const minutes = duration.minutes();
     const secs = duration.seconds();
     return `${days > 0 ? String(days).padStart(2, '0') + 'd:' : ''}${String(hours).padStart(2, '0')}h:${String(minutes).padStart(2, '0')}m:${String(secs).padStart(2, '0')}s`;
+}
+
+export const calculateMaxLeverage = (collateralFactor: number, precision = 0.01, maxSteps = 1000) => {
+    let leverage = 1;
+    let totalBorrow = 0;
+    let collateral = 1;
+    let steps = 0;
+
+    while (steps < maxSteps) {
+        totalBorrow = leverage - 1;
+        if (totalBorrow > collateral * collateralFactor) {
+            return leverage - precision;
+        }
+        leverage += precision;
+        collateral = leverage;
+        steps++;
+    }
+
+    console.warn("Max steps reached. Result may not be accurate.");
+    return leverage;
 }

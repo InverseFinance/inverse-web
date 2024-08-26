@@ -59,7 +59,7 @@ export const NotEnoughDolaToRepayMessage = ({
 export const AutoBuyDbrNoteMessage = () => {
     return <InfoMessage
         alertProps={{ w: 'full', fontStyle: 'italic' }}
-        description="Note: The cost of the auto-bought DBR will be added to your DOLA debt. Actual duration may vary a little bit due to DBR price fluctuations."
+        description="Note: The cost of the auto-bought DBR will be added to your DOLA debt."
     />
 }
 

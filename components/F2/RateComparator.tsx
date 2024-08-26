@@ -98,7 +98,7 @@ const RateType = ({ type, isMobile = false, themeStyles }: { type: string, isMob
     </HStack>
 }
 
-const RateListItem = ({ fields, project, borrowRate, borrowToken, collateral, type, themeStyles }) => {
+const RateListItem = ({ fields, project, borrowRate, borrowToken, collateral, type, hasLeverage, themeStyles }) => {
     const comps = {
         'project': <Project project={project} themeStyles={themeStyles} />,
         'collateral': <CollateralToken project={project} collateral={collateral || 'Multiple'} themeStyles={themeStyles} />,
@@ -106,6 +106,9 @@ const RateListItem = ({ fields, project, borrowRate, borrowToken, collateral, ty
             {borrowRate ? shortenNumber(borrowRate, 2) + '%' : '-'}
         </Text>,
         'borrowToken': <ProjectToken project={project} borrowToken={borrowToken} themeStyles={themeStyles}  />,
+        'hasLeverage': <Text fontWeight="extrabold" fontSize="24px" color={hasLeverage ? themeStyles.colors.success : themeStyles.colors.mainTextColor}>
+            {hasLeverage ? 'Yes' : 'No'}
+        </Text>,
         'type': <RateType type={type} themeStyles={themeStyles} />,
     }
     return <>
@@ -164,11 +167,21 @@ const columns = [
     },
     {
         field: 'borrowToken',
-        label: 'Borrow Token',
+        label: 'Stablecoin',
         header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
         value: ({ project, borrowToken }) => {
             return <Cell minWidth="70px" alignItems="center" justify="center" >
                 <ProjectToken project={project} isMobile={true} borrowToken={borrowToken} />
+            </Cell>
+        },
+    },
+    {
+        field: 'hasLeverage',
+        label: 'Has Leverage',
+        header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
+        value: ({ hasLeverage }) => {
+            return <Cell fontWeight="bold" color={hasLeverage ? 'success' : undefined} minWidth="70px" alignItems="center" justify="center" >
+                { hasLeverage ? 'Yes' : 'No'}
             </Cell>
         },
     },
@@ -335,7 +348,7 @@ export const RateComparator = ({
         }
         {
             !isSmallerThan && <>
-                <SimpleGrid gap="5" width={`${fields.length * 250}px`} columns={fields.length}>
+                <SimpleGrid gap="3" width={`${fields.length * 210}px`} columns={fields.length}>
                     {
                         fields.map(f => {
                             return <Text color={_themeStyles.colors.mainTextColor} key={f} fontWeight="extrabold" fontSize="28px">
@@ -357,7 +370,7 @@ export const RateComparator = ({
                     {
                         rates.map((rate, i) => {
                             return <Link borderBottom="1px solid transparent" borderTop={`1px solid ${_themeStyles.colors.mainTextColorAlpha}`} py="2" transition="200 ms all" _hover={{ borderY: `1px solid ${_themeStyles.colors.mainTextColor}` }} w='full' isExternal target="_blank" href={rate.link} key={rate.key}>
-                                <SimpleGrid gap="5" width={`${fields.length * 250}px`} columns={fields.length}>
+                                <SimpleGrid gap="3" width={`${fields.length * 210}px`} columns={fields.length}>
                                     <RateListItem fields={fields} {...rate} themeStyles={_themeStyles} />
                                 </SimpleGrid>
                             </Link>
