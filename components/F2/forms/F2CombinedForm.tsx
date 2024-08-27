@@ -540,7 +540,7 @@ export const F2CombinedForm = ({
             destination={useLeverageInMode ? F2_ALE : isAutoDBR || isUseNativeCoin ? F2_HELPER : market.address}
             needApprove={(!isDeleverageCase || (isDeleverageCase && debtAmountNum > 0)) && !(useLeverageInMode && isDeposit && !collateralAmountNum)}
             signer={signer}
-            decimals={colDecimals}
+            decimals={isRepayCase ? 18 : colDecimals}
             maxAmountFrom={isDeposit ? [bnInputBalance] : [bnDeposits, bnWithdrawalLimit]}
             onAction={({ bnAmount }) => handleAction()}
             onMaxAction={({ bnAmount }) => handleWithdrawMax()}
