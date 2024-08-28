@@ -298,6 +298,8 @@ const mainConfig = {
             rewardTypeLabel: 'LP\'s Annual Yield',  
             badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },            
             startingBlock: 20620551,
+            aleTransformerType: 'marketAddressAndAmount',
+            isAleWithoutSwap: true,
             isInv: false,
         },
         // {
