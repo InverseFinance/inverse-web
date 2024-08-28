@@ -865,8 +865,8 @@ export const useFirmLiquidations = (user?: string): SWR & {
   }
 }
 
-export const useFirmAffiliate = (affiliate: string, updateIndex: number) => {
-  const { data, error } = useCustomSWR(`/api/referral?updateIndex=${updateIndex}`, fetcher);
+export const useFirmAffiliate = (affiliate: string, updateIndex = 0) => {
+  const { data, error } = useCustomSWR(`/api/referral?updateIndex=${updateIndex||0}`, fetcher);
   const referrals = (data?.referrals || []).filter(d => affiliate === 'all' || d.affiliate === affiliate);
   return {
     timestamp: data?.timestamp,
