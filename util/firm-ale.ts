@@ -72,7 +72,8 @@ export const prepareLeveragePosition = async (
         const permitData = [deadline, v, r, s];
         let helperTransformData = '0x';
         if (market.aleData?.buySellToken && !!market.aleTransformerType && aleTransformers[market.aleTransformerType]) {
-            helperTransformData = aleTransformers[market.aleTransformerType](market, dolaToBorrowToBuyCollateral);
+            const minLpAmount = getNumberToBn((1 - parseFloat(slippagePerc || 0) / 100) * market.price * getBnToNumber(dolaToBorrowToBuyCollateral));
+            helperTransformData = aleTransformers[market.aleTransformerType](market, minLpAmount);
         }
         // dolaIn, minDbrOut
         const dbrData = [dbrInputs.dolaParam, dbrInputs.dbrParam, '0'];
@@ -151,7 +152,7 @@ export const prepareDeleveragePosition = async (
     // we need the quote first
     try {
         if (market.isAleWithoutSwap) {
-            aleQuoteResult = { data: '0x', allowanceTarget: BURN_ADDRESS, value: '0' }
+            aleQuoteResult = { data: '0x', allowanceTarget: BURN_ADDRESS, value: '0', buyAmount: getNumberToBn(market.price * getBnToNumber(collateralToWithdraw, market.underlying.decimals)) }
         } else {
             // the dola swapped for collateral is dolaToRepayToSellCollateral not totalDolaToBorrow (a part is for dbr)
             aleQuoteResult = await getAleSellQuote(DOLA, market.aleData?.buySellToken || market.collateral, collateralToWithdraw.toString(), slippagePerc, false);
@@ -181,7 +182,7 @@ export const prepareDeleveragePosition = async (
         const minDolaOrMaxRepayable = minDolaAmountFromSwap.gt(userDebt) ? userDebt : minDolaAmountFromSwap;
 
         if (market.aleData?.buySellToken && !!market.aleTransformerType && aleTransformers[market.aleTransformerType]) {
-            helperTransformData = aleTransformers[market.aleTransformerType](market, collateralToWithdraw);
+            helperTransformData = aleTransformers[market.aleTransformerType](market, minDolaAmountFromSwap);
         }
 
         // dolaIn, minDbrOut, extraDolaToRepay

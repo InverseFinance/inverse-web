@@ -118,16 +118,23 @@ export const getLeverageImpact = async ({
             borrowStringToSign = getNumberToBn(borrowNumToSign).toString();
         }
 
-        // in the end the reference is always a number of dola sold (as it's what we need to sign, or part of it if with dbr)
-        const { buyAmount, validationErrors, msg } = await getAleSellQuote(market.aleData.buySellToken || market.collateral, DOLA, borrowStringToSign, aleSlippage, true);
-        const errorMsg = validationErrors?.length > 0 ?
-            `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
-            : msg;
+        let collateralAdded, errorMsg;
+        if(market.isAleWithoutSwap) {
+            // in the end the reference is always a number of dola sold (as it's what we need to sign, or part of it if with dbr)
+            const { buyAmount, validationErrors, msg } = await getAleSellQuote(market.aleData.buySellToken || market.collateral, DOLA, borrowStringToSign, aleSlippage, true);
+            errorMsg = validationErrors?.length > 0 ?
+                `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
+                : msg;
+                collateralAdded = buyAmount;
+        } else {
+            // DOLA LP case, result not from 1inch
+            collateralAdded = borrowNumToSign * market.price;
+        }
         if (setLeverageLoading) setLeverageLoading(false);
         return {
             errorMsg,
             dolaAmount: borrowNumToSign,
-            collateralAmount: (parseFloat(buyAmount) / exRate) / (10 ** market.underlying.decimals),
+            collateralAmount: (parseFloat(collateralAdded) / exRate) / (10 ** market.underlying.decimals),
         }
     } else {
         // leverage down: dola amount is variable, collateral amount is fixed
