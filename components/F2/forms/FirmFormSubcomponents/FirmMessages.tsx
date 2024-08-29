@@ -39,7 +39,7 @@ export const NoDbrInWalletMessage = () => {
         />
         <InfoModal modalProps={{ minW: { base: '98vw', lg: '1000px' }, scrollBehavior: 'inside' }} title="DBR powers DOLA loans on FiRM" isOpen={isOpen} onClose={onClose}>
             <VStack p="4">
-                <FirmFAQ showTitle={false} dbrOnly={true} smaller={false} labelProps={{ fontSize: '14px' }} />
+                <FirmFAQ hideTitle={true} dbrOnly={true} smaller={false} labelProps={{ fontSize: '14px' }} />
             </VStack>
         </InfoModal>
     </>

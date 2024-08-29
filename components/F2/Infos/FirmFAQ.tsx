@@ -173,7 +173,7 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
     ]
     .filter(item => isDbrOnly ? item.title.includes('DBR') : true)
     return <FAQ
-        label={props.showTitle ? "Frequently Asked Questions":""}
+        label={props.hideTitle ? "" : "Frequently Asked Questions"}
         items={
             items
         }
