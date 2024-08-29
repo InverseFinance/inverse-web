@@ -5,7 +5,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { TOKENS } from '@app/variables/tokens'
-import { getBnToNumber, getCvxCrvAPRs, getCvxFxsAPRs, getDSRData, getSFraxData, getSUSDEData, getStCvxData, getStYcrvData, getStYethData, getStethData } from '@app/util/markets'
+import { getBnToNumber, getCrvUSDDOLAConvexData, getCvxCrvAPRs, getCvxFxsAPRs, getDSRData, getSFraxData, getSUSDEData, getStCvxData, getStYcrvData, getStYethData, getStethData } from '@app/util/markets'
 import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_MS, ONE_DAY_SECS } from '@app/config/constants';
 import { frontierMarketsCacheKey } from '../markets';
 import { cgPricesCacheKey } from '../prices';
@@ -151,10 +151,12 @@ export default async function handler(req, res) {
       getStYethData(),
       getSFraxData(provider),
       getSUSDEData(),
+      getCrvUSDDOLAConvexData(),
     ]);
 
     let [stethData, stYcrvData, cvxCrvData, cvxFxsData, dsrData, stCvxData, stYethData, sFraxData, 
       sUSDEData,
+      crvUSDDOLAConvexData,
     ] = externalYieldResults.map(r => {
       return r.status === 'fulfilled' ? r.value : {};
     });
@@ -179,8 +181,8 @@ export default async function handler(req, res) {
       'CVX': stCvxData?.apy || 0,
       'st-yETH': stYethData?.apy || 0,
       'sFRAX': sFraxData?.apy || 0,
-      // temp - ethenaapi throws forbidden from prod env
       'sUSDe': sUSDEData?.apy || 0,
+      'crvUSD-DOLA': crvUSDDOLAConvexData?.apy || 0,
     };
 
     const xinvExRate = getBnToNumber(xinvExRateBn);
@@ -212,7 +214,7 @@ export default async function handler(req, res) {
         dailyLimit: getBnToNumber(dailyLimits[i]),
         dailyBorrows: getBnToNumber(dailyBorrows[i]),
         leftToBorrow: Math.min(getBnToNumber(bnLeftToBorrow[i]), getBnToNumber(bnDola[i])),
-        supplyApy: externalApys[underlying.symbol] || 0,
+        supplyApy: externalApys[underlying.symbol] || externalApys[m.name] || 0,
         extraApy: m.isInv ? dbrApr : 0,
         supplyApyLow: isCvxCrv ? Math.min(cvxCrvData?.group1 || 0, cvxCrvData?.group2 || 0) : 0,
         cvxCrvData: isCvxCrv ? cvxCrvData : undefined,

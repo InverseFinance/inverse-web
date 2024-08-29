@@ -213,6 +213,13 @@ export const getSUSDEData = async () => {
     // return [];
 }
 
+export const getCrvUSDDOLAConvexData = async () => {
+    try {
+        return getPoolYield('e85c4caf-f504-4ffe-932d-b2054ac0e2bb');
+    } catch (e) { console.log(e) }
+    return [];
+}
+
 export const getSFraxData = async (provider) => {
     try {
         // return getPoolYield('55de30c3-bf9f-4d4e-9e0b-536a8ef5ab35');
