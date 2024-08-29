@@ -1240,7 +1240,7 @@ const chainTokens = {
       name: 'sUSDe',
       symbol: 'sUSDe',
       coingeckoId: 'ethena-staked-usde',
-      image: TOKEN_IMAGES.sUSDE,
+      image: TOKEN_IMAGES.sUSDe,
       decimals: 18,
     },
     [chainTokenAddresses["1"].USDE]: {

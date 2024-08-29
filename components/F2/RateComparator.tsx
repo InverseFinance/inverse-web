@@ -46,10 +46,13 @@ const ProjectToken = ({ project, borrowToken, isMobile = false, themeStyles }: {
     </HStack>
 }
 
-const CollateralToken = ({ collateral, isMobile = false, themeStyles }: { project: string }) => {
+const CollateralToken = ({ collateral, isMobile = false, themeStyles, showImage = false }: { project: string, isMobile: boolean, themeStyles: any, showImage: boolean }) => {
     const { themeStyles: prefThemeStyles } = useAppTheme();
     const _themeStyles = themeStyles || prefThemeStyles;
     return <HStack spacing='4'>
+        {
+            showImage && <Image borderRadius="50px" src={TOKEN_IMAGES[collateral]} h={isMobile ? '20px' : '40px'} />
+        }
         <Text color={_themeStyles.colors.mainTextColor} fontWeight="extrabold" fontSize={isMobile ? '16px' : '24px'}>
             {collateral}
         </Text>
@@ -128,8 +131,8 @@ const RateListItem = ({ fields, project, borrowRate, borrowToken, collateral, ty
 const GroupedRateListItem = ({ fields, bestCompetitorProject, firmRate, bestCompetitorRate, collateral, themeStyles }) => {
     const comps = {
         'bestCompetitorProject': <Project project={bestCompetitorProject} themeStyles={themeStyles} />,
-        'collateral': <CollateralToken collateral={collateral || 'Multiple'} themeStyles={themeStyles} />,
-        'firmRate': <Text color={firmRate <= bestCompetitorRate ? themeStyles.colors.success : themeStyles.colors.mainTextColor} fontWeight="extrabold" fontSize="24px">
+        'collateral': <CollateralToken showImage={true} collateral={collateral || 'Multiple'} themeStyles={themeStyles} />,
+        'firmRate': <Text w="100px" textAlign="center" color={firmRate <= bestCompetitorRate ? themeStyles.colors.success : themeStyles.colors.mainTextColor} fontWeight="extrabold" fontSize="24px">
             {firmRate ? shortenNumber(firmRate, 2) + '%' : '-'}
         </Text>,
         'bestCompetitorRate': <Text color={bestCompetitorRate <= firmRate ? themeStyles.colors.success : themeStyles.colors.mainTextColor} fontWeight="extrabold" fontSize="24px">
@@ -225,10 +228,16 @@ const columns = [
 const mobileThreshold = 1000;
 
 const FIELDS = columns.reduce((prev, curr) => ({ ...prev, [curr.field]: curr.label }), {});
+
+const LogoCol = () => {
+    const { themeName } = useAppTheme();
+    return <Image src={`/assets/firm/${themeName === 'light' ? 'firm-final-logo.png' : 'firm-final-logo-white.png'}`} transform="translateX(1.5px)" w="100px" />
+}
+
 const GROUPED_FIELDS = {
     'collateral': 'Collateral',
-    'firmRate': "FiRM's fixed-rate",
-    'bestCompetitorRate': "Competitor's variable-rate",
+    'firmRate': <LogoCol />,
+    'bestCompetitorRate': "Best Variable Rate",
     'bestCompetitorProject': 'Competitor',
 };
 const defaultFields = columns.map(c => c.field);
@@ -275,9 +284,9 @@ const UngroupedComparator = ({ allRates, themeStyles, isSmallerThan = false, sho
         noPadding
         p='0'
         contentProps={{ p: { base: '0', sm: '8' }, direction: 'column' }}
-        label={showLabel ? <Text fontSize="28px" fontWeight="extrabold">Stablecoin Borrow Rate Comparison</Text> : null}
+        label={showLabel ? <Text fontSize="28px" fontWeight="extrabold">Stablecoin Borrow Rate Comparison Tool</Text> : null}
         labelProps={showLabel ? { color: themeStyles.colors.mainTextColor } : null}
-        description={showLabel ? "Across major DeFi lending protocols on Ethereum" : null}
+        description={showLabel ? "Compare FiRM rates vs. major DeFi lending protocols. Click the gear icon to the right to customize your view" : null}
         contentBgColor={themeStyles.colors.gradient3}
         descriptionProps={{ color: themeStyles.colors.mainTextColorLight }}
         right={
@@ -467,7 +476,7 @@ const GroupedComparator = ({ allRates, themeStyles, isSmallerThan = false, showL
                 {
                     groupedRates.map((rate, i) => {
                         return <Box borderBottom="1px solid transparent" borderTop={`1px solid ${themeStyles.colors.mainTextColorAlpha}`} py="2" transition="200 ms all" _hover={{ borderY: `1px solid ${themeStyles.colors.mainTextColor}` }} w='full' key={rate.collateral}>
-                            <SimpleGrid gap="3" columns={fields.length}>
+                            <SimpleGrid  gap="3" columns={fields.length}>
                                 <GroupedRateListItem fields={fields} {...rate} themeStyles={themeStyles} />
                             </SimpleGrid>
                         </Box>
@@ -480,7 +489,7 @@ const GroupedComparator = ({ allRates, themeStyles, isSmallerThan = false, showL
         noPadding
         p='0'
         contentProps={{ p: { base: '0', sm: '8' }, direction: 'column' }}
-        label={showLabel ? <HStack spacing="1"><Text fontSize="28px" fontWeight="extrabold">Best Competitors Comparison</Text>{!fields.includes('firmRate') && <><Text fontSize="28px" fontWeight="extrabold"> - FiRM's fixed-rate:</Text><Text fontSize="28px" fontWeight="extrabold" color="success">{shortenNumber(groupedRates[0]?.firmRate, 2)}%</Text></>}</HStack> : null}
+        label={showLabel ? <HStack spacing="1"><Text fontSize="28px" fontWeight="extrabold">FiRM vs. Lowest Variable Rate Comparison</Text>{!fields.includes('firmRate') && <><Text fontSize="28px" fontWeight="extrabold"> - FiRM's fixed-rate:</Text><Text fontSize="28px" fontWeight="extrabold" color="success">{shortenNumber(groupedRates[0]?.firmRate, 2)}%</Text></>}</HStack> : null}
         labelProps={showLabel ? { color: themeStyles.colors.mainTextColor } : null}
         description={showLabel ? "Compare the best rate for each collateral between FiRM and competitors among Aave V3, Compound, Fraxlend, Spark and Curve." : null}
         contentBgColor={themeStyles.colors.gradient3}
