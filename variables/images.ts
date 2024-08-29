@@ -28,7 +28,7 @@ export const TOKEN_IMAGES = {
     "INV": IMAGES.INV,
     "DBR": IMAGES.DBR,
     "THREECRV": IMAGES["3CRV"],
-    "sUSDE": "https://assets.coingecko.com/coins/images/33669/standard/sUSDe-Symbol-Color.png?1716307680",
+    "sUSDe": "https://assets.coingecko.com/coins/images/33669/standard/sUSDe-Symbol-Color.png?1716307680",
     "COMP": "https://assets.coingecko.com/coins/images/10775/standard/COMP.png?1696510737",
     "FEI": "https://assets.coingecko.com/coins/images/14570/standard/ZqsF51Re_400x400.png?1696514251",
     "MIM": "https://assets.coingecko.com/coins/images/16786/standard/mimlogopng.png?1696516358",

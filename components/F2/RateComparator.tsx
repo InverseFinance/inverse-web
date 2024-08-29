@@ -46,10 +46,13 @@ const ProjectToken = ({ project, borrowToken, isMobile = false, themeStyles }: {
     </HStack>
 }
 
-const CollateralToken = ({ collateral, isMobile = false, themeStyles }: { project: string }) => {
+const CollateralToken = ({ collateral, isMobile = false, themeStyles, showImage = false }: { project: string, isMobile: boolean, themeStyles: any, showImage: boolean }) => {
     const { themeStyles: prefThemeStyles } = useAppTheme();
     const _themeStyles = themeStyles || prefThemeStyles;
     return <HStack spacing='4'>
+        {
+            showImage && <Image borderRadius="50px" src={TOKEN_IMAGES[collateral]} h={isMobile ? '20px' : '40px'} />
+        }
         <Text color={_themeStyles.colors.mainTextColor} fontWeight="extrabold" fontSize={isMobile ? '16px' : '24px'}>
             {collateral}
         </Text>
@@ -128,7 +131,7 @@ const RateListItem = ({ fields, project, borrowRate, borrowToken, collateral, ty
 const GroupedRateListItem = ({ fields, bestCompetitorProject, firmRate, bestCompetitorRate, collateral, themeStyles }) => {
     const comps = {
         'bestCompetitorProject': <Project project={bestCompetitorProject} themeStyles={themeStyles} />,
-        'collateral': <CollateralToken collateral={collateral || 'Multiple'} themeStyles={themeStyles} />,
+        'collateral': <CollateralToken showImage={true} collateral={collateral || 'Multiple'} themeStyles={themeStyles} />,
         'firmRate': <Text w="100px" textAlign="center" color={firmRate <= bestCompetitorRate ? themeStyles.colors.success : themeStyles.colors.mainTextColor} fontWeight="extrabold" fontSize="24px">
             {firmRate ? shortenNumber(firmRate, 2) + '%' : '-'}
         </Text>,
