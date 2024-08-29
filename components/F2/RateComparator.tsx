@@ -225,9 +225,15 @@ const columns = [
 const mobileThreshold = 1000;
 
 const FIELDS = columns.reduce((prev, curr) => ({ ...prev, [curr.field]: curr.label }), {});
+
+const LogoCol = () => {
+    const { themeName } = useAppTheme();
+    return <Image src={`/assets/firm/${themeName === 'light' ? 'firm-final-logo.png' : 'firm-final-logo-white.png'}`} transform="translateX(1.5px)" w="100px" />
+}
+
 const GROUPED_FIELDS = {
     'collateral': 'Collateral',
-    'firmRate': <Image src={`/assets/firm/firm-final-logo.png`} w="100px" />,
+    'firmRate': <LogoCol />,
     'bestCompetitorRate': "Best Variable Rate",
     'bestCompetitorProject': 'Competitor',
 };
