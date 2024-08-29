@@ -284,7 +284,7 @@ const cvxConstants = {
 
 // Convex rewards uses a specific calculation method...
 // check mint (not _mint) function here: https://etherscan.io/address/0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B#code
-const getCrvToCvxReward = (crvRewardBn: BigNumber, supplyBn: BigNumber): number => {
+export const getCrvToCvxReward = (crvRewardBn: BigNumber, supplyBn: BigNumber): number => {
   const crvReward = getBnToNumber(crvRewardBn);
   const supply = getBnToNumber(supplyBn);
   const cliff = supply / cvxConstants.reductionPerCliff;
