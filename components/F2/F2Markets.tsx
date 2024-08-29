@@ -162,12 +162,12 @@ export const MarketInfos = ({ name, nameAndIcon, ...props }) => {
 }
 
 export const MarketNameAndIcon = ({ marketIcon, icon, underlying, name }) => {
-    return <HStack justify="flex-start" alignItems="center" spacing="2" w='full'>
+    return <HStack maxW='180px' justify="flex-start" alignItems="center" spacing="2" w='full'>
         {
             !underlying.isLP ? <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
             : <LPImages alternativeDisplay={true} lpToken={{ pairs: underlying.pairs, image: underlying.image, protocolImage: underlying.protocolImage }} chainId={1} imgSize={18} />
         }
-        <CellText fontWeight="bold" fontSize={{ base: '18px', '2xl': '20px' }}>{name}</CellText>
+        <CellText textOverflow="clip" overflow="hidden" whiteSpace="nowrap" fontWeight="bold" fontSize={{ base: '18px', '2xl': name.length > 12 ? '16px' : '20px' }}>{name}</CellText>
     </HStack>
 }
 
@@ -221,7 +221,7 @@ const columns = [
         value: ({ supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel }) => {
             return <Cell spacing="0" direction="column" minWidth="140px" alignItems="center" justify="center" fontSize="14px">
                 <AnchorPoolInfo
-                    protocolImage={underlying.protocolImage}
+                    // protocolImage={underlying.protocolImage}
                     value={supplyApy}
                     valueExtra={extraApy}
                     valueLow={supplyApyLow}
