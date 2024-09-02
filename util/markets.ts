@@ -389,6 +389,17 @@ export const getGOhmData = async () => {
     }
 }
 
+export const getYvCrvUsdDOLAData = async () => {
+    try {
+        const results = await fetch("https://ydaemon.yearn.fi/1/vaults/0xfb5137Aa9e079DB4b7C2929229caf503d0f6DA96");
+        const data = await results.json();
+        return { apy: data?.apr?.netAPR * 100 };
+    } catch (e) {
+        console.log(e)
+        return { apy: 0 }
+    }
+}
+
 export const getXSushiData = async (nbDays = 7) => {
     let apy = 0;
     // const period = 365;
