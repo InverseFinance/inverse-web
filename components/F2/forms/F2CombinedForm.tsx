@@ -418,13 +418,7 @@ export const F2CombinedForm = ({
                                 customRecipient={customRecipient}
                                 placeholder={account}
                             />
-                        }
-                        {
-                            useLeverage && market.isERC4626Collateral && ['Deposit & Borrow'].includes(mode) &&
-                            <InfoMessage alertProps={{ w: 'full' }} description={
-                                <Text><b>Note:</b> in this market the <b>deposit and leverage action uses {market.underlyingSymbol} as the deposit asset instead of {market.underlying.symbol}</b>, if you prefer using {market.underlying.symbol}, you can deposit it first and then borrow with the leverage enabled in a second transaction.</Text>
-                            } />
-                        }
+                        }                        
                     </>
                         : <Text>Nothing to withdraw</Text>
                 }

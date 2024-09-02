@@ -95,7 +95,8 @@ export const F2Context = ({
     const colDecimals = market.underlying.decimals;
 
     // at the moment ALE only support the underlying when depositing and leveraging up
-    const isUnderlyingAsInputCase = mode === 'Deposit & Borrow' && useLeverage && market.isERC4626Collateral;
+    // edit: fixed with the new ale contract
+    const isUnderlyingAsInputCase = false//mode === 'Deposit & Borrow' && useLeverage && market.isERC4626Collateral;
     const inputToken = isUnderlyingAsInputCase && market.isERC4626Collateral ? market.aleData.buySellToken : market.collateral;    
 
     const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt, bnLeftToBorrow, leftToBorrow, liquidationPrice, escrow, underlyingExRate, inputBalance, bnInputBalance } = useAccountDBRMarket(market, account, isUseNativeCoin, inputToken);   
