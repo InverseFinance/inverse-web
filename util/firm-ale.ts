@@ -89,6 +89,7 @@ export const prepareLeveragePosition = async (
                 dbrData,
                 initialDeposit,
                 value,
+                true,
             )
         }
         return leveragePosition(
@@ -129,11 +130,12 @@ export const depositAndLeveragePosition = (
     dbrTuple: any[],
     initialDeposit: BigNumber,
     ethValue?: string,
+    depositCollateral = true,
 ) => {
     return callWithHigherGL(
         getAleContract(signer),
         'depositAndLeveragePosition',
-        [initialDeposit, dolaToBorrow, marketAd, zeroXspender, swapData, permitTuple, helperTransformData, dbrTuple],
+        [initialDeposit, dolaToBorrow, marketAd, zeroXspender, swapData, permitTuple, helperTransformData, dbrTuple, depositCollateral],
         200000,
         { value: ethValue },
     )
