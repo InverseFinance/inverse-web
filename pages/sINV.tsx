@@ -3,9 +3,9 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
 import { useAccount } from '@app/hooks/misc';
-import { DolaStakingTabs } from '@app/components/F2/DolaStaking/DolaStakingTabs';
 import { useDbrAuctionActivity } from '@app/util/dbr-auction';
 import { StakeInvUI } from '@app/components/sINV/StakeInvUI';
+import { SINVTabs } from '@app/components/sINV/sINVTabs';
 
 export const SdolaPage = () => {
   const account = useAccount();
@@ -22,7 +22,7 @@ export const SdolaPage = () => {
         <meta name="og:image" content="https://inverse.finance/assets/sDOLAx512.png" />
       </Head>
       <AppNav active="sINV" activeSubmenu="sINV" />
-      <DolaStakingTabs />
+      <SINVTabs />
       <VStack
         w={{ base: 'full', lg: '1200px' }}
         mt='6'
