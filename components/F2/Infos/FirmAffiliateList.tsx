@@ -241,9 +241,9 @@ export const FirmAffiliateList = ({
 
     const affiliateList = affiliatesPublicData.map(affiliateData => {
         const affiliate = affiliateData.affiliate;
-        const referredList = referredPositions.filter(rp => rp.affiliate === affiliate);
+        const referredList = referredPositions.filter(rp => rp.affiliate.toLowerCase() === affiliate?.toLowerCase());
         const affiliateRewards = referredList.reduce((prev, curr) => prev + curr.affiliateRewards, 0);
-        const paidRewards = affiliatePaymentEvents.filter(pe => pe.affiliate === affiliate).reduce((prev, curr) => prev + curr.amount, 0);
+        const paidRewards = affiliatePaymentEvents.filter(pe => pe.affiliate.toLowerCase() === affiliate?.toLowerCase()).reduce((prev, curr) => prev + curr.amount, 0);
         return {
             ...affiliateData,
             nbReferred: referredList.length,
@@ -260,7 +260,7 @@ export const FirmAffiliateList = ({
     const totalPaidRewards = affiliateList.reduce((prev, curr) => prev + curr.paidRewards, 0);
     const totalPendingRewards = affiliateList.reduce((prev, curr) => prev + curr.pendingRewards, 0);
 
-    const selectedAffiliateReferrals = referredPositions.filter(rp => rp.affiliate === selectedAffiliate);
+    const selectedAffiliateReferrals = referredPositions.filter(rp => rp.affiliate.toLowerCase() === selectedAffiliate?.toLowerCase());
 
     const changeStatus = async (newStatus: string) => {
         if (provider && !!account) {
