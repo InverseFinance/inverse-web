@@ -12,13 +12,14 @@ import { getAvgOnLastItems, preciseCommify, timestampToUTC } from "@app/util/mis
 import { useDOLABalance } from "@app/hooks/useDOLA";
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
 import { useDBRPrice } from "@app/hooks/useDBR";
-import { getMonthlyRate, shortenNumber } from "@app/util/markets";
+import { getBnToNumber, getMonthlyRate, shortenNumber } from "@app/util/markets";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { TextInfo } from "../common/Messages/TextInfo";
 import { ONE_DAY_MS, SINV_ADDRESS, SECONDS_PER_BLOCK } from "@app/config/constants";
 import { useAccount } from "@app/hooks/misc";
 import { useDbrAuctionActivity } from "@app/util/dbr-auction";
 import { StakeInvInfos } from "./StakeInvInfos";
+import useEtherSWR from "@app/hooks/useEtherSWR";
 
 const { INV } = getNetworkConfigConstants();
 
@@ -51,8 +52,11 @@ export const StakeInvUI = () => {
 
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
     const { apy, projectedApy, isLoading, sDolaExRate, sDolaTotalAssets, weeklyRevenue } = useStakedDola(dbrDolaPrice, !invAmount || isNaN(parseFloat(invAmount)) ? 0 : isStake ? parseFloat(invAmount) : -parseFloat(invAmount));
-    const { evolution, timestamp: lastDailySnapTs, isLoading: isLoadingEvolution } = useDolaStakingEvolution();
-    const { balance: dolaBalance } = useDOLABalance(account);
+    const { evolution, timestamp: lastDailySnapTs, isLoading: isLoadingEvolution } = useDolaStakingEvolution();    
+    const { data: invBalanceBn } = useEtherSWR(
+        [INV, 'balanceOf', account],
+    );
+    const invBalance = invBalanceBn ? getBnToNumber(invBalanceBn) : 0;
     // value in sINV terms
     const { stakedDolaBalance, stakedDolaBalanceBn } = useDolaStakingEarnings(account);
     const [previousStakedDolaBalance, setPrevStakedDolaBalance] = useState(stakedDolaBalance);
@@ -144,36 +148,10 @@ export const StakeInvUI = () => {
             <HStack justify="space-between" w='full'>
                 <StatBasic message="This week's APY is calculated with last week's DBR auction revenues and assuming a weekly auto-compounding" isLoading={isLoading} name="Current APY" value={apy ? `${shortenNumber(apy, 2)}%` : '-'} />
                 <StatBasic message={"The projected APY is a theoretical estimation of where the APY should tend to go. It's calculated by considering current's week auction revenue and a forecast that considers the DBR incentives, where the forecast portion has a weight of more than 50%"} isLoading={isLoading} name="Projected APY" value={projectedApy ? `${shortenNumber(projectedApy, 2)}%` : '-'} />
-            </HStack>
-            <SuccessMessage
-                showIcon={false}
-                alertProps={{ w: 'full' }}
-                description={
-                    <VStack alignItems="flex-start">
-                        {
-                            monthlyDolaRewards > 0 && <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
-                                <Text>- Your rewards: </Text>
-                                <Text><b>~{preciseCommify(monthlyDolaRewards, 2)} INV per month</b></Text>
-                            </Stack>
-                        }
-                        <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
-                            <Text>- 30-day average APY:</Text>
-                            <Text><b>{thirtyDayAvg ? `${shortenNumber(thirtyDayAvg, 2)}%` : '-'}</b></Text>
-                        </Stack>
-                        <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
-                            <Text>- Total staked:</Text>
-                            <Text><b>{sDolaTotalAssets ? `${shortenNumber(sDolaTotalAssets, 2)} INV` : '-'}</b></Text>
-                        </Stack>
-                        <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
-                            <Text>- Total earnings by all holders:</Text>
-                            <Text><b>{sDolaHoldersTotalEarnings ? `${shortenNumber(sDolaHoldersTotalEarnings, 2)} INV` : '-'}</b></Text>
-                        </Stack>
-                    </VStack>
-                }
-            />
+            </HStack>            
         </VStack>
         <Container
-            label="sINV - Yield-Bearing stablecoin"
+            label="sINV - Auto-Compounding Vault"
             description="See contract"
             href={`https://etherscan.io/address/${SINV_ADDRESS}`}
             noPadding
@@ -190,7 +168,7 @@ export const StakeInvUI = () => {
                             {
                                 tab !== 'Infos' && <VStack alignItems="flex-start" w='full' justify="space-between">
                                     <Text fontSize="18px">
-                                        INV balance in wallet: <b>{dolaBalance ? preciseCommify(dolaBalance, 2) : '-'}</b>
+                                        INV balance in wallet: <b>{invBalance ? preciseCommify(invBalance, 2) : '-'}</b>
                                     </Text>
                                     <Text fontSize="18px">
                                         Staked INV: <b>{dolaStakedInSDola ? preciseCommify(realTimeBalance, 8) : '-'}</b>
