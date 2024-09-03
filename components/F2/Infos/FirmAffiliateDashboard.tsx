@@ -20,6 +20,7 @@ import { RSubmitButton } from "@app/components/common/Button/RSubmitButton";
 import { ReferToModal } from "@app/components/common/Modal/ReferToModal";
 import { DashBoardCard } from "../UserDashboard";
 import { InfoMessage } from "@app/components/common/Messages";
+import { ONE_DAY_MS } from "@app/config/constants";
 
 const StatBasic = ({ value, name, onClick = undefined, isLoading = false }: { value: string, onClick?: () => void, name: string, isLoading?: boolean }) => {
     return <VStack>
@@ -65,6 +66,14 @@ const columns = [
         header: ({ ...props }) => <ColHeader justify="flex-start" minWidth={'100px'} {...props} />,
         value: ({ refTimestamp }) => <Cell justify="flex-start" minWidth="100px">
             <Timestamp timestamp={refTimestamp} text1Props={{ fontSize: '12px' }} text2Props={{ fontSize: '12px' }} />
+        </Cell>,
+    },
+    {
+        field: 'refEndTimestamp',
+        label: 'End Date',
+        header: ({ ...props }) => <ColHeader justify="flex-start" minWidth={'100px'} {...props} />,
+        value: ({ refEndTimestamp }) => <Cell justify="flex-start" minWidth="100px">
+            <Timestamp timestamp={refEndTimestamp} text1Props={{ fontSize: '12px' }} text2Props={{ fontSize: '12px' }} />
         </Cell>,
     },
     {
@@ -214,6 +223,7 @@ export const FirmAffiliateDashboard = ({
                 pendingRewards: affiliateRewards - paidRewards,
                 accSinceRef,
                 refTimestamp: refData?.timestamp,
+                refEndTimestamp: refData?.timestamp + ONE_DAY_MS * 365,
             }
         });
 
