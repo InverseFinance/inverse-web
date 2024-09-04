@@ -193,6 +193,19 @@ const MarketCell = ({ icon, marketIcon, underlying, badgeInfo, badgeProps, name 
     </Cell>
 }
 
+const CollateralFactorCell = ({ collateralFactor, borrowPaused }: { collateralFactor: number, borrowPaused: boolean }) => {
+    const [isSmallerThan] = useMediaQuery(`(max-width: ${responsiveThreshold}px)`);
+    return <Cell spacing="0" direction="column" minWidth="70px" alignItems={isSmallerThan ? 'flex-end' : 'center'} justify="center" >
+        <CellText>{shortenNumber(collateralFactor * 100, 0)}%</CellText>
+        {
+            !borrowPaused && <>
+                {!isSmallerThan && <CellText>&nbsp;</CellText>}
+                <CellText color="mainTextColorLight" transform={isSmallerThan ? undefined : 'translateY(10px)'} position={isSmallerThan ? 'static' : 'absolute'} fontSize="12px">Long up to x{calculateMaxLeverage(collateralFactor).toFixed(2)}</CellText>
+            </>
+        }
+    </Cell>
+}
+
 const columns = [
     {
         field: 'name',
@@ -259,15 +272,7 @@ const columns = [
             <Text><b>Long up to</b>: theoretical maximum leverage with DOLA at $1 and borrow limit at 100%</Text>
         </VStack>,
         value: ({ collateralFactor, borrowPaused }) => {
-            return <Cell spacing="0" direction="column" minWidth="70px" alignItems="center" justify="center" >
-                <CellText>{shortenNumber(collateralFactor * 100, 0)}%</CellText>
-                {
-                    !borrowPaused && <>
-                        <CellText>&nbsp;</CellText>
-                        <CellText color="mainTextColorLight" transform="translateY(10px)" position="absolute" fontSize="12px">Long up to x{calculateMaxLeverage(collateralFactor).toFixed(2)}</CellText>
-                    </>
-                }
-            </Cell>
+            return <CollateralFactorCell collateralFactor={collateralFactor} borrowPaused={borrowPaused} />
         },
     },
     {
