@@ -161,11 +161,10 @@ export const MarketNameAndIcon = ({ marketIcon, icon, underlying, name }) => {
     </HStack>
 }
 
-const MarketCell = ({ icon, marketIcon, underlying, badgeInfo, badgeProps, name }) => {
-    const [isSmallerThan] = useMediaQuery(`(max-width: ${responsiveThreshold}px)`);
+const MarketCell = ({ icon, marketIcon, underlying, badgeInfo, badgeProps, name, _isMobileCase }) => {
     const nameAndIcon = <MarketNameAndIcon name={name} icon={icon} marketIcon={marketIcon} underlying={underlying} />
     return <Cell minWidth="110px" position="relative">
-        <Popover closeOnBlur={true} trigger="hover" isLazy placement="right-end" strategy={isSmallerThan ? 'fixed' : 'absolute'}>
+        <Popover closeOnBlur={true} trigger="hover" isLazy placement="right-end" strategy={_isMobileCase ? 'fixed' : 'absolute'}>
             <PopoverTrigger>
                 <Cell minWidth='110px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
                     <HStack onClick={(e) => e.stopPropagation()} spacing="1" w="fit-content">
@@ -184,12 +183,24 @@ const MarketCell = ({ icon, marketIcon, underlying, badgeInfo, badgeProps, name 
                     }
                 </Cell>
             </PopoverTrigger>
-            <PopoverContent transform="translateX(300px)" bgColor="containerContentBackground" zIndex="99" border="1px solid #ccc" _focus={{ outline: 'none' }} maxW={isSmallerThan ? '100vw' : '98vw'} w='600px'>
+            <PopoverContent transform="translateX(300px)" bgColor="containerContentBackground" zIndex="99" border="1px solid #ccc" _focus={{ outline: 'none' }} maxW={_isMobileCase ? '100vw' : '98vw'} w='600px'>
                 <PopoverBody>
                     <MarketInfos nameAndIcon={nameAndIcon} name={name} />
                 </PopoverBody>
             </PopoverContent>
         </Popover>
+    </Cell>
+}
+
+const CollateralFactorCell = ({ collateralFactor, borrowPaused, _isMobileCase }: { collateralFactor: number, borrowPaused: boolean, _isMobileCase: boolean }) => {
+    return <Cell spacing="0" direction="column" minWidth="70px" alignItems={_isMobileCase ? 'flex-end' : 'center'} justify="center" >
+        <CellText>{shortenNumber(collateralFactor * 100, 0)}%</CellText>
+        {
+            !borrowPaused && <>
+                {!_isMobileCase && <CellText>&nbsp;</CellText>}
+                <CellText color="mainTextColorLight" transform={_isMobileCase ? undefined : 'translateY(10px)'} position={_isMobileCase ? 'static' : 'absolute'} fontSize="12px">Long up to x{calculateMaxLeverage(collateralFactor).toFixed(2)}</CellText>
+            </>
+        }
     </Cell>
 }
 
@@ -258,16 +269,8 @@ const columns = [
             <Text><b>Collateral Factor</b>: maximum percentage of collateral value that can be used for borrowing.</Text>
             <Text><b>Long up to</b>: theoretical maximum leverage with DOLA at $1 and borrow limit at 100%</Text>
         </VStack>,
-        value: ({ collateralFactor, borrowPaused }) => {
-            return <Cell spacing="0" direction="column" minWidth="70px" alignItems="center" justify="center" >
-                <CellText>{shortenNumber(collateralFactor * 100, 0)}%</CellText>
-                {
-                    !borrowPaused && <>
-                        <CellText>&nbsp;</CellText>
-                        <CellText color="mainTextColorLight" transform="translateY(10px)" position="absolute" fontSize="12px">Long up to x{calculateMaxLeverage(collateralFactor).toFixed(2)}</CellText>
-                    </>
-                }
-            </Cell>
+        value: ({ collateralFactor, borrowPaused, _isMobileCase }) => {
+            return <CollateralFactorCell _isMobileCase={_isMobileCase} collateralFactor={collateralFactor} borrowPaused={borrowPaused} />
         },
     },
     {
@@ -427,7 +430,7 @@ export const F2Markets = ({
         .filter(m => m.depositsUsd > 1 || m.debt > 1);
 
     const withoutDeposits = accountMarketsWithoutPhasingOutMarkets
-        .filter(m => m.deposits <= 1 && m.debt <= 1);
+        .filter(m => !(m.depositsUsd > 1 || m.debt > 1));
 
     const depositsUsd = withDeposits.reduce((prev, curr) => prev + curr.depositsUsd, 0);
 
