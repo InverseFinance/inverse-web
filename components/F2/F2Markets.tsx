@@ -430,7 +430,7 @@ export const F2Markets = ({
         .filter(m => m.depositsUsd > 1 || m.debt > 1);
 
     const withoutDeposits = accountMarketsWithoutPhasingOutMarkets
-        .filter(m => m.deposits <= 1 && m.debt <= 1);
+        .filter(m => !(m.depositsUsd > 1 || m.debt > 1));
 
     const depositsUsd = withDeposits.reduce((prev, curr) => prev + curr.depositsUsd, 0);
 
