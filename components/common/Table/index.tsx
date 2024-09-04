@@ -94,6 +94,7 @@ export const MobileTable = ({
                   minW: '0',
                   textAlign: 'right',
                   alignItems: 'flex-end',
+                  _isMobileCase: true,
                   onClick: (isNotFirstCol || !onClick) ? undefined : (e) => onClick(item, e),
                 }, <>{Value.props.children}</>);
 
