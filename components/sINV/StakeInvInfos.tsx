@@ -2,8 +2,8 @@ import Link from "@app/components/common/Link"
 import { InfoMessage } from "@app/components/common/Messages"
 import { ONE_DAY_MS, SECONDS_PER_BLOCK } from "@app/config/constants"
 import { useDBRPrice } from "@app/hooks/useDBR"
-import { useStakedDola } from "@app/util/dola-staking"
 import { preciseCommify } from "@app/util/misc"
+import { useStakedInv } from "@app/util/sINV"
 import { ExternalLinkIcon } from "@chakra-ui/icons"
 import { HStack, SkeletonText, Stack, Text, VStack, useInterval } from "@chakra-ui/react"
 import { useEffect, useState } from "react"
@@ -15,8 +15,8 @@ const MS_PER_BLOCK = SECONDS_PER_BLOCK * 1000;
 
 export const StakeInvInfos = () => {
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
-    const { apy, sDolaSupply, sDolaTotalAssets, yearlyRewardBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, weeklyRevenue, pastWeekRevenue, yearlyDbrEarnings, isLoading } = useStakedDola(dbrDolaPrice);
-    const [previousSupply, setPreviousSupply] = useState(sDolaSupply);    
+    const { apy, sInvSupply, sInvTotalAssets, yearlyRewardBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, periodRevenue, pastPeriodRevenue, yearlyDbrEarnings, isLoading } = useStakedInv(dbrDolaPrice);
+    const [previousSupply, setPreviousSupply] = useState(sInvSupply);    
     const [realTimeBalance, setRealTimeBalance] = useState(0);
 
     useInterval(() => {            
@@ -28,20 +28,20 @@ export const StakeInvInfos = () => {
 
     // every ~12s recheck base balance
     useInterval(() => {
-        if(realTimeBalance > sDolaTotalAssets) return;
-        setRealTimeBalance(sDolaTotalAssets);        
+        if(realTimeBalance > sInvTotalAssets) return;
+        setRealTimeBalance(sInvTotalAssets);        
     }, MS_PER_BLOCK);
 
     useEffect(() => {
-        if(previousSupply === sDolaSupply) return;        
-        setRealTimeBalance(sDolaTotalAssets);
-        setPreviousSupply(sDolaSupply);
-    }, [sDolaSupply, previousSupply, sDolaTotalAssets]);    
+        if(previousSupply === sInvSupply) return;        
+        setRealTimeBalance(sInvTotalAssets);
+        setPreviousSupply(sInvSupply);
+    }, [sInvSupply, previousSupply, sInvTotalAssets]);    
 
     useEffect(() => {
-        if(realTimeBalance > sDolaTotalAssets) return;        
-        setRealTimeBalance(sDolaTotalAssets);
-    }, [realTimeBalance, sDolaTotalAssets]);
+        if(realTimeBalance > sInvTotalAssets) return;        
+        setRealTimeBalance(sInvTotalAssets);
+    }, [realTimeBalance, sInvTotalAssets]);
 
     return <InfoMessage
         showIcon={false}
@@ -59,7 +59,7 @@ export const StakeInvInfos = () => {
                     <Link textDecoration="underline" href='https://twitter.com/InverseFinance/status/1755593147285905683' isExternal target="_blank">
                         Watch the launch video <ExternalLinkIcon />
                     </Link>
-                    <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/sdola' isExternal target="_blank">
+                    <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/sinv' isExternal target="_blank">
                         Learn more about sINV <ExternalLinkIcon />
                     </Link>                    
                 </VStack>
@@ -71,11 +71,11 @@ export const StakeInvInfos = () => {
                     </HStack>
                     <HStack w='full'>
                         <Text>- Past's week revenues from auctions:</Text>
-                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(pastWeekRevenue, 2)} INV</Text>}
+                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(pastPeriodRevenue, 2)} INV</Text>}
                     </HStack>
                     <HStack w='full'>
                         <Text>- Current week's revenues from auctions:</Text>
-                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(weeklyRevenue, 2)} INV</Text>}
+                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(periodRevenue, 2)} INV</Text>}
                     </HStack>
                 </VStack>
                 <Text fontSize="14px" fontWeight="bold">sINV Parameters</Text>
@@ -88,15 +88,11 @@ export const StakeInvInfos = () => {
                         <Text>- Max. DBR rate per year:</Text>
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(maxYearlyRewardBudget, 0)} ({preciseCommify(maxYearlyRewardBudget * dbrPrice, 0, true)})</Text>}
                     </HStack>
-                    <HStack w='full'>
+                    {/* <HStack w='full'>
                         <Text>- Max. DBR per INV:</Text>
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(maxRewardPerDolaMantissa, 2)} ({preciseCommify(maxRewardPerDolaMantissa * dbrPrice, 4, true)})</Text>}
-                    </HStack>
+                    </HStack> */}
                 </VStack>
-                <Text fontSize="14px" fontWeight="bold">Looking for the sINV auction?</Text>
-                <Link textDecoration="underline" href='/dbr/auction'>
-                    Go to auctions
-                </Link>
             </Stack>
         }
     />

@@ -1,5 +1,4 @@
 import { VStack, Text, HStack, Stack, Image, useInterval } from "@chakra-ui/react"
-import { redeemSDola, stakeDola, unstakeDola, useDolaStakingEarnings, useDolaStakingEvolution, useStakedDola } from "@app/util/dola-staking"
 import { useWeb3React } from "@web3-react/core";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
 import { useEffect, useMemo, useState } from "react";
@@ -9,7 +8,6 @@ import Container from "../common/Container";
 import { NavButtons } from "@app/components/common/Button";
 import { InfoMessage, SuccessMessage } from "@app/components/common/Messages";
 import { getAvgOnLastItems, preciseCommify, timestampToUTC } from "@app/util/misc";
-import { useDOLABalance } from "@app/hooks/useDOLA";
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
 import { useDBRPrice } from "@app/hooks/useDBR";
 import { getBnToNumber, getMonthlyRate, shortenNumber } from "@app/util/markets";
@@ -20,6 +18,7 @@ import { useAccount } from "@app/hooks/misc";
 import { useDbrAuctionActivity } from "@app/util/dbr-auction";
 import { StakeInvInfos } from "./StakeInvInfos";
 import useEtherSWR from "@app/hooks/useEtherSWR";
+import { redeemSInv, stakeInv, unstakeInv, useInvStakingEarnings, useStakedInv } from "@app/util/sINV";
 
 const { INV } = getNetworkConfigConstants();
 
@@ -51,39 +50,39 @@ export const StakeInvUI = () => {
     const isStake = tab === 'Stake';
 
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
-    const { apy, projectedApy, isLoading, sDolaExRate, sDolaTotalAssets, weeklyRevenue } = useStakedDola(dbrDolaPrice, !invAmount || isNaN(parseFloat(invAmount)) ? 0 : isStake ? parseFloat(invAmount) : -parseFloat(invAmount));
-    const { evolution, timestamp: lastDailySnapTs, isLoading: isLoadingEvolution } = useDolaStakingEvolution();    
+    const { apy, projectedApy, isLoading, sInvExRate, sInvTotalAssets, periodRevenue } = useStakedInv(dbrDolaPrice, !invAmount || isNaN(parseFloat(invAmount)) ? 0 : isStake ? parseFloat(invAmount) : -parseFloat(invAmount));
+    // const { evolution, timestamp: lastDailySnapTs, isLoading: isLoadingEvolution } = useInvStakingEvolution();    
     const { data: invBalanceBn } = useEtherSWR(
         [INV, 'balanceOf', account],
     );
     const invBalance = invBalanceBn ? getBnToNumber(invBalanceBn) : 0;
     // value in sINV terms
-    const { stakedDolaBalance, stakedDolaBalanceBn } = useDolaStakingEarnings(account);
-    const [previousStakedDolaBalance, setPrevStakedDolaBalance] = useState(stakedDolaBalance);
+    const { stakedInvBalance, stakedInvBalanceBn } = useInvStakingEarnings(account);
+    const [previousStakedDolaBalance, setPrevStakedDolaBalance] = useState(stakedInvBalance);
     const [baseBalance, setBaseBalance] = useState(0);
     const [realTimeBalance, setRealTimeBalance] = useState(0);
     // value in INV terms
-    const dolaStakedInSDola = sDolaExRate * stakedDolaBalance;
-    const sDOLAamount = invAmount ? parseFloat(invAmount) / sDolaExRate : '';
+    const invStakedInSInv = sInvExRate * stakedInvBalance;
+    const sINVamount = invAmount ? parseFloat(invAmount) / sInvExRate : '';
 
-    const sDolaAuctionBuys = auctionBuys.filter(e => e.auctionType === 'sINV')
+    const sInvAuctionBuys = auctionBuys.filter(e => e.auctionType === 'sINV')
         .reduce((prev, curr) => prev + curr.dolaIn, 0);
-    const sDolaHoldersTotalEarnings = sDolaAuctionBuys - weeklyRevenue;
+    const sInvHoldersTotalEarnings = sInvAuctionBuys - periodRevenue;
 
-    useEffect(() => {
-        if (isLoading || isLoadingEvolution || !evolution?.length) return;
-        const nowUtcDate = timestampToUTC(now);
-        const data = evolution
-            .filter(d => timestampToUTC(d.timestamp) !== nowUtcDate)
-            .concat([
-                {
-                    ...evolution[evolution.length - 1],
-                    timestamp: Date.now() - (1000 * 120),
-                    apy,
-                }
-            ]);
-        setThirtyDayAvg(getAvgOnLastItems(data, 'apy', 30));
-    }, [lastDailySnapTs, isLoadingEvolution, evolution, sDolaTotalAssets, apy, isLoading, now]);
+    // useEffect(() => {
+    //     if (isLoading || isLoadingEvolution || !evolution?.length) return;
+    //     const nowUtcDate = timestampToUTC(now);
+    //     const data = evolution
+    //         .filter(d => timestampToUTC(d.timestamp) !== nowUtcDate)
+    //         .concat([
+    //             {
+    //                 ...evolution[evolution.length - 1],
+    //                 timestamp: Date.now() - (1000 * 120),
+    //                 apy,
+    //             }
+    //         ]);
+    //     setThirtyDayAvg(getAvgOnLastItems(data, 'apy', 30));
+    // }, [lastDailySnapTs, isLoadingEvolution, evolution, sInvTotalAssets, apy, isLoading, now]);
 
     useInterval(() => {
         const curr = (realTimeBalance || baseBalance);
@@ -94,46 +93,46 @@ export const StakeInvUI = () => {
 
     // every ~12s recheck base balance
     useInterval(() => {
-        if (realTimeBalance > dolaStakedInSDola) return;
-        setRealTimeBalance(dolaStakedInSDola);
-        setBaseBalance(dolaStakedInSDola);
+        if (realTimeBalance > invStakedInSInv) return;
+        setRealTimeBalance(invStakedInSInv);
+        setBaseBalance(invStakedInSInv);
     }, MS_PER_BLOCK);
 
     useEffect(() => {
-        if (previousStakedDolaBalance === stakedDolaBalance) return;
-        setBaseBalance(dolaStakedInSDola);
-        setRealTimeBalance(dolaStakedInSDola);
-        setPrevStakedDolaBalance(stakedDolaBalance);
-    }, [stakedDolaBalance, previousStakedDolaBalance, dolaStakedInSDola]);
+        if (previousStakedDolaBalance === stakedInvBalance) return;
+        setBaseBalance(invStakedInSInv);
+        setRealTimeBalance(invStakedInSInv);
+        setPrevStakedDolaBalance(stakedInvBalance);
+    }, [stakedInvBalance, previousStakedDolaBalance, invStakedInSInv]);
 
     useEffect(() => {
-        if (!!baseBalance || !dolaStakedInSDola) return;
-        setBaseBalance(dolaStakedInSDola);
-    }, [baseBalance, dolaStakedInSDola]);
+        if (!!baseBalance || !invStakedInSInv) return;
+        setBaseBalance(invStakedInSInv);
+    }, [baseBalance, invStakedInSInv]);
 
     useDebouncedEffect(() => {
         setIsConnected(!!connectedAccount);
     }, [connectedAccount], 500);
 
-    const monthlyDolaRewards = useMemo(() => {
-        return (apy > 0 && dolaStakedInSDola > 0 ? getMonthlyRate(dolaStakedInSDola, apy) : 0);
-    }, [dolaStakedInSDola, apy]);
+    const monthlyInvRewards = useMemo(() => {
+        return (apy > 0 && invStakedInSInv > 0 ? getMonthlyRate(invStakedInSInv, apy) : 0);
+    }, [invStakedInSInv, apy]);
 
     const handleAction = async () => {
         if (isStake) {
-            return stakeDola(provider?.getSigner(), parseEther(invAmount));
+            return stakeInv(provider?.getSigner(), parseEther(invAmount));
         }
-        return unstakeDola(provider?.getSigner(), parseEther(invAmount));
+        return unstakeInv(provider?.getSigner(), parseEther(invAmount));
     }
 
     const unstakeAll = async () => {
-        return redeemSDola(provider?.getSigner(), stakedDolaBalanceBn);
+        return redeemSInv(provider?.getSigner(), stakedInvBalanceBn);
     }
 
     const resetRealTime = () => {
         setTimeout(() => {
-            setBaseBalance(dolaStakedInSDola);
-            setRealTimeBalance(dolaStakedInSDola);
+            setBaseBalance(invStakedInSInv);
+            setRealTimeBalance(invStakedInSInv);
         }, 250);
     }
 
@@ -141,7 +140,7 @@ export const StakeInvUI = () => {
         <VStack w='full' maxW='450px' spacing='4' pt='10'>
             <HStack justify="space-around" w='full'>
                 <VStack>
-                    <Image src="/assets/sDOLAx512.png" h="120px" w="120px" />
+                    <Image src="/assets/sINVx512.png" h="120px" w="120px" />
                     <Text fontSize="20px" fontWeight="bold">sINV</Text>
                 </VStack>
             </HStack>
@@ -151,7 +150,7 @@ export const StakeInvUI = () => {
             </HStack>            
         </VStack>
         <Container
-            label="sINV - Auto-Compounding Vault"
+            label="sINV - Auto-Compounding Tokenized Vault"
             description="See contract"
             href={`https://etherscan.io/address/${SINV_ADDRESS}`}
             noPadding
@@ -171,7 +170,7 @@ export const StakeInvUI = () => {
                                         INV balance in wallet: <b>{invBalance ? preciseCommify(invBalance, 2) : '-'}</b>
                                     </Text>
                                     <Text fontSize="18px">
-                                        Staked INV: <b>{dolaStakedInSDola ? preciseCommify(realTimeBalance, 8) : '-'}</b>
+                                        Staked INV: <b>{invStakedInSInv ? preciseCommify(realTimeBalance, 8) : '-'}</b>
                                     </Text>
                                 </VStack>
                             }
@@ -218,7 +217,7 @@ export const StakeInvUI = () => {
                                             maxActionLabel={`Unstake all`}
                                             actionLabel={`Unstake`}
                                             onAmountChange={(v) => setInvAmount(v)}
-                                            showMaxBtn={stakedDolaBalance > 0}
+                                            showMaxBtn={stakedInvBalance > 0}
                                             showMax={false}
                                             hideInputIfNoAllowance={false}
                                             showBalance={false}
@@ -236,7 +235,7 @@ export const StakeInvUI = () => {
                                             {isStake ? 'sINV to receive' : 'sINV to exchange'}:
                                         </Text>
                                         <Text fontSize="16px" color="mainTextColorLight2">
-                                            {sDOLAamount ? preciseCommify(sDOLAamount, 2) : '-'}
+                                            {sINVamount ? preciseCommify(sINVamount, 2) : '-'}
                                         </Text>
                                     </HStack>
                                     <HStack>
@@ -244,7 +243,7 @@ export const StakeInvUI = () => {
                                             INV-sINV exchange rate:
                                         </Text>
                                         <Text fontSize="16px" color="mainTextColorLight2">
-                                            {sDolaExRate ? shortenNumber(1 / sDolaExRate, 6) : '-'}
+                                            {sInvExRate ? shortenNumber(1 / sInvExRate, 6) : '-'}
                                         </Text>
                                     </HStack>
                                 </VStack>
