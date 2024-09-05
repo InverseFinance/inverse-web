@@ -1,7 +1,7 @@
 import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks';
 import { BOND_V2_AGGREGATOR, BOND_V2_FIXED_TERM, BOND_V2_FIXED_TERM_TELLER } from '@app/variables/bonds';
 import { BONDS } from '@app/variables/tokens';
-import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, DOLA_SAVINGS_ADDRESS, DWF_PURCHASER, SDOLA_ADDRESS, SDOLA_HELPER_ADDRESS } from './constants';
+import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, DOLA_SAVINGS_ADDRESS, DWF_PURCHASER, SDOLA_ADDRESS, SDOLA_HELPER_ADDRESS, SINV_ADDRESS, SINV_ESCROW_ADDRESS, SINV_HELPER_ADDRESS } from './constants';
 
 // TODO: Clean-up ABIs
 export const COMPTROLLER_ABI = [
@@ -589,27 +589,40 @@ export const DOLA_SAVINGS_ABI = [
   "event Unstake(address indexed caller, uint amount)",
   "event Claim(address indexed caller, address indexed recipient, uint amount)",
 ];
-// sDOLA is ERC4626, 
-export const SDOLA_ABI = [
+// ERC4626, 
+const SVAULT_ABI = [
   "function buyDBR(uint, uint) public",
   "function deposit(uint assets, address receiver) public",
   "function withdraw(uint assets, address receiver, address owner) public",
   "function redeem(uint assets, address receiver, address owner) public",
   "function totalAssets() public view returns (uint)",
-  "function totalSupply() public view returns (uint)",
-  "function getDolaReserve() public view returns (uint)",
+  "function totalSupply() public view returns (uint)",  
   "function getDbrReserve() public view returns (uint)",
   "function weeklyRevenue(uint) public view returns (uint)",
   "function balanceOf(address) public view returns (uint)",
   "event Buy(address indexed caller, address indexed to, uint dolaIn, uint dbrOut)",
   "event Deposit(address indexed caller, address indexed owner, uint assets, uint shares)",
   "event Withdraw(address indexed caller, address indexed receiver, address indexed owner, uint assets, uint shares)",
+]
+export const SDOLA_ABI = [
+  ...SVAULT_ABI,
+  "function getDolaReserve() public view returns (uint)",
 ];
+export const SINV_ABI = [
+  ...SVAULT_ABI,
+  "function getInvReserve() public view returns (uint)",
+]
 export const SDOLA_HELPER_ABI = [
   "function getDbrOut(uint _dolaIn) public view returns (uint _dbrOut)",
   "function getDolaIn(uint dbrOut) public view returns (uint dolaIn)",
   "function swapExactDolaForDbr(uint dolaIn, uint dbrOutMin) external returns (uint dbrOut)",
   "function swapDolaForExactDbr(uint dbrOut, uint dolaInMax) external returns (uint dolaIn)",
+];
+export const SINV_HELPER_ABI = [
+  "function getDbrOut(uint _invIn) public view returns (uint _dbrOut)",
+  "function getInvIn(uint dbrOut) public view returns (uint invIn)",
+  "function swapExactInvForDbr(uint invIn, uint dbrOutMin) external returns (uint dbrOut)",
+  "function swapInvForExactDbr(uint dbrOut, uint invInMax) external returns (uint invIn)",
 ];
 
 export const VE_NFT_ABI = [
@@ -697,7 +710,10 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [DBR_AUCTION_ADDRESS, DBR_AUCTION_ABI],
         [DBR_AUCTION_HELPER_ADDRESS, DBR_AUCTION_HELPER_ABI],
         [DOLA_SAVINGS_ADDRESS, DOLA_SAVINGS_ABI],
-        [SDOLA_HELPER_ADDRESS, SDOLA_HELPER_ABI],        
+        [SDOLA_HELPER_ADDRESS, SDOLA_HELPER_ABI],    
+        [SINV_HELPER_ADDRESS, SINV_HELPER_ABI],
+        [SINV_ADDRESS, SINV_ABI],
+        [SINV_ESCROW_ADDRESS, F2_ESCROW_ABI],
         ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...MULTISIGS.map((m) => [m.address, MULTISIG_ABI]),
         ...Object.values(BONDS).map((bond) => [bond.bondContract, BONDS_ABIS[bond.abiType]]),
