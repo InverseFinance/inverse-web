@@ -123,6 +123,9 @@ export const F2CombinedForm = ({
         inputAmountNum,
         inputBalance,
         bnInputBalance,
+        setIsUnderlyingAsInputCaseSelected,
+        isUnderlyingAsInputCaseSelected,
+        hasUnderlyingAsInputCase,
     } = useContext(F2MarketContext);
 
     const { isMultisig } = useMultisig();
@@ -189,6 +192,7 @@ export const F2CombinedForm = ({
                     aleSlippage,
                     isAutoDBR ? dbrBuySlippage : undefined,
                     isAutoDBR ? duration : 0,
+                    isDepositCollateral,
                 );
             }
             else if (isAutoDBR || isUseNativeCoin) {
@@ -418,7 +422,13 @@ export const F2CombinedForm = ({
                                 customRecipient={customRecipient}
                                 placeholder={account}
                             />
-                        }                        
+                        }
+                        {
+                            hasUnderlyingAsInputCase &&
+                            <InfoMessage alertProps={{ w: 'full' }} description={
+                                <Text>Deposit and leverage: you can deposit either <b onClick={() => setIsUnderlyingAsInputCaseSelected(true)} style={{ textDecoration: 'underline', cursor: 'pointer', fontWeight: isUnderlyingAsInputCaseSelected ? 'bold' : 'normal' }}>{market.underlyingSymbol}</b> or <b onClick={() => setIsUnderlyingAsInputCaseSelected(false)} style={{ textDecoration: 'underline', cursor: 'pointer', fontWeight: isUnderlyingAsInputCaseSelected ? 'normal' : 'bold' }}>{market.underlying.symbol}</b></Text>
+                            } />
+                        }
                     </>
                         : <Text>Nothing to withdraw</Text>
                 }

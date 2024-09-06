@@ -16,6 +16,7 @@ import { useDOLAPrice } from '@app/hooks/usePrices'
 import { useStakedInFirm } from '@app/hooks/useFirm'
 import { INV_STAKERS_ONLY } from '@app/config/features'
 import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
+import { BURN_ADDRESS } from '@app/config/constants'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -76,6 +77,7 @@ export const F2Context = ({
     const [leverageLoading, setLeverageLoading] = useState(false);
     const [isTriggerLeverageFetch, setIsTriggerLeverageFetch] = useState(false);
     const [customRecipient, setCustomRecipient] = useState('');
+    const [isUnderlyingAsInputCaseSelected, setIsUnderlyingAsInputCaseSelected] = useState(false);
     const [mode, setMode] = useState('Deposit & Borrow');
     
     const [infoTab, setInfoTab] = useState('Summary');
@@ -94,10 +96,10 @@ export const F2Context = ({
     const { value: notFirstTime, setter: setNotFirstTime } = useStorage('firm-first-time-modal-no-more');
     const colDecimals = market.underlying.decimals;
 
-    // at the moment ALE only support the underlying when depositing and leveraging up
-    // edit: fixed with the new ale contract
-    const isUnderlyingAsInputCase = false//mode === 'Deposit & Borrow' && useLeverage && market.isERC4626Collateral;
-    const inputToken = isUnderlyingAsInputCase && market.isERC4626Collateral ? market.aleData.buySellToken : market.collateral;    
+    // deposit and leverage can use either the underlying or the collateral as input
+    const hasUnderlyingAsInputCase = mode === 'Deposit & Borrow' && useLeverage && (market.aleData.buySellToken !== market.collateral && market.aleData.buySellToken !== BURN_ADDRESS);
+    const isUnderlyingAsInputCase = hasUnderlyingAsInputCase && isUnderlyingAsInputCaseSelected;
+    const inputToken = isUnderlyingAsInputCase ? market.aleData.buySellToken : market.collateral;
 
     const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt, bnLeftToBorrow, leftToBorrow, liquidationPrice, escrow, underlyingExRate, inputBalance, bnInputBalance } = useAccountDBRMarket(market, account, isUseNativeCoin, inputToken);   
     const { balance: dolaBalance, bnBalance: bnDolaBalance } = useDOLABalance(account);
@@ -369,7 +371,10 @@ export const F2Context = ({
                 onDbrV1NewBorrowIssueModalOpen();
             },
             onDbrV1NewBorrowIssueModalClose,
+            setIsUnderlyingAsInputCaseSelected,
+            isUnderlyingAsInputCaseSelected,
             isUnderlyingAsInputCase,
+            hasUnderlyingAsInputCase,
             inputToken,
             inputAmount,
             inputAmountNum,

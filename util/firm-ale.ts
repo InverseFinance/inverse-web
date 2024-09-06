@@ -37,6 +37,8 @@ export const prepareLeveragePosition = async (
     slippagePerc?: string | number,
     dbrBuySlippage?: string | number,
     durationDays?: number,
+    // can be collateral or buySellToken, eg sFRAX or FRAX
+    isDepositCollateral = true,
 ) => {
     let dbrApprox;
     let dbrInputs = { dolaParam: '0', dbrParam: '0' };
@@ -89,7 +91,7 @@ export const prepareLeveragePosition = async (
                 dbrData,
                 initialDeposit,
                 value,
-                true,
+                isDepositCollateral,
             )
         }
         return leveragePosition(
