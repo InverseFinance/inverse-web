@@ -908,9 +908,9 @@ export const useFirmLiquidations = (user?: string): SWR & {
   }
 }
 
-export const useFirmAffiliate = (affiliate: string, updateIndex: number) => {
-  const { data, error } = useCustomSWR(`/api/referral?updateIndex=${updateIndex}`, fetcher);
-  const referrals = (data?.referrals || []).filter(d => affiliate === 'all' || d.affiliate === affiliate);
+export const useFirmAffiliate = (affiliate: string, updateIndex = 0) => {
+  const { data, error } = useCustomSWR(`/api/referral?updateIndex=${updateIndex||0}`, fetcher);
+  const referrals = (data?.referrals || []).filter(d => affiliate === 'all' || d.affiliate.toLowerCase() === affiliate?.toLowerCase());
   return {
     timestamp: data?.timestamp,
     referrals,

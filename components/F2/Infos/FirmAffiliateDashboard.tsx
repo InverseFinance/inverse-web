@@ -194,7 +194,9 @@ export const FirmAffiliateDashboard = ({
     }) => {
     const account = useAccount();
     const { priceUsd: dbrPriceUsd } = useDBRPrice();
-    const { referrals, referralAddresses, affiliatePaymentEvents } = useFirmAffiliate(account);
+    const { referrals, referralAddresses, affiliatePaymentEvents, affiliatesPublicData } = useFirmAffiliate(account);
+    const affiliateData = affiliatesPublicData?.find(a => a.affiliate?.toLowerCase() === account?.toLowerCase());
+    
     const { userPositions, timestamp, isLoading } = useFirmUsers();
     const { isOpen: isReferralOpen, onOpen: onReferralOpen, onClose: onReferralClose } = useDisclosure();
 
@@ -204,7 +206,7 @@ export const FirmAffiliateDashboard = ({
             const refData = referrals.find(rd => rd.referred === up.user);
             const accSinceRef = (up.dueTokensAccrued - refData.beforeReferralDueTokensAccrued);
             const affiliateRewards = accSinceRef * 0.1;
-            const paidRewards = affiliatePaymentEvents.filter(pe => pe.affiliate === account).reduce((prev, curr) => prev + curr.amount, 0);
+            const paidRewards = affiliatePaymentEvents.filter(pe => pe.affiliate.toLowerCase() === account?.toLowerCase()).reduce((prev, curr) => prev + curr.amount, 0);
             return {
                 ...up,
                 affiliateRewards,
@@ -231,7 +233,7 @@ export const FirmAffiliateDashboard = ({
     const totalAffiliateRewards = Math.max(referredPositions.reduce((prev, curr) => prev + curr.affiliateRewards, 0), 0);
     const totalDbrAccrued = referredPositions.reduce((prev, curr) => prev + curr.accSinceRef, 0);
     const totalDbrPaid = affiliatePaymentEvents
-        .filter(e => e.affiliate === account)
+        .filter(e => e.affiliate.toLowerCase() === account?.toLowerCase())
         .reduce((prev, curr) => prev + curr.amount, 0);
 
     const totalPaidRewards = referredPositions.reduce((prev, curr) => prev + curr.paidRewards, 0);
@@ -256,13 +258,18 @@ export const FirmAffiliateDashboard = ({
                     Track the loan activity of your referred users as well as your accumulated rewards!
                 </Text>
             </VStack>
-            <RSubmitButton p="6" fontSize="18px" w="fit-content" onClick={onReferralOpen}>
-                Get your referral link
-            </RSubmitButton>
+            {
+                affiliateData?.status === 'approved' ?
+                    <RSubmitButton p="6" fontSize="18px" w="fit-content" onClick={onReferralOpen}>
+                        Get your referral link
+                    </RSubmitButton>
+                    :
+                    <InfoMessage description={`Status: ${affiliateData?.status||'...'}`} />
+            }
         </Stack>
         <InfoMessage alertProps={{ w: 'full' }} description="Note: this dashboard is for information purposes only" />
         <VStack w='full'>
-            <DashBoardCard  w='full'>
+            <DashBoardCard w='full'>
                 <SimpleGrid justify="space-between" w='full' columns={{ base: 2, sm: 4 }} spacing={{ base: '4', sm: '6' }}>
                     {/* <StatBasic isLoading={isLoading} name="DBR price" value={`${smartShortNumber(dbrPriceUsd, 4, true)}`} /> */}
                     {/* <StatBasic isLoading={isLoading} name="Affiliate Reward" value={`10%`} /> */}
@@ -279,7 +286,7 @@ export const FirmAffiliateDashboard = ({
             <StatBasic isLoading={isLoading} name="Acc. DBR spending" value={`${smartShortNumber(totalDbrAccrued, 2)} (${smartShortNumber(totalDbrAccrued * dbrPriceUsd, 2, true)})`} />
             
         </SimpleGrid> */}
-        <Container            
+        <Container
             p="0"
             noPadding
             label="Referred Users"

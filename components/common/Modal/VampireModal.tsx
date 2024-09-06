@@ -56,8 +56,7 @@ export const VampireModal = ({
                         <Text>- Minimum borrow: {dollarify(MIN_BORROW, 0)}</Text>
                         <Text>- Minimum duration: 30 days</Text>
                         <Text>- Maximum of 6 transactions per reimbursement</Text>
-                        <Text>- Maximum 30 gwei per transaction</Text>
-                        <Text>- Transactions made before end of August 31st</Text>
+                        <Text>- Maximum 30 gwei per transaction</Text>                        
                     </VStack>
                 }
             />

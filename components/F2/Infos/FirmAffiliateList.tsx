@@ -61,6 +61,18 @@ const columns = [
         filterWidth: '100px',
     },
     {
+        field: 'name',
+        label: 'Name',
+        header: ({ ...props }) => <ColHeader justify="center" {...props} minWidth="130px" />,
+        value: ({ name }) => {
+            return <Cell w="130px" justify="center" position="relative" onClick={(e) => e.stopPropagation()}>
+                <CellText>{name}</CellText>
+            </Cell>
+        },
+        showFilter: true,
+        filterWidth: '100px',
+    },
+    {
         field: 'status',
         label: 'Status',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
@@ -86,15 +98,15 @@ const columns = [
     },
     {
         field: 'timestamp',
-        label: 'Application Date',
-        header: ({ ...props }) => <ColHeader justify="flex-start" minWidth={'100px'} {...props} />,
-        value: ({ timestamp }) => <Cell justify="flex-start" minWidth="100px">
+        label: 'Apply Date',
+        header: ({ ...props }) => <ColHeader justify="center" minWidth={'100px'} {...props} />,
+        value: ({ timestamp }) => <Cell justify="center" minWidth="100px">
             <Timestamp timestamp={timestamp} text1Props={{ fontSize: '12px' }} text2Props={{ fontSize: '12px' }} />
         </Cell>,
     },    
     {
         field: 'nbReferred',
-        label: 'Referred Users',
+        label: 'Referred',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ nbReferred }) => {
             return <Cell minWidth="100px" justify="center">
@@ -105,9 +117,9 @@ const columns = [
     {
         field: 'affiliateRewards',
         label: 'Acc. DBR reward',
-        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
         value: ({ affiliateRewards }) => {
-            return <Cell minWidth="100px" justify="center">
+            return <Cell minWidth="120px" justify="center">
                 <CellText>{affiliateRewards > 0 ? shortenNumber(affiliateRewards, 2) : '-'}</CellText>
             </Cell>
         },
@@ -115,9 +127,9 @@ const columns = [
     {
         field: 'paidRewards',
         label: 'Paid DBR rewards',
-        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
         value: ({ paidRewards }) => {
-            return <Cell minWidth="100px" justify="center">
+            return <Cell minWidth="120px" justify="center">
                 <CellText>{paidRewards > 0 ? shortenNumber(paidRewards, 2) : '-'}</CellText>
             </Cell>
         },
@@ -125,9 +137,9 @@ const columns = [
     {
         field: 'pendingRewards',
         label: 'Pending DBR rewards',
-        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
         value: ({ pendingRewards }) => {
-            return <Cell minWidth="100px" justify="center">
+            return <Cell minWidth="120px" justify="center">
                 <CellText>{pendingRewards > 0 ? shortenNumber(pendingRewards, 2) : '-'}</CellText>
             </Cell>
         },
@@ -169,7 +181,7 @@ const columnsPayments = [
         },
         showFilter: true,
         filterWidth: '100px',
-    },
+    }, 
     {
         field: 'amount',
         label: 'Amount',
@@ -229,9 +241,9 @@ export const FirmAffiliateList = ({
 
     const affiliateList = affiliatesPublicData.map(affiliateData => {
         const affiliate = affiliateData.affiliate;
-        const referredList = referredPositions.filter(rp => rp.affiliate === affiliate);
+        const referredList = referredPositions.filter(rp => rp.affiliate.toLowerCase() === affiliate?.toLowerCase());
         const affiliateRewards = referredList.reduce((prev, curr) => prev + curr.affiliateRewards, 0);
-        const paidRewards = affiliatePaymentEvents.filter(pe => pe.affiliate === affiliate).reduce((prev, curr) => prev + curr.amount, 0);
+        const paidRewards = affiliatePaymentEvents.filter(pe => pe.affiliate.toLowerCase() === affiliate?.toLowerCase()).reduce((prev, curr) => prev + curr.amount, 0);
         return {
             ...affiliateData,
             nbReferred: referredList.length,
@@ -248,7 +260,7 @@ export const FirmAffiliateList = ({
     const totalPaidRewards = affiliateList.reduce((prev, curr) => prev + curr.paidRewards, 0);
     const totalPendingRewards = affiliateList.reduce((prev, curr) => prev + curr.pendingRewards, 0);
 
-    const selectedAffiliateReferrals = referredPositions.filter(rp => rp.affiliate === selectedAffiliate);
+    const selectedAffiliateReferrals = referredPositions.filter(rp => rp.affiliate.toLowerCase() === selectedAffiliate?.toLowerCase());
 
     const changeStatus = async (newStatus: string) => {
         if (provider && !!account) {

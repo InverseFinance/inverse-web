@@ -185,7 +185,7 @@ export default async function handler(req, res) {
                 }
 
                 const affiliatesData = await getCacheFromRedis(affiliatesKey, false, 600) || { affiliates: [] };
-                const affiliateIdx = affiliatesData.affiliates.findIndex(a => a.affiliate === r);
+                const affiliateIdx = affiliatesData.affiliates.findIndex(a => a.affiliate.toLowerCase() === r.toLowerCase());
 
                 if(affiliateIdx === -1) {
                     return res.status(400).json({ status: 'error', message: 'Affiliate not found' });
