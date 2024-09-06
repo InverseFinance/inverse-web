@@ -598,7 +598,6 @@ const SVAULT_ABI = [
   "function totalAssets() public view returns (uint)",
   "function totalSupply() public view returns (uint)",  
   "function getDbrReserve() public view returns (uint)",
-  "function weeklyRevenue(uint) public view returns (uint)",
   "function balanceOf(address) public view returns (uint)",
   "event Buy(address indexed caller, address indexed to, uint dolaIn, uint dbrOut)",
   "event Deposit(address indexed caller, address indexed owner, uint assets, uint shares)",
@@ -606,10 +605,13 @@ const SVAULT_ABI = [
 ]
 export const SDOLA_ABI = [
   ...SVAULT_ABI,
+  "function weeklyRevenue(uint) public view returns (uint)",
   "function getDolaReserve() public view returns (uint)",
 ];
 export const SINV_ABI = [
   ...SVAULT_ABI,
+  "function periodRevenue() public view returns (uint)",
+  "function lastPeriodRevenue() public view returns (uint)",
   "function getInvReserve() public view returns (uint)",
 ]
 export const SDOLA_HELPER_ABI = [

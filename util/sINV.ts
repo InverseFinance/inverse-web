@@ -1,4 +1,4 @@
-import { DBR_DISTRIBUTOR_ABI, SINV_ABI, SINV_HELPER_ABI } from "@app/config/abis";
+import { DBR_DISTRIBUTOR_ABI, F2_ESCROW_ABI, SINV_ABI, SINV_HELPER_ABI } from "@app/config/abis";
 import { BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS, SINV_ADDRESS, SDOLA_HELPER_ADDRESS, WEEKS_PER_YEAR, SINV_ESCROW_ADDRESS, DBR_DISTRIBUTOR_ADDRESS } from "@app/config/constants";
 import useEtherSWR from "@app/hooks/useEtherSWR";
 import { JsonRpcSigner } from "@ethersproject/providers";
@@ -13,8 +13,12 @@ import { fetcher } from "./web3";
 import { useMemo } from "react";
 import { useDBRMarkets } from "@app/hooks/useDBR";
 
-export const getSavingsContract = (signerOrProvider: JsonRpcSigner) => {
+export const getDbrDistributorContract = (signerOrProvider: JsonRpcSigner) => {
     return new Contract(DBR_DISTRIBUTOR_ADDRESS, DBR_DISTRIBUTOR_ABI, signerOrProvider);
+}
+
+export const getSinvEscrowContract = (signerOrProvider: JsonRpcSigner) => {
+    return new Contract(SINV_ESCROW_ADDRESS, F2_ESCROW_ABI, signerOrProvider);
 }
 
 export const getSInvContract = (signerOrProvider: JsonRpcSigner) => {
@@ -86,7 +90,6 @@ export const useStakedInv = (dbrDolaPrice: number, supplyDelta = 0): {
     maxRewardPerDolaMantissa: number;
     periodRevenue: number;
     pastPeriodRevenue: number;
-    sInvDsaShare: number;
     sInvClaimable: number;
     accountRewardsClaimable: number;
     dbrRatePerInv: number;
@@ -97,33 +100,26 @@ export const useStakedInv = (dbrDolaPrice: number, supplyDelta = 0): {
     projectedApy: number;
     nextApr: number;
     nextApy: number;
-    dsaApr: number | null;
     isLoading: boolean;
     hasError: boolean;
     sInvExRate: number;
 } => {
-    // const { data: apiData, error: apiErr } = useCacheFirstSWR(`/api/inv-staking`);
+    const { data: apiData, error: apiErr } = useCacheFirstSWR(`/api/inv-staking`);
     const { markets } = useDBRMarkets();
     const firmInvMarket = markets?.find(m => m.name === 'INV');
     const firmInvApr = firmInvMarket?.supplyApy || 0;
-    const apiData = undefined;
-    const apiErr = undefined;
-    const d = new Date();
-    // TODO: adapt to flexible period length
-    const weekFloat = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0) / (ONE_DAY_MS * 7);
-    const weekIndexUtc = Math.floor(weekFloat);
 
     const { data: metaData, error } = useEtherSWR([
-        [SINV_ESCROW_ADDRESS, 'claimable', SINV_ADDRESS],
-        [SINV_ESCROW_ADDRESS, 'balance', SINV_ADDRESS],
+        [SINV_ESCROW_ADDRESS, 'claimable'],
+        [SINV_ESCROW_ADDRESS, 'balance'],
         [DBR_DISTRIBUTOR_ADDRESS, 'totalSupply'],
         [DBR_DISTRIBUTOR_ADDRESS, 'rewardRate'],
         [DBR_DISTRIBUTOR_ADDRESS, 'maxRewardRate'],       
     ]);
     const { data: sInvData } = useEtherSWR([
         [SINV_ADDRESS, 'totalSupply'],
-        [SINV_ADDRESS, 'periodRevenue', weekIndexUtc],
-        [SINV_ADDRESS, 'periodRevenue', weekIndexUtc - 1],
+        [SINV_ADDRESS, 'periodRevenue'],
+        [SINV_ADDRESS, 'lastPeriodRevenue'],
         [SINV_ADDRESS, 'totalAssets'],
     ]);
     
@@ -149,10 +145,10 @@ export const formatInvStakingData = (
 
     const distributorYearlyBudget = invStakingData ? getBnToNumber(invStakingData[3]) : fallbackData?.distributorYearlyBudget || 0;
     const maxYearlyRewardBudget = invStakingData ? getBnToNumber(invStakingData[4]) : fallbackData?.maxYearlyRewardBudget || 0;
-    const sInvSupply = (invStakingData ? getBnToNumber(invStakingData[6]) : fallbackData?.sInvSupply || 0);
-    const periodRevenue = invStakingData ? getBnToNumber(invStakingData[7]) : fallbackData?.periodRevenue || 0;
-    const pastPeriodRevenue = invStakingData ? getBnToNumber(invStakingData[8]) : fallbackData?.pastPeriodRevenue || 0;
-    const sInvTotalAssetsCurrent = (invStakingData ? getBnToNumber(invStakingData[9]) : fallbackData?.sInvTotalAssets || 0);
+    const sInvSupply = (invStakingData ? getBnToNumber(invStakingData[5]) : fallbackData?.sInvSupply || 0);
+    const periodRevenue = invStakingData ? getBnToNumber(invStakingData[6]) : fallbackData?.periodRevenue || 0;
+    const pastPeriodRevenue = invStakingData ? getBnToNumber(invStakingData[7]) : fallbackData?.pastPeriodRevenue || 0;
+    const sInvTotalAssetsCurrent = (invStakingData ? getBnToNumber(invStakingData[8]) : fallbackData?.sInvTotalAssets || 0);
     const sInvTotalAssets = sInvTotalAssetsCurrent + supplyDelta;        
 
     const sInvDistributorShare = distributorTotalSupply > 0 ? invBalInFirmFromSInv / distributorTotalSupply : 1;
@@ -173,7 +169,6 @@ export const formatInvStakingData = (
         ((secondsPastEpoch / calcPeriodSeconds) * realized + ((calcPeriodSeconds - secondsPastEpoch) / calcPeriodSeconds) * forecasted) * 100 : 0;
     const auctionApr = sInvTotalAssets > 0 ? (pastPeriodRevenue * WEEKS_PER_YEAR) / sInvTotalAssets * 100 : 0;
     const nextApr = sInvTotalAssets > 0 ? (periodRevenue * WEEKS_PER_YEAR) / sInvTotalAssets * 100 : 0;
-    const dsaApr = dbrDolaPrice ? distributorDbrRatePerInv * dbrDolaPrice * 100 : 0;    
     const sInvExRate = sInvTotalAssetsCurrent && sInvSupply ? sInvTotalAssetsCurrent / sInvSupply : 0;
 
     // auctionApr is related to the DBR apr
@@ -187,7 +182,6 @@ export const formatInvStakingData = (
         sInvDistributorShare,
         dbrRatePerInv,
         distributorDbrRatePerInv,
-        dsaYearlyDbrEarnings: distributorDbrRatePerInv * distributorTotalSupply,
         yearlyDbrEarnings: dbrRatePerInv * invBalInFirmFromSInv,
         invBalInFirmFromSInv,
         yearlyRewardBudget,
@@ -205,11 +199,10 @@ export const formatInvStakingData = (
         nextApy: aprToApy(nextApr, WEEKS_PER_YEAR),
         projectedApr: projectedApr + firmInvApr,
         projectedApy: aprToApy(projectedApr, WEEKS_PER_YEAR) + firmInvApr,
-        dsaApr,
     }
 }
 
-export const useInvStakingActivity = (from?: string, type = 'dsa'): SWR & {
+export const useInvStakingActivity = (from?: string, type = 'sinv'): SWR & {
     events: any,
     accountEvents: any,
     timestamp: number,
@@ -316,7 +309,6 @@ export const formatInvStakingEvents = (events: any[], timestamps?: any, alreadyS
             blockNumber: e.blockNumber,
             caller: e.args.caller,
             recipient,
-            isDirectlyDsa: e.args.caller !== SINV_ADDRESS,
             amount,
             // Stake, Unstake, Claim are from DSA directly
             type,
