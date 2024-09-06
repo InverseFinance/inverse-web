@@ -6,9 +6,11 @@ import { useAccount } from '@app/hooks/misc';
 import { useDbrAuctionActivity } from '@app/util/dbr-auction';
 import { StakeInvUI } from '@app/components/sINV/StakeInvUI';
 import { SINVTabs } from '@app/components/sINV/sINVTabs';
+import { useInvStakingActivity } from '@app/util/sINV';
 
 export const SdolaPage = () => {
   const account = useAccount();
+  const { isLoading, accountEvents, events } = useInvStakingActivity(account, 'sinv');
   const { isLoading: isLoadingBuys, events: buyEvents } = useDbrAuctionActivity();
   const sinvBuyEvents = buyEvents.filter(e => e.auctionType === 'sINV');
   return (
@@ -40,6 +42,9 @@ export const SdolaPage = () => {
             <StakeInvUI />            
           </VStack>
         </Stack>
+        {
+          !!account && accountEvents?.length > 0 &&  <DolaStakingActivity events={accountEvents} title="My Staking activity" />
+        }
       </VStack>
     </Layout>
   )
