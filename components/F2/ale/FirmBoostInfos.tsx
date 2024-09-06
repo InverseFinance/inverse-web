@@ -119,7 +119,7 @@ export const getLeverageImpact = async ({
         }
 
         let collateralAdded, errorMsg;
-        if(market.isAleWithoutSwap) {
+        if(!market.isAleWithoutSwap) {
             // in the end the reference is always a number of dola sold (as it's what we need to sign, or part of it if with dbr)
             const { buyAmount, validationErrors, msg } = await getAleSellQuote(market.aleData.buySellToken || market.collateral, DOLA, borrowStringToSign, aleSlippage, true);
             errorMsg = validationErrors?.length > 0 ?
@@ -128,7 +128,7 @@ export const getLeverageImpact = async ({
                 collateralAdded = buyAmount;
         } else {
             // DOLA LP case, result not from 1inch
-            collateralAdded = borrowNumToSign * market.price;
+            collateralAdded = getNumberToBn(borrowNumToSign / market.price, market.underlying.decimals).toString();
         }
         if (setLeverageLoading) setLeverageLoading(false);
         return {
