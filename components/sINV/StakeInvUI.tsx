@@ -147,7 +147,33 @@ export const StakeInvUI = () => {
             <HStack justify="space-between" w='full'>
                 <StatBasic message="This week's APY is calculated with last week's DBR auction revenues and assuming a weekly auto-compounding" isLoading={isLoading} name="Current APY" value={apy ? `${shortenNumber(apy, 2)}%` : '-'} />
                 <StatBasic message={"The projected APY is a theoretical estimation of where the APY should tend to go. It's calculated by considering current's week auction revenue and a forecast that considers the DBR incentives, where the forecast portion has a weight of more than 50%"} isLoading={isLoading} name="Projected APY" value={projectedApy ? `${shortenNumber(projectedApy, 2)}%` : '-'} />
-            </HStack>            
+            </HStack>    
+            <SuccessMessage
+                showIcon={false}
+                alertProps={{ w: 'full' }}
+                description={
+                    <VStack alignItems="flex-start">
+                        {
+                            monthlyInvRewards > 0 && <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
+                                <Text>- Your rewards: </Text>
+                                <Text><b>~{preciseCommify(monthlyInvRewards, 2)} INV per month</b></Text>
+                            </Stack>
+                        }
+                        <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
+                            <Text>- 30-day average APY:</Text>
+                            <Text><b>{thirtyDayAvg ? `${shortenNumber(thirtyDayAvg, 2)}%` : '-'}</b></Text>
+                        </Stack>
+                        <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
+                            <Text>- Total staked:</Text>
+                            <Text><b>{sInvTotalAssets ? `${shortenNumber(sInvTotalAssets, 2)} INV` : '-'}</b></Text>
+                        </Stack>
+                        {/* <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
+                            <Text>- Total earnings by all holders:</Text>
+                            <Text><b>{sInvHoldersTotalEarnings ? `${shortenNumber(sInvHoldersTotalEarnings, 2)} INV` : '-'}</b></Text>
+                        </Stack> */}
+                    </VStack>
+                }
+            />        
         </VStack>
         <Container
             label="sINV - Auto-Compounding Tokenized Vault"
@@ -163,9 +189,9 @@ export const StakeInvUI = () => {
                     !isConnected ? <InfoMessage alertProps={{ w: 'full' }} description="Please connect your wallet" />
                         :
                         <>
-                            <NavButtons active={tab} options={['Stake', 'Unstake', 'Infos']} onClick={(v) => setTab(v)} />
+                            <NavButtons active={tab} options={['Stake', 'Unstake', 'Info']} onClick={(v) => setTab(v)} />
                             {
-                                tab !== 'Infos' && <VStack alignItems="flex-start" w='full' justify="space-between">
+                                tab !== 'Info' && <VStack alignItems="flex-start" w='full' justify="space-between">
                                     <Text fontSize="18px">
                                         INV balance in wallet: <b>{invBalance ? preciseCommify(invBalance, 2) : '-'}</b>
                                     </Text>
@@ -175,7 +201,7 @@ export const StakeInvUI = () => {
                                 </VStack>
                             }
                             {
-                                tab === 'Infos' ? <StakeInvInfos /> : isStake ?
+                                tab === 'Info' ? <StakeInvInfos /> : isStake ?
                                     <VStack w='full' alignItems="flex-start">
                                         <Text fontSize="22px" fontWeight="bold">
                                             INV amount to stake:
@@ -229,7 +255,7 @@ export const StakeInvUI = () => {
                                     </VStack>
                             }
                             {
-                                tab !== 'Infos' && <VStack alignItems="flex-start">
+                                tab !== 'Info' && <VStack alignItems="flex-start">
                                     <HStack>
                                         <Text fontSize="16px" color="mainTextColorLight2">
                                             {isStake ? 'sINV to receive' : 'sINV to exchange'}:
