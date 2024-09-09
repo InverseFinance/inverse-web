@@ -22,9 +22,9 @@ export const SinvPage = () => {
         <title>Inverse Finance - sINV</title>
         <meta name="og:title" content="Inverse Finance - sINV" />
         <meta name="og:description" content="sINV" />
-        <meta name="description" content="sINV is a decentralized yield-bearing stablecoin that leverages organic yield from the DOLA Savings Account" />
-        <meta name="keywords" content="Inverse Finance, sINV, yield-bearing stablecoin, staked DOLA" />
-        <meta name="og:image" content="https://inverse.finance/assets/sDOLAx512.png" />
+        <meta name="description" content="sINV is a yield-bearing wrapped version of INV, where DBR rewards are auto-compounded into more INV" />
+        <meta name="keywords" content="Inverse Finance, sINV, yield-bearing token, staked INV, auto-compounding" />
+        <meta name="og:image" content="https://inverse.finance/assets/sINVx512.png" />
       </Head>
       <AppNav active="Stake" activeSubmenu="sINV" />
       <SINVTabs />
