@@ -47,17 +47,17 @@ export const MENUS = {
       ],
     },
     {
-      label: 'Stake',
-      href: '/sINV',
+      label: 'sDOLA',
+      href: '/sDOLA',
       submenus: [
-        {
-          label: 'sINV',
-          href: '/sINV',
-        },
-        {
-          label: 'sINV Stats',
-          href: '/sINV/stats',
-        },
+        // {
+        //   label: 'sINV',
+        //   href: '/sINV',
+        // },
+        // {
+        //   label: 'sINV Stats',
+        //   href: '/sINV/stats',
+        // },
         {
           label: 'sDOLA',
           href: '/sDOLA',
