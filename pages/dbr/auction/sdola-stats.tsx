@@ -22,7 +22,7 @@ export const DbrAuctionSdolaStatsPage = () => {
         <meta name="description" content="DBR sDOLA Auction" />
         <meta name="keywords" content="Inverse Finance, swap, stablecoin, DOLA, DBR, auction" />
       </Head>
-      <AppNav active="Swap" activeSubmenu="Buy DBR (auction)" />
+      <AppNav active="Stake" activeSubmenu="Buy DBR (auction)" />
       <DbrAuctionTabs defaultIndex={3} />
       <VStack
         w={{ base: 'full', lg: '1200px' }}
