@@ -39,7 +39,7 @@ const MS_PER_BLOCK = SECONDS_PER_BLOCK * 1000;
 
 export const StakeInvUI = () => {
     const account = useAccount();
-    const { provider, account: connectedAccount } = useWeb3React();    
+    const { provider, account: connectedAccount } = useWeb3React();
     const { events: auctionBuys } = useDbrAuctionActivity();
 
     const [invAmount, setInvAmount] = useState('');

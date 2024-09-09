@@ -1,7 +1,7 @@
 import 'source-map-support'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
-import { CHAIN_ID, ONE_DAY_MS, SINV_ADDRESS } from '@app/config/constants';
+import { CHAIN_ID } from '@app/config/constants';
 
 import { getMulticallOutput } from '@app/util/multicall';
 import { getDbrPriceOnCurve } from '@app/util/f2';
@@ -26,13 +26,8 @@ export default async function handler(req, res) {
         const sInvContract = getSInvContract(provider);
         const sInvEscrowContract = getSinvEscrowContract(provider);
         
-        const d = new Date();
-        const weekFloat = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0) / (ONE_DAY_MS * 7);
-        const weekIndexUtc = Math.floor(weekFloat);
         const firmMarkets = await getCacheFromRedis(F2_MARKETS_CACHE_KEY, false) || { markets: [] };
         const firmInv = firmMarkets.markets.find(m => m.name === 'INV');
-
-        console.log('start');
 
         const invStakingData = await getMulticallOutput([
             { contract: sInvEscrowContract, functionName: 'claimable' },
@@ -50,7 +45,7 @@ export default async function handler(req, res) {
 
         const resultData = {
             timestamp: Date.now(),
-            ...formatInvStakingData(dbrDolaPrice, invStakingData, firmInv.supplyApy),
+            ...formatInvStakingData(dbrDolaPrice, invStakingData, firmInv.supplyApy, firmInv.dbrInvExRate, firmInv.invStakedViaDistributor),
         }
 
         await redisSetWithTimestamp(invStakingCacheKey, resultData);

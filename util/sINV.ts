@@ -108,6 +108,8 @@ export const useStakedInv = (dbrDolaPrice: number, supplyDelta = 0): {
     const { markets } = useDBRMarkets();
     const firmInvMarket = markets?.find(m => m.name === 'INV');
     const firmInvApr = firmInvMarket?.supplyApy || 0;
+    const dbrInvExRate = firmInvMarket?.dbrInvExRate || 0;
+    const invStakedViaDistributor = firmInvMarket?.invStakedViaDistributor || 0;
 
     const { data: metaData, error } = useEtherSWR([
         [SINV_ESCROW_ADDRESS, 'claimable'],
@@ -126,7 +128,7 @@ export const useStakedInv = (dbrDolaPrice: number, supplyDelta = 0): {
     const invStakingData = metaData && sInvData ? metaData.concat(sInvData) : undefined;
 
     return {
-        ...formatInvStakingData(dbrDolaPrice, invStakingData, firmInvApr, apiData, supplyDelta),
+        ...formatInvStakingData(dbrDolaPrice, invStakingData, firmInvApr, dbrInvExRate, invStakedViaDistributor, apiData, supplyDelta),
         isLoading: (!invStakingData && !error) && (!apiData && !apiErr),
         hasError: !!error || !!apiErr,
     }
@@ -136,6 +138,8 @@ export const formatInvStakingData = (
     dbrDolaPrice: number,
     invStakingData: any[],
     firmInvApr: number,    
+    dbrInvExRate: number,
+    invStakedViaDistributor: number,
     fallbackData?: any,
     supplyDelta = 0,
 ) => {
@@ -143,8 +147,8 @@ export const formatInvStakingData = (
     const invBalInFirmFromSInv = invStakingData ? getBnToNumber(invStakingData[1]) : fallbackData?.invBalInFirmFromSInv || 0;
     const distributorTotalSupply = (invStakingData ? getBnToNumber(invStakingData[2]) : fallbackData?.distributorTotalSupply || 0) + supplyDelta;
 
-    const distributorYearlyBudget = invStakingData ? getBnToNumber(invStakingData[3]) : fallbackData?.distributorYearlyBudget || 0;
-    const maxYearlyRewardBudget = invStakingData ? getBnToNumber(invStakingData[4]) : fallbackData?.maxYearlyRewardBudget || 0;
+    const distributorYearlyBudget = invStakingData ? getBnToNumber(invStakingData[3]) * ONE_DAY_SECS * 365 : fallbackData?.distributorYearlyBudget || 0;
+    const maxYearlyRewardBudget = invStakingData ? getBnToNumber(invStakingData[4]) * ONE_DAY_SECS * 365 : fallbackData?.maxYearlyRewardBudget || 0;
     const sInvSupply = (invStakingData ? getBnToNumber(invStakingData[5]) : fallbackData?.sInvSupply || 0);
     const periodRevenue = invStakingData ? getBnToNumber(invStakingData[6]) : fallbackData?.periodRevenue || 0;
     const pastPeriodRevenue = invStakingData ? getBnToNumber(invStakingData[7]) : fallbackData?.pastPeriodRevenue || 0;
@@ -154,23 +158,23 @@ export const formatInvStakingData = (
     const sInvDistributorShare = distributorTotalSupply > 0 ? invBalInFirmFromSInv / distributorTotalSupply : 1;
     // sDOLA budget share
     const yearlyRewardBudget = sInvDistributorShare > 0 ? distributorYearlyBudget * sInvDistributorShare : distributorYearlyBudget;
-
     const distributorDbrRatePerInv = distributorTotalSupply > 0 ? distributorYearlyBudget / distributorTotalSupply : 0;
     const dbrRatePerInv = invBalInFirmFromSInv > 0 ? yearlyRewardBudget / invBalInFirmFromSInv : 0;
     const now = Date.now();
     const secondsPastEpoch = (now - getLastThursdayTimestamp()) / 1000;
     const realizedTimeInDays = secondsPastEpoch / ONE_DAY_SECS;
-    const nextTotalAssets = sInvTotalAssets + periodRevenue;
+    const periodAntiDilutionRewards = (sInvTotalAssets * firmInvApr/100)/365*7;
+    const nextTotalAssets = sInvTotalAssets + periodAntiDilutionRewards + periodRevenue;
     const realized = ((periodRevenue / realizedTimeInDays) * 365) / sInvTotalAssets;
-    const forecasted = (nextTotalAssets * dbrDolaPrice * dbrRatePerInv) / sInvTotalAssets;
+    // forecasted = dbrApr at next period
+    const forecasted = distributorYearlyBudget * dbrInvExRate / (invStakedViaDistributor+periodAntiDilutionRewards+periodRevenue);
     // we use two week revenu epoch for the projected auctionApr
     const calcPeriodSeconds = 14 * ONE_DAY_SECS;
     const projectedApr = dbrDolaPrice ?
         ((secondsPastEpoch / calcPeriodSeconds) * realized + ((calcPeriodSeconds - secondsPastEpoch) / calcPeriodSeconds) * forecasted) * 100 : 0;
     const auctionApr = sInvTotalAssets > 0 ? (pastPeriodRevenue * WEEKS_PER_YEAR) / sInvTotalAssets * 100 : 0;
-    const nextApr = sInvTotalAssets > 0 ? (periodRevenue * WEEKS_PER_YEAR) / sInvTotalAssets * 100 : 0;
+    const nextAuctionApr = sInvTotalAssets > 0 ? (periodRevenue * WEEKS_PER_YEAR) / sInvTotalAssets * 100 : 0;
     const sInvExRate = sInvTotalAssetsCurrent && sInvSupply ? sInvTotalAssetsCurrent / sInvSupply : 0;
-
     // auctionApr is related to the DBR apr
     const totalApr = auctionApr + firmInvApr;
 
@@ -193,12 +197,12 @@ export const formatInvStakingData = (
         auctionApr,
         auctionApy: aprToApy(auctionApr, WEEKS_PER_YEAR),
         apr: totalApr,
-        // weekly compounding
-        apy: aprToApy(auctionApr, WEEKS_PER_YEAR) + firmInvApr,
-        nextApr,
-        nextApy: aprToApy(nextApr, WEEKS_PER_YEAR),
+        // assumes daily auto-compounding
+        apy: aprToApy(auctionApr, 365) + firmInvApr,
+        nextAuctionApr,
+        nextAuctionApy: aprToApy(nextAuctionApr, WEEKS_PER_YEAR),
         projectedApr: projectedApr + firmInvApr,
-        projectedApy: aprToApy(projectedApr, WEEKS_PER_YEAR) + firmInvApr,
+        projectedApy: aprToApy(projectedApr, 365) + firmInvApr,
     }
 }
 
