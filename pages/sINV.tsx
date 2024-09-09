@@ -1,14 +1,15 @@
-import { Stack, VStack } from '@chakra-ui/react'
+import { Stack, VStack, Text, SimpleGrid } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
 import { useAccount } from '@app/hooks/misc';
 import { useDbrAuctionActivity } from '@app/util/dbr-auction';
 import { StakeInvUI } from '@app/components/sINV/StakeInvUI';
-import { SINVTabs } from '@app/components/sINV/sINVTabs';
+import { SINVTabs } from '@app/components/sINV/SINVTabs';
 import { useInvStakingActivity } from '@app/util/sINV';
+import { InfoMessage } from '@app/components/common/Messages';
 
-export const SdolaPage = () => {
+export const SinvPage = () => {
   const account = useAccount();
   const { isLoading, accountEvents, events } = useInvStakingActivity(account, 'sinv');
   const { isLoading: isLoadingBuys, events: buyEvents } = useDbrAuctionActivity();
@@ -23,7 +24,7 @@ export const SdolaPage = () => {
         <meta name="keywords" content="Inverse Finance, sINV, yield-bearing stablecoin, staked DOLA" />
         <meta name="og:image" content="https://inverse.finance/assets/sDOLAx512.png" />
       </Head>
-      <AppNav active="sINV" activeSubmenu="sINV" />
+      <AppNav active="Stake" activeSubmenu="sINV" />
       <SINVTabs />
       <VStack
         w={{ base: 'full', lg: '1200px' }}
@@ -39,15 +40,31 @@ export const SdolaPage = () => {
           direction={{ base: 'column', xl: 'row' }}
         >
           <VStack spacing="10" alignItems={"center"} w={{ base: 'full' }}>
-            <StakeInvUI />            
+            <Text as="h1" fontSize="24px" fontWeight="bold">
+              sINV is the hassle-free alternative to staking your INV on FiRM
+            </Text>
+            <InfoMessage
+              alertProps={{ w: 'full' }}
+              description={
+                <SimpleGrid columns={{ base: 1, md: 2 }}>
+                  <Text>- Auto-compounding staking rewards, no need to claim manually</Text>
+                  <Text>- Reduced gas costs</Text>
+                  <Text>- Yield-bearing fungible token</Text>
+                  <Text>- Can earn additional yield by being deposited in Liquidity Pools</Text>
+                  <Text>- Portable accross chains</Text>
+                  <Text>- Creates continuous buying pressure on INV</Text>                  
+                </SimpleGrid>
+              }
+            />
+            <StakeInvUI />
           </VStack>
         </Stack>
         {
-          !!account && accountEvents?.length > 0 &&  <DolaStakingActivity events={accountEvents} title="My Staking activity" />
+          !!account && accountEvents?.length > 0 && <DolaStakingActivity events={accountEvents} title="My Staking activity" />
         }
       </VStack>
     </Layout>
   )
 }
 
-export default SdolaPage
+export default SinvPage

@@ -118,7 +118,7 @@ export const SInvStatsPage = () => {
         <meta name="description" content="sINV stats" />
         <meta name="keywords" content="Inverse Finance, sINV, yield-bearing stablecoin, staked DOLA, stats" />
       </Head>
-      <AppNav active="sINV" activeSubmenu="sINV Stats" />
+      <AppNav active="Stake" activeSubmenu="sINV Stats" />
       <SINVTabs defaultIndex={1} />
       <VStack
         w={{ base: 'full', lg: '1200px' }}
@@ -155,7 +155,7 @@ export const SInvStatsPage = () => {
                 }
               </VStack>
               <VStack spacing="0" alignItems="center">
-                <Text textAlign="center" fontWeight="bold">Total DOLA staked</Text>
+                <Text textAlign="center" fontWeight="bold">Total INV staked</Text>
                 {
                   isLoading ? <SmallTextLoader width={'50px'} />
                     : <Text textAlign="center" color="secondaryTextColor" fontWeight="bold" fontSize="18px">
