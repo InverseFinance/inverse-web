@@ -1,5 +1,5 @@
 import { DBR_DISTRIBUTOR_ABI, F2_ESCROW_ABI, SINV_ABI, SINV_HELPER_ABI } from "@app/config/abis";
-import { BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS, SINV_ADDRESS, SDOLA_HELPER_ADDRESS, WEEKS_PER_YEAR, SINV_ESCROW_ADDRESS, DBR_DISTRIBUTOR_ADDRESS } from "@app/config/constants";
+import { BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS, SINV_ADDRESS, SINV_HELPER_ADDRESS, WEEKS_PER_YEAR, SINV_ESCROW_ADDRESS, DBR_DISTRIBUTOR_ADDRESS } from "@app/config/constants";
 import useEtherSWR from "@app/hooks/useEtherSWR";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
@@ -26,7 +26,7 @@ export const getSInvContract = (signerOrProvider: JsonRpcSigner) => {
 }
 
 export const getSInvHelperContract = (signerOrProvider: JsonRpcSigner) => {
-    return new Contract(SDOLA_HELPER_ADDRESS, SINV_HELPER_ABI, signerOrProvider);
+    return new Contract(SINV_HELPER_ADDRESS, SINV_HELPER_ABI, signerOrProvider);
 }
 
 export const sellInvForDbr = async (signerOrProvider: JsonRpcSigner, dolaToSell: BigNumber, minDbrOut: BigNumber) => {
