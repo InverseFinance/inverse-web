@@ -9,10 +9,10 @@ import { SkeletonBlob } from '@app/components/common/Skeleton';
 import { shortenNumber } from '@app/util/markets';
 import { useEffect, useRef, useState } from 'react';
 import { useAppTheme } from '@app/hooks/useAppTheme';
-import { DolaStakingActivity } from '@app/components/sDola/DolaStakingActivity';
 import { useInvStakingActivity, useInvStakingEvolution, useStakedInv } from '@app/util/sINV';
 import { SDolaStakingEvolutionChart } from '@app/components/F2/DolaStaking/DolaStakingChart';
 import { SINVTabs } from '@app/components/sINV/SINVTabs';
+import { InvStakingActivity } from '@app/components/sINV/InvStakingActivity';
 
 const ChartCard = (props: StackProps & { cardTitle?: string, subtitle?: string, href?: string, imageSrc?: string }) => {
   return <Flex
@@ -116,7 +116,7 @@ export const SInvStatsPage = () => {
         <meta name="og:title" content="Inverse Finance - sINV stats" />
         <meta name="og:description" content="sINV stats" />
         <meta name="description" content="sINV stats" />
-        <meta name="keywords" content="Inverse Finance, sINV, yield-bearing stablecoin, staked DOLA, stats" />
+        <meta name="keywords" content="Inverse Finance, sINV, yield-bearing INV, staked INV, stats" />
       </Head>
       <AppNav active="Stake" activeSubmenu="sINV Stats" />
       <SINVTabs defaultIndex={1} />
@@ -131,11 +131,11 @@ export const SInvStatsPage = () => {
           <ChartCard cardTitle={`sINV APY evolution`} subtitle={`(30 day avg: ${thirtyDayAvg ? shortenNumber(thirtyDayAvg, 2)+'%' : '-'}, Current: ${apy ? shortenNumber(apy || 0, 2)+'%' : '-'})`}>
             {isInited && <Chart currentValue={apy} isPerc={true} data={histoData} attribute="apy" yLabel="APY" areaProps={{ addDayAvg: true, showLegend: true, legendPosition: 'bottom', avgDayNumbers: [30, 60], avgLineProps: [{ stroke: themeStyles.colors.success, strokeDasharray: '4 4' }, { stroke: themeStyles.colors.warning, strokeDasharray: '4 4' }] }} />}
           </ChartCard>
-          <ChartCard subtitle={sInvTotalAssets > 0 ? `(current: ${preciseCommify(sInvTotalAssets || 0, 0)})` : ''} cardTitle={`DOLA staked in sINV`}>
-            {isInited && <Chart isLoading={isLoading} currentValue={sInvTotalAssets} data={histoData} attribute="sInvTotalAssets" yLabel="DOLA staked" />}
+          <ChartCard subtitle={sInvTotalAssets > 0 ? `(current: ${preciseCommify(sInvTotalAssets || 0, 0)})` : ''} cardTitle={`INV staked in sINV`}>
+            {isInited && <Chart isLoading={isLoading} currentValue={sInvTotalAssets} data={histoData} attribute="sInvTotalAssets" yLabel="INV staked" />}
           </ChartCard>
         </SimpleGrid>
-        <DolaStakingActivity
+        <InvStakingActivity
           events={events}
           lastUpdate={timestamp}
           title="sINV Staking activity"

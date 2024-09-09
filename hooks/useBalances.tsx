@@ -15,6 +15,8 @@ import { useExchangeRates } from './useExchangeRates'
 import { formatUnits } from '@ethersproject/units'
 import { CTOKEN_ABI, ERC20_ABI } from '@app/config/abis'
 
+const { INV } = getNetworkConfigConstants(1);
+
 type Balances = {
   balances: BigNumberList
 }
@@ -130,4 +132,14 @@ export const useMarketCash = (market: Market): SWR & { cash: number } => {
     isLoading: !error && !data,
     isError: error,
   }
+}
+
+export const useINVBalance = (account: string, ad = INV) => {
+  const { data, error } = useEtherSWR([ad, 'balanceOf', account]);
+  return {
+    bnBalance: data || BigNumber.from('0'),
+    balance: data ? getBnToNumber(data) : 0,
+    isLoading: !data && !error,
+    hasError: !data && !!error,
+  };
 }

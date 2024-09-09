@@ -8,10 +8,12 @@ import { StakeInvUI } from '@app/components/sINV/StakeInvUI';
 import { SINVTabs } from '@app/components/sINV/SINVTabs';
 import { useInvStakingActivity } from '@app/util/sINV';
 import { InfoMessage } from '@app/components/common/Messages';
+import { InvStakingActivity } from '@app/components/sINV/InvStakingActivity';
 
 export const SinvPage = () => {
   const account = useAccount();
   const { isLoading, accountEvents, events } = useInvStakingActivity(account, 'sinv');
+
   const { isLoading: isLoadingBuys, events: buyEvents } = useDbrAuctionActivity();
   const sinvBuyEvents = buyEvents.filter(e => e.auctionType === 'sINV');
   return (
@@ -60,7 +62,7 @@ export const SinvPage = () => {
           </VStack>
         </Stack>
         {
-          !!account && accountEvents?.length > 0 && <DolaStakingActivity events={accountEvents} title="My Staking activity" />
+          !!account && accountEvents?.length > 0 && <InvStakingActivity events={accountEvents} title="My Staking activity" />
         }
       </VStack>
     </Layout>

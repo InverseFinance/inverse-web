@@ -15,31 +15,31 @@ const MS_PER_BLOCK = SECONDS_PER_BLOCK * 1000;
 
 export const StakeInvInfos = () => {
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
-    const { apy, sInvSupply, sInvTotalAssets, yearlyRewardBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, periodRevenue, pastPeriodRevenue, yearlyDbrEarnings, isLoading } = useStakedInv(dbrDolaPrice);
-    const [previousSupply, setPreviousSupply] = useState(sInvSupply);    
+    const { apy, sInvSupply, sInvTotalAssets, yearlyRewardBudget, maxYearlyRewardBudget, distributorYearlyBudget, periodRevenue, pastPeriodRevenue, yearlyDbrEarnings, sInvDistributorShare, isLoading } = useStakedInv(dbrDolaPrice);
+    const [previousSupply, setPreviousSupply] = useState(sInvSupply);
     const [realTimeBalance, setRealTimeBalance] = useState(0);
 
-    useInterval(() => {            
+    useInterval(() => {
         const curr = (realTimeBalance);
-        const incPerInterval = ((curr * (apy / 100)) * (STAKE_BAL_INC_INTERVAL/(ONE_DAY_MS * 365)));
-        const neo = curr + incPerInterval;        
+        const incPerInterval = ((curr * (apy / 100)) * (STAKE_BAL_INC_INTERVAL / (ONE_DAY_MS * 365)));
+        const neo = curr + incPerInterval;
         setRealTimeBalance(neo);
     }, STAKE_BAL_INC_INTERVAL);
 
     // every ~12s recheck base balance
     useInterval(() => {
-        if(realTimeBalance > sInvTotalAssets) return;
-        setRealTimeBalance(sInvTotalAssets);        
+        if (realTimeBalance > sInvTotalAssets) return;
+        setRealTimeBalance(sInvTotalAssets);
     }, MS_PER_BLOCK);
 
     useEffect(() => {
-        if(previousSupply === sInvSupply) return;        
+        if (previousSupply === sInvSupply) return;
         setRealTimeBalance(sInvTotalAssets);
         setPreviousSupply(sInvSupply);
-    }, [sInvSupply, previousSupply, sInvTotalAssets]);    
+    }, [sInvSupply, previousSupply, sInvTotalAssets]);
 
     useEffect(() => {
-        if(realTimeBalance > sInvTotalAssets) return;        
+        if (realTimeBalance > sInvTotalAssets) return;
         setRealTimeBalance(sInvTotalAssets);
     }, [realTimeBalance, sInvTotalAssets]);
 
@@ -55,13 +55,13 @@ export const StakeInvInfos = () => {
                         - It uses the ERC4626 standard (Tokenized Vault Token)
                     </Text>
                     <Text>- It's a decentralized yield-bearing fungible asset</Text>
-                    <Text>- The yield comes from DBR auctions</Text>
-                    <Link textDecoration="underline" href='https://twitter.com/InverseFinance/status/1755593147285905683' isExternal target="_blank">
+                    <Text>- The yield comes from DBR auctions and INV staking </Text>
+                    {/* <Link textDecoration="underline" href='https://twitter.com/InverseFinance/status/1755593147285905683' isExternal target="_blank">
                         Watch the launch video <ExternalLinkIcon />
-                    </Link>
+                    </Link> */}
                     <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/sinv' isExternal target="_blank">
                         Learn more about sINV <ExternalLinkIcon />
-                    </Link>                    
+                    </Link>
                 </VStack>
                 <Text fontSize="14px" fontWeight="bold">sINV stats</Text>
                 <VStack w='full' spacing="0" alignItems="flex-start">
@@ -81,7 +81,15 @@ export const StakeInvInfos = () => {
                 <Text fontSize="14px" fontWeight="bold">sINV Parameters</Text>
                 <VStack w='full' spacing="0">
                     <HStack w='full'>
-                        <Text>- DBR rate per year:</Text>
+                        <Text>- Total DBR rate per year:</Text>
+                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(distributorYearlyBudget, 0)} ({preciseCommify(distributorYearlyBudget * dbrPrice, 0, true)})</Text>}
+                    </HStack>
+                    {/* <HStack w='full'>
+                        <Text>- sINV's share:</Text>
+                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{sInvDistributorShare*100}%</Text>}
+                    </HStack> */}
+                    <HStack w='full'>
+                        <Text>- Current sINV's DBR rewards yearly share:</Text>
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(yearlyDbrEarnings, 0)} ({preciseCommify(yearlyDbrEarnings * dbrPrice, 0, true)})</Text>}
                     </HStack>
                     <HStack w='full'>
