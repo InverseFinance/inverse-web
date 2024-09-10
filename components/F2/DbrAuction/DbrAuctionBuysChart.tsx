@@ -41,11 +41,10 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
     const invAuctionBuys = invAuctionBuysEvents
         .reduce((prev, curr) => prev + useInvAmount ? curr.invIn||0 : curr.marketPriceInDola * curr.dbrOut, 0);
 
-    const uniqueWeeks = [...new Set(events.map(e => getPreviousThursdayUtcDateOfTimestamp(e.timestamp)))];
+    const uniqueWeeks = [...new Set(chartEvents.map(e => getPreviousThursdayUtcDateOfTimestamp(e.timestamp)))];
     uniqueWeeks.sort((a, b) => a > b ? 1 : -1);
-
     const dbrPricesStats = uniqueWeeks.map(week => {
-        const weekEvents = events.filter(e => getPreviousThursdayUtcDateOfTimestamp(e.timestamp) === week);
+        const weekEvents = chartEvents.filter(e => getPreviousThursdayUtcDateOfTimestamp(e.timestamp) === week);
         const prices = weekEvents.map(e => e.priceInDola);
         const marketPrices = weekEvents.map(e => e.marketPriceInDola);
         const min = Math.min(...prices);
@@ -57,7 +56,7 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
     });
 
     const dbrWeeklyIncomeStats = uniqueWeeks.map(week => {
-        const weekEvents = events.filter(e => getPreviousThursdayUtcDateOfTimestamp(e.timestamp) === week);
+        const weekEvents = chartEvents.filter(e => getPreviousThursdayUtcDateOfTimestamp(e.timestamp) === week);
         const dolaIn = weekEvents.map(e => e.dolaIn ? e.dolaIn : useInvAmount ? e.invIn||0 : e.marketPriceInDola * e.dbrOut);
         const total = dolaIn.reduce((prev, curr) => prev + curr, 0);
         return { week, y: total, x: week }

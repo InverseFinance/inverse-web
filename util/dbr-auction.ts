@@ -124,8 +124,8 @@ export const useDbrAuctionActivity = (from?: string): SWR & {
     const events = (liveEvents?.length > data?.buys?.length ? liveEvents : data?.buys || [])
         .map((e,i) => {
             const isInvCase = e.auctionType === 'sINV';
-            const priceInDola = (e.dolaIn||0 / e.dbrOut);
-            const priceInInv = (e.invIn||0 / e.dbrOut);
+            const priceInDola = ((e.dolaIn||0) / e.dbrOut);
+            const priceInInv = ((e.invIn||0) / e.dbrOut);
             const amountIn = isInvCase ? e.invIn : e.dolaIn;
             const arb = isInvCase ? e.marketPriceInInv - priceInInv : e.marketPriceInDola - priceInDola;
             const worthIn = e.dolaIn ? e.dolaIn : e.invIn * e.marketPriceInInv;
