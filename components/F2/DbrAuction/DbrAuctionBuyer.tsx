@@ -215,7 +215,7 @@ export const DbrAuctionBuyer = ({
     ]);
 
     const arbitrageOpportunity = (isSellMode && !tokenAmount) || (dbrSwapPriceInToken < dbrAuctionPriceInToken) || (!isSellMode && !dbrAmount)
-        ? 0 : getArbitrageValue(tokenAmount, dbrAuctionPriceInToken, isExactInv ? invPrice : dbrSwapPriceInToken, dbrPrice);
+        ? 0 : getArbitrageValue(tokenAmount, dbrAuctionPriceInToken, dbrSwapPriceInToken, dbrPrice);
 
     return <Container
         label={title}
