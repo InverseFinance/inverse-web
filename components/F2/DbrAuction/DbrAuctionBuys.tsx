@@ -77,9 +77,9 @@ const columns = [
         field: 'priceInDola',
         label: 'DBR Price',
         header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
-        value: ({ priceInDola }) => {
-            return <Cell minWidth="90px" justify="center" >
-                <CellText>{shortenNumber(priceInDola, 5, false, true)} DOLA</CellText>
+        value: ({ priceInDola, priceInInv, auctionType }) => {
+            return <Cell minWidth="90px" justify="center">
+                <CellText>{shortenNumber(auctionType === 'sINV' ? priceInInv : priceInDola, 5, false, true)} {auctionType === 'sINV' ? 'INV' : 'DOLA'}</CellText>
             </Cell>
         },
     }, 
