@@ -10,6 +10,7 @@ import { getSdolaContract } from '@app/util/dola-staking';
 import { ascendingEventsSorter } from '@app/util/misc';
 import { getHistoricDbrPriceOnCurve } from '@app/util/f2';
 import { getSInvContract } from '@app/util/sINV';
+import { SINV_HELPER_ADDRESS } from '@app/config/constants';
 
 const DBR_AUCTION_BUYS_CACHE_KEY = 'dbr-auction-buys-v1.0.1'
 
@@ -34,7 +35,7 @@ export default async function handler(req, res) {
         const lastKnownEvent = pastTotalEvents?.length > 0 ? (pastTotalEvents[pastTotalEvents.length - 1]) : {};
         const newStartingBlock = lastKnownEvent?.blockNumber ? lastKnownEvent?.blockNumber + 1 : undefined;
 
-        const [generalAuctionBuys, sdolaAuctionBuys] = await Promise.all([
+        const [generalAuctionBuys, sdolaAuctionBuys, sinvAuctionBuys] = await Promise.all([
             dbrAuctionContract.queryFilter(
                 dbrAuctionContract.filters.Buy(),            
                 newStartingBlock ? newStartingBlock : 0x0,
@@ -49,7 +50,7 @@ export default async function handler(req, res) {
             )
         ]);
 
-        const newBuyEvents = generalAuctionBuys.concat(sdolaAuctionBuys);
+        const newBuyEvents = generalAuctionBuys.concat(sdolaAuctionBuys).concat(sinvAuctionBuys);
         newBuyEvents.sort(ascendingEventsSorter);
 
         const blocks = newBuyEvents.map(e => e.blockNumber);
@@ -67,8 +68,8 @@ export default async function handler(req, res) {
             })
         );
 
-        const newBuys = newBuyEvents.map(e => {
-            const isInv = e.address === sinvContract.address;
+        const newBuys = newBuyEvents.map(e => {           
+            const isInv = e.address.toLowerCase() === sinvContract.address.toLowerCase() || e.args[0].toLowerCase() === SINV_HELPER_ADDRESS.toLowerCase();
             return {
                 txHash: e.transactionHash,
                 timestamp: timestamps[NetworkIds.mainnet][e.blockNumber] * 1000,
@@ -78,7 +79,7 @@ export default async function handler(req, res) {
                 invIn: isInv ? getBnToNumber(e.args[2]) : 0,
                 dolaIn: isInv ? 0 : getBnToNumber(e.args[2]),
                 dbrOut: getBnToNumber(e.args[3]),
-                auctionType: e.address === sdolaContract.address ? 'sDOLA' : isInv ? 'sINV' : 'Virtual',
+                auctionType: e.address.toLowerCase() === sdolaContract.address.toLowerCase() ? 'sDOLA' : isInv ? 'sINV' : 'Virtual',
             };
         });
         
