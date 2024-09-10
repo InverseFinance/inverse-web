@@ -164,10 +164,12 @@ export const formatInvStakingData = (
     const secondsPastEpoch = (now - getLastThursdayTimestamp()) / 1000;
     const realizedTimeInDays = secondsPastEpoch / ONE_DAY_SECS;
     const periodAntiDilutionRewards = (sInvTotalAssets * firmInvApr/100)/365*7;
+    const nextTotalAssetsWithDbr = sInvTotalAssets + periodRevenue;
     const nextTotalAssets = sInvTotalAssets + periodAntiDilutionRewards + periodRevenue;
     const realized = ((periodRevenue / realizedTimeInDays) * 365) / sInvTotalAssets;
-    // forecasted = dbrApr at next period
-    const forecasted = distributorYearlyBudget * dbrInvExRate / (invStakedViaDistributor+periodAntiDilutionRewards+periodRevenue);
+    // forecasted = dbrApr at next period  
+    const forecasted = (nextTotalAssetsWithDbr * dbrInvExRate * dbrRatePerInv) / sInvTotalAssets;
+    // const forecasted = distributorYearlyBudget * dbrInvExRate / (invStakedViaDistributor+periodAntiDilutionRewards+periodRevenue);
     // we use two week revenu epoch for the projected auctionApr
     const calcPeriodSeconds = 14 * ONE_DAY_SECS;
     const projectedApr = dbrDolaPrice ?
@@ -202,7 +204,7 @@ export const formatInvStakingData = (
         nextAuctionApr,
         nextAuctionApy: aprToApy(nextAuctionApr, WEEKS_PER_YEAR),
         projectedApr: projectedApr + firmInvApr,
-        projectedApy: aprToApy(projectedApr, 365) + firmInvApr,
+        projectedApy: aprToApy(projectedApr, WEEKS_PER_YEAR) + firmInvApr,
     }
 }
 
