@@ -9,6 +9,7 @@ import { NetworkIds } from '@app/types';
 import { getSdolaContract } from '@app/util/dola-staking';
 import { ascendingEventsSorter } from '@app/util/misc';
 import { getHistoricDbrPriceOnCurve } from '@app/util/f2';
+import { getSInvContract } from '@app/util/sINV';
 
 const DBR_AUCTION_BUYS_CACHE_KEY = 'dbr-auction-buys-v1.0.1'
 
@@ -25,6 +26,7 @@ export default async function handler(req, res) {
         const provider = getProvider(NetworkIds.mainnet);
         const dbrAuctionContract = getDbrAuctionContract(provider);
         const sdolaContract = getSdolaContract(provider);
+        const sinvContract = getSInvContract(provider);
 
         const archived = cachedData || { buys: [] };
         const pastTotalEvents = archived?.buys || [];
@@ -40,6 +42,10 @@ export default async function handler(req, res) {
             sdolaContract.queryFilter(
                 sdolaContract.filters.Buy(),            
                 newStartingBlock ? newStartingBlock : 0x0,
+            ),
+            sinvContract.queryFilter(
+                sinvContract.filters.Buy(),            
+                newStartingBlock ? newStartingBlock : 0x0,
             )
         ]);
 
@@ -54,26 +60,32 @@ export default async function handler(req, res) {
             '1',
         );
 
+        // take market price one block before
+        const newMarketPrices = await Promise.all(
+            marketPriceBlocks.map(block => {
+                return getHistoricDbrPriceOnCurve(provider, block)
+            })
+        );
+
         const newBuys = newBuyEvents.map(e => {
+            const isInv = e.address === sinvContract.address;
             return {
                 txHash: e.transactionHash,
                 timestamp: timestamps[NetworkIds.mainnet][e.blockNumber] * 1000,
                 blockNumber: e.blockNumber,
                 caller: e.args[0],
                 to: e.args[1],
-                dolaIn: getBnToNumber(e.args[2]),
+                invIn: isInv ? getBnToNumber(e.args[2]) : 0,
+                dolaIn: isInv ? 0 : getBnToNumber(e.args[2]),
                 dbrOut: getBnToNumber(e.args[3]),
-                auctionType: e.address === sdolaContract.address ? 'sDOLA' : 'Virtual',
+                auctionType: e.address === sdolaContract.address ? 'sDOLA' : isInv ? 'sINV' : 'Virtual',
             };
         });
-
-        // take market price one block before
-        const newMarketPrices = await Promise.all(
-            marketPriceBlocks.map(block => {
-            return getHistoricDbrPriceOnCurve(provider, block)
-        }));
         
-        newMarketPrices.forEach((m, i) => newBuys[i].marketPriceInDola = m.priceInDola);
+        newMarketPrices.forEach((m, i) => {
+            newBuys[i].marketPriceInDola = m.priceInDola;
+            newBuys[i].marketPriceInInv = m.priceInInv;
+        });
 
         const resultData = {
             timestamp: Date.now(),

@@ -20,11 +20,12 @@ const surroundByZero = (chartDataAcc: { x: number, y: number }[]) => {
     return cloned;
 }
 
-export const DbrAuctionBuysChart = ({ events, isTotal = false }) => {
-    const { chartData: chartDataAcc } = useEventsAsChartData(events, '_acc_', 'dolaIn', true, true);
-    const { chartData: chartDataArb } = useEventsAsChartData(events.filter(e => e.arb > 0), 'arbPerc', 'arbPerc', true, true);
+export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useInvAmount = false }) => {
+    const { chartData: chartDataAcc } = useEventsAsChartData(chartEvents, '_acc_', isTotal ? 'worthIn' : useInvAmount ? 'invIn' : 'dolaIn', true, true);
+    const { chartData: chartDataArb } = useEventsAsChartData(chartEvents.filter(e => e.arb > 0), 'arbPerc', 'arbPerc', true, true);
     const virtualAuctionBuysEvents = events.filter(e => e.auctionType === 'Virtual');
     const sdolaAuctionBuysEvents = events.filter(e => e.auctionType === 'sDOLA');
+    const invAuctionBuysEvents = events.filter(e => e.auctionType === 'sINV');
 
     const { themeStyles } = useAppTheme();
     const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
@@ -36,6 +37,9 @@ export const DbrAuctionBuysChart = ({ events, isTotal = false }) => {
 
     const sDolaAuctionBuys = sdolaAuctionBuysEvents
         .reduce((prev, curr) => prev + curr.dolaIn, 0);
+
+    const invAuctionBuys = invAuctionBuysEvents
+        .reduce((prev, curr) => prev + useInvAmount ? curr.invIn||0 : curr.marketPriceInDola * curr.dbrOut, 0);
 
     const uniqueWeeks = [...new Set(events.map(e => getPreviousThursdayUtcDateOfTimestamp(e.timestamp)))];
     uniqueWeeks.sort((a, b) => a > b ? 1 : -1);
@@ -54,7 +58,7 @@ export const DbrAuctionBuysChart = ({ events, isTotal = false }) => {
 
     const dbrWeeklyIncomeStats = uniqueWeeks.map(week => {
         const weekEvents = events.filter(e => getPreviousThursdayUtcDateOfTimestamp(e.timestamp) === week);
-        const dolaIn = weekEvents.map(e => e.dolaIn);
+        const dolaIn = weekEvents.map(e => e.dolaIn ? e.dolaIn : useInvAmount ? e.invIn||0 : e.marketPriceInDola * e.dbrOut);
         const total = dolaIn.reduce((prev, curr) => prev + curr, 0);
         return { week, y: total, x: week }
     });
@@ -66,6 +70,7 @@ export const DbrAuctionBuysChart = ({ events, isTotal = false }) => {
     const pieChartData = [
         { name: 'Virtual', value: generalAuctionBuys },
         { name: 'sDOLA', value: sDolaAuctionBuys },
+        { name: 'sINV', value: invAuctionBuys },
     ];
 
     useEffect(() => {
@@ -99,7 +104,7 @@ export const DbrAuctionBuysChart = ({ events, isTotal = false }) => {
             isDoubleBar={true}
         />
         <BarChartRecharts
-            title={`Weekly DOLA income in the last ${nbWeeksToShow} weeks`}
+            title={`Weekly ${useInvAmount ? 'INV' : 'DOLA'} income in the last ${nbWeeksToShow} weeks`}
             combodata={last8WeeksIncomeStats}
             precision={2}
             // yDomain={[0.05, 0.25]}

@@ -181,8 +181,6 @@ export const DbrAuctionBuyer = ({
             return swapExactDolaForDbr(provider?.getSigner(), parseEther(dolaAmount), minDbrOut, helperAddress);
         }
         else if (isExactInv) {
-            console.log('sell inv', invAmount);
-            console.log('minDbrOut', minDbrOut);
             return swapExactInvForDbr(provider?.getSigner(), parseEther(invAmount), minDbrOut);
         }
         return swapDolaForExactDbr(provider?.getSigner(), maxTokenIn, parseEther(dbrAmount), helperAddress);
@@ -236,7 +234,7 @@ export const DbrAuctionBuyer = ({
                         {
                             tab === INFOS ?
                                 <VStack w='full' alignItems="flex-start">
-                                    <DbrAuctionParametersWrapper />
+                                    <DbrAuctionParametersWrapper tokenPrice={sellTokenPrice} />
                                 </VStack>
                                 : <>
                                     <HStack w='full' justify="space-between">

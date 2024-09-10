@@ -54,12 +54,12 @@ const columns = [
         filterWidth: '100px',
     },
     {
-        field: 'dolaIn',
-        label: 'Sold',
+        field: 'amountIn',
+        label: 'Gave',
         header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
-        value: ({ dolaIn }) => {
+        value: ({ amountIn, auctionType }) => {
             return <Cell minWidth="90px" justify="center" >
-                <CellText fontWeight="bold">{shortenNumber(dolaIn, 2, false, true)} DOLA</CellText>
+                <CellText fontWeight="bold">{shortenNumber(amountIn, 2, false, true)} {auctionType === 'sINV' ? 'INV' : 'DOLA' }</CellText>
             </Cell>
         },
     },
