@@ -233,7 +233,7 @@ export const useInvStakingEvolution = (): SWR & {
     const { data, error } = useCacheFirstSWR(`/api/inv-staking/history?v=1.0.2`, fetcher);
 
     const evolution = useMemo(() => {
-        return (data?.totalEntries || []).map((e) => ({ ...e, apy: aprToApy(e.apr, WEEKS_PER_YEAR) }));
+        return (data?.totalEntries || []).map((e) => ({ ...e }));
     }, [data?.timestamp, data?.totalEntries]);
 
     return {
