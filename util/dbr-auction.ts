@@ -197,78 +197,81 @@ const defaultRefClassicAmount = '1';
 const defaultRefSdolaAmount = '0.999';
 
 export const useDbrAuctionPricing = ({    
-    dolaAmount,
+    tokenAmount,
     dbrAmount,
     helperAddress,
     slippage,
-    isExactDola,
-    dbrSwapPriceRefInDola,
+    isExactToken,
+    dbrSwapPriceRefInToken,
+    auctionType = 'classic',
 }: {
-    dolaAmount: string,
+    tokenAmount: string,
     dbrAmount: string,
     helperAddress: string,
     slippage: string,
-    isExactDola: boolean,
-    dbrSwapPriceRefInDola: number,
+    isExactToken: boolean,
+    dbrSwapPriceRefInToken: number,
+    auctionType: 'classic' | 'sdola' | 'sinv',
 }) => {
     const [estimatedTimeToReachMarketPrice, setEstimatedTimeToReachMarketPrice] = useState(0);
-    const isClassicDbrAuction = helperAddress?.toString() === DBR_AUCTION_HELPER_ADDRESS.toString();
+    const isClassicDbrAuction = auctionType === 'classic';
     const defaultRefAmount = isClassicDbrAuction ? defaultRefClassicAmount : defaultRefSdolaAmount;
-    const { dolaReserve, dbrReserve, dbrRatePerYear } = useDbrAuction(isClassicDbrAuction);
+    const { tokenReserve, dbrReserve, dbrRatePerYear } = useDbrAuction(auctionType);
+    const isSinvAuction = auctionType === 'sinv';
 
     const { data, error } = useEtherSWR([
-        [helperAddress, 'getDbrOut', parseEther(dolaAmount || defaultRefAmount)],
+        [helperAddress, 'getDbrOut', parseEther(tokenAmount || defaultRefAmount)],
         [helperAddress, 'getDbrOut', parseEther(defaultRefAmount)],
-        [helperAddress, 'getDolaIn', parseEther(dbrAmount || defaultRefAmount)],
-        [helperAddress, 'getDolaIn', parseEther(defaultRefAmount)],
+        [helperAddress, isSinvAuction ? 'getInvIn' : 'getDolaIn', parseEther(dbrAmount || defaultRefAmount)],
+        [helperAddress, isSinvAuction ? 'getInvIn' : 'getDolaIn', parseEther(defaultRefAmount)],
     ]);
 
     const isLoading = (!data && !error);
     const refDbrOut = data && data[1] ? getBnToNumber(data[1]) : 0;
-    const estimatedDbrOut = data && data[0] && !!dolaAmount ? getBnToNumber(data[0]) : 0;
+    const estimatedDbrOut = data && data[0] && !!tokenAmount ? getBnToNumber(data[0]) : 0;
     const minDbrOut = data && data[0] ? getNumberToBn(estimatedDbrOut * (1 - parseFloat(slippage) / 100)) : BigNumber.from('0');
 
-    const refDolaIn = data && data[3] ? getBnToNumber(data[3]) : 0;
-    const refAuctionPriceInDola = data ? parseFloat(defaultRefAmount) / refDbrOut : 0;
+    const refTokenIn = data && data[3] ? getBnToNumber(data[3]) : 0;
+    const refAuctionPriceInToken = data ? parseFloat(defaultRefAmount) / refDbrOut : 0;
 
-    const estimatedDolaIn = data && data[2] && !!dbrAmount ? getBnToNumber(data[2]) : 0;
-    const maxDolaIn = data && data[2] ? getNumberToBn(estimatedDolaIn * (1 + parseFloat(slippage) / 100)) : BigNumber.from('0');
+    const estimatedTokenIn = data && data[2] && !!dbrAmount ? getBnToNumber(data[2]) : 0;
+    const maxTokenIn = data && data[2] ? getNumberToBn(estimatedTokenIn * (1 + parseFloat(slippage) / 100)) : BigNumber.from('0');
 
     const minDbrOutNum = getBnToNumber(minDbrOut);
-    const maxDolaInNum = getBnToNumber(maxDolaIn);
+    const maxTokenInNum = getBnToNumber(maxTokenIn);
 
-    const dbrAuctionPrice = isExactDola ?
-        (estimatedDbrOut > 0 ? estimatedDbrOut / parseFloat(dolaAmount) : refDbrOut / parseFloat(defaultRefAmount))
+    const dbrAuctionPrice = isExactToken ?
+        (estimatedDbrOut > 0 ? estimatedDbrOut / parseFloat(tokenAmount) : refDbrOut / parseFloat(defaultRefAmount))
         :
-        (estimatedDolaIn > 0 ? parseFloat(dbrAmount) / estimatedDolaIn : refDolaIn > 0 ? parseFloat(defaultRefAmount) / refDolaIn : 0);
+        (estimatedTokenIn > 0 ? parseFloat(dbrAmount) / estimatedTokenIn : refTokenIn > 0 ? parseFloat(defaultRefAmount) / refTokenIn : 0);
 
-    const dbrAuctionPriceInDola = dbrAuctionPrice ? 1 / dbrAuctionPrice : 0;
+    const dbrAuctionPriceInToken = dbrAuctionPrice ? 1 / dbrAuctionPrice : 0;
     const estimatedTimestampToReachMarketPrice = (estimatedTimeToReachMarketPrice * 1000) + Date.now();
 
     useEffect(() => {
-        if (!dbrSwapPriceRefInDola || !dolaReserve || !dbrRatePerYear || !dbrReserve) return;
-        if (dbrSwapPriceRefInDola > refAuctionPriceInDola) {
+        if (!dbrSwapPriceRefInToken || !tokenReserve || !dbrRatePerYear || !dbrReserve) return;
+        if (dbrSwapPriceRefInToken > refAuctionPriceInToken) {
             setEstimatedTimeToReachMarketPrice(0);
             return;
         }
         setEstimatedTimeToReachMarketPrice(
-            estimateAuctionTimeToReachMarketPrice(dolaReserve, dbrReserve, dbrRatePerYear, dbrSwapPriceRefInDola)
+            estimateAuctionTimeToReachMarketPrice(tokenReserve, dbrReserve, dbrRatePerYear, dbrSwapPriceRefInToken)
         );
-    }, [dbrSwapPriceRefInDola, refAuctionPriceInDola, dolaReserve, dbrReserve, dbrRatePerYear]);
+    }, [dbrSwapPriceRefInToken, refAuctionPriceInToken, tokenReserve, dbrReserve, dbrRatePerYear]);
 
     return {
         isLoading,
         estimatedTimestampToReachMarketPrice,
         estimatedTimeToReachMarketPrice,
-        dbrSwapPriceRefInDola,        
-        dbrAuctionPriceInDola,
+        dbrSwapPriceRefInToken,        
+        dbrAuctionPriceInToken,
         minDbrOutNum,
-        maxDolaInNum,
+        maxTokenInNum,
         minDbrOut,
-        maxDolaIn,
+        maxTokenIn,
         helperAddress,
         isClassicDbrAuction,
-        estimatedDolaIn,
+        estimatedTokenIn,
         estimatedDbrOut,
     }
 }

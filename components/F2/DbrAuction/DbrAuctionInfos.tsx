@@ -1,6 +1,6 @@
 import Link from "@app/components/common/Link"
 import { InfoMessage } from "@app/components/common/Messages"
-import { DBR_AUCTION_ADDRESS, DOLA_SAVINGS_ADDRESS, SDOLA_ADDRESS } from "@app/config/constants"
+import { DBR_AUCTION_ADDRESS, DBR_DISTRIBUTOR_ADDRESS, DOLA_SAVINGS_ADDRESS, ONE_DAY_SECS, SDOLA_ADDRESS, SINV_ADDRESS } from "@app/config/constants"
 import { useCustomSWR } from "@app/hooks/useCustomSWR"
 import { useDBRPrice } from "@app/hooks/useDBR"
 import useEtherSWR from "@app/hooks/useEtherSWR"
@@ -14,8 +14,8 @@ import { useWeb3React } from "@web3-react/core"
 
 const TextLoader = () => <SkeletonText pt="2" skeletonHeight={2} noOfLines={1} height={'24px'} width={'90px'} />;
 
-export const useDbrAuction = (isClassicDbrAuction: boolean): {
-    dolaReserve: number;
+export const useDbrAuction = (auctionType: 'classic' | 'sdola' | 'sinv'): {
+    tokenReserve: number;
     dbrReserve: number;
     dbrRatePerYear: number;
     maxDbrRatePerYear: number;
@@ -26,11 +26,15 @@ export const useDbrAuction = (isClassicDbrAuction: boolean): {
 } => {
     const { account } = useWeb3React();
     const { data: apiData, error: apiError } = useCustomSWR(`/api/auctions/dbr`);
+    const isClassicDbrAuction = auctionType === 'classic';
+    const isSdolaAuction = auctionType === 'sdola';
+    const isSinvAuction = auctionType === 'sinv';
     // reserves is an array    
     const { data: reserves, error: reservesError } = useEtherSWR(
         isClassicDbrAuction ?
             [DBR_AUCTION_ADDRESS, 'getCurrentReserves']
             :
+            isSdolaAuction ?
             {
                 abi: [
                     'function getDolaReserve() public view returns (uint)',
@@ -40,28 +44,44 @@ export const useDbrAuction = (isClassicDbrAuction: boolean): {
                     [SDOLA_ADDRESS, 'getDolaReserve'],
                     [SDOLA_ADDRESS, 'getDbrReserve'],
                 ],
+            }
+            :
+            {
+                abi: [
+                    'function getInvReserve() public view returns (uint)',
+                    'function getDbrReserve() public view returns (uint)',
+                ],
+                args: [
+                    [SINV_ADDRESS, 'getInvReserve'],
+                    [SINV_ADDRESS, 'getDbrReserve'],
+                ],
             },
-    );   
+    );
     const { data: otherData, error: otherDataError } = useEtherSWR(
         isClassicDbrAuction ? [
             [DBR_AUCTION_ADDRESS, 'dbrRatePerYear'],
             [DBR_AUCTION_ADDRESS, 'maxDbrRatePerYear'],
         ]
-            : [
+            : isSdolaAuction ? [
                 [DOLA_SAVINGS_ADDRESS, 'yearlyRewardBudget'],
                 [DOLA_SAVINGS_ADDRESS, 'maxYearlyRewardBudget'],
+            ] :
+            [
+                [DBR_DISTRIBUTOR_ADDRESS, 'rewardRate'],
+                [DBR_DISTRIBUTOR_ADDRESS, 'maxRewardRate'],
             ]
     );
 
-    const dolaReserve = reserves ? getBnToNumber(reserves[0]) : 0;
-    const dbrReserve = reserves ? getBnToNumber(reserves[1]) : 0;    
+    const tokenReserve = reserves ? getBnToNumber(reserves[0]) : 0;
+    const dbrReserve = reserves ? getBnToNumber(reserves[1]) : 0;
+    const rateMultiplier = isSinvAuction ? ONE_DAY_SECS * 365 : 1;
 
     return {
         historicalRates: apiData?.historicalRates || [],
-        dolaReserve,
-        dbrReserve,        
-        dbrRatePerYear: otherData ? getBnToNumber(otherData[0]) : isClassicDbrAuction ? apiData?.yearlyRewardBudget||0 : 0,
-        maxDbrRatePerYear: otherData ? getBnToNumber(otherData[1]) : isClassicDbrAuction ? apiData?.maxYearlyRewardBudget||0 : 0,
+        tokenReserve,
+        dbrReserve,
+        dbrRatePerYear: otherData ? getBnToNumber(otherData[0]) * rateMultiplier : isClassicDbrAuction ? apiData?.yearlyRewardBudget||0 : 0,
+        maxDbrRatePerYear: otherData ? getBnToNumber(otherData[1]) * rateMultiplier : isClassicDbrAuction ? apiData?.maxYearlyRewardBudget||0 : 0,
         K: reserves ? getBnToNumber(reserves[0].mul(reserves[1])) : 0,
         isLoading: !account ? !apiData && !apiError : (!reserves && !reservesError) || (!otherData && !otherDataError),
         hasError: !account ? !apiData && !apiError : !!reservesError || !!otherDataError,
@@ -80,9 +100,9 @@ export const DbrAuctionParametersWrapper = () => {
 }
 
 export const DbrAuctionSDolaParameters = ({ dbrPrice, dolaPrice }) => {
-    const { dolaReserve, dbrReserve, dbrRatePerYear, maxDbrRatePerYear, isLoading } = useDbrAuction(false);
+    const { tokenReserve, dbrReserve, dbrRatePerYear, maxDbrRatePerYear, isLoading } = useDbrAuction('sdola');
     return <DbrAuctionParameters
-        dolaReserve={dolaReserve}
+        dolaReserve={tokenReserve}
         dbrReserve={dbrReserve}
         dbrRatePerYear={dbrRatePerYear}
         maxDbrRatePerYear={maxDbrRatePerYear}
@@ -93,9 +113,9 @@ export const DbrAuctionSDolaParameters = ({ dbrPrice, dolaPrice }) => {
 }
 
 export const DbrAuctionClassicParameters = ({ dbrPrice, dolaPrice }) => {
-    const { dolaReserve, dbrReserve, dbrRatePerYear, maxDbrRatePerYear, isLoading } = useDbrAuction(true);
+    const { tokenReserve, dbrReserve, dbrRatePerYear, maxDbrRatePerYear, isLoading } = useDbrAuction('classic');
     return <DbrAuctionParameters
-        dolaReserve={dolaReserve}
+        dolaReserve={tokenReserve}
         dbrReserve={dbrReserve}
         dbrRatePerYear={dbrRatePerYear}
         maxDbrRatePerYear={maxDbrRatePerYear}

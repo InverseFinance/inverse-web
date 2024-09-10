@@ -9,7 +9,7 @@ import { getNetworkConfigConstants } from "@app/util/networks";
 import { parseEther } from "@ethersproject/units";
 import { Input } from "../../common/Input";
 import Container from "../../common/Container";
-import { useAccountDBR, useDBRPrice, useTriCryptoSwap } from "@app/hooks/useDBR";
+import { useAccountDBR, useDBRMarkets, useDBRPrice, useTriCryptoSwap } from "@app/hooks/useDBR";
 import { NavButtons } from "@app/components/common/Button";
 import { useDOLAPriceLive } from "@app/hooks/usePrices";
 import { InfoMessage } from "@app/components/common/Messages";
@@ -18,17 +18,23 @@ import { useDOLABalance } from "@app/hooks/useDOLA";
 import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader";
 import { DbrAuctionParametersWrapper } from "./DbrAuctionInfos";
 import moment from "moment";
-import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, DOLA_SAVINGS_ADDRESS, ONE_DAY_SECS, SDOLA_HELPER_ADDRESS } from "@app/config/constants";
+import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, DOLA_SAVINGS_ADDRESS, ONE_DAY_SECS, SDOLA_HELPER_ADDRESS, SINV_ADDRESS, SINV_HELPER_ADDRESS } from "@app/config/constants";
 import { useDualSpeedEffect } from "@app/hooks/useDualSpeedEffect";
 import { RadioCardGroup } from "@app/components/common/Input/RadioCardGroup";
 import { DbrAuctionType } from "@app/types";
+import { swapExactInvForDbr } from "@app/util/sINV";
+import { useINVBalance } from "@app/hooks/useBalances";
 
-const { DOLA } = getNetworkConfigConstants();
+const { DOLA, INV } = getNetworkConfigConstants();
 
 const defaultRefClassicAmount = '1';
 const defaultRefSdolaAmount = '1';
 
-const TAB_OPTIONS = ['Sell DOLA', 'Buy DBR', 'Infos'];
+const EXACT_DBR = 'Buy DBR';
+const SELL_DOLA = 'Sell DOLA';
+const SELL_INV = 'Sell INV';
+const INFOS = 'Info';
+const TAB_OPTIONS = [SELL_DOLA, SELL_INV, INFOS];
 
 const ListLabelValues = ({ items }: { items: { label: string, value: string | any, color?: string, isLoading?: boolean }[] }) => {
     return <VStack w='full' spacing="2" alignItems="flex-start">
@@ -78,6 +84,10 @@ const AUCTION_TYPES = {
         auction: DOLA_SAVINGS_ADDRESS,
         helper: SDOLA_HELPER_ADDRESS,
     },
+    'sinv': {
+        auction: SINV_ADDRESS,
+        helper: SINV_HELPER_ADDRESS,
+    },
 }
 
 const getArbitrageValue = (dolaAmount: string, auctionPrice: number, marketSwapPrice: number, dbrPrice: number) => {
@@ -93,42 +103,53 @@ export const DbrAuctionBuyer = ({
     title,
 }) => {
     const { price: dolaPrice } = useDOLAPriceLive();
+    const { markets, isLoading: isLoadingMarkets } = useDBRMarkets();
+    const invMarket = markets?.find(m => m.isInv);
+    const invPrice = invMarket?.price||0;
     const { provider, account } = useWeb3React();
     const [dolaAmount, setDolaAmount] = useState('');
+    const [invAmount, setInvAmount] = useState('');
     const [dbrAmount, setDbrAmount] = useState('');
-    const [selectedAuction, setSelectedAuction] = useState<DbrAuctionType>('classic');
+    const [dolaAuctionType, setDolaAuctionType] = useState<DbrAuctionType>('classic');
     const [isInited, setIsInited] = useState(false);
     const [bestAuctionSrc, setBestAuctionSrc] = useState('');
     const [isConnected, setIsConnected] = useState(true);
-    const { signedBalance: dbrBalance, dbrExpiryDate, debt: currentTotalDebt } = useAccountDBR(account);
+    const { signedBalance: dbrBalance } = useAccountDBR(account);
     const { balance: dolaBalance } = useDOLABalance(account);
+    const { balance: invBalance } = useINVBalance(account);
 
     const [slippage, setSlippage] = useState('1');
     const [tab, setTab] = useState(TAB_OPTIONS[0]);
-    const isExactDola = tab === TAB_OPTIONS[0];
-    const isClassicDbrAuction = selectedAuction === 'classic';
+    const isSellMode = tab === SELL_DOLA || tab === SELL_INV;
+    const isExactDola = tab === SELL_DOLA;
+    const isExactInv = tab === SELL_INV;
+    const selectedAuction = isExactInv ? 'sinv' : dolaAuctionType;
+    const isClassicDbrAuction = dolaAuctionType === 'classic';
+    const sellTokenSymobl = isExactInv ? 'INV' : 'DOLA';
+    const sellTokenPrice = tab === SELL_DOLA ? dolaPrice : invPrice;
     const helperAddress = AUCTION_TYPES[selectedAuction].helper;
     const defaultRefAmount = isClassicDbrAuction ? defaultRefClassicAmount : defaultRefSdolaAmount;
 
-    const { price: dbrSwapPriceRef } = useTriCryptoSwap(parseFloat(defaultRefAmount), 0, 1);
-    const { price: dbrSwapPrice, isLoading: isCurvePriceLoading } = useTriCryptoSwap(parseFloat(!dolaAmount || dolaAmount === '0' ? defaultRefAmount : dolaAmount), 0, 1);
+    const srcIndex = isExactInv ? 2 : 0;
+    const { price: dbrSwapPriceRef } = useTriCryptoSwap(parseFloat(defaultRefAmount), srcIndex, 1);
+    const { price: dbrSwapPrice, isLoading: isCurvePriceLoading } = useTriCryptoSwap(parseFloat(!dolaAmount || dolaAmount === '0' ? defaultRefAmount : dolaAmount), srcIndex, 1);
 
-    const dbrSwapPriceInDola = dbrSwapPrice ? 1 / dbrSwapPrice : 0;
-    const dbrSwapPriceRefInDola = dbrSwapPriceRef ? 1 / dbrSwapPriceRef : 0;
+    const dbrSwapPriceInToken = dbrSwapPrice ? 1 / dbrSwapPrice : 0;
+    const dbrSwapPriceRefInToken = dbrSwapPriceRef ? 1 / dbrSwapPriceRef : 0;
 
-    const classicAuctionPricingData = useDbrAuctionPricing({ helperAddress: DBR_AUCTION_HELPER_ADDRESS, dolaAmount, dbrAmount, slippage, isExactDola, dbrSwapPriceRefInDola });
-    const sdolaAuctionPricingData = useDbrAuctionPricing({ helperAddress: SDOLA_HELPER_ADDRESS, dolaAmount, dbrAmount, slippage, isExactDola, dbrSwapPriceRefInDola });
-
-    const selectedAuctionData = (isClassicDbrAuction ? classicAuctionPricingData : sdolaAuctionPricingData);
+    const classicAuctionPricingData = useDbrAuctionPricing({ auctionType: 'classic', helperAddress: DBR_AUCTION_HELPER_ADDRESS, tokenAmount: dolaAmount, dbrAmount, slippage, isExactToken: isSellMode, dbrSwapPriceRefInToken: dbrSwapPriceRefInToken });
+    const sdolaAuctionPricingData = useDbrAuctionPricing({ auctionType: 'sdola', helperAddress: SDOLA_HELPER_ADDRESS, tokenAmount: dolaAmount, dbrAmount, slippage, isExactToken: isSellMode, dbrSwapPriceRefInToken: dbrSwapPriceRefInToken });
+    const sinvAuctionPricingData = useDbrAuctionPricing({ auctionType: 'sinv', helperAddress: SINV_HELPER_ADDRESS, tokenAmount: invAmount, dbrAmount, slippage, isExactToken: isSellMode, dbrSwapPriceRefInToken: dbrSwapPriceRefInToken });
+    const selectedAuctionData = isExactInv ? sinvAuctionPricingData : (isClassicDbrAuction ? classicAuctionPricingData : sdolaAuctionPricingData);
     const {
         estimatedTimestampToReachMarketPrice,
         estimatedTimeToReachMarketPrice,
-        dbrAuctionPriceInDola,
+        dbrAuctionPriceInToken,
         minDbrOut,
-        maxDolaIn,
+        maxTokenIn,
         minDbrOutNum,
-        maxDolaInNum,
-        estimatedDolaIn,
+        maxTokenInNum,
+        estimatedTokenIn,
         estimatedDbrOut,
     } = selectedAuctionData;
 
@@ -136,12 +157,14 @@ export const DbrAuctionBuyer = ({
 
     const { priceUsd: dbrPrice } = useDBRPrice();
 
-    const auctionPriceColor = !dbrSwapPriceInDola || !selectedAuctionData?.dbrAuctionPriceInDola ? undefined : selectedAuctionData?.dbrAuctionPriceInDola < dbrSwapPriceInDola ? 'success' : 'warning';
+    const auctionPriceColor = !dbrSwapPriceInToken || !selectedAuctionData?.dbrAuctionPriceInToken ? undefined : selectedAuctionData?.dbrAuctionPriceInToken < dbrSwapPriceInToken ? 'success' : 'warning';
 
     const isInvalidSlippage = !slippage || parseFloat(slippage) <= 0 || parseFloat(slippage) >= 20;
-    const notEnoughDola = isExactDola ? dolaBalance < parseFloat(dolaAmount) : dolaBalance < maxDolaInNum;
-    const isExactDolaBtnDisabled = isInvalidSlippage || !dolaAmount || parseFloat(dolaAmount) <= 0;
-    const isExactDbrBtnDisabled = isInvalidSlippage || !dbrAmount || parseFloat(dbrAmount) <= 0 || (notEnoughDola);
+    const tokenAmount = isExactDola ? dolaAmount : invAmount;
+    const tokenBalance = isExactDola ? dolaBalance : invBalance;
+    const notEnoughToken = !!tokenAmount && (isSellMode ? tokenBalance < parseFloat(tokenAmount) : tokenBalance < maxTokenInNum);
+    const isExactTokenBtnDisabled = isInvalidSlippage || !tokenAmount || parseFloat(tokenAmount) <= 0;
+    const isExactDbrBtnDisabled = isInvalidSlippage || !dbrAmount || parseFloat(dbrAmount) <= 0 || (notEnoughToken);
 
     const auctionSlippageInput = <Input
         py="0"
@@ -157,12 +180,18 @@ export const DbrAuctionBuyer = ({
         if (isExactDola) {
             return swapExactDolaForDbr(provider?.getSigner(), parseEther(dolaAmount), minDbrOut, helperAddress);
         }
-        return swapDolaForExactDbr(provider?.getSigner(), maxDolaIn, parseEther(dbrAmount), helperAddress);
+        else if (isExactInv) {
+            console.log('sell inv', invAmount);
+            console.log('minDbrOut', minDbrOut);
+            return swapExactInvForDbr(provider?.getSigner(), parseEther(invAmount), minDbrOut);
+        }
+        return swapDolaForExactDbr(provider?.getSigner(), maxTokenIn, parseEther(dbrAmount), helperAddress);
     }
 
     const resetForm = () => {
         setDolaAmount('');
         setDbrAmount('');
+        setInvAmount('');
     }
 
     useDualSpeedEffect(() => {
@@ -173,22 +202,22 @@ export const DbrAuctionBuyer = ({
         if (isLoading) {
             return;
         }
-        const bestPriceSrc = (classicAuctionPricingData?.dbrAuctionPriceInDola < sdolaAuctionPricingData?.dbrAuctionPriceInDola ? 'classic' : 'sdola');
+        const bestPriceSrc = (classicAuctionPricingData?.dbrAuctionPriceInToken < sdolaAuctionPricingData?.dbrAuctionPriceInToken ? 'classic' : 'sdola');
         setBestAuctionSrc(bestPriceSrc);
         if (isInited) {
             return;
         }
-        setSelectedAuction(bestPriceSrc);
+        setDolaAuctionType(bestPriceSrc);
         setIsInited(true);
     }, [
-        classicAuctionPricingData?.dbrAuctionPriceInDola,
-        sdolaAuctionPricingData?.dbrAuctionPriceInDola,
+        classicAuctionPricingData?.dbrAuctionPriceInToken,
+        sdolaAuctionPricingData?.dbrAuctionPriceInToken,
         isLoading,
         isInited,
     ]);
 
-    const arbitrageOpportunity = (isExactDola && !dolaAmount) || (dbrSwapPriceInDola < dbrAuctionPriceInDola) || (!isExactDola && !dbrAmount)
-        ? 0 : getArbitrageValue(dolaAmount, dbrAuctionPriceInDola, dbrSwapPriceInDola, dbrPrice);
+    const arbitrageOpportunity = (isSellMode && !tokenAmount) || (dbrSwapPriceInToken < dbrAuctionPriceInToken) || (!isSellMode && !dbrAmount)
+        ? 0 : getArbitrageValue(tokenAmount, dbrAuctionPriceInToken, isExactInv ? invPrice : dbrSwapPriceInToken, dbrPrice);
 
     return <Container
         label={title}
@@ -205,7 +234,7 @@ export const DbrAuctionBuyer = ({
                     <>
                         <NavButtons active={tab} options={TAB_OPTIONS} onClick={(v) => setTab(v)} />
                         {
-                            tab === TAB_OPTIONS[2] ?
+                            tab === INFOS ?
                                 <VStack w='full' alignItems="flex-start">
                                     <DbrAuctionParametersWrapper />
                                 </VStack>
@@ -214,28 +243,36 @@ export const DbrAuctionBuyer = ({
                                         <Text fontSize="14px">
                                             DBR balance: <b>{preciseCommify(dbrBalance, 2)}</b>
                                         </Text>
-                                        <Text fontSize="14px">
-                                            DOLA balance: <b>{preciseCommify(dolaBalance, 2)}</b>
-                                        </Text>
+                                        {
+                                            tab === SELL_INV ?
+                                                <Text fontSize="14px">
+                                                    INV balance: <b>{preciseCommify(invBalance, 2)}</b>
+                                                </Text> :
+                                                <Text fontSize="14px">
+                                                    DOLA balance: <b>{preciseCommify(dolaBalance, 2)}</b>
+                                                </Text>
+                                        }
                                     </HStack>
-                                    <RadioCardGroup
-                                        wrapperProps={{ w: 'full', pt: '2', alignItems: 'center', justify: { base: 'center', sm: 'space-between' } }}
-                                        group={{
-                                            name: 'auctionSel',
-                                            value: selectedAuction,
-                                            onChange: (v) => setSelectedAuction(v),
-                                        }}
-                                        radioCardProps={{ fontSize: '15px', py: 3, px: '2', mr: '4', w: { base: 'full', sm: '100%' } }}
-                                        options={[
-                                            { value: 'classic', label: <AuctionRadioOption isBest={bestAuctionSrc === 'classic'} label="Virtual auction DBR price" dbrAuctionPriceInDola={classicAuctionPricingData.dbrAuctionPriceInDola} dolaPrice={dolaPrice} /> },
-                                            { value: 'sdola', label: <AuctionRadioOption isBest={bestAuctionSrc === 'sdola'} label="sDOLA auction DBR price" dbrAuctionPriceInDola={sdolaAuctionPricingData.dbrAuctionPriceInDola} dolaPrice={dolaPrice} /> },
-                                        ]}
-                                    />
                                     {
-                                        tab === TAB_OPTIONS[0] &&
+                                        tab !== SELL_INV && <RadioCardGroup
+                                            wrapperProps={{ w: 'full', pt: '2', alignItems: 'center', justify: { base: 'center', sm: 'space-between' } }}
+                                            group={{
+                                                name: 'auctionSel',
+                                                value: dolaAuctionType,
+                                                onChange: (v) => setDolaAuctionType(v),
+                                            }}
+                                            radioCardProps={{ fontSize: '15px', py: 3, px: '2', mr: '4', w: { base: 'full', sm: '100%' } }}
+                                            options={[
+                                                { value: 'classic', label: <AuctionRadioOption isBest={bestAuctionSrc === 'classic'} label="Virtual auction DBR price" dbrAuctionPriceInDola={classicAuctionPricingData.dbrAuctionPriceInToken} dolaPrice={dolaPrice} /> },
+                                                { value: 'sdola', label: <AuctionRadioOption isBest={bestAuctionSrc === 'sdola'} label="sDOLA auction DBR price" dbrAuctionPriceInDola={sdolaAuctionPricingData.dbrAuctionPriceInToken} dolaPrice={dolaPrice} /> },
+                                            ]}
+                                        />
+                                    }
+                                    {
+                                        tab === SELL_DOLA &&
                                         <VStack w='full' alignItems="flex-start">
-                                            <TextInfo message="Exact amount of DOLA in exchange for DBR, the auction formula is of type K=xy">
-                                                <Text fontWeight="bold" fontSize="16px">Exact amount DOLA to sell:</Text>
+                                            <TextInfo message="Amount of DOLA in exchange for DBR, the auction formula is of type K=xy">
+                                                <Text fontWeight="bold" fontSize="16px">Amount DOLA to sell:</Text>
                                             </TextInfo>
                                             <SimpleAmountForm
                                                 btnProps={{ needPoaFirst: true }}
@@ -250,14 +287,39 @@ export const DbrAuctionBuyer = ({
                                                 showMaxBtn={false}
                                                 hideInputIfNoAllowance={false}
                                                 showBalance={true}
-                                                isDisabled={isExactDolaBtnDisabled}
+                                                isDisabled={isExactTokenBtnDisabled}
                                                 checkBalanceOnTopOfIsDisabled={true}
                                                 onSuccess={() => resetForm()}
                                             />
                                         </VStack>
                                     }
                                     {
-                                        tab === TAB_OPTIONS[1] &&
+                                        tab === SELL_INV &&
+                                        <VStack w='full' alignItems="flex-start">
+                                            <TextInfo message="Amount of INV in exchange for DBR, the auction formula is of type K=xy">
+                                                <Text fontWeight="bold" fontSize="16px">Amount INV to sell:</Text>
+                                            </TextInfo>
+                                            <SimpleAmountForm
+                                                btnProps={{ needPoaFirst: true }}
+                                                defaultAmount={dolaAmount}
+                                                address={INV}
+                                                destination={SINV_HELPER_ADDRESS}
+                                                signer={provider?.getSigner()}
+                                                decimals={18}
+                                                onAction={() => sell()}
+                                                actionLabel={`Sell INV for DBR`}
+                                                onAmountChange={(v) => setInvAmount(v)}
+                                                showMaxBtn={false}
+                                                hideInputIfNoAllowance={false}
+                                                showBalance={true}
+                                                isDisabled={isExactTokenBtnDisabled}
+                                                checkBalanceOnTopOfIsDisabled={true}
+                                                onSuccess={() => resetForm()}
+                                            />
+                                        </VStack>
+                                    }
+                                    {
+                                        tab === EXACT_DBR &&
                                         <VStack w='full' alignItems="flex-start">
                                             <TextInfo message="Exact amount of DBR in exchange for DOLA, the auction formula is of type K=xy">
                                                 <Text fontWeight="bold" fontSize="14px">Exact amount of DBR to buy:</Text>
@@ -283,26 +345,26 @@ export const DbrAuctionBuyer = ({
                                         </VStack>
                                     }
                                     {
-                                        !isExactDola && notEnoughDola && <InfoMessage alertProps={{ w: 'full' }} description="Not enough DOLA balance" />
+                                        notEnoughToken && <InfoMessage alertProps={{ w: 'full' }} description={`Not enough ${sellTokenSymobl} balance`} />
                                     }
                                     <Divider />
                                     <ListLabelValues items={[
-                                        (isExactDola ?
+                                        (isSellMode ?
                                             { label: `Estimated amount to receive`, isLoading, value: estimatedDbrOut > 0 ? `${preciseCommify(estimatedDbrOut, 2)} DBR (${shortenNumber(estimatedDbrOut * dbrPrice, 2, true)})` : '-' }
-                                            : { label: `Estimated amount to sell`, isLoading, value: estimatedDolaIn > 0 ? `${preciseCommify(estimatedDolaIn, 2)} DOLA (${shortenNumber(estimatedDolaIn * dolaPrice || 1, 2, true)})` : '-' }
+                                            : { label: `Estimated amount to sell`, isLoading, value: estimatedTokenIn > 0 ? `${preciseCommify(estimatedTokenIn, 2)} ${sellTokenSymobl} (${shortenNumber(estimatedTokenIn * sellTokenPrice || 1, 2, true)})` : '-' }
                                         ),
-                                        { label: `Price via selected auction`, color: auctionPriceColor, isLoading, value: dbrAuctionPriceInDola > 0 ? `~${shortenNumber(dbrAuctionPriceInDola, 4)} DOLA (${shortenNumber(dbrAuctionPriceInDola * dolaPrice, 4, true)})` : '-' },
-                                        { label: `Market price via Curve`, isLoading, value: !isCurvePriceLoading && dbrSwapPriceInDola > 0 ? `~${shortenNumber(dbrSwapPriceInDola, 4)} DOLA (${shortenNumber(dbrSwapPriceInDola * dolaPrice, 4, true)})` : '-' },
+                                        { label: `Price via selected auction`, color: auctionPriceColor, isLoading, value: dbrAuctionPriceInToken > 0 ? `~${shortenNumber(dbrAuctionPriceInToken, 4)} ${sellTokenSymobl} (${shortenNumber(dbrAuctionPriceInToken * sellTokenPrice, 4, true)})` : '-' },
+                                        { label: `Market price${isExactInv ? '' : ' via Curve'}`, isLoading, value: !isCurvePriceLoading && dbrSwapPriceInToken > 0 ? `~${shortenNumber(dbrSwapPriceInToken, 4)} ${sellTokenSymobl} (${shortenNumber(dbrSwapPriceInToken * sellTokenPrice, 4, true)})` : '-' },
                                         estimatedTimeToReachMarketPrice <= 300 ? undefined : { label: `Est. time for the auction to reach the market price`, isLoading, value: estimatedTimeToReachMarketPrice > ONE_DAY_SECS ? `~${shortenNumber((estimatedTimeToReachMarketPrice / ONE_DAY_SECS), 2)} days` : `${moment(estimatedTimestampToReachMarketPrice).fromNow()}` },
                                         arbitrageOpportunity <= 0 ? undefined : { label: `Arbitrage opportunity`, isLoading, value: `${preciseCommify(arbitrageOpportunity, 2, true)}` },
                                     ]} />
                                     <Divider />
                                     <ListLabelValues items={[
                                         { label: `Max. slippage %`, value: auctionSlippageInput },
-                                        (isExactDola ?
+                                        (isSellMode ?
                                             { label: `Min. DBR to receive`, isLoading, value: minDbrOutNum > 0 ? `${preciseCommify(minDbrOutNum, 2, false, true)} DBR (${shortenNumber(minDbrOutNum * dbrPrice, 2, true)})` : '-' }
                                             :
-                                            { label: `Max. DOLA to send`, isLoading, value: maxDolaInNum > 0 ? `${preciseCommify(maxDolaInNum, 2, false, true)} DOLA (${shortenNumber(maxDolaInNum * dolaPrice, 2, true)})` : '-' }
+                                            { label: `Max. ${sellTokenSymobl} to send`, isLoading, value: maxTokenInNum > 0 ? `${preciseCommify(maxTokenInNum, 2, false, true)} ${sellTokenSymobl} (${shortenNumber(maxTokenInNum * sellTokenPrice, 2, true)})` : '-' }
                                         ),
                                     ]} />
                                 </>
