@@ -11,19 +11,19 @@ import { DbrAuctionTabs } from '@app/components/F2/DbrAuction/DbrAuctionTabs';
 import { useDbrAuctionActivity } from '@app/util/dbr-auction';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
 
-export const DbrAuctionVirtualStatsPage = () => {
-  const { isLoading, virtualAuctionEvents: events, accDolaInVirtual: accDolaIn, accDbrOutVirtual: accDbrOut, timestamp } = useDbrAuctionActivity();  
+export const DbrAuctionSInvStatsPage = () => {
+  const { isLoading, sinvAuctionEvents: events, accInvInSinv: accInvIn, accDbrOutSinv: accDbrOut, timestamp } = useDbrAuctionActivity();  
   return (
     <Layout>
       <Head>
-        <title>Inverse Finance - DBR Virtual Auction</title>
-        <meta name="og:title" content="Inverse Finance - DBR Virtual Auction" />
-        <meta name="og:description" content="DBR Virtual Auction" />
-        <meta name="description" content="DBR Virtual Auction" />
-        <meta name="keywords" content="Inverse Finance, swap, stablecoin, DOLA, DBR, auction" />
+        <title>Inverse Finance - DBR sINV Auction</title>
+        <meta name="og:title" content="Inverse Finance - DBR sINV Auction" />
+        <meta name="og:description" content="DBR sINV Auction" />
+        <meta name="description" content="DBR sINV Auction" />
+        <meta name="keywords" content="Inverse Finance, swap, sINV, DBR, auction" />
       </Head>
       <AppNav active="Stake" activeSubmenu="Buy DBR (auction)" />
-      <DbrAuctionTabs defaultIndex={2} />
+      <DbrAuctionTabs defaultIndex={4} />
       <VStack
         w={{ base: 'full', lg: '1200px' }}
         mt='6'
@@ -31,8 +31,8 @@ export const DbrAuctionVirtualStatsPage = () => {
         px={{ base: '4', lg: '0' }}
       >
         <Container
-          label="DBR Virtual Auction"
-          description="Note: Virtual auction income goes to bad debt reduction"
+          label="DBR sINV Auction"
+          description="Note: sINV auction income goes to sINV holders"
           noPadding
           m="0"
           p="0"
@@ -43,10 +43,10 @@ export const DbrAuctionVirtualStatsPage = () => {
           right={
             <HStack justify="space-between" spacing="4">
               <VStack spacing="0" alignItems={{ base: 'left', md: 'center' }}>
-                <Text textAlign={{ base: 'left', md: 'center' }} fontWeight="bold">Total DOLA income</Text>
+                <Text textAlign={{ base: 'left', md: 'center' }} fontWeight="bold">Total INV income</Text>
                 {
                   isLoading ? <SmallTextLoader width={'50px'} />
-                    : <Text textAlign={{ base: 'left', md: 'center' }} color="secondaryTextColor" fontWeight="bold" fontSize="18px">{preciseCommify(accDolaIn, 2)}</Text>
+                    : <Text textAlign={{ base: 'left', md: 'center' }} color="secondaryTextColor" fontWeight="bold" fontSize="18px">{preciseCommify(accInvIn, 2)}</Text>
                 }
               </VStack>
               <VStack spacing="0" alignItems={{ base: 'left', md: 'center' }}>
@@ -71,4 +71,4 @@ export const DbrAuctionVirtualStatsPage = () => {
   )
 }
 
-export default DbrAuctionVirtualStatsPage
+export default DbrAuctionSInvStatsPage

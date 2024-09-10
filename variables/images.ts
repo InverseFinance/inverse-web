@@ -2,6 +2,7 @@ import { Token } from "@app/types";
 
 export const IMAGES = {
     INV: "/assets/inv-square-dark.jpeg",
+    SINV: "/assets/sINVx128.png",
     DOLA: "/assets/v2/dola-small.png",
     DBR: "/assets/v2/dbr.png",
     "3CRV": "https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039",
@@ -28,6 +29,7 @@ export const TOKEN_IMAGES = {
     "INV": IMAGES.INV,
     "DBR": IMAGES.DBR,
     "THREECRV": IMAGES["3CRV"],
+    "SINV": IMAGES.SINV,
     "sUSDe": "https://assets.coingecko.com/coins/images/33669/standard/sUSDe-Symbol-Color.png?1716307680",
     "COMP": "https://assets.coingecko.com/coins/images/10775/standard/COMP.png?1696510737",
     "FEI": "https://assets.coingecko.com/coins/images/14570/standard/ZqsF51Re_400x400.png?1696514251",

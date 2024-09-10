@@ -12,7 +12,7 @@ import { useDbrAuctionActivity } from '@app/util/dbr-auction';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
 
 export const DbrAuctionStatsPage = () => {
-  const { isLoading, events, accDolaIn, accDbrOut, timestamp } = useDbrAuctionActivity();  
+  const { isLoading, events, dolaEvents, invEvents, accDolaIn, accDbrOut, accInvIn, timestamp } = useDbrAuctionActivity();  
   return (
     <Layout>
       <Head>
@@ -32,7 +32,7 @@ export const DbrAuctionStatsPage = () => {
       >
         <Container
           label="DBR auction stats"
-          description="Note: Virtual auction income goes to bad debt reduction while sDOLA auction income goes to sDOLA stakers"
+          description="Note: Virtual auction income goes to bad debt reduction"
           noPadding
           m="0"
           p="0"
@@ -50,6 +50,13 @@ export const DbrAuctionStatsPage = () => {
                 }
               </VStack>
               <VStack spacing="0" alignItems={{ base: 'left', md: 'center' }}>
+                <Text textAlign={{ base: 'left', md: 'center' }} fontWeight="bold">Total INV income</Text>
+                {
+                  isLoading ? <SmallTextLoader width={'50px'} />
+                    : <Text textAlign={{ base: 'left', md: 'center' }} color="secondaryTextColor" fontWeight="bold" fontSize="18px">{preciseCommify(accInvIn, 2)}</Text>
+                }
+              </VStack>
+              <VStack spacing="0" alignItems={{ base: 'left', md: 'center' }}>
                 <Text textAlign={{ base: 'left', md: 'center' }} fontWeight="bold">Total DBR auctioned</Text>
                 {
                   isLoading ? <SmallTextLoader width={'50px'} />
@@ -62,7 +69,7 @@ export const DbrAuctionStatsPage = () => {
           {
             isLoading ?
               <SkeletonBlob />
-              : <DbrAuctionBuysChart isTotal={true} events={events} />
+              : <DbrAuctionBuysChart isTotal={true} events={events} chartEvents={dolaEvents} />
           }
         </Container>
         <DbrAuctionBuys lastUpdate={timestamp} events={events.slice(0, 100)} title="Last 100 DBR buys from the auction" />

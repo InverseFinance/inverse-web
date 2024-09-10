@@ -62,7 +62,7 @@ export const DbrAuctionSdolaStatsPage = () => {
           {
             isLoading ?
               <SkeletonBlob />
-              : <DbrAuctionBuysChart isTotal={false} events={events} />
+              : <DbrAuctionBuysChart isTotal={false} events={events} chartEvents={events} />
           }
         </Container>
         <DbrAuctionBuys lastUpdate={timestamp} events={events.slice(0, 100)} title="Last 100 DBR buys from the auction" />

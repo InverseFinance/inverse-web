@@ -29,14 +29,14 @@ export const getSInvHelperContract = (signerOrProvider: JsonRpcSigner) => {
     return new Contract(SINV_HELPER_ADDRESS, SINV_HELPER_ABI, signerOrProvider);
 }
 
-export const sellInvForDbr = async (signerOrProvider: JsonRpcSigner, dolaToSell: BigNumber, minDbrOut: BigNumber) => {
+export const sellInvForDbr = async (signerOrProvider: JsonRpcSigner, invToGive: BigNumber, minDbrOut: BigNumber) => {
     const contract = getSInvContract(signerOrProvider);
-    return contract.buyDBR(dolaToSell, minDbrOut);
+    return contract.buyDBR(invToGive, minDbrOut);
 }
 
-export const swapExactInvForDbr = (signerOrProvider: JsonRpcSigner, dolaToSell: BigNumber, minDbrOut: BigNumber) => {
+export const swapExactInvForDbr = (signerOrProvider: JsonRpcSigner, invToGive: BigNumber, minDbrOut: BigNumber) => {
     const contract = getSInvHelperContract(signerOrProvider);
-    return contract.swapExactInvForDbr(dolaToSell, minDbrOut);
+    return contract.swapExactInvForDbr(invToGive, minDbrOut);
 }
 
 export const swapInvForExactDbr = (signerOrProvider: JsonRpcSigner, dolaInMax: BigNumber, dbrOut: BigNumber) => {
@@ -44,9 +44,9 @@ export const swapInvForExactDbr = (signerOrProvider: JsonRpcSigner, dolaInMax: B
     return contract.swapInvForExactDbr(dbrOut, dolaInMax);
 }
 
-export const getDbrOut = async (signerOrProvider: JsonRpcSigner, dolaToSell: BigNumber) => {
+export const getDbrOut = async (signerOrProvider: JsonRpcSigner, invToGive: BigNumber) => {
     const contract = getSInvHelperContract(signerOrProvider);
-    return contract.getDbrOut(dolaToSell);
+    return contract.getDbrOut(invToGive);
 }
 
 export const stakeInv = async (signerOrProvider: JsonRpcSigner, dolaIn: BigNumber, recipient?: string) => {
@@ -233,7 +233,7 @@ export const useInvStakingEvolution = (): SWR & {
     const { data, error } = useCacheFirstSWR(`/api/inv-staking/history?v=1.0.2`, fetcher);
 
     const evolution = useMemo(() => {
-        return (data?.totalEntries || []).map((e) => ({ ...e, apy: aprToApy(e.apr, WEEKS_PER_YEAR) }));
+        return (data?.totalEntries || []).map((e) => ({ ...e }));
     }, [data?.timestamp, data?.totalEntries]);
 
     return {
