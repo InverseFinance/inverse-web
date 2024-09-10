@@ -53,7 +53,7 @@ export const SinvPage = () => {
                   <Text>- Reduced gas costs</Text>
                   <Text>- Yield-bearing fungible token</Text>
                   <Text>- Can earn additional yield by being deposited in Liquidity Pools</Text>
-                  <Text>- Portable accross chains</Text>
+                  <Text>- Portable across chains</Text>
                   <Text>- Creates continuous buying pressure on INV</Text>                  
                 </SimpleGrid>
               }
