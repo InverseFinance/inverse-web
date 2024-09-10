@@ -146,7 +146,7 @@ export const StakeInvUI = () => {
             </HStack>
             <HStack justify="space-between" w='full'>
                 <StatBasic message="This week's APY is calculated with last week's DBR auction revenues and assuming a weekly auto-compounding" isLoading={isLoading} name="Current APY" value={apy ? `${shortenNumber(apy, 2)}%` : '-'} />
-                {/* <StatBasic message={"The projected APY is a theoretical estimation of where the APY should tend to go. It's calculated by considering current's week auction revenue and a forecast that considers the DBR incentives, where the forecast portion has a weight of more than 50%"} isLoading={isLoading} name="Projected APY" value={projectedApy ? `${shortenNumber(projectedApy, 2)}%` : '-'} /> */}
+                <StatBasic message={"The projected APY is a theoretical estimation of where the APY should tend to go. It's calculated by considering current's week auction revenue and a forecast that considers the DBR incentives, where the forecast portion has a weight of more than 50%"} isLoading={isLoading} name="Projected APY" value={projectedApy ? `${shortenNumber(projectedApy, 2)}%` : '-'} />
             </HStack>    
             <SuccessMessage
                 showIcon={false}
@@ -159,10 +159,10 @@ export const StakeInvUI = () => {
                                 <Text><b>~{preciseCommify(monthlyInvRewards, 2)} INV per month</b></Text>
                             </Stack>
                         }
-                        <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
+                        {/* <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
                             <Text>- 30-day average APY:</Text>
                             <Text><b>{thirtyDayAvg ? `${shortenNumber(thirtyDayAvg, 2)}%` : '-'}</b></Text>
-                        </Stack>
+                        </Stack> */}
                         <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
                             <Text>- Total staked:</Text>
                             <Text><b>{sInvTotalAssets ? `${shortenNumber(sInvTotalAssets, 2)} INV` : '-'}</b></Text>

@@ -56,12 +56,12 @@ export const StakeInvInfos = () => {
                     </Text>
                     <Text>- It's a decentralized yield-bearing fungible asset</Text>
                     <Text>- The yield comes from DBR auctions and INV staking </Text>
-                    {/* <Link textDecoration="underline" href='https://twitter.com/InverseFinance/status/1755593147285905683' isExternal target="_blank">
+                    <Link textDecoration="underline" href='https://x.com/InverseFinance/status/1833555567895310836' isExternal target="_blank">
                         Watch the launch video <ExternalLinkIcon />
-                    </Link> */}
-                    <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/sinv' isExternal target="_blank">
-                        Learn more about sINV <ExternalLinkIcon />
                     </Link>
+                    {/* <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/sinv' isExternal target="_blank">
+                        Learn more about sINV <ExternalLinkIcon />
+                    </Link> */}
                 </VStack>
                 <Text fontSize="14px" fontWeight="bold">sINV stats</Text>
                 <VStack w='full' spacing="0" alignItems="flex-start">

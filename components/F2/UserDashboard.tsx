@@ -346,7 +346,7 @@ export const UserDashboard = ({
                 footer={
                     <CardFooter
                         labelLeft={<>APR: <b>{shortenNumber(sInvApr, 2)}%</b></>}
-                        // labelRight={<>proj. APR: <b>{shortenNumber(sInvProjectedApr, 2)}%</b></>}
+                        labelRight={<>proj. APR: <b>{shortenNumber(sInvProjectedApr, 2)}%</b></>}
                     />
                 } href="/sINV" noDataFallback={StakeSINV} isLoading={isLoading} value={invStakedInSInv} label="INV staked in sINV" precision={2} />
             {/* <NumberCard
