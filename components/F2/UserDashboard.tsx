@@ -23,6 +23,7 @@ import { F2Markets } from "./F2Markets";
 import { InfoMessage } from "../common/Messages";
 import { useStakedDola, useStakedDolaBalance } from "@app/util/dola-staking";
 import { FirmInsuranceCover, SDolaInsuranceCover } from "../common/InsuranceCover";
+import { useStakedInv, useStakedInvBalance } from "@app/util/sINV";
 
 const MAX_AREA_CHART_WIDTH = 625;
 
@@ -131,8 +132,9 @@ const DbrEvoChart = ({
     />
 }
 
-export const DashBoardCard = (props: StackProps & { cardTitle?: string, cardTitleProps?: TextProps, href?: string, imageSrc?: string, imageList?: string[] }) => {
+export const DashBoardCard = (props: StackProps & { cardTitle?: string, cardTitleProps?: TextProps, href?: string, imageSize?: number,imageSrc?: string, imageList?: string[] }) => {
     const imgList = Array.isArray(props.imageSrc) ? props.imageSrc : [props.imageSrc];
+    const imgSize = props.imageSize || 30;
     return <Flex
         w="full"
         borderRadius={8}
@@ -148,7 +150,7 @@ export const DashBoardCard = (props: StackProps & { cardTitle?: string, cardTitl
     >
         {!!props.cardTitle && <Text fontSize="18px" fontWeight="bold" mx="auto" w='200px' position="absolute" left="0" right="0" top={{ base: '5px', xl: '32px' }} {...props.cardTitleProps}>{props.cardTitle}</Text>}
         {!!props.imageSrc && imgList.map((image, i) => {
-            return <Image key={image} borderRadius="50px" src={image} w="30px" h="30px" position="absolute" left="10px" top={`${10 + 40 * i}px`} />
+            return <Image key={image} borderRadius="50px" src={image} w={`${imgSize}px`} h={`${imgSize}px`} position="absolute" left="10px" top={`${10 + (imgSize + 10) * i}px`} />
         })}
         {props.children}
     </Flex>
@@ -266,8 +268,9 @@ const SmallLinkBtn = ({ href = '', ...props }) => {
 
 const BorrowDola = <BigLinkBtn href="/firm">Borrow DOLA</BigLinkBtn>;
 const SupplyAssets = <BigLinkBtn href="/firm">Supply Assets</BigLinkBtn>;
-const StakeINV = <SmallLinkBtn href="/firm">Stake INV</SmallLinkBtn>;
+const StakeINV = <SmallLinkBtn href="/firm">Use INV as collateral</SmallLinkBtn>;
 const StakeDOLA = <SmallLinkBtn href="/sDOLA">Stake DOLA</SmallLinkBtn>;
+const StakeSINV = <SmallLinkBtn href="/sINV">Stake INV</SmallLinkBtn>;
 
 export const UserDashboard = ({
     account
@@ -282,8 +285,13 @@ export const UserDashboard = ({
     const { invMonthlyRewards, dbrMonthlyRewards, dolaMonthlyRewards, totalRewardsUsd, invPrice, dolaPrice } = useAccountRewards(account, invMarket);
 
     const { balance: stakedDolaBalance } = useStakedDolaBalance(account);
+    const { balance: stakedInvBalance } = useStakedInvBalance(account);
     const { apr: sDolaApr, projectedApr: sDolaProjectedApr, sDolaExRate } = useStakedDola(dbrDolaPrice);
+    const { apr: sInvApr, projectedApr: sInvProjectedApr, sInvExRate } = useStakedInv(dbrDolaPrice);
+
     const dolaStakedInSDola = sDolaExRate && stakedDolaBalance ? sDolaExRate * stakedDolaBalance : 0;
+    const invStakedInSInv = sInvExRate && stakedInvBalance ? sInvExRate * stakedInvBalance : 0;
+
     const { themeStyles } = useAppTheme();
     const { stakedInFirm, isLoading: isLoadingInvStaked } = useStakedInFirm(account);
     const { debt, dbrExpiryDate, signedBalance: dbrBalance, needsRechargeSoon, isLoading: isLoadingAccount } = useAccountDBR(account);
@@ -333,14 +341,22 @@ export const UserDashboard = ({
                         labelRight={<>proj. APR: <b>{shortenNumber(sDolaProjectedApr, 2)}%</b></>}
                     />
                 } href="/sDOLA" noDataFallback={StakeDOLA} isLoading={isLoading} value={dolaStakedInSDola} label="DOLA staked" precision={2} />
-            <NumberCard
+                <NumberCard
+                imageSrc={TOKEN_IMAGES.SINV}
+                footer={
+                    <CardFooter
+                        labelLeft={<>APR: <b>{shortenNumber(sInvApr, 2)}%</b></>}
+                        labelRight={<>proj. APR: <b>{shortenNumber(sInvProjectedApr, 2)}%</b></>}
+                    />
+                } href="/sINV" noDataFallback={StakeSINV} isLoading={isLoading} value={invStakedInSInv} label="INV staked in sINV" precision={2} />
+            {/* <NumberCard
                 imageSrc={TOKEN_IMAGES.DBR}
                 footer={
                     <CardFooter
                         labelRight={<>Price: <b>{shortenNumber(dbrPrice, 4, true)}</b></>}
                     />
                 }
-                isLoading={isLoading} price={dbrPrice} value={dbrBalance} label="DBR balance" precision={0} />
+                isLoading={isLoading} price={dbrPrice} value={dbrBalance} label="DBR balance" precision={0} /> */}
             <StringCard
                 imageSrc={TOKEN_IMAGES.DBR}
                 footer={
@@ -352,10 +368,12 @@ export const UserDashboard = ({
             {
                 totalRewardsUsd > 1 && <>
                     <MonthlyRewards cardProps={{
+                        imageSize: 24,
                         imageSrc: [
                             TOKEN_IMAGES.INV,
                             TOKEN_IMAGES.DOLA,
                             TOKEN_IMAGES.DBR,
+                            TOKEN_IMAGES.SINV,
                         ]
                     }} value={totalRewardsUsd} label="Staking monthly rewards" noDataFallback="No INV/DOLA/DBR rewards" isUsd={true} />
                     <MonthlyRewards cardProps={{ imageSrc: TOKEN_IMAGES.INV }} value={invMonthlyRewards} price={invPrice} label="INV monthly rewards" noDataFallback="No INV rewards" precision={2} />
@@ -366,7 +384,7 @@ export const UserDashboard = ({
         </SimpleGrid>
         {
             invMarket?.depositsUsd > 1 && <SimpleGrid columns={{ base: 1, lg: 2 }} spacing="8" w="100%">
-                <DashBoardCard cardTitle="Staked INV evolution" imageSrc={TOKEN_IMAGES.INV}>
+                <DashBoardCard cardTitle="INV market position" imageSrc={TOKEN_IMAGES.INV}>
                     <FirmInvEvoChart market={invMarket} />
                 </DashBoardCard>
                 <DashBoardCard cardTitle="DBR balance evolution" imageSrc={TOKEN_IMAGES.DBR}>
