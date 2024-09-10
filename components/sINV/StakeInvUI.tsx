@@ -159,10 +159,10 @@ export const StakeInvUI = () => {
                                 <Text><b>~{preciseCommify(monthlyInvRewards, 2)} INV per month</b></Text>
                             </Stack>
                         }
-                        <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
+                        {/* <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
                             <Text>- 30-day average APY:</Text>
                             <Text><b>{thirtyDayAvg ? `${shortenNumber(thirtyDayAvg, 2)}%` : '-'}</b></Text>
-                        </Stack>
+                        </Stack> */}
                         <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
                             <Text>- Total staked:</Text>
                             <Text><b>{sInvTotalAssets ? `${shortenNumber(sInvTotalAssets, 2)} INV` : '-'}</b></Text>
