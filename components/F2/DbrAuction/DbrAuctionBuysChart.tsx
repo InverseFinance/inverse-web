@@ -39,14 +39,14 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
         .reduce((prev, curr) => prev + curr.dolaIn, 0);
 
     const invAuctionBuys = invAuctionBuysEvents
-        .reduce((prev, curr) => prev + useInvAmount ? curr.invIn||0 : curr.marketPriceInDola * curr.dbrOut, 0);
+        .reduce((prev, curr) => prev + (useInvAmount ? (curr.invIn||0) : curr.worthIn), 0);
 
     const uniqueWeeks = [...new Set(chartEvents.map(e => getPreviousThursdayUtcDateOfTimestamp(e.timestamp)))];
     uniqueWeeks.sort((a, b) => a > b ? 1 : -1);
     const dbrPricesStats = uniqueWeeks.map(week => {
         const weekEvents = chartEvents.filter(e => getPreviousThursdayUtcDateOfTimestamp(e.timestamp) === week);
-        const prices = weekEvents.map(e => e.priceInDola);
-        const marketPrices = weekEvents.map(e => e.marketPriceInDola);
+        const prices = weekEvents.map(e => useInvAmount ? e.priceInInv : e.priceInDola);
+        const marketPrices = weekEvents.map(e => useInvAmount ? e.marketPriceInInv : e.marketPriceInDola);
         const min = Math.min(...prices);
         const max = Math.max(...prices);
         const nbWeekEvents = weekEvents.length;
@@ -57,7 +57,7 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
 
     const dbrWeeklyIncomeStats = uniqueWeeks.map(week => {
         const weekEvents = chartEvents.filter(e => getPreviousThursdayUtcDateOfTimestamp(e.timestamp) === week);
-        const dolaIn = weekEvents.map(e => e.dolaIn ? e.dolaIn : useInvAmount ? e.invIn||0 : e.marketPriceInDola * e.dbrOut);
+        const dolaIn = weekEvents.map(e => e.dolaIn ? e.dolaIn : useInvAmount ? (e.invIn||0) : e.worthIn);
         const total = dolaIn.reduce((prev, curr) => prev + curr, 0);
         return { week, y: total, x: week }
     });
@@ -87,7 +87,7 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
                 isDollars={false}
                 smoothLineByDefault={false}
                 barProps={{ eventName: 'DBR auction buys' }}
-                areaProps={{ secondaryRef: 'yDay', secondaryAsLeftAxis: true, secondaryAsUsd: false, secondaryPrecision: 2, secondaryLabel: 'DOLA income', secondaryType: 'stepAfter', showSecondary: true, title: 'Income from all DBR auction buys', defaultRange: '1M', fillInByDayInterval: true, id: 'dbr-auction-buys-arb', showRangeBtns: true, yLabel: 'Acc. DOLA Income', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'secondary', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
+                areaProps={{ secondaryRef: 'yDay', secondaryAsLeftAxis: true, secondaryAsUsd: false, secondaryPrecision: 2, secondaryLabel: useInvAmount ? 'INV income' : 'DOLA income', secondaryType: 'stepAfter', showSecondary: true, title: 'Income from all DBR auction buys', defaultRange: '1M', fillInByDayInterval: true, id: 'dbr-auction-buys-arb', showRangeBtns: true, yLabel: `Acc. ${useInvAmount ? 'INV' : 'DOLA'} income`, useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'secondary', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
             />
         </Stack>
         <BarChartRecharts
@@ -122,8 +122,8 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
                 smoothLineByDefault={false}
                 areaProps={{
                     lineItems: [
-                        { dataKey: 'priceInDola', name: 'Auction price', axisId: 'right', stroke: themeStyles.colors.info },
-                        { dataKey: 'marketPriceInDola', name: 'Market price', axisId: 'right', stroke: themeStyles.colors.success },
+                        { dataKey: useInvAmount ? 'priceInInv' : 'priceInDola', name: 'Auction price', axisId: 'right', stroke: themeStyles.colors.info },
+                        { dataKey: useInvAmount ? 'marketPriceInInv' : 'marketPriceInDola', name: 'Market price', axisId: 'right', stroke: themeStyles.colors.success },
                     ],
                     showSecondary: true,
                     secondaryRef: '',
