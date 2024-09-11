@@ -192,7 +192,7 @@ export const F2CombinedForm = ({
                     aleSlippage,
                     isAutoDBR ? dbrBuySlippage : undefined,
                     isAutoDBR ? duration : 0,
-                    isDepositCollateral,
+                    isUnderlyingAsInputCase,
                 );
             }
             else if (isAutoDBR || isUseNativeCoin) {
