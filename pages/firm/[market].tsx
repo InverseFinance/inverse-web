@@ -5,7 +5,7 @@ import Head from 'next/head'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { useDBRMarkets } from '@app/hooks/useDBR'
 
-import { VStack, Text, HStack } from '@chakra-ui/react'
+import { VStack, Text, HStack, Divider, Image } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 
 import { F2CombinedForm } from '@app/components/F2/forms/F2CombinedForm'
@@ -156,6 +156,12 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                         <InfoMessage
                                                             description={
                                                                 <VStack alignItems="flex-start">
+                                                                    <HStack>
+                                                                        <Link fontWeight="bold" color="mainTextColor" textDecoration="underline" href="/sINV">New: sINV is now available!</Link>
+                                                                        <Image src="/assets/sINVx128.png" alt="sINV" w="24px" h="24px" />
+                                                                    </HStack>
+                                                                    <Text>sINV auto-compounds DBR rewards for more INV, it's the best INV staking option if you're not borrowing DOLA or voting on proposals.</Text>
+                                                                    <Divider borderColor="mainTextColorLight" />
                                                                     <Text>✨ <b>{shortenNumber(f2market.extraApy, 2)}% DBR Rewards Annual Percentage Rate</b>. Real yield that you claim. Currently streaming <b>{preciseCommify(f2market.dbrYearlyRewardRate, 0)}</b> DBR's per year to INV stakers.</Text>
                                                                     <Text>✨ <b>{shortenNumber(f2market.supplyApy, 2)}% INV Staking rewards</b>. Dilution protection. Your staked INV balance increases automatically.</Text>
                                                                     <Text>
@@ -180,7 +186,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                             <FirmInsuranceCover />
                                             <ErrorBoundary description="The portfolio value chart could not load">
                                                 <WorthEvoChartWrapper market={f2market} />
-                                            </ErrorBoundary>                                            
+                                            </ErrorBoundary>
                                         </VStack>
                                 }
                                 <FirmFAQ collapsable={true} defaultCollapse={false} />

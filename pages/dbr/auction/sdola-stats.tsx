@@ -22,7 +22,7 @@ export const DbrAuctionSdolaStatsPage = () => {
         <meta name="description" content="DBR sDOLA Auction" />
         <meta name="keywords" content="Inverse Finance, swap, stablecoin, DOLA, DBR, auction" />
       </Head>
-      <AppNav active="Swap" activeSubmenu="Buy DBR (auction)" />
+      <AppNav active="Stake" activeSubmenu="Buy DBR (auction)" />
       <DbrAuctionTabs defaultIndex={3} />
       <VStack
         w={{ base: 'full', lg: '1200px' }}
@@ -62,7 +62,7 @@ export const DbrAuctionSdolaStatsPage = () => {
           {
             isLoading ?
               <SkeletonBlob />
-              : <DbrAuctionBuysChart isTotal={false} events={events} />
+              : <DbrAuctionBuysChart isTotal={false} events={events} chartEvents={events} />
           }
         </Container>
         <DbrAuctionBuys lastUpdate={timestamp} events={events.slice(0, 100)} title="Last 100 DBR buys from the auction" />

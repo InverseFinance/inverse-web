@@ -20,6 +20,7 @@ import { useWeb3React } from "@web3-react/core";
 import useSWR from "swr";
 import { FEATURE_FLAGS, isInvPrimeMember } from "@app/config/features";
 import { useDolaStakingEarnings, useStakedDola } from "@app/util/dola-staking";
+import { useStakedInv, useStakedInvBalance } from "@app/util/sINV";
 
 const oneYear = ONE_DAY_MS * 365;
 
@@ -709,12 +710,18 @@ export const useAccountRewards = (account: string, invMarket: F2Market) => {
 
   const { stakedInFirm } = useStakedInFirm(account);
   const { apy: sDolaApy, sDolaExRate } = useStakedDola(dbrDolaPrice);
+  const { apy: sInvApy, sInvExRate } = useStakedInv(dbrDolaPrice);
+  const { balance: stakedInvBalance } = useStakedInvBalance(account);
+  const invStakedInSInv = sInvExRate && stakedInvBalance ? sInvExRate * stakedInvBalance : 0;
+  
   const { stakedDolaBalance } = useDolaStakingEarnings(account);
   const dolaStakedInSDola = sDolaExRate * stakedDolaBalance;
 
   const share = !invMarket ? 0 : invMarket.invStakedViaDistributor ? stakedInFirm / invMarket.invStakedViaDistributor : 0;
 
-  const invMonthlyRewards = getMonthlyRate(stakedInFirm, invMarket?.supplyApy);
+  const invMonthlyRewardsFromFirm = getMonthlyRate(stakedInFirm, invMarket?.supplyApy);
+  const invMonthlyRewardsFromSInv = getMonthlyRate(invStakedInSInv, sInvApy);
+  const invMonthlyRewards = invMonthlyRewardsFromFirm + invMonthlyRewardsFromSInv;
   const dbrMonthlyRewards = share * invMarket?.dbrYearlyRewardRate / 12;
   const dolaMonthlyRewards = sDolaApy > 0 && dolaStakedInSDola > 0 ? getMonthlyRate(dolaStakedInSDola, sDolaApy) : 0;
 
@@ -725,6 +732,8 @@ export const useAccountRewards = (account: string, invMarket: F2Market) => {
     invMonthlyRewards,
     dbrMonthlyRewards,
     dolaMonthlyRewards,
+    invMonthlyRewardsFromFirm,
+    invMonthlyRewardsFromSInv,
     invMonthlyRewardsUsd: invMonthlyRewards * invPriceCg,
     dbrMonthlyRewardsUsd: dbrMonthlyRewards * dbrPriceUsd,
     dolaMonthlyRewardsUsd: dolaMonthlyRewards * dolaPriceUsd,

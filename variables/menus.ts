@@ -47,24 +47,20 @@ export const MENUS = {
       ],
     },
     {
-      label: 'sDOLA',
-      href: '/sDOLA',
+      label: 'Stake',
+      href: '/sINV',
       submenus: [
+        {
+          label: 'sINV',
+          href: '/sINV',
+        },
         {
           label: 'sDOLA',
           href: '/sDOLA',
         },
         {
-          label: 'sDOLA Stats',
-          href: '/sdola/stats',
-        },
-        {
           label: 'DSA',
           href: '/dsa',
-        },
-        {
-          label: 'DSA Stats',
-          href: '/dsa/stats',
         },
         {
           label: 'Buy DBR (auction)',

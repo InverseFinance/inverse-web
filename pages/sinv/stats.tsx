@@ -4,15 +4,15 @@ import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
 import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader';
 import { getAvgOnLastItems, preciseCommify, timestampToUTC } from '@app/util/misc';
-import { DolaStakingActivity } from '@app/components/sDola/DolaStakingActivity';
-import { useDolaStakingActivity, useDolaStakingEvolution, useStakedDola } from '@app/util/dola-staking';
 import { useDBRPrice } from '@app/hooks/useDBR';
-import { DolaStakingTabs } from '@app/components/F2/DolaStaking/DolaStakingTabs';
-import { SDolaStakingEvolutionChart } from '@app/components/F2/DolaStaking/DolaStakingChart';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
 import { shortenNumber } from '@app/util/markets';
 import { useEffect, useRef, useState } from 'react';
 import { useAppTheme } from '@app/hooks/useAppTheme';
+import { useInvStakingActivity, useInvStakingEvolution, useStakedInv } from '@app/util/sINV';
+import { SDolaStakingEvolutionChart } from '@app/components/F2/DolaStaking/DolaStakingChart';
+import { SINVTabs } from '@app/components/sINV/SINVTabs';
+import { InvStakingActivity } from '@app/components/sINV/InvStakingActivity';
 
 const ChartCard = (props: StackProps & { cardTitle?: string, subtitle?: string, href?: string, imageSrc?: string }) => {
   return <Flex
@@ -73,12 +73,12 @@ const Chart = (props) => {
   </VStack>
 }
 
-export const SDolaStatsPage = () => {
+export const SInvStatsPage = () => {
   const { themeStyles } = useAppTheme();
-  const { events, timestamp } = useDolaStakingActivity(undefined, 'sdola');
-  const { evolution, timestamp: lastDailySnapTs, isLoading: isLoadingEvolution } = useDolaStakingEvolution();
+  const { events, timestamp } = useInvStakingActivity(undefined, 'sinv');
+  const { evolution, timestamp: lastDailySnapTs, isLoading: isLoadingEvolution } = useInvStakingEvolution();
   const { priceDola: dbrDolaPrice } = useDBRPrice();
-  const { sDolaSupply, sDolaTotalAssets, apr, apy, isLoading } = useStakedDola(dbrDolaPrice);
+  const { sInvSupply, sInvTotalAssets, apr, apy, isLoading } = useStakedInv(dbrDolaPrice);
   const [isInited, setInited] = useState(false);
   const [histoData, setHistoData] = useState([]);
   const [now, setNow] = useState(Date.now());
@@ -95,12 +95,12 @@ export const SDolaStatsPage = () => {
             timestamp: Date.now() - (1000 * 120),
             apr,
             apy,
-            sDolaTotalAssets,
-            sDolaSupply,
+            sInvTotalAssets,
+            sInvSupply,
           }
         ])
     )
-  }, [lastDailySnapTs, isLoadingEvolution, evolution, sDolaTotalAssets, apr, apy, isLoading, now]);
+  }, [lastDailySnapTs, isLoadingEvolution, evolution, sInvTotalAssets, apr, apy, isLoading, now]);
 
   useEffect(() => {
     setInited(true);
@@ -112,14 +112,14 @@ export const SDolaStatsPage = () => {
   return (
     <Layout>
       <Head>
-        <title>Inverse Finance - sDOLA stats</title>
-        <meta name="og:title" content="Inverse Finance - sDOLA stats" />
-        <meta name="og:description" content="sDOLA stats" />
-        <meta name="description" content="sDOLA stats" />
-        <meta name="keywords" content="Inverse Finance, sDOLA, yield-bearing stablecoin, staked DOLA, stats" />
+        <title>Inverse Finance - sINV stats</title>
+        <meta name="og:title" content="Inverse Finance - sINV stats" />
+        <meta name="og:description" content="sINV stats" />
+        <meta name="description" content="sINV stats" />
+        <meta name="keywords" content="Inverse Finance, sINV, yield-bearing INV, staked INV, stats" />
       </Head>
-      <AppNav active="Stake" activeSubmenu="sDOLA Stats" />
-      <DolaStakingTabs defaultIndex={1} />
+      <AppNav active="Stake" activeSubmenu="sINV Stats" />
+      <SINVTabs defaultIndex={1} />
       <VStack
         w={{ base: 'full', lg: '1200px' }}
         maxW="98vw"
@@ -128,17 +128,17 @@ export const SDolaStatsPage = () => {
         px={{ base: '4', lg: '0' }}
       >
         <SimpleGrid columns={{ base: 1, xl: 2 }} spacing="8" w="100%">
-          <ChartCard cardTitle={`sDOLA APY evolution`} subtitle={`(30 day avg: ${thirtyDayAvg ? shortenNumber(thirtyDayAvg, 2)+'%' : '-'}, Current: ${apy ? shortenNumber(apy || 0, 2)+'%' : '-'})`}>
+          <ChartCard cardTitle={`sINV APY evolution`} subtitle={`(30 day avg: ${thirtyDayAvg ? shortenNumber(thirtyDayAvg, 2)+'%' : '-'}, Current: ${apy ? shortenNumber(apy || 0, 2)+'%' : '-'})`}>
             {isInited && <Chart currentValue={apy} isPerc={true} data={histoData} attribute="apy" yLabel="APY" areaProps={{ addDayAvg: true, showLegend: true, legendPosition: 'bottom', avgDayNumbers: [30, 60], avgLineProps: [{ stroke: themeStyles.colors.success, strokeDasharray: '4 4' }, { stroke: themeStyles.colors.warning, strokeDasharray: '4 4' }] }} />}
           </ChartCard>
-          <ChartCard subtitle={sDolaTotalAssets > 0 ? `(current: ${preciseCommify(sDolaTotalAssets || 0, 0)})` : ''} cardTitle={`DOLA staked in sDOLA`}>
-            {isInited && <Chart isLoading={isLoading} currentValue={sDolaTotalAssets} data={histoData} attribute="sDolaTotalAssets" yLabel="DOLA staked" />}
+          <ChartCard subtitle={sInvTotalAssets > 0 ? `(current: ${preciseCommify(sInvTotalAssets || 0, 0)})` : ''} cardTitle={`INV staked in sINV`}>
+            {isInited && <Chart isLoading={isLoading} currentValue={sInvTotalAssets} data={histoData} attribute="sInvTotalAssets" yLabel="INV staked" />}
           </ChartCard>
         </SimpleGrid>
-        <DolaStakingActivity
+        <InvStakingActivity
           events={events}
           lastUpdate={timestamp}
-          title="sDOLA Staking activity"
+          title="sINV Staking activity"
           headerProps={{
             direction: { base: 'column', md: 'row' },
             align: { base: 'flex-start', md: 'flex-end' },
@@ -146,20 +146,20 @@ export const SDolaStatsPage = () => {
           right={
             <HStack justify="space-between" spacing="4">
               <VStack spacing="0" alignItems="center">
-                <Text textAlign="center" fontWeight="bold">sDOLA supply</Text>
+                <Text textAlign="center" fontWeight="bold">sINV supply</Text>
                 {
                   isLoading ? <SmallTextLoader width={'50px'} />
                     : <Text textAlign="center" color="secondaryTextColor" fontWeight="bold" fontSize="18px">
-                      {preciseCommify(sDolaSupply, 2)}
+                      {preciseCommify(sInvSupply, 2)}
                     </Text>
                 }
               </VStack>
               <VStack spacing="0" alignItems="center">
-                <Text textAlign="center" fontWeight="bold">Total DOLA staked</Text>
+                <Text textAlign="center" fontWeight="bold">Total INV staked</Text>
                 {
                   isLoading ? <SmallTextLoader width={'50px'} />
                     : <Text textAlign="center" color="secondaryTextColor" fontWeight="bold" fontSize="18px">
-                      {preciseCommify(sDolaTotalAssets, 2)}
+                      {preciseCommify(sInvTotalAssets, 2)}
                     </Text>
                 }
               </VStack>
@@ -171,4 +171,4 @@ export const SDolaStatsPage = () => {
   )
 }
 
-export default SDolaStatsPage
+export default SInvStatsPage
