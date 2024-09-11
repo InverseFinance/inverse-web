@@ -48,7 +48,7 @@ export const DbrAll = ({
 
     const { events: emissionEvents, rewardRatesHistory, isLoading: isEmmissionLoading } = useDBREmissions();
     const { dsaYearlyDbrEarnings, isLoading: isLoadingStakedDola } = useStakedDola(dbrPriceDola);
-    const { dbrRatePerYear: auctionYearlyRate, historicalRates: auctionHistoricalRates, isLoading: isLoadingAuction } = useDbrAuction(true);
+    const { dbrRatePerYear: auctionYearlyRate, historicalRates: auctionHistoricalRates, isLoading: isLoadingAuction } = useDbrAuction("classic");
     const { evolution: dolaStakingEvolution } = useDolaStakingEvolution();
     const { positions } = useFirmUsers();
     const totalDebt = positions.reduce((prev, curr) => prev + curr.debt, 0);
@@ -145,6 +145,9 @@ export const DbrAll = ({
     }
 
     // const annualizedBurn = lastCombodata.debt;
+    console.log('yearlyRewardRate', yearlyRewardRate);
+    console.log('dsaYearlyDbrEarnings', dsaYearlyDbrEarnings);
+    console.log('auctionYearlyRate', auctionYearlyRate);
     const annualizedIssuance = yearlyRewardRate + dsaYearlyDbrEarnings + auctionYearlyRate;
 
     const { chartData: burnChartData } = useEventsAsChartData(_burnEvents, useUsd ? 'accBurnUsd' : 'accBurn', useUsd ? 'amountUsd' : 'amount');
