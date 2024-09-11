@@ -15,7 +15,7 @@ import { useAccount } from "./misc";
 import { useBlocksTimestamps } from "./useBlockTimestamp";
 import { TOKENS, getToken } from "@app/variables/tokens";
 import { useDOLAPrice, usePrices } from "./usePrices";
-import { getCvxCrvRewards, getCvxRewards } from "@app/util/firm-extra";
+import { getCrvUsdDolaRewards, getCvxCrvRewards, getCvxRewards } from "@app/util/firm-extra";
 import { useWeb3React } from "@web3-react/core";
 import useSWR from "swr";
 import { FEATURE_FLAGS, isInvPrimeMember } from "@app/config/features";
@@ -82,9 +82,9 @@ export const useFirmUsers = (): SWR & {
 
   const uniqueUsers = [...new Set(positions.map(d => d.user))];
   const now = Date.now();
-  const positionsAggregatedByUser = uniqueUsers.map(user => {    
+  const positionsAggregatedByUser = uniqueUsers.map(user => {
     const userPositions = positions.filter(p => p.user === user).sort((a, b) => b.debt - a.debt);
-    const dueTokensAccrued = userPositions[0]?.dueTokensAccrued||0;
+    const dueTokensAccrued = userPositions[0]?.dueTokensAccrued || 0;
     const debt = userPositions.reduce((prev, curr) => prev + (curr.debt), 0);
     const creditLimit = userPositions.reduce((prev, curr) => prev + (curr.creditLimit), 0);
     const liquidatableDebt = userPositions.reduce((prev, curr) => prev + (curr.liquidatableDebt), 0);
@@ -551,6 +551,49 @@ export const useCvxCrvRewards = (escrow: string) => {
   }
 }
 
+export const useCrvUsdDolaRewards = (escrow: string) => {
+  const { prices } = usePrices();
+
+  const { provider } = useWeb3React();
+  const tsMinute = (new Date()).toISOString().substring(0, 16);
+  const { data: rewardsData, error } = useSWR(`crvUsd-DOLA-rewards-${escrow}-${tsMinute}`, async () => {
+    return !escrow || escrow === BURN_ADDRESS ? Promise.resolve(undefined) : await getCrvUsdDolaRewards(escrow, provider?.getSigner());
+  });
+
+  const crv = getToken(TOKENS, 'CRV')!;
+  const cvx = getToken(TOKENS, 'CVX')!;
+  const crvBalance = rewardsData ? getBnToNumber(rewardsData?.earned, crv.decimals) : 0;
+  const cvxBalance = rewardsData ? rewardsData?.cvxReward : 0;
+  const crvPrice = prices && prices[crv.coingeckoId!] ? prices[crv.coingeckoId!].usd : 0;
+  const cvxPrice = prices && prices[crv.coingeckoId!] ? prices[crv.coingeckoId!].usd : 0;
+
+  const rewards = [
+    {
+      metaType: 'claimable',
+      balanceUSD: crvBalance * crvPrice,
+      price: crvPrice,
+      balance: crvBalance,
+      address: crv.address,
+    },
+    {
+      metaType: 'claimable',
+      balanceUSD: cvxBalance * cvxPrice,
+      price: cvxPrice,
+      balance: cvxBalance,
+      address: cvx.address,
+    }
+  ];
+
+  return {
+    rewardsInfos: {
+      tokens: rewards || [],
+      timestamp: Date.now(),
+    },
+    isLoading: !rewardsData && !error,
+    isError: error,
+  }
+}
+
 export const useCvxRewards = (escrow: string) => {
   const { prices } = usePrices();
 
@@ -665,14 +708,14 @@ export const useAccountRewards = (account: string, invMarket: F2Market) => {
   const { prices } = usePrices();
   const { price: dolaPriceUsd } = useDOLAPrice();
 
-  const { stakedInFirm } = useStakedInFirm(account);  
+  const { stakedInFirm } = useStakedInFirm(account);
   const { apy: sDolaApy, sDolaExRate } = useStakedDola(dbrDolaPrice);
   const { apy: sInvApy, sInvExRate } = useStakedInv(dbrDolaPrice);
   const { balance: stakedInvBalance } = useStakedInvBalance(account);
   const invStakedInSInv = sInvExRate && stakedInvBalance ? sInvExRate * stakedInvBalance : 0;
   
   const { stakedDolaBalance } = useDolaStakingEarnings(account);
-  const dolaStakedInSDola = sDolaExRate * stakedDolaBalance;      
+  const dolaStakedInSDola = sDolaExRate * stakedDolaBalance;
 
   const share = !invMarket ? 0 : invMarket.invStakedViaDistributor ? stakedInFirm / invMarket.invStakedViaDistributor : 0;
 
@@ -682,7 +725,7 @@ export const useAccountRewards = (account: string, invMarket: F2Market) => {
   const dbrMonthlyRewards = share * invMarket?.dbrYearlyRewardRate / 12;
   const dolaMonthlyRewards = sDolaApy > 0 && dolaStakedInSDola > 0 ? getMonthlyRate(dolaStakedInSDola, sDolaApy) : 0;
 
-  const invPriceCg = prices ? prices['inverse-finance']?.usd : 0;  
+  const invPriceCg = prices ? prices['inverse-finance']?.usd : 0;
   const { priceUsd: dbrPriceUsd } = useDBRPrice();
 
   return {

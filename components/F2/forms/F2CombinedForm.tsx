@@ -123,6 +123,9 @@ export const F2CombinedForm = ({
         inputAmountNum,
         inputBalance,
         bnInputBalance,
+        setIsUnderlyingAsInputCaseSelected,
+        isUnderlyingAsInputCaseSelected,
+        hasUnderlyingAsInputCase,
     } = useContext(F2MarketContext);
 
     const { isMultisig } = useMultisig();
@@ -189,6 +192,7 @@ export const F2CombinedForm = ({
                     aleSlippage,
                     isAutoDBR ? dbrBuySlippage : undefined,
                     isAutoDBR ? duration : 0,
+                    isDepositCollateral,
                 );
             }
             else if (isAutoDBR || isUseNativeCoin) {
@@ -420,9 +424,9 @@ export const F2CombinedForm = ({
                             />
                         }
                         {
-                            useLeverage && market.isERC4626Collateral && ['Deposit & Borrow'].includes(mode) &&
+                            hasUnderlyingAsInputCase &&
                             <InfoMessage alertProps={{ w: 'full' }} description={
-                                <Text><b>Note:</b> in this market the <b>deposit and leverage action uses {market.underlyingSymbol} as the deposit asset instead of {market.underlying.symbol}</b>, if you prefer using {market.underlying.symbol}, you can deposit it first and then borrow with the leverage enabled in a second transaction.</Text>
+                                <Text>Deposit and leverage: you can deposit either <b onClick={() => setIsUnderlyingAsInputCaseSelected(true)} style={{ textDecoration: 'underline', cursor: 'pointer', fontWeight: isUnderlyingAsInputCaseSelected ? 'bold' : 'normal' }}>{market.underlyingSymbol}</b> or <b onClick={() => setIsUnderlyingAsInputCaseSelected(false)} style={{ textDecoration: 'underline', cursor: 'pointer', fontWeight: isUnderlyingAsInputCaseSelected ? 'normal' : 'bold' }}>{market.underlying.symbol}</b></Text>
                             } />
                         }
                     </>

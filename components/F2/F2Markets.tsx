@@ -22,6 +22,7 @@ import { lightTheme } from "@app/variables/theme";
 import { useState } from "react";
 import Link from "../common/Link";
 import { calculateMaxLeverage } from "@app/util/misc";
+import { LPImages } from "../common/Assets/LPImg";
 
 export const MARKET_INFOS = {
     'INV': {
@@ -120,6 +121,12 @@ export const MARKET_INFOS = {
         description: 'sUSDe is staked USDe which is a synthetic stablecoin by etherfi, backed with crypto assets and corresponding short futures positions.',
         getLink: 'https://app.ethena.fi/stake',
     },
+    'crvUSD-DOLA': {
+        name: 'crvUSD-DOLA',
+        fullname: 'crvUSD-DOLA LP',
+        description: 'The LP token for the crvUSD-DOLA pool on Curve, when deposited on FiRM the LP token will be then deposited into Convex to earn CVX+CRV yield',
+        getLink: 'https://curve.fi/#/ethereum/pools/factory-crvusd-12/deposit',
+    },
 }
 
 const ColHeader = ({ ...props }) => {
@@ -155,18 +162,21 @@ export const MarketInfos = ({ name, nameAndIcon, ...props }) => {
 }
 
 export const MarketNameAndIcon = ({ marketIcon, icon, underlying, name }) => {
-    return <HStack justify="flex-start" alignItems="center" spacing="2" w='full'>
-        <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
-        <CellText fontWeight="bold" fontSize={{ base: '18px', '2xl': '20px' }}>{name}</CellText>
+    return <HStack maxW='180px' justify="flex-start" alignItems="center" spacing="2" w='full'>
+        {
+            !underlying.isLP ? <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
+            : <LPImages alternativeDisplay={true} lpToken={{ pairs: underlying.pairs, image: underlying.image, protocolImage: underlying.protocolImage }} chainId={1} imgSize={18} />
+        }
+        <CellText textOverflow="clip" overflow="hidden" whiteSpace="nowrap" fontWeight="bold" fontSize={{ base: '18px', '2xl': name.length > 12 ? '16px' : '20px' }}>{name}</CellText>
     </HStack>
 }
 
 const MarketCell = ({ icon, marketIcon, underlying, badgeInfo, badgeProps, name, _isMobileCase }) => {
     const nameAndIcon = <MarketNameAndIcon name={name} icon={icon} marketIcon={marketIcon} underlying={underlying} />
-    return <Cell minWidth="110px" position="relative">
+    return <Cell minWidth="180px" position="relative">
         <Popover closeOnBlur={true} trigger="hover" isLazy placement="right-end" strategy={_isMobileCase ? 'fixed' : 'absolute'}>
             <PopoverTrigger>
-                <Cell minWidth='110px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
+                <Cell minWidth='180px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
                     <HStack onClick={(e) => e.stopPropagation()} spacing="1" w="fit-content">
                         {nameAndIcon}<InfoIcon cursor="default" position="absolute" right="-18px" opacity="0.5" color="mainTextColor" />
                     </HStack>
@@ -208,7 +218,7 @@ const columns = [
     {
         field: 'name',
         label: 'Market',
-        header: ({ ...props }) => <ColHeader minWidth="110px" justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="180px" justify="flex-start"  {...props} />,
         tooltip: 'Market type, each market have an underlying token and strategy',
         value: (props) => {
             return <MarketCell {...props} />
@@ -222,7 +232,7 @@ const columns = [
         value: ({ supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel }) => {
             return <Cell spacing="0" direction="column" minWidth="140px" alignItems="center" justify="center" fontSize="14px">
                 <AnchorPoolInfo
-                    protocolImage={underlying.protocolImage}
+                    // protocolImage={underlying.protocolImage}
                     value={supplyApy}
                     valueExtra={extraApy}
                     valueLow={supplyApyLow}
@@ -240,17 +250,17 @@ const columns = [
             </Cell>
         },
     },
-    {
-        field: 'oracleType',
-        label: 'Oracle Type',
-        tooltip: <OracleTypeTooltipContent />,
-        header: ({ ...props }) => <ColHeader minWidth="110px" justify="center"  {...props} />,
-        value: ({ oracleType, underlying }) => {
-            return <Cell alignItems="center" minWidth="110px" justify="center" fontSize="12px">
-                <OracleType showTooltip={true} showImage={false} oracleType={oracleType} subText={underlying.symbol === 'gOHM' ? 'index' : undefined} />
-            </Cell>
-        },
-    },
+    // {
+    //     field: 'oracleType',
+    //     label: 'Oracle Type',
+    //     tooltip: <OracleTypeTooltipContent />,
+    //     header: ({ ...props }) => <ColHeader minWidth="110px" justify="center"  {...props} />,
+    //     value: ({ oracleType, underlying }) => {
+    //         return <Cell alignItems="center" minWidth="110px" justify="center" fontSize="12px">
+    //             <OracleType showTooltip={true} showImage={false} oracleType={oracleType} subText={underlying.symbol === 'gOHM' ? 'index' : undefined} />
+    //         </Cell>
+    //     },
+    // },
     // {
     //     field: 'price',
     //     label: 'price',

@@ -10,7 +10,9 @@ export enum FIRM_ESCROWS {
     'cvxFXS' = '0xCa78ee4544ec5a33Af86F1E786EfC7d3652bf005',
     'DSR' = '0xCcABAD4923c14E48C9C27e6C4556C1CAf4E91eBB',
     'stCVX' = '0xf2a2b6c1F47c75FFacDbF60B35F2Ed2d35f0a9C1',
-    'COMP' = '0x882d00508BbF32874f48EB739515cF3Cb6fC94e0', 
+    'COMP' = '0x882d00508BbF32874f48EB739515cF3Cb6fC94e0',
+    // convex strategy escrow
+    'crvUSD-DOLA' = '0xCB21Dc82C4346cE448808A8B9C51719F13cE00c3',
 }
 
 const mainConfig = {
@@ -285,6 +287,37 @@ const mainConfig = {
             startingBlock: 20519771,
             isInv: false,
         },
+        // {
+        //     name: 'crvUSD-DOLA',
+        //     collateral: '0x8272E1A3dBef607C04AA6e5BD3a1A134c8ac063B',
+        //     address: '0x6A522f3BD3fDA15e74180953f203cf55aA6C631E',
+        //     escrowImplementation: FIRM_ESCROWS['crvUSD-DOLA'],
+        //     helper: true,
+        //     oracleType: "chainlink",
+        //     badgeInfo: 'Convex Strategy',
+        //     hasClaimableRewards: true,
+        //     rewardTypeLabel: 'Claimable APR',
+        //     badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },            
+        //     startingBlock: 20620551,
+        //     aleTransformerType: 'marketAddressAndAmount',
+        //     isAleWithoutSwap: true,
+        //     isInv: false,
+        // },
+        // {
+        //     name: 'yv-crvUSD-DOLA',
+        //     collateral: '0xfb5137Aa9e079DB4b7C2929229caf503d0f6DA96',
+        //     address: '0xe85943e280776254ee6C9801553B93F10Ef4C99C',
+        //     escrowImplementation: FIRM_ESCROWS.simple,
+        //     helper: true,
+        //     oracleType: "chainlink",
+        //     badgeInfo: 'Yield-Bearing',
+        //     rewardTypeLabel: "Vault's APY",         
+        //     badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },            
+        //     startingBlock: 20519771,
+        //     aleTransformerType: 'marketAddressAndAmount',
+        //     isAleWithoutSwap: true,
+        //     isInv: false,
+        // },
     ],
     feds: FEDS_PARAMS,
     multisigs: [

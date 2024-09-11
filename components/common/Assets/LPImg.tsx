@@ -10,13 +10,15 @@ export const LPImages = ({
     imgSize = 20,
     imgProps,
     imgContainerProps,
+    alternativeDisplay = false,
 }: {
     lpToken: Token,
     chainId?: NetworkIds,
     imgSize?: number,
     imgProps?: Partial<ImageProps>,
     imgContainerProps?: Partial<BoxProps>,
-    includeSubLps?: boolean
+    includeSubLps?: boolean,
+    alternativeDisplay?: boolean
 }) => {
     const subtokens = (lpToken.pairs?.map(address => {
         return CHAIN_TOKENS[chainId][address] || getToken(CHAIN_TOKENS[chainId], address);
@@ -29,9 +31,11 @@ export const LPImages = ({
 
     return <HStack spacing="1" {...imgContainerProps}>
         {
-            subtokens.map(t => {
-                return <MarketImage key={t.address} size={imgSize} image={t.image} protocolImage={t.protocolImage} imgProps={{ borderRadius: '50px', ...imgProps }} />
-            })
+            alternativeDisplay ?
+                <LpPairImages leftImg={subtokens[0].image} rightImg={subtokens[1].image} leftSize={imgSize} rightSize={imgSize} />
+                : subtokens.map(t => {
+                    return <MarketImage key={t.address} size={imgSize} image={t.image} protocolImage={t.protocolImage} imgProps={{ borderRadius: '50px', ...imgProps }} />
+                })
         }
     </HStack>
 }

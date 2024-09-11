@@ -109,7 +109,7 @@ const chainTokenAddresses = {
     // DOLAUSDCALP: '0x22915f309ec0182c85cd8331c23bd187fd761360',
     DOLAUSDCALP2: '0xb139946D2F0E71b38e2c75d03D87C5E16339d2CD',
     DOLAFRAXUSDCCVX: '0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c',
-    DOLACRVUSDLP: '0x8272e1a3dbef607c04aa6e5bd3a1a134c8ac063b',
+    DOLACRVUSDLP: '0x8272E1A3dBef607C04AA6e5BD3a1A134c8ac063B',
     CRVUSD: '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
     INVTRICRYPTO: '0x5426178799ee0a0181A89b4f57eFddfAb49941Ec',
     INVTRICRYPTOYEARNV2: '0x6949145469362F9eeaB3c96Ea41b51D9B4cC2b21',
@@ -1183,7 +1183,7 @@ const chainTokens = {
     [chainTokenAddresses["1"].DOLACRVUSDLP]: {
       address: chainTokenAddresses["1"].DOLACRVUSDLP,
       name: 'DOLA-crvUSD',
-      symbol: 'DOLA-crvUSD clp', 
+      symbol: 'DOLA-crvUSD lp',
       protocolImage: PROTOCOL_IMAGES.CRV,
       decimals: 18,
       isLP: true,

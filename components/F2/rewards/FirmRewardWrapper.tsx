@@ -1,6 +1,6 @@
 import { F2Market } from "@app/types"
 import { useContext, useEffect } from "react";
-import { useCvxCrvRewards, useCvxFxsRewards, useCvxRewards, useEscrowBalance, useEscrowRewards, useINVEscrowRewards, useStakedInFirm } from "@app/hooks/useFirm";
+import { useCrvUsdDolaRewards, useCvxCrvRewards, useCvxFxsRewards, useCvxRewards, useEscrowBalance, useEscrowRewards, useINVEscrowRewards, useStakedInFirm } from "@app/hooks/useFirm";
 import { F2MarketContext } from "../F2Contex";
 import { BURN_ADDRESS } from "@app/config/constants";
 import { zapperRefresh } from "@app/util/f2";
@@ -65,6 +65,16 @@ export const FirmRewardWrapper = ({
             showMarketBtn={showMarketBtn}
             extraAtBottom={extraAtBottom}
             escrow={_escrow}
+            onLoad={onLoad}
+        />
+    }
+    else if (market.name === 'crvUSD-DOLA') {
+        return <FirmCrvUsdDolaRewardWrapperContent
+            market={market}
+            label={label}
+            showMarketBtn={showMarketBtn}
+            extraAtBottom={extraAtBottom}
+            escrow={escrow}
             onLoad={onLoad}
         />
     }
@@ -167,6 +177,42 @@ export const FirmCvxRewardWrapperContent = ({
                 />
             </VStack>
         }
+    />
+}
+
+export const FirmCrvUsdDolaRewardWrapperContent = ({
+    market,
+    label,
+    showMarketBtn = false,
+    extraAtBottom = false,
+    escrow,
+    onLoad,
+}: {
+    market: F2Market
+    label?: string
+    escrow?: string
+    showMarketBtn?: boolean
+    extraAtBottom?: boolean
+    onLoad?: (v: number) => void
+}) => {
+    const { rewardsInfos, isLoading } = useCrvUsdDolaRewards(escrow);
+
+    useEffect(() => {
+        if (!onLoad || !rewardsInfos?.tokens?.length || isLoading) { return }
+        const totalUsd = rewardsInfos.tokens.filter(t => t.metaType === 'claimable')
+            .reduce((prev, curr) => prev + curr.balanceUSD, 0);
+        onLoad(totalUsd);
+    }, [rewardsInfos, onLoad])
+
+    return <FirmRewards
+        market={market}
+        escrow={escrow}
+        rewardsInfos={rewardsInfos}        
+        label={label}
+        showMarketBtn={showMarketBtn}
+        extraAtBottom={extraAtBottom}
+        isLoading={isLoading}
+        showMonthlyRewards={false}        
     />
 }
 

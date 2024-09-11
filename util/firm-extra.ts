@@ -2,13 +2,13 @@
  * Extra features specific to certain markets such as claiming rewards
  */
 
-import { CONVEX_REWARD_POOL, DBR_REWARDS_HELPER_ABI, F2_ESCROW_ABI, ST_CVX_CRV_ABI } from "@app/config/abis"
+import { CONVEX_REWARD_POOL, CRV_USD_DOLA_R_ABI, DBR_REWARDS_HELPER_ABI, ERC20_ABI, F2_ESCROW_ABI, ST_CVX_CRV_ABI } from "@app/config/abis"
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers"
 import { getBnToNumber } from "./markets";
 import { getNetworkConfigConstants } from "./networks";
 import { BURN_ADDRESS } from "@app/config/constants";
-import { callWithHigherGL } from "./contracts";
+import { callWithHigherGL, getCrvToCvxReward } from "./contracts";
 
 const { F2_DBR_REWARDS_HELPER } = getNetworkConfigConstants();
 
@@ -21,6 +21,23 @@ export const setRewardWeight = (escrow: string, newValueBps: string | number, si
 export const getCvxCrvRewards = (escrow: string, signer: JsonRpcSigner) => {
     const contract = new Contract('0xaa0C3f5F7DFD688C6E646F66CD2a6B66ACdbE434', ST_CVX_CRV_ABI, signer);
     return contract.callStatic.earned(escrow);
+}
+
+export const getCrvUsdDolaRewards = async (escrow: string, signer: JsonRpcSigner) => {
+    const contract = new Contract('0xC94208D230EEdC4cDC4F80141E21aA485A515660', CRV_USD_DOLA_R_ABI, signer);
+    const cvxContract = new Contract('0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B', ERC20_ABI, signer);
+    
+    const [earned, cvxSupply] = await Promise.all([
+        contract.earned(escrow),
+        cvxContract.totalSupply()
+    ]);
+    
+    const crvToCvxReward = getCrvToCvxReward(earned, cvxSupply);
+
+    return {
+        earned,
+        cvxReward: crvToCvxReward,
+    }
 }
 
 export const getCvxRewards = async (escrow: string, signer: JsonRpcSigner) => {
