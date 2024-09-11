@@ -48,7 +48,7 @@ export const MENUS = {
     },
     {
       label: 'Stake',
-      href: '/Stake',
+      href: '/sINV',
       submenus: [
         {
           label: 'sINV',
