@@ -4,7 +4,7 @@ import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
 import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader';
 import { getAvgOnLastItems, preciseCommify, timestampToUTC } from '@app/util/misc';
-import { useDBRPrice } from '@app/hooks/useDBR';
+import { useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
 import { shortenNumber } from '@app/util/markets';
 import { useEffect, useRef, useState } from 'react';
@@ -76,6 +76,9 @@ const Chart = (props) => {
 export const SInvStatsPage = () => {
   const { themeStyles } = useAppTheme();
   const { events, timestamp } = useInvStakingActivity(undefined, 'sinv');
+  const { markets } = useDBRMarkets();
+  const invMarket = markets?.find(m => m.isInv);
+  const invPrice = invMarket?.price||0;
   const { evolution, timestamp: lastDailySnapTs, isLoading: isLoadingEvolution } = useInvStakingEvolution();
   const { priceDola: dbrDolaPrice } = useDBRPrice();
   const { sInvSupply, sInvTotalAssets, apr, apy, isLoading } = useStakedInv(dbrDolaPrice);
@@ -131,7 +134,7 @@ export const SInvStatsPage = () => {
           <ChartCard cardTitle={`sINV APY evolution`} subtitle={`(30 day avg: ${thirtyDayAvg ? shortenNumber(thirtyDayAvg, 2)+'%' : '-'}, Current: ${apy ? shortenNumber(apy || 0, 2)+'%' : '-'})`}>
             {isInited && <Chart currentValue={apy} isPerc={true} data={histoData} attribute="apy" yLabel="APY" areaProps={{ addDayAvg: true, showLegend: true, legendPosition: 'bottom', avgDayNumbers: [30, 60], avgLineProps: [{ stroke: themeStyles.colors.success, strokeDasharray: '4 4' }, { stroke: themeStyles.colors.warning, strokeDasharray: '4 4' }] }} />}
           </ChartCard>
-          <ChartCard subtitle={sInvTotalAssets > 0 ? `(current: ${preciseCommify(sInvTotalAssets || 0, 0)})` : ''} cardTitle={`INV staked in sINV`}>
+          <ChartCard subtitle={sInvTotalAssets > 0 ? `(current: ${preciseCommify(sInvTotalAssets || 0, 0)} INV, ${invPrice ? `${preciseCommify(sInvTotalAssets * invPrice, 0, true)})` : ''}` : ''} cardTitle={`INV staked in sINV`}>
             {isInited && <Chart isLoading={isLoading} currentValue={sInvTotalAssets} data={histoData} attribute="sInvTotalAssets" yLabel="INV staked" />}
           </ChartCard>
         </SimpleGrid>

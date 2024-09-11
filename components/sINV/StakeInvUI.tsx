@@ -9,7 +9,7 @@ import { NavButtons } from "@app/components/common/Button";
 import { InfoMessage, SuccessMessage } from "@app/components/common/Messages";
 import { getAvgOnLastItems, preciseCommify, timestampToUTC } from "@app/util/misc";
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
-import { useDBRPrice } from "@app/hooks/useDBR";
+import { useDBRMarkets, useDBRPrice } from "@app/hooks/useDBR";
 import { getBnToNumber, getMonthlyRate, shortenNumber } from "@app/util/markets";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { TextInfo } from "../common/Messages/TextInfo";
@@ -41,6 +41,10 @@ export const StakeInvUI = () => {
     const account = useAccount();
     const { provider, account: connectedAccount } = useWeb3React();
     const { events: auctionBuys } = useDbrAuctionActivity();
+
+    const { markets } = useDBRMarkets();
+    const invMarket = markets?.find(m => m.isInv);
+    const invPrice = invMarket?.price||0;
 
     const [invAmount, setInvAmount] = useState('');
     const [isConnected, setIsConnected] = useState(true);
@@ -165,7 +169,7 @@ export const StakeInvUI = () => {
                         </Stack> */}
                         <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
                             <Text>- Total staked:</Text>
-                            <Text><b>{sInvTotalAssets ? `${shortenNumber(sInvTotalAssets, 2)} INV` : '-'}</b></Text>
+                            <Text><b>{sInvTotalAssets ? `${shortenNumber(sInvTotalAssets, 2)} INV ${invPrice ? `(${shortenNumber(sInvTotalAssets * invPrice, 2, true)})` : ''}` : '-'}</b></Text>
                         </Stack>
                         {/* <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
                             <Text>- Total earnings by all holders:</Text>
