@@ -45,6 +45,7 @@ export default async function handler(req, res) {
 
         const resultData = {
             timestamp: Date.now(),
+            invMarketPrice: firmInv.price,
             ...formatInvStakingData(dbrDolaPrice, invStakingData, firmInv.supplyApy, firmInv.dbrInvExRate, firmInv.invStakedViaDistributor),
         }
 
