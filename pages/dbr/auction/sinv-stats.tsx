@@ -62,7 +62,7 @@ export const DbrAuctionSInvStatsPage = () => {
           {
             isLoading ?
               <SkeletonBlob />
-              : <DbrAuctionBuysChart isTotal={false} events={events} chartEvents={events} />
+              : <DbrAuctionBuysChart isTotal={false} events={events} chartEvents={events} useInvAmount={true} />
           }
         </Container>
         <DbrAuctionBuys lastUpdate={timestamp} events={events.slice(0, 100)} title="Last 100 DBR buys from the auction" />

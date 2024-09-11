@@ -55,24 +55,12 @@ export const MENUS = {
           href: '/sINV',
         },
         {
-          label: 'sINV Stats',
-          href: '/sINV/stats',
-        },
-        {
           label: 'sDOLA',
           href: '/sDOLA',
         },
         {
-          label: 'sDOLA Stats',
-          href: '/sdola/stats',
-        },
-        {
           label: 'DSA',
           href: '/dsa',
-        },
-        {
-          label: 'DSA Stats',
-          href: '/dsa/stats',
         },
         {
           label: 'Buy DBR (auction)',
