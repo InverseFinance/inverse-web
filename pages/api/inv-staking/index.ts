@@ -8,7 +8,7 @@ import { getDbrPriceOnCurve } from '@app/util/f2';
 import { formatInvStakingData, getDbrDistributorContract, getSInvContract, getSinvEscrowContract } from '@app/util/sINV';
 import { F2_MARKETS_CACHE_KEY } from '../f2/fixed-markets';
 
-export const invStakingCacheKey = `inv-staking-v1.0.1`;
+export const invStakingCacheKey = `inv-staking-v1.0.2`;
 
 export default async function handler(req, res) {
     const { cacheFirst, ignoreCache } = req.query;
