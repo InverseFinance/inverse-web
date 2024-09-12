@@ -611,8 +611,10 @@ export const SDOLA_ABI = [
 ];
 export const SINV_ABI = [
   ...SVAULT_ABI,
+  // periodRevenue is not necessarily the current period, verify with lastBuyPeriod and current week index, same with lastPeriodRevenue
   "function periodRevenue() public view returns (uint)",
   "function lastPeriodRevenue() public view returns (uint)",
+  "function lastBuyPeriod() public view returns (uint)",
   "function getInvReserve() public view returns (uint)",
 ]
 export const SDOLA_HELPER_ABI = [

@@ -6,7 +6,7 @@ import { BigNumber, Contract } from "ethers";
 import { aprToApy, getBnToNumber } from "./markets";
 import { useCacheFirstSWR, useCustomSWR } from "@app/hooks/useCustomSWR";
 import { useContractEvents } from "@app/hooks/useContractEvents";
-import { ascendingEventsSorter } from "./misc";
+import { ascendingEventsSorter, getLastThursdayTimestamp, getWeekIndexUtc } from "./misc";
 import { useBlocksTimestamps } from "@app/hooks/useBlockTimestamp";
 import { SWR } from "@app/types";
 import { fetcher } from "./web3";
@@ -104,13 +104,13 @@ export const useStakedInv = (dbrDolaPrice: number, supplyDelta = 0): {
     hasError: boolean;
     sInvExRate: number;
 } => {
-    const { data: apiData, error: apiErr } = useCacheFirstSWR(`/api/inv-staking`);
+    const { data: apiData, error: apiErr } = useCacheFirstSWR(`/api/inv-staking?`);
     const { markets } = useDBRMarkets();
     const firmInvMarket = markets?.find(m => m.name === 'INV');
     const firmInvApr = firmInvMarket?.supplyApy || 0;
     const dbrInvExRate = firmInvMarket?.dbrInvExRate || 0;
     const invStakedViaDistributor = firmInvMarket?.invStakedViaDistributor || 0;
-
+    
     const { data: metaData, error } = useEtherSWR([
         [SINV_ESCROW_ADDRESS, 'claimable'],
         [SINV_ESCROW_ADDRESS, 'balance'],
@@ -118,11 +118,13 @@ export const useStakedInv = (dbrDolaPrice: number, supplyDelta = 0): {
         [DBR_DISTRIBUTOR_ADDRESS, 'rewardRate'],
         [DBR_DISTRIBUTOR_ADDRESS, 'maxRewardRate'],       
     ]);
+    // periodRevenue is not necessarily the current period, verify with lastBuyPeriod and current week index, same with lastPeriodRevenue
     const { data: sInvData } = useEtherSWR([
         [SINV_ADDRESS, 'totalSupply'],
         [SINV_ADDRESS, 'periodRevenue'],
-        [SINV_ADDRESS, 'lastPeriodRevenue'],
+        [SINV_ADDRESS, 'lastPeriodRevenue'],        
         [SINV_ADDRESS, 'totalAssets'],
+        [SINV_ADDRESS, 'lastBuyPeriod'],
     ]);
     
     const invStakingData = metaData && sInvData ? metaData.concat(sInvData) : undefined;
@@ -150,10 +152,16 @@ export const formatInvStakingData = (
     const distributorYearlyBudget = invStakingData ? getBnToNumber(invStakingData[3]) * ONE_DAY_SECS * 365 : fallbackData?.distributorYearlyBudget || 0;
     const maxYearlyRewardBudget = invStakingData ? getBnToNumber(invStakingData[4]) * ONE_DAY_SECS * 365 : fallbackData?.maxYearlyRewardBudget || 0;
     const sInvSupply = (invStakingData ? getBnToNumber(invStakingData[5]) : fallbackData?.sInvSupply || 0);
-    const periodRevenue = invStakingData ? getBnToNumber(invStakingData[6]) : fallbackData?.periodRevenue || 0;
-    const pastPeriodRevenue = invStakingData ? getBnToNumber(invStakingData[7]) : fallbackData?.pastPeriodRevenue || 0;
+    const _periodRevenue = invStakingData ? getBnToNumber(invStakingData[6]) : fallbackData?.periodRevenue || 0;
+    const _pastPeriodRevenue = invStakingData ? getBnToNumber(invStakingData[7]) : fallbackData?.pastPeriodRevenue || 0;
     const sInvTotalAssetsCurrent = (invStakingData ? getBnToNumber(invStakingData[8]) : fallbackData?.sInvTotalAssets || 0);
-    const sInvTotalAssets = sInvTotalAssetsCurrent + supplyDelta;        
+    const lastBuyPeriod = (invStakingData ? getBnToNumber(invStakingData[9], 0) : fallbackData?.lastBuyPeriod || 0);
+    const sInvTotalAssets = sInvTotalAssetsCurrent + supplyDelta;
+
+    const weekUtcIndex = getWeekIndexUtc();
+    const weekUtcIndexPrev = weekUtcIndex - 1;
+    const periodRevenue = !lastBuyPeriod || lastBuyPeriod === weekUtcIndex ? _periodRevenue : 0;
+    const pastPeriodRevenue = !lastBuyPeriod || lastBuyPeriod === weekUtcIndex ? _pastPeriodRevenue : lastBuyPeriod === weekUtcIndexPrev ? _periodRevenue : 0;
 
     const sInvDistributorShare = distributorTotalSupply > 0 ? invBalInFirmFromSInv / distributorTotalSupply : 1;
     // sDOLA budget share
@@ -324,18 +332,4 @@ export const formatInvStakingEvents = (events: any[], timestamps?: any, alreadyS
             sInvStaking,
         };
     });
-}
-
-export function getLastThursdayTimestamp() {
-    const now = new Date();
-    const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0);
-    const today = new Date(nowUTC);
-    const dayOfWeek = today.getUTCDay();
-    const daysSinceLastThursday = dayOfWeek >= 4 ? dayOfWeek - 4 : 7 - (4-dayOfWeek);
-    today.setUTCDate(today.getUTCDate() - daysSinceLastThursday);
-    return +(today);
-}
-
-export function getNextThursdayTimestamp() {
-    return getLastThursdayTimestamp() + 7 * ONE_DAY_MS;
 }

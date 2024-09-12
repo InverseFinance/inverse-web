@@ -365,14 +365,33 @@ export const getWeekYear = function (ts: number) {
     date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
     return date.getFullYear();
 }
-export function getPreviousThursdayUtcDateOfTimestamp(ts: number) {
-    const now = new Date(ts);
-    const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0);
-    const today = new Date(nowUTC);
-    const dayOfWeek = today.getUTCDay();
-    const daysSinceLastThursday = dayOfWeek >= 4 ? dayOfWeek - 4 : 7 - (4 - dayOfWeek);
-    today.setUTCDate(today.getUTCDate() - daysSinceLastThursday);
-    return timestampToUTC(+(today));
+
+export function getPreviousThursdayUtcDateOfTimestamp(ts: number) {    
+    return timestampToUTC(getPreviousThursdayTimestamp(ts));
+}
+
+export const getWeekIndexUtc = (ts?: number) => {
+    const d = ts ? new Date(ts) : new Date();
+    const weekFloat = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0) / (ONE_DAY_MS * 7);
+    return Math.floor(weekFloat);
+}
+
+export function getPreviousThursdayTimestamp(ts?: number) {
+    const date = ts ? new Date(ts) : new Date();
+    const dateUTCts = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0);
+    const dateUtc = new Date(dateUTCts);
+    const dayOfWeek = dateUtc.getUTCDay();
+    const daysSinceLastThursday = dayOfWeek >= 4 ? dayOfWeek - 4 : 7 - (4-dayOfWeek);
+    dateUtc.setUTCDate(dateUtc.getUTCDate() - daysSinceLastThursday);
+    return +(dateUtc);
+}
+
+export function getLastThursdayTimestamp() {
+    return getPreviousThursdayTimestamp();
+}
+
+export function getNextThursdayTimestamp() {
+    return getLastThursdayTimestamp() + 7 * ONE_DAY_MS;
 }
 
 export const getAvgOnLastItems = (data: any[], attribute: string, nbLastItems: number) => {
