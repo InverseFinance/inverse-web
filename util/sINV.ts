@@ -103,6 +103,7 @@ export const useStakedInv = (dbrDolaPrice: number, supplyDelta = 0): {
     isLoading: boolean;
     hasError: boolean;
     sInvExRate: number;
+    depositLimit: number;
 } => {
     const { data: apiData, error: apiErr } = useCacheFirstSWR(`/api/inv-staking?v=1.0.2`);
     const { markets } = useDBRMarkets();
@@ -125,12 +126,18 @@ export const useStakedInv = (dbrDolaPrice: number, supplyDelta = 0): {
         [SINV_ADDRESS, 'lastPeriodRevenue'],        
         [SINV_ADDRESS, 'totalAssets'],
         [SINV_ADDRESS, 'lastBuyPeriod'],
+        [SINV_ADDRESS, 'depositLimit'],
     ]);
+
+    const { data: depositLimitBn } = useEtherSWR(
+        [SINV_ADDRESS, 'depositLimit'],
+    );
     
     const invStakingData = metaData && sInvData ? metaData.concat(sInvData) : undefined;
 
     return {
         ...formatInvStakingData(dbrDolaPrice, invStakingData, firmInvApr, dbrInvExRate, invStakedViaDistributor, apiData, supplyDelta),
+        depositLimit: depositLimitBn ? getBnToNumber(depositLimitBn) : 0,
         isLoading: (!invStakingData && !error) && (!apiData && !apiErr),
         hasError: !!error || !!apiErr,
     }

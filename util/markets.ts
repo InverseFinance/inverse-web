@@ -4,9 +4,8 @@ import { BigNumber, Contract } from 'ethers';
 import { formatUnits, commify, isAddress, parseUnits, parseEther } from 'ethers/lib/utils';
 import { ETH_MANTISSA, BLOCKS_PER_YEAR, DAYS_PER_YEAR, BLOCKS_PER_DAY, ONE_DAY_SECS, WEEKS_PER_YEAR, ONE_DAY_MS } from '@app/config/constants';
 
-import { lowercaseObjectKeys, removeTrailingZeros, toFixed } from './misc';
+import { getNextThursdayTimestamp, lowercaseObjectKeys, removeTrailingZeros, toFixed } from './misc';
 import { getProvider } from './providers';
-import { getNextThursdayTimestamp } from './dola-staking';
 import { NETWORKS_BY_NAME } from '@app/config/networks';
 
 export const getMonthlyRate = (balance: number, apy: number) => {
