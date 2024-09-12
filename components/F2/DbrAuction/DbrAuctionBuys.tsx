@@ -5,10 +5,10 @@ import Table from "@app/components/common/Table";
 import ScannerLink from "@app/components/common/ScannerLink";
 import { Timestamp } from "@app/components/common/BlockTimestamp/Timestamp";
 import moment from "moment";
-import { getLastThursdayTimestamp, useStakedDola } from "@app/util/dola-staking";
+import { useStakedDola } from "@app/util/dola-staking";
 import { useDBRPrice } from "@app/hooks/useDBR";
 import { ONE_DAY_MS } from "@app/config/constants";
-import { preciseCommify } from "@app/util/misc";
+import { getLastThursdayTimestamp, preciseCommify } from "@app/util/misc";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="12px" fontWeight="extrabold" {...props} />

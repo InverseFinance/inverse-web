@@ -7,7 +7,7 @@ import { aprToApy, getBnToNumber } from "./markets";
 import { useAccount } from "@app/hooks/misc";
 import { useCacheFirstSWR, useCustomSWR } from "@app/hooks/useCustomSWR";
 import { useContractEvents } from "@app/hooks/useContractEvents";
-import { ascendingEventsSorter } from "./misc";
+import { ascendingEventsSorter, getLastThursdayTimestamp, getWeekIndexUtc } from "./misc";
 import { useBlocksTimestamps } from "@app/hooks/useBlockTimestamp";
 import { SWR } from "@app/types";
 import { fetcher } from "./web3";
@@ -129,10 +129,8 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
     sDolaExRate: number;
 } => {
     const account = useAccount();
-    const { data: apiData, error: apiErr } = useCacheFirstSWR(`/api/dola-staking`);
-    const d = new Date();
-    const weekFloat = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0) / (ONE_DAY_MS * 7);
-    const weekIndexUtc = Math.floor(weekFloat);
+    const { data: apiData, error: apiErr } = useCacheFirstSWR(`/api/dola-staking`);   
+    const weekIndexUtc = getWeekIndexUtc();
 
     const { data: dsaData, error } = useEtherSWR([
         [DOLA_SAVINGS_ADDRESS, 'claimable', SDOLA_ADDRESS],
@@ -369,18 +367,4 @@ export const formatDolaStakingEvents = (events: any[], timestamps?: any, already
             sDolaStaking,
         };
     });
-}
-
-export function getLastThursdayTimestamp() {
-    const now = new Date();
-    const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0);
-    const today = new Date(nowUTC);
-    const dayOfWeek = today.getUTCDay();
-    const daysSinceLastThursday = dayOfWeek >= 4 ? dayOfWeek - 4 : 7 - (4-dayOfWeek);
-    today.setUTCDate(today.getUTCDate() - daysSinceLastThursday);
-    return +(today);
-}
-
-export function getNextThursdayTimestamp() {
-    return getLastThursdayTimestamp() + 7 * ONE_DAY_MS;
 }

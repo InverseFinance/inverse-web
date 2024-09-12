@@ -5,6 +5,7 @@ import { CHAIN_ID, ONE_DAY_MS, SDOLA_ADDRESS } from '@app/config/constants';
 import { formatDolaStakingData, getDolaSavingsContract, getSdolaContract } from '@app/util/dola-staking';
 import { getMulticallOutput } from '@app/util/multicall';
 import { getDbrPriceOnCurve } from '@app/util/f2';
+import { getWeekIndexUtc } from '@app/util/misc';
 
 export const dolaStakingCacheKey = `dola-staking-v1.0.3`;
 
@@ -23,9 +24,7 @@ export default async function handler(req, res) {
         const savingsContract = getDolaSavingsContract(provider);
         const sDolaContract = getSdolaContract(provider);
 
-        const d = new Date();
-        const weekFloat = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0) / (ONE_DAY_MS * 7);
-        const weekIndexUtc = Math.floor(weekFloat);        
+        const weekIndexUtc = getWeekIndexUtc();    
 
         const dolaStakingData = await getMulticallOutput([
             { contract: savingsContract, functionName: 'claimable', params: [SDOLA_ADDRESS] },
