@@ -13,7 +13,7 @@ export const MENUS = {
           href: '/firm',
         },
         {
-          label: 'Stake INV',
+          label: 'Borrow against INV',
           href: '/firm/INV',
         },
         {

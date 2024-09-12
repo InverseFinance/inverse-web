@@ -142,6 +142,23 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                     description="Please note that borrowing is not allowed for multisigs / contracts."
                                                 />
                                             }
+                                            <InfoMessage
+                                                alertProps={{ w: 'full' }}
+                                                description={
+                                                    <VStack alignItems="flex-start">
+                                                        <HStack>
+                                                            <Link cursor="pointer" fontWeight="bold" color="mainTextColor" textDecoration="underline" href="/sINV">
+                                                                Looking for sINV?
+                                                            </Link>
+                                                            <Image src="/assets/sINVx128.png" alt="sINV" w="24px" h="24px" />
+                                                        </HStack>
+                                                        <Text>sINV is a new product that auto-compounds DBR rewards for more INV, it's the best INV staking option if you're not borrowing DOLA or voting on proposals.</Text>
+                                                        <Link cursor="pointer" fontWeight="bold" color="mainTextColor" textDecoration="underline" href="/sINV">
+                                                            Go to sINV
+                                                        </Link>
+                                                    </VStack>
+                                                }
+                                            />
                                             <ErrorBoundary description="Error in the form component, please try reloading">
                                                 {
                                                     f2market.isInv && <Container
@@ -156,12 +173,6 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                         <InfoMessage
                                                             description={
                                                                 <VStack alignItems="flex-start">
-                                                                    <HStack>
-                                                                        <Link fontWeight="bold" color="mainTextColor" textDecoration="underline" href="/sINV">New: sINV is now available!</Link>
-                                                                        <Image src="/assets/sINVx128.png" alt="sINV" w="24px" h="24px" />
-                                                                    </HStack>
-                                                                    <Text>sINV auto-compounds DBR rewards for more INV, it's the best INV staking option if you're not borrowing DOLA or voting on proposals.</Text>
-                                                                    <Divider borderColor="mainTextColorLight" />
                                                                     <Text>✨ <b>{shortenNumber(f2market.extraApy, 2)}% DBR Rewards Annual Percentage Rate</b>. Real yield that you claim. Currently streaming <b>{preciseCommify(f2market.dbrYearlyRewardRate, 0)}</b> DBR's per year to INV stakers.</Text>
                                                                     <Text>✨ <b>{shortenNumber(f2market.supplyApy, 2)}% INV Staking rewards</b>. Dilution protection. Your staked INV balance increases automatically.</Text>
                                                                     <Text>
