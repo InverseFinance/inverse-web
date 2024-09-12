@@ -96,6 +96,7 @@ export const SInvStatsPage = () => {
           {
             ...evolution[evolution.length - 1],
             timestamp: Date.now() - (1000 * 120),
+            tvl: sInvTotalAssets * invPrice,
             apr,
             apy,
             sInvTotalAssets,
@@ -135,7 +136,7 @@ export const SInvStatsPage = () => {
             {isInited && <Chart currentValue={apy} isPerc={true} data={histoData} attribute="apy" yLabel="APY" areaProps={{ addDayAvg: true, showLegend: true, legendPosition: 'bottom', avgDayNumbers: [30, 60], avgLineProps: [{ stroke: themeStyles.colors.success, strokeDasharray: '4 4' }, { stroke: themeStyles.colors.warning, strokeDasharray: '4 4' }] }} />}
           </ChartCard>
           <ChartCard subtitle={sInvTotalAssets > 0 ? `(current: ${preciseCommify(sInvTotalAssets || 0, 0)} INV, ${invPrice ? `${preciseCommify(sInvTotalAssets * invPrice, 0, true)})` : ''}` : ''} cardTitle={`INV staked in sINV`}>
-            {isInited && <Chart isLoading={isLoading} currentValue={sInvTotalAssets} data={histoData} attribute="sInvTotalAssets" yLabel="INV staked" />}
+            {isInited && <Chart isLoading={isLoading} areaProps={{ showSecondary: true, secondaryRef: 'tvl', secondaryType: 'stepAfter', secondaryLabel: 'TVL', secondaryAsUsd: true, secondaryPrecision: 0, secondaryOpacity: 0.5, secondaryColor: themeStyles.colors.success }} currentValue={sInvTotalAssets} data={histoData} attribute="sInvTotalAssets" yLabel="INV staked" />}
           </ChartCard>
         </SimpleGrid>
         <InvStakingActivity

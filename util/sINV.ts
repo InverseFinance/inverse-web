@@ -243,10 +243,13 @@ export const useInvStakingEvolution = (): SWR & {
     evolution: any[],
     timestamp: number,
 } => {
-    const { data, error } = useCacheFirstSWR(`/api/inv-staking/history?v=1.0.2`, fetcher);
+    const { data, error } = useCacheFirstSWR(`/api/inv-staking/history?v=1.0.4`, fetcher);
 
     const evolution = useMemo(() => {
-        return (data?.totalEntries || []).map((e) => ({ ...e }));
+        return (data?.totalEntries || []).map((e) => ({ 
+            ...e,
+            tvl: e.sInvTotalAssets * (e.invMarketPrice || 22),
+         }));
     }, [data?.timestamp, data?.totalEntries]);
 
     return {

@@ -75,6 +75,7 @@ export const AreaChartRecharts = ({
     secondaryRef = 'price',
     secondaryType = 'monotone',
     secondaryLabel = 'Price',
+    secondaryColor,
     secondaryAsUsd = true,
     secondaryPrecision = 4,
     secondaryOpacity = 1,
@@ -115,6 +116,7 @@ export const AreaChartRecharts = ({
     isPerc?: boolean
     forceStaticRangeBtns?: boolean
     showSecondary?: boolean
+    secondaryColor?: string
     secondaryRef?: string
     secondaryType?: string
     secondaryLabel?: string
@@ -206,7 +208,7 @@ export const AreaChartRecharts = ({
                     showSecondary && <YAxis allowDataOverflow={true} style={_axisStyle.tickLabels} yAxisId={secAxisId} orientation={secAxisId} tickFormatter={(v) => shortenNumber(v, secondaryPrecision, secondaryAsUsd)} />
                 }
                 {
-                    showSecondary && !!secondaryRef && <Line isAnimationActive={false} opacity={secondaryOpacity} strokeWidth={2} name={secondaryLabel} yAxisId={secAxisId} type={secondaryType} dataKey={secondaryRef} stroke={themeStyles.colors.info} dot={false} />
+                    showSecondary && !!secondaryRef && <Line isAnimationActive={false} opacity={secondaryOpacity} strokeWidth={2} name={secondaryLabel} yAxisId={secAxisId} type={secondaryType} dataKey={secondaryRef} stroke={secondaryColor || themeStyles.colors.info} dot={false} />
                 }
                 {
                     lineItems?.map(lineItem => {
