@@ -54,7 +54,8 @@ export const StakeInvUI = () => {
     const isStake = tab === 'Stake';
 
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
-    const { apy, projectedApy, isLoading, sInvExRate, sInvTotalAssets, periodRevenue } = useStakedInv(dbrDolaPrice, !invAmount || isNaN(parseFloat(invAmount)) ? 0 : isStake ? parseFloat(invAmount) : -parseFloat(invAmount));
+    const { apy, projectedApy, isLoading, sInvExRate, sInvTotalAssets, periodRevenue, depositLimit } = useStakedInv(dbrDolaPrice, !invAmount || isNaN(parseFloat(invAmount)) ? 0 : isStake ? parseFloat(invAmount) : -parseFloat(invAmount));
+    
     // const { evolution, timestamp: lastDailySnapTs, isLoading: isLoadingEvolution } = useInvStakingEvolution();    
     const { data: invBalanceBn } = useEtherSWR(
         [INV, 'balanceOf', account],
@@ -122,8 +123,12 @@ export const StakeInvUI = () => {
         return (apy > 0 && invStakedInSInv > 0 ? getMonthlyRate(invStakedInSInv, apy) : 0);
     }, [invStakedInSInv, apy]);
 
+    const depositLimitReached = useMemo(() => {
+        return sInvTotalAssets > depositLimit;
+    }, [depositLimit, sInvTotalAssets, invAmount]);
+
     const handleAction = async () => {
-        if (isStake) {
+        if (isStake) {            
             return stakeInv(provider?.getSigner(), parseEther(invAmount));
         }
         return unstakeInv(provider?.getSigner(), parseEther(invAmount));
@@ -223,11 +228,15 @@ export const StakeInvUI = () => {
                                             onAmountChange={(v) => setInvAmount(v)}
                                             showMaxBtn={false}
                                             showMax={true}
+                                            isDisabled={!invAmount || depositLimitReached}
                                             hideInputIfNoAllowance={false}
                                             showBalance={false}
                                             onSuccess={() => resetRealTime()}
                                             enableCustomApprove={true}
                                         />
+                                        {
+                                            depositLimitReached && <InfoMessage description={`Note: sINV has reached its deposit limit of ${preciseCommify(depositLimit, 0)} INV for the moment`} />
+                                        }
                                     </VStack>
                                     :
                                     <VStack w='full' alignItems="flex-start">

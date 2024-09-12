@@ -616,6 +616,7 @@ export const SINV_ABI = [
   "function lastPeriodRevenue() public view returns (uint)",
   "function lastBuyPeriod() public view returns (uint)",
   "function getInvReserve() public view returns (uint)",
+  "function depositLimit() public view returns (uint)",
 ]
 export const SDOLA_HELPER_ABI = [
   "function getDbrOut(uint _dolaIn) public view returns (uint _dbrOut)",
