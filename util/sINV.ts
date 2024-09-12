@@ -163,10 +163,10 @@ export const formatInvStakingData = (
     const periodRevenue = !lastBuyPeriod || lastBuyPeriod === weekUtcIndex ? _periodRevenue : 0;
     const pastPeriodRevenue = !lastBuyPeriod || lastBuyPeriod === weekUtcIndex ? _pastPeriodRevenue : lastBuyPeriod === weekUtcIndexPrev ? _periodRevenue : 0;
 
-    const sInvDistributorShare = distributorTotalSupply > 0 ? invBalInFirmFromSInv / distributorTotalSupply : 1;
+    const sInvDistributorShare = invStakedViaDistributor > 0 ? invBalInFirmFromSInv / invStakedViaDistributor : 1;
     // sDOLA budget share
     const yearlyRewardBudget = sInvDistributorShare > 0 ? distributorYearlyBudget * sInvDistributorShare : distributorYearlyBudget;
-    const distributorDbrRatePerInv = distributorTotalSupply > 0 ? distributorYearlyBudget / distributorTotalSupply : 0;
+    const distributorDbrRatePerInv = invStakedViaDistributor > 0 ? distributorYearlyBudget / invStakedViaDistributor : 0;
     const dbrRatePerInv = invBalInFirmFromSInv > 0 ? yearlyRewardBudget / invBalInFirmFromSInv : 0;
     const now = Date.now();
     const secondsPastEpoch = (now - getLastThursdayTimestamp()) / 1000;
@@ -177,11 +177,13 @@ export const formatInvStakingData = (
     const realized = ((periodRevenue / realizedTimeInDays) * 365) / sInvTotalAssets;
     // forecasted = dbrApr at next period  
     const forecasted = (nextTotalAssetsWithDbr * dbrInvExRate * dbrRatePerInv) / sInvTotalAssets;
+
     // const forecasted = distributorYearlyBudget * dbrInvExRate / (invStakedViaDistributor+periodAntiDilutionRewards+periodRevenue);
     // we use two week revenu epoch for the projected auctionApr
     const calcPeriodSeconds = 14 * ONE_DAY_SECS;
     const projectedApr = dbrDolaPrice ?
         ((secondsPastEpoch / calcPeriodSeconds) * realized + ((calcPeriodSeconds - secondsPastEpoch) / calcPeriodSeconds) * forecasted) * 100 : 0;
+    
     const auctionApr = sInvTotalAssets > 0 ? (pastPeriodRevenue * WEEKS_PER_YEAR) / sInvTotalAssets * 100 : 0;
     const nextAuctionApr = sInvTotalAssets > 0 ? (periodRevenue * WEEKS_PER_YEAR) / sInvTotalAssets * 100 : 0;
     const sInvExRate = sInvTotalAssetsCurrent && sInvSupply ? sInvTotalAssetsCurrent / sInvSupply : 0;
@@ -207,6 +209,7 @@ export const formatInvStakingData = (
         auctionApr,
         auctionApy: aprToApy(auctionApr, WEEKS_PER_YEAR),
         apr: totalApr,
+        invStakedViaDistributor,
         // assumes daily auto-compounding
         apy: aprToApy(auctionApr, 365) + firmInvApr,
         nextAuctionApr,
