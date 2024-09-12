@@ -110,7 +110,6 @@ export const useStakedInv = (dbrDolaPrice: number, supplyDelta = 0): {
     const firmInvApr = firmInvMarket?.supplyApy || 0;
     const dbrInvExRate = firmInvMarket?.dbrInvExRate || 0;
     const invStakedViaDistributor = firmInvMarket?.invStakedViaDistributor || 0;
-    const weekIndexUtc = getWeekIndexUtc();
     
     const { data: metaData, error } = useEtherSWR([
         [SINV_ESCROW_ADDRESS, 'claimable'],
@@ -119,6 +118,7 @@ export const useStakedInv = (dbrDolaPrice: number, supplyDelta = 0): {
         [DBR_DISTRIBUTOR_ADDRESS, 'rewardRate'],
         [DBR_DISTRIBUTOR_ADDRESS, 'maxRewardRate'],       
     ]);
+    // periodRevenue is not necessarily the current period, verify with lastBuyPeriod and current week index, same with lastPeriodRevenue
     const { data: sInvData } = useEtherSWR([
         [SINV_ADDRESS, 'totalSupply'],
         [SINV_ADDRESS, 'periodRevenue'],
