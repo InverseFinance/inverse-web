@@ -21,6 +21,7 @@ import useEtherSWR from "@app/hooks/useEtherSWR";
 import { redeemSInv, stakeInv, unstakeInv, useInvStakingEarnings, useStakedInv } from "@app/util/sINV";
 
 const { INV } = getNetworkConfigConstants();
+const isOldSInv = true;
 
 const StatBasic = ({ value, name, message, onClick = undefined, isLoading = false }: { value: string, message: any, onClick?: () => void, name: string, isLoading?: boolean }) => {
     return <VStack>
@@ -211,33 +212,39 @@ export const StakeInvUI = () => {
                             }
                             {
                                 tab === 'Info' ? <StakeInvInfos /> : isStake ?
-                                    <VStack w='full' alignItems="flex-start">
-                                        <Text fontSize="22px" fontWeight="bold">
-                                            INV amount to stake:
-                                        </Text>
-                                        <SimpleAmountForm
-                                            btnProps={{ needPoaFirst: true }}
-                                            defaultAmount={invAmount}
-                                            address={INV}
-                                            destination={SINV_ADDRESS}
-                                            signer={provider?.getSigner()}
-                                            decimals={18}
-                                            onAction={() => handleAction()}
-                                            actionLabel={`Stake`}
-                                            maxActionLabel={`Stake all`}
-                                            onAmountChange={(v) => setInvAmount(v)}
-                                            showMaxBtn={false}
-                                            showMax={true}
-                                            isDisabled={!invAmount || depositLimitReached}
-                                            hideInputIfNoAllowance={false}
-                                            showBalance={false}
-                                            onSuccess={() => resetRealTime()}
-                                            enableCustomApprove={true}
-                                        />
-                                        {
-                                            depositLimitReached && <InfoMessage description={`Note: sINV has reached its deposit limit of ${preciseCommify(depositLimit, 0)} INV for the moment`} />
-                                        }
-                                    </VStack>
+                                <InfoMessage
+                                    title="A new version of sINV is coming"
+                                    description={
+                                        invStakedInSInv ? 'Your deposits are safe but new deposits are paused as a new sINV version is upcoming fixing a minor issue.'
+                                        : 'New deposits are paused as a new sINV version is upcoming fixing a minor issue.'
+                                    } />
+                                    // <VStack w='full' alignItems="flex-start">
+                                    //     <Text fontSize="22px" fontWeight="bold">
+                                    //         INV amount to stake:
+                                    //     </Text>
+                                    //     <SimpleAmountForm
+                                    //         btnProps={{ needPoaFirst: true }}
+                                    //         defaultAmount={invAmount}
+                                    //         address={INV}
+                                    //         destination={SINV_ADDRESS}
+                                    //         signer={provider?.getSigner()}
+                                    //         decimals={18}
+                                    //         onAction={() => handleAction()}
+                                    //         actionLabel={`Stake`}
+                                    //         maxActionLabel={`Stake all`}
+                                    //         onAmountChange={(v) => setInvAmount(v)}
+                                    //         showMaxBtn={false}
+                                    //         showMax={true}
+                                    //         isDisabled={!invAmount || depositLimitReached}
+                                    //         hideInputIfNoAllowance={false}
+                                    //         showBalance={false}
+                                    //         onSuccess={() => resetRealTime()}
+                                    //         enableCustomApprove={true}
+                                    //     />
+                                    //     {
+                                    //         depositLimitReached && <InfoMessage description={`Note: sINV has reached its deposit limit of ${preciseCommify(depositLimit, 0)} INV for the moment`} />
+                                    //     }
+                                    // </VStack>
                                     :
                                     <VStack w='full' alignItems="flex-start">
                                         <Text fontSize="22px" fontWeight="bold">
@@ -268,7 +275,7 @@ export const StakeInvUI = () => {
                                     </VStack>
                             }
                             {
-                                tab !== 'Info' && <VStack alignItems="flex-start">
+                                tab !== 'Info' && !(isStake && isOldSInv) && <VStack alignItems="flex-start">
                                     <HStack>
                                         <Text fontSize="16px" color="mainTextColorLight2">
                                             {isStake ? 'sINV to receive' : 'sINV to exchange'}:
