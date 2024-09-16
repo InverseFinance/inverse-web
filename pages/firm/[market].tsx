@@ -142,23 +142,25 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                     description="Please note that borrowing is not allowed for multisigs / contracts."
                                                 />
                                             }
-                                            <InfoMessage
-                                                alertProps={{ w: 'full' }}
-                                                description={
-                                                    <VStack alignItems="flex-start">
-                                                        <HStack>
+                                            {
+                                                f2market.isInv && <InfoMessage
+                                                    alertProps={{ w: 'full' }}
+                                                    description={
+                                                        <VStack alignItems="flex-start">
+                                                            <HStack>
+                                                                <Link cursor="pointer" fontWeight="bold" color="mainTextColor" textDecoration="underline" href="/sINV">
+                                                                    Looking for sINV?
+                                                                </Link>
+                                                                <Image src="/assets/sINVx128.png" alt="sINV" w="24px" h="24px" />
+                                                            </HStack>
+                                                            <Text>sINV is a new product that auto-compounds DBR rewards for more INV, it's the best INV staking option if you're not borrowing DOLA or voting on proposals.</Text>
                                                             <Link cursor="pointer" fontWeight="bold" color="mainTextColor" textDecoration="underline" href="/sINV">
-                                                                Looking for sINV?
+                                                                Go to sINV
                                                             </Link>
-                                                            <Image src="/assets/sINVx128.png" alt="sINV" w="24px" h="24px" />
-                                                        </HStack>
-                                                        <Text>sINV is a new product that auto-compounds DBR rewards for more INV, it's the best INV staking option if you're not borrowing DOLA or voting on proposals.</Text>
-                                                        <Link cursor="pointer" fontWeight="bold" color="mainTextColor" textDecoration="underline" href="/sINV">
-                                                            Go to sINV
-                                                        </Link>
-                                                    </VStack>
-                                                }
-                                            />
+                                                        </VStack>
+                                                    }
+                                                />
+                                            }
                                             <ErrorBoundary description="Error in the form component, please try reloading">
                                                 {
                                                     f2market.isInv && <Container

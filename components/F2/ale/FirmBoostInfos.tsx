@@ -88,7 +88,7 @@ export const getLeverageImpact = async ({
     underlyingExRate = 1,
 }) => {
     // only when there is a transformation needed when using ALE, otherwise the underlyingExRate is just a ui info
-    const exRate = market?.aleData?.buySellToken?.toLowerCase() !== market?.collateral?.toLowerCase() ? underlyingExRate : 1;
+    const exRate = market?.aleData?.buySellToken?.toLowerCase() !== market?.collateral?.toLowerCase() ? underlyingExRate : 1;   
     const collateralPrice = market?.price;
     if (!collateralPrice || leverageLevel <= 1) {
         return
@@ -102,23 +102,27 @@ export const getLeverageImpact = async ({
         const baseColAmountForLeverage = deposits > 0 ? deposits + initialDeposit : initialDeposit;
         const baseWorth = baseColAmountForLeverage * collateralPrice;
         let borrowStringToSign, borrowNumToSign;
-        // precision is focused on collateral amount, only with 0x api
-        if (!viaInput) {
+        // leverage level slider / input, result from 1inch
+        if (!viaInput && !market.isAleWithoutSwap) {
             const amountUp = baseColAmountForLeverage * leverageLevel - baseColAmountForLeverage;
             const { buyAmount } = await getAleSellQuote(DOLA, market.aleData.buySellToken || market.collateral, getNumberToBn(amountUp, market.underlying.decimals).toString(), aleSlippage, true);
             borrowStringToSign = buyAmount;
             borrowNumToSign = parseFloat(borrowStringToSign) / (1e18);
         }
+        // leverage info by changing the dola input
         else if (!!dolaInput) {
             borrowNumToSign = parseFloat(dolaInput);
             borrowStringToSign = getNumberToBn(borrowNumToSign).toString();
-        } else {
+        }
+        // via leverage level slider / input
+        else {
             const targetWorth = baseWorth * leverageLevel;
             borrowNumToSign = (targetWorth - baseWorth) * dolaPrice;
             borrowStringToSign = getNumberToBn(borrowNumToSign).toString();
         }
 
         let collateralAdded, errorMsg;
+        // classic case, using 1inch
         if(!market.isAleWithoutSwap) {
             // in the end the reference is always a number of dola sold (as it's what we need to sign, or part of it if with dbr)
             const { buyAmount, validationErrors, msg } = await getAleSellQuote(market.aleData.buySellToken || market.collateral, DOLA, borrowStringToSign, aleSlippage, true);
@@ -126,9 +130,10 @@ export const getLeverageImpact = async ({
                 `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
                 : msg;
                 collateralAdded = buyAmount;
-        } else {
-            // DOLA LP case, result not from 1inch
-            collateralAdded = getNumberToBn(borrowNumToSign / market.price, market.underlying.decimals).toString();
+        } 
+        // DOLA LP case, result not from 1inch
+        else {
+            collateralAdded = getNumberToBn((borrowNumToSign * dolaPrice) / market.price, market.underlying.decimals).toString();
         }
         if (setLeverageLoading) setLeverageLoading(false);
         return {
@@ -144,10 +149,17 @@ export const getLeverageImpact = async ({
         const targetWorth = Math.max(0, baseWorth * (1 / leverageLevel));
         const targetCollateralBalance = targetWorth / collateralPrice;
         const withdrawAmountToSign = targetCollateralBalance - baseColAmountForLeverage;
-        const { buyAmount, validationErrors, msg } = await getAleSellQuote(DOLA, market.aleData.buySellToken || market.collateral, getNumberToBn(Math.abs(withdrawAmountToSign) * exRate, market.underlying.decimals).toString(), aleSlippage, true);
-        const errorMsg = validationErrors?.length > 0 ?
+        let buyAmount, errorMsg;
+        // classic case
+        if(!market.isAleWithoutSwap){
+            const { buyAmount: _buyAmount, validationErrors, msg } = await getAleSellQuote(DOLA, market.aleData.buySellToken || market.collateral, getNumberToBn(Math.abs(withdrawAmountToSign) * exRate, market.underlying.decimals).toString(), aleSlippage, true);
+            buyAmount = _buyAmount;
+            errorMsg = validationErrors?.length > 0 ?
             `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
             : msg;
+        } else {
+            buyAmount = getNumberToBn(Math.abs(withdrawAmountToSign) * market.price / dolaPrice).toString();
+        }                
         if (setLeverageLoading) setLeverageLoading(false);
         return {
             errorMsg,
@@ -187,6 +199,8 @@ export const FirmBoostInfos = ({
         isTriggerLeverageFetch,
         underlyingExRate,
         mode,
+        setLeverageMinAmountUp,
+        setLeverageMinDebtReduced,
     } = useContext(F2MarketContext);
     
     const newBorrowLimit = 100 - newPerc;
@@ -327,6 +341,14 @@ export const FirmBoostInfos = ({
     // when leveraging down min amount (or debt) is always the amount repaid, the slippage impacts amount of dola received in wallet
     const amountOfDebtReduced = !isLeverageUp ? Math.min(minAmount, debt) : 0;
     const extraDolaReceivedInWallet = isLeverageUp ? 0 : estimatedAmount - amountOfDebtReduced;
+
+    useEffect(() => {
+        setLeverageMinAmountUp(minAmount);
+    }, [minAmount]);
+
+    useEffect(() => {
+        setLeverageMinDebtReduced(amountOfDebtReduced);
+    }, [amountOfDebtReduced]);
 
     return <Stack borderRadius='5px' p='4' bgColor="infoAlpha" fontSize="14px" spacing="4" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
         <VStack position="relative" w='full' alignItems="center" justify="center">            

@@ -29,6 +29,8 @@ const aleTransformers = {
     },
 }
 
+const ANOMALY_PERC_FACTOR = 0.9;
+
 export const prepareLeveragePosition = async (
     signer: JsonRpcSigner,
     market: F2Market,
@@ -39,6 +41,8 @@ export const prepareLeveragePosition = async (
     durationDays?: number,
     // can be collateral or buySellToken, eg sFRAX or FRAX
     isDepositCollateral = true,
+    dolaPrice = 1,
+    leverageMinAmountUp?: number,
 ) => {
     let dbrApprox;
     let dbrInputs = { dolaParam: '0', dbrParam: '0' };
@@ -74,9 +78,13 @@ export const prepareLeveragePosition = async (
         const permitData = [deadline, v, r, s];
         let helperTransformData = '0x';
         if (market.aleData?.buySellToken && !!market.aleTransformerType && aleTransformers[market.aleTransformerType]) {
-            const minLpAmount = getNumberToBn((1 - parseFloat(slippagePerc || 0) / 100) * market.price * getBnToNumber(dolaToBorrowToBuyCollateral));
-            helperTransformData = aleTransformers[market.aleTransformerType](market, minLpAmount);
-        }
+            // should not happen in normal circumstances
+            if(leverageMinAmountUp < (getBnToNumber(dolaToBorrowToBuyCollateral) / market.price * ANOMALY_PERC_FACTOR)){
+                alert('Something went wrong');
+                return;
+            }
+            helperTransformData = aleTransformers[market.aleTransformerType](market, leverageMinAmountUp ? getNumberToBn(leverageMinAmountUp) : undefined);
+        }        
         // dolaIn, minDbrOut
         const dbrData = [dbrInputs.dolaParam, dbrInputs.dbrParam, '0'];
         if (initialDeposit && initialDeposit.gt(0)) {
@@ -111,7 +119,7 @@ export const leveragePosition = (
     helperTransformData: string,
     dbrTuple: any[],
     ethValue?: string,
-) => {
+) => { 
     return callWithHigherGL(
         getAleContract(signer),
         'leveragePosition',
@@ -151,12 +159,14 @@ export const prepareDeleveragePosition = async (
     slippagePerc?: string | number,
     dbrToSell?: BigNumber,
     minDolaOut?: BigNumber,
+    dolaPrice = 1,
+    leverageMinDebtReduced?: number,
 ) => {
     let aleQuoteResult;
     // we need the quote first
     try {
         if (market.isAleWithoutSwap) {
-            aleQuoteResult = { data: '0x', allowanceTarget: BURN_ADDRESS, value: '0', buyAmount: getNumberToBn(market.price * getBnToNumber(collateralToWithdraw, market.underlying.decimals)) }
+            aleQuoteResult = { data: '0x', allowanceTarget: BURN_ADDRESS, value: '0', buyAmount: getNumberToBn(getBnToNumber(collateralToWithdraw, market.underlying.decimals) * market.price / dolaPrice).toString() }
         } else {
             // the dola swapped for collateral is dolaToRepayToSellCollateral not totalDolaToBorrow (a part is for dbr)
             aleQuoteResult = await getAleSellQuote(DOLA, market.aleData?.buySellToken || market.collateral, collateralToWithdraw.toString(), slippagePerc, false);
@@ -182,11 +192,16 @@ export const prepareDeleveragePosition = async (
         let helperTransformData = '0x';
         const dolaBuyAmount = parseUnits(buyAmount, 0);
         const userDebt = await (new Contract(market.address, F2_MARKET_ABI, signer)).debts(await signer.getAddress());
-        const minDolaAmountFromSwap = getNumberToBn(getBnToNumber(dolaBuyAmount) * (1 - parseFloat(slippagePerc) / 100));
-        const minDolaOrMaxRepayable = minDolaAmountFromSwap.gt(userDebt) ? userDebt : minDolaAmountFromSwap;
+        const minDolaAmountFromSwap = getNumberToBn(leverageMinDebtReduced);
+        const minDolaOrMaxRepayable = minDolaAmountFromSwap.gt(userDebt) ? userDebt : minDolaAmountFromSwap;       
 
         if (market.aleData?.buySellToken && !!market.aleTransformerType && aleTransformers[market.aleTransformerType]) {
-            helperTransformData = aleTransformers[market.aleTransformerType](market, minDolaAmountFromSwap);
+            // should not happen in normal circumstances
+            if(leverageMinDebtReduced < (getBnToNumber(collateralToWithdraw, market.underlying.decimals) * market.price * ANOMALY_PERC_FACTOR)){
+                alert('Something went wrong');
+                return;
+            }
+            helperTransformData = aleTransformers[market.aleTransformerType](market, leverageMinDebtReduced ? getNumberToBn(leverageMinDebtReduced) : undefined);
         }
 
         // dolaIn, minDbrOut, extraDolaToRepay

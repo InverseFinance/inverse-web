@@ -124,7 +124,7 @@ export const MARKET_INFOS = {
     'crvUSD-DOLA': {
         name: 'crvUSD-DOLA',
         fullname: 'crvUSD-DOLA LP',
-        description: 'The LP token for the crvUSD-DOLA pool on Curve, when deposited on FiRM the LP token will be then deposited into Convex to earn CVX+CRV yield',
+        description: 'The LP token for the crvUSD-DOLA pool on Curve, when deposited on FiRM the LP token will be then deposited into Convex to earn claimable CVX+CRV rewards',
         getLink: 'https://curve.fi/#/ethereum/pools/factory-crvusd-12/deposit',
     },
 }

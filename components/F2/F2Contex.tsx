@@ -64,10 +64,12 @@ export const F2Context = ({
     const [inputAmount, setInputAmount] = useState('');
     const [debtAmount, setDebtAmount] = useState('');
     const [leverageCollateralAmount, setLeverageCollateralAmount] = useState('');
+    const [leverageMinAmountUp, setLeverageMinAmountUp] = useState('');
+    const [leverageMinDebtReduced, setLeverageMinDebtReduced] = useState('');
     const [leverageDebtAmount, setLeverageDebtAmount] = useState('');    
     const [dbrSellAmount, setDbrSellAmount] = useState('');
     const [dbrBuySlippage, setDbrBuySlippage] = useState('0.3');
-    const [aleSlippage, setAleSlippage] = useState('0.1');
+    const [aleSlippage, setAleSlippage] = useState(market?.aleDefaultSlippagePerc || '0.1');
     const [isDeposit, setIsDeposit] = useState(true);
     const [isAutoDBR, setIsAutoDBR] = useState(false);
     const [isUseNativeCoin, setIsUseNativeCoin] = useState(false);
@@ -97,7 +99,7 @@ export const F2Context = ({
     const colDecimals = market.underlying.decimals;
 
     // deposit and leverage can use either the underlying or the collateral as input
-    const hasUnderlyingAsInputCase = mode === 'Deposit & Borrow' && useLeverage && (market.aleData.buySellToken !== market.collateral && market.aleData.buySellToken !== BURN_ADDRESS);
+    const hasUnderlyingAsInputCase = mode === 'Deposit & Borrow' && !!market.underlyingSymbol && useLeverage && (market.aleData.buySellToken !== market.collateral && market.aleData.buySellToken !== BURN_ADDRESS);
     const isUnderlyingAsInputCase = hasUnderlyingAsInputCase && isUnderlyingAsInputCaseSelected;
     const inputToken = isUnderlyingAsInputCase ? market.aleData.buySellToken : market.collateral;
 
@@ -380,6 +382,10 @@ export const F2Context = ({
             inputAmountNum,
             inputBalance,
             bnInputBalance,
+            setLeverageMinAmountUp,
+            leverageMinDebtReduced,
+            setLeverageMinDebtReduced,
+            leverageMinAmountUp,
         }}
         {...props}
     />

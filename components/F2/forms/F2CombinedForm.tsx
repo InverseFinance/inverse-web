@@ -31,6 +31,7 @@ import { BURN_ADDRESS } from '@app/config/constants'
 import { useMultisig } from '@app/hooks/useSafeMultisig'
 import { InfoMessage } from '@app/components/common/Messages'
 import { TOKEN_IMAGES } from '@app/variables/images'
+import { LPImages } from '@app/components/common/Assets/LPImg'
 
 const { DOLA, F2_HELPER, F2_ALE } = getNetworkConfigConstants();
 
@@ -126,6 +127,8 @@ export const F2CombinedForm = ({
         setIsUnderlyingAsInputCaseSelected,
         isUnderlyingAsInputCaseSelected,
         hasUnderlyingAsInputCase,
+        leverageMinAmountUp,
+        leverageMinDebtReduced,
     } = useContext(F2MarketContext);
 
     const { isMultisig } = useMultisig();
@@ -193,6 +196,8 @@ export const F2CombinedForm = ({
                     isAutoDBR ? dbrBuySlippage : undefined,
                     isAutoDBR ? duration : 0,
                     isUnderlyingAsInputCase,
+                    dolaPrice,
+                    leverageMinAmountUp,
                 );
             }
             else if (isAutoDBR || isUseNativeCoin) {
@@ -224,6 +229,8 @@ export const F2CombinedForm = ({
                     aleSlippage,
                     dbrAmountToSell,
                     minDolaOut,
+                    dolaPrice,
+                    leverageMinDebtReduced,
                 );
             }
             else if (isAutoDBR || isUseNativeCoin) {
@@ -404,7 +411,10 @@ export const F2CombinedForm = ({
                             showMax={!isDeleverageCase}
                             showBalance={isDeposit}
                             inputProps={isDeleverageCase ? { disabled: false } : undefined}
-                            inputRight={<MarketImage pr="2" image={isWethMarket ? (isUseNativeCoin ? market.icon : market.underlying.image) : isUnderlyingAsInputCase ? TOKEN_IMAGES[market.underlyingSymbol] : (market.icon || market.underlying.image)} size={25} />}
+                            inputRight={
+                                market.underlying.isLP ? <LPImages imgContainerProps={{ pr: 2 }} alternativeDisplay={true} lpToken={{ pairs: market.underlying.pairs, image: market.underlying.image, protocolImage: market.underlying.protocolImage }} chainId={1} imgSize={17} />
+                                :<MarketImage pr="2" image={isWethMarket ? (isUseNativeCoin ? market.icon : market.underlying.image) : isUnderlyingAsInputCase ? TOKEN_IMAGES[market.underlyingSymbol] : (market.icon || market.underlying.image)} size={25} />
+                            }
                             isError={isDeposit ? inputAmountNum > inputBalance : collateralAmountNum > deposits}
                         />
                         {
