@@ -29,6 +29,8 @@ const aleTransformers = {
     },
 }
 
+const ANOMALY_PERC_FACTOR = 0.9;
+
 export const prepareLeveragePosition = async (
     signer: JsonRpcSigner,
     market: F2Market,
@@ -75,7 +77,12 @@ export const prepareLeveragePosition = async (
         const { data: swapData, allowanceTarget, value } = aleQuoteResult;
         const permitData = [deadline, v, r, s];
         let helperTransformData = '0x';
-        if (market.aleData?.buySellToken && !!market.aleTransformerType && aleTransformers[market.aleTransformerType]) {                  
+        if (market.aleData?.buySellToken && !!market.aleTransformerType && aleTransformers[market.aleTransformerType]) {
+            // should not happen in normal circumstances
+            if(leverageMinAmountUp < (getBnToNumber(dolaToBorrowToBuyCollateral) / market.price * ANOMALY_PERC_FACTOR)){
+                alert('Something went wrong');
+                return;
+            }
             helperTransformData = aleTransformers[market.aleTransformerType](market, leverageMinAmountUp ? getNumberToBn(leverageMinAmountUp) : undefined);
         }        
         // dolaIn, minDbrOut
@@ -112,14 +119,7 @@ export const leveragePosition = (
     helperTransformData: string,
     dbrTuple: any[],
     ethValue?: string,
-) => {
-    console.log('dolaToBorrow', dolaToBorrow);
-    console.log('marketAd', marketAd);
-    console.log('zeroXspender', zeroXspender);
-    console.log('swapData', swapData);
-    console.log('permitTuple', permitTuple);
-    console.log('helperTransformData', helperTransformData);
-    console.log('dbrTuple', dbrTuple);    
+) => { 
     return callWithHigherGL(
         getAleContract(signer),
         'leveragePosition',
@@ -196,6 +196,11 @@ export const prepareDeleveragePosition = async (
         const minDolaOrMaxRepayable = minDolaAmountFromSwap.gt(userDebt) ? userDebt : minDolaAmountFromSwap;       
 
         if (market.aleData?.buySellToken && !!market.aleTransformerType && aleTransformers[market.aleTransformerType]) {
+            // should not happen in normal circumstances
+            if(leverageMinDebtReduced < (getBnToNumber(collateralToWithdraw, market.underlying.decimals) * market.price * ANOMALY_PERC_FACTOR)){
+                alert('Something went wrong');
+                return;
+            }
             helperTransformData = aleTransformers[market.aleTransformerType](market, leverageMinDebtReduced ? getNumberToBn(leverageMinDebtReduced) : undefined);
         }
 
