@@ -759,6 +759,7 @@ export type F2Market = {
   minDebt: number
   ceiling: number
   oracleStartingBlock?: number
+  aleDefaultSlippagePerc?: string
   hasAleFeat?: boolean
   isPhasingOut?: boolean
   phasingOutComment?: string
