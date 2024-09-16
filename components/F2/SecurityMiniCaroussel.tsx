@@ -35,8 +35,8 @@ export const SafetyBadges = () => {
         <Link _hover={{ filter: 'brightness(1.1)' }} bgImage="/assets/partners/immunefi.svg?" bgRepeat="no-repeat" bgColor="#f5f7fe" width={`${badgeW}px`} h="50px" href="https://immunefi.com/bounty/inversefinance/" border="1px solid #e9effc" borderRadius="5px" bgSize='60%' bgPosition="center" isExternal target="_blank">
             &nbsp;
         </Link>
-        <Link _hover={{ filter: 'brightness(1.1)' }} href="https://chain.link/badge" isExternal target="_blank">
+        {/* <Link _hover={{ filter: 'brightness(1.1)' }} href="https://chain.link/badge" isExternal target="_blank">
             <Image ignoreFallback={true} w={`${badgeW}px`} h="50px" src="https://chain.link/badge-market-data-white" alt="market data secured with chainlink" />
-        </Link>
+        </Link> */}
     </HStack>
 }
