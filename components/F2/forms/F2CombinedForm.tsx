@@ -195,7 +195,7 @@ export const F2CombinedForm = ({
                     aleSlippage,
                     isAutoDBR ? dbrBuySlippage : undefined,
                     isAutoDBR ? duration : 0,
-                    isUnderlyingAsInputCase,
+                    !isUnderlyingAsInputCase,
                     dolaPrice,
                     leverageMinAmountUp,
                 );
