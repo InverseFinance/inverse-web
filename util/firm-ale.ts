@@ -39,6 +39,7 @@ export const prepareLeveragePosition = async (
     durationDays?: number,
     // can be collateral or buySellToken, eg sFRAX or FRAX
     isDepositCollateral = true,
+    dolaPrice = 1,
 ) => {
     let dbrApprox;
     let dbrInputs = { dolaParam: '0', dbrParam: '0' };
@@ -74,7 +75,7 @@ export const prepareLeveragePosition = async (
         const permitData = [deadline, v, r, s];
         let helperTransformData = '0x';
         if (market.aleData?.buySellToken && !!market.aleTransformerType && aleTransformers[market.aleTransformerType]) {
-            const minLpAmount = getNumberToBn((1 - parseFloat(slippagePerc || 0) / 100) * market.price * getBnToNumber(dolaToBorrowToBuyCollateral));
+            const minLpAmount = getNumberToBn((1 - parseFloat(slippagePerc || 0) / 100) * market.price * getBnToNumber(dolaToBorrowToBuyCollateral)) * dolaPrice;
             helperTransformData = aleTransformers[market.aleTransformerType](market, minLpAmount);
         }
         // dolaIn, minDbrOut

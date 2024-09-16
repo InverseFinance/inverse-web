@@ -194,6 +194,7 @@ export const F2CombinedForm = ({
                     isAutoDBR ? dbrBuySlippage : undefined,
                     isAutoDBR ? duration : 0,
                     isUnderlyingAsInputCase,
+                    dolaPrice,
                 );
             }
             else if (isAutoDBR || isUseNativeCoin) {
