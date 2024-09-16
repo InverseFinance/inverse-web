@@ -15,7 +15,7 @@ import { getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
 
 const { F2_MARKETS, DOLA, XINV, DBR_DISTRIBUTOR, FEDS } = getNetworkConfigConstants();
 
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.2.52`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.2.53`;
 
 export default async function handler(req, res) {
   const { cacheFirst } = req.query;
@@ -85,7 +85,7 @@ export default async function handler(req, res) {
         { contract: xINV, functionName: 'exchangeRateStored' },
         { contract: dbrDistributor, functionName: 'totalSupply' },
         { contract: dbrDistributor, functionName: 'rewardRate' },
-        F2_MARKETS.map(m => {          
+        F2_MARKETS.map(m => {
           return { contract: firmFedContract, functionName: 'ceilings', params: [m.address] }
         }),
       ]),
@@ -109,11 +109,11 @@ export default async function handler(req, res) {
       dbrDistributorSupply,
       dbrRewardRateBn,
       ceilings,
-     ] = groupedMulticallData;
+    ] = groupedMulticallData;
 
     const today = new Date();
     const dayIndexUtc = Math.floor(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 0, 0, 0) / ONE_DAY_MS);
-    
+
     const [dailyLimits, dailyBorrows, minDebtsBn, bnPrices, oracleFeeds] = await getGroupedMulticallOutputs([
       borrowControllers.map((bc, i) => {
         const bcContract = new Contract(bc, F2_CONTROLLER_ABI, provider);
@@ -122,7 +122,7 @@ export default async function handler(req, res) {
       borrowControllers.map((bc, i) => {
         const bcContract = new Contract(bc, F2_CONTROLLER_ABI, provider);
         return { contract: bcContract, functionName: 'dailyBorrows', params: [F2_MARKETS[i].address, dayIndexUtc], forceFallback: bc === BURN_ADDRESS || !bc, fallbackValue: BigNumber.from('0') }
-      }),      
+      }),
       borrowControllers.map((bc, i) => {
         const bcContract = new Contract(bc, F2_CONTROLLER_ABI, provider);
         return { contract: bcContract, functionName: 'minDebts', params: [F2_MARKETS[i].address], forceFallback: bc === BURN_ADDRESS || !FEATURE_FLAGS.firmMinDebt || !bc, fallbackValue: BigNumber.from('0') }
@@ -153,13 +153,21 @@ export default async function handler(req, res) {
       getSFraxData(provider),
       getSUSDEData(),
       getCrvUSDDOLAConvexData(),
-      getYvCrvUsdDOLAData(),
+      // getYvCrvUsdDOLAData(),
     ]);
 
-    let [stethData, stYcrvData, cvxCrvData, cvxFxsData, dsrData, stCvxData, stYethData, sFraxData, 
+    let [
+      stethData,
+      stYcrvData,
+      cvxCrvData,
+      cvxFxsData,
+      dsrData,
+      stCvxData,
+      stYethData,
+      sFraxData,
       sUSDEData,
       crvUSDDOLAConvexData,
-      yvCrvUsdDOLAData,
+      // yvCrvUsdDOLAData,
     ] = externalYieldResults.map(r => {
       return r.status === 'fulfilled' ? r.value : {};
     });
@@ -186,14 +194,14 @@ export default async function handler(req, res) {
       'sFRAX': sFraxData?.apy || 0,
       'sUSDe': sUSDEData?.apy || 0,
       'crvUSD-DOLA': crvUSDDOLAConvexData?.apy || 0,
-      'yv-crvUSD-DOLA': yvCrvUsdDOLAData?.apy || 0,
+      // 'yv-crvUSD-DOLA': yvCrvUsdDOLAData?.apy || 0,
     };
 
     const xinvExRate = getBnToNumber(xinvExRateBn);
     const invStakedViaDistributor = xinvExRate * getBnToNumber(dbrDistributorSupply);
     const dbrRewardRate = getBnToNumber(dbrRewardRateBn);
     const dbrYearlyRewardRate = dbrRewardRate * ONE_DAY_SECS * 365;
-    const dbrInvExRate = (dbrPriceData.priceInDola * dolaPriceData.price||1) / cgPrices['inverse-finance']?.usd;
+    const dbrInvExRate = (dbrPriceData.priceInDola * dolaPriceData.price || 1) / cgPrices['inverse-finance']?.usd;
     const dbrApr = dbrYearlyRewardRate * dbrInvExRate / invStakedViaDistributor * 100;
 
     const markets = F2_MARKETS.map((m, i) => {
