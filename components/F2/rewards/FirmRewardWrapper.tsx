@@ -30,7 +30,6 @@ export const FirmRewardWrapper = ({
     const { escrow: escrowFromContext } = useContext(F2MarketContext);
     const _escrow = escrow?.replace(BURN_ADDRESS, '') || escrowFromContext?.replace(BURN_ADDRESS, '');
     if (!_escrow) return <></>;
-
     if (market.isInv) {
         return <FirmINVRewardWrapperContent
             market={market}
@@ -74,7 +73,7 @@ export const FirmRewardWrapper = ({
             label={label}
             showMarketBtn={showMarketBtn}
             extraAtBottom={extraAtBottom}
-            escrow={escrow}
+            escrow={_escrow}
             onLoad={onLoad}
         />
     }
@@ -196,7 +195,6 @@ export const FirmCrvUsdDolaRewardWrapperContent = ({
     onLoad?: (v: number) => void
 }) => {
     const { rewardsInfos, isLoading } = useCrvUsdDolaRewards(escrow);
-
     useEffect(() => {
         if (!onLoad || !rewardsInfos?.tokens?.length || isLoading) { return }
         const totalUsd = rewardsInfos.tokens.filter(t => t.metaType === 'claimable')
