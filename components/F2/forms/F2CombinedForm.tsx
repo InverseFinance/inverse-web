@@ -127,6 +127,7 @@ export const F2CombinedForm = ({
         setIsUnderlyingAsInputCaseSelected,
         isUnderlyingAsInputCaseSelected,
         hasUnderlyingAsInputCase,
+        leverageMinAmountUp,
     } = useContext(F2MarketContext);
 
     const { isMultisig } = useMultisig();
@@ -195,6 +196,7 @@ export const F2CombinedForm = ({
                     isAutoDBR ? duration : 0,
                     isUnderlyingAsInputCase,
                     dolaPrice,
+                    leverageMinAmountUp,
                 );
             }
             else if (isAutoDBR || isUseNativeCoin) {

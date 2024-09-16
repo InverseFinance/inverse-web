@@ -192,6 +192,7 @@ export const FirmBoostInfos = ({
         isTriggerLeverageFetch,
         underlyingExRate,
         mode,
+        setLeverageMinAmountUp,
     } = useContext(F2MarketContext);
     
     const newBorrowLimit = 100 - newPerc;
@@ -332,6 +333,10 @@ export const FirmBoostInfos = ({
     // when leveraging down min amount (or debt) is always the amount repaid, the slippage impacts amount of dola received in wallet
     const amountOfDebtReduced = !isLeverageUp ? Math.min(minAmount, debt) : 0;
     const extraDolaReceivedInWallet = isLeverageUp ? 0 : estimatedAmount - amountOfDebtReduced;
+
+    useEffect(() => {
+        setLeverageMinAmountUp(minAmount);
+    }, [minAmount]);
 
     return <Stack borderRadius='5px' p='4' bgColor="infoAlpha" fontSize="14px" spacing="4" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
         <VStack position="relative" w='full' alignItems="center" justify="center">            

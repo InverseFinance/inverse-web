@@ -40,6 +40,7 @@ export const prepareLeveragePosition = async (
     // can be collateral or buySellToken, eg sFRAX or FRAX
     isDepositCollateral = true,
     dolaPrice = 1,
+    leverageMinAmountUp?: number,
 ) => {
     let dbrApprox;
     let dbrInputs = { dolaParam: '0', dbrParam: '0' };
@@ -74,10 +75,9 @@ export const prepareLeveragePosition = async (
         const { data: swapData, allowanceTarget, value } = aleQuoteResult;
         const permitData = [deadline, v, r, s];
         let helperTransformData = '0x';
-        if (market.aleData?.buySellToken && !!market.aleTransformerType && aleTransformers[market.aleTransformerType]) {
-            const minLpAmount = getNumberToBn((1 - parseFloat(slippagePerc || 0) / 100) * market.price * getBnToNumber(dolaToBorrowToBuyCollateral)) * dolaPrice;
-            helperTransformData = aleTransformers[market.aleTransformerType](market, minLpAmount);
-        }
+        if (market.aleData?.buySellToken && !!market.aleTransformerType && aleTransformers[market.aleTransformerType]) {                  
+            helperTransformData = aleTransformers[market.aleTransformerType](market, leverageMinAmountUp ? getNumberToBn(leverageMinAmountUp) : undefined);
+        }        
         // dolaIn, minDbrOut
         const dbrData = [dbrInputs.dolaParam, dbrInputs.dbrParam, '0'];
         if (initialDeposit && initialDeposit.gt(0)) {
@@ -113,6 +113,13 @@ export const leveragePosition = (
     dbrTuple: any[],
     ethValue?: string,
 ) => {
+    console.log('dolaToBorrow', dolaToBorrow);
+    console.log('marketAd', marketAd);
+    console.log('zeroXspender', zeroXspender);
+    console.log('swapData', swapData);
+    console.log('permitTuple', permitTuple);
+    console.log('helperTransformData', helperTransformData);
+    console.log('dbrTuple', dbrTuple);    
     return callWithHigherGL(
         getAleContract(signer),
         'leveragePosition',
