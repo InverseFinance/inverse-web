@@ -149,10 +149,17 @@ export const getLeverageImpact = async ({
         const targetWorth = Math.max(0, baseWorth * (1 / leverageLevel));
         const targetCollateralBalance = targetWorth / collateralPrice;
         const withdrawAmountToSign = targetCollateralBalance - baseColAmountForLeverage;
-        const { buyAmount, validationErrors, msg } = await getAleSellQuote(DOLA, market.aleData.buySellToken || market.collateral, getNumberToBn(Math.abs(withdrawAmountToSign) * exRate, market.underlying.decimals).toString(), aleSlippage, true);
-        const errorMsg = validationErrors?.length > 0 ?
+        let buyAmount, errorMsg;
+        // classic case
+        if(!market.isAleWithoutSwap){
+            const { buyAmount: _buyAmount, validationErrors, msg } = await getAleSellQuote(DOLA, market.aleData.buySellToken || market.collateral, getNumberToBn(Math.abs(withdrawAmountToSign) * exRate, market.underlying.decimals).toString(), aleSlippage, true);
+            buyAmount = _buyAmount;
+            errorMsg = validationErrors?.length > 0 ?
             `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
             : msg;
+        } else {
+            buyAmount = getNumberToBn(Math.abs(withdrawAmountToSign) * market.price / dolaPrice).toString();
+        }                
         if (setLeverageLoading) setLeverageLoading(false);
         return {
             errorMsg,
@@ -193,6 +200,7 @@ export const FirmBoostInfos = ({
         underlyingExRate,
         mode,
         setLeverageMinAmountUp,
+        setLeverageMinDebtReduced,
     } = useContext(F2MarketContext);
     
     const newBorrowLimit = 100 - newPerc;
@@ -337,6 +345,10 @@ export const FirmBoostInfos = ({
     useEffect(() => {
         setLeverageMinAmountUp(minAmount);
     }, [minAmount]);
+
+    useEffect(() => {
+        setLeverageMinDebtReduced(amountOfDebtReduced);
+    }, [amountOfDebtReduced]);
 
     return <Stack borderRadius='5px' p='4' bgColor="infoAlpha" fontSize="14px" spacing="4" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
         <VStack position="relative" w='full' alignItems="center" justify="center">            

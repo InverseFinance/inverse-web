@@ -159,12 +159,14 @@ export const prepareDeleveragePosition = async (
     slippagePerc?: string | number,
     dbrToSell?: BigNumber,
     minDolaOut?: BigNumber,
+    dolaPrice = 1,
+    leverageMinDebtReduced?: number,
 ) => {
     let aleQuoteResult;
     // we need the quote first
     try {
         if (market.isAleWithoutSwap) {
-            aleQuoteResult = { data: '0x', allowanceTarget: BURN_ADDRESS, value: '0', buyAmount: getNumberToBn(market.price * getBnToNumber(collateralToWithdraw, market.underlying.decimals)) }
+            aleQuoteResult = { data: '0x', allowanceTarget: BURN_ADDRESS, value: '0', buyAmount: getNumberToBn(getBnToNumber(collateralToWithdraw, market.underlying.decimals) * market.price / dolaPrice).toString() }
         } else {
             // the dola swapped for collateral is dolaToRepayToSellCollateral not totalDolaToBorrow (a part is for dbr)
             aleQuoteResult = await getAleSellQuote(DOLA, market.aleData?.buySellToken || market.collateral, collateralToWithdraw.toString(), slippagePerc, false);
@@ -190,11 +192,11 @@ export const prepareDeleveragePosition = async (
         let helperTransformData = '0x';
         const dolaBuyAmount = parseUnits(buyAmount, 0);
         const userDebt = await (new Contract(market.address, F2_MARKET_ABI, signer)).debts(await signer.getAddress());
-        const minDolaAmountFromSwap = getNumberToBn(getBnToNumber(dolaBuyAmount) * (1 - parseFloat(slippagePerc) / 100));
-        const minDolaOrMaxRepayable = minDolaAmountFromSwap.gt(userDebt) ? userDebt : minDolaAmountFromSwap;
+        const minDolaAmountFromSwap = getNumberToBn(leverageMinDebtReduced);
+        const minDolaOrMaxRepayable = minDolaAmountFromSwap.gt(userDebt) ? userDebt : minDolaAmountFromSwap;       
 
         if (market.aleData?.buySellToken && !!market.aleTransformerType && aleTransformers[market.aleTransformerType]) {
-            helperTransformData = aleTransformers[market.aleTransformerType](market, minDolaAmountFromSwap);
+            helperTransformData = aleTransformers[market.aleTransformerType](market, leverageMinDebtReduced ? getNumberToBn(leverageMinDebtReduced) : undefined);
         }
 
         // dolaIn, minDbrOut, extraDolaToRepay
