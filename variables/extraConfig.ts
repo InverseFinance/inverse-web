@@ -301,7 +301,7 @@ const mainConfig = {
             startingBlock: 20752005,
             aleTransformerType: 'marketAddressAndAmount',
             isAleWithoutSwap: true,
-            aleDefaultSlippagePerc: '0.15',
+            aleDefaultSlippagePerc: '0.17',
             isInv: false,
         },
         // {
