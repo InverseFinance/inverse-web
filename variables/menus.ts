@@ -371,8 +371,8 @@ export const MENUS = {
           href: 'https://docs.inverse.finance/inverse-finance/using-dola',
         },
         {
-          label: 'DBR',
-          href: 'https://docs.inverse.finance/inverse-finance/dbr-dola-borrowing-rights',
+          label: 'sINV',
+          href: 'https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/sinv',
         },
         {
           label: 'INV',
