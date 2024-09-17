@@ -60,10 +60,12 @@ export default async function handler(req, res) {
         prices[underlying.symbol] = price;
       });
 
+
+    const exceptions = ['0x20BB4a325924917E3336753BA5350a84F70f392e'].map(a => a.toLowerCase());
     Object.values(CHAIN_TOKENS)
       .forEach(tokenList => {
         Object.values(tokenList)
-          .filter(t => !!t.coingeckoId)
+          .filter(t => !!t.coingeckoId && !exceptions.includes(t.address.toLowerCase()))
           .forEach(t => coingeckoIds.push(t.coingeckoId!))
       })
 
@@ -115,7 +117,7 @@ export default async function handler(req, res) {
       .filter(([chainId]) => chainId !== '31337')
       .forEach(([chainId, tokenList]) => {
         Object.values(tokenList)
-          .filter(t => (t.pairs?.length > 0 || t.lpPrice || t.isCrvLP || t.convexInfos))
+          .filter(t => (t.pairs?.length > 0 || t.lpPrice || t.isCrvLP || t.convexInfos) && !exceptions.includes(t.address.toLowerCase()))
           .forEach(t => {
             lps.push({ token: t, chainId });
           })
