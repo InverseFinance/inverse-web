@@ -88,7 +88,7 @@ export const useStakedInvBalance = (account: string, version = 'V2') => {
     };
 }
 
-export const useStakedInv = (dbrDolaPrice: number, supplyDelta = 0, version = 'V2'): {
+export const useStakedInv = (dbrDolaPrice: number, version = 'V2', supplyDelta = 0): {
     sInvSupply: number;
     sInvTotalAssets: number;
     distributorTotalSupply: number;
@@ -250,7 +250,7 @@ export const useInvStakingActivity = (from?: string, type = 'sinv'): SWR & {
 
     const events = (liveEvents?.length > data?.events?.length ? liveEvents : data?.events || [])
         .filter(e => e.type === type)
-        .map((e, i) => ({...e, key: `${e.txHash}-${i}` }));
+        .map((e, i) => ({...e, key: `${e.txHash}-${i}`, version: e.version || 'V1' }));
     return {
         events,
         accountEvents: events.filter(e => !from || e.recipient === from),

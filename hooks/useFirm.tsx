@@ -712,7 +712,7 @@ export const useAccountRewards = (account: string, invMarket: F2Market) => {
   const { apy: sDolaApy, sDolaExRate } = useStakedDola(dbrDolaPrice);
 
   const { apy: sInvApy, sInvExRate } = useStakedInv(dbrDolaPrice);
-  const { sInvExRate: sInvExRateV1 } = useStakedInv(dbrDolaPrice, 0, 'V1');
+  const { sInvExRate: sInvExRateV1 } = useStakedInv(dbrDolaPrice, 'V1');
 
   const { balance: stakedInvBalance } = useStakedInvBalance(account);
   const { balance: stakedInvBalanceV1 } = useStakedInvBalance(account, 'V1');

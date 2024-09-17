@@ -62,7 +62,8 @@ export const StakeInvUI = ({
     const isStake = tab === 'Stake';
 
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
-    const { apy, projectedApy, isLoading, sInvExRate, sInvTotalAssets, periodRevenue, depositLimit } = useStakedInv(dbrDolaPrice, !invAmount || isNaN(parseFloat(invAmount)) ? 0 : isStake ? parseFloat(invAmount) : -parseFloat(invAmount), version);
+    const supplyDelta = !invAmount || isNaN(parseFloat(invAmount)) ? 0 : isStake ? parseFloat(invAmount) : -parseFloat(invAmount);
+    const { apy, projectedApy, isLoading, sInvExRate, sInvTotalAssets, periodRevenue, depositLimit } = useStakedInv(dbrDolaPrice, version, supplyDelta);
 
     // const { evolution, timestamp: lastDailySnapTs, isLoading: isLoadingEvolution } = useInvStakingEvolution();    
     const { data: invBalanceBn } = useEtherSWR(
