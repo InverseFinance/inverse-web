@@ -66,24 +66,25 @@ export const SinvPage = () => {
                 </SimpleGrid>
               }
             />
-            <VStack bgColor={themeStyles.colors.navBarBackgroundColor} pt="60px" position="relative" w='full' pb="8" spacing="0" border={`1px solid ${themeStyles.colors.navBarBorderColor}`} borderTop="none" borderRadius="0 0 10px 10px">
-              {
-                sINVV1Balance >= 1 && <>
-                  <NavButtons
-                    position="absolute"
-                    w="105%"
-                    top="0"
-                    left="-2.5%"
-                    // maxW="300px"
-                    active={tabVersion}
-                    options={["V1", "V2"]}
-                    onClick={(v) => setTabVersion(v)}
-                  />
-                  <StakeInvUI display={tabVersion === 'V1' ? 'flex' : 'none'} version="V1" />
-                  <StakeInvUI display={tabVersion === 'V2' ? 'flex' : 'none'} version="V2" />
-                </>
-              }
-            </VStack>
+            {
+              sINVV1Balance >= 1 ? <VStack bgColor={{ base: 'inherit', md: themeStyles.colors.navBarBackgroundColor }} pt="60px" position="relative" w='full' pb="8" spacing="0" border={{ base: 'inherit', md: `1px solid ${themeStyles.colors.navBarBorderColor}` }} borderTop="none" borderRadius="0 0 10px 10px">
+                <NavButtons
+                  position="absolute"
+                  w="105%"
+                  top="0"
+                  left="-2.5%"
+                  active={tabVersion}
+                  options={["V1", "V2"]}
+                  onClick={(v) => setTabVersion(v)}
+                />
+                <StakeInvUI display={tabVersion === 'V1' ? 'flex' : 'none'} version="V1" />
+                <StakeInvUI display={tabVersion === 'V2' ? 'flex' : 'none'} version="V2" />
+              </VStack>
+                :
+                <VStack bgColor={{ base: 'inherit', md: themeStyles.colors.navBarBackgroundColor }} w='full' py="8" spacing="0" border={{ base: 'inherit', md: `1px solid ${themeStyles.colors.navBarBorderColor}` }} borderRadius="10px">
+                  <StakeInvUI version="V2" />
+                </VStack>
+            }
           </VStack>
         </Stack>
         {

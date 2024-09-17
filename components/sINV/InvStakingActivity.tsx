@@ -80,9 +80,9 @@ const columns = [
     {
         field: 'version',
         label: 'Version',
-        header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="flex-end"  {...props} />,
         value: ({ version }) => {
-            return <Cell minWidth="90px" justify="center" >
+            return <Cell minWidth="90px" justify="flex-end">
                 <CellText fontWeight="bold">{version}</CellText>
             </Cell>
         },
