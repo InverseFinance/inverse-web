@@ -13,9 +13,13 @@ const TextLoader = () => <SkeletonText pt="2" skeletonHeight={2} noOfLines={1} h
 const STAKE_BAL_INC_INTERVAL = 100;
 const MS_PER_BLOCK = SECONDS_PER_BLOCK * 1000;
 
-export const StakeInvInfos = () => {
+export const StakeInvInfos = ({
+    version = 'V2'
+}: {
+    version: 'V1' | 'V2'
+}) => {
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
-    const { apy, sInvSupply, sInvTotalAssets, yearlyRewardBudget, maxYearlyRewardBudget, distributorYearlyBudget, periodRevenue, pastPeriodRevenue, yearlyDbrEarnings, sInvDistributorShare, isLoading } = useStakedInv(dbrDolaPrice);
+    const { apy, sInvSupply, sInvTotalAssets, yearlyRewardBudget, maxYearlyRewardBudget, distributorYearlyBudget, periodRevenue, pastPeriodRevenue, yearlyDbrEarnings, sInvDistributorShare, isLoading } = useStakedInv(dbrDolaPrice, version);
     const [previousSupply, setPreviousSupply] = useState(sInvSupply);
     const [realTimeBalance, setRealTimeBalance] = useState(0);
 

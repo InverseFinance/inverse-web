@@ -1,4 +1,4 @@
-import { Stack, VStack, Text, SimpleGrid } from '@chakra-ui/react'
+import { Stack, VStack, Text, SimpleGrid, Divider, ScaleFade } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
@@ -6,16 +6,24 @@ import { useAccount } from '@app/hooks/misc';
 import { useDbrAuctionActivity } from '@app/util/dbr-auction';
 import { StakeInvUI } from '@app/components/sINV/StakeInvUI';
 import { SINVTabs } from '@app/components/sINV/SINVTabs';
-import { useInvStakingActivity } from '@app/util/sINV';
+import { useInvStakingActivity, useStakedInvBalance } from '@app/util/sINV';
 import { InfoMessage } from '@app/components/common/Messages';
 import { InvStakingActivity } from '@app/components/sINV/InvStakingActivity';
+import { NavButtons } from '@app/components/common/Button';
+import { useState } from 'react';
+import { useAppTheme } from '@app/hooks/useAppTheme';
 
 export const SinvPage = () => {
   const account = useAccount();
+  const { themeStyles } = useAppTheme();
+  const [tabVersion, setTabVersion] = useState<'V1' | 'V2'>('V2');
   const { isLoading, accountEvents, events } = useInvStakingActivity(account, 'sinv');
 
   const { isLoading: isLoadingBuys, events: buyEvents } = useDbrAuctionActivity();
   const sinvBuyEvents = buyEvents.filter(e => e.auctionType === 'sINV');
+
+  const { balance: sINVV1Balance } = useStakedInvBalance(account, 'V1');
+
   return (
     <Layout>
       <Head>
@@ -54,11 +62,28 @@ export const SinvPage = () => {
                   <Text>- Yield-bearing fungible token</Text>
                   <Text>- Can earn additional yield by being deposited in Liquidity Pools</Text>
                   <Text>- Portable across chains</Text>
-                  <Text>- Creates continuous buying pressure on INV</Text>                  
+                  <Text>- Creates continuous buying pressure on INV</Text>
                 </SimpleGrid>
               }
             />
-            <StakeInvUI />
+            <VStack bgColor={themeStyles.colors.navBarBackgroundColor} pt="60px" position="relative" w='full' pb="8" spacing="0" border={`1px solid ${themeStyles.colors.navBarBorderColor}`} borderTop="none" borderRadius="0 0 10px 10px">
+              {
+                sINVV1Balance >= 1 && <>
+                  <NavButtons
+                    position="absolute"
+                    w="105%"
+                    top="0"
+                    left="-2.5%"
+                    // maxW="300px"
+                    active={tabVersion}
+                    options={["V1", "V2"]}
+                    onClick={(v) => setTabVersion(v)}
+                  />
+                  <StakeInvUI display={tabVersion === 'V1' ? 'flex' : 'none'} version="V1" />
+                  <StakeInvUI display={tabVersion === 'V2' ? 'flex' : 'none'} version="V2" />
+                </>
+              }
+            </VStack>
           </VStack>
         </Stack>
         {
