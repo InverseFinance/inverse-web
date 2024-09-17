@@ -59,9 +59,9 @@ export const StakeInvInfos = () => {
                     <Link textDecoration="underline" href='https://x.com/InverseFinance/status/1833555567895310836' isExternal target="_blank">
                         Watch the launch video <ExternalLinkIcon />
                     </Link>
-                    {/* <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/sinv' isExternal target="_blank">
+                    <Link textDecoration="underline" href='https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/sinv' isExternal target="_blank">
                         Learn more about sINV <ExternalLinkIcon />
-                    </Link> */}
+                    </Link>
                 </VStack>
                 <Text fontSize="14px" fontWeight="bold">sINV stats</Text>
                 <VStack w='full' spacing="0" alignItems="flex-start">
