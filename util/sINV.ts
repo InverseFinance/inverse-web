@@ -21,8 +21,8 @@ export const getSinvEscrowContract = (signerOrProvider: JsonRpcSigner) => {
     return new Contract(SINV_ESCROW_ADDRESS, F2_ESCROW_ABI, signerOrProvider);
 }
 
-export const getSInvContract = (signerOrProvider: JsonRpcSigner) => {
-    return new Contract(SINV_ADDRESS, SINV_ABI, signerOrProvider);
+export const getSInvContract = (signerOrProvider: JsonRpcSigner, sinvAddress = SINV_ADDRESS) => {
+    return new Contract(sinvAddress, SINV_ABI, signerOrProvider);
 }
 
 export const getSInvHelperContract = (signerOrProvider: JsonRpcSigner) => {

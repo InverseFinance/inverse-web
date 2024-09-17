@@ -87,9 +87,9 @@ const columns = [
         field: 'auctionType',
         label: 'Auction Type',
         header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
-        value: ({ auctionType }) => {
+        value: ({ auctionType, version }) => {
             return <Cell minWidth="90px" justify="center" >
-                <CellText>{auctionType}</CellText>
+                <CellText>{auctionType}{version ? ` ${version}` : ''}</CellText>
             </Cell>
         },
         showFilter: true,
