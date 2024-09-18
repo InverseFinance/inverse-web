@@ -16,13 +16,13 @@ import { useAppTheme } from '@app/hooks/useAppTheme';
 export const SinvPage = () => {
   const account = useAccount();
   const { themeStyles } = useAppTheme();
-  const [tabVersion, setTabVersion] = useState<'V1' | 'V2'>('V2');
+  const [tabVersion, setTabVersion] = useState<'V1' | 'V2'>('V1');
   const { isLoading, accountEvents, events } = useInvStakingActivity(account, 'sinv');
 
   // const { isLoading: isLoadingBuys, events: buyEvents } = useDbrAuctionActivity();
   // const sinvBuyEvents = buyEvents.filter(e => e.auctionType === 'sINV');
 
-  const { assets: sINVV1Balance } = useStakedInvBalance(account, 'V1');
+  const { assets: sINVV1Balance, shares: v1Shares } = useStakedInvBalance(account, 'V1');
 
   return (
     <Layout>
@@ -67,7 +67,7 @@ export const SinvPage = () => {
               }
             />
             {
-              sINVV1Balance >= 1 ? <VStack bgColor={{ base: 'inherit', md: themeStyles.colors.navBarBackgroundColor }} pt="60px" position="relative" w='full' pb="8" spacing="0" border={{ base: 'inherit', md: `1px solid ${themeStyles.colors.navBarBorderColor}` }} borderTop="none" borderRadius="0 0 10px 10px">
+              v1Shares >= 0.1 ? <VStack bgColor={{ base: 'inherit', md: themeStyles.colors.navBarBackgroundColor }} pt="60px" position="relative" w='full' pb="8" spacing="0" border={{ base: 'inherit', md: `1px solid ${themeStyles.colors.navBarBorderColor}` }} borderTop="none" borderRadius="0 0 10px 10px">
                 <NavButtons
                   position="absolute"
                   w="105%"
@@ -82,7 +82,7 @@ export const SinvPage = () => {
               </VStack>
                 :
                 <VStack bgColor={{ base: 'inherit', md: themeStyles.colors.navBarBackgroundColor }} w='full' py="8" spacing="0" border={{ base: 'inherit', md: `1px solid ${themeStyles.colors.navBarBorderColor}` }} borderRadius="10px">
-                  <StakeInvUI showVersion={false} version="V2" />
+                  <StakeInvUI showVersion={true} version="V2" />
                 </VStack>
             }
           </VStack>
