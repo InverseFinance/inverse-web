@@ -117,7 +117,7 @@ export const useStakedInv = (dbrDolaPrice: number, version = 'V2', supplyDelta =
     sInvExRate: number;
     depositLimit: number;
 } => {
-    const { data: apiData, error: apiErr } = useCacheFirstSWR(`/api/inv-staking?v=1.0.2`);
+    const { data: apiData, error: apiErr } = useCacheFirstSWR(`/api/inv-staking?v=1.0.3`);
     const { markets } = useDBRMarkets();
     const firmInvMarket = markets?.find(m => m.name === 'INV');
     const firmInvApr = firmInvMarket?.supplyApy || 0;
