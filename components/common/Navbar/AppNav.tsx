@@ -36,7 +36,7 @@ import { TEST_IDS } from '@app/config/test-ids'
 import { useNamedAddress } from '@app/hooks/useNamedAddress'
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect'
 import { useRouter } from 'next/dist/client/router'
-import { showToast } from '@app/util/notify'
+import { closeToast, showToast } from '@app/util/notify'
 import { useGovernanceNotifs } from '@app/hooks/useProposals';
 import { NotifBadge } from '../NotifBadge'
 import { ViewAsModal } from './ViewAsModal'
@@ -73,6 +73,7 @@ import useStorage from '@app/hooks/useStorage'
 import { ReferralModal } from '../Modal/ReferralModal'
 import { ReferToModal } from '../Modal/ReferToModal'
 import { SlideModal } from '../Modal/SlideModal'
+import { useStakedInvBalance } from '@app/util/sINV'
 const NAV_ITEMS = MENUS.nav
 
 export const ThemeBtn = () => {
@@ -154,11 +155,13 @@ const INVBalance = () => {
   const { isOpen: isFirmModalOpen, onOpen: firmOnOpen, onClose: firmOnClose } = useDisclosure()
 
   const { stakedInFirm, delegate, escrow } = useStakedInFirm(userAddress);
+  const { assets: sINVV1Balance } = useStakedInvBalance(userAddress, 'V1');
+  const { assets: sINVV2Balance } = useStakedInvBalance(userAddress, 'V2');
 
   const [invBalance, xinvBalance] = data || [0, 0]
   const exRate = exchangeRates ? exchangeRates[XINV] : 0;
   const inv = invBalance / ETH_MANTISSA
-  const xinv = (xinvBalance / ETH_MANTISSA) * (exRate / ETH_MANTISSA) + stakedInFirm
+  const xinv = (xinvBalance / ETH_MANTISSA) * (exRate / ETH_MANTISSA) + stakedInFirm + sINVV1Balance + sINVV2Balance;
   const hasUnstakedBal = inv >= 0.01;
 
   useEffect(() => {
@@ -492,6 +495,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const { isSafeMultisigConnector, isMultisig } = useMultisig();
 
   const userAddress = useAccount();
+  const { assets: sINVV1Balance } = useStakedInvBalance(userAddress, 'V1');
   // const { isEligible, hasClaimed, isLoading } = useCheckDBRAirdrop(userAddress);
   // const [showAirdropModal, setShowAirdropModal] = useState(false);
   const { isOpen: isWrongNetOpen, onOpen: onWrongNetOpen, onClose: onWrongNetClose } = useDisclosure()
@@ -551,6 +555,20 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   //   if (isLoading) return
   //   setShowAirdropModal(isEligible && !hasClaimed);
   // }, [isEligible, hasClaimed, isLoading], 5000);
+
+  useEffect(() => {
+    if (sINVV1Balance >= 0.1 && location.pathname !== "/sINV") {
+      showToast({
+        id: 'sinv-v1-notif',
+        status: 'info',
+        title: 'A new sINV version has been released!',
+        description: <Link onClick={() => closeToast('sinv-v1-notif')} cursor="pointer" color="mainTextColor" textDecoration="underline" href="/sINV">
+          Migrate to sINV v2 for optimal yield
+        </Link>,
+        duration: null,
+      });
+    }
+  }, [sINVV1Balance])
 
   useEffect(() => {
     const init = async () => {

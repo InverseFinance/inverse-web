@@ -6,19 +6,19 @@ import { getNetworkConfigConstants } from "@app/util/networks";
 import { parseEther } from "@ethersproject/units";
 import Container from "../common/Container";
 import { NavButtons } from "@app/components/common/Button";
-import { InfoMessage, SuccessMessage } from "@app/components/common/Messages";
+import { InfoMessage, SuccessMessage, WarningMessage } from "@app/components/common/Messages";
 import { getAvgOnLastItems, preciseCommify, timestampToUTC } from "@app/util/misc";
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
 import { useDBRMarkets, useDBRPrice } from "@app/hooks/useDBR";
 import { getBnToNumber, getMonthlyRate, shortenNumber } from "@app/util/markets";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { TextInfo } from "../common/Messages/TextInfo";
-import { ONE_DAY_MS, SINV_ADDRESS, SECONDS_PER_BLOCK } from "@app/config/constants";
+import { ONE_DAY_MS, SECONDS_PER_BLOCK } from "@app/config/constants";
 import { useAccount } from "@app/hooks/misc";
 import { useDbrAuctionActivity } from "@app/util/dbr-auction";
 import { StakeInvInfos } from "./StakeInvInfos";
 import useEtherSWR from "@app/hooks/useEtherSWR";
-import { redeemSInv, stakeInv, unstakeInv, useInvStakingEarnings, useStakedInv } from "@app/util/sINV";
+import { redeemSInv, stakeInv, unstakeInv, useStakedInv, useStakedInvBalance, VERSIONED_ADDRESSES } from "@app/util/sINV";
 
 const { INV } = getNetworkConfigConstants();
 
@@ -37,14 +37,24 @@ const StatBasic = ({ value, name, message, onClick = undefined, isLoading = fals
 const STAKE_BAL_INC_INTERVAL = 100;
 const MS_PER_BLOCK = SECONDS_PER_BLOCK * 1000;
 
-export const StakeInvUI = () => {
+export const StakeInvUI = ({
+    version = 'V2',
+    showVersion = false,
+    ...props
+}: {
+    version: 'V1' | 'V2';
+    showVersion?: boolean;
+    props?: any;
+}) => {
+    const sinvAddress = VERSIONED_ADDRESSES[version].sinv;
+
     const account = useAccount();
     const { provider, account: connectedAccount } = useWeb3React();
     const { events: auctionBuys } = useDbrAuctionActivity();
 
     const { markets } = useDBRMarkets();
     const invMarket = markets?.find(m => m.isInv);
-    const invPrice = invMarket?.price||0;
+    const invPrice = invMarket?.price || 0;
 
     const [invAmount, setInvAmount] = useState('');
     const [isConnected, setIsConnected] = useState(true);
@@ -54,15 +64,16 @@ export const StakeInvUI = () => {
     const isStake = tab === 'Stake';
 
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
-    const { apy, projectedApy, isLoading, sInvExRate, sInvTotalAssets, periodRevenue, depositLimit } = useStakedInv(dbrDolaPrice, !invAmount || isNaN(parseFloat(invAmount)) ? 0 : isStake ? parseFloat(invAmount) : -parseFloat(invAmount));
-    
+    const supplyDelta = !invAmount || isNaN(parseFloat(invAmount)) ? 0 : isStake ? parseFloat(invAmount) : -parseFloat(invAmount);
+    const { apy, projectedApy, isLoading, sInvExRate, sInvTotalAssets, periodRevenue, depositLimit } = useStakedInv(dbrDolaPrice, version, supplyDelta);
+
     // const { evolution, timestamp: lastDailySnapTs, isLoading: isLoadingEvolution } = useInvStakingEvolution();    
     const { data: invBalanceBn } = useEtherSWR(
         [INV, 'balanceOf', account],
     );
     const invBalance = invBalanceBn ? getBnToNumber(invBalanceBn) : 0;
     // value in sINV terms
-    const { stakedInvBalance, stakedInvBalanceBn } = useInvStakingEarnings(account);
+    const { shares: stakedInvBalance, bnShares: stakedInvBalanceBn } = useStakedInvBalance(account, version);
     const [previousStakedDolaBalance, setPrevStakedDolaBalance] = useState(stakedInvBalance);
     const [baseBalance, setBaseBalance] = useState(0);
     const [realTimeBalance, setRealTimeBalance] = useState(0);
@@ -128,14 +139,14 @@ export const StakeInvUI = () => {
     }, [depositLimit, sInvTotalAssets, invAmount]);
 
     const handleAction = async () => {
-        if (isStake) {            
-            return stakeInv(provider?.getSigner(), parseEther(invAmount));
+        if (isStake) {
+            return stakeInv(provider?.getSigner(), parseEther(invAmount), version);
         }
-        return unstakeInv(provider?.getSigner(), parseEther(invAmount));
+        return unstakeInv(provider?.getSigner(), parseEther(invAmount), version);
     }
 
     const unstakeAll = async () => {
-        return redeemSInv(provider?.getSigner(), stakedInvBalanceBn);
+        return redeemSInv(provider?.getSigner(), stakedInvBalanceBn, version);
     }
 
     const resetRealTime = () => {
@@ -145,49 +156,62 @@ export const StakeInvUI = () => {
         }, 250);
     }
 
-    return <Stack direction={{ base: 'column', lg: 'row' }} alignItems={{ base: 'center', lg: 'flex-start' }} justify="space-around" w='full' spacing="12">
-        <VStack w='full' maxW='450px' spacing='4' pt='10'>
+    return <Stack direction={{ base: 'column', lg: 'row' }} alignItems={{ base: 'center', lg: 'flex-start' }} justify="space-around" w='full' spacing="12" {...props}>
+        <VStack w='full' maxW='460px' spacing='4' pt='10'>
             <HStack justify="space-around" w='full'>
                 <VStack>
                     <Image src="/assets/sINVx512.png" h="120px" w="120px" />
-                    <Text fontSize="20px" fontWeight="bold">sINV</Text>
+                    <Text fontSize="20px" fontWeight="bold">sINV{version === 'V1' ? ' V1 (deprecated)' : showVersion ? ' V2' : ''}</Text>
                 </VStack>
             </HStack>
             <HStack justify="space-between" w='full'>
                 <StatBasic message="This week's APY is calculated with last week's DBR auction revenues and assuming a weekly auto-compounding plus the xINV apr" isLoading={isLoading} name="Current APY" value={apy ? `${shortenNumber(apy, 2)}%` : '-'} />
                 <StatBasic message={"The projected APY is a theoretical estimation of where the APY should tend to go. It's calculated by considering current's week auction revenue and a forecast that considers the DBR incentives, where the forecast portion has a weight of more than 50%, plus the xINV apr"} isLoading={isLoading} name="Projected APY" value={projectedApy ? `${shortenNumber(projectedApy, 2)}%` : '-'} />
-            </HStack>    
-            <SuccessMessage
-                showIcon={false}
-                alertProps={{ w: 'full' }}
-                description={
-                    <VStack alignItems="flex-start">
-                        {
-                            monthlyInvRewards > 0 && <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
-                                <Text>- Your rewards: </Text>
-                                <Text><b>~{preciseCommify(monthlyInvRewards, 2)} INV per month</b></Text>
-                            </Stack>
-                        }
-                        {/* <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
+            </HStack>
+            {
+                version === 'V1' ?
+                    <WarningMessage
+                        alertProps={{ w: 'full' }}
+                        title="A new sINV version has been released!"
+                        description={
+                            <VStack spacing="0" alignItems="flex-start">
+                                <Text>We recommend to stake in the V2 instead</Text>
+                                <Text>Deposits are safe but yield will be optimized for V2</Text>
+                            </VStack>
+                        } />
+                    :
+                    <SuccessMessage
+                        showIcon={false}
+                        alertProps={{ w: 'full' }}
+                        description={
+                            <VStack alignItems="flex-start">
+                                {
+                                    monthlyInvRewards > 0 && <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
+                                        <Text>- Your rewards: </Text>
+                                        <Text><b>~{preciseCommify(monthlyInvRewards, 2)} INV per month</b></Text>
+                                    </Stack>
+                                }
+                                {/* <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
                             <Text>- 30-day average APY:</Text>
                             <Text><b>{thirtyDayAvg ? `${shortenNumber(thirtyDayAvg, 2)}%` : '-'}</b></Text>
                         </Stack> */}
-                        <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
-                            <Text>- Total staked:</Text>
-                            <Text><b>{sInvTotalAssets ? `${shortenNumber(sInvTotalAssets, 2)} INV ${invPrice ? `(${shortenNumber(sInvTotalAssets * invPrice, 2, true)})` : ''}` : '-'}</b></Text>
-                        </Stack>
-                        {/* <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
+                                <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
+                                    <Text>- Total staked:</Text>
+                                    <Text><b>{sInvTotalAssets ? `${shortenNumber(sInvTotalAssets, 2)} INV ${invPrice ? `(${shortenNumber(sInvTotalAssets * invPrice, 2, true)})` : ''}` : '-'}</b></Text>
+                                </Stack>
+                                {/* <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
                             <Text>- Total earnings by all holders:</Text>
                             <Text><b>{sInvHoldersTotalEarnings ? `${shortenNumber(sInvHoldersTotalEarnings, 2)} INV` : '-'}</b></Text>
                         </Stack> */}
-                    </VStack>
-                }
-            />        
+                            </VStack>
+                        }
+                    />
+            }
         </VStack>
         <Container
-            label="sINV - Auto-Compounding Tokenized Vault"
-            description="See contract"
-            href={`https://etherscan.io/address/${SINV_ADDRESS}`}
+            label={`sINV${version === 'V1' ? ' V1 (deprecated)' : showVersion ? ' V2' : ''}`}
+            description="Auto-Compounding Tokenized Vault - See contract"
+            href={`https://etherscan.io/address/${sinvAddress}`}
             noPadding
             m="0"
             p="0"
@@ -210,7 +234,7 @@ export const StakeInvUI = () => {
                                 </VStack>
                             }
                             {
-                                tab === 'Info' ? <StakeInvInfos /> : isStake ?
+                                tab === 'Info' ? <StakeInvInfos version={version} /> : isStake ?
                                     <VStack w='full' alignItems="flex-start">
                                         <Text fontSize="22px" fontWeight="bold">
                                             INV amount to stake:
@@ -219,7 +243,7 @@ export const StakeInvUI = () => {
                                             btnProps={{ needPoaFirst: true }}
                                             defaultAmount={invAmount}
                                             address={INV}
-                                            destination={SINV_ADDRESS}
+                                            destination={sinvAddress}
                                             signer={provider?.getSigner()}
                                             decimals={18}
                                             onAction={() => handleAction()}
@@ -246,8 +270,8 @@ export const StakeInvUI = () => {
                                         <SimpleAmountForm
                                             btnProps={{ needPoaFirst: true }}
                                             defaultAmount={invAmount}
-                                            address={SINV_ADDRESS}
-                                            destination={SINV_ADDRESS}
+                                            address={sinvAddress}
+                                            destination={sinvAddress}
                                             needApprove={false}
                                             signer={provider?.getSigner()}
                                             decimals={18}

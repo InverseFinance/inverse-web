@@ -102,7 +102,7 @@ export const useDbrAuctionActivity = (from?: string): SWR & {
     virtualAuctionEvents: any[],
     sdolaAuctionEvents: any[],
     sinvAuctionEvents: any[],
-    accountEvents: any,    
+    accountEvents: any,
     timestamp: number,
     avgDbrPrice: number,
     nbBuys: number,
@@ -122,21 +122,31 @@ export const useDbrAuctionActivity = (from?: string): SWR & {
     const { data, error } = useCustomSWR(`/api/auctions/dbr-buys?v=1.0.1`, fetcher);
 
     const events = (liveEvents?.length > data?.buys?.length ? liveEvents : data?.buys || [])
-        .map((e,i) => {
+        .map((e, i) => {
             const isInvCase = e.auctionType === 'sINV';
-            const priceInDola = ((e.dolaIn||0) / e.dbrOut);
-            const priceInInv = ((e.invIn||0) / e.dbrOut);
+            const priceInDola = ((e.dolaIn || 0) / e.dbrOut);
+            const priceInInv = ((e.invIn || 0) / e.dbrOut);
             const amountIn = isInvCase ? e.invIn : e.dolaIn;
             const arb = isInvCase ? e.marketPriceInInv - priceInInv : e.marketPriceInDola - priceInDola;
             const worthIn = e.dolaIn ? e.dolaIn : e.invIn * e.marketPriceInInv;
             const priceAvg = isInvCase ? (priceInInv + e.marketPriceInInv) / 2 : (priceInDola + e.marketPriceInDola) / 2;
-            return ({ ...e, key: `${e.txHash}-${i}`, priceInDola, priceInInv, amountIn, worthIn, arb, arbPerc: arb/(priceAvg)*100 })
+            return ({
+                ...e,
+                key: `${e.txHash}-${i}`,
+                priceInDola,
+                priceInInv,
+                amountIn,
+                worthIn,
+                arb,
+                arbPerc: arb / (priceAvg) * 100,
+                version: e.version || (isInvCase ? 'V1' : undefined),
+            })
         });
 
     const dolaEvents = events.filter(e => e.auctionType === 'Virtual' || e.auctionType === 'sDOLA');
     const invEvents = events.filter(e => e.auctionType === 'sINV');
-    const accDolaIn = dolaEvents.reduce((prev, curr) => prev + curr.dolaIn||0, 0);
-    const accWorthIn = dolaEvents.reduce((prev, curr) => prev + curr.worthIn||0, 0);
+    const accDolaIn = dolaEvents.reduce((prev, curr) => prev + curr.dolaIn || 0, 0);
+    const accWorthIn = dolaEvents.reduce((prev, curr) => prev + curr.worthIn || 0, 0);
     const accDbrOutFromDola = dolaEvents.reduce((prev, curr) => prev + curr.dbrOut, 0);
     const accDbrOut = events.reduce((prev, curr) => prev + curr.dbrOut, 0);
 
@@ -144,13 +154,13 @@ export const useDbrAuctionActivity = (from?: string): SWR & {
     const sdolaAuctionEvents = events.filter(e => e.auctionType === 'sDOLA');
     const sinvAuctionEvents = events.filter(e => e.auctionType === 'sINV');
 
-    const accDolaInVirtual = virtualAuctionEvents.reduce((prev, curr) => prev + curr.dolaIn||0, 0);
+    const accDolaInVirtual = virtualAuctionEvents.reduce((prev, curr) => prev + curr.dolaIn || 0, 0);
     const accDbrOutVirtual = virtualAuctionEvents.reduce((prev, curr) => prev + curr.dbrOut, 0);
 
-    const accDolaInSdola = sdolaAuctionEvents.reduce((prev, curr) => prev + curr.dolaIn||0, 0);
+    const accDolaInSdola = sdolaAuctionEvents.reduce((prev, curr) => prev + curr.dolaIn || 0, 0);
     const accDbrOutSdola = sdolaAuctionEvents.reduce((prev, curr) => prev + curr.dbrOut, 0);
 
-    const accInvInSinv = sinvAuctionEvents.reduce((prev, curr) => prev + curr.invIn||0, 0);
+    const accInvInSinv = sinvAuctionEvents.reduce((prev, curr) => prev + curr.invIn || 0, 0);
     const accDbrOutSinv = sinvAuctionEvents.reduce((prev, curr) => prev + curr.dbrOut, 0);
     const accInvIn = accInvInSinv;
 
@@ -184,57 +194,57 @@ export const useDbrAuctionActivity = (from?: string): SWR & {
     }
 }
 
-export const useDbrAuctionBuyEvents = (account: string) => {
-    const { events: generalAuctionBuys } = useContractEvents(
-        DBR_AUCTION_ADDRESS,
-        DBR_AUCTION_ABI,
-        'Buy',
-        !!account ? [undefined, account] : undefined,
-    );
-    const { events: sdolaAuctionBuys } = useContractEvents(
-        SDOLA_ADDRESS,
-        DBR_AUCTION_ABI,
-        'Buy',
-        !!account ? [undefined, account] : undefined,
-    );
-    const { events: sinvAuctionBuys } = useContractEvents(
-        SINV_ADDRESS,
-        SINV_ABI,
-        'Buy',
-        !!account ? [undefined, account] : undefined,
-    );
-    const buyEvents = generalAuctionBuys.concat(sdolaAuctionBuys).concat(sinvAuctionBuys);
-    buyEvents.sort(ascendingEventsSorter);    
-    const uniqueBlocks = [...new Set(buyEvents.map(e => e.blockNumber))];
-    const { timestamps } = useBlocksTimestamps(uniqueBlocks);
-    const timestampsAsObj = timestamps.reduce((prev, curr, i) => ({ ...prev, [uniqueBlocks[i]]: curr / 1000 }), {});
-    return formatDbrAuctionBuys(buyEvents, timestampsAsObj);
-}
+// export const useDbrAuctionBuyEvents = (account: string) => {
+//     const { events: generalAuctionBuys } = useContractEvents(
+//         DBR_AUCTION_ADDRESS,
+//         DBR_AUCTION_ABI,
+//         'Buy',
+//         !!account ? [undefined, account] : undefined,
+//     );
+//     const { events: sdolaAuctionBuys } = useContractEvents(
+//         SDOLA_ADDRESS,
+//         DBR_AUCTION_ABI,
+//         'Buy',
+//         !!account ? [undefined, account] : undefined,
+//     );
+//     const { events: sinvAuctionBuys } = useContractEvents(
+//         SINV_ADDRESS,
+//         SINV_ABI,
+//         'Buy',
+//         !!account ? [undefined, account] : undefined,
+//     );
+//     const buyEvents = generalAuctionBuys.concat(sdolaAuctionBuys).concat(sinvAuctionBuys);
+//     buyEvents.sort(ascendingEventsSorter);
+//     const uniqueBlocks = [...new Set(buyEvents.map(e => e.blockNumber))];
+//     const { timestamps } = useBlocksTimestamps(uniqueBlocks);
+//     const timestampsAsObj = timestamps.reduce((prev, curr, i) => ({ ...prev, [uniqueBlocks[i]]: curr / 1000 }), {});
+//     return formatDbrAuctionBuys(buyEvents, timestampsAsObj);
+// }
 
-export const formatDbrAuctionBuys = (events: any[], timestamps?: any) => {
-    let totalBuys = 0;
-    return events.map(e => {
-        const amount = getBnToNumber(e.args.amount || e.args.assets || e.args.dolaIn || e.args.invIn || '0');
-        totalBuys += amount;
-        const isSinv = e.address === SINV_ADDRESS;
-        return {
-            txHash: e.transactionHash,
-            timestamp: timestamps ? timestamps[e.blockNumber] * 1000 : undefined,
-            blockNumber: e.blockNumber,
-            caller: e.args[0],
-            to: e.args[1],
-            invIn: isSinv ? getBnToNumber(e.args[2]) : 0,
-            dolaIn: isSinv ? 0 : getBnToNumber(e.args[2]),
-            dbrOut: getBnToNumber(e.args[3]),
-            auctionType: e.address === SDOLA_ADDRESS ? 'sDOLA' : isSinv ? 'sINV' : 'Virtual',
-        };
-    });
-}
+// export const formatDbrAuctionBuys = (events: any[], timestamps?: any) => {
+//     let totalBuys = 0;
+//     return events.map(e => {
+//         const amount = getBnToNumber(e.args.amount || e.args.assets || e.args.dolaIn || e.args.invIn || '0');
+//         totalBuys += amount;
+//         const isSinv = e.address === SINV_ADDRESS;
+//         return {
+//             txHash: e.transactionHash,
+//             timestamp: timestamps ? timestamps[e.blockNumber] * 1000 : undefined,
+//             blockNumber: e.blockNumber,
+//             caller: e.args[0],
+//             to: e.args[1],
+//             invIn: isSinv ? getBnToNumber(e.args[2]) : 0,
+//             dolaIn: isSinv ? 0 : getBnToNumber(e.args[2]),
+//             dbrOut: getBnToNumber(e.args[3]),
+//             auctionType: e.address === SDOLA_ADDRESS ? 'sDOLA' : isSinv ? 'sINV' : 'Virtual',
+//         };
+//     });
+// }
 
 const defaultRefClassicAmount = '1';
 const defaultRefSdolaAmount = '0.999';
 
-export const useDbrAuctionPricing = ({    
+export const useDbrAuctionPricing = ({
     tokenAmount,
     dbrAmount,
     helperAddress,
@@ -257,23 +267,25 @@ export const useDbrAuctionPricing = ({
     const { tokenReserve, dbrReserve, dbrRatePerYear } = useDbrAuction(auctionType);
     const isSinvAuction = auctionType === 'sinv';
 
-    const { data, error } = useEtherSWR([
+    const { data: dataOut, error } = useEtherSWR([
         [helperAddress, 'getDbrOut', parseEther(tokenAmount || defaultRefAmount)],
         [helperAddress, 'getDbrOut', parseEther(defaultRefAmount)],
+    ]);
+    const { data: dataIn } = useEtherSWR([
         [helperAddress, isSinvAuction ? 'getInvIn' : 'getDolaIn', parseEther(dbrAmount || defaultRefAmount)],
         [helperAddress, isSinvAuction ? 'getInvIn' : 'getDolaIn', parseEther(defaultRefAmount)],
     ]);
 
-    const isLoading = (!data && !error);
-    const refDbrOut = data && data[1] ? getBnToNumber(data[1]) : 0;
-    const estimatedDbrOut = data && data[0] && !!tokenAmount ? getBnToNumber(data[0]) : 0;
-    const minDbrOut = data && data[0] ? getNumberToBn(estimatedDbrOut * (1 - parseFloat(slippage) / 100)) : BigNumber.from('0');
+    const isLoading = (!dataOut && !error);
+    const refDbrOut = dataOut && dataOut[1] ? getBnToNumber(dataOut[1]) : 0;
+    const estimatedDbrOut = dataOut && dataOut[0] && !!tokenAmount ? getBnToNumber(dataOut[0]) : 0;
+    const minDbrOut = dataOut && dataOut[0] ? getNumberToBn(estimatedDbrOut * (1 - parseFloat(slippage) / 100)) : BigNumber.from('0');
 
-    const refTokenIn = data && data[3] ? getBnToNumber(data[3]) : 0;
-    const refAuctionPriceInToken = data ? parseFloat(defaultRefAmount) / refDbrOut : 0;
+    const refTokenIn = dataIn && dataIn[1] ? getBnToNumber(dataIn[1]) : 0;
+    const refAuctionPriceInToken = dataOut ? parseFloat(defaultRefAmount) / refDbrOut : 0;
 
-    const estimatedTokenIn = data && data[2] && !!dbrAmount ? getBnToNumber(data[2]) : 0;
-    const maxTokenIn = data && data[2] ? getNumberToBn(estimatedTokenIn * (1 + parseFloat(slippage) / 100)) : BigNumber.from('0');
+    const estimatedTokenIn = dataIn && dataIn[0] && !!dbrAmount ? getBnToNumber(dataIn[0]) : 0;
+    const maxTokenIn = dataIn && dataIn[0] ? getNumberToBn(estimatedTokenIn * (1 + parseFloat(slippage) / 100)) : BigNumber.from('0');
 
     const minDbrOutNum = getBnToNumber(minDbrOut);
     const maxTokenInNum = getBnToNumber(maxTokenIn);
@@ -301,7 +313,7 @@ export const useDbrAuctionPricing = ({
         isLoading,
         estimatedTimestampToReachMarketPrice,
         estimatedTimeToReachMarketPrice,
-        dbrSwapPriceRefInToken,        
+        dbrSwapPriceRefInToken,
         dbrAuctionPriceInToken,
         minDbrOutNum,
         maxTokenInNum,

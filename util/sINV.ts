@@ -1,5 +1,5 @@
 import { DBR_DISTRIBUTOR_ABI, F2_ESCROW_ABI, SINV_ABI, SINV_HELPER_ABI } from "@app/config/abis";
-import { BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS, SINV_ADDRESS, SINV_HELPER_ADDRESS, WEEKS_PER_YEAR, SINV_ESCROW_ADDRESS, DBR_DISTRIBUTOR_ADDRESS } from "@app/config/constants";
+import { BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS, SINV_ADDRESS, SINV_HELPER_ADDRESS, WEEKS_PER_YEAR, SINV_ESCROW_ADDRESS, DBR_DISTRIBUTOR_ADDRESS, SINV_ADDRESS_V1, SINV_ESCROW_ADDRESS_V1, SINV_HELPER_ADDRESS_V1 } from "@app/config/constants";
 import useEtherSWR from "@app/hooks/useEtherSWR";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
@@ -13,25 +13,33 @@ import { fetcher } from "./web3";
 import { useMemo } from "react";
 import { useDBRMarkets } from "@app/hooks/useDBR";
 
+export const VERSIONED_ADDRESSES = {
+    'V2': {
+        sinv: SINV_ADDRESS,
+        escrow: SINV_ESCROW_ADDRESS,
+        helper: SINV_HELPER_ADDRESS,
+    },
+    'V1': {
+        sinv: SINV_ADDRESS_V1,
+        escrow: SINV_ESCROW_ADDRESS_V1,
+        helper: SINV_HELPER_ADDRESS_V1,
+    },
+}
+
 export const getDbrDistributorContract = (signerOrProvider: JsonRpcSigner) => {
     return new Contract(DBR_DISTRIBUTOR_ADDRESS, DBR_DISTRIBUTOR_ABI, signerOrProvider);
 }
 
-export const getSinvEscrowContract = (signerOrProvider: JsonRpcSigner) => {
-    return new Contract(SINV_ESCROW_ADDRESS, F2_ESCROW_ABI, signerOrProvider);
+export const getSinvEscrowContract = (signerOrProvider: JsonRpcSigner, escrowAddress = SINV_ESCROW_ADDRESS) => {
+    return new Contract(escrowAddress, F2_ESCROW_ABI, signerOrProvider);
 }
 
-export const getSInvContract = (signerOrProvider: JsonRpcSigner) => {
-    return new Contract(SINV_ADDRESS, SINV_ABI, signerOrProvider);
+export const getSInvContract = (signerOrProvider: JsonRpcSigner, sinvAddress = SINV_ADDRESS) => {
+    return new Contract(sinvAddress, SINV_ABI, signerOrProvider);
 }
 
 export const getSInvHelperContract = (signerOrProvider: JsonRpcSigner) => {
     return new Contract(SINV_HELPER_ADDRESS, SINV_HELPER_ABI, signerOrProvider);
-}
-
-export const sellInvForDbr = async (signerOrProvider: JsonRpcSigner, invToGive: BigNumber, minDbrOut: BigNumber) => {
-    const contract = getSInvContract(signerOrProvider);
-    return contract.buyDBR(invToGive, minDbrOut);
 }
 
 export const swapExactInvForDbr = (signerOrProvider: JsonRpcSigner, invToGive: BigNumber, minDbrOut: BigNumber) => {
@@ -49,37 +57,41 @@ export const getDbrOut = async (signerOrProvider: JsonRpcSigner, invToGive: BigN
     return contract.getDbrOut(invToGive);
 }
 
-export const stakeInv = async (signerOrProvider: JsonRpcSigner, dolaIn: BigNumber, recipient?: string) => {
-    const contract = getSInvContract(signerOrProvider);
+export const stakeInv = async (signerOrProvider: JsonRpcSigner, dolaIn: BigNumber, version = 'V2', recipient?: string) => {
+    const contract = getSInvContract(signerOrProvider, VERSIONED_ADDRESSES[version].sinv);
     const _recipient = !!recipient && recipient !== BURN_ADDRESS ? recipient : (await signerOrProvider.getAddress());
     return contract.deposit(dolaIn, _recipient);
 }
 
-export const unstakeInv = async (signerOrProvider: JsonRpcSigner, dolaOut: BigNumber, recipient?: string) => {
-    const contract = getSInvContract(signerOrProvider);
+export const unstakeInv = async (signerOrProvider: JsonRpcSigner, dolaOut: BigNumber, version = 'V2', recipient?: string) => {
+    const contract = getSInvContract(signerOrProvider, VERSIONED_ADDRESSES[version].sinv);
     const _recipient = !!recipient && recipient !== BURN_ADDRESS ? recipient : (await signerOrProvider.getAddress());
     const owner = (await signerOrProvider.getAddress())
     return contract.withdraw(dolaOut, _recipient, owner);
 }
 
-export const redeemSInv = async (signerOrProvider: JsonRpcSigner, sInvAmount: BigNumber, recipient?: string) => {
-    const contract = getSInvContract(signerOrProvider);
+export const redeemSInv = async (signerOrProvider: JsonRpcSigner, sInvAmount: BigNumber, version = 'V2', recipient?: string) => {
+    const contract = getSInvContract(signerOrProvider, VERSIONED_ADDRESSES[version].sinv);
     const _recipient = !!recipient && recipient !== BURN_ADDRESS ? recipient : (await signerOrProvider.getAddress());
     const owner = (await signerOrProvider.getAddress())
     return contract.redeem(sInvAmount, _recipient, owner);
 }
 
-export const useStakedInvBalance = (account: string, ad = SINV_ADDRESS) => {
-    const { data, error } = useEtherSWR([ad, 'balanceOf', account]);
+export const useStakedInvBalance = (account: string, version = 'V2') => {
+    const sinvAddress = VERSIONED_ADDRESSES[version].sinv;
+    const { data, error } = useEtherSWR([sinvAddress, 'balanceOf', account]);
+    const { data: assetsData, error: assetsError } = useEtherSWR([sinvAddress, 'convertToAssets', data]);
     return {
-        bnBalance: data || BigNumber.from('0'),
-        balance: data ? getBnToNumber(data) : 0,
-        isLoading: !data && !error,
-        hasError: !data && !!error,
+        bnShares: data || BigNumber.from('0'),
+        bnAssets: assetsData || BigNumber.from('0'),
+        shares: data ? getBnToNumber(data) : 0,
+        assets: assetsData && data ? getBnToNumber(assetsData) : 0,
+        isLoading: (!data && !error) || (!assetsData && !assetsError),
+        hasError: (!data && !!error) || (!assetsData && !!assetsError),
     };
 }
 
-export const useStakedInv = (dbrDolaPrice: number, supplyDelta = 0): {
+export const useStakedInv = (dbrDolaPrice: number, version = 'V2', supplyDelta = 0): {
     sInvSupply: number;
     sInvTotalAssets: number;
     distributorTotalSupply: number;
@@ -105,38 +117,41 @@ export const useStakedInv = (dbrDolaPrice: number, supplyDelta = 0): {
     sInvExRate: number;
     depositLimit: number;
 } => {
-    const { data: apiData, error: apiErr } = useCacheFirstSWR(`/api/inv-staking?v=1.0.2`);
+    const { data: apiData, error: apiErr } = useCacheFirstSWR(`/api/inv-staking?v=1.0.4`);
     const { markets } = useDBRMarkets();
     const firmInvMarket = markets?.find(m => m.name === 'INV');
     const firmInvApr = firmInvMarket?.supplyApy || 0;
     const dbrInvExRate = firmInvMarket?.dbrInvExRate || 0;
     const invStakedViaDistributor = firmInvMarket?.invStakedViaDistributor || 0;
-    
+
+    const sinvEscrowAddress = VERSIONED_ADDRESSES[version].escrow;    
+    const sinvAddress = VERSIONED_ADDRESSES[version].sinv;
+
     const { data: metaData, error } = useEtherSWR([
-        [SINV_ESCROW_ADDRESS, 'claimable'],
-        [SINV_ESCROW_ADDRESS, 'balance'],
+        [sinvEscrowAddress, 'claimable'],
+        [sinvEscrowAddress, 'balance'],
         [DBR_DISTRIBUTOR_ADDRESS, 'totalSupply'],
         [DBR_DISTRIBUTOR_ADDRESS, 'rewardRate'],
         [DBR_DISTRIBUTOR_ADDRESS, 'maxRewardRate'],       
     ]);
     // periodRevenue is not necessarily the current period, verify with lastBuyPeriod and current week index, same with lastPeriodRevenue
     const { data: sInvData } = useEtherSWR([
-        [SINV_ADDRESS, 'totalSupply'],
-        [SINV_ADDRESS, 'periodRevenue'],
-        [SINV_ADDRESS, 'lastPeriodRevenue'],        
-        [SINV_ADDRESS, 'totalAssets'],
-        [SINV_ADDRESS, 'lastBuyPeriod'],
-        [SINV_ADDRESS, 'depositLimit'],
+        [sinvAddress, 'totalSupply'],
+        [sinvAddress, 'periodRevenue'],
+        [sinvAddress, 'lastPeriodRevenue'],        
+        [sinvAddress, 'totalAssets'],
+        [sinvAddress, 'lastBuyPeriod'],
+        [sinvAddress, 'depositLimit'],
     ]);
 
     const { data: depositLimitBn } = useEtherSWR(
-        [SINV_ADDRESS, 'depositLimit'],
+        [sinvAddress, 'depositLimit'],
     );
     
     const invStakingData = metaData && sInvData ? metaData.concat(sInvData) : undefined;
 
     return {
-        ...formatInvStakingData(dbrDolaPrice, invStakingData, firmInvApr, dbrInvExRate, invStakedViaDistributor, apiData, supplyDelta),
+        ...formatInvStakingData(dbrDolaPrice, invStakingData, firmInvApr, dbrInvExRate, invStakedViaDistributor, apiData, supplyDelta, version),
         depositLimit: depositLimitBn ? getBnToNumber(depositLimitBn) : 0,
         isLoading: (!invStakingData && !error) && (!apiData && !apiErr),
         hasError: !!error || !!apiErr,
@@ -151,18 +166,20 @@ export const formatInvStakingData = (
     invStakedViaDistributor: number,
     fallbackData?: any,
     supplyDelta = 0,
+    version = 'V2',
 ) => {
-    const sInvClaimable = invStakingData ? getBnToNumber(invStakingData[0]) : fallbackData?.sInvClaimable || 0;
-    const invBalInFirmFromSInv = invStakingData ? getBnToNumber(invStakingData[1]) : fallbackData?.invBalInFirmFromSInv || 0;
-    const distributorTotalSupply = (invStakingData ? getBnToNumber(invStakingData[2]) : fallbackData?.distributorTotalSupply || 0) + supplyDelta;
+    const fallbackDataVersioned = version === 'V1' ? fallbackData?.V1 : fallbackData;
+    const sInvClaimable = invStakingData ? getBnToNumber(invStakingData[0]) : fallbackDataVersioned?.sInvClaimable || 0;
+    const invBalInFirmFromSInv = invStakingData ? getBnToNumber(invStakingData[1]) : fallbackDataVersioned?.invBalInFirmFromSInv || 0;
+    const distributorTotalSupply = (invStakingData ? getBnToNumber(invStakingData[2]) : fallbackDataVersioned?.distributorTotalSupply || 0) + supplyDelta;
 
-    const distributorYearlyBudget = invStakingData ? getBnToNumber(invStakingData[3]) * ONE_DAY_SECS * 365 : fallbackData?.distributorYearlyBudget || 0;
-    const maxYearlyRewardBudget = invStakingData ? getBnToNumber(invStakingData[4]) * ONE_DAY_SECS * 365 : fallbackData?.maxYearlyRewardBudget || 0;
-    const sInvSupply = (invStakingData ? getBnToNumber(invStakingData[5]) : fallbackData?.sInvSupply || 0);
-    const _periodRevenue = invStakingData ? getBnToNumber(invStakingData[6]) : fallbackData?.periodRevenue || 0;
-    const _pastPeriodRevenue = invStakingData ? getBnToNumber(invStakingData[7]) : fallbackData?.pastPeriodRevenue || 0;
-    const sInvTotalAssetsCurrent = (invStakingData ? getBnToNumber(invStakingData[8]) : fallbackData?.sInvTotalAssets || 0);
-    const lastBuyPeriod = (invStakingData ? getBnToNumber(invStakingData[9], 0) : fallbackData?.lastBuyPeriod || 0);
+    const distributorYearlyBudget = invStakingData ? getBnToNumber(invStakingData[3]) * ONE_DAY_SECS * 365 : fallbackDataVersioned?.distributorYearlyBudget || 0;
+    const maxYearlyRewardBudget = invStakingData ? getBnToNumber(invStakingData[4]) * ONE_DAY_SECS * 365 : fallbackDataVersioned?.maxYearlyRewardBudget || 0;
+    const sInvSupply = (invStakingData ? getBnToNumber(invStakingData[5]) : fallbackDataVersioned?.sInvSupply || 0);
+    const _periodRevenue = invStakingData ? getBnToNumber(invStakingData[6]) : fallbackDataVersioned?.periodRevenue || 0;
+    const _pastPeriodRevenue = invStakingData ? getBnToNumber(invStakingData[7]) : fallbackDataVersioned?.pastPeriodRevenue || 0;
+    const sInvTotalAssetsCurrent = (invStakingData ? getBnToNumber(invStakingData[8]) : fallbackDataVersioned?.sInvTotalAssets || 0);
+    const lastBuyPeriod = (invStakingData ? getBnToNumber(invStakingData[9], 0) : fallbackDataVersioned?.lastBuyPeriod || 0);
     const sInvTotalAssets = sInvTotalAssetsCurrent + supplyDelta;
 
     const weekUtcIndex = getWeekIndexUtc();
@@ -193,7 +210,7 @@ export const formatInvStakingData = (
     
     const auctionApr = sInvTotalAssets > 0 ? (pastPeriodRevenue * WEEKS_PER_YEAR) / sInvTotalAssets * 100 : 0;
     const nextAuctionApr = sInvTotalAssets > 0 ? (periodRevenue * WEEKS_PER_YEAR) / sInvTotalAssets * 100 : 0;
-    const sInvExRate = sInvTotalAssetsCurrent && sInvSupply ? sInvTotalAssetsCurrent / sInvSupply : 0;
+    const sInvExRate = sInvTotalAssetsCurrent && sInvSupply ? sInvTotalAssetsCurrent / sInvSupply : 1;
     // auctionApr is related to the DBR apr
     const totalApr = auctionApr + firmInvApr;
 
@@ -236,7 +253,7 @@ export const useInvStakingActivity = (from?: string, type = 'sinv'): SWR & {
 
     const events = (liveEvents?.length > data?.events?.length ? liveEvents : data?.events || [])
         .filter(e => e.type === type)
-        .map((e, i) => ({...e, key: `${e.txHash}-${i}` }));
+        .map((e, i) => ({...e, key: `${e.txHash}-${i}`, version: e.version || 'V1' }));
     return {
         events,
         accountEvents: events.filter(e => !from || e.recipient === from),
@@ -267,44 +284,14 @@ export const useInvStakingEvolution = (): SWR & {
     }
 }
 
-export const useInvStakingEarnings = (account: string) => {
+export const useInvStakingEvents = (version = 'V2') => {   
     const { events: depositEventsData } = useContractEvents(
-        SINV_ADDRESS,
-        SINV_ABI,
-        'Deposit',
-        [account],
-    );
-    const { events: withdrawEventsData } = useContractEvents(
-        SINV_ADDRESS,
-        SINV_ABI,
-        'Withdraw',
-        [account],
-    );
-    const { balance: stakedInvBalance, bnBalance } = useStakedInvBalance(account);
-    const deposited = depositEventsData.reduce((prev, curr) => {
-        return prev + getBnToNumber(curr.args[2]);
-    }, 0);
-    const withdrawn = withdrawEventsData.reduce((prev, curr) => {
-        return prev + getBnToNumber(curr.args[3]);
-    }, 0);
-
-    return {
-        earnings: stakedInvBalance - deposited + withdrawn,
-        deposited,
-        withdrawn,
-        stakedInvBalance,
-        stakedInvBalanceBn: bnBalance,
-    };
-}
-
-export const useInvStakingEvents = () => {   
-    const { events: depositEventsData } = useContractEvents(
-        SINV_ADDRESS,
+        VERSIONED_ADDRESSES[version].sinv,
         SINV_ABI,
         'Deposit',
     );
     const { events: withdrawEventsData } = useContractEvents(
-        SINV_ADDRESS,
+        VERSIONED_ADDRESSES[version].sinv,
         SINV_ABI,
         'Withdraw',
     );
@@ -319,7 +306,7 @@ export const useInvStakingEvents = () => {
 
 export const formatInvStakingEvents = (events: any[], timestamps?: any, alreadyStaked = 0, sInvAlreadyStaked = 0) => {
     let totalInvStaked = alreadyStaked;
-    let sInvStaking = sInvAlreadyStaked;
+    let sInvStaking = sInvAlreadyStaked; 
     return events.map(e => {
         const action = ['Deposit', 'Stake'].includes(e.event) ? 'Stake' : ['Withdraw', 'Unstake'].includes(e.event) ? 'Unstake' : 'Claim';
         const type = ['Deposit', 'Withdraw'].includes(e.event) ? 'sinv' : 'dsa';
@@ -343,6 +330,7 @@ export const formatInvStakingEvents = (events: any[], timestamps?: any, alreadyS
             name: action,
             totalInvStaked,
             sInvStaking,
+            version: e.address.toLowerCase() === SINV_ADDRESS_V1.toLowerCase() ? 'V1' : 'V2',
         };
     });
 }

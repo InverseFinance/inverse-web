@@ -710,17 +710,21 @@ export const useAccountRewards = (account: string, invMarket: F2Market) => {
 
   const { stakedInFirm } = useStakedInFirm(account);
   const { apy: sDolaApy, sDolaExRate } = useStakedDola(dbrDolaPrice);
-  const { apy: sInvApy, sInvExRate } = useStakedInv(dbrDolaPrice);
-  const { balance: stakedInvBalance } = useStakedInvBalance(account);
-  const invStakedInSInv = sInvExRate && stakedInvBalance ? sInvExRate * stakedInvBalance : 0;
-  
+
+  const { apy: sInvApyV2 } = useStakedInv(dbrDolaPrice);
+  const { apy: sInvApyV1 } = useStakedInv(dbrDolaPrice, 'V1');
+
+  const { assets: invStakedInSInvV2 } = useStakedInvBalance(account);
+  const { assets: invStakedInSInvV1 } = useStakedInvBalance(account, 'V1');
+
   const { stakedDolaBalance } = useDolaStakingEarnings(account);
   const dolaStakedInSDola = sDolaExRate * stakedDolaBalance;
 
   const share = !invMarket ? 0 : invMarket.invStakedViaDistributor ? stakedInFirm / invMarket.invStakedViaDistributor : 0;
 
   const invMonthlyRewardsFromFirm = getMonthlyRate(stakedInFirm, invMarket?.supplyApy);
-  const invMonthlyRewardsFromSInv = getMonthlyRate(invStakedInSInv, sInvApy);
+  const invMonthlyRewardsFromSInv = getMonthlyRate(invStakedInSInvV1, sInvApyV1) + getMonthlyRate(invStakedInSInvV2, sInvApyV2);
+  
   const invMonthlyRewards = invMonthlyRewardsFromFirm + invMonthlyRewardsFromSInv;
   const dbrMonthlyRewards = share * invMarket?.dbrYearlyRewardRate / 12;
   const dolaMonthlyRewards = sDolaApy > 0 && dolaStakedInSDola > 0 ? getMonthlyRate(dolaStakedInSDola, sDolaApy) : 0;

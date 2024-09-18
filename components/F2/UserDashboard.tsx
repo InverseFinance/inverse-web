@@ -285,12 +285,14 @@ export const UserDashboard = ({
     const { invMonthlyRewards, dbrMonthlyRewards, dolaMonthlyRewards, totalRewardsUsd, invPrice, dolaPrice } = useAccountRewards(account, invMarket);
 
     const { balance: stakedDolaBalance } = useStakedDolaBalance(account);
-    const { balance: stakedInvBalance } = useStakedInvBalance(account);
+    const { assets: invStakedInSInvV1 } = useStakedInvBalance(account, "V1");
+    const { assets: invStakedInSInvV2 } = useStakedInvBalance(account, "V2");
+    
     const { apr: sDolaApr, projectedApr: sDolaProjectedApr, sDolaExRate } = useStakedDola(dbrDolaPrice);
-    const { apr: sInvApr, projectedApr: sInvProjectedApr, sInvExRate } = useStakedInv(dbrDolaPrice);
+    const { apr: sInvApr, projectedApr: sInvProjectedApr } = useStakedInv(dbrDolaPrice);
 
-    const dolaStakedInSDola = sDolaExRate && stakedDolaBalance ? sDolaExRate * stakedDolaBalance : 0;
-    const invStakedInSInv = sInvExRate && stakedInvBalance ? sInvExRate * stakedInvBalance : 0;
+    const dolaStakedInSDola = sDolaExRate && stakedDolaBalance ? sDolaExRate * stakedDolaBalance : 0;    
+    const invStakedInSInv = invStakedInSInvV1 + invStakedInSInvV2;
 
     const { themeStyles } = useAppTheme();
     const { stakedInFirm, isLoading: isLoadingInvStaked } = useStakedInFirm(account);

@@ -10,7 +10,7 @@ import { getSdolaContract } from '@app/util/dola-staking';
 import { ascendingEventsSorter } from '@app/util/misc';
 import { getHistoricDbrPriceOnCurve } from '@app/util/f2';
 import { getSInvContract } from '@app/util/sINV';
-import { SINV_HELPER_ADDRESS } from '@app/config/constants';
+import { SINV_ADDRESS, SINV_ADDRESS_V1, SINV_HELPER_ADDRESS, SINV_HELPER_ADDRESS_V1 } from '@app/config/constants';
 
 const DBR_AUCTION_BUYS_CACHE_KEY = 'dbr-auction-buys-v1.0.1'
 
@@ -28,6 +28,7 @@ export default async function handler(req, res) {
         const dbrAuctionContract = getDbrAuctionContract(provider);
         const sdolaContract = getSdolaContract(provider);
         const sinvContract = getSInvContract(provider);
+        const sinvContractV1 = getSInvContract(provider, SINV_ADDRESS_V1);
 
         const archived = cachedData || { buys: [] };
         const pastTotalEvents = archived?.buys || [];
@@ -35,7 +36,7 @@ export default async function handler(req, res) {
         const lastKnownEvent = pastTotalEvents?.length > 0 ? (pastTotalEvents[pastTotalEvents.length - 1]) : {};
         const newStartingBlock = lastKnownEvent?.blockNumber ? lastKnownEvent?.blockNumber + 1 : undefined;
 
-        const [generalAuctionBuys, sdolaAuctionBuys, sinvAuctionBuys] = await Promise.all([
+        const [generalAuctionBuys, sdolaAuctionBuys, sinvAuctionBuys, sinvAuctionBuysV1] = await Promise.all([
             dbrAuctionContract.queryFilter(
                 dbrAuctionContract.filters.Buy(),            
                 newStartingBlock ? newStartingBlock : 0x0,
@@ -47,10 +48,17 @@ export default async function handler(req, res) {
             sinvContract.queryFilter(
                 sinvContract.filters.Buy(),            
                 newStartingBlock ? newStartingBlock : 0x0,
+            ),
+            sinvContractV1.queryFilter(
+                sinvContractV1.filters.Buy(),        
+                newStartingBlock ? newStartingBlock : 0x0,
             )
         ]);
 
-        const newBuyEvents = generalAuctionBuys.concat(sdolaAuctionBuys).concat(sinvAuctionBuys);
+        const newBuyEvents = generalAuctionBuys
+            .concat(sdolaAuctionBuys)
+            .concat(sinvAuctionBuys)
+            .concat(SINV_ADDRESS_V1 !== SINV_ADDRESS ? sinvAuctionBuysV1 : []);
         newBuyEvents.sort(ascendingEventsSorter);
 
         const blocks = newBuyEvents.map(e => e.blockNumber);
@@ -68,18 +76,23 @@ export default async function handler(req, res) {
             })
         );
 
-        const newBuys = newBuyEvents.map(e => {           
-            const isInv = e.address.toLowerCase() === sinvContract.address.toLowerCase() || e.args[0].toLowerCase() === SINV_HELPER_ADDRESS.toLowerCase();
+        const sinvAddressesLc = [SINV_ADDRESS_V1, SINV_ADDRESS].map(a => a.toLowerCase());
+        const sinvHelperAddressesLc = [SINV_HELPER_ADDRESS_V1, SINV_HELPER_ADDRESS].map(a => a.toLowerCase());
+
+        const newBuys = newBuyEvents.map(e => {
+            const isSinvType = sinvAddressesLc.includes(e.address.toLowerCase()) || sinvHelperAddressesLc.includes(e.args[0].toLowerCase());     
+            const isSInvV2 = SINV_HELPER_ADDRESS !== SINV_HELPER_ADDRESS_V1 && e.address.toLowerCase() === sinvContract.address.toLowerCase() || e.args[0].toLowerCase() === SINV_HELPER_ADDRESS.toLowerCase();
             return {
                 txHash: e.transactionHash,
                 timestamp: timestamps[NetworkIds.mainnet][e.blockNumber] * 1000,
                 blockNumber: e.blockNumber,
                 caller: e.args[0],
                 to: e.args[1],
-                invIn: isInv ? getBnToNumber(e.args[2]) : 0,
-                dolaIn: isInv ? 0 : getBnToNumber(e.args[2]),
+                invIn: isSinvType ? getBnToNumber(e.args[2]) : 0,
+                dolaIn: isSinvType ? 0 : getBnToNumber(e.args[2]),
                 dbrOut: getBnToNumber(e.args[3]),
-                auctionType: e.address.toLowerCase() === sdolaContract.address.toLowerCase() ? 'sDOLA' : isInv ? 'sINV' : 'Virtual',
+                version: isSinvType ? isSInvV2 ? 'V2' : 'V1' : undefined,
+                auctionType: e.address.toLowerCase() === sdolaContract.address.toLowerCase() ? 'sDOLA' : isSinvType ? 'sINV' : 'Virtual',
             };
         });
         

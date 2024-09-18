@@ -4,11 +4,11 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { addBlockTimestamps } from '@app/util/timestamps';
 import { NetworkIds } from '@app/types';
-import { CHAIN_ID } from '@app/config/constants';
+import { CHAIN_ID, SINV_ADDRESS, SINV_ADDRESS_V1 } from '@app/config/constants';
 import { ascendingEventsSorter } from '@app/util/misc';
 import { formatInvStakingEvents, getSInvContract } from '@app/util/sINV';
 
-const INV_STAKING_CACHE_KEY = 'inv-staking-activity-v1.0.0'
+const INV_STAKING_CACHE_KEY = 'inv-staking-activity-v1.0.2'
 
 export default async function handler(req, res) {
     try {
@@ -22,6 +22,7 @@ export default async function handler(req, res) {
 
         const provider = getProvider(CHAIN_ID);
         const sinvContract = getSInvContract(provider);
+        const sinvContractV1 = getSInvContract(provider, SINV_ADDRESS_V1);
 
         const archived = cachedData || { events: [] };
         const pastTotalEvents = archived?.events || [];
@@ -30,7 +31,8 @@ export default async function handler(req, res) {
         const newStartingBlock = lastKnownEvent?.blockNumber ? lastKnownEvent?.blockNumber + 1 : 0x0;
 
         const [
-            stakeEventsData, unstakeEventsData
+            stakeEventsData, unstakeEventsData, 
+            stakeEventsDataV1, unstakeEventsDataV1,
         ] = await Promise.all([
             sinvContract.queryFilter(
                 sinvContract.filters.Deposit(),
@@ -40,10 +42,20 @@ export default async function handler(req, res) {
                 sinvContract.filters.Withdraw(),
                 newStartingBlock,
             ),
+            sinvContractV1.queryFilter(
+                sinvContractV1.filters.Deposit(),
+                newStartingBlock,
+            ),
+            sinvContractV1.queryFilter(
+                sinvContractV1.filters.Withdraw(),
+                newStartingBlock,
+            ),
         ]);
 
         const eventsData = stakeEventsData
-            .concat(unstakeEventsData);
+            .concat(unstakeEventsData)
+            .concat(SINV_ADDRESS_V1 !== SINV_ADDRESS ? stakeEventsDataV1 : [])
+            .concat(SINV_ADDRESS_V1 !== SINV_ADDRESS ? unstakeEventsDataV1 : []);
         const sortedEvents = eventsData.sort(ascendingEventsSorter);
 
         const blocks = sortedEvents.map(e => e.blockNumber);

@@ -77,6 +77,18 @@ const columns = [
             </Cell>
         },
     },
+    {
+        field: 'version',
+        label: 'Version',
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="flex-end"  {...props} />,
+        value: ({ version }) => {
+            return <Cell minWidth="90px" justify="flex-end">
+                <CellText fontWeight="bold">{version}</CellText>
+            </Cell>
+        },
+        showFilter: true,
+        filterWidth: '90px',
+    },
 ]
 
 export const InvStakingActivity = ({ events, title, lastUpdate, ...containerProps }: { events: any[], title: string, lastUpdate: number, containerProps?: ContainerProps }) => {    
