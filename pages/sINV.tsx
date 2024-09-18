@@ -67,8 +67,9 @@ export const SinvPage = () => {
               }
             />
             {
-              v1Shares >= 0.1 ? <VStack bgColor={{ base: 'inherit', md: themeStyles.colors.navBarBackgroundColor }} pt="60px" position="relative" w='full' pb="8" spacing="0" border={{ base: 'inherit', md: `1px solid ${themeStyles.colors.navBarBorderColor}` }} borderTop="none" borderRadius="0 0 10px 10px">
-                <NavButtons
+              v1Shares >= 0.1 ? <VStack bgColor={{ base: 'inherit', md: themeStyles.colors.navBarBackgroundColor }} pt="100px" position="relative" w='full' pb="8" spacing="0" border={{ base: 'inherit', md: `1px solid ${themeStyles.colors.navBarBorderColor}` }} borderTop="none" borderRadius="0 0 10px 10px">
+                <NavButtons                  
+                  textProps={{ fontSize: "30px" }}
                   position="absolute"
                   w="105%"
                   top="0"
