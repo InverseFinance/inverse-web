@@ -1,4 +1,4 @@
-import { VStack, Text, HStack, Divider, Badge } from "@chakra-ui/react"
+import { VStack, Text, HStack, Divider, Badge, useDisclosure } from "@chakra-ui/react"
 import { swapDolaForExactDbr, swapExactDolaForDbr, useDbrAuctionPricing } from "@app/util/dbr-auction"
 import { useWeb3React } from "@web3-react/core";
 import { shortenNumber } from "@app/util/markets";
@@ -12,7 +12,7 @@ import Container from "../../common/Container";
 import { useAccountDBR, useDBRMarkets, useDBRPrice, useTriCryptoSwap } from "@app/hooks/useDBR";
 import { NavButtons } from "@app/components/common/Button";
 import { useDOLAPriceLive } from "@app/hooks/usePrices";
-import { InfoMessage } from "@app/components/common/Messages";
+import { InfoMessage, WarningMessage } from "@app/components/common/Messages";
 import { preciseCommify } from "@app/util/misc";
 import { useDOLABalance } from "@app/hooks/useDOLA";
 import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader";
@@ -24,6 +24,7 @@ import { RadioCardGroup } from "@app/components/common/Input/RadioCardGroup";
 import { DbrAuctionType } from "@app/types";
 import { swapExactInvForDbr } from "@app/util/sINV";
 import { useINVBalance } from "@app/hooks/useBalances";
+import ConfirmModal from "@app/components/common/Modal/ConfirmModal";
 
 const { DOLA, INV } = getNetworkConfigConstants();
 
@@ -103,9 +104,10 @@ export const DbrAuctionBuyer = ({
     title,
 }) => {
     const { price: dolaPrice } = useDOLAPriceLive();
+    const { isOpen, onClose, onOpen } = useDisclosure();
     const { markets, isLoading: isLoadingMarkets } = useDBRMarkets();
     const invMarket = markets?.find(m => m.isInv);
-    const invPrice = invMarket?.price||0;
+    const invPrice = invMarket?.price || 0;
     const { provider, account } = useWeb3React();
     const [dolaAmount, setDolaAmount] = useState('');
     const [invAmount, setInvAmount] = useState('');
@@ -176,7 +178,11 @@ export const DbrAuctionBuyer = ({
         onChange={(e) => setSlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'))}
     />;
 
-    const sell = async () => {
+    const sell = async (needConfirmation = false) => {
+        if (needConfirmation) {
+            onOpen()
+            return;
+        }
         if (isExactDola) {
             return swapExactDolaForDbr(provider?.getSigner(), parseEther(dolaAmount), minDbrOut, helperAddress);
         }
@@ -217,6 +223,38 @@ export const DbrAuctionBuyer = ({
     const arbitrageOpportunity = (isSellMode && !tokenAmount) || (dbrSwapPriceInToken < dbrAuctionPriceInToken) || (!isSellMode && !dbrAmount)
         ? 0 : getArbitrageValue(tokenAmount, dbrAuctionPriceInToken, dbrSwapPriceInToken, dbrPrice);
 
+    const warningPopupValuesReminder = <ListLabelValues items={[
+        (isSellMode ?
+            { label: `Estimated amount to receive`, isLoading, value: estimatedDbrOut > 0 ? `${preciseCommify(estimatedDbrOut, 2)} DBR (${shortenNumber(estimatedDbrOut * dbrPrice, 2, true)})` : '-' }
+            : { label: `Estimated amount to sell`, isLoading, value: estimatedTokenIn > 0 ? `${preciseCommify(estimatedTokenIn, 2)} ${sellTokenSymobl} (${shortenNumber(estimatedTokenIn * sellTokenPrice || 1, 2, true)})` : '-' }
+        ),
+        { label: `Price via selected auction`, color: auctionPriceColor, isLoading, value: dbrAuctionPriceInToken > 0 ? `~${shortenNumber(dbrAuctionPriceInToken, 4)} ${sellTokenSymobl} (${shortenNumber(dbrAuctionPriceInToken * sellTokenPrice, 4, true)})` : '-' },
+        { label: `Market price${isExactInv ? '' : ' via Curve'}`, isLoading, value: !isCurvePriceLoading && dbrSwapPriceInToken > 0 ? `~${shortenNumber(dbrSwapPriceInToken, 4)} ${sellTokenSymobl} (${shortenNumber(dbrSwapPriceInToken * sellTokenPrice, 4, true)})` : '-' },
+        { label: `Min. DBR (at ${slippage}% max slippage)`, isLoading, value: minDbrOutNum > 0 ? `${preciseCommify(minDbrOutNum, 2, false, true)} DBR (${shortenNumber(minDbrOutNum * dbrPrice, 2, true)})` : '-' }
+    ]} />
+
+    const valuesReminder = <>
+        <ListLabelValues items={[
+            (isSellMode ?
+                { label: `Estimated amount to receive`, isLoading, value: estimatedDbrOut > 0 ? `${preciseCommify(estimatedDbrOut, 2)} DBR (${shortenNumber(estimatedDbrOut * dbrPrice, 2, true)})` : '-' }
+                : { label: `Estimated amount to sell`, isLoading, value: estimatedTokenIn > 0 ? `${preciseCommify(estimatedTokenIn, 2)} ${sellTokenSymobl} (${shortenNumber(estimatedTokenIn * sellTokenPrice || 1, 2, true)})` : '-' }
+            ),
+            { label: `Price via selected auction`, color: auctionPriceColor, isLoading, value: dbrAuctionPriceInToken > 0 ? `~${shortenNumber(dbrAuctionPriceInToken, 4)} ${sellTokenSymobl} (${shortenNumber(dbrAuctionPriceInToken * sellTokenPrice, 4, true)})` : '-' },
+            { label: `Market price${isExactInv ? '' : ' via Curve'}`, isLoading, value: !isCurvePriceLoading && dbrSwapPriceInToken > 0 ? `~${shortenNumber(dbrSwapPriceInToken, 4)} ${sellTokenSymobl} (${shortenNumber(dbrSwapPriceInToken * sellTokenPrice, 4, true)})` : '-' },
+            estimatedTimeToReachMarketPrice <= 300 ? undefined : { label: `Est. time for the auction to reach the market price`, isLoading, value: estimatedTimeToReachMarketPrice > ONE_DAY_SECS ? `~${shortenNumber((estimatedTimeToReachMarketPrice / ONE_DAY_SECS), 2)} days` : `${moment(estimatedTimestampToReachMarketPrice).fromNow()}` },
+            arbitrageOpportunity <= 0 ? undefined : { label: `Arbitrage opportunity`, isLoading, value: `${preciseCommify(arbitrageOpportunity, 2, true)}` },
+        ]} />
+        <Divider />
+        <ListLabelValues items={[
+            { label: `Max. slippage %`, value: auctionSlippageInput },
+            (isSellMode ?
+                { label: `Min. DBR to receive`, isLoading, value: minDbrOutNum > 0 ? `${preciseCommify(minDbrOutNum, 2, false, true)} DBR (${shortenNumber(minDbrOutNum * dbrPrice, 2, true)})` : '-' }
+                :
+                { label: `Max. ${sellTokenSymobl} to send`, isLoading, value: maxTokenInNum > 0 ? `${preciseCommify(maxTokenInNum, 2, false, true)} ${sellTokenSymobl} (${shortenNumber(maxTokenInNum * sellTokenPrice, 2, true)})` : '-' }
+            ),
+        ]} />
+    </>
+
     return <Container
         label={title}
         description="See contract"
@@ -226,6 +264,30 @@ export const DbrAuctionBuyer = ({
         p="0"
         maxW='550px'>
         <VStack spacing="4" alignItems="flex-start" w='full'>
+            <ConfirmModal
+                title={`Unfavorable trade`}
+                onClose={onClose}
+                onCancel={onClose}
+                onOk={() => sell(false)}
+                cancelLabel={'Cancel'}
+                okLabel={'Continue'}
+                isOpen={isOpen}
+                okButtonProps={{ bgColor: 'error' }}
+            >
+                <VStack p="4">                    
+                    <WarningMessage
+                        title="Warning"
+                        description={
+                            <VStack spacing="0" alignItems="flex-start">
+                                <Text>It is more costly at the moment to use this auction for this amount than to use Curve</Text>
+                                <Text>Are you sure you want to continue?</Text>
+                            </VStack>
+                        }
+                    />
+                    <Divider />                    
+                    {warningPopupValuesReminder}
+                </VStack>
+            </ConfirmModal>
             {
                 !isConnected ? <InfoMessage alertProps={{ w: 'full' }} description="Please connect your wallet" />
                     :
@@ -279,7 +341,7 @@ export const DbrAuctionBuyer = ({
                                                 destination={helperAddress}
                                                 signer={provider?.getSigner()}
                                                 decimals={18}
-                                                onAction={() => sell()}
+                                                onAction={() => sell(auctionPriceColor === 'warning')}
                                                 actionLabel={`Sell DOLA for DBR`}
                                                 onAmountChange={(v) => setDolaAmount(v)}
                                                 showMaxBtn={false}
@@ -304,7 +366,7 @@ export const DbrAuctionBuyer = ({
                                                 destination={SINV_HELPER_ADDRESS}
                                                 signer={provider?.getSigner()}
                                                 decimals={18}
-                                                onAction={() => sell()}
+                                                onAction={() => sell(auctionPriceColor === 'warning')}
                                                 actionLabel={`Sell INV for DBR`}
                                                 onAmountChange={(v) => setInvAmount(v)}
                                                 showMaxBtn={false}
@@ -329,7 +391,7 @@ export const DbrAuctionBuyer = ({
                                                 destination={helperAddress}
                                                 signer={provider?.getSigner()}
                                                 decimals={18}
-                                                onAction={() => sell()}
+                                                onAction={() => sell(auctionPriceColor === 'warning')}
                                                 actionLabel={`Buy a precise amount of DBR`}
                                                 onAmountChange={(v) => setDbrAmount(v)}
                                                 showMaxBtn={false}
@@ -346,25 +408,9 @@ export const DbrAuctionBuyer = ({
                                         notEnoughToken && <InfoMessage alertProps={{ w: 'full' }} description={`Not enough ${sellTokenSymobl} balance`} />
                                     }
                                     <Divider />
-                                    <ListLabelValues items={[
-                                        (isSellMode ?
-                                            { label: `Estimated amount to receive`, isLoading, value: estimatedDbrOut > 0 ? `${preciseCommify(estimatedDbrOut, 2)} DBR (${shortenNumber(estimatedDbrOut * dbrPrice, 2, true)})` : '-' }
-                                            : { label: `Estimated amount to sell`, isLoading, value: estimatedTokenIn > 0 ? `${preciseCommify(estimatedTokenIn, 2)} ${sellTokenSymobl} (${shortenNumber(estimatedTokenIn * sellTokenPrice || 1, 2, true)})` : '-' }
-                                        ),
-                                        { label: `Price via selected auction`, color: auctionPriceColor, isLoading, value: dbrAuctionPriceInToken > 0 ? `~${shortenNumber(dbrAuctionPriceInToken, 4)} ${sellTokenSymobl} (${shortenNumber(dbrAuctionPriceInToken * sellTokenPrice, 4, true)})` : '-' },
-                                        { label: `Market price${isExactInv ? '' : ' via Curve'}`, isLoading, value: !isCurvePriceLoading && dbrSwapPriceInToken > 0 ? `~${shortenNumber(dbrSwapPriceInToken, 4)} ${sellTokenSymobl} (${shortenNumber(dbrSwapPriceInToken * sellTokenPrice, 4, true)})` : '-' },
-                                        estimatedTimeToReachMarketPrice <= 300 ? undefined : { label: `Est. time for the auction to reach the market price`, isLoading, value: estimatedTimeToReachMarketPrice > ONE_DAY_SECS ? `~${shortenNumber((estimatedTimeToReachMarketPrice / ONE_DAY_SECS), 2)} days` : `${moment(estimatedTimestampToReachMarketPrice).fromNow()}` },
-                                        arbitrageOpportunity <= 0 ? undefined : { label: `Arbitrage opportunity`, isLoading, value: `${preciseCommify(arbitrageOpportunity, 2, true)}` },
-                                    ]} />
-                                    <Divider />
-                                    <ListLabelValues items={[
-                                        { label: `Max. slippage %`, value: auctionSlippageInput },
-                                        (isSellMode ?
-                                            { label: `Min. DBR to receive`, isLoading, value: minDbrOutNum > 0 ? `${preciseCommify(minDbrOutNum, 2, false, true)} DBR (${shortenNumber(minDbrOutNum * dbrPrice, 2, true)})` : '-' }
-                                            :
-                                            { label: `Max. ${sellTokenSymobl} to send`, isLoading, value: maxTokenInNum > 0 ? `${preciseCommify(maxTokenInNum, 2, false, true)} ${sellTokenSymobl} (${shortenNumber(maxTokenInNum * sellTokenPrice, 2, true)})` : '-' }
-                                        ),
-                                    ]} />
+                                    {
+                                        valuesReminder
+                                    }
                                 </>
                         }
                     </>
