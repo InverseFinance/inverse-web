@@ -153,7 +153,7 @@ export const DbrAuctionBuyer = ({
         estimatedDbrOut,
     } = selectedAuctionData;
 
-    const isLoading = isCurvePriceLoading || classicAuctionPricingData?.isLoading || sdolaAuctionPricingData?.isLoading || (!selectedAuctionData);
+    const isLoading = isCurvePriceLoading || classicAuctionPricingData?.isLoading || sdolaAuctionPricingData?.isLoading || sinvAuctionPricingData?.isLoading || (!selectedAuctionData);
 
     const { priceUsd: dbrPrice } = useDBRPrice();
 
@@ -285,7 +285,7 @@ export const DbrAuctionBuyer = ({
                                                 showMaxBtn={false}
                                                 hideInputIfNoAllowance={false}
                                                 showBalance={true}
-                                                isDisabled={isExactTokenBtnDisabled}
+                                                isDisabled={isExactTokenBtnDisabled || isLoading}
                                                 checkBalanceOnTopOfIsDisabled={true}
                                                 onSuccess={() => resetForm()}
                                             />
