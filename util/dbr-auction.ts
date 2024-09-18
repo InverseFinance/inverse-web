@@ -267,23 +267,25 @@ export const useDbrAuctionPricing = ({
     const { tokenReserve, dbrReserve, dbrRatePerYear } = useDbrAuction(auctionType);
     const isSinvAuction = auctionType === 'sinv';
 
-    const { data, error } = useEtherSWR([
+    const { data: dataOut, error } = useEtherSWR([
         [helperAddress, 'getDbrOut', parseEther(tokenAmount || defaultRefAmount)],
         [helperAddress, 'getDbrOut', parseEther(defaultRefAmount)],
+    ]);
+    const { data: dataIn } = useEtherSWR([
         [helperAddress, isSinvAuction ? 'getInvIn' : 'getDolaIn', parseEther(dbrAmount || defaultRefAmount)],
         [helperAddress, isSinvAuction ? 'getInvIn' : 'getDolaIn', parseEther(defaultRefAmount)],
     ]);
 
-    const isLoading = (!data && !error);
-    const refDbrOut = data && data[1] ? getBnToNumber(data[1]) : 0;
-    const estimatedDbrOut = data && data[0] && !!tokenAmount ? getBnToNumber(data[0]) : 0;
-    const minDbrOut = data && data[0] ? getNumberToBn(estimatedDbrOut * (1 - parseFloat(slippage) / 100)) : BigNumber.from('0');
+    const isLoading = (!dataOut && !error);
+    const refDbrOut = dataOut && dataOut[1] ? getBnToNumber(dataOut[1]) : 0;
+    const estimatedDbrOut = dataOut && dataOut[0] && !!tokenAmount ? getBnToNumber(dataOut[0]) : 0;
+    const minDbrOut = dataOut && dataOut[0] ? getNumberToBn(estimatedDbrOut * (1 - parseFloat(slippage) / 100)) : BigNumber.from('0');
 
-    const refTokenIn = data && data[3] ? getBnToNumber(data[3]) : 0;
-    const refAuctionPriceInToken = data ? parseFloat(defaultRefAmount) / refDbrOut : 0;
+    const refTokenIn = dataIn && dataIn[1] ? getBnToNumber(dataIn[1]) : 0;
+    const refAuctionPriceInToken = dataOut ? parseFloat(defaultRefAmount) / refDbrOut : 0;
 
-    const estimatedTokenIn = data && data[2] && !!dbrAmount ? getBnToNumber(data[2]) : 0;
-    const maxTokenIn = data && data[2] ? getNumberToBn(estimatedTokenIn * (1 + parseFloat(slippage) / 100)) : BigNumber.from('0');
+    const estimatedTokenIn = dataIn && dataIn[0] && !!dbrAmount ? getBnToNumber(dataIn[0]) : 0;
+    const maxTokenIn = dataIn && dataIn[0] ? getNumberToBn(estimatedTokenIn * (1 + parseFloat(slippage) / 100)) : BigNumber.from('0');
 
     const minDbrOutNum = getBnToNumber(minDbrOut);
     const maxTokenInNum = getBnToNumber(maxTokenIn);
