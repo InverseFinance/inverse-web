@@ -178,6 +178,7 @@ export const StakeInvUI = ({
                             <VStack spacing="0" alignItems="flex-start">
                                 <Text>We recommend staking in the V2 instead</Text>
                                 <Text>Deposits are safe but yield will be optimized for V2</Text>
+                                <Text>Gas costs regarding migration will be reimbursed!</Text>
                             </VStack>
                         } />
                     :
