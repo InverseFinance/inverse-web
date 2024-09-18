@@ -8,7 +8,7 @@ import { getDbrPriceOnCurve } from '@app/util/f2';
 import { formatInvStakingData, getDbrDistributorContract, getSInvContract, getSinvEscrowContract } from '@app/util/sINV';
 import { F2_MARKETS_CACHE_KEY } from '../f2/fixed-markets';
 
-export const invStakingCacheKey = `inv-staking-v1.0.3`;
+export const invStakingCacheKey = `inv-staking-v1.0.4`;
 
 const getData = async (sInvEscrowContract, distroContract, sInvContract) => {
     return await getMulticallOutput([

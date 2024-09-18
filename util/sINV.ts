@@ -30,8 +30,8 @@ export const getDbrDistributorContract = (signerOrProvider: JsonRpcSigner) => {
     return new Contract(DBR_DISTRIBUTOR_ADDRESS, DBR_DISTRIBUTOR_ABI, signerOrProvider);
 }
 
-export const getSinvEscrowContract = (signerOrProvider: JsonRpcSigner) => {
-    return new Contract(SINV_ESCROW_ADDRESS, F2_ESCROW_ABI, signerOrProvider);
+export const getSinvEscrowContract = (signerOrProvider: JsonRpcSigner, escrowAddress = SINV_ESCROW_ADDRESS) => {
+    return new Contract(escrowAddress, F2_ESCROW_ABI, signerOrProvider);
 }
 
 export const getSInvContract = (signerOrProvider: JsonRpcSigner, sinvAddress = SINV_ADDRESS) => {
@@ -117,7 +117,7 @@ export const useStakedInv = (dbrDolaPrice: number, version = 'V2', supplyDelta =
     sInvExRate: number;
     depositLimit: number;
 } => {
-    const { data: apiData, error: apiErr } = useCacheFirstSWR(`/api/inv-staking?v=1.0.3`);
+    const { data: apiData, error: apiErr } = useCacheFirstSWR(`/api/inv-staking?v=1.0.4`);
     const { markets } = useDBRMarkets();
     const firmInvMarket = markets?.find(m => m.name === 'INV');
     const firmInvApr = firmInvMarket?.supplyApy || 0;
