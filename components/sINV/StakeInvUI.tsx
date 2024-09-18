@@ -235,33 +235,39 @@ export const StakeInvUI = ({
                             }
                             {
                                 tab === 'Info' ? <StakeInvInfos version={version} /> : isStake ?
-                                    <VStack w='full' alignItems="flex-start">
-                                        <Text fontSize="22px" fontWeight="bold">
-                                            INV amount to stake:
-                                        </Text>
-                                        <SimpleAmountForm
-                                            btnProps={{ needPoaFirst: true }}
-                                            defaultAmount={invAmount}
-                                            address={INV}
-                                            destination={sinvAddress}
-                                            signer={provider?.getSigner()}
-                                            decimals={18}
-                                            onAction={() => handleAction()}
-                                            actionLabel={`Stake`}
-                                            maxActionLabel={`Stake all`}
-                                            onAmountChange={(v) => setInvAmount(v)}
-                                            showMaxBtn={false}
-                                            showMax={true}
-                                            isDisabled={!invAmount || depositLimitReached}
-                                            hideInputIfNoAllowance={false}
-                                            showBalance={false}
-                                            onSuccess={() => resetRealTime()}
-                                            enableCustomApprove={true}
-                                        />
-                                        {
-                                            depositLimitReached && <InfoMessage description={`Note: sINV has reached its deposit limit of ${preciseCommify(depositLimit, 0)} INV for the moment`} />
-                                        }
-                                    </VStack>
+                                    version === "V1" ? <InfoMessage alertProps={{ w: 'full' }} description={
+                                        <VStack alignItems="flex-start" spacing="0">
+                                            <Text>Staking is now disabled for V1.</Text>
+                                            <Text>We recommend to unstake from V1 and stake back into V2</Text>                                            
+                                        </VStack>
+                                    } />
+                                        : <VStack w='full' alignItems="flex-start">
+                                            <Text fontSize="22px" fontWeight="bold">
+                                                INV amount to stake:
+                                            </Text>
+                                            <SimpleAmountForm
+                                                btnProps={{ needPoaFirst: true }}
+                                                defaultAmount={invAmount}
+                                                address={INV}
+                                                destination={sinvAddress}
+                                                signer={provider?.getSigner()}
+                                                decimals={18}
+                                                onAction={() => handleAction()}
+                                                actionLabel={`Stake`}
+                                                maxActionLabel={`Stake all`}
+                                                onAmountChange={(v) => setInvAmount(v)}
+                                                showMaxBtn={false}
+                                                showMax={true}
+                                                isDisabled={!invAmount || depositLimitReached}
+                                                hideInputIfNoAllowance={false}
+                                                showBalance={false}
+                                                onSuccess={() => resetRealTime()}
+                                                enableCustomApprove={true}
+                                            />
+                                            {
+                                                depositLimitReached && <InfoMessage description={`Note: sINV has reached its deposit limit of ${preciseCommify(depositLimit, 0)} INV for the moment`} />
+                                            }
+                                        </VStack>
                                     :
                                     <VStack w='full' alignItems="flex-start">
                                         <Text fontSize="22px" fontWeight="bold">
