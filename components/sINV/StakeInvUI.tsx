@@ -71,7 +71,7 @@ export const StakeInvUI = ({
     );
     const invBalance = invBalanceBn ? getBnToNumber(invBalanceBn) : 0;
     // value in sINV terms
-    const { balance: stakedInvBalance, bnBalance: stakedInvBalanceBn } = useStakedInvBalance(account, version);
+    const { shares: stakedInvBalance, bnShares: stakedInvBalanceBn } = useStakedInvBalance(account, version);
     const [previousStakedDolaBalance, setPrevStakedDolaBalance] = useState(stakedInvBalance);
     const [baseBalance, setBaseBalance] = useState(0);
     const [realTimeBalance, setRealTimeBalance] = useState(0);

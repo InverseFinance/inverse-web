@@ -80,11 +80,14 @@ export const redeemSInv = async (signerOrProvider: JsonRpcSigner, sInvAmount: Bi
 export const useStakedInvBalance = (account: string, version = 'V2') => {
     const sinvAddress = VERSIONED_ADDRESSES[version].sinv;
     const { data, error } = useEtherSWR([sinvAddress, 'balanceOf', account]);
+    const { data: assetsData, error: assetsError } = useEtherSWR([sinvAddress, 'convertToAssets', data]);
     return {
-        bnBalance: data || BigNumber.from('0'),
-        balance: data ? getBnToNumber(data) : 0,
-        isLoading: !data && !error,
-        hasError: !data && !!error,
+        bnShares: data || BigNumber.from('0'),
+        bnAssets: assetsData || BigNumber.from('0'),
+        shares: data ? getBnToNumber(data) : 0,
+        assets: assetsData && data ? getBnToNumber(assetsData) : 0,
+        isLoading: (!data && !error) || (!assetsData && !assetsError),
+        hasError: (!data && !!error) || (!assetsData && !!assetsError),
     };
 }
 

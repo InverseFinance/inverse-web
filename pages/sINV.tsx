@@ -19,10 +19,10 @@ export const SinvPage = () => {
   const [tabVersion, setTabVersion] = useState<'V1' | 'V2'>('V2');
   const { isLoading, accountEvents, events } = useInvStakingActivity(account, 'sinv');
 
-  const { isLoading: isLoadingBuys, events: buyEvents } = useDbrAuctionActivity();
-  const sinvBuyEvents = buyEvents.filter(e => e.auctionType === 'sINV');
+  // const { isLoading: isLoadingBuys, events: buyEvents } = useDbrAuctionActivity();
+  // const sinvBuyEvents = buyEvents.filter(e => e.auctionType === 'sINV');
 
-  const { balance: sINVV1Balance } = useStakedInvBalance(account, 'V1');
+  const { assets: sINVV1Balance } = useStakedInvBalance(account, 'V1');
 
   return (
     <Layout>

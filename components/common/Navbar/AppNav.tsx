@@ -155,11 +155,13 @@ const INVBalance = () => {
   const { isOpen: isFirmModalOpen, onOpen: firmOnOpen, onClose: firmOnClose } = useDisclosure()
 
   const { stakedInFirm, delegate, escrow } = useStakedInFirm(userAddress);
+  const { assets: sINVV1Balance } = useStakedInvBalance(userAddress, 'V1');
+  const { assets: sINVV2Balance } = useStakedInvBalance(userAddress, 'V2');
 
   const [invBalance, xinvBalance] = data || [0, 0]
   const exRate = exchangeRates ? exchangeRates[XINV] : 0;
   const inv = invBalance / ETH_MANTISSA
-  const xinv = (xinvBalance / ETH_MANTISSA) * (exRate / ETH_MANTISSA) + stakedInFirm
+  const xinv = (xinvBalance / ETH_MANTISSA) * (exRate / ETH_MANTISSA) + stakedInFirm + sINVV1Balance + sINVV2Balance;
   const hasUnstakedBal = inv >= 0.01;
 
   useEffect(() => {
@@ -493,7 +495,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const { isSafeMultisigConnector, isMultisig } = useMultisig();
 
   const userAddress = useAccount();
-  const { balance: sINVV1Balance } = useStakedInvBalance(userAddress, 'V1');
+  const { assets: sINVV1Balance } = useStakedInvBalance(userAddress, 'V1');
   // const { isEligible, hasClaimed, isLoading } = useCheckDBRAirdrop(userAddress);
   // const [showAirdropModal, setShowAirdropModal] = useState(false);
   const { isOpen: isWrongNetOpen, onOpen: onWrongNetOpen, onClose: onWrongNetClose } = useDisclosure()
