@@ -81,10 +81,16 @@ export const SInvStatsPage = () => {
   const invPrice = invMarket?.price||0;
   const { evolution, timestamp: lastDailySnapTs, isLoading: isLoadingEvolution } = useInvStakingEvolution();
   const { priceDola: dbrDolaPrice } = useDBRPrice();
-  const { sInvSupply, sInvTotalAssets, apr, apy, isLoading } = useStakedInv(dbrDolaPrice);
+  const { sInvTotalAssets: sInvTotalAssetsV2, sInvSupply: sInvTotalSupplyV2, apr, apy, isLoading: isLoadingV2 } = useStakedInv(dbrDolaPrice, "V2");
+  const { sInvTotalAssets: sInvTotalAssetsV1, sInvSupply: sInvTotalSupplyV1, isLoading: isLoadingV1 } = useStakedInv(dbrDolaPrice, "V1");
+
   const [isInited, setInited] = useState(false);
   const [histoData, setHistoData] = useState([]);
   const [now, setNow] = useState(Date.now());
+
+  const isLoading = isLoadingV1 || isLoadingV2;
+  const combinedTotalAssets = sInvTotalAssetsV2 + sInvTotalAssetsV1;
+  const combinedTotalSupply = sInvTotalSupplyV2 + sInvTotalSupplyV1;
 
   useEffect(() => {
     if (isLoading || isLoadingEvolution || !evolution?.length) return;
@@ -96,15 +102,15 @@ export const SInvStatsPage = () => {
           {
             ...evolution[evolution.length - 1],
             timestamp: Date.now() - (1000 * 120),
-            tvl: sInvTotalAssets * invPrice,
+            tvl: combinedTotalAssets * invPrice,
             apr,
             apy,
-            sInvTotalAssets,
-            sInvSupply,
+            sInvTotalAssets: combinedTotalAssets,
+            sInvSupply: combinedTotalSupply,
           }
         ])
     )
-  }, [lastDailySnapTs, isLoadingEvolution, evolution, sInvTotalAssets, apr, apy, isLoading, now]);
+  }, [lastDailySnapTs, isLoadingEvolution, evolution, combinedTotalSupply, combinedTotalAssets, apr, apy, isLoading, now]);
 
   useEffect(() => {
     setInited(true);
@@ -135,8 +141,8 @@ export const SInvStatsPage = () => {
           <ChartCard cardTitle={`sINV APY evolution`} subtitle={`(30 day avg: ${thirtyDayAvg ? shortenNumber(thirtyDayAvg, 2)+'%' : '-'}, Current: ${apy ? shortenNumber(apy || 0, 2)+'%' : '-'})`}>
             {isInited && <Chart currentValue={apy} isPerc={true} data={histoData} attribute="apy" yLabel="APY" areaProps={{ addDayAvg: true, showLegend: true, legendPosition: 'bottom', avgDayNumbers: [30, 60], avgLineProps: [{ stroke: themeStyles.colors.success, strokeDasharray: '4 4' }, { stroke: themeStyles.colors.warning, strokeDasharray: '4 4' }] }} />}
           </ChartCard>
-          <ChartCard subtitle={sInvTotalAssets > 0 ? `(current: ${preciseCommify(sInvTotalAssets || 0, 0)} INV, ${invPrice ? `${preciseCommify(sInvTotalAssets * invPrice, 0, true)})` : ''}` : ''} cardTitle={`INV staked in sINV`}>
-            {isInited && <Chart isLoading={isLoading} areaProps={{ showSecondary: true, secondaryRef: 'tvl', secondaryType: 'stepAfter', secondaryLabel: 'TVL', secondaryAsUsd: true, secondaryPrecision: 0, secondaryOpacity: 0.5, secondaryColor: themeStyles.colors.success }} currentValue={sInvTotalAssets} data={histoData} attribute="sInvTotalAssets" yLabel="INV staked" />}
+          <ChartCard subtitle={combinedTotalAssets > 0 ? `(current: ${preciseCommify(combinedTotalAssets || 0, 0)} INV, ${invPrice ? `${preciseCommify(combinedTotalAssets * invPrice, 0, true)})` : ''}` : ''} cardTitle={`INV staked in sINV`}>
+            {isInited && <Chart isLoading={isLoading} areaProps={{ showSecondary: true, secondaryRef: 'tvl', secondaryType: 'stepAfter', secondaryLabel: 'TVL', secondaryAsUsd: true, secondaryPrecision: 0, secondaryOpacity: 0.5, secondaryColor: themeStyles.colors.success }} currentValue={combinedTotalAssets} data={histoData} attribute="sInvTotalAssets" yLabel="INV staked" />}
           </ChartCard>
         </SimpleGrid>
         <InvStakingActivity
@@ -154,7 +160,7 @@ export const SInvStatsPage = () => {
                 {
                   isLoading ? <SmallTextLoader width={'50px'} />
                     : <Text textAlign="center" color="secondaryTextColor" fontWeight="bold" fontSize="18px">
-                      {preciseCommify(sInvSupply, 2)}
+                      {preciseCommify(combinedTotalSupply, 2)}
                     </Text>
                 }
               </VStack>
@@ -163,7 +169,7 @@ export const SInvStatsPage = () => {
                 {
                   isLoading ? <SmallTextLoader width={'50px'} />
                     : <Text textAlign="center" color="secondaryTextColor" fontWeight="bold" fontSize="18px">
-                      {preciseCommify(sInvTotalAssets, 2)}
+                      {preciseCommify(combinedTotalAssets, 2)}
                     </Text>
                 }
               </VStack>
