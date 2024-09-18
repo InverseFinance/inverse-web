@@ -81,7 +81,7 @@ export default async function handler(req, res) {
 
         const newBuys = newBuyEvents.map(e => {
             const isSinvType = sinvAddressesLc.includes(e.address.toLowerCase()) || sinvHelperAddressesLc.includes(e.args[0].toLowerCase());     
-            const isSInvV2 = e.address.toLowerCase() === sinvContract.address.toLowerCase() || e.args[0].toLowerCase() === SINV_HELPER_ADDRESS.toLowerCase();
+            const isSInvV2 = SINV_HELPER_ADDRESS !== SINV_HELPER_ADDRESS_V1 && e.address.toLowerCase() === sinvContract.address.toLowerCase() || e.args[0].toLowerCase() === SINV_HELPER_ADDRESS.toLowerCase();
             return {
                 txHash: e.transactionHash,
                 timestamp: timestamps[NetworkIds.mainnet][e.blockNumber] * 1000,
