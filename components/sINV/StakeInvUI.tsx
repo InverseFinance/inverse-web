@@ -172,10 +172,11 @@ export const StakeInvUI = ({
                 version === 'V1' ?
                     <WarningMessage
                         alertProps={{ w: 'full' }}
+                        alertTitleProps={{ fontSize: "18px" }}
                         title="A new sINV version has been released!"
                         description={
                             <VStack spacing="0" alignItems="flex-start">
-                                <Text>We recommend to stake in the V2 instead</Text>
+                                <Text>We recommend staking in the V2 instead</Text>
                                 <Text>Deposits are safe but yield will be optimized for V2</Text>
                             </VStack>
                         } />
