@@ -77,12 +77,12 @@ export const SinvPage = () => {
                   options={["V1", "V2"]}
                   onClick={(v) => setTabVersion(v)}
                 />
-                <StakeInvUI display={tabVersion === 'V1' ? 'flex' : 'none'} version="V1" />
-                <StakeInvUI display={tabVersion === 'V2' ? 'flex' : 'none'} version="V2" />
+                <StakeInvUI showVersion={true} display={tabVersion === 'V1' ? 'flex' : 'none'} version="V1" />
+                <StakeInvUI showVersion={true} display={tabVersion === 'V2' ? 'flex' : 'none'} version="V2" />
               </VStack>
                 :
                 <VStack bgColor={{ base: 'inherit', md: themeStyles.colors.navBarBackgroundColor }} w='full' py="8" spacing="0" border={{ base: 'inherit', md: `1px solid ${themeStyles.colors.navBarBorderColor}` }} borderRadius="10px">
-                  <StakeInvUI version="V2" />
+                  <StakeInvUI showVersion={false} version="V2" />
                 </VStack>
             }
           </VStack>

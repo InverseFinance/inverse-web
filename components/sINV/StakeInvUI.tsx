@@ -39,9 +39,11 @@ const MS_PER_BLOCK = SECONDS_PER_BLOCK * 1000;
 
 export const StakeInvUI = ({
     version = 'V2',
+    showVersion = false,
     ...props
 }: {
     version: 'V1' | 'V2';
+    showVersion?: boolean;
     props?: any;
 }) => {
     const sinvAddress = VERSIONED_ADDRESSES[version].sinv;
@@ -159,7 +161,7 @@ export const StakeInvUI = ({
             <HStack justify="space-around" w='full'>
                 <VStack>
                     <Image src="/assets/sINVx512.png" h="120px" w="120px" />
-                    <Text fontSize="20px" fontWeight="bold">sINV{version === 'V1' ? ' V1 (deprecated)' : ' V2'}</Text>
+                    <Text fontSize="20px" fontWeight="bold">sINV{version === 'V1' ? ' V1 (deprecated)' : showVersion ? ' V2' : ''}</Text>
                 </VStack>
             </HStack>
             <HStack justify="space-between" w='full'>
@@ -207,7 +209,7 @@ export const StakeInvUI = ({
             }
         </VStack>
         <Container
-            label={`sINV${version === 'V1' ? ' V1 (deprecated)' : ' V2'}`}
+            label={`sINV${version === 'V1' ? ' V1 (deprecated)' : showVersion ? ' V2' : ''}`}
             description="Auto-Compounding Tokenized Vault - See contract"
             href={`https://etherscan.io/address/${sinvAddress}`}
             noPadding
