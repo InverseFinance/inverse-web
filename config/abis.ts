@@ -1,7 +1,7 @@
 import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks';
 import { BOND_V2_AGGREGATOR, BOND_V2_FIXED_TERM, BOND_V2_FIXED_TERM_TELLER } from '@app/variables/bonds';
 import { BONDS } from '@app/variables/tokens';
-import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, DOLA_SAVINGS_ADDRESS, DWF_PURCHASER, SDOLA_ADDRESS, SDOLA_HELPER_ADDRESS, SINV_ADDRESS, SINV_ESCROW_ADDRESS, SINV_HELPER_ADDRESS } from './constants';
+import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, DOLA_SAVINGS_ADDRESS, DWF_PURCHASER, SDOLA_ADDRESS, SDOLA_HELPER_ADDRESS, SINV_ADDRESS, SINV_ADDRESS_V1, SINV_ESCROW_ADDRESS, SINV_ESCROW_ADDRESS_V1, SINV_HELPER_ADDRESS, SINV_HELPER_ADDRESS_V1 } from './constants';
 
 // TODO: Clean-up ABIs
 export const COMPTROLLER_ABI = [
@@ -600,6 +600,8 @@ const SVAULT_ABI = [
   "function totalSupply() public view returns (uint)",  
   "function getDbrReserve() public view returns (uint)",
   "function balanceOf(address) public view returns (uint)",
+  "function convertToAssets(uint) public view returns (uint)",
+  "function convertToShares(uint) public view returns (uint)",
   "event Buy(address indexed caller, address indexed to, uint dolaIn, uint dbrOut)",
   "event Deposit(address indexed caller, address indexed owner, uint assets, uint shares)",
   "event Withdraw(address indexed caller, address indexed receiver, address indexed owner, uint assets, uint shares)",
@@ -617,7 +619,8 @@ export const SINV_ABI = [
   "function lastBuyPeriod() public view returns (uint)",
   "function getInvReserve() public view returns (uint)",
   "function depositLimit() public view returns (uint)",
-]
+];
+
 export const SDOLA_HELPER_ABI = [
   "function getDbrOut(uint _dolaIn) public view returns (uint _dbrOut)",
   "function getDolaIn(uint dbrOut) public view returns (uint dolaIn)",
@@ -718,8 +721,11 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [DOLA_SAVINGS_ADDRESS, DOLA_SAVINGS_ABI],
         [SDOLA_HELPER_ADDRESS, SDOLA_HELPER_ABI],
         [SINV_HELPER_ADDRESS, SINV_HELPER_ABI],
+        [SINV_HELPER_ADDRESS_V1, SINV_HELPER_ABI],
         [SINV_ADDRESS, SINV_ABI],
+        [SINV_ADDRESS_V1, SINV_ABI],
         [SINV_ESCROW_ADDRESS, F2_ESCROW_ABI],
+        [SINV_ESCROW_ADDRESS_V1, F2_ESCROW_ABI],
         ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...MULTISIGS.map((m) => [m.address, MULTISIG_ABI]),
         ...Object.values(BONDS).map((bond) => [bond.bondContract, BONDS_ABIS[bond.abiType]]),
