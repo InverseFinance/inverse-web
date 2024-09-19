@@ -18,10 +18,14 @@ const { F2_MARKETS, DOLA, XINV, DBR_DISTRIBUTOR, FEDS } = getNetworkConfigConsta
 export const F2_MARKETS_CACHE_KEY = `f2markets-v1.2.53`;
 
 export default async function handler(req, res) {
+  const cacheDuration = 60;
+  res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+  res.setHeader('Access-Control-Allow-Headers', `Content-Type`);
+  res.setHeader('Access-Control-Allow-Origin', `*`);
+  res.setHeader('Access-Control-Allow-Methods', `OPTIONS,POST,GET`);
+
   const { cacheFirst } = req.query;
-  try {
-    const cacheDuration = 60;
-    res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+  try {    
     const { data: cachedData, isValid } = await getCacheFromRedisAsObj(F2_MARKETS_CACHE_KEY, cacheFirst !== 'true', cacheDuration);
     if (cachedData && isValid) {
       res.status(200).json(cachedData);
