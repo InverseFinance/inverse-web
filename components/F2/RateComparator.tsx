@@ -128,14 +128,14 @@ const RateListItem = ({ fields, project, borrowRate, borrowToken, collateral, ty
     </>
 }
 
-const GroupedRateListItem = ({ fields, bestCompetitorProject, firmRate, bestCompetitorRate, collateral, themeStyles }) => {
+const GroupedRateListItem = ({ fields, bestCompetitorProject, firmRate, bestCompetitorRate, collateral, themeStyles, isSmallerThan }) => {
     const comps = {
         'bestCompetitorProject': <Project project={bestCompetitorProject} themeStyles={themeStyles} />,
-        'collateral': <CollateralToken showImage={true} collateral={collateral || 'Multiple'} themeStyles={themeStyles} />,
-        'firmRate': <Text w="100px" textAlign="center" color={firmRate <= bestCompetitorRate ? themeStyles.colors.success : themeStyles.colors.mainTextColor} fontWeight="extrabold" fontSize="24px">
+        'collateral': <CollateralToken isMobile={isSmallerThan} showImage={!isSmallerThan} collateral={collateral || 'Multiple'} themeStyles={themeStyles} />,
+        'firmRate': <Text w="100px" textAlign="center" color={firmRate <= bestCompetitorRate ? themeStyles.colors.success : themeStyles.colors.mainTextColor} fontWeight="extrabold" fontSize={{ base: '16px', md: '24px' }}>
             {firmRate ? shortenNumber(firmRate, 2) + '%' : '-'}
         </Text>,
-        'bestCompetitorRate': <Text color={bestCompetitorRate <= firmRate ? themeStyles.colors.success : themeStyles.colors.mainTextColor} fontWeight="extrabold" fontSize="24px">
+        'bestCompetitorRate': <Text color={bestCompetitorRate <= firmRate ? themeStyles.colors.success : themeStyles.colors.mainTextColor} fontWeight="extrabold" fontSize={{ base: '16px', md: '24px' }}>
             {bestCompetitorRate && bestCompetitorRate < Infinity ? shortenNumber(bestCompetitorRate, 2) + `% (${bestCompetitorProject})` : '-'}
         </Text>,
     }
@@ -231,7 +231,7 @@ const FIELDS = columns.reduce((prev, curr) => ({ ...prev, [curr.field]: curr.lab
 
 const LogoCol = () => {
     const { themeName } = useAppTheme();
-    return <Image src={`/assets/firm/${themeName === 'light' ? 'firm-final-logo.png' : 'firm-final-logo-white.png'}`} transform="translateX(1.5px)" w="100px" />
+    return <Image src={`/assets/firm/${themeName === 'light' ? 'firm-final-logo.png' : 'firm-final-logo-white.png'}`} transform="translateX(1.5px)" w={{ base: '80px', md: "100px" }} />
 }
 
 const GROUPED_FIELDS = {
@@ -293,7 +293,7 @@ const UngroupedComparator = ({ allRates, themeStyles, isSmallerThan = false, sho
             <SettingsIcon _hover={{ filter: 'brightness(1.2)' }} cursor="pointer" onClick={() => openSettings()} color={showLabel ? themeStyles.colors.mainTextColor : themeStyles.colors.contrastMainTextColor} fontSize={40} />
         }
     >
-        <InfoModal title="Filter & Customize" onOk={onClose} isOpen={isOpen} onClose={onClose} minW='800px'>
+        <InfoModal title="Filter & Customize" onOk={onClose} isOpen={isOpen} onClose={onClose} minW={{ base: '98%', xl: '800px' }}>
             <VStack spacing="4" alignItems="flex-start" p="4" w='full'>
                 <VStack w='full' alignItems="flex-start">
                     <HStack w='full' justify="space-between">
@@ -454,10 +454,10 @@ const GroupedComparator = ({ allRates, themeStyles, isSmallerThan = false, showL
 
     const groupedRatesZone =
         <>
-            <SimpleGrid gap="3" columns={fields.length}>
+            <SimpleGrid alignItems="center" gap="3" columns={fields.length}>
                 {
                     fields.map(f => {
-                        return <Text color={themeStyles.colors.mainTextColor} key={f} fontWeight="extrabold" fontSize="28px">
+                        return <Text color={themeStyles.colors.mainTextColor} key={f} fontWeight="extrabold" fontSize={{ base: '18px', lg: '28px' }}>
                             {GROUPED_FIELDS[f]}
                         </Text>
                     })
@@ -476,8 +476,8 @@ const GroupedComparator = ({ allRates, themeStyles, isSmallerThan = false, showL
                 {
                     groupedRates.map((rate, i) => {
                         return <Box borderBottom="1px solid transparent" borderTop={`1px solid ${themeStyles.colors.mainTextColorAlpha}`} py="2" transition="200 ms all" _hover={{ borderY: `1px solid ${themeStyles.colors.mainTextColor}` }} w='full' key={rate.collateral}>
-                            <SimpleGrid  gap="3" columns={fields.length}>
-                                <GroupedRateListItem fields={fields} {...rate} themeStyles={themeStyles} />
+                            <SimpleGrid  gap="3" columns={fields.length} alignItems="center">
+                                <GroupedRateListItem isSmallerThan={isSmallerThan} fields={fields} {...rate} themeStyles={themeStyles} />
                             </SimpleGrid>
                         </Box>
                     })
@@ -488,7 +488,7 @@ const GroupedComparator = ({ allRates, themeStyles, isSmallerThan = false, showL
     return <Container
         noPadding
         p='0'
-        contentProps={{ p: { base: '0', sm: '8' }, direction: 'column' }}
+        contentProps={{ p: { base: '2', sm: '8' }, direction: 'column' }}
         label={showLabel ? <HStack spacing="1"><Text fontSize="28px" fontWeight="extrabold">FiRM vs. Lowest Variable Rate Comparison</Text>{!fields.includes('firmRate') && <><Text fontSize="28px" fontWeight="extrabold"> - FiRM's fixed-rate:</Text><Text fontSize="28px" fontWeight="extrabold" color="success">{shortenNumber(groupedRates[0]?.firmRate, 2)}%</Text></>}</HStack> : null}
         labelProps={showLabel ? { color: themeStyles.colors.mainTextColor } : null}
         description={showLabel ? "Compare the best rate for each collateral between FiRM and competitors among Aave V3, Compound, Fraxlend, Spark and Curve." : null}
@@ -498,7 +498,7 @@ const GroupedComparator = ({ allRates, themeStyles, isSmallerThan = false, showL
             <SettingsIcon _hover={{ filter: 'brightness(1.2)' }} cursor="pointer" onClick={() => openSettings()} color={showLabel ? themeStyles.colors.mainTextColor : themeStyles.colors.contrastMainTextColor} fontSize={40} />
         }
     >
-        <InfoModal title="Filter & Customize" onOk={onClose} isOpen={isOpen} onClose={onClose} minW='800px'>
+        <InfoModal title="Filter & Customize" onOk={onClose} isOpen={isOpen} onClose={onClose} minW={{ base: '98%', xl: '800px' }}>
             <VStack spacing="4" alignItems="flex-start" p="4" w='full'>
                 <VStack w='full' alignItems="flex-start">
                     <HStack w='full' justify="space-between">
