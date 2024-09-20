@@ -167,7 +167,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
       const dolaLiquidity = data ? getBnToNumber(data[i + 4 * nbMarkets]) : cachedMarkets[i]?.dolaLiquidity ?? 0;
       const borrowPaused = data ? data[i + 5 * nbMarkets] : cachedMarkets[i]?.borrowPaused ?? false;
       const leftToBorrow = borrowPaused ? 0 : limits ? dailyLimit === 0 ? dolaLiquidity : Math.min(dailyLimit - dailyBorrows, dolaLiquidity) : cachedMarkets[i]?.leftToBorrow ?? 0;
-      const aleData = data ? data[i + 6 * nbMarkets] : [BURN_ADDRESS, BURN_ADDRESS, BURN_ADDRESS];
+      const aleData = data ? data[i + 6 * nbMarkets] : [BURN_ADDRESS, BURN_ADDRESS, BURN_ADDRESS, true];
       // only those markets have a decent routing at the moment
       const hasAleFeat = aleData[0] !== BURN_ADDRESS;
 
@@ -187,7 +187,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
         bnLeftToBorrow: getNumberToBn(leftToBorrow),
         borrowPaused,
         hasAleFeat,
-        aleData: { buySellToken: aleData[0], collateral: aleData[1], helper: aleData[2] },
+        aleData: { buySellToken: aleData[0], collateral: aleData[1], helper: aleData[2], useProxy: aleData[3] },
       }
     }),
   }
@@ -252,7 +252,7 @@ export const useAccountDBRMarket = (
   const seizableWorth = liquidatableDebt + market.liquidationIncentive * liquidatableDebt;
 
   const { data: underlyingExRateData } = useEtherSWR({
-    args: market.name === 'st-yCRV' ?
+    args: market.underlyingWithPricePerShare ?
       [[market.collateral, 'pricePerShare']] :
       market.isERC4626Collateral ?
         [[market.collateral, 'convertToAssets', '1000000000000000000']]
