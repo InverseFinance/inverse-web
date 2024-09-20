@@ -15,7 +15,7 @@ import { getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
 
 const { F2_MARKETS, DOLA, XINV, DBR_DISTRIBUTOR, FEDS } = getNetworkConfigConstants();
 
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.2.53`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.2.54`;
 
 export default async function handler(req, res) {
   const cacheDuration = 60;
@@ -157,7 +157,7 @@ export default async function handler(req, res) {
       getSFraxData(provider),
       getSUSDEData(),
       getCrvUSDDOLAConvexData(),
-      // getYvCrvUsdDOLAData(),
+      getYvCrvUsdDOLAData(),
     ]);
 
     let [
@@ -171,7 +171,7 @@ export default async function handler(req, res) {
       sFraxData,
       sUSDEData,
       crvUSDDOLAConvexData,
-      // yvCrvUsdDOLAData,
+      yvCrvUsdDOLAData,
     ] = externalYieldResults.map(r => {
       return r.status === 'fulfilled' ? r.value : {};
     });
@@ -198,7 +198,7 @@ export default async function handler(req, res) {
       'sFRAX': sFraxData?.apy || 0,
       'sUSDe': sUSDEData?.apy || 0,
       'crvUSD-DOLA': crvUSDDOLAConvexData?.apy || 0,
-      // 'yv-crvUSD-DOLA': yvCrvUsdDOLAData?.apy || 0,
+      'yv-crvUSD-DOLA': yvCrvUsdDOLAData?.apy || 0,
     };
 
     const xinvExRate = getBnToNumber(xinvExRateBn);
