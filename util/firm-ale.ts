@@ -78,12 +78,14 @@ export const prepareLeveragePosition = async (
         const permitData = [deadline, v, r, s];
         let helperTransformData = '0x';
         if (market.aleData?.buySellToken && !!market.aleTransformerType && aleTransformers[market.aleTransformerType]) {
-            // should not happen in normal circumstances
+            // should not happen in normal circumstances            
             if(leverageMinAmountUp < (getBnToNumber(dolaToBorrowToBuyCollateral) / market.price * ANOMALY_PERC_FACTOR)){
                 alert('Something went wrong');
                 return;
             }
-            helperTransformData = aleTransformers[market.aleTransformerType](market, leverageMinAmountUp ? getNumberToBn(leverageMinAmountUp) : undefined);
+            // Note: if vault is set (eg yv-crvUSD-DOLA market) then minAmount is in underlying lp amount not in vault token amounts
+            const minMint = market.aleData.useProxy || !market.underlyingExRate ? leverageMinAmountUp : leverageMinAmountUp * (market.underlyingExRate||1);
+            helperTransformData = aleTransformers[market.aleTransformerType](market, minMint ? getNumberToBn(minMint) : undefined);
         }        
         // dolaIn, minDbrOut
         const dbrData = [dbrInputs.dolaParam, dbrInputs.dbrParam, '0'];
