@@ -99,7 +99,7 @@ export const F2Context = ({
     const colDecimals = market.underlying.decimals;
 
     // deposit and leverage can use either the underlying or the collateral as input
-    const hasUnderlyingAsInputCase = mode === 'Deposit & Borrow' && !!market.underlyingSymbol && useLeverage && (market.aleData.buySellToken !== market.collateral && market.aleData.buySellToken !== BURN_ADDRESS);
+    const hasUnderlyingAsInputCase = mode === 'Deposit & Borrow' && !!market.underlyingSymbol && useLeverage && (market.aleData.useProxy && market.aleData.buySellToken !== market.collateral && market.aleData.buySellToken !== BURN_ADDRESS);
     const isUnderlyingAsInputCase = hasUnderlyingAsInputCase && isUnderlyingAsInputCaseSelected;
     const inputToken = isUnderlyingAsInputCase ? market.aleData.buySellToken : market.collateral;
 
