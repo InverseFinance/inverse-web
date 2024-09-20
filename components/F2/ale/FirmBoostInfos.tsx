@@ -87,8 +87,8 @@ export const getLeverageImpact = async ({
     dolaInput,
     underlyingExRate = 1,
 }) => {
-    // only when there is a transformation needed when using ALE, otherwise the underlyingExRate is just a ui info
-    const exRate = market?.aleData?.buySellToken?.toLowerCase() !== market?.collateral?.toLowerCase() ? underlyingExRate : 1;   
+    // only when there is a transformation needed and when using a proxy when using ALE, otherwise the underlyingExRate is just a ui info
+    const exRate = market?.aleData?.useProxy && market?.aleData?.buySellToken?.toLowerCase() !== market?.collateral?.toLowerCase() ? underlyingExRate : 1;   
     const collateralPrice = market?.price;
     if (!collateralPrice || leverageLevel <= 1) {
         return
