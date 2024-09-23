@@ -127,6 +127,12 @@ export const MARKET_INFOS = {
         description: 'The LP token for the crvUSD-DOLA pool on Curve, when deposited on FiRM the LP token will be then deposited into Convex to earn claimable CVX+CRV rewards',
         getLink: 'https://curve.fi/#/ethereum/pools/factory-crvusd-12/deposit',
     },
+    'yv-crvUSD-DOLA': {
+        name: 'yv-crvUSD-DOLA',
+        fullname: 'Yearn vault - crvUSD-DOLA LP',
+        description: 'The Yearn Vault for the Curve crvUSD-DOLA LP, the yearn vault auto-compounds the CVX+CRV yield of the crvUSD-DOLA LP into more vault tokens',
+        getLink: 'https://yearn.fi/vaults/1/0xfb5137Aa9e079DB4b7C2929229caf503d0f6DA96',
+    },
 }
 
 const ColHeader = ({ ...props }) => {

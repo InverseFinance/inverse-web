@@ -765,10 +765,11 @@ export type F2Market = {
   phasingOutComment?: string
   phasingOutLink?: string
   underlyingSymbol?: string
-  aleData: { buySellToken: string, collateral: string, helper: string }
+  aleData: { buySellToken: string, collateral: string, helper: string, useProxy: boolean }
   aleTransformerType?: 'marketAddress' | '' | 'marketAddressAndAmount'
   isERC4626Collateral?: boolean
   isAleWithoutSwap?: boolean
+  underlyingWithPricePerShare?: boolean
 }
 
 export type FirmAction = {

@@ -198,6 +198,7 @@ export const F2CombinedForm = ({
                     !isUnderlyingAsInputCase,
                     dolaPrice,
                     leverageMinAmountUp,
+                    underlyingExRate,
                 );
             }
             else if (isAutoDBR || isUseNativeCoin) {
@@ -295,7 +296,7 @@ export const F2CombinedForm = ({
                     return
                 }
                 const { dolaAmount, errorMsg } = await getLeverageImpact({
-                    deposits, leverageLevel: leverage, market, isUp: false, dolaPrice, setLeverageLoading, viaInput: true, underlyingExRate
+                    deposits, leverageLevel: leverage, market, isUp: false, dolaPrice, setLeverageLoading, viaInput: true, underlyingExRate, signer
                 });
                 if (!!errorMsg) {
                     showToast({ status: 'warning', description: errorMsg, title: 'Api error' })
@@ -304,7 +305,7 @@ export const F2CombinedForm = ({
                 setLeverageDebtAmount(Math.abs(dolaAmount).toFixed(2));
             } else if (useLeverageInMode && !isDeleverageCase && !deposits && collateralNum > 0 && leverage >= 1) {
                 const { dolaAmount, errorMsg, collateralAmount } = await getLeverageImpact({
-                    deposits, initialDeposit: collateralNum, leverageLevel: leverage, market, isUp: true, dolaPrice, setLeverageLoading, viaInput: true, underlyingExRate
+                    deposits, initialDeposit: collateralNum, leverageLevel: leverage, market, isUp: true, dolaPrice, setLeverageLoading, viaInput: true, underlyingExRate, signer
                 });
                 if (!!errorMsg) {
                     showToast({ status: 'warning', description: errorMsg, title: 'Api error' })
@@ -335,7 +336,7 @@ export const F2CombinedForm = ({
                     return
                 }
                 const { collateralAmount, errorMsg } = await getLeverageImpact({
-                    deposits, debt, leverageLevel: leverage, market, isUp: true, dolaPrice, setLeverageLoading, viaInput, dolaInput: viaInput ? debtString : undefined, initialDeposit, underlyingExRate
+                    deposits, debt, leverageLevel: leverage, market, isUp: true, dolaPrice, setLeverageLoading, viaInput, dolaInput: viaInput ? debtString : undefined, initialDeposit, underlyingExRate, signer
                 });
                 if (!!errorMsg) {
                     showToast({ status: 'warning', description: errorMsg, title: 'Api error' })

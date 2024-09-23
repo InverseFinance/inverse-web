@@ -110,6 +110,7 @@ const chainTokenAddresses = {
     DOLAUSDCALP2: '0xb139946D2F0E71b38e2c75d03D87C5E16339d2CD',
     DOLAFRAXUSDCCVX: '0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c',
     DOLACRVUSDLP: '0x8272E1A3dBef607C04AA6e5BD3a1A134c8ac063B',
+    YVDOLACRVUSDLP: '0xfb5137Aa9e079DB4b7C2929229caf503d0f6DA96',
     CRVUSD: '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
     INVTRICRYPTO: '0x5426178799ee0a0181A89b4f57eFddfAb49941Ec',
     INVTRICRYPTOYEARNV2: '0x6949145469362F9eeaB3c96Ea41b51D9B4cC2b21',
@@ -1194,6 +1195,21 @@ const chainTokens = {
       ],
       image: TOKEN_IMAGES.DOLA,
       link: 'https://curve.fi/#/ethereum/pools/factory-crvusd-12/deposit',
+    },
+    [chainTokenAddresses["1"].YVDOLACRVUSDLP]: {
+      address: chainTokenAddresses["1"].YVDOLACRVUSDLP,
+      name: 'yv-DOLA-crvUSD',
+      symbol: 'yv-DOLA-crvUSD lp',
+      protocolImage: PROTOCOL_IMAGES.YFI,
+      rootCrvPool: chainTokenAddresses["1"].DOLACRVUSDLP,
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isYearnV2LP: true,
+      pairs: [
+        '0x865377367054516e17014CcdED1e7d814EDC9ce4', '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E'
+      ],      
+      link: 'https://yearn.fi/vaults/1/0xfb5137Aa9e079DB4b7C2929229caf503d0f6DA96',
     },
     [chainTokenAddresses["1"].CRVUSD]: {
       address: chainTokenAddresses["1"].CRVUSD,
