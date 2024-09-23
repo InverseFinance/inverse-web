@@ -173,7 +173,7 @@ export const MarketNameAndIcon = ({ marketIcon, icon, underlying, name }) => {
             !underlying.isLP ? <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
             : <LPImages alternativeDisplay={true} lpToken={{ pairs: underlying.pairs, image: underlying.image, protocolImage: underlying.protocolImage }} chainId={1} imgSize={18} />
         }
-        <CellText textOverflow="clip" overflow="hidden" whiteSpace="nowrap" fontWeight="bold" fontSize={{ base: '18px', '2xl': name.length > 12 ? '16px' : '20px' }}>{name}</CellText>
+        <CellText textOverflow="clip" overflow="hidden" whiteSpace="nowrap" fontWeight="bold" fontSize={{ base: '16px', '2xl': name.length > 12 ? '16px' : '20px' }}>{name}</CellText>
     </HStack>
 }
 
