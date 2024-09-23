@@ -83,7 +83,7 @@ export const SinvPage = () => {
               </VStack>
                 :
                 <VStack bgColor={{ base: 'inherit', md: themeStyles.colors.navBarBackgroundColor }} w='full' py="8" spacing="0" border={{ base: 'inherit', md: `1px solid ${themeStyles.colors.navBarBorderColor}` }} borderRadius="10px">
-                  <StakeInvUI showVersion={true} version="V2" />
+                  <StakeInvUI showVersion={false} version="V2" />
                 </VStack>
             }
           </VStack>
