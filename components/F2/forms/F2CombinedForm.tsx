@@ -198,6 +198,7 @@ export const F2CombinedForm = ({
                     !isUnderlyingAsInputCase,
                     dolaPrice,
                     leverageMinAmountUp,
+                    underlyingExRate,
                 );
             }
             else if (isAutoDBR || isUseNativeCoin) {

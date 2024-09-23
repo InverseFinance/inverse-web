@@ -43,6 +43,7 @@ export const prepareLeveragePosition = async (
     isDepositCollateral = true,
     dolaPrice = 1,
     leverageMinAmountUp?: number,
+    underlyingExRate?: number,
 ) => {
     let dbrApprox;
     let dbrInputs = { dolaParam: '0', dbrParam: '0' };
@@ -84,7 +85,7 @@ export const prepareLeveragePosition = async (
                 return;
             }
             // Note: if vault is set (eg yv-crvUSD-DOLA market) then minAmount is in underlying lp amount not in vault token amounts
-            const minMint = market.aleData.useProxy || !market.underlyingExRate ? leverageMinAmountUp : leverageMinAmountUp * (market.underlyingExRate||1);
+            const minMint = market.aleData.useProxy || !underlyingExRate ? leverageMinAmountUp : leverageMinAmountUp * (underlyingExRate||1);
             helperTransformData = aleTransformers[market.aleTransformerType](market, minMint ? getNumberToBn(minMint) : undefined);
         }        
         // dolaIn, minDbrOut

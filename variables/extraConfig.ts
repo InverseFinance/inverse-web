@@ -319,6 +319,7 @@ const mainConfig = {
             aleTransformerType: 'marketAddressAndAmount',
             underlyingWithPricePerShare: true,
             underlyingSymbol: 'crvUSD-DOLA',
+            aleDefaultSlippagePerc: '0.17',
             isAleWithoutSwap: true,
             isInv: false,
         },
