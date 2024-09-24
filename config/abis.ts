@@ -1,7 +1,8 @@
 import { getNetworkConfig, getNetworkConfigConstants } from '@app/util/networks';
 import { BOND_V2_AGGREGATOR, BOND_V2_FIXED_TERM, BOND_V2_FIXED_TERM_TELLER } from '@app/variables/bonds';
 import { BONDS } from '@app/variables/tokens';
-import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, DOLA_SAVINGS_ADDRESS, DWF_PURCHASER, SDOLA_ADDRESS, SDOLA_HELPER_ADDRESS, SINV_ADDRESS, SINV_ADDRESS_V1, SINV_ESCROW_ADDRESS, SINV_ESCROW_ADDRESS_V1, SINV_HELPER_ADDRESS, SINV_HELPER_ADDRESS_V1 } from './constants';
+import { DBR_AUCTION_ADDRESS, DBR_AUCTION_HELPER_ADDRESS, DOLA_SAVINGS_ADDRESS, DWF_PURCHASER, SDOLA_ADDRESS, SDOLA_HELPER_ADDRESS, SINV_ADDRESS, SINV_ADDRESS_V1, SINV_ESCROW_ADDRESS, SINV_ESCROW_ADDRESS_V1, SINV_HELPER_ADDRESS, SINV_HELPER_ADDRESS_V1, VIEWER_CONTRACT_ADDRESS } from './constants';
+import { VIEWER_ABI } from './viewer-abi';
 
 // TODO: Clean-up ABIs
 export const COMPTROLLER_ABI = [
@@ -726,6 +727,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [SINV_ADDRESS_V1, SINV_ABI],
         [SINV_ESCROW_ADDRESS, F2_ESCROW_ABI],
         [SINV_ESCROW_ADDRESS_V1, F2_ESCROW_ABI],
+        [VIEWER_CONTRACT_ADDRESS, VIEWER_ABI],
         ...FEDS.map((fed) => [fed.address, fed.abi]),
         ...MULTISIGS.map((m) => [m.address, MULTISIG_ABI]),
         ...Object.values(BONDS).map((bond) => [bond.bondContract, BONDS_ABIS[bond.abiType]]),
