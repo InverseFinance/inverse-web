@@ -1,4 +1,4 @@
-import { getRedisClient } from '@app/util/redis';
+import { getCacheFromRedis, getRedisClient, redisSetWithTimestamp } from '@app/util/redis';
 import { RefundableTransaction } from '@app/types';
 import { getProvider } from '@app/util/providers';
 import { getNetworkConfigConstants } from '@app/util/networks';
@@ -7,6 +7,7 @@ import { SIGN_MSG } from '@app/config/constants';
 import { Contract } from 'ethers';
 import { MULTISIG_ABI } from '@app/config/abis';
 import { REFUNDED_TXS_CACHE_KEY, REFUNDED_TXS_CUSTOM_CACHE_KEY, REFUNDED_TXS_IGNORE_CACHE_KEY } from './eligible-refunds';
+import { ARCHIVED_REFUNDS } from '@app/fixtures/gov-refunds';
 
 const client = getRedisClient();
 
@@ -48,7 +49,7 @@ export default async function handler(req, res) {
 
                 const signedAt = Date.now();
 
-                refunded = JSON.parse(await client.get(REFUNDED_TXS_CACHE_KEY) || '[]');
+                refunded = ((await getCacheFromRedis(REFUNDED_TXS_CACHE_KEY, false, 0, true)) || {refunded:ARCHIVED_REFUNDS}).refunded; 
                 const ignoredTxHashes = JSON.parse(await client.get(REFUNDED_TXS_IGNORE_CACHE_KEY) || '[]');
                 refunds.forEach(r => {
                     const existingIndex = refunded.findIndex(past => past.txHash === r.txHash);
@@ -63,7 +64,7 @@ export default async function handler(req, res) {
                 });
 
                 await Promise.all([
-                    client.set(REFUNDED_TXS_CACHE_KEY, JSON.stringify(refunded)),
+                    redisSetWithTimestamp(REFUNDED_TXS_CACHE_KEY, {refunded}, true),
                     client.set(REFUNDED_TXS_IGNORE_CACHE_KEY, JSON.stringify(ignoredTxHashes)),
                 ]);
 

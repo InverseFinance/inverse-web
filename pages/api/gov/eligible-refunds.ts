@@ -4,6 +4,7 @@ import { RefundableTransaction } from '@app/types';
 import { ONE_DAY_MS } from '@app/config/constants';
 import { formatEther } from '@ethersproject/units';
 import { capitalize, timestampToUTC, uniqueBy } from '@app/util/misc';
+import { ARCHIVED_REFUNDS } from '@app/fixtures/gov-refunds';
 
 const client = getRedisClient();
 
@@ -13,7 +14,7 @@ const topics = {
 }
 
 export const ELIGIBLE_TXS = 'eligible-refunds-txs';
-export const REFUNDED_TXS_CACHE_KEY = 'refunded-txs-epoch5';
+export const REFUNDED_TXS_CACHE_KEY = 'refunded-txs-epoch-x';
 export const REFUNDED_TXS_CUSTOM_CACHE_KEY = 'custom-txs-to-refund-v2';
 export const REFUNDED_TXS_IGNORE_CACHE_KEY = 'refunds-ignore-tx-hashes';
 
@@ -92,7 +93,7 @@ export default async function handler(req, res) {
     const validCache = await getCacheFromRedis(cacheKey, true, includesToday && preferCache !== 'true' ? 30 : 3600);
     if (validCache) {
       // refunded txs, manually submitted by signature in UI
-      const refunded = JSON.parse(await client.get(REFUNDED_TXS_CACHE_KEY) || '[]');
+      const refunded = ((await getCacheFromRedis(REFUNDED_TXS_CACHE_KEY, false, 0, true)) || {refunded:ARCHIVED_REFUNDS}).refunded; 
       res.status(200).json({
         transactions: addRefundedData(validCache.transactions, refunded),
         cachedMostRecentTimestamp: validCache.cachedMostRecentTimestamp,
@@ -122,11 +123,11 @@ export default async function handler(req, res) {
     ] = await Promise.all([
       !hasFilter || filterType === 'custom' ? client.get(REFUNDED_TXS_CUSTOM_CACHE_KEY) : new Promise((r) => r('[]')),
       client.get(REFUNDED_TXS_IGNORE_CACHE_KEY),
-      client.get(REFUNDED_TXS_CACHE_KEY),
+      getCacheFromRedis(REFUNDED_TXS_CACHE_KEY, false, 0, true),
     ]);
 
     const customTxs = JSON.parse((customTxsRes || '[]'));
-    const refunded = JSON.parse((refundedRes || '[]'));
+    const refunded = refundedRes?.refunded || ARCHIVED_REFUNDS;
 
     const cached = (await getCacheFromRedis(ELIGIBLE_TXS, false, 0, true)) || { formattedTxs: [] };
     const cachedTxs = cached?.formattedTxs || [];
