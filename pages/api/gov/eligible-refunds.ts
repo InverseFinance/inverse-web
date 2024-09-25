@@ -13,7 +13,7 @@ const topics = {
 }
 
 export const ELIGIBLE_TXS = 'eligible-refunds-txs';
-export const REFUNDED_TXS_CACHE_KEY = 'refunded-txs-epoch4';
+export const REFUNDED_TXS_CACHE_KEY = 'refunded-txs-epoch5';
 export const REFUNDED_TXS_CUSTOM_CACHE_KEY = 'custom-txs-to-refund-v2';
 export const REFUNDED_TXS_IGNORE_CACHE_KEY = 'refunds-ignore-tx-hashes';
 
