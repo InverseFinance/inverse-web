@@ -4,178 +4,202 @@ import { JsonRpcSigner, Provider } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
 import { getBnToNumber } from "./markets";
 
-type AccountDebtData = {
-    totalDebt: number;
-    dbrBalance: number;
-    dolaBalance: number;
-    depletionTimestamp: number;
-    monthlyBurn: number;
+type BigNumberOrNumber<T extends boolean> = T extends true ? number : BigNumber;
+
+type MarketData<T extends boolean> = {
+    collateral: string;
+    oracleFeed: string;
+    decimals: BigNumberOrNumber<T>;
+    collateralSymbol: string;
+    collateralName: string;
+    totalDebt: BigNumberOrNumber<T>;
+    price: BigNumberOrNumber<T>;
+    leftToBorrow: BigNumberOrNumber<T>;
+    dailyLimit: BigNumberOrNumber<T>;
+    dailyBorrows: BigNumberOrNumber<T>;
+    liquidity: BigNumberOrNumber<T>;
+    minDebt: BigNumberOrNumber<T>;
+    collateralFactorBps: BigNumberOrNumber<T>;
+    liquidationFactorBps: BigNumberOrNumber<T>;
+    liquidationFeeBps: BigNumberOrNumber<T>;
+    liquidationIncentiveBps: BigNumberOrNumber<T>;
+    replenishmentIncentiveBps: BigNumberOrNumber<T>;
+    borrowCeiling: BigNumberOrNumber<T>;
+    isPaused: boolean;
 };
 
-type AccountGovernanceBreakdown = {
+type AccountDebtData<T extends boolean> = {
+    totalDebt: BigNumberOrNumber<T>;
+    dbrBalance: BigNumberOrNumber<T>;
+    dolaBalance: BigNumberOrNumber<T>;
+    depletionTimestamp: BigNumberOrNumber<T>;
+    monthlyBurn: BigNumberOrNumber<T>;
+};
+
+type AccountGovernanceBreakdown<T extends boolean> = {
     invDelegate: string;
     xInvDelegate: string;
     firmDelegate: string;
-    invVotes: number;
-    xInvVotes: number;
-    totalVotes: number;
+    invVotes: BigNumberOrNumber<T>;
+    xInvVotes: BigNumberOrNumber<T>;
+    totalVotes: BigNumberOrNumber<T>;
 };
 
-type AccountInvBalancesBreakdown = {
-    inv: number;
-    xinv: number;
-    firm: number;
-    sInvV1: number;
-    sInvV2: number;
-    sInv: number;
-    totalStaked: number;
-    totalInv: number;
+type AccountInvBalancesBreakdown<T extends boolean> = {
+    inv: BigNumberOrNumber<T>;
+    xinv: BigNumberOrNumber<T>;
+    firm: BigNumberOrNumber<T>;
+    sInvV1: BigNumberOrNumber<T>;
+    sInvV2: BigNumberOrNumber<T>;
+    sInv: BigNumberOrNumber<T>;
+    totalStaked: BigNumberOrNumber<T>;
+    totalInv: BigNumberOrNumber<T>;
 };
 
-type AccountInvBreakdown = {
-    balances: AccountInvBalancesBreakdown;
-    governance: AccountGovernanceBreakdown;
+type AccountInvBreakdown<T extends boolean> = {
+    balances: AccountInvBalancesBreakdown<T>;
+    governance: AccountGovernanceBreakdown<T>;
 };
 
-type PositionData = {
+type PositionData<T extends boolean> = {
     escrow: string;
-    balance: number;
-    debt: number;
-    collateralValue: number;
-    creditLimit: number;
-    creditLeft: number;
-    withdrawalLimit: number;
-    borrowLimit: number;
-    liquidationPrice: number;
-    monthlyBurn: number;
+    balance: BigNumberOrNumber<T>;
+    debt: BigNumberOrNumber<T>;
+    collateralValue: BigNumberOrNumber<T>;
+    creditLimit: BigNumberOrNumber<T>;
+    creditLeft: BigNumberOrNumber<T>;
+    withdrawalLimit: BigNumberOrNumber<T>;
+    borrowLimit: BigNumberOrNumber<T>;
+    liquidationPrice: BigNumberOrNumber<T>;
+    monthlyBurn: BigNumberOrNumber<T>;
 };
 
-type MarketDataFormatted = {
-    collateral: string;
-    oracleFeed: string;
-    decimals: number;
-    collateralSymbol: string;
-    collateralName: string;
-    totalDebt: number;
-    price: number;
-    leftToBorrow: number;
-    dailyLimit: number;
-    dailyBorrows: number;
-    liquidity: number;
-    minDebt: number;
-    collateralFactorBps: number;
-    liquidationFactorBps: number;
-    liquidationFeeBps: number;
-    liquidationIncentiveBps: number;
-    replenishmentIncentiveBps: number;
-    borrowCeiling: number;
-    isPaused: boolean;
+type AccountAndMarketBreakdown<T extends boolean> = {
+    market: MarketData<T>;
+    account: AccountDebtData<T>;
+    position: PositionData<T>;
 };
 
-type MarketDataRaw = {
-    collateral: string;
-    oracleFeed: string;
-    decimals: BigNumber;
-    collateralSymbol: string;
-    collateralName: string;
-    totalDebt: BigNumber;
-    price: BigNumber;
-    leftToBorrow: BigNumber;
-    dailyLimit: BigNumber;
-    dailyBorrows: BigNumber;
-    liquidity: BigNumber;
-    minDebt: BigNumber;
-    collateralFactorBps: BigNumber;
-    liquidationFactorBps: BigNumber;
-    liquidationFeeBps: BigNumber;
-    liquidationIncentiveBps: BigNumber;
-    replenishmentIncentiveBps: BigNumber;
-    borrowCeiling: BigNumber;
-    isPaused: boolean;
-};
-
-type MarketData<T extends boolean> = T extends true ? MarketDataFormatted : MarketDataRaw;
-
-type AccountAndMarketBreakdown = {
-    market: MarketData;
-    account: AccountDebtData;
-    position: PositionData;
-};
-
-type AccountListAndMarketListBreakdown = {
-    markets: MarketData[];
-    marketPositions: PositionData[][];
-    accountsDebtData: AccountDebtData[];
-    tvl: number;
-    debt: number;
+type AccountListAndMarketListBreakdown<T extends boolean> = {
+    markets: MarketData<T>[];
+    marketListPositions: PositionData<T>[][];
+    accountsDebtData: AccountDebtData<T>[];
+    tvl: BigNumberOrNumber<T>;
+    debt: BigNumberOrNumber<T>;
 }
 
-type AccountListAndMarketBreakdown = {
-    market: MarketData;
-    marketPositions: PositionData[][];
-    accountsDebtData: AccountDebtData[];
-    tvl: number;
-    debt: number;
+type AccountListAndMarketBreakdown<T extends boolean> = {
+    market: MarketData<T>;
+    positions: PositionData<T>[];
+    accountsDebtData: AccountDebtData<T>[];
+    tvl: BigNumberOrNumber<T>;
+    debt: BigNumberOrNumber<T>;
 }
 
-type AccountAndMarketListBreakdown = {
-    markets: MarketData[];
-    marketPositions: PositionData[][];
-    accountDebtData: AccountDebtData;
-    tvl: number;
-    debt: number;
+type AccountAndMarketListBreakdown<T extends boolean> = {
+    markets: MarketData<T>[];
+    positions: PositionData<T>[];
+    accountDebtData: AccountDebtData<T>;
+    tvl: BigNumberOrNumber<T>;
+    debt: BigNumberOrNumber<T>;
 }
 
-type PriceData = {
-    dolaPrice: number;
-    dbrPrice: number;
-    dbrPriceInDola: number;
-    dbrPriceInInv: number;
-    invPrice: number;
+type PriceData<T extends boolean> = {
+    dolaPrice: BigNumberOrNumber<T>;
+    dbrPrice: BigNumberOrNumber<T>;
+    dbrPriceInDola: BigNumberOrNumber<T>;
+    dbrPriceInInv: BigNumberOrNumber<T>;
+    invPrice: BigNumberOrNumber<T>;
 }
 
-const autoFormatValue = (value: any, key = '') => {
-    if (BigNumber.isBigNumber(value)) {
-        return /Bps$/.test(key) ? getBnToNumber(value, 4) : /timestamp/.test(key) ? getBnToNumber(value, 0) : getBnToNumber(value);
+type InverseViewer<T extends boolean> = {
+    contract: Contract,
+    firm: {
+        getAccountDebtData: (account: string) => Promise<AccountDebtData<T>>,        
+        getAccountPosition: (market: string, account: string) => Promise<PositionData<T>>,
+        getMarketData: (market: string) => Promise<MarketData<T>>,
+        getMarketListData: (markets: string[]) => Promise<MarketData<T>[]>,
+        getAccountDbrClaimableRewards: (account: string) => Promise<number>,
+        getAccountFirmDelegate: (account: string) => Promise<string>,
+        getAccountFirmStakedInv: (account: string) => Promise<number>,
+        getAccountListDebtData: (accounts: string[]) => Promise<AccountDebtData<T>[]>,
+        getAccountPositionsForMarketList: (markets: string[], account: string) => Promise<PositionData<T>[]>,
+        getDepletionTimestamp: (account: string) => Promise<number>,
+        getMarketAndAccountBreakdown: (market: string, account: string) => Promise<AccountAndMarketBreakdown<T>>,
+        getMarketBreakdownForAccountList: (market: string, accounts: string[]) => Promise<AccountListAndMarketBreakdown<T>>,
+        getMarketListAndAccountListBreakdown: (markets: string[], accounts: string[]) => Promise<AccountListAndMarketListBreakdown<T>>,
+        getMarketListBreakdownForAccount: (markets: string[], account: string) => Promise<AccountAndMarketListBreakdown<T>>,
+    },
+    inv: {
+        getAccountAssetsInSInvV1: (account: string) => Promise<number>,
+        getAccountAssetsInSInvV2: (account: string) => Promise<number>,
+        getAccountFirmDelegate: (account: string) => Promise<string>,
+        getAccountFirmStakedInv: (account: string) => Promise<number>,
+        getAccountFrontierStakedInv: (account: string) => Promise<number>,
+        getAccountInvBreakdown: (account: string) => Promise<AccountInvBreakdown<T>>,
+        getAccountGovBreakdown: (account: string) => Promise<AccountGovernanceBreakdown<T>>,
+        getAccountInvBalancesBreakdown: (account: string) => Promise<AccountInvBalancesBreakdown<T>>,
+        getAccountInvVotes: (account: string) => Promise<number>,
+        getAccountTotalAssetsInSInvs: (account: string) => Promise<number>,
+        getAccountTotalInv: (account: string) => Promise<number>,
+        getAccountTotalStakedInv: (account: string) => Promise<number>,
+        getAccountTotalVotes: (account: string) => Promise<number>,
+        getAccountVotesAtProposalStart: (account: string, proposalId: number) => Promise<number>,
+        getAccountXinvVotes: (account: string) => Promise<number>,
+        getTotalInvStaked: (account: string) => Promise<number>,
+        getTotalSInvAssets: (account: string) => Promise<number>,
+        getTotalSInvSupply: (account: string) => Promise<number>,
+        xinvExchangeRate: () => Promise<number>,
+    },
+    prices: {
+        getDbrPrice: () => Promise<number>,
+        getDbrPriceInDola: () => Promise<number>,
+        getDbrPriceInInv: () => Promise<number>,
+        getDolaPrice: () => Promise<number>,
+        getInvOraclePrice: () => Promise<number>,
+        getInvPrice: () => Promise<number>,
+        getInverseTokensPrices: () => Promise<PriceData<T>>,
     }
-    return value;
 }
 
 const formatBps = (value: BigNumber) => {
     return getBnToNumber(value, 4);
 }
 
-const formatAccountListAndMarketListBreakdown = (accountListAndMarketListBreakdown: AccountListAndMarketListBreakdown) => {
+const formatAccountListAndMarketListBreakdown = (accountListAndMarketListBreakdown: AccountListAndMarketListBreakdown<false>): AccountListAndMarketListBreakdown<true> => {
+    const markets = accountListAndMarketListBreakdown.markets.map(formatMarketData);
     return {
-        markets: accountListAndMarketListBreakdown.markets.map(formatMarketData),
-        marketPositions: accountListAndMarketListBreakdown.marketPositions.map(positions => positions.map(formatPositionData)),
+        markets,
+        marketListPositions: accountListAndMarketListBreakdown.marketListPositions.map((marketPositions, index) => marketPositions.map(p => formatPositionData(p, markets[index].decimals))),
         accountsDebtData: accountListAndMarketListBreakdown.accountsDebtData.map(formatAccountDebtData),
         tvl: getBnToNumber(accountListAndMarketListBreakdown.tvl),
         debt: getBnToNumber(accountListAndMarketListBreakdown.debt),
     }
 }
 
-const formatAccountListAndMarketBreakdown = (accountListAndMarketBreakdown: AccountListAndMarketBreakdown) => {
+const formatAccountListAndMarketBreakdown = (accountListAndMarketBreakdown: AccountListAndMarketBreakdown<false>): AccountListAndMarketBreakdown<true> => {
+    const market = formatMarketData(accountListAndMarketBreakdown.market);
     return {
-        market: formatMarketData(accountListAndMarketBreakdown.market),
-        marketPositions: accountListAndMarketBreakdown.marketPositions.map(positions => positions.map(formatPositionData)),
+        market,
+        positions: accountListAndMarketBreakdown.positions.map(p => formatPositionData(p, market.decimals)),
         accountsDebtData: accountListAndMarketBreakdown.accountsDebtData.map(formatAccountDebtData),
         tvl: getBnToNumber(accountListAndMarketBreakdown.tvl),
         debt: getBnToNumber(accountListAndMarketBreakdown.debt),
     }
 }
 
-const formatAccountAndMarketListBreakdown = (accountListAndMarketBreakdown: AccountAndMarketListBreakdown) => {
+const formatAccountAndMarketListBreakdown = (accountListAndMarketBreakdown: AccountAndMarketListBreakdown<false>): AccountAndMarketListBreakdown<true> => {
+    const markets = accountListAndMarketBreakdown.markets.map(formatMarketData);
     return {
-        market: formatMarketData(accountListAndMarketBreakdown.market),
-        marketPositions: accountListAndMarketBreakdown.marketPositions.map(positions => positions.map(formatPositionData)),
-        accountsDebtData: accountListAndMarketBreakdown.accountsDebtData.map(formatAccountDebtData),
+        markets,
+        positions: accountListAndMarketBreakdown.positions.map((p, index) => formatPositionData(p, markets[index].decimals)),
+        accountDebtData: formatAccountDebtData(accountListAndMarketBreakdown.accountDebtData),
         tvl: getBnToNumber(accountListAndMarketBreakdown.tvl),
         debt: getBnToNumber(accountListAndMarketBreakdown.debt),
     }
 }
 
-const formatMarketData = (market: MarketData) => {
+const formatMarketData = (market: MarketData<false>): MarketData<true> => {
     return {
         collateral: market.collateral,
         oracleFeed: market.oracleFeed,
@@ -188,17 +212,18 @@ const formatMarketData = (market: MarketData) => {
         dailyBorrows: getBnToNumber(market.dailyBorrows),
         liquidity: getBnToNumber(market.liquidity),
         minDebt: getBnToNumber(market.minDebt),
-        collateralFactor: formatBps(market.collateralFactorBps),
-        liquidationFactor: formatBps(market.liquidationFactorBps),
-        liquidationFee: formatBps(market.liquidationFeeBps),
-        liquidationIncentive: formatBps(market.liquidationIncentiveBps),
-        replenishmentIncentive: formatBps(market.replenishmentIncentiveBps),
+        collateralFactorBps: formatBps(market.collateralFactorBps),
+        liquidationFactorBps: formatBps(market.liquidationFactorBps),
+        liquidationFeeBps: formatBps(market.liquidationFeeBps),
+        liquidationIncentiveBps: formatBps(market.liquidationIncentiveBps),
+        replenishmentIncentiveBps: formatBps(market.replenishmentIncentiveBps),
         borrowCeiling: getBnToNumber(market.borrowCeiling),
+        price: getBnToNumber(market.price),
         isPaused: market.isPaused,
     }
 }
 
-const formatInvBalances = (balances: AccountInvBalancesBreakdown) => {
+const formatInvBalances = (balances: AccountInvBalancesBreakdown<false>): AccountInvBalancesBreakdown<true> => {
     return {
         inv: getBnToNumber(balances.inv),
         xinv: getBnToNumber(balances.xinv),
@@ -211,7 +236,7 @@ const formatInvBalances = (balances: AccountInvBalancesBreakdown) => {
     }
 }
 
-const formatAccountGovernance = (governance: AccountGovernanceBreakdown) => {
+const formatAccountGovernance = (governance: AccountGovernanceBreakdown<false>): AccountGovernanceBreakdown<true> => {
     return {
         invDelegate: governance.invDelegate,
         xInvDelegate: governance.xInvDelegate,
@@ -222,9 +247,9 @@ const formatAccountGovernance = (governance: AccountGovernanceBreakdown) => {
     }
 }
 
-const formatPositionData = (position: PositionData, decimals = 18) => {
+const formatPositionData = (position: PositionData<false>, decimals = 18): PositionData<true> => {
     return {
-        ...position,
+        escrow: position.escrow,
         balance: getBnToNumber(position.balance, decimals),
         debt: getBnToNumber(position.debt),
         collateralValue: getBnToNumber(position.collateralValue),
@@ -237,9 +262,8 @@ const formatPositionData = (position: PositionData, decimals = 18) => {
     }
 }
 
-const formatPricesData = (prices: PriceData) => {
+const formatPricesData = (prices: PriceData<false>): PriceData<true> => {
     return {
-        ...prices,
         dolaPrice: getBnToNumber(prices.dolaPrice),
         dbrPrice: getBnToNumber(prices.dbrPrice),
         dbrPriceInDola: getBnToNumber(prices.dbrPriceInDola),
@@ -248,24 +272,24 @@ const formatPricesData = (prices: PriceData) => {
     }
 }
 
-const formatAccountInvBreakdown = (invBreakdown: AccountInvBreakdown) => {
+const formatAccountInvBreakdown = (invBreakdown: AccountInvBreakdown<false>): AccountInvBreakdown<true> => {
     return {
         balances: formatInvBalances(invBreakdown.balances),
         governance: formatAccountGovernance(invBreakdown.governance),
     }
 }
 
-const formatAccountAndMarketBreakdown = (accountAndMarketBreakdown: AccountAndMarketBreakdown) => {
+const formatAccountAndMarketBreakdown = (accountAndMarketBreakdown: AccountAndMarketBreakdown<false>): AccountAndMarketBreakdown<true> => {
+    const market = formatMarketData(accountAndMarketBreakdown.market);
     return {
-        market: formatMarketData(accountAndMarketBreakdown.market),
+        market,
         account: formatAccountDebtData(accountAndMarketBreakdown.account),
-        position: formatPositionData(accountAndMarketBreakdown.position),
+        position: formatPositionData(accountAndMarketBreakdown.position, market.decimals),
     }
 }
 
-const formatAccountDebtData = (account: AccountDebtData) => {
+const formatAccountDebtData = (account: AccountDebtData<false>): AccountDebtData<true> => {
     return {
-        ...account,
         totalDebt: getBnToNumber(account.totalDebt),
         dbrBalance: getBnToNumber(account.dbrBalance),
         dolaBalance: getBnToNumber(account.dolaBalance),
@@ -274,7 +298,10 @@ const formatAccountDebtData = (account: AccountDebtData) => {
     }
 }
 
-export const inverseViewer = <T extends boolean>(providerOrSigner: Provider | JsonRpcSigner, format: T) => {
+export const inverseViewer = (providerOrSigner: Provider | JsonRpcSigner) => inverseViewerService(providerOrSigner, true);
+export const inverseViewerRaw = (providerOrSigner: Provider | JsonRpcSigner) => inverseViewerService(providerOrSigner, false);
+
+export const inverseViewerService = <T extends boolean>(providerOrSigner: Provider | JsonRpcSigner, format?: T): InverseViewer<T> => {
     const contract = new Contract(VIEWER_CONTRACT_ADDRESS, VIEWER_ABI, providerOrSigner);
     return {
         contract,
@@ -283,19 +310,19 @@ export const inverseViewer = <T extends boolean>(providerOrSigner: Provider | Js
             getMarketAndAccountBreakdown: (market: string, account: string) => contract.getMarketAndAccountBreakdown(market, account).then(data => format ? formatAccountAndMarketBreakdown(data) : data),
             getMarketListAndAccountListBreakdown: (markets: string[], accounts: string[]) => contract.getMarketListAndAccountListBreakdown(markets, accounts).then(data => format ? formatAccountListAndMarketListBreakdown(data) : data),
             getMarketListBreakdownForAccount: (markets: string[], account: string) => contract.getMarketListBreakdownForAccount(markets, account).then(data => format ? formatAccountAndMarketListBreakdown(data) : data),
-            getAccountDebtData: (account: string) => contract.getAccountDebtData(account).then(data => format ? formatAccountDebtData(data) : data),
-            getAccountInvBreakdown: (account: string) => contract.getAccountInvBreakdown(account).then(data => format ? formatAccountInvBreakdown(data) : data),
-            getAccountPosition: (market: string, account: string) => contract.getAccountPosition(market, account).then(data => format ? formatPositionData(data) : data),
-            getMarketData: (market: string): MarketData<T> => contract.getMarketData(market).then(data => format ? formatMarketData(data) : data),
+            getAccountDebtData: (account: string) => contract.getAccountDebtData(account).then(data => format ? formatAccountDebtData(data) : data),            
+            getAccountPosition: (market: string, account: string, decimals?: number) => contract.getAccountPosition(market, account).then(data => format ? formatPositionData(data, decimals) : data),
+            getMarketData: (market: string) => contract.getMarketData(market).then(data => format ? formatMarketData(data) : data),
             getMarketListData: (markets: string[]) => contract.getMarketListData(markets).then(data => format ? data.map(formatMarketData) : data),
             getAccountDbrClaimableRewards: (account: string) => contract.getAccountDbrClaimableRewards(account).then(data => format ? getBnToNumber(data) : data),
             getAccountFirmDelegate: (account: string) => contract.getAccountFirmDelegate(account),
             getAccountFirmStakedInv: (account: string) => contract.getAccountFirmStakedInv(account).then(data => format ? getBnToNumber(data) : data),
             getAccountListDebtData: (accounts: string[]) => contract.getAccountListDebtData(accounts).then(data => format ? data.map(formatAccountDebtData) : data),
-            getAccountPositionsForMarketList: (markets: string[], account: string) => contract.getAccountPositionsForMarketList(markets, account).then(data => format ? data.map(formatPositionData) : data),
+            getAccountPositionsForMarketList: (markets: string[], account: string, decimals?: number[]) => contract.getAccountPositionsForMarketList(markets, account).then(data => format ? data.map((p, index) => formatPositionData(p, decimals[index])) : data),
             getDepletionTimestamp: (account: string) => contract.getDepletionTimestamp(account).then(data => format ? getBnToNumber(data, 0) * 1000 : data),
         },
         inv: {
+            getAccountInvBreakdown: (account: string) => contract.getAccountInvBreakdown(account).then(data => format ? formatAccountInvBreakdown(data) : data),
             getAccountAssetsInSInvV1: (account: string) => contract.getAccountAssetsInSInvV1(account).then(data => format ? getBnToNumber(data) : data),
             getAccountAssetsInSInvV2: (account: string) => contract.getAccountAssetsInSInvV2(account).then(data => format ? getBnToNumber(data) : data),
             getAccountFirmDelegate: (account: string) => contract.getAccountFirmDelegate(account),
@@ -329,187 +356,4 @@ export const inverseViewer = <T extends boolean>(providerOrSigner: Provider | Js
 
 export const getViewerContract = (providerOrSigner: Provider | JsonRpcSigner) => {
     return new Contract(VIEWER_CONTRACT_ADDRESS, VIEWER_ABI, providerOrSigner);
-};
-
-// Implement getter functions
-export const getAccountDebtData = async (providerOrSigner: Provider | JsonRpcSigner, account: string): Promise<AccountDebtData> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getAccountDebtData(account);
-};
-
-export const getAccountInvBreakdown = async (providerOrSigner: Provider | JsonRpcSigner, account: string): Promise<AccountInvBreakdown> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getAccountInvBreakdown(account);
-};
-
-export const getPositionData = async (providerOrSigner: Provider | JsonRpcSigner, market: string, account: string): Promise<PositionData> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getAccountPosition(market, account);
-};
-
-export const getMarketData = async (providerOrSigner: Provider | JsonRpcSigner, market: string): Promise<MarketData> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getMarketData(market);
-};
-
-export const getMarketListData = async (providerOrSigner: Provider | JsonRpcSigner, markets: string[]): Promise<MarketData[]> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getMarketListData(markets);
-};
-
-export const getAccountPosition = async (providerOrSigner: Provider | JsonRpcSigner, market: string, account: string): Promise<PositionData> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getAccountPosition(market, account);
-};
-
-// Add the following new functions:
-
-export const getAccountAssetsInSInvV1 = async (providerOrSigner: Provider | JsonRpcSigner, account: string): Promise<number> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getAccountAssetsInSInvV1(account);
-};
-
-export const getAccountAssetsInSInvV2 = async (providerOrSigner: Provider | JsonRpcSigner, account: string): Promise<number> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getAccountAssetsInSInvV2(account);
-};
-
-export const getAccountDbrClaimableRewards = async (providerOrSigner: Provider | JsonRpcSigner, account: string): Promise<number> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getAccountDbrClaimableRewards(account);
-};
-
-export const getAccountFirmDelegate = async (providerOrSigner: Provider | JsonRpcSigner, account: string): Promise<string> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getAccountFirmDelegate(account);
-};
-
-export const getAccountFirmStakedInv = async (providerOrSigner: Provider | JsonRpcSigner, account: string): Promise<number> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getAccountFirmStakedInv(account);
-};
-
-export const getAccountFrontierStakedInv = async (providerOrSigner: Provider | JsonRpcSigner, account: string): Promise<number> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getAccountFrontierStakedInv(account);
-};
-
-export const getAccountGovBreakdown = async (providerOrSigner: Provider | JsonRpcSigner, account: string): Promise<AccountGovernanceBreakdown> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getAccountGovBreakdown(account);
-};
-
-export const getAccountInvBalancesBreakdown = async (providerOrSigner: Provider | JsonRpcSigner, account: string): Promise<AccountInvBalancesBreakdown> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getAccountInvBalancesBreakdown(account);
-};
-
-export const getAccountInvVotes = async (providerOrSigner: Provider | JsonRpcSigner, account: string): Promise<number> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getAccountInvVotes(account);
-};
-
-export const getAccountListDebtData = async (providerOrSigner: Provider | JsonRpcSigner, accounts: string[]): Promise<AccountDebtData[]> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getAccountListDebtData(accounts);
-};
-
-export const getAccountPositionsForMarketList = async (providerOrSigner: Provider | JsonRpcSigner, markets: string[], account: string): Promise<PositionData[]> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getAccountPositionsForMarketList(markets, account);
-};
-
-export const getMarketAndAccountBreakdown = async (providerOrSigner: Provider | JsonRpcSigner, market: string, account: string): Promise<AccountAndMarketBreakdown> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getMarketAndAccountBreakdown(market, account);
-};
-
-export const getAccountTotalAssetsInSInvs = async (providerOrSigner: Provider | JsonRpcSigner, account: string): Promise<number> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getAccountTotalAssetsInSInvs(account);
-};
-
-export const getAccountTotalInv = async (providerOrSigner: Provider | JsonRpcSigner, account: string): Promise<number> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getAccountTotalInv(account);
-};
-
-export const getAccountTotalStakedInv = async (providerOrSigner: Provider | JsonRpcSigner, account: string): Promise<number> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getAccountTotalStakedInv(account);
-};
-
-export const getAccountTotalVotes = async (providerOrSigner: Provider | JsonRpcSigner, account: string): Promise<number> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getAccountTotalVotes(account);
-};
-
-export const getAccountVotesAtProposalStart = async (providerOrSigner: Provider | JsonRpcSigner, account: string, proposalId: number): Promise<number> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getAccountVotesAtProposalStart(account, proposalId);
-};
-
-export const getAccountXinvVotes = async (providerOrSigner: Provider | JsonRpcSigner, account: string): Promise<number> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getAccountXinvVotes(account);
-};
-
-export const getDbrPrice = async (providerOrSigner: Provider | JsonRpcSigner): Promise<number> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getDbrPrice();
-};
-
-export const getDbrPriceInDola = async (providerOrSigner: Provider | JsonRpcSigner): Promise<number> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getDbrPriceInDola();
-};
-
-export const getDbrPriceInInv = async (providerOrSigner: Provider | JsonRpcSigner): Promise<number> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getDbrPriceInInv();
-};
-
-export const getDepletionTimestamp = async (providerOrSigner: Provider | JsonRpcSigner, account: string): Promise<number> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getDepletionTimestamp(account);
-};
-
-export const getDolaPrice = async (providerOrSigner: Provider | JsonRpcSigner): Promise<number> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getDolaPrice();
-};
-
-export const getInvOraclePrice = async (providerOrSigner: Provider | JsonRpcSigner): Promise<number> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getInvOraclePrice();
-};
-
-export const getInvPrice = async (providerOrSigner: Provider | JsonRpcSigner): Promise<number> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getInvPrice();
-};
-
-export const getInverseTokensPrices = async (providerOrSigner: Provider | JsonRpcSigner): Promise<PriceData> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getInverseTokensPrices();
-};
-
-export const getTotalSInvAssets = async (providerOrSigner: Provider | JsonRpcSigner): Promise<number> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getTotalSInvAssets();
-};
-
-export const getTotalSInvSupply = async (providerOrSigner: Provider | JsonRpcSigner): Promise<number> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getTotalSInvSupply();
-};
-
-export const getTotalInvStaked = async (providerOrSigner: Provider | JsonRpcSigner): Promise<number> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.getTotalInvStaked();
-};
-
-export const xinvExchangeRate = async (providerOrSigner: Provider | JsonRpcSigner): Promise<number> => {
-    const contract = getViewerContract(providerOrSigner);
-    return contract.xinvExchangeRate();
 };
