@@ -399,7 +399,7 @@ const chainTokens = {
     },
     [chainTokenAddresses["1"].cbBTC]: {
       address: chainTokenAddresses["1"].cbBTC,
-      name: 'Coinbase Bitcoin',
+      name: 'Coinbase Wrapped Bitcoin',
       symbol: 'cbBTC',
       coingeckoId: 'coinbase-wrapped-btc',
       image: TOKEN_IMAGES.cbBTC,
