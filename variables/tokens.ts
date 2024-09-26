@@ -39,6 +39,7 @@ const chainTokenAddresses = {
     YFI: '0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e',
     XSUSHI: '0x8798249c2E607446EfB7Ad49eC89dD1865Ff4272',
     WBTC: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
+    cbBTC: '0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf',
     STETH: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
     WSTETH: '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0',
     INVDOLASLP: '0x5BA61c0a8c4DccCc200cd0ccC40a5725a426d002',
@@ -394,6 +395,14 @@ const chainTokens = {
       symbol: 'WBTC',
       coingeckoId: 'wrapped-bitcoin',
       image: TOKEN_IMAGES.WBTC,
+      decimals: 8,
+    },
+    [chainTokenAddresses["1"].cbBTC]: {
+      address: chainTokenAddresses["1"].cbBTC,
+      name: 'Coinbase Wrapped Bitcoin',
+      symbol: 'cbBTC',
+      coingeckoId: 'coinbase-wrapped-btc',
+      image: TOKEN_IMAGES.cbBTC,
       decimals: 8,
     },
     [chainTokenAddresses["1"].STETH]: {

@@ -75,6 +75,7 @@ export const TOKEN_IMAGES = {
     "YFI": "https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png",
     "xSUSHI": "https://assets.coingecko.com/coins/images/13725/small/xsushi.png",
     "WBTC": "https://assets.coingecko.com/coins/images/7598/small/wrapped_bitcoin_wbtc.png",
+    "cbBTC": "https://assets.coingecko.com/coins/images/40143/standard/cbbtc.webp?1726136727",
     "stETH": "https://assets.coingecko.com/coins/images/13442/small/steth_logo.png",
     "gOHM": "https://assets.coingecko.com/coins/images/21129/small/token_wsOHM_logo.png?1638764900",
     "BB-EULER-USD": "https://raw.githubusercontent.com/balancer-labs/assets/master/assets/0x50cf90b954958480b8df7958a9e965752f627124.png",

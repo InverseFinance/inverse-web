@@ -133,6 +133,12 @@ export const MARKET_INFOS = {
         description: 'The Yearn Vault for the Curve crvUSD-DOLA LP, the yearn vault auto-compounds the CVX+CRV yield of the crvUSD-DOLA LP into more vault tokens',
         getLink: 'https://yearn.fi/vaults/1/0xfb5137Aa9e079DB4b7C2929229caf503d0f6DA96',
     },
+    'cbBTC': {
+        name: 'cbBTC',
+        fullname: 'Coinbase Wrapped Bitcoin',
+        description: "Coinbase Wrapped BTC is a token backed 1:1 by native Bitcoin held by Coinbase. It is a transferable token that is redeemable for the underlying BTC and is built to be seamlessly compatible with DeFi applications.",
+        getLink: 'https://swap.defillama.com/?chain=ethereum&from=0x865377367054516e17014ccded1e7d814edc9ce4&to=0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf',
+    },
 }
 
 const ColHeader = ({ ...props }) => {
