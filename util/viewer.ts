@@ -112,6 +112,11 @@ type PriceData<T extends boolean> = {
     invPrice: BigNumberOrNumber<T>;
 }
 
+type InvDbrAprsData<T extends boolean> = {
+    invApr: BigNumberOrNumber<T>;
+    dbrApr: BigNumberOrNumber<T>;
+}
+
 type InverseViewer<T extends boolean> = {
     contract: Contract,
     firm: {
@@ -119,47 +124,51 @@ type InverseViewer<T extends boolean> = {
         getAccountPosition: (market: string, account: string) => Promise<PositionData<T>>,
         getMarketData: (market: string) => Promise<MarketData<T>>,
         getMarketListData: (markets: string[]) => Promise<MarketData<T>[]>,
-        getAccountDbrClaimableRewards: (account: string) => Promise<number>,
+        getAccountDbrClaimableRewards: (account: string) => Promise<BigNumberOrNumber<T>>,
         getAccountFirmDelegate: (account: string) => Promise<string>,
-        getAccountFirmStakedInv: (account: string) => Promise<number>,
+        getAccountFirmStakedInv: (account: string) => Promise<BigNumberOrNumber<T>>,
         getAccountListDebtData: (accounts: string[]) => Promise<AccountDebtData<T>[]>,
         getAccountPositionsForMarketList: (markets: string[], account: string) => Promise<PositionData<T>[]>,
-        getDepletionTimestamp: (account: string) => Promise<number>,
+        getDepletionTimestamp: (account: string) => Promise<BigNumberOrNumber<T>>,
         getMarketAndAccountBreakdown: (market: string, account: string) => Promise<AccountAndMarketBreakdown<T>>,
         getMarketBreakdownForAccountList: (market: string, accounts: string[]) => Promise<AccountListAndMarketBreakdown<T>>,
         getMarketListAndAccountListBreakdown: (markets: string[], accounts: string[]) => Promise<AccountListAndMarketListBreakdown<T>>,
         getMarketListBreakdownForAccount: (markets: string[], account: string) => Promise<AccountAndMarketListBreakdown<T>>,
+        getInvApr: () => Promise<BigNumberOrNumber<T>>,
+        getDbrApr: () => Promise<BigNumberOrNumber<T>>,
+        getInvDbrAprs: () => Promise<InvDbrAprsData<T>>,
     },
-    inv: {
-        getAccountAssetsInSInvV1: (account: string) => Promise<number>,
-        getAccountAssetsInSInvV2: (account: string) => Promise<number>,
+    tokens: {
+        getAccountAssetsInSInvV1: (account: string) => Promise<BigNumberOrNumber<T>>,
+        getAccountAssetsInSInvV2: (account: string) => Promise<BigNumberOrNumber<T>>,
         getAccountFirmDelegate: (account: string) => Promise<string>,
-        getAccountFirmStakedInv: (account: string) => Promise<number>,
-        getAccountFrontierStakedInv: (account: string) => Promise<number>,
+        getAccountFirmStakedInv: (account: string) => Promise<BigNumberOrNumber<T>>,
+        getAccountFrontierStakedInv: (account: string) => Promise<BigNumberOrNumber<T>>,
         getAccountInvBreakdown: (account: string) => Promise<AccountInvBreakdown<T>>,
         getAccountGovBreakdown: (account: string) => Promise<AccountGovernanceBreakdown<T>>,
         getAccountInvBalancesBreakdown: (account: string) => Promise<AccountInvBalancesBreakdown<T>>,
-        getAccountInvVotes: (account: string) => Promise<number>,
-        getAccountTotalAssetsInSInvs: (account: string) => Promise<number>,
-        getAccountTotalInv: (account: string) => Promise<number>,
-        getAccountTotalStakedInv: (account: string) => Promise<number>,
-        getAccountTotalVotes: (account: string) => Promise<number>,
-        getAccountVotesAtProposalStart: (account: string, proposalId: number) => Promise<number>,
-        getAccountXinvVotes: (account: string) => Promise<number>,
-        getTotalInvStaked: (account: string) => Promise<number>,
-        getTotalSInvAssets: (account: string) => Promise<number>,
-        getTotalSInvSupply: (account: string) => Promise<number>,
-        xinvExchangeRate: () => Promise<number>,
-    },
-    prices: {
-        getDbrPrice: () => Promise<number>,
-        getDbrPriceInDola: () => Promise<number>,
-        getDbrPriceInInv: () => Promise<number>,
-        getDolaPrice: () => Promise<number>,
-        getInvOraclePrice: () => Promise<number>,
-        getInvPrice: () => Promise<number>,
+        getAccountInvVotes: (account: string) => Promise<BigNumberOrNumber<T>>,
+        getAccountTotalAssetsInSInvs: (account: string) => Promise<BigNumberOrNumber<T>>,
+        getAccountTotalInv: (account: string) => Promise<BigNumberOrNumber<T>>,
+        getAccountTotalStakedInv: (account: string) => Promise<BigNumberOrNumber<T>>,
+        getAccountTotalVotes: (account: string) => Promise<BigNumberOrNumber<T>>,
+        getAccountVotesAtProposalStart: (account: string, proposalId: number) => Promise<BigNumberOrNumber<T>>,
+        getAccountXinvVotes: (account: string) => Promise<BigNumberOrNumber<T>>,
+        getTotalInvStaked: (account: string) => Promise<BigNumberOrNumber<T>>,
+        getTotalSInvAssets: (account: string) => Promise<BigNumberOrNumber<T>>,
+        getTotalSInvSupply: (account: string) => Promise<BigNumberOrNumber<T>>,
+        xinvExchangeRate: () => Promise<BigNumberOrNumber<T>>,
+        getDbrPrice: () => Promise<BigNumberOrNumber<T>>,
+        getDbrPriceInDola: () => Promise<BigNumberOrNumber<T>>,
+        getDbrPriceInInv: () => Promise<BigNumberOrNumber<T>>,
+        getDolaPrice: () => Promise<BigNumberOrNumber<T>>,
+        getInvOraclePrice: () => Promise<BigNumberOrNumber<T>>,
+        getInvPrice: () => Promise<BigNumberOrNumber<T>>,
         getInverseTokensPrices: () => Promise<PriceData<T>>,
-    }
+        getInvApr: () => Promise<BigNumberOrNumber<T>>,
+        getDbrApr: () => Promise<BigNumberOrNumber<T>>,
+        getInvDbrAprs: () => Promise<InvDbrAprsData<T>>,
+    },
 }
 
 const formatBps = (value: BigNumber) => {
@@ -298,6 +307,13 @@ const formatAccountDebtData = (account: AccountDebtData<false>): AccountDebtData
     }
 }
 
+const formatInvDbrAprsData = (invDbrAprs: InvDbrAprsData<false>): InvDbrAprsData<true> => {
+    return {
+        invApr: getBnToNumber(invDbrAprs.invApr),
+        dbrApr: getBnToNumber(invDbrAprs.dbrApr),
+    }
+}
+
 export const inverseViewer = (providerOrSigner: Provider | JsonRpcSigner) => inverseViewerService(providerOrSigner, true);
 export const inverseViewerRaw = (providerOrSigner: Provider | JsonRpcSigner) => inverseViewerService(providerOrSigner, false);
 
@@ -320,8 +336,11 @@ export const inverseViewerService = <T extends boolean>(providerOrSigner: Provid
             getAccountListDebtData: (accounts: string[]) => contract.getAccountListDebtData(accounts).then(data => format ? data.map(formatAccountDebtData) : data),
             getAccountPositionsForMarketList: (markets: string[], account: string, decimals?: number[]) => contract.getAccountPositionsForMarketList(markets, account).then(data => format ? data.map((p, index) => formatPositionData(p, decimals[index])) : data),
             getDepletionTimestamp: (account: string) => contract.getDepletionTimestamp(account).then(data => format ? getBnToNumber(data, 0) * 1000 : data),
+            getInvApr: () => contract.getInvApr().then(data => format ? getBnToNumber(data) : data),
+            getDbrApr: () => contract.getDbrApr().then(data => format ? getBnToNumber(data) : data),
+            getInvDbrAprs: () => contract.getInvDbrAprs().then(data => format ? formatInvDbrAprsData(data) : data),
         },
-        inv: {
+        tokens: {
             getAccountInvBreakdown: (account: string) => contract.getAccountInvBreakdown(account).then(data => format ? formatAccountInvBreakdown(data) : data),
             getAccountAssetsInSInvV1: (account: string) => contract.getAccountAssetsInSInvV1(account).then(data => format ? getBnToNumber(data) : data),
             getAccountAssetsInSInvV2: (account: string) => contract.getAccountAssetsInSInvV2(account).then(data => format ? getBnToNumber(data) : data),
@@ -341,8 +360,6 @@ export const inverseViewerService = <T extends boolean>(providerOrSigner: Provid
             getTotalSInvAssets: (account: string) => contract.getTotalSInvAssets(account).then(data => format ? getBnToNumber(data) : data),
             getTotalSInvSupply: (account: string) => contract.getTotalSInvSupply(account).then(data => format ? getBnToNumber(data) : data),
             xinvExchangeRate: () => contract.xinvExchangeRate().then(data => format ? getBnToNumber(data) : data),
-        },
-        prices: {
             getDbrPrice: () => contract.getDbrPrice().then(data => format ? getBnToNumber(data) : data),
             getDbrPriceInDola: () => contract.getDbrPriceInDola().then(data => format ? getBnToNumber(data) : data),
             getDbrPriceInInv: () => contract.getDbrPriceInInv().then(data => format ? getBnToNumber(data) : data),
@@ -350,7 +367,10 @@ export const inverseViewerService = <T extends boolean>(providerOrSigner: Provid
             getInvOraclePrice: () => contract.getInvOraclePrice().then(data => format ? getBnToNumber(data) : data),
             getInvPrice: () => contract.getInvPrice().then(data => format ? getBnToNumber(data) : data),
             getInverseTokensPrices: () => contract.getInverseTokensPrices().then(data => format ? formatPricesData(data) : data),
-        }
+            getInvApr: () => contract.getInvApr().then(data => format ? getBnToNumber(data) : data),
+            getDbrApr: () => contract.getDbrApr().then(data => format ? getBnToNumber(data) : data),
+            getInvDbrAprs: () => contract.getInvDbrAprs().then(data => format ? formatInvDbrAprsData(data) : data),
+        },
     };
 };
 
