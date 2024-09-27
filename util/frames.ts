@@ -1,22 +1,12 @@
-import { getCacheFromRedisAsObj, redisSetWithTimestamp } from "@app/util/redis";
+export const FRAME_BASE_URL = process.env.VERCEL_ENV === 'production' ? 'https://inverse.finance' : !process.env.VERCEL_URL ? 'http://localhost:3000' : `https://${process.env.VERCEL_URL}`;
 
-export const setFrameCheckAction = async (frameId, step, value, fid) => {
-    const key = `frames:${frameId}-${step}-fid${fid}`;
-    const { data } = (await getCacheFromRedisAsObj(key)) || {};
-    if (!!data) {
-        return { alreadyUsed: true };
-    } else {
-        await redisSetWithTimestamp(key, { value });
-    }
-}
-
-export const getErrorFrame = (url: string) => {
+export const getErrorFrame = (url: string, imageUrl = 'api/frames/images/invalid-data') => {
     return `<!DOCTYPE html><html><head>
     <title>Invalid request</title>
     <meta property="og:title" content="Invalid request:" />
     <meta property="fc:frame" content="vNext" />
-    <meta property="fc:frame:image" content="https://inverse.finance/assets/inverse-logo-banner.png" />
-    <meta property="og:image" content="https://inverse.finance/assets/inverse-logo-banner.png" />    
+    <meta property="fc:frame:image" content="${FRAME_BASE_URL}/${imageUrl}" />
+    <meta property="og:image" content="${FRAME_BASE_URL}/${imageUrl}" />    
     <meta property="fc:frame:button:1" content="Go back" />
     <meta property="fc:frame:post_url" content="${url}" />
   </head>
@@ -24,4 +14,34 @@ export const getErrorFrame = (url: string) => {
     <p>Invalid request</p>
   </body>
   </html>`
+}
+
+export const getRetryFrame = (url: string, imageUrl = 'api/frames/images/invalid-data') => {
+  return `<!DOCTYPE html><html><head>
+  <title>Invalid request</title>
+  <meta property="og:title" content="Invalid request:" />
+  <meta property="fc:frame" content="vNext" />
+  <meta property="fc:frame:image" content="${FRAME_BASE_URL}/${imageUrl}" />
+  <meta property="og:image" content="${FRAME_BASE_URL}/${imageUrl}" />    
+  <meta property="fc:frame:button:1" content="Retry" />
+  <meta property="fc:frame:post_url" content="${url}" />
+</head>
+<body>
+  <p>Invalid request</p>
+</body>
+</html>`
+}
+
+export const getSuccessFrame = (imageUrl = 'api/frames/images/invalid-data') => {
+  return `<!DOCTYPE html><html><head>
+  <title>Success</title>
+  <meta property="og:title" content="Success" />
+  <meta property="fc:frame" content="vNext" />
+  <meta property="fc:frame:image" content="${FRAME_BASE_URL}/${imageUrl}" />
+  <meta property="og:image" content="${FRAME_BASE_URL}/${imageUrl}" />    
+</head>
+<body>
+  <p>Success</p>
+</body>
+</html>`
 }
