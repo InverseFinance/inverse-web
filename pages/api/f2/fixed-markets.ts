@@ -6,12 +6,14 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { TOKENS } from '@app/variables/tokens'
 import { getBnToNumber, getCrvUSDDOLAConvexData, getCvxCrvAPRs, getCvxFxsAPRs, getDSRData, getSFraxData, getSUSDEData, getStCvxData, getStYcrvData, getStYethData, getStethData, getYvCrvUsdDOLAData } from '@app/util/markets'
-import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_MS, ONE_DAY_SECS } from '@app/config/constants';
+import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_MS, ONE_DAY_SECS, VIEWER_CONTRACT_ADDRESS } from '@app/config/constants';
 import { frontierMarketsCacheKey } from '../markets';
 import { cgPricesCacheKey } from '../prices';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { FEATURE_FLAGS } from '@app/config/features';
 import { getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
+import { getAccountDebtData, getAccountPosition, getMarketData, getMarketListData, getViewerContract, inverseViewer, inverseViewerRaw, inverseViewerService } from '@app/util/viewer';
+import { VIEWER_ABI } from '@app/config/viewer-abi';
 
 const { F2_MARKETS, DOLA, XINV, DBR_DISTRIBUTOR, FEDS } = getNetworkConfigConstants();
 
@@ -25,7 +27,26 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', `OPTIONS,POST,GET`);
 
   const { cacheFirst } = req.query;
-  try {    
+  try {
+    const locProvider = getProvider('31337');
+    const ifv = inverseViewer(locProvider);
+    const viewerContract = new Contract(VIEWER_CONTRACT_ADDRESS, VIEWER_ABI, locProvider);
+    // const temp = await ifv.firm.getMarketData('0x3FD3daBB9F9480621C8A111603D3Ba70F17550BC');    
+    const temp = await ifv.firm.getInvDbrAprs();    
+    // temp.borrowCeiling
+    // const temp = await ifv.contract.getMarketData('0x34A7a276eD77c6FE866c75Bbc8d79127c4E14a09');    
+    // const temp = await viewerContract.getMarketData('0x34A7a276eD77c6FE866c75Bbc8d79127c4E14a09');    
+    // const temp = await viewerContract.getAccountPosition('0x3FD3daBB9F9480621C8A111603D3Ba70F17550BC', '0x34A7a276eD77c6FE866c75Bbc8d79127c4E14a09');
+    // const temp = await ifv.firm.getMarketListAndAccountListBreakdown(['0x3FD3daBB9F9480621C8A111603D3Ba70F17550BC', '0xb516247596Ca36bf32876199FBdCaD6B3322330B','0x63Df5e23Db45a2066508318f172bA45B9CD37035'], ['0x34A7a276eD77c6FE866c75Bbc8d79127c4E14a09','0x6535020cCeB810Bdb3F3cA5e93dE2460FF7989BB']);
+    // const temp = await getAccountDebtData(locProvider, '0x34A7a276eD77c6FE866c75Bbc8d79127c4E14a09');
+    // const temp = await viewerContract.getAccountInvBreakdown('0x34A7a276eD77c6FE866c75Bbc8d79127c4E14a09');
+    // const temp = await getAccountPosition(locProvider, '0xb516247596Ca36bf32876199FBdCaD6B3322330B', '0x9c3F0A86967010E451F139D81A4df5e3aA0a743C');
+    console.log(temp);
+    // console.log(temp.dolaBalance);
+    // console.log(Object.keys(temp));
+
+    return res.status(200).json({ temp });
+
     const { data: cachedData, isValid } = await getCacheFromRedisAsObj(F2_MARKETS_CACHE_KEY, cacheFirst !== 'true', cacheDuration);
     if (cachedData && isValid) {
       res.status(200).json(cachedData);
