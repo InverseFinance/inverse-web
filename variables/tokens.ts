@@ -256,6 +256,8 @@ const chainTokenAddresses = {
     USDPLUS: '0xB79DD08EA68A908A97220C76d19A6aA9cBDE4376',
     AERODOLAUSDPLUS: '0x8E9154AC849e839d60299E85156bcb589De2693A',    
     AERODOLAUSDCLP: '0xf213F2D02837012dC0236cC105061e121bB03e37',
+    zunUSD: '0xD5B9dDB04f20eA773C9b56607250149B26049B1F',
+    DOLAZUNUSDLP: '0x557c843afA9D8214534A2101D7B1200F1b0F6f6a',
     // native usdc
     USDC: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
     PAL: '0x224114c444e3C3d936532fE08351648700570909',
@@ -2484,6 +2486,14 @@ const chainTokens = {
       decimals: 18,
       coingeckoId: 'electronic-usd',
     },
+     [chainTokenAddresses["8453"].zunUSD]: {
+      address: chainTokenAddresses["8453"].zunUSD,
+      name: 'zunUSD',
+      symbol: 'zunUSD',
+      image: TOKEN_IMAGES['zunUSD'],
+      decimals: 18,
+      coingeckoId: 'zunami-usd',
+    },
     [chainTokenAddresses["8453"].VEAERO]: {
       address: chainTokenAddresses["8453"].VEAERO,
       name: 'veAERO',
@@ -2518,6 +2528,20 @@ const chainTokens = {
       isStable: true,
       pairs: [
         chainTokenAddresses["8453"].DOLA, chainTokenAddresses["8453"].USDC
+      ],
+      protocolImage: PROTOCOL_IMAGES.AERO,
+    },
+    [chainTokenAddresses["8453"].DOLAZUNUSDLP]: {
+      address: chainTokenAddresses["8453"].DOLAZUNUSDLP,
+      name: 'DOLA-zunUSD',
+      symbol: 'DOLA-zunUSD aerolp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,      
+      isVeloLP: true,
+      isStable: true,
+      pairs: [
+        chainTokenAddresses["8453"].DOLA, chainTokenAddresses["8453"].zunUSD
       ],
       protocolImage: PROTOCOL_IMAGES.AERO,
     },
