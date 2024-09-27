@@ -28,7 +28,7 @@ const projectImages = {
 const projectCollaterals = {
     'Frax': ['WETH', 'WBTC', 'sfrxETH', 'FXS', 'CVX', 'CRV', 'wstETH', 'sFRAX', 'sUSDe'],
     'Curve': ['WETH', 'WBTC', 'wstETH'],
-    'Aave-V3': ['WETH', 'WBTC', 'CRV', 'wstETH'],
+    'Aave-V3': ['WETH', 'WBTC', 'CRV', 'wstETH', 'cbBTC'],
     'Compound': ['WETH', 'WBTC', 'COMP', 'LINK', 'UNI'],
     'Spark': ['WETH', 'WBTC', 'wstETH', 'rETH'],
     'FiRM': [],
