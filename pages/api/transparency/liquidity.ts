@@ -13,7 +13,7 @@ import { pricesCacheKey } from '../prices';
 import { PROTOCOLS_BY_IMG, PROTOCOL_DEFILLAMA_MAPPING } from '@app/variables/images';
 import { NETWORKS_BY_CHAIN_ID } from '@app/config/networks';
 
-export const liquidityCacheKey = `liquidity-v1.2.0`;
+export const liquidityCacheKey = `liquidity-v1.2.1`;
 
 export default async function handler(req, res) {
     const { cacheFirst } = req.query;
