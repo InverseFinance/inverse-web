@@ -32,6 +32,7 @@ import { useMultisig } from '@app/hooks/useSafeMultisig'
 import { InfoMessage } from '@app/components/common/Messages'
 import { TOKEN_IMAGES } from '@app/variables/images'
 import { LPImages } from '@app/components/common/Assets/LPImg'
+import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 
 const { DOLA, F2_HELPER, F2_ALE } = getNetworkConfigConstants();
 
@@ -608,7 +609,8 @@ export const F2CombinedForm = ({
                     {
                         canShowLeverage && <VStack display={useLeverage ? 'inline-block' : 'none'}>
                             {
-                                canActivateLeverage ? <FirmBoostInfos
+                                canActivateLeverage ? <ErrorBoundary description="Something went wrong in the leverage interface. Please try again later.">
+                                    <FirmBoostInfos
                                     type={isDeposit ? 'up' : 'down'}
                                     triggerCollateralAndOrLeverageChange={triggerCollateralAndOrLeverageChange}
                                     onLeverageChange={({
@@ -622,7 +624,8 @@ export const F2CombinedForm = ({
                                             setLeverageDebtAmount(Math.abs(dolaAmount).toFixed(2));
                                         }
                                     }}
-                                /> : <InfoMessage
+                                />
+                                </ErrorBoundary> : <InfoMessage
                                     alertProps={{ w: 'full' }}
                                     description="Please fill in the deposit field to use leverage."
                                 />

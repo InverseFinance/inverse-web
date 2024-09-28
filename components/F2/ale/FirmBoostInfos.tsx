@@ -241,6 +241,22 @@ export const FirmBoostInfos = ({
 
     const isLeverageUp = type === 'up';
 
+    const baseColAmountForLeverage = deposits > 0 ? deposits + collateralAmountNum : collateralAmountNum;
+    const leverageSteps = useMemo(() => getSteps(market, baseColAmountForLeverage, debt, perc, type, 1, aleSlippage, []), [market, baseColAmountForLeverage, debt, perc, type, undefined, aleSlippage]);
+    // when deleveraging we want the max to be higher what's required to repay all debt, the extra dola is sent to the wallet
+    const maxLeverage = isLeverageUp ? roundDown(leverageSteps[leverageSteps.length - 1]) : roundUp(leverageSteps[leverageSteps.length - 1]);
+    const leverageRelativeToMax = leverageLevel / maxLeverage;
+
+    const risk = useMemo(() => {
+        return leverageRelativeToMax <= 0.5 ?
+        riskLevels.low : leverageRelativeToMax <= 0.60 ?
+            riskLevels.lowMid : leverageRelativeToMax <= 0.70 ?
+                riskLevels.mid : leverageRelativeToMax <= 0.80 ?
+                    riskLevels.midHigh : riskLevels.high
+    }, [leverageRelativeToMax]);
+
+    const boostLabel = isLeverageUp ? 'Leverage' : 'Deleverage';
+
     useDebouncedEffect(() => {
         setDebounced(!!editLeverageLevel && (!editLeverageLevel.endsWith('.') || editLeverageLevel === '.') && !isNaN(parseFloat(editLeverageLevel)));
     }, [editLeverageLevel], 500);
@@ -252,6 +268,35 @@ export const FirmBoostInfos = ({
     useEffect(() => {
         setEditLeverageLevel(leverageLevel.toFixed(2));
     }, [leverageLevel])
+
+    const isInvalidLeverage = (input: number, isLeverageUp: boolean) => {
+        return !input || isNaN(input) || input < minLeverage || (isLeverageUp && input > maxLeverage);
+    }
+
+    const validatePendingLeverage = (v: string, isLeverageUp: boolean) => {
+        const input = parseFloat(v);
+        if (isInvalidLeverage(input, isLeverageUp)) {
+            return;
+        }
+        handleLeverageChange(input);
+    }
+
+    const editLeverageIsInvalid = isInvalidLeverage(parseFloat(editLeverageLevel), isLeverageUp);
+    const knownFixedAmount = isLeverageUp ? debtAmountNum : collateralAmountNum;
+    const aleSlippageFactor = (1 - parseFloat(aleSlippage) / 100);
+    const estimatedAmount = leverageLevel > 1 ? parseFloat(isLeverageUp ? leverageCollateralAmount : leverageDebtAmount) : 0;
+    const minAmount = aleSlippage ? aleSlippageFactor * estimatedAmount : 0;
+    // when leveraging down min amount (or debt) is always the amount repaid, the slippage impacts amount of dola received in wallet
+    const amountOfDebtReduced = !isLeverageUp ? Math.min(minAmount, debt) : 0;
+    const extraDolaReceivedInWallet = isLeverageUp ? 0 : estimatedAmount - amountOfDebtReduced;
+
+    useEffect(() => {
+        setLeverageMinAmountUp(minAmount);
+    }, [minAmount]);
+
+    useEffect(() => {
+        setLeverageMinDebtReduced(amountOfDebtReduced);
+    }, [amountOfDebtReduced]);
 
     if (!market?.underlying) {
         return <></>
@@ -329,54 +374,11 @@ export const FirmBoostInfos = ({
         })
     }
 
-    const isInvalidLeverage = (input: number, isLeverageUp: boolean) => {
-        return !input || isNaN(input) || input < minLeverage || (isLeverageUp && input > maxLeverage);
-    }
-
-    const validatePendingLeverage = (v: string, isLeverageUp: boolean) => {
-        const input = parseFloat(v);
-        if (isInvalidLeverage(input, isLeverageUp)) {
-            return;
-        }
-        handleLeverageChange(input);
-    }
-
-    const baseColAmountForLeverage = deposits > 0 ? deposits + collateralAmountNum : collateralAmountNum;
-    const leverageSteps = useMemo(() => getSteps(market, baseColAmountForLeverage, debt, perc, type, 1, aleSlippage, []), [market, baseColAmountForLeverage, debt, perc, type, undefined, aleSlippage]);
-    // when deleveraging we want the max to be higher what's required to repay all debt, the extra dola is sent to the wallet
-    const maxLeverage = isLeverageUp ? roundDown(leverageSteps[leverageSteps.length - 1]) : roundUp(leverageSteps[leverageSteps.length - 1]);
-    const leverageRelativeToMax = leverageLevel / maxLeverage;
-
-    const risk = leverageRelativeToMax <= 0.5 ?
-        riskLevels.low : leverageRelativeToMax <= 0.60 ?
-            riskLevels.lowMid : leverageRelativeToMax <= 0.70 ?
-                riskLevels.mid : leverageRelativeToMax <= 0.80 ?
-                    riskLevels.midHigh : riskLevels.high;
-
-    const boostLabel = isLeverageUp ? 'Leverage' : 'Deleverage';
-
     if (!isInvPrimeMember && INV_STAKERS_ONLY.firmLeverage) {
         return <InvPrime showLinks={false} />
     } else if (isLeverageUp && market.leftToBorrow < 1) {
         return <InfoMessage alertProps={{ w: 'full' }} description="Cannot use leverage when there is no DOLA liquidity" />
     }
-
-    const editLeverageIsInvalid = isInvalidLeverage(parseFloat(editLeverageLevel), isLeverageUp);
-    const knownFixedAmount = isLeverageUp ? debtAmountNum : collateralAmountNum;
-    const aleSlippageFactor = (1 - parseFloat(aleSlippage) / 100);
-    const estimatedAmount = leverageLevel > 1 ? parseFloat(isLeverageUp ? leverageCollateralAmount : leverageDebtAmount) : 0;
-    const minAmount = aleSlippage ? aleSlippageFactor * estimatedAmount : 0;
-    // when leveraging down min amount (or debt) is always the amount repaid, the slippage impacts amount of dola received in wallet
-    const amountOfDebtReduced = !isLeverageUp ? Math.min(minAmount, debt) : 0;
-    const extraDolaReceivedInWallet = isLeverageUp ? 0 : estimatedAmount - amountOfDebtReduced;
-
-    useEffect(() => {
-        setLeverageMinAmountUp(minAmount);
-    }, [minAmount]);
-
-    useEffect(() => {
-        setLeverageMinDebtReduced(amountOfDebtReduced);
-    }, [amountOfDebtReduced]);
 
     return <Stack borderRadius='5px' p='4' bgColor="infoAlpha" fontSize="14px" spacing="4" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
         <VStack position="relative" w='full' alignItems="center" justify="center">            
