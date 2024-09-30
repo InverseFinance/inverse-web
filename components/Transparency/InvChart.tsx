@@ -2,7 +2,7 @@ import { useHistoricalInvMarketCap } from "@app/hooks/useHistoricalMarketCap";
 import { useHistoInvPrices } from "@app/hooks/usePrices";
 import { getClosestPreviousHistoValue, timestampToUTC } from "@app/util/misc";
 import { DefaultCharts } from "./DefaultCharts";
-import { useMediaQuery, VStack } from "@chakra-ui/react";
+import { useMediaQuery, VStack, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useContractEvents } from "@app/hooks/useContractEvents";
 import { getNetworkConfigConstants } from "@app/util/networks";
@@ -72,7 +72,12 @@ export const InvChart = () => {
                 />
                 <InfoMessage
                     alertProps={{ w: 'full' }}
-                    description="Note: this chart aims to show a more accurate pricing for INV by adjusting the market price to the circulating supply / initial supply ratio with the initial supply being 100,000 INV."
+                    description={
+                        <VStack w='full' align='flex-start'>
+                            <Text>Note: the adjusted price aims to have a more relevant $INV pricing for INV stakers by taking into account the circulating supply variations.</Text>
+                            <Text>The adjusted price at a given time is calculated as: <b>Price(t) * Circulating Supply(t) / Initial Supply</b>, with the initial supply being 100,000 INV.</Text>
+                        </VStack>
+                    }
                 />
             </VStack>
         </Container>
