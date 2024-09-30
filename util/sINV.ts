@@ -249,7 +249,7 @@ export const useInvStakingActivity = (from?: string, type = 'sinv'): SWR & {
     timestamp: number,
 } => {
     const liveEvents = useInvStakingEvents();
-    const { data, error } = useCustomSWR(`/api/inv-staking/activity`, fetcher);
+    const { data, error } = useCustomSWR(`/api/inv-staking/activity`, fetcher);   
 
     const events = (liveEvents?.length > data?.events?.length ? liveEvents : data?.events || [])
         .filter(e => e.type === type)
@@ -284,19 +284,31 @@ export const useInvStakingEvolution = (): SWR & {
     }
 }
 
-export const useInvStakingEvents = (version = 'V2') => {   
-    const { events: depositEventsData } = useContractEvents(
-        VERSIONED_ADDRESSES[version].sinv,
+export const useInvStakingEvents = () => {   
+    const { events: depositEventsDataV1 } = useContractEvents(
+        VERSIONED_ADDRESSES["V1"].sinv,
         SINV_ABI,
         'Deposit',
     );
-    const { events: withdrawEventsData } = useContractEvents(
-        VERSIONED_ADDRESSES[version].sinv,
+    const { events: withdrawEventsDataV1 } = useContractEvents(
+        VERSIONED_ADDRESSES["V1"].sinv,
         SINV_ABI,
         'Withdraw',
     );
-    const eventsData = depositEventsData
-        .concat(withdrawEventsData);
+    const { events: depositEventsDataV2 } = useContractEvents(
+        VERSIONED_ADDRESSES["V2"].sinv,
+        SINV_ABI,
+        'Deposit',
+    );
+    const { events: withdrawEventsDataV2 } = useContractEvents(
+        VERSIONED_ADDRESSES["V2"].sinv,
+        SINV_ABI,
+        'Withdraw',
+    );
+    const eventsData = depositEventsDataV1
+        .concat(withdrawEventsDataV1)
+        .concat(depositEventsDataV2)
+        .concat(withdrawEventsDataV2);
     const sortedEvents = eventsData.sort(ascendingEventsSorter);
     const uniqueBlocks = [...new Set(sortedEvents.map(e => e.blockNumber))];
     const { timestamps } = useBlocksTimestamps(uniqueBlocks);
