@@ -56,7 +56,7 @@ export const SinvPage = () => {
             <InfoMessage
               alertProps={{ w: 'full' }}
               description={
-                <SimpleGrid columns={{ base: 1, md: 2 }}>
+                <SimpleGrid fontSize="18px" columns={{ base: 1, md: 2 }}>
                   <Text>- Auto-compounding staking rewards, no need to claim manually</Text>
                   <Text>- Reduced gas costs</Text>
                   <Text>- Yield-bearing fungible token</Text>
