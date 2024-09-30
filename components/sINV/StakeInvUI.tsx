@@ -18,7 +18,7 @@ import { useAccount } from "@app/hooks/misc";
 import { useDbrAuctionActivity } from "@app/util/dbr-auction";
 import { StakeInvInfos } from "./StakeInvInfos";
 import useEtherSWR from "@app/hooks/useEtherSWR";
-import { redeemSInv, stakeInv, unstakeInv, useStakedInv, useStakedInvBalance, VERSIONED_ADDRESSES } from "@app/util/sINV";
+import { redeemSInv, stakeInv, unstakeInv, useInvStakingEvolution, useStakedInv, useStakedInvBalance, VERSIONED_ADDRESSES } from "@app/util/sINV";
 
 const { INV } = getNetworkConfigConstants();
 
@@ -67,7 +67,7 @@ export const StakeInvUI = ({
     const supplyDelta = !invAmount || isNaN(parseFloat(invAmount)) ? 0 : isStake ? parseFloat(invAmount) : -parseFloat(invAmount);
     const { apy, projectedApy, isLoading, sInvExRate, sInvTotalAssets, periodRevenue, depositLimit } = useStakedInv(dbrDolaPrice, version, supplyDelta);
 
-    // const { evolution, timestamp: lastDailySnapTs, isLoading: isLoadingEvolution } = useInvStakingEvolution();    
+    const { evolution, timestamp: lastDailySnapTs, isLoading: isLoadingEvolution } = useInvStakingEvolution();
     const { data: invBalanceBn } = useEtherSWR(
         [INV, 'balanceOf', account],
     );
@@ -82,23 +82,23 @@ export const StakeInvUI = ({
     const sINVamount = invAmount ? parseFloat(invAmount) / sInvExRate : '';
 
     const sInvAuctionBuys = auctionBuys.filter(e => e.auctionType === 'sINV')
-        .reduce((prev, curr) => prev + curr.dolaIn, 0);
+        .reduce((prev, curr) => prev + curr.invIn, 0);
     const sInvHoldersTotalEarnings = sInvAuctionBuys - periodRevenue;
 
-    // useEffect(() => {
-    //     if (isLoading || isLoadingEvolution || !evolution?.length) return;
-    //     const nowUtcDate = timestampToUTC(now);
-    //     const data = evolution
-    //         .filter(d => timestampToUTC(d.timestamp) !== nowUtcDate)
-    //         .concat([
-    //             {
-    //                 ...evolution[evolution.length - 1],
-    //                 timestamp: Date.now() - (1000 * 120),
-    //                 apy,
-    //             }
-    //         ]);
-    //     setThirtyDayAvg(getAvgOnLastItems(data, 'apy', 30));
-    // }, [lastDailySnapTs, isLoadingEvolution, evolution, sInvTotalAssets, apy, isLoading, now]);
+    useEffect(() => {
+        if (isLoading || isLoadingEvolution || !evolution?.length) return;
+        const nowUtcDate = timestampToUTC(now);
+        const data = evolution
+            .filter(d => timestampToUTC(d.timestamp) !== nowUtcDate)
+            .concat([
+                {
+                    ...evolution[evolution.length - 1],
+                    timestamp: Date.now() - (1000 * 120),
+                    apy,
+                }
+            ]);
+        setThirtyDayAvg(getAvgOnLastItems(data, 'apy', 30));
+    }, [lastDailySnapTs, isLoadingEvolution, evolution, sInvTotalAssets, apy, isLoading, now]);
 
     useInterval(() => {
         const curr = (realTimeBalance || baseBalance);
@@ -193,18 +193,18 @@ export const StakeInvUI = ({
                                         <Text><b>~{preciseCommify(monthlyInvRewards, 2)} INV per month</b></Text>
                                     </Stack>
                                 }
-                                {/* <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
-                            <Text>- 30-day average APY:</Text>
-                            <Text><b>{thirtyDayAvg ? `${shortenNumber(thirtyDayAvg, 2)}%` : '-'}</b></Text>
-                        </Stack> */}
                                 <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
-                                    <Text>- Total staked:</Text>
+                                    <Text>- 30-day average APY:</Text>
+                                    <Text><b>{thirtyDayAvg ? `${shortenNumber(thirtyDayAvg, 2)}%` : '-'}</b></Text>
+                                </Stack>
+                                <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
+                                    <Text>- Total staked by all users:</Text>
                                     <Text><b>{sInvTotalAssets ? `${shortenNumber(sInvTotalAssets, 2)} INV ${invPrice ? `(${shortenNumber(sInvTotalAssets * invPrice, 2, true)})` : ''}` : '-'}</b></Text>
                                 </Stack>
                                 {/* <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
-                            <Text>- Total earnings by all holders:</Text>
-                            <Text><b>{sInvHoldersTotalEarnings ? `${shortenNumber(sInvHoldersTotalEarnings, 2)} INV` : '-'}</b></Text>
-                        </Stack> */}
+                                    <Text>- Total earnings by all users:</Text>
+                                    <Text><b>{sInvHoldersTotalEarnings ? `${shortenNumber(sInvHoldersTotalEarnings, 2)} INV` : '-'}</b></Text>
+                                </Stack> */}
                             </VStack>
                         }
                     />
@@ -227,12 +227,22 @@ export const StakeInvUI = ({
                             <NavButtons active={tab} options={['Stake', 'Unstake', 'Info']} onClick={(v) => setTab(v)} />
                             {
                                 tab !== 'Info' && <VStack alignItems="flex-start" w='full' justify="space-between">
-                                    <Text fontSize="18px">
-                                        INV balance in wallet: <b>{invBalance ? preciseCommify(invBalance, 2) : '-'}</b>
-                                    </Text>
-                                    <Text fontSize="18px">
-                                        Staked INV: <b>{invStakedInSInv ? preciseCommify(realTimeBalance, 8) : '-'}</b>
-                                    </Text>
+                                    <HStack justify="space-between" w='full'>
+                                        <Text fontSize="18px">
+                                            INV balance in wallet: <b>{invBalance ? preciseCommify(invBalance, 2) : '-'}</b>
+                                        </Text>
+                                        <Text fontSize="18px">
+                                            {invPrice ? `(${shortenNumber(invBalance * invPrice, 2, true)})` : ''}
+                                        </Text>
+                                    </HStack>
+                                    <HStack justify="space-between" w='full'>
+                                        <Text fontSize="18px">
+                                            Staked INV: <b>{invStakedInSInv ? preciseCommify(realTimeBalance, 8) : '-'}</b>
+                                        </Text>
+                                        <Text fontSize="18px">
+                                            {invPrice ? `(${shortenNumber(realTimeBalance * invPrice, 2, true)})` : ''}
+                                        </Text>
+                                    </HStack>
                                 </VStack>
                             }
                             {
@@ -240,7 +250,7 @@ export const StakeInvUI = ({
                                     version === "V1" ? <InfoMessage alertProps={{ w: 'full' }} description={
                                         <VStack alignItems="flex-start" spacing="0">
                                             <Text>Staking is now disabled for V1.</Text>
-                                            <Text>We recommend to unstake from V1 and stake back into V2</Text>                                            
+                                            <Text>We recommend to unstake from V1 and stake back into V2</Text>
                                         </VStack>
                                     } />
                                         : <VStack w='full' alignItems="flex-start">
@@ -306,7 +316,7 @@ export const StakeInvUI = ({
                                             {isStake ? 'sINV to receive' : 'sINV to exchange'}:
                                         </Text>
                                         <Text fontSize="16px" color="mainTextColorLight2">
-                                            {sINVamount ? preciseCommify(sINVamount, 2) : '-'}
+                                            {sINVamount ? `${preciseCommify(sINVamount, 2)} (${shortenNumber(sINVamount * invPrice * sInvExRate, 2, true)})` : '-'}
                                         </Text>
                                     </HStack>
                                     <HStack>
