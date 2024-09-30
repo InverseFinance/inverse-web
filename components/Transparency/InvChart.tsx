@@ -10,7 +10,7 @@ import { useCustomSWR } from "@app/hooks/useCustomSWR";
 import { useDBRMarkets } from "@app/hooks/useDBR";
 import { shortenNumber } from "@app/util/markets";
 
-const maxChartWidth = 1300
+const maxChartWidth = 1160
 // initial supply of INV
 const INITIAL_SUPPLY = 100_000;
 
