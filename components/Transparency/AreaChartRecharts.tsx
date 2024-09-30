@@ -88,6 +88,8 @@ export const AreaChartRecharts = ({
     avgLineProps,
     lineItems,
     duplicateYAxis = false,
+    pricePrecision = 4,
+    titleProps,
 }: {
     combodata: { y: number, x: number, timestamp: number, utcDate: string }[]
     title: string
@@ -124,8 +126,10 @@ export const AreaChartRecharts = ({
     secondaryAsLeftAxis?: boolean
     secondaryPrecision?: number
     secondaryOpacity?: number
+    pricePrecision?: number
     yDomainAsInteger?: boolean
     duplicateYAxis?: boolean
+    titleProps?: any
     addDayAvg?: boolean
     avgTypes?: ('avg' | 'moving-avg' | 'ema')[]
     allowEscapeViewBox?: boolean
@@ -163,7 +167,7 @@ export const AreaChartRecharts = ({
 
     return (
         <VStack position="relative" alignItems="center" maxW={`${chartWidth}px`}>
-            <Text fontWeight="bold">
+            <Text fontWeight="bold" {...titleProps}>
                 {title}
             </Text>
             {
@@ -226,7 +230,7 @@ export const AreaChartRecharts = ({
                         formatter={(value, name) => {
                             const isPrice = /price/i.test(name);
                             const isSecondary = name === secondaryLabel;
-                            return !value ? 'none' : !isPrice && isPerc ? `${shortenNumber(value, 2)}%` : isPrice ? shortenNumber(value, 4, true) : preciseCommify(value, value < 1 ? 4 : 0, isSecondary ? secondaryAsUsd : useUsd)
+                            return !value ? 'none' : !isPrice && isPerc ? `${shortenNumber(value, 2)}%` : isPrice ? shortenNumber(value, pricePrecision, true) : preciseCommify(value, value < 1 ? 4 : 0, isSecondary ? secondaryAsUsd : useUsd)
                         }}
                     />
                 }

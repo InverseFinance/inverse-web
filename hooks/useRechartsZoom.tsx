@@ -18,6 +18,9 @@ const DEFAULT_RANGES_TO_INCLUDE = ['All', '1Y', '6M', '3M', 'YTD'];
 
 const RANGES = [
     { label: 'All' },
+    { label: '4Y', daysInPast: ONE_DAY_MS * 366 * 4 },
+    { label: '3Y', daysInPast: ONE_DAY_MS * 366 * 3 },
+    { label: '2Y', daysInPast: ONE_DAY_MS * 366 * 2 },
     { label: '1Y', daysInPast: ONE_DAY_MS * 366 },
     { label: '6M', daysInPast: ONE_DAY_MS * 181 },
     { label: '3M', daysInPast: ONE_DAY_MS * 91 },

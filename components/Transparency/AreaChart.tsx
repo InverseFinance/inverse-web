@@ -151,6 +151,7 @@ export const AreaChart = ({
             forceStaticRangeBtns={forceStaticRangeBtns}
             strokeColor={strokeColor}
             isPerc={isPerc}
+            titleProps={titleProps}
             {...otherProps}
         />
     }
