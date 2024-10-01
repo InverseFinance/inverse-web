@@ -425,12 +425,8 @@ export const MENUS = {
           href: 'https://github.com/InverseFinance',
         },
         {
-          label: 'Whitepaper',
-          href: '/whitepaper',
-        },
-        {
-          label: 'sDOLA',
-          href: '/whitepaper/sDOLA',
+          label: 'Research',
+          href: '/research',
         },
         {
           label: 'About FiRM',
