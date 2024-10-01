@@ -12,6 +12,7 @@ import { InvStakingActivity } from '@app/components/sINV/InvStakingActivity';
 import { NavButtons } from '@app/components/common/Button';
 import { useState } from 'react';
 import { useAppTheme } from '@app/hooks/useAppTheme';
+import { InvChart } from '@app/components/Transparency/InvChart';
 
 export const SinvPage = () => {
   const account = useAccount();
@@ -88,6 +89,7 @@ export const SinvPage = () => {
             }
           </VStack>
         </Stack>
+        <InvChart />
         {
           !!account && accountEvents?.length > 0 && <InvStakingActivity events={accountEvents} title="My Staking activity" />
         }

@@ -4,20 +4,22 @@ import { getClosestPreviousHistoValue, timestampToUTC } from "@app/util/misc";
 import { DefaultCharts } from "./DefaultCharts";
 import { useMediaQuery, VStack, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { useContractEvents } from "@app/hooks/useContractEvents";
-import { getNetworkConfigConstants } from "@app/util/networks";
-import { INV_ABI } from "@app/config/abis";
-import { NetworkIds } from "@app/types";
-import { getBnToNumber } from "@app/util/markets";
 import { InfoMessage } from "../common/Messages";
 import Container from "../common/Container";
+import { useCustomSWR } from "@app/hooks/useCustomSWR";
+import { useDBRMarkets } from "@app/hooks/useDBR";
+import { shortenNumber } from "@app/util/markets";
 
 const maxChartWidth = 1300
 // initial supply of INV
 const INITIAL_SUPPLY = 100_000;
 
 export const InvChart = () => {
+    const { markets } = useDBRMarkets();
+    const invMarket = markets?.find(m => m.isInv);
+    const invPrice = invMarket?.price || 0;
     const { prices: invHistoPrices } = useHistoInvPrices();
+    const { data: invCirculatingSupply } = useCustomSWR(`/api/inv/circulating-supply`);
     const { evolution: circSupplyEvolution } = useHistoricalInvMarketCap();
     const circSupplyAsObj = !!circSupplyEvolution ? circSupplyEvolution.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr.timestamp)]: curr.circSupply }), {}) : {};
     const invHistoPricesAsObj = !!invHistoPrices ? invHistoPrices.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr[0])]: curr[1] }), {}) : {};
@@ -76,6 +78,8 @@ export const InvChart = () => {
                         <VStack w='full' align='flex-start'>
                             <Text>Note: the adjusted price aims to have a more relevant $INV pricing for INV stakers by taking into account the circulating supply variations.</Text>
                             <Text>The adjusted price at a given time is calculated as: <b>Price(t) * Circulating Supply(t) / Initial Supply</b>, with the initial supply being 100,000 INV.</Text>
+                            <Text>Market price: {invPrice ? shortenNumber(invPrice, 2, true) : '-'}</Text>
+                            <Text>Adjusted price: {invPrice && invCirculatingSupply ? shortenNumber(invPrice * invCirculatingSupply / INITIAL_SUPPLY, 2, true) : '-'}</Text>
                         </VStack>
                     }
                 />
