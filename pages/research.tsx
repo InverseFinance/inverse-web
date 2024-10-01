@@ -23,7 +23,7 @@ export const AboutFirm = () => {
             <AppNav active="More" activeSubmenu="Research" />
             <VStack alignItems="flex-start" w='full'>
                 <Container
-                    label="Research papers and articles"
+                    label="Whitepapers"
                 >
                     <VStack spacing="2" alignItems="flex-start">
                         <Link color="mainTextColor" fontSize="20px" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" href="/whitepaper" isExternal target="_blank">
@@ -32,11 +32,17 @@ export const AboutFirm = () => {
                         <Link color="mainTextColor" fontSize="20px" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" href="/whitepaper/sDOLA" isExternal target="_blank">
                             <EditIcon mr="2" />sDOLA whitepaper
                         </Link>
+                    </VStack>
+                </Container>
+                <Container
+                    label="Analyst coverage"
+                >
+                    <VStack spacing="2" alignItems="flex-start">
                         <Link color="mainTextColor" fontSize="20px" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" href="https://revelointel.com/industry-intel/inverse/" isExternal target="_blank">
                             <SearchIcon mr="2" />Analyst coverage by Revolo Intel
                         </Link>
                     </VStack>
-                </Container>                
+                </Container>   
             </VStack>
         </Layout>
     )
