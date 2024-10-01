@@ -25,7 +25,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', `OPTIONS,POST,GET`);
 
   const { cacheFirst } = req.query;
-  try {    
+  try {
     const { data: cachedData, isValid } = await getCacheFromRedisAsObj(F2_MARKETS_CACHE_KEY, cacheFirst !== 'true', cacheDuration);
     if (cachedData && isValid) {
       res.status(200).json(cachedData);
@@ -155,7 +155,7 @@ export default async function handler(req, res) {
       getStCvxData(),
       getStYethData(),
       getSFraxData(provider),
-      getSUSDEData(),
+      getSUSDEData(provider),
       getCrvUSDDOLAConvexData(),
       getYvCrvUsdDOLAData(),
     ]);

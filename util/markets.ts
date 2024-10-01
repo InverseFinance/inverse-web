@@ -197,9 +197,28 @@ export const getStYcrvData = async () => {
     return [];
 }
 
-export const getSUSDEData = async () => {
+export const getSUSDEData = async (provider) => {
     try {
-        return getPoolYield('66985a81-9c51-46ca-9977-42b4fe7bc6df');
+        const susdeContract = new Contract('0x9D39A5DE30e57443BfF2A8307A4256c8797A3497', [
+            "function totalAssets() public view returns (uint)",
+            "event RewardsReceived(uint amount)",
+        ], provider);
+        const [totalAssets, currentBlock] = await Promise.all([
+            susdeContract.totalAssets(),
+            provider.getBlockNumber(),
+        ]);
+        // last events with some margin
+        const rewardEvents = await susdeContract.queryFilter(susdeContract.filters.RewardsReceived(), currentBlock - Math.ceil(BLOCKS_PER_DAY) * 24);
+        // around 8h per reward event, we want avg on last 7 days, so last 21 events
+        // edit: just take last event
+        const nbEvents = 1;
+        const filteredEvents = rewardEvents.slice(rewardEvents.length - nbEvents);
+        const nbItems = filteredEvents.length;
+        const rewardsReceivedPer8hLast7dayAvg = filteredEvents.reduce((acc, event) => acc + getBnToNumber(event.args.amount), 0) / nbItems;
+        const apr = rewardsReceivedPer8hLast7dayAvg * 3 * 365 / getBnToNumber(totalAssets) * 100;
+        // weekly compounding
+        const apy = aprToApy(apr, WEEKS_PER_YEAR);
+        return { apy };
     } catch (e) { console.log(e) }
     return [];
     // try {
