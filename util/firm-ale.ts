@@ -203,7 +203,6 @@ export const prepareDeleveragePosition = async (
         if (market.aleData?.buySellToken && !!market.aleTransformerType && aleTransformers[market.aleTransformerType]) {            
             helperTransformData = aleTransformers[market.aleTransformerType](market, leverageMinDebtReduced ? getNumberToBn(leverageMinDebtReduced) : undefined);
         }
-
         // dolaIn, minDbrOut, extraDolaToRepay
         const dbrData = [dbrToSell, minDolaOut, extraDolaToRepay];
         return deleveragePosition(

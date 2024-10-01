@@ -296,7 +296,7 @@ export const FirmBoostInfos = ({
 
     useEffect(() => {
         setLeverageMinDebtReduced(amountOfDebtReduced);
-    }, [amountOfDebtReduced]);
+    }, [amountOfDebtReduced, aleSlippageFactor]);
 
     if (!market?.underlying) {
         return <></>
@@ -382,7 +382,7 @@ export const FirmBoostInfos = ({
 
     return <Stack borderRadius='5px' p='4' bgColor="infoAlpha" fontSize="14px" spacing="4" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
         <VStack position="relative" w='full' alignItems="center" justify="center">            
-            <HStack spacing="8" w='full' justify="space-between" alignItems="center">
+            <HStack spacing="2" w='full' justify="space-between" alignItems="center">
                 <InputGroup
                     w='fit-content'
                     alignItems="center"
@@ -473,7 +473,7 @@ export const FirmBoostInfos = ({
                     <Text>Quote:</Text>
                     {
                         leverageLoading || isTriggerLeverageFetch ? <SkeletonText pt="2px" skeletonHeight={3} height={'16px'} width={'90px'} noOfLines={1} />
-                            : <Text>{estimatedAmount > 0 && knownFixedAmount > 0 ? `~${preciseCommify(isLeverageUp ? knownFixedAmount / estimatedAmount : estimatedAmount / knownFixedAmount, 2)} DOLA per ${market.underlying.symbol}` : '-'}</Text>
+                            : <Text>{estimatedAmount > 0 && knownFixedAmount > 0 ? `~${preciseCommify(isLeverageUp ? knownFixedAmount / estimatedAmount : estimatedAmount / knownFixedAmount, 4)} DOLA per ${market.underlying.symbol}` : '-'}</Text>
                     }
                 </TextInfo>
             </HStack>
@@ -484,14 +484,16 @@ export const FirmBoostInfos = ({
                         Max. swap slippage for leverage %:
                     </Text>
                 </TextInfo>
-                <Input shadow="0 0 0px 1px rgba(0, 0, 0, 0.25)" py="0" maxH="30px" w='90px' value={aleSlippage} onChange={(e) => setAleSlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'))} />
+                <Input shadow="0 0 0px 1px rgba(0, 0, 0, 0.25)" py="0" maxH="30px" w='90px' value={aleSlippage} onChange={(e) => {
+                    setAleSlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'));
+                }} />
             </HStack>
             {
                 leverageLevel > 1 && <HStack w='full' justify="space-between">
                     <TextInfo
                         message="This is the minimum amount that you're willing to accept for the trade, if the amount is not within the slippage range the transaction will fail or revert.">
                         <Text>
-                            Min. amount swapped for {preciseCommify(knownFixedAmount, 8, false, true)} {!isLeverageUp ? market.underlying.symbol : 'DOLA'}: {preciseCommify(isLeverageUp ? minAmount : amountOfDebtReduced, isLeverageUp ? 6 : 2, false, true)} {isLeverageUp ? market.underlying.symbol : 'DOLA'}
+                            Min. amount swapped for {preciseCommify(knownFixedAmount, 8, false, true)} {!isLeverageUp ? market.underlying.symbol : 'DOLA'}: {preciseCommify(minAmount, isLeverageUp ? 6 : 2, false, true)} {isLeverageUp ? market.underlying.symbol : 'DOLA'}
                         </Text>
                     </TextInfo>
                 </HStack>
