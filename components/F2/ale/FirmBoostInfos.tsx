@@ -392,7 +392,7 @@ export const FirmBoostInfos = ({
                             {boostLabel}:
                         </Text>}
                     />
-                    <Input shadow="0 0 0px 1px rgba(0, 0, 0, 0.25)" fontWeight="extrabold" fontSize={{ base: '20px', lg: '24px' }} _focusVisible={false} isInvalid={editLeverageIsInvalid} autocomplete="off" onKeyPress={handleKeyPress} id="boostInput" color={risk.color} py="0" pl="60px" onChange={(e) => handleEditLeverage(e.target.value, minLeverage, maxLeverage)} width="225px" value={editLeverageLevel} min={minLeverage} max={maxLeverage} />
+                    <Input shadow="0 0 0px 1px rgba(0, 0, 0, 0.25)" fontWeight="extrabold" fontSize={leverageLevel === Infinity ? '16px' : { base: '20px', lg: '24px' }} _focusVisible={false} isInvalid={editLeverageIsInvalid} autocomplete="off" onKeyPress={handleKeyPress} id="boostInput" color={risk.color} py="0" pl="60px" onChange={(e) => handleEditLeverage(e.target.value, minLeverage, maxLeverage)} width="225px" value={editLeverageLevel} min={minLeverage} max={maxLeverage} />
                     {
                         editLeverageLevel !== leverageLevel.toFixed(2) && debounced && !editLeverageIsInvalid &&
                         <InputRightElement cursor="pointer" transform="translateX(40px)" onClick={() => validatePendingLeverage(editLeverageLevel, isLeverageUp)}
