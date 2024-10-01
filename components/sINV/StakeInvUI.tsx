@@ -83,7 +83,8 @@ export const StakeInvUI = ({
 
     const sInvAuctionBuys = auctionBuys.filter(e => e.auctionType === 'sINV')
         .reduce((prev, curr) => prev + curr.invIn, 0);
-    const sInvHoldersTotalEarnings = sInvAuctionBuys - periodRevenue;
+    const invBoughtByPressure = sInvAuctionBuys;
+    const monthlyBuyPressureInInv = sInvTotalAssets * invMarket?.dbrApr / 100 / 12;
 
     useEffect(() => {
         if (isLoading || isLoadingEvolution || !evolution?.length) return;
@@ -157,7 +158,7 @@ export const StakeInvUI = ({
     }
 
     return <Stack direction={{ base: 'column', lg: 'row' }} alignItems={{ base: 'center', lg: 'flex-start' }} justify="space-around" w='full' spacing="12" {...props}>
-        <VStack w='full' maxW='460px' spacing='4' pt='10'>
+        <VStack w='full' maxW='500px' spacing='4' pt='10'>
             <HStack justify="space-around" w='full'>
                 <VStack>
                     <Image src="/assets/sINVx512.png" h="120px" w="120px" />
@@ -201,9 +202,13 @@ export const StakeInvUI = ({
                                     <Text>- Total staked by all users:</Text>
                                     <Text><b>{sInvTotalAssets ? `${shortenNumber(sInvTotalAssets, 2)} INV ${invPrice ? `(${shortenNumber(sInvTotalAssets * invPrice, 2, true)})` : ''}` : '-'}</b></Text>
                                 </Stack>
+                                <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
+                                    <Text>- Monthly buy pressure thanks to sINV:</Text>
+                                    <Text><b>{monthlyBuyPressureInInv ? `${shortenNumber(monthlyBuyPressureInInv, 2)} INV (${shortenNumber(monthlyBuyPressureInInv * invPrice, 2, true)})` : '-'}</b></Text>
+                                </Stack>
                                 {/* <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
-                                    <Text>- Total earnings by all users:</Text>
-                                    <Text><b>{sInvHoldersTotalEarnings ? `${shortenNumber(sInvHoldersTotalEarnings, 2)} INV` : '-'}</b></Text>
+                                    <Text>- INV bought thanks to sINV so far:</Text>
+                                    <Text><b>{invBoughtByPressure ? `${shortenNumber(invBoughtByPressure, 2)} INV` : '-'}</b></Text>
                                 </Stack> */}
                             </VStack>
                         }
