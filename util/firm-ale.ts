@@ -164,15 +164,18 @@ export const prepareDeleveragePosition = async (
     minDolaOut?: BigNumber,
     dolaPrice = 1,
     leverageMinDebtReduced?: number,
+    underlyingExRate?: number,
 ) => {
-    let aleQuoteResult;
+    let aleQuoteResult;    
     // we need the quote first
     try {
+        // lps
         if (market.isAleWithoutSwap) {
             aleQuoteResult = { data: '0x', allowanceTarget: BURN_ADDRESS, value: '0', buyAmount: getNumberToBn(getBnToNumber(collateralToWithdraw, market.underlying.decimals) * market.price / dolaPrice).toString() }
         } else {
             // the dola swapped for collateral is dolaToRepayToSellCollateral not totalDolaToBorrow (a part is for dbr)
-            aleQuoteResult = await getAleSellQuote(DOLA, market.aleData?.buySellToken || market.collateral, collateralToWithdraw.toString(), slippagePerc, false);
+            const amountToSellString = !!market.aleTransformerType && market?.aleData?.buySellToken?.toLowerCase() !== market?.collateral?.toLowerCase() && underlyingExRate ? getNumberToBn(getBnToNumber(collateralToWithdraw, market.underlying.decimals) * underlyingExRate).toString() : collateralToWithdraw.toString();
+            aleQuoteResult = await getAleSellQuote(DOLA, market.aleData?.buySellToken || market.collateral, amountToSellString, slippagePerc, false);
             if (!aleQuoteResult?.data || !!aleQuoteResult.msg) {
                 const msg = aleQuoteResult?.validationErrors?.length > 0 ?
                     `Swap validation failed with: ${aleQuoteResult?.validationErrors[0].field} ${aleQuoteResult?.validationErrors[0].reason}`
@@ -197,16 +200,9 @@ export const prepareDeleveragePosition = async (
         const userDebt = await (new Contract(market.address, F2_MARKET_ABI, signer)).debts(await signer.getAddress());
         const minDolaAmountFromSwap = getNumberToBn(leverageMinDebtReduced);
         const minDolaOrMaxRepayable = minDolaAmountFromSwap.gt(userDebt) ? userDebt : minDolaAmountFromSwap;       
-
-        if (market.aleData?.buySellToken && !!market.aleTransformerType && aleTransformers[market.aleTransformerType]) {
-            // should not happen in normal circumstances
-            if(leverageMinDebtReduced < (getBnToNumber(collateralToWithdraw, market.underlying.decimals) * market.price * ANOMALY_PERC_FACTOR)){
-                alert('Something went wrong');
-                return;
-            }
+        if (market.aleData?.buySellToken && !!market.aleTransformerType && aleTransformers[market.aleTransformerType]) {            
             helperTransformData = aleTransformers[market.aleTransformerType](market, leverageMinDebtReduced ? getNumberToBn(leverageMinDebtReduced) : undefined);
         }
-
         // dolaIn, minDbrOut, extraDolaToRepay
         const dbrData = [dbrToSell, minDolaOut, extraDolaToRepay];
         return deleveragePosition(
