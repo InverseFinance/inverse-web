@@ -18,14 +18,16 @@ export const InvChart = () => {
     const { markets } = useDBRMarkets();
     const invMarket = markets?.find(m => m.isInv);
     const invPrice = invMarket?.price || 0;
-    const { prices: invHistoPrices } = useHistoInvPrices();
-    const { data: invCirculatingSupply } = useCustomSWR(`/api/inv/circulating-supply`);
+    const { prices: invHistoPrices, isLoading: isHistoPricesLoading } = useHistoInvPrices();
+    const { data: invCirculatingSupply, isLoading: isCirculatingSupplyLoading } = useCustomSWR(`/api/inv/circulating-supply`);
     const { evolution: circSupplyEvolution } = useHistoricalInvMarketCap();
     const circSupplyAsObj = !!circSupplyEvolution ? circSupplyEvolution.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr.timestamp)]: curr.circSupply }), {}) : {};
     const invHistoPricesAsObj = !!invHistoPrices ? invHistoPrices.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr[0])]: curr[1] }), {}) : {};
 
     const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
+
+    const isLoading = isHistoPricesLoading || isCirculatingSupplyLoading;
 
     useEffect(() => {
         setAutoChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 80)
@@ -47,6 +49,8 @@ export const InvChart = () => {
             y: invHistoPrice * invHistoCircSupply / INITIAL_SUPPLY,
         }
     })
+
+    if(isLoading || !combodata?.length) return null;
 
     return <VStack spacing={0}>
         <Container p="0" noPadding>
