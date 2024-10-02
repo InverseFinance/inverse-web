@@ -6,7 +6,8 @@ import { getBnToNumber } from "./markets";
 
 type BigNumberOrNumber<T extends boolean> = T extends true ? number : BigNumber;
 
-type MarketData<T extends boolean> = {
+export type MarketData<T extends boolean> = {
+    market: string;
     collateral: string;
     oracleFeed: string;
     decimals: BigNumberOrNumber<T>;
@@ -28,7 +29,7 @@ type MarketData<T extends boolean> = {
     isPaused: boolean;
 };
 
-type AccountDebtData<T extends boolean> = {
+export type AccountDebtData<T extends boolean> = {
     totalDebt: BigNumberOrNumber<T>;
     dbrBalance: BigNumberOrNumber<T>;
     dolaBalance: BigNumberOrNumber<T>;
@@ -36,7 +37,7 @@ type AccountDebtData<T extends boolean> = {
     monthlyBurn: BigNumberOrNumber<T>;
 };
 
-type AccountGovernanceBreakdown<T extends boolean> = {
+export type AccountGovernanceBreakdown<T extends boolean> = {
     invDelegate: string;
     xInvDelegate: string;
     firmDelegate: string;
@@ -45,7 +46,7 @@ type AccountGovernanceBreakdown<T extends boolean> = {
     totalVotes: BigNumberOrNumber<T>;
 };
 
-type AccountInvBalancesBreakdown<T extends boolean> = {
+export type AccountInvBalancesBreakdown<T extends boolean> = {
     inv: BigNumberOrNumber<T>;
     xinv: BigNumberOrNumber<T>;
     firm: BigNumberOrNumber<T>;
@@ -56,13 +57,15 @@ type AccountInvBalancesBreakdown<T extends boolean> = {
     totalInv: BigNumberOrNumber<T>;
 };
 
-type AccountInvBreakdown<T extends boolean> = {
+export type AccountInvBreakdown<T extends boolean> = {
     balances: AccountInvBalancesBreakdown<T>;
     governance: AccountGovernanceBreakdown<T>;
 };
 
-type PositionData<T extends boolean> = {
+export type PositionData<T extends boolean> = {
     escrow: string;
+    market: string;
+    account: string;
     balance: BigNumberOrNumber<T>;
     debt: BigNumberOrNumber<T>;
     collateralValue: BigNumberOrNumber<T>;
@@ -74,13 +77,13 @@ type PositionData<T extends boolean> = {
     monthlyBurn: BigNumberOrNumber<T>;
 };
 
-type AccountAndMarketBreakdown<T extends boolean> = {
+export type AccountAndMarketBreakdown<T extends boolean> = {
     market: MarketData<T>;
-    account: AccountDebtData<T>;
+    accountDebtData: AccountDebtData<T>;
     position: PositionData<T>;
 };
 
-type AccountListAndMarketListBreakdown<T extends boolean> = {
+export type AccountListAndMarketListBreakdown<T extends boolean> = {
     markets: MarketData<T>[];
     marketListPositions: PositionData<T>[][];
     accountsDebtData: AccountDebtData<T>[];
@@ -88,7 +91,7 @@ type AccountListAndMarketListBreakdown<T extends boolean> = {
     debt: BigNumberOrNumber<T>;
 }
 
-type AccountListAndMarketBreakdown<T extends boolean> = {
+export type AccountListAndMarketBreakdown<T extends boolean> = {
     market: MarketData<T>;
     positions: PositionData<T>[];
     accountsDebtData: AccountDebtData<T>[];
@@ -96,7 +99,7 @@ type AccountListAndMarketBreakdown<T extends boolean> = {
     debt: BigNumberOrNumber<T>;
 }
 
-type AccountAndMarketListBreakdown<T extends boolean> = {
+export type AccountAndMarketListBreakdown<T extends boolean> = {
     markets: MarketData<T>[];
     positions: PositionData<T>[];
     accountDebtData: AccountDebtData<T>;
@@ -104,7 +107,7 @@ type AccountAndMarketListBreakdown<T extends boolean> = {
     debt: BigNumberOrNumber<T>;
 }
 
-type PriceData<T extends boolean> = {
+export type PriceData<T extends boolean> = {
     dolaPrice: BigNumberOrNumber<T>;
     dbrPrice: BigNumberOrNumber<T>;
     dbrPriceInDola: BigNumberOrNumber<T>;
@@ -112,12 +115,12 @@ type PriceData<T extends boolean> = {
     invPrice: BigNumberOrNumber<T>;
 }
 
-type InvDbrAprsData<T extends boolean> = {
+export type InvDbrAprsData<T extends boolean> = {
     invApr: BigNumberOrNumber<T>;
     dbrApr: BigNumberOrNumber<T>;
 }
 
-type InverseViewer<T extends boolean> = {
+export type InverseViewer<T extends boolean> = {
     contract: Contract,
     firm: {
         getAccountDebtData: (account: string) => Promise<AccountDebtData<T>>,        
@@ -133,7 +136,7 @@ type InverseViewer<T extends boolean> = {
         getMarketAndAccountBreakdown: (market: string, account: string) => Promise<AccountAndMarketBreakdown<T>>,
         getMarketBreakdownForAccountList: (market: string, accounts: string[]) => Promise<AccountListAndMarketBreakdown<T>>,
         getMarketListAndAccountListBreakdown: (markets: string[], accounts: string[]) => Promise<AccountListAndMarketListBreakdown<T>>,
-        getMarketListBreakdownForAccount: (markets: string[], account: string) => Promise<AccountAndMarketListBreakdown<T>>,
+        getMarketListForAccountBreakdown: (markets: string[], account: string) => Promise<AccountAndMarketListBreakdown<T>>,
         getInvApr: () => Promise<BigNumberOrNumber<T>>,
         getDbrApr: () => Promise<BigNumberOrNumber<T>>,
         getInvDbrAprs: () => Promise<InvDbrAprsData<T>>,
@@ -171,7 +174,7 @@ type InverseViewer<T extends boolean> = {
     },
 }
 
-const formatBps = (value: BigNumber) => {
+const formatBps = (value: bigint) => {
     return getBnToNumber(value, 4);
 }
 
@@ -190,26 +193,27 @@ const formatAccountListAndMarketBreakdown = (accountListAndMarketBreakdown: Acco
     const market = formatMarketData(accountListAndMarketBreakdown.market);
     return {
         market,
-        positions: accountListAndMarketBreakdown.positions.map(p => formatPositionData(p, market.decimals)),
+        positions: accountListAndMarketBreakdown.positions.map(p => formatPositionData(p, market.decimals.float)),
         accountsDebtData: accountListAndMarketBreakdown.accountsDebtData.map(formatAccountDebtData),
         tvl: getBnToNumber(accountListAndMarketBreakdown.tvl),
         debt: getBnToNumber(accountListAndMarketBreakdown.debt),
     }
 }
 
-const formatAccountAndMarketListBreakdown = (accountListAndMarketBreakdown: AccountAndMarketListBreakdown<false>): AccountAndMarketListBreakdown<true> => {
+export const formatAccountAndMarketListBreakdown = (accountListAndMarketBreakdown: AccountAndMarketListBreakdown<false>): AccountAndMarketListBreakdown<true> => {
     const markets = accountListAndMarketBreakdown.markets.map(formatMarketData);
     return {
         markets,
-        positions: accountListAndMarketBreakdown.positions.map((p, index) => formatPositionData(p, markets[index].decimals)),
+        positions: accountListAndMarketBreakdown.positions.map((p, index) => formatPositionData(p, markets[index].decimals.float)),
         accountDebtData: formatAccountDebtData(accountListAndMarketBreakdown.accountDebtData),
         tvl: getBnToNumber(accountListAndMarketBreakdown.tvl),
-        debt: getBnToNumber(accountListAndMarketBreakdown.debt),
+        // debt: getBnToNumber(accountListAndMarketBreakdown.debt),
     }
 }
 
 const formatMarketData = (market: MarketData<false>): MarketData<true> => {
     return {
+        market: market.market,
         collateral: market.collateral,
         oracleFeed: market.oracleFeed,
         collateralSymbol: market.collateralSymbol,
@@ -258,6 +262,8 @@ const formatAccountGovernance = (governance: AccountGovernanceBreakdown<false>):
 
 const formatPositionData = (position: PositionData<false>, decimals = 18): PositionData<true> => {
     return {
+        market: position.market,
+        account: position.account,
         escrow: position.escrow,
         balance: getBnToNumber(position.balance, decimals),
         debt: getBnToNumber(position.debt),
@@ -271,7 +277,7 @@ const formatPositionData = (position: PositionData<false>, decimals = 18): Posit
     }
 }
 
-const formatPricesData = (prices: PriceData<false>): PriceData<true> => {
+export const formatPricesData = (prices: PriceData<false>): PriceData<true> => {
     return {
         dolaPrice: getBnToNumber(prices.dolaPrice),
         dbrPrice: getBnToNumber(prices.dbrPrice),
@@ -281,19 +287,19 @@ const formatPricesData = (prices: PriceData<false>): PriceData<true> => {
     }
 }
 
-const formatAccountInvBreakdown = (invBreakdown: AccountInvBreakdown<false>): AccountInvBreakdown<true> => {
+export const formatAccountInvBreakdown = (invBreakdown: AccountInvBreakdown<false>): AccountInvBreakdown<true> => {
     return {
         balances: formatInvBalances(invBreakdown.balances),
         governance: formatAccountGovernance(invBreakdown.governance),
     }
 }
 
-const formatAccountAndMarketBreakdown = (accountAndMarketBreakdown: AccountAndMarketBreakdown<false>): AccountAndMarketBreakdown<true> => {
+export const formatAccountAndMarketBreakdown = (accountAndMarketBreakdown: AccountAndMarketBreakdown<false>): AccountAndMarketBreakdown<true> => {
     const market = formatMarketData(accountAndMarketBreakdown.market);
     return {
         market,
-        account: formatAccountDebtData(accountAndMarketBreakdown.account),
-        position: formatPositionData(accountAndMarketBreakdown.position, market.decimals),
+        accountDebtData: formatAccountDebtData(accountAndMarketBreakdown.accountDebtData),
+        position: formatPositionData(accountAndMarketBreakdown.position, market.decimals.float),
     }
 }
 
@@ -302,7 +308,7 @@ const formatAccountDebtData = (account: AccountDebtData<false>): AccountDebtData
         totalDebt: getBnToNumber(account.totalDebt),
         dbrBalance: getBnToNumber(account.dbrBalance),
         dolaBalance: getBnToNumber(account.dolaBalance),
-        depletionTimestamp: getBnToNumber(account.depletionTimestamp, 0) * 1000,
+        depletionTimestamp: getBnToNumber(account.depletionTimestamp, 0),
         monthlyBurn: getBnToNumber(account.monthlyBurn),
     }
 }
@@ -325,7 +331,7 @@ export const inverseViewerService = <T extends boolean>(providerOrSigner: Provid
             getMarketBreakdownForAccountList: (market: string, accounts: string[]) => contract.getMarketBreakdownForAccountList(market, accounts).then(data => format ? formatAccountListAndMarketBreakdown(data) : data),
             getMarketAndAccountBreakdown: (market: string, account: string) => contract.getMarketAndAccountBreakdown(market, account).then(data => format ? formatAccountAndMarketBreakdown(data) : data),
             getMarketListAndAccountListBreakdown: (markets: string[], accounts: string[]) => contract.getMarketListAndAccountListBreakdown(markets, accounts).then(data => format ? formatAccountListAndMarketListBreakdown(data) : data),
-            getMarketListBreakdownForAccount: (markets: string[], account: string) => contract.getMarketListBreakdownForAccount(markets, account).then(data => format ? formatAccountAndMarketListBreakdown(data) : data),
+            getMarketListForAccountBreakdown: (markets: string[], account: string) => contract.getMarketListForAccountBreakdown(markets, account).then(data => format ? formatAccountAndMarketListBreakdown(data) : data),
             getAccountDebtData: (account: string) => contract.getAccountDebtData(account).then(data => format ? formatAccountDebtData(data) : data),            
             getAccountPosition: (market: string, account: string, decimals?: number) => contract.getAccountPosition(market, account).then(data => format ? formatPositionData(data, decimals) : data),
             getMarketData: (market: string) => contract.getMarketData(market).then(data => format ? formatMarketData(data) : data),
