@@ -211,7 +211,7 @@ export const formatAccountAndMarketListBreakdown = (accountListAndMarketBreakdow
     }
 }
 
-const formatMarketData = (market: MarketData<false>): MarketData<true> => {
+export const formatMarketData = (market: MarketData<false>): MarketData<true> => {
     return {
         market: market.market,
         collateral: market.collateral,
@@ -303,7 +303,7 @@ export const formatAccountAndMarketBreakdown = (accountAndMarketBreakdown: Accou
     }
 }
 
-const formatAccountDebtData = (account: AccountDebtData<false>): AccountDebtData<true> => {
+export const formatAccountDebtData = (account: AccountDebtData<false>): AccountDebtData<true> => {
     return {
         totalDebt: getBnToNumber(account.totalDebt),
         dbrBalance: getBnToNumber(account.dbrBalance),
@@ -313,7 +313,7 @@ const formatAccountDebtData = (account: AccountDebtData<false>): AccountDebtData
     }
 }
 
-const formatInvDbrAprsData = (invDbrAprs: InvDbrAprsData<false>): InvDbrAprsData<true> => {
+export const formatInvDbrAprsData = (invDbrAprs: InvDbrAprsData<false>): InvDbrAprsData<true> => {
     return {
         invApr: getBnToNumber(invDbrAprs.invApr),
         dbrApr: getBnToNumber(invDbrAprs.dbrApr),
