@@ -5,6 +5,8 @@ import { BigNumber, Contract } from "ethers";
 import { getBnToNumber } from "./markets";
 
 type BigNumberOrNumber<T extends boolean> = T extends true ? number : BigNumber;
+type NumberOrUndefined<T extends boolean> = T extends true ? number : undefined;
+type BigNumberOrUndefined<T extends boolean> = T extends true ? undefined : BigNumber;
 
 export type MarketData<T extends boolean> = {
     market: string;
@@ -20,11 +22,16 @@ export type MarketData<T extends boolean> = {
     dailyBorrows: BigNumberOrNumber<T>;
     liquidity: BigNumberOrNumber<T>;
     minDebt: BigNumberOrNumber<T>;
-    collateralFactorBps: BigNumberOrNumber<T>;
-    liquidationFactorBps: BigNumberOrNumber<T>;
-    liquidationFeeBps: BigNumberOrNumber<T>;
-    liquidationIncentiveBps: BigNumberOrNumber<T>;
-    replenishmentIncentiveBps: BigNumberOrNumber<T>;
+    collateralFactorBps: BigNumberOrUndefined<T>;
+    liquidationFactorBps: BigNumberOrUndefined<T>;
+    liquidationFeeBps: BigNumberOrUndefined<T>;
+    liquidationIncentiveBps: BigNumberOrUndefined<T>;
+    replenishmentIncentiveBps: BigNumberOrUndefined<T>;
+    collateralFactor: NumberOrUndefined<T>;
+    liquidationFactor: NumberOrUndefined<T>;
+    liquidationFee: NumberOrUndefined<T>;
+    liquidationIncentive: NumberOrUndefined<T>;
+    replenishmentIncentive: NumberOrUndefined<T>;
     borrowCeiling: BigNumberOrNumber<T>;
     isPaused: boolean;
 };
@@ -113,6 +120,14 @@ export type PriceData<T extends boolean> = {
     dbrPriceInDola: BigNumberOrNumber<T>;
     dbrPriceInInv: BigNumberOrNumber<T>;
     invPrice: BigNumberOrNumber<T>;
+}
+
+export type DbrDistributorData<T extends boolean> = {
+    rewardRate: BigNumberOrNumber<T>;
+    invStaked: BigNumberOrNumber<T>;
+    yearlyRewardRate: BigNumberOrNumber<T>;
+    dbrApr: BigNumberOrNumber<T>;
+    dbrInvExRate: BigNumberOrNumber<T>;
 }
 
 export type InvDbrAprsData<T extends boolean> = {
@@ -212,26 +227,27 @@ export const formatAccountAndMarketListBreakdown = (accountListAndMarketBreakdow
 }
 
 export const formatMarketData = (market: MarketData<false>): MarketData<true> => {
+    const decimals = getBnToNumber(market.decimals, 0);
     return {
         market: market.market,
         collateral: market.collateral,
         oracleFeed: market.oracleFeed,
         collateralSymbol: market.collateralSymbol,
         collateralName: market.collateralName,
-        decimals: getBnToNumber(market.decimals, 0),
+        decimals,
         totalDebt: getBnToNumber(market.totalDebt),
         leftToBorrow: getBnToNumber(market.leftToBorrow),
         dailyLimit: getBnToNumber(market.dailyLimit),
         dailyBorrows: getBnToNumber(market.dailyBorrows),
         liquidity: getBnToNumber(market.liquidity),
         minDebt: getBnToNumber(market.minDebt),
-        collateralFactorBps: formatBps(market.collateralFactorBps),
-        liquidationFactorBps: formatBps(market.liquidationFactorBps),
-        liquidationFeeBps: formatBps(market.liquidationFeeBps),
-        liquidationIncentiveBps: formatBps(market.liquidationIncentiveBps),
-        replenishmentIncentiveBps: formatBps(market.replenishmentIncentiveBps),
+        collateralFactor: formatBps(market.collateralFactorBps),
+        liquidationFactor: formatBps(market.liquidationFactorBps),
+        liquidationFee: formatBps(market.liquidationFeeBps),
+        liquidationIncentive: formatBps(market.liquidationIncentiveBps),
+        replenishmentIncentive: formatBps(market.replenishmentIncentiveBps),
         borrowCeiling: getBnToNumber(market.borrowCeiling),
-        price: getBnToNumber(market.price),
+        price: getBnToNumber(market.price, (36 - decimals)),
         isPaused: market.isPaused,
     }
 }
@@ -284,6 +300,16 @@ export const formatPricesData = (prices: PriceData<false>): PriceData<true> => {
         dbrPriceInDola: getBnToNumber(prices.dbrPriceInDola),
         dbrPriceInInv: getBnToNumber(prices.dbrPriceInInv),
         invPrice: getBnToNumber(prices.invPrice),
+    }
+}
+
+export const formatDistributorData = (distributorData: DbrDistributorData<false>): DbrDistributorData<true> => {
+    return {
+        rewardRate: getBnToNumber(distributorData.rewardRate),
+        yearlyRewardRate: getBnToNumber(distributorData.yearlyRewardRate),
+        dbrApr: getBnToNumber(distributorData.dbrApr),
+        dbrInvExRate: getBnToNumber(distributorData.dbrInvExRate),
+        invStaked: getBnToNumber(distributorData.invStaked),
     }
 }
 
