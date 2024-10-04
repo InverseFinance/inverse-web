@@ -82,7 +82,7 @@ export const InvChart = () => {
                         // ],
                         useUsd: true,
                         duplicateYAxis: true,
-                        defaultRange: '2Y',
+                        // defaultRange: '2Y',
                         pricePrecision: 2,
                         titleProps: { fontSize: { base: '18px', md: '24px' } },
                         rangesToInclude: ['All', '2Y', '1Y', '6M', '3M'],
