@@ -2,7 +2,7 @@ import { Contract } from 'ethers'
 import 'source-map-support'
 import { INV_ABI, XINV_ABI } from '@app/config/abis'
 import { getProvider } from '@app/util/providers';
-import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
+import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { getBnToNumber } from '@app/util/markets'
 import { BLOCKS_PER_DAY, CHAIN_ID } from '@app/config/constants';
@@ -59,10 +59,10 @@ export default async function handler(req, res) {
   try {
     const cacheDuration = 10000;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
+    const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, true, cacheDuration);
 
-    if (validCache) {
-      res.status(200).send(validCache);
+    if (isValid) {
+      res.status(200).send(cachedData);
       return
     }
 
@@ -71,7 +71,7 @@ export default async function handler(req, res) {
     const contract = new Contract(process.env.NEXT_PUBLIC_REWARD_TOKEN!, INV_ABI, provider);
     const xinvContract = new Contract(process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN!, XINV_ABI, provider);
 
-    const archived = validCache || { blocks: [], timestampsSec: [], evolution: [] };
+    const archived = cachedData || { blocks: [], timestampsSec: [], evolution: [] };
     const lastArchivedBlock = archived.blocks.length > 0 ? archived.blocks[archived.blocks.length - 1] : 16155758;
 
     const startingBlock = lastArchivedBlock + 1 < currentBlock ? lastArchivedBlock + 1 : currentBlock;
