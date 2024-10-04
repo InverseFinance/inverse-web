@@ -1,14 +1,15 @@
 import { useHistoricalInvMarketCap } from "@app/hooks/useHistoricalMarketCap";
 import { useHistoInvPrices } from "@app/hooks/usePrices";
-import { getClosestPreviousHistoValue, timestampToUTC } from "@app/util/misc";
+import { getClosestPreviousHistoValue, preciseCommify, timestampToUTC } from "@app/util/misc";
 import { DefaultCharts } from "./DefaultCharts";
 import { useMediaQuery, VStack, Text } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { InfoMessage } from "../common/Messages";
 import Container from "../common/Container";
 import { useCustomSWR } from "@app/hooks/useCustomSWR";
 import { useDBRMarkets } from "@app/hooks/useDBR";
 import { shortenNumber } from "@app/util/markets";
+import { commify } from "@ethersproject/units";
 
 const maxChartWidth = 1160
 // initial supply of INV
@@ -46,9 +47,17 @@ export const InvChart = () => {
             marketCap: invHistoMarketCap,
             price: invHistoPrice,
             circSupply: invHistoCircSupply,
-            y: invHistoPrice * invHistoCircSupply / INITIAL_SUPPLY,
+            y: invHistoPrice * invHistoCircSupply / invCirculatingSupply,
         }
     })
+
+    const ATH = useMemo(() => {
+        return Math.max(...combodata.map(d => d.price));
+    }, [combodata]);
+
+    const adjustedATH = useMemo(() => {
+        return Math.max(...combodata.map(d => d.y));
+    }, [combodata]);
 
     if(isLoading || !combodata?.length) return null;
 
@@ -80,10 +89,10 @@ export const InvChart = () => {
                     alertProps={{ w: 'full' }}
                     description={
                         <VStack w='full' align='flex-start'>
-                            <Text>Note: the adjusted price aims to have a more relevant $INV pricing for INV stakers by taking into account the circulating supply variations.</Text>
-                            <Text>The adjusted price at a given time is calculated as: <b>Price(t) * Circulating Supply(t) / Initial Supply</b>, with the initial supply being 100,000 INV.</Text>
-                            <Text>Market price: {invPrice ? shortenNumber(invPrice, 2, true) : '-'}</Text>
-                            <Text>Adjusted price: {invPrice && invCirculatingSupply ? shortenNumber(invPrice * invCirculatingSupply / INITIAL_SUPPLY, 2, true) : '-'}</Text>
+                            <Text>Note: the adjusted price aims to have a more relevant $INV pricing by taking into account the circulating supply variations.</Text>
+                            <Text>The adjusted price at a given time is calculated as: <b>Price(t) * Historical Circulating Supply(t) / Current Circulating Supply</b></Text>
+                            <Text>Market-close ATH price: {ATH ? preciseCommify(ATH, 2, true) : '-'}</Text>
+                            <Text fontWeight='bold'>Adjusted ATH price: {adjustedATH ? preciseCommify(adjustedATH, 2, true) : '-'}</Text>
                         </VStack>
                     }
                 />
