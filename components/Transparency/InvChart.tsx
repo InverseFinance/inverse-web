@@ -56,6 +56,10 @@ export const InvChart = () => {
     }, [combodata]);
 
     const adjustedATH = useMemo(() => {
+        return combodata.find(d => d.price === ATH)?.y;
+    }, [combodata, ATH]);
+
+    const maxAdjustedPrice = useMemo(() => {
         return Math.max(...combodata.map(d => d.y));
     }, [combodata]);
 
@@ -89,10 +93,11 @@ export const InvChart = () => {
                     alertProps={{ w: 'full' }}
                     description={
                         <VStack w='full' align='flex-start'>
-                            <Text>Note: the adjusted price aims to have a more relevant $INV pricing by taking into account the circulating supply variations.</Text>
+                            <Text>Note: the adjusted price aims to have a more relevant $INV historical pricing by taking into account the circulating supply variations.</Text>
                             <Text>The adjusted price at a given time is calculated as: <b>Price(t) * Historical Circulating Supply(t) / Current Circulating Supply</b></Text>
                             <Text>Market-close ATH price: {ATH ? preciseCommify(ATH, 2, true) : '-'}</Text>
-                            <Text fontWeight='bold'>Adjusted ATH price: {adjustedATH ? preciseCommify(adjustedATH, 2, true) : '-'}</Text>
+                            <Text>Adjusted Market-close ATH price: {adjustedATH ? preciseCommify(adjustedATH, 2, true) : '-'}</Text>
+                            <Text fontWeight='bold'>Adjusted price all time high: {maxAdjustedPrice ? preciseCommify(maxAdjustedPrice, 2, true) : '-'}</Text>
                         </VStack>
                     }
                 />
