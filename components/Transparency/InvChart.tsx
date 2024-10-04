@@ -9,6 +9,7 @@ import Container from "../common/Container";
 import { useCustomSWR } from "@app/hooks/useCustomSWR";
 import { useDBRMarkets } from "@app/hooks/useDBR";
 import { SkeletonBlob } from "../common/Skeleton";
+import { shortenNumber } from "@app/util/markets";
 
 const maxChartWidth = 1160
 
@@ -94,7 +95,7 @@ export const InvChart = () => {
                                     <Text>The adjusted price at a given time is calculated as: <b>Price(t) * Historical Circulating Supply(t) / Current Circulating Supply</b></Text>
                                     <Text>Market-close ATH price: {ATH ? preciseCommify(ATH, 2, true) : '-'}</Text>
                                     <Text>Adjusted Market-close ATH price: {adjustedATH ? preciseCommify(adjustedATH, 2, true) : '-'}</Text>
-                                    <Text fontWeight='bold'>Adjusted price all time high: {maxAdjustedPrice ? `${preciseCommify(maxAdjustedPrice, 2, true)} (x${maxAdjustedPrice / invPrice})` : '-'}</Text>
+                                    <Text fontWeight='bold'>Adjusted price all time high: {maxAdjustedPrice ? `${preciseCommify(maxAdjustedPrice, 2, true)} (x${shortenNumber(maxAdjustedPrice / invPrice, 2)})` : '-'}</Text>
                                 </VStack>
                             }
                         />
