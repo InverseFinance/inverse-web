@@ -61,10 +61,10 @@ export const InvChart = () => {
         return Math.max(...combodata.map(d => d.y));
     }, [combodata]);
 
-    return <VStack spacing={0}>
-        <Container p="0" noPadding>
+    return <VStack spacing={0} w='full'>
+        <Container p="0" noPadding w='full'>
             {
-                isLoading ? <SkeletonBlob /> :
+                isLoading ? <SkeletonBlob  skeletonHeight={6} noOfLines={5}/> :
                     <VStack pt="10" position="relative">
                         <DefaultCharts
                             showMonthlyBarChart={false}
