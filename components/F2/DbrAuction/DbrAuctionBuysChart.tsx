@@ -1,4 +1,4 @@
-import { Stack, VStack, useMediaQuery, Text } from "@chakra-ui/react"
+import { Stack, VStack, useMediaQuery, Text, Checkbox, HStack } from "@chakra-ui/react"
 import { useEventsAsChartData } from "@app/hooks/misc";
 import { DefaultCharts } from "@app/components/Transparency/DefaultCharts";
 import { useEffect, useState } from "react";
@@ -21,7 +21,9 @@ const surroundByZero = (chartDataAcc: { x: number, y: number }[]) => {
 }
 
 export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useInvAmount = false }) => {
-    const { chartData: chartDataAcc } = useEventsAsChartData(chartEvents, '_acc_', isTotal ? 'worthIn' : useInvAmount ? 'invIn' : 'dolaIn', true, true);
+    const [useUsd, setUseUsd] = useState(false);
+    const { chartData: chartDataAcc } = useEventsAsChartData(chartEvents, '_acc_', isTotal || useUsd ? 'worthIn' : useInvAmount ? 'invIn' : 'dolaIn', true, true);
+    const { chartData: chartDataAccUsd } = useEventsAsChartData(chartEvents, '_acc_', 'worthIn', true, true);
     const { chartData: chartDataArb } = useEventsAsChartData(chartEvents.filter(e => e.arb > 0), 'arbPerc', 'arbPerc', true, true);
     const virtualAuctionBuysEvents = events.filter(e => e.auctionType === 'Virtual');
     const sdolaAuctionBuysEvents = events.filter(e => e.auctionType === 'sDOLA');
@@ -39,7 +41,7 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
         .reduce((prev, curr) => prev + curr.dolaIn, 0);
 
     const invAuctionBuys = invAuctionBuysEvents
-        .reduce((prev, curr) => prev + (useInvAmount ? (curr.invIn||0) : curr.worthIn), 0);
+        .reduce((prev, curr) => prev + (useInvAmount ? (curr.invIn || 0) : curr.worthIn), 0);
 
     const uniqueWeeks = [...new Set(chartEvents.map(e => getPreviousThursdayUtcDateOfTimestamp(e.timestamp)))];
     uniqueWeeks.sort((a, b) => a > b ? 1 : -1);
@@ -57,7 +59,7 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
 
     const dbrWeeklyIncomeStats = uniqueWeeks.map(week => {
         const weekEvents = chartEvents.filter(e => getPreviousThursdayUtcDateOfTimestamp(e.timestamp) === week);
-        const dolaIn = weekEvents.map(e => e.dolaIn ? e.dolaIn : useInvAmount ? (e.invIn||0) : e.worthIn);
+        const dolaIn = weekEvents.map(e => e.dolaIn ? e.dolaIn : useInvAmount ? (e.invIn || 0) : e.worthIn);
         const total = dolaIn.reduce((prev, curr) => prev + curr, 0);
         return { week, y: total, x: week }
     });
@@ -74,27 +76,50 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
 
     useEffect(() => {
         setAutoChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width) - 80)
-    }, [isLargerThan]);    
+    }, [isLargerThan]);
 
     return <VStack alignItems="flex-start">
-        <Stack pt="10" direction={{ base: 'column', '2xl': 'row' }} alignItems="center">
-            <DefaultCharts
-                showMonthlyBarChart={false}
-                // maxChartWidth={isLargerThan2xl && isTotal ? autoChartWidth / 2 : autoChartWidth}
-                maxChartWidth={autoChartWidth}
-                chartWidth={autoChartWidth}
-                chartData={surroundByZero(chartDataAcc)}
-                isDollars={false}
-                smoothLineByDefault={false}
-                barProps={{ eventName: 'DBR auction buys' }}
-                areaProps={{ secondaryRef: 'yDay', secondaryAsLeftAxis: true, secondaryAsUsd: false, secondaryPrecision: 2, secondaryLabel: useInvAmount ? 'INV income' : 'DOLA income', secondaryType: 'stepAfter', showSecondary: true, title: 'Income from all DBR auction buys', defaultRange: '1M', fillInByDayInterval: true, id: 'dbr-auction-buys-arb', showRangeBtns: true, yLabel: `Acc. ${useInvAmount ? 'INV' : 'DOLA'} income`, useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'secondary', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
-            />
+        <Stack position="relative" pt="10" direction={{ base: 'column', '2xl': 'row' }} alignItems="center">
+            {
+                useInvAmount && <HStack zIndex="2" position="absolute" top="10" right="20">
+                    <Checkbox cursor="pointer" id="use-usd" onChange={() => setUseUsd(!useUsd)} isChecked={useUsd} />
+                    <Text cursor="pointer" as="label" htmlFor="use-usd">Show in USD</Text>
+                </HStack>
+            }
+
+            {/* bugs if conditional swap instead of show/shide */}
+            <VStack spacing="0">
+                <VStack display={useUsd ? 'block' : 'none'}>
+                    <DefaultCharts
+                        showMonthlyBarChart={false}
+                        maxChartWidth={autoChartWidth}
+                        chartWidth={autoChartWidth}
+                        chartData={surroundByZero(chartDataAccUsd)}
+                        isDollars={true}
+                        smoothLineByDefault={false}
+                        areaProps={{ secondaryRef: 'yDay', secondaryAsLeftAxis: true, secondaryAsUsd: true, secondaryPrecision: 2, secondaryLabel: useInvAmount ? 'INV income' : 'DOLA income', secondaryType: 'stepAfter', showSecondary: true, title: 'Income from all DBR auction buys', defaultRange: '1M', fillInByDayInterval: true, id: `dbr-auction-buys-chart-usd`, showRangeBtns: true, yLabel: `Acc. ${useInvAmount ? 'INV' : 'DOLA'} income`, useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'secondary', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
+                    />
+                </VStack>
+                <VStack display={useUsd ? 'none' : 'block'}>
+                    <DefaultCharts
+                        showMonthlyBarChart={false}
+                        maxChartWidth={autoChartWidth}
+                        chartWidth={autoChartWidth}
+                        chartData={surroundByZero(chartDataAcc)}
+                        isDollars={false}
+                        smoothLineByDefault={false}
+                        areaProps={{ secondaryRef: 'yDay', secondaryAsLeftAxis: true, secondaryAsUsd: false, secondaryPrecision: 2, secondaryLabel: useInvAmount ? 'INV income' : 'DOLA income', secondaryType: 'stepAfter', showSecondary: true, title: 'Income from all DBR auction buys', defaultRange: '1M', fillInByDayInterval: true, id: `dbr-auction-buys-chart`, showRangeBtns: true, yLabel: `Acc. ${useInvAmount ? 'INV' : 'DOLA'} income`, useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'secondary', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
+                    />
+                </VStack>
+            </VStack>
+
         </Stack>
         <BarChartRecharts
             title={`Weekly average prices in the last ${nbWeeksToShow} weeks`}
             combodata={last8WeeksDbrPricesStats}
             precision={4}
-            yDomain={[0.05, 0.25]}
+            yAxisPrecision={4}
+            yDomain={useInvAmount ? [0.001, 0.004] : [0.05, 0.25]}
             chartWidth={autoChartWidth - 50}
             yLabel="Avg. Auction Price"
             yLabel2="Avg. Market Price"
