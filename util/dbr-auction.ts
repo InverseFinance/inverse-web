@@ -119,6 +119,10 @@ export const useDbrAuctionActivity = (from?: string): SWR & {
     accInvWorthIn: number,
     accWorthIn: number,
     accInvWorthOut: number,
+    accWorthOut: number,
+    accDolaWorthOut: number,
+    accVirtualWorthOut: number,
+    accSdolaWorthOut: number,
 } => {
     const liveEvents = []//useDbrAuctionBuyEvents(from);
     const { data, error } = useCustomSWR(`/api/auctions/dbr-buys?v=1.0.1`, fetcher);
@@ -155,12 +159,14 @@ export const useDbrAuctionActivity = (from?: string): SWR & {
 
     const accDolaIn = dolaEvents.reduce((prev, curr) => prev + curr.dolaIn || 0, 0);
     const accInvWorthIn = sinvAuctionEvents.reduce((prev, curr) => prev + curr.worthIn || 0, 0);
-    const accWorthIn = dolaEvents.reduce((prev, curr) => prev + curr.worthIn || 0, 0);
+    const accWorthIn = events.reduce((prev, curr) => prev + curr.worthIn || 0, 0);
+    const accWorthOut = events.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
+    const accDolaWorthOut = dolaEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
+    const accVirtualWorthOut = virtualAuctionEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
+    const accSdolaWorthOut = sdolaAuctionEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
     const accInvWorthOut = sinvAuctionEvents.reduce((prev, curr) => prev + curr.worthOut || 0, 0);
     const accDbrOutFromDola = dolaEvents.reduce((prev, curr) => prev + curr.dbrOut, 0);
     const accDbrOut = events.reduce((prev, curr) => prev + curr.dbrOut, 0);
-
-    
 
     const accDolaInVirtual = virtualAuctionEvents.reduce((prev, curr) => prev + curr.dolaIn || 0, 0);
     const accDbrOutVirtual = virtualAuctionEvents.reduce((prev, curr) => prev + curr.dbrOut, 0);
@@ -198,6 +204,10 @@ export const useDbrAuctionActivity = (from?: string): SWR & {
         accWorthIn,
         accInvWorthIn,
         accInvWorthOut,
+        accWorthOut,
+        accDolaWorthOut,
+        accVirtualWorthOut,
+        accSdolaWorthOut,
         timestamp: !from ? data?.timestamp : 0,
         isLoading: !error && !data,
         isError: error,

@@ -10,9 +10,10 @@ import { preciseCommify } from '@app/util/misc';
 import { DbrAuctionTabs } from '@app/components/F2/DbrAuction/DbrAuctionTabs';
 import { useDbrAuctionActivity } from '@app/util/dbr-auction';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
+import { shortenNumber } from '@app/util/markets';
 
 export const DbrAuctionStatsPage = () => {
-  const { isLoading, events, dolaEvents, invEvents, accDolaIn, accDbrOut, accInvIn, timestamp } = useDbrAuctionActivity();  
+  const { isLoading, events, dolaEvents, invEvents, accDolaIn, accDbrOut, accInvIn, accWorthIn, accInvWorthIn, accWorthOut, timestamp } = useDbrAuctionActivity();  
   return (
     <Layout>
       <Head>
@@ -46,21 +47,21 @@ export const DbrAuctionStatsPage = () => {
                 <Text textAlign={{ base: 'left', md: 'center' }} fontWeight="bold">Total DOLA income</Text>
                 {
                   isLoading ? <SmallTextLoader width={'50px'} />
-                    : <Text textAlign={{ base: 'left', md: 'center' }} color="secondaryTextColor" fontWeight="bold" fontSize="18px">{preciseCommify(accDolaIn, 2)}</Text>
+                    : <Text textAlign={{ base: 'left', md: 'center' }} color="secondaryTextColor" fontWeight="bold" fontSize="18px">{preciseCommify(accDolaIn, 2)} ({shortenNumber(accWorthIn, 2, true)})</Text>
                 }
               </VStack>
               <VStack spacing="0" alignItems={{ base: 'left', md: 'center' }}>
                 <Text textAlign={{ base: 'left', md: 'center' }} fontWeight="bold">Total INV income</Text>
                 {
                   isLoading ? <SmallTextLoader width={'50px'} />
-                    : <Text textAlign={{ base: 'left', md: 'center' }} color="secondaryTextColor" fontWeight="bold" fontSize="18px">{preciseCommify(accInvIn, 2)}</Text>
+                    : <Text textAlign={{ base: 'left', md: 'center' }} color="secondaryTextColor" fontWeight="bold" fontSize="18px">{preciseCommify(accInvIn, 2)} ({shortenNumber(accInvWorthIn, 2, true)})</Text>
                 }
               </VStack>
               <VStack spacing="0" alignItems={{ base: 'left', md: 'center' }}>
                 <Text textAlign={{ base: 'left', md: 'center' }} fontWeight="bold">Total DBR auctioned</Text>
                 {
                   isLoading ? <SmallTextLoader width={'50px'} />
-                    : <Text textAlign={{ base: 'left', md: 'center' }} color="secondaryTextColor" fontWeight="bold" fontSize="18px">{preciseCommify(accDbrOut, 2)}</Text>
+                    : <Text textAlign={{ base: 'left', md: 'center' }} color="secondaryTextColor" fontWeight="bold" fontSize="18px">{preciseCommify(accDbrOut, 2)} ({shortenNumber(accWorthOut, 2, true)})</Text>
                 }
               </VStack>
             </HStack>
