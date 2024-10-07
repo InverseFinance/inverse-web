@@ -35,6 +35,7 @@ export const BarChartRecharts = ({
     rightPadding = 0,
     showLabel = true,
     precision = 2,
+    yAxisPrecision = 2,
     isDoubleBar = false,
 }: {
     combodata: { y: number, y2? :number, x: number, timestamp: number, utcDate: string }[]
@@ -59,6 +60,7 @@ export const BarChartRecharts = ({
     showLabel?: boolean
     isDoubleBar?: boolean
     precision?: number
+    yAxisPrecision?: number
 }) => {
     const { themeStyles } = useAppTheme();
 
@@ -103,7 +105,7 @@ export const BarChartRecharts = ({
                     style={_axisStyle.tickLabels}
                     dataKey="x"
                 />
-                <YAxis domain={yDomain} style={_axisStyle.tickLabels} tickFormatter={(v) => v === 0 ? '' : smartShortNumber(v, 2, useUsd)} />
+                <YAxis domain={yDomain} style={_axisStyle.tickLabels} tickFormatter={(v) => v === 0 ? '' : smartShortNumber(v, yAxisPrecision, useUsd)} />
                 {
                     showTooltips && <Tooltip
                         wrapperStyle={_axisStyle.tickLabels}

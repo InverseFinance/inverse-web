@@ -89,6 +89,16 @@ export const useDOLAPrice = (): SWR & { price: number } => {
   }
 }
 
+export const useINVPrice = (): SWR & { price: number } => {
+  const { data, error } = useCacheFirstSWR(`/api/inv-price`)
+
+  return {
+    price: data ? data['inverse-finance'] : 0,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
 export const useDOLAPriceLive = (): { price: number | undefined } => {
   const { data: dolaCrvUsdLpPriceOracle } = useEtherSWR({
     args: [

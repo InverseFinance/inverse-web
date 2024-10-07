@@ -10,9 +10,10 @@ import { preciseCommify } from '@app/util/misc';
 import { DbrAuctionTabs } from '@app/components/F2/DbrAuction/DbrAuctionTabs';
 import { useDbrAuctionActivity } from '@app/util/dbr-auction';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
+import { shortenNumber } from '@app/util/markets';
 
 export const DbrAuctionSInvStatsPage = () => {
-  const { isLoading, sinvAuctionEvents: events, accInvInSinv: accInvIn, accDbrOutSinv: accDbrOut, timestamp } = useDbrAuctionActivity();  
+  const { isLoading, sinvAuctionEvents: events, accInvInSinv: accInvIn, accDbrOutSinv: accDbrOut, accInvWorthIn, accInvWorthOut, timestamp } = useDbrAuctionActivity();
   return (
     <Layout>
       <Head>
@@ -46,14 +47,18 @@ export const DbrAuctionSInvStatsPage = () => {
                 <Text textAlign={{ base: 'left', md: 'center' }} fontWeight="bold">Total INV income</Text>
                 {
                   isLoading ? <SmallTextLoader width={'50px'} />
-                    : <Text textAlign={{ base: 'left', md: 'center' }} color="secondaryTextColor" fontWeight="bold" fontSize="18px">{preciseCommify(accInvIn, 2)}</Text>
+                    : <Text textAlign={{ base: 'left', md: 'center' }} color="secondaryTextColor" fontWeight="bold" fontSize="18px">
+                      {preciseCommify(accInvIn, 2)} ({shortenNumber(accInvWorthIn, 2, true)})
+                    </Text>
                 }
               </VStack>
               <VStack spacing="0" alignItems={{ base: 'left', md: 'center' }}>
                 <Text textAlign={{ base: 'left', md: 'center' }} fontWeight="bold">Total DBR auctioned</Text>
                 {
                   isLoading ? <SmallTextLoader width={'50px'} />
-                    : <Text textAlign={{ base: 'left', md: 'center' }} color="secondaryTextColor" fontWeight="bold" fontSize="18px">{preciseCommify(accDbrOut, 2)}</Text>
+                    : <Text textAlign={{ base: 'left', md: 'center' }} color="secondaryTextColor" fontWeight="bold" fontSize="18px">
+                      {preciseCommify(accDbrOut, 2)} ({shortenNumber(accInvWorthOut, 2, true)})
+                    </Text>
                 }
               </VStack>
             </HStack>
@@ -62,7 +67,7 @@ export const DbrAuctionSInvStatsPage = () => {
           {
             isLoading ?
               <SkeletonBlob />
-              : <DbrAuctionBuysChart isTotal={false} events={events} chartEvents={events} useInvAmount={true} />
+              : <DbrAuctionBuysChart isTotal={false} useUsd={true} events={events} chartEvents={events} useInvAmount={true} />
           }
         </Container>
         <DbrAuctionBuys lastUpdate={timestamp} events={events.slice(0, 100)} title="Last 100 DBR buys from the auction" />

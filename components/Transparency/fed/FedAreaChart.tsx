@@ -51,6 +51,7 @@ export const FedAreaChart = ({
                 width={chartWidth}
                 data={chartData}
                 interpolation={useSmoothLine ? 'basis' : 'stepAfter'}
+                allowEscapeViewBox={false}
                 {...props}
             />
         </>

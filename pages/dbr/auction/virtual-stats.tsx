@@ -10,9 +10,10 @@ import { preciseCommify } from '@app/util/misc';
 import { DbrAuctionTabs } from '@app/components/F2/DbrAuction/DbrAuctionTabs';
 import { useDbrAuctionActivity } from '@app/util/dbr-auction';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
+import { shortenNumber } from '@app/util/markets';
 
 export const DbrAuctionVirtualStatsPage = () => {
-  const { isLoading, virtualAuctionEvents: events, accDolaInVirtual: accDolaIn, accDbrOutVirtual: accDbrOut, timestamp } = useDbrAuctionActivity();  
+  const { isLoading, virtualAuctionEvents: events, accDolaInVirtual: accDolaIn, accDbrOutVirtual: accDbrOut, accVirtualWorthOut, timestamp } = useDbrAuctionActivity();  
   return (
     <Layout>
       <Head>
@@ -53,7 +54,7 @@ export const DbrAuctionVirtualStatsPage = () => {
                 <Text textAlign={{ base: 'left', md: 'center' }} fontWeight="bold">Total DBR auctioned</Text>
                 {
                   isLoading ? <SmallTextLoader width={'50px'} />
-                    : <Text textAlign={{ base: 'left', md: 'center' }} color="secondaryTextColor" fontWeight="bold" fontSize="18px">{preciseCommify(accDbrOut, 2)}</Text>
+                    : <Text textAlign={{ base: 'left', md: 'center' }} color="secondaryTextColor" fontWeight="bold" fontSize="18px">{preciseCommify(accDbrOut, 2)} {accVirtualWorthOut > 0 ? `(${shortenNumber(accVirtualWorthOut, 2, true)})` : ''}</Text>
                 }
               </VStack>
             </HStack>
