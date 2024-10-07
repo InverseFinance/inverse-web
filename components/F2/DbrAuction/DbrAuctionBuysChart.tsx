@@ -89,7 +89,7 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
 
             {/* bugs if conditional swap instead of show/shide */}
             <VStack spacing="0">
-                <VStack display={useUsd ? 'block' : 'none'}>
+                <VStack display={useUsd || isTotal ? 'block' : 'none'}>
                     <DefaultCharts
                         showMonthlyBarChart={false}
                         maxChartWidth={autoChartWidth}
@@ -97,10 +97,10 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
                         chartData={surroundByZero(chartDataAccUsd)}
                         isDollars={true}
                         smoothLineByDefault={false}
-                        areaProps={{ secondaryRef: 'yDay', secondaryAsLeftAxis: true, secondaryAsUsd: true, secondaryPrecision: 2, secondaryLabel: useInvAmount ? 'INV income' : 'DOLA income', secondaryType: 'stepAfter', showSecondary: true, title: 'Income from all DBR auction buys', defaultRange: '1M', fillInByDayInterval: true, id: `dbr-auction-buys-chart-usd`, showRangeBtns: true, yLabel: `Acc. ${useInvAmount ? 'INV' : 'DOLA'} income`, useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'secondary', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
+                        areaProps={{ secondaryRef: 'yDay', secondaryAsLeftAxis: true, secondaryAsUsd: true, secondaryPrecision: 2, secondaryLabel: isTotal ? 'Income' : useInvAmount ? 'INV income' : 'DOLA income', secondaryType: 'stepAfter', showSecondary: true, title: 'Income from all DBR auction buys', defaultRange: '1M', fillInByDayInterval: true, id: `dbr-auction-buys-chart-usd`, showRangeBtns: true, yLabel: `Acc. ${isTotal ? '' : useInvAmount ? 'INV' : 'DOLA'} income`, useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'secondary', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
                     />
                 </VStack>
-                <VStack display={useUsd ? 'none' : 'block'}>
+                <VStack display={useUsd || isTotal ? 'none' : 'block'}>
                     <DefaultCharts
                         showMonthlyBarChart={false}
                         maxChartWidth={autoChartWidth}
