@@ -5,7 +5,7 @@ import 'source-map-support'
 // const BASE_URL = 'https://api.1inch.dev/swap/v5.2/1';
 const BASE_URL = 'https://api.1inch.dev/swap/v6.0/1';
 
-const { F2_ALE } = getNetworkConfigConstants();
+const { F2_ALE, DOLA } = getNetworkConfigConstants();
 
 // default limit is 1 Request Per Sec
 const fetch1inchWithRetry = async (
@@ -38,13 +38,17 @@ const connectors = {
 }
 
 export default async function handler(req, res) {
+  const cacheDuration = 2;
+  res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+  res.setHeader('Access-Control-Allow-Headers', `Content-Type`);
+  res.setHeader('Access-Control-Allow-Origin', `*`);
+  res.setHeader('Access-Control-Allow-Methods', `OPTIONS,POST,GET`);
+
   const { method, buyToken, buyAmount, sellToken, sellAmount, slippagePercentage, isFullDeleverage } = req.query;
-  if (!['swap', 'quote'].includes(method) || !isAddress(buyToken) || !isAddress(sellToken) || (!/^[1-9]+[0-9]*$/.test(sellAmount) && isFullDeleverage !== 'true')) {
+  if (!['swap', 'quote'].includes(method) || !isAddress(buyToken) || !isAddress(sellToken) || (buyToken.toLowerCase() !== DOLA.toLowerCase() && sellToken.toLowerCase() !== DOLA.toLowerCase()) || (!/^[1-9]+[0-9]*$/.test(sellAmount) && isFullDeleverage !== 'true')) {
     return res.status(400).json({ msg: 'invalid request' });
   }
-  try {
-    const cacheDuration = 2;
-    res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+  try {    
     let url = `${BASE_URL}/${method}?dst=${buyToken}&src=${sellToken}&slippage=${slippagePercentage}&disableEstimate=true&from=${F2_ALE}`;
     url += `&amount=${sellAmount || ''}`;
 
