@@ -35,7 +35,7 @@ export const DolaCircSupplyEvolution = () => {
         m="0"
         p="0"
         label="DOLA Circulating Supply Evolution"
-        description="Excluded from circulation: DOLAs sitting in markets and in Fed Farmers; Precision: daily on mainnet, weekly on L2s"
+        description="Excluded from circulation: DOLAs sitting in FiRM markets, anDOLA and in Fed Farmers; Precision: daily on mainnet, weekly on L2s"
         headerProps={{
             direction: { base: 'column', md: 'row' },
             align: { base: 'flex-start', md: 'flex-end' },
