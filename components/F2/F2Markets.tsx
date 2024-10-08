@@ -130,7 +130,7 @@ export const MARKET_INFOS = {
     'yv-crvUSD-DOLA': {
         name: 'yv-crvUSD-DOLA',
         fullname: 'Yearn vault - crvUSD-DOLA LP',
-        description: 'The Yearn Vault for the Curve crvUSD-DOLA LP, the yearn vault auto-compounds the CVX+CRV yield of the crvUSD-DOLA LP into more vault tokens',
+        description: 'The Yearn Vault for the Curve crvUSD-DOLA LP, the yearn vault auto-compounds the rewards of the crvUSD-DOLA LP into more vault tokens',
         getLink: 'https://yearn.fi/vaults/1/0xfb5137Aa9e079DB4b7C2929229caf503d0f6DA96',
     },
     'cbBTC': {
@@ -138,6 +138,18 @@ export const MARKET_INFOS = {
         fullname: 'Coinbase Wrapped Bitcoin',
         description: "Coinbase Wrapped BTC is a token backed 1:1 by native Bitcoin held by Coinbase. It is a transferable token that is redeemable for the underlying BTC and is built to be seamlessly compatible with DeFi applications.",
         getLink: 'https://swap.defillama.com/?chain=ethereum&from=0x865377367054516e17014ccded1e7d814edc9ce4&to=0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf',
+    },
+    'FraxPyUSD-DOLA': {
+        name: 'FraxPyUSD-DOLA',
+        fullname: 'FraxPyUSD-DOLA LP',
+        description: 'The LP token for the FraxPyUSD-DOLA pool on Curve, when deposited on FiRM the LP token will be then deposited into Convex to earn claimable CVX+CRV rewards',
+        getLink: 'https://curve.fi/#/ethereum/pools/factory-stable-ng-96/deposit',
+    },
+    'yv-FraxPyUSD-DOLA': {
+        name: 'yv-FraxPyUSD-DOLA',
+        fullname: 'Yearn vault - FraxPyUSD-DOLA LP',
+        description: 'The Yearn Vault for the Curve FraxPyUSD-DOLA LP, the yearn vault auto-compounds the rewards of the FraxPyUSD-DOLA LP into more vault tokens',
+        getLink: 'https://yearn.fi/vaults/1/0xcC2EFb8bEdB6eD69ADeE0c3762470c38D4730C50',
     },
 }
 
@@ -179,7 +191,7 @@ export const MarketNameAndIcon = ({ marketIcon, icon, underlying, name }) => {
             !underlying.isLP ? <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
             : <LPImages alternativeDisplay={true} lpToken={{ pairs: underlying.pairs, image: underlying.image, protocolImage: underlying.protocolImage }} chainId={1} imgSize={18} />
         }
-        <CellText textOverflow="clip" overflow="hidden" whiteSpace="nowrap" fontWeight="bold" fontSize={{ base: '16px', '2xl': name.length > 12 ? '16px' : '20px' }}>{name}</CellText>
+        <CellText textOverflow="clip" overflow="hidden" whiteSpace="nowrap" fontWeight="bold" fontSize={{ base: '14px', '2xl': name.length > 14 ? '14px' : name.length > 12 ? '16px' : '20px' }}>{name}</CellText>
     </HStack>
 }
 
@@ -480,10 +492,10 @@ export const F2Markets = ({
     const invMarketIsInOtherSection = withoutDeposits.some(m => m.isInv);
 
     const pinnedItems = invMarketIsInOtherSection ?
-        ['0xb516247596Ca36bf32876199FBdCaD6B3322330B', (markets?.length > 0 ? markets[markets?.length - 1].address : '')]
-        : [(markets?.length > 0 ? markets[markets?.length - 1].address : '')];
+        ['0xb516247596Ca36bf32876199FBdCaD6B3322330B', ...(markets?.length > 0 ? markets.map(m => m.address).slice(markets.length-2) : [])]
+        : (markets?.length > 0 ? markets.map(m => m.address).slice(markets.length-2) : []);
 
-    const pinnedLabels = invMarketIsInOtherSection ? ['Stake', 'New'] : ['New'];
+    const pinnedLabels = invMarketIsInOtherSection ? ['Stake', 'New', 'New'] : ['New', 'New'];
 
     return <Container
         p={isDashboardPage ? '0' : '6'}
