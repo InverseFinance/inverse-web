@@ -1,6 +1,6 @@
 import { F2Market } from "@app/types"
 import { useContext, useEffect } from "react";
-import { useCrvUsdDolaRewards, useCvxCrvRewards, useCvxFxsRewards, useCvxRewards, useEscrowBalance, useEscrowRewards, useINVEscrowRewards, useStakedInFirm } from "@app/hooks/useFirm";
+import { useConvexLpRewards, useCvxCrvRewards, useCvxFxsRewards, useCvxRewards, useEscrowBalance, useEscrowRewards, useINVEscrowRewards, useStakedInFirm } from "@app/hooks/useFirm";
 import { F2MarketContext } from "../F2Contex";
 import { BURN_ADDRESS } from "@app/config/constants";
 import { zapperRefresh } from "@app/util/f2";
@@ -68,11 +68,23 @@ export const FirmRewardWrapper = ({
         />
     }
     else if (market.name === 'crvUSD-DOLA') {
-        return <FirmCrvUsdDolaRewardWrapperContent
+        return <FirmConvexLpRewardWrapperContent
             market={market}
             label={label}
             showMarketBtn={showMarketBtn}
             extraAtBottom={extraAtBottom}
+            escrow={_escrow}
+            rewardContract='0xC94208D230EEdC4cDC4F80141E21aA485A515660'
+            onLoad={onLoad}
+        />
+    }
+    else if (market.name === 'FraxPyUSD-DOLA') {
+        return <FirmConvexLpRewardWrapperContent
+            market={market}
+            label={label}
+            showMarketBtn={showMarketBtn}
+            extraAtBottom={extraAtBottom}
+            rewardContract='0xE8cBdBFD4A1D776AB1146B63ABD1718b2F92a823'
             escrow={_escrow}
             onLoad={onLoad}
         />
@@ -179,22 +191,24 @@ export const FirmCvxRewardWrapperContent = ({
     />
 }
 
-export const FirmCrvUsdDolaRewardWrapperContent = ({
+export const FirmConvexLpRewardWrapperContent = ({
     market,
     label,
     showMarketBtn = false,
     extraAtBottom = false,
     escrow,
+    rewardContract,
     onLoad,
 }: {
     market: F2Market
     label?: string
     escrow?: string
+    rewardContract?: string
     showMarketBtn?: boolean
     extraAtBottom?: boolean
     onLoad?: (v: number) => void
 }) => {
-    const { rewardsInfos, isLoading } = useCrvUsdDolaRewards(escrow);
+    const { rewardsInfos, isLoading } = useConvexLpRewards(escrow, rewardContract);
     useEffect(() => {
         if (!onLoad || !rewardsInfos?.tokens?.length || isLoading) { return }
         const totalUsd = rewardsInfos.tokens.filter(t => t.metaType === 'claimable')
