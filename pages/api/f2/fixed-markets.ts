@@ -5,7 +5,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { TOKENS } from '@app/variables/tokens'
-import { getBnToNumber, getCrvUSDDOLAConvexData, getCvxCrvAPRs, getCvxFxsAPRs, getDSRData, getSFraxData, getSUSDEData, getStCvxData, getStYcrvData, getStYethData, getStethData, getYvCrvUsdDOLAData } from '@app/util/markets'
+import { getBnToNumber, getCrvUSDDOLAConvexData, getCvxCrvAPRs, getCvxFxsAPRs, getDSRData, getFraxPyusdDOLAConvexData, getSFraxData, getSUSDEData, getStCvxData, getStYcrvData, getStYethData, getStethData, getYvCrvUsdDOLAData, getYvFraxPyusdDOLAData } from '@app/util/markets'
 import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_MS, ONE_DAY_SECS } from '@app/config/constants';
 import { frontierMarketsCacheKey } from '../markets';
 import { cgPricesCacheKey } from '../prices';
@@ -15,7 +15,7 @@ import { getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
 
 const { F2_MARKETS, DOLA, XINV, DBR_DISTRIBUTOR, FEDS } = getNetworkConfigConstants();
 
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.2.57`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.2.58`;
 
 export default async function handler(req, res) {
   const cacheDuration = 60;
@@ -158,6 +158,8 @@ export default async function handler(req, res) {
       getSUSDEData(provider),
       getCrvUSDDOLAConvexData(),
       getYvCrvUsdDOLAData(),
+      getFraxPyusdDOLAConvexData(),
+      getYvFraxPyusdDOLAData(),
     ]);
 
     let [
@@ -172,6 +174,8 @@ export default async function handler(req, res) {
       sUSDEData,
       crvUSDDOLAConvexData,
       yvCrvUsdDOLAData,
+      fraxPyusdDOLAConvexData,
+      yvFraxPyusdDOLAData,
     ] = externalYieldResults.map(r => {
       return r.status === 'fulfilled' ? r.value : {};
     });
@@ -199,6 +203,8 @@ export default async function handler(req, res) {
       'sUSDe': sUSDEData?.apy || 0,
       'crvUSD-DOLA': crvUSDDOLAConvexData?.apy || 0,
       'yv-crvUSD-DOLA': yvCrvUsdDOLAData?.apy || 0,
+      'FraxPyUSD-DOLA': fraxPyusdDOLAConvexData?.apy || 0,
+      'yv-FraxPyUSD-DOLA': yvFraxPyusdDOLAData?.apy || 0,
     };
 
     const xinvExRate = getBnToNumber(xinvExRateBn);
