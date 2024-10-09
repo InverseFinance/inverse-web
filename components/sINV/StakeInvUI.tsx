@@ -217,7 +217,7 @@ export const StakeInvUI = ({
         </VStack>
         <Container
             label={`sINV${version === 'V1' ? ' V1 (deprecated)' : showVersion ? ' V2' : ''}`}
-            description="Auto-Compounding Tokenized Vault - See contract"
+            description="Auto-Compounding Tokenized Vault"
             href={`https://etherscan.io/address/${sinvAddress}`}
             noPadding
             m="0"

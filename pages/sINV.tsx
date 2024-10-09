@@ -58,12 +58,12 @@ export const SinvPage = () => {
               alertProps={{ w: 'full' }}
               description={
                 <SimpleGrid fontSize="18px" columns={{ base: 1, md: 2 }}>
-                  <Text>- Auto-compounding staking rewards, no need to claim manually</Text>
+                  <Text>- Auto-compounding rewards</Text>
                   <Text>- Reduced gas costs</Text>
                   <Text>- Yield-bearing fungible token</Text>
-                  <Text>- Can earn additional yield by being deposited in Liquidity Pools</Text>
+                  <Text>- Extra yield possible with LPs</Text>
                   <Text>- Portable across chains</Text>
-                  <Text>- Creates continuous buying pressure on INV</Text>
+                  <Text>- Continuous INV buying pressure</Text>
                 </SimpleGrid>
               }
             />
