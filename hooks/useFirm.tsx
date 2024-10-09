@@ -15,7 +15,7 @@ import { useAccount } from "./misc";
 import { useBlocksTimestamps } from "./useBlockTimestamp";
 import { TOKENS, getToken } from "@app/variables/tokens";
 import { useDOLAPrice, usePrices } from "./usePrices";
-import { getCrvUsdDolaRewards, getCvxCrvRewards, getCvxRewards } from "@app/util/firm-extra";
+import { getConvexLpRewards, getCvxCrvRewards, getCvxRewards } from "@app/util/firm-extra";
 import { useWeb3React } from "@web3-react/core";
 import useSWR from "swr";
 import { FEATURE_FLAGS, isInvPrimeMember } from "@app/config/features";
@@ -551,13 +551,13 @@ export const useCvxCrvRewards = (escrow: string) => {
   }
 }
 
-export const useCrvUsdDolaRewards = (escrow: string) => {
+export const useConvexLpRewards = (escrow: string, rewardContract: string) => {
   const { prices } = usePrices();
 
   const { provider } = useWeb3React();
   const tsMinute = (new Date()).toISOString().substring(0, 16);
-  const { data: rewardsData, error } = useSWR(`crvUsd-DOLA-rewards-${escrow}-${tsMinute}`, async () => {
-    return !escrow || escrow === BURN_ADDRESS ? Promise.resolve(undefined) : await getCrvUsdDolaRewards(escrow, provider?.getSigner());
+  const { data: rewardsData, error } = useSWR(`convex-lp-rewards-${escrow}-${tsMinute}`, async () => {
+    return !escrow || escrow === BURN_ADDRESS ? Promise.resolve(undefined) : await getConvexLpRewards(escrow, rewardContract, provider?.getSigner());
   });
 
   const crv = getToken(TOKENS, 'CRV')!;

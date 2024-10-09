@@ -23,8 +23,8 @@ export const getCvxCrvRewards = (escrow: string, signer: JsonRpcSigner) => {
     return contract.callStatic.earned(escrow);
 }
 
-export const getCrvUsdDolaRewards = async (escrow: string, signer: JsonRpcSigner) => {
-    const contract = new Contract('0xC94208D230EEdC4cDC4F80141E21aA485A515660', CRV_USD_DOLA_R_ABI, signer);
+export const getConvexLpRewards = async (escrow: string, rewardContract: string, signer: JsonRpcSigner) => {
+    const contract = new Contract(rewardContract, CRV_USD_DOLA_R_ABI, signer);
     const cvxContract = new Contract('0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B', ERC20_ABI, signer);
     
     const [earned, cvxSupply] = await Promise.all([
