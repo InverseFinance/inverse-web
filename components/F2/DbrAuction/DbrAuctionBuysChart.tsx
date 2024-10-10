@@ -127,7 +127,17 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
             showLabel={isLargerThan}
             isDoubleBar={true}
         />
-        <BarChartRecharts
+        <DefaultCharts
+            showMonthlyBarChart={true}
+            showAreaChart={false}
+            maxChartWidth={autoChartWidth}
+            chartWidth={autoChartWidth}
+            chartData={chartDataAccUsd}
+            isDollars={true}
+            smoothLineByDefault={false}
+            barProps={{ useRecharts: true, title: 'Monthly auction income' }}
+        />
+        {/* <BarChartRecharts
             title={`Weekly ${useInvAmount ? 'INV' : 'DOLA'} income in the last ${nbWeeksToShow} weeks`}
             combodata={last8WeeksIncomeStats}
             precision={2}
@@ -136,7 +146,7 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
             yLabel="Weekly income"
             useUsd={false}
             showLabel={isLargerThan}
-        />
+        /> */}
         <VStack pt="10">
             <DefaultCharts
                 showMonthlyBarChart={false}
