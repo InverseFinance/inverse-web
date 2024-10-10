@@ -340,6 +340,7 @@ const mainConfig = {
             name: 'FraxPyUSD-DOLA',
             collateral: '0xef484de8C07B6e2d732A92B5F78e81B38f99f95E',
             address: '0x4797A68c8feB383c3372c0e098533aCf8eD95B26',
+            nonProxySwapType: 'nonProxySwapMeta',
             escrowImplementation: FIRM_ESCROWS['ConvexEscrowV2'],
             helper: true,
             oracleType: "chainlink",
