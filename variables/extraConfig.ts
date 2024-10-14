@@ -281,7 +281,7 @@ const mainConfig = {
             escrowImplementation: FIRM_ESCROWS.simple,
             helper: true,
             oracleType: "chainlink",
-            badgeInfo: 'Yield-Bearing',
+            badgeInfo: 'Ethena points',
             rewardTypeLabel: 'sUSDe\'s Annual Yield',
             underlyingSymbol: 'USDe',
             badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },
