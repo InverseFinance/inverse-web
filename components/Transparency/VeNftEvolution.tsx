@@ -137,7 +137,7 @@ export const VeNftEvolutionWrapper = () => {
                 ] : [])
                 .filter(item => !!item.x && item[veNft.symbol] != undefined),
         }
-    });
+    }).filter(item => item.currentWorth > 5000);
     chartList.sort((a, b) => b.currentWorth - a.currentWorth);
 
     const currentTotalUsd = chartList.reduce((acc, veNft) => {
