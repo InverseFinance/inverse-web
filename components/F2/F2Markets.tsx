@@ -118,7 +118,7 @@ export const MARKET_INFOS = {
     'sUSDe': {
         name: 'sUSDe',
         fullname: 'Staked sUSDe',
-        description: 'sUSDe is staked USDe which is a synthetic stablecoin by etherfi, backed with crypto assets and corresponding short futures positions.',
+        description: 'sUSDe is staked USDe which is a synthetic stablecoin by etherfi, backed with crypto assets and corresponding short futures positions. Borrowing in this market will get you Ethena points, for more info check the Ethena website.',
         getLink: 'https://app.ethena.fi/stake',
     },
     'crvUSD-DOLA': {
