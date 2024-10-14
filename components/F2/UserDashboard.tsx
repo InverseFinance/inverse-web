@@ -24,6 +24,7 @@ import { InfoMessage } from "../common/Messages";
 import { useStakedDola, useStakedDolaBalance } from "@app/util/dola-staking";
 import { FirmInsuranceCover, SDolaInsuranceCover } from "../common/InsuranceCover";
 import { useStakedInv, useStakedInvBalance } from "@app/util/sINV";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 const MAX_AREA_CHART_WIDTH = 625;
 
@@ -132,7 +133,7 @@ const DbrEvoChart = ({
     />
 }
 
-export const DashBoardCard = (props: StackProps & { cardTitle?: string, cardTitleProps?: TextProps, href?: string, imageSize?: number,imageSrc?: string, imageList?: string[] }) => {
+export const DashBoardCard = (props: StackProps & { cardTitle?: string, cardTitleProps?: TextProps, externalLink?: string, imageSize?: number,imageSrc?: string, imageList?: string[] }) => {
     const imgList = Array.isArray(props.imageSrc) ? props.imageSrc : [props.imageSrc];
     const imgSize = props.imageSize || 30;
     return <Flex
@@ -152,6 +153,7 @@ export const DashBoardCard = (props: StackProps & { cardTitle?: string, cardTitl
         {!!props.imageSrc && imgList.map((image, i) => {
             return <Image key={image} borderRadius="50px" src={image} w={`${imgSize}px`} h={`${imgSize}px`} position="absolute" left="10px" top={`${10 + (imgSize + 10) * i}px`} />
         })}
+        {!!props.externalLink && <Link position="absolute" right="10px" top="10px" textDecoration="underline" href={props.externalLink} isExternal target="_blank"><ExternalLinkIcon/></Link>}
         {props.children}
     </Flex>
 }
