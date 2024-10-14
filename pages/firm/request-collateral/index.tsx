@@ -28,10 +28,13 @@ export const F2PAGE = () => {
                                     Here you can submit a request to add a new collateral on FiRM
                                 </Text>
                                 <Text>
-                                    If you need to add more details, or if the maximum of 3 requests per day is reached, you can also post on the DAO's forum.
+                                    If you need to add more details, or if the maximum of 3 requests per day is reached, you can also post on the DAO's forum or on discord in the general-growth channel.
                                 </Text>
                                 <Link textDecoration="underline" href="https://forum.inverse.finance/c/collateral-requests/11" isExternal>
                                     Post on the forum
+                                </Link>
+                                <Link textDecoration="underline" href="https://discord.gg/YpYJC7R5nv" isExternal>
+                                    Post on discord
                                 </Link>
                             </VStack>
                         }
