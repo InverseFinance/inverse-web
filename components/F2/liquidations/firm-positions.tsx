@@ -11,6 +11,7 @@ import { BarChart } from "@app/components/Transparency/BarChart";
 import { SkeletonBlob } from "@app/components/common/Skeleton";
 import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader";
 import { FirmPositionsTable } from "../Infos/FirmPositionsTable";
+import { DashBoardCard } from '@app/components/F2/UserDashboard'
 
 export const groupPositionsBy = (positions: any[], groupBy: string, attributeToSum: string) => {
     return Object.entries(
@@ -31,8 +32,8 @@ export const FirmPositions = ({
     const { positions, timestamp, isLoading } = useFirmPositions();
     const { onOpen, onClose, isOpen } = useDisclosure();
     const [position, setPosition] = useState(null);
-    const [isLargerThan] = useMediaQuery(`(min-width: 48em)`); 
-    
+    const [isLargerThan] = useMediaQuery(`(min-width: 48em)`);
+
     const pieSize = isLargerThan ? 300 : 250;
 
     const openLiquidation = async (data) => {
@@ -57,7 +58,7 @@ export const FirmPositions = ({
 
     return <VStack w='full' alignItems="center">
         <VStack direction={{ base: 'column', md: 'row' }} w='full' justify="space-around" >
-            <VStack w='full' display={{ base: 'none', md: 'block' }} alignItems='center' direction="column-reverse">
+            {/* <VStack w='full' display={{ base: 'none', md: 'block' }} alignItems='center' direction="column-reverse">
                 <VStack>
                     <Text fontWeight="bold">Avg Borrow Limit By Markets</Text>
                     <BarChart
@@ -69,14 +70,14 @@ export const FirmPositions = ({
                         isDollars={false}
                     />
                 </VStack>
-            </VStack>
+            </VStack> */}
             <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-around" >
-                <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
-                    <Text fontWeight="bold">TVL By Markets</Text>
+                <VStack spacing="0" alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
+                    <Text fontWeight="bold" fontSize="18px">TVL By Markets</Text>
                     <Funds isLoading={isLoading} labelWithPercInChart={true} skipLineForPerc={true} funds={groupMarketsByDeposits} chartMode={true} showTotal={false} showChartTotal={true} chartProps={{ width: pieSize, height: pieSize }} useRecharts={true} />
                 </VStack>
-                <VStack alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
-                    <Text fontWeight="bold">Debt By Markets</Text>
+                <VStack spacing="0" alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
+                    <Text fontWeight="bold" fontSize="18px">Debt By Markets</Text>
                     <Funds isLoading={isLoading} labelWithPercInChart={true} skipLineForPerc={true} funds={groupMarketsByDebt} chartMode={true} showTotal={false} showChartTotal={true} chartProps={{ width: pieSize, height: pieSize }} useRecharts={true} />
                 </VStack>
             </Stack>
