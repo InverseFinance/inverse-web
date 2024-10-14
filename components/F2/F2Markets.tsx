@@ -189,9 +189,11 @@ export const MarketNameAndIcon = ({ marketIcon, icon, underlying, name }) => {
     return <HStack maxW='180px' justify="flex-start" alignItems="center" spacing="2" w='full'>
         {
             !underlying.isLP ? <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
-            : <LPImages alternativeDisplay={true} lpToken={{ pairs: underlying.pairs, image: underlying.image, protocolImage: underlying.protocolImage }} chainId={1} imgSize={18} />
+                : <LPImages alternativeDisplay={true} lpToken={{ pairs: underlying.pairs, image: underlying.image, protocolImage: underlying.protocolImage }} chainId={1} imgSize={18} />
         }
-        <CellText textOverflow="clip" overflow="hidden" whiteSpace="nowrap" fontWeight="bold" fontSize={{ base: '14px', '2xl': name.length > 14 ? '14px' : name.length > 12 ? '16px' : '20px' }}>{name}</CellText>
+        <CellText textOverflow="clip" overflow="hidden" whiteSpace="nowrap" fontWeight="bold" fontSize={{ base: '14px', '2xl': name.length > 14 ? '14px' : name.length > 12 ? '16px' : '20px' }}>
+            {name}
+        </CellText>
     </HStack>
 }
 
@@ -238,25 +240,33 @@ const CollateralFactorCell = ({ collateralFactor, borrowPaused, _isMobileCase }:
     </Cell>
 }
 
-export const MarketApyInfos = ({ supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel }) => {
+export const MarketApyInfos = ({ name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel }) => {
     return <Cell spacing="0" direction="column" minWidth="140px" alignItems="center" justify="center" fontSize="14px">
-    <AnchorPoolInfo
-        // protocolImage={underlying.protocolImage}
-        value={supplyApy}
-        valueExtra={extraApy}
-        valueLow={supplyApyLow}
-        priceUsd={price}
-        symbol={underlying.symbol}
-        type={'supply'}
-        textProps={{ textAlign: "end" }}
-        hasClaimableRewards={hasClaimableRewards}
-    />
-    {
-        supplyApy > 0 && <Text fontSize="12px" color="mainTextColorLight">
-            {rewardTypeLabel || (isInv ? 'INV + DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY')}
-        </Text>
-    }
-</Cell>
+        <HStack>
+            <AnchorPoolInfo
+                // protocolImage={underlying.protocolImage}
+                value={supplyApy}
+                valueExtra={extraApy}
+                valueLow={supplyApyLow}
+                priceUsd={price}
+                symbol={underlying.symbol}
+                type={'supply'}
+                textProps={{ textAlign: "end" }}
+                hasClaimableRewards={hasClaimableRewards}
+            />
+            {
+                name === 'sUSDe' && <HStack spacing="1">
+                    <Image src={'https://assets.coingecko.com/coins/images/36530/standard/ethena.png?1711701436'} h="15px" w="15px" />
+                    <Text fontSize="12px" color="mainTextColorLight">x5</Text>
+                </HStack>
+            }
+        </HStack>
+        {
+            supplyApy > 0 && <Text fontSize="12px" color="mainTextColorLight">
+                {rewardTypeLabel || (isInv ? 'INV + DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY')}
+            </Text>
+        }
+    </Cell>
 }
 
 const columns = [
@@ -274,8 +284,9 @@ const columns = [
         label: 'Underlying APY',
         tooltip: 'The APY provided by the asset itself (or via its claimable rewards) and that is kept even after supplying. This is not an additional APY from FiRM',
         header: ({ ...props }) => <ColHeader minWidth="140px" justify="center"  {...props} />,
-        value: ({ supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel }) => {
+        value: ({ name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel }) => {
             return <MarketApyInfos
+                name={name}
                 supplyApy={supplyApy}
                 supplyApyLow={supplyApyLow}
                 extraApy={extraApy}
@@ -492,8 +503,8 @@ export const F2Markets = ({
     const invMarketIsInOtherSection = withoutDeposits.some(m => m.isInv);
 
     const pinnedItems = invMarketIsInOtherSection ?
-        ['0xb516247596Ca36bf32876199FBdCaD6B3322330B', ...(markets?.length > 0 ? markets.map(m => m.address).slice(markets.length-2) : [])]
-        : (markets?.length > 0 ? markets.map(m => m.address).slice(markets.length-2) : []);
+        ['0xb516247596Ca36bf32876199FBdCaD6B3322330B', ...(markets?.length > 0 ? markets.map(m => m.address).slice(markets.length - 2) : [])]
+        : (markets?.length > 0 ? markets.map(m => m.address).slice(markets.length - 2) : []);
 
     const pinnedLabels = invMarketIsInOtherSection ? ['Stake', 'New', 'New'] : ['New', 'New'];
 
