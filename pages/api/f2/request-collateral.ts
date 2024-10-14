@@ -36,12 +36,21 @@ export default async function handler(req, res) {
             res.json({ ...data, requests: arr });
             break
         case 'POST':
-            if (!account || /[^0-9a-z]/i.test(symbol) || /[<>/\\{}]/i.test(description) || (!!decimals && isNaN(decimals)) || (!['true', 'false'].includes(wouldUse.toString())) || !isAddress(account) || (!!value && !isAddress(value)) || typeof wouldUse !== 'boolean' || (!value && !symbol) || description?.length > 500 || value?.length > 250 || symbol?.length > 250) {
+            if (!account || /[^0-9a-z]/i.test(symbol) || /[<>/\\{}]/i.test(description) || /(<script|alert\()/i.test(description) || /^test$/i.test(description) || (!!decimals && isNaN(decimals)) || (!['true', 'false'].includes(wouldUse.toString())) || !isAddress(account) || (!!value && !isAddress(value)) || typeof wouldUse !== 'boolean' || (!value && !symbol) || description?.length > 500 || value?.length > 250 || symbol?.length > 250) {
                 res.status(400).json({ status: 'error', message: 'Invalid values' })
                 return
             }
             const now = Date.now();
-            const { requests } = await getCacheFromRedis(cacheKey, false) || { requests: [] };
+            const yesterday = now - 24 * 60 * 60 * 1000;
+            const { requests, timestamp: lastSave } = await getCacheFromRedis(cacheKey, false) || { requests: [] };
+
+            const nbRequestsInLast24h = requests.filter(r => r.timestamp >= yesterday).length;
+
+            if(nbRequestsInLast24h >= 3){
+                res.status(400).json({ status: 'error', message: 'The total number of collateral requests in the last 24h has been reached. Please try again tomorrow.' });
+                return;
+            }
+
             const key = `${account.toLowerCase()}-${symbol.toLowerCase()}`;
 
             if(requests.some(r => r.key === key)){

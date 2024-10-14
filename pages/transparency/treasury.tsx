@@ -9,11 +9,14 @@ import { useDAO } from '@app/hooks/useDAO'
 import { getFundsTotalUsd } from '@app/components/Transparency/Funds'
 import { FundsDetails } from '@app/components/Transparency/FundsDetails'
 import { DashBoardCard } from '@app/components/F2/UserDashboard'
-import { getNetworkImage } from '@app/util/networks'
+import { getNetworkConfigConstants, getNetworkImage } from '@app/util/networks'
 import { useState } from 'react'
 import { NetworkIds } from '@app/types'
+import { getScanner } from '@app/util/web3'
 
 const OWN_TOKENS = ['DBR', 'INV'];
+
+const { TREASURY } = getNetworkConfigConstants();
 
 const ExcludeOwnTokens = ({
   id,
@@ -91,7 +94,7 @@ export const Overview = () => {
               <DashBoardCard cardTitle="Multisigs's Holdings" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
                 <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={totalMultisigs} prices={prices} type='balance' useRecharts={true} />
               </DashBoardCard>
-              <DashBoardCard cardTitle="In Treasury Contract" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
+              <DashBoardCard externalLink={`${getScanner(1)}/address/${TREASURY}`} cardTitle="In Treasury Contract" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
                 <ExcludeOwnTokens label="Exclude INV & DBR" setter={setExcludeOwnTokens2} value={excludeOwnTokens2} id='exclude-2' />
                 <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={treasuryHoldings} prices={prices} type='balance' useRecharts={true} />
               </DashBoardCard>
@@ -103,7 +106,7 @@ export const Overview = () => {
               {/* <FundsDetails title="Kept in the Bonds Manager" funds={bonds?.balances.filter(({ token }) => token.symbol !== RTOKEN_SYMBOL)} prices={prices} /> */}
               {
                 TWGfunds.map((mf, i) => {
-                  return <DashBoardCard imageSrc={getNetworkImage(TWGmultisigs[i].chainId)} cardTitle={TWGmultisigs[i].shortName === 'TWG' ? 'TWG on Mainnet' : TWGmultisigs[i].shortName} cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
+                  return <DashBoardCard externalLink={`${getScanner(TWGmultisigs[i].chainId)}/address/${TWGmultisigs[i].address}`} imageSrc={getNetworkImage(TWGmultisigs[i].chainId)} cardTitle={TWGmultisigs[i].shortName === 'TWG' ? 'TWG on Mainnet' : TWGmultisigs[i].shortName} cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
                     <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={mf.filter(above100UsdFilter)} prices={prices} type='balance' useRecharts={true} />
                   </DashBoardCard>
                 })
