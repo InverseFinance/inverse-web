@@ -685,9 +685,9 @@ export const formatAndGroupFirmEvents = (
     };
 }
 
-export const calculateMaxNetApy = (supplyApy: number, collateralFactor: number, dbrPriceUsd: number) => {
-    const maxMultiplier = calculateMaxLeverage(collateralFactor);
-    const mApy = supplyApy * maxMultiplier;
-    const mBorrowApr = dbrPriceUsd * 100 * maxMultiplier * collateralFactor;
+export const calculateNetApy = (supplyApy: number, collateralFactor: number, dbrPriceUsd: number, _multiplier?: number) => {
+    const multiplier = _multiplier ? _multiplier : calculateMaxLeverage(collateralFactor);
+    const mApy = supplyApy * multiplier;
+    const mBorrowApr = dbrPriceUsd * 100 * multiplier * collateralFactor;
     return mApy - mBorrowApr;
 }

@@ -4,7 +4,7 @@ import Container from "@app/components/common/Container";
 import { useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
 import { useRouter } from 'next/router';
 import { useAccount } from '@app/hooks/misc';
-import { calculateMaxNetApy, getRiskColor } from "@app/util/f2";
+import { calculateNetApy, getRiskColor } from "@app/util/f2";
 import { BigImageButton } from "@app/components/common/Button/BigImageButton";
 import Table from "@app/components/common/Table";
 import { useFirmTVL } from "@app/hooks/useTVL";
@@ -270,7 +270,7 @@ export const MarketApyInfos = ({ name, supplyApy, supplyApyLow, extraApy, price,
         }
         {
             !borrowPaused && (supplyApy+extraApy)/100 > dbrPriceUsd && <CellText fontSize="12px" color="accentTextColor">
-                Up to <b>{calculateMaxNetApy(supplyApy+extraApy, collateralFactor, dbrPriceUsd).toFixed(2)}%</b> at x{smartShortNumber(maxLong, 2)}
+                Up to <b>{calculateNetApy(supplyApy+extraApy, collateralFactor, dbrPriceUsd).toFixed(2)}%</b> at x{smartShortNumber(maxLong, 2)}
             </CellText>             
         }
     </Cell>
@@ -289,7 +289,7 @@ const columns = [
     {
         field: 'supplyApy',
         label: 'Underlying APY',
-        tooltip: 'The APY provided by the asset itself (or via its claimable rewards) and that is kept even after supplying. This is not an additional APY from FiRM',
+        tooltip: 'The APY provided by the asset itself (or via its claimable rewards) and that is kept even after supplying. This is not an additional APY from FiRM. If leverage is possible the Net yield at maximum theoretical leverage will be showed as well.',
         header: ({ ...props }) => <ColHeader minWidth="140px" justify="center"  {...props} />,
         value: ({ name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
             return <MarketApyInfos

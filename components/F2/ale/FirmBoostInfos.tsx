@@ -6,7 +6,7 @@ import { InfoMessage, WarningMessage } from '@app/components/common/Messages'
 import { ArrowDownIcon, ArrowUpIcon, CheckCircleIcon } from '@chakra-ui/icons'
 import { Input } from '@app/components/common/Input'
 import { F2MarketContext } from '../F2Contex'
-import { f2CalcNewHealth, getRiskColor } from '@app/util/f2'
+import { calculateNetApy, f2CalcNewHealth, getRiskColor } from '@app/util/f2'
 import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
 import { F2Market } from '@app/types'
 import { TextInfo, TextInfoSimple } from '@app/components/common/Messages/TextInfo'
@@ -82,7 +82,7 @@ const nonProxySwapGetters = {
     'nonProxySwap': async (lp: string, dolaAmountToDepositOrLpAmountToBurn: BigNumber | string, isDeposit: boolean, signer: JsonRpcSigner) => {
         const crvLpContract = new Contract(lp, CRV_LP_ABI, signer);
         // amount in lp, = change in lp supply when depositing or withdrawing dola
-        if(isDeposit) {
+        if (isDeposit) {
             return (await crvLpContract.calc_token_amount([dolaAmountToDepositOrLpAmountToBurn.toString(), '0'], true));
         } else {
             return (await crvLpContract.calc_withdraw_one_coin(dolaAmountToDepositOrLpAmountToBurn.toString(), 0));
@@ -91,7 +91,7 @@ const nonProxySwapGetters = {
     'nonProxySwapMeta': async (metaLp: string, dolaAmountToDepositOrLpAmountToBurn: BigNumber | string, isDeposit: boolean, signer: JsonRpcSigner) => {
         const crvLpContract = new Contract(metaLp, CRV_META_LP_ABI, signer);
         // amount in lp, = change in lp supply when depositing or withdrawing dola
-        if(isDeposit) {
+        if (isDeposit) {
             return (await crvLpContract.calc_token_amount([dolaAmountToDepositOrLpAmountToBurn.toString(), '0'], true));
         } else {
             return (await crvLpContract.calc_withdraw_one_coin(dolaAmountToDepositOrLpAmountToBurn.toString(), 0));
@@ -114,7 +114,7 @@ export const getLeverageImpact = async ({
     signer,
 }) => {
     // only when there is a transformation needed and when using a proxy when using ALE, otherwise the underlyingExRate is just a ui info
-    const exRate = market?.aleData?.useProxy && market?.aleData?.buySellToken?.toLowerCase() !== market?.collateral?.toLowerCase() ? underlyingExRate : 1;   
+    const exRate = market?.aleData?.useProxy && market?.aleData?.buySellToken?.toLowerCase() !== market?.collateral?.toLowerCase() ? underlyingExRate : 1;
     const collateralPrice = market?.price;
     if (!collateralPrice || leverageLevel <= 1) {
         return
@@ -129,7 +129,7 @@ export const getLeverageImpact = async ({
         const baseWorth = baseColAmountForLeverage * collateralPrice;
         let borrowStringToSign, borrowNumToSign;
         // leverage level slider / input, result from 1inch
-        if (!viaInput && !market.isAleWithoutSwap) {            
+        if (!viaInput && !market.isAleWithoutSwap) {
             const amountUp = baseColAmountForLeverage * leverageLevel - baseColAmountForLeverage;
             const { buyAmount } = await getAleSellQuote(DOLA, market.aleData.buySellToken || market.collateral, getNumberToBn(amountUp, market.underlying.decimals).toString(), aleSlippage, true);
             borrowStringToSign = buyAmount;
@@ -141,7 +141,7 @@ export const getLeverageImpact = async ({
             borrowStringToSign = getNumberToBn(borrowNumToSign).toString();
         }
         // via leverage level slider or leverage level input
-        else {            
+        else {
             const targetWorth = baseWorth * leverageLevel;
             borrowNumToSign = (targetWorth - baseWorth) * dolaPrice;
             borrowStringToSign = getNumberToBn(borrowNumToSign).toString();
@@ -149,22 +149,22 @@ export const getLeverageImpact = async ({
 
         let collateralAdded, errorMsg;
         // classic case, using 1inch
-        if(!market.isAleWithoutSwap) {
+        if (!market.isAleWithoutSwap) {
             // in the end the reference is always a number of dola sold (as it's what we need to sign, or part of it if with dbr)
             const { buyAmount, validationErrors, msg } = await getAleSellQuote(market.aleData.buySellToken || market.collateral, DOLA, borrowStringToSign, aleSlippage, true);
             errorMsg = validationErrors?.length > 0 ?
                 `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
                 : msg;
-                collateralAdded = buyAmount;
-        } 
+            collateralAdded = buyAmount;
+        }
         // DOLA LP case, result not from 1inch
-        else { 
-            if(signer) {
-                const rootLpAddedBn = await nonProxySwapGetters[market.nonProxySwapType||'nonProxySwap'](market.rootLp||market.collateral, getNumberToBn(borrowNumToSign), true, signer);
+        else {
+            if (signer) {
+                const rootLpAddedBn = await nonProxySwapGetters[market.nonProxySwapType || 'nonProxySwap'](market.rootLp || market.collateral, getNumberToBn(borrowNumToSign), true, signer);
                 collateralAdded = underlyingExRate ? getNumberToBn(getBnToNumber(rootLpAddedBn) / underlyingExRate).toString() : rootLpAddedBn.toString();
             } else {
                 collateralAdded = getNumberToBn((borrowNumToSign * dolaPrice) / market.price, market.underlying.decimals).toString();
-            }     
+            }
         }
         if (setLeverageLoading) setLeverageLoading(false);
         return {
@@ -182,20 +182,20 @@ export const getLeverageImpact = async ({
         const withdrawAmountToSign = targetCollateralBalance - baseColAmountForLeverage;
         let buyAmount, errorMsg;
         // classic case
-        if(!market.isAleWithoutSwap){
+        if (!market.isAleWithoutSwap) {
             const { buyAmount: _buyAmount, validationErrors, msg } = await getAleSellQuote(DOLA, market.aleData.buySellToken || market.collateral, getNumberToBn(Math.abs(withdrawAmountToSign) * exRate, market.underlying.decimals).toString(), aleSlippage, true);
             buyAmount = _buyAmount;
             errorMsg = validationErrors?.length > 0 ?
-            `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
-            : msg;
+                `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
+                : msg;
         } else {
-            if(signer) {
+            if (signer) {
                 const lpAmountInUnderlying = underlyingExRate ? Math.abs(withdrawAmountToSign) * underlyingExRate : Math.abs(withdrawAmountToSign);
-                buyAmount = (await nonProxySwapGetters[market.nonProxySwapType||'nonProxySwap'](market.rootLp||market.collateral, getNumberToBn(lpAmountInUnderlying), false, signer)).toString();
+                buyAmount = (await nonProxySwapGetters[market.nonProxySwapType || 'nonProxySwap'](market.rootLp || market.collateral, getNumberToBn(lpAmountInUnderlying), false, signer)).toString();
             } else {
                 buyAmount = getNumberToBn(Math.abs(withdrawAmountToSign) * market.price / dolaPrice).toString();
-            }            
-        }                
+            }
+        }
         if (setLeverageLoading) setLeverageLoading(false);
         return {
             errorMsg,
@@ -238,8 +238,9 @@ export const FirmBoostInfos = ({
         setLeverageMinAmountUp,
         setLeverageMinDebtReduced,
         signer,
+        dbrPriceUsd,
     } = useContext(F2MarketContext);
-    
+
     const newBorrowLimit = 100 - newPerc;
     const showBorrowLimitTooHighMsg = newBorrowLimit >= 99 && !leverageLoading && !isTriggerLeverageFetch;
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -259,10 +260,10 @@ export const FirmBoostInfos = ({
 
     const risk = useMemo(() => {
         return leverageRelativeToMax <= 0.5 ?
-        riskLevels.low : leverageRelativeToMax <= 0.60 ?
-            riskLevels.lowMid : leverageRelativeToMax <= 0.70 ?
-                riskLevels.mid : leverageRelativeToMax <= 0.80 ?
-                    riskLevels.midHigh : riskLevels.high
+            riskLevels.low : leverageRelativeToMax <= 0.60 ?
+                riskLevels.lowMid : leverageRelativeToMax <= 0.70 ?
+                    riskLevels.mid : leverageRelativeToMax <= 0.80 ?
+                        riskLevels.midHigh : riskLevels.high
     }, [leverageRelativeToMax]);
 
     const boostLabel = isLeverageUp ? 'Leverage' : 'Deleverage';
@@ -307,6 +308,11 @@ export const FirmBoostInfos = ({
     useEffect(() => {
         setLeverageMinDebtReduced(amountOfDebtReduced);
     }, [amountOfDebtReduced, aleSlippageFactor]);
+
+    const netLeveragedYield = useMemo(() => {
+        if (!dbrPriceUsd || !market.collateralFactor || !market.supplyApy) return 0;
+        return calculateNetApy(market.supplyApy + market.extraApy, market.collateralFactor, dbrPriceUsd, leverageLevel);
+    }, [leverageLevel, market, dbrPriceUsd]);
 
     if (!market?.underlying) {
         return <></>
@@ -391,7 +397,7 @@ export const FirmBoostInfos = ({
     }
 
     return <Stack borderRadius='5px' p='4' bgColor="infoAlpha" fontSize="14px" spacing="4" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
-        <VStack position="relative" w='full' alignItems="center" justify="center">            
+        <VStack position="relative" w='full' alignItems="center" justify="center">
             <HStack spacing="2" w='full' justify="space-between" alignItems="center">
                 <InputGroup
                     w='fit-content'
@@ -478,6 +484,15 @@ export const FirmBoostInfos = ({
                     {isLeverageUp ? `Near-max: x${shortenNumber(maxLeverage, 2)}` : 'Sell enough to repay all (estimate)'}
                 </Text>
             </HStack>
+            {
+                leverageLevel > 1 && isLeverageUp && market?.supplyApy > 0 && <HStack spacing="1" w='full' alignItems="flex-start">
+                    <TextInfo message="The net yield is the yield thanks to the increase in collateral size minus the cost of the corresponding leverage-linked debt">
+                        <Text fontWeight="bold">Net-Yield at x{smartShortNumber(leverageLevel, 2)}:</Text>
+                        <Text fontWeight="bold">{shortenNumber(netLeveragedYield, 2)}%</Text>
+                        <Text>(without leverage: {shortenNumber(market.supplyApy + market.extraApy||0, 2)}%)</Text>
+                    </TextInfo>
+                </HStack>
+            }
             <HStack spacing="1" w='full' alignItems="flex-start">
                 <TextInfo message="The quote on 1inch for the trade required to do leverage/deleverage">
                     <Text>Quote:</Text>
