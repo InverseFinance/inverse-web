@@ -11,7 +11,7 @@ import { useDBRMarkets } from "@app/hooks/useDBR";
 import { SkeletonBlob } from "../common/Skeleton";
 import { shortenNumber } from "@app/util/markets";
 
-const maxChartWidth = 1160
+const maxChartWidth = 1380
 
 export const InvChart = () => {
     const { markets, isLoading: isDBRMarketsLoading } = useDBRMarkets();

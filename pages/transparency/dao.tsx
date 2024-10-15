@@ -25,6 +25,7 @@ import { RTOKEN_CG_ID, RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { preciseCommify } from '@app/util/misc'
 import { MultisigsDiagram } from '@app/components/Transparency/MultisigsDiagram'
 import Container from '@app/components/common/Container'
+import { InvChart } from '@app/components/Transparency/InvChart'
 
 const hasPayrollOrVester = (
     payrolls: Payroll[],
@@ -163,6 +164,7 @@ export const GovTransparency = () => {
             <AppNav active="Transparency" activeSubmenu="INV & DAO" hideAnnouncement={true} />
             <TransparencyTabs active="dao" />
             <VStack maxW='1400px' spacing='8'>
+                <InvChart />
                 <Container
                     noPadding
                     p="0"
