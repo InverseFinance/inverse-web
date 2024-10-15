@@ -11,7 +11,7 @@ import { InvStakingActivity } from '@app/components/sINV/InvStakingActivity';
 import { NavButtons } from '@app/components/common/Button';
 import { useState } from 'react';
 import { useAppTheme } from '@app/hooks/useAppTheme';
-import { SInvPriceChart } from '@app/components/Transparency/sInvPriceChart';
+import { SInvPriceChart } from '@app/components/Transparency/SInvPriceChart';
 
 export const SinvPage = () => {
   const account = useAccount();
