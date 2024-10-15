@@ -70,7 +70,7 @@ export const DefaultCharts = ({
                 mainColor="secondary"
                 isDollars={isDollars}
                 isPerc={isPerc}
-                interpolation={useSmoothLine ? 'basis' : 'stepAfter'}
+                interpolation={areaProps?.interpolation || (useSmoothLine ? 'basis' : 'stepAfter')}
                 {...areaProps}
             />
         }
