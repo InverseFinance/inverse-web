@@ -8,7 +8,7 @@ import { getNetworkConfigConstants } from "./networks";
 import { parseUnits, splitSignature } from "ethers/lib/utils";
 import { getBnToNumber, getNumberToBn } from "./markets";
 import { callWithHigherGL } from "./contracts";
-import { uniqueBy } from "./misc";
+import { calculateMaxLeverage, uniqueBy } from "./misc";
 import { getMulticallOutput } from "./multicall";
 import { FIRM_ESCROWS } from "@app/variables/extraConfig";
 
@@ -238,10 +238,10 @@ export const f2deposit = async (signer: JsonRpcSigner, market: string, amount: s
     if (isNativeCoin) {
         const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);
         return helperContract.depositNativeEthOnBehalf(market, { value: amount });
-    }    
+    }
     const useCustomRecipient = !!customRecipient && customRecipient?.toLowerCase() !== account?.toLowerCase() && customRecipient !== BURN_ADDRESS;
     // need non-ambigious deposit function for callWithHigherGL
-    const contract = new Contract(market, useCustomRecipient ? ["function deposit(address user, uint amount) public"] : ["function deposit(uint amount) public"], signer);    
+    const contract = new Contract(market, useCustomRecipient ? ["function deposit(address user, uint amount) public"] : ["function deposit(uint amount) public"], signer);
     if (needsHigherGasLimit(market)) {
         return callWithHigherGL(contract, 'deposit', useCustomRecipient ? [customRecipient, amount] : [amount]);
     }
@@ -585,7 +585,7 @@ export const formatAndGroupFirmEvents = (
     market: F2Market,
     account: string,
     flatenedEvents: any[],
-    depositsOnTopOfLeverageEvents: any[], 
+    depositsOnTopOfLeverageEvents: any[],
     repaysOnTopOfDeleverageEvents: any[],
 ) => {
     // can be different than current balance when staking
@@ -619,7 +619,7 @@ export const formatAndGroupFirmEvents = (
             leverageEvent = e;
         }
         const tokenName = isCollateralEvent ? market.underlying.symbol : e.args?.replenisher || e.replenisher ? 'DBR' : 'DOLA';
-        const actionName = !!leverageEvent ? (leverageEvent.event||leverageEvent.name) : !!combinedEvent ? COMBINATIONS_NAMES[name] : name;
+        const actionName = !!leverageEvent ? (leverageEvent.event || leverageEvent.name) : !!combinedEvent ? COMBINATIONS_NAMES[name] : name;
 
         const amount = e.amount ? e.amount : e.args?.amount ? getBnToNumber(e.args?.amount, decimals) : undefined;
         const liquidatorReward = e.liquidatorReward ? e.liquidatorReward : e.args?.liquidatorReward ? getBnToNumber(e.args?.liquidatorReward, decimals) : undefined;
@@ -683,4 +683,11 @@ export const formatAndGroupFirmEvents = (
         currentCycleDepositedByUser,
         liquidated,
     };
+}
+
+export const calculateNetApy = (supplyApy: number, collateralFactor: number, dbrPriceUsd: number, _multiplier?: number) => {
+    const multiplier = _multiplier ? _multiplier : calculateMaxLeverage(collateralFactor);
+    const mApy = supplyApy * multiplier;
+    const mBorrowApr = dbrPriceUsd * 100 * multiplier * collateralFactor;
+    return mApy - mBorrowApr;
 }

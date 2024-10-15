@@ -452,22 +452,6 @@ export function formatDuration(seconds: number) {
     return `${days > 0 ? String(days).padStart(2, '0') + 'd:' : ''}${String(hours).padStart(2, '0')}h:${String(minutes).padStart(2, '0')}m:${String(secs).padStart(2, '0')}s`;
 }
 
-export const calculateMaxLeverage = (collateralFactor: number, precision = 0.01, maxSteps = 1000) => {
-    let leverage = 1;
-    let totalBorrow = 0;
-    let collateral = 1;
-    let steps = 0;
-
-    while (steps < maxSteps) {
-        totalBorrow = leverage - 1;
-        if (totalBorrow > collateral * collateralFactor) {
-            return leverage - precision;
-        }
-        leverage += precision;
-        collateral = leverage;
-        steps++;
-    }
-
-    console.warn("Max steps reached. Result may not be accurate.");
-    return leverage;
+export const calculateMaxLeverage = (collateralFactor: number) => {
+    return 1 / (1 - collateralFactor);
 }

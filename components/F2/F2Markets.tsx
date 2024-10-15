@@ -4,7 +4,7 @@ import Container from "@app/components/common/Container";
 import { useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
 import { useRouter } from 'next/router';
 import { useAccount } from '@app/hooks/misc';
-import { getRiskColor } from "@app/util/f2";
+import { calculateNetApy, getRiskColor } from "@app/util/f2";
 import { BigImageButton } from "@app/components/common/Button/BigImageButton";
 import Table from "@app/components/common/Table";
 import { useFirmTVL } from "@app/hooks/useTVL";
@@ -228,20 +228,22 @@ const MarketCell = ({ icon, marketIcon, underlying, badgeInfo, badgeProps, name,
     </Cell>
 }
 
-const CollateralFactorCell = ({ collateralFactor, borrowPaused, _isMobileCase }: { collateralFactor: number, borrowPaused: boolean, _isMobileCase: boolean }) => {
+const CollateralFactorCell = ({ collateralFactor, supplyApy, borrowPaused, dbrPriceUsd, _isMobileCase }: { collateralFactor: number, borrowPaused: boolean, _isMobileCase: boolean }) => {
+    const maxLong = calculateMaxLeverage(collateralFactor);
     return <Cell spacing="0" direction="column" minWidth="70px" alignItems={_isMobileCase ? 'flex-end' : 'center'} justify="center" >
         <CellText>{shortenNumber(collateralFactor * 100, 0)}%</CellText>
         {
             !borrowPaused && <>
                 {!_isMobileCase && <CellText>&nbsp;</CellText>}
-                <CellText color="mainTextColorLight" transform={_isMobileCase ? undefined : 'translateY(10px)'} position={_isMobileCase ? 'static' : 'absolute'} fontSize="12px">Long up to x{calculateMaxLeverage(collateralFactor).toFixed(2)}</CellText>
+                <CellText color="mainTextColorLight" transform={_isMobileCase ? undefined : 'translateY(10px)'} position={_isMobileCase ? 'static' : 'absolute'} fontSize="12px">Long up to x{smartShortNumber(maxLong, 2)}</CellText>
             </>
         }
     </Cell>
 }
 
-export const MarketApyInfos = ({ name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel }) => {
-    return <Cell spacing="0" direction="column" minWidth="140px" alignItems="center" justify="center" fontSize="14px">
+export const MarketApyInfos = ({ name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, borrowPaused, rewardTypeLabel, collateralFactor, dbrPriceUsd, _isMobileCase }) => {
+    const maxLong = calculateMaxLeverage(collateralFactor);
+    return <Cell spacing="0" direction="column" minWidth="140px" alignItems={_isMobileCase ? 'flex-end' : 'center'} justify="center" fontSize="14px">
         <HStack>
             <AnchorPoolInfo
                 // protocolImage={underlying.protocolImage}
@@ -266,6 +268,11 @@ export const MarketApyInfos = ({ name, supplyApy, supplyApyLow, extraApy, price,
                 {rewardTypeLabel || (isInv ? 'INV + DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY')}
             </Text>
         }
+        {
+            !borrowPaused && (supplyApy+extraApy)/100 > dbrPriceUsd && <CellText fontSize="12px" color="accentTextColor">
+                Up to <b>{calculateNetApy(supplyApy+extraApy, collateralFactor, dbrPriceUsd).toFixed(2)}%</b> at x{smartShortNumber(maxLong, 2)}
+            </CellText>             
+        }
     </Cell>
 }
 
@@ -282,19 +289,23 @@ const columns = [
     {
         field: 'supplyApy',
         label: 'Underlying APY',
-        tooltip: 'The APY provided by the asset itself (or via its claimable rewards) and that is kept even after supplying. This is not an additional APY from FiRM',
+        tooltip: 'The APY provided by the asset itself (or via its claimable rewards) and that is kept even after supplying. This is not an additional APY from FiRM. If leverage is possible the Net yield at maximum theoretical leverage will be showed as well.',
         header: ({ ...props }) => <ColHeader minWidth="140px" justify="center"  {...props} />,
-        value: ({ name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel }) => {
+        value: ({ name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
             return <MarketApyInfos
                 name={name}
+                borrowPaused={borrowPaused}
                 supplyApy={supplyApy}
                 supplyApyLow={supplyApyLow}
                 extraApy={extraApy}
+                dbrPriceUsd={dbrPriceUsd}
+                collateralFactor={collateralFactor}
                 price={price}
                 underlying={underlying}
                 hasClaimableRewards={hasClaimableRewards}
                 isInv={isInv}
                 rewardTypeLabel={rewardTypeLabel}
+                _isMobileCase={_isMobileCase}
             />
         },
     },
@@ -327,8 +338,8 @@ const columns = [
             <Text><b>Collateral Factor</b>: maximum percentage of collateral value that can be used for borrowing.</Text>
             <Text><b>Long up to</b>: theoretical maximum leverage with DOLA at $1 and borrow limit at 100%</Text>
         </VStack>,
-        value: ({ collateralFactor, borrowPaused, _isMobileCase }) => {
-            return <CollateralFactorCell _isMobileCase={_isMobileCase} collateralFactor={collateralFactor} borrowPaused={borrowPaused} />
+        value: ({ collateralFactor, borrowPaused, supplyApy, dbrPriceUsd, _isMobileCase }) => {
+            return <CollateralFactorCell dbrPriceUsd={dbrPriceUsd} supplyApy={supplyApy} _isMobileCase={_isMobileCase} collateralFactor={collateralFactor} borrowPaused={borrowPaused} />
         },
     },
     {
@@ -581,7 +592,7 @@ export const F2Markets = ({
                                     noDataMessage="Loading..."
                                     columns={columns}
                                     items={withDeposits.map(m => {
-                                        return { ...m, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
+                                        return { ...m, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
                                     })}
                                     onClick={openMarket}
                                     defaultSort={'depositsUsd'}
@@ -623,7 +634,7 @@ export const F2Markets = ({
                             noDataMessage="Loading..."
                             columns={withDeposits.length > 0 ? columns : columnsWithout}
                             items={withoutDeposits.map(m => {
-                                return { ...m, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
+                                return { ...m, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
                             })}
                             onClick={openMarket}
                             defaultSort={'maxBorrowableByUserWallet'}
