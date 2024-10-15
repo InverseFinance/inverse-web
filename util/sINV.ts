@@ -273,6 +273,7 @@ export const useInvStakingEvolution = (): SWR & {
         return (data?.totalEntries || []).map((e) => ({ 
             ...e,
             tvl: e.sInvTotalAssets * (e.invMarketPrice || 22),
+            sInvPrice: e.sInvExRate * (e.invMarketPrice || 22),
          }));
     }, [data?.timestamp, data?.totalEntries]);
 

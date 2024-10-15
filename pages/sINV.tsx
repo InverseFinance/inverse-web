@@ -1,9 +1,8 @@
-import { Stack, VStack, Text, SimpleGrid, Divider, ScaleFade } from '@chakra-ui/react'
+import { Stack, VStack, Text, SimpleGrid } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
 import { useAccount } from '@app/hooks/misc';
-import { useDbrAuctionActivity } from '@app/util/dbr-auction';
 import { StakeInvUI } from '@app/components/sINV/StakeInvUI';
 import { SINVTabs } from '@app/components/sINV/SINVTabs';
 import { useInvStakingActivity, useStakedInvBalance } from '@app/util/sINV';
@@ -12,16 +11,13 @@ import { InvStakingActivity } from '@app/components/sINV/InvStakingActivity';
 import { NavButtons } from '@app/components/common/Button';
 import { useState } from 'react';
 import { useAppTheme } from '@app/hooks/useAppTheme';
-import { InvChart } from '@app/components/Transparency/InvChart';
+import { SInvPriceChart } from '@app/components/Transparency/SInvPriceChart';
 
 export const SinvPage = () => {
   const account = useAccount();
   const { themeStyles } = useAppTheme();
   const [tabVersion, setTabVersion] = useState<'V1' | 'V2'>('V1');
   const { isLoading, accountEvents, events } = useInvStakingActivity(account, 'sinv');
-
-  // const { isLoading: isLoadingBuys, events: buyEvents } = useDbrAuctionActivity();
-  // const sinvBuyEvents = buyEvents.filter(e => e.auctionType === 'sINV');
 
   const { assets: sINVV1Balance, shares: v1Shares } = useStakedInvBalance(account, 'V1');
 
@@ -87,7 +83,7 @@ export const SinvPage = () => {
                   <StakeInvUI showVersion={false} version="V2" />
                 </VStack>
             }
-            <InvChart />
+            <SInvPriceChart />
           </VStack>
         </Stack>        
         {
