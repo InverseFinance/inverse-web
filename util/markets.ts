@@ -414,6 +414,17 @@ export const getGOhmData = async () => {
     }
 }
 
+export const getStYvCrvData = async () => {
+    try {
+        const results = await fetch("https://ydaemon.yearn.fi/1/vaults/0x27B5739e22ad9033bcBf192059122d163b60349D");
+        const data = await results.json();
+        return { apy: data?.apr.forwardAPR?.netAPR * 100 };
+    } catch (e) {
+        console.log(e)
+        return { apy: 0 }
+    }
+}
+
 export const getYvCrvUsdDOLAData = async () => {
     try {
         const results = await fetch("https://ydaemon.yearn.fi/1/vaults/0xfb5137Aa9e079DB4b7C2929229caf503d0f6DA96");
