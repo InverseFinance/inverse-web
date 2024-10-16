@@ -30,9 +30,6 @@ const renderActiveShape = (props) => {
 
     return (
         <g>
-            <text x={cx} y={cy} dy={8} textAnchor="middle" fontWeight="bold" fill={centralFill || activeColor}>
-                {centralValue || payload[centralNameKey || nameKey]}
-            </text>
             <Sector
                 cx={cx}
                 cy={cy}
@@ -62,6 +59,9 @@ const renderActiveShape = (props) => {
             </text>
             <text x={x} y={ey} dy={20} textAnchor={textAnchor} fill={activeSubtextFill || '#999'} fontSize={14} >
                 {isCustomCentral ? formattedValueAndPerc : formattedPerc}
+            </text>
+            <text x={cx} y={cy} dy={8} textAnchor="middle" fontWeight="bold" fill={centralFill || activeColor}>
+                {centralValue || payload[centralNameKey || nameKey]}
             </text>
         </g>
     );
