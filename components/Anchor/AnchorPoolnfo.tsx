@@ -80,7 +80,7 @@ export const AnchorPoolInfo = ({
     const isYieldBearingApyKnown = (value || 0) > 0 || symbol.startsWith('yv')
 
     return (
-        <Text {...textProps} opacity={(value && value > 0 || !!protocolImage) ? 1 : 0.5} position="relative">
+        <Text {...textProps} opacity={(((value||0) + (valueExtra||0)) > 0 || !!protocolImage) ? 1 : 0.5} position="relative">
             {valueLow ? `${shortenNumber(valueLow, 2)}% - ` : null}
             {label}
             {valueExtra ? ` + ${shortenNumber(valueExtra, 2)}%` : null}
