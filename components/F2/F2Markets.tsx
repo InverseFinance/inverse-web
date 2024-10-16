@@ -505,8 +505,9 @@ export const F2Markets = ({
                 monthlyNetUsdYield: m.monthlyUsdYield - m.monthlyDbrBurn * dbrPrice,
             }
         });
-    console.log(withDeposits)
+
     const totalMonthlyNetUsdYield = withDeposits.reduce((prev, curr) => prev + curr.monthlyNetUsdYield, 0);
+    const totalMonthlyUsdYield = withDeposits.reduce((prev, curr) => prev + curr.monthlyUsdYield, 0);
 
     const withoutDeposits = accountMarketsWithoutPhasingOutMarkets
         .filter(m => !(m.depositsUsd > 1 || m.debt > 1));
@@ -565,22 +566,37 @@ export const F2Markets = ({
         contentBgColor={isSmallerThan ? 'transparent' : undefined}
         headerProps={{
             direction: { base: 'column', md: 'row' },
+            gap: { base: '4', md: '8' },
             align: { base: 'flex-start', md: 'flex-end' },
         }}
         right={
             totalMonthlyNetUsdYield > 1 ?
-                <VStack spacing="0" alignItems={isSmallerThan ? 'flex-start' : 'flex-end'}>
-                    <TextInfo message={
-                        <VStack>
-                            <Text>
-                                <b>Estimated</b> monthly earnings from your deposits <b>at current yield and prices</b> minus the monthly DBR burn at the <b>current DBR price</b>.
-                            </Text>                        
-                        </VStack>
-                    }>
-                        <Text fontWeight="bold">Current Net-Yield:</Text>
-                    </TextInfo>
-                    <Text fontSize="20px" fontWeight="extrabold" color="accentTextColor">{shortenNumber(totalMonthlyNetUsdYield, 2, true)} a month</Text>
-                </VStack>
+                <HStack w={{ base: '100%', md: 'auto' }} spacing={{ base: '2', md: '8' }} alignItems="center" justifyContent="space-between">
+                    <VStack spacing="0" alignItems={isSmallerThan ? 'flex-start' : 'flex-end'}>
+                        <TextInfo message={
+                            <VStack>
+                                <Text>
+                                    <b>Estimated</b> monthly earnings from your deposits <b>at current yield and prices</b>. Does not account for borrowing cost.
+                                </Text>
+                            </VStack>
+                        }>
+                            <Text fontWeight="bold">Current Yield:</Text>
+                        </TextInfo>
+                        <Text fontSize={{ base: '16px', md: '20px' }} fontWeight="extrabold" color="accentTextColor">{shortenNumber(totalMonthlyUsdYield, 2, true)} a month</Text>
+                    </VStack>
+                    <VStack spacing="0" alignItems={'flex-end'}>
+                        <TextInfo message={
+                            <VStack>
+                                <Text>
+                                    <b>Estimated</b> monthly earnings from your deposits <b>at current yield and prices</b> minus the monthly DBR burn at the <b>current DBR price</b>.
+                                </Text>
+                            </VStack>
+                        }>
+                            <Text fontWeight="bold">Current Net-Yield:</Text>
+                        </TextInfo>
+                        <Text fontSize={{ base: '16px', md: '20px' }} fontWeight="extrabold" color="accentTextColor">{shortenNumber(totalMonthlyNetUsdYield, 2, true)} a month</Text>
+                    </VStack>
+                </HStack>
                 : <SafetyBadges />
         }
     >
@@ -594,7 +610,7 @@ export const F2Markets = ({
                                 <SplashedText
                                     as="h3"
                                     color={`${lightTheme?.colors.mainTextColor}`}
-                                    fontSize={'20px'}
+                                    fontSize={{ base: '18px', md: '20px' }}
                                     fontWeight="extrabold"
                                     color={`${themeStyles?.colors.mainTextColor}`}
                                     splashColor={`${themeStyles?.colors.accentTextColor}`}
@@ -634,7 +650,7 @@ export const F2Markets = ({
                                     splash="horizontal-lr2"
                                     color={`${themeStyles?.colors.mainTextColor}`}
                                     splashColor={`${themeStyles?.colors.accentTextColor}`}
-                                    fontSize={'20px'}
+                                    fontSize={{ base: '18px', md: '20px' }}
                                     fontWeight="extrabold"
                                     lineHeight='1'
                                     splashProps={{
