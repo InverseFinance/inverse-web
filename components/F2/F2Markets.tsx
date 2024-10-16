@@ -265,13 +265,13 @@ export const MarketApyInfos = ({ name, supplyApy, supplyApyLow, extraApy, price,
             }
         </HStack>
         {
-            supplyApy > 0 && <Text fontSize="12px" color="mainTextColorLight">
+            ((supplyApy||0)+(extraApy||0)) > 0 && <Text fontSize="12px" color="mainTextColorLight">
                 {rewardTypeLabel || (isInv ? 'INV + DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY')}
             </Text>
         }
         {
-            !borrowPaused && (supplyApy + extraApy) / 100 > dbrPriceUsd && <CellText fontSize="12px" color="accentTextColor">
-                Up to <b>{calculateNetApy(supplyApy + extraApy, collateralFactor, dbrPriceUsd).toFixed(2)}%</b> at x{smartShortNumber(maxLong, 2)}
+            !borrowPaused && ((supplyApy||0) + (extraApy||0)) / 100 > dbrPriceUsd && <CellText fontSize="12px" color="accentTextColor">
+                Up to <b>{calculateNetApy((supplyApy||0) + (extraApy||0), collateralFactor, dbrPriceUsd).toFixed(2)}%</b> at x{smartShortNumber(maxLong, 2)}
             </CellText>
         }
     </Cell>

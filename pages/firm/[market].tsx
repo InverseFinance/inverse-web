@@ -175,8 +175,12 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                         <InfoMessage
                                                             description={
                                                                 <VStack alignItems="flex-start">
-                                                                    <Text>✨ <b>{shortenNumber(f2market.extraApy, 2)}% DBR Rewards Annual Percentage Rate</b>. Real yield that you claim. Currently streaming <b>{preciseCommify(f2market.dbrYearlyRewardRate, 0)}</b> DBR's per year to INV stakers.</Text>
-                                                                    <Text>✨ <b>{shortenNumber(f2market.supplyApy, 2)}% INV Staking rewards</b>. Dilution protection. Your staked INV balance increases automatically.</Text>
+                                                                    {
+                                                                        f2market.extraApy > 0 && <Text>✨ <b>{shortenNumber(f2market.extraApy, 2)}% DBR Rewards Annual Percentage Rate</b>. Real yield that you claim. Currently streaming <b>{preciseCommify(f2market.dbrYearlyRewardRate, 0)}</b> DBR's per year to INV stakers.</Text>
+                                                                    }
+                                                                    {
+                                                                        f2market.supplyApy > 0 && <Text>✨ <b>{shortenNumber(f2market.supplyApy, 2)}% INV Staking rewards</b>. Dilution protection. Your staked INV balance increases automatically.</Text>
+                                                                    }
                                                                     <Text>
                                                                         The more DOLA that is borrowed means more DBR is burned. As DBR is burned, more DBR's are streamed to INV stakers, who benefit directly from FiRM's success.
                                                                     </Text>
