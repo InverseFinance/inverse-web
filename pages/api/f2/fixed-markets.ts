@@ -5,7 +5,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { TOKENS } from '@app/variables/tokens'
-import { getBnToNumber, getCrvUSDDOLAConvexData, getCvxCrvAPRs, getCvxFxsAPRs, getDSRData, getFraxPyusdDOLAConvexData, getSFraxData, getSUSDEData, getStCvxData, getStYcrvData, getStYethData, getStethData, getYvCrvUsdDOLAData, getYvFraxPyusdDOLAData } from '@app/util/markets'
+import { getBnToNumber, getCrvUSDDOLAConvexData, getCvxCrvAPRs, getCvxFxsAPRs, getDSRData, getFraxPyusdDOLAConvexData, getSFraxData, getSUSDEData, getStCvxData, getStYcrvData, getStYethData, getStYvCrvData, getStethData, getYvCrvUsdDOLAData, getYvFraxPyusdDOLAData } from '@app/util/markets'
 import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_MS, ONE_DAY_SECS } from '@app/config/constants';
 import { frontierMarketsCacheKey } from '../markets';
 import { cgPricesCacheKey } from '../prices';
@@ -148,7 +148,7 @@ export default async function handler(req, res) {
     // external yield bearing apys
     const externalYieldResults = await Promise.allSettled([
       getStethData(),
-      getStYcrvData(),
+      getStYvCrvData(),
       getCvxCrvAPRs(provider),
       getCvxFxsAPRs(provider),
       getDSRData(),
