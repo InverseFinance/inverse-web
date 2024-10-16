@@ -23,6 +23,7 @@ import { useState } from "react";
 import Link from "../common/Link";
 import { calculateMaxLeverage } from "@app/util/misc";
 import { LPImages } from "../common/Assets/LPImg";
+import { TextInfo } from "../common/Messages/TextInfo";
 
 export const MARKET_INFOS = {
     'INV': {
@@ -269,9 +270,9 @@ export const MarketApyInfos = ({ name, supplyApy, supplyApyLow, extraApy, price,
             </Text>
         }
         {
-            !borrowPaused && (supplyApy+extraApy)/100 > dbrPriceUsd && <CellText fontSize="12px" color="accentTextColor">
-                Up to <b>{calculateNetApy(supplyApy+extraApy, collateralFactor, dbrPriceUsd).toFixed(2)}%</b> at x{smartShortNumber(maxLong, 2)}
-            </CellText>             
+            !borrowPaused && (supplyApy + extraApy) / 100 > dbrPriceUsd && <CellText fontSize="12px" color="accentTextColor">
+                Up to <b>{calculateNetApy(supplyApy + extraApy, collateralFactor, dbrPriceUsd).toFixed(2)}%</b> at x{smartShortNumber(maxLong, 2)}
+            </CellText>
         }
     </Cell>
 }
@@ -496,7 +497,16 @@ export const F2Markets = ({
         .filter(m => !m.isPhasingOut || (m.debt > 0 || (m.deposits * m.price) >= 1));
 
     const withDeposits = accountMarketsWithoutPhasingOutMarkets
-        .filter(m => m.depositsUsd > 1 || m.debt > 1);
+        .filter(m => m.depositsUsd > 1 || m.debt > 1)
+        .map(m => {
+            return {
+                ...m,
+                monthlyDbrBurnUsd: m.monthlyDbrBurn * dbrPrice,
+                monthlyNetUsdYield: m.monthlyUsdYield - m.monthlyDbrBurn * dbrPrice,
+            }
+        });
+    console.log(withDeposits)
+    const totalMonthlyNetUsdYield = withDeposits.reduce((prev, curr) => prev + curr.monthlyNetUsdYield, 0);
 
     const withoutDeposits = accountMarketsWithoutPhasingOutMarkets
         .filter(m => !(m.depositsUsd > 1 || m.debt > 1));
@@ -558,7 +568,20 @@ export const F2Markets = ({
             align: { base: 'flex-start', md: 'flex-end' },
         }}
         right={
-            <SafetyBadges />
+            totalMonthlyNetUsdYield > 1 ?
+                <VStack spacing="0" alignItems={isSmallerThan ? 'flex-start' : 'flex-end'}>
+                    <TextInfo message={
+                        <VStack>
+                            <Text>
+                                <b>Estimated</b> monthly earnings from your deposits <b>at current yield and prices</b> minus the monthly DBR burn at the <b>current DBR price</b>.
+                            </Text>                        
+                        </VStack>
+                    }>
+                        <Text fontWeight="bold">Current Net-Yield:</Text>
+                    </TextInfo>
+                    <Text fontSize="20px" fontWeight="extrabold" color="accentTextColor">{shortenNumber(totalMonthlyNetUsdYield, 2, true)} a month</Text>
+                </VStack>
+                : <SafetyBadges />
         }
     >
         {
@@ -649,5 +672,5 @@ export const F2Markets = ({
                     }
                 </VStack>
         }
-    </Container>
+    </Container >
 }
