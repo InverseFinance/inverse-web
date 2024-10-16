@@ -225,6 +225,8 @@ const PieItem = ({ data, activeFill = lightTheme.colors.mainTextColor, fill = li
         cy="50%"
         outerRadius={50}
         activeFill={activeFill}
+        centralValue=" "
+        // centralFill={lightTheme.colors.accentTextColor}
         fill={fill}
     />
 }
@@ -305,6 +307,7 @@ export const UserDashboard = ({
     const totalTotalSuppliedUsd = accountMarkets.reduce((prev, curr) => prev + curr.deposits * curr.price, 0);
     const marketsWithDeposits = accountMarkets.filter(m => m.depositsUsd > 1).sort((a, b) => b.depositsUsd - a.depositsUsd);
     const marketsWithDebt = accountMarkets.filter(m => m.debt > 0).sort((a, b) => b.debt - a.debt);
+    const totalMonthlyUsdYield = accountMarkets.reduce((prev, curr) => prev + curr.monthlyUsdYield, 0);
 
     useDebouncedEffect(() => {
         setIsVirginFirmUser(!isLoading && !marketsWithDeposits?.length);
@@ -370,7 +373,7 @@ export const UserDashboard = ({
                     />
                 } color={needsRechargeSoon ? 'error' : undefined} isLoading={isLoading} value={debt > 0 ? dbrBalance < 0 ? 'Depleted' : moment(dbrExpiryDate).format('MMM Do YYYY') : '-'} label="DBR depletion date" />
             {
-                totalRewardsUsd > 1 && <>
+                (totalRewardsUsd > 1 || totalMonthlyUsdYield > 1) && <>
                     <MonthlyRewards cardProps={{
                         imageSize: 24,
                         imageSrc: [
@@ -381,7 +384,8 @@ export const UserDashboard = ({
                         ]
                     }} value={totalRewardsUsd} label="Staking monthly rewards" noDataFallback="No INV/DOLA/DBR rewards" isUsd={true} />
                     <MonthlyRewards cardProps={{ imageSrc: TOKEN_IMAGES.INV }} value={invMonthlyRewards} price={invPrice} label="INV monthly rewards" noDataFallback="No INV rewards" precision={2} />
-                    <MonthlyRewards cardProps={{ imageSrc: TOKEN_IMAGES.DBR }} value={dbrMonthlyRewards} price={dbrPrice} label="DBR monthly rewards" noDataFallback="No DBR rewards" />
+                    {/* <MonthlyRewards cardProps={{ imageSrc: TOKEN_IMAGES.DBR }} value={dbrMonthlyRewards} price={dbrPrice} label="DBR monthly rewards" noDataFallback="No DBR rewards" /> */}
+                    <MonthlyRewards value={totalMonthlyUsdYield} isUsd={true} label="Monthly yield on FiRM" noDataFallback="No yield" />
                     <MonthlyRewards cardProps={{ imageSrc: TOKEN_IMAGES.DOLA }} value={dolaMonthlyRewards} price={dolaPrice} label="sDOLA monthly rewards" noDataFallback="No sDOLA rewards" />
                 </>
             }
