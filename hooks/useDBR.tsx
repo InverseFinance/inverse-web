@@ -1,6 +1,6 @@
 import { BALANCER_VAULT_ABI, ERC20_ABI, F2_ESCROW_ABI } from "@app/config/abis";
 import { AccountDBRMarket, CoingeckoHistoricalData, F2Market, SWR } from "@app/types"
-import { getBnToNumber, getNumberToBn } from "@app/util/markets";
+import { getBnToNumber, getMonthlyUsdRate, getNumberToBn } from "@app/util/markets";
 import { getNetworkConfigConstants } from "@app/util/networks"
 import { TOKENS } from "@app/variables/tokens";
 import { BigNumber } from "ethers/lib/ethers";
@@ -265,6 +265,10 @@ export const useAccountDBRMarket = (
   const collateralBalance = (bnCollateralBalance ? getBnToNumber(bnCollateralBalance, decimals) : 0);
   const collateralBalanceUsd = collateralBalance * market.price;
 
+  const monthlyDbrBurn = debt / 365 * 365 / 12;
+  const apy = (market.supplyApy || 0) + (market.extraApy || 0);
+  const monthlyUsdYield = getMonthlyUsdRate(deposits, apy, market.price);
+
   return {
     ...market,
     account,
@@ -277,6 +281,8 @@ export const useAccountDBRMarket = (
     withdrawalLimit,
     bnWithdrawalLimit,
     debt,
+    monthlyDbrBurn,
+    monthlyUsdYield,
     bnDebt,
     creditLeft,
     perc,

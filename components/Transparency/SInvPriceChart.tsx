@@ -31,7 +31,8 @@ export const SInvPriceChart = () => {
             y: d.sInvPrice,
             sInvPrice: d.sInvPrice,
         }
-    });
+    })// v2 start
+    .filter(d => d.timestamp >= 1726533053593);
 
     return <VStack spacing={0} w='full'>
         <Container p="0" noPadding w='full'>
