@@ -588,14 +588,16 @@ export const F2Markets = ({
                         <TextInfo message={
                             <VStack>
                                 <Text>
-                                    <b>Estimated</b> monthly earnings from your deposits <b>at current yield and prices</b> minus the monthly DBR burn at the <b>current DBR price</b>.
+                                    <b>Estimated</b> monthly earnings from your deposits <b>at current yield and prices</b> minus the monthly DBR burn at the <b>current DBR price</b>
                                 </Text>
+                                <Text>Your actual net-yield depends on the price at which you bought the DBR</Text>
                             </VStack>
                         }>
                             <Text fontWeight="bold">Current Net-Yield:</Text>
                         </TextInfo>
                         <Text fontSize={{ base: '16px', md: '20px' }} fontWeight="extrabold" color="accentTextColor">{shortenNumber(totalMonthlyNetUsdYield, 2, true)} a month</Text>
                     </VStack>
+                    <SafetyBadges />
                 </HStack>
                 : <SafetyBadges />
         }
