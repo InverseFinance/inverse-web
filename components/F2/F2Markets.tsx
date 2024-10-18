@@ -1,4 +1,4 @@
-import { Badge, Divider, Flex, HStack, Stack, Text, useMediaQuery, VStack, Image, PopoverBody, Popover, PopoverTrigger, PopoverContent } from "@chakra-ui/react"
+import { Badge, Divider, Flex, HStack, Stack, Text, useMediaQuery, VStack, Image, PopoverBody, Popover, PopoverTrigger, PopoverContent, InputGroup, InputLeftElement, Input } from "@chakra-ui/react"
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
@@ -16,7 +16,7 @@ import { gaEvent } from "@app/util/analytics";
 import { DailyLimitCountdown } from "@app/components/common/Countdown";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { SafetyBadges } from "./SecurityMiniCaroussel";
-import { ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon, InfoIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon, InfoIcon, SearchIcon } from "@chakra-ui/icons";
 import { SplashedText } from "../common/SplashedText";
 import { lightTheme } from "@app/variables/theme";
 import { useState } from "react";
@@ -265,13 +265,13 @@ export const MarketApyInfos = ({ name, supplyApy, supplyApyLow, extraApy, price,
             }
         </HStack>
         {
-            ((supplyApy||0)+(extraApy||0)) > 0 && <Text fontSize="12px" color="mainTextColorLight">
+            ((supplyApy || 0) + (extraApy || 0)) > 0 && <Text fontSize="12px" color="mainTextColorLight">
                 {rewardTypeLabel || (isInv ? supplyApy > 0 ? 'INV + DBR APR' : 'DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY')}
             </Text>
         }
         {
-            !borrowPaused && ((supplyApy||0) + (extraApy||0)) / 100 > dbrPriceUsd && <CellText fontSize="12px" color="accentTextColor">
-                Up to <b>{calculateNetApy((supplyApy||0) + (extraApy||0), collateralFactor, dbrPriceUsd).toFixed(2)}%</b> at x{smartShortNumber(maxLong, 2)}
+            !borrowPaused && ((supplyApy || 0) + (extraApy || 0)) / 100 > dbrPriceUsd && <CellText fontSize="12px" color="accentTextColor">
+                Up to <b>{calculateNetApy((supplyApy || 0) + (extraApy || 0), collateralFactor, dbrPriceUsd).toFixed(2)}%</b> at x{smartShortNumber(maxLong, 2)}
             </CellText>
         }
     </Cell>
@@ -482,6 +482,7 @@ export const F2Markets = ({
     const { themeStyles, themeName } = useAppTheme();
     const [showMyPositions, setShowMyPositions] = useState(true);
     const [showOther, setShowOther] = useState(true);
+    const [search, setSearch] = useState('');
     const [isSmallerThan] = useMediaQuery(`(max-width: ${responsiveThreshold}px)`);
 
     const isLoading = tvlLoading || !markets?.length;
@@ -601,6 +602,32 @@ export const F2Markets = ({
                 </HStack>
                 : <SafetyBadges />
         }
+        subheader={
+            <HStack pt="2">
+                <InputGroup
+                    left="0"
+                    w='95%'
+                    bgColor="transparent"
+                >
+                    <InputLeftElement
+                        pointerEvents='none'
+                        children={<SearchIcon color='gray.300' />}
+                    />
+                    <Input
+                        color="mainTextColor"
+                        borderRadius="20px"
+                        type="search"
+                        bgColor="white"
+                        w="200px"
+                        placeholder="Search"
+                        value={search}
+                        onChange={(e) => {
+                            setSearch(e.target.value)
+                        }}
+                    />
+                </InputGroup>
+            </HStack>
+        }
     >
         {
             isLoading ?
@@ -632,9 +659,13 @@ export const F2Markets = ({
                                     keyName="address"
                                     noDataMessage="Loading..."
                                     columns={columns}
-                                    items={withDeposits.map(m => {
-                                        return { ...m, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
-                                    })}
+                                    items={
+                                        withDeposits
+                                            .filter(m => !search || m.name.toLowerCase().includes(search.toLowerCase()))
+                                            .map(m => {
+                                                return { ...m, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
+                                            })
+                                    }
                                     onClick={openMarket}
                                     defaultSort={'depositsUsd'}
                                     defaultSortDir="desc"
@@ -674,9 +705,13 @@ export const F2Markets = ({
                             pinnedLabels={pinnedLabels}
                             noDataMessage="Loading..."
                             columns={withDeposits.length > 0 ? columns : columnsWithout}
-                            items={withoutDeposits.map(m => {
-                                return { ...m, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
-                            })}
+                            items={
+                                withoutDeposits
+                                    .filter(m => !search || m.name.toLowerCase().includes(search.toLowerCase()))
+                                    .map(m => {
+                                        return { ...m, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
+                                    })
+                            }
                             onClick={openMarket}
                             defaultSort={'maxBorrowableByUserWallet'}
                             defaultSortDir="desc"
