@@ -355,6 +355,7 @@ const chainTokens = {
       coingeckoId: 'dai',
       image: TOKEN_IMAGES.DAI,
       decimals: 18,
+      isStable: true,
     },
     [chainTokenAddresses["1"].USDT]: {
       address: chainTokenAddresses["1"].USDT,
@@ -1287,6 +1288,7 @@ const chainTokens = {
       coingeckoId: 'ethena-staked-usde',
       image: TOKEN_IMAGES.sUSDe,
       decimals: 18,
+      isStable: true,
     },
     [chainTokenAddresses["1"].USDE]: {
       address: chainTokenAddresses["1"].USDE,
@@ -1295,14 +1297,16 @@ const chainTokens = {
       coingeckoId: 'ethena-usde',
       image: TOKEN_IMAGES.USDE,
       decimals: 18,
+      isStable: true,
     },
     [chainTokenAddresses["1"].SFRAX]: {
       address: chainTokenAddresses["1"].SFRAX,
       name: 'sFRAX',
       symbol: 'sFRAX',
-      coingeckoId: 'staked-frax',
+      coingeckoId: 'staked-frax',      
       image: TOKEN_IMAGES.sFRAX,
       decimals: 18,
+      isStable: true,
     },
     // [chainTokenAddresses["1"].PAL]: {
     //   address: chainTokenAddresses["1"].PAL,
