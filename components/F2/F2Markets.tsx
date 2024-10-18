@@ -266,7 +266,7 @@ export const MarketApyInfos = ({ name, supplyApy, supplyApyLow, extraApy, price,
         </HStack>
         {
             ((supplyApy||0)+(extraApy||0)) > 0 && <Text fontSize="12px" color="mainTextColorLight">
-                {rewardTypeLabel || (isInv ? 'INV + DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY')}
+                {rewardTypeLabel || (isInv ? supplyApy > 0 ? 'INV + DBR APR' : 'DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY')}
             </Text>
         }
         {

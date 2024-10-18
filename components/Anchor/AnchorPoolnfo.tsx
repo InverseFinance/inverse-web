@@ -76,14 +76,15 @@ export const AnchorPoolInfo = ({
     const bestPriceRef = invPriceUsd && (isReward || symbol === rtokenSymbol || underlyingSymbol === rtokenSymbol) ? invPriceUsd : priceUsd;
 
     const suffix = isBalance ? '' : '%'
-    const label = (value ? `${isBalance ? shortenNumber(value, 2, false, true) : value.toFixed(2)}` : '0.00') + suffix
+    const label = (value ? `${isBalance ? shortenNumber(value, 2, false, true) : value.toFixed(2)}` : valueExtra ? '' : '0.00') + (value || !valueExtra ? suffix : '')
     const isYieldBearingApyKnown = (value || 0) > 0 || symbol.startsWith('yv')
 
     return (
         <Text {...textProps} opacity={(((value||0) + (valueExtra||0)) > 0 || !!protocolImage) ? 1 : 0.5} position="relative">
             {valueLow ? `${shortenNumber(valueLow, 2)}% - ` : null}
             {label}
-            {valueExtra ? ` + ${shortenNumber(valueExtra, 2)}%` : null}
+            {label && valueExtra ? ' + ' : null}
+            {valueExtra ? `${shortenNumber(valueExtra, 2)}%` : null}
             {
                 !!protocolImage
                 && <AnimatedInfoTooltip message={
