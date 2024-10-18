@@ -565,7 +565,7 @@ export const useConvexLpRewards = (escrow: string, rewardContract: string) => {
   const crvBalance = rewardsData ? getBnToNumber(rewardsData?.earned, crv.decimals) : 0;
   const cvxBalance = rewardsData ? rewardsData?.cvxReward : 0;
   const crvPrice = prices && prices[crv.coingeckoId!] ? prices[crv.coingeckoId!].usd : 0;
-  const cvxPrice = prices && prices[crv.coingeckoId!] ? prices[crv.coingeckoId!].usd : 0;
+  const cvxPrice = prices && prices[cvx.coingeckoId!] ? prices[cvx.coingeckoId!].usd : 0;
 
   const rewards = [
     {
