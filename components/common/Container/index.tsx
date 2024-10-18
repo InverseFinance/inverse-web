@@ -37,6 +37,7 @@ export const Container = ({
   headerProps,
   labelProps,
   descriptionProps,
+  subheader = null,
   ...props
 }: AppContainerProps) => {
   const [collapsed, setCollapsed] = useState(defaultCollapse);
@@ -107,6 +108,9 @@ export const Container = ({
           </Stack>
           {right}
         </Flex>
+      }
+      {
+        subheader
       }
       {
         collapsable ?

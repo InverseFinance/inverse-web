@@ -1,4 +1,4 @@
-import { Badge, Divider, Flex, HStack, Stack, Text, useMediaQuery, VStack, Image, PopoverBody, Popover, PopoverTrigger, PopoverContent } from "@chakra-ui/react"
+import { Badge, Divider, Flex, HStack, Stack, Text, useMediaQuery, VStack, Image, PopoverBody, Popover, PopoverTrigger, PopoverContent, InputGroup, InputLeftElement, Input, Select } from "@chakra-ui/react"
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
@@ -16,14 +16,15 @@ import { gaEvent } from "@app/util/analytics";
 import { DailyLimitCountdown } from "@app/components/common/Countdown";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { SafetyBadges } from "./SecurityMiniCaroussel";
-import { ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon, InfoIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon, InfoIcon, SearchIcon } from "@chakra-ui/icons";
 import { SplashedText } from "../common/SplashedText";
 import { lightTheme } from "@app/variables/theme";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import Link from "../common/Link";
 import { calculateMaxLeverage } from "@app/util/misc";
 import { LPImages } from "../common/Assets/LPImg";
 import { TextInfo } from "../common/Messages/TextInfo";
+import { RadioCardGroup } from "../common/Input/RadioCardGroup";
 
 export const MARKET_INFOS = {
     'INV': {
@@ -265,13 +266,13 @@ export const MarketApyInfos = ({ name, supplyApy, supplyApyLow, extraApy, price,
             }
         </HStack>
         {
-            ((supplyApy||0)+(extraApy||0)) > 0 && <Text fontSize="12px" color="mainTextColorLight">
-                {rewardTypeLabel || (isInv ? 'INV + DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY')}
+            ((supplyApy || 0) + (extraApy || 0)) > 0 && <Text fontSize="12px" color="mainTextColorLight">
+                {rewardTypeLabel || (isInv ? supplyApy > 0 ? 'INV + DBR APR' : 'DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY')}
             </Text>
         }
         {
-            !borrowPaused && ((supplyApy||0) + (extraApy||0)) / 100 > dbrPriceUsd && <CellText fontSize="12px" color="accentTextColor">
-                Up to <b>{calculateNetApy((supplyApy||0) + (extraApy||0), collateralFactor, dbrPriceUsd).toFixed(2)}%</b> at x{smartShortNumber(maxLong, 2)}
+            !borrowPaused && ((supplyApy || 0) + (extraApy || 0)) / 100 > dbrPriceUsd && <CellText fontSize="12px" color="accentTextColor">
+                Up to <b>{calculateNetApy((supplyApy || 0) + (extraApy || 0), collateralFactor, dbrPriceUsd).toFixed(2)}%</b> at x{smartShortNumber(maxLong, 2)}
             </CellText>
         }
     </Cell>
@@ -482,6 +483,8 @@ export const F2Markets = ({
     const { themeStyles, themeName } = useAppTheme();
     const [showMyPositions, setShowMyPositions] = useState(true);
     const [showOther, setShowOther] = useState(true);
+    const [search, setSearch] = useState('');
+    const [category, setCategory] = useState('all');
     const [isSmallerThan] = useMediaQuery(`(max-width: ${responsiveThreshold}px)`);
 
     const isLoading = tvlLoading || !markets?.length;
@@ -521,6 +524,33 @@ export const F2Markets = ({
     const toggleOther = () => {
         setShowOther(!showOther);
     }
+
+    const marketFilter = useCallback((m: any) => {
+        let searchCondition = true;
+        let categoryCondition = true;
+        if (search) {
+            searchCondition = m.name.toLowerCase().includes(search.toLowerCase())
+        }
+        if (category === 'majors') {
+            categoryCondition = /(btc|eth)/i.test(m.name);
+        }
+        else if (category === 'stablecoins') {
+            categoryCondition = m.underlying.isStable && !m.underlying.isLP;
+        }
+        else if (category === 'lps') {
+            categoryCondition = m.underlying.isLP;
+        }
+        else if (category === 'yield-claimable') {
+            categoryCondition = m.hasClaimableRewards;
+        }
+        else if (category === 'yield-compounding') {
+            categoryCondition = !m.hasClaimableRewards && m.supplyApy > 0;
+        }
+        else if (category === 'curve-convex') {
+            categoryCondition = /(crv|cvx)/i.test(m.name) && !/crvUSD/i.test(m.name)!;
+        }
+        return searchCondition && categoryCondition;
+    }, [search, category]);
 
     const invMarketIsInOtherSection = withoutDeposits.some(m => m.isInv);
 
@@ -601,6 +631,70 @@ export const F2Markets = ({
                 </HStack>
                 : <SafetyBadges />
         }
+        subheader={
+            <Stack direction={{ base: 'column', md: 'row' }} pt="2" justify="space-between" alignItems="center">
+                <InputGroup
+                    left="0"
+                    w={{ base: '100%', md: '230px' }}
+                    bgColor="transparent"
+                >
+                    <InputLeftElement
+                        pointerEvents='none'
+                        children={<SearchIcon color='gray.300' />}
+                    />
+                    <Input
+                        color="mainTextColor"
+                        borderRadius="20px"
+                        type="search"
+                        bgColor="containerContentBackgroundAlpha"
+                        // w="200px"
+                        placeholder="Search a market"
+                        value={search}
+                        onChange={(e) => {
+                            setSearch(e.target.value)
+                        }}
+                    />
+                </InputGroup>
+                {
+                    isSmallerThan ? <Select
+                        bgColor="containerContentBackgroundAlpha"
+                        borderRadius="20px"
+                        onChange={(e) => { setCategory(e.target.value) }}>
+                        <option value="all">All</option>
+                        <option value="majors">BTC/ETH</option>
+                        <option value="stablecoins">Stablecoins</option>
+                        <option value="lps">Stable LPs</option>
+                        <option value="yield-compounding">Compounding Yield</option>
+                        <option value="yield-claimable">Claimable Yield</option>
+                        <option value="curve-convex">Curve/Convex</option>
+                    </Select> : <RadioCardGroup
+                        wrapperProps={{ overflow: 'auto', maxW: '90vw', alignItems: 'center' }}
+                        group={{
+                            name: 'bool',
+                            defaultValue: category,
+                            onChange: (v) => { setCategory(v) },
+                        }}
+                        radioCardProps={{
+                            w: 'fit-content',
+                            textAlign: 'center',
+                            px: { base: '2', md: '3' },
+                            py: '1',
+                            fontSize: '14px',
+                            whiteSpace: 'nowrap'
+                        }}
+                        options={[
+                            { label: 'All', value: 'all' },
+                            { label: 'BTC/ETH', value: 'majors' },
+                            { label: 'Stablecoins', value: 'stablecoins' },
+                            { label: 'Stable LPs', value: 'lps' },
+                            { label: 'Compounding Yield', value: 'yield-compounding' },
+                            { label: 'Claimable Yield', value: 'yield-claimable' },
+                            { label: 'Curve/Convex', value: 'curve-convex' },
+                        ]}
+                    />
+                }
+            </Stack>
+        }
     >
         {
             isLoading ?
@@ -630,11 +724,15 @@ export const F2Markets = ({
                             {
                                 showMyPositions && <Table
                                     keyName="address"
-                                    noDataMessage="Loading..."
+                                    noDataMessage={search || category ? "No position for the selected filters" : "Loading..."}
                                     columns={columns}
-                                    items={withDeposits.map(m => {
-                                        return { ...m, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
-                                    })}
+                                    items={
+                                        withDeposits
+                                            .filter(marketFilter)
+                                            .map(m => {
+                                                return { ...m, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
+                                            })
+                                    }
                                     onClick={openMarket}
                                     defaultSort={'depositsUsd'}
                                     defaultSortDir="desc"
@@ -672,11 +770,15 @@ export const F2Markets = ({
                             keyName="address"
                             pinnedItems={pinnedItems}
                             pinnedLabels={pinnedLabels}
-                            noDataMessage="Loading..."
+                            noDataMessage={search || category ? "No market for the selected filters" : "Loading..."}
                             columns={withDeposits.length > 0 ? columns : columnsWithout}
-                            items={withoutDeposits.map(m => {
-                                return { ...m, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
-                            })}
+                            items={
+                                withoutDeposits
+                                    .filter(marketFilter)
+                                    .map(m => {
+                                        return { ...m, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
+                                    })
+                            }
                             onClick={openMarket}
                             defaultSort={'maxBorrowableByUserWallet'}
                             defaultSortDir="desc"
