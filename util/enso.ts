@@ -225,7 +225,7 @@ export const ensoSameChainZap = async (
 
     return signer.sendTransaction({
         ...tx,
-        gasLimit: BigNumber.from(gas).add(50000),
+        gasLimit: BigNumber.from(gas).add(500000),
     })
 }
 // still experimental
