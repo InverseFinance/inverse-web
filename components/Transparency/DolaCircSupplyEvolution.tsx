@@ -3,7 +3,7 @@ import { Text, VStack, useMediaQuery } from "@chakra-ui/react";
 import { DefaultCharts } from "./DefaultCharts";
 import { SkeletonBlob } from "../common/Skeleton";
 import Container from "../common/Container";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { shortenNumber } from "@app/util/markets";
 import { useDOLAPrice } from "@app/hooks/usePrices";
 
@@ -12,11 +12,12 @@ const maxChartWidth = 1300
 export const DolaCircSupplyEvolution = () => {
     const { evolution, isLoading, currentCirculatingSupply } = useDolaCirculatingSupplyEvolution();
     const { evolution: priceEvolution } = useDolaPrices();
+    const todayUtcDate = useMemo(() => new Date().toISOString().substring(0, 10), []);
     
     const evolutionWithPrice = evolution.map(d => {
         const price = priceEvolution.find(e => e.utcDate === d.utcDate)
         return { ...d, mkcap: (price?.y || 1) * d.y }
-    });
+    }).filter(d => d.utcDate <= todayUtcDate);
 
     const currentMkcap = evolutionWithPrice?.length ? evolutionWithPrice[evolutionWithPrice.length-1].mkcap : 0;
 
