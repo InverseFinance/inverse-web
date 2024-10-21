@@ -88,6 +88,7 @@ export default async function handler(req, res) {
       const timestamp = Date.now();
       const utcDate = timestampToUTC(timestamp);
       const alreadyThere = cachedCircEvoData.evolution.find(evo => evo.utcDate === utcDate);      
+
       if(!alreadyThere) {
         cachedCircEvoData.evolution.push({
           utcDate,
@@ -101,7 +102,7 @@ export default async function handler(req, res) {
         const results = {
           timestamp,
           lastUtcDate: utcDate,
-          evolution: filledIn.map(evo => {
+          evolution: filledIn.filter(d => d.utcDate <= utcDate).map(evo => {
             return { utcDate: evo.utcDate, totalSupply: evo.totalSupply, circSupply: evo.circSupply, mainnetExcluded: evo.mainnetExcluded, farmersExcluded: evo.farmersExcluded }
           }),
         }

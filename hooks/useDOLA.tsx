@@ -83,7 +83,7 @@ export const useDOLAMarketData = (): SWR & { hasError: boolean, data: { market_d
 }
 
 export const useDolaCirculatingSupplyEvolution = () => {
-  const { data, error } = useCustomSWR(`/api/dola/circulating-supply-evolution?`);
+  const { data, error } = useCustomSWR(`/api/dola/circulating-supply-evolution?c=1`);
   const { data: currentCirculatingSupply } = useCustomSWR(`/api/dola/circulating-supply`);
 
   const array = (data?.evolution || []);
