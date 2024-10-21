@@ -18,8 +18,7 @@ export const DolaCircSupplyEvolution = () => {
         const price = priceEvolution.find(e => e.utcDate === d.utcDate)
         return { ...d, mkcap: (price?.y || 1) * d.y }
     })
-    // temp fix for 2024-10-19
-    .filter(d => d.utcDate <= todayUtcDate && d.utcDate !== '2024-10-19');
+    .filter(d => d.utcDate <= todayUtcDate);
 
     const currentMkcap = evolutionWithPrice?.length ? evolutionWithPrice[evolutionWithPrice.length-1].mkcap : 0;
 
