@@ -443,6 +443,7 @@ export type Fed = {
   abi: string[],
   chainId: NetworkIds,
   name: string,
+  protocol: string,
   type: FedTypes,
   projectImage: string,
   isXchain?: boolean,

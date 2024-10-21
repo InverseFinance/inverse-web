@@ -9,9 +9,9 @@ import { firmTvlCacheKey } from '../f2/tvl';
 import { getBnToNumber } from '@app/util/markets';
 import { BigNumber, Contract } from 'ethers';
 import { F2_MARKETS_CACHE_KEY } from '../f2/fixed-markets';
-import { CTOKEN_ABI } from '@app/config/abis';
+import { CTOKEN_ABI, DOLA_ABI } from '@app/config/abis';
 import { getLPBalances, getLPPrice, getPoolRewards } from '@app/util/contracts';
-import { CHAIN_TOKENS } from '@app/variables/tokens';
+import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
 import { pricesCacheKey } from '../prices';
 
 const { FEDS, ANCHOR_DOLA } = getNetworkConfigConstants(NetworkIds.mainnet);
@@ -59,6 +59,7 @@ export default async function handler(req, res) {
       lpPrices,
       lpSubBalances,
       lpRewards,
+      idleDolaBalances,
     ] = await Promise.all([
       getCacheFromRedis(cacheFedDataKey, false),
       getCacheFromRedis(frontierMarketsCacheKey, false),
@@ -129,6 +130,18 @@ export default async function handler(req, res) {
           // return getPoolRewards(lpFed.strategy?.rewardPools, address, chainId, chainProvider);
         })
       ),
+      Promise.all(
+        FEDS.map(lpFed => {
+          if (!lpFed.strategy?.incomeSrcAd) {
+            return new Promise((res) => res(BigNumber.from('0')));
+          }
+          const address = lpFed.incomeSrcAd;
+          const chainId = lpFed.incomeChainId || lpFed.chainId;
+          const chainProvider = getProvider(chainId);
+          const dolaContract = new Contract(getToken(CHAIN_TOKENS[lpFed.chainId], 'DOLA').address!, DOLA_ABI, chainProvider);
+          return dolaContract.balanceOf(address);
+        })
+      ),
     ]);
 
     const fedsData = _fedsData || [];
@@ -182,10 +195,14 @@ export default async function handler(req, res) {
         }
       }
 
+      const supply = fedData?.supply || 0;
+
       return {
         ...fedConfig,
         abi: undefined,
-        supply: fedData?.supply || 0,
+        supply,
+        circSupply: ['FiRM', 'Frontier'].includes(fedConfig.protocol) ? borrows : supply - getBnToNumber(idleDolaBalances[fedIndex]),
+        idleDolaBalance: getBnToNumber(idleDolaBalances[fedIndex]),
         lpBalance,
         lpTotalSupply,
         lpPol,
