@@ -7,7 +7,7 @@ import { BURN_ADDRESS } from "@app/config/constants"
 import { F2Market } from "@app/types"
 import { getBnToNumber } from "@app/util/markets"
 import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons"
-import { FormControl, FormLabel, HStack, Switch, Text, VStack } from "@chakra-ui/react"
+import { Flex, FormControl, FormLabel, HStack, Switch, Text, VStack, Image } from "@chakra-ui/react"
 import { formatUnits } from "@ethersproject/units"
 import { BigNumber } from "ethers"
 import { isAddress } from "ethers/lib/utils"
@@ -177,7 +177,8 @@ export const FirmCollateralInputTitle = ({
     isUseNativeCoin,
     useLeverageInMode,
     deposits,
-    isUnderlyingAsInputCase
+    isUnderlyingAsInputCase,
+    onEnsoModalOpen,
 }: {
     isDeposit: boolean
     market: F2Market
@@ -186,12 +187,14 @@ export const FirmCollateralInputTitle = ({
     useLeverageInMode: boolean
     deposits: number
     isUnderlyingAsInputCase: boolean
+    onEnsoModalOpen: () => void
 }) => {
     const depositWording = market.isInv ? 'Stake' : 'Deposit';
     const withdrawWording = useLeverageInMode ? 'Sell' : market.isInv ? 'Unstake' : 'Withdraw';
     const wording = isDeposit ? depositWording : withdrawWording;
     const leverageExtraWording = useLeverageInMode ? isDeposit && deposits > 0 ? ` (on top of leverage)` : isDeposit && !deposits ? '' : ' (to deleverage)' : '';
     const assetName = isWethMarket && isUseNativeCoin ? 'ETH' : isUnderlyingAsInputCase ? market.underlyingSymbol : market.underlying.symbol;
+    const ensoProps = isDeposit && !!onEnsoModalOpen ? { borderBottomWidth: '1px', borderColor: 'mainTextColor', cursor: 'pointer', onClick: onEnsoModalOpen } : {};
     return <TextInfo message={
         isDeposit ?
             market.isInv ?
@@ -199,9 +202,17 @@ export const FirmCollateralInputTitle = ({
                 : "The more you deposit, the more you can borrow against"
             : useLeverageInMode ? "When deleveraging, the collateral will be withdrawn and automatically sold for DOLA in order to repay some debt" : "Withdrawing collateral will reduce borrowing power"
     }>
-        <Text fontSize='18px' color="mainTextColor">
-            <b>{wording}</b> {assetName}{leverageExtraWording}:
-        </Text>
+        <Flex alignItems="center">
+            <Text fontSize='18px' color="mainTextColor">
+                <b>{wording}</b>&nbsp;
+            </Text>
+            <Flex {...ensoProps} alignItems="center">
+                <Text fontSize='18px' color="mainTextColor" >
+                    {assetName}{leverageExtraWording}
+                </Text>
+                <Image src="/assets/zap.png" h="20px" w="20px" />:
+            </Flex>
+        </Flex>
     </TextInfo>
 }
 
