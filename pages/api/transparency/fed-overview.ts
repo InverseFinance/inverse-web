@@ -138,7 +138,7 @@ export default async function handler(req, res) {
           const address = lpFed.incomeSrcAd;
           const chainId = lpFed.incomeChainId || lpFed.chainId;
           const chainProvider = getProvider(chainId);
-          const dolaContract = new Contract(getToken(CHAIN_TOKENS[lpFed.chainId], 'DOLA').address!, DOLA_ABI, chainProvider);
+          const dolaContract = new Contract(getToken(CHAIN_TOKENS[chainId], 'DOLA').address!, DOLA_ABI, chainProvider);
           return dolaContract.balanceOf(address);
         })
       ),
