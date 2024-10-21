@@ -442,6 +442,7 @@ export type Fed = {
   address: string,
   abi: string[],
   chainId: NetworkIds,
+  name: string,
   protocol: string,
   type: FedTypes,
   projectImage: string,
