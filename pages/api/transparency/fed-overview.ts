@@ -132,7 +132,7 @@ export default async function handler(req, res) {
       ),
       Promise.all(
         FEDS.map(lpFed => {
-          if (!lpFed.strategy?.incomeSrcAd) {
+          if (!lpFed.incomeSrcAd) {
             return new Promise((res) => res(BigNumber.from('0')));
           }
           const address = lpFed.incomeSrcAd;
