@@ -17,7 +17,7 @@ export const SLUG_BASE = process.env.VERCEL_ENV === 'production' ? 'p' : 'd';
 
 async function mainnetFork(newSimId: number) {
   return await fetch(
-    `https://api.tenderly.co/api/v1/account/${TENDERLY_USER}/project/inverse-finance/vnets`,
+    `https://api.tenderly.co/api/v1/account/${TENDERLY_USER}/project/inverse-finance2/vnets`,
     {
       method: 'POST',
       body: JSON.stringify({
