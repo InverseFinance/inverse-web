@@ -201,7 +201,7 @@ export default async function handler(req, res) {
         ...fedConfig,
         abi: undefined,
         supply,
-        circSupply: supply - getBnToNumber(idleDolaBalances[fedIndex]),
+        circSupply: ['FiRM', 'Frontier'].includes(fedConfig.protocol) ? borrows : supply - getBnToNumber(idleDolaBalances[fedIndex]),
         idleDolaBalance: getBnToNumber(idleDolaBalances[fedIndex]),
         lpBalance,
         lpTotalSupply,
