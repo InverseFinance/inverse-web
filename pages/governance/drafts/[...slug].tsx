@@ -84,54 +84,54 @@ export const Drafts = ({ proposal }) => {
 export default Drafts
 
 // static with 1 sec revalidation
-// export async function getStaticProps(context) {
-//   const { slug } = context.params;
-//   const client = getRedisClient();
-//   const drafts = JSON.parse(await client.get('drafts') || '[]');
+export async function getStaticProps(context) {
+  const { slug } = context.params;
+  const client = getRedisClient();
+  const drafts = JSON.parse(await client.get('drafts') || '[]');
 
-//   const now = new Date();
+  const now = new Date();
 
-//   const previews: Partial<Proposal>[] = drafts.map(d => {
-//     return {
-//       id: d.publicDraftId,
-//       title: d.title,
-//       description: d.description,
-//       functions: d.functions,
-//       createdAt: d.createdAt,
-//       updatedAt: d.updatedAt || '',
-//       proposer: d.createdBy || '',
-//       era: GovEra.mills,
-//       startTimestamp: Date.now(),
-//       endTimestamp: (new Date()).setDate(now.getDate() + 3),
-//       status: ProposalStatus.draft,
-//     }
-//   })
+  const previews: Partial<Proposal>[] = drafts.map(d => {
+    return {
+      id: d.publicDraftId,
+      title: d.title,
+      description: d.description,
+      functions: d.functions,
+      createdAt: d.createdAt,
+      updatedAt: d.updatedAt || '',
+      proposer: d.createdBy || '',
+      era: GovEra.mills,
+      startTimestamp: Date.now(),
+      endTimestamp: (new Date()).setDate(now.getDate() + 3),
+      status: ProposalStatus.draft,
+    }
+  })
 
-//   const proposal = previews?.find((p: Proposal) => {
-//     return slug.length === 1 ?
-//       p.id?.toString() === slug[0] :
-//       p.era === slug[0] && p.id?.toString() === slug[1]
-//   }) || {} as Proposal;
+  const proposal = previews?.find((p: Proposal) => {
+    return slug.length === 1 ?
+      p.id?.toString() === slug[0] :
+      p.era === slug[0] && p.id?.toString() === slug[1]
+  }) || {} as Proposal;
 
-//   return {
-//     props: { proposal },
-//     revalidate: 1,
-//   }
-// }
+  return {
+    props: { proposal },
+    revalidate: 1,
+  }
+}
 
-// export async function getStaticPaths() {
-//   if (!['1', '31337'].includes(process.env.NEXT_PUBLIC_CHAIN_ID)) {
-//     return { paths: [], fallback: true }
-//   }
-//   const client = getRedisClient();
-//   const drafts = JSON.parse(await client.get('drafts') || '[]');
+export async function getStaticPaths() {
+  if (!['1', '31337'].includes(process.env.NEXT_PUBLIC_CHAIN_ID)) {
+    return { paths: [], fallback: true }
+  }
+  const client = getRedisClient();
+  const drafts = JSON.parse(await client.get('drafts') || '[]');
 
-//   const possiblePaths = drafts.map(p => {
-//     return `/governance/drafts/${p.era}/${p.id}`;
-//   });
+  const possiblePaths = drafts.map(p => {
+    return `/governance/drafts/${p.era}/${p.id}`;
+  });
 
-//   return {
-//     paths: possiblePaths,
-//     fallback: true,
-//   }
-// }
+  return {
+    paths: possiblePaths,
+    fallback: true,
+  }
+}
