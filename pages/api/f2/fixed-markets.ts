@@ -18,7 +18,7 @@ const { F2_MARKETS, DOLA, XINV, DBR_DISTRIBUTOR, FEDS } = getNetworkConfigConsta
 export const F2_MARKETS_CACHE_KEY = `f2markets-v1.2.58`;
 
 export default async function handler(req, res) {
-  const cacheDuration = 60;
+  const cacheDuration = 120;
   res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
   res.setHeader('Access-Control-Allow-Headers', `Content-Type`);
   res.setHeader('Access-Control-Allow-Origin', `*`);

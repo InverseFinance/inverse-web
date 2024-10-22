@@ -201,9 +201,10 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                 (f2market.hasClaimableRewards && f2market.name === 'cvxCRV') && <CvxCrvPreferences />
                                             }
                                             <FirmInsuranceCover />
-                                            <ErrorBoundary description="The portfolio value chart could not load">
+                                            {/* temporarily disabled */}
+                                            {/* <ErrorBoundary description="The portfolio value chart could not load">
                                                 <WorthEvoChartWrapper market={f2market} />
-                                            </ErrorBoundary>
+                                            </ErrorBoundary> */}
                                         </VStack>
                                 }
                                 <FirmFAQ collapsable={true} defaultCollapse={false} />
