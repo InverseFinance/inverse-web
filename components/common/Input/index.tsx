@@ -47,7 +47,7 @@ type BalanceInputProps = {
   inputLeftProps?: FlexProps
 }
 
-export const BalanceInput = ({ isError, value, label, onChange, onMaxClick, inputProps, showBalance, balance, showMax = true, inputRightProps, inputLeftProps, ...props }: BalanceInputProps & Partial<FlexProps>) => {
+export const BalanceInput = ({ allowMobileMode = false, isError, value, label, onChange, onMaxClick, inputProps, showBalance, balance, showMax = true, inputRightProps, inputLeftProps, ...props }: BalanceInputProps & Partial<FlexProps>) => {
   const { themeStyles, themeParams } = useAppTheme();
   return <Flex
     w="full"
@@ -55,6 +55,7 @@ export const BalanceInput = ({ isError, value, label, onChange, onMaxClick, inpu
     borderRadius={8}
     align="center"
     {...props}
+    direction={{ base: allowMobileMode ? 'column-reverse' : 'row', sm: 'row' }}
     border={isError ? `1px solid ${themeStyles.colors.error}` : themeParams.INPUT_BORDER}
   >
     <Flex w="full" position="relative" align="center">

@@ -4,7 +4,7 @@ import { EthXe } from "@app/util/enso"
 import { getBnToNumber, shortenNumber, smartShortNumber } from "@app/util/markets"
 import { CHAIN_TOKENS, getToken } from "@app/variables/tokens"
 import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons"
-import { VStack, Text, HStack } from "@chakra-ui/react"
+import { VStack, Text, HStack, Stack } from "@chakra-ui/react"
 import { parseUnits } from "@ethersproject/units"
 import { useState } from "react"
 
@@ -57,13 +57,13 @@ export const EnsoRouting = ({
             </HStack>
         }
         <HStack w='full' justify="space-between" spacing="1">
-            <HStack>
+            <Stack direction={{ base: 'column', sm: 'row' }}>
                 <Text>Result:</Text>
                 <Text fontWeight="bold">
                     {`~${smartShortNumber(getBnToNumber(parseUnits(amountOut, 0), targetAsset.decimals), 6)} ${targetAsset.name}`}
                     {targetAssetPrice ? ` (${smartShortNumber(getBnToNumber(parseUnits(amountOut, 0), targetAsset.decimals) * targetAssetPrice, 2, true)})` : ''}
                 </Text>
-            </HStack>
+            </Stack>
         </HStack>
         <HStack textDecoration="underline" cursor="pointer" onClick={() => setShowActions(!showActions)}>
             <Text fontWeight="bold">Actions ({routes?.length})</Text>

@@ -213,9 +213,11 @@ export const FirmCollateralInputTitle = ({
             </Flex>
             {
                 isDeposit && <Flex alignItems="center">
-                    <Flex {...ensoProps} alignItems="center">
-                        Zap-In<Image src="/assets/zap.png" h="20px" w="20px" />
+                    <TextInfo message="Zap-In allows you to get the market's collateral very easily">
+                        <Flex {...ensoProps} alignItems="center">
+                            Zap-In<Image src="/assets/zap.png" h="20px" w="20px" />
                     </Flex>
+                    </TextInfo>
                 </Flex>
             }
         </Flex>

@@ -97,7 +97,9 @@ function EnsoZap({
     }, [targetChainId]);
 
     const fromOptionsWithBalance = ZAP_TOKENS_ARRAY
-        .filter(t => t.chainId === chainId && ((!!balances && !!balances[t.address] && getBnToNumber(balances[t.address], t.decimals) >= 0.01) || t.symbol === 'ETH')
+        .filter(t => t.chainId === chainId && ((!!balances && !!balances[t.address]
+             && getBnToNumber(balances[t.address], t.decimals) >= 0.01
+            ) || t.symbol === 'ETH')
             
         )
         .reduce((prev, curr) => {
@@ -105,7 +107,7 @@ function EnsoZap({
             return { ...prev, [ad]: { ...curr, address: ad.replace(EthXe, '') } }
         }, {});
 
-    const fromAssetInputProps = { tokens: fromOptionsWithBalance, balances, showBalance: true, dropdownSelectedProps: { whiteSpace: 'nowrap', w: 'fit-content' }, inputProps: { minW: '200px', color: 'red' } }
+    const fromAssetInputProps = { tokens: fromOptionsWithBalance, balances, showBalance: true, dropdownSelectedProps: { whiteSpace: 'nowrap', w: 'fit-content' }, inputProps: { minW: '200px' } }
 
     const changeTokenIn = (newToken: Token) => {
         setTokenIn(newToken.address);
@@ -212,6 +214,7 @@ function EnsoZap({
                         assetOptions={zapOptions}
                         onAssetChange={(newToken) => changeTokenIn(newToken)}
                         onAmountChange={(newAmount) => changeAmount(newAmount, true)}
+                        allowMobileMode={true}
                         {...fromAssetInputProps}
                     />
 
