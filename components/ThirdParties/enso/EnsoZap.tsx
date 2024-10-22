@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { EthXe, ensoZap, useEnso, useEnsoRoute } from "@app/util/enso";
 import { formatUnits, parseUnits } from "@ethersproject/units";
-import { VStack, Text, HStack, Divider, Stack, Input } from "@chakra-ui/react";
+import { VStack, Text, HStack, Divider, Stack, Input, Box } from "@chakra-ui/react";
 import { AssetInput } from "../../common/Assets/AssetInput";
 import { ZAP_TOKENS_ARRAY } from "../tokenlist";
 import { useBalances } from "@app/hooks/useBalances";
@@ -73,9 +73,10 @@ function EnsoZap({
     const [amountIn, setAmountIn] = useState<string>('');
     const [zapRequestData, setZapRequestData] = useState<any>({});
 
-    const { address: ensoSmartWalletAddress } = useEnso(account, chainId, tokenIn, amountIn, tokenInObj?.decimals);
+    const { address: spender } = useEnso(account, chainId, tokenIn, amountIn, tokenInObj?.decimals);
 
-    const approveDestinationAddress = ensoSmartWalletAddress;
+    // 0x80EbA3855878739F4710233A8a19d89Bdd2ffB8E universal router
+    const approveDestinationAddress = spender;
     const { isApproved } = useIsApproved(tokenIn, approveDestinationAddress, account, amountIn);
 
     const zapResponseData = useEnsoRoute(true, zapRequestData.account, zapRequestData.chainId, zapRequestData.targetChainId, zapRequestData.tokenIn, zapRequestData.tokenOut, zapRequestData.amountIn, refreshIndex);
@@ -96,13 +97,15 @@ function EnsoZap({
     }, [targetChainId]);
 
     const fromOptionsWithBalance = ZAP_TOKENS_ARRAY
-        .filter(t => t.chainId === chainId && !!balances && !!balances[t.address] && getBnToNumber(balances[t.address], t.decimals) >= 0.01)
+        .filter(t => t.chainId === chainId && ((!!balances && !!balances[t.address] && getBnToNumber(balances[t.address], t.decimals) >= 0.01) || t.symbol === 'ETH')
+            
+        )
         .reduce((prev, curr) => {
             const ad = curr.address;
             return { ...prev, [ad]: { ...curr, address: ad.replace(EthXe, '') } }
         }, {});
 
-    const fromAssetInputProps = { tokens: fromOptionsWithBalance, balances, showBalance: true }
+    const fromAssetInputProps = { tokens: fromOptionsWithBalance, balances, showBalance: true, dropdownSelectedProps: { whiteSpace: 'nowrap', w: 'fit-content' }, inputProps: { minW: '200px', color: 'red' } }
 
     const changeTokenIn = (newToken: Token) => {
         setTokenIn(newToken.address);
@@ -170,18 +173,20 @@ function EnsoZap({
         alertProps={{ w: 'full', fontSize: '14px' }}
         description={
             <VStack spacing="0" w='full' alignItems="flex-start">
-                <HStack spacing="1">
-                    <Text>Powered by the third-party</Text>
-                    <Link textDecoration="underline" target="_blank" isExternal={true} href="https://www.enso.finance/">
+                <Box display="inline">
+                    {/* <Text>Powered by the third-party</Text> */}
+                    <Text display="inline"><b>Please do your own research</b> before using with the Zap-In feature, which is provided by a <b>third party</b>,&nbsp;</Text>
+                    <Link display="inline" textDecoration="underline" target="_blank" isExternal={true} href="https://www.enso.finance/">
                         Enso Finance
                     </Link>
-                </HStack>
-                <Text>
+                    <Text display="inline">,&nbsp;and has not been audited or endorsed by Inverse Finance</Text>
+                </Box>
+                {/* <Text>
                     Recommended: use a wallet with transaction simulation like Rabby
-                </Text>
-                <Text textDecoration="underline">
+                </Text> */}
+                {/* <Text textDecoration="underline">
                     Inverse Finance does not endorse or audit Enso and the protocols related to this asset.
-                </Text>
+                </Text> */}
             </VStack>
         }
     />;
@@ -263,7 +268,7 @@ function EnsoZap({
                                 destination={approveDestinationAddress}
                                 hideInput={true}
                                 showMaxBtn={false}
-                                actionLabel={`Convert ${tokenInObj?.symbol} to ${tokenOutObj?.symbol}`}
+                                actionLabel={`Zap-In to ${tokenOutObj?.symbol.replace(/ lp$/, ' LP')}`}
                                 isDisabled={!zapResponseData?.route || !amountIn || ((!!tokenIn && tokenIn !== EthXe) && !approveDestinationAddress) || !slippage || !parseFloat(slippage)}
                                 alsoDisableApprove={!amountIn || ((!!tokenIn && tokenIn !== EthXe) && !approveDestinationAddress) || !slippage || !parseFloat(slippage)}
                                 btnProps={{ needPoaFirst: true }}

@@ -195,23 +195,29 @@ export const FirmCollateralInputTitle = ({
     const leverageExtraWording = useLeverageInMode ? isDeposit && deposits > 0 ? ` (on top of leverage)` : isDeposit && !deposits ? '' : ' (to deleverage)' : '';
     const assetName = isWethMarket && isUseNativeCoin ? 'ETH' : isUnderlyingAsInputCase ? market.underlyingSymbol : market.underlying.symbol;
     const ensoProps = isDeposit && !!onEnsoModalOpen ? { borderBottomWidth: '1px', borderColor: 'mainTextColor', cursor: 'pointer', onClick: onEnsoModalOpen } : {};
-    return <TextInfo message={
+    return <TextInfo w='full' message={
         isDeposit ?
             market.isInv ?
                 "Staked INV can be withdrawn at any time"
                 : "The more you deposit, the more you can borrow against"
             : useLeverageInMode ? "When deleveraging, the collateral will be withdrawn and automatically sold for DOLA in order to repay some debt" : "Withdrawing collateral will reduce borrowing power"
     }>
-        <Flex alignItems="center">
-            <Text fontSize='18px' color="mainTextColor">
-                <b>{wording}</b>&nbsp;
-            </Text>
-            <Flex {...ensoProps} alignItems="center">
-                <Text fontSize='18px' color="mainTextColor" >
-                    {assetName}{leverageExtraWording}
+        <Flex direction={{ base: 'column', sm: 'row' }} alignItems={{ base: 'flex-start', sm: 'center' }} w='full' justify={{ base: 'flex-start', md: 'space-between' }}>
+            <Flex alignItems="center">
+                <Text fontSize='18px' color="mainTextColor">
+                    <b>{wording}</b>&nbsp;
                 </Text>
-                <Image src="/assets/zap.png" h="20px" w="20px" />:
+                <Text fontSize='18px' color="mainTextColor">
+                    {assetName?.replace(/ lp$/, 'LP')}{leverageExtraWording}:
+                </Text>
             </Flex>
+            {
+                isDeposit && <Flex alignItems="center">
+                    <Flex {...ensoProps} alignItems="center">
+                        Zap-In<Image src="/assets/zap.png" h="20px" w="20px" />
+                    </Flex>
+                </Flex>
+            }
         </Flex>
     </TextInfo>
 }

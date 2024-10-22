@@ -665,8 +665,8 @@ export const F2CombinedForm = ({
             {
                 isEnsoModalOpen && <EnsoModal
                     isOpen={isEnsoModalOpen}
-                    title={`Convert assets to ${market?.underlying.symbol}`}
-                    introMessage={`This feature lets you easily acquire the market's collateral, this can save you some manual steps.`}
+                    title={`Zap-In to ${market?.underlying.symbol.replace(/ lp$/, ' LP')}, powered by Enso Finance`}
+                    introMessage={<Text><b>Zap-In</b> lets you <b>easily acquire the collateral</b> for this market, <b>saving you time and usually gas</b>, too.</Text>}
                     onClose={onEnsoModalClose}
                     defaultTokenOut={market?.collateral}
                     defaultTargetChainId={1}

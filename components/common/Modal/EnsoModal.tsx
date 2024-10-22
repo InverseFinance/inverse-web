@@ -29,7 +29,7 @@ export const EnsoModal = ({
         title={title}
         isOpen={isOpen}
         onClose={onClose}
-        modalProps={{ minW: { base: '98vw', lg: '600px' }, scrollBehavior: 'inside' }}
+        modalProps={{ minW: { base: '98vw', lg: '650px' }, scrollBehavior: 'inside' }}
     >
         <VStack p="4">
             <EnsoZap

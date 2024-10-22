@@ -239,9 +239,9 @@ export const ensoSameChainZap = async (
         path += `&receiver=${fromAddress}`;
         if (!isEth) {
             path += `&spender=${fromAddress}`            
-            path += `&tokenInAmountToApprove=${amount}`
+            // path += `&tokenInAmountToApprove=${amount}`
         } else {            
-            path += `&tokenInAmountToTransfer=${amount}`
+            // path += `&tokenInAmountToTransfer=${amount}`
         }
     }
     const res = await fetch(path, {
