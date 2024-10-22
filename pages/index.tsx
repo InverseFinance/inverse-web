@@ -68,7 +68,7 @@ export const Landing = ({ posts }: {
     },
     {
       name: 'TVL',
-      value: firmTotalTvl,
+      value: firmTotalTvl ? firmTotalTvl : '-',
     },
     {
       name: 'DBR price',

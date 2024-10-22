@@ -510,7 +510,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const { value: gnosisSafeToastAlreadyShowed, setter: setGnosisSafeToastAlreadyShowed } = useStorage('gnosis-safe-toast');
   const { value: isRefPop, setter: setIsRefPop } = useStorage('referral-pop-v1');
   const [inited, setInited] = useState(false);
-  const [refPopInited, setRefPopInited] = useState(false);  
+  const [refPopInited, setRefPopInited] = useState(false);
   const isMountedRef = useRef(false);
 
   useEffect(() => {
@@ -836,7 +836,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
         }
         <BurgerMenu active={active} activeSubmenu={activeSubmenu} userAddress={userAddress} nbNotif={nbNotif} navItems={NAV_ITEMS} />
       </Flex>
-      {isLargerThan768 && !!process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG && !hideAnnouncement && <Announcement />}
+      {!!process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG && !hideAnnouncement && <Announcement />}
       {
         !isLargerThan1150 && inited && !hideVampireBar && <VStack mt="4">
           {vampireComp}

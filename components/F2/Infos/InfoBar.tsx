@@ -17,7 +17,7 @@ import { useFirmTVL } from "@app/hooks/useTVL"
 import 'add-to-calendar-button';
 import { DbrReminder } from "../DbrReminder"
 import { WarningTwoIcon } from "@chakra-ui/icons"
-import { WarningMessage } from "@app/components/common/Messages"
+import { InfoMessage, WarningMessage } from "@app/components/common/Messages"
 import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader"
 import { SkeletonBlob } from "@app/components/common/Skeleton"
 import { useCustomSWR } from "@app/hooks/useCustomSWR"
@@ -341,7 +341,7 @@ const BarBlock = ({
                 <Link textDecoration="underline" fontWeight="extrabold" fontSize={{ base: '14px', md: '18px' }} color="mainTextColor" textAlign="left" href={href} isExternal target='_blank'>
                     {label}
                 </Link>
-                <AnimatedInfoTooltip message={tooltip} iconProps={{ transform: 'translateY(1px)', fontSize:' 15px', color: 'mainTextColor' }} />
+                <AnimatedInfoTooltip message={tooltip} iconProps={{ transform: 'translateY(1px)', fontSize: ' 15px', color: 'mainTextColor' }} />
             </HStack>
 
             {
@@ -371,6 +371,13 @@ export const FirmBar = ({
     const invFirmPrice = markets?.find(m => m.isInv)?.price || 0;
 
     return <VStack w='full' {...props}>
+        {
+            !process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG && firmTotalTvl === null && !isFirmTvlLoading
+            && <InfoMessage
+                alertProps={{ w: 'full', fontWeight: 'bold', mb: '4', fontSize: '16px' }}
+                description="Note: some data failed to load, please try again later."
+            />
+        }
         <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
             <HStack alignItems="flex-start" w={{ base: 'full', md: 'auto' }} justify="flex-start">
                 <HStack spacing="8" w={{ base: 'full', md: 'auto' }} justify={{ base: 'space-between', md: 'flex-start' }}>
@@ -397,7 +404,7 @@ export const FirmBar = ({
                         FiRM TVL
                     </Link>
                     {
-                        isFirmTvlLoading ?
+                        isFirmTvlLoading || firmTotalTvl === null ?
                             <SmallTextLoader width={'50px'} /> :
                             <SubTitle>
                                 {shortenNumber(firmTotalTvl, 2, true)}
@@ -409,7 +416,7 @@ export const FirmBar = ({
                         FiRM Borrows
                     </Link>
                     {
-                        !markets?.length ?
+                        !markets?.length || !totalDebtUsd ?
                             <SmallTextLoader width={'50px'} /> :
                             <SubTitle textAlign="center">
                                 {shortenNumber(totalDebtUsd, 2, true)}

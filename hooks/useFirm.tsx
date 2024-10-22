@@ -439,7 +439,9 @@ export const useINVEscrowRewards = (escrow: string): SWR & {
   rewardsInfos: { tokens: ZapperToken[] },
 } => {
   const account = useAccount();
-  const { data: dbrSimData } = useCustomSWR(escrow && escrow !== BURN_ADDRESS ? `/api/f2/sim-dbr-rewards?escrow=${escrow}&account=${account}` : '-', fetcher30sectimeout);
+  // temporary disabled
+  const dbrSimData = undefined;
+  // const { data: dbrSimData } = useCustomSWR(escrow && escrow !== BURN_ADDRESS ? `/api/f2/sim-dbr-rewards?escrow=${escrow}&account=${account}` : '-', fetcher30sectimeout);
   const { data, error } = useEtherSWR({
     args: [[escrow, 'claimable']],
     abi: F2_ESCROW_ABI,
