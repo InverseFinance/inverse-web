@@ -12,6 +12,7 @@ import { cgPricesCacheKey } from '../prices';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { FEATURE_FLAGS } from '@app/config/features';
 import { getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
+import { FIRM_MARKETS_SNAPSHOT } from '@app/fixtures/firm-markets-20241022';
 
 const { F2_MARKETS, DOLA, XINV, DBR_DISTRIBUTOR, FEDS } = getNetworkConfigConstants();
 
@@ -268,11 +269,14 @@ export default async function handler(req, res) {
         console.log('Api call failed, returning last cache found');
         res.status(200).json(cache);
       } else {
-        res.status(500).json({ success: false });
+        // res.status(500).json({ success: false });
+        // temporary snapshot fallback
+        res.status(200).json(FIRM_MARKETS_SNAPSHOT);
       }
     } catch (e) {
       console.error(e);
-      res.status(500).json({ success: false });
+      // res.status(500).json({ success: false });
+      res.status(200).json(FIRM_MARKETS_SNAPSHOT);
     }
   }
 }
