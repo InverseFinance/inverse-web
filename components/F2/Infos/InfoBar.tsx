@@ -372,7 +372,7 @@ export const FirmBar = ({
 
     return <VStack w='full' {...props}>
         {
-            firmTotalTvl === null && !isFirmTvlLoading
+            !process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG && firmTotalTvl === null && !isFirmTvlLoading
             && <InfoMessage
                 alertProps={{ w: 'full', fontWeight: 'bold', mb: '4', fontSize: '16px' }}
                 description="Note: some data failed to load, please try again later."
