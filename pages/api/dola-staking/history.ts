@@ -4,11 +4,11 @@ import { getCacheFromRedis, isInvalidGenericParam, redisSetWithTimestamp } from 
 export default async function handler(req, res) {
     const { cacheFirst, excludeCurrent, chainId } = req.query;
     const isExlcudeCurrent = excludeCurrent === 'true';
-    if (isInvalidGenericParam(excludeCurrent) || (!!chainId && !/[0-9]+/.test(chainId))) {
+    if (isInvalidGenericParam(excludeCurrent) || (!!chainId && !/^[0-9]+$/.test(chainId))) {
         res.status(400).json({ msg: 'invalid request' });
         return;
     }
-    const cacheKey = `dola-staking-history-aggregated${chainId ? '-c'+chainId+'-' : ''}-${isExlcudeCurrent ? '-exclude-current' : ''}v1.0.2`
+    const cacheKey = `dola-staking-history-aggregated-${isExlcudeCurrent ? '-exclude-current' : ''}v1.0.2`
 
     try {
         const cacheDuration = 60;

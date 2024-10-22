@@ -5,7 +5,7 @@ import { getAggregatedDataFromPools } from '@app/util/pools';
 export default async function handler(req, res) {
     const { cacheFirst, excludeCurrent, chainId } = req.query;
     const isExlcudeCurrent = excludeCurrent === 'true';
-    if (isInvalidGenericParam(excludeCurrent) || (!!chainId && !/[0-9]+/.test(chainId))) {
+    if (isInvalidGenericParam(excludeCurrent) || (!!chainId && !/^[0-9]+$/.test(chainId))) {
         res.status(400).json({ msg: 'invalid request' });
         return;
     }
