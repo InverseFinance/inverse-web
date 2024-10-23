@@ -35,6 +35,8 @@ const fetch1inchWithRetry = async (
 const connectors = {
   // cvxFXS
   '0xfeef77d3f69374f66429c91d732a244f074bdf74': ['0x853d955acef822db058eb8505911ed77f175b99e', '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', '0x3432b6a60d23ca0dfca7761b7ab56459d9c964d0'],
+  // yCrv for st-yCrv
+  '0xfcc5c47be19d06bf83eb04298b026f81069ff65b': ['0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E', '0xD533a949740bb3306d119CC777fa900bA034cd52'],
 }
 
 export default async function handler(req, res) {
