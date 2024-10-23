@@ -1,6 +1,7 @@
 import { VStack } from "@chakra-ui/react"
 import SimpleModal from "./SimpleModal"
 import EnsoZap from "@app/components/ThirdParties/enso/EnsoZap"
+import { ErrorBoundary } from "next/dist/client/components/error-boundary"
 
 export const EnsoModal = ({
     isOpen,
@@ -32,14 +33,16 @@ export const EnsoModal = ({
         modalProps={{ minW: { base: '98vw', lg: '650px' }, scrollBehavior: 'inside' }}
     >
         <VStack p="4">
-            <EnsoZap
-                defaultTokenOut={defaultTokenOut}
-                defaultTargetChainId={defaultTargetChainId}
-                ensoPools={ensoPoolsLike}
-                introMessage={introMessage}
-                isSingleChoice={isSingleChoice}
-                targetAssetPrice={targetAssetPrice}
-            />
+            <ErrorBoundary description="Failed to load Zap component">
+                <EnsoZap
+                    defaultTokenOut={defaultTokenOut}
+                    defaultTargetChainId={defaultTargetChainId}
+                    ensoPools={ensoPoolsLike}
+                    introMessage={introMessage}
+                    isSingleChoice={isSingleChoice}
+                    targetAssetPrice={targetAssetPrice}
+                />
+            </ErrorBoundary>
         </VStack>
     </SimpleModal>
 }
