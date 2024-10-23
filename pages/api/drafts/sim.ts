@@ -57,18 +57,23 @@ export default async function handler(req, res) {
 
   try {
     const cached = (await getCacheFromRedis(cacheKey, false));    
-    const { lastSimId } =  cached || { lastSimId: 0 };
+    const { lastSimId, ids } =  cached || { lastSimId: 0, ids: [] };
     const newSimId = (lastSimId||0) + 1;   
     const forkResponse = await mainnetFork(newSimId);
-    await redisSetWithTimestamp(cacheKey, { lastSimId: newSimId });
+    const now = Date.now();
+    
     // const tdlyRemaining = forkResponse.headers.get('X-Tdly-Remaining');
     // const rateLimitRemaining = forkResponse.headers.get('x-ratelimit-remaining');
     
     const fork = await forkResponse.json();
 
-    // const forkId = fork?.id;
+    const forkId = fork?.id;
+    let _ids = ids || [];
+    _ids.push({ timestamp: now, id: forkId });
+    await redisSetWithTimestamp(cacheKey, { lastSimId: newSimId, ids: _ids });
+    
     const adminRpc = fork.rpcs[0].url;
-    const publicRpc = fork.rpcs[1].url;
+    const publicRpc = fork.rpcs[2].url;
     const publicId = publicRpc.substring(publicRpc.lastIndexOf("/")+1);
 
     const forkProvider = new ethers.providers.JsonRpcProvider(adminRpc);
@@ -151,7 +156,7 @@ export default async function handler(req, res) {
     let txHash = '';
     if (!form.status || form.status === ProposalStatus.queued) {      
       //pass time      
-      if(!form.status || !form.etaTimestamp || (!!form.etaTimestamp && Date.now() < form.etaTimestamp)) {
+      if(!form.status || !form.etaTimestamp || (!!form.etaTimestamp && now < form.etaTimestamp)) {
         await forkProvider.send('evm_increaseTime', [
           ethers.utils.hexValue(60 * 60 * 24 * 5)
         ]);
