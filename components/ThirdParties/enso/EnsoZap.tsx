@@ -27,8 +27,13 @@ import Link from "@app/components/common/Link";
 import { InvPrime } from "@app/components/common/InvPrime";
 import { INV_STAKERS_ONLY } from "@app/config/features";
 import { getBnToNumber } from "@app/util/markets";
+import { usePricesDefillama, usePricesV2 } from "@app/hooks/usePrices";
 
 const zapOptions = [...new Set(ZAP_TOKENS_ARRAY.map(t => t.address))];
+
+const removeUndefined = obj => Object.fromEntries(
+    Object.entries(obj).filter(([_, v]) => v !== undefined)
+);
 
 function EnsoZap({
     defaultTokenOut = '',
@@ -82,12 +87,22 @@ function EnsoZap({
 
     const zapResponseData = useEnsoRoute(true, zapRequestData.account, zapRequestData.chainId, zapRequestData.targetChainId, zapRequestData.tokenIn, zapRequestData.tokenOut, zapRequestData.amountIn, refreshIndex);
 
-    const fromOptions = ZAP_TOKENS_ARRAY
-        .filter(t => t.chainId === chainId)
+    const zapTokens = useMemo(() => {
+        return ZAP_TOKENS_ARRAY.filter(t => t.chainId === chainId);
+    }, [ZAP_TOKENS_ARRAY, chainId]);
+
+    const fromOptions = zapTokens
         .reduce((prev, curr) => {
             const ad = curr.address;
             return { ...prev, [ad]: { ...curr, address: ad.replace(EthXe, '') } }
         }, {});
+
+    const { prices: pricesV2 } = usePricesV2();
+    const { simplifiedPrices: defillamaPrices } = usePricesDefillama(zapTokens.map(t => ({ chain: getNetwork(chainId)?.name, token: t.address })));
+    const combinedPrices = useMemo(() => {
+        const simplifiedV2Prices = Object.entries(zapTokens).reduce((prev, curr) => ({ ...prev, [curr[1].address]: pricesV2[curr[1].coingeckoId||curr[1].symbol]?.usd }), {});
+        return { ...simplifiedV2Prices, ...removeUndefined(defillamaPrices) }
+    }, [pricesV2, defillamaPrices]);
 
     const ads = Object.keys(fromOptions).map(ad => ad.replace(EthXe, ''));
     const { balances } = useBalances(ads);
@@ -108,7 +123,7 @@ function EnsoZap({
             return { ...prev, [ad]: { ...curr, address: ad.replace(EthXe, '') } }
         }, {});
 
-    const fromAssetInputProps = { tokens: fromOptionsWithBalance, balances, showBalance: true, dropdownSelectedProps: { whiteSpace: 'nowrap', w: 'fit-content' }, inputProps: { minW: '200px' } }
+    const fromAssetInputProps = { tokens: fromOptionsWithBalance, balances, prices: combinedPrices, showBalance: true, dropdownSelectedProps: { whiteSpace: 'nowrap', w: 'fit-content' }, inputProps: { minW: '200px' } }
 
     const changeTokenIn = (newToken: Token) => {
         setTokenIn(newToken.address);
@@ -220,6 +235,8 @@ function EnsoZap({
                         onAssetChange={(newToken) => changeTokenIn(newToken)}
                         onAmountChange={(newAmount) => changeAmount(newAmount, true)}
                         allowMobileMode={true}
+                        orderByWorth={true}
+                        orderByBalance={false}
                         {...fromAssetInputProps}
                     />
 
