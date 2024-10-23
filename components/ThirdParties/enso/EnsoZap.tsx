@@ -51,6 +51,7 @@ function EnsoZap({
     const { isInvPrimeMember } = useStakedInFirm(account);
     const { provider, chainId } = useWeb3React<Web3Provider>();    
 
+    const [isConnected, setIsConnected] = useState(true);
     const [slippage, setSlippage] = useState('0.1');
     const [refreshIndex, setRefreshIndex] = useState(0);
     const [lastChainId, setLastChainId] = useState(chainId);
@@ -143,6 +144,10 @@ function EnsoZap({
         setZapRequestData({ account, chainId, targetChainId, tokenIn, tokenOut, amountIn: amountInValue });
     }, [account, chainId, targetChainId, tokenIn, tokenOut, amountIn, tokenInObj]);
 
+    useDebouncedEffect(() => {
+        setIsConnected(!!account)
+    }, [account], 500);    
+
     const isValidAmountIn = useMemo(() => {
         return !!amountIn && parseFloat(amountIn) > 0;
     }, [amountIn]);
@@ -195,7 +200,7 @@ function EnsoZap({
 
     return <Container w='full' noPadding p='0' label={title} contentProps={{ mt: 0 }}>
         {
-            !account ? <WarningMessage
+            !isConnected ? <WarningMessage
                 alertProps={{ w: 'full' }}
                 title="Wallet not connected"
                 description="Please connect your wallet to use the Zap feature"
