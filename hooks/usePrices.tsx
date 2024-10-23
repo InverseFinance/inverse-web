@@ -25,6 +25,27 @@ export const usePrice = (coingeckoId: string): SWR & Prices => {
   }
 }
 
+export const usePricesDefillama = (list: {chain: string, token: string}[]): SWR & { prices: { [key: string]: { price: number } }, simplifiedPrices: { [key: string]: number } } => {
+  const { data, error } = useSWR(
+    `https://coins.llama.fi/prices/current/ids=${list.map(d => `${d.chain}:${d.token}`).join(',')}`,
+    {
+      refreshInterval: 60000,
+      dedupingInterval: 2000,
+      refreshWhenHidden: false,
+      revalidateOnFocus: true,
+      errorRetryInterval: 60000,
+      focusThrottleInterval: 60000,
+    }
+  );
+
+  return {
+    simplifiedPrices: data ? list.reduce((prev, curr) => ({...prev, [curr.token]: data.coins[`${curr.chain}:${curr.token}`]?.price}), {}) : {},
+    prices: data ? data.coins : {},
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
 export const usePrices = (extras?: string[]): SWR & Prices => {
   const { chainId } = useWeb3React<Web3Provider>()
   const { TOKENS } = getNetworkConfigConstants(chainId)
