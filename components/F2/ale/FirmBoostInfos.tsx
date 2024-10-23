@@ -115,6 +115,7 @@ export const getLeverageImpact = async ({
 }) => {
     // only when there is a transformation needed and when using a proxy when using ALE, otherwise the underlyingExRate is just a ui info
     const exRate = market?.aleData?.useProxy && market?.aleData?.buySellToken?.toLowerCase() !== market?.collateral?.toLowerCase() ? underlyingExRate : 1;
+    
     const collateralPrice = market?.price;
     if (!collateralPrice || leverageLevel <= 1) {
         return
@@ -126,12 +127,12 @@ export const getLeverageImpact = async ({
         // leverage up: dola amount is fixed, collateral amount is variable
         // if already has deposits, base is deposits, if not (=depositAndLeverage case), base is initialDeposit
         const baseColAmountForLeverage = deposits > 0 ? deposits + initialDeposit : initialDeposit;
-        const baseWorth = baseColAmountForLeverage * collateralPrice;
+        const baseWorth = baseColAmountForLeverage * collateralPrice;        
         let borrowStringToSign, borrowNumToSign;
         // leverage level slider / input, result from 1inch
         if (!viaInput && !market.isAleWithoutSwap) {
             const amountUp = baseColAmountForLeverage * leverageLevel - baseColAmountForLeverage;
-            const { buyAmount } = await getAleSellQuote(DOLA, market.aleData.buySellToken || market.collateral, getNumberToBn(amountUp, market.underlying.decimals).toString(), aleSlippage, true);
+            const { buyAmount } = await getAleSellQuote(DOLA, market.aleData.buySellToken || market.collateral, getNumberToBn(amountUp * exRate, market.underlying.decimals).toString(), aleSlippage, true);
             borrowStringToSign = buyAmount;
             borrowNumToSign = parseFloat(borrowStringToSign) / (1e18);
         }
@@ -140,7 +141,7 @@ export const getLeverageImpact = async ({
             borrowNumToSign = parseFloat(dolaInput);
             borrowStringToSign = getNumberToBn(borrowNumToSign).toString();
         }
-        // via leverage level slider or leverage level input
+        // via leverage level slider or leverage level input & ale without exchangeProxy
         else {
             const targetWorth = baseWorth * leverageLevel;
             borrowNumToSign = (targetWorth - baseWorth) * dolaPrice;
