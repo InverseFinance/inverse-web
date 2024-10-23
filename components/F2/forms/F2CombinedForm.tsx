@@ -5,7 +5,7 @@ import { parseEther, parseUnits } from '@ethersproject/units'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
 import { f2repayAndWithdrawNative, f2borrow, f2deposit, f2depositAndBorrow, f2depositAndBorrowHelper, f2repay, f2repayAndWithdraw, f2sellAndRepayHelper, f2sellAndWithdrawHelper, f2withdraw, f2withdrawMax } from '@app/util/f2'
 
-import { useContext } from 'react'
+import { useContext, useMemo } from 'react'
 
 import { MarketImage } from '@app/components/common/Assets/MarketImage'
 import { TOKENS } from '@app/variables/tokens'
@@ -20,7 +20,7 @@ import { FirmLeverageModal } from '../Modals/FirmLeverageModal'
 import { FEATURE_FLAGS } from '@app/config/features'
 import { FirmBoostInfos, getLeverageImpact } from '../ale/FirmBoostInfos'
 import { prepareDeleveragePosition, prepareLeveragePosition } from '@app/util/firm-ale'
-import { removeTrailingZeros } from '@app/util/misc'
+import { preciseCommify, removeTrailingZeros } from '@app/util/misc'
 import { showToast } from '@app/util/notify'
 import { BorrowPausedMessage, CannotWithdrawIfDbrDeficitMessage, MinDebtBorrowMessage, NoDbrInWalletMessage, NoDolaLiqMessage, NotEnoughCollateralMessage, NotEnoughDolaToRepayMessage, NotEnoughLiqWithAutobuyMessage, ResultingBorrowLimitTooHighMessage } from './FirmFormSubcomponents/FirmMessages'
 import { AutoBuyDbrDurationInputs, DbrHelperSwitch, SellDbrInput } from './FirmFormSubcomponents/FirmDbrHelper'
@@ -370,6 +370,10 @@ export const F2CombinedForm = ({
     const showMinDebtMessage = !notEnoughToBorrowWithAutobuy && minDebtDisabledCondition && (debtAmountNum > 0 || isDeleverageCase);
     const showNeedDbrMessage = isDeposit && !isAutoDBR && dbrBalance <= 0;
     const showNotEnoughDolaToRepayMessage = isRepayCase && debtAmountNum > 0 && dolaBalance < debtAmountNum;
+    // min collateral missing to borrow minimum debt with a safe margin of 5%
+    const additionalCollateralRequiredToBorrowMinimum =  useMemo(() => {
+        return Math.max(0, (1 / market.collateralFactor * market.minDebt / market.price) * 1.05 - collateralBalance);
+    }, [market.collateralFactor, market.minDebt, market.price, collateralBalance]);
 
     const isWrongCustomRecipient = !!customRecipient ? !isAddress(customRecipient) || customRecipient === BURN_ADDRESS : false;
     const disabledDueToLeverage = useLeverageInMode && (leverage <= 1 || leverageLoading || isTriggerLeverageFetch || !aleSlippage || aleSlippage === '0' || isNaN(parseFloat(aleSlippage)));
@@ -666,7 +670,14 @@ export const F2CombinedForm = ({
                 isEnsoModalOpen && <EnsoModal
                     isOpen={isEnsoModalOpen}
                     title={`Zap-In to ${market?.underlying.symbol.replace(/ lp$/, ' LP')}, powered by Enso Finance`}
-                    introMessage={<Text><b>Zap-In</b> lets you <b>easily acquire the collateral</b> for this market, <b>saving you time and usually gas</b>, too.</Text>}
+                    introMessage={
+                        <VStack w='full' alignItems='flex-start'>
+                            <Text><b>Zap-In</b> lets you <b>easily acquire the collateral</b> for this market, <b>saving you time and usually gas</b>, too.</Text>
+                            {
+                                debt < market.minDebt && <Text>The minimum debt of this market is {preciseCommify(market.minDebt, 0)} DOLA so we recommend to get at least {preciseCommify(additionalCollateralRequiredToBorrowMinimum, 2)}{collateralBalance > 0 ? ' more' : ''} {market.underlying.symbol} to be able to borrow.</Text>
+                            }
+                        </VStack>
+                    }
                     onClose={onEnsoModalClose}
                     defaultTokenOut={market?.collateral}
                     defaultTargetChainId={1}
