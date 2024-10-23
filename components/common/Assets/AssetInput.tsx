@@ -23,12 +23,15 @@ export const AssetInput = ({
     inputProps,
     showMax = true,
     orderByBalance = false,
+    orderByWorth = false,
     balanceKey = 'address',
     dropdownSelectedProps,
     allowMobileMode = false,
+    prices,
 }: {
     amount: string,
     balances: BigNumberList,
+    prices: { [key: string]: number },
     token: Token,
     tokens: TokenList,
     assetOptions: string[],
@@ -38,9 +41,10 @@ export const AssetInput = ({
     maxValue?: string | number,
     inputProps?: InputProps,
     showMax?: boolean,
-    orderByBalance?: boolean
-    allowMobileMode?: boolean
-    balanceKey?: string
+    orderByBalance?: boolean,
+    orderByWorth?: boolean,
+    allowMobileMode?: boolean,
+    balanceKey?: string,
     dropdownSelectedProps?: FlexProps
 }) => {
     const { isOpen, onOpen, onClose } = useDisclosure()
@@ -79,7 +83,9 @@ export const AssetInput = ({
                     <FromAssetDropdown
                         tokens={tokens}
                         balances={balances}
+                        prices={prices}
                         orderByBalance={orderByBalance}
+                        orderByWorth={orderByWorth}
                         isOpen={isOpen}
                         onClose={onClose}
                         onOpen={() => {
