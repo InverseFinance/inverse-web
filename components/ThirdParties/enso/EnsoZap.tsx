@@ -114,7 +114,7 @@ function EnsoZap({
 
     const fromOptionsWithBalance = ZAP_TOKENS_ARRAY
         .filter(t => t.chainId === chainId && ((!!balances && !!balances[t.address]
-             && getBnToNumber(balances[t.address], t.decimals) >= 0.01
+            //  && getBnToNumber(balances[t.address], t.decimals) >= 0.01
             ) || t.symbol === 'ETH')
             
         )
