@@ -43,7 +43,7 @@ export const PoaModal = ({
         }}
         isOpen={isOpen}
         okLabel="Sign"
-        modalProps={{ scrollBehavior: 'inside' }}
+        modalProps={{ scrollBehavior: 'inside', minW: { base: '98vw', lg: '600px' }  }}
     >
         <VStack p='4' spacing="4">
             <Box>
