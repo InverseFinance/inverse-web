@@ -7,7 +7,7 @@ import { BURN_ADDRESS } from "@app/config/constants"
 import { F2Market } from "@app/types"
 import { getBnToNumber } from "@app/util/markets"
 import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons"
-import { FormControl, FormLabel, HStack, Switch, Text, VStack } from "@chakra-ui/react"
+import { Flex, FormControl, FormLabel, HStack, Switch, Text, VStack, Image } from "@chakra-ui/react"
 import { formatUnits } from "@ethersproject/units"
 import { BigNumber } from "ethers"
 import { isAddress } from "ethers/lib/utils"
@@ -177,7 +177,8 @@ export const FirmCollateralInputTitle = ({
     isUseNativeCoin,
     useLeverageInMode,
     deposits,
-    isUnderlyingAsInputCase
+    isUnderlyingAsInputCase,
+    onEnsoModalOpen,
 }: {
     isDeposit: boolean
     market: F2Market
@@ -186,22 +187,40 @@ export const FirmCollateralInputTitle = ({
     useLeverageInMode: boolean
     deposits: number
     isUnderlyingAsInputCase: boolean
+    onEnsoModalOpen: () => void
 }) => {
     const depositWording = market.isInv ? 'Stake' : 'Deposit';
     const withdrawWording = useLeverageInMode ? 'Sell' : market.isInv ? 'Unstake' : 'Withdraw';
     const wording = isDeposit ? depositWording : withdrawWording;
     const leverageExtraWording = useLeverageInMode ? isDeposit && deposits > 0 ? ` (on top of leverage)` : isDeposit && !deposits ? '' : ' (to deleverage)' : '';
     const assetName = isWethMarket && isUseNativeCoin ? 'ETH' : isUnderlyingAsInputCase ? market.underlyingSymbol : market.underlying.symbol;
-    return <TextInfo message={
+    const ensoProps = isDeposit && !!onEnsoModalOpen ? { borderBottomWidth: '1px', borderColor: 'mainTextColor', cursor: 'pointer', onClick: onEnsoModalOpen } : {};
+    return <TextInfo w='full' message={
         isDeposit ?
             market.isInv ?
                 "Staked INV can be withdrawn at any time"
                 : "The more you deposit, the more you can borrow against"
             : useLeverageInMode ? "When deleveraging, the collateral will be withdrawn and automatically sold for DOLA in order to repay some debt" : "Withdrawing collateral will reduce borrowing power"
     }>
-        <Text fontSize='18px' color="mainTextColor">
-            <b>{wording}</b> {assetName}{leverageExtraWording}:
-        </Text>
+        <Flex direction={{ base: 'column', sm: 'row' }} alignItems={{ base: 'flex-start', sm: 'center' }} w='full' justify={{ base: 'flex-start', md: 'space-between' }}>
+            <Flex alignItems="center">
+                <Text fontSize='18px' color="mainTextColor">
+                    <b>{wording}</b>&nbsp;
+                </Text>
+                <Text fontSize='18px' color="mainTextColor">
+                    {assetName?.replace(/ lp$/, 'LP')}{leverageExtraWording}:
+                </Text>
+            </Flex>
+            {
+                isDeposit && <Flex alignItems="center">
+                    <TextInfo message="Zap-In allows you to get the market's collateral very easily">
+                        <Flex {...ensoProps} alignItems="center">
+                            Zap-In<Image src="/assets/zap.png" h="20px" w="20px" />
+                    </Flex>
+                    </TextInfo>
+                </Flex>
+            }
+        </Flex>
     </TextInfo>
 }
 

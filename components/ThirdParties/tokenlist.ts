@@ -1,5 +1,8 @@
-import { CHAIN_TOKENS } from "@app/variables/tokens"
+import { CHAIN_TOKENS, getToken, TOKENS } from "@app/variables/tokens"
 import { UNISWAP_TOKENS } from "./uniswaptokens";
+import { getNetworkConfigConstants } from "@app/util/networks";
+
+const { F2_MARKETS } = getNetworkConfigConstants();
 
 // specific format for bridging
 const entries = Object.entries(CHAIN_TOKENS);
@@ -8,8 +11,10 @@ const orders = {
     "INV": 2,
     "DBR": 3,
 }
-
-const MAIN_SYMBOLS = ['INV', 'DOLA', 'DBR', 'sDOLA', 'USDC', 'USDT', 'DAI', 'WETH', 'FRAX', 'WBTC', 'MATIC', 'OP', 'ARB', 'BNB', 'ETH', 'AVAX'];
+const firmCollaterals = F2_MARKETS.map(m => {
+    return getToken(TOKENS, m.collateral)?.symbol;
+});
+const MAIN_SYMBOLS = [...new Set(['INV', 'DOLA', 'DBR', 'sDOLA', 'USDC', 'DAI', 'WETH', 'FRAX', 'WBTC', 'cbBTC', 'wstETH', 'MATIC', 'OP', 'ARB', 'BNB', 'ETH', 'AVAX', ...firmCollaterals])];
 
 export const TOKENS_ARRAY = entries.flatMap(([chainId, chainList]) => {
     const tokens = Object.values(chainList)

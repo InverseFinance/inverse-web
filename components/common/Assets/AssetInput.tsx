@@ -7,7 +7,7 @@ import { getParsedBalance } from '@app/util/markets';
 import { commify } from 'ethers/lib/utils';
 
 const getMaxBalance = (balances: BigNumberList, token: Token, balanceKey: string) => {
-    return getParsedBalance(balances, token[balanceKey]||'CHAIN_COIN', token.decimals);
+    return getParsedBalance(balances, token[balanceKey] || 'CHAIN_COIN', token.decimals);
 }
 
 export const AssetInput = ({
@@ -23,11 +23,15 @@ export const AssetInput = ({
     inputProps,
     showMax = true,
     orderByBalance = false,
+    orderByWorth = false,
     balanceKey = 'address',
     dropdownSelectedProps,
+    allowMobileMode = false,
+    prices,
 }: {
     amount: string,
     balances: BigNumberList,
+    prices: { [key: string]: number },
     token: Token,
     tokens: TokenList,
     assetOptions: string[],
@@ -37,8 +41,10 @@ export const AssetInput = ({
     maxValue?: string | number,
     inputProps?: InputProps,
     showMax?: boolean,
-    orderByBalance?: boolean
-    balanceKey?: string
+    orderByBalance?: boolean,
+    orderByWorth?: boolean,
+    allowMobileMode?: boolean,
+    balanceKey?: string,
     dropdownSelectedProps?: FlexProps
 }) => {
     const { isOpen, onOpen, onClose } = useDisclosure()
@@ -50,7 +56,7 @@ export const AssetInput = ({
     }, [isOpen])
 
     const setAmountToMax = () => {
-        onAmountChange(maxValue?.toString()||(Math.floor(getMaxBalance(balances, token, balanceKey) * 1e8) / 1e8).toString())
+        onAmountChange(maxValue?.toString() || (Math.floor(getMaxBalance(balances, token, balanceKey) * 1e8) / 1e8).toString())
     }
 
     return (
@@ -65,16 +71,21 @@ export const AssetInput = ({
             }}
             showBalance={showBalance}
             showMax={showMax}
+            allowMobileMode={allowMobileMode}
             balance={commify(getMaxBalance(balances, token, balanceKey).toFixed(2))}
             label={
                 <Stack direction="row" align="center" p={2} spacing={4} cursor="pointer">
-                    <Flex w={0.5} h={8}>
-                        <Flex w="full" h="full" bgColor="primary.500" borderRadius={8} />
-                    </Flex>
+                    {
+                        allowMobileMode ? null : <Flex w={0.5} h={8}>
+                            <Flex w="full" h="full" bgColor="primary.500" borderRadius={8} />
+                        </Flex>
+                    }
                     <FromAssetDropdown
                         tokens={tokens}
                         balances={balances}
+                        prices={prices}
                         orderByBalance={orderByBalance}
+                        orderByWorth={orderByWorth}
                         isOpen={isOpen}
                         onClose={onClose}
                         onOpen={() => {

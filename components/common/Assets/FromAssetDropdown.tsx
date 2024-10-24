@@ -3,10 +3,12 @@ import { ChevronDownIcon } from '@chakra-ui/icons';
 import { TokenList, Token, BigNumberList } from '@app/types';
 import { AssetsDropdown } from './AssetsDropdown';
 import { getBnToNumber, shortenNumber } from '@app/util/markets';
+import { ETH_AD } from '@app/components/Base/BaseBridge';
 
 type FromAssetDropDownProps = {
     tokens: TokenList,
     balances: BigNumberList,
+    prices: { [key: string]: number },
     isOpen: boolean,
     onClose: () => void,
     onOpen: () => void,
@@ -14,12 +16,14 @@ type FromAssetDropDownProps = {
     options: string[],
     handleChange: (from: string, to: string) => void,
     orderByBalance?: boolean,
+    orderByWorth?: boolean,
     dropdownSelectedProps?: FlexProps,
 }
 
 export const FromAssetDropdown = ({
     tokens,
     balances,
+    prices,
     isOpen,
     onClose,
     onOpen,
@@ -27,17 +31,24 @@ export const FromAssetDropdown = ({
     options,
     handleChange,
     orderByBalance = false,
+    orderByWorth = false,
     dropdownSelectedProps,
 }: FromAssetDropDownProps) => {
     const list = options.map(ad => {
         const optKey = ad||'CHAIN_COIN';
         const t = { ...tokens[optKey], optKey };
         const bal = balances && t && (balances[t.address||'CHAIN_COIN'] || balances[optKey]);
-        return { ...t, balance: !!bal ? getBnToNumber(bal, t.decimals) : 0 }
+        const balanceFloat = !!bal ? getBnToNumber(bal, t.decimals) : 0;
+        const priceKey = t.address||'CHAIN_COIN'||ETH_AD||ETH_AD.toLowerCase();
+        const price = prices && (prices[priceKey] || prices[ETH_AD.toLowerCase()]) ? prices[priceKey] || prices[ETH_AD.toLowerCase()] : 0;
+        const worth = price * balanceFloat;
+        return { ...t, balance: balanceFloat, worth }
     }).filter(t => !!t.symbol)
 
     if(orderByBalance) {
         list.sort((a, b) => b.balance - a.balance);
+    } else if(orderByWorth) {
+        list.sort((a, b) => b.worth - a.worth);
     }
 
     return (
@@ -60,7 +71,7 @@ export const FromAssetDropdown = ({
                 </>
             }
         >
-            {list.map((token: Token & { optKey: string, balance: number }) => {
+            {list.map((token: Token & { optKey: string, balance: number, worth: number }) => {
                 return (
                     <Flex
                         key={token.optKey}
@@ -83,7 +94,7 @@ export const FromAssetDropdown = ({
                             </Flex>
                         </Stack>
                         <Text fontWeight="semibold" color="secondaryTextColor">
-                            {shortenNumber((token.balance||0), 2, false, true)}
+                            {shortenNumber((token.balance||0), 2, false, true)}{token.worth ? ` (${shortenNumber(token.worth, 2, true)})` : ''}
                         </Text>
                     </Flex>
                 )

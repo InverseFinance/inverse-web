@@ -6,8 +6,11 @@ import { lowercaseObjectKeys } from "./misc";
 import { getBnToNumber, getSymbolFromUnderlyingTokens, homogeneizeLpName } from "./markets";
 import { PROTOCOLS_BY_IMG, PROTOCOL_DEFILLAMA_MAPPING } from "@app/variables/images";
 import { NetworkIds } from "@app/types";
+import { useState } from "react";
+import { useInterval } from "@chakra-ui/react";
+import { formatUnits, parseUnits } from "@ethersproject/units";
 
-const key = '033137b3-73c1-4308-8e77-d7e14d3664ca'
+const key = 'eb19e745-81bb-4ffc-b40e-04dccf6edb6a'
 export const EthXe = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
 export type EnsoZapOptions = {
@@ -41,11 +44,18 @@ export type EnsoPool = {
 export const useEnso = (
     fromAddress: string,
     chainId: string,
+    tokenAddress: string,
+    amount: string,
+    decimals = 18
 ) => {
-    const { data, error } = useSWR(`enso-${fromAddress}-${chainId}`, async () => {
+    const { data, error } = useSWR(`enso-${fromAddress}-${chainId}-${tokenAddress}-${amount}`, async () => {
         if (!fromAddress || !chainId) return null;
+        if(tokenAddress) {
+            return await getEnsoApproveToken(fromAddress, chainId, tokenAddress, formatUnits(parseUnits(amount, decimals), 0));
+        }
         return await getEnsoApprove(fromAddress, chainId);
     });
+
     return {
         address: data?.address || '',
         isDeployed: data?.isDeployed || false,
@@ -61,12 +71,19 @@ export const useEnsoRoute = (
     targetChainId: string,
     tokenIn: string,
     tokenOut: string,
-    amount: string
+    amount: string,
+    refreshIndex = 0
 ) => {
+    const [tsMinute, setTsMinute] = useState((new Date()).toISOString().substring(0, 16));
+
+    useInterval(() => {
+        setTsMinute((new Date()).toISOString().substring(0, 16));
+    }, 60100);
+
     const { data, error } = useSWR(
-        `enso-route-${chainId}-${targetChainId}-${tokenIn}-${tokenOut}-${amount}-${isApproved}`,
+        `enso-route-${chainId}-${targetChainId}-${tokenIn}-${tokenOut}-${amount}-${isApproved}-${tsMinute}-${refreshIndex}`,
         async () => {
-            if (!isApproved || !fromAddress || chainId?.toString() !== targetChainId?.toString() || !chainId || !tokenOut || !targetChainId || !amount) {
+            if (!isApproved || !fromAddress || chainId?.toString() !== targetChainId?.toString() || !chainId || !tokenOut || !targetChainId || !amount || !parseFloat(amount)) {
                 return null;
             }
             return await ensoZap(null, {
@@ -118,11 +135,26 @@ export const useEnsoPools = ({
 }
 
 // the api gives an address per user, the user needs to approve this given address to spend their tokens
+export const getEnsoApproveToken = async (fromAddress: string, chainId = 1, tokenAddress: string, amount: string) => {
+    const path = `https://api.enso.finance/api/v1/wallet/approve?chainId=${chainId}&fromAddress=${fromAddress}&tokenAddress=${tokenAddress}&amount=${amount}&routingStrategy=router`;
+    const res = await fetch(path, {
+        headers: {
+            'accept': "*/*",
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${key}`,
+        },
+    });
+    const { spender, isDeployed } = await res.json();
+    return { address: spender, isDeployed }
+}
+
 export const getEnsoApprove = async (fromAddress: string, chainId = 1) => {
     const path = `https://api.enso.finance/api/v1/wallet?chainId=${chainId}&fromAddress=${fromAddress}`;
     const res = await fetch(path, {
         headers: {
+            'accept': "*/*",
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${key}`,
         },
     });
     const { address, isDeployed } = await res.json();
@@ -132,11 +164,14 @@ export const getEnsoApprove = async (fromAddress: string, chainId = 1) => {
 // the api gives an address per user, the user needs to approve this given address to spend their tokens
 export const getEnsoPools = async (params): Promise<EnsoPool[]> => {
     const queryString = new URLSearchParams(params).toString();
-    const path = `https://api.enso.finance/api/v1/defiTokens?${queryString}`;
+    const path = `https://api.enso.finance/api/v1/tokens?type=defi&chainId=1&includeMetadata=true&underlyingTokens=0x865377367054516e17014CcdED1e7d814EDC9ce4,0xef484de8C07B6e2d732A92B5F78e81B38f99f95E,0xfb5137Aa9e079DB4b7C2929229caf503d0f6DA96,0x8272E1A3dBef607C04AA6e5BD3a1A134c8ac063B`;
+    // const path = `https://api.enso.finance/api/v1/tokens?type=defi&chainId=1&includeMetadata=true&primaryAddress=0xcC2EFb8bEdB6eD69ADeE0c3762470c38D4730C50`;
     // const path = `https://api.enso.finance/api/v1/positions?${queryString}`;
     const res = await fetch(path, {
         headers: {
+            'accept': "*/*",
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${key}`,
         },
     });
     const result = await res.json();
@@ -161,15 +196,15 @@ export const getEnsoPools = async (params): Promise<EnsoPool[]> => {
         //         const symbol = homogeneizeLpName(attemptSymbol);
         //         return { ...dt, symbol }
         //     }));
-        list = result.map(dt => {
+        list = result.data.map(dt => {
             const chainTokens = lowercaseObjectKeys(CHAIN_TOKENS[dt.chainId]);
-            const foundTokenConfig = chainTokens[dt.poolAddress.toLowerCase()];
-            const attemptSymbol = foundTokenConfig ? foundTokenConfig.symbol : getSymbolFromUnderlyingTokens(dt.chainId, dt.underlyingTokens);
+            const foundTokenConfig = chainTokens[dt.address.toLowerCase()];
+            const attemptSymbol = foundTokenConfig ? foundTokenConfig.symbol : getSymbolFromUnderlyingTokens(dt.chainId, dt.underlyingTokens.map(ut => ut.address));
             const symbol = homogeneizeLpName(attemptSymbol);
-            return { ...dt, symbol }
+            return { ...dt, poolAddress: dt.address, symbol }
         })
     } catch (e) {
-        console.warn(e);
+        console.error(e);
     }
     return list;
 }
@@ -199,11 +234,14 @@ export const ensoSameChainZap = async (
     } = options;
     const isEth = !tokenIn || tokenIn === EthXe;
     const _tokenIn = !tokenIn ? EthXe : tokenIn;
-    let path = `https://api.enso.finance/api/v1/shortcuts/route?chainId=${chainId}&fromAddress=${fromAddress}&amountIn=${amount}&slippage=${slippage}&tokenIn=${_tokenIn}&tokenOut=${tokenOut}&priceImpact=true`;
+    let path = `https://api.enso.finance/api/v1/shortcuts/route?chainId=${chainId}&fromAddress=${fromAddress}&amountIn=${amount}&slippage=${slippage}&tokenIn=${_tokenIn}&tokenOut=${tokenOut}&priceImpact=true&routingStrategy=router`;
     if (toEoa) {
         path += `&receiver=${fromAddress}`;
         if (!isEth) {
-            path += `&spender=${fromAddress}`
+            path += `&spender=${fromAddress}`            
+            // path += `&tokenInAmountToApprove=${amount}`
+        } else {            
+            // path += `&tokenInAmountToTransfer=${amount}`
         }
     }
     const res = await fetch(path, {
@@ -218,7 +256,7 @@ export const ensoSameChainZap = async (
     const data = await res.json();
     if (res.status !== 200 || !data.tx) {
         console.warn(data);
-        throw new Error(`The Enso api failed to fetch the route, please try again later`);
+        throw new Error(data?.statusCode === 404 ? 'No route found with this token, please try with another token' : `The Enso api failed to fetch the route, please try again later`);
     }
     if (!signer) return data;
     const { tx, gas } = data

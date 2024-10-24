@@ -23,6 +23,7 @@ export const UnderlyingItem = ({
     showAsLp = false,
     pairs,
     chainId,
+    alternativeLpDisplay = false,
 }: {
     label: string,
     image: string,
@@ -38,12 +39,13 @@ export const UnderlyingItem = ({
     showAsLp?: boolean
     pairs?: string[]
     chainId?: NetworkIds,
+    alternativeLpDisplay?: boolean
 }) => {
     const paused = /(-v1|old)/i.test(label);
     return <Container {...containerProps}>
         {
             showAsLp ?
-                <LPImages lpToken={{ pairs, image, protocolImage }} chainId={chainId} imgSize={imgSize} imgProps={imgProps} {...imgContainerProps} />
+                <LPImages alternativeDisplay={alternativeLpDisplay} lpToken={{ pairs, image, protocolImage }} chainId={chainId} imgSize={imgSize} imgProps={imgProps} imgContainerProps={imgContainerProps} />
                 : <MarketImage
                     size={imgSize}
                     image={image}
