@@ -32,8 +32,21 @@ export const Swap = () => {
         px={{ base: '4', lg: '0' }}
       >
         <VStack w={{ base: 'full', lg: '55%' }}>
+          <InfoMessage
+            alertProps={{ w: 'full' }}
+            title="Note on Crypto assets"
+            description={
+              <VStack w='full' alignItems='flex-start'>
+                <Text>Don't invest unless you're prepared to lose all the money you invest.</Text>
+                <Text>Crypto assets are high-risk investments and you should not expect to be protected if something goes wrong. Take time to learn more before investing in a crypto asset.</Text>
+              </VStack>
+            } />
           <SwapViewSocket fromToken={fromToken} toToken={toToken} fromChain={fromChain} toChain={toChain} />
-          <InfoMessage alertProps={{ w: 'full' }} description="Socket is a third-party service" />
+          <InfoMessage alertProps={{ w: 'full' }} description={
+            <VStack w='full' alignItems='flex-start'>
+              <Text>Socket is a third-party service</Text>
+            </VStack>
+          } />
         </VStack>
         <Stack w={{ base: 'full', lg: '45%' }} direction="column" justifyContent="space-between">
           <InfoMessage

@@ -1,4 +1,4 @@
-export const POA_VERSION = '1.0.2';
+export const POA_VERSION = '1.0.3';
 
 export const POA_TEXTS = {
     '1.0.0': [
@@ -17,6 +17,12 @@ export const POA_TEXTS = {
         `I have read and understood, and do hereby agree as a "User" to the Terms, including all future amendments thereto. Such agreement is irrevocable and will apply to all of the Site.`,
         `I'm at least 18 years of age (or the age of legal majority in the jurisdiction in which I reside), and not a citizen or resident of the USA or UK or subject to any personal, national or international Sanctions.`,
         `I acknowledge and agree that the Site solely provides access and information for data on the blockchain and that displayed information may be approximate or may contain inaccuracies. I accept that Site operators have no custody over my funds, ability or duty to transact on my behalf or power to reverse my transactions. The Site does not provide any warranty with respect to any of its provided operations.`,
+    ],
+    '1.0.3': [
+        `I have read and understood, and do hereby agree as a "User" to the Terms, including all future amendments thereto. Such agreement is irrevocable and will apply to all of the Site.`,
+        `I'm at least 18 years of age (or the age of legal majority in the jurisdiction in which I reside), and not a citizen or resident of the USA or UK or subject to any personal, national or international Sanctions.`,
+        `I acknowledge and agree that the Site solely provides access and information for data on the blockchain and that displayed information may be approximate or may contain inaccuracies. I accept that Site operators have no custody over my funds, ability or duty to transact on my behalf or power to reverse my transactions. The Site does not provide any warranty with respect to any of its provided operations.`,
+        `Don't invest unless you're prepared to lose all the money you invest. This is a high-risk investment and you should not expect to be protected if something goes wrong. Take time to learn more before investing or using the Site.`,
     ],
 }
 
