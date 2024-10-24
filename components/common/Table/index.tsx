@@ -33,6 +33,7 @@ type TableProps = {
   columns: Column[]
   pinnedItems?: string[]
   pinnedLabels?: string[]
+  unfixedPinnedItems?: boolean
   items: any[]
   keyName?: string
   defaultSort?: string
@@ -100,7 +101,7 @@ export const MobileTable = ({
 
                 return <HStack position="relative" alignItems="flex-start" spacing="0" key={j} w='full' justify={isNotFirstCol ? 'space-between' : 'center'}>
                   {
-                    !isNotFirstCol && item._isPinned && !!item._pinLabel &&
+                    !isNotFirstCol && !!item._pinLabel &&
                     <Badge textTransform="capitalize" borderRadius="50px"
                       px="8px" fontWeight="normal" bgColor="mainTextColor" color="contrastMainTextColor" w='fit-content' mr="1" position="absolute" top="-10px" left="-10px">
                       {item._pinLabel}
@@ -155,6 +156,7 @@ export const Table = ({
   showTotalRow = false,
   pinnedItems,
   pinnedLabels,
+  unfixedPinnedItems = false,
   secondarySortFields,
   ...props
 }: TableProps) => {
@@ -243,10 +245,12 @@ export const Table = ({
     pinnedItems?.forEach((p, pinIndex) => {
       const pinnedItemIndex = filteredItems.findIndex(item => item[keyName] === p);
       if (pinnedItemIndex !== -1) {
-        const pinnedItem = filteredItems.splice(pinnedItemIndex, 1)[0];
-        pinnedItem._isPinned = true;
+        const pinnedItem = unfixedPinnedItems ? filteredItems[pinnedItemIndex] : filteredItems.splice(pinnedItemIndex, 1)[0];
+        pinnedItem._isPinned = !unfixedPinnedItems;
         pinnedItem._pinLabel = pinnedLabels?.[pinIndex] || '';
-        filteredItems.splice(pinIndex, 0, pinnedItem);
+        if(!unfixedPinnedItems) {
+          filteredItems.splice(pinIndex, 0, pinnedItem);
+        }
       }
     });
   }
@@ -273,7 +277,7 @@ export const Table = ({
       py={2.5}
       pl={4}
       pr={4}
-      border={showRowBorder ? `1px solid ${item._isPinned ? themeStyles.colors.mainTextColorLightAlpha : themeStyles.colors.primary[600]}` : undefined}
+      border={showRowBorder ? `1px solid ${item._pinLabel ? themeStyles.colors.mainTextColorLightAlpha : themeStyles.colors.primary[600]}` : undefined}
       minW='fit-content'
       w="full"
       borderRadius={8}
@@ -287,7 +291,7 @@ export const Table = ({
       position="relative"
     >
       {
-        item._isPinned && item._pinLabel &&
+        item._pinLabel &&
         <Badge textTransform="capitalize" borderRadius="50px"
           px="8px" fontWeight="normal" bgColor="mainTextColor" color="contrastMainTextColor" w='fit-content' mr="1" position="absolute" top="-10px" left="-10px">
           {item._pinLabel}

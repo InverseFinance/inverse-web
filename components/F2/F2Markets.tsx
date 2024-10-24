@@ -19,7 +19,7 @@ import { SafetyBadges } from "./SecurityMiniCaroussel";
 import { ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon, InfoIcon, SearchIcon } from "@chakra-ui/icons";
 import { SplashedText } from "../common/SplashedText";
 import { lightTheme } from "@app/variables/theme";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import Link from "../common/Link";
 import { calculateMaxLeverage } from "@app/util/misc";
 import { LPImages } from "../common/Assets/LPImg";
@@ -243,9 +243,9 @@ const CollateralFactorCell = ({ collateralFactor, supplyApy, borrowPaused, dbrPr
     </Cell>
 }
 
-export const MarketApyInfos = ({ name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, borrowPaused, rewardTypeLabel, collateralFactor, dbrPriceUsd, _isMobileCase }) => {
-    const maxLong = calculateMaxLeverage(collateralFactor);
-    return <Cell spacing="0" direction="column" minWidth="140px" alignItems={_isMobileCase ? 'flex-end' : 'center'} justify="center" fontSize="14px">
+export const MarketApyInfos = ({ minWidth = "140px", name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, borrowPaused, rewardTypeLabel, collateralFactor, dbrPriceUsd, _isMobileCase }) => {
+    // const maxLong = calculateMaxLeverage(collateralFactor);
+    return <Cell spacing="0" direction="column" minWidth={minWidth} alignItems={_isMobileCase ? 'flex-end' : 'center'} justify="center" fontSize="14px">
         <HStack>
             <AnchorPoolInfo
                 // protocolImage={underlying.protocolImage}
@@ -270,13 +270,56 @@ export const MarketApyInfos = ({ name, supplyApy, supplyApyLow, extraApy, price,
                 {rewardTypeLabel || (isInv ? supplyApy > 0 ? 'INV + DBR APR' : 'DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY')}
             </Text>
         }
-        {
+        {/* {
             !borrowPaused && ((supplyApy || 0) + (extraApy || 0)) / 100 > dbrPriceUsd && <CellText fontSize="12px" color="accentTextColor">
                 Up to <b>{calculateNetApy((supplyApy || 0) + (extraApy || 0), collateralFactor, dbrPriceUsd).toFixed(2)}%</b> at x{smartShortNumber(maxLong, 2)}
             </CellText>
-        }
+        } */}
     </Cell>
 }
+
+const leverageColumn = {
+    field: 'maxApy',
+    label: 'Leverage',
+    header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+    tooltip: <VStack>
+        <Text><b>Collateral Factor</b>: maximum percentage of collateral value that can be used for borrowing.</Text>
+        <Text><b>Long up to</b>: theoretical maximum leverage with DOLA at $1 and borrow limit at 100%</Text>
+    </VStack>,
+    value: ({ maxApy, name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
+        const maxLong = calculateMaxLeverage(collateralFactor);
+        return <Cell spacing="0" direction="column" minWidth="100px" alignItems="center">
+            {
+                !borrowPaused && dbrPriceUsd > 0 && maxApy > 0 ? <>
+                    <CellText fontSize="14px" color="accentTextColor">
+                        Up to <b>{maxApy.toFixed(2)}%</b>
+                    </CellText>
+                    <CellText fontSize="12px" color="mainTextColorLight">
+                        Net APY at x{smartShortNumber(maxLong, 2)}
+                    </CellText>
+                </>
+                    : borrowPaused ? <MarketApyInfos
+                        minWidth="100px"
+                        name={name}
+                        borrowPaused={borrowPaused}
+                        supplyApy={supplyApy}
+                        supplyApyLow={supplyApyLow}
+                        extraApy={extraApy}
+                        dbrPriceUsd={dbrPriceUsd}
+                        collateralFactor={collateralFactor}
+                        price={price}
+                        underlying={underlying}
+                        hasClaimableRewards={hasClaimableRewards}
+                        isInv={isInv}
+                        rewardTypeLabel={rewardTypeLabel}
+                        _isMobileCase={_isMobileCase}
+                    /> : <CellText fontSize="12px" color="mainTextColorLight">
+                        Long up to x{smartShortNumber(maxLong, 2)}
+                    </CellText>
+            }
+        </Cell>
+    },
+};
 
 const columns = [
     {
@@ -461,6 +504,10 @@ const columns = [
 ]
 
 const columnsWithout = columns.slice(0, 9);
+const leverageColumns = [...columns];
+const leverageColumnsWithout = [...columnsWithout];
+leverageColumns.splice(2, 1, leverageColumn);
+leverageColumnsWithout.splice(2, 1, leverageColumn);
 
 const firmImages = {
     'dark': 'firm-final-logo-white.png',
@@ -534,6 +581,9 @@ export const F2Markets = ({
         if (category === 'majors') {
             categoryCondition = /(btc|eth)/i.test(m.name);
         }
+        else if (category === 'leverage') {
+            categoryCondition = !m.borrowPaused;
+        }
         else if (category === 'stablecoins') {
             categoryCondition = m.underlying.isStable && !m.underlying.isLP;
         }
@@ -559,6 +609,10 @@ export const F2Markets = ({
         : (markets?.length > 0 ? markets.map(m => m.address).slice(markets.length - 2) : []);
 
     const pinnedLabels = invMarketIsInOtherSection ? ['Stake', 'New', 'New'] : ['New', 'New'];
+
+    const isLeverageView = useMemo(() => {
+        return category === 'leverage';
+    }, [category]);
 
     return <Container
         p={isDashboardPage ? '0' : '6'}
@@ -661,6 +715,7 @@ export const F2Markets = ({
                         borderRadius="20px"
                         onChange={(e) => { setCategory(e.target.value) }}>
                         <option value="all">All</option>
+                        <option value="leverage">Leverage</option>
                         <option value="majors">BTC/ETH</option>
                         <option value="stablecoins">Stablecoins</option>
                         <option value="lps">Stable LPs</option>
@@ -684,6 +739,7 @@ export const F2Markets = ({
                         }}
                         options={[
                             { label: 'All', value: 'all' },
+                            { label: 'Leverage', value: 'leverage' },
                             { label: 'BTC/ETH', value: 'majors' },
                             { label: 'Stablecoins', value: 'stablecoins' },
                             { label: 'Stable LPs', value: 'lps' },
@@ -725,12 +781,13 @@ export const F2Markets = ({
                                 showMyPositions && <Table
                                     keyName="address"
                                     noDataMessage={search || category ? "No position for the selected filters" : "Loading..."}
-                                    columns={columns}
+                                    columns={isLeverageView ? leverageColumns : columns}
                                     items={
                                         withDeposits
                                             .filter(marketFilter)
                                             .map(m => {
-                                                return { ...m, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
+                                                const maxApy = calculateNetApy((m.supplyApy || 0) + (m.extraApy || 0), m.collateralFactor, dbrPrice);
+                                                return { ...m, maxApy, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
                                             })
                                     }
                                     onClick={openMarket}
@@ -770,19 +827,21 @@ export const F2Markets = ({
                             keyName="address"
                             pinnedItems={pinnedItems}
                             pinnedLabels={pinnedLabels}
+                            unfixedPinnedItems={isLeverageView}
                             noDataMessage={search || category ? "No market for the selected filters" : "Loading..."}
-                            columns={withDeposits.length > 0 ? columns : columnsWithout}
+                            columns={withDeposits.length > 0 ? isLeverageView ? leverageColumns : columns : isLeverageView ? leverageColumnsWithout : columnsWithout}
                             items={
                                 withoutDeposits
                                     .filter(marketFilter)
                                     .map(m => {
-                                        return { ...m, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
+                                        const maxApy = calculateNetApy((m.supplyApy || 0) + (m.extraApy || 0), m.collateralFactor, dbrPrice);
+                                        return { ...m, maxApy: maxApy <= 0 ? -1/m.collateralFactor : maxApy, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
                                     })
                             }
                             onClick={openMarket}
-                            defaultSort={'maxBorrowableByUserWallet'}
+                            defaultSort={isLeverageView ?'maxApy' : 'maxBorrowableByUserWallet'}
                             defaultSortDir="desc"
-                            secondarySortFields={['maxBorrowableByUserWallet', 'leftToBorrow', 'tvl']}
+                            secondarySortFields={account ? ['maxBorrowableByUserWallet', 'leftToBorrow', 'tvl'] : ['leftToBorrow', 'collateralFactor']}
                             enableMobileRender={true}
                             mobileClickBtnLabel={'View Market'}
                             mobileThreshold={responsiveThreshold}
