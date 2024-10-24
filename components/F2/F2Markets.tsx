@@ -243,9 +243,9 @@ const CollateralFactorCell = ({ collateralFactor, supplyApy, borrowPaused, dbrPr
     </Cell>
 }
 
-export const MarketApyInfos = ({ name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, borrowPaused, rewardTypeLabel, collateralFactor, dbrPriceUsd, _isMobileCase }) => {
-    const maxLong = calculateMaxLeverage(collateralFactor);
-    return <Cell spacing="0" direction="column" minWidth="140px" alignItems={_isMobileCase ? 'flex-end' : 'center'} justify="center" fontSize="14px">
+export const MarketApyInfos = ({ minWidth = "140px", name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, borrowPaused, rewardTypeLabel, collateralFactor, dbrPriceUsd, _isMobileCase }) => {
+    // const maxLong = calculateMaxLeverage(collateralFactor);
+    return <Cell spacing="0" direction="column" minWidth={minWidth} alignItems={_isMobileCase ? 'flex-end' : 'center'} justify="center" fontSize="14px">
         <HStack>
             <AnchorPoolInfo
                 // protocolImage={underlying.protocolImage}
@@ -270,11 +270,11 @@ export const MarketApyInfos = ({ name, supplyApy, supplyApyLow, extraApy, price,
                 {rewardTypeLabel || (isInv ? supplyApy > 0 ? 'INV + DBR APR' : 'DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY')}
             </Text>
         }
-        {
+        {/* {
             !borrowPaused && ((supplyApy || 0) + (extraApy || 0)) / 100 > dbrPriceUsd && <CellText fontSize="12px" color="accentTextColor">
                 Up to <b>{calculateNetApy((supplyApy || 0) + (extraApy || 0), collateralFactor, dbrPriceUsd).toFixed(2)}%</b> at x{smartShortNumber(maxLong, 2)}
             </CellText>
-        }
+        } */}
     </Cell>
 }
 
@@ -333,17 +333,59 @@ const columns = [
     //     },
     // },
     {
-        field: 'collateralFactor',
-        label: 'CF',
-        header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
+        field: 'maxApy',
+        label: 'Leverage',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         tooltip: <VStack>
             <Text><b>Collateral Factor</b>: maximum percentage of collateral value that can be used for borrowing.</Text>
             <Text><b>Long up to</b>: theoretical maximum leverage with DOLA at $1 and borrow limit at 100%</Text>
         </VStack>,
-        value: ({ collateralFactor, borrowPaused, supplyApy, dbrPriceUsd, _isMobileCase }) => {
-            return <CollateralFactorCell dbrPriceUsd={dbrPriceUsd} supplyApy={supplyApy} _isMobileCase={_isMobileCase} collateralFactor={collateralFactor} borrowPaused={borrowPaused} />
+        value: ({ maxApy, name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
+            const maxLong = calculateMaxLeverage(collateralFactor);
+            return <Cell spacing="0" direction="column" minWidth="100px" alignItems="center">
+                {
+                    !borrowPaused && dbrPriceUsd > 0 && maxApy > 0 ? <>
+                        <CellText fontSize="14px" color="accentTextColor">
+                            Up to <b>{maxApy.toFixed(2)}%</b>
+                        </CellText>
+                        <CellText fontSize="12px" color="mainTextColorLight">
+                            Net APY at x{smartShortNumber(maxLong, 2)}
+                        </CellText>
+                    </>
+                        : borrowPaused ? <MarketApyInfos
+                            minWidth="100px"
+                            name={name}
+                            borrowPaused={borrowPaused}
+                            supplyApy={supplyApy}
+                            supplyApyLow={supplyApyLow}
+                            extraApy={extraApy}
+                            dbrPriceUsd={dbrPriceUsd}
+                            collateralFactor={collateralFactor}
+                            price={price}
+                            underlying={underlying}
+                            hasClaimableRewards={hasClaimableRewards}
+                            isInv={isInv}
+                            rewardTypeLabel={rewardTypeLabel}
+                            _isMobileCase={_isMobileCase}
+                        /> : <CellText fontSize="12px" color="mainTextColorLight">
+                            Long up to x{smartShortNumber(maxLong, 2)}
+                        </CellText>
+                }
+            </Cell>
         },
     },
+    // {
+    //     field: 'collateralFactor',
+    //     label: 'CF',
+    //     header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
+    //     tooltip: <VStack>
+    //         <Text><b>Collateral Factor</b>: maximum percentage of collateral value that can be used for borrowing.</Text>
+    //         <Text><b>Long up to</b>: theoretical maximum leverage with DOLA at $1 and borrow limit at 100%</Text>
+    //     </VStack>,
+    //     value: ({ collateralFactor, borrowPaused, supplyApy, dbrPriceUsd, _isMobileCase }) => {
+    //         return <CollateralFactorCell dbrPriceUsd={dbrPriceUsd} supplyApy={supplyApy} _isMobileCase={_isMobileCase} collateralFactor={collateralFactor} borrowPaused={borrowPaused} />
+    //     },
+    // },
     {
         field: 'tvl',
         label: 'TVL',
@@ -730,7 +772,8 @@ export const F2Markets = ({
                                         withDeposits
                                             .filter(marketFilter)
                                             .map(m => {
-                                                return { ...m, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
+                                                const maxApy = calculateNetApy((m.supplyApy || 0) + (m.extraApy || 0), m.collateralFactor, dbrPrice);
+                                                return { ...m, maxApy, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
                                             })
                                     }
                                     onClick={openMarket}
@@ -770,19 +813,21 @@ export const F2Markets = ({
                             keyName="address"
                             pinnedItems={pinnedItems}
                             pinnedLabels={pinnedLabels}
+                            unfixedPinnedItems={true}
                             noDataMessage={search || category ? "No market for the selected filters" : "Loading..."}
                             columns={withDeposits.length > 0 ? columns : columnsWithout}
                             items={
                                 withoutDeposits
                                     .filter(marketFilter)
                                     .map(m => {
-                                        return { ...m, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
+                                        const maxApy = calculateNetApy((m.supplyApy || 0) + (m.extraApy || 0), m.collateralFactor, dbrPrice);
+                                        return { ...m, maxApy: maxApy <= 0 ? -1/m.collateralFactor : maxApy, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
                                     })
                             }
                             onClick={openMarket}
-                            defaultSort={'maxBorrowableByUserWallet'}
+                            defaultSort={'maxApy'}
                             defaultSortDir="desc"
-                            secondarySortFields={['maxBorrowableByUserWallet', 'leftToBorrow', 'tvl']}
+                            secondarySortFields={account ? ['maxBorrowableByUserWallet', 'leftToBorrow', 'tvl'] : ['leftToBorrow', 'collateralFactor']}
                             enableMobileRender={true}
                             mobileClickBtnLabel={'View Market'}
                             mobileThreshold={responsiveThreshold}
