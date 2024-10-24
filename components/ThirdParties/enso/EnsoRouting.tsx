@@ -60,7 +60,7 @@ export const EnsoRouting = ({
             <Stack direction={{ base: 'column', sm: 'row' }}>
                 <Text>Result:</Text>
                 <Text fontWeight="bold">
-                    {`~${smartShortNumber(getBnToNumber(parseUnits(amountOut, 0), targetAsset.decimals), 6)} ${targetAsset.name}`}
+                    {`~${smartShortNumber(getBnToNumber(parseUnits(amountOut, 0), targetAsset.decimals), 6)} ${targetAsset.symbol}`}
                     {targetAssetPrice ? ` (${smartShortNumber(getBnToNumber(parseUnits(amountOut, 0), targetAsset.decimals) * targetAssetPrice, 2, true)})` : ''}
                 </Text>
             </Stack>

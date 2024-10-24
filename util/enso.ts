@@ -256,7 +256,7 @@ export const ensoSameChainZap = async (
     const data = await res.json();
     if (res.status !== 200 || !data.tx) {
         console.warn(data);
-        throw new Error(`The Enso api failed to fetch the route, please try again later`);
+        throw new Error(data?.statusCode === 404 ? 'No route found with this token, please try with another token' : `The Enso api failed to fetch the route, please try again later`);
     }
     if (!signer) return data;
     const { tx, gas } = data

@@ -232,8 +232,11 @@ function EnsoZap({
                         amount={amountIn}
                         token={tokenInObj}
                         assetOptions={zapOptions}
-                        onAssetChange={(newToken) => changeTokenIn(newToken)}
-                        onAmountChange={(newAmount) => changeAmount(newAmount, true)}
+                        onAssetChange={(newToken) => {
+                            changeAmount('');
+                            changeTokenIn(newToken);                            
+                        }}
+                        onAmountChange={(newAmount) => changeAmount(newAmount)}
                         allowMobileMode={true}
                         orderByWorth={true}
                         orderByBalance={false}
@@ -291,6 +294,7 @@ function EnsoZap({
                                 decimals={tokenInObj?.decimals}
                                 // destination={routeTx?.to}
                                 destination={approveDestinationAddress}
+                                checkBalanceOnTopOfIsDisabled={true}
                                 hideInput={true}
                                 showMaxBtn={false}
                                 actionLabel={`Zap-In to ${tokenOutObj?.symbol.replace(/ lp$/, ' LP')}`}
@@ -326,7 +330,7 @@ function EnsoZap({
                             </Text>
                     }
                     {
-                        isApproved && !!zapResponseData?.error && <Text color="warning" fontWeight="bold" fontSize="14px">
+                        (isApproved || !!amountIn) && !!zapResponseData?.error && <Text color="warning" fontWeight="bold" fontSize="14px">
                             {zapResponseData?.error?.toString()}
                         </Text>
                     }
