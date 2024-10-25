@@ -283,7 +283,7 @@ const leverageColumn = {
     label: 'Leverage',
     header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
     tooltip: <VStack>
-        <Text><b>Collateral Factor</b>: maximum percentage of collateral value that can be used for borrowing.</Text>
+        <Text><b>Net APY</b>: Annual Percentage Yield at maximum theoretical leverage with the borrowing cost already deducted (at current DBR price), your Net APY depends on the actual price you bought DBR at</Text>
         <Text><b>Long up to</b>: theoretical maximum leverage with DOLA at $1 and borrow limit at 100%</Text>
     </VStack>,
     value: ({ maxApy, name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
