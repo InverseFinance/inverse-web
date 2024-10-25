@@ -5,7 +5,7 @@ import { parseEther, parseUnits } from '@ethersproject/units'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
 import { f2repayAndWithdrawNative, f2borrow, f2deposit, f2depositAndBorrow, f2depositAndBorrowHelper, f2repay, f2repayAndWithdraw, f2sellAndRepayHelper, f2sellAndWithdrawHelper, f2withdraw, f2withdrawMax } from '@app/util/f2'
 
-import { useContext } from 'react'
+import { useContext, useMemo } from 'react'
 
 import { MarketImage } from '@app/components/common/Assets/MarketImage'
 import { TOKENS } from '@app/variables/tokens'
@@ -20,7 +20,7 @@ import { FirmLeverageModal } from '../Modals/FirmLeverageModal'
 import { FEATURE_FLAGS } from '@app/config/features'
 import { FirmBoostInfos, getLeverageImpact } from '../ale/FirmBoostInfos'
 import { prepareDeleveragePosition, prepareLeveragePosition } from '@app/util/firm-ale'
-import { removeTrailingZeros } from '@app/util/misc'
+import { preciseCommify, removeTrailingZeros } from '@app/util/misc'
 import { showToast } from '@app/util/notify'
 import { BorrowPausedMessage, CannotWithdrawIfDbrDeficitMessage, MinDebtBorrowMessage, NoDbrInWalletMessage, NoDolaLiqMessage, NotEnoughCollateralMessage, NotEnoughDolaToRepayMessage, NotEnoughLiqWithAutobuyMessage, ResultingBorrowLimitTooHighMessage } from './FirmFormSubcomponents/FirmMessages'
 import { AutoBuyDbrDurationInputs, DbrHelperSwitch, SellDbrInput } from './FirmFormSubcomponents/FirmDbrHelper'
@@ -33,6 +33,7 @@ import { InfoMessage } from '@app/components/common/Messages'
 import { TOKEN_IMAGES } from '@app/variables/images'
 import { LPImages } from '@app/components/common/Assets/LPImg'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
+import { EnsoModal } from '@app/components/common/Modal/EnsoModal'
 
 const { DOLA, F2_HELPER, F2_ALE } = getNetworkConfigConstants();
 
@@ -136,6 +137,7 @@ export const F2CombinedForm = ({
 
     const [isLargerThan] = useMediaQuery('(min-width: 1280px)');
     const { isOpen: isWethSwapModalOpen, onOpen: onWethSwapModalOpen, onClose: onWethSwapModalClose } = useDisclosure();
+    const { isOpen: isEnsoModalOpen, onOpen: onEnsoModalOpen, onClose: onEnsoModalClose } = useDisclosure();
 
     const hasCollateralChange = ['deposit', 'd&b', 'withdraw', 'r&w'].includes(MODES[mode]);
     const hasDebtChange = ['borrow', 'd&b', 'repay', 'r&w'].includes(MODES[mode]);
@@ -368,6 +370,10 @@ export const F2CombinedForm = ({
     const showMinDebtMessage = !notEnoughToBorrowWithAutobuy && minDebtDisabledCondition && (debtAmountNum > 0 || isDeleverageCase);
     const showNeedDbrMessage = isDeposit && !isAutoDBR && dbrBalance <= 0;
     const showNotEnoughDolaToRepayMessage = isRepayCase && debtAmountNum > 0 && dolaBalance < debtAmountNum;
+    // min collateral missing to borrow minimum debt with a safe margin of 5%
+    const additionalCollateralRequiredToBorrowMinimum =  useMemo(() => {
+        return Math.max(0, (1 / market.collateralFactor * market.minDebt / market.price) * 1.05 - collateralBalance);
+    }, [market.collateralFactor, market.minDebt, market.price, collateralBalance]);
 
     const isWrongCustomRecipient = !!customRecipient ? !isAddress(customRecipient) || customRecipient === BURN_ADDRESS : false;
     const disabledDueToLeverage = useLeverageInMode && (leverage <= 1 || leverageLoading || isTriggerLeverageFetch || !aleSlippage || aleSlippage === '0' || isNaN(parseFloat(aleSlippage)));
@@ -388,7 +394,7 @@ export const F2CombinedForm = ({
     const mainFormInputs = <Stack direction={{ base: 'column' }} spacing="4" w='full'>
         {
             hasCollateralChange && <VStack w='full' alignItems="flex-start">
-                <FirmCollateralInputTitle isDeposit={isDeposit} market={market} deposits={deposits} isWethMarket={isWethMarket} isUseNativeCoin={isUseNativeCoin} useLeverageInMode={useLeverageInMode} isUnderlyingAsInputCase={isUnderlyingAsInputCase} />
+                <FirmCollateralInputTitle isDeposit={isDeposit} onEnsoModalOpen={onEnsoModalOpen} market={market} deposits={deposits} isWethMarket={isWethMarket} isUseNativeCoin={isUseNativeCoin} useLeverageInMode={useLeverageInMode} isUnderlyingAsInputCase={isUnderlyingAsInputCase} />
                 {
                     deposits > 0 || isDeposit ? <>
                         <SimpleAmountForm
@@ -416,7 +422,7 @@ export const F2CombinedForm = ({
                             inputProps={isDeleverageCase ? { disabled: false } : undefined}
                             inputRight={
                                 market.underlying.isLP ? <LPImages imgContainerProps={{ pr: 2 }} alternativeDisplay={true} lpToken={{ pairs: market.underlying.pairs, image: market.underlying.image, protocolImage: market.underlying.protocolImage }} chainId={1} imgSize={17} />
-                                :<MarketImage pr="2" image={isWethMarket ? (isUseNativeCoin ? market.icon : market.underlying.image) : isUnderlyingAsInputCase ? TOKEN_IMAGES[market.underlyingSymbol] : (market.icon || market.underlying.image)} size={25} />
+                                    : <MarketImage pr="2" image={isWethMarket ? (isUseNativeCoin ? market.icon : market.underlying.image) : isUnderlyingAsInputCase ? TOKEN_IMAGES[market.underlyingSymbol] : (market.icon || market.underlying.image)} size={25} />
                             }
                             isError={isDeposit ? inputAmountNum > inputBalance : collateralAmountNum > deposits}
                         />
@@ -612,20 +618,20 @@ export const F2CombinedForm = ({
                             {
                                 canActivateLeverage ? <ErrorBoundary description="Something went wrong in the leverage interface. Please try again later.">
                                     <FirmBoostInfos
-                                    type={isDeposit ? 'up' : 'down'}
-                                    triggerCollateralAndOrLeverageChange={triggerCollateralAndOrLeverageChange}
-                                    onLeverageChange={({
-                                        dolaAmount, collateralAmount, isLeverageUp
-                                    }) => {
-                                        if (isLeverageUp) {
-                                            handleDebtChange(Math.abs(dolaAmount).toFixed(2));
-                                            setLeverageCollateralAmount(Math.abs(collateralAmount).toFixed(8));
-                                        } else {
-                                            handleCollateralChange(Math.abs(collateralAmount).toFixed(8));
-                                            setLeverageDebtAmount(Math.abs(dolaAmount).toFixed(2));
-                                        }
-                                    }}
-                                />
+                                        type={isDeposit ? 'up' : 'down'}
+                                        triggerCollateralAndOrLeverageChange={triggerCollateralAndOrLeverageChange}
+                                        onLeverageChange={({
+                                            dolaAmount, collateralAmount, isLeverageUp
+                                        }) => {
+                                            if (isLeverageUp) {
+                                                handleDebtChange(Math.abs(dolaAmount).toFixed(2));
+                                                setLeverageCollateralAmount(Math.abs(collateralAmount).toFixed(8));
+                                            } else {
+                                                handleCollateralChange(Math.abs(collateralAmount).toFixed(8));
+                                                setLeverageDebtAmount(Math.abs(dolaAmount).toFixed(2));
+                                            }
+                                        }}
+                                    />
                                 </ErrorBoundary> : <InfoMessage
                                     alertProps={{ w: 'full' }}
                                     description="Please fill in the deposit field to use leverage."
@@ -659,6 +665,27 @@ export const F2CombinedForm = ({
                     {actionBtn}
                 </HStack>
             </VStack>
+
+            {
+                isEnsoModalOpen && <EnsoModal
+                    isOpen={isEnsoModalOpen}
+                    title={`Zap-In to ${market?.underlying.symbol.replace(/ lp$/, ' LP')}, powered by Enso Finance`}
+                    introMessage={
+                        <VStack w='full' alignItems='flex-start'>
+                            <Text><b>Zap-In</b> lets you <b>easily acquire the collateral</b> for this market, <b>saving you time and usually gas</b>, too.</Text>
+                            {
+                                debt < market.minDebt && <Text>The minimum debt of this market is {preciseCommify(market.minDebt, 0)} DOLA so we recommend to get at least {preciseCommify(additionalCollateralRequiredToBorrowMinimum, 2)}{collateralBalance > 0 ? ' more' : ''} {market.underlying.symbol} to be able to borrow.</Text>
+                            }
+                        </VStack>
+                    }
+                    onClose={onEnsoModalClose}
+                    defaultTokenOut={market?.collateral}
+                    defaultTargetChainId={1}
+                    isSingleChoice={true}
+                    targetAssetPrice={market?.price}
+                    ensoPoolsLike={[{ poolAddress: market.collateral, chainId: 1 }]}
+                />
+            }
         </Container>
         <Container
             noPadding

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { EthXe, ensoZap, useEnso, useEnsoRoute } from "@app/util/enso";
 import { formatUnits, parseUnits } from "@ethersproject/units";
-import { VStack, Text, HStack, Divider, Stack, Input } from "@chakra-ui/react";
+import { VStack, Text, HStack, Divider, Stack, Input, Box } from "@chakra-ui/react";
 import { AssetInput } from "../../common/Assets/AssetInput";
 import { ZAP_TOKENS_ARRAY } from "../tokenlist";
 import { useBalances } from "@app/hooks/useBalances";
@@ -26,29 +26,43 @@ import { useStakedInFirm } from "@app/hooks/useFirm";
 import Link from "@app/components/common/Link";
 import { InvPrime } from "@app/components/common/InvPrime";
 import { INV_STAKERS_ONLY } from "@app/config/features";
+import { getBnToNumber } from "@app/util/markets";
+import { usePricesDefillama, usePricesV2 } from "@app/hooks/usePrices";
 
 const zapOptions = [...new Set(ZAP_TOKENS_ARRAY.map(t => t.address))];
+
+const removeUndefined = obj => Object.fromEntries(
+    Object.entries(obj).filter(([_, v]) => v !== undefined)
+);
 
 function EnsoZap({
     defaultTokenOut = '',
     defaultTargetChainId = '',
     ensoPools,
     title = null,
+    introMessage = null,
+    isSingleChoice = false,
+    targetAssetPrice = 0,
 }: {
     defaultTokenOut: string
     defaultTargetChainId?: string
     ensoPools: any[]
     title?: string | null
+    introMessage?: string | null
+    isSingleChoice?: boolean
+    targetAssetPrice?: number
 }) {
     const account = useAccount();
     const { isInvPrimeMember } = useStakedInFirm(account);
-    const { provider, chainId } = useWeb3React<Web3Provider>();
-    const { address: ensoSmartWalletAddress } = useEnso(account, chainId);
-    const [slippage, setSlippage] = useState('1');
+    const { provider, chainId } = useWeb3React<Web3Provider>();    
+
+    const [isConnected, setIsConnected] = useState(true);
+    const [slippage, setSlippage] = useState('0.1');
+    const [refreshIndex, setRefreshIndex] = useState(0);
     const [lastChainId, setLastChainId] = useState(chainId);
 
     const [tokenIn, setTokenIn] = useState('');
-    const [tokenOut, setTokenOut] = useState(defaultTokenOut);
+    const [tokenOut, setTokenOut] = useState(defaultTokenOut);    
 
     const tokenInObj = tokenIn ? getToken(CHAIN_TOKENS[chainId || '1'], tokenIn) : CHAIN_TOKENS[chainId || '1'].CHAIN_COIN;
     const [targetChainId, setTargetChainId] = useState(defaultTargetChainId || chainId || '1');
@@ -65,17 +79,30 @@ function EnsoZap({
     const [amountIn, setAmountIn] = useState<string>('');
     const [zapRequestData, setZapRequestData] = useState<any>({});
 
-    const approveDestinationAddress = ensoSmartWalletAddress;
+    const { address: spender } = useEnso(account, chainId, tokenIn, amountIn, tokenInObj?.decimals);
+
+    // 0x80EbA3855878739F4710233A8a19d89Bdd2ffB8E universal router
+    const approveDestinationAddress = spender;
     const { isApproved } = useIsApproved(tokenIn, approveDestinationAddress, account, amountIn);
 
-    const zapResponseData = useEnsoRoute(isApproved, zapRequestData.account, zapRequestData.chainId, zapRequestData.targetChainId, zapRequestData.tokenIn, zapRequestData.tokenOut, zapRequestData.amountIn);
+    const zapResponseData = useEnsoRoute(true, zapRequestData.account, zapRequestData.chainId, zapRequestData.targetChainId, zapRequestData.tokenIn, zapRequestData.tokenOut, zapRequestData.amountIn, refreshIndex);
 
-    const fromOptions = ZAP_TOKENS_ARRAY
-        .filter(t => t.chainId === chainId)
+    const zapTokens = useMemo(() => {
+        return ZAP_TOKENS_ARRAY.filter(t => t.chainId === chainId);
+    }, [ZAP_TOKENS_ARRAY, chainId]);
+
+    const fromOptions = zapTokens
         .reduce((prev, curr) => {
             const ad = curr.address;
             return { ...prev, [ad]: { ...curr, address: ad.replace(EthXe, '') } }
         }, {});
+
+    const { prices: pricesV2 } = usePricesV2();
+    const { simplifiedPrices: defillamaPrices } = usePricesDefillama(zapTokens.map(t => ({ chain: getNetwork(chainId)?.name, token: t.address })));
+    const combinedPrices = useMemo(() => {
+        const simplifiedV2Prices = Object.entries(zapTokens).reduce((prev, curr) => ({ ...prev, [curr[1].address]: pricesV2[curr[1].coingeckoId||curr[1].symbol]?.usd }), {});
+        return { ...simplifiedV2Prices, ...removeUndefined(defillamaPrices) }
+    }, [pricesV2, defillamaPrices]);
 
     const ads = Object.keys(fromOptions).map(ad => ad.replace(EthXe, ''));
     const { balances } = useBalances(ads);
@@ -85,7 +112,18 @@ function EnsoZap({
             .map(t => ({ ...t, label: t.name, value: t.poolAddress, subtitle: t.project }))
     }, [targetChainId]);
 
-    const fromAssetInputProps = { tokens: fromOptions, balances, showBalance: true }
+    const fromOptionsWithBalance = ZAP_TOKENS_ARRAY
+        .filter(t => t.chainId === chainId && ((!!balances && !!balances[t.address]
+            //  && getBnToNumber(balances[t.address], t.decimals) >= 0.01
+            ) || t.symbol === 'ETH')
+            
+        )
+        .reduce((prev, curr) => {
+            const ad = curr.address;
+            return { ...prev, [ad]: { ...curr, address: ad.replace(EthXe, '') } }
+        }, {});
+
+    const fromAssetInputProps = { tokens: fromOptionsWithBalance, balances, prices: combinedPrices, showBalance: true, dropdownSelectedProps: { whiteSpace: 'nowrap', w: 'fit-content' }, inputProps: { minW: '200px' } }
 
     const changeTokenIn = (newToken: Token) => {
         setTokenIn(newToken.address);
@@ -121,7 +159,15 @@ function EnsoZap({
         setZapRequestData({ account, chainId, targetChainId, tokenIn, tokenOut, amountIn: amountInValue });
     }, [account, chainId, targetChainId, tokenIn, tokenOut, amountIn, tokenInObj]);
 
-    const isLoading = !ads.length || !balances;
+    useDebouncedEffect(() => {
+        setIsConnected(!!account)
+    }, [account], 500);    
+
+    const isValidAmountIn = useMemo(() => {
+        return !!amountIn && parseFloat(amountIn) > 0;
+    }, [amountIn]);
+
+    const isLoading = (!ads.length || !balances);
 
     const resetForm = () => {
         setAmountIn('');
@@ -133,7 +179,7 @@ function EnsoZap({
 
     const featureInfo = <InfoMessage
         alertProps={{ w: 'full', fontSize: '14px' }}
-        description="Zapping allows you to go from one asset to a liquidity pool position, this shortcuts actions like splitting into two tokens, approving them both and depositing them both. The LP token will be in your wallet, you can then stake it on the corresponding protocol website to earn yield."
+        description={introMessage}
     />
 
     if (!isInvPrimeMember && INV_STAKERS_ONLY.lpZaps) {
@@ -149,61 +195,75 @@ function EnsoZap({
         alertProps={{ w: 'full', fontSize: '14px' }}
         description={
             <VStack spacing="0" w='full' alignItems="flex-start">
-                <HStack spacing="1">
-                    <Text>Powered by the third-party</Text>
-                    <Link textDecoration="underline" target="_blank" isExternal={true} href="https://www.enso.finance/">
+                <Box display="inline">
+                    {/* <Text>Powered by the third-party</Text> */}
+                    <Text display="inline"><b>Please do your own research</b> before using with the Zap-In feature, which is provided by a <b>third party</b>,&nbsp;</Text>
+                    <Link display="inline" textDecoration="underline" target="_blank" isExternal={true} href="https://www.enso.finance/">
                         Enso Finance
                     </Link>
-                </HStack>
-                <Text textDecoration="underline">
-                    Inverse Finance does not give any Financial Advice and do not endorse or audit Enso and the protocols related to this yield opportunity.
-                </Text>
-                <Text fontWeight="bold">
-                    Provided as-is, perform your own due diligence.
-                </Text>
+                    <Text display="inline">,&nbsp;and has not been audited or endorsed by Inverse Finance</Text>
+                </Box>
+                {/* <Text>
+                    Recommended: use a wallet with transaction simulation like Rabby
+                </Text> */}
+                {/* <Text textDecoration="underline">
+                    Inverse Finance does not endorse or audit Enso and the protocols related to this asset.
+                </Text> */}
             </VStack>
         }
     />;
 
     return <Container w='full' noPadding p='0' label={title} contentProps={{ mt: 0 }}>
         {
-            !account ? <WarningMessage
+            !isConnected ? <WarningMessage
                 alertProps={{ w: 'full' }}
                 title="Wallet not connected"
                 description="Please connect your wallet to use the Zap feature"
             /> : isLoading ? <SkeletonBlob />
                 :
-                <VStack alignItems='flex-start' w="full" direction="column" spacing="5">
+                <VStack alignItems='flex-start' w="full" direction="column" spacing={isSingleChoice ? '2' : '5'}>
                     {featureInfo}
+
                     <Text>
-                        From <b>{getNetwork(chainId)?.name}</b>:
+                        From{!isSingleChoice && <b>{getNetwork(chainId)?.name}</b>}:
                     </Text>
+
                     <AssetInput
                         amount={amountIn}
                         token={tokenInObj}
                         assetOptions={zapOptions}
-                        onAssetChange={(newToken) => changeTokenIn(newToken)}
-                        onAmountChange={(newAmount) => changeAmount(newAmount, true)}
+                        onAssetChange={(newToken) => {
+                            changeAmount('');
+                            changeTokenIn(newToken);                            
+                        }}
+                        onAmountChange={(newAmount) => changeAmount(newAmount)}
+                        allowMobileMode={true}
+                        orderByWorth={true}
+                        orderByBalance={false}
                         {...fromAssetInputProps}
                     />
 
-                    <Divider />
+                    {
+                        !isSingleChoice && <Divider />
+                    }
 
                     <Stack alignItems="center" spacing="2" direction={{ base: 'columns', md: 'row' }} justify="space-between" w='full'>
-                        <HStack>
-                            <Text>To</Text>
-                            <SimpleAssetDropdown
-                                list={implementedNetworks}
-                                selectedValue={targetChainId}
-                                handleChange={(v) => setTargetChainId(v.value)}
-                            />
-                        </HStack>
                         {
-                            toOptions?.length ? <SimpleAssetDropdown
+                            !isSingleChoice && <HStack>
+                                <Text>To</Text>
+                                <SimpleAssetDropdown
+                                    list={implementedNetworks}
+                                    selectedValue={targetChainId}
+                                    handleChange={(v) => setTargetChainId(v.value)}
+                                />
+                            </HStack>
+                        }
+                        {
+                            toOptions?.length > 1 ? <SimpleAssetDropdown
                                 list={toOptions}
                                 selectedValue={tokenOut}
                                 handleChange={(v) => setTokenOut(v.value)}
-                            /> : <Text>No options for this chain</Text>
+                            /> : toOptions?.length === 1 ? null : <Text>No options for this chain</Text>
                         }
                     </Stack>
 
@@ -229,13 +289,15 @@ function EnsoZap({
                             :
                             <SimpleAmountForm
                                 defaultAmount={amountIn}
+                                enableCustomApprove={true}
                                 address={tokenIn === EthXe ? '' : tokenIn}
                                 decimals={tokenInObj?.decimals}
                                 // destination={routeTx?.to}
                                 destination={approveDestinationAddress}
+                                checkBalanceOnTopOfIsDisabled={true}
                                 hideInput={true}
                                 showMaxBtn={false}
-                                actionLabel="Zap-in"
+                                actionLabel={`Zap-In to ${tokenOutObj?.symbol.replace(/ lp$/, ' LP')}`}
                                 isDisabled={!zapResponseData?.route || !amountIn || ((!!tokenIn && tokenIn !== EthXe) && !approveDestinationAddress) || !slippage || !parseFloat(slippage)}
                                 alsoDisableApprove={!amountIn || ((!!tokenIn && tokenIn !== EthXe) && !approveDestinationAddress) || !slippage || !parseFloat(slippage)}
                                 btnProps={{ needPoaFirst: true }}
@@ -260,12 +322,15 @@ function EnsoZap({
                             />
                     }
                     {
-                        isApproved && zapResponseData?.isLoading && <Text>
-                            Loading route and price impact...
-                        </Text>
+                        isValidAmountIn && zapResponseData?.isLoading ? <Text fontWeight="bold">
+                            Loading routes and conversion data...
+                        </Text> :
+                            !!amountIn && parseFloat(amountIn) > 0 && <Text textDecoration="underline" cursor="pointer" onClick={() => setRefreshIndex(refreshIndex + 1)}>
+                                Refresh conversion data
+                            </Text>
                     }
                     {
-                        isApproved && !!zapResponseData?.error && <Text color="warning" fontSize="14px">
+                        (isApproved || !!amountIn) && !!zapResponseData?.error && <Text color="warning" fontWeight="bold" fontSize="14px">
                             {zapResponseData?.error?.toString()}
                         </Text>
                     }
@@ -274,6 +339,7 @@ function EnsoZap({
                             chainId={chainId?.toString()}
                             targetChainId={targetChainId?.toString()}
                             targetAsset={tokenOutObj}
+                            targetAssetPrice={targetAssetPrice}
                             amountOut={zapResponseData.amountOut}
                             routes={zapResponseData.route}
                             priceImpactBps={zapResponseData.priceImpact}
