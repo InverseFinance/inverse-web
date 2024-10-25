@@ -7,6 +7,7 @@ import { ETH_MANTISSA, BLOCKS_PER_YEAR, DAYS_PER_YEAR, BLOCKS_PER_DAY, ONE_DAY_S
 import { getNextThursdayTimestamp, lowercaseObjectKeys, removeTrailingZeros, toFixed } from './misc';
 import { getProvider } from './providers';
 import { NETWORKS_BY_NAME } from '@app/config/networks';
+import { fetchWithTimeout } from './web3';
 
 export const getMonthlyRate = (balance: number, apy: number) => {
     return (balance || 0) * (apy || 0) / 100 / 12;
@@ -199,6 +200,14 @@ export const getStYcrvData = async () => {
 
 export const getSUSDEData = async (provider) => {
     try {
+        const results = await fetchWithTimeout('https://app.ethena.fi/api/yields/protocol-and-staking-yield', undefined, 3000);
+        const data = await results.json();
+        return { apy: data.stakingYield.value };
+    } catch (e) { 
+        console.log('usde err', e)
+    }
+    // fallback
+    try {
         const susdeContract = new Contract('0x9D39A5DE30e57443BfF2A8307A4256c8797A3497', [
             "function totalAssets() public view returns (uint)",
             "event RewardsReceived(uint amount)",
@@ -219,16 +228,8 @@ export const getSUSDEData = async (provider) => {
         // weekly compounding
         const apy = aprToApy(apr, WEEKS_PER_YEAR);
         return { apy };
-    } catch (e) { console.log(e) }
+    } catch (e) { console.log(e) }   
     return [];
-    // try {
-    //     const results = await fetch('https://app.ethena.fi/api/yields/protocol-and-staking-yield');
-    //     const data = await results.json();
-    //     return { apy: data.stakingYield.value };
-    // } catch (e) { 
-    //     console.log('usde err', e)
-    // }
-    // return [];
 }
 
 export const getCrvUSDDOLAConvexData = async () => {
