@@ -243,8 +243,8 @@ const CollateralFactorCell = ({ collateralFactor, supplyApy, borrowPaused, dbrPr
     </Cell>
 }
 
-export const MarketApyInfos = ({ minWidth = "140px", name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, borrowPaused, rewardTypeLabel, collateralFactor, dbrPriceUsd, _isMobileCase }) => {
-    // const maxLong = calculateMaxLeverage(collateralFactor);
+export const MarketApyInfos = ({ showLeveragedApy = true, maxApy, minWidth = "140px", name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, borrowPaused, rewardTypeLabel, collateralFactor, dbrPriceUsd, _isMobileCase }) => {
+    const maxLong = calculateMaxLeverage(collateralFactor);
     return <Cell spacing="0" direction="column" minWidth={minWidth} alignItems={_isMobileCase ? 'flex-end' : 'center'} justify="center" fontSize="14px">
         <HStack>
             <AnchorPoolInfo
@@ -270,11 +270,11 @@ export const MarketApyInfos = ({ minWidth = "140px", name, supplyApy, supplyApyL
                 {rewardTypeLabel || (isInv ? supplyApy > 0 ? 'INV + DBR APR' : 'DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY')}
             </Text>
         }
-        {/* {
-            !borrowPaused && ((supplyApy || 0) + (extraApy || 0)) / 100 > dbrPriceUsd && <CellText fontSize="12px" color="accentTextColor">
-                Up to <b>{calculateNetApy((supplyApy || 0) + (extraApy || 0), collateralFactor, dbrPriceUsd).toFixed(2)}%</b> at x{smartShortNumber(maxLong, 2)}
+        {
+            showLeveragedApy && !borrowPaused && maxApy > 0 && dbrPriceUsd > 0 && <CellText fontSize="12px" color="accentTextColor">
+                Up to <b>{maxApy.toFixed(2)}%</b> at x{smartShortNumber(maxLong, 2)}
             </CellText>
-        } */}
+        }
     </Cell>
 }
 
@@ -283,7 +283,7 @@ const leverageColumn = {
     label: 'Leverage',
     header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
     tooltip: <VStack>
-        <Text><b>Collateral Factor</b>: maximum percentage of collateral value that can be used for borrowing.</Text>
+        <Text><b>Net APY</b>: Annual Percentage Yield at maximum theoretical leverage with the borrowing cost already deducted (at current DBR price), your Net APY depends on the actual price you bought DBR at</Text>
         <Text><b>Long up to</b>: theoretical maximum leverage with DOLA at $1 and borrow limit at 100%</Text>
     </VStack>,
     value: ({ maxApy, name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
@@ -313,6 +313,7 @@ const leverageColumn = {
                         isInv={isInv}
                         rewardTypeLabel={rewardTypeLabel}
                         _isMobileCase={_isMobileCase}
+                        showLeveragedApy={false}
                     /> : <CellText fontSize="12px" color="mainTextColorLight">
                         Long up to x{smartShortNumber(maxLong, 2)}
                     </CellText>
@@ -336,7 +337,7 @@ const columns = [
         label: 'Underlying APY',
         tooltip: 'The APY provided by the asset itself (or via its claimable rewards) and that is kept even after supplying. This is not an additional APY from FiRM. If leverage is possible the Net yield at maximum theoretical leverage will be showed as well.',
         header: ({ ...props }) => <ColHeader minWidth="140px" justify="center"  {...props} />,
-        value: ({ name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
+        value: ({ name, maxApy, isLeverageView, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
             return <MarketApyInfos
                 name={name}
                 borrowPaused={borrowPaused}
@@ -344,6 +345,7 @@ const columns = [
                 supplyApyLow={supplyApyLow}
                 extraApy={extraApy}
                 dbrPriceUsd={dbrPriceUsd}
+                maxApy={maxApy}
                 collateralFactor={collateralFactor}
                 price={price}
                 underlying={underlying}
@@ -351,6 +353,7 @@ const columns = [
                 isInv={isInv}
                 rewardTypeLabel={rewardTypeLabel}
                 _isMobileCase={_isMobileCase}
+                showLeveragedApy={!isLeverageView}
             />
         },
     },
@@ -787,7 +790,7 @@ export const F2Markets = ({
                                             .filter(marketFilter)
                                             .map(m => {
                                                 const maxApy = calculateNetApy((m.supplyApy || 0) + (m.extraApy || 0), m.collateralFactor, dbrPrice);
-                                                return { ...m, maxApy, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
+                                                return { ...m, isLeverageView, maxApy, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
                                             })
                                     }
                                     onClick={openMarket}
@@ -835,7 +838,7 @@ export const F2Markets = ({
                                     .filter(marketFilter)
                                     .map(m => {
                                         const maxApy = calculateNetApy((m.supplyApy || 0) + (m.extraApy || 0), m.collateralFactor, dbrPrice);
-                                        return { ...m, maxApy: maxApy <= 0 ? -1/m.collateralFactor : maxApy, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
+                                        return { ...m, isLeverageView, maxApy: maxApy <= 0 ? -1/m.collateralFactor : maxApy, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
                                     })
                             }
                             onClick={openMarket}
