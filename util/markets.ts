@@ -200,7 +200,7 @@ export const getStYcrvData = async () => {
 
 export const getSUSDEData = async (provider) => {
     try {
-        const results = await fetchWithTimeout('https://app.ethena.fi/api/yields/protocol-and-staking-yield', undefined, 3000);
+        const results = await fetchWithTimeout('https://simple-proxy-server.onrender.com/ethena', undefined, 3000);
         const data = await results.json();
         return { apy: data.stakingYield.value };
     } catch (e) { 

@@ -5,7 +5,7 @@ import { getNetworkConfigConstants } from "@app/util/networks"
 import { TOKENS } from "@app/variables/tokens";
 import { BigNumber } from "ethers/lib/ethers";
 import useEtherSWR from "./useEtherSWR"
-import { fetcher, fetcher60sectimeout, fetcherWithFallback } from '@app/util/web3'
+import { fetcher, fetcher60sectimeout } from '@app/util/web3'
 import { useCacheFirstSWR, useCustomSWR } from "./useCustomSWR";
 import { f2CalcNewHealth, f2approxDbrAndDolaNeeded } from "@app/util/f2";
 import { BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
@@ -96,9 +96,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
   const { data: apiData, isLoading } = useCacheFirstSWR(`/api/f2/fixed-markets?v12`);
   const [tsMinute] = useState((new Date()).toISOString().substring(0, 16));
   // preference to match their website apy
-  const { data: susdeData } = useSWR(`https://app.ethena.fi/api/yields/protocol-and-staking-yield?r=${tsMinute}`,
-    (url) => fetcherWithFallback(url, `https://simple-proxy-server.onrender.com/ethena?r=${tsMinute}`),
-    { refreshInterval: 60000 });
+  const { data: susdeData } = useSWR(`https://app.ethena.fi/api/yields/protocol-and-staking-yield?r=${tsMinute}`, fetcher, { refreshInterval: 60000 });
   const sUsdeApy = susdeData?.stakingYield?.value;
   const _markets = Array.isArray(marketOrList) ? marketOrList : !!marketOrList ? [marketOrList] : [];
 
@@ -177,7 +175,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
       return {
         ...m,
         ...cachedMarkets[i],
-        supplyApy: m.name === 'sUSDe' ? (sUsdeApy || 0) || cachedMarkets[i]?.supplyApy || m.supplyApy : cachedMarkets[i]?.supplyApy || m.supplyApy,
+        supplyApy: m.name === 'sUSDe' ? (sUsdeApy||0) || cachedMarkets[i]?.supplyApy||m.supplyApy : cachedMarkets[i]?.supplyApy||m.supplyApy,
         price: data && data[i] ? getBnToNumber(data[i], (36 - m.underlying.decimals)) : cachedMarkets[i]?.price ?? 0,
         collateralFactor: data ? getBnToNumber(data[i + nbMarkets], 4) : cachedMarkets[i]?.collateralFactor ?? 0,
         totalDebt: data ? getBnToNumber(data[i + 2 * nbMarkets]) : cachedMarkets[i]?.totalDebt ?? 0,
@@ -297,7 +295,7 @@ export const useAccountDBRMarket = (
     inputBalance: (bnInputBalance ? getBnToNumber(bnInputBalance, decimals) : 0),
     liquidatableDebtBn,
     liquidatableDebt: liquidatableDebtBn ? getBnToNumber(liquidatableDebtBn) : 0,
-    maxBorrowableByUserWallet: Math.min(collateralBalanceUsd * market.collateralFactor / 100, market.leftToBorrow),
+    maxBorrowableByUserWallet: Math.min(collateralBalanceUsd * market.collateralFactor/100, market.leftToBorrow),
     seizableWorth,
     seizable: seizableWorth / market.price,
     underlyingExRate,
