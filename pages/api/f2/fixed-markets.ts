@@ -16,7 +16,7 @@ import { getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
 
 const { F2_MARKETS, DOLA, XINV, DBR_DISTRIBUTOR, FEDS } = getNetworkConfigConstants();
 
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.2.58`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.2.59`;
 
 export default async function handler(req, res) {
   const cacheDuration = 120;

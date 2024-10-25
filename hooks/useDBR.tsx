@@ -94,9 +94,9 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
   isLoading: boolean
 } => {
   const { data: apiData, isLoading } = useCacheFirstSWR(`/api/f2/fixed-markets?v12`);
-  const [rand, setRand] = useState(Math.random());
+  const [tsMinute] = useState((new Date()).toISOString().substring(0, 16));
   // preference to match their website apy
-  const { data: susdeData } = useSWR(`https://app.ethena.fi/api/yields/protocol-and-staking-yield?r=${rand}`, fetcher, { refreshInterval: 60000 });
+  const { data: susdeData } = useSWR(`https://app.ethena.fi/api/yields/protocol-and-staking-yield?r=${tsMinute}`, fetcher, { refreshInterval: 60000 });
   const sUsdeApy = susdeData?.stakingYield?.value;
   const _markets = Array.isArray(marketOrList) ? marketOrList : !!marketOrList ? [marketOrList] : [];
 

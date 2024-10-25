@@ -1,0 +1,12 @@
+name: 10-minute-cron
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+jobs:
+  cron:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Keep alive proxy
+        run: |
+          curl -v --request GET \
+          --url 'https://simple-proxy-server.onrender.com/ethena' \
