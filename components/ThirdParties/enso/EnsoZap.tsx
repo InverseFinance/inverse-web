@@ -201,11 +201,9 @@ function EnsoZap({
                     <Link display="inline" textDecoration="underline" target="_blank" isExternal={true} href="https://www.enso.finance/">
                         Enso Finance
                     </Link>
-                    <Text display="inline">,&nbsp;and has not been audited or endorsed by Inverse Finance</Text>
+                    <Text display="inline">,&nbsp;and has not been audited or endorsed by Inverse Finance</Text>                    
                 </Box>
-                {/* <Text>
-                    Recommended: use a wallet with transaction simulation like Rabby
-                </Text> */}
+                <Text><b>Recommended</b>: use a wallet with transaction simulation like Rabby, helps preview the transaction result and reduce the chances of having failed transactions.</Text>
                 {/* <Text textDecoration="underline">
                     Inverse Finance does not endorse or audit Enso and the protocols related to this asset.
                 </Text> */}
