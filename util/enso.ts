@@ -259,11 +259,17 @@ export const ensoSameChainZap = async (
         throw new Error(data?.statusCode === 404 ? 'No route found with this token, please try with another token' : `The Enso api failed to fetch the route, please try again later`);
     }
     if (!signer) return data;
-    const { tx, gas } = data
+    // enso usually underestimates the gas
+    const { tx, gas: ensoGasEtimate } = data;
+
+    const gasEstimate = await signer.estimateGas({
+        ...tx,
+    });
+    const highestEstimation = Math.max(parseInt(ensoGasEtimate||0), gasEstimate.toNumber());
 
     return signer.sendTransaction({
         ...tx,
-        gasLimit: BigNumber.from(gas).add(50000),
+        gasLimit: BigNumber.from(highestEstimation.toString()).add(Math.ceil(highestEstimation * 0.25)),
     })
 }
 // still experimental
