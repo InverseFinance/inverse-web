@@ -84,7 +84,7 @@ export const getNetworkConfigConstants = (
     const WBTC = Object.values(TOKENS).find(token => token.symbol === 'WBTC')?.address!;
     const INVDOLASLP = Object.values(TOKENS).find(token => token.symbol === 'INV-DOLA-SLP')?.address!;
     const DOLA3POOLCRV = Object.values(TOKENS).find(token => token.symbol === 'DOLA-3POOL')?.address!;
-    const DOLAFRAXCRV = Object.values(TOKENS).find(token => token.symbol === 'DOLA-FRAX-USDC')?.address!;
+    const DOLAFRAXCRV = Object.values(TOKENS).find(token => token.symbol === 'DOLA-FRAXBP')?.address!;
     const DOLA_PAYROLL = config.DOLA_PAYROLL;
     const DEPLOYER = config.DEPLOYER;
 

@@ -681,8 +681,8 @@ const chainTokens = {
     },
     [chainTokenAddresses["1"].DOLAFRAXUSDC]: {
       address: chainTokenAddresses["1"].DOLAFRAXUSDC,
-      name: 'DOLA-FRAX-USDC',
-      symbol: 'DOLA-FRAX-USDC',      
+      name: 'DOLA-FRAXBP',
+      symbol: 'DOLA-FRAXBP',      
       protocolImage: PROTOCOL_IMAGES.CRV,
       decimals: 18,
       isLP: true,
@@ -699,8 +699,8 @@ const chainTokens = {
     },
     [chainTokenAddresses["1"].DOLAFRAXUSDCCVX]: {
       address: chainTokenAddresses["1"].DOLAFRAXUSDCCVX,
-      name: 'DOLA-FRAX-USDC',
-      symbol: 'DOLA-FRAX-USDC cvxlp',
+      name: 'DOLA-FRAXBP',
+      symbol: 'DOLA-FRAXBP cvxlp',
       protocolImage: PROTOCOL_IMAGES.CVX,
       decimals: 18,
       isLP: true,
