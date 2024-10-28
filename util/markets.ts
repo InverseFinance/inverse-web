@@ -246,6 +246,13 @@ export const getFraxPyusdDOLAConvexData = async () => {
     return [];
 }
 
+export const getFraxBPDOLAConvexData = async () => {
+    try {
+        return getPoolYield('d05cb04d-f1e5-451d-95a2-6a3a9da001ad');
+    } catch (e) { console.log(e) }
+    return [];
+}
+
 export const getSFraxData = async (provider) => {
     try {
         // return getPoolYield('55de30c3-bf9f-4d4e-9e0b-536a8ef5ab35');
@@ -440,6 +447,17 @@ export const getYvCrvUsdDOLAData = async () => {
 export const getYvFraxPyusdDOLAData = async () => {
     try {
         const results = await fetch("https://ydaemon.yearn.fi/1/vaults/0xcC2EFb8bEdB6eD69ADeE0c3762470c38D4730C50");
+        const data = await results.json();
+        return { apy: data?.apr.forwardAPR?.netAPR * 100 };
+    } catch (e) {
+        console.log(e)
+        return { apy: 0 }
+    }
+}
+
+export const getYvFraxBPDOLAData = async () => {
+    try {
+        const results = await fetch("https://ydaemon.yearn.fi/1/vaults/0xe5F625e8f4D2A038AE9583Da254945285E5a77a4");
         const data = await results.json();
         return { apy: data?.apr.forwardAPR?.netAPR * 100 };
     } catch (e) {
