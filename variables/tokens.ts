@@ -94,6 +94,7 @@ const chainTokenAddresses = {
     DOLAFRAXUSDC: '0xE57180685E3348589E9521aa53Af0BCD497E884d',
     DOLAFRAXPYUSD: '0xef484de8C07B6e2d732A92B5F78e81B38f99f95E',
     YVDOLAFRAXPYUSD: '0xcC2EFb8bEdB6eD69ADeE0c3762470c38D4730C50',
+    YVDOLAFRAXBP: '0xe5F625e8f4D2A038AE9583Da254945285E5a77a4',
     DOLAFRAXPYUSDCVX: '0xE8cBdBFD4A1D776AB1146B63ABD1718b2F92a823',
     FRAXPYUSD: '0xA5588F7cdf560811710A2D82D3C9c99769DB1Dcb',
     DOLAFXUSDLP: '0x189B4e49B5cAf33565095097b4B960F14032C7D0',
@@ -694,7 +695,7 @@ const chainTokens = {
       ],
       image: TOKEN_IMAGES.DOLA,
       link: 'https://curve.fi/#/ethereum/pools/factory-v2-176/deposit',
-      deduce: [chainTokenAddresses["1"].DOLAFRAXUSDCCVX],
+      deduce: [chainTokenAddresses["1"].DOLAFRAXUSDCCVX, chainTokenAddresses["1"].YVDOLAFRAXBP],
     },
     [chainTokenAddresses["1"].DOLAFRAXUSDCCVX]: {
       address: chainTokenAddresses["1"].DOLAFRAXUSDCCVX,
@@ -1240,6 +1241,21 @@ const chainTokens = {
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].FRAXPYUSD
       ],      
       link: `https://yearn.fi/vaults/1/${chainTokenAddresses["1"].YVDOLAFRAXPYUSD.toLowerCase()}`,
+    },
+    [chainTokenAddresses["1"].YVDOLAFRAXBP]: {
+      address: chainTokenAddresses["1"].YVDOLAFRAXBP,
+      name: 'yv-DOLA-FraxBP',
+      symbol: 'yv-DOLA-FraxBP lp',
+      protocolImage: PROTOCOL_IMAGES.YFI,
+      rootCrvPool: chainTokenAddresses["1"].DOLAFRAXUSDC,
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isYearnV2LP: true,
+      pairs: [
+        chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].FRAXUSDC
+      ],      
+      link: `https://yearn.fi/vaults/1/${chainTokenAddresses["1"].YVDOLAFRAXBP.toLowerCase()}`,
     },
     [chainTokenAddresses["1"].CRVUSD]: {
       address: chainTokenAddresses["1"].CRVUSD,
