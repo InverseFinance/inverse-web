@@ -5,7 +5,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { TOKENS } from '@app/variables/tokens'
-import { getBnToNumber, getCrvUSDDOLAConvexData, getCvxCrvAPRs, getCvxFxsAPRs, getDSRData, getFraxPyusdDOLAConvexData, getSFraxData, getSUSDEData, getStCvxData, getStYcrvData, getStYethData, getStYvCrvData, getStethData, getYvCrvUsdDOLAData, getYvFraxPyusdDOLAData } from '@app/util/markets'
+import { getBnToNumber, getCrvUSDDOLAConvexData, getCvxCrvAPRs, getCvxFxsAPRs, getDSRData, getFraxBPDOLAConvexData, getFraxPyusdDOLAConvexData, getSFraxData, getSUSDEData, getStCvxData, getStYcrvData, getStYethData, getStYvCrvData, getStethData, getYvCrvUsdDOLAData, getYvFraxBPDOLAData, getYvFraxPyusdDOLAData } from '@app/util/markets'
 import { BURN_ADDRESS, CHAIN_ID, ONE_DAY_MS, ONE_DAY_SECS } from '@app/config/constants';
 import { frontierMarketsCacheKey } from '../markets';
 import { cgPricesCacheKey } from '../prices';
@@ -16,7 +16,7 @@ import { getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
 
 const { F2_MARKETS, DOLA, XINV, DBR_DISTRIBUTOR, FEDS } = getNetworkConfigConstants();
 
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.2.59`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.2.60`;
 
 export default async function handler(req, res) {
   const cacheDuration = 120;
@@ -161,6 +161,8 @@ export default async function handler(req, res) {
       getYvCrvUsdDOLAData(),
       getFraxPyusdDOLAConvexData(),
       getYvFraxPyusdDOLAData(),
+      getFraxBPDOLAConvexData(),
+      getYvFraxBPDOLAData(),
     ]);
 
     let [
@@ -177,6 +179,8 @@ export default async function handler(req, res) {
       yvCrvUsdDOLAData,
       fraxPyusdDOLAConvexData,
       yvFraxPyusdDOLAData,
+      fraxBPDOLAConvexData,
+      yvFraxBPDOLAData,
     ] = externalYieldResults.map(r => {
       return r.status === 'fulfilled' ? r.value : {};
     });
@@ -206,6 +210,8 @@ export default async function handler(req, res) {
       'yv-crvUSD-DOLA': yvCrvUsdDOLAData?.apy || 0,
       'FraxPyUSD-DOLA': fraxPyusdDOLAConvexData?.apy || 0,
       'yv-FraxPyUSD-DOLA': yvFraxPyusdDOLAData?.apy || 0,
+      'FraxBP-DOLA': fraxBPDOLAConvexData?.apy || 0,
+      'yv-FraxBP-DOLA': yvFraxBPDOLAData?.apy || 0,
     };
 
     const xinvExRate = getBnToNumber(xinvExRateBn);

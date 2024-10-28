@@ -16,6 +16,7 @@ export const TOKEN_IMAGES = {
     "DOLA": IMAGES.DOLA,
     "DOLA-3POOL": IMAGES.DOLA,
     "DOLA-FRAX-USDC": IMAGES.DOLA,
+    "DOLA-FRAXBP": IMAGES.DOLA,
     "DOLA-USDC blp": IMAGES.DOLA,
     "DOLA-DBR blp": IMAGES.DOLA,
     "DOLA-bb-e-usd blp": IMAGES.DOLA,
