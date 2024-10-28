@@ -203,7 +203,7 @@ export const StakeInvUI = ({
                                     <Text><b>{sInvTotalAssets ? `${shortenNumber(sInvTotalAssets, 2)} INV ${invPrice ? `(${shortenNumber(sInvTotalAssets * invPrice, 2, true)})` : ''}` : '-'}</b></Text>
                                 </Stack>
                                 <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
-                                    <Text>- Monthly buy pressure thanks to sINV:</Text>
+                                    <Text>- Monthly buy pressure generated:</Text>
                                     <Text><b>{monthlyBuyPressureInInv ? `${shortenNumber(monthlyBuyPressureInInv, 2)} INV (${shortenNumber(monthlyBuyPressureInInv * invPrice, 2, true)})` : '-'}</b></Text>
                                 </Stack>
                                 {/* <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
