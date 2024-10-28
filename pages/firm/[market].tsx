@@ -5,7 +5,7 @@ import Head from 'next/head'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { useDBRMarkets } from '@app/hooks/useDBR'
 
-import { VStack, Text, HStack, Divider, Image } from '@chakra-ui/react'
+import { VStack, Text, HStack, Divider, Image, Flex } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 
 import { F2CombinedForm } from '@app/components/F2/forms/F2CombinedForm'
@@ -139,7 +139,14 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                 isMultisig && <WarningMessage
                                                     alertProps={{ w: 'full' }}
                                                     title="Using a Multisig:"
-                                                    description="Please note that borrowing is not allowed for multisigs / contracts."
+                                                    description={
+                                                        <VStack spacing="0" alignItems="flex-start" w='full'>
+                                                            <Text>Please note that <b>borrowing is not allowed for multisigs / contracts unless whitelisted</b>.</Text>
+                                                            <Flex w='full' justify="flex-end" display="inline">
+                                                                <Text display="inline"><b>Note</b>: to be whitelisted, please reach out on <Link isExternal={true} target="_blank" textDecoration="underline" href="https://discord.gg/YpYJC7R5nv">discord</Link> or the <Link textDecoration="underline" isExternal={true} target="_blank" href="https://forum.inverse.finance">forum</Link>, if you have enough INV you can also <Link textDecoration="underline" display="inline" href="/governance/propose">submit a governance proposal</Link> yourself.</Text>
+                                                            </Flex>
+                                                        </VStack>
+                                                    }
                                                 />
                                             }
                                             {
