@@ -153,6 +153,18 @@ export const MARKET_INFOS = {
         description: 'The Yearn Vault for the Curve FraxPyUSD-DOLA LP, the yearn vault auto-compounds the rewards of the FraxPyUSD-DOLA LP into more vault tokens',
         getLink: 'https://yearn.fi/vaults/1/0xcC2EFb8bEdB6eD69ADeE0c3762470c38D4730C50',
     },
+    'FraxBP-DOLA': {
+        name: 'FraxBP-DOLA',
+        fullname: 'FraxBP-DOLA LP',
+        description: 'The LP token for the FraxBP-DOLA pool on Curve, when deposited on FiRM the LP token will be then deposited into Convex to earn claimable CVX+CRV rewards',
+        getLink: 'https://curve.fi/#/ethereum/pools/factory-v2-176/deposit',
+    },
+    'yv-FraxBP-DOLA': {
+        name: 'yv-FraxBP-DOLA',
+        fullname: 'Yearn vault - FraxBP-DOLA LP',
+        description: 'The Yearn Vault for the Curve FraxBP-DOLA LP, the yearn vault auto-compounds the rewards of the FraxBP-DOLA LP into more vault tokens',
+        getLink: 'https://yearn.fi/vaults/1/0xe5F625e8f4D2A038AE9583Da254945285E5a77a4',
+    },
 }
 
 const ColHeader = ({ ...props }) => {
