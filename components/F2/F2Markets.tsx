@@ -257,6 +257,7 @@ const CollateralFactorCell = ({ collateralFactor, supplyApy, borrowPaused, dbrPr
 
 export const MarketApyInfos = ({ showLeveragedApy = true, maxApy, minWidth = "140px", name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, borrowPaused, rewardTypeLabel, collateralFactor, dbrPriceUsd, _isMobileCase }) => {
     const maxLong = calculateMaxLeverage(collateralFactor);
+    const totalApy = ((supplyApy || 0) + (extraApy || 0));
     return <Cell spacing="0" direction="column" minWidth={minWidth} alignItems={_isMobileCase ? 'flex-end' : 'center'} justify="center" fontSize="14px">
         <HStack>
             <AnchorPoolInfo
@@ -278,12 +279,12 @@ export const MarketApyInfos = ({ showLeveragedApy = true, maxApy, minWidth = "14
             }
         </HStack>
         {
-            ((supplyApy || 0) + (extraApy || 0)) > 0 && <Text fontSize="12px" color="mainTextColorLight">
+            totalApy > 0 && <Text fontSize="12px" color="mainTextColorLight">
                 {rewardTypeLabel || (isInv ? supplyApy > 0 ? 'INV + DBR APR' : 'DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY')}
             </Text>
         }
         {
-            showLeveragedApy && !borrowPaused && maxApy > 0 && dbrPriceUsd > 0 && <CellText fontSize="12px" color="accentTextColor">
+            showLeveragedApy && !borrowPaused && maxApy > totalApy && dbrPriceUsd > 0 && <CellText fontSize="12px" color="accentTextColor">
                 Up to <b>{maxApy.toFixed(2)}%</b> at x{smartShortNumber(maxLong, 2)}
             </CellText>
         }
@@ -300,9 +301,10 @@ const leverageColumn = {
     </VStack>,
     value: ({ maxApy, name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
         const maxLong = calculateMaxLeverage(collateralFactor);
+        const totalApy = ((supplyApy || 0) + (extraApy || 0));
         return <Cell spacing="0" direction="column" minWidth="100px" alignItems="center">
             {
-                !borrowPaused && dbrPriceUsd > 0 && maxApy > 0 ? <>
+                !borrowPaused && dbrPriceUsd > 0 && maxApy > totalApy ? <>
                     <CellText fontSize="14px" color="accentTextColor">
                         Up to <b>{maxApy.toFixed(2)}%</b>
                     </CellText>
