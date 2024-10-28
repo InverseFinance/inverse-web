@@ -46,9 +46,9 @@ export const FromAssetDropdown = ({
     }).filter(t => !!t.symbol)
 
     if(orderByBalance) {
-        list.sort((a, b) => b.balance - a.balance);
+        list.sort((a, b) => b.balance - a.balance || a.symbol.localeCompare(b.symbol));
     } else if(orderByWorth) {
-        list.sort((a, b) => b.worth - a.worth);
+        list.sort((a, b) => b.worth - a.worth || a.symbol.localeCompare(b.symbol));
     }
 
     return (
