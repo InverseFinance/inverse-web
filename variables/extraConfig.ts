@@ -197,7 +197,7 @@ const mainConfig = {
             badgeProps: { bgColor: 'accentTextColor', color: 'contrastMainTextColor' },
             hasClaimableRewards: true,            
             startingBlock: 18212771,
-            rewardTypeLabel: 'CVX staking APY',
+            rewardTypeLabel: 'CVX staking APR',
             isInv: false,
         },
         {
