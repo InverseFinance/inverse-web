@@ -15,6 +15,7 @@ const firmCollaterals = F2_MARKETS.map(m => {
     return getToken(TOKENS, m.collateral)?.symbol;
 });
 const MAIN_SYMBOLS = [...new Set(['INV', 'DOLA', 'DBR', 'sDOLA', 'USDC', 'DAI', 'WETH', 'FRAX', 'WBTC', 'cbBTC', 'wstETH', 'MATIC', 'OP', 'ARB', 'BNB', 'ETH', 'AVAX', ...firmCollaterals])];
+const ENSO_MAIN_SYMBOLS = [...MAIN_SYMBOLS, 'crvUSD', 'PYUSD'];
 
 export const TOKENS_ARRAY = entries.flatMap(([chainId, chainList]) => {
     const tokens = Object.values(chainList)
@@ -41,7 +42,7 @@ export const ENSO_INTEGRATIONS = {
 
 export const ZAP_TOKENS_ARRAY = entries.flatMap(([chainId, chainList]) => {
     const tokens = Object.values(chainList)
-        .filter(token => MAIN_SYMBOLS.includes(token.symbol) || !!ENSO_INTEGRATIONS[`${chainId}-${token.address}`]);
+        .filter(token => ENSO_MAIN_SYMBOLS.includes(token.symbol) || !!ENSO_INTEGRATIONS[`${chainId}-${token.address}`]);
     return tokens.map(token => {
         return {
             chainId: parseInt(chainId),
