@@ -712,11 +712,13 @@ export const F2Markets = ({
                         </TextInfo>
                         {
                             dbrUserRefPrice ?
-                                <Text onClick={openSetDbrUserRefPrice} cursor="pointer" textDecoration="underline" fontSize={{ base: '16px', md: '20px' }} fontWeight="extrabold" color="accentTextColor">{shortenNumber(totalMonthlyNetUsdYield, 2, true)} a month</Text>
+                                <Text onClick={openSetDbrUserRefPrice} cursor="pointer" textDecoration="underline" fontSize={{ base: '16px', md: '20px' }} fontWeight="extrabold" color="accentTextColor">
+                                    {shortenNumber(totalMonthlyNetUsdYield, 2, true)} a month
+                                </Text>
                                 :
-                                <RSubmitButton h="30px" w="fit-content" onClick={openSetDbrUserRefPrice}>
-                                    Set DBR Price ref. <SettingsIcon ml="1" />
-                                </RSubmitButton>
+                                <Text onClick={openSetDbrUserRefPrice} cursor="pointer" textDecoration="underline" fontSize={{ base: '16px', md: '20px' }} fontWeight="extrabold" color="accentTextColor">
+                                    Set DBR Price ref
+                                </Text>
                         }
                     </VStack>
                     <ConfirmModal
