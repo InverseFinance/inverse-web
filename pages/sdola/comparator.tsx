@@ -18,7 +18,7 @@ export const SDolaComparatorPage = () => {
             </Head>
             <AppNav active="More" activeSubmenu="Compare sDOLA" />
             <ErrorBoundary>
-                <VStack spacing='8' w="80rem" maxW="95vw" mt="4">
+                <VStack spacing='8' w="45rem" maxW="95vw" mt="4">
                     <SDolaComparator />
                 </VStack>
             </ErrorBoundary>
