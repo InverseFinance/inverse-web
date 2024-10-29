@@ -1,0 +1,66 @@
+import 'source-map-support'
+import { getProvider } from '@app/util/providers';
+import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
+import { NetworkIds } from '@app/types';
+import { getAaveV3RateOf } from '@app/util/borrow-rates-comp';
+import { getSFraxData, getSUSDEData } from '@app/util/markets';
+import { getDSRData } from '@app/util/markets';
+import { TOKEN_IMAGES } from '@app/variables/images';
+
+export default async function handler(req, res) {
+  const cacheKey = `sdola-rates-compare-v1.0.0`;
+
+  try {
+    const cacheDuration = 60;
+    res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+    const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
+
+    if (validCache) {
+      res.status(200).json(validCache);
+      return
+    }
+
+    const provider = getProvider(NetworkIds.mainnet);
+
+    const symbols = ['USDC', 'USDT', 'sDAI', 'sFRAX', 'sUSDe', 'sDOLA'];
+
+    const rates = await Promise.all([
+      getAaveV3RateOf(provider, 'USDC'),
+      getAaveV3RateOf(provider, 'USDT'),
+      getDSRData(),
+      getSFraxData(provider),
+      getSUSDEData(provider),
+      fetch('https://www.inverse.finance/api/dola-staking').then(res => res.json()),
+    ]);
+
+    const sortedRates = rates
+      .map((rate, index) => {
+        return { apy: (rate.supplyRate || rate.apy), symbol: symbols[index], image: TOKEN_IMAGES[symbols[index]] }
+      }).sort((a, b) => {
+        return a.apy < b.apy ? -1 : a.apy - b.apy;
+      });
+
+    const result = {
+      timestamp: Date.now(),
+      rates: sortedRates,
+    };
+
+    await redisSetWithTimestamp(cacheKey, result);
+
+    return res.status(200).json(result);
+
+  } catch (err) {
+    console.error(err);
+    // if an error occured, try to return last cached results
+    try {
+      const cache = await getCacheFromRedis(cacheKey, false);
+      if (cache) {
+        console.log('Api call failed, returning last cache found');
+        res.status(200).send(cache);
+      }
+    } catch (e) {
+      console.error(e);
+      return res.status(500);
+    }
+  }
+}
