@@ -2,7 +2,7 @@ import 'source-map-support'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types';
-import { getAaveV3RateOf } from '@app/util/borrow-rates-comp';
+// import { getAaveV3RateOf } from '@app/util/borrow-rates-comp';
 import { getSFraxData, getSUSDEData } from '@app/util/markets';
 import { getDSRData } from '@app/util/markets';
 import { TOKEN_IMAGES } from '@app/variables/images';
@@ -22,11 +22,24 @@ export default async function handler(req, res) {
 
     const provider = getProvider(NetworkIds.mainnet);
 
-    const symbols = ['USDC', 'USDT', 'sDAI', 'sFRAX', 'sUSDe', 'sDOLA'];
+    const symbols = [
+      // 'USDC', 'USDT',
+      'sDAI', 'sFRAX', 'sUSDe', 'sDOLA'];
+    const projects = [
+      // 'Aave-V3', 'Aave-V3', 
+      'Spark', 'Frax', 'Ethena', 'FiRM'];
+    const links = [
+      // 'https://app.aave.com/reserve-overview/?underlyingAsset=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&marketName=proto_mainnet_v3',
+      // 'https://app.aave.com/reserve-overview/?underlyingAsset=0xdac17f958d2ee523a2206206994597c13d831ec7&marketName=proto_mainnet_v3',
+      'https://app.spark.fi/',
+      'https://app.frax.finance/sfrax/stake',
+      'https://app.ethena.fi/earn',
+      'https://inverse.finance/sDOLA',
+    ];
 
     const rates = await Promise.all([
-      getAaveV3RateOf(provider, 'USDC'),
-      getAaveV3RateOf(provider, 'USDT'),
+      // getAaveV3RateOf(provider, 'USDC'),
+      // getAaveV3RateOf(provider, 'USDT'),
       getDSRData(),
       getSFraxData(provider),
       getSUSDEData(provider),
@@ -35,9 +48,15 @@ export default async function handler(req, res) {
 
     const sortedRates = rates
       .map((rate, index) => {
-        return { apy: (rate.supplyRate || rate.apy), symbol: symbols[index], image: TOKEN_IMAGES[symbols[index]] }
+        return {
+          apy: (rate.supplyRate || rate.apy),
+          symbol: symbols[index],
+          image: TOKEN_IMAGES[symbols[index]],
+          project: projects[index],
+          link: links[index],
+        }
       }).sort((a, b) => {
-        return a.apy < b.apy ? -1 : a.apy - b.apy;
+        return a.apy < b.apy ? 1 : b.apy - a.apy;
       });
 
     const result = {
