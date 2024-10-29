@@ -1,4 +1,4 @@
-import { Badge, Divider, Flex, HStack, Stack, Text, useMediaQuery, VStack, Image, PopoverBody, Popover, PopoverTrigger, PopoverContent, InputGroup, InputLeftElement, Input, Select } from "@chakra-ui/react"
+import { Badge, Divider, Flex, HStack, Stack, Text, useMediaQuery, VStack, Image, PopoverBody, Popover, PopoverTrigger, PopoverContent, InputGroup, InputLeftElement, Select, useDisclosure } from "@chakra-ui/react"
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
@@ -16,15 +16,20 @@ import { gaEvent } from "@app/util/analytics";
 import { DailyLimitCountdown } from "@app/components/common/Countdown";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { SafetyBadges } from "./SecurityMiniCaroussel";
-import { ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon, InfoIcon, SearchIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon, InfoIcon, SearchIcon, SettingsIcon } from "@chakra-ui/icons";
 import { SplashedText } from "../common/SplashedText";
 import { lightTheme } from "@app/variables/theme";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "../common/Link";
 import { calculateMaxLeverage } from "@app/util/misc";
 import { LPImages } from "../common/Assets/LPImg";
 import { TextInfo } from "../common/Messages/TextInfo";
 import { RadioCardGroup } from "../common/Input/RadioCardGroup";
+import useStorage from "@app/hooks/useStorage";
+import { RSubmitButton } from "../common/Button/RSubmitButton";
+import { InfoMessage } from "../common/Messages";
+import ConfirmModal from "../common/Modal/ConfirmModal";
+import { Input } from "../common/Input";
 
 export const MARKET_INFOS = {
     'INV': {
@@ -550,6 +555,15 @@ export const F2Markets = ({
     const [search, setSearch] = useState('');
     const [category, setCategory] = useState('all');
     const [isSmallerThan] = useMediaQuery(`(max-width: ${responsiveThreshold}px)`);
+    const { isOpen: isSetDbrUserRefPriceOpen, onOpen: openSetDbrUserRefPrice, onClose: closeSetDbrUserRefPrice } = useDisclosure();
+    const { value: dbrUserRefPrice, setter: saveDbrUserRefPrice } = useStorage(`dbr-user-ref-price-${account}`);
+    const [newDbrUserRefPrice, setNewDbrUserRefPrice] = useState(dbrUserRefPrice);
+
+    useEffect(() => {
+        if (dbrUserRefPrice !== newDbrUserRefPrice) {
+            setNewDbrUserRefPrice(dbrUserRefPrice);
+        }
+    }, [dbrUserRefPrice]);
 
     const isLoading = tvlLoading || !markets?.length;
 
@@ -568,8 +582,8 @@ export const F2Markets = ({
         .map(m => {
             return {
                 ...m,
-                monthlyDbrBurnUsd: m.monthlyDbrBurn * dbrPrice,
-                monthlyNetUsdYield: m.monthlyUsdYield - m.monthlyDbrBurn * dbrPrice,
+                monthlyDbrBurnUsd: dbrUserRefPrice ? m.monthlyDbrBurn * dbrUserRefPrice : 0,
+                monthlyNetUsdYield: dbrUserRefPrice ? m.monthlyUsdYield - m.monthlyDbrBurn * dbrUserRefPrice : 0,
             }
         });
 
@@ -671,7 +685,7 @@ export const F2Markets = ({
             align: { base: 'flex-start', md: 'flex-end' },
         }}
         right={
-            totalMonthlyNetUsdYield > 1 ?
+            totalMonthlyUsdYield > 1 ?
                 <HStack w={{ base: '100%', md: 'auto' }} spacing={{ base: '2', md: '8' }} alignItems="center" justifyContent="space-between">
                     <VStack spacing="0" alignItems={isSmallerThan ? 'flex-start' : 'flex-end'}>
                         <TextInfo message={
@@ -685,19 +699,56 @@ export const F2Markets = ({
                         </TextInfo>
                         <Text fontSize={{ base: '16px', md: '20px' }} fontWeight="extrabold" color="accentTextColor">{shortenNumber(totalMonthlyUsdYield, 2, true)} a month</Text>
                     </VStack>
-                    <VStack spacing="0" alignItems={'flex-end'}>
+                    <VStack spacing="0" alignItems={'flex-end'} cursor="pointer">
                         <TextInfo message={
                             <VStack>
                                 <Text>
-                                    <b>Estimated</b> monthly earnings from your deposits <b>at current yield and prices</b> minus the monthly DBR burn at the <b>current DBR price</b>
+                                    <b>Estimated</b> monthly earnings from your deposits <b>at current yield and prices</b> minus the monthly DBR burn at the <b>DBR reference price</b> you set.
                                 </Text>
                                 <Text>Your actual net-yield depends on the price at which you bought the DBR</Text>
                             </VStack>
                         }>
-                            <Text fontWeight="bold">Current Net-Yield:</Text>
+                            <Text cursor="pointer" onClick={openSetDbrUserRefPrice} textDecoration="underline" fontWeight="bold">Current Net-Yield:</Text>
                         </TextInfo>
-                        <Text fontSize={{ base: '16px', md: '20px' }} fontWeight="extrabold" color="accentTextColor">{shortenNumber(totalMonthlyNetUsdYield, 2, true)} a month</Text>
+                        {
+                            dbrUserRefPrice ?
+                                <Text onClick={openSetDbrUserRefPrice} cursor="pointer" textDecoration="underline" fontSize={{ base: '16px', md: '20px' }} fontWeight="extrabold" color="accentTextColor">{shortenNumber(totalMonthlyNetUsdYield, 2, true)} a month</Text>
+                                :
+                                <RSubmitButton h="30px" w="fit-content" onClick={openSetDbrUserRefPrice}>
+                                    Set DBR Price ref. <SettingsIcon ml="1" />
+                                </RSubmitButton>
+                        }
                     </VStack>
+                    <ConfirmModal
+                        title="DBR Price reference"
+                        okDisabled={!newDbrUserRefPrice || !parseFloat(newDbrUserRefPrice)}
+                        onOk={() => {
+                            saveDbrUserRefPrice(parseFloat(newDbrUserRefPrice));
+                        }}
+                        okLabel="Save"
+                        cancelLabel="Close"
+                        onCancel={closeSetDbrUserRefPrice}
+                        onClose={closeSetDbrUserRefPrice}
+                        isOpen={isSetDbrUserRefPriceOpen}
+                        okButtonProps={{ bgColor: 'success' }}
+                        modalProps={{ minW: { base: '98vw', lg: '500px' }, scrollBehavior: 'inside' }}
+                    >
+                        <VStack alignItems="flex-start" spacing="4" p="4">
+                            <InfoMessage
+                                alertProps={{ w: 'full' }}
+                                description={
+                                    <Text>
+                                        Set a <b>DBR reference price</b> that will be used <b>to calculate your net-yield</b>, usually this the average price of your DBR purchases or what you intend it to be in the future.
+                                    </Text>
+                                }
+                            />
+                            <VStack spacing="1" alignItems="flex-start" w='full'>
+                                <Input placeholder="Reference DBR price, example: 0.05" value={newDbrUserRefPrice} onChange={(e) => { setNewDbrUserRefPrice(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1')) }} />
+                                <Text textDecoration="underline" onClick={() => setNewDbrUserRefPrice(parseFloat(dbrPrice.toFixed(4)))} cursor="pointer" color="mainTextColorLight">Use the current price as reference ({shortenNumber(dbrPrice, 4, true)})</Text>
+                            </VStack>
+                            <Text>This is equal to a fixed borrow rate of: <b>{newDbrUserRefPrice ? `${shortenNumber((newDbrUserRefPrice || 0) * 100, 2)}%` : ''}</b></Text>
+                        </VStack>
+                    </ConfirmModal>
                     <SafetyBadges />
                 </HStack>
                 : <SafetyBadges />
@@ -852,11 +903,11 @@ export const F2Markets = ({
                                     .filter(marketFilter)
                                     .map(m => {
                                         const maxApy = calculateNetApy((m.supplyApy || 0) + (m.extraApy || 0), m.collateralFactor, dbrPrice);
-                                        return { ...m, isLeverageView, maxApy: maxApy <= 0 ? -1/m.collateralFactor : maxApy, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
+                                        return { ...m, isLeverageView, maxApy: maxApy <= 0 ? -1 / m.collateralFactor : maxApy, dbrPriceUsd: (dbrPrice), tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
                                     })
                             }
                             onClick={openMarket}
-                            defaultSort={isLeverageView ?'maxApy' : 'maxBorrowableByUserWallet'}
+                            defaultSort={isLeverageView ? 'maxApy' : 'maxBorrowableByUserWallet'}
                             defaultSortDir="desc"
                             secondarySortFields={account ? ['maxBorrowableByUserWallet', 'leftToBorrow', 'tvl'] : ['leftToBorrow', 'collateralFactor']}
                             enableMobileRender={true}
