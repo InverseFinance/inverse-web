@@ -1,4 +1,4 @@
-import { Badge, Divider, Flex, HStack, Stack, Text, useMediaQuery, VStack, Image, PopoverBody, Popover, PopoverTrigger, PopoverContent, InputGroup, InputLeftElement, Select, useDisclosure } from "@chakra-ui/react"
+import { Badge, Divider, Flex, HStack, Stack, Text, useMediaQuery, VStack, Input as ChakraInput, Image, PopoverBody, Popover, PopoverTrigger, PopoverContent, InputGroup, InputLeftElement, Select, useDisclosure } from "@chakra-ui/react"
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
@@ -766,7 +766,7 @@ export const F2Markets = ({
                         pointerEvents='none'
                         children={<SearchIcon color='gray.300' />}
                     />
-                    <Input
+                    <ChakraInput
                         color="mainTextColor"
                         borderRadius="20px"
                         type="search"
