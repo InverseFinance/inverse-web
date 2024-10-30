@@ -411,7 +411,7 @@ const mainConfig = {
         // {
         //     name: 'PT-sUSDe-27MAR25',
         //     collateral: '0xE00bd3Df25fb187d6ABBB620b3dfd19839947b81',
-        //     address: '0x8205bE13cC245740F9EA23Dc88a9B56206bEC0e3',
+        //     address: '0x0DFE3D04536a74Dd532dd0cEf5005bA14c5f4112',
         //     escrowImplementation: FIRM_ESCROWS.simple,
         //     helper: true,
         //     oracleType: "chainlink",
