@@ -170,6 +170,12 @@ export const MARKET_INFOS = {
         description: 'The Yearn Vault for the Curve FraxBP-DOLA LP, the yearn vault auto-compounds the rewards of the FraxBP-DOLA LP into more vault tokens',
         getLink: 'https://yearn.fi/vaults/1/0xe5F625e8f4D2A038AE9583Da254945285E5a77a4',
     },
+    'PT-sUSDe-27MAR25': {
+        name: 'PT-sUSDe-27MAR25',
+        fullname: 'Pendle - PT-sUSDe-27MAR25',
+        description: 'The Principal Token for the Pendle sUSDe-27MAR2025 that is a fixed yield asset thanks to Pendle\'s split of yield-bearing assets into Principal and Yield tokens',
+        getLink: 'https://app.pendle.finance/trade/markets/0xcdd26eb5eb2ce0f203a84553853667ae69ca29ce/swap?view=pt&chain=ethereum&page=1',
+    },
 }
 
 const ColHeader = ({ ...props }) => {
