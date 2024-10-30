@@ -505,7 +505,7 @@ export const F2CombinedForm = ({
                                     bnDebt={bnDebt}
                                 />
                                     :
-                                    <FirmBorroInputwSubline leftToBorrow={market.leftToBorrow} bnLeftToBorrow={bnLeftToBorrow} handleDebtChange={(v, n) => triggerDebtAndOrLeverageChange(v, n)} />
+                                    <FirmBorroInputwSubline leftToBorrow={market.leftToBorrow} bnLeftToBorrow={bnLeftToBorrow} handleDebtChange={(v, n) => triggerDebtAndOrLeverageChange(v, n, undefined, true)} />
                             }
                         </>
                         : isBorrowOnlyCase ? <Text>Please deposit collateral first</Text> : <Text>Nothing to repay</Text>
