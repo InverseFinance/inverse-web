@@ -89,6 +89,17 @@ export const FirmRewardWrapper = ({
             onLoad={onLoad}
         />
     }
+    else if (market.name === 'FraxBP-DOLA') {
+        return <FirmConvexLpRewardWrapperContent
+            market={market}
+            label={label}
+            showMarketBtn={showMarketBtn}
+            extraAtBottom={extraAtBottom}
+            rewardContract='0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c'
+            escrow={_escrow}
+            onLoad={onLoad}
+        />
+    }
 
     return <FirmRewardWrapperContent
         market={market}
