@@ -23,12 +23,36 @@ export const getUserPtApy = async (ptToken: string, user: string) => {
 export const useUserPtApy = (ptToken: string, user: string) => {
     const tsMinute = (new Date()).toISOString().substring(0, 16);
     const { data: userFixedYieldApy, error } = useSWR(`pt-${ptToken}-${user}-${tsMinute}`, async () => {
-        return !user || user === BURN_ADDRESS ? Promise.resolve(undefined) : await getUserPtApy(ptToken, user);
+        return !ptToken || !user || user === BURN_ADDRESS ? Promise.resolve(undefined) : await getUserPtApy(ptToken, user);
     });
 
     return {
-        userFixedYieldApy,
+        apy: userFixedYieldApy,
         isLoading: !userFixedYieldApy && !error,
+        isError: error,
+    }
+}
+
+export const useUserPtApys = (ptTokens: string[], user: string) => {
+    const tsMinute = (new Date()).toISOString().substring(0, 16);
+    const { data: userFixedYieldApys, error } = useSWR(`pt-tokens-${user}-${tsMinute}`, async () => {
+        return !user || user === BURN_ADDRESS ? Promise.resolve(undefined) : await Promise.all([
+            ptTokens.map(pt => {
+                return getUserPtApy(pt, user);
+            })
+        ]);
+    });
+
+    const userFixedYieldApysObj = userFixedYieldApys ? ptTokens.reduce((prev, curr, i) => {
+        return {
+            ...prev,
+            [curr]: userFixedYieldApys[i],
+        }
+    }, {}) : {};
+
+    return {
+        apys: userFixedYieldApysObj,
+        isLoading: !userFixedYieldApys && !error,
         isError: error,
     }
 }

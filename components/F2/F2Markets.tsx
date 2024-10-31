@@ -266,7 +266,7 @@ const CollateralFactorCell = ({ collateralFactor, supplyApy, borrowPaused, dbrPr
     </Cell>
 }
 
-export const MarketApyInfos = ({ showLeveragedApy = true, maxApy, minWidth = "140px", name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, borrowPaused, rewardTypeLabel, collateralFactor, dbrPriceUsd, _isMobileCase }) => {
+export const MarketApyInfos = ({ showLeveragedApy = true, isUserApy, maxApy, minWidth = "140px", name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, borrowPaused, rewardTypeLabel, collateralFactor, dbrPriceUsd, _isMobileCase }) => {
     const maxLong = calculateMaxLeverage(collateralFactor);
     const totalApy = ((supplyApy || 0) + (extraApy || 0));
     return <Cell spacing="0" direction="column" minWidth={minWidth} alignItems={_isMobileCase ? 'flex-end' : 'center'} justify="center" fontSize="14px">
@@ -291,7 +291,7 @@ export const MarketApyInfos = ({ showLeveragedApy = true, maxApy, minWidth = "14
         </HStack>
         {
             totalApy > 0 && <Text fontSize="12px" color="mainTextColorLight">
-                {rewardTypeLabel || (isInv ? supplyApy > 0 ? 'INV + DBR APR' : 'DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY')}
+                {(isUserApy ? 'Your Fixed APY' : rewardTypeLabel) || (isInv ? supplyApy > 0 ? 'INV + DBR APR' : 'DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY')}
             </Text>
         }
         {
@@ -362,9 +362,10 @@ const columns = [
         label: 'Underlying APY',
         tooltip: 'The APY provided by the asset itself (or via its claimable rewards) and that is kept even after supplying. This is not an additional APY from FiRM. If leverage is possible the Net yield at maximum theoretical leverage will be showed as well.',
         header: ({ ...props }) => <ColHeader minWidth="140px" justify="center"  {...props} />,
-        value: ({ name, maxApy, isLeverageView, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
+        value: ({ name, isUserApy, maxApy, isLeverageView, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
             return <MarketApyInfos
                 name={name}
+                isUserApy={isUserApy}
                 borrowPaused={borrowPaused}
                 supplyApy={supplyApy}
                 supplyApyLow={supplyApyLow}
