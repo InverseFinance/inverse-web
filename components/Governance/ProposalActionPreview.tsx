@@ -11,9 +11,11 @@ import ScannerLink from '@app/components/common/ScannerLink';
 import moment from 'moment';
 import { getBnToNumber, shortenNumber } from '@app/util/markets';
 import { ErrorBoundary } from '../common/ErrorBoundary';
-import { ONE_DAY_SECS } from '@app/config/constants';
+import { BURN_ADDRESS, ONE_DAY_SECS } from '@app/config/constants';
+import useEtherSWR from '@app/hooks/useEtherSWR';
+import { ERC20_ABI } from '@app/config/abis';
 
-const { DOLA_PAYROLL, DOLA, COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE, ORACLE, F2_CONTROLLER, DBR_DISTRIBUTOR, FEDS, F2_MARKETS } = getNetworkConfigConstants();
+const { DOLA_PAYROLL, DOLA, COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE, ORACLE, F2_CONTROLLER, DBR_DISTRIBUTOR, FEDS, F2_MARKETS, F2_ORACLE, F2_ALE } = getNetworkConfigConstants();
 
 const firmMarketsFunctions = [
     'setCollateralFactorBps',
@@ -392,6 +394,109 @@ const GovernanceHumanReadableActionLabel = ({
     )
 }
 
+const FirmFeedHumanReadableActionLabel = ({
+    signature,
+    callDatas,
+}: {
+    signature: string,
+    callDatas: string[],
+}) => {
+    let text;
+    const collateral = callDatas[0];
+    const feed = callDatas[1];
+    const decimals = callDatas[2];
+
+    const { data: priceData } = useEtherSWR({
+        abi: ['function latestAnswer() public view returns (int256)'],
+        args: [
+            [feed, 'latestAnswer'],
+        ],
+    });
+
+    const { data: symbolData } = useEtherSWR({
+        abi: ERC20_ABI,
+        args: [
+            [collateral, 'symbol'],
+        ],
+    });
+
+    const price = <Amount value={priceData ? priceData?.toString() : '0'} decimals={decimals} />;
+    text = <Flex display="inline-block">
+        Set price feed for <b>{symbolData}</b> (price preview: {price})
+    </Flex>
+
+    return (
+        <Flex display="inline-block" mb="2" fontStyle="italic">
+            &laquo; {text} &raquo;
+        </Flex>
+    )
+}
+
+const FirmSetMarketHumanReadableActionLabel = ({
+    signature,
+    callDatas,
+}: {
+    signature: string,
+    callDatas: string[],
+}) => {
+    let text;
+    const market = callDatas[0];
+    const collateral = callDatas[1];
+    const helper = callDatas[2];
+    const useProxy = callDatas[3];
+
+    const { data: symbolData } = useEtherSWR({
+        abi: ERC20_ABI,
+        args: [
+            [collateral, 'symbol'],
+        ],
+    });
+
+    text = <Flex display="inline-block">
+        Market: <ScannerLink color="info" value={market} />, collateral: <ScannerLink color="info" value={collateral} label={symbolData} />, use helper: {helper === BURN_ADDRESS ? 'no' : <ScannerLink color="info" value={helper} />}, use 1inch: {useProxy ? 'yes' : 'no'}
+    </Flex>
+
+    return (
+        <Flex display="inline-block" mb="2" fontStyle="italic">
+            &laquo; {text} &raquo;
+        </Flex>
+    )
+}
+
+const FirmAddMarketHumanReadableActionLabel = ({
+    signature,
+    callDatas,
+}: {
+    signature: string,
+    callDatas: string[],
+}) => {
+    let text;
+    const market = callDatas[0];
+    const { data: marketCollateral } = useEtherSWR({
+        abi: ['function collateral() public view returns (address)'],
+        args: [
+            market, 'collateral',
+        ],
+    });
+
+    const { data: symbolData } = useEtherSWR({
+        abi: ERC20_ABI,
+        args: [
+            marketCollateral, 'symbol',
+        ],
+    });
+
+    text = <Flex display="inline-block">
+        Add a market to FiRM (collateral: {!!symbolData && <ScannerLink color="info" value={marketCollateral} label={symbolData} />})
+    </Flex>
+
+    return (
+        <Flex display="inline-block" mb="2" fontStyle="italic">
+            &laquo; {text} &raquo;
+        </Flex>
+    )
+}
+
 const HumanReadableActionLabel = ({
     target,
     signature,
@@ -423,6 +528,12 @@ const HumanReadableActionLabel = ({
         return <FirmMarketHumanReadableActionLabel signature={signature} callDatas={callDatas} market={target} />
     } else if (!!FEDS.find(f => f.address.toLowerCase() === lcTarget && f.isFirm)) {
         return <FirmFedHumanReadableActionLabel signature={signature} callDatas={callDatas} />
+    } else if (funName === 'addMarket') {
+        return <FirmAddMarketHumanReadableActionLabel signature={signature} callDatas={callDatas} />
+    } else if (funName === 'setFeed') {
+        return <FirmFeedHumanReadableActionLabel signature={signature} callDatas={callDatas} />
+    } else if (funName === 'setMarket') {
+        return <FirmSetMarketHumanReadableActionLabel signature={signature} callDatas={callDatas} />
     }
 
     const isDolaPayroll = lcTarget === DOLA_PAYROLL.toLowerCase();
@@ -492,6 +603,9 @@ export const ProposalActionPreview = (({
         'setStalenessThreshold',
         'setRewardRate',
         'setRewardRateConstraints',
+        'addMarket',
+        'setFeed',
+        'setMarket',
         ...firmMarketsFunctions,
     ].includes(funName);
 
@@ -512,7 +626,7 @@ export const ProposalActionPreview = (({
                 {
                     isHumanRedeableCaseHandled
                     && (!!contractKnownToken
-                        || [COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE, ORACLE, F2_CONTROLLER, DBR_DISTRIBUTOR].map(v => v.toLowerCase()).includes(target.toLowerCase())
+                        || [COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE, ORACLE, F2_ORACLE, F2_ALE, F2_CONTROLLER, DBR_DISTRIBUTOR].map(v => v.toLowerCase()).includes(target.toLowerCase())
                         || (!!F2_MARKETS.find(f => f.address.toLowerCase() === target.toLowerCase()) || firmMarketsFunctions.includes(funName))
                         || !!FEDS.find(f => f.address.toLowerCase() === target.toLowerCase() && f.isFirm)
                     )
