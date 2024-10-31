@@ -422,7 +422,7 @@ const FirmFeedHumanReadableActionLabel = ({
 
     const price = <Amount value={priceData ? priceData?.toString() : '0'} decimals={decimals} />;
     text = <Flex display="inline-block">
-        Set price feed for <b>{symbolData}</b> (price preview: {price})
+        Set price feed{!!symbolData && <> for <b>{symbolData}</b></>} {!!priceData && <> (price preview: {price})</>}
     </Flex>
 
     return (
@@ -453,7 +453,7 @@ const FirmSetMarketHumanReadableActionLabel = ({
     });
 
     text = <Flex display="inline-block">
-        Market: <ScannerLink color="info" value={market} />, collateral: <ScannerLink color="info" value={collateral} label={symbolData} />, use helper: {helper === BURN_ADDRESS ? 'no' : <ScannerLink color="info" value={helper} />}, use 1inch: {useProxy ? 'yes' : 'no'}
+        Set Market: <ScannerLink color="info" value={market} />'s ALE configuration, collateral: <ScannerLink color="info" value={collateral} label={symbolData} />, use helper: {helper === BURN_ADDRESS ? 'no' : <ScannerLink color="info" value={helper} />}, use 1inch: {useProxy ? 'yes' : 'no'}
     </Flex>
 
     return (
@@ -487,7 +487,7 @@ const FirmAddMarketHumanReadableActionLabel = ({
     });
 
     text = <Flex display="inline-block">
-        Add a market to FiRM (collateral: {!!symbolData && <ScannerLink color="info" value={marketCollateral} label={symbolData} />})
+        Add a market to FiRM{!!symbolData && <> (collateral: <ScannerLink color="info" value={marketCollateral} label={symbolData} />)</>}
     </Flex>
 
     return (
