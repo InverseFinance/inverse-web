@@ -394,7 +394,7 @@ export const F2CombinedForm = ({
     const mainFormInputs = <Stack direction={{ base: 'column' }} spacing="4" w='full'>
         {
             hasCollateralChange && <VStack w='full' alignItems="flex-start">
-                <FirmCollateralInputTitle isDeposit={isDeposit} onEnsoModalOpen={onEnsoModalOpen} market={market} deposits={deposits} isWethMarket={isWethMarket} isUseNativeCoin={isUseNativeCoin} useLeverageInMode={useLeverageInMode} isUnderlyingAsInputCase={isUnderlyingAsInputCase} />
+                <FirmCollateralInputTitle isDeposit={isDeposit} noZap={market.noZap} onEnsoModalOpen={onEnsoModalOpen} market={market} deposits={deposits} isWethMarket={isWethMarket} isUseNativeCoin={isUseNativeCoin} useLeverageInMode={useLeverageInMode} isUnderlyingAsInputCase={isUnderlyingAsInputCase} />
                 {
                     deposits > 0 || isDeposit ? <>
                         <SimpleAmountForm
@@ -521,6 +521,11 @@ export const F2CombinedForm = ({
                             isAutoDBR={isAutoDBR}
                             hasHelper={!!market.helper}
                         />
+                    }
+                    {
+                        !market.hasAleFeat && <Text color="mainTextColorLight">
+                            Leverage coming soon
+                        </Text>
                     }
                     {
                         canShowLeverage && <FirmLeverageSwitch isDeposit={isDeposit} useLeverage={useLeverage} onChange={(isDeposit) => {

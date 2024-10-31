@@ -178,6 +178,7 @@ export const FirmCollateralInputTitle = ({
     useLeverageInMode,
     deposits,
     isUnderlyingAsInputCase,
+    noZap,
     onEnsoModalOpen,
 }: {
     isDeposit: boolean
@@ -187,6 +188,7 @@ export const FirmCollateralInputTitle = ({
     useLeverageInMode: boolean
     deposits: number
     isUnderlyingAsInputCase: boolean
+    noZap: boolean
     onEnsoModalOpen: () => void
 }) => {
     const depositWording = market.isInv ? 'Stake' : 'Deposit';
@@ -212,7 +214,7 @@ export const FirmCollateralInputTitle = ({
                 </Text>
             </Flex>
             {
-                isDeposit && <Flex alignItems="center">
+                !noZap && isDeposit && <Flex alignItems="center">
                     <TextInfo message="Zap-In allows you to get the market's collateral very easily">
                         <Flex {...ensoProps} alignItems="center">
                             Zap-In<Image src="/assets/zap.png" h="20px" w="20px" />
