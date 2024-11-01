@@ -529,8 +529,7 @@ const HumanReadableActionLabel = ({
         return <FirmMarketHumanReadableActionLabel signature={signature} callDatas={callDatas} market={target} />
     } else if (!!FEDS.find(f => f.address.toLowerCase() === lcTarget && f.isFirm)) {
         return <FirmFedHumanReadableActionLabel signature={signature} callDatas={callDatas} />
-    } else if (funName === 'addMarket') {
-        console.log('yoo')
+    } else if (funName === 'addMarket') {        
         return <FirmAddMarketHumanReadableActionLabel signature={signature} callDatas={callDatas} />
     } else if (funName === 'setFeed') {
         return <FirmFeedHumanReadableActionLabel signature={signature} callDatas={callDatas} />

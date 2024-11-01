@@ -58,7 +58,7 @@ export const VoteCountModal = ({ isOpen, onClose, proposal, voteType }: VoteCoun
     >
       <Stack m={3} height={400} overflowY="auto">
         {votes.map(({ voter, votes }: ProposalVote) => (
-          <Voter voter={voter} votes={votes} />
+          <Voter key={voter} voter={voter} votes={votes} />
         ))}
       </Stack>
     </Modal>
