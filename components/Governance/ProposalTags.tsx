@@ -59,6 +59,6 @@ export const ProposalTags = ({ functions, onTagSelect, ...props }: {
     }
 
     return <Box overflow="auto" {...props}>
-        {uniqueNames.map(v => <Tag name={v.name} address={v.address} onTagSelect={onTagSelect} />)}
+        {uniqueNames.map(v => <Tag key={v.address} name={v.name} address={v.address} onTagSelect={onTagSelect} />)}
     </Box>
 }

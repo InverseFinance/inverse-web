@@ -472,17 +472,18 @@ const FirmAddMarketHumanReadableActionLabel = ({
 }) => {
     let text;
     const market = callDatas[0];
+    
     const { data: marketCollateral } = useEtherSWR({
         abi: ['function collateral() public view returns (address)'],
         args: [
-            market, 'collateral',
+            [market, 'collateral'],
         ],
     });
 
     const { data: symbolData } = useEtherSWR({
-        abi: ERC20_ABI,
+        abi: ['function symbol() public view returns (string)'],
         args: [
-            marketCollateral, 'symbol',
+            [marketCollateral ? marketCollateral[0] : '', 'symbol'],
         ],
     });
 
@@ -528,7 +529,7 @@ const HumanReadableActionLabel = ({
         return <FirmMarketHumanReadableActionLabel signature={signature} callDatas={callDatas} market={target} />
     } else if (!!FEDS.find(f => f.address.toLowerCase() === lcTarget && f.isFirm)) {
         return <FirmFedHumanReadableActionLabel signature={signature} callDatas={callDatas} />
-    } else if (funName === 'addMarket') {
+    } else if (funName === 'addMarket') {        
         return <FirmAddMarketHumanReadableActionLabel signature={signature} callDatas={callDatas} />
     } else if (funName === 'setFeed') {
         return <FirmFeedHumanReadableActionLabel signature={signature} callDatas={callDatas} />
