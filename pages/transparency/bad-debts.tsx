@@ -22,6 +22,7 @@ import { SkeletonBlob } from '@app/components/common/Skeleton'
 import { lightTheme } from '@app/variables/theme'
 import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader'
 import { InfoMessage } from '@app/components/common/Messages'
+import Link from '@app/components/common/Link'
 
 const ColHeader = ({ ...props }) => {
   return <Flex justify="center" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -379,7 +380,7 @@ export const BadDebtPage = () => {
   const { prices } = usePrices();
   const [selected, setSelected] = useState('all');
   const isAllCase = selected === 'all';
-  const isDolaCase = selected.toLowerCase().includes('dola');  
+  const isDolaCase = selected.toLowerCase().includes('dola');
   const dolaPrice = !!prices ? prices['dola-usd']?.usd : 1;
 
   const totalDirectRepaymentsForTable = totalRepaymentKeys.map(key => {
@@ -595,6 +596,21 @@ export const BadDebtPage = () => {
               showTotalRow={true}
             />
           </Container>
+          <VStack w="full" alignItems="flex-start" px="6" pt="6">
+            <InfoMessage
+              alertProps={{ w: 'full' }}
+              description={
+                <VStack alignItems="flex-start">
+                  <Text>
+                    <b>Note</b>: DOLA bad debt is the only bad debt that poses direct risk to the DAO, bad debts in other assets susch as WBTC are related to Frontier's users deposits and don't directly pose risk to the DAO's survival, for this reason the DAO's current priority is the repayment of the DOLA bad debt.
+                  </Text>
+                  <Link textDecoration="underline" target="_blank" isExternal href="https://www.inverse.finance/governance/proposals/mills/156">
+                    See the DOLA bad debt repayment prioritization proposal
+                  </Link>
+                </VStack>
+              }
+            />
+          </VStack>
           <Container
             noPadding
             label={`Annex: Bad Debt Converter and Repayer`}
