@@ -365,7 +365,7 @@ export const F2CombinedForm = ({
     const notEnoughToBorrowWithAutobuy = isBorrowCase && market.leftToBorrow > 1 && deltaDebt > 0 && market.leftToBorrow < (isAutoDBR ? deltaDebt + (dbrCoverDebt * (1 + parseFloat(dbrBuySlippage || 0) / 100)) : deltaDebt);
     const minDebtDisabledCondition = FEATURE_FLAGS.firmMinDebt && newTotalDebtInMarket > 0 && newTotalDebtInMarket < market.minDebt;
     const isDeleverageCase = useLeverageInMode && !isDeposit;
-    const canShowLeverage = FEATURE_FLAGS.firmLeverage && (market.hasAleFeat || !account) && !isUseNativeCoin && ((['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1) || ['Deposit & Borrow', 'Borrow'].includes(mode));
+    const canShowLeverage = FEATURE_FLAGS.firmLeverage && !market.isLeverageComingSoon && (market.hasAleFeat || !account) && !isUseNativeCoin && ((['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1) || ['Deposit & Borrow', 'Borrow'].includes(mode));
     const canActivateLeverage = ((mode === 'Deposit & Borrow' && (deposits > 0 || collateralAmountNum > 0)) || (mode === 'Borrow' && deposits > 0) || (['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1));
     const showMinDebtMessage = !notEnoughToBorrowWithAutobuy && minDebtDisabledCondition && (debtAmountNum > 0 || isDeleverageCase);
     const showNeedDbrMessage = isDeposit && !isAutoDBR && dbrBalance <= 0;
@@ -523,7 +523,7 @@ export const F2CombinedForm = ({
                         />
                     }
                     {
-                        !market.hasAleFeat && <Text color="mainTextColorLight">
+                        market.isLeverageComingSoon && <Text color="mainTextColorLight">
                             Leverage coming soon
                         </Text>
                     }

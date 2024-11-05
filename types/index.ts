@@ -762,6 +762,7 @@ export type F2Market = {
   oracleStartingBlock?: number
   aleDefaultSlippagePerc?: string
   hasAleFeat?: boolean
+  isLeverageComingSoon?: boolean
   isPhasingOut?: boolean
   isUserApy?: boolean
   phasingOutComment?: string

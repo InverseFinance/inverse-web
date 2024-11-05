@@ -420,6 +420,7 @@ const mainConfig = {
             badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },            
             startingBlock: 21119925,
             isInv: false,
+            isLeverageComingSoon: true,
             noZap: true,
         },
     ],
