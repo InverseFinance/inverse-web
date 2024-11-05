@@ -130,6 +130,7 @@ const chainTokenAddresses = {
     SFRAX: '0xA663B02CF0a4b149d2aD41910CB81e23e1c41c32',
     COMP: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
     sUSDE: '0x9D39A5DE30e57443BfF2A8307A4256c8797A3497',
+    PTsUSDe27MAR25: '0xE00bd3Df25fb187d6ABBB620b3dfd19839947b81',
     USDE: '0x4c9EDD5852cd905f086C759E8383e09bff1E68B3',
     // PAL: '0xAB846Fb6C81370327e784Ae7CbB6d6a6af6Ff4BF',
   },
@@ -1305,6 +1306,13 @@ const chainTokens = {
       image: TOKEN_IMAGES.sUSDe,
       decimals: 18,
       isStable: true,
+    },
+    [chainTokenAddresses["1"].PTsUSDe27MAR25]: {
+      address: chainTokenAddresses["1"].PTsUSDe27MAR25,
+      name: 'PT-sUSDe-27MAR25',
+      symbol: 'PT-sUSDe-27MAR25',
+      image: TOKEN_IMAGES.sUSDe,
+      decimals: 18,
     },
     [chainTokenAddresses["1"].USDE]: {
       address: chainTokenAddresses["1"].USDE,

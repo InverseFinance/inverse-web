@@ -170,6 +170,12 @@ export const MARKET_INFOS = {
         description: 'The Yearn Vault for the Curve FraxBP-DOLA LP, the yearn vault auto-compounds the rewards of the FraxBP-DOLA LP into more vault tokens',
         getLink: 'https://yearn.fi/vaults/1/0xe5F625e8f4D2A038AE9583Da254945285E5a77a4',
     },
+    'PT-sUSDe-27MAR25': {
+        name: 'PT-sUSDe-27MAR25',
+        fullname: 'Pendle - PT-sUSDe-27MAR25',
+        description: 'The Principal Token for the Pendle sUSDe-27MAR2025 that is a fixed yield asset thanks to Pendle\'s split of yield-bearing assets into Principal and Yield tokens',
+        getLink: 'https://app.pendle.finance/trade/markets/0xcdd26eb5eb2ce0f203a84553853667ae69ca29ce/swap?view=pt&chain=ethereum&page=1',
+    },
 }
 
 const ColHeader = ({ ...props }) => {
@@ -260,7 +266,7 @@ const CollateralFactorCell = ({ collateralFactor, supplyApy, borrowPaused, dbrPr
     </Cell>
 }
 
-export const MarketApyInfos = ({ showLeveragedApy = true, maxApy, minWidth = "140px", name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, borrowPaused, rewardTypeLabel, collateralFactor, dbrPriceUsd, _isMobileCase }) => {
+export const MarketApyInfos = ({ showLeveragedApy = true, isUserApy, maxApy, minWidth = "140px", name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, borrowPaused, rewardTypeLabel, collateralFactor, dbrPriceUsd, _isMobileCase }) => {
     const maxLong = calculateMaxLeverage(collateralFactor);
     const totalApy = ((supplyApy || 0) + (extraApy || 0));
     return <Cell spacing="0" direction="column" minWidth={minWidth} alignItems={_isMobileCase ? 'flex-end' : 'center'} justify="center" fontSize="14px">
@@ -285,7 +291,7 @@ export const MarketApyInfos = ({ showLeveragedApy = true, maxApy, minWidth = "14
         </HStack>
         {
             totalApy > 0 && <Text fontSize="12px" color="mainTextColorLight">
-                {rewardTypeLabel || (isInv ? supplyApy > 0 ? 'INV + DBR APR' : 'DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY')}
+                {(isUserApy ? 'Your Fixed APY' : rewardTypeLabel) || (isInv ? supplyApy > 0 ? 'INV + DBR APR' : 'DBR APR' : hasClaimableRewards ? 'Claimable APR' : 'Rebase APY')}
             </Text>
         }
         {
@@ -356,9 +362,10 @@ const columns = [
         label: 'Underlying APY',
         tooltip: 'The APY provided by the asset itself (or via its claimable rewards) and that is kept even after supplying. This is not an additional APY from FiRM. If leverage is possible the Net yield at maximum theoretical leverage will be showed as well.',
         header: ({ ...props }) => <ColHeader minWidth="140px" justify="center"  {...props} />,
-        value: ({ name, maxApy, isLeverageView, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
+        value: ({ name, isUserApy, maxApy, isLeverageView, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
             return <MarketApyInfos
                 name={name}
+                isUserApy={isUserApy}
                 borrowPaused={borrowPaused}
                 supplyApy={supplyApy}
                 supplyApyLow={supplyApyLow}

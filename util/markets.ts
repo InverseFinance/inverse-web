@@ -433,6 +433,17 @@ export const getStYvCrvData = async () => {
     }
 }
 
+export const getPTsUSDe27MAR25Data = async () => {
+    try {
+        const results = await fetch("https://api-v2.pendle.finance/bff/v1/1/markets/0xcdd26eb5eb2ce0f203a84553853667ae69ca29ce");
+        const data = await results.json();
+        return { apy: data?.impliedApy * 100 };
+    } catch (e) {
+        console.log(e)
+        return { apy: 0 }
+    }
+}
+
 export const getYvCrvUsdDOLAData = async () => {
     try {
         const results = await fetch("https://ydaemon.yearn.fi/1/vaults/0xfb5137Aa9e079DB4b7C2929229caf503d0f6DA96");

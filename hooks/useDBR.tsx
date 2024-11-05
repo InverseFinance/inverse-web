@@ -15,6 +15,7 @@ import { useWeb3React } from "@web3-react/core";
 import { useDOLAPriceLive } from "./usePrices";
 import { timestampToUTC } from "@app/util/misc";
 import { useState } from "react";
+import { useUserPtApy } from "@app/util/pendle";
 
 const { DBR, DBR_AIRDROP, F2_MARKETS, F2_ORACLE, DOLA, DBR_DISTRIBUTOR, F2_HELPER, F2_ALE } = getNetworkConfigConstants();
 
@@ -97,6 +98,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
   const [tsMinute] = useState((new Date()).toISOString().substring(0, 16));
   // preference to match their website apy
   const { data: susdeData } = useSWR(`https://app.ethena.fi/api/yields/protocol-and-staking-yield?r=${tsMinute}`, fetcher, { refreshInterval: 60000 });
+  
   const sUsdeApy = susdeData?.stakingYield?.value;
   const _markets = Array.isArray(marketOrList) ? marketOrList : !!marketOrList ? [marketOrList] : [];
 
@@ -175,7 +177,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
       return {
         ...m,
         ...cachedMarkets[i],
-        supplyApy: m.name === 'sUSDe' ? (sUsdeApy||0) || cachedMarkets[i]?.supplyApy||m.supplyApy : cachedMarkets[i]?.supplyApy||m.supplyApy,
+        supplyApy: (m.name === 'sUSDe' ? (sUsdeApy||0) || cachedMarkets[i]?.supplyApy||m.supplyApy : cachedMarkets[i]?.supplyApy||m.supplyApy),
         price: data && data[i] ? getBnToNumber(data[i], (36 - m.underlying.decimals)) : cachedMarkets[i]?.price ?? 0,
         collateralFactor: data ? getBnToNumber(data[i + nbMarkets], 4) : cachedMarkets[i]?.collateralFactor ?? 0,
         totalDebt: data ? getBnToNumber(data[i + 2 * nbMarkets]) : cachedMarkets[i]?.totalDebt ?? 0,
@@ -200,6 +202,7 @@ export const useAccountDBRMarket = (
   isUseNativeCoin = false,
   inputToken?: string
 ): AccountDBRMarket => {
+  const { apy: ptUserApy } = useUserPtApy(market.name.startsWith('PT-') ? market.collateral : '', account);
   const { data: escrow } = useEtherSWR([market.address, 'escrows', account]);
   const { data: accountMarketData } = useEtherSWR(
     !escrow || escrow === BURN_ADDRESS ? [] : [
@@ -271,6 +274,8 @@ export const useAccountDBRMarket = (
 
   return {
     ...market,
+    isUserApy: !!ptUserApy,
+    supplyApy: ptUserApy || market.supplyApy,
     account,
     escrow,
     deposits,
