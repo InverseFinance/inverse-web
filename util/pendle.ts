@@ -8,16 +8,21 @@ const ptMarkets = {
 }
 
 export const getUserPtApy = async (ptToken: string, user: string) => {
-    const ptMarketAddress = ptMarkets[ptToken];
-    const [yields, pnl] = await Promise.all([
-        fetch(`https://api-v2.pendle.finance/bff/v5/1/transactions/${ptMarketAddress}?type=TRADES&action=SHORT_YIELD&skip=0&limit=100&minValue=0&txOrigin=${user}`).then(r => r.json()),
-        fetch(`https://api-v2.pendle.finance/pnl/v1/transactions?user=${user}&market=${ptMarketAddress}&chainId=1&limit=100&skip=0`).then(r => r.json()),
-    ]);
+    try {
+        const ptMarketAddress = ptMarkets[ptToken];
+        const [yields, pnl] = await Promise.all([
+            fetch(`https://api-v2.pendle.finance/bff/v5/1/transactions/${ptMarketAddress}?type=TRADES&action=SHORT_YIELD&skip=0&limit=100&minValue=0&txOrigin=${user}`).then(r => r.json()),
+            fetch(`https://api-v2.pendle.finance/pnl/v1/transactions?user=${user}&market=${ptMarketAddress}&chainId=1&limit=100&skip=0`).then(r => r.json()),
+        ]);
 
-    const buyPtTxs = pnl.results.filter(r => r.action === 'buyPt').map(r => r.txHash);
-    const ptBuys = yields.results.filter(r => buyPtTxs.includes(r.txHash));
-    const totalValue = ptBuys.reduce((prev, curr) => prev + (curr.value), 0);
-    return ptBuys.reduce((prev, curr) => prev + (curr.value * curr.impliedApy * 100), 0) / totalValue;
+        const buyPtTxs = pnl.results.filter(r => r.action === 'buyPt').map(r => r.txHash);
+        const ptBuys = yields.results.filter(r => buyPtTxs.includes(r.txHash));
+        const totalValue = ptBuys.reduce((prev, curr) => prev + (curr.value), 0);
+        return ptBuys.reduce((prev, curr) => prev + (curr.value * curr.impliedApy * 100), 0) / totalValue;
+    } catch (e) {
+        
+    }
+    return undefined;
 }
 
 export const useUserPtApy = (ptToken: string, user: string) => {
