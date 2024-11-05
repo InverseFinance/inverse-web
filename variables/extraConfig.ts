@@ -418,7 +418,7 @@ const mainConfig = {
             badgeInfo: 'Pendle',
             rewardTypeLabel: "Fixed Yield",
             badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },            
-            startingBlock: 21059144,
+            startingBlock: 21119925,
             isInv: false,
             noZap: true,
         },
