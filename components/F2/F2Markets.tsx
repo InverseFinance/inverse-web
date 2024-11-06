@@ -253,12 +253,12 @@ const MarketCell = ({ icon, marketIcon, underlying, badgeInfo, badgeProps, name,
     </Cell>
 }
 
-const CollateralFactorCell = ({ collateralFactor, supplyApy, borrowPaused, dbrPriceUsd, _isMobileCase }: { collateralFactor: number, borrowPaused: boolean, _isMobileCase: boolean }) => {
+const CollateralFactorCell = ({ collateralFactor, isLeverageComingSoon, supplyApy, borrowPaused, dbrPriceUsd, _isMobileCase }: { collateralFactor: number, borrowPaused: boolean, _isMobileCase: boolean }) => {
     const maxLong = calculateMaxLeverage(collateralFactor);
     return <Cell spacing="0" direction="column" minWidth="70px" alignItems={_isMobileCase ? 'flex-end' : 'center'} justify="center" >
         <CellText>{shortenNumber(collateralFactor * 100, 0)}%</CellText>
         {
-            !borrowPaused && <>
+            (!borrowPaused && !isLeverageComingSoon) && <>
                 {!_isMobileCase && <CellText>&nbsp;</CellText>}
                 <CellText color="mainTextColorLight" transform={_isMobileCase ? undefined : 'translateY(10px)'} position={_isMobileCase ? 'static' : 'absolute'} fontSize="12px">Long up to x{smartShortNumber(maxLong, 2)}</CellText>
             </>
@@ -266,7 +266,7 @@ const CollateralFactorCell = ({ collateralFactor, supplyApy, borrowPaused, dbrPr
     </Cell>
 }
 
-export const MarketApyInfos = ({ showLeveragedApy = true, isUserApy, maxApy, minWidth = "140px", name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, borrowPaused, rewardTypeLabel, collateralFactor, dbrPriceUsd, _isMobileCase }) => {
+export const MarketApyInfos = ({ showLeveragedApy = true, isLeverageComingSoon, isUserApy, maxApy, minWidth = "140px", name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, borrowPaused, rewardTypeLabel, collateralFactor, dbrPriceUsd, _isMobileCase }) => {
     const maxLong = calculateMaxLeverage(collateralFactor);
     const totalApy = ((supplyApy || 0) + (extraApy || 0));
     return <Cell spacing="0" direction="column" minWidth={minWidth} alignItems={_isMobileCase ? 'flex-end' : 'center'} justify="center" fontSize="14px">
@@ -295,7 +295,7 @@ export const MarketApyInfos = ({ showLeveragedApy = true, isUserApy, maxApy, min
             </Text>
         }
         {
-            showLeveragedApy && !borrowPaused && maxApy > totalApy && dbrPriceUsd > 0 && <CellText fontSize="12px" color="accentTextColor">
+            showLeveragedApy && !borrowPaused && !isLeverageComingSoon && maxApy > totalApy && dbrPriceUsd > 0 && <CellText fontSize="12px" color="accentTextColor">
                 Up to <b>{maxApy.toFixed(2)}%</b> at x{smartShortNumber(maxLong, 2)}
             </CellText>
         }
@@ -310,7 +310,7 @@ const leverageColumn = {
         <Text><b>Net APY</b>: Annual Percentage Yield at maximum theoretical leverage with the borrowing cost already deducted (at current DBR price), your Net APY depends on the actual price you bought DBR at</Text>
         <Text><b>Long up to</b>: theoretical maximum leverage with DOLA at $1 and borrow limit at 100%</Text>
     </VStack>,
-    value: ({ maxApy, name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
+    value: ({ maxApy, name, isLeverageComingSoon, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
         const maxLong = calculateMaxLeverage(collateralFactor);
         const totalApy = ((supplyApy || 0) + (extraApy || 0));
         return <Cell spacing="0" direction="column" minWidth="100px" alignItems="center">
@@ -326,6 +326,7 @@ const leverageColumn = {
                     : borrowPaused ? <MarketApyInfos
                         minWidth="100px"
                         name={name}
+                        isLeverageComingSoon={isLeverageComingSoon}
                         borrowPaused={borrowPaused}
                         supplyApy={supplyApy}
                         supplyApyLow={supplyApyLow}
@@ -362,9 +363,10 @@ const columns = [
         label: 'Underlying APY',
         tooltip: 'The APY provided by the asset itself (or via its claimable rewards) and that is kept even after supplying. This is not an additional APY from FiRM. If leverage is possible the Net yield at maximum theoretical leverage will be showed as well.',
         header: ({ ...props }) => <ColHeader minWidth="140px" justify="center"  {...props} />,
-        value: ({ name, isUserApy, maxApy, isLeverageView, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
+        value: ({ name, isUserApy, isLeverageComingSoon, maxApy, isLeverageView, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
             return <MarketApyInfos
                 name={name}
+                isLeverageComingSoon={isLeverageComingSoon}
                 isUserApy={isUserApy}
                 borrowPaused={borrowPaused}
                 supplyApy={supplyApy}
@@ -412,8 +414,8 @@ const columns = [
             <Text><b>Collateral Factor</b>: maximum percentage of collateral value that can be used for borrowing.</Text>
             <Text><b>Long up to</b>: theoretical maximum leverage with DOLA at $1 and borrow limit at 100%</Text>
         </VStack>,
-        value: ({ collateralFactor, borrowPaused, supplyApy, dbrPriceUsd, _isMobileCase }) => {
-            return <CollateralFactorCell dbrPriceUsd={dbrPriceUsd} supplyApy={supplyApy} _isMobileCase={_isMobileCase} collateralFactor={collateralFactor} borrowPaused={borrowPaused} />
+        value: ({ collateralFactor, borrowPaused, supplyApy, dbrPriceUsd, _isMobileCase, isLeverageComingSoon }) => {
+            return <CollateralFactorCell dbrPriceUsd={dbrPriceUsd} supplyApy={supplyApy} _isMobileCase={_isMobileCase} collateralFactor={collateralFactor} borrowPaused={borrowPaused} isLeverageComingSoon={isLeverageComingSoon} />
         },
     },
     {
