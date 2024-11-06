@@ -24,14 +24,15 @@ export const BasePage = () => {
       <InfoMessage
         alertProps={{ w: { base: 'full', lg: '1200px' }, mt: '4' }}
         description={
-          <VStack spacing="0" alignItems="flex-start">
+          <VStack spacing="2" alignItems="flex-start">
             <Text>We now recommend to use the Superbridge app which has more advanced features:</Text>
             <Link textDecoration="underline" href="https://superbridge.app/base" isExternal target="_blank">
               Open the Superbridge app
             </Link>
+            <Text>DOLA address on Base: <b>0x4621b7A9c75199271F773Ebd9A499dbd165c3191</b></Text>
           </VStack>
         } />
-      <VStack
+      {/* <VStack
         w={{ base: 'full', lg: '1200px' }}
         justify="center"
         mt='6'
@@ -50,13 +51,13 @@ export const BasePage = () => {
             <BaseBridge />
           </VStack>
           <VStack w={{ base: 'full', lg: '45%' }}>
-            <BaseBridgeInformations />
+            <BaseBridgeInformations />B
           </VStack>
         </Stack>
         {
           !!account && <BaseWithdrawlsSection />
         }
-      </VStack>
+      </VStack> */}
     </Layout>
   )
 }
