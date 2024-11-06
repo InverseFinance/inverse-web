@@ -422,6 +422,7 @@ const mainConfig = {
             isInv: false,
             isLeverageComingSoon: true,
             noZap: true,
+            fixedFeed: true,
         },
     ],
     feds: FEDS_PARAMS,

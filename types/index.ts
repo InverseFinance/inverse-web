@@ -773,6 +773,7 @@ export type F2Market = {
   isERC4626Collateral?: boolean
   isAleWithoutSwap?: boolean
   underlyingWithPricePerShare?: boolean
+  fixedFeed?: boolean
 }
 
 export type FirmAction = {
