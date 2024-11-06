@@ -386,6 +386,7 @@ export const F2Context = ({
             leverageMinDebtReduced,
             setLeverageMinDebtReduced,
             leverageMinAmountUp,
+            newCreditLeft,
         }}
         {...props}
     />
