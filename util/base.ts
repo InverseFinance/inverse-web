@@ -11,6 +11,7 @@ import { BURN_ADDRESS } from "@app/config/constants";
 
 export const L2_TOKEN_ABI = [{ "inputs": [{ "internalType": "address", "name": "_bridge", "type": "address" }, { "internalType": "address", "name": "_remoteToken", "type": "address" }, { "internalType": "string", "name": "_name", "type": "string" }, { "internalType": "string", "name": "_symbol", "type": "string" }], "stateMutability": "nonpayable", "type": "constructor" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "owner", "type": "address" }, { "indexed": true, "internalType": "address", "name": "spender", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "value", "type": "uint256" }], "name": "Approval", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "account", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "Burn", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "account", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "Mint", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "from", "type": "address" }, { "indexed": true, "internalType": "address", "name": "to", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "value", "type": "uint256" }], "name": "Transfer", "type": "event" }, { "inputs": [], "name": "BRIDGE", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "REMOTE_TOKEN", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "address", "name": "spender", "type": "address" }], "name": "allowance", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "approve", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "account", "type": "address" }], "name": "balanceOf", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "bridge", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_from", "type": "address" }, { "internalType": "uint256", "name": "_amount", "type": "uint256" }], "name": "burn", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "decimals", "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "subtractedValue", "type": "uint256" }], "name": "decreaseAllowance", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "addedValue", "type": "uint256" }], "name": "increaseAllowance", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "l1Token", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "l2Bridge", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_to", "type": "address" }, { "internalType": "uint256", "name": "_amount", "type": "uint256" }], "name": "mint", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "name", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "remoteToken", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "bytes4", "name": "_interfaceId", "type": "bytes4" }], "name": "supportsInterface", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "pure", "type": "function" }, { "inputs": [], "name": "symbol", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "totalSupply", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "to", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "transfer", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "from", "type": "address" }, { "internalType": "address", "name": "to", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "transferFrom", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "version", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }];
 
+export const BASE_OPTIMISIM_PORTAL = '0x49048044D57e1C92A77f79988d21Fa8fAF74E97e';
 export const BASE_L1_ERC20_BRIDGE = '0x3154Cf16ccdb4C6d922629664174b904d80F2C35';
 export const BASE_L2_ERC20_BRIDGE = '0x4200000000000000000000000000000000000010';
 export const L2_ETH_TOKEN = '0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000';
@@ -117,7 +118,7 @@ export const getBaseAddressWithrawals = async (
     ethProvider: Web3Provider,
     address: string,
 ) => {
-    const path = `https://api.basescan.org/api?address=${address}&action=txlist&module=account`;
+    const path = `https://api.basescan.org/api?address=${address}&action=txlist&module=account&apiKey=WZMDK47D2YU9KDBQSJJCKWJPAGZ1NDG4P6`;
     try {
         const res = await fetcher(path);
         const list = res?.status === "1" ? res?.result : [];
@@ -236,6 +237,27 @@ export const getMessenger = (l1SignerOrProvider: SignerOrProviderLike, l2SignerO
         l1ChainId: parseInt(NetworkIds.mainnet), // replace with your L1 chain ID
         l2ChainId: parseInt(NetworkIds.base), // replace with your L2 chain ID
         bedrock: true,
+        contracts: {
+            l1: {
+                // AddressManager: '0x8EfB6B5c4767B09Dc9AA6Af4eAA89F749522BaE2',
+                // L1StandardBridge: '0x3154Cf16ccdb4C6d922629664174b904d80F2C35',
+                // L1CrossDomainMessenger: '0x866E82a600A1414e583f7F13623F1aC5d58b0Afa',
+                // OptimismPortal: BASE_OPTIMISIM_PORTAL,
+                OptimismPortal2: BASE_OPTIMISIM_PORTAL,
+                // L2OutputOracle: '0x56315b90c40730925ec5485cf004d835058518A0',
+                DisputeGameFactory: '0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e',
+                FaultDisputeGame: '0xCd3c0194db74C23807D4B90A5181e1B28cF7007C',
+                // // L2OutputOracle: BURN_ADDRESS,
+                // StateCommitmentChain: BURN_ADDRESS,
+                // CanonicalTransactionChain: BURN_ADDRESS,
+                // BondManager: BURN_ADDRESS,
+            },
+            // l2: {
+            //     L2ToL1MessagePasser: '0x4200000000000000000000000000000000000016',
+            //     L2CrossDomainMessenger: '0x4200000000000000000000000000000000000007',
+            //     L2StandardBridge: '0x4200000000000000000000000000000000000010',
+            // }
+        }
     });
 }
 

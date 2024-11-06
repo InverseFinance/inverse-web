@@ -32,7 +32,7 @@ export const BasePage = () => {
             <Text>DOLA address on Base: <b>0x4621b7A9c75199271F773Ebd9A499dbd165c3191</b></Text>
           </VStack>
         } />
-      {/* <VStack
+      <VStack
         w={{ base: 'full', lg: '1200px' }}
         justify="center"
         mt='6'
@@ -57,7 +57,7 @@ export const BasePage = () => {
         {
           !!account && <BaseWithdrawlsSection />
         }
-      </VStack> */}
+      </VStack>
     </Layout>
   )
 }
