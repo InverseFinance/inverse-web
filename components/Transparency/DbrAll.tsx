@@ -36,7 +36,7 @@ export const DbrAll = ({
     auctionBuys,
     histoPrices,
     replenishments,
-    maxChartWidth = 800,
+    maxChartWidth = 950,
     yearlyRewardRate,
 }) => {
     const [useUsd, setUseUsd] = useState(false);
@@ -145,9 +145,6 @@ export const DbrAll = ({
     }
 
     // const annualizedBurn = lastCombodata.debt;
-    console.log('yearlyRewardRate', yearlyRewardRate);
-    console.log('dsaYearlyDbrEarnings', dsaYearlyDbrEarnings);
-    console.log('auctionYearlyRate', auctionYearlyRate);
     const annualizedIssuance = yearlyRewardRate + dsaYearlyDbrEarnings + auctionYearlyRate;
 
     const { chartData: burnChartData } = useEventsAsChartData(_burnEvents, useUsd ? 'accBurnUsd' : 'accBurn', useUsd ? 'amountUsd' : 'amount');

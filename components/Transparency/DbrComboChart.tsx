@@ -4,7 +4,7 @@ import { shortenNumber, smartShortNumber } from '@app/util/markets';
 import { Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ComposedChart } from 'recharts';
 import moment from 'moment';
 import { preciseCommify } from '@app/util/misc';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRechartsZoom } from '@app/hooks/useRechartsZoom';
 import { lightTheme } from '@app/variables/theme';
 
@@ -29,6 +29,7 @@ export const DbrComboChart = ({
     useUsd?: boolean
 }) => {
     const { themeStyles, themeName } = useAppTheme();
+    const [leftYDomain, setLeftYDomain] = useState(['dataMin', 'dataMax']);
 
     const { mouseDown, mouseUp, mouseMove, mouseLeave, zoomOutButton, rangeButtonsBar, zoomReferenceArea, data } = useRechartsZoom({
         combodata, xKey: 'timestamp', yKey: useUsd ? 'debtUsd' : 'debt', yAxisId: 'left', 
@@ -40,9 +41,23 @@ export const DbrComboChart = ({
         [KEYS.BURN]: true,
         [KEYS.ISSUANCE]: true,
         [KEYS.STAKERS_ISSUANCE]: false,
+        // right y axis
         [KEYS.DBR_PRICE]: true,
         [KEYS.INV_MC]: false,
-    })
+    });
+
+    useEffect(() => {
+        if(!combodata?.length) {
+            return;
+        }
+        const suffix = useUsd ? 'Usd' : '';
+        const keys = ([actives[KEYS.BURN] ? 'debt'+suffix : '', actives[KEYS.ISSUANCE] ? 'yearlyRewardRate'+suffix : '', actives[KEYS.STAKERS_ISSUANCE] ? 'stakersYearlyRewardRate'+suffix : ''])
+            .filter(d => !!d);
+        
+        const dataMin = Math.min(...combodata.map(d => Math.min(...keys.map(k => (d[k]||0)))));
+        const dataMax = Math.max(...combodata.map(d => Math.max(...keys.map(k => (d[k]||0)))));
+        setLeftYDomain([dataMin, Math.ceil(dataMax*1.05)]);
+    }, [actives, combodata, useUsd]);
 
     const _axisStyle = axisStyle || {
         tickLabels: { fill: themeStyles.colors.mainTextColor, fontFamily: 'Inter', fontSize: '14px', userSelect: 'none'  },
@@ -99,8 +114,8 @@ export const DbrComboChart = ({
                 <XAxis minTickGap={28} interval="preserveStartEnd" style={_axisStyle.tickLabels} dataKey="timestamp" scale="time" type={'number'} allowDataOverflow={true} domain={['dataMin', 'dataMax']} tickFormatter={(v) => {
                     return moment(v).format('MMM Do')
                 }} />
-                <YAxis opacity={(actives[KEYS.BURN] || actives[KEYS.ISSUANCE]|| actives[KEYS.STAKERS_ISSUANCE]) ? 1 : 0} style={_axisStyle.tickLabels} yAxisId="left" tickFormatter={(v) => smartShortNumber(v, 2, useUsd)} />
-                <YAxis opacity={(actives[KEYS.DBR_PRICE] || actives[KEYS.INV_MC]) ? 1 : 0} style={_axisStyle.tickLabels} yAxisId="right" orientation="right" tickFormatter={(v) => shortenNumber(v, 4, true)} />
+                <YAxis opacity={(actives[KEYS.BURN] || actives[KEYS.ISSUANCE]|| actives[KEYS.STAKERS_ISSUANCE]) ? 1 : 0} style={_axisStyle.tickLabels} yAxisId="left" domain={leftYDomain} allowDataOverflow={true} tickFormatter={(v) => smartShortNumber(v, 2, useUsd)} />
+                <YAxis opacity={(actives[KEYS.DBR_PRICE] || actives[KEYS.INV_MC]) ? 1 : 0} style={_axisStyle.tickLabels} yAxisId="right" orientation="right" allowDataOverflow={true} tickFormatter={(v) => shortenNumber(v, 4, true)} />
                 <Tooltip
                     wrapperStyle={_axisStyle.tickLabels}
                     labelFormatter={v => moment(v).format('MMM Do YYYY')}
