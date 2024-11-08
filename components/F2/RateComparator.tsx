@@ -373,7 +373,7 @@ const UngroupedComparator = ({ allRates, themeStyles, isSmallerThan = false, sho
                 <SimpleGrid gap="3" width={`${fields.length * 210}px`} columns={fields.length}>
                     {
                         fields.map(f => {
-                            return <Text color={themeStyles.colors.mainTextColor} key={f} fontWeight="extrabold" fontSize="28px">
+                            return <Text color={themeStyles.colors.mainTextColor} key={f} fontWeight="extrabold" fontSize="26px">
                                 {FIELDS[f]}
                             </Text>
                         })
