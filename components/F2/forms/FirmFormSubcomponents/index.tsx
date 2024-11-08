@@ -88,7 +88,7 @@ export const FirmWithdrawInputSubline = ({
 }) => {
     return <HStack w='full' justify="space-between">
         <AmountInfos
-            label={useLeverageInMode ? 'Sell all' : 'Deposits'}
+            label={useLeverageInMode ? 'Fully deleverage and exit position' : 'Deposits'}
             value={deposits}
             price={price}
             textProps={{
