@@ -2,7 +2,8 @@ import { Contract } from "ethers";
 import { getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from "./f2";
 import { formatUnits } from "@ethersproject/units";
 import { aprToApy, getBnToNumber } from "./markets";
-import { BLOCKS_PER_YEAR } from "@app/config/constants";
+import { BLOCKS_PER_YEAR, BURN_ADDRESS } from "@app/config/constants";
+import { firmCollaterals } from "@app/components/ThirdParties/tokenlist";
 
 const USDC = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
 const DAI = '0x6B175474E89094C44Da98b954EedeAC495271d0F'
@@ -135,4 +136,17 @@ export const getFirmRate = async (provider) => {
 
 export const getSparkRate = async () => {
     return { project: 'Spark', hasLeverage: false, borrowRate: 8, type: 'variable', collateral: 'Multiple', borrowToken: 'DAI', link: 'https://app.spark.fi' };
+}
+
+export const getFluidRates = async () => {
+    const res = await fetch(`https://api.fluid.instadapp.io/v2/1/vaults`);
+    const data = await res.json();
+    const firmCollateralsLower = firmCollaterals.map(c => c.toLowerCase());
+    const filteredResults = data
+        .filter(vault => {
+            return firmCollateralsLower.includes(vault.supplyToken.token0.symbol.toLowerCase()) && vault.supplyToken?.token1?.address === BURN_ADDRESS && vault.borrowToken.token0.symbol === 'USDC' && vault.borrowToken?.token1?.address === BURN_ADDRESS;
+        });
+    return filteredResults.map(vault => {
+        return { project: 'Fluid', hasLeverage: true, borrowRate: vault.borrowRate.vault.rate / 100, type: 'variable', collateral: vault.supplyToken.token0.symbol, borrowToken: vault.borrowToken.token0.symbol, link: `https://app.fluid.finance/vaults/1/${vault.id}` }
+    });
 }
