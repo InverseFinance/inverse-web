@@ -56,7 +56,7 @@ export const RateComparatorPage = () => {
                         description="Go to FiRM"
                         href="/firm"
                     >
-                        <SimpleGrid minChildWidth="120px" gap="4" w='full'>
+                        <SimpleGrid minChildWidth="250px" gap="4" w='full'>
                             {
                                 isLoading ? <SkeletonBlob noOfLines={1} w='full' h='30px' /> : markets
                                     .filter(m => !m.borrowPaused)
