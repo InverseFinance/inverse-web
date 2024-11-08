@@ -11,7 +11,7 @@ const orders = {
     "INV": 2,
     "DBR": 3,
 }
-const firmCollaterals = F2_MARKETS.map(m => {
+export const firmCollaterals = F2_MARKETS.map(m => {
     return getToken(TOKENS, m.collateral)?.symbol;
 });
 const MAIN_SYMBOLS = [...new Set(['INV', 'DOLA', 'DBR', 'sDOLA', 'USDC', 'DAI', 'WETH', 'FRAX', 'WBTC', 'cbBTC', 'wstETH', 'MATIC', 'OP', 'ARB', 'BNB', 'ETH', 'AVAX', ...firmCollaterals])];

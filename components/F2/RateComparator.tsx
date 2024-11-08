@@ -23,6 +23,7 @@ const projectImages = {
     'Compound': 'https://icons.llamao.fi/icons/protocols/compound?w=48&h=48',
     'FiRM': 'https://icons.llamao.fi/icons/protocols/inverse-finance?w=48&h=48',
     'Spark': 'https://icons.llamao.fi/icons/protocols/spark?w=48&h=48',
+    'Fluid': 'https://icons.llamao.fi/icons/protocols/fluid?w=48&h=48',
 }
 
 const projectCollaterals = {
@@ -32,6 +33,7 @@ const projectCollaterals = {
     'Compound': ['WETH', 'WBTC', 'COMP', 'LINK', 'UNI'],
     'Spark': ['WETH', 'WBTC', 'wstETH', 'rETH'],
     'FiRM': [],
+    'Fluid': ['WBTC', 'cbBTC', 'wstETH', 'sUSDe', 'wstETH', 'sUSDe'],
 }
 
 const ProjectToken = ({ project, borrowToken, isMobile = false, themeStyles }: { project: string }) => {
@@ -205,7 +207,7 @@ const columns = [
     },
     {
         field: 'hasLeverage',
-        label: 'Has Leverage',
+        label: 'Looping',
         header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
         value: ({ hasLeverage }) => {
             return <Cell fontWeight="bold" color={hasLeverage ? 'success' : undefined} minWidth="70px" alignItems="center" justify="center" >
@@ -371,7 +373,7 @@ const UngroupedComparator = ({ allRates, themeStyles, isSmallerThan = false, sho
                 <SimpleGrid gap="3" width={`${fields.length * 210}px`} columns={fields.length}>
                     {
                         fields.map(f => {
-                            return <Text color={themeStyles.colors.mainTextColor} key={f} fontWeight="extrabold" fontSize="28px">
+                            return <Text color={themeStyles.colors.mainTextColor} key={f} fontWeight="extrabold" fontSize="26px">
                                 {FIELDS[f]}
                             </Text>
                         })
