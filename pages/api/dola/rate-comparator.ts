@@ -2,10 +2,10 @@ import 'source-map-support'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types';
-import { getAaveV3Rate, getAaveV3RateDAI, getCompoundRate, getCrvUSDRate, getFirmRate, getFraxRate, getSparkRate } from '@app/util/borrow-rates-comp';
+import { getAaveV3Rate, getAaveV3RateDAI, getCompoundRate, getCrvUSDRate, getFirmRate, getFluidRates, getFraxRate, getSparkRate } from '@app/util/borrow-rates-comp';
 
 export default async function handler(req, res) {
-  const cacheKey = `borrow-rates-compare-v1.1.4`;
+  const cacheKey = `borrow-rates-compare-v1.1.5`;
 
   try {
     const cacheDuration = 600;
@@ -19,7 +19,7 @@ export default async function handler(req, res) {
 
     const provider = getProvider(NetworkIds.mainnet);
 
-    const rates = await Promise.all([
+    const rates = (await Promise.all([
       getAaveV3Rate(provider),
       // getAaveV3RateDAI(provider),
       getCompoundRate(provider),
@@ -37,7 +37,8 @@ export default async function handler(req, res) {
       getFraxRate(provider, '0xb5Ae5b75C0DF5632c572A657109375646Ce66f90', 'sUSDe'),
       getSparkRate(),
       getFirmRate(provider),
-    ]);
+      getFluidRates(),
+    ])).flat();
 
     rates.sort((a, b) => {
       return a.type === 'fixed' || a.borrowRate < b.borrowRate ? -1 : a.borrowRate - b.borrowRate;
