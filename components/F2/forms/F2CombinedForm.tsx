@@ -133,7 +133,8 @@ export const F2CombinedForm = ({
         leverageMinDebtReduced,
     } = useContext(F2MarketContext);
 
-    const { isMultisig } = useMultisig();
+    const { isMultisig, isWhitelisted } = useMultisig();
+    const isNotWhitelistedMultisig = useMemo(() => isMultisig && !isWhitelisted, [isMultisig, isWhitelisted]);
 
     const [isLargerThan] = useMediaQuery('(min-width: 1280px)');
     const { isOpen: isWethSwapModalOpen, onOpen: onWethSwapModalOpen, onClose: onWethSwapModalClose } = useDisclosure();
@@ -380,7 +381,7 @@ export const F2CombinedForm = ({
     const borrowLimitDisabledCondition = (market.fixedFeed && newCreditLeft < 1) || (!market.fixedFeed && newPerc < 1);
     const disabledConditions = {
         'deposit': ((collateralAmountNum <= 0 && !useLeverageInMode) || inputBalance < inputAmountNum) || (isWrongCustomRecipient && isDepositOnlyCase),
-        'borrow': duration <= 0 || debtAmountNum <= 0 || borrowLimitDisabledCondition || showNeedDbrMessage || market.leftToBorrow < 1 || debtAmountNum > market.leftToBorrow || notEnoughToBorrowWithAutobuy || minDebtDisabledCondition || disabledDueToLeverage || showMinDebtMessage || isMultisig,
+        'borrow': duration <= 0 || debtAmountNum <= 0 || borrowLimitDisabledCondition || showNeedDbrMessage || market.leftToBorrow < 1 || debtAmountNum > market.leftToBorrow || notEnoughToBorrowWithAutobuy || minDebtDisabledCondition || disabledDueToLeverage || showMinDebtMessage || isNotWhitelistedMultisig,
         'repay': (debtAmountNum <= 0 && !useLeverageInMode) || debtAmountNum > debt || showNotEnoughDolaToRepayMessage || (isAutoDBR && !parseFloat(dbrSellAmount)) || disabledDueToLeverage || showMinDebtMessage,
         'withdraw': ((collateralAmountNum <= 0 && !useLeverageInMode) || collateralAmountNum > deposits || borrowLimitDisabledCondition || dbrBalance < 0),
     }

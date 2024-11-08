@@ -36,7 +36,7 @@ const useDefaultPreview = ['CRV', 'cvxCRV', 'cvxFXS', 'st-yCRV']
 
 export const F2MarketPage = ({ market }: { market: string }) => {
     const router = useRouter();
-    const { isMultisig } = useMultisig();
+    const { isMultisig, isWhitelisted } = useMultisig();
     const { markets } = useDBRMarkets(market);
     const f2market = markets.length > 0 && !!market ? markets[0] : undefined;
 
@@ -136,7 +136,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                 <InvInconsistentFirmDelegation />
                                             </ErrorBoundary>
                                             {
-                                                isMultisig && <WarningMessage
+                                                isMultisig && !isWhitelisted && <WarningMessage
                                                     alertProps={{ w: 'full' }}
                                                     title="Using a Multisig:"
                                                     description={

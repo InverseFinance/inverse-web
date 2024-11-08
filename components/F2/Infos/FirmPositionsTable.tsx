@@ -48,8 +48,8 @@ const columns = [
         value: ({ market }) => {
             const { name, icon, marketIcon, underlying } = market;
             return <Cell minWidth="200px" justify="flex-start" alignItems="center" >
-                <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="40px" w="60px" backgroundSize='contain' backgroundRepeat="no-repeat" />
-                <CellText>{name}</CellText>
+                <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="35px" w="50px" backgroundSize='contain' backgroundRepeat="no-repeat" />
+                <CellText fontSize={{ base: '14px', '2xl': name.length > 14 ? '14px' : name.length > 12 ? '16px' : '20px' }}>{name}</CellText>
             </Cell>
         },
         showFilter: true,

@@ -1,12 +1,17 @@
 import { MULTISIG_ABI } from "@app/config/abis";
+import { getNetworkConfigConstants } from "@app/util/networks";
 import { useWeb3React } from "@web3-react/core";
 import { GnosisSafe } from "@web3-react/gnosis-safe";
 import { Contract } from "ethers";
 import useSWR from "swr";
+import useEtherSWR from "./useEtherSWR";
+
+const { F2_CONTROLLER } = getNetworkConfigConstants();
 
 export const useMultisig = (): {
     isSafeMultisigConnector: boolean,
     isMultisig: boolean,
+    isWhitelisted: boolean,
 } => {
     const { connector, account, provider } = useWeb3React();
     const { data, error } = useSWR(`is-multisig-${account}`, async () => {
@@ -17,8 +22,9 @@ export const useMultisig = (): {
     }, {
         shouldRetryOnError: false,
     });
-    if(!account || !connector) return { isSafeMultisigConnector: false, isMultisig: false };
+    const { data: isWhitelisted } = useEtherSWR([F2_CONTROLLER, 'contractAllowlist', account]);
+    if(!account || !connector) return { isSafeMultisigConnector: false, isMultisig: false, isWhitelisted: false };
     const isSafeConnector =  !!connector && connector instanceof GnosisSafe;
-    if(isSafeConnector) return { isSafeMultisigConnector: true, isMultisig: true };    
-    return { isSafeMultisigConnector: false, isMultisig: !error && !!data }
+    if(isSafeConnector) return { isSafeMultisigConnector: true, isMultisig: true, isWhitelisted };    
+    return { isSafeMultisigConnector: false, isMultisig: !error && !!data, isWhitelisted }
 }
