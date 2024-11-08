@@ -205,7 +205,7 @@ const columns = [
     },
     {
         field: 'hasLeverage',
-        label: 'Has Leverage',
+        label: 'Looping',
         header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
         value: ({ hasLeverage }) => {
             return <Cell fontWeight="bold" color={hasLeverage ? 'success' : undefined} minWidth="70px" alignItems="center" justify="center" >
