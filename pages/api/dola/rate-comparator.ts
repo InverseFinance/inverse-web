@@ -5,7 +5,7 @@ import { NetworkIds } from '@app/types';
 import { getAaveV3Rate, getAaveV3RateDAI, getCompoundRate, getCrvUSDRate, getFirmRate, getFluidRates, getFraxRate, getSparkRate } from '@app/util/borrow-rates-comp';
 
 export default async function handler(req, res) {
-  const cacheKey = `borrow-rates-compare-v1.1.5`;
+  const cacheKey = `borrow-rates-compare-v1.1.6`;
 
   try {
     const cacheDuration = 600;
