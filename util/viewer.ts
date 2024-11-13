@@ -241,7 +241,9 @@ export const formatMarketData = (market: MarketData<false>): MarketData<true> =>
     return {
         market: market.market,
         collateral: market.collateral,
+        oracle: market.oracle,
         oracleFeed: market.oracleFeed,
+        borrowController: market.borrowController,
         collateralSymbol: market.collateralSymbol,
         collateralName: market.collateralName,
         decimals,
