@@ -1,10 +1,10 @@
 import { Stack, VStack, useMediaQuery, Text, Checkbox, HStack } from "@chakra-ui/react"
 import { useEventsAsChartData } from "@app/hooks/misc";
 import { DefaultCharts } from "@app/components/Transparency/DefaultCharts";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PieChartRecharts } from "@app/components/Transparency/PieChartRecharts";
 import { useAppTheme } from "@app/hooks/useAppTheme";
-import { getPreviousThursdayUtcDateOfTimestamp } from "@app/util/misc";
+import { getPreviousThursdayUtcDateOfTimestamp, utcDateStringToTimestamp } from "@app/util/misc";
 import { BarChartRecharts } from "@app/components/Transparency/BarChartRecharts";
 
 const maxChartWidth = 1200;
@@ -23,7 +23,32 @@ const surroundByZero = (chartDataAcc: { x: number, y: number }[]) => {
 export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useInvAmount = false }) => {
     const [useUsd, setUseUsd] = useState(false);
     const { chartData: chartDataAcc } = useEventsAsChartData(chartEvents, '_acc_', isTotal || useUsd ? 'worthIn' : useInvAmount ? 'invIn' : 'dolaIn', true, true);
+    
     const { chartData: chartDataAccUsd } = useEventsAsChartData(chartEvents, '_acc_', 'worthIn', true, true);
+    
+    const dates = useMemo(() => {
+        return [...new Set(chartDataAccUsd.map(e => e.utcDate))];
+    }, [chartEvents]);
+
+    const chartDailyDataAccUsd = dates.map(d => {
+        const last = chartDataAccUsd.findLast(cd => cd.utcDate === d);
+        return {
+            x: utcDateStringToTimestamp(d),
+            utcDate: d,
+            y: last?.y || 0,
+            yDay: chartDataAccUsd.filter(cd => cd.utcDate === d).reduce((prev, curr) => prev+curr.yDay, 0),
+        }
+    });
+    const chartDailyDataAcc = dates.map(d => {
+        const last = chartDataAcc.findLast(cd => cd.utcDate === d);
+        return {
+            x: utcDateStringToTimestamp(d),
+            utcDate: d,
+            y: last?.y || 0,
+            yDay: chartDataAcc.filter(cd => cd.utcDate === d).reduce((prev, curr) => prev+curr.yDay, 0),
+        }
+    })
+    
     const { chartData: chartDataArb } = useEventsAsChartData(chartEvents.filter(e => e.arb > 0), 'arbPerc', 'arbPerc', true, true);
     const virtualAuctionBuysEvents = events.filter(e => e.auctionType === 'Virtual');
     const sdolaAuctionBuysEvents = events.filter(e => e.auctionType === 'sDOLA');
@@ -94,7 +119,7 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
                         showMonthlyBarChart={false}
                         maxChartWidth={autoChartWidth}
                         chartWidth={autoChartWidth}
-                        chartData={surroundByZero(chartDataAccUsd)}
+                        chartData={surroundByZero(chartDailyDataAccUsd)}
                         isDollars={true}
                         smoothLineByDefault={false}
                         areaProps={{ secondaryRef: 'yDay', secondaryAsLeftAxis: true, secondaryAsUsd: true, secondaryPrecision: 2, secondaryLabel: isTotal ? 'Income' : useInvAmount ? 'INV income' : 'DOLA income', secondaryType: 'stepAfter', showSecondary: true, title: 'Income from all DBR auction buys', defaultRange: '1M', fillInByDayInterval: true, id: `dbr-auction-buys-chart-usd`, showRangeBtns: true, yLabel: `Acc. ${isTotal ? '' : useInvAmount ? 'INV' : 'DOLA'} income`, useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'secondary', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
@@ -105,7 +130,7 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
                         showMonthlyBarChart={false}
                         maxChartWidth={autoChartWidth}
                         chartWidth={autoChartWidth}
-                        chartData={surroundByZero(chartDataAcc)}
+                        chartData={surroundByZero(chartDailyDataAcc)}
                         isDollars={false}
                         smoothLineByDefault={false}
                         areaProps={{ secondaryRef: 'yDay', secondaryAsLeftAxis: true, secondaryAsUsd: false, secondaryPrecision: 2, secondaryLabel: useInvAmount ? 'INV income' : 'DOLA income', secondaryType: 'stepAfter', showSecondary: true, title: 'Income from all DBR auction buys', defaultRange: '1M', fillInByDayInterval: true, id: `dbr-auction-buys-chart`, showRangeBtns: true, yLabel: `Acc. ${useInvAmount ? 'INV' : 'DOLA'} income`, useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'secondary', allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD'] }}
