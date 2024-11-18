@@ -1246,7 +1246,7 @@ const chainTokens = {
       isStable: true,
       isCrvLP: true,
       pairs: [
-        chainTokenAddresses["1"].SDOLA, chainTokenAddresses["1"].SCRVUSD
+        chainTokenAddresses["1"].SCRVUSD, chainTokenAddresses["1"].SDOLA
       ],
       image: TOKEN_IMAGES.DOLA,
       link: 'https://curve.fi/#/ethereum/pools/factory-stable-ng-297/deposit',
