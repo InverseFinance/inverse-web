@@ -5,14 +5,15 @@ import { CHAIN_TOKENS } from '@app/variables/tokens'
 import { getLPPrice } from '@app/util/contracts'
 import { getProvider } from '@app/util/providers'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { COMPTROLLER_ABI, ORACLE_ABI } from '@app/config/abis'
+import { COMPTROLLER_ABI, ORACLE_ABI, SVAULT_ABI } from '@app/config/abis'
 import { BigNumber, Contract } from 'ethers'
 import { formatUnits } from '@ethersproject/units'
 import { getTokenData } from '@app/util/livecoinwatch'
 import { getDolaUsdPriceOnCurve } from '@app/util/f2'
 import { dolaStakingCacheKey } from './dola-staking'
+import { getBnToNumber } from '@app/util/markets'
 
-export const pricesCacheKey = `prices-v1.0.8`;
+export const pricesCacheKey = `prices-v1.0.9`;
 export const cgPricesCacheKey = `cg-prices-v1.0.0`;
 
 export default async function handler(req, res) {
@@ -100,10 +101,13 @@ export default async function handler(req, res) {
     Object.entries(geckoPrices).forEach(([key, value]) => {
       prices[key] = value.usd;
     });
+
+    const sUSDSContract = new Contract('0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD', SVAULT_ABI, provider);
     
-    const [dolaUsdCurveData, dolaStakingData] = await Promise.all([
+    const [dolaUsdCurveData, dolaStakingData, sUSDSExRateBn] = await Promise.all([
       getDolaUsdPriceOnCurve(getProvider(NetworkIds.mainnet)),
-      getCacheFromRedis(dolaStakingCacheKey, false)
+      getCacheFromRedis(dolaStakingCacheKey, false),
+      sUSDSContract.convertToAssets('1000000000000000000'),
     ]);
     
     const { price: dolaOnChainPrice, tvl: crvUsdDolaTvl } = dolaUsdCurveData;
@@ -137,6 +141,8 @@ export default async function handler(req, res) {
 
     prices['staked-dola'] = prices['dola-usd'] * sDolaExRate;
     prices['SDOLA'] = prices['staked-dola'];
+    prices['sDOLA'] = prices['staked-dola'];
+    prices['sUSDS'] = (prices['usds']||1) * getBnToNumber(sUSDSExRateBn);
 
     prices['_timestamp'] = +(new Date());
 
