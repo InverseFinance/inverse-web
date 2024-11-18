@@ -13,7 +13,7 @@ import { getDolaUsdPriceOnCurve } from '@app/util/f2'
 import { dolaStakingCacheKey } from './dola-staking'
 import { getBnToNumber } from '@app/util/markets'
 
-export const pricesCacheKey = `prices-v1.0.8`;
+export const pricesCacheKey = `prices-v1.0.9`;
 export const cgPricesCacheKey = `cg-prices-v1.0.0`;
 
 export default async function handler(req, res) {
