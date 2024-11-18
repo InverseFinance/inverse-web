@@ -592,7 +592,7 @@ export const DOLA_SAVINGS_ABI = [
   "event Claim(address indexed caller, address indexed recipient, uint amount)",
 ];
 // ERC4626, 
-const SVAULT_ABI = [
+export const SVAULT_ABI = [
   "function buyDBR(uint, uint) public",
   "function deposit(uint assets, address receiver) public",
   "function withdraw(uint assets, address receiver, address owner) public",
