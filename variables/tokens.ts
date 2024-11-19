@@ -1845,8 +1845,8 @@ const chainTokens = {
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
       isLP: true,
-      isStable: true,
-      isVeloLP: false,
+      isVeloLP: true,
+      isStable: false,
       pairs: [
         chainTokenAddresses["10"].COMP, chainTokenAddresses["10"].DOLA
       ],
@@ -2560,6 +2560,14 @@ const chainTokens = {
       image: TOKEN_IMAGES.USDB,
       coingeckoId: 'usdb',
     },
+    [chainTokenAddresses["81457"].USDZ]: {
+      address: chainTokenAddresses["81457"].USDZ,
+      symbol: 'USDz',
+      name: 'USDz',
+      image: TOKEN_IMAGES['USDz'],
+      decimals: 18,
+      coingeckoId: 'anzen-usdz',
+    },
     [chainTokenAddresses["81457"].DOLAUSDBFENIX]: {
       address: chainTokenAddresses["81457"].DOLAUSDBFENIX,
       name: 'DOLA-USDB',
@@ -2836,7 +2844,7 @@ const chainTokens = {
       isVeloLP: true,
       isStable: false,
       pairs: [
-        chainTokenAddresses["8453"].DOLA, chainTokenAddresses["8453"].PAL
+        chainTokenAddresses["8453"].PAL, chainTokenAddresses["8453"].DOLA
       ],
       protocolImage: PROTOCOL_IMAGES.AERO,
     },
