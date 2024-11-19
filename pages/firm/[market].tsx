@@ -30,7 +30,7 @@ import { useMultisig } from '@app/hooks/useSafeMultisig'
 import Link from '@app/components/common/Link'
 import { FirmInsuranceCover } from '@app/components/common/InsuranceCover'
 
-const { F2_MARKETS } = getNetworkConfigConstants();
+const { F2_MARKETS, F2_CONTROLLER } = getNetworkConfigConstants();
 
 const useDefaultPreview = ['CRV', 'cvxCRV', 'cvxFXS', 'st-yCRV']
 
@@ -69,12 +69,23 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                         py="1"
                         px="4"
                     >
-                        <Text fontSize="16px" fontWeight="bold" color="white">
-                            Daily borrow limit resets in
-                        </Text>
-                        <Text fontSize="16px" fontWeight="bold" color="white">
-                            <DailyLimitCountdown />
-                        </Text>
+                        {
+                            f2market?.borrowController === F2_CONTROLLER ? <>
+                                <Text fontSize="16px" fontWeight="bold" color="white">
+                                    Daily borrow limit resets in
+                                </Text>
+                                <Text fontSize="16px" fontWeight="bold" color="white">
+                                    <DailyLimitCountdown />
+                                </Text>
+                            </> : <>
+                                <Text fontSize="16px" fontWeight="bold" color="white">
+                                    Daily borrow limit reached
+                                </Text>
+                                <Text fontSize="16px" fontWeight="bold" color="white">
+                                    Gradually returning
+                                </Text>
+                            </>
+                        }
                     </VStack>
                 }
                 {
