@@ -8,10 +8,10 @@ import useEtherSWR from "./useEtherSWR";
 
 const { F2_CONTROLLER } = getNetworkConfigConstants();
 
-export const useMultisig = (): {
+export const useMultisig = (borrowController?: string): {
     isSafeMultisigConnector: boolean,
     isMultisig: boolean,
-    isWhitelisted: boolean,
+    isWhitelisted: boolean,    
 } => {
     const { connector, account, provider } = useWeb3React();
     const { data, error } = useSWR(`is-multisig-${account}`, async () => {
@@ -22,9 +22,9 @@ export const useMultisig = (): {
     }, {
         shouldRetryOnError: false,
     });
-    const { data: isWhitelisted } = useEtherSWR([F2_CONTROLLER, 'contractAllowlist', account]);
+    const { data: isWhitelisted } = useEtherSWR([borrowController||F2_CONTROLLER, 'contractAllowlist', account]);
     if(!account || !connector) return { isSafeMultisigConnector: false, isMultisig: false, isWhitelisted: false };
     const isSafeConnector =  !!connector && connector instanceof GnosisSafe;
-    if(isSafeConnector) return { isSafeMultisigConnector: true, isMultisig: true, isWhitelisted };    
+    if(isSafeConnector) return { isSafeMultisigConnector: true, isMultisig: true, isWhitelisted };
     return { isSafeMultisigConnector: false, isMultisig: !error && !!data, isWhitelisted }
 }

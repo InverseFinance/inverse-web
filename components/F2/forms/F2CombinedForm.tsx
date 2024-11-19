@@ -133,7 +133,7 @@ export const F2CombinedForm = ({
         leverageMinDebtReduced,
     } = useContext(F2MarketContext);
 
-    const { isMultisig, isWhitelisted } = useMultisig();
+    const { isMultisig, isWhitelisted } = useMultisig(market.borrowController);
     const isNotWhitelistedMultisig = useMemo(() => isMultisig && !isWhitelisted, [isMultisig, isWhitelisted]);
 
     const [isLargerThan] = useMediaQuery('(min-width: 1280px)');

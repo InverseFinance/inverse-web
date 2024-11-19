@@ -30,15 +30,15 @@ import { useMultisig } from '@app/hooks/useSafeMultisig'
 import Link from '@app/components/common/Link'
 import { FirmInsuranceCover } from '@app/components/common/InsuranceCover'
 
-const { F2_MARKETS } = getNetworkConfigConstants();
+const { F2_MARKETS, F2_CONTROLLER } = getNetworkConfigConstants();
 
 const useDefaultPreview = ['CRV', 'cvxCRV', 'cvxFXS', 'st-yCRV']
 
 export const F2MarketPage = ({ market }: { market: string }) => {
     const router = useRouter();
-    const { isMultisig, isWhitelisted } = useMultisig();
     const { markets } = useDBRMarkets(market);
     const f2market = markets.length > 0 && !!market ? markets[0] : undefined;
+    const { isMultisig, isWhitelisted } = useMultisig(f2market?.borrowController);
 
     const needCountdown = !f2market?.borrowPaused && f2market?.leftToBorrow < f2market?.dailyLimit && f2market?.dolaLiquidity > 0 && f2market?.leftToBorrow < f2market?.dolaLiquidity && shortenNumber(f2market?.dolaLiquidity, 2) !== shortenNumber(f2market?.leftToBorrow, 2);
 
@@ -69,12 +69,23 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                         py="1"
                         px="4"
                     >
-                        <Text fontSize="16px" fontWeight="bold" color="white">
-                            Daily borrow limit resets in
-                        </Text>
-                        <Text fontSize="16px" fontWeight="bold" color="white">
-                            <DailyLimitCountdown />
-                        </Text>
+                        {
+                            f2market?.borrowController === F2_CONTROLLER ? <>
+                                <Text fontSize="16px" fontWeight="bold" color="white">
+                                    Daily borrow limit resets in
+                                </Text>
+                                <Text fontSize="16px" fontWeight="bold" color="white">
+                                    <DailyLimitCountdown />
+                                </Text>
+                            </> : <>
+                                <Text fontSize="16px" fontWeight="bold" color="white">
+                                    Daily borrow limit reached
+                                </Text>
+                                <Text fontSize="16px" fontWeight="bold" color="white">
+                                    Gradually returning
+                                </Text>
+                            </>
+                        }
                     </VStack>
                 }
                 {

@@ -30,6 +30,9 @@ import { RSubmitButton } from "../common/Button/RSubmitButton";
 import { InfoMessage } from "../common/Messages";
 import ConfirmModal from "../common/Modal/ConfirmModal";
 import { Input } from "../common/Input";
+import { getNetworkConfigConstants } from "@app/util/networks";
+
+const { F2_CONTROLLER } = getNetworkConfigConstants();
 
 export const MARKET_INFOS = {
     'INV': {
@@ -456,7 +459,7 @@ const columns = [
         label: "Available to borrow",
         header: ({ ...props }) => <ColHeader minWidth="135px" justify="center"  {...props} />,
         tooltip: 'Markets can have daily borrow limits, this shows the DOLA left to borrow for the day (UTC timezone)',
-        value: ({ leftToBorrow, totalDebt, dailyLimit, dolaLiquidity, borrowPaused }) => {
+        value: ({ leftToBorrow, totalDebt, dailyLimit, dolaLiquidity, borrowPaused, borrowController }) => {
             return <Cell minWidth="135px" justify="center" alignItems="center" direction="column" spacing="0" >
                 {
                     borrowPaused ? <CellText>Borrow Paused</CellText> : <>
@@ -464,7 +467,10 @@ const columns = [
                         {
                             leftToBorrow < dailyLimit && dolaLiquidity > 0 && leftToBorrow < dolaLiquidity && smartShortNumber(dolaLiquidity, 2) !== smartShortNumber(leftToBorrow, 2)
                             && <CellText overflow="visible" whiteSpace="nowrap" minW="130px" textAlign={{ base: 'right', sm: 'left' }} fontSize={{ base: '10px', sm: '12px' }} color="mainTextColorLight2">
-                                <DailyLimitCountdown prefix="Limit resets in " />
+                                {
+                                    borrowController === F2_CONTROLLER ?
+                                     <DailyLimitCountdown prefix="Limit resets in " /> : <>Gradual return to daily limit</>
+                                }
                             </CellText>
                         }
                     </>
