@@ -36,9 +36,9 @@ const useDefaultPreview = ['CRV', 'cvxCRV', 'cvxFXS', 'st-yCRV']
 
 export const F2MarketPage = ({ market }: { market: string }) => {
     const router = useRouter();
-    const { isMultisig, isWhitelisted } = useMultisig();
     const { markets } = useDBRMarkets(market);
     const f2market = markets.length > 0 && !!market ? markets[0] : undefined;
+    const { isMultisig, isWhitelisted } = useMultisig(f2market?.borrowController);
 
     const needCountdown = !f2market?.borrowPaused && f2market?.leftToBorrow < f2market?.dailyLimit && f2market?.dolaLiquidity > 0 && f2market?.leftToBorrow < f2market?.dolaLiquidity && shortenNumber(f2market?.dolaLiquidity, 2) !== shortenNumber(f2market?.leftToBorrow, 2);
 
