@@ -11,6 +11,7 @@ import { callWithHigherGL } from "./contracts";
 import { calculateMaxLeverage, uniqueBy } from "./misc";
 import { getMulticallOutput } from "./multicall";
 import { FIRM_ESCROWS } from "@app/variables/extraConfig";
+import { inverseViewer } from "./viewer";
 
 const { F2_HELPER, F2_MARKETS } = getNetworkConfigConstants();
 
@@ -437,6 +438,7 @@ export const getHistoricDbrPriceOnCurve = async (SignerOrProvider: JsonRpcSigner
 
 export const getDolaUsdPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3Provider, block?: BlockTag) => {
     try {
+        const viewer = inverseViewer(SignerOrProvider);
         const crvPool = new Contract(
             '0x8272e1a3dbef607c04aa6e5bd3a1a134c8ac063b',
             [
@@ -446,19 +448,13 @@ export const getDolaUsdPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | W
             ],
             SignerOrProvider,
         );
-        const crvUsdAggreg = new Contract(
-            '0x18672b1b0c623a30089A280Ed9256379fb0E4E62',
-            ['function last_price() public view returns(uint)',],
-            SignerOrProvider,
-        );
-        const [dolaPriceInCrvUsd, crvUsdLastPrice, totalSupply, lpVirtualPrice] = await getMulticallOutput([
-            { contract: crvPool, functionName: 'price_oracle' },
-            { contract: crvUsdAggreg, functionName: 'last_price' },
+        const [dolaPriceUsd, totalSupply, lpVirtualPrice] = await getMulticallOutput([
+            { contract: viewer.tokensContract, functionName: 'getDolaPrice' },
             { contract: crvPool, functionName: 'totalSupply' },
             { contract: crvPool, functionName: 'get_virtual_price' },
         ], 1, block);
         return {
-            price: getBnToNumber(crvUsdLastPrice) / getBnToNumber(dolaPriceInCrvUsd),
+            price: getBnToNumber(dolaPriceUsd),
             tvl: getBnToNumber(lpVirtualPrice) * getBnToNumber(totalSupply),
         };
     } catch (e) {

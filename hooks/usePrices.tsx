@@ -6,7 +6,7 @@ import useEtherSWR from './useEtherSWR'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useCacheFirstSWR, useCustomSWR } from './useCustomSWR'
-import { HAS_REWARD_TOKEN } from '@app/config/constants'
+import { HAS_REWARD_TOKEN, TOKENS_VIEWER } from '@app/config/constants'
 import { formatUnits } from '@ethersproject/units'
 import { TOKENS, UNDERLYING } from '@app/variables/tokens'
 import { getLPPrice } from '@app/util/contracts'
@@ -121,29 +121,17 @@ export const useINVPrice = (): SWR & { price: number } => {
 }
 
 export const useDOLAPriceLive = (): { price: number | undefined } => {
-  const { data: dolaCrvUsdLpPriceOracle } = useEtherSWR({
+  const { data: dolaPrice } = useEtherSWR({
     args: [
-      ['0x8272e1a3dbef607c04aa6e5bd3a1a134c8ac063b', 'price_oracle'],
+      [TOKENS_VIEWER, 'getDolaPrice'],
     ],
     abi: [
-      'function price_oracle() public view returns(uint)',
+      'function getDolaPrice() public view returns(uint)',
     ],
   });
-
-  const { data: crvUsdLastPrice } = useEtherSWR({
-    args: [
-      ['0x18672b1b0c623a30089A280Ed9256379fb0E4E62', 'last_price'],
-    ],
-    abi: [
-      'function last_price() public view returns(uint)',
-    ],
-  });
-
-  const price_oracle = dolaCrvUsdLpPriceOracle && dolaCrvUsdLpPriceOracle[0] ? getBnToNumber(dolaCrvUsdLpPriceOracle[0]) : undefined;
-  const last_price = crvUsdLastPrice && crvUsdLastPrice[0] ? getBnToNumber(crvUsdLastPrice[0]) : undefined;
 
   return {
-    price: !!price_oracle && price_oracle > 0 && last_price ? last_price / price_oracle : undefined,
+    price: dolaPrice ? getBnToNumber(dolaPrice[0]) : undefined,
   }
 }
 
