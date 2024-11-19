@@ -131,7 +131,7 @@ export const useDOLAPriceLive = (): { price: number | undefined } => {
   });
 
   return {
-    price: dolaPrice ? getBnToNumber(dolaPrice) : undefined,
+    price: dolaPrice ? getBnToNumber(dolaPrice[0]) : undefined,
   }
 }
 
