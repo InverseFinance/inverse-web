@@ -195,6 +195,10 @@ export const MENUS = {
           href: '/firm/comparator',
         },
         {
+          label: 'Compare sDOLA',
+          href: '/sdola/comparator',
+        },
+        {
           label: 'Swap',
           href: '/swap?fromToken=DOLA&toToken=INV',
           needReload: true,
