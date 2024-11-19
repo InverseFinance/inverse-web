@@ -180,6 +180,8 @@ const chainTokenAddresses = {
     ARCHLYDOLAUSDCLP: '0x5b701874FFFc9dFF9305E1cA09705247E13cF717',
     DOLAUSDCBEETLP: '0xACfE9b4782910A853b68abbA60f3FD8049Ffe638',
     DOLAUSDCALP: '0x5a473b418193C6a3967aF0913135534B7b3B23E9',
+    COMP: '0x7e7d4467112689329f7E06571eD0E8CbAd4910eE',
+    VELOV2DOLACOMPLP: '0x0ba63314f5cc6186A199cd2be00eaa92a3D803D8',
   },
   "5": {
     DOLA: '0x50e6a8a893bDa08D31ADCA88E8B99cC3f9b2dE9A',
@@ -277,12 +279,17 @@ const chainTokenAddresses = {
     AERODOLARGUSD: '0xBA15D0494fE4f0cAECD7730F6D77BeB6DD0feca9',
     EUSD: '0xCfA3Ef56d303AE4fAabA0592388F19d7C3399FB4',
     AERODOLAEUSD: '0x867dFdb75786c58f6fDf64d955EA2524A147a98C',
+    COMP: '0x9e1028F5F1D5eDE59748FFceE5532509976840E0',
+    AERODOLACOMPLP: '0x69674e8Ebfa2467cF99A265C6B0130cd2bf144C9',
+    AERODOLAPALLP: '0xb701382d647C0EB171D33b8F30B1DF2214F9Bba4',
   },
   // blast
   "81457": {
     DOLA: "0x8e38179D361402f6a94767757e807146609E9B3d",
     USDB: "0x4300000000000000000000000000000000000003",
+    USDZ: "0x52056ED29Fe015f4Ba2e3b079D10C0B87f46e8c6",
     DOLAUSDBFENIX: "0xD49AD1DD6C5eaE53ABDaFEAED1866330C42CcAE4",
+    DOLAUSDZFENIX: "0x5559543e730881939c04c3717198404f5bEBc73B",
     // uni v3 fork
     DOLAUSDBTHRUSTER: "0x30A379721Ba4B901668c486680CF18D1f5D74d02",
   },
@@ -1738,6 +1745,14 @@ const chainTokens = {
       address: chainTokenAddresses["10"].FRAX,
       ...FRAX,
     },
+    [chainTokenAddresses["10"].COMP]: {
+      address: chainTokenAddresses["10"].COMP,
+      name: 'COMP',
+      symbol: 'COMP',
+      coingeckoId: 'compound-governance-token',
+      image: TOKEN_IMAGES.COMP,
+      decimals: 18,
+    },
     [chainTokenAddresses["10"].ALUSD]: {
       address: chainTokenAddresses["10"].ALUSD,
       name: 'alUSD',
@@ -1822,6 +1837,20 @@ const chainTokens = {
       ],
       protocolImage: PROTOCOL_IMAGES.VELOV2,
       defillamaPoolId: 'c391cdd2-eb17-423c-a21b-761c904c0cd6',
+    },
+    [chainTokenAddresses["10"].VELOV2DOLACOMPLP]: {
+      address: chainTokenAddresses["10"].VELOV2DOLACOMPLP,
+      name: 'DOLA-COMP',
+      symbol: 'DOLA-COMP vlp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,
+      isVeloLP: true,
+      isStable: false,
+      pairs: [
+        chainTokenAddresses["10"].COMP, chainTokenAddresses["10"].DOLA
+      ],
+      protocolImage: PROTOCOL_IMAGES.VELOV2,
     },
     [chainTokenAddresses["10"].VELODOLALP]: {
       address: chainTokenAddresses["10"].VELODOLALP,
@@ -2531,6 +2560,14 @@ const chainTokens = {
       image: TOKEN_IMAGES.USDB,
       coingeckoId: 'usdb',
     },
+    [chainTokenAddresses["81457"].USDZ]: {
+      address: chainTokenAddresses["81457"].USDZ,
+      symbol: 'USDz',
+      name: 'USDz',
+      image: TOKEN_IMAGES['USDz'],
+      decimals: 18,
+      coingeckoId: 'anzen-usdz',
+    },
     [chainTokenAddresses["81457"].DOLAUSDBFENIX]: {
       address: chainTokenAddresses["81457"].DOLAUSDBFENIX,
       name: 'DOLA-USDB',
@@ -2542,6 +2579,20 @@ const chainTokens = {
       isStable: true,
       pairs: [
         chainTokenAddresses["81457"].DOLA, chainTokenAddresses["81457"].USDB
+      ],
+      protocolImage: PROTOCOL_IMAGES.FENIX,
+    },
+    [chainTokenAddresses["81457"].DOLAUSDZFENIX]: {
+      address: chainTokenAddresses["81457"].DOLAUSDZFENIX,
+      name: 'DOLA-USDz',
+      symbol: 'DOLA-USDz fenixlp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,      
+      isVeloLP: true,
+      isStable: true,
+      pairs: [
+        chainTokenAddresses["81457"].USDZ, chainTokenAddresses["81457"].DOLA
       ],
       protocolImage: PROTOCOL_IMAGES.FENIX,
     },
@@ -2758,6 +2809,42 @@ const chainTokens = {
       isStable: true,
       pairs: [
         chainTokenAddresses["8453"].DOLA, chainTokenAddresses["8453"].USDPLUS
+      ],
+      protocolImage: PROTOCOL_IMAGES.AERO,
+    },
+    [chainTokenAddresses["8453"].COMP]: {
+      address: chainTokenAddresses["8453"].COMP,
+      name: 'COMP',
+      symbol: 'COMP',
+      coingeckoId: 'compound-governance-token',
+      image: TOKEN_IMAGES.COMP,
+      decimals: 18,
+    },
+    [chainTokenAddresses["8453"].AERODOLACOMPLP]: {
+      address: chainTokenAddresses["8453"].AERODOLACOMPLP,
+      name: 'DOLA-COMP',
+      symbol: 'DOLA-COMP aerolp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,      
+      isVeloLP: true,
+      isStable: false,
+      pairs: [
+        chainTokenAddresses["8453"].DOLA, chainTokenAddresses["8453"].COMP
+      ],
+      protocolImage: PROTOCOL_IMAGES.AERO,
+    },
+    [chainTokenAddresses["8453"].AERODOLAPALLP]: {
+      address: chainTokenAddresses["8453"].AERODOLAPALLP,
+      name: 'DOLA-PAL',
+      symbol: 'DOLA-PAL aerolp',
+      image: TOKEN_IMAGES.DOLA,
+      decimals: 18,
+      isLP: true,      
+      isVeloLP: true,
+      isStable: false,
+      pairs: [
+        chainTokenAddresses["8453"].PAL, chainTokenAddresses["8453"].DOLA
       ],
       protocolImage: PROTOCOL_IMAGES.AERO,
     },
