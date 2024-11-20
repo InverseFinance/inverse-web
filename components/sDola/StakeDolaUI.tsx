@@ -1,4 +1,4 @@
-import { VStack, Text, HStack, Stack, Image, useInterval } from "@chakra-ui/react"
+import { VStack, Text, HStack, Stack, Image, useInterval, useDisclosure } from "@chakra-ui/react"
 import { redeemSDola, stakeDola, unstakeDola, useDolaStakingEarnings, useDolaStakingEvolution, useStakedDola } from "@app/util/dola-staking"
 import { useWeb3React } from "@web3-react/core";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
@@ -19,6 +19,8 @@ import { ONE_DAY_MS, SDOLA_ADDRESS, SECONDS_PER_BLOCK } from "@app/config/consta
 import { useAccount } from "@app/hooks/misc";
 import { useDbrAuctionActivity } from "@app/util/dbr-auction";
 import { StakeDolaInfos } from "./StakeDolaInfos";
+import { EnsoModal } from "../common/Modal/EnsoModal";
+import { useDOLAPrice } from "@app/hooks/usePrices";
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -39,17 +41,19 @@ const MS_PER_BLOCK = SECONDS_PER_BLOCK * 1000;
 
 export const StakeDolaUI = () => {
     const account = useAccount();
-    const { provider, account: connectedAccount } = useWeb3React();    
+    const { provider, account: connectedAccount } = useWeb3React();
     const { events: auctionBuys } = useDbrAuctionActivity();
 
     const [dolaAmount, setDolaAmount] = useState('');
     const [isConnected, setIsConnected] = useState(true);
     const [thirtyDayAvg, setThirtyDayAvg] = useState(0);
+    const { isOpen: isEnsoModalOpen, onOpen: onEnsoModalOpen, onClose: onEnsoModalClose } = useDisclosure();
     const [now, setNow] = useState(Date.now());
     const [tab, setTab] = useState('Stake');
     const isStake = tab === 'Stake';
 
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
+    const { price: dolaPrice } = useDOLAPrice();
     const { apy, projectedApy, isLoading, sDolaExRate, sDolaTotalAssets, weeklyRevenue } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
     const { evolution, timestamp: lastDailySnapTs, isLoading: isLoadingEvolution } = useDolaStakingEvolution();
     const { balance: dolaBalance } = useDOLABalance(account);
@@ -183,6 +187,24 @@ export const StakeDolaUI = () => {
         >
             <VStack spacing="4" alignItems="flex-start" w='full'>
                 {
+                    isEnsoModalOpen && <EnsoModal
+                        isOpen={isEnsoModalOpen}
+                        title={`Zap-In to sDOLA, powered by Enso Finance`}
+                        introMessage={
+                            <VStack w='full' alignItems='flex-start'>
+                                <Text><b>Zap-In</b> lets you go from a token directly to sDOLA by combining a swap (if needed) and staking.</Text>
+                            </VStack>
+                        }
+                        onClose={onEnsoModalClose}
+                        // defaultTokenIn={SDOLA_ADDRESS}
+                        defaultTokenOut={SDOLA_ADDRESS}
+                        defaultTargetChainId={1}
+                        isSingleChoice={true}
+                        targetAssetPrice={dolaPrice * sDolaExRate}
+                        ensoPoolsLike={[{ poolAddress: SDOLA_ADDRESS, chainId: 1 }]}
+                    />
+                }
+                {
                     !isConnected ? <InfoMessage alertProps={{ w: 'full' }} description="Please connect your wallet" />
                         :
                         <>
@@ -221,6 +243,9 @@ export const StakeDolaUI = () => {
                                             onSuccess={() => resetRealTime()}
                                             enableCustomApprove={true}
                                         />
+                                        <Text textDecoration="underline" onClick={onEnsoModalOpen} cursor="pointer" color="mainTextColorLight">
+                                            Or stake from another token than DOLA via Zap-In
+                                        </Text>
                                     </VStack>
                                     :
                                     <VStack w='full' alignItems="flex-start">
