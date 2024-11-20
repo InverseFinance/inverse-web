@@ -20,6 +20,9 @@ const projectImages = {
     'Aave-V3': 'https://icons.llamao.fi/icons/protocols/aave-v3?w=48&h=48',
     'FiRM': 'https://icons.llamao.fi/icons/protocols/inverse-finance?w=48&h=48',
     'Spark': 'https://icons.llamao.fi/icons/protocols/spark?w=48&h=48',
+    'Curve': 'https://icons.llamao.fi/icons/protocols/spark?w=48&h=48',
+    'Anzen': 'https://icons.llamao.fi/icons/protocols/spark?w=48&h=48',
+    'Sky': 'https://icons.llamao.fi/icons/protocols/spark?w=48&h=48',
 }
 
 const CollateralToken = ({ collateral, isMobile = false, themeStyles, image }: { project: string, isMobile: boolean, themeStyles: any, image: string }) => {
@@ -82,18 +85,18 @@ const CellText = ({ ...props }) => {
 }
 
 const columns = [
-    {
-        field: 'project',
-        label: 'Project',
-        header: ({ ...props }) => <ColHeader minWidth="110px" justify="flex-start"  {...props} />,
-        value: ({ project }) => {
-            return <Cell minWidth="110px">
-                <Cell minWidth='110px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
-                    <Project project={project} />
-                </Cell>
-            </Cell>
-        },
-    },
+    // {
+    //     field: 'project',
+    //     label: 'Project',
+    //     header: ({ ...props }) => <ColHeader minWidth="110px" justify="flex-start"  {...props} />,
+    //     value: ({ project }) => {
+    //         return <Cell minWidth="110px">
+    //             <Cell minWidth='110px' spacing="1" justify="center" alignItems={{ base: 'center', md: 'flex-start' }} direction={{ base: 'row', md: 'column' }}>
+    //                 <Project project={project} />
+    //             </Cell>
+    //         </Cell>
+    //     },
+    // },
     {
         field: 'symbol',
         label: 'Stablecoin',
@@ -123,7 +126,7 @@ const FIELDS = columns.reduce((prev, curr) => ({ ...prev, [curr.field]: curr.lab
 const defaultFields = columns.map(c => c.field);
 const defaultProjects = Object.keys(projectImages);
 
-const UngroupedComparator = ({ allRates, themeStyles, isSmallerThan = false, showLabel = true }) => {
+const UngroupedComparator = ({ title, allRates, themeStyles, isSmallerThan = false, showLabel = true }) => {
     const [fieldsText, setFieldsText] = useState(defaultFields.join(','));
     const [fields, setFields] = useState(defaultFields);    
     const [includeProjectsText, setIncludeProjectsText] = useState(defaultProjects.join(','));
@@ -151,7 +154,7 @@ const UngroupedComparator = ({ allRates, themeStyles, isSmallerThan = false, sho
         noPadding
         p='0'
         contentProps={{ p: { base: '0', sm: '8' }, direction: 'column' }}
-        label={showLabel ? <Text fontSize="28px" fontWeight="extrabold">Yieald-Bearing Stablecoin Comparison Tool</Text> : null}
+        label={showLabel ? <Text fontSize="28px" fontWeight="extrabold">{title}</Text> : null}
         labelProps={showLabel ? { color: themeStyles.colors.mainTextColor } : null}
         description={showLabel ? "Compare yield on the biggest yield-bearing stablecoins" : null}
         contentBgColor={themeStyles.colors.gradient3}
@@ -180,7 +183,7 @@ const UngroupedComparator = ({ allRates, themeStyles, isSmallerThan = false, sho
         </InfoModal>
         {
             rates.length > 0 && isSmallerThan && <Table
-                keyName="key"
+                keyName="symbol"
                 pinnedItems={['FiRM-multiple-DOLA']}
                 pinnedLabels={['']}
                 noDataMessage="Loading..."
@@ -225,7 +228,7 @@ const UngroupedComparator = ({ allRates, themeStyles, isSmallerThan = false, sho
                 <VStack pt='5' spacing="0" >
                     {
                         rates.map((rate, i) => {
-                            return <Link borderBottom="1px solid transparent" borderTop={`1px solid ${themeStyles.colors.mainTextColorAlpha}`} py="2" transition="200 ms all" _hover={{ borderY: `1px solid ${themeStyles.colors.mainTextColor}` }} w='full' isExternal target="_blank" href={rate.link} key={rate.key}>
+                            return <Link borderBottom="1px solid transparent" borderTop={`1px solid ${themeStyles.colors.mainTextColorAlpha}`} py="2" transition="200 ms all" _hover={{ borderY: `1px solid ${themeStyles.colors.mainTextColor}` }} w='full' isExternal target="_blank" href={rate.link} key={rate.symbol}>
                                 <SimpleGrid gap="3" width={`${fields.length * 210}px`} columns={fields.length}>
                                     <RateListItem fields={fields} {...rate} themeStyles={themeStyles} />
                                 </SimpleGrid>
@@ -240,6 +243,7 @@ const UngroupedComparator = ({ allRates, themeStyles, isSmallerThan = false, sho
 
 export const SDolaComparator = ({
     themeStyles,
+    title = 'Yieald-Bearing Stablecoins',
     showLabel = true,
 }) => { 
     const { data } = useCustomSWR('/api/dola/sdola-comparator?v=1.0.0');
@@ -249,6 +253,6 @@ export const SDolaComparator = ({
     const _themeStyles = themeStyles || prefThemeStyles || lightTheme;
 
     return <VStack w='full' spacing="10">
-        <UngroupedComparator allRates={data?.rates} themeStyles={_themeStyles} isSmallerThan={isSmallerThan} showLabel={showLabel} />        
+        <UngroupedComparator title={title} allRates={data?.rates} themeStyles={_themeStyles} isSmallerThan={isSmallerThan} showLabel={showLabel} />        
     </VStack>
 }

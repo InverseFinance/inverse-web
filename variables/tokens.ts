@@ -139,6 +139,7 @@ const chainTokenAddresses = {
     sUSDE: '0x9D39A5DE30e57443BfF2A8307A4256c8797A3497',
     PTsUSDe27MAR25: '0xE00bd3Df25fb187d6ABBB620b3dfd19839947b81',
     USDE: '0x4c9EDD5852cd905f086C759E8383e09bff1E68B3',
+    sUSDz: '0x547213367cfB08ab418E7b54d7883b2C2AA27Fd7',
     // PAL: '0xAB846Fb6C81370327e784Ae7CbB6d6a6af6Ff4BF',
   },
   "250": {
@@ -269,7 +270,7 @@ const chainTokenAddresses = {
     AERODOLAUSDPLUS: '0x8E9154AC849e839d60299E85156bcb589De2693A',    
     AERODOLAUSDCLP: '0xf213F2D02837012dC0236cC105061e121bB03e37',
     zunUSD: '0xD5B9dDB04f20eA773C9b56607250149B26049B1F',
-    USDz: '0x04D5ddf5f3a8939889F11E97f8c4BB48317F1938',
+    USDz: '0x04D5ddf5f3a8939889F11E97f8c4BB48317F1938',    
     DOLAUSDZLP: '0xcEa8ef6ce6235F2C2CdD13C9E8a3ED470725a638',
     DOLAZUNUSDLP: '0x557c843afA9D8214534A2101D7B1200F1b0F6f6a',
     // native usdc
@@ -1554,6 +1555,14 @@ const chainTokens = {
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].DBR, chainTokenAddresses["1"].INV
       ],
       protocolImage: PROTOCOL_IMAGES.CVX,      
+    },
+    [chainTokenAddresses["1"].sUSDz]: {
+      address: chainTokenAddresses["1"].sUSDz,
+      name: 'sUSDz',
+      symbol: 'sUSDz',
+      image: TOKEN_IMAGES['sUSDz'],
+      decimals: 18,
+      coingeckoId: 'anzen-staked-usdz',
     },
   },
   "43114": {

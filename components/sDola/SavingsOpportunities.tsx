@@ -3,7 +3,7 @@ import { useDBRPrice } from "@app/hooks/useDBR";
 import { useTokenBalances } from "@app/hooks/useToken";
 import { useStakedDola } from "@app/util/dola-staking";
 import { getToken, TOKENS } from "@app/variables/tokens";
-import { HStack, Stack, Text, VStack } from "@chakra-ui/react"
+import { HStack, Stack, Text, useDisclosure, VStack } from "@chakra-ui/react"
 import { DashBoardCard } from "../F2/UserDashboard";
 import { InfoMessage } from "../common/Messages";
 import { preciseCommify } from "@app/util/misc";
@@ -14,6 +14,8 @@ import Link from "../common/Link";
 import { SDOLA_ADDRESS } from "@app/config/constants";
 import { TOKEN_IMAGES } from "@app/variables/images";
 import { MarketImage } from "../common/Assets/MarketImage";
+import { EnsoModal } from "../common/Modal/EnsoModal";
+import { useDOLAPrice } from "@app/hooks/usePrices";
 
 const USDC = getToken(TOKENS, 'USDC');
 const DAI = getToken(TOKENS, 'DAI');
@@ -68,18 +70,22 @@ const EarningsProjections = ({ apy, total }: { apy: number, total: number }) => 
 export const SavingsOpportunities = () => {
     const account = useAccount();
     const [showTokens, setShowTokens] = useState(true);
+    const [defaultTokenIn, setDefaultTokenIn] = useState('');
+    const { isOpen: isEnsoModalOpen, onOpen: onEnsoModalOpen, onClose: onEnsoModalClose } = useDisclosure();
+    const { price: dolaPrice } = useDOLAPrice();
 
     const { balances } = useTokenBalances(STABLE_ADDRESSES, account);
 
     const tokenAndBalances = STABLE_LIST.map((token, i) => {
         return { balance: balances[i].balance, token };
-    }).sort((a,b) => b.balance - a.balance);
+    }).sort((a, b) => b.balance - a.balance);
 
     const totalStables = tokenAndBalances.reduce((prev, curr) => prev + curr.balance, 0);
 
     const { priceDola: dbrDolaPrice } = useDBRPrice();
-    const { apy: currentApy } = useStakedDola(dbrDolaPrice);
+    const { apy: currentApy, sDolaExRate } = useStakedDola(dbrDolaPrice);
     const { apy: apyAfterDeposit } = useStakedDola(dbrDolaPrice, totalStables);
+    const sDOLAprice = dolaPrice * sDolaExRate;
 
     if (totalStables < 10) {
         return null;
@@ -94,6 +100,24 @@ export const SavingsOpportunities = () => {
                 <InfoMessage description={
                     <Text>You have <b>~{preciseCommify(totalStables, 2, true)}</b> worth of stablecoins in your wallet. Earn while staying stable with sDOLA!</Text>
                 } />
+                {
+                    isEnsoModalOpen && <EnsoModal
+                        isOpen={isEnsoModalOpen}
+                        title={`Zap-In to sDOLA, powered by Enso Finance`}
+                        introMessage={
+                            <VStack w='full' alignItems='flex-start'>
+                                <Text><b>Zap-In</b> lets you go from a token directly to sDOLA by combining a swap (if needed) and staking.</Text>
+                            </VStack>
+                        }
+                        onClose={onEnsoModalClose}
+                        defaultTokenIn={defaultTokenIn}
+                        defaultTokenOut={SDOLA_ADDRESS}
+                        defaultTargetChainId={1}
+                        isSingleChoice={true}
+                        targetAssetPrice={sDOLAprice}
+                        ensoPoolsLike={[{ poolAddress: SDOLA_ADDRESS, chainId: 1 }]}
+                    />
+                }
                 <EarningsProjections apy={apyAfterDeposit} total={totalStables} />
                 <VStack alignItems="flex-start">
                     <Text fontWeight="bold" textDecoration="underline" cursor="pointer" onClick={() => setShowTokens(!showTokens)}>
@@ -118,12 +142,20 @@ export const SavingsOpportunities = () => {
                                             <Text w={{ base: '29%', md: '20%' }}>{shortenNumber(b.balance, 2)}</Text>
                                             {
                                                 b.token.symbol !== 'DOLA' ? <HStack spacing="4" justify="flex-start" w={{ base: '42%', md: '60%' }}>
-                                                    <Link target="_blank" isExternal fontSize="14px" href={`https://swap.defillama.com/?chain=ethereum&from=${b.token.address}&tab=swap&to=${DOLA.address}`} textDecoration="underline">
+                                                    <Text textDecoration="underline" onClick={
+                                                        () => {
+                                                            setDefaultTokenIn(b.token.address);
+                                                            onEnsoModalOpen();
+                                                        }
+                                                    } cursor="pointer" color="secondaryTextColor">
+                                                        Zap-in to sDOLA
+                                                    </Text>
+                                                    {/* <Link target="_blank" isExternal fontSize="14px" href={`https://swap.defillama.com/?chain=ethereum&from=${b.token.address}&tab=swap&to=${DOLA.address}`} textDecoration="underline">
                                                         Swap to DOLA <ExternalLinkIcon />
                                                     </Link>
                                                     <Link display={{ base: 'none', md: 'inline-block' }} target="_blank" isExternal fontSize="14px" href={`https://swap.defillama.com/?chain=ethereum&from=${b.token.address}&tab=swap&to=${SDOLA_ADDRESS}`} textDecoration="underline">
                                                         Swap to sDOLA <ExternalLinkIcon />
-                                                    </Link>
+                                                    </Link> */}
                                                 </HStack> : <Text w={{ base: '42%', md: '60%' }}>&nbsp;</Text>
                                             }
                                         </HStack>

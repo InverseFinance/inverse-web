@@ -6,6 +6,7 @@ import { ErrorBoundary } from "next/dist/client/components/error-boundary"
 export const EnsoModal = ({
     isOpen,
     onClose,
+    defaultTokenIn,
     defaultTokenOut,
     defaultTargetChainId,
     ensoPoolsLike,
@@ -17,6 +18,7 @@ export const EnsoModal = ({
 }: {
     isOpen: boolean
     onClose: () => void
+    defaultTokenIn?: string
     defaultTokenOut: string
     defaultTargetChainId: string
     ensoPoolsLike: any[]
@@ -35,6 +37,7 @@ export const EnsoModal = ({
         <VStack p="4">
             <ErrorBoundary description="Failed to load Zap component">
                 <EnsoZap
+                    defaultTokenIn={defaultTokenIn}
                     defaultTokenOut={defaultTokenOut}
                     defaultTargetChainId={defaultTargetChainId}
                     ensoPools={ensoPoolsLike}

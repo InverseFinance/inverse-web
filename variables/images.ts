@@ -31,6 +31,7 @@ export const TOKEN_IMAGES = {
     "DBR": IMAGES.DBR,
     "THREECRV": IMAGES["3CRV"],
     "SINV": IMAGES.SINV,
+    "sUSDz": "https://assets.coingecko.com/coins/images/38040/standard/susdz-symbol-200x200.png?1716334492",
     "USDz": "https://assets.coingecko.com/coins/images/38039/standard/usdz-image-200x200.png?1716334412",
     "zunUSD": "https://assets.coingecko.com/coins/images/37809/standard/zunUSD_200x200.png?1715591997",
     "sUSDe": "https://assets.coingecko.com/coins/images/33669/standard/sUSDe-Symbol-Color.png?1716307680",
