@@ -3,7 +3,6 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
 import { StakeDolaUI } from '@app/components/sDola/StakeDolaUI';
-import { StakeDolaInfos } from '@app/components/sDola/StakeDolaInfos';
 import { useAccount } from '@app/hooks/misc';
 import { DolaStakingTabs } from '@app/components/F2/DolaStaking/DolaStakingTabs';
 import { DolaStakingActivity } from '@app/components/sDola/DolaStakingActivity';
@@ -12,6 +11,8 @@ import { DbrAuctionBuysSDola } from '@app/components/F2/DbrAuction/DbrAuctionBuy
 import { useDbrAuctionActivity } from '@app/util/dbr-auction';
 import { SDolaInsuranceCover } from '@app/components/common/InsuranceCover';
 import { SavingsOpportunities } from '@app/components/sDola/SavingsOpportunities';
+import { ErrorBoundary } from '@app/components/common/ErrorBoundary';
+import { SDolaComparator } from '@app/components/F2/SDolaComparator';
 
 export const SdolaPage = () => {
   const account = useAccount();
@@ -47,10 +48,15 @@ export const SdolaPage = () => {
             <SavingsOpportunities />
             <StakeDolaUI />
             <SDolaInsuranceCover />
+            <ErrorBoundary>
+              {/* <VStack spacing='8' w="30rem" maxW="95vw" mt="4"> */}
+                <SDolaComparator title="Compare sDOLA" />
+              {/* </VStack> */}
+            </ErrorBoundary>
           </VStack>
         </Stack>
         {
-          !!account && accountEvents?.length > 0 &&  <DolaStakingActivity events={accountEvents} title="My Staking activity" />
+          !!account && accountEvents?.length > 0 && <DolaStakingActivity events={accountEvents} title="My Staking activity" />
         }
         <DbrAuctionBuysSDola
           events={sdolaBuyEvents}
