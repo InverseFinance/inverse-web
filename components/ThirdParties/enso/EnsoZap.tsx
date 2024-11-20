@@ -36,6 +36,7 @@ const removeUndefined = obj => Object.fromEntries(
 );
 
 function EnsoZap({
+    defaultTokenIn = '',
     defaultTokenOut = '',
     defaultTargetChainId = '',
     ensoPools,
@@ -44,6 +45,7 @@ function EnsoZap({
     isSingleChoice = false,
     targetAssetPrice = 0,
 }: {
+    defaultTokenIn?: string
     defaultTokenOut: string
     defaultTargetChainId?: string
     ensoPools: any[]
@@ -61,7 +63,7 @@ function EnsoZap({
     const [refreshIndex, setRefreshIndex] = useState(0);
     const [lastChainId, setLastChainId] = useState(chainId);
 
-    const [tokenIn, setTokenIn] = useState('');
+    const [tokenIn, setTokenIn] = useState(defaultTokenIn);
     const [tokenOut, setTokenOut] = useState(defaultTokenOut);    
 
     const tokenInObj = tokenIn ? getToken(CHAIN_TOKENS[chainId || '1'], tokenIn) : CHAIN_TOKENS[chainId || '1'].CHAIN_COIN;
