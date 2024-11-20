@@ -198,6 +198,33 @@ export const getStYcrvData = async () => {
     return [];
 }
 
+export const getSavingsCrvUsdData = async () => {
+    try {
+        const results = await fetch('https://prices.curve.fi/v1/crvusd/savings/statistics');
+        const data = await results.json();
+        return { apy: data.proj_apr };
+    } catch (e) { console.log(e) }
+    return [];
+}
+
+export const getSavingsUSDData = async () => {
+    try {
+        const results = await fetch('https://info-sky.blockanalitica.com/api/v1/overall/?format=json');
+        const data = await results.json();
+        return { apy: data[0].sky_savings_rate_apy * 100 };
+    } catch (e) { console.log(e) }
+    return [];
+}
+
+export const getSavingsUSDzData = async () => {
+    try {
+        const results = await fetch('https://anzen-ponder-idx.up.railway.app/stats/susdz');
+        const data = await results.json();
+        return { apy: parseFloat(data.impliedApy) };
+    } catch (e) { console.log(e) }
+    return [];
+}
+
 export const getSUSDEData = async (provider) => {
     try {
         const results = await fetchWithTimeout('https://simple-proxy-server.onrender.com/ethena', undefined, 3000);
