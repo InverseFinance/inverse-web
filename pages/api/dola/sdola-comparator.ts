@@ -3,12 +3,12 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types';
 // import { getAaveV3RateOf } from '@app/util/borrow-rates-comp';
-import { getSFraxData, getSUSDEData } from '@app/util/markets';
+import { getSavingsCrvUsdData, getSavingsUSDData, getSavingsUSDzData, getSFraxData, getSUSDEData } from '@app/util/markets';
 import { getDSRData } from '@app/util/markets';
 import { TOKEN_IMAGES } from '@app/variables/images';
 
 export default async function handler(req, res) {
-  const cacheKey = `sdola-rates-compare-v1.0.0`;
+  const cacheKey = `sdola-rates-compare-v1.0.1`;
 
   try {
     const cacheDuration = 60;
@@ -24,10 +24,10 @@ export default async function handler(req, res) {
 
     const symbols = [
       // 'USDC', 'USDT',
-      'sDAI', 'sFRAX', 'sUSDe', 'sDOLA'];
+      'sDAI', 'sFRAX', 'sUSDe', 'sDOLA', 'scrvUSD', 'sUSDS', 'sUSDz'];
     const projects = [
       // 'Aave-V3', 'Aave-V3', 
-      'Spark', 'Frax', 'Ethena', 'FiRM'];
+      'Spark', 'Frax', 'Ethena', 'FiRM', 'Curve', 'Sky', 'Anzen'];
     const links = [
       // 'https://app.aave.com/reserve-overview/?underlyingAsset=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&marketName=proto_mainnet_v3',
       // 'https://app.aave.com/reserve-overview/?underlyingAsset=0xdac17f958d2ee523a2206206994597c13d831ec7&marketName=proto_mainnet_v3',
@@ -35,6 +35,9 @@ export default async function handler(req, res) {
       'https://app.frax.finance/sfrax/stake',
       'https://app.ethena.fi/earn',
       'https://inverse.finance/sDOLA',
+      'https://crvusd.curve.fi/#/ethereum/scrvUSD',
+      'https://sky.money',
+      'https://app.anzen.finance/stake',
     ];
 
     const rates = await Promise.all([
@@ -44,6 +47,9 @@ export default async function handler(req, res) {
       getSFraxData(provider),
       getSUSDEData(provider),
       fetch('https://www.inverse.finance/api/dola-staking').then(res => res.json()),
+      getSavingsCrvUsdData(),
+      getSavingsUSDData(),
+      getSavingsUSDzData(),
     ]);
 
     const sortedRates = rates
