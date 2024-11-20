@@ -15,6 +15,7 @@ import { SDOLA_ADDRESS } from "@app/config/constants";
 import { TOKEN_IMAGES } from "@app/variables/images";
 import { MarketImage } from "../common/Assets/MarketImage";
 import { EnsoModal } from "../common/Modal/EnsoModal";
+import { useDOLAPrice } from "@app/hooks/usePrices";
 
 const USDC = getToken(TOKENS, 'USDC');
 const DAI = getToken(TOKENS, 'DAI');
@@ -71,6 +72,7 @@ export const SavingsOpportunities = () => {
     const [showTokens, setShowTokens] = useState(true);
     const [defaultTokenIn, setDefaultTokenIn] = useState('');
     const { isOpen: isEnsoModalOpen, onOpen: onEnsoModalOpen, onClose: onEnsoModalClose } = useDisclosure();
+    const { price: dolaPrice } = useDOLAPrice();
 
     const { balances } = useTokenBalances(STABLE_ADDRESSES, account);
 
@@ -81,8 +83,9 @@ export const SavingsOpportunities = () => {
     const totalStables = tokenAndBalances.reduce((prev, curr) => prev + curr.balance, 0);
 
     const { priceDola: dbrDolaPrice } = useDBRPrice();
-    const { apy: currentApy } = useStakedDola(dbrDolaPrice);
+    const { apy: currentApy, sDolaExRate } = useStakedDola(dbrDolaPrice);
     const { apy: apyAfterDeposit } = useStakedDola(dbrDolaPrice, totalStables);
+    const sDOLAprice = dolaPrice * sDolaExRate;
 
     if (totalStables < 10) {
         return null;
@@ -111,7 +114,7 @@ export const SavingsOpportunities = () => {
                         defaultTokenOut={SDOLA_ADDRESS}
                         defaultTargetChainId={1}
                         isSingleChoice={true}
-                        targetAssetPrice={1}
+                        targetAssetPrice={sDOLAprice}
                         ensoPoolsLike={[{ poolAddress: SDOLA_ADDRESS, chainId: 1 }]}
                     />
                 }
