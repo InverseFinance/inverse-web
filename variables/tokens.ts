@@ -1,4 +1,4 @@
-import { HAS_REWARD_TOKEN } from '@app/config/constants';
+import { HAS_REWARD_TOKEN, SINV_ADDRESS } from '@app/config/constants';
 import { Token, TokenList } from '@app/types';
 import { isAddress } from 'ethers/lib/utils';
 import { PROTOCOLS_BY_IMG, PROTOCOL_IMAGES, TOKEN_IMAGES } from './images';
@@ -29,6 +29,7 @@ const pausedBadge = {
 const chainTokenAddresses = {
   "1": {
     INV: '0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68',
+    SINV: SINV_ADDRESS,
     DOLA: '0x865377367054516e17014CcdED1e7d814EDC9ce4',
     SDOLA: '0xb45ad160634c528Cc3D2926d9807104FA3157305',
     PYUSD: '0x6c3ea9036406852006290770BEdFcAbA0e23A0e8',
@@ -358,6 +359,14 @@ const chainTokens = {
       address: chainTokenAddresses["1"].SDOLA,
       symbol: 'sDOLA',
       name: 'sDOLA',
+    },
+    [chainTokenAddresses["1"].SINV]: {
+      decimals: 18,
+      image: TOKEN_IMAGES.SINV,
+      // coingeckoId: '?',
+      address: chainTokenAddresses["1"].SINV,
+      symbol: 'sINV',
+      name: 'sINV',
     },
     [chainTokenAddresses["1"].PYUSD]: {
       decimals: 6,

@@ -1,4 +1,4 @@
-import { VStack, Text, HStack, Stack, Image, useInterval } from "@chakra-ui/react"
+import { VStack, Text, HStack, Stack, Image, useInterval, useDisclosure } from "@chakra-ui/react"
 import { useWeb3React } from "@web3-react/core";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
 import { useEffect, useMemo, useState } from "react";
@@ -13,12 +13,13 @@ import { useDBRMarkets, useDBRPrice } from "@app/hooks/useDBR";
 import { getBnToNumber, getMonthlyRate, shortenNumber } from "@app/util/markets";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { TextInfo } from "../common/Messages/TextInfo";
-import { ONE_DAY_MS, SECONDS_PER_BLOCK } from "@app/config/constants";
+import { ONE_DAY_MS, SECONDS_PER_BLOCK, SINV_ADDRESS } from "@app/config/constants";
 import { useAccount } from "@app/hooks/misc";
 import { useDbrAuctionActivity } from "@app/util/dbr-auction";
 import { StakeInvInfos } from "./StakeInvInfos";
 import useEtherSWR from "@app/hooks/useEtherSWR";
 import { redeemSInv, stakeInv, unstakeInv, useInvStakingEvolution, useStakedInv, useStakedInvBalance, VERSIONED_ADDRESSES } from "@app/util/sINV";
+import { EnsoModal } from "../common/Modal/EnsoModal";
 
 const { INV } = getNetworkConfigConstants();
 
@@ -56,6 +57,7 @@ export const StakeInvUI = ({
     const invMarket = markets?.find(m => m.isInv);
     const invPrice = invMarket?.price || 0;
 
+    const { isOpen: isEnsoModalOpen, onOpen: onEnsoModalOpen, onClose: onEnsoModalClose } = useDisclosure();
     const [invAmount, setInvAmount] = useState('');
     const [isConnected, setIsConnected] = useState(true);
     const [thirtyDayAvg, setThirtyDayAvg] = useState(0);
@@ -158,6 +160,23 @@ export const StakeInvUI = ({
     }
 
     return <Stack direction={{ base: 'column', lg: 'row' }} alignItems={{ base: 'center', lg: 'flex-start' }} justify="space-around" w='full' spacing="12" {...props}>
+        {
+            isEnsoModalOpen && <EnsoModal
+                isOpen={isEnsoModalOpen}
+                title={`Zap-In to sINV, powered by Enso Finance`}
+                introMessage={
+                    <VStack w='full' alignItems='flex-start'>
+                        <Text><b>Zap-In</b> lets you go from a token directly to sINV by combining a swap (if needed) and staking.</Text>
+                    </VStack>
+                }
+                onClose={onEnsoModalClose}
+                defaultTokenOut={SINV_ADDRESS}
+                defaultTargetChainId={1}
+                isSingleChoice={true}
+                targetAssetPrice={invPrice * sInvExRate}
+                ensoPoolsLike={[{ poolAddress: SINV_ADDRESS, chainId: 1 }]}
+            />
+        }
         <VStack w='full' maxW='500px' spacing='4' pt='10'>
             <HStack justify="space-around" w='full'>
                 <VStack>
@@ -282,7 +301,11 @@ export const StakeInvUI = ({
                                                 enableCustomApprove={true}
                                             />
                                             {
-                                                depositLimitReached && <InfoMessage description={`Note: sINV has reached its deposit limit of ${preciseCommify(depositLimit, 0)} INV for the moment`} />
+                                                depositLimitReached ?
+                                                    <InfoMessage description={`Note: sINV has reached its deposit limit of ${preciseCommify(depositLimit, 0)} INV for the moment`} />
+                                                    : <Text textDecoration="underline" onClick={onEnsoModalOpen} cursor="pointer" color="mainTextColorLight">
+                                                        Or stake from another token than INV via Zap-In
+                                                    </Text>
                                             }
                                         </VStack>
                                     :
