@@ -32,34 +32,16 @@ const CollateralToken = ({ collateral, isMobile = false, themeStyles, image }: {
         {
             !!image && <Image borderRadius="50px" src={image} h={isMobile ? '20px' : '40px'} />
         }
-        <Text color={_themeStyles.colors.mainTextColor} fontWeight="extrabold" fontSize={isMobile ? '16px' : '24px'}>
+        <Text color={_themeStyles.colors.mainTextColor} fontWeight="extrabold" fontSize={isMobile ? '20px' : '24px'}>
             {collateral}
         </Text>
     </HStack>
 }
 
-const Project = ({ project, themeStyles }: { project: string }) => {
-    const { themeStyles: prefThemeStyles } = useAppTheme();
-    const _themeStyles = themeStyles || prefThemeStyles;
-    return <HStack spacing='4'>
-        {
-            !project ? <Text color={_themeStyles.colors.mainTextColor} fontWeight="extrabold" fontSize="24px" textTransform="capitalize">
-                -
-            </Text> : <>
-                <Image borderRadius='40px' src={projectImages[project]} h='40px' />
-                <Text color={_themeStyles.colors.mainTextColor} fontWeight="extrabold" fontSize="24px" textTransform="capitalize">
-                    {project.replace('-', ' ')}
-                </Text>
-            </>
-        }
-    </HStack>
-}
-
-const RateListItem = ({ fields, project, apy, symbol, image,themeStyles }) => {
+const RateListItem = ({ fields, apy, symbol, image, themeStyles, isMobile }) => {
     const comps = {
-        'project': <Project project={project} themeStyles={themeStyles} />,
-        'symbol': <CollateralToken collateral={symbol} image={image} themeStyles={themeStyles} />,
-        'apy': <Text fontWeight="extrabold" fontSize="24px" color={themeStyles.colors.mainTextColor}>
+        'symbol': <CollateralToken isMobile={isMobile} collateral={symbol} image={image} themeStyles={themeStyles} />,
+        'apy': <Text fontWeight="extrabold" fontSize={{ base: '20px', lg: '24px' }} color={themeStyles.colors.mainTextColor}>
             {apy ? shortenNumber(apy, 2) + '%' : '-'}
         </Text>,
     }
@@ -153,8 +135,8 @@ const UngroupedComparator = ({ title, allRates, themeStyles, isSmallerThan = fal
     return <Container
         noPadding
         p='0'
-        contentProps={{ p: { base: '0', sm: '8' }, direction: 'column' }}
-        label={showLabel ? <Text fontSize="28px" fontWeight="extrabold">{title}</Text> : null}
+        contentProps={{ p: { base: '4', sm: '8' }, direction: 'column' }}
+        label={showLabel ? <Text fontSize={{ base: '22px', lg: '28px' }} fontWeight="extrabold">{title}</Text> : null}
         labelProps={showLabel ? { color: themeStyles.colors.mainTextColor } : null}
         description={showLabel ? "Compare yield on the biggest yield-bearing stablecoins" : null}
         contentBgColor={themeStyles.colors.gradient3}
@@ -182,35 +164,11 @@ const UngroupedComparator = ({ title, allRates, themeStyles, isSmallerThan = fal
             </VStack>
         </InfoModal>
         {
-            rates.length > 0 && isSmallerThan && <Table
-                keyName="symbol"
-                pinnedItems={['FiRM-multiple-DOLA']}
-                pinnedLabels={['']}
-                noDataMessage="Loading..."
-                columns={columns}
-                items={rates}
-                defaultSort={'type'}
-                secondarySortFields={['apy']}
-                defaultSortDir="asc"
-                enableMobileRender={true}
-                mobileThreshold={mobileThreshold}
-                showRowBorder={true}
-                spacing="0"
-                onClick={(item) => {
-                    window.open(item.link, '_blank')
-                }}
-                mobileClickBtnLabel="View Market"
-            />
-        }
-        {
-            !rates.length && isSmallerThan && <SkeletonBlob w='full' />
-        }
-        {
-            !isSmallerThan && <>
+            <>
                 <SimpleGrid gap="3" width={`${fields.length * 210}px`} columns={fields.length}>
                     {
                         fields.map(f => {
-                            return <Text color={themeStyles.colors.mainTextColor} key={f} fontWeight="extrabold" fontSize="28px">
+                            return <Text color={themeStyles.colors.mainTextColor} key={f} fontWeight="extrabold" fontSize={{ base: '20px', lg: '28px' }}>
                                 {FIELDS[f]}
                             </Text>
                         })
@@ -230,7 +188,7 @@ const UngroupedComparator = ({ title, allRates, themeStyles, isSmallerThan = fal
                         rates.map((rate, i) => {
                             return <Link borderBottom="1px solid transparent" borderTop={`1px solid ${themeStyles.colors.mainTextColorAlpha}`} py="2" transition="200 ms all" _hover={{ borderY: `1px solid ${themeStyles.colors.mainTextColor}` }} w='full' isExternal target="_blank" href={rate.link} key={rate.symbol}>
                                 <SimpleGrid gap="3" width={`${fields.length * 210}px`} columns={fields.length}>
-                                    <RateListItem fields={fields} {...rate} themeStyles={themeStyles} />
+                                    <RateListItem isMobile={isSmallerThan} fields={fields} {...rate} themeStyles={themeStyles} />
                                 </SimpleGrid>
                             </Link>
                         })
