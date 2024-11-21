@@ -210,7 +210,7 @@ export const SDolaComparator = ({
     const { themeStyles: prefThemeStyles } = useAppTheme();
     const _themeStyles = themeStyles || prefThemeStyles || lightTheme;
 
-    return <VStack w='full' spacing="10">
+    return <VStack w='full' spacing="10" overflow="hidden">
         <UngroupedComparator title={title} allRates={data?.rates} themeStyles={_themeStyles} isSmallerThan={isSmallerThan} showLabel={showLabel} />        
     </VStack>
 }
