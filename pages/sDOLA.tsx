@@ -49,9 +49,7 @@ export const SdolaPage = () => {
             <StakeDolaUI />
             <SDolaInsuranceCover />
             <ErrorBoundary>
-              {/* <VStack spacing='8' w="30rem" maxW="95vw" mt="4"> */}
-                <SDolaComparator title="Compare sDOLA" />
-              {/* </VStack> */}
+              <SDolaComparator title="Compare sDOLA" />
             </ErrorBoundary>
           </VStack>
         </Stack>
