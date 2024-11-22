@@ -105,7 +105,7 @@ export default async function handler(req, res) {
             multidelegator,
             gno,
             feds,
-            gaswallets,
+            gaswalletsRes,
             delegatesRes,
         ] = await Promise.all([
             Promise.all(
@@ -127,9 +127,17 @@ export default async function handler(req, res) {
                     5,
                     1000,
                 )
-                : new Promise((r) => r([{ data: { items: [] } }])),
-            // gaswallets: HarryGasWallet
-            !hasFilter || filterType === 'gaswallets' ? getLast100TxsOf('0xEC092c15e8D5A48a77Cde36827F8e228CE39471a') : new Promise((r) => r({ data: { items: [] } })),
+                : new Promise((r) => r([{ data: { items: [] } }])), 
+            Promise.all(
+                    [
+                        '0xEC092c15e8D5A48a77Cde36827F8e228CE39471a',
+                        '0x11EC78492D53c9276dD7a184B1dbfB34E50B710D',
+                        '0xcfaD496f4e92f1f2d3fdC093Dde11Add1dc3a781',
+                    ]
+                    .map(gaswallet => !hasFilter || filterType === 'gaswallets' ?
+                    getLast100TxsOf(gaswallet)
+                        : new Promise((r) => r({ data: { items: [] } })))
+            ),
             client.get(`1-delegates`),
         ])
 
@@ -148,13 +156,15 @@ export default async function handler(req, res) {
         let cronJobItems = formatResults(gov, 'governance', refundWhitelist, eligibleVoteCasters)
             .concat(formatResults(multidelegator, 'multidelegator', refundWhitelist))
             .concat(formatResults(gno, 'gnosisproxy', refundWhitelist))
-            .concat(formatResults(gaswallets, 'gaswallet', refundWhitelist))
 
         multisigsRes.forEach(r => {
             cronJobItems = cronJobItems.concat(formatResults(r, 'multisig', refundWhitelist, [], multisig))
         });
         feds.forEach(r => {
             cronJobItems = cronJobItems.concat(formatResults(r, 'fed', refundWhitelist))
+        });
+        gaswalletsRes.forEach(r => {
+            cronJobItems = cronJobItems.concat(formatResults(r, 'gaswallet', refundWhitelist))
         });
 
         const error = cronJobItems.find(item => item.error);
