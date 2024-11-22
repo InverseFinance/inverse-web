@@ -105,6 +105,7 @@ export default async function handler(req, res) {
             multidelegator,
             gno,
             feds,
+            gaswallets,
             delegatesRes,
         ] = await Promise.all([
             Promise.all(
@@ -127,6 +128,8 @@ export default async function handler(req, res) {
                     1000,
                 )
                 : new Promise((r) => r([{ data: { items: [] } }])),
+            // gaswallets: HarryGasWallet
+            !hasFilter || filterType === 'gaswallets' ? getLast100TxsOf('0xEC092c15e8D5A48a77Cde36827F8e228CE39471a') : new Promise((r) => r({ data: { items: [] } })),
             client.get(`1-delegates`),
         ])
 
@@ -145,6 +148,7 @@ export default async function handler(req, res) {
         let cronJobItems = formatResults(gov, 'governance', refundWhitelist, eligibleVoteCasters)
             .concat(formatResults(multidelegator, 'multidelegator', refundWhitelist))
             .concat(formatResults(gno, 'gnosisproxy', refundWhitelist))
+            .concat(formatResults(gaswallets, 'gaswallet', refundWhitelist))
 
         multisigsRes.forEach(r => {
             cronJobItems = cronJobItems.concat(formatResults(r, 'multisig', refundWhitelist, [], multisig))
