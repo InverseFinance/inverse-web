@@ -19,8 +19,8 @@
   },
   "dependencies": {
     "@chakra-ui/icons": "^1.0.13",
-    "@chakra-ui/next-js": "^2.1.5",
-    "@chakra-ui/react": "^2.8.0",
+    "@chakra-ui/next-js": "2.1.5",
+    "@chakra-ui/react": "2.8.1",
     "@coinbase/cbpay-js": "^1.4.0",
     "@coinbase/onchainkit": "^0.6.1",
     "@coinbase/wallet-sdk": "^3.7.2",

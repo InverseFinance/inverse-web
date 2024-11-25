@@ -7,7 +7,9 @@ import warningLottie from '@app/public/assets/lotties/warning.json';
 import inverseLottie from '@app/public/assets/lotties/inverse.json';
 import launchLottie from '@app/public/assets/lotties/launch.json';
 import confettiLottie from '@app/public/assets/lotties/confetti.json';
-import Lottie from 'lottie-react';
+import dynamic from 'next/dynamic';
+const Lottie = dynamic(() => import('lottie-react'), { ssr: false });
+import { useEffect, useState } from 'react';
 
 export type AnimProps = {
     animData: Object,
@@ -20,16 +22,22 @@ export type AnimProps = {
 
 // some react-lottie features don't work with React 17
 export const Animation = ({ animData, height = 30, width = 30, loop = false, autoplay = true, isStopped }: AnimProps) => {
+    const [inited, setInited] = useState(false);
+    useEffect(() => {
+        setInited(true);
+    }, []);
     return (
         <Box height={`${height}px`} width={`${width}px`}>
-            <Lottie
-                loop={loop}
-                autoplay={autoplay}
-                animationData={animData}
-                rendererSettings={{
-                    preserveAspectRatio: 'xMidYMid slice'
-                }}
-            />
+            {
+                inited && <Lottie
+                    loop={loop}
+                    autoplay={autoplay}
+                    animationData={animData}
+                    rendererSettings={{
+                        preserveAspectRatio: 'xMidYMid slice'
+                    }}
+                />
+            }
         </Box>
     )
 }
