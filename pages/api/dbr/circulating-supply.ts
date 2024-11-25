@@ -6,11 +6,14 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types'
 import { getBnToNumber } from '@app/util/markets'
+import { DBR_CIRC_SUPPLY_EVO_CACHE_KEY } from './circulating-supply-evolution-script';
+import { fillMissingDailyDatesWithMostRecentData, timestampToUTC } from '@app/util/misc';
 
-const { DBR, TREASURY } = getNetworkConfigConstants();
+const { DBR, TREASURY, DBR_AIRDROP } = getNetworkConfigConstants();
 
 const excluded = [
   TREASURY,
+  DBR_AIRDROP,
 ];
 
 export default async function handler(req, res) {  
@@ -20,6 +23,7 @@ export default async function handler(req, res) {
     const cacheDuration = 60;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
+    const isSaveCircSupply = req.method === 'POST' || req.query.saveCircSupply === 'true';
     if(validCache) {
       res.status(200).send(validCache);
       return
@@ -39,6 +43,32 @@ export default async function handler(req, res) {
     const circulatingSupply = getBnToNumber(totalSupply) - totalDbrExcluded;    
 
     await redisSetWithTimestamp(cacheKey, circulatingSupply);
+
+    // daily cron job case: add daily data to evolution data
+    if (isSaveCircSupply) {
+      const cachedCircEvoData = (await getCacheFromRedis(DBR_CIRC_SUPPLY_EVO_CACHE_KEY, false)) || { evolution: [] };
+      const timestamp = Date.now();
+      const utcDate = timestampToUTC(timestamp);
+      const alreadyThere = cachedCircEvoData.evolution.find(evo => evo.utcDate === utcDate);      
+
+      if(!alreadyThere) {
+        cachedCircEvoData.evolution.push({
+          utcDate,
+          totalSupply,
+          circSupply: circulatingSupply,
+        });
+        // in case we missed a day, fill with most recent data
+        const filledIn = fillMissingDailyDatesWithMostRecentData(cachedCircEvoData.evolution, 1);
+        const results = {
+          timestamp,
+          lastUtcDate: utcDate,
+          evolution: filledIn.filter(d => d.utcDate <= utcDate).map(evo => {
+            return { utcDate: evo.utcDate, totalSupply: evo.totalSupply, circSupply: evo.circSupply }
+          }),
+        }
+        await redisSetWithTimestamp(DBR_CIRC_SUPPLY_EVO_CACHE_KEY, results);
+      }      
+    }
 
     res.status(200).send(circulatingSupply);
   } catch (err) {
