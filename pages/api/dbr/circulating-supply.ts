@@ -6,7 +6,7 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types'
 import { getBnToNumber } from '@app/util/markets'
-import { DBR_CIRC_SUPPLY_EVO_CACHE_KEY } from './circulating-supply-evolution-script';
+import { DBR_CIRC_SUPPLY_EVO_CACHE_KEY } from './circulating-supply-evolution';
 import { fillMissingDailyDatesWithMostRecentData, timestampToUTC } from '@app/util/misc';
 
 const { DBR, TREASURY, DBR_AIRDROP } = getNetworkConfigConstants();
