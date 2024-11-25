@@ -54,7 +54,7 @@ export default async function handler(req, res) {
       if(!alreadyThere) {
         cachedCircEvoData.evolution.push({
           utcDate,
-          totalSupply,
+          totalSupply: getBnToNumber(totalSupply),
           circSupply: circulatingSupply,
         });
         // in case we missed a day, fill with most recent data
