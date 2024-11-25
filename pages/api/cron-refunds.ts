@@ -23,7 +23,9 @@ const formatResults = (covalentResponse: any, type: string, refundWhitelist?: st
     if (!covalentResponse || covalentResponse?.data === null) {
         return [{ ...covalentResponse }];
     }
+
     const { items, chain_id } = covalentResponse?.data;
+    
     return items
         .filter(item => typeof item.fees_paid === 'string' && /^[0-9\.]+$/.test(item.fees_paid))
         .map(item => {
@@ -66,7 +68,6 @@ const formatResults = (covalentResponse: any, type: string, refundWhitelist?: st
 
 export default async function handler(req, res) {
     const { filterType, multisig, start, size } = req.query;
-
     if (req.method !== 'POST') return res.status(405).json({ success: false });
     else if (req.headers.authorization !== `Bearer ${process.env.API_SECRET_KEY}`) return res.status(401).json({ success: false });
     else if (filterType === 'feds' && (!/[0-9]+/.test(start) || !/[0-9]+/.test(size))) {
@@ -105,6 +106,7 @@ export default async function handler(req, res) {
             multidelegator,
             gno,
             feds,
+            gaswalletsRes,
             delegatesRes,
         ] = await Promise.all([
             Promise.all(
@@ -126,7 +128,17 @@ export default async function handler(req, res) {
                     5,
                     1000,
                 )
-                : new Promise((r) => r([{ data: { items: [] } }])),
+                : new Promise((r) => r([{ data: { items: [] } }])), 
+            Promise.all(
+                    [
+                        '0xEC092c15e8D5A48a77Cde36827F8e228CE39471a',
+                        '0x11EC78492D53c9276dD7a184B1dbfB34E50B710D',
+                        '0xcfaD496f4e92f1f2d3fdC093Dde11Add1dc3a781',
+                    ]
+                    .map(gaswallet => !hasFilter || filterType === 'gaswallets' ?
+                    getLast100TxsOf(gaswallet)
+                        : new Promise((r) => r({ data: { items: [] } })))
+            ),
             client.get(`1-delegates`),
         ])
 
@@ -151,6 +163,9 @@ export default async function handler(req, res) {
         });
         feds.forEach(r => {
             cronJobItems = cronJobItems.concat(formatResults(r, 'fed', refundWhitelist))
+        });
+        gaswalletsRes.forEach(r => {
+            cronJobItems = cronJobItems.concat(formatResults(r, 'gaswallet', refundWhitelist))
         });
 
         const error = cronJobItems.find(item => item.error);

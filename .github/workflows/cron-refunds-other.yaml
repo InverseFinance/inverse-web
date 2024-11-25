@@ -26,3 +26,8 @@ jobs:
           curl -v --request POST \
           --url 'https://www.inverse.finance/api/cron-refunds?filterType=gnosis' \
           --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'    
+      - name: Governance refunds - other
+        run: |
+          curl -v --request POST \
+          --url 'https://www.inverse.finance/api/cron-refunds?filterType=gaswallets' \
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'    
