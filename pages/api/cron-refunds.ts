@@ -23,7 +23,9 @@ const formatResults = (covalentResponse: any, type: string, refundWhitelist?: st
     if (!covalentResponse || covalentResponse?.data === null) {
         return [{ ...covalentResponse }];
     }
+
     const { items, chain_id } = covalentResponse?.data;
+    
     return items
         .filter(item => typeof item.fees_paid === 'string' && /^[0-9\.]+$/.test(item.fees_paid))
         .map(item => {
