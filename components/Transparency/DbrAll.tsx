@@ -8,7 +8,7 @@ import { useDBREmissions, useFirmUsers } from "@app/hooks/useFirm";
 import { ONE_DAY_MS } from "@app/config/constants";
 import { DbrComboChart } from "./DbrComboChart";
 import { DbrEmissions } from "./DbrEmissions";
-import { useDBRPrice } from "@app/hooks/useDBR";
+import { useDbrCirculatingSupplyEvolution, useDBRPrice } from "@app/hooks/useDBR";
 import { shortenNumber } from "@app/util/markets";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { useHistoricalInvMarketCap } from "@app/hooks/useHistoricalMarketCap";
@@ -42,8 +42,10 @@ export const DbrAll = ({
     const [useUsd, setUseUsd] = useState(false);
     const { prices: invHistoPrices } = useHistoInvPrices();
     const { evolution: circSupplyEvolution } = useHistoricalInvMarketCap();
+    const { evolution: dbrCircSupplyEvolution, currentCirculatingSupply: dbrCurrentCircSupply } = useDbrCirculatingSupplyEvolution();
     const circSupplyAsObj = !!circSupplyEvolution ? circSupplyEvolution.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr.timestamp)]: curr.circSupply }), {}) : {};
     const invHistoPricesAsObj = !!invHistoPrices ? invHistoPrices.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr[0])]: curr[1] }), {}) : {};
+    const dbrCircSupplyAsObj = !!dbrCircSupplyEvolution ? dbrCircSupplyEvolution.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr.timestamp)]: curr.circSupply }), {}) : {};
     const { priceUsd: dbrPriceUsd, priceDola: dbrPriceDola } = useDBRPrice();
 
     const { events: emissionEvents, rewardRatesHistory, isLoading: isEmmissionLoading } = useDBREmissions();
@@ -102,6 +104,7 @@ export const DbrAll = ({
         const histoPrice = (histoPrices[date] || getClosestPreviousHistoValue(histoPrices, date ,0.05));
         const invHistoPrice = (invHistoPricesAsObj[date] || getClosestPreviousHistoValue(invHistoPricesAsObj, date, 0));
         const invHistoCircSupply = (circSupplyAsObj[date] || getClosestPreviousHistoValue(circSupplyAsObj, date, 0));
+        const dbrCircSupply = (dbrCircSupplyAsObj[date] || getClosestPreviousHistoValue(dbrCircSupplyAsObj, date, 0));
         const invHistoMarketCap = invHistoPrice * invHistoCircSupply;
         const yearlyRewardRate = rateChanges.findLast(rd => date >= rd.date)?.yearlyRewardRate || 0;
         const auctionYearlyRewardRate = auctionRateChanges.findLast(rd => date >= rd.date)?.rate || 0;
@@ -119,6 +122,8 @@ export const DbrAll = ({
             stakersYearlyRewardRateUsd: yearlyRewardRate * histoPrice,
             yearlyRewardRate: totalAnnualizedIssuance,
             yearlyRewardRateUsd: totalAnnualizedIssuance * histoPrice,
+            dbrCircSupply,
+            dbrCircSupplyUsd: dbrCircSupply * histoPrice,
         }
     });    
 
@@ -135,6 +140,7 @@ export const DbrAll = ({
             timestamp: now,
             time: new Date(timestampToUTC(now)),
             debtUsd: totalDebt * dbrPriceUsd,
+            dbrCircSupplyUsd: dbrCurrentCircSupply * dbrPriceUsd,
             histoPrice: dbrPriceUsd,
             date: timestampToUTC(now),
             stakersYearlyRewardRate: yearlyRewardRate,

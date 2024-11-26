@@ -13,7 +13,7 @@ import { parseUnits } from "@ethersproject/units";
 import useSWR from "swr";
 import { useWeb3React } from "@web3-react/core";
 import { useDOLAPriceLive } from "./usePrices";
-import { timestampToUTC } from "@app/util/misc";
+import { timestampToUTC, utcDateStringToTimestamp } from "@app/util/misc";
 import { useState } from "react";
 import { useUserPtApy } from "@app/util/pendle";
 
@@ -580,5 +580,33 @@ export const useDBRBalanceHisto = (account: string): { evolution: any, currentBa
     currentBalance: !connectedUser ? null : signedBalance,
     evolution,
     isLoading,
+  }
+}
+
+export const useDbrCirculatingSupplyEvolution = () => {
+  const { data, error } = useCustomSWR(`/api/dbr/circulating-supply-evolution`);
+  const { data: currentCirculatingSupply } = useCustomSWR(`/api/dbr/circulating-supply`);
+
+  const array = (data?.evolution || []);
+  if (array.length > 0 && !!currentCirculatingSupply) {
+    array.push({ circSupply: currentCirculatingSupply, utcDate: new Date().toISOString().substring(0, 10) });
+  }
+
+  const evolution = array.map((v, i) => {
+    const ts = utcDateStringToTimestamp(v.utcDate);
+    return ({
+      ...v,
+      timestamp: ts,
+      x: ts,
+      y: v.circSupply,
+    });
+  });
+  evolution.sort((a, b) => a.x - b.x);
+
+  return {
+    currentCirculatingSupply,
+    evolution,
+    isLoading: !error && !data,
+    isError: !!error,
   }
 }

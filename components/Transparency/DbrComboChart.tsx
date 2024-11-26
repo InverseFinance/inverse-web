@@ -15,6 +15,7 @@ const KEYS = {
     DBR_PRICE: 'DBR Price',
     INV_PRICE: 'INV Price',
     INV_MC: 'INV Circ. MC',
+    DBR_MC: 'DBR Circ. Supply',
 }
 
 export const DbrComboChart = ({
@@ -40,7 +41,8 @@ export const DbrComboChart = ({
     const [actives, setActives] = useState({
         [KEYS.BURN]: true,
         [KEYS.ISSUANCE]: true,
-        [KEYS.STAKERS_ISSUANCE]: false,
+        [KEYS.DBR_MC]: true,
+        [KEYS.STAKERS_ISSUANCE]: false,        
         // right y axis
         [KEYS.DBR_PRICE]: true,
         [KEYS.INV_MC]: false,
@@ -51,7 +53,7 @@ export const DbrComboChart = ({
             return;
         }
         const suffix = useUsd ? 'Usd' : '';
-        const keys = ([actives[KEYS.BURN] ? 'debt'+suffix : '', actives[KEYS.ISSUANCE] ? 'yearlyRewardRate'+suffix : '', actives[KEYS.STAKERS_ISSUANCE] ? 'stakersYearlyRewardRate'+suffix : ''])
+        const keys = ([actives[KEYS.DBR_MC] ? 'dbrCircSupply'+suffix : '',actives[KEYS.BURN] ? 'debt'+suffix : '', actives[KEYS.ISSUANCE] ? 'yearlyRewardRate'+suffix : '', actives[KEYS.STAKERS_ISSUANCE] ? 'stakersYearlyRewardRate'+suffix : ''])
             .filter(d => !!d);
         
         const dataMin = Math.min(...combodata.map(d => Math.min(...keys.map(k => (d[k]||0)))));
@@ -114,7 +116,7 @@ export const DbrComboChart = ({
                 <XAxis minTickGap={28} interval="preserveStartEnd" style={_axisStyle.tickLabels} dataKey="timestamp" scale="time" type={'number'} allowDataOverflow={true} domain={['dataMin', 'dataMax']} tickFormatter={(v) => {
                     return moment(v).format('MMM Do')
                 }} />
-                <YAxis opacity={(actives[KEYS.BURN] || actives[KEYS.ISSUANCE]|| actives[KEYS.STAKERS_ISSUANCE]) ? 1 : 0} style={_axisStyle.tickLabels} yAxisId="left" domain={leftYDomain} allowDataOverflow={true} tickFormatter={(v) => smartShortNumber(v, 2, useUsd)} />
+                <YAxis opacity={(actives[KEYS.BURN] || actives[KEYS.ISSUANCE]|| actives[KEYS.STAKERS_ISSUANCE] || actives[KEYS.DBR_MC]) ? 1 : 0} style={_axisStyle.tickLabels} yAxisId="left" domain={leftYDomain} allowDataOverflow={true} tickFormatter={(v) => smartShortNumber(v, 2, useUsd)} />
                 <YAxis opacity={(actives[KEYS.DBR_PRICE] || actives[KEYS.INV_MC]) ? 1 : 0} style={_axisStyle.tickLabels} yAxisId="right" orientation="right" allowDataOverflow={true} tickFormatter={(v) => shortenNumber(v, 4, true)} />
                 <Tooltip
                     wrapperStyle={_axisStyle.tickLabels}
@@ -131,6 +133,7 @@ export const DbrComboChart = ({
                 <Area opacity={actives[KEYS.BURN] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.BURN} yAxisId="left" type="monotone" dataKey={useUsd ? 'debtUsd' : 'debt'} stroke={themeStyles.colors.warning} dot={false} fillOpacity={1} fill="url(#warning-gradient)" />
                 <Area opacity={actives[KEYS.ISSUANCE] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.ISSUANCE} yAxisId="left" type="monotone" dataKey={useUsd ? 'yearlyRewardRateUsd' : 'yearlyRewardRate'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={1} fill="url(#secondary-gradient)" />
                 <Area opacity={actives[KEYS.STAKERS_ISSUANCE] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.STAKERS_ISSUANCE} yAxisId="left" type="monotone" dataKey={useUsd ? 'stakersYearlyRewardRateUsd' : 'stakersYearlyRewardRate'} stroke={lightTheme.colors.mainTextColor} dot={false} fillOpacity={1} fill="url(#primary-gradient)" />
+                <Line opacity={actives[KEYS.DBR_MC] ? 1 : 0} strokeWidth={2} name={KEYS.DBR_MC} yAxisId="left" type="monotone" dataKey={useUsd ? 'dbrCircSupplyUsd' : 'dbrCircSupply'} stroke={lightTheme.colors.accentTextColor} dot={false} />
                 <Line opacity={actives[KEYS.DBR_PRICE] ? 1 : 0} strokeWidth={2} name={KEYS.DBR_PRICE} yAxisId="right" type="monotone" dataKey={priceKey} stroke={dbrPriceColor} dot={false} />
                 <Line opacity={actives[KEYS.INV_MC] ? 1 : 0} strokeWidth={2} name={KEYS.INV_MC} yAxisId="right" type="monotone" dataKey={priceKey} stroke={invPriceColor} dot={false} />
                 <Legend wrapperStyle={legendStyle} onClick={toggleChart} style={{ cursor: 'pointer' }} formatter={(value) => value + (actives[value] ? '' : ' (hidden)')} />
