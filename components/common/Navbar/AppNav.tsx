@@ -724,7 +724,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
         isOpen={isWrongNetOpen && !isBlog}
         onClose={onWrongNetClose}
       />
-      <LiquidationGrantsModal isOpen={isCampaignOpen} onClose={onCampaignClose} />
+      {isCampaignOpen && <LiquidationGrantsModal isOpen={isCampaignOpen} onClose={onCampaignClose} />}
       {/* <VampireModal isOpen={isCampaignOpen} onClose={onCampaignClose} /> */}
       {/* <ReferToModal isOpen={isReferToOpen} onClose={onReferToClose} /> */}
       {

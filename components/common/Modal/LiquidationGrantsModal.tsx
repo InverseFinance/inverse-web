@@ -1,11 +1,36 @@
-import { VStack, Text, HStack } from "@chakra-ui/react"
-import { InfoMessage } from "../Messages";
+import { VStack, Text, HStack, RadioGroup, Stack, Radio } from "@chakra-ui/react"
+import { InfoMessage, SuccessMessage } from "../Messages";
 import SimpleModal from "./SimpleModal";
 import Link from "../Link";
 import { Steps } from "../Step";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "../Input";
+import { RSubmitButton } from "../Button/RSubmitButton";
+import { useWeb3React } from "@web3-react/core";
+import { shortenAddress } from "@app/util";
+
+export const LIQUIDATION_GRANTS_MSG_TO_SIGN = "Apply to the Inverse Finance Liquidation Grants Program with this account:\r\n";
+
+const saveSig = async (account: string, form: any, sig: string) => {
+    return fetch(`/api/campaigns?campaign=liquidation-grants&address=${account}`, {
+        method: 'POST',
+        body: JSON.stringify({ sig, form }),
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+    });
+}
+
+const checkSig = async (account: string) => {
+    const localCacheFirst = localStorage.getItem(`liquidation-grants-${account}`);
+    if (localCacheFirst) {
+        return JSON.parse(localCacheFirst);
+    }
+    const res = await fetch(`/api/campaigns?campaign=liquidation-grants&address=${account}`);
+    return res.json();
+}
 
 const steps = [
     {
@@ -28,8 +53,33 @@ export const LiquidationGrantsModal = ({
     isOpen = false,
     onClose = () => { },
 }) => {
-    const [bool, setBool] = useState(false);
+    const { provider, account } = useWeb3React();
+    const [liquidatorType, setLiquidatorType] = useState('bot');
+    const [isSuccess, setIsSuccess] = useState(false);
     const [contact, setContact] = useState('');
+
+    const apply = async () => {
+        if (provider && !!account) {
+            const signer = provider?.getSigner();
+            const sig = await signer.signMessage(LIQUIDATION_GRANTS_MSG_TO_SIGN + account.toLowerCase()).catch(() => '');
+            if (!!sig) {
+                return saveSig(account, { liquidatorType, contact }, sig);
+            }
+        }
+    }
+
+    const onSuccess = (result) => {
+        localStorage.setItem(`liquidation-grants-${account}`, JSON.stringify(result));
+        setIsSuccess(true);
+    }
+
+    useEffect(() => {
+        if (!account) return;
+        checkSig(account).then((res) => {
+            setIsSuccess(!!res?.applied);
+        });
+    }, [account]);
+
     return <SimpleModal
         title={
             <HStack spacing="2">
@@ -55,15 +105,32 @@ export const LiquidationGrantsModal = ({
                 }
             />
             <Steps steps={steps} />
-            <VStack w='full' spacing="2">
-                <Text>Are you ready to apply?</Text>
-                <Checkbox isChecked={bool} onChange={() => setBool(!bool)}>I agree to be contacted by FiRM</Checkbox>
-            </VStack>
-            <VStack w='full' spacing="2">
-                <Text>Your contact (email, discord or telegram)</Text>
-                <Input value={contact} onChange={(e) => setContact(e.target.value)} />
-                <Text>Not required but can be useful. Alternatively, just stop into the Inverse Finance Discord Risk channel.</Text>
-            </VStack>
+            {
+                isSuccess ? <SuccessMessage
+                    alertProps={{ w: 'full' }}
+                    description={<Text>{shortenAddress(account)} has successfully applied!</Text>}
+                /> : <>
+                    <VStack alignItems="flex-start" w='full' spacing="2">
+                        <Text fontWeight="bold">Is this liquidating account an EOA or are you the operator of the MEV liquidator?</Text>
+                        <RadioGroup w='full' bgColor="mainBackground" p="2" onChange={setLiquidatorType} value={liquidatorType}>
+                            <Stack direction='row' w='full' spacing="4">
+                                <Radio value='eoa'>EOA</Radio>
+                                <Radio value='bot'>Not an EOA</Radio>
+                            </Stack>
+                        </RadioGroup>
+                    </VStack>
+                    <VStack alignItems="flex-start" w='full' spacing="2">
+                        <Text fontWeight="bold">Your contact (email, discord or telegram):</Text>
+                        <Input value={contact} onChange={(e) => setContact(e.target.value)} />
+                        <Text color="mainTextColorLight">
+                            Not required but can be useful. Alternatively, just stop into the Inverse Finance Discord Risk channel.
+                        </Text>
+                    </VStack>
+                    <RSubmitButton onSuccess={onSuccess} onClick={apply}>
+                        Apply by signing with wallet
+                    </RSubmitButton>
+                </>
+            }
         </VStack>
     </SimpleModal>
 }
