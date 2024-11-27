@@ -343,7 +343,7 @@ export const FirmAffiliateRegisterPage = () => {
                 <meta name="og:description" content="As a FiRM Affiliate, you'll have the opportunity to earn a whopping 10% of the DBR spent by borrowers you refer" />
                 <meta name="og:image" content="https://inverse.finance/assets/social-previews/affiliate.png" />
             </Head>
-            <AppNav active="More" activeSubmenu="Affiliate Dashboard" hideAnnouncement={true} hideVampireBar={true} />
+            <AppNav active="More" activeSubmenu="Affiliate Dashboard" hideAnnouncement={true} hideCampaignBar={true} />
             <ErrorBoundary>
                 <VStack overflow="hidden" spacing="0" w='full' mt="8">
                     <SectionOne />

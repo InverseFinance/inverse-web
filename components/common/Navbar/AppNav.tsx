@@ -69,6 +69,7 @@ import { useMultisig } from '@app/hooks/useSafeMultisig'
 import { FirmGovDelegationModal } from '@app/components/F2/GovToken/FirmGovToken'
 import { TOKEN_IMAGES } from '@app/variables/images'
 import { VampireModal } from '../Modal/VampireModal'
+import { LiquidationGrantsModal } from '../Modal/LiquidationGrantsModal'
 import useStorage from '@app/hooks/useStorage'
 import { ReferralModal } from '../Modal/ReferralModal'
 import { ReferToModal } from '../Modal/ReferToModal'
@@ -482,7 +483,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal, onReferToOpen }:
   )
 }
 
-export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = false, hideAnnouncement = false, hideVampireBar = false }: { active?: string, activeSubmenu?: string, isBlog?: boolean, isClaimPage?: boolean, hideAnnouncement?: boolean, hideVampireBar?: boolean }) => {
+export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = false, hideAnnouncement = false, hideCampaignBar = false }: { active?: string, activeSubmenu?: string, isBlog?: boolean, isClaimPage?: boolean, hideAnnouncement?: boolean, hideCampaignBar?: boolean }) => {
   const { account } = useWeb3React<Web3Provider>();
   const { query } = useRouter()
   const [isLargerThan] = useMediaQuery('(min-width: 1330px)');
@@ -501,7 +502,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const { isOpen: isWrongNetOpen, onOpen: onWrongNetOpen, onClose: onWrongNetClose } = useDisclosure()
   const { isOpen: isAirdropOpen, onOpen: onAirdropOpen, onClose: onAirdropClose } = useDisclosure()
   const { isOpen: isTosOpen, onOpen: onTosOpen, onClose: onTosClose } = useDisclosure()
-  const { isOpen: isVampireOpen, onOpen: onVampireOpen, onClose: onVampireClose } = useDisclosure()
+  const { isOpen: isCampaignOpen, onOpen: onCampaignOpen, onClose: onCampaignClose } = useDisclosure()
   const { isOpen: isReferralOpen, onOpen: onReferralOpen, onClose: onReferralClose } = useDisclosure()
   const { isOpen: isReferralPopOpen, onOpen: onReferralPopOpen, onClose: onReferralPopClose } = useDisclosure()
   const { isOpen: isReferToOpen, onOpen: onReferToOpen, onClose: onReferToClose } = useDisclosure()
@@ -681,7 +682,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   }, []);
 
   const openRefund = () => {
-    onVampireOpen();
+    onCampaignOpen();
   }
 
   const handleCloseRefPop = () => {
@@ -694,11 +695,16 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
     // onReferToOpen()
   }
 
-  const vampireComp = <NavBadge position="relative">
-    {/* <Image display="inline-block" src={"https://assets.coingecko.com/markets/images/544/small/AAVE.png"} w="24px" h="24px" /> */}
-    <Image mr="2" top="-9px" position={isLargerThan1500 ? 'static' : 'absolute'} display="inline-block" src={"https://assets.coingecko.com/coins/images/12645/standard/aave-token-round.png"} w="18px" h="18px" />
-    <Text ml="0" fontSize="12px">Aave frens get their gas costs refunded.</Text>
-    <Text cursor="pointer" onClick={openRefund} ml="1" textDecoration="underline" fontSize="12px">Redeem</Text>
+  // const vampireComp = <NavBadge position="relative">
+  //   {/* <Image display="inline-block" src={"https://assets.coingecko.com/markets/images/544/small/AAVE.png"} w="24px" h="24px" /> */}
+  //   <Image mr="2" top="-9px" position={isLargerThan1500 ? 'static' : 'absolute'} display="inline-block" src={"https://assets.coingecko.com/coins/images/12645/standard/aave-token-round.png"} w="18px" h="18px" />
+  //   <Text ml="0" fontSize="12px">Aave frens get their gas costs refunded.</Text>
+  //   <Text cursor="pointer" onClick={openRefund} ml="1" textDecoration="underline" fontSize="12px">Redeem</Text>
+  // </NavBadge>;
+
+  const liquidationProgram = <NavBadge position="relative">
+    <Text ml="0" fontSize="12px">💰 Liquidator Grants Program started!</Text>
+    <Text cursor="pointer" onClick={openRefund} ml="1" textDecoration="underline" fontSize="12px">Apply</Text>
   </NavBadge>;
 
   return (
@@ -718,7 +724,8 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
         isOpen={isWrongNetOpen && !isBlog}
         onClose={onWrongNetClose}
       />
-      <VampireModal isOpen={isVampireOpen} onClose={onVampireClose} />
+      <LiquidationGrantsModal isOpen={isCampaignOpen} onClose={onCampaignClose} />
+      {/* <VampireModal isOpen={isCampaignOpen} onClose={onCampaignClose} /> */}
       {/* <ReferToModal isOpen={isReferToOpen} onClose={onReferToClose} /> */}
       {
         !!account && <ReferralModal onOpen={onReferralOpen} isOpen={isReferralOpen} onClose={onReferralClose} />
@@ -815,7 +822,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
 
               <Stack direction="row" align="center" display={{ base: 'none', lg: 'flex' }}>
                 {
-                  isLargerThan1150 && inited && vampireComp
+                  isLargerThan1150 && inited && liquidationProgram
                 }
                 {
                   isLargerThan1300 && <INVBalance />
@@ -838,8 +845,8 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
       </Flex>
       {!!process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG && !hideAnnouncement && <Announcement />}
       {
-        !isLargerThan1150 && inited && !hideVampireBar && <VStack mt="4">
-          {vampireComp}
+        !isLargerThan1150 && inited && !hideCampaignBar && <VStack mt="4">
+          {liquidationProgram}
         </VStack>
       }
     </VStack>
