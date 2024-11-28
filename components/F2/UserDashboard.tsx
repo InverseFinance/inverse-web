@@ -167,8 +167,8 @@ export const MonthlyRewards = ({
     </DashBoardCard>
 }
 
-const NumberItem = ({ noDataFallback = '-', href = '', footer = undefined, isLoading = false, value = 0, price = undefined, label = '', isUsd = false, precision = 0, isPerc = false }) => {
-    return <VStack spacing="0" justify="center" alignItems="flex-end" w='full'>
+const NumberItem = ({ containerProps, noDataFallback = '-', href = '', footer = undefined, isLoading = false, value = 0, price = undefined, label = '', isUsd = false, precision = 0, isPerc = false }) => {
+    return <VStack spacing="0" justify="center" alignItems="flex-end" w='full' {...containerProps}>
         <VStack alignItems="flex-end" spacing="1">
             {
                 isLoading ? <BigTextLoader /> : <Text fontWeight="extrabold" fontSize={price ? { base: '22px', '2xl': '24px' } : { base: '30px', '2xl': '36px' }} color={'mainTextColor'}>
@@ -236,7 +236,7 @@ export const NumberAndPieCard = ({ isLoading, title, footer = undefined, noDataF
         {
             !isLoading && !data?.length ? noDataFallback : <PieItem fill={fill} activeFill={activeFill} data={data} width={width} height={height} dataKey={dataKey} nameKey={nameKey} precision={precision} isUsd={isUsd} />
         }
-        <NumberItem footer={footer} isLoading={isLoading} value={value} label={label} precision={precision} isUsd={isUsd} />
+        <NumberItem containerProps={{ position: { base: 'static', md: 'absolute' }, top: '0', bottom: '0', right: '40px' }} footer={footer} isLoading={isLoading} value={value} label={label} precision={precision} isUsd={isUsd} />
     </DashBoardCard>
 }
 
