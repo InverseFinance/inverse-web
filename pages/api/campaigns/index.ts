@@ -3,12 +3,116 @@ import { verifyMultisigMessage } from '@app/util/multisig';
 import { getCacheFromRedis, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis';
 import { verifyMessage, hashMessage } from 'ethers/lib/utils';
 
-const CAMPAIGNS = [
-    'liquidation-grants',
-];
-const MSG_TO_SIGN = {
-    'liquidation-grants': LIQUIDATION_GRANTS_MSG_TO_SIGN,
+interface FieldSettings {
+  values?: string[];
+  maxLength?: number;
 }
+
+interface CampaignSettings {
+  title: string;
+  sigText: string;
+  fields: string[];
+  mandatoryFields: string[];
+  fieldsSettings: {
+    [key: string]: FieldSettings;
+  };
+}
+
+const CAMPAIGNS_SETTINGS = {
+    'liquidation-grants': {
+        title: 'Liquidation Grants Program',
+        sigText: LIQUIDATION_GRANTS_MSG_TO_SIGN,
+        fields: ['liquidatorType', 'contact'],
+        mandatoryFields: ['liquidatorType'],
+        to: 'karm@inverse.finance',
+        fieldsSettings: {
+            liquidatorType: {
+                values: ['eoa', 'bot'],
+            },
+            contact: {
+                maxLength: 100,
+            }
+        }
+    },
+}
+const CAMPAIGNS = Object.keys(CAMPAIGNS_SETTINGS);
+
+const sendNotifToTeam = async (campaignSettings: CampaignSettings, form: Record<string, string>) => {
+    const mainValues = Object.entries(form).map(([key, value]) => {
+        return `<li>${key}: <strong>${value}</strong></li>`;
+    }).join('');
+
+    const to = campaignSettings.to;
+
+    let html = `<h1>A new application has been submitted for the ${campaignSettings.title} campaign!</h1></br></br><p><strong>Main informations:</strong></p><ul>${mainValues}</ul>`    
+
+    const res = await fetch('https://api.postmarkapp.com/email', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Postmark-Server-Token': process.env.EMAIL_TOKEN,
+        },
+        body: JSON.stringify({
+            From: process.env.REF_EMAIL_FROM,
+            To: to || process.env.REF_EMAIL_TO,
+            Cc: process.env.REF_EMAIL_FROM,
+            Subject: campaignSettings.title+': New application!',
+            TextBody: campaignSettings.title+': New application!',
+            HtmlBody: `<html><body>${html}</body></html>`,
+            MessageStream: 'outbound',
+        }),
+    });    
+}
+
+const checkCampaignValues = (form: Record<string, string>, campaignSettings: CampaignSettings): { valid: boolean; error?: string } => {
+  try {
+    // Check if form has any fields not defined in campaign settings
+    const invalidFields = Object.keys(form).filter(field => !campaignSettings.fields.includes(field));
+    if (invalidFields.length > 0) {
+      return { 
+        valid: false, 
+        error: `Invalid fields found: ${invalidFields.join(', ')}` 
+      };
+    }
+
+    // Check if all mandatory fields are present and not empty
+    const missingFields = campaignSettings.mandatoryFields.filter(field => !form[field] || form[field].trim() === '');
+    if (missingFields.length > 0) {
+      return { 
+        valid: false, 
+        error: `Missing mandatory fields: ${missingFields.join(', ')}` 
+      };
+    }
+
+    // Check each field against its settings
+    for (const [fieldName, fieldValue] of Object.entries(form)) {
+      const settings = campaignSettings.fieldsSettings[fieldName];
+      if (!settings) continue;
+
+      // Check if value is in allowed values list
+      if (settings.values && !settings.values.includes(fieldValue)) {
+        return {
+          valid: false,
+          error: `Invalid value for ${fieldName}. Allowed values: ${settings.values.join(', ')}`
+        };
+      }
+
+      // Check max length
+      if (settings.maxLength && fieldValue.length > settings.maxLength) {
+        return {
+          valid: false,
+          error: `${fieldName} exceeds maximum length of ${settings.maxLength} characters`
+        };
+      }
+    }
+
+    return { valid: true };
+  } catch (e) {
+    console.error('Error validating campaign values:', e);
+    return { valid: false, error: 'Validation error occurred' };
+  }
+};
 
 export default async function handler(req, res) {
     const {
@@ -29,7 +133,7 @@ export default async function handler(req, res) {
         return;
     }
 
-    const key = `liquidation-grants-${campaign}-sign-${address}`;
+    const key = `${campaign}-user-${address}`;
     const cachedResult = (await getCacheFromRedis(key, false, 600));
     const readResult = cachedResult || { applied: false };
     const publicResult = { applied: readResult.applied, timestamp: readResult.timestamp };
@@ -43,11 +147,24 @@ export default async function handler(req, res) {
                 res.status(200).json(publicResult);
                 return;
             }
+            const campaignSettings = CAMPAIGNS_SETTINGS[campaign];
+
+            // Add form validation
+            const validationResult = checkCampaignValues(form, campaignSettings);
+            if (!validationResult.valid) {
+                res.status(400).json({ 
+                    status: 'error', 
+                    message: validationResult.error || 'Invalid form data' 
+                });
+                return;
+            }
+
             const jsonForm = JSON.stringify(form);
+
             if (!address || /[<>]/i.test(jsonForm) || /(<script|alert\()/i.test(jsonForm) || /^test$/i.test(jsonForm)) {
                 res.status(400).json({ status: 'error', message: 'Invalid values' })
                 return
-            }    
+            }
             let sigAddress = '';
             let isMultisig = false;
 
@@ -79,7 +196,8 @@ export default async function handler(req, res) {
             };
 
             const result = { applied: true, signature: sig, form, isMultisig, timestamp: Date.now() };
-            // await redisSetWithTimestamp(key, result);
+            await redisSetWithTimestamp(key, result);
+            sendNotifToTeam(campaignSettings, form);
             res.status(200).json({ status: 'success', applied: result.applied, timestamp: result.timestamp });
             break
         default:
