@@ -1,4 +1,5 @@
 import { LIQUIDATION_GRANTS_MSG_TO_SIGN } from '@app/components/common/Modal/LiquidationGrantsModal';
+import { shortenAddress } from '@app/util';
 import { verifyMultisigMessage } from '@app/util/multisig';
 import { getCacheFromRedis, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis';
 import { verifyMessage, hashMessage } from 'ethers/lib/utils';
@@ -28,25 +29,29 @@ const CAMPAIGNS_SETTINGS = {
         fieldsSettings: {
             liquidatorType: {
                 values: ['eoa', 'bot'],
+                title: 'Liquidator type',
             },
             contact: {
                 maxLength: 100,
+                title: 'Contact',
             }
         }
     },
 }
 const CAMPAIGNS = Object.keys(CAMPAIGNS_SETTINGS);
 
-const sendNotifToTeam = async (campaignSettings: CampaignSettings, form: Record<string, string>) => {
+const sendNotifToTeam = async (campaignSettings: CampaignSettings, form: Record<string, string>, address?: string) => {
     const mainValues = Object.entries(form).map(([key, value]) => {
-        return `<li>${key}: <strong>${value}</strong></li>`;
+        return `<li>${campaignSettings.fieldsSettings[key]?.title || key}: <strong>${value}</strong></li>`;
     }).join('');
 
-    const to = campaignSettings.to;
+    const to = campaignSettings.to || process.env.REF_EMAIL_TO;
 
-    let html = `<h1>A new application has been submitted for the ${campaignSettings.title} campaign!</h1></br></br><p><strong>Main informations:</strong></p><ul>${mainValues}</ul>`    
+    const user = address ? `User: <a href="https://etherscan.io/address/${address}" target="_blank" rel="noreferrer">${shortenAddress(address)}</a></br></br>` : '';
 
-    const res = await fetch('https://api.postmarkapp.com/email', {
+    let html = `<h1>${campaignSettings.title}</h1><h3>New application!</h3></br></br>${user}<ul>${mainValues}</ul>`    
+
+    await fetch('https://api.postmarkapp.com/email', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -55,7 +60,7 @@ const sendNotifToTeam = async (campaignSettings: CampaignSettings, form: Record<
         },
         body: JSON.stringify({
             From: process.env.REF_EMAIL_FROM,
-            To: to || process.env.REF_EMAIL_TO,
+            To: to,
             Cc: process.env.REF_EMAIL_FROM,
             Subject: campaignSettings.title+': New application!',
             TextBody: campaignSettings.title+': New application!',
@@ -170,7 +175,7 @@ export default async function handler(req, res) {
 
             const lcAddress = address.toLowerCase();
 
-            const fullMsgToSign = MSG_TO_SIGN[campaign] + lcAddress;
+            const fullMsgToSign = campaignSettings.sigText + lcAddress;
 
             try {
                 sigAddress = verifyMessage(fullMsgToSign, sig);
@@ -197,7 +202,7 @@ export default async function handler(req, res) {
 
             const result = { applied: true, signature: sig, form, isMultisig, timestamp: Date.now() };
             await redisSetWithTimestamp(key, result);
-            sendNotifToTeam(campaignSettings, form);
+            sendNotifToTeam(campaignSettings, form, address);
             res.status(200).json({ status: 'success', applied: result.applied, timestamp: result.timestamp });
             break
         default:

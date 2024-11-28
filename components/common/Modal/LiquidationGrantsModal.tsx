@@ -25,8 +25,8 @@ const saveSig = async (account: string, form: any, sig: string) => {
 
 const checkSig = async (account: string) => {
     const localCacheFirst = localStorage.getItem(`liquidation-grants-${account}`);
-    if (localCacheFirst) {
-        return JSON.parse(localCacheFirst);
+    if (localCacheFirst === 'true') {
+        return { applied: true };
     }
     const res = await fetch(`/api/campaigns?campaign=liquidation-grants&address=${account}`);
     return res.json();
@@ -69,12 +69,13 @@ export const LiquidationGrantsModal = ({
     }
 
     const onSuccess = (result) => {
-        localStorage.setItem(`liquidation-grants-${account}`, JSON.stringify(result));
+        localStorage.setItem(`liquidation-grants-${account}`, 'true');
         setIsSuccess(true);
     }
 
     useEffect(() => {
         if (!account) return;
+        setIsSuccess(false);
         checkSig(account).then((res) => {
             setIsSuccess(!!res?.applied);
         });
