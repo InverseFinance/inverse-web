@@ -236,7 +236,7 @@ export const NumberAndPieCard = ({ isLoading, title, footer = undefined, noDataF
         {
             !isLoading && !data?.length ? noDataFallback : <PieItem fill={fill} activeFill={activeFill} data={data} width={width} height={height} dataKey={dataKey} nameKey={nameKey} precision={precision} isUsd={isUsd} />
         }
-        <NumberItem containerProps={{ position: { base: 'static', md: 'absolute' }, top: '0', bottom: '0', right: '40px' }} footer={footer} isLoading={isLoading} value={value} label={label} precision={precision} isUsd={isUsd} />
+        <NumberItem containerProps={{ width: { md: 'fit-content' }, position: { base: 'static', md: 'absolute' }, top: '0', bottom: '0', right: '40px' }} footer={footer} isLoading={isLoading} value={value} label={label} precision={precision} isUsd={isUsd} />
     </DashBoardCard>
 }
 
