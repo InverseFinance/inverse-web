@@ -266,6 +266,13 @@ export const getCrvUSDDOLAConvexData = async () => {
     return [];
 }
 
+export const getSUSDeDOLAConvexData = async () => {
+    try {
+        return getPoolYield('85407c01-6f16-4cef-9ef2-1b2bf2556183');
+    } catch (e) { console.log(e) }
+    return [];
+}
+
 export const getFraxPyusdDOLAConvexData = async () => {
     try {
         return getPoolYield('0ae6a3d1-5aed-460e-bfb7-bbd855f0bc21');
@@ -482,6 +489,17 @@ export const getYvCrvUsdDOLAData = async () => {
     }
 }
 
+export const getYvSUSDeDOLAData = async () => {
+    try {
+        const results = await fetch("https://ydaemon.yearn.fi/1/vaults/0x1Fc80CfCF5B345b904A0fB36d4222196Ed9eB8a5");
+        const data = await results.json();
+        return { apy: data?.apr.forwardAPR?.netAPR * 100 };
+    } catch (e) {
+        console.log(e)
+        return { apy: 0 }
+    }
+}
+
 export const getYvFraxPyusdDOLAData = async () => {
     try {
         const results = await fetch("https://ydaemon.yearn.fi/1/vaults/0xcC2EFb8bEdB6eD69ADeE0c3762470c38D4730C50");
@@ -654,6 +672,8 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         getFraxBPDOLAConvexData(),
         getYvFraxBPDOLAData(),
         getPTsUSDe27MAR25Data(),
+        getSUSDeDOLAConvexData(),
+        getYvSUSDeDOLAData(),
     ]);
 
     let [
@@ -673,6 +693,8 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         fraxBPDOLAConvexData,
         yvFraxBPDOLAData,
         ptSUSDe27MAR25Data,
+        sUSDeDOLAConvexData,
+        yvSUSDeDOLAData,
     ] = externalYieldResults.map(r => {
         return r.status === 'fulfilled' ? r.value : {};
     });
@@ -706,5 +728,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         'FraxBP-DOLA': fraxBPDOLAConvexData?.apy || 0,
         'yv-FraxBP-DOLA': yvFraxBPDOLAData?.apy || 0,
         'PT-sUSDe-27MAR25': ptSUSDe27MAR25Data?.apy || 0,
+        'sUSDe-DOLA': sUSDeDOLAConvexData?.apy || 0,
+        'yv-sUSDe-DOLA': yvSUSDeDOLAData?.apy || 0,
     };
 }
