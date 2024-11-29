@@ -110,13 +110,16 @@ export const LiquidationGrantsModal = ({
                 isSuccess ? <SuccessMessage
                     alertProps={{ w: 'full' }}
                     description={<Text>{shortenAddress(account)} has successfully applied!</Text>}
+                /> : !account ? <InfoMessage
+                    alertProps={{ w: 'full' }}
+                    description={<Text>Please connect your wallet first</Text>}
                 /> : <>
                     <VStack alignItems="flex-start" w='full' spacing="2">
                         <Text fontWeight="bold">Is this liquidating account an EOA or are you the operator of the MEV liquidator?</Text>
                         <RadioGroup w='full' bgColor="mainBackground" p="2" onChange={setLiquidatorType} value={liquidatorType}>
                             <Stack direction='row' w='full' spacing="4">
                                 <Radio value='eoa'>EOA</Radio>
-                                <Radio value='bot'>Not an EOA</Radio>
+                                <Radio value='bot'>Operator</Radio>
                             </Stack>
                         </RadioGroup>
                     </VStack>
