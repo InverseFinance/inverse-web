@@ -20,7 +20,7 @@ import { preciseCommify } from '@app/util/misc'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { BigNumber, Contract } from 'ethers'
 import { JsonRpcSigner } from '@ethersproject/providers'
-import { CRV_LP_ABI, CRV_META_LP_ABI } from '@app/config/crv-abis'
+import { CRV_LP_ABI, CRV_META_LP_ABI, CURVE_STABLE_SWAP_NG_ABI } from '@app/config/crv-abis'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -90,6 +90,15 @@ const nonProxySwapGetters = {
     },
     'nonProxySwapMeta': async (metaLp: string, dolaAmountToDepositOrLpAmountToBurn: BigNumber | string, isDeposit: boolean, signer: JsonRpcSigner) => {
         const crvLpContract = new Contract(metaLp, CRV_META_LP_ABI, signer);
+        // amount in lp, = change in lp supply when depositing or withdrawing dola
+        if (isDeposit) {
+            return (await crvLpContract.calc_token_amount([dolaAmountToDepositOrLpAmountToBurn.toString(), '0'], true));
+        } else {
+            return (await crvLpContract.calc_withdraw_one_coin(dolaAmountToDepositOrLpAmountToBurn.toString(), 0));
+        }
+    },
+    'nonProxySwapNG': async (ngLp: string, dolaAmountToDepositOrLpAmountToBurn: BigNumber | string, isDeposit: boolean, signer: JsonRpcSigner) => {
+        const crvLpContract = new Contract(ngLp, CURVE_STABLE_SWAP_NG_ABI, signer);
         // amount in lp, = change in lp supply when depositing or withdrawing dola
         if (isDeposit) {
             return (await crvLpContract.calc_token_amount([dolaAmountToDepositOrLpAmountToBurn.toString(), '0'], true));
