@@ -17,7 +17,7 @@ const DEFI_LLAMA_POOL_IDS = {
   CRVUSD_DOLA: 'e85c4caf-f504-4ffe-932d-b2054ac0e2bb',
   SUSDE_DOLA: '85407c01-6f16-4cef-9ef2-1b2bf2556183',
   FRAX_PYUSD_DOLA: '0ae6a3d1-5aed-460e-bfb7-bbd855f0bc21',
-  FRAX_BP_DOLA: 'd05cb04d-f1e5-451d-9c5a2-6a3a9da001ad',
+  FRAX_BP_DOLA: 'd05cb04d-f1e5-451d-95a2-6a3a9da001ad',
   SFRAX: '55de30c3-bf9f-4d4e-9e0b-536a8ef5ab35',
 } as const;
 
