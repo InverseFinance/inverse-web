@@ -441,19 +441,19 @@ const FirmSetMarketHumanReadableActionLabel = ({
 }) => {
     let text;
     const market = callDatas[0];
-    const collateral = callDatas[1];
+    const buySellToken = callDatas[1];
     const helper = callDatas[2];
-    const useProxy = callDatas[3];
+    const useProxy = callDatas[3] === 'true';
 
     const { data: symbolData } = useEtherSWR({
         abi: ERC20_ABI,
         args: [
-            [collateral, 'symbol'],
+            [buySellToken, 'symbol'],
         ],
     });
 
     text = <Flex display="inline-block">
-        Set Market: <ScannerLink color="info" value={market} />'s ALE configuration, collateral: <ScannerLink color="info" value={collateral} label={symbolData} />, use helper: {helper === BURN_ADDRESS ? 'no' : <ScannerLink color="info" value={helper} />}, use 1inch: {useProxy ? 'yes' : 'no'}
+        Set Market: <ScannerLink color="info" value={market} />'s ALE configuration, buySellToken: <ScannerLink color="info" value={buySellToken} label={symbolData} />, use helper: {helper === BURN_ADDRESS ? 'no' : <ScannerLink color="info" value={helper} />}, use 1inch: {useProxy ? 'yes' : 'no'}
     </Flex>
 
     return (
