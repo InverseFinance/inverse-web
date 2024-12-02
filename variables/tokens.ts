@@ -123,6 +123,7 @@ const chainTokenAddresses = {
     SDOLASCRVUSDCLP: '0x76A962BA6770068bCF454D34dDE17175611e6637',
     DOLASUSDSCLP: '0x8b83c4aA949254895507D09365229BC3a8c7f710',
     DOLASUSDECLP: '0x744793B5110f6ca9cC7CDfe1CE16677c3Eb192ef',
+    YVDOLASUSDECLP: '0x1Fc80CfCF5B345b904A0fB36d4222196Ed9eB8a5',
     INVTRICRYPTO: '0x5426178799ee0a0181A89b4f57eFddfAb49941Ec',
     INVTRICRYPTOYEARNV2: '0x6949145469362F9eeaB3c96Ea41b51D9B4cC2b21',
     DBRTRICRYPTO: '0xC7DE47b9Ca2Fc753D6a2F167D8b3e19c6D18b19a',
@@ -1282,6 +1283,21 @@ const chainTokens = {
       ],
       image: TOKEN_IMAGES.DOLA,
       link: 'https://curve.fi/#/ethereum/pools/factory-stable-ng-298/deposit',
+    },
+    [chainTokenAddresses["1"].YVDOLASUSDECLP]: {
+      address: chainTokenAddresses["1"].YVDOLASUSDECLP,
+      name: 'yv-DOLA-sUSDe',
+      symbol: 'yv-DOLA-sUSDe',
+      protocolImage: PROTOCOL_IMAGES.YFI,
+      rootCrvPool: chainTokenAddresses["1"].DOLASUSDECLP,
+      decimals: 18,
+      isLP: true,
+      isYearnV2LP: true,
+      pairs: [
+        chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].sUSDE
+      ],
+      image: TOKEN_IMAGES.DOLA,
+      link: 'https://yearn.fi/vaults/1/0x1Fc80CfCF5B345b904A0fB36d4222196Ed9eB8a5',
     },
     [chainTokenAddresses["1"].DOLASUSDSCLP]: {
       address: chainTokenAddresses["1"].DOLASUSDSCLP,

@@ -9,6 +9,36 @@ import { getProvider } from './providers';
 import { NETWORKS_BY_NAME } from '@app/config/networks';
 import { fetchWithTimeout } from './web3';
 
+const DEFI_LLAMA_POOL_IDS = {
+  STETH: '747c1d2a-c668-4682-b9f9-296708a3dd90',
+  CVX_CRV: 'ef32dd3b-a03b-4f79-9b65-8420d7e04ad0',
+  DSR: 'c8a24fee-ec00-4f38-86c0-9f6daebc4225',
+  ST_CVX: '777032e6-e815-4f44-90b4-abb98f0f9632',
+  CRVUSD_DOLA: 'e85c4caf-f504-4ffe-932d-b2054ac0e2bb',
+  SUSDE_DOLA: '85407c01-6f16-4cef-9ef2-1b2bf2556183',
+  FRAX_PYUSD_DOLA: '0ae6a3d1-5aed-460e-bfb7-bbd855f0bc21',
+  FRAX_BP_DOLA: 'd05cb04d-f1e5-451d-9c5a2-6a3a9da001ad',
+  SFRAX: '55de30c3-bf9f-4d4e-9e0b-536a8ef5ab35',
+} as const;
+
+const YEARN_VAULT_IDS = {
+  YCRV: '0x27B5739e22ad9033bcBf192059122d163b60349D',
+  CRVUSD_DOLA: '0xfb5137Aa9e079DB4b7C2929229caf503d0f6DA96',
+  SUSDE_DOLA: '0x1Fc80CfCF5B345b904A0fB36d4222196Ed9eB8a5',
+  FRAX_PYUSD_DOLA: '0xcC2EFb8bEdB6eD69ADeE0c3762470c38D4730C50',
+  FRAX_BP_DOLA: '0xe5F625e8f4D2A038AE9583Da254945285E5a77a4',
+} as const;
+
+const getDefiLlamaApy = async (poolId: string) => {
+  try {
+    const data = await getPoolYield(poolId);
+    return { apy: data?.apy || 0 };
+  } catch (e) {
+    console.log(`Failed to fetch APY for pool ${poolId}:`, e);
+    return { apy: 0 };
+  }
+};
+
 export const getMonthlyRate = (balance: number, apy: number) => {
     return (balance || 0) * (apy || 0) / 100 / 12;
 }
@@ -259,53 +289,35 @@ export const getSUSDEData = async (provider) => {
     return [];
 }
 
-export const getCrvUSDDOLAConvexData = async () => {
-    try {
-        return getPoolYield('e85c4caf-f504-4ffe-932d-b2054ac0e2bb');
-    } catch (e) { console.log(e) }
-    return [];
-}
+export const getCrvUSDDOLAConvexData = () => getDefiLlamaApy(DEFI_LLAMA_POOL_IDS.CRVUSD_DOLA);
 
-export const getFraxPyusdDOLAConvexData = async () => {
-    try {
-        return getPoolYield('0ae6a3d1-5aed-460e-bfb7-bbd855f0bc21');
-    } catch (e) { console.log(e) }
-    return [];
-}
+export const getSUSDeDOLAConvexData = () => getDefiLlamaApy(DEFI_LLAMA_POOL_IDS.SUSDE_DOLA);
 
-export const getFraxBPDOLAConvexData = async () => {
-    try {
-        return getPoolYield('d05cb04d-f1e5-451d-95a2-6a3a9da001ad');
-    } catch (e) { console.log(e) }
-    return [];
-}
+export const getFraxPyusdDOLAConvexData = () => getDefiLlamaApy(DEFI_LLAMA_POOL_IDS.FRAX_PYUSD_DOLA);
+
+export const getFraxBPDOLAConvexData = () => getDefiLlamaApy(DEFI_LLAMA_POOL_IDS.FRAX_BP_DOLA);
 
 export const getSFraxData = async (provider) => {
-    try {
-        // return getPoolYield('55de30c3-bf9f-4d4e-9e0b-536a8ef5ab35');
-        const contract = new Contract('0xA663B02CF0a4b149d2aD41910CB81e23e1c41c32', [{ "inputs": [{ "internalType": "contract IERC20", "name": "_underlying", "type": "address" }, { "internalType": "string", "name": "_name", "type": "string" }, { "internalType": "string", "name": "_symbol", "type": "string" }, { "internalType": "uint32", "name": "_rewardsCycleLength", "type": "uint32" }, { "internalType": "uint256", "name": "_maxDistributionPerSecondPerAsset", "type": "uint256" }, { "internalType": "address", "name": "_timelockAddress", "type": "address" }], "stateMutability": "nonpayable", "type": "constructor" }, { "inputs": [{ "internalType": "address", "name": "pendingTimelockAddress", "type": "address" }, { "internalType": "address", "name": "actualAddress", "type": "address" }], "name": "AddressIsNotPendingTimelock", "type": "error" }, { "inputs": [{ "internalType": "address", "name": "timelockAddress", "type": "address" }, { "internalType": "address", "name": "actualAddress", "type": "address" }], "name": "AddressIsNotTimelock", "type": "error" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "owner", "type": "address" }, { "indexed": true, "internalType": "address", "name": "spender", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "Approval", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "caller", "type": "address" }, { "indexed": true, "internalType": "address", "name": "owner", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "assets", "type": "uint256" }, { "indexed": false, "internalType": "uint256", "name": "shares", "type": "uint256" }], "name": "Deposit", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": false, "internalType": "uint256", "name": "rewardsToDistribute", "type": "uint256" }], "name": "DistributeRewards", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": false, "internalType": "uint256", "name": "oldMax", "type": "uint256" }, { "indexed": false, "internalType": "uint256", "name": "newMax", "type": "uint256" }], "name": "SetMaxDistributionPerSecondPerAsset", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": false, "internalType": "uint40", "name": "cycleEnd", "type": "uint40" }, { "indexed": false, "internalType": "uint40", "name": "lastSync", "type": "uint40" }, { "indexed": false, "internalType": "uint216", "name": "rewardCycleAmount", "type": "uint216" }], "name": "SyncRewards", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "previousTimelock", "type": "address" }, { "indexed": true, "internalType": "address", "name": "newTimelock", "type": "address" }], "name": "TimelockTransferStarted", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "previousTimelock", "type": "address" }, { "indexed": true, "internalType": "address", "name": "newTimelock", "type": "address" }], "name": "TimelockTransferred", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "from", "type": "address" }, { "indexed": true, "internalType": "address", "name": "to", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "Transfer", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "caller", "type": "address" }, { "indexed": true, "internalType": "address", "name": "receiver", "type": "address" }, { "indexed": true, "internalType": "address", "name": "owner", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "assets", "type": "uint256" }, { "indexed": false, "internalType": "uint256", "name": "shares", "type": "uint256" }], "name": "Withdraw", "type": "event" }, { "inputs": [], "name": "DOMAIN_SEPARATOR", "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "PRECISION", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "REWARDS_CYCLE_LENGTH", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "UNDERLYING_PRECISION", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "acceptTransferTimelock", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "", "type": "address" }, { "internalType": "address", "name": "", "type": "address" }], "name": "allowance", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "approve", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "asset", "outputs": [{ "internalType": "contract ERC20", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "", "type": "address" }], "name": "balanceOf", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "components": [{ "internalType": "uint40", "name": "cycleEnd", "type": "uint40" }, { "internalType": "uint40", "name": "lastSync", "type": "uint40" }, { "internalType": "uint216", "name": "rewardCycleAmount", "type": "uint216" }], "internalType": "struct LinearRewardsErc4626.RewardsCycleData", "name": "_rewardsCycleData", "type": "tuple" }, { "internalType": "uint256", "name": "_deltaTime", "type": "uint256" }], "name": "calculateRewardsToDistribute", "outputs": [{ "internalType": "uint256", "name": "_rewardToDistribute", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "shares", "type": "uint256" }], "name": "convertToAssets", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "assets", "type": "uint256" }], "name": "convertToShares", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "decimals", "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "_assets", "type": "uint256" }, { "internalType": "address", "name": "_receiver", "type": "address" }], "name": "deposit", "outputs": [{ "internalType": "uint256", "name": "_shares", "type": "uint256" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "_assets", "type": "uint256" }, { "internalType": "address", "name": "_receiver", "type": "address" }, { "internalType": "uint256", "name": "_deadline", "type": "uint256" }, { "internalType": "bool", "name": "_approveMax", "type": "bool" }, { "internalType": "uint8", "name": "_v", "type": "uint8" }, { "internalType": "bytes32", "name": "_r", "type": "bytes32" }, { "internalType": "bytes32", "name": "_s", "type": "bytes32" }], "name": "depositWithSignature", "outputs": [{ "internalType": "uint256", "name": "_shares", "type": "uint256" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "lastRewardsDistribution", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "", "type": "address" }], "name": "maxDeposit", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "maxDistributionPerSecondPerAsset", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "", "type": "address" }], "name": "maxMint", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }], "name": "maxRedeem", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }], "name": "maxWithdraw", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "_shares", "type": "uint256" }, { "internalType": "address", "name": "_receiver", "type": "address" }], "name": "mint", "outputs": [{ "internalType": "uint256", "name": "_assets", "type": "uint256" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "name", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "", "type": "address" }], "name": "nonces", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "pendingTimelockAddress", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "value", "type": "uint256" }, { "internalType": "uint256", "name": "deadline", "type": "uint256" }, { "internalType": "uint8", "name": "v", "type": "uint8" }, { "internalType": "bytes32", "name": "r", "type": "bytes32" }, { "internalType": "bytes32", "name": "s", "type": "bytes32" }], "name": "permit", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "assets", "type": "uint256" }], "name": "previewDeposit", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "previewDistributeRewards", "outputs": [{ "internalType": "uint256", "name": "_rewardToDistribute", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "shares", "type": "uint256" }], "name": "previewMint", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "shares", "type": "uint256" }], "name": "previewRedeem", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "previewSyncRewards", "outputs": [{ "components": [{ "internalType": "uint40", "name": "cycleEnd", "type": "uint40" }, { "internalType": "uint40", "name": "lastSync", "type": "uint40" }, { "internalType": "uint216", "name": "rewardCycleAmount", "type": "uint216" }], "internalType": "struct LinearRewardsErc4626.RewardsCycleData", "name": "_newRewardsCycleData", "type": "tuple" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "assets", "type": "uint256" }], "name": "previewWithdraw", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "pricePerShare", "outputs": [{ "internalType": "uint256", "name": "_pricePerShare", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "_shares", "type": "uint256" }, { "internalType": "address", "name": "_receiver", "type": "address" }, { "internalType": "address", "name": "_owner", "type": "address" }], "name": "redeem", "outputs": [{ "internalType": "uint256", "name": "_assets", "type": "uint256" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "renounceTimelock", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "rewardsCycleData", "outputs": [{ "internalType": "uint40", "name": "cycleEnd", "type": "uint40" }, { "internalType": "uint40", "name": "lastSync", "type": "uint40" }, { "internalType": "uint216", "name": "rewardCycleAmount", "type": "uint216" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "_maxDistributionPerSecondPerAsset", "type": "uint256" }], "name": "setMaxDistributionPerSecondPerAsset", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "storedTotalAssets", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "symbol", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "syncRewardsAndDistribution", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "timelockAddress", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "totalAssets", "outputs": [{ "internalType": "uint256", "name": "_totalAssets", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "totalSupply", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "to", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "transfer", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "from", "type": "address" }, { "internalType": "address", "name": "to", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "transferFrom", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_newTimelock", "type": "address" }], "name": "transferTimelock", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "_assets", "type": "uint256" }, { "internalType": "address", "name": "_receiver", "type": "address" }, { "internalType": "address", "name": "_owner", "type": "address" }], "name": "withdraw", "outputs": [{ "internalType": "uint256", "name": "_shares", "type": "uint256" }], "stateMutability": "nonpayable", "type": "function" }], provider);
-        const [amountBn, supplyBn] = await Promise.all([
-            contract.rewardsCycleData(),
-            contract.storedTotalAssets(),
-        ]);
-        const amount = getBnToNumber(amountBn[2]);
-        const supply = getBnToNumber(supplyBn);
-        const apr = amount * WEEKS_PER_YEAR / supply * 100;
-        const apy = aprToApy(apr, BLOCKS_PER_DAY * 365);
-        return { apy };
-    } catch (e) {
-        console.log("rr FRAX======")
-        console.log(e)
-    }
-    return [];
-}
+  try {
+    const contract = new Contract('0xA663B02CF0a4b149d2aD41910CB81e23e1c41c32', [{ "inputs": [{ "internalType": "contract IERC20", "name": "_underlying", "type": "address" }, { "internalType": "string", "name": "_name", "type": "string" }, { "internalType": "string", "name": "_symbol", "type": "string" }, { "internalType": "uint32", "name": "_rewardsCycleLength", "type": "uint32" }, { "internalType": "uint256", "name": "_maxDistributionPerSecondPerAsset", "type": "uint256" }, { "internalType": "address", "name": "_timelockAddress", "type": "address" }], "stateMutability": "nonpayable", "type": "constructor" }, { "inputs": [{ "internalType": "address", "name": "pendingTimelockAddress", "type": "address" }, { "internalType": "address", "name": "actualAddress", "type": "address" }], "name": "AddressIsNotPendingTimelock", "type": "error" }, { "inputs": [{ "internalType": "address", "name": "timelockAddress", "type": "address" }, { "internalType": "address", "name": "actualAddress", "type": "address" }], "name": "AddressIsNotTimelock", "type": "error" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "owner", "type": "address" }, { "indexed": true, "internalType": "address", "name": "spender", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "Approval", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "caller", "type": "address" }, { "indexed": true, "internalType": "address", "name": "owner", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "assets", "type": "uint256" }, { "indexed": false, "internalType": "uint256", "name": "shares", "type": "uint256" }], "name": "Deposit", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": false, "internalType": "uint256", "name": "rewardsToDistribute", "type": "uint256" }], "name": "DistributeRewards", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": false, "internalType": "uint256", "name": "oldMax", "type": "uint256" }, { "indexed": false, "internalType": "uint256", "name": "newMax", "type": "uint256" }], "name": "SetMaxDistributionPerSecondPerAsset", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": false, "internalType": "uint40", "name": "cycleEnd", "type": "uint40" }, { "indexed": false, "internalType": "uint40", "name": "lastSync", "type": "uint40" }, { "indexed": false, "internalType": "uint216", "name": "rewardCycleAmount", "type": "uint216" }], "name": "SyncRewards", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "previousTimelock", "type": "address" }, { "indexed": true, "internalType": "address", "name": "newTimelock", "type": "address" }], "name": "TimelockTransferStarted", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "previousTimelock", "type": "address" }, { "indexed": true, "internalType": "address", "name": "newTimelock", "type": "address" }], "name": "TimelockTransferred", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "from", "type": "address" }, { "indexed": true, "internalType": "address", "name": "to", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "Transfer", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "caller", "type": "address" }, { "indexed": true, "internalType": "address", "name": "receiver", "type": "address" }, { "indexed": true, "internalType": "address", "name": "owner", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "assets", "type": "uint256" }, { "indexed": false, "internalType": "uint256", "name": "shares", "type": "uint256" }], "name": "Withdraw", "type": "event" }, { "inputs": [], "name": "DOMAIN_SEPARATOR", "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "PRECISION", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "REWARDS_CYCLE_LENGTH", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "UNDERLYING_PRECISION", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "acceptTransferTimelock", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "", "type": "address" }, { "internalType": "address", "name": "", "type": "address" }], "name": "allowance", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "approve", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "asset", "outputs": [{ "internalType": "contract ERC20", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "", "type": "address" }], "name": "balanceOf", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "components": [{ "internalType": "uint40", "name": "cycleEnd", "type": "uint40" }, { "internalType": "uint40", "name": "lastSync", "type": "uint40" }, { "internalType": "uint216", "name": "rewardCycleAmount", "type": "uint216" }], "internalType": "struct LinearRewardsErc4626.RewardsCycleData", "name": "_rewardsCycleData", "type": "tuple" }, { "internalType": "uint256", "name": "_deltaTime", "type": "uint256" }], "name": "calculateRewardsToDistribute", "outputs": [{ "internalType": "uint256", "name": "_rewardToDistribute", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "shares", "type": "uint256" }], "name": "convertToAssets", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "assets", "type": "uint256" }], "name": "convertToShares", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "decimals", "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "_assets", "type": "uint256" }, { "internalType": "address", "name": "_receiver", "type": "address" }], "name": "deposit", "outputs": [{ "internalType": "uint256", "name": "_shares", "type": "uint256" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "_assets", "type": "uint256" }, { "internalType": "address", "name": "_receiver", "type": "address" }, { "internalType": "uint256", "name": "_deadline", "type": "uint256" }, { "internalType": "bool", "name": "_approveMax", "type": "bool" }, { "internalType": "uint8", "name": "_v", "type": "uint8" }, { "internalType": "bytes32", "name": "_r", "type": "bytes32" }, { "internalType": "bytes32", "name": "_s", "type": "bytes32" }], "name": "depositWithSignature", "outputs": [{ "internalType": "uint256", "name": "_shares", "type": "uint256" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "lastRewardsDistribution", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "", "type": "address" }], "name": "maxDeposit", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "maxDistributionPerSecondPerAsset", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "", "type": "address" }], "name": "maxMint", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }], "name": "maxRedeem", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }], "name": "maxWithdraw", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "_shares", "type": "uint256" }, { "internalType": "address", "name": "_receiver", "type": "address" }], "name": "mint", "outputs": [{ "internalType": "uint256", "name": "_assets", "type": "uint256" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "name", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "", "type": "address" }], "name": "nonces", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "pendingTimelockAddress", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "value", "type": "uint256" }, { "internalType": "uint256", "name": "deadline", "type": "uint256" }, { "internalType": "uint8", "name": "v", "type": "uint8" }, { "internalType": "bytes32", "name": "r", "type": "bytes32" }, { "internalType": "bytes32", "name": "s", "type": "bytes32" }], "name": "permit", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "assets", "type": "uint256" }], "name": "previewDeposit", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "previewDistributeRewards", "outputs": [{ "internalType": "uint256", "name": "_rewardToDistribute", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "shares", "type": "uint256" }], "name": "previewMint", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "shares", "type": "uint256" }], "name": "previewRedeem", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "previewSyncRewards", "outputs": [{ "components": [{ "internalType": "uint40", "name": "cycleEnd", "type": "uint40" }, { "internalType": "uint40", "name": "lastSync", "type": "uint40" }, { "internalType": "uint216", "name": "rewardCycleAmount", "type": "uint216" }], "internalType": "struct LinearRewardsErc4626.RewardsCycleData", "name": "_newRewardsCycleData", "type": "tuple" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "assets", "type": "uint256" }], "name": "previewWithdraw", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "pricePerShare", "outputs": [{ "internalType": "uint256", "name": "_pricePerShare", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "_shares", "type": "uint256" }, { "internalType": "address", "name": "_receiver", "type": "address" }, { "internalType": "address", "name": "_owner", "type": "address" }], "name": "redeem", "outputs": [{ "internalType": "uint256", "name": "_assets", "type": "uint256" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "renounceTimelock", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "rewardsCycleData", "outputs": [{ "internalType": "uint40", "name": "cycleEnd", "type": "uint40" }, { "internalType": "uint40", "name": "lastSync", "type": "uint40" }, { "internalType": "uint216", "name": "rewardCycleAmount", "type": "uint216" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "_maxDistributionPerSecondPerAsset", "type": "uint256" }], "name": "setMaxDistributionPerSecondPerAsset", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "storedTotalAssets", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "symbol", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "syncRewardsAndDistribution", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "timelockAddress", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "totalAssets", "outputs": [{ "internalType": "uint256", "name": "_totalAssets", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "totalSupply", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "to", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "transfer", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "from", "type": "address" }, { "internalType": "address", "name": "to", "type": "address" }, { "internalType": "uint256", "name": "amount", "type": "uint256" }], "name": "transferFrom", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "_newTimelock", "type": "address" }], "name": "transferTimelock", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "_assets", "type": "uint256" }, { "internalType": "address", "name": "_receiver", "type": "address" }, { "internalType": "address", "name": "_owner", "type": "address" }], "name": "withdraw", "outputs": [{ "internalType": "uint256", "name": "_shares", "type": "uint256" }], "stateMutability": "nonpayable", "type": "function" }], provider);
+    const [amountBn, supplyBn] = await Promise.all([
+      contract.rewardsCycleData(),
+      contract.storedTotalAssets(),
+    ]);
+    
+    const amount = getBnToNumber(amountBn[2]);
+    const supply = getBnToNumber(supplyBn);
+    const apr = amount * WEEKS_PER_YEAR / supply * 100;
+    const apy = aprToApy(apr, BLOCKS_PER_DAY * 365);
+    
+    return { apy };
+  } catch (e) {
+    console.log("Failed to fetch sFRAX data:", e);
+    return { apy: 0 };
+  }
+};
 
-export const getStethData = async () => {
-    try {
-        return getPoolYield('747c1d2a-c668-4682-b9f9-296708a3dd90');
-    } catch (e) { console.log(e) }
-    return [];
-}
+export const getStethData = () => getDefiLlamaApy(DEFI_LLAMA_POOL_IDS.STETH);
 
 export const getStYethData = async () => {
     try {
@@ -331,26 +343,11 @@ export const getStYethData = async () => {
     return {};
 }
 
-export const getCvxCrvData = async () => {
-    try {
-        return getPoolYield('ef32dd3b-a03b-4f79-9b65-8420d7e04ad0');
-    } catch (e) { console.log(e) }
-    return [];
-}
+export const getCvxCrvData = () => getDefiLlamaApy(DEFI_LLAMA_POOL_IDS.CVX_CRV);
 
-export const getDSRData = async () => {
-    try {
-        return getPoolYield('c8a24fee-ec00-4f38-86c0-9f6daebc4225');
-    } catch (e) { console.log(e) }
-    return [];
-}
+export const getDSRData = () => getDefiLlamaApy(DEFI_LLAMA_POOL_IDS.DSR);
 
-export const getStCvxData = async () => {
-    try {
-        return getPoolYield('777032e6-e815-4f44-90b4-abb98f0f9632');
-    } catch (e) { console.log(e) }
-    return [];
-}
+export const getStCvxData = () => getDefiLlamaApy(DEFI_LLAMA_POOL_IDS.ST_CVX);
 
 export const getCvxFxsAPRs = async (provider, _prices?: any) => {
     try {
@@ -449,55 +446,34 @@ export const getGOhmData = async () => {
     }
 }
 
-export const getStYvCrvData = async () => {
-    try {
-        const results = await fetch("https://ydaemon.yearn.fi/1/vaults/0x27B5739e22ad9033bcBf192059122d163b60349D");
-        const data = await results.json();
-        return { apy: data?.apr.netAPR * 100 };
-    } catch (e) {
-        console.log(e)
-        return { apy: 0 }
-    }
-}
+const getYearnVaultApy = async (vaultId: string) => {
+  try {
+    const response = await fetch(`https://ydaemon.yearn.fi/1/vaults/${vaultId}`);
+    const data = await response.json();
+    return { 
+      apy: data?.apr?.forwardAPR?.netAPR 
+        ? data.apr.forwardAPR.netAPR * 100 
+        : data?.apr?.netAPR 
+          ? data.apr.netAPR * 100 
+          : 0 
+    };
+  } catch (e) {
+    console.log(`Failed to fetch APY for Yearn vault ${vaultId}:`, e);
+    return { apy: 0 };
+  }
+};
+
+export const getStYvCrvData = () => getYearnVaultApy(YEARN_VAULT_IDS.YCRV);
+export const getYvCrvUsdDOLAData = () => getYearnVaultApy(YEARN_VAULT_IDS.CRVUSD_DOLA);
+export const getYvSUSDeDOLAData = () => getYearnVaultApy(YEARN_VAULT_IDS.SUSDE_DOLA);
+export const getYvFraxPyusdDOLAData = () => getYearnVaultApy(YEARN_VAULT_IDS.FRAX_PYUSD_DOLA);
+export const getYvFraxBPDOLAData = () => getYearnVaultApy(YEARN_VAULT_IDS.FRAX_BP_DOLA);
 
 export const getPTsUSDe27MAR25Data = async () => {
     try {
         const results = await fetch("https://api-v2.pendle.finance/bff/v1/1/markets/0xcdd26eb5eb2ce0f203a84553853667ae69ca29ce");
         const data = await results.json();
         return { apy: data?.impliedApy * 100 };
-    } catch (e) {
-        console.log(e)
-        return { apy: 0 }
-    }
-}
-
-export const getYvCrvUsdDOLAData = async () => {
-    try {
-        const results = await fetch("https://ydaemon.yearn.fi/1/vaults/0xfb5137Aa9e079DB4b7C2929229caf503d0f6DA96");
-        const data = await results.json();
-        return { apy: data?.apr.forwardAPR?.netAPR * 100 };
-    } catch (e) {
-        console.log(e)
-        return { apy: 0 }
-    }
-}
-
-export const getYvFraxPyusdDOLAData = async () => {
-    try {
-        const results = await fetch("https://ydaemon.yearn.fi/1/vaults/0xcC2EFb8bEdB6eD69ADeE0c3762470c38D4730C50");
-        const data = await results.json();
-        return { apy: data?.apr.forwardAPR?.netAPR * 100 };
-    } catch (e) {
-        console.log(e)
-        return { apy: 0 }
-    }
-}
-
-export const getYvFraxBPDOLAData = async () => {
-    try {
-        const results = await fetch("https://ydaemon.yearn.fi/1/vaults/0xe5F625e8f4D2A038AE9583Da254945285E5a77a4");
-        const data = await results.json();
-        return { apy: data?.apr.forwardAPR?.netAPR * 100 };
     } catch (e) {
         console.log(e)
         return { apy: 0 }
@@ -654,6 +630,8 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         getFraxBPDOLAConvexData(),
         getYvFraxBPDOLAData(),
         getPTsUSDe27MAR25Data(),
+        getSUSDeDOLAConvexData(),
+        getYvSUSDeDOLAData(),
     ]);
 
     let [
@@ -673,6 +651,8 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         fraxBPDOLAConvexData,
         yvFraxBPDOLAData,
         ptSUSDe27MAR25Data,
+        sUSDeDOLAConvexData,
+        yvSUSDeDOLAData,
     ] = externalYieldResults.map(r => {
         return r.status === 'fulfilled' ? r.value : {};
     });
@@ -706,5 +686,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         'FraxBP-DOLA': fraxBPDOLAConvexData?.apy || 0,
         'yv-FraxBP-DOLA': yvFraxBPDOLAData?.apy || 0,
         'PT-sUSDe-27MAR25': ptSUSDe27MAR25Data?.apy || 0,
+        'sUSDe-DOLA': sUSDeDOLAConvexData?.apy || 0,
+        'yv-sUSDe-DOLA': yvSUSDeDOLAData?.apy || 0,
     };
 }
