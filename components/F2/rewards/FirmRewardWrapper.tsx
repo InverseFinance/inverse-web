@@ -67,36 +67,14 @@ export const FirmRewardWrapper = ({
             onLoad={onLoad}
         />
     }
-    else if (market.name === 'crvUSD-DOLA') {
+    else if (!!market.convexRewardsAddress) {
         return <FirmConvexLpRewardWrapperContent
             market={market}
             label={label}
             showMarketBtn={showMarketBtn}
             extraAtBottom={extraAtBottom}
             escrow={_escrow}
-            rewardContract='0xC94208D230EEdC4cDC4F80141E21aA485A515660'
-            onLoad={onLoad}
-        />
-    }
-    else if (market.name === 'FraxPyUSD-DOLA') {
-        return <FirmConvexLpRewardWrapperContent
-            market={market}
-            label={label}
-            showMarketBtn={showMarketBtn}
-            extraAtBottom={extraAtBottom}
-            rewardContract='0xE8cBdBFD4A1D776AB1146B63ABD1718b2F92a823'
-            escrow={_escrow}
-            onLoad={onLoad}
-        />
-    }
-    else if (market.name === 'FraxBP-DOLA') {
-        return <FirmConvexLpRewardWrapperContent
-            market={market}
-            label={label}
-            showMarketBtn={showMarketBtn}
-            extraAtBottom={extraAtBottom}
-            rewardContract='0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c'
-            escrow={_escrow}
+            rewardContract={market.convexRewardsAddress}
             onLoad={onLoad}
         />
     }

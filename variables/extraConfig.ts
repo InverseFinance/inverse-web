@@ -304,6 +304,7 @@ const mainConfig = {
             startingBlock: 20752005,
             aleTransformerType: 'marketAddressAndAmount',
             isAleWithoutSwap: true,
+            convexRewardsAddress: '0xC94208D230EEdC4cDC4F80141E21aA485A515660',
             isInv: false,
         },
         {
@@ -352,6 +353,7 @@ const mainConfig = {
             startingBlock: 20927755,
             aleTransformerType: 'marketAddressAndAmount',
             isAleWithoutSwap: true,
+            convexRewardsAddress: '0xE8cBdBFD4A1D776AB1146B63ABD1718b2F92a823',
             isInv: false,
         },
         {
@@ -388,6 +390,7 @@ const mainConfig = {
             startingBlock: 21059144,
             aleTransformerType: 'marketAddressAndAmount',
             isAleWithoutSwap: true,
+            convexRewardsAddress: '0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c',
             isInv: false,
         },
         {
@@ -439,6 +442,7 @@ const mainConfig = {
             startingBlock: 21311218,
             aleTransformerType: 'marketAddressAndAmount',
             isAleWithoutSwap: true,
+            convexRewardsAddress: '0xf1d547f657a05A4A081F899070A5585eb9F326b2',
             isInv: false,
         },
         {

@@ -774,6 +774,7 @@ export type F2Market = {
   isAleWithoutSwap?: boolean
   underlyingWithPricePerShare?: boolean
   fixedFeed?: boolean
+  convexRewardsAddress?: string
 }
 
 export type FirmAction = {
