@@ -15,6 +15,7 @@ import { CHAIN_TOKENS, TOKENS, getToken } from '@app/variables/tokens';
 
 import { useAppTheme } from '@app/hooks/useAppTheme';
 import { PROTOCOL_DEFILLAMA_MAPPING, PROTOCOLS_BY_IMG } from '@app/variables/images';
+import useSWR from 'swr';
 
 const poolLinks = {
     'f763842a-e4db-418c-a0cb-9390b61cece8': 'https://app.balancer.fi/#/ethereum/pool/0x5b3240b6be3e7487d61cd1afdfc7fe4fa1d81e6400000000000000000000037b',
@@ -205,8 +206,19 @@ export const OppysGroupedTop3 = ({
 
 const topChains = ['Ethereum', 'Base', 'Optimism', 'Arbitrum', 'Blast', 'Mode'];
 
+function arePairsEqual(pair1, pair2) {
+    const normalizePair = (pair) => {
+      return pair.split('-').sort();
+    };
+    const normalizedPair1 = normalizePair(pair1);
+    const normalizedPair2 = normalizePair(pair2);
+    return normalizedPair1[0] === normalizedPair2[0] && 
+           normalizedPair1[1] === normalizedPair2[1];
+  }
+
 export const OppysV2 = () => {
     const { oppys, isLoading } = useOppys();
+    const { data: curvePoolsData } = useSWR('https://api.curve.fi/api/getPools/ethereum/factory');
     const [isLargerThan] = useMediaQuery(`(min-width: 400px)`);
 
     const _oppys = (oppys || []).filter(o => !o.symbol.includes('-BB-'));
@@ -221,6 +233,11 @@ export const OppysV2 = () => {
                 const defiLlamaProjectName = PROTOCOL_DEFILLAMA_MAPPING[protocol];
                 return defiLlamaProjectName === o.project && homogeneizeLpName(t.symbol) === o.symbol
             });
+            const findCurvePoolData = o.project === 'curve-dex' && chain === 'Ethereum' ? curvePoolsData?.data?.poolData?.find(p => {
+                const joinedSymbols = p.coins.map(c => c.symbol).join('-');
+                return p.address.toLowerCase() === findLocalConf?.address?.toLowerCase()
+                    || arePairsEqual(joinedSymbols, o.symbol);
+            }) : {};
             
             const bestYieldAggregator = _oppys.filter(o2 => o2.stablecoin && !nativeLpProjects.includes(o2.project) && o2.chain === chain && o2.symbol === o.symbol).sort((a, b) => b.apy - a.apy)[0];
             const findYieldLocalConf = chainTokens.find(t => {
@@ -228,7 +245,8 @@ export const OppysV2 = () => {
                 const defiLlamaProjectName = PROTOCOL_DEFILLAMA_MAPPING[protocol];
                 return defiLlamaProjectName === bestYieldAggregator?.project && homogeneizeLpName(t.symbol) === bestYieldAggregator?.symbol
             });
-            const nativeLink = getPoolLink(o.project, o.pool, o.underlyingTokens, o.symbol, o.stablecoin, o.chain, findLocalConf);
+            
+            const nativeLink = findCurvePoolData?.poolUrls?.deposit[0] || getPoolLink(o.project, o.pool, o.underlyingTokens, o.symbol, o.stablecoin, o.chain, findLocalConf);
             const bestYieldAggregatorLink = getPoolLink(bestYieldAggregator?.project, bestYieldAggregator?.pool, bestYieldAggregator?.underlyingTokens, bestYieldAggregator?.symbol, bestYieldAggregator?.stablecoin, o.chain, findYieldLocalConf);
             return { ...o, link: nativeLink, bestYieldAggregatorProject: bestYieldAggregator?.project, bestYieldAggregatorApy: bestYieldAggregator?.apy, bestYieldAggregatorLink };
         });
