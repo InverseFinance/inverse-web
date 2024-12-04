@@ -73,8 +73,8 @@ export default async function handler(req, res) {
     const uniqueCgIds = [...new Set(coingeckoIds)];
     let geckoPrices: Prices["prices"] = {};
 
-    try {
-      const res = await fetch(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${uniqueCgIds.join(',')}`);
+    try { 
+      const res = await fetch(`https://pro-api.coingecko.com/api/v3/simple/price?x_cg_pro_api_key=${process.env.CG_PRO}&vs_currencies=usd&ids=${uniqueCgIds.join(',')}`);
       geckoPrices = await res.json();
 
       const cgOk = !!geckoPrices?.['inverse-finance']?.usd;
