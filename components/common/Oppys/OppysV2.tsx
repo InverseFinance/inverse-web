@@ -172,7 +172,7 @@ const GroupedOppyItem = ({ oppy, isLargerThan, showLinks = false }: { oppy: Yiel
             </HStack>
         </VStack>
         <VStack className="bordered-grid-item">
-            {oppy.bestYieldAggregatorApy && <Text fontSize={fontSize}>{preciseCommify(oppy.bestYieldAggregatorApy, 2)}%</Text>}
+            {oppy.bestYieldAggregatorApy && <Text fontWeight="bold" fontSize={fontSize}>{preciseCommify(oppy.bestYieldAggregatorApy, 2)}%</Text>}
             {oppy.bestYieldAggregatorProject && <HStack>
                 <ProjectItem isLargerThan={isLargerThan} showLink={showLinks} link={oppy.bestYieldAggregatorLink} showImage={true} project={oppy.bestYieldAggregatorProject} projectLabel={cleanProjectName(oppy.bestYieldAggregatorProject)} />
             </HStack>}
