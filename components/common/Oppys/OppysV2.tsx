@@ -15,7 +15,10 @@ import { CHAIN_TOKENS, TOKENS, getToken } from '@app/variables/tokens';
 
 import { useAppTheme } from '@app/hooks/useAppTheme';
 import { PROTOCOL_DEFILLAMA_MAPPING, PROTOCOLS_BY_IMG } from '@app/variables/images';
-import useSWR from 'swr';
+
+const cleanProjectName = (project: string) => {
+    return project.replace(/-/g, ' ').replace(' dex', '').replace(/ V\d$/gi, '');
+}
 
 const poolLinks = {
     'f763842a-e4db-418c-a0cb-9390b61cece8': 'https://app.balancer.fi/#/ethereum/pool/0x5b3240b6be3e7487d61cd1afdfc7fe4fa1d81e6400000000000000000000037b',
@@ -100,31 +103,33 @@ const getPoolLink = (project, pool, underlyingTokens, symbol, isStable = true, c
     return poolLinks[_pool] || url || projectLinks[project];
 }
 
-const ProjectItem = ({ project, link, showImage = true, showText = true }: { project: string, link?: string, showImage?: boolean, showText?: boolean }) => {
-    return <>
+const ProjectItem = ({ isLargerThan = true, showLink = true, project, projectLabel, link, showImage = true, showText = true }: { isLargerThan?: boolean, showLink?: boolean, project: string, link?: string, showImage?: boolean, showText?: boolean }) => {
+    const imgSize = isLargerThan ? 24 : 16;
+    return <Stack direction={isLargerThan ? 'row' : 'column'} alignItems="center" spacing="2">
         {
-            showImage && <Image ignoreFallback={true} alt='' title={project} w="20px" borderRadius="50px" src={`https://icons.llamao.fi/icons/protocols/${project}?w=24&h=24`} fallbackSrc={`https://defillama.com/_next/image?url=%2Ficons%2F${project.replace('-finance', '')}.jpg&w=48&q=75`} />
+            showImage && <Image ignoreFallback={true} alt='' title={projectLabel} w={`${imgSize}px`} borderRadius="50px" src={`https://icons.llamao.fi/icons/protocols/${project}?w=${imgSize}&h=${imgSize}`} fallbackSrc={`https://defillama.com/_next/image?url=%2Ficons%2F${project.replace('-finance', '')}.jpg&w=48&q=75`} />
         }
         {
-            showText && <>
+            showText && isLargerThan && <>
                 {
-                    link ? <Link textDecoration="underline" textTransform="capitalize" href={link} target="_blank" isExternal>{project.replace(/-/g, ' ')} <ExternalLinkIcon mb="1" /></Link> : <Text textTransform="capitalize">{project.replace(/-/g, ' ')}</Text>
+                    showLink && link ? <Link textDecoration="underline" textTransform="capitalize" href={link} target="_blank" isExternal>{projectLabel} <ExternalLinkIcon fontSize="14px" mb="1px" /></Link> : <Text fontSize={fontSizeSmaller} color="mainTextColorLight" textTransform="capitalize">{projectLabel}</Text>
                 }
             </>
         }
-    </>
+    </Stack>
 }
 
-const ChainItem = ({ chain, showText = true }: { chain: string, showText?: boolean }) => {
+const ChainItem = ({ chain, showText = true, isLargerThan = true }: { chain: string, showText?: boolean, isLargerThan?: boolean }) => {
+    const imgSize = isLargerThan ? '30' : '20';
     return <HStack className="bordered-grid-item">
-        <Image ignoreFallback={true} alt='' title={chain} w="30px" borderRadius="50px" src={`https://icons.llamao.fi/icons/chains/rsz_${chain.toLowerCase()}?w=30&h=30`} />
+        <Image ignoreFallback={true} alt='' title={chain} w={`${imgSize}px`} borderRadius="50px" src={`https://icons.llamao.fi/icons/chains/rsz_${chain.toLowerCase()}?w=${imgSize}&h=${imgSize}`} />
         {
-            showText && <Text fontSize={'26px'} fontWeight="extrabold" textTransform="capitalize">{chain}</Text>
+            showText && <Text fontSize={fontSize} fontWeight="extrabold" textTransform="capitalize">{chain}</Text>
         }
     </HStack>
 }
 
-const poolColumn = ({ width, symbol, project, chain, underlyingTokens }) => {
+const poolColumn = ({ isLargerThan = true, width, symbol, project, chain, underlyingTokens }) => {
     let pairs = [];
     let isFallbackCase = false;
 
@@ -141,7 +146,7 @@ const poolColumn = ({ width, symbol, project, chain, underlyingTokens }) => {
     const chainId = isFallbackCase ? NetworkIds.mainnet : NETWORKS_BY_NAME[chain]?.id;
     const containerProps = { direction: 'column', alignItems: 'center' }
     const textProps = { fontSize, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', maxWidth: '300px' };
-    const commonLpProps = { Container: Stack, imgSize: 50, label: symbol, pairs, showAsLp: true, chainId, alternativeLpDisplay: true, containerProps, textProps };
+    const commonLpProps = { Container: Stack, imgSize: isLargerThan ? 45 : 24, label: symbol, pairs, showAsLp: true, chainId, alternativeLpDisplay: true, containerProps, textProps };
     return <HStack className="bordered-grid-item">
         {
             pairs?.length > 0 ? <>
@@ -151,23 +156,25 @@ const poolColumn = ({ width, symbol, project, chain, underlyingTokens }) => {
     </HStack>
 };
 
-const fontSize = { base: '14px', md: '28px' };
-const GroupedOppyItem = ({ oppy }: { oppy: YieldOppy, index: number }) => {
+const fontSize = { base: '13px', md: '22px' };
+const fontSizeSmaller = { base: '11px', md: '16px' };
+
+const GroupedOppyItem = ({ oppy, isLargerThan, showLinks = false }: { oppy: YieldOppy, isLargerThan: boolean, showLinks?: boolean }) => {
     return <>
-        {poolColumn({ ...oppy })}
+        {poolColumn({ ...oppy, isLargerThan })}
         <Text className="bordered-grid-item" fontSize={fontSize}>
             {shortenNumber(oppy.tvlUsd, 2, true)}
         </Text>
         <VStack className="bordered-grid-item">
             <Text fontSize={fontSize}>{preciseCommify(oppy.apy, 2)}%</Text>
             <HStack>
-                <ProjectItem link={oppy.link} showImage={false} project={oppy.project} />
+                <ProjectItem isLargerThan={isLargerThan} showLink={showLinks} link={oppy.link} showImage={true} project={oppy.project} projectLabel={cleanProjectName(oppy.project)} />
             </HStack>
         </VStack>
         <VStack className="bordered-grid-item">
             {oppy.bestYieldAggregatorApy && <Text fontSize={fontSize}>{preciseCommify(oppy.bestYieldAggregatorApy, 2)}%</Text>}
             {oppy.bestYieldAggregatorProject && <HStack>
-                <ProjectItem link={oppy.bestYieldAggregatorLink} showImage={false} project={oppy.bestYieldAggregatorProject} />
+                <ProjectItem isLargerThan={isLargerThan} showLink={showLinks} link={oppy.bestYieldAggregatorLink} showImage={true} project={oppy.bestYieldAggregatorProject} projectLabel={cleanProjectName(oppy.bestYieldAggregatorProject)} />
             </HStack>}
         </VStack>
     </>
@@ -178,27 +185,29 @@ export const OppysGroupedTop3 = ({
     chain,
     isLoading,
     isLargerThan = false,
+    showLinks = false,
 }: {
     groupedOppys: YieldOppy[],
     chain: string,
     isLoading?: boolean,
     isLargerThan?: boolean,
+    showLinks?: boolean,
 }) => {
     const { themeStyles } = useAppTheme();
-    return <Box shadow="0 0 0px 1px rgba(0, 0, 0, 0.25)" borderRadius="8" p="4" bgColor="containerContentBackground" borderColor="mainTextColor" className="bordered-grid-container">
-        <ChainItem chain={chain} />
-        <Text className="bordered-grid-item" color={themeStyles.colors.mainTextColor} fontWeight="extrabold" fontSize="26px">
+    return <Box id={`${chain}-yields`} borderWidth="0px" borderRadius={isLargerThan ? '8' : undefined} p={isLargerThan ? '4' : '0'} bgColor="containerContentBackground" borderColor="mainTextColorLight" className="bordered-grid-container">
+        <ChainItem chain={chain} isLargerThan={isLargerThan} />
+        <Text className="bordered-grid-item" color={themeStyles.colors.mainTextColor} fontWeight="extrabold" fontSize={fontSize}>
             TVL
         </Text>
-        <Text className="bordered-grid-item" color={themeStyles.colors.mainTextColor} fontWeight="extrabold" fontSize="26px">
-            Native APY
+        <Text className="bordered-grid-item" color={themeStyles.colors.mainTextColor} fontWeight="extrabold" fontSize={fontSize}>
+            Native<br/>APY
         </Text>
-        <Text className="bordered-grid-item" color={themeStyles.colors.mainTextColor} fontWeight="extrabold" fontSize="26px">
+        <Text className="bordered-grid-item" color={themeStyles.colors.mainTextColor} fontWeight="extrabold" fontSize={fontSize}>
             Yield Aggregator APY
         </Text>
         {
             isLoading ? <><SkeletonBlob /><SkeletonBlob /><SkeletonBlob /><SkeletonBlob /></> : groupedOppys.map((o, i) => {
-                return <GroupedOppyItem key={o.symbol} oppy={o} index={i} />
+                return <GroupedOppyItem showLinks={showLinks} key={o.symbol} oppy={o} isLargerThan={isLargerThan} index={i} />
             })
         }
     </Box>
@@ -208,17 +217,18 @@ const topChains = ['Ethereum', 'Base', 'Optimism', 'Arbitrum', 'Blast', 'Mode'];
 
 function arePairsEqual(pair1, pair2) {
     const normalizePair = (pair) => {
-      return pair.split('-').sort();
+        return pair.split('-').sort();
     };
     const normalizedPair1 = normalizePair(pair1);
     const normalizedPair2 = normalizePair(pair2);
-    return normalizedPair1[0] === normalizedPair2[0] && 
-           normalizedPair1[1] === normalizedPair2[1];
-  }
+    return normalizedPair1[0] === normalizedPair2[0] &&
+        normalizedPair1[1] === normalizedPair2[1];
+}
 
-export const OppysV2 = () => {
+export const OppysV2 = ({
+    showLinks = false,
+}) => {
     const { oppys, isLoading } = useOppys();
-    const { data: curvePoolsData } = useSWR('https://api.curve.fi/api/getPools/ethereum/factory');
     const [isLargerThan] = useMediaQuery(`(min-width: 400px)`);
 
     const _oppys = (oppys || []).filter(o => !o.symbol.includes('-BB-'));
@@ -233,20 +243,15 @@ export const OppysV2 = () => {
                 const defiLlamaProjectName = PROTOCOL_DEFILLAMA_MAPPING[protocol];
                 return defiLlamaProjectName === o.project && homogeneizeLpName(t.symbol) === o.symbol
             });
-            const findCurvePoolData = o.project === 'curve-dex' && chain === 'Ethereum' ? curvePoolsData?.data?.poolData?.find(p => {
-                const joinedSymbols = p.coins.map(c => c.symbol).join('-');
-                return p.address.toLowerCase() === findLocalConf?.address?.toLowerCase()
-                    || arePairsEqual(joinedSymbols, o.symbol);
-            }) : {};
-            
+
             const bestYieldAggregator = _oppys.filter(o2 => o2.stablecoin && !nativeLpProjects.includes(o2.project) && o2.chain === chain && o2.symbol === o.symbol).sort((a, b) => b.apy - a.apy)[0];
             const findYieldLocalConf = chainTokens.find(t => {
                 const protocol = PROTOCOLS_BY_IMG[t.protocolImage];
                 const defiLlamaProjectName = PROTOCOL_DEFILLAMA_MAPPING[protocol];
                 return defiLlamaProjectName === bestYieldAggregator?.project && homogeneizeLpName(t.symbol) === bestYieldAggregator?.symbol
             });
-            
-            const nativeLink = findCurvePoolData?.poolUrls?.deposit[0] || getPoolLink(o.project, o.pool, o.underlyingTokens, o.symbol, o.stablecoin, o.chain, findLocalConf);
+
+            const nativeLink = findLocalConf?.link || getPoolLink(o.project, o.pool, o.underlyingTokens, o.symbol, o.stablecoin, o.chain, findLocalConf);
             const bestYieldAggregatorLink = getPoolLink(bestYieldAggregator?.project, bestYieldAggregator?.pool, bestYieldAggregator?.underlyingTokens, bestYieldAggregator?.symbol, bestYieldAggregator?.stablecoin, o.chain, findYieldLocalConf);
             return { ...o, link: nativeLink, bestYieldAggregatorProject: bestYieldAggregator?.project, bestYieldAggregatorApy: bestYieldAggregator?.apy, bestYieldAggregatorLink };
         });
@@ -258,7 +263,7 @@ export const OppysV2 = () => {
         };
     }).filter(o => o.hasOppys);
 
-    return <VStack alignItems="flex-start" spacing="20">
+    return <VStack alignItems="flex-start" spacing="10">
         <HStack px="6" w='full' justify="center">
             <HStack as="a" href="https://defillama.com/yields?token=DOLA&token=INV&token=DBR" target="_blank">
                 <Text textDecoration="underline" color="secondaryTextColor">
@@ -270,7 +275,7 @@ export const OppysV2 = () => {
         <SimpleGrid columns={1} spacing="20">
             {
                 top3ByChain.map(({ chain, groupedOppys }) => (
-                    <OppysGroupedTop3 key={chain} chain={chain} isLoading={isLoading} title={`Top 3 DOLA LP Opportunities on ${chain}`} groupedOppys={groupedOppys} />
+                    <OppysGroupedTop3 showLinks={showLinks} isLargerThan={isLargerThan} key={chain} chain={chain} isLoading={isLoading} title={`Top 3 DOLA LP Opportunities on ${chain}`} groupedOppys={groupedOppys} />
                 ))
             }
         </SimpleGrid>
