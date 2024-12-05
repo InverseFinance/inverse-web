@@ -235,7 +235,7 @@ export const F2CombinedForm = ({
                     dbrAmountToSell,
                     minDolaOut,
                     dolaPrice,
-                    leverageMinDebtReduced,
+                    leverageMinAmountUp,
                     underlyingExRate,
                 );
             }
@@ -531,15 +531,13 @@ export const F2CombinedForm = ({
                         </Text>
                     }
                     {
-                        canShowLeverage ? isDeposit ? <FirmLeverageSwitch isDeposit={isDeposit} useLeverage={useLeverage} onChange={(isDeposit) => {
+                        canShowLeverage && <FirmLeverageSwitch isDeposit={isDeposit} useLeverage={useLeverage} onChange={(isDeposit) => {
                             const isActivatingLeverage = !useLeverage;
                             setUseLeverage(isActivatingLeverage);
                             if (canActivateLeverage) {
                                 retriggerLeverage(isDeposit, debtAmount, debtAmountNum, true, collateralAmountNum);
                             }
-                        }} /> : <Text color="mainTextColorLight">
-                            Deleverage feature in maintenance
-                        </Text> : null
+                        }} />
                     }
                 </Stack>
             </VStack>
