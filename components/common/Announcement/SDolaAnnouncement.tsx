@@ -50,17 +50,14 @@ export const SDolaAnnouncement = () => {
         _hover={{ color: 'lightAccentTextColor' }}
       >
         <VStack spacing="0">
-          <HStack textDecoration="underline" spacing="1">
-            {
-              sDolaApy > 0 && dbrDolaPrice ?
+          {
+            sDolaApy > 0 && dbrDolaPrice ?
+              <HStack textDecoration="underline" spacing="1">
                 <Text>Get <b style={{ fontWeight: 'extrabold', fontSize: '18px', color: themeStyles.colors.accentTextColor }}>{shortenNumber(sDolaApy, 2)}%</b> APY with sDOLA</Text>
-                : <Text>sDOLA</Text>
-            }
-            <Image borderRadius="full" src="/assets/sDOLAx128.png" h="20px" w="20px" />
-          </HStack>
-          <Text fontSize="14px" color="mainTextColorLight">
-            Yield-bearing Stablecoin, 100% Organic On-chain Yield
-          </Text>
+                <Image borderRadius="full" src="/assets/sDOLAx128.png" h="20px" w="20px" />
+              </HStack>
+              : <SmallTextLoader />
+          }
         </VStack>
       </Link>
     </Flex>
