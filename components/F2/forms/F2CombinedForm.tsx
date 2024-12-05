@@ -518,7 +518,7 @@ export const F2CombinedForm = ({
                 {showNotEnoughDolaToRepayMessage && <NotEnoughDolaToRepayMessage amount={debtAmountNum} />}
                 <Stack direction={{ base: 'column', xl: 'row' }} pt="2" justify="space-between" alignItems="space-between" w='full'>
                     {
-                        (hasDebtChange || hasCollateralChange) && !isMultisig && <DbrHelperSwitch
+                        isDeposit && (hasDebtChange || hasCollateralChange) && !isMultisig && <DbrHelperSwitch
                             isDeposit={isDeposit}
                             setIsAutoDBR={setIsAutoDBR}
                             isAutoDBR={isAutoDBR}
@@ -649,7 +649,7 @@ export const F2CombinedForm = ({
                     }
                     {['d&b', 'borrow'].includes(MODES[mode]) && isAutoDBR && <Divider borderColor="#cccccc66" />}
                     {['d&b', 'borrow'].includes(MODES[mode]) && isAutoDBR && dbrDurationInputs}
-                    {['r&w', 'repay'].includes(MODES[mode]) && isAutoDBR && sellDbrInput}
+                    {/* {['r&w', 'repay'].includes(MODES[mode]) && isAutoDBR && sellDbrInput} */}
                 </Stack>
                 {
                     inputAmountNum > inputBalance && isDeposit && <NotEnoughCollateralMessage />
