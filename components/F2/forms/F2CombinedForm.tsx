@@ -372,14 +372,14 @@ export const F2CombinedForm = ({
     const showNeedDbrMessage = isDeposit && !isAutoDBR && dbrBalance <= 0;
     const showNotEnoughDolaToRepayMessage = isRepayCase && debtAmountNum > 0 && dolaBalance < debtAmountNum;
     // min collateral missing to borrow minimum debt with a safe margin of 5%
-    const additionalCollateralRequiredToBorrowMinimum =  useMemo(() => {
+    const additionalCollateralRequiredToBorrowMinimum = useMemo(() => {
         return Math.max(0, (1 / market.collateralFactor * market.minDebt / market.price) * 1.05 - collateralBalance);
     }, [market.collateralFactor, market.minDebt, market.price, collateralBalance]);
 
     const isWrongCustomRecipient = !!customRecipient ? !isAddress(customRecipient) || customRecipient === BURN_ADDRESS : false;
     const disabledDueToLeverage = useLeverageInMode && (leverage <= 1 || leverageLoading || isTriggerLeverageFetch || !aleSlippage || aleSlippage === '0' || isNaN(parseFloat(aleSlippage)));
     const borrowLimitDisabledCondition = (market.fixedFeed && newCreditLeft < 1 && newPerc < 100) || (!market.fixedFeed && newPerc < 1);
-    
+
     const disabledConditions = {
         'deposit': ((collateralAmountNum <= 0 && !useLeverageInMode) || inputBalance < inputAmountNum) || (isWrongCustomRecipient && isDepositOnlyCase),
         'borrow': duration <= 0 || debtAmountNum <= 0 || borrowLimitDisabledCondition || showNeedDbrMessage || market.leftToBorrow < 1 || debtAmountNum > market.leftToBorrow || notEnoughToBorrowWithAutobuy || minDebtDisabledCondition || disabledDueToLeverage || showMinDebtMessage || isNotWhitelistedMultisig,
@@ -531,13 +531,15 @@ export const F2CombinedForm = ({
                         </Text>
                     }
                     {
-                        canShowLeverage && <FirmLeverageSwitch isDeposit={isDeposit} useLeverage={useLeverage} onChange={(isDeposit) => {
+                        canShowLeverage ? isDeposit ? <FirmLeverageSwitch isDeposit={isDeposit} useLeverage={useLeverage} onChange={(isDeposit) => {
                             const isActivatingLeverage = !useLeverage;
                             setUseLeverage(isActivatingLeverage);
                             if (canActivateLeverage) {
                                 retriggerLeverage(isDeposit, debtAmount, debtAmountNum, true, collateralAmountNum);
                             }
-                        }} />
+                        }} /> : <Text color="mainTextColorLight">
+                            Deleverage feature in maintenance
+                        </Text> : null
                     }
                 </Stack>
             </VStack>
