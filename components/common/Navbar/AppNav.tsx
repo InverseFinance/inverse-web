@@ -74,6 +74,7 @@ import { ReferralModal } from '../Modal/ReferralModal'
 import { ReferToModal } from '../Modal/ReferToModal'
 import { SlideModal } from '../Modal/SlideModal'
 import { useStakedInvBalance } from '@app/util/sINV'
+import { SDolaAnnouncement } from '../Announcement/SDolaAnnouncement'
 const NAV_ITEMS = MENUS.nav
 
 export const ThemeBtn = () => {
@@ -837,6 +838,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
         <BurgerMenu active={active} activeSubmenu={activeSubmenu} userAddress={userAddress} nbNotif={nbNotif} navItems={NAV_ITEMS} />
       </Flex>
       {!!process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG && !hideAnnouncement && <Announcement />}
+      {!process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG && !hideAnnouncement && <SDolaAnnouncement />}
       {
         !isLargerThan1150 && inited && !hideVampireBar && <VStack mt="4">
           {vampireComp}
