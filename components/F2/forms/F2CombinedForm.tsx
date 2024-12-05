@@ -531,7 +531,7 @@ export const F2CombinedForm = ({
                         </Text>
                     }
                     {
-                        canShowLeverage ? isDeposit ? <FirmLeverageSwitch isDeposit={isDeposit} useLeverage={useLeverage} onChange={(isDeposit) => {
+                        canShowLeverage ? isDeposit || market?.aleTransformerType !== 'marketAddressAndAmount' ? <FirmLeverageSwitch isDeposit={isDeposit} useLeverage={useLeverage} onChange={(isDeposit) => {
                             const isActivatingLeverage = !useLeverage;
                             setUseLeverage(isActivatingLeverage);
                             if (canActivateLeverage) {
