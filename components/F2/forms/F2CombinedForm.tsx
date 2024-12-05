@@ -378,7 +378,8 @@ export const F2CombinedForm = ({
 
     const isWrongCustomRecipient = !!customRecipient ? !isAddress(customRecipient) || customRecipient === BURN_ADDRESS : false;
     const disabledDueToLeverage = useLeverageInMode && (leverage <= 1 || leverageLoading || isTriggerLeverageFetch || !aleSlippage || aleSlippage === '0' || isNaN(parseFloat(aleSlippage)));
-    const borrowLimitDisabledCondition = (market.fixedFeed && newCreditLeft < 1) || (!market.fixedFeed && newPerc < 1);
+    const borrowLimitDisabledCondition = (market.fixedFeed && newCreditLeft < 1 && newPerc < 100) || (!market.fixedFeed && newPerc < 1);
+    
     const disabledConditions = {
         'deposit': ((collateralAmountNum <= 0 && !useLeverageInMode) || inputBalance < inputAmountNum) || (isWrongCustomRecipient && isDepositOnlyCase),
         'borrow': duration <= 0 || debtAmountNum <= 0 || borrowLimitDisabledCondition || showNeedDbrMessage || market.leftToBorrow < 1 || debtAmountNum > market.leftToBorrow || notEnoughToBorrowWithAutobuy || minDebtDisabledCondition || disabledDueToLeverage || showMinDebtMessage || isNotWhitelistedMultisig,
