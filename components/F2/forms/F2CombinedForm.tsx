@@ -235,7 +235,7 @@ export const F2CombinedForm = ({
                     dbrAmountToSell,
                     minDolaOut,
                     dolaPrice,
-                    leverageMinDebtReduced,
+                    leverageMinAmountUp,
                     underlyingExRate,
                 );
             }
@@ -518,12 +518,12 @@ export const F2CombinedForm = ({
                 {showNotEnoughDolaToRepayMessage && <NotEnoughDolaToRepayMessage amount={debtAmountNum} />}
                 <Stack direction={{ base: 'column', xl: 'row' }} pt="2" justify="space-between" alignItems="space-between" w='full'>
                     {
-                        isDeposit && (hasDebtChange || hasCollateralChange) && !isMultisig && <DbrHelperSwitch
+                        isDeposit && (hasDebtChange || hasCollateralChange) && !isMultisig ? <DbrHelperSwitch
                             isDeposit={isDeposit}
                             setIsAutoDBR={setIsAutoDBR}
                             isAutoDBR={isAutoDBR}
                             hasHelper={!!market.helper}
-                        />
+                        /> : <Text>&nbsp;</Text>
                     }
                     {
                         market.isLeverageComingSoon && <Text color="mainTextColorLight">
@@ -531,15 +531,13 @@ export const F2CombinedForm = ({
                         </Text>
                     }
                     {
-                        canShowLeverage ? isDeposit || market?.aleTransformerType !== 'marketAddressAndAmount' ? <FirmLeverageSwitch isDeposit={isDeposit} useLeverage={useLeverage} onChange={(isDeposit) => {
+                        canShowLeverage && <FirmLeverageSwitch isDeposit={isDeposit} useLeverage={useLeverage} onChange={(isDeposit) => {
                             const isActivatingLeverage = !useLeverage;
                             setUseLeverage(isActivatingLeverage);
                             if (canActivateLeverage) {
                                 retriggerLeverage(isDeposit, debtAmount, debtAmountNum, true, collateralAmountNum);
                             }
-                        }} /> : <Text color="mainTextColorLight">
-                            Deleverage feature in maintenance
-                        </Text> : null
+                        }} />
                     }
                 </Stack>
             </VStack>

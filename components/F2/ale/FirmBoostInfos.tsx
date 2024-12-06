@@ -414,11 +414,11 @@ export const FirmBoostInfos = ({
                     alignItems="center"
                 >
                     <InputLeftElement
-                        children={<Text cursor="text" as="label" for="boostInput" color="secondaryTextColor" whiteSpace="nowrap" transform="translateX(60px)" fontSize={{ base: '20px', lg: '22px' }} fontWeight="extrabold">
+                        children={<Text cursor="text" as="label" for="boostInput" color="secondaryTextColor" whiteSpace="nowrap" transform="translateX(40px)" fontSize={{ base: '14px', lg: '16px' }} fontWeight="extrabold">
                             {boostLabel}:
                         </Text>}
                     />
-                    <Input shadow="0 0 0px 1px rgba(0, 0, 0, 0.25)" fontWeight="extrabold" fontSize={leverageLevel === Infinity ? '16px' : { base: '20px', lg: '24px' }} _focusVisible={false} isInvalid={editLeverageIsInvalid} autocomplete="off" onKeyPress={handleKeyPress} id="boostInput" color={risk.color} py="0" pl="60px" onChange={(e) => handleEditLeverage(e.target.value, minLeverage, maxLeverage)} width="225px" value={editLeverageLevel} min={minLeverage} max={maxLeverage} />
+                    <Input shadow="0 0 0px 1px rgba(0, 0, 0, 0.25)" fontWeight="extrabold" fontSize={leverageLevel === Infinity ? '16px' : { base: '20px', lg: '24px' }} _focusVisible={false} isInvalid={editLeverageIsInvalid} autocomplete="off" onKeyPress={handleKeyPress} id="boostInput" color={risk.color} py="0" pl="40px" onChange={(e) => handleEditLeverage(e.target.value, minLeverage, maxLeverage)} width="180px" value={editLeverageLevel} min={minLeverage} max={maxLeverage} />
                     {
                         editLeverageLevel !== leverageLevel.toFixed(2) && debounced && !editLeverageIsInvalid &&
                         <InputRightElement cursor="pointer" transform="translateX(40px)" onClick={() => validatePendingLeverage(editLeverageLevel, isLeverageUp)}
@@ -434,11 +434,11 @@ export const FirmBoostInfos = ({
                         <HStack fontWeight="bold" spacing="1" alignItems="center">
                             {isLeverageUp ? <ArrowUpIcon color="success" fontSize="20px" /> : <ArrowDownIcon color="warning" fontSize="20px" />}
                             <VStack spacing="0">
-                                <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="15px" textAlign="center">
+                                <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="14px" textAlign="center">
                                     {isLeverageUp ? '~' : ''}{smartShortNumber(isLeverageUp ? parseFloat(leverageCollateralAmount) : collateralAmountNum, 4)}
                                 </Text>
-                                <Text textDecoration="underline" cursor="default" fontSize="15px">
-                                    {market.underlying.symbol}
+                                <Text whiteSpace="nowrap" textDecoration="underline" cursor="default" fontSize="14px">
+                                    {market.underlying.symbol?.replace(/ [a-z]?lp$/i, '')}
                                 </Text>
                             </VStack>
                         </HStack>
@@ -449,10 +449,10 @@ export const FirmBoostInfos = ({
                         <HStack fontWeight="bold" spacing="1" alignItems="center">
                             {isLeverageUp ? <ArrowUpIcon color="warning" fontSize="20px" /> : <ArrowDownIcon color="success" fontSize="20px" />}
                             <VStack spacing="0">
-                                <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="15px" textAlign="center">
+                                <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="14px" textAlign="center">
                                     {smartShortNumber(!isLeverageUp ? amountOfDebtReduced : debtAmountNum, 2)}
                                 </Text>
-                                <Text textDecoration="underline" cursor="default" fontSize="15px">DEBT</Text>
+                                <Text textDecoration="underline" cursor="default" fontSize="14px">DEBT</Text>
                             </VStack>
                         </HStack>
                     </TextInfoSimple>
@@ -462,10 +462,10 @@ export const FirmBoostInfos = ({
                         <HStack fontWeight="bold" spacing="1" alignItems="center">
                             <ArrowUpIcon color="success" fontSize="20px" />
                             <VStack spacing="0">
-                                <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="15px" textAlign="center">
+                                <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="14px" textAlign="center">
                                     ~{smartShortNumber(extraDolaReceivedInWallet, 2)}
                                 </Text>
-                                <Text textDecoration="underline" cursor="default" fontSize="15px">DOLA</Text>
+                                <Text textDecoration="underline" cursor="default" fontSize="14px">DOLA</Text>
                             </VStack>
                         </HStack>
                     </TextInfoSimple>

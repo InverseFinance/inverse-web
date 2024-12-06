@@ -29,7 +29,7 @@ const aleTransformers = {
     },
 }
 
-const ANOMALY_PERC_FACTOR = 0.9;
+const ANOMALY_PERC_FACTOR = 0.95;
 
 export const prepareLeveragePosition = async (
     signer: JsonRpcSigner,
@@ -163,7 +163,7 @@ export const prepareDeleveragePosition = async (
     dbrToSell?: BigNumber,
     minDolaOut?: BigNumber,
     dolaPrice = 1,
-    leverageMinDebtReduced?: number,
+    leverageMinAmountUp?: number,
     underlyingExRate?: number,
 ) => {
     let aleQuoteResult;    
@@ -196,12 +196,16 @@ export const prepareDeleveragePosition = async (
         const { data: swapData, allowanceTarget, value, buyAmount } = aleQuoteResult;
         const permitData = [deadline, v, r, s];
         let helperTransformData = '0x';
-        const dolaBuyAmount = parseUnits(buyAmount, 0);
+        const dolaBuyAmount = getBnToNumber(parseUnits(buyAmount, 0));
         const userDebt = await (new Contract(market.address, F2_MARKET_ABI, signer)).debts(await signer.getAddress());
-        const minDolaAmountFromSwap = getNumberToBn(leverageMinDebtReduced);
+        const minDolaAmountFromSwap = getNumberToBn(leverageMinAmountUp);
         const minDolaOrMaxRepayable = minDolaAmountFromSwap.gt(userDebt) ? userDebt : minDolaAmountFromSwap;       
-        if (market.aleData?.buySellToken && !!market.aleTransformerType && aleTransformers[market.aleTransformerType]) {            
-            helperTransformData = aleTransformers[market.aleTransformerType](market, leverageMinDebtReduced ? getNumberToBn(leverageMinDebtReduced) : undefined);
+        if (market.aleData?.buySellToken && !!market.aleTransformerType && aleTransformers[market.aleTransformerType]) {
+            if(leverageMinAmountUp < (dolaBuyAmount * ANOMALY_PERC_FACTOR)){
+                alert('Something went wrong');
+                return;
+            }
+            helperTransformData = aleTransformers[market.aleTransformerType](market, minDolaAmountFromSwap ? minDolaAmountFromSwap : undefined);
         }
         // dolaIn, minDbrOut, extraDolaToRepay
         const dbrData = [dbrToSell, minDolaOut, extraDolaToRepay];
