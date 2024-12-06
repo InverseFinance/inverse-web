@@ -816,9 +816,6 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
 
               <Stack direction="row" align="center" display={{ base: 'none', lg: 'flex' }}>
                 {
-                  isLargerThan1150 && inited && vampireComp
-                }
-                {
                   isLargerThan1300 && <INVBalance />
                 }
                 {
@@ -839,11 +836,6 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
       </Flex>
       {!!process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG && !hideAnnouncement && <Announcement />}
       {!process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG && !hideAnnouncement && <SDolaAnnouncement />}
-      {
-        !isLargerThan1150 && inited && !hideVampireBar && <VStack mt="4">
-          {vampireComp}
-        </VStack>
-      }
     </VStack>
   )
 }
