@@ -518,12 +518,12 @@ export const F2CombinedForm = ({
                 {showNotEnoughDolaToRepayMessage && <NotEnoughDolaToRepayMessage amount={debtAmountNum} />}
                 <Stack direction={{ base: 'column', xl: 'row' }} pt="2" justify="space-between" alignItems="space-between" w='full'>
                     {
-                        isDeposit && (hasDebtChange || hasCollateralChange) && !isMultisig && <DbrHelperSwitch
+                        isDeposit && (hasDebtChange || hasCollateralChange) && !isMultisig ? <DbrHelperSwitch
                             isDeposit={isDeposit}
                             setIsAutoDBR={setIsAutoDBR}
                             isAutoDBR={isAutoDBR}
                             hasHelper={!!market.helper}
-                        />
+                        /> : <Text>&nbsp;</Text>
                     }
                     {
                         market.isLeverageComingSoon && <Text color="mainTextColorLight">
