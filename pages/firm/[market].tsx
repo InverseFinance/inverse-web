@@ -54,7 +54,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                 <meta name="description" content="FiRM is Inverse Finance's Fixed Rate Market, borrow DOLA with the DOLA Borrowing Right token DBR. Rethink the way you borrow!" />
                 <meta name="og:image" content={useDefaultPreview.includes(market) ? "https://inverse.finance/assets/social-previews/firm-page.png" : `https://inverse.finance/assets/social-previews/markets/${market}.jpeg`} />
             </Head>
-            <AppNav active={'Markets'} activeSubmenu={market?.isInv ? 'Stake INV' : `${market} Market`} />
+            <AppNav hideAnnouncement={true} active={'Markets'} activeSubmenu={market?.isInv ? 'Stake INV' : `${market} Market`} />
             <ErrorBoundary description="Error in the market page, please try reloading">
                 {
                     needCountdown && <VStack
