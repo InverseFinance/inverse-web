@@ -30,6 +30,7 @@ let timeout = -1;
 
 const getSteps = (
     market: F2Market,
+    dolaPrice: number,
     deposits: number,
     debt: number,
     perc: number,
@@ -38,16 +39,20 @@ const getSteps = (
     aleSlippage: string,
     steps: number[] = [],
     doLastOne = false,
+    previousPerc?: number,
+    previousSteps?: number[],
 ): number[] => {
     const isLeverageUp = type === 'up';
     const baseWorth = market.price ? deposits * market.price : 0;
-    const _leverageLevel = leverageLevel + 0.01;
+    const _leverageLevel = leverageLevel + 0.005;
     const effectiveLeverage = isLeverageUp ? _leverageLevel : (1 / _leverageLevel);
     const desiredWorth = baseWorth * effectiveLeverage;
 
-    const deltaBorrow = desiredWorth - baseWorth;
+    const deltaBorrow = (desiredWorth - baseWorth) * (1/(dolaPrice||1));
     const collateralPrice = market.price;
     const targetCollateralBalance = collateralPrice ? desiredWorth / collateralPrice : 0;
+
+    const safeMinHealth = market.collateralFactor >= 0.9 ? 0.2 : 1.6;
 
     const {
         newDebtSigned,
@@ -60,10 +65,13 @@ const getSteps = (
         deltaBorrow,
         perc,
     );
-    if ((newPerc <= 2) || _leverageLevel > 10 || doLastOne) {
+    if(previousSteps && previousPerc && previousPerc >= safeMinHealth && newPerc < safeMinHealth) {
+        return previousSteps;
+    }
+    else if ((newPerc <= safeMinHealth) || _leverageLevel > 10 || doLastOne) {
         return steps;
     } else {
-        return getSteps(market, deposits, debt, perc, type, _leverageLevel, aleSlippage, [...steps, _leverageLevel], newDebtSigned <= 0 && Math.abs(newDebtSigned) >= debt * (parseFloat(aleSlippage) / 100));
+        return getSteps(market, dolaPrice, deposits, debt, perc, type, _leverageLevel, aleSlippage, [...steps, _leverageLevel], newDebtSigned <= 0 && Math.abs(newDebtSigned) >= debt * (parseFloat(aleSlippage) / 100), newPerc, steps);
     }
 }
 
@@ -252,7 +260,8 @@ export const FirmBoostInfos = ({
     } = useContext(F2MarketContext);
 
     const newBorrowLimit = 100 - newPerc;
-    const showBorrowLimitTooHighMsg = newBorrowLimit >= 99 && !leverageLoading && !isTriggerLeverageFetch;
+    const safeBorrowLimit = market.collateralFactor >= 0.9 ? 99.9 : 99;
+    const showBorrowLimitTooHighMsg = newBorrowLimit >= safeBorrowLimit && !leverageLoading && !isTriggerLeverageFetch;
     const { isOpen, onOpen, onClose } = useDisclosure();
     const minLeverage = 1;
     // const [leverageLevel, setLeverageLevel] = useState(minLeverage || _leverageLevel);
@@ -263,7 +272,7 @@ export const FirmBoostInfos = ({
     const isLeverageUp = type === 'up';
 
     const baseColAmountForLeverage = deposits > 0 ? deposits + collateralAmountNum : collateralAmountNum;
-    const leverageSteps = useMemo(() => getSteps(market, baseColAmountForLeverage, debt, perc, type, 1, aleSlippage, []), [market, baseColAmountForLeverage, debt, perc, type, undefined, aleSlippage]);
+    const leverageSteps = useMemo(() => getSteps(market, dolaPrice, baseColAmountForLeverage, debt, perc, type, 1, aleSlippage, []), [market, baseColAmountForLeverage, debt, perc, type, undefined, aleSlippage, dolaPrice]);
     // when deleveraging we want the max to be higher what's required to repay all debt, the extra dola is sent to the wallet
     const maxLeverage = isLeverageUp ? roundDown(leverageSteps[leverageSteps.length - 1]) : roundUp(leverageSteps[leverageSteps.length - 1]);
     const leverageRelativeToMax = leverageLevel / maxLeverage;
