@@ -44,7 +44,7 @@ const getSteps = (
 ): number[] => {
     const isLeverageUp = type === 'up';
     const baseWorth = market.price ? deposits * market.price : 0;
-    const _leverageLevel = leverageLevel + 0.005;
+    const _leverageLevel = leverageLevel + 0.01;
     const effectiveLeverage = isLeverageUp ? _leverageLevel : (1 / _leverageLevel);
     const desiredWorth = baseWorth * effectiveLeverage;
 
