@@ -81,7 +81,7 @@ export const KeymetricsPage = () => {
 
   const isLoading = isLoadingDao || isLoadingPrices || isDolaPriceLoading || isLoadingPositions;
   const mainFontSize = { base: '16px', sm: '20px', md: '26px' };
-  const dashboardCardTitleProps = { w: 'fit-content', position: 'static', fontSize: mainFontSize, fontWeight: 'extrabold' };
+  const dashboardCardTitleProps = { w: 'fit-content', fontSize: mainFontSize, fontWeight: 'extrabold' };
   const dashboardCardProps = { direction: 'column', mx: '0', w: { base: '100vw', sm: '95vw', lg: '600px' }, borderRadius: { base: '0', sm: '8' } };
 
   const fedsPieChartData = fedsDataToPieChart(fedOverviews, themeStyles?.colors);
@@ -147,6 +147,9 @@ export const KeymetricsPage = () => {
             </Stack>
             <DashBoardCard cardTitle="FiRM Fees & Revenues" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps} w='full'>
               <iframe width="100%" height="360px" src={`https://defillama.com/chart/protocol/inverse-finance-firm?mcap=false&tokenPrice=false&fees=true&revenue=true&events=false&tvl=false&include_pool2_in_tvl=true&include_staking_in_tvl=true&include_govtokens_in_tvl=true&theme=${themeName}`} title="DefiLlama" frameborder="0"></iframe>
+            </DashBoardCard>
+            <DashBoardCard cardTitle="FiRM TVL" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps} w='full'>
+              <iframe width="100%" height="360px"  src={`https://defillama.com/chart/protocol/inverse-finance-firm?events=false&fees=false&revenue=false&usdInflows=false&theme=${themeName}`} title="DefiLlama" frameborder="0"></iframe>
             </DashBoardCard>
           </Stack>
         </Flex>
