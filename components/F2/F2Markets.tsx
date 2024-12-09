@@ -140,7 +140,7 @@ export const MARKET_INFOS = {
     'yv-crvUSD-DOLA': {
         name: 'yv-crvUSD-DOLA',
         fullname: 'Yearn vault - crvUSD-DOLA LP',
-        description: 'The Yearn Vault for the Curve crvUSD-DOLA LP, the yearn vault auto-compounds the rewards of the crvUSD-DOLA LP into more vault tokens',
+        description: 'The Yearn Vault for the Curve crvUSD-DOLA LP, the yearn vault auto-compounds the rewards of the crvUSD-DOLA LP increasing the vault token price',
         getLink: 'https://yearn.fi/vaults/1/0xfb5137Aa9e079DB4b7C2929229caf503d0f6DA96',
     },
     'cbBTC': {
@@ -158,7 +158,7 @@ export const MARKET_INFOS = {
     'yv-FraxPyUSD-DOLA': {
         name: 'yv-FraxPyUSD-DOLA',
         fullname: 'Yearn vault - FraxPyUSD-DOLA LP',
-        description: 'The Yearn Vault for the Curve FraxPyUSD-DOLA LP, the yearn vault auto-compounds the rewards of the FraxPyUSD-DOLA LP into more vault tokens',
+        description: 'The Yearn Vault for the Curve FraxPyUSD-DOLA LP, the yearn vault auto-compounds the rewards of the FraxPyUSD-DOLA LP increasing the vault token price',
         getLink: 'https://yearn.fi/vaults/1/0xcC2EFb8bEdB6eD69ADeE0c3762470c38D4730C50',
     },
     'FraxBP-DOLA': {
@@ -170,7 +170,7 @@ export const MARKET_INFOS = {
     'yv-FraxBP-DOLA': {
         name: 'yv-FraxBP-DOLA',
         fullname: 'Yearn vault - FraxBP-DOLA LP',
-        description: 'The Yearn Vault for the Curve FraxBP-DOLA LP, the yearn vault auto-compounds the rewards of the FraxBP-DOLA LP into more vault tokens',
+        description: 'The Yearn Vault for the Curve FraxBP-DOLA LP, the yearn vault auto-compounds the rewards of the FraxBP-DOLA LP increasing the vault token price',
         getLink: 'https://yearn.fi/vaults/1/0xe5F625e8f4D2A038AE9583Da254945285E5a77a4',
     },
     'PT-sUSDe-27MAR25': {
@@ -188,7 +188,7 @@ export const MARKET_INFOS = {
     'yv-sUSDe-DOLA': {
         name: 'yv-sUSDe-DOLA',
         fullname: 'Yearn vault - sUSDe-DOLA LP',
-        description: 'The Yearn Vault for the Curve sUSDe-DOLA LP, the yearn vault auto-compounds the rewards of the sUSDe-DOLA LP into more vault tokens',
+        description: 'The Yearn Vault for the Curve sUSDe-DOLA LP, the yearn vault auto-compounds the rewards of the sUSDe-DOLA LP increasing the vault token price',
         getLink: 'https://yearn.fi/vaults/1/0x1Fc80CfCF5B345b904A0fB36d4222196Ed9eB8a5',
     },
     'sUSDS-DOLA': {
@@ -200,7 +200,7 @@ export const MARKET_INFOS = {
     'yv-sUSDS-DOLA': {
         name: 'yv-sUSDS-DOLA',
         fullname: 'Yearn vault - sUSDS-DOLA LP',
-        description: 'The Yearn Vault for the Curve sUSDS-DOLA LP, the yearn vault auto-compounds the rewards of the sUSDS-DOLA LP into more vault tokens',
+        description: 'The Yearn Vault for the Curve sUSDS-DOLA LP, the yearn vault auto-compounds the rewards of the sUSDS-DOLA LP increasing the vault token price',
         getLink: 'https://yearn.fi/vaults/1/0x342D24F2a3233F7Ac8A7347fA239187BFd186066',
     },
 }
