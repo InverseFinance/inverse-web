@@ -203,7 +203,7 @@ export const OppysGroupedTop3 = ({
             Native<br/>APY
         </Text>
         <Text className="bordered-grid-item" color={themeStyles.colors.mainTextColor} fontWeight="extrabold" fontSize={fontSize}>
-            Yield Aggregator APY
+            Best Yield Aggregator APY
         </Text>
         {
             isLoading ? <><SkeletonBlob /><SkeletonBlob /><SkeletonBlob /><SkeletonBlob /></> : groupedOppys.map((o, i) => {
@@ -225,6 +225,8 @@ function arePairsEqual(pair1, pair2) {
         normalizedPair1[1] === normalizedPair2[1];
 }
 
+const excludeProjects = ['pancakeswap-amm-v3', 'bunni']
+
 export const OppysV2 = ({
     showLinks = false,
 }) => {
@@ -234,17 +236,18 @@ export const OppysV2 = ({
     const _oppys = (oppys || []).filter(o => !o.symbol.includes('-BB-'));
 
     const top3ByChain = topChains.map(chain => {
-        const top3Native = _oppys.filter(o => o.stablecoin && nativeLpProjects.includes(o.project) && o.chain === chain).sort((a, b) => b.apy - a.apy).slice(0, 3).map((o, i) => ({ ...o, rank: i + 1 }));
+        // const top3Native = _oppys.filter(o => o.stablecoin && nativeLpProjects.includes(o.project) && o.chain === chain).sort((a, b) => b.apy - a.apy).slice(0, 3).map((o, i) => ({ ...o, rank: i + 1 }));
+        const topNatives = _oppys.filter(o => o.stablecoin && nativeLpProjects.includes(o.project) && o.chain === chain).sort((a, b) => b.apy - a.apy).map((o, i) => ({ ...o, rank: i + 1 }));
         const oppyChainId = NETWORKS_BY_NAME[chain].id.toString();
         const chainTokens = Object.values(CHAIN_TOKENS[oppyChainId]);
-        const groupedOppys = top3Native.map(o => {
+        const groupedOppys = topNatives.map(o => {
             const findLocalConf = chainTokens.find(t => {
                 const protocol = PROTOCOLS_BY_IMG[t.protocolImage];
                 const defiLlamaProjectName = PROTOCOL_DEFILLAMA_MAPPING[protocol];
                 return defiLlamaProjectName === o.project && homogeneizeLpName(t.symbol) === o.symbol
             });
 
-            const bestYieldAggregator = _oppys.filter(o2 => o2.stablecoin && !nativeLpProjects.includes(o2.project) && o2.chain === chain && o2.symbol === o.symbol).sort((a, b) => b.apy - a.apy)[0];
+            const bestYieldAggregator = _oppys.filter(o2 => o2.tvlUsd > 100000 && o2.stablecoin && !excludeProjects.includes(o2.project) && !nativeLpProjects.includes(o2.project) && o2.chain === chain && o2.symbol === o.symbol).sort((a, b) => b.apy - a.apy)[0];
             const findYieldLocalConf = chainTokens.find(t => {
                 const protocol = PROTOCOLS_BY_IMG[t.protocolImage];
                 const defiLlamaProjectName = PROTOCOL_DEFILLAMA_MAPPING[protocol];
@@ -255,11 +258,12 @@ export const OppysV2 = ({
             const bestYieldAggregatorLink = getPoolLink(bestYieldAggregator?.project, bestYieldAggregator?.pool, bestYieldAggregator?.underlyingTokens, bestYieldAggregator?.symbol, bestYieldAggregator?.stablecoin, o.chain, findYieldLocalConf);
             return { ...o, link: nativeLink, bestYieldAggregatorProject: bestYieldAggregator?.project, bestYieldAggregatorApy: bestYieldAggregator?.apy, bestYieldAggregatorLink };
         });
+        const top3AggregGrouped = groupedOppys.sort((a, b) => b.bestYieldAggregatorApy - a.bestYieldAggregatorApy).slice(0, 3);
 
         return {
             chain,
-            hasOppys: groupedOppys.length > 0,
-            groupedOppys,
+            hasOppys: top3AggregGrouped.length > 0,
+            groupedOppys: top3AggregGrouped,
         };
     }).filter(o => o.hasOppys);
 
