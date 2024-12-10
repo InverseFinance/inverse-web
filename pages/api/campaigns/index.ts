@@ -136,13 +136,11 @@ export default async function handler(req, res) {
   const {
     query,
     method,
-    csv,
-    csv_access,
   } = req
 
   const { sig, form } = req.body;
 
-  const { address, campaign } = query;
+  const { address, campaign, csv, csv_access } = query;
   const campaignListKey = `${campaign}-results`;
 
   if (!CAMPAIGNS.includes(campaign)) {
