@@ -178,7 +178,7 @@ body {
     height: 300px;
     opacity: 0.9;
     z-index: -1;
-    transform:rotate(45deg);
+    transform: rotate(45deg);
 }
 
 .graffiti-bg {
@@ -224,4 +224,35 @@ body {
     background-repeat: no-repeat;
     width: 400px;
     height: 80px;
+}
+
+.bordered-grid-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.bordered-grid-item {
+    padding: 15px;
+    text-align: center;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-color: inherit;
+    /* border-right-color: white; */
+    /* border-bottom-color: white; */
+}
+.bordered-grid-item p {
+    text-align: center;
+}
+
+/* Remove right border from last column */
+.bordered-grid-item:nth-child(4n) {
+    border-right: none;
+}
+
+/* Remove bottom border from last row */
+.bordered-grid-item:nth-last-child(-n+4) {
+    border-bottom: none;
 }

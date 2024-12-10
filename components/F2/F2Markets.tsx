@@ -179,6 +179,30 @@ export const MARKET_INFOS = {
         description: 'The Principal Token for the Pendle sUSDe-27MAR2025 that is a fixed yield asset thanks to Pendle\'s split of yield-bearing assets into Principal and Yield tokens',
         getLink: 'https://app.pendle.finance/trade/markets/0xcdd26eb5eb2ce0f203a84553853667ae69ca29ce/swap?view=pt&chain=ethereum&page=1',
     },
+    'sUSDe-DOLA': {
+        name: 'sUSDe-DOLA',
+        fullname: 'sUSDe-DOLA LP',
+        description: 'The LP token for the sUSDe-DOLA pool on Curve, when deposited on FiRM the LP token will be then deposited into Convex to earn claimable CVX+CRV rewards',
+        getLink: 'https://curve.fi/#/ethereum/pools/factory-stable-ng-298/deposit',
+    },
+    'yv-sUSDe-DOLA': {
+        name: 'yv-sUSDe-DOLA',
+        fullname: 'Yearn vault - sUSDe-DOLA LP',
+        description: 'The Yearn Vault for the Curve sUSDe-DOLA LP, the yearn vault auto-compounds the rewards of the sUSDe-DOLA LP into more vault tokens',
+        getLink: 'https://yearn.fi/vaults/1/0x1Fc80CfCF5B345b904A0fB36d4222196Ed9eB8a5',
+    },
+    'sUSDS-DOLA': {
+        name: 'sUSDS-DOLA',
+        fullname: 'sUSDS-DOLA LP',
+        description: 'The LP token for the sUSDS-DOLA pool on Curve, when deposited on FiRM the LP token will be then deposited into Convex to earn claimable CVX+CRV rewards',
+        getLink: 'https://curve.fi/#/ethereum/pools/factory-stable-ng-299/deposit',
+    },
+    'yv-sUSDS-DOLA': {
+        name: 'yv-sUSDS-DOLA',
+        fullname: 'Yearn vault - sUSDS-DOLA LP',
+        description: 'The Yearn Vault for the Curve sUSDS-DOLA LP, the yearn vault auto-compounds the rewards of the sUSDS-DOLA LP into more vault tokens',
+        getLink: 'https://yearn.fi/vaults/1/0x342D24F2a3233F7Ac8A7347fA239187BFd186066',
+    },
 }
 
 const ColHeader = ({ ...props }) => {

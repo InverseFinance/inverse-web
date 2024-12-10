@@ -114,7 +114,7 @@ export const VeNftEvolutionWrapper = () => {
     const veNftsWithEvolution = veNfts.filter(veNft => veNft.evolution?.length > 0);
 
     const chartList = veNftsWithEvolution.map(veNft => {
-        const currentPrice = veNft.currentPrice || prices[veNft.coingeckoId]?.usd || 0;
+        const currentPrice = prices[veNft.coingeckoId]?.usd || veNft.currentPrice || 0;
         return {
             ...veNft,
             currentWorth: (veNft.currentBalance || 0) * currentPrice,

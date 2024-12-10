@@ -16,6 +16,7 @@ import { DefaultCharts } from "./DefaultCharts";
 import { useDolaStakingEvolution, useStakedDola } from "@app/util/dola-staking";
 import { useDbrAuction } from "../F2/DbrAuction/DbrAuctionInfos";
 import { useHistoInvPrices } from "@app/hooks/usePrices";
+import { DashBoardCard } from "../F2/UserDashboard";
 
 const streamingStartTs = 1684713600000;
 
@@ -56,7 +57,7 @@ export const DbrAll = ({
     const totalDebt = positions.reduce((prev, curr) => prev + curr.debt, 0);
 
     const repHashes = replenishments?.map(r => r.txHash) || [];
-    const auctionBuysHashes = auctionBuys?.map(r => r.txHash) || [];    
+    const auctionBuysHashes = auctionBuys?.map(r => r.txHash) || [];
     const dsaClaimEvents = dsaEvents?.filter(r => r.event === 'Claim') || [];
     const dsaClaimHashes = dsaClaimEvents.map(r => r.txHash);
 
@@ -82,7 +83,7 @@ export const DbrAll = ({
     });
 
     // rate to auction
-    const auctionRateChanges = (auctionHistoricalRates || [{"timestamp":1705343411,"block":19014080,"rate":2000000},{"timestamp":1706888243,"block":19141646,"rate":5000000}]).map(e => {
+    const auctionRateChanges = (auctionHistoricalRates || [{ "timestamp": 1705343411, "block": 19014080, "rate": 2000000 }, { "timestamp": 1706888243, "block": 19141646, "rate": 5000000 }]).map(e => {
         const date = timestampToUTC(e.timestamp);
         const histoPrice = histoPrices[date];
         return { ...e, histoPrice, worth: e.rate * (histoPrice || 0.05), date };
@@ -101,15 +102,15 @@ export const DbrAll = ({
 
     const combodata = history?.map(d => {
         const date = timestampToUTC(d.timestamp);
-        const histoPrice = (histoPrices[date] || getClosestPreviousHistoValue(histoPrices, date ,0.05));
+        const histoPrice = (histoPrices[date] || getClosestPreviousHistoValue(histoPrices, date, 0.05));
         const invHistoPrice = (invHistoPricesAsObj[date] || getClosestPreviousHistoValue(invHistoPricesAsObj, date, 0));
         const invHistoCircSupply = (circSupplyAsObj[date] || getClosestPreviousHistoValue(circSupplyAsObj, date, 0));
         const dbrCircSupply = (dbrCircSupplyAsObj[date] || getClosestPreviousHistoValue(dbrCircSupplyAsObj, date, 0));
         const invHistoMarketCap = invHistoPrice * invHistoCircSupply;
         const yearlyRewardRate = rateChanges.findLast(rd => date >= rd.date)?.yearlyRewardRate || 0;
         const auctionYearlyRewardRate = auctionRateChanges.findLast(rd => date >= rd.date)?.rate || 0;
-        const dsaIssuance = dolaStakingEvolution.findLast(rd => date >= timestampToUTC(rd.timestamp))?.dsaYearlyDbrEarnings || 0;        
-        const totalAnnualizedIssuance =  auctionYearlyRewardRate + yearlyRewardRate + dsaIssuance;
+        const dsaIssuance = dolaStakingEvolution.findLast(rd => date >= timestampToUTC(rd.timestamp))?.dsaYearlyDbrEarnings || 0;
+        const totalAnnualizedIssuance = auctionYearlyRewardRate + yearlyRewardRate + dsaIssuance;
         return {
             ...d,
             time: (new Date(date)),
@@ -125,7 +126,7 @@ export const DbrAll = ({
             dbrCircSupply,
             dbrCircSupplyUsd: dbrCircSupply * histoPrice,
         }
-    });    
+    });
 
     const lastCombodata = combodata?.length > 0 ? combodata[combodata.length - 1] : { debt: 0 };
     // today utc: use current price
@@ -157,12 +158,16 @@ export const DbrAll = ({
 
     const [chartWidth, setChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
-    const { themeStyles } = useAppTheme();
+    const { themeName, themeStyles } = useAppTheme();
     const defaultColorScale = [themeStyles.colors.secondary];
+
+    const mainFontSize = { base: '16px', sm: '20px', md: '26px' };
+    const dashboardCardTitleProps = { w: 'fit-content', mb: '0', fontSize: mainFontSize, fontWeight: 'extrabold' };
+    const dashboardCardProps = { p: '0', bgColor: 'transparent', border: 'none', pl: '4', direction: 'column', mx: '0', w: { base: '100vw', sm: '95vw', lg: '600px' }, borderRadius: { base: '0', sm: '8' } };
 
     useEffect(() => {
         setChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width))
-    }, [isLargerThan]);    
+    }, [isLargerThan]);
 
     return <Stack spacing="3" w='full' direction={{ base: 'column' }}>
         <FormControl cursor="pointer" w='full' justifyContent={{ base: 'center', sm: 'flex-start' }} display='flex' alignItems='center'>
@@ -215,5 +220,11 @@ export const DbrAll = ({
             auctionBuys={auctionBuys}
             useUsd={useUsd}
         />
+        <DashBoardCard cardTitle={isLargerThan ? "FiRM Fees & Revenues" : undefined} cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps} w='full'>
+            <iframe width="100%" height="360px" src={`https://defillama.com/chart/protocol/inverse-finance-firm?mcap=false&tokenPrice=false&fees=true&revenue=true&events=false&tvl=false&include_pool2_in_tvl=true&include_staking_in_tvl=true&include_govtokens_in_tvl=true&theme=${themeName}`} title="DefiLlama" frameborder="0"></iframe>
+        </DashBoardCard>
+        <DashBoardCard cardTitle="FiRM TVL" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps} w='full'>
+            <iframe width="100%" height="360px" src={`https://defillama.com/chart/protocol/inverse-finance-firm?events=false&fees=false&revenue=false&usdInflows=false&theme=${themeName}`} title="DefiLlama" frameborder="0"></iframe>
+        </DashBoardCard>
     </Stack>
 }

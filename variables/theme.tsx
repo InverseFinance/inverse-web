@@ -144,7 +144,7 @@ export const darkTheme = extendTheme({
     verticalGradientTopBottom: 'linear-gradient(180deg, #100e21ff, #2a255722 60%)',
     verticalGradientGray: 'linear-gradient(0deg, rgba(51,51,51,0.2) 0%, rgba(51,51,51,0.7) 40%, rgba(51,51,51,0.7) 60%, rgba(51,51,51,0.2) 100%)',
     announcementBarBackgroundColor: "transparent",
-    announcementBarBackground: "url('/assets/landing/graphic1.webp')",
+    announcementBarBackground: "none",
     contrastMainTextColor: '#333',
     secContrastMainTextColor: '#303030',
     mainTextColor: '#ffffff',
