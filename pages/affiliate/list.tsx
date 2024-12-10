@@ -12,7 +12,7 @@ export const FirmAffiliateListPage = () => {
             <Head>
                 <title>Inverse Finance - Affiliate Dashbboard</title>
             </Head>
-            <AppNav active="More" activeSubmenu="Affiliate Dashboard" hideAnnouncement={true} hideVampireBar={true} />
+            <AppNav active="More" activeSubmenu="Affiliate Dashboard" hideAnnouncement={true} hideCampaignBar={true} />
             <ErrorBoundary>
                 <VStack w='full' maxW="1300px" mt="4">
                     <FirmAffiliateList />
