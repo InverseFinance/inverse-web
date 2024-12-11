@@ -1,4 +1,4 @@
-import { Flex, FormControl, FormLabel, SimpleGrid, Stack, Checkbox } from '@chakra-ui/react'
+import { Flex, FormControl, FormLabel, SimpleGrid, Stack, Checkbox, HStack, Text } from '@chakra-ui/react'
 
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
@@ -14,6 +14,7 @@ import { groupPositionsBy } from '@app/components/F2/liquidations/firm-positions
 import { useCustomSWR } from '@app/hooks/useCustomSWR'
 import { useAppTheme } from '@app/hooks/useAppTheme'
 import { DolaBackingLegend, fedsDataToPieChart } from './dola'
+import FirmLogo from '@app/components/common/Logo/FirmLogo'
 
 const OWN_TOKENS = ['DBR', 'INV'];
 
@@ -82,6 +83,7 @@ export const KeymetricsPage = () => {
   const isLoading = isLoadingDao || isLoadingPrices || isDolaPriceLoading || isLoadingPositions;
   const mainFontSize = { base: '16px', sm: '20px', md: '26px' };
   const dashboardCardTitleProps = { w: 'fit-content', fontSize: mainFontSize, fontWeight: 'extrabold' };
+  const defillamaTextProps = { ...dashboardCardTitleProps, fontSize: '26px', mt: '1' };
   const dashboardCardProps = { direction: 'column', mx: '0', w: { base: '100vw', sm: '95vw', lg: '600px' }, borderRadius: { base: '0', sm: '8' } };
 
   const fedsPieChartData = fedsDataToPieChart(fedOverviews, themeStyles?.colors);
@@ -96,7 +98,7 @@ export const KeymetricsPage = () => {
     isLoading,
     w: 'full',
     leftSideMaxW: '300px',
-    chartProps: { activeFill: 'keep', centralFill: themeStyles.colors.mainTextColor, isUsd: false }    
+    chartProps: { activeFill: 'keep', centralFill: themeStyles.colors.mainTextColor, isUsd: false }
   };
 
   return (
@@ -145,11 +147,24 @@ export const KeymetricsPage = () => {
                 <DolaBackingLegend bottom="25px" position={{ base: 'static', xl: 'absolute' }} w="98%" />
               </DashBoardCard>
             </Stack>
-            <DashBoardCard cardTitle="FiRM Fees & Revenues" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps} w='full'>
+            <DashBoardCard
+              cardTitle={
+                <HStack alignItems="center" position={{ base: 'static', md: 'absolute' }} left="0" top="0" w="full" justifyContent="center">
+                  <FirmLogo w="65px" />
+                  <Text {...defillamaTextProps}>Revenues & Fees</Text>
+                </HStack>
+              }
+              {...dashboardCardProps} w='full' p="0">
               <iframe width="100%" height="360px" src={`https://defillama.com/chart/protocol/inverse-finance-firm?mcap=false&tokenPrice=false&fees=true&revenue=true&events=false&tvl=false&include_pool2_in_tvl=true&include_staking_in_tvl=true&include_govtokens_in_tvl=true&theme=${themeName}`} title="DefiLlama" frameborder="0"></iframe>
             </DashBoardCard>
-            <DashBoardCard cardTitle="FiRM TVL" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps} w='full'>
-              <iframe width="100%" height="360px"  src={`https://defillama.com/chart/protocol/inverse-finance-firm?events=false&fees=false&revenue=false&usdInflows=false&theme=${themeName}`} title="DefiLlama" frameborder="0"></iframe>
+            <DashBoardCard cardTitle={
+              <HStack alignItems="center" position={{ base: 'static', md: 'absolute' }} left="0" top="0" w="full" justifyContent="center">
+                <FirmLogo w="65px" />
+                <Text {...defillamaTextProps}>TVL</Text>
+              </HStack>
+            }
+              {...dashboardCardProps} w='full' p="0">
+              <iframe width="100%" height="360px" src={`https://defillama.com/chart/protocol/inverse-finance-firm?events=false&fees=false&revenue=false&usdInflows=false&theme=${themeName}`} title="DefiLlama" frameborder="0"></iframe>
             </DashBoardCard>
           </Stack>
         </Flex>

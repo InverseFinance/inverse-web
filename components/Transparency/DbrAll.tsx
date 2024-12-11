@@ -1,4 +1,4 @@
-import { FormControl, Stack, useMediaQuery, Text, Switch, Divider, VStack, SimpleGrid } from "@chakra-ui/react";
+import { FormControl, Stack, useMediaQuery, Text, Switch, Divider, VStack, SimpleGrid, HStack } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { BarChart12Months } from "./BarChart12Months";
 import { useAppTheme } from "@app/hooks/useAppTheme";
@@ -17,6 +17,7 @@ import { useDolaStakingEvolution, useStakedDola } from "@app/util/dola-staking";
 import { useDbrAuction } from "../F2/DbrAuction/DbrAuctionInfos";
 import { useHistoInvPrices } from "@app/hooks/usePrices";
 import { DashBoardCard } from "../F2/UserDashboard";
+import FirmLogo from "../common/Logo/FirmLogo";
 
 const streamingStartTs = 1684713600000;
 
@@ -161,15 +162,14 @@ export const DbrAll = ({
     const { themeName, themeStyles } = useAppTheme();
     const defaultColorScale = [themeStyles.colors.secondary];
 
-    const mainFontSize = { base: '16px', sm: '20px', md: '26px' };
-    const dashboardCardTitleProps = { w: 'fit-content', mb: '0', fontSize: mainFontSize, fontWeight: 'extrabold' };
-    const dashboardCardProps = { p: '0', bgColor: 'transparent', border: 'none', pl: '4', direction: 'column', mx: '0', w: { base: '100vw', sm: '95vw', lg: '600px' }, borderRadius: { base: '0', sm: '8' } };
+    const dashboardCardTitleProps = { w: 'fit-content', mt: '1', fontSize: '26px', fontWeight: 'extrabold' };
+    const defillamaCardProps = { overflow:"hidden", direction: 'column', mx: '0', w: { base: '100vw', sm: '95vw', lg: '600px' }, borderRadius: { base: '0', sm: '8' } };
 
     useEffect(() => {
         setChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width))
     }, [isLargerThan]);
 
-    return <Stack spacing="3" w='full' direction={{ base: 'column' }}>
+    return <Stack overflow="hidden" spacing="3" w='full' direction={{ base: 'column' }}>
         <FormControl cursor="pointer" w='full' justifyContent={{ base: 'center', sm: 'flex-start' }} display='flex' alignItems='center'>
             <Text fontSize='14px' mr="2" onClick={() => setUseUsd(!useUsd)}>
                 Show in USD historical value
@@ -220,10 +220,23 @@ export const DbrAll = ({
             auctionBuys={auctionBuys}
             useUsd={useUsd}
         />
-        <DashBoardCard cardTitle={isLargerThan ? "FiRM Fees & Revenues" : undefined} cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps} w='full'>
+        <DashBoardCard
+            cardTitle={
+                <HStack alignItems="center" position={{ base: 'static', md: 'absolute' }} left="0" top="0" w="full" justifyContent="center">
+                    <FirmLogo w="65px" />
+                    <Text {...dashboardCardTitleProps}>Revenues & Fees</Text>
+                </HStack>
+            }
+            {...defillamaCardProps} w='full' p="0">
             <iframe width="100%" height="360px" src={`https://defillama.com/chart/protocol/inverse-finance-firm?mcap=false&tokenPrice=false&fees=true&revenue=true&events=false&tvl=false&include_pool2_in_tvl=true&include_staking_in_tvl=true&include_govtokens_in_tvl=true&theme=${themeName}`} title="DefiLlama" frameborder="0"></iframe>
         </DashBoardCard>
-        <DashBoardCard cardTitle="FiRM TVL" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps} w='full'>
+        <DashBoardCard cardTitle={
+            <HStack alignItems="center" position={{ base: 'static', md: 'absolute' }} left="0" top="0" w="full" justifyContent="center">
+                <FirmLogo w="65px" />
+                <Text {...dashboardCardTitleProps}>TVL</Text>
+            </HStack>
+        }
+            {...defillamaCardProps} w='full' p="0">
             <iframe width="100%" height="360px" src={`https://defillama.com/chart/protocol/inverse-finance-firm?events=false&fees=false&revenue=false&usdInflows=false&theme=${themeName}`} title="DefiLlama" frameborder="0"></iframe>
         </DashBoardCard>
     </Stack>
