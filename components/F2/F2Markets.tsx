@@ -31,6 +31,7 @@ import { InfoMessage } from "../common/Messages";
 import ConfirmModal from "../common/Modal/ConfirmModal";
 import { Input } from "../common/Input";
 import { getNetworkConfigConstants } from "@app/util/networks";
+import FirmLogo from "../common/Logo/FirmLogo";
 
 const { F2_CONTROLLER } = getNetworkConfigConstants();
 
@@ -688,7 +689,7 @@ export const F2Markets = ({
         p={isDashboardPage ? '0' : '6'}
         label={
             <Stack h={{ base: 'auto', xl: '56px' }} direction={{ base: 'column', xl: 'row' }} alignItems="flex-start" justify="center">
-                <Image transform="translateY(6px)" src={`/assets/firm/${firmImages[themeName]}`} w='110px' h="auto" />
+                <FirmLogo transform="translateY(6px)" w='110px' h="auto" />
                 <VStack h={{ base: 'auto', xl: '56px' }} overflow="hidden" spacing="0" alignItems="flex-start">
                     <Text display="inline-block" fontWeight="bold" fontSize={{ base: '14px', md: '16px', 'xl': '20px' }}>
                         {
