@@ -19,6 +19,12 @@ const topics = {
     "0x32d275175c36fa468b3e61c6763f9488ff3c9be127e35e011cf4e04d602224ba": "Contraction",
 }
 
+const GAS_WALLETS = [
+    '0xEC092c15e8D5A48a77Cde36827F8e228CE39471a',
+    '0x11EC78492D53c9276dD7a184B1dbfB34E50B710D',
+    '0xcfaD496f4e92f1f2d3fdC093Dde11Add1dc3a781',
+];
+
 const formatResults = (covalentResponse: any, type: string, refundWhitelist?: string[], voteCastWhitelist?: string[], multisig?: string): RefundableTransaction[] => {
     if (!covalentResponse || covalentResponse?.data === null) {
         return [{ ...covalentResponse }];
@@ -91,6 +97,7 @@ export default async function handler(req, res) {
 
         let refundWhitelist = [
             ...DRAFT_WHITELIST,
+            ...GAS_WALLETS,
             ...Object.keys(CUSTOM_NAMED_ADDRESSES),
         ];
 
@@ -130,11 +137,7 @@ export default async function handler(req, res) {
                 )
                 : new Promise((r) => r([{ data: { items: [] } }])), 
             Promise.all(
-                    [
-                        '0xEC092c15e8D5A48a77Cde36827F8e228CE39471a',
-                        '0x11EC78492D53c9276dD7a184B1dbfB34E50B710D',
-                        '0xcfaD496f4e92f1f2d3fdC093Dde11Add1dc3a781',
-                    ]
+                    GAS_WALLETS
                     .map(gaswallet => !hasFilter || filterType === 'gaswallets' ?
                     getLast100TxsOf(gaswallet)
                         : new Promise((r) => r({ data: { items: [] } })))
