@@ -11,10 +11,10 @@ import { formatDistributorData, formatMarketData, inverseViewerRaw } from '@app/
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.3.6`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.3.8`;
 
 export default async function handler(req, res) {
-  const cacheDuration = 120;
+  const cacheDuration = 90;
   res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
   res.setHeader('Access-Control-Allow-Headers', `Content-Type`);
   res.setHeader('Access-Control-Allow-Origin', `*`);
@@ -62,7 +62,7 @@ export default async function handler(req, res) {
       const isCvxFxs = underlying.symbol === 'cvxFXS';
       const marketData = formattedMarketData.find(fm => fm.market.toLowerCase() === m.address.toLowerCase());
       return {
-        ...m,      
+        ...m,
         ...marketData,
         underlying: TOKENS[m.collateral],
         supplyApy: externalApys[underlying.symbol] || externalApys[m.name] || 0,
