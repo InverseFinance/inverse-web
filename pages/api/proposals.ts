@@ -52,7 +52,7 @@ export default async function handler(req, res) {
     const govContract = new Contract(GOVERNANCE, GOVERNANCE_ABI, provider);
 
     // TODO: temp fix
-    const lastRefProposalId = 216;
+    const lastRefProposalId = 243;
 
     const [blockNumber, quorumVotes, graphResult] = await Promise.all([
       provider.getBlockNumber(),
