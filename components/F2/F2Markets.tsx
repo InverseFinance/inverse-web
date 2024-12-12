@@ -32,6 +32,7 @@ import ConfirmModal from "../common/Modal/ConfirmModal";
 import { Input } from "../common/Input";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import FirmLogo from "../common/Logo/FirmLogo";
+import { F2Market } from "@app/types";
 
 const { F2_CONTROLLER } = getNetworkConfigConstants();
 
@@ -132,78 +133,37 @@ export const MARKET_INFOS = {
         description: 'sUSDe is staked USDe which is a synthetic stablecoin by Ethena, backed with crypto assets and corresponding short futures positions. Borrowing in this market will get you Ethena points, for more info check the Ethena website.',
         getLink: 'https://app.ethena.fi/stake',
     },
-    'crvUSD-DOLA': {
-        name: 'crvUSD-DOLA',
-        fullname: 'crvUSD-DOLA LP',
-        description: 'The LP token for the crvUSD-DOLA pool on Curve, when deposited on FiRM the LP token will be then deposited into Convex to earn claimable CVX+CRV rewards',
-        getLink: 'https://curve.fi/#/ethereum/pools/factory-crvusd-12/deposit',
-    },
-    'yv-crvUSD-DOLA': {
-        name: 'yv-crvUSD-DOLA',
-        fullname: 'Yearn vault - crvUSD-DOLA LP',
-        description: 'The Yearn Vault for the Curve crvUSD-DOLA LP, the yearn vault auto-compounds the rewards of the crvUSD-DOLA LP increasing the vault token price',
-        getLink: 'https://yearn.fi/vaults/1/0xfb5137Aa9e079DB4b7C2929229caf503d0f6DA96',
-    },
     'cbBTC': {
         name: 'cbBTC',
         fullname: 'Coinbase Wrapped Bitcoin',
         description: "Coinbase Wrapped BTC is a token backed 1:1 by native Bitcoin held by Coinbase. It is a transferable token that is redeemable for the underlying BTC and is built to be seamlessly compatible with DeFi applications.",
         getLink: 'https://swap.defillama.com/?chain=ethereum&from=0x865377367054516e17014ccded1e7d814edc9ce4&to=0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf',
     },
-    'FraxPyUSD-DOLA': {
-        name: 'FraxPyUSD-DOLA',
-        fullname: 'FraxPyUSD-DOLA LP',
-        description: 'The LP token for the FraxPyUSD-DOLA pool on Curve, when deposited on FiRM the LP token will be then deposited into Convex to earn claimable CVX+CRV rewards',
-        getLink: 'https://curve.fi/#/ethereum/pools/factory-stable-ng-96/deposit',
-    },
-    'yv-FraxPyUSD-DOLA': {
-        name: 'yv-FraxPyUSD-DOLA',
-        fullname: 'Yearn vault - FraxPyUSD-DOLA LP',
-        description: 'The Yearn Vault for the Curve FraxPyUSD-DOLA LP, the yearn vault auto-compounds the rewards of the FraxPyUSD-DOLA LP increasing the vault token price',
-        getLink: 'https://yearn.fi/vaults/1/0xcC2EFb8bEdB6eD69ADeE0c3762470c38D4730C50',
-    },
-    'FraxBP-DOLA': {
-        name: 'FraxBP-DOLA',
-        fullname: 'FraxBP-DOLA LP',
-        description: 'The LP token for the FraxBP-DOLA pool on Curve, when deposited on FiRM the LP token will be then deposited into Convex to earn claimable CVX+CRV rewards',
-        getLink: 'https://curve.fi/#/ethereum/pools/factory-v2-176/deposit',
-    },
-    'yv-FraxBP-DOLA': {
-        name: 'yv-FraxBP-DOLA',
-        fullname: 'Yearn vault - FraxBP-DOLA LP',
-        description: 'The Yearn Vault for the Curve FraxBP-DOLA LP, the yearn vault auto-compounds the rewards of the FraxBP-DOLA LP increasing the vault token price',
-        getLink: 'https://yearn.fi/vaults/1/0xe5F625e8f4D2A038AE9583Da254945285E5a77a4',
-    },
     'PT-sUSDe-27MAR25': {
         name: 'PT-sUSDe-27MAR25',
         fullname: 'Pendle - PT-sUSDe-27MAR25',
         description: 'The Principal Token for the Pendle sUSDe-27MAR2025 that is a fixed yield asset thanks to Pendle\'s split of yield-bearing assets into Principal and Yield tokens',
         getLink: 'https://app.pendle.finance/trade/markets/0xcdd26eb5eb2ce0f203a84553853667ae69ca29ce/swap?view=pt&chain=ethereum&page=1',
-    },
-    'sUSDe-DOLA': {
-        name: 'sUSDe-DOLA',
-        fullname: 'sUSDe-DOLA LP',
-        description: 'The LP token for the sUSDe-DOLA pool on Curve, when deposited on FiRM the LP token will be then deposited into Convex to earn claimable CVX+CRV rewards',
-        getLink: 'https://curve.fi/#/ethereum/pools/factory-stable-ng-298/deposit',
-    },
-    'yv-sUSDe-DOLA': {
-        name: 'yv-sUSDe-DOLA',
-        fullname: 'Yearn vault - sUSDe-DOLA LP',
-        description: 'The Yearn Vault for the Curve sUSDe-DOLA LP, the yearn vault auto-compounds the rewards of the sUSDe-DOLA LP increasing the vault token price',
-        getLink: 'https://yearn.fi/vaults/1/0x1Fc80CfCF5B345b904A0fB36d4222196Ed9eB8a5',
-    },
-    'sUSDS-DOLA': {
-        name: 'sUSDS-DOLA',
-        fullname: 'sUSDS-DOLA LP',
-        description: 'The LP token for the sUSDS-DOLA pool on Curve, when deposited on FiRM the LP token will be then deposited into Convex to earn claimable CVX+CRV rewards',
-        getLink: 'https://curve.fi/#/ethereum/pools/factory-stable-ng-299/deposit',
-    },
-    'yv-sUSDS-DOLA': {
-        name: 'yv-sUSDS-DOLA',
-        fullname: 'Yearn vault - sUSDS-DOLA LP',
-        description: 'The Yearn Vault for the Curve sUSDS-DOLA LP, the yearn vault auto-compounds the rewards of the sUSDS-DOLA LP increasing the vault token price',
-        getLink: 'https://yearn.fi/vaults/1/0x342D24F2a3233F7Ac8A7347fA239187BFd186066',
-    },
+    },    
+}
+
+const getMarketInfos = ({ marketName, underlying }: { marketName: string, underlying: F2Market['underlying'] }) => {
+    const marketInfos = MARKET_INFOS[marketName];
+    if (marketInfos) {
+        return marketInfos;
+    }
+    const prefix = underlying.isYearnV2LP ? "Yearn vault - " : "";
+    const suffix = underlying.isLP ? "" : " LP";
+    return {
+        name: marketName,
+        fullname: `${prefix}${marketName}${suffix}`,
+        description: underlying.isLP ?
+            (underlying.isYearnV2LP ?
+                `The Yearn Vault for the Curve ${marketName} LP, the yearn vault auto-compounds the rewards of the ${marketName} LP increasing the vault token price`
+                : `The LP token for the ${marketName} pool on Curve, when deposited on FiRM the LP token will be then deposited into Convex to earn claimable CVX+CRV rewards`)
+            : "",
+        getLink: underlying.link || "",
+    };
 }
 
 const ColHeader = ({ ...props }) => {
@@ -218,12 +178,12 @@ const CellText = ({ ...props }) => {
     return <Text fontSize="14px" {...props} />
 }
 
-export const MarketInfos = ({ name, nameAndIcon, ...props }) => {
-    const marketInfos = MARKET_INFOS[name];
+export const MarketInfos = ({ name, underlying, nameAndIcon, ...props }) => {
+    const marketInfos = getMarketInfos({ marketName: name, underlying });
     if (!marketInfos) {
         return null;
     }
-    return <VStack py="4" px="4" cursor="default" w='full' alignItems="flex-start" {...props}>
+    return <VStack onClick={(e) => e.stopPropagation()} py="4" px="4" cursor="default" w='full' alignItems="flex-start" {...props}>
         <HStack spacing="4" alignItems="center" justify="flex-start" w='full'>
             <Stack>
                 {nameAndIcon}
@@ -273,8 +233,8 @@ const MarketCell = ({ icon, marketIcon, underlying, badgeInfo, badgeProps, name,
                 </Cell>
             </PopoverTrigger>
             <PopoverContent transform="translateX(300px)" bgColor="containerContentBackground" zIndex="99" border="1px solid #ccc" _focus={{ outline: 'none' }} maxW={_isMobileCase ? '100vw' : '98vw'} w='600px'>
-                <PopoverBody>
-                    <MarketInfos nameAndIcon={nameAndIcon} name={name} />
+                <PopoverBody onClick={(e) => e.stopPropagation()}>
+                    <MarketInfos nameAndIcon={nameAndIcon} name={name} underlying={underlying} />
                 </PopoverBody>
             </PopoverContent>
         </Popover>
@@ -494,7 +454,7 @@ const columns = [
                             && <CellText overflow="visible" whiteSpace="nowrap" minW="130px" textAlign={{ base: 'right', sm: 'left' }} fontSize={{ base: '10px', sm: '12px' }} color="mainTextColorLight2">
                                 {
                                     borrowController === F2_CONTROLLER ?
-                                     <DailyLimitCountdown prefix="Limit resets in " /> : <>Gradual return to daily limit</>
+                                        <DailyLimitCountdown prefix="Limit resets in " /> : <>Gradual return to daily limit</>
                                 }
                             </CellText>
                         }
