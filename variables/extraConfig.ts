@@ -502,7 +502,6 @@ const mainConfig = {
             isAleWithoutSwap: true,
             isInv: false,
         },
-        // newwww
         {
             name: 'scrvUSD-DOLA',
             collateral: '0xff17dAb22F1E61078aBa2623c89cE6110E878B3c',
