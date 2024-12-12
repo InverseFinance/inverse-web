@@ -430,7 +430,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
     const tabItems = lists[infoTab];
 
     const marketNameAndIcon = <MarketNameAndIcon {...market} />
-    const marketDescription = <MarketInfos p="0" mt="4" nameAndIcon={marketNameAndIcon} name={market.name} />
+    const marketDescription = <MarketInfos p="0" mt="4" nameAndIcon={marketNameAndIcon} name={market.name} underlying={market.underlying} />
 
     const handleTabChange = (v: string) => {
         setInfoTab(v);
