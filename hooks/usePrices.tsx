@@ -6,7 +6,7 @@ import useEtherSWR from './useEtherSWR'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useCacheFirstSWR, useCustomSWR } from './useCustomSWR'
-import { HAS_REWARD_TOKEN, TOKENS_VIEWER } from '@app/config/constants'
+import { DOLA_FEED, HAS_REWARD_TOKEN, TOKENS_VIEWER } from '@app/config/constants'
 import { formatUnits } from '@ethersproject/units'
 import { TOKENS, UNDERLYING } from '@app/variables/tokens'
 import { getLPPrice } from '@app/util/contracts'
@@ -112,10 +112,10 @@ export const useINVPrice = (): SWR & { price: number } => {
 export const useDOLAPriceLive = (): { price: number | undefined } => {
   const { data: dolaPrice } = useEtherSWR({
     args: [
-      [TOKENS_VIEWER, 'getDolaPrice'],
+      [DOLA_FEED, 'latestAnswer'],
     ],
     abi: [
-      'function getDolaPrice() public view returns(uint)',
+      'function latestAnswer() public view returns(int256)',
     ],
   });
 

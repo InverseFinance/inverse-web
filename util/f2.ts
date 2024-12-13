@@ -1,5 +1,5 @@
 import { F2_HELPER_ABI, F2_MARKET_ABI, F2_ESCROW_ABI } from "@app/config/abis";
-import { BURN_ADDRESS, CHAIN_ID, DEFAULT_FIRM_HELPER_TYPE, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
+import { BURN_ADDRESS, CHAIN_ID, DEFAULT_FIRM_HELPER_TYPE, DOLA_FEED, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
 import { F2Market } from "@app/types";
 import { BlockTag, JsonRpcSigner, Web3Provider } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
@@ -438,7 +438,7 @@ export const getHistoricDbrPriceOnCurve = async (SignerOrProvider: JsonRpcSigner
 
 export const getDolaUsdPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | Web3Provider, block?: BlockTag) => {
     try {
-        const viewer = inverseViewer(SignerOrProvider);
+        const dolaFeedContract = new Contract(DOLA_FEED, ['function latestAnswer() public view returns(int256)'], SignerOrProvider);
         const crvPool = new Contract(
             '0x8272e1a3dbef607c04aa6e5bd3a1a134c8ac063b',
             [
@@ -449,7 +449,7 @@ export const getDolaUsdPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | W
             SignerOrProvider,
         );
         const [dolaPriceUsd, totalSupply, lpVirtualPrice] = await getMulticallOutput([
-            { contract: viewer.tokensContract, functionName: 'getDolaPrice' },
+            { contract: dolaFeedContract, functionName: 'latestAnswer' },
             { contract: crvPool, functionName: 'totalSupply' },
             { contract: crvPool, functionName: 'get_virtual_price' },
         ], 1, block);
