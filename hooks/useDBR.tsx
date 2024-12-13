@@ -307,6 +307,23 @@ export const useAccountDBRMarket = (
   }
 }
 
+export const useMarketMonthlyYield = (market: F2Market, deposits: number, debt: number, dbrPrice: number) => {
+  const monthlyDbrBurn = debt / 365 * 365 / 12;
+  const totalApy = (market.supplyApy || 0) + (market.extraApy || 0);
+  const monthlyCostUsd = monthlyDbrBurn * dbrPrice;
+  const monthlyUsdYield = getMonthlyUsdRate(deposits, totalApy, market.price);
+  const monthlyNetUsdYield = monthlyUsdYield - monthlyCostUsd;
+  return {
+    supplyApy: market.supplyApy,
+    extraApy: market.extraApy,
+    totalApy,
+    monthlyUsdYield,
+    monthlyNetUsdYield,
+    monthlyDbrBurn,
+    monthlyCostUsd,
+  }
+}
+
 export const useAccountF2Markets = (
   markets: F2Market[],
   account: string,
