@@ -34,6 +34,7 @@ import { getNetworkConfigConstants } from "@app/util/networks";
 import FirmLogo from "../common/Logo/FirmLogo";
 import { F2Market } from "@app/types";
 import InfoModal from "../common/Modal/InfoModal";
+import { YieldBreakdownTable } from "./rewards/YieldBreakdownTable";
 
 const { F2_CONTROLLER } = getNetworkConfigConstants();
 
@@ -205,7 +206,7 @@ export const MarketNameAndIcon = ({ marketIcon, icon, underlying, name }) => {
             !underlying.isLP ? <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
                 : <LPImages alternativeDisplay={true} lpToken={{ pairs: underlying.pairs, image: underlying.image, protocolImage: underlying.protocolImage }} chainId={1} imgSize={18} />
         }
-        <CellText textOverflow="clip" overflow="hidden" whiteSpace="nowrap" fontWeight="bold" fontSize={{ base: '14px', '2xl': name.length > 14 ? '14px' : name.length > 12 ? '16px' : '20px' }}>
+        <CellText textOverflow="clip" overflow="hidden" whiteSpace="nowrap" fontWeight="bold" fontSize={{ base: '14px', '2xl': name.length > 14 ? '14px' : name.length > 12 ? '15px' : '18px' }}>
             {name}
         </CellText>
     </HStack>
@@ -584,6 +585,7 @@ export const F2Markets = ({
         .map(m => {
             return {
                 ...m,
+                totalApy: (m.supplyApy || 0) + (m.extraApy || 0),
                 monthlyDbrBurnUsd: dbrUserRefPrice ? m.monthlyDbrBurn * dbrUserRefPrice : 0,
                 monthlyNetUsdYield: dbrUserRefPrice ? m.monthlyUsdYield - m.monthlyDbrBurn * dbrUserRefPrice : 0,
             }
@@ -730,7 +732,7 @@ export const F2Markets = ({
                         }}
                         onClose={closeYieldBreakdown}
                         isOpen={isOpenYieldBreakdown}
-                        modalProps={{ minW: { base: '98vw', lg: '1200px' }, scrollBehavior: 'inside' }}
+                        modalProps={{ minW: { base: '98vw', lg: '1000px' }, scrollBehavior: 'inside' }}
                     >
                         <VStack alignItems="flex-start" spacing="4" p="4">
                             <InfoMessage
@@ -747,28 +749,8 @@ export const F2Markets = ({
                                 </Text>
                                 <Text textDecoration="underline" cursor="pointer" onClick={openSetDbrUserRefPrice}>Update</Text>
                             </Stack>
-                            <SimpleGrid w='full' columns={6} spacing="2">
-                                <Text fontWeight="bold">Market</Text>
-                                <Text fontWeight="bold">Deposits</Text>
-                                <Text fontWeight="bold">Total APY</Text>
-                                <Text fontWeight="bold">Monthly Yield</Text>
-                                <Text fontWeight="bold">Monthly Cost</Text>
-                                <Text fontWeight="bold">Monthly Net-Yield</Text>
-                            </SimpleGrid>
-                            {
-                                withDeposits
-                                    .filter(m => m.monthlyUsdYield > 0)
-                                    .map((m) => {
-                                        return <SimpleGrid w='full' key={m.name} columns={6} spacing="2">
-                                            <Text>{m.name}</Text>
-                                            <Text>{shortenNumber(m.depositsUsd, 2, true)}</Text>
-                                            <Text>{shortenNumber((m.supplyApy || 0) + (m.extraApy || 0), 2)}%</Text>
-                                            <Text>{shortenNumber(m.monthlyUsdYield, 2, true)}</Text>
-                                            <Text>{shortenNumber(m.monthlyDbrBurnUsd, 2, true)}</Text>
-                                            <Text>{shortenNumber(m.monthlyNetUsdYield, 2, true)}</Text>
-                                        </SimpleGrid>
-                                    })
-                            }
+                            <Divider />
+                            <YieldBreakdownTable items={withDeposits.filter(m => m.monthlyUsdYield > 0)} />
                         </VStack>
                     </InfoModal>
                     <ConfirmModal
