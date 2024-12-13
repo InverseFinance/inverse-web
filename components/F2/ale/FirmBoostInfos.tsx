@@ -48,7 +48,7 @@ const getSteps = (
     const effectiveLeverage = isLeverageUp ? _leverageLevel : (1 / _leverageLevel);
     const desiredWorth = baseWorth * effectiveLeverage;
 
-    const deltaBorrow = (desiredWorth - baseWorth) * (1/(dolaPrice||1));
+    const deltaBorrow = (desiredWorth - baseWorth) * (1 / (dolaPrice || 1));
     const collateralPrice = market.price;
     const targetCollateralBalance = collateralPrice ? desiredWorth / collateralPrice : 0;
 
@@ -65,7 +65,7 @@ const getSteps = (
         deltaBorrow,
         perc,
     );
-    if(previousSteps && previousPerc && previousPerc >= safeMinHealth && newPerc < safeMinHealth) {
+    if (previousSteps && previousPerc && previousPerc >= safeMinHealth && newPerc < safeMinHealth) {
         return previousSteps;
     }
     else if ((newPerc <= safeMinHealth) || _leverageLevel > 10 || doLastOne) {
@@ -132,7 +132,7 @@ export const getLeverageImpact = async ({
 }) => {
     // only when there is a transformation needed and when using a proxy when using ALE, otherwise the underlyingExRate is just a ui info
     const exRate = market?.aleData?.useProxy && market?.aleData?.buySellToken?.toLowerCase() !== market?.collateral?.toLowerCase() ? underlyingExRate : 1;
-    
+
     const collateralPrice = market?.price;
     if (!collateralPrice || leverageLevel <= 1) {
         return
@@ -144,7 +144,7 @@ export const getLeverageImpact = async ({
         // leverage up: dola amount is fixed, collateral amount is variable
         // if already has deposits, base is deposits, if not (=depositAndLeverage case), base is initialDeposit
         const baseColAmountForLeverage = deposits > 0 ? deposits + initialDeposit : initialDeposit;
-        const baseWorth = baseColAmountForLeverage * collateralPrice;        
+        const baseWorth = baseColAmountForLeverage * collateralPrice;
         let borrowStringToSign, borrowNumToSign;
         // leverage level slider / input, result from 1inch
         if (!viaInput && !market.isAleWithoutSwap) {
@@ -504,13 +504,18 @@ export const FirmBoostInfos = ({
                 </Text>
             </HStack>
             {
-                leverageLevel > 1 && isLeverageUp && market?.supplyApy > 0 && <HStack spacing="1" w='full' alignItems="flex-start">
-                    <TextInfo message="The net yield is the yield thanks to the increase in collateral size minus the cost of the corresponding leverage-linked debt">
-                        <Text fontWeight="bold">Net-Yield at x{smartShortNumber(leverageLevel, 2)}:</Text>
-                        <Text fontWeight="bold">{shortenNumber(netLeveragedYield, 2)}%</Text>
-                        <Text>(without leverage: {shortenNumber(market.supplyApy + market.extraApy||0, 2)}%)</Text>
-                    </TextInfo>
-                </HStack>
+                leverageLevel > 1 && isLeverageUp && market?.supplyApy > 0 && <>
+                    {
+                        deposits > 0 ? null :
+                            <HStack spacing="1" w='full' alignItems="flex-start">
+                                <TextInfo message="The net yield is the yield thanks to the increase in collateral size minus the cost of the corresponding leverage-linked debt">
+                                    <Text fontWeight="bold">Net-Yield at x{smartShortNumber(leverageLevel, 2)}:</Text>
+                                    <Text fontWeight="bold">{shortenNumber(netLeveragedYield, 2)}%</Text>
+                                    <Text>(without leverage: {shortenNumber(market.supplyApy + market.extraApy || 0, 2)}%)</Text>
+                                </TextInfo>
+                            </HStack>
+                    }
+                </>
             }
             <HStack spacing="1" w='full' alignItems="flex-start">
                 <TextInfo message="The quote on 1inch for the trade required to do leverage/deleverage">
