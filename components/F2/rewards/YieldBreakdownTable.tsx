@@ -39,9 +39,9 @@ const columns = [
         field: 'name',
         label: 'Market',
         boxProps,
-        header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="180px" justify="flex-start"  {...props} />,
         value: ({ name, underlying, marketIcon, icon }) => {
-            return <Cell minWidth="150px" justify="flex-start" alignItems="flex-start" >
+            return <Cell minWidth="180px" justify="flex-start" alignItems="flex-start" >
                 <MarketNameAndIcon name={name} icon={icon} marketIcon={marketIcon} underlying={underlying} />
             </Cell>
         },
