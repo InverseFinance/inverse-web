@@ -588,6 +588,7 @@ export const F2Markets = ({
                 totalApy: (m.supplyApy || 0) + (m.extraApy || 0),
                 monthlyDbrBurnUsd: dbrUserRefPrice ? m.monthlyDbrBurn * dbrUserRefPrice : 0,
                 monthlyNetUsdYield: dbrUserRefPrice ? m.monthlyUsdYield - m.monthlyDbrBurn * dbrUserRefPrice : 0,
+                dbrUserRefPrice,
             }
         });
 
@@ -743,14 +744,36 @@ export const F2Markets = ({
                                     </Text>
                                 }
                             />
-                            <Stack direction={{ base: 'column', md: 'row' }} alignItems="center" justifyContent="space-between">
+                            <Stack spacing={{ base: '0', md: '2' }} direction={{ base: 'column', md: 'row' }} alignItems="flex-start" justifyContent="space-between">
                                 <Text>
                                     <b>DBR reference price</b>: {dbrUserRefPrice ? shortenNumber(dbrUserRefPrice, 4, true) : 'not set'}
                                 </Text>
                                 <Text textDecoration="underline" cursor="pointer" onClick={openSetDbrUserRefPrice}>Update</Text>
                             </Stack>
-                            <Divider />
-                            <YieldBreakdownTable items={withDeposits.filter(m => m.monthlyUsdYield > 0)} />
+                            <Container p="0" m="0" 
+                            label="Yield Breakdown"
+                            noPadding 
+                                headerProps={{
+                                    direction: { base: 'column', md: 'row' },
+                                    gap: { base: '4', md: '8' },
+                                    align: { base: 'flex-start', md: 'flex-end' },
+                                }}
+                                right={<HStack 
+                                w={{ base: '100%', md: 'auto' }}
+                                spacing="8">
+                                    <VStack alignItems={{ base: 'flex-start', md: 'flex-end' }} spacing="0">
+                                        <Text fontWeight="bold">Monthly Yield</Text>
+                                        <Text>{shortenNumber(totalMonthlyUsdYield, 2, true)}</Text>
+                                    </VStack>
+                                    {
+                                        !!dbrUserRefPrice && <VStack alignItems={{ base: 'flex-start', md: 'flex-end' }} spacing="0">
+                                            <Text fontWeight="bold">Monthly Net-Yield</Text>
+                                            <Text>{shortenNumber(totalMonthlyNetUsdYield, 2, true)}</Text>
+                                        </VStack>
+                                    }
+                                </HStack>}>
+                                <YieldBreakdownTable items={withDeposits.filter(m => m.monthlyUsdYield > 0)} />
+                            </Container>
                         </VStack>
                     </InfoModal>
                     <ConfirmModal

@@ -84,9 +84,9 @@ const columns = [
         label: 'Monthly Cost',
         boxProps,
         header: ({ ...props }) => <ColHeader minWidth="130px" justify="center"  {...props} />,
-        value: ({ monthlyDbrBurnUsd }) => {
+        value: ({ dbrUserRefPrice, monthlyDbrBurnUsd }) => {
             return <Cell minWidth="130px" justify="center" alignItems="center" direction="column" spacing="0">
-                <CellText>{shortenNumber(monthlyDbrBurnUsd, 2, true)}</CellText>
+                <CellText>{dbrUserRefPrice ? shortenNumber(monthlyDbrBurnUsd, 2, true) : 'Ref price not set'}</CellText>
             </Cell>
         },
     },
@@ -95,9 +95,9 @@ const columns = [
         label: 'Monthly Net-Yield',
         boxProps,
         header: ({ ...props }) => <ColHeader minWidth="150px" justify="center"  {...props} />,
-        value: ({ monthlyNetUsdYield }) => {
+        value: ({ dbrUserRefPrice, monthlyNetUsdYield }) => {
             return <Cell minWidth="150px" justify="center" alignItems="center" direction="column" spacing="0">
-                <CellText>{shortenNumber(monthlyNetUsdYield, 2, true)}</CellText>
+                <CellText>{dbrUserRefPrice ? shortenNumber(monthlyNetUsdYield, 2, true) : 'Ref price not set'}</CellText>
             </Cell>
         },
     },
