@@ -1,4 +1,4 @@
-import { Badge, Divider, Flex, HStack, Stack, Text, useMediaQuery, VStack, Input as ChakraInput, Image, PopoverBody, Popover, PopoverTrigger, PopoverContent, InputGroup, InputLeftElement, Select, useDisclosure } from "@chakra-ui/react"
+import { Badge, Divider, Flex, HStack, Stack, Text, useMediaQuery, VStack, Input as ChakraInput, Image, PopoverBody, Popover, PopoverTrigger, PopoverContent, InputGroup, InputLeftElement, Select, useDisclosure, SimpleGrid } from "@chakra-ui/react"
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
@@ -33,6 +33,8 @@ import { Input } from "../common/Input";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import FirmLogo from "../common/Logo/FirmLogo";
 import { F2Market } from "@app/types";
+import InfoModal from "../common/Modal/InfoModal";
+import { YieldBreakdownTable } from "./rewards/YieldBreakdownTable";
 
 const { F2_CONTROLLER } = getNetworkConfigConstants();
 
@@ -144,7 +146,7 @@ export const MARKET_INFOS = {
         fullname: 'Pendle - PT-sUSDe-27MAR25',
         description: 'The Principal Token for the Pendle sUSDe-27MAR2025 that is a fixed yield asset thanks to Pendle\'s split of yield-bearing assets into Principal and Yield tokens',
         getLink: 'https://app.pendle.finance/trade/markets/0xcdd26eb5eb2ce0f203a84553853667ae69ca29ce/swap?view=pt&chain=ethereum&page=1',
-    },    
+    },
 }
 
 const getMarketInfos = ({ marketName, underlying }: { marketName: string, underlying: F2Market['underlying'] }) => {
@@ -204,7 +206,7 @@ export const MarketNameAndIcon = ({ marketIcon, icon, underlying, name }) => {
             !underlying.isLP ? <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="25px" w="25px" backgroundSize='contain' backgroundRepeat="no-repeat" />
                 : <LPImages alternativeDisplay={true} lpToken={{ pairs: underlying.pairs, image: underlying.image, protocolImage: underlying.protocolImage }} chainId={1} imgSize={18} />
         }
-        <CellText textOverflow="clip" overflow="hidden" whiteSpace="nowrap" fontWeight="bold" fontSize={{ base: '14px', '2xl': name.length > 14 ? '14px' : name.length > 12 ? '16px' : '20px' }}>
+        <CellText textOverflow="clip" overflow="hidden" whiteSpace="nowrap" fontWeight="bold" fontSize={{ base: '14px', '2xl': name.length > 14 ? '14px' : name.length > 12 ? '15px' : '18px' }}>
             {name}
         </CellText>
     </HStack>
@@ -556,6 +558,7 @@ export const F2Markets = ({
     const [category, setCategory] = useState('all');
     const [isSmallerThan] = useMediaQuery(`(max-width: ${responsiveThreshold}px)`);
     const { isOpen: isSetDbrUserRefPriceOpen, onOpen: openSetDbrUserRefPrice, onClose: closeSetDbrUserRefPrice } = useDisclosure();
+    const { isOpen: isOpenYieldBreakdown, onOpen: openYieldBreakdown, onClose: closeYieldBreakdown } = useDisclosure();
     const { value: dbrUserRefPrice, setter: saveDbrUserRefPrice } = useStorage(`dbr-user-ref-price-${account}`);
     const [newDbrUserRefPrice, setNewDbrUserRefPrice] = useState(dbrUserRefPrice);
 
@@ -582,8 +585,10 @@ export const F2Markets = ({
         .map(m => {
             return {
                 ...m,
+                totalApy: (m.supplyApy || 0) + (m.extraApy || 0),
                 monthlyDbrBurnUsd: dbrUserRefPrice ? m.monthlyDbrBurn * dbrUserRefPrice : 0,
                 monthlyNetUsdYield: dbrUserRefPrice ? m.monthlyUsdYield - m.monthlyDbrBurn * dbrUserRefPrice : 0,
+                dbrUserRefPrice,
             }
         });
 
@@ -695,9 +700,9 @@ export const F2Markets = ({
                                 </Text>
                             </VStack>
                         }>
-                            <Text fontWeight="bold">Current Yield:</Text>
+                            <Text textDecoration="underline" cursor="pointer" onClick={openYieldBreakdown} fontWeight="bold">Current Yield:</Text>
                         </TextInfo>
-                        <Text fontSize={{ base: '16px', md: '20px' }} fontWeight="extrabold" color="accentTextColor">{shortenNumber(totalMonthlyUsdYield, 2, true)} a month</Text>
+                        <Text textDecoration="underline" cursor="pointer" onClick={openYieldBreakdown} fontSize={{ base: '16px', md: '20px' }} fontWeight="extrabold" color="accentTextColor">{shortenNumber(totalMonthlyUsdYield, 2, true)} a month</Text>
                     </VStack>
                     <VStack spacing="0" alignItems={'flex-end'} cursor="pointer">
                         <TextInfo message={
@@ -708,11 +713,11 @@ export const F2Markets = ({
                                 <Text>Your actual net-yield depends on the price at which you bought the DBR</Text>
                             </VStack>
                         }>
-                            <Text cursor="pointer" onClick={openSetDbrUserRefPrice} textDecoration="underline" fontWeight="bold">Current Net-Yield:</Text>
+                            <Text cursor="pointer" onClick={openYieldBreakdown} textDecoration="underline" fontWeight="bold">Current Net-Yield:</Text>
                         </TextInfo>
                         {
                             dbrUserRefPrice ?
-                                <Text onClick={openSetDbrUserRefPrice} cursor="pointer" textDecoration="underline" fontSize={{ base: '16px', md: '20px' }} fontWeight="extrabold" color="accentTextColor">
+                                <Text onClick={openYieldBreakdown} cursor="pointer" textDecoration="underline" fontSize={{ base: '16px', md: '20px' }} fontWeight="extrabold" color="accentTextColor">
                                     {shortenNumber(totalMonthlyNetUsdYield, 2, true)} a month
                                 </Text>
                                 :
@@ -721,6 +726,58 @@ export const F2Markets = ({
                                 </Text>
                         }
                     </VStack>
+                    <InfoModal
+                        title="Yield breakdown"
+                        onOk={() => {
+                            closeYieldBreakdown();
+                        }}
+                        onClose={closeYieldBreakdown}
+                        isOpen={isOpenYieldBreakdown}
+                        modalProps={{ minW: { base: '98vw', lg: '1000px' }, scrollBehavior: 'inside' }}
+                    >
+                        <VStack alignItems="flex-start" spacing="4" p="4">
+                            <InfoMessage
+                                alertProps={{ w: 'full' }}
+                                description={
+                                    <Text>
+                                        For information purposes only, actual APY and yield can vary.
+                                    </Text>
+                                }
+                            />
+                            <VStack spacing="0" alignItems="flex-start" w='full'>
+                                <Stack spacing={{ base: '0', md: '2' }} direction={{ base: 'column', md: 'row' }} alignItems="flex-start" justifyContent="space-between">
+                                    <Text>
+                                        <b>DBR reference price</b>: {dbrUserRefPrice ? shortenNumber(dbrUserRefPrice, 4, true) : 'not set'}
+                                    </Text>
+                                    <Text textDecoration="underline" cursor="pointer" onClick={openSetDbrUserRefPrice}>Update</Text>
+                                </Stack>
+                                <Container p="0" m="0"
+                                    label="Yield Breakdown"
+                                    noPadding
+                                    headerProps={{
+                                        direction: { base: 'column', md: 'row' },
+                                        gap: { base: '4', md: '8' },
+                                        align: { base: 'flex-start', md: 'flex-end' },
+                                    }}
+                                    right={<HStack
+                                        w={{ base: '100%', md: 'auto' }}
+                                        spacing="8">
+                                        <VStack alignItems={{ base: 'flex-start', md: 'flex-end' }} spacing="0">
+                                            <Text fontWeight="bold">Monthly Yield</Text>
+                                            <Text>{shortenNumber(totalMonthlyUsdYield, 2, true)}</Text>
+                                        </VStack>
+                                        {
+                                            !!dbrUserRefPrice && <VStack alignItems={{ base: 'flex-start', md: 'flex-end' }} spacing="0">
+                                                <Text fontWeight="bold">Monthly Net-Yield</Text>
+                                                <Text>{shortenNumber(totalMonthlyNetUsdYield, 2, true)}</Text>
+                                            </VStack>
+                                        }
+                                    </HStack>}>
+                                    <YieldBreakdownTable items={withDeposits.filter(m => m.monthlyUsdYield > 0)} />
+                                </Container>
+                            </VStack>
+                        </VStack>
+                    </InfoModal>
                     <ConfirmModal
                         title="DBR Price reference"
                         okDisabled={!newDbrUserRefPrice || !parseFloat(newDbrUserRefPrice)}

@@ -20,6 +20,7 @@ import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader'
 import { useAppTheme } from '@app/hooks/useAppTheme'
 import { MarketInfos, MarketNameAndIcon } from '../F2Markets'
 import { useWeb3React } from '@web3-react/core'
+import { useMarketMonthlyYield } from '@app/hooks/useDBR'
 
 type Data = {
     tooltip: string
@@ -131,6 +132,8 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         leverageLoading,
         isTriggerLeverageFetch,
     } = useContext(F2MarketContext);
+
+    const { monthlyUsdYield: newMonthlyUsdYield, totalApy } = useMarketMonthlyYield(market, newDeposits, debt, dbrPriceUsd);
 
     const [now, setNow] = useState(Date.now());
     const [firmActionDepositsIndexState, setFirmActionDepositsIndexState] = useState(firmActionIndex);
@@ -387,6 +390,21 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         ],
     ];
 
+    if(totalApy > 0) {
+        positionInfos.push([
+            {
+                tooltip: 'Total APY estimation, actual APY can vary',
+                title: 'Underlying APY',
+                value: `~${shortenNumber(totalApy, 2)}%`,
+            },
+            {
+                tooltip: 'Monthly yield estimation, actual yield can vary, not accounting for borrowing costs',
+                title: 'Monthly yield',
+                value: `~${shortenNumber(newMonthlyUsdYield, 2, true)}`,
+            },
+        ]);
+    }
+
     const hasCollateralRewards = market.hasStakingLikeRewards && collateralRewards >= 0.01;
 
     const stakingInfos = !hasCollateralRewards ? [] : [
@@ -409,7 +427,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         // positionInfos[1],
         positionInfos[2],
         positionInfos[3],
-    ];
+    ];    
 
     if (isAutoDBR) {
         keyInfos.splice(2, 0, dbrInfos[2]);
@@ -418,6 +436,10 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
     if (hasCollateralRewards) {
         const balanceIndex = keyInfos.findIndex((v) => v[0].title === 'Total Balance');
         keyInfos.splice(balanceIndex, 0, stakingInfos);
+    }
+
+    if(totalApy > 0) {
+        keyInfos.splice(3, 0, positionInfos[4]);
     }
 
     const lists = {
