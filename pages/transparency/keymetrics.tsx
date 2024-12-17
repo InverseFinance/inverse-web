@@ -9,12 +9,13 @@ import { useDAO, useFedOverview } from '@app/hooks/useDAO'
 import { Funds, getFundsTotalUsd } from '@app/components/Transparency/Funds'
 import { DashBoardCard, NumberCard } from '@app/components/F2/UserDashboard'
 import { useState } from 'react'
-import { useFirmUsers } from '@app/hooks/useFirm'
+import { useFirmPE, useFirmUsers } from '@app/hooks/useFirm'
 import { groupPositionsBy } from '@app/components/F2/liquidations/firm-positions'
 import { useCustomSWR } from '@app/hooks/useCustomSWR'
 import { useAppTheme } from '@app/hooks/useAppTheme'
 import { DolaBackingLegend, fedsDataToPieChart } from './dola'
 import FirmLogo from '@app/components/common/Logo/FirmLogo'
+import { useDBRPrice } from '@app/hooks/useDBR'
 
 const OWN_TOKENS = ['DBR', 'INV'];
 
@@ -41,6 +42,7 @@ export const KeymetricsPage = () => {
   const { themeName, themeStyles } = useAppTheme();
   const { prices, isLoading: isLoadingPrices } = usePricesV2(true);
   const { price: dolaPrice, isLoading: isDolaPriceLoading } = useDOLAPrice();
+  const { priceUsd: dbrPriceUsd } = useDBRPrice();
   const { positions, userPositions, isLoading: isLoadingPositions } = useFirmUsers();
   const { treasury, anchorReserves, multisigs, isLoading: isLoadingDao } = useDAO();
   const { fedOverviews, isLoading: isLoadingOverview } = useFedOverview();
@@ -71,9 +73,14 @@ export const KeymetricsPage = () => {
 
   const totalTvl = positions.reduce((prev, curr) => prev + (curr.deposits * curr.market.price), 0);
   const totalDebt = positions.reduce((prev, curr) => prev + curr.debt, 0);
+  const totalTreasury = totalHoldings.reduce((prev, curr) => prev + curr.balance, 0);
   const nbUsers = userPositions.length;
   const nbBorrowers = userPositions.filter(p => p.debt > 0).length;
   const nbStakers = userPositions.filter(p => p.stakedInv > 0).length;
+
+  const annualizedFees = totalDebt * dbrPriceUsd;
+  const AFPU = nbUsers ? annualizedFees / nbUsers : 0;
+  const PE = useFirmPE(invMarketCap, annualizedFees);
 
   const positionsWithDebt = positions.filter(p => p.debt > 0);
   const positionsWithDeposits = positions.filter(p => p.deposits > 0);
@@ -118,10 +125,18 @@ export const KeymetricsPage = () => {
           <Stack spacing="50px" direction="column" w="full" justify="space-around" alignItems={'center'}>
             <SimpleGrid columns={{ base: 1, md: 3, xl: 5 }} spacingX="50px" spacingY="40px" w='full'>
               <NumberCard isLoading={isLoading} value={totalTvl} label="FiRM TVL" isUsd={true} />
-              <NumberCard isLoading={isLoading} value={totalDebt * dolaPrice} label="FiRM Borrows" isUsd={true} />
-              <NumberCard isLoading={isLoading} value={nbUsers} label="FiRM Users" />
-              <NumberCard isLoading={isLoading} value={currentCirculatingSupply * dolaPrice} label="DOLA Circ. Supply" isUsd={true} />
+              <NumberCard isLoading={isLoading} value={totalDebt * dolaPrice} label="FiRM Borrows" isUsd={true} />              
+              {/* <NumberCard isLoading={isLoading} value={currentCirculatingSupply * dolaPrice} label="DOLA Circ. Supply" isUsd={true} /> */}
+              <NumberCard isLoading={isLoading} value={totalTreasury} label="Treasury" isUsd={true} />
               <NumberCard isLoading={isLoading} value={invMarketCap} label="INV Market Cap." isUsd={true} />
+              <NumberCard isLoading={isLoading} value={nbUsers} label="FiRM Users" />
+            </SimpleGrid>
+            <SimpleGrid columns={{ base: 1, md: 3, xl: 5 }} spacingX="50px" spacingY="40px" w='full'>
+              <NumberCard isLoading={isLoading} value={totalTvl ? invMarketCap / totalTvl : 0} precision={2} label="INV MC/TVL" isUsd={false} />
+              <NumberCard isLoading={isLoading} value={PE} label="P/E" precision={2} isUsd={false} />              
+              <NumberCard isLoading={isLoading} value={totalTreasury ? invMarketCap / totalTreasury : 0} precision={2} label="INV MC/Treasury" isUsd={false} />
+              <NumberCard isLoading={isLoading} value={currentCirculatingSupply * dolaPrice} label="DOLA Market Cap." isUsd={true} />
+              <NumberCard isLoading={isLoading} value={AFPU} label="AFPU" isUsd={true} />
             </SimpleGrid>
             <Stack w='full' direction={{ base: 'column', xl: 'row' }} spacing="50px" justifyContent="space-between">
               <DashBoardCard cardTitle="TVL by Market" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps} w={{ base: '100%', xl: '50%' }}>

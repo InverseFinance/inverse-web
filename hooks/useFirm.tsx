@@ -935,3 +935,10 @@ export const useFirmAffiliate = (affiliate: string, updateIndex = 0) => {
     affiliatesPublicData: data?.affiliatesPublicData || [],
   }
 }
+
+export const useFirmPE = (
+  marketCap: number,
+  annualizedFees: number,
+) => {
+  return annualizedFees ? marketCap / annualizedFees : 0;
+}
