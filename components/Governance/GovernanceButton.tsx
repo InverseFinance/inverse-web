@@ -16,6 +16,8 @@ import { handleTx } from '@app/util/transactions';
 import { showToast } from '@app/util/notify';
 import { useEffect } from 'react';
 import { preciseCommify } from '@app/util/misc';
+import { getBnToNumber } from '@app/util/markets';
+import { TOKENS_VIEWER } from '@app/config/constants';
 
 const { INV, XINV, GOVERNANCE } = getNetworkConfigConstants(NetworkIds.mainnet)
 
@@ -38,20 +40,15 @@ export const VoteButton = ({ proposal }: { proposal: Proposal }) => {
     setLiveStatus(proposal.status)
   }, [proposal.status])
 
-  const { data: snapshotVotingPowerData } = useEtherSWR([
-    // xinvExchangeRates exists in gov contract starting from mills only
-    [proposal.era === GovEra.alpha ? GOVERNANCE : govAddress, 'xinvExchangeRates', proposal?.id],
-    [INV, 'getPriorVotes', userAddress, proposal?.startBlock],
-    [XINV, 'getPriorVotes', userAddress, proposal?.startBlock],
-  ])
+  const { data: snapshotVotingPowerData } = useEtherSWR(
+    [TOKENS_VIEWER, 'getAccountVotesAtProposalStart', userAddress],
+  )
 
   if (!isActive || !account || !data || !proposal?.id || !snapshotVotingPowerData || !userAddress) {
     return <></>
   }
 
-  const [exchangeRate, currentVotes, currentVotesX] = snapshotVotingPowerData || [1, 0, 0];
-  const snapshotVotingPower = parseFloat(formatUnits(currentVotes || 0))
-    + parseFloat(formatUnits(currentVotesX || 0)) * parseFloat(formatUnits(exchangeRate || '1'));
+  const snapshotVotingPower = snapshotVotingPowerData ? getBnToNumber(snapshotVotingPowerData) : 0;
 
   const hasVoted = data[0]
   const nbVotes = hasVoted ? parseFloat(formatUnits(data[2])) : 0
