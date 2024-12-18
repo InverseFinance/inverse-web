@@ -41,7 +41,7 @@ export const VoteButton = ({ proposal }: { proposal: Proposal }) => {
   }, [proposal.status])
 
   const { data: snapshotVotingPowerData } = useEtherSWR(
-    [TOKENS_VIEWER, 'getAccountVotesAtProposalStart', userAddress],
+    [TOKENS_VIEWER, 'getAccountVotesAtProposalStart', userAddress, proposal?.id],
   )
 
   if (!isActive || !account || !data || !proposal?.id || !snapshotVotingPowerData || !userAddress) {
