@@ -46,6 +46,7 @@ const sendNotifToTeam = async (campaignSettings: CampaignSettings, form: Record<
   }).join('');
 
   const to = campaignSettings.to || process.env.REF_EMAIL_TO;
+  const cc = campaignSettings.cc || process.env.REF_EMAIL_FROM;
 
   const user = address ? `User: <a href="https://etherscan.io/address/${address}" target="_blank" rel="noreferrer">${shortenAddress(address)}</a></br></br>` : '';
 
@@ -61,7 +62,7 @@ const sendNotifToTeam = async (campaignSettings: CampaignSettings, form: Record<
     body: JSON.stringify({
       From: process.env.REF_EMAIL_FROM,
       To: to,
-      Cc: process.env.REF_EMAIL_FROM,
+      Cc: cc,
       Subject: campaignSettings.title + ': New application!',
       TextBody: campaignSettings.title + ': New application!',
       HtmlBody: `<html><body>${html}</body></html>`,
