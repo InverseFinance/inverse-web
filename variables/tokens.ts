@@ -122,6 +122,7 @@ const chainTokenAddresses = {
     DOLASCRVUSDCLP: '0xff17dAb22F1E61078aBa2623c89cE6110E878B3c',
     YVDOLASCRVUSDCLP: '0xbCe40f1840A449cAAaF374Df0A1fEe1e212784CB',
     SDOLASCRVUSDCLP: '0x76A962BA6770068bCF454D34dDE17175611e6637',
+    YVSDOLASCRVUSDCLP: '0x08c0833AF1331831759b8e0BFeF1BC5738436325',
     DOLASUSDSCLP: '0x8b83c4aA949254895507D09365229BC3a8c7f710',
     YVDOLASUSDSCLP: '0x342D24F2a3233F7Ac8A7347fA239187BFd186066',
     DOLASUSDECLP: '0x744793B5110f6ca9cC7CDfe1CE16677c3Eb192ef',
@@ -1270,6 +1271,21 @@ const chainTokens = {
       ],
       image: TOKEN_IMAGES.DOLA,
       link: 'https://yearn.fi/vaults/1/0xbCe40f1840A449cAAaF374Df0A1fEe1e212784CB',
+    },
+    [chainTokenAddresses["1"].YVSDOLASCRVUSDCLP]: {
+      address: chainTokenAddresses["1"].YVSDOLASCRVUSDCLP,
+      name: 'yv-sDOLA-scrvUSD',
+      symbol: 'yv-sDOLA-scrvUSD',
+      protocolImage: PROTOCOL_IMAGES.YFI,
+      rootCrvPool: chainTokenAddresses["1"].SDOLASCRVUSDCLP,
+      decimals: 18,
+      isLP: true,
+      isYearnV2LP: true,
+      pairs: [
+        chainTokenAddresses["1"].SCRVUSD, chainTokenAddresses["1"].SDOLA
+      ],
+      image: TOKEN_IMAGES.DOLA,
+      link: 'https://yearn.fi/vaults/1/0x08c0833AF1331831759b8e0BFeF1BC5738436325',
     },
     [chainTokenAddresses["1"].SDOLASCRVUSDCLP]: {
       address: chainTokenAddresses["1"].SDOLASCRVUSDCLP,
