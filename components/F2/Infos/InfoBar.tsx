@@ -394,7 +394,7 @@ export const FirmBar = ({
                     {
                         !currentCirculatingSupply ?
                             <SmallTextLoader width={'50px'} /> :
-                            <SubTitle>
+                            <SubTitle fontSize={{ base: '16px', md: '18px' }}>
                                 {shortenNumber(currentCirculatingSupply, 2)}
                             </SubTitle>
                     }
@@ -406,7 +406,7 @@ export const FirmBar = ({
                     {
                         isFirmTvlLoading || firmTotalTvl === null ?
                             <SmallTextLoader width={'50px'} /> :
-                            <SubTitle>
+                            <SubTitle fontSize={{ base: '16px', md: '18px' }}>
                                 {shortenNumber(firmTotalTvl, 2, true)}
                             </SubTitle>
                     }
@@ -418,7 +418,7 @@ export const FirmBar = ({
                     {
                         !markets?.length || !totalDebtUsd ?
                             <SmallTextLoader width={'50px'} /> :
-                            <SubTitle textAlign="center">
+                            <SubTitle textAlign="center" fontSize={{ base: '16px', md: '18px' }}>
                                 {shortenNumber(totalDebtUsd, 2, true)}
                             </SubTitle>
                     }
