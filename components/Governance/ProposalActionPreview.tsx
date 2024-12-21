@@ -26,13 +26,13 @@ const firmMarketsFunctions = [
     'setReplenismentIncentiveBps',
 ];
 
-const Amount = ({ value, decimals, isPerc = false }: { value: string, decimals: number, isPerc?: boolean }) => {
+const Amount = ({ value, decimals, isPerc = false, color = 'secondary' }: { value: string, decimals: number, isPerc?: boolean, color?: string }) => {
     let number = parseFloat(formatUnits(value, decimals)) * (isPerc ? 100 : 1);
     if (isPerc) {
         // handle javascript float precision, eg: 0.29 * 100 would show 28.999999999999996
         number = parseFloat(number.toFixed(2));
     }
-    return <Text display="inline-block" fontWeight="bold" color="secondary">
+    return <Text display="inline-block" fontWeight="bold" color={color}>
         {commify(removeScientificFormat(number)).replace(/\.0$/, '')}{isPerc && '%'}
     </Text>;
 }
@@ -472,7 +472,7 @@ const FirmAddMarketHumanReadableActionLabel = ({
 }) => {
     let text;
     const market = callDatas[0];
-    
+
     const { data: marketCollateral } = useEtherSWR({
         abi: ['function collateral() public view returns (address)'],
         args: [
@@ -529,7 +529,7 @@ const HumanReadableActionLabel = ({
         return <FirmMarketHumanReadableActionLabel signature={signature} callDatas={callDatas} market={target} />
     } else if (!!FEDS.find(f => f.address.toLowerCase() === lcTarget && f.isFirm)) {
         return <FirmFedHumanReadableActionLabel signature={signature} callDatas={callDatas} />
-    } else if (funName === 'addMarket') {        
+    } else if (funName === 'addMarket') {
         return <FirmAddMarketHumanReadableActionLabel signature={signature} callDatas={callDatas} />
     } else if (funName === 'setFeed') {
         return <FirmFeedHumanReadableActionLabel signature={signature} callDatas={callDatas} />
@@ -540,11 +540,20 @@ const HumanReadableActionLabel = ({
     const isDolaPayroll = lcTarget === DOLA_PAYROLL.toLowerCase();
     const contractKnownToken = isDolaPayroll ? _getProp(TOKENS, DOLA) : _getProp(TOKENS, target);
 
-    const destinator = <ScannerLink color="info" value={callDatas[0]} label={namedAddress(callDatas[0])} />;
+    const isTransferFrom = funName === 'transferFrom';
+    const destAddress = isTransferFrom ? callDatas[1] : callDatas[0];
+    const destinator = <ScannerLink color="info" value={destAddress} label={namedAddress(destAddress)} />;
 
     const symbol = <Text fontWeight="bold" display="inline-block">{contractKnownToken.symbol}</Text>;
 
-    const amount = <Amount value={callDatas[1]} decimals={contractKnownToken.decimals} />
+    const { data: allowanceData } = useEtherSWR({
+        abi: ERC20_ABI,
+        args: isTransferFrom ?
+            [target, 'allowance', callDatas[0], destAddress]
+            : [],
+    });
+
+    const amount = <Amount value={isTransferFrom ? callDatas[2] : callDatas[1]} decimals={contractKnownToken.decimals} />    
 
     let text;
 
@@ -552,7 +561,13 @@ const HumanReadableActionLabel = ({
         text = <Flex display="inline-block">Add {destinator} to the <b>PayRolls</b> with a yearly salary of {amount} {symbol}</Flex>
     } else if (funName === 'approve') {
         text = <Flex display="inline-block">Set {destinator}'s {symbol} <b>Allowance</b> to {amount}</Flex>;
-    } else {
+    }
+    else if (isTransferFrom) {
+        const isNotEnoughAllowance = parseFloat(allowanceData.toString()) < parseFloat(callDatas[2]);
+        const allowance = <Amount value={allowanceData.toString()} decimals={contractKnownToken.decimals} color={isNotEnoughAllowance ? 'error' : 'secondary'} />;
+        text = <Flex display="inline-block"><b>Pull</b> {amount} {symbol} from {<ScannerLink color="info" value={callDatas[0]} label={namedAddress(callDatas[0])} />}'s allowance of {allowance} and send it to {destinator}</Flex>;
+    }
+    else {
         text = <Flex display="inline-block"><b>{capitalize(funName)}</b> {amount} {symbol} to {destinator}</Flex>;
     }
 
@@ -580,6 +595,7 @@ export const ProposalActionPreview = (({
     const isHumanRedeableCaseHandled = [
         'approve',
         'transfer',
+        'transferFrom',
         'mint',
         'addRecipient',
         '_reduceReserves',
