@@ -710,6 +710,7 @@ export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string
         [DBR_AIRDROP, MERKLE_DROP_ABI],
         [F2_ORACLE, F2_ORACLE_ABI],
         [F2_CONTROLLER, F2_CONTROLLER_ABI],
+        ["0x2DbAd53A647A86b8988E007a33FE78bd55e9Dd6f", F2_CONTROLLER_ABI],
         [DWF_PURCHASER, DWF_PURCHASER_ABI],
         [DBR_DISTRIBUTOR, DBR_DISTRIBUTOR_ABI],
         ...F2_MARKETS?.map((m) => [m.address, F2_MARKET_ABI]),
