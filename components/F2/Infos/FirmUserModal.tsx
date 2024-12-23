@@ -7,6 +7,7 @@ import { HStack, VStack, useDisclosure, Text } from "@chakra-ui/react";
 import { FirmPositionsTable } from "./FirmPositionsTable";
 import { FirmLiquidationForm } from "../liquidations/FirmLiquidationForm";
 import { ArrowBackIcon } from "@chakra-ui/icons";
+import SimpleModal from "@app/components/common/Modal/SimpleModal";
 
 export const FirmUserModal = ({
     userData,
@@ -36,8 +37,8 @@ export const FirmUserModal = ({
         });
     }
 
-    return <Modal
-        header={`${shortenAddress(userData.user)} details`}
+    return <SimpleModal
+        title={`${shortenAddress(userData.user)} details`}
         onClose={() => {
             onClose();
             setTimeout(() => {
@@ -45,7 +46,7 @@ export const FirmUserModal = ({
             });
         }}
         isOpen={isOpen}
-        size="lg"
+        modalProps={{ minW: { base: '98vw', lg: '850px' }, scrollBehavior: 'inside' }}
         scrollBehavior="inside"
     >
         {
@@ -71,5 +72,5 @@ export const FirmUserModal = ({
                 }
             </VStack>
         </VStack>
-    </Modal>
+    </SimpleModal>
 }
