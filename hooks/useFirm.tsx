@@ -101,6 +101,7 @@ export const useFirmUsers = (): SWR & {
       avgBorrowLimit: debt > 0 ? 100 - (userPositions.reduce((prev, curr) => prev + curr.debtRiskWeight, 0) / debt) : 0,
       marketIcons: userPositions?.map(p => p.market.underlying.image) || [],
       marketRelativeDebtSizes: userPositions?.map(p => p.debt > 0 ? p.debt / debt : 0),
+      marketUnderlyings: userPositions?.map(p => p.market.underlying),
       marketRelativeCollateralSizes: userPositions?.map(p => p.creditLimit > 0 ? p.creditLimit / creditLimit : 0),
       creditLimit: userPositions.reduce((prev, curr) => prev + (curr.creditLimit), 0),
       stakedInv: userPositions.filter(p => p.market.isInv).reduce((prev, curr) => prev + (curr.deposits), 0),
@@ -135,7 +136,7 @@ export const useDBRActiveHolders = (): SWR & {
   const activeDbrHolders = data ? data.activeDbrHolders : [];
 
   const activeDbrHoldersWithMarkets = activeDbrHolders.map(s => {
-    const marketPositions = firmPositions?.filter(p => p.user === s.user) || [];
+    const marketPositions = (firmPositions?.filter(p => p.user === s.user) || []).sort((a, b) => b.debt - a.debt);
     const marketIcons = marketPositions?.map(p => p.market.underlying.image) || [];
     const dailyBurn = s.debt / oneYear * ONE_DAY_MS;
     const monthlyBurn = dailyBurn * 365 / 12;

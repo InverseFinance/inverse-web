@@ -15,6 +15,7 @@ import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader"
 import { DbrHistoBalanceModal } from "../Infos/DbrHistoBalanceModal";
 import { useNamedAddress } from "@app/hooks/useNamedAddress";
 import { shortenAddress } from "@app/util";
+import { MarketNameAndIcon } from "../F2Markets";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -32,19 +33,19 @@ const StatBasic = ({ value, name, isLoading = false }: { value: string, name: st
     return <VStack>
         {
             !isLoading ? <Text textAlign="center" color={'secondary'} fontSize={{ base: '18px', sm: '24px' }} fontWeight="extrabold">{value}</Text>
-            : <SmallTextLoader width={'100px'} />
+                : <SmallTextLoader width={'100px'} />
         }
         <Text textAlign="center" color={'mainTextColor'} fontSize={{ base: '14px', sm: '16px' }} fontWeight="bold">{name}</Text>
     </VStack>
 }
 
-const Spender = ({user}) => {
+const Spender = ({ user }) => {
     const { addressName } = useNamedAddress(user);
     return <Cell w="100px" justify="flex-start" position="relative" onClick={(e) => e.stopPropagation()}>
         <Link isExternal href={`/firm?viewAddress=${user}`}>
             <ViewIcon color="blue.600" boxSize={3} />
         </Link>
-        <ScannerLink value={user} label={addressName||shortenAddress(user)} />
+        <ScannerLink value={user} label={addressName || shortenAddress(user)} />
     </Cell>
 }
 
@@ -83,8 +84,8 @@ export const DbrSpenders = ({
                     <CellText onClick={(e) => {
                         e.stopPropagation();
                         openDbrHisto(user);
-                    }} 
-                    cursor="pointer" textDecoration="underline" color={signedBalance < 0 ? 'error' : 'mainTextColor'}>{shortenNumber(signedBalance, signedBalance < 0 ? 4 : 2, false, signedBalance > 0)}</CellText>
+                    }}
+                        cursor="pointer" textDecoration="underline" color={signedBalance < 0 ? 'error' : 'mainTextColor'}>{shortenNumber(signedBalance, signedBalance < 0 ? 4 : 2, false, signedBalance > 0)}</CellText>
                 </Cell>
             },
         },
@@ -104,7 +105,7 @@ export const DbrSpenders = ({
             header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
             value: ({ debt }) => {
                 return <Cell minWidth="100px" justify="center" >
-                    <CellText>{shortenNumber(debt, 2)}</CellText>
+                    <CellText>{shortenNumber(debt, 2, false, true)}</CellText>
                 </Cell>
             },
         },
@@ -134,18 +135,20 @@ export const DbrSpenders = ({
             header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
             value: ({ dbrExpiryDate }) => {
                 return <Cell spacing="0" alignItems="center" direction="column" minWidth="120px" justify="center">
-                    <CellText>{moment(dbrExpiryDate).format('MMM Do YYYY')}</CellText>
-                    <CellText color="secondaryTextColor">{moment(dbrExpiryDate).fromNow()}</CellText>
+                    <CellText>{moment(dbrExpiryDate).format('MMM Do YYYY').replace('Invalid date', 'Distant Future')}</CellText>
+                    <CellText color="secondaryTextColor">{moment(dbrExpiryDate).fromNow().replace('Invalid date', 'Distant Future')}</CellText>
                 </Cell>
             },
         },
         {
             field: 'marketIcons',
-            label: 'Collaterals',
+            label: 'Top 3 Debts',
             header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-            value: ({ marketIcons }) => {
+            value: ({ marketIcons, marketPositions }) => {
                 return <Cell minWidth="100px" justify="center">
-                    {marketIcons.map(img => <MarketImage key={img} image={img} size={20} />)}
+                    {marketPositions.slice(0, 3).map((p, i) => p.debt > 0 ?
+                        <MarketNameAndIcon icon={marketIcons[i]} underlying={p.market.underlying} />
+                        : null)}
                 </Cell>
             },
         },
