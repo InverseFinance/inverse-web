@@ -546,12 +546,12 @@ const HumanReadableActionLabel = ({
 
     const symbol = <Text fontWeight="bold" display="inline-block">{contractKnownToken.symbol}</Text>;
 
-    const { data: allowanceData } = useEtherSWR({
-        abi: ERC20_ABI,
-        args: isTransferFrom ?
-            [target, 'allowance', callDatas[0], destAddress]
-            : [],
-    });
+    // const { data: allowanceData } = useEtherSWR({
+    //     abi: ERC20_ABI,
+    //     args: isTransferFrom ?
+    //         [target, 'allowance', callDatas[0], destAddress]
+    //         : [],
+    // });
 
     const amount = <Amount value={isTransferFrom ? callDatas[2] : callDatas[1]} decimals={contractKnownToken.decimals} />    
 
@@ -563,9 +563,9 @@ const HumanReadableActionLabel = ({
         text = <Flex display="inline-block">Set {destinator}'s {symbol} <b>Allowance</b> to {amount}</Flex>;
     }
     else if (isTransferFrom) {
-        const isNotEnoughAllowance = parseFloat(allowanceData.toString()) < parseFloat(callDatas[2]);
-        const allowance = <Amount value={allowanceData.toString()} decimals={contractKnownToken.decimals} color={isNotEnoughAllowance ? 'error' : 'secondary'} />;
-        text = <Flex display="inline-block"><b>Pull</b> {amount} {symbol} from {<ScannerLink color="info" value={callDatas[0]} label={namedAddress(callDatas[0])} />}'s allowance of {allowance} and send it to {destinator}</Flex>;
+        // const isNotEnoughAllowance = parseFloat(allowanceData.toString()) < parseFloat(callDatas[2]);
+        // const allowance = <Amount value={allowanceData.toString()} decimals={contractKnownToken.decimals} color={isNotEnoughAllowance ? 'error' : 'secondary'} />;
+        text = <Flex display="inline-block"><b>Pull</b> {amount} {symbol} from {<ScannerLink color="info" value={callDatas[0]} label={namedAddress(callDatas[0])} />}'s allowance and send it to {destinator}</Flex>;
     }
     else {
         text = <Flex display="inline-block"><b>{capitalize(funName)}</b> {amount} {symbol} to {destinator}</Flex>;

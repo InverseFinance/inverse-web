@@ -115,7 +115,7 @@ export async function getStaticProps(context) {
 
   return {
     props: { proposal },
-    revalidate: 1,
+    revalidate: 2,
   }
 }
 
