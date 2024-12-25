@@ -16,6 +16,7 @@ import { preciseCommify } from "@app/util/misc";
 import { FirmUserModal } from "./FirmUserModal";
 import { useDBRPrice } from "@app/hooks/useDBR";
 import InfoModal from "@app/components/common/Modal/InfoModal";
+import { MarketNameAndIcon } from "../F2Markets";
 
 const StatBasic = ({ value, name, onClick = undefined, isLoading = false }: { value: string, onClick?: () => void, name: string, isLoading?: boolean }) => {
     return <VStack>
@@ -71,7 +72,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ dbrSignedBalance }) => {
             return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
-                <CellText color={dbrSignedBalance < 0 ? 'error' : undefined}>{dbrSignedBalance !== 0 ? shortenNumber(dbrSignedBalance, 2) : '-'}</CellText>
+                <CellText color={dbrSignedBalance < 0 ? 'error' : undefined}>{dbrSignedBalance !== 0 ? shortenNumber(dbrSignedBalance, 2, false, true) : '-'}</CellText>
             </Cell>
         },
     },
@@ -81,7 +82,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
         value: ({ dbrExpiryDate, debt, dbrRiskColor }) => {
             return <Cell spacing="0" alignItems="center" direction="column" minWidth="120px" justify="center">
-                <CellText color={dbrRiskColor}>{debt > 0 ? moment(dbrExpiryDate).format('MMM Do YYYY') : '-'}</CellText>
+                <CellText color={dbrRiskColor}>{debt > 0 ? moment(dbrExpiryDate).format('MMM Do YYYY').replace('Invalid date', 'Distant Future') : '-'}</CellText>
                 {/* <CellText color="secondaryTextColor">{moment(dbrExpiryDate).fromNow()}</CellText> */}
             </Cell>
         },
@@ -92,7 +93,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ depositsUsd }) => {
             return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
-                <CellText>{shortenNumber(depositsUsd, 2, true)}</CellText>
+                <CellText>{shortenNumber(depositsUsd, 2, true, true)}</CellText>
             </Cell>
         },
     },
@@ -102,7 +103,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ creditLimit }) => {
             return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
-                <CellText>{creditLimit > 0 ? shortenNumber(creditLimit, 2) : '-'}</CellText>
+                <CellText>{creditLimit > 0 ? shortenNumber(creditLimit, 2, false, true) : '-'}</CellText>
             </Cell>
         },
     },
@@ -112,7 +113,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ debt }) => {
             return <Cell minWidth="100px" justify="center" >
-                <CellText>{debt > 0 ? shortenNumber(debt, 2) : '-'}</CellText>
+                <CellText>{debt > 0 ? shortenNumber(debt, 2, false, true) : '-'}</CellText>
             </Cell>
         },
     },
@@ -144,11 +145,13 @@ const columns = [
     // },
     {
         field: 'marketRelativeDebtSizes',
-        label: 'Relative Debts',
+        label: 'Top 3 Debts',
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        value: ({ marketIcons, marketRelativeDebtSizes }) => {
+        value: ({ marketIcons, marketRelativeDebtSizes, marketUnderlyings }) => {
             return <Cell minWidth="100px" justify="center">
-                {marketRelativeDebtSizes.map((size, i) => size > 0 ? <MarketImage imgProps={{ title: `${shortenNumber(size * 100, 2)}%` }} key={marketIcons[i]} image={marketIcons[i]} size={(size * 10 + 10)} /> : null)}
+                {marketRelativeDebtSizes.slice(0, 3).map((size, i) => size > 0 ?
+                    <MarketNameAndIcon icon={marketIcons[i]} underlying={marketUnderlyings[i]} />
+                    : null)}
             </Cell>
         },
     },

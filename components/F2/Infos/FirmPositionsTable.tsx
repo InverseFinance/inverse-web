@@ -1,4 +1,3 @@
-import { BigImageButton } from "@app/components/common/Button/BigImageButton"
 import Link from "@app/components/common/Link"
 import ScannerLink from "@app/components/common/ScannerLink"
 import Table from "@app/components/common/Table"
@@ -6,6 +5,7 @@ import { getRiskColor } from "@app/util/f2"
 import { shortenNumber } from "@app/util/markets"
 import { ViewIcon } from "@chakra-ui/icons"
 import { Flex, Stack, Text } from "@chakra-ui/react"
+import { MarketNameAndIcon } from "../F2Markets"
 
 export const FirmPositionsTable = ({
     onClick,
@@ -48,8 +48,7 @@ const columns = [
         value: ({ market }) => {
             const { name, icon, marketIcon, underlying } = market;
             return <Cell minWidth="200px" justify="flex-start" alignItems="center" >
-                <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="35px" w="50px" backgroundSize='contain' backgroundRepeat="no-repeat" />
-                <CellText fontSize={{ base: '14px', '2xl': name.length > 14 ? '14px' : name.length > 12 ? '16px' : '20px' }}>{name}</CellText>
+                <MarketNameAndIcon name={name} marketIcon={marketIcon} icon={marketIcon} underlying={underlying} />
             </Cell>
         },
         showFilter: true,
@@ -160,8 +159,7 @@ const oneUserOnlyColumns = [
         value: ({ market }) => {
             const { name, icon, marketIcon, underlying } = market;
             return <Cell minWidth="200px" justify="flex-start" alignItems="center" >
-                <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h="35px" w="50px" backgroundSize='contain' backgroundRepeat="no-repeat" />
-                <CellText fontSize={{ base: '14px', '2xl': name.length > 14 ? '14px' : name.length > 12 ? '16px' : '20px' }}>{name}</CellText>
+                <MarketNameAndIcon name={name} marketIcon={marketIcon} icon={marketIcon} underlying={underlying} />              
             </Cell>
         },
     },
