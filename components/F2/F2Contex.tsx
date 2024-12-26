@@ -17,6 +17,7 @@ import { useStakedInFirm } from '@app/hooks/useFirm'
 import { INV_STAKERS_ONLY } from '@app/config/features'
 import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
 import { BURN_ADDRESS } from '@app/config/constants'
+import { useStakedDola } from '@app/util/dola-staking'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -127,6 +128,7 @@ export const F2Context = ({
 
     const dbrCover = totalDebtAmountNum > 0 ? isAutoDBR ? dbrApproxData.dbrNeededNum : debtAmountNum / (365 / duration) : 0;
     const { priceDola: dbrPriceInDola, priceUsd: dbrPriceUsd } = useDBRPrice();
+    const { sDolaExRate } = useStakedDola(dbrPriceInDola);
     const autoDbrSwapPrice = isAutoDBR && !dbrApproxData?.isLoading ? dbrApproxData?.dolaForDbrNum/dbrApproxData?.dbrNeededNum : dbrPriceInDola;    
     const dbrSwapPrice = isAutoDBR ? autoDbrSwapPrice || dbrPriceInDola : dbrPriceInDola;
     const dbrCoverDebt = dbrCover * dbrSwapPrice;
@@ -387,6 +389,7 @@ export const F2Context = ({
             setLeverageMinDebtReduced,
             leverageMinAmountUp,
             newCreditLeft,
+            sDolaExRate,
         }}
         {...props}
     />
