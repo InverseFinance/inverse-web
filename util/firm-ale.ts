@@ -165,6 +165,7 @@ export const prepareDeleveragePosition = async (
     dolaPrice = 1,
     leverageMinAmountUp?: number,
     underlyingExRate?: number,
+    sDolaExRate?: number,
 ) => {
     let aleQuoteResult;    
     // we need the quote first
@@ -189,7 +190,7 @@ export const prepareDeleveragePosition = async (
     }
 
     const signatureResult = await getFirmSignature(signer, market.address, collateralToWithdraw, 'WithdrawOnBehalf', F2_ALE);
-
+    // deleverage
     if (signatureResult) {
         const { deadline, r, s, v } = signatureResult;
 
@@ -201,11 +202,13 @@ export const prepareDeleveragePosition = async (
         const minDolaAmountFromSwap = getNumberToBn(leverageMinAmountUp);
         const minDolaOrMaxRepayable = minDolaAmountFromSwap.gt(userDebt) ? userDebt : minDolaAmountFromSwap;       
         if (market.aleData?.buySellToken && !!market.aleTransformerType && aleTransformers[market.aleTransformerType]) {
-            if(leverageMinAmountUp < (dolaBuyAmount * ANOMALY_PERC_FACTOR)){
+            if(leverageMinAmountUp < (dolaBuyAmount * ANOMALY_PERC_FACTOR) || !sDolaExRate){
                 alert('Something went wrong');
                 return;
             }
-            helperTransformData = aleTransformers[market.aleTransformerType](market, minDolaAmountFromSwap ? minDolaAmountFromSwap : undefined);
+            // withdraw from lp with sDOLA case: minOutAmount has to be in sDOLA instead of DOLA
+            const minAmountForTransformer = market.nonProxySwapType?.includes('sDOLA') ? getNumberToBn(leverageMinAmountUp * 1 / sDolaExRate) : minDolaAmountFromSwap;
+            helperTransformData = aleTransformers[market.aleTransformerType](market, minAmountForTransformer ? minAmountForTransformer : undefined);
         }
         // dolaIn, minDbrOut, extraDolaToRepay
         const dbrData = [dbrToSell, minDolaOut, extraDolaToRepay];
