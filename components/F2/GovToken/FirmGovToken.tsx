@@ -95,9 +95,9 @@ const delegateItemRenderer = (value, label, index, searchValue, filteredList) =>
         <HStack px="2" w='full' justify="space-between">
             <Text>{`#${(index + 1).toString().padStart(2, '0')}`} <b>{namedAddress(data.address)}</b></Text>
             <HStack spacing="1" justify="flex-end">
-                <Text textAlign="right">(VP: <b>{shortenNumber(data.votingWeight, 2)}%</b>,</Text>
+                <Text textAlign="right">VP: <b>{shortenNumber(data.votingWeight, 2)}%</b>,</Text>
                 <Text textAlign="right">Recent votes:</Text>
-                <Text textAlign="right" w='26px'><b>{data.nbRecentVotes}</b>)</Text>
+                <Text textAlign="right" w='26px'><b>{data.nbRecentVotes}</b></Text>
             </HStack>
         </HStack>
     </HStack>
