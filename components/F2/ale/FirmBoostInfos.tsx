@@ -85,22 +85,26 @@ const riskLevels = {
     'riskier': { color: 'red.500', text: 'Riskier' },
 }
 
-const getHelperDolaIndex = async (aleData: F2Market["aleData"], signer: JsonRpcSigner) => {
+const getHelperDolaIndex = async (aleData: F2Market["aleData"], marketAddress: string, signer: JsonRpcSigner) => {
     const helperContract = new Contract(aleData.helper, ["function markets(address) public view returns (tuple(address,uint,uint,address))"], signer);
-    const helperMarketData = await helperContract.markets(aleData.collateral);
+    const helperMarketData = await helperContract.markets(marketAddress);
     return helperMarketData[1].toString();
 }
 const estimateNonProxyAmount = async (
     crvLpContract: Contract,
+    marketAddress: string,
+    // dola (or sDOLA amount if lp with sDOLA) to deposit or lp amount to burn
     dolaAmountToDepositOrLpAmountToBurn: BigNumber | string,
     isDeposit: boolean,
     aleData: F2Market["aleData"],
     signer: JsonRpcSigner,
 ) => {
-    const helperDolaIndex = await getHelperDolaIndex(aleData, signer);
+    const helperDolaIndex = await getHelperDolaIndex(aleData, marketAddress, signer);
     // amount in lp, = change in lp supply when depositing or withdrawing dola
     if (isDeposit) {
-        return (await crvLpContract.calc_token_amount([dolaAmountToDepositOrLpAmountToBurn.toString(), helperDolaIndex], true));
+        // amounts of each coin being deposited
+        const amounts = helperDolaIndex === '1' ? ['0', dolaAmountToDepositOrLpAmountToBurn.toString()] : [dolaAmountToDepositOrLpAmountToBurn.toString(), '0'];
+        return (await crvLpContract.calc_token_amount(amounts, true));
     } else {
         return (await crvLpContract.calc_withdraw_one_coin(dolaAmountToDepositOrLpAmountToBurn.toString(), helperDolaIndex));
     }
@@ -108,17 +112,31 @@ const estimateNonProxyAmount = async (
 
 // ABIs are different depending on lp type
 const nonProxySwapGetters = {
-    'nonProxySwap': async (lp: string, dolaAmountToDepositOrLpAmountToBurn: BigNumber | string, isDeposit: boolean, aleData: F2Market["aleData"], signer: JsonRpcSigner) => {
+    'nonProxySwap': async (lp: string, marketAddress: string, dolaAmountToDepositOrLpAmountToBurn: BigNumber | string, isDeposit: boolean, aleData: F2Market["aleData"], signer: JsonRpcSigner) => {
         const crvLpContract = new Contract(lp, CRV_LP_ABI, signer);
-        return (await estimateNonProxyAmount(crvLpContract, dolaAmountToDepositOrLpAmountToBurn, isDeposit, aleData, signer));
+        return (await estimateNonProxyAmount(crvLpContract, marketAddress, dolaAmountToDepositOrLpAmountToBurn, isDeposit, aleData, signer));
     },
-    'nonProxySwapMeta': async (metaLp: string, dolaAmountToDepositOrLpAmountToBurn: BigNumber | string, isDeposit: boolean, aleData: F2Market["aleData"], signer: JsonRpcSigner) => {
+    'nonProxySwapMeta': async (metaLp: string, marketAddress: string, dolaAmountToDepositOrLpAmountToBurn: BigNumber | string, isDeposit: boolean, aleData: F2Market["aleData"], signer: JsonRpcSigner) => {
         const crvLpContract = new Contract(metaLp, CRV_META_LP_ABI, signer);
-        return (await estimateNonProxyAmount(crvLpContract, dolaAmountToDepositOrLpAmountToBurn, isDeposit, aleData, signer));
+        return (await estimateNonProxyAmount(crvLpContract, marketAddress, dolaAmountToDepositOrLpAmountToBurn, isDeposit, aleData, signer));
     },
-    'nonProxySwapNG': async (ngLp: string, dolaAmountToDepositOrLpAmountToBurn: BigNumber | string, isDeposit: boolean, aleData: F2Market["aleData"], signer: JsonRpcSigner) => {
+    'nonProxySwapNG': async (ngLp: string, marketAddress: string, dolaAmountToDepositOrLpAmountToBurn: BigNumber | string, isDeposit: boolean, aleData: F2Market["aleData"], signer: JsonRpcSigner) => {
         const crvLpContract = new Contract(ngLp, CURVE_STABLE_SWAP_NG_ABI, signer);
-        return (await estimateNonProxyAmount(crvLpContract, dolaAmountToDepositOrLpAmountToBurn, isDeposit, aleData, signer));
+        return (await estimateNonProxyAmount(crvLpContract, marketAddress, dolaAmountToDepositOrLpAmountToBurn, isDeposit, aleData, signer));
+    },
+    // case with sDOLA, deposit: convert DOLA to an input amount in sDOLA, withdraw: convert sDOLA output to DOLA amount
+    'nonProxySwapNG-sDOLA': async (ngLp: string, marketAddress: string, dolaAmountToDepositOrLpAmountToBurn: BigNumber | string, isDeposit: boolean, aleData: F2Market["aleData"], signer: JsonRpcSigner, sDolaExRate: number) => {
+        const crvLpContract = new Contract(ngLp, CURVE_STABLE_SWAP_NG_ABI, signer);
+        if(!sDolaExRate) return BigNumber.from('0');
+        // convert DOLA to sDOLA for deposit
+        const amountInSDola = getNumberToBn(getBnToNumber(dolaAmountToDepositOrLpAmountToBurn) * 1 / sDolaExRate);
+        const inputAmount = isDeposit ? amountInSDola : dolaAmountToDepositOrLpAmountToBurn;
+        const result = await estimateNonProxyAmount(crvLpContract, marketAddress, inputAmount, isDeposit, aleData, signer);
+        if(isDeposit) {
+            return result;
+        }
+        // withdraw: convert sDOLA output to DOLA amount
+        return getNumberToBn(getBnToNumber(result) * sDolaExRate);
     },
 }
 
@@ -135,10 +153,10 @@ export const getLeverageImpact = async ({
     dolaInput,
     underlyingExRate = 1,
     signer,
+    sDolaExRate,
 }) => {
     // only when there is a transformation needed and when using a proxy when using ALE, otherwise the underlyingExRate is just a ui info
     const exRate = market?.aleData?.useProxy && market?.aleData?.buySellToken?.toLowerCase() !== market?.collateral?.toLowerCase() ? underlyingExRate : 1;
-
     const collateralPrice = market?.price;
     if (!collateralPrice || leverageLevel <= 1) {
         return
@@ -184,7 +202,7 @@ export const getLeverageImpact = async ({
         // DOLA LP case, result not from 1inch
         else {
             if (signer) {
-                const rootLpAddedBn = await nonProxySwapGetters[market.nonProxySwapType || 'nonProxySwap'](market.rootLp || market.collateral, getNumberToBn(borrowNumToSign), true, market.aleData, signer);
+                const rootLpAddedBn = await nonProxySwapGetters[market.nonProxySwapType || 'nonProxySwap'](market.rootLp || market.collateral, market.address, getNumberToBn(borrowNumToSign), true, market.aleData, signer, sDolaExRate);
                 collateralAdded = underlyingExRate ? getNumberToBn(getBnToNumber(rootLpAddedBn) / underlyingExRate).toString() : rootLpAddedBn.toString();
             } else {
                 collateralAdded = getNumberToBn((borrowNumToSign * dolaPrice) / market.price, market.underlying.decimals).toString();
@@ -215,7 +233,7 @@ export const getLeverageImpact = async ({
         } else {
             if (signer) {
                 const lpAmountInUnderlying = underlyingExRate ? Math.abs(withdrawAmountToSign) * underlyingExRate : Math.abs(withdrawAmountToSign);
-                buyAmount = (await nonProxySwapGetters[market.nonProxySwapType || 'nonProxySwap'](market.rootLp || market.collateral, getNumberToBn(lpAmountInUnderlying), false, market.aleData, signer)).toString();
+                buyAmount = (await nonProxySwapGetters[market.nonProxySwapType || 'nonProxySwap'](market.rootLp || market.collateral, market.address, getNumberToBn(lpAmountInUnderlying), false, market.aleData, signer, sDolaExRate)).toString();
             } else {
                 buyAmount = getNumberToBn(Math.abs(withdrawAmountToSign) * market.price / dolaPrice).toString();
             }
@@ -263,6 +281,7 @@ export const FirmBoostInfos = ({
         setLeverageMinDebtReduced,
         signer,
         dbrPriceUsd,
+        sDolaExRate,
     } = useContext(F2MarketContext);
 
     const newBorrowLimit = 100 - newPerc;
@@ -401,6 +420,7 @@ export const FirmBoostInfos = ({
             dolaPrice,
             underlyingExRate,
             signer,
+            sDolaExRate,
         });
 
         if (!!errorMsg) {
