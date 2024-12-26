@@ -90,38 +90,35 @@ const getHelperDolaIndex = async (aleData: F2Market["aleData"], signer: JsonRpcS
     const helperMarketData = await helperContract.markets(aleData.collateral);
     return helperMarketData[1].toString();
 }
+const estimateNonProxyAmount = async (
+    crvLpContract: Contract,
+    dolaAmountToDepositOrLpAmountToBurn: BigNumber | string,
+    isDeposit: boolean,
+    aleData: F2Market["aleData"],
+    signer: JsonRpcSigner,
+) => {
+    const helperDolaIndex = await getHelperDolaIndex(aleData, signer);
+    // amount in lp, = change in lp supply when depositing or withdrawing dola
+    if (isDeposit) {
+        return (await crvLpContract.calc_token_amount([dolaAmountToDepositOrLpAmountToBurn.toString(), helperDolaIndex], true));
+    } else {
+        return (await crvLpContract.calc_withdraw_one_coin(dolaAmountToDepositOrLpAmountToBurn.toString(), helperDolaIndex));
+    }
+}
 
+// ABIs are different depending on lp type
 const nonProxySwapGetters = {
-    // TODO: scale & refacto
     'nonProxySwap': async (lp: string, dolaAmountToDepositOrLpAmountToBurn: BigNumber | string, isDeposit: boolean, aleData: F2Market["aleData"], signer: JsonRpcSigner) => {
         const crvLpContract = new Contract(lp, CRV_LP_ABI, signer);
-        const helperDolaIndex = await getHelperDolaIndex(aleData, signer);
-        // amount in lp, = change in lp supply when depositing or withdrawing dola
-        if (isDeposit) {
-            return (await crvLpContract.calc_token_amount([dolaAmountToDepositOrLpAmountToBurn.toString(), helperDolaIndex], true));
-        } else {
-            return (await crvLpContract.calc_withdraw_one_coin(dolaAmountToDepositOrLpAmountToBurn.toString(), helperDolaIndex));
-        }
+        return (await estimateNonProxyAmount(crvLpContract, dolaAmountToDepositOrLpAmountToBurn, isDeposit, aleData, signer));
     },
     'nonProxySwapMeta': async (metaLp: string, dolaAmountToDepositOrLpAmountToBurn: BigNumber | string, isDeposit: boolean, aleData: F2Market["aleData"], signer: JsonRpcSigner) => {
         const crvLpContract = new Contract(metaLp, CRV_META_LP_ABI, signer);
-        const helperDolaIndex = await getHelperDolaIndex(aleData, signer);
-        // amount in lp, = change in lp supply when depositing or withdrawing dola
-        if (isDeposit) {
-            return (await crvLpContract.calc_token_amount([dolaAmountToDepositOrLpAmountToBurn.toString(), helperDolaIndex], true));
-        } else {
-            return (await crvLpContract.calc_withdraw_one_coin(dolaAmountToDepositOrLpAmountToBurn.toString(), helperDolaIndex));
-        }
+        return (await estimateNonProxyAmount(crvLpContract, dolaAmountToDepositOrLpAmountToBurn, isDeposit, aleData, signer));
     },
     'nonProxySwapNG': async (ngLp: string, dolaAmountToDepositOrLpAmountToBurn: BigNumber | string, isDeposit: boolean, aleData: F2Market["aleData"], signer: JsonRpcSigner) => {
         const crvLpContract = new Contract(ngLp, CURVE_STABLE_SWAP_NG_ABI, signer);
-        const helperDolaIndex = await getHelperDolaIndex(aleData, signer);
-        // amount in lp, = change in lp supply when depositing or withdrawing dola
-        if (isDeposit) {
-            return (await crvLpContract.calc_token_amount([dolaAmountToDepositOrLpAmountToBurn.toString(), helperDolaIndex], true));
-        } else {
-            return (await crvLpContract.calc_withdraw_one_coin(dolaAmountToDepositOrLpAmountToBurn.toString(), helperDolaIndex));
-        }
+        return (await estimateNonProxyAmount(crvLpContract, dolaAmountToDepositOrLpAmountToBurn, isDeposit, aleData, signer));
     },
 }
 
