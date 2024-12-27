@@ -455,10 +455,10 @@ const columns = [
                         <CellText>{leftToBorrow > 1 ? smartShortNumber(leftToBorrow, 2) : totalDebt ? 'Depleted' : 'No liquidity'}</CellText>
                         {
                             leftToBorrow < dailyLimit && dolaLiquidity > 0 && leftToBorrow < dolaLiquidity && smartShortNumber(dolaLiquidity, 2) !== smartShortNumber(leftToBorrow, 2)
-                            && <CellText overflow="visible" whiteSpace="nowrap" minW="130px" textAlign={{ base: 'right', sm: 'left' }} fontSize={{ base: '10px', sm: '12px' }} color="mainTextColorLight2">
+                            && <CellText overflow="visible" whiteSpace="nowrap" minW="130px" textAlign={{ base: 'right', sm: 'center' }} fontSize={{ base: '10px', sm: '12px' }} color="mainTextColorLight2">
                                 {
                                     borrowController === F2_CONTROLLER ?
-                                        <DailyLimitCountdown prefix="Limit resets in " /> : <>Gradual return to daily limit</>
+                                        <DailyLimitCountdown prefix="Limit resets in " /> : <>Ramping up to {smartShortNumber(dailyLimit, 2)}</>
                                 }
                             </CellText>
                         }
