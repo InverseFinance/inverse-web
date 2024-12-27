@@ -22,7 +22,7 @@ import { CvxCrvPreferences } from '@app/components/F2/rewards/CvxCrvPreferences'
 import { DailyLimitCountdown } from '@app/components/common/Countdown'
 import Container from '@app/components/common/Container'
 import { InfoMessage, WarningMessage } from '@app/components/common/Messages'
-import { shortenNumber } from '@app/util/markets'
+import { shortenNumber, smartShortNumber } from '@app/util/markets'
 import { preciseCommify } from '@app/util/misc'
 import { WorthEvoChartWrapper } from '@app/components/F2/WorthEvoChartContainer'
 import { DbrV1IssueModal } from '@app/components/F2/Modals/DbrV1IssueIModal'
@@ -82,7 +82,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                     Daily borrow limit reached
                                 </Text>
                                 <Text fontSize="16px" fontWeight="bold" color="white">
-                                    Gradually returning
+                                    Ramping up to {smartShortNumber(f2market?.dailyLimit, 2)}
                                 </Text>
                             </>
                         }
