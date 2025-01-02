@@ -57,13 +57,15 @@ export const useTokensData = (): SWR & {
   dola: { volume: number },
   inv: { volume: number },
   dbr: {volume: number },
+  sdola: {volume: number },
 } => {  
-  const url = `/api/tokens-data`;
+  const url = `/api/tokens-data?`;
   const { data, error } = useCustomSWR(url, fetcher);
   return {
     dola: data ? data?.dola : { volume: null },
     dbr: data ? data?.dbr : { volume: null },
     inv: data ? data?.inv : { volume: null },
+    sdola: data ? data?.sdola : { volume: null },
     isLoading: !data && !error,
     hasError: !data && !!error,
   };
