@@ -33,6 +33,7 @@ export const AggregatedLiquidityData = ({
         isPerc: boolean | undefined
     ) => void,
 }) => {
+    const _items = items.map(item => ({...item, name: item.name.replace(/sdola/ig, '$SD'), symbol: item.symbol.replace(/sdola/ig, '$SD') }))
     const {
         tvl,
         balance,
@@ -41,7 +42,7 @@ export const AggregatedLiquidityData = ({
         pol,
         rewardDay,
         avgApy,
-    } = getPoolsAggregatedStats(items, '', isStable, include, exclude);
+    } = getPoolsAggregatedStats(_items, '', isStable, include, exclude);
 
     return <SimpleTwoColTable
         containerProps={containerProps}
