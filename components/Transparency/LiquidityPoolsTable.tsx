@@ -267,6 +267,7 @@ export const LiquidityPoolsTable = ({
                     { label: 'INV', value: 'inv' },
                     { label: 'DOLA', value: 'dola' },
                     { label: 'DBR', value: 'dbr' },
+                    { label: 'sDOLA', value: 'sDOLA' },
                 ]}
             />
         }

@@ -58,11 +58,13 @@ const LINKS = {
   'DBR': 'https://www.coingecko.com/en/coins/dola-borrowing-right',
   'DOLA': 'https://www.coingecko.com/en/coins/dola-usd',
   'INV': 'https://www.coingecko.com/en/coins/inverse-finance',
+  'sDOLA': 'https://www.coingecko.com/en/coins/sdola',
 }
 const cgIds = {
   'DBR': 'dola-borrowing-right',
   'DOLA': 'dola-usd',
   'INV': 'inverse-finance',
+  'sDOLA': 'sdola',
 }
 
 export const Liquidity = () => {
@@ -70,7 +72,7 @@ export const Liquidity = () => {
   const [histoAttributeChainId, setHistoAttributeChainId] = useState('');
   const { aggregatedHistory, isLoading: isLoadingAggregatedHistory } = useLiquidityPoolsAggregatedHistory(true, histoAttributeChainId);
   const aggregatedHistoryPlusCurrent = addCurrentToHistory(aggregatedHistory, { liquidity, timestamp }, undefined, histoAttributeChainId);
-  const { dola, inv, dbr } = useTokensData();
+  const { dola, inv, dbr, sdola } = useTokensData();
   const { prices } = usePricesV2();
   const { priceUsd: dbrPriceUsd } = useDBRPrice();
   const [category, setCategory] = useState('DOLA');
@@ -94,12 +96,12 @@ export const Liquidity = () => {
   const [defaultTokenOut, setDefaultTokenOut] = useState('');
   const [defaultTargetChainId, setDefaultTargetChainId] = useState('');
 
-  const volumes = { DOLA: dola?.volume || 0, INV: inv?.volume || 0, DBR: dbr?.volume || 0 }
+  const volumes = { DOLA: dola?.volume || 0, INV: inv?.volume || 0, DBR: dbr?.volume || 0, sDOLA: sdola?.volume || 0 }
 
   const toExcludeFromAggregate = liquidity.filter(lp => !!lp.deduce).map(lp => lp.deduce).flat();
   const itemsWithoutChildren = liquidity.filter(lp => !toExcludeFromAggregate.includes(lp.address));
 
-  const categoryLps = itemsWithoutChildren.filter(lp => lp.lpName.includes(category));
+  const categoryLps = itemsWithoutChildren.filter(lp => lp.lpName.toUpperCase().includes(category.toUpperCase()));
   const byPairs = groupLpsBy(categoryLps, 'lpName');
   const byFed = groupLpsBy(categoryLps, 'isFed');
   const byChain = groupLpsBy(categoryLps, 'networkName')//.map(f => ({ ...f, token: { symbol: NETWORKS_BY_CHAIN_ID[f.token.symbol].name } }));
@@ -315,8 +317,9 @@ export const Liquidity = () => {
                 { value: 'DOLA', label: <UnderlyingItemBlock symbol="DOLA" /> },
                 { value: 'INV', label: <UnderlyingItemBlock symbol="INV" /> },
                 { value: 'DBR', label: <UnderlyingItemBlock symbol="DBR" /> },
+                { value: 'sDOLA', label: <UnderlyingItemBlock symbol="sDOLA" /> },
               ]}
-              maxW='320px'
+              maxW='420px'
             />
             <HStack alignItems="flex-start" justifyContent="flex-start">
               <VStack w='130px' spacing="0" alignItems={{ base: 'flex-start', md: "flex-end" }}>
@@ -342,9 +345,9 @@ export const Liquidity = () => {
               </Stack>
               :
               <Stack py='4' direction={{ base: 'column', md: 'row' }} w='full' overflowX="scroll" alignItems='flex-start'>
-                <AggregatedLiquidityData handleClick={handleOpenHistoChart} items={liquidity} include={category} containerProps={{ label: `TOTAL ${category} Liquidity` }} />
+                <AggregatedLiquidityData handleClick={handleOpenHistoChart} items={liquidity} include={[category]} containerProps={{ label: `TOTAL ${category} Liquidity` }} />
                 <AggregatedLiquidityData handleClick={handleOpenHistoChart} items={liquidity} include={[category, 'DOLA']} containerProps={{ label: `${category}-DOLA Liquidity` }} />
-                <AggregatedLiquidityData handleClick={handleOpenHistoChart} items={liquidity} include={category} exclude='DOLA' containerProps={{ label: `${category}-NON_DOLA Liquidity` }} />
+                <AggregatedLiquidityData handleClick={handleOpenHistoChart} items={liquidity} include={[category]} exclude='DOLA' containerProps={{ label: `${category}-NON_DOLA Liquidity` }} />
               </Stack>
           }
           <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap="4" mt="2" w='full' alignItems="center">

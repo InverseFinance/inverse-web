@@ -60,6 +60,9 @@ export const useLiquidityPoolsAggregatedHistory = (excludeCurrent = false, chain
     "DBR": LiquidityPoolAggregatedData[]
     "DBR-DOLA": LiquidityPoolAggregatedData[]
     "DBR-NON_DOLA": LiquidityPoolAggregatedData[]
+    "sDOLA": LiquidityPoolAggregatedData[]
+    "sDOLA-DOLA": LiquidityPoolAggregatedData[]
+    "sDOLA-NON_DOLA": LiquidityPoolAggregatedData[]
   },
 } => {
   const { data, error } = useCustomSWR(`/api/transparency/liquidity-histo?excludeCurrent=${excludeCurrent}&chainId=${chainId}`, fetcher)

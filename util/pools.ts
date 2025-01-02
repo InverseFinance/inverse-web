@@ -22,8 +22,8 @@ export const getPoolsAggregatedStats = (
     avgDom: number,
     chainId?: string,
 } => {
-    const _include = Array.isArray(include) ? include : [include || ''];
-    const _exclude = Array.isArray(exclude) ? exclude : [exclude || ''];
+    const _include = (Array.isArray(include) ? include : [include || '']).map(inc => inc.replace(/sdola/ig, '$SD'));
+    const _exclude = (Array.isArray(exclude) ? exclude : [exclude || '']).map(exc => exc.replace(/sdola/ig, '$SD'));
 
     const filteredItems = items?.filter(lp => {
         return (isStable === undefined || (lp.isStable || false) === isStable)
@@ -68,6 +68,9 @@ export const POOL_CATEGORIES = [
     { name: 'DBR', args: [undefined, 'DBR'] },
     { name: 'DBR-DOLA', args: [undefined, ['DBR', 'DOLA']] },
     { name: 'DBR-NON_DOLA', args: [undefined, 'DBR', 'DOLA'] },
+    { name: 'SDOLA', args: [undefined, ['SDOLA', 'sDOLA']] },
+    { name: 'SDOLA-DOLA', args: [undefined, ['SDOLA', 'sDOLA', 'DOLA']] },
+    { name: 'SDOLA-NON_DOLA', args: [undefined, ['SDOLA', 'sDOLA'], 'DOLA'] },
 ];
 
 export const getAggregatedDataFromPools = (totalEntries: any, categories = POOL_CATEGORIES, chainId?: NetworkIds) => {
