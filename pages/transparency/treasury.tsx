@@ -1,4 +1,4 @@
-import { Flex, FormControl, FormLabel, SimpleGrid, Stack, Switch, Text, Checkbox } from '@chakra-ui/react'
+import { Flex, FormControl, FormLabel, SimpleGrid, Stack, Switch, Text, Checkbox, HStack } from '@chakra-ui/react'
 
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
@@ -13,6 +13,8 @@ import { getNetworkConfigConstants, getNetworkImage } from '@app/util/networks'
 import { useState } from 'react'
 import { NetworkIds } from '@app/types'
 import { getScanner } from '@app/util/web3'
+import FirmLogo from '@app/components/common/Logo/FirmLogo'
+import { useAppTheme } from '@app/hooks/useAppTheme'
 
 const OWN_TOKENS = ['DBR', 'INV'];
 
@@ -38,6 +40,7 @@ const ExcludeOwnTokens = ({
 const above100UsdFilter = (item) => item.balance * (item.price || item.usdPrice) >= 100;
 
 export const Overview = () => {
+  const { themeName } = useAppTheme();
   const { prices, isLoading: isLoadingPrices } = usePricesV2(true)
   const { treasury, anchorReserves, multisigs, isLoading: isLoadingDao } = useDAO();
   const [excludeOwnTokens, setExcludeOwnTokens] = useState(false);
@@ -70,6 +73,7 @@ export const Overview = () => {
   const mainFontSize = { base: '16px', sm: '20px', md: '26px' };
   const dashboardCardTitleProps = { w: 'fit-content', position: 'static', fontSize: mainFontSize, fontWeight: 'extrabold' };
   const dashboardCardProps = { direction: 'column', mx: '0', w: { base: '100vw', sm: '95vw', lg: '600px' }, borderRadius: { base: '0', sm: '8' } };
+  const defillamaTextProps = { ...dashboardCardTitleProps, fontSize: '26px', mt: '1' };
 
   return (
     <Layout>
@@ -86,6 +90,15 @@ export const Overview = () => {
       <Flex w="full" justify="center" justifyContent="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="4" px={{ base: '0', sm: '5' }} maxWidth="1400px" w='full'>
           <Stack spacing="5" direction="column" w="full" justify="space-around" alignItems={'center'}>
+          <DashBoardCard cardTitle={
+              <HStack alignItems="center" position={{ base: 'static', md: 'absolute' }} left="0" top="0" w="full" justifyContent="center">
+                <FirmLogo w="65px" />
+                <Text {...defillamaTextProps}>Treasury</Text>
+              </HStack>
+            }
+              {...dashboardCardProps} w='full' p="0">
+              <iframe width="100%" height="360px" src={`https://defillama.com/chart/protocol/inverse-finance?treasury=true&tvl=false&events=false&groupBy=daily&theme=${themeName}`} title="DefiLlama" frameborder="0"></iframe>
+            </DashBoardCard>            
             <SimpleGrid columns={{ base: 1, xl: 2 }} spacingX="50px" spacingY="40px">
               <DashBoardCard cardTitle="Total Treasury Holdings" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
                 <ExcludeOwnTokens label="Exclude Treasury INV & DBR" setter={setExcludeOwnTokens} value={excludeOwnTokens} id='exclude-1' />

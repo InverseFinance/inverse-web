@@ -1,5 +1,5 @@
 import { FormControl, Stack, useMediaQuery, Text, Switch, Divider, VStack, SimpleGrid, HStack } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BarChart12Months } from "./BarChart12Months";
 import { useAppTheme } from "@app/hooks/useAppTheme";
 import { useEventsAsChartData } from "@app/hooks/misc";
@@ -18,6 +18,7 @@ import { useDbrAuction } from "../F2/DbrAuction/DbrAuctionInfos";
 import { useHistoInvPrices } from "@app/hooks/usePrices";
 import { DashBoardCard } from "../F2/UserDashboard";
 import FirmLogo from "../common/Logo/FirmLogo";
+import { FirmBorrowsChart } from "./FirmBorrowsChart";
 
 const streamingStartTs = 1684713600000;
 
@@ -156,7 +157,7 @@ export const DbrAll = ({
     const annualizedIssuance = yearlyRewardRate + dsaYearlyDbrEarnings + auctionYearlyRate;
 
     const { chartData: burnChartData } = useEventsAsChartData(_burnEvents, useUsd ? 'accBurnUsd' : 'accBurn', useUsd ? 'amountUsd' : 'amount');
-
+    
     const [chartWidth, setChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
     const { themeName, themeStyles } = useAppTheme();
@@ -188,6 +189,11 @@ export const DbrAll = ({
         </VStack>
         <DbrComboChart combodata={combodata} chartWidth={chartWidth} useUsd={useUsd} />
         <Divider />
+        <FirmBorrowsChart
+            combodata={combodata}
+            chartWidth={chartWidth}
+            useUsd={useUsd}
+        />
         <BarChart12Months
             title="DBR burned in the last 12 months"
             chartData={burnChartData}
@@ -198,7 +204,7 @@ export const DbrAll = ({
             colorScale={defaultColorScale}
             isDollars={useUsd}
             useRecharts={true}
-        />
+        />        
         <DefaultCharts
             showMonthlyBarChart={false}
             maxChartWidth={chartWidth}
