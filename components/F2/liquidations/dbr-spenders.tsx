@@ -1,4 +1,4 @@
-import { Divider, Flex, HStack, SimpleGrid, SkeletonText, Stack, Text, useDisclosure, VStack } from "@chakra-ui/react"
+import { Divider, Flex, FormControl, HStack, SimpleGrid, SkeletonText, Stack, Switch, Text, useDisclosure, VStack } from "@chakra-ui/react"
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useDBRActiveHolders } from "@app/hooks/useFirm";
@@ -60,6 +60,7 @@ export const DbrSpenders = ({
     const { onOpen: onHistoOpen, onClose: onHistoClose, isOpen: isHistoOpen } = useDisclosure();
     const [position, setPosition] = useState(null);
     const [user, setUser] = useState('');
+    const [isHideSmallSpenders, setIsHideSmallSpenders] = useState(true);
 
     const openDbrHisto = (user: string) => {
         setUser(user);
@@ -187,6 +188,15 @@ export const DbrSpenders = ({
             right={
                 <HStack pt="2" alignItems="flex-start" justify="space-between" spacing={{ base: '2', sm: '4' }}>
                     <VStack spacing="0" alignItems={{ base: 'flex-start', sm: 'center' }}>
+                        <FormControl w='fit-content' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
+                            <Text fontSize={fontSize} whitespace="no-wrap" w='fit-content' mr="1" onClick={() => setIsHideSmallSpenders(!isHideSmallSpenders)}>
+                                Hide small spenders
+                            </Text>
+                            <Switch onChange={(e) => setIsHideSmallSpenders(!isHideSmallSpenders)} size="sm" colorScheme="purple" isChecked={isHideSmallSpenders} />
+                        </FormControl>
+                        <Text textAlign="left" fontSize={fontSize} color={'secondaryTextColor'}>(Debt under 1,000)</Text>
+                    </VStack>
+                    <VStack spacing="0" alignItems={{ base: 'flex-start', sm: 'center' }}>
                         <Text textAlign="left" fontSize={fontSize} fontWeight="bold">Total DBR Deficit</Text>
                         <Text textAlign="left" fontSize={fontSize} color={totalDeficit < 0 ? 'error' : 'secondaryTextColor'}>{totalDeficit ? shortenNumber(totalDeficit, 2) : 'No Deficit'}</Text>
                     </VStack>
@@ -203,7 +213,7 @@ export const DbrSpenders = ({
                 keyName="user"
                 noDataMessage={isLoading ? 'Loading' : "No DBR deficits in last update"}
                 columns={columns}
-                items={positions}
+                items={positions.filter(p => !isHideSmallSpenders || p.debt >= 1000)}
                 onClick={(v) => openReplenish(v)}
                 defaultSort={'dbrExpiryDate'}
                 defaultSortDir="asc"
