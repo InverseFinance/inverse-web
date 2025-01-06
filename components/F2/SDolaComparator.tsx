@@ -201,7 +201,7 @@ const UngroupedComparator = ({ title, allRates, themeStyles, isSmallerThan = fal
 
 export const SDolaComparator = ({
     themeStyles,
-    title = 'Yieald-Bearing Stablecoins',
+    title = 'Yield-Bearing Stablecoins',
     showLabel = true,
 }) => { 
     const { data } = useCustomSWR('/api/dola/sdola-comparator?v=1.0.0');
