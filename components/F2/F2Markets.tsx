@@ -458,7 +458,7 @@ const columns = [
                             && <CellText overflow="visible" whiteSpace="nowrap" minW="130px" textAlign={{ base: 'right', sm: 'center' }} fontSize={{ base: '10px', sm: '12px' }} color="mainTextColorLight2">
                                 {
                                     borrowController === F2_CONTROLLER ?
-                                        <DailyLimitCountdown prefix="Limit resets in " /> : <>Ramping up to {smartShortNumber(dailyLimit, 2)}</>
+                                        <DailyLimitCountdown prefix="Limit resets in " /> : <>Ramping up to {smartShortNumber(Math.min(dailyLimit, dolaLiquidity), 2)}</>
                                 }
                             </CellText>
                         }
