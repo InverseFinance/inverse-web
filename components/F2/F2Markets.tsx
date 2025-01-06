@@ -436,7 +436,7 @@ const columns = [
         field: 'dolaLiquidity',
         label: 'DOLA Liquidity',
         header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
-        tooltip: 'Remaining borrowable DOLA liquidity, not taking into account daily limits',
+        tooltip: 'Remaining borrowable DOLA liquidity, not taking into account 24h limits',
         value: ({ dolaLiquidity, borrowPaused }) => {
             return <Cell minWidth="120px" justify="center" >
                 <CellText>{borrowPaused || dolaLiquidity < 1 ? '-' : smartShortNumber(dolaLiquidity, 2)}</CellText>
@@ -447,7 +447,7 @@ const columns = [
         field: 'leftToBorrow',
         label: "Available to borrow",
         header: ({ ...props }) => <ColHeader minWidth="135px" justify="center"  {...props} />,
-        tooltip: 'Markets can have daily borrow limits, this shows the DOLA left to borrow for the day (UTC timezone)',
+        tooltip: 'Markets have 24-hour borrow limits, this shows the DOLA left to borrow within the current period, the available amount automatically comes back to 24h max borrow limit over time',
         value: ({ leftToBorrow, totalDebt, dailyLimit, dolaLiquidity, borrowPaused, borrowController }) => {
             return <Cell minWidth="135px" justify="center" alignItems="center" direction="column" spacing="0" >
                 {

@@ -224,14 +224,14 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
         ],
         [
             {
-                tooltip: 'The daily limit of borrowable DOLAs in the market (UTC timezone)',
-                title: 'Daily Borrow Limit',
-                value: market.dailyLimit > 0 ? `${preciseCommify(market.dailyLimit, 0)}` : 'No daily limit',
+                tooltip: 'The 24-hour limit of borrowable DOLAs in the market',
+                title: '24h Borrow Limit',
+                value: market.dailyLimit > 0 ? `${preciseCommify(market.dailyLimit, 0)}` : 'No 24h limit',
             },
             {
-                tooltip: 'The remaining DOLA borrowable today (UTC timezone)',
+                tooltip: 'The remaining DOLA borrowable within the current 24h period',
                 title: 'Remaining liquidity',
-                value: market.dailyLimit > 0 ? `${preciseCommify(market.leftToBorrow, 0)}` : 'No daily limit',
+                value: market.dailyLimit > 0 ? `${preciseCommify(market.leftToBorrow, 0)}` : 'No 24h limit',
             },
         ],
         [
