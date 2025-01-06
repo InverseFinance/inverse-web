@@ -416,10 +416,10 @@ export const FirmBar = ({
                         FiRM Borrows
                     </Link>
                     {
-                        !markets?.length || !totalDebtUsd ?
+                        !markets?.length || !totalDebt ?
                             <SmallTextLoader width={'50px'} /> :
                             <SubTitle textAlign="center" fontSize={{ base: '16px', md: '18px' }}>
-                                {shortenNumber(totalDebtUsd, 2, true)}
+                                {shortenNumber(totalDebt, 2, true)}
                             </SubTitle>
                     }
                 </VStack>
