@@ -79,7 +79,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                 </Text>
                             </> : <>
                                 <Text fontSize="16px" fontWeight="bold" color="white">
-                                    Daily borrow limit reached
+                                    Daily borrow limit resetting
                                 </Text>
                                 <Text fontSize="16px" fontWeight="bold" color="white">
                                     Ramping up to {smartShortNumber(f2market?.dailyLimit, 2)}
