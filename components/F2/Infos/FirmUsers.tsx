@@ -1,4 +1,4 @@
-import { Divider, Flex, HStack, SimpleGrid, Stack, Text, useDisclosure, VStack } from "@chakra-ui/react"
+import { Divider, Flex, FormControl, HStack, SimpleGrid, Stack, Switch, Text, useDisclosure, VStack } from "@chakra-ui/react"
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { getRiskColor } from "@app/util/f2";
@@ -194,6 +194,7 @@ export const FirmUsers = ({
     const { onOpen, onClose, isOpen } = useDisclosure();
     const [position, setPosition] = useState(null);
     const [chartUrl, setChartUrl] = useState(null);
+    const [isHideSmallSpenders, setIsHideSmallSpenders] = useState(false);
 
     const openUserDetails = async (data) => {
         setPosition(data);
@@ -255,6 +256,15 @@ export const FirmUsers = ({
             right={
                 <HStack justify="space-between" spacing="4">
                     <VStack alignItems={{ base: 'flex-start', sm: 'center' }}>
+                        <FormControl w='fit-content' cursor="pointer" justifyContent="flex-start" display='inline-flex' alignItems='center'>
+                            <Text fontWeight="bold" whitespace="no-wrap" w='fit-content' mr="1" onClick={() => setIsHideSmallSpenders(!isHideSmallSpenders)}>
+                                Hide Small Spenders
+                            </Text>
+                            <Switch onChange={(e) => setIsHideSmallSpenders(!isHideSmallSpenders)} size="sm" colorScheme="purple" isChecked={isHideSmallSpenders} />
+                        </FormControl>
+                        <Text textAlign="left" color={'secondaryTextColor'}>(Debt under 1,000)</Text>
+                    </VStack>
+                    <VStack alignItems={{ base: 'flex-start', sm: 'center' }}>
                         <Text fontWeight="bold">Avg Borrow Limit</Text>
                         {
                             isLoading ? <SmallTextLoader width={'50px'} />
@@ -286,7 +296,7 @@ export const FirmUsers = ({
                         keyName="user"
                         noDataMessage="No active user in last update"
                         columns={columns}
-                        items={userPositions}
+                        items={userPositions.filter(p => !isHideSmallSpenders || p.debt >= 1000)}
                         onClick={openUserDetails}
                         defaultSort="debt"
                         defaultSortDir="desc"
