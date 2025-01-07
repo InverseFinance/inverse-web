@@ -19,6 +19,7 @@ import { useHistoInvPrices } from "@app/hooks/usePrices";
 import { DashBoardCard } from "../F2/UserDashboard";
 import FirmLogo from "../common/Logo/FirmLogo";
 import { FirmBorrowsChart } from "./FirmBorrowsChart";
+import { DbrInflationChart } from "./DbrInflationChart";
 
 const streamingStartTs = 1684713600000;
 
@@ -127,6 +128,8 @@ export const DbrAll = ({
             yearlyRewardRateUsd: totalAnnualizedIssuance * histoPrice,
             dbrCircSupply,
             dbrCircSupplyUsd: dbrCircSupply * histoPrice,
+            inflation: totalAnnualizedIssuance - d.debt,
+            inflationUsd: (totalAnnualizedIssuance - d.debt) * histoPrice,
         }
     });
 
@@ -150,6 +153,8 @@ export const DbrAll = ({
             stakersYearlyRewardRateUsd: yearlyRewardRate * dbrPriceUsd,
             yearlyRewardRate: totalAnnualizedIssuance,
             yearlyRewardRateUsd: totalAnnualizedIssuance * dbrPriceUsd,
+            inflation: totalAnnualizedIssuance - totalDebt,
+            inflationUsd: (totalAnnualizedIssuance - totalDebt) * dbrPriceUsd,
         });
     }
 
@@ -190,6 +195,11 @@ export const DbrAll = ({
         <DbrComboChart combodata={combodata} chartWidth={chartWidth} useUsd={useUsd} />
         <Divider />
         <FirmBorrowsChart
+            combodata={combodata}
+            chartWidth={chartWidth}
+            useUsd={useUsd}
+        />
+        <DbrInflationChart
             combodata={combodata}
             chartWidth={chartWidth}
             useUsd={useUsd}
