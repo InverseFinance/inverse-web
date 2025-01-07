@@ -8,7 +8,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRechartsZoom } from '@app/hooks/useRechartsZoom';
 
 const KEYS = {
-    INFLATION: 'Inflation',
+    INFLATION: 'Annualized Net Issuance Rate',
 }
 
 const gradientOffset = (data: any) => {
@@ -38,7 +38,7 @@ export const DbrInflationChart = ({
     useUsd?: boolean
 }) => {
     const { themeStyles, themeName } = useAppTheme();
-    const [leftYDomain, setLeftYDomain] = useState(['dataMin', 'dataMax']);
+    const [leftYDomain, setLeftYDomain] = useState(['dataMin-2000000', 'dataMax+2000000']);
 
     const { mouseDown, mouseUp, mouseMove, mouseLeave, zoomOutButton, rangeButtonsBar, zoomReferenceArea, data } = useRechartsZoom({
         combodata, xKey: 'timestamp', yKey: useUsd ? 'inflationUsd' : 'inflation', yAxisId: 'left',
@@ -62,7 +62,7 @@ export const DbrInflationChart = ({
 
         const dataMin = Math.min(...combodata.map(d => Math.min(...keys.map(k => (d[k] || 0)))));
         const dataMax = Math.max(...combodata.map(d => Math.max(...keys.map(k => (d[k] || 0)))));
-        setLeftYDomain([dataMin, Math.ceil(dataMax * 1.05)]);
+        setLeftYDomain([dataMin - 2_000_000, Math.ceil(dataMax * 1.05)]);
     }, [actives, combodata, useUsd]);
 
     const _axisStyle = axisStyle || {
@@ -89,7 +89,7 @@ export const DbrInflationChart = ({
         <VStack position="relative" alignItems="center" maxW={`${chartWidth}px`}>
             <VStack>
                 <Text fontWeight="bold">
-                    DBR Inflation
+                    DBR Annualized Net-Issuance Rate
                 </Text>
                 {rangeButtonsBar}
             </VStack>
@@ -111,8 +111,8 @@ export const DbrInflationChart = ({
             >
                 <defs>
                     <linearGradient id="splitColor" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset={off} stopColor={themeStyles.colors.info} stopOpacity={1} />
-                        <stop offset={off} stopColor={themeStyles.colors.warning} stopOpacity={1} />
+                        <stop offset={off} stopColor={`${themeStyles.colors.info}88`} stopOpacity={0.8} />
+                        <stop offset={off} stopColor={`${themeStyles.colors.warning}88`} stopOpacity={0.8} />
                     </linearGradient>
                 </defs>
                 <CartesianGrid fill={themeStyles.colors.accentChartBgColor} stroke="#66666633" strokeDasharray={_axisStyle.grid.strokeDasharray} />
@@ -129,7 +129,7 @@ export const DbrInflationChart = ({
                         return !value ? 'none' : preciseCommify(value, 0, useUsd)
                     }}
                 />
-                <Area opacity={actives[KEYS.INFLATION] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.INFLATION} yAxisId="left" type="monotone" dataKey={useUsd ? 'inflationUsd' : 'inflation'} stroke={themeStyles.colors.warning} dot={false} fillOpacity={1} fill="url(#splitColor)" />
+                <Area opacity={actives[KEYS.INFLATION] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.INFLATION} yAxisId="left" type="monotone" dataKey={useUsd ? 'inflationUsd' : 'inflation'} stroke={'#555555'} dot={false} fillOpacity={1} fill="url(#splitColor)" />
                 <Legend wrapperStyle={legendStyle} onClick={toggleChart} style={{ cursor: 'pointer' }} formatter={(value) => value + (actives[value] ? '' : ' (hidden)')} />
                 {zoomReferenceArea}
             </ComposedChart>
