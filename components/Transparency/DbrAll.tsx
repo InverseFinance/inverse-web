@@ -128,8 +128,8 @@ export const DbrAll = ({
             yearlyRewardRateUsd: totalAnnualizedIssuance * histoPrice,
             dbrCircSupply,
             dbrCircSupplyUsd: dbrCircSupply * histoPrice,
-            inflation: totalAnnualizedIssuance - d.debt,
-            inflationUsd: (totalAnnualizedIssuance - d.debt) * histoPrice,
+            inflation: (totalAnnualizedIssuance - d.debt)/365,
+            inflationUsd: (totalAnnualizedIssuance - d.debt)/365 * histoPrice,
         }
     });
 
@@ -153,8 +153,8 @@ export const DbrAll = ({
             stakersYearlyRewardRateUsd: yearlyRewardRate * dbrPriceUsd,
             yearlyRewardRate: totalAnnualizedIssuance,
             yearlyRewardRateUsd: totalAnnualizedIssuance * dbrPriceUsd,
-            inflation: totalAnnualizedIssuance - totalDebt,
-            inflationUsd: (totalAnnualizedIssuance - totalDebt) * dbrPriceUsd,
+            inflation: (totalAnnualizedIssuance - totalDebt)/365,
+            inflationUsd: (totalAnnualizedIssuance - totalDebt)/365 * dbrPriceUsd,
         });
     }
 
