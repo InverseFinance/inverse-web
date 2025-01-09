@@ -98,7 +98,7 @@ export const useGovernanceNotifs = (): SWR & {
   }
 }
 export const useProposalsBreakdown = (): SWR & { active: number, passed: number, failed: number } => {
-  let uri = `/api/proposals?isStatsOnly=true`;
+  let uri = `/api/proposals?v=2&isStatsOnly=true`;
   const { data, error } = useCustomSWR(uri, fetcher)
 
   return {
@@ -110,7 +110,7 @@ export const useProposalsBreakdown = (): SWR & { active: number, passed: number,
   }
 }
 export const useProposals = (filters?: { proposalNum?: number, size?: number, isStatsOnly?: boolean }): SWR & Proposals => {
-  let uri = `/api/proposals?`;
+  let uri = `/api/proposals?v=2`;
   const { proposalNum, size } = filters || {};
   if(!!proposalNum) {
     uri += `&proposalNum=${proposalNum}`;
