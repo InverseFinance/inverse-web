@@ -53,7 +53,7 @@ export default async function handler(req, res) {
 
     const proposalCount = getBnToNumber(await govContract.proposalCount());
     // we consider those before as archived
-    const lastRefProposalId = proposalCount - 29;
+    const lastRefProposalId = proposalCount - 30;
 
     const [blockNumber, quorumVotes, graphResult] = await Promise.all([
       provider.getBlockNumber(),
