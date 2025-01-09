@@ -51,8 +51,9 @@ export default async function handler(req, res) {
     const provider = getProvider(NetworkIds.mainnet, process.env.ALCHEMY_CRON, true);
     const govContract = new Contract(GOVERNANCE, GOVERNANCE_ABI, provider);
 
-    // TODO: temp fix
-    const lastRefProposalId = 243;
+    const proposalCount = getBnToNumber(await govContract.proposalCount());
+    // we consider those before as archived
+    const lastRefProposalId = proposalCount - 30;
 
     const [blockNumber, quorumVotes, graphResult] = await Promise.all([
       provider.getBlockNumber(),
