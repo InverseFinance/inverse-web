@@ -12,11 +12,12 @@ import { GOVERNANCE_ABI } from '@app/config/abis';
 import { getBnToNumber } from '@app/util/markets';
 import { parseEther } from "@ethersproject/units";
 
-export const proposalsCacheKey = '1-proposals-v1.0.1';
+export const proposalsCacheKey = '1-proposals-v1.0.2';
 
 export default async function handler(req, res) {
   const cacheDuration = 30;
   res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+  
   try {
     const { sig } = req;
     const { proposalNum, isStatsOnly } = req.query;
@@ -24,6 +25,7 @@ export default async function handler(req, res) {
 
     const sigAddress = checkDraftRights(sig);
     const { isValid, data: cachedData } = await getCacheFromRedisAsObj(proposalsCacheKey, !sigAddress, cacheDuration, true);
+
     if(isStatsOnly === 'true') {
       const active = cachedData.proposals?.reduce(
         (prev: number, curr: Proposal) =>
@@ -51,7 +53,7 @@ export default async function handler(req, res) {
     const provider = getProvider(NetworkIds.mainnet, process.env.ALCHEMY_CRON, true);
     const govContract = new Contract(GOVERNANCE, GOVERNANCE_ABI, provider);
 
-    const proposalCount = getBnToNumber(await govContract.proposalCount());
+    const proposalCount = getBnToNumber(await govContract.proposalCount(), 0);
     // we consider those before as archived
     const lastRefProposalId = proposalCount - 30;
 
