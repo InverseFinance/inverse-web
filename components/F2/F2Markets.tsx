@@ -549,7 +549,7 @@ export const F2Markets = ({
 }) => {
     const { markets } = useDBRMarkets();
     const account = useAccount();
-    const { priceUsd: dbrPrice } = useDBRPrice();
+    const { priceUsd: dbrPrice, priceDola: dbrPriceDola } = useDBRPrice();
     const accountMarkets = useAccountF2Markets(markets, account);
     const router = useRouter();
     const { firmTvls, isLoading: tvlLoading } = useFirmTVL();
@@ -660,12 +660,12 @@ export const F2Markets = ({
                 <VStack h={{ base: 'auto', xl: '56px' }} overflow="hidden" spacing="0" alignItems="flex-start">
                     <Text display="inline-block" fontWeight="bold" fontSize={{ base: '14px', md: '16px', 'xl': '20px' }}>
                         {
-                            !dbrPrice ?
+                            !dbrPriceDola ?
                                 null
                                 // <SmallTextLoader h="16px" pt="8px" width="42px" />
                                 :
                                 <b style={{ color: themeStyles.colors.success, fontSize: '20px', fontWeight: '900' }}>
-                                    {shortenNumber(dbrPrice * 100, 2)}%
+                                    {shortenNumber(dbrPriceDola * 100, 2)}%
                                 </b>
                         }
                         &nbsp;Fixed Borrow APR, Unlimited Duration
