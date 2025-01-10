@@ -27,6 +27,10 @@ const aleTransformers = {
         const abi = new utils.AbiCoder();
         return abi.encode(['address', 'uint256'], [market.address, amount]);
     },
+    'pendle': (market: F2Market, amount: BigNumber | string, pendleCalldata: string) => {
+        const abi = new utils.AbiCoder();
+        return abi.encode(['address', 'uint256', 'bytes'], [market.address, amount, pendleCalldata]);
+    },
 }
 
 const ANOMALY_PERC_FACTOR = 0.95;

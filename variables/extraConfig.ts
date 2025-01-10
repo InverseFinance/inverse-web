@@ -427,6 +427,7 @@ const mainConfig = {
             isLeverageComingSoon: true,
             noZap: true,
             fixedFeed: true,
+            aleTransformerType: 'pendle',
         },
         {
             name: 'sUSDe-DOLA',

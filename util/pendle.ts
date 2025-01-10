@@ -61,3 +61,37 @@ export const useUserPtApys = (ptTokens: string[], user: string) => {
         isError: error,
     }
 }
+
+type PendleSwapData = {
+    data: {
+        amountOut: string;
+        priceImpact: number;
+    },
+    tx: {
+        to: string;
+        data: string;
+        value: string;
+    }
+}
+
+export const getPendleLeverageUpSwapData = async (ptCollateral: string, dolaToSell: string, slippage: number) => {
+    const path = `https://api-v2.pendle.finance/core/v1/sdk/1/markets/${ptMarkets[ptCollateral]}/swap?receiver=0x9844c3688dAaA98De18fBe52499A6B152236896b&slippage=${slippage}&enableAggregator=true&tokenIn=0x865377367054516e17014CcdED1e7d814EDC9ce4&tokenOut=${ptCollateral}&amountIn=${dolaToSell}`
+    const res = await fetch(path);
+    const result = await res.json();
+    return {
+        amountOut: result.data.amountOut,
+        priceImpact: result.data.priceImpact,
+        callData: result.tx.data,
+    };
+}
+
+export const getPendleLeverageDownSwapData = async (ptCollateral: string, ptToSell: string, slippage: number) => {
+    const path = `https://api-v2.pendle.finance/core/v1/sdk/1/markets/${ptMarkets[ptCollateral]}/swap?receiver=0x9844c3688dAaA98De18fBe52499A6B152236896b&slippage=${slippage}&enableAggregator=true&tokenout=0x865377367054516e17014CcdED1e7d814EDC9ce4&tokenIn=${ptCollateral}&amountIn=${ptToSell}`
+    const res = await fetch(path);
+    const result = await res.json();
+    return {
+        amountOut: result.data.amountOut,
+        priceImpact: result.data.priceImpact,
+        callData: result.tx.data,
+    };
+}
