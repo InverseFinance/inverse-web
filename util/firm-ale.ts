@@ -90,7 +90,7 @@ export const prepareLeveragePosition = async (
             }
             // Note: if vault is set (eg yv-crvUSD-DOLA market) then minAmount is in underlying lp amount not in vault token amounts
             const minMint = market.aleData.useProxy || !underlyingExRate ? leverageMinAmountUp : leverageMinAmountUp * (underlyingExRate||1);
-            helperTransformData = aleTransformers[market.aleTransformerType](market, minMint ? getNumberToBn(minMint) : undefined);
+            helperTransformData = aleTransformers[market.aleTransformerType](market, minMint ? getNumberToBn(minMint) : undefined, swapData);
         }        
         // dolaIn, minDbrOut
         const dbrData = [dbrInputs.dolaParam, dbrInputs.dbrParam, '0'];
@@ -212,7 +212,7 @@ export const prepareDeleveragePosition = async (
             }
             // withdraw from lp with sDOLA case: minOutAmount has to be in sDOLA instead of DOLA
             const minAmountForTransformer = market.nonProxySwapType?.includes('sDOLA') ? getNumberToBn(leverageMinAmountUp * 1 / sDolaExRate) : minDolaAmountFromSwap;
-            helperTransformData = aleTransformers[market.aleTransformerType](market, minAmountForTransformer ? minAmountForTransformer : undefined);
+            helperTransformData = aleTransformers[market.aleTransformerType](market, minAmountForTransformer ? minAmountForTransformer : undefined, swapData);
         }
         // dolaIn, minDbrOut, extraDolaToRepay
         const dbrData = [dbrToSell, minDolaOut, extraDolaToRepay];

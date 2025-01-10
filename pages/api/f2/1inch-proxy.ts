@@ -1,4 +1,5 @@
 import { getNetworkConfigConstants } from '@app/util/networks';
+import { getPendleSwapData } from '@app/util/pendle';
 import { isAddress } from 'ethers/lib/utils';
 import 'source-map-support'
 
@@ -46,43 +47,56 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', `*`);
   res.setHeader('Access-Control-Allow-Methods', `OPTIONS,POST,GET`);
 
-  const { method, buyToken, buyAmount, sellToken, sellAmount, slippagePercentage, isFullDeleverage } = req.query;
+  const { method, buyToken, sellToken, sellAmount, slippagePercentage, isFullDeleverage, market, aleTransformerType } = req.query;
   if (!['swap', 'quote'].includes(method) || !isAddress(buyToken) || !isAddress(sellToken) || (buyToken.toLowerCase() !== DOLA.toLowerCase() && sellToken.toLowerCase() !== DOLA.toLowerCase()) || (!/^[1-9]+[0-9]*$/.test(sellAmount) && isFullDeleverage !== 'true')) {
     return res.status(400).json({ msg: 'invalid request' });
   }
-  try {    
-    let url = `${BASE_URL}/${method}?dst=${buyToken}&src=${sellToken}&slippage=${slippagePercentage}&disableEstimate=true&from=${F2_ALE}`;
-    url += `&amount=${sellAmount || ''}`;
+  try {
+    if (aleTransformerType === 'pendle') {
+      const { amountOut, callData, allowanceTarget } = await getPendleSwapData(sellToken, buyToken, sellAmount, slippagePercentage);
+      return res.status(200).json({
+        allowanceTarget,
+        buyAmount: amountOut,
+        data: callData,
+        value: '0',
+        gasPrice: 500_000,
+      });
+    } 
+    // classic 1inch case
+    else {
+      let url = `${BASE_URL}/${method}?dst=${buyToken}&src=${sellToken}&slippage=${slippagePercentage}&disableEstimate=true&from=${F2_ALE}`;
+      url += `&amount=${sellAmount || ''}`;
 
-    if (connectors[buyToken?.toLowerCase()] || connectors[sellToken?.toLowerCase()]) {
-      const connectorsList = (connectors[buyToken?.toLowerCase()] || connectors[sellToken?.toLowerCase()]).join(',');
-      url += `&connectorTokens=${connectorsList}`;
-    }    
+      if (connectors[buyToken?.toLowerCase()] || connectors[sellToken?.toLowerCase()]) {
+        const connectorsList = (connectors[buyToken?.toLowerCase()] || connectors[sellToken?.toLowerCase()]).join(',');
+        url += `&connectorTokens=${connectorsList}`;
+      }
 
-    const [
-      response,
-      allowanceResponse,
-    ] = await Promise.all([
-      fetch1inchWithRetry(url),
-      fetch1inchWithRetry('https://api.1inch.dev/swap/v6.0/1/approve/spender'),      
-    ]);
+      const [
+        response,
+        allowanceResponse,
+      ] = await Promise.all([
+        fetch1inchWithRetry(url),
+        fetch1inchWithRetry('https://api.1inch.dev/swap/v6.0/1/approve/spender'),
+      ]);
 
-    if (!response) {
-      return res.status(500).json({ error: true, msg: 'Failed to fecth swap data, please try again' });
+      if (!response) {
+        return res.status(500).json({ error: true, msg: 'Failed to fecth swap data, please try again' });
+      }
+
+      const responseData = await response?.json();
+      const allowanceResponseData = await allowanceResponse?.json();
+      return res.status(response.status).json({
+        ...responseData,
+        url,
+        buyAmount: responseData?.toAmount || responseData?.dstAmount,
+        // 1inch router v5
+        // allowanceTarget: '0x1111111254EEB25477B68fb85Ed929f73A960582',
+        allowanceTarget: allowanceResponseData.address,
+        data: responseData?.tx?.data,
+        gasPrice: responseData?.tx?.gasPrice,
+      });
     }
-
-    const responseData = await response?.json();
-    const allowanceResponseData = await allowanceResponse?.json();
-    return res.status(response.status).json({
-      ...responseData,
-      url,
-      buyAmount: responseData?.toAmount || responseData?.dstAmount,
-      // 1inch router v5
-      // allowanceTarget: '0x1111111254EEB25477B68fb85Ed929f73A960582',
-      allowanceTarget: allowanceResponseData.address,
-      data: responseData?.tx?.data,
-      gasPrice: responseData?.tx?.gasPrice,
-    });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: true, msg: 'Failed to fecth swap data, please try again' })
