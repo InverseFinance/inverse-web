@@ -102,6 +102,7 @@ export async function getServerSideProps(context) {
       proposer: '',
       era: GovEra.mills,
       startTimestamp: Date.now(),
+      createdAt: d.createdAt,
       endTimestamp: (new Date()).setDate(now.getDate() + 3),
       status: ProposalStatus.draft,
     }

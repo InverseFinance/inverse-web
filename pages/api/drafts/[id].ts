@@ -77,6 +77,11 @@ export default async function handler(req, res) {
                             createdBy: draft.createdBy,
                         };
 
+                        if(JSON.stringify(updatedDraft.functions) !== JSON.stringify(draft.functions)) {
+                            // remove reviews if actions changed
+                            await client.del(`reviews-${id}`);
+                        }
+
                         const actions = updatedDraft.functions
                             .map((f, i) => getProposalActionFromFunction(i + 1, f))
                             .filter((action: ProposalFormActionFields) => !isProposalActionInvalid(action));

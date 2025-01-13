@@ -295,7 +295,7 @@ export const ProposalActions = ({ proposal, isEditing = false }: { proposal: Pro
   }
 
   return (
-    <Container contentBgColor="gradient2" label="Actions" px={isEditing ? '0' : '6'}>
+    <Container contentBgColor="gradient2" label="Actions" description={isEditing && !!proposal.createdAt && functions?.length > 0 ? 'Editing actions will remove past reviews' : undefined} px={isEditing ? '0' : '6'}>
       <Stack w="full" spacing={6} p={2}>
         {!functions.length && <InfoMessage description="At least one on-chain action is required to submit the proposal" alertProps={{ w: 'full' }} />}
         {functions.map(({ target, signature, callData, value }: ProposalFunction, i: number) => {
