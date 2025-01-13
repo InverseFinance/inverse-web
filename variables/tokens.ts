@@ -76,6 +76,8 @@ const chainTokenAddresses = {
     DOLAMKUSDBALANCER: '0x383e7859271B2D0589B013b6d944572a0a8bE3cB',
     MKUSD: '0x4591DBfF62656E7859Afe5e45f6f47D3669fBB28',
     INVDOLALIQUIS: '0x21e83dbfD8F11d885eBA9f9ba126Da11AE0671b7',
+    ALUSD: '0xBC6DA0FE9aD5f3b0d58160288917AA56653660E9',
+    SDOLAALUSDCLP: '0x460638e6F7605B866736e38045C0DE8294d7D87f',
     // DOLABBEUSD: '0x133d241F225750D2c92948E464A5a80111920331',
     // DOLABBEUSDALP: '0xFdbd847B7593Ef0034C58258aD5a18b34BA6cB29',
     // BBEUSD: '0x50Cf90B954958480b8DF7958A9E965752F627124',
@@ -517,6 +519,28 @@ const chainTokens = {
       protocolImage: PROTOCOL_IMAGES.CRV,
       link: 'https://curve.fi/#/ethereum/pools/factory-crypto-233/deposit',
     },
+    [chainTokenAddresses["1"].ALUSD]: {
+      address: chainTokenAddresses["1"].ALUSD,
+      name: 'alUSD',
+      symbol: 'alUSD',
+      image: TOKEN_IMAGES['ALUSD'],
+      decimals: 18,
+      coingeckoId: 'alchemix-usd',
+    },
+    [chainTokenAddresses["1"].SDOLAALUSDCLP]: {
+      address: chainTokenAddresses["1"].SDOLAALUSDCLP,
+      name: 'sDOLA-ALUSD',
+      symbol: 'sDOLA-ALUSD clp',
+      image: TOKEN_IMAGES.SDOLA,
+      decimals: 18,
+      isLP: true,
+      isCrvLP: true,
+      pairs: [
+        chainTokenAddresses["1"].SDOLA, chainTokenAddresses["1"].ALUSD
+      ],
+      protocolImage: PROTOCOL_IMAGES.CRV,
+      link: 'https://curve.fi/#/ethereum/pools/factory-stable-ng-320/deposit',
+    },
     [chainTokenAddresses["1"].INVDOLAAURA]: {
       address: chainTokenAddresses["1"].INVDOLAAURA,
       name: 'INV-DOLA AURA',
@@ -849,8 +873,8 @@ const chainTokens = {
     },
     [chainTokenAddresses["1"].SDOLAPYUSDBALANCER]: {
       address: chainTokenAddresses["1"].SDOLAPYUSDBALANCER,
-      name: 'SDOLA-PYUSD blp',
-      symbol: 'SDOLA-PYUSD blp',
+      name: 'sDOLA-PYUSD blp',
+      symbol: 'sDOLA-PYUSD blp',
       protocolImage: PROTOCOL_IMAGES.BAL,
       decimals: 18,
       isLP: true,
