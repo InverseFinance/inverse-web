@@ -22,7 +22,7 @@ const excluded = [
 
 // increase number when a new proposal adds new vesters, can be more but not less than the nb of vesters deployed
 // contract factory does not have data of the numbers of vesters
-const vestersToCheck = [...Array(26).keys()];
+const vestersToCheck = [...Array(45).keys()];
 
 export default async function handler(req, res) {
   const networkConfig = getNetworkConfig(process.env.NEXT_PUBLIC_CHAIN_ID!, true)!;
