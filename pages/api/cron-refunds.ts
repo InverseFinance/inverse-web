@@ -23,6 +23,7 @@ const GAS_WALLETS = [
     '0xEC092c15e8D5A48a77Cde36827F8e228CE39471a',
     '0x11EC78492D53c9276dD7a184B1dbfB34E50B710D',
     '0xcfaD496f4e92f1f2d3fdC093Dde11Add1dc3a781',
+    '0x1e8E0d431d254cb63a17c3aC15fAfd4672a14428',
 ];
 
 const formatResults = (covalentResponse: any, type: string, refundWhitelist?: string[], voteCastWhitelist?: string[], multisig?: string): RefundableTransaction[] => {
