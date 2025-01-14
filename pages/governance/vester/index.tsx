@@ -39,7 +39,7 @@ const DelegateLink = ({ address }: { address: string }) => {
 
 // increase number when a new proposal adds new vesters, can be more but not less than the nb of vesters deployed
 // contract factory does not have data of the numbers of vesters
-const vestersToCheck = [...Array(35).keys()];
+const vestersToCheck = [...Array(45).keys()];
 
 export const VesterPage = () => {
   const [isSmaller] = useMediaQuery('(max-width: 500px)')
