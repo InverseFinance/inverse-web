@@ -11,13 +11,14 @@ import { NetworkIds } from '@app/types';
 
 const { DBR } = getNetworkConfigConstants();
 
-export default async function handler(req, res) {
-  const cacheKey = `f2dbr-replenishments-v1.0.0`;
+export const dbrReplenishmentsCacheKey = `f2dbr-replenishments-v1.0.0`;
+
+export default async function handler(req, res) {  
 
   try {
     const cacheDuration = 30;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
+    const validCache = await getCacheFromRedis(dbrReplenishmentsCacheKey, true, cacheDuration);
     if (validCache) {
       res.status(200).json(validCache);
       return
@@ -61,14 +62,14 @@ export default async function handler(req, res) {
       timestamp: (+(new Date())-1000),
     }
 
-    await redisSetWithTimestamp(cacheKey, resultData);
+    await redisSetWithTimestamp(dbrReplenishmentsCacheKey, resultData);
 
     res.status(200).json(resultData)
   } catch (err) {
     console.error(err);
     // if an error occured, try to return last cached results
     try {
-      const cache = await getCacheFromRedis(cacheKey, false);
+      const cache = await getCacheFromRedis(dbrReplenishmentsCacheKey, false);
       if (cache) {
         console.log('Api call failed, returning last cache found');
         res.status(200).json(cache);

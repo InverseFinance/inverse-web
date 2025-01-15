@@ -602,7 +602,7 @@ export const BadDebtPage = () => {
               description={
                 <VStack alignItems="flex-start">
                   <Text>
-                    <b>Note</b>: DOLA bad debt is the only bad debt that poses direct risk to the DAO, bad debts in other assets susch as WBTC are related to Frontier's users deposits and don't directly pose risk to the DAO's survival, for this reason the DAO's current priority is the repayment of the DOLA bad debt.
+                    <b>Note</b>: DOLA bad debt is the only bad debt that poses direct risk to the DAO, bad debts in other assets such as WBTC are related to Frontier's users deposits and don't directly pose risk to the DAO's survival, for this reason the DAO's current priority is the repayment of the DOLA bad debt.
                   </Text>
                   <Link textDecoration="underline" target="_blank" isExternal href="https://www.inverse.finance/governance/proposals/mills/156">
                     See the DOLA bad debt repayment prioritization proposal
