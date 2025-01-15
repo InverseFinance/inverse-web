@@ -118,8 +118,12 @@ export const dollarify = (value: number, precision = 2, showPlusSign = false, sh
     return '$';
 }
 
+export const getMinPrecisionValue = (precision = 2) => {
+    return 1 / Math.pow(10, precision);
+}
+
 export const getValueOrMinPrecisionValue = (value: number, precision = 2) => {
-    const minPrecisionValue = 1 / Math.pow(10, precision)
+    const minPrecisionValue = getMinPrecisionValue(precision);
     const isLowerThanMinPrecision = Math.abs(value) > 0 && Math.abs(value) < minPrecisionValue
     return isLowerThanMinPrecision ? minPrecisionValue : value;
 }
@@ -136,8 +140,9 @@ export const shortenNumber = (value: number, precision = 2, isDollar = false, sh
     const divider: number = dividers[suffix] || 1
     const shortValue = value / divider;
     const numResult = isDollar ? dollarify(shortValue, precision, false, showMinPrecision) : shortValue.toFixed(precision)
+    const minPrecisionValue = getMinPrecisionValue(precision)
     const minValue = getValueOrMinPrecisionValue(value, precision)
-    const content = minValue !== Math.abs(value) && showMinPrecision && !isDollar ? `<${minValue}` : numResult;
+    const content = minValue !== Math.abs(value) && Math.abs(value) < minPrecisionValue && showMinPrecision && !isDollar ? `<${value < 0 ? '0' : minValue}` : numResult;
     return `${content}${suffix}`
 }
 
