@@ -6,6 +6,7 @@ import { fetcher30sectimeout } from "@app/util/web3";
 import { dolaStakingCacheKey } from "../dola-staking";
 import { isAddress } from "ethers/lib/utils";
 import { SERVER_BASE_URL } from "@app/config/constants";
+import { dbrReplenishmentsCacheKey } from "../f2/dbr-replenishments";
 
 // external use in spreadsheet
 export default async (req, res) => {
@@ -17,10 +18,11 @@ export default async (req, res) => {
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
 
     try {
-        const [liquidityData, badDebtData, dolaStakingData] = await Promise.all([
+        const [liquidityData, badDebtData, dolaStakingData, replenishmentsData] = await Promise.all([
             fetcher30sectimeout(`${SERVER_BASE_URL}/api/transparency/liquidity`),
             getCacheFromRedis(repaymentsCacheKeyV2, false),
             getCacheFromRedis(dolaStakingCacheKey, false),            
+            getCacheFromRedis(dbrReplenishmentsCacheKey, false),            
         ]);
 
         // feds + exceptions, dolacrvusd, dolausd+, dola-usdc op aura, dola-usdc uni v3, dola-inv uni v3, dola-3pool
@@ -35,8 +37,9 @@ export default async (req, res) => {
         const feds = liquidityData.liquidity.filter(d => d.isFed || exceptions.includes(d.address.toLowerCase()));
         const totalBorrowsOnFirm = liquidityData.firmBorrows;
         const currentDolaBadDebt = badDebtData.badDebts.DOLA.badDebtBalance;
+        const dbrReplenished = replenishmentsData?.events?.reduce((prev, curr) => prev+curr.deficit, 0);
 
-        let csvData = `DOLA bad debt:,${currentDolaBadDebt},FiRM borrows:,${totalBorrowsOnFirm},DSA DOLA bal:,${dolaStakingData.dsaTotalSupply},DSA dbrYearlyEarnings:,${dolaStakingData.dsaYearlyDbrEarnings}\n`;
+        let csvData = `DOLA bad debt:,${currentDolaBadDebt},FiRM borrows:,${totalBorrowsOnFirm},DSA DOLA bal:,${dolaStakingData.dsaTotalSupply},DSA dbrYearlyEarnings:,${dolaStakingData.dsaYearlyDbrEarnings},DBR replenishments:,${dbrReplenished}\n`;
         csvData += `Liquidity Cache:,~5min,Liquidity timestamp:,${liquidityData.timestamp},Bad debt timestamp:,${badDebtData.timestamp}, DSA timestamp:,${dolaStakingData.timestamp},\n`;
         csvData += `LP,Fed or Project,Fed Supply,RootLP DOLA balance,Pairing Depth ($ or amount),Fed PoL\n`;
         feds.forEach((lp) => {
