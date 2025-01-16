@@ -13,8 +13,8 @@ import { SkeletonBlob } from '@app/components/common/Skeleton';
 
 export const DsaStatsPage = () => {
   const { events, timestamp } = useDolaStakingActivity(undefined, 'dsa');
-  const { priceDola: dbrDolaPrice } = useDBRPrice();
-  const { dsaTotalSupply, isLoading } = useStakedDola(dbrDolaPrice);
+  const { priceDola: dbrDolaPrice, priceUsd: dbrPrice } = useDBRPrice();
+  const { dsaTotalSupply, isLoading } = useStakedDola(dbrPrice);
   return (
     <Layout>
       <Head>

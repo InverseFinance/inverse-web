@@ -15,7 +15,7 @@ const MS_PER_BLOCK = SECONDS_PER_BLOCK * 1000;
 
 export const StakeDolaInfos = () => {
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
-    const { apy, sDolaSupply, sDolaTotalAssets, yearlyRewardBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, weeklyRevenue, pastWeekRevenue, yearlyDbrEarnings, isLoading } = useStakedDola(dbrDolaPrice);
+    const { apy, sDolaSupply, sDolaTotalAssets, yearlyRewardBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, weeklyRevenue, pastWeekRevenue, yearlyDbrEarnings, isLoading } = useStakedDola(dbrPrice);
     const [previousSupply, setPreviousSupply] = useState(sDolaSupply);    
     const [realTimeBalance, setRealTimeBalance] = useState(0);
 

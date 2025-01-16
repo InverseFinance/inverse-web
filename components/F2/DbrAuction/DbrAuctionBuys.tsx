@@ -120,7 +120,7 @@ export const DbrAuctionBuys = ({ events, title, subtitle, lastUpdate }: { events
 
 export const DbrAuctionBuysSDola = ({ events, title, subtitle, lastUpdate }: { events: any[], title: string, subtitle: string, lastUpdate: number }) => {
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
-    const { apy, pastWeekRevenue } = useStakedDola(dbrDolaPrice);
+    const { apy, pastWeekRevenue } = useStakedDola(dbrPrice);
     const lastWeekEnd = getLastThursdayTimestamp();
     const lastWeekStart = lastWeekEnd - (ONE_DAY_MS * 7);   
     const pastWeekEvents = events.filter(e => e.timestamp < lastWeekEnd && e.timestamp >= lastWeekStart);

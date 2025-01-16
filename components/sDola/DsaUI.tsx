@@ -43,7 +43,7 @@ export const DsaUI = () => {
     const [isJustClaimed, setIsJustClaimed] = useState(false);
     const isStake = tab === 'Stake';
 
-    const { dsaApr, accountRewardsClaimable, isLoading } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));    
+    const { dsaApr, accountRewardsClaimable, isLoading } = useStakedDola(dbrPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));    
     const totalRewardsUSD = accountRewardsClaimable * dbrPrice;
     const claimables = [{ balance: accountRewardsClaimable, price: dbrPrice, balanceUSD: totalRewardsUSD, address: DBR }];
     const { balance: dolaBalance } = useDOLABalance(account);

@@ -292,7 +292,7 @@ export const UserDashboard = ({
     const { assets: invStakedInSInvV1 } = useStakedInvBalance(account, "V1");
     const { assets: invStakedInSInvV2 } = useStakedInvBalance(account, "V2");
     
-    const { apr: sDolaApr, projectedApr: sDolaProjectedApr, sDolaExRate } = useStakedDola(dbrDolaPrice);
+    const { apr: sDolaApr, projectedApr: sDolaProjectedApr, sDolaExRate } = useStakedDola(dbrPrice);
     const { apy: sInvApy, projectedApy: sInvProjectedApy } = useStakedInv(dbrDolaPrice);
 
     const dolaStakedInSDola = sDolaExRate && stakedDolaBalance ? sDolaExRate * stakedDolaBalance : 0;    

@@ -82,9 +82,9 @@ export const SavingsOpportunities = () => {
 
     const totalStables = tokenAndBalances.reduce((prev, curr) => prev + curr.balance, 0);
 
-    const { priceDola: dbrDolaPrice } = useDBRPrice();
-    const { apy: currentApy, sDolaExRate } = useStakedDola(dbrDolaPrice);
-    const { apy: apyAfterDeposit } = useStakedDola(dbrDolaPrice, totalStables);
+    const { priceDola: dbrDolaPrice, priceUsd: dbrPrice } = useDBRPrice();
+    const { apy: currentApy, sDolaExRate } = useStakedDola(dbrPrice);
+    const { apy: apyAfterDeposit } = useStakedDola(dbrPrice, totalStables);
     const sDOLAprice = dolaPrice * sDolaExRate;
 
     if (totalStables < 10) {
