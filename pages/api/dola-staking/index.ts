@@ -4,7 +4,7 @@ import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { CHAIN_ID, ONE_DAY_MS, SDOLA_ADDRESS } from '@app/config/constants';
 import { formatDolaStakingData, getDolaSavingsContract, getSdolaContract } from '@app/util/dola-staking';
 import { getMulticallOutput } from '@app/util/multicall';
-import { getDbrPriceOnCurve } from '@app/util/f2';
+import { getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
 import { getWeekIndexUtc } from '@app/util/misc';
 
 export const dolaStakingCacheKey = `dola-staking-v1.0.3`;
@@ -39,11 +39,19 @@ export default async function handler(req, res) {
             { contract: sDolaContract, functionName: 'totalAssets' },
         ]);        
        
-        const { priceInDola: dbrDolaPrice } = await getDbrPriceOnCurve(provider);        
+        const [
+            dbrPriceData,
+            dolaPriceData,
+        ] = await Promise.all([
+            getDbrPriceOnCurve(provider),
+            getDolaUsdPriceOnCurve(provider),
+        ]);
+        const { priceInDola: dbrDolaPrice } = dbrPriceData;
+        const { price: dolaPriceUsd } = dolaPriceData;
 
         const resultData = {
             timestamp: Date.now(),
-            ...formatDolaStakingData(dbrDolaPrice, dolaStakingData),
+            ...formatDolaStakingData(dbrDolaPrice * dolaPriceUsd, dolaStakingData),
         }
 
         await redisSetWithTimestamp(dolaStakingCacheKey, resultData);

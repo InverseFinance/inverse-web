@@ -11,7 +11,7 @@ const TextLoader = () => <SkeletonText pt="2" skeletonHeight={2} noOfLines={1} h
 
 export const DsaInfos = () => {
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
-    const { dsaTotalSupply, dsaYearlyBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, sDolaDsaShare, dolaBalInDsaFromSDola, isLoading } = useStakedDola(dbrDolaPrice);
+    const { dsaTotalSupply, dsaYearlyBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, sDolaDsaShare, dolaBalInDsaFromSDola, isLoading } = useStakedDola(dbrPrice);
     return <InfoMessage
         showIcon={false}
         alertProps={{ fontSize: '12px', mb: '8' }}

@@ -49,7 +49,7 @@ export const Landing = ({ posts }: {
   const { data: dolaData } = useDOLAMarketData();
   const { markets } = useDBRMarkets();
   const invFirmPrice = markets?.find(m => m.isInv)?.price || 0;
-  const { apy, projectedApy, isLoading: isLoadingSDola } = useStakedDola(dbrPriceDola);
+  const { apy, projectedApy, isLoading: isLoadingSDola } = useStakedDola(dbrPriceUsd);
 
   const invPrice = invFirmPrice;
 

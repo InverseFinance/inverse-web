@@ -77,8 +77,8 @@ export const SDolaStatsPage = () => {
   const { themeStyles } = useAppTheme();
   const { events, timestamp } = useDolaStakingActivity(undefined, 'sdola');
   const { evolution, timestamp: lastDailySnapTs, isLoading: isLoadingEvolution } = useDolaStakingEvolution();
-  const { priceDola: dbrDolaPrice } = useDBRPrice();
-  const { sDolaSupply, sDolaTotalAssets, apr, apy, isLoading } = useStakedDola(dbrDolaPrice);
+  const { priceDola: dbrDolaPrice, priceUsd: dbrPrice } = useDBRPrice();
+  const { sDolaSupply, sDolaTotalAssets, apr, apy, isLoading } = useStakedDola(dbrPrice);
   const [isInited, setInited] = useState(false);
   const [histoData, setHistoData] = useState([]);
   const [now, setNow] = useState(Date.now());

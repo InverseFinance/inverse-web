@@ -26,8 +26,8 @@ const MessageWithLink = ({ href, msg }: { href: string, msg: string }) => {
 export const SDolaAnnouncement = () => {
   const { themeStyles } = useAppTheme();
   const { ANNOUNCEMENT_BAR_BORDER } = useAppThemeParams();
-  const { priceDola: dbrDolaPrice } = useDBRPrice();
-  const { apy: sDolaApy } = useStakedDola(dbrDolaPrice ?? 0);
+  const { priceDola: dbrDolaPrice, priceUsd: dbrPriceUsd } = useDBRPrice();
+  const { apy: sDolaApy } = useStakedDola(dbrPriceUsd ?? 0);
   return (
     <Flex
       bgColor={'announcementBarBackgroundColor'}

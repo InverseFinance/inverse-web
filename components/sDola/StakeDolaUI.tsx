@@ -54,7 +54,7 @@ export const StakeDolaUI = () => {
 
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
     const { price: dolaPrice } = useDOLAPrice();
-    const { apy, projectedApy, isLoading, sDolaExRate, sDolaTotalAssets, weeklyRevenue } = useStakedDola(dbrDolaPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
+    const { apy, projectedApy, isLoading, sDolaExRate, sDolaTotalAssets, weeklyRevenue } = useStakedDola(dbrPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
     const { evolution, timestamp: lastDailySnapTs, isLoading: isLoadingEvolution } = useDolaStakingEvolution();
     const { balance: dolaBalance } = useDOLABalance(account);
     // value in sDOLA terms

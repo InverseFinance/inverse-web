@@ -102,7 +102,7 @@ export const useDSABalance = (account: string, ad = DOLA_SAVINGS_ADDRESS) => {
     };
 }
 
-export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
+export const useStakedDola = (dbrDolaPriceUsd: number, supplyDelta = 0): {
     sDolaSupply: number;
     sDolaTotalAssets: number;
     dsaTotalSupply: number;
@@ -156,7 +156,7 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
     const accountRewardsClaimable = claimableData ? getBnToNumber(claimableData[0]) : 0;
 
     return {
-        ...formatDolaStakingData(dbrDolaPrice, dolaStakingData, apiData, supplyDelta),
+        ...formatDolaStakingData(dbrDolaPriceUsd, dolaStakingData, apiData, supplyDelta),
         accountRewardsClaimable,
         isLoading: (!dolaStakingData && !error) && (!apiData && !apiErr),
         hasError: !!error || !!apiErr,
@@ -164,7 +164,7 @@ export const useStakedDola = (dbrDolaPrice: number, supplyDelta = 0): {
 }
 
 export const formatDolaStakingData = (
-    dbrDolaPrice: number,
+    dbrDolaPriceUsd: number,
     dolaStakingData: any[],
     fallbackData?: any,
     supplyDelta = 0,
@@ -185,7 +185,6 @@ export const formatDolaStakingData = (
     const sDolaDsaShare = dsaTotalSupply > 0 ? dolaBalInDsaFromSDola / dsaTotalSupply : 1;
     // sDOLA budget share
     const yearlyRewardBudget = sDolaDsaShare > 0 ? dsaYearlyBudget * sDolaDsaShare : dsaYearlyBudget;
-
     const dsaDbrRatePerDola = dsaTotalSupply > 0 ? Math.min(dsaYearlyBudget / dsaTotalSupply, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;
     const dbrRatePerDola = dolaBalInDsaFromSDola > 0 ? Math.min(yearlyRewardBudget / dolaBalInDsaFromSDola, maxRewardPerDolaMantissa) : maxRewardPerDolaMantissa;
     const now = Date.now();
@@ -193,14 +192,14 @@ export const formatDolaStakingData = (
     const realizedTimeInDays = secondsPastEpoch / ONE_DAY_SECS;
     const nextTotalAssets = sDolaTotalAssets + weeklyRevenue;
     const realized = ((weeklyRevenue / realizedTimeInDays) * 365) / sDolaTotalAssets;
-    const forecasted = (nextTotalAssets * dbrDolaPrice * dbrRatePerDola) / sDolaTotalAssets;
+    const forecasted = (nextTotalAssets * dbrDolaPriceUsd * dbrRatePerDola) / sDolaTotalAssets;
     // we use two week revenu epoch for the projected apr
     const calcPeriodSeconds = 14 * ONE_DAY_SECS;
-    const projectedApr = dbrDolaPrice ?
+    const projectedApr = dbrDolaPriceUsd ?
         ((secondsPastEpoch / calcPeriodSeconds) * realized + ((calcPeriodSeconds - secondsPastEpoch) / calcPeriodSeconds) * forecasted) * 100 : 0;
     const apr = sDolaTotalAssets > 0 ? (pastWeekRevenue * WEEKS_PER_YEAR) / sDolaTotalAssets * 100 : 0;
     const nextApr = sDolaTotalAssets > 0 ? (weeklyRevenue * WEEKS_PER_YEAR) / sDolaTotalAssets * 100 : 0;
-    const dsaApr = dbrDolaPrice ? dsaDbrRatePerDola * dbrDolaPrice * 100 : 0;    
+    const dsaApr = dbrDolaPriceUsd ? dsaDbrRatePerDola * dbrDolaPriceUsd * 100 : 0;    
     const sDolaExRate = sDolaTotalAssetsCurrent && sDolaSupply ? sDolaTotalAssetsCurrent / sDolaSupply : 0;
 
     return {
