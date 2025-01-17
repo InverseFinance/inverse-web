@@ -172,7 +172,7 @@ export const F2Context = ({
         perc,
     );
 
-    const { signedBalance: dbrBalance, bnBalance: bnDbrBalance, dbrExpiryDate, debt: currentTotalDebt, hasDbrV1NewBorrowIssue } = useAccountDBR(account);
+    const { signedBalance: dbrBalance, bnBalance: bnDbrBalance, dbrExpiryDate, debt: currentTotalDebt, hasDustIssue } = useAccountDBR(account);
     // in sellAndRepay case, dbr worth is sent as DOLA to the borrower (not used to repay debt)
     const newTotalDebt = currentTotalDebt + (isDeposit && isAutoDBR && hasDebtChange ? dbrCoverDebt : 0) + deltaDebt;
     // burn rate and fictional "depletion date" in the market
@@ -320,7 +320,7 @@ export const F2Context = ({
             setUseLeverage,
             leverage,
             setLeverage,
-            hasDbrV1NewBorrowIssue,
+            hasDustIssue,
             underlyingExRate,
             totalCollateralAmountNum,
             setAleSlippage,

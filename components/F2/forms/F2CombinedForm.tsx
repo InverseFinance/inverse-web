@@ -22,7 +22,7 @@ import { FirmBoostInfos, getLeverageImpact } from '../ale/FirmBoostInfos'
 import { prepareDeleveragePosition, prepareLeveragePosition } from '@app/util/firm-ale'
 import { preciseCommify, removeTrailingZeros } from '@app/util/misc'
 import { showToast } from '@app/util/notify'
-import { BorrowPausedMessage, CannotWithdrawIfDbrDeficitMessage, MinDebtBorrowMessage, NoDbrInWalletMessage, NoDolaLiqMessage, NotEnoughCollateralMessage, NotEnoughDolaToRepayMessage, NotEnoughLiqWithAutobuyMessage, ResultingBorrowLimitTooHighMessage } from './FirmFormSubcomponents/FirmMessages'
+import { BorrowPausedMessage, CannotWithdrawIfDbrDeficitMessage, DebtDustErrorMessage, MinDebtBorrowMessage, NoDbrInWalletMessage, NoDolaLiqMessage, NotEnoughCollateralMessage, NotEnoughDolaToRepayMessage, NotEnoughLiqWithAutobuyMessage, ResultingBorrowLimitTooHighMessage } from './FirmFormSubcomponents/FirmMessages'
 import { AutoBuyDbrDurationInputs, DbrHelperSwitch, SellDbrInput } from './FirmFormSubcomponents/FirmDbrHelper'
 import { FirmBorroInputwSubline, FirmCollateralInputTitle, FirmDebtInputTitle, FirmDepositRecipient, FirmExitModeSwitch, FirmLeverageSwitch, FirmRepayInputSubline, FirmWethSwitch, FirmWithdrawInputSubline } from './FirmFormSubcomponents'
 import { BigNumber } from 'ethers'
@@ -132,6 +132,7 @@ export const F2CombinedForm = ({
         leverageMinAmountUp,
         leverageMinDebtReduced,
         sDolaExRate,
+        hasDustIssue,
     } = useContext(F2MarketContext);
 
     const { isMultisig, isWhitelisted } = useMultisig(market.borrowController);
@@ -384,7 +385,7 @@ export const F2CombinedForm = ({
 
     const disabledConditions = {
         'deposit': ((collateralAmountNum <= 0 && !useLeverageInMode) || inputBalance < inputAmountNum) || (isWrongCustomRecipient && isDepositOnlyCase),
-        'borrow': duration <= 0 || debtAmountNum <= 0 || borrowLimitDisabledCondition || showNeedDbrMessage || market.leftToBorrow < 1 || debtAmountNum > market.leftToBorrow || notEnoughToBorrowWithAutobuy || minDebtDisabledCondition || disabledDueToLeverage || showMinDebtMessage || isNotWhitelistedMultisig,
+        'borrow': duration <= 0 || hasDustIssue || borrowLimitDisabledCondition || showNeedDbrMessage || market.leftToBorrow < 1 || debtAmountNum > market.leftToBorrow || notEnoughToBorrowWithAutobuy || minDebtDisabledCondition || disabledDueToLeverage || showMinDebtMessage || isNotWhitelistedMultisig,
         'repay': (debtAmountNum <= 0 && !useLeverageInMode) || debtAmountNum > debt || showNotEnoughDolaToRepayMessage || (isAutoDBR && !parseFloat(dbrSellAmount)) || disabledDueToLeverage || showMinDebtMessage,
         'withdraw': ((collateralAmountNum <= 0 && !useLeverageInMode) || collateralAmountNum > deposits || borrowLimitDisabledCondition || dbrBalance < 0),
     }
@@ -515,6 +516,7 @@ export const F2CombinedForm = ({
                         </>
                         : isBorrowOnlyCase ? <Text>Please deposit collateral first</Text> : <Text>Nothing to repay</Text>
                 }
+                {hasDustIssue && <DebtDustErrorMessage debt={debt}  />}
                 {showMinDebtMessage && <MinDebtBorrowMessage debt={debt} minDebt={market.minDebt} />}
                 {showNeedDbrMessage && <NoDbrInWalletMessage />}
                 {showNotEnoughDolaToRepayMessage && <NotEnoughDolaToRepayMessage amount={debtAmountNum} />}
