@@ -16,6 +16,7 @@ import { useDOLAPriceLive } from "./usePrices";
 import { timestampToUTC, utcDateStringToTimestamp } from "@app/util/misc";
 import { useState } from "react";
 import { useUserPtApy } from "@app/util/pendle";
+import { useBlockTimestamp } from "./useBlockTimestamp";
 
 const { DBR, DBR_AIRDROP, F2_MARKETS, F2_ORACLE, DOLA, DBR_DISTRIBUTOR, F2_HELPER, F2_ALE } = getNetworkConfigConstants();
 
@@ -38,7 +39,7 @@ export const useAccountDBR = (
   dbrDepletionPerc: number,
   bnDebt: BigNumber,
   bnBalance: BigNumber,
-  hasDbrV1NewBorrowIssue: boolean,
+  hasDustIssue: boolean,
   needsRechargeSoon: boolean,
 } => {
   const { data, error } = useEtherSWR([
@@ -46,14 +47,14 @@ export const useAccountDBR = (
     [DBR, 'debts', account],
     [DBR, 'dueTokensAccrued', account],
     [DBR, 'signedBalanceOf', account],
-    // [DBR, 'lastUpdated', account],
+    [DBR, 'lastUpdated', account],
   ]);
-  // const blockTimestamp = useBlockTimestamp('latest');
+  const blockTimestamp = useBlockTimestamp('latest');
 
   const [balance, debt, interests, signedBalance] = (data || [zero, zero, zero, zero])
     .map(v => getBnToNumber(v));
   // const [balance, allowance, debt, interests, signedBalance] = [100, 0, 5000, 0, 2500];  
-  // const lastUpdate = data ? getBnToNumber(data[4], 0) * 1000 : 0;  
+  const lastUpdate = data ? getBnToNumber(data[4], 0) * 1000 : 0;  
 
   // interests are not auto-compounded
   const _debt = previewDebt ?? debt;
@@ -65,14 +66,14 @@ export const useAccountDBR = (
   const dbrExpiryDate = !_debt ? null : (+new Date() + dbrNbDaysExpiry * ONE_DAY_MS);
   const dbrDepletionPerc = dbrNbDaysExpiry / 365 * 100;
 
-  // dbr v1 edge issue
-  // const hasDbrV1NewBorrowIssue = lastUpdate > 0 && debt === 0 && lastUpdate !== (blockTimestamp?.timestamp||0);
+  // dbr / controller dust issue
+  const hasDustIssue = blockTimestamp?.timestamp > 0 && lastUpdate > 0 && debt > 0 && (debt * (blockTimestamp?.timestamp - lastUpdate)) < 0.000000000031536;
 
   const hasDebt = monthlyDebtAccrual !== 0;
   const needsRechargeSoon = dbrNbDaysExpiry <= 30 && hasDebt;
 
   return {
-    hasDbrV1NewBorrowIssue: false,
+    hasDustIssue,
     needsRechargeSoon,
     bnBalance: data ? data[0] : BigNumber.from('0'),
     balance,

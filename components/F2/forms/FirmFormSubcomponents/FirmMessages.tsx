@@ -8,11 +8,12 @@ import { Flex, Text, useDisclosure, VStack } from "@chakra-ui/react"
 import { FirmFAQ } from "../../Infos/FirmFAQ"
 
 export const DebtDustErrorMessage = ({
-
+    debt
 }: {
+    debt: number
 }) => {
     return <WarningMessage alertProps={{ w: 'full' }} description={
-        `Sorry, a temporary bug prevents you from borrowing in this market, please try again later or repay your dust debt first.`
+        `Sorry, a temporary bug prevents you from borrowing, please try again later or repay your dust debt first${debt === 0 ? ' (may be in another market than this one)' : ''}`
     } />
 }
 
