@@ -7,6 +7,15 @@ import { preciseCommify } from "@app/util/misc"
 import { Flex, Text, useDisclosure, VStack } from "@chakra-ui/react"
 import { FirmFAQ } from "../../Infos/FirmFAQ"
 
+export const DebtDustErrorMessage = ({
+
+}: {
+}) => {
+    return <WarningMessage alertProps={{ w: 'full' }} description={
+        `Sorry, a temporary bug prevents you from borrowing in this market, please try again later or repay your dust debt first.`
+    } />
+}
+
 export const MinDebtBorrowMessage = ({
     minDebt,
     debt,
