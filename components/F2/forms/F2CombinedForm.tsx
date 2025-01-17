@@ -516,7 +516,7 @@ export const F2CombinedForm = ({
                         </>
                         : isBorrowOnlyCase ? <Text>Please deposit collateral first</Text> : <Text>Nothing to repay</Text>
                 }
-                {hasDustIssue && <DebtDustErrorMessage  />}
+                {hasDustIssue && <DebtDustErrorMessage debt={debt}  />}
                 {showMinDebtMessage && <MinDebtBorrowMessage debt={debt} minDebt={market.minDebt} />}
                 {showNeedDbrMessage && <NoDbrInWalletMessage />}
                 {showNotEnoughDolaToRepayMessage && <NotEnoughDolaToRepayMessage amount={debtAmountNum} />}
