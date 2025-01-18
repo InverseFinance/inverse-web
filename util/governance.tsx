@@ -362,7 +362,7 @@ export const isProposalActionInvalid = (action: ProposalFormActionFields) => {
 export const isProposalFormInvalid = ({ title, description, actions }: ProposalFormFields) => {
     if (title.length === 0) return true;
     if (description.length === 0) return true;
-    if (actions.length >= 20) return true;
+    if (actions.length > 20) return true;
     for (const action of actions) {
         if (isProposalActionInvalid(action)) { return true }
     }
