@@ -46,7 +46,7 @@ const getProposalStatusType = (status: ProposalStatus) => {
     return 'Active'
 }
 
-const FounderAddresses = ['0x16EC2AeA80863C1FB4e13440778D0c9967fC51cb', '0x3FcB35a1CbFB6007f9BC638D388958Bc4550cB28'];
+export const FounderAddresses = ['0x16EC2AeA80863C1FB4e13440778D0c9967fC51cb', '0x3FcB35a1CbFB6007f9BC638D388958Bc4550cB28', '0x53039ef2274f9bB4852632ecB48C6dd9Ebf5eDF5'];
 
 const { INV, XINV, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
 

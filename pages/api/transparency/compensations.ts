@@ -7,11 +7,12 @@ import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds, Vester } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
 import { BURN_ADDRESS } from '@app/config/constants';
+import { FounderAddresses } from '@app/pages/transparency/dao';
 
 export default async function handler(req, res) {
 
   const { INV, F2_MARKETS, XINV, DOLA_PAYROLL, XINV_VESTOR_FACTORY } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `compensations-cache-v1.2.2`;
+  const cacheKey = `compensations-cache-v1.2.3`;
   const { cacheFirst } = req.query;
   try {
     const cacheDuration = 6000;
@@ -85,7 +86,7 @@ export default async function handler(req, res) {
     const founderNewVesterAmount = 3333.33;
     const xinvExRate = getBnToNumber(xinvExRateBn);
 
-    const teamAddresses = [...new Set(vesterRecipients.concat(currentPayrolls.map(p => p.recipient)))];
+    const teamAddresses = [...new Set(vesterRecipients.concat(FounderAddresses).concat(currentPayrolls.map(p => p.recipient)))];
 
     const invBalances = await Promise.all(
       teamAddresses.map(v => {
