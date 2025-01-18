@@ -79,7 +79,7 @@ export const useCompensations = (): SWR & {
   currentVesters: Vester[]
   currentInvBalances: { address: string, totalInvBalance: number }[]
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/transparency/compensations?v=2`, fetcher)
+  const { data, error } = useCacheFirstSWR(`/api/transparency/compensations?v=3`, fetcher)
 
   return {
     isLoading: !error && !data,
