@@ -299,7 +299,7 @@ export const OppysTable = ({
     useEffect(() => {
         if (category === 'all') {
             setFilteredOppys(oppys);
-        } else if (['dola', 'inv'].includes(category)) {
+        } else if (['dola', 'inv', 'sdola'].includes(category)) {
             const regEx = new RegExp(category, 'i');
             setFilteredOppys(oppys.filter(o => regEx.test(o.symbol)));
         } else {
@@ -341,6 +341,7 @@ export const OppysTable = ({
                     { label: 'Volatile', value: 'volatile' },
                     { label: 'INV', value: 'inv' },
                     { label: 'DOLA', value: 'dola' },
+                    { label: 'sDOLA', value: 'sdola' },
                 ]}
             />
         }
