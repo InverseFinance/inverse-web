@@ -571,7 +571,7 @@ export const getYieldOppys = async () => {
         const pools = data.status === 'success' ? data.data : [];
         return pools
             .filter(p => !!NETWORKS_BY_NAME[p.chain])
-            .filter(p => /^(inv-|dola-|dbr-)/i.test(p.symbol) || /(-inv|-dola|-dbr)$/i.test(p.symbol) || /(-inv-|-dola-|-dbr-)/i.test(p.symbol))
+            .filter(p => /^(inv-|s?dola-|dbr-)/i.test(p.symbol) || /(-inv|-s?dola|-dbr)$/i.test(p.symbol) || /(-inv-|-s?dola-|-dbr-)/i.test(p.symbol))
             // filter pools with known incorrect data
             .filter(p => !poolsToExclude.includes(p.pool))
             .map(p => {
