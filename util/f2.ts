@@ -10,8 +10,8 @@ import { getBnToNumber, getNumberToBn } from "./markets";
 import { callWithHigherGL } from "./contracts";
 import { calculateMaxLeverage, uniqueBy } from "./misc";
 import { getMulticallOutput } from "./multicall";
-import { FIRM_ESCROWS } from "@app/variables/extraConfig";
 import { inverseViewer } from "./viewer";
+import { FIRM_ESCROWS } from "@app/variables/firm-markets";
 
 const { F2_HELPER, F2_MARKETS } = getNetworkConfigConstants();
 
