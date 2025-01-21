@@ -1,5 +1,6 @@
 import { HAS_REWARD_TOKEN } from '@app/config/constants'
 import { RTOKEN_SYMBOL, UNDERLYING } from './tokens'
+import { FIRM_MARKETS } from './firm-markets';
 
 const namedAddresses: { [key: string]: string } = {
     '0xE8929AFd47064EfD36A7fB51dA3F8C5eb40c4cb4': 'FrontierOracle',
@@ -92,29 +93,7 @@ const namedAddresses: { [key: string]: string } = {
     // FiRM
     '0xAD038Eb671c44b853887A7E32528FaB35dC5D710': 'DBR',
     '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2': 'WETH',
-    '0xaBe146CF570FD27ddD985895ce9B138a7110cce8': 'FiRMOracle',
-    '0x63Df5e23Db45a2066508318f172bA45B9CD37035': 'FiRMwethMarket',
-    '0x743A502cf0e213F6FEE56cD9C6B03dE7Fa951dCf': 'FiRMstETHMarket',
-    '0x7Cd3ab8354289BEF52c84c2BF0A54E3608e66b37': 'FiRMgOHMMarket',
-    '0x63fAd99705a255fE2D500e498dbb3A9aE5AA1Ee8': 'FiRMcrvMarket',
-    '0x3474ad0e3a9775c9F68B415A7a9880B0CAB9397a': 'FiRMcvxCrvMarket',
-    '0x93685185666c8D34ad4c574B3DBF41231bbfB31b': 'FiRMcvxFxsMarket',
-    '0x27b6c301Fd441f3345d61B7a4245E1F823c3F9c4': 'FiRMst-YcrvMarket',
-    '0x0c0bb843FAbda441edeFB93331cFff8EC92bD168': 'FiRMst-yEthMarket',
-    '0xFEA3A862eE4b3F9b6015581d6d2D25AF816C54f1': 'FiRMsFRAXMarket',
-    '0x3FD3daBB9F9480621C8A111603D3Ba70F17550BC': 'FiRMwstETHMarket',
-    '0x79eF6d28C41e47A588E2F2ffB4140Eb6d952AEc4': 'FiRMsUSDEMarket',
-    '0x0971B1690d101169BFca4715897aD3a9b3C39b26': 'FiRMDaiMarket',
-    '0xdc2265cBD15beD67b5F2c0B82e23FcE4a07ddF6b': 'FiRMCvxMarket',
-    '0xb516247596Ca36bf32876199FBdCaD6B3322330B': 'FiRMINVMarket',
-    '0x48BA574Edf0bc4E2E40B529863aaA6a67c264E7C': 'FiRMWBTCMarket',
-    '0x29fe42F4F71Ba5b9a7aaE794468e7ca4128a93b8': 'FiRMCOMPMarket',
-    '0x6A522f3BD3fDA15e74180953f203cf55aA6C631E': 'FiRMcrvUSD-DOLAMarket',
-    '0xe85943e280776254ee6C9801553B93F10Ef4C99C': 'FiRMyvcrvUSD-DOLAMarket',
-    '0x8205bE13cC245740F9EA23Dc88a9B56206bEC0e3': 'FiRMyvFraxBP-DOLAMarket',
-    '0x87df9A00f0e4908e61756d2Fcb348ADF95Ce72Ea': 'FiRMFraxBP-DOLAMarket',
-    '0xf013D998D4cf7f45547958094F1EEE75Ca43c4f5': 'FiRMyv-FraxPyusd-DOLAMarket',
-    '0x4797A68c8feB383c3372c0e098533aCf8eD95B26': 'FiRMFraxPyusd-DOLAMarket',    
+    '0xaBe146CF570FD27ddD985895ce9B138a7110cce8': 'FiRMOracle',        
     '0x2A256306D8ba899E33B01e495982656884Ac77FF': 'FiRMcbBTCMarket',
     '0xc06053FcAd0A0Df7cC32289A135bBEA9030C010f': 'FiRMSimpleEscrow', 
     '0xb4c4cD74e7b99ad2cf2f7b3A4F7091efB8BCeb7A': 'FiRMgOHMEscrow',
@@ -137,6 +116,9 @@ const namedAddresses: { [key: string]: string } = {
     // partners
     '0x58dCB47956De1e99B1AF0ceb643727EF66aF4647': 'DWF Swapper',
 }
+FIRM_MARKETS.forEach(market => {
+    namedAddresses[market.address] = `FiRM ${market.name} Market`;
+})
 
 export const ADDRESS_ROLES = {
     '0x1748E0d9F554Fb8341784C644FFaC933De792e56': 'Treasury',
