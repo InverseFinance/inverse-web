@@ -35,8 +35,7 @@ import FirmLogo from "../common/Logo/FirmLogo";
 import { F2Market } from "@app/types";
 import InfoModal from "../common/Modal/InfoModal";
 import { YieldBreakdownTable } from "./rewards/YieldBreakdownTable";
-
-const { F2_CONTROLLER } = getNetworkConfigConstants();
+import { OLD_BORROW_CONTROLLER } from "@app/config/constants";
 
 export const MARKET_INFOS = {
     'INV': {
@@ -457,7 +456,7 @@ const columns = [
                             leftToBorrow < dailyLimit && dolaLiquidity > 0 && leftToBorrow < dolaLiquidity && smartShortNumber(dolaLiquidity, 2) !== smartShortNumber(leftToBorrow, 2)
                             && <CellText overflow="visible" whiteSpace="nowrap" minW="130px" textAlign={{ base: 'right', sm: 'center' }} fontSize={{ base: '10px', sm: '12px' }} color="mainTextColorLight2">
                                 {
-                                    borrowController === F2_CONTROLLER ?
+                                    borrowController === OLD_BORROW_CONTROLLER ?
                                         <DailyLimitCountdown prefix="Limit resets in " /> : <>Ramping up to {smartShortNumber(Math.min(dailyLimit, dolaLiquidity), 2)}</>
                                 }
                             </CellText>
