@@ -644,7 +644,7 @@ export const ProposalActionPreview = (({
                 {
                     isHumanRedeableCaseHandled
                     && (!!contractKnownToken
-                        || [COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE, ORACLE, F2_ORACLE, F2_ALE, OLD_BORROW_CONTROLLER, DBR_DISTRIBUTOR].map(v => v.toLowerCase()).includes(target.toLowerCase())
+                        || [COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE, ORACLE, F2_ORACLE, F2_ALE, F2_CONTROLLER, OLD_BORROW_CONTROLLER, DBR_DISTRIBUTOR].map(v => v.toLowerCase()).includes(target.toLowerCase())
                         || (!!F2_MARKETS.find(f => f.address.toLowerCase() === target.toLowerCase()) || firmMarketsFunctions.includes(funName))
                         || !!FEDS.find(f => f.address.toLowerCase() === target.toLowerCase() && f.isFirm)
                     )
