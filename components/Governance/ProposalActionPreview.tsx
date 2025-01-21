@@ -667,7 +667,7 @@ export const ProposalActionPreview = (({
                             </Link>
                         ) : (
                             /^[0-9]+$/.test(data) ? <TextInfo
-                                message={`Value if 18 decimals: ${formatUnits(data, 18)}`}>
+                                message={`Value if 18 decimals: ${commify(formatUnits(data, 18)).replace(/\.0$/,'')}`}>
                                 <Text key={i}>
                                     {data}
                                     {i + 1 !== callDatas.length ? ',' : ''}
