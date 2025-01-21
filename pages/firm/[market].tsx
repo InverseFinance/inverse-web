@@ -29,8 +29,9 @@ import { DbrV1IssueModal } from '@app/components/F2/Modals/DbrV1IssueIModal'
 import { useMultisig } from '@app/hooks/useSafeMultisig'
 import Link from '@app/components/common/Link'
 import { FirmInsuranceCover } from '@app/components/common/InsuranceCover'
+import { OLD_BORROW_CONTROLLER } from '@app/config/constants'
 
-const { F2_MARKETS, F2_CONTROLLER } = getNetworkConfigConstants();
+const { F2_MARKETS } = getNetworkConfigConstants();
 
 const useDefaultPreview = ['CRV', 'cvxCRV', 'cvxFXS', 'st-yCRV']
 
@@ -70,7 +71,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                         px="4"
                     >
                         {
-                            f2market?.borrowController === F2_CONTROLLER ? <>
+                            f2market?.borrowController === OLD_BORROW_CONTROLLER ? <>
                                 <Text fontSize="16px" fontWeight="bold" color="white">
                                     Daily borrow limit resets in
                                 </Text>

@@ -11,9 +11,10 @@ import ScannerLink from '@app/components/common/ScannerLink';
 import moment from 'moment';
 import { getBnToNumber, shortenNumber } from '@app/util/markets';
 import { ErrorBoundary } from '../common/ErrorBoundary';
-import { BURN_ADDRESS, ONE_DAY_SECS } from '@app/config/constants';
+import { BURN_ADDRESS, OLD_BORROW_CONTROLLER, ONE_DAY_SECS } from '@app/config/constants';
 import useEtherSWR from '@app/hooks/useEtherSWR';
 import { ERC20_ABI } from '@app/config/abis';
+import { TextInfo } from '../common/Messages/TextInfo';
 
 const { DOLA_PAYROLL, DOLA, COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE, ORACLE, F2_CONTROLLER, DBR_DISTRIBUTOR, FEDS, F2_MARKETS, F2_ORACLE, F2_ALE } = getNetworkConfigConstants();
 
@@ -521,7 +522,7 @@ const HumanReadableActionLabel = ({
         return <GovernanceHumanReadableActionLabel signature={signature} callDatas={callDatas} />
     } else if (lcTarget === ORACLE.toLowerCase()) {
         return <OracleHumanReadableActionLabel signature={signature} callDatas={callDatas} />
-    } else if (lcTarget === F2_CONTROLLER.toLowerCase()) {
+    } else if (lcTarget === F2_CONTROLLER.toLowerCase() || lcTarget === OLD_BORROW_CONTROLLER.toLowerCase()) {
         return <FirmControllerHumanReadableActionLabel signature={signature} callDatas={callDatas} />
     } else if (lcTarget === DBR_DISTRIBUTOR.toLowerCase()) {
         return <FirmDbrDistributorHumanReadableActionLabel signature={signature} callDatas={callDatas} />
@@ -553,7 +554,7 @@ const HumanReadableActionLabel = ({
     //         : [],
     // });
 
-    const amount = <Amount value={isTransferFrom ? callDatas[2] : callDatas[1]} decimals={contractKnownToken.decimals} />    
+    const amount = <Amount value={isTransferFrom ? callDatas[2] : callDatas[1]} decimals={contractKnownToken.decimals} />
 
     let text;
 
@@ -643,7 +644,7 @@ export const ProposalActionPreview = (({
                 {
                     isHumanRedeableCaseHandled
                     && (!!contractKnownToken
-                        || [COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE, ORACLE, F2_ORACLE, F2_ALE, F2_CONTROLLER, DBR_DISTRIBUTOR].map(v => v.toLowerCase()).includes(target.toLowerCase())
+                        || [COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE, ORACLE, F2_ORACLE, F2_ALE, F2_CONTROLLER, OLD_BORROW_CONTROLLER, DBR_DISTRIBUTOR].map(v => v.toLowerCase()).includes(target.toLowerCase())
                         || (!!F2_MARKETS.find(f => f.address.toLowerCase() === target.toLowerCase()) || firmMarketsFunctions.includes(funName))
                         || !!FEDS.find(f => f.address.toLowerCase() === target.toLowerCase() && f.isFirm)
                     )
@@ -665,7 +666,13 @@ export const ProposalActionPreview = (({
                                 {i + 1 !== callDatas.length ? ',' : ''}
                             </Link>
                         ) : (
-                            <Text key={i}>
+                            /^[0-9]+$/.test(data) ? <TextInfo
+                                message={`Value if 18 decimals: ${formatUnits(data, 18)}`}>
+                                <Text key={i}>
+                                    {data}
+                                    {i + 1 !== callDatas.length ? ',' : ''}
+                                </Text>
+                            </TextInfo> : <Text key={i}>
                                 {data}
                                 {i + 1 !== callDatas.length ? ',' : ''}
                             </Text>
