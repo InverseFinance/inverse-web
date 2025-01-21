@@ -14,6 +14,7 @@ import { ErrorBoundary } from '../common/ErrorBoundary';
 import { BURN_ADDRESS, OLD_BORROW_CONTROLLER, ONE_DAY_SECS } from '@app/config/constants';
 import useEtherSWR from '@app/hooks/useEtherSWR';
 import { ERC20_ABI } from '@app/config/abis';
+import { TextInfo } from '../common/Messages/TextInfo';
 
 const { DOLA_PAYROLL, DOLA, COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE, ORACLE, F2_CONTROLLER, DBR_DISTRIBUTOR, FEDS, F2_MARKETS, F2_ORACLE, F2_ALE } = getNetworkConfigConstants();
 
@@ -553,7 +554,7 @@ const HumanReadableActionLabel = ({
     //         : [],
     // });
 
-    const amount = <Amount value={isTransferFrom ? callDatas[2] : callDatas[1]} decimals={contractKnownToken.decimals} />    
+    const amount = <Amount value={isTransferFrom ? callDatas[2] : callDatas[1]} decimals={contractKnownToken.decimals} />
 
     let text;
 
@@ -665,7 +666,13 @@ export const ProposalActionPreview = (({
                                 {i + 1 !== callDatas.length ? ',' : ''}
                             </Link>
                         ) : (
-                            <Text key={i}>
+                            /^[0-9]+$/.test(data) ? <TextInfo
+                                message={`Value if 18 decimals: ${formatUnits(data, 18)}`}>
+                                <Text key={i}>
+                                    {data}
+                                    {i + 1 !== callDatas.length ? ',' : ''}
+                                </Text>
+                            </TextInfo> : <Text key={i}>
                                 {data}
                                 {i + 1 !== callDatas.length ? ',' : ''}
                             </Text>
