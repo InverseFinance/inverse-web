@@ -33,7 +33,7 @@ export const BlastPage = () => {
             <Text>DOLA address on Blast: <b>0x8e38179D361402f6a94767757e807146609E9B3d</b></Text>
           </VStack>
         } />
-      {/* <VStack
+      <VStack
         w={{ base: 'full', lg: '1200px' }}
         justify="center"
         mt='6'
@@ -58,7 +58,7 @@ export const BlastPage = () => {
         {
           !!account && <BlastWithdrawlsSection />
         }
-      </VStack> */}
+      </VStack>
     </Layout>
   )
 }

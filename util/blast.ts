@@ -289,7 +289,7 @@ export const getStatusShortDescription = (status: MessageStatus) => {
         case MessageStatus.READY_TO_PROVE:
             return '2/5 - Ready to prove'
         case MessageStatus.IN_CHALLENGE_PERIOD:
-            return '3/5 - 14 days challenge period'
+            return '3/5 - 7 days challenge period'
         case MessageStatus.READY_FOR_RELAY:
             return '4/5 - Ready to be relayed'
         case MessageStatus.RELAYED:
