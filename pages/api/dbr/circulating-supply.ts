@@ -16,13 +16,14 @@ const excluded = [
   DBR_AIRDROP,
 ];
 
-export default async function handler(req, res) {  
-  const cacheKey = `dbr-circ-supply-v1.0.0`;
+export const dbrCircSupplyCacheKey = `dbr-circ-supply-v1.0.0`;
+
+export default async function handler(req, res) {    
 
   try {
     const cacheDuration = 60;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
+    const validCache = await getCacheFromRedis(dbrCircSupplyCacheKey, true, cacheDuration);
     const isSaveCircSupply = req.method === 'POST' || req.query.saveCircSupply === 'true';
     if(validCache) {
       res.status(200).send(validCache);
@@ -42,7 +43,7 @@ export default async function handler(req, res) {
 
     const circulatingSupply = getBnToNumber(totalSupply) - totalDbrExcluded;    
 
-    await redisSetWithTimestamp(cacheKey, circulatingSupply);
+    await redisSetWithTimestamp(dbrCircSupplyCacheKey, circulatingSupply);
 
     // daily cron job case: add daily data to evolution data
     if (isSaveCircSupply) {
@@ -75,7 +76,7 @@ export default async function handler(req, res) {
     console.error(err);
     // if an error occured, try to return last cached results
     try {
-      const cache = await getCacheFromRedis(cacheKey, false);
+      const cache = await getCacheFromRedis(dbrCircSupplyCacheKey, false);
       if(cache) {
         console.log('Api call failed, returning last cache found');
         res.status(200).send(cache);
