@@ -6,11 +6,12 @@ import { F2Market } from "@app/types";
 import Link from "@app/components/common/Link";
 import { useState } from "react";
 import { zapperRefresh } from "@app/util/f2";
-import { Stack, VStack } from "@chakra-ui/react";
+import { Stack, VStack, Text } from "@chakra-ui/react";
 import { useWeb3React } from "@web3-react/core";
 import moment from 'moment';
 import useStorage from "@app/hooks/useStorage";
 import { BURN_ADDRESS } from "@app/config/constants";
+import { RSubmitButton } from "@app/components/common/Button/RSubmitButton";
 
 export const RewardsContainer = ({
     escrow,
@@ -88,7 +89,10 @@ export const RewardsContainer = ({
                         :
                         <InfoMessage
                             description={
-                                !escrow || escrow === BURN_ADDRESS ? `This market has rewards but you don't have a position in it.` : "This market has rewards but you don't have any at the moment, it will show if you have at least $0.1 worth of rewards."
+                                !escrow || escrow === BURN_ADDRESS ? `This market has rewards but you don't have a position in it.` : <VStack alignItems="flex-start">
+                                    <Text>This market has rewards but it seems you don't have any at the moment, it will show if you have at least $0.1 worth of rewards.</Text>
+                                    <RSubmitButton w='fit-content' onClick={handleClaim} onSuccess={handleClaimSuccess}>Execute Claim anyway</RSubmitButton>
+                                </VStack>
                             }
                         />
             }
