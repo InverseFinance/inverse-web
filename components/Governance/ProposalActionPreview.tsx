@@ -18,6 +18,18 @@ import { TextInfo } from '../common/Messages/TextInfo';
 
 const { DOLA_PAYROLL, DOLA, COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE, ORACLE, F2_CONTROLLER, DBR_DISTRIBUTOR, FEDS, F2_MARKETS, F2_ORACLE, F2_ALE } = getNetworkConfigConstants();
 
+const CCIP_ADS= [
+    '0xAeA8Ae87A34a0fAaEa0e6beD9f4627F576B524Fa',
+    '0x5554Ea84a0cbA7EB1ff91DB9D9eA16e44cc087b2',
+];
+
+const CL_CHAIN_SELECTORS = {
+    '15971525489660198786': 'Base Chain Selector',
+    '4949039107694359620': 'Arbitrum Chain Selector',
+    '3734403246176062136': 'Optimism Chain Selector',
+    '5009297550715157269': 'Ethereum Chain Selector',
+}
+
 const firmMarketsFunctions = [
     'setCollateralFactorBps',
     'setLiquidationFactorBps',
@@ -395,6 +407,34 @@ const GovernanceHumanReadableActionLabel = ({
     )
 }
 
+const CCIPReadableActionLabel = ({
+    signature,
+    callDatas,
+}: {
+    signature: string,
+    callDatas: string[],
+}) => {
+    const funName = signature.split('(')[0];
+    let text, amount;
+
+    switch (funName) {
+        case 'sendMessagePayNative':
+        case 'setUpdater':
+        case 'setMinter':
+            amount = <Amount value={callDatas[0]} decimals={18} />;
+            text = <Flex display="inline-block">
+                {funName} using the {CL_CHAIN_SELECTORS[callDatas[0]]}
+            </Flex>
+            break;
+    }
+
+    return (
+        <Flex display="inline-block" mb="2" fontStyle="italic">
+            &laquo; {text} &raquo;
+        </Flex>
+    )
+}
+
 const FirmFeedHumanReadableActionLabel = ({
     signature,
     callDatas,
@@ -536,6 +576,8 @@ const HumanReadableActionLabel = ({
         return <FirmFeedHumanReadableActionLabel signature={signature} callDatas={callDatas} />
     } else if (funName === 'setMarket') {
         return <FirmSetMarketHumanReadableActionLabel signature={signature} callDatas={callDatas} />
+    } else if(CCIP_ADS.includes(lcTarget)) {
+        return <CCIPReadableActionLabel signature={signature} callDatas={callDatas} />
     }
 
     const isDolaPayroll = lcTarget === DOLA_PAYROLL.toLowerCase();
@@ -647,6 +689,7 @@ export const ProposalActionPreview = (({
                         || [COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE, ORACLE, F2_ORACLE, F2_ALE, F2_CONTROLLER, OLD_BORROW_CONTROLLER, DBR_DISTRIBUTOR].map(v => v.toLowerCase()).includes(target.toLowerCase())
                         || (!!F2_MARKETS.find(f => f.address.toLowerCase() === target.toLowerCase()) || firmMarketsFunctions.includes(funName))
                         || !!FEDS.find(f => f.address.toLowerCase() === target.toLowerCase() && f.isFirm)
+                        || !!CCIP_ADS.find(a => a.toLowerCase() === target.toLowerCase())
                     )
                     && <ErrorBoundary description={null}>
                         <HumanReadableActionLabel target={target} signature={signature} callDatas={callDatas} />
