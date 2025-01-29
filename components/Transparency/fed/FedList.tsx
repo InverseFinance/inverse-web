@@ -12,7 +12,7 @@ import { shortenNumber } from '@app/util/markets'
 import { preciseCommify } from '@app/util/misc'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Text, Flex, VStack, HStack, Stack, Badge, useDisclosure, Image, Accordion } from '@chakra-ui/react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -156,6 +156,10 @@ export const FedList = ({ feds, isLoading, prices }: { feds: FedEvent[], isLoadi
         setSelectedFed(item);
         onOpen();
     }
+
+    const activeFeds = useMemo(() => {
+        return feds?.filter(f => f.borrows >= 1 || f.supply >= 1);
+    }, [feds]);
 
     return (
         <Container
@@ -326,14 +330,14 @@ export const FedList = ({ feds, isLoading, prices }: { feds: FedEvent[], isLoadi
                 </VStack>
             </InfoModal>
             {
-                feds?.length > 0 ?
+                activeFeds?.length > 0 ?
                     <Table
                         keyName="address"
                         defaultSort="supply"
                         defaultSortDir="desc"
                         alternateBg={false}
                         columns={columns}
-                        items={feds}
+                        items={activeFeds}
                         onClick={(item) => handleClick(item)}
                     />
                     : isLoading ? <SkeletonBlob /> : <Text>
