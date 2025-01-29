@@ -666,6 +666,9 @@ export const ProposalActionPreview = (({
         'addMarket',
         'setFeed',
         'setMarket',
+        'sendMessagePayNative',
+        'setUpdater',
+        'setMinter',
         ...firmMarketsFunctions,
     ].includes(funName);
 
