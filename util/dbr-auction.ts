@@ -104,6 +104,7 @@ export const useDbrAuctionActivity = (from?: string): SWR & {
     sinvAuctionEvents: any[],
     accountEvents: any,
     timestamp: number,
+    dbrSaleHandlerRepayPercentage: number,
     avgDbrPrice: number,
     nbBuys: number,
     accDolaIn: number,
@@ -137,7 +138,7 @@ export const useDbrAuctionActivity = (from?: string): SWR & {
             const worthIn = e.dolaIn ? e.dolaIn : e.invIn * 1 / e.marketPriceInInv * e.marketPriceInDola;
             const worthOut = e.dbrOut * e.marketPriceInDola;
             const priceAvg = isInvCase ? (priceInInv + e.marketPriceInInv) / 2 : (priceInDola + e.marketPriceInDola) / 2;
-            return ({
+            return {
                 ...e,
                 key: `${e.txHash}-${i}`,
                 priceInDola,
@@ -148,7 +149,7 @@ export const useDbrAuctionActivity = (from?: string): SWR & {
                 arb,
                 arbPerc: arb / (priceAvg) * 100,
                 version: e.version || (isInvCase ? 'V1' : undefined),
-            })
+            };
         });
 
     const dolaEvents = events.filter(e => e.auctionType === 'Virtual' || e.auctionType === 'sDOLA');
@@ -208,6 +209,7 @@ export const useDbrAuctionActivity = (from?: string): SWR & {
         accDolaWorthOut,
         accVirtualWorthOut,
         accSdolaWorthOut,
+        dbrSaleHandlerRepayPercentage: data?.dbrSaleHandlerRepayPercentage || 20,
         timestamp: !from ? data?.timestamp : 0,
         isLoading: !error && !data,
         isError: error,

@@ -6,7 +6,7 @@ import { useDBRPrice } from "@app/hooks/useDBR"
 import useEtherSWR from "@app/hooks/useEtherSWR"
 import { useDOLAPrice } from "@app/hooks/usePrices"
 import { DbrAuctionType } from "@app/types"
-import { getBnToNumber, shortenNumber } from "@app/util/markets"
+import { getBnToNumber, shortenNumber, smartShortNumber } from "@app/util/markets"
 import { preciseCommify } from "@app/util/misc"
 import { ExternalLinkIcon } from "@chakra-ui/icons"
 import { HStack, SkeletonText, Stack, Text, VStack } from "@chakra-ui/react"
@@ -142,7 +142,11 @@ export const DbrAuctionSinvParameters = ({ dbrPrice, tokenPrice }) => {
     />
 }
 
-export const DbrAuctionIntroMsg = () => {
+export const DbrAuctionIntroMsg = ({
+    dbrSaleHandlerRepayPercentage,
+}: {
+    dbrSaleHandlerRepayPercentage: number
+}) => {
     return <InfoMessage
         showIcon={false}
         alertProps={{ fontSize: '12px', mb: '8', w: 'full' }}
@@ -153,7 +157,7 @@ export const DbrAuctionIntroMsg = () => {
                     XY=K auctions operate as a <b>virtual xy = k constant function market maker auction</b>, it allows users to buy DBR using DOLA or INV. In the auction, the price of DBR continuously reduces every second, until a DBR purchase is made at which point the price increases.
                 </Text>
                 <Text>
-                    All the auctions offer different DBR pricing depending on usage and auction parameters. The proceeds from the Virtual auction go to DOLA bad debt repayment while the proceeds from the sDOLA proceeds go to sDOLA stakers and the proceeds from the sINV auction go to INV stakers.
+                    All the auctions offer different DBR pricing depending on usage and auction parameters. {smartShortNumber(dbrSaleHandlerRepayPercentage, 2)}% of the proceeds from the Virtual auction go to DOLA bad debt repayment while the proceeds from the sDOLA proceeds go to sDOLA stakers and the proceeds from the sINV auction go to INV stakers.
                 </Text>
                 <Link textDecoration="underline" href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dbr#buying-dbr" target="_blank" isExternal>
                     Learn more <ExternalLinkIcon />

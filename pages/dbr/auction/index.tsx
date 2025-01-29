@@ -11,7 +11,7 @@ import { DbrAuctionTabs } from '@app/components/F2/DbrAuction/DbrAuctionTabs';
 
 export const DbrAuctionPage = () => {
   const account = useAccount();  
-  const { isLoading, accountEvents, events, nbBuys, accDolaIn, accDbrOut, avgDbrPrice, timestamp } = useDbrAuctionActivity(account);
+  const { dbrSaleHandlerRepayPercentage, isLoading, accountEvents, events, nbBuys, accDolaIn, accDbrOut, avgDbrPrice, timestamp } = useDbrAuctionActivity(account);
   return (
     <Layout>
       <Head>
@@ -41,7 +41,7 @@ export const DbrAuctionPage = () => {
               <DbrAuctionBuyer title="DBR XY=K Auction" />
             </VStack>
             <Stack alignItems="flex-end" w={{ base: 'full', lg: '45%' }}>
-              <DbrAuctionIntroMsg />
+              <DbrAuctionIntroMsg dbrSaleHandlerRepayPercentage={dbrSaleHandlerRepayPercentage} />
             </Stack>
           </Stack>
         </VStack>
