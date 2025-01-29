@@ -10,10 +10,10 @@ import { preciseCommify } from '@app/util/misc';
 import { DbrAuctionTabs } from '@app/components/F2/DbrAuction/DbrAuctionTabs';
 import { useDbrAuctionActivity } from '@app/util/dbr-auction';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
-import { shortenNumber } from '@app/util/markets';
+import { shortenNumber, smartShortNumber } from '@app/util/markets';
 
 export const DbrAuctionVirtualStatsPage = () => {
-  const { isLoading, virtualAuctionEvents: events, accDolaInVirtual: accDolaIn, accDbrOutVirtual: accDbrOut, accVirtualWorthOut, timestamp } = useDbrAuctionActivity();  
+  const { dbrSaleHandlerRepayPercentage, isLoading, virtualAuctionEvents: events, accDolaInVirtual: accDolaIn, accDbrOutVirtual: accDbrOut, accVirtualWorthOut, timestamp } = useDbrAuctionActivity();  
   return (
     <Layout>
       <Head>
@@ -33,7 +33,7 @@ export const DbrAuctionVirtualStatsPage = () => {
       >
         <Container
           label="DBR Virtual Auction"
-          description="Note: Virtual auction income goes to bad debt reduction"
+          description={`Note: ${smartShortNumber(dbrSaleHandlerRepayPercentage, 2)}% of the Virtual auction income goes to bad debt reduction`}
           noPadding
           m="0"
           p="0"

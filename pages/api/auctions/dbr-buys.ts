@@ -11,6 +11,7 @@ import { ascendingEventsSorter } from '@app/util/misc';
 import { getHistoricDbrPriceOnCurve } from '@app/util/f2';
 import { getSInvContract } from '@app/util/sINV';
 import { SINV_ADDRESS, SINV_ADDRESS_V1, SINV_HELPER_ADDRESS, SINV_HELPER_ADDRESS_V1 } from '@app/config/constants';
+import { Contract } from 'ethers';
 
 const DBR_AUCTION_BUYS_CACHE_KEY = 'dbr-auction-buys-v1.0.1'
 
@@ -101,8 +102,12 @@ export default async function handler(req, res) {
             newBuys[i].marketPriceInInv = m.priceInInv;
         });
 
+        const dbrSaleHandler = new Contract('0x4f4A31C1c11Bdd438Cf0c7668D6aFa2b5825932e', ['function repayBps() public view returns (uint)'], provider);
+        const dbrSaleHandlerRepayBpsData = await dbrSaleHandler.repayBps();
+
         const resultData = {
             timestamp: Date.now(),
+            dbrSaleHandlerRepayPercentage: getBnToNumber(dbrSaleHandlerRepayBpsData, 2),
             buys: pastTotalEvents.concat(newBuys),
         };
 
