@@ -576,7 +576,7 @@ const HumanReadableActionLabel = ({
         return <FirmFeedHumanReadableActionLabel signature={signature} callDatas={callDatas} />
     } else if (funName === 'setMarket') {
         return <FirmSetMarketHumanReadableActionLabel signature={signature} callDatas={callDatas} />
-    } else if(CCIP_ADS.includes(lcTarget)) {
+    } else if(CCIP_ADS.map(a => a.toLowerCase()).includes(lcTarget)) {
         return <CCIPReadableActionLabel signature={signature} callDatas={callDatas} />
     }
 
