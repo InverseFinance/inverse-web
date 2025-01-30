@@ -178,7 +178,7 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
       return {
         ...m,
         ...cachedMarkets[i],
-        supplyApy: (m.name === 'sUSDe' ? (sUsdeApy||0) || cachedMarkets[i]?.supplyApy||m.supplyApy : cachedMarkets[i]?.supplyApy||m.supplyApy),
+        supplyApy: (m.name === 'sUSDe' ? (sUsdeApy||0) || cachedMarkets[i]?.supplyApy||m.supplyApy : cachedMarkets[i]?.supplyApy||m.supplyApy) || 0,
         price: data && data[i] ? getBnToNumber(data[i], (36 - m.underlying.decimals)) : cachedMarkets[i]?.price ?? 0,
         collateralFactor: data ? getBnToNumber(data[i + nbMarkets], 4) : cachedMarkets[i]?.collateralFactor ?? 0,
         totalDebt: data ? getBnToNumber(data[i + 2 * nbMarkets]) : cachedMarkets[i]?.totalDebt ?? 0,
