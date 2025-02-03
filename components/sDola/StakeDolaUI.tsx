@@ -39,14 +39,16 @@ const StatBasic = ({ value, name, message, onClick = undefined, isLoading = fals
 const STAKE_BAL_INC_INTERVAL = 100;
 const MS_PER_BLOCK = SECONDS_PER_BLOCK * 1000;
 
-export const StakeDolaUI = () => {
+export const StakeDolaUI = ({
+    thirtyDayAvg,
+    setThirtyDayAvg,
+}) => {
     const account = useAccount();
     const { provider, account: connectedAccount } = useWeb3React();
     const { events: auctionBuys } = useDbrAuctionActivity();
 
     const [dolaAmount, setDolaAmount] = useState('');
     const [isConnected, setIsConnected] = useState(true);
-    const [thirtyDayAvg, setThirtyDayAvg] = useState(0);
     const { isOpen: isEnsoModalOpen, onOpen: onEnsoModalOpen, onClose: onEnsoModalClose } = useDisclosure();
     const [now, setNow] = useState(Date.now());
     const [tab, setTab] = useState('Stake');

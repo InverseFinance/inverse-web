@@ -99,6 +99,16 @@ const columns = [
             </Cell>
         },
     },
+    {
+        field: 'apy30d',
+        label: 'APY 30d avg',
+        header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
+        value: ({ apy30d }) => {
+            return <Cell minWidth="70px" alignItems="center" justify="center" >
+                <CellText>{apy30d ? `~${shortenNumber(apy30d, 0)}` : '-'}%</CellText>
+            </Cell>
+        },
+    },
 ]
 
 const mobileThreshold = 1000;
@@ -203,14 +213,15 @@ export const SDolaComparator = ({
     themeStyles,
     title = 'Yield-Bearing Stablecoins',
     showLabel = true,
+    thirtyDayAvg = 0,
 }) => { 
-    const { data } = useCustomSWR('/api/dola/sdola-comparator?v=1.0.0');
+    const { data } = useCustomSWR('/api/dola/sdola-comparator?v=1.0.3');
     const [isSmallerThan] = useMediaQuery(`(max-width: ${mobileThreshold}px)`);
 
     const { themeStyles: prefThemeStyles } = useAppTheme();
     const _themeStyles = themeStyles || prefThemeStyles || lightTheme;
 
     return <VStack w='full' spacing="10" overflow="hidden">
-        <UngroupedComparator title={title} allRates={data?.rates} themeStyles={_themeStyles} isSmallerThan={isSmallerThan} showLabel={showLabel} />        
+        <UngroupedComparator title={title} allRates={data?.rates?.map(r => ({...r, apy30d: (r.symbol === 'sDOLA' ? thirtyDayAvg  : r.apy30d)}))} themeStyles={_themeStyles} isSmallerThan={isSmallerThan} showLabel={showLabel} />        
     </VStack>
 }

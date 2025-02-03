@@ -32,7 +32,7 @@ const YEARN_VAULT_IDS = {
 const getDefiLlamaApy = async (poolId: string) => {
   try {
     const data = await getPoolYield(poolId);
-    return { apy: data?.apy || 0, apyMean30d: data?.apyMean30d || 0 };
+    return { apy: (data?.apy || 0), apyMean30d: (data?.apyMean30d || 0) };
   } catch (e) {
     console.log(`Failed to fetch APY for pool ${poolId}:`, e);
     return { apy: 0 };
@@ -235,18 +235,24 @@ export const getStYcrvData = async () => {
 
 export const getSavingsCrvUsdData = async () => {
     try {
-        const results = await fetch('https://prices.curve.fi/v1/crvusd/savings/statistics');
+        const [results, defillama] = await Promise.all([
+            fetch('https://prices.curve.fi/v1/crvusd/savings/statistics'),
+            getDefiLlamaApy("5fd328af-4203-471b-bd16-1705c726d926"),
+        ]);
         const data = await results.json();
-        return { apy: data.proj_apr };
+        return { apy: data.proj_apr, apyMean30d: defillama?.apyMean30d };
     } catch (e) { console.log(e) }
     return [];
 }
 
 export const getSavingsUSDData = async () => {
     try {
-        const results = await fetch('https://info-sky.blockanalitica.com/api/v1/overall/?format=json');
+        const [results, defillama] = await Promise.all([
+            fetch('https://info-sky.blockanalitica.com/api/v1/overall/?format=json'),
+            getDefiLlamaApy("d3694b72-5bc4-44c9-8ab6-1fc7941d216a"),
+        ]);
         const data = await results.json();
-        return { apy: data[0].sky_savings_rate_apy * 100 };
+        return { apy: data[0].sky_savings_rate_apy * 100, apyMean30d: defillama?.apyMean30d };
     } catch (e) { console.log(e) }
     return [];
 }
