@@ -38,11 +38,14 @@ const CollateralToken = ({ collateral, isMobile = false, themeStyles, image }: {
     </HStack>
 }
 
-const RateListItem = ({ fields, apy, symbol, image, themeStyles, isMobile }) => {
+const RateListItem = ({ fields, apy, apy30d, symbol, image, themeStyles, isMobile }) => {
     const comps = {
         'symbol': <CollateralToken isMobile={isMobile} collateral={symbol} image={image} themeStyles={themeStyles} />,
         'apy': <Text fontWeight="extrabold" fontSize={{ base: '20px', lg: '24px' }} color={themeStyles.colors.mainTextColor}>
             {apy ? shortenNumber(apy, 2) + '%' : '-'}
+        </Text>, 
+        'apy30d': <Text fontWeight="extrabold" fontSize={{ base: '20px', lg: '24px' }} color={themeStyles.colors.mainTextColor}>
+            {apy30d ? shortenNumber(apy30d, 2) + '%' : '-'}
         </Text>,
     }
     return <>
