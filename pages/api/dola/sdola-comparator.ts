@@ -8,7 +8,7 @@ import { getDSRData } from '@app/util/markets';
 import { TOKEN_IMAGES } from '@app/variables/images';
 
 export default async function handler(req, res) {
-  const cacheKey = `sdola-rates-compare-v1.0.1`;
+  const cacheKey = `sdola-rates-compare-v1.0.4`;
 
   try {
     const cacheDuration = 60;
@@ -45,17 +45,18 @@ export default async function handler(req, res) {
       // getAaveV3RateOf(provider, 'USDT'),
       getDSRData(),
       getSFraxData(provider),
-      getSUSDEData(provider),
+      getSUSDEData(provider, true),
       fetch('https://www.inverse.finance/api/dola-staking').then(res => res.json()),
       getSavingsCrvUsdData(),
       getSavingsUSDData(),
-      getSavingsUSDzData(),
+      // getSavingsUSDzData(),
     ]);
 
     const sortedRates = rates
       .map((rate, index) => {
         return {
           apy: (rate.supplyRate || rate.apy),
+          apy30d: (rate.apyMean30d || rate.apy30d),
           symbol: symbols[index],
           image: TOKEN_IMAGES[symbols[index]],
           project: projects[index],
