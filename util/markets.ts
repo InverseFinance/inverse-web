@@ -32,7 +32,7 @@ const YEARN_VAULT_IDS = {
 const getDefiLlamaApy = async (poolId: string) => {
   try {
     const data = await getPoolYield(poolId);
-    return { apy: data?.apy || 0 };
+    return { apy: data?.apy || 0, apyMean30d: data?.apyMean30d || 0 };
   } catch (e) {
     console.log(`Failed to fetch APY for pool ${poolId}:`, e);
     return { apy: 0 };
@@ -260,11 +260,16 @@ export const getSavingsUSDzData = async () => {
     return [];
 }
 
-export const getSUSDEData = async (provider) => {
+export const getSUSDEData = async (provider, alsoGet30d = false) => {
+    let apyMean30d = undefined;
+    if(alsoGet30d) {
+        const defiLlamaData = await getDefiLlamaApy("66985a81-9c51-46ca-9977-42b4fe7bc6df");
+        apyMean30d = defiLlamaData?.apyMean30d;
+    }
     try {
         const results = await fetchWithTimeout('https://simple-proxy-server.onrender.com/ethena', undefined, 3000);
         const data = await results.json();
-        return { apy: data.stakingYield.value };
+        return { apy: data.stakingYield.value, apyMean30d };
     } catch (e) {
         console.log('usde err', e)
     }
@@ -289,7 +294,7 @@ export const getSUSDEData = async (provider) => {
         const apr = rewardsReceivedPer8hLast7dayAvg * 3 * 365 / getBnToNumber(totalAssets) * 100;
         // weekly compounding
         const apy = aprToApy(apr, WEEKS_PER_YEAR);
-        return { apy };
+        return { apy, apyMean30d };
     } catch (e) { console.log(e) }
     return [];
 }
