@@ -4,7 +4,7 @@ import { BigNumber, Contract } from 'ethers';
 import { formatUnits, commify, isAddress, parseUnits, parseEther } from 'ethers/lib/utils';
 import { ETH_MANTISSA, BLOCKS_PER_YEAR, DAYS_PER_YEAR, BLOCKS_PER_DAY, ONE_DAY_SECS, WEEKS_PER_YEAR, ONE_DAY_MS } from '@app/config/constants';
 
-import { getNextThursdayTimestamp, lowercaseObjectKeys, removeTrailingZeros, toFixed } from './misc';
+import { getAvgOnLastItems, getNextThursdayTimestamp, lowercaseObjectKeys, removeTrailingZeros, toFixed } from './misc';
 import { getProvider } from './providers';
 import { NETWORKS_BY_NAME } from '@app/config/networks';
 import { fetchWithTimeout } from './web3';
@@ -32,7 +32,7 @@ const YEARN_VAULT_IDS = {
 const getDefiLlamaApy = async (poolId: string) => {
   try {
     const data = await getPoolYield(poolId);
-    return { apy: data?.apy || 0 };
+    return { apy: (data?.apy || 0), apy30d: data?.apy30d };
   } catch (e) {
     console.log(`Failed to fetch APY for pool ${poolId}:`, e);
     return { apy: 0 };
@@ -235,18 +235,24 @@ export const getStYcrvData = async () => {
 
 export const getSavingsCrvUsdData = async () => {
     try {
-        const results = await fetch('https://prices.curve.fi/v1/crvusd/savings/statistics');
+        const [results, defillama] = await Promise.all([
+            fetch('https://prices.curve.fi/v1/crvusd/savings/statistics'),
+            getDefiLlamaApy("5fd328af-4203-471b-bd16-1705c726d926"),
+        ]);
         const data = await results.json();
-        return { apy: data.proj_apr };
+        return { apy: data.proj_apr, apy30d: defillama?.apy30d };
     } catch (e) { console.log(e) }
     return [];
 }
 
 export const getSavingsUSDData = async () => {
     try {
-        const results = await fetch('https://info-sky.blockanalitica.com/api/v1/overall/?format=json');
+        const [results, defillama] = await Promise.all([
+            fetch('https://info-sky.blockanalitica.com/api/v1/overall/?format=json'),
+            getDefiLlamaApy("d3694b72-5bc4-44c9-8ab6-1fc7941d216a"),
+        ]);
         const data = await results.json();
-        return { apy: data[0].sky_savings_rate_apy * 100 };
+        return { apy: data[0].sky_savings_rate_apy * 100, apy30d: defillama?.apy30d };
     } catch (e) { console.log(e) }
     return [];
 }
@@ -260,11 +266,16 @@ export const getSavingsUSDzData = async () => {
     return [];
 }
 
-export const getSUSDEData = async (provider) => {
+export const getSUSDEData = async (provider, alsoGet30d = false) => {
+    let apy30d = undefined;
+    if(alsoGet30d) {
+        const defiLlamaData = await getDefiLlamaApy("66985a81-9c51-46ca-9977-42b4fe7bc6df");
+        apy30d = defiLlamaData?.apy30d;
+    }
     try {
         const results = await fetchWithTimeout('https://simple-proxy-server.onrender.com/ethena', undefined, 3000);
         const data = await results.json();
-        return { apy: data.stakingYield.value };
+        return { apy: data.stakingYield.value, apy30d };
     } catch (e) {
         console.log('usde err', e)
     }
@@ -289,7 +300,7 @@ export const getSUSDEData = async (provider) => {
         const apr = rewardsReceivedPer8hLast7dayAvg * 3 * 365 / getBnToNumber(totalAssets) * 100;
         // weekly compounding
         const apy = aprToApy(apr, WEEKS_PER_YEAR);
-        return { apy };
+        return { apy, apy30d };
     } catch (e) { console.log(e) }
     return [];
 }
@@ -527,7 +538,8 @@ export const getPoolYield = async (defiLlamaPoolId: string) => {
     try {
         const results = await fetch(url);
         const data = await results.json();
-        return data.status === 'success' ? data.data[data.data.length - 1] : { apy: 0, tvlUsd: 0 };
+        const apy30d = data.status === 'success' ? getAvgOnLastItems(data?.data, "apy", 30) : 0;
+        return data.status === 'success' ? { ...data.data[data.data.length - 1], apy30d } : { apy: 0, tvlUsd: 0, apy30d };
     } catch (e) { console.log(e) }
     return {};
 }

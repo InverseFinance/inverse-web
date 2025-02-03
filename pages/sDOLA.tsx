@@ -13,12 +13,14 @@ import { SDolaInsuranceCover } from '@app/components/common/InsuranceCover';
 import { SavingsOpportunities } from '@app/components/sDola/SavingsOpportunities';
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary';
 import { SDolaComparator } from '@app/components/F2/SDolaComparator';
+import { useState } from 'react';
 
 export const SdolaPage = () => {
   const account = useAccount();
   const { isLoading, accountEvents, events } = useDolaStakingActivity(account, 'sdola');
   const { isLoading: isLoadingBuys, events: buyEvents, timestamp: buysTimestamp } = useDbrAuctionActivity();
   const sdolaBuyEvents = buyEvents.filter(e => e.auctionType === 'sDOLA');
+  const [thirtyDayAvg, setThirtyDayAvg] = useState(0);
   return (
     <Layout>
       <Head>
@@ -46,10 +48,10 @@ export const SdolaPage = () => {
         >
           <VStack spacing="10" alignItems={"center"} w={{ base: 'full' }}>
             <SavingsOpportunities />
-            <StakeDolaUI />
+            <StakeDolaUI thirtyDayAvg={thirtyDayAvg} setThirtyDayAvg={setThirtyDayAvg} />
             <SDolaInsuranceCover />
             <ErrorBoundary>
-              <SDolaComparator title="Compare sDOLA" />
+              <SDolaComparator thirtyDayAvg={thirtyDayAvg} title="Compare sDOLA" />
             </ErrorBoundary>
           </VStack>
         </Stack>
