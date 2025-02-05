@@ -642,8 +642,13 @@ export const F2Markets = ({
     const invMarketIsInOtherSection = withoutDeposits.some(m => m.isInv);
 
     const pinnedItems = invMarketIsInOtherSection ?
-        ['0xb516247596Ca36bf32876199FBdCaD6B3322330B', ...(markets?.length > 0 ? markets.map(m => m.address).slice(markets.length - 2) : [])]
-        : (markets?.length > 0 ? markets.map(m => m.address).slice(markets.length - 2) : []);
+        [
+            '0xb516247596Ca36bf32876199FBdCaD6B3322330B',
+            // uncomment to show 2 latest markets as "new"
+            // ...(markets?.length > 0 ? markets.map(m => m.address).slice(markets.length - 2) : []),
+        ]
+        : [];
+        // : (markets?.length > 0 ? markets.map(m => m.address).slice(markets.length - 2) : []);
 
     const pinnedLabels = invMarketIsInOtherSection ? ['Stake', 'New', 'New'] : ['New', 'New'];
 
