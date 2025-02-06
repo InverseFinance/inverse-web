@@ -1,6 +1,6 @@
 import { getMultiDelegatorContract, getGovernanceContract, getINVContract } from './contracts';
 import { JsonRpcSigner, TransactionReceipt, TransactionResponse } from '@ethersproject/providers';
-import { AbiCoder, isAddress, splitSignature, FunctionFragment, Interface, verifyMessage } from 'ethers/lib/utils'
+import { AbiCoder, isAddress, splitSignature, FunctionFragment, verifyMessage, ParamType } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import localforage from 'localforage';
 import { ProposalFormFields, ProposalFormActionFields, ProposalFunction, GovEra, ProposalStatus, NetworkIds, DraftProposal, DraftReview, RefundableTransaction } from '@app/types';
@@ -102,17 +102,19 @@ export const clearStoredDelegationsCollected = (): void => {
 }
 
 export const getCallData = (action: ProposalFormActionFields) => {
-    const abiCoder = new AbiCoder()
+    const abiCoder = new AbiCoder();
     return abiCoder.encode(
-        action.args.map(arg => arg.type),
+        action.args.map((arg, argIndex) => {
+            return arg.type === "tuple" ? ParamType.fromObject(action.fragment.inputs[argIndex]!) : arg.type;
+        }),
         action.args.map(arg => {
-            if (arg.type === "bool" || arg.type === "bool[]") {
+            if (arg.type === "bool" || arg.type === "bool[]" || arg.type === "tuple") {
                 return JSON.parse(arg.value);
             } else {
                 return arg.value;
             }
         })
-    )
+    );
 }
 
 export const getArgs = (fragment: FunctionFragment, calldata: string) => {
