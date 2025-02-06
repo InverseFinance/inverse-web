@@ -119,13 +119,15 @@ export const getCallData = (action: ProposalFormActionFields) => {
 
 export const getArgs = (fragment: FunctionFragment, calldata: string) => {
     const abiCoder = new AbiCoder()
-    const types: any = fragment.inputs.map(v => ({ type: v.type, name: v.name }));
+    const types: any = fragment.inputs.map((v, argIndex) => {
+        return v.type === 'tuple' ? ParamType.fromObject(fragment.inputs[argIndex]!) : { type: v.type, name: v.name };
+    });
     const values = abiCoder.decode(
         types,
         calldata,
     );
     return types.map((t, i) => {
-        return { ...t, value: values[i] }
+        return { ...t, value: t.type === 'tuple' ? JSON.stringify(values[i]) : values[i] }
     })
 }
 
