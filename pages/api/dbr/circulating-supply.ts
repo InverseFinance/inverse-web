@@ -8,12 +8,16 @@ import { NetworkIds } from '@app/types'
 import { getBnToNumber } from '@app/util/markets'
 import { DBR_CIRC_SUPPLY_EVO_CACHE_KEY } from './circulating-supply-evolution';
 import { fillMissingDailyDatesWithMostRecentData, timestampToUTC } from '@app/util/misc';
+import { SDOLA_ADDRESS, SINV_ADDRESS, SINV_ADDRESS_V1 } from '@app/config/constants';
 
 const { DBR, TREASURY, DBR_AIRDROP } = getNetworkConfigConstants();
 
 const excluded = [
   TREASURY,
   DBR_AIRDROP,
+  SINV_ADDRESS,
+  SINV_ADDRESS_V1,
+  SDOLA_ADDRESS,
 ];
 
 export const dbrCircSupplyCacheKey = `dbr-circ-supply-v1.0.0`;
