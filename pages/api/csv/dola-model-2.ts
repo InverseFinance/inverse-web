@@ -14,6 +14,7 @@ import { dbrCircSupplyCacheKey } from "../dbr/circulating-supply";
 import { NetworkIds } from "@app/types";
 import { getBnToNumber } from "@app/util/markets";
 import { getNetworkConfigConstants } from "@app/util/networks";
+import { getDbrPriceOnCurve } from "@app/util/f2";
 
 const { DBR } = getNetworkConfigConstants();
 
@@ -22,7 +23,7 @@ export default async (req, res) => {
     const { include } = req.query;
     const includeList = include ? include.split(',').filter(ad => isAddress(ad)) : [];
     const cacheDuration = 900;
-    const cacheKey = `dola-modal-2-v1.0.5${include ? includeList.join(',') : ''}`;
+    const cacheKey = `dola-modal-2-v1.0.6${include ? includeList.join(',') : ''}`;
 
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
 
@@ -35,13 +36,15 @@ export default async (req, res) => {
     );
 
     try {
-        const [liquidityData, badDebtData, dolaStakingData, replenishmentsData, dbrCirculatingSupply, dbrTriPoolBalanceBn] = await Promise.all([
-            fetcher30sectimeout(`${SERVER_BASE_URL}/api/transparency/liquidity`),
+        const [liquidityData, badDebtData, dolaStakingData, replenishmentsData, dbrCirculatingSupply, dbrTriPoolBalanceBn, dbrPriceData, rateComparatorData] = await Promise.all([
+            fetcher30sectimeout(`${SERVER_BASE_URL}/api/transparency/liquidity`),            
             getCacheFromRedis(repaymentsCacheKeyV2, false),
             getCacheFromRedis(dolaStakingCacheKey, false),  
             getCacheFromRedis(dbrReplenishmentsCacheKey, false),          
             getCacheFromRedis(dbrCircSupplyCacheKey, false),
             dbrContract.balanceOf('0xC7DE47b9Ca2Fc753D6a2F167D8b3e19c6D18b19a'),
+            getDbrPriceOnCurve(provider),
+            fetcher30sectimeout(`${SERVER_BASE_URL}/api/dola/rate-comparator`),
         ]);
 
         // feds + exceptions, dolacrvusd, dolausd+, dola-usdc op aura, dola-usdc uni v3, dola-inv uni v3, dola-3pool
@@ -59,7 +62,11 @@ export default async (req, res) => {
         const currentDolaBadDebt = badDebtData.badDebts.DOLA.badDebtBalance;
         const dbrReplenished = replenishmentsData?.events?.reduce((prev, curr) => prev+curr.deficit, 0);
 
-        let csvData = `DOLA bad debt:,${currentDolaBadDebt},FiRM borrows:,${totalBorrowsOnFirm},DSA DOLA bal:,${dolaStakingData.dsaTotalSupply},DSA dbrYearlyEarnings:,${dolaStakingData.dsaYearlyDbrEarnings},DBR replenishments:,${dbrReplenished},DBR balance in tripool:,${getBnToNumber(dbrTriPoolBalanceBn).toFixed(0)},DBR circ supply:,${Number(dbrCirculatingSupply).toFixed(0)}\n`;
+        const { priceInDola: dbrPrice } = dbrPriceData;
+        const { rates } = rateComparatorData;
+        const aaveRate = rates.find(rate => rate.key === `Aave-V3-Multiple-USDC`);
+
+        let csvData = `DOLA bad debt:,${currentDolaBadDebt},FiRM borrows:,${totalBorrowsOnFirm},DSA DOLA bal:,${dolaStakingData.dsaTotalSupply},DSA dbrYearlyEarnings:,${dolaStakingData.dsaYearlyDbrEarnings},DBR replenishments:,${dbrReplenished},DBR balance in tripool:,${getBnToNumber(dbrTriPoolBalanceBn).toFixed(0)},DBR circ supply:,${Number(dbrCirculatingSupply).toFixed(0)},DBR price (in dola):,${Number(dbrPrice).toFixed(4)},Aave USDC 7d avg borrow apy:,${Number(aaveRate.avg7).toFixed(2)}\n`;
         csvData += `Liquidity Cache:,~5min,Liquidity timestamp:,${liquidityData.timestamp},Bad debt timestamp:,${badDebtData.timestamp}, DSA timestamp:,${dolaStakingData.timestamp},\n`;
         csvData += `LP,Fed or Project,Fed Supply,RootLP DOLA balance,Pairing Depth ($ or amount),Fed PoL\n`;
         feds.forEach((lp) => {
