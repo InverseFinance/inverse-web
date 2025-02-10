@@ -1,11 +1,11 @@
 import 'source-map-support'
 import { getProvider } from '@app/util/providers';
-import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
+import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types';
-// import { getAaveV3RateOf } from '@app/util/borrow-rates-comp';
 import { getSavingsCrvUsdData, getSavingsUSDData, getSavingsUSDzData, getSFraxData, getSUSDEData } from '@app/util/markets';
 import { getDSRData } from '@app/util/markets';
 import { TOKEN_IMAGES } from '@app/variables/images';
+import { timestampToUTC } from '@app/util/misc';
 
 export default async function handler(req, res) {
   const cacheKey = `sdola-rates-compare-v1.0.4`;
@@ -13,10 +13,10 @@ export default async function handler(req, res) {
   try {
     const cacheDuration = 60;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
+    const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, true, cacheDuration);
 
-    if (validCache) {
-      res.status(200).json(validCache);
+    if (isValid) {
+      res.status(200).json(cachedData);
       return
     }
 
@@ -52,13 +52,33 @@ export default async function handler(req, res) {
       // getSavingsUSDzData(),
     ]);
 
+    const now = Date.now();
+    const nowDayUTC = timestampToUTC(now);
+    let utcSnapshots = cachedData?.utcSnapshots || [];
+    let pastRates = cachedData?.pastRates || [];
+
+    const addTodayRate = !utcSnapshots.includes(nowDayUTC);
+    if (addTodayRate) {
+      utcSnapshots.push(nowDayUTC);
+      pastRates.push({});
+    }
+
     const sortedRates = rates
       .map((rate, index) => {
+        const symbol = symbols[index];
+        const pastRatesLen = pastRates.length;
+        if (addTodayRate) {
+          pastRates[pastRatesLen - 1][symbol] = rate.apy;
+        }
+        const last7 = pastRates.slice(pastRatesLen - 7, pastRatesLen).filter(pr => !!pr[symbol]);
+        const last30 = pastRates.slice(pastRatesLen - 30, pastRatesLen).filter(pr => !!pr[symbol]);
         return {
           apy: (rate.supplyRate || rate.apy),
           apy30d: (rate.apyMean30d || rate.apy30d),
-          symbol: symbols[index],
-          image: TOKEN_IMAGES[symbols[index]],
+          avg7: last7.length ? last7.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last7.length : rate.apy,
+          avg30: last30.length ? last30.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last30.length : rate.apy,
+          symbol,
+          image: TOKEN_IMAGES[symbol],
           project: projects[index],
           link: links[index],
         }
@@ -68,6 +88,8 @@ export default async function handler(req, res) {
 
     const result = {
       timestamp: Date.now(),
+      pastRates,
+      utcSnapshots,
       rates: sortedRates,
     };
 
