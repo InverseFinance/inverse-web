@@ -1,8 +1,9 @@
 import 'source-map-support'
 import { getProvider } from '@app/util/providers';
-import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
+import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types';
 import { getAaveV3Rate, getAaveV3RateDAI, getCompoundRate, getCrvUSDRate, getFirmRate, getFluidRates, getFraxRate, getSparkRate } from '@app/util/borrow-rates-comp';
+import { timestampToUTC } from '@app/util/misc';
 
 export default async function handler(req, res) {
   const cacheKey = `borrow-rates-compare-v1.1.6`;
@@ -10,16 +11,16 @@ export default async function handler(req, res) {
   try {
     const cacheDuration = 600;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
+    const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, true, cacheDuration);
 
-    if (validCache) {
-      res.status(200).json(validCache);
+    if (isValid) {
+      res.status(200).json(cachedData);
       return
     }
 
     const provider = getProvider(NetworkIds.mainnet);
 
-    const rates = (await Promise.all([
+    const _rates = (await Promise.all([
       getAaveV3Rate(provider),
       // getAaveV3RateDAI(provider),
       getCompoundRate(provider),
@@ -40,13 +41,47 @@ export default async function handler(req, res) {
       getFluidRates(),
     ])).flat();
 
-    rates.sort((a, b) => {
+    _rates.sort((a, b) => {
       return a.type === 'fixed' || a.borrowRate < b.borrowRate ? -1 : a.borrowRate - b.borrowRate;
     });
 
+    const now = Date.now();
+    const nowDayUTC = timestampToUTC(now);
+    let utcSnapshots = cachedData?.utcSnapshots || [];
+    let pastRates = cachedData?.pastRates || [];
+
+    const addTodayRate = !utcSnapshots.includes(nowDayUTC)
+    if(addTodayRate) {
+      utcSnapshots.push(nowDayUTC);
+      pastRates.push({});
+    }
+
+    const rates = _rates.map(rate => {
+      const key = `${rate.project}-${rate.collateral || 'multiple'}-${rate.borrowToken || 'USDC'}`;
+      const pastRatesLen = pastRates.length;
+      if(addTodayRate) {
+        pastRates[pastRatesLen - 1][key] = rate.borrowRate;
+      }
+      const last7 = pastRates.slice(pastRatesLen - 7, pastRatesLen).filter(pr => !!pr[key]);
+      const last30 = pastRates.slice(pastRatesLen - 30, pastRatesLen).filter(pr => !!pr[key]);
+      return {
+        ...rate,
+        avg7: last7.length ? last7.reduce((prev, curr) => prev+(curr[key]||0), 0)/last7.length : rate.borrowRate,
+        avg30: last30.length ? last30.reduce((prev, curr) => prev+(curr[key]||0), 0)/last30.length : rate.borrowRate,
+        key,
+      };
+    });
+
+    if(utcSnapshots.length > 30) {
+      utcSnapshots = utcSnapshots.slice(0, 30);
+      pastRates = pastRates.slice(0, 30);
+    }
+
     const result = {
-      timestamp: Date.now(),
-      rates: rates.map(rate => ({ ...rate, key: `${rate.project}-${rate.collateral||'multiple'}-${rate.borrowToken||'USDC'}` })),
+      timestamp: now,
+      utcSnapshots,
+      pastRates,
+      rates,
     };
 
     await redisSetWithTimestamp(cacheKey, result);
