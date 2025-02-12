@@ -80,7 +80,7 @@ export const StakeDolaUI = ({
             .concat([
                 {
                     ...evolution[evolution.length - 1],
-                    timestamp: Date.now() - (1000 * 120),
+                    timestamp: now - (1000 * 120),
                     apy,
                 }
             ]);
