@@ -292,7 +292,7 @@ export const UserDashboard = ({
     const { assets: invStakedInSInvV1 } = useStakedInvBalance(account, "V1");
     const { assets: invStakedInSInvV2 } = useStakedInvBalance(account, "V2");
     
-    const { apr: sDolaApr, projectedApr: sDolaProjectedApr, sDolaExRate } = useStakedDola(dbrPrice);
+    const { apr: sDolaApr, projectedApr: sDolaProjectedApr, sDolaExRate, apy: sDolaApy, projectedApy: sDolaProjectedApy } = useStakedDola(dbrPrice);
     const { apy: sInvApy, projectedApy: sInvProjectedApy } = useStakedInv(dbrDolaPrice);
 
     const dolaStakedInSDola = sDolaExRate && stakedDolaBalance ? sDolaExRate * stakedDolaBalance : 0;    
@@ -344,8 +344,8 @@ export const UserDashboard = ({
                 imageSrc={TOKEN_IMAGES.DOLA}
                 footer={
                     <CardFooter
-                        labelLeft={<>APR: <b>{shortenNumber(sDolaApr, 2)}%</b></>}
-                        labelRight={<>proj. APR: <b>{shortenNumber(sDolaProjectedApr, 2)}%</b></>}
+                        labelLeft={<>APY: <b>{shortenNumber(sDolaApy, 2)}%</b></>}
+                        labelRight={<>proj. APY: <b>{shortenNumber(sDolaProjectedApy, 2)}%</b></>}
                     />
                 } href="/sDOLA" noDataFallback={StakeDOLA} isLoading={isLoading} value={dolaStakedInSDola} label="DOLA staked" precision={2} />
                 <NumberCard
