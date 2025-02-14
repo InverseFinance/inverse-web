@@ -120,8 +120,8 @@ export const BlastBridge = () => {
     const isDisabledMax = !l1token || !l2token || isWrongNetwork || isWrongAddress || !balance;
 
     return <Container
-        label="Blast Native Bridge (deprecated)"
-        description="This UI for the blast native bridge is deprecated and might not work 100%"
+        label="Blast Native Bridge"
+        // description="This UI for the blast native bridge is deprecated and might not work 100%"
         noPadding
         p="0"
         contentProps={{ direction: 'column', minH: !account ? undefined : '400px' }}

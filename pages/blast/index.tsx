@@ -26,12 +26,7 @@ export const BlastPage = () => {
         alertProps={{ w: { base: 'full', lg: '1200px' }, mt: '4' }}
         description={
           <VStack spacing="2" alignItems="flex-start">
-            <Text>We now recommend to use the <b>blast.gfxlabs.io</b> app which has more advanced features:</Text>
-            <Link textDecoration="underline" href="https://blast.gfxlabs.io" isExternal target="_blank">
-              Open the <b>blast.gfxlabs.io</b> bridge app (fork of Superbridge)
-            </Link>
             <Text>DOLA address on Blast: <b>0x8e38179D361402f6a94767757e807146609E9B3d</b></Text>
-            <Text>If DOLA shows as invalid on blast.gfxlabs.io, then you can initialize the withdrawal with the UI below, and do the prove and finalize steps on blast.gfxlabs.io in the "action needed" section.</Text>
           </VStack>
         } />
       <VStack
