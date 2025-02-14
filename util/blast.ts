@@ -187,7 +187,7 @@ export const getBlastAddressWithrawals = async (
     ethProvider: Web3Provider,
     address: string,
 ) => {
-    const path = `https://api.blastscan.io/api?address=${address}&action=txlist&module=account`;
+    const path = `https://api.blastscan.io/api?address=${address}&action=txlist&module=account&apiKey=QEG9BB3VI8NTK85QCCIIQQTK9FUVAQ7684`;
     try {
         const res = await fetcher(path);
         const list = res?.status === "1" ? res?.result : [];
