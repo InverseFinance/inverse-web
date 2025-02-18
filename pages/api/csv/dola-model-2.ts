@@ -40,7 +40,7 @@ export default async (req, res) => {
             fetcher30sectimeout(`${SERVER_BASE_URL}/api/transparency/liquidity`),            
             getCacheFromRedis(repaymentsCacheKeyV2, false),
             getCacheFromRedis(dolaStakingCacheKey, false),  
-            getCacheFromRedis(dbrReplenishmentsCacheKey, false),          
+            getCacheFromRedis(dbrReplenishmentsCacheKey, false, 0, true),          
             getCacheFromRedis(dbrCircSupplyCacheKey, false),
             dbrContract.balanceOf('0xC7DE47b9Ca2Fc753D6a2F167D8b3e19c6D18b19a'),
             getDbrPriceOnCurve(provider),
