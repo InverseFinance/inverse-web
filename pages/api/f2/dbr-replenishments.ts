@@ -67,14 +67,14 @@ export default async function handler(req, res) {
       timestamp: (+(new Date())-1000),
     }
 
-    await redisSetWithTimestamp(dbrReplenishmentsCacheKey, resultData);
+    await redisSetWithTimestamp(dbrReplenishmentsCacheKey, resultData, true);
 
     res.status(200).json(resultData)
   } catch (err) {
     console.error(err);
     // if an error occured, try to return last cached results
     try {
-      const cache = await getCacheFromRedis(dbrReplenishmentsCacheKey, false);
+      const cache = await getCacheFromRedis(dbrReplenishmentsCacheKey, false, 0, true);
       if (cache) {
         console.log('Api call failed, returning last cache found');
         res.status(200).json(cache);
