@@ -1,4 +1,4 @@
-import { LIQUIDATION_GRANTS_MSG_TO_SIGN } from '@app/components/common/Modal/LiquidationGrantsModal';
+import { CAMPAIGNS_SETTINGS } from '@app/config/campaigns.config';
 import { shortenAddress } from '@app/util';
 import { verifyMultisigMessage } from '@app/util/multisig';
 import { getCacheFromRedis, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis';
@@ -7,6 +7,7 @@ import { verifyMessage, hashMessage } from 'ethers/lib/utils';
 interface FieldSettings {
   values?: string[];
   maxLength?: number;
+  isValid?: (value: any) => boolean;
 }
 
 interface CampaignSettings {
@@ -19,25 +20,6 @@ interface CampaignSettings {
   };
 }
 
-const CAMPAIGNS_SETTINGS = {
-  'liquidation-grants': {
-    title: 'Liquidation Grants Program',
-    sigText: LIQUIDATION_GRANTS_MSG_TO_SIGN,
-    fields: ['liquidatorType', 'contact'],
-    mandatoryFields: ['liquidatorType'],
-    to: 'karm@inverse.finance',
-    fieldsSettings: {
-      liquidatorType: {
-        values: ['eoa', 'bot'],
-        title: 'Liquidator type',
-      },
-      contact: {
-        maxLength: 100,
-        title: 'Contact',
-      }
-    }
-  },
-}
 const CAMPAIGNS = Object.keys(CAMPAIGNS_SETTINGS);
 
 const sendNotifToTeam = async (campaignSettings: CampaignSettings, form: Record<string, string>, address?: string) => {
@@ -110,6 +92,12 @@ const checkCampaignValues = (form: Record<string, string>, campaignSettings: Cam
           valid: false,
           error: `${fieldName} exceeds maximum length of ${settings.maxLength} characters`
         };
+      }
+      else if(!!settings.isValid && !settings.isValid(fieldValue)) {
+        return {
+          valid: false,
+          error: `Invalid value provided for ${fieldName}`,
+        }
       }
     }
 
