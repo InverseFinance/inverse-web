@@ -153,6 +153,8 @@ const chainTokenAddresses = {
     DOLAUSRCRVLP: '0x38De22a3175708D45E7c7c64CD78479C8B56f76E',
     DOLAdeUSDCRVLP: '0x6691DBb44154A9f23f8357C56FC9ff5548A8bdc4',
     DOLASdeUSDCRVLP: '0x82202CAEC5E6d85014eADC68D4912F3C90093e7C',
+    YUSD: '0x1CE7D9942ff78c328A4181b9F3826fEE6D845A97',
+    YUSDSDOLACLP: '0x9353976A6B6E7A9e1E9B1F2aaaBA629aD310947f',
     // PAL: '0xAB846Fb6C81370327e784Ae7CbB6d6a6af6Ff4BF',
   },
   "250": {
@@ -402,6 +404,15 @@ const chainTokens = {
       symbol: 'USR',
       coingeckoId: 'resolv-usr',
       image: TOKEN_IMAGES.USR,
+      decimals: 18,
+      isStable: true,
+    },
+    [chainTokenAddresses["1"].YUSD]: {
+      address: chainTokenAddresses["1"].YUSD,
+      name: 'YUSD',
+      symbol: 'YUSD',
+      coingeckoId: 'yieldfi-ytoken',
+      image: TOKEN_IMAGES.YUSD,
       decimals: 18,
       isStable: true,
     },
@@ -697,6 +708,21 @@ const chainTokens = {
       ],
       image: TOKEN_IMAGES.DOLA,
       link: 'https://curve.fi/dex/#/ethereum/pools/factory-stable-ng-337/deposit',
+    },
+    [chainTokenAddresses["1"].YUSDSDOLACLP]: {
+      address: chainTokenAddresses["1"].YUSDSDOLACLP,
+      name: 'sDOLA-YUSD',
+      symbol: 'sDOLA-YUSD clp', 
+      protocolImage: PROTOCOL_IMAGES.CRV,
+      decimals: 18,
+      isLP: true,
+      isStable: true,
+      isCrvLP: true,
+      pairs: [
+        chainTokenAddresses["1"].YUSD, chainTokenAddresses["1"].SDOLA
+      ],
+      image: TOKEN_IMAGES.DOLA,
+      link: 'https://curve.fi/dex/#/ethereum/pools/factory-stable-ng-361/deposit',
     },
     [chainTokenAddresses["1"].DOLAdeUSDCRVLP]: {
       address: chainTokenAddresses["1"].DOLAdeUSDCRVLP,
