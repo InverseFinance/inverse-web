@@ -9,11 +9,12 @@ import { Input } from "../Input";
 import { RSubmitButton } from "../Button/RSubmitButton";
 import { useWeb3React } from "@web3-react/core";
 import { shortenAddress } from "@app/util";
+import { CAMPAIGNS_SETTINGS, LIQUIDATION_GRANTS_MSG_TO_SIGN } from "@app/config/campaigns.config";
 
-export const LIQUIDATION_GRANTS_MSG_TO_SIGN = "Apply to the Inverse Finance Liquidation Grants Program with this account:\r\n";
+const liquidationCampaignId = `liquidation-grants-v1.0.1`;
 
 const saveSig = async (account: string, form: any, sig: string) => {
-    return fetch(`/api/campaigns?campaign=liquidation-grants&address=${account}`, {
+    return fetch(`/api/campaigns?campaign=${liquidationCampaignId}&address=${account}`, {
         method: 'POST',
         body: JSON.stringify({ sig, form }),
         headers: {
@@ -24,11 +25,11 @@ const saveSig = async (account: string, form: any, sig: string) => {
 }
 
 const checkSig = async (account: string) => {
-    const localCacheFirst = localStorage.getItem(`liquidation-grants-${account}`);
+    const localCacheFirst = localStorage.getItem(`${liquidationCampaignId}-${account}`);
     if (localCacheFirst === 'true') {
         return { applied: true };
     }
-    const res = await fetch(`/api/campaigns?campaign=liquidation-grants&address=${account}`);
+    const res = await fetch(`/api/campaigns?campaign=${liquidationCampaignId}&address=${account}`);
     return res.json();
 }
 
@@ -57,19 +58,21 @@ export const LiquidationGrantsModal = ({
     const [liquidatorType, setLiquidatorType] = useState('bot');
     const [isSuccess, setIsSuccess] = useState(false);
     const [contact, setContact] = useState('');
+    const [txHash, setTxHash] = useState('');
+    const [isInvalidForm, setIsInvalidForm] = useState(false);
 
     const apply = async () => {
         if (provider && !!account) {
             const signer = provider?.getSigner();
             const sig = await signer.signMessage(LIQUIDATION_GRANTS_MSG_TO_SIGN + account.toLowerCase()).catch(() => '');
             if (!!sig) {
-                return saveSig(account, { liquidatorType, contact }, sig);
+                return saveSig(account, { liquidatorType, contact, txHash }, sig);
             }
         }
     }
 
     const onSuccess = (result) => {
-        localStorage.setItem(`liquidation-grants-${account}`, 'true');
+        localStorage.setItem(`${liquidationCampaignId}-${account}`, 'true');
         setIsSuccess(true);
     }
 
@@ -80,6 +83,10 @@ export const LiquidationGrantsModal = ({
             setIsSuccess(!!res?.applied);
         });
     }, [account]);
+
+    useEffect(() => {
+        setIsInvalidForm(!CAMPAIGNS_SETTINGS[liquidationCampaignId].fieldsSettings.txHash.isValid(txHash));
+    }, [txHash]);
 
     return <SimpleModal
         title={
@@ -115,6 +122,10 @@ export const LiquidationGrantsModal = ({
                     description={<Text>Please connect your wallet first</Text>}
                 /> : <>
                     <VStack alignItems="flex-start" w='full' spacing="2">
+                        <Text fontWeight="bold">Please provide one transaction hash were you did an eligible liquidation</Text>
+                        <Input placeholder="0x0000000000000000000000000000000000000000000000000000000000000000" fontSize="14px" value={txHash} onChange={(e) => setTxHash(e.target.value)} />
+                    </VStack>
+                    <VStack alignItems="flex-start" w='full' spacing="2">
                         <Text fontWeight="bold">Is this liquidating account an EOA or are you the operator of the MEV liquidator?</Text>
                         <RadioGroup w='full' bgColor="mainBackground" p="2" onChange={setLiquidatorType} value={liquidatorType}>
                             <Stack direction='row' w='full' spacing="4">
@@ -130,11 +141,15 @@ export const LiquidationGrantsModal = ({
                             Not required but can be useful. Alternatively, just stop into the Inverse Finance Discord Risk channel.
                         </Text>
                     </VStack>
-                    <RSubmitButton onSuccess={onSuccess} onClick={apply}>
+                    <RSubmitButton isDisabled={isInvalidForm} onSuccess={onSuccess} onClick={apply}>
                         Apply by signing with wallet
                     </RSubmitButton>
                 </>
             }
         </VStack>
     </SimpleModal>
+}
+
+function setIsFormInvalid(arg0: boolean) {
+    throw new Error("Function not implemented.");
 }
