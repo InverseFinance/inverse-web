@@ -11,7 +11,7 @@ import { formatDistributorData, formatMarketData, inverseViewerRaw } from '@app/
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.3.92`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.3.94`;
 
 export default async function handler(req, res) {
   const cacheDuration = 90;
