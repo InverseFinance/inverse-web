@@ -29,9 +29,9 @@ const YEARN_VAULT_IDS = {
   FRAX_BP_DOLA: '0xe5F625e8f4D2A038AE9583Da254945285E5a77a4',
 } as const;
 
-const getDefiLlamaApy = async (poolId: string) => {
+export const getDefiLlamaApy = async (poolId: string, strictAvg =true) => {
   try {
-    const data = await getPoolYield(poolId);
+    const data = await getPoolYield(poolId, strictAvg);
     return { apy: (data?.apy || 0), apy30d: data?.apy30d };
   } catch (e) {
     console.log(`Failed to fetch APY for pool ${poolId}:`, e);
@@ -533,12 +533,12 @@ export const getXSushiData = async (nbDays = 7) => {
     return { apy: apy * 100 };
 }
 
-export const getPoolYield = async (defiLlamaPoolId: string) => {
+export const getPoolYield = async (defiLlamaPoolId: string, strictAvg = false) => {
     const url = `https://yields.llama.fi/chart/${defiLlamaPoolId}`;
     try {
         const results = await fetch(url);
         const data = await results.json();
-        const apy30d = data.status === 'success' ? getAvgOnLastItems(data?.data, "apy", 30) : 0;
+        const apy30d = data.status === 'success' ? data?.data?.length >= 30 ? getAvgOnLastItems(data?.data, "apy", 30) : 0 : 0;
         return data.status === 'success' ? { ...data.data[data.data.length - 1], apy30d } : { apy: 0, tvlUsd: 0, apy30d };
     } catch (e) { console.log(e) }
     return {};
