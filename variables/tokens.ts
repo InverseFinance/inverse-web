@@ -750,7 +750,7 @@ const chainTokens = {
       isLP: true,
       isYearnV2LP: true,
       pairs: [
-        chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].SCRVUSD
+        chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].deUSD
       ],
       image: TOKEN_IMAGES.DOLA,
       link: 'https://yearn.fi/vaults/1/0xc7C1B907BCD3194C0D9bFA2125251af98BdDAfbb',
