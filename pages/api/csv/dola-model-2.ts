@@ -36,7 +36,7 @@ export default async (req, res) => {
     );
 
     const sevenDaysAgoTs = (Date.now()-7*ONE_DAY_MS);
-    const sevenDaysAgoTsInSecs = sevenDaysAgoTs.toFixed(0);
+    const sevenDaysAgoTsInSecs = (sevenDaysAgoTs/1000).toFixed(0);
 
     try {
         const [liquidityData, badDebtData, dolaStakingData, replenishmentsData, dbrCirculatingSupply, dbrTriPoolBalanceBn, dbrPriceData, aaveData] = await Promise.all([
@@ -47,7 +47,7 @@ export default async (req, res) => {
             getCacheFromRedis(dbrCircSupplyCacheKey, false),
             dbrContract.balanceOf('0xC7DE47b9Ca2Fc753D6a2F167D8b3e19c6D18b19a'),
             getDbrPriceOnCurve(provider),
-            fetcher30sectimeout(`https://aave-api-v2.aave.com/data/rates-history?reserveId=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb480x2f39d218133AFaB8F2B819B1066c7E434Ad94E9e1&from=${sevenDaysAgoTsInSecs}$&resolutionInHours=6`),
+            fetcher30sectimeout(`https://aave-api-v2.aave.com/data/rates-history?reserveId=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb480x2f39d218133AFaB8F2B819B1066c7E434Ad94E9e1&from=${sevenDaysAgoTsInSecs}&resolutionInHours=6`),
         ]);
 
         // feds + exceptions, dolacrvusd, dolausd+, dola-usdc op aura, dola-usdc uni v3, dola-inv uni v3, dola-3pool
