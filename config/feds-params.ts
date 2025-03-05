@@ -1,4 +1,5 @@
 import { FedTypes, NetworkIds } from "@app/types";
+import { TOKEN_IMAGES } from "@app/variables/images";
 
 export const FEDS_PARAMS = [
     {
@@ -455,4 +456,13 @@ export const FEDS_PARAMS = [
             },
         },
     },
+    // {
+    //     chainId: NetworkIds.mainnet,
+    //     type: FedTypes.CROSS,
+    //     protocol: "Gearbox",
+    //     address: "0xe082EB109fAd53eA8DB9827ce6b8ef74882734fc",
+    //     name: "Gearbox Fed",
+    //     projectImage: TOKEN_IMAGES["GEAR"],
+    //     supplyFuncName: "supply",
+    // },
 ];
