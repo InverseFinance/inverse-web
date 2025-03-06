@@ -2,7 +2,7 @@ import 'source-map-support'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types';
-import { getSavingsCrvUsdData, getSavingsUSDData, getSavingsUSDzData, getSFraxData, getSUSDEData } from '@app/util/markets';
+import { getDefiLlamaApy, getSavingsCrvUsdData, getSavingsUSDData, getSavingsUSDzData, getSFraxData, getSUSDEData } from '@app/util/markets';
 import { getDSRData } from '@app/util/markets';
 import { TOKEN_IMAGES } from '@app/variables/images';
 import { timestampToUTC } from '@app/util/misc';
@@ -24,7 +24,7 @@ export default async function handler(req, res) {
 
     const symbols = [
       // 'USDC', 'USDT',
-      'sDAI', 'sFRAX', 'sUSDe', 'sDOLA', 'scrvUSD', 'sUSDS', 'sUSDz'];
+      'sDAI', 'sfrxUSD', 'sUSDe', 'sDOLA', 'scrvUSD', 'sUSDS', 'sUSDz'];
     const projects = [
       // 'Aave-V3', 'Aave-V3', 
       'Spark', 'Frax', 'Ethena', 'FiRM', 'Curve', 'Sky', 'Anzen'];
@@ -32,7 +32,8 @@ export default async function handler(req, res) {
       // 'https://app.aave.com/reserve-overview/?underlyingAsset=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&marketName=proto_mainnet_v3',
       // 'https://app.aave.com/reserve-overview/?underlyingAsset=0xdac17f958d2ee523a2206206994597c13d831ec7&marketName=proto_mainnet_v3',
       'https://app.spark.fi/',
-      'https://app.frax.finance/sfrax/stake',
+      // 'https://app.frax.finance/sfrax/stake',
+      'https://frax.com/earn',
       'https://app.ethena.fi/earn',
       'https://inverse.finance/sDOLA',
       'https://crvusd.curve.fi/#/ethereum/scrvUSD',
@@ -44,7 +45,8 @@ export default async function handler(req, res) {
       // getAaveV3RateOf(provider, 'USDC'),
       // getAaveV3RateOf(provider, 'USDT'),
       getDSRData(),
-      getSFraxData(provider),
+      // getSFraxData(provider),
+      getDefiLlamaApy("42523cca-14b0-44f6-95fb-4781069520a5"),
       getSUSDEData(provider, true),
       fetch('https://www.inverse.finance/api/dola-staking').then(res => res.json()),
       getSavingsCrvUsdData(),
@@ -75,8 +77,8 @@ export default async function handler(req, res) {
         return {
           apy: (rate.supplyRate || rate.apy),
           apy30d: (rate.apyMean30d || rate.apy30d),
-          avg7: last7.length ? last7.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last7.length : rate.apy,
-          avg30: last30.length ? last30.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last30.length : rate.apy,
+          avg7: last7.length >= 7 ? last7.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last7.length : rate.apy,
+          avg30: last30.length >= 30 ? last30.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last30.length : rate.apy,
           symbol,
           image: TOKEN_IMAGES[symbol],
           project: projects[index],
