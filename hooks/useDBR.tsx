@@ -67,7 +67,7 @@ export const useAccountDBR = (
   const dbrDepletionPerc = dbrNbDaysExpiry / 365 * 100;
 
   // dbr / controller dust issue
-  const hasDustIssue = blockTimestamp?.timestamp > 0 && lastUpdate > 0 && debt > 0 && (debt * (blockTimestamp?.timestamp - lastUpdate)) < 0.000000000031536;
+  const hasDustIssue = (debt > 0 && debt <= 0.000000000031536) && (blockTimestamp?.timestamp > 0 && lastUpdate > 0 && debt > 0 && (debt * (blockTimestamp?.timestamp - lastUpdate)) < 0.000000000031536);
 
   const hasDebt = monthlyDebtAccrual !== 0;
   const needsRechargeSoon = dbrNbDaysExpiry <= 30 && hasDebt;
