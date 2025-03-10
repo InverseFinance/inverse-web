@@ -148,6 +148,7 @@ export const TOKEN_IMAGES = {
     "wstETH": "https://assets.coingecko.com/coins/images/18834/standard/wstETH.png",
     "stYETH": "https://assets.coingecko.com/coins/images/32222/standard/st-yETH-128px.png?1696914941",
     "yETH": "https://assets.coingecko.com/coins/images/32220/standard/yETH-128px.png?1696914909",
+    "GEAR": "https://assets.coingecko.com/coins/images/21630/standard/gear.png?1696520990",
 }
 
 export const PROTOCOL_IMAGES = {

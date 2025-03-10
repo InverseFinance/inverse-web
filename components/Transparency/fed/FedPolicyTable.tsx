@@ -10,9 +10,9 @@ import moment from 'moment'
 const SupplyChange = ({ newSupply, changeAmount, isContraction }: { newSupply: number, changeAmount: number, isContraction: boolean }) => {
     return (
         <Flex alignItems="center" justify="space-between" color={isContraction ? 'info' : 'secondary'} pl="2" minW="140px">
-            <Text textAlign="left" w="60px">{shortenNumber(newSupply - changeAmount, 2)}</Text>
+            <Text fontSize="13px" textAlign="left" w="60px">{shortenNumber(newSupply - changeAmount, 2)}</Text>
             <ArrowForwardIcon />
-            <Text textAlign="right" w="60px">{shortenNumber(newSupply, 2)}</Text>
+            <Text fontSize="13px" textAlign="right" w="60px">{shortenNumber(newSupply, 2)}</Text>
         </Flex>
     )
 }

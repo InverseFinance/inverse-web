@@ -28,18 +28,18 @@ const ANCHOR_RESERVES_TO_CHECK = [
 ];
 
 export const cacheMultisigMetaKey = `dao-multisigs-meta-v1.0.9`;
-export const cacheFedsMetaKey = `dao-feds-meta-v1.0.3`;
+export const cacheFedsMetaKey = `dao-feds-meta-v1.0.4`;
 export const cacheMulBalKey = `dao-multisigs-bal-v1.0.96`;
 export const cacheMulAllKey = `dao-multisigs-all-v1.0.55`;
-export const cacheDolaSupplies = `dao-dola-supplies-v1.0.2`;
-export const cacheFedDataKey = `dao-feds-datas-v1.0.3`;
+export const cacheDolaSupplies = `dao-dola-supplies-v1.0.3`;
+export const cacheFedDataKey = `dao-feds-datas-v1.0.4`;
 export const cacheMultisigDataKey = `dao-multisigs-data-v1.0.92`;
 
 export default async function handler(req, res) {
   const { cacheFirst } = req.query;
 
   const { DOLA, INV, ANCHOR_TOKENS, UNDERLYING, FEDS, TREASURY, MULTISIGS, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `dao-cache-v1.4.2`;
+  const cacheKey = `dao-cache-v1.4.3`;
 
   try {
     const cacheDuration = 360;
