@@ -456,6 +456,11 @@ export type Fed = {
   incomeTargetAd?: string
   fusePool?: string
   isFirm?: boolean
+  borrowConfig?: {
+    contractAddress: string,
+    abi: string[],
+    functionName: string,
+  }
 }
 
 export type FedWithData = Fed & {

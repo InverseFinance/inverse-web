@@ -24,8 +24,9 @@ const FUSE_CTOKENS = {
   // '0xCBF33D02f4990BaBcba1974F1A5A8Aea21080E36': '0xa355e89F6b326624fB54310589689144B2A0B3a8',
 };
 const FUSE_FEDS = Object.entries(FUSE_CTOKENS).map(([fedAddress, ctoken]) => ({ fedAddress, ctoken }));
+const OTHER_CROSS_FEDS = FEDS.filter(f => f.type === FedTypes.CROSS && !!f.borrowConfig);
 
-export const fedOverviewCacheKey = `fed-overview-v1.0.9`;
+export const fedOverviewCacheKey = `fed-overview-v1.0.91`;
 
 export default async function handler(req, res) {
   // to keep for archive  
@@ -54,6 +55,7 @@ export default async function handler(req, res) {
       _multisigData,
       anDolaBorrows,
       fuseDolaBorrowsBn,
+      otherCrossFedBorrows,
       lpBalancesBn,
       lpSupplyBn,
       lpPrices,
@@ -71,6 +73,12 @@ export default async function handler(req, res) {
         FUSE_FEDS.map(fuseFed => {
           const contract = new Contract(fuseFed.ctoken, CTOKEN_ABI, provider);
           return contract.totalBorrows();
+        })
+      ),
+      Promise.all(
+        OTHER_CROSS_FEDS.map(fed => {
+          const contract = new Contract(fed.borrowConfig!.contractAddress, fed.borrowConfig!.abi, getProvider(fed.chainId));
+          return contract[fed.borrowConfig!.functionName]();
         })
       ),
       Promise.all(
@@ -194,6 +202,12 @@ export default async function handler(req, res) {
           borrows = getBnToNumber(fuseDolaBorrowsBn[fuseFedIndex]);
         }
       }
+      else if (fedConfig.borrowConfig) {
+        detailsLink = `https://debank.com/profile/${fedConfig.address}`;
+        detailsLinkName = 'Debank';
+        const index = OTHER_CROSS_FEDS.findIndex(ff => ff.address === fedConfig.address);
+        borrows = getBnToNumber(otherCrossFedBorrows[index]);
+      }
 
       const supply = fedData?.supply || 0;
 
@@ -201,7 +215,7 @@ export default async function handler(req, res) {
         ...fedConfig,
         abi: undefined,
         supply,
-        circSupply: ['FiRM', 'Frontier'].includes(fedConfig.protocol) ? borrows : supply - getBnToNumber(idleDolaBalances[fedIndex]),
+        circSupply: ['FiRM', 'Frontier'].includes(fedConfig.protocol) || !!fedConfig.borrowConfig ? borrows : supply - getBnToNumber(idleDolaBalances[fedIndex]),
         idleDolaBalance: getBnToNumber(idleDolaBalances[fedIndex]),
         lpBalance,
         lpTotalSupply,

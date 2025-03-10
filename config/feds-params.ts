@@ -456,13 +456,18 @@ export const FEDS_PARAMS = [
             },
         },
     },
-    // {
-    //     chainId: NetworkIds.mainnet,
-    //     type: FedTypes.CROSS,
-    //     protocol: "Gearbox",
-    //     address: "0xe082EB109fAd53eA8DB9827ce6b8ef74882734fc",
-    //     name: "Gearbox Fed",
-    //     projectImage: TOKEN_IMAGES["GEAR"],
-    //     supplyFuncName: "supply",
-    // },
+    {
+        chainId: NetworkIds.mainnet,
+        type: FedTypes.CROSS,
+        protocol: "Gearbox",
+        address: "0xe082EB109fAd53eA8DB9827ce6b8ef74882734fc",
+        name: "Gearbox Fed",
+        projectImage: TOKEN_IMAGES["GEAR"],
+        supplyFuncName: "supply",
+        borrowConfig: {
+            contractAddress: '0x31426271449F60d37Cc5C9AEf7bD12aF3BdC7A94',
+            abi: ["function totalBorrowed() view returns (uint)"],
+            functionName: 'totalBorrowed',
+        },
+    },
 ];
