@@ -23,8 +23,8 @@ const redirects = async () => {
       permanent: false,
     },
     {
-      source: '/brand-assets-2024.pdf',
-      destination: '/brand-assets-2024-v1.0.1.pdf',
+      source: '/brand-assets-2024-v1.0.1.pdf',
+      destination: '/brand-assets-2024-v1.0.2.pdf',
       permanent: false,
     },
     {
