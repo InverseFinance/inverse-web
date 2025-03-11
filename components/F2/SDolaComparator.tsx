@@ -103,12 +103,12 @@ const columns = [
         },
     },
     {
-        field: 'apy30d',
+        field: 'avg30',
         label: 'APY 30d avg',
         header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
-        value: ({ apy30d }) => {
+        value: ({ avg30 }) => {
             return <Cell minWidth="70px" alignItems="center" justify="center" >
-                <CellText>{apy30d ? `~${shortenNumber(apy30d, 0)}` : '-'}%</CellText>
+                <CellText>{avg30 ? `~${shortenNumber(avg30, 0)}` : '-'}%</CellText>
             </Cell>
         },
     },
@@ -225,6 +225,6 @@ export const SDolaComparator = ({
     const _themeStyles = themeStyles || prefThemeStyles || lightTheme;
 
     return <VStack w='full' spacing="10" overflow="hidden">
-        <UngroupedComparator title={title} allRates={data?.rates?.map(r => ({...r, avg30d: (r.symbol === 'sDOLA' ? thirtyDayAvg  : r.avg30d)}))} themeStyles={_themeStyles} isSmallerThan={isSmallerThan} showLabel={showLabel} />        
+        <UngroupedComparator title={title} allRates={data?.rates?.map(r => ({...r, avg30: (r.symbol === 'sDOLA' ? thirtyDayAvg  : r.avg30)}))} themeStyles={_themeStyles} isSmallerThan={isSmallerThan} showLabel={showLabel} />        
     </VStack>
 }
