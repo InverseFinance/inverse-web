@@ -38,14 +38,14 @@ const CollateralToken = ({ collateral, isMobile = false, themeStyles, image }: {
     </HStack>
 }
 
-const RateListItem = ({ fields, apy, apy30d, symbol, image, themeStyles, isMobile }) => {
+const RateListItem = ({ fields, apy, avg30, symbol, image, themeStyles, isMobile }) => {
     const comps = {
         'symbol': <CollateralToken isMobile={isMobile} collateral={symbol} image={image} themeStyles={themeStyles} />,
         'apy': <Text fontWeight="extrabold" fontSize={{ base: '20px', lg: '24px' }} color={themeStyles.colors.mainTextColor}>
             {apy ? shortenNumber(apy, 2) + '%' : '-'}
         </Text>, 
-        'apy30d': <Text fontWeight="extrabold" fontSize={{ base: '20px', lg: '24px' }} color={themeStyles.colors.mainTextColor}>
-            {apy30d ? shortenNumber(apy30d, 2) + '%' : '-'}
+        'avg30': <Text fontWeight="extrabold" fontSize={{ base: '20px', lg: '24px' }} color={themeStyles.colors.mainTextColor}>
+            {avg30 ? shortenNumber(avg30, 2) + '%' : '-'}
         </Text>,
     }
     return <>
@@ -225,6 +225,6 @@ export const SDolaComparator = ({
     const _themeStyles = themeStyles || prefThemeStyles || lightTheme;
 
     return <VStack w='full' spacing="10" overflow="hidden">
-        <UngroupedComparator title={title} allRates={data?.rates?.map(r => ({...r, apy30d: (r.symbol === 'sDOLA' ? thirtyDayAvg  : r.apy30d)}))} themeStyles={_themeStyles} isSmallerThan={isSmallerThan} showLabel={showLabel} />        
+        <UngroupedComparator title={title} allRates={data?.rates?.map(r => ({...r, avg30d: (r.symbol === 'sDOLA' ? thirtyDayAvg  : r.avg30d)}))} themeStyles={_themeStyles} isSmallerThan={isSmallerThan} showLabel={showLabel} />        
     </VStack>
 }

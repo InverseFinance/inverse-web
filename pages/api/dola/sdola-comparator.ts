@@ -74,11 +74,15 @@ export default async function handler(req, res) {
         }
         const last7 = pastRates.slice(pastRatesLen - 7, pastRatesLen).filter(pr => !!pr[symbol]);
         const last30 = pastRates.slice(pastRatesLen - 30, pastRatesLen).filter(pr => !!pr[symbol]);
+        const last60 = pastRates.slice(pastRatesLen - 60, pastRatesLen).filter(pr => !!pr[symbol]);
+        const last90 = pastRates.slice(pastRatesLen - 90, pastRatesLen).filter(pr => !!pr[symbol]);
         return {
           apy: (rate.supplyRate || rate.apy),
           apy30d: (rate.apyMean30d || rate.apy30d),
-          avg7: last7.length >= 7 ? last7.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last7.length : rate.apy,
-          avg30: last30.length >= 30 ? last30.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last30.length : rate.apy,
+          avg7: last7.length >= 7 ? last7.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last7.length : 0,
+          avg30: last30.length >= 30 ? last30.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last30.length : 0,
+          avg60: last60.length >= 60 ? last60.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last60.length : 0,
+          avg90: last90.length >= 90 ? last90.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last90.length : 0,
           symbol,
           image: TOKEN_IMAGES[symbol],
           project: projects[index],
@@ -87,6 +91,11 @@ export default async function handler(req, res) {
       }).sort((a, b) => {
         return a.apy < b.apy ? 1 : b.apy - a.apy;
       });
+
+    if (utcSnapshots.length > 90) {
+      utcSnapshots = utcSnapshots.slice(0, 90);
+      pastRates = pastRates.slice(0, 90);
+    }
 
     const result = {
       timestamp: Date.now(),

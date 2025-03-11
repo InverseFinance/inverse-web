@@ -64,17 +64,21 @@ export default async function handler(req, res) {
       }
       const last7 = pastRates.slice(pastRatesLen - 7, pastRatesLen).filter(pr => !!pr[key]);
       const last30 = pastRates.slice(pastRatesLen - 30, pastRatesLen).filter(pr => !!pr[key]);
+      const last60 = pastRates.slice(pastRatesLen - 60, pastRatesLen).filter(pr => !!pr[key]);
+      const last90 = pastRates.slice(pastRatesLen - 90, pastRatesLen).filter(pr => !!pr[key]);
       return {
         ...rate,
-        avg7: last7.length ? last7.reduce((prev, curr) => prev+(curr[key]||0), 0)/last7.length : rate.borrowRate,
-        avg30: last30.length ? last30.reduce((prev, curr) => prev+(curr[key]||0), 0)/last30.length : rate.borrowRate,
+        avg7: last7.length >= 7 ? last7.reduce((prev, curr) => prev+(curr[key]||0), 0)/last7.length : 0,
+        avg30: last30.length >= 30 ? last30.reduce((prev, curr) => prev+(curr[key]||0), 0)/last30.length : 0,
+        avg60: last60.length >= 60 ? last60.reduce((prev, curr) => prev+(curr[key]||0), 0)/last60.length : 0,
+        avg90: last90.length >= 90 ? last90.reduce((prev, curr) => prev+(curr[key]||0), 0)/last90.length : 0,
         key,
       };
     });
 
-    if(utcSnapshots.length > 30) {
-      utcSnapshots = utcSnapshots.slice(0, 30);
-      pastRates = pastRates.slice(0, 30);
+    if(utcSnapshots.length > 90) {
+      utcSnapshots = utcSnapshots.slice(0, 90);
+      pastRates = pastRates.slice(0, 90);
     }
 
     const result = {
