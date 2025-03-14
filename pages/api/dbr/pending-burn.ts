@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     }
 
     const dbrSpenders = await getCacheFromRedis(DBR_SPENDERS_CACHE_KEY, false) || { activeDbrHolders: [] };
-    const actualSpenders = dbrSpenders.activeDbrHolders.filter(s => s.debt > 1);
+    const actualSpenders = dbrSpenders.activeDbrHolders.filter(s => s.debt >= 1);
 
     const provider = getProvider(NetworkIds.mainnet);
     const contract = new Contract(DBR, DBR_ABI, provider);
