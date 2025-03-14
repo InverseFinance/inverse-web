@@ -16,7 +16,7 @@ export const dbrPendingBurnCacheKey = `dbr-pending-burn-v1.0.0`;
 export default async function handler(req, res) {
 
   try {
-    const cacheDuration = 300;
+    const cacheDuration = 60;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const validCache = await getCacheFromRedis(dbrPendingBurnCacheKey, true, cacheDuration);
 
