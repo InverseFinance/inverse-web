@@ -11,7 +11,7 @@ import { getGroupedMulticallOutputs } from '@app/util/multicall';
 
 const { F2_MARKETS, DBR } = getNetworkConfigConstants();
 
-const DBR_SPENDERS_CACHE_KEY = `f2dbr-v1.0.6`;
+export const DBR_SPENDERS_CACHE_KEY = `f2dbr-v1.0.6`;
 
 export default async function handler(req, res) {  
   const { cacheFirst } = req.query;
