@@ -3,7 +3,7 @@ const { PHASE_DEVELOPMENT_SERVER } = require('next/constants')
 const redirects = async () => {
   return [
     {
-      source: '/:path*/manifest.json',
+      source: '/((?!manifest\\.json).*)/manifest.json',
       destination: '/manifest.json',
       permanent: true,
     },
