@@ -222,6 +222,14 @@ const common = {
     loader: 'custom',
   },
   redirects,
+  async rewrites() {
+    return [
+      {
+        source: '/((?!manifest\\.json).*)/manifest.json',
+        destination: '/manifest.json',
+      },
+    ];
+  },
   // headers,
   i18n: {
     locales: ["en"],
