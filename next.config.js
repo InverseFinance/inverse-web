@@ -3,6 +3,11 @@ const { PHASE_DEVELOPMENT_SERVER } = require('next/constants')
 const redirects = async () => {
   return [
     {
+      source: '/:path*/manifest.json',
+      destination: '/manifest.json',
+      permanent: true,
+    },
+    {
       source: '/transparency/overview',
       destination: '/transparency/treasury',
       permanent: false,
