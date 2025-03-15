@@ -3,11 +3,6 @@ const { PHASE_DEVELOPMENT_SERVER } = require('next/constants')
 const redirects = async () => {
   return [
     {
-      source: '/((?!manifest\\.json).*)/manifest.json',
-      destination: '/manifest.json',
-      permanent: true,
-    },
-    {
       source: '/transparency/overview',
       destination: '/transparency/treasury',
       permanent: false,
@@ -227,6 +222,14 @@ const common = {
     loader: 'custom',
   },
   redirects,
+  async rewrites() {
+    return [
+      {
+        source: '/((?!manifest\\.json).*)/manifest.json',
+        destination: '/manifest.json',
+      },
+    ];
+  },
   // headers,
   i18n: {
     locales: ["en"],
