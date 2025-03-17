@@ -13,13 +13,13 @@ import { getSInvContract } from '@app/util/sINV';
 import { SINV_ADDRESS, SINV_ADDRESS_V1, SINV_HELPER_ADDRESS, SINV_HELPER_ADDRESS_V1 } from '@app/config/constants';
 import { Contract } from 'ethers';
 
-const DBR_AUCTION_BUYS_CACHE_KEY = 'dbr-auction-buys-v1.0.1'
+const DBR_AUCTION_BUYS_CACHE_KEY = 'dbr-auction-buys-v1.1.0'
 
 export default async function handler(req, res) {
     try {
         const cacheDuration = 60;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-        const { data: cachedData, isValid } = await getCacheFromRedisAsObj(DBR_AUCTION_BUYS_CACHE_KEY, true, cacheDuration);
+        const { data: cachedData, isValid } = await getCacheFromRedisAsObj(DBR_AUCTION_BUYS_CACHE_KEY, true, cacheDuration, true);
         if (!!cachedData && isValid) {
             res.status(200).send(cachedData);
             return
@@ -111,7 +111,7 @@ export default async function handler(req, res) {
             buys: pastTotalEvents.concat(newBuys),
         };
 
-        await redisSetWithTimestamp(DBR_AUCTION_BUYS_CACHE_KEY, resultData);
+        await redisSetWithTimestamp(DBR_AUCTION_BUYS_CACHE_KEY, resultData, true);
 
         resultData.buys.sort((a, b) => b.timestamp - a.timestamp);
 
@@ -120,7 +120,7 @@ export default async function handler(req, res) {
         console.error(err);
         // if an error occured, try to return last cached results
         try {
-            const cache = await getCacheFromRedis(DBR_AUCTION_BUYS_CACHE_KEY, false);
+            const cache = await getCacheFromRedis(DBR_AUCTION_BUYS_CACHE_KEY, false, 0, true);
             if (cache) {
                 console.log('Api call failed, returning last cache found');
                 res.status(200).send(cache);
