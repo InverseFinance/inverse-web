@@ -8,13 +8,13 @@ import { CHAIN_ID } from '@app/config/constants';
 import { ascendingEventsSorter } from '@app/util/misc';
 import { formatDolaStakingEvents, getDolaSavingsContract, getSdolaContract } from '@app/util/dola-staking';
 
-const DOLA_STAKING_CACHE_KEY = 'dola-staking-v1.0.1'
+const DOLA_STAKING_CACHE_KEY = 'dola-staking-v1.1.0'
 
 export default async function handler(req, res) {
     try {
         const cacheDuration = 60;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-        const { data: cachedData, isValid } = await getCacheFromRedisAsObj(DOLA_STAKING_CACHE_KEY, true, cacheDuration);
+        const { data: cachedData, isValid } = await getCacheFromRedisAsObj(DOLA_STAKING_CACHE_KEY, true, cacheDuration, true);
         if (!!cachedData && isValid) {
             res.status(200).send(cachedData);
             return
@@ -81,14 +81,14 @@ export default async function handler(req, res) {
             events: pastTotalEvents.concat(newEvents),
         };
 
-        await redisSetWithTimestamp(DOLA_STAKING_CACHE_KEY, resultData);
+        await redisSetWithTimestamp(DOLA_STAKING_CACHE_KEY, resultData, true);
 
         res.status(200).send(resultData);
     } catch (err) {
         console.error(err);
         // if an error occured, try to return last cached results
         try {
-            const cache = await getCacheFromRedis(DOLA_STAKING_CACHE_KEY, false);
+            const cache = await getCacheFromRedis(DOLA_STAKING_CACHE_KEY, false, 0, true);
             if (cache) {
                 console.log('Api call failed, returning last cache found');
                 res.status(200).send(cache);
