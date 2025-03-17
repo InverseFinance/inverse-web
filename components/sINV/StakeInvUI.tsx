@@ -7,7 +7,7 @@ import { parseEther } from "@ethersproject/units";
 import Container from "../common/Container";
 import { NavButtons } from "@app/components/common/Button";
 import { InfoMessage, SuccessMessage, WarningMessage } from "@app/components/common/Messages";
-import { getAvgOnLastItems, preciseCommify, timestampToUTC } from "@app/util/misc";
+import { getAvgOnLastItems, getNextThursdayTimestamp, preciseCommify, timestampToUTC } from "@app/util/misc";
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
 import { useDBRMarkets, useDBRPrice } from "@app/hooks/useDBR";
 import { getBnToNumber, getMonthlyRate, shortenNumber } from "@app/util/markets";
@@ -62,6 +62,7 @@ export const StakeInvUI = ({
     const [isConnected, setIsConnected] = useState(true);
     const [thirtyDayAvg, setThirtyDayAvg] = useState(0);
     const [now, setNow] = useState(Date.now());
+    const [nowWithInterval, setNowWithInterval] = useState(Date.now());
     const [tab, setTab] = useState('Stake');
     const isStake = tab === 'Stake';
 
@@ -109,6 +110,10 @@ export const StakeInvUI = ({
         const neo = curr + incPerInterval;
         setRealTimeBalance(neo);
     }, STAKE_BAL_INC_INTERVAL);
+
+    useInterval(() => {
+        setNowWithInterval(Date.now());
+    }, 1000);
 
     // every ~12s recheck base balance
     useInterval(() => {
@@ -158,6 +163,10 @@ export const StakeInvUI = ({
             setRealTimeBalance(invStakedInSInv);
         }, 250);
     }
+
+    const nextThursdayTsString = useMemo(() => {
+        return new Date(getNextThursdayTimestamp()).toLocaleDateString('en-US', { month: 'long', year: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' });
+    }, [nowWithInterval]);
 
     return <Stack direction={{ base: 'column', lg: 'row' }} alignItems={{ base: 'center', lg: 'flex-start' }} justify="space-around" w='full' spacing="12" {...props}>
         {
@@ -224,6 +233,9 @@ export const StakeInvUI = ({
                                 <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
                                     <Text>- Monthly buy pressure generated:</Text>
                                     <Text><b>{monthlyBuyPressureInInv ? `${shortenNumber(monthlyBuyPressureInInv, 2)} INV (${shortenNumber(monthlyBuyPressureInInv * invPrice, 2, true)})` : '-'}</b></Text>
+                                </Stack>
+                                <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
+                                    <Text>The projected APY will become the current APY on {nextThursdayTsString}</Text>
                                 </Stack>
                                 {/* <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
                                     <Text>- INV bought thanks to sINV so far:</Text>

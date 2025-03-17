@@ -73,16 +73,9 @@ export const StakeDolaUI = ({
         return new Date(getNextThursdayTimestamp()).toLocaleDateString('en-US', { month: 'long', year: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' });
     }, [nowWithInterval]);
 
-    useEffect(() => {
-        let interval = setInterval(() => {
-            setNowWithInterval(Date.now());
-        }, 1000);
-        return () => {
-            if (interval) {
-                clearInterval(interval);
-            }
-        };
-    }, []);
+    useInterval(() => {
+        setNowWithInterval(Date.now());
+    }, 1000);
 
     const sDolaAuctionBuys = auctionBuys.filter(e => e.auctionType === 'sDOLA')
         .reduce((prev, curr) => prev + curr.dolaIn, 0);
