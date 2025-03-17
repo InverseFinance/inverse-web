@@ -8,7 +8,7 @@ import { parseEther } from "@ethersproject/units";
 import Container from "../common/Container";
 import { NavButtons } from "@app/components/common/Button";
 import { InfoMessage, SuccessMessage } from "@app/components/common/Messages";
-import { getAvgOnLastItems, preciseCommify, timestampToUTC } from "@app/util/misc";
+import { getAvgOnLastItems, getNextThursdayTimestamp, preciseCommify, timestampToUTC } from "@app/util/misc";
 import { useDOLABalance } from "@app/hooks/useDOLA";
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
 import { useDBRPrice } from "@app/hooks/useDBR";
@@ -45,18 +45,19 @@ export const StakeDolaUI = ({
 }) => {
     const account = useAccount();
     const { provider, account: connectedAccount } = useWeb3React();
-    const { events: auctionBuys } = useDbrAuctionActivity();
+    const { events: auctionBuys, isLoading: isLoadingAuctionBuys } = useDbrAuctionActivity();
 
     const [dolaAmount, setDolaAmount] = useState('');
     const [isConnected, setIsConnected] = useState(true);
     const { isOpen: isEnsoModalOpen, onOpen: onEnsoModalOpen, onClose: onEnsoModalClose } = useDisclosure();
     const [now, setNow] = useState(Date.now());
+    const [nowWithInterval, setNowWithInterval] = useState(Date.now());
     const [tab, setTab] = useState('Stake');
     const isStake = tab === 'Stake';
 
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
     const { price: dolaPrice } = useDOLAPrice();
-    const { apy, projectedApy, isLoading, sDolaExRate, sDolaTotalAssets, weeklyRevenue } = useStakedDola(dbrPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
+    const { apy, projectedApy, isLoading, sDolaExRate, sDolaTotalAssets, weeklyRevenue, isLoading: isLoadingStakedDola } = useStakedDola(dbrPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
     const { evolution, timestamp: lastDailySnapTs, isLoading: isLoadingEvolution } = useDolaStakingEvolution();
     const { balance: dolaBalance } = useDOLABalance(account);
     // value in sDOLA terms
@@ -68,9 +69,25 @@ export const StakeDolaUI = ({
     const dolaStakedInSDola = sDolaExRate * stakedDolaBalance;
     const sDOLAamount = dolaAmount ? parseFloat(dolaAmount) / sDolaExRate : '';
 
+    const nextThursdayTsString = useMemo(() => {
+        return new Date(getNextThursdayTimestamp()).toLocaleDateString('en-US', { month: 'long', year: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' });
+    }, [nowWithInterval]);
+
+    useEffect(() => {
+        let interval = setInterval(() => {
+            setNowWithInterval(Date.now());
+        }, 1000);
+        return () => {
+            if (interval) {
+                clearInterval(interval);
+            }
+        };
+    }, []);
+
     const sDolaAuctionBuys = auctionBuys.filter(e => e.auctionType === 'sDOLA')
         .reduce((prev, curr) => prev + curr.dolaIn, 0);
-    const sDolaHoldersTotalEarnings = sDolaAuctionBuys - weeklyRevenue;
+
+    const sDolaHoldersTotalEarnings = !isLoadingAuctionBuys && !isLoadingStakedDola ? sDolaAuctionBuys - weeklyRevenue : 0;
 
     useEffect(() => {
         if (isLoading || isLoadingEvolution || !evolution?.length) return;
@@ -172,7 +189,10 @@ export const StakeDolaUI = ({
                         </Stack>
                         <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
                             <Text>- Total earnings by all holders:</Text>
-                            <Text><b>{sDolaHoldersTotalEarnings ? `${shortenNumber(sDolaHoldersTotalEarnings, 2)} DOLA` : '-'}</b></Text>
+                            <Text><b>{sDolaHoldersTotalEarnings > 0 ? `${shortenNumber(sDolaHoldersTotalEarnings, 2)} DOLA` : '-'}</b></Text>
+                        </Stack>
+                        <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
+                            <Text>The projected APY will become the current APY on {nextThursdayTsString}</Text>
                         </Stack>
                     </VStack>
                 }
