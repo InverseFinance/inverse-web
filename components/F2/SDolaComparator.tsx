@@ -38,14 +38,20 @@ const CollateralToken = ({ collateral, isMobile = false, themeStyles, image }: {
     </HStack>
 }
 
-const RateListItem = ({ fields, apy, avg30, symbol, image, themeStyles, isMobile }) => {
+const RateListItem = ({ fields, apy, avg30, avg60, avg90, symbol, image, themeStyles, isMobile }) => {
     const comps = {
         'symbol': <CollateralToken isMobile={isMobile} collateral={symbol} image={image} themeStyles={themeStyles} />,
         'apy': <Text fontWeight="extrabold" fontSize={{ base: '20px', lg: '24px' }} color={themeStyles.colors.mainTextColor}>
             {apy ? shortenNumber(apy, 2) + '%' : '-'}
-        </Text>, 
+        </Text>,
         'avg30': <Text fontWeight="extrabold" fontSize={{ base: '20px', lg: '24px' }} color={themeStyles.colors.mainTextColor}>
             {avg30 ? shortenNumber(avg30, 2) + '%' : '-'}
+        </Text>,
+        'avg60': <Text fontWeight="extrabold" fontSize={{ base: '20px', lg: '24px' }} color={themeStyles.colors.mainTextColor}>
+            {avg60 ? shortenNumber(avg60, 2) + '%' : '-'}
+        </Text>,
+        'avg90': <Text fontWeight="extrabold" fontSize={{ base: '20px', lg: '24px' }} color={themeStyles.colors.mainTextColor}>
+            {avg90 ? shortenNumber(avg90, 2) + '%' : '-'}
         </Text>,
     }
     return <>
@@ -104,7 +110,7 @@ const columns = [
     },
     {
         field: 'avg30',
-        label: 'APY 30d avg',
+        label: '30d avg',
         header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
         value: ({ avg30 }) => {
             return <Cell minWidth="70px" alignItems="center" justify="center" >
@@ -114,7 +120,7 @@ const columns = [
     },
     {
         field: 'avg60',
-        label: 'APY 60d avg',
+        label: '60d avg',
         header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
         value: ({ avg60 }) => {
             return <Cell minWidth="70px" alignItems="center" justify="center" >
@@ -124,7 +130,7 @@ const columns = [
     },
     {
         field: 'avg90',
-        label: 'APY 90d avg',
+        label: '90d avg',
         header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
         value: ({ avg90 }) => {
             return <Cell minWidth="70px" alignItems="center" justify="center" >
@@ -143,7 +149,7 @@ const defaultProjects = Object.keys(projectImages);
 
 const UngroupedComparator = ({ title, allRates, themeStyles, isSmallerThan = false, showLabel = true }) => {
     const [fieldsText, setFieldsText] = useState(defaultFields.join(','));
-    const [fields, setFields] = useState(defaultFields);    
+    const [fields, setFields] = useState(defaultFields);
     const [includeProjectsText, setIncludeProjectsText] = useState(defaultProjects.join(','));
     const [includeProjects, setIncludeProjects] = useState(defaultProjects);
     const { onOpen, onClose, isOpen } = useDisclosure();
@@ -186,7 +192,7 @@ const UngroupedComparator = ({ title, allRates, themeStyles, isSmallerThan = fal
                         <Text onClick={() => handleFieldsChange(defaultFields.join(','))} cursor="pointer" textDecoration="underline" fontSize="18px" fontWeight="bold">Reset</Text>
                     </HStack>
                     <Input textAlign="left" value={fieldsText} onChange={(e) => handleFieldsChange(e.target.value)} />
-                </VStack>               
+                </VStack>
                 <VStack w='full' alignItems="flex-start">
                     <HStack w='full' justify="space-between">
                         <Text fontSize="20px" fontWeight="extrabold">Include projects:</Text>
@@ -237,7 +243,7 @@ export const SDolaComparator = ({
     title = 'Yield-Bearing Stablecoins',
     showLabel = true,
     thirtyDayAvg = 0,
-}) => { 
+}) => {
     const { data } = useCustomSWR('/api/dola/sdola-comparator?v=1.0.4');
     const [isSmallerThan] = useMediaQuery(`(max-width: ${mobileThreshold}px)`);
 
@@ -245,6 +251,6 @@ export const SDolaComparator = ({
     const _themeStyles = themeStyles || prefThemeStyles || lightTheme;
 
     return <VStack w='full' spacing="10" overflow="hidden">
-        <UngroupedComparator title={title} allRates={data?.rates?.map(r => ({...r, avg30: (r.symbol === 'sDOLA' ? thirtyDayAvg  : r.avg30)}))} themeStyles={_themeStyles} isSmallerThan={isSmallerThan} showLabel={showLabel} />        
+        <UngroupedComparator title={title} allRates={data?.rates?.map(r => ({ ...r, avg30: (r.symbol === 'sDOLA' ? thirtyDayAvg : r.avg30) }))} themeStyles={_themeStyles} isSmallerThan={isSmallerThan} showLabel={showLabel} />
     </VStack>
 }
