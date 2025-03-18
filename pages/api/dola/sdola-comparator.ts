@@ -2,7 +2,7 @@ import 'source-map-support'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types';
-import { getBnToNumber, getDefiLlamaApy, getSavingsCrvUsdData, getSavingsUSDData, getSavingsUSDzData, getSFraxData, getSUSDEData } from '@app/util/markets';
+import { getBnToNumber, getDefiLlamaApy, getSavingsCrvUsdData, getSavingsUSDData, getSUSDEData } from '@app/util/markets';
 import { getDSRData } from '@app/util/markets';
 import { TOKEN_IMAGES } from '@app/variables/images';
 import { timestampToUTC } from '@app/util/misc';
@@ -38,9 +38,9 @@ const getHistoricalRates = async (addresses: string[]) => {
 
   return addresses.map((address, index) => {
     const todayExRate = getBnToNumber(todayRates[index]);
-    const apy30d = (getBnToNumber(thirtyDayRates[index]) / todayExRate - 1) * 365 / 30 * 100;
-    const apy60d = (getBnToNumber(sixtyDayRates[index]) / todayExRate - 1) * 365 / 60 * 100;
-    const apy90d = (getBnToNumber(ninetyDayRates[index]) / todayExRate - 1) * 365 / 90 * 100;
+    const apy30d = (todayExRate / getBnToNumber(thirtyDayRates[index]) - 1) * 365 / 30 * 100;
+    const apy60d = (todayExRate / getBnToNumber(sixtyDayRates[index]) - 1) * 365 / 60 * 100;
+    const apy90d = (todayExRate / getBnToNumber(ninetyDayRates[index]) - 1) * 365 / 90 * 100;
     return {
       apy30d,
       apy60d,
@@ -128,14 +128,12 @@ export default async function handler(req, res) {
         if (addTodayRate) {
           pastRates[pastRatesLen - 1][symbol] = rate.apy;
         }
-        const last7 = pastRates.slice(pastRatesLen - 7, pastRatesLen).filter(pr => !!pr[symbol]);
         const last30 = pastRates.slice(pastRatesLen - 30, pastRatesLen).filter(pr => !!pr[symbol]);
         const last60 = pastRates.slice(pastRatesLen - 60, pastRatesLen).filter(pr => !!pr[symbol]);
         const last90 = pastRates.slice(pastRatesLen - 90, pastRatesLen).filter(pr => !!pr[symbol]);
         return {
           apy: (rate.supplyRate || rate.apy),
           apy30d: (rate.apyMean30d || rate.apy30d),
-          avg7: last7.length >= 7 ? last7.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last7.length : 0,
           avg30: historicalRates[index].apy30d || (last30.length >= 30 ? last30.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last30.length : 0),
           avg60: historicalRates[index].apy60d || (last60.length >= 60 ? last60.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last60.length : 0),
           avg90: historicalRates[index].apy90d || (last90.length >= 90 ? last90.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last90.length : 0),
