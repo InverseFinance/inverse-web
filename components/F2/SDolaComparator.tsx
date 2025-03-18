@@ -112,6 +112,26 @@ const columns = [
             </Cell>
         },
     },
+    {
+        field: 'avg60',
+        label: 'APY 60d avg',
+        header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
+        value: ({ avg60 }) => {
+            return <Cell minWidth="70px" alignItems="center" justify="center" >
+                <CellText>{avg60 ? `~${shortenNumber(avg60, 0)}` : '-'}%</CellText>
+            </Cell>
+        },
+    },
+    {
+        field: 'avg90',
+        label: 'APY 90d avg',
+        header: ({ ...props }) => <ColHeader minWidth="70px" justify="center"  {...props} />,
+        value: ({ avg90 }) => {
+            return <Cell minWidth="70px" alignItems="center" justify="center" >
+                <CellText>{avg90 ? `~${shortenNumber(avg90, 0)}` : '-'}%</CellText>
+            </Cell>
+        },
+    },
 ]
 
 const mobileThreshold = 1000;
@@ -218,7 +238,7 @@ export const SDolaComparator = ({
     showLabel = true,
     thirtyDayAvg = 0,
 }) => { 
-    const { data } = useCustomSWR('/api/dola/sdola-comparator?v=1.0.3');
+    const { data } = useCustomSWR('/api/dola/sdola-comparator?v=1.0.4');
     const [isSmallerThan] = useMediaQuery(`(max-width: ${mobileThreshold}px)`);
 
     const { themeStyles: prefThemeStyles } = useAppTheme();
