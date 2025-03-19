@@ -285,6 +285,12 @@ export const MarketApyInfos = ({ showLeveragedApy = true, isLeverageComingSoon, 
                     <Text fontSize="12px" color="mainTextColorLight">x10</Text>
                 </HStack>
             }
+            {
+                name.includes('USR') && <HStack spacing="1">
+                    <Image borderRadius="30px" src={'https://cdn.jsdelivr.net/gh/curvefi/curve-assets/platforms/resolv.png'} h="15px" w="15px" />
+                    <Text fontSize="12px" color="mainTextColorLight">x30</Text>
+                </HStack>
+            }
         </HStack>
         {
             totalApy > 0 && <Text fontSize="12px" color="mainTextColorLight">
