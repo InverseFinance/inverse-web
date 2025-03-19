@@ -1,7 +1,7 @@
 import { BackgroundProps, BadgeProps } from '@app/node_modules/@chakra-ui/react/dist/types'
 import { UseToastOptions, ComponentWithAs, InputProps, BoxProps, ButtonProps } from '@chakra-ui/react';
 import { FunctionFragment } from 'ethers/lib/utils';
-import { BigNumber } from 'ethers';
+import { BigNumber, Contract } from 'ethers';
 import { HandleTxOptions } from '@app/util/transactions';
 import { ConnectionLineType } from 'react-flow-renderer';
 
@@ -460,6 +460,7 @@ export type Fed = {
     contractAddress: string,
     abi: string[],
     functionName: string,
+    customFunction?: (contract: Contract, fedContract: Contract) => Promise<number>
   }
 }
 
