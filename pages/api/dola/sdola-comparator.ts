@@ -1,5 +1,6 @@
 import 'source-map-support'
 import { getProvider } from '@app/util/providers';
+import { getAaveV3RateOf } from '@app/util/borrow-rates-comp';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types';
 import { getBnToNumber, getDefiLlamaApy, getSavingsCrvUsdData, getSavingsUSDData, getSUSDEData } from '@app/util/markets';
@@ -50,10 +51,10 @@ const getHistoricalRates = async (addresses: string[]) => {
 }
 
 export default async function handler(req, res) {
-  const cacheKey = `sdola-rates-compare-v1.0.5`;
+  const cacheKey = `sdola-rates-compare-v1.0.6`;
 
   try {
-    const cacheDuration = 60;
+    const cacheDuration = 120;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, true, cacheDuration);
 
@@ -65,7 +66,7 @@ export default async function handler(req, res) {
     const provider = getProvider(NetworkIds.mainnet);
 
     const symbols = [
-      // 'USDC', 'USDT',
+      'USDC', 'USDT',
       'sDAI', 'sfrxUSD', 'sUSDe', 'sDOLA', 'scrvUSD', 'sUSDS'
       // , 'sUSDz'
     ];
@@ -78,13 +79,13 @@ export default async function handler(req, res) {
       '0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD',
     ]
     const projects = [
-      // 'Aave-V3', 'Aave-V3', 
+      'Aave-V3', 'Aave-V3', 
       'Spark', 'Frax', 'Ethena', 'FiRM', 'Curve', 'Sky'
       // , 'Anzen'
     ];
     const links = [
-      // 'https://app.aave.com/reserve-overview/?underlyingAsset=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&marketName=proto_mainnet_v3',
-      // 'https://app.aave.com/reserve-overview/?underlyingAsset=0xdac17f958d2ee523a2206206994597c13d831ec7&marketName=proto_mainnet_v3',
+      'https://app.aave.com/reserve-overview/?underlyingAsset=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&marketName=proto_mainnet_v3',
+      'https://app.aave.com/reserve-overview/?underlyingAsset=0xdac17f958d2ee523a2206206994597c13d831ec7&marketName=proto_mainnet_v3',
       'https://app.spark.fi/',
       // 'https://app.frax.finance/sfrax/stake',
       'https://frax.com/earn',
@@ -96,8 +97,8 @@ export default async function handler(req, res) {
     ];
 
     const rates = await Promise.all([
-      // getAaveV3RateOf(provider, 'USDC'),
-      // getAaveV3RateOf(provider, 'USDT'),
+      getAaveV3RateOf(provider, 'USDC'),
+      getAaveV3RateOf(provider, 'USDT'),
       getDSRData(),
       // getSFraxData(provider),
       getDefiLlamaApy("42523cca-14b0-44f6-95fb-4781069520a5"),
@@ -108,7 +109,12 @@ export default async function handler(req, res) {
       // getSavingsUSDzData(),
     ]);
 
-    const historicalRates = await getHistoricalRates(addresses);
+    const vaultHistoricalRates = await getHistoricalRates(addresses);
+    const aaveHistoricalRates = await Promise.all([
+      getDefiLlamaApy('aa70268e-4b52-42bf-a116-608b370f9501'),
+      getDefiLlamaApy('f981a304-bb6c-45b8-b0c5-fd2f515ad23a'),
+    ]);
+    const historicalRates = aaveHistoricalRates.concat(vaultHistoricalRates);
 
     const now = Date.now();
     const nowDayUTC = timestampToUTC(now);
@@ -132,6 +138,7 @@ export default async function handler(req, res) {
         const last60 = pastRates.slice(pastRatesLen - 60, pastRatesLen).filter(pr => !!pr[symbol]);
         const last90 = pastRates.slice(pastRatesLen - 90, pastRatesLen).filter(pr => !!pr[symbol]);
         return {
+          isVault: projects[index] !== 'Aave-V3',
           apy: (rate.supplyRate || rate.apy),
           apy30d: (rate.apyMean30d || rate.apy30d),
           avg30: historicalRates[index].apy30d || (last30.length >= 30 ? last30.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last30.length : 0),

@@ -251,6 +251,6 @@ export const SDolaComparator = ({
     const _themeStyles = themeStyles || prefThemeStyles || lightTheme;
 
     return <VStack w='full' spacing="10" overflow="hidden">
-        <UngroupedComparator title={title} allRates={data?.rates?.map(r => ({ ...r, avg30: (r.symbol === 'sDOLA' ? thirtyDayAvg : r.avg30) }))} themeStyles={_themeStyles} isSmallerThan={isSmallerThan} showLabel={showLabel} />
+        <UngroupedComparator title={title} allRates={data?.rates?.filter(r => r.isVault)?.map(r => ({ ...r, avg30: (r.symbol === 'sDOLA' ? thirtyDayAvg : r.avg30) }))} themeStyles={_themeStyles} isSmallerThan={isSmallerThan} showLabel={showLabel} />
     </VStack>
 }

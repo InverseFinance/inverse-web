@@ -32,7 +32,7 @@ const YEARN_VAULT_IDS = {
 export const getDefiLlamaApy = async (poolId: string, strictAvg = true) => {
     try {
         const data = await getPoolYield(poolId, strictAvg);
-        return { apy: (data?.apy || 0), apy30d: data?.apy30d };
+        return { apy: (data?.apy || 0), apy30d: data?.apy30d, apy60d: data?.apy60d, apy90d: data?.apy90d };
     } catch (e) {
         console.log(`Failed to fetch APY for pool ${poolId}:`, e);
         return { apy: 0 };
@@ -561,7 +561,9 @@ export const getPoolYield = async (defiLlamaPoolId: string, strictAvg = false) =
         const results = await fetch(url);
         const data = await results.json();
         const apy30d = data.status === 'success' ? data?.data?.length >= 30 ? getAvgOnLastItems(data?.data, "apy", 30) : 0 : 0;
-        return data.status === 'success' ? { ...data.data[data.data.length - 1], apy30d } : { apy: 0, tvlUsd: 0, apy30d };
+        const apy60d = data.status === 'success' ? data?.data?.length >= 60 ? getAvgOnLastItems(data?.data, "apy", 60) : 0 : 0;
+        const apy90d = data.status === 'success' ? data?.data?.length >= 90 ? getAvgOnLastItems(data?.data, "apy", 90) : 0 : 0;
+        return data.status === 'success' ? { ...data.data[data.data.length - 1], apy30d, apy60d, apy90d } : { apy: 0, tvlUsd: 0, apy30d, apy60d, apy90d };
     } catch (e) { console.log(e) }
     return {};
 }
