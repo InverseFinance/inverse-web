@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Headers', `Content-Type`);
     res.setHeader('Access-Control-Allow-Origin', `*`);
     res.setHeader('Access-Control-Allow-Methods', `GET`);
-    
+
     const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
 
     if(validCache) {
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
       decimals: t.decimals,
       lpTokens: t.pairs,
       lpTokensImages: t.pairs ? t.pairs.map(p => TOKENS[p]?.image.replace(/^\//, `${SERVER_BASE_URL}/`)) : undefined,
-    })).filter(t => !t.address);
+    })).filter(t => !!t.address);
 
     await redisSetWithTimestamp(cacheKey, tokens);
 
