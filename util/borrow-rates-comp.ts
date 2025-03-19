@@ -25,6 +25,8 @@ const links = {
     'curve-wbtc': 'https://crvusd.curve.fi/#/ethereum/markets/wbtc/create',
     'curve-wsteth': 'https://crvusd.curve.fi/#/ethereum/markets/wsteth/create',
     'curve-weth': 'https://crvusd.curve.fi/#/ethereum/markets/eth/create',
+    'frax-susde': 'https://app.frax.finance/fraxlend/pair?address=0xb5Ae5b75C0DF5632c572A657109375646Ce66f90',
+    'frax-crv': 'https://app.frax.finance/fraxlend/pair?address=0x3835a58CA93Cdb5f912519ad366826aC9a752510',
     'frax-wbtc': 'https://app.frax.finance/fraxlend/pair?address=0x32467a5fc2d72D21E8DCe990906547A2b012f382',
     'frax-sfrxeth': 'https://app.frax.finance/fraxlend/pair?address=0x78bB3aEC3d855431bd9289fD98dA13F9ebB7ef15',
     'frax-wsteth': 'https://app.frax.finance/fraxlend/pair?address=0xb5a46f712F03808aE5c4B885C6F598fA06442684',
@@ -125,7 +127,7 @@ export const getAaveV3RateOf = async (provider, symbol: 'DAI' | 'USDC' | 'USDT')
 }
 
 export const getFirmRate = async (provider) => {
-    const firmRate = { project: 'FiRM', hasLeverage: true, borrowRate: 0, type: 'fixed', collateral: 'Multiple', borrowToken: 'DOLA', link: '/firm' };
+    const firmRate = { project: 'FiRM', hasLeverage: true, borrowRate: 0, type: 'fixed', collateral: 'Multiple', borrowToken: 'DOLA', link: 'https://inverse.finance/firm' };
     try {
         const { price: dolaPrice } = await getDolaUsdPriceOnCurve(provider);
         return { ...firmRate, borrowRate: (await getDbrPriceOnCurve(provider)).priceInDola * dolaPrice * 100 }
