@@ -56,6 +56,9 @@ export default async function handler(req, res) {
   try {
     const cacheDuration = 120;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+    res.setHeader('Access-Control-Allow-Headers', `Content-Type`);
+    res.setHeader('Access-Control-Allow-Origin', `*`);
+    res.setHeader('Access-Control-Allow-Methods', `GET`);
     const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, true, cacheDuration);
 
     if (isValid) {
