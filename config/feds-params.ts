@@ -1,5 +1,5 @@
 import { FedTypes, NetworkIds } from "@app/types";
-import { getBnToNumber } from "@app/util/markets";
+import { getBnToNumber, getNumberToBn } from "@app/util/markets";
 import { TOKEN_IMAGES } from "@app/variables/images";
 import { Contract } from "ethers";
 
@@ -476,7 +476,7 @@ export const FEDS_PARAMS = [
                     contract.totalAssets(),
                     fedContract.supply(),
                 ]);
-                return getBnToNumber(totalBorrowed) * (getBnToNumber(lentByFed) / getBnToNumber(totalAssets));
+                return getNumberToBn(getBnToNumber(totalBorrowed) * (getBnToNumber(lentByFed) / getBnToNumber(totalAssets)));
             }
         },
     },
