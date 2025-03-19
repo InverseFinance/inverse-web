@@ -4,13 +4,18 @@ import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from
 import { NetworkIds } from '@app/types';
 import { getAaveV3Rate, getAaveV3RateDAI, getCompoundRate, getCrvUSDRate, getFirmRate, getFluidRates, getFraxRate, getSparkRate } from '@app/util/borrow-rates-comp';
 import { timestampToUTC } from '@app/util/misc';
+import { TOKEN_IMAGES } from '@app/variables/images';
+import { projectCollaterals } from '@app/components/F2/RateComparator';
 
 export default async function handler(req, res) {
-  const cacheKey = `borrow-rates-compare-v1.1.6`;
+  const cacheKey = `borrow-rates-compare-v1.1.7`;
 
   try {
     const cacheDuration = 600;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+    res.setHeader('Access-Control-Allow-Headers', `Content-Type`);
+    res.setHeader('Access-Control-Allow-Origin', `*`);
+    res.setHeader('Access-Control-Allow-Methods', `GET`);
     const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, true, cacheDuration);
 
     if (isValid) {
@@ -66,12 +71,14 @@ export default async function handler(req, res) {
       const last30 = pastRates.slice(pastRatesLen - 30, pastRatesLen).filter(pr => !!pr[key]);
       const last60 = pastRates.slice(pastRatesLen - 60, pastRatesLen).filter(pr => !!pr[key]);
       const last90 = pastRates.slice(pastRatesLen - 90, pastRatesLen).filter(pr => !!pr[key]);
+      const _borrowToken = rate.borrowToken || (rate.project === 'FiRM' ? 'DOLA' : 'USDC');
       return {
         ...rate,
         avg7: last7.length >= 7 ? last7.reduce((prev, curr) => prev+(curr[key]||0), 0)/last7.length : 0,
         avg30: last30.length >= 30 ? last30.reduce((prev, curr) => prev+(curr[key]||0), 0)/last30.length : 0,
         avg60: last60.length >= 60 ? last60.reduce((prev, curr) => prev+(curr[key]||0), 0)/last60.length : 0,
         avg90: last90.length >= 90 ? last90.reduce((prev, curr) => prev+(curr[key]||0), 0)/last90.length : 0,
+        image: TOKEN_IMAGES[_borrowToken],
         key,
       };
     });
@@ -83,6 +90,7 @@ export default async function handler(req, res) {
 
     const result = {
       timestamp: now,
+      projectCollaterals,
       utcSnapshots,
       pastRates,
       rates,

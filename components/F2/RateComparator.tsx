@@ -26,7 +26,7 @@ const projectImages = {
     'Fluid': 'https://icons.llamao.fi/icons/protocols/fluid?w=48&h=48',
 }
 
-const projectCollaterals = {
+export const projectCollaterals = {
     'Frax': ['WETH', 'WBTC', 'sfrxETH', 'FXS', 'CVX', 'CRV', 'wstETH', 'sFRAX', 'sUSDe'],
     'Curve': ['WETH', 'WBTC', 'wstETH'],
     'Aave-V3': ['WETH', 'WBTC', 'CRV', 'wstETH', 'cbBTC'],
