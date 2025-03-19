@@ -1,5 +1,7 @@
 import { FedTypes, NetworkIds } from "@app/types";
+import { getBnToNumber } from "@app/util/markets";
 import { TOKEN_IMAGES } from "@app/variables/images";
+import { Contract } from "ethers";
 
 export const FEDS_PARAMS = [
     {
@@ -466,8 +468,16 @@ export const FEDS_PARAMS = [
         supplyFuncName: "supply",
         borrowConfig: {
             contractAddress: '0x31426271449F60d37Cc5C9AEf7bD12aF3BdC7A94',
-            abi: ["function totalBorrowed() view returns (uint)"],
+            abi: ["function totalBorrowed() view returns (uint)", "function totalAssets() view returns (uint)"],
             functionName: 'totalBorrowed',
+            customFunction: async (contract: Contract, fedContract: Contract) => {
+                const [totalBorrowed, totalAssets, lentByFed] = await Promise.all([
+                    contract.totalBorrowed(),
+                    contract.totalAssets(),
+                    fedContract.supply(),
+                ]);
+                return getBnToNumber(totalBorrowed) * (getBnToNumber(lentByFed) / getBnToNumber(totalAssets));
+            }
         },
     },
 ];

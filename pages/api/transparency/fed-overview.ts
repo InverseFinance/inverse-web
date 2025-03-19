@@ -26,7 +26,7 @@ const FUSE_CTOKENS = {
 const FUSE_FEDS = Object.entries(FUSE_CTOKENS).map(([fedAddress, ctoken]) => ({ fedAddress, ctoken }));
 const OTHER_CROSS_FEDS = FEDS.filter(f => f.type === FedTypes.CROSS && !!f.borrowConfig);
 
-export const fedOverviewCacheKey = `fed-overview-v1.0.91`;
+export const fedOverviewCacheKey = `fed-overview-v1.0.92`;
 
 export default async function handler(req, res) {
   // to keep for archive  
@@ -77,7 +77,11 @@ export default async function handler(req, res) {
       ),
       Promise.all(
         OTHER_CROSS_FEDS.map(fed => {
+          const fedContract = new Contract(fed.address, [`function ${fed.supplyFuncName||'supply'}() view returns (uint)`], getProvider(fed.chainId));
           const contract = new Contract(fed.borrowConfig!.contractAddress, fed.borrowConfig!.abi, getProvider(fed.chainId));
+          if (fed.borrowConfig?.customFunction) {
+            return fed.borrowConfig.customFunction(contract, fedContract);
+          }
           return contract[fed.borrowConfig!.functionName]();
         })
       ),
