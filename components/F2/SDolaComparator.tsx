@@ -242,7 +242,10 @@ export const SDolaComparator = ({
     themeStyles,
     title = 'Yield-Bearing Stablecoins',
     showLabel = true,
-    thirtyDayAvg = 0,
+}: {
+    themeStyles?: any,
+    title?: string,
+    showLabel?: boolean,
 }) => {
     const { data } = useCustomSWR('/api/dola/sdola-comparator?v=1.0.4');
     const [isSmallerThan] = useMediaQuery(`(max-width: ${mobileThreshold}px)`);
@@ -251,6 +254,6 @@ export const SDolaComparator = ({
     const _themeStyles = themeStyles || prefThemeStyles || lightTheme;
 
     return <VStack w='full' spacing="10" overflow="hidden">
-        <UngroupedComparator title={title} allRates={data?.rates?.filter(r => r.isVault)?.map(r => ({ ...r, avg30: (r.symbol === 'sDOLA' ? thirtyDayAvg : r.avg30) }))} themeStyles={_themeStyles} isSmallerThan={isSmallerThan} showLabel={showLabel} />
+        <UngroupedComparator title={title} allRates={data?.rates?.filter(r => r.isVault)} themeStyles={_themeStyles} isSmallerThan={isSmallerThan} showLabel={showLabel} />
     </VStack>
 }
