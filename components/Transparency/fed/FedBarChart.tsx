@@ -4,6 +4,7 @@ import { BarChart } from '../BarChart'
  
 import { shortenNumber } from '@app/util/markets';
 import { useAppTheme } from '@app/hooks/useAppTheme';
+import { getUtcDateChartLabel } from '@app/util/time';
 
 const months = [...Array(12).keys()];
 

@@ -26,7 +26,7 @@ import { useState } from 'react'
 import { showToast } from '@app/util/notify'
 import { RSubmitButton } from '../common/Button/RSubmitButton'
 import { simulateOnChainActions } from '@app/util/governance'
-import { formatDate, formatDateWithTime, timeSince } from '@app/util/time'
+import { formatDate, formatDateWithTime, timeUntil } from '@app/util/time'
 
 const badgeColors: { [key: string]: string } = {
   [ProposalStatus.active]: 'gray',
@@ -57,7 +57,7 @@ const getStatusInfos = (status: ProposalStatus, start: number, end: number, eta:
       const isLockOver = Date.now() >= eta;
       const text = isLockOver ?
         `Lock period over - Executable until ${getDate(eta + GRACE_PERIOD_MS, isDetails)}`
-        : `Locked until ${getDate(eta, isDetails)} (${timeSince(eta)})`
+        : `Locked until ${getDate(eta, isDetails)} (${timeUntil(eta)})`
       return text;
     case ProposalStatus.executed:
       return `Created ${getDate(start)} - Executed ${getDate(executionTs || eta)}`

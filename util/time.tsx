@@ -12,16 +12,25 @@ const getOrdinalSuffix = (day: number): string => {
   }
 }
 
+const getDateSuffix = (day: number): string => {
+  if (day > 3 && day < 21) return 'th';
+  switch (day % 10) {
+    case 1: return 'st';
+    case 2: return 'nd';
+    case 3: return 'rd';
+    default: return 'th';
+  }
+}
 export const formatDay = (date: Date | number): string => {
   const _date = typeof date === 'number' ? new Date(date) : date;
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-  return `${months[_date.getMonth()]} ${_date.getDate()}}`
+  return `${months[_date.getMonth()]} ${_date.getDate()}${getDateSuffix(_date.getDate())}`
 }
 
 export const formatDate = (date: Date | number): string => {
   const _date = typeof date === 'number' ? new Date(date) : date;
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-  return `${months[_date.getMonth()]} ${_date.getDate()}, ${_date.getFullYear()}`
+  return `${months[_date.getMonth()]} ${_date.getDate()}${getDateSuffix(_date.getDate())}, ${_date.getFullYear()}`
 }
 
 export const formatDateWithTime = (date: Date | number): string => {

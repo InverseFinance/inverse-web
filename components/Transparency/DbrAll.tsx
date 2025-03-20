@@ -239,7 +239,7 @@ export const DbrAll = ({
         <DashBoardCard
             cardTitle={
                 <HStack alignItems="center" position={{ base: 'static', md: 'absolute' }} left="0" top="0" w="full" justifyContent="center">
-                    <FirmLogo w="65px" />
+                    <FirmLogo w="65px" h="30px" />
                     <Text {...dashboardCardTitleProps}>Revenues & Fees</Text>
                 </HStack>
             }
@@ -248,7 +248,7 @@ export const DbrAll = ({
         </DashBoardCard>
         <DashBoardCard cardTitle={
             <HStack alignItems="center" position={{ base: 'static', md: 'absolute' }} left="0" top="0" w="full" justifyContent="center">
-                <FirmLogo w="65px" />
+                <FirmLogo w="65px" h="30px" />
                 <Text {...dashboardCardTitleProps}>TVL</Text>
             </HStack>
         }

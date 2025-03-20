@@ -150,7 +150,7 @@ export const KeymetricsPage = () => {
             <DashBoardCard
               cardTitle={
                 <HStack alignItems="center" position={{ base: 'static', md: 'absolute' }} left="0" top="0" w="full" justifyContent="center">
-                  <FirmLogo w="65px" />
+                  <FirmLogo w="65px" h="30px" />
                   <Text {...defillamaTextProps}>Revenues & Fees</Text>
                 </HStack>
               }
@@ -159,7 +159,7 @@ export const KeymetricsPage = () => {
             </DashBoardCard>
             <DashBoardCard cardTitle={
               <HStack alignItems="center" position={{ base: 'static', md: 'absolute' }} left="0" top="0" w="full" justifyContent="center">
-                <FirmLogo w="65px" />
+                <FirmLogo w="65px" h="30px" />
                 <Text {...defillamaTextProps}>TVL</Text>
               </HStack>
             }
