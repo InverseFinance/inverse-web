@@ -8,7 +8,7 @@ import { getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
 import { getWeekIndexUtc } from '@app/util/misc';
 import { getHistoricalRates } from '../dola/sdola-comparator';
 
-export const dolaStakingCacheKey = `dola-staking-v1.0.3`;
+export const dolaStakingCacheKey = `dola-staking-v1.0.4`;
 
 export default async function handler(req, res) {    
     const { cacheFirst, ignoreCache } = req.query;
