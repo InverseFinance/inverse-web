@@ -1,4 +1,4 @@
-import { Flex, Link, ButtonProps, FlexProps } from '@chakra-ui/react'
+import { Flex, Link, ButtonProps, FlexProps, LinkProps } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import { getNetwork } from '@app/util/networks';
 import { NetworkItem } from '@app/components/common/NetworkItem';
@@ -20,7 +20,7 @@ export const LinkButton = ({
   target?: string
   isOutline?: boolean
   flexProps?: FlexProps
-}) => {
+} & LinkProps) => {
   const { OUTLINE_BUTTON_BG, OUTLINE_BUTTON_BORDER_COLOR, BUTTON_BG, BUTTON_BORDER_COLOR, OUTLINE_BUTTON_TEXT_COLOR, BUTTON_TEXT_COLOR } = useAppThemeParams();
   const extraFlexProps = isOutline ?
     { bg: OUTLINE_BUTTON_BG, borderColor: OUTLINE_BUTTON_BORDER_COLOR }
@@ -65,7 +65,7 @@ export const LinkOutlineButton = ({
   href: string
   children: React.ReactNode
   target: string
-}) => (
+} & LinkProps) => (
   <LinkButton children={children} href={href} target={target} isOutline={true} {...props} />
 )
 

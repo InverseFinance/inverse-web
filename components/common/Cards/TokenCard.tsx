@@ -46,7 +46,7 @@ export const DOLATokenCard = ({
 }) => <TokenCard
     name="DOLA"
     subtitle="Decentralized Stablecoin"
-    bg="url('/assets/v2/dola-512.jpg')"
+    bg="url('/assets/v2/dola.jpg')"
     href={ clickable ? "/tokens/dola" : undefined }
     description={
         <VStack w='full' alignItems="flex-start">

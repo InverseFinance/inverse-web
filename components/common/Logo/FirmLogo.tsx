@@ -12,7 +12,7 @@ export const FirmLogo = ({
  
 } & ImageProps) => {
   const { themeName } = useAppTheme();
-  return <Image transform="translateY(6px)" src={`/assets/firm/${firmImages[themeName]}`} w='110px' h="auto"  {...props} />;
+  return <Image transform="translateY(6px)" src={`/assets/firm/${firmImages[themeName]}`} w='110px' h="50px"  {...props} />;
 }
 
 export default FirmLogo
