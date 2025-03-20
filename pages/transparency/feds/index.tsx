@@ -159,23 +159,6 @@ export const FedPolicyPage = () => {
                 </Flex>
                 <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: 'sm' }}>
                     <DolaMoreInfos />
-                    {/* <ShrinkableInfoMessage
-                        title={
-                            <Flex alignItems="center">
-                                Current Fed Chair Guidance
-                                {canEditFedPolicy && <EditIcon cursor="pointer" ml="1" color="blue.500" onClick={handlePolicyEdit} />}
-                            </Flex>
-                        }
-                        description={
-                            <>
-                                {
-                                    fedPolicyMsg?.lastUpdate !== null &&
-                                    <Text>{moment(fedPolicyMsg?.lastUpdate).format('MMM Do YYYY')}</Text>
-                                }
-                                <Text>{fedPolicyMsg?.msg}</Text>
-                            </>
-                        }
-                    /> */}
                     <DolaSupplies supplies={dolaSupplies.filter(chain => chain.supply > 0)} />
                     <SupplyInfos
                         title="🦅&nbsp;&nbsp;DOLA Fed Supplies"

@@ -7,7 +7,7 @@ import { BURN_ADDRESS, DWF_PURCHASER } from '@app/config/constants';
 import useEtherSWR from '@app/hooks/useEtherSWR';
 import { getBnToNumber, getNumberToBn, shortenNumber } from '@app/util/markets';
 import { usePrices } from '@app/hooks/usePrices';
-import moment from 'moment';
+ ;
 import Container from '@app/components/common/Container';
 import { preciseCommify } from '@app/util/misc';
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm';
@@ -22,6 +22,7 @@ import Link from '@app/components/common/Link';
 import { Input } from '@app/components/common/Input';
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect';
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
+import { formatDateWithTime, timeSince } from '@app/util/time';
 
 const zero = BigNumber.from('0');
 
@@ -230,11 +231,11 @@ export const DWFPage = () => {
                       </HStack>
                       <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
                         <Text>Start Time:</Text>
-                        <Text fontWeight="bold">{lifetimeLimit ? `${moment(startTime).format('MMM Do YYYY, hh:mm a')} (${moment(startTime).fromNow()})` : '-'}</Text>
+                        <Text fontWeight="bold">{lifetimeLimit ? `${formatDateWithTime(startTime)} (${timeSince(startTime)})` : '-'}</Text>
                       </Stack>
                       <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
                         <Text>End Time:</Text>
-                        <Text fontWeight="bold">{lifetimeLimit ? `${moment(endTime).format('MMM Do YYYY, hh:mm a')} (${moment(endTime).fromNow()})` : '-'}</Text>
+                        <Text fontWeight="bold">{lifetimeLimit ? `${formatDateWithTime(endTime)} (${timeSince(endTime)})` : '-'}</Text>
                       </Stack>
                       <HStack w='full' justify="space-between">
                         <Text>Total Spend Limit:</Text>
@@ -298,7 +299,7 @@ export const DWFPage = () => {
                       <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
                         <Text>Last swap:</Text>
                         <Text>{
-                          lastBuy >= startTime ? `${moment(lastBuy).format('MMM Do YYYY, hh:mm a')} (${moment(lastBuy).fromNow()})` : '-'
+                          lastBuy >= startTime ? `${formatDateWithTime(lastBuy)} (${timeSince(lastBuy)})` : '-'
                         }</Text>
                       </Stack>
                       {

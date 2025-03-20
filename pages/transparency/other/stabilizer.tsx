@@ -1,6 +1,5 @@
 import { Box, Flex, HStack, Switch, Text, useMediaQuery, VStack } from '@chakra-ui/react'
 
-import moment from 'moment'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
@@ -21,6 +20,7 @@ import { ShrinkableInfoMessage } from '@app/components/common/Messages'
 import { BarChart } from '@app/components/Transparency/BarChart'
 import Link from '@app/components/common/Link'
 import { DolaSupplies } from '@app/components/common/Dataviz/DolaSupplies'
+import { getUtcDateChartLabel } from '@app/util/time'
 
 const months = [...Array(12).keys()];
 
@@ -52,8 +52,8 @@ const columns = [
             return (
                 <Flex minW="100px">
                     <VStack spacing="0">
-                        <Text color={textColor} fontSize="12px">{moment(timestamp).fromNow()}</Text>
-                        <Text color={textColor} fontSize="10px">{moment(timestamp).format('MMM Do YYYY')}</Text>
+                        <Text color={textColor} fontSize="12px">{timeSince(timestamp)}</Text>
+                        <Text color={textColor} fontSize="10px">{formatDate(timestamp)}</Text>
                     </VStack>
                 </Flex>
             )
@@ -133,7 +133,7 @@ export const StabilizerTransparency = () => {
 
             return {
                 label: `${event}s: ${shortenNumber(y, 2, true)}`,
-                x: moment(date).utc().format(chartWidth <= 400 ? 'MMM' : 'MMM-YY'),
+                x: getUtcDateChartLabel(date, chartWidth > 400),
                 y,
             }
         });

@@ -43,8 +43,8 @@ const columns = [
             return (
                 <Flex minW="100px">
                     <VStack spacing="0">
-                        <Text fontSize="12px">{moment(timestamp).fromNow()}</Text>
-                        <Text fontSize="10px">{moment(timestamp).format('MMM Do YYYY')}</Text>
+                        <Text fontSize="12px">{timeSince(timestamp)}</Text>
+                        <Text fontSize="10px">{formatDate(timestamp)}</Text>
                     </VStack>
                 </Flex>
             )

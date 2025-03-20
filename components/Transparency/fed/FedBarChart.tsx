@@ -1,7 +1,7 @@
 import { useMediaQuery } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { BarChart } from '../BarChart'
-import moment from 'moment'
+ 
 import { shortenNumber } from '@app/util/markets';
 import { useAppTheme } from '@app/hooks/useAppTheme';
 
@@ -28,7 +28,7 @@ export const FedBarChart = ({ chartData, maxChartWidth = 900, ...props }: { char
 
             return {
                 label: `${event}s: ${shortenNumber(y, 2, true)}`,
-                x: moment(date).utc().format(chartWidth <= 400 ? 'MMM' : 'MMM-YY'),
+                x: getUtcDateChartLabel(date, chartWidth > 400),
                 y,
             }
         });

@@ -1,10 +1,10 @@
-import { Bond, BondV2 } from '@app/types';
+import { BondV2 } from '@app/types';
 import { shortenNumber } from '@app/util/markets';
 import { Stack, Flex, Text, VStack, HStack } from '@chakra-ui/react';
 import { SubmitButton } from '@app/components/common/Button';
 import { UnderlyingItem } from '@app/components/common/Assets/UnderlyingItem';
-import moment from 'moment';
 import { useWeb3React } from '@web3-react/core';
+import { formatDateWithTime } from '@app/util/time';
 
 const formatBondPrice = (bondPrice: number) => {
     return shortenNumber(bondPrice, 2, true);
@@ -32,7 +32,7 @@ export const BondListItem = ({ bond, bondIndex, handleDetails }: { bond: BondV2,
                 {/* </Link> */}
             </Flex>
             <VStack w="200px" alignItems="flex-start" justify="center">
-                <Text fontSize="16px">{bond.conclusion ? moment(bond.conclusion).format('MMM Do YYYY, hh:mma') : '-'}</Text>
+                <Text fontSize="16px">{bond.conclusion ? formatDateWithTime(bond.conclusion) : '-'}</Text>
                 {bond.capacity === 0 && <Text fontSize="14px">Capacity reached</Text>}
             </VStack>
             <Flex w="80px" alignItems="center">

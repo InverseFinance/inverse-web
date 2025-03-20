@@ -7,7 +7,7 @@ import { preciseCommify } from "@app/util/misc"
 import { HStack, VStack, Text, useMediaQuery, StackProps, TextProps, Stack } from "@chakra-ui/react"
 import { useContext, useEffect, useState } from "react"
 import { F2MarketContext } from "../F2Contex"
-import moment from 'moment'
+ 
 import Container from "@app/components/common/Container"
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect"
 import { useDOLAPrice } from "@app/hooks/usePrices"
@@ -22,6 +22,7 @@ import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader"
 import { SkeletonBlob } from "@app/components/common/Skeleton"
 import { useCustomSWR } from "@app/hooks/useCustomSWR"
 import { AnimatedInfoTooltip } from "@app/components/common/Tooltip"
+import { timeSince } from "@app/util/time"
 
 const Title = (props: TextProps) => <Text textAlign="center" fontWeight="extrabold" fontSize={{ base: '13px', md: '18px' }} {...props} />;
 const SubTitle = (props: TextProps) => <Text textAlign="center" color="secondaryTextColor" fontSize={{ base: '13px', md: '16px' }} {...props} />;
@@ -295,7 +296,7 @@ export const DbrBar = ({
                         DBR Depletion Time
                     </Title>
                     <SubTitle textAlign="right" display="flex" alignItems="center" fontWeight={needsRechargeSoon ? 'extrabold' : 'inherit'} color={needsRechargeSoon ? dbrBalance < 0 ? 'error' : 'warning' : 'secondaryTextColor'}>
-                        {dbrBalance <= 0 && <WarningTwoIcon mr="1" />}{dbrBalance <= 0 ? 'Depleted' : moment(dbrExpiryDate).fromNow()}
+                        {dbrBalance <= 0 && <WarningTwoIcon mr="1" />}{dbrBalance <= 0 ? 'Depleted' : timeSince(dbrExpiryDate)}
                     </SubTitle>
                 </VStack>
                 <VStack spacing="1" alignItems='flex-end'>

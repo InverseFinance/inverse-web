@@ -2,10 +2,11 @@ import { useAppTheme } from '@app/hooks/useAppTheme';
 import { VStack, Text } from '@chakra-ui/react'
 import { smartShortNumber } from '@app/util/markets';
 import { Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ComposedChart } from 'recharts';
-import moment from 'moment';
+ ;
 import { preciseCommify } from '@app/util/misc';
 import { useEffect, useMemo, useState } from 'react';
 import { useRechartsZoom } from '@app/hooks/useRechartsZoom';
+import { formatDate, formatDay } from '@app/util/time';
 
 const KEYS = {
     INFLATION: 'Daily Net Issuance Rate',
@@ -117,12 +118,12 @@ export const DbrInflationChart = ({
                 </defs>
                 <CartesianGrid fill={themeStyles.colors.accentChartBgColor} stroke="#66666633" strokeDasharray={_axisStyle.grid.strokeDasharray} />
                 <XAxis minTickGap={28} interval="preserveStartEnd" style={_axisStyle.tickLabels} dataKey="timestamp" scale="time" type={'number'} allowDataOverflow={true} domain={['dataMin', 'dataMax']} tickFormatter={(v) => {
-                    return moment(v).format('MMM Do')
+                    return formatDay(v)
                 }} />
                 <YAxis opacity={(actives[KEYS.INFLATION]) ? 1 : 0} style={_axisStyle.tickLabels} yAxisId="left" domain={leftYDomain} allowDataOverflow={true} tickFormatter={(v) => smartShortNumber(v, 2, useUsd)} />
                 <Tooltip
                     wrapperStyle={_axisStyle.tickLabels}
-                    labelFormatter={v => moment(v).format('MMM Do YYYY')}
+                    labelFormatter={v => formatDate(v)}
                     labelStyle={{ fontWeight: 'bold' }}
                     itemStyle={{ fontWeight: 'bold' }}
                     formatter={(value, name, d) => {

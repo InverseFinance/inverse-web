@@ -2,11 +2,11 @@ import { useAppTheme } from '@app/hooks/useAppTheme';
 import { VStack, Text } from '@chakra-ui/react'
 import { shortenNumber, smartShortNumber } from '@app/util/markets';
 import { Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ComposedChart } from 'recharts';
-import moment from 'moment';
 import { preciseCommify } from '@app/util/misc';
 import { useEffect, useState } from 'react';
 import { useRechartsZoom } from '@app/hooks/useRechartsZoom';
 import { lightTheme } from '@app/variables/theme';
+import { formatDate, formatDay } from '@app/util/time';
 
 const KEYS = {
     BURN: 'Annualized burn',
@@ -114,13 +114,13 @@ export const DbrComboChart = ({
             >
                 <CartesianGrid fill={themeStyles.colors.accentChartBgColor} stroke="#66666633" strokeDasharray={_axisStyle.grid.strokeDasharray} />
                 <XAxis minTickGap={28} interval="preserveStartEnd" style={_axisStyle.tickLabels} dataKey="timestamp" scale="time" type={'number'} allowDataOverflow={true} domain={['dataMin', 'dataMax']} tickFormatter={(v) => {
-                    return moment(v).format('MMM Do')
+                    return formatDay(v)
                 }} />
                 <YAxis opacity={(actives[KEYS.BURN] || actives[KEYS.ISSUANCE]|| actives[KEYS.STAKERS_ISSUANCE] || actives[KEYS.DBR_MC]) ? 1 : 0} style={_axisStyle.tickLabels} yAxisId="left" domain={leftYDomain} allowDataOverflow={true} tickFormatter={(v) => smartShortNumber(v, 2, useUsd)} />
                 <YAxis opacity={(actives[KEYS.DBR_PRICE] || actives[KEYS.INV_MC]) ? 1 : 0} style={_axisStyle.tickLabels} yAxisId="right" orientation="right" allowDataOverflow={true} tickFormatter={(v) => shortenNumber(v, 4, true)} />
                 <Tooltip
                     wrapperStyle={_axisStyle.tickLabels}
-                    labelFormatter={v => moment(v).format('MMM Do YYYY')}
+                    labelFormatter={v => formatDate(v)}
                     labelStyle={{ fontWeight: 'bold' }}
                     itemStyle={{ fontWeight: 'bold' }}
                     formatter={(value, name, d) => {

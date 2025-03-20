@@ -2,7 +2,7 @@ import { Badge, Flex, HStack, Stack, Text, VStack } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 import { SkeletonBlob, SkeletonTitle } from '@app/components/common/Skeleton'
 import { GovEra, Proposal, ProposalFunction, ProposalStatus } from '@app/types'
-import moment from 'moment'
+ 
 import NextLink from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import gfm from 'remark-gfm'
@@ -26,6 +26,7 @@ import { useState } from 'react'
 import { showToast } from '@app/util/notify'
 import { RSubmitButton } from '../common/Button/RSubmitButton'
 import { simulateOnChainActions } from '@app/util/governance'
+import { formatDate, formatDateWithTime, timeSince } from '@app/util/time'
 
 const badgeColors: { [key: string]: string } = {
   [ProposalStatus.active]: 'gray',
@@ -39,10 +40,9 @@ const badgeColors: { [key: string]: string } = {
   [GovEra.mills]: 'teal',
 }
 
-const getDate = (timestamp: moment.MomentInput, addHours = false, isEstimation = false) => {
-  return moment(timestamp, 'x').format(
-    `${addHours && isEstimation ? '~' : ''}MMM Do${addHours ? ' h:mm a' : ''}, YYYY`
-  )
+const getDate = (timestamp: number, addHours = false, isEstimation = false) => {
+  const d = addHours ? formatDateWithTime(timestamp) : formatDate(timestamp);
+  return isEstimation ? '~' + d : d;
 }
 
 const getStatusInfos = (status: ProposalStatus, start: number, end: number, eta: number, isDetails = false, createdAt?: number, updatedAt?: number, endBlock?: number, executionTs?: number) => {
@@ -57,7 +57,7 @@ const getStatusInfos = (status: ProposalStatus, start: number, end: number, eta:
       const isLockOver = Date.now() >= eta;
       const text = isLockOver ?
         `Lock period over - Executable until ${getDate(eta + GRACE_PERIOD_MS, isDetails)}`
-        : `Locked until ${getDate(eta, isDetails)} (${moment(eta).fromNow()})`
+        : `Locked until ${getDate(eta, isDetails)} (${timeSince(eta)})`
       return text;
     case ProposalStatus.executed:
       return `Created ${getDate(start)} - Executed ${getDate(executionTs || eta)}`

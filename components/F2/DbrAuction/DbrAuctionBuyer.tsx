@@ -25,6 +25,7 @@ import { DbrAuctionType } from "@app/types";
 import { swapExactInvForDbr } from "@app/util/sINV";
 import { useINVBalance } from "@app/hooks/useBalances";
 import ConfirmModal from "@app/components/common/Modal/ConfirmModal";
+import { timeSince } from "@app/util/time";
 
 const { DOLA, INV } = getNetworkConfigConstants();
 
@@ -241,7 +242,7 @@ export const DbrAuctionBuyer = ({
             ),
             { label: `Price via selected auction`, color: auctionPriceColor, isLoading, value: dbrAuctionPriceInToken > 0 ? `~${shortenNumber(dbrAuctionPriceInToken, 4)} ${sellTokenSymobl} (${shortenNumber(dbrAuctionPriceInToken * sellTokenPrice, 4, true)})` : '-' },
             { label: `Market price${isExactInv ? '' : ' via Curve'}`, isLoading, value: !isCurvePriceLoading && dbrSwapPriceInToken > 0 ? `~${shortenNumber(dbrSwapPriceInToken, 4)} ${sellTokenSymobl} (${shortenNumber(dbrSwapPriceInToken * sellTokenPrice, 4, true)})` : '-' },
-            estimatedTimeToReachMarketPrice <= 300 ? undefined : { label: `Est. time for the auction to reach the market price`, isLoading, value: estimatedTimeToReachMarketPrice > ONE_DAY_SECS ? `~${shortenNumber((estimatedTimeToReachMarketPrice / ONE_DAY_SECS), 2)} days` : `${moment(estimatedTimestampToReachMarketPrice).fromNow()}` },
+            estimatedTimeToReachMarketPrice <= 300 ? undefined : { label: `Est. time for the auction to reach the market price`, isLoading, value: estimatedTimeToReachMarketPrice > ONE_DAY_SECS ? `~${shortenNumber((estimatedTimeToReachMarketPrice / ONE_DAY_SECS), 2)} days` : `${timeSince(estimatedTimestampToReachMarketPrice)}` },
             arbitrageOpportunity <= 0 ? undefined : { label: `Arbitrage opportunity`, isLoading, value: `${preciseCommify(arbitrageOpportunity, 2, true)}` },
         ]} />
         <Divider />

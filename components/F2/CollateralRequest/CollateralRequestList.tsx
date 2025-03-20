@@ -29,8 +29,8 @@ const columns = [
         value: ({ timestamp }) => {
             return (
                 <Cell spacing="0" direction="column" w="120px" justify="flex-start">
-                    <Text fontWeight="bold" fontSize="12px">{moment(timestamp).fromNow()}</Text>
-                    <Text fontSize="12px">{moment(timestamp).format('MMM Do YYYY')}</Text>
+                    <Text fontWeight="bold" fontSize="12px">{timeSince(timestamp)}</Text>
+                    <Text fontSize="12px">{formatDate(timestamp)}</Text>
                 </Cell>
             )
         },

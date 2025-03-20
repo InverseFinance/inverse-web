@@ -1,9 +1,10 @@
 import { useMediaQuery } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { BarChart, BarChartProps } from './BarChart'
-import moment from 'moment'
+ 
 import { smartShortNumber } from '@app/util/markets';
 import { CoordinatesArray } from '@app/types';
+import { getUtcDateChartLabel } from '@app/util/time';
 
 const DEFAULT_MONTHS = [...Array(12).keys()];
 
@@ -53,7 +54,7 @@ export const BarChart12Months = ({
 
             return {
                 label: `${event}s: ${smartShortNumber(y, 2, isDollars)}`,
-                x: moment(date).utc().format(xDateFormat || (_chartWidth <= 400 ? 'MMM' : 'MMM-YY')),
+                x: getUtcDateChartLabel(date, _chartWidth > 400),
                 y,
             }
         });

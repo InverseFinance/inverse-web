@@ -63,20 +63,6 @@ export const DbrHealth = ({
         onClick={() => onModalOpen()}
       />
       <HStack pt="4" w='full' justifyContent="space-between">
-        {/* <Text color="secondaryTextColor">
-          {
-            dbrNbDaysExpiry > 0 ?
-              `${moment(dbrExpiryDate).fromNow(true)} before Exhaust`
-              :
-              hasDebt ?
-                'Exhausted! Loan Health may get damaged'
-                :
-                signedBalance === 0 ?
-                  'Get DBR tokens to hold loans over time'
-                  :
-                  'No on-going Loans'
-          }
-        </Text> */}
         <F2StateInfo
           currentValue={dbrExpiryDate}
           nextValue={isPreviewing ? previewExpiryDate : undefined}

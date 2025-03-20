@@ -1,6 +1,7 @@
 import { useBlockTimestamp } from '@app/hooks/useBlockTimestamp';
+import { formatDate, formatDateWithTime, timeSince } from '@app/util/time';
 import { Stack, Text, StackDirection, TextProps } from '@chakra-ui/react';
-import moment from 'moment';
+ ;
 
 const defaultFormat = 'MMM Do YYYY';
 
@@ -54,8 +55,8 @@ export const TimestampInfo = ({
     isUsingEstimate?: boolean,
 }) => {
     return <>
-        <Text {...textProps}>{moment(timestamp).fromNow()}</Text>
+        <Text {...textProps}>{timeSince(timestamp)}</Text>
         {!isCol && <Text {...textProps}>-</Text>}
-        <Text {...textProps}>{isUsingEstimate ? '~' : ''}{moment(timestamp).format(format)}</Text>
+        <Text {...textProps}>{isUsingEstimate ? '~' : ''}{format ? formatDateWithTime(timestamp) : formatDate(timestamp)}</Text>
     </>
 }

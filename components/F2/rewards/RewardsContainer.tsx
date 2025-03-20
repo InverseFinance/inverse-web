@@ -8,7 +8,7 @@ import { useState } from "react";
 import { zapperRefresh } from "@app/util/f2";
 import { Stack, VStack } from "@chakra-ui/react";
 import { useWeb3React } from "@web3-react/core";
-import moment from 'moment';
+ ;
 import useStorage from "@app/hooks/useStorage";
 import { BURN_ADDRESS } from "@app/config/constants";
 
@@ -59,7 +59,7 @@ export const RewardsContainer = ({
 
     return <Container
         label={label}
-        description={timestamp ? `Last update: ${moment(timestamp).fromNow()}` : undefined}
+        description={timestamp ? `Last update: ${timeSince(timestamp)}` : undefined}
         noPadding
         p='0'
         collapsable={true}

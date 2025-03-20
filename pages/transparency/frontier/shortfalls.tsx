@@ -8,7 +8,7 @@ import Head from 'next/head'
 import { usePositions } from '@app/hooks/usePositions'
 import { useState } from 'react'
 import { PositionsTable, PositionsTableV2 } from '@app/components/Positions/PositionsTable'
-import moment from 'moment'
+ 
 import { TopDelegatesAutocomplete } from '@app/components/common/Input/TopDelegatesAutocomplete'
 import { shortenAddress } from '@app/util'
 import { InfoMessage } from '@app/components/common/Messages'
@@ -75,7 +75,7 @@ export const ShortfallsPage = () => {
             </VStack>
           </Container>
           <Container
-            label={`${accounts ? shortenAddress(accounts) + "'s Positions" : 'Shortfalling Positions'} - ${!lastUpdate ? 'Loading...' : 'Last update ' + moment(lastUpdate).fromNow()}`}
+            label={`${accounts ? shortenAddress(accounts) + "'s Positions" : 'Shortfalling Positions'} - ${!lastUpdate ? 'Loading...' : 'Last update ' + timeSince(lastUpdate)}`}
             description="Only shortfalls above or equal to $0.1 are shown"
             right={<InfoMessage description="Asset icon sizes reflects the usd worth size" />}
             contentProps={{

@@ -14,7 +14,7 @@ import { usePrices } from '@app/hooks/usePrices'
 import { useEventsAsChartData } from '@app/hooks/misc'
 import { DefaultCharts } from '@app/components/Transparency/DefaultCharts'
 import { useState } from 'react'
-import moment from 'moment'
+ 
 import { shortenNumber, smartShortNumber } from '@app/util/markets'
 import ScannerLink from '@app/components/common/ScannerLink'
 import { Timestamp } from '@app/components/common/BlockTimestamp/Timestamp'
@@ -23,6 +23,7 @@ import { lightTheme } from '@app/variables/theme'
 import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader'
 import { InfoMessage } from '@app/components/common/Messages'
 import Link from '@app/components/common/Link'
+import { timeSince } from '@app/util/time'
 
 const ColHeader = ({ ...props }) => {
   return <Flex justify="center" minWidth={'150px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -481,7 +482,7 @@ export const BadDebtPage = () => {
             <DolaBadDebtRepaymentProgressBar progress={dolaBadDebtRepaidProgress} />
             <Container
               label="DOLA Bad Debt Evolution"
-              description={data?.timestamp ? `Last update: ${moment(data?.timestamp).fromNow()}` : 'Loading...'}
+              description={data?.timestamp ? `Last update: ${timeSince(data?.timestamp)}` : 'Loading...'}
               noPadding
               headerProps={{
                 direction: { base: 'column', md: 'row' },

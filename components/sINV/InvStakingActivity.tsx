@@ -94,7 +94,7 @@ const columns = [
 export const InvStakingActivity = ({ events, title, lastUpdate, ...containerProps }: { events: any[], title: string, lastUpdate: number, containerProps?: ContainerProps }) => {    
     return <Container
         label={title}
-        description={lastUpdate > 0 ? `Last update: ${moment(lastUpdate).fromNow()}` : undefined}
+        description={lastUpdate > 0 ? `Last update: ${timeSince(lastUpdate)}` : undefined}
         noPadding
         m="0"
         p="0"

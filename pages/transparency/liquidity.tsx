@@ -12,7 +12,7 @@ import { capitalize, preciseCommify } from '@app/util/misc';
 import { RadioSelector } from '@app/components/common/Input/RadioSelector';
 import { UnderlyingItemBlock } from '@app/components/common/Assets/UnderlyingItemBlock';
 import { useState } from 'react';
-import moment from 'moment';
+ ;
 import { useTokensData } from '@app/hooks/useMarkets';
 import Link from '@app/components/common/Link';
 import { usePricesV2 } from '@app/hooks/usePrices';
@@ -306,7 +306,7 @@ export const Liquidity = () => {
       <Flex pt='4' w="full" justify="center" justifyContent="center" direction={{ base: 'column', xl: 'row' }}>
         <Flex direction="column" py="4" px="5" maxWidth="1200px" w='full'>
           <Text fontSize="12px">
-            {`Last update: ${timestamp ? moment(timestamp).fromNow() : ''}`}
+            {`Last update: ${timestamp ? timeSince(timestamp) : ''}`}
           </Text>
           <Stack direction={{ base: 'column', md: 'row' }}>
             <RadioSelector

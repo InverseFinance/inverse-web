@@ -3,7 +3,6 @@ import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import { useAccountDBR, useAccountF2Markets, useDBR, useDBRBalanceHisto, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
 import { getClosestPreviousHistoValue, preciseCommify, timestampToUTC } from "@app/util/misc";
 import { lightTheme } from "@app/variables/theme";
-import moment from "moment";
 import { PieChartRecharts } from "../Transparency/PieChartRecharts";
 import { useINVEscrowRewards, useStakedInFirm, useAccountRewards } from "@app/hooks/useFirm";
 import { BigTextLoader } from "../common/Loaders/BigTextLoader";
@@ -25,6 +24,7 @@ import { useStakedDola, useStakedDolaBalance } from "@app/util/dola-staking";
 import { FirmInsuranceCover, SDolaInsuranceCover } from "../common/InsuranceCover";
 import { useStakedInv, useStakedInvBalance } from "@app/util/sINV";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { formatDate } from "@app/util/time";
 
 const MAX_AREA_CHART_WIDTH = 625;
 
@@ -372,7 +372,7 @@ export const UserDashboard = ({
                         labelLeft={<Link isExternal target="_blank" textDecoration="underline" href={BUY_LINKS.DBR}>Buy via DEX</Link>}
                         labelRight={<Link textDecoration="underline" href="/dbr/auction">Buy via auctions</Link>}
                     />
-                } color={needsRechargeSoon ? 'error' : undefined} isLoading={isLoading} value={debt > 0 ? dbrBalance < 0 ? 'Depleted' : moment(dbrExpiryDate).format('MMM Do YYYY') : '-'} label="DBR depletion date" />
+                } color={needsRechargeSoon ? 'error' : undefined} isLoading={isLoading} value={debt > 0 ? dbrBalance < 0 ? 'Depleted' : formatDate(dbrExpiryDate) : '-'} label="DBR depletion date" />
             {
                 (totalRewardsUsd > 1 || totalMonthlyUsdYield > 1) && <>
                     <MonthlyRewards cardProps={{

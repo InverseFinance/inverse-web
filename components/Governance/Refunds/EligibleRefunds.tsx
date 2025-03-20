@@ -22,7 +22,8 @@ import Table from '../../common/Table';
 import { RefundsModal } from './RefundModal';
 import { ONE_DAY_MS } from '@app/config/constants';
 import { getNetworkConfigConstants } from '@app/util/networks';
-import moment from 'moment';
+ ;
+import { timeSince } from '@app/util/time';
 
 const { MULTISIGS } = getNetworkConfigConstants();
 
@@ -362,7 +363,7 @@ export const EligibleRefunds = () => {
                                 <InfoMessage alertProps={{ fontSize: '12px' }} description="After choosing server filters or dates, click the reload icon" />
                                 <VStack fontSize="12px" alignItems="flex-end">
                                     <Text>Latest cron job is from:</Text>
-                                    <Text>{cachedMostRecentTimestamp ? moment(cachedMostRecentTimestamp).fromNow() : '-'}</Text>
+                                    <Text>{cachedMostRecentTimestamp ? timeSince(cachedMostRecentTimestamp) : '-'}</Text>
                                 </VStack>
                             </HStack>
                         </HStack>

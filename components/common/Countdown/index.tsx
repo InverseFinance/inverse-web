@@ -1,22 +1,28 @@
-import moment from 'moment'
+ 
 import { Box, Text, useInterval, SlideFade } from '@chakra-ui/react';
 import { useState } from 'react';
 import { LaunchAnim } from '@app/components/common/Animation';
+import { getUTCEndOfDay } from '@app/util/time';
 
 const queued = Date.UTC(2022, 1, 2, 14, 5);
 const execution = Date.UTC(2022, 1, 4, 14, 5);
 const countdownOverText = 'Launching'
 
 const getText = (end: number, textWhenOver = '') => {
-    const now = Date.now()
+    const now = Date.now();
     const delta = end - now;
+
     if (delta <= 0) {
         return textWhenOver;
     }
-    const duration = moment.duration(delta, "milliseconds");
-    const days = duration.days()
-    return `${(24 * days + duration.hours()).toString().padStart(2, '0')}:${duration.minutes().toString().padStart(2, '0')}:${duration.seconds().toString().padStart(2, '0')}`
-}
+
+    // Convert milliseconds to time components
+    const seconds = Math.floor((delta / 1000) % 60);
+    const minutes = Math.floor((delta / (1000 * 60)) % 60);
+    const hours = Math.floor(delta / (1000 * 60 * 60)); // Total hours including days
+
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+};
 
 export const DailyLimitCountdown = ({
     prefix,
@@ -25,10 +31,10 @@ export const DailyLimitCountdown = ({
     prefix?: string,
     suffix?: string,
 }) => {
-    const [text, setText] = useState(getText(+(moment.utc().endOf('day')._d)));
+    const [text, setText] = useState(getText(+getUTCEndOfDay()));
 
     useInterval(() => {
-        const utcDayEnd = +(moment.utc().endOf('day')._d);
+        const utcDayEnd = +getUTCEndOfDay();
         setText(getText(utcDayEnd));
     }, 1000);
 

@@ -102,7 +102,7 @@ const sDOLAColumns = columns.slice(0, columns.length - 1).map(c => ({ ...c, show
 export const DbrAuctionBuys = ({ events, title, subtitle, lastUpdate }: { events: any[], title: string, subtitle: string, lastUpdate: number }) => {
     return <Container
         label={title}
-        description={subtitle || (lastUpdate > 0 ? `Last update: ${moment(lastUpdate).fromNow()}` : undefined)}
+        description={subtitle || (lastUpdate > 0 ? `Last update: ${timeSince(lastUpdate)}` : undefined)}
         noPadding
         m="0"
         p="0"

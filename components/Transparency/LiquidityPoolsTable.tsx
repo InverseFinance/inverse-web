@@ -235,7 +235,7 @@ export const LiquidityPoolsTable = ({
         noPadding
         p="0"
         label="Liquidity Pools Details"
-        description={`Last update: ${timestamp ? moment(timestamp).fromNow() : ''}`}
+        description={`Last update: ${timestamp ? timeSince(timestamp) : ''}`}
         contentProps={{
             direction: 'column',
             overflowX: 'scroll',

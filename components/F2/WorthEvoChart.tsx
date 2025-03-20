@@ -3,7 +3,6 @@ import { F2Market } from "@app/types";
 import { VStack, Text, FormControl, Switch, Stack, HStack, Popover, PopoverTrigger, PopoverContent } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ComposedChart, ReferenceLine, ResponsiveContainer } from 'recharts';
-import moment from 'moment';
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import { preciseCommify } from "@app/util/misc";
 import Container, { AppContainerProps } from "../common/Container";
@@ -11,6 +10,7 @@ import { NavButtons } from "../common/Button";
 import { lightTheme } from "@app/variables/theme";
 import { SkeletonBlob } from "../common/Skeleton";
 import { useRechartsZoom } from "@app/hooks/useRechartsZoom";
+import { formatDate, formatDay } from "@app/util/time";
 
 const LABEL_POSITIONS = {
     'Claim': 'center',
@@ -272,7 +272,7 @@ export const WorthEvoChart = ({
         >
             <CartesianGrid fill={themeStyles.colors.accentChartBgColor} stroke="#66666633" strokeDasharray={_axisStyle.grid.strokeDasharray} />
             <XAxis minTickGap={28} interval="preserveStartEnd" style={_axisStyle.tickLabels} dataKey="timestamp" scale="time" type={'number'} allowDataOverflow={true} domain={['dataMin', 'dataMax']} tickFormatter={(v) => {
-                return moment(v).format('MMM Do')
+                return formatDay(v);
             }} />
             <YAxis allowDataOverflow={true} style={_axisStyle.tickLabels} yAxisId="left" tickFormatter={(v) => smartShortNumber(v, 2, useUsd)} domain={[0, 'auto']} />
             {
@@ -283,7 +283,7 @@ export const WorthEvoChart = ({
             <Tooltip
                 wrapperStyle={{ ..._axisStyle.tickLabels }}
                 contentStyle={{ backgroundColor: themeStyles.colors.mainBackgroundColor }}
-                labelFormatter={v => moment(v).format('MMM Do YYYY')}
+                labelFormatter={v => formatDate(v)}
                 labelStyle={{ fontWeight: 'bold', color: themeStyles.colors.mainTextColor }}
                 itemStyle={{ fontWeight: 'bold' }}
                 formatter={(value, name) => {
