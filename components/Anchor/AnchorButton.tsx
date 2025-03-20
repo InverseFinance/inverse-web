@@ -8,7 +8,7 @@ import { useAccountBalances, useBorrowBalances, useMarketCash, useSupplyBalances
 import { useEscrow } from '@app/hooks/useEscrow'
 import { Market, AnchorOperations } from '@app/types'
 import { getAnchorContract, getCEtherContract, getERC20Contract, getEscrowContract, getEthRepayAllContract } from '@app/util/contracts'
-import { timeUntil } from '@app/util/time'
+import { timeUntil, isAfter } from '@app/util/time'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber, constants } from 'ethers'
 import { formatUnits, parseEther } from 'ethers/lib/utils'

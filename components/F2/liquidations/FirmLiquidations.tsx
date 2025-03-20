@@ -16,6 +16,7 @@ import { lightTheme } from "@app/variables/theme";
 import { DashBoardCard, NumberCard } from "../UserDashboard";
 import { useEffect, useState } from "react";
 import { ONE_DAY_MS } from "@app/config/constants";
+import { timeSince } from "@app/util/time";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="12px" fontWeight="extrabold" {...props} />

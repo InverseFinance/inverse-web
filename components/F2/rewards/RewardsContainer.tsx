@@ -11,6 +11,7 @@ import { useWeb3React } from "@web3-react/core";
  ;
 import useStorage from "@app/hooks/useStorage";
 import { BURN_ADDRESS } from "@app/config/constants";
+import { timeSince } from "@app/util/time";
 
 export const RewardsContainer = ({
     escrow,

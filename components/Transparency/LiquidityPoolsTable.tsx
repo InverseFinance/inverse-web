@@ -8,12 +8,13 @@ import { PROTOCOL_IMAGES } from "@app/variables/images"
 import { NETWORKS_BY_CHAIN_ID } from "@app/config/networks"
 import { RadioCardGroup } from "../common/Input/RadioCardGroup"
 import { useEffect, useState } from "react"
-import moment from "moment"
+ 
 import { SkeletonBlob } from "../common/Skeleton"
 import Link from "../common/Link"
 import { ExternalLinkIcon } from "@chakra-ui/icons"
 import { getLpLink } from "@app/variables/tokens"
 import { FEATURE_FLAGS } from "@app/config/features"
+import { timeSince } from "@app/util/time"
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'150px'} fontSize="12px" fontWeight="extrabold" {...props} />

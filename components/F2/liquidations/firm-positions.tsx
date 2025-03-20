@@ -12,6 +12,7 @@ import { SkeletonBlob } from "@app/components/common/Skeleton";
 import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader";
 import { FirmPositionsTable } from "../Infos/FirmPositionsTable";
 import { DashBoardCard } from '@app/components/F2/UserDashboard'
+import { timeSince } from "@app/util/time";
 
 export const groupPositionsBy = (positions: any[], groupBy: string, attributeToSum: string) => {
     return Object.entries(

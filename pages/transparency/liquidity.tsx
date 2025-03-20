@@ -28,6 +28,7 @@ import { useEnsoPools } from '@app/util/enso';
 import { FEATURE_FLAGS } from '@app/config/features';
 import { EnsoModal } from '@app/components/common/Modal/EnsoModal';
 import { useDBRPrice } from '@app/hooks/useDBR';
+import { timeSince } from '@app/util/time';
 
 const groupLpsBy = (lps: any[], attribute: string, max = 6) => {
   const items = Object.entries(

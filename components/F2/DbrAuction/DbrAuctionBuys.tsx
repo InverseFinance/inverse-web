@@ -4,11 +4,12 @@ import Container from "../../common/Container";
 import Table from "@app/components/common/Table";
 import ScannerLink from "@app/components/common/ScannerLink";
 import { Timestamp } from "@app/components/common/BlockTimestamp/Timestamp";
-import moment from "moment";
+ 
 import { useStakedDola } from "@app/util/dola-staking";
 import { useDBRPrice } from "@app/hooks/useDBR";
 import { ONE_DAY_MS } from "@app/config/constants";
 import { getLastThursdayTimestamp, preciseCommify } from "@app/util/misc";
+import { timeSince } from "@app/util/time";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="12px" fontWeight="extrabold" {...props} />

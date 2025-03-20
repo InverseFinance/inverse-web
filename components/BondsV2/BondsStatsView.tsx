@@ -5,6 +5,7 @@ import { BondsAreaChart } from './BondsAreaChart';
 import { BondsBarChart } from './BondsBarChart';
 import theme from '@app/variables/theme';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
+import { timeSince } from '@app/util/time';
  ;
 
 export const BondsStatsView = () => {

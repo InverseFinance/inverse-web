@@ -3,14 +3,13 @@ import { BURN_ADDRESS, CHAIN_ID, DEFAULT_FIRM_HELPER_TYPE, DOLA_FEED, ONE_DAY_MS
 import { F2Market } from "@app/types";
 import { BlockTag, JsonRpcSigner, Web3Provider } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
- ;
+
 import { getNetworkConfigConstants } from "./networks";
-import { parseUnits, splitSignature } from "ethers/lib/utils";
-import { getBnToNumber, getNumberToBn } from "./markets";
+import { splitSignature } from "ethers/lib/utils";
+import { getBnToNumber } from "./markets";
 import { callWithHigherGL } from "./contracts";
 import { calculateMaxLeverage, uniqueBy } from "./misc";
 import { getMulticallOutput } from "./multicall";
-import { inverseViewer } from "./viewer";
 import { FIRM_ESCROWS } from "@app/variables/firm-markets";
 import { formatDate, timeSince } from "./time";
 

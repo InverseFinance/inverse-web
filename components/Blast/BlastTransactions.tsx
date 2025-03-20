@@ -6,11 +6,12 @@ import { NetworkIds } from "@app/types";
 import { smartShortNumber } from "@app/util/markets";
 import Table from "../common/Table";
 import ScannerLink from "../common/ScannerLink";
-import moment from "moment";
+ 
 import { useBlastAddressWithdrawals } from "./useBlast";
 import { SkeletonBlob } from "../common/Skeleton";
 import { switchWalletNetwork } from "@app/util/web3";
 import { useAccount } from "@app/hooks/misc";
+import { formatDate, timeSince } from "@app/util/time";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="14px" fontWeight="extrabold" {...props} />

@@ -13,6 +13,7 @@ import { preciseCommify } from "@app/util/misc";
 import { usePrices } from "@app/hooks/usePrices";
 import { SkeletonBlob } from "@app/components/common/Skeleton";
 import { useDBRPrice } from "@app/hooks/useDBR";
+import { timeSince } from "@app/util/time";
 
 const StatBasic = ({ value, name }: { value: string, name: string }) => {    
     return <VStack>

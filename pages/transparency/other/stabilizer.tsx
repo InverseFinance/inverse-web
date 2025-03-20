@@ -20,7 +20,7 @@ import { ShrinkableInfoMessage } from '@app/components/common/Messages'
 import { BarChart } from '@app/components/Transparency/BarChart'
 import Link from '@app/components/common/Link'
 import { DolaSupplies } from '@app/components/common/Dataviz/DolaSupplies'
-import { getUtcDateChartLabel } from '@app/util/time'
+import { formatDate, getUtcDateChartLabel, timeSince } from '@app/util/time'
 
 const months = [...Array(12).keys()];
 

@@ -9,6 +9,7 @@ import ScannerLink from "@app/components/common/ScannerLink";
 import Table from "@app/components/common/Table";
 import { BigImageButton } from "@app/components/common/Button/BigImageButton";
 import { Timestamp } from "@app/components/common/BlockTimestamp/Timestamp";
+import { timeSince } from "@app/util/time";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="12px" fontWeight="extrabold" {...props} />

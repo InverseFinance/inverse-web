@@ -17,7 +17,7 @@ import { FirmUserModal } from "./FirmUserModal";
 import { useDBRPrice } from "@app/hooks/useDBR";
 import InfoModal from "@app/components/common/Modal/InfoModal";
 import { MarketNameAndIcon } from "../F2Markets";
-import { formatDate } from "@app/util/time";
+import { formatDate, timeSince } from "@app/util/time";
 
 const StatBasic = ({ value, name, onClick = undefined, isLoading = false }: { value: string, onClick?: () => void, name: string, isLoading?: boolean }) => {
     return <VStack>

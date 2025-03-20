@@ -6,8 +6,9 @@ import Table from "@app/components/common/Table"
 import { useCustomSWR } from "@app/hooks/useCustomSWR"
 import { NetworkIds } from "@app/types"
 import { shortenNumber } from "@app/util/markets"
+import { formatDate, timeSince } from "@app/util/time"
 import { Flex, Text, Stack } from "@chakra-ui/react"
-import moment from "moment"
+ 
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="14px" fontWeight="extrabold" {...props} />
