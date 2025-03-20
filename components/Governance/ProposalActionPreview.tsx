@@ -8,13 +8,14 @@ import { capitalize, removeScientificFormat, _getProp, preciseCommify, formatDur
 import { formatUnits } from 'ethers/lib/utils';
 import { getNetworkConfigConstants } from '@app/util/networks';
 import ScannerLink from '@app/components/common/ScannerLink';
-import moment from 'moment';
+ ;
 import { getBnToNumber, shortenNumber } from '@app/util/markets';
 import { ErrorBoundary } from '../common/ErrorBoundary';
 import { BURN_ADDRESS, OLD_BORROW_CONTROLLER, ONE_DAY_SECS } from '@app/config/constants';
 import useEtherSWR from '@app/hooks/useEtherSWR';
 import { ERC20_ABI } from '@app/config/abis';
 import { TextInfo } from '../common/Messages/TextInfo';
+import { formatDate } from '@app/util/time';
 
 const { DOLA_PAYROLL, DOLA, COMPTROLLER, XINV_VESTOR_FACTORY, STABILIZER, GOVERNANCE, ORACLE, F2_CONTROLLER, DBR_DISTRIBUTOR, FEDS, F2_MARKETS, F2_ORACLE, F2_ALE } = getNetworkConfigConstants();
 
@@ -66,7 +67,7 @@ const XinvVestorHumanReadable = ({
         const amount = <Amount value={amountValue} decimals={contractKnownToken.decimals} />;
         const destinator = <ScannerLink color="info" value={recipient} label={namedAddress(recipient)} />;
         const durationInDays = <b>{shortenNumber(parseInt(durationSec) / (3600 * 24), 0)} days</b>;
-        const startingDate = <b>{moment(parseInt(startTimestampSec) * 1000).format('MMM Do YYYY')}</b>;
+        const startingDate = <b>{formatDate(parseInt(startTimestampSec) * 1000)}</b>;
 
         text = <Flex display="inline-block">
             <Text>&laquo; Deploy a <b>{isCancellable === 'false' && 'Non-'}Cancellable</b> XinvVester for {destinator}:</Text>

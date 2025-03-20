@@ -3,15 +3,15 @@ import { BURN_ADDRESS, CHAIN_ID, DEFAULT_FIRM_HELPER_TYPE, DOLA_FEED, ONE_DAY_MS
 import { F2Market } from "@app/types";
 import { BlockTag, JsonRpcSigner, Web3Provider } from "@ethersproject/providers";
 import { BigNumber, Contract } from "ethers";
-import moment from 'moment';
+
 import { getNetworkConfigConstants } from "./networks";
-import { parseUnits, splitSignature } from "ethers/lib/utils";
-import { getBnToNumber, getNumberToBn } from "./markets";
+import { splitSignature } from "ethers/lib/utils";
+import { getBnToNumber } from "./markets";
 import { callWithHigherGL } from "./contracts";
 import { calculateMaxLeverage, uniqueBy } from "./misc";
 import { getMulticallOutput } from "./multicall";
-import { inverseViewer } from "./viewer";
 import { FIRM_ESCROWS } from "@app/variables/firm-markets";
+import { formatDate, timeSince } from "./time";
 
 const { F2_HELPER, F2_MARKETS } = getNetworkConfigConstants();
 
@@ -397,9 +397,9 @@ export const findMaxBorrow = async (market, deposits, debt, dbrPrice, duration, 
 export const getDepletionDate = (timestamp: number, comparedTo: number) => {
     return !!timestamp ?
         (timestamp - ONE_DAY_MS) <= comparedTo ?
-            timestamp <= comparedTo ? 'Instant' : `~${moment(timestamp).fromNow()}`
+            timestamp <= comparedTo ? 'Instant' : `~${timeSince(timestamp)}`
             :
-            moment(timestamp).format('MMM Do, YYYY') : '-'
+            formatDate(timestamp) : '-'
 }
 
 export const getDBRRiskColor = (timestamp: number, comparedTo: number) => {

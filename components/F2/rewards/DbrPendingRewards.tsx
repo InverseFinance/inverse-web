@@ -5,7 +5,7 @@ import { useDBRPendingRewards } from "@app/hooks/useFirm";
 import Link from "@app/components/common/Link";
 import { ViewIcon } from "@chakra-ui/icons";
 import ScannerLink from "@app/components/common/ScannerLink";
-import moment from 'moment'
+ 
 import { biggestSize, smallerSize } from '@app/variables/responsive'
 
 import Table from "@app/components/common/Table";
@@ -13,6 +13,7 @@ import { preciseCommify } from "@app/util/misc";
 import { usePrices } from "@app/hooks/usePrices";
 import { SkeletonBlob } from "@app/components/common/Skeleton";
 import { useDBRPrice } from "@app/hooks/useDBR";
+import { timeSince } from "@app/util/time";
 
 const StatBasic = ({ value, name }: { value: string, name: string }) => {    
     return <VStack>
@@ -196,7 +197,7 @@ export const DbrPendingRewards = ({
             noPadding
             px="0"
             pt="0"
-            description={timestamp ? `DBR reward index updated ${moment(timestamp).fromNow()}` : `Loading...`}
+            description={timestamp ? `DBR reward index updated ${timeSince(timestamp)}` : `Loading...`}
             contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
             headerProps={{
                 direction: { base: 'column', md: 'row' },

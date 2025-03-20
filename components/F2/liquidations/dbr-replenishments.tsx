@@ -5,10 +5,11 @@ import { useDBRReplenishments } from "@app/hooks/useFirm";
 import Link from "@app/components/common/Link";
 import { ViewIcon } from "@chakra-ui/icons";
 import ScannerLink from "@app/components/common/ScannerLink";
-import moment from 'moment'
+ 
 import Table from "@app/components/common/Table";
 import { BigImageButton } from "@app/components/common/Button/BigImageButton";
 import { Timestamp } from "@app/components/common/BlockTimestamp/Timestamp";
+import { timeSince } from "@app/util/time";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="12px" fontWeight="extrabold" {...props} />
@@ -127,7 +128,7 @@ export const DbrReplenishments = ({
         label="Last 100 Forced Replenishments"
         noPadding
         py="4"
-        description={timestamp ? `Last update ${moment(timestamp).fromNow()}` : `Loading...`}
+        description={timestamp ? `Last update ${timeSince(timestamp)}` : `Loading...`}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
         headerProps={{
             direction: { base: 'column', md: 'row' },

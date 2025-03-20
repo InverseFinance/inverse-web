@@ -14,12 +14,12 @@ import Container from '@app/components/common/Container';
 import { getScanner } from '@app/util/web3';
 import { payrollWithdraw } from '@app/util/payroll';
 import { getBnToNumber, shortenNumber } from '@app/util/markets';
-import moment from 'moment';
 import { InfoMessage } from '@app/components/common/Messages';
 import { Event } from 'ethers';
 import { useContractEvents } from '@app/hooks/useContractEvents';
 import { DOLA_PAYROLL_ABI } from '@app/config/abis';
 import { useBlockTimestamp } from '@app/hooks/useBlockTimestamp';
+import { formatDate, timeSince } from '@app/util/time';
 
 const { DOLA_PAYROLL, TOKENS, DOLA, TREASURY } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -32,7 +32,7 @@ const EventInfos = ({ event }: { event: Event }) => {
     {
       timestamp > 0 &&
       <Text textAlign="right">
-        {moment(timestamp).fromNow()} - {moment(timestamp).format('MMM Do YYYY')}
+        {timeSince(timestamp)} - {formatDate(timestamp)}
       </Text>
     }
   </Flex>
@@ -64,8 +64,8 @@ export const DolaPayrollPage = () => {
   const allowance = data && data[2] ? getBnToNumber(data[2]) : 0;
   const dolaTreasury = data && data[3] ? getBnToNumber(data[3]) : 0;
 
-  const formatDate = (timestamp: number, isSmaller: boolean) => {
-    return `${moment(timestamp).format('MMM Do hh:mm A, YYYY')}${isSmaller ? '' : ` (${moment(timestamp).fromNow()})`}`
+  const _formatDate = (timestamp: number, isSmaller: boolean) => {
+    return `${formatDate(timestamp)}${isSmaller ? '' : ` (${timeSince(timestamp)})`}`
   }
 
   const userEvents = events.filter(event => {
@@ -106,7 +106,7 @@ export const DolaPayrollPage = () => {
                               <Text>
                                 - <b>Start Time</b>:
                               </Text>
-                              <Text fontWeight="extrabold">{!startTimestamp ? 'Not started yet' : formatDate(startTimestamp, isSmaller)}</Text>
+                              <Text fontWeight="extrabold">{!startTimestamp ? 'Not started yet' : _formatDate(startTimestamp, isSmaller)}</Text>
                             </Flex>
                             <Flex alignItems="center" justify="space-between">
                               <Text>
@@ -118,7 +118,7 @@ export const DolaPayrollPage = () => {
                               <Text>
                                 - <b>Last Claim</b>:
                               </Text>
-                              <Text fontWeight="extrabold">{!lastClaimTimestamp ? 'Never claimed yet' : formatDate(lastClaimTimestamp, isSmaller)}</Text>
+                              <Text fontWeight="extrabold">{!lastClaimTimestamp ? 'Never claimed yet' : _formatDate(lastClaimTimestamp, isSmaller)}</Text>
                             </Flex>
                             <Flex fontWeight="bold" alignItems="center" justify="space-between">
                               <Text color="secondary">

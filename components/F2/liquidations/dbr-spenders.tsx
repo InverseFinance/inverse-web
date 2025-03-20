@@ -5,7 +5,7 @@ import { useDBRActiveHolders } from "@app/hooks/useFirm";
 import Link from "@app/components/common/Link";
 import { ViewIcon } from "@chakra-ui/icons";
 import ScannerLink from "@app/components/common/ScannerLink";
-import moment from 'moment'
+ 
 import { useState } from "react";
 import { MarketImage } from "@app/components/common/Assets/MarketImage";
 import { DbrReplenishmentModal } from "./DbrReplenishmentModal";
@@ -16,6 +16,7 @@ import { DbrHistoBalanceModal } from "../Infos/DbrHistoBalanceModal";
 import { useNamedAddress } from "@app/hooks/useNamedAddress";
 import { shortenAddress } from "@app/util";
 import { MarketNameAndIcon } from "../F2Markets";
+import { formatDate, timeSince } from "@app/util/time";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -136,8 +137,8 @@ export const DbrSpenders = ({
             header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
             value: ({ dbrExpiryDate }) => {
                 return <Cell spacing="0" alignItems="center" direction="column" minWidth="120px" justify="center">
-                    <CellText>{moment(dbrExpiryDate).format('MMM Do YYYY').replace('Invalid date', 'Distant Future')}</CellText>
-                    <CellText color="secondaryTextColor">{moment(dbrExpiryDate).fromNow().replace('Invalid date', 'Distant Future')}</CellText>
+                    <CellText>{formatDate(dbrExpiryDate).replace('Invalid date', 'Distant Future')}</CellText>
+                    <CellText color="secondaryTextColor">{timeSince(dbrExpiryDate).replace('Invalid date', 'Distant Future')}</CellText>
                 </Cell>
             },
         },
@@ -179,7 +180,7 @@ export const DbrSpenders = ({
             label="Active DBR Spenders"
             noPadding
             py="4"
-            description={timestamp ? `Last update ${moment(timestamp).fromNow()}` : `Loading...`}
+            description={timestamp ? `Last update ${timeSince(timestamp)}` : `Loading...`}
             contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
             headerProps={{
                 direction: { base: 'column', md: 'row' },

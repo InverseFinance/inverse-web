@@ -3,8 +3,9 @@ import { shortenNumber } from "@app/util/markets";
 import Table from "@app/components/common/Table";
 import ScannerLink from "@app/components/common/ScannerLink";
 import { Timestamp } from "@app/components/common/BlockTimestamp/Timestamp";
-import moment from "moment";
+ 
 import Container from "../common/Container";
+import { timeSince } from "@app/util/time";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="12px" fontWeight="extrabold" {...props} />
@@ -82,7 +83,7 @@ const columns = [
 export const DolaStakingActivity = ({ events, title, lastUpdate, ...containerProps }: { events: any[], title: string, lastUpdate: number, containerProps?: ContainerProps }) => {    
     return <Container
         label={title}
-        description={lastUpdate > 0 ? `Last update: ${moment(lastUpdate).fromNow()}` : undefined}
+        description={lastUpdate > 0 ? `Last update: ${timeSince(lastUpdate)}` : undefined}
         noPadding
         m="0"
         p="0"

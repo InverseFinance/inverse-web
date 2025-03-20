@@ -3,7 +3,7 @@ import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { getRiskColor } from "@app/util/f2";
 import { useFirmPositions } from "@app/hooks/useFirm";
-import moment from 'moment'
+ 
 import { useState } from "react";
 import { FirmLiquidationModal } from "./FirmLiquidationModal";
 import { Funds } from "@app/components/Transparency/Funds";
@@ -12,6 +12,7 @@ import { SkeletonBlob } from "@app/components/common/Skeleton";
 import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader";
 import { FirmPositionsTable } from "../Infos/FirmPositionsTable";
 import { DashBoardCard } from '@app/components/F2/UserDashboard'
+import { timeSince } from "@app/util/time";
 
 export const groupPositionsBy = (positions: any[], groupBy: string, attributeToSum: string) => {
     return Object.entries(
@@ -84,7 +85,7 @@ export const FirmPositions = ({
         </VStack>
         <Container
             label="FiRM Positions"
-            description={timestamp ? `Last update ${moment(timestamp).fromNow()}` : `Loading...`}
+            description={timestamp ? `Last update ${timeSince(timestamp)}` : `Loading...`}
             contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
             headerProps={{
                 direction: { base: 'column', md: 'row' },

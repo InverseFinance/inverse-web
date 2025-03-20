@@ -2,9 +2,10 @@ import { useAppTheme } from '@app/hooks/useAppTheme';
 import { VStack, Text } from '@chakra-ui/react'
 import { shortenNumber, smartShortNumber } from '@app/util/markets';
 import { Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ComposedChart, ReferenceLine, Line } from 'recharts';
-import moment from 'moment';
+ ;
 import { getExponentialMovingAvg, getMovingAvg, preciseCommify } from '@app/util/misc';
 import { useRechartsZoom } from '@app/hooks/useRechartsZoom';
+import { formatDate, formatDay } from '@app/util/time';
 
 const CURRENT_YEAR = new Date().getFullYear().toString();
 
@@ -201,7 +202,7 @@ export const AreaChartRecharts = ({
                     domain={['dataMin', 'dataMax']}
                     // domain={[left, right]}`  
                     tickFormatter={(v, i) => {
-                        return moment(v).format('MMM Do')
+                        return formatDay(v);
                     }}
                 />
                 <YAxis domain={_yDomain} yAxisId={mainAxisId} orientation={mainAxisId} style={_axisStyle.tickLabels} tickFormatter={(v) => v === 0 ? '' : isPerc ? `${smartShortNumber(v, 2)}%` : yDomainAsInteger ? smartShortNumber(v, 0, useUsd) : smartShortNumber(v, 2, useUsd)} />
@@ -223,7 +224,7 @@ export const AreaChartRecharts = ({
                     showTooltips && <Tooltip
                         wrapperStyle={{ ..._axisStyle.tickLabels, zIndex: 1 }}
                         contentStyle={{ backgroundColor: themeStyles.colors.mainBackgroundColor }}
-                        labelFormatter={v => moment(v).format('MMM Do YYYY')}
+                        labelFormatter={v => formatDate(v)}
                         labelStyle={{ fontWeight: 'bold', color: themeStyles.colors.mainTextColor }}
                         itemStyle={{ fontWeight: 'bold' }}
                         allowEscapeViewBox={allowEscapeViewBox ? { x: true, y: true } : undefined}

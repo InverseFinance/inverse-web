@@ -5,7 +5,7 @@ import { useFirmAffiliate, useFirmUsers } from "@app/hooks/useFirm";
 import Link from "@app/components/common/Link";
 import { ViewIcon } from "@chakra-ui/icons";
 import ScannerLink from "@app/components/common/ScannerLink";
-import moment from 'moment'
+ 
 import { useState } from "react";
 import Table from "@app/components/common/Table";
 import { SkeletonBlob } from "@app/components/common/Skeleton";
@@ -20,6 +20,7 @@ import { RSubmitButton } from "@app/components/common/Button/RSubmitButton";
 import { ReferToModal } from "@app/components/common/Modal/ReferToModal";
 import { DashBoardCard } from "../UserDashboard";
 import { InfoMessage } from "@app/components/common/Messages";
+import { timeSince } from "@app/util/time";
 
 const StatBasic = ({ value, name, onClick = undefined, isLoading = false }: { value: string, onClick?: () => void, name: string, isLoading?: boolean }) => {
     return <VStack>
@@ -290,7 +291,7 @@ export const FirmAffiliateDashboard = ({
             p="0"
             noPadding
             label="Referred Users"
-            description={timestamp ? `Last update ${moment(timestamp).fromNow()}` : `Loading...`}
+            description={timestamp ? `Last update ${timeSince(timestamp)}` : `Loading...`}
             contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
             headerProps={{
                 direction: { base: 'column', md: 'row' },
@@ -326,7 +327,7 @@ export const FirmAffiliateDashboard = ({
             p="0"
             noPadding
             label="Reward Payments"
-            description={timestamp ? `Last update ${moment(timestamp).fromNow()}` : `Loading...`}
+            description={timestamp ? `Last update ${timeSince(timestamp)}` : `Loading...`}
             contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
             headerProps={{
                 direction: { base: 'column', md: 'row' },

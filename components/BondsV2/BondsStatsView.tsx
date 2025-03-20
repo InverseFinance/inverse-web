@@ -5,7 +5,8 @@ import { BondsAreaChart } from './BondsAreaChart';
 import { BondsBarChart } from './BondsBarChart';
 import theme from '@app/variables/theme';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
-import moment from 'moment';
+import { timeSince } from '@app/util/time';
+ ;
 
 export const BondsStatsView = () => {
     const { deposits, acc, lastUpdate } = useBondsDeposits();
@@ -113,7 +114,7 @@ export const BondsStatsView = () => {
                 </VStack>
             </Stack>
             <Text color="secondaryTextColor">
-                { lastUpdate ? `Last update: ${moment(lastUpdate).fromNow()}` : 'Loading...' }
+                { lastUpdate ? `Last update: ${timeSince(lastUpdate)}` : 'Loading...' }
             </Text>
         </VStack>
     )

@@ -14,7 +14,7 @@ import Container from '@app/components/common/Container';
 import { getScanner } from '@app/util/web3';
 import { vesterChangeDelegate, vesterChangeRecipient, vesterClaim } from '@app/util/payroll';
 import { getBnToNumber, shortenNumber } from '@app/util/markets';
-import moment from 'moment';
+ ;
 import { DangerMessage, InfoMessage, WarningMessage } from '@app/components/common/Messages';
 import { BigNumber, Contract } from 'ethers';
 import { REWARD_TOKEN, RTOKEN_CG_ID } from '@app/variables/tokens';
@@ -30,6 +30,7 @@ import { ETH_MANTISSA } from '@app/config/constants';
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
 import { useCustomSWR } from '@app/hooks/useCustomSWR';
 import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup';
+import { formatDate, timeSince } from '@app/util/time';
 
 const { XINV, INV, XINV_VESTOR_FACTORY } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -127,8 +128,8 @@ export const VesterPage = () => {
   const lastClaimTimestamp = parseInt(lastUpdate.toString()) * 1000;
   const vestingPerc = Math.min((Date.now() - startTimestamp) / (endTimestamp - startTimestamp) * 100, 100);
 
-  const formatDate = (timestamp: number, isSmaller: boolean) => {
-    return `${moment(timestamp).format('MMM Do, YYYY')}${isSmaller ? '' : ` (${moment(timestamp).fromNow()})`}`
+  const _formatDate = (timestamp: number, isSmaller: boolean) => {
+    return `${formatDate(timestamp)}${isSmaller ? '' : ` (${timeSince(timestamp)})`}`
   }
 
   const { events } = useContractEvents(INV, INV_ABI, 'Transfer', [vesterAddress], true, `vester-claims-${vesterAddress}`);
@@ -215,7 +216,7 @@ export const VesterPage = () => {
                                     - <b>Start Time</b>:
                                   </Text>
                                   <Text fontWeight="extrabold">
-                                    {formatDate(startTimestamp, isSmaller)}
+                                    {_formatDate(startTimestamp, isSmaller)}
                                   </Text>
                                 </Flex>
                                 <Flex alignItems="center" justify="space-between">
@@ -223,7 +224,7 @@ export const VesterPage = () => {
                                     - <b>End Time</b>:
                                   </Text>
                                   <Text fontWeight="extrabold">
-                                    {formatDate(endTimestamp, isSmaller)}
+                                    {_formatDate(endTimestamp, isSmaller)}
                                   </Text>
                                 </Flex>
                                 <Flex fontWeight="bold" alignItems="center" justify="space-between">
@@ -238,7 +239,7 @@ export const VesterPage = () => {
                                   <Text>
                                     - <b>Last Claim</b>:
                                   </Text>
-                                  <Text fontWeight="extrabold">{!lastClaimTimestamp || lastClaimTimestamp === startTimestamp ? 'Never claimed yet' : formatDate(lastClaimTimestamp, isSmaller)}</Text>
+                                  <Text fontWeight="extrabold">{!lastClaimTimestamp || lastClaimTimestamp === startTimestamp ? 'Never claimed yet' : _formatDate(lastClaimTimestamp, isSmaller)}</Text>
                                 </Flex>
                                 <Flex alignItems="center" justify="space-between">
                                   <Text>

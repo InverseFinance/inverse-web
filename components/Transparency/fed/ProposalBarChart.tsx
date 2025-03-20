@@ -1,9 +1,9 @@
 import { useMediaQuery } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { BarChart } from '@app/components/Transparency/BarChart'
-import moment from 'moment'
 import { shortenNumber } from '@app/util/markets';
 import { useAppTheme } from '@app/hooks/useAppTheme';
+import { getUtcDateChartLabel } from '@app/util/time';
 
 const months = [...Array(12).keys()];
 
@@ -29,7 +29,7 @@ export const ProposalBarChart = ({ chartData, maxChartWidth = 900, ...props }: {
 
                 return {
                     label: `${type}: ${shortenNumber(y, 2, false)}`,
-                    x: moment(date).utc().format('MMM'),
+                    x: getUtcDateChartLabel(date),
                     y,
                 }
             });

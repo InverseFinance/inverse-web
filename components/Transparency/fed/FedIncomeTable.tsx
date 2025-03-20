@@ -3,9 +3,10 @@ import { SkeletonBlob } from '@app/components/common/Skeleton'
 import Table from '@app/components/common/Table'
 import { FedEvent } from '@app/types'
 import { shortenNumber } from '@app/util/markets'
+import { formatDate, timeSince } from '@app/util/time'
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Text, Flex, Image, VStack } from '@chakra-ui/react'
-import moment from 'moment'
+ 
 
 const SupplyChange = ({ newSupply, changeAmount }: { newSupply: number, changeAmount: number }) => {
     return (
@@ -37,8 +38,8 @@ const columns = [
             return (
                 <Flex minW="100px">
                     <VStack spacing="0">
-                        <Text color={textColor} fontSize="12px">{moment(timestamp).fromNow()}</Text>
-                        <Text color={textColor} fontSize="10px">{moment(timestamp).format('MMM Do YYYY')}</Text>
+                        <Text color={textColor} fontSize="12px">{timeSince(timestamp)}</Text>
+                        <Text color={textColor} fontSize="10px">{formatDate(timestamp)}</Text>
                     </VStack>
                 </Flex>
             )

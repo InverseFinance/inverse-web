@@ -112,7 +112,7 @@ export const ClaimDbr = () => {
         const tokenAddress = DBR;
         const tokenSymbol = 'DBR';
         const tokenDecimals = 18;
-        const tokenImage = 'https://inverse.finance/assets/v2/dbr.png';
+        const tokenImage = 'https://inverse.finance/assets/v2/dbr.webp';
 
         try {
             if (!ethereum) { return }
@@ -164,7 +164,7 @@ export const ClaimDbr = () => {
                         }
                         {
                             !!account && <HStack cursor="pointer" onClick={importDBR}>
-                                <Image borderRadius="50px" src="/assets/v2/dbr.png" w="20px" />
+                                <Image borderRadius="50px" src="/assets/v2/dbr.webp" w="20px" />
                                 <Text>
                                     Import DBR token in my wallet
                                 </Text>

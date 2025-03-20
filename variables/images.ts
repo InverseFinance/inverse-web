@@ -4,7 +4,7 @@ export const IMAGES = {
     INV: "/assets/inv-square-dark.jpeg",
     SINV: "/assets/sINVx128.png",
     DOLA: "/assets/v2/dola-small.png",
-    DBR: "/assets/v2/dbr.png",
+    DBR: "/assets/v2/dbr.webp",
     "3CRV": "https://assets.coingecko.com/coins/images/12972/small/3pool_128.png?1603948039",
 }
 

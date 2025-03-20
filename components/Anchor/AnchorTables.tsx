@@ -24,11 +24,12 @@ import { RTOKEN_CG_ID, RTOKEN_SYMBOL } from '@app/variables/tokens'
 import { useRouter } from 'next/router'
 import { HAS_REWARD_TOKEN, OLD_XINV } from '@app/config/constants'
 import { NotifBadge } from '@app/components/common/NotifBadge'
-import moment from 'moment'
+ 
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { RadioCardGroup } from '@app/components/common/Input/RadioCardGroup'
 import { showToast } from '@app/util/notify'
 import Link from '../common/Link'
+import { isBefore, timeSince } from '@app/util/time'
 
 const hasMinAmount = (amount: BigNumber | undefined, decimals: number, exRate: BigNumber, minWorthAccepted = 0.001): boolean => {
   if (amount === undefined) { return false }
@@ -57,7 +58,7 @@ const getColumn = (
       header: ({ ...props }) => <Flex minWidth={minWidth} {...props} />,
       value: ({ token, underlying, claimableAmount, claimableTime }: Market) => {
         const color = isHighlightCase(highlightInv, highlightDola, token, underlying) ? 'secondary' : 'mainTextColor';
-        const claimable = moment(claimableTime).isBefore(moment());
+        const claimable = isBefore(claimableTime);
         return (
           <Stack position="relative" color={color} minWidth={minWidth} direction="row" align="center" data-testid={`${TEST_IDS.anchor.tableItem}-${underlying.symbol}`}>
             <UnderlyingItem
@@ -86,7 +87,7 @@ const getColumn = (
                   message={
                     claimable ?
                       `You can claim your withdrawn ${RTOKEN_SYMBOL} in the modal's withdraw tab`
-                      : `You can claim your ${shortenNumber(claimableAmount, 2)} withdrawn ${RTOKEN_SYMBOL} ${moment(claimableTime).fromNow()}`
+                      : `You can claim your ${shortenNumber(claimableAmount, 2)} withdrawn ${RTOKEN_SYMBOL} ${timeSince(claimableTime)}`
                   }
                 />
               </NotifBadge>

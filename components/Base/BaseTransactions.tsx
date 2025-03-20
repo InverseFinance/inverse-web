@@ -6,11 +6,12 @@ import { NetworkIds } from "@app/types";
 import { smartShortNumber } from "@app/util/markets";
 import Table from "../common/Table";
 import ScannerLink from "../common/ScannerLink";
-import moment from "moment";
+ 
 import { useBaseAddressWithdrawals } from "./useBase";
 import { SkeletonBlob } from "../common/Skeleton";
 import { switchWalletNetwork } from "@app/util/web3";
 import { useAccount } from "@app/hooks/misc";
+import { formatDate, timeSince } from "@app/util/time";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -43,8 +44,8 @@ const columns = [
             return (
                 <Flex minW="100px">
                     <VStack spacing="0">
-                        <Text fontSize="12px">{moment(timestamp).fromNow()}</Text>
-                        <Text fontSize="10px">{moment(timestamp).format('MMM Do YYYY')}</Text>
+                        <Text fontSize="12px">{timeSince(timestamp)}</Text>
+                        <Text fontSize="10px">{formatDate(timestamp)}</Text>
                     </VStack>
                 </Flex>
             )

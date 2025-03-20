@@ -24,8 +24,8 @@ import { MarketImage } from '@app/components/common/Assets/MarketImage'
 import { useBondV2PayoutFor } from '@app/hooks/useBondsV2'
 import { bondV2Deposit } from '@app/util/bonds'
 import { InfoMessage, WarningMessage } from '../common/Messages'
-import moment from 'moment';
 import { BOND_V2_FIXED_TERM_TELLER } from '@app/variables/bonds'
+import { formatDateWithTime } from '@app/util/time'
 
 const invDarkBgImg = 'https://assets.coingecko.com/coins/images/14205/small/inverse_finance.jpg?1614921871';
 
@@ -239,7 +239,7 @@ export const BondSlide = ({
                     </HStack>
                     <InfoMessage
                         alertProps={{ w: 'full' }}
-                        description={`Vesting will be complete on ${moment(vestingCompleteDate).format('MMM Do YYYY, hh:mm a')}`}
+                        description={`Vesting will be complete on ${formatDateWithTime(vestingCompleteDate)}`}
                     />
                 </VStack>
             </VStack>

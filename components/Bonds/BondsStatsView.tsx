@@ -4,7 +4,7 @@ import { useBondsDeposits } from '@app/hooks/useBonds';
 import { BondsAreaChart } from './BondsAreaChart';
 import { BondsBarChart } from './BondsBarChart';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
-import moment from 'moment';
+import { timeSince } from '@app/util/time';
 import { useAppTheme } from '@app/hooks/useAppTheme';
 
 export const BondsStatsView = () => {
@@ -114,7 +114,7 @@ export const BondsStatsView = () => {
                 </VStack>
             </Stack>
             <Text color="secondaryTextColor">
-                { lastUpdate ? `Last update: ${moment(lastUpdate).fromNow()}` : 'Loading...' }
+                { lastUpdate ? `Last update: ${timeSince(lastUpdate)}` : 'Loading...' }
             </Text>
         </VStack>
     )

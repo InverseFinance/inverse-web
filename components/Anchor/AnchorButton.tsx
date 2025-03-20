@@ -8,11 +8,11 @@ import { useAccountBalances, useBorrowBalances, useMarketCash, useSupplyBalances
 import { useEscrow } from '@app/hooks/useEscrow'
 import { Market, AnchorOperations } from '@app/types'
 import { getAnchorContract, getCEtherContract, getERC20Contract, getEscrowContract, getEthRepayAllContract } from '@app/util/contracts'
-import { timeUntil } from '@app/util/time'
+import { timeUntil, isAfter } from '@app/util/time'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber, constants } from 'ethers'
 import { formatUnits, parseEther } from 'ethers/lib/utils'
-import moment from 'moment'
+ 
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
 import { handleTx } from '@app/util/transactions';
@@ -61,9 +61,9 @@ const ClaimFromEscrowBtn = ({
   }) => {
   return <SubmitButton
     onClick={() => getEscrowContract(escrowAddress, signer).withdraw()}
-    isDisabled={moment(withdrawalTime).isAfter(moment())}
+    isDisabled={isAfter(withdrawalTime)}
   >
-    {moment(withdrawalTime).isAfter(moment())
+    {isAfter(withdrawalTime)
       ? `${parseFloat(formatUnits(withdrawalAmount)).toFixed(2)} ${process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL} unlocks ${timeUntil(withdrawalTime)}`
       : `Claim ${parseFloat(formatUnits(withdrawalAmount)).toFixed(2)} ${process.env.NEXT_PUBLIC_REWARD_TOKEN_SYMBOL}`}
   </SubmitButton>

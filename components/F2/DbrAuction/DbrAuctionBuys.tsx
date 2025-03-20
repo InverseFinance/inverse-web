@@ -4,11 +4,12 @@ import Container from "../../common/Container";
 import Table from "@app/components/common/Table";
 import ScannerLink from "@app/components/common/ScannerLink";
 import { Timestamp } from "@app/components/common/BlockTimestamp/Timestamp";
-import moment from "moment";
+ 
 import { useStakedDola } from "@app/util/dola-staking";
 import { useDBRPrice } from "@app/hooks/useDBR";
 import { ONE_DAY_MS } from "@app/config/constants";
 import { getLastThursdayTimestamp, preciseCommify } from "@app/util/misc";
+import { timeSince } from "@app/util/time";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="12px" fontWeight="extrabold" {...props} />
@@ -102,7 +103,7 @@ const sDOLAColumns = columns.slice(0, columns.length - 1).map(c => ({ ...c, show
 export const DbrAuctionBuys = ({ events, title, subtitle, lastUpdate }: { events: any[], title: string, subtitle: string, lastUpdate: number }) => {
     return <Container
         label={title}
-        description={subtitle || (lastUpdate > 0 ? `Last update: ${moment(lastUpdate).fromNow()}` : undefined)}
+        description={subtitle || (lastUpdate > 0 ? `Last update: ${timeSince(lastUpdate)}` : undefined)}
         noPadding
         m="0"
         p="0"

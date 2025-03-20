@@ -1,5 +1,6 @@
 import { timestampToUTC } from "@app/util/misc"
-import moment from 'moment';
+import { formatDate } from "@app/util/time";
+ ;
 
 export const DbrReminder = ({ dbrExpiryDate, dbrBalance }: { dbrExpiryDate: number, dbrBalance: number }) => {
     return <add-to-calendar-button
@@ -13,7 +14,7 @@ export const DbrReminder = ({ dbrExpiryDate, dbrBalance }: { dbrExpiryDate: numb
         size={1}
         inline={true}
         buttonStyle="date"
-        label={dbrBalance <= 0 ? 'Depleted' : moment(dbrExpiryDate).format('MMM Do, YYYY')}
+        label={dbrBalance <= 0 ? 'Depleted' : formatDate(dbrExpiryDate)}
     // lightMode={}
     ></add-to-calendar-button>
 }

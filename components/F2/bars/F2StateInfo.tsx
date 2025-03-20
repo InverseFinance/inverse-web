@@ -1,9 +1,10 @@
 import { shortenNumber } from "@app/util/markets";
 import { preciseCommify } from "@app/util/misc";
 import { HStack, Text, VStack } from "@chakra-ui/react"
-import moment from 'moment';
+ ;
 import { AnimatedInfoTooltip } from "@app/components/common/Tooltip";
 import { useAppTheme } from "@app/hooks/useAppTheme";
+import { formatDate, timeSince } from "@app/util/time";
 
 const formatValue = (value: number | null, precision = 2, type = 'number', nullPlaceholder = '') => {
     if (value === null) {
@@ -13,9 +14,9 @@ const formatValue = (value: number | null, precision = 2, type = 'number', nullP
         case 'perc':
             return `${shortenNumber(value, precision, false, true)}%`;
         case 'remainingTime':
-            return moment(value).fromNow(true);
+            return timeSince(value, true);
         case 'date':
-            return moment(value).format('MMM Do, YYYY');
+            return formatDate(value);
         default:
             return preciseCommify(value, precision, type === 'dollar');
     }

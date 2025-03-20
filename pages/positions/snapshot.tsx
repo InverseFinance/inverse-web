@@ -7,9 +7,10 @@ import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { useState } from 'react'
 import { PositionsTable } from '@app/components/Positions/PositionsTable'
-import moment from 'moment'
+ 
 import { TopDelegatesAutocomplete } from '@app/components/common/Input/TopDelegatesAutocomplete'
 import { shortenAddress } from '@app/util'
+import { timeSince } from '@app/util/time'
 const snapshot = require('public/p.json');
 
 export const PositionsSnapshotPage = () => {
@@ -34,7 +35,7 @@ export const PositionsSnapshotPage = () => {
             </Stack>
           </Container>
           <Container
-            label={`${accounts ? shortenAddress(accounts)+"'s Positions" : 'Positions'} - ${!lastUpdate ? 'Loading...' : 'Snapshot taken '+moment(lastUpdate).fromNow()}`}
+            label={`${accounts ? shortenAddress(accounts)+"'s Positions" : 'Positions'} - ${!lastUpdate ? 'Loading...' : 'Snapshot taken '+timeSince(lastUpdate)}`}
           >
             <PositionsTable defaultSort="usdSupplied" collateralFactors={collateralFactors} markets={markets} prices={prices} positions={filtered} />
           </Container>

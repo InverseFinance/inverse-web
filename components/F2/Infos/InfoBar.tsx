@@ -7,7 +7,7 @@ import { preciseCommify } from "@app/util/misc"
 import { HStack, VStack, Text, useMediaQuery, StackProps, TextProps, Stack } from "@chakra-ui/react"
 import { useContext, useEffect, useState } from "react"
 import { F2MarketContext } from "../F2Contex"
-import moment from 'moment'
+ 
 import Container from "@app/components/common/Container"
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect"
 import { useDOLAPrice } from "@app/hooks/usePrices"
@@ -22,6 +22,7 @@ import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader"
 import { SkeletonBlob } from "@app/components/common/Skeleton"
 import { useCustomSWR } from "@app/hooks/useCustomSWR"
 import { AnimatedInfoTooltip } from "@app/components/common/Tooltip"
+import { timeSince } from "@app/util/time"
 
 const Title = (props: TextProps) => <Text textAlign="center" fontWeight="extrabold" fontSize={{ base: '13px', md: '18px' }} {...props} />;
 const SubTitle = (props: TextProps) => <Text textAlign="center" color="secondaryTextColor" fontSize={{ base: '13px', md: '16px' }} {...props} />;
@@ -295,7 +296,7 @@ export const DbrBar = ({
                         DBR Depletion Time
                     </Title>
                     <SubTitle textAlign="right" display="flex" alignItems="center" fontWeight={needsRechargeSoon ? 'extrabold' : 'inherit'} color={needsRechargeSoon ? dbrBalance < 0 ? 'error' : 'warning' : 'secondaryTextColor'}>
-                        {dbrBalance <= 0 && <WarningTwoIcon mr="1" />}{dbrBalance <= 0 ? 'Depleted' : moment(dbrExpiryDate).fromNow()}
+                        {dbrBalance <= 0 && <WarningTwoIcon mr="1" />}{dbrBalance <= 0 ? 'Depleted' : timeSince(dbrExpiryDate)}
                     </SubTitle>
                 </VStack>
                 <VStack spacing="1" alignItems='flex-end'>
@@ -381,8 +382,8 @@ export const FirmBar = ({
         <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
             <HStack alignItems="flex-start" w={{ base: 'full', md: 'auto' }} justify="flex-start">
                 <HStack spacing="8" w={{ base: 'full', md: 'auto' }} justify={{ base: 'space-between', md: 'flex-start' }}>
-                    <BarBlock tooltip="DBR are borrowing credits you can buy and sell at a market price, they are consumed at a constant rate according to your loan size if any" label="Buy DBR" isLargerThan={isLargerThan} precision={4} price={dbrPriceUsd} href={BUY_LINKS.DBR} imgSrc={`/assets/v2/dbr.png`} />
-                    <BarBlock tooltip="DOLA is a stablecoin soft-pegged to $1, can be borrowed on FiRM or bought on markets" label="Buy DOLA" isLoading={isDolaPriceLoading} isLargerThan={isLargerThan} precision={4} price={dolaPrice} href={'/swap'} imgSrc={`/assets/v2/dola.jpg`} vstackProps={{ alignItems: { base: 'center', md: 'flex-start' } }} />
+                    <BarBlock tooltip="DBR are borrowing credits you can buy and sell at a market price, they are consumed at a constant rate according to your loan size if any" label="Buy DBR" isLargerThan={isLargerThan} precision={4} price={dbrPriceUsd} href={BUY_LINKS.DBR} imgSrc={`/assets/v2/dbr.webp`} />
+                    <BarBlock tooltip="DOLA is a stablecoin soft-pegged to $1, can be borrowed on FiRM or bought on markets" label="Buy DOLA" isLoading={isDolaPriceLoading} isLargerThan={isLargerThan} precision={4} price={dolaPrice} href={'/swap'} imgSrc={`/assets/v2/dola.webp`} vstackProps={{ alignItems: { base: 'center', md: 'flex-start' } }} />
                     <BarBlock tooltip="INV is Inverse Finance's Governance token" label="Buy INV" isLargerThan={isLargerThan} price={invFirmPrice} href={BUY_LINKS.INV} imgSrc={`/assets/inv-square-dark.jpeg`} vstackProps={{ alignItems: { base: 'flex-end', md: 'flex-start' } }} />
                 </HStack>
             </HStack>

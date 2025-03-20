@@ -6,7 +6,7 @@ import { useFirmUsers } from "@app/hooks/useFirm";
 import Link from "@app/components/common/Link";
 import { ViewIcon } from "@chakra-ui/icons";
 import ScannerLink from "@app/components/common/ScannerLink";
-import moment from 'moment'
+ 
 import { useState } from "react";
 import Table from "@app/components/common/Table";
 import { SkeletonBlob } from "@app/components/common/Skeleton";
@@ -17,6 +17,7 @@ import { FirmUserModal } from "./FirmUserModal";
 import { useDBRPrice } from "@app/hooks/useDBR";
 import InfoModal from "@app/components/common/Modal/InfoModal";
 import { MarketNameAndIcon } from "../F2Markets";
+import { formatDate, timeSince } from "@app/util/time";
 
 const StatBasic = ({ value, name, onClick = undefined, isLoading = false }: { value: string, onClick?: () => void, name: string, isLoading?: boolean }) => {
     return <VStack>
@@ -82,8 +83,8 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
         value: ({ dbrExpiryDate, debt, dbrRiskColor }) => {
             return <Cell spacing="0" alignItems="center" direction="column" minWidth="120px" justify="center">
-                <CellText color={dbrRiskColor}>{debt > 0 ? moment(dbrExpiryDate).format('MMM Do YYYY').replace('Invalid date', 'Distant Future') : '-'}</CellText>
-                {/* <CellText color="secondaryTextColor">{moment(dbrExpiryDate).fromNow()}</CellText> */}
+                <CellText color={dbrRiskColor}>{debt > 0 ? formatDate(dbrExpiryDate).replace('Invalid date', 'Distant Future') : '-'}</CellText>
+                {/* <CellText color="secondaryTextColor">{timeSince(dbrExpiryDate)}</CellText> */}
             </Cell>
         },
     },
@@ -247,7 +248,7 @@ export const FirmUsers = ({
         <Container
             py="0"
             label="FiRM Users"
-            description={timestamp ? `Last update ${moment(timestamp).fromNow()}` : `Loading...`}
+            description={timestamp ? `Last update ${timeSince(timestamp)}` : `Loading...`}
             contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
             headerProps={{
                 direction: { base: 'column', md: 'row' },

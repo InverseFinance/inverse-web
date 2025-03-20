@@ -1,7 +1,7 @@
 import { commify } from '@ethersproject/units';
 import { showToast } from './notify';
 import { ONE_DAY_MS, SECONDS_PER_BLOCK } from '@app/config/constants';
-import moment from 'moment';
+ ;
 
 export const capitalize = (v: string) => v[0].toUpperCase() + v.substring(1, v.length).toLowerCase();
 
@@ -444,12 +444,15 @@ export const getExponentialMovingAvg = (array: number[], count: number) => {
 }
 
 export function formatDuration(seconds: number) {
-    const duration = moment.duration(seconds, 'seconds');
-    const days = Math.floor(duration.asDays());
-    const hours = duration.hours();
-    const minutes = duration.minutes();
-    const secs = duration.seconds();
-    return `${days > 0 ? String(days).padStart(2, '0') + 'd:' : ''}${String(hours).padStart(2, '0')}h:${String(minutes).padStart(2, '0')}m:${String(secs).padStart(2, '0')}s`;
+    const days = Math.floor(seconds / (24 * 3600)); // Total days
+    const hours = Math.floor((seconds % (24 * 3600)) / 3600); // Remaining hours
+    const minutes = Math.floor((seconds % 3600) / 60); // Remaining minutes
+    const secs = Math.floor(seconds % 60); // Remaining seconds
+
+    return `${days > 0 ? String(days).padStart(2, '0') + 'd:' : ''}`
+         + `${String(hours).padStart(2, '0')}h:`
+         + `${String(minutes).padStart(2, '0')}m:`
+         + `${String(secs).padStart(2, '0')}s`;
 }
 
 export const calculateMaxLeverage = (collateralFactor: number) => {

@@ -1,6 +1,6 @@
 import { shortenNumber, smartShortNumber } from '@app/util/markets';
 import { VictoryChart, VictoryBar, VictoryLabel, VictoryAxis, VictoryArea, VictoryTheme, VictoryClipContainer, VictoryVoronoiContainer, VictoryAreaProps, VictoryAxisProps, VictoryLabelProps, VictoryZoomContainer, VictoryBrushContainer, createContainer } from 'victory';
-import moment from 'moment'
+ 
 import { Box, VStack, useMediaQuery } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { FlyoutTooltip } from './FlyoutTooltip';
@@ -8,6 +8,7 @@ import { useAppTheme } from '@app/hooks/useAppTheme';
 import { CoordinatesArray } from '@app/types';
 import { AreaChartRecharts } from './AreaChartRecharts';
 import { fillMissingDailyDatesWithMostRecentData } from '@app/util/misc';
+import { formatDate } from '@app/util/time';
 
 const strokeColors = {
     primary: '#8881c9',
@@ -165,7 +166,7 @@ export const AreaChart = ({
         mouseFollowTooltips: true, voronoiDimension: 'x', labelComponent: <FlyoutTooltip />,
         labels: ({ datum }) => {
             return (
-                moment(datum.x).format('MMM Do YYYY') + '\n' + `${shortenNumber(datum.y, yTickPrecision, isDollars)}${isPerc ? '%' : ''}`
+                formatDate(datum.x) + '\n' + `${shortenNumber(datum.y, yTickPrecision, isDollars)}${isPerc ? '%' : ''}`
             )
         }
     };
