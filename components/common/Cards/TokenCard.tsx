@@ -46,7 +46,7 @@ export const DOLATokenCard = ({
 }) => <TokenCard
     name="DOLA"
     subtitle="Decentralized Stablecoin"
-    bg="url('/assets/v2/dola.jpg')"
+    bg="url('/assets/v2/dola.webp')"
     href={ clickable ? "/tokens/dola" : undefined }
     description={
         <VStack w='full' alignItems="flex-start">
@@ -78,7 +78,7 @@ export const DBRTokenCard = ({
 }) => <TokenCard
     name="DBR"
     subtitle="DOLA Borrowing Rights token"
-    bg="url('/assets/v2/dbr.png')"
+    bg="url('/assets/v2/dbr.webp')"
     href={ clickable ? "/tokens/dbr" : undefined }
     description={
         <VStack w='full' alignItems="flex-start">

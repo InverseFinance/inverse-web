@@ -170,7 +170,7 @@ const data = [
                 href: '',
             },
             {
-                image: '/assets/wallets/coinbase.png',
+                image: '/assets/wallets/coinbase.webp',
                 label: 'Coinbase',
                 href: '',
             },

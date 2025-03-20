@@ -17,7 +17,7 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                 <FaqText>
                     All markets are isolated and collaterals cannot be borrowed by others.
                 </FaqText>
-                <iframe style={{ maxWidth: '500px', marginTop: "10px" }} width="100%" height="300px" src="https://www.youtube.com/embed/gAcp1YiuGkg" title="FiRM explainer" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+                {/* <iframe style={{ maxWidth: '500px', marginTop: "10px" }} width="100%" height="300px" src="https://www.youtube.com/embed/gAcp1YiuGkg" title="FiRM explainer" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe> */}
             </FaqStack>
         },
         {

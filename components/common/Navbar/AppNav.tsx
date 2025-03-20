@@ -421,7 +421,7 @@ const AppNavConnect = ({ isWrongNetwork, showWrongNetworkModal, onReferToOpen }:
               <ConnectionMenuItem
                 onClick={connectCoinbaseWallet}
               >
-                <Image w={6} h={6} src="/assets/wallets/coinbase.png" />
+                <Image w={6} h={6} src="/assets/wallets/coinbase.webp" />
                 <Text fontWeight="semibold">Coinbase Wallet</Text>
               </ConnectionMenuItem>
               {

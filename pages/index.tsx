@@ -89,12 +89,12 @@ export const Landing = ({ posts }: {
 
   const priceBar = <HStack spacing="2.5vw">
     <HStack>
-      <Image borderRadius='50px' minH="20px" minW="20px" height="2vmax" src="/assets/v2/dola.jpg" alt="dola" />
+      <Image borderRadius='50px' minH="20px" minW="20px" height="2vmax" src="/assets/v2/dola.webp" alt="dola" />
       <Text fontSize={smallerSize2} display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>DOLA</Text>
       <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{dolaPrice ? shortenNumber(dolaPrice, 3, true) : '-'}</Text>
     </HStack>
     <HStack>
-      <Image borderRadius='50px' minH="20px" minW="20px" height="2vmax" src="/assets/v2/dbr.png" alt="dbr" />
+      <Image borderRadius='50px' minH="20px" minW="20px" height="2vmax" src="/assets/v2/dbr.webp" alt="dbr" />
       <Text fontSize={smallerSize2} display={{ base: 'none', sm: 'inline-block' }} fontWeight='bold' color={lightTheme.colors.mainTextColor}>DBR</Text>
       <Text fontSize={smallerSize2} color={lightTheme.colors.mainTextColor}>{dbrPriceUsd ? shortenNumber(dbrPriceUsd, 3, true) : '-'}</Text>
     </HStack>
