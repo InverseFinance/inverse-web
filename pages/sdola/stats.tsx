@@ -3,7 +3,7 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
 import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader';
-import { getAvgOnLastItems, preciseCommify, timestampToUTC } from '@app/util/misc';
+import { preciseCommify, timestampToUTC } from '@app/util/misc';
 import { DolaStakingActivity } from '@app/components/sDola/DolaStakingActivity';
 import { useDolaStakingActivity, useDolaStakingEvolution, useStakedDola } from '@app/util/dola-staking';
 import { useDBRPrice } from '@app/hooks/useDBR';
@@ -78,7 +78,7 @@ export const SDolaStatsPage = () => {
   const { events, timestamp } = useDolaStakingActivity(undefined, 'sdola');
   const { evolution, timestamp: lastDailySnapTs, isLoading: isLoadingEvolution } = useDolaStakingEvolution();
   const { priceDola: dbrDolaPrice, priceUsd: dbrPrice } = useDBRPrice();
-  const { sDolaSupply, sDolaTotalAssets, apr, apy, isLoading } = useStakedDola(dbrPrice);
+  const { sDolaSupply, sDolaTotalAssets, apr, apy, apy30d, isLoading } = useStakedDola(dbrPrice);
   const [isInited, setInited] = useState(false);
   const [histoData, setHistoData] = useState([]);
   const [now, setNow] = useState(Date.now());
@@ -106,9 +106,6 @@ export const SDolaStatsPage = () => {
     setInited(true);
   }, []);
 
-  const thirtyDayAvg = getAvgOnLastItems(histoData, 'apy', 30);
-  const sixtyDayAvg = getAvgOnLastItems(histoData, 'apy', 60);
-
   return (
     <Layout>
       <Head>
@@ -128,7 +125,7 @@ export const SDolaStatsPage = () => {
         px={{ base: '4', lg: '0' }}
       >
         <SimpleGrid columns={{ base: 1, xl: 2 }} spacing="8" w="100%">
-          <ChartCard cardTitle={`sDOLA APY evolution`} subtitle={`(30 day avg: ${thirtyDayAvg ? shortenNumber(thirtyDayAvg, 2)+'%' : '-'}, Current: ${apy ? shortenNumber(apy || 0, 2)+'%' : '-'})`}>
+          <ChartCard cardTitle={`sDOLA APY evolution`} subtitle={`(30 day avg: ${apy30d ? shortenNumber(apy30d, 2)+'%' : '-'}, Current: ${apy ? shortenNumber(apy || 0, 2)+'%' : '-'})`}>
             {isInited && <Chart currentValue={apy} isPerc={true} data={histoData} attribute="apy" yLabel="APY" areaProps={{ addDayAvg: true, showLegend: true, legendPosition: 'bottom', avgDayNumbers: [30, 60], avgLineProps: [{ stroke: themeStyles.colors.success, strokeDasharray: '4 4' }, { stroke: themeStyles.colors.warning, strokeDasharray: '4 4' }] }} />}
           </ChartCard>
           <ChartCard subtitle={sDolaTotalAssets > 0 ? `(current: ${preciseCommify(sDolaTotalAssets || 0, 0)})` : ''} cardTitle={`DOLA staked in sDOLA`}>

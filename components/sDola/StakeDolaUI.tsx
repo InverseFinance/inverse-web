@@ -39,10 +39,7 @@ const StatBasic = ({ value, name, message, onClick = undefined, isLoading = fals
 const STAKE_BAL_INC_INTERVAL = 100;
 const MS_PER_BLOCK = SECONDS_PER_BLOCK * 1000;
 
-export const StakeDolaUI = ({
-    thirtyDayAvg,
-    setThirtyDayAvg,
-}) => {
+export const StakeDolaUI = () => {
     const account = useAccount();
     const { provider, account: connectedAccount } = useWeb3React();
     const { events: auctionBuys, isLoading: isLoadingAuctionBuys } = useDbrAuctionActivity();
@@ -50,15 +47,13 @@ export const StakeDolaUI = ({
     const [dolaAmount, setDolaAmount] = useState('');
     const [isConnected, setIsConnected] = useState(true);
     const { isOpen: isEnsoModalOpen, onOpen: onEnsoModalOpen, onClose: onEnsoModalClose } = useDisclosure();
-    const [now, setNow] = useState(Date.now());
     const [nowWithInterval, setNowWithInterval] = useState(Date.now());
     const [tab, setTab] = useState('Stake');
     const isStake = tab === 'Stake';
 
-    const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
+    const { priceUsd: dbrPrice } = useDBRPrice();
     const { price: dolaPrice } = useDOLAPrice();
-    const { apy, projectedApy, isLoading, sDolaExRate, sDolaTotalAssets, weeklyRevenue, isLoading: isLoadingStakedDola } = useStakedDola(dbrPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
-    const { evolution, timestamp: lastDailySnapTs, isLoading: isLoadingEvolution } = useDolaStakingEvolution();
+    const { apy, apy30d, projectedApy, isLoading, sDolaExRate, sDolaTotalAssets, weeklyRevenue, isLoading: isLoadingStakedDola } = useStakedDola(dbrPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
     const { balance: dolaBalance } = useDOLABalance(account);
     // value in sDOLA terms
     const { stakedDolaBalance, stakedDolaBalanceBn } = useDolaStakingEarnings(account);
@@ -81,21 +76,6 @@ export const StakeDolaUI = ({
         .reduce((prev, curr) => prev + curr.dolaIn, 0);
 
     const sDolaHoldersTotalEarnings = !isLoadingAuctionBuys && !isLoadingStakedDola ? sDolaAuctionBuys - weeklyRevenue : 0;
-
-    useEffect(() => {
-        if (isLoading || isLoadingEvolution || !evolution?.length) return;
-        const nowUtcDate = timestampToUTC(now);
-        const data = evolution
-            .filter(d => timestampToUTC(d.timestamp) !== nowUtcDate)
-            .concat([
-                {
-                    ...evolution[evolution.length - 1],
-                    timestamp: now - (1000 * 120),
-                    apy,
-                }
-            ]);
-        setThirtyDayAvg(getAvgOnLastItems(data, 'apy', 30));
-    }, [lastDailySnapTs, isLoadingEvolution, evolution, sDolaTotalAssets, apy, isLoading, now]);
 
     useInterval(() => {
         const curr = (realTimeBalance || baseBalance);
@@ -174,7 +154,7 @@ export const StakeDolaUI = ({
                         }
                         <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
                             <Text>- 30-day average APY:</Text>
-                            <Text><b>{thirtyDayAvg ? `${shortenNumber(thirtyDayAvg, 2)}%` : '-'}</b></Text>
+                            <Text><b>{apy30d ? `${shortenNumber(apy30d, 2)}%` : '-'}</b></Text>
                         </Stack>
                         <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between">
                             <Text>- Total staked by all users:</Text>

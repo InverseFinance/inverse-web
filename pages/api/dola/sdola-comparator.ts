@@ -13,7 +13,7 @@ import { getMulticallOutput } from '@app/util/multicall';
 import { DAILY_UTC_CACHE_KEY } from '../cron-daily-block-timestamp';
 import { ARCHIVED_UTC_DATES_BLOCKS } from '@app/fixtures/utc-dates-blocks';
 
-const getHistoricalRates = async (addresses: string[]) => {
+export const getHistoricalRates = async (addresses: string[]) => {
   const { data: utcKeyBlockValues, isValid } = await getCacheFromRedisAsObj(DAILY_UTC_CACHE_KEY, false) || { data: ARCHIVED_UTC_DATES_BLOCKS, isValid: false };
   const provider = getProvider(NetworkIds.mainnet);
 

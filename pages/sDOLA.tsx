@@ -20,7 +20,6 @@ export const SdolaPage = () => {
   const { isLoading, accountEvents, events } = useDolaStakingActivity(account, 'sdola');
   const { isLoading: isLoadingBuys, events: buyEvents, timestamp: buysTimestamp } = useDbrAuctionActivity();
   const sdolaBuyEvents = buyEvents.filter(e => e.auctionType === 'sDOLA');
-  const [thirtyDayAvg, setThirtyDayAvg] = useState(0);
   return (
     <Layout>
       <Head>
@@ -48,10 +47,10 @@ export const SdolaPage = () => {
         >
           <VStack spacing="10" alignItems={"center"} w={{ base: 'full' }}>
             <SavingsOpportunities />
-            <StakeDolaUI thirtyDayAvg={thirtyDayAvg} setThirtyDayAvg={setThirtyDayAvg} />
+            <StakeDolaUI />
             <SDolaInsuranceCover />
             <ErrorBoundary>
-              <SDolaComparator thirtyDayAvg={thirtyDayAvg} title="Compare sDOLA" />
+              <SDolaComparator title="Compare sDOLA" />
             </ErrorBoundary>
           </VStack>
         </Stack>

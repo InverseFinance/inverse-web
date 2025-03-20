@@ -118,6 +118,7 @@ export const useStakedDola = (dbrDolaPriceUsd: number, supplyDelta = 0): {
     accountRewardsClaimable: number;
     dbrRatePerDola: number;
     apr: number;
+    apy30d: number;
     apy: number;
     projectedApr: number;
     projectedApy: number;
@@ -158,6 +159,7 @@ export const useStakedDola = (dbrDolaPriceUsd: number, supplyDelta = 0): {
     return {
         ...formatDolaStakingData(dbrDolaPriceUsd, dolaStakingData, apiData, supplyDelta),
         accountRewardsClaimable,
+        apy30d: apiData?.apy30d || 0,
         isLoading: (!dolaStakingData && !error) && (!apiData && !apiErr),
         hasError: !!error || !!apiErr,
     }
