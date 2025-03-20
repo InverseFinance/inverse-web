@@ -119,7 +119,7 @@ export const FIRM_MARKETS = [
         isInv: false,
         isPhasingOut: true,
         phasingOutComment: `Borrowing will remain paused for the cvxFXS market as it is phasing out due to most of the liquidity going to the Fraxtal chain.`,
-        phasingOutLink: `https://www.inverse.finance/governance/proposals/mills/199`,     
+        phasingOutLink: `https://www.inverse.finance/governance/proposals/mills/277`,     
     },
     {
         name: 'st-yCRV',
@@ -320,6 +320,9 @@ export const FIRM_MARKETS = [
         isAleWithoutSwap: true,
         convexRewardsAddress: '0xE8cBdBFD4A1D776AB1146B63ABD1718b2F92a823',
         isInv: false,
+        isPhasingOut: true,
+        phasingOutComment: `Phasing out older LPs due to change in liquidity incentives strategy and focus on yield-bearing stables LPs.`,
+        phasingOutLink: `https://www.inverse.finance/governance/proposals/mills/277`,
     },
     {
         name: 'yv-FraxPyUSD-DOLA',
@@ -339,6 +342,9 @@ export const FIRM_MARKETS = [
         underlyingSymbol: 'FraxPyUSD-DOLA',
         isAleWithoutSwap: true,
         isInv: false,
+        isPhasingOut: true,
+        phasingOutComment: `Phasing out older LPs due to change in liquidity incentives strategy and focus on yield-bearing stables LPs.`,
+        phasingOutLink: `https://www.inverse.finance/governance/proposals/mills/277`,
     },
     {
         name: 'FraxBP-DOLA',
@@ -357,6 +363,9 @@ export const FIRM_MARKETS = [
         isAleWithoutSwap: true,
         convexRewardsAddress: '0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c',
         isInv: false,
+        isPhasingOut: true,
+        phasingOutComment: `Phasing out older LPs due to change in liquidity incentives strategy and focus on yield-bearing stables LPs.`,
+        phasingOutLink: `https://www.inverse.finance/governance/proposals/mills/277`, 
     },
     {
         name: 'yv-FraxBP-DOLA',
@@ -376,6 +385,9 @@ export const FIRM_MARKETS = [
         underlyingSymbol: 'FraxBP-DOLA',
         isAleWithoutSwap: true,
         isInv: false,
+        isPhasingOut: true,
+        phasingOutComment: `Phasing out older LPs due to change in liquidity incentives strategy and focus on yield-bearing stables LPs.`,
+        phasingOutLink: `https://www.inverse.finance/governance/proposals/mills/277`,
     },
     {
         name: 'PT-sUSDe-27MAR25',
