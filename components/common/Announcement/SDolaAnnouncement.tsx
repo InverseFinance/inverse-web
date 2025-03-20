@@ -8,6 +8,8 @@ import { useDBRPrice } from '@app/hooks/useDBR';
 import { useAppTheme, useAppThemeParams } from '@app/hooks/useAppTheme';
 import { shortenNumber } from '@app/util/markets';
 import { SmallTextLoader } from '../Loaders/SmallTextLoader';
+import useSWR from 'swr';
+import { useCustomSWR } from '@app/hooks/useCustomSWR';
 
 const MessageWithLink = ({ href, msg }: { href: string, msg: string }) => {
   return <Link
@@ -26,8 +28,8 @@ const MessageWithLink = ({ href, msg }: { href: string, msg: string }) => {
 export const SDolaAnnouncement = () => {
   const { themeStyles } = useAppTheme();
   const { ANNOUNCEMENT_BAR_BORDER } = useAppThemeParams();
-  const { priceDola: dbrDolaPrice, priceUsd: dbrPriceUsd } = useDBRPrice();
-  const { apy: sDolaApy } = useStakedDola(dbrPriceUsd ?? 0);
+  const { data: apiData, error: apiErr } = useCustomSWR(`/api/dola-staking?cacheFirst=true`);
+  const sDolaApy = apiData?.apy;
   return (
     <Flex
       bgColor={'announcementBarBackgroundColor'}
@@ -51,7 +53,7 @@ export const SDolaAnnouncement = () => {
       >
         <VStack spacing="0">
           {
-            sDolaApy > 0 && dbrDolaPrice ?
+            sDolaApy > 0 ?
               <HStack textDecoration="underline" spacing="1">
                 <Text>Get <b style={{ fontWeight: 'extrabold', fontSize: '18px', color: themeStyles.colors.accentTextColor }}>{shortenNumber(sDolaApy, 2)}%</b> APY with sDOLA</Text>
                 <Image borderRadius="full" src="/assets/sDOLAx128.png" h="20px" w="20px" />
