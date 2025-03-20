@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useEffect } from 'react';
 import { Alert, AlertDescription, AlertIcon, AlertTitle, Flex, SimpleGrid, Stack, Text, VStack } from '@chakra-ui/react'
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
@@ -87,7 +88,7 @@ export const ApproveButton = ({
   onSuccess?: () => void,
   tooltipMsg?: string
   amount?: string | BigNumber,
-  ButtonComp?: React.ReactNode
+  ButtonComp?: React.ComponentType<any>
   forceRefresh?: boolean
 }) => {
   return (

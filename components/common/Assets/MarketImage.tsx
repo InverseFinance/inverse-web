@@ -21,11 +21,12 @@ export const MarketImage = ({
         alignItems="center"
         {...rest}
     >
-        <Image width={`${size}px`} src={image} ignoreFallback={true} {...imgProps} />
+        <Image width={`${size}px`} height={`${size}px`} src={image} ignoreFallback={true} {...imgProps} />
         {
             !!protocolImage && <Image
                 borderRadius="20px"
                 width={`${size/1.75}px`}
+                height={`${size/1.75}px`}
                 position="absolute"
                 bottom="0"
                 right={`-${size/4}px`}
