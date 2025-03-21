@@ -16,7 +16,7 @@ import { DbrHistoBalanceModal } from "../Infos/DbrHistoBalanceModal";
 import { useNamedAddress } from "@app/hooks/useNamedAddress";
 import { shortenAddress } from "@app/util";
 import { MarketNameAndIcon } from "../F2Markets";
-import { formatDate, timeSince } from "@app/util/time";
+import { formatDate, fromNow, timeSince } from "@app/util/time";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -138,7 +138,7 @@ export const DbrSpenders = ({
             value: ({ dbrExpiryDate }) => {
                 return <Cell spacing="0" alignItems="center" direction="column" minWidth="120px" justify="center">
                     <CellText>{formatDate(dbrExpiryDate).replace('Invalid date', 'Distant Future')}</CellText>
-                    <CellText color="secondaryTextColor">{timeSince(dbrExpiryDate).replace('Invalid date', 'Distant Future')}</CellText>
+                    <CellText color="secondaryTextColor">{fromNow(dbrExpiryDate).replace('Invalid date', 'Distant Future')}</CellText>
                 </Cell>
             },
         },
