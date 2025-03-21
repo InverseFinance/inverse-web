@@ -161,14 +161,26 @@ export default async function handler(req, res) {
         await forkProvider.send('evm_increaseTime', [
           ethers.utils.hexValue(60 * 60 * 24 * 5)
         ]);
-      }      
-      const executeTx = await govContract.execute(proposalId, {
-        gasLimit: 20000000,
-      });
-      txHash = executeTx.hash;
-      const receipt = await executeTx.wait();
-      if (receipt.status === 0) {
-        hasError = true;
+      }
+      try {
+        const executeTx = await govContract.execute(proposalId, {
+          gasLimit: 20000000,
+        });
+        txHash = executeTx.hash;
+        const receipt = await executeTx.wait();
+        if (receipt.status === 0) {
+          hasError = true;
+        }
+      } catch (e) {
+        console.log('error executing')
+        console.log(e)
+        res.status(200).json({
+          status: 'success',
+          hasError: true,
+          simUrl: `https://dashboard.tenderly.co/explorer/vnet/${publicId}/tx/${txHash}`,
+          errorMsg: e,
+        });
+        return;
       }
     }
 
