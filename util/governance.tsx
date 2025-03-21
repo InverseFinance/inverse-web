@@ -429,7 +429,7 @@ export const sendDraftReview = async (
 
 export const simulateOnChainActions = async (
     form: any,
-    onSuccess: (reviews: DraftReview[]) => void,
+    onResult: (reviews: DraftReview[]) => void,
 ): Promise<{
     hasError: boolean,
     receipts: TransactionReceipt[],
@@ -445,7 +445,7 @@ export const simulateOnChainActions = async (
             body: JSON.stringify(form)
         });
         const result = await rawResponse.json();
-        if (onSuccess && result.status === 'success') { onSuccess(result) }
+        if (onResult) { onResult(result) }
         return result;
     } catch (e: any) {
         return { status: 'warning', message: e.message || 'An error occured' }
