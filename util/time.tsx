@@ -46,6 +46,13 @@ export const formatDateWithTime = (date: Date | number): string => {
   return `${months[_date.getMonth()]} ${day}${getOrdinalSuffix(day)} ${_date.getFullYear()}, ${formattedHours}:${formattedMinutes} ${ampm}`;
 }
 
+export const fromNow = (date: Date | number, withoutSuffixOrPrefix = false): string => {
+  if(isAfter(date)) {
+    return timeSince(date, withoutSuffixOrPrefix);
+  }
+  return timeUntil(date, withoutSuffixOrPrefix);
+}
+
 export const timeSince = (time: Date | number | undefined, withoutSuffix = false) => {
   if (!time) {
     return ''
@@ -69,7 +76,7 @@ export const timeSince = (time: Date | number | undefined, withoutSuffix = false
   return formatDate(_time)
 }
 
-export const timeUntil = (time: Date | number | undefined) => {
+export const timeUntil = (time: Date | number | undefined, withoutPrefix = false) => {
   if (!time) {
     return ''
   }
@@ -78,16 +85,16 @@ export const timeUntil = (time: Date | number | undefined) => {
 
   const minutes = getMinutesBetweenDates(_time, new Date())
   if (minutes < 60) {
-    return `in ${minutes} minute${minutes !== 1 ? 's' : ''}`
+    return `${withoutPrefix ? '' : 'in '}${minutes} minute${minutes !== 1 ? 's' : ''}`
   }
   if (minutes < 60 * 24) {
     const hours = Math.floor(minutes / 60)
-    return `in ${hours} hour${hours !== 1 ? 's' : ''}`
+    return `${withoutPrefix ? '' : 'in '}${hours} hour${hours !== 1 ? 's' : ''}`
   }
 
   if (minutes < 60 * 24 * 7) {
     const days = Math.floor(minutes / 60 / 24)
-    return `in ${days} day${days !== 1 ? 's' : ''}`
+    return `${withoutPrefix ? '' : 'in '}${days} day${days !== 1 ? 's' : ''}`
   }
 
   return formatDate(_time);
