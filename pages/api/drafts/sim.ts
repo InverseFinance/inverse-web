@@ -61,6 +61,7 @@ export default async function handler(req, res) {
     const newSimId = (lastSimId||0) + 1;   
     const forkResponse = await mainnetFork(newSimId);
     const now = Date.now();
+    let hasError = false;
     
     // const tdlyRemaining = forkResponse.headers.get('X-Tdly-Remaining');
     // const rateLimitRemaining = forkResponse.headers.get('x-ratelimit-remaining');
@@ -165,6 +166,10 @@ export default async function handler(req, res) {
         gasLimit: 20000000,
       });
       txHash = executeTx.hash;
+      const receipt = await executeTx.wait();
+      if (receipt.status === 0) {
+        hasError = true;
+      }
     }
 
     // reset
@@ -181,7 +186,7 @@ export default async function handler(req, res) {
 
     res.status(200).json({
       status: 'success',
-      hasError: false,
+      hasError,
       simUrl: `https://dashboard.tenderly.co/explorer/vnet/${publicId}/tx/${txHash}`,
     });
   } catch (err) {
