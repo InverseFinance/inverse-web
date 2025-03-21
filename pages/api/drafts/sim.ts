@@ -61,6 +61,7 @@ export default async function handler(req, res) {
     const newSimId = (lastSimId||0) + 1;   
     const forkResponse = await mainnetFork(newSimId);
     const now = Date.now();
+    let hasError = false;
     
     // const tdlyRemaining = forkResponse.headers.get('X-Tdly-Remaining');
     // const rateLimitRemaining = forkResponse.headers.get('x-ratelimit-remaining');
@@ -160,11 +161,27 @@ export default async function handler(req, res) {
         await forkProvider.send('evm_increaseTime', [
           ethers.utils.hexValue(60 * 60 * 24 * 5)
         ]);
-      }      
-      const executeTx = await govContract.execute(proposalId, {
-        gasLimit: 20000000,
-      });
-      txHash = executeTx.hash;
+      }
+      try {
+        const executeTx = await govContract.execute(proposalId, {
+          gasLimit: 20000000,
+        });
+        txHash = executeTx.hash;
+        const receipt = await executeTx.wait();
+        if (receipt.status === 0) {
+          hasError = true;
+        }
+      } catch (e) {
+        console.log('error executing')
+        console.log(e)
+        res.status(200).json({
+          status: 'success',
+          hasError: true,
+          simUrl: `https://dashboard.tenderly.co/explorer/vnet/${publicId}/tx/${txHash}`,
+          errorMsg: e,
+        });
+        return;
+      }
     }
 
     // reset
@@ -181,7 +198,7 @@ export default async function handler(req, res) {
 
     res.status(200).json({
       status: 'success',
-      hasError: false,
+      hasError,
       simUrl: `https://dashboard.tenderly.co/explorer/vnet/${publicId}/tx/${txHash}`,
     });
   } catch (err) {

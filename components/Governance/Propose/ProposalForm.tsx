@@ -252,7 +252,7 @@ export const ProposalForm = ({
                 status: result.hasError ? 'error' : 'success',
                 title: 'On-Chain Actions Simulation',
                 description: result.hasError ?
-                    result.errorMsg || 'Simulation failed'
+                    result.errorMsg?.reason || result.errorMsg || 'Simulation failed'
                     :
                     'Simulations executed successfully',
             })
