@@ -47,7 +47,7 @@ export const formatDateWithTime = (date: Date | number): string => {
 }
 
 export const fromNow = (date: Date | number, withoutSuffixOrPrefix = false): string => {
-  if(isAfter(date)) {
+  if(isBefore(date)) {
     return timeSince(date, withoutSuffixOrPrefix);
   }
   return timeUntil(date, withoutSuffixOrPrefix);
@@ -73,7 +73,18 @@ export const timeSince = (time: Date | number | undefined, withoutSuffix = false
     return `${days} day${days !== 1 ? 's' : ''}${withoutSuffix ? '' : ' ago'}`
   }
 
-  return formatDate(_time)
+  if (minutes < 60 * 24 * 30) {
+    const weeks = Math.floor(minutes / (60 * 24 * 7))
+    return `${weeks} week${weeks !== 1 ? 's' : ''}${withoutSuffix ? '' : ' ago'}`
+  }
+
+  if (minutes < 60 * 24 * 365) {
+    const months = Math.floor(minutes / (60 * 24 * 30))
+    return `${months} month${months !== 1 ? 's' : ''}${withoutSuffix ? '' : ' ago'}`
+  }
+
+  const years = Math.floor(minutes / (60 * 24 * 365));
+  return `${years} year${years !== 1 ? 's' : ''}${withoutSuffix ? '' : ' ago'}`;
 }
 
 export const timeUntil = (time: Date | number | undefined, withoutPrefix = false) => {
@@ -97,7 +108,18 @@ export const timeUntil = (time: Date | number | undefined, withoutPrefix = false
     return `${withoutPrefix ? '' : 'in '}${days} day${days !== 1 ? 's' : ''}`
   }
 
-  return formatDate(_time);
+  if (minutes < 60 * 24 * 30) {
+    const weeks = Math.floor(minutes / (60 * 24 * 7))
+    return `${withoutPrefix ? '' : 'in '}${weeks} week${weeks !== 1 ? 's' : ''}`
+  }
+
+  if (minutes < 60 * 24 * 365) {
+    const months = Math.floor(minutes / (60 * 24 * 30))
+    return `${withoutPrefix ? '' : 'in '}${months} month${months !== 1 ? 's' : ''}`
+  }
+
+  const years = Math.floor(minutes / (60 * 24 * 365));
+  return `${withoutPrefix ? '' : 'in '}${years} year${years !== 1 ? 's' : ''}`
 }
 
 export const getUtcDateChartLabel = (date: Date | number, withYear = false) => {
