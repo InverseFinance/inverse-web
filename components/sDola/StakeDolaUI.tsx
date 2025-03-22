@@ -238,7 +238,7 @@ export const StakeDolaUI = () => {
                                             onSuccess={() => resetRealTime()}
                                             enableCustomApprove={true}
                                         />
-                                        <Text textDecoration="underline" onClick={onEnsoModalOpen} cursor="pointer" color="mainTextColorLight">
+                                        <Text textDecoration="underline" onClick={onEnsoModalOpen} cursor="pointer" color="accentTextColor">
                                             Or stake from another token than DOLA via Zap-In
                                         </Text>
                                     </VStack>
