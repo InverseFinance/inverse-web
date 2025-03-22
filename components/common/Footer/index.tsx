@@ -54,7 +54,7 @@ export const Footer = ({ isLanding = false }: { isLanding?: boolean }) => {
       {LINK_GROUPS.map(({ groupLabel, items }) => (
         <Stack mt={{ base: '4', sm: '0' }} key={groupLabel} w={{ base: 28, '2xl': 48 }} spacing="1">
           <Text fontSize={smallerSize3} fontWeight="bold" color={textColor}>{groupLabel}</Text>
-          {items.map(({ label, href }, i) => (
+          {items.map(({ label, href, isExternal }, i) => (
             <Link
               _hover={{ color: secTextColor, textDecoration: 'underline' }}
               color={secTextColor}
@@ -62,6 +62,8 @@ export const Footer = ({ isLanding = false }: { isLanding?: boolean }) => {
               href={href}
               fontSize={smallerSize5}
               as="a"
+              isExternal={isExternal}
+              target={isExternal ? '_blank' : undefined}
             >
               {label}
             </Link>

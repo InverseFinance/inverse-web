@@ -371,10 +371,10 @@ export const MENUS = {
           label: 'DOLA',
           href: 'https://docs.inverse.finance/inverse-finance/using-dola',
         },
-        {
-          label: 'sINV',
-          href: 'https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/sinv',
-        },
+        // {
+        //   label: 'sINV',
+        //   href: 'https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/sinv',
+        // },
         {
           label: 'INV',
           href: 'https://docs.inverse.finance/inverse-finance/using-inv',
@@ -382,6 +382,11 @@ export const MENUS = {
         {
           label: 'FiRM',
           href: '/firm',
+        },
+        {
+          label: 'Stable Yields',
+          href: 'https://stableyields.info',
+          isExternal: true,
         },
         // {
         //   label: 'Bonds',
