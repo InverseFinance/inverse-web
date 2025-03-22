@@ -798,6 +798,8 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
                                 h="30px"
                                 transform="translateY(0px)"
                                 href={s.href.replace('$account', userAddress || '')}
+                                isExternal={s.isExternal}
+                                target={s.isExternal ? '_blank' : undefined}
                               >
                                 {s.label}
                               </Link>)
