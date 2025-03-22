@@ -48,20 +48,20 @@ export const MENUS = {
     },
     {
       label: 'Stake',
-      href: '/sINV',
+      href: '/sDOLA',
       submenus: [
-        {
-          label: 'sINV',
-          href: '/sINV',
-        },
         {
           label: 'sDOLA',
           href: '/sDOLA',
         },
         {
-          label: 'DSA',
-          href: '/dsa',
+          label: 'sINV',
+          href: '/sINV',
         },
+        // {
+        //   label: 'DSA',
+        //   href: '/dsa',
+        // },
         {
           label: 'Buy DBR (auction)',
           href: '/dbr/auction',        
