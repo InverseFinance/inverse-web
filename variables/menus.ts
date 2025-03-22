@@ -196,7 +196,8 @@ export const MENUS = {
         },
         {
           label: 'Compare sDOLA',
-          href: '/sdola/comparator',
+          href: 'https://stableyields.info',
+          isExternal: true,
         },
         {
           label: 'Swap',
