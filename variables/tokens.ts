@@ -719,6 +719,7 @@ const chainTokens = {
       protocolImage: PROTOCOL_IMAGES.YFI,
       rootCrvPool: chainTokenAddresses["1"].DOLAUSRCRVLP,
       decimals: 18,
+      isStable: true,
       isLP: true,
       isYearnV2LP: true,
       pairs: [
@@ -764,6 +765,7 @@ const chainTokens = {
       protocolImage: PROTOCOL_IMAGES.YFI,
       rootCrvPool: chainTokenAddresses["1"].DOLAdeUSDCRVLP,
       decimals: 18,
+      isStable: true,
       isLP: true,
       isYearnV2LP: true,
       pairs: [
@@ -1425,6 +1427,7 @@ const chainTokens = {
       protocolImage: PROTOCOL_IMAGES.YFI,
       rootCrvPool: chainTokenAddresses["1"].DOLASCRVUSDCLP,
       decimals: 18,
+      isStable: true,
       isLP: true,
       isYearnV2LP: true,
       pairs: [
@@ -1440,6 +1443,7 @@ const chainTokens = {
       protocolImage: PROTOCOL_IMAGES.YFI,
       rootCrvPool: chainTokenAddresses["1"].SDOLASCRVUSDCLP,
       decimals: 18,
+      isStable: true,
       isLP: true,
       isYearnV2LP: true,
       pairs: [
@@ -1485,6 +1489,7 @@ const chainTokens = {
       protocolImage: PROTOCOL_IMAGES.YFI,
       rootCrvPool: chainTokenAddresses["1"].DOLASUSDECLP,
       decimals: 18,
+      isStable: true,
       isLP: true,
       isYearnV2LP: true,
       pairs: [
@@ -1515,6 +1520,7 @@ const chainTokens = {
       protocolImage: PROTOCOL_IMAGES.YFI,
       rootCrvPool: chainTokenAddresses["1"].DOLASUSDSCLP,
       decimals: 18,
+      isStable: true,
       isLP: true,
       isYearnV2LP: true,
       pairs: [
@@ -1531,6 +1537,7 @@ const chainTokens = {
       rootCrvPool: chainTokenAddresses["1"].DOLACRVUSDLP,
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
+      isStable: true,
       isLP: true,
       isYearnV2LP: true,
       pairs: [
@@ -1546,6 +1553,7 @@ const chainTokens = {
       rootCrvPool: chainTokenAddresses["1"].DOLAFRAXPYUSD,
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
+      isStable: true,
       isLP: true,
       isYearnV2LP: true,
       pairs: [
@@ -1561,6 +1569,7 @@ const chainTokens = {
       rootCrvPool: chainTokenAddresses["1"].DOLAFRAXUSDC,
       image: TOKEN_IMAGES.DOLA,
       decimals: 18,
+      isStable: true,
       isLP: true,
       isYearnV2LP: true,
       pairs: [
@@ -1645,6 +1654,7 @@ const chainTokens = {
       address: chainTokenAddresses["1"].PTsUSDe27MAR25,
       name: 'PT-sUSDe-27MAR25',
       symbol: 'PT-sUSDe-27MAR25',
+      isStable: true,
       image: TOKEN_IMAGES.sUSDe,
       decimals: 18,
     },
