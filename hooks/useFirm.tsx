@@ -57,7 +57,7 @@ export const useFirmPositions = (isShortfallOnly = false): SWR & {
       userBorrowLimit: 100 - newPerc,
       tvl: p.deposits * market.price,
       debtRiskWeight: newPerc * p.debt,
-      isStableMarket: market?.underlying?.isStable,
+      isStableMarket: !!market?.underlying?.isStable,
       key: `${p.user}-${p.marketIndex}`,
     }
   });
