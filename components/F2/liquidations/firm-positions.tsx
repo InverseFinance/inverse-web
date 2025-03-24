@@ -14,13 +14,13 @@ import { FirmPositionsTable } from "../Infos/FirmPositionsTable";
 import { DashBoardCard } from '@app/components/F2/UserDashboard'
 import { timeSince } from "@app/util/time";
 
-export const groupPositionsBy = (positions: any[], groupBy: string, attributeToSum: string) => {
+export const groupPositionsBy = (positions: any[], groupBy: string, attributeToSum: string, trueLabel = 'With Fed', falseLabel = 'Without Fed') => {
     return Object.entries(
         positions.reduce((prev, curr) => {
             return { ...prev, [curr[groupBy]]: (prev[curr[groupBy]] || 0) + curr[attributeToSum] };
         }, {})
     ).map(([key, val]) => {
-        const symbol = key.replace('true', 'With Fed').replace('false', 'Without Fed');
+        const symbol = key.replace('true', trueLabel).replace('false', falseLabel);
         return { balance: val, usdPrice: 1, token: { symbol } }
     });
 }
@@ -52,6 +52,7 @@ export const FirmPositions = ({
     const groupMarketsByDeposits = groupPositionsBy(positionsWithDeposits, 'marketName', 'tvl');
     const groupMarketsByDebt = groupPositionsBy(positionsWithDebt, 'marketName', 'debt');
     const groupMarketsByBorrowLimit = groupPositionsBy(positionsWithDebt, 'marketName', 'debtRiskWeight').map((f, i) => ({ ...f, balance: 100 - f.balance / groupMarketsByDebt[i].balance }));
+    const groupMarketsByStable = groupPositionsBy(positionsWithDebt, 'isStableMarket', 'debt', 'Stable Collaterals', 'Volatile Collaterals');
     const barData = groupMarketsByBorrowLimit.map(d => {
         return [{ x: d.token.symbol, y: d.balance, label: `${shortenNumber(d.balance, 2)}%` }];
     })
@@ -73,13 +74,17 @@ export const FirmPositions = ({
                 </VStack>
             </VStack> */}
             <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-around" >
-                <VStack spacing="0" alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
-                    <Text fontWeight="bold" fontSize="18px">TVL By Markets</Text>
+                <VStack spacing="0" alignItems={{ base: 'center', md: 'center' }} direction="column-reverse">
+                    <Text color="secondaryTextColor" fontWeight="bold" fontSize="22px">TVL By Markets</Text>
                     <Funds isLoading={isLoading} labelWithPercInChart={true} skipLineForPerc={true} funds={groupMarketsByDeposits} chartMode={true} showTotal={false} showChartTotal={true} chartProps={{ width: pieSize, height: pieSize }} useRecharts={true} />
                 </VStack>
-                <VStack spacing="0" alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
+                {/* <VStack spacing="0" alignItems={{ base: 'center', md: 'flex-start' }} direction="column-reverse">
                     <Text fontWeight="bold" fontSize="18px">Debt By Markets</Text>
                     <Funds isLoading={isLoading} labelWithPercInChart={true} skipLineForPerc={true} funds={groupMarketsByDebt} chartMode={true} showTotal={false} showChartTotal={true} chartProps={{ width: pieSize, height: pieSize }} useRecharts={true} />
+                </VStack> */}
+                <VStack spacing="0" alignItems={{ base: 'center', md: 'center' }} direction="column-reverse">
+                    <Text color="secondaryTextColor" fontWeight="bold" fontSize="22px">Debt Backing</Text>
+                    <Funds isLoading={isLoading} labelWithPercInChart={true} skipLineForPerc={true} funds={groupMarketsByStable} chartMode={true} showTotal={false} showChartTotal={true} chartProps={{ width: pieSize, height: pieSize }} useRecharts={true} />
                 </VStack>
             </Stack>
         </VStack>
