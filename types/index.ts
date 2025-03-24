@@ -781,6 +781,8 @@ export type F2Market = {
   underlyingWithPricePerShare?: boolean
   fixedFeed?: boolean
   convexRewardsAddress?: string
+  noDeposit?: boolean
+  noZap?: boolean
 }
 
 export type FirmAction = {

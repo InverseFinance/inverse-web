@@ -81,7 +81,7 @@ export const F2Context = ({
     const [isTriggerLeverageFetch, setIsTriggerLeverageFetch] = useState(false);
     const [customRecipient, setCustomRecipient] = useState('');
     const [isUnderlyingAsInputCaseSelected, setIsUnderlyingAsInputCaseSelected] = useState(false);
-    const [mode, setMode] = useState('Deposit & Borrow');
+    const [mode, setMode] = useState(market.noDeposit ? 'Withdraw' : 'Deposit & Borrow');
     
     const [infoTab, setInfoTab] = useState('Summary');
     const [maxBorrowable, setMaxBorrowable] = useState(0);

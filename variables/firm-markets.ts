@@ -192,6 +192,7 @@ export const FIRM_MARKETS = [
         startingBlock: 19372769,
         isInv: false,
         hasStakingLikeRewards: false,
+        noDeposit: true,
     },
     {
         name: 'st-yETH',
