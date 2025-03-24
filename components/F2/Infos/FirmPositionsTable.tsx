@@ -112,6 +112,18 @@ const columns = [
     //     },
     // },
     {
+        field: 'isStableMarket',
+        label: 'Stable?',
+        header: ({ ...props }) => <ColHeader minWidth="90px" alignItems="center" justify="center"  {...props} />,
+        value: ({ isStableMarket }) => {
+            return <Cell minWidth="90px" justify="center" direction="column" alignItems="center">
+                <CellText>{isStableMarket ? 'Yes' : 'No'}</CellText>
+            </Cell>
+        },
+        showFilter: true,
+        filterWidth: '100px',
+    },
+    {
         field: 'isLiquidatable',
         label: 'In shortfall?',
         header: ({ ...props }) => <ColHeader minWidth="150px" alignItems="center" justify="center"  {...props} />,
@@ -128,7 +140,7 @@ const columns = [
         label: 'Seizable',
         header: ({ ...props }) => <ColHeader minWidth="150px" alignItems="center" justify="center"  {...props} />,
         value: ({ seizableWorth, liquidatableDebt }) => {
-            return <Cell minWidth="150px" justify="center" direction="column" alignItems="center">
+            return <Cell minWidth="100px" justify="center" direction="column" alignItems="center">
                 {
                     liquidatableDebt > 0 ? <>
                         <CellText>{shortenNumber(seizableWorth, 2, true)}</CellText>
