@@ -52,7 +52,7 @@ export const FirmPositions = ({
     const groupMarketsByDeposits = groupPositionsBy(positionsWithDeposits, 'marketName', 'tvl');
     const groupMarketsByDebt = groupPositionsBy(positionsWithDebt, 'marketName', 'debt');
     const groupMarketsByBorrowLimit = groupPositionsBy(positionsWithDebt, 'marketName', 'debtRiskWeight').map((f, i) => ({ ...f, balance: 100 - f.balance / groupMarketsByDebt[i].balance }));
-    const groupMarketsByStable = groupPositionsBy(positionsWithDebt, 'isStableMarket', 'debt', 'Stable Markets', 'Volatile Markets');
+    const groupMarketsByStable = groupPositionsBy(positionsWithDebt, 'isStableMarket', 'debt', 'Stable Collaterals', 'Volatile Collaterals');
     const barData = groupMarketsByBorrowLimit.map(d => {
         return [{ x: d.token.symbol, y: d.balance, label: `${shortenNumber(d.balance, 2)}%` }];
     })
