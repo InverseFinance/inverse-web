@@ -125,10 +125,10 @@ const columns = [
     },
     {
         field: 'isLiquidatable',
-        label: 'In shortfall?',
-        header: ({ ...props }) => <ColHeader minWidth="150px" alignItems="center" justify="center"  {...props} />,
+        label: 'shortfall?',
+        header: ({ ...props }) => <ColHeader minWidth="90px" alignItems="center" justify="center"  {...props} />,
         value: ({ isLiquidatable }) => {
-            return <Cell minWidth="150px" justify="center" direction="column" alignItems="center">
+            return <Cell minWidth="90px" justify="center" direction="column" alignItems="center">
                 <CellText color={isLiquidatable ? 'error' : 'mainTextColor'}>{isLiquidatable ? 'Yes' : 'No'}</CellText>
             </Cell>
         },
@@ -138,7 +138,7 @@ const columns = [
     {
         field: 'liquidatableDebt',
         label: 'Seizable',
-        header: ({ ...props }) => <ColHeader minWidth="150px" alignItems="center" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="100px" alignItems="center" justify="center"  {...props} />,
         value: ({ seizableWorth, liquidatableDebt }) => {
             return <Cell minWidth="100px" justify="center" direction="column" alignItems="center">
                 {
