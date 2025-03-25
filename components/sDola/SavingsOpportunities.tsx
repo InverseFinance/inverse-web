@@ -147,8 +147,8 @@ export const SavingsOpportunities = () => {
                                                             setDefaultTokenIn(b.token.address);
                                                             onEnsoModalOpen();
                                                         }
-                                                    } cursor="pointer" color="secondaryTextColor">
-                                                        Zap-in to sDOLA
+                                                    } cursor="pointer" color="accentTextColor">
+                                                        Zap-in to sDOLA ⚡
                                                     </Text>
                                                     {/* <Link target="_blank" isExternal fontSize="14px" href={`https://swap.defillama.com/?chain=ethereum&from=${b.token.address}&tab=swap&to=${DOLA.address}`} textDecoration="underline">
                                                         Swap to DOLA <ExternalLinkIcon />
