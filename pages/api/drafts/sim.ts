@@ -49,14 +49,15 @@ async function mainnetFork(newSimId: number) {
   );
 }
 
+export const SIMS_CACHE_KEY = 'gp-sim-id';
+
 export default async function handler(req, res) {
   const form = req.body;
   const isNotDraft = !!form.id;
   let proposalId;
-  const cacheKey = 'gp-sim-id';
 
   try {
-    const cached = (await getCacheFromRedis(cacheKey, false));    
+    const cached = (await getCacheFromRedis(SIMS_CACHE_KEY, false));    
     const { lastSimId, ids } =  cached || { lastSimId: 0, ids: [] };
     const newSimId = (lastSimId||0) + 1;   
     const forkResponse = await mainnetFork(newSimId);
@@ -70,12 +71,12 @@ export default async function handler(req, res) {
 
     const forkId = fork?.id;
     let _ids = ids || [];
-    _ids.push({ timestamp: now, id: forkId });
-    await redisSetWithTimestamp(cacheKey, { lastSimId: newSimId, ids: _ids });
-    
     const adminRpc = fork.rpcs[0].url;
     const publicRpc = fork.rpcs[2].url;
     const publicId = publicRpc.substring(publicRpc.lastIndexOf("/")+1);
+
+    _ids.push({ timestamp: now, id: forkId, publicId, publicRpc });
+    await redisSetWithTimestamp(SIMS_CACHE_KEY, { lastSimId: newSimId, ids: _ids });
 
     const forkProvider = new ethers.providers.JsonRpcProvider(adminRpc);
     const accounts = await forkProvider.listAccounts();
