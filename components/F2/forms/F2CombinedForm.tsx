@@ -409,7 +409,7 @@ export const F2CombinedForm = ({
                     />
                 }
                 {
-                    deposits > 0 || isDeposit ? <>
+                    (deposits > 0 || isDeposit) && !market.noDeposit ? <>
                         <SimpleAmountForm
                             defaultAmount={inputAmount}
                             address={isUseNativeCoin ? '' : inputToken}
@@ -462,7 +462,7 @@ export const F2CombinedForm = ({
                             } />
                         }
                     </>
-                        : <Text>Nothing to withdraw</Text>
+                        : market.noDeposit ? null : <Text>Nothing to withdraw</Text>
                 }
                 {
                     dbrBalance < 0 && !isDeposit && <CannotWithdrawIfDbrDeficitMessage />
