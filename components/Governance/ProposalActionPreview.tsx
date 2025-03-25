@@ -455,21 +455,27 @@ const FirmFeedHumanReadableActionLabel = ({
         ],
     });
 
-    const { data: symbolData } = useEtherSWR({
+    const { data: tokenData } = useEtherSWR({
         abi: ERC20_ABI,
         args: [
             [collateral, 'symbol'],
+            [collateral, 'decimals'],
         ],
     });
 
     const price = <Amount value={priceData ? priceData?.toString() : '0'} decimals={decimals} />;
     text = <Flex display="inline-block">
-        Set price feed{!!symbolData && <> for <b>{symbolData}</b></>} {!!priceData && <> (price preview: {price})</>}
+        Set price feed{!!tokenData && <> for <b>{tokenData[0]}</b></>} {!!priceData && <> (feed preview: {price})</>}
     </Flex>
 
     return (
         <Flex display="inline-block" mb="2" fontStyle="italic">
             &laquo; {text} &raquo;
+            {
+                !!tokenData && parseInt(tokenData[1]) !== parseInt(decimals) && <Text color="warning" fontWeight="bold">
+                    Note: The token has {tokenData[1]} decimals, but the decimals argument is {decimals}.
+                </Text>
+            }
         </Flex>
     )
 }
