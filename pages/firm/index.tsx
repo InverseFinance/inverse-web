@@ -1,4 +1,4 @@
-import { Divider, VStack, Text, useDisclosure, RadioGroup, Radio, Box } from '@chakra-ui/react'
+import { Divider, VStack, Text, useDisclosure, RadioGroup, Radio, Box, Flex } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
@@ -17,6 +17,7 @@ import { showToast } from '@app/util/notify'
 import { POLLS, ACTIVE_POLL } from '@app/variables/poll-data'
 import Link from '@app/components/common/Link'
 import { FirmInsuranceCover } from '@app/components/common/InsuranceCover'
+import { InfoMessage } from '@app/components/common/Messages'
 
 export const F2PAGE = ({
     isTwitterAlert = false
@@ -136,6 +137,28 @@ export const F2PAGE = ({
                                 <DbrBar account={account} />
                             </VStack>
                         </ErrorBoundary>
+                    }
+                    {
+                        [
+                            '0x5e5d086781Ec430E56bd4410b0Af106B86292339',
+                            '0x52555b437EeE8F55a7897B4E1F8fB3e7Edb2b344',
+                            '0xE58ED128325A33afD08e90187dB0640619819413',
+                        ]
+                            .map(a => a.toLowerCase())
+                            .includes(account?.toLowerCase()) && <Flex px="6" w='full' justify="center" alignItems="center">
+                            <InfoMessage
+                                alertProps={{ w: 'full', status: 'warning' }}
+                                title={`Deposits Disabled for WBTC`}
+                                description={
+                                    <VStack spacing="0" alignItems="flex-start" w='full'>
+                                        <Text color="accentTextColor" fontWeight="bold">
+                                            Note: Your WBTC are SAFE, they were secured via liquidation by the team temporarily, and Governance will bring back your position to normal very soon, please don't try to deposit WBTC at the moment.
+                                        </Text>
+                                        <Text>Please reach out on Discord for more information.</Text>
+                                    </VStack>
+                                }
+                            />
+                        </Flex>
                     }
                     <ErrorBoundary description="Failed to load Markets">
                         <F2Markets />
