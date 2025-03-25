@@ -115,7 +115,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                         </HStack>
                                     </HStack>
                                     {
-                                        f2market.isPhasingOut && <InfoMessage
+                                        f2market.isPhasingOut && !f2market.noDeposit && <InfoMessage
                                             alertProps={{ w: 'full' }}
                                             title="This market is being phased out"
                                             description={!!f2market.phasingOutComment && <VStack spacing="0" alignItems="flex-start" w='full'>
