@@ -143,7 +143,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                         ]
                                                         .map(a => a.toLowerCase())
                                                         .includes(account?.toLowerCase()) && <Text color="accentTextColor" fontWeight="bold">
-                                                            Note: Your funds are SAFE, they were secured via liquidation by the team temporarily, and Governance will bring back your position to normal very soon.
+                                                            Note: Your funds are SAFE, they were secured via liquidation by the team temporarily, and Governance will bring back your position to normal very soon, please don't try to deposit at the moment.
                                                         </Text>
                                                     }
                                                     <Text>Please reach out on Discord for more information.</Text>                                                    
