@@ -30,6 +30,7 @@ import { useMultisig } from '@app/hooks/useSafeMultisig'
 import Link from '@app/components/common/Link'
 import { FirmInsuranceCover } from '@app/components/common/InsuranceCover'
 import { OLD_BORROW_CONTROLLER } from '@app/config/constants'
+import { useAccount } from '@app/hooks/misc'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -37,6 +38,7 @@ const useDefaultPreview = ['CRV', 'cvxCRV', 'cvxFXS', 'st-yCRV']
 
 export const F2MarketPage = ({ market }: { market: string }) => {
     const router = useRouter();
+    const account = useAccount();
     const { markets } = useDBRMarkets(market);
     const f2market = markets.length > 0 && !!market ? markets[0] : undefined;
     const { isMultisig, isWhitelisted } = useMultisig(f2market?.borrowController);
@@ -115,7 +117,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                         </HStack>
                                     </HStack>
                                     {
-                                        f2market.isPhasingOut && <InfoMessage
+                                        f2market.isPhasingOut && !f2market.noDeposit && <InfoMessage
                                             alertProps={{ w: 'full' }}
                                             title="This market is being phased out"
                                             description={!!f2market.phasingOutComment && <VStack spacing="0" alignItems="flex-start" w='full'>
@@ -130,7 +132,23 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                         f2market.noDeposit && <InfoMessage
                                             alertProps={{ w: 'full', status: 'warning' }}
                                             title={`Deposits Disabled for ${f2market.name}`}
-                                            description={`Collateral deposits are currently disabled for this market. Please reach out on Discord for more information.`}
+                                            description={
+                                                <VStack spacing="0" alignItems="flex-start" w='full'>                                                    
+                                                    <Text>Collateral deposits are currently disabled for this market.</Text>
+                                                    {
+                                                        [
+                                                            '0x5e5d086781Ec430E56bd4410b0Af106B86292339',
+                                                            '0x52555b437EeE8F55a7897B4E1F8fB3e7Edb2b344',
+                                                            '0xE58ED128325A33afD08e90187dB0640619819413',
+                                                        ]
+                                                        .map(a => a.toLowerCase())
+                                                        .includes(account?.toLowerCase()) && <Text color="accentTextColor" fontWeight="bold">
+                                                            Note: Your funds are SAFE, they were secured via liquidation by the team temporarily, and Governance will bring back your position to normal very soon, please don't try to deposit at the moment.
+                                                        </Text>
+                                                    }
+                                                    <Text>Please reach out on Discord for more information.</Text>                                                    
+                                                </VStack>
+                                            }
                                         />
                                     }
                                     <MarketBar
