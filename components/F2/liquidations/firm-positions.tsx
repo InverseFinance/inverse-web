@@ -26,11 +26,11 @@ export const groupPositionsBy = (positions: any[], groupBy: string, attributeToS
 }
 
 export const FirmPositions = ({
-
+    vnetPublicId
 }: {
-
-    }) => {
-    const { positions, timestamp, isLoading } = useFirmPositions();
+    vnetPublicId?: string
+}) => {
+    const { positions, timestamp, isLoading } = useFirmPositions(vnetPublicId);
     const { onOpen, onClose, isOpen } = useDisclosure();
     const [position, setPosition] = useState(null);
     const [isLargerThan] = useMediaQuery(`(min-width: 48em)`);

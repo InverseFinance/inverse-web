@@ -26,13 +26,13 @@ const oneYear = ONE_DAY_MS * 365;
 
 const { DBR, DBR_DISTRIBUTOR, F2_MARKETS, INV, F2_ALE, DOLA } = getNetworkConfigConstants();
 
-export const useFirmPositions = (isShortfallOnly = false): SWR & {
+export const useFirmPositions = (vnetPublicId?: string): SWR & {
   positions: any,
   timestamp: number,
   isLoading: boolean,
   isError: boolean,
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/f2/firm-positions?shortfallOnly=${isShortfallOnly}`, fetcher60sectimeout);
+  const { data, error } = useCacheFirstSWR(`/api/f2/firm-positions?vnetPublicId=${vnetPublicId}`, fetcher60sectimeout);
   const { markets, isLoading } = useDBRMarkets();
 
   const positions = data ? data.positions : [];

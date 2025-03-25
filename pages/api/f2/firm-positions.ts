@@ -3,17 +3,19 @@ import 'source-map-support'
 import { F2_MARKET_ABI, F2_ESCROW_ABI, DBR_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
-import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
+import { getCacheFromRedis, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { CHAIN_ID, ONE_DAY_MS } from '@app/config/constants';
 import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
 import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
 import { uniqueBy } from '@app/util/misc';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
+import { SIMS_CACHE_KEY } from '../drafts/sim';
+import { JsonRpcProvider } from '@ethersproject/providers';
 
 const { F2_MARKETS, DBR } = getNetworkConfigConstants();
 
-export const F2_POSITIONS_CACHE_KEY = 'f2positions-v1.0.92'
+export const F2_POSITIONS_CACHE_KEY = 'f2positions-v1.1.0'
 export const F2_UNIQUE_USERS_CACHE_KEY = 'f2unique-users-v1.0.91'
 
 export const getFirmMarketUsers = async (provider) => {
@@ -66,20 +68,45 @@ export const getFirmMarketUsers = async (provider) => {
 }
 
 export default async function handler(req, res) {
-  const { cacheFirst } = req.query;
+  const { cacheFirst, vnetPublicId } = req.query;
+
+  if (!!vnetPublicId && isInvalidGenericParam(vnetPublicId)) {
+    console.log('invalid vnetPublicId');
+    res.status(400).json({ status: 'error', message: 'Invalid vnetPublicId' });
+    return;
+  }
+
+  const cacheKey = vnetPublicId ? `f2positions-sim-${vnetPublicId}` : F2_POSITIONS_CACHE_KEY;
+
   try {
-    const cacheDuration = 60;
+    const cacheDuration = vnetPublicId ? 120 : 60;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const validCache = await getCacheFromRedis(F2_POSITIONS_CACHE_KEY, cacheFirst !== 'true', cacheDuration);
+    const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
+
     if (validCache) {
       res.status(200).json(validCache);
       return
     }
 
-    const provider = getProvider(CHAIN_ID);
+    let provider;
+    if (vnetPublicId) {
+      const cachedSims = (await getCacheFromRedis(SIMS_CACHE_KEY, false));    
+      const { ids } =  cachedSims || { ids: [] };
+      const vnet = ids.find(id => id.publicId === vnetPublicId);
+      if(!vnet) {
+        res.status(404).json({ success: false, error: 'Vnet not found' });
+        return;
+      }
+      provider = new JsonRpcProvider(vnet.publicRpc);
+    } else {
+      provider = getProvider(CHAIN_ID);
+    }
+
     const [marketUsersCache, marketsCache] = await Promise.all([
       getFirmMarketUsers(provider),
-      getCacheFromRedis(F2_MARKETS_CACHE_KEY, false),
+      (vnetPublicId ? 
+        fetch(`https://inverse.finance/api/f2/fixed-markets?vnetPublicId=${vnetPublicId}`).then(r => r.json()) 
+         : getCacheFromRedis(F2_MARKETS_CACHE_KEY, false)),
     ])
     const { firmMarketUsers, marketUsersAndEscrows } = marketUsersCache;
     const _markets = marketsCache?.markets || F2_MARKETS;
@@ -163,14 +190,14 @@ export default async function handler(req, res) {
       timestamp: now,
     }
 
-    await redisSetWithTimestamp(F2_POSITIONS_CACHE_KEY, resultData);
+    await redisSetWithTimestamp(cacheKey, resultData);
 
     res.status(200).json(resultData)
   } catch (err) {
     // console.error(err);
     // if an error occured, try to return last cached results
     try {
-      const cache = await getCacheFromRedis(F2_POSITIONS_CACHE_KEY, false);
+      const cache = await getCacheFromRedis(cacheKey, false);
       if (cache) {
         console.log('Api call failed, returning last cache found');
         res.status(200).json(cache);

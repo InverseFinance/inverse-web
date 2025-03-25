@@ -62,6 +62,7 @@ export const ProposalForm = ({
     const [hasSuccess, setHasSuccess] = useState(false);
     const [isInited, setIsInited] = useState(false);
     const [simulationUrl, setSimulationUrl] = useState('');
+    const [positionsUrl, setPositionsUrl] = useState('');
     const { provider, account } = useWeb3React<Web3Provider>()
     const [form, setForm] = useState<ProposalFormFields>({
         title,
@@ -247,6 +248,7 @@ export const ProposalForm = ({
         setSimulationUrl('');
         return simulateOnChainActions(form, (result) => {
             setSimulationUrl(result.simUrl||'');
+            setPositionsUrl(result?.vnetPublicId ? `/firm/sim/positions?vnetPublicId=${result.vnetPublicId}` : '');
             showToast({
                 duration: 15000,
                 status: result.hasError ? 'error' : 'success',
@@ -344,6 +346,7 @@ export const ProposalForm = ({
                 draftId={draftId}
                 isPublicDraft={isPublicDraft}
                 simulationUrl={simulationUrl}
+                positionsUrl={positionsUrl}
             />
             <ActionTemplateModal isOpen={isOpen} onClose={onClose} onAddTemplate={handleAddTemplate} />
         </Stack>
