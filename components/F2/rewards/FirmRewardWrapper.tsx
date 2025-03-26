@@ -18,7 +18,8 @@ export const FirmRewardWrapper = ({
     showMarketBtn = false,
     extraAtBottom = false,
     escrow,
-    onLoad
+    onLoad,
+    hideIfNoRewards = false
 }: {
     market: F2Market
     label?: string
@@ -26,65 +27,46 @@ export const FirmRewardWrapper = ({
     showMarketBtn?: boolean
     extraAtBottom?: boolean
     onLoad?: (v: number) => void
+    hideIfNoRewards?: boolean
 }) => {
     const { escrow: escrowFromContext } = useContext(F2MarketContext);
     const _escrow = escrow?.replace(BURN_ADDRESS, '') || escrowFromContext?.replace(BURN_ADDRESS, '');
     if (!_escrow) return <></>;
+    const commonProps = {
+        market,
+        label,
+        showMarketBtn,
+        extraAtBottom,
+        escrow: _escrow,
+        hideIfNoRewards,
+        onLoad,
+    }
     if (market.isInv) {
         return <FirmINVRewardWrapperContent
-            market={market}
-            label={label}
-            showMarketBtn={showMarketBtn}
-            extraAtBottom={extraAtBottom}
-            escrow={_escrow}
-            onLoad={onLoad}
+            {...commonProps}
         />
     } else if (market.name === 'cvxFXS') {
         return <FirmCvxFxsRewardWrapperContent
-            market={market}
-            label={label}
-            showMarketBtn={showMarketBtn}
-            extraAtBottom={extraAtBottom}
-            escrow={_escrow}
-            onLoad={onLoad}
+            {...commonProps}
         />
     } else if (market.name === 'cvxCRV') {
         return <FirmCvxCrvRewardWrapperContent
-            market={market}
-            label={label}
-            showMarketBtn={showMarketBtn}
-            extraAtBottom={extraAtBottom}
-            escrow={_escrow}
-            onLoad={onLoad}
+            {...commonProps}
         />
     } else if (market.name === 'CVX') {
         return <FirmCvxRewardWrapperContent
-            market={market}
-            label={label}
-            showMarketBtn={showMarketBtn}
-            extraAtBottom={extraAtBottom}
-            escrow={_escrow}
-            onLoad={onLoad}
+            {...commonProps}
         />
     }
     else if (!!market.convexRewardsAddress) {
         return <FirmConvexLpRewardWrapperContent
-            market={market}
-            label={label}
-            showMarketBtn={showMarketBtn}
-            extraAtBottom={extraAtBottom}
-            escrow={_escrow}
+            {...commonProps}
             rewardContract={market.convexRewardsAddress}
-            onLoad={onLoad}
         />
     }
 
     return <FirmRewardWrapperContent
-        market={market}
-        label={label}
-        showMarketBtn={showMarketBtn}
-        extraAtBottom={extraAtBottom}
-        escrow={_escrow}
+        {...commonProps}
     />
 }
 
@@ -95,6 +77,7 @@ export const FirmCvxCrvRewardWrapperContent = ({
     extraAtBottom = false,
     escrow,
     onLoad,
+    hideIfNoRewards,
 }: {
     market: F2Market
     label?: string
@@ -102,6 +85,7 @@ export const FirmCvxCrvRewardWrapperContent = ({
     showMarketBtn?: boolean
     extraAtBottom?: boolean
     onLoad?: (v: number) => void
+    hideIfNoRewards?: boolean
 }) => {
     const { rewardsInfos, isLoading } = useCvxCrvRewards(escrow);
 
@@ -113,6 +97,7 @@ export const FirmCvxCrvRewardWrapperContent = ({
     }, [rewardsInfos, onLoad])
 
     return <FirmRewards
+        hideIfNoRewards={hideIfNoRewards}
         market={market}
         escrow={escrow}
         rewardsInfos={rewardsInfos}
@@ -130,6 +115,7 @@ export const FirmCvxRewardWrapperContent = ({
     extraAtBottom = false,
     escrow,
     onLoad,
+    hideIfNoRewards,
 }: {
     market: F2Market
     label?: string
@@ -137,12 +123,13 @@ export const FirmCvxRewardWrapperContent = ({
     showMarketBtn?: boolean
     extraAtBottom?: boolean
     onLoad?: (v: number) => void
+    hideIfNoRewards?: boolean
 }) => {
     const { rewardsInfos, extraRewards, isLoading } = useCvxRewards(escrow);
     const { balance } = useEscrowBalance(escrow, market.underlying.decimals);
     const { prices } = usePrices();
 
-    const monthlyRewards = getMonthlyRate(balance||0, market?.supplyApy);
+    const monthlyRewards = getMonthlyRate(balance || 0, market?.supplyApy);
     const price = prices ? prices['convex-finance']?.usd : 0;
     const cvxCrvPrice = prices ? prices['convex-crv']?.usd : 0;
     const cvxCrvEquivalentMonthlyRewards = (monthlyRewards * price) / cvxCrvPrice;
@@ -155,6 +142,7 @@ export const FirmCvxRewardWrapperContent = ({
     }, [rewardsInfos, onLoad])
 
     return <FirmRewards
+        hideIfNoRewards={hideIfNoRewards}
         market={market}
         escrow={escrow}
         rewardsInfos={rewardsInfos}
@@ -188,6 +176,7 @@ export const FirmConvexLpRewardWrapperContent = ({
     escrow,
     rewardContract,
     onLoad,
+    hideIfNoRewards,
 }: {
     market: F2Market
     label?: string
@@ -196,6 +185,7 @@ export const FirmConvexLpRewardWrapperContent = ({
     showMarketBtn?: boolean
     extraAtBottom?: boolean
     onLoad?: (v: number) => void
+    hideIfNoRewards?: boolean
 }) => {
     const { rewardsInfos, isLoading } = useConvexLpRewards(escrow, rewardContract);
     useEffect(() => {
@@ -206,14 +196,15 @@ export const FirmConvexLpRewardWrapperContent = ({
     }, [rewardsInfos, onLoad])
 
     return <FirmRewards
+        hideIfNoRewards={hideIfNoRewards}
         market={market}
         escrow={escrow}
-        rewardsInfos={rewardsInfos}        
+        rewardsInfos={rewardsInfos}
         label={label}
         showMarketBtn={showMarketBtn}
         extraAtBottom={extraAtBottom}
         isLoading={isLoading}
-        showMonthlyRewards={false}        
+        showMonthlyRewards={false}
     />
 }
 
@@ -224,6 +215,7 @@ export const FirmCvxFxsRewardWrapperContent = ({
     extraAtBottom = false,
     escrow,
     onLoad,
+    hideIfNoRewards,
 }: {
     market: F2Market
     label?: string
@@ -231,6 +223,7 @@ export const FirmCvxFxsRewardWrapperContent = ({
     showMarketBtn?: boolean
     extraAtBottom?: boolean
     onLoad?: (v: number) => void
+    hideIfNoRewards?: boolean
 }) => {
     const { rewardsInfos, isLoading } = useCvxFxsRewards(escrow);
 
@@ -242,6 +235,7 @@ export const FirmCvxFxsRewardWrapperContent = ({
     }, [rewardsInfos, onLoad])
 
     return <FirmRewards
+        hideIfNoRewards={hideIfNoRewards}
         market={market}
         escrow={escrow}
         rewardsInfos={rewardsInfos}
@@ -258,12 +252,14 @@ export const FirmRewardWrapperContent = ({
     showMarketBtn = false,
     extraAtBottom = false,
     escrow,
+    hideIfNoRewards,
 }: {
     market: F2Market
     label?: string
     escrow?: string
     showMarketBtn?: boolean
     extraAtBottom?: boolean
+    hideIfNoRewards?: boolean
 }) => {
     const { needRefreshRewards, setNeedRefreshRewards, account } = useContext(F2MarketContext);
     const { appGroupPositions, isLoading } = useEscrowRewards(escrow);
@@ -276,6 +272,7 @@ export const FirmRewardWrapperContent = ({
     }, [needRefreshRewards, account]);
 
     return <FirmRewards
+        hideIfNoRewards={hideIfNoRewards}
         market={market}
         escrow={escrow}
         rewardsInfos={rewardsInfos}
@@ -293,6 +290,7 @@ export const FirmINVRewardWrapperContent = ({
     extraAtBottom = false,
     escrow,
     onLoad,
+    hideIfNoRewards,
 }: {
     market: F2Market
     label?: string
@@ -300,6 +298,7 @@ export const FirmINVRewardWrapperContent = ({
     showMarketBtn?: boolean
     extraAtBottom?: boolean
     onLoad?: (v: number) => void
+    hideIfNoRewards?: boolean
 }) => {
     const account = useAccount();
     const { prices } = usePrices();
@@ -320,6 +319,7 @@ export const FirmINVRewardWrapperContent = ({
     const { priceUsd: dbrPriceUsd } = useDBRPrice();
 
     return <FirmRewards
+        hideIfNoRewards={hideIfNoRewards}
         market={market}
         rewardsInfos={rewardsInfos}
         label={label}
@@ -360,6 +360,7 @@ export const FirmRewards = ({
     isLoading,
     escrow,
     extra,
+    hideIfNoRewards,
 }: {
     market: F2Market
     rewardsInfos: any[]
@@ -370,6 +371,7 @@ export const FirmRewards = ({
     extraAtBottom?: boolean
     isLoading?: boolean
     extra?: any
+    hideIfNoRewards?: boolean
 }) => {
     const { escrow: escrowFromContext } = useContext(F2MarketContext);
     const _escrow = escrow?.replace(BURN_ADDRESS, '') || escrowFromContext?.replace(BURN_ADDRESS, '');
@@ -378,7 +380,7 @@ export const FirmRewards = ({
     claimables?.sort((a, b) => b.balanceUSD - a.balanceUSD)
     const totalRewardsUSD = claimables?.reduce((prev, curr) => prev + curr.balanceUSD, 0);
 
-    if (isLoading) {
+    if (isLoading || (hideIfNoRewards && totalRewardsUSD < 0.1)) {
         return <></>
     }
     return <RewardsContainer
