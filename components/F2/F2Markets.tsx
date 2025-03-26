@@ -253,7 +253,7 @@ const MarketCell = ({ icon, marketIcon, underlying, badgeInfo, badgeProps, name,
 const CollateralFactorCell = ({ collateralFactor, isLeverageComingSoon, supplyApy, borrowPaused, dbrPriceUsd, _isMobileCase }: { collateralFactor: number, borrowPaused: boolean, _isMobileCase: boolean }) => {
     const maxLong = calculateMaxLeverage(collateralFactor);
     return <Cell spacing="0" direction="column" minWidth="70px" alignItems={_isMobileCase ? 'flex-end' : 'center'} justify="center" >
-        <CellText>{shortenNumber(collateralFactor * 100, 0)}%</CellText>
+        <CellText>{smartShortNumber(collateralFactor * 100, 2)}%</CellText>
         {
             (!borrowPaused && !isLeverageComingSoon) && <>
                 {!_isMobileCase && <CellText>&nbsp;</CellText>}
