@@ -508,9 +508,9 @@ export const getYvSUSDeDOLAData = () => getYearnVaultApy(YEARN_VAULT_IDS.SUSDE_D
 export const getYvFraxPyusdDOLAData = () => getYearnVaultApy(YEARN_VAULT_IDS.FRAX_PYUSD_DOLA);
 export const getYvFraxBPDOLAData = () => getYearnVaultApy(YEARN_VAULT_IDS.FRAX_BP_DOLA);
 
-export const getPTsUSDe27MAR25Data = async () => {
+export const getPendleMarketApy = async (pendleMarketAddress: string) => {
     try {
-        const results = await fetch("https://api-v2.pendle.finance/bff/v1/1/markets/0xcdd26eb5eb2ce0f203a84553853667ae69ca29ce");
+        const results = await fetch(`https://api-v2.pendle.finance/core/v1/1/markets/${pendleMarketAddress}`);
         const data = await results.json();
         return { apy: data?.impliedApy * 100 };
     } catch (e) {
@@ -671,7 +671,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         getYvFraxPyusdDOLAData(),
         getFraxBPDOLAConvexData(),
         getYvFraxBPDOLAData(),
-        getPTsUSDe27MAR25Data(),
+        getPendleMarketApy('0xcdd26eb5eb2ce0f203a84553853667ae69ca29ce'),
         getSUSDeDOLAConvexData(),
         getYvSUSDeDOLAData(),
         getDefiLlamaApy('51f9c038-feed-4666-8866-30efc92e0566'),
@@ -684,6 +684,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         getYearnVaultApy('0xc7C1B907BCD3194C0D9bFA2125251af98BdDAfbb'),
         getDefiLlamaApy('a850d185-5433-4932-99df-cdfea0336b9e'),
         getYearnVaultApy('0x57a2c7925bAA1894a939f9f6721Ea33F2EcFD0e2'),
+        getPendleMarketApy('0xb162b764044697cf03617c2efbcb1f42e31e4766'),
     ]);
 
     let [
@@ -715,6 +716,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         yvdeUSDDOLAData,
         USRDOLAConvexData,
         yvUSRDOLAData,
+        ptSUSDe29MAY25Data,
     ] = externalYieldResults.map(r => {
         return r.status === 'fulfilled' ? r.value : {};
     });
@@ -760,5 +762,6 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         'yv-deUSD-DOLA': yvdeUSDDOLAData?.apy || 0,
         'USR-DOLA': USRDOLAConvexData?.apy || 0,
         'yv-USR-DOLA': yvUSRDOLAData?.apy || 0,
+        'PT-sUSDe-29MAY25': ptSUSDe29MAY25Data?.apy || 0,
     };
 }

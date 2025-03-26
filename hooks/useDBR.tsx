@@ -203,7 +203,9 @@ export const useAccountDBRMarket = (
   isUseNativeCoin = false,
   inputToken?: string
 ): AccountDBRMarket => {
-  const { apy: ptUserApy } = useUserPtApy(market.name.startsWith('PT-') ? market.collateral : '', account);
+  // rework
+  const ptUserApy = undefined;
+  // const { apy: ptUserApy } = useUserPtApy(market.name.startsWith('PT-') ? market.collateral : '', account);
   const { data: escrow } = useEtherSWR([market.address, 'escrows', account]);
   const { data: accountMarketData } = useEtherSWR(
     !escrow || escrow === BURN_ADDRESS ? [] : [
