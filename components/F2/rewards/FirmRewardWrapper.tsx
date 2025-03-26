@@ -380,7 +380,7 @@ export const FirmRewards = ({
     claimables?.sort((a, b) => b.balanceUSD - a.balanceUSD)
     const totalRewardsUSD = claimables?.reduce((prev, curr) => prev + curr.balanceUSD, 0);
 
-    if (isLoading || (hideIfNoRewards && !totalRewardsUSD)) {
+    if (isLoading || (hideIfNoRewards && totalRewardsUSD < 0.1)) {
         return <></>
     }
     return <RewardsContainer
