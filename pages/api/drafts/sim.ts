@@ -201,6 +201,7 @@ export default async function handler(req, res) {
     res.status(200).json({
       status: 'success',
       hasError,
+      vnetPublicId: publicId,
       simUrl: `https://dashboard.tenderly.co/explorer/vnet/${publicId}/tx/${txHash}`,
     });
   } catch (err) {
