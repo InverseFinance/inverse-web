@@ -510,7 +510,7 @@ export const getYvFraxBPDOLAData = () => getYearnVaultApy(YEARN_VAULT_IDS.FRAX_B
 
 export const getPendleMarketApy = async (pendleMarketAddress: string) => {
     try {
-        const results = await fetch(`https://api-v2.pendle.finance/bff/v1/1/markets/${pendleMarketAddress}`);
+        const results = await fetch(`https://api-v2.pendle.finance/core/v1/1/markets/${pendleMarketAddress}`);
         const data = await results.json();
         return { apy: data?.impliedApy * 100 };
     } catch (e) {

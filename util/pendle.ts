@@ -9,6 +9,7 @@ const ptMarkets = {
     '0xb7de5dFCb74d25c2f21841fbd6230355C50d9308': '0xb162b764044697cf03617c2efbcb1f42e31e4766',
 }
 
+// deprecated
 export const getUserPtApy = async (ptToken: string, user: string) => {
     try {
         const ptMarketAddress = ptMarkets[ptToken];
@@ -27,6 +28,7 @@ export const getUserPtApy = async (ptToken: string, user: string) => {
     return undefined;
 }
 
+// deprecated
 export const useUserPtApy = (ptToken: string, user: string) => {
     const tsMinute = (new Date()).toISOString().substring(0, 16);
     const { data: userFixedYieldApy, error } = useSWR(`pt-${ptToken}-${user}-${tsMinute}`, async () => {
