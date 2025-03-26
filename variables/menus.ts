@@ -12,10 +12,6 @@ export const MENUS = {
           label: 'FiRM',
           href: '/firm',
         },
-        // {
-        //   label: 'Borrow against INV',
-        //   href: '/firm/INV',
-        // },
         {
           label: 'FiRM rewards',
           href: '/firm/rewards',
