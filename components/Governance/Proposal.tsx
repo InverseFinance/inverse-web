@@ -284,7 +284,7 @@ export const ProposalActions = ({ proposal, isEditing = false }: { proposal: Pro
     setPositionsUrl('');
     return simulateOnChainActions(proposal, (result) => {
       setSimulationUrl(result.simUrl || '');
-      setPositionsUrl(result?.vnetPublicId ? `/firm/sim/positions?vnetPublicId=${result.vnetPublicId}` : '');
+      setPositionsUrl(result?.vnetPublicId ? `/firm/sim/positions?vnetPublicId=${result.vnetPublicId||''}` : '');
       showToast({
         duration: 15000,
         status: result.hasError ? 'error' : 'success',

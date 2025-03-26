@@ -248,7 +248,7 @@ export const ProposalForm = ({
         setSimulationUrl('');
         return simulateOnChainActions(form, (result) => {
             setSimulationUrl(result.simUrl||'');
-            setPositionsUrl(result?.vnetPublicId ? `/firm/sim/positions?vnetPublicId=${result.vnetPublicId}` : '');
+            setPositionsUrl(result?.vnetPublicId ? `/firm/sim/positions?vnetPublicId=${result.vnetPublicId||''}` : '');
             showToast({
                 duration: 15000,
                 status: result.hasError ? 'error' : 'success',

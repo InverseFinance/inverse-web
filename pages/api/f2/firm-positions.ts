@@ -105,7 +105,7 @@ export default async function handler(req, res) {
     const [marketUsersCache, marketsCache] = await Promise.all([
       getFirmMarketUsers(provider),
       (vnetPublicId ? 
-        fetch(`https://inverse.finance/api/f2/fixed-markets?vnetPublicId=${vnetPublicId}`).then(r => r.json()) 
+        fetch(`https://inverse.finance/api/f2/fixed-markets?vnetPublicId=${vnetPublicId||''}`).then(r => r.json()) 
          : getCacheFromRedis(F2_MARKETS_CACHE_KEY, false)),
     ])
     const { firmMarketUsers, marketUsersAndEscrows } = marketUsersCache;
