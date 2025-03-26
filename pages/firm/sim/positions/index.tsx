@@ -4,8 +4,11 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { FirmPositions } from '@app/components/F2/liquidations/firm-positions'
+import { useRouter } from 'next/router'
 
-export const F2PositionsPage = ({ vnetPublicId }: { vnetPublicId: string }) => {
+export const F2PositionsPage = () => {
+    const router = useRouter();
+    const { vnetPublicId } = router.query;
 
     return (
         <Layout>
@@ -15,19 +18,13 @@ export const F2PositionsPage = ({ vnetPublicId }: { vnetPublicId: string }) => {
             <AppNav active="Markets" activeSubmenu="Liquidate Loans" />
             <ErrorBoundary>
                 <VStack w='full' maxW="1200px" mt="4">
-                    <FirmPositions vnetPublicId={vnetPublicId} />
+                    {
+                        !!vnetPublicId && <FirmPositions vnetPublicId={vnetPublicId as string} />
+                    }
                 </VStack>
             </ErrorBoundary>
         </Layout>
     )
-}
-
-export async function getStaticProps(context) {
-    const { vnetPublicId } = context.params;
-
-    return {
-        props: { vnetPublicId },
-    }
 }
 
 export default F2PositionsPage
