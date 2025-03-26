@@ -403,7 +403,10 @@ export const FIRM_MARKETS = [
         isInv: false,
         isLeverageComingSoon: true,
         noZap: true,
-        fixedFeed: true,
+        fixedFeed: false,
+        isPhasingOut: true,
+        phasingOutComment: `New PT market available for sUSDe.`,
+        phasingOutLink: `https://www.inverse.finance/governance/proposals/mills/276`,
     },
     {
         name: 'sUSDe-DOLA',
@@ -642,6 +645,6 @@ export const FIRM_MARKETS = [
         isInv: false,
         isLeverageComingSoon: true,
         noZap: true,
-        fixedFeed: true,
+        fixedFeed: false,
     },
 ];
