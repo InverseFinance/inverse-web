@@ -38,21 +38,27 @@ const StatBasic = ({ value, name }: { value: number, name: string }) => {
   </VStack>
 }
 
-export const Landing = ({ posts }: {
-  posts: any[]
+export const Landing = ({ 
+  posts,
+  currentCirculatingSupply,
+  dbrPriceUsd,
+  firmTotalTvl,
+  invPrice,
+  dolaPrice,
+  apy,
+  projectedApy,
+  dolaVolume,
+ }: {
+  posts: any[],
+  currentCirculatingSupply: number,
+  dbrPriceUsd: number,
+  firmTotalTvl: number,
+  dolaPrice: number,
+  invPrice: number,
+  dolaVolume: number,
+  apy: number,
+  projectedApy: number,
 }) => {
-  const { data: currentCirculatingSupply } = useCustomSWR(`/api/dola/circulating-supply`);
-  const { priceUsd: dbrPriceUsd, priceDola: dbrPriceDola } = useDBRPrice();
-  const { price: dolaPrice } = useDOLAPrice();
-  const { tvl } = useTVL();
-  const { firmTotalTvl } = useFirmTVL();
-  const { data: dolaData } = useDOLAMarketData();
-  const { markets } = useDBRMarkets();
-  const invFirmPrice = markets?.find(m => m.isInv)?.price || 0;
-  const { apy, projectedApy, isLoading: isLoadingSDola } = useStakedDola(dbrPriceUsd);
-
-  const invPrice = invFirmPrice;
-
   const stats = [
     {
       name: 'DOLA Circulation',
@@ -60,7 +66,7 @@ export const Landing = ({ posts }: {
     },
     {
       name: 'DOLA 24h Vol.',
-      value: dolaData?.market_data?.total_volume?.usd,
+      value: dolaVolume,
     },
     {
       name: 'INV price',
@@ -320,7 +326,7 @@ export const Landing = ({ posts }: {
             </VStack>
             <UnorderedList fontSize={smallerSize} color="white" pl="5">
               <ListItem>
-                APY currently {isLoadingSDola ? '...' : shortenNumber(apy, 2)}% (projected {isLoadingSDola ? '...' : shortenNumber(projectedApy, 2)}%)
+                APY currently {shortenNumber(apy, 2)}% (projected {shortenNumber(projectedApy, 2)}%)
               </ListItem>
               <ListItem>
                 100% Organic, On-chain Yield
