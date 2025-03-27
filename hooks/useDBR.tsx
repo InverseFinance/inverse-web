@@ -91,11 +91,11 @@ export const useAccountDBR = (
   }
 }
 
-export const useDBRMarkets = (marketOrList?: string | string[]): {
+export const useDBRMarkets = (marketOrList?: string | string[], vnetPublicId?: string): {
   markets: F2Market[]
   isLoading: boolean
 } => {
-  const { data: apiData, isLoading } = useCacheFirstSWR(`/api/f2/fixed-markets?v12`);
+  const { data: apiData, isLoading } = useCacheFirstSWR(`/api/f2/fixed-markets?v12&vnetPublicId=${vnetPublicId||''}`);
   const [tsMinute] = useState((new Date()).toISOString().substring(0, 16));
   // preference to match their website apy
   const { data: susdeData } = useSWR(`https://app.ethena.fi/api/yields/protocol-and-staking-yield?r=${tsMinute}`, fetcher, { refreshInterval: 60000 });
@@ -165,13 +165,13 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
   return {
     isLoading,
     markets: markets.map((m, i) => {
-      const dailyLimit = limits ? getBnToNumber(limits[i]) : cachedMarkets[i]?.dailyLimit ?? 0;
-      const dailyBorrows = limits ? getBnToNumber(limits[i + nbMarkets]) : cachedMarkets[i]?.dailyBorrows ?? 0;
-      const minDebt = limits ? getBnToNumber(limits[i + 2 * nbMarkets]) : cachedMarkets[i]?.minDebt ?? 0;
-      const dolaLiquidity = data ? getBnToNumber(data[i + 4 * nbMarkets]) : cachedMarkets[i]?.dolaLiquidity ?? 0;
-      const borrowPaused = data ? data[i + 5 * nbMarkets] : cachedMarkets[i]?.borrowPaused ?? false;
-      const leftToBorrow = borrowPaused ? 0 : limits ? dailyLimit === 0 ? dolaLiquidity : Math.min(dailyLimit - dailyBorrows, dolaLiquidity) : cachedMarkets[i]?.leftToBorrow ?? 0;
-      const aleData = data ? data[i + 6 * nbMarkets] : [BURN_ADDRESS, BURN_ADDRESS, BURN_ADDRESS, true];
+      const dailyLimit = !vnetPublicId && limits ? getBnToNumber(limits[i]) : cachedMarkets[i]?.dailyLimit ?? 0;
+      const dailyBorrows = !vnetPublicId && limits ? getBnToNumber(limits[i + nbMarkets]) : cachedMarkets[i]?.dailyBorrows ?? 0;
+      const minDebt = !vnetPublicId && limits ? getBnToNumber(limits[i + 2 * nbMarkets]) : cachedMarkets[i]?.minDebt ?? 0;
+      const dolaLiquidity = !vnetPublicId && data ? getBnToNumber(data[i + 4 * nbMarkets]) : cachedMarkets[i]?.dolaLiquidity ?? 0;
+      const borrowPaused = !vnetPublicId && data ? data[i + 5 * nbMarkets] : cachedMarkets[i]?.borrowPaused ?? false;
+      const leftToBorrow = borrowPaused ? 0 : !vnetPublicId && limits ? dailyLimit === 0 ? dolaLiquidity : Math.min(dailyLimit - dailyBorrows, dolaLiquidity) : cachedMarkets[i]?.leftToBorrow ?? 0;
+      const aleData = !vnetPublicId && data ? data[i + 6 * nbMarkets] : [BURN_ADDRESS, BURN_ADDRESS, BURN_ADDRESS, true];
       // only those markets have a decent routing at the moment
       const hasAleFeat = aleData[0] !== BURN_ADDRESS;
 
@@ -179,10 +179,10 @@ export const useDBRMarkets = (marketOrList?: string | string[]): {
         ...m,
         ...cachedMarkets[i],
         supplyApy: (m.name === 'sUSDe' ? (sUsdeApy||0) || cachedMarkets[i]?.supplyApy||m.supplyApy : cachedMarkets[i]?.supplyApy||m.supplyApy) || 0,
-        price: data && data[i] ? getBnToNumber(data[i], (36 - m.underlying.decimals)) : cachedMarkets[i]?.price ?? 0,
-        collateralFactor: data ? getBnToNumber(data[i + nbMarkets], 4) : cachedMarkets[i]?.collateralFactor ?? 0,
-        totalDebt: data ? getBnToNumber(data[i + 2 * nbMarkets]) : cachedMarkets[i]?.totalDebt ?? 0,
-        bnDolaLiquidity: data ? data[i + 4 * nbMarkets] : cachedMarkets[i]?.bnDolaLiquidity ?? 0,
+        price: !vnetPublicId && data && data[i] ? getBnToNumber(data[i], (36 - m.underlying.decimals)) : cachedMarkets[i]?.price ?? 0,
+        collateralFactor: !vnetPublicId && data ? getBnToNumber(data[i + nbMarkets], 4) : cachedMarkets[i]?.collateralFactor ?? 0,
+        totalDebt: !vnetPublicId && data ? getBnToNumber(data[i + 2 * nbMarkets]) : cachedMarkets[i]?.totalDebt ?? 0,
+        bnDolaLiquidity: !vnetPublicId && data ? data[i + 4 * nbMarkets] : cachedMarkets[i]?.bnDolaLiquidity ?? 0,
         dolaLiquidity,
         dailyLimit,
         dailyBorrows,
