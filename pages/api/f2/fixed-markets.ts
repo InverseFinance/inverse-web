@@ -47,10 +47,6 @@ export default async function handler(req, res) {
         return;
       }
       provider = new JsonRpcProvider(vnet.adminRpc);
-      // avoid stale price reverts
-      await provider.send('evm_setNextBlockTimestamp', [
-        parseInt(vnet.timestamp/1000).toString()
-      ]);
     } else {
       provider = getProvider(CHAIN_ID);
     }

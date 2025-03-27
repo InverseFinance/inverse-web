@@ -172,14 +172,9 @@ export default async function handler(req, res) {
         if (receipt.status === 0) {
           hasError = true;
         }
-        await forkProvider.send("eth_sendTransaction", [
-          {
-            from: TREASURY,
-            to: govContract.address,
-            data: govContract.interface.encodeFunctionData('updateProposerWhitelist', [
-              forkProposer, false
-            ]),
-          }
+        // avoid stale price reverts
+        await forkProvider.send('evm_setNextBlockTimestamp', [
+          parseInt(now/1000).toString()
         ]);
       } catch (e) {
         console.log('error executing')
