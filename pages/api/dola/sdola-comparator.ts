@@ -23,9 +23,11 @@ export const getHistoricalRates = async (addresses: string[]) => {
   const thirtyDaysAgoBlock = utcKeyBlockValues[NetworkIds.mainnet][timestampToUTC(now - 30 * dayMs)];
   const sixtyDaysAgoBlock = utcKeyBlockValues[NetworkIds.mainnet][timestampToUTC(now - 60 * dayMs)];
   const ninetyDaysAgoBlock = utcKeyBlockValues[NetworkIds.mainnet][timestampToUTC(now - 90 * dayMs)];
-  const blocks = [undefined, thirtyDaysAgoBlock, sixtyDaysAgoBlock, ninetyDaysAgoBlock];
+  const oneHundredEightyDaysAgoBlock = utcKeyBlockValues[NetworkIds.mainnet][timestampToUTC(now - 180 * dayMs)];
+  const threeHundredSixtyDaysAgoBlock = utcKeyBlockValues[NetworkIds.mainnet][timestampToUTC(now - 365 * dayMs)];
+  const blocks = [undefined, thirtyDaysAgoBlock, sixtyDaysAgoBlock, ninetyDaysAgoBlock, oneHundredEightyDaysAgoBlock, threeHundredSixtyDaysAgoBlock];
 
-  const [todayRates, thirtyDayRates, sixtyDayRates, ninetyDayRates] = await Promise.all(
+  const [todayRates, thirtyDayRates, sixtyDayRates, ninetyDayRates, oneHundredEightyDayRates, threeHundredSixtyDayRates] = await Promise.all(
     blocks.map(block => getMulticallOutput(
       addresses.map(address => ({
         contract: new Contract(address, SDOLA_ABI, provider),
@@ -42,16 +44,20 @@ export const getHistoricalRates = async (addresses: string[]) => {
     const apy30d = (todayExRate / getBnToNumber(thirtyDayRates[index]) - 1) * 365 / 30 * 100;
     const apy60d = (todayExRate / getBnToNumber(sixtyDayRates[index]) - 1) * 365 / 60 * 100;
     const apy90d = (todayExRate / getBnToNumber(ninetyDayRates[index]) - 1) * 365 / 90 * 100;
+    const apy180d = (todayExRate / getBnToNumber(oneHundredEightyDayRates[index]) - 1) * 365 / 180 * 100;
+    const apy365d = (todayExRate / getBnToNumber(threeHundredSixtyDayRates[index]) - 1) * 100;
     return {
       apy30d,
       apy60d,
       apy90d,
+      apy180d,
+      apy365d,
     }
   });
 }
 
 export default async function handler(req, res) {
-  const cacheKey = `sdola-rates-compare-v1.0.6`;
+  const cacheKey = `sdola-rates-compare-v1.0.7`;
 
   try {
     const cacheDuration = 120;
@@ -140,6 +146,8 @@ export default async function handler(req, res) {
         const last30 = pastRates.slice(pastRatesLen - 30, pastRatesLen).filter(pr => !!pr[symbol]);
         const last60 = pastRates.slice(pastRatesLen - 60, pastRatesLen).filter(pr => !!pr[symbol]);
         const last90 = pastRates.slice(pastRatesLen - 90, pastRatesLen).filter(pr => !!pr[symbol]);
+        const last180 = pastRates.slice(pastRatesLen - 180, pastRatesLen).filter(pr => !!pr[symbol]);
+        const last365 = pastRates.slice(pastRatesLen - 365, pastRatesLen).filter(pr => !!pr[symbol]);
         return {
           isVault: projects[index] !== 'Aave-V3',
           apy: (rate.supplyRate || rate.apy),
@@ -147,6 +155,8 @@ export default async function handler(req, res) {
           avg30: historicalRates[index].apy30d || (last30.length >= 30 ? last30.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last30.length : 0),
           avg60: historicalRates[index].apy60d || (last60.length >= 60 ? last60.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last60.length : 0),
           avg90: historicalRates[index].apy90d || (last90.length >= 90 ? last90.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last90.length : 0),
+          avg180: historicalRates[index].apy180d || (last180.length >= 180 ? last180.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last180.length : 0),
+          avg365: historicalRates[index].apy365d || (last365.length >= 365 ? last365.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last365.length : 0),
           symbol,
           image: TOKEN_IMAGES[symbol],
           project: projects[index],
