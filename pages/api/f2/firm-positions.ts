@@ -97,7 +97,7 @@ export default async function handler(req, res) {
         res.status(404).json({ success: false, error: 'Vnet not found' });
         return;
       }
-      provider = new JsonRpcProvider(vnet.adminRpc);
+      provider = new JsonRpcProvider(vnet.publicRpc);
     } else {
       provider = getProvider(CHAIN_ID);
     }
@@ -135,7 +135,10 @@ export default async function handler(req, res) {
         dbrUsers.map(u => {
           return { contract: dbrContract, functionName: 'lastUpdated', params: [u] }
         }),
-      ]
+      ],
+      1,
+      undefined,
+      provider,
     );
 
     const [debtsBn, depositsBn, creditLimitsBn] = await getGroupedMulticallOutputs(
@@ -155,7 +158,10 @@ export default async function handler(req, res) {
           // placeholder debts call for the inv market meanwhile oracle feed is invalid
           return { contract: market, functionName: 'getCreditLimit', params: [f.user] };
         }),
-      ]
+      ],
+      1,
+      undefined,
+      provider,
     );
 
     const deposits = depositsBn.map((bn, i) => getBnToNumber(bn, getToken(CHAIN_TOKENS[CHAIN_ID], F2_MARKETS[firmMarketUsers[i].marketIndex].collateral)?.decimals));
