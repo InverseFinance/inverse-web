@@ -75,7 +75,7 @@ export default async function handler(req, res) {
     const publicRpc = fork.rpcs[2].url;
     const publicId = publicRpc.substring(publicRpc.lastIndexOf("/")+1);
 
-    _ids.push({ timestamp: now, id: forkId, publicId, publicRpc });
+    _ids.push({ timestamp: now, id: forkId, publicId, publicRpc, adminRpc });
     await redisSetWithTimestamp(SIMS_CACHE_KEY, { lastSimId: newSimId, ids: _ids });
 
     const forkProvider = new ethers.providers.JsonRpcProvider(adminRpc);
@@ -172,6 +172,15 @@ export default async function handler(req, res) {
         if (receipt.status === 0) {
           hasError = true;
         }
+        await forkProvider.send("eth_sendTransaction", [
+          {
+            from: TREASURY,
+            to: govContract.address,
+            data: govContract.interface.encodeFunctionData('updateProposerWhitelist', [
+              forkProposer, false
+            ]),
+          }
+        ]);
       } catch (e) {
         console.log('error executing')
         console.log(e)

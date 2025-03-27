@@ -1,7 +1,7 @@
 import { Contract, ethers } from "ethers";
 import { ParamType } from "ethers/lib/utils";
 import { call } from "./rpcCall";
-import { BlockTag } from "@ethersproject/providers"
+import { BaseProvider, BlockTag } from "@ethersproject/providers"
 import PromisePool from "@supercharge/promise-pool";
 import { getHistoricalProvider, getProvider } from "./providers";
 import { CHAIN_ID } from "@app/config/constants";
@@ -78,9 +78,10 @@ type CallRequest = { contract: Contract, functionName: string, params?: any[], f
 export const getGroupedMulticallOutputs = async (
     groupedCallRequests: CallRequest[][] | CallRequest[],
     chainId = Number(CHAIN_ID),
-    block?: BlockTag
+    block?: BlockTag,
+    _provider?: BaseProvider,
 ) => {
-    const flatOutputs = await getMulticallOutput(groupedCallRequests.flat(), chainId, block);    
+    const flatOutputs = await getMulticallOutput(groupedCallRequests.flat(), chainId, block, _provider);    
     let startIndex = 0;
     return groupedCallRequests.map((callRequests) => {      
         const isArray = Array.isArray(callRequests);
@@ -94,7 +95,8 @@ export const getGroupedMulticallOutputs = async (
 export const getMulticallOutput = async (
     callRequests: CallRequest[],
     chainId = Number(CHAIN_ID),
-    block?: BlockTag
+    block?: BlockTag,
+    _provider?: BaseProvider,
 ) => {
 
     const _callRequests = callRequests.filter((callRequest) => !callRequest.forceFallback);
@@ -109,7 +111,7 @@ export const getMulticallOutput = async (
         };
     });
 
-    const returnValues = await executeCalls(calls, chainId, block);
+    const returnValues = await executeCalls(calls, chainId, block, _provider);
 
     const formattedValues = returnValues.map((values: any, index: number) => {
         let output: any;
@@ -171,7 +173,8 @@ export const executeCalls = async (
         data: string;
     }[],
     chainId = Number(CHAIN_ID),
-    block?: BlockTag
+    block?: BlockTag,
+    _provider?: BaseProvider,
 ) => {
     if (networkSupportsMulticall(chainId)) {
         try {
@@ -196,7 +199,7 @@ export const executeCalls = async (
                 to: address,
                 data: callData,
             };
-            const provider = !!block ? getHistoricalProvider(chainId?.toString()) : getProvider(chainId?.toString());
+            const provider = _provider ? _provider : (!!block ? getHistoricalProvider(chainId?.toString()) : getProvider(chainId?.toString()));
             const returnData = await call(provider, tx, block ?? "latest", chainId?.toString())
 
             const [blockNumber, returnValues] = ethers.utils.defaultAbiCoder.decode(
@@ -212,7 +215,7 @@ export const executeCalls = async (
                 const response = await runInPromisePool({
                     items: chunks,
                     concurrency: 2,
-                    processor: (calls: any) => executeCalls(calls, chainId, block)
+                    processor: (calls: any) => executeCalls(calls, chainId, block, _provider),
                 })
                 return response.flat()
             }
@@ -226,7 +229,7 @@ export const executeCalls = async (
         processor: async ({ to, data }: any) => {
             let result = null
             try {
-                const provider = !!block ? getHistoricalProvider(chainId?.toString()) : getProvider(chainId?.toString());
+                const provider = _provider ? _provider : (!!block ? getHistoricalProvider(chainId?.toString()) : getProvider(chainId?.toString()));
                 result = await call(provider, { to, data }, block ?? "latest", chainId?.toString());
             } catch (e) {
                 console.log(e)

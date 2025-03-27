@@ -46,13 +46,17 @@ export default async function handler(req, res) {
         res.status(404).json({ success: false, error: 'Vnet not found' });
         return;
       }
-      provider = new JsonRpcProvider(vnet.publicRpc);
+      provider = new JsonRpcProvider(vnet.adminRpc);
+      // avoid stale price reverts
+      await provider.send('evm_setNextBlockTimestamp', [
+        parseInt(vnet.timestamp/1000).toString()
+      ]);
     } else {
       provider = getProvider(CHAIN_ID);
     }
 
     // trigger
-    fetch('https://inverse.finance/api/markets');
+    // fetch('https://inverse.finance/api/markets');
 
     const ifvr = inverseViewerRaw(provider);
     
@@ -64,7 +68,7 @@ export default async function handler(req, res) {
       { contract: ifvr.firmContract, functionName: 'getMarketListData', params: [F2_MARKETS.map(m => m.address)] },
       { contract: ifvr.tokensContract, functionName: 'getInvApr', params: [] },
       { contract: ifvr.tokensContract, functionName: 'getDbrDistributorInfo', params: [] },
-    ]);
+    ], 1, undefined, provider);
 
     const [formattedMarketData, invApr, formattedDistrubutorData] = [
       marketData.map(formatMarketData),
@@ -112,7 +116,7 @@ export default async function handler(req, res) {
     // if an error occured, try to return last cached results
     try {
       const cache = await getCacheFromRedis(cacheKey, false);
-      if (cache) {
+      if (cache && !vnetPublicId) {
         console.log('Api call failed, returning last cache found');
         res.status(200).json(cache);
       } else {
