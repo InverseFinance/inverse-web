@@ -30,7 +30,7 @@ export const FirmPositions = ({
 }: {
     vnetPublicId?: string
 }) => {
-    const { positions, timestamp, isLoading } = useFirmPositions(vnetPublicId);
+    const { positions, timestamp, isLoading, markets } = useFirmPositions(vnetPublicId);
     const { onOpen, onClose, isOpen } = useDisclosure();
     const [position, setPosition] = useState(null);
     const [isLargerThan] = useMediaQuery(`(min-width: 48em)`);
@@ -60,19 +60,6 @@ export const FirmPositions = ({
 
     return <VStack w='full' alignItems="center">
         <VStack direction={{ base: 'column', md: 'row' }} w='full' justify="space-around" >
-            {/* <VStack w='full' display={{ base: 'none', md: 'block' }} alignItems='center' direction="column-reverse">
-                <VStack>
-                    <Text fontWeight="bold">Avg Borrow Limit By Markets</Text>
-                    <BarChart
-                        width={850}
-                        height={300}
-                        isPercentages={true}
-                        groupedData={barData}
-                        colorScale={barColors}
-                        isDollars={false}
-                    />
-                </VStack>
-            </VStack> */}
             <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-around" >
                 <VStack spacing="0" alignItems={{ base: 'center', md: 'center' }} direction="column-reverse">
                     <Text color="secondaryTextColor" fontWeight="bold" fontSize="22px">TVL By Markets</Text>

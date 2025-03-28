@@ -3,7 +3,7 @@ import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
-import { FirmPositions } from '@app/components/F2/liquidations/firm-positions'
+import { FirmMarketsAndPositions } from '@app/components/F2/FirmMarketsAndPositions'
 
 export const F2PositionsPage = () => {
 
@@ -15,7 +15,7 @@ export const F2PositionsPage = () => {
             <AppNav active="Markets" activeSubmenu="Liquidate Loans" />
             <ErrorBoundary>
                 <VStack w='full' maxW="1200px" mt="4">
-                    <FirmPositions />
+                    <FirmMarketsAndPositions defaultTab="Positions" />
                 </VStack>
             </ErrorBoundary>
         </Layout>
