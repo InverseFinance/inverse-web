@@ -31,6 +31,7 @@ export const useFirmPositions = (vnetPublicId?: string): SWR & {
   timestamp: number,
   isLoading: boolean,
   isError: boolean,
+  markets: F2Market[],
 } => {
   const { data, error } = useCacheFirstSWR(`/api/f2/firm-positions?vnetPublicId=${vnetPublicId||''}`, fetcher60sectimeout);
   const { markets, isLoading } = useDBRMarkets(undefined, vnetPublicId);
@@ -63,6 +64,7 @@ export const useFirmPositions = (vnetPublicId?: string): SWR & {
   });
 
   return {
+    markets,
     positions: positionsWithMarket,
     timestamp: data ? data.timestamp : 0,
     isLoading: isLoading || (!error && !data),

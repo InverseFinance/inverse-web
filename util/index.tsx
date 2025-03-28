@@ -48,7 +48,10 @@ export const namedRoles = (address: string, defaultRole = 'Unknown') => {
   return defaultRole;
 }
 
-export const shortenAddress = (address: string) => {
+export const shortenAddress = (address: string, superShorten = false) => {
+  if (superShorten) {
+    return `${address?.substr(0, 4)}...${address?.substr(address.length - 2)}`
+  }
   return `${address?.substr(0, 6)}...${address?.substr(address.length - 4)}`
 }
 
