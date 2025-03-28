@@ -1,11 +1,7 @@
-import { Flex, Stack, Text, useMediaQuery, Input as ChakraInput, InputGroup, InputLeftElement, Select, HStack } from "@chakra-ui/react"
+import { Stack, useMediaQuery, HStack, Flex, Text } from "@chakra-ui/react"
 import { smartShortNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import Table from "@app/components/common/Table";
-import { SearchIcon } from "@chakra-ui/icons";
-import { useCallback, useState } from "react";
-import { preciseCommify } from "@app/util/misc";
-import { RadioCardGroup } from "../common/Input/RadioCardGroup";
 import { F2Market } from "@app/types";
 import { commify } from "@ethersproject/units";
 import ScannerLink from "../common/ScannerLink";
@@ -256,128 +252,16 @@ export const F2MarketsParams = ({
 }: {
     markets: F2Market[]
 }) => {
-    const [search, setSearch] = useState('');
-    const [category, setCategory] = useState('active');
     const [isSmallerThan] = useMediaQuery(`(max-width: ${responsiveThreshold}px)`);
 
-    const marketFilter = useCallback((m: any) => {
-        let searchCondition = true;
-        let categoryCondition = true;
-        if (search) {
-            searchCondition = m.name.toLowerCase().includes(search.toLowerCase())
-        }
-        if (category === 'majors') {
-            categoryCondition = /(btc|eth)/i.test(m.name);
-        }
-        else if (category === 'active') {
-            categoryCondition = !m.borrowPaused && !m.isPhasingOut;
-        }
-        else if (category === 'paused') {
-            categoryCondition = m.borrowPaused;
-        }
-        else if (category === 'phaseout') {
-            categoryCondition = m.isPhasingOut;
-        }
-        else if (category === 'stablecoins') {
-            categoryCondition = m.underlying.isStable && !m.underlying.isLP;
-        }
-        else if (category === 'lps') {
-            categoryCondition = m.underlying.isLP;
-        }
-        else if (category === 'non-stable') {
-            categoryCondition = !m.underlying.isStable && !m.underlying.isLP;
-        }
-        
-        return searchCondition && categoryCondition;
-    }, [search, category]);
-
     return <Container
-        p={'6'}
+        p={'0'}
+        noPadding
         labelProps={{ fontSize: { base: '14px', sm: '18px' }, fontWeight: 'extrabold' }}
-        contentProps={{
-            maxW: { base: '90vw', sm: '100%' },
-            overflow: isSmallerThan ? 'auto' : 'visible',
-            p: isSmallerThan ? '0' : '4',
-            shadow: isSmallerThan ? '0' : '0 0 0px 1px rgba(0, 0, 0, 0.25)',
-            borderRadius: isSmallerThan ? '0' : '8px',
-            direction: 'column',
-        }}
         contentBgColor={isSmallerThan ? 'transparent' : undefined}
-        headerProps={{
-            direction: { base: 'column', md: 'row' },
-            gap: { base: '4', md: '8' },
-            align: { base: 'flex-start', md: 'flex-end' },
-        }}
-        subheader={
-            <Stack direction={{ base: 'column', md: 'row' }} pt="2" justify="space-between" alignItems="center">
-                <InputGroup
-                    left="0"
-                    w={{ base: '100%', md: '230px' }}
-                    bgColor="transparent"
-                >
-                    <InputLeftElement
-                        pointerEvents='none'
-                        children={<SearchIcon color='gray.300' />}
-                    />
-                    <ChakraInput
-                        color="mainTextColor"
-                        borderRadius="20px"
-                        type="search"
-                        bgColor="containerContentBackgroundAlpha"
-                        // w="200px"
-                        placeholder="Search a market"
-                        value={search}
-                        onChange={(e) => {
-                            setSearch(e.target.value)
-                        }}
-                    />
-                </InputGroup>
-                {
-                    isSmallerThan ? <Select
-                        bgColor="containerContentBackgroundAlpha"
-                        borderRadius="20px"
-                        onChange={(e) => { setCategory(e.target.value) }}>
-                        <option value="all">All</option>
-                        {/* <option value="active">Active</option> */}
-                        {/* <option value="paused">Paused</option> */}
-                        {/* <option value="phaseout">PhaseOut</option> */}
-                        <option value="majors">BTC/ETH</option>
-                        <option value="stablecoins">Stablecoins</option>
-                        <option value="lps">Stable LPs</option>
-                        <option value="non-stable">Non-Stable</option>
-                    </Select> : <RadioCardGroup
-                        wrapperProps={{ overflow: 'auto', maxW: '90vw', alignItems: 'center' }}
-                        group={{
-                            name: 'bool',
-                            defaultValue: category,
-                            onChange: (v) => { setCategory(v) },
-                        }}
-                        radioCardProps={{
-                            w: 'fit-content',
-                            textAlign: 'center',
-                            px: { base: '2', md: '3' },
-                            py: '1',
-                            fontSize: '14px',
-                            whiteSpace: 'nowrap'
-                        }}
-                        options={[
-                            { label: 'All', value: 'all' },
-                            // { label: 'Active', value: 'active' },
-                            // { label: 'Paused', value: 'paused' },
-                            // { label: 'PhaseOut', value: 'phaseout' },
-                            { label: 'BTC/ETH', value: 'majors' },
-                            { label: 'Stablecoins', value: 'stablecoins' },
-                            { label: 'Stable LPs', value: 'lps' },
-                            { label: 'Non-Stable', value: 'non-stable' },
-                        ]}
-                    />
-                }
-            </Stack>
-        }
     >
         <Table
             keyName="address"
-            noDataMessage={search || category ? "No market for the selected filters" : "Loading..."}
             columns={columns}
             items={
                 markets
@@ -385,7 +269,6 @@ export const F2MarketsParams = ({
                         ...m,
                         isPhasingOut: !!m.isPhasingOut,
                         marketIndex: i, }))
-                    .filter(marketFilter)
             }
             enableMobileRender={true}
             defaultSortField="marketIndex"

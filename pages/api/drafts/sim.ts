@@ -60,7 +60,7 @@ export default async function handler(req, res) {
     const cached = (await getCacheFromRedis(SIMS_CACHE_KEY, false));    
     const { lastSimId, ids } =  cached || { lastSimId: 0, ids: [] };
     const newSimId = (lastSimId||0) + 1;
-    const vnetTitle = `Sim-${newSimId}: ${form.title.substring(0, 50)}`;
+    const vnetTitle = `Sim-${newSimId}: ${form.title.substring(0, 100)}`;
     const forkResponse = await mainnetFork(newSimId, vnetTitle);
     const now = Date.now();
     let hasError = false;
