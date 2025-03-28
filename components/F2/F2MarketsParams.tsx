@@ -9,7 +9,7 @@ import ScannerLink from "../common/ScannerLink";
 const FilterItem = ({ ...props }) => {
     return <HStack fontSize="14px" fontWeight="normal" justify="flex-start" {...props} />
 }
-const filterItemPercRenderer = (value: number) => <FilterItem><Text>{value * 100}%</Text></FilterItem>
+// const filterItemPercRenderer = (value: number) => <FilterItem><Text>{value * 100}%</Text></FilterItem>
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'130px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -149,13 +149,13 @@ const columns = [
     },
     {
         field: 'isPhasingOut',
-        label: 'Over',
+        label: 'Hidden',
         showFilter: true,
         filterWidth: '50px',
         header: ({ ...props }) => <ColHeader minWidth="50px" justify="center"  {...props} />,
         value: ({ isPhasingOut }) => {
             return <Cell minWidth="50px" justify="center" >
-                <CellText color={isPhasingOut ? 'warning' : ''}>{isPhasingOut ? 'Yes' : 'No'}</CellText>
+                <CellText>{isPhasingOut ? 'Yes' : 'No'}</CellText>
             </Cell>
         },
     },

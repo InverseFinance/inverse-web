@@ -24,7 +24,7 @@ import { useDbrAuctionActivity } from '@app/util/dbr-auction'
 import { useDolaStakingActivity } from '@app/util/dola-staking'
 import { FirmUsers } from '@app/components/F2/Infos/FirmUsers'
 import { FirmLiquidations } from '@app/components/F2/liquidations/FirmLiquidations'
-import { FirmPositions } from '@app/components/F2/liquidations/firm-positions'
+import { FirmPositions, FirmPositionsOld } from '@app/components/F2/liquidations/firm-positions'
 const { TOKENS, DBR } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const tabsOptions = ['Issuance', 'Spenders', 'Replenishments', 'Users', 'Positions', 'Liquidations'];
@@ -91,7 +91,7 @@ export const DBRTransparency = () => {
                             tab === 'Users' && <FirmUsers />
                         }
                         {
-                            tab === 'Positions' && <FirmPositions />
+                            tab === 'Positions' && <FirmPositionsOld />
                         }
                         {
                             tab === 'Issuance' && <VStack w='full'>

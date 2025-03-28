@@ -1,30 +1,35 @@
 import { useFirmPositions } from "@app/hooks/useFirm";
-import { HStack, Select, Stack, useMediaQuery, VStack } from "@chakra-ui/react"
+import { HStack, InputGroup, InputLeftElement, Select, Stack, useMediaQuery, VStack, Input as ChakraInput } from "@chakra-ui/react"
 import { FirmPositionsTable } from "./Infos/FirmPositionsTable";
 import { SkeletonBlob } from "../common/Skeleton";
 import { F2MarketsParams } from "./F2MarketsParams";
 import { NavButtons } from "../common/Button";
 import { useCallback, useState } from "react";
-import { FirmPositions } from "./liquidations/firm-positions";
 import Container from "../common/Container";
 import { RadioCardGroup } from "../common/Input/RadioCardGroup";
+import { SearchIcon } from "@chakra-ui/icons";
+import { FirmMarketsStats, FirmPositions } from "./liquidations/firm-positions";
 
 export const FirmMarketsAndPositions = ({
     vnetPublicId,
     defaultTab = 'Markets'
 }: {
     vnetPublicId?: string
-    defaultTab?: 'Markets' | 'Positions'
+    defaultTab?: 'Markets' | 'Positions' | 'Stats'
 }) => {
     const [isSmallerThan] = useMediaQuery(`(max-width: 1260px)`);
     const [activeTab, setActiveTab] = useState(defaultTab);
-    const { positions, isLoading, markets } = useFirmPositions(vnetPublicId);
+    const [search, setSearch] = useState('');
+    const { timestamp, positions, isLoading, markets } = useFirmPositions(vnetPublicId);
 
     const [category, setCategory] = useState('all');
 
     const marketFilter = useCallback((m: any) => {
         let searchCondition = true;
         let categoryCondition = true;
+        if (search) {
+            searchCondition = m.name.toLowerCase().includes(search.toLowerCase());
+        }
         if (category === 'majors') {
             categoryCondition = /(btc|eth)/i.test(m.name);
         }
@@ -48,17 +53,17 @@ export const FirmMarketsAndPositions = ({
         }
 
         return searchCondition && categoryCondition;
-    }, [category]);
+    }, [search, category]);
 
     return <VStack w='full'>
-        <HStack w='full' justify='space-between'>
+        <HStack alignItems="center" w='full' justify='space-between'>
             <NavButtons
                 maxW="400px"
-                options={['Markets', 'Positions']}
+                options={['Markets', 'Positions', 'Stats']}
                 active={activeTab}
                 onClick={(s) => setActiveTab(s)}
             />
-            <Stack direction={{ base: 'column', md: 'row' }} pt="2" justify="space-between" alignItems="center">
+            <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" alignItems="center">
                 {
                     isSmallerThan ? <Select
                         bgColor="containerContentBackgroundAlpha"
@@ -98,6 +103,28 @@ export const FirmMarketsAndPositions = ({
                     />
                 }
             </Stack>
+            <InputGroup
+                left="0"
+                w={{ base: '100%', md: '230px' }}
+                bgColor="transparent"
+            >
+                <InputLeftElement
+                    pointerEvents='none'
+                    children={<SearchIcon color='gray.300' />}
+                />
+                <ChakraInput
+                    color="mainTextColor"
+                    borderRadius="20px"
+                    type="search"
+                    bgColor="containerContentBackgroundAlpha"
+                    // w="200px"
+                    placeholder="Search a market"
+                    value={search}
+                    onChange={(e) => {
+                        setSearch(e.target.value)
+                    }}
+                />
+            </InputGroup>
         </HStack>
         {
             isLoading ?
@@ -107,19 +134,16 @@ export const FirmMarketsAndPositions = ({
                     <VStack w="full" display={activeTab === 'Markets' ? 'block' : 'none'}>
                         <F2MarketsParams markets={
                             markets.filter(marketFilter)
-                        }
-                        />
+                        } />
                     </VStack>
                     <VStack w="full" display={activeTab === 'Positions' ? 'block' : 'none'}>
-                        {
-                            vnetPublicId ?
-                                <Container
-                                    noPadding p="0"
-                                    label="">
-                                    <FirmPositionsTable positions={positions.filter(p => marketFilter(p.market))} />
-                                </Container>
-                                : <FirmPositions vnetPublicId={vnetPublicId} />
-                        }
+                        <FirmPositions
+                            containerProps={{ label: '', description: '', noPadding: true, p: 0 }}
+                            isLoading={isLoading} timestamp={timestamp} positions={positions.filter(p => marketFilter(p.market))}
+                        />
+                    </VStack>
+                    <VStack pt='8' w="full" display={activeTab === 'Stats' ? 'block' : 'none'}>
+                        <FirmMarketsStats positions={positions.filter(p => marketFilter(p.market))} isLoading={isLoading} />
                     </VStack>
                 </VStack>
         }

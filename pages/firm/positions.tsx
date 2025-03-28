@@ -14,7 +14,7 @@ export const F2PositionsPage = () => {
             </Head>
             <AppNav active="Markets" activeSubmenu="Liquidate Loans" />
             <ErrorBoundary>
-                <VStack w='full' maxW="1200px" mt="4">
+                <VStack w='full' maxW="98%" mt="4">
                     <FirmMarketsAndPositions defaultTab="Positions" />
                 </VStack>
             </ErrorBoundary>
