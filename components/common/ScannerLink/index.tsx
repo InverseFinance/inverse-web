@@ -15,6 +15,7 @@ const ScannerLink = ({
 	scanUrl = '',
 	useBlockScan = false,
 	useName = true,
+	superShorten = false,
 	...props
 }: {
 	scanUrl?: string;
@@ -24,6 +25,7 @@ const ScannerLink = ({
 	shorten?: boolean;
 	useBlockScan?: boolean;
 	useName?: boolean;
+	superShorten?: boolean;
 	chainId?: string;
 	children?: React.ReactNode | React.ReactNode[];
 } & Partial<LinkProps>
@@ -32,7 +34,7 @@ const ScannerLink = ({
 	const scannerUrl = scanUrl || (useBlockScan ? BLOCK_SCAN : netScanner);
 	const address = value || children?.toString() || '';
 	const content = label || (shorten && (!children || typeof children === 'string') ?
-		useName ? namedAddress(address, chainId) : shortenAddress(address)
+		useName ? namedAddress(address, chainId) : shortenAddress(address, superShorten)
 		:
 		children || value
 	);
