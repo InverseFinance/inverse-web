@@ -114,7 +114,85 @@ const columns = [
             </Cell>
         },
     },
-]
+];
+
+const myDbrReplenishmentsColumns = [
+    {
+        field: 'txHash',
+        label: 'tx',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="flex-start"  {...props} />,
+        value: ({ txHash }) => {
+            return <Cell justify="flex-start" minWidth="100px">
+                <ScannerLink value={txHash} type="tx" fontSize='12px' />
+            </Cell>
+        },
+    },
+    {
+        field: 'timestamp',
+        label: 'Date',
+        header: ({ ...props }) => <ColHeader justify="flex-start" minWidth={'100px'} {...props} />,
+        value: ({ timestamp }) => <Cell justify="flex-start" minWidth="100px">
+            <Timestamp timestamp={timestamp} text1Props={{ fontSize: '12px' }} text2Props={{ fontSize: '12px' }} />
+        </Cell>,
+    },
+    {
+        field: 'marketName',
+        label: 'Market',
+        header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-start"  {...props} />,
+        value: ({ market }) => {
+            const { name, icon, marketIcon, underlying } = market;
+            return <Cell minWidth="150px" justify="flex-start" alignItems="center" >
+                <BigImageButton bg={`url('${marketIcon || icon || underlying?.image}')`} h="20px" w="20px" backgroundSize='contain' backgroundRepeat="no-repeat" />
+                <CellText>{name}</CellText>
+            </Cell>
+        },
+        showFilter: true,
+        filterWidth: '140px',
+        filterItemRenderer: ({ marketName }) => <CellText>{marketName}</CellText>
+    },
+    {
+        field: 'replenisher',
+        label: 'Replenisher',
+        header: ({ ...props }) => <ColHeader justify="flex-start" {...props} minWidth="100px" />,
+        value: ({ replenisher }) => {
+            return <Cell w="100px" justify="flex-start" position="relative" onClick={(e) => e.stopPropagation()}>
+                <ScannerLink value={replenisher} />
+            </Cell>
+        },
+        showFilter: true,
+        filterWidth: '90px',
+    },
+    {
+        field: 'deficit',
+        label: 'DBR Deficit',
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
+        value: ({ deficit }) => {
+            return <Cell minWidth="90px" justify="center" >
+                <CellText>{shortenNumber(deficit, 2, false, true)}</CellText>
+            </Cell>
+        },
+    },
+    {
+        field: 'replenishmentCost',
+        label: 'DOLA Cost',
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
+        value: ({ replenishmentCost }) => {
+            return <Cell minWidth="90px" justify="center" >
+                <CellText>{shortenNumber(replenishmentCost, 2, false, true)}</CellText>
+            </Cell>
+        },
+    },
+    {
+        field: 'replenisherReward',
+        label: 'DOLA Reward',
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
+        value: ({ replenisherReward }) => {
+            return <Cell minWidth="90px" justify="center" >
+                <CellText>{shortenNumber(replenisherReward, 2, false, true)}</CellText>
+            </Cell>
+        },
+    },
+];
 
 export const MyDbrReplenishments = ({
     account,
@@ -168,7 +246,7 @@ export const DbrReplenishments = ({
         <Table
             keyName="key"
             noDataMessage={isLoading ? 'Loading' : "No DBR replenishments"}
-            columns={columns}
+            columns={myDbrReplenishmentsColumns}
             items={top100}
             defaultSort={'timestamp'}
             defaultSortDir="desc"
