@@ -130,8 +130,8 @@ const myDbrReplenishmentsColumns = [
     {
         field: 'timestamp',
         label: 'Date',
-        header: ({ ...props }) => <ColHeader justify="flex-start" minWidth={'100px'} {...props} />,
-        value: ({ timestamp }) => <Cell justify="flex-start" minWidth="100px">
+        header: ({ ...props }) => <ColHeader justify="flex-start" minWidth={'150px'} {...props} />,
+        value: ({ timestamp }) => <Cell justify="flex-start" minWidth="150px">
             <Timestamp timestamp={timestamp} text1Props={{ fontSize: '12px' }} text2Props={{ fontSize: '12px' }} />
         </Cell>,
     },
