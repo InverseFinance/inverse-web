@@ -116,6 +116,36 @@ const columns = [
     },
 ]
 
+export const MyDbrReplenishments = ({
+    account,
+}: {
+    account: string,
+    }) => {
+    const { events, timestamp, isLoading, isLimited } = useDBRReplenishments(account);
+    const top100 = events?.slice(events?.length-100);
+
+    return <Container
+        label={isLimited ? `My last 100 replenishments in the last 20k blocks` : `My last 100 Forced Replenishments`}
+        noPadding
+        py="4"
+        description={timestamp ? `Last update ${timeSince(timestamp)}` : `Loading...`}
+        contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
+        headerProps={{
+            direction: { base: 'column', md: 'row' },
+            align: { base: 'flex-start', md: 'flex-end' },
+        }}
+    >
+        <Table
+            keyName="key"
+            noDataMessage={isLoading ? 'Loading' : "No DBR replenishments"}
+            columns={columns}
+            items={top100}
+            defaultSort={'timestamp'}
+            defaultSortDir="desc"
+        />
+    </Container>
+}
+
 export const DbrReplenishments = ({
 
 }: {
