@@ -122,10 +122,10 @@ export const MyDbrReplenishments = ({
     account: string,
     }) => {
     const { events, timestamp, isLoading, isLimited } = useDBRReplenishments(account);
-    const top100 = events?.slice(events?.length-100);
+    const top100 = events?.slice(-100);
 
     return <Container
-        label={isLimited ? `My replenishments in the last 2,000 blocks` : `My last 100 Forced Replenishments`}
+        label={isLimited ? `Top 50 Forced Replenishments in the last ~2,000 blocks` : `Top 50 Forced Replenishments`}
         noPadding
         py="4"
         description={timestamp ? `Last update ${timeSince(timestamp)}` : isLoading ? `Loading...` : ` `}

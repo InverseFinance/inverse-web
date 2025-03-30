@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   if(!!account && !isAddress(account)) {
     return res.status(400).json({ success: false, error: 'Invalid account address' });
   }
-  const cacheKey = account ? `replenishments-${account}` : dbrReplenishmentsCacheKey;
+  const cacheKey = account ? `account-replenishments-${account}` : dbrReplenishmentsCacheKey;
   const needChunks = !account;  
   try {
     const cacheDuration = 60;
@@ -37,18 +37,23 @@ export default async function handler(req, res) {
     const dbrContract = new Contract(DBR, DBR_ABI, provider);
     const lastBlock = cachedData?.events?.length ? cachedData?.events[cachedData.events.length-1].blockNumber : undefined;
     
-    let events = [];
+    let events: any[] = [];
     let isLimited = false;
     try {
       events = await dbrContract.queryFilter(dbrContract.filters.ForceReplenish(account || undefined), lastBlock ? lastBlock+1 : undefined);
     } catch (e) {
       console.log('e', e);
-      if(account) {
+      if(!!account) {
         console.error('fetching with limited range');
         isLimited = true;
         const currentBlock = await provider.getBlockNumber();
-        events = await dbrContract.queryFilter(dbrContract.filters.ForceReplenish(account || undefined), (currentBlock-1990));
+        events = await dbrContract.queryFilter(dbrContract.filters.ForceReplenish(account || undefined), (currentBlock-1990));        
       }
+    }
+
+    // account: last 50 events maximum
+    if(!!account) {
+      events = events.slice(-50);
     }
 
     const blocks = events.map(e => e.blockNumber);
@@ -84,7 +89,7 @@ export default async function handler(req, res) {
 
     const resultData = {
       isLimited,
-      events: cachedEvents.concat(newEvents),
+      events: !!account ? cachedEvents.concat(newEvents).slice(-100) : cachedEvents.concat(newEvents),
       timestamp: (+(new Date())-1000),
     }
 
