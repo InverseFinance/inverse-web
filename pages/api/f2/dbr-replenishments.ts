@@ -47,7 +47,7 @@ export default async function handler(req, res) {
         console.error('fetching with limited range');
         isLimited = true;
         const currentBlock = await provider.getBlockNumber();
-        events = await dbrContract.queryFilter(dbrContract.filters.ForceReplenish(account || undefined), (currentBlock-20_000));
+        events = await dbrContract.queryFilter(dbrContract.filters.ForceReplenish(account || undefined), (currentBlock-1990));
       }
     }
 

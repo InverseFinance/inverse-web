@@ -125,10 +125,10 @@ export const MyDbrReplenishments = ({
     const top100 = events?.slice(events?.length-100);
 
     return <Container
-        label={isLimited ? `My last 100 replenishments in the last 20k blocks` : `My last 100 Forced Replenishments`}
+        label={isLimited ? `My replenishments in the last 2,000 blocks` : `My last 100 Forced Replenishments`}
         noPadding
         py="4"
-        description={timestamp ? `Last update ${timeSince(timestamp)}` : `Loading...`}
+        description={timestamp ? `Last update ${timeSince(timestamp)}` : isLoading ? `Loading...` : ` `}
         contentProps={{ maxW: { base: '90vw', sm: '100%' }, overflowX: 'auto' }}
         headerProps={{
             direction: { base: 'column', md: 'row' },
