@@ -216,7 +216,7 @@ export const MyDbrReplenishments = ({
         <Table
             keyName="key"
             noDataMessage={isLoading ? 'Loading' : "No DBR replenishments"}
-            columns={columns}
+            columns={myDbrReplenishmentsColumns}
             items={top100}
             defaultSort={'timestamp'}
             defaultSortDir="desc"
@@ -246,7 +246,7 @@ export const DbrReplenishments = ({
         <Table
             keyName="key"
             noDataMessage={isLoading ? 'Loading' : "No DBR replenishments"}
-            columns={myDbrReplenishmentsColumns}
+            columns={columns}
             items={top100}
             defaultSort={'timestamp'}
             defaultSortDir="desc"
