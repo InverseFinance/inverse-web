@@ -25,6 +25,10 @@ export const MENUS = {
           href: '/firm/positions',
         },
         {
+          label: 'My Replenishments',
+          href: '/firm/my-replenishments',
+        },
+        {
           label: 'Frontier (deprecated)',
           href: '/frontier',
         },

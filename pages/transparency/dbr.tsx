@@ -3,7 +3,7 @@ import { Flex, HStack, Link, Text, VStack } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
-import { ShrinkableInfoMessage } from '@app/components/common/Messages'
+import { InfoMessage, ShrinkableInfoMessage } from '@app/components/common/Messages'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { NetworkIds } from '@app/types'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
@@ -83,6 +83,7 @@ export const DBRTransparency = () => {
                         }
                         {
                             tab === 'Replenishments' && <>
+                                <InfoMessage description="Page in maintenance" />
                                 <DbrIncome chartData={chartData} />
                                 <DbrReplenishments />
                             </>
