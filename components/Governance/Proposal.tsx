@@ -272,6 +272,7 @@ export const ProposalDetails = ({
 
 export const ProposalActions = ({ proposal, isEditing = false }: { proposal: Proposal, isEditing?: boolean }) => {
   const [simulationUrl, setSimulationUrl] = useState('');
+  const [positionsUrl, setPositionsUrl] = useState('');
   if (!proposal?.id) {
     return <></>
   }
@@ -280,8 +281,10 @@ export const ProposalActions = ({ proposal, isEditing = false }: { proposal: Pro
 
   const handleSimulation = async () => {
     setSimulationUrl('');
+    setPositionsUrl('');
     return simulateOnChainActions(proposal, (result) => {
       setSimulationUrl(result.simUrl || '');
+      setPositionsUrl(result?.vnetPublicId ? `/firm/sim/positions?vnetPublicId=${result.vnetPublicId||''}&vnetTitle=${result.vnetTitle||''}` : '');
       showToast({
         duration: 15000,
         status: result.hasError ? 'error' : 'success',
@@ -309,6 +312,11 @@ export const ProposalActions = ({ proposal, isEditing = false }: { proposal: Pro
             {
               !!simulationUrl && <Link textAlign="right" w='fit-content' textDecoration="underline" href={simulationUrl} target="_blank" isExternal>
                 Simulation link <ExternalLinkIcon ml="1" />
+              </Link>
+            }
+            {
+              !!positionsUrl && <Link textAlign="right" w='fit-content' textDecoration="underline" href={positionsUrl} target="_blank" isExternal>
+                Simulated Positions <ExternalLinkIcon ml="1" />
               </Link>
             }
           </Stack>

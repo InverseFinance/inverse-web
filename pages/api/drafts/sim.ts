@@ -15,14 +15,14 @@ const { TENDERLY_USER, TENDERLY_KEY } = process.env;
 
 export const SLUG_BASE = process.env.VERCEL_ENV === 'production' ? 'p' : 'd';
 
-async function mainnetFork(newSimId: number) {
+async function mainnetFork(newSimId: number, title: string) {
   return await fetch(
     `https://api.tenderly.co/api/v1/account/${TENDERLY_USER}/project/inverse-finance2/vnets`,
     {
       method: 'POST',
       body: JSON.stringify({
         "slug": SLUG_BASE+"prop-sim-"+newSimId,
-        "display_name": "Gov prop sim "+newSimId,
+        "display_name": title,
         "fork_config": {
           "network_id": 1,
           // "block_number": "0x12c50f0"
@@ -49,17 +49,19 @@ async function mainnetFork(newSimId: number) {
   );
 }
 
+export const SIMS_CACHE_KEY = 'gp-sim-id';
+
 export default async function handler(req, res) {
   const form = req.body;
   const isNotDraft = !!form.id;
   let proposalId;
-  const cacheKey = 'gp-sim-id';
 
   try {
-    const cached = (await getCacheFromRedis(cacheKey, false));    
+    const cached = (await getCacheFromRedis(SIMS_CACHE_KEY, false));    
     const { lastSimId, ids } =  cached || { lastSimId: 0, ids: [] };
-    const newSimId = (lastSimId||0) + 1;   
-    const forkResponse = await mainnetFork(newSimId);
+    const newSimId = (lastSimId||0) + 1;
+    const vnetTitle = `Sim-${newSimId}: ${form.title.substring(0, 100)}`;
+    const forkResponse = await mainnetFork(newSimId, vnetTitle);
     const now = Date.now();
     let hasError = false;
     
@@ -70,12 +72,12 @@ export default async function handler(req, res) {
 
     const forkId = fork?.id;
     let _ids = ids || [];
-    _ids.push({ timestamp: now, id: forkId });
-    await redisSetWithTimestamp(cacheKey, { lastSimId: newSimId, ids: _ids });
-    
     const adminRpc = fork.rpcs[0].url;
     const publicRpc = fork.rpcs[2].url;
     const publicId = publicRpc.substring(publicRpc.lastIndexOf("/")+1);
+
+    _ids.push({ timestamp: now, id: forkId, publicId, publicRpc, adminRpc, title: form.title });
+    await redisSetWithTimestamp(SIMS_CACHE_KEY, { lastSimId: newSimId, ids: _ids });
 
     const forkProvider = new ethers.providers.JsonRpcProvider(adminRpc);
     const accounts = await forkProvider.listAccounts();
@@ -171,12 +173,18 @@ export default async function handler(req, res) {
         if (receipt.status === 0) {
           hasError = true;
         }
+        // avoid stale price reverts
+        await forkProvider.send('evm_setNextBlockTimestamp', [
+          parseInt(now/1000).toString()
+        ]);
       } catch (e) {
         console.log('error executing')
         console.log(e)
         res.status(200).json({
           status: 'success',
           hasError: true,
+          vnetPublicId: publicId,
+          vnetTitle,
           simUrl: `https://dashboard.tenderly.co/explorer/vnet/${publicId}/tx/${txHash}`,
           errorMsg: e,
         });
@@ -199,6 +207,8 @@ export default async function handler(req, res) {
     res.status(200).json({
       status: 'success',
       hasError,
+      vnetPublicId: publicId,
+      vnetTitle,
       simUrl: `https://dashboard.tenderly.co/explorer/vnet/${publicId}/tx/${txHash}`,
     });
   } catch (err) {

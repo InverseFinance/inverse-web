@@ -13,6 +13,7 @@ export const ProposalFormBtns = ({
     nbActions,
     draftId,
     simulationUrl,
+    positionsUrl,
     handleLinkAndDelete,
     handleSubmitProposal,
     handlePublishDraft,
@@ -30,6 +31,7 @@ export const ProposalFormBtns = ({
     nbActions: number,
     draftId?: number,
     simulationUrl: string,
+    positionsUrl: string,
     handleLinkAndDelete: () => void,
     handleSubmitProposal: () => void,
     handlePublishDraft: () => void,
@@ -85,6 +87,9 @@ export const ProposalFormBtns = ({
             </Flex>
             {previewMode && !!simulationUrl && <Link textDecoration="underline" href={simulationUrl} target="_blank" isExternal>
                 Simulation link <ExternalLinkIcon ml="1" />
+            </Link>}
+            {previewMode && !!positionsUrl && <Link textDecoration="underline" href={positionsUrl} target="_blank" isExternal>
+                Sim Positions <ExternalLinkIcon ml="1" />
             </Link>}
             {
                 previewMode && isPublicDraft && !!draftId && <Flex alignItems="center" justify="center" w="full" pt="10">

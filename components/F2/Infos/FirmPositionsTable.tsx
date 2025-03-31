@@ -12,7 +12,7 @@ export const FirmPositionsTable = ({
     positions,
     isOneUserOnly = false,
 }: {
-    onClick: (v: any) => void
+    onClick?: (v: any) => void
     positions: any[]
     isOneUserOnly?: boolean
 }) => {

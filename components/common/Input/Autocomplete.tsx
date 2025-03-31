@@ -176,7 +176,7 @@ export const Autocomplete = ({
         <Box position="relative" {...props}>
             <InputGroup alignItems="center">
                 {
-                    !hideClear && <InputLeftElement
+                    !hideClear && (!!selectedItem?.label || !!searchValue) && <InputLeftElement
                         height="100%"
                         onClick={clear}
                         pointer="cursor"

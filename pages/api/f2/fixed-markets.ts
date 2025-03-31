@@ -1,17 +1,19 @@
 import 'source-map-support'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
-import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
+import { getCacheFromRedis, getCacheFromRedisAsObj, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { TOKENS } from '@app/variables/tokens'
 import { getBnToNumber, getFirmMarketsApys } from '@app/util/markets'
 import { CHAIN_ID } from '@app/config/constants';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { formatDistributorData, formatMarketData, inverseViewerRaw } from '@app/util/viewer';
+import { SIMS_CACHE_KEY } from '../drafts/sim';
+import { JsonRpcProvider } from '@ethersproject/providers';
 // import { FIRM_MARKETS_SNAPSHOT } from '@app/fixtures/firm-markets-20241022';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.3.97`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.4.0`;
 
 export default async function handler(req, res) {
   const cacheDuration = 90;
@@ -20,18 +22,37 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', `*`);
   res.setHeader('Access-Control-Allow-Methods', `OPTIONS,POST,GET`);
 
-  const { cacheFirst } = req.query;
+  const { cacheFirst, vnetPublicId } = req.query;
+  if (!!vnetPublicId && isInvalidGenericParam(vnetPublicId)) {
+    console.log('invalid vnetPublicId');
+    res.status(400).json({ status: 'error', message: 'Invalid vnetPublicId' });
+    return;
+  }
+  
+  const cacheKey = vnetPublicId ? `f2markets-sim-${vnetPublicId}` : F2_MARKETS_CACHE_KEY;
   try {
-    const { data: cachedData, isValid } = await getCacheFromRedisAsObj(F2_MARKETS_CACHE_KEY, cacheFirst !== 'true', cacheDuration);
+    const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration);
     if (cachedData && isValid) {
       res.status(200).json(cachedData);
       return
     }
 
-    const provider = getProvider(CHAIN_ID);
+    let provider;
+    if (vnetPublicId) {
+      const cachedSims = (await getCacheFromRedis(SIMS_CACHE_KEY, false));    
+      const { ids } =  cachedSims || { ids: [] };
+      const vnet = ids.find(id => id.publicId === vnetPublicId);
+      if(!vnet) {
+        res.status(404).json({ success: false, error: 'Vnet not found' });
+        return;
+      }
+      provider = new JsonRpcProvider(vnet.adminRpc);
+    } else {
+      provider = getProvider(CHAIN_ID);
+    }
 
     // trigger
-    fetch('https://inverse.finance/api/markets');
+    // fetch('https://inverse.finance/api/markets');
 
     const ifvr = inverseViewerRaw(provider);
     
@@ -43,7 +64,7 @@ export default async function handler(req, res) {
       { contract: ifvr.firmContract, functionName: 'getMarketListData', params: [F2_MARKETS.map(m => m.address)] },
       { contract: ifvr.tokensContract, functionName: 'getInvApr', params: [] },
       { contract: ifvr.tokensContract, functionName: 'getDbrDistributorInfo', params: [] },
-    ]);
+    ], 1, undefined, provider);
 
     const [formattedMarketData, invApr, formattedDistrubutorData] = [
       marketData.map(formatMarketData),
@@ -83,15 +104,15 @@ export default async function handler(req, res) {
       timestamp: Date.now(),
     }
 
-    await redisSetWithTimestamp(F2_MARKETS_CACHE_KEY, resultData);
+    await redisSetWithTimestamp(cacheKey, resultData);
 
     res.status(200).json(resultData)
   } catch (err) {
     console.error(err);
     // if an error occured, try to return last cached results
     try {
-      const cache = await getCacheFromRedis(F2_MARKETS_CACHE_KEY, false);
-      if (cache) {
+      const cache = await getCacheFromRedis(cacheKey, false);
+      if (cache && !vnetPublicId) {
         console.log('Api call failed, returning last cache found');
         res.status(200).json(cache);
       } else {

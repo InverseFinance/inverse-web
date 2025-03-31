@@ -46,3 +46,8 @@ jobs:
           curl -v --request POST \
           --url 'https://www.inverse.finance/api/transparency/venft-evolution?ignoreCache=true' \
           --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
+      - name: Clean old sims
+        run: |
+          curl -v --request POST \
+          --url 'https://www.inverse.finance/api/cron-clean-sims' \
+          --header 'Authorization: Bearer ${{ secrets.API_SECRET_KEY }}'
