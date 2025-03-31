@@ -12,7 +12,7 @@ import { getLargeLogs } from '@app/util/web3';
 
 const { DBR } = getNetworkConfigConstants();
 
-export const dbrReplenishmentsEvolutionCacheKey = `dbr-replenishments-evolution-v1.0.0`;
+export const dbrReplenishmentsEvolutionCacheKey = `dbr-replenishments-evolution-v1.0.3`;
 
 const getGroupedByDayReplenishments = (newEvents) => {
   const uniqueDays = [...new Set(newEvents.map(ne => ne.utcDate))];
@@ -24,6 +24,15 @@ const getGroupedByDayReplenishments = (newEvents) => {
       blockNumber: lastEvent.blockNumber,
       timestamp: getTimestampFromUTCDate(utcDateString),
       utcDate: utcDateString,
+      deficit: eventsForDay.reduce((acc, ne) => {
+        return acc + ne.deficit;
+      }, 0),
+      // replenishmentCost: eventsForDay.reduce((acc, ne) => {
+      //   return acc + ne.replenishmentCost;
+      // }, 0),
+      // replenisherReward: eventsForDay.reduce((acc, ne) => {
+      //   return acc + ne.replenisherReward;
+      // }, 0),
       daoFeeAcc: lastEvent.daoFeeAcc,
       daoDolaReward: eventsForDay.reduce((acc, ne) => {
         return acc + ne.daoDolaReward;
@@ -83,6 +92,10 @@ export default async function handler(req, res) {
       }
     });
 
+    const repTxHashes = cachedData?.isGroupedByDay ? 
+      (cachedData?.repTxHashes||[]).concat(events.map(e => e.transactionHash))
+      : cachedEvents.map(ce => ce.txHash).concat(events.map(e => e.transactionHash));
+
     const newGroupedData = cachedData?.isGroupedByDay ?
       cachedEvents.concat(getGroupedByDayReplenishments(newEvents))
       : getGroupedByDayReplenishments(
@@ -93,6 +106,7 @@ export default async function handler(req, res) {
       timestamp: now,
       isGroupedByDay: true,
       events: newGroupedData,
+      repTxHashes,
     }
 
     await redisSetWithTimestamp(dbrReplenishmentsEvolutionCacheKey, resultData, true);
