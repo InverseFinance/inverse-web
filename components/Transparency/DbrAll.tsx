@@ -65,7 +65,7 @@ export const DbrAll = ({
 
     // from inv stakers, no claim event so we do by exclusion
     const claimEvents = emissionEvents?.filter(e => {
-        return !repHashes.includes(e.txHash) && !auctionBuysHashes.includes(e.txHash) && !dsaClaimHashes.includes(e.txHash) && !e.isTreasuryMint && !e.isTreasuryTransfer && !e.isSDolaClaim;
+        return !repTxHashes.includes(e.txHash) && !auctionBuysHashes.includes(e.txHash) && !dsaClaimHashes.includes(e.txHash) && !e.isTreasuryMint && !e.isTreasuryTransfer && !e.isSDolaClaim;
     });
 
     const totalClaimed = claimEvents.reduce((acc, e) => acc + e.amount, 0);
