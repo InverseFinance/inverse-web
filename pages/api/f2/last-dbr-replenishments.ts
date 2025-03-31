@@ -19,13 +19,12 @@ export default async function handler(req, res) {
   if(!!account && !isAddress(account)) {
     return res.status(400).json({ success: false, error: 'Invalid account address' });
   }
-  const cacheKey = account ? `account-replenishments-${account}` : lastDBRReplenishmentsCacheKey;
-  const needChunks = !account;  
+  const cacheKey = account ? `account-replenishments-${account}` : lastDBRReplenishmentsCacheKey;  
   try {
     const cacheDuration = 60;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
 
-    const { isValid, data: cachedData } = await getCacheFromRedisAsObj(cacheKey, true, cacheDuration, needChunks);
+    const { isValid, data: cachedData } = await getCacheFromRedisAsObj(cacheKey, true, cacheDuration, false);
     if (isValid) {
       res.status(200).json(cachedData);
       return
@@ -95,14 +94,14 @@ export default async function handler(req, res) {
       events: cachedEvents.concat(newEvents).slice(-100),
     }
 
-    await redisSetWithTimestamp(cacheKey, resultData, needChunks);
+    await redisSetWithTimestamp(cacheKey, resultData, false);
 
     res.status(200).json(resultData)
   } catch (err) {
     console.error(err);
     // if an error occured, try to return last cached results
     try {
-      const cache = await getCacheFromRedis(cacheKey, false, 0, needChunks);
+      const cache = await getCacheFromRedis(cacheKey, false, 0, false);
       if (cache) {
         console.log('Api call failed, returning last cache found');
         res.status(200).json(cache);
