@@ -458,3 +458,11 @@ export function formatDuration(seconds: number) {
 export const calculateMaxLeverage = (collateralFactor: number) => {
     return 1 / (1 - collateralFactor);
 }
+
+// make sure there is only one data point per x value
+export const getSimplifiedData = (data: any[], sortableAttribute = 'x') => {
+    const uniqueX = [...new Set(data.map(d => d[sortableAttribute]))];
+    return uniqueX.map(v => {
+        return data.findLast(d => d[sortableAttribute] <= v);
+    });
+}

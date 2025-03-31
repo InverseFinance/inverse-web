@@ -14,6 +14,7 @@ import { roundFloorString } from './misc'
 import { MetaMask } from '@web3-react/metamask';
 import { WalletConnect } from '@web3-react/walletconnect-v2';
 import { CoinbaseWallet } from '@web3-react/coinbase-wallet';
+import { runInPromisePool } from './multicall';
 
 export const getLibrary = (provider: ExternalProvider | JsonRpcFetchFunc): Web3Provider => {
   const library = new Web3Provider(provider)
@@ -268,4 +269,27 @@ export const getTransactionData = (func: string, args: any[]) => {
   const contractInterface = new Interface([func]);
   let fd = Object.values(contractInterface.functions)[0];  
   return contractInterface.encodeFunctionData(fd, args);
+}
+
+export const getLargeLogs = async (
+  contract: Contract,
+  filter: any,
+  startBlock: number,
+  endBlock: number,
+  maxBlockRange = 10_000,
+  concurrency = 2,
+) => {
+  try {
+    return await contract.queryFilter(filter, startBlock, endBlock);
+  } catch(e) {
+    const results = await runInPromisePool({
+      items: Array.from({length: Math.ceil((endBlock - startBlock) / maxBlockRange)}, (_, i) => startBlock + i * maxBlockRange),
+      concurrency,
+      processor: (async (blockNumber: number) => {
+        const logs = await contract.queryFilter(filter, blockNumber, Math.min(blockNumber + maxBlockRange, endBlock));
+        return logs;
+      })
+    })
+    return results.flat();
+  }
 }
