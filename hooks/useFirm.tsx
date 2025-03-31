@@ -356,6 +356,48 @@ export const useFirmMarketEvents = (market: F2Market, account: string, firmActio
   }
 }
 
+export const useDBRReplenishmentsEvolution = (): SWR & {
+  events: any,
+  timestamp: number,
+  repTxHashes: string[],
+} => {
+  const { data, error } = useCustomSWR(`/api/f2/dbr-replenishments-evolution`, fetcher);
+  return {
+    events: data?.events || [],
+    repTxHashes: data?.repTxHashes || [],
+    timestamp: data ? data.timestamp : 0,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
+export const useLastDBRReplenishments = (account?: string): SWR & {
+  events: any,
+  timestamp: number,
+  isLimited: boolean,
+} => {
+  const { data, error } = useCustomSWR(`/api/f2/last-dbr-replenishments?account=${account||''}`, fetcher);
+  const { markets } = useDBRMarkets();
+
+  const eventsWithMarket = (data?.events || []).map(e => {
+    const market = markets?.find(m => m.address === e.marketAddress);
+    return {
+      ...e,
+      key: `${e.txHash}-${e.account}-${e.marketAddress}`,
+      market,
+      marketName: market?.name,
+    }
+  });
+
+  return {
+    events: eventsWithMarket,
+    isLimited: data?.isLimited || false,
+    timestamp: data ? data.timestamp : 0,
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
 export const useDBRReplenishments = (account?: string): SWR & {
   events: any,
   timestamp: number,

@@ -1,7 +1,7 @@
 import { Flex, Stack, Text } from "@chakra-ui/react"
 import { shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
-import { useDBRReplenishments } from "@app/hooks/useFirm";
+import { useLastDBRReplenishments } from "@app/hooks/useFirm";
 import Link from "@app/components/common/Link";
 import { ViewIcon } from "@chakra-ui/icons";
 import ScannerLink from "@app/components/common/ScannerLink";
@@ -199,11 +199,11 @@ export const MyDbrReplenishments = ({
 }: {
     account: string,
     }) => {
-    const { events, timestamp, isLoading, isLimited } = useDBRReplenishments(account);
+    const { events, timestamp, isLoading, isLimited } = useLastDBRReplenishments(account);
     const top100 = events?.slice(-100);
 
     return <Container
-        label={isLimited ? `Top 50 Forced Replenishments in the last ~2,000 blocks` : `Top 50 Forced Replenishments`}
+        label={isLimited ? `Most recent 100 replenishments` : `Top 100 Forced Replenishments`}
         noPadding
         py="4"
         description={timestamp ? `Last update ${timeSince(timestamp)}` : isLoading ? `Loading...` : ` `}
@@ -229,8 +229,8 @@ export const DbrReplenishments = ({
 }: {
 
     }) => {
-    const { events, timestamp, isLoading } = useDBRReplenishments();
-    const top100 = events?.slice(events?.length-100);
+    const { events, timestamp, isLoading } = useLastDBRReplenishments();
+    const top100 = events?.slice(-100);
 
     return <Container
         label="Last 100 Forced Replenishments"

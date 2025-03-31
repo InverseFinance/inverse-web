@@ -7,7 +7,7 @@ import { FlyoutTooltip } from './FlyoutTooltip';
 import { useAppTheme } from '@app/hooks/useAppTheme';
 import { CoordinatesArray } from '@app/types';
 import { AreaChartRecharts } from './AreaChartRecharts';
-import { fillMissingDailyDatesWithMostRecentData } from '@app/util/misc';
+import { fillMissingDailyDatesWithMostRecentData, getSimplifiedData } from '@app/util/misc';
 import { formatDate } from '@app/util/time';
 
 const strokeColors = {
@@ -54,13 +54,6 @@ export type AreaChartProps = {
     strokeColor?: string
     duplicateYAxis?: boolean
 };
-// make sure there is only one data point per x value
-const getSimplifiedData = (data: CoordinatesArray) => {
-    const uniqueX = [...new Set(data.map(d => d.x))];
-    return uniqueX.map(v => {
-        return data.findLast(d => d.x <= v);
-    });
-}
 
 export const AreaChart = ({
     data,

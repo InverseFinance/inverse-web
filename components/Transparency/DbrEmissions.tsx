@@ -7,7 +7,7 @@ import { timestampToUTC } from "@app/util/misc";
 export const DbrEmissions = ({
     maxChartWidth = 800,
     chartWidth,
-    replenishments,
+    repTxHashes,
     auctionBuys,
     dsaClaimEvents,
     histoPrices,
@@ -16,7 +16,7 @@ export const DbrEmissions = ({
 }: {
     maxChartWidth: number
     chartWidth: number
-    replenishments: any[]
+    repTxHashes: any[]
     dsaClaimEvents: any[]
     auctionBuys: any[]
     histoPrices: { [key: string]: number }
@@ -30,7 +30,6 @@ export const DbrEmissions = ({
     const [includeClaims, setIncludeClaims] = useState(true);
     const [includeDsaClaims, setIncludeDsaClaims] = useState(true);
 
-    const repHashes = replenishments?.map(r => r.txHash) || [];
     const auctionHashes = auctionBuys?.map(r => r.txHash) || [];
     const dsaClaimEventsHashes = dsaClaimEvents?.map(r => r.txHash) || [];
 
@@ -38,8 +37,8 @@ export const DbrEmissions = ({
         emissionEvents :
         emissionEvents?.filter(e => {
             const auctionCondition = includeAuctionMints ? auctionHashes.includes(e.txHash) && !e.isSDolaClaim : false;
-            const repCondition = includeReplenishments ? repHashes.includes(e.txHash) : false;
-            const claimCondition = includeClaims ? !repHashes.includes(e.txHash) && !auctionHashes.includes(e.txHash) && !dsaClaimEventsHashes.includes(e.txHash) && !e.isTreasuryMint && !e.isTreasuryTransfer && !e.isSDolaClaim : false;
+            const repCondition = includeReplenishments ? repTxHashes.includes(e.txHash) : false;
+            const claimCondition = includeClaims ? !repTxHashes.includes(e.txHash) && !auctionHashes.includes(e.txHash) && !dsaClaimEventsHashes.includes(e.txHash) && !e.isTreasuryMint && !e.isTreasuryTransfer && !e.isSDolaClaim : false;
             const dsaClaimCondition = includeDsaClaims ? dsaClaimEventsHashes.includes(e.txHash) && (!auctionHashes.includes(e.txHash) || !!e.isSDolaClaim) : false;
             const treasuryMintCondition = includeTreasuryMints ? e.isTreasuryMint : false;
             const treasuryTransferCondition = includeTreasuryTransfers ? e.isTreasuryTransfer : false;
