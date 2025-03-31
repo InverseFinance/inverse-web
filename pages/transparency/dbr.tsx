@@ -15,7 +15,7 @@ import { useEffect, useState } from 'react'
 import { NavButtons } from '@app/components/common/Button'
 import { DbrReplenishments } from '@app/components/F2/liquidations/dbr-replenishments'
 import { useEventsAsChartData } from '@app/hooks/misc'
-import { useDBRBurns, useDBRDebtHisto, useDBRReplenishments } from '@app/hooks/useFirm'
+import { useDBRBurns, useDBRDebtHisto, useDBRReplenishments, useDBRReplenishmentsEvolution, useLastDBRReplenishments } from '@app/hooks/useFirm'
 import { DbrIncome } from '@app/components/Transparency/DbrIncome'
 import { useRouter } from 'next/router'
 import { timestampToUTC } from '@app/util/misc'
@@ -33,12 +33,13 @@ export const DBRTransparency = () => {
     const router = useRouter();
     const { totalSupply, operator, priceUsd, yearlyRewardRate, rewardRate, minYearlyRewardRate, maxYearlyRewardRate, historicalData } = useDBR();
     const { events } = useDBRReplenishments();
+    const { events: replenishmentsEvolution } = useDBRReplenishmentsEvolution();
     const { events: auctionBuys } = useDbrAuctionActivity();
     const { events: dsaEvents } = useDolaStakingActivity(undefined, 'dsa');
     const mintsFromAuctionBuys = auctionBuys.filter(b => b.auctionType === 'Virtual');
     const { events: burnEvents } = useDBRBurns();
     const { history } = useDBRDebtHisto();
-    const { chartData } = useEventsAsChartData(events, 'daoFeeAcc', 'daoDolaReward');
+    const { chartData } = useEventsAsChartData(replenishmentsEvolution, 'daoFeeAcc', 'daoDolaReward');
     const [tab, setTab] = useState('Issuance');
 
     const histoPrices = historicalData && !!historicalData?.prices ? historicalData.prices.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr[0])]: curr[1] }), {}) : {};
@@ -83,7 +84,6 @@ export const DBRTransparency = () => {
                         }
                         {
                             tab === 'Replenishments' && <>
-                                <InfoMessage description="Page in maintenance" />
                                 <DbrIncome chartData={chartData} />
                                 <DbrReplenishments />
                             </>
