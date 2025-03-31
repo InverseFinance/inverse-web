@@ -15,6 +15,7 @@ import { NetworkIds } from "@app/types";
 import { getBnToNumber } from "@app/util/markets";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { getDbrPriceOnCurve } from "@app/util/f2";
+import { dbrReplenishmentsEvolutionCacheKey } from "../f2/dbr-replenishments-evolution";
 
 const { DBR } = getNetworkConfigConstants();
 
@@ -23,7 +24,7 @@ export default async (req, res) => {
     const { include } = req.query;
     const includeList = include ? include.split(',').filter(ad => isAddress(ad)) : [];
     const cacheDuration = 900;
-    const cacheKey = `dola-modal-2-v1.0.9${include ? includeList.join(',') : ''}`;
+    const cacheKey = `dola-modal-2-v1.0.91${include ? includeList.join(',') : ''}`;
 
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
 
@@ -39,11 +40,11 @@ export default async (req, res) => {
     const sevenDaysAgoTsInSecs = (sevenDaysAgoTs/1000).toFixed(0);
 
     try {
-        const [liquidityData, badDebtData, dolaStakingData, replenishmentsData, dbrCirculatingSupply, dbrTriPoolBalanceBn, dbrPriceData, aaveData] = await Promise.all([
+        const [liquidityData, badDebtData, dolaStakingData, replenishmentsEvolutionData, dbrCirculatingSupply, dbrTriPoolBalanceBn, dbrPriceData, aaveData] = await Promise.all([
             fetcher30sectimeout(`${SERVER_BASE_URL}/api/transparency/liquidity`),            
             getCacheFromRedis(repaymentsCacheKeyV2, false),
             getCacheFromRedis(dolaStakingCacheKey, false),  
-            getCacheFromRedis(dbrReplenishmentsCacheKey, false, 0, true),          
+            getCacheFromRedis(dbrReplenishmentsEvolutionCacheKey, false, 0, true),          
             getCacheFromRedis(dbrCircSupplyCacheKey, false),
             dbrContract.balanceOf('0xC7DE47b9Ca2Fc753D6a2F167D8b3e19c6D18b19a'),
             getDbrPriceOnCurve(provider),
@@ -65,7 +66,7 @@ export default async (req, res) => {
         const currentDolaBadDebt = badDebtData.badDebts.DOLA.badDebtBalance;
 
         const nowMinus30d = (Date.now() - 30 * ONE_DAY_MS);
-        const dbrReplenished30d = replenishmentsData?.events?.filter(ev => ev.timestamp >= nowMinus30d)?.reduce((prev, curr) => prev+curr.deficit, 0);
+        const dbrReplenished30d = replenishmentsEvolutionData?.events?.filter(ev => ev.timestamp >= nowMinus30d)?.reduce((prev, curr) => prev+curr.deficit, 0);
 
         const { priceInDola: dbrPrice } = dbrPriceData;
         const aaveRatesSevenDays = aaveData.filter(m => Date.UTC(m.x.year, m.x.month, m.x.date, m.x.hours) >= sevenDaysAgoTs);
