@@ -429,7 +429,7 @@ export const useDBRBurns = (): SWR & {
   events: any,
   timestamp: number,
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/transparency/dbr-burns?`);
+  const { data, error } = useCacheFirstSWR(`/api/transparency/dbr-burns-evolution?`);
 
   return {
     events: data ? data.totalBurns : [],
