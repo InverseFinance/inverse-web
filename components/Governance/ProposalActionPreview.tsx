@@ -448,10 +448,11 @@ const FirmFeedHumanReadableActionLabel = ({
     const feed = callDatas[1];
     const decimals = callDatas[2];
 
-    const { data: priceData } = useEtherSWR({
-        abi: ['function latestAnswer() public view returns (int256)'],
+    const { data: feedData } = useEtherSWR({
+        abi: ['function latestAnswer() public view returns (int256)', 'function decimals() public view returns (uint8)'],
         args: [
             [feed, 'latestAnswer'],
+            [feed, 'decimals'],
         ],
     });
 
@@ -463,9 +464,9 @@ const FirmFeedHumanReadableActionLabel = ({
         ],
     });
 
-    const price = <Amount value={priceData ? priceData?.toString() : '0'} decimals={decimals} />;
+    const price = feedData ? <Amount value={feedData[0]?.toString()} decimals={getBnToNumber(feedData[1], 0)} /> : null;
     text = <Flex display="inline-block">
-        Set price feed{!!tokenData && <> for <b>{tokenData[0]}</b></>} {!!priceData && <> (feed preview: {price})</>}
+        Set price feed{!!tokenData && <> for <b>{tokenData[0]}</b></>} {!!feedData && <> (feed preview: {price})</>}
     </Flex>
 
     return (

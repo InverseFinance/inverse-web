@@ -12,10 +12,6 @@ export const MENUS = {
           label: 'FiRM',
           href: '/firm',
         },
-        // {
-        //   label: 'Borrow against INV',
-        //   href: '/firm/INV',
-        // },
         {
           label: 'FiRM rewards',
           href: '/firm/rewards',
@@ -27,6 +23,10 @@ export const MENUS = {
         {
           label: 'Liquidate Loans',
           href: '/firm/positions',
+        },
+        {
+          label: 'My Replenishments',
+          href: '/firm/my-replenishments',
         },
         {
           label: 'Frontier (deprecated)',

@@ -32,7 +32,7 @@ const YEARN_VAULT_IDS = {
 export const getDefiLlamaApy = async (poolId: string, strictAvg = true) => {
     try {
         const data = await getPoolYield(poolId, strictAvg);
-        return { apy: (data?.apy || 0), apy30d: data?.apy30d, apy60d: data?.apy60d, apy90d: data?.apy90d };
+        return { apy: (data?.apy || 0), apy30d: data?.apy30d, apy60d: data?.apy60d, apy90d: data?.apy90d, apy180d: data?.apy180d, apy365d: data?.apy365d };
     } catch (e) {
         console.log(`Failed to fetch APY for pool ${poolId}:`, e);
         return { apy: 0 };
@@ -508,9 +508,9 @@ export const getYvSUSDeDOLAData = () => getYearnVaultApy(YEARN_VAULT_IDS.SUSDE_D
 export const getYvFraxPyusdDOLAData = () => getYearnVaultApy(YEARN_VAULT_IDS.FRAX_PYUSD_DOLA);
 export const getYvFraxBPDOLAData = () => getYearnVaultApy(YEARN_VAULT_IDS.FRAX_BP_DOLA);
 
-export const getPTsUSDe27MAR25Data = async () => {
+export const getPendleMarketApy = async (pendleMarketAddress: string) => {
     try {
-        const results = await fetch("https://api-v2.pendle.finance/bff/v1/1/markets/0xcdd26eb5eb2ce0f203a84553853667ae69ca29ce");
+        const results = await fetch(`https://api-v2.pendle.finance/core/v1/1/markets/${pendleMarketAddress}`);
         const data = await results.json();
         return { apy: data?.impliedApy * 100 };
     } catch (e) {
@@ -563,7 +563,9 @@ export const getPoolYield = async (defiLlamaPoolId: string, strictAvg = false) =
         const apy30d = data.status === 'success' ? data?.data?.length >= 30 ? getAvgOnLastItems(data?.data, "apy", 30) : 0 : 0;
         const apy60d = data.status === 'success' ? data?.data?.length >= 60 ? getAvgOnLastItems(data?.data, "apy", 60) : 0 : 0;
         const apy90d = data.status === 'success' ? data?.data?.length >= 90 ? getAvgOnLastItems(data?.data, "apy", 90) : 0 : 0;
-        return data.status === 'success' ? { ...data.data[data.data.length - 1], apy30d, apy60d, apy90d } : { apy: 0, tvlUsd: 0, apy30d, apy60d, apy90d };
+        const apy180d = data.status === 'success' ? data?.data?.length >= 180 ? getAvgOnLastItems(data?.data, "apy", 180) : 0 : 0;
+        const apy365d = data.status === 'success' ? data?.data?.length >= 365 ? getAvgOnLastItems(data?.data, "apy", 365) : 0 : 0;
+        return data.status === 'success' ? { ...data.data[data.data.length - 1], apy30d, apy60d, apy90d, apy180d, apy365d } : { apy: 0, tvlUsd: 0, apy30d, apy60d, apy90d, apy180d, apy365d };
     } catch (e) { console.log(e) }
     return {};
 }
@@ -671,7 +673,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         getYvFraxPyusdDOLAData(),
         getFraxBPDOLAConvexData(),
         getYvFraxBPDOLAData(),
-        getPTsUSDe27MAR25Data(),
+        getPendleMarketApy('0xcdd26eb5eb2ce0f203a84553853667ae69ca29ce'),
         getSUSDeDOLAConvexData(),
         getYvSUSDeDOLAData(),
         getDefiLlamaApy('51f9c038-feed-4666-8866-30efc92e0566'),
@@ -684,6 +686,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         getYearnVaultApy('0xc7C1B907BCD3194C0D9bFA2125251af98BdDAfbb'),
         getDefiLlamaApy('a850d185-5433-4932-99df-cdfea0336b9e'),
         getYearnVaultApy('0x57a2c7925bAA1894a939f9f6721Ea33F2EcFD0e2'),
+        getPendleMarketApy('0xb162b764044697cf03617c2efbcb1f42e31e4766'),
     ]);
 
     let [
@@ -715,6 +718,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         yvdeUSDDOLAData,
         USRDOLAConvexData,
         yvUSRDOLAData,
+        ptSUSDe29MAY25Data,
     ] = externalYieldResults.map(r => {
         return r.status === 'fulfilled' ? r.value : {};
     });
@@ -760,5 +764,6 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         'yv-deUSD-DOLA': yvdeUSDDOLAData?.apy || 0,
         'USR-DOLA': USRDOLAConvexData?.apy || 0,
         'yv-USR-DOLA': yvUSRDOLAData?.apy || 0,
+        'PT-sUSDe-29MAY25': ptSUSDe29MAY25Data?.apy || 0,
     };
 }

@@ -356,11 +356,12 @@ export const useFirmMarketEvents = (market: F2Market, account: string, firmActio
   }
 }
 
-export const useDBRReplenishments = (): SWR & {
+export const useDBRReplenishments = (account?: string): SWR & {
   events: any,
   timestamp: number,
+  isLimited: boolean,
 } => {
-  const { data, error } = useCustomSWR(`/api/f2/dbr-replenishments`, fetcher);
+  const { data, error } = useCustomSWR(`/api/f2/dbr-replenishments?account=${account||''}`, fetcher);
   const { markets } = useDBRMarkets();
 
   const eventsWithMarket = (data?.events || []).map(e => {
@@ -375,6 +376,7 @@ export const useDBRReplenishments = (): SWR & {
 
   return {
     events: eventsWithMarket,
+    isLimited: data?.isLimited || false,
     timestamp: data ? data.timestamp : 0,
     isLoading: !error && !data,
     isError: error,

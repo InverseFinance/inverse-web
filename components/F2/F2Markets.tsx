@@ -146,6 +146,12 @@ export const MARKET_INFOS = {
         description: 'The Principal Token for the Pendle sUSDe-27MAR2025 that is a fixed yield asset thanks to Pendle\'s split of yield-bearing assets into Principal and Yield tokens',
         getLink: 'https://app.pendle.finance/trade/markets/0xcdd26eb5eb2ce0f203a84553853667ae69ca29ce/swap?view=pt&chain=ethereum&page=1',
     },
+    'PT-sUSDe-29MAY25': {
+        name: 'PT-sUSDe-29MAY25',
+        fullname: 'Pendle - PT-sUSDe-29MAY25',
+        description: 'The Principal Token for the Pendle sUSDe-29MAY2025 that is a fixed yield asset thanks to Pendle\'s split of yield-bearing assets into Principal and Yield tokens',
+        getLink: 'https://app.pendle.finance/trade/markets/0xb162b764044697cf03617c2efbcb1f42e31e4766/swap?view=pt&chain=ethereum&page=1',
+    },
 }
 
 const getMarketInfos = ({ marketName, underlying }: { marketName: string, underlying: F2Market['underlying'] }) => {
@@ -247,7 +253,7 @@ const MarketCell = ({ icon, marketIcon, underlying, badgeInfo, badgeProps, name,
 const CollateralFactorCell = ({ collateralFactor, isLeverageComingSoon, supplyApy, borrowPaused, dbrPriceUsd, _isMobileCase }: { collateralFactor: number, borrowPaused: boolean, _isMobileCase: boolean }) => {
     const maxLong = calculateMaxLeverage(collateralFactor);
     return <Cell spacing="0" direction="column" minWidth="70px" alignItems={_isMobileCase ? 'flex-end' : 'center'} justify="center" >
-        <CellText>{shortenNumber(collateralFactor * 100, 0)}%</CellText>
+        <CellText>{smartShortNumber(collateralFactor * 100, 2)}%</CellText>
         {
             (!borrowPaused && !isLeverageComingSoon) && <>
                 {!_isMobileCase && <CellText>&nbsp;</CellText>}

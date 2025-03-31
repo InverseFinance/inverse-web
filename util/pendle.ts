@@ -2,11 +2,14 @@ import { BURN_ADDRESS } from "@app/config/constants";
 
 import useSWR from "swr";
 
+// list of active markets: https://api-v2.pendle.finance/core/v1/1/markets/active
 // ptToken => ptMarketAddress
 const ptMarkets = {
     '0xE00bd3Df25fb187d6ABBB620b3dfd19839947b81': '0xcdd26eb5eb2ce0f203a84553853667ae69ca29ce',
+    '0xb7de5dFCb74d25c2f21841fbd6230355C50d9308': '0xb162b764044697cf03617c2efbcb1f42e31e4766',
 }
 
+// deprecated
 export const getUserPtApy = async (ptToken: string, user: string) => {
     try {
         const ptMarketAddress = ptMarkets[ptToken];
@@ -25,6 +28,7 @@ export const getUserPtApy = async (ptToken: string, user: string) => {
     return undefined;
 }
 
+// deprecated
 export const useUserPtApy = (ptToken: string, user: string) => {
     const tsMinute = (new Date()).toISOString().substring(0, 16);
     const { data: userFixedYieldApy, error } = useSWR(`pt-${ptToken}-${user}-${tsMinute}`, async () => {

@@ -9,17 +9,24 @@ import { CHAIN_ID } from '@app/config/constants';
 import { addBlockTimestamps } from '@app/util/timestamps';
 import { NetworkIds } from '@app/types';
 import { ARCHIVED_REPLENISHMENTS } from '@app/fixtures/replenishments';
+import { isAddress } from 'ethers/lib/utils';
 
 const { DBR } = getNetworkConfigConstants();
 
 export const dbrReplenishmentsCacheKey = `f2dbr-replenishments-v1.1.0`;
 
-export default async function handler(req, res) {  
-
+export default async function handler(req, res) {
+  const { account } = req.query;
+  if(!!account && !isAddress(account)) {
+    return res.status(400).json({ success: false, error: 'Invalid account address' });
+  }
+  const cacheKey = account ? `account-replenishments-${account}` : dbrReplenishmentsCacheKey;
+  const needChunks = !account;  
   try {
-    const cacheDuration = 30;
+    const cacheDuration = 60;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const { isValid, data: cachedData } = (await getCacheFromRedisAsObj(dbrReplenishmentsCacheKey, true, cacheDuration, true) || { isValid: false, data: ARCHIVED_REPLENISHMENTS });
+
+    const { isValid, data: cachedData } = (await getCacheFromRedisAsObj(cacheKey, true, cacheDuration, needChunks) || { isValid: false, data: !account ? ARCHIVED_REPLENISHMENTS : {events: []} });
     if (isValid) {
       res.status(200).json(cachedData);
       return
@@ -29,7 +36,25 @@ export default async function handler(req, res) {
 
     const dbrContract = new Contract(DBR, DBR_ABI, provider);
     const lastBlock = cachedData?.events?.length ? cachedData?.events[cachedData.events.length-1].blockNumber : undefined;
-    const events = await dbrContract.queryFilter(dbrContract.filters.ForceReplenish(), lastBlock ? lastBlock+1 : undefined);
+    
+    let events: any[] = [];
+    let isLimited = false;
+    try {
+      events = await dbrContract.queryFilter(dbrContract.filters.ForceReplenish(account || undefined), lastBlock ? lastBlock+1 : undefined);
+    } catch (e) {
+      console.log('e', e);
+      if(!!account) {
+        console.error('fetching with limited range');
+        isLimited = true;
+        const currentBlock = await provider.getBlockNumber();
+        events = await dbrContract.queryFilter(dbrContract.filters.ForceReplenish(account || undefined), (currentBlock-1990));        
+      }
+    }
+
+    // account: last 50 events maximum
+    if(!!account) {
+      events = events.slice(-50);
+    }
 
     const blocks = events.map(e => e.blockNumber);
 
@@ -63,18 +88,19 @@ export default async function handler(req, res) {
     });
 
     const resultData = {
-      events: cachedEvents.concat(newEvents),
+      isLimited,
+      events: !!account ? cachedEvents.concat(newEvents).slice(-100) : cachedEvents.concat(newEvents),
       timestamp: (+(new Date())-1000),
     }
 
-    await redisSetWithTimestamp(dbrReplenishmentsCacheKey, resultData, true);
+    await redisSetWithTimestamp(cacheKey, resultData, needChunks);
 
     res.status(200).json(resultData)
   } catch (err) {
     console.error(err);
     // if an error occured, try to return last cached results
     try {
-      const cache = await getCacheFromRedis(dbrReplenishmentsCacheKey, false, 0, true);
+      const cache = await getCacheFromRedis(cacheKey, false, 0, needChunks);
       if (cache) {
         console.log('Api call failed, returning last cache found');
         res.status(200).json(cache);

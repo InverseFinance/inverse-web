@@ -412,6 +412,7 @@ export const UserDashboard = ({
                             showMarketBtn={true}
                             extraAtBottom={true}
                             escrow={market.escrow}
+                            hideIfNoRewards={true}
                         />
                     })
             }
