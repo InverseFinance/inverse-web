@@ -97,7 +97,7 @@ export default async function handler(req, res) {
       : cachedEvents.map(ce => ce.txHash).concat(events.map(e => e.transactionHash));
 
     const newGroupedData = cachedData?.isGroupedByDay ?
-      cachedEvents.concat(getGroupedByDayReplenishments(newEvents))
+      getGroupedByDayReplenishments(cachedEvents.concat(newEvents))
       : getGroupedByDayReplenishments(
         cachedEvents.map(e => ({ ...e, utcDate: timestampToUTC(e.timestamp) })).concat(newEvents)
       )
