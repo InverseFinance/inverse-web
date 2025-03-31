@@ -32,8 +32,7 @@ const tabsOptions = ['Issuance', 'Spenders', 'Replenishments', 'Users', 'Positio
 export const DBRTransparency = () => {
     const router = useRouter();
     const { totalSupply, operator, priceUsd, yearlyRewardRate, rewardRate, minYearlyRewardRate, maxYearlyRewardRate, historicalData } = useDBR();
-    const { events } = useDBRReplenishments();
-    const { events: replenishmentsEvolution } = useDBRReplenishmentsEvolution();
+    const { events: replenishmentsEvolution, repTxHashes } = useDBRReplenishmentsEvolution();
     const { events: auctionBuys } = useDbrAuctionActivity();
     const { events: dsaEvents } = useDolaStakingActivity(undefined, 'dsa');
     const mintsFromAuctionBuys = auctionBuys.filter(b => b.auctionType === 'Virtual');
@@ -96,7 +95,7 @@ export const DBRTransparency = () => {
                         }
                         {
                             tab === 'Issuance' && <VStack w='full'>
-                                <DbrAll histoPrices={histoPrices} history={history} burnEvents={burnEvents} dsaEvents={dsaEvents} replenishments={events} auctionBuys={mintsFromAuctionBuys} yearlyRewardRate={yearlyRewardRate} />
+                                <DbrAll histoPrices={histoPrices} history={history} burnEvents={burnEvents} dsaEvents={dsaEvents} repTxHashes={repTxHashes} auctionBuys={mintsFromAuctionBuys} yearlyRewardRate={yearlyRewardRate} />
                             </VStack>
                         }
                         {

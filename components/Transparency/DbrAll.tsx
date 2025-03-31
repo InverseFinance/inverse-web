@@ -39,7 +39,7 @@ export const DbrAll = ({
     dsaEvents,
     auctionBuys,
     histoPrices,
-    replenishments,
+    repTxHashes,
     maxChartWidth = 950,
     yearlyRewardRate,
 }) => {
@@ -59,7 +59,6 @@ export const DbrAll = ({
     const { positions } = useFirmUsers();
     const totalDebt = positions.reduce((prev, curr) => prev + curr.debt, 0);
 
-    const repHashes = replenishments?.map(r => r.txHash) || [];
     const auctionBuysHashes = auctionBuys?.map(r => r.txHash) || [];
     const dsaClaimEvents = dsaEvents?.filter(r => r.event === 'Claim') || [];
     const dsaClaimHashes = dsaClaimEvents.map(r => r.txHash);
@@ -232,7 +231,7 @@ export const DbrAll = ({
             maxChartWidth={chartWidth}
             chartWidth={chartWidth}
             histoPrices={histoPrices}
-            replenishments={replenishments}
+            repTxHashes={repTxHashes}
             auctionBuys={auctionBuys}
             useUsd={useUsd}
         />
