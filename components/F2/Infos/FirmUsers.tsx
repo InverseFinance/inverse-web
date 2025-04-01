@@ -83,7 +83,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
         value: ({ dbrExpiryDate, debt, dbrRiskColor }) => {
             return <Cell spacing="0" alignItems="center" direction="column" minWidth="120px" justify="center">
-                <CellText color={dbrRiskColor}>{debt > 0 ? formatDate(dbrExpiryDate).replace('Invalid date', 'Distant Future') : '-'}</CellText>
+                <CellText color={dbrRiskColor}>{debt > 0 ? formatDate(dbrExpiryDate).replace('Invalid Date', 'Distant Future') : '-'}</CellText>
                 {/* <CellText color="secondaryTextColor">{timeSince(dbrExpiryDate)}</CellText> */}
             </Cell>
         },
