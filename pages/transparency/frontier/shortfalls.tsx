@@ -14,6 +14,7 @@ import { shortenAddress } from '@app/util'
 import { InfoMessage } from '@app/components/common/Messages'
 import { TransparencyOtherTabs, TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
 import { preciseCommify } from '@app/util/misc'
+import { timeSince } from '@app/util/time'
 
 export const ShortfallsPage = () => {
   const [accounts, setAccounts] = useState('');
