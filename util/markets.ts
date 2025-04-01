@@ -257,6 +257,17 @@ export const getSavingsUSDData = async () => {
     return [];
 }
 
+export const getSavingsdeUSDData = async () => {
+    try {
+        const [results] = await Promise.all([
+            fetch('https://api-deusd-prod-public.elixir.xyz/public/deusd_apy'),
+        ]);
+        const data = await results.json();
+        return { apy: data.deusd_apy };
+    } catch (e) { console.log(e) }
+    return [];
+}
+
 export const getSavingsUSDzData = async () => {
     try {
         const results = await fetch('https://anzen-ponder-idx.up.railway.app/stats/susdz');
