@@ -3,7 +3,7 @@ import { getProvider } from '@app/util/providers';
 import { getAaveV3RateOf } from '@app/util/borrow-rates-comp';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types';
-import { getBnToNumber, getDefiLlamaApy, getSavingsCrvUsdData, getSavingsUSDData, getSUSDEData } from '@app/util/markets';
+import { aprToApy, getBnToNumber, getDefiLlamaApy, getSavingsCrvUsdData, getSavingsdeUSDData, getSavingsUSDData, getSUSDEData } from '@app/util/markets';
 import { getDSRData } from '@app/util/markets';
 import { TOKEN_IMAGES } from '@app/variables/images';
 import { timestampToUTC } from '@app/util/misc';
@@ -12,10 +12,16 @@ import { SDOLA_ABI } from '@app/config/abis';
 import { getMulticallOutput } from '@app/util/multicall';
 import { DAILY_UTC_CACHE_KEY } from '../cron-daily-block-timestamp';
 import { ARCHIVED_UTC_DATES_BLOCKS } from '@app/fixtures/utc-dates-blocks';
+import { ONE_DAY_SECS, WEEKS_PER_YEAR } from '@app/config/constants';
 
 export const getHistoricalRates = async (addresses: string[]) => {
   const { data: utcKeyBlockValues, isValid } = await getCacheFromRedisAsObj(DAILY_UTC_CACHE_KEY, false) || { data: ARCHIVED_UTC_DATES_BLOCKS, isValid: false };
   const provider = getProvider(NetworkIds.mainnet);
+  const currentBlockNumber = await provider.getBlockNumber();
+  const currentBlock = await provider.getBlock(currentBlockNumber);
+  const currentBlockTimestamp = currentBlock.timestamp;
+  const previousBlock = await provider.getBlock(`0x${(currentBlockNumber-100).toString(16)}`);
+  const previousBlockTimestamp = previousBlock.timestamp;
 
   const now = Date.now();
   const dayMs = 24 * 60 * 60 * 1000;
@@ -25,9 +31,9 @@ export const getHistoricalRates = async (addresses: string[]) => {
   const ninetyDaysAgoBlock = utcKeyBlockValues[NetworkIds.mainnet][timestampToUTC(now - 90 * dayMs)];
   const oneHundredEightyDaysAgoBlock = utcKeyBlockValues[NetworkIds.mainnet][timestampToUTC(now - 180 * dayMs)];
   const threeHundredSixtyDaysAgoBlock = utcKeyBlockValues[NetworkIds.mainnet][timestampToUTC(now - 365 * dayMs)];
-  const blocks = [undefined, thirtyDaysAgoBlock, sixtyDaysAgoBlock, ninetyDaysAgoBlock, oneHundredEightyDaysAgoBlock, threeHundredSixtyDaysAgoBlock];
+  const blocks = [currentBlockNumber, previousBlock.number,thirtyDaysAgoBlock, sixtyDaysAgoBlock, ninetyDaysAgoBlock, oneHundredEightyDaysAgoBlock, threeHundredSixtyDaysAgoBlock];
 
-  const [todayRates, thirtyDayRates, sixtyDayRates, ninetyDayRates, oneHundredEightyDayRates, threeHundredSixtyDayRates] = await Promise.all(
+  const [todayRates, previousBlockRates, thirtyDayRates, sixtyDayRates, ninetyDayRates, oneHundredEightyDayRates, threeHundredSixtyDayRates] = await Promise.all(
     blocks.map(block => getMulticallOutput(
       addresses.map(address => ({
         contract: new Contract(address, SDOLA_ABI, provider),
@@ -41,12 +47,14 @@ export const getHistoricalRates = async (addresses: string[]) => {
 
   return addresses.map((address, index) => {
     const todayExRate = getBnToNumber(todayRates[index]);
+    const calculatedApy = (todayExRate / getBnToNumber(previousBlockRates[index]) - 1) * (365 * ONE_DAY_SECS) / (currentBlockTimestamp - previousBlockTimestamp) * 100;
     const apy30d = (todayExRate / getBnToNumber(thirtyDayRates[index]) - 1) * 365 / 30 * 100;
     const apy60d = (todayExRate / getBnToNumber(sixtyDayRates[index]) - 1) * 365 / 60 * 100;
     const apy90d = (todayExRate / getBnToNumber(ninetyDayRates[index]) - 1) * 365 / 90 * 100;
     const apy180d = (todayExRate / getBnToNumber(oneHundredEightyDayRates[index]) - 1) * 365 / 180 * 100;
     const apy365d = (todayExRate / getBnToNumber(threeHundredSixtyDayRates[index]) - 1) * 100;
     return {
+      calculatedApy,
       apy30d,
       apy60d,
       apy90d,
@@ -67,29 +75,24 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Methods', `GET`);
     const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, true, cacheDuration);
 
-    if (isValid) {
-      res.status(200).json(cachedData);
-      return
-    }
+    // if (isValid) {
+    //   res.status(200).json(cachedData);
+    //   return
+    // }
 
     const provider = getProvider(NetworkIds.mainnet);
 
     const symbols = [
       'USDC', 'USDT',
-      'sDAI', 'sfrxUSD', 'sUSDe', 'sDOLA', 'scrvUSD', 'sUSDS'
+      'sDAI', 'sfrxUSD', 'sUSDe', 'sDOLA', 'scrvUSD', 'sUSDS',
+      'sdeUSD'
       // , 'sUSDz'
     ];
-    const addresses = [
-      '0x83F20F44975D03b1b09e64809B757c47f942BEeA',
-      '0xcf62F905562626CfcDD2261162a51fd02Fc9c5b6',
-      '0x9D39A5DE30e57443BfF2A8307A4256c8797A3497',
-      '0xb45ad160634c528Cc3D2926d9807104FA3157305',
-      '0x0655977FEb2f289A4aB78af67BAB0d17aAb84367',
-      '0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD',
-    ]
+    
     const projects = [
       'Aave-V3', 'Aave-V3', 
-      'Spark', 'Frax', 'Ethena', 'FiRM', 'Curve', 'Sky'
+      'Spark', 'Frax', 'Ethena', 'FiRM', 'Curve', 'Sky',
+      'Elixir',
       // , 'Anzen'
     ];
     const links = [
@@ -103,9 +106,10 @@ export default async function handler(req, res) {
       'https://crvusd.curve.fi/#/ethereum/scrvUSD',
       'https://sky.money',
       'https://app.anzen.finance/stake',
+      'https://elixir.xyz',
     ];
 
-    const rates = await Promise.all([
+    const currentRates = await Promise.all([
       getAaveV3RateOf(provider, 'USDC'),
       getAaveV3RateOf(provider, 'USDT'),
       getDSRData(),
@@ -115,9 +119,19 @@ export default async function handler(req, res) {
       fetch('https://www.inverse.finance/api/dola-staking').then(res => res.json()),
       getSavingsCrvUsdData(),
       getSavingsUSDData(),
+      getSavingsdeUSDData(),
       // getSavingsUSDzData(),
     ]);
 
+    const addresses = [
+      '0x83F20F44975D03b1b09e64809B757c47f942BEeA',
+      '0xcf62F905562626CfcDD2261162a51fd02Fc9c5b6',
+      '0x9D39A5DE30e57443BfF2A8307A4256c8797A3497',
+      '0xb45ad160634c528Cc3D2926d9807104FA3157305',
+      '0x0655977FEb2f289A4aB78af67BAB0d17aAb84367',
+      '0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD',
+      '0x5C5b196aBE0d54485975D1Ec29617D42D9198326',
+    ]
     const vaultHistoricalRates = await getHistoricalRates(addresses);
     const aaveHistoricalRates = await Promise.all([
       getDefiLlamaApy('aa70268e-4b52-42bf-a116-608b370f9501'),
@@ -136,7 +150,7 @@ export default async function handler(req, res) {
       pastRates.push({});
     }
 
-    const sortedRates = rates
+    const sortedRates = currentRates
       .map((rate, index) => {
         const symbol = symbols[index];
         const pastRatesLen = pastRates.length;
@@ -152,6 +166,7 @@ export default async function handler(req, res) {
           isVault: projects[index] !== 'Aave-V3',
           apy: (rate.supplyRate || rate.apy),
           apy30d: (rate.apyMean30d || rate.apy30d),
+          calculatedApy: aprToApy(historicalRates[index].calculatedApy, WEEKS_PER_YEAR),
           avg30: historicalRates[index].apy30d || (last30.length >= 30 ? last30.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last30.length : 0),
           avg60: historicalRates[index].apy60d || (last60.length >= 60 ? last60.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last60.length : 0),
           avg90: historicalRates[index].apy90d || (last90.length >= 90 ? last90.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last90.length : 0),
