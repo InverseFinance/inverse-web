@@ -29,6 +29,9 @@ export const formatDay = (date: Date | number): string => {
 
 export const formatDate = (date: Date | number): string => {
   const _date = typeof date === 'number' ? new Date(date) : date;
+  if(_date.toString() === 'Invalid Date') {
+    return _date.toString();
+  }
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
   return `${months[_date.getMonth()]} ${_date.getDate()}${getDateSuffix(_date.getDate())}, ${_date.getFullYear()}`
 }
@@ -93,6 +96,9 @@ export const timeUntil = (time: Date | number | undefined, withoutPrefix = false
   }
 
   const _time = typeof time === 'number' ? new Date(time) : time;
+  if(_time.toString() === 'Invalid Date') {
+    return 'Distant Future';
+  }
 
   const minutes = getMinutesBetweenDates(_time, new Date())
   if (minutes < 60) {
