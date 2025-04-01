@@ -20,7 +20,7 @@ export const getHistoricalRates = async (addresses: string[]) => {
   const currentBlockNumber = await provider.getBlockNumber();
   const currentBlock = await provider.getBlock(currentBlockNumber);
   const currentBlockTimestamp = currentBlock.timestamp;
-  const previousBlock = await provider.getBlock(`0x${(currentBlockNumber-100).toString(16)}`);
+  const previousBlock = await provider.getBlock(`0x${(currentBlockNumber-1).toString(16)}`);
   const previousBlockTimestamp = previousBlock.timestamp;
 
   const now = Date.now();
@@ -75,17 +75,18 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Methods', `GET`);
     const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, true, cacheDuration);
 
-    // if (isValid) {
-    //   res.status(200).json(cachedData);
-    //   return
-    // }
+    if (isValid) {
+      res.status(200).json(cachedData);
+      return
+    }
 
     const provider = getProvider(NetworkIds.mainnet);
 
     const symbols = [
       'USDC', 'USDT',
       'sDAI', 'sfrxUSD', 'sUSDe', 'sDOLA', 'scrvUSD', 'sUSDS',
-      'sdeUSD'
+      'sdeUSD',
+      // 'wUSDM',
       // , 'sUSDz'
     ];
     
@@ -93,8 +94,12 @@ export default async function handler(req, res) {
       'Aave-V3', 'Aave-V3', 
       'Spark', 'Frax', 'Ethena', 'FiRM', 'Curve', 'Sky',
       'Elixir',
+      // 'Mountain-Protocol',
       // , 'Anzen'
     ];
+    const images = {
+      'wUSDM': 'https://assets.coingecko.com/coins/images/33785/standard/wUSDM_PNG_240px.png?1702981552'
+    }
     const links = [
       'https://app.aave.com/reserve-overview/?underlyingAsset=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&marketName=proto_mainnet_v3',
       'https://app.aave.com/reserve-overview/?underlyingAsset=0xdac17f958d2ee523a2206206994597c13d831ec7&marketName=proto_mainnet_v3',
@@ -107,6 +112,7 @@ export default async function handler(req, res) {
       'https://sky.money',
       'https://app.anzen.finance/stake',
       'https://elixir.xyz',
+      'https://defi.mountainprotocol.com/wrap',
     ];
 
     const currentRates = await Promise.all([
@@ -120,6 +126,7 @@ export default async function handler(req, res) {
       getSavingsCrvUsdData(),
       getSavingsUSDData(),
       getSavingsdeUSDData(),
+      // getSavingsdeUSDData(),
       // getSavingsUSDzData(),
     ]);
 
@@ -131,6 +138,7 @@ export default async function handler(req, res) {
       '0x0655977FEb2f289A4aB78af67BAB0d17aAb84367',
       '0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD',
       '0x5C5b196aBE0d54485975D1Ec29617D42D9198326',
+      // '0x57F5E098CaD7A3D1Eed53991D4d66C45C9AF7812',
     ]
     const vaultHistoricalRates = await getHistoricalRates(addresses);
     const aaveHistoricalRates = await Promise.all([
@@ -173,7 +181,7 @@ export default async function handler(req, res) {
           avg180: historicalRates[index].apy180d || (last180.length >= 180 ? last180.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last180.length : 0),
           avg365: historicalRates[index].apy365d || (last365.length >= 365 ? last365.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last365.length : 0),
           symbol,
-          image: TOKEN_IMAGES[symbol],
+          image: images[symbol] || TOKEN_IMAGES[symbol],
           project: projects[index],
           link: links[index],
         }
