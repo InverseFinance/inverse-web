@@ -137,8 +137,8 @@ export const DbrSpenders = ({
             header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
             value: ({ dbrExpiryDate }) => {
                 return <Cell spacing="0" alignItems="center" direction="column" minWidth="120px" justify="center">
-                    <CellText>{formatDate(dbrExpiryDate).replace('Invalid date', 'Distant Future')}</CellText>
-                    <CellText color="secondaryTextColor">{fromNow(dbrExpiryDate).replace('Invalid date', 'Distant Future')}</CellText>
+                    <CellText>{formatDate(dbrExpiryDate).replace('Invalid Date', 'Distant Future')}</CellText>
+                    <CellText color="secondaryTextColor">{fromNow(dbrExpiryDate).replace('Invalid Date', 'Distant Future')}</CellText>
                 </Cell>
             },
         },
