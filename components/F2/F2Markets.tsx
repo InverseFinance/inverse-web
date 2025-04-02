@@ -1,7 +1,7 @@
 import { Badge, Divider, Flex, HStack, Stack, Text, useMediaQuery, VStack, Input as ChakraInput, Image, PopoverBody, Popover, PopoverTrigger, PopoverContent, InputGroup, InputLeftElement, Select, useDisclosure, SimpleGrid } from "@chakra-ui/react"
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
-import { useAccountF2Markets, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
+import { useAccountF2Markets, useDBRMarkets, useDBRMarketsSSR, useDBRPrice } from '@app/hooks/useDBR';
 import { useRouter } from 'next/router';
 import { useAccount } from '@app/hooks/misc';
 import { calculateNetApy, getRiskColor } from "@app/util/f2";
@@ -560,16 +560,20 @@ const firmImages = {
 const responsiveThreshold = 1260;
 
 export const F2Markets = ({
-    isDashboardPage = false
+    isDashboardPage = false,
+    marketsData,
+    firmTvls,
 }: {
-    isDashboardPage?: boolean
+    isDashboardPage?: boolean,
+    marketsData: { markets: F2Market[] },
+    firmTvls: any,
 }) => {
-    const { markets } = useDBRMarkets();
+    const { markets } = useDBRMarketsSSR(marketsData);
     const account = useAccount();
     const { priceUsd: dbrPrice, priceDola: dbrPriceDola } = useDBRPrice();
     const accountMarkets = useAccountF2Markets(markets, account);
     const router = useRouter();
-    const { firmTvls, isLoading: tvlLoading } = useFirmTVL();
+    // const { firmTvls, isLoading: tvlLoading } = useFirmTVL();
     const { themeStyles, themeName } = useAppTheme();
     const [showMyPositions, setShowMyPositions] = useState(true);
     const [showOther, setShowOther] = useState(true);
@@ -587,7 +591,7 @@ export const F2Markets = ({
         }
     }, [dbrUserRefPrice]);
 
-    const isLoading = tvlLoading || !markets?.length;
+    const isLoading = !markets?.length;
 
     const openMarket = (market: any) => {
         gaEvent({ action: `FiRM-list-open-market-${market.name}` });

@@ -23,6 +23,7 @@ import { SkeletonBlob } from "@app/components/common/Skeleton"
 import { useCustomSWR } from "@app/hooks/useCustomSWR"
 import { AnimatedInfoTooltip } from "@app/components/common/Tooltip"
 import { fromNow, timeSince } from "@app/util/time"
+import { F2Market } from "@app/types"
 
 const Title = (props: TextProps) => <Text textAlign="center" fontWeight="extrabold" fontSize={{ base: '13px', md: '18px' }} {...props} />;
 const SubTitle = (props: TextProps) => <Text textAlign="center" color="secondaryTextColor" fontSize={{ base: '13px', md: '16px' }} {...props} />;
@@ -358,22 +359,31 @@ const BarBlock = ({
 }
 
 export const FirmBar = ({
-    ...props
+    dbrPriceUsd,
+    dolaPriceUsd,
+    currentCirculatingSupply,
+    firmTotalTvl,
+    markets,
 }: {
-} & Partial<StackProps>) => {
-    const { priceUsd: dbrPriceUsd } = useDBRPrice();
-    const { data: currentCirculatingSupply } = useCustomSWR(`/api/dola/circulating-supply`);
-    const { price: dolaPrice, isLoading: isDolaPriceLoading } = useDOLAPrice();
-    const { firmTotalTvl, isLoading: isFirmTvlLoading } = useFirmTVL();
-    const { markets } = useDBRMarkets();
+    dbrPriceUsd: number,
+    dolaPriceUsd: number,
+    currentCirculatingSupply: number,
+    firmTotalTvl: number,
+    markets: F2Market[],
+}) => {
+    // const { priceUsd: dbrPriceUsd } = useDBRPrice();
+    // const { data: currentCirculatingSupply } = useCustomSWR(`/api/dola/circulating-supply`);
+    // const { price: dolaPrice, isLoading: isDolaPriceLoading } = useDOLAPrice();
+    // const { firmTotalTvl, isLoading: isFirmTvlLoading } = useFirmTVL();
+    // const { markets } = useDBRMarkets();
     const [isLargerThan] = useMediaQuery('(min-width: 600px)');
     const totalDebt = markets?.reduce((prev, curr) => prev + curr.totalDebt, 0) || 0;
-    const totalDebtUsd = totalDebt * dolaPrice;
+    // const totalDebtUsd = totalDebt * dolaPrice;
     const invFirmPrice = markets?.find(m => m.isInv)?.price || 0;
 
-    return <VStack w='full' {...props}>
+    return <VStack w='full'>
         {
-            !process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG && firmTotalTvl === null && !isFirmTvlLoading
+            !process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG && firmTotalTvl === null
             && <InfoMessage
                 alertProps={{ w: 'full', fontWeight: 'bold', mb: '4', fontSize: '16px' }}
                 description="Note: some data failed to load, please try again later."
@@ -383,7 +393,7 @@ export const FirmBar = ({
             <HStack alignItems="flex-start" w={{ base: 'full', md: 'auto' }} justify="flex-start">
                 <HStack spacing="8" w={{ base: 'full', md: 'auto' }} justify={{ base: 'space-between', md: 'flex-start' }}>
                     <BarBlock tooltip="DBR are borrowing credits you can buy and sell at a market price, they are consumed at a constant rate according to your loan size if any" label="Buy DBR" isLargerThan={isLargerThan} precision={4} price={dbrPriceUsd} href={BUY_LINKS.DBR} imgSrc={`/assets/v2/dbr.webp`} />
-                    <BarBlock tooltip="DOLA is a stablecoin soft-pegged to $1, can be borrowed on FiRM or bought on markets" label="Buy DOLA" isLoading={isDolaPriceLoading} isLargerThan={isLargerThan} precision={4} price={dolaPrice} href={'/swap'} imgSrc={`/assets/v2/dola.webp`} vstackProps={{ alignItems: { base: 'center', md: 'flex-start' } }} />
+                    <BarBlock tooltip="DOLA is a stablecoin soft-pegged to $1, can be borrowed on FiRM or bought on markets" label="Buy DOLA" isLoading={false} isLargerThan={isLargerThan} precision={4} price={dolaPriceUsd} href={'/swap'} imgSrc={`/assets/v2/dola.webp`} vstackProps={{ alignItems: { base: 'center', md: 'flex-start' } }} />
                     <BarBlock tooltip="INV is Inverse Finance's Governance token" label="Buy INV" isLargerThan={isLargerThan} price={invFirmPrice} href={BUY_LINKS.INV} imgSrc={`/assets/inv-square-dark.jpeg`} vstackProps={{ alignItems: { base: 'flex-end', md: 'flex-start' } }} />
                 </HStack>
             </HStack>
@@ -405,7 +415,7 @@ export const FirmBar = ({
                         FiRM TVL
                     </Link>
                     {
-                        isFirmTvlLoading || firmTotalTvl === null ?
+                        firmTotalTvl === null ?
                             <SmallTextLoader width={'50px'} /> :
                             <SubTitle fontSize={{ base: '16px', md: '18px' }}>
                                 {shortenNumber(firmTotalTvl, 2, true)}

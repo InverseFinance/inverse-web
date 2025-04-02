@@ -19,9 +19,22 @@ import Link from '@app/components/common/Link'
 import { FirmInsuranceCover } from '@app/components/common/InsuranceCover'
 import { InfoMessage } from '@app/components/common/Messages'
 import { SERVER_BASE_URL } from '@app/config/constants'
+import { F2Market } from '@app/types'
 
 export const F2PAGE = ({
-    isTwitterAlert = false
+    isTwitterAlert = false,
+    marketsData,
+    firmTvlData,
+    currentCirculatingSupply,
+    dbrPriceUsd,
+    dolaPriceUsd,
+}: {
+    isTwitterAlert: boolean,
+    marketsData: { markets: F2Market[] },
+    firmTvlData: any,
+    currentCirculatingSupply: number,
+    dbrPriceUsd: number,
+    dolaPriceUsd: number,
 }) => {
     const account = useAccount();
     const [radioValue, setRadioValue] = useState('');
@@ -95,7 +108,7 @@ export const F2PAGE = ({
                     </VStack>
                 </SlideModal>
             } */}
-            {/* {
+            {
                 !!ACTIVE_POLL && POLLS[ACTIVE_POLL] && <SlideModal closeOnOutsideClick={false} closeIconInside={true} isOpen={isOpen} onClose={handleManualClose} contentProps={{ maxW: '500px', className: '', backgroundColor: 'navBarBackgroundColor' }}>
                     <VStack w='full' justify="flex-start" alignItems="flex-start">
                         <Text fontWeight="bold" fontSize='18px'>
@@ -128,7 +141,7 @@ export const F2PAGE = ({
                 <VStack pt={{ base: 4, md: 8 }} w='full' maxW={{ base: '84rem', '2xl': '90rem' }}>
                     <ErrorBoundary description="Failed to FiRM header">
                         <VStack px='6' w='full'>
-                            <FirmBar />
+                            <FirmBar dbrPriceUsd={dbrPriceUsd} dolaPriceUsd={dolaPriceUsd} currentCirculatingSupply={currentCirculatingSupply} firmTotalTvl={firmTvlData.firmTotalTvl} markets={marketsData.markets} />
                         </VStack>
                     </ErrorBoundary>
                     <Divider display={{ base: 'inline-block', sm: 'none' }} />
@@ -162,27 +175,43 @@ export const F2PAGE = ({
                         </Flex>
                     }
                     <ErrorBoundary description="Failed to load Markets">
-                        <F2Markets />
+                        <F2Markets marketsData={marketsData} firmTvls={firmTvlData.firmTvls} />
                     </ErrorBoundary>
                     <VStack py="6" px='6' w='full' spacing="6">
                         <FirmInsuranceCover />
                         <FirmFAQ collapsable={true} defaultCollapse={false} />
                     </VStack>
                 </VStack>
-            </ErrorBoundary> */}
+            </ErrorBoundary>
         </Layout>
     )
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps(context) {
+    context.res.setHeader('Cache-Control', 'public, s-maxage=120, stale-while-revalidate=120');
     const [
-        markets,
+        marketsData,
+        firmTvlData,
+        currentCirculatingSupply,
+        dbrData,
+        dolaPriceData,
     ] = await Promise.all([
-        fetch(`${SERVER_BASE_URL}/api/f2/fixed-markets`).then(res => res.json()),
+        fetch(`${SERVER_BASE_URL}/api/f2/fixed-markets?cacheFirst=true`).then(res => res.json()),
+        fetch(`${SERVER_BASE_URL}/api/f2/tvl?cacheFirst=true`).then(res => res.json()),
+        fetch(`${SERVER_BASE_URL}/api/dola/circulating-supply?cacheFirst=true`).then(res => res.text()),
+        fetch(`${SERVER_BASE_URL}/api/dbr?cacheFirst=true`).then(res => res.json()),
+        fetch(`${SERVER_BASE_URL}/api/dola-price?cacheFirst=true`).then(res => res.json()),
     ]);
-    // const { data: firmTvl } = await getFirmTvl();
+    const dbrPriceUsd = dbrData.priceUsd;
+    const dolaPriceUsd = dolaPriceData['dola-usd'] || 1;
     return {
-        props: { markets },
+        props: {
+            marketsData: marketsData,
+            firmTvlData,
+            currentCirculatingSupply: parseFloat(currentCirculatingSupply),
+            dbrPriceUsd,
+            dolaPriceUsd,
+         },
     };
 }
 
