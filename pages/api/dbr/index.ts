@@ -83,13 +83,14 @@ export const DBR_EXTRA_CACHE_KEY = `dbr-cache-extra-v1.0.8`
 export const DBR_CACHE_KEY = `dbr-cache-v1.0.8`
 
 export default async function handler(req, res) {
+  const { cacheFirst } = req.query;
   const withExtra = req.query.withExtra === 'true';
   const cacheKey = withExtra ? DBR_EXTRA_CACHE_KEY : DBR_CACHE_KEY;
   const triDbrKey = 'tridbr-histo-prices-v1.0.1';
   try {
     const cacheDuration = 300;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
+    const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
     if (validCache) {
       res.status(200).json(validCache);
       return

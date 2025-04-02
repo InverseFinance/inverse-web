@@ -655,12 +655,9 @@ export async function getStaticProps(context) {
   return { ...await getLandingProps(context), revalidate: 1800 }
 }
 
-// export async function getStaticPaths() {
-//   if(!process.env.CONTENTFUL_SPACE_ID) {
-//     return { paths: [], fallback: true }
-//   }
-//   return {
-//     paths: ['/'],
-//     fallback: true,
-//   }
-// }
+export async function getStaticPaths() {
+  return {
+    paths: ['/'],
+    fallback: true,
+  }
+}
