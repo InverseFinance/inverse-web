@@ -18,6 +18,7 @@ import { POLLS, ACTIVE_POLL } from '@app/variables/poll-data'
 import Link from '@app/components/common/Link'
 import { FirmInsuranceCover } from '@app/components/common/InsuranceCover'
 import { InfoMessage } from '@app/components/common/Messages'
+import { SERVER_BASE_URL } from '@app/config/constants'
 
 export const F2PAGE = ({
     isTwitterAlert = false
@@ -94,7 +95,7 @@ export const F2PAGE = ({
                     </VStack>
                 </SlideModal>
             } */}
-            {
+            {/* {
                 !!ACTIVE_POLL && POLLS[ACTIVE_POLL] && <SlideModal closeOnOutsideClick={false} closeIconInside={true} isOpen={isOpen} onClose={handleManualClose} contentProps={{ maxW: '500px', className: '', backgroundColor: 'navBarBackgroundColor' }}>
                     <VStack w='full' justify="flex-start" alignItems="flex-start">
                         <Text fontWeight="bold" fontSize='18px'>
@@ -168,9 +169,21 @@ export const F2PAGE = ({
                         <FirmFAQ collapsable={true} defaultCollapse={false} />
                     </VStack>
                 </VStack>
-            </ErrorBoundary>
+            </ErrorBoundary> */}
         </Layout>
     )
+}
+
+export async function getStaticProps() {
+    const [
+        markets,
+    ] = await Promise.all([
+        fetch(`${SERVER_BASE_URL}/api/f2/fixed-markets`).then(res => res.json()),
+    ]);
+    // const { data: firmTvl } = await getFirmTvl();
+    return {
+        props: { markets },
+    };
 }
 
 export default F2PAGE
