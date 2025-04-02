@@ -651,13 +651,6 @@ export const Landing = ({
 
 export default Landing;
 
-export async function getStaticProps(context) {
+export async function getServerSideProps(context) {
   return { ...await getLandingProps(context), revalidate: 1800 }
-}
-
-export async function getStaticPaths() {
-  return {
-    paths: ['/'],
-    fallback: true,
-  }
 }
