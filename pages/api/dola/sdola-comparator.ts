@@ -113,7 +113,7 @@ export default async function handler(req, res) {
       'https://inverse.finance/sDOLA',
       'https://crvusd.curve.fi/#/ethereum/scrvUSD',
       'https://sky.money',
-      'https://app.anzen.finance/stake',
+      // 'https://app.anzen.finance/stake',
       'https://elixir.xyz',
       // 'https://defi.mountainprotocol.com/wrap',
       'https://yearn.fi/v3/1/0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a',
