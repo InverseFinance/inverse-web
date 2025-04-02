@@ -645,16 +645,7 @@ export const Landing = ({ posts }: {
 
 export default Landing;
 
-export async function getStaticProps(context) {
-  return { ...await getLandingProps(context), revalidate: 1800 }
+export async function getServerSideProps(context) {
+  context.res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=300');
+  return { ...await getLandingProps(context) }
 }
-
-// export async function getStaticPaths() {
-//   if(!process.env.CONTENTFUL_SPACE_ID) {
-//     return { paths: [], fallback: true }
-//   }
-//   return {
-//     paths: ['/'],
-//     fallback: true,
-//   }
-// }
