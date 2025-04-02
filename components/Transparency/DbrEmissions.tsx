@@ -1,5 +1,5 @@
 import { FormControl, Stack, Switch, Text, useMediaQuery } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useEventsAsChartData } from "@app/hooks/misc";
 import { DefaultCharts } from "./DefaultCharts";
 import { timestampToUTC } from "@app/util/misc";
@@ -7,18 +7,12 @@ import { timestampToUTC } from "@app/util/misc";
 export const DbrEmissions = ({
     maxChartWidth = 800,
     chartWidth,
-    repTxHashes,
-    auctionBuys,
-    dsaClaimEvents,
     histoPrices,
     useUsd = false,
     emissionEvents,
 }: {
     maxChartWidth: number
     chartWidth: number
-    repTxHashes: any[]
-    dsaClaimEvents: any[]
-    auctionBuys: any[]
     histoPrices: { [key: string]: number }
     useUsd?: boolean
     emissionEvents: any[]
@@ -30,23 +24,38 @@ export const DbrEmissions = ({
     const [includeClaims, setIncludeClaims] = useState(true);
     const [includeDsaClaims, setIncludeDsaClaims] = useState(true);
 
-    const auctionHashes = auctionBuys?.map(r => r.txHash) || [];
-    const dsaClaimEventsHashes = dsaClaimEvents?.map(r => r.txHash) || [];
-
-    const filteredEvents = includeReplenishments && includeClaims && includeTreasuryMints && includeAuctionMints && includeDsaClaims ?
+    const filteredEvents = useMemo(() => {
+        return includeReplenishments && includeClaims && includeTreasuryMints && includeAuctionMints && includeDsaClaims ?
         emissionEvents :
-        emissionEvents?.filter(e => {
-            const auctionCondition = includeAuctionMints ? auctionHashes.includes(e.txHash) && !e.isSDolaClaim : false;
-            const repCondition = includeReplenishments ? repTxHashes.includes(e.txHash) : false;
-            const claimCondition = includeClaims ? !repTxHashes.includes(e.txHash) && !auctionHashes.includes(e.txHash) && !dsaClaimEventsHashes.includes(e.txHash) && !e.isTreasuryMint && !e.isTreasuryTransfer && !e.isSDolaClaim : false;
-            const dsaClaimCondition = includeDsaClaims ? dsaClaimEventsHashes.includes(e.txHash) && (!auctionHashes.includes(e.txHash) || !!e.isSDolaClaim) : false;
-            const treasuryMintCondition = includeTreasuryMints ? e.isTreasuryMint : false;
-            const treasuryTransferCondition = includeTreasuryTransfers ? e.isTreasuryTransfer : false;
-            return repCondition || claimCondition || treasuryMintCondition || treasuryTransferCondition || auctionCondition || dsaClaimCondition;
+        emissionEvents?.map(e => {
+            let amount = 0;
+            if (includeReplenishments) {
+                amount += e.forcedReps;
+            }
+            if (includeClaims) {
+                amount += e.stakingClaims;
+            }
+            if (includeTreasuryMints) {
+                amount += e.treasuryMints;
+            }
+            if (includeAuctionMints) {
+                amount += e.buys;
+            }
+            if (includeDsaClaims) {
+                amount += e.dsaClaims;
+            }
+            if (includeTreasuryTransfers) {
+                amount += e.treasuryTransfers;
+            }
+            return {
+                ...e,
+                amount,
+            }
         });
+    }, [emissionEvents, includeReplenishments, includeClaims, includeTreasuryMints, includeAuctionMints, includeDsaClaims]);
 
     const _events = filteredEvents?.map(e => {
-        const histoPrice = histoPrices[timestampToUTC(e.timestamp)] || 0.05;
+        const histoPrice = histoPrices[e.utcDate] || 0.05;
         return { ...e, worth: e.amount * histoPrice };
     });
 

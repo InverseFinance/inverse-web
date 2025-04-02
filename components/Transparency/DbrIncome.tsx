@@ -3,11 +3,14 @@ import { AreaChart } from "./AreaChart"
 import { useEffect, useState } from "react";
 import { BarChart12Months } from "./BarChart12Months";
 import { useAppTheme } from "@app/hooks/useAppTheme";
+import { useDBRReplenishmentsEvolution } from "@app/hooks/useFirm";
+import { useEventsAsChartData } from "@app/hooks/misc";
 
 export const DbrIncome = ({
-    chartData,
     maxChartWidth = 1300,
 }) => {
+    const { events: replenishmentsEvolution } = useDBRReplenishmentsEvolution();
+    const { chartData } = useEventsAsChartData(replenishmentsEvolution, 'daoFeeAcc', 'daoDolaReward');
     const [chartWidth, setChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
     const { themeStyles } = useAppTheme();

@@ -133,7 +133,7 @@ export const SDolaStatsPage = () => {
           </ChartCard>
         </SimpleGrid>
         <DolaStakingActivity
-          events={events}
+          events={events.slice(-100)}
           lastUpdate={timestamp}
           title="sDOLA Staking activity"
           headerProps={{
