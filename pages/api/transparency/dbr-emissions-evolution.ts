@@ -32,9 +32,9 @@ const getGroupedByDay = (newEvents) => {
             amount: eventsForDay.reduce((acc, ne) => {
                 return acc + ne.amount;
             }, 0),
-            sDolaClaims: eventsForDay.reduce((acc, ne) => {
-                return acc + (ne.isSDolaClaim ? ne.amount : (ne.sDolaClaims || 0));
-            }, 0),
+            // sDolaClaims: eventsForDay.reduce((acc, ne) => {
+            //     return acc + (ne.isSDolaClaim ? ne.amount : (ne.sDolaClaims || 0));
+            // }, 0),
             treasuryMints: eventsForDay.reduce((acc, ne) => {
                 return acc + (ne.isTreasuryMint ? ne.amount : (ne.treasuryMints || 0));
             }, 0),
@@ -60,11 +60,11 @@ const getGroupedByDay = (newEvents) => {
 }
 
 export default async function handler(req, res) {
-    const cacheKey = `dbr-emissions-evolution-v1.0.4`;
+    const cacheKey = `dbr-emissions-evolution-v1.0.8`;
     const { cacheFirst } = req.query;
 
     try {
-        res.setHeader('Cache-Control', `public, max-age=${60}`);
+        res.setHeader('Cache-Control', `public, max-age=${300}`);
         const [emissionsCacheRes, ratesCache] = await Promise.all([
             getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', 600, true),
             getCacheFromRedis(dbrRewardRatesCacheKey, false),
@@ -144,11 +144,13 @@ export default async function handler(req, res) {
             const timestamp = estimateBlockTimestamp(e.blockNumber, now, currentBlock);
             const utcDate = timestampToUTC(timestamp);
             const amount = getBnToNumber(e.args[2]);
-            const isAuction = auctionBuysTxHashes.includes(e.transactionHash);
-            const isDsaClaim = dsaClaimTxHashes.includes(e.transactionHash);
+            // part of dsa claim
+            const isSDolaClaim = e.args[1].toLowerCase() === SDOLA_ADDRESS.toLowerCase();
+            const isAuction = !isSDolaClaim && auctionBuysTxHashes.includes(e.transactionHash);
+            // approximation: all dsa claims are actually sDola claims
+            const isDsaClaim = isSDolaClaim && dsaClaimTxHashes.includes(e.transactionHash);
             const isForcedRep = forcedRepTxHashes.includes(e.transactionHash);
             const isTreasuryTransfer = e.args[0].toLowerCase() === TREASURY.toLowerCase();
-            const isSDolaClaim = e.args[1].toLowerCase() === SDOLA_ADDRESS.toLowerCase();
             const isTreasuryMint = e.args[1].toLowerCase() === TREASURY.toLowerCase();
             if (!isTreasuryTransfer) {
                 accEmissions += amount;
@@ -175,8 +177,8 @@ export default async function handler(req, res) {
                 cachedData?.isGroupedByDay ? cachedEvents.concat(newTransfers) : cachedEvents.map(cge => ({
                     ...cge,
                     isForcedRep: forcedRepTxHashes.includes(cge.txHash),
-                    isAuction: auctionBuysTxHashes.includes(cge.txHash),
-                    isDsaClaim: dsaClaimTxHashes.includes(cge.transactionHash),
+                    isAuction: !cge.isSDolaClaim && auctionBuysTxHashes.includes(cge.txHash),
+                    isDsaClaim: cge.isSDolaClaim && dsaClaimTxHashes.includes(cge.txHash),
                     utcDate: timestampToUTC(cge.timestamp),
                 })).concat(newTransfers)
             ) : cachedEvents,
