@@ -51,7 +51,7 @@ const getGroupedByDay = (newEvents) => {
                 return acc + (ne.isDsaClaim ? ne.amount : (ne.dsaClaims || 0));
             }, 0),
             stakingClaims: eventsForDay.reduce((acc, ne) => {
-                const isStakingClaim = !ne.isForcedRep && !ne.isTreasuryTransfer && !ne.isAuction && !ne.sDsaClaim && !ne.isSDolaClaim && !ne.isTreasuryMint;
+                const isStakingClaim = (!!ne.txHash || !!ne.transactionHash) && !ne.isForcedRep && !ne.isTreasuryTransfer && !ne.isAuction && !ne.sDsaClaim && !ne.isSDolaClaim && !ne.isTreasuryMint;
                 return acc + (isStakingClaim ? ne.amount : (ne.stakingClaims || 0));
             }, 0),
             accEmissions: lastEvent.accEmissions,
@@ -60,7 +60,7 @@ const getGroupedByDay = (newEvents) => {
 }
 
 export default async function handler(req, res) {
-    const cacheKey = `dbr-emissions-evolution-v1.0.8`;
+    const cacheKey = `dbr-emissions-evolution-v1.0.92`;
     const { cacheFirst } = req.query;
 
     try {
