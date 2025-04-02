@@ -87,7 +87,7 @@ export default async function handler(req, res) {
       'sDAI', 'sfrxUSD', 'sUSDe', 'sDOLA', 'scrvUSD', 'sUSDS',
       'sdeUSD',
       // 'wUSDM',
-      'ysUSDS',
+      // 'ysUSDS',
       // , 'sUSDz'
     ];
     
@@ -116,7 +116,7 @@ export default async function handler(req, res) {
       // 'https://app.anzen.finance/stake',
       'https://elixir.xyz',
       // 'https://defi.mountainprotocol.com/wrap',
-      'https://yearn.fi/v3/1/0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a',
+      // 'https://yearn.fi/v3/1/0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a',
     ];
 
     const currentRates = await Promise.all([
@@ -130,7 +130,7 @@ export default async function handler(req, res) {
       getSavingsCrvUsdData(),
       getSavingsUSDData(),
       getSavingsdeUSDData(),
-      getYearnVaultApy('0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a'),
+      // getYearnVaultApy('0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a'),
       // getSavingsdeUSDData(),
       // getSavingsUSDzData(),
     ]);
@@ -144,7 +144,7 @@ export default async function handler(req, res) {
       '0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD',
       '0x5C5b196aBE0d54485975D1Ec29617D42D9198326',
       // '0x57F5E098CaD7A3D1Eed53991D4d66C45C9AF7812',
-      '0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a',
+      // '0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a',
     ]
     const vaultHistoricalRates = await getHistoricalRates(addresses);
     const aaveHistoricalRates = await Promise.all([
