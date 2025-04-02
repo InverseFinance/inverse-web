@@ -3,7 +3,7 @@ import { getProvider } from '@app/util/providers';
 import { getAaveV3RateOf } from '@app/util/borrow-rates-comp';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types';
-import { aprToApy, getBnToNumber, getDefiLlamaApy, getSavingsCrvUsdData, getSavingsdeUSDData, getSavingsUSDData, getSUSDEData } from '@app/util/markets';
+import { aprToApy, getBnToNumber, getDefiLlamaApy, getSavingsCrvUsdData, getSavingsdeUSDData, getSavingsUSDData, getSUSDEData, getYearnVaultApy } from '@app/util/markets';
 import { getDSRData } from '@app/util/markets';
 import { TOKEN_IMAGES } from '@app/variables/images';
 import { timestampToUTC } from '@app/util/misc';
@@ -65,7 +65,7 @@ export const getHistoricalRates = async (addresses: string[]) => {
 }
 
 export default async function handler(req, res) {
-  const cacheKey = `sdola-rates-compare-v1.0.7`;
+  const cacheKey = `sdola-rates-compare-v1.0.8`;
 
   try {
     const cacheDuration = 120;
@@ -87,6 +87,7 @@ export default async function handler(req, res) {
       'sDAI', 'sfrxUSD', 'sUSDe', 'sDOLA', 'scrvUSD', 'sUSDS',
       'sdeUSD',
       // 'wUSDM',
+      'ysUSDS',
       // , 'sUSDz'
     ];
     
@@ -95,10 +96,12 @@ export default async function handler(req, res) {
       'Spark', 'Frax', 'Ethena', 'FiRM', 'Curve', 'Sky',
       'Elixir',
       // 'Mountain-Protocol',
+      'Yearn',
       // , 'Anzen'
     ];
     const images = {
-      'wUSDM': 'https://assets.coingecko.com/coins/images/33785/standard/wUSDM_PNG_240px.png?1702981552'
+      'wUSDM': 'https://assets.coingecko.com/coins/images/33785/standard/wUSDM_PNG_240px.png?1702981552',
+      'ysUSDS': TOKEN_IMAGES['sUSDS'],
     }
     const links = [
       'https://app.aave.com/reserve-overview/?underlyingAsset=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&marketName=proto_mainnet_v3',
@@ -112,7 +115,8 @@ export default async function handler(req, res) {
       'https://sky.money',
       'https://app.anzen.finance/stake',
       'https://elixir.xyz',
-      'https://defi.mountainprotocol.com/wrap',
+      // 'https://defi.mountainprotocol.com/wrap',
+      'https://yearn.fi/v3/1/0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a',
     ];
 
     const currentRates = await Promise.all([
@@ -126,6 +130,7 @@ export default async function handler(req, res) {
       getSavingsCrvUsdData(),
       getSavingsUSDData(),
       getSavingsdeUSDData(),
+      getYearnVaultApy('0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a'),
       // getSavingsdeUSDData(),
       // getSavingsUSDzData(),
     ]);
@@ -139,6 +144,7 @@ export default async function handler(req, res) {
       '0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD',
       '0x5C5b196aBE0d54485975D1Ec29617D42D9198326',
       // '0x57F5E098CaD7A3D1Eed53991D4d66C45C9AF7812',
+      '0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a',
     ]
     const vaultHistoricalRates = await getHistoricalRates(addresses);
     const aaveHistoricalRates = await Promise.all([

@@ -474,7 +474,7 @@ export const getGOhmData = async () => {
     }
 }
 
-const getYearnVaultApy = async (vaultId: string) => {
+export const getYearnVaultApy = async (vaultId: string) => {
   try {
     const response = await fetch(`https://ydaemon.yearn.fi/1/vaults/${vaultId}`);
     const data = await response.json();
