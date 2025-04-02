@@ -48,11 +48,11 @@ export const getHistoricalRates = async (addresses: string[]) => {
   return addresses.map((address, index) => {
     const todayExRate = getBnToNumber(todayRates[index]);
     const calculatedApy = (todayExRate / getBnToNumber(previousBlockRates[index]) - 1) * (365 * ONE_DAY_SECS) / (currentBlockTimestamp - previousBlockTimestamp) * 100;
-    const apy30d = (todayExRate / getBnToNumber(thirtyDayRates[index]) - 1) * 365 / 30 * 100;
-    const apy60d = (todayExRate / getBnToNumber(sixtyDayRates[index]) - 1) * 365 / 60 * 100;
-    const apy90d = (todayExRate / getBnToNumber(ninetyDayRates[index]) - 1) * 365 / 90 * 100;
-    const apy180d = (todayExRate / getBnToNumber(oneHundredEightyDayRates[index]) - 1) * 365 / 180 * 100;
-    const apy365d = (todayExRate / getBnToNumber(threeHundredSixtyDayRates[index]) - 1) * 100;
+    const apy30d = 100 * (Math.pow(todayExRate / thirtyDayRates[index], 365 / 30) - 1);
+    const apy60d = 100 * (Math.pow(todayExRate / sixtyDayRates[index], 365 / 60) - 1);
+    const apy90d = 100 * (Math.pow(todayExRate / ninetyDayRates[index], 365 / 90) - 1);
+    const apy180d = 100 * (Math.pow(todayExRate / oneHundredEightyDayRates[index], 365 / 180) - 1);
+    const apy365d = 100 * (Math.pow(todayExRate / threeHundredSixtyDayRates[index], 1) - 1);
     return {
       calculatedApy,
       apy30d,
@@ -65,7 +65,7 @@ export const getHistoricalRates = async (addresses: string[]) => {
 }
 
 export default async function handler(req, res) {
-  const cacheKey = `sdola-rates-compare-v1.0.8`;
+  const cacheKey = `sdola-rates-compare-v1.1.0`;
 
   try {
     const cacheDuration = 120;
@@ -87,7 +87,7 @@ export default async function handler(req, res) {
       'sDAI', 'sfrxUSD', 'sUSDe', 'sDOLA', 'scrvUSD', 'sUSDS',
       'sdeUSD',
       // 'wUSDM',
-      // 'ysUSDS',
+      'ysUSDS',
       // , 'sUSDz'
     ];
     
@@ -116,7 +116,7 @@ export default async function handler(req, res) {
       // 'https://app.anzen.finance/stake',
       'https://elixir.xyz',
       // 'https://defi.mountainprotocol.com/wrap',
-      // 'https://yearn.fi/v3/1/0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a',
+      'https://yearn.fi/v3/1/0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a',
     ];
 
     const currentRates = await Promise.all([
@@ -130,7 +130,7 @@ export default async function handler(req, res) {
       getSavingsCrvUsdData(),
       getSavingsUSDData(),
       getSavingsdeUSDData(),
-      // getYearnVaultApy('0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a'),
+      getYearnVaultApy('0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a'),
       // getSavingsdeUSDData(),
       // getSavingsUSDzData(),
     ]);
@@ -144,7 +144,7 @@ export default async function handler(req, res) {
       '0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD',
       '0x5C5b196aBE0d54485975D1Ec29617D42D9198326',
       // '0x57F5E098CaD7A3D1Eed53991D4d66C45C9AF7812',
-      // '0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a',
+      '0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a',
     ]
     const vaultHistoricalRates = await getHistoricalRates(addresses);
     const aaveHistoricalRates = await Promise.all([
