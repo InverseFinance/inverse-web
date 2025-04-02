@@ -36,9 +36,9 @@ export const DsaStatsPage = () => {
           isLoading ? <SkeletonBlob /> : <DsaStakingChart events={events} />
         }
         <DolaStakingActivity
-          events={events}
+          events={events.slice(-100)}
           lastUpdate={timestamp}
-          title="DSA Staking activity"
+          title="Last 100 DSA Staking activity"
           headerProps={{
             direction: { base: 'column', md: 'row' },
             align: { base: 'flex-start', md: 'flex-end' },

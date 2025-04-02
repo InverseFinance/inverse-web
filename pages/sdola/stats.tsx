@@ -135,7 +135,7 @@ export const SDolaStatsPage = () => {
         <DolaStakingActivity
           events={events.slice(-100)}
           lastUpdate={timestamp}
-          title="sDOLA Staking activity"
+          title="Last 100 sDOLA Staking activity"
           headerProps={{
             direction: { base: 'column', md: 'row' },
             align: { base: 'flex-start', md: 'flex-end' },
