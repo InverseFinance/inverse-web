@@ -12,6 +12,10 @@ import { getLargeLogs } from '@app/util/web3';
 import { DBR_EMISSIONS_GROUPED_ARCHIVE } from '@app/fixtures/dbr-emissions-grouped';
 // import { DBR_EMISSIONS_ARCHIVE } from '@app/fixtures/dbr-emissions';
 // import { FORCED_REP_TXS } from '@app/fixtures/forced-rep-txs';
+import { getDolaSavingsContract } from '@app/util/dola-staking';
+import { getDbrAuctionContract } from '@app/util/dbr-auction';
+// import { DBR_BUYS_TXS_ARCHIVE } from '@app/fixtures/dbr-buys-txs';
+// import { DSA_CLAIM_TXS_ARCHIVE } from '@app/fixtures/dsa-claim-txs';
 
 const { DBR, TREASURY } = getNetworkConfigConstants();
 
@@ -28,17 +32,27 @@ const getGroupedByDay = (newEvents) => {
             amount: eventsForDay.reduce((acc, ne) => {
                 return acc + ne.amount;
             }, 0),
-            sDolaClaimAmount: eventsForDay.reduce((acc, ne) => {
-                return acc + (ne.isSDolaClaim ? ne.amount: (ne.sDolaClaimAmount||0));
+            sDolaClaims: eventsForDay.reduce((acc, ne) => {
+                return acc + (ne.isSDolaClaim ? ne.amount : (ne.sDolaClaims || 0));
             }, 0),
-            treasuryMintAmount: eventsForDay.reduce((acc, ne) => {
-                return acc + (ne.isTreasuryMint ? ne.amount: (ne.treasuryMintAmount||0));
+            treasuryMints: eventsForDay.reduce((acc, ne) => {
+                return acc + (ne.isTreasuryMint ? ne.amount : (ne.treasuryMints || 0));
             }, 0),
-            treasuryTransferAmount: eventsForDay.reduce((acc, ne) => {
-                return acc + (ne.isTreasuryTransfer ? ne.amount: (ne.treasuryTransferAmount||0));
+            treasuryTransfers: eventsForDay.reduce((acc, ne) => {
+                return acc + (ne.isTreasuryTransfer ? ne.amount : (ne.treasuryTransfers || 0));
             }, 0),
-            forcedRepAmount: eventsForDay.reduce((acc, ne) => {
-                return acc + (ne.isForcedRep ? ne.amount: (ne.forcedRepAmount||0));
+            forcedReps: eventsForDay.reduce((acc, ne) => {
+                return acc + (ne.isForcedRep ? ne.amount : (ne.forcedReps || 0));
+            }, 0),
+            buys: eventsForDay.reduce((acc, ne) => {
+                return acc + (ne.isAuction ? ne.amount : (ne.buys || 0));
+            }, 0),
+            dsaClaims: eventsForDay.reduce((acc, ne) => {
+                return acc + (ne.isDsaClaim ? ne.amount : (ne.dsaClaims || 0));
+            }, 0),
+            stakingClaims: eventsForDay.reduce((acc, ne) => {
+                const isStakingClaim = !ne.isForcedRep && !ne.isTreasuryTransfer && !ne.isAuction && !ne.sDsaClaim && !ne.isSDolaClaim && !ne.isTreasuryMint;
+                return acc + (isStakingClaim ? ne.amount : (ne.stakingClaims || 0));
             }, 0),
             accEmissions: lastEvent.accEmissions,
         }
@@ -46,7 +60,7 @@ const getGroupedByDay = (newEvents) => {
 }
 
 export default async function handler(req, res) {
-    const cacheKey = `dbr-emissions-evolution-v1.0.2`;
+    const cacheKey = `dbr-emissions-evolution-v1.0.4`;
     const { cacheFirst } = req.query;
 
     try {
@@ -68,21 +82,26 @@ export default async function handler(req, res) {
 
         const provider = getProvider(CHAIN_ID);
         const contract = new Contract(DBR, DBR_ABI, provider);
-                
-        const cachedData = _cachedData || DBR_EMISSIONS_GROUPED_ARCHIVE;
-        const cachedGroupedEvents = (cachedData?.totalEmissions || []);
-        let accEmissions = cachedGroupedEvents?.length ? cachedGroupedEvents[cachedGroupedEvents.length - 1].accEmissions : 0;
+        const dsaContract = getDolaSavingsContract(provider);
+        const dbrAuctionContract = getDbrAuctionContract(provider);
 
-        const lastKnownEvent = cachedGroupedEvents?.length > 0 ? (cachedGroupedEvents[cachedGroupedEvents.length - 1]) : {};        
+        const cachedData = _cachedData || DBR_EMISSIONS_GROUPED_ARCHIVE;
+        // const cachedData = _cachedData || DBR_EMISSIONS_ARCHIVE;
+        const cachedEvents = (cachedData?.totalEmissions || []);
+        let accEmissions = cachedEvents?.length ? cachedEvents[cachedEvents.length - 1].accEmissions : 0;
+
+        const lastKnownEvent = cachedEvents?.length > 0 ? (cachedEvents[cachedEvents.length - 1]) : {};
         const newStartingBlock = lastKnownEvent ? lastKnownEvent?.blockNumber + 1 : 0;
         const now = Date.now();
 
         const currentBlock = await provider.getBlockNumber();
-        
+
         const [
             newMintEvents,
             newTreasuryTransferEvents,
             forcedRepEvents,
+            dsaClaimEvents,
+            dbrVirtualAuctionBuys,
         ] = await Promise.all([
             getLargeLogs(
                 contract,
@@ -102,31 +121,50 @@ export default async function handler(req, res) {
                 currentBlock,
                 10_000,
             ),
+            dsaContract.queryFilter(
+                dsaContract.filters.Claim(),
+                newStartingBlock,
+            ),
+            dbrAuctionContract.queryFilter(
+                dbrAuctionContract.filters.Buy(),
+                newStartingBlock ? newStartingBlock : 0x0,
+            ),
         ]);
 
         const newTransferEvents = newMintEvents.concat(newTreasuryTransferEvents).sort((a, b) => a.blockNumber - b.blockNumber);
 
         // const forcedRepTxHashes = FORCED_REP_TXS.concat(forcedRepEvents.map(e => e.transactionhash));
+        // const auctionBuysTxHashes = DBR_BUYS_TXS_ARCHIVE.concat(dbrVirtualAuctionBuys.map(e => e.transactionHash));
+        // const dsaClaimTxHashes = DSA_CLAIM_TXS_ARCHIVE.concat(dsaClaimEvents.map(e => e.transactionHash));
         const forcedRepTxHashes = forcedRepEvents.map(e => e.transactionhash);
+        const auctionBuysTxHashes = dbrVirtualAuctionBuys.map(e => e.transactionHash);
+        const dsaClaimTxHashes = dsaClaimEvents.map(e => e.transactionHash);
 
         const newTransfers = newTransferEvents.map(e => {
             const timestamp = estimateBlockTimestamp(e.blockNumber, now, currentBlock);
             const utcDate = timestampToUTC(timestamp);
             const amount = getBnToNumber(e.args[2]);
+            const isAuction = auctionBuysTxHashes.includes(e.transactionHash);
+            const isDsaClaim = dsaClaimTxHashes.includes(e.transactionHash);
+            const isForcedRep = forcedRepTxHashes.includes(e.transactionHash);
             const isTreasuryTransfer = e.args[0].toLowerCase() === TREASURY.toLowerCase();
-            if(!isTreasuryTransfer){
+            const isSDolaClaim = e.args[1].toLowerCase() === SDOLA_ADDRESS.toLowerCase();
+            const isTreasuryMint = e.args[1].toLowerCase() === TREASURY.toLowerCase();
+            if (!isTreasuryTransfer) {
                 accEmissions += amount;
             }
             return {
                 utcDate,
                 timestamp,
                 blockNumber: e.blockNumber,
-                amount,          
+                amount,
                 accEmissions,
-                isForcedRep: forcedRepTxHashes.includes(e.transactionHash),
-                isSDolaClaim: e.args[1].toLowerCase() === SDOLA_ADDRESS.toLowerCase(),
-                isTreasuryMint: e.args[1].toLowerCase() === TREASURY.toLowerCase(),
+                isForcedRep,
+                isSDolaClaim,
+                isTreasuryMint,
                 isTreasuryTransfer,
+                isAuction,
+                isDsaClaim,
             };
         }).filter(e => e.amount > 0);
 
@@ -134,8 +172,14 @@ export default async function handler(req, res) {
             timestamp: now,
             isGroupedByDay: true,
             totalEmissions: newTransfers?.length ? getGroupedByDay(
-                cachedData?.isGroupedByDay ? cachedGroupedEvents.concat(newTransfers) : cachedGroupedEvents.map(cge => ({...cge, isForcedRep: forcedRepTxHashes.includes(cge.txHash), utcDate: timestampToUTC(cge.timestamp) })).concat(newTransfers)
-            ) : cachedGroupedEvents,
+                cachedData?.isGroupedByDay ? cachedEvents.concat(newTransfers) : cachedEvents.map(cge => ({
+                    ...cge,
+                    isForcedRep: forcedRepTxHashes.includes(cge.txHash),
+                    isAuction: auctionBuysTxHashes.includes(cge.txHash),
+                    isDsaClaim: dsaClaimTxHashes.includes(cge.transactionHash),
+                    utcDate: timestampToUTC(cge.timestamp),
+                })).concat(newTransfers)
+            ) : cachedEvents,
             rewardRatesHistory: (ratesCache || initialDbrRewardRates),
         };
 
