@@ -4,7 +4,7 @@ import { BarChart12Months } from "./BarChart12Months";
 import { useAppTheme } from "@app/hooks/useAppTheme";
 import { useEventsAsChartData } from "@app/hooks/misc";
 import { getClosestPreviousHistoValue, timestampToUTC } from "@app/util/misc";
-import { useDBREmissions, useFirmUsers } from "@app/hooks/useFirm";
+import { useDBRBurns, useDBRDebtHisto, useDBREmissions, useFirmUsers } from "@app/hooks/useFirm";
 import { ONE_DAY_MS } from "@app/config/constants";
 import { DbrComboChart } from "./DbrComboChart";
 import { DbrEmissions } from "./DbrEmissions";
@@ -34,15 +34,12 @@ const StatBasic = ({ value, name, isLoading = false }: { value: string, name: st
 }
 
 export const DbrAll = ({
-    history,
-    burnEvents,
-    dsaEvents,
-    auctionBuys,
     histoPrices,
-    repTxHashes,
     maxChartWidth = 950,
     yearlyRewardRate,
 }) => {
+    const { events: burnEvents } = useDBRBurns();
+    const { history } = useDBRDebtHisto();
     const [useUsd, setUseUsd] = useState(false);
     const { prices: invHistoPrices } = useHistoInvPrices();
     const { evolution: circSupplyEvolution } = useHistoricalInvMarketCap();
@@ -52,27 +49,21 @@ export const DbrAll = ({
     const dbrCircSupplyAsObj = !!dbrCircSupplyEvolution ? dbrCircSupplyEvolution.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr.timestamp)]: curr.circSupply }), {}) : {};
     const { priceUsd: dbrPriceUsd, priceDola: dbrPriceDola } = useDBRPrice();
 
-    const { events: emissionEvents, rewardRatesHistory, isLoading: isEmmissionLoading } = useDBREmissions();
+    const { events: emissionEvents, rewardRatesHistory, isLoading: isEmmissionLoading, timestamp: emissionTimestamp } = useDBREmissions();
     const { dsaYearlyDbrEarnings, isLoading: isLoadingStakedDola } = useStakedDola(dbrPriceUsd);
     const { dbrRatePerYear: auctionYearlyRate, historicalRates: auctionHistoricalRates, isLoading: isLoadingAuction } = useDbrAuction("classic");
     const { evolution: dolaStakingEvolution } = useDolaStakingEvolution();
     const { positions } = useFirmUsers();
     const totalDebt = positions.reduce((prev, curr) => prev + curr.debt, 0);
 
-    const auctionBuysHashes = auctionBuys?.map(r => r.txHash) || [];
-    const dsaClaimEvents = dsaEvents?.filter(r => r.event === 'Claim') || [];
-    const dsaClaimHashes = dsaClaimEvents.map(r => r.txHash);
 
-    // from inv stakers, no claim event so we do by exclusion
-    const claimEvents = emissionEvents?.filter(e => {
-        return !repTxHashes.includes(e.txHash) && !auctionBuysHashes.includes(e.txHash) && !dsaClaimHashes.includes(e.txHash) && !e.isTreasuryMint && !e.isTreasuryTransfer && !e.isSDolaClaim;
-    });
-
-    const totalClaimed = claimEvents.reduce((acc, e) => acc + e.amount, 0);
-    const totalClaimedUsd = claimEvents.reduce((acc, e) => {
-        const histoPrice = histoPrices[timestampToUTC(e.timestamp)];
-        return acc + e.amount * (histoPrice || 0.05);
-    }, 0);
+    const totalClaimed = useMemo(() => emissionEvents.reduce((acc, e) => acc + e.stakingClaims, 0), [emissionTimestamp]);
+    const totalClaimedUsd = useMemo(() => {
+        return  emissionEvents.reduce((acc, e) => {
+            const histoPrice = histoPrices[e.utcDate];
+            return acc + e.stakingClaims * (histoPrice || 0.05);
+        }, 0);
+    }, [emissionTimestamp]);
 
     // rate to INV stakers
     const rateChanges = (rewardRatesHistory?.rates || [
@@ -85,22 +76,28 @@ export const DbrAll = ({
     });
 
     // rate to auction
-    const auctionRateChanges = (auctionHistoricalRates || [{ "timestamp": 1705343411, "block": 19014080, "rate": 2000000 }, { "timestamp": 1706888243, "block": 19141646, "rate": 5000000 }]).map(e => {
-        const date = timestampToUTC(e.timestamp);
-        const histoPrice = histoPrices[date];
-        return { ...e, histoPrice, worth: e.rate * (histoPrice || 0.05), date };
-    });
+    const auctionRateChanges = useMemo(() => {
+        return (auctionHistoricalRates || [{ "timestamp": 1705343411, "block": 19014080, "rate": 2000000 }, { "timestamp": 1706888243, "block": 19141646, "rate": 5000000 }]).map(e => {
+            const date = timestampToUTC(e.timestamp);
+            const histoPrice = histoPrices[date];
+            return { ...e, histoPrice, worth: e.rate * (histoPrice || 0.05), date };
+        });
+    }, [auctionHistoricalRates, histoPrices]);
 
     let accBurnUsd = 0;
-    const _burnEvents = burnEvents?.map(d => {
-        const histoPrice = (histoPrices[timestampToUTC(d.timestamp)] || 0.05);
-        return { ...d, amountUsd: d.amount * histoPrice }
-    }).map(d => {
-        accBurnUsd += d.amountUsd;
-        return { ...d, accBurnUsd }
-    });
+    const _burnEvents = useMemo(() => {
+        return burnEvents?.map(d => {
+            const histoPrice = (histoPrices[d.utcDate] || 0.05);
+            return { ...d, amountUsd: d.amount * histoPrice }
+        }).map(d => {
+            accBurnUsd += d.amountUsd;
+            return { ...d, accBurnUsd }
+        });
+    }, [burnEvents, histoPrices]);
 
-    let totalBurned = _burnEvents?.length ? _burnEvents[_burnEvents.length - 1].accBurn : 0;
+    let totalBurned = useMemo(() => {
+        return _burnEvents?.length ? _burnEvents[_burnEvents.length - 1].accBurn : 0;
+    }, [_burnEvents]);
 
     const combodata = history?.map(d => {
         const date = timestampToUTC(d.timestamp);
@@ -227,12 +224,9 @@ export const DbrAll = ({
         />
         <DbrEmissions
             emissionEvents={emissionEvents}
-            dsaClaimEvents={dsaClaimEvents}
             maxChartWidth={chartWidth}
             chartWidth={chartWidth}
             histoPrices={histoPrices}
-            repTxHashes={repTxHashes}
-            auctionBuys={auctionBuys}
             useUsd={useUsd}
         />
         <DashBoardCard

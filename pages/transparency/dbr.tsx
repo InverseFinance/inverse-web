@@ -3,7 +3,7 @@ import { Flex, HStack, Link, Text, VStack } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
-import { InfoMessage, ShrinkableInfoMessage } from '@app/components/common/Messages'
+import { ShrinkableInfoMessage } from '@app/components/common/Messages'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { NetworkIds } from '@app/types'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs'
@@ -14,31 +14,20 @@ import { shortenNumber, smartShortNumber } from '@app/util/markets'
 import { useEffect, useState } from 'react'
 import { NavButtons } from '@app/components/common/Button'
 import { DbrReplenishments } from '@app/components/F2/liquidations/dbr-replenishments'
-import { useEventsAsChartData } from '@app/hooks/misc'
-import { useDBRBurns, useDBRDebtHisto, useDBRReplenishments, useDBRReplenishmentsEvolution, useLastDBRReplenishments } from '@app/hooks/useFirm'
 import { DbrIncome } from '@app/components/Transparency/DbrIncome'
 import { useRouter } from 'next/router'
 import { timestampToUTC } from '@app/util/misc'
 import { DbrAll } from '@app/components/Transparency/DbrAll'
-import { useDbrAuctionActivity } from '@app/util/dbr-auction'
-import { useDolaStakingActivity } from '@app/util/dola-staking'
 import { FirmUsers } from '@app/components/F2/Infos/FirmUsers'
 import { FirmLiquidations } from '@app/components/F2/liquidations/FirmLiquidations'
-import { FirmPositions, FirmPositionsOld } from '@app/components/F2/liquidations/firm-positions'
+import { FirmPositionsOld } from '@app/components/F2/liquidations/firm-positions'
 const { TOKENS, DBR } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const tabsOptions = ['Issuance', 'Spenders', 'Replenishments', 'Users', 'Positions', 'Liquidations'];
 
 export const DBRTransparency = () => {
     const router = useRouter();
-    const { totalSupply, operator, priceUsd, yearlyRewardRate, rewardRate, minYearlyRewardRate, maxYearlyRewardRate, historicalData } = useDBR();
-    const { events: replenishmentsEvolution, repTxHashes } = useDBRReplenishmentsEvolution();
-    const { events: auctionBuys } = useDbrAuctionActivity();
-    const { events: dsaEvents } = useDolaStakingActivity(undefined, 'dsa');
-    const mintsFromAuctionBuys = auctionBuys.filter(b => b.auctionType === 'Virtual');
-    const { events: burnEvents } = useDBRBurns();
-    const { history } = useDBRDebtHisto();
-    const { chartData } = useEventsAsChartData(replenishmentsEvolution, 'daoFeeAcc', 'daoDolaReward');
+    const { totalSupply, priceUsd, yearlyRewardRate, historicalData } = useDBR();
     const [tab, setTab] = useState('Issuance');
 
     const histoPrices = historicalData && !!historicalData?.prices ? historicalData.prices.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr[0])]: curr[1] }), {}) : {};
@@ -83,7 +72,7 @@ export const DBRTransparency = () => {
                         }
                         {
                             tab === 'Replenishments' && <>
-                                <DbrIncome chartData={chartData} />
+                                <DbrIncome />
                                 <DbrReplenishments />
                             </>
                         }
@@ -95,7 +84,7 @@ export const DBRTransparency = () => {
                         }
                         {
                             tab === 'Issuance' && <VStack w='full'>
-                                <DbrAll histoPrices={histoPrices} history={history} burnEvents={burnEvents} dsaEvents={dsaEvents} repTxHashes={repTxHashes} auctionBuys={mintsFromAuctionBuys} yearlyRewardRate={yearlyRewardRate} />
+                                <DbrAll histoPrices={histoPrices} yearlyRewardRate={yearlyRewardRate} />
                             </VStack>
                         }
                         {

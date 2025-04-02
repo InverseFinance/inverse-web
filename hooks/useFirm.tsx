@@ -447,7 +447,7 @@ export const useDBREmissions = (): SWR & {
     rates: { timestamp: number, rewardRate: number }[],
   }
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/transparency/dbr-emissions?v=2`);
+  const { data, error } = useCacheFirstSWR(`/api/transparency/dbr-emissions-evolution?v=2`);
 
   return {
     events: data ? data.totalEmissions : [],
