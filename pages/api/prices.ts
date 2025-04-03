@@ -13,11 +13,10 @@ import { getDolaUsdPriceOnCurve } from '@app/util/f2'
 import { dolaStakingCacheKey } from './dola-staking'
 import { getBnToNumber } from '@app/util/markets'
 
-export const pricesCacheKey = `prices-v1.0.9`;
+export const pricesCacheKey = `prices-v1.0.91`;
 export const cgPricesCacheKey = `cg-prices-v1.0.0`;
 
 export default async function handler(req, res) {
-
   try {
     const cacheDuration = 60;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
@@ -61,7 +60,6 @@ export default async function handler(req, res) {
         prices[underlying.symbol] = price;
       });
 
-
     const exceptions = ['0x20BB4a325924917E3336753BA5350a84F70f392e'].map(a => a.toLowerCase());
     Object.values(CHAIN_TOKENS)
       .forEach(tokenList => {
@@ -72,13 +70,12 @@ export default async function handler(req, res) {
 
     const uniqueCgIds = [...new Set(coingeckoIds)];
     let geckoPrices: Prices["prices"] = {};
-
-    try { 
+    try {
       const res = await fetch(`https://pro-api.coingecko.com/api/v3/simple/price?x_cg_pro_api_key=${process.env.CG_PRO}&vs_currencies=usd&ids=${uniqueCgIds.join(',')}`);
       geckoPrices = await res.json();
 
       const cgOk = !!geckoPrices?.['inverse-finance']?.usd;
-      if(cgOk) {
+      if (cgOk) {
         await redisSetWithTimestamp(cgPricesCacheKey, geckoPrices);
       } else {
         geckoPrices = (await getCacheFromRedis(cgPricesCacheKey, false)) || {};
@@ -91,25 +88,25 @@ export default async function handler(req, res) {
     try {
       prices['dola-usd-cg'] = geckoPrices['dola-usd']?.usd;
       const dolaData = await getTokenData('DOLA');
-      if(dolaData?.rate){
+      if (dolaData?.rate) {
         prices['dola-usd-lcw'] = dolaData.rate;
       }
     } catch (e) {
-      console.log('Error livecoinwatch gecko prices');     
+      console.log('Error livecoinwatch gecko prices');
     }
-
+    
     Object.entries(geckoPrices).forEach(([key, value]) => {
       prices[key] = value.usd;
     });
 
     const sUSDSContract = new Contract('0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD', SVAULT_ABI, provider);
-    
+
     const [dolaUsdCurveData, dolaStakingData, sUSDSExRateBn] = await Promise.all([
       getDolaUsdPriceOnCurve(getProvider(NetworkIds.mainnet)),
       getCacheFromRedis(dolaStakingCacheKey, false),
       sUSDSContract.convertToAssets('1000000000000000000'),
     ]);
-    
+
     const { price: dolaOnChainPrice, tvl: crvUsdDolaTvl } = dolaUsdCurveData;
     const { sDolaExRate } = dolaStakingData;
     prices['dola-onchain-usd'] = dolaOnChainPrice;
@@ -118,7 +115,7 @@ export default async function handler(req, res) {
     let lps: { token: Token, chainId: string }[] = [];
 
     Object.entries(CHAIN_TOKENS)
-      .filter(([chainId]) => chainId !== '31337')
+      .filter(([chainId]) => chainId === '1')
       .forEach(([chainId, tokenList]) => {
         Object.values(tokenList)
           .filter(t => (t.pairs?.length > 0 || t.lpPrice || t.isCrvLP || t.convexInfos) && !exceptions.includes(t.address.toLowerCase()))
@@ -126,12 +123,13 @@ export default async function handler(req, res) {
             lps.push({ token: t, chainId });
           })
       })
-
-    const lpData = await Promise.all([
+   
+    const lpDataResults = await Promise.allSettled([
       ...lps.map(lp => {
         return getLPPrice(lp.token, lp.chainId, getProvider(lp.chainId), geckoPrices);
       })
     ]);
+    const lpData = lpDataResults.map(r => r.status === 'fulfilled' ? r.value : null);
 
     lps.forEach((lpToken, i) => {
       if (lpData[i]) {
@@ -142,9 +140,9 @@ export default async function handler(req, res) {
     prices['staked-dola'] = prices['dola-usd'] * sDolaExRate;
     prices['SDOLA'] = prices['staked-dola'];
     prices['sDOLA'] = prices['staked-dola'];
-    prices['sUSDS'] = (prices['usds']||1) * getBnToNumber(sUSDSExRateBn);
+    prices['sUSDS'] = (prices['usds'] || 1) * getBnToNumber(sUSDSExRateBn);
 
-    prices['_timestamp'] = +(new Date());
+    prices['_timestamp'] = Date.now();
 
     await redisSetWithTimestamp(pricesCacheKey, prices);
 
@@ -153,12 +151,14 @@ export default async function handler(req, res) {
     console.error(err);
     // if an error occured, try to return last cached results
     try {
+      console.error('Api call failed trying to return last cache');
       const cache = await getCacheFromRedis(pricesCacheKey, false);
       if (cache) {
-        console.log('Api call failed, returning last cache found');
+        console.error('Api call failed, returning last cache found');
         res.status(200).json(cache);
       }
     } catch (e) {
+      console.error('Error fetching last cache');
       console.error(e);
       res.status(500).json({ success: false });
     }
