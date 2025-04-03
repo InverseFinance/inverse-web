@@ -58,7 +58,7 @@ export const getLandingProps = async ({ preview = false, ...context }) => {
         fetch(`${SERVER_BASE_URL}/api/dbr?cacheFirst=true`).then(res => res.json()),
         fetch(`${SERVER_BASE_URL}/api/dola-price?cacheFirst=true`).then(res => res.json()),
         fetch(`${SERVER_BASE_URL}/api/f2/tvl?cacheFirst=true`).then(res => res.json()),
-        fetch(`https://api.coingecko.com/api/v3/coins/dola-usd?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`).then(res => res.json()),
+        fetch(`https://pro-api.coingecko.com/api/v3/coins/dola-usd?x_cg_pro_api_key=${process.env.CG_PRO}&localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`).then(res => res.json()),
         fetch(`${SERVER_BASE_URL}/api/f2/fixed-markets?cacheFirst=true`).then(res => res.json()),
         fetch(`${SERVER_BASE_URL}/api/dola-staking?cacheFirst=true`).then(res => res.json()),
     ]);
