@@ -1,7 +1,7 @@
 import { useAppTheme } from '@app/hooks/useAppTheme';
 import { VStack, Text } from '@chakra-ui/react'
 import { shortenNumber, smartShortNumber } from '@app/util/markets';
-import { Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ComposedChart } from 'recharts';
+import { Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ComposedChart, ReferenceLine } from 'recharts';
 import { preciseCommify } from '@app/util/misc';
 import { useEffect, useState } from 'react';
 import { useRechartsZoom } from '@app/hooks/useRechartsZoom';
@@ -17,6 +17,8 @@ const KEYS = {
     INV_MC: 'INV Circ. MC',
     DBR_MC: 'DBR Circ. Supply',
 }
+
+const CURRENT_YEAR = new Date().getFullYear().toString();
 
 export const DbrComboChart = ({
     combodata,
@@ -86,6 +88,7 @@ export const DbrComboChart = ({
     const priceKey = actives[KEYS.DBR_PRICE] ? 'histoPrice' : 'invHistoMarketCap';
     const dbrPriceColor = themeStyles.colors.info;
     const invPriceColor = themeName === 'light' ? themeStyles.colors.mainTextColor : 'lightblue';
+    const doesDataSpansSeveralYears = _data?.filter(d => d.date.endsWith('01-01')).length > 1;
 
     return (
         <VStack position="relative" alignItems="center" maxW={`${chartWidth}px`}>
@@ -137,6 +140,26 @@ export const DbrComboChart = ({
                 <Line opacity={actives[KEYS.DBR_PRICE] ? 1 : 0} strokeWidth={2} name={KEYS.DBR_PRICE} yAxisId="right" type="monotone" dataKey={priceKey} stroke={dbrPriceColor} dot={false} />
                 <Line opacity={actives[KEYS.INV_MC] ? 1 : 0} strokeWidth={2} name={KEYS.INV_MC} yAxisId="right" type="monotone" dataKey={priceKey} stroke={invPriceColor} dot={false} />
                 <Legend wrapperStyle={legendStyle} onClick={toggleChart} style={{ cursor: 'pointer' }} formatter={(value) => value + (actives[value] ? '' : ' (hidden)')} />
+                {
+                    _data.filter(d => d.date.endsWith('01-01')).map(d => {
+                        return <ReferenceLine
+                            key={`x-${d.x}`}
+                            yAxisId={"left"}
+                            position="start"
+                            isFront={true}
+                            x={d.x}
+                            stroke={themeStyles.colors.mainTextColor}
+                            strokeWidth={`1`}
+                            strokeDasharray={'4 4'}
+                            label={{
+                                value: d.date.substring(0, 4),
+                                position: d.date.substring(0, 4) === CURRENT_YEAR && doesDataSpansSeveralYears ? 'insideRight' : 'insideLeft',
+                                fill: themeStyles.colors.mainTextColor,
+                                style: { fontSize: '14px', fontWeight: 'bold', userSelect: 'none' },
+                            }}
+                        />
+                    })
+                }
                 {zoomReferenceArea}
             </ComposedChart>
         </VStack>
