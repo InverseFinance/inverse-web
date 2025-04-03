@@ -192,10 +192,6 @@ export const FIRM_MARKETS = [
         startingBlock: 19372769,
         isInv: false,
         hasStakingLikeRewards: false,
-        noDeposit: true,
-        isPhasingOut: true,
-        phasingOutComment: `Deposits are disabled for this market.`,
-        phasingOutLink: `https://www.inverse.finance/governance/proposals/mills/278`,
     },
     {
         name: 'st-yETH',
