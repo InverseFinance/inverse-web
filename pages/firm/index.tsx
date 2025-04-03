@@ -138,28 +138,6 @@ export const F2PAGE = ({
                             </VStack>
                         </ErrorBoundary>
                     }
-                    {
-                        [
-                            '0x5e5d086781Ec430E56bd4410b0Af106B86292339',
-                            '0x52555b437EeE8F55a7897B4E1F8fB3e7Edb2b344',
-                            '0xE58ED128325A33afD08e90187dB0640619819413',
-                        ]
-                            .map(a => a.toLowerCase())
-                            .includes(account?.toLowerCase()) && <Flex px="6" w='full' justify="center" alignItems="center">
-                            <InfoMessage
-                                alertProps={{ w: 'full', status: 'warning' }}
-                                title={`Deposits Disabled for WBTC`}
-                                description={
-                                    <VStack spacing="0" alignItems="flex-start" w='full'>
-                                        <Text color="accentTextColor" fontWeight="bold">
-                                            Note: Your WBTC are SAFE, they were secured via liquidation by the team temporarily, and Governance will bring back your position to normal very soon, please don't try to deposit WBTC at the moment.
-                                        </Text>
-                                        <Text>Please reach out on Discord for more information.</Text>
-                                    </VStack>
-                                }
-                            />
-                        </Flex>
-                    }
                     <ErrorBoundary description="Failed to load Markets">
                         <F2Markets />
                     </ErrorBoundary>

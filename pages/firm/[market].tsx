@@ -135,17 +135,6 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                             description={
                                                 <VStack spacing="0" alignItems="flex-start" w='full'>                                                    
                                                     <Text>Collateral deposits are currently disabled for this market.</Text>
-                                                    {
-                                                        [
-                                                            '0x5e5d086781Ec430E56bd4410b0Af106B86292339',
-                                                            '0x52555b437EeE8F55a7897B4E1F8fB3e7Edb2b344',
-                                                            '0xE58ED128325A33afD08e90187dB0640619819413',
-                                                        ]
-                                                        .map(a => a.toLowerCase())
-                                                        .includes(account?.toLowerCase()) && <Text color="accentTextColor" fontWeight="bold">
-                                                            Note: Your funds are SAFE, they were secured via liquidation by the team temporarily, and Governance will bring back your position to normal very soon, please don't try to deposit at the moment.
-                                                        </Text>
-                                                    }
                                                     <Text>Please reach out on Discord for more information.</Text>                                                    
                                                 </VStack>
                                             }
