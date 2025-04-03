@@ -25,7 +25,7 @@ import Link from '@app/components/common/Link';
 import { vesterCancel } from '@app/util/payroll';
 import { useContractEvents } from '@app/hooks/useContractEvents';
 import { INV_ABI, VESTER_ABI, VESTER_FACTORY_ABI } from '@app/config/abis';
-import { usePricesV2 } from '@app/hooks/usePrices';
+import { useINVPrice } from '@app/hooks/usePrices';
 import { ETH_MANTISSA } from '@app/config/constants';
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
 import { useCustomSWR } from '@app/hooks/useCustomSWR';
@@ -51,7 +51,7 @@ export const VesterPage = () => {
   const [newRecipient, setNewRecipient] = useState('');
   const [alreadyClaimed, setAlreadyClaimed] = useState(0);
   const [selectedVesterIndex, setSelectedVesterIndex] = useState(0);
-  const { prices } = usePricesV2();
+  const { price: invPrice } = useINVPrice();
 
   const { data: vestersData } = useCustomSWR(`vesters-list-${account}`, async () => {
     const contract = new Contract(XINV_VESTOR_FACTORY, VESTER_FACTORY_ABI, provider?.getSigner());
@@ -140,8 +140,6 @@ export const VesterPage = () => {
       .reduce((prev, curr) => prev + getBnToNumber(curr.args.amount, REWARD_TOKEN?.decimals), 0);
     setAlreadyClaimed(alreadyClaimed);
   }, [events, vesterAddress]);
-
-  const invPrice = (prices && prices[RTOKEN_CG_ID]?.usd) || 0;
 
   const totalVested = myVesters.length > 0 && xinvDatas && exRate ?
     myVesters.reduce((prev, vesterAd, i) => prev + (xinvDatas[2 + 3 * i] / ETH_MANTISSA) * ((exRate || 0) / ETH_MANTISSA), 0)

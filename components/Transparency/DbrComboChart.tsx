@@ -143,11 +143,11 @@ export const DbrComboChart = ({
                 {
                     _data.filter(d => d.date.endsWith('01-01')).map(d => {
                         return <ReferenceLine
-                            key={`x-${d.x}`}
+                            key={`x-${d.timestamp}`}
                             yAxisId={"left"}
                             position="start"
                             isFront={true}
-                            x={d.x}
+                            x={d.timestamp}
                             stroke={themeStyles.colors.mainTextColor}
                             strokeWidth={`1`}
                             strokeDasharray={'4 4'}

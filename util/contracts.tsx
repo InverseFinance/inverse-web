@@ -463,62 +463,67 @@ export const getLPBalances = async (LPToken: Token, chainId = process.env.NEXT_P
 }
 
 export const getLPPrice = async (LPToken: Token, chainId = process.env.NEXT_PUBLIC_CHAIN_ID!, providerOrSigner?: Provider | JsonRpcSigner, prices?): Promise<number> => {
-  if (LPToken.lpPrice) { return new Promise(r => r(LPToken.lpPrice!)) }
-  else if (!providerOrSigner) { return new Promise(r => r(0)) }
-  else if (LPToken.isCrvLP) {
-    return getBnToNumber(await (new Contract(LPToken.poolAddress || LPToken.address, DOLA3POOLCRV_ABI, providerOrSigner).get_virtual_price()), LPToken.decimals);
-  } 
-  else if(LPToken.isYearnV2LP) {
-    const [price, pricePerShare] = await getMulticallOutput([
-      { contract: new Contract(LPToken.rootCrvPool, DOLA3POOLCRV_ABI, providerOrSigner), functionName: 'lp_price' },
-      { contract: new Contract(LPToken.address, ['function pricePerShare() public view returns (uint)'], providerOrSigner), functionName: 'pricePerShare' },
-    ], Number(chainId));
-    return getBnToNumber(price) * getBnToNumber(pricePerShare);
-  } 
-  else if (LPToken.convexInfos) {
-    const priceField = LPToken.convexInfos?.priceField || 'get_virtual_price';
-    return getBnToNumber(await (new Contract(LPToken.convexInfos.fromPrice, DOLA3POOLCRV_ABI, providerOrSigner)[priceField]()), LPToken.decimals);
-  } // treat uniV3 nft pos as $1
-  else if (LPToken.isUniV3) {
-    return new Promise(r => r(1))
-  }
-
   let lpPrice = 0
-
+  
   try {
-    const tokens = LPToken.pairs.map(address => CHAIN_TOKENS[chainId][address]);
-    const coingeckoIds = tokens
-      .map(({ coingeckoId }) => coingeckoId)
-
-    let [lpTokenTotalSupply, balancesInLp, cgFetch] = await Promise.all([
-      (new Contract(LPToken.address, ERC20_ABI, providerOrSigner).totalSupply()),
-      LPToken.balancerInfos ?
-        await getBalancerPoolBalances(LPToken, providerOrSigner) :
-        await Promise.all(
-          LPToken.pairs.map(address => {
-            return new Contract(address, ERC20_ABI, providerOrSigner).balanceOf(LPToken.address)
-          }),
-        ),
-      prices ? new Promise((r) => r(null)) : fetch(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoIds.join(',')}`)
-    ]);
-
-    const balances = balancesInLp.map((bn, i) => {
-      return getBnToNumber(bn, tokens[i].decimals);
-    });
-
-    const _prices = prices ? prices : await cgFetch.json();
-
-    let supply = LPToken.isComposableMetapool ?
-      balances.reduce((prev, curr, idx) => prev + (tokens[idx].address === LPToken.address ? 0 : curr), 0)
-      : getBnToNumber(lpTokenTotalSupply);
-
-    lpPrice = tokens.reduce((prev, curr, idx) => {
-      const bal = (tokens[idx].address === LPToken.address ? 0 : balances[idx]);
-      const worthUsd = (bal * (_prices[curr.coingeckoId]?.usd || 1) / supply);
-      return prev + worthUsd;
-    }, 0);
+    if (LPToken.lpPrice) { return new Promise(r => r(LPToken.lpPrice!)) }
+    else if (!providerOrSigner) { return new Promise(r => r(0)) }
+    else if (LPToken.isCrvLP) {
+      return getBnToNumber(await (new Contract(LPToken.poolAddress || LPToken.address, DOLA3POOLCRV_ABI, providerOrSigner).get_virtual_price()), LPToken.decimals);
+    } 
+    else if(LPToken.isYearnV2LP) {
+      const [price, pricePerShare] = await getMulticallOutput([
+        { contract: new Contract(LPToken.rootCrvPool, DOLA3POOLCRV_ABI, providerOrSigner), functionName: 'lp_price' },
+        { contract: new Contract(LPToken.address, ['function pricePerShare() public view returns (uint)'], providerOrSigner), functionName: 'pricePerShare' },
+      ], Number(chainId));
+      return getBnToNumber(price) * getBnToNumber(pricePerShare);
+    } 
+    else if (LPToken.convexInfos) {
+      const priceField = LPToken.convexInfos?.priceField || 'get_virtual_price';
+      return getBnToNumber(await (new Contract(LPToken.convexInfos.fromPrice, DOLA3POOLCRV_ABI, providerOrSigner)[priceField]()), LPToken.decimals);
+    } // treat uniV3 nft pos as $1
+    else if (LPToken.isUniV3) {
+      return new Promise(r => r(1))
+    }
+  
+    try {
+      const tokens = LPToken.pairs.map(address => CHAIN_TOKENS[chainId][address]);
+      const coingeckoIds = tokens
+        .map(({ coingeckoId }) => coingeckoId)
+  
+      let [lpTokenTotalSupply, balancesInLp, cgFetch] = await Promise.all([
+        (new Contract(LPToken.address, ERC20_ABI, providerOrSigner).totalSupply()),
+        LPToken.balancerInfos ?
+          await getBalancerPoolBalances(LPToken, providerOrSigner) :
+          await Promise.all(
+            LPToken.pairs.map(address => {
+              return new Contract(address, ERC20_ABI, providerOrSigner).balanceOf(LPToken.address)
+            }),
+          ),
+        prices ? new Promise((r) => r(null)) : fetch(`${process.env.COINGECKO_PRICE_API}?vs_currencies=usd&ids=${coingeckoIds.join(',')}`)
+      ]);
+  
+      const balances = balancesInLp.map((bn, i) => {
+        return getBnToNumber(bn, tokens[i].decimals);
+      });
+  
+      const _prices = prices ? prices : await cgFetch.json();
+  
+      let supply = LPToken.isComposableMetapool ?
+        balances.reduce((prev, curr, idx) => prev + (tokens[idx].address === LPToken.address ? 0 : curr), 0)
+        : getBnToNumber(lpTokenTotalSupply);
+  
+      lpPrice = tokens.reduce((prev, curr, idx) => {
+        const bal = (tokens[idx].address === LPToken.address ? 0 : balances[idx]);
+        const worthUsd = (bal * (_prices[curr.coingeckoId]?.usd || 1) / supply);
+        return prev + worthUsd;
+      }, 0);
+    } catch (e) {
+  
+    }
   } catch (e) {
-
+    console.log('Get LP price failed: '+LPToken?.symbol);
+    console.log(e);
   }
 
   return lpPrice;
