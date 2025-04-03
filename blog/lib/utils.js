@@ -1,6 +1,7 @@
 import { getPinnedPost, getAllPostsForHome, getAuthors, getCategories, getPostAndMorePosts, getTag, getLandingPosts } from './api';
 import { BLOG_PAGINATION_SIZE } from './constants';
 import { isInvalidGenericParam } from '@app/util/redis';
+import { SERVER_BASE_URL } from '@app/config/constants';
 
 export const getBlogContext = (context) => {
     const { slug } = context.params || { slug: ['en-US'] };
