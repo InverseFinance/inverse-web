@@ -48,7 +48,7 @@ export const UserDashboardPage = ({
 }
 
 export async function getServerSideProps(context) {
-    context.res.setHeader('Cache-Control', 'public, s-maxage=120, stale-while-revalidate=120');
+    context.res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=3600');
     const [
         marketsData,
         firmTvlData,

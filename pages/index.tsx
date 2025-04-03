@@ -1,9 +1,6 @@
 import { Flex, HStack, Image, UnorderedList, ListItem, Stack, Text, VStack, SimpleGrid, StackProps, Divider } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { LandingNav } from '@app/components/common/Navbar'
-import { useDOLA, useDOLAMarketData } from '@app/hooks/useDOLA'
-import { useDOLAPrice } from '@app/hooks/usePrices'
-import { useFirmTVL, useTVL } from '@app/hooks/useTVL'
 import Head from 'next/head'
 import { lightTheme } from '@app/variables/theme'
 import { SplashedText } from '@app/components/common/SplashedText'
@@ -12,15 +9,11 @@ import { SimpleCard } from '@app/components/common/Cards/Simple'
 import { shortenNumber } from '@app/util/markets'
 import { getLandingProps } from '@app/blog/lib/utils'
 import LightPostPreview from '@app/blog/components/light-post-preview'
-import { useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR'
 import { Ecosystem } from '@app/components/Landing/Ecosystem'
 import { biggestSize, smallerSize, biggerSize, normalSize, btnIconSize, smallerSize2, slightlyBiggerSize2 } from '@app/variables/responsive'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { BurgerMenu } from '@app/components/common/Navbar/BurgerMenu'
 import { MENUS } from '@app/variables/menus'
-import { useStakedDola } from '@app/util/dola-staking'
-import { useCustomSWR } from '@app/hooks/useCustomSWR'
-import { RateComparator } from '@app/components/F2/RateComparator'
 
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
 
@@ -38,21 +31,27 @@ const StatBasic = ({ value, name }: { value: number, name: string }) => {
   </VStack>
 }
 
-export const Landing = ({ posts }: {
-  posts: any[]
-}) => {
-  const { data: currentCirculatingSupply } = useCustomSWR(`/api/dola/circulating-supply`);
-  const { priceUsd: dbrPriceUsd, priceDola: dbrPriceDola } = useDBRPrice();
-  const { price: dolaPrice } = useDOLAPrice();
-  const { tvl } = useTVL();
-  const { firmTotalTvl } = useFirmTVL();
-  const { data: dolaData } = useDOLAMarketData();
-  const { markets } = useDBRMarkets();
-  const invFirmPrice = markets?.find(m => m.isInv)?.price || 0;
-  const { apy, projectedApy, isLoading: isLoadingSDola } = useStakedDola(dbrPriceUsd);
-
-  const invPrice = invFirmPrice;
-
+export const Landing = ({ 
+  posts,
+  currentCirculatingSupply,
+  dbrPriceUsd,
+  firmTotalTvl,
+  invPrice,
+  dolaPrice,
+  apy,
+  projectedApy,
+  dolaVolume,
+ }: {
+  posts: any[],
+  currentCirculatingSupply: number,
+  dbrPriceUsd: number,
+  firmTotalTvl: number,
+  dolaPrice: number,
+  invPrice: number,
+  dolaVolume: number,
+  apy: number,
+  projectedApy: number,
+}) => { 
   const stats = [
     {
       name: 'DOLA Circulation',
@@ -60,7 +59,7 @@ export const Landing = ({ posts }: {
     },
     {
       name: 'DOLA 24h Vol.',
-      value: dolaData?.market_data?.total_volume?.usd,
+      value: dolaVolume,
     },
     {
       name: 'INV price',
@@ -320,7 +319,7 @@ export const Landing = ({ posts }: {
             </VStack>
             <UnorderedList fontSize={smallerSize} color="white" pl="5">
               <ListItem>
-                APY currently {isLoadingSDola ? '...' : shortenNumber(apy, 2)}% (projected {isLoadingSDola ? '...' : shortenNumber(projectedApy, 2)}%)
+                APY currently {shortenNumber(apy, 2)}% (projected {shortenNumber(projectedApy, 2)}%)
               </ListItem>
               <ListItem>
                 100% Organic, On-chain Yield
@@ -646,6 +645,6 @@ export const Landing = ({ posts }: {
 export default Landing;
 
 export async function getServerSideProps(context) {
-  context.res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=300');
+  context.res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=3600');
   return { ...await getLandingProps(context) }
 }

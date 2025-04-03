@@ -188,7 +188,7 @@ export const F2PAGE = ({
 }
 
 export async function getServerSideProps(context) {
-    context.res.setHeader('Cache-Control', 'public, s-maxage=120, stale-while-revalidate=120');
+    context.res.setHeader('Cache-Control', 'public, s-maxage=90, stale-while-revalidate=3600');
     const [
         marketsData,
         firmTvlData,
