@@ -153,12 +153,14 @@ export default async function handler(req, res) {
     console.error(err);
     // if an error occured, try to return last cached results
     try {
+      console.error('Api call failed trying to return last cache');
       const cache = await getCacheFromRedis(pricesCacheKey, false);
       if (cache) {
-        console.log('Api call failed, returning last cache found');
+        console.error('Api call failed, returning last cache found');
         res.status(200).json(cache);
       }
     } catch (e) {
+      console.error('Error fetching last cache');
       console.error(e);
       res.status(500).json({ success: false });
     }
