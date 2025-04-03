@@ -146,9 +146,9 @@ export const SInvStatsPage = () => {
           </ChartCard>
         </SimpleGrid>
         <InvStakingActivity
-          events={events}
+          events={events.slice(-100)}
           lastUpdate={timestamp}
-          title="sINV Staking activity"
+          title="Last 100sINV Staking activity"
           headerProps={{
             direction: { base: 'column', md: 'row' },
             align: { base: 'flex-start', md: 'flex-end' },

@@ -91,11 +91,11 @@ export const useAccountDBR = (
   }
 }
 
-export const useDBRMarkets = (marketOrList?: string | string[], vnetPublicId?: string): {
-  markets: F2Market[]
-  isLoading: boolean
-} => {
-  const { data: apiData, isLoading } = useCacheFirstSWR(`/api/f2/fixed-markets?v12&vnetPublicId=${vnetPublicId||''}`);
+export const useDBRMarketsSSR = (apiData?: any, marketOrList?: string | string[], vnetPublicId?: string) => {
+  return useDBRMarketsReformat(apiData, marketOrList, vnetPublicId);
+}
+
+export const useDBRMarketsReformat = (apiData?: any, marketOrList?: string | string[], vnetPublicId?: string) => {
   const [tsMinute] = useState((new Date()).toISOString().substring(0, 16));
   // preference to match their website apy
   const { data: susdeData } = useSWR(`https://app.ethena.fi/api/yields/protocol-and-staking-yield?r=${tsMinute}`, fetcher, { refreshInterval: 60000 });
@@ -163,7 +163,7 @@ export const useDBRMarkets = (marketOrList?: string | string[], vnetPublicId?: s
   ]);
 
   return {
-    isLoading,
+    isLoading: !apiData,
     markets: markets.map((m, i) => {
       const dailyLimit = !vnetPublicId && limits ? getBnToNumber(limits[i]) : cachedMarkets[i]?.dailyLimit ?? 0;
       const dailyBorrows = !vnetPublicId && limits ? getBnToNumber(limits[i + nbMarkets]) : cachedMarkets[i]?.dailyBorrows ?? 0;
@@ -195,6 +195,14 @@ export const useDBRMarkets = (marketOrList?: string | string[], vnetPublicId?: s
       }
     }),
   }
+}
+
+export const useDBRMarkets = (marketOrList?: string | string[], vnetPublicId?: string): {
+  markets: F2Market[]
+  isLoading: boolean
+} => {
+  const { data: apiData } = useCacheFirstSWR(`/api/f2/fixed-markets?v12&vnetPublicId=${vnetPublicId||''}`);
+  return useDBRMarketsReformat(apiData, marketOrList, vnetPublicId);
 }
 
 export const useAccountDBRMarket = (

@@ -1,6 +1,6 @@
 import { SimpleGrid, StackProps, Text, VStack, HStack, Image, Flex, useMediaQuery, TextProps } from "@chakra-ui/react"
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
-import { useAccountDBR, useAccountF2Markets, useDBR, useDBRBalanceHisto, useDBRMarkets, useDBRPrice } from '@app/hooks/useDBR';
+import { useAccountDBR, useAccountF2Markets, useDBR, useDBRBalanceHisto, useDBRMarkets, useDBRMarketsSSR, useDBRPrice } from '@app/hooks/useDBR';
 import { getClosestPreviousHistoValue, preciseCommify, timestampToUTC } from "@app/util/misc";
 import { lightTheme } from "@app/variables/theme";
 import { PieChartRecharts } from "../Transparency/PieChartRecharts";
@@ -277,13 +277,21 @@ const StakeDOLA = <SmallLinkBtn href="/sDOLA">Stake DOLA</SmallLinkBtn>;
 const StakeSINV = <SmallLinkBtn href="/sINV">Stake INV</SmallLinkBtn>;
 
 export const UserDashboard = ({
-    account
+    account,
+    marketsData,
+    firmTvlData,
+    dbrPriceUsd,
+    dbrDolaPrice,
 }: {
-    account: string
+    account: string,
+    marketsData: any,
+    firmTvlData: any,
+    dbrPriceUsd: number,
+    dbrDolaPrice: number,
 }) => {
-    const { markets, isLoading: isLoadingMarkets } = useDBRMarkets();
+    const { markets } = useDBRMarketsSSR(marketsData);
     const [isVirginFirmUser, setIsVirginFirmUser] = useState(false);
-    const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
+    // const { priceUsd: dbrPriceUsd, priceDola: dbrDolaPrice } = useDBRPrice();
     const accountMarkets = useAccountF2Markets(markets, account);
     const invMarket = accountMarkets?.find(m => m.isInv);
     const { invMonthlyRewards, dbrMonthlyRewards, dolaMonthlyRewards, totalRewardsUsd, invPrice, dolaPrice } = useAccountRewards(account, invMarket);
@@ -292,7 +300,7 @@ export const UserDashboard = ({
     const { assets: invStakedInSInvV1 } = useStakedInvBalance(account, "V1");
     const { assets: invStakedInSInvV2 } = useStakedInvBalance(account, "V2");
     
-    const { apr: sDolaApr, projectedApr: sDolaProjectedApr, sDolaExRate, apy: sDolaApy, projectedApy: sDolaProjectedApy } = useStakedDola(dbrPrice);
+    const { apr: sDolaApr, projectedApr: sDolaProjectedApr, sDolaExRate, apy: sDolaApy, projectedApy: sDolaProjectedApy } = useStakedDola(dbrPriceUsd);
     const { apy: sInvApy, projectedApy: sInvProjectedApy } = useStakedInv(dbrDolaPrice);
 
     const dolaStakedInSDola = sDolaExRate && stakedDolaBalance ? sDolaExRate * stakedDolaBalance : 0;    
@@ -302,7 +310,7 @@ export const UserDashboard = ({
     const { stakedInFirm, isLoading: isLoadingInvStaked } = useStakedInFirm(account);
     const { debt, dbrExpiryDate, signedBalance: dbrBalance, needsRechargeSoon, isLoading: isLoadingAccount } = useAccountDBR(account);
 
-    const isLoading = !account ? false : isLoadingMarkets || isLoadingAccount || isLoadingInvStaked;
+    const isLoading = !account ? false : isLoadingAccount || isLoadingInvStaked;
 
     const totalTotalSuppliedUsd = accountMarkets.reduce((prev, curr) => prev + curr.deposits * curr.price, 0);
     const marketsWithDeposits = accountMarkets.filter(m => m.depositsUsd > 1).sort((a, b) => b.depositsUsd - a.depositsUsd);
@@ -321,7 +329,7 @@ export const UserDashboard = ({
                     title='No position in FiRM at the moment'
                     description="Once you have assets in one the markets below, more data will be shown in the dashboard"
                 />
-                <F2Markets isDashboardPage={true} />
+                <F2Markets isDashboardPage={true} marketsData={marketsData} firmTvls={firmTvlData.firmTvls} />
             </VStack>
                 :
                 <SimpleGrid columns={{ base: 1, xl: 2 }} spacing="8" w="100%" >
@@ -361,10 +369,10 @@ export const UserDashboard = ({
                 imageSrc={TOKEN_IMAGES.DBR}
                 footer={
                     <CardFooter
-                        labelRight={<>Price: <b>{shortenNumber(dbrPrice, 4, true)}</b></>}
+                        labelRight={<>Price: <b>{shortenNumber(dbrPriceUsd, 4, true)}</b></>}
                     />
                 }
-                isLoading={isLoading} price={dbrPrice} value={dbrBalance} label="DBR balance" precision={0} /> */}
+                isLoading={isLoading} price={dbrPriceUsd} value={dbrBalance} label="DBR balance" precision={0} /> */}
             <StringCard
                 imageSrc={TOKEN_IMAGES.DBR}
                 footer={
@@ -385,7 +393,7 @@ export const UserDashboard = ({
                         ]
                     }} value={totalRewardsUsd} label="Staking monthly rewards" noDataFallback="No INV/DOLA/DBR rewards" isUsd={true} />
                     <MonthlyRewards cardProps={{ imageSrc: TOKEN_IMAGES.INV }} value={invMonthlyRewards} price={invPrice} label="INV monthly rewards" noDataFallback="No INV rewards" precision={2} />
-                    {/* <MonthlyRewards cardProps={{ imageSrc: TOKEN_IMAGES.DBR }} value={dbrMonthlyRewards} price={dbrPrice} label="DBR monthly rewards" noDataFallback="No DBR rewards" /> */}
+                    {/* <MonthlyRewards cardProps={{ imageSrc: TOKEN_IMAGES.DBR }} value={dbrMonthlyRewards} price={dbrPriceUsd} label="DBR monthly rewards" noDataFallback="No DBR rewards" /> */}
                     <MonthlyRewards value={totalMonthlyUsdYield} isUsd={true} label="Monthly yield on FiRM" noDataFallback="No yield" />
                     <MonthlyRewards cardProps={{ imageSrc: TOKEN_IMAGES.DOLA }} value={dolaMonthlyRewards} price={dolaPrice} label="sDOLA monthly rewards" noDataFallback="No sDOLA rewards" />
                 </>
