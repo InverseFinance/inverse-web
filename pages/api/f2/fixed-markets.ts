@@ -13,7 +13,7 @@ import { JsonRpcProvider } from '@ethersproject/providers';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.4.1`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.4.2`;
 
 export default async function handler(req, res) {
   const cacheDuration = 90;

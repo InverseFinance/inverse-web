@@ -646,9 +646,9 @@ export const FIRM_MARKETS = [
         isLeverageComingSoon: true,
         noZap: true,
         fixedFeed: false,
-        // temporariliy hide
-        isPhasingOut: true,
-        phasingOutComment: `Will be back soon`,
-        phasingOutLink: `https://www.inverse.finance/governance/proposals/mills/2760`,
+        // // temporariliy hide
+        // isPhasingOut: true,
+        // phasingOutComment: `Will be back soon`,
+        // phasingOutLink: `https://www.inverse.finance/governance/proposals/mills/2760`,
     },
 ];
