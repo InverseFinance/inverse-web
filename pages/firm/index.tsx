@@ -20,6 +20,7 @@ import { FirmInsuranceCover } from '@app/components/common/InsuranceCover'
 import { InfoMessage } from '@app/components/common/Messages'
 import { SERVER_BASE_URL } from '@app/config/constants'
 import { F2Market } from '@app/types'
+import { useFirmTVL } from '@app/hooks/useTVL'
 
 export const F2PAGE = ({
     isTwitterAlert = false,
@@ -36,6 +37,7 @@ export const F2PAGE = ({
     dbrPriceUsd: number,
     dolaPriceUsd: number,
 }) => {
+    const { firmTotalTvl, firmTvls, isLoading: isLoadingTvl } = useFirmTVL();
     const account = useAccount();
     const [radioValue, setRadioValue] = useState('');
     const { debt } = useAccountDBR(account);
@@ -141,7 +143,7 @@ export const F2PAGE = ({
                 <VStack pt={{ base: 4, md: 8 }} w='full' maxW={{ base: '84rem', '2xl': '90rem' }}>
                     <ErrorBoundary description="Failed to FiRM header">
                         <VStack px='6' w='full'>
-                            <FirmBar dbrPriceUsd={dbrPriceUsd} dolaPriceUsd={dolaPriceUsd} currentCirculatingSupply={currentCirculatingSupply} firmTotalTvl={firmTvlData.firmTotalTvl} markets={marketsData.markets} />
+                            <FirmBar dbrPriceUsd={dbrPriceUsd} dolaPriceUsd={dolaPriceUsd} currentCirculatingSupply={currentCirculatingSupply} firmTotalTvl={isLoadingTvl ? firmTvlData.firmTotalTvl : firmTotalTvl} markets={marketsData.markets} />
                         </VStack>
                     </ErrorBoundary>
                     <Divider display={{ base: 'inline-block', sm: 'none' }} />
@@ -153,7 +155,7 @@ export const F2PAGE = ({
                         </ErrorBoundary>
                     }
                     <ErrorBoundary description="Failed to load Markets">
-                        <F2Markets marketsData={marketsData} firmTvls={firmTvlData.firmTvls} />
+                        <F2Markets marketsData={marketsData} firmTvls={isLoadingTvl ? firmTvlData.firmTvls : firmTvls} />
                     </ErrorBoundary>
                     <VStack py="6" px='6' w='full' spacing="6">
                         <FirmInsuranceCover />
