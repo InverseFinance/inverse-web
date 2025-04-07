@@ -8,6 +8,7 @@ import { formatJsonToHtml } from "@app/util/misc";
 import { SubmitButton } from "../common/Button";
 import { CopyIcon } from "@chakra-ui/icons";
 import { useMemo, useState } from "react";
+import { ROutlineButton } from "../common/Button/RSubmitButton";
 
 const titleProps = { textAlign: 'left', fontSize: '18px', fontWeight: 'extrabold' }
 
@@ -38,11 +39,11 @@ export const MarketReport = ({ market, marketAddress, report }: { market: any, m
                         </Flex>
                     </VStack>
                 </SimpleModal>
-                <HStack cursor="pointer" onClick={onOpen} justify='space-between'>
+                <HStack w="full" cursor="pointer" onClick={onOpen} justify='space-between'>
                     {
                         market?.name ? <MarketNameAndIcon name={market.name} icon={TOKENS[market.collateral]?.image} underlying={TOKENS[market.collateral]} /> : <Text fontSize='lg' fontWeight='bold'>{marketAddress}</Text>
                     }
-                    <SubmitButton onClick={onOpen}>See Details</SubmitButton>
+                    <ROutlineButton w='fit-content' px="2" py="0" h="24px" fontSize="12px" textTransform="capitalize" onClick={onOpen}>See Details</ROutlineButton>
                 </HStack>
                 {
                     anythingToReport ? <>

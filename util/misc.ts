@@ -468,6 +468,7 @@ export const getSimplifiedData = (data: any[], sortableAttribute = 'x') => {
 }
 
 function escapeHtml(str) {
+    if(!str?.replace) return str;
     return str.replace(/[&<>"']/g, function (match) {
         const escapeMap = {
             '&': '&amp;',
@@ -487,7 +488,7 @@ export function formatJsonToHtml(json: Object)   {
         for (let key in obj) {
             if (obj.hasOwnProperty(key)) {
                 let value = obj[key];
-                let escapedKey = escapeHtml(key);
+                let escapedKey = escapeHtml(key?.toString());
                 if (typeof value === 'object' && value !== null) {
                     htmlContent += `<li><span style="font-weight: bold" class="key">${escapedKey}</span>:<ul style="padding-left: 1rem">`;
                     traverseJson(value);  // Recursively process nested objects
