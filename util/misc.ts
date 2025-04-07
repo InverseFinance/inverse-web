@@ -466,3 +466,43 @@ export const getSimplifiedData = (data: any[], sortableAttribute = 'x') => {
         return data.findLast(d => d[sortableAttribute] <= v);
     });
 }
+
+function escapeHtml(str) {
+    if(!str?.replace) return str;
+    return str.replace(/[&<>"']/g, function (match) {
+        const escapeMap = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        };
+        return escapeMap[match];
+    });
+}
+
+export function formatJsonToHtml(json: Object)   {
+    let htmlContent = "<ul>";
+
+    function traverseJson(obj) {
+        for (let key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                let value = obj[key];
+                let escapedKey = escapeHtml(key?.toString());
+                if (typeof value === 'object' && value !== null) {
+                    htmlContent += `<li><span style="font-weight: bold" class="key">${escapedKey}</span>:<ul style="padding-left: 1rem">`;
+                    traverseJson(value);  // Recursively process nested objects
+                    htmlContent += `</ul></li>`;
+                } else {
+                    const escapedValue = escapeHtml(value);
+                    htmlContent += `<li><span style="font-weight: bold">${escapedKey}</span>: <span>${escapedValue}</span></li>`;
+                }
+            }
+        }
+    }
+
+    traverseJson(json);
+    htmlContent += "</ul>";
+
+    return htmlContent;
+}

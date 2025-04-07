@@ -9,11 +9,35 @@ import { ProposalStatus } from '@app/types';
 import { genTransactionParams } from '@app/util/web3';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
 
-const { TREASURY, DEPLOYER } = getNetworkConfigConstants();
+const { TREASURY, DEPLOYER, F2_MARKETS, DBR } = getNetworkConfigConstants();
 
 const { TENDERLY_USER, TENDERLY_KEY } = process.env;
 
 export const SLUG_BASE = process.env.VERCEL_ENV === 'production' ? 'p' : 'd';
+
+const getMarketCheckerReport = async (marketAddress: string, vnetId: string) => {
+  const response = await fetch('http://164.92.150.8:5000/api/analyze', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      market_address: marketAddress,
+      vnet_id: vnetId,
+    }),
+  });
+  const data = await response.json();
+  return data;
+}
+
+const getProposalAddresses = (actions: { args: { type: string, value: string }[], contractAddress: string }[]) => {
+  let ads: string[] = [];
+  for (const action of actions) {
+    ads.push(action.contractAddress.toLowerCase());
+    ads = ads.concat(action.args.filter(arg => arg.type === 'address').map(arg => arg.value.toLowerCase()));
+  }
+  return [...new Set(ads)];
+}
 
 async function mainnetFork(newSimId: number, title: string) {
   return await fetch(
@@ -192,6 +216,31 @@ export default async function handler(req, res) {
       }
     }
 
+    let marketsReports: any[] = [];
+    const proposalAddresses = getProposalAddresses(form.actions);
+    const marketsInProposal = F2_MARKETS.filter(m => proposalAddresses.includes(m.address.toLowerCase()) || proposalAddresses.includes(m.collateral.toLowerCase())).map(m => m.address.toLowerCase());
+    for (const action of form.actions) {
+      if(action.func === 'addMarket(address)' && action.contractAddress.toLowerCase() === DBR.toLowerCase()) {
+        const marketToAdd = action.args[0].value.toLowerCase();
+        if(!marketsInProposal.includes(marketToAdd)){
+          marketsInProposal.push(marketToAdd);
+        }
+      }
+    }
+    if(!hasError) {
+      const reports = await Promise.allSettled(marketsInProposal.map(address => getMarketCheckerReport(address, publicId)));
+      marketsReports = reports.map((r,i) => {
+        const marketAddress = marketsInProposal[i];
+        const market = F2_MARKETS.find(m => m.address.toLowerCase() === marketAddress);
+        const report = r.status === 'fulfilled' ? r.value : null;
+        return {
+          marketAddress,
+          market,
+          report,
+        };
+      });
+    }
+
     // reset
     // const snapEnd = await forkProvider.send("evm_snapshot", []);
     // await forkProvider.send("evm_revert", [snapStart]);
@@ -207,8 +256,11 @@ export default async function handler(req, res) {
     res.status(200).json({
       status: 'success',
       hasError,
+      proposalAddresses,
+      marketsInProposal,
       vnetPublicId: publicId,
       vnetTitle,
+      marketsReports,
       simUrl: `https://dashboard.tenderly.co/explorer/vnet/${publicId}/tx/${txHash}`,
     });
   } catch (err) {

@@ -27,6 +27,7 @@ import { showToast } from '@app/util/notify'
 import { RSubmitButton } from '../common/Button/RSubmitButton'
 import { simulateOnChainActions } from '@app/util/governance'
 import { formatDate, formatDateWithTime, timeUntil } from '@app/util/time'
+import { MarketReport } from './MarketReport'
 
 const badgeColors: { [key: string]: string } = {
   [ProposalStatus.active]: 'gray',
@@ -273,6 +274,7 @@ export const ProposalDetails = ({
 export const ProposalActions = ({ proposal, isEditing = false }: { proposal: Proposal, isEditing?: boolean }) => {
   const [simulationUrl, setSimulationUrl] = useState('');
   const [positionsUrl, setPositionsUrl] = useState('');
+  const [marketsReports, setMarketsReports] = useState([]);
   if (!proposal?.id) {
     return <></>
   }
@@ -282,9 +284,11 @@ export const ProposalActions = ({ proposal, isEditing = false }: { proposal: Pro
   const handleSimulation = async () => {
     setSimulationUrl('');
     setPositionsUrl('');
+    setMarketsReports([]);
     return simulateOnChainActions(proposal, (result) => {
       setSimulationUrl(result.simUrl || '');
       setPositionsUrl(result?.vnetPublicId ? `/firm/sim/positions?vnetPublicId=${result.vnetPublicId||''}&vnetTitle=${result.vnetTitle||''}` : '');
+      setMarketsReports(result.marketsReports || []);
       showToast({
         duration: 15000,
         status: result.hasError ? 'error' : 'success',
@@ -318,6 +322,13 @@ export const ProposalActions = ({ proposal, isEditing = false }: { proposal: Pro
               !!positionsUrl && <Link textAlign="right" w='fit-content' textDecoration="underline" href={positionsUrl} target="_blank" isExternal>
                 Simulated Positions <ExternalLinkIcon ml="1" />
               </Link>
+            }
+          </Stack>
+        }
+        {
+          marketsReports?.length > 0 && <Stack w='full' spacing="4" direction="column">
+            {
+              marketsReports.map((report, i) => <MarketReport key={i} market={report.market} marketAddress={report.marketAddress} report={report.report} />)
             }
           </Stack>
         }
