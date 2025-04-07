@@ -16,86 +16,18 @@ const { TENDERLY_USER, TENDERLY_KEY } = process.env;
 export const SLUG_BASE = process.env.VERCEL_ENV === 'production' ? 'p' : 'd';
 
 const getMarketCheckerReport = async (marketAddress: string, vnetId: string) => {
-  // const response = await fetch('https://domain.com/api/analyze', {
-  //   method: 'POST',
-  //   body: JSON.stringify({
-  //     market_address: marketAddress,
-  //     vnet_id: vnetId,
-  //   }),
-  // });
-  // const data = await response.json();
-  // return data;
-  return {
-    "market": {
-      "address": "0x2D4788893DE7a4fB42106D9Db36b65463428FBD9",
-      "collateral": {
-        "address": "0xb7de5dFCb74d25c2f21841fbd6230355C50d9308",
-        "symbol": "PT-sUSDE-29MAY2025",
-        "name": "PT Ethena sUSDE 29MAY2025",
-        "decimals": 18
-      },
-      "dbr_allowed": true
+  const response = await fetch('http://164.92.150.8:5000/api/analyze', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
     },
-    "oracle": {
-      "address": {
-        "before": "0xaBe146CF570FD27ddD985895ce9B138a7110cce8",
-        "after": "0xaBe146CF570FD27ddD985895ce9B138a7110cce8"
-      },
-      "is_newest": true,
-      "price": {
-        "raw": 969524980974124810,
-        "unit_price_usd": 0.9695249809741248
-      }
-    },
-    "liquidation": {
-      "collateral_factor": {
-        "before": 91.5,
-        "after": 91.5
-      },
-      "liquidation_incentive": {
-        "before": 5.0,
-        "after": 5.0
-      },
-      "liquidation_fee": {
-        "before": 0.0,
-        "after": 0.0
-      },
-      "max_safe_liquidation_incentive": 9.28,
-      "profitable_self_liquidation_possible": false
-    },
-    "borrow_controller": {
-      "address": {
-        "before": "0x2DbAd53A647A86b8988E007a33FE78bd55e9Dd6f",
-        "after": "0x2DbAd53A647A86b8988E007a33FE78bd55e9Dd6f"
-      },
-      "is_newest": false,
-      "min_debt": {
-        "before": 3000.0,
-        "after": 3000.0
-      },
-      "daily_limit": {
-        "before": 2000000.0,
-        "after": 2000000.0
-      }
-    },
-    "active_positions": {
-      "borrowers": []
-    },
-    "summary": {
-      "errors": [],
-      "warnings": [
-        {
-          "message": "Collateral Factor is above 90%",
-          "category": "liquidation"
-        },
-        {
-          "message": "BorrowController isn't newest implementation",
-          "category": "borrow_controller"
-        }
-      ],
-      "info": []
-    }
-  }
+    body: JSON.stringify({
+      market_address: marketAddress,
+      vnet_id: vnetId,
+    }),
+  });
+  const data = await response.json();
+  return data;
 }
 
 const getProposalAddresses = (actions: { args: { type: string, value: string }[], contractAddress: string }[]) => {
@@ -286,7 +218,7 @@ export default async function handler(req, res) {
 
     let marketsReports: any[] = [];
     const proposalAddresses = getProposalAddresses(form.actions);
-    const marketsInProposal = F2_MARKETS.filter(m => proposalAddresses.includes(m.address.toLowerCase() || proposalAddresses.includes(m.collateral.toLowerCase()))).map(m => m.address.toLowerCase());
+    const marketsInProposal = F2_MARKETS.filter(m => proposalAddresses.includes(m.address.toLowerCase()) || proposalAddresses.includes(m.collateral.toLowerCase())).map(m => m.address.toLowerCase());
     for (const action of form.actions) {
       if(action.func === 'addMarket(address)' && action.contractAddress.toLowerCase() === DBR.toLowerCase()) {
         const marketToAdd = action.args[0].value.toLowerCase();
@@ -324,6 +256,8 @@ export default async function handler(req, res) {
     res.status(200).json({
       status: 'success',
       hasError,
+      proposalAddresses,
+      marketsInProposal,
       vnetPublicId: publicId,
       vnetTitle,
       marketsReports,
