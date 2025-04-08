@@ -83,7 +83,7 @@ const assumeTotalAssetsAsTvl = async (provider, address: string) => {
 }
 
 export default async function handler(req, res) {
-  const cacheKey = `sdola-rates-compare-v1.1.1`;
+  const cacheKey = `sdola-rates-compare-v1.1.2`;
 
   try {
     const cacheDuration = 120;
@@ -221,6 +221,7 @@ export default async function handler(req, res) {
     let pastRates = cachedData?.pastRates || [];
 
     const addTodayRate = !utcSnapshots.includes(nowDayUTC);
+
     if (addTodayRate) {
       utcSnapshots.push(nowDayUTC);
       pastRates.push({});
@@ -254,6 +255,7 @@ export default async function handler(req, res) {
           image: images[symbol] || TOKEN_IMAGES[symbol],
           project: meta[index].project,
           link: meta[index].link,
+          pool: meta[index].pool || null,
         }
       }).sort((a, b) => {
         return a.apy < b.apy ? 1 : b.apy - a.apy;
