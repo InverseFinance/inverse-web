@@ -491,7 +491,7 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
   const [isLargerThan1300] = useMediaQuery('(min-width: 1300px)');
   const [isLargerThan1500] = useMediaQuery('(min-width: 1500px)');
   const [isLargerThan1150] = useMediaQuery('(min-width: 1150px)');
-  const [isLargerThan768] = useMediaQuery('(min-width: 768px)');
+  // const [isLargerThan768] = useMediaQuery('(min-width: 768px)');
   const { themeName } = useAppTheme();
   const { isActive, chainId } = useWeb3React<Web3Provider>();
   const { isSafeMultisigConnector, isMultisig } = useMultisig();
