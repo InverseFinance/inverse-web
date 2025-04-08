@@ -122,9 +122,11 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                             title="This market is being phased out"
                                             description={!!f2market.phasingOutComment && <VStack spacing="0" alignItems="flex-start" w='full'>
                                                 <Text>{f2market.phasingOutComment}</Text>
-                                                <Link isExternal={true} target="_blank" textDecoration="underline" href={f2market.phasingOutLink}>
-                                                    Read corresponding Governance proposal
-                                                </Link>
+                                                {
+                                                    !!f2market.phasingOutLink && <Link isExternal={true} target="_blank" textDecoration="underline" href={f2market.phasingOutLink}>
+                                                        Read corresponding Governance proposal
+                                                    </Link>
+                                                }
                                             </VStack>}
                                         />
                                     }

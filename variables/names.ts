@@ -165,6 +165,8 @@ export const ADDRESS_ROLES = {
     '0xb152FC7E9ddf01A942685E390A74009cd2B9Ca52': 'Analytics',
 }
 
+export const ADMIN_ADS = Object.entries(ADDRESS_ROLES).filter(entry => ['Engineering', 'Growth', 'Treasury', 'Risk', 'Founder'].includes(entry[1])).map(entry => entry[0]);
+
 Object.entries(UNDERLYING).forEach(([key, value]) => {
     // ctoken
     namedAddresses[key] = `an${value.symbol}`
