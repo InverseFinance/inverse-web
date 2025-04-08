@@ -64,8 +64,26 @@ export const getHistoricalRates = async (addresses: string[]) => {
   });
 }
 
+const getDefillamaData = async (poolIds: string[]) => {
+  const url = `https://yields.llama.fi/pools`;
+  try {
+      const results = await fetch(url);
+      const data = await results.json();
+      const pools = data.status === 'success' ? data.data : [];
+      return pools
+          .filter(p => poolIds.includes(p.pool))
+  } catch (e) { console.log(e) }
+  return {};
+}
+
+const assumeTotalAssetsAsTvl = async (provider, address: string) => {
+  const contract = new Contract(address, SDOLA_ABI, provider);
+  const totalAssets = await contract.totalAssets();
+  return getBnToNumber(totalAssets);
+}
+
 export default async function handler(req, res) {
-  const cacheKey = `sdola-rates-compare-v1.1.0`;
+  const cacheKey = `sdola-rates-compare-v1.1.1`;
 
   try {
     const cacheDuration = 120;
@@ -82,58 +100,99 @@ export default async function handler(req, res) {
 
     const provider = getProvider(NetworkIds.mainnet);
 
-    const symbols = [
-      'USDC', 'USDT',
-      'sDAI', 'sfrxUSD', 'sUSDe', 'sDOLA', 'scrvUSD', 'sUSDS',
-      'sdeUSD',
-      // 'wUSDM',
-      // 'ysUSDS',
-      // , 'sUSDz'
+    const meta = [
+      {
+        symbol: 'USDC',
+        project: 'Aave-V3',
+        link: 'https://app.aave.com/reserve-overview/?underlyingAsset=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&marketName=proto_mainnet_v3',
+        pool: 'aa70268e-4b52-42bf-a116-608b370f9501',
+      },
+      {
+        symbol: 'USDT',
+        project: 'Aave-V3',
+        link: 'https://app.aave.com/reserve-overview/?underlyingAsset=0xdac17f958d2ee523a2206206994597c13d831ec7&marketName=proto_mainnet_v3',
+        pool: 'f981a304-bb6c-45b8-b0c5-fd2f515ad23a',
+      },
+      {
+        symbol: 'sDAI',
+        project: 'Spark',
+        link: 'https://app.spark.fi/',
+        pool: '0b8fec3b-a715-4803-94ce-9fe3b7520b23',
+      },
+      {
+        symbol: 'sfrxUSD',
+        project: 'Frax',
+        link: 'https://frax.com/earn',
+        pool: '42523cca-14b0-44f6-95fb-4781069520a5',
+      },
+      {
+        symbol: 'sUSDe',
+        project: 'Ethena',
+        link: 'https://app.ethena.fi/earn',
+        pool: '66985a81-9c51-46ca-9977-42b4fe7bc6df',
+      },
+      {
+        symbol: 'sDOLA',
+        project: 'FiRM',
+        link: 'https://inverse.finance/sDOLA',
+        pool: 'bf0f95c9-bc46-467d-9762-1d80ff50cd74',
+      },
+      {
+        symbol: 'scrvUSD',
+        project: 'Curve',
+        link: 'https://crvusd.curve.fi/#/ethereum/scrvUSD',
+        pool: '5fd328af-4203-471b-bd16-1705c726d926',
+      },
+      {
+        symbol: 'sUSDS',
+        project: 'Sky',
+        link: 'https://sky.money',
+        pool: 'd8c4eff5-c8a9-46fc-a888-057c4c668e72',
+      },
+      {
+        symbol: 'sdeUSD',
+        project: 'Elixir',
+        link: 'https://elixir.xyz',
+      },
+      // {
+      //   symbol: 'wUSDM',
+      //   project: 'Mountain-Protocol',
+      //   link: 'https://defi.mountainprotocol.com/wrap',
+      // },
+      // {
+      //   symbol: 'ysUSDS',
+      //   project: 'Sky',
+      //   link: 'https://sky.money',
+      // },
     ];
     
-    const projects = [
-      'Aave-V3', 'Aave-V3', 
-      'Spark', 'Frax', 'Ethena', 'FiRM', 'Curve', 'Sky',
-      'Elixir',
-      // 'Mountain-Protocol',
-      // 'Yearn',
-      // , 'Anzen'
-    ];
     const images = {
       'wUSDM': 'https://assets.coingecko.com/coins/images/33785/standard/wUSDM_PNG_240px.png?1702981552',
       'ysUSDS': TOKEN_IMAGES['sUSDS'],
     }
-    const links = [
-      'https://app.aave.com/reserve-overview/?underlyingAsset=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&marketName=proto_mainnet_v3',
-      'https://app.aave.com/reserve-overview/?underlyingAsset=0xdac17f958d2ee523a2206206994597c13d831ec7&marketName=proto_mainnet_v3',
-      'https://app.spark.fi/',
-      // 'https://app.frax.finance/sfrax/stake',
-      'https://frax.com/earn',
-      'https://app.ethena.fi/earn',
-      'https://inverse.finance/sDOLA',
-      'https://crvusd.curve.fi/#/ethereum/scrvUSD',
-      'https://sky.money',
-      // 'https://app.anzen.finance/stake',
-      'https://elixir.xyz',
-      // 'https://defi.mountainprotocol.com/wrap',
-      // 'https://yearn.fi/v3/1/0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a',
-    ];
 
-    const currentRates = await Promise.all([
-      getAaveV3RateOf(provider, 'USDC'),
-      getAaveV3RateOf(provider, 'USDT'),
-      getDSRData(),
-      // getSFraxData(provider),
-      getDefiLlamaApy("42523cca-14b0-44f6-95fb-4781069520a5"),
-      getSUSDEData(provider, true),
-      fetch('https://www.inverse.finance/api/dola-staking').then(res => res.json()),
-      getSavingsCrvUsdData(),
-      getSavingsUSDData(),
-      getSavingsdeUSDData(),
-      // getYearnVaultApy('0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a'),
-      // getSavingsdeUSDData(),
-      // getSavingsUSDzData(),
-    ]);
+    const [currentRates, defillamaData] = await Promise.all(
+      [
+        Promise.all(
+          [
+            getAaveV3RateOf(provider, 'USDC'),
+            getAaveV3RateOf(provider, 'USDT'),
+            getDSRData(),
+            // getSFraxData(provider),
+            getDefiLlamaApy("42523cca-14b0-44f6-95fb-4781069520a5"),
+            getSUSDEData(provider, true),
+            fetch('https://www.inverse.finance/api/dola-staking').then(res => res.json()),
+            getSavingsCrvUsdData(),
+            getSavingsUSDData(),
+            getSavingsdeUSDData(),
+            // getYearnVaultApy('0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a'),
+            // getSavingsdeUSDData(),
+            // getSavingsUSDzData(),
+          ]
+        ),
+        getDefillamaData(meta.filter(m => !!m.pool).map(m => m.pool)),
+      ]
+    );
 
     const addresses = [
       '0x83F20F44975D03b1b09e64809B757c47f942BEeA',
@@ -151,6 +210,9 @@ export default async function handler(req, res) {
       getDefiLlamaApy('aa70268e-4b52-42bf-a116-608b370f9501'),
       getDefiLlamaApy('f981a304-bb6c-45b8-b0c5-fd2f515ad23a'),
     ]);
+    const otherTvl ={
+      sdeUSD: await assumeTotalAssetsAsTvl(provider, '0x5C5b196aBE0d54485975D1Ec29617D42D9198326'),
+    }
     const historicalRates = aaveHistoricalRates.concat(vaultHistoricalRates);
 
     const now = Date.now();
@@ -166,7 +228,7 @@ export default async function handler(req, res) {
 
     const sortedRates = currentRates
       .map((rate, index) => {
-        const symbol = symbols[index];
+        const symbol = meta[index].symbol;
         const pastRatesLen = pastRates.length;
         if (addTodayRate) {
           pastRates[pastRatesLen - 1][symbol] = rate.apy;
@@ -176,8 +238,10 @@ export default async function handler(req, res) {
         const last90 = pastRates.slice(pastRatesLen - 90, pastRatesLen).filter(pr => !!pr[symbol]);
         const last180 = pastRates.slice(pastRatesLen - 180, pastRatesLen).filter(pr => !!pr[symbol]);
         const last365 = pastRates.slice(pastRatesLen - 365, pastRatesLen).filter(pr => !!pr[symbol]);
+        const defillamaPoolData = defillamaData.find(p => p.pool === meta[index].pool);
         return {
-          isVault: projects[index] !== 'Aave-V3',
+          isVault: meta[index].project !== 'Aave-V3',
+          tvl: otherTvl[symbol] || defillamaPoolData?.tvlUsd || null,
           apy: (rate.supplyRate || rate.apy),
           apy30d: (rate.apyMean30d || rate.apy30d),
           calculatedApy: historicalRates[index].calculatedApy,
@@ -188,8 +252,8 @@ export default async function handler(req, res) {
           avg365: historicalRates[index].apy365d || (last365.length >= 365 ? last365.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last365.length : 0),
           symbol,
           image: images[symbol] || TOKEN_IMAGES[symbol],
-          project: projects[index],
-          link: links[index],
+          project: meta[index].project,
+          link: meta[index].link,
         }
       }).sort((a, b) => {
         return a.apy < b.apy ? 1 : b.apy - a.apy;
