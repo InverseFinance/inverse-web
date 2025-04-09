@@ -360,9 +360,18 @@ export const F2MarketsParams = ({
                 <InfoMessage
                     alertProps={{
                         w: 'full',
-                        title: 'Here you can edit market visibility',
+                        title: 'UI-only parameters',
                     }}
                 />
+                <VStack alignItems="flex-start" w='full' spacing="2">
+                    <Text fontWeight="bold">Disable deposits in UI?</Text>
+                    <RadioGroup w='full' bgColor="mainBackground" p="2" onChange={setNoDeposit} value={noDeposit}>
+                        <Stack direction='row' w='full' spacing="4">
+                            <Radio value='yes'>Yes</Radio>
+                            <Radio value='no'>No</Radio>
+                        </Stack>
+                    </RadioGroup>
+                </VStack>
                 <VStack alignItems="flex-start" w='full' spacing="2">
                     <Text fontWeight="bold">Hide this market to non-users?</Text>
                     <RadioGroup w='full' bgColor="mainBackground" p="2" onChange={setIsPhasingOut} value={isPhasingOut}>
@@ -378,15 +387,6 @@ export const F2MarketsParams = ({
                         <Textarea fontSize="14px" p="2" value={phasingOutComment} onChange={(e) => setPhasingOutComment(e.target.value)} />
                     </VStack>
                 }
-                <VStack alignItems="flex-start" w='full' spacing="2">
-                    <Text fontWeight="bold">Disable deposits in UI?</Text>
-                    <RadioGroup w='full' bgColor="mainBackground" p="2" onChange={setNoDeposit} value={noDeposit}>
-                        <Stack direction='row' w='full' spacing="4">
-                            <Radio value='yes'>Yes</Radio>
-                            <Radio value='no'>No</Radio>
-                        </Stack>
-                    </RadioGroup>
-                </VStack>
             </VStack>
         </ConfirmModal>
         <Table
