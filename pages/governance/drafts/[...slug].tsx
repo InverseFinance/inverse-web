@@ -10,7 +10,7 @@ import { AppNav } from '@app/components/common/Navbar'
 import { useRouter } from 'next/dist/client/router'
 import { Proposal, GovEra, ProposalStatus } from '@app/types';
 import Head from 'next/head'
-import { updateReadGovernanceNotifs } from '@app/util/governance'
+import { getProposalActionFromFunction, updateReadGovernanceNotifs } from '@app/util/governance'
 import { useEffect } from 'react';
 import { ProofOfReviews } from '@app/components/Governance/ProofOfReviews'
 import { getRedisClient } from '@app/util/redis'
@@ -63,7 +63,13 @@ export const Drafts = ({ proposal }) => {
                   <ProposalDetails proposal={proposal} isPublicDraft={true} />
                 </Flex>
                 <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
-                  <ProposalActions proposal={proposal} />
+                  <ProposalActions proposal={{
+                    _id: proposal.id,
+                    title: proposal.title,
+                    description: proposal.description,
+                    functions: proposal?.functions,
+                    actions: proposal?.functions.map((f, i) => getProposalActionFromFunction(i + 1, f)),
+                  }} />
                 </Flex>
                 <Flex w={{ base: 'full', xl: '4xl' }} justify="center">
                   {!!id && <ProofOfReviews id={id} isDraft={true} />}
