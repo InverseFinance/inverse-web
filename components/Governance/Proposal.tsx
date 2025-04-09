@@ -275,7 +275,7 @@ export const ProposalActions = ({ proposal, isEditing = false }: { proposal: Pro
   const [simulationUrl, setSimulationUrl] = useState('');
   const [positionsUrl, setPositionsUrl] = useState('');
   const [marketsReports, setMarketsReports] = useState([]);
-  if (!proposal?.id) {
+  if (!proposal?.id && !proposal?._id) {
     return <></>
   }
 
@@ -309,7 +309,7 @@ export const ProposalActions = ({ proposal, isEditing = false }: { proposal: Pro
           return <ProposalActionPreview key={i} num={i + 1} target={target} signature={signature} callData={callData} value={value} />
         })}
         {
-          [ProposalStatus.active, ProposalStatus.succeeded, ProposalStatus.queued].includes(proposal.status) && <Stack alignItems="center" justify="space-evenly" w='full' direction={{ base: 'column', lg: 'row' }}>
+          (!!proposal._id || [ProposalStatus.active, ProposalStatus.succeeded, ProposalStatus.queued].includes(proposal.status)) && <Stack alignItems="center" justify="space-evenly" w='full' direction={{ base: 'column', lg: 'row' }}>
             <RSubmitButton fontSize="16px" w={'fit-content'} onClick={handleSimulation}>
               Simulate Proposal
             </RSubmitButton>
