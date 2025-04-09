@@ -1,7 +1,7 @@
 
 import { isAddress, verifyMessage } from 'ethers/lib/utils';
 import { ADMIN_ADS } from '@app/variables/names';
-import { getCacheFromRedis, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis';
+import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
 import { getSignMessageWithUtcDate } from '@app/util/misc';
 import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
 
@@ -16,7 +16,8 @@ export default async function handler(req, res) {
         case 'PUT':
             try {
                 const { sig, marketAddress, noDeposit, isPhasingOut, phasingOutComment } = req.body;
-                const whitelisted = ADMIN_ADS;
+                
+                const whitelisted = ADMIN_ADS.map(a => a.toLowerCase());
                 const sigAddress = verifyMessage(getSignMessageWithUtcDate(), sig).toLowerCase();
 
                 if (!whitelisted.includes(sigAddress)) {
@@ -24,7 +25,7 @@ export default async function handler(req, res) {
                     return
                 };
 
-                if (!marketAddress || !isAddress(marketAddress) || !['yes', 'no'].includes(noDeposit) || !['yes', 'no'].includes(isPhasingOut) || isInvalidGenericParam(phasingOutComment)) {
+                if (!marketAddress || !isAddress(marketAddress) || !['yes', 'no'].includes(noDeposit) || !['yes', 'no'].includes(isPhasingOut)) {
                     res.status(400).json({ status: 'warning', message: 'Invalid values' })
                     return
                 }
@@ -55,6 +56,7 @@ export default async function handler(req, res) {
 
                 res.status(200).json({ status: 'success' })
             } catch (e) {
+                console.error(e);
                 res.status(200).json({ status: 'error', message: 'An error occured' })
             }
             break
