@@ -132,9 +132,12 @@ export const FirmMarketsAndPositions = ({
                 :
                 <VStack w='full'>
                     <VStack w="full" display={activeTab === 'Markets' ? 'block' : 'none'}>
-                        <F2MarketsParams markets={
-                            markets.filter(marketFilter)
-                        } />
+                        <F2MarketsParams
+                            markets={
+                                markets.filter(marketFilter)
+                            }
+                            isSimContext={!!vnetPublicId}
+                        />
                     </VStack>
                     <VStack w="full" display={activeTab === 'Positions' ? 'block' : 'none'}>
                         <FirmPositions

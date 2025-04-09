@@ -143,6 +143,7 @@ export const ADDRESS_ROLES = {
     '0x7efe8e14eCfcB3FF349253A9925A8818A8Ce5480': 'Engineering',
     '0x7ad367A6b712363cEEca0a8246ed621fc848B90b': 'Engineering',
     '0x72c7D3AACcA03D6D679558d9461232b0940F7e2D': 'Engineering',
+    '0x6535020cCeB810Bdb3F3cA5e93dE2460FF7989BB': 'Engineering',
     '0xE58ED128325A33afD08e90187dB0640619819413': 'Growth',
     '0x41225088326fE055Fbf40AD34d862bbd7bd0c9B4': 'Growth',
     '0xbb20d477d4f22d7169ad4c5bd67984362be8bad0': 'Community, Docs, Videos',
