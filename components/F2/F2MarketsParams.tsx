@@ -353,7 +353,7 @@ export const F2MarketsParams = ({
             onClose={onClose}
             onCancel={onClose}
             onOk={handleOk}
-            okLabel="Edit"
+            okLabel="Update"
             cancelLabel="Dismiss"
         >
             <VStack w='full' p="4">
@@ -384,7 +384,8 @@ export const F2MarketsParams = ({
                 {
                     isPhasingOut === 'yes' && <VStack alignItems="flex-start" w='full' spacing="2">
                         <Text fontWeight="bold">Message to display for existing users</Text>
-                        <Textarea fontSize="14px" p="2" value={phasingOutComment} onChange={(e) => setPhasingOutComment(e.target.value)} />
+                        <Textarea maxLength={500} fontSize="14px" p="2" value={phasingOutComment} onChange={(e) => setPhasingOutComment(e.target.value)} />
+                        <Text fontSize="12px" color="gray.500">{phasingOutComment.length} / 500</Text>
                     </VStack>
                 }
             </VStack>

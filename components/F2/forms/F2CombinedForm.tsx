@@ -405,7 +405,7 @@ export const F2CombinedForm = ({
                     market.noDeposit && isDeposit && <InfoMessage
                         alertProps={{ w: 'full', status: 'warning' }}
                         title={`Deposits Disabled for ${market.name}`}
-                        description={`Collateral deposits are currently disabled for the ${market.name} market. Please reach out on Discord for more information.`}
+                        description={`Collateral deposits are currently disabled for the ${market.name} market.`}
                     />
                 }
                 {
