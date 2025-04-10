@@ -25,7 +25,7 @@ export default async function handler(req, res) {
                     return
                 };
 
-                if (!marketAddress || !isAddress(marketAddress) || !['yes', 'no'].includes(noDeposit) || !['yes', 'no'].includes(isPhasingOut)) {
+                if (!marketAddress || !isAddress(marketAddress) || !['yes', 'no'].includes(noDeposit) || !['yes', 'no'].includes(isPhasingOut) || phasingOutComment?.length > 500) {
                     res.status(400).json({ status: 'warning', message: 'Invalid values' })
                     return
                 }
@@ -37,6 +37,21 @@ export default async function handler(req, res) {
                     isPhasingOut: isPhasingOut === 'yes',
                     phasingOutComment,
                 };
+
+                // keep track
+                if(!cachedData?.updates) {
+                    cachedData.updates = [];
+                }
+                cachedData.updates.push({
+                    signer: sigAddress,
+                    time: new Date().toISOString(),
+                    payload: {
+                        marketAddress,
+                        noDeposit,
+                        isPhasingOut,
+                        phasingOutComment,
+                    }
+                })
 
                 const cachedMarketsData = (await getCacheFromRedis(F2_MARKETS_CACHE_KEY)) || {};
 
