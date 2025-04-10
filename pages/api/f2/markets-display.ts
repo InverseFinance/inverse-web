@@ -5,7 +5,7 @@ import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
 import { getSignMessageWithUtcDate } from '@app/util/misc';
 import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
 
-export const marketsDisplaysCacheKey = 'markets-displays';
+export const marketsDisplaysCacheKey = 'markets-displays-v1';
 
 export default async function handler(req, res) {
     const {
@@ -13,6 +13,15 @@ export default async function handler(req, res) {
     } = req
 
     switch (method) {
+        case 'GET':
+            try {
+                const cachedData = (await getCacheFromRedis(marketsDisplaysCacheKey)) || { updates: [] };
+                res.status(200).json({ status: 'success', data: cachedData })
+            } catch (e) {
+                console.error(e);
+                res.status(500).json({ status: 'error', message: 'An error occured' })
+            }
+            break
         case 'PUT':
             try {
                 const { sig, marketAddress, noDeposit, isPhasingOut, phasingOutComment } = req.body;
@@ -42,15 +51,15 @@ export default async function handler(req, res) {
                 if(!cachedData?.updates) {
                     cachedData.updates = [];
                 }
+                const now = Date.now();
+
                 cachedData.updates.push({
                     signer: sigAddress,
-                    time: new Date().toISOString(),
-                    payload: {
-                        marketAddress,
-                        noDeposit,
-                        isPhasingOut,
-                        phasingOutComment,
-                    }
+                    timestamp: now,
+                    marketAddress,
+                    noDeposit,
+                    isPhasingOut,
+                    phasingOutComment,
                 })
 
                 const cachedMarketsData = (await getCacheFromRedis(F2_MARKETS_CACHE_KEY)) || {};
@@ -76,7 +85,7 @@ export default async function handler(req, res) {
             }
             break
         default:
-            res.setHeader('Allow', ['PUT'])
+            res.setHeader('Allow', ['GET', 'PUT'])
             res.status(405).end(`Method ${method} Not Allowed`)
     }
 }
