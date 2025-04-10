@@ -1,19 +1,22 @@
-import { VStack, Text, Flex, Stack, HStack } from '@chakra-ui/react'
+import { VStack, Text, Flex, Stack, HStack, RadioGroup, Radio } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { FirmMarketsAndPositionsRenderer } from '@app/components/F2/FirmMarketsAndPositions'
 import { useDBRMarkets } from '@app/hooks/useDBR'
-import { InfoMessage } from '@app/components/common/Messages'
-import { NavButtons } from '@app/components/common/Button'
-import { useMemo, useState } from 'react'
+import { InfoMessage, StatusMessage } from '@app/components/common/Messages'
+import { NavButtons, SubmitButton } from '@app/components/common/Button'
+import { useEffect, useMemo, useState } from 'react'
 import { fetcher } from '@app/util/web3'
 import useSWR from 'swr'
 import Table from '@app/components/common/Table'
 import ScannerLink from '@app/components/common/ScannerLink'
 import { Timestamp } from '@app/components/common/BlockTimestamp/Timestamp'
 import Container from '@app/components/common/Container'
+import { Textarea } from '@app/components/common/Input'
+import { useWeb3React } from '@web3-react/core'
+import { getSignMessageWithUtcDate } from '@app/util/misc'
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'130px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -40,9 +43,9 @@ const updatesColumns = [
     {
         field: 'timestamp',
         label: 'Date',
-        header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="180px" justify="flex-start"  {...props} />,
         value: ({ timestamp }) => {
-            return <Cell minWidth="200px" justify="flex-start" >
+            return <Cell minWidth="180px" justify="flex-start" >
                 <CellText><Timestamp text1Props={{ fontSize: '12px' }} text2Props={{ fontSize: '12px', color: 'mainTextColorLight' }} timestamp={timestamp} /></CellText>
             </Cell>
         },
@@ -58,54 +61,98 @@ const updatesColumns = [
         },
     },
     {
-        field: 'market',
+        field: 'type',
+        label: 'Type',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="flex-start"  {...props} />,
+        value: ({ type }) => {
+            return <Cell minWidth="100px" justify="flex-start" >
+                <CellText>{type}</CellText>
+            </Cell>
+        },
+    },
+    {
+        field: 'marketAddress',
         label: 'Market Address',
         header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-start"  {...props} />,
         value: ({ marketAddress }) => {
             return <Cell minWidth="200px" justify="flex-start" >
-                <ScannerLink value={marketAddress} />
+                {marketAddress ? <ScannerLink value={marketAddress} /> : <CellText>-</CellText>}
             </Cell>
         },
     },
     {
         field: 'noDeposit',
         label: 'Disabled Deposits',
-        header: ({ ...props }) => <ColHeader minWidth="130px" justify="flex-start"  {...props} />,
-        value: ({ noDeposit }) => {
-            return <Cell minWidth="130px" justify="flex-start" >
-                <CellText>{noDeposit ? 'Yes' : 'No'}</CellText>
+        header: ({ ...props }) => <ColHeader minWidth="120px" justify="flex-start"  {...props} />,
+        value: ({ marketAddress, noDeposit }) => {
+            return <Cell minWidth="120px" justify="flex-start" >
+                <CellText>{marketAddress ? (noDeposit ? 'Yes' : 'No') : '-'}</CellText>
             </Cell>
         },
     },
     {
         field: 'isPhasingOut',
         label: 'Hidden',
-        header: ({ ...props }) => <ColHeader minWidth="130px" justify="flex-start"  {...props} />,
-        value: ({ isPhasingOut }) => {
-            return <Cell minWidth="130px" justify="flex-start" >
-                <CellText>{isPhasingOut ? 'Yes' : 'No'}</CellText>
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="flex-start"  {...props} />,
+        value: ({ marketAddress, isPhasingOut }) => {
+            return <Cell minWidth="90px" justify="flex-start" >
+                <CellText>{marketAddress ? (isPhasingOut ? 'Yes' : 'No') : '-'}</CellText>
             </Cell>
         },
     },
     {
-        field: 'phasingOutComment',
+        field: 'message',
         label: 'Comment',
         header: ({ ...props }) => <ColHeader minWidth="300px" justify="flex-start"  {...props} />,
-        value: ({ phasingOutComment }) => {
+        value: ({ message }) => {
             return <Cell minWidth="300px" justify="flex-start" >
-                <CellText maxW="300px" whiteSpace="normal">{phasingOutComment || '-'}</CellText>
+                <CellText maxW="300px" whiteSpace="pre-wrap">{message || '-'}</CellText>
             </Cell>
         },
     },
 ]
 
 export const FirmAdminPage = () => {
+    const { provider } = useWeb3React();
     const { markets, isLoading, timestamp } = useDBRMarkets();
     const { data: marketsDisplaysData } = useSWR('/api/f2/markets-display', fetcher);
-    const [activeTab, setActiveTab] = useState<'Markets' | 'Updates'>('Markets');
+    const [activeTab, setActiveTab] = useState<'Markets' | 'Updates' | 'Global Message'>('Markets');
+    const [globalMessage, setGlobalMessage] = useState('');
+    const [globalMessageStatus, setGlobalMessageStatus] = useState<'warning' | 'error' | 'info' | 'success'>('info');
+    const [inited, setInited] = useState(false);
+
     const updates = useMemo(() => {
         return marketsDisplaysData?.data?.updates || [];
     }, [marketsDisplaysData]);
+
+    useEffect(() => {
+        if (!inited && !!marketsDisplaysData) {
+            setGlobalMessage(marketsDisplaysData?.data?.globalMessage || '');
+            setGlobalMessageStatus(marketsDisplaysData?.data?.globalMessageStatus || 'info');
+            setInited(true);
+        }
+    }, [inited, marketsDisplaysData]);
+
+    const saveGlobalMessage = async () => {
+        const sig = await provider?.getSigner()?.signMessage(getSignMessageWithUtcDate());
+        if (!sig) {
+            return;
+        }
+        const res = await fetch('/api/f2/markets-display', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                sig,
+                globalMessage,
+                globalMessageStatus,
+            }),
+        });
+        return await res.json();
+    }
+
     return (
         <Layout>
             <Head>
@@ -123,14 +170,13 @@ export const FirmAdminPage = () => {
                             description={
                                 <VStack spacing="0" w='full' alignItems='flex-start'>
                                     <Text>- Connect with a whitelisted PWG, RWG or TWG address</Text>
-                                    <Text>- Click on a market to update visibility or disable deposits</Text>
                                     <Text>- Sign to confirm</Text>
                                     <Text>- Updates can take 1-2 minutes to fully reflect</Text>
                                 </VStack>
                             }
                         />
                         <NavButtons
-                            options={['Markets', 'Updates']}
+                            options={['Markets', 'Global Message', 'Updates']}
                             active={activeTab}
                             onClick={(s) => setActiveTab(s)}
                         />
@@ -157,7 +203,49 @@ export const FirmAdminPage = () => {
                                     items={updates}
                                     defaultSort="timestamp"
                                     defaultSortDir="desc"
+                                    showRowBorder={true}
+                                    spacing="0"
                                 />
+                            </Container>
+                        )
+                    }
+                    {
+                        activeTab === 'Global Message' && (
+                            <Container w="full" p="0" noPadding>
+                                <VStack w="full" spacing="4" alignItems="flex-start">
+                                    <HStack spacing="4" justify="space-between">
+                                        <Text color="mainTextColorLight">Message type:</Text>
+                                        <RadioGroup value={globalMessageStatus} onChange={(e) => setGlobalMessageStatus(e)}>
+                                            <HStack spacing="4">
+                                                <Radio value="info">Info</Radio>
+                                                <Radio value="warning">Warning</Radio>
+                                                <Radio value="error">Error</Radio>
+                                                <Radio value="success">Success</Radio>
+                                            </HStack>
+                                        </RadioGroup>
+                                    </HStack>
+                                    <Textarea fontSize="14px" placeholder="Important message to show on the main FiRM page" maxLength={500} value={globalMessage} onChange={(e) => setGlobalMessage(e.target.value)} />
+                                    <Text fontSize="12px" color="mainTextColorLight">{globalMessage.length} / 500</Text>
+                                    {
+                                        !!globalMessage && <>
+                                            <Text>Preview:</Text>
+                                            <StatusMessage
+                                                alertProps={{
+                                                    w: 'full',
+                                                }}
+                                                status={globalMessageStatus}
+                                                description={globalMessage}
+                                            />
+                                        </>
+                                    }
+                                    <SubmitButton
+                                        w="fit-content"
+                                        disabled={marketsDisplaysData?.data?.globalMessage === globalMessage}
+                                        onClick={saveGlobalMessage}
+                                    >
+                                        {globalMessage ? marketsDisplaysData?.data?.globalMessage ? 'Update Message' : 'Add Message' : 'Delete Message'}
+                                    </SubmitButton>
+                                </VStack>
                             </Container>
                         )
                     }

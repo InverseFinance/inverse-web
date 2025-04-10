@@ -5,9 +5,10 @@ import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
 import { getSignMessageWithUtcDate } from '@app/util/misc';
 import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
 
-export const marketsDisplaysCacheKey = 'markets-displays-v1';
+export const marketsDisplaysCacheKey = 'markets-displays-v1.1';
 
 export default async function handler(req, res) {
+    res.setHeader('Cache-Control', `public, max-age=1`);
     const {
         method,
     } = req
@@ -15,7 +16,7 @@ export default async function handler(req, res) {
     switch (method) {
         case 'GET':
             try {
-                const cachedData = (await getCacheFromRedis(marketsDisplaysCacheKey)) || { updates: [] };
+                const cachedData = (await getCacheFromRedis(marketsDisplaysCacheKey, false)) || { updates: [], globalMessage: '', globalMessageStatus: 'info' };
                 res.status(200).json({ status: 'success', data: cachedData })
             } catch (e) {
                 console.error(e);
@@ -24,8 +25,8 @@ export default async function handler(req, res) {
             break
         case 'PUT':
             try {
-                const { sig, marketAddress, noDeposit, isPhasingOut, phasingOutComment } = req.body;
-                
+                const { sig, marketAddress, noDeposit, isPhasingOut, phasingOutComment, globalMessage, globalMessageStatus } = req.body;
+
                 const whitelisted = ADMIN_ADS.map(a => a.toLowerCase());
                 const sigAddress = verifyMessage(getSignMessageWithUtcDate(), sig).toLowerCase();
 
@@ -34,51 +35,77 @@ export default async function handler(req, res) {
                     return
                 };
 
-                if (!marketAddress || !isAddress(marketAddress) || !['yes', 'no'].includes(noDeposit) || !['yes', 'no'].includes(isPhasingOut) || phasingOutComment?.length > 500) {
+                if (!!globalMessage) {
+                    if (globalMessage?.length > 500 || !['warning', 'error', 'info', 'success'].includes(globalMessageStatus)) {
+                        res.status(400).json({ status: 'warning', message: 'Invalid global message' })
+                        return
+                    };
+                }
+                else if (!marketAddress || !isAddress(marketAddress) || !['yes', 'no'].includes(noDeposit) || !['yes', 'no'].includes(isPhasingOut) || phasingOutComment?.length > 500) {
                     res.status(400).json({ status: 'warning', message: 'Invalid values' })
                     return
                 }
 
-                const cachedData = (await getCacheFromRedis(marketsDisplaysCacheKey)) || {};
-
-                cachedData[marketAddress] = {
-                    noDeposit: noDeposit === 'yes',
-                    isPhasingOut: isPhasingOut === 'yes',
-                    phasingOutComment,
-                };
-
-                // keep track
-                if(!cachedData?.updates) {
+                const cachedData = (await getCacheFromRedis(marketsDisplaysCacheKey, false)) || { updates: [], globalMessage: '', globalMessageStatus: 'info' };
+                // keep track of updates, updates is an array for both global messages and market updates
+                if (!cachedData?.updates) {
                     cachedData.updates = [];
                 }
+
                 const now = Date.now();
 
-                cachedData.updates.push({
-                    signer: sigAddress,
-                    timestamp: now,
-                    marketAddress,
-                    noDeposit,
-                    isPhasingOut,
-                    phasingOutComment,
-                })
+                if (!!globalMessage) {
+                    cachedData.globalMessage = globalMessage;
+                    cachedData.globalMessageStatus = globalMessageStatus;
+                    cachedData.globalMessageSigner = sigAddress;
+                    cachedData.globalMessageTimestamp = now;
 
-                const cachedMarketsData = (await getCacheFromRedis(F2_MARKETS_CACHE_KEY)) || {};
+                    cachedData.updates.push({
+                        signer: sigAddress,
+                        type: 'global',
+                        timestamp: now,
+                        marketAddress: '',
+                        noDeposit: '',
+                        isPhasingOut: '',
+                        message: `Message Type: ${globalMessageStatus}\n${globalMessage}`,
+                    });
+                } else {
+                    cachedData[marketAddress] = {
+                        noDeposit: noDeposit === 'yes',
+                        isPhasingOut: isPhasingOut === 'yes',
+                        phasingOutComment: isPhasingOut === 'yes' ? phasingOutComment : '',
+                    };
 
-                if(cachedMarketsData) {
-                    const marketIndex = cachedMarketsData.markets.findIndex(m => m.address === marketAddress);
-                    if(marketIndex !== -1) {
-                        cachedMarketsData.markets[marketIndex] = {
-                            ...cachedMarketsData.markets[marketIndex],
-                            ...cachedData[marketAddress],
-                        };
+                    cachedData.updates.push({
+                        signer: sigAddress,
+                        type: 'market',
+                        timestamp: now,
+                        marketAddress,
+                        noDeposit: noDeposit === 'yes',
+                        isPhasingOut: isPhasingOut === 'yes',
+                        message: isPhasingOut === 'yes' ? phasingOutComment : '',
+                    });
+
+                    const cachedMarketsData = (await getCacheFromRedis(F2_MARKETS_CACHE_KEY, false)) || {};
+
+                    if (cachedMarketsData) {
+                        const marketIndex = cachedMarketsData.markets.findIndex(m => m.address === marketAddress);
+                        if (marketIndex !== -1) {
+                            cachedMarketsData.markets[marketIndex] = {
+                                ...cachedMarketsData.markets[marketIndex],
+                                noDeposit: cachedData[marketAddress].noDeposit,
+                                isPhasingOut: cachedData[marketAddress].isPhasingOut,
+                                phasingOutComment: cachedData[marketAddress].message,
+                            };
+                        }
+                        // update firm markets cache accordingly
+                        await redisSetWithTimestamp(F2_MARKETS_CACHE_KEY, cachedMarketsData);
                     }
-                    // update firm markets cache accordingly
-                    await redisSetWithTimestamp(F2_MARKETS_CACHE_KEY, cachedMarketsData);
                 }
 
                 await redisSetWithTimestamp(marketsDisplaysCacheKey, cachedData);
 
-                res.status(200).json({ status: 'success' })
+                res.status(200).json({ status: 'success', message: 'Update successful' })
             } catch (e) {
                 console.error(e);
                 res.status(200).json({ status: 'error', message: 'An error occured' })
