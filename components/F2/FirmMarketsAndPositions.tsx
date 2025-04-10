@@ -12,11 +12,13 @@ import { F2Market } from "@app/types";
 export const FirmMarketsAndPositions = ({
     vnetPublicId,
     defaultTab = 'Positions',
-    onlyShowDefaultTab = false
+    onlyShowDefaultTab = false,
+    useAdminMarketsColumns = false
 }: {
     vnetPublicId?: string,
     defaultTab?: 'Markets' | 'Positions' | 'Stats',
-    onlyShowDefaultTab?: boolean
+    onlyShowDefaultTab?: boolean,
+    useAdminMarketsColumns?: boolean,
 }) => {
     const { timestamp, positions, isLoading, markets } = useFirmPositions(vnetPublicId);
     return <FirmMarketsAndPositionsRenderer
@@ -27,6 +29,7 @@ export const FirmMarketsAndPositions = ({
         isLoading={isLoading}
         timestamp={timestamp}
         onlyShowDefaultTab={onlyShowDefaultTab}
+        useAdminMarketsColumns={useAdminMarketsColumns}
     />
 }
 
@@ -37,7 +40,8 @@ export const FirmMarketsAndPositionsRenderer = ({
     positions,
     isLoading,
     timestamp,
-    onlyShowDefaultTab = false
+    onlyShowDefaultTab = false,
+    useAdminMarketsColumns = false
 }: {
     vnetPublicId?: string
     defaultTab?: 'Markets' | 'Positions' | 'Stats',
@@ -45,7 +49,8 @@ export const FirmMarketsAndPositionsRenderer = ({
     positions: any[],
     isLoading: boolean,
     timestamp: number,
-    onlyShowDefaultTab?: boolean
+    onlyShowDefaultTab?: boolean,
+    useAdminMarketsColumns?: boolean
 }) => {
     const [isSmallerThan] = useMediaQuery(`(max-width: 1260px)`);
     const [activeTab, setActiveTab] = useState(defaultTab);
@@ -168,6 +173,7 @@ export const FirmMarketsAndPositionsRenderer = ({
                                     markets?.filter(marketFilter)
                                 }
                                 isSimContext={!!vnetPublicId}
+                                useAdminMarketsColumns={useAdminMarketsColumns}
                             />
                         </VStack>
                     }

@@ -13,6 +13,7 @@ import { InfoMessage } from "../common/Messages";
 import { Textarea } from "../common/Input";
 import { getSignMessageWithUtcDate } from "@app/util/misc";
 import { showToast } from "@app/util/notify";
+import Link from "../common/Link";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'130px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -28,9 +29,9 @@ const CellText = ({ ...props }) => {
 
 const MarketCell = ({ name, address }: { name: string, address: string }) => {
     return <Cell fontSize={'12px'} alignItems="flex-start" direction="column" minWidth="130px" position="relative">
-        <CellText maxW="130px" textOverflow="ellipsis" overflow="hidden" whiteSpace="nowrap" fontWeight="bold" fontSize={{ base: '12px' }}>
+        <Link textDecoration="underline" href={`/firm/${name}`} isExternal target="_blank" onClick={(e) => e.stopPropagation()} maxW="130px" textOverflow="ellipsis" overflow="hidden" whiteSpace="nowrap" fontWeight="bold" fontSize={{ base: '12px' }}>
             {name}
-        </CellText>
+        </Link>
         <ScannerLink value={address} type="address" useName={false} />
     </Cell>
 }
@@ -158,7 +159,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="50px" justify="center"  {...props} />,
         value: ({ isPhasingOut }) => {
             return <Cell minWidth="50px" justify="center" >
-                <CellText>{isPhasingOut ? 'Yes' : 'No'}</CellText>
+                <CellText color={isPhasingOut ? 'warning' : ''}>{isPhasingOut ? 'Yes' : 'No'}</CellText>
             </Cell>
         },
     },
@@ -246,16 +247,87 @@ const columns = [
             </Cell>
         },
     },
-]
+];
+
+const adminColumns = [
+    {
+        field: 'marketIndex',
+        label: '#',
+        header: ({ ...props }) => <ColHeader minWidth="25px" justify="flex-start"  {...props} />,
+        value: ({ marketIndex }) => {
+            return <Cell minWidth="25px" justify="flex-start" >
+                <CellText fontSize={'12px'} color="mainTextColorLight">{marketIndex + 1}</CellText>
+            </Cell>
+        },
+    },
+    {
+        field: 'name',
+        label: 'Market',
+        header: ({ ...props }) => <ColHeader minWidth="130px" justify="flex-start"  {...props} />,
+        showFilter: true,
+        filterWidth: '120px',
+        value: ({ name, address }) => {
+            return <MarketCell name={name} address={address} />
+        },
+    },
+    {
+        field: 'borrowPaused',
+        label: 'Borrow Paused',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        showFilter: true,
+        filterWidth: '100px',
+        value: ({ borrowPaused }) => {
+            return <Cell minWidth="100px" justify="center" >
+                <CellText color={borrowPaused ? 'warning' : ''}>{borrowPaused ? 'Yes' : 'No'}</CellText>
+            </Cell>
+        },
+    },
+    {
+        field: 'isPhasingOut',
+        label: 'Hidden',
+        showFilter: true,
+        filterWidth: '100px',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        value: ({ isPhasingOut }) => {
+            return <Cell minWidth="100px" justify="center" >
+                <CellText color={isPhasingOut ? 'warning' : ''}>{isPhasingOut ? 'Yes' : 'No'}</CellText>
+            </Cell>
+        },
+    },
+    {
+        field: 'noDeposit',
+        label: 'Deposits Disabled',
+        showFilter: true,
+        filterWidth: '100px',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        value: ({ noDeposit }) => {
+            return <Cell minWidth="100px" justify="center" >
+                <CellText color={noDeposit ? 'warning' : ''}>{noDeposit ? 'Yes' : 'No'}</CellText>
+            </Cell>
+        },
+    },
+    {
+        field: 'phasingOutComment',
+        label: 'Comment',
+        header: ({ ...props }) => <ColHeader minWidth="300px" justify="center"  {...props} />,
+        value: ({ phasingOutComment }) => {
+            return <Cell minWidth="300px" justify="center" >
+                <CellText maxW="300px" whiteSpace="normal">{phasingOutComment ? phasingOutComment : '-'}</CellText>
+            </Cell>
+        },
+    },
+];
 
 const responsiveThreshold = 1260;
 
 export const F2MarketsParams = ({
     markets,
-    isSimContext = false
+    isSimContext = false,
+    useAdminMarketsColumns = false
 }: {
     markets: F2Market[]
-    isSimContext?: boolean
+    isSimContext?: boolean,
+    useAdminMarketsColumns?: boolean
 }) => {
     const { account, provider } = useWeb3React();
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -392,13 +464,15 @@ export const F2MarketsParams = ({
         </ConfirmModal>
         <Table
             keyName="address"
-            columns={columns}
+            columns={useAdminMarketsColumns ? adminColumns : columns}
             onClick={isWhitelisted ? (market) => { setSelectedMarket(market); onOpen(); } : undefined}
             items={
                 _markets
                     .map((m, i) => ({
                         ...m,
                         isPhasingOut: !!m.isPhasingOut,
+                        noDeposit: !!m.noDeposit,
+                        phasingOutComment: m.phasingOutComment || '',
                         marketIndex: i,
                     }))
             }
