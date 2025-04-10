@@ -163,7 +163,7 @@ export const FirmAdminPage = () => {
                 <VStack spacing="8" w='full' maxW="1200px" mt="4" alignItems='center'>
                     <VStack maxW="600px" w="full" justify="space-between" alignItems="flex-end">
                         <InfoMessage
-                            title="FiRM UI temporary overrides Admin"
+                            title="FiRM UI Temporary Measures Admin"
                             alertProps={{
                                 w: 'full',
                             }}
