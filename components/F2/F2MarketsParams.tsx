@@ -374,6 +374,7 @@ export const F2MarketsParams = ({
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
+                type: 'market',
                 sig,
                 marketAddress: m?.address,
                 isPhasingOut: isPhasingOut,

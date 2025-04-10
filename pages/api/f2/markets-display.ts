@@ -25,7 +25,7 @@ export default async function handler(req, res) {
             break
         case 'PUT':
             try {
-                const { sig, marketAddress, noDeposit, isPhasingOut, phasingOutComment, globalMessage, globalMessageStatus } = req.body;
+                const { sig, type, marketAddress, noDeposit, isPhasingOut, phasingOutComment, globalMessage, globalMessageStatus } = req.body;
 
                 const whitelisted = ADMIN_ADS.map(a => a.toLowerCase());
                 const sigAddress = verifyMessage(getSignMessageWithUtcDate(), sig).toLowerCase();
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
                     return
                 };
 
-                if (!!globalMessage) {
+                if (type === 'global') {
                     if (globalMessage?.length > 500 || !['warning', 'error', 'info', 'success'].includes(globalMessageStatus)) {
                         res.status(400).json({ status: 'warning', message: 'Invalid global message' })
                         return
