@@ -103,7 +103,7 @@ const updatesColumns = [
     },
     {
         field: 'message',
-        label: 'Comment',
+        label: 'Message',
         header: ({ ...props }) => <ColHeader minWidth="300px" justify="flex-start"  {...props} />,
         value: ({ message }) => {
             return <Cell minWidth="300px" justify="flex-start" >
