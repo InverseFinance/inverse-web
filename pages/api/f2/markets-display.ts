@@ -67,7 +67,7 @@ export default async function handler(req, res) {
                         marketAddress: '',
                         noDeposit: '',
                         isPhasingOut: '',
-                        message: `Message Type: ${globalMessageStatus}\n${globalMessage}`,
+                        message: globalMessage ? `Message Type: ${globalMessageStatus}\n${globalMessage}` : '',
                     });
                 } else {
                     cachedData[marketAddress] = {
