@@ -283,6 +283,18 @@ const adminColumns = [
         },
     },
     {
+        field: 'isBorrowingSuspended',
+        label: 'B.Suspended',
+        showFilter: true,
+        filterWidth: '100px',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        value: ({ isBorrowingSuspended }) => {
+            return <Cell minWidth="100px" justify="center">
+                <CellText color={isBorrowingSuspended ? 'warning' : ''}>{isBorrowingSuspended ? 'Suspended' : 'Default'}</CellText>
+            </Cell>
+        },
+    },
+    {
         field: 'isPhasingOut',
         label: 'Hidden',
         showFilter: true,
@@ -290,29 +302,41 @@ const adminColumns = [
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ isPhasingOut }) => {
             return <Cell minWidth="100px" justify="center" >
-                <CellText color={isPhasingOut ? 'warning' : ''}>{isPhasingOut ? 'Yes' : 'No'}</CellText>
+                <CellText color={isPhasingOut ? 'warning' : ''}>{isPhasingOut ? 'Hidden' : 'Default'}</CellText>
             </Cell>
         },
     },
     {
         field: 'noDeposit',
-        label: 'Deposits Disabled',
+        label: 'Deposits Suspended',
         showFilter: true,
         filterWidth: '100px',
-        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
         value: ({ noDeposit }) => {
-            return <Cell minWidth="100px" justify="center" >
-                <CellText color={noDeposit ? 'warning' : ''}>{noDeposit ? 'Yes' : 'No'}</CellText>
+            return <Cell minWidth="120px" justify="center">
+                <CellText color={noDeposit ? 'warning' : ''}>{noDeposit ? 'Suspended' : 'Default'}</CellText>
+            </Cell>
+        },
+    },
+    {
+        field: 'isLeverageSuspended',
+        label: 'ALE Suspended',
+        showFilter: true,
+        filterWidth: '100px',
+        header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
+        value: ({ isLeverageSuspended }) => {
+            return <Cell minWidth="120px" justify="center">
+                <CellText color={isLeverageSuspended ? 'warning' : ''}>{isLeverageSuspended ? 'Suspended' : 'Default'}</CellText>
             </Cell>
         },
     },
     {
         field: 'phasingOutComment',
         label: 'Comment',
-        header: ({ ...props }) => <ColHeader minWidth="300px" justify="center"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="250px" justify="center"  {...props} />,
         value: ({ phasingOutComment }) => {
-            return <Cell minWidth="300px" justify="center" >
-                <CellText maxW="300px" whiteSpace="normal">{phasingOutComment ? phasingOutComment : '-'}</CellText>
+            return <Cell minWidth="250px" justify="center" >
+                <CellText maxW="250px" whiteSpace="normal">{phasingOutComment ? phasingOutComment : '-'}</CellText>
             </Cell>
         },
     },
@@ -336,6 +360,8 @@ export const F2MarketsParams = ({
     const [selectedMarket, setSelectedMarket] = useState<F2Market | null>(null);
     const [isPhasingOut, setIsPhasingOut] = useState('no');
     const [noDeposit, setNoDeposit] = useState('no');
+    const [isLeverageSuspended, setIsLeverageSuspended] = useState('no');
+    const [isBorrowingSuspended, setIsBorrowingSuspended] = useState('no');
     const [phasingOutComment, setPhasingOutComment] = useState('');
     const [optimisticUpdates, setOptimisticUpdates] = useState({});
 
@@ -343,6 +369,8 @@ export const F2MarketsParams = ({
         if (selectedMarket) {
             setIsPhasingOut(selectedMarket.isPhasingOut ? 'yes' : 'no');
             setNoDeposit(selectedMarket.noDeposit ? 'yes' : 'no');
+            setIsLeverageSuspended(selectedMarket.isLeverageSuspended ? 'yes' : 'no');
+            setIsBorrowingSuspended(selectedMarket.isBorrowingSuspended ? 'yes' : 'no');
             setPhasingOutComment(selectedMarket.phasingOutComment || '');
         }
     }, [selectedMarket]);
@@ -380,6 +408,8 @@ export const F2MarketsParams = ({
                 isPhasingOut: isPhasingOut,
                 noDeposit: noDeposit,
                 phasingOutComment: phasingOutComment,
+                isLeverageSuspended: isLeverageSuspended,
+                isBorrowingSuspended: isBorrowingSuspended,
             }),
         });
         const resData = await res.json();
@@ -396,6 +426,8 @@ export const F2MarketsParams = ({
                     noDeposit: noDeposit === 'yes',
                     isPhasingOut: isPhasingOut === 'yes',
                     phasingOutComment,
+                    isLeverageSuspended: isLeverageSuspended,
+                    isBorrowingSuspended: isBorrowingSuspended,
                 },
             });
         } else {
@@ -437,8 +469,26 @@ export const F2MarketsParams = ({
                     }}
                 />
                 <VStack alignItems="flex-start" w='full' spacing="2">
-                    <Text fontWeight="bold">Disable deposits in UI?</Text>
+                    <Text fontWeight="bold">Suspend deposits in UI?</Text>
                     <RadioGroup w='full' bgColor="mainBackground" p="2" onChange={setNoDeposit} value={noDeposit}>
+                        <Stack direction='row' w='full' spacing="4">
+                            <Radio value='yes'>Yes</Radio>
+                            <Radio value='no'>No</Radio>
+                        </Stack>
+                    </RadioGroup>
+                </VStack>
+                <VStack alignItems="flex-start" w='full' spacing="2">
+                    <Text fontWeight="bold">Suspend leverage in UI?</Text>
+                    <RadioGroup w='full' bgColor="mainBackground" p="2" onChange={setIsLeverageSuspended} value={isLeverageSuspended}>
+                        <Stack direction='row' w='full' spacing="4">
+                            <Radio value='yes'>Yes</Radio>
+                            <Radio value='no'>No</Radio>
+                        </Stack>
+                    </RadioGroup>
+                </VStack>
+                <VStack alignItems="flex-start" w='full' spacing="2">
+                    <Text fontWeight="bold">Suspend borrows in UI?</Text>
+                    <RadioGroup w='full' bgColor="mainBackground" p="2" onChange={setIsBorrowingSuspended} value={isBorrowingSuspended}>
                         <Stack direction='row' w='full' spacing="4">
                             <Radio value='yes'>Yes</Radio>
                             <Radio value='no'>No</Radio>
@@ -473,6 +523,8 @@ export const F2MarketsParams = ({
                         ...m,
                         isPhasingOut: !!m.isPhasingOut,
                         noDeposit: !!m.noDeposit,
+                        isLeverageSuspended: !!m.isLeverageSuspended,
+                        isBorrowingSuspended: !!m.isBorrowingSuspended,
                         phasingOutComment: m.phasingOutComment || '',
                         marketIndex: i,
                     }))

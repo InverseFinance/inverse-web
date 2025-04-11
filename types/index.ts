@@ -769,6 +769,8 @@ export type F2Market = {
   aleDefaultSlippagePerc?: string
   hasAleFeat?: boolean
   isLeverageComingSoon?: boolean
+  isLeverageSuspended?: boolean
+  isBorrowingSuspended?: boolean
   isPhasingOut?: boolean
   isUserApy?: boolean
   phasingOutComment?: string
