@@ -54,7 +54,7 @@ export default async function handler(req, res) {
 
                 const now = Date.now();
 
-                if (!!globalMessage) {
+                if (type === 'global') {
                     cachedData.globalMessage = globalMessage;
                     cachedData.globalMessageStatus = globalMessageStatus;
                     cachedData.globalMessageSigner = sigAddress;
