@@ -25,7 +25,7 @@ export default async function handler(req, res) {
             break
         case 'PUT':
             try {
-                const { sig, type, marketAddress, noDeposit, isPhasingOut, phasingOutComment, globalMessage, globalMessageStatus } = req.body;
+                const { sig, type, marketAddress, noDeposit, isPhasingOut, phasingOutComment, globalMessage, globalMessageStatus, isLeverageSuspended, isBorrowingSuspended } = req.body;
 
                 const whitelisted = ADMIN_ADS.map(a => a.toLowerCase());
                 const sigAddress = verifyMessage(getSignMessageWithUtcDate(), sig).toLowerCase();
@@ -41,7 +41,7 @@ export default async function handler(req, res) {
                         return
                     };
                 }
-                else if (!marketAddress || !isAddress(marketAddress) || !['yes', 'no'].includes(noDeposit) || !['yes', 'no'].includes(isPhasingOut) || phasingOutComment?.length > 500) {
+                else if (!marketAddress || !isAddress(marketAddress) || !['yes', 'no'].includes(noDeposit) || !['yes', 'no'].includes(isPhasingOut) || phasingOutComment?.length > 500 || !['yes', 'no'].includes(isLeverageSuspended) || !['yes', 'no'].includes(isBorrowingSuspended)) {
                     res.status(400).json({ status: 'warning', message: 'Invalid values' })
                     return
                 }
@@ -67,12 +67,16 @@ export default async function handler(req, res) {
                         marketAddress: '',
                         noDeposit: '',
                         isPhasingOut: '',
+                        isLeverageSuspended: '',
+                        isBorrowingSuspended: '',
                         message: globalMessage ? `Message Type: ${globalMessageStatus}\n${globalMessage}` : '',
                     });
                 } else {
                     cachedData[marketAddress] = {
                         noDeposit: noDeposit === 'yes',
                         isPhasingOut: isPhasingOut === 'yes',
+                        isLeverageSuspended: isLeverageSuspended === 'yes',
+                        isBorrowingSuspended: isBorrowingSuspended === 'yes',
                         phasingOutComment: isPhasingOut === 'yes' ? phasingOutComment : '',
                     };
 
@@ -83,6 +87,8 @@ export default async function handler(req, res) {
                         marketAddress,
                         noDeposit: noDeposit === 'yes',
                         isPhasingOut: isPhasingOut === 'yes',
+                        isLeverageSuspended: isLeverageSuspended === 'yes',
+                        isBorrowingSuspended: isBorrowingSuspended === 'yes',
                         message: isPhasingOut === 'yes' ? phasingOutComment : '',
                     });
 

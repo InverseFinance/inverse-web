@@ -153,7 +153,7 @@ export const F2PAGE = ({
                                 <StatusMessage
                                     alertProps={{
                                         w: 'full',
-                                        whiteSpace: 'pre',
+                                        whiteSpace: 'pre-wrap',
                                     }}
                                     status={globalMessageStatus || 'info'}
                                     description={

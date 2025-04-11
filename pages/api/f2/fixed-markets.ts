@@ -104,6 +104,9 @@ export default async function handler(req, res) {
         dbrInvExRate: m.isInv ? formattedDistrubutorData.dbrInvExRate : undefined,
         noDeposit: marketCustomDisplay ? marketCustomDisplay?.noDeposit :  m.noDeposit,
         isPhasingOut: marketCustomDisplay ? marketCustomDisplay?.isPhasingOut : m.isPhasingOut,
+        isLeverageSuspended: marketCustomDisplay ? marketCustomDisplay?.isLeverageSuspended : m.isLeverageSuspended,
+        isBorrowingSuspended: marketCustomDisplay ? marketCustomDisplay?.isBorrowingSuspended : m.isBorrowingSuspended,
+        isLeverageComingSoon: marketCustomDisplay ? marketCustomDisplay?.isLeverageSuspended : m.isLeverageComingSoon,
         phasingOutComment: marketCustomDisplay ? marketCustomDisplay?.phasingOutComment :  m.phasingOutComment,
       }
     });

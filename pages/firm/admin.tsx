@@ -18,6 +18,7 @@ import { Textarea } from '@app/components/common/Input'
 import { useWeb3React } from '@web3-react/core'
 import { getSignMessageWithUtcDate } from '@app/util/misc'
 import { ADMIN_ADS } from '@app/variables/names'
+import { namedAddress } from '@app/util'
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'130px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -31,32 +32,23 @@ const CellText = ({ ...props }) => {
     return <Text fontSize="14px" {...props} />
 }
 
-const MarketCell = ({ name, address }: { name: string, address: string }) => {
-    return <Cell fontSize={'12px'} alignItems="flex-start" direction="column" minWidth="130px" position="relative">
-        <CellText maxW="130px" textOverflow="ellipsis" overflow="hidden" whiteSpace="nowrap" fontWeight="bold" fontSize={{ base: '12px' }}>
-            {name}
-        </CellText>
-        <ScannerLink value={address} type="address" useName={true} />
-    </Cell>
-}
-
 const updatesColumns = [
     {
         field: 'timestamp',
-        label: 'Date',
-        header: ({ ...props }) => <ColHeader minWidth="180px" justify="flex-start"  {...props} />,
+        label: 'Time',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="flex-start"  {...props} />,
         value: ({ timestamp }) => {
-            return <Cell minWidth="180px" justify="flex-start" >
-                <CellText><Timestamp text1Props={{ fontSize: '12px' }} text2Props={{ fontSize: '12px', color: 'mainTextColorLight' }} timestamp={timestamp} /></CellText>
+            return <Cell minWidth="100px" justify="flex-start" >
+                <CellText><Timestamp showAbsoluteTime={false} text1Props={{ fontSize: '12px' }} text2Props={{ fontSize: '12px', color: 'mainTextColorLight' }} timestamp={timestamp} /></CellText>
             </Cell>
         },
     },
     {
         field: 'signer',
         label: 'Signer',
-        header: ({ ...props }) => <ColHeader minWidth="150px" justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="flex-start"  {...props} />,
         value: ({ signer }) => {
-            return <Cell minWidth="150px" justify="flex-start" >
+            return <Cell minWidth="90px" justify="flex-start" >
                 <ScannerLink value={signer} />
             </Cell>
         },
@@ -64,40 +56,60 @@ const updatesColumns = [
     {
         field: 'type',
         label: 'Type',
-        header: ({ ...props }) => <ColHeader minWidth="100px" justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="flex-start"  {...props} />,
         value: ({ type }) => {
-            return <Cell minWidth="100px" justify="flex-start" >
+            return <Cell minWidth="90px" justify="flex-start" >
                 <CellText>{type}</CellText>
             </Cell>
         },
     },
     {
         field: 'marketAddress',
-        label: 'Market Address',
-        header: ({ ...props }) => <ColHeader minWidth="200px" justify="flex-start"  {...props} />,
+        label: 'Market',
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="flex-start"  {...props} />,
         value: ({ marketAddress }) => {
-            return <Cell minWidth="200px" justify="flex-start" >
-                {marketAddress ? <ScannerLink value={marketAddress} /> : <CellText>-</CellText>}
-            </Cell>
-        },
-    },
-    {
-        field: 'noDeposit',
-        label: 'Disabled Deposits',
-        header: ({ ...props }) => <ColHeader minWidth="120px" justify="flex-start"  {...props} />,
-        value: ({ marketAddress, noDeposit }) => {
-            return <Cell minWidth="120px" justify="flex-start" >
-                <CellText>{marketAddress ? (noDeposit ? 'Yes' : 'No') : '-'}</CellText>
+            return <Cell minWidth="100px" maxW="100px" justify="flex-start" >
+                {marketAddress ? <ScannerLink textAlign="left" fontSize="12px" value={marketAddress} label={namedAddress(marketAddress, 1).replace(/(FiRM|Market)/ig, '')} /> : <CellText>-</CellText>}
             </Cell>
         },
     },
     {
         field: 'isPhasingOut',
         label: 'Hidden',
-        header: ({ ...props }) => <ColHeader minWidth="90px" justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="70px" justify="flex-start"  {...props} />,
         value: ({ marketAddress, isPhasingOut }) => {
+            return <Cell minWidth="70px" justify="flex-start" >
+                <CellText color={isPhasingOut ? 'warning' : undefined}>{marketAddress ? (isPhasingOut ? 'Hidden' : 'Default') : '-'}</CellText>
+            </Cell>
+        },
+    },
+    {
+        field: 'noDeposit',
+        label: 'Deposits',
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="flex-start"  {...props} />,
+        value: ({ marketAddress, noDeposit }) => {
             return <Cell minWidth="90px" justify="flex-start" >
-                <CellText>{marketAddress ? (isPhasingOut ? 'Yes' : 'No') : '-'}</CellText>
+                <CellText color={noDeposit ? 'warning' : undefined}>{marketAddress ? (noDeposit ? 'Suspended' : 'Default') : '-'}</CellText>
+            </Cell>
+        },
+    },
+    {
+        field: 'isLeverageSuspended',
+        label: 'ALE',
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="flex-start"  {...props} />,
+        value: ({ marketAddress, isLeverageSuspended }) => {
+            return <Cell minWidth="90px" justify="flex-start" >
+                <CellText color={isLeverageSuspended ? 'warning' : undefined}>{marketAddress ? (isLeverageSuspended ? 'Suspended' : 'Default') : '-'}</CellText>
+            </Cell>
+        },
+    },
+    {
+        field: 'isBorrowingSuspended',
+        label: 'Borrowing',
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="flex-start"  {...props} />,
+        value: ({ marketAddress, isBorrowingSuspended }) => {
+            return <Cell minWidth="90px" justify="flex-start" >
+                <CellText color={isBorrowingSuspended ? 'warning' : undefined}>{marketAddress ? (isBorrowingSuspended ? 'Suspended' : 'Default') : '-'}</CellText>
             </Cell>
         },
     },
