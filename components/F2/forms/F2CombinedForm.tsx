@@ -385,7 +385,7 @@ export const F2CombinedForm = ({
 
     const disabledConditions = {
         'deposit': ((collateralAmountNum <= 0 && !useLeverageInMode) || inputBalance < inputAmountNum) || (isWrongCustomRecipient && isDepositOnlyCase) || market.noDeposit,
-        'borrow': duration <= 0 || hasDustIssue || borrowLimitDisabledCondition || showNeedDbrMessage || market.leftToBorrow < 1 || debtAmountNum > market.leftToBorrow || notEnoughToBorrowWithAutobuy || minDebtDisabledCondition || disabledDueToLeverage || showMinDebtMessage || isNotWhitelistedMultisig,
+        'borrow': duration <= 0 || hasDustIssue || borrowLimitDisabledCondition || showNeedDbrMessage || market.leftToBorrow < 1 || debtAmountNum > market.leftToBorrow || notEnoughToBorrowWithAutobuy || minDebtDisabledCondition || disabledDueToLeverage || showMinDebtMessage || isNotWhitelistedMultisig || market.isBorrowingSuspended,
         'repay': (debtAmountNum <= 0 && !useLeverageInMode) || debtAmountNum > debt || showNotEnoughDolaToRepayMessage || (isAutoDBR && !parseFloat(dbrSellAmount)) || disabledDueToLeverage || showMinDebtMessage,
         'withdraw': ((collateralAmountNum <= 0 && !useLeverageInMode) || collateralAmountNum > deposits || borrowLimitDisabledCondition || dbrBalance < 0),
     }
@@ -404,12 +404,12 @@ export const F2CombinedForm = ({
                 {
                     market.noDeposit && isDeposit && <InfoMessage
                         alertProps={{ w: 'full', status: 'warning' }}
-                        title={`Deposits Disabled for ${market.name}`}
-                        description={`Collateral deposits are currently disabled for the ${market.name} market. Please reach out on Discord for more information.`}
+                        title={`Deposits Suspended for ${market.name}`}
+                        description={`Deposits are currently suspended for the ${market.name} market.`}
                     />
                 }
                 {
-                    (deposits > 0 || isDeposit) && !market.noDeposit ? <>
+                    (deposits > 0 || isDeposit) && (!market.noDeposit || !isDeposit) ? <>
                         <SimpleAmountForm
                             defaultAmount={inputAmount}
                             address={isUseNativeCoin ? '' : inputToken}
@@ -485,7 +485,14 @@ export const F2CombinedForm = ({
             hasDebtChange && <VStack w='full' alignItems="flex-start">
                 <FirmDebtInputTitle isDeposit={isDeposit} useLeverageInMode={useLeverageInMode} />
                 {
-                    (debt > 0 || isDeposit) && ((deposits > 0 && isBorrowOnlyCase) || !isBorrowOnlyCase) ?
+                    market.isBorrowingSuspended && isDeposit && <InfoMessage
+                        alertProps={{ w: 'full', status: 'warning' }}
+                        title={`Borrowing Suspended for ${market.name}`}
+                        description={`Borrows are currently suspended for the ${market.name} market.`}
+                    />
+                }
+                {
+                    (debt > 0 || isDeposit) && ((deposits > 0 && isBorrowOnlyCase) || !isBorrowOnlyCase) && (!market.isBorrowingSuspended || !isDeposit) ?
                         <>
                             <SimpleAmountForm
                                 defaultAmount={debtAmount}
@@ -518,10 +525,10 @@ export const F2CombinedForm = ({
                                     bnDebt={bnDebt}
                                 />
                                     :
-                                    <FirmBorroInputwSubline leftToBorrow={market.leftToBorrow} bnLeftToBorrow={bnLeftToBorrow} handleDebtChange={(v, n) => triggerDebtAndOrLeverageChange(v, n, undefined, true)} />
+                                    !market.isBorrowingSuspended && <FirmBorroInputwSubline leftToBorrow={market.leftToBorrow} bnLeftToBorrow={bnLeftToBorrow} handleDebtChange={(v, n) => triggerDebtAndOrLeverageChange(v, n, undefined, true)} />
                             }
                         </>
-                        : isBorrowOnlyCase ? <Text>Please deposit collateral first</Text> : <Text>Nothing to repay</Text>
+                        : market.isBorrowingSuspended ? null : isBorrowOnlyCase ? <Text>Please deposit collateral first</Text> : <Text>Nothing to repay</Text>
                 }
                 {hasDustIssue && <DebtDustErrorMessage debt={debt}  />}
                 {showMinDebtMessage && <MinDebtBorrowMessage debt={debt} minDebt={market.minDebt} />}
@@ -538,7 +545,7 @@ export const F2CombinedForm = ({
                     }
                     {
                         market.isLeverageComingSoon && <Text color="mainTextColorLight">
-                            Leverage coming soon
+                            Leverage coming{market.isLeverageSuspended ? ' back ': ' '}soon
                         </Text>
                     }
                     {
