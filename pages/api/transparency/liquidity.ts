@@ -197,8 +197,8 @@ export default async function handler(req, res) {
         }
 
         const liquidity = (await Promise.all([
-            ...lps.map(lp => getPol(lp)).filter(d => !!d)
-        ])).filter(d => d.tvl > 1);
+            ...lps.map(lp => getPol(lp))
+        ])).filter(d => !!d && d.tvl > 1);
 
         // readjust dola balances of child pools
         liquidity

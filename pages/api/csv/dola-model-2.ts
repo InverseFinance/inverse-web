@@ -41,7 +41,7 @@ export default async (req, res) => {
 
     try {
         const [liquidityData, badDebtData, dolaStakingData, replenishmentsEvolutionData, dbrCirculatingSupply, dbrTriPoolBalanceBn, dbrPriceData, aaveData] = await Promise.all([
-            fetcher60sectimeout(`${SERVER_BASE_URL}/api/transparency/liquidity`),            
+            fetcher60sectimeout(`${SERVER_BASE_URL}/api/transparency/liquidity?cacheFirst=true`),            
             getCacheFromRedis(repaymentsCacheKeyV2, false),
             getCacheFromRedis(dolaStakingCacheKey, false),  
             getCacheFromRedis(dbrReplenishmentsEvolutionCacheKey, false, 0, true),          
