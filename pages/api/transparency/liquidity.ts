@@ -19,7 +19,7 @@ export default async function handler(req, res) {
     const { cacheFirst } = req.query;
     const { TREASURY, MULTISIGS } = getNetworkConfigConstants(NetworkIds.mainnet);
     try {
-        const cacheDuration = 60;
+        const cacheDuration = 300;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
         const validCache = await getCacheFromRedis(liquidityCacheKey, cacheFirst !== 'true', cacheDuration);
         if (validCache) {
