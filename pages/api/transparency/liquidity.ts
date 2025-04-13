@@ -3,7 +3,7 @@ import 'source-map-support'
 import { ERC20_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
-import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
+import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { Multisig, NetworkIds, Token } from '@app/types';
 import { getBnToNumber, getYieldOppys } from '@app/util/markets'
 import { CHAIN_TOKENS } from '@app/variables/tokens';
@@ -21,9 +21,9 @@ export default async function handler(req, res) {
     try {
         const cacheDuration = 300;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-        const validCache = await getCacheFromRedis(liquidityCacheKey, cacheFirst !== 'true', cacheDuration);
-        if (validCache) {
-            res.status(200).json(validCache);
+        const { data: cachedData, isValid } = await getCacheFromRedisAsObj(liquidityCacheKey, cacheFirst !== 'true', cacheDuration);
+        if (isValid && cachedData) {
+            res.status(200).json(cachedData);
             return
         }
 
@@ -48,11 +48,12 @@ export default async function handler(req, res) {
             NetworkIds.mode,
             NetworkIds.blast,
         ];
+
         const lps = chainLpsToCheck.map(chainId => {
             return Object
             .values(CHAIN_TOKENS[chainId]).filter(({ isLP }) => isLP)
             .map((lp) => ({ chainId, ...lp }))
-        }).flat();        
+        }).flat();
 
         const TWG = multisigsToShow.find(m => m.shortName === 'TWG')!;
 
@@ -77,7 +78,14 @@ export default async function handler(req, res) {
 
         const prices = (await getCacheFromRedis(pricesCacheKey, false)) || {};
 
+        // TODO: temp skip some low / inactive lps
+        const lpsToSkipCalc = ['0x6a279e847965ba5dDc0AbFE8d669642F73334A2C', '0x20BB4a325924917E3336753BA5350a84F70f392e', '0x57a2c7925bAA1894a939f9f6721Ea33F2EcFD0e2', '0xc7C1B907BCD3194C0D9bFA2125251af98BdDAfbb', '0x0404d05F3992347d2f0dC3a97bdd147D77C85c1c', '0xA36d3799eA28f4B75653EBF9D91DDA4519578086', '0x445494F823f3483ee62d854eBc9f58d5B9972A25', '0x0995a508dF9606f1C6D512a2d6BA875Cf3cE94C3', '0xbCe40f1840A449cAAaF374Df0A1fEe1e212784CB', '0x08c0833AF1331831759b8e0BFeF1BC5738436325', '0x1Fc80CfCF5B345b904A0fB36d4222196Ed9eB8a5', '0x342D24F2a3233F7Ac8A7347fA239187BFd186066', '0xfb5137Aa9e079DB4b7C2929229caf503d0f6DA96', '0xcC2EFb8bEdB6eD69ADeE0c3762470c38D4730C50', '0xe5F625e8f4D2A038AE9583Da254945285E5a77a4', '0x6949145469362F9eeaB3c96Ea41b51D9B4cC2b21', '0x9a2d1b49b7c8783E37780AcE4ffA3416Eea64357', '0x5a473b418193C6a3967aF0913135534B7b3B23E9', '0x92104a7BeC32297DdD022A8f242bf498d0470876', '0x052f7890E50fb5b921BCAb3B10B79a58A3B9d40f', '0x8806e6B5F57C780180827E77115794d9C8100Cb7', '0xAc7025Dec5E216025C76414f6ac1976227c20Ff0', '0x394DeB5c87e1df9aa7400e99F5cd27a0cD0A64f2', '0x8B0630Cb57d8E63444E97C19a2e82Bb1988399e2', '0x72b11596523B35b2ACac5A33915b6297f5e942Ac', '0x896ffE2cd28Ba13ddDa98103a3B66E82bb36BeE3', '0x867dFdb75786c58f6fDf64d955EA2524A147a98C', '0xb701382d647C0EB171D33b8F30B1DF2214F9Bba4'];
+
         const getPol = async (lp: Token & { chainId: string }) => {
+            const isSkippCalc = lpsToSkipCalc.includes(lp.address);
+            if (isSkippCalc) {
+                return cachedData?.liquidity?.find(l => l.address === lp.address);
+            }
             // final protocol in the Fed strategy for the lp
             const fedPol = fedPols.find(f => {
                 return f?.strategy?.pools?.[f?.strategy?.pools?.length - 1]?.address?.toLowerCase() === lp.address?.toLowerCase();
@@ -187,8 +195,9 @@ export default async function handler(req, res) {
                 pairPartBalance: pairPart?.balance,
             }
         }
+
         const liquidity = (await Promise.all([
-            ...lps.map(lp => getPol(lp))
+            ...lps.map(lp => getPol(lp)).filter(d => !!d)
         ])).filter(d => d.tvl > 1);
 
         // readjust dola balances of child pools
