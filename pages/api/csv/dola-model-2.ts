@@ -2,7 +2,7 @@ import { getCacheFromRedis, redisSetWithTimestamp } from "@app/util/redis";
 import { repaymentsCacheKeyV2 } from "../transparency/repayments-v2";
 import { NETWORKS_BY_CHAIN_ID } from "@app/config/networks";
 import { capitalize } from "@app/util/misc";
-import { fetcher30sectimeout } from "@app/util/web3";
+import { fetcher30sectimeout, fetcher60sectimeout } from "@app/util/web3";
 import { dolaStakingCacheKey } from "../dola-staking";
 import { isAddress } from "ethers/lib/utils";
 import { ONE_DAY_MS, SERVER_BASE_URL } from "@app/config/constants";
@@ -41,7 +41,7 @@ export default async (req, res) => {
 
     try {
         const [liquidityData, badDebtData, dolaStakingData, replenishmentsEvolutionData, dbrCirculatingSupply, dbrTriPoolBalanceBn, dbrPriceData, aaveData] = await Promise.all([
-            fetcher30sectimeout(`${SERVER_BASE_URL}/api/transparency/liquidity?cacheFirst=true`),            
+            fetcher60sectimeout(`${SERVER_BASE_URL}/api/transparency/liquidity`),            
             getCacheFromRedis(repaymentsCacheKeyV2, false),
             getCacheFromRedis(dolaStakingCacheKey, false),  
             getCacheFromRedis(dbrReplenishmentsEvolutionCacheKey, false, 0, true),          
