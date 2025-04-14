@@ -19,7 +19,7 @@ export default async function handler(req, res) {
     const { cacheFirst } = req.query;
     const { TREASURY, MULTISIGS } = getNetworkConfigConstants(NetworkIds.mainnet);
     try {
-        const cacheDuration = 300;
+        const cacheDuration = 180;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
         const { data: cachedData, isValid } = await getCacheFromRedisAsObj(liquidityCacheKey, cacheFirst !== 'true', cacheDuration);
         if (isValid && cachedData) {
@@ -29,8 +29,11 @@ export default async function handler(req, res) {
 
         // TODO: refacto as service
         // refresh Fed overview data & prices
+        // trigger for next call
+        fetch('https://www.inverse.finance/api/transparency/fed-overview');
+        // fetch overview cache
         await Promise.all([
-            fetch('https://www.inverse.finance/api/transparency/fed-overview'),
+            fetch('https://www.inverse.finance/api/transparency/fed-overview?cacheFirst=true'),
             // fetch('https://www.inverse.finance/api/prices'),
         ]);
         const fedsOverviewCache = await getCacheFromRedis(fedOverviewCacheKey, false);
