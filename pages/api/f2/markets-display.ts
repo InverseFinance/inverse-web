@@ -25,7 +25,7 @@ export default async function handler(req, res) {
             break
         case 'PUT':
             try {
-                const { sig, type, marketAddress, noDeposit, isPhasingOut, phasingOutComment, globalMessage, globalMessageStatus, isLeverageSuspended, isBorrowingSuspended } = req.body;
+                const { sig, type, marketAddress, noDeposit, isPhasingOut, phasingOutComment, globalMessage, globalMessageStatus, isLeverageSuspended, isBorrowingSuspended, suspendAllDeposits, suspendAllLeverage, suspendAllBorrows } = req.body;
 
                 const whitelisted = ADMIN_ADS.map(a => a.toLowerCase());
                 const sigAddress = verifyMessage(getSignMessageWithUtcDate(), sig).toLowerCase();
@@ -35,11 +35,17 @@ export default async function handler(req, res) {
                     return
                 };
 
-                if (type === 'global') {
+                if (type === 'message') {
                     if (globalMessage?.length > 500 || !['warning', 'error', 'info', 'success'].includes(globalMessageStatus)) {
                         res.status(400).json({ status: 'warning', message: 'Invalid global message' })
                         return
                     };
+                }
+                else if (type === 'all-markets') {
+                    if (!['yes', 'no'].includes(suspendAllDeposits) || !['yes', 'no'].includes(suspendAllLeverage) || !['yes', 'no'].includes(suspendAllBorrows)) {
+                        res.status(400).json({ status: 'warning', message: 'Invalid values' })
+                        return
+                    }
                 }
                 else if (!marketAddress || !isAddress(marketAddress) || !['yes', 'no'].includes(noDeposit) || !['yes', 'no'].includes(isPhasingOut) || phasingOutComment?.length > 500 || !['yes', 'no'].includes(isLeverageSuspended) || !['yes', 'no'].includes(isBorrowingSuspended)) {
                     res.status(400).json({ status: 'warning', message: 'Invalid values' })
@@ -54,7 +60,23 @@ export default async function handler(req, res) {
 
                 const now = Date.now();
 
-                if (type === 'global') {
+                if (type === 'all-markets') {
+                    cachedData.suspendAllDeposits = suspendAllDeposits === 'yes';
+                    cachedData.suspendAllLeverage = suspendAllLeverage === 'yes';
+                    cachedData.suspendAllBorrows = suspendAllBorrows === 'yes';
+
+                    cachedData.updates.push({
+                        signer: sigAddress,
+                        type,
+                        timestamp: now,
+                        marketAddress: '',
+                        noDeposit: cachedData.suspendAllDeposits,
+                        isPhasingOut: '',
+                        isLeverageSuspended: cachedData.suspendAllLeverage,
+                        isBorrowingSuspended: cachedData.suspendAllBorrows,
+                        message: '',
+                    });
+                } else if (type === 'message') {
                     cachedData.globalMessage = globalMessage;
                     cachedData.globalMessageStatus = globalMessageStatus;
                     cachedData.globalMessageSigner = sigAddress;
@@ -62,7 +84,7 @@ export default async function handler(req, res) {
 
                     cachedData.updates.push({
                         signer: sigAddress,
-                        type: 'global',
+                        type,
                         timestamp: now,
                         marketAddress: '',
                         noDeposit: '',
@@ -82,7 +104,7 @@ export default async function handler(req, res) {
 
                     cachedData.updates.push({
                         signer: sigAddress,
-                        type: 'market',
+                        type,
                         timestamp: now,
                         marketAddress,
                         noDeposit: noDeposit === 'yes',

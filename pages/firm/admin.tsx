@@ -148,8 +148,11 @@ const FirmAdminSection = () => {
     const [nonce, setNonce] = useState(0);
     const { markets, isLoading, timestamp } = useDBRMarkets();
     const { data: marketsDisplaysData } = useSWR(`/api/f2/markets-display?n=${nonce}`, fetcher);
-    const [activeTab, setActiveTab] = useState<'Markets' | 'Updates' | 'Global Message'>('Markets');
+    const [activeTab, setActiveTab] = useState<'Markets' | 'Updates' | 'Global Message' | 'Global Settings'>('Markets');
     const [globalMessage, setGlobalMessage] = useState('');
+    const [suspendAllBorrows, setSuspendAllBorrows] = useState('no');
+    const [suspendAllDeposits, setSuspendAllDeposits] = useState('no');
+    const [suspendAllLeverage, setSuspendAllLeverage] = useState('no');
     const [globalMessageStatus, setGlobalMessageStatus] = useState<'warning' | 'error' | 'info' | 'success'>('info');
     const [inited, setInited] = useState(false);
 
@@ -161,6 +164,9 @@ const FirmAdminSection = () => {
         if (!inited && !!marketsDisplaysData) {
             setGlobalMessage(marketsDisplaysData?.data?.globalMessage || '');
             setGlobalMessageStatus(marketsDisplaysData?.data?.globalMessageStatus || 'info');
+            setSuspendAllBorrows(marketsDisplaysData?.data?.suspendAllBorrows ? 'yes' : 'no');
+            setSuspendAllDeposits(marketsDisplaysData?.data?.suspendAllDeposits ? 'yes' : 'no');
+            setSuspendAllLeverage(marketsDisplaysData?.data?.suspendAllLeverage ? 'yes' : 'no');
             setInited(true);
         }
     }, [inited, marketsDisplaysData]);
@@ -177,7 +183,7 @@ const FirmAdminSection = () => {
                 'Accept': 'application/json',
             },
             body: JSON.stringify({
-                type: 'global',
+                type: 'message',
                 sig,
                 globalMessage,
                 globalMessageStatus,
@@ -186,10 +192,34 @@ const FirmAdminSection = () => {
         setNonce(nonce + 1);
         return await res.json();
     }
+
+    const saveGlobalSettings = async () => {
+        const sig = await provider?.getSigner()?.signMessage(getSignMessageWithUtcDate());
+        if (!sig) {
+            return;
+        }
+        const res = await fetch('/api/f2/markets-display', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                type: 'all-markets',
+                sig,
+                suspendAllBorrows,
+                suspendAllDeposits,
+                suspendAllLeverage,
+            }),
+        });
+        setNonce(nonce + 1);
+        return await res.json();
+    }
+
     return <>
         <VStack maxW="600px" w="full" justify="space-between" alignItems="flex-end">
             <NavButtons
-                options={['Markets', 'Global Message', 'Updates']}
+                options={['Markets', 'Global Message', 'Global Settings', 'Updates']}
                 active={activeTab}
                 onClick={(s) => {
                     setNonce(nonce + 1);
@@ -261,6 +291,53 @@ const FirmAdminSection = () => {
                             onClick={saveGlobalMessage}
                         >
                             {globalMessage ? marketsDisplaysData?.data?.globalMessage ? 'Update Message' : 'Add Message' : 'Delete Message'}
+                        </SubmitButton>
+                    </VStack>
+                </Container>
+            )
+        }
+        {
+            activeTab === 'Global Settings' && (
+                <Container w="full" p="0" noPadding>
+                    <VStack w="full" spacing="4" alignItems="flex-start">
+                        <InfoMessage
+                            alertProps={{
+                                w: 'full',
+                            }}
+                            description="Settings will affect all markets"
+                        />
+                        <VStack alignItems="flex-start" w='full' spacing="2">
+                            <Text fontWeight="bold">Suspend all Deposits?</Text>
+                            <RadioGroup w='full' bgColor="mainBackground" p="2" onChange={setSuspendAllDeposits} value={suspendAllDeposits}>
+                                <Stack direction='row' w='full' spacing="4">
+                                    <Radio value='yes'>Yes</Radio>
+                                    <Radio value='no'>No</Radio>
+                                </Stack>
+                            </RadioGroup>
+                        </VStack>
+                        <VStack alignItems="flex-start" w='full' spacing="2">
+                            <Text fontWeight="bold">Suspend all Borrows?</Text>
+                            <RadioGroup w='full' bgColor="mainBackground" p="2" onChange={setSuspendAllBorrows} value={suspendAllBorrows}>
+                                <Stack direction='row' w='full' spacing="4">
+                                    <Radio value='yes'>Yes</Radio>
+                                    <Radio value='no'>No</Radio>
+                                </Stack>
+                            </RadioGroup>
+                        </VStack>
+                        <VStack alignItems="flex-start" w='full' spacing="2">
+                            <Text fontWeight="bold">Suspend all ALE?</Text>
+                            <RadioGroup w='full' bgColor="mainBackground" p="2" onChange={setSuspendAllLeverage} value={suspendAllLeverage}>
+                                <Stack direction='row' w='full' spacing="4">
+                                    <Radio value='yes'>Yes</Radio>
+                                    <Radio value='no'>No</Radio>
+                                </Stack>
+                            </RadioGroup>
+                        </VStack>
+                        <SubmitButton
+                            w="fit-content"
+                            onClick={saveGlobalSettings}
+                        >
+                            Save Global Settings
                         </SubmitButton>
                     </VStack>
                 </Container>
