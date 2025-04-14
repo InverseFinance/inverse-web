@@ -1,3 +1,4 @@
+import { ONE_DAY_MS } from '@app/config/constants';
 import { WrappedNodeRedisClient, createNodeRedisClient } from 'handy-redis';
 
 let redisClient: WrappedNodeRedisClient = initRedis();
@@ -97,6 +98,21 @@ export const getCacheFromRedisAsObj = async (
         console.log(e);
     }
     return { data: undefined, isValid: false };
+}
+
+export const invalidateRedisCache = async (key: string, useChunks = false) => {
+    const invalidatedTs = Date.now() - ONE_DAY_MS * 365;
+    if(useChunks) {
+        const meta = await redisClient.get(`${key}-version-${CACHE_VERSION}-chunks-meta`);
+        if(meta) {
+            await redisClient.set(`${key}-version-${CACHE_VERSION}-chunks-meta`, JSON.stringify({ ...JSON.parse(meta), timestamp: invalidatedTs }));
+        }
+    } else {
+        const current = await redisClient.get(`${key}-version-${CACHE_VERSION}`);
+        if(current) {
+            await redisClient.set(`${key}-version-${CACHE_VERSION}`, JSON.stringify({ ...JSON.parse(current), timestamp: invalidatedTs }));
+        }
+    }
 }
 
 export const redisSetWithTimestamp = async (key: string, data: any, useChunks = false) => {
