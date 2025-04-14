@@ -1,4 +1,5 @@
 
+import { revalidatePath } from 'next/cache';
 import { isAddress, verifyMessage } from 'ethers/lib/utils';
 import { ADMIN_ADS } from '@app/variables/names';
 import { getCacheFromRedis, invalidateRedisCache, redisSetWithTimestamp } from '@app/util/redis';
@@ -6,6 +7,12 @@ import { getSignMessageWithUtcDate } from '@app/util/misc';
 import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
 
 export const marketsDisplaysCacheKey = 'markets-displays-v1.3';
+
+const invalidateMarkets = async () => {
+    await invalidateRedisCache(F2_MARKETS_CACHE_KEY, false);
+    revalidatePath('/api/f2/fixed-markets');
+    revalidatePath('/firm', 'page');
+}
 
 export default async function handler(req, res) {
     res.setHeader('Cache-Control', `public, max-age=1`);
@@ -76,7 +83,8 @@ export default async function handler(req, res) {
                         isBorrowingSuspended: cachedData.suspendAllBorrows,
                         message: '',
                     });
-                    await invalidateRedisCache(F2_MARKETS_CACHE_KEY, false);
+
+                    await invalidateMarkets();
                 } else if (type === 'message') {
                     cachedData.globalMessage = globalMessage;
                     cachedData.globalMessageStatus = globalMessageStatus;
@@ -115,21 +123,7 @@ export default async function handler(req, res) {
                         message: isPhasingOut === 'yes' ? phasingOutComment : '',
                     });
 
-                    const cachedMarketsData = (await getCacheFromRedis(F2_MARKETS_CACHE_KEY, false)) || {};
-
-                    if (cachedMarketsData) {
-                        const marketIndex = cachedMarketsData.markets.findIndex(m => m.address === marketAddress);
-                        if (marketIndex !== -1) {
-                            cachedMarketsData.markets[marketIndex] = {
-                                ...cachedMarketsData.markets[marketIndex],
-                                noDeposit: cachedData[marketAddress].noDeposit,
-                                isPhasingOut: cachedData[marketAddress].isPhasingOut,
-                                phasingOutComment: cachedData[marketAddress].message,
-                            };
-                        }
-                        // update firm markets cache accordingly
-                        await redisSetWithTimestamp(F2_MARKETS_CACHE_KEY, cachedMarketsData);
-                    }
+                    await invalidateMarkets();
                 }
 
                 await redisSetWithTimestamp(marketsDisplaysCacheKey, cachedData);

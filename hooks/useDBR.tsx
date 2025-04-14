@@ -203,7 +203,7 @@ export const useDBRMarkets = (marketOrList?: string | string[], vnetPublicId?: s
   isLoading: boolean
   timestamp: number
 } => {
-  const { data: apiData } = useCacheFirstSWR(`/api/f2/fixed-markets?v12&vnetPublicId=${vnetPublicId||''}`);
+  const { data: apiData } = useCacheFirstSWR(`/api/f2/fixed-markets${vnetPublicId ? `?vnetPublicId=${vnetPublicId}` : ''}`);
   return useDBRMarketsReformat(apiData, marketOrList, vnetPublicId);
 }
 
