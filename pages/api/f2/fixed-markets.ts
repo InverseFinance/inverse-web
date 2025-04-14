@@ -82,7 +82,7 @@ export default async function handler(req, res) {
 
     const dbrApr = formattedDistrubutorData.dbrApr;
 
-    const { suspendAllDeposits, suspendAllLeverage, suspendAllBorrows } = marketsDisplay || {};
+    const { suspendAllDeposits, suspendAllLeverage, suspendAllBorrows } = (marketsDisplay || {});
 
     const markets = F2_MARKETS.map((m, i) => {
       const underlying = TOKENS[m.collateral];
@@ -90,6 +90,8 @@ export default async function handler(req, res) {
       const isCvxFxs = underlying.symbol === 'cvxFXS';
       const marketData = formattedMarketData.find(fm => fm.market.toLowerCase() === m.address.toLowerCase());
       const marketCustomDisplay = marketsDisplay ? marketsDisplay[m.address] : {};
+      const isBorrowingSuspended = suspendAllBorrows || marketCustomDisplay?.isBorrowingSuspended || m.isBorrowingSuspended;
+      const isLeverageSuspended = suspendAllLeverage || marketCustomDisplay?.isLeverageSuspended || m.isLeverageSuspended;
       return {
         ...m,
         ...marketData,
@@ -106,9 +108,9 @@ export default async function handler(req, res) {
         dbrInvExRate: m.isInv ? formattedDistrubutorData.dbrInvExRate : undefined,
         noDeposit: suspendAllDeposits || marketCustomDisplay?.noDeposit || m.noDeposit,
         isPhasingOut: marketCustomDisplay?.isPhasingOut || m.isPhasingOut,
-        isLeverageSuspended: suspendAllLeverage || marketCustomDisplay?.isLeverageSuspended || m.isLeverageSuspended,
-        isBorrowingSuspended: suspendAllBorrows || marketCustomDisplay?.isBorrowingSuspended || m.isBorrowingSuspended,
-        isLeverageComingSoon: suspendAllBorrows || marketCustomDisplay?.isLeverageSuspended || m.isLeverageComingSoon,
+        isLeverageSuspended: isBorrowingSuspended || isLeverageSuspended,
+        isBorrowingSuspended: isBorrowingSuspended,
+        isLeverageComingSoon: isBorrowingSuspended || isLeverageSuspended || m.isLeverageComingSoon,
         phasingOutComment: marketCustomDisplay?.phasingOutComment || m.phasingOutComment || '',
       }
     });
