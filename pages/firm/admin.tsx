@@ -304,7 +304,7 @@ const FirmAdminSection = () => {
                             alertProps={{
                                 w: 'full',
                             }}
-                            description="Note: This is an emergency to act all on all markets"
+                            description="Note: This is an emergency measure to act all on all markets"
                         />
                         <VStack alignItems="flex-start" w='full' spacing="2">
                             <Text fontWeight="bold">Suspend all Deposits?</Text>

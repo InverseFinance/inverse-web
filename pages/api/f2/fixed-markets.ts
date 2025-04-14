@@ -14,7 +14,7 @@ import { marketsDisplaysCacheKey } from './markets-display';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.5.0`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.5.1`;
 
 export default async function handler(req, res) {
   const cacheDuration = 90;
