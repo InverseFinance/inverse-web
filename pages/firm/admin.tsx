@@ -300,11 +300,11 @@ const FirmAdminSection = () => {
             activeTab === 'Global Settings' && (
                 <Container w="full" p="0" noPadding>
                     <VStack w="full" spacing="4" alignItems="flex-start">
-                        <InfoMessage
+                        <WarningMessage
                             alertProps={{
                                 w: 'full',
                             }}
-                            description="Settings will affect all markets"
+                            description="Note: This is an emergency to act all on all markets"
                         />
                         <VStack alignItems="flex-start" w='full' spacing="2">
                             <Text fontWeight="bold">Suspend all Deposits?</Text>

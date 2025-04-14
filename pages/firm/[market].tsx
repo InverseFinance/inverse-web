@@ -130,17 +130,6 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                             </VStack>}
                                         />
                                     }
-                                    {
-                                        f2market.noDeposit && <InfoMessage
-                                            alertProps={{ w: 'full', status: 'warning' }}
-                                            title={`Deposits Disabled for ${f2market.name}`}
-                                            description={
-                                                <VStack spacing="0" alignItems="flex-start" w='full'>                                                    
-                                                    <Text>Collateral deposits are currently disabled for this market.</Text>                                                 
-                                                </VStack>
-                                            }
-                                        />
-                                    }
                                     <MarketBar
                                         w='full'
                                         minH="64px"
