@@ -113,6 +113,7 @@ const namedAddresses: { [key: string]: string } = {
     '0x20C7349f6D6A746a25e66f7c235E96DAC880bc0D': 'FiRMBorrowController-v1',
     '0x44B7895989Bc7886423F06DeAa844D413384b0d6': 'FiRMBorrowController-v1.1',
     '0x2DbAd53A647A86b8988E007a33FE78bd55e9Dd6f': 'FiRMBorrowController-v2',
+    '0xEEBea1ed06EeB120CbF72Fad195683746b5A5245': 'FiRMBorrowController-v3',
     '0x6c31147E995074eA6aaD2Fbe95060B0Aef7363E1': 'FiRMBalancerHelper',
     '0xae8165f37FC453408Fb1cd1064973df3E6499a76': 'FiRMCurveHelper',
     '0xdcd2D918511Ba39F2872EB731BB88681AE184244': 'DbrDistributor',
