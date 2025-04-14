@@ -82,6 +82,8 @@ export default async function handler(req, res) {
 
     const dbrApr = formattedDistrubutorData.dbrApr;
 
+    const { suspendAllDeposits, suspendAllLeverage, suspendAllBorrows } = marketsDisplay || {};
+
     const markets = F2_MARKETS.map((m, i) => {
       const underlying = TOKENS[m.collateral];
       const isCvxCrv = underlying.symbol === 'cvxCRV';
@@ -102,11 +104,11 @@ export default async function handler(req, res) {
         dbrRewardRate: m.isInv ? formattedDistrubutorData.rewardRate : undefined,
         dbrYearlyRewardRate: m.isInv ? formattedDistrubutorData.yearlyRewardRate : undefined,
         dbrInvExRate: m.isInv ? formattedDistrubutorData.dbrInvExRate : undefined,
-        noDeposit: marketCustomDisplay?.noDeposit || m.noDeposit,
+        noDeposit: suspendAllDeposits || marketCustomDisplay?.noDeposit || m.noDeposit,
         isPhasingOut: marketCustomDisplay?.isPhasingOut || m.isPhasingOut,
-        isLeverageSuspended: marketCustomDisplay?.isLeverageSuspended || m.isLeverageSuspended,
-        isBorrowingSuspended: marketCustomDisplay?.isBorrowingSuspended || m.isBorrowingSuspended,
-        isLeverageComingSoon: marketCustomDisplay?.isLeverageSuspended || m.isLeverageComingSoon,
+        isLeverageSuspended: suspendAllLeverage || marketCustomDisplay?.isLeverageSuspended || m.isLeverageSuspended,
+        isBorrowingSuspended: suspendAllBorrows || marketCustomDisplay?.isBorrowingSuspended || m.isBorrowingSuspended,
+        isLeverageComingSoon: suspendAllBorrows || marketCustomDisplay?.isLeverageSuspended || m.isLeverageComingSoon,
         phasingOutComment: marketCustomDisplay?.phasingOutComment || m.phasingOutComment || '',
       }
     });

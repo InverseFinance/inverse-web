@@ -5,7 +5,7 @@ import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
 import { getSignMessageWithUtcDate } from '@app/util/misc';
 import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
 
-export const marketsDisplaysCacheKey = 'markets-displays-v1.1';
+export const marketsDisplaysCacheKey = 'markets-displays-v1.2';
 
 export default async function handler(req, res) {
     res.setHeader('Cache-Control', `public, max-age=1`);

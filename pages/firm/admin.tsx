@@ -87,9 +87,9 @@ const updatesColumns = [
         field: 'noDeposit',
         label: 'Deposits',
         header: ({ ...props }) => <ColHeader minWidth="90px" justify="flex-start"  {...props} />,
-        value: ({ marketAddress, noDeposit }) => {
+        value: ({ marketAddress, noDeposit, type }) => {
             return <Cell minWidth="90px" justify="flex-start" >
-                <CellText color={noDeposit ? 'warning' : undefined}>{marketAddress ? (noDeposit ? 'Suspended' : 'Default') : '-'}</CellText>
+                <CellText color={noDeposit ? 'warning' : undefined}>{type !== 'message' ? (noDeposit ? 'Suspended' : 'Default') : '-'}</CellText>
             </Cell>
         },
     },
@@ -97,9 +97,9 @@ const updatesColumns = [
         field: 'isLeverageSuspended',
         label: 'ALE',
         header: ({ ...props }) => <ColHeader minWidth="90px" justify="flex-start"  {...props} />,
-        value: ({ marketAddress, isLeverageSuspended }) => {
+        value: ({ marketAddress, isLeverageSuspended, type }) => {
             return <Cell minWidth="90px" justify="flex-start" >
-                <CellText color={isLeverageSuspended ? 'warning' : undefined}>{marketAddress ? (isLeverageSuspended ? 'Suspended' : 'Default') : '-'}</CellText>
+                <CellText color={isLeverageSuspended ? 'warning' : undefined}>{type !== 'message' ? (isLeverageSuspended ? 'Suspended' : 'Default') : '-'}</CellText>
             </Cell>
         },
     },
@@ -107,9 +107,9 @@ const updatesColumns = [
         field: 'isBorrowingSuspended',
         label: 'Borrowing',
         header: ({ ...props }) => <ColHeader minWidth="90px" justify="flex-start"  {...props} />,
-        value: ({ marketAddress, isBorrowingSuspended }) => {
+        value: ({ marketAddress, isBorrowingSuspended, type }) => {
             return <Cell minWidth="90px" justify="flex-start" >
-                <CellText color={isBorrowingSuspended ? 'warning' : undefined}>{marketAddress ? (isBorrowingSuspended ? 'Suspended' : 'Default') : '-'}</CellText>
+                <CellText color={isBorrowingSuspended ? 'warning' : undefined}>{type !== 'message' ? (isBorrowingSuspended ? 'Suspended' : 'Default') : '-'}</CellText>
             </Cell>
         },
     },
