@@ -1,7 +1,7 @@
 
 import { isAddress, verifyMessage } from 'ethers/lib/utils';
 import { ADMIN_ADS } from '@app/variables/names';
-import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
+import { getCacheFromRedis, invalidateRedisCache, redisSetWithTimestamp } from '@app/util/redis';
 import { getSignMessageWithUtcDate } from '@app/util/misc';
 import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
 
@@ -76,6 +76,7 @@ export default async function handler(req, res) {
                         isBorrowingSuspended: cachedData.suspendAllBorrows,
                         message: '',
                     });
+                    await invalidateRedisCache(F2_MARKETS_CACHE_KEY, false);
                 } else if (type === 'message') {
                     cachedData.globalMessage = globalMessage;
                     cachedData.globalMessageStatus = globalMessageStatus;
