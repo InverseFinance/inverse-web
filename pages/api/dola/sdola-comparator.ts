@@ -118,7 +118,7 @@ const getDefillamaData = async (poolIds: string[]) => {
 }
 
 export default async function handler(req, res) {
-  const cacheKey = `sdola-rates-compare-v1.1.2`;
+  const cacheKey = `sdola-rates-compare-v1.1.3`;
 
   try {
     const cacheDuration = 120;
