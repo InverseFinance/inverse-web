@@ -237,6 +237,7 @@ const FirmAdminSection = () => {
                     timestamp={timestamp}
                     onlyShowDefaultTab={true}
                     useAdminMarketsColumns={true}
+                    marketsDisplaysData={marketsDisplaysData}
                 />
             )
         }
@@ -307,15 +308,6 @@ const FirmAdminSection = () => {
                             description="Note: This is an emergency measure to act all on all markets"
                         />
                         <VStack alignItems="flex-start" w='full' spacing="2">
-                            <Text fontWeight="bold">Suspend all Deposits?</Text>
-                            <RadioGroup w='full' bgColor="mainBackground" p="2" onChange={setSuspendAllDeposits} value={suspendAllDeposits}>
-                                <Stack direction='row' w='full' spacing="4">
-                                    <Radio value='yes'>Yes</Radio>
-                                    <Radio value='no'>No</Radio>
-                                </Stack>
-                            </RadioGroup>
-                        </VStack>
-                        <VStack alignItems="flex-start" w='full' spacing="2">
                             <Text fontWeight="bold">Suspend all Borrows?</Text>
                             <RadioGroup w='full' bgColor="mainBackground" p="2" onChange={setSuspendAllBorrows} value={suspendAllBorrows}>
                                 <Stack direction='row' w='full' spacing="4">
@@ -327,6 +319,15 @@ const FirmAdminSection = () => {
                         <VStack alignItems="flex-start" w='full' spacing="2">
                             <Text fontWeight="bold">Suspend all ALE?</Text>
                             <RadioGroup w='full' bgColor="mainBackground" p="2" onChange={setSuspendAllLeverage} value={suspendAllLeverage}>
+                                <Stack direction='row' w='full' spacing="4">
+                                    <Radio value='yes'>Yes</Radio>
+                                    <Radio value='no'>No</Radio>
+                                </Stack>
+                            </RadioGroup>
+                        </VStack>
+                        <VStack alignItems="flex-start" w='full' spacing="2">
+                            <Text fontWeight="bold">Suspend all Deposits?</Text>
+                            <RadioGroup w='full' bgColor="mainBackground" p="2" onChange={setSuspendAllDeposits} value={suspendAllDeposits}>
                                 <Stack direction='row' w='full' spacing="4">
                                     <Radio value='yes'>Yes</Radio>
                                     <Radio value='no'>No</Radio>

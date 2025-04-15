@@ -6,7 +6,7 @@ import { getSignMessageWithUtcDate } from '@app/util/misc';
 import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
 import { SERVER_BASE_URL } from '@app/config/constants';
 
-export const marketsDisplaysCacheKey = 'markets-displays-v1.4';
+export const marketsDisplaysCacheKey = 'markets-displays-v1.5';
 
 const invalidateMarkets = async () => {
     await invalidateRedisCache(F2_MARKETS_CACHE_KEY, false);

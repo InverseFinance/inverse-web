@@ -41,7 +41,8 @@ export const FirmMarketsAndPositionsRenderer = ({
     isLoading,
     timestamp,
     onlyShowDefaultTab = false,
-    useAdminMarketsColumns = false
+    useAdminMarketsColumns = false,
+    marketsDisplaysData,
 }: {
     vnetPublicId?: string
     defaultTab?: 'Markets' | 'Positions' | 'Stats',
@@ -51,6 +52,7 @@ export const FirmMarketsAndPositionsRenderer = ({
     timestamp: number,
     onlyShowDefaultTab?: boolean,
     useAdminMarketsColumns?: boolean
+    marketsDisplaysData?: any
 }) => {
     const [isSmallerThan] = useMediaQuery(`(max-width: 1260px)`);
     const [activeTab, setActiveTab] = useState(defaultTab);
@@ -174,6 +176,7 @@ export const FirmMarketsAndPositionsRenderer = ({
                                 }
                                 isSimContext={!!vnetPublicId}
                                 useAdminMarketsColumns={useAdminMarketsColumns}
+                                marketsDisplaysData={marketsDisplaysData}
                             />
                         </VStack>
                     }

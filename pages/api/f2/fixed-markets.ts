@@ -14,7 +14,7 @@ import { marketsDisplaysCacheKey } from './markets-display';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.5.4`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.5.5`;
 
 export default async function handler(req, res) {
   const cacheDuration = 90;
@@ -108,9 +108,9 @@ export default async function handler(req, res) {
         dbrInvExRate: m.isInv ? formattedDistrubutorData.dbrInvExRate : undefined,
         noDeposit: suspendAllDeposits || marketCustomDisplay?.noDeposit || m.noDeposit,
         isPhasingOut: marketCustomDisplay?.isPhasingOut || m.isPhasingOut,
-        isLeverageSuspended: isBorrowingSuspended || isLeverageSuspended,
+        isLeverageSuspended: isLeverageSuspended,
         isBorrowingSuspended: isBorrowingSuspended,
-        isLeverageComingSoon: isBorrowingSuspended || isLeverageSuspended || m.isLeverageComingSoon,
+        isLeverageComingSoon: isLeverageSuspended || m.isLeverageComingSoon,
         phasingOutComment: marketCustomDisplay?.phasingOutComment || m.phasingOutComment || '',
       }
     });
