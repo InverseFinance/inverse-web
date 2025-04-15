@@ -426,8 +426,8 @@ export const F2MarketsParams = ({
                     noDeposit: noDeposit === 'yes',
                     isPhasingOut: isPhasingOut === 'yes',
                     phasingOutComment,
-                    isLeverageSuspended: isLeverageSuspended,
-                    isBorrowingSuspended: isBorrowingSuspended,
+                    isLeverageSuspended: isLeverageSuspended === 'yes',
+                    isBorrowingSuspended: isBorrowingSuspended === 'yes',
                 },
             });
         } else {

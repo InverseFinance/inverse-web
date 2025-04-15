@@ -16,10 +16,9 @@ const { F2_MARKETS } = getNetworkConfigConstants();
 
 export const F2_MARKETS_CACHE_KEY = `f2markets-v1.5.3`;
 
-export const revalidate = 90;
-
 export default async function handler(req, res) {
   const cacheDuration = 90;
+  res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
   res.setHeader('Access-Control-Allow-Headers', `Content-Type`);
   res.setHeader('Access-Control-Allow-Origin', `*`);
   res.setHeader('Access-Control-Allow-Methods', `OPTIONS,POST,GET`);
@@ -77,7 +76,7 @@ export default async function handler(req, res) {
 
     const [externalApys, marketsDisplay] = await Promise.all([
       getFirmMarketsApys(provider, invApr, cachedData),
-      getCacheFromRedis(marketsDisplaysCacheKey),
+      getCacheFromRedis(marketsDisplaysCacheKey, false),
     ])
     const { cvxCrvData, cvxFxsData } = externalApys;
 

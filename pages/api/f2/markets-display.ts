@@ -1,17 +1,16 @@
 
-import { revalidatePath } from 'next/cache';
 import { isAddress, verifyMessage } from 'ethers/lib/utils';
 import { ADMIN_ADS } from '@app/variables/names';
 import { getCacheFromRedis, invalidateRedisCache, redisSetWithTimestamp } from '@app/util/redis';
 import { getSignMessageWithUtcDate } from '@app/util/misc';
 import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
+import { SERVER_BASE_URL } from '@app/config/constants';
 
 export const marketsDisplaysCacheKey = 'markets-displays-v1.3';
 
 const invalidateMarkets = async () => {
     await invalidateRedisCache(F2_MARKETS_CACHE_KEY, false);
-    revalidatePath('/api/f2/fixed-markets');
-    revalidatePath('/firm', 'page');
+    fetch(`${SERVER_BASE_URL}/api/f2/fixed-markets`)
 }
 
 export default async function handler(req, res) {
