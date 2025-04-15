@@ -8,11 +8,16 @@ import { getDSRData } from '@app/util/markets';
 import { TOKEN_IMAGES } from '@app/variables/images';
 import { timestampToUTC } from '@app/util/misc';
 import { BigNumber, Contract } from 'ethers';
-import { SDOLA_ABI } from '@app/config/abis';
+import { SVAULT_ABI } from '@app/config/abis';
 import { getMulticallOutput } from '@app/util/multicall';
 import { DAILY_UTC_CACHE_KEY } from '../cron-daily-block-timestamp';
 import { ARCHIVED_UTC_DATES_BLOCKS } from '@app/fixtures/utc-dates-blocks';
-import { ONE_DAY_SECS, WEEKS_PER_YEAR } from '@app/config/constants';
+import { ONE_DAY_SECS } from '@app/config/constants';
+
+const VAULT_ABI_EXTENDED = [
+  ...SVAULT_ABI,
+  "function convertToUnderlyingToken(uint) view returns (uint)",
+]
 
 export const getOnChainData = async (meta: any[]) => {
   const { data: utcKeyBlockValues, isValid } = await getCacheFromRedisAsObj(DAILY_UTC_CACHE_KEY, false) || { data: ARCHIVED_UTC_DATES_BLOCKS, isValid: false };
@@ -36,8 +41,8 @@ export const getOnChainData = async (meta: any[]) => {
   const [todayRates, previousBlockRates, thirtyDayRates, sixtyDayRates, ninetyDayRates, oneHundredEightyDayRates, threeHundredSixtyDayRates] = await Promise.all(
     blocks.map(block => getMulticallOutput(
       meta.map(metaItem => ({
-        contract: new Contract(metaItem.address, SDOLA_ABI, provider),
-        functionName: 'convertToAssets',
+        contract: new Contract(metaItem.address, VAULT_ABI_EXTENDED, provider),
+        functionName: metaItem.convertMethod || 'convertToAssets',
         params: ['1000000000000000000'],
         forceFallback: metaItem.isNotVault,
         fallbackValue: BigNumber.from('0'),
@@ -50,8 +55,8 @@ export const getOnChainData = async (meta: any[]) => {
   const [todayAssets] = await Promise.all(
     blocks.map(block => getMulticallOutput(
       meta.map(metaItem => ({
-        contract: new Contract(metaItem.address, SDOLA_ABI, provider),
-        functionName: 'totalAssets',
+        contract: new Contract(metaItem.address, VAULT_ABI_EXTENDED, provider),
+        functionName: metaItem.totalMethod || 'totalAssets',
         forceFallback: metaItem.isNotVault,
         fallbackValue: BigNumber.from('0'),
       })),
@@ -63,7 +68,7 @@ export const getOnChainData = async (meta: any[]) => {
   const [decimals] = await Promise.all(
     blocks.map(block => getMulticallOutput(
       meta.map(metaItem => ({
-        contract: new Contract(metaItem.address, SDOLA_ABI, provider),
+        contract: new Contract(metaItem.address, VAULT_ABI_EXTENDED, provider),
         functionName: 'decimals',
         forceFallback: metaItem.isNotVault,
         fallbackValue: BigNumber.from('18'),
@@ -118,7 +123,7 @@ const getDefillamaData = async (poolIds: string[]) => {
 }
 
 export default async function handler(req, res) {
-  const cacheKey = `sdola-rates-compare-v1.1.3`;
+  const cacheKey = `sdola-rates-compare-v1.1.2`;
 
   try {
     const cacheDuration = 120;
@@ -221,6 +226,7 @@ export default async function handler(req, res) {
         pool: '2b0d6d34-a4f0-4e53-8fd6-a3ef552b4b21',
         address: '0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a',
         currentRateGetter: () => getYearnVaultApy('0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a'),
+        image: TOKEN_IMAGES['sUSDS'],
       },
       {
         symbol: 'stUSD',
@@ -230,12 +236,18 @@ export default async function handler(req, res) {
         address: '0x0022228a2cc5E7eF0274A7Baa600d44da5aB5776',
         currentRateGetter: () => getDefiLlamaApy("42523cca-14b0-44f6-95fb-4781069520a5"),
       },
+      {
+        symbol: 'stUSR',
+        project: 'Resolv',
+        link: 'https://app.resolv.xyz/buy/stake',
+        pool: '0aedb3f6-9298-49de-8bb0-2f611a4df784',
+        address: '0x6c8984bc7DBBeDAf4F6b2FD766f16eBB7d10AAb4',
+        currentRateGetter: () => getDefiLlamaApy("0aedb3f6-9298-49de-8bb0-2f611a4df784"),
+        convertMethod: 'convertToUnderlyingToken',
+        totalMethod: 'totalSupply',
+        image: 'https://token-icons.llamao.fi/icons/tokens/1/0x1202f5c7b4b9e47a1a484e8b270be34dbbc75055?h=64&w=64',
+      },
     ];
-    
-    const images = {
-      'wUSDM': 'https://assets.coingecko.com/coins/images/33785/standard/wUSDM_PNG_240px.png?1702981552',
-      'ysUSDS': TOKEN_IMAGES['sUSDS'],
-    }
 
     const [currentRates, defillamaData] = await Promise.all(
       [
@@ -286,7 +298,7 @@ export default async function handler(req, res) {
           avg180: onChainData[index].apy180d || (last180.length >= 180 ? last180.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last180.length : 0),
           avg365: onChainData[index].apy365d || (last365.length >= 365 ? last365.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last365.length : 0),
           symbol,
-          image: images[symbol] || TOKEN_IMAGES[symbol] || `https://token-icons.llamao.fi/icons/tokens/1/${metaData.address.toLowerCase()}?h=64&w=64`,
+          image: metaData.image || TOKEN_IMAGES[symbol] || `https://token-icons.llamao.fi/icons/tokens/1/${metaData.address.toLowerCase()}?h=64&w=64`,
           project: metaData.project,
           link: metaData.link,
           pool: metaData.pool || null,
