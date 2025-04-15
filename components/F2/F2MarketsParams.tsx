@@ -9,11 +9,13 @@ import { useWeb3React } from "@web3-react/core";
 import { useEffect, useMemo, useState } from "react";
 import { ADMIN_ADS } from "@app/variables/names";
 import ConfirmModal from "../common/Modal/ConfirmModal";
-import { InfoMessage } from "../common/Messages";
 import { Textarea } from "../common/Input";
 import { getSignMessageWithUtcDate } from "@app/util/misc";
 import { showToast } from "@app/util/notify";
 import Link from "../common/Link";
+import { getNetworkConfigConstants } from "@app/util/networks";
+
+const { F2_MARKETS } = getNetworkConfigConstants();
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'130px'} fontSize="14px" fontWeight="extrabold" {...props} />
@@ -450,11 +452,18 @@ export const F2MarketsParams = ({
     }
 
     const _markets = useMemo(() => {
-        return markets.map(m => ({
-            ...m,
-            ...freshestData[m.address],
-            ...optimisticData[m.address],
-        }));
+        return markets.map((m,i) => {
+            const defaultMarketConfig = F2_MARKETS.find(dm => dm.address === m.address);
+            return ({
+                marketIndex: i,
+                ...m,
+                noDeposit: optimisticData[m.address] ? !!optimisticData[m.address].noDeposit : freshestData[m.address] ? !!freshestData[m.address].noDeposit : !!defaultMarketConfig.noDeposit,
+                isPhasingOut: optimisticData[m.address] ? !!optimisticData[m.address].isPhasingOut : freshestData[m.address] ? !!freshestData[m.address].isPhasingOut : !!defaultMarketConfig.isPhasingOut,
+                phasingOutComment: optimisticData[m.address] ? optimisticData[m.address].phasingOutComment : freshestData[m.address] ? freshestData[m.address].phasingOutComment : (defaultMarketConfig.phasingOutComment || ''),
+                isLeverageSuspended: optimisticData[m.address] ? !!optimisticData[m.address].isLeverageSuspended : freshestData[m.address] ? !!freshestData[m.address].isLeverageSuspended : !!defaultMarketConfig.isLeverageSuspended,
+                isBorrowingSuspended: optimisticData[m.address] ? !!optimisticData[m.address].isBorrowingSuspended : freshestData[m.address] ? !!freshestData[m.address].isBorrowingSuspended : !!defaultMarketConfig.isBorrowingSuspended,
+            })
+        });
     }, [markets, freshestData, optimisticData]);
 
     return <Container
@@ -473,38 +482,41 @@ export const F2MarketsParams = ({
             cancelLabel="Dismiss"
         >
             <VStack w='full' p="4">
-                <InfoMessage
-                    alertProps={{
-                        w: 'full',
-                        title: 'UI-only parameters',
-                    }}
-                />
                 <VStack alignItems="flex-start" w='full' spacing="2">
                     <Text fontWeight="bold">Suspend borrows in UI?</Text>
-                    <RadioGroup w='full' bgColor="mainBackground" p="2" onChange={setIsBorrowingSuspended} value={isBorrowingSuspended}>
-                        <Stack direction='row' w='full' spacing="4">
-                            <Radio value='yes'>Yes</Radio>
-                            <Radio value='no'>No</Radio>
-                        </Stack>
-                    </RadioGroup>
+                    {
+                        !!freshestData?.suspendAllBorrows ? <Text fontSize="12px" color="mainTextColorLight">Borrows are globally suspended</Text>
+                            : <RadioGroup w='full' bgColor="mainBackground" p="2" onChange={setIsBorrowingSuspended} value={isBorrowingSuspended}>
+                                <Stack direction='row' w='full' spacing="4">
+                                    <Radio value='yes'>Yes</Radio>
+                                    <Radio value='no'>No</Radio>
+                                </Stack>
+                            </RadioGroup>
+                    }
                 </VStack>
                 <VStack alignItems="flex-start" w='full' spacing="2">
                     <Text fontWeight="bold">Suspend ALE in UI?</Text>
-                    <RadioGroup w='full' bgColor="mainBackground" p="2" onChange={setIsLeverageSuspended} value={isLeverageSuspended}>
-                        <Stack direction='row' w='full' spacing="4">
-                            <Radio value='yes'>Yes</Radio>
-                            <Radio value='no'>No</Radio>
-                        </Stack>
-                    </RadioGroup>
+                    {
+                        !!freshestData?.suspendAllLeverage ? <Text fontSize="12px" color="mainTextColorLight">ALE is globally suspended</Text>
+                            : <RadioGroup w='full' bgColor="mainBackground" p="2" onChange={setIsLeverageSuspended} value={isLeverageSuspended}>
+                                <Stack direction='row' w='full' spacing="4">
+                                    <Radio value='yes'>Yes</Radio>
+                                    <Radio value='no'>No</Radio>
+                                </Stack>
+                            </RadioGroup>
+                    }
                 </VStack>
                 <VStack alignItems="flex-start" w='full' spacing="2">
                     <Text fontWeight="bold">Suspend deposits in UI?</Text>
-                    <RadioGroup w='full' bgColor="mainBackground" p="2" onChange={setNoDeposit} value={noDeposit}>
-                        <Stack direction='row' w='full' spacing="4">
-                            <Radio value='yes'>Yes</Radio>
-                            <Radio value='no'>No</Radio>
-                        </Stack>
-                    </RadioGroup>
+                    {
+                        !!freshestData?.suspendAllDeposits ? <Text fontSize="12px" color="mainTextColorLight">Deposits are globally suspended</Text>
+                            : <RadioGroup w='full' bgColor="mainBackground" p="2" onChange={setNoDeposit} value={noDeposit}>
+                                <Stack direction='row' w='full' spacing="4">
+                                    <Radio value='yes'>Yes</Radio>
+                                    <Radio value='no'>No</Radio>
+                                </Stack>
+                            </RadioGroup>
+                    }
                 </VStack>
                 <VStack alignItems="flex-start" w='full' spacing="2">
                     <Text fontWeight="bold">Hide this market to non-users?</Text>
@@ -530,15 +542,6 @@ export const F2MarketsParams = ({
             onClick={isWhitelisted ? (market) => { setSelectedMarket(market); onOpen(); } : undefined}
             items={
                 _markets
-                    .map((m, i) => ({
-                        ...m,
-                        isPhasingOut: !!m.isPhasingOut,
-                        noDeposit: !!m.noDeposit,
-                        isLeverageSuspended: !!m.isLeverageSuspended,
-                        isBorrowingSuspended: !!m.isBorrowingSuspended,
-                        phasingOutComment: m.phasingOutComment || '',
-                        marketIndex: i,
-                    }))
             }
             enableMobileRender={true}
             defaultSortField="marketIndex"

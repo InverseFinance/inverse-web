@@ -136,7 +136,7 @@ const IntroMessage = () => <InfoMessage
     }}
     description={
         <VStack spacing="0" w='full' alignItems='flex-start'>
-            <Text>- Connect with a whitelisted PWG, RWG or TWG address</Text>
+            <Text>- Connect with a whitelisted PWG, RWG, GWG or TWG address</Text>
             <Text>- Sign to confirm</Text>
             <Text>- Updates can take 1-2 minutes to fully reflect</Text>
         </VStack>
@@ -237,7 +237,7 @@ const FirmAdminSection = () => {
                     timestamp={timestamp}
                     onlyShowDefaultTab={true}
                     useAdminMarketsColumns={true}
-                    marketsDisplaysData={marketsDisplaysData}
+                    marketsDisplaysData={marketsDisplaysData?.data}
                 />
             )
         }
