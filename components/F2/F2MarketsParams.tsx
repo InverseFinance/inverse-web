@@ -366,6 +366,7 @@ export const F2MarketsParams = ({
     const [isBorrowingSuspended, setIsBorrowingSuspended] = useState('no');
     const [phasingOutComment, setPhasingOutComment] = useState('');
     const [freshestData, setFreshestData] = useState({});
+    const [optimisticData, setOptimisticData] = useState({});
 
     useEffect(() => {
         if (!!marketsDisplaysData) {
@@ -428,8 +429,9 @@ export const F2MarketsParams = ({
                 description: 'The change might take up to ~2 minutes to be reflected',
                 status: 'success',
             });
-            setFreshestData({
+            setOptimisticData({
                 ...freshestData,
+                ...optimisticData,
                 [m?.address]: {
                     noDeposit: noDeposit === 'yes',
                     isPhasingOut: isPhasingOut === 'yes',
@@ -451,8 +453,9 @@ export const F2MarketsParams = ({
         return markets.map(m => ({
             ...m,
             ...freshestData[m.address],
+            ...optimisticData[m.address],
         }));
-    }, [markets, freshestData]);
+    }, [markets, freshestData, optimisticData]);
 
     return <Container
         p={'0'}
