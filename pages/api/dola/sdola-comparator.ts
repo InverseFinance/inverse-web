@@ -3,18 +3,18 @@ import { getProvider } from '@app/util/providers';
 import { getAaveV3RateOf } from '@app/util/borrow-rates-comp';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds } from '@app/types';
-import { aprToApy, getBnToNumber, getDefiLlamaApy, getSavingsCrvUsdData, getSavingsdeUSDData, getSavingsUSDData, getSUSDEData, getYearnVaultApy } from '@app/util/markets';
+import { getBnToNumber, getDefiLlamaApy, getSavingsCrvUsdData, getSavingsdeUSDData, getSavingsUSDData, getSUSDEData, getYearnVaultApy } from '@app/util/markets';
 import { getDSRData } from '@app/util/markets';
 import { TOKEN_IMAGES } from '@app/variables/images';
 import { timestampToUTC } from '@app/util/misc';
-import { Contract } from 'ethers';
+import { BigNumber, Contract } from 'ethers';
 import { SDOLA_ABI } from '@app/config/abis';
 import { getMulticallOutput } from '@app/util/multicall';
 import { DAILY_UTC_CACHE_KEY } from '../cron-daily-block-timestamp';
 import { ARCHIVED_UTC_DATES_BLOCKS } from '@app/fixtures/utc-dates-blocks';
 import { ONE_DAY_SECS, WEEKS_PER_YEAR } from '@app/config/constants';
 
-export const getHistoricalRates = async (addresses: string[]) => {
+export const getOnChainData = async (meta: any[]) => {
   const { data: utcKeyBlockValues, isValid } = await getCacheFromRedisAsObj(DAILY_UTC_CACHE_KEY, false) || { data: ARCHIVED_UTC_DATES_BLOCKS, isValid: false };
   const provider = getProvider(NetworkIds.mainnet);
   const currentBlockNumber = await provider.getBlockNumber();
@@ -35,17 +35,57 @@ export const getHistoricalRates = async (addresses: string[]) => {
 
   const [todayRates, previousBlockRates, thirtyDayRates, sixtyDayRates, ninetyDayRates, oneHundredEightyDayRates, threeHundredSixtyDayRates] = await Promise.all(
     blocks.map(block => getMulticallOutput(
-      addresses.map(address => ({
-        contract: new Contract(address, SDOLA_ABI, provider),
+      meta.map(metaItem => ({
+        contract: new Contract(metaItem.address, SDOLA_ABI, provider),
         functionName: 'convertToAssets',
         params: ['1000000000000000000'],
+        forceFallback: metaItem.isNotVault,
+        fallbackValue: BigNumber.from('0'),
       })),
       1,
       block,
     ))
   );
 
-  return addresses.map((address, index) => {
+  const [todayAssets] = await Promise.all(
+    blocks.map(block => getMulticallOutput(
+      meta.map(metaItem => ({
+        contract: new Contract(metaItem.address, SDOLA_ABI, provider),
+        functionName: 'totalAssets',
+        forceFallback: metaItem.isNotVault,
+        fallbackValue: BigNumber.from('0'),
+      })),
+      1,
+      block,
+    ))
+  );
+
+  const [decimals] = await Promise.all(
+    blocks.map(block => getMulticallOutput(
+      meta.map(metaItem => ({
+        contract: new Contract(metaItem.address, SDOLA_ABI, provider),
+        functionName: 'decimals',
+        forceFallback: metaItem.isNotVault,
+        fallbackValue: BigNumber.from('18'),
+      })),
+      1,
+      block,
+    ))
+  );
+
+  const nonVaultHistoricalRates = await Promise.all(
+    meta.map(m => m.isNotVault && m.pool ? getDefiLlamaApy(m.pool) : null)
+  );
+
+  return meta.map((metaItem, index) => {
+    if(metaItem.isNotVault) {
+      if(nonVaultHistoricalRates[index]) {
+        return nonVaultHistoricalRates[index];
+      }
+      return {
+        calculatedApy: 0, apy30d: 0, apy60d: 0, apy90d: 0, apy180d: 0, apy365d: 0,
+      }
+    }
     const todayExRate = getBnToNumber(todayRates[index]);
     const calculatedApy = 100 * (Math.pow(todayExRate / getBnToNumber(previousBlockRates[index]), (365 * ONE_DAY_SECS) / (currentBlockTimestamp - previousBlockTimestamp)) - 1);
     const apy30d = 100 * (Math.pow(todayExRate / getBnToNumber(thirtyDayRates[index]), 365 / 30) - 1);
@@ -60,6 +100,7 @@ export const getHistoricalRates = async (addresses: string[]) => {
       apy90d,
       apy180d,
       apy365d,
+      totalAssets: getBnToNumber(todayAssets[index], getBnToNumber(decimals[index], 0)),
     }
   });
 }
@@ -74,12 +115,6 @@ const getDefillamaData = async (poolIds: string[]) => {
           .filter(p => poolIds.includes(p.pool))
   } catch (e) { console.log(e) }
   return {};
-}
-
-const assumeTotalAssetsAsTvl = async (provider, address: string) => {
-  const contract = new Contract(address, SDOLA_ABI, provider);
-  const totalAssets = await contract.totalAssets();
-  return getBnToNumber(totalAssets);
 }
 
 export default async function handler(req, res) {
@@ -99,71 +134,102 @@ export default async function handler(req, res) {
     }
 
     const provider = getProvider(NetworkIds.mainnet);
-
+    
     const meta = [
       {
         symbol: 'USDC',
         project: 'Aave-V3',
         link: 'https://app.aave.com/reserve-overview/?underlyingAsset=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&marketName=proto_mainnet_v3',
         pool: 'aa70268e-4b52-42bf-a116-608b370f9501',
+        address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+        isNotVault: true,
+        currentRateGetter: () => getAaveV3RateOf(provider, 'USDC'),
       },
       {
         symbol: 'USDT',
         project: 'Aave-V3',
         link: 'https://app.aave.com/reserve-overview/?underlyingAsset=0xdac17f958d2ee523a2206206994597c13d831ec7&marketName=proto_mainnet_v3',
         pool: 'f981a304-bb6c-45b8-b0c5-fd2f515ad23a',
+        address: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+        isNotVault: true,
+        currentRateGetter: () => getAaveV3RateOf(provider, 'USDT'),
       },
       {
         symbol: 'sDAI',
         project: 'Spark',
         link: 'https://app.spark.fi/',
         pool: '0b8fec3b-a715-4803-94ce-9fe3b7520b23',
+        address: '0x83F20F44975D03b1b09e64809B757c47f942BEeA',
+        currentRateGetter: () => getDSRData(),
       },
       {
         symbol: 'sfrxUSD',
         project: 'Frax',
         link: 'https://frax.com/earn',
         pool: '42523cca-14b0-44f6-95fb-4781069520a5',
+        address: '0xcf62F905562626CfcDD2261162a51fd02Fc9c5b6',
+        currentRateGetter: () => getDefiLlamaApy("42523cca-14b0-44f6-95fb-4781069520a5"),
       },
       {
         symbol: 'sUSDe',
         project: 'Ethena',
         link: 'https://app.ethena.fi/earn',
         pool: '66985a81-9c51-46ca-9977-42b4fe7bc6df',
+        address: '0x9D39A5DE30e57443BfF2A8307A4256c8797A3497',
+        currentRateGetter: () => getSUSDEData(provider, true),
       },
       {
         symbol: 'sDOLA',
         project: 'FiRM',
         link: 'https://inverse.finance/sDOLA',
         pool: 'bf0f95c9-bc46-467d-9762-1d80ff50cd74',
+        address: '0xb45ad160634c528Cc3D2926d9807104FA3157305',
+        currentRateGetter: () => fetch('https://www.inverse.finance/api/dola-staking').then(res => res.json()),
       },
       {
         symbol: 'scrvUSD',
         project: 'Curve',
         link: 'https://crvusd.curve.fi/#/ethereum/scrvUSD',
         pool: '5fd328af-4203-471b-bd16-1705c726d926',
+        address: '0x0655977FEb2f289A4aB78af67BAB0d17aAb84367',
+        currentRateGetter: () => getSavingsCrvUsdData(),
       },
       {
         symbol: 'sUSDS',
         project: 'Sky',
         link: 'https://sky.money',
         pool: 'd8c4eff5-c8a9-46fc-a888-057c4c668e72',
+        address: '0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD',
+        currentRateGetter: () => getSavingsUSDData(),
       },
       {
         symbol: 'sdeUSD',
         project: 'Elixir',
         link: 'https://elixir.xyz',
+        address: '0x5C5b196aBE0d54485975D1Ec29617D42D9198326',
+        currentRateGetter: () => getSavingsdeUSDData(),
       },
       // {
       //   symbol: 'wUSDM',
       //   project: 'Mountain-Protocol',
       //   link: 'https://defi.mountainprotocol.com/wrap',
       // },
-      // {
-      //   symbol: 'ysUSDS',
-      //   project: 'Sky',
-      //   link: 'https://sky.money',
-      // },
+      {
+        symbol: 'ysUSDS',
+        project: 'Yearn',
+        link: 'https://yearn.fi/v3/1/0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a',
+        pool: '2b0d6d34-a4f0-4e53-8fd6-a3ef552b4b21',
+        address: '0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a',
+        currentRateGetter: () => getYearnVaultApy('0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a'),
+      },
+      {
+        symbol: 'stUSD',
+        project: 'Angle',
+        link: 'https://app.angle.money/savings/usd',
+        pool: '01e33a85-8bb6-4f30-a11b-7b2a8166e6b7',
+        address: '0x0022228a2cc5E7eF0274A7Baa600d44da5aB5776',
+        currentRateGetter: () => getDefiLlamaApy("42523cca-14b0-44f6-95fb-4781069520a5"),
+      },
     ];
     
     const images = {
@@ -174,46 +240,13 @@ export default async function handler(req, res) {
     const [currentRates, defillamaData] = await Promise.all(
       [
         Promise.all(
-          [
-            getAaveV3RateOf(provider, 'USDC'),
-            getAaveV3RateOf(provider, 'USDT'),
-            getDSRData(),
-            // getSFraxData(provider),
-            getDefiLlamaApy("42523cca-14b0-44f6-95fb-4781069520a5"),
-            getSUSDEData(provider, true),
-            fetch('https://www.inverse.finance/api/dola-staking').then(res => res.json()),
-            getSavingsCrvUsdData(),
-            getSavingsUSDData(),
-            getSavingsdeUSDData(),
-            // getYearnVaultApy('0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a'),
-            // getSavingsdeUSDData(),
-            // getSavingsUSDzData(),
-          ]
+          meta.map(m => m.currentRateGetter())
         ),
         getDefillamaData(meta.filter(m => !!m.pool).map(m => m.pool)),
       ]
     );
 
-    const addresses = [
-      '0x83F20F44975D03b1b09e64809B757c47f942BEeA',
-      '0xcf62F905562626CfcDD2261162a51fd02Fc9c5b6',
-      '0x9D39A5DE30e57443BfF2A8307A4256c8797A3497',
-      '0xb45ad160634c528Cc3D2926d9807104FA3157305',
-      '0x0655977FEb2f289A4aB78af67BAB0d17aAb84367',
-      '0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD',
-      '0x5C5b196aBE0d54485975D1Ec29617D42D9198326',
-      // '0x57F5E098CaD7A3D1Eed53991D4d66C45C9AF7812',
-      // '0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a',
-    ]
-    const vaultHistoricalRates = await getHistoricalRates(addresses);
-    const aaveHistoricalRates = await Promise.all([
-      getDefiLlamaApy('aa70268e-4b52-42bf-a116-608b370f9501'),
-      getDefiLlamaApy('f981a304-bb6c-45b8-b0c5-fd2f515ad23a'),
-    ]);
-    const otherTvl ={
-      sdeUSD: await assumeTotalAssetsAsTvl(provider, '0x5C5b196aBE0d54485975D1Ec29617D42D9198326'),
-    }
-    const historicalRates = aaveHistoricalRates.concat(vaultHistoricalRates);
+    const onChainData = await getOnChainData(meta);
 
     const now = Date.now();
     const nowDayUTC = timestampToUTC(now);
@@ -229,7 +262,8 @@ export default async function handler(req, res) {
 
     const sortedRates = currentRates
       .map((rate, index) => {
-        const symbol = meta[index].symbol;
+        const metaData = meta[index];
+        const symbol = metaData.symbol;
         const pastRatesLen = pastRates.length;
         if (addTodayRate) {
           pastRates[pastRatesLen - 1][symbol] = rate.apy;
@@ -239,23 +273,23 @@ export default async function handler(req, res) {
         const last90 = pastRates.slice(pastRatesLen - 90, pastRatesLen).filter(pr => !!pr[symbol]);
         const last180 = pastRates.slice(pastRatesLen - 180, pastRatesLen).filter(pr => !!pr[symbol]);
         const last365 = pastRates.slice(pastRatesLen - 365, pastRatesLen).filter(pr => !!pr[symbol]);
-        const defillamaPoolData = defillamaData.find(p => p.pool === meta[index].pool);
+        const defillamaPoolData = defillamaData.find(p => p.pool === metaData.pool);
         return {
-          isVault: meta[index].project !== 'Aave-V3',
-          tvl: otherTvl[symbol] || defillamaPoolData?.tvlUsd || null,
+          isVault: !metaData.isNotVault,
+          tvl: defillamaPoolData?.tvlUsd || onChainData[index].totalAssets || null,
           apy: (rate.supplyRate || rate.apy),
           apy30d: (rate.apyMean30d || rate.apy30d),
-          calculatedApy: historicalRates[index].calculatedApy,
-          avg30: historicalRates[index].apy30d || (last30.length >= 30 ? last30.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last30.length : 0),
-          avg60: historicalRates[index].apy60d || (last60.length >= 60 ? last60.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last60.length : 0),
-          avg90: historicalRates[index].apy90d || (last90.length >= 90 ? last90.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last90.length : 0),
-          avg180: historicalRates[index].apy180d || (last180.length >= 180 ? last180.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last180.length : 0),
-          avg365: historicalRates[index].apy365d || (last365.length >= 365 ? last365.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last365.length : 0),
+          calculatedApy: onChainData[index].calculatedApy,
+          avg30: onChainData[index].apy30d || (last30.length >= 30 ? last30.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last30.length : 0),
+          avg60: onChainData[index].apy60d || (last60.length >= 60 ? last60.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last60.length : 0),
+          avg90: onChainData[index].apy90d || (last90.length >= 90 ? last90.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last90.length : 0),
+          avg180: onChainData[index].apy180d || (last180.length >= 180 ? last180.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last180.length : 0),
+          avg365: onChainData[index].apy365d || (last365.length >= 365 ? last365.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last365.length : 0),
           symbol,
-          image: images[symbol] || TOKEN_IMAGES[symbol],
-          project: meta[index].project,
-          link: meta[index].link,
-          pool: meta[index].pool || null,
+          image: images[symbol] || TOKEN_IMAGES[symbol] || `https://token-icons.llamao.fi/icons/tokens/1/${metaData.address.toLowerCase()}?h=64&w=64`,
+          project: metaData.project,
+          link: metaData.link,
+          pool: metaData.pool || null,
         }
       }).sort((a, b) => {
         return a.apy < b.apy ? 1 : b.apy - a.apy;
@@ -268,7 +302,7 @@ export default async function handler(req, res) {
 
     const result = {
       timestamp: Date.now(),
-      historicalRates,
+      historicalRates: onChainData,
       pastRates,
       utcSnapshots,
       rates: sortedRates,
