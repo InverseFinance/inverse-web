@@ -9,11 +9,12 @@ import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { formatDistributorData, formatMarketData, inverseViewerRaw } from '@app/util/viewer';
 import { SIMS_CACHE_KEY } from '../drafts/sim';
 import { JsonRpcProvider } from '@ethersproject/providers';
+import { marketsDisplaysCacheKey } from './markets-display';
 // import { FIRM_MARKETS_SNAPSHOT } from '@app/fixtures/firm-markets-20241022';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.4.2`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.5.5`;
 
 export default async function handler(req, res) {
   const cacheDuration = 90;
@@ -30,6 +31,7 @@ export default async function handler(req, res) {
   }
   
   const cacheKey = vnetPublicId ? `f2markets-sim-${vnetPublicId}` : F2_MARKETS_CACHE_KEY;
+
   try {
     const { data: cachedData, isValid } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration);
     if (cachedData && isValid) {
@@ -52,7 +54,7 @@ export default async function handler(req, res) {
     }
 
     // trigger
-    // fetch('https://inverse.finance/api/markets');
+    fetch('https://inverse.finance/api/markets');
 
     const ifvr = inverseViewerRaw(provider);
     
@@ -72,16 +74,24 @@ export default async function handler(req, res) {
       formatDistributorData(dbrDistributorData),
     ];
 
-    const externalApys = await getFirmMarketsApys(provider, invApr, cachedData);
+    const [externalApys, marketsDisplay] = await Promise.all([
+      getFirmMarketsApys(provider, invApr, cachedData),
+      getCacheFromRedis(marketsDisplaysCacheKey, false),
+    ])
     const { cvxCrvData, cvxFxsData } = externalApys;
 
     const dbrApr = formattedDistrubutorData.dbrApr;
+
+    const { suspendAllDeposits, suspendAllLeverage, suspendAllBorrows } = (marketsDisplay || {});
 
     const markets = F2_MARKETS.map((m, i) => {
       const underlying = TOKENS[m.collateral];
       const isCvxCrv = underlying.symbol === 'cvxCRV';
       const isCvxFxs = underlying.symbol === 'cvxFXS';
       const marketData = formattedMarketData.find(fm => fm.market.toLowerCase() === m.address.toLowerCase());
+      const marketCustomDisplay = marketsDisplay ? marketsDisplay[m.address] : {};
+      const isBorrowingSuspended = suspendAllBorrows || marketCustomDisplay?.isBorrowingSuspended || m.isBorrowingSuspended;
+      const isLeverageSuspended = suspendAllLeverage || marketCustomDisplay?.isLeverageSuspended || m.isLeverageSuspended;
       return {
         ...m,
         ...marketData,
@@ -96,6 +106,12 @@ export default async function handler(req, res) {
         dbrRewardRate: m.isInv ? formattedDistrubutorData.rewardRate : undefined,
         dbrYearlyRewardRate: m.isInv ? formattedDistrubutorData.yearlyRewardRate : undefined,
         dbrInvExRate: m.isInv ? formattedDistrubutorData.dbrInvExRate : undefined,
+        noDeposit: suspendAllDeposits || marketCustomDisplay?.noDeposit || m.noDeposit,
+        isPhasingOut: marketCustomDisplay?.isPhasingOut || m.isPhasingOut,
+        isLeverageSuspended: isLeverageSuspended,
+        isBorrowingSuspended: isBorrowingSuspended,
+        isLeverageComingSoon: isLeverageSuspended || m.isLeverageComingSoon,
+        phasingOutComment: marketCustomDisplay?.phasingOutComment || m.phasingOutComment || '',
       }
     });
 

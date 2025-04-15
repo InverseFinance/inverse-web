@@ -137,12 +137,13 @@ export const ADDRESS_ROLES = {
     '0x1748E0d9F554Fb8341784C644FFaC933De792e56': 'Treasury',
     '0x962228a90eac69238c7d1f216d80037e61ea9255': 'Treasury',
     '0x3D1579B42a9e1D8E6a9b740A2F6A1161B93698Fe': 'Treasury',
-    '0x1f7e8b2C4289Ff033A1Db980c9FDb40CCF29294f': 'Engineering',
+    // '0x1f7e8b2C4289Ff033A1Db980c9FDb40CCF29294f': 'Engineering',
     '0x9F3614afb3Df9f899caDBFfaA05c6C908059F726': 'Engineering',
     '0x34A7a276eD77c6FE866c75Bbc8d79127c4E14a09': 'Engineering',
     '0x7efe8e14eCfcB3FF349253A9925A8818A8Ce5480': 'Engineering',
     '0x7ad367A6b712363cEEca0a8246ed621fc848B90b': 'Engineering',
     '0x72c7D3AACcA03D6D679558d9461232b0940F7e2D': 'Engineering',
+    '0x6535020cCeB810Bdb3F3cA5e93dE2460FF7989BB': 'Engineering',
     '0xE58ED128325A33afD08e90187dB0640619819413': 'Growth',
     '0x41225088326fE055Fbf40AD34d862bbd7bd0c9B4': 'Growth',
     '0xbb20d477d4f22d7169ad4c5bd67984362be8bad0': 'Community, Docs, Videos',
@@ -164,6 +165,8 @@ export const ADDRESS_ROLES = {
     '0x80C67fe70d7D6cC488782439fad381d8646640c4': 'Treasury',
     '0xb152FC7E9ddf01A942685E390A74009cd2B9Ca52': 'Analytics',
 }
+
+export const ADMIN_ADS = Object.entries(ADDRESS_ROLES).filter(entry => ['Engineering', 'Growth', 'Treasury', 'Risk', 'Founder'].includes(entry[1])).map(entry => entry[0]);
 
 Object.entries(UNDERLYING).forEach(([key, value]) => {
     // ctoken

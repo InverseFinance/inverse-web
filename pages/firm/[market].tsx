@@ -117,27 +117,17 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                         </HStack>
                                     </HStack>
                                     {
-                                        f2market.isPhasingOut && !f2market.noDeposit && <InfoMessage
+                                        f2market.isPhasingOut && <InfoMessage
                                             alertProps={{ w: 'full' }}
-                                            title="This market is being phased out"
+                                            title="This market is being phased out or is in limited access:"
                                             description={!!f2market.phasingOutComment && <VStack spacing="0" alignItems="flex-start" w='full'>
                                                 <Text>{f2market.phasingOutComment}</Text>
-                                                <Link isExternal={true} target="_blank" textDecoration="underline" href={f2market.phasingOutLink}>
-                                                    Read corresponding Governance proposal
-                                                </Link>
+                                                {
+                                                    !!f2market.phasingOutLink && <Link isExternal={true} target="_blank" textDecoration="underline" href={f2market.phasingOutLink}>
+                                                        Read corresponding Governance proposal
+                                                    </Link>
+                                                }
                                             </VStack>}
-                                        />
-                                    }
-                                    {
-                                        f2market.noDeposit && <InfoMessage
-                                            alertProps={{ w: 'full', status: 'warning' }}
-                                            title={`Deposits Disabled for ${f2market.name}`}
-                                            description={
-                                                <VStack spacing="0" alignItems="flex-start" w='full'>                                                    
-                                                    <Text>Collateral deposits are currently disabled for this market.</Text>
-                                                    <Text>Please reach out on Discord for more information.</Text>                                                    
-                                                </VStack>
-                                            }
                                         />
                                     }
                                     <MarketBar

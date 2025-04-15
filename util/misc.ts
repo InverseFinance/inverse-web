@@ -1,6 +1,6 @@
 import { commify } from '@ethersproject/units';
 import { showToast } from './notify';
-import { ONE_DAY_MS, SECONDS_PER_BLOCK } from '@app/config/constants';
+import { ONE_DAY_MS, SECONDS_PER_BLOCK, SIGN_MSG } from '@app/config/constants';
  ;
 
 export const capitalize = (v: string) => v[0].toUpperCase() + v.substring(1, v.length).toLowerCase();
@@ -505,4 +505,10 @@ export function formatJsonToHtml(json: Object)   {
     htmlContent += "</ul>";
 
     return htmlContent;
+}
+
+export const getSignMessageWithUtcDate = () => {
+    return `${SIGN_MSG}
+    
+Date: ${timestampToUTC(Date.now())}`;
 }

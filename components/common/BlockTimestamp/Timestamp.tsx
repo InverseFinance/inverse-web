@@ -25,9 +25,9 @@ export const Timestamp = ({
 
     return (
         <Stack direction={direction} spacing={isCol ? '0' : '1'} {...props}>
-            <Text {...text1Props}>{timeSince(timestamp)}</Text>
-            {!isCol && <Text>-</Text>}
-            <Text {...text2Props}>{format ? formatDateWithTime(timestamp) : formatDate(timestamp)}</Text>
+            {showRelativeTime && <Text {...text1Props}>{timeSince(timestamp)}</Text>}
+            {!isCol && showRelativeTime && showAbsoluteTime && <Text>-</Text>}
+            {showAbsoluteTime && <Text {...text2Props}>{format ? formatDateWithTime(timestamp) : formatDate(timestamp)}</Text>}
         </Stack>
     )
 }

@@ -50,6 +50,7 @@ const ScannerLink = ({
 			justifyItems="center"
 			align="center"
 			style={{ textDecoration: 'underline' }}
+			onClick={(e) => e.stopPropagation()}
 			{...props}
 		>
 			{content}

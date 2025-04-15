@@ -1,27 +1,62 @@
 import { useFirmPositions } from "@app/hooks/useFirm";
 import { HStack, InputGroup, InputLeftElement, Select, Stack, useMediaQuery, VStack, Input as ChakraInput } from "@chakra-ui/react"
-import { FirmPositionsTable } from "./Infos/FirmPositionsTable";
 import { SkeletonBlob } from "../common/Skeleton";
 import { F2MarketsParams } from "./F2MarketsParams";
 import { NavButtons } from "../common/Button";
 import { useCallback, useState } from "react";
-import Container from "../common/Container";
 import { RadioCardGroup } from "../common/Input/RadioCardGroup";
 import { SearchIcon } from "@chakra-ui/icons";
 import { FirmMarketsStats, FirmPositions } from "./liquidations/firm-positions";
+import { F2Market } from "@app/types";
 
 export const FirmMarketsAndPositions = ({
     vnetPublicId,
-    defaultTab = 'Markets'
+    defaultTab = 'Positions',
+    onlyShowDefaultTab = false,
+    useAdminMarketsColumns = false
+}: {
+    vnetPublicId?: string,
+    defaultTab?: 'Markets' | 'Positions' | 'Stats',
+    onlyShowDefaultTab?: boolean,
+    useAdminMarketsColumns?: boolean,
+}) => {
+    const { timestamp, positions, isLoading, markets } = useFirmPositions(vnetPublicId);
+    return <FirmMarketsAndPositionsRenderer
+        vnetPublicId={vnetPublicId}
+        defaultTab={defaultTab}
+        markets={markets}
+        positions={positions}
+        isLoading={isLoading}
+        timestamp={timestamp}
+        onlyShowDefaultTab={onlyShowDefaultTab}
+        useAdminMarketsColumns={useAdminMarketsColumns}
+    />
+}
+
+export const FirmMarketsAndPositionsRenderer = ({
+    vnetPublicId,
+    defaultTab = 'Positions',
+    markets,
+    positions,
+    isLoading,
+    timestamp,
+    onlyShowDefaultTab = false,
+    useAdminMarketsColumns = false,
+    marketsDisplaysData,
 }: {
     vnetPublicId?: string
-    defaultTab?: 'Markets' | 'Positions' | 'Stats'
+    defaultTab?: 'Markets' | 'Positions' | 'Stats',
+    markets: F2Market[],
+    positions: any[],
+    isLoading: boolean,
+    timestamp: number,
+    onlyShowDefaultTab?: boolean,
+    useAdminMarketsColumns?: boolean
+    marketsDisplaysData?: any
 }) => {
     const [isSmallerThan] = useMediaQuery(`(max-width: 1260px)`);
     const [activeTab, setActiveTab] = useState(defaultTab);
     const [search, setSearch] = useState('');
-    const { timestamp, positions, isLoading, markets } = useFirmPositions(vnetPublicId);
-
     const [category, setCategory] = useState('all');
 
     const marketFilter = useCallback((m: any) => {
@@ -57,12 +92,14 @@ export const FirmMarketsAndPositions = ({
 
     return <VStack w='full'>
         <HStack alignItems="center" w='full' justify='space-between'>
-            <NavButtons
-                maxW="400px"
-                options={['Markets', 'Positions', 'Stats']}
-                active={activeTab}
-                onClick={(s) => setActiveTab(s)}
-            />
+            {
+                !onlyShowDefaultTab && <NavButtons
+                    maxW="400px"
+                    options={['Markets', 'Positions', 'Stats']}
+                    active={activeTab}
+                    onClick={(s) => setActiveTab(s)}
+                />
+            }
             <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" alignItems="center">
                 {
                     isSmallerThan ? <Select
@@ -131,20 +168,33 @@ export const FirmMarketsAndPositions = ({
                 <SkeletonBlob />
                 :
                 <VStack w='full'>
-                    <VStack w="full" display={activeTab === 'Markets' ? 'block' : 'none'}>
-                        <F2MarketsParams markets={
-                            markets.filter(marketFilter)
-                        } />
-                    </VStack>
-                    <VStack w="full" display={activeTab === 'Positions' ? 'block' : 'none'}>
-                        <FirmPositions
-                            containerProps={{ label: '', description: '', noPadding: true, p: 0 }}
-                            isLoading={isLoading} timestamp={timestamp} positions={positions.filter(p => marketFilter(p.market))}
-                        />
-                    </VStack>
-                    <VStack pt='8' w="full" display={activeTab === 'Stats' ? 'block' : 'none'}>
-                        <FirmMarketsStats positions={positions.filter(p => marketFilter(p.market))} isLoading={isLoading} />
-                    </VStack>
+                    {
+                        ((onlyShowDefaultTab && defaultTab === 'Markets') || !onlyShowDefaultTab) && <VStack w="full" display={activeTab === 'Markets' ? 'block' : 'none'}>
+                            <F2MarketsParams
+                                markets={
+                                    markets?.filter(marketFilter)
+                                }
+                                isSimContext={!!vnetPublicId}
+                                useAdminMarketsColumns={useAdminMarketsColumns}
+                                marketsDisplaysData={marketsDisplaysData}
+                            />
+                        </VStack>
+                    }
+                    {
+                        ((onlyShowDefaultTab && defaultTab === 'Positions') || !onlyShowDefaultTab) &&
+                        <VStack w="full" display={activeTab === 'Positions' ? 'block' : 'none'}>
+                            <FirmPositions
+                                containerProps={{ label: '', description: '', noPadding: true, p: 0 }}
+                                isLoading={isLoading} timestamp={timestamp} positions={positions?.filter(p => marketFilter(p.market))}
+                            />
+                        </VStack>
+                    }
+                    {
+                        ((onlyShowDefaultTab && defaultTab === 'Stats') || !onlyShowDefaultTab) &&
+                        <VStack pt='8' w="full" display={activeTab === 'Stats' ? 'block' : 'none'}>
+                            <FirmMarketsStats positions={positions?.filter(p => marketFilter(p.market))} isLoading={isLoading} />
+                        </VStack>
+                    }
                 </VStack>
         }
     </VStack>

@@ -15,12 +15,12 @@ import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
 import { answerPoll } from '@app/util/analytics'
 import { showToast } from '@app/util/notify'
 import { POLLS, ACTIVE_POLL } from '@app/variables/poll-data'
-import Link from '@app/components/common/Link'
 import { FirmInsuranceCover } from '@app/components/common/InsuranceCover'
-import { InfoMessage } from '@app/components/common/Messages'
+import { StatusMessage } from '@app/components/common/Messages'
 import { SERVER_BASE_URL } from '@app/config/constants'
 import { F2Market } from '@app/types'
 import { useFirmTVL } from '@app/hooks/useTVL'
+import { timeSince } from '@app/util/time'
 
 export const F2PAGE = ({
     isTwitterAlert = false,
@@ -29,6 +29,9 @@ export const F2PAGE = ({
     currentCirculatingSupply,
     dbrPriceUsd,
     dolaPriceUsd,
+    globalMessage,
+    globalMessageStatus,
+    globalMessageTimestamp,
 }: {
     isTwitterAlert: boolean,
     marketsData: { markets: F2Market[] },
@@ -36,6 +39,9 @@ export const F2PAGE = ({
     currentCirculatingSupply: number,
     dbrPriceUsd: number,
     dolaPriceUsd: number,
+    globalMessage: string,
+    globalMessageStatus: string,
+    globalMessageTimestamp: number,
 }) => {
     const { firmTotalTvl, firmTvls, isLoading: isLoadingTvl } = useFirmTVL();
     const account = useAccount();
@@ -141,6 +147,24 @@ export const F2PAGE = ({
             }
             <ErrorBoundary>
                 <VStack pt={{ base: 4, md: 8 }} w='full' maxW={{ base: '84rem', '2xl': '90rem' }}>
+                    {
+                        !!globalMessage && (
+                            <VStack w='full' px='6' pb='4'>
+                                <StatusMessage
+                                    alertProps={{
+                                        w: 'full',
+                                        whiteSpace: 'pre-wrap',
+                                    }}
+                                    status={globalMessageStatus || 'info'}
+                                    description={
+                                        <VStack w='full' spacing="0" alignItems="flex-start">
+                                            <Text>{globalMessage}</Text>
+                                            {/* <Text color="mainTextColorLight" fontSize="12px">{timeSince(globalMessageTimestamp)}</Text> */}
+                                        </VStack>
+                                    } />
+                            </VStack>
+                        )
+                    }
                     <ErrorBoundary description="Failed to FiRM header">
                         <VStack px='6' w='full'>
                             <FirmBar dbrPriceUsd={dbrPriceUsd} dolaPriceUsd={dolaPriceUsd} currentCirculatingSupply={currentCirculatingSupply} firmTotalTvl={isLoadingTvl ? firmTvlData.firmTotalTvl : firmTotalTvl} markets={marketsData.markets} />
@@ -175,12 +199,14 @@ export async function getServerSideProps(context) {
         currentCirculatingSupply,
         dbrData,
         dolaPriceData,
+        marketsDisplaysData,
     ] = await Promise.all([
         fetch(`${SERVER_BASE_URL}/api/f2/fixed-markets?cacheFirst=true`).then(res => res.json()),
         fetch(`${SERVER_BASE_URL}/api/f2/tvl?cacheFirst=true`).then(res => res.json()),
         fetch(`${SERVER_BASE_URL}/api/dola/circulating-supply?cacheFirst=true`).then(res => res.text()),
         fetch(`${SERVER_BASE_URL}/api/dbr?cacheFirst=true`).then(res => res.json()),
         fetch(`${SERVER_BASE_URL}/api/dola-price?cacheFirst=true`).then(res => res.json()),
+        fetch(`${SERVER_BASE_URL}/api/f2/markets-display`).then(res => res.json()),
     ]);
     const dbrPriceUsd = dbrData.priceUsd;
     const dolaPriceUsd = dolaPriceData['dola-usd'] || 1;
@@ -191,7 +217,10 @@ export async function getServerSideProps(context) {
             currentCirculatingSupply: parseFloat(currentCirculatingSupply),
             dbrPriceUsd,
             dolaPriceUsd,
-         },
+            globalMessage: marketsDisplaysData?.data?.globalMessage,
+            globalMessageStatus: marketsDisplaysData?.data?.globalMessageStatus,
+            globalMessageTimestamp: marketsDisplaysData?.data?.globalMessageTimestamp,
+        },
     };
 }
 

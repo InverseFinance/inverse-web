@@ -15,7 +15,7 @@ import { useWeb3React } from "@web3-react/core";
 import { useDOLAPriceLive } from "./usePrices";
 import { timestampToUTC, utcDateStringToTimestamp } from "@app/util/misc";
 import { useState } from "react";
-import { useUserPtApy } from "@app/util/pendle";
+// import { useUserPtApy } from "@app/util/pendle";
 import { useBlockTimestamp } from "./useBlockTimestamp";
 
 const { DBR, DBR_AIRDROP, F2_MARKETS, F2_ORACLE, DOLA, DBR_DISTRIBUTOR, F2_HELPER, F2_ALE } = getNetworkConfigConstants();
@@ -164,6 +164,7 @@ export const useDBRMarketsReformat = (apiData?: any, marketOrList?: string | str
 
   return {
     isLoading: !apiData,
+    timestamp: apiData?.timestamp,
     markets: markets.map((m, i) => {
       const dailyLimit = !vnetPublicId && limits ? getBnToNumber(limits[i]) : cachedMarkets[i]?.dailyLimit ?? 0;
       const dailyBorrows = !vnetPublicId && limits ? getBnToNumber(limits[i + nbMarkets]) : cachedMarkets[i]?.dailyBorrows ?? 0;
@@ -200,8 +201,9 @@ export const useDBRMarketsReformat = (apiData?: any, marketOrList?: string | str
 export const useDBRMarkets = (marketOrList?: string | string[], vnetPublicId?: string): {
   markets: F2Market[]
   isLoading: boolean
+  timestamp: number
 } => {
-  const { data: apiData } = useCacheFirstSWR(`/api/f2/fixed-markets?v12&vnetPublicId=${vnetPublicId||''}`);
+  const { data: apiData } = useCacheFirstSWR(`/api/f2/fixed-markets${vnetPublicId ? `?vnetPublicId=${vnetPublicId}` : ''}`);
   return useDBRMarketsReformat(apiData, marketOrList, vnetPublicId);
 }
 
