@@ -536,7 +536,7 @@ const columns = [
         field: 'perc',
         label: 'Your Borrow Limit',
         header: ({ ...props }) => <ColHeader minWidth="116px" justify="flex-end"  {...props} />,
-        tooltip: 'Your Borrow Limit, should not reach 160%, otherwise liquidations can happen',
+        tooltip: 'Your Borrow Limit, should not reach 100%, otherwise liquidations can happen',
         value: ({ perc, debt }) => {
             const color = getRiskColor(perc);
             return <Cell minWidth="110px" justify="flex-end" >
