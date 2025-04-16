@@ -384,8 +384,8 @@ export const F2CombinedForm = ({
     const borrowLimitDisabledCondition = (market.fixedFeed && newCreditLeft < 1 && newPerc < 100) || (!market.fixedFeed && newPerc < (market.collateralFactor >= 0.9 ? 0.1 : 1));
 
     const disabledConditions = {
-        'deposit': ((collateralAmountNum <= 0 && !useLeverageInMode) || inputBalance < inputAmountNum) || (isWrongCustomRecipient && isDepositOnlyCase) || market.noDeposit,
-        'borrow': duration <= 0 || hasDustIssue || borrowLimitDisabledCondition || showNeedDbrMessage || market.leftToBorrow < 1 || debtAmountNum > market.leftToBorrow || notEnoughToBorrowWithAutobuy || minDebtDisabledCondition || disabledDueToLeverage || showMinDebtMessage || isNotWhitelistedMultisig || market.isBorrowingSuspended,
+        'deposit': ((collateralAmountNum <= 0 && !useLeverageInMode) || inputBalance < inputAmountNum) || (isWrongCustomRecipient && isDepositOnlyCase) || !!market.noDeposit,
+        'borrow': duration <= 0 || hasDustIssue || borrowLimitDisabledCondition || showNeedDbrMessage || market.leftToBorrow < 1 || debtAmountNum > market.leftToBorrow || notEnoughToBorrowWithAutobuy || minDebtDisabledCondition || disabledDueToLeverage || showMinDebtMessage || isNotWhitelistedMultisig || !!market.isBorrowingSuspended,
         'repay': (debtAmountNum <= 0 && !useLeverageInMode) || debtAmountNum > debt || showNotEnoughDolaToRepayMessage || (isAutoDBR && !parseFloat(dbrSellAmount)) || disabledDueToLeverage || showMinDebtMessage,
         'withdraw': ((collateralAmountNum <= 0 && !useLeverageInMode) || collateralAmountNum > deposits || borrowLimitDisabledCondition || dbrBalance < 0),
     }
