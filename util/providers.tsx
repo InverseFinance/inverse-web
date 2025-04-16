@@ -21,11 +21,12 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
         return new JsonRpcProvider('https://arb1.arbitrum.io/rpc');
     }
     else if (chainId === NetworkIds.polygon && !specificAlchemyKey) {
-        return new JsonRpcProvider('https://rpc.ankr.com/polygon');
+        return new JsonRpcProvider('https://polygon-rpc.com');
     }
     else if (chainId === NetworkIds.avalanche && !specificAlchemyKey) {
         // return new JsonRpcProvider('https://rpc.ankr.com/avalanche');
-        return new JsonRpcProvider('https://api.avax.network/ext/bc/C/rpc');
+        // return new JsonRpcProvider('https://api.avax.network/ext/bc/C/rpc');
+        return new JsonRpcProvider('https://avalanche-c-chain-rpc.publicnode.com');
     }
     else if (chainId === NetworkIds.base && !specificAlchemyKey) {
         return new JsonRpcProvider('https://mainnet.base.org');
