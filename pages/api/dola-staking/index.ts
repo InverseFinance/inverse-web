@@ -6,7 +6,7 @@ import { formatDolaStakingData, getDolaSavingsContract, getSdolaContract } from 
 import { getMulticallOutput } from '@app/util/multicall';
 import { getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
 import { getWeekIndexUtc } from '@app/util/misc';
-import { getHistoricalRates } from '../dola/sdola-comparator';
+import { getOnChainData } from '../dola/sdola-comparator';
 
 export const dolaStakingCacheKey = `dola-staking-v1.0.4`;
 
@@ -47,7 +47,7 @@ export default async function handler(req, res) {
         ] = await Promise.all([
             getDbrPriceOnCurve(provider),
             getDolaUsdPriceOnCurve(provider),
-            getHistoricalRates([SDOLA_ADDRESS])
+            getOnChainData([{ address: SDOLA_ADDRESS, isNotVault: false }])
         ]);
         const { priceInDola: dbrDolaPrice } = dbrPriceData;
         const { price: dolaPriceUsd } = dolaPriceData;
