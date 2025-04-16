@@ -9,7 +9,7 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
         return new JsonRpcProvider('http://127.0.0.1:8545/');
     }
     else if (chainId === NetworkIds.ftm && !specificAlchemyKey) {
-        return new JsonRpcProvider('https://rpc.ftm.tools/');
+        return new JsonRpcProvider('https://fantom-rpc.publicnode.com');
     }
     else if (chainId === NetworkIds.optimism && !specificAlchemyKey) {
         return new JsonRpcProvider('https://mainnet.optimism.io');
