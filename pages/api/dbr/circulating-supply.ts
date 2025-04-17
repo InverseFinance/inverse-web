@@ -30,10 +30,10 @@ export default async function handler(req, res) {
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const validCache = await getCacheFromRedis(dbrCircSupplyCacheKey, true, cacheDuration);
     const isSaveCircSupply = req.method === 'POST' || req.query.saveCircSupply === 'true';
-    // if(validCache) {
-    //   res.status(200).send(validCache);
-    //   return
-    // }
+    if(validCache) {
+      res.status(200).send(validCache);
+      return
+    }
 
     const provider = getProvider(NetworkIds.mainnet);
     const contract = new Contract(DBR, DBR_ABI, provider);
