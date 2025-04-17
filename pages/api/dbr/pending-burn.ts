@@ -13,6 +13,44 @@ const { DBR } = getNetworkConfigConstants();
 
 export const dbrPendingBurnCacheKey = `dbr-pending-burn-v1.0.0`;
 
+export const getPendingDbrBurn = async (_block?: number, _now?: number) => {
+  try {
+    const dbrSpenders = await getCacheFromRedis(DBR_SPENDERS_CACHE_KEY, false) || { activeDbrHolders: [] };
+    const actualSpenders = dbrSpenders.activeDbrHolders.filter(s => _block ? true : s.debt >= 1);
+
+    const provider = getProvider(NetworkIds.mainnet);
+    const contract = new Contract(DBR, DBR_ABI, provider);
+
+    const now = _now || Date.now();
+
+    const lastUpdatesInSeconds = await getMulticallOutput(
+      actualSpenders.map(s => {
+        return {
+          contract,
+          functionName: 'lastUpdated',
+          params: [s.user],
+        }
+      }),
+      1,
+      _block,
+    );
+
+    const pendingBurns = actualSpenders.map((s, i) => {
+      const lastUpdateTimestamp = lastUpdatesInSeconds[i] * 1000;
+      const msSinceLastUpdate = (now - lastUpdateTimestamp);
+      const dailyBurn = s.debt * msSinceLastUpdate / (365 * ONE_DAY_MS);
+      return {
+        user: s.user,
+        pendingBurn: dailyBurn,
+      }
+    });
+    return pendingBurns.reduce((acc, s) => acc + s.pendingBurn, 0);
+  } catch (err) {
+    console.error(err);
+    return 0;
+  }
+}
+
 export default async function handler(req, res) {
 
   try {
@@ -25,44 +63,7 @@ export default async function handler(req, res) {
       return
     }
 
-    const dbrSpenders = await getCacheFromRedis(DBR_SPENDERS_CACHE_KEY, false) || { activeDbrHolders: [] };
-    const actualSpenders = dbrSpenders.activeDbrHolders.filter(s => s.debt >= 1);
-
-    const provider = getProvider(NetworkIds.mainnet);
-    const contract = new Contract(DBR, DBR_ABI, provider);
-
-    const now = Date.now();
-
-    const lastUpdatesInSeconds = await getMulticallOutput(
-      actualSpenders.map(s => {
-        return {
-          contract,
-          functionName: 'lastUpdated',
-          params: [s.user],
-        }
-      }),
-      1,
-    );
-
-    const pendingBurns = actualSpenders.map((s, i) => {
-      const lastUpdateTimestamp = lastUpdatesInSeconds[i] * 1000;
-      const msSinceLastUpdate = (now - lastUpdateTimestamp);
-      const dailyBurn = s.debt * msSinceLastUpdate / (365 * ONE_DAY_MS);
-      return {
-        user: s.user,
-        pendingBurn: dailyBurn,
-      }
-    });
-
-    pendingBurns.sort((a, b) => b.pendingBurn - a.pendingBurn);
-
-    const totalPendingBurn = pendingBurns.reduce((acc, s) => acc + s.pendingBurn, 0);
-
-    // const result = {
-    //   timestamp: now,
-    //   totalPendingBurn,
-    //   pendingBurns,
-    // }
+    const totalPendingBurn = await getPendingDbrBurn();
 
     await redisSetWithTimestamp(dbrPendingBurnCacheKey, totalPendingBurn);
 

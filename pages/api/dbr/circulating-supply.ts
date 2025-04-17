@@ -9,6 +9,7 @@ import { getBnToNumber } from '@app/util/markets'
 import { DBR_CIRC_SUPPLY_EVO_CACHE_KEY } from './circulating-supply-evolution';
 import { fillMissingDailyDatesWithMostRecentData, timestampToUTC } from '@app/util/misc';
 import { SDOLA_ADDRESS, SINV_ADDRESS, SINV_ADDRESS_V1 } from '@app/config/constants';
+import { getPendingDbrBurn } from './pending-burn';
 
 const { DBR, TREASURY, DBR_AIRDROP } = getNetworkConfigConstants();
 
@@ -37,15 +38,18 @@ export default async function handler(req, res) {
     const provider = getProvider(NetworkIds.mainnet);
     const contract = new Contract(DBR, DBR_ABI, provider);
 
-    const [totalSupply, ...excludedBalances] = await Promise.all([
+    const [totalSupply, _pendingDbrBurn, ...excludedBalances] = await Promise.all([
       contract.totalSupply(),
+      getPendingDbrBurn(),
       ...excluded.map(excludedAd => contract.balanceOf(excludedAd)),
     ]);
 
     const totalDbrExcluded = excludedBalances.map(bn => getBnToNumber(bn))
       .reduce((prev, curr) => prev + curr, 0);
 
-    const circulatingSupply = getBnToNumber(totalSupply) - totalDbrExcluded;    
+    const pendingDbrBurn = parseFloat(_pendingDbrBurn||0);
+    const circulatingSupplyTheoretical = getBnToNumber(totalSupply) - totalDbrExcluded;
+    const circulatingSupply = circulatingSupplyTheoretical - pendingDbrBurn;
 
     await redisSetWithTimestamp(dbrCircSupplyCacheKey, circulatingSupply);
 
@@ -61,6 +65,7 @@ export default async function handler(req, res) {
           utcDate,
           totalSupply: getBnToNumber(totalSupply),
           circSupply: circulatingSupply,
+          circSupplyTheo: circulatingSupplyTheoretical,
         });
         // in case we missed a day, fill with most recent data
         const filledIn = fillMissingDailyDatesWithMostRecentData(cachedCircEvoData.evolution, 1);
