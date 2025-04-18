@@ -247,6 +247,15 @@ export default async function handler(req, res) {
         totalMethod: 'totalSupply',
         image: 'https://token-icons.llamao.fi/icons/tokens/1/0x1202f5c7b4b9e47a1a484e8b270be34dbbc75055?h=64&w=64',
       },
+      {
+        symbol: 'fxSave',
+        project: 'Fx-protocol',
+        link: 'https://fx.aladdin.club/v2/fxsave',
+        pool: 'ee0b7069-f8f3-4aa2-a415-728f13e6cc3d',
+        address: '0x7743e50F534a7f9F1791DdE7dCD89F7783Eefc39',
+        currentRateGetter: () => getDefiLlamaApy("ee0b7069-f8f3-4aa2-a415-728f13e6cc3d"),
+        image: 'https://raw.githubusercontent.com/AladdinDAO/aladdin-assets/refs/heads/main/images/branding/fxSave.png',
+      },
     ];
 
     const [currentRates, defillamaData] = await Promise.all(
