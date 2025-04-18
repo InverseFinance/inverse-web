@@ -75,7 +75,7 @@ export const prepareLeveragePosition = async (
             console.log(e);
             return Promise.reject(`Getting a quote from ${ALE_SWAP_PARTNER} failed`);
         }
-        const { data: swapData, allowanceTarget, value } = aleQuoteResult;
+        const { data: swapData, allowanceTarget, value, bestExchangeProxy } = aleQuoteResult;
         const permitData = [deadline, v, r, s];
         let helperTransformData = '0x';
         if (market.aleData?.buySellToken && !!market.aleTransformerType && aleTransformers[market.aleTransformerType]) {
@@ -95,6 +95,7 @@ export const prepareLeveragePosition = async (
                 signer,
                 dolaToBorrowToBuyCollateral,
                 market.address,
+                bestExchangeProxy,
                 allowanceTarget,
                 swapData,
                 permitData,
@@ -106,7 +107,7 @@ export const prepareLeveragePosition = async (
             )
         }
         return leveragePosition(
-            signer, dolaToBorrowToBuyCollateral, market.address, allowanceTarget, swapData, permitData, helperTransformData, dbrData, value,
+            signer, dolaToBorrowToBuyCollateral, market.address, bestExchangeProxy, allowanceTarget, swapData, permitData, helperTransformData, dbrData, value,
         );
     }
     return Promise.reject("Signature failed or canceled");
@@ -116,6 +117,7 @@ export const leveragePosition = (
     signer: JsonRpcSigner,
     dolaToBorrow: BigNumber,
     marketAd: string,
+    bestExchangeProxy: string,
     zeroXspender: string,
     swapData: string,
     permitTuple: any[],
@@ -126,7 +128,7 @@ export const leveragePosition = (
     return callWithHigherGL(
         getAleContract(signer),
         'leveragePosition',
-        [dolaToBorrow, marketAd, zeroXspender, swapData, permitTuple, helperTransformData, dbrTuple],
+        [dolaToBorrow, marketAd, bestExchangeProxy, zeroXspender, swapData, permitTuple, helperTransformData, dbrTuple],
         200000,
         { value: ethValue },
     );
@@ -136,6 +138,7 @@ export const depositAndLeveragePosition = (
     signer: JsonRpcSigner,
     dolaToBorrow: BigNumber,
     marketAd: string,
+    bestExchangeProxy: string,
     zeroXspender: string,
     swapData: string,
     permitTuple: any[],
@@ -148,7 +151,7 @@ export const depositAndLeveragePosition = (
     return callWithHigherGL(
         getAleContract(signer),
         'depositAndLeveragePosition',
-        [initialDeposit, dolaToBorrow, marketAd, zeroXspender, swapData, permitTuple, helperTransformData, dbrTuple, depositCollateral],
+        [initialDeposit, dolaToBorrow, marketAd, bestExchangeProxy, zeroXspender, swapData, permitTuple, helperTransformData, dbrTuple, depositCollateral],
         200000,
         { value: ethValue },
     )
@@ -194,7 +197,7 @@ export const prepareDeleveragePosition = async (
     if (signatureResult) {
         const { deadline, r, s, v } = signatureResult;
 
-        const { data: swapData, allowanceTarget, value, buyAmount } = aleQuoteResult;
+        const { data: swapData, allowanceTarget, value, buyAmount, bestExchangeProxy } = aleQuoteResult;
         const permitData = [deadline, v, r, s];
         let helperTransformData = '0x';
         const dolaBuyAmount = getBnToNumber(parseUnits(buyAmount, 0));
@@ -216,6 +219,7 @@ export const prepareDeleveragePosition = async (
             signer,
             minDolaOrMaxRepayable,
             market.address,
+            bestExchangeProxy,
             collateralToWithdraw,
             allowanceTarget,
             swapData,
@@ -232,6 +236,7 @@ export const deleveragePosition = async (
     signer: JsonRpcSigner,
     dolaToRepay: BigNumber,
     marketAd: string,
+    bestExchangeProxy: string,
     amountToWithdraw: BigNumber,
     zeroXspender: string,
     swapData: string,
@@ -246,6 +251,7 @@ export const deleveragePosition = async (
         [
             dolaToRepay,
             marketAd,
+            bestExchangeProxy,
             amountToWithdraw,
             zeroXspender,
             swapData,
@@ -266,7 +272,7 @@ export const getAleSellQuote = async (
     getPriceOnly = false,
 ) => {
     const method = getPriceOnly ? 'quote' : 'swap';
-    let url = `/api/f2/1inch-proxy?method=${method}&buyToken=${buyAd.toLowerCase()}&sellToken=${sellAd.toLowerCase()}&sellAmount=${sellAmount}&slippagePercentage=${slippagePercentage}`;
+    let url = `/api/f2/ale-proxy?method=${method}&buyToken=${buyAd.toLowerCase()}&sellToken=${sellAd.toLowerCase()}&sellAmount=${sellAmount}&slippagePercentage=${slippagePercentage}`;
     const response = await fetch(url);
     return response.json();
 }
@@ -277,7 +283,7 @@ export const getAleSellEnoughToRepayDebt = async (
     debt: string,
     deposits: string,
 ) => {
-    let url = `/api/f2/1inch-proxy?isFullDeleverage=true&method=quote&buyToken=${buyAd.toLowerCase()}&sellToken=${sellAd.toLowerCase()}&debt=${debt}&deposits=${deposits}`;
+    let url = `/api/f2/ale-proxy?isFullDeleverage=true&method=quote&buyToken=${buyAd.toLowerCase()}&sellToken=${sellAd.toLowerCase()}&debt=${debt}&deposits=${deposits}`;
     const response = await fetch(url);
     return response.json();
 }
