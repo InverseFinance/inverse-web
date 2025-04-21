@@ -297,7 +297,7 @@ export const DbrAuctionBuyer = ({
                         {
                             tab === INFOS ?
                                 <VStack w='full' alignItems="flex-start">
-                                    <DbrAuctionParametersWrapper tokenPrice={sellTokenPrice} />
+                                    <DbrAuctionParametersWrapper dolaPrice={dolaPrice} invPrice={invPrice} />
                                 </VStack>
                                 : <>
                                     <HStack w='full' justify="space-between">
