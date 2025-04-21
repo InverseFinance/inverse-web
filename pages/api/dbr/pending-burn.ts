@@ -37,8 +37,8 @@ export const getPendingDbrBurn = async (_block?: number, _now?: number, isDetail
 
     const pendingBurns = actualSpenders.map((s, i) => {
       const lastUpdateTimestamp = lastUpdatesInSeconds[i] * 1000;
-      const msSinceLastUpdate = (now - lastUpdateTimestamp);
-      const pendingBurn = s.debt * msSinceLastUpdate / (365 * ONE_DAY_MS);
+      const deltaMs = (now - lastUpdateTimestamp);
+      const pendingBurn = s.debt * deltaMs / (365 * ONE_DAY_MS);
       return {
         user: s.user,
         pendingBurn,
@@ -46,8 +46,8 @@ export const getPendingDbrBurn = async (_block?: number, _now?: number, isDetail
         debt: s.debt,
         dailyBurn: s.debt / 365,
         refTimeMs: now,
-        timeSinceLastUpdateMs: msSinceLastUpdate,
-        timeSinceLastUpdateInDays: msSinceLastUpdate / ONE_DAY_MS,
+        deltaMs,
+        deltaDays: deltaMs / ONE_DAY_MS,
       }
     });
     return isDetails ? pendingBurns : pendingBurns.reduce((acc, s) => acc + s.pendingBurn, 0);
