@@ -88,15 +88,15 @@ export const useDbrAuction = (auctionType: 'classic' | 'sdola' | 'sinv'): {
     }
 }
 
-export const DbrAuctionParametersWrapper = ({ tokenPrice }: { tokenPrice: number }) => {
+export const DbrAuctionParametersWrapper = ({ dolaPrice, invPrice }: { dolaPrice: number, invPrice: number }) => {
     const { priceUsd: dbrPrice } = useDBRPrice(); 
     return <VStack w='full' alignItems="flex-start">
         <Text fontWeight="bold">Virtual auction infos:</Text>
-        <DbrAuctionClassicParameters dbrPrice={dbrPrice} tokenPrice={tokenPrice} />
+        <DbrAuctionClassicParameters dbrPrice={dbrPrice} tokenPrice={dolaPrice} />
         <Text fontWeight="bold">sDOLA auction infos:</Text>
-        <DbrAuctionSDolaParameters dbrPrice={dbrPrice} tokenPrice={tokenPrice} />
+        <DbrAuctionSDolaParameters dbrPrice={dbrPrice} tokenPrice={dolaPrice} />
         <Text fontWeight="bold">sINV auction infos:</Text>
-        <DbrAuctionSinvParameters dbrPrice={dbrPrice} tokenPrice={tokenPrice} />
+        <DbrAuctionSinvParameters dbrPrice={dbrPrice} tokenPrice={invPrice} />
     </VStack>
 }
 
