@@ -1,4 +1,5 @@
 import { getNetworkConfigConstants } from '@app/util/networks';
+import { getPendleSwapData } from '@app/util/pendle';
 import { isAddress, parseUnits } from 'ethers/lib/utils';
 import 'source-map-support'
 
@@ -85,6 +86,8 @@ export default async function handler(req, res) {
 
   const { method, buyToken, buyAmount, sellToken, sellAmount, slippagePercentage, isFullDeleverage } = req.query;
 
+  const isPendleCase = !!(ptMarkets[buyToken] || ptMarkets[sellToken]);
+
   if (!['swap', 'quote'].includes(method) || !isAddress(buyToken) || !isAddress(sellToken) || (buyToken.toLowerCase() !== DOLA.toLowerCase() && sellToken.toLowerCase() !== DOLA.toLowerCase()) || (!/^[1-9]+[0-9]*$/.test(sellAmount) && isFullDeleverage !== 'true')) {
     return res.status(400).json({ msg: 'invalid request' });
   }
@@ -93,89 +96,100 @@ export default async function handler(req, res) {
   // const odosSubPath = method === 'swap' ? 'assemble' : 'quote/v2';
 
   try {
-    let oneInchUrl = `${PROXYS.oneInch.apiBaseUrl}/${oneInchSubPath}?dst=${buyToken}&src=${sellToken}&slippage=${slippagePercentage}&disableEstimate=true&from=${F2_ALE}`;
-    oneInchUrl += `&amount=${sellAmount || ''}`;
-
-    if (connectors[buyToken?.toLowerCase()] || connectors[sellToken?.toLowerCase()]) {
-      const connectorsList = (connectors[buyToken?.toLowerCase()] || connectors[sellToken?.toLowerCase()]).join(',');
-      oneInchUrl += `&connectorTokens=${connectorsList}`;
-    }
-
-    const odosBody = {
-      "chainId": 1,
-      "inputTokens": [
-        {
-          "tokenAddress": sellToken,
-          "amount": sellAmount,
-        }
-      ],
-      "outputTokens": [
-        {
-          "tokenAddress": buyToken,
-          "proportion": 1
-        }
-      ],
-      "slippageLimitPercent": slippagePercentage,
-      "userAddr": F2_ALE,
-      // "referralCode": 0, # referral code (recommended)
-      "disableRFQs": true,
-      "compact": true,
-    };
-
-    const [
-      oneInchResponse,
-      // oneInchAllowanceResponse,
-      odosResponse,
-    ] = await Promise.all([
-      fetch1inchWithRetry(oneInchUrl),
-      // fetch1inchWithRetry('https://api.1inch.dev/swap/v6.0/1/approve/spender'),
-      fetchOdosWithRetry(`${PROXYS.odos.apiBaseUrl}/quote/v2`, odosBody),
-    ]);
-
-    if (!oneInchResponse && !odosResponse) {
-      return res.status(500).json({ error: true, msg: 'Failed to fecth swap data, please try again' });
-    }
-
-    const oneInchResponseData = await oneInchResponse?.json();
-    // const oneInchAllowanceResponseData = await oneInchAllowanceResponse?.json();
-    const odosResponseData = await odosResponse?.json();
-
-    const status = (oneInchResponse?.status === 200 || odosResponse?.status === 200) ? 200 : 500;
-
-    const oneInchOutput = oneInchResponseData?.toAmount || oneInchResponseData?.dstAmount;
-    const odosOutput = odosResponseData?.outAmounts[0];
-
-    const bestProxyName = !odosOutput || parseUnits(odosOutput, 0).lt(parseUnits(oneInchOutput, 0)) ? 'oneInch' : 'odos';
-    const bestProxy = PROXYS[bestProxyName];
-    const buyAmount = bestProxyName === 'oneInch' ? oneInchOutput : odosOutput;
-
-    let txInfo;
-    if (bestProxyName === 'odos') {
-      const odosAssembleResponse = await fetchOdosWithRetry(`${PROXYS.odos.apiBaseUrl}/assemble`, {
-        userAddr: F2_ALE,
-        pathId: odosResponseData?.pathId,
+    if (isPendleCase) {
+      const pendleData = await getPendleSwapData(buyToken, sellToken, sellAmount, slippagePercentage);
+      return res.status(200).json({
+        bestProxyName: 'pendle',
+        buyAmount: pendleData.buyAmount,
+        data: pendleData.data,
+        gasPrice: pendleData.gasPrice,
+        exchangeProxy: '',
+        allowanceTarget: '',
       });
-      const odosAssembleResponseData = await odosAssembleResponse?.json();
-      txInfo = odosAssembleResponseData?.transaction;
     } else {
-      txInfo = oneInchResponseData?.tx;
-    }
+      let oneInchUrl = `${PROXYS.oneInch.apiBaseUrl}/${oneInchSubPath}?dst=${buyToken}&src=${sellToken}&slippage=${slippagePercentage}&disableEstimate=true&from=${F2_ALE}`;
+      oneInchUrl += `&amount=${sellAmount || ''}`;
 
-    if (method === 'swap' && !txInfo) {
-      return res.status(500).json({ error: true, msg: 'Failed to fecth swap data, please try again' });
-    }
+      if (connectors[buyToken?.toLowerCase()] || connectors[sellToken?.toLowerCase()]) {
+        const connectorsList = (connectors[buyToken?.toLowerCase()] || connectors[sellToken?.toLowerCase()]).join(',');
+        oneInchUrl += `&connectorTokens=${connectorsList}`;
+      }
 
-    return res.status(status).json({
-      buyAmount: buyAmount,
-      odosOutput,
-      oneInchOutput,
-      bestProxyName,
-      allowanceTarget: bestProxy.exchangeProxy,
-      exchangeProxy: bestProxy.exchangeProxy,
-      data: txInfo.data,
-      gasPrice: txInfo.gasPrice,
-      odosPathId: odosResponseData?.pathId,
-    });
+      const odosBody = {
+        "chainId": 1,
+        "inputTokens": [
+          {
+            "tokenAddress": sellToken,
+            "amount": sellAmount,
+          }
+        ],
+        "outputTokens": [
+          {
+            "tokenAddress": buyToken,
+            "proportion": 1
+          }
+        ],
+        "slippageLimitPercent": slippagePercentage,
+        "userAddr": F2_ALE,
+        // "referralCode": 0, # referral code (recommended)
+        "disableRFQs": true,
+        "compact": true,
+      };
+
+      const [
+        oneInchResponse,
+        // oneInchAllowanceResponse,
+        odosResponse,
+      ] = await Promise.all([
+        fetch1inchWithRetry(oneInchUrl),
+        // fetch1inchWithRetry('https://api.1inch.dev/swap/v6.0/1/approve/spender'),
+        fetchOdosWithRetry(`${PROXYS.odos.apiBaseUrl}/quote/v2`, odosBody),
+      ]);
+
+      if (!oneInchResponse && !odosResponse) {
+        return res.status(500).json({ error: true, msg: 'Failed to fecth swap data, please try again' });
+      }
+
+      const oneInchResponseData = await oneInchResponse?.json();
+      // const oneInchAllowanceResponseData = await oneInchAllowanceResponse?.json();
+      const odosResponseData = await odosResponse?.json();
+
+      const status = (oneInchResponse?.status === 200 || odosResponse?.status === 200) ? 200 : 500;
+
+      const oneInchOutput = oneInchResponseData?.toAmount || oneInchResponseData?.dstAmount;
+      const odosOutput = odosResponseData?.outAmounts[0];
+
+      const bestProxyName = !odosOutput || parseUnits(odosOutput, 0).lt(parseUnits(oneInchOutput, 0)) ? 'oneInch' : 'odos';
+      const bestProxy = PROXYS[bestProxyName];
+      const buyAmount = bestProxyName === 'oneInch' ? oneInchOutput : odosOutput;
+
+      let txInfo;
+      if (bestProxyName === 'odos') {
+        const odosAssembleResponse = await fetchOdosWithRetry(`${PROXYS.odos.apiBaseUrl}/assemble`, {
+          userAddr: F2_ALE,
+          pathId: odosResponseData?.pathId,
+        });
+        const odosAssembleResponseData = await odosAssembleResponse?.json();
+        txInfo = odosAssembleResponseData?.transaction;
+      } else {
+        txInfo = oneInchResponseData?.tx;
+      }
+      if (method === 'swap' && !txInfo) {
+        return res.status(500).json({ error: true, msg: 'Failed to fecth swap data, please try again' });
+      }
+  
+      return res.status(status).json({
+        buyAmount: buyAmount,
+        // odosOutput,
+        // oneInchOutput,
+        bestProxyName,
+        allowanceTarget: bestProxy.exchangeProxy,
+        exchangeProxy: bestProxy.exchangeProxy,
+        data: txInfo.data,
+        gasPrice: txInfo.gasPrice,
+        odosPathId: odosResponseData?.pathId,
+      });
+    }
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: true, msg: 'Something went wrong' })

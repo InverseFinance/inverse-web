@@ -65,3 +65,16 @@ export const useUserPtApys = (ptTokens: string[], user: string) => {
         isError: error,
     }
 }
+
+export const getPendleSwapData = async (buyToken: string, sellToken: string, sellAmount: string, slippagePercentage: string) => {
+    const ptMarketAddress = ptMarkets[buyToken] || ptMarkets[sellToken];
+    const isLeverage = !!ptMarkets[buyToken];
+    // receiver = helper or ale
+    const receiver = isLeverage ? '0x4809fE7d314c2AE5b2Eb7fa19C1B166434D29141' : '0x4dF2EaA1658a220FDB415B9966a9ae7c3d16e240';
+    const responseData = await fetch(`https://api-v2.pendle.finance/core/v1/sdk/1/markets/${ptMarketAddress.toLowerCase()}/swap?receiver=${receiver}&slippage=${slippagePercentage}&enableAggregator=true&tokenIn=${sellToken}&tokenOut=${buyToken}&amountIn=${sellAmount}`).then(r => r.json());
+    return {
+        buyAmount: responseData.data.amountOut,
+        data: responseData.tx.data,
+        gasPrice: responseData.tx.gasPrice,
+    };
+}
