@@ -9,6 +9,12 @@ const ptMarkets = {
     '0xb7de5dFCb74d25c2f21841fbd6230355C50d9308': '0xb162b764044697cf03617c2efbcb1f42e31e4766',
 }
 
+// ptToken => ytToken
+const ytTokens = {
+    '0xE00bd3Df25fb187d6ABBB620b3dfd19839947b81': '0x96512230bf0fa4e20cf02c3e8a7d983132cd2b9f',
+    '0xb7de5dFCb74d25c2f21841fbd6230355C50d9308': '0x1de6ff19fda7496ddc12f2161f6ad6427c52abbe',
+}
+
 // deprecated
 export const getUserPtApy = async (ptToken: string, user: string) => {
     try {
@@ -66,12 +72,24 @@ export const useUserPtApys = (ptTokens: string[], user: string) => {
     }
 }
 
-export const getPendleSwapData = async (buyToken: string, sellToken: string, sellAmount: string, slippagePercentage: string) => {
+export const getPendleSwapData = async (
+    buyToken: string,
+    sellToken: string,
+    sellAmount: string,
+    slippagePercentage: string,
+    isExpired: boolean,
+) => {
     const ptMarketAddress = ptMarkets[buyToken] || ptMarkets[sellToken];
     const isLeverage = !!ptMarkets[buyToken];
     // receiver = helper or ale
     const receiver = isLeverage ? '0x4809fE7d314c2AE5b2Eb7fa19C1B166434D29141' : '0x4dF2EaA1658a220FDB415B9966a9ae7c3d16e240';
-    const responseData = await fetch(`https://api-v2.pendle.finance/core/v1/sdk/1/markets/${ptMarketAddress.toLowerCase()}/swap?receiver=${receiver}&slippage=${slippagePercentage}&enableAggregator=true&tokenIn=${sellToken}&tokenOut=${buyToken}&amountIn=${sellAmount}`).then(r => r.json());
+    const baseUrl = isExpired ? 'https://api-v2.pendle.finance/core/v1/sdk/1/redeem' : `https://api-v2.pendle.finance/core/v1/sdk/1/markets/${ptMarketAddress.toLowerCase()}/swap`;
+    let queryParams = `receiver=${receiver}&slippage=${slippagePercentage}&enableAggregator=true&tokenIn=${sellToken}&tokenOut=${buyToken}&amountIn=${sellAmount}`;
+    if(isExpired) {
+        const ytToken = ytTokens[buyToken] || ytTokens[sellToken];
+        queryParams = queryParams + `&yt=${ytToken}`;
+    }
+    const responseData = await fetch(`${baseUrl}?${queryParams}`).then(r => r.json());
     return {
         buyAmount: responseData.data.amountOut,
         data: responseData.tx.data,
