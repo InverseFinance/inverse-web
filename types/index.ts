@@ -777,7 +777,7 @@ export type F2Market = {
   phasingOutLink?: string
   underlyingSymbol?: string
   aleData: { buySellToken: string, collateral: string, helper: string, useProxy: boolean }
-  aleTransformerType?: 'marketAddress' | '' | 'marketAddressAndAmount'
+  aleTransformerType?: 'marketAddress' | '' | 'marketAddressAndAmount' | 'marketAddressAndAmountAndPendleData'
   isERC4626Collateral?: boolean
   isAleWithoutSwap?: boolean
   underlyingWithPricePerShare?: boolean
@@ -785,6 +785,7 @@ export type F2Market = {
   convexRewardsAddress?: string
   noDeposit?: boolean
   noZap?: boolean
+  expiry?: string
 }
 
 export type FirmAction = {

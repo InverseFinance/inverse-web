@@ -3,7 +3,7 @@ import { getPendleSwapData } from '@app/util/pendle';
 import { isAddress, parseUnits } from 'ethers/lib/utils';
 import 'source-map-support'
 
-const { F2_ALE, DOLA } = getNetworkConfigConstants();
+const { F2_ALE, DOLA, F2_MARKETS } = getNetworkConfigConstants();
 
 const PROXYS = {
   'oneInch': {
@@ -97,12 +97,15 @@ export default async function handler(req, res) {
 
   try {
     if (isPendleCase) {
-      const pendleData = await getPendleSwapData(buyToken, sellToken, sellAmount, slippagePercentage);
+      const firmMarket = F2_MARKETS.find(m => [buyToken, sellToken].includes(m.collateral));
+      const isExpired = firmMarket?.expiry ? new Date(firmMarket.expiry) < new Date() : false;
+      const pendleData = await getPendleSwapData(buyToken, sellToken, sellAmount, slippagePercentage, isExpired);
       return res.status(200).json({
         bestProxyName: 'pendle',
         buyAmount: pendleData.buyAmount,
-        data: pendleData.data,
-        gasPrice: pendleData.gasPrice,
+        data: '0x',
+        extraHelperData: pendleData.data,
+        gasPrice: undefined,
         exchangeProxy: '',
         allowanceTarget: '',
       });
