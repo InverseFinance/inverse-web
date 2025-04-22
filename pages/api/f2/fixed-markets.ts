@@ -14,7 +14,7 @@ import { marketsDisplaysCacheKey } from './markets-display';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.5.5`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.5.6`;
 
 export default async function handler(req, res) {
   const cacheDuration = 90;
@@ -92,11 +92,14 @@ export default async function handler(req, res) {
       const marketCustomDisplay = marketsDisplay ? marketsDisplay[m.address] : {};
       const isBorrowingSuspended = suspendAllBorrows || marketCustomDisplay?.isBorrowingSuspended || m.isBorrowingSuspended;
       const isLeverageSuspended = suspendAllLeverage || marketCustomDisplay?.isLeverageSuspended || m.isLeverageSuspended;
+      const isPendle = m.name.startsWith('PT-');
+      const supplyApy = externalApys[underlying.symbol] || externalApys[m.name] || 0;
+      const isPendleMatured = isPendle && !supplyApy;
       return {
         ...m,
         ...marketData,
         underlying: TOKENS[m.collateral],
-        supplyApy: externalApys[underlying.symbol] || externalApys[m.name] || 0,
+        supplyApy,
         extraApy: m.isInv ? dbrApr : 0,
         supplyApyLow: isCvxCrv ? Math.min(cvxCrvData?.group1 || 0, cvxCrvData?.group2 || 0) : 0,
         cvxCrvData: isCvxCrv ? cvxCrvData : undefined,
@@ -112,6 +115,8 @@ export default async function handler(req, res) {
         isBorrowingSuspended: isBorrowingSuspended,
         isLeverageComingSoon: isLeverageSuspended || m.isLeverageComingSoon,
         phasingOutComment: marketCustomDisplay?.phasingOutComment || m.phasingOutComment || '',
+        isPendle,
+        isPendleMatured,
       }
     });
 
