@@ -122,7 +122,6 @@ export const leveragePosition = (
     dolaToBorrow: BigNumber,
     marketAd: string,
     bestExchangeProxy: string,
-    zeroXspender: string,
     swapData: string,
     permitTuple: any[],
     helperTransformData: string,
@@ -132,7 +131,7 @@ export const leveragePosition = (
     return callWithHigherGL(
         getAleContract(signer),
         'leveragePosition',
-        [dolaToBorrow, marketAd, bestExchangeProxy, zeroXspender, swapData, permitTuple, helperTransformData, dbrTuple],
+        [dolaToBorrow, marketAd, bestExchangeProxy, swapData, permitTuple, helperTransformData, dbrTuple],
         200000,
         { value: ethValue },
     );
@@ -143,7 +142,6 @@ export const depositAndLeveragePosition = (
     dolaToBorrow: BigNumber,
     marketAd: string,
     bestExchangeProxy: string,
-    zeroXspender: string,
     swapData: string,
     permitTuple: any[],
     helperTransformData: string,
@@ -155,7 +153,7 @@ export const depositAndLeveragePosition = (
     return callWithHigherGL(
         getAleContract(signer),
         'depositAndLeveragePosition',
-        [initialDeposit, dolaToBorrow, marketAd, bestExchangeProxy, zeroXspender, swapData, permitTuple, helperTransformData, dbrTuple, depositCollateral],
+        [initialDeposit, dolaToBorrow, marketAd, bestExchangeProxy, swapData, permitTuple, helperTransformData, dbrTuple, depositCollateral],
         200000,
         { value: ethValue },
     )
@@ -225,7 +223,6 @@ export const prepareDeleveragePosition = async (
             market.address,
             bestExchangeProxy,
             collateralToWithdraw,
-            allowanceTarget,
             swapData,
             permitData,
             helperTransformData,
@@ -242,7 +239,6 @@ export const deleveragePosition = async (
     marketAd: string,
     bestExchangeProxy: string,
     amountToWithdraw: BigNumber,
-    zeroXspender: string,
     swapData: string,
     permitTuple: any[],
     helperTransformData: string,
@@ -257,7 +253,6 @@ export const deleveragePosition = async (
             marketAd,
             bestExchangeProxy,
             amountToWithdraw,
-            zeroXspender,
             swapData,
             permitTuple,
             helperTransformData,
