@@ -4,13 +4,13 @@ import useSWR from "swr";
 
 // list of active markets: https://api-v2.pendle.finance/core/v1/1/markets/active
 // ptToken => ptMarketAddress
-const ptMarkets = {
+export const ptMarkets = {
     '0xE00bd3Df25fb187d6ABBB620b3dfd19839947b81': '0xcdd26eb5eb2ce0f203a84553853667ae69ca29ce',
     '0xb7de5dFCb74d25c2f21841fbd6230355C50d9308': '0xb162b764044697cf03617c2efbcb1f42e31e4766',
 }
 
 // ptToken => ytToken
-const ytTokens = {
+export const ytTokens = {
     '0xE00bd3Df25fb187d6ABBB620b3dfd19839947b81': '0x96512230bf0fa4e20cf02c3e8a7d983132cd2b9f',
     '0xb7de5dFCb74d25c2f21841fbd6230355C50d9308': '0x1de6ff19fda7496ddc12f2161f6ad6427c52abbe',
 }
@@ -94,5 +94,8 @@ export const getPendleSwapData = async (
         buyAmount: responseData.data.amountOut,
         data: responseData.tx.data,
         gasPrice: responseData.tx.gasPrice,
+        to: responseData.tx.to,
+        receiver,
+        baseUrl,
     };
 }

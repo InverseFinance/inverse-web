@@ -1,5 +1,5 @@
 import { getNetworkConfigConstants } from '@app/util/networks';
-import { getPendleSwapData } from '@app/util/pendle';
+import { getPendleSwapData, ptMarkets } from '@app/util/pendle';
 import { isAddress, parseUnits } from 'ethers/lib/utils';
 import 'source-map-support'
 
@@ -106,8 +106,10 @@ export default async function handler(req, res) {
         data: '0x',
         extraHelperData: pendleData.data,
         gasPrice: undefined,
-        exchangeProxy: '',
-        allowanceTarget: '',
+        // not actually needed
+        exchangeProxy: pendleData.to,
+        allowanceTarget: pendleData.to,
+        isExpiredPendleMarket: isExpired,
       });
     } else {
       let oneInchUrl = `${PROXYS.oneInch.apiBaseUrl}/${oneInchSubPath}?dst=${buyToken}&src=${sellToken}&slippage=${slippagePercentage}&disableEstimate=true&from=${F2_ALE}`;
@@ -156,6 +158,7 @@ export default async function handler(req, res) {
       const oneInchResponseData = await oneInchResponse?.json();
       // const oneInchAllowanceResponseData = await oneInchAllowanceResponse?.json();
       const odosResponseData = await odosResponse?.json();
+      let odosAssembleResponseData;
 
       const status = (oneInchResponse?.status === 200 || odosResponse?.status === 200) ? 200 : 500;
 
@@ -172,7 +175,7 @@ export default async function handler(req, res) {
           userAddr: F2_ALE,
           pathId: odosResponseData?.pathId,
         });
-        const odosAssembleResponseData = await odosAssembleResponse?.json();
+        odosAssembleResponseData = await odosAssembleResponse?.json();
         txInfo = odosAssembleResponseData?.transaction;
       } else {
         txInfo = oneInchResponseData?.tx;
@@ -183,14 +186,16 @@ export default async function handler(req, res) {
   
       return res.status(status).json({
         buyAmount: buyAmount,
-        // odosOutput,
-        // oneInchOutput,
+        odosOutput,
+        oneInchOutput,
         bestProxyName,
         allowanceTarget: bestProxy.exchangeProxy,
         exchangeProxy: bestProxy.exchangeProxy,
         data: txInfo.data,
         gasPrice: txInfo.gasPrice,
         odosPathId: odosResponseData?.pathId,
+        odosTx: odosAssembleResponseData?.transaction,
+        oneInchTx: oneInchResponseData?.tx,
       });
     }
   } catch (err) {
