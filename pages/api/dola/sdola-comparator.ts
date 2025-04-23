@@ -296,6 +296,7 @@ export default async function handler(req, res) {
         const last365 = pastRates.slice(pastRatesLen - 365, pastRatesLen).filter(pr => !!pr[symbol]);
         const defillamaPoolData = defillamaData.find(p => p.pool === metaData.pool);
         return {
+          address: metaData.address,
           isVault: !metaData.isNotVault,
           tvl: defillamaPoolData?.tvlUsd || onChainData[index].totalAssets || null,
           apy: (rate.supplyRate || rate.apy),
