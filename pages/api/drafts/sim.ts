@@ -93,8 +93,8 @@ export default async function handler(req, res) {
     // const rateLimitRemaining = forkResponse.headers.get('x-ratelimit-remaining');
     let adminRpc, publicId, publicRpc;
 
-    if (!!continueOnSimId && !!ids.find(id => id.publicId === parseInt(continueOnSimId))) {
-      const simToContinueOn = ids.find(id => id.publicId === parseInt(continueOnSimId));
+    if (!!continueOnSimId && (!!ids.find(id => id.publicId === continueOnSimId || id.localId === parseInt(continueOnSimId)))) {
+      const simToContinueOn = ids.find(id => id.publicId === continueOnSimId || id.localId === parseInt(continueOnSimId));
       adminRpc = simToContinueOn.adminRpc;
       publicId = simToContinueOn.publicId;
       publicRpc = simToContinueOn.publicRpc;
@@ -109,7 +109,7 @@ export default async function handler(req, res) {
       publicRpc = fork.rpcs[2].url;
       publicId = publicRpc.substring(publicRpc.lastIndexOf("/") + 1);
 
-      _ids.push({ timestamp: now, id: forkId, publicId, publicRpc, adminRpc, title: form.title });
+      _ids.push({ timestamp: now, localId: newSimId, id: forkId, publicId, publicRpc, adminRpc, title: form.title });
       await redisSetWithTimestamp(SIMS_CACHE_KEY, { lastSimId: newSimId, ids: _ids });
     }
 
