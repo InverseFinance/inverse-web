@@ -173,7 +173,8 @@ export const getLeverageImpact = async ({
         // leverage level slider / input, result from 1inch
         if (!viaInput && !market.isAleWithoutSwap) {
             const amountUp = baseColAmountForLeverage * leverageLevel - baseColAmountForLeverage;
-            const { buyAmount } = await getAleSellQuote(DOLA, market.aleData.buySellToken || market.collateral, getNumberToBn(amountUp * exRate, market.underlying.decimals).toString(), aleSlippage, true);
+            const sellToken = market.isPendle ? market.collateral :  market.aleData?.buySellToken || market.collateral;
+            const { buyAmount } = await getAleSellQuote(DOLA, sellToken, getNumberToBn(amountUp * exRate, market.underlying.decimals).toString(), aleSlippage, true);
             borrowStringToSign = buyAmount;
             borrowNumToSign = parseFloat(borrowStringToSign) / (1e18);
         }
@@ -193,7 +194,8 @@ export const getLeverageImpact = async ({
         // classic case, using 1inch
         if (!market.isAleWithoutSwap) {
             // in the end the reference is always a number of dola sold (as it's what we need to sign, or part of it if with dbr)
-            const { buyAmount, validationErrors, msg } = await getAleSellQuote(market.aleData.buySellToken || market.collateral, DOLA, borrowStringToSign, aleSlippage, true);
+            const sellToken = market.isPendle ? market.collateral :  market.aleData?.buySellToken || market.collateral;
+            const { buyAmount, validationErrors, msg } = await getAleSellQuote(sellToken, DOLA, borrowStringToSign, aleSlippage, true);
             errorMsg = validationErrors?.length > 0 ?
                 `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
                 : msg;
@@ -225,7 +227,8 @@ export const getLeverageImpact = async ({
         let buyAmount, errorMsg;
         // classic case
         if (!market.isAleWithoutSwap) {
-            const { buyAmount: _buyAmount, validationErrors, msg } = await getAleSellQuote(DOLA, market.aleData.buySellToken || market.collateral, getNumberToBn(Math.abs(withdrawAmountToSign) * exRate, market.underlying.decimals).toString(), aleSlippage, true);
+            const sellToken = market.isPendle ? market.collateral :  market.aleData?.buySellToken || market.collateral;
+            const { buyAmount: _buyAmount, validationErrors, msg } = await getAleSellQuote(DOLA, sellToken, getNumberToBn(Math.abs(withdrawAmountToSign) * exRate, market.underlying.decimals).toString(), aleSlippage, true);
             buyAmount = _buyAmount;
             errorMsg = validationErrors?.length > 0 ?
                 `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`

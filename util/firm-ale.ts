@@ -67,7 +67,8 @@ export const prepareLeveragePosition = async (
                 aleQuoteResult = { data: '0x', allowanceTarget: BURN_ADDRESS, value: '0' }
             } else {
                 // the dola swapped for collateral is dolaToBorrowToBuyCollateral not totalDolaToBorrow (a part is for dbr)
-                aleQuoteResult = await getAleSellQuote(market.aleData?.buySellToken || market.collateral, DOLA, dolaToBorrowToBuyCollateral.toString(), slippagePerc, false);
+                const sellToken = market.isPendle ? market.collateral :  market.aleData?.buySellToken || market.collateral;
+                aleQuoteResult = await getAleSellQuote(sellToken, DOLA, dolaToBorrowToBuyCollateral.toString(), slippagePerc, false);
                 if (!aleQuoteResult?.data || !!aleQuoteResult.msg) {
                     const msg = aleQuoteResult?.validationErrors?.length > 0 ?
                         `Swap validation failed with: ${aleQuoteResult?.validationErrors[0].field} ${aleQuoteResult?.validationErrors[0].reason}`
@@ -181,7 +182,8 @@ export const prepareDeleveragePosition = async (
         } else {
             // the dola swapped for collateral is dolaToRepayToSellCollateral not totalDolaToBorrow (a part is for dbr)
             const amountToSellString = !!market.aleTransformerType && market?.aleData?.buySellToken?.toLowerCase() !== market?.collateral?.toLowerCase() && underlyingExRate ? getNumberToBn(getBnToNumber(collateralToWithdraw, market.underlying.decimals) * underlyingExRate).toString() : collateralToWithdraw.toString();
-            aleQuoteResult = await getAleSellQuote(DOLA, market.aleData?.buySellToken || market.collateral, amountToSellString, slippagePerc, false);
+            const sellToken = market.isPendle ? market.collateral :  market.aleData?.buySellToken || market.collateral;
+            aleQuoteResult = await getAleSellQuote(DOLA, sellToken, amountToSellString, slippagePerc, false);
             if (!aleQuoteResult?.data || !!aleQuoteResult.msg) {
                 const msg = aleQuoteResult?.validationErrors?.length > 0 ?
                     `Swap validation failed with: ${aleQuoteResult?.validationErrors[0].field} ${aleQuoteResult?.validationErrors[0].reason}`
