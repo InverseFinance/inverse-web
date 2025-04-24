@@ -434,9 +434,9 @@ export const simulateOnChainActions = async (
     hasError: boolean,
     receipts: TransactionReceipt[],
 }> => {
+    const continueOnSimId = window.prompt('Execute simulation as a continuation proposal of a previous Simulation (if yes, enter the public-ID, otherwise leave blank)?');
     try {
-
-        const rawResponse = await fetch(`/api/drafts/sim`, {
+        const rawResponse = await fetch(`/api/drafts/sim?continueOnSimId=${continueOnSimId}`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
