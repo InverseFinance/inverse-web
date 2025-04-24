@@ -86,7 +86,8 @@ export default async function handler(req, res) {
 
   const { method, buyToken, buyAmount, sellToken, sellAmount, slippagePercentage, isFullDeleverage } = req.query;
 
-  const isPendleCase = !!(ptMarkets[buyToken] || ptMarkets[sellToken]);
+  const pendleCollaterals = Object.keys(ptMarkets).map(k => k.toLowerCase());
+  const isPendleCase = pendleCollaterals.includes(buyToken.toLowerCase()) || pendleCollaterals.includes(sellToken.toLowerCase());
 
   if (!['swap', 'quote'].includes(method) || !isAddress(buyToken) || !isAddress(sellToken) || (buyToken.toLowerCase() !== DOLA.toLowerCase() && sellToken.toLowerCase() !== DOLA.toLowerCase()) || (!/^[1-9]+[0-9]*$/.test(sellAmount) && isFullDeleverage !== 'true')) {
     return res.status(400).json({ msg: 'invalid request' });
@@ -99,6 +100,7 @@ export default async function handler(req, res) {
     if (isPendleCase) {
       const firmMarket = F2_MARKETS.find(m => [buyToken, sellToken].includes(m.collateral));
       const isExpired = firmMarket?.expiry ? new Date(firmMarket.expiry) < new Date() : false;
+     
       const pendleData = await getPendleSwapData(buyToken, sellToken, sellAmount, slippagePercentage, isExpired);
       return res.status(200).json({
         bestProxyName: 'pendle',

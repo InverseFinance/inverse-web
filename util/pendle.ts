@@ -79,10 +79,10 @@ export const getPendleSwapData = async (
     slippagePercentage: string,
     isExpired: boolean,
 ) => {
-    const ptMarketAddress = ptMarkets[buyToken] || ptMarkets[sellToken];
-    const isLeverage = !!ptMarkets[buyToken];
+    const ptMarketAddress = Object.entries(ptMarkets).find(([col, m]) => [buyToken.toLowerCase(), sellToken.toLowerCase()].includes(col.toLowerCase()))[1];
+    const isLeverageCase = !!Object.entries(ptMarkets).find(([col, m]) => [buyToken.toLowerCase()].includes(col.toLowerCase()));
     // receiver = helper or ale
-    const receiver = isLeverage ? '0x4809fE7d314c2AE5b2Eb7fa19C1B166434D29141' : '0x4dF2EaA1658a220FDB415B9966a9ae7c3d16e240';
+    const receiver = isLeverageCase ? '0x4809fE7d314c2AE5b2Eb7fa19C1B166434D29141' : '0x4dF2EaA1658a220FDB415B9966a9ae7c3d16e240';
     const baseUrl = isExpired ? 'https://api-v2.pendle.finance/core/v1/sdk/1/redeem' : `https://api-v2.pendle.finance/core/v1/sdk/1/markets/${ptMarketAddress.toLowerCase()}/swap`;
     let queryParams = `receiver=${receiver}&slippage=${slippagePercentage}&enableAggregator=true&tokenIn=${sellToken}&tokenOut=${buyToken}&amountIn=${sellAmount}`;
     if(isExpired) {

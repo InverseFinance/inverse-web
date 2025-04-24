@@ -645,7 +645,6 @@ export const FIRM_MARKETS = [
         badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },            
         startingBlock: 22126619,
         isInv: false,
-        isLeverageComingSoon: true,
         noZap: true,
         fixedFeed: false,
         aleTransformerType: 'marketAddressAndAmountAndPendleData',
