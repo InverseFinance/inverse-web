@@ -1,7 +1,7 @@
 import 'source-map-support'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { ethers } from 'ethers';
-import { submitProposal } from '@app/util/governance';
+import { getProposalActionFromFunction, submitProposal } from '@app/util/governance';
 import { CURRENT_ERA } from '@app/config/constants';
 import { getGovernanceContract } from '@app/util/contracts';
 import { FunctionFragment } from 'ethers/lib/utils';
@@ -92,7 +92,7 @@ export default async function handler(req, res) {
     // const tdlyRemaining = forkResponse.headers.get('X-Tdly-Remaining');
     // const rateLimitRemaining = forkResponse.headers.get('x-ratelimit-remaining');
     let adminRpc, publicId, publicRpc;
-    
+
     if (!!continueOnSimId && !!ids.find(id => id.publicId === parseInt(continueOnSimId))) {
       const simToContinueOn = ids.find(id => id.publicId === parseInt(continueOnSimId));
       adminRpc = simToContinueOn.adminRpc;
@@ -227,9 +227,10 @@ export default async function handler(req, res) {
     }
 
     let marketsReports: any[] = [];
-    const proposalAddresses = getProposalAddresses(form.actions);
+    const actions = form.actions ? form.actions : form.functions.map((f, i) => getProposalActionFromFunction(i + 1, f));
+    const proposalAddresses = getProposalAddresses(actions);
     const marketsInProposal = F2_MARKETS.filter(m => proposalAddresses.includes(m.address.toLowerCase()) || proposalAddresses.includes(m.collateral.toLowerCase())).map(m => m.address.toLowerCase());
-    for (const action of form.actions) {
+    for (const action of actions) {
       if (action.func === 'addMarket(address)' && action.contractAddress.toLowerCase() === DBR.toLowerCase()) {
         const marketToAdd = action.args[0].value.toLowerCase();
         if (!marketsInProposal.includes(marketToAdd)) {
