@@ -287,7 +287,7 @@ export const StakeDolaUI = ({ topStable }: { tokenAndBalances: { balance: number
                                     </VStack>
                             }
                             {
-                                tab !== 'Infos' && !isDolaTopStable && <VStack alignItems="flex-start">
+                                tab !== 'Infos' && isDolaTopStable && <VStack alignItems="flex-start">
                                     <HStack>
                                         <Text fontSize="16px" color="mainTextColorLight2">
                                             {isStake ? 'sDOLA to receive' : 'sDOLA to exchange'}:
