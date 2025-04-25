@@ -60,6 +60,7 @@ function EnsoZap({
     const { provider, chainId } = useWeb3React<Web3Provider>();    
 
     const [isConnected, setIsConnected] = useState(true);
+    const [isInited, setIsInited] = useState(false);
     const [slippage, setSlippage] = useState('0.1');
     const [refreshIndex, setRefreshIndex] = useState(0);
     const [lastChainId, setLastChainId] = useState(chainId);
@@ -128,6 +129,13 @@ function EnsoZap({
 
     const fromAssetInputProps = { tokens: fromOptionsWithBalance, balances, prices: combinedPrices, showBalance: true, dropdownSelectedProps: { whiteSpace: 'nowrap', w: 'fit-content' }, inputProps: { minW: '200px' } }
 
+    useEffect(() => {
+        if (!isInited && tokenIn !== defaultTokenIn && !tokenIn) {
+            setTokenIn(defaultTokenIn);
+            setIsInited(true);
+        }
+    }, [defaultTokenIn, tokenIn, isInited]);
+
     const changeTokenIn = (newToken: Token) => {
         setTokenIn(newToken.address);
     }
@@ -158,7 +166,7 @@ function EnsoZap({
             setZapRequestData({});
             return
         }
-        const amountInValue = amountIn && tokenInObj?.decimals ? formatUnits(parseUnits(amountIn, tokenInObj?.decimals), 0) : '';
+        const amountInValue = amountIn && tokenInObj?.decimals ? formatUnits(parseUnits(parseFloat(amountIn).toFixed(tokenInObj?.decimals), tokenInObj?.decimals), 0) : '';
         setZapRequestData({ account, chainId, targetChainId, tokenIn, tokenOut, amountIn: amountInValue });
     }, [account, chainId, targetChainId, tokenIn, tokenOut, amountIn, tokenInObj]);
 

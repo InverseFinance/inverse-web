@@ -79,7 +79,9 @@ export const useSavingsOpportunities = (account: string) => {
     return {
         tokenAndBalances,
         totalStables,
-        topStable: tokenAndBalances?.length > 0 ? tokenAndBalances[0] : null
+        topStable: tokenAndBalances?.length > 0 ? tokenAndBalances[0] : null,
+        // if DOLA is >= of the stable portfolio use as main entry point
+        useDolaAsMain: totalStables <= 10 || tokenAndBalances.some(t => t.token.symbol === 'DOLA' && t.balance > totalStables/5)
     }
 }
 
