@@ -51,6 +51,7 @@ export const prepareLeveragePosition = async (
 ) => {
     let dbrApprox;
     let dbrInputs = { dolaParam: '0', dbrParam: '0' };
+
     if (durationDays && dbrBuySlippage) {
         dbrApprox = await f2approxDbrAndDolaNeeded(signer, dolaToBorrowToBuyCollateral, dbrBuySlippage, durationDays);
         dbrInputs = getHelperDolaAndDbrParams('curve-v2', durationDays, dbrApprox);
@@ -80,7 +81,7 @@ export const prepareLeveragePosition = async (
             console.log(e);
             return Promise.reject(`Getting a quote from ${ALE_SWAP_PARTNER} failed`);
         }
-        const { data: swapData, allowanceTarget, value, bestExchangeProxy, extraHelperData } = aleQuoteResult;
+        const { data: swapData, allowanceTarget, value, exchangeProxy, extraHelperData } = aleQuoteResult;
         const permitData = [deadline, v, r, s];
         let helperTransformData = '0x';
         if (market.aleData?.buySellToken && !!market.aleTransformerType && aleTransformers[market.aleTransformerType]) {
@@ -100,8 +101,7 @@ export const prepareLeveragePosition = async (
                 signer,
                 dolaToBorrowToBuyCollateral,
                 market.address,
-                bestExchangeProxy,
-                allowanceTarget,
+                exchangeProxy,
                 swapData,
                 permitData,
                 helperTransformData,
@@ -112,7 +112,7 @@ export const prepareLeveragePosition = async (
             )
         }
         return leveragePosition(
-            signer, dolaToBorrowToBuyCollateral, market.address, bestExchangeProxy, allowanceTarget, swapData, permitData, helperTransformData, dbrData, value,
+            signer, dolaToBorrowToBuyCollateral, market.address, exchangeProxy, swapData, permitData, helperTransformData, dbrData, value,
         );
     }
     return Promise.reject("Signature failed or canceled");
@@ -122,7 +122,7 @@ export const leveragePosition = (
     signer: JsonRpcSigner,
     dolaToBorrow: BigNumber,
     marketAd: string,
-    bestExchangeProxy: string,
+    exchangeProxy: string,
     swapData: string,
     permitTuple: any[],
     helperTransformData: string,
@@ -132,7 +132,7 @@ export const leveragePosition = (
     return callWithHigherGL(
         getAleContract(signer),
         'leveragePosition',
-        [dolaToBorrow, marketAd, bestExchangeProxy, swapData, permitTuple, helperTransformData, dbrTuple],
+        [dolaToBorrow, marketAd, exchangeProxy, swapData, permitTuple, helperTransformData, dbrTuple],
         200000,
         { value: ethValue },
     );
@@ -142,7 +142,7 @@ export const depositAndLeveragePosition = (
     signer: JsonRpcSigner,
     dolaToBorrow: BigNumber,
     marketAd: string,
-    bestExchangeProxy: string,
+    exchangeProxy: string,
     swapData: string,
     permitTuple: any[],
     helperTransformData: string,
@@ -154,7 +154,7 @@ export const depositAndLeveragePosition = (
     return callWithHigherGL(
         getAleContract(signer),
         'depositAndLeveragePosition',
-        [initialDeposit, dolaToBorrow, marketAd, bestExchangeProxy, swapData, permitTuple, helperTransformData, dbrTuple, depositCollateral],
+        [initialDeposit, dolaToBorrow, marketAd, exchangeProxy, swapData, permitTuple, helperTransformData, dbrTuple, depositCollateral],
         200000,
         { value: ethValue },
     )
@@ -201,7 +201,7 @@ export const prepareDeleveragePosition = async (
     if (signatureResult) {
         const { deadline, r, s, v } = signatureResult;
 
-        const { data: swapData, allowanceTarget, value, buyAmount, bestExchangeProxy, extraHelperData } = aleQuoteResult;
+        const { data: swapData, allowanceTarget, value, buyAmount, exchangeProxy, extraHelperData } = aleQuoteResult;
         const permitData = [deadline, v, r, s];
         let helperTransformData = '0x';
         const dolaBuyAmount = getBnToNumber(parseUnits(buyAmount, 0));
@@ -223,7 +223,7 @@ export const prepareDeleveragePosition = async (
             signer,
             minDolaOrMaxRepayable,
             market.address,
-            bestExchangeProxy,
+            exchangeProxy,
             collateralToWithdraw,
             swapData,
             permitData,
@@ -239,7 +239,7 @@ export const deleveragePosition = async (
     signer: JsonRpcSigner,
     dolaToRepay: BigNumber,
     marketAd: string,
-    bestExchangeProxy: string,
+    exchangeProxy: string,
     amountToWithdraw: BigNumber,
     swapData: string,
     permitTuple: any[],
@@ -253,7 +253,7 @@ export const deleveragePosition = async (
         [
             dolaToRepay,
             marketAd,
-            bestExchangeProxy,
+            exchangeProxy,
             amountToWithdraw,
             swapData,
             permitTuple,
