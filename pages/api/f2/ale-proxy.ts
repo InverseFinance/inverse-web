@@ -6,7 +6,7 @@ import 'source-map-support'
 const { F2_ALE, DOLA, F2_MARKETS } = getNetworkConfigConstants();
 
 const PROXYS = {
-  'oneInch': {
+  '1inch': {
     // V6
     exchangeProxy: '0x111111125421cA6dc452d289314280a0f8842A65',
     apiBaseUrl: 'https://api.1inch.dev/swap/v6.0/1',
@@ -114,7 +114,7 @@ export default async function handler(req, res) {
         isExpiredPendleMarket: isExpired,
       });
     } else {
-      let oneInchUrl = `${PROXYS.oneInch.apiBaseUrl}/${oneInchSubPath}?dst=${buyToken}&src=${sellToken}&slippage=${slippagePercentage}&disableEstimate=true&from=${F2_ALE}`;
+      let oneInchUrl = `${PROXYS['1inch'].apiBaseUrl}/${oneInchSubPath}?dst=${buyToken}&src=${sellToken}&slippage=${slippagePercentage}&disableEstimate=true&from=${F2_ALE}`;
       oneInchUrl += `&amount=${sellAmount || ''}`;
 
       if (connectors[buyToken?.toLowerCase()] || connectors[sellToken?.toLowerCase()]) {
@@ -167,9 +167,9 @@ export default async function handler(req, res) {
       const oneInchOutput = oneInchResponseData?.toAmount || oneInchResponseData?.dstAmount;
       const odosOutput = odosResponseData?.outAmounts[0];
 
-      const bestProxyName = !odosOutput || parseUnits(odosOutput, 0).lt(parseUnits(oneInchOutput, 0)) ? 'oneInch' : 'odos';
+      const bestProxyName = !odosOutput || parseUnits(odosOutput, 0).lt(parseUnits(oneInchOutput, 0)) ? '1inch' : 'odos';
       const bestProxy = PROXYS[bestProxyName];
-      const buyAmount = bestProxyName === 'oneInch' ? oneInchOutput : odosOutput;
+      const buyAmount = bestProxyName === '1inch' ? oneInchOutput : odosOutput;
 
       let txInfo;
       if (bestProxyName === 'odos') {

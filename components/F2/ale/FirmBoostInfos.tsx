@@ -127,12 +127,12 @@ const nonProxySwapGetters = {
     // case with sDOLA, deposit: convert DOLA to an input amount in sDOLA, withdraw: convert sDOLA output to DOLA amount
     'nonProxySwapNG-sDOLA': async (ngLp: string, marketAddress: string, dolaAmountToDepositOrLpAmountToBurn: BigNumber | string, isDeposit: boolean, aleData: F2Market["aleData"], signer: JsonRpcSigner, sDolaExRate: number) => {
         const crvLpContract = new Contract(ngLp, CURVE_STABLE_SWAP_NG_ABI, signer);
-        if(!sDolaExRate) return BigNumber.from('0');
+        if (!sDolaExRate) return BigNumber.from('0');
         // convert DOLA to sDOLA for deposit
         const amountInSDola = getNumberToBn(getBnToNumber(dolaAmountToDepositOrLpAmountToBurn) * 1 / sDolaExRate);
         const inputAmount = isDeposit ? amountInSDola : dolaAmountToDepositOrLpAmountToBurn;
         const result = await estimateNonProxyAmount(crvLpContract, marketAddress, inputAmount, isDeposit, aleData, signer);
-        if(isDeposit) {
+        if (isDeposit) {
             return result;
         }
         // withdraw: convert sDOLA output to DOLA amount
@@ -154,7 +154,9 @@ export const getLeverageImpact = async ({
     underlyingExRate = 1,
     signer,
     sDolaExRate,
+    setBestProxyName,
 }) => {
+    setBestProxyName('');
     // only when there is a transformation needed and when using a proxy when using ALE, otherwise the underlyingExRate is just a ui info
     const exRate = market?.aleData?.useProxy && market?.aleData?.buySellToken?.toLowerCase() !== market?.collateral?.toLowerCase() ? underlyingExRate : 1;
     const collateralPrice = market?.price;
@@ -173,10 +175,11 @@ export const getLeverageImpact = async ({
         // leverage level slider / input, result from 1inch
         if (!viaInput && !market.isAleWithoutSwap) {
             const amountUp = baseColAmountForLeverage * leverageLevel - baseColAmountForLeverage;
-            const sellToken = market.isPendle ? market.collateral :  market.aleData?.buySellToken || market.collateral;
-            const { buyAmount } = await getAleSellQuote(DOLA, sellToken, getNumberToBn(amountUp * exRate, market.underlying.decimals).toString(), aleSlippage, true);
+            const sellToken = market.isPendle ? market.collateral : market.aleData?.buySellToken || market.collateral;
+            const { buyAmount, bestProxyName } = await getAleSellQuote(DOLA, sellToken, getNumberToBn(amountUp * exRate, market.underlying.decimals).toString(), aleSlippage, true);
             borrowStringToSign = buyAmount;
             borrowNumToSign = parseFloat(borrowStringToSign) / (1e18);
+            setBestProxyName(bestProxyName);
         }
         // leverage info by changing the dola input
         else if (!!dolaInput) {
@@ -194,12 +197,13 @@ export const getLeverageImpact = async ({
         // classic case, using 1inch
         if (!market.isAleWithoutSwap) {
             // in the end the reference is always a number of dola sold (as it's what we need to sign, or part of it if with dbr)
-            const sellToken = market.isPendle ? market.collateral :  market.aleData?.buySellToken || market.collateral;
-            const { buyAmount, validationErrors, msg } = await getAleSellQuote(sellToken, DOLA, borrowStringToSign, aleSlippage, true);
+            const sellToken = market.isPendle ? market.collateral : market.aleData?.buySellToken || market.collateral;
+            const { buyAmount, validationErrors, msg, bestProxyName } = await getAleSellQuote(sellToken, DOLA, borrowStringToSign, aleSlippage, true);
             errorMsg = validationErrors?.length > 0 ?
                 `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
                 : msg;
             collateralAdded = buyAmount;
+            setBestProxyName(bestProxyName);
         }
         // DOLA LP case, result not from 1inch
         else {
@@ -227,12 +231,13 @@ export const getLeverageImpact = async ({
         let buyAmount, errorMsg;
         // classic case
         if (!market.isAleWithoutSwap) {
-            const sellToken = market.isPendle ? market.collateral :  market.aleData?.buySellToken || market.collateral;
-            const { buyAmount: _buyAmount, validationErrors, msg } = await getAleSellQuote(DOLA, sellToken, getNumberToBn(Math.abs(withdrawAmountToSign) * exRate, market.underlying.decimals).toString(), aleSlippage, true);
+            const sellToken = market.isPendle ? market.collateral : market.aleData?.buySellToken || market.collateral;
+            const { buyAmount: _buyAmount, validationErrors, msg, bestProxyName } = await getAleSellQuote(DOLA, sellToken, getNumberToBn(Math.abs(withdrawAmountToSign) * exRate, market.underlying.decimals).toString(), aleSlippage, true);
             buyAmount = _buyAmount;
             errorMsg = validationErrors?.length > 0 ?
                 `Swap validation failed with: ${validationErrors[0].field} ${validationErrors[0].reason}`
                 : msg;
+            setBestProxyName(bestProxyName);
         } else {
             if (signer) {
                 const lpAmountInUnderlying = underlyingExRate ? Math.abs(withdrawAmountToSign) * underlyingExRate : Math.abs(withdrawAmountToSign);
@@ -285,6 +290,8 @@ export const FirmBoostInfos = ({
         signer,
         dbrPriceUsd,
         sDolaExRate,
+        bestProxyName,
+        setBestProxyName,
     } = useContext(F2MarketContext);
 
     const newBorrowLimit = 100 - newPerc;
@@ -424,6 +431,7 @@ export const FirmBoostInfos = ({
             underlyingExRate,
             signer,
             sDolaExRate,
+            setBestProxyName,
         });
 
         if (!!errorMsg) {
@@ -465,7 +473,7 @@ export const FirmBoostInfos = ({
                     }
                 </InputGroup>
                 {
-                    leverageLoading && <Text fontSize="16px" fontWeight="bold" color="secondaryTextColor">Fetching 1inch swap data...</Text>
+                    leverageLoading && <Text fontSize="16px" fontWeight="bold" color="secondaryTextColor">Fetching swap data...</Text>
                 }
                 {
                     !leverageLoading && leverageLevel > 1 && <TextInfoSimple direction="row-reverse" message={isLeverageUp ? `Collateral added thanks to leverage` : `Collateral reduced thanks to deleverage`}>
@@ -554,6 +562,14 @@ export const FirmBoostInfos = ({
                             : <Text>{estimatedAmount > 0 && knownFixedAmount > 0 ? `~${preciseCommify(isLeverageUp ? knownFixedAmount / estimatedAmount : estimatedAmount / knownFixedAmount, 4)} DOLA per ${market.underlying.symbol}` : '-'}</Text>
                     }
                 </TextInfo>
+                {
+                    !!bestProxyName && <HStack>
+                        <Text>
+                            via {bestProxyName}
+                        </Text>
+                        <img src={`https://icons.llamao.fi/icons/protocols/${bestProxyName.replace('1inch', '1inch-network')}?w=48&h=48`} alt={bestProxyName} />
+                    </HStack>
+                }
             </HStack>
             <HStack w='full' justify="space-between">
                 <TextInfo
