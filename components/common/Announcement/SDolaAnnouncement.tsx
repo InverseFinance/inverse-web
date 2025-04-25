@@ -3,13 +3,11 @@ import { Text, Image } from '@chakra-ui/react'
 import { Flex, HStack, VStack } from '@chakra-ui/layout'
 import Link from '@app/components/common/Link'
 
-import { useStakedDola } from '@app/util/dola-staking';
-import { useDBRPrice } from '@app/hooks/useDBR';
 import { useAppTheme, useAppThemeParams } from '@app/hooks/useAppTheme';
 import { shortenNumber } from '@app/util/markets';
 import { SmallTextLoader } from '../Loaders/SmallTextLoader';
-import useSWR from 'swr';
 import { useCustomSWR } from '@app/hooks/useCustomSWR';
+import { useMemo } from 'react';
 
 const MessageWithLink = ({ href, msg }: { href: string, msg: string }) => {
   return <Link
@@ -28,8 +26,18 @@ const MessageWithLink = ({ href, msg }: { href: string, msg: string }) => {
 export const SDolaAnnouncement = () => {
   const { themeStyles } = useAppTheme();
   const { ANNOUNCEMENT_BAR_BORDER } = useAppThemeParams();
-  const { data: apiData, error: apiErr } = useCustomSWR(`/api/dola-staking?cacheFirst=true`);
+  const { data: apiData, error: apiErr } = useCustomSWR(`/api/dola-staking?v=2&cacheFirst=true&includeSpectra=true`);
+  const spectraPool = apiData?.spectraPool;
   const sDolaApy = apiData?.apy;
+
+  const highestApy = useMemo(() => {
+    return Math.max(sDolaApy, spectraPool?.apy || 0);
+  }, [sDolaApy, spectraPool]);
+
+  const isSpectraCase = useMemo(() => {
+    return highestApy === spectraPool?.apy;
+  }, [highestApy, spectraPool]);
+
   return (
     <Flex
       bgColor={'announcementBarBackgroundColor'}
@@ -48,14 +56,16 @@ export const SDolaAnnouncement = () => {
     >
       <Link
         color="mainTextColor"
-        href="/sDOLA"
+        href={isSpectraCase ? spectraPool.pool : '/sDOLA'}
+        target={isSpectraCase ? '_blank' : '_self'}
+        isExternal={isSpectraCase}
         _hover={{ color: 'lightAccentTextColor' }}
       >
         <VStack spacing="0">
           {
-            sDolaApy > 0 ?
+            highestApy > 0 ?
               <HStack textDecoration="underline" spacing="1">
-                <Text>Get <b style={{ fontWeight: 'extrabold', fontSize: '18px', color: themeStyles.colors.accentTextColor }}>{shortenNumber(sDolaApy, 2)}%</b> APY with sDOLA</Text>
+                <Text>Get <b style={{ fontWeight: 'extrabold', fontSize: '18px', color: themeStyles.colors.accentTextColor }}>{shortenNumber(highestApy, 2)}%</b>{isSpectraCase ? ' Fixed ' : ' '}APY with sDOLA{isSpectraCase ? ' on Spectra' : ''}</Text>
                 <Image borderRadius="full" src="/assets/sDOLAx128.png" h="20px" w="20px" />
               </HStack>
               : <SmallTextLoader />

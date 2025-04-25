@@ -10,22 +10,24 @@ import { getOnChainData } from '../dola/sdola-comparator';
 
 export const dolaStakingCacheKey = `dola-staking-v1.0.4`;
 
-export default async function handler(req, res) {    
-    const { cacheFirst, ignoreCache } = req.query;
+export default async function handler(req, res) {
+    const { cacheFirst, ignoreCache, includeSpectra } = req.query;
     const cacheDuration = 300;
+    const isIncludeSpectra = includeSpectra === 'true';
+    const cacheKey = isIncludeSpectra ? `${dolaStakingCacheKey}-spectra` : dolaStakingCacheKey;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     try {
-        const validCache = await getCacheFromRedis(dolaStakingCacheKey, cacheFirst !== 'true', cacheDuration);
-        if(validCache && ignoreCache !== 'true') {
-          res.status(200).json(validCache);
-          return
+        const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
+        if (validCache && ignoreCache !== 'true') {
+            res.status(200).json(validCache);
+            return
         }
 
-        const provider = getProvider(CHAIN_ID);        
+        const provider = getProvider(CHAIN_ID);
         const savingsContract = getDolaSavingsContract(provider);
         const sDolaContract = getSdolaContract(provider);
 
-        const weekIndexUtc = getWeekIndexUtc();    
+        const weekIndexUtc = getWeekIndexUtc();
 
         const dolaStakingData = await getMulticallOutput([
             { contract: savingsContract, functionName: 'claimable', params: [SDOLA_ADDRESS] },
@@ -36,29 +38,46 @@ export default async function handler(req, res) {
             { contract: savingsContract, functionName: 'maxRewardPerDolaMantissa' },
             { contract: sDolaContract, functionName: 'totalSupply' },
             { contract: sDolaContract, functionName: 'weeklyRevenue', params: [weekIndexUtc] },
-            { contract: sDolaContract, functionName: 'weeklyRevenue', params: [weekIndexUtc - 1] },            
+            { contract: sDolaContract, functionName: 'weeklyRevenue', params: [weekIndexUtc - 1] },
             { contract: sDolaContract, functionName: 'totalAssets' },
-        ]);        
-       
+        ]);
+
+        const promises = await Promise.allSettled([
+            getDbrPriceOnCurve(provider),
+            getDolaUsdPriceOnCurve(provider),
+            getOnChainData([{ address: SDOLA_ADDRESS, isNotVault: false }]),
+            isIncludeSpectra ? fetch(`https://yields.llama.fi/pools`).then(r => r.json()) : Promise.resolve({data:[]}),
+        ]);
+
         const [
             dbrPriceData,
             dolaPriceData,
             historicalSDolaRates,
-        ] = await Promise.all([
-            getDbrPriceOnCurve(provider),
-            getDolaUsdPriceOnCurve(provider),
-            getOnChainData([{ address: SDOLA_ADDRESS, isNotVault: false }])
-        ]);
+            llamaPools,
+        ] = promises.map(p => p.status === 'fulfilled' ? p.value : undefined);
+
+        const spectraItems = llamaPools?.data.filter(i => i.symbol === 'SDOLA' && i.underlyingTokens.length === 1 && i.project === 'spectra-v2');
+        const highestSpectraPool = spectraItems?.reduce((acc: { apy: number, pool: any }, pool: any) => {
+            return pool.apy > acc.apy ? {
+                apy: pool.apy,
+                pool: `https://app.spectra.finance/fixed-rate/eth:0x69ba1b7dba7eb3b7a73f4e35fd04a27ad06c55fe`,
+            } : acc;
+        }, {
+            apy: 0,
+            pool: null,
+        });
+
         const { priceInDola: dbrDolaPrice } = dbrPriceData;
         const { price: dolaPriceUsd } = dolaPriceData;
 
         const resultData = {
             timestamp: Date.now(),
+            spectraPool: highestSpectraPool,
             ...historicalSDolaRates[0],
             ...formatDolaStakingData(dbrDolaPrice * dolaPriceUsd, dolaStakingData),
         }
 
-        await redisSetWithTimestamp(dolaStakingCacheKey, resultData);
+        await redisSetWithTimestamp(cacheKey, resultData);
 
         res.status(200).json(resultData)
     } catch (err) {
