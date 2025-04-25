@@ -193,6 +193,8 @@ export const F2PAGE = ({
 
 export async function getServerSideProps(context) {
     context.res.setHeader('Cache-Control', 'public, s-maxage=90, stale-while-revalidate=3600');
+    const vnetPublicId = context.query?.vnetPublicId || '';
+
     const [
         marketsData,
         firmTvlData,
@@ -201,7 +203,7 @@ export async function getServerSideProps(context) {
         dolaPriceData,
         marketsDisplaysData,
     ] = await Promise.all([
-        fetch(`${SERVER_BASE_URL}/api/f2/fixed-markets?cacheFirst=true`).then(res => res.json()),
+        fetch(`${SERVER_BASE_URL}/api/f2/fixed-markets?${vnetPublicId ? `vnetPublicId=${vnetPublicId}` : 'cacheFirst=true'}`).then(res => res.json()),
         fetch(`${SERVER_BASE_URL}/api/f2/tvl?cacheFirst=true`).then(res => res.json()),
         fetch(`${SERVER_BASE_URL}/api/dola/circulating-supply?cacheFirst=true`).then(res => res.text()),
         fetch(`${SERVER_BASE_URL}/api/dbr?cacheFirst=true`).then(res => res.json()),
