@@ -21,6 +21,7 @@ import { useDbrAuctionActivity } from "@app/util/dbr-auction";
 import { StakeDolaInfos } from "./StakeDolaInfos";
 import { EnsoModal } from "../common/Modal/EnsoModal";
 import { useDOLAPrice } from "@app/hooks/usePrices";
+import EnsoZap from "../ThirdParties/enso/EnsoZap";
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -39,7 +40,7 @@ const StatBasic = ({ value, name, message, onClick = undefined, isLoading = fals
 const STAKE_BAL_INC_INTERVAL = 100;
 const MS_PER_BLOCK = SECONDS_PER_BLOCK * 1000;
 
-export const StakeDolaUI = () => {
+export const StakeDolaUI = ({ topStable }: { tokenAndBalances: { balance: number, token: any }[], totalStables: number, topStable: { balance: number, token: any } | null }) => {
     const account = useAccount();
     const { provider, account: connectedAccount } = useWeb3React();
     const { events: auctionBuys, isLoading: isLoadingAuctionBuys } = useDbrAuctionActivity();
@@ -67,6 +68,10 @@ export const StakeDolaUI = () => {
     const nextThursdayTsString = useMemo(() => {
         return new Date(getNextThursdayTimestamp()).toLocaleDateString('en-US', { month: 'long', year: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' });
     }, [nowWithInterval]);
+
+    const isDolaTopStable = useMemo(() => {
+        return topStable?.token?.address === DOLA;
+    }, [topStable]);
 
     useInterval(() => {
         setNowWithInterval(Date.now());
@@ -181,7 +186,7 @@ export const StakeDolaUI = () => {
             maxW='450px'
         >
             <VStack spacing="4" alignItems="flex-start" w='full'>
-                {
+                {/* {
                     isEnsoModalOpen && <EnsoModal
                         isOpen={isEnsoModalOpen}
                         title={`Zap-In to sDOLA, powered by Enso Finance`}
@@ -198,7 +203,7 @@ export const StakeDolaUI = () => {
                         targetAssetPrice={dolaPrice * sDolaExRate}
                         ensoPoolsLike={[{ poolAddress: SDOLA_ADDRESS, chainId: 1 }]}
                     />
-                }
+                } */}
                 {
                     !isConnected ? <InfoMessage alertProps={{ w: 'full' }} description="Please connect your wallet" />
                         :
@@ -216,32 +221,42 @@ export const StakeDolaUI = () => {
                             }
                             {
                                 tab === 'Infos' ? <StakeDolaInfos /> : isStake ?
-                                    <VStack w='full' alignItems="flex-start">
-                                        <Text fontSize="22px" fontWeight="bold">
-                                            DOLA amount to stake:
-                                        </Text>
-                                        <SimpleAmountForm
-                                            btnProps={{ needPoaFirst: true }}
-                                            defaultAmount={dolaAmount}
-                                            address={DOLA}
-                                            destination={SDOLA_ADDRESS}
-                                            signer={provider?.getSigner()}
-                                            decimals={18}
-                                            onAction={() => handleAction()}
-                                            actionLabel={`Stake`}
-                                            maxActionLabel={`Stake all`}
-                                            onAmountChange={(v) => setDolaAmount(v)}
-                                            showMaxBtn={false}
-                                            showMax={true}
-                                            hideInputIfNoAllowance={false}
-                                            showBalance={false}
-                                            onSuccess={() => resetRealTime()}
-                                            enableCustomApprove={true}
-                                        />
-                                        <Text textDecoration="underline" onClick={onEnsoModalOpen} cursor="pointer" color="accentTextColor">
-                                            Or stake from another token than DOLA via Zap-In
-                                        </Text>
-                                    </VStack>
+                                    !isDolaTopStable ? <EnsoZap
+                                        defaultTokenIn={topStable?.token?.address}
+                                        defaultTokenOut={SDOLA_ADDRESS}
+                                        defaultTargetChainId={'1'}
+                                        ensoPools={[{ poolAddress: SDOLA_ADDRESS, chainId: 1 }]}
+                                        introMessage={''}
+                                        isSingleChoice={true}
+                                        targetAssetPrice={dolaPrice * sDolaExRate}
+                                        isInModal={false}
+                                    /> :
+                                        <VStack w='full' alignItems="flex-start">
+                                            <Text fontSize="22px" fontWeight="bold">
+                                                DOLA amount to stake:
+                                            </Text>
+                                            <SimpleAmountForm
+                                                btnProps={{ needPoaFirst: true }}
+                                                defaultAmount={dolaAmount}
+                                                address={DOLA}
+                                                destination={SDOLA_ADDRESS}
+                                                signer={provider?.getSigner()}
+                                                decimals={18}
+                                                onAction={() => handleAction()}
+                                                actionLabel={`Stake`}
+                                                maxActionLabel={`Stake all`}
+                                                onAmountChange={(v) => setDolaAmount(v)}
+                                                showMaxBtn={false}
+                                                showMax={true}
+                                                hideInputIfNoAllowance={false}
+                                                showBalance={false}
+                                                onSuccess={() => resetRealTime()}
+                                                enableCustomApprove={true}
+                                            />
+                                            <Text textDecoration="underline" onClick={onEnsoModalOpen} cursor="pointer" color="accentTextColor">
+                                                Or stake from another token than DOLA via Zap-In
+                                            </Text>
+                                        </VStack>
                                     :
                                     <VStack w='full' alignItems="flex-start">
                                         <Text fontSize="22px" fontWeight="bold">
@@ -272,7 +287,7 @@ export const StakeDolaUI = () => {
                                     </VStack>
                             }
                             {
-                                tab !== 'Infos' && <VStack alignItems="flex-start">
+                                tab !== 'Infos' && !isDolaTopStable && <VStack alignItems="flex-start">
                                     <HStack>
                                         <Text fontSize="16px" color="mainTextColorLight2">
                                             {isStake ? 'sDOLA to receive' : 'sDOLA to exchange'}:
