@@ -25,7 +25,7 @@ export const getOnChainData = async (meta: any[]) => {
   const currentBlockNumber = await provider.getBlockNumber();
   const currentBlock = await provider.getBlock(currentBlockNumber);
   const currentBlockTimestamp = currentBlock.timestamp;
-  const previousBlock = await provider.getBlock(`0x${(currentBlockNumber-1).toString(16)}`);
+  const previousBlock = await provider.getBlock(`0x${(currentBlockNumber - 1).toString(16)}`);
   const previousBlockTimestamp = previousBlock.timestamp;
 
   const now = Date.now();
@@ -36,7 +36,7 @@ export const getOnChainData = async (meta: any[]) => {
   const ninetyDaysAgoBlock = utcKeyBlockValues[NetworkIds.mainnet][timestampToUTC(now - 90 * dayMs)];
   const oneHundredEightyDaysAgoBlock = utcKeyBlockValues[NetworkIds.mainnet][timestampToUTC(now - 180 * dayMs)];
   const threeHundredSixtyDaysAgoBlock = utcKeyBlockValues[NetworkIds.mainnet][timestampToUTC(now - 365 * dayMs)];
-  const blocks = [currentBlockNumber, previousBlock.number,thirtyDaysAgoBlock, sixtyDaysAgoBlock, ninetyDaysAgoBlock, oneHundredEightyDaysAgoBlock, threeHundredSixtyDaysAgoBlock];
+  const blocks = [currentBlockNumber, previousBlock.number, thirtyDaysAgoBlock, sixtyDaysAgoBlock, ninetyDaysAgoBlock, oneHundredEightyDaysAgoBlock, threeHundredSixtyDaysAgoBlock];
 
   const [todayRates, previousBlockRates, thirtyDayRates, sixtyDayRates, ninetyDayRates, oneHundredEightyDayRates, threeHundredSixtyDayRates] = await Promise.all(
     blocks.map(block => getMulticallOutput(
@@ -83,8 +83,8 @@ export const getOnChainData = async (meta: any[]) => {
   );
 
   return meta.map((metaItem, index) => {
-    if(metaItem.isNotVault) {
-      if(nonVaultHistoricalRates[index]) {
+    if (metaItem.isNotVault) {
+      if (nonVaultHistoricalRates[index]) {
         return nonVaultHistoricalRates[index];
       }
       return {
@@ -113,17 +113,17 @@ export const getOnChainData = async (meta: any[]) => {
 const getDefillamaData = async (poolIds: string[]) => {
   const url = `https://yields.llama.fi/pools`;
   try {
-      const results = await fetch(url);
-      const data = await results.json();
-      const pools = data.status === 'success' ? data.data : [];
-      return pools
-          .filter(p => poolIds.includes(p.pool))
+    const results = await fetch(url);
+    const data = await results.json();
+    const pools = data.status === 'success' ? data.data : [];
+    return pools
+      .filter(p => poolIds.includes(p.pool))
   } catch (e) { console.log(e) }
   return {};
 }
 
 export default async function handler(req, res) {
-  const cacheKey = `sdola-rates-compare-v1.1.2`;
+  const cacheKey = `sdola-rates-compare-v1.1.3`;
 
   try {
     const cacheDuration = 120;
@@ -139,7 +139,7 @@ export default async function handler(req, res) {
     }
 
     const provider = getProvider(NetworkIds.mainnet);
-    
+
     const meta = [
       {
         symbol: 'USDC',
@@ -234,7 +234,16 @@ export default async function handler(req, res) {
         link: 'https://app.angle.money/savings/usd',
         pool: '01e33a85-8bb6-4f30-a11b-7b2a8166e6b7',
         address: '0x0022228a2cc5E7eF0274A7Baa600d44da5aB5776',
-        currentRateGetter: () => getDefiLlamaApy("42523cca-14b0-44f6-95fb-4781069520a5"),
+        currentRateGetter: async () => {
+          try {
+            const res = await fetch(`https://exporter.angle.money/v2/savings`);
+            const data = await res.json();
+            return { apy: data.USDA["1"].apr * 100 };
+          } catch (e) {
+            console.log(e)
+          }
+          return { apy: 0 };
+        },
       },
       {
         symbol: 'stUSR',
@@ -299,7 +308,7 @@ export default async function handler(req, res) {
           address: metaData.address,
           isVault: !metaData.isNotVault,
           tvl: defillamaPoolData?.tvlUsd || onChainData[index].totalAssets || null,
-          apy: (rate.supplyRate || rate.apy),
+          apy: (rate.supplyRate || rate.apy || onChainData[index].calculatedApy),
           apy30d: (rate.apyMean30d || rate.apy30d),
           calculatedApy: onChainData[index].calculatedApy,
           avg30: onChainData[index].apy30d || (last30.length >= 30 ? last30.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last30.length : 0),
