@@ -133,6 +133,7 @@ const namedAddresses: { [key: string]: string } = {
     '0x857b87171C99C234AC7DCD6A96859e78B1D1A625': 'sINV-v1',
     '0x08d23468A467d2bb86FaE0e32F247A26C7E2e994': 'sINV-v2',
     '0xEc51E66c1e1BFc85aCc3b6847820A3Ff0a38364b': "DbrRewardsHelper",
+    '0x94a8216bC7a0390597c0aAF8500d97f4D7663Ce5': 'eldercap',
     // partners
     '0x58dCB47956De1e99B1AF0ceb643727EF66aF4647': 'DWF Swapper',
 }

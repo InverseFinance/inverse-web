@@ -67,13 +67,7 @@ const EarningsProjections = ({ apy, total }: { apy: number, total: number }) => 
     </Stack>
 }
 
-export const SavingsOpportunities = () => {
-    const account = useAccount();
-    const [showTokens, setShowTokens] = useState(true);
-    const [defaultTokenIn, setDefaultTokenIn] = useState('');
-    const { isOpen: isEnsoModalOpen, onOpen: onEnsoModalOpen, onClose: onEnsoModalClose } = useDisclosure();
-    const { price: dolaPrice } = useDOLAPrice();
-
+export const useSavingsOpportunities = (account: string) => {
     const { balances } = useTokenBalances(STABLE_ADDRESSES, account);
 
     const tokenAndBalances = STABLE_LIST.map((token, i) => {
@@ -81,6 +75,21 @@ export const SavingsOpportunities = () => {
     }).sort((a, b) => b.balance - a.balance);
 
     const totalStables = tokenAndBalances.reduce((prev, curr) => prev + curr.balance, 0);
+
+    return {
+        tokenAndBalances,
+        totalStables,
+        topStable: tokenAndBalances?.length > 0 ? tokenAndBalances[0] : null,
+        // if DOLA is >= of the stable portfolio use as main entry point
+        useDolaAsMain: totalStables <= 10 || tokenAndBalances.some(t => t.token.symbol === 'DOLA' && t.balance > totalStables/5)
+    }
+}
+
+export const SavingsOpportunities = ({ tokenAndBalances, totalStables }: { tokenAndBalances: { balance: number, token: any }[], totalStables: number }) => {
+    const [showTokens, setShowTokens] = useState(true);
+    const [defaultTokenIn, setDefaultTokenIn] = useState('');
+    const { isOpen: isEnsoModalOpen, onOpen: onEnsoModalOpen, onClose: onEnsoModalClose } = useDisclosure();
+    const { price: dolaPrice } = useDOLAPrice();
 
     const { priceDola: dbrDolaPrice, priceUsd: dbrPrice } = useDBRPrice();
     const { apy: currentApy, sDolaExRate } = useStakedDola(dbrPrice);

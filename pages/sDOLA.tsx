@@ -10,16 +10,17 @@ import { useDolaStakingActivity } from '@app/util/dola-staking';
 import { DbrAuctionBuysSDola } from '@app/components/F2/DbrAuction/DbrAuctionBuys';
 import { useDbrAuctionActivity } from '@app/util/dbr-auction';
 import { SDolaInsuranceCover } from '@app/components/common/InsuranceCover';
-import { SavingsOpportunities } from '@app/components/sDola/SavingsOpportunities';
+import { SavingsOpportunities, useSavingsOpportunities } from '@app/components/sDola/SavingsOpportunities';
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary';
 import { SDolaComparator } from '@app/components/F2/SDolaComparator';
-import { useState } from 'react';
 
 export const SdolaPage = () => {
   const account = useAccount();
   const { isLoading, accountEvents, events } = useDolaStakingActivity(account, 'sdola');
   const { isLoading: isLoadingBuys, events: buyEvents, timestamp: buysTimestamp } = useDbrAuctionActivity();
   const sdolaBuyEvents = buyEvents.filter(e => e.auctionType === 'sDOLA');
+  const { tokenAndBalances, totalStables, topStable, useDolaAsMain } = useSavingsOpportunities(account);
+
   return (
     <Layout>
       <Head>
@@ -46,8 +47,8 @@ export const SdolaPage = () => {
           direction={{ base: 'column', xl: 'row' }}
         >
           <VStack spacing="10" alignItems={"center"} w={{ base: 'full' }}>
-            <SavingsOpportunities />
-            <StakeDolaUI />
+            <SavingsOpportunities tokenAndBalances={tokenAndBalances} totalStables={totalStables} />
+            <StakeDolaUI useDolaAsMain={useDolaAsMain} topStable={topStable} />
             <SDolaInsuranceCover />
             <ErrorBoundary>
               <SDolaComparator title="Compare sDOLA" />

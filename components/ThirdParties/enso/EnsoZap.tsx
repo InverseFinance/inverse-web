@@ -35,6 +35,10 @@ const removeUndefined = obj => Object.fromEntries(
     Object.entries(obj).filter(([_, v]) => v !== undefined)
 );
 
+const defaultFromTextProps = {
+    fontWeight: 'bold',
+}
+
 function EnsoZap({
     defaultTokenIn = '',
     defaultTokenOut = '',
@@ -44,6 +48,9 @@ function EnsoZap({
     introMessage = null,
     isSingleChoice = false,
     targetAssetPrice = 0,
+    isInModal = true,
+    fromText = "From",
+    fromTextProps = defaultFromTextProps,
 }: {
     defaultTokenIn?: string
     defaultTokenOut: string
@@ -53,12 +60,15 @@ function EnsoZap({
     introMessage?: string | null
     isSingleChoice?: boolean
     targetAssetPrice?: number
+    isInModal?: boolean
+    fromText?: string | null
+    fromTextProps?: any
 }) {
     const account = useAccount();
-    const { isInvPrimeMember } = useStakedInFirm(account);
     const { provider, chainId } = useWeb3React<Web3Provider>();    
 
     const [isConnected, setIsConnected] = useState(true);
+    const [isInited, setIsInited] = useState(false);
     const [slippage, setSlippage] = useState('0.1');
     const [refreshIndex, setRefreshIndex] = useState(0);
     const [lastChainId, setLastChainId] = useState(chainId);
@@ -127,6 +137,13 @@ function EnsoZap({
 
     const fromAssetInputProps = { tokens: fromOptionsWithBalance, balances, prices: combinedPrices, showBalance: true, dropdownSelectedProps: { whiteSpace: 'nowrap', w: 'fit-content' }, inputProps: { minW: '200px' } }
 
+    useEffect(() => {
+        if (!isInited && tokenIn !== defaultTokenIn && !tokenIn) {
+            setTokenIn(defaultTokenIn);
+            setIsInited(true);
+        }
+    }, [defaultTokenIn, tokenIn, isInited]);
+
     const changeTokenIn = (newToken: Token) => {
         setTokenIn(newToken.address);
     }
@@ -157,7 +174,7 @@ function EnsoZap({
             setZapRequestData({});
             return
         }
-        const amountInValue = amountIn && tokenInObj?.decimals ? formatUnits(parseUnits(amountIn, tokenInObj?.decimals), 0) : '';
+        const amountInValue = amountIn && tokenInObj?.decimals ? formatUnits(parseUnits(parseFloat(amountIn).toFixed(tokenInObj?.decimals), tokenInObj?.decimals), 0) : '';
         setZapRequestData({ account, chainId, targetChainId, tokenIn, tokenOut, amountIn: amountInValue });
     }, [account, chainId, targetChainId, tokenIn, tokenOut, amountIn, tokenInObj]);
 
@@ -179,33 +196,24 @@ function EnsoZap({
         resetForm();
     }
 
-    const featureInfo = <InfoMessage
+    const featureInfo = introMessage ? <InfoMessage
         alertProps={{ w: 'full', fontSize: '14px' }}
         description={introMessage}
-    />
-
-    if (!isInvPrimeMember && INV_STAKERS_ONLY.lpZaps) {
-        return <Container w='full' noPadding p='0' label={title} contentProps={{ mt: 0 }}>
-            <VStack w='full'>
-                <InvPrime />
-                {featureInfo}
-            </VStack>
-        </Container>
-    }
+    /> : null;
 
     const thirdPartyInfo = <InfoMessage
         alertProps={{ w: 'full', fontSize: '14px' }}
         description={
             <VStack spacing="0" w='full' alignItems="flex-start">
                 <Box display="inline">
-                    {/* <Text>Powered by the third-party</Text> */}
-                    <Text display="inline"><b>Please do your own research</b> before using with the Zap-In feature, which is provided by a <b>third party</b>,&nbsp;</Text>
+                    <Text display="inline">Powered by the third-party&nbsp;</Text>
+                    {/* <Text display="inline"><b>Please do your own research</b> before using with the Zap-In feature, which is provided by a <b>third party</b>,&nbsp;</Text> */}
                     <Link display="inline" textDecoration="underline" target="_blank" isExternal={true} href="https://www.enso.finance/">
                         Enso Finance
                     </Link>
-                    <Text display="inline">,&nbsp;and has not been audited or endorsed by Inverse Finance</Text>                    
+                    {/* <Text display="inline">,&nbsp;and has not been audited or endorsed by Inverse Finance</Text>                     */}
                 </Box>
-                <Text><b>Recommended</b>: use a wallet with transaction simulation like Rabby, helps preview the transaction result and reduce the chances of having failed transactions.</Text>
+                {/* <Text><b>Recommended</b>: use a wallet with transaction simulation like Rabby, helps preview the transaction result and reduce the chances of having failed transactions.</Text> */}
                 {/* <Text textDecoration="underline">
                     Inverse Finance does not endorse or audit Enso and the protocols related to this asset.
                 </Text> */}
@@ -213,7 +221,11 @@ function EnsoZap({
         }
     />;
 
-    return <Container w='full' noPadding p='0' label={title} contentProps={{ mt: 0 }}>
+    const extraContentProps = useMemo(() => {
+        return isInModal ? { } : { mt: 0, border: 'none', p: 0, shadow: 'none' }
+    }, [isInModal]);
+
+    return <Container w='full' noPadding p='0' label={title} contentProps={{ ...extraContentProps }}>
         {
             !isConnected ? <WarningMessage
                 alertProps={{ w: 'full' }}
@@ -224,8 +236,8 @@ function EnsoZap({
                 <VStack alignItems='flex-start' w="full" direction="column" spacing={isSingleChoice ? '2' : '5'}>
                     {featureInfo}
 
-                    <Text>
-                        From{!isSingleChoice && <b>{getNetwork(chainId)?.name}</b>}:
+                    <Text {...fromTextProps}>
+                        {fromText}{!isSingleChoice && <b>{getNetwork(chainId)?.name}</b>}:
                     </Text>
 
                     <AssetInput

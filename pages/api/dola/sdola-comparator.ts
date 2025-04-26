@@ -14,6 +14,8 @@ import { DAILY_UTC_CACHE_KEY } from '../cron-daily-block-timestamp';
 import { ARCHIVED_UTC_DATES_BLOCKS } from '@app/fixtures/utc-dates-blocks';
 import { ONE_DAY_SECS } from '@app/config/constants';
 
+// https://vision.perspective.fi/api/mainnet/graph-data/0xb45ad160634c528Cc3D2926d9807104FA3157305
+
 const VAULT_ABI_EXTENDED = [
   ...SVAULT_ABI,
   "function convertToUnderlyingToken(uint) view returns (uint)",
