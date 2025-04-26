@@ -186,7 +186,7 @@ export const StakeDolaUI = ({ useDolaAsMain, topStable }: { useDolaAsMain: boole
             p="0"
             maxW='450px'
         >
-            <VStack spacing="4" alignItems="flex-start" w='full'>
+            <VStack spacing="2" alignItems="flex-start" w='full'>
                 {/* {
                     isEnsoModalOpen && <EnsoModal
                         isOpen={isEnsoModalOpen}
@@ -255,7 +255,7 @@ export const StakeDolaUI = ({ useDolaAsMain, topStable }: { useDolaAsMain: boole
                                             isSingleChoice={true}
                                             targetAssetPrice={dolaPrice * sDolaExRate}
                                             isInModal={false}
-                                            fromText={"Stake from:"}
+                                            fromText={"Stake from"}
                                             fromTextProps={{
                                                 fontSize: '22px',
                                                 fontWeight: 'bold'
