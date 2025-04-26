@@ -212,10 +212,10 @@ export const StakeDolaUI = ({ useDolaAsMain, topStable }: { useDolaAsMain: boole
                             <NavButtons active={tab} options={['Stake', 'Unstake', 'Infos']} onClick={(v) => setTab(v)} />
                             {
                                 tab !== 'Infos' && <VStack alignItems="flex-start" w='full' justify="space-between">
-                                    <Text fontSize="18px">
+                                    <Text>
                                         DOLA balance in wallet: <b>{dolaBalance ? preciseCommify(dolaBalance, 2) : '-'}</b>
                                     </Text>
-                                    <Text fontSize="18px">
+                                    <Text>
                                         Staked DOLA: <b>{dolaStakedInSDola ? preciseCommify(realTimeBalance, 8) : '-'}</b>
                                     </Text>
                                 </VStack>
@@ -255,6 +255,11 @@ export const StakeDolaUI = ({ useDolaAsMain, topStable }: { useDolaAsMain: boole
                                             isSingleChoice={true}
                                             targetAssetPrice={dolaPrice * sDolaExRate}
                                             isInModal={false}
+                                            fromText={"Stake from:"}
+                                            fromTextProps={{
+                                                fontSize: '22px',
+                                                fontWeight: 'bold'
+                                            }}
                                         />)
                                     :
                                     <VStack w='full' alignItems="flex-start">
@@ -286,13 +291,6 @@ export const StakeDolaUI = ({ useDolaAsMain, topStable }: { useDolaAsMain: boole
                                     </VStack>
                             }
                             {
-                                isStake && <Text textDecoration="underline" onClick={() => setUseDolaAsMainChoice(!useDolaAsMainChoice)} cursor="pointer" color="accentTextColor">
-                                    {
-                                        useDolaAsMainChoice ? 'Or stake from another token than DOLA via Zap-In' : 'Or use DOLA as direct entry point'
-                                    }
-                                </Text>
-                            }
-                            {
                                 tab !== 'Infos' && useDolaAsMainChoice && <VStack alignItems="flex-start">
                                     <HStack>
                                         <Text fontSize="16px" color="mainTextColorLight2">
@@ -311,6 +309,13 @@ export const StakeDolaUI = ({ useDolaAsMain, topStable }: { useDolaAsMain: boole
                                         </Text>
                                     </HStack>
                                 </VStack>
+                            }
+                            {
+                                isStake && <Text textDecoration="underline" onClick={() => setUseDolaAsMainChoice(!useDolaAsMainChoice)} cursor="pointer" color="accentTextColor">
+                                    {
+                                        useDolaAsMainChoice ? 'Or stake from another token than DOLA via Zap-In' : 'Or use DOLA as direct entry point'
+                                    }
+                                </Text>
                             }
                         </>
                 }

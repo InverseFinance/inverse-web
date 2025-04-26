@@ -35,6 +35,10 @@ const removeUndefined = obj => Object.fromEntries(
     Object.entries(obj).filter(([_, v]) => v !== undefined)
 );
 
+const defaultFromTextProps = {
+    fontWeight: 'bold',
+}
+
 function EnsoZap({
     defaultTokenIn = '',
     defaultTokenOut = '',
@@ -45,6 +49,8 @@ function EnsoZap({
     isSingleChoice = false,
     targetAssetPrice = 0,
     isInModal = true,
+    fromText = "From",
+    fromTextProps = defaultFromTextProps,
 }: {
     defaultTokenIn?: string
     defaultTokenOut: string
@@ -55,6 +61,8 @@ function EnsoZap({
     isSingleChoice?: boolean
     targetAssetPrice?: number
     isInModal?: boolean
+    fromText?: string | null
+    fromTextProps?: any
 }) {
     const account = useAccount();
     const { provider, chainId } = useWeb3React<Web3Provider>();    
@@ -228,8 +236,8 @@ function EnsoZap({
                 <VStack alignItems='flex-start' w="full" direction="column" spacing={isSingleChoice ? '2' : '5'}>
                     {featureInfo}
 
-                    <Text>
-                        From{!isSingleChoice && <b>{getNetwork(chainId)?.name}</b>}:
+                    <Text {...fromTextProps}>
+                        {fromText}{!isSingleChoice && <b>{getNetwork(chainId)?.name}</b>}:
                     </Text>
 
                     <AssetInput
