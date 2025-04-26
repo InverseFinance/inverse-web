@@ -1,5 +1,5 @@
 import { VStack, Text, HStack, Stack, Image, useInterval, useDisclosure } from "@chakra-ui/react"
-import { redeemSDola, stakeDola, unstakeDola, useDolaStakingEarnings, useDolaStakingEvolution, useStakedDola } from "@app/util/dola-staking"
+import { redeemSDola, stakeDola, unstakeDola, useDolaStakingEarnings, useStakedDola } from "@app/util/dola-staking"
 import { useWeb3React } from "@web3-react/core";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
 import { useEffect, useMemo, useState } from "react";
@@ -8,7 +8,7 @@ import { parseEther } from "@ethersproject/units";
 import Container from "../common/Container";
 import { NavButtons } from "@app/components/common/Button";
 import { InfoMessage, SuccessMessage } from "@app/components/common/Messages";
-import { getAvgOnLastItems, getNextThursdayTimestamp, preciseCommify, timestampToUTC } from "@app/util/misc";
+import { getNextThursdayTimestamp, preciseCommify } from "@app/util/misc";
 import { useDOLABalance } from "@app/hooks/useDOLA";
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
 import { useDBRPrice } from "@app/hooks/useDBR";
@@ -19,7 +19,6 @@ import { ONE_DAY_MS, SDOLA_ADDRESS, SECONDS_PER_BLOCK } from "@app/config/consta
 import { useAccount } from "@app/hooks/misc";
 import { useDbrAuctionActivity } from "@app/util/dbr-auction";
 import { StakeDolaInfos } from "./StakeDolaInfos";
-import { EnsoModal } from "../common/Modal/EnsoModal";
 import { useDOLAPrice } from "@app/hooks/usePrices";
 import EnsoZap from "../ThirdParties/enso/EnsoZap";
 
@@ -187,24 +186,6 @@ export const StakeDolaUI = ({ useDolaAsMain, topStable }: { useDolaAsMain: boole
             maxW='450px'
         >
             <VStack spacing="2" alignItems="flex-start" w='full'>
-                {/* {
-                    isEnsoModalOpen && <EnsoModal
-                        isOpen={isEnsoModalOpen}
-                        title={`Zap-In to sDOLA, powered by Enso Finance`}
-                        introMessage={
-                            <VStack w='full' alignItems='flex-start'>
-                                <Text><b>Zap-In</b> lets you go from a token directly to sDOLA by combining a swap (if needed) and staking.</Text>
-                            </VStack>
-                        }
-                        onClose={onEnsoModalClose}
-                        // defaultTokenIn={SDOLA_ADDRESS}
-                        defaultTokenOut={SDOLA_ADDRESS}
-                        defaultTargetChainId={1}
-                        isSingleChoice={true}
-                        targetAssetPrice={dolaPrice * sDolaExRate}
-                        ensoPoolsLike={[{ poolAddress: SDOLA_ADDRESS, chainId: 1 }]}
-                    />
-                } */}
                 {
                     !isConnected ? <InfoMessage alertProps={{ w: 'full' }} description="Please connect your wallet" />
                         :
