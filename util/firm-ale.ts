@@ -15,8 +15,6 @@ export const getAleContract = (signer: JsonRpcSigner) => {
     return new Contract(F2_ALE, F2_ALE_ABI, signer);
 }
 
-export const ALE_SWAP_PARTNER = '1inch'
-
 // by default 0x as transformerData, others listed below something else
 const aleTransformers = {
     'marketAddress': (market: F2Market) => {
@@ -73,13 +71,13 @@ export const prepareLeveragePosition = async (
                 if (!aleQuoteResult?.data || !!aleQuoteResult.msg) {
                     const msg = aleQuoteResult?.validationErrors?.length > 0 ?
                         `Swap validation failed with: ${aleQuoteResult?.validationErrors[0].field} ${aleQuoteResult?.validationErrors[0].reason}`
-                        : `Getting a quote from ${ALE_SWAP_PARTNER} failed`;
+                        : `Getting a quote failed`;
                     return Promise.reject(msg);
                 }
             }
         } catch (e) {
             console.log(e);
-            return Promise.reject(`Getting a quote from ${ALE_SWAP_PARTNER} failed`);
+            return Promise.reject(`Getting a quote failed`);
         }
         const { data: swapData, allowanceTarget, value, exchangeProxy, extraHelperData } = aleQuoteResult;
         const permitData = [deadline, v, r, s];
@@ -187,13 +185,13 @@ export const prepareDeleveragePosition = async (
             if (!aleQuoteResult?.data || !!aleQuoteResult.msg) {
                 const msg = aleQuoteResult?.validationErrors?.length > 0 ?
                     `Swap validation failed with: ${aleQuoteResult?.validationErrors[0].field} ${aleQuoteResult?.validationErrors[0].reason}`
-                    : `Getting a quote from ${ALE_SWAP_PARTNER} failed`;
+                    : `Getting a quote failed`;
                 return Promise.reject(msg);
             }
         }
     } catch (e) {
         console.log(e);
-        return Promise.reject(`Getting a quote from ${ALE_SWAP_PARTNER} failed`);
+        return Promise.reject(`Getting a quote failed`);
     }
 
     const signatureResult = await getFirmSignature(signer, market.address, collateralToWithdraw, 'WithdrawOnBehalf', F2_ALE);
