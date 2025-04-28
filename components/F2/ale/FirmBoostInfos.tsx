@@ -548,7 +548,7 @@ export const FirmBoostInfos = ({
                                 <TextInfo message="The net yield is the yield thanks to the increase in collateral size minus the cost of the corresponding leverage-linked debt">
                                     <Text fontWeight="bold">Net-Yield at x{smartShortNumber(leverageLevel, 2)}:</Text>
                                     <Text fontWeight="bold">{shortenNumber(netLeveragedYield, 2)}%</Text>
-                                    <Text>(without leverage: {shortenNumber(market.supplyApy + market.extraApy || 0, 2)}%)</Text>
+                                    <Text>(underlying APY: {shortenNumber(market.supplyApy + market.extraApy || 0, 2)}%)</Text>
                                 </TextInfo>
                             </HStack>
                     }
@@ -563,11 +563,11 @@ export const FirmBoostInfos = ({
                     }
                 </TextInfo>
                 {
-                    !!bestProxyName && <HStack>
+                    !leverageLoading && !isTriggerLeverageFetch && !!bestProxyName && estimatedAmount > 0 && knownFixedAmount > 0 && <HStack>
                         <Text>
                             via {bestProxyName}
                         </Text>
-                        <img height="20px" width="20px" src={`https://icons.llamao.fi/icons/protocols/${bestProxyName.replace('1inch', '1inch-network')}?w=48&h=48`} alt={bestProxyName} />
+                        <img style={{ borderRadius: '20px' }} height="20px" width="20px" src={`https://icons.llamao.fi/icons/protocols/${bestProxyName.replace('1inch', '1inch-network')}?w=48&h=48`} alt={bestProxyName} />
                     </HStack>
                 }
             </HStack>
