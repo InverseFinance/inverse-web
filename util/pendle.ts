@@ -1,6 +1,8 @@
-import { BURN_ADDRESS } from "@app/config/constants";
+import { ALE_V3, BURN_ADDRESS } from "@app/config/constants";
 
 import useSWR from "swr";
+
+export const PENDLE_HELPER = '0x4809fE7d314c2AE5b2Eb7fa19C1B166434D29141';
 
 // list of active markets: https://api-v2.pendle.finance/core/v1/1/markets/active
 // ptToken => ptMarketAddress
@@ -72,6 +74,8 @@ export const useUserPtApys = (ptTokens: string[], user: string) => {
     }
 }
 
+// give slippage in percentage, if 1% slippage, give 1, will be converted to 0.01 for the api
+// if expired: redeem case, if not expired: swap case
 export const getPendleSwapData = async (
     buyToken: string,
     sellToken: string,
@@ -82,13 +86,19 @@ export const getPendleSwapData = async (
     const ptMarketAddress = Object.entries(ptMarkets).find(([col, m]) => [buyToken.toLowerCase(), sellToken.toLowerCase()].includes(col.toLowerCase()))[1];
     const isLeverageCase = !!Object.entries(ptMarkets).find(([col, m]) => [buyToken.toLowerCase()].includes(col.toLowerCase()));
     // receiver = helper or ale
-    const receiver = isLeverageCase ? '0x4809fE7d314c2AE5b2Eb7fa19C1B166434D29141' : '0x4dF2EaA1658a220FDB415B9966a9ae7c3d16e240';
+    const receiver = isLeverageCase ? PENDLE_HELPER : ALE_V3;
     const baseUrl = isExpired ? 'https://api-v2.pendle.finance/core/v1/sdk/1/redeem' : `https://api-v2.pendle.finance/core/v1/sdk/1/markets/${ptMarketAddress.toLowerCase()}/swap`;
-    let queryParams = `receiver=${receiver}&slippage=${slippagePercentage}&enableAggregator=true&tokenIn=${sellToken}&tokenOut=${buyToken}&amountIn=${sellAmount}`;
+    const slippage = (parseFloat(slippagePercentage)/100).toFixed(3);
+    let queryParams = `receiver=${receiver}&slippage=${slippage}&enableAggregator=true&tokenOut=${buyToken}&amountIn=${sellAmount}`;
+
     if(isExpired) {
         const ytToken = ytTokens[buyToken] || ytTokens[sellToken];
         queryParams = queryParams + `&yt=${ytToken}`;
     }
+    else {
+        queryParams = queryParams + `&tokenIn=${sellToken}`;
+    }
+
     const responseData = await fetch(`${baseUrl}?${queryParams}`).then(r => r.json());
     return {
         buyAmount: responseData.data.amountOut,
