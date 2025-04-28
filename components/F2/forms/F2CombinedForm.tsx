@@ -305,7 +305,7 @@ export const F2CombinedForm = ({
                     return
                 }
                 const { dolaAmount, errorMsg } = await getLeverageImpact({
-                    deposits, leverageLevel: leverage, market, isUp: false, dolaPrice, setLeverageLoading, viaInput: true, underlyingExRate, signer, sDolaExRate, setBestProxyName
+                    deposits, leverageLevel: leverage, market, isUp: false, dolaPrice, setLeverageLoading, viaInput: true, underlyingExRate, signer, sDolaExRate, setBestProxyName, aleSlippage
                 });
                 if (!!errorMsg) {
                     showToast({ status: 'warning', description: errorMsg, title: 'Api error' })
@@ -314,7 +314,7 @@ export const F2CombinedForm = ({
                 setLeverageDebtAmount(Math.abs(dolaAmount).toFixed(2));
             } else if (useLeverageInMode && !isDeleverageCase && !deposits && collateralNum > 0 && leverage >= 1) {
                 const { dolaAmount, errorMsg, collateralAmount } = await getLeverageImpact({
-                    deposits, initialDeposit: collateralNum, leverageLevel: leverage, market, isUp: true, dolaPrice, setLeverageLoading, viaInput: true, underlyingExRate, signer, sDolaExRate, setBestProxyName
+                    deposits, initialDeposit: collateralNum, leverageLevel: leverage, market, isUp: true, dolaPrice, setLeverageLoading, viaInput: true, underlyingExRate, signer, sDolaExRate, setBestProxyName, aleSlippage
                 });
                 if (!!errorMsg) {
                     showToast({ status: 'warning', description: errorMsg, title: 'Api error' })
@@ -345,7 +345,7 @@ export const F2CombinedForm = ({
                     return
                 }
                 const { collateralAmount, errorMsg } = await getLeverageImpact({
-                    deposits, debt, leverageLevel: leverage, market, isUp: true, dolaPrice, setLeverageLoading, viaInput, dolaInput: viaInput ? debtString : undefined, initialDeposit, underlyingExRate, signer, sDolaExRate, setBestProxyName
+                    deposits, debt, leverageLevel: leverage, market, isUp: true, dolaPrice, setLeverageLoading, viaInput, dolaInput: viaInput ? debtString : undefined, initialDeposit, underlyingExRate, signer, sDolaExRate, setBestProxyName, aleSlippage
                 });
                 if (!!errorMsg) {
                     showToast({ status: 'warning', description: errorMsg, title: 'Api error' })
