@@ -554,7 +554,7 @@ export const FirmBoostInfos = ({
                     }
                 </>
             }
-            <HStack spacing="1" w='full' alignItems="flex-start">
+            <HStack spacing="1" w='full' justify="space-between" alignItems="flex-start">
                 <TextInfo message="The quote on 1inch for the trade required to do leverage/deleverage">
                     <Text>Quote:</Text>
                     {
@@ -567,7 +567,7 @@ export const FirmBoostInfos = ({
                         <Text>
                             via {bestProxyName}
                         </Text>
-                        <img src={`https://icons.llamao.fi/icons/protocols/${bestProxyName.replace('1inch', '1inch-network')}?w=48&h=48`} alt={bestProxyName} />
+                        <img height="20px" width="20px" src={`https://icons.llamao.fi/icons/protocols/${bestProxyName.replace('1inch', '1inch-network')}?w=48&h=48`} alt={bestProxyName} />
                     </HStack>
                 }
             </HStack>
