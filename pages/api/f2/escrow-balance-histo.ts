@@ -5,7 +5,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber, getToken } from '@app/util/markets'
-import { BLOCKS_PER_DAY, BURN_ADDRESS, CHAIN_ID } from '@app/config/constants';
+import { ALE_V2, BLOCKS_PER_DAY, BURN_ADDRESS, CHAIN_ID } from '@app/config/constants';
 import { addBlockTimestamps } from '@app/util/timestamps';
 import { ascendingEventsSorter, throttledPromises } from '@app/util/misc';
 import { CHAIN_TOKENS, TOKENS } from '@app/variables/tokens';
@@ -50,6 +50,8 @@ export default async function handler(req, res) {
 
     const currentBlock = await provider.getBlockNumber();
     const marketContract = new Contract(_market.address, F2_MARKET_ABI, provider);   
+    const aleContractV2 = new Contract(ALE_V2, F2_ALE_ABI, provider);
+    // current
     const aleContract = new Contract(F2_ALE, F2_ALE_ABI, provider);
     const aleMarketData = await aleContract.markets(_market.address);
     const hasAleFeature = FEATURE_FLAGS.firmLeverage && aleMarketData[0] !== BURN_ADDRESS;
@@ -78,6 +80,8 @@ export default async function handler(req, res) {
     ];
 
     if (hasAleFeature) {
+      eventsToQuery.push(aleContractV2.queryFilter(aleContractV2.filters.LeverageUp(_market.address, account), startingBlock));
+      eventsToQuery.push(aleContractV2.queryFilter(aleContractV2.filters.LeverageDown(_market.address, account), startingBlock));
       eventsToQuery.push(aleContract.queryFilter(aleContract.filters.LeverageUp(_market.address, account), startingBlock));
       eventsToQuery.push(aleContract.queryFilter(aleContract.filters.LeverageDown(_market.address, account), startingBlock));
     }
