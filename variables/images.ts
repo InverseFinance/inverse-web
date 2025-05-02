@@ -31,6 +31,7 @@ export const TOKEN_IMAGES = {
     "DBR": IMAGES.DBR,
     "THREECRV": IMAGES["3CRV"],
     "SINV": IMAGES.SINV,
+    "reUSD": "https://assets.coingecko.com/coins/images/54836/standard/reusd-icon-black-200px.png?1741970002",
     "YUSD": "https://assets.coingecko.com/coins/images/53607/standard/yUSD.png?1739862886",
     "USR": "https://assets.coingecko.com/coins/images/40008/standard/USR_LOGO.png?1725222638",
     "deUSD": "https://assets.coingecko.com/coins/images/39494/standard/deUSD_Logo_%281%29.png?1723689002",
