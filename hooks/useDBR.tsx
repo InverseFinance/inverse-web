@@ -192,7 +192,7 @@ export const useDBRMarketsReformat = (apiData?: any, marketOrList?: string | str
         bnLeftToBorrow: getNumberToBn(leftToBorrow),
         borrowPaused,
         hasAleFeat,
-        aleData: { buySellToken: aleData[0], collateral: aleData[1], helper: aleData[2], useProxy: aleData[3] },
+        aleData: { buySellToken: aleData[0], isTransformToDola: aleData[0] === DOLA, collateral: aleData[1], helper: aleData[2], useProxy: aleData[3] },
       }
     }),
   }

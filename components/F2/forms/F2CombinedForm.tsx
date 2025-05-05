@@ -120,15 +120,21 @@ export const F2CombinedForm = ({
         setCustomRecipient,
         customRecipient,
         underlyingExRate,
-        isUnderlyingAsInputCase,
         inputToken,
         inputAmount,
         inputAmountNum,
         inputBalance,
+        inputExRate,
         bnInputBalance,
+        isUnderlyingAsInputCase,
         setIsUnderlyingAsInputCaseSelected,
         isUnderlyingAsInputCaseSelected,
         hasUnderlyingAsInputCase,
+        setIsDolaAsInputCaseSelected,
+        isDolaAsInputCaseSelected,
+        isDolaAsInputCase,
+        hasDolaAsInputCase,
+        isAltInputToken,
         leverageMinAmountUp,
         leverageMinDebtReduced,
         sDolaExRate,
@@ -202,7 +208,7 @@ export const F2CombinedForm = ({
                     aleSlippage,
                     isAutoDBR ? dbrBuySlippage : undefined,
                     isAutoDBR ? duration : 0,
-                    !isUnderlyingAsInputCase,
+                    !isAltInputToken,
                     dolaPrice,
                     leverageMinAmountUp,
                     underlyingExRate,
@@ -401,7 +407,7 @@ export const F2CombinedForm = ({
     const mainFormInputs = <Stack direction={{ base: 'column' }} spacing="4" w='full'>
         {
             hasCollateralChange && <VStack w='full' alignItems="flex-start">
-                <FirmCollateralInputTitle isDeposit={isDeposit} noZap={market.noZap} onEnsoModalOpen={onEnsoModalOpen} market={market} deposits={deposits} isWethMarket={isWethMarket} isUseNativeCoin={isUseNativeCoin} useLeverageInMode={useLeverageInMode} isUnderlyingAsInputCase={isUnderlyingAsInputCase} />
+                <FirmCollateralInputTitle isDeposit={isDeposit} noZap={market.noZap} onEnsoModalOpen={onEnsoModalOpen} market={market} deposits={deposits} isWethMarket={isWethMarket} isUseNativeCoin={isUseNativeCoin} useLeverageInMode={useLeverageInMode} isUnderlyingAsInputCase={isUnderlyingAsInputCase} isDolaAsInputCase={isDolaAsInputCase} />
                 {
                     market.noDeposit && isDeposit && <InfoMessage
                         alertProps={{ w: 'full', status: 'warning' }}
@@ -423,8 +429,8 @@ export const F2CombinedForm = ({
                             actionLabel={btnLabel}
                             maxActionLabel={btnMaxlabel}
                             onAmountChange={(v, num) => {
-                                const collateralString = isUnderlyingAsInputCase ? (num / underlyingExRate).toFixed(6) : v;
-                                const collateralNum = isUnderlyingAsInputCase ? (num / underlyingExRate) : num;
+                                const collateralString = isUnderlyingAsInputCase ? (num / underlyingExRate).toFixed(6) : isDolaAsInputCase ? ((num / inputExRate)/underlyingExRate).toFixed(6) : v;
+                                const collateralNum = isUnderlyingAsInputCase ? (num / underlyingExRate) : isDolaAsInputCase ? ((num / inputExRate)/underlyingExRate) : num;
                                 handleInputChange(v);
                                 triggerCollateralAndOrLeverageChange(collateralString, collateralNum, true);
                             }}
@@ -435,8 +441,8 @@ export const F2CombinedForm = ({
                             showBalance={isDeposit}
                             inputProps={isDeleverageCase ? { disabled: false } : undefined}
                             inputRight={
-                                market.underlying.isLP ? <LPImages imgContainerProps={{ pr: 2 }} alternativeDisplay={true} lpToken={{ pairs: market.underlying.pairs, image: market.underlying.image, protocolImage: market.underlying.protocolImage }} chainId={1} imgSize={17} />
-                                    : <MarketImage pr="2" image={isWethMarket ? (isUseNativeCoin ? market.icon : market.underlying.image) : isUnderlyingAsInputCase ? TOKEN_IMAGES[market.underlyingSymbol] : (market.icon || market.underlying.image)} size={25} />
+                                isDolaAsInputCase ? <MarketImage pr="2" image={TOKEN_IMAGES['DOLA']} size={25} /> : market.underlying.isLP ? <LPImages imgContainerProps={{ pr: 2 }} alternativeDisplay={true} lpToken={{ pairs: market.underlying.pairs, image: market.underlying.image, protocolImage: market.underlying.protocolImage }} chainId={1} imgSize={17} />
+                                    : <MarketImage pr="2" image={isWethMarket ? (isUseNativeCoin ? market.icon : market.underlying.image) : isDolaAsInputCase ? TOKEN_IMAGES['DOLA'] : isUnderlyingAsInputCase ? TOKEN_IMAGES[market.underlyingSymbol] : (market.icon || market.underlying.image)} size={25} />
                             }
                             isError={isDeposit ? inputAmountNum > inputBalance : collateralAmountNum > deposits}
                         />
@@ -460,6 +466,15 @@ export const F2CombinedForm = ({
                             hasUnderlyingAsInputCase &&
                             <InfoMessage alertProps={{ w: 'full' }} description={
                                 <Text>Deposit and leverage: you can deposit either <b onClick={() => setIsUnderlyingAsInputCaseSelected(true)} style={{ textDecoration: 'underline', cursor: 'pointer', fontWeight: isUnderlyingAsInputCaseSelected ? 'bold' : 'normal' }}>{market.underlyingSymbol}</b> or <b onClick={() => setIsUnderlyingAsInputCaseSelected(false)} style={{ textDecoration: 'underline', cursor: 'pointer', fontWeight: isUnderlyingAsInputCaseSelected ? 'normal' : 'bold' }}>{market.underlying.symbol}</b></Text>
+                            } />
+                        }
+                        {
+                            hasDolaAsInputCase &&
+                            <InfoMessage alertProps={{ w: 'full' }} description={
+                                <VStack w='full' alignItems="flex-start">
+                                    <Text>Deposit and leverage case:</Text>
+                                    <Text>You can deposit either <b onClick={() => setIsDolaAsInputCaseSelected(true)} style={{ textDecoration: 'underline', cursor: 'pointer', fontWeight: isDolaAsInputCaseSelected ? 'bold' : 'normal' }}>DOLA</b> or <b onClick={() => setIsDolaAsInputCaseSelected(false)} style={{ textDecoration: 'underline', cursor: 'pointer', fontWeight: isDolaAsInputCaseSelected ? 'normal' : 'bold' }}>{market.underlying.symbol}</b></Text>
+                                </VStack>
                             } />
                         }
                     </>
@@ -572,16 +587,16 @@ export const F2CombinedForm = ({
         setDbrBuySlippage={setDbrBuySlippage}
     />
 
-    const sellDbrInput = <SellDbrInput
-        dbrSellAmount={dbrSellAmount}
-        setDbrSellAmount={setDbrSellAmount}
-        helperAddress={useLeverageInMode ? F2_ALE : F2_HELPER}
-        dbrBuySlippage={dbrBuySlippage}
-        setDbrBuySlippage={setDbrBuySlippage}
-        signer={signer}
-        dbrBalance={dbrBalance}
-        bnDbrBalance={bnDbrBalance}
-    />
+    // const sellDbrInput = <SellDbrInput
+    //     dbrSellAmount={dbrSellAmount}
+    //     setDbrSellAmount={setDbrSellAmount}
+    //     helperAddress={useLeverageInMode ? F2_ALE : F2_HELPER}
+    //     dbrBuySlippage={dbrBuySlippage}
+    //     setDbrBuySlippage={setDbrBuySlippage}
+    //     signer={signer}
+    //     dbrBalance={dbrBalance}
+    //     bnDbrBalance={bnDbrBalance}
+    // />
 
     const actionBtn = <HStack>
         <SimpleAmountForm

@@ -776,7 +776,7 @@ export type F2Market = {
   phasingOutComment?: string
   phasingOutLink?: string
   underlyingSymbol?: string
-  aleData: { buySellToken: string, collateral: string, helper: string, useProxy: boolean }
+  aleData: { buySellToken: string, isTransformToDola: boolean, collateral: string, helper: string, useProxy: boolean }
   aleTransformerType?: 'marketAddress' | '' | 'marketAddressAndAmount' | 'marketAddressAndAmountAndPendleData'
   isERC4626Collateral?: boolean
   isAleWithoutSwap?: boolean
