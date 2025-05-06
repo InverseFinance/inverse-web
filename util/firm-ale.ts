@@ -8,6 +8,7 @@ import { getBnToNumber, getNumberToBn } from "./markets";
 import { callWithHigherGL } from "./contracts";
 import { parseUnits } from "@ethersproject/units";
 import { BURN_ADDRESS } from "@app/config/constants";
+import { fetcher60sectimeout } from "./web3";
 
 const { F2_ALE, DOLA } = getNetworkConfigConstants();
 
@@ -272,8 +273,7 @@ export const getAleSellQuote = async (
 ) => {
     const method = getPriceOnly ? 'quote' : 'swap';
     let url = `/api/f2/ale-proxy?method=${method}&buyToken=${buyAd.toLowerCase()}&sellToken=${sellAd.toLowerCase()}&sellAmount=${sellAmount}&slippagePercentage=${slippagePercentage}`;
-    const response = await fetch(url);
-    return response.json();
+    return await fetcher60sectimeout(url);
 }
 // will do a binary search
 export const getAleSellEnoughToRepayDebt = async (
@@ -283,6 +283,5 @@ export const getAleSellEnoughToRepayDebt = async (
     deposits: string,
 ) => {
     let url = `/api/f2/ale-proxy?isFullDeleverage=true&method=quote&buyToken=${buyAd.toLowerCase()}&sellToken=${sellAd.toLowerCase()}&debt=${debt}&deposits=${deposits}`;
-    const response = await fetch(url);
-    return response.json();
+    return await fetcher60sectimeout(url);
 }
