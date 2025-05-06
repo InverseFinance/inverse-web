@@ -63,7 +63,7 @@ export const prepareLeveragePosition = async (
         let aleQuoteResult;
         try {
             if (market.isAleWithoutSwap) {
-                aleQuoteResult = { data: '0x', allowanceTarget: BURN_ADDRESS, value: '0' }
+                aleQuoteResult = { data: '0x', allowanceTarget: BURN_ADDRESS, exchangeProxy: BURN_ADDRESS, value: '0' }
             } else {
                 // the dola swapped for collateral is dolaToBorrowToBuyCollateral not totalDolaToBorrow (a part is for dbr)
                 const sellToken = market.isPendle ? market.collateral :  market.aleData?.buySellToken || market.collateral;
@@ -176,7 +176,7 @@ export const prepareDeleveragePosition = async (
     try {
         // lps
         if (market.isAleWithoutSwap) {
-            aleQuoteResult = { data: '0x', allowanceTarget: BURN_ADDRESS, value: '0', buyAmount: getNumberToBn(getBnToNumber(collateralToWithdraw, market.underlying.decimals) * market.price / dolaPrice).toString() }
+            aleQuoteResult = { data: '0x', allowanceTarget: BURN_ADDRESS, exchangeProxy: BURN_ADDRESS, value: '0', buyAmount: getNumberToBn(getBnToNumber(collateralToWithdraw, market.underlying.decimals) * market.price / dolaPrice).toString() }
         } else {
             // the dola swapped for collateral is dolaToRepayToSellCollateral not totalDolaToBorrow (a part is for dbr)
             const amountToSellString = !!market.aleTransformerType && market?.aleData?.buySellToken?.toLowerCase() !== market?.collateral?.toLowerCase() && underlyingExRate ? getNumberToBn(getBnToNumber(collateralToWithdraw, market.underlying.decimals) * underlyingExRate).toString() : collateralToWithdraw.toString();
