@@ -24,13 +24,11 @@ import Container from '@app/components/common/Container'
 import { InfoMessage, WarningMessage } from '@app/components/common/Messages'
 import { shortenNumber, smartShortNumber } from '@app/util/markets'
 import { preciseCommify } from '@app/util/misc'
-import { WorthEvoChartWrapper } from '@app/components/F2/WorthEvoChartContainer'
 import { DbrV1IssueModal } from '@app/components/F2/Modals/DbrV1IssueIModal'
 import { useMultisig } from '@app/hooks/useSafeMultisig'
 import Link from '@app/components/common/Link'
 import { FirmInsuranceCover } from '@app/components/common/InsuranceCover'
 import { OLD_BORROW_CONTROLLER } from '@app/config/constants'
-import { useAccount } from '@app/hooks/misc'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -38,11 +36,11 @@ const useDefaultPreview = ['CRV', 'cvxCRV', 'cvxFXS', 'st-yCRV']
 
 export const F2MarketPage = ({ market }: { market: string }) => {
     const router = useRouter();
-    const account = useAccount();
-    const { markets } = useDBRMarkets(market);
+    const { vnetPublicId } = router.query;
+
+    const { markets } = useDBRMarkets(market, vnetPublicId as string);
     const f2market = markets.length > 0 && !!market ? markets[0] : undefined;
     const { isMultisig, isWhitelisted } = useMultisig(f2market?.borrowController);
-
     const needCountdown = !f2market?.borrowPaused && f2market?.leftToBorrow < f2market?.dailyLimit && f2market?.dolaLiquidity > 0 && f2market?.leftToBorrow < f2market?.dolaLiquidity && shortenNumber(f2market?.dolaLiquidity, 2) !== shortenNumber(f2market?.leftToBorrow, 2);
 
     const backToMarkets = () => {

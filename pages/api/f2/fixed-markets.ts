@@ -14,7 +14,7 @@ import { marketsDisplaysCacheKey } from './markets-display';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.5.5`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.6.0`;
 
 export default async function handler(req, res) {
   const cacheDuration = 90;
@@ -41,14 +41,15 @@ export default async function handler(req, res) {
 
     let provider;
     if (vnetPublicId) {
-      const cachedSims = (await getCacheFromRedis(SIMS_CACHE_KEY, false));    
-      const { ids } =  cachedSims || { ids: [] };
-      const vnet = ids.find(id => id.publicId === vnetPublicId);
-      if(!vnet) {
-        res.status(404).json({ success: false, error: 'Vnet not found' });
-        return;
-      }
-      provider = new JsonRpcProvider(vnet.adminRpc);
+      // const cachedSims = (await getCacheFromRedis(SIMS_CACHE_KEY, false));    
+      // const { ids } =  cachedSims || { ids: [] };
+      // const vnet = ids.find(id => id.publicId === vnetPublicId);
+      // if(!vnet) {
+      //   res.status(404).json({ success: false, error: 'Vnet not found' });
+      //   return;
+      // }
+      // provider = new JsonRpcProvider(vnet.adminRpc);
+      provider = new JsonRpcProvider(`https://virtual.mainnet.rpc.tenderly.co/${vnetPublicId}`);
     } else {
       provider = getProvider(CHAIN_ID);
     }
@@ -92,11 +93,14 @@ export default async function handler(req, res) {
       const marketCustomDisplay = marketsDisplay ? marketsDisplay[m.address] : {};
       const isBorrowingSuspended = suspendAllBorrows || marketCustomDisplay?.isBorrowingSuspended || m.isBorrowingSuspended;
       const isLeverageSuspended = suspendAllLeverage || marketCustomDisplay?.isLeverageSuspended || m.isLeverageSuspended;
+      const isPendle = m.name.startsWith('PT-');
+      const supplyApy = externalApys[underlying.symbol] || externalApys[m.name] || 0;
+      const isPendleMatured = isPendle && !supplyApy;
       return {
         ...m,
         ...marketData,
         underlying: TOKENS[m.collateral],
-        supplyApy: externalApys[underlying.symbol] || externalApys[m.name] || 0,
+        supplyApy,
         extraApy: m.isInv ? dbrApr : 0,
         supplyApyLow: isCvxCrv ? Math.min(cvxCrvData?.group1 || 0, cvxCrvData?.group2 || 0) : 0,
         cvxCrvData: isCvxCrv ? cvxCrvData : undefined,
@@ -112,6 +116,8 @@ export default async function handler(req, res) {
         isBorrowingSuspended: isBorrowingSuspended,
         isLeverageComingSoon: isLeverageSuspended || m.isLeverageComingSoon,
         phasingOutComment: marketCustomDisplay?.phasingOutComment || m.phasingOutComment || '',
+        isPendle,
+        isPendleMatured,
       }
     });
 

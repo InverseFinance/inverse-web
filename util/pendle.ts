@@ -1,12 +1,20 @@
-import { BURN_ADDRESS } from "@app/config/constants";
+import { ALE_V3, BURN_ADDRESS } from "@app/config/constants";
 
 import useSWR from "swr";
 
+export const PENDLE_HELPER = '0x4809fE7d314c2AE5b2Eb7fa19C1B166434D29141';
+
 // list of active markets: https://api-v2.pendle.finance/core/v1/1/markets/active
 // ptToken => ptMarketAddress
-const ptMarkets = {
+export const ptMarkets = {
     '0xE00bd3Df25fb187d6ABBB620b3dfd19839947b81': '0xcdd26eb5eb2ce0f203a84553853667ae69ca29ce',
     '0xb7de5dFCb74d25c2f21841fbd6230355C50d9308': '0xb162b764044697cf03617c2efbcb1f42e31e4766',
+}
+
+// ptToken => ytToken
+export const ytTokens = {
+    '0xE00bd3Df25fb187d6ABBB620b3dfd19839947b81': '0x96512230bf0fa4e20cf02c3e8a7d983132cd2b9f',
+    '0xb7de5dFCb74d25c2f21841fbd6230355C50d9308': '0x1de6ff19fda7496ddc12f2161f6ad6427c52abbe',
 }
 
 // deprecated
@@ -64,4 +72,40 @@ export const useUserPtApys = (ptTokens: string[], user: string) => {
         isLoading: !userFixedYieldApys && !error,
         isError: error,
     }
+}
+
+// give slippage in percentage, if 1% slippage, give 1, will be converted to 0.01 for the api
+// if expired: redeem case, if not expired: swap case
+export const getPendleSwapData = async (
+    buyToken: string,
+    sellToken: string,
+    sellAmount: string,
+    slippagePercentage: string,
+    isExpired: boolean,
+) => {
+    const ptMarketAddress = Object.entries(ptMarkets).find(([col, m]) => [buyToken.toLowerCase(), sellToken.toLowerCase()].includes(col.toLowerCase()))[1];
+    const isLeverageCase = !!Object.entries(ptMarkets).find(([col, m]) => [buyToken.toLowerCase()].includes(col.toLowerCase()));
+    // receiver = helper or ale
+    const receiver = isLeverageCase ? PENDLE_HELPER : ALE_V3;
+    const baseUrl = isExpired ? 'https://api-v2.pendle.finance/core/v1/sdk/1/redeem' : `https://api-v2.pendle.finance/core/v1/sdk/1/markets/${ptMarketAddress.toLowerCase()}/swap`;
+    const slippage = (parseFloat(slippagePercentage)/100).toFixed(3);
+    let queryParams = `receiver=${receiver}&slippage=${slippage}&enableAggregator=true&tokenOut=${buyToken}&amountIn=${sellAmount}`;
+
+    if(isExpired) {
+        const ytToken = ytTokens[buyToken] || ytTokens[sellToken];
+        queryParams = queryParams + `&yt=${ytToken}`;
+    }
+    else {
+        queryParams = queryParams + `&tokenIn=${sellToken}`;
+    }
+
+    const responseData = await fetch(`${baseUrl}?${queryParams}`).then(r => r.json());
+    return {
+        buyAmount: responseData.data.amountOut,
+        data: responseData.tx.data,
+        gasPrice: responseData.tx.gasPrice,
+        to: responseData.tx.to,
+        receiver,
+        baseUrl,
+    };
 }

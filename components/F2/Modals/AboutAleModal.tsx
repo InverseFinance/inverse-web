@@ -2,7 +2,6 @@ import { Text, VStack } from "@chakra-ui/react"
 import Link from "@app/components/common/Link";
 import InfoModal from "@app/components/common/Modal/InfoModal";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
-import { ALE_SWAP_PARTNER } from "@app/util/firm-ale";
 
 export const AboutAleModal = ({
     isOpen,
@@ -20,15 +19,12 @@ export const AboutAleModal = ({
     >
         <VStack spacing="4" p='4' alignItems="flex-start">
             <Text>
-                The Accelerated Leverage Engine (ALE) is a feature that allows to increase the exposition to the collateral asset by flash-minting DOLA, buying the collateral on DEXes (via the {ALE_SWAP_PARTNER} protocol and api) depositing the collateral, and then borrowing DOLA to burn the previously flash-minted DOLA. To summarize your position will have more collateral than what you deposited but the DOLA you borrow will not go to your wallet.
+                The Accelerated Leverage Engine (ALE) is a feature that allows to increase the exposition to the collateral asset by flash-minting DOLA, acquiring the collateral (via 1inch, odos or other) depositing the collateral, and then borrowing DOLA to burn the previously flash-minted DOLA. To summarize your position will have more collateral than what you deposited but the DOLA you borrow will not go to your wallet.
             </Text>
             <Text>The result is similar to a "spot leverage" or doing "looping"</Text>
             <Text>There is no fee charged for the service</Text>
             <Link textDecoration="underline" href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/firm#accelerated-leverage-engine" isExternal target="_blank">
                 Learn more about ALE <ExternalLinkIcon />
-            </Link>
-            <Link textDecoration="underline" href="https://1inch.io/api/" isExternal target="_blank">
-                Learn more about the {ALE_SWAP_PARTNER} api / protocol <ExternalLinkIcon />
             </Link>
         </VStack>
     </InfoModal>

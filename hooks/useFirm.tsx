@@ -9,7 +9,7 @@ import { useContractEvents, useMultiContractEvents } from "./useContractEvents";
 import { DBR_ABI, ERC20_ABI, F2_ALE_ABI, F2_ESCROW_ABI, F2_MARKET_ABI } from "@app/config/abis";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { ascendingEventsSorter, uniqueBy } from "@app/util/misc";
-import { BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
+import { ALE_V2, ALE_V3, BURN_ADDRESS, ONE_DAY_MS, ONE_DAY_SECS } from "@app/config/constants";
 import useEtherSWR from "./useEtherSWR";
 import { useAccount } from "./misc";
 import { useBlocksTimestamps } from "./useBlockTimestamp";
@@ -243,20 +243,31 @@ export const useFirmMarketEvents = (market: F2Market, account: string, firmActio
   ];
   const needAleEvents = FEATURE_FLAGS.firmLeverage && market.hasAleFeat;
   if (needAleEvents) {
-    eventQueries.push([F2_ALE, F2_ALE_ABI, 'LeverageUp', [market.address, account]]);
-    eventQueries.push([F2_ALE, F2_ALE_ABI, 'LeverageDown', [market.address, account]]);
+    eventQueries.push([ALE_V2, F2_ALE_ABI, 'LeverageUp', [market.address, account]]);
+    eventQueries.push([ALE_V2, F2_ALE_ABI, 'LeverageDown', [market.address, account]]);
+    eventQueries.push([ALE_V3, F2_ALE_ABI, 'LeverageUp', [market.address, account]]);
+    eventQueries.push([ALE_V3, F2_ALE_ABI, 'LeverageDown', [market.address, account]]);
   }
   const { groupedEvents, isLoading, error } = useMultiContractEvents(
     eventQueries,
     `firm-market-${market.address}-${account}-${firmActionIndex}`,
   );
-  const { events: depositsOnTopOfLeverageEvents } = useContractEvents(
-    market.collateral, ERC20_ABI, 'Transfer', needAleEvents ? [account, F2_ALE] : undefined, true, `ale-${account}-deposits-on-top--${firmActionIndex}`
+  const { events: depositsOnTopOfLeverageEventsv2 } = useContractEvents(
+    market.collateral, ERC20_ABI, 'Transfer', needAleEvents ? [account, ALE_V2] : undefined, true, `ale-${account}-deposits-on-top--${firmActionIndex}`
   );
 
-  const { events: repaysOnTopOfDeleverageEvents } = useContractEvents(
-    DOLA, ERC20_ABI, 'Transfer', needAleEvents ? [account, F2_ALE] : undefined, true, `ale-${account}-repays-on-top-${firmActionIndex}`
+  const { events: repaysOnTopOfDeleverageEventsv2 } = useContractEvents(
+    DOLA, ERC20_ABI, 'Transfer', needAleEvents ? [account, ALE_V2] : undefined, true, `ale-${account}-repays-on-top-${firmActionIndex}`
   );
+  const { events: depositsOnTopOfLeverageEventsv3 } = useContractEvents(
+    market.collateral, ERC20_ABI, 'Transfer', needAleEvents ? [account, ALE_V3] : undefined, true, `ale-${account}-deposits-on-topv3--${firmActionIndex}`
+  );
+
+  const { events: repaysOnTopOfDeleverageEventsv3 } = useContractEvents(
+    DOLA, ERC20_ABI, 'Transfer', needAleEvents ? [account, ALE_V3] : undefined, true, `ale-${account}-repays-on-topv3-${firmActionIndex}`
+  );
+  const depositsOnTopOfLeverageEvents = [...depositsOnTopOfLeverageEventsv2, ...depositsOnTopOfLeverageEventsv3];
+  const repaysOnTopOfDeleverageEvents = [...repaysOnTopOfDeleverageEventsv2, ...repaysOnTopOfDeleverageEventsv3];
 
   const flatenedEvents = groupedEvents.flat().sort(ascendingEventsSorter);
   const lastTxBlockFromLast1000 = useBlockTxFromLast1000(market, account);
@@ -912,8 +923,10 @@ export const useFirmMarketEvolution = (market: F2Market, account: string): {
   }
   const needAleEvents = FEATURE_FLAGS.firmLeverage && market.hasAleFeat;
   if (needAleEvents) {
-    toQuery.push([F2_ALE, F2_ALE_ABI, 'LeverageUp', [market.address, account]]);
-    toQuery.push([F2_ALE, F2_ALE_ABI, 'LeverageDown', [market.address, account]]);
+    toQuery.push([ALE_V2, F2_ALE_ABI, 'LeverageUp', [market.address, account]]);
+    toQuery.push([ALE_V2, F2_ALE_ABI, 'LeverageDown', [market.address, account]]);
+    toQuery.push([ALE_V3, F2_ALE_ABI, 'LeverageUp', [market.address, account]]);
+    toQuery.push([ALE_V3, F2_ALE_ABI, 'LeverageDown', [market.address, account]]);
   }
 
   const { groupedEvents, isLoading, error } = useMultiContractEvents(

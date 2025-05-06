@@ -90,14 +90,15 @@ export default async function handler(req, res) {
 
     let provider;
     if (vnetPublicId) {
-      const cachedSims = (await getCacheFromRedis(SIMS_CACHE_KEY, false));    
-      const { ids } =  cachedSims || { ids: [] };
-      const vnet = ids.find(id => id.publicId === vnetPublicId);
-      if(!vnet) {
-        res.status(404).json({ success: false, error: 'Vnet not found' });
-        return;
-      }
-      provider = new JsonRpcProvider(vnet.publicRpc);
+      // const cachedSims = (await getCacheFromRedis(SIMS_CACHE_KEY, false));    
+      // const { ids } =  cachedSims || { ids: [] };
+      // const vnet = ids.find(id => id.publicId === vnetPublicId);
+      // if(!vnet) {
+      //   res.status(404).json({ success: false, error: 'Vnet not found' });
+      //   return;
+      // }
+      // provider = new JsonRpcProvider(vnet.publicRpc);
+      provider = new JsonRpcProvider(`https://virtual.mainnet.rpc.tenderly.co/${vnetPublicId}`);
     } else {
       provider = getProvider(CHAIN_ID);
     }

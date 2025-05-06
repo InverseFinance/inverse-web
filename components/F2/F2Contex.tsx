@@ -90,6 +90,7 @@ export const F2Context = ({
     const [firmActionIndex, setFirmActionIndex] = useState(cachedFirmActionIndex === undefined ? null : cachedFirmActionIndex||0);    
     const [isSmallerThan728] = useMediaQuery('(max-width: 728px)');
     const { isInvPrimeMember } = useStakedInFirm(account);    
+    const [bestProxyName, setBestProxyName] = useState('');
 
     const isMountedRef = useRef(true)
     const firstTimeModalResolverRef = useRef(() => {});
@@ -390,6 +391,8 @@ export const F2Context = ({
             leverageMinAmountUp,
             newCreditLeft,
             sDolaExRate,
+            bestProxyName,
+            setBestProxyName,
         }}
         {...props}
     />
