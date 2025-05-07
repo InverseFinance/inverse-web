@@ -21,13 +21,19 @@
       "pages/api/csv/liquidity-pools.ts": {
         "maxDuration": 60
       },
+      "pages/api/transparency/liquidity.ts": {
+        "maxDuration": 60
+      },
       "pages/api/csv/dola-model-1.ts": {
+        "maxDuration": 60
+      },
+      "pages/api/csv/dola-model-2.ts": {
         "maxDuration": 60
       },
       "pages/api/drafts/sim.ts": {
         "maxDuration": 60
       },
-      "pages/api/f2/1inch-proxy.ts": {
+      "pages/api/f2/ale-proxy.ts": {
         "maxDuration": 60
       }
     }
