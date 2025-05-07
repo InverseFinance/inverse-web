@@ -84,8 +84,11 @@ export const prepareLeveragePosition = async (
         const permitData = [deadline, v, r, s];
         let helperTransformData = '0x';
         if (market.aleData?.buySellToken && !!market.aleTransformerType && aleTransformers[market.aleTransformerType]) {
-            // should not happen in normal circumstances            
-            if(leverageMinAmountUp < (getBnToNumber(dolaToBorrowToBuyCollateral) / market.price * ANOMALY_PERC_FACTOR)){
+            const isInitialDepositDolaToConvert = !isDepositCollateral && initialDeposit?.gt(0) && market.aleData.isTransformToDola;
+            const amountOfDolaConverted = isInitialDepositDolaToConvert ? getBnToNumber(dolaToBorrowToBuyCollateral.add(initialDeposit)) : getBnToNumber(dolaToBorrowToBuyCollateral);
+            // should not happen in normal circumstances
+            // if initialDeposit is DOLA the leverageMinAmountUp should be the minAmount for the total DOLA converted not only the part coming from borrowing
+            if(leverageMinAmountUp < (amountOfDolaConverted / market.price * ANOMALY_PERC_FACTOR)){
                 alert('Something went wrong');
                 return;
             }

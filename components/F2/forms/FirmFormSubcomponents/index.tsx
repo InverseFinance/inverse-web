@@ -178,6 +178,7 @@ export const FirmCollateralInputTitle = ({
     useLeverageInMode,
     deposits,
     isUnderlyingAsInputCase,
+    isDolaAsInputCase,
     noZap,
     onEnsoModalOpen,
 }: {
@@ -188,6 +189,7 @@ export const FirmCollateralInputTitle = ({
     useLeverageInMode: boolean
     deposits: number
     isUnderlyingAsInputCase: boolean
+    isDolaAsInputCase: boolean
     noZap: boolean
     onEnsoModalOpen: () => void
 }) => {
@@ -195,7 +197,7 @@ export const FirmCollateralInputTitle = ({
     const withdrawWording = useLeverageInMode ? 'Sell' : market.isInv ? 'Unstake' : 'Withdraw';
     const wording = isDeposit ? depositWording : withdrawWording;
     const leverageExtraWording = useLeverageInMode ? isDeposit && deposits > 0 ? ` (on top of leverage)` : isDeposit && !deposits ? '' : ' (to deleverage)' : '';
-    const assetName = isWethMarket && isUseNativeCoin ? 'ETH' : isUnderlyingAsInputCase ? market.underlyingSymbol : market.underlying.symbol;
+    const assetName = isWethMarket && isUseNativeCoin ? 'ETH' : isDolaAsInputCase ? 'DOLA' : isUnderlyingAsInputCase ? market.underlyingSymbol : market.underlying.symbol;
     const ensoProps = isDeposit && !!onEnsoModalOpen ? { borderBottomWidth: '1px', borderColor: 'mainTextColor', cursor: 'pointer', onClick: onEnsoModalOpen } : {};
     return <TextInfo w='full' message={
         isDeposit ?
