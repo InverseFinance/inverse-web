@@ -156,8 +156,8 @@ export const getCollateralLpOutputFromDolaDeposit = async (market: F2Market, amo
 
 export const useCollateralLpOutputFromDeposit = (isDolaAsInputCase: boolean, market: F2Market, amountIn: number, sDolaExRate?: number, underlyingExRate?: number, dolaPrice = 1) => {
     const { account, provider, chainId } = useWeb3React<Web3Provider>();
-    const {data} = useCustomSWR(`lpCol-amount-out-${isDolaAsInputCase}-${market.name}-${chainId}-${account}-${(amountIn||0).toFixed(0)}`, async () => {
-        if(!isDolaAsInputCase) return BigNumber.from('0');
+    const { data } = useCustomSWR(`lpCol-amount-out-${isDolaAsInputCase}-${market.name}-${chainId}-${account}-${(amountIn || 0).toFixed(0)}`, async () => {
+        if (!isDolaAsInputCase) return BigNumber.from('0');
         return await getCollateralLpOutputFromDolaDeposit(market, amountIn, provider?.getSigner(), sDolaExRate, underlyingExRate, dolaPrice);
     });
     const outputNum = data ? getBnToNumber(data, market.underlying.decimals) : 0;
@@ -479,7 +479,7 @@ export const FirmBoostInfos = ({
 
     return <Stack borderRadius='5px' p='4' bgColor="infoAlpha" fontSize="14px" spacing="4" w='full' direction={{ base: 'column', lg: 'row' }} justify="space-between" alignItems="center">
         <VStack position="relative" w='full' alignItems="center" justify="center">
-            <HStack spacing="2" w='full' justify="space-between" alignItems="center">
+            <Stack direction={{ base: 'column', sm: 'row' }} spacing="2" w='full' justify="space-between" alignItems="center">
                 <InputGroup
                     w='fit-content'
                     alignItems="center"
@@ -497,51 +497,53 @@ export const FirmBoostInfos = ({
                         />
                     }
                 </InputGroup>
-                {
-                    leverageLoading && <Text fontSize="16px" fontWeight="bold" color="secondaryTextColor">Fetching swap data...</Text>
-                }
-                {
-                    !leverageLoading && leverageLevel > 1 && <TextInfoSimple direction="row-reverse" message={isLeverageUp ? `Collateral added thanks to leverage` : `Collateral reduced thanks to deleverage`}>
-                        <HStack fontWeight="bold" spacing="1" alignItems="center">
-                            {isLeverageUp ? <ArrowUpIcon color="success" fontSize="20px" /> : <ArrowDownIcon color="warning" fontSize="20px" />}
-                            <VStack spacing="0">
-                                <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="14px" textAlign="center">
-                                    {isLeverageUp ? '~' : ''}{smartShortNumber(isLeverageUp ? parseFloat(leverageCollateralAmount) : collateralAmountNum, 4)}
-                                </Text>
-                                <Text whiteSpace="nowrap" textDecoration="underline" cursor="default" fontSize="14px">
-                                    {market.underlying.symbol?.replace(/ [a-z]?lp$/i, '')}
-                                </Text>
-                            </VStack>
-                        </HStack>
-                    </TextInfoSimple>
-                }
-                {
-                    !leverageLoading && leverageLevel > 1 && <TextInfoSimple direction="row-reverse" message={isLeverageUp ? `Debt added due to leverage` : `Debt reduced via deleveraging, if higher than the current debt the extra DOLA goes to the user wallet`}>
-                        <HStack fontWeight="bold" spacing="1" alignItems="center">
-                            {isLeverageUp ? <ArrowUpIcon color="warning" fontSize="20px" /> : <ArrowDownIcon color="success" fontSize="20px" />}
-                            <VStack spacing="0">
-                                <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="14px" textAlign="center">
-                                    {smartShortNumber(!isLeverageUp ? amountOfDebtReduced : debtAmountNum, 2)}
-                                </Text>
-                                <Text textDecoration="underline" cursor="default" fontSize="14px">DEBT</Text>
-                            </VStack>
-                        </HStack>
-                    </TextInfoSimple>
-                }
-                {
-                    !leverageLoading && leverageLevel > 1 && !isLeverageUp && extraDolaReceivedInWallet > 0 && <TextInfoSimple direction="row-reverse" message={"DOLA estimated to be sent to wallet directly, it depends on the difference between min amount to receive from sell and actual amount or amount and debt"}>
-                        <HStack fontWeight="bold" spacing="1" alignItems="center">
-                            <ArrowUpIcon color="success" fontSize="20px" />
-                            <VStack spacing="0">
-                                <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="14px" textAlign="center">
-                                    ~{smartShortNumber(extraDolaReceivedInWallet, 2)}
-                                </Text>
-                                <Text textDecoration="underline" cursor="default" fontSize="14px">DOLA</Text>
-                            </VStack>
-                        </HStack>
-                    </TextInfoSimple>
-                }
-            </HStack>
+                <HStack w='full' justify="space-between" alignItems="center">
+                    {
+                        leverageLoading && <Text fontSize="16px" fontWeight="bold" color="secondaryTextColor">Fetching swap data...</Text>
+                    }
+                    {
+                        !leverageLoading && leverageLevel > 1 && <TextInfoSimple direction="row-reverse" message={isLeverageUp ? `Collateral added thanks to leverage` : `Collateral reduced thanks to deleverage`}>
+                            <HStack fontWeight="bold" spacing="1" alignItems="center">
+                                {isLeverageUp ? <ArrowUpIcon color="success" fontSize="20px" /> : <ArrowDownIcon color="warning" fontSize="20px" />}
+                                <VStack spacing="0">
+                                    <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="14px" textAlign="center">
+                                        {isLeverageUp ? '~' : ''}{smartShortNumber(isLeverageUp ? parseFloat(leverageCollateralAmount) : collateralAmountNum, 4)}
+                                    </Text>
+                                    <Text whiteSpace="nowrap" textDecoration="underline" cursor="default" fontSize="14px">
+                                        {market.underlying.symbol?.replace(/ [a-z]?lp$/i, '')}
+                                    </Text>
+                                </VStack>
+                            </HStack>
+                        </TextInfoSimple>
+                    }
+                    {
+                        !leverageLoading && leverageLevel > 1 && <TextInfoSimple direction="row-reverse" message={isLeverageUp ? `Debt added due to leverage` : `Debt reduced via deleveraging, if higher than the current debt the extra DOLA goes to the user wallet`}>
+                            <HStack fontWeight="bold" spacing="1" alignItems="center">
+                                {isLeverageUp ? <ArrowUpIcon color="warning" fontSize="20px" /> : <ArrowDownIcon color="success" fontSize="20px" />}
+                                <VStack spacing="0">
+                                    <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="14px" textAlign="center">
+                                        {smartShortNumber(!isLeverageUp ? amountOfDebtReduced : debtAmountNum, 2)}
+                                    </Text>
+                                    <Text textDecoration="underline" cursor="default" fontSize="14px">DEBT</Text>
+                                </VStack>
+                            </HStack>
+                        </TextInfoSimple>
+                    }
+                    {
+                        !leverageLoading && leverageLevel > 1 && !isLeverageUp && extraDolaReceivedInWallet > 0 && <TextInfoSimple direction="row-reverse" message={"DOLA estimated to be sent to wallet directly, it depends on the difference between min amount to receive from sell and actual amount or amount and debt"}>
+                            <HStack fontWeight="bold" spacing="1" alignItems="center">
+                                <ArrowUpIcon color="success" fontSize="20px" />
+                                <VStack spacing="0">
+                                    <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="14px" textAlign="center">
+                                        ~{smartShortNumber(extraDolaReceivedInWallet, 2)}
+                                    </Text>
+                                    <Text textDecoration="underline" cursor="default" fontSize="14px">DOLA</Text>
+                                </VStack>
+                            </HStack>
+                        </TextInfoSimple>
+                    }
+                </HStack>
+            </Stack>
             <Slider
                 value={leverageLevel}
                 onChange={(v: number) => handleSliderLeverage(v, isLeverageUp)}
@@ -571,21 +573,27 @@ export const FirmBoostInfos = ({
                         deposits > 0 ? null :
                             <HStack spacing="1" w='full' alignItems="flex-start">
                                 <TextInfo message="The net yield is the yield thanks to the increase in collateral size minus the cost of the corresponding leverage-linked debt">
-                                    <Text fontWeight="bold">Net-Yield at x{smartShortNumber(leverageLevel, 2)}:</Text>
-                                    <Text fontWeight="bold">{shortenNumber(netLeveragedYield, 2)}%</Text>
-                                    <Text>(underlying APY: {shortenNumber(market.supplyApy + market.extraApy || 0, 2)}%)</Text>
+                                    <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify="space-between" alignItems="center">
+                                        <HStack spacing="1">
+                                            <Text fontWeight="bold">Net-Yield at x{smartShortNumber(leverageLevel, 2)}:</Text>
+                                            <Text fontWeight="bold">{shortenNumber(netLeveragedYield, 2)}%</Text>
+                                        </HStack>
+                                        <Text>(underlying APY: {shortenNumber(market.supplyApy + market.extraApy || 0, 2)}%)</Text>
+                                    </Stack>
                                 </TextInfo>
                             </HStack>
                     }
                 </>
             }
-            <HStack spacing="1" w='full' justify="space-between" alignItems="flex-start">
+            <Stack spacing="1" direction={{ base: 'column', sm: 'row' }} w='full' justify="space-between" alignItems="flex-start">
                 <TextInfo message="The quote on 1inch for the trade required to do leverage/deleverage">
-                    <Text>Quote:</Text>
-                    {
-                        leverageLoading || isTriggerLeverageFetch ? <SkeletonText pt="2px" skeletonHeight={3} height={'16px'} width={'90px'} noOfLines={1} />
-                            : <Text>{estimatedAmount > 0 && knownFixedAmount > 0 ? `~${preciseCommify(isLeverageUp ? knownFixedAmount / estimatedAmount : estimatedAmount / knownFixedAmount, 4)} DOLA per ${market.underlying.symbol}` : '-'}</Text>
-                    }
+                    <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify="space-between" alignItems="flex-start">
+                        <Text>Quote:</Text>
+                        {
+                            leverageLoading || isTriggerLeverageFetch ? <SkeletonText pt="2px" skeletonHeight={3} height={'16px'} width={'90px'} noOfLines={1} />
+                                : <Text>{estimatedAmount > 0 && knownFixedAmount > 0 ? `~${preciseCommify(isLeverageUp ? knownFixedAmount / estimatedAmount : estimatedAmount / knownFixedAmount, 4)} DOLA per ${market.underlying.symbol}` : '-'}</Text>
+                        }
+                    </Stack>
                 </TextInfo>
                 {
                     !leverageLoading && !isTriggerLeverageFetch && !!bestProxyName && estimatedAmount > 0 && knownFixedAmount > 0 && <HStack>
@@ -595,7 +603,7 @@ export const FirmBoostInfos = ({
                         <img style={{ borderRadius: '20px' }} height="20px" width="20px" src={`https://icons.llamao.fi/icons/protocols/${bestProxyName.replace('1inch', '1inch-network')}?w=48&h=48`} alt={bestProxyName} />
                     </HStack>
                 }
-            </HStack>
+            </Stack>
             <HStack w='full' justify="space-between">
                 <TextInfo
                     message="Collateral and DOLA market price can vary, the max. slippage % allows the swap required for leverage to be within a certain range, if out of range, the transaction will revert or fail">
