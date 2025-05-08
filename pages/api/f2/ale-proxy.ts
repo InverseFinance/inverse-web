@@ -20,7 +20,7 @@ const PROXYS = {
 // default limit is 1 Request Per Sec
 const fetch1inchWithRetry = async (
   url: string,
-  maxRetries = 40,
+  maxRetries = 20,
   currentRetry = 0,
 ): Promise<Response | undefined> => {
   let response;
@@ -46,7 +46,7 @@ const fetch1inchWithRetry = async (
 const fetchOdosWithRetry = async (
   url: string,
   body: Object,
-  maxRetries = 40,
+  maxRetries = 20,
   currentRetry = 0,
 ): Promise<Response | undefined> => {
   let response;
@@ -160,6 +160,7 @@ export default async function handler(req, res) {
       const oneInchResponseData = await oneInchResponse?.json();
       // const oneInchAllowanceResponseData = await oneInchAllowanceResponse?.json();
       const odosResponseData = await odosResponse?.json();
+      
       let odosAssembleResponseData;
 
       const status = (oneInchResponse?.status === 200 || odosResponse?.status === 200) ? 200 : 500;
@@ -182,7 +183,7 @@ export default async function handler(req, res) {
       } else {
         txInfo = oneInchResponseData?.tx;
       }
-      if (method === 'swap' && !txInfo) {
+      if (method === 'swap' && !txInfo?.data) {
         return res.status(500).json({ error: true, msg: 'Failed to fecth swap data, please try again' });
       }
   
@@ -193,8 +194,8 @@ export default async function handler(req, res) {
         bestProxyName,
         allowanceTarget: bestProxy.exchangeProxy,
         exchangeProxy: bestProxy.exchangeProxy,
-        data: txInfo.data,
-        gasPrice: txInfo.gasPrice,
+        data: txInfo?.data,
+        gasPrice: txInfo?.gasPrice,
         odosPathId: odosResponseData?.pathId,
         odosTx: odosAssembleResponseData?.transaction,
         oneInchTx: oneInchResponseData?.tx,
