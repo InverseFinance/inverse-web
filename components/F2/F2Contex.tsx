@@ -18,6 +18,7 @@ import { INV_STAKERS_ONLY } from '@app/config/features'
 import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
 import { BURN_ADDRESS } from '@app/config/constants'
 import { useStakedDola } from '@app/util/dola-staking'
+import { useCollateralLpOutputFromDeposit } from './ale/FirmBoostInfos'
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -70,7 +71,7 @@ export const F2Context = ({
     const [leverageDebtAmount, setLeverageDebtAmount] = useState('');    
     const [dbrSellAmount, setDbrSellAmount] = useState('');
     const [dbrBuySlippage, setDbrBuySlippage] = useState('0.3');
-    const [aleSlippage, setAleSlippage] = useState(market?.aleDefaultSlippagePerc || '0.1');
+    const [aleSlippage, setAleSlippage] = useState(market?.aleDefaultSlippagePerc || (market?.underlying?.isStable ? '0.05' : '0.1'));
     const [isDeposit, setIsDeposit] = useState(true);
     const [isAutoDBR, setIsAutoDBR] = useState(false);
     const [isUseNativeCoin, setIsUseNativeCoin] = useState(false);
@@ -81,6 +82,7 @@ export const F2Context = ({
     const [isTriggerLeverageFetch, setIsTriggerLeverageFetch] = useState(false);
     const [customRecipient, setCustomRecipient] = useState('');
     const [isUnderlyingAsInputCaseSelected, setIsUnderlyingAsInputCaseSelected] = useState(false);
+    const [isDolaAsInputCaseSelected, setIsDolaAsInputCaseSelected] = useState(false);
     const [mode, setMode] = useState('Deposit & Borrow');
     
     const [infoTab, setInfoTab] = useState('Summary');
@@ -94,42 +96,58 @@ export const F2Context = ({
 
     const isMountedRef = useRef(true)
     const firstTimeModalResolverRef = useRef(() => {});
+
     const { isOpen: isFirstTimeModalOpen, onOpen: onFirstTimeModalOpen, onClose: onFirstTimeModalClose } = useDisclosure();
     const { isOpen: isFirmLeverageEngineOpen, onOpen: onFirmLeverageEngineOpen, onClose: onFirmLeverageEngineClose } = useDisclosure();
     const { isOpen: isDbrV1NewBorrowIssueModalOpen, onOpen: onDbrV1NewBorrowIssueModalOpen, onClose: onDbrV1NewBorrowIssueModalClose } = useDisclosure();
     const { value: notFirstTime, setter: setNotFirstTime } = useStorage('firm-first-time-modal-no-more');
     const colDecimals = market.underlying.decimals;
 
-    // deposit and leverage can use either the underlying or the collateral as input
-    const hasUnderlyingAsInputCase = mode === 'Deposit & Borrow' && !!market.underlyingSymbol && useLeverage && (market.aleData.useProxy && market.aleData.buySellToken !== market.collateral && market.aleData.buySellToken !== BURN_ADDRESS);
-    const isUnderlyingAsInputCase = hasUnderlyingAsInputCase && isUnderlyingAsInputCaseSelected;
-    const inputToken = isUnderlyingAsInputCase ? market.aleData.buySellToken : market.collateral;
+    const isDepositAndBorrowMode = mode === 'Deposit & Borrow';
+    const isBorrowOnlyMode = mode === 'Borrow';
 
+    // deposit and leverage can use either the underlying or the collateral as input
+    const hasUnderlyingAsInputCase = isDepositAndBorrowMode && !!market.underlyingSymbol && useLeverage && (market.aleData.useProxy && market.aleData.buySellToken !== market.collateral && market.aleData.buySellToken !== BURN_ADDRESS);
+    const isUnderlyingAsInputCase = hasUnderlyingAsInputCase && isUnderlyingAsInputCaseSelected;
+    // deposit and leverage can use also use DOLA in some cases
+    // only for LPs with DOLA (not sDOLA) atm
+    const hasDolaAsInputCase = isDepositAndBorrowMode &&  useLeverage && (!market.aleData.useProxy && market.aleData.isTransformToDola && market.underlying.isLP);
+    const isDolaAsInputCase = hasDolaAsInputCase && isDolaAsInputCaseSelected;
+    const isAltInputToken = isUnderlyingAsInputCase || isDolaAsInputCase;
+    const inputToken = isAltInputToken ? market.aleData.buySellToken : market.collateral;
+   
     const { deposits, bnDeposits, debt, bnWithdrawalLimit, perc, bnDolaLiquidity, bnCollateralBalance, collateralBalance, bnDebt, bnLeftToBorrow, leftToBorrow, liquidationPrice, escrow, underlyingExRate, inputBalance, bnInputBalance } = useAccountDBRMarket(market, account, isUseNativeCoin, inputToken);   
     const { balance: dolaBalance, bnBalance: bnDolaBalance } = useDOLABalance(account);
     const { price: dolaPrice, isLoading: isDolaPriceLoading } = useDOLAPrice();
+    const { priceDola: dbrPriceInDola, priceUsd: dbrPriceUsd } = useDBRPrice();
+    const { sDolaExRate } = useStakedDola(dbrPriceUsd);
 
     const debtAmountNum = parseFloat(debtAmount || '0') || 0;// NaN => 0
     const inputAmountNum = parseFloat(inputAmount || '0') || 0;
-    const collateralAmountNum = isUnderlyingAsInputCase ? inputAmountNum / underlyingExRate : inputAmountNum;
 
-    // if true and leverage switched is enabled, the user will see the INV prime msg
-    const userNotEligibleForLeverage = !isInvPrimeMember && INV_STAKERS_ONLY.firmLeverage;
+    // returns amounts in collateral directly
+    const { outputNum: colLpOutput, inputPriceInCollateralUnits: inputInLpPrice } = useCollateralLpOutputFromDeposit(isDolaAsInputCase, market, inputAmountNum, sDolaExRate, underlyingExRate, dolaPrice);
+    const { outputNum: finalColLpOutput, inputPriceInCollateralUnits: finalQuote } = useCollateralLpOutputFromDeposit(isDolaAsInputCase, market, inputAmountNum+debtAmountNum, sDolaExRate, underlyingExRate, dolaPrice);
+    const inputToCollateralExRate = isDolaAsInputCase ? inputInLpPrice : underlyingExRate;
+
+    // resulting collateral amount corresponding to input field amount (default case=same)
+    const collateralAmountNum = isDolaAsInputCase ? colLpOutput : isUnderlyingAsInputCase ? inputAmountNum / underlyingExRate : inputAmountNum;
+   
     // if true, leverage is relevant to the mode and conditions
-    const useLeverageInMode = useLeverage && !userNotEligibleForLeverage && ((mode === 'Deposit & Borrow' && (deposits > 0 || collateralAmountNum > 0)) || (mode === 'Borrow' && deposits > 0) || (['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1))        
+    const useLeverageInMode = useLeverage && ((isDepositAndBorrowMode && (deposits > 0 || collateralAmountNum > 0)) || (isBorrowOnlyMode && deposits > 0) || (['Repay & Withdraw', 'Repay'].includes(mode) && debt > 1))        
 
+    // amounts related to leverage only
     const leverageDebtAmountNum = parseFloat(leverageDebtAmount || '0') || 0;// NaN => 0
     const leverageCollateralAmountNum = parseFloat(leverageCollateralAmount || '0') || 0;
 
     const totalDebtAmountNum = debtAmountNum + (useLeverageInMode ? leverageDebtAmountNum * (1-parseFloat(aleSlippage)/100) : 0);
     
-    const totalCollateralAmountNum = (!(useLeverageInMode && mode === 'Borrow') ? collateralAmountNum : 0) + (isDeposit && useLeverageInMode ? leverageCollateralAmountNum : 0)//(isDeposit || !useLeverageInMode || (!isDeposit && useLeverageInMode) ? collateralAmountNum : 0) + (useLeverageInMode ? leverageCollateralAmountNum : 0);    
+    // DOLA as input case: total amount is output from (initialDeposit+dolaToBorrow), other cases: total=collateral input + output from borrowing
+    const totalCollateralAmountNum = isDolaAsInputCase ? finalColLpOutput : (!(useLeverageInMode && isBorrowOnlyMode) ? collateralAmountNum : 0) + (isDeposit && useLeverageInMode ? leverageCollateralAmountNum : 0);
     
     const dbrApproxData = useDBRNeeded(debtAmount, duration);
 
     const dbrCover = totalDebtAmountNum > 0 ? isAutoDBR ? dbrApproxData.dbrNeededNum : debtAmountNum / (365 / duration) : 0;
-    const { priceDola: dbrPriceInDola, priceUsd: dbrPriceUsd } = useDBRPrice();
-    const { sDolaExRate } = useStakedDola(dbrPriceUsd);
     const autoDbrSwapPrice = isAutoDBR && !dbrApproxData?.isLoading ? dbrApproxData?.dolaForDbrNum/dbrApproxData?.dbrNeededNum : dbrPriceInDola;    
     const dbrSwapPrice = isAutoDBR ? autoDbrSwapPrice || dbrPriceInDola : dbrPriceInDola;
     const dbrCoverDebt = dbrCover * dbrSwapPrice;
@@ -223,14 +241,16 @@ export const F2Context = ({
         init();
     }, [market, deposits, debt, debtAmountNum, totalDebtAmountNum, dbrPriceInDola, deltaCollateral, duration, collateralAmount, maxBorrow, perc, isDeposit, isAutoDBR]);
 
+    // trigger by input change
     const handleInputChange = (stringNumber: string) => {
         setInputAmount(stringNumber);
-        setCollateralAmount(isUnderlyingAsInputCase && stringNumber && parseFloat(stringNumber) ? (parseFloat(stringNumber) / underlyingExRate).toFixed(6) : stringNumber);
+        setCollateralAmount(isAltInputToken && stringNumber && parseFloat(stringNumber) ? (parseFloat(stringNumber) / inputToCollateralExRate).toFixed(6) : stringNumber);
     }
 
+    // triggered by other types of sources (clicks etc)
     const handleCollateralChange = (stringNumber: string) => {
         setCollateralAmount(stringNumber);
-        setInputAmount(isUnderlyingAsInputCase && stringNumber && parseFloat(stringNumber) ? (parseFloat(stringNumber) * underlyingExRate).toFixed(6) : stringNumber);
+        setInputAmount(isAltInputToken && stringNumber && parseFloat(stringNumber) ? (parseFloat(stringNumber) * inputToCollateralExRate).toFixed(6) : stringNumber);
     }
 
     const handleDebtChange = (stringNumber: string) => {
@@ -370,7 +390,6 @@ export const F2Context = ({
             firstTimeModalResolverRef,
             isDbrV1NewBorrowIssueModalOpen,
             isInvPrimeMember,
-            userNotEligibleForLeverage,
             onDbrV1NewBorrowIssueModalOpen: () => {
                 gaEvent({ action: 'FiRM-dbrv1-issue-modal-open' });
                 onDbrV1NewBorrowIssueModalOpen();
@@ -380,6 +399,12 @@ export const F2Context = ({
             isUnderlyingAsInputCaseSelected,
             isUnderlyingAsInputCase,
             hasUnderlyingAsInputCase,
+            setIsDolaAsInputCaseSelected,
+            isDolaAsInputCaseSelected,
+            isDolaAsInputCase,
+            hasDolaAsInputCase,
+            isAltInputToken,
+            inputToCollateralExRate,
             inputToken,
             inputAmount,
             inputAmountNum,
