@@ -112,7 +112,6 @@ export const F2CombinedForm = ({
         dolaPrice,
         newTotalDebt,
         newDeposits,
-        userNotEligibleForLeverage,
         setLeverageLoading,
         leverageLoading,
         isTriggerLeverageFetch,
@@ -124,7 +123,7 @@ export const F2CombinedForm = ({
         inputAmount,
         inputAmountNum,
         inputBalance,
-        inputExRate,
+        inputToCollateralExRate,
         bnInputBalance,
         isUnderlyingAsInputCase,
         setIsUnderlyingAsInputCaseSelected,
@@ -416,6 +415,7 @@ export const F2CombinedForm = ({
                     />
                 }
                 {
+                    // deposit/withdraw input
                     (deposits > 0 || isDeposit) && (!market.noDeposit || !isDeposit) ? <>
                         <SimpleAmountForm
                             defaultAmount={inputAmount}
@@ -429,8 +429,9 @@ export const F2CombinedForm = ({
                             actionLabel={btnLabel}
                             maxActionLabel={btnMaxlabel}
                             onAmountChange={(v, num) => {
-                                const collateralString = isUnderlyingAsInputCase ? (num / underlyingExRate).toFixed(6) : isDolaAsInputCase ? ((num / inputExRate)/underlyingExRate).toFixed(6) : v;
-                                const collateralNum = isUnderlyingAsInputCase ? (num / underlyingExRate) : isDolaAsInputCase ? ((num / inputExRate)/underlyingExRate) : num;
+                                // underlyingExRate rate to convert collateral to underlying, inputToCollateralExRate: rate to convert input to collateral
+                                const collateralString = isUnderlyingAsInputCase ? (num / underlyingExRate).toFixed(6) : isDolaAsInputCase ? (num * inputToCollateralExRate).toFixed(6) : v;
+                                const collateralNum = isUnderlyingAsInputCase ? (num / underlyingExRate) : isDolaAsInputCase ? (num * inputToCollateralExRate) : num;
                                 handleInputChange(v);
                                 triggerCollateralAndOrLeverageChange(collateralString, collateralNum, true);
                             }}
@@ -471,7 +472,7 @@ export const F2CombinedForm = ({
                         {
                             hasDolaAsInputCase &&
                             <InfoMessage alertProps={{ w: 'full' }} description={
-                                <VStack w='full' alignItems="flex-start">
+                                <VStack spacing="0" w='full' alignItems="flex-start">
                                     <Text>Deposit and leverage case:</Text>
                                     <Text>You can deposit either <b onClick={() => setIsDolaAsInputCaseSelected(true)} style={{ textDecoration: 'underline', cursor: 'pointer', fontWeight: isDolaAsInputCaseSelected ? 'bold' : 'normal' }}>DOLA</b> or <b onClick={() => setIsDolaAsInputCaseSelected(false)} style={{ textDecoration: 'underline', cursor: 'pointer', fontWeight: isDolaAsInputCaseSelected ? 'normal' : 'bold' }}>{market.underlying.symbol}</b></Text>
                                 </VStack>

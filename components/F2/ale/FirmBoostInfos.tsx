@@ -142,6 +142,7 @@ const nonProxySwapGetters = {
     },
 }
 
+// returns amount in lp tokens or yv-lp, underlyingExRate is pricePerShare (>=1)
 export const getCollateralLpOutputFromDolaDeposit = async (market: F2Market, amountToDeposit: number, signer, sDolaExRate?: number, underlyingExRate?: number, dolaPrice = 1): Promise<BigNumber> => {
     if (signer) {
         const rootLpAddedBn = await nonProxySwapGetters[market.nonProxySwapType || 'nonProxySwap'](market.rootLp || market.collateral, market.address, getNumberToBn(amountToDeposit), true, market.aleData, signer, sDolaExRate);
@@ -155,14 +156,14 @@ export const getCollateralLpOutputFromDolaDeposit = async (market: F2Market, amo
 
 export const useCollateralLpOutputFromDeposit = (isDolaAsInputCase: boolean, market: F2Market, amountIn: number, sDolaExRate?: number, underlyingExRate?: number, dolaPrice = 1) => {
     const { account, provider, chainId } = useWeb3React<Web3Provider>();
-    const {data} = useCustomSWR(`lp-amount-out-${market.name}-${chainId}-${account}-${(amountIn||0).toFixed(0)}`, async () => {
+    const {data} = useCustomSWR(`lpCol-amount-out-${isDolaAsInputCase}-${market.name}-${chainId}-${account}-${(amountIn||0).toFixed(0)}`, async () => {
         if(!isDolaAsInputCase) return BigNumber.from('0');
         return await getCollateralLpOutputFromDolaDeposit(market, amountIn, provider?.getSigner(), sDolaExRate, underlyingExRate, dolaPrice);
     });
     const outputNum = data ? getBnToNumber(data, market.underlying.decimals) : 0;
     return {
         outputNum,
-        inputPrice: amountIn ? outputNum / amountIn : dolaPrice,
+        inputPriceInCollateralUnits: amountIn ? outputNum / amountIn : dolaPrice,
     }
 }
 
@@ -376,7 +377,7 @@ export const FirmBoostInfos = ({
     const estimatedAmount = leverageLevel > 1 ? parseFloat(isLeverageUp ? isDolaAsInputCase ? totalCollateralAmountNum : leverageCollateralAmount : leverageDebtAmount) : 0;
     const minAmount = aleSlippage ? aleSlippageFactor * estimatedAmount : 0;
     // when leveraging down min amount (or debt) is always the amount repaid, the slippage impacts amount of dola received in wallet
-    const amountOfDebtReduced = !isLeverageUp ? Math.min(minAmount, debt) : 0;
+    const amountOfDebtReduced = isLeverageUp ? 0 : Math.min(minAmount, debt);
     const extraDolaReceivedInWallet = isLeverageUp ? 0 : estimatedAmount - amountOfDebtReduced;
 
     useEffect(() => {
@@ -599,7 +600,7 @@ export const FirmBoostInfos = ({
                 <TextInfo
                     message="Collateral and DOLA market price can vary, the max. slippage % allows the swap required for leverage to be within a certain range, if out of range, the transaction will revert or fail">
                     <Text>
-                        Max. swap slippage for leverage %:
+                        Max. swap slippage %:
                     </Text>
                 </TextInfo>
                 <Input shadow="0 0 0px 1px rgba(0, 0, 0, 0.25)" py="0" maxH="30px" w='90px' value={aleSlippage} onChange={(e) => {
