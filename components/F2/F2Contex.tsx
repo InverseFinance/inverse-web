@@ -111,7 +111,7 @@ export const F2Context = ({
     const isUnderlyingAsInputCase = hasUnderlyingAsInputCase && isUnderlyingAsInputCaseSelected;
     // deposit and leverage can use also use DOLA in some cases
     // only for LPs with DOLA (not sDOLA) atm
-    const hasDolaAsInputCase = isDepositAndBorrowMode &&  useLeverage && (!market.aleData.useProxy && market.aleData.isTransformToDola && market.underlying.isLP && !market.underlying.symbol.toLowerCase().includes('sdola'));
+    const hasDolaAsInputCase = isDepositAndBorrowMode &&  useLeverage && (!market.aleData.useProxy && market.aleData.isTransformToDola && market.underlying.isLP);
     const isDolaAsInputCase = hasDolaAsInputCase && isDolaAsInputCaseSelected;
     const isAltInputToken = isUnderlyingAsInputCase || isDolaAsInputCase;
     const inputToken = isAltInputToken ? market.aleData.buySellToken : market.collateral;
