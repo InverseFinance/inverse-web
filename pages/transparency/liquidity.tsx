@@ -232,6 +232,7 @@ export const Liquidity = () => {
           defaultTargetChainId={defaultTargetChainId}
           ensoPoolsLike={ensoPoolsLike}
           resultAsset={resultAsset}
+          isSingleChoice={true}
         />
       }
       <InfoModal
