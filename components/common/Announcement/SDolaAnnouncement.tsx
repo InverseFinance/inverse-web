@@ -30,13 +30,15 @@ export const SDolaAnnouncement = () => {
   const spectraPool = apiData?.spectraPool;
   const sDolaApy = apiData?.apy;
 
-  const highestApy = useMemo(() => {
-    return Math.max(sDolaApy, spectraPool?.apy || 0);
-  }, [sDolaApy, spectraPool]);
+  const highestApy = sDolaApy;
+  // const highestApy = useMemo(() => {
+  //   return Math.max(sDolaApy, spectraPool?.apy || 0);
+  // }, [sDolaApy, spectraPool]);
 
-  const isSpectraCase = useMemo(() => {
-    return highestApy === spectraPool?.apy;
-  }, [highestApy, spectraPool]);
+  const isSpectraCase = false;
+  // const isSpectraCase = useMemo(() => {
+  //   return highestApy === spectraPool?.apy;
+  // }, [highestApy, spectraPool]);
 
   return (
     <Flex
