@@ -102,7 +102,7 @@ export const useDSABalance = (account: string, ad = DOLA_SAVINGS_ADDRESS) => {
     };
 }
 
-export const useStakedDola = (dbrDolaPriceUsd: number, supplyDelta = 0): {
+export const useStakedDola = (dbrDolaPriceUsd: number, supplyDelta = 0, includeSpectra = false): {
     sDolaSupply: number;
     sDolaTotalAssets: number;
     dsaTotalSupply: number;
@@ -132,7 +132,7 @@ export const useStakedDola = (dbrDolaPriceUsd: number, supplyDelta = 0): {
     spectraLink: string;
 } => {
     const account = useAccount();
-    const { data: apiData, error: apiErr } = useCacheFirstSWR(`/api/dola-staking`);   
+    const { data: apiData, error: apiErr } = useCacheFirstSWR(`/api/dola-staking?includeSpectra=${includeSpectra}`);   
     const weekIndexUtc = getWeekIndexUtc();
 
     const { data: dsaData, error } = useEtherSWR([
