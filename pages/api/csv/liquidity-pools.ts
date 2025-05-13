@@ -1,7 +1,8 @@
+
 import { getCacheFromRedis, redisSetWithTimestamp } from "@app/util/redis";
-import { NETWORKS_BY_CHAIN_ID } from "@app/config/networks";
 import { fetcher30sectimeout } from "@app/util/web3";
 import { dolaStakingCacheKey } from "../dola-staking";
+import { NETWORKS_BY_CHAIN_ID } from "@app/config/networks";
 import { SERVER_BASE_URL } from "@app/config/constants";
 
 // external use in spreadsheet
