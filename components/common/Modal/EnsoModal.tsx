@@ -10,10 +10,10 @@ export const EnsoModal = ({
     defaultTokenOut,
     defaultTargetChainId,
     ensoPoolsLike,
-    title = "Zap into a liquidity pool easily (BETA)",
+    title = "Zap into a liquidity pool easily",
     isSingleChoice = false,
     resultAsset,
-    introMessage = "Zapping allows you to go from one asset to a liquidity pool position, this shortcuts actions like splitting into two tokens, approving them both and depositing them both. The LP token will be in your wallet, you can then stake it on the corresponding protocol website to earn yield.",
+    introMessage = "Zapping allows you to go from one asset to a liquidity pool position. The LP token will be in your wallet, you can then stake it on the corresponding protocol website to earn the yield.",
     targetAssetPrice = 0,
 }: {
     isOpen: boolean

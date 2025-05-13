@@ -196,18 +196,18 @@ export const Liquidity = () => {
     const ensoPool = ensoPools
       .find(ep => ep.poolAddress.toLowerCase() === o.address.toLowerCase()
       );
-    return { ...o, ensoPool, hasEnso: !!ensoPool };
+    return { ...o, ensoPool, poolAddress: ensoPool?.poolAddress, hasEnso: !!ensoPool };
   });
 
-  const ensoPoolsLike = liquidityWithEnso.filter(o => o.hasEnso).map(o => {
-    return {
-      poolAddress: o.ensoPool?.poolAddress,
-      name: o.lpName,
-      project: o.project,
-      chainId: parseInt(o.chainId),
-      image: `https://icons.llamao.fi/icons/protocols/${o.project}?w=24&h=24`
-    };
-  });
+  // const ensoPoolsLike = liquidityWithEnso.filter(o => o.hasEnso).map(o => {
+  //   return {
+  //     poolAddress: o.ensoPool?.poolAddress,
+  //     name: o.lpName,
+  //     project: o.project,
+  //     chainId: parseInt(o.chainId),
+  //     image: `https://icons.llamao.fi/icons/protocols/${o.project}?w=24&h=24`
+  //   };
+  // });
 
   const categoryPrice = category === 'DBR' ? dbrPriceUsd : prices ? prices[cgIds[category]]?.usd : 0;
 
@@ -230,8 +230,10 @@ export const Liquidity = () => {
           onClose={onZapClose}
           defaultTokenOut={defaultTokenOut}
           defaultTargetChainId={defaultTargetChainId}
-          ensoPoolsLike={ensoPoolsLike}
+          ensoPoolsLike={[resultAsset]}
           resultAsset={resultAsset}
+          title={`Zap into ${resultAsset?.name} (${resultAsset?.project})`}
+          isSingleChoice={true}
         />
       }
       <InfoModal

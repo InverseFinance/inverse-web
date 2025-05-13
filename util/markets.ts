@@ -623,6 +623,7 @@ export const getYieldOppys = async () => {
             .filter(p => /^(inv-|s?dola-|dbr-)/i.test(p.symbol) || /(-inv|-s?dola|-dbr)$/i.test(p.symbol) || /(-inv-|-s?dola-|-dbr-)/i.test(p.symbol))
             // filter pools with known incorrect data
             .filter(p => !poolsToExclude.includes(p.pool))
+            .filter(p => p.project !== 'inverse-finance-firm')
             .map(p => {
                 return {
                     ...p,

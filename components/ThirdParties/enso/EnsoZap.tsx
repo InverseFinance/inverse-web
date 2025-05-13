@@ -237,7 +237,7 @@ function EnsoZap({
                     {featureInfo}
 
                     <Text {...fromTextProps}>
-                        {fromText}{!isSingleChoice && <b>{getNetwork(chainId)?.name}</b>}:
+                        {fromText}{!isSingleChoice && <b>&nbsp;{getNetwork(chainId)?.name}</b>}:
                     </Text>
 
                     <AssetInput

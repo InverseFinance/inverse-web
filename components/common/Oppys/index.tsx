@@ -97,7 +97,7 @@ const getPoolLink = (project, pool, underlyingTokens, symbol, isStable = true) =
             const token0 = getToken(CHAIN_TOKENS[chainId], sym0);
             const token1 = getToken(CHAIN_TOKENS[chainId], sym1);
             const baseUrl = project === 'aerodrome-v1' ? 'https://aerodrome.finance' : 'https://velodrome.finance';
-            url = token0?.address && token1?.address ? `${baseUrl}/pools?token0=${token0.address}&token1=${token1.address}&type=${isStable ? '0' : '-1'}` : baseUrl+'/liquidity'
+            url = token0?.address && token1?.address ? `${baseUrl}/pools?token0=${token0.address}&token1=${token1.address}&type=${isStable ? '0' : '-1'}` : baseUrl + '/liquidity'
             break;
         case 'uniswap-v2':
             url = underlyingTokens?.length > 0 ? `https://app.uniswap.org/#/add/v2/${underlyingTokens.join('/')}` : '';
@@ -449,8 +449,8 @@ export const Oppys = () => {
             const oppyUnderlyingTokensString = underlyingTokensArrayToString(oppyUnderlyingTokens);
             const ensoPool = ensoPools
                 .find(ep => ep.chainId.toString() === oppyChainId
-                    && o.project === (ENSO_DEFILLAMA_MAPPING[ep.project] || ep.project)
-                    && underlyingTokensArrayToString(ep.underlyingTokens) === oppyUnderlyingTokensString
+                    && o.project === (ENSO_DEFILLAMA_MAPPING[ep.protocol] || ep.protocol)
+                    && underlyingTokensArrayToString(ep.underlyingTokens.map(epu => epu.address)) === oppyUnderlyingTokensString
                 );
             return { ...o, ensoPool, hasEnso: !!ensoPool };
         });
@@ -468,8 +468,11 @@ export const Oppys = () => {
         onOpen();
     }
 
-    const ensoPoolsLike = oppysWithEnso.filter(o => o.hasEnso).map(o => {
+    const ensoPoolsLike = oppysWithEnso
+        // .filter(o => o.hasEnso)
+        .map(o => {
         return {
+            ...o,
             poolAddress: o.ensoPool?.poolAddress,
             name: o.symbol,
             project: o.project,
@@ -479,19 +482,23 @@ export const Oppys = () => {
     });
 
     return <VStack alignItems="flex-start">
-        <EnsoModal
-            isOpen={isOpen}
-            onClose={onClose}
-            defaultTokenOut={defaultTokenOut}
-            defaultTargetChainId={defaultTargetChainId}
-            ensoPoolsLike={ensoPoolsLike}
-            resultAsset={resultAsset}
-        />
+        {
+            isOpen && <EnsoModal
+                isOpen={isOpen}
+                onClose={onClose}
+                defaultTokenOut={defaultTokenOut}
+                defaultTargetChainId={defaultTargetChainId}
+                ensoPoolsLike={[resultAsset]}
+                resultAsset={resultAsset}
+                title={`Zap into ${resultAsset?.name} (${resultAsset?.project})`}
+                isSingleChoice={true}
+            />
+        }
         <HStack px="6" w='full' justify="center">
             <HStack as="a" href="https://defillama.com/yields?token=DOLA&token=INV&token=DBR" target="_blank">
                 <Text textDecoration="underline" color="secondaryTextColor">
                     Data source: DefiLlama <ExternalLinkIcon />
-                </Text>                
+                </Text>
                 <Image borderRadius="50px" w="40px" src="/assets/projects/defi-llama.jpg" />
             </HStack>
         </HStack>
@@ -499,6 +506,6 @@ export const Oppys = () => {
             <OppysTop5 onClick={handleClick} isLargerThan={isLargerThan} title={'Top 5 stablecoin pool APYs'} isLoading={isLoading} oppys={top5Stable} />
             <OppysTop5 onClick={handleClick} isLargerThan={isLargerThan} title={'Top 5 volatile pool APYs'} isLoading={isLoading} oppys={top5Volatile} />
         </Stack>
-        <OppysTable onClick={handleClick} isLoading={isLoading} oppys={oppysWithEnso} />
+        <OppysTable onClick={handleClick} isLoading={isLoading} oppys={ensoPoolsLike} />
     </VStack>
 }

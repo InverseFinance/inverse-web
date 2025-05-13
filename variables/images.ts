@@ -118,7 +118,7 @@ export const TOKEN_IMAGES = {
     "yvWETH": "https://assets.coingecko.com/coins/images/2518/small/weth.png",
     "VELO": "https://assets.coingecko.com/coins/images/25783/small/velo.png?1653817876",
     "VELOV2": "/assets/projects/velo-v2.png",
-    "AERO": "https://aerodrome.finance/aerodrome.svg",
+    "AERO": "https://assets.coingecko.com/coins/images/31745/standard/token.png?1696530564",
     "USD+": "https://assets.coingecko.com/coins/images/25757/small/USD__logo.png?1653519267",
     "veVELO": "https://assets.coingecko.com/coins/images/25783/small/velo.png?1653817876",
     "BNB": "https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png?1644979850",

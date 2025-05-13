@@ -847,11 +847,6 @@ export const AppNav = ({ active, activeSubmenu, isBlog = false, isClaimPage = fa
         <BurgerMenu active={active} activeSubmenu={activeSubmenu} userAddress={userAddress} nbNotif={nbNotif} navItems={NAV_ITEMS} />
       </Flex>
       {!!process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG && !hideAnnouncement && <Announcement />}
-      {
-        !isLargerThan1150 && inited && !hideCampaignBar && <VStack mt="4">
-          {liquidationProgram}
-        </VStack>
-      }
       {!process.env.NEXT_PUBLIC_ANNOUNCEMENT_MSG && !hideAnnouncement && <SDolaAnnouncement />}
     </VStack>
   )

@@ -9,6 +9,7 @@ import { NetworkIds } from "@app/types";
 import { useState } from "react";
 import { useInterval } from "@chakra-ui/react";
 import { formatUnits, parseUnits } from "@ethersproject/units";
+import { SDOLA_ADDRESS } from "@app/config/constants";
 
 const key = 'eb19e745-81bb-4ffc-b40e-04dccf6edb6a'
 export const EthXe = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
@@ -164,7 +165,7 @@ export const getEnsoApprove = async (fromAddress: string, chainId = 1) => {
 // the api gives an address per user, the user needs to approve this given address to spend their tokens
 export const getEnsoPools = async (params): Promise<EnsoPool[]> => {
     const queryString = new URLSearchParams(params).toString();
-    const path = `https://api.enso.finance/api/v1/tokens?type=defi&chainId=1&includeMetadata=true&underlyingTokens=0x865377367054516e17014CcdED1e7d814EDC9ce4,0xef484de8C07B6e2d732A92B5F78e81B38f99f95E,0xfb5137Aa9e079DB4b7C2929229caf503d0f6DA96,0x8272E1A3dBef607C04AA6e5BD3a1A134c8ac063B`;
+    const path = `https://api.enso.finance/api/v1/tokens?type=defi&chainId=1&includeMetadata=true&underlyingTokens=0x865377367054516e17014CcdED1e7d814EDC9ce4,${SDOLA_ADDRESS},0xef484de8C07B6e2d732A92B5F78e81B38f99f95E,0xfb5137Aa9e079DB4b7C2929229caf503d0f6DA96,0x8272E1A3dBef607C04AA6e5BD3a1A134c8ac063B`;
     // const path = `https://api.enso.finance/api/v1/tokens?type=defi&chainId=1&includeMetadata=true&primaryAddress=0xcC2EFb8bEdB6eD69ADeE0c3762470c38D4730C50`;
     // const path = `https://api.enso.finance/api/v1/positions?${queryString}`;
     const res = await fetch(path, {
