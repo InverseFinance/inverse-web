@@ -14,4 +14,8 @@ jobs:
       - name: Bad debt
         run: |
           curl -v --request GET \
-          --url 'https://www.inverse.finance/api/transparency/repayments-v2'          
+          --url 'https://www.inverse.finance/api/transparency/repayments-v2'
+      - name: Dbr
+        run: |
+          curl -v --request GET \
+          --url 'https://www.inverse.finance/api/transparency/dbr'  
