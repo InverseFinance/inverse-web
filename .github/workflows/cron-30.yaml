@@ -15,3 +15,7 @@ jobs:
         run: |
           curl -v --request GET \
           --url 'https://www.inverse.finance/api/prices-cg-proxy?isDefault=true'          
+      - name: liquidity refresh
+        run: |
+          curl -v --request GET \
+          --url 'https://www.inverse.finance/api/transparency/liquidity'     

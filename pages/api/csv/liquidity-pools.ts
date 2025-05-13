@@ -12,7 +12,7 @@ export default async (req, res) => {
 
     try {
         const [liquidityData, dolaStakingData] = await Promise.all([
-            fetcher30sectimeout(`${SERVER_BASE_URL}/api/transparency/liquidity`),
+            fetcher30sectimeout(`${SERVER_BASE_URL}/api/transparency/liquidity?cacheFirst=true`),
             getCacheFromRedis(dolaStakingCacheKey, false),       
         ]);
 
