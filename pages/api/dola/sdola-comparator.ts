@@ -54,8 +54,8 @@ export const getOnChainData = async (meta: any[]) => {
     ))
   );
 
-  const [todayAssets] = await Promise.all(
-    blocks.map(block => getMulticallOutput(
+  const [todayAssets, thirtyDaysAgoAssets, ninetyDayAssets] = await Promise.all(
+    [currentBlockNumber, thirtyDaysAgoBlock, ninetyDaysAgoBlock].map(block => getMulticallOutput(
       meta.map(metaItem => ({
         contract: new Contract(metaItem.address, VAULT_ABI_EXTENDED, provider),
         functionName: metaItem.totalMethod || 'totalAssets',
@@ -68,7 +68,7 @@ export const getOnChainData = async (meta: any[]) => {
   );
 
   const [decimals] = await Promise.all(
-    blocks.map(block => getMulticallOutput(
+    [currentBlockNumber].map(block => getMulticallOutput(
       meta.map(metaItem => ({
         contract: new Contract(metaItem.address, VAULT_ABI_EXTENDED, provider),
         functionName: 'decimals',
@@ -90,7 +90,7 @@ export const getOnChainData = async (meta: any[]) => {
         return nonVaultHistoricalRates[index];
       }
       return {
-        calculatedApy: 0, apy30d: 0, apy60d: 0, apy90d: 0, apy180d: 0, apy365d: 0,
+        calculatedApy: 0, apy30d: 0, apy60d: 0, apy90d: 0, apy180d: 0, apy365d: 0, totalAssets: 0, totalAssets30d: 0, totalAssets90d: 0,
       }
     }
     const todayExRate = getBnToNumber(todayRates[index]);
@@ -108,6 +108,8 @@ export const getOnChainData = async (meta: any[]) => {
       apy180d,
       apy365d,
       totalAssets: getBnToNumber(todayAssets[index], getBnToNumber(decimals[index], 0)),
+      totalAssets30d: getBnToNumber(thirtyDaysAgoAssets[index], getBnToNumber(decimals[index], 0)),
+      totalAssets90d: getBnToNumber(ninetyDayAssets[index], getBnToNumber(decimals[index], 0)),
     }
   });
 }
@@ -309,6 +311,9 @@ export default async function handler(req, res) {
         return {
           address: metaData.address,
           isVault: !metaData.isNotVault,
+          totalAssets: onChainData[index].totalAssets,
+          totalAssets30d: onChainData[index].totalAssets30d,
+          totalAssets90d: onChainData[index].totalAssets90d,
           tvl: defillamaPoolData?.tvlUsd || onChainData[index].totalAssets || null,
           apy: (rate.supplyRate || rate.apy || onChainData[index].calculatedApy),
           apy30d: (rate.apyMean30d || rate.apy30d),
