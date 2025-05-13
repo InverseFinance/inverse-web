@@ -259,7 +259,7 @@ export default async function handler(req, res) {
         image: 'https://token-icons.llamao.fi/icons/tokens/1/0x1202f5c7b4b9e47a1a484e8b270be34dbbc75055?h=64&w=64',
       },
       {
-        symbol: 'fxSave',
+        symbol: 'fxSAVE',
         project: 'Fx-protocol',
         link: 'https://fx.aladdin.club/v2/fxsave',
         pool: 'ee0b7069-f8f3-4aa2-a415-728f13e6cc3d',
