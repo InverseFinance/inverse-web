@@ -129,6 +129,7 @@ export const useStakedDola = (dbrDolaPriceUsd: number, supplyDelta = 0): {
     hasError: boolean;
     sDolaExRate: number;
     spectraApy: number;
+    spectraLink: string;
 } => {
     const account = useAccount();
     const { data: apiData, error: apiErr } = useCacheFirstSWR(`/api/dola-staking`);   
@@ -160,6 +161,7 @@ export const useStakedDola = (dbrDolaPriceUsd: number, supplyDelta = 0): {
     return {
         ...formatDolaStakingData(dbrDolaPriceUsd, dolaStakingData, apiData, supplyDelta),
         accountRewardsClaimable,
+        spectraLink: apiData?.spectraPool?.pool || '',
         spectraApy: apiData?.spectraPool?.apy || 0,
         apy30d: apiData?.apy30d || 0,
         isLoading: (!dolaStakingData && !error) && (!apiData && !apiErr),

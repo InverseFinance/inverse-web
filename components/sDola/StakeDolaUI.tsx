@@ -1,4 +1,4 @@
-import { VStack, Text, HStack, Stack, Image, useInterval, useDisclosure } from "@chakra-ui/react"
+import { VStack, Text, HStack, Stack, Image, useInterval, useDisclosure, Link } from "@chakra-ui/react"
 import { redeemSDola, stakeDola, unstakeDola, useDolaStakingEarnings, useStakedDola } from "@app/util/dola-staking"
 import { useWeb3React } from "@web3-react/core";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
@@ -21,6 +21,7 @@ import { useDbrAuctionActivity } from "@app/util/dbr-auction";
 import { StakeDolaInfos } from "./StakeDolaInfos";
 import { useDOLAPrice } from "@app/hooks/usePrices";
 import EnsoZap from "../ThirdParties/enso/EnsoZap";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -54,7 +55,7 @@ export const StakeDolaUI = ({ useDolaAsMain, topStable }: { useDolaAsMain: boole
 
     const { priceUsd: dbrPrice } = useDBRPrice();
     const { price: dolaPrice } = useDOLAPrice();
-    const { apy, apy30d, projectedApy, isLoading, sDolaExRate, sDolaTotalAssets, weeklyRevenue, isLoading: isLoadingStakedDola, spectraApy } = useStakedDola(dbrPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
+    const { apy, apy30d, projectedApy, isLoading, sDolaExRate, sDolaTotalAssets, weeklyRevenue, isLoading: isLoadingStakedDola, spectraApy, spectraLink } = useStakedDola(dbrPrice, !dolaAmount || isNaN(parseFloat(dolaAmount)) ? 0 : isStake ? parseFloat(dolaAmount) : -parseFloat(dolaAmount));
     const { balance: dolaBalance } = useDOLABalance(account);
     // value in sDOLA terms
     const { stakedDolaBalance, stakedDolaBalanceBn } = useDolaStakingEarnings(account);
@@ -305,11 +306,14 @@ export const StakeDolaUI = ({ useDolaAsMain, topStable }: { useDolaAsMain: boole
             </Container>
         </Stack>
         {
-            spectraApy > 0 && <InfoMessage alertProps={{ w: 'full' }} description={
-                <VStack>
+            spectraApy > 0 && !!spectraLink && <InfoMessage alertProps={{ w: 'full' }} description={
+                <VStack spacing="0" alignItems='flex-start'>
                     <Text>
-                        The fixed APY on Spectra is: {`${shortenNumber(spectraApy, 2)}%`}
+                        The fixed APY for sDOLA on Spectra is: {`${shortenNumber(spectraApy, 2)}%`}
                     </Text>
+                    <Link textDecoration="underline" href={spectraLink} target="_blank" isExternal>
+                        Go to Spectra's sDOLA pool <ExternalLinkIcon display="inline-block" ml="1" />
+                    </Link>
                 </VStack>
             } />
         }
