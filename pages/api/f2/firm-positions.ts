@@ -26,30 +26,32 @@ export const getFirmMarketUsers = async (provider) => {
   let { latestBlockNumber, marketUsersAndEscrows } = uniqueUsersCacheData;
   const afterLastBlock = latestBlockNumber !== undefined ? latestBlockNumber + 1 : undefined;
 
-  const escrowCreations = await Promise.all(
-    F2_MARKETS.map(m => {
-      const market = new Contract(m.address, F2_MARKET_ABI, provider);
-      return market.queryFilter(market.filters.CreateEscrow(), afterLastBlock);
-    })
-  );
+  // TEMP: TODO: handle new alchemy block range limitation
+  const escrowCreations = [];
+  // const escrowCreations = await Promise.all(
+  //   F2_MARKETS.map(m => {
+  //     const market = new Contract(m.address, F2_MARKET_ABI, provider);
+  //     return market.queryFilter(market.filters.CreateEscrow(), afterLastBlock);
+  //   })
+  // );
 
-  escrowCreations.forEach((marketEscrows, marketIndex) => {
-    const market = F2_MARKETS[marketIndex];
-    if (!marketUsersAndEscrows[market.address]) {
-      marketUsersAndEscrows[market.address] = { users: [], escrows: [] };
-    }
-    marketEscrows.forEach(escrowCreationEvent => {
-      if (!marketUsersAndEscrows[market.address].users.includes(escrowCreationEvent.args[0])) {
-        marketUsersAndEscrows[market.address].users.push(escrowCreationEvent.args[0]);
-        marketUsersAndEscrows[market.address].escrows.push(escrowCreationEvent.args[1]);
-      }
-      if (escrowCreationEvent.blockNumber > latestBlockNumber) {
-        latestBlockNumber = escrowCreationEvent.blockNumber;
-      }
-    });
-  });
+  // escrowCreations.forEach((marketEscrows, marketIndex) => {
+  //   const market = F2_MARKETS[marketIndex];
+  //   if (!marketUsersAndEscrows[market.address]) {
+  //     marketUsersAndEscrows[market.address] = { users: [], escrows: [] };
+  //   }
+  //   marketEscrows.forEach(escrowCreationEvent => {
+  //     if (!marketUsersAndEscrows[market.address].users.includes(escrowCreationEvent.args[0])) {
+  //       marketUsersAndEscrows[market.address].users.push(escrowCreationEvent.args[0]);
+  //       marketUsersAndEscrows[market.address].escrows.push(escrowCreationEvent.args[1]);
+  //     }
+  //     if (escrowCreationEvent.blockNumber > latestBlockNumber) {
+  //       latestBlockNumber = escrowCreationEvent.blockNumber;
+  //     }
+  //   });
+  // });
 
-  await redisSetWithTimestamp(F2_UNIQUE_USERS_CACHE_KEY, { latestBlockNumber: latestBlockNumber, marketUsersAndEscrows });
+  // await redisSetWithTimestamp(F2_UNIQUE_USERS_CACHE_KEY, { latestBlockNumber: latestBlockNumber, marketUsersAndEscrows });
 
   const usedMarkets = Object.keys(marketUsersAndEscrows);
 
