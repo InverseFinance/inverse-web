@@ -2,7 +2,7 @@
 import 'source-map-support'
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { getFirmMarketUsers } from './firm-positions';
-import { getProvider } from '@app/util/providers';
+import { getPaidProvider, getProvider } from '@app/util/providers';
 import { CHAIN_ID } from '@app/config/constants';
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { Contract } from 'ethers';
@@ -14,7 +14,7 @@ import { getMulticallOutput } from '@app/util/multicall';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
-export const firmTvlCacheKey = 'f2-tvl-v1.0.3'
+export const firmTvlCacheKey = 'f2-tvl-v1.0.4'
 
 export default async function handler(req, res) {
     const { cacheFirst } = req.query;
@@ -28,7 +28,9 @@ export default async function handler(req, res) {
         }
 
         const provider = getProvider(CHAIN_ID);
-        const { firmMarketUsers, marketUsersAndEscrows } = await getFirmMarketUsers(provider);
+        const paidProvider = getPaidProvider(1);
+
+        const { firmMarketUsers, marketUsersAndEscrows } = await getFirmMarketUsers(paidProvider);
 
         // trigger
         fetch('https://inverse.finance/api/f2/fixed-markets');
