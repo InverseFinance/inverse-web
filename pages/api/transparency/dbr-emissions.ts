@@ -2,7 +2,7 @@ import { Contract } from 'ethers'
 import 'source-map-support'
 import { DBR_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { getProvider } from '@app/util/providers';
+import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { BURN_ADDRESS, CHAIN_ID, DBR_AUCTION_ADDRESS, DOLA_SAVINGS_ADDRESS, SDOLA_ADDRESS } from '@app/config/constants';
@@ -17,7 +17,7 @@ export default async function handler(req, res) {
     const { cacheFirst } = req.query;
 
     try {        
-        res.setHeader('Cache-Control', `public, max-age=${60}`);
+        res.setHeader('Cache-Control', `public, max-age=${120}`);
         const [emissionsCacheRes, ratesCache] = await Promise.all([
             getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', 600, true),
             getCacheFromRedis(dbrRewardRatesCacheKey, false),
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
             return
         }
 
-        const provider = getProvider(CHAIN_ID);
+        const provider = getPaidProvider(1);
         const contract = new Contract(DBR, DBR_ABI, provider);
                 
         const pastTotalEvents = (cachedData?.totalEmissions || []);

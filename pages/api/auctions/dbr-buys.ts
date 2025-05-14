@@ -17,7 +17,7 @@ const DBR_AUCTION_BUYS_CACHE_KEY = 'dbr-auction-buys-v1.1.0'
 
 export default async function handler(req, res) {
     try {
-        const cacheDuration = 60;
+        const cacheDuration = 300;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
         const { data: cachedData, isValid } = await getCacheFromRedisAsObj(DBR_AUCTION_BUYS_CACHE_KEY, true, cacheDuration, true);
         if (!!cachedData && isValid) {

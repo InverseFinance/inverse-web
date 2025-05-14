@@ -1,6 +1,6 @@
 
 import 'source-map-support'
-import { getProvider } from '@app/util/providers';
+import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { addBlockTimestamps } from '@app/util/timestamps';
 import { NetworkIds } from '@app/types';
@@ -12,7 +12,7 @@ const INV_STAKING_CACHE_KEY = 'inv-staking-activity-v1.0.2'
 
 export default async function handler(req, res) {
     try {
-        const cacheDuration = 60;
+        const cacheDuration = 120;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
         const { data: cachedData, isValid } = await getCacheFromRedisAsObj(INV_STAKING_CACHE_KEY, true, cacheDuration);
         if (!!cachedData && isValid) {
@@ -20,7 +20,7 @@ export default async function handler(req, res) {
             return
         }
 
-        const provider = getProvider(CHAIN_ID);
+        const provider = getPaidProvider(1);
         const sinvContract = getSInvContract(provider);
         const sinvContractV1 = getSInvContract(provider, SINV_ADDRESS_V1);
 

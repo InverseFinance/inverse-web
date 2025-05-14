@@ -2,7 +2,7 @@ import { Contract } from 'ethers'
 import 'source-map-support'
 import { DBR_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { getProvider } from '@app/util/providers';
+import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { CHAIN_ID } from '@app/config/constants';
@@ -36,7 +36,7 @@ export default async function handler(req, res) {
     }
 
     // not using fallbackprovider because it's not working with call & blockNumber
-    const provider = getProvider(CHAIN_ID, '', true);
+    const provider = getPaidProvider(1);
     const dbrContract = new Contract(DBR, DBR_ABI, provider);
 
     const transferEvents = await dbrContract.queryFilter(dbrContract.filters.Transfer(undefined, account));

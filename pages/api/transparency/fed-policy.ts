@@ -1,7 +1,7 @@
 import { Contract, Event } from 'ethers'
 import 'source-map-support'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { getProvider } from '@app/util/providers';
+import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { Fed, FedEvent, NetworkIds } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
@@ -10,7 +10,7 @@ import { addBlockTimestamps, getCachedBlockTimestamps } from '@app/util/timestam
 import { ONE_DAY_MS } from '@app/config/constants';
 
 const getEvents = (fedAd: string, abi: string[], chainId: NetworkIds, startBlock = 0x0) => {
-  const provider = getProvider(chainId);
+  const provider = chainId?.toString() === '1' ? getPaidProvider(1) : getProvider(chainId);
   const contract = new Contract(fedAd, abi, provider);
   return Promise.all([
     contract.queryFilter(contract.filters.Contraction(), startBlock),
@@ -45,7 +45,7 @@ export default async function handler(req, res) {
   const cacheKey = `fed-policy-cache-v1.2.1`;
 
   try {
-    const cacheDuration = 60;
+    const cacheDuration = 120;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
 
