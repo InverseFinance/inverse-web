@@ -34,7 +34,7 @@ type AnchorModalProps = ModalProps & {
 
 const LP_POOL_LINKS: { [key: string]: { name: string, url: string } } = {
   'INV-DOLA-SLP': { name: 'Sushi', url: 'https://app.sushi.com/add/0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68/0x865377367054516e17014CcdED1e7d814EDC9ce4' },
-  'DOLA-3POOL': { name: 'Curve', url: 'https://curve.fi/factory/27/deposit' },
+  'DOLA-3POOL': { name: 'Curve', url: 'https://curve.finance/factory/27/deposit' },
 }
 
 export const AnchorModal = ({

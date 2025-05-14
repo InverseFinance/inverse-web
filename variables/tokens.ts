@@ -576,7 +576,7 @@ const chainTokens = {
         chainTokenAddresses["1"].DBR, chainTokenAddresses["1"].DOLA
       ],
       protocolImage: PROTOCOL_IMAGES.CRV,
-      link: 'https://curve.fi/#/ethereum/pools/factory-crypto-233/deposit',
+      link: 'https://curve.finance/#/ethereum/pools/factory-crypto-233/deposit',
     },
     [chainTokenAddresses["1"].ALUSD]: {
       address: chainTokenAddresses["1"].ALUSD,
@@ -598,7 +598,7 @@ const chainTokens = {
         chainTokenAddresses["1"].SDOLA, chainTokenAddresses["1"].ALUSD
       ],
       protocolImage: PROTOCOL_IMAGES.CRV,
-      link: 'https://curve.fi/#/ethereum/pools/factory-stable-ng-320/deposit',
+      link: 'https://curve.finance/#/ethereum/pools/factory-stable-ng-320/deposit',
     },
     [chainTokenAddresses["1"].INVDOLAAURA]: {
       address: chainTokenAddresses["1"].INVDOLAAURA,
@@ -707,7 +707,7 @@ const chainTokens = {
         chainTokenAddresses["1"].RGUSD, chainTokenAddresses["1"].DOLA
       ],
       image: TOKEN_IMAGES.DOLA,
-      link: 'https://curve.fi/#/ethereum/pools/factory-stable-ng-126/deposit',
+      link: 'https://curve.finance/#/ethereum/pools/factory-stable-ng-126/deposit',
     },
     [chainTokenAddresses["1"].DOLAUSRCRVLP]: {
       address: chainTokenAddresses["1"].DOLAUSRCRVLP,
@@ -722,7 +722,7 @@ const chainTokens = {
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].USR
       ],
       image: TOKEN_IMAGES.DOLA,
-      link: 'https://curve.fi/dex/#/ethereum/pools/factory-stable-ng-337/deposit',
+      link: 'https://curve.finance/dex/#/ethereum/pools/factory-stable-ng-337/deposit',
     },
     [chainTokenAddresses["1"].YVDOLAUSRCRVLP]: {
       address: chainTokenAddresses["1"].YVDOLAUSRCRVLP,
@@ -753,7 +753,7 @@ const chainTokens = {
         chainTokenAddresses["1"].YUSD, chainTokenAddresses["1"].SDOLA
       ],
       image: TOKEN_IMAGES.DOLA,
-      link: 'https://curve.fi/dex/#/ethereum/pools/factory-stable-ng-361/deposit',
+      link: 'https://curve.finance/dex/#/ethereum/pools/factory-stable-ng-361/deposit',
     },
     [chainTokenAddresses["1"].DOLAdeUSDCRVLP]: {
       address: chainTokenAddresses["1"].DOLAdeUSDCRVLP,
@@ -768,7 +768,7 @@ const chainTokens = {
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].deUSD
       ],
       image: TOKEN_IMAGES.DOLA,
-      link: 'https://curve.fi/dex/#/ethereum/pools/factory-stable-ng-350/deposit',
+      link: 'https://curve.finance/dex/#/ethereum/pools/factory-stable-ng-350/deposit',
     },
     [chainTokenAddresses["1"].YVDOLAdeUSDCRVLP]: {
       address: chainTokenAddresses["1"].YVDOLAdeUSDCRVLP,
@@ -799,7 +799,7 @@ const chainTokens = {
         chainTokenAddresses["1"].reUSD, chainTokenAddresses["1"].SDOLA
       ],
       image: TOKEN_IMAGES.DOLA,
-      link: 'https://curve.fi/dex/ethereum/pools/factory-stable-ng-413/deposit/',
+      link: 'https://curve.finance/dex/ethereum/pools/factory-stable-ng-413/deposit/',
     },
     [chainTokenAddresses["1"].DOLASdeUSDCRVLP]: {
       address: chainTokenAddresses["1"].DOLASdeUSDCRVLP,
@@ -814,7 +814,7 @@ const chainTokens = {
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].sdeUSD
       ],
       image: TOKEN_IMAGES.DOLA,
-      link: 'https://curve.fi/dex/#/ethereum/pools/factory-stable-ng-351/deposit',
+      link: 'https://curve.finance/dex/#/ethereum/pools/factory-stable-ng-351/deposit',
     },
     [chainTokenAddresses["1"].INVDOLALIQUIS]: {
       address: chainTokenAddresses["1"].INVDOLALIQUIS,
@@ -897,7 +897,7 @@ const chainTokens = {
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].THREECRV
       ],      
       image: TOKEN_IMAGES.DOLA,
-      link: 'https://curve.fi/#/ethereum/pools/factory-v2-27/deposit',
+      link: 'https://curve.finance/#/ethereum/pools/factory-v2-27/deposit',
     },
     [chainTokenAddresses["1"].DOLAFRAXUSDC]: {
       address: chainTokenAddresses["1"].DOLAFRAXUSDC,
@@ -914,7 +914,7 @@ const chainTokens = {
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].FRAXUSDC
       ],
       image: TOKEN_IMAGES.DOLA,
-      link: 'https://curve.fi/#/ethereum/pools/factory-v2-176/deposit',
+      link: 'https://curve.finance/#/ethereum/pools/factory-v2-176/deposit',
       deduce: [chainTokenAddresses["1"].DOLAFRAXUSDCCVX, chainTokenAddresses["1"].YVDOLAFRAXBP],
     },
     [chainTokenAddresses["1"].DOLAFRAXUSDCCVX]: {
@@ -944,7 +944,7 @@ const chainTokens = {
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].FRAXPYUSD
       ],
       image: TOKEN_IMAGES.DOLA,
-      link: 'https://curve.fi/#/ethereum/pools/factory-stable-ng-96/deposit',
+      link: 'https://curve.finance/#/ethereum/pools/factory-stable-ng-96/deposit',
       deduce: [chainTokenAddresses["1"].DOLAFRAXPYUSDCVX, chainTokenAddresses["1"].YVDOLAFRAXPYUSD],
     },    
     [chainTokenAddresses["1"].DOLAFRAXPYUSDCVX]: {
@@ -1430,7 +1430,7 @@ const chainTokens = {
         '0x865377367054516e17014CcdED1e7d814EDC9ce4', '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E'
       ],
       image: TOKEN_IMAGES.DOLA,
-      link: 'https://curve.fi/#/ethereum/pools/factory-crvusd-12/deposit',
+      link: 'https://curve.finance/#/ethereum/pools/factory-crvusd-12/deposit',
     },
     [chainTokenAddresses["1"].DOLASCRVUSDCLP]: {
       address: chainTokenAddresses["1"].DOLASCRVUSDCLP,
@@ -1445,7 +1445,7 @@ const chainTokens = {
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].SCRVUSD
       ],
       image: TOKEN_IMAGES.DOLA,
-      link: 'https://curve.fi/#/ethereum/pools/factory-stable-ng-300/deposit',
+      link: 'https://curve.finance/#/ethereum/pools/factory-stable-ng-300/deposit',
     },
     [chainTokenAddresses["1"].YVDOLASCRVUSDCLP]: {
       address: chainTokenAddresses["1"].YVDOLASCRVUSDCLP,
@@ -1492,7 +1492,7 @@ const chainTokens = {
         chainTokenAddresses["1"].SCRVUSD, chainTokenAddresses["1"].SDOLA
       ],
       image: TOKEN_IMAGES.DOLA,
-      link: 'https://curve.fi/#/ethereum/pools/factory-stable-ng-297/deposit',
+      link: 'https://curve.finance/#/ethereum/pools/factory-stable-ng-297/deposit',
     },
     [chainTokenAddresses["1"].DOLASUSDECLP]: {
       address: chainTokenAddresses["1"].DOLASUSDECLP,
@@ -1507,7 +1507,7 @@ const chainTokens = {
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].sUSDE
       ],
       image: TOKEN_IMAGES.DOLA,
-      link: 'https://curve.fi/#/ethereum/pools/factory-stable-ng-298/deposit',
+      link: 'https://curve.finance/#/ethereum/pools/factory-stable-ng-298/deposit',
     },
     [chainTokenAddresses["1"].YVDOLASUSDECLP]: {
       address: chainTokenAddresses["1"].YVDOLASUSDECLP,
@@ -1538,7 +1538,7 @@ const chainTokens = {
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].SUSDS
       ],
       image: TOKEN_IMAGES.DOLA,
-      link: 'https://curve.fi/#/ethereum/pools/factory-stable-ng-299/deposit',
+      link: 'https://curve.finance/#/ethereum/pools/factory-stable-ng-299/deposit',
     },
     [chainTokenAddresses["1"].YVDOLASUSDSCLP]: {
       address: chainTokenAddresses["1"].YVDOLASUSDSCLP,
@@ -1779,7 +1779,7 @@ const chainTokens = {
         chainTokenAddresses["1"].USDC, chainTokenAddresses["1"].WETH, chainTokenAddresses["1"].INV
       ],
       protocolImage: PROTOCOL_IMAGES.CRV,
-      link: 'https://curve.fi/#/ethereum/pools/factory-tricrypto-3/deposit',
+      link: 'https://curve.finance/#/ethereum/pools/factory-tricrypto-3/deposit',
       deduce: [chainTokenAddresses["1"].INVTRICRYPTOCVX, chainTokenAddresses["1"].INVTRICRYPTOYEARNV2],
     },
     [chainTokenAddresses["1"].INVTRICRYPTOYEARNV2]: {
@@ -1824,7 +1824,7 @@ const chainTokens = {
         chainTokenAddresses["1"].DOLA, chainTokenAddresses["1"].DBR, chainTokenAddresses["1"].INV
       ],
       protocolImage: PROTOCOL_IMAGES.CRV,
-      link: 'https://curve.fi/#/ethereum/pools/factory-tricrypto-18/deposit',
+      link: 'https://curve.finance/#/ethereum/pools/factory-tricrypto-18/deposit',
       deduce: [chainTokenAddresses["1"].DBRTRICRYPTOCVX],  
     },
     [chainTokenAddresses["1"].DBRTRICRYPTOCVX]: {
@@ -3303,7 +3303,7 @@ export const BONDS = [
     ctoken: '0xc528b0571D0BE4153AEb8DdB8cCeEE63C3Dd7760',
     underlying: getToken(TOKENS, chainTokenAddresses["1"].DOLA3POOLCRV)!,
     bondContract: '0x8E57A30A3616f65e7d14c264943e77e084Fddd25',
-    howToGetLink: 'https://curve.fi/factory/27/deposit',
+    howToGetLink: 'https://curve.finance/factory/27/deposit',
     disabled: true,
   },
   {
@@ -3339,7 +3339,7 @@ export const PROTOCOL_LINKS = {
   "VELOV2": (lp: Token) => `https://app.velodrome.finance/deposit?token0=${lp.pairs[0].toLowerCase()}&token1=${lp.pairs[1].toLowerCase()}&stable=true`,
   "THENA": (lp: Token) => 'https://thena.fi/liquidity',
   "AURA": (lp: Token) => 'https://app.aura.finance',
-  "CRV": (lp: Token) => lp?.link || 'https://curve.fi/#/ethereum/pools',    
+  "CRV": (lp: Token) => lp?.link || 'https://curve.finance/#/ethereum/pools',    
   "CVX": (lp: Token) => 'https://www.convexfinance.com/stake',
   "SUSHI": (lp: Token) => `https://www.sushi.com/earn/1:${lp?.address?.toLowerCase()}`,
   "UNI": (lp: Token) => `https://v2.info.uniswap.org/pair/${lp?.address?.toLowerCase()}`,
