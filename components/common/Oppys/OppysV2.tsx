@@ -26,7 +26,7 @@ const poolLinks = {
     '8cd47cd4-7824-4a8d-aebd-d703d86beae2': 'https://velodrome.finance/liquidity/manage?address=0x43ce87a1ad20277b78cae52c7bcd5fc82a297551',
     '17f0492d-6279-46b4-a637-40e542130954': 'https://velodrome.finance/liquidity/manage?address=0x6c5019d345ec05004a7e7b0623a91a0d9b8d590d',
     '2cb9f208-36e7-4505-be1c-9010c5d65317': 'https://ftm.curve.fi/factory/14/deposit',
-    'a6aee229-3a38-47a1-a664-d142a4184ec9': 'https://curve.fi/factory/27/deposit',
+    'a6aee229-3a38-47a1-a664-d142a4184ec9': 'https://curve.finance/factory/27/deposit',
     '0x73e02eaab68a41ea63bdae9dbd4b7678827b2352': 'https://v2.info.uniswap.org/pair/0x73e02eaab68a41ea63bdae9dbd4b7678827b2352',
 }
 
