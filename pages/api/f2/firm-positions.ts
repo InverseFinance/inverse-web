@@ -27,10 +27,6 @@ export const getFirmMarketUsers = async (provider) => {
   let { latestBlockNumber, marketUsersAndEscrows } = uniqueUsersCacheData;
   let afterLastBlock = latestBlockNumber !== undefined ? latestBlockNumber + 1 : undefined;
 
-  if(currentBlock - afterLastBlock > 20_000) {
-    afterLastBlock = currentBlock - 20_000;
-  }
-
   const escrowCreations = await Promise.all(
     F2_MARKETS.map(m => {
       const market = new Contract(m.address, F2_MARKET_ABI, provider);
@@ -54,7 +50,7 @@ export const getFirmMarketUsers = async (provider) => {
     });
   });
 
-  await redisSetWithTimestamp(F2_UNIQUE_USERS_CACHE_KEY, { latestBlockNumber: latestBlockNumber, marketUsersAndEscrows });
+  await redisSetWithTimestamp(F2_UNIQUE_USERS_CACHE_KEY, { latestBlockNumber: currentBlock, marketUsersAndEscrows });
 
   const usedMarkets = Object.keys(marketUsersAndEscrows);
 
