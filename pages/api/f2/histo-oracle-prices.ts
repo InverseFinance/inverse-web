@@ -2,7 +2,7 @@ import { BigNumber, Contract } from 'ethers'
 import 'source-map-support'
 import { F2_MARKET_ABI, F2_ORACLE_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { getProvider } from '@app/util/providers';
+import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { BLOCKS_PER_DAY, CHAIN_ID } from '@app/config/constants';
@@ -35,7 +35,8 @@ export default async function handler(req, res) {
     }
 
     // not using fallbackprovider because it's not working with call & blockNumber
-    const provider = getProvider(CHAIN_ID, '', true);    
+    const provider = getProvider(CHAIN_ID, '', true);   
+    const paidProvider = getPaidProvider(1);
     _market.underlying = TOKENS[_market.collateral];
 
     if (!_market) {
@@ -44,7 +45,7 @@ export default async function handler(req, res) {
     }
 
     const currentBlock = await provider.getBlockNumber();
-    const marketContract = new Contract(_market.address, F2_MARKET_ABI, provider);
+    const marketContract = new Contract(_market.address, F2_MARKET_ABI, paidProvider);
 
     const archived = validCache || { blocks: [], timestamps: [], oraclePrices: [], collateralFactors: [] };
     const lastArchivedBlock = archived.blocks.length > 0 ? archived.blocks[archived.blocks.length - 1] : (_market.oracleStartingBlock || _market.startingBlock) - 1;

@@ -1,6 +1,6 @@
 
 import 'source-map-support'
-import { getProvider } from '@app/util/providers';
+import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { getDbrAuctionContract } from '@app/util/dbr-auction';
@@ -17,7 +17,7 @@ const DBR_AUCTION_BUYS_CACHE_KEY = 'dbr-auction-buys-v1.1.0'
 
 export default async function handler(req, res) {
     try {
-        const cacheDuration = 60;
+        const cacheDuration = 300;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
         const { data: cachedData, isValid } = await getCacheFromRedisAsObj(DBR_AUCTION_BUYS_CACHE_KEY, true, cacheDuration, true);
         if (!!cachedData && isValid) {
@@ -26,10 +26,12 @@ export default async function handler(req, res) {
         }
 
         const provider = getProvider(NetworkIds.mainnet);
-        const dbrAuctionContract = getDbrAuctionContract(provider);
-        const sdolaContract = getSdolaContract(provider);
-        const sinvContract = getSInvContract(provider);
-        const sinvContractV1 = getSInvContract(provider, SINV_ADDRESS_V1);
+        const paidProvider = getPaidProvider(1);
+
+        const dbrAuctionContract = getDbrAuctionContract(paidProvider);
+        const sdolaContract = getSdolaContract(paidProvider);
+        const sinvContract = getSInvContract(paidProvider);
+        const sinvContractV1 = getSInvContract(paidProvider, SINV_ADDRESS_V1);
 
         const archived = cachedData || { buys: [] };
         const pastTotalEvents = archived?.buys || [];

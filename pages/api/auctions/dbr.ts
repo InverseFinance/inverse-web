@@ -1,5 +1,5 @@
 import 'source-map-support'
-import { getProvider } from '@app/util/providers';
+import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { CHAIN_ID } from '@app/config/constants';
@@ -10,7 +10,7 @@ import { NetworkIds } from '@app/types';
 
 export default async function handler(req, res) {
     const cacheKey = `dbr-auction-v1.0.1`;
-    const cacheDuration = 60;
+    const cacheDuration = 300;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     try {
         const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
@@ -19,8 +19,10 @@ export default async function handler(req, res) {
           return
         }
 
-        const provider = getProvider(CHAIN_ID);        
+        const provider = getProvider(CHAIN_ID);      
+        const paidProvider = getPaidProvider(1);
         const auctionContract = getDbrAuctionContract(provider);
+        const auctionContractInfura = getDbrAuctionContract(paidProvider);
 
         const auctionData = await getMulticallOutput([
             { contract: auctionContract, functionName: 'getCurrentReserves' },
@@ -28,7 +30,7 @@ export default async function handler(req, res) {
             { contract: auctionContract, functionName: 'maxDbrRatePerYear' },
         ]);
 
-        const rateUpdates = await auctionContract.queryFilter(auctionContract.filters.RateUpdate(), 0);
+        const rateUpdates = await auctionContractInfura.queryFilter(auctionContractInfura.filters.RateUpdate(), 0);
         const rateUpdatesTs = await addBlockTimestamps(rateUpdates.map(e => e.blockNumber), NetworkIds.mainnet);        
 
         const dolaReserve = getBnToNumber(auctionData[0][0]);

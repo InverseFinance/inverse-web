@@ -2,7 +2,7 @@ import { Contract } from 'ethers'
 import 'source-map-support'
 import { DBR_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { getProvider } from '@app/util/providers';
+import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { BURN_ADDRESS, CHAIN_ID, SDOLA_ADDRESS } from '@app/config/constants';
@@ -80,10 +80,12 @@ export default async function handler(req, res) {
             return
         }
 
-        const provider = getProvider(CHAIN_ID);
-        const contract = new Contract(DBR, DBR_ABI, provider);
-        const dsaContract = getDolaSavingsContract(provider);
-        const dbrAuctionContract = getDbrAuctionContract(provider);
+        const paidProvider = getPaidProvider(1);
+        
+        const contract = new Contract(DBR, DBR_ABI, paidProvider);
+
+        const dsaContract = getDolaSavingsContract(paidProvider);
+        const dbrAuctionContract = getDbrAuctionContract(paidProvider);
 
         const cachedData = _cachedData || DBR_EMISSIONS_GROUPED_ARCHIVE;
         // const cachedData = _cachedData || DBR_EMISSIONS_ARCHIVE;
@@ -94,7 +96,7 @@ export default async function handler(req, res) {
         const newStartingBlock = lastKnownEvent ? lastKnownEvent?.blockNumber + 1 : 0;
         const now = Date.now();
 
-        const currentBlock = await provider.getBlockNumber();
+        const currentBlock = await paidProvider.getBlockNumber();
 
         const [
             newMintEvents,

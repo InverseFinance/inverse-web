@@ -2,7 +2,7 @@ import { Contract } from 'ethers'
 import 'source-map-support'
 import { DBR_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { getProvider } from '@app/util/providers';
+import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { CHAIN_ID } from '@app/config/constants';
@@ -21,7 +21,7 @@ export default async function handler(req, res) {
   }
   const cacheKey = account ? `account-replenishments-${account}` : lastDBRReplenishmentsCacheKey;  
   try {
-    const cacheDuration = 60;
+    const cacheDuration = 120;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
 
     const { isValid, data: cachedData } = await getCacheFromRedisAsObj(cacheKey, true, cacheDuration, false);
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
       return
     }
 
-    const provider = getProvider(CHAIN_ID);
+    const provider = getPaidProvider(1);
 
     const dbrContract = new Contract(DBR, DBR_ABI, provider);
     const lastBlock = cachedData?.events?.length ? cachedData?.events[cachedData.events.length-1].blockNumber : undefined;

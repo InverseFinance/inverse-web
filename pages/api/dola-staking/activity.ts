@@ -1,6 +1,6 @@
 
 import 'source-map-support'
-import { getProvider } from '@app/util/providers';
+import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { addBlockTimestamps } from '@app/util/timestamps';
 import { NetworkIds } from '@app/types';
@@ -12,7 +12,7 @@ const DOLA_STAKING_CACHE_KEY = 'dola-staking-v1.1.0'
 
 export default async function handler(req, res) {
     try {
-        const cacheDuration = 60;
+        const cacheDuration = 300;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
         const { data: cachedData, isValid } = await getCacheFromRedisAsObj(DOLA_STAKING_CACHE_KEY, true, cacheDuration, true);
         if (!!cachedData && isValid) {
@@ -20,9 +20,9 @@ export default async function handler(req, res) {
             return
         }
 
-        const provider = getProvider(CHAIN_ID);
-        const sdolaContract = getSdolaContract(provider);
-        const dsaContract = getDolaSavingsContract(provider);
+        const paidProvider = getPaidProvider(1);
+        const sdolaContract = getSdolaContract(paidProvider);
+        const dsaContract = getDolaSavingsContract(paidProvider);
 
         const archived = cachedData || { events: [] };
         const pastTotalEvents = archived?.events || [];

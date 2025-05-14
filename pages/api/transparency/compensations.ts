@@ -2,7 +2,7 @@ import { BigNumber, Contract } from 'ethers'
 import 'source-map-support'
 import { DOLA_PAYROLL_ABI, F2_ESCROW_ABI, F2_MARKET_ABI, INV_ABI, VESTER_ABI, VESTER_FACTORY_ABI, XINV_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { getProvider } from '@app/util/providers';
+import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { NetworkIds, Vester } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
@@ -24,15 +24,18 @@ export default async function handler(req, res) {
     }
 
     const provider = getProvider(NetworkIds.mainnet);
+    const paidProvider = getPaidProvider(1);
     const invContract = new Contract(INV, INV_ABI, provider);
     const xinvContract = new Contract(XINV, XINV_ABI, provider);
     const invFirmContract = new Contract(F2_MARKETS.find(m => m.isInv).address, F2_MARKET_ABI, provider);
 
     // payrolls
     const payrollContract = new Contract(DOLA_PAYROLL, DOLA_PAYROLL_ABI, provider);
+    const payrollContractLogs = new Contract(DOLA_PAYROLL, DOLA_PAYROLL_ABI, paidProvider);
+
     const [newPayrolls, removedPayrolls] = await Promise.all([
-      payrollContract.queryFilter(payrollContract.filters.NewRecipient()),
-      payrollContract.queryFilter(payrollContract.filters.RecipientRemoved()),
+      payrollContractLogs.queryFilter(payrollContractLogs.filters.NewRecipient()),
+      payrollContractLogs.queryFilter(payrollContractLogs.filters.RecipientRemoved()),
     ]);
 
     const payrollEvents = newPayrolls.concat(removedPayrolls)

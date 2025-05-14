@@ -2,7 +2,7 @@ import { Contract } from 'ethers'
 import 'source-map-support'
 import { DBR_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { getProvider } from '@app/util/providers';
+import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { BURN_ADDRESS, CHAIN_ID } from '@app/config/constants';
@@ -24,7 +24,7 @@ export default async function handler(req, res) {
             return
         }
 
-        const provider = getProvider(CHAIN_ID);
+        const provider = getPaidProvider(1);
         const contract = new Contract(DBR, DBR_ABI, provider);
 
         const archived = await getCacheFromRedis(cacheKey, false, 0, true);

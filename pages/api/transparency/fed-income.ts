@@ -8,7 +8,7 @@ import { parseUnits } from '@ethersproject/units';
 import { pricesCacheKey } from '../prices';
 import { throttledPromises } from '@app/util/misc';
 import { Contract } from 'ethers';
-import { getProvider } from '@app/util/providers';
+import { getPaidProvider, getProvider } from '@app/util/providers';
 import { addBlockTimestamps } from '@app/util/timestamps';
 import { DOLA_ABI } from '@app/config/abis';
 import { ONE_DAY_MS } from '@app/config/constants';
@@ -49,7 +49,7 @@ const deduceBridgeFees = (value: number, chainId: string) => {
 // For cross-chain feds, also take into account DOLA transfers happening on mainnet from Fed mainnet address to Treasury
 const getXchainMainnetProfits = async (FEDS: Fed[], DOLA: string, TREASURY: string, cachedTotalEvents?: any) => {
     const xchainFeds = FEDS.filter(fed => !fed.hasEnded && !!fed.incomeChainId && fed.incomeChainId !== NetworkIds.mainnet);
-    const dolaContract = new Contract(DOLA, DOLA_ABI, getProvider(NetworkIds.mainnet, undefined, true));
+    const dolaContract = new Contract(DOLA, DOLA_ABI, getPaidProvider(1));
     const transfersToTreasury = await Promise.all(
         xchainFeds.map((fed) => {
             const lastMainnetTransferEvents = cachedTotalEvents.filter(event => event.isMainnetTxForXchainFed && event.fedAddress === fed.address);

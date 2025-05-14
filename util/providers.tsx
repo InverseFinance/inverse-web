@@ -52,7 +52,7 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
 
 export const getPaidProvider = (chainId: string | number) => {
     if(chainId?.toString() === NetworkIds.mainnet) {
-        return new InfuraProvider(1, process.env.INFURA_KEY);
+        return new InfuraProvider(1, getRandomFromStringList(process.env.INFURA_KEYS!));
         // return new JsonRpcProvider(`https://lb.drpc.org/ogrpc?network=ethereum&dkey=${process.env.DRPC_KEY}`);
     }
     return getProvider(chainId);

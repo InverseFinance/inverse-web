@@ -4,7 +4,7 @@ import { Contract } from "ethers";
 import { GOVERNANCE_ABI, INV_ABI } from "@app/config/abis";
 import { formatUnits } from "ethers/lib/utils";
 import { getNetworkConfigConstants } from '@app/util/networks';
-import { getProvider } from '@app/util/providers';
+import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getRedisClient } from '@app/util/redis';
 import { Delegate } from '@app/types';
 
@@ -25,7 +25,8 @@ export default async function handler(req, res) {
       const { XINV, INV, GOVERNANCE, GOVERNANCE_ALPHA: GOV_ALPHA } = getNetworkConfigConstants(chainId);
       
       // use specific AlchemyApiKey for the cron
-      const provider = getProvider(chainId, process.env.ALCHEMY_CRON, true);
+      // const provider = getProvider(chainId, process.env.ALCHEMY_CRON, true);
+      const provider = getPaidProvider(1);
       
       const inv = new Contract(INV, INV_ABI, provider);
 
