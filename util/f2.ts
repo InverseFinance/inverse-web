@@ -440,7 +440,7 @@ export const getDolaUsdPriceOnCurve = async (SignerOrProvider: JsonRpcSigner | W
     try {
         const dolaFeedContract = new Contract(DOLA_FEED, ['function latestAnswer() public view returns(int256)'], SignerOrProvider);
         const crvPool = new Contract(
-            '0x8272e1a3dbef607c04aa6e5bd3a1a134c8ac063b',
+            '0x8b83c4aA949254895507D09365229BC3a8c7f710',
             [
                 'function price_oracle() public view returns(uint)',
                 'function totalSupply() public view returns(uint)',

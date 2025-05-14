@@ -2,13 +2,13 @@
 import 'source-map-support'
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { getFirmMarketUsers } from './firm-positions';
-import { getProvider } from '@app/util/providers';
+import { getPaidProvider, getProvider } from '@app/util/providers';
 import { CHAIN_ID } from '@app/config/constants';
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { Contract } from 'ethers';
 import { getBnToNumber } from '@app/util/markets';
 import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
-import { F2_ESCROW_ABI } from '@app/config/abis';
+import { F2_ESCROW_ABI, F2_MARKET_ABI } from '@app/config/abis';
 import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
 import { getMulticallOutput } from '@app/util/multicall';
 
@@ -19,8 +19,9 @@ export const firmTvlCacheKey = 'f2-tvl-v1.0.3'
 export default async function handler(req, res) {
     const { cacheFirst } = req.query;
     try {
-        const cacheDuration = 60;
+        const cacheDuration = 120;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+        
         const { data: cachedTvl, isValid: isCachedTvlValid } = await getCacheFromRedisAsObj(firmTvlCacheKey, cacheFirst !== 'true', cacheDuration);
         if (cachedTvl && isCachedTvlValid) {
             res.status(200).json(cachedTvl);
@@ -28,15 +29,17 @@ export default async function handler(req, res) {
         }
 
         const provider = getProvider(CHAIN_ID);
-        const { firmMarketUsers, marketUsersAndEscrows } = await getFirmMarketUsers(provider);
+        const paidProvider = getPaidProvider(1);
+
+        const { firmMarketUsers, marketUsersAndEscrows } = await getFirmMarketUsers(paidProvider);
 
         // trigger
         fetch('https://inverse.finance/api/f2/fixed-markets');
 
         const { data: marketsCache } = await getCacheFromRedisAsObj(F2_MARKETS_CACHE_KEY, false);
-        
+
         if (!marketsCache) {
-            res.status(200).json(cachedTvl || { firmTotalTvl: 0, firmTvls:[] });
+            res.status(200).json(cachedTvl || { firmTotalTvl: 0, firmTvls: [] });
             return
         }
 

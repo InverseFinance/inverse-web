@@ -2,7 +2,7 @@ import { Contract } from 'ethers'
 import 'source-map-support'
 import { F2_MARKET_ABI, F2_ESCROW_ABI, DBR_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { getProvider } from '@app/util/providers';
+import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { CHAIN_ID, ONE_DAY_MS } from '@app/config/constants';
@@ -23,35 +23,34 @@ export const getFirmMarketUsers = async (provider) => {
     latestBlockNumber: undefined,
     marketUsersAndEscrows: {}, // with marketAddress: { users: [], escrows: [] }
   };
+  const currentBlock = await provider.getBlockNumber();
   let { latestBlockNumber, marketUsersAndEscrows } = uniqueUsersCacheData;
-  const afterLastBlock = latestBlockNumber !== undefined ? latestBlockNumber + 1 : undefined;
+  let afterLastBlock = latestBlockNumber !== undefined ? latestBlockNumber + 1 : undefined;
 
-  // TEMP: TODO: handle new alchemy block range limitation
-  const escrowCreations = [];
-  // const escrowCreations = await Promise.all(
-  //   F2_MARKETS.map(m => {
-  //     const market = new Contract(m.address, F2_MARKET_ABI, provider);
-  //     return market.queryFilter(market.filters.CreateEscrow(), afterLastBlock);
-  //   })
-  // );
+  const escrowCreations = await Promise.all(
+    F2_MARKETS.map(m => {
+      const market = new Contract(m.address, F2_MARKET_ABI, provider);
+      return market.queryFilter(market.filters.CreateEscrow(), afterLastBlock, currentBlock);
+    })
+  );
 
-  // escrowCreations.forEach((marketEscrows, marketIndex) => {
-  //   const market = F2_MARKETS[marketIndex];
-  //   if (!marketUsersAndEscrows[market.address]) {
-  //     marketUsersAndEscrows[market.address] = { users: [], escrows: [] };
-  //   }
-  //   marketEscrows.forEach(escrowCreationEvent => {
-  //     if (!marketUsersAndEscrows[market.address].users.includes(escrowCreationEvent.args[0])) {
-  //       marketUsersAndEscrows[market.address].users.push(escrowCreationEvent.args[0]);
-  //       marketUsersAndEscrows[market.address].escrows.push(escrowCreationEvent.args[1]);
-  //     }
-  //     if (escrowCreationEvent.blockNumber > latestBlockNumber) {
-  //       latestBlockNumber = escrowCreationEvent.blockNumber;
-  //     }
-  //   });
-  // });
+  escrowCreations.forEach((marketEscrows, marketIndex) => {
+    const market = F2_MARKETS[marketIndex];
+    if (!marketUsersAndEscrows[market.address]) {
+      marketUsersAndEscrows[market.address] = { users: [], escrows: [] };
+    }
+    marketEscrows.forEach(escrowCreationEvent => {
+      if (!marketUsersAndEscrows[market.address].users.includes(escrowCreationEvent.args[0])) {
+        marketUsersAndEscrows[market.address].users.push(escrowCreationEvent.args[0]);
+        marketUsersAndEscrows[market.address].escrows.push(escrowCreationEvent.args[1]);
+      }
+      if (escrowCreationEvent.blockNumber > latestBlockNumber) {
+        latestBlockNumber = escrowCreationEvent.blockNumber;
+      }
+    });
+  });
 
-  // await redisSetWithTimestamp(F2_UNIQUE_USERS_CACHE_KEY, { latestBlockNumber: latestBlockNumber, marketUsersAndEscrows });
+  await redisSetWithTimestamp(F2_UNIQUE_USERS_CACHE_KEY, { latestBlockNumber: currentBlock, marketUsersAndEscrows });
 
   const usedMarkets = Object.keys(marketUsersAndEscrows);
 
@@ -90,7 +89,7 @@ export default async function handler(req, res) {
       return
     }
 
-    let provider;
+    let provider, paidProvider;
     if (vnetPublicId) {
       // const cachedSims = (await getCacheFromRedis(SIMS_CACHE_KEY, false));    
       // const { ids } =  cachedSims || { ids: [] };
@@ -101,12 +100,14 @@ export default async function handler(req, res) {
       // }
       // provider = new JsonRpcProvider(vnet.publicRpc);
       provider = new JsonRpcProvider(`https://virtual.mainnet.rpc.tenderly.co/${vnetPublicId}`);
+      paidProvider = provider;
     } else {
       provider = getProvider(CHAIN_ID);
+      paidProvider = getPaidProvider(CHAIN_ID);
     }
 
     const [marketUsersCache, marketsCache] = await Promise.all([
-      getFirmMarketUsers(provider),
+      getFirmMarketUsers(paidProvider),
       (vnetPublicId ? 
         fetch(`https://inverse.finance/api/f2/fixed-markets?vnetPublicId=${vnetPublicId||''}`).then(r => r.json()) 
          : getCacheFromRedis(F2_MARKETS_CACHE_KEY, false)),

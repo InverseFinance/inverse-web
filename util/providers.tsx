@@ -50,6 +50,14 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
     // return new FallbackProvider(providers, 1);
 }
 
+export const getPaidProvider = (chainId: string | number) => {
+    if(chainId?.toString() === NetworkIds.mainnet) {
+        return new InfuraProvider(1, process.env.INFURA_KEY);
+        // return new JsonRpcProvider(`https://lb.drpc.org/ogrpc?network=ethereum&dkey=${process.env.DRPC_KEY}`);
+    }
+    return getProvider(chainId);
+}
+
 export const getCallForFunction = (contract: Contract, functionName: string, args: any[]) => {
     const functionSignature = contract.interface.getSighash(functionName);
     const functionInputTypes = contract.interface.fragments
