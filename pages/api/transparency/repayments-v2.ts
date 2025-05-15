@@ -4,7 +4,7 @@ import { TOKENS, UNDERLYING, getToken } from "@app/variables/tokens";
 import { getNetworkConfigConstants } from "@app/util/networks";
 import { BigNumber, Contract } from "ethers";
 import { CTOKEN_ABI, DEBT_CONVERTER_ABI, DEBT_REPAYER_ABI, DWF_PURCHASER_ABI } from "@app/config/abis";
-import { getHistoricValue, getProvider } from "@app/util/providers";
+import { getHistoricValue, getPaidProvider, getProvider } from "@app/util/providers";
 import { getBnToNumber } from "@app/util/markets";
 import { DWF_PURCHASER, ONE_DAY_SECS } from "@app/config/constants";
 import { addBlockTimestamps } from '@app/util/timestamps';
@@ -43,7 +43,7 @@ export default async function handler(req, res) {
         const badDebts = {};
         const repayments = { iou: 0 };
 
-        const provider = getProvider(1);
+        const provider = getPaidProvider(1);
         frontierShortfalls.positions
             .filter(({ liquidShortfall, usdBorrowed }) => liquidShortfall > 0 && usdBorrowed > 0)
             .forEach(position => {
