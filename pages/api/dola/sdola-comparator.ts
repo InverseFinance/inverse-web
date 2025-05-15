@@ -150,7 +150,8 @@ export default async function handler(req, res) {
         project: 'Aave-V3',
         link: 'https://app.aave.com/reserve-overview/?underlyingAsset=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&marketName=proto_mainnet_v3',
         pool: 'aa70268e-4b52-42bf-a116-608b370f9501',
-        address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+        address: '0x98C23E9d8f34FEFb1B7BD6a91B7FF122F4e16F5c',
+        underlying: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
         isNotVault: true,
         currentRateGetter: () => getAaveV3RateOf(provider, 'USDC'),
       },
@@ -159,7 +160,8 @@ export default async function handler(req, res) {
         project: 'Aave-V3',
         link: 'https://app.aave.com/reserve-overview/?underlyingAsset=0xdac17f958d2ee523a2206206994597c13d831ec7&marketName=proto_mainnet_v3',
         pool: 'f981a304-bb6c-45b8-b0c5-fd2f515ad23a',
-        address: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+        address: '0x23878914EFE38d27C4D67Ab83ed1b93A74D4086a',
+        underlying: '0xdac17f958d2ee523a2206206994597c13d831ec7',
         isNotVault: true,
         currentRateGetter: () => getAaveV3RateOf(provider, 'USDT'),
       },
@@ -169,6 +171,7 @@ export default async function handler(req, res) {
         link: 'https://app.spark.fi/',
         pool: '0b8fec3b-a715-4803-94ce-9fe3b7520b23',
         address: '0x83F20F44975D03b1b09e64809B757c47f942BEeA',
+        underlying: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         currentRateGetter: () => getDSRData(),
       },
       {
@@ -177,6 +180,7 @@ export default async function handler(req, res) {
         link: 'https://frax.com/earn',
         pool: '42523cca-14b0-44f6-95fb-4781069520a5',
         address: '0xcf62F905562626CfcDD2261162a51fd02Fc9c5b6',
+        underlying: '0xCAcd6fd266aF91b8AeD52aCCc382b4e165586E29',
         currentRateGetter: () => getDefiLlamaApy("42523cca-14b0-44f6-95fb-4781069520a5"),
       },
       {
@@ -185,6 +189,7 @@ export default async function handler(req, res) {
         link: 'https://app.ethena.fi/earn',
         pool: '66985a81-9c51-46ca-9977-42b4fe7bc6df',
         address: '0x9D39A5DE30e57443BfF2A8307A4256c8797A3497',
+        underlying: '0x4c9EDD5852cd905f086C759E8383e09bff1E68B3',
         currentRateGetter: () => getSUSDEData(provider, true),
       },
       {
@@ -193,6 +198,7 @@ export default async function handler(req, res) {
         link: 'https://inverse.finance/sDOLA',
         pool: 'bf0f95c9-bc46-467d-9762-1d80ff50cd74',
         address: '0xb45ad160634c528Cc3D2926d9807104FA3157305',
+        underlying: '0x865377367054516e17014CcdED1e7d814EDC9ce4',
         currentRateGetter: () => fetch('https://www.inverse.finance/api/dola-staking').then(res => res.json()),
       },
       {
@@ -201,6 +207,7 @@ export default async function handler(req, res) {
         link: 'https://crvusd.curve.fi/#/ethereum/scrvUSD',
         pool: '5fd328af-4203-471b-bd16-1705c726d926',
         address: '0x0655977FEb2f289A4aB78af67BAB0d17aAb84367',
+        underlying: '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
         currentRateGetter: () => getSavingsCrvUsdData(),
       },
       {
@@ -209,6 +216,7 @@ export default async function handler(req, res) {
         link: 'https://sky.money',
         pool: 'd8c4eff5-c8a9-46fc-a888-057c4c668e72',
         address: '0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD',
+        underlying: '0xdC035D45d973E3EC169d2276DDab16f1e407384F',
         currentRateGetter: () => getSavingsUSDData(),
       },
       {
@@ -216,6 +224,7 @@ export default async function handler(req, res) {
         project: 'Elixir',
         link: 'https://elixir.xyz',
         address: '0x5C5b196aBE0d54485975D1Ec29617D42D9198326',
+        underlying: '0x15700B564Ca08D9439C58cA5053166E8317aa138',
         currentRateGetter: () => getSavingsdeUSDData(),
       },
       // {
@@ -229,6 +238,7 @@ export default async function handler(req, res) {
         link: 'https://yearn.fi/v3/1/0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a',
         pool: '2b0d6d34-a4f0-4e53-8fd6-a3ef552b4b21',
         address: '0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a',
+        underlying: '0xdC035D45d973E3EC169d2276DDab16f1e407384F',
         currentRateGetter: () => getYearnVaultApy('0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a'),
         image: TOKEN_IMAGES['sUSDS'],
       },
@@ -238,6 +248,7 @@ export default async function handler(req, res) {
         link: 'https://app.angle.money/savings/usd',
         pool: '01e33a85-8bb6-4f30-a11b-7b2a8166e6b7',
         address: '0x0022228a2cc5E7eF0274A7Baa600d44da5aB5776',
+        underlying: '0x0000206329b97DB379d5E1Bf586BbDB969C63274',
         currentRateGetter: async () => {
           try {
             const res = await fetch(`https://exporter.angle.money/v2/savings`);
@@ -255,6 +266,8 @@ export default async function handler(req, res) {
         link: 'https://app.resolv.xyz/buy/stake',
         pool: '0aedb3f6-9298-49de-8bb0-2f611a4df784',
         address: '0x6c8984bc7DBBeDAf4F6b2FD766f16eBB7d10AAb4',
+        underlying: '0x66a1E37c9b0eAddca17d3662D6c05F4DECf3e110',
+        zapToken: '0x1202F5C7b4B9E47a1A484E8B270be34dbbC75055',
         currentRateGetter: () => getDefiLlamaApy("0aedb3f6-9298-49de-8bb0-2f611a4df784"),
         convertMethod: 'convertToUnderlyingToken',
         totalMethod: 'totalSupply',
@@ -266,6 +279,7 @@ export default async function handler(req, res) {
         link: 'https://fx.aladdin.club/v2/fxsave',
         pool: 'ee0b7069-f8f3-4aa2-a415-728f13e6cc3d',
         address: '0x7743e50F534a7f9F1791DdE7dCD89F7783Eefc39',
+        underlying: '0x65C9A641afCEB9C0E6034e558A319488FA0FA3be',
         currentRateGetter: () => getDefiLlamaApy("ee0b7069-f8f3-4aa2-a415-728f13e6cc3d"),
         image: 'https://raw.githubusercontent.com/AladdinDAO/aladdin-assets/refs/heads/main/images/branding/fxSave.png',
       },
