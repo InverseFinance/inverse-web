@@ -269,7 +269,7 @@ export default async function handler(req, res) {
         pool: '0aedb3f6-9298-49de-8bb0-2f611a4df784',
         address: '0x6c8984bc7DBBeDAf4F6b2FD766f16eBB7d10AAb4',
         underlying: '0x66a1E37c9b0eAddca17d3662D6c05F4DECf3e110',
-        zapToken: '0x1202F5C7b4B9E47a1A484E8B270be34dbbC75055',
+        zapAddress: '0x1202F5C7b4B9E47a1A484E8B270be34dbbC75055',
         zapSymbol: 'wstUSR',
         currentRateGetter: () => getDefiLlamaApy("0aedb3f6-9298-49de-8bb0-2f611a4df784"),
         convertMethod: 'convertToUnderlyingToken',
