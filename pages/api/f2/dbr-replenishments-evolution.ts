@@ -2,7 +2,7 @@ import { Contract } from 'ethers'
 import 'source-map-support'
 import { DBR_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { getProvider } from '@app/util/providers';
+import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { CHAIN_ID } from '@app/config/constants';
@@ -53,7 +53,7 @@ export default async function handler(req, res) {
     }
     const cachedData = _cachedData || DBR_REP_ARCHIVE;
 
-    const provider = getProvider(CHAIN_ID);
+    const provider = getPaidProvider(CHAIN_ID);
 
     const dbrContract = new Contract(DBR, DBR_ABI, provider);
     const lastBlock = cachedData?.events?.length ? cachedData?.events[cachedData.events.length - 1].blockNumber : undefined;
