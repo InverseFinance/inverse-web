@@ -345,6 +345,8 @@ export default async function handler(req, res) {
           project: metaData.project,
           link: metaData.link,
           pool: metaData.pool || null,
+          zapAddress: metaData.zapAddress,
+          zapSymbol: metaData.zapSymbol,
         }
       }).sort((a, b) => {
         return a.apy < b.apy ? 1 : b.apy - a.apy;
