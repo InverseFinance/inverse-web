@@ -2,7 +2,7 @@ import { Contract } from 'ethers'
 import 'source-map-support'
 import { DBR_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { getProvider } from '@app/util/providers';
+import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { BURN_ADDRESS, CHAIN_ID } from '@app/config/constants';
@@ -47,7 +47,7 @@ export default async function handler(req, res) {
         const cachedGroupedEvents = cachedData.totalBurns || [];
         let accBurn = cachedGroupedEvents?.length ? cachedGroupedEvents[cachedGroupedEvents.length - 1].accBurn : 0;
 
-        const provider = getProvider(CHAIN_ID);
+        const provider = getPaidProvider(CHAIN_ID);
         const contract = new Contract(DBR, DBR_ABI, provider);
 
         const lastItem = cachedGroupedEvents?.length > 0 ? (cachedGroupedEvents[cachedGroupedEvents.length - 1]) : {};
