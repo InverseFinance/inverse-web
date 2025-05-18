@@ -5,7 +5,6 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { SDOLA_ADDRESS } from '@app/config/constants';
-import { dolaCircSupplyCacheKey } from '../dola/circulating-supply';
 
 export default async function handler(req, res) {
   const cacheKey = `sdola-circ-supply-v1.0.0`;
@@ -14,7 +13,6 @@ export default async function handler(req, res) {
     const cacheDuration = 60;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const validCache = await getCacheFromRedis(cacheKey, true, cacheDuration);
-    
     if(validCache) {
       res.status(200).send(validCache);
       return
@@ -22,19 +20,14 @@ export default async function handler(req, res) {
 
     const provider = getProvider(1);
     const contract = new Contract(SDOLA_ADDRESS, SDOLA_ABI, provider);
-    
-    const [dolaCircSupply, sDolaTotalSupply, sDolaTotalAssets] = await Promise.all([
-        getCacheFromRedis(dolaCircSupplyCacheKey, false),
-        contract.totalSupply(),
-        contract.totalAssets(),
-    ]);
-    
-    const exRate = getBnToNumber(sDolaTotalAssets) / getBnToNumber(sDolaTotalSupply);
-    const sDolaCircSupply = parseFloat(dolaCircSupply) * exRate;
 
-    await redisSetWithTimestamp(cacheKey, sDolaCircSupply);
+    const result = await contract.totalSupply()
 
-    res.status(200).send(sDolaCircSupply);
+    const totalSupply = getBnToNumber(result);
+
+    await redisSetWithTimestamp(cacheKey, totalSupply);
+
+    res.status(200).send(totalSupply);
   } catch (err) {
     console.error(err);
     // if an error occured, try to return last cached results
