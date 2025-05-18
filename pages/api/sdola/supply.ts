@@ -7,7 +7,7 @@ import { getBnToNumber } from '@app/util/markets'
 import { SDOLA_ADDRESS } from '@app/config/constants';
 
 export default async function handler(req, res) {
-  const cacheKey = `sdola-supply-v1.0.0`;
+  const cacheKey = `sdola-supply-v1.0.1`;
 
   try {
     const cacheDuration = 60;
