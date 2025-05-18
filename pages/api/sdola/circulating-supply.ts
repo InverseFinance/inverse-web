@@ -5,6 +5,9 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { SDOLA_ADDRESS } from '@app/config/constants';
+import { getNetworkConfigConstants } from '@app/util/networks';
+
+const { TREASURY } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
   const cacheKey = `sdola-circ-supply-v1.0.0`;
@@ -21,13 +24,19 @@ export default async function handler(req, res) {
     const provider = getProvider(1);
     const contract = new Contract(SDOLA_ADDRESS, SDOLA_ABI, provider);
 
-    const result = await contract.totalSupply()
+    const [totalSupplyBn, treasuryBalanceBn] = await Promise.all([
+        contract.totalSupply(),
+        contract.balanceOf(TREASURY),
+    ])
 
-    const totalSupply = getBnToNumber(result);
+    const totalSupply = getBnToNumber(totalSupplyBn);
+    const treasuryBalance = getBnToNumber(treasuryBalanceBn);
+    
+    const circSupply = totalSupply - treasuryBalance;
 
-    await redisSetWithTimestamp(cacheKey, totalSupply);
+    await redisSetWithTimestamp(cacheKey, circSupply);
 
-    res.status(200).send(totalSupply);
+    res.status(200).send(circSupply);
   } catch (err) {
     console.error(err);
     // if an error occured, try to return last cached results
