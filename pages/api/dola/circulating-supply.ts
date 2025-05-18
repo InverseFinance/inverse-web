@@ -25,14 +25,15 @@ const l2ExcludedAddressesAndChains = [
   }),
 ];
 
+export const dolaCircSupplyCacheKey = `dola-circ-supply-v1.0.1`;
+
 export default async function handler(req, res) {
-  const cacheKey = `dola-circ-supply-v1.0.1`;
   const { cacheFirst } = req.query;
 
   try {
     const cacheDuration = 120;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
+    const validCache = await getCacheFromRedis(dolaCircSupplyCacheKey, cacheFirst !== 'true', cacheDuration);
     const isSaveCircSupply = req.method === 'POST' || req.query.saveCircSupply === 'true';
 
     if (validCache && !isSaveCircSupply) {
@@ -81,7 +82,7 @@ export default async function handler(req, res) {
     const totalDolaExcluded = mainnetExcludedTotal + farmersExcludedTotal;
     const circSupply = totalSupply - totalDolaExcluded;
 
-    await redisSetWithTimestamp(cacheKey, circSupply);
+    await redisSetWithTimestamp(dolaCircSupplyCacheKey, circSupply);
 
     // daily cron job case: add daily data to evolution data
     if (isSaveCircSupply) {
@@ -116,7 +117,7 @@ export default async function handler(req, res) {
     console.error(err);
     // if an error occured, try to return last cached results
     try {
-      const cache = await getCacheFromRedis(cacheKey, false);
+      const cache = await getCacheFromRedis(dolaCircSupplyCacheKey, false);
       if (cache) {
         console.log('Api call failed, returning last cache found');
         res.status(200).send(cache);
