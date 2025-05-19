@@ -52,7 +52,7 @@ export const DsaInfos = () => {
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(maxRewardPerDolaMantissa, 2)} ({preciseCommify(maxRewardPerDolaMantissa * dbrPrice, 4, true)})</Text>}
                     </HStack>
                     <HStack w='full'>
-                        <Text>- DBR rate per DOLA:</Text>
+                        <Text>- DBR reward per DOLA:</Text>
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(dbrRatePerDola, 2)} ({preciseCommify(dbrRatePerDola * dbrPrice, 4, true)})</Text>}
                     </HStack>
                 </VStack>
