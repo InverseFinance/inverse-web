@@ -13,6 +13,7 @@ import { getMulticallOutput } from '@app/util/multicall';
 import { DAILY_UTC_CACHE_KEY } from '../cron-daily-block-timestamp';
 import { ARCHIVED_UTC_DATES_BLOCKS } from '@app/fixtures/utc-dates-blocks';
 import { ONE_DAY_SECS } from '@app/config/constants';
+import { dolaStakingCacheKey } from '../dola-staking';
 
 // https://vision.perspective.fi/api/mainnet/graph-data/0xb45ad160634c528Cc3D2926d9807104FA3157305
 
@@ -288,12 +289,13 @@ export default async function handler(req, res) {
       },
     ];
 
-    const [currentRates, defillamaData] = await Promise.all(
+    const [currentRates, defillamaData, dolaStakingData] = await Promise.all(
       [
         Promise.all(
           meta.map(m => m.currentRateGetter())
         ),
         getDefillamaData(meta.filter(m => !!m.pool).map(m => m.pool)),
+        getCacheFromRedis(dolaStakingCacheKey, false),
       ]
     );
 
@@ -331,7 +333,7 @@ export default async function handler(req, res) {
           totalAssets: onChainData[index].totalAssets,
           totalAssets30d: onChainData[index].totalAssets30d,
           totalAssets90d: onChainData[index].totalAssets90d,
-          tvl: defillamaPoolData?.tvlUsd || onChainData[index].totalAssets || null,
+          tvl: metaData.symbol === 'sDOLA' && !!dolaStakingData?.tvlUsd ? dolaStakingData.tvlUsd : defillamaPoolData?.tvlUsd || onChainData[index].totalAssets || null,
           apy: (rate.supplyRate || rate.apy || onChainData[index].calculatedApy),
           apy30d: (rate.apyMean30d || rate.apy30d),
           calculatedApy: onChainData[index].calculatedApy,

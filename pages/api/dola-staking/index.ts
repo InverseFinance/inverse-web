@@ -7,6 +7,7 @@ import { getMulticallOutput } from '@app/util/multicall';
 import { getDbrPriceOnCurve, getDolaUsdPriceOnCurve } from '@app/util/f2';
 import { getWeekIndexUtc } from '@app/util/misc';
 import { getOnChainData } from '../dola/sdola-comparator';
+import { getBnToNumber } from '@app/util/markets';
 
 export const dolaStakingCacheKey = `dola-staking-v1.0.4`;
 
@@ -73,6 +74,8 @@ export default async function handler(req, res) {
         const resultData = {
             timestamp: Date.now(),
             spectraPool: highestSpectraPool,
+            dolaPriceUsd,
+            tvlUsd: getBnToNumber(dolaStakingData[9], 18) * dolaPriceUsd,
             ...historicalSDolaRates[0],
             ...formatDolaStakingData(dbrDolaPrice * dolaPriceUsd, dolaStakingData),
         }
