@@ -11,7 +11,7 @@ const TextLoader = () => <SkeletonText pt="2" skeletonHeight={2} noOfLines={1} h
 
 export const DsaInfos = () => {
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
-    const { dsaTotalSupply, dsaYearlyBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, sDolaDsaShare, dolaBalInDsaFromSDola, isLoading } = useStakedDola(dbrPrice);
+    const { dsaTotalSupply, dsaYearlyBudget, maxYearlyRewardBudget, maxRewardPerDolaMantissa, sDolaDsaShare, dolaBalInDsaFromSDola, dbrRatePerDola, isLoading } = useStakedDola(dbrPrice);
     return <InfoMessage
         showIcon={false}
         alertProps={{ fontSize: '12px', mb: '8' }}
@@ -50,6 +50,10 @@ export const DsaInfos = () => {
                     <HStack w='full'>
                         <Text>- Max. DBR reward per DOLA:</Text>
                         {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(maxRewardPerDolaMantissa, 2)} ({preciseCommify(maxRewardPerDolaMantissa * dbrPrice, 4, true)})</Text>}
+                    </HStack>
+                    <HStack w='full'>
+                        <Text>- DBR rate per DOLA:</Text>
+                        {isLoading ? <TextLoader /> : <Text fontWeight="bold">{preciseCommify(dbrRatePerDola, 2)} ({preciseCommify(dbrRatePerDola * dbrPrice, 4, true)})</Text>}
                     </HStack>
                 </VStack>
                 <Text fontSize="14px" fontWeight="bold">Looking for DBR auctions?</Text>
