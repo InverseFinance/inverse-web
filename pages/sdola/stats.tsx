@@ -1,4 +1,4 @@
-import { HStack, VStack, Text, SimpleGrid, StackProps, Flex, useMediaQuery } from '@chakra-ui/react'
+import { HStack, VStack, Text, SimpleGrid, StackProps, Flex, useMediaQuery, Image } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
@@ -13,13 +13,14 @@ import { SkeletonBlob } from '@app/components/common/Skeleton';
 import { shortenNumber, smartShortNumber } from '@app/util/markets';
 import { useEffect, useRef, useState } from 'react';
 import { useAppTheme } from '@app/hooks/useAppTheme';
+import { TOKEN_IMAGES } from '@app/variables/images';
 
 const ChartCard = (props: StackProps & { cardTitle?: string, subtitle?: string, href?: string, imageSrc?: string }) => {
   return <Flex
     w="full"
     borderRadius={8}
     mt={0}
-    p={8}
+    p={4}
     position="relative"
     alignItems="center"
     minH="150px"
@@ -28,8 +29,9 @@ const ChartCard = (props: StackProps & { cardTitle?: string, subtitle?: string, 
     direction="column"
     {...props}
   >
+    {!!props.imageSrc && <Image  borderRadius="50px" src={props.imageSrc} w={`40px`} h={`40px`} position="absolute" left="10px" top={`10px`} /> }
     {!!props.cardTitle && <Text fontSize="18px" fontWeight="bold" mx="auto" w='fit-content'>{props.cardTitle}</Text>}
-    {!!props.subtitle && <Text fontSize="16px" fontWeight="bold" mx="auto" w='fit-content'>{props.subtitle}</Text>}
+    {!!props.subtitle && <Text color="mainTextColorLight" fontSize="16px" fontWeight="bold" mx="auto" w='fit-content'>{props.subtitle}</Text>}
     {props.children}
   </Flex>
 }
@@ -125,10 +127,10 @@ export const SDolaStatsPage = () => {
         px={{ base: '4', lg: '0' }}
       >
         <SimpleGrid columns={{ base: 1, xl: 2 }} spacing="8" w="100%">
-          <ChartCard cardTitle={`sDOLA APY evolution`} subtitle={`(30 day avg: ${apy30d ? shortenNumber(apy30d, 2)+'%' : '-'}, Current: ${apy ? shortenNumber(apy || 0, 2)+'%' : '-'})`}>
+          <ChartCard imageSrc={TOKEN_IMAGES.sDOLA} cardTitle={`sDOLA APY evolution`} subtitle={`(30 day avg: ${apy30d ? shortenNumber(apy30d, 2)+'%' : '-'}, Current: ${apy ? shortenNumber(apy || 0, 2)+'%' : '-'})`}>
             {isInited && <Chart currentValue={apy} isPerc={true} data={histoData} attribute="apy" yLabel="APY" areaProps={{ addDayAvg: true, showLegend: true, legendPosition: 'bottom', avgDayNumbers: [30, 60], avgLineProps: [{ stroke: themeStyles.colors.success, strokeDasharray: '4 4' }, { stroke: themeStyles.colors.warning, strokeDasharray: '4 4' }] }} />}
           </ChartCard>
-          <ChartCard subtitle={sDolaTotalAssets > 0 ? `(current: ${smartShortNumber(sDolaTotalAssets || 0, 2)})` : ''} cardTitle={`DOLA staked in sDOLA`}>
+          <ChartCard imageSrc={TOKEN_IMAGES.sDOLA} subtitle={sDolaTotalAssets > 0 ? `(Current: ${smartShortNumber(sDolaTotalAssets || 0, 2)})` : ''} cardTitle={`DOLA staked in sDOLA`}>
             {isInited && <Chart isLoading={isLoading} currentValue={sDolaTotalAssets} data={histoData} attribute="sDolaTotalAssets" yLabel="DOLA staked" />}
           </ChartCard>
         </SimpleGrid>
