@@ -37,6 +37,7 @@ export const LandingSubmitButton = (props: Props) => {
         fontWeight="600"
         bgColor={lightTheme.colors.mainTextColor}
         fontSize={smallerSize2}
+        borderRadius="4px"
         {...props} />
 }
 
