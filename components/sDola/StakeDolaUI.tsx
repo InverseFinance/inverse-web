@@ -135,7 +135,7 @@ export const StakeDolaUI = ({ useDolaAsMain, topStable }: { useDolaAsMain: boole
         }, 250);
     }
 
-    return <VStack w='full'>
+    return <VStack w='full' spacing="4">
         <Stack direction={{ base: 'column', lg: 'row' }} alignItems={{ base: 'center', lg: 'flex-start' }} justify="space-around" w='full' spacing="12">
             <VStack w='full' maxW='450px' spacing='4' pt='10'>
                 <HStack justify="space-around" w='full'>
