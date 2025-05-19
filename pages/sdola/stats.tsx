@@ -10,7 +10,7 @@ import { useDBRPrice } from '@app/hooks/useDBR';
 import { DolaStakingTabs } from '@app/components/F2/DolaStaking/DolaStakingTabs';
 import { SDolaStakingEvolutionChart } from '@app/components/F2/DolaStaking/DolaStakingChart';
 import { SkeletonBlob } from '@app/components/common/Skeleton';
-import { shortenNumber } from '@app/util/markets';
+import { shortenNumber, smartShortNumber } from '@app/util/markets';
 import { useEffect, useRef, useState } from 'react';
 import { useAppTheme } from '@app/hooks/useAppTheme';
 
@@ -29,7 +29,7 @@ const ChartCard = (props: StackProps & { cardTitle?: string, subtitle?: string, 
     {...props}
   >
     {!!props.cardTitle && <Text fontSize="18px" fontWeight="bold" mx="auto" w='fit-content'>{props.cardTitle}</Text>}
-    {!!props.subtitle && <Text fontSize="14px" fontWeight="bold" mx="auto" w='fit-content'>{props.subtitle}</Text>}
+    {!!props.subtitle && <Text fontSize="16px" fontWeight="bold" mx="auto" w='fit-content'>{props.subtitle}</Text>}
     {props.children}
   </Flex>
 }
@@ -128,7 +128,7 @@ export const SDolaStatsPage = () => {
           <ChartCard cardTitle={`sDOLA APY evolution`} subtitle={`(30 day avg: ${apy30d ? shortenNumber(apy30d, 2)+'%' : '-'}, Current: ${apy ? shortenNumber(apy || 0, 2)+'%' : '-'})`}>
             {isInited && <Chart currentValue={apy} isPerc={true} data={histoData} attribute="apy" yLabel="APY" areaProps={{ addDayAvg: true, showLegend: true, legendPosition: 'bottom', avgDayNumbers: [30, 60], avgLineProps: [{ stroke: themeStyles.colors.success, strokeDasharray: '4 4' }, { stroke: themeStyles.colors.warning, strokeDasharray: '4 4' }] }} />}
           </ChartCard>
-          <ChartCard subtitle={sDolaTotalAssets > 0 ? `(current: ${preciseCommify(sDolaTotalAssets || 0, 0)})` : ''} cardTitle={`DOLA staked in sDOLA`}>
+          <ChartCard subtitle={sDolaTotalAssets > 0 ? `(current: ${smartShortNumber(sDolaTotalAssets || 0, 2)})` : ''} cardTitle={`DOLA staked in sDOLA`}>
             {isInited && <Chart isLoading={isLoading} currentValue={sDolaTotalAssets} data={histoData} attribute="sDolaTotalAssets" yLabel="DOLA staked" />}
           </ChartCard>
         </SimpleGrid>

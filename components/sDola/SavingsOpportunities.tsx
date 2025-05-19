@@ -9,7 +9,7 @@ import { InfoMessage } from "../common/Messages";
 import { preciseCommify } from "@app/util/misc";
 import { shortenNumber } from "@app/util/markets";
 import { ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon } from "@chakra-ui/icons";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "../common/Link";
 import { SDOLA_ADDRESS } from "@app/config/constants";
 import { TOKEN_IMAGES } from "@app/variables/images";
@@ -96,6 +96,11 @@ export const SavingsOpportunities = ({ tokenAndBalances, totalStables }: { token
     const { apy: apyAfterDeposit } = useStakedDola(dbrPrice, totalStables);
     const sDOLAprice = dolaPrice * sDolaExRate;
 
+    const _balances = useMemo(() => {
+        return tokenAndBalances
+            .filter(b => b.balance > 1)
+    }, [tokenAndBalances]);
+
     if (totalStables < 10) {
         return null;
     }
@@ -140,8 +145,7 @@ export const SavingsOpportunities = ({ tokenAndBalances, totalStables }: { token
                                 <Text w={{ base: '42%', md: '60%' }}>&nbsp;</Text>
                             </HStack>
                             {
-                                tokenAndBalances
-                                    .filter(b => b.balance > 1)
+                                _balances
                                     .map(b => {
                                         return <HStack key={b.token.address} w={{ base: '300px', md: '600px' }} justify="space-between">
                                             <HStack spacing="2" w={{ base: '29%', md: '20%' }}>

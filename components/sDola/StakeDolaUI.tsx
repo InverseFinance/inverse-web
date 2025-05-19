@@ -187,7 +187,7 @@ export const StakeDolaUI = ({ useDolaAsMain, topStable }: { useDolaAsMain: boole
                 p="0"
                 maxW='450px'
             >
-                <VStack spacing="2" alignItems="flex-start" w='full'>
+                <VStack spacing="4" alignItems="flex-start" w='full'>
                     {
                         !isConnected ? <InfoMessage alertProps={{ w: 'full' }} description="Please connect your wallet" />
                             :

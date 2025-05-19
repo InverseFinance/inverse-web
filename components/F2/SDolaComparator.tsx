@@ -12,7 +12,7 @@ import { SettingsIcon } from "@chakra-ui/icons";
 import InfoModal from "../common/Modal/InfoModal";
 import { Input } from "../common/Input";
 import { lightTheme } from '@app/variables/theme'
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 const projectImages = {
     'Frax': 'https://icons.llamao.fi/icons/protocols/frax?w=48&h=48',
@@ -156,8 +156,10 @@ const UngroupedComparator = ({ title, allRates, themeStyles, isSmallerThan = fal
     const [includeProjects, setIncludeProjects] = useState(defaultProjects);
     const { onOpen, onClose, isOpen } = useDisclosure();
 
-    const rates = (allRates?.filter(r => !!r.apy) || [])
-        .filter(r => includeProjects.includes(r.project));
+    const rates = useMemo(() => {
+        return (allRates?.filter(r => !!r.apy) || [])
+            .filter(r => includeProjects.includes(r.project));
+    }, [allRates, includeProjects]);
 
     const openSettings = () => {
         onOpen();
@@ -255,7 +257,11 @@ export const SDolaComparator = ({
     const { themeStyles: prefThemeStyles } = useAppTheme();
     const _themeStyles = themeStyles || prefThemeStyles || lightTheme;
 
+    const rates = useMemo(() => {
+        return data?.rates?.filter(r => r.isVault);
+    }, [data]);
+
     return <VStack w='full' spacing="10" overflow="hidden">
-        <UngroupedComparator title={title} allRates={data?.rates?.filter(r => r.isVault)} themeStyles={_themeStyles} isSmallerThan={isSmallerThan} showLabel={showLabel} />
+        <UngroupedComparator title={title} allRates={rates} themeStyles={_themeStyles} isSmallerThan={isSmallerThan} showLabel={showLabel} />
     </VStack>
 }

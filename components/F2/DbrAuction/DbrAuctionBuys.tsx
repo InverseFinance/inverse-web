@@ -4,12 +4,14 @@ import Container from "../../common/Container";
 import Table from "@app/components/common/Table";
 import ScannerLink from "@app/components/common/ScannerLink";
 import { Timestamp } from "@app/components/common/BlockTimestamp/Timestamp";
- 
+
 import { useStakedDola } from "@app/util/dola-staking";
 import { useDBRPrice } from "@app/hooks/useDBR";
 import { ONE_DAY_MS } from "@app/config/constants";
 import { getLastThursdayTimestamp, preciseCommify } from "@app/util/misc";
 import { timeSince } from "@app/util/time";
+import { useMemo, useState } from "react";
+import { RSubmitButton } from "@app/components/common/Button/RSubmitButton";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="12px" fontWeight="extrabold" {...props} />
@@ -60,7 +62,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
         value: ({ amountIn, auctionType }) => {
             return <Cell minWidth="90px" justify="center" >
-                <CellText fontWeight="bold">{shortenNumber(amountIn, 2, false, true)} {auctionType === 'sINV' ? 'INV' : 'DOLA' }</CellText>
+                <CellText fontWeight="bold">{shortenNumber(amountIn, 2, false, true)} {auctionType === 'sINV' ? 'INV' : 'DOLA'}</CellText>
             </Cell>
         },
     },
@@ -83,7 +85,7 @@ const columns = [
                 <CellText>{shortenNumber(auctionType === 'sINV' ? priceInInv : priceInDola, 5, false, true)} {auctionType === 'sINV' ? 'INV' : 'DOLA'}</CellText>
             </Cell>
         },
-    }, 
+    },
     {
         field: 'auctionType',
         label: 'Auction Type',
@@ -98,7 +100,7 @@ const columns = [
     },
 ];
 
-const sDOLAColumns = columns.slice(0, columns.length - 1).map(c => ({ ...c, showFilter: false}));
+const sDOLAColumns = columns.slice(0, columns.length - 1).map(c => ({ ...c, showFilter: false }));
 
 export const DbrAuctionBuys = ({ events, title, subtitle, lastUpdate }: { events: any[], title: string, subtitle: string, lastUpdate: number }) => {
     return <Container
@@ -119,12 +121,16 @@ export const DbrAuctionBuys = ({ events, title, subtitle, lastUpdate }: { events
     </Container>
 }
 
-export const DbrAuctionBuysSDola = ({ events, title, subtitle, lastUpdate }: { events: any[], title: string, subtitle: string, lastUpdate: number }) => {
+export const DbrAuctionBuysSDola = ({ events, title, subtitle, lastUpdate, showTableDefault = false }: { events: any[], title: string, subtitle: string, lastUpdate: number, showTableDefault: boolean }) => {
     const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
     const { apy, pastWeekRevenue } = useStakedDola(dbrPrice);
+    const [showTable, setShowTable] = useState(showTableDefault);
     const lastWeekEnd = getLastThursdayTimestamp();
-    const lastWeekStart = lastWeekEnd - (ONE_DAY_MS * 7);   
-    const pastWeekEvents = events.filter(e => e.timestamp < lastWeekEnd && e.timestamp >= lastWeekStart);
+    const lastWeekStart = lastWeekEnd - (ONE_DAY_MS * 7);
+
+    const pastWeekEvents = useMemo(() => {
+        return events.filter(e => e.timestamp < lastWeekEnd && e.timestamp >= lastWeekStart);
+    }, [events, lastWeekEnd, lastWeekStart]);
 
     return <Container
         label={`Where does the ${shortenNumber(apy, 2)}% APY come from?`}
@@ -143,13 +149,18 @@ export const DbrAuctionBuysSDola = ({ events, title, subtitle, lastUpdate }: { e
             align: { base: 'flex-start', md: 'flex-end' },
         }}
     >
-        <Table
-            keyName="txHash"
-            defaultSort="timestamp"
-            defaultSortDir="desc"
-            columns={sDOLAColumns}
-            items={pastWeekEvents}
-            noDataMessage="No DBR buys in the sDOLA auction last week"
-        />
+        <VStack w='full' spacing="3" alignItems="flex-start">
+            <RSubmitButton w='fit-content' onClick={() => setShowTable(!showTable)}>Toggle details</RSubmitButton>
+            {
+                showTable && <Table
+                    keyName="txHash"
+                    defaultSort="timestamp"
+                    defaultSortDir="desc"
+                    columns={sDOLAColumns}
+                    items={pastWeekEvents}
+                    noDataMessage="No DBR buys in the sDOLA auction last week"
+                />
+            }
+        </VStack>
     </Container>
 }
