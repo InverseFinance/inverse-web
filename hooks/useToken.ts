@@ -24,7 +24,7 @@ export const useTokenBalances = (ads: string[], account: string | undefined) => 
         balances: ads.map((ad,i) => {
             return balanceData && decimalData ? { address: ad, balance: getBnToNumber(balanceData[i], decimalData[i]) } : { address: ad, balance: 0 };
         }),        
-        isLoading: (!balanceData && !balanceErr) || (!decimalData || !decimalErr),
+        isLoading: (!balanceData && !balanceErr) || (!decimalData && !decimalErr),
         hasError: (!balanceData && !!balanceErr) || (!decimalData && !!decimalErr),
     };
 }

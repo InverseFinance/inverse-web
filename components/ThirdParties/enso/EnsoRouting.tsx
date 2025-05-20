@@ -34,6 +34,7 @@ export const EnsoRouting = ({
     priceImpactBps,
     targetAssetPrice,
     isLoading = false,
+    onlyShowResult = false,
 }: {
     chainId: string
     amountOut: string
@@ -43,6 +44,7 @@ export const EnsoRouting = ({
     priceImpactBps: number | null
     isLoading: boolean
     targetAssetPrice: number
+    onlyShowResult?: boolean
 }) => {
     const [showActions, setShowActions] = useState(false);
     const isPriceImpactUnknown = typeof priceImpactBps !== 'number';
@@ -65,11 +67,13 @@ export const EnsoRouting = ({
                 </Text>
             </Stack>
         </HStack>
-        <HStack textDecoration="underline" cursor="pointer" onClick={() => setShowActions(!showActions)}>
-            <Text fontWeight="bold">Actions ({routes?.length})</Text>
-            {showActions ? <ChevronDownIcon /> : <ChevronRightIcon />}
-        </HStack>
-        {showActions && routes.map((r, i) => {
+        {
+            !onlyShowResult && <HStack textDecoration="underline" cursor="pointer" onClick={() => setShowActions(!showActions)}>
+                <Text fontWeight="bold">Actions ({routes?.length})</Text>
+                {showActions ? <ChevronDownIcon /> : <ChevronRightIcon />}
+            </HStack>
+        }
+        {showActions && !onlyShowResult && routes.map((r, i) => {
             const inTokens = r.tokenIn.map(t => getTokenObjectFromPosition(chainId, t)).flat();
             const outTokens = r.tokenOut.map(t => getTokenObjectFromPosition(targetChainId, t)).flat();
             return <HStack key={`${r.action}-${r.protocol}-${i}`}>

@@ -4,6 +4,7 @@ import { TokenList, Token, BigNumberList } from '@app/types';
 import { AssetsDropdown } from './AssetsDropdown';
 import { getBnToNumber, shortenNumber } from '@app/util/markets';
 import { ETH_AD } from '@app/components/Base/BaseBridge';
+import { useMemo } from 'react';
 
 type FromAssetDropDownProps = {
     tokens: TokenList,
@@ -34,22 +35,24 @@ export const FromAssetDropdown = ({
     orderByWorth = false,
     dropdownSelectedProps,
 }: FromAssetDropDownProps) => {
-    const list = options.map(ad => {
-        const optKey = ad||'CHAIN_COIN';
-        const t = { ...tokens[optKey], optKey };
-        const bal = balances && t && (balances[t.address||'CHAIN_COIN'] || balances[optKey]);
-        const balanceFloat = !!bal ? getBnToNumber(bal, t.decimals) : 0;
-        const priceKey = t.address||'CHAIN_COIN'||ETH_AD||ETH_AD.toLowerCase();
-        const price = prices && (prices[priceKey] || prices[ETH_AD.toLowerCase()]) ? prices[priceKey] || prices[ETH_AD.toLowerCase()] : 0;
-        const worth = price * balanceFloat;
-        return { ...t, balance: balanceFloat, worth }
-    }).filter(t => !!t.symbol)
-
-    if(orderByBalance) {
-        list.sort((a, b) => b.balance - a.balance || a.symbol.localeCompare(b.symbol));
-    } else if(orderByWorth) {
-        list.sort((a, b) => b.worth - a.worth || a.symbol.localeCompare(b.symbol));
-    }
+    const list = useMemo(() => {
+        const items = options.map(ad => {
+            const optKey = ad||'CHAIN_COIN';
+            const t = { ...tokens[optKey], optKey };
+            const bal = balances && t && (balances[t.address||'CHAIN_COIN'] || balances[optKey]);
+            const balanceFloat = !!bal ? getBnToNumber(bal, t.decimals) : 0;
+            const priceKey = t.address||'CHAIN_COIN'||ETH_AD||ETH_AD.toLowerCase();
+            const price = prices && (prices[priceKey] || prices[ETH_AD.toLowerCase()]) ? prices[priceKey] || prices[ETH_AD.toLowerCase()] : 0;
+            const worth = price * balanceFloat;
+            return { ...t, balance: balanceFloat, worth }
+        }).filter(t => !!t.symbol);
+        if(orderByBalance) {
+            items.sort((a, b) => b.balance - a.balance || a.symbol.localeCompare(b.symbol));
+        } else if(orderByWorth) {
+            items.sort((a, b) => b.worth - a.worth || a.symbol.localeCompare(b.symbol));
+        }
+        return items;
+    }, [options, orderByBalance, orderByWorth, tokens, balances, prices]);
 
     return (
         <AssetsDropdown
@@ -60,7 +63,7 @@ export const FromAssetDropdown = ({
             label={
                 <>
                     <Flex w={5} position="relative">
-                        <Image ignoreFallback={true} alt={asset.symbol} w={5} h={5} src={asset.image} />
+                        <Image ignoreFallback={false} alt={asset.symbol} w={5} h={5} src={asset.image} />
                         {
                             !!asset.protocolImage && <Image borderRadius="20px" position="absolute" right="-5px" bottom="0" ignoreFallback={true} alt="protocol" w={3} h={3} src={asset.protocolImage} />
                         }

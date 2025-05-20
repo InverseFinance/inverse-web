@@ -12,6 +12,7 @@ import { getLastThursdayTimestamp, preciseCommify } from "@app/util/misc";
 import { timeSince } from "@app/util/time";
 import { useMemo, useState } from "react";
 import { RSubmitButton } from "@app/components/common/Button/RSubmitButton";
+import { useDbrAuctionActivity } from "@app/util/dbr-auction";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="12px" fontWeight="extrabold" {...props} />
@@ -121,16 +122,30 @@ export const DbrAuctionBuys = ({ events, title, subtitle, lastUpdate }: { events
     </Container>
 }
 
-export const DbrAuctionBuysSDola = ({ events, title, subtitle, lastUpdate, showTableDefault = false }: { events: any[], title: string, subtitle: string, lastUpdate: number, showTableDefault: boolean }) => {
-    const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
-    const { apy, pastWeekRevenue } = useStakedDola(dbrPrice);
-    const [showTable, setShowTable] = useState(showTableDefault);
+const DbrAuctionBuysSDolaContent = () => {
+    const { isLoading: isLoadingBuys, events: buyEvents, timestamp: buysTimestamp } = useDbrAuctionActivity();
+
     const lastWeekEnd = getLastThursdayTimestamp();
     const lastWeekStart = lastWeekEnd - (ONE_DAY_MS * 7);
 
     const pastWeekEvents = useMemo(() => {
-        return events.filter(e => e.timestamp < lastWeekEnd && e.timestamp >= lastWeekStart);
-    }, [events, lastWeekEnd, lastWeekStart]);
+        return buyEvents.filter(e => e.auctionType === 'sDOLA').filter(e => e.timestamp < lastWeekEnd && e.timestamp >= lastWeekStart);
+    }, [buyEvents, lastWeekEnd, lastWeekStart]);
+
+    return <Table
+        keyName="txHash"
+        defaultSort="timestamp"
+        defaultSortDir="desc"
+        columns={sDOLAColumns}
+        items={pastWeekEvents}
+        noDataMessage="No DBR buys in the sDOLA auction last week"
+    />
+}
+
+export const DbrAuctionBuysSDola = ({ showTableDefault = false }: { showTableDefault?: boolean }) => {
+    const { priceUsd: dbrPrice, priceDola: dbrDolaPrice } = useDBRPrice();
+    const { apy, pastWeekRevenue } = useStakedDola(dbrPrice);
+    const [showTable, setShowTable] = useState(showTableDefault);
 
     return <Container
         label={`Where does the ${shortenNumber(apy, 2)}% APY come from?`}
@@ -152,14 +167,7 @@ export const DbrAuctionBuysSDola = ({ events, title, subtitle, lastUpdate, showT
         <VStack w='full' spacing="3" alignItems="flex-start">
             <RSubmitButton w='fit-content' onClick={() => setShowTable(!showTable)}>Toggle details</RSubmitButton>
             {
-                showTable && <Table
-                    keyName="txHash"
-                    defaultSort="timestamp"
-                    defaultSortDir="desc"
-                    columns={sDOLAColumns}
-                    items={pastWeekEvents}
-                    noDataMessage="No DBR buys in the sDOLA auction last week"
-                />
+                showTable && <DbrAuctionBuysSDolaContent />
             }
         </VStack>
     </Container>

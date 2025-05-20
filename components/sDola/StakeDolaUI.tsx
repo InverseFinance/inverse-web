@@ -22,6 +22,7 @@ import { StakeDolaInfos } from "./StakeDolaInfos";
 import { useDOLAPrice } from "@app/hooks/usePrices";
 import EnsoZap from "../ThirdParties/enso/EnsoZap";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { SkeletonBlob } from "../common/Skeleton";
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -40,11 +41,11 @@ const StatBasic = ({ value, name, message, onClick = undefined, isLoading = fals
 const STAKE_BAL_INC_INTERVAL = 100;
 const MS_PER_BLOCK = SECONDS_PER_BLOCK * 1000;
 
-export const StakeDolaUI = ({ useDolaAsMain, topStable }: { useDolaAsMain: boolean, topStable: { balance: number, token: any } | null }) => {
+export const StakeDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => {
     const account = useAccount();
     const { provider, account: connectedAccount } = useWeb3React();
     const { events: auctionBuys, isLoading: isLoadingAuctionBuys } = useDbrAuctionActivity();
-    const [useDolaAsMainChoice, setUseDolaAsMainChoice] = useState(useDolaAsMain);
+    const [useDolaAsMainChoice, setUseDolaAsMainChoice] = useState(false);
 
     const [dolaAmount, setDolaAmount] = useState('');
     const [isConnected, setIsConnected] = useState(true);
@@ -70,9 +71,9 @@ export const StakeDolaUI = ({ useDolaAsMain, topStable }: { useDolaAsMain: boole
         return new Date(getNextThursdayTimestamp()).toLocaleDateString('en-US', { month: 'long', year: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' });
     }, [nowWithInterval]);
 
-    useEffect(() => {
-        setUseDolaAsMainChoice(!!useDolaAsMain);
-    }, [useDolaAsMain]);
+    // useEffect(() => {
+    //     setUseDolaAsMainChoice(!!useDolaAsMain);
+    // }, [useDolaAsMain]);
 
     useInterval(() => {
         setNowWithInterval(Date.now());
@@ -195,11 +196,11 @@ export const StakeDolaUI = ({ useDolaAsMain, topStable }: { useDolaAsMain: boole
                                 <NavButtons active={tab} options={['Stake', 'Unstake', 'Infos']} onClick={(v) => setTab(v)} />
                                 {
                                     tab !== 'Infos' && <VStack alignItems="flex-start" w='full' justify="space-between">
-                                        <Text>
+                                        {/* <Text>
                                             DOLA balance in wallet: <b>{dolaBalance ? preciseCommify(dolaBalance, 2) : '-'}</b>
-                                        </Text>
+                                        </Text> */}
                                         <Text>
-                                            Staked DOLA: <b>{dolaStakedInSDola ? preciseCommify(realTimeBalance, 8) : '-'}</b>
+                                            Your staked DOLA: <b>{dolaStakedInSDola ? preciseCommify(realTimeBalance, 8) : '-'}</b>
                                         </Text>
                                     </VStack>
                                 }
@@ -229,7 +230,7 @@ export const StakeDolaUI = ({ useDolaAsMain, topStable }: { useDolaAsMain: boole
                                                     enableCustomApprove={true}
                                                 />
                                             </VStack>
-                                            : <EnsoZap
+                                            : isLoadingStables ? <SkeletonBlob /> : <EnsoZap
                                                 defaultTokenIn={topStable?.token?.address}
                                                 defaultTokenOut={SDOLA_ADDRESS}
                                                 defaultTargetChainId={'1'}
@@ -274,32 +275,32 @@ export const StakeDolaUI = ({ useDolaAsMain, topStable }: { useDolaAsMain: boole
                                         </VStack>
                                 }
                                 {
-                                    tab !== 'Infos' && useDolaAsMainChoice && <VStack alignItems="flex-start">
-                                        <HStack>
+                                    tab !== 'Infos' && <VStack alignItems="flex-start">
+                                        {/* <HStack>
                                             <Text fontSize="16px" color="mainTextColorLight2">
                                                 {isStake ? 'sDOLA to receive' : 'sDOLA to exchange'}:
                                             </Text>
                                             <Text fontSize="16px" color="mainTextColorLight2">
                                                 {sDOLAamount ? preciseCommify(sDOLAamount, 2) : '-'}
                                             </Text>
-                                        </HStack>
+                                        </HStack> */}
                                         <HStack>
-                                            <Text fontSize="16px" color="mainTextColorLight2">
+                                            <Text fontSize="16px" color="mainTextColorLight">
                                                 DOLA-sDOLA exchange rate:
                                             </Text>
-                                            <Text fontSize="16px" color="mainTextColorLight2">
+                                            <Text fontSize="16px" color="mainTextColorLight">
                                                 {sDolaExRate ? shortenNumber(1 / sDolaExRate, 6) : '-'}
                                             </Text>
                                         </HStack>
                                     </VStack>
                                 }
-                                {
+                                {/* {
                                     isStake && <Text textDecoration="underline" onClick={() => setUseDolaAsMainChoice(!useDolaAsMainChoice)} cursor="pointer" color="accentTextColor">
                                         {
                                             useDolaAsMainChoice ? 'Or stake from another token than DOLA via Zap-In' : 'Or use DOLA as direct entry point'
                                         }
                                     </Text>
-                                }
+                                } */}
                             </>
                     }
                 </VStack>
