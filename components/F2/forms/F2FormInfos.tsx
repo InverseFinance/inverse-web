@@ -296,7 +296,7 @@ export const F2FormInfos = (props: { debtAmountNumInfo: number, collateralAmount
                 isLoading: debtAmountNumInfo > 0 && (isDbrApproxLoading || isLeverageLoadingOrTriggeringLoad),
             },
             {
-                tooltip: "DBR tokens needed for the borrow, they will be automatically used to cover borrowing interests over time. Don't sell them unless you know what you're doing! When auto-buying extra DBRs are added as cost to cover the auto-buyed DBRs.",
+                tooltip: "DBR tokens needed for the borrow, they will be automatically used to cover borrowing interests over time. Don't sell them unless you know what you're doing! When auto-buying extra DBRs are added as cost to cover the auto-bought DBRs.",
                 title: 'Auto-buy DBR cost',
                 value: dbrCover > 0 && isDeposit ? `~${shortenNumber(dbrCover, 2)} DBRs (${shortenNumber(dbrCoverDebt, 2, true)})` : '-',
                 isLoading: debtAmountNumInfo > 0 && (isDbrApproxLoading || isLeverageLoadingOrTriggeringLoad),
