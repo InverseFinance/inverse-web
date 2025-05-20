@@ -3,7 +3,7 @@ import { useWeb3React } from "@web3-react/core";
 import { useEffect, useMemo, useState } from "react";
 
 import { EthXe, ensoZap, useEnso, useEnsoRoute } from "@app/util/enso";
-import { formatUnits, parseUnits } from "@ethersproject/units";
+import { formatUnits, parseEther, parseUnits } from "@ethersproject/units";
 import { VStack, Text, HStack, Divider, Stack, Input, Box } from "@chakra-ui/react";
 import { AssetInput } from "../../common/Assets/AssetInput";
 import { ZAP_TOKENS_ARRAY } from "../tokenlist";
@@ -25,6 +25,8 @@ import { useAccount } from "@app/hooks/misc";
 import Link from "@app/components/common/Link";
 import { usePricesDefillama, usePricesV2 } from "@app/hooks/usePrices";
 import { ETH_SAVINGS_STABLECOINS } from "@app/components/sDola/SavingsOpportunities";
+import { SDOLA_ADDRESS } from "@app/config/constants";
+import { stakeDola } from "@app/util/dola-staking";
 const zapOptions = [...new Set(ZAP_TOKENS_ARRAY.map(t => t.address))];
 
 const removeUndefined = obj => Object.fromEntries(
@@ -75,9 +77,12 @@ function EnsoZap({
     const [tokenOut, setTokenOut] = useState(defaultTokenOut);
 
     const tokenInObj = tokenIn ? getToken(CHAIN_TOKENS_EXTENDED[chainId || '1'], tokenIn) : CHAIN_TOKENS_EXTENDED[chainId || '1'].CHAIN_COIN;
-    console.log('tokenIn', tokenIn)
+
     const [targetChainId, setTargetChainId] = useState(defaultTargetChainId || chainId || '1');
     const tokenOutObj = tokenOut ? getToken(CHAIN_TOKENS_EXTENDED[targetChainId || '1'], tokenOut) : CHAIN_TOKENS_EXTENDED[targetChainId || '1'].CHAIN_COIN;
+
+    const isDolaStakingFromDola = tokenInObj?.symbol === 'DOLA' && tokenOutObj?.symbol === 'sDOLA';
+
     const availableChainIds = [...new Set(ensoPools.map(ep => ep.chainId.toString()))];
 
     const implementedNetworks = useMemo(() => {
@@ -93,7 +98,7 @@ function EnsoZap({
     const { address: spender } = useEnso(account, chainId, tokenIn, amountIn, tokenInObj?.decimals);
 
     // 0x80EbA3855878739F4710233A8a19d89Bdd2ffB8E universal router
-    const approveDestinationAddress = spender;
+    const approveDestinationAddress = isDolaStakingFromDola ? SDOLA_ADDRESS : spender;
     const { isApproved } = useIsApproved(tokenIn, approveDestinationAddress, account, amountIn);
 
     const zapResponseData = useEnsoRoute(true, zapRequestData.account, zapRequestData.chainId, zapRequestData.targetChainId, zapRequestData.tokenIn, zapRequestData.tokenOut, zapRequestData.amountIn, refreshIndex);
@@ -143,13 +148,12 @@ function EnsoZap({
     useEffect(() => {
         if (!isInited && tokenIn !== defaultTokenIn && !tokenIn) {
             setTokenIn(defaultTokenIn);
-            setTimeout(() => {
-                setIsInited(true);
-            }, 1500);
+            setIsInited(true);
         }
     }, [defaultTokenIn, tokenIn, isInited]);
 
     const changeTokenIn = (newToken: Token) => {
+        setIsInited(true);
         setTokenIn(newToken.address);
     }
     const changeTokenOut = (newToken: string) => {
@@ -284,12 +288,14 @@ function EnsoZap({
                         }
                     </Stack>
 
-                    <HStack w='full' justify="space-between">
-                        <Text>
-                            Max. slippage %:
-                        </Text>
-                        <Input py="0" maxH="30px" w='90px' value={slippage} onChange={(e) => setSlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'))} />
-                    </HStack>
+                    {
+                        !isDolaStakingFromDola && <HStack w='full' justify="space-between">
+                            <Text color="mainTextColorLight">
+                                Max. slippage %:
+                            </Text>
+                            <Input color="mainTextColorLight" borderColor="mainTextColorLight" py="0" maxH="30px" w='90px' value={slippage} onChange={(e) => setSlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'))} />
+                        </HStack>
+                    }
 
                     {
                         chainId?.toString() !== targetChainId?.toString() ? <WarningMessage
@@ -314,7 +320,7 @@ function EnsoZap({
                                 checkBalanceOnTopOfIsDisabled={true}
                                 hideInput={true}
                                 showMaxBtn={false}
-                                actionLabel={`Zap-In to ${tokenOutObj?.symbol.replace(/ lp$/, ' LP')}`}
+                                actionLabel={isDolaStakingFromDola ? `Stake DOLA` : `Zap-In to ${tokenOutObj?.symbol.replace(/ lp$/, ' LP')}`}
                                 isDisabled={!zapResponseData?.route || !amountIn || ((!!tokenIn && tokenIn !== EthXe) && !approveDestinationAddress) || !slippage || !parseFloat(slippage)}
                                 alsoDisableApprove={!amountIn || ((!!tokenIn && tokenIn !== EthXe) && !approveDestinationAddress) || !slippage || !parseFloat(slippage)}
                                 btnProps={{ needPoaFirst: true }}
@@ -324,6 +330,9 @@ function EnsoZap({
                                 onAction={
                                     () => {
                                         if (!provider) return;
+                                        if (isDolaStakingFromDola) {
+                                            return stakeDola(provider?.getSigner(), parseEther(amountIn));
+                                        }
                                         return ensoZap(provider?.getSigner(), {
                                             fromAddress: account,
                                             tokenIn,
@@ -339,20 +348,26 @@ function EnsoZap({
                             />
                     }
                     {
-                        isValidAmountIn && zapResponseData?.isLoading ? <Text fontWeight="bold">
-                            Loading routes and conversion data...
-                        </Text> :
-                            !!amountIn && parseFloat(amountIn) > 0 && <Text textDecoration="underline" cursor="pointer" onClick={() => setRefreshIndex(refreshIndex + 1)}>
-                                Refresh conversion data
-                            </Text>
+                        !isDolaStakingFromDola && <>
+                            {
+                                isValidAmountIn && zapResponseData?.isLoading ? <Text fontWeight="bold">
+                                    Loading routes and conversion data...
+                                </Text> :
+                                    !!amountIn && parseFloat(amountIn) > 0 && <Text textDecoration="underline" cursor="pointer" onClick={() => setRefreshIndex(refreshIndex + 1)}>
+                                        Refresh conversion data
+                                    </Text>
+                            }
+                            {
+                                (isApproved || !!amountIn) && !!zapResponseData?.error && <Text color="warning" fontWeight="bold" fontSize="14px">
+                                    {zapResponseData?.error?.toString()}
+                                </Text>
+                            }
+                        </>
                     }
-                    {
-                        (isApproved || !!amountIn) && !!zapResponseData?.error && <Text color="warning" fontWeight="bold" fontSize="14px">
-                            {zapResponseData?.error?.toString()}
-                        </Text>
-                    }
+
                     {
                         !zapResponseData?.error && zapResponseData?.route && <EnsoRouting
+                            onlyShowResult={isDolaStakingFromDola}
                             chainId={chainId?.toString()}
                             targetChainId={targetChainId?.toString()}
                             targetAsset={tokenOutObj}
@@ -363,7 +378,8 @@ function EnsoZap({
                             isLoading={zapResponseData.isLoading}
                         />
                     }
-                    {thirdPartyInfo}
+
+                    {!isDolaStakingFromDola && thirdPartyInfo}
                 </VStack>
         }
     </Container>

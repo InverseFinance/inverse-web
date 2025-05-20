@@ -53,7 +53,6 @@ export const FromAssetDropdown = ({
         }
         return items;
     }, [options, orderByBalance, orderByWorth, tokens, balances, prices]);
-    console.log('asset', asset)
 
     return (
         <AssetsDropdown
