@@ -127,7 +127,7 @@ export const getArgs = (fragment: FunctionFragment, calldata: string) => {
         calldata,
     );
     return types.map((t, i) => {
-        return { ...t, value: t.type === 'tuple' ? JSON.stringify(values[i]) : values[i] }
+        return { ...t, value: t.type === 'tuple' || t.type.endsWith("[]") ? JSON.stringify(values[i]) : values[i] }
     })
 }
 
