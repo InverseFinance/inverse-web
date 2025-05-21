@@ -108,7 +108,7 @@ export const getCallData = (action: ProposalFormActionFields) => {
             return arg.type === "tuple" ? ParamType.fromObject(action.fragment.inputs[argIndex]!) : arg.type;
         }),
         action.args.map(arg => {
-            if (arg.type === "bool" || arg.type === "bool[]" || arg.type === "tuple") {
+            if (arg.type === "bool" || arg.type === "tuple" || arg.type.endsWith("[]")) {
                 return JSON.parse(arg.value);
             } else {
                 return arg.value;
