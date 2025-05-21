@@ -19,6 +19,7 @@ import FloatingNav from '@app/components/common/Navbar/FloatingNav'
 import { EcosystemBanner } from '@app/components/Landing/EcosystemBanner'
 import { InfoMessage, Message } from '@app/components/common/Messages'
 import Link from '@app/components/common/Link'
+import { useEffect } from 'react'
 
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
 
@@ -124,6 +125,15 @@ export const Landing = ({
     },
   ];
 
+  useEffect(() => {
+    const sectionFirm1 = document.getElementById('section-firm-1')
+    const sectionFirm2 = document.getElementById('section-firm-2')
+    const height = sectionFirm2?.clientHeight
+    if (sectionFirm1 && height) {
+      sectionFirm1.style.height = `${height}px`
+    }
+  }, [])
+
   return (
     <Layout isLanding={true} pt="0" overflow="hidden">
       <Head>
@@ -186,12 +196,10 @@ export const Landing = ({
             Lock in. Dream Bigger.
           </Heading>
         </VStack>
-        <ResponsiveStack bgColor="white" w='full' alignItems="flex-start">
-          <VStack w='50%' bgImage="/assets/landing/firm-ui-sample.png" bgSize="cover" bgRepeat="no-repeat" bgPosition="center" maxH="450px" h="full">
-          {/* &nbsp;yo */}
-            {/* <Image src="/assets/landing/firm-ui-sample.png" alt="Lock in" h="100%" /> */}
+        <ResponsiveStack spacing="0" bgColor="white" w='full' alignItems="flex-start">
+          <VStack  id="section-firm-1" w='50%' bgImage="/assets/landing/firm-ui-sample.png" bgSize="cover" bgRepeat="no-repeat" bgPosition="center" h="476px">
           </VStack>
-          <VStack borderLeft="1px solid #B6B6B6" borderBottom="1px solid #B6B6B6" alignItems="flex-start" spacing="0" w='50%' px="0" py="0">
+          <VStack id="section-firm-2" borderLeft="0px solid #B6B6B6" alignItems="flex-start" spacing="0" w='50%' px="0" py="0">
             <VStack alignItems="flex-start" spacing="0" pt="4">
               <VStack px="4" alignItems="flex-start" spacing="4">
                 <HStack px="4" py="2" alignItems="center" borderRadius="20px" gap="2" bgColor={purple}>
@@ -218,8 +226,9 @@ export const Landing = ({
                 <StatBasic borderRight="1px solid #B6B6B6" value={shortenNumber(firmTotalTvl, 2, true)} name="TVL" />
                 <StatBasic value={`${shortenNumber(dbrPriceUsd * 100, 2, false)}%`} name="Fixed Rate" />
               </HStack>
-              <VStack alignItems="flex-start" borderTop="1px solid #B6B6B6" w="full">
-                <VStack p="4" alignItems="flex-start">
+              <HStack p="4" alignItems="flex-start" borderTop="1px solid #B6B6B6" w="full">
+                <Image mt="2" src="/assets/landing/one-click.png" alt="One-Click Hyperleverage" w="30px" h="30px" />
+                <VStack alignItems="flex-start">
                   <Heading>
                     One-Click Hyperleverage
                   </Heading>
@@ -227,7 +236,7 @@ export const Landing = ({
                     Turbocharge yield-bearing assets while keeping full control of your collateral—never loaned out, always yours.
                   </GeistText>
                 </VStack>
-              </VStack>
+              </HStack>
             </VStack>
           </VStack>
         </ResponsiveStack>
