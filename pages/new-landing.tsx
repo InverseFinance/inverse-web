@@ -27,6 +27,8 @@ const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column
 const mainColor = "#040826"
 const mutedColor = "#5A5D78"
 const yellowColor = "#FFF6B6"
+const greenColor = "#BEF297"
+const darkNavy2 = "#303454"
 
 const purple = "#B69AFF"
 const purpleText = "#581EF4"
@@ -56,7 +58,7 @@ const StatBasic = ({ value, name, ...props }: { value: number, name: string, pro
 }
 
 const Heading = ({ children, ...props }: { children: React.ReactNode, props?: any }) => {
-  return <Text color={"#040826"} className="landing-v3-heading" fontSize="3xl" fontWeight="bold" {...props}>{children}</Text>
+  return <Text lineHeight="normal" color={"#040826"} className="landing-v3-heading" fontSize="3xl" fontWeight="bold" {...props}>{children}</Text>
 }
 
 const Card = ({ children, ...props }: { children: React.ReactNode, props?: any }) => {
@@ -82,6 +84,7 @@ export const Landing = ({
   projectedApy,
   dolaVolume,
   totalDebt,
+  sDolaTvl,
 }: {
   posts: any[],
   currentCirculatingSupply: number,
@@ -93,6 +96,7 @@ export const Landing = ({
   apy: number,
   projectedApy: number,
   totalDebt: number,
+  sDolaTvl: number,
 }) => {
   const stats = [
     {
@@ -101,7 +105,7 @@ export const Landing = ({
     },
     {
       name: 'TVL',
-      value: firmTotalTvl ? shortenNumber(firmTotalTvl, 2, false) : '-',
+      value: firmTotalTvl ? shortenNumber(firmTotalTvl, 2, true) : '-',
     },
     {
       name: 'DOLA Circulation',
@@ -142,6 +146,13 @@ export const Landing = ({
     const height = sectionFirm2?.clientHeight
     if (sectionFirm1 && height) {
       sectionFirm1.style.height = `${height}px`
+    }
+
+    const sectionSafety1 = document.getElementById('section-safety-1')
+    const sectionSafety2 = document.getElementById('section-safety-2')
+    const height1 = sectionSafety1?.clientHeight
+    if (sectionSafety1 && height1) {
+      sectionSafety2.style.height = `${height1}px`
     }
   }, [])
 
@@ -209,12 +220,12 @@ export const Landing = ({
             Lock in. Dream Bigger.
           </Heading>
         </VStack>
-        <ResponsiveStack spacing="0" bgColor="white" w='full' alignItems="flex-start">
-           {/* section-firm-1 */}
+        <ResponsiveStack borderBottom="1px solid #B6B6B6" spacing="0" bgColor="white" w='full' alignItems="flex-start">
+          {/* section-firm-1 */}
           <VStack id="section-firm-1" w='50%' bgImage="/assets/landing/firm-ui-sample.png" bgSize="cover" bgRepeat="no-repeat" bgPosition="center" h="476px">
           </VStack>
           {/* section-firm-2 */}
-          <VStack id="section-firm-2" borderLeft="0px solid #B6B6B6" alignItems="flex-start" spacing="0" w='50%' px="0" py="0">
+          <VStack id="section-firm-2" alignItems="flex-start" spacing="0" w='50%' px="0" py="0">
             <VStack alignItems="flex-start" spacing="0">
               <VStack px="8" pt="4" alignItems="flex-start" spacing="4">
                 <HStack px="4" py="2" alignItems="center" borderRadius="20px" gap="2" bgColor={purple}>
@@ -242,8 +253,8 @@ export const Landing = ({
                 <StatBasic value={`${shortenNumber(dbrPriceUsd * 100, 2, false)}%`} name="Fixed Rate" />
               </HStack>
               <HStack py="4" px="8" alignItems="flex-start" borderTop="1px solid #B6B6B6" w="full">
-                <Image mt="2" src="/assets/landing/one-click.png" alt="One-Click Hyperleverage" w="30px" h="30px" />
-                <VStack alignItems="flex-start">
+                <Image mt="1" src="/assets/landing/one-click.png" alt="One-Click Hyperleverage" w="30px" h="30px" />
+                <VStack pl="2" alignItems="flex-start">
                   <Heading>
                     One-Click Hyperleverage
                   </Heading>
@@ -267,7 +278,7 @@ export const Landing = ({
           </VStack>
           <Card position="relative" w='1000px' maxW="100vw" display="flex" flexDirection="row" gap="0">
             <VStack boxShadow="0 0px 4px 2px gold" zIndex="0" height="105%" bgColor="white" position="absolute" top="-10px" left="33%" w="33%" spacing="0" key={0} alignItems="flex-start">
-             &nbsp;
+              &nbsp;
             </VStack>
             {
               compareData.map((col, i) => {
@@ -295,6 +306,116 @@ export const Landing = ({
               })
             }
           </Card>
+        </VStack>
+        {/* sDOLA section  */}
+        <VStack alignItems="flex-start" bgColor={greenColor} w='full' py="8" px="10">
+          <Heading textAlign="flex-start" fontSize="5xl" fontWeight="extrabold">
+            Save Different: sDOLA
+          </Heading>
+        </VStack>
+        <VStack bgColor="white" py="8" px="5%" w="full" justify="flex-start" minH="95vh" position="relative">
+          <video preload="metadata" width="80%" height="auto" style={{ zIndex: 10, maxWidth: '98%' }} controls webkit-playsinline playsInline>
+            <source src="sDOLA.mp4#t=0.1" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </VStack>
+        {/* sDOLA sub-section  */}
+        <ResponsiveStack borderTop="1px solid #B6B6B6" spacing="0" bgColor="white" w='full' alignItems="flex-start">
+          {/* section-firm-2 */}
+          <VStack id="section-sdola-1" borderLeft="0px solid #B6B6B6" alignItems="flex-start" spacing="0" w='50%' px="0" py="0">
+            <VStack alignItems="flex-start" spacing="0">
+              <VStack px="8" py="4" alignItems="flex-start" spacing="4">
+                <HStack px="4" py="2" alignItems="center" borderRadius="20px" gap="2" bgColor={purple}>
+                  <Image src="/assets/landing/safeguarded.png" alt="Safeguarded" w="14px" h="14px" />
+                  <GeistText color={purpleText} fontSize="md">
+                    100% Organic Yield
+                  </GeistText>
+                </HStack>
+                <GeistText fontSize="md">
+                  DOLA enables some of the most attractive yield opportunities in DeFi. Now, sDOLA takes it further—a yield-bearing stablecoin born from our FiRM lending market, delivering pure, uncut DeFi returns fueled by real activity, not centralized compromises.
+                </GeistText>
+              </VStack>
+              <HStack alignItems="center" justifyContent="space-evenly" borderTop="1px solid #B6B6B6" w="full">
+                <StatBasic minH="150px" borderRight="1px solid #B6B6B6" value={shortenNumber(sDolaTvl, 2, true)} name="sDOLA TVL" />
+                <StatBasic minH="150px" value={`${shortenNumber(apy, 2, false)}%`} name="sDOLA APY" />
+              </HStack>
+            </VStack>
+          </VStack>
+          {/* section-firm-1 */}
+          <VStack justifyContent="center" id="section-sdola-2" w='50%' bgSize="cover" bgRepeat="no-repeat" bgPosition="center" h="200px">
+            <GeistText>
+              Replace Swap design with sometheing else here
+            </GeistText>
+          </VStack>
+        </ResponsiveStack>
+        {/* Safety section  */}
+        <VStack bgColor={purple} w='full' py="20" px="5%" maxW="1300px">
+          <ResponsiveStack position="relative" borderRadius="8px" bgColor={darkNavy2} p="2" w='full' alignItems="flex-start">
+            <VStack id="section-safety-1" w={{ base: 'full', md: '50%' }}>
+              <VStack px="6" py="4">
+                <Heading color="white" fontSize="5xl">
+                  Our Obsession Is Safety
+                </Heading>
+                <GeistText color="white">
+                  Our obsession with safety includes security innovations like Personal Collateral Escrow accounts, ensuring your collateral is staked and isolated, never loaned out. We designed oracle safety measures to make price manipulation, flash loan, and similar attacks not just difficult, but financially unfeasible.
+                </GeistText>
+              </VStack>
+              <HStack spacing="2">
+                <VStack alignItems="flex-start" borderRadius="2px" py="48px" px="32px" bgColor={"#FFFFFF1F"}>
+                  <Heading color="white" fontSize="5xl">
+                    87%
+                  </Heading>
+                  <Heading color="white" fontSize="xl">
+                    Defi Safety Score
+                  </Heading>
+                  <GeistText color="white">
+                    Inverse Finance maintains an elite DeFi Safety Score of 87, built on years of protocol risk and safety experience.
+                  </GeistText>
+                </VStack>
+                <VStack alignItems="flex-start" borderRadius="2px" py="48px" px="32px" bgColor={"#FFFFFF1F"}>
+                  <Heading color="white" fontSize="5xl">
+                    {shortenNumber(firmTotalTvl, 2, true)}
+                  </Heading>
+                  <Heading color="white" fontSize="xl">
+                    Staked Collateral
+                  </Heading>
+                  <GeistText color="white">
+                    Fortified with rigorous audits and active bug bounty programs from Nomoi, yAudit, Code4rena, ImmuneFi, Peckshield, and others.
+                  </GeistText>
+                </VStack>
+              </HStack>
+            </VStack>
+            <VStack id="section-safety-2" borderRadius="4" w={{ base: 'full', md: '50%' }} bgColor="white">
+              <SimpleGrid border="1px solid white" borderRadius="4" bgColor="white" columns={{ base: 1, md: 2 }} gap={4} w="full">
+                <VStack as="a" href="https://code4rena.com/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
+                  <Image maxW="150px" src="/assets/v2/landing/code4arena.png" alt="code4arena" />
+                </VStack>
+                <VStack as="a" href="https://immunefi.com/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
+                  <Image maxW="150px" src="/assets/partners/immunefi.svg" alt="immunefi" />
+                </VStack>
+                <VStack as="a" href="https://defimoon.org/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
+                  <Image maxW="150px" src="/assets/v2/landing/defimoon.png?v2" alt="defimoon" />
+                </VStack>
+                <VStack as="a" href="https://peckshield.com/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
+                  <Image maxW="150px" src="/assets/v2/landing/peckshield.png" alt="peckshield" />
+                </VStack>
+                <VStack as="a" href="https://defisafety.com/app/pqrs/199" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
+                  <Image maxW="150px" src="/assets/v2/landing/defisafety.png" alt="defisafety" />
+                </VStack>
+                <VStack as="a" href="https://www.nomoi.xyz/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
+                  <Image maxW="150px" src="/assets/v2/landing/nomoi.png" alt="nomoi" />
+                </VStack>
+              </SimpleGrid>
+            </VStack>
+          </ResponsiveStack>
+        </VStack>
+        <VStack w='full' bg="white" py="20">
+          <Heading textAlign="center" fontSize="5xl" fontWeight="extrabold">
+            Alliances Built On Trust
+          </Heading>
+          <GeistText fontSize="md">
+            Top DeFi protocols trust Inverse Finance  
+          </GeistText>
         </VStack>
       </VStack>
     </Layout>
