@@ -11,7 +11,7 @@ import { getLandingProps } from '@app/blog/lib/utils'
 import LightPostPreview from '@app/blog/components/light-post-preview'
 import { Ecosystem } from '@app/components/Landing/Ecosystem'
 import { biggestSize, smallerSize, biggerSize, normalSize, btnIconSize, smallerSize2, slightlyBiggerSize2 } from '@app/variables/responsive'
-import { ArrowForwardIcon, ExternalLinkIcon } from '@chakra-ui/icons'
+import { ArrowForwardIcon, CheckCircleIcon, CheckIcon, CloseIcon, SmallCloseIcon } from '@chakra-ui/icons'
 import { BurgerMenu } from '@app/components/common/Navbar/BurgerMenu'
 import { MENUS } from '@app/variables/menus'
 import { LandingAnimation, LandingAnimation2 } from '@app/components/common/Animation/LandingAnimation'
@@ -20,6 +20,7 @@ import { EcosystemBanner } from '@app/components/Landing/EcosystemBanner'
 import { InfoMessage, Message } from '@app/components/common/Messages'
 import Link from '@app/components/common/Link'
 import { useEffect } from 'react'
+import FirmLogo from '@app/components/common/Logo/FirmLogo'
 
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
 
@@ -30,6 +31,16 @@ const yellowColor = "#FFF6B6"
 const purple = "#B69AFF"
 const purpleText = "#581EF4"
 
+const firmLogo = <FirmLogo transform="translateY(12px)" position="absolute" top="0" w="65px" h="30px" theme="light" />;
+const yes = <CheckCircleIcon color="#68CF1A" />;
+const no = <VStack borderRadius="full" bgColor="gray"><SmallCloseIcon color="white" /></VStack>;
+
+const compareData = [
+  ["FEATURES", "Interest Rate Stability", "Collateral Protection", "Looping / Leverage", "Borrow against LP Tokens", "Points Program"],
+  [firmLogo, "Fixed", "Collateral never loaned to others", "Up to x10 Looping", true, "Keep Earning Partner Points"],
+  ["Aave", "Variable", "Collateral loaned to others", "Limited", false, "Surrender Earning Partner Points"],
+]
+
 const Stat = ({ value, name }: { value: number, name: string }) => {
   return <VStack alignItems="flex-start" justifyContent="center" w="full">
     <Text fontFamily="Geist" color={mutedColor} fontSize={smallerSize}>{name}</Text>
@@ -38,18 +49,18 @@ const Stat = ({ value, name }: { value: number, name: string }) => {
 }
 
 const StatBasic = ({ value, name, ...props }: { value: number, name: string, props?: any }) => {
-  return <VStack w='full' px="4" py="4" alignItems="flex-start" {...props}>
+  return <VStack w='full' px="8" py="4" alignItems="flex-start" {...props}>
     <Heading alignSelf="flex-start" color={lightTheme.colors.mainTextColor} fontSize={biggestSize} fontWeight="bold">{value}</Heading>
     <Heading alignSelf="flex-start" color={lightTheme.colors.mainTextColor} fontSize={smallerSize}>{name}</Heading>
   </VStack>
 }
 
 const Heading = ({ children, ...props }: { children: React.ReactNode, props?: any }) => {
-  return <Text color="#040826" className="landing-v3-heading" fontSize="3xl" fontWeight="bold" {...props}>{children}</Text>
+  return <Text color={"#040826"} className="landing-v3-heading" fontSize="3xl" fontWeight="bold" {...props}>{children}</Text>
 }
 
 const Card = ({ children, ...props }: { children: React.ReactNode, props?: any }) => {
-  return <SimpleCard boxShadow="0 4px 5px 5px #33333322" borderRadius="2px" py="4" {...props}>{children}</SimpleCard>
+  return <SimpleCard boxShadow="0 2px 5px 5px #33333322" borderRadius="2px" py="4" {...props}>{children}</SimpleCard>
 }
 
 const GeistText = ({ children, ...props }: { children: React.ReactNode, props?: any }) => {
@@ -180,6 +191,7 @@ export const Landing = ({
           </VStack>
         </VStack>
         {/* below fold */}
+        {/* truested by the best banner section  */}
         <VStack w='full' bg="linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 80%);" pt="100px">
           <Heading textAlign="center" whiteSpace="pre-line" as="h1" fontSize="3xl" fontWeight="bold">
             Trusted by the Best
@@ -191,17 +203,20 @@ export const Landing = ({
         <VStack w='full' bg="white" py="20">
           <EcosystemBanner />
         </VStack>
+        {/* Lock in. Dream Bigger. section  */}
         <VStack alignItems="flex-start" bgColor={yellowColor} w='full' py="8" px="10">
           <Heading textAlign="flex-start" fontSize="5xl" fontWeight="extrabold">
             Lock in. Dream Bigger.
           </Heading>
         </VStack>
         <ResponsiveStack spacing="0" bgColor="white" w='full' alignItems="flex-start">
-          <VStack  id="section-firm-1" w='50%' bgImage="/assets/landing/firm-ui-sample.png" bgSize="cover" bgRepeat="no-repeat" bgPosition="center" h="476px">
+           {/* section-firm-1 */}
+          <VStack id="section-firm-1" w='50%' bgImage="/assets/landing/firm-ui-sample.png" bgSize="cover" bgRepeat="no-repeat" bgPosition="center" h="476px">
           </VStack>
+          {/* section-firm-2 */}
           <VStack id="section-firm-2" borderLeft="0px solid #B6B6B6" alignItems="flex-start" spacing="0" w='50%' px="0" py="0">
-            <VStack alignItems="flex-start" spacing="0" pt="4">
-              <VStack px="4" alignItems="flex-start" spacing="4">
+            <VStack alignItems="flex-start" spacing="0">
+              <VStack px="8" pt="4" alignItems="flex-start" spacing="4">
                 <HStack px="4" py="2" alignItems="center" borderRadius="20px" gap="2" bgColor={purple}>
                   <Image src="/assets/landing/safeguarded.png" alt="Safeguarded" w="14px" h="14px" />
                   <GeistText color={purpleText} fontSize="md">
@@ -226,7 +241,7 @@ export const Landing = ({
                 <StatBasic borderRight="1px solid #B6B6B6" value={shortenNumber(firmTotalTvl, 2, true)} name="TVL" />
                 <StatBasic value={`${shortenNumber(dbrPriceUsd * 100, 2, false)}%`} name="Fixed Rate" />
               </HStack>
-              <HStack p="4" alignItems="flex-start" borderTop="1px solid #B6B6B6" w="full">
+              <HStack py="4" px="8" alignItems="flex-start" borderTop="1px solid #B6B6B6" w="full">
                 <Image mt="2" src="/assets/landing/one-click.png" alt="One-Click Hyperleverage" w="30px" h="30px" />
                 <VStack alignItems="flex-start">
                   <Heading>
@@ -240,6 +255,47 @@ export const Landing = ({
             </VStack>
           </VStack>
         </ResponsiveStack>
+        {/* Compare section  */}
+        <VStack w='full' bg="white" py="20">
+          <VStack alignItems="center" position="relative" pb="40px">
+            <Heading color={purpleText} textAlign="center" fontSize="4xl" fontWeight="bold">
+              Compare Fixed Rate
+            </Heading>
+            <VStack zIndex="1" top="20px" h="40px" position="absolute" w="full" bg="linear-gradient(to bottom, rgba(255, 255, 255, 0) 10%, rgba(255, 255, 255, 1) 100%)">
+              &nbsp;
+            </VStack>
+          </VStack>
+          <Card position="relative" w='1000px' maxW="100vw" display="flex" flexDirection="row" gap="0">
+            <VStack boxShadow="0 0px 4px 2px gold" zIndex="0" height="105%" bgColor="white" position="absolute" top="-10px" left="33%" w="33%" spacing="0" key={0} alignItems="flex-start">
+             &nbsp;
+            </VStack>
+            {
+              compareData.map((col, i) => {
+                const firstCol = i === 0;
+                return <VStack w={firstCol ? "33%" : "33%"} spacing="0" key={i} alignItems={firstCol ? "flex-start" : "center"}>
+                  {
+                    col.map((cell, j) => {
+                      const isFirstCell = j === 0;
+                      const isText = typeof cell === 'string';
+                      const isBoolean = typeof cell === 'boolean';
+                      return <VStack alignItems={firstCol ? "flex-start" : "center"} justifyContent="center" h="70px" position="relative" textAlign={firstCol ? "left" : "center"} py="4" w='full' borderTop={isFirstCell ? "none" : "1px solid #E3E3E3"} key={j}>
+                        {
+                          isText || isBoolean ?
+                            <GeistText textAlign={firstCol ? "left" : "center"} fontWeight={firstCol || isFirstCell ? "bold" : "normal"} key={j}>
+                              {isBoolean ? (cell ? yes : no) : cell}
+                            </GeistText>
+                            :
+                            cell
+                        }
+                        {!isText && !isBoolean && <GeistText>&nbsp;</GeistText>}
+                      </VStack>
+                    })
+                  }
+                </VStack>
+              })
+            }
+          </Card>
+        </VStack>
       </VStack>
     </Layout>
   )
