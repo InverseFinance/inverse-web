@@ -1,37 +1,18 @@
-import { Flex, HStack, Image, UnorderedList, ListItem, Stack, Text, SimpleGrid, StackProps, Divider, VStack } from '@chakra-ui/react'
+import { HStack, Image, Stack, SimpleGrid, StackProps, VStack } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
-import { LandingNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
-import { lightTheme } from '@app/variables/theme'
-import { SplashedText } from '@app/components/common/SplashedText'
-import { LandingOutlineButton, LandingSubmitButton } from '@app/components/common/Button/RSubmitButton'
-import { SimpleCard } from '@app/components/common/Cards/Simple'
 import { shortenNumber } from '@app/util/markets'
 import { getLandingProps } from '@app/blog/lib/utils'
-import LightPostPreview from '@app/blog/components/light-post-preview'
-import { Ecosystem } from '@app/components/Landing/Ecosystem'
-import { biggestSize, smallerSize, biggerSize, normalSize, btnIconSize, smallerSize2, slightlyBiggerSize2 } from '@app/variables/responsive'
-import { ArrowForwardIcon, CheckCircleIcon, CheckIcon, CloseIcon, SmallCloseIcon } from '@chakra-ui/icons'
-import { BurgerMenu } from '@app/components/common/Navbar/BurgerMenu'
-import { MENUS } from '@app/variables/menus'
-import { LandingAnimation, LandingAnimation2 } from '@app/components/common/Animation/LandingAnimation'
+import { ArrowForwardIcon, CheckCircleIcon, SmallCloseIcon } from '@chakra-ui/icons'
+import { LandingAnimation } from '@app/components/common/Animation/LandingAnimation'
 import FloatingNav from '@app/components/common/Navbar/FloatingNav'
 import { EcosystemBanner } from '@app/components/Landing/EcosystemBanner'
-import { InfoMessage, Message } from '@app/components/common/Messages'
 import Link from '@app/components/common/Link'
 import { useEffect } from 'react'
 import FirmLogo from '@app/components/common/Logo/FirmLogo'
+import { GeistText, LandingBtn, LandingCard, landingDarkNavy2, landingGreenColor, LandingHeading, LandingLink, landingPurple, landingPurpleText, LandingStat, LandingStatBasic, landingYellowColor } from '@app/components/common/Landing/LandingComponents'
 
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
-
-const mainColor = "#040826"
-const mutedColor = "#5A5D78"
-const yellowColor = "#FFF6B6"
-const greenColor = "#BEF297"
-const darkNavy2 = "#303454"
-
-const purple = "#B69AFF"
-const purpleText = "#581EF4"
 
 const firmLogo = <FirmLogo transform="translateY(12px)" position="absolute" top="0" w="65px" h="30px" theme="light" />;
 const yes = <CheckCircleIcon color="#68CF1A" />;
@@ -43,38 +24,7 @@ const compareData = [
   ["Aave", "Variable", "Collateral loaned to others", "Limited", false, "Surrender Earning Partner Points"],
 ]
 
-const Stat = ({ value, name }: { value: number, name: string }) => {
-  return <VStack alignItems="flex-start" justifyContent="center" w="full">
-    <Text fontFamily="Geist" color={mutedColor} fontSize={smallerSize}>{name}</Text>
-    <Text fontFamily="Geist" color={mainColor} fontSize={smallerSize} fontWeight="bold">{value}</Text>
-  </VStack>
-}
-
-const StatBasic = ({ value, name, ...props }: { value: number, name: string, props?: any }) => {
-  return <VStack w='full' px="8" py="4" alignItems="flex-start" {...props}>
-    <Heading alignSelf="flex-start" color={lightTheme.colors.mainTextColor} fontSize={biggestSize} fontWeight="bold">{value}</Heading>
-    <Heading alignSelf="flex-start" color={lightTheme.colors.mainTextColor} fontSize={smallerSize}>{name}</Heading>
-  </VStack>
-}
-
-const Heading = ({ children, ...props }: { children: React.ReactNode, props?: any }) => {
-  return <Text lineHeight="normal" color={"#040826"} className="landing-v3-heading" fontSize="3xl" fontWeight="bold" {...props}>{children}</Text>
-}
-
-const Card = ({ children, ...props }: { children: React.ReactNode, props?: any }) => {
-  return <SimpleCard boxShadow="0 2px 5px 5px #33333322" borderRadius="2px" py="4" {...props}>{children}</SimpleCard>
-}
-
-export const GeistText = ({ children, ...props }: { children: React.ReactNode, props?: any }) => {
-  return <Text fontFamily="Geist" color={mainColor} {...props}>{children}</Text>
-}
-
-const LandingBtn = ({ children, ...props }: { children: React.ReactNode, props?: any }) => <LandingSubmitButton fontFamily="Geist" bgColor={mainColor} w={{ base: 'full', sm: 'auto' }} {...props}>{children}</LandingSubmitButton>
-
-const LandingLink = ({ children, ...props }: { children: React.ReactNode, props?: any }) => <Link _hover={{ color: mainColor, textDecoration: 'underline' }} fontFamily="Geist" color={mainColor} {...props}>{children}</Link>
-
 export const Landing = ({
-  posts,
   currentCirculatingSupply,
   dbrPriceUsd,
   firmTotalTvl,
@@ -86,7 +36,6 @@ export const Landing = ({
   totalDebt,
   sDolaTvl,
 }: {
-  posts: any[],
   currentCirculatingSupply: number,
   dbrPriceUsd: number,
   firmTotalTvl: number,
@@ -157,7 +106,7 @@ export const Landing = ({
   }, [])
 
   return (
-    <Layout isLanding={true} pt="0" overflow="hidden">
+    <Layout isLanding={true} isLandingV2={true} pt="0" overflow="hidden">
       <Head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -178,11 +127,11 @@ export const Landing = ({
           </VStack>
           <VStack pt="8" spacing="8" w='full' alignItems="center">
             <VStack spacing="0" w='full' alignItems="center">
-              <Heading textAlign="center" whiteSpace="pre-line" as="h1" fontSize="6xl" fontWeight="bold">
+              <LandingHeading textAlign="center" whiteSpace="pre-line" as="h1" fontSize="6xl" fontWeight="bold">
                 Experience Fixed Rates
                 <br />
                 With Unfixed Potential Today
-              </Heading>
+              </LandingHeading>
             </VStack>
             <GeistText as="h2" fontSize="xl">
               Stack your leverage with locked rates and multiply your returns - all in one click
@@ -190,23 +139,23 @@ export const Landing = ({
             <LandingBtn href="/firm">
               Launch App
             </LandingBtn>
-            <Card mt="12" w="full" maxW="800px">
+            <LandingCard mt="12" w="full" maxW="800px">
               <SimpleGrid columns={{ base: 2, md: 4 }} gap="2" w="full">
                 {
                   stats.map((stat) => (
-                    <Stat key={stat.name} {...stat} />
+                    <LandingStat key={stat.name} {...stat} />
                   ))
                 }
               </SimpleGrid>
-            </Card>
+            </LandingCard>
           </VStack>
         </VStack>
         {/* below fold */}
         {/* truested by the best banner section  */}
         <VStack w='full' bg="linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 80%);" pt="100px">
-          <Heading textAlign="center" whiteSpace="pre-line" as="h1" fontSize="3xl" fontWeight="bold">
+          <LandingHeading textAlign="center" whiteSpace="pre-line" as="h1" fontSize="3xl" fontWeight="bold">
             Trusted by the Best
-          </Heading>
+          </LandingHeading>
           <GeistText fontSize="md">
             Inverse Finance has been trusted by Top DeFi protocols
           </GeistText>
@@ -215,10 +164,10 @@ export const Landing = ({
           <EcosystemBanner />
         </VStack>
         {/* Lock in. Dream Bigger. section  */}
-        <VStack alignItems="flex-start" bgColor={yellowColor} w='full' py="8" px="10">
-          <Heading textAlign="flex-start" fontSize="5xl" fontWeight="extrabold">
+        <VStack alignItems="flex-start" bgColor={landingYellowColor} w='full' py="8" px="10">
+          <LandingHeading textAlign="flex-start" fontSize="5xl" fontWeight="extrabold">
             Lock in. Dream Bigger.
-          </Heading>
+          </LandingHeading>
         </VStack>
         <ResponsiveStack borderBottom="1px solid #B6B6B6" spacing="0" bgColor="white" w='full' alignItems="flex-start">
           {/* section-firm-1 */}
@@ -228,9 +177,9 @@ export const Landing = ({
           <VStack id="section-firm-2" alignItems="flex-start" spacing="0" w='50%' px="0" py="0">
             <VStack alignItems="flex-start" spacing="0">
               <VStack px="8" pt="4" alignItems="flex-start" spacing="4">
-                <HStack px="4" py="2" alignItems="center" borderRadius="20px" gap="2" bgColor={purple}>
+                <HStack px="4" py="2" alignItems="center" borderRadius="20px" gap="2" bgColor={landingPurple}>
                   <Image src="/assets/landing/safeguarded.png" alt="Safeguarded" w="14px" h="14px" />
-                  <GeistText color={purpleText} fontSize="md">
+                  <GeistText color={landingPurpleText} fontSize="md">
                     Safeguarded with on-chain monitoring
                   </GeistText>
                 </HStack>
@@ -249,15 +198,15 @@ export const Landing = ({
                 </VStack>
               </VStack>
               <HStack alignItems="center" justifyContent="space-evenly" borderTop="1px solid #B6B6B6" w="full">
-                <StatBasic borderRight="1px solid #B6B6B6" value={shortenNumber(firmTotalTvl, 2, true)} name="TVL" />
-                <StatBasic value={`${shortenNumber(dbrPriceUsd * 100, 2, false)}%`} name="Fixed Rate" />
+                <LandingStatBasic borderRight="1px solid #B6B6B6" value={shortenNumber(firmTotalTvl, 2, true)} name="TVL" />
+                <LandingStatBasic value={`${shortenNumber(dbrPriceUsd * 100, 2, false)}%`} name="Fixed Rate" />
               </HStack>
               <HStack py="4" px="8" alignItems="flex-start" borderTop="1px solid #B6B6B6" w="full">
                 <Image mt="1" src="/assets/landing/one-click.png" alt="One-Click Hyperleverage" w="30px" h="30px" />
                 <VStack pl="2" alignItems="flex-start">
-                  <Heading>
+                  <LandingHeading>
                     One-Click Hyperleverage
-                  </Heading>
+                  </LandingHeading>
                   <GeistText>
                     Turbocharge yield-bearing assets while keeping full control of your collateral—never loaned out, always yours.
                   </GeistText>
@@ -269,14 +218,14 @@ export const Landing = ({
         {/* Compare section  */}
         <VStack w='full' bg="white" py="20">
           <VStack alignItems="center" position="relative" pb="40px">
-            <Heading color={purpleText} textAlign="center" fontSize="4xl" fontWeight="bold">
+            <LandingHeading color={landingPurpleText} textAlign="center" fontSize="4xl" fontWeight="bold">
               Compare Fixed Rate
-            </Heading>
+            </LandingHeading>
             <VStack zIndex="1" top="20px" h="40px" position="absolute" w="full" bg="linear-gradient(to bottom, rgba(255, 255, 255, 0) 10%, rgba(255, 255, 255, 1) 100%)">
               &nbsp;
             </VStack>
           </VStack>
-          <Card position="relative" w='1000px' maxW="100vw" display="flex" flexDirection="row" gap="0">
+          <LandingCard position="relative" w='1000px' maxW="100vw" display="flex" flexDirection="row" gap="0">
             <VStack boxShadow="0 0px 4px 2px gold" zIndex="0" height="105%" bgColor="white" position="absolute" top="-10px" left="33%" w="33%" spacing="0" key={0} alignItems="flex-start">
               &nbsp;
             </VStack>
@@ -305,13 +254,13 @@ export const Landing = ({
                 </VStack>
               })
             }
-          </Card>
+          </LandingCard>
         </VStack>
         {/* sDOLA section  */}
-        <VStack alignItems="flex-start" bgColor={greenColor} w='full' py="8" px="10">
-          <Heading textAlign="flex-start" fontSize="5xl" fontWeight="extrabold">
+        <VStack alignItems="flex-start" bgColor={landingGreenColor} w='full' py="8" px="10">
+          <LandingHeading textAlign="flex-start" fontSize="5xl" fontWeight="extrabold">
             Save Different: sDOLA
-          </Heading>
+          </LandingHeading>
         </VStack>
         <VStack bgColor="white" py="8" px="5%" w="full" justify="flex-start" minH="95vh" position="relative">
           <video preload="metadata" width="80%" height="auto" style={{ zIndex: 10, maxWidth: '98%' }} controls webkit-playsinline playsInline>
@@ -325,9 +274,9 @@ export const Landing = ({
           <VStack id="section-sdola-1" borderLeft="0px solid #B6B6B6" alignItems="flex-start" spacing="0" w='50%' px="0" py="0">
             <VStack alignItems="flex-start" spacing="0">
               <VStack px="8" py="4" alignItems="flex-start" spacing="4">
-                <HStack px="4" py="2" alignItems="center" borderRadius="20px" gap="2" bgColor={purple}>
+                <HStack px="4" py="2" alignItems="center" borderRadius="20px" gap="2" bgColor={landingPurple}>
                   <Image src="/assets/landing/safeguarded.png" alt="Safeguarded" w="14px" h="14px" />
-                  <GeistText color={purpleText} fontSize="md">
+                  <GeistText color={landingPurpleText} fontSize="md">
                     100% Organic Yield
                   </GeistText>
                 </HStack>
@@ -336,8 +285,8 @@ export const Landing = ({
                 </GeistText>
               </VStack>
               <HStack alignItems="center" justifyContent="space-evenly" borderTop="1px solid #B6B6B6" w="full">
-                <StatBasic minH="150px" borderRight="1px solid #B6B6B6" value={shortenNumber(sDolaTvl, 2, true)} name="sDOLA TVL" />
-                <StatBasic minH="150px" value={`${shortenNumber(apy, 2, false)}%`} name="sDOLA APY" />
+                <LandingStatBasic minH="150px" borderRight="1px solid #B6B6B6" value={shortenNumber(sDolaTvl, 2, true)} name="sDOLA TVL" />
+                <LandingStatBasic minH="150px" value={`${shortenNumber(apy, 2, false)}%`} name="sDOLA APY" />
               </HStack>
             </VStack>
           </VStack>
@@ -349,36 +298,36 @@ export const Landing = ({
           </VStack>
         </ResponsiveStack>
         {/* Safety section  */}
-        <VStack bgColor={purple} w='full' py="20" px="5%" maxW="1300px">
-          <ResponsiveStack position="relative" borderRadius="8px" bgColor={darkNavy2} p="2" w='full' alignItems="flex-start">
+        <VStack bgColor={landingPurple} w='full' py="20" px="5%" maxW="1300px">
+          <ResponsiveStack position="relative" borderRadius="8px" bgColor={landingDarkNavy2} p="2" w='full' alignItems="flex-start">
             <VStack id="section-safety-1" w={{ base: 'full', md: '50%' }}>
               <VStack px="6" py="4">
-                <Heading color="white" fontSize="5xl">
+                <LandingHeading color="white" fontSize="5xl">
                   Our Obsession Is Safety
-                </Heading>
+                </LandingHeading>
                 <GeistText color="white">
                   Our obsession with safety includes security innovations like Personal Collateral Escrow accounts, ensuring your collateral is staked and isolated, never loaned out. We designed oracle safety measures to make price manipulation, flash loan, and similar attacks not just difficult, but financially unfeasible.
                 </GeistText>
               </VStack>
               <HStack spacing="2">
                 <VStack alignItems="flex-start" borderRadius="2px" py="48px" px="32px" bgColor={"#FFFFFF1F"}>
-                  <Heading color="white" fontSize="5xl">
+                  <LandingHeading color="white" fontSize="5xl">
                     87%
-                  </Heading>
-                  <Heading color="white" fontSize="xl">
+                  </LandingHeading>
+                  <LandingHeading color="white" fontSize="xl">
                     Defi Safety Score
-                  </Heading>
+                  </LandingHeading>
                   <GeistText color="white">
                     Inverse Finance maintains an elite DeFi Safety Score of 87, built on years of protocol risk and safety experience.
                   </GeistText>
                 </VStack>
                 <VStack alignItems="flex-start" borderRadius="2px" py="48px" px="32px" bgColor={"#FFFFFF1F"}>
-                  <Heading color="white" fontSize="5xl">
+                  <LandingHeading color="white" fontSize="5xl">
                     {shortenNumber(firmTotalTvl, 2, true)}
-                  </Heading>
-                  <Heading color="white" fontSize="xl">
+                  </LandingHeading>
+                  <LandingHeading color="white" fontSize="xl">
                     Staked Collateral
-                  </Heading>
+                  </LandingHeading>
                   <GeistText color="white">
                     Fortified with rigorous audits and active bug bounty programs from Nomoi, yAudit, Code4rena, ImmuneFi, Peckshield, and others.
                   </GeistText>
@@ -410,9 +359,9 @@ export const Landing = ({
           </ResponsiveStack>
         </VStack>
         <VStack w='full' bg="white" py="20">
-          <Heading textAlign="center" fontSize="5xl" fontWeight="extrabold">
+          <LandingHeading textAlign="center" fontSize="5xl" fontWeight="extrabold">
             Alliances Built On Trust
-          </Heading>
+          </LandingHeading>
           <GeistText fontSize="md">
             Top DeFi protocols trust Inverse Finance  
           </GeistText>

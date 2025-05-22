@@ -2,12 +2,14 @@ import { Flex, FlexProps, Stack } from '@chakra-ui/react'
 import Footer from '@app/components/common/Footer'
 import { lightTheme } from '@app/variables/theme'
 import { LandingNav } from '../Navbar'
+import FooterV2 from '../Footer/FooterV2'
 
-export const Layout = ({ children, isLanding, bgColor = 'mainBackgroundColor', bg = 'mainBackground', ...props }: {
+export const Layout = ({ children, isLanding, isLandingV2 = false, bgColor = 'mainBackgroundColor', bg = 'mainBackground', ...props }: {
   children?: React.ReactNode,
   bgColor?: FlexProps["bgColor"],
   bg?: FlexProps["bg"],
-  isLanding?: boolean
+  isLanding?: boolean,
+  isLandingV2?: boolean
 }) => (
   <Flex
     w="full"
@@ -26,12 +28,12 @@ export const Layout = ({ children, isLanding, bgColor = 'mainBackgroundColor', b
       align="center"
       borderColor={`mainTextColorAlpha`}
       borderBottomWidth={isLanding ? 0 : 1}
-      pb={6}
+      pb={0}
     >
       {children}
     </Flex>
     {
-      isLanding ?
+      isLandingV2 ? <FooterV2 isLanding={true} /> : isLanding ?
         <Stack
           bgColor={lightTheme.colors.accentTextColor}
           borderLeftRadius="50px"
