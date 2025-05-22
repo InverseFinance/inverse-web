@@ -65,7 +65,7 @@ const Card = ({ children, ...props }: { children: React.ReactNode, props?: any }
   return <SimpleCard boxShadow="0 2px 5px 5px #33333322" borderRadius="2px" py="4" {...props}>{children}</SimpleCard>
 }
 
-const GeistText = ({ children, ...props }: { children: React.ReactNode, props?: any }) => {
+export const GeistText = ({ children, ...props }: { children: React.ReactNode, props?: any }) => {
   return <Text fontFamily="Geist" color={mainColor} {...props}>{children}</Text>
 }
 
