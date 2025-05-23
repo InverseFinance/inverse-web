@@ -103,7 +103,7 @@ export const FooterV2 = ({ isLanding = false }: { isLanding?: boolean }) => {
          w="full"
       >
         {LINK_GROUPS.map(({ groupLabel, items }) => (
-          <Stack key={groupLabel} w={{ base: 28 }} spacing="1">
+          <Stack key={groupLabel} w={{ base: 28 }} spacing="2">
             <Text fontSize={smallerSize3} fontWeight="bold" color={landingDarkNavy2}>{groupLabel}</Text>
             {items.map(({ label, href, isExternal }, i) => (
               <Link
