@@ -155,7 +155,7 @@ export const Landing = ({
               <LandingBtn minWidth="150px" minH="50px" fontSize={{ base: '16px', "2xl": '18px' }} px="1%" py="1%" href="/firm">
                 Launch App
               </LandingBtn>
-              <LandingCard mt="12" w="full" maxW="800px">
+              <LandingCard bg="linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(250, 250, 250, 0.8) 2%, rgba(255, 255, 255, 1) 98%, rgba(0, 0, 0, 0.05) 100%)" borderRadius='4px' boxShadow="unset" mt="12" w="full" maxW="800px">
                 <SimpleGrid columns={{ base: 2, md: 4 }} gap="2" w="full">
                   {
                     stats.map((stat) => (
