@@ -50,9 +50,9 @@ export const Landing = ({
   const [windowSize, setWindowSize] = useState(0);
 
   useEffect(() => {
-    setWindowSize(window.innerWidth);
+    setWindowSize(Math.max(window.innerWidth, window.innerHeight));
     const handleResize = () => {
-      setWindowSize(window.innerWidth);
+      setWindowSize(Math.max(window.innerWidth, window.innerHeight));
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -131,15 +131,17 @@ export const Landing = ({
       <VStack spacing="0" className="landing-v3" w='full' alignItems="center">
         <VStack h='100vh' w='full' alignItems="center" justifyContent="center">
           <VStack bgImage="/assets/landing/anim_bg.png" bgSize="cover" bgRepeat="no-repeat" bgPosition="center" zIndex="-1" position="fixed" top="0" left="0" height="100vh" width="100%">
-            <LandingAnimation loop={true} height={windowSize} width={windowSize} />
+            {
+              windowSize > 500 && <LandingAnimation loop={true} height={windowSize} width={windowSize} />
+            }
           </VStack>
           <VStack position="absolute" top="0" maxW="2000px" w='full' px="4%" py="5" alignItems="center">
             <FloatingNav />
           </VStack>
-          <VStack w='full' alignItems="center" pt="50px">
+          <VStack maxW="90%" w='full' alignItems="center" pt="50px">
             <VStack pt="8" spacing="8" w='full' alignItems="center">
               <VStack spacing="0" w='full' alignItems="center">
-                <LandingHeading textAlign="center" whiteSpace="pre-line" as="h1" fontSize="6xl" fontWeight="bold">
+                <LandingHeading textAlign={{ base: 'flex-start', 'md': 'center' }} whiteSpace="pre-line" as="h1" fontSize={{ base: '30px', 'md': '5xl' }} fontWeight="bold">
                   Experience Fixed Rates
                   <br />
                   With Unfixed Potential Today
@@ -171,7 +173,7 @@ export const Landing = ({
           <LandingHeading textAlign="center" whiteSpace="pre-line" as="h1" fontSize="3xl" fontWeight="bold">
             Trusted by the Best
           </LandingHeading>
-          <GeistText fontSize="md">
+          <GeistText fontSize="md" textAlign="center">
             Inverse Finance has been trusted by Top DeFi protocols
           </GeistText>
         </VStack>
@@ -180,7 +182,7 @@ export const Landing = ({
         </VStack>
         {/* Lock in. Dream Bigger. section  */}
         <VStack alignItems="flex-start" bgColor={landingYellowColor} w='full' py="8" px="10">
-          <LandingHeading textAlign="flex-start" fontSize="5xl" fontWeight="extrabold">
+          <LandingHeading textAlign="flex-start" fontSize={{ base: '24px', 'md': '5xl' }} fontWeight="extrabold">
             Lock in. Dream Bigger.
           </LandingHeading>
         </VStack>
@@ -273,7 +275,7 @@ export const Landing = ({
         </VStack>
         {/* sDOLA section  */}
         <VStack alignItems="flex-start" bgColor={landingGreenColor} w='full' py="8" px="10">
-          <LandingHeading textAlign="flex-start" fontSize="5xl" fontWeight="extrabold">
+          <LandingHeading textAlign="flex-start" fontSize={{ base: '24px', 'md': '5xl' }} fontWeight="extrabold">
             Save Different: sDOLA
           </LandingHeading>
         </VStack>
@@ -383,8 +385,8 @@ export const Landing = ({
           <VStack w='full' bg="white" py="10">
             <EcosystemGrid />
           </VStack>
-          <VStack py="10" spacing="10">
-            <LandingHeading textAlign="center" fontSize="5xl" fontWeight="extrabold">
+          <VStack pt="20" spacing="10">
+            <LandingHeading textAlign="center" fontSize={{ base: '36px', 'md': '5xl' }} fontWeight="extrabold">
               Ready to Experience Fixed Rates?
             </LandingHeading>
             <ResponsiveStack spacing="10" alignItems="center">
