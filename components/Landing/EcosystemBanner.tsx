@@ -197,12 +197,14 @@ const EcoCellItem = ({ project, width = '50px' }: { project: string, width?: str
     return <Image borderRadius='full' src={projectImages[project]!} width={width} alt={project} />
 }
 
+const bannerItems = data.slice(0, 10);
+
 export const EcosystemBanner = () => {
     return <HStack className="banner" bgColor="white" pb="2" pt="2">
         <HStack className="banner-track">
-            {data.map((el, i) => <EcoElement key={i} {...el} />)}
+            {bannerItems.map((el, i) => <EcoElement key={i} {...el} />)}
             {/* duplicate for smooth banner auto-scroll */}
-            {data.map((el, i) => <EcoElement key={i} {...el} />)}
+            {bannerItems.map((el, i) => <EcoElement key={i} {...el} />)}
         </HStack>
     </HStack>
 }
