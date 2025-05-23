@@ -8,6 +8,7 @@ import { biggerSize, slightlyBiggerSize, smallerSize3, smallerSize2, normalSize,
 import { SimpleCard } from '../Cards/Simple';
 import FirmLogo from '../Logo/FirmLogo';
 import { ChevronDownIcon } from '@chakra-ui/icons';
+import { LandingBtn, landingMainColor } from '../Landing/LandingComponents';
 
 const GeistText = ({ children, ...props }: { children: React.ReactNode, props?: any }) => {
   return <Text fontFamily="Geist" color={mainColor} {...props}>{children}</Text>
@@ -157,7 +158,6 @@ export const FloatingNav = ({
   isBottom?: boolean
 }) => {
   const [isLargerThan] = useMediaQuery('(min-width: 1330px)');
-  const Btn = isBottom ? LandingSubmitButton : LandingOutlineButton;
   return (
     <>
       <SimpleGrid
@@ -167,7 +167,7 @@ export const FloatingNav = ({
         justifyContent="space-between"
         alignItems="center"
         py={2}
-        px={2}
+        px={'1%'}
         zIndex="docked"
         borderRadius="5px"
       >
@@ -191,7 +191,7 @@ export const FloatingNav = ({
                 <PopoverTrigger>
                   <Box>
                     <Link
-                      fontSize={isLargerThan ? '16px' : '15px'}
+                      fontSize={isLargerThan ? '18px' : '15px'}
                       color={mainColor}
                       _hover={{ color: mainColor }}
                       href={href}>
@@ -249,10 +249,12 @@ export const FloatingNav = ({
           ))}
         </Stack>
         <VStack alignItems="flex-end">
-          <Btn
+          <LandingBtn
+            color={landingMainColor}
             href="/firm"
             className="landing-v3-text"
             fontWeight="bold"
+            borderRadius="4px"
             // fontSize={slightlyBiggerSize}
             outline={isBottom ? '2px solid white' : `2px solid ${lightTheme.colors.mainTextColor}`}
             bgColor={isBottom ? 'transparent' : 'white'}
@@ -263,11 +265,12 @@ export const FloatingNav = ({
             // py={{ base: '26px', '2xl': '36px', '3xl': '40px', '4xl': '48px' }}
             transition="transform ease-in-out 200ms"
             _hover={{ transform: 'scale(1.03)' }}
-            maxW={{ base: '145px', '2xl': 'none' }}
-            fontSize={smallerSize2}
+            w='150px'
+            h="40px"
+            fontSize={isLargerThan ? '18px' : '15px'}
           >
             Launch App
-          </Btn>
+          </LandingBtn>
         </VStack>
       </SimpleGrid>
     </>

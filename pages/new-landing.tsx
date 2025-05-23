@@ -6,11 +6,11 @@ import { getLandingProps } from '@app/blog/lib/utils'
 import { ArrowForwardIcon, CheckCircleIcon, SmallCloseIcon } from '@chakra-ui/icons'
 import { LandingAnimation } from '@app/components/common/Animation/LandingAnimation'
 import FloatingNav from '@app/components/common/Navbar/FloatingNav'
-import { EcosystemBanner } from '@app/components/Landing/EcosystemBanner'
+import { EcosystemBanner, EcosystemGrid } from '@app/components/Landing/EcosystemBanner'
 import Link from '@app/components/common/Link'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import FirmLogo from '@app/components/common/Logo/FirmLogo'
-import { GeistText, LandingBtn, LandingCard, landingDarkNavy2, landingGreenColor, LandingHeading, LandingLink, landingPurple, landingPurpleText, LandingStat, LandingStatBasic, landingYellowColor } from '@app/components/common/Landing/LandingComponents'
+import { GeistText, LandingBtn, LandingCard, landingDarkNavy2, landingGreenColor, LandingHeading, LandingLink, landingMutedColor, landingPurple, landingPurpleText, LandingStat, LandingStatBasic, landingYellowColor } from '@app/components/common/Landing/LandingComponents'
 
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
 
@@ -47,6 +47,17 @@ export const Landing = ({
   totalDebt: number,
   sDolaTvl: number,
 }) => {
+  const [windowSize, setWindowSize] = useState(0);
+
+  useEffect(() => {
+    setWindowSize(window.innerWidth);
+    const handleResize = () => {
+      setWindowSize(window.innerWidth);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const stats = [
     {
       name: 'sDOLA APY',
@@ -117,37 +128,41 @@ export const Landing = ({
         <link rel="canonical" href="https://inverse.finance" />
         <link rel="stylesheet" href="/landing.css" />
       </Head>
-      <VStack spacing="0" className="landing-v3" w='full' alignItems="flex-start">
-        <VStack h='100vh' w='full'>
-          <VStack bgImage="/assets/landing/anim_bg.png" zIndex="-1" position="fixed" top="0" left="0" height="100vh" width="100%">
-            <LandingAnimation loop={true} height="100%" width="100%" />
+      <VStack spacing="0" className="landing-v3" w='full' alignItems="center">
+        <VStack h='100vh' w='full' alignItems="center" justifyContent="center">
+          <VStack bgImage="/assets/landing/anim_bg.png" bgSize="cover" bgRepeat="no-repeat" bgPosition="center" zIndex="-1" position="fixed" top="0" left="0" height="100vh" width="100%">
+            <LandingAnimation loop={true} height={windowSize} width={windowSize} />
           </VStack>
-          <VStack maxW="1300px" w='full' px="4%" py="5" alignItems="center">
+          <VStack position="absolute" top="0" maxW="2000px" w='full' px="4%" py="5" alignItems="center">
             <FloatingNav />
           </VStack>
-          <VStack pt="8" spacing="8" w='full' alignItems="center">
-            <VStack spacing="0" w='full' alignItems="center">
-              <LandingHeading textAlign="center" whiteSpace="pre-line" as="h1" fontSize="6xl" fontWeight="bold">
-                Experience Fixed Rates
-                <br />
-                With Unfixed Potential Today
-              </LandingHeading>
+          <VStack w='full' alignItems="center" pt="50px">
+            <VStack pt="8" spacing="8" w='full' alignItems="center">
+              <VStack spacing="0" w='full' alignItems="center">
+                <LandingHeading textAlign="center" whiteSpace="pre-line" as="h1" fontSize="6xl" fontWeight="bold">
+                  Experience Fixed Rates
+                  <br />
+                  With Unfixed Potential Today
+                </LandingHeading>
+              </VStack>
+              <GeistText as="h2" fontSize="xl">
+                Stack your leverage with locked rates and multiply your returns - all in one click
+              </GeistText>
             </VStack>
-            <GeistText as="h2" fontSize="xl">
-              Stack your leverage with locked rates and multiply your returns - all in one click
-            </GeistText>
-            <LandingBtn href="/firm">
-              Launch App
-            </LandingBtn>
-            <LandingCard mt="12" w="full" maxW="800px">
-              <SimpleGrid columns={{ base: 2, md: 4 }} gap="2" w="full">
-                {
-                  stats.map((stat) => (
-                    <LandingStat key={stat.name} {...stat} />
-                  ))
-                }
-              </SimpleGrid>
-            </LandingCard>
+            <VStack w='full' alignItems="center" pt="2%" pb="5%">
+              <LandingBtn minWidth="150px" minH="50px" fontSize={{ base: '16px', "2xl": '18px' }} px="1%" py="1%" href="/firm">
+                Launch App
+              </LandingBtn>
+              <LandingCard mt="12" w="full" maxW="800px">
+                <SimpleGrid columns={{ base: 2, md: 4 }} gap="2" w="full">
+                  {
+                    stats.map((stat) => (
+                      <LandingStat key={stat.name} {...stat} />
+                    ))
+                  }
+                </SimpleGrid>
+              </LandingCard>
+            </VStack>
           </VStack>
         </VStack>
         {/* below fold */}
@@ -171,7 +186,7 @@ export const Landing = ({
         </VStack>
         <ResponsiveStack borderBottom="1px solid #B6B6B6" spacing="0" bgColor="white" w='full' alignItems="flex-start">
           {/* section-firm-1 */}
-          <VStack id="section-firm-1" w='50%' bgImage="/assets/landing/firm-ui-sample.png" bgSize="cover" bgRepeat="no-repeat" bgPosition="center" h="476px">
+          <VStack id="section-firm-1" w='50%' bgImage="/assets/landing/firm-ui-sample-clean.png" bgSize="cover" bgRepeat="no-repeat" bgPosition={{ base: 'center', '2xl': '0 20%' }} h="476px">
           </VStack>
           {/* section-firm-2 */}
           <VStack id="section-firm-2" alignItems="flex-start" spacing="0" w='50%' px="0" py="0">
@@ -298,8 +313,8 @@ export const Landing = ({
           </VStack>
         </ResponsiveStack>
         {/* Safety section  */}
-        <VStack bgColor={landingPurple} w='full' py="20" px="5%" maxW="1300px">
-          <ResponsiveStack position="relative" borderRadius="8px" bgColor={landingDarkNavy2} p="2" w='full' alignItems="flex-start">
+        <VStack bgColor={landingPurple} w='full' py="20" px="5%">
+          <ResponsiveStack maxW="1300px" position="relative" borderRadius="8px" bgColor={landingDarkNavy2} p="2" w='full' alignItems="flex-start">
             <VStack id="section-safety-1" w={{ base: 'full', md: '50%' }}>
               <VStack px="6" py="4">
                 <LandingHeading color="white" fontSize="5xl">
@@ -335,23 +350,23 @@ export const Landing = ({
               </HStack>
             </VStack>
             <VStack id="section-safety-2" borderRadius="4" w={{ base: 'full', md: '50%' }} bgColor="white">
-              <SimpleGrid border="1px solid white" borderRadius="4" bgColor="white" columns={{ base: 1, md: 2 }} gap={4} w="full">
-                <VStack as="a" href="https://code4rena.com/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
+              <SimpleGrid border="1px solid white" borderRadius="4" bgColor="white" columns={{ base: 1, md: 2 }} gap={0} w="full">
+                <VStack as="a" target="_blank" w={{ base: 'full' }} h="150px" bgColor="white" alignItems="center" justify="center">
                   <Image maxW="150px" src="/assets/v2/landing/code4arena.png" alt="code4arena" />
                 </VStack>
-                <VStack as="a" href="https://immunefi.com/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
+                <VStack as="a" target="_blank" w={{ base: 'full' }} h="150px" bgColor="white" alignItems="center" justify="center">
                   <Image maxW="150px" src="/assets/partners/immunefi.svg" alt="immunefi" />
                 </VStack>
-                <VStack as="a" href="https://defimoon.org/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
+                <VStack as="a" target="_blank" w={{ base: 'full' }} h="150px" bgColor="white" alignItems="center" justify="center">
                   <Image maxW="150px" src="/assets/v2/landing/defimoon.png?v2" alt="defimoon" />
                 </VStack>
-                <VStack as="a" href="https://peckshield.com/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
+                <VStack as="a" target="_blank" w={{ base: 'full' }} h="150px" bgColor="white" alignItems="center" justify="center">
                   <Image maxW="150px" src="/assets/v2/landing/peckshield.png" alt="peckshield" />
                 </VStack>
-                <VStack as="a" href="https://defisafety.com/app/pqrs/199" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
+                <VStack as="a" target="_blank" w={{ base: 'full' }} h="150px" bgColor="white" alignItems="center" justify="center">
                   <Image maxW="150px" src="/assets/v2/landing/defisafety.png" alt="defisafety" />
                 </VStack>
-                <VStack as="a" href="https://www.nomoi.xyz/" target="_blank" w={{ base: 'full' }} h="180px" bgColor="white" alignItems="center" justify="center">
+                <VStack as="a" target="_blank" w={{ base: 'full' }} h="150px" bgColor="white" alignItems="center" justify="center">
                   <Image maxW="150px" src="/assets/v2/landing/nomoi.png" alt="nomoi" />
                 </VStack>
               </SimpleGrid>
@@ -363,8 +378,24 @@ export const Landing = ({
             Alliances Built On Trust
           </LandingHeading>
           <GeistText fontSize="md">
-            Top DeFi protocols trust Inverse Finance  
+            Top DeFi protocols trust Inverse Finance
           </GeistText>
+          <VStack w='full' bg="white" py="10">
+            <EcosystemGrid />
+          </VStack>
+          <VStack py="10" spacing="10">
+            <LandingHeading textAlign="center" fontSize="5xl" fontWeight="extrabold">
+              Ready to Experience Fixed Rates?
+            </LandingHeading>
+            <ResponsiveStack spacing="10" alignItems="center">
+              <LandingBtn minWidth="180px" minH="50px" fontSize={{ base: '16px', "2xl": '18px' }} px="1%" py="1%" href="/firm">
+                Get Started Now
+              </LandingBtn>
+              <LandingLink color={landingMutedColor} fontSize={{ base: '15px', "2xl": '17px' }} href="/ecosystem">
+                Or explore our ecosystem
+              </LandingLink>
+            </ResponsiveStack>
+          </VStack>
         </VStack>
       </VStack>
     </Layout>
