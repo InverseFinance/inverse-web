@@ -288,10 +288,10 @@ export const EcosystemGrid = () => {
                 </CellSmaller>
                 <CellSmaller>
                     <CellItem>
-                        <EcoCellItem project="Beefy" />
+                        <EcoCellItem project="Convex" />
                     </CellItem>
                     <CellItem>
-                        <EcoCellItem project="Convex" />
+                        <EcoCellItem project="Beefy" />
                     </CellItem>
                     <CellItem>
                         <CellText>
