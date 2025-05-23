@@ -10,7 +10,7 @@ import { EcosystemBanner, EcosystemGrid } from '@app/components/Landing/Ecosyste
 import Link from '@app/components/common/Link'
 import { useEffect, useState } from 'react'
 import FirmLogo from '@app/components/common/Logo/FirmLogo'
-import { GeistText, LandingBtn, LandingCard, landingDarkNavy2, landingGreenColor, LandingHeading, LandingLink, landingMutedColor, landingPurple, landingPurpleText, LandingStat, LandingStatBasic, landingYellowColor } from '@app/components/common/Landing/LandingComponents'
+import { GeistText, LandingBtn, LandingCard, landingDarkNavy2, landingGreenColor, LandingHeading, LandingLink, landingMutedColor, landingPurple, landingPurpleBg, landingPurpleText, LandingStat, LandingStatBasic, landingYellowColor } from '@app/components/common/Landing/LandingComponents'
 
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
 
@@ -194,7 +194,7 @@ export const Landing = ({
           <VStack id="section-firm-2" alignItems="flex-start" spacing="0" w='50%' px="0" py="0">
             <VStack alignItems="flex-start" spacing="0">
               <VStack px="8" pt="4" alignItems="flex-start" spacing="4">
-                <HStack px="4" py="2" alignItems="center" borderRadius="20px" gap="2" bgColor={landingPurple}>
+                <HStack border={`1px solid ${landingPurple}`} px="4" py="2" alignItems="center" borderRadius="20px" gap="2" bgColor={landingPurpleBg}>
                   <Image src="/assets/landing/safeguarded.png" alt="Safeguarded" w="14px" h="14px" />
                   <GeistText color={landingPurpleText} fontSize="md">
                     Safeguarded with on-chain monitoring
@@ -291,7 +291,7 @@ export const Landing = ({
           <VStack id="section-sdola-1" borderLeft="0px solid #B6B6B6" alignItems="flex-start" spacing="0" w='50%' px="0" py="0">
             <VStack alignItems="flex-start" spacing="0">
               <VStack px="8" py="4" alignItems="flex-start" spacing="4">
-                <HStack px="4" py="2" alignItems="center" borderRadius="20px" gap="2" bgColor={landingPurple}>
+                <HStack border={`1px solid ${landingPurple}`} px="4" py="2" alignItems="center" borderRadius="20px" gap="2" bgColor={landingPurpleBg}>
                   <Image src="/assets/landing/safeguarded.png" alt="Safeguarded" w="14px" h="14px" />
                   <GeistText color={landingPurpleText} fontSize="md">
                     100% Organic Yield

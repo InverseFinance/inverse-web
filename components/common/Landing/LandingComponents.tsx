@@ -11,6 +11,7 @@ export  const landingMutedColor = "#5A5D78"
 export  const landingYellowColor = "#FFF6B6"
 export  const landingGreenColor = "#BEF297"
 export  const landingDarkNavy2 = "#303454"
+export  const landingPurpleBg = "#B69AFF33"
 export  const landingPurple = "#B69AFF"
 export  const landingPurpleText = "#581EF4"
 

@@ -210,7 +210,7 @@ export const EcosystemBanner = () => {
 }
 
 const CellBig = ({ children }: { children: React.ReactNode }) => {
-    return <VStack alignItems="center" justifyContent="center" w="400px" h="360px" >
+    return <VStack alignItems="center" justifyContent="center" w="400px" h="360px" boxShadow="0 0 0 1px lightgray">
         {children}
     </VStack>
 }
