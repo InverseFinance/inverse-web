@@ -279,7 +279,7 @@ export const Landing = ({
             Save Different: sDOLA
           </LandingHeading>
         </VStack>
-        <VStack bgColor="white" py="8" px="5%" w="full" justify="flex-start" minH="95vh" position="relative">
+        <VStack bgColor="white" py="4" px="5%" w="full" alignItems="center" justify="center" minH="95vh" position="relative">
           <video preload="metadata" width="80%" height="auto" style={{ zIndex: 10, maxWidth: '98%' }} controls webkit-playsinline playsInline>
             <source src="sDOLA.mp4#t=0.1" type="video/mp4" />
             Your browser does not support the video tag.
