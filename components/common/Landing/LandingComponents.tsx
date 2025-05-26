@@ -14,6 +14,7 @@ export  const landingDarkNavy2 = "#303454"
 export  const landingPurpleBg = "#B69AFF33"
 export  const landingPurple = "#B69AFF"
 export  const landingPurpleText = "#581EF4"
+export const landingLightBorderColor = '#E3E3E3';
 
 export const GeistText = ({ children, ...props }: { children: React.ReactNode, props?: any }) => {
     return <Text fontFamily="Geist" color={landingMainColor} {...props}>{children}</Text>
@@ -41,6 +42,13 @@ export const LandingStat = ({ value, name }: { value: number, name: string }) =>
 export const LandingStatBasic = ({ value, name, ...props }: { value: number, name: string, props?: any }) => {
     return <VStack w='full' px="8" py="4" alignItems="flex-start" {...props}>
         <LandingHeading alignSelf="flex-start" color={landingMainColor} fontSize={'20px'} fontWeight="bold">{value}</LandingHeading>
-        <LandingHeading alignSelf="flex-start" color={landingMainColor} fontSize={'16px'}>{name}</LandingHeading>
+        <LandingHeading alignSelf="flex-start" color={landingMainColor} fontSize={'16px'} fontWeight="normal">{name}</LandingHeading>
+    </VStack>
+}
+
+export const LandingStatBasicBig = ({ value, name, ...props }: { value: number, name: string, props?: any }) => {
+    return <VStack w='full' px="8" py="4" alignItems="flex-start" {...props}>
+        <LandingHeading alignSelf="flex-start" color={landingMainColor} fontSize={'40px'} fontWeight="bold">{value}</LandingHeading>
+        <LandingHeading alignSelf="flex-start" color={landingMainColor} fontSize={'16px'} fontWeight="normal">{name}</LandingHeading>
     </VStack>
 }
