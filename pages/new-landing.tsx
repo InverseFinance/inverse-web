@@ -10,7 +10,7 @@ import { EcosystemBanner, EcosystemGrid } from '@app/components/Landing/Ecosyste
 import Link from '@app/components/common/Link'
 import { useEffect, useState } from 'react'
 import FirmLogo from '@app/components/common/Logo/FirmLogo'
-import { GeistText, LandingBtn, LandingCard, landingDarkNavy2, landingGreenColor, LandingHeading, landingLightBorderColor, LandingLink, landingMutedColor, landingPurple, landingPurpleBg, landingPurpleText, LandingStat, LandingStatBasic, landingYellowColor } from '@app/components/common/Landing/LandingComponents'
+import { GeistText, LandingBtn, LandingCard, landingDarkNavy2, landingGreenColor, LandingHeading, landingLightBorderColor, LandingLink, landingMutedColor, landingPurple, landingPurpleBg, landingPurpleText, LandingStat, LandingStatBasic, LandingStatBasicBig, landingYellowColor } from '@app/components/common/Landing/LandingComponents'
 
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
 
@@ -19,9 +19,9 @@ const yes = <CheckCircleIcon color="#68CF1A" />;
 const no = <VStack borderRadius="full" bgColor="gray"><SmallCloseIcon color="white" /></VStack>;
 
 const compareData = [
-  ["FEATURES", "Interest Rate Stability", "Collateral Protection", "Looping / Leverage", "Borrow against LP Tokens", "Points Program"],
-  [firmLogo, "Fixed", "Collateral never loaned to others", "Up to x10 Looping", true, "Keep Earning Partner Points"],
-  ["Aave", "Variable", "Collateral loaned to others", "Limited", false, "Surrender Earning Partner Points"],
+  ["Features", "Interest rate stability", "Collateral protection", "Looping / leverage", "Borrow against LP tokens", "Points program"],
+  [firmLogo, "Fixed", "Collateral is never loaned to others", "Up to x10 looping", true, "Continue earning partner points"],
+  ["Aave", "Variable", "Collateral is loaned to others", "Limited", false, "Surrender earning partner points"],
 ]
 
 const animWidthToHeightRatio = 1.78;
@@ -59,6 +59,31 @@ export const Landing = ({
       const ratio = window.innerWidth / window.innerHeight;
       setIsAnimNeedStretch(ratio < animWidthToHeightRatio);
       setAnimStrechFactor(animWidthToHeightRatio - ratio);
+
+      const sectionFirm1 = document.getElementById('section-firm-1')
+      const sectionFirm2 = document.getElementById('section-firm-2')
+      const firmHeight = sectionFirm2?.clientHeight
+      if (sectionFirm1 && firmHeight) {
+        sectionFirm1.style.height = `${firmHeight}px`
+      }
+
+      const sectionSdola1 = document.getElementById('section-sdola-1')
+      const sectionSdola2 = document.getElementById('section-sdola-2')
+      const sdolaHeight = sectionSdola1?.clientHeight
+      if (sectionSdola2 && sdolaHeight) {
+        if(window.innerWidth > 768) {
+          sectionSdola2.style.height = `${sdolaHeight}px`
+        } else {
+          sectionSdola2.style.height = 'auto'
+        }
+      }
+
+      const sectionSafety1 = document.getElementById('section-safety-1')
+      const sectionSafety2 = document.getElementById('section-safety-2')
+      const safetyHeight = sectionSafety1?.clientHeight
+      if (sectionSafety1 && safetyHeight) {
+        sectionSafety2.style.height = `${safetyHeight}px`
+      }
     };
     handleResize();
     window.addEventListener('resize', handleResize);
@@ -94,23 +119,7 @@ export const Landing = ({
     //   name: 'DBR price',
     //   value: dbrPriceUsd ? dbrPriceUsd : '-',
     // },
-  ]
-
-  useEffect(() => {
-    const sectionFirm1 = document.getElementById('section-firm-1')
-    const sectionFirm2 = document.getElementById('section-firm-2')
-    const height = sectionFirm2?.clientHeight
-    if (sectionFirm1 && height) {
-      sectionFirm1.style.height = `${height}px`
-    }
-
-    const sectionSafety1 = document.getElementById('section-safety-1')
-    const sectionSafety2 = document.getElementById('section-safety-2')
-    const height1 = sectionSafety1?.clientHeight
-    if (sectionSafety1 && height1) {
-      sectionSafety2.style.height = `${height1}px`
-    }
-  }, [])
+  ];
 
   return (
     <Layout isLanding={true} isLandingV2={true} pt="0" overflow="hidden">
@@ -127,7 +136,7 @@ export const Landing = ({
       <VStack spacing="0" className="landing-v3" w='full' alignItems="center">
         <VStack h='100vh' w='full' alignItems="center" justifyContent="center">
           <VStack bgImage="/assets/landing/anim_bg.png" bgSize="cover" bgRepeat="no-repeat" bgPosition="center" zIndex="-1" position="fixed" top="0" left="0" height="100vh" width="100%">
-            <LandingAnimation boxProps={{ transform: isAnimNeedStretch ? `translateY(${(animStrechFactor)/2 * 100}%) scale3d(1, ${1 + animStrechFactor}, 1)` : 'none' }} loop={true} height={windowSize} width={windowSize} />
+            <LandingAnimation boxProps={{ transform: isAnimNeedStretch ? `translateY(${(animStrechFactor) / 2 * 100}%) scale3d(1, ${1 + animStrechFactor}, 1)` : 'none' }} loop={true} height={windowSize} width={windowSize} />
           </VStack>
           <VStack position="absolute" top="0" maxW="2000px" w='full' px="4%" py="5" alignItems="center">
             <FloatingNav />
@@ -168,14 +177,14 @@ export const Landing = ({
             Trusted by the Best
           </LandingHeading>
           <GeistText fontSize="md" textAlign="center">
-            Inverse Finance has been trusted by Top DeFi protocols
+            Inverse Finance is trusted by top DeFi protocols
           </GeistText>
         </VStack>
         <VStack w='full' bg="white" py="20">
           <EcosystemBanner />
         </VStack>
         {/* Lock in. Dream Bigger. section  */}
-        <VStack alignItems="flex-start" bgColor={landingYellowColor} w='full' py="8" px="10">
+        <VStack alignItems="flex-start" bgColor={landingYellowColor} w='full' py={{ base: 4, md: 8 }} px={{ base: 5, md: 10 }}>
           <LandingHeading textAlign="flex-start" fontSize={{ base: '24px', 'md': '5xl' }} fontWeight="extrabold">
             Lock in. Dream Bigger.
           </LandingHeading>
@@ -187,7 +196,7 @@ export const Landing = ({
           {/* section-firm-2 */}
           <VStack id="section-firm-2" alignItems="flex-start" spacing="0" w={{ base: 'full', md: '50%' }} px="0" py="0">
             <VStack alignItems="flex-start" spacing="0">
-              <VStack px={{ base: 4, md: 8 }}  pt="4" alignItems="flex-start" spacing="4">
+              <VStack px={{ base: 4, md: 8 }} pt="4" alignItems="flex-start" spacing="4">
                 <HStack border={`1px solid ${landingPurple}`} px="4" py="2" alignItems="center" borderRadius="20px" gap="2" bgColor={landingPurpleBg}>
                   <Image src="/assets/landing/safeguarded.png" alt="Safeguarded" w="14px" h="14px" />
                   <GeistText color={landingPurpleText} fontSize="md">
@@ -209,10 +218,10 @@ export const Landing = ({
                 </VStack>
               </VStack>
               <ResponsiveStack alignItems="center" justifyContent="space-evenly" borderTop={`1px solid ${landingLightBorderColor}`} w="full">
-                <LandingStatBasic borderRight={{ base: 'none', md: `1px solid ${landingLightBorderColor}` }} value={shortenNumber(firmTotalTvl, 2, true)} name="TVL" />
-                <LandingStatBasic borderTop={{ base: `1px solid ${landingLightBorderColor}`, md: 'none' }} value={`${shortenNumber(dbrPriceUsd * 100, 2, false)}%`} name="Fixed Rate" />
+                <LandingStatBasicBig py="30px" borderRight={{ base: 'none', md: `1px solid ${landingLightBorderColor}` }} value={shortenNumber(firmTotalTvl, 2, true)} name="TVL" />
+                <LandingStatBasicBig py="30px" borderTop={{ base: `1px solid ${landingLightBorderColor}`, md: 'none' }} value={`${shortenNumber(dbrPriceUsd * 100, 2, false)}%`} name="Fixed Rate" />
               </ResponsiveStack>
-              <ResponsiveStack py="4" px={{ base: 4, md: 8 }}  alignItems="flex-start" borderTop={`1px solid ${landingLightBorderColor}`} w="full">
+              <ResponsiveStack py="4" px={{ base: 4, md: 8 }} alignItems="flex-start" borderTop={`1px solid ${landingLightBorderColor}`} w="full">
                 <Image mt={{ base: 0, md: 1 }} src="/assets/landing/one-click.png" alt="One-Click Hyperleverage" w="30px" h="30px" />
                 <VStack pl={{ base: 0, md: 2 }} alignItems="flex-start">
                   <LandingHeading>
@@ -230,13 +239,13 @@ export const Landing = ({
         <VStack w='full' bg="white" py="20">
           <VStack alignItems="center" position="relative" pb="40px">
             <LandingHeading color={landingPurpleText} textAlign="center" fontSize="4xl" fontWeight="bold">
-              Compare Fixed Rate
+              Compare FiRM
             </LandingHeading>
             <VStack zIndex="1" top="20px" h="40px" position="absolute" w="full" bg="linear-gradient(to bottom, rgba(255, 255, 255, 0) 10%, rgba(255, 255, 255, 1) 100%)">
               &nbsp;
             </VStack>
           </VStack>
-          <LandingCard px={{ base: 0, md: 8 }}  position="relative" w='1000px' maxW="94vw" display="flex" flexDirection="row" gap="0">
+          <LandingCard px={{ base: 0, md: 8 }} position="relative" w='1000px' maxW="94vw" display="flex" flexDirection="row" gap="0">
             <VStack boxShadow="0 0px 4px 2px gold" zIndex="0" height="105%" bgColor="white" position="absolute" top="-10px" left="33%" w="33%" spacing="0" key={0} alignItems="flex-start">
               &nbsp;
             </VStack>
@@ -268,23 +277,33 @@ export const Landing = ({
           </LandingCard>
         </VStack>
         {/* sDOLA section  */}
-        <VStack alignItems="flex-start" bgColor={landingGreenColor} w='full' py="8" px="10">
+        <VStack alignItems="flex-start" bgColor={landingGreenColor} w='full' py={{ base: 4, md: 8 }} px={{ base: 5, md: 10 }}>
           <LandingHeading textAlign="flex-start" fontSize={{ base: '24px', 'md': '5xl' }} fontWeight="extrabold">
             Save Different: sDOLA
           </LandingHeading>
         </VStack>
-        <VStack bgColor="white" py="4" px="5%" w="full" alignItems="center" justify="center" minH="95vh" position="relative">
-          <video preload="metadata" width="80%" height="auto" style={{ zIndex: 10, maxWidth: '98%' }} controls webkit-playsinline playsInline>
-            <source src="sDOLA.mp4#t=0.1" type="video/mp4" />
+        <VStack bgColor="white" py="4" px="5%" w="full" alignItems="center" justify="center" minH={{ base: 'unset', lg: '95vh' }} position="relative">
+          <video poster="/assets/landing/video_poster.png"
+            preload="metadata"
+            width="100%"
+            height="auto"
+            style={{ zIndex: 10, maxWidth: '98%' }}
+            // width="600"
+            // height="300"
+            controls
+            webkit-playsinline
+            playsInline
+            >
+            <source src="sDOLA.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
         </VStack>
         {/* sDOLA sub-section  */}
-        <ResponsiveStack borderTop={`1px solid ${landingLightBorderColor}`} spacing="0" bgColor="white" w='full' alignItems="flex-start">
+        <ResponsiveStack px={{ base: 0, md: '5%' }} borderTop={`1px solid ${landingLightBorderColor}`} spacing="0" bgColor="white" w='full' alignItems="flex-start">
           {/* section-firm-2 */}
-          <VStack id="section-sdola-1" borderLeft="0px solid #B6B6B6" alignItems="flex-start" spacing="0" w='50%' px="0" py="0">
-            <VStack alignItems="flex-start" spacing="0">
-              <VStack px="8" py="4" alignItems="flex-start" spacing="4">
+          <ResponsiveStack id="section-sdola-1" borderLeft="0px solid #B6B6B6" alignItems="flex-start" spacing="0" w='100%' px="0" py="0">
+            <ResponsiveStack w='full' alignItems="center" spacing="0">
+              <VStack w={{ base: 'full', md: '50%' }} px="8" py="8" alignItems="flex-start" spacing="4">
                 <HStack border={`1px solid ${landingPurple}`} px="4" py="2" alignItems="center" borderRadius="20px" gap="2" bgColor={landingPurpleBg}>
                   <Image src="/assets/landing/safeguarded.png" alt="Safeguarded" w="14px" h="14px" />
                   <GeistText color={landingPurpleText} fontSize="md">
@@ -295,34 +314,29 @@ export const Landing = ({
                   DOLA enables some of the most attractive yield opportunities in DeFi. Now, sDOLA takes it further—a yield-bearing stablecoin born from our FiRM lending market, delivering pure, uncut DeFi returns fueled by real activity, not centralized compromises.
                 </GeistText>
               </VStack>
-              <HStack alignItems="center" justifyContent="space-evenly" borderTop={`1px solid ${landingLightBorderColor}`} w="full">
-                <LandingStatBasic minH="150px" borderRight={`1px solid ${landingLightBorderColor}`} value={shortenNumber(sDolaTvl, 2, true)} name="sDOLA TVL" />
-                <LandingStatBasic minH="150px" value={`${shortenNumber(apy, 2, false)}%`} name="sDOLA APY" />
-              </HStack>
-            </VStack>
-          </VStack>
-          {/* section-firm-1 */}
-          <VStack justifyContent="center" id="section-sdola-2" w='50%' bgSize="cover" bgRepeat="no-repeat" bgPosition="center" h="200px">
-            <GeistText>
-              Replace Swap design with sometheing else here
-            </GeistText>
-          </VStack>
+              <ResponsiveStack maxHeight={{ base: '400px', md: 'unset' }} id="section-sdola-2" borderTop={{ base: `1px solid ${landingLightBorderColor}`, md: 'none' }} w={{ base: 'full', md: '50%' }} alignItems="center" justifyContent="space-evenly">
+                <LandingStatBasicBig maxHeight={{ base: '200px', md: 'unset' }} alignItems="center" py={{ base: 4, md: 8 }} h={{ base: 'auto', md: '100%' }} borderLeft={{ base: 'none', md: `1px solid ${landingLightBorderColor}` }} borderRight={{ base: 'none', md: `1px solid ${landingLightBorderColor}` }} value={shortenNumber(sDolaTvl, 2, true)} name="sDOLA TVL" />
+                <LandingStatBasicBig maxHeight={{ base: '200px', md: 'unset' }} alignItems="center" py={{ base: 4, md: 8 }} h={{ base: 'auto', md: '100%' }} borderTop={{ base: `1px solid ${landingLightBorderColor}`, md: 'none' }} value={`${shortenNumber(apy, 2, false)}%`} name="sDOLA APY" />
+              </ResponsiveStack>
+            </ResponsiveStack>
+          </ResponsiveStack>
+
         </ResponsiveStack>
         {/* Safety section  */}
-        <VStack bgColor={landingPurple} w='full' py="20" px="5%">
-          <ResponsiveStack maxW="1300px" position="relative" borderRadius="8px" bgColor={landingDarkNavy2} p="2" w='full' alignItems="flex-start">
-            <VStack id="section-safety-1" w={{ base: 'full', md: '50%' }}>
+        <VStack bgColor={landingPurple} w='full' py={{ base: 8, md: 20 }} px="5%">
+          <ResponsiveStack direction={{ base: 'column', lg: 'row' }} maxW="1300px" position="relative" borderRadius="8px" bgColor={landingDarkNavy2} p="2" w='full' alignItems="flex-start">
+            <VStack id="section-safety-1" w={{ base: 'full', lg: '50%' }}>
               <VStack px="6" py="4">
-                <LandingHeading color="white" fontSize="5xl">
+                <LandingHeading color="white" fontSize={{ base: '32px', 'md': '5xl' }}>
                   Our Obsession Is Safety
                 </LandingHeading>
                 <GeistText color="white">
                   Our obsession with safety includes security innovations like Personal Collateral Escrow accounts, ensuring your collateral is staked and isolated, never loaned out. We designed oracle safety measures to make price manipulation, flash loan, and similar attacks not just difficult, but financially unfeasible.
                 </GeistText>
               </VStack>
-              <HStack spacing="2">
-                <VStack alignItems="flex-start" borderRadius="2px" py="48px" px="32px" bgColor={"#FFFFFF1F"}>
-                  <LandingHeading color="white" fontSize="5xl">
+              <ResponsiveStack spacing="2">
+                <VStack alignItems="flex-start" borderRadius="2px" py={{ base: '16px', md: '48px' }} px={{ base: '12px', md: '32px' }} bgColor={"#FFFFFF1F"}>
+                  <LandingHeading color="white" fontSize={{ base: '32px', 'md': '5xl' }}>
                     87%
                   </LandingHeading>
                   <LandingHeading color="white" fontSize="xl">
@@ -332,8 +346,8 @@ export const Landing = ({
                     Inverse Finance maintains an elite DeFi Safety Score of 87, built on years of protocol risk and safety experience.
                   </GeistText>
                 </VStack>
-                <VStack alignItems="flex-start" borderRadius="2px" py="48px" px="32px" bgColor={"#FFFFFF1F"}>
-                  <LandingHeading color="white" fontSize="5xl">
+                <VStack alignItems="flex-start" borderRadius="2px" py={{ base: '16px', md: '48px' }} px={{ base: '12px', md: '32px' }} bgColor={"#FFFFFF1F"}>
+                  <LandingHeading color="white" fontSize={{ base: '32px', 'md': '5xl' }}>
                     {shortenNumber(firmTotalTvl, 2, true)}
                   </LandingHeading>
                   <LandingHeading color="white" fontSize="xl">
@@ -343,43 +357,43 @@ export const Landing = ({
                     Fortified with rigorous audits and active bug bounty programs from Nomoi, yAudit, Code4rena, ImmuneFi, Peckshield, and others.
                   </GeistText>
                 </VStack>
-              </HStack>
+              </ResponsiveStack>
             </VStack>
-            <VStack id="section-safety-2" borderRadius="4" w={{ base: 'full', md: '50%' }} bgColor="white">
-              <SimpleGrid border="1px solid white" borderRadius="4" bgColor="white" columns={{ base: 1, md: 2 }} gap={0} w="full">
-                <VStack as="a" target="_blank" w={{ base: 'full' }} h="150px" bgColor="white" alignItems="center" justify="center">
+            <VStack id="section-safety-2" borderRadius="4" w={{ base: 'full', lg: '50%' }} bgColor="white">
+              <SimpleGrid border="1px solid white" borderRadius="4" bgColor="white" columns={{ base: 1, md: 2 }} gap={0} w="full" h="full">
+                <VStack as="a" target="_blank" w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
                   <Image maxW="150px" src="/assets/v2/landing/code4arena.png" alt="code4arena" />
                 </VStack>
-                <VStack as="a" target="_blank" w={{ base: 'full' }} h="150px" bgColor="white" alignItems="center" justify="center">
+                <VStack as="a" target="_blank" w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
                   <Image maxW="150px" src="/assets/partners/immunefi.svg" alt="immunefi" />
                 </VStack>
-                <VStack as="a" target="_blank" w={{ base: 'full' }} h="150px" bgColor="white" alignItems="center" justify="center">
+                <VStack as="a" target="_blank" w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
                   <Image maxW="150px" src="/assets/v2/landing/defimoon.png?v2" alt="defimoon" />
                 </VStack>
-                <VStack as="a" target="_blank" w={{ base: 'full' }} h="150px" bgColor="white" alignItems="center" justify="center">
+                <VStack as="a" target="_blank" w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
                   <Image maxW="150px" src="/assets/v2/landing/peckshield.png" alt="peckshield" />
                 </VStack>
-                <VStack as="a" target="_blank" w={{ base: 'full' }} h="150px" bgColor="white" alignItems="center" justify="center">
+                <VStack as="a" target="_blank" w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
                   <Image maxW="150px" src="/assets/v2/landing/defisafety.png" alt="defisafety" />
                 </VStack>
-                <VStack as="a" target="_blank" w={{ base: 'full' }} h="150px" bgColor="white" alignItems="center" justify="center">
+                <VStack as="a" target="_blank" w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
                   <Image maxW="150px" src="/assets/v2/landing/nomoi.png" alt="nomoi" />
                 </VStack>
               </SimpleGrid>
             </VStack>
           </ResponsiveStack>
         </VStack>
-        <VStack w='full' bg="white" py="20">
-          <LandingHeading textAlign="center" fontSize="5xl" fontWeight="extrabold">
+        <VStack w='full' bg="white" py={{ base: 10, md: 20 }}>
+          <LandingHeading textAlign="center" fontSize={{ base: '32px', 'md': '5xl' }} fontWeight="extrabold">
             Alliances Built On Trust
           </LandingHeading>
           <GeistText fontSize="md">
             Top DeFi protocols trust Inverse Finance
           </GeistText>
-          <VStack w='full' bg="white" py="10">
+          <VStack w='full' bg="white" py={{ base: 0, md: 10 }}>
             <EcosystemGrid />
           </VStack>
-          <VStack pt="20" spacing="10">
+          <VStack pt={{ base: '5', md: '20' }} spacing="10">
             <LandingHeading textAlign="center" fontSize={{ base: '36px', 'md': '5xl' }} fontWeight="extrabold">
               Ready to Experience Fixed Rates?
             </LandingHeading>
