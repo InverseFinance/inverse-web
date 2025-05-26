@@ -193,8 +193,8 @@ const projectImages = data.reduce((acc, el) => {
     return acc;
 }, {});
 
-const EcoCellItem = ({ project, width = '50px' }: { project: string, width?: string }) => {
-    return <Image borderRadius='full' src={projectImages[project]!} width={width} alt={project} />
+const EcoCellItem = ({ project, width = 50 }: { project: string, width?: number }) => {
+    return <Image borderRadius='full' src={projectImages[project]!} width={{ base: `${parseInt(width/2)}px`, md: `${width}px` }} alt={project} />
 }
 
 const bannerItems = data.slice(0, 10);
@@ -210,19 +210,19 @@ export const EcosystemBanner = () => {
 }
 
 const CellBig = ({ children }: { children: React.ReactNode }) => {
-    return <VStack alignItems="center" justifyContent="center" w="400px" h="360px" boxShadow="0 0 0 1px lightgray">
+    return <VStack alignItems="center" justifyContent="center" w={{ base: '150px', md: '400px' }} h={{ base: '135px', md: '360px' }} boxShadow="0 0 0 1px lightgray">
         {children}
     </VStack>
 }
 
 const CellBigGrid = ({ children }: { children: React.ReactNode }) => {
-    return <SimpleGrid columns={2} alignItems="center" justifyContent="center" w="400px" h="360px" boxShadow="0 0 0 1px lightgray">
+    return <SimpleGrid columns={2} alignItems="center" justifyContent="center" w={{ base: '150px', md: '400px' }} h={{ base: '135px', md: '360px' }} boxShadow="0 0 0 1px lightgray">
         {children}
     </SimpleGrid>
 }
 
 const CellSmaller = ({ children }: { children: React.ReactNode }) => {
-    return <SimpleGrid columns={2} alignItems="center" justifyContent="center" w="400px" h="240px" boxShadow="0 0 0 1px lightgray">
+    return <SimpleGrid columns={2} alignItems="center" justifyContent="center" w={{ base: '150px', md: '400px' }} h={{ base: '90px', md: '240px' }} boxShadow="0 0 0 1px lightgray">
         {children}
     </SimpleGrid>
 }
@@ -235,7 +235,7 @@ const CellItem = ({ children }: { children: React.ReactNode }) => {
         setEnableColor(random > 0.5);
     }, 1000);
 
-    return <VStack filter={enableColor ? 'grayscale(0%)' : 'grayscale(100%)'} alignItems="center" justifyContent="center" w="200px" h="120px" boxShadow="0 0 0 1px lightgray"
+    return <VStack filter={enableColor ? 'grayscale(0%)' : 'grayscale(100%)'} alignItems="center" justifyContent="center" w={{ base: '75px', md: '200px' }} h={{ base: '45px', md: '120px' }} boxShadow="0 0 0 1px lightgray"
         transition="filter 0.25s ease-in-out"
     >
         {children}
@@ -243,7 +243,7 @@ const CellItem = ({ children }: { children: React.ReactNode }) => {
 }
 
 const CellText = ({ children }: { children: React.ReactNode }) => {
-    return <LandingHeading fontSize="20px" fontWeight="bold">
+    return <LandingHeading fontSize={{ base: '10px', md: '20px' }} fontWeight="bold">
         {children}
     </LandingHeading>
 }
@@ -308,13 +308,13 @@ export const EcosystemGrid = () => {
             <HStack spacing="0" w='full' maxW="1300px" >
                 <CellBigGrid>
                     <CellItem>
-                        <NetworkImage chainId={10} />
+                        <NetworkImage chainId={10} size={{ base: '25px', md: '50px' }}  />
                     </CellItem>
                     <CellItem>
-                        <NetworkImage chainId={8453} />
+                        <NetworkImage chainId={8453} size={{ base: '25px', md: '50px' }}  />
                     </CellItem>
                     <CellItem>
-                        <NetworkImage chainId={42161} />
+                        <NetworkImage chainId={42161} size={{ base: '25px', md: '50px' }}  />
                     </CellItem>
                     <CellItem>
                         <CellText>
@@ -322,21 +322,21 @@ export const EcosystemGrid = () => {
                         </CellText>
                     </CellItem>
                     <CellItem>
-                        <NetworkImage chainId={43114} />
+                        <NetworkImage chainId={43114} size={{ base: '25px', md: '50px' }} />
                     </CellItem>
                     <CellItem>
-                        <NetworkImage chainId={1} />
+                        <NetworkImage chainId={1} size={{ base: '25px', md: '50px' }}  />
                     </CellItem>
                 </CellBigGrid>
                 <CellBig>
-                    <Logo boxSize={'150px'} noFilter={true} />
+                    <Logo boxSize={{ base: '50px', md: '150px' }} noFilter={true} />
                 </CellBig>
                 <CellBigGrid>
                     <CellItem>
-                        <EcoCellItem width="75px" project="Immunefi" />
+                        <EcoCellItem width={50} project="Immunefi" />
                     </CellItem>
                     <CellItem>
-                        <EcoCellItem width="75px" project="yAudit" />
+                        <EcoCellItem width={50} project="yAudit" />
                     </CellItem>
                     <CellItem>
                         <CellText>
@@ -344,13 +344,13 @@ export const EcosystemGrid = () => {
                         </CellText>
                     </CellItem>
                     <CellItem>
-                        <EcoCellItem width="75px" project="Defimoon" />
+                        <EcoCellItem width={50} project="Defimoon" />
                     </CellItem>
                     <CellItem>
-                        <EcoCellItem width="75px" project="Nomoi" />
+                        <EcoCellItem width={50} project="Nomoi" />
                     </CellItem>
                     <CellItem>
-                        <EcoCellItem width="75px" project="Code4Arena" />
+                        <EcoCellItem width={50} project="Code4Arena" />
                     </CellItem>
                 </CellBigGrid>
             </HStack>
@@ -365,7 +365,7 @@ export const EcosystemGrid = () => {
                         </CellText>
                     </CellItem>
                     <CellItem>
-                        <EcoCellItem width="75px" project="Debank" />
+                        <EcoCellItem width={50} project="Debank" />
                     </CellItem>
                     <CellItem>
                         <EcoCellItem project="Enso" />
