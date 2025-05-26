@@ -194,7 +194,9 @@ export const FloatingNav = ({
                       fontSize={isLargerThan ? '18px' : '15px'}
                       color={mainColor}
                       _hover={{ color: mainColor }}
-                      href={href}>
+                      href={href}
+                      whiteSpace="nowrap"
+                      >
                       {label} <ChevronDownIcon />
                     </Link>
                   </Box>
