@@ -34,3 +34,27 @@ export const NetworkItem = ({
         </>
     )
 }
+
+export const NetworkImage = ({
+    chainId,
+    size = '50px',
+}: {
+    chainId?: string | number,
+    size?: any,
+}) => {
+    if (!chainId) { return <></> }
+    const network = getNetwork(chainId);
+
+    const image = getNetworkImage(network?.id);
+
+    return (
+        <>
+            {
+                image ?
+                    <Image src={getNetworkImage(network?.id)} ignoreFallback={true} alt={network?.codename} w={size} h={size} />
+                    :
+                    null
+            }
+        </>
+    )
+}

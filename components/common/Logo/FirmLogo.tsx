@@ -7,12 +7,13 @@ const firmImages = {
 }
 
 export const FirmLogo = ({  
+  theme = 'dark',
   ...props
 }: {
- 
+  theme?: 'dark' | 'light'
 } & ImageProps) => {
   const { themeName } = useAppTheme();
-  return <Image transform="translateY(6px)" src={`/assets/firm/${firmImages[themeName]}`} w='110px' h="50px"  {...props} />;
+  return <Image transform="translateY(6px)" src={`/assets/firm/${firmImages[theme || themeName]}`} w='110px' h="50px"  {...props} />;
 }
 
 export default FirmLogo
