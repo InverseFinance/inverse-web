@@ -9,12 +9,12 @@ import { SimpleCard } from '../Cards/Simple';
 import FirmLogo from '../Logo/FirmLogo';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { LandingBtn, landingMainColor } from '../Landing/LandingComponents';
+import { TOKEN_IMAGES } from '@app/variables/images';
+import { LandingBurgerMenu } from './LandingBurgerMenu';
 
 const GeistText = ({ children, ...props }: { children: React.ReactNode, props?: any }) => {
   return <Text fontFamily="Geist" color={mainColor} {...props}>{children}</Text>
 }
-
-const NAV_ITEMS = MENUS.nav
 
 const mainColor = "#040826"
 const logoBgColor = "#F7F7F7";
@@ -26,7 +26,8 @@ const LANDING_NAV_ITEMS = [
   {
     label: 'Product',
     href: '/firm',
-    bigItems: [
+    type: 'big',
+    submenus: [
       {
         logo: <FirmLogo w="100px" h="auto" theme="light" />,
         title: 'FiRM App',
@@ -36,7 +37,7 @@ const LANDING_NAV_ITEMS = [
       {
         logo: <HStack spacing="4">
           <Image borderRadius="full" src="/assets/sDOLAx128.png" alt="sDOLA" w="64px" h="auto" />
-          <GeistText color={mainColor} fontSize="20px" fontWeight="bold">sDOLA</GeistText>
+          {/* <GeistText color={mainColor} fontSize="20px" fontWeight="bold">sDOLA</GeistText> */}
         </HStack>,
         title: 'sDOLA',
         text: "The Inverse Finance's yield-bearing stablecoin",
@@ -47,7 +48,8 @@ const LANDING_NAV_ITEMS = [
   {
     label: 'Community',
     href: '/governance',
-    mediumItems: [
+    type: 'medium',
+    submenus: [
       {
         logo: <Image src="/assets/landing/discord.svg" alt="Discord" w="64px" h="auto" />,
         title: 'Discord',
@@ -68,7 +70,8 @@ const LANDING_NAV_ITEMS = [
   {
     label: 'Transparency',
     href: '/transparency',
-    smallItems: [
+    type: 'small',
+    submenus: [
       {
         logo: <Image src="/assets/landing/discord.svg" alt="Discord" w="64px" h="auto" />,
         title: 'Treasury',
@@ -103,25 +106,25 @@ const LANDING_NAV_ITEMS = [
   },
 ]
 
-const BigItem = ({ logo, title, text, href }: { logo: string, title: string, text: string, href: string }) => {
+export const LandingBigItem = ({ logo, title, text, href }: { logo: string, title: string, text: string, href: string }) => {
   return (
     <Link href={href} _hover={{}}>
-      <SimpleCard cursor="pointer" borderRadius="4px" w='284px' h="230px" p="1" bgColor={inactiveCardBgColor} _hover={{ bgColor: activeCardBgColor }}>
-        <VStack alignItems="flex-start">
-          <VStack alignItems="center" justifyContent="center" w="276px" h="99px" bgColor={logoBgColor} borderRadius="2px" px="2" py="4">
+      <SimpleCard alignItems="center" cursor="pointer" borderRadius="4px" w={{ base: 'full', md: '284px' }} h={{ base: 'auto', md: '230px' }} p="1" bgColor={inactiveCardBgColor} _hover={{ bgColor: activeCardBgColor }}>
+        <Stack direction={{ base: 'row', md: 'column' }} alignItems={{ base: 'center', md: 'flex-start' }}>
+          <VStack alignItems="center" justifyContent="center" minW={{ base: '99px', md: '276px' }} minH={{ base: '94px', md: '99px' }} bgColor={logoBgColor} borderRadius="2px" px="2" py={{ base: '0', md: '4' }}>
             {logo}
           </VStack>
           <VStack alignItems="flex-start" px="16px" pt="12px" pb="16px">
-            <GeistText fontSize="20px" fontWeight="bold">{title}</GeistText>
-            <GeistText color={darkNavy} fontSize="16px">{text}</GeistText>
+            <GeistText fontSize={{ base: '16px', md: '20px' }} fontWeight="bold">{title}</GeistText>
+            <GeistText color={darkNavy} fontSize={{ base: '14px', md: '16px' }}>{text}</GeistText>
           </VStack>
-        </VStack>
+        </Stack>
       </SimpleCard>
     </Link>
   )
 }
 
-const MediumItem = ({ logo, title, text, href }: { logo: string, title: string, text: string, href: string }) => {
+export const LandingMediumItem = ({ logo, title, text, href }: { logo: string, title: string, text: string, href: string }) => {
   return (
     <Link href={href} _hover={{}}>
       <SimpleCard cursor="pointer" borderRadius="4px" w='186px' h="150px" p="1" bgColor={inactiveCardBgColor} _hover={{ bgColor: activeCardBgColor }}>
@@ -138,10 +141,10 @@ const MediumItem = ({ logo, title, text, href }: { logo: string, title: string, 
   )
 }
 
-const SmallItem = ({ title, href }: { logo: string, title: string, text: string, href: string }) => {
+export const LandingSmallItem = ({ title, href }: { logo: string, title: string, text: string, href: string }) => {
   return (
     <Link href={href} _hover={{}}>
-      <SimpleCard  cursor="pointer" borderRadius="4px" w='200px' h="auto" p="1" bgColor={inactiveCardBgColor} _hover={{ bgColor: activeCardBgColor }}>
+      <SimpleCard cursor="pointer" borderRadius="4px" w='200px' h="auto" p="1" bgColor={inactiveCardBgColor} _hover={{ bgColor: activeCardBgColor }}>
         <VStack alignItems="center" justifyContent="center">
           <VStack justifyContent="center" alignItems="flex-start" px="16px">
             <GeistText py="4" fontSize="16px" fontWeight="bold">{title}</GeistText>
@@ -158,21 +161,27 @@ export const FloatingNav = ({
   isBottom?: boolean
 }) => {
   const [isLargerThan] = useMediaQuery('(min-width: 1330px)');
+  const [isSmallerThan] = useMediaQuery('(max-width: 728px)');
   return (
     <>
       <SimpleGrid
-        bg="linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(250, 250, 250, 0.8) 2%, rgba(255, 255, 255, 1) 98%, rgba(0, 0, 0, 0.05) 100%)" borderRadius='4px' boxShadow="unset" w="full"
-        columns={3}
+        bg="linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(250, 250, 250, 0.8) 2%, rgba(255, 255, 255, 1) 98%, rgba(0, 0, 0, 0.05) 100%)"
+        borderRadius={{ base: 0, md: '4px' }}
+        boxShadow="unset"
+        w="full"
+        columns={{ base: 2, md: 3 }}
         width="full"
         bgColor="white"
         justifyContent="space-between"
         alignItems="center"
         py={2}
-        px={'1%'}
+        px={{ base: 4, md: '1%' }}
         zIndex="docked"
       >
         <Stack alignItems="center" spacing={{ base: '2', '2xl': '1vw' }} direction="row" align="center">
-          <Logo minH="30px" minW="30px" boxSize={isBottom ? '1.8vmax' : '3.8vmax'} filter={isBottom ? "brightness(0) invert(1)" : 'unset'} />
+          {
+            isSmallerThan ? <Image src={TOKEN_IMAGES.INV} w="30px" h="30px" borderRadius="full" /> : <Logo minH="30px" minW="30px" boxSize={isBottom ? '1.8vmax' : '3.8vmax'} filter={isBottom ? "brightness(0) invert(1)" : 'unset'} />
+          }
           <Text display={{ base: 'none', 'md': 'block' }} className="landing-v3-text" as={isBottom ? 'h3' : 'h1'} color={isBottom ? lightTheme.colors.contrastMainTextColor : lightTheme.colors.mainTextColor}
             fontSize={isBottom ? normalSize : slightlyBiggerSize}
           >
@@ -180,7 +189,7 @@ export const FloatingNav = ({
           </Text>
         </Stack>
         <Stack spacing="8" direction="row" justifyContent="center" fontWeight="semibold" alignItems="center" display={{ base: 'none', lg: 'flex' }}>
-          {LANDING_NAV_ITEMS.map(({ label, href, bigItems, mediumItems, smallItems }, i) => (
+          {LANDING_NAV_ITEMS.map(({ label, href, submenus, type }, i) => (
             <Box
               key={i}
               href={href}
@@ -196,20 +205,20 @@ export const FloatingNav = ({
                       _hover={{ color: mainColor }}
                       href={href}
                       whiteSpace="nowrap"
-                      >
+                    >
                       {label} <ChevronDownIcon />
                     </Link>
                   </Box>
                 </PopoverTrigger>
                 {
-                  bigItems?.length > 0 &&
+                  submenus?.length > 0 && type === 'big' &&
                   <PopoverContent pt="20px" w="fit-content" h="239px" background={'transparent'} border="none">
                     <PopoverBody p="2" className={`blurred-container light-bg compat-mode2`} borderRadius="4px">
                       <SimpleGrid w='full' columns={2} spacing="2">
                         {
-                          bigItems
+                          submenus
                             ?.map(s => {
-                              return <BigItem key={s.title} {...s} />
+                              return <LandingBigItem key={s.title} {...s} />
                             })
                         }
                       </SimpleGrid>
@@ -217,14 +226,14 @@ export const FloatingNav = ({
                   </PopoverContent>
                 }
                 {
-                  mediumItems?.length > 0 &&
+                  submenus?.length > 0 && type === 'medium' &&
                   <PopoverContent pt="20px" w="fit-content" h="187px" background={'transparent'} border="none">
                     <PopoverBody p="2" className={`blurred-container light-bg compat-mode2`} borderRadius="4px">
                       <SimpleGrid justifyContent="space-between" w='full' columns={3} spacing="2">
                         {
-                          mediumItems
+                          submenus
                             ?.map(s => {
-                              return <MediumItem key={s.title} {...s} />
+                              return <LandingMediumItem key={s.title} {...s} />
                             })
                         }
                       </SimpleGrid>
@@ -232,14 +241,14 @@ export const FloatingNav = ({
                   </PopoverContent>
                 }
                 {
-                  smallItems?.length > 0 &&
+                  submenus?.length > 0 && type === 'small' &&
                   <PopoverContent pt="20px" w="fit-content" h="187px" background={'transparent'} border="none">
                     <PopoverBody p="2" className={`blurred-container light-bg compat-mode2`} borderRadius="4px">
                       <SimpleGrid justifyContent="space-between" w='full' columns={2} spacing="2">
                         {
-                          smallItems
+                          submenus
                             ?.map(s => {
-                              return <SmallItem key={s.title} {...s} />
+                              return <LandingSmallItem key={s.title} {...s} />
                             })
                         }
                       </SimpleGrid>
@@ -250,7 +259,7 @@ export const FloatingNav = ({
             </Box>
           ))}
         </Stack>
-        <VStack alignItems="flex-end">
+        <HStack alignItems="center" justifyContent="flex-end" spacing="8">
           <LandingBtn
             color={landingMainColor}
             href="/firm"
@@ -273,7 +282,8 @@ export const FloatingNav = ({
           >
             Launch App
           </LandingBtn>
-        </VStack>
+          {isSmallerThan && <LandingBurgerMenu isLanding={true} navItems={LANDING_NAV_ITEMS} /> }
+        </HStack>
       </SimpleGrid>
     </>
   )
