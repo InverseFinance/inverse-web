@@ -51,17 +51,17 @@ const LANDING_NAV_ITEMS = [
     type: 'medium',
     submenus: [
       {
-        logo: <Image src="/assets/landing/discord.svg" alt="Discord" w="64px" h="auto" />,
+        logo: <Image src="/assets/landing/discord.svg" alt="Discord" w={{ base: '32px', md: '64px' }} h="auto" />,
         title: 'Discord',
         href: 'https://discord.gg/inversefinance',
       },
       {
-        logo: <Image src="/assets/landing/x.svg" alt="X" w="64px" h="auto" />,
+        logo: <Image src="/assets/landing/x.svg" alt="X" w={{ base: '32px', md: '64px' }} h="auto" />,
         title: 'X.com',
         href: 'https://x.com/inversefinance',
       },
       {
-        logo: <Image src="/assets/logo.png" alt="Governance" w="64px" h="auto" />,
+        logo: <Image src="/assets/logo.png" alt="Governance" w={{ base: '32px', md: '64px' }} h="auto" />,
         title: 'Governance',
         href: 'https://inverse.finance/governance',
       },
@@ -109,7 +109,7 @@ const LANDING_NAV_ITEMS = [
 export const LandingBigItem = ({ logo, title, text, href }: { logo: string, title: string, text: string, href: string }) => {
   return (
     <Link href={href} _hover={{}}>
-      <SimpleCard alignItems="center" cursor="pointer" borderRadius="4px" w={{ base: 'full', md: '284px' }} h={{ base: 'auto', md: '230px' }} p="1" bgColor={inactiveCardBgColor} _hover={{ bgColor: activeCardBgColor }}>
+      <SimpleCard boxShadow="0 1px 1px 1px #00000011" alignItems="center" cursor="pointer" borderRadius="4px" w={{ base: 'full', md: '284px' }} h={{ base: 'auto', md: '230px' }} p="1" bgColor={inactiveCardBgColor} _hover={{ bgColor: activeCardBgColor }}>
         <Stack direction={{ base: 'row', md: 'column' }} alignItems={{ base: 'center', md: 'flex-start' }}>
           <VStack alignItems="center" justifyContent="center" minW={{ base: '99px', md: '276px' }} minH={{ base: '94px', md: '99px' }} bgColor={logoBgColor} borderRadius="2px" px="2" py={{ base: '0', md: '4' }}>
             {logo}
@@ -124,16 +124,16 @@ export const LandingBigItem = ({ logo, title, text, href }: { logo: string, titl
   )
 }
 
-export const LandingMediumItem = ({ logo, title, text, href }: { logo: string, title: string, text: string, href: string }) => {
+export const LandingMediumItem = ({ logo, title, text, href, width }: { logo: string, title: string, text: string, href: string, width?: string }) => {
   return (
-    <Link href={href} _hover={{}}>
-      <SimpleCard cursor="pointer" borderRadius="4px" w='186px' h="150px" p="1" bgColor={inactiveCardBgColor} _hover={{ bgColor: activeCardBgColor }}>
-        <VStack alignItems="center" justifyContent="center">
-          <VStack alignItems="center" justifyContent="center" w="178px" h="99px" bgColor={logoBgColor} borderRadius="2px" px="2" py="4">
+    <Link width={width} href={href} _hover={{}}>
+      <SimpleCard alignItems="center" boxShadow="0 1px 1px 1px #00000011" cursor="pointer" borderRadius="4px" w={{ base: '100px', md: '186px' }} h={{ base: '100px', md: '150px' }} p="1" bgColor={inactiveCardBgColor} _hover={{ bgColor: activeCardBgColor }}>
+        <VStack w='full' alignItems="center" justifyContent="center">
+          <VStack alignItems="center" justifyContent="center" w={{ base: '90px', md: '178px' }} h={{ base: '50px', md: '99px' }} bgColor={logoBgColor} borderRadius="2px" px="2" py="4">
             {logo}
           </VStack>
           <VStack justifyContent="center" alignItems="center" px="16px">
-            <GeistText fontSize="20px" fontWeight="bold">{title}</GeistText>
+            <GeistText fontSize={{ base: '14px', md: '20px' }} fontWeight="bold">{title}</GeistText>
           </VStack>
         </VStack>
       </SimpleCard>
@@ -143,8 +143,8 @@ export const LandingMediumItem = ({ logo, title, text, href }: { logo: string, t
 
 export const LandingSmallItem = ({ title, href }: { logo: string, title: string, text: string, href: string }) => {
   return (
-    <Link href={href} _hover={{}}>
-      <SimpleCard cursor="pointer" borderRadius="4px" w='200px' h="auto" p="1" bgColor={inactiveCardBgColor} _hover={{ bgColor: activeCardBgColor }}>
+    <Link href={href} _hover={{}} w={{ base: 'full', md: '200px' }}>
+      <SimpleCard boxShadow="0 1px 1px 1px #00000011" cursor="pointer" borderRadius="4px" w={{ base: 'full', md: '200px' }} h="auto" p="1" bgColor={inactiveCardBgColor} _hover={{ bgColor: activeCardBgColor }}>
         <VStack alignItems="center" justifyContent="center">
           <VStack justifyContent="center" alignItems="flex-start" px="16px">
             <GeistText py="4" fontSize="16px" fontWeight="bold">{title}</GeistText>
@@ -165,6 +165,8 @@ export const FloatingNav = ({
   return (
     <>
       <SimpleGrid
+        // bg="linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(250, 250, 250, 0.8) 2%, rgba(255, 255, 255, 1) 98%, rgba(0, 0, 0, 0.05) 100%)"
+        bgColor='#fdfdfe'
         bg="linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(250, 250, 250, 0.8) 2%, rgba(255, 255, 255, 1) 98%, rgba(0, 0, 0, 0.05) 100%)"
         borderRadius={{ base: 0, md: '4px' }}
         boxShadow="unset"
@@ -213,7 +215,7 @@ export const FloatingNav = ({
                 {
                   submenus?.length > 0 && type === 'big' &&
                   <PopoverContent pt="20px" w="fit-content" h="239px" background={'transparent'} border="none">
-                    <PopoverBody p="2" className={`blurred-container light-bg compat-mode2`} borderRadius="4px">
+                    <PopoverBody boxShadow="0 1px 1px 1px #00000011" p="2" className={`blurred-container light-bg compat-mode2`} borderRadius="4px">
                       <SimpleGrid w='full' columns={2} spacing="2">
                         {
                           submenus
@@ -228,7 +230,7 @@ export const FloatingNav = ({
                 {
                   submenus?.length > 0 && type === 'medium' &&
                   <PopoverContent pt="20px" w="fit-content" h="187px" background={'transparent'} border="none">
-                    <PopoverBody p="2" className={`blurred-container light-bg compat-mode2`} borderRadius="4px">
+                    <PopoverBody boxShadow="0 1px 1px 1px #00000011" p="2" className={`blurred-container light-bg compat-mode2`} borderRadius="4px">
                       <SimpleGrid justifyContent="space-between" w='full' columns={3} spacing="2">
                         {
                           submenus
@@ -243,7 +245,7 @@ export const FloatingNav = ({
                 {
                   submenus?.length > 0 && type === 'small' &&
                   <PopoverContent pt="20px" w="fit-content" h="187px" background={'transparent'} border="none">
-                    <PopoverBody p="2" className={`blurred-container light-bg compat-mode2`} borderRadius="4px">
+                    <PopoverBody boxShadow="0 1px 1px 1px #00000011" p="2" className={`blurred-container light-bg compat-mode2`} borderRadius="4px">
                       <SimpleGrid justifyContent="space-between" w='full' columns={2} spacing="2">
                         {
                           submenus
