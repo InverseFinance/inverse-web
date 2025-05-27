@@ -7,14 +7,22 @@ import { biggestSize, smallerSize } from "@app/variables/responsive"
 import { SubmitButton } from "../Button"
 
 export const landingMainColor = "#040826"
-export  const landingMutedColor = "#5A5D78"
-export  const landingYellowColor = "#FFF6B6"
-export  const landingGreenColor = "#BEF297"
-export  const landingDarkNavy2 = "#303454"
-export  const landingPurpleBg = "#B69AFF33"
-export  const landingPurple = "#B69AFF"
-export  const landingPurpleText = "#581EF4"
+export const landingMutedColor = "#5A5D78"
+export const landingYellowColor = "#FFF6B6"
+export const landingGreenColor = "#BEF297"
+export const landingDarkNavy2 = "#303454"
+export const landingPurpleBg = "#B69AFF33"
+export const landingPurple = "#B69AFF"
+export const landingPurpleText = "#581EF4"
 export const landingLightBorderColor = '#E3E3E3';
+
+export const LandingNoisedBtn = ({ children, btnProps, ...props }: { children: React.ReactNode, btnProps?: any, props?: any }) => {
+    return <VStack borderRadius="6px" bgImage="/assets/landing/noised_shape.png" bgSize="cover" bgRepeat="no-repeat" bgPosition={{ base: 'center', '2xl': '0 20%' }} {...props}>
+        <LandingBtn bgColor="transparent" w="fit-content" h="50px" bg={`linear-gradient(to bottom, ${landingDarkNavy2}cd 10%, ${landingMainColor}ee 95%)`} bgSize="cover" bgRepeat="no-repeat" bgPosition={{ base: 'center', '2xl': '0 20%' }} minH="50px" fontSize={{ base: '16px', "2xl": '18px' }} px="6" py="2" href="/firm" {...btnProps}>
+            {children}
+        </LandingBtn>
+    </VStack>
+}
 
 export const GeistText = ({ children, ...props }: { children: React.ReactNode, props?: any }) => {
     return <Text fontFamily="Geist" color={landingMainColor} {...props}>{children}</Text>
