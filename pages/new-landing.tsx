@@ -10,7 +10,7 @@ import { EcosystemBanner, EcosystemGrid } from '@app/components/Landing/Ecosyste
 import Link from '@app/components/common/Link'
 import { useEffect, useState } from 'react'
 import FirmLogo from '@app/components/common/Logo/FirmLogo'
-import { GeistText, LandingBtn, LandingCard, landingDarkNavy2, landingGreenColor, LandingHeading, landingLightBorderColor, LandingLink, landingMainColor, landingMutedColor, landingPurple, landingPurpleBg, landingPurpleText, LandingStat, LandingStatBasic, LandingStatBasicBig, landingYellowColor } from '@app/components/common/Landing/LandingComponents'
+import { GeistText, LandingBtn, LandingCard, landingDarkNavy2, landingGreenColor, LandingHeading, landingLightBorderColor, LandingLink, landingMainColor, landingMutedColor, LandingNoisedBtn, landingPurple, landingPurpleBg, landingPurpleText, LandingStat, LandingStatBasic, LandingStatBasicBig, landingYellowColor } from '@app/components/common/Landing/LandingComponents'
 
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
 
@@ -155,11 +155,9 @@ export const Landing = ({
               </GeistText>
             </VStack>
             <VStack w='full' alignItems="center" pt="2%" pb="5%">
-              <VStack borderRadius="6px" bgImage="/assets/landing/noised_shape.png" bgSize="cover" bgRepeat="no-repeat" bgPosition={{ base: 'center', '2xl': '0 20%' }}>
-                <LandingBtn bgColor="transparent" w="170px" h="50px" bg={`linear-gradient(to bottom, ${landingDarkNavy2}cd 10%, ${landingMainColor}ee 95%)`} bgSize="cover" bgRepeat="no-repeat" bgPosition={{ base: 'center', '2xl': '0 20%' }} minWidth="170px" minH="50px" fontSize={{ base: '16px', "2xl": '18px' }} px="1%" py="1%" href="/firm">
-                  Launch App <Image ml="2" src="/assets/landing/rocket.svg" w="20px" h="20px" />
-                </LandingBtn>
-              </VStack>
+              <LandingNoisedBtn btnProps={{ href: "/firm" }}>
+                Launch App <Image ml="2" src="/assets/landing/rocket.svg" w="20px" h="20px" />
+              </LandingNoisedBtn>
               <LandingCard bg="linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(250, 250, 250, 0.8) 2%, rgba(255, 255, 255, 1) 98%, rgba(0, 0, 0, 0.05) 100%)" borderRadius='4px' boxShadow="unset" mt="12" w="full" maxW="800px">
                 <SimpleGrid columns={{ base: 2, md: 4 }} gap="2" w="full">
                   {
@@ -400,11 +398,9 @@ export const Landing = ({
               Ready to Experience Fixed Rates?
             </LandingHeading>
             <ResponsiveStack spacing="10" alignItems="center">
-              <VStack borderRadius="6px" bgImage="/assets/landing/noised_shape.png" bgSize="cover" bgRepeat="no-repeat" bgPosition={{ base: 'center', '2xl': '0 20%' }}>
-                <LandingBtn bgColor="transparent" w="190px" h="50px" bg={`linear-gradient(to bottom, ${landingDarkNavy2}cd 10%, ${landingMainColor}ee 95%)`} bgSize="cover" bgRepeat="no-repeat" bgPosition={{ base: 'center', '2xl': '0 20%' }} minWidth="170px" minH="50px" fontSize={{ base: '16px', "2xl": '18px' }} px="1%" py="1%" href="/firm">
-                  Get Started Now <Image ml="2" src="/assets/landing/rocket.svg" w="20px" h="20px" />
-                </LandingBtn>
-              </VStack>
+              <LandingNoisedBtn btnProps={{ href: "/firm" }}>
+                Get Started Now <Image ml="2" src="/assets/landing/rocket.svg" w="20px" h="20px" />
+              </LandingNoisedBtn>
               <LandingLink color={landingMutedColor} fontSize={{ base: '15px', "2xl": '17px' }} href="/ecosystem">
                 Or explore our ecosystem
               </LandingLink>
