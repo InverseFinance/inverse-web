@@ -23,12 +23,13 @@ const EcoElement = ({
     </HStack>;
 }
 
-const data = [
+export const ecosystemData = [
     {
         image: 'https://assets.coingecko.com/coins/images/12124/large/Curve.png',
         label: 'Curve',
         href: '',
         category: 'DEX',
+        categories: ['DEX', 'LENDING', 'LIQUIDITY'],
     },
     {
         image: 'https://assets.coingecko.com/coins/images/15585/large/convex.png?1621256328',
@@ -53,12 +54,14 @@ const data = [
         label: 'Velodrome',
         href: '',
         category: 'DEX',
+        categories: ['DEX', 'YIELD'],
     },
     {
         image: TOKEN_IMAGES.AERO,
         label: 'Aerodrome',
         href: '',
         category: 'DEX',
+        categories: ['DEX', 'YIELD'],
     },
     {
         image: 'https://assets.coingecko.com/coins/images/11683/large/Balancer.png?1592792958',
@@ -89,12 +92,14 @@ const data = [
         label: 'Thena',
         href: '',
         category: 'DEX',
+        categories: ['DEX', 'YIELD'],
     },
     {
         image: 'https://assets.coingecko.com/coins/images/54833/standard/RSUP-icon.png?1741965338',
         label: 'Resupply',
         href: '',
         category: 'LENDING',
+        categories: ['LENDING', 'YIELD'],
     },
     {
         image: 'https://assets.coingecko.com/coins/images/2822/large/huobi-token-logo.png?1547036992',
@@ -113,6 +118,7 @@ const data = [
         label: 'Frax',
         href: '',
         category: 'LENDING',
+        categories: ['LENDING', 'YIELD'],
     },
     {
         image: 'https://assets.coingecko.com/coins/images/12704/large/token.png?1601876182',
@@ -173,22 +179,25 @@ const data = [
         label: 'USR',
         href: '',
         category: 'LIQUIDITY',
+        categories: ['LIQUIDITY', 'YIELD'],
     },
     {
         image: TOKEN_IMAGES.CRVUSD,
         label: 'CrvUSD',
         href: '',
         category: 'LIQUIDITY',
+        categories: ['LIQUIDITY', 'YIELD'],
     },
     {
         image: TOKEN_IMAGES.PYUSD,
         label: 'PayPal',
         href: '',
         category: 'LIQUIDITY',
+        categories: ['LIQUIDITY', 'YIELD'],
     },
 ];
 
-const projectImages = data.reduce((acc, el) => {
+const projectImages = ecosystemData.reduce((acc, el) => {
     acc[el.label] = el.image;
     return acc;
 }, {});
@@ -197,7 +206,7 @@ const EcoCellItem = ({ project, width = 50 }: { project: string, width?: number 
     return <Image borderRadius='full' src={projectImages[project]!} width={{ base: `${parseInt(width/2)}px`, md: `${width}px` }} alt={project} />
 }
 
-const bannerItems = data.slice(0, 10);
+const bannerItems = ecosystemData.slice(0, 10);
 
 export const EcosystemBanner = () => {
     return <HStack className="banner" bgColor="white" pb="2" pt="2">
