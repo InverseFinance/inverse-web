@@ -161,6 +161,7 @@ export const FloatingNav = ({
   return (
     <>
       <SimpleGrid
+        bg="linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(250, 250, 250, 0.8) 2%, rgba(255, 255, 255, 1) 98%, rgba(0, 0, 0, 0.05) 100%)" borderRadius='4px' boxShadow="unset" w="full"
         columns={3}
         width="full"
         bgColor="white"
@@ -169,7 +170,6 @@ export const FloatingNav = ({
         py={2}
         px={'1%'}
         zIndex="docked"
-        borderRadius="5px"
       >
         <Stack alignItems="center" spacing={{ base: '2', '2xl': '1vw' }} direction="row" align="center">
           <Logo minH="30px" minW="30px" boxSize={isBottom ? '1.8vmax' : '3.8vmax'} filter={isBottom ? "brightness(0) invert(1)" : 'unset'} />
