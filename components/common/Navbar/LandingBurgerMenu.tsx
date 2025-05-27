@@ -59,7 +59,7 @@ export const LandingBurgerMenu = ({
                 <Stack
                     borderRadius="6px"
                     w="full"
-                    bgColor={'white'}
+                    bgColor={"#f9f9fa"}
                     fontWeight="medium"
                     spacing={0}
                     maxH={SUBMENU_CONTAINER_HEIGHT_PX}
@@ -71,38 +71,40 @@ export const LandingBurgerMenu = ({
                         navItems.map(({ label, href, submenus, type }, i) => {
                             const hasSubmenus = !!submenus?.length;
                             const LinkComp = !hasSubmenus ? Link : VStack;
-                            const color = active === label ? styles.colors.mainTextColor : styles.colors.accentTextColor
-                            return <LinkComp
-                                spacing={!hasSubmenus ? '0' : undefined}
-                                w="full"
-                                position="relative"
-                                key={i} href={hasSubmenus ? undefined : href}
-                                color={landingMainColor}
-                                p="4"
-                                onClick={() => setOpenedMenu(openedMenu !== label ? label : '')}
-                                textDecoration={hasSubmenus ? undefined : 'underline'}
-                                borderTop={i !== 0 ? `1px solid ${landingLightBorderColor}` : undefined}
-                            >
+                            return <VStack spacing="0" w='full' key={i}>
+                                <LinkComp
+                                    spacing={!hasSubmenus ? '0' : undefined}
+                                    w="full"
+                                    href={hasSubmenus ? undefined : href}
+                                    position="relative"
+                                    color={landingMainColor}
+                                    p="4"
+                                    onClick={() => setOpenedMenu(openedMenu !== label ? label : '')}
+                                    textDecoration={hasSubmenus ? undefined : 'underline'}
+                                    borderTop={i !== 0 ? `1px solid ${landingLightBorderColor}` : undefined}
+                                >
+                                    {
+                                        hasSubmenus ? <HStack alignItems="center" justifyContent="space-between" w='full'>
+                                            <Text color={landingMainColor}>
+                                                {label}
+                                            </Text>
+                                            {
+                                                openedMenu !== label ? <ChevronDownIcon /> : <ChevronRightIcon />
+                                            }
+                                        </HStack> : label
+                                    }
+                                </LinkComp>
                                 {
-                                    hasSubmenus ? <HStack alignItems="center" justifyContent="space-between" w='full'>
-                                        <Text color={landingMainColor}>
-                                            {label}
-                                        </Text>
-                                        {
-                                            openedMenu !== label ? <ChevronDownIcon /> : <ChevronRightIcon />
-                                        }
-                                    </HStack> : label
-                                }
-                                {
-                                    hasSubmenus && openedMenu === label && <Stack w='full' direction={ type !== 'medium' ? 'column' : 'row' } pt="0" alignItems="flex-start">
+                                    hasSubmenus && openedMenu === label && <Stack maxH="300px" overflowY="auto" w='full' bgColor={"#f0f0f0"} direction={type !== 'medium' ? 'column' : 'row'} px="2" py="4" alignItems="flex-start">
                                         {submenus
                                             .filter(s => !s.href.includes('$account') || (s.href.includes('$account') && !!userAddress))
                                             .map((sub, j) => {
-                                                return type === 'big' ? <LandingBigItem key={j} {...sub} /> : type === 'medium' ? <LandingMediumItem key={j} {...sub} /> : <LandingSmallItem key={j} {...sub} />
+                                                const width = type === 'medium' ? '33%' : undefined;
+                                                return type === 'big' ? <LandingBigItem key={j} {...sub} /> : type === 'medium' ? <LandingMediumItem key={j} {...sub} width="33%" /> : <LandingSmallItem key={j} {...sub} />
                                             })}
                                     </Stack>
                                 }
-                            </LinkComp>
+                            </VStack>
                         })
                     }
                 </Stack>
