@@ -154,7 +154,7 @@ export const Landing = ({
                 Stack your leverage with locked rates and multiply your returns - all in one click
               </GeistText>
             </VStack>
-            <VStack w='full' alignItems="center" pt="2%" pb="5%">
+            <VStack w='full' alignItems={{ base: 'flex-start', md: 'center' }} pt="2%" pb="5%">
               <LandingNoisedBtn btnProps={{ href: "/firm" }}>
                 Launch App <Image ml="2" src="/assets/landing/rocket.svg" w="20px" h="20px" />
               </LandingNoisedBtn>
