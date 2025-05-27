@@ -400,9 +400,11 @@ export const Landing = ({
               Ready to Experience Fixed Rates?
             </LandingHeading>
             <ResponsiveStack spacing="10" alignItems="center">
-              <LandingBtn minWidth="180px" minH="50px" fontSize={{ base: '16px', "2xl": '18px' }} px="1%" py="1%" href="/firm">
-                Get Started Now
-              </LandingBtn>
+              <VStack borderRadius="6px" bgImage="/assets/landing/noised_shape.png" bgSize="cover" bgRepeat="no-repeat" bgPosition={{ base: 'center', '2xl': '0 20%' }}>
+                <LandingBtn bgColor="transparent" w="190px" h="50px" bg={`linear-gradient(to bottom, ${landingDarkNavy2}cd 10%, ${landingMainColor}ee 95%)`} bgSize="cover" bgRepeat="no-repeat" bgPosition={{ base: 'center', '2xl': '0 20%' }} minWidth="170px" minH="50px" fontSize={{ base: '16px', "2xl": '18px' }} px="1%" py="1%" href="/firm">
+                  Get Started Now <Image ml="2" src="/assets/landing/rocket.svg" w="20px" h="20px" />
+                </LandingBtn>
+              </VStack>
               <LandingLink color={landingMutedColor} fontSize={{ base: '15px', "2xl": '17px' }} href="/ecosystem">
                 Or explore our ecosystem
               </LandingLink>
