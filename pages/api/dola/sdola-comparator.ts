@@ -238,11 +238,11 @@ export default async function handler(req, res) {
       {
         symbol: 'ysUSDS',
         project: 'Yearn',
-        link: 'https://yearn.fi/v3/1/0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a',
-        pool: '2b0d6d34-a4f0-4e53-8fd6-a3ef552b4b21',
-        address: '0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a',
+        link: 'https://yearn.fi/v3/1/0x0868076663Bbc6638ceDd27704cc8F0Fa53d5b81',
+        pool: '23895650-759b-4417-8268-981134826dfc',
+        address: '0x0868076663Bbc6638ceDd27704cc8F0Fa53d5b81',
         underlying: '0xdC035D45d973E3EC169d2276DDab16f1e407384F',
-        currentRateGetter: () => getYearnVaultApy('0x4cE9c93513DfF543Bc392870d57dF8C04e89Ba0a'),
+        currentRateGetter: () => getYearnVaultApy('0x0868076663Bbc6638ceDd27704cc8F0Fa53d5b81'),
         image: TOKEN_IMAGES['sUSDS'],
       },
       {
