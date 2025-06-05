@@ -64,12 +64,13 @@ export const getLandingProps = async ({ preview = false, ...context }) => {
     ]);
     const dolaVolume = dolaMarketData.market_data.total_volume.usd;
     const invFirmPrice = marketsData.markets.find(m => m.isInv)?.price || 0;
-    const { apy, projectedApy } = dolaStakingData;
+    const totalDebt = marketsData.markets.reduce((prev, curr) => prev + curr.totalDebt, 0);
+    const { apy, projectedApy, tvlUsd } = dolaStakingData;
     const dbrPriceUsd = dbrData.priceUsd;
     const dolaPrice = dolaPriceData['dola-usd'] || 1;
     const firmTotalTvl = firmTvlData.firmTotalTvl;
     return {
-        props: { preview: isPreview, posts, currentCirculatingSupply: parseFloat(currentCirculatingSupply), apy, projectedApy, dolaPrice, dbrPriceUsd, firmTotalTvl, invPrice: invFirmPrice, dolaVolume },
+        props: { preview: isPreview, posts, totalDebt, currentCirculatingSupply: parseFloat(currentCirculatingSupply), apy, projectedApy, dolaPrice, dbrPriceUsd, firmTotalTvl, invPrice: invFirmPrice, dolaVolume, sDolaTvl: tvlUsd },
     }
 }
 
