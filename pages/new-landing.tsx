@@ -11,6 +11,7 @@ import Link from '@app/components/common/Link'
 import { useEffect, useState } from 'react'
 import FirmLogo from '@app/components/common/Logo/FirmLogo'
 import { GeistText, LandingBtn, LandingCard, landingDarkNavy2, landingGreenColor, LandingHeading, landingLightBorderColor, LandingLink, landingMainColor, landingMutedColor, LandingNoisedBtn, landingPurple, landingPurpleBg, landingPurpleText, LandingStat, LandingStatBasic, LandingStatBasicBig, landingYellowColor } from '@app/components/common/Landing/LandingComponents'
+import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
 
@@ -50,11 +51,15 @@ export const Landing = ({
   sDolaTvl: number,
 }) => {
   const [windowSize, setWindowSize] = useState(0);
+  const [windowWidth, setWindowWidth] = useState(0);
   const [isAnimNeedStretch, setIsAnimNeedStretch] = useState(true);
   const [animStrechFactor, setAnimStrechFactor] = useState(1);
 
   useEffect(() => {
     const handleResize = () => {
+      // ignore height change
+      if (windowWidth === window.innerWidth) return;
+      setWindowWidth(window.innerWidth);
       setWindowSize(Math.max(window.innerWidth, window.innerHeight));
       const ratio = window.innerWidth / window.innerHeight;
       setIsAnimNeedStretch(ratio < animWidthToHeightRatio);
@@ -136,7 +141,9 @@ export const Landing = ({
       <VStack spacing="0" className="landing-v3" w='full' alignItems="center">
         <VStack h='100vh' w='full' alignItems="center" justifyContent="center">
           <VStack bgImage="/assets/landing/anim_bg.png" bgSize="cover" bgRepeat="no-repeat" bgPosition="center" zIndex="-1" position="fixed" top="0" left="0" height="100vh" width="100%">
-            <LandingAnimation boxProps={{ transform: isAnimNeedStretch ? `translateY(${(animStrechFactor) / 2 * 100}%) scale3d(1, ${1 + animStrechFactor}, 1)` : 'none' }} loop={true} height={windowSize} width={windowSize} />
+            <ErrorBoundary description=" ">
+              <LandingAnimation boxProps={{ transform: isAnimNeedStretch ? `translateY(${(animStrechFactor) / 2 * 100}%) scale3d(1, ${1 + animStrechFactor}, 1)` : 'none' }} loop={true} height={windowSize} width={windowSize} />
+            </ErrorBoundary>
           </VStack>
           <VStack position="fixed" zIndex="99999" top="0" maxW="2000px" w='full' px={{ base: 0, md: '4%' }} py={{ base: 0, md: '5' }} alignItems="center">
             <FloatingNav />
