@@ -3,7 +3,7 @@ import Layout from '@app/components/common/Layout'
 import Head from 'next/head'
 import { shortenNumber } from '@app/util/markets'
 import { getLandingProps } from '@app/blog/lib/utils'
-import { ArrowForwardIcon, CheckCircleIcon, SearchIcon, SmallCloseIcon } from '@chakra-ui/icons'
+import { ArrowForwardIcon, CheckCircleIcon, ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon, SearchIcon, SmallCloseIcon } from '@chakra-ui/icons'
 import { LandingAnimation } from '@app/components/common/Animation/LandingAnimation'
 import FloatingNav from '@app/components/common/Navbar/FloatingNav'
 import { EcosystemBanner, ecosystemData, EcosystemGrid } from '@app/components/Landing/EcosystemBanner'
@@ -38,11 +38,14 @@ const uniqueCategories = ecosystemData.reduce((acc, item) => {
 export const EcosystemPage = ({
 }: {
   }) => {
+  const isSmallerThan = useMediaQuery('(max-width: 768px)');
   const [windowSize, setWindowSize] = useState(0);
   const [isAnimNeedStretch, setIsAnimNeedStretch] = useState(true);
   const [animStrechFactor, setAnimStrechFactor] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [categories, setCategories] = useState<string[]>([]);
+  // for mobile only
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -90,9 +93,11 @@ export const EcosystemPage = ({
               <GeistText fontSize={{ base: '16px', 'md': '20px' }}>
                 Backed by the biggest protocols and organizations.  A credit framework for all your blockchain activities.
               </GeistText>
-              <LandingNoisedBtn mt="10">
-                Become Our Partner
-              </LandingNoisedBtn>
+              <Link href="mailto:hello@inverse.finance?subject=Partner%20Inquiry&body=Hello%2C%0A%0AI%20am%20interested%20in%20becoming%20a%20partner%20with%20Inverse%20Finance." isExternal>
+                <LandingNoisedBtn mt="10">
+                  Become Our Partner
+                </LandingNoisedBtn>
+              </Link>
             </VStack>
             <VStack maxH={{ base: '200px', md: 'unset' }} borderRadius="6px" overflow="hidden" w={{ base: 'full', md: '50%' }}>
               <VStack bgImage="/assets/landing/anim_bg.png" bgSize="cover" bgRepeat="no-repeat" bgPosition="center" height="80vh" width="100%">
@@ -101,20 +106,41 @@ export const EcosystemPage = ({
             </VStack>
           </ResponsiveStack>
         </VStack>
-        <ResponsiveStack spacing="1px" w='full' alignItems="flex-start">
-          <VStack spacing="8" alignItems="center" w={{ base: 'full', md: '25%' }} bgColor="white" p="4" borderRadius="0">
-            <InputGroup alignItems="center" maxH="48px" w='full'>
-              <Input py="0" maxH="48px" fontSize="16px" bgColor="transparent" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search" textAlign="left" type="search" borderRadius="2px" border={`1px solid ${landingLightBorderColor}`} />
-              <InputRightElement
-                pointerEvents='none'
-                children={<SearchIcon color='gray.300' />}
-              />
-            </InputGroup>
+        <ResponsiveStack bgColor="white" spacing="1px" w='full' alignItems="flex-start">
+          <VStack spacing="8" alignItems="center" w={{ base: 'full', md: '25%' }} bgColor="white" py="4" px="6" borderRadius="0">
+            <VStack spacing="4" w='full' alignItems="flex-end">
+              <HStack justifyContent="space-between" w='full'>
+                <GeistText fontSize="14px" color={landingMutedColor}>
+                  Filters
+                </GeistText>
+                <VStack w="50%" h="1px" bgColor={landingLightBorderColor} ></VStack>
+                <GeistText opacity={categories.length > 0 || !!searchTerm ? 1 : 0.8} fontSize="14px" color={landingPurpleText} cursor="pointer" onClick={() => {
+                  setCategories([])
+                  setSearchTerm('')
+                }}>
+                  Clear all
+                </GeistText>
+              </HStack>
+              <InputGroup alignItems="center" maxH="48px" w='full'>
+                <Input py="0" maxH="48px" fontSize="16px" bgColor="transparent" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search a project" textAlign="left" type="text" borderRadius="2px" border={`1px solid ${landingLightBorderColor}`} />
+                <InputRightElement
+                  pointerEvents='none'
+                  children={<SearchIcon color='gray.300' />}
+                />
+              </InputGroup>
+            </VStack>
             <VStack alignItems="flex-start" w='full'>
-              <GeistText fontSize="14px" color={landingMutedColor}>
-                Filter by Partner Category:
-              </GeistText>
-              <VStack alignItems="flex-start" w='full'>
+              <HStack spacing="4" w='full' alignItems="center" justifyContent="space-between">
+                <GeistText fontSize="14px" color={landingMutedColor}>
+                  Partner Category
+                </GeistText>
+                {
+                  isSmallerThan ? <HStack cursor="pointer" onClick={() => setIsFiltersOpen(!isFiltersOpen)}>
+                    {isFiltersOpen ? <ChevronDownIcon /> : <ChevronRightIcon />}
+                  </HStack> : <VStack w="50%" h="1px" bgColor={landingLightBorderColor} ></VStack>
+                }
+              </HStack>
+              <VStack alignItems="flex-start" w='full' display={isFiltersOpen ? 'flex' : 'none'}>
                 <CheckboxGroup colorScheme='blue' defaultValue={[]} value={categories} onChange={setCategories}>
                   <VStack alignItems="flex-start" w='full' spacing="0" justifyContent="center">
                     {
@@ -131,18 +157,25 @@ export const EcosystemPage = ({
               </VStack>
             </VStack>
           </VStack>
-          <VStack w={{ base: 'full', md: '75%' }}>
+          <VStack w={{ base: 'full', md: '75%' }} borderLeft={{ base: 'none', md: `1px solid ${landingLightBorderColor}` }}>
             <SimpleGrid columns={{ base: 1, md: 3, '2xl': 4 }} spacing="1px" bgColor={landingLightBorderColor}>
               {
                 filteredEcosystemData.map((item, i) => {
-                  return <VStack cursor="pointer" _hover={{ bgColor: landingLightBorderColor }} spacing="4" alignItems="flex-start" bgColor={"white"} p="4" borderRadius="0">
-                    <MiniCard p="4" bgColor="white">
-                      <Image w="40px" h="40px" src={item.image} alt={item.label} />
-                    </MiniCard>
-                    <LandingHeading fontSize="16px" fontWeight="bold">{item.label}</LandingHeading>
-                    <GeistText fontSize="14px" color={landingMutedColor}>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique.
-                    </GeistText>
+                  return <Link flexDirection="column" display="flex" isExternal href={item.href} target="_blank" cursor="pointer" className="ecosystem-partner-card" position="relative" _hover={{ bgColor: landingLightBorderColor }} spacing="4" alignItems="flex-start" justifyContent="space-between" bgColor={"white"} p="4" borderRadius="0">
+                    <VStack alignItems="flex-start" justifyContent="space-between" w='full'>
+                      <VStack spacing="0">
+                        <MiniCard p="4" bgColor="white">
+                          <Image w="auto" h="40px" src={item.image} alt={item.label} />
+                        </MiniCard>
+                        <VStack display="none" className="ecosystem-partner-card-link" zIndex="1" cursor="pointer" position="absolute" top="4" right="4" alignItems="center" justifyContent="center" isExternal href={item.url} target="_blank" borderRadius="2px" w='30px' h="30px" bgColor={landingPurpleText}>
+                          <ArrowForwardIcon transform="rotate(-45deg)" color={'white'} />
+                        </VStack>
+                      </VStack>
+                      <LandingHeading fontSize="16px" fontWeight="bold">{item.label}</LandingHeading>
+                      <GeistText fontSize="14px" color={landingMutedColor}>
+                        {item.description}
+                      </GeistText>
+                    </VStack>
                     <HStack spacing="4">
                       {
                         item.categories?.map((category) => {
@@ -154,7 +187,7 @@ export const EcosystemPage = ({
                         })
                       }
                     </HStack>
-                  </VStack>
+                  </Link>
                 })
               }
             </SimpleGrid>

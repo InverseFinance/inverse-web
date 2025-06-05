@@ -51,3 +51,7 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
+
+.ecosystem-partner-card:hover .ecosystem-partner-card-link {
+    display: flex !important;
+}
