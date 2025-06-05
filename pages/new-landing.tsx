@@ -400,7 +400,7 @@ export const Landing = ({
           <GeistText fontSize="md">
             Top DeFi protocols trust Inverse Finance
           </GeistText>
-          <VStack w='full' bg="white" py={{ base: 0, md: 10 }}>
+          <VStack w='full' bg="white" py={{ base: 4, md: 10 }}>
             <EcosystemGrid />
           </VStack>
           <VStack pt={{ base: '5', md: '20' }} spacing="10">
