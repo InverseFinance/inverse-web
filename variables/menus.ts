@@ -467,6 +467,10 @@ export const MENUS = {
           label: 'Debank',
           href: 'https://debank.com/official/Inverse_Finance/follower',
         },
+        {
+          label: 'Ecosystem',
+          href: '/ecosystem',
+        },
         // {
         //   label: 'Telegram',
         //   href: 'https://t.me/InverseFinance',
