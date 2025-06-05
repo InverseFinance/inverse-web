@@ -78,7 +78,7 @@ export const EcosystemPage = ({
         <link rel="stylesheet" href="/landing.css" />
       </Head>
       <VStack spacing="0" className="landing-v3" w='full' alignItems="center">
-        <VStack bgColor={bluePastel} h='100vh' w='full' alignItems="flex-start" justifyContent={{ base: 'flex-start', md: 'center' }}>
+        <VStack bgColor={bluePastel} h='calc(100vh - 130px)' w='full' alignItems="flex-start" justifyContent={{ base: 'flex-start', md: 'center' }}>
           <VStack position="fixed" zIndex="99999" top="0" maxW="2000px" w='full' px={{ base: 0, md: '4%' }} py={{ base: 0, md: '5' }} alignItems="center">
             <FloatingNav />
           </VStack>
