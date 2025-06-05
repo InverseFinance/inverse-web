@@ -5,6 +5,7 @@ import Logo from '../common/Logo';
 import { GeistText, LandingHeading, landingMainColor } from '../common/Landing/LandingComponents';
 import { NetworkImage, NetworkItem } from '../common/NetworkItem';
 import { useState } from 'react';
+import { ArrowForwardIcon } from '@chakra-ui/icons';
 
 const EcoElement = ({
     image,
@@ -181,14 +182,14 @@ export const ecosystemData = [
     {
         image: 'https://assets.coingecko.com/coins/images/877/standard/chainlink-new-logo.png?1696502009',
         label: 'Chainlink',
-        category: 'INFRASTRUCTURE',
+        category: 'INFRA',
         "href": "https://chain.link/",
         "description": "Chainlink is a decentralized oracle network that provides secure and reliable data feeds to smart contracts.",
     },
     {
         image: '/assets/landing/enso.jpeg',
         label: 'Enso',
-        category: 'INFRASTRUCTURE',
+        category: 'INFRA',
         "href": "https://www.enso.build/",
         "description": "Enso: Universal DeFi dashboard for bundled, optimized multi-protocol interactions",
     },
@@ -196,7 +197,7 @@ export const ecosystemData = [
         image: '/assets/landing/debank.jpg',
         label: 'Debank',
 
-        category: 'INFRASTRUCTURE',
+        category: 'INFRA',
         "href": "https://debank.com/",
         "description": "DeBank is a comprehensive DeFi portfolio tracking and management platform",
     },
@@ -266,20 +267,20 @@ export const EcosystemBanner = () => {
     </HStack>
 }
 
-const CellBig = ({ children, isInvisible }: { children: React.ReactNode, isInvisible?: boolean }) => {
-    return <VStack opacity={isInvisible ? 0 : 1} alignItems="center" justifyContent="center" w={{ base: '150px', md: '400px' }} h={{ base: '135px', md: '360px' }} boxShadow="0 0 0 1px lightgray">
+const CellBig = ({ children, isInvisible, isInteractive }: { children: React.ReactNode, isInvisible?: boolean, isInteractive?: boolean }) => {
+    return <VStack opacity={isInvisible ? 0 : 1} alignItems="center" justifyContent="center" w={{ base: '150px', md: '400px' }} h={{ base: '135px', md: '360px' }} boxShadow={isInteractive ? '0 0 0 1px transparent' : '0 0 0 1px lightgray'}>
         {children}
     </VStack>
 }
 
-const CellBigGrid = ({ children, isInvisible }: { children: React.ReactNode, isInvisible?: boolean }) => {
-    return <SimpleGrid opacity={isInvisible ? 0 : 1} columns={2} alignItems="center" justifyContent="center" w={{ base: '150px', md: '400px' }} h={{ base: '135px', md: '360px' }} boxShadow="0 0 0 1px lightgray">
+const CellBigGrid = ({ children, isInvisible, isInteractive }: { children: React.ReactNode, isInvisible?: boolean, isInteractive?: boolean }) => {
+    return <SimpleGrid opacity={isInvisible ? 0 : 1} columns={2} alignItems="center" justifyContent="center" w={{ base: '150px', md: '400px' }} h={{ base: '135px', md: '360px' }} boxShadow={isInteractive ? '0 0 0 1px transparent' : '0 0 0 1px lightgray'}>
         {children}
     </SimpleGrid>
 }
 
-const CellSmaller = ({ children, isInvisible }: { children: React.ReactNode, isInvisible?: boolean }) => {
-    return <SimpleGrid opacity={isInvisible ? 0 : 1} columns={2} alignItems="center" justifyContent="center" w={{ base: '150px', md: '400px' }} h={{ base: '90px', md: '240px' }} boxShadow="0 0 0 1px lightgray">
+const CellSmaller = ({ children, isInvisible, isInteractive }: { children: React.ReactNode, isInvisible?: boolean, isInteractive?: boolean }) => {
+    return <SimpleGrid opacity={isInvisible ? 0 : 1} columns={2} alignItems="center" justifyContent="center" w={{ base: '150px', md: '400px' }} h={{ base: '90px', md: '240px' }} boxShadow={isInteractive ? '0 0 0 1px transparent' : '0 0 0 1px lightgray'}>
         {children}
     </SimpleGrid>
 }
@@ -299,7 +300,8 @@ const CellItem = ({ children, onHover, isCategoryHovered, isInteractive, hovered
         justifyContent="center"
         w={{ base: '75px', md: '200px' }}
         h={{ base: '45px', md: '120px' }}
-        boxShadow="0 0 0 1px lightgray"
+        border={isCategoryItemHovered ? '2px solid #00000099' : 'unset'}
+        boxShadow={isCategoryItemHovered ? 'inset 0 0 0 4px white' : isInteractive ? '0 0 0 1px transparent' : '0 0 0 1px lightgray'}
         transition="filter 0.25s ease-in-out"
         bgColor={isCategoryItemHovered ? '#D5C6FC' : 'unset'}
         onMouseEnter={() => {
@@ -312,18 +314,23 @@ const CellItem = ({ children, onHover, isCategoryHovered, isInteractive, hovered
 }
 
 const CellText = ({ children }: { children: React.ReactNode }) => {
-    return <LandingHeading fontSize={{ base: '10px', md: '18px' }} fontWeight="bold" textAlign="center">
+    return <LandingHeading fontSize={{ base: '8px', md: '16px' }} fontWeight="bold" textAlign="center">
         {children}
     </LandingHeading>
 }
 
 const CategoryItem = ({ isInteractive, hoveredCategory, onHover, category }: { isInteractive: boolean, hoveredCategory: string, category: string, onHover: (category: string) => void }) => {
     const isCategoryHovered = hoveredCategory === category;
-    return <CellItem isInteractive={isInteractive} isCategoryHovered={isCategoryHovered} onHover={() => onHover?.(category)}>
-        <CellText>
-            {isCategoryHovered ? `${COUNTS_PER_CAT[category]} ` : null}{category}{isCategoryHovered ? ` Partners` : null}
-        </CellText>
-    </CellItem>
+    return <VStack>
+        <CellItem isInteractive={isInteractive} isCategoryHovered={isCategoryHovered} onHover={() => onHover?.(category)}>
+            <CellText>
+                {isCategoryHovered ? `${COUNTS_PER_CAT[category]} ` : null}
+                {category}
+                {isCategoryHovered ? ` Partners` : null}
+                {isCategoryHovered && <><br /><ArrowForwardIcon /></>}
+            </CellText>
+        </CellItem>
+    </VStack>
 }
 
 export const EcosystemGrid = ({ onHover, hoveredCategory }: { onHover?: (category: string) => void, hoveredCategory?: string }) => {
@@ -337,7 +344,7 @@ export const EcosystemGrid = ({ onHover, hoveredCategory }: { onHover?: (categor
         }
         <VStack boxShadow="inset 0 0 0 1px white" spacing="0" display="grid" w='full' alignItems="center" justify="center">
             <HStack spacing="0" w='full' maxW="1300px" >
-                <CellSmaller isInvisible={isInteractive && hoveredCategory !== 'DEX'}>
+                <CellSmaller isInteractive={isInteractive} isInvisible={isInteractive && hoveredCategory !== 'DEX'}>
                     <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'DEX'}>
                         <EcoCellItem project="Velodrome" />
                     </CellItem>
@@ -349,7 +356,7 @@ export const EcosystemGrid = ({ onHover, hoveredCategory }: { onHover?: (categor
                     </CellItem>
                     <CategoryItem isInteractive={isInteractive} category="DEX" hoveredCategory={hoveredCategory} onHover={onHover} />
                 </CellSmaller>
-                <CellSmaller isInvisible={isInteractive && hoveredCategory !== 'LENDING'}>
+                <CellSmaller isInteractive={isInteractive} isInvisible={isInteractive && hoveredCategory !== 'LENDING'}>
                     <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'LENDING'}>
                         <EcoCellItem project="Resupply" />
                     </CellItem>
@@ -361,7 +368,7 @@ export const EcosystemGrid = ({ onHover, hoveredCategory }: { onHover?: (categor
                     </CellItem>
                     <CategoryItem isInteractive={isInteractive} category="LENDING" hoveredCategory={hoveredCategory} onHover={onHover} />
                 </CellSmaller>
-                <CellSmaller isInvisible={isInteractive && hoveredCategory !== 'YIELD'}>
+                <CellSmaller isInteractive={isInteractive} isInvisible={isInteractive && hoveredCategory !== 'YIELD'}>
                     <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'YIELD'}>
                         <EcoCellItem project="Convex" />
                     </CellItem>
@@ -375,7 +382,7 @@ export const EcosystemGrid = ({ onHover, hoveredCategory }: { onHover?: (categor
                 </CellSmaller>
             </HStack>
             <HStack spacing="0" w='full' maxW="1300px" >
-                <CellBigGrid isInvisible={isInteractive && hoveredCategory !== 'CHAIN'}>
+                <CellBigGrid isInteractive={isInteractive} isInvisible={isInteractive && hoveredCategory !== 'CHAIN'}>
                     <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'CHAIN'}>
                         <NetworkImage chainId={10} size={{ base: '25px', md: '50px' }} />
                     </CellItem>
@@ -396,7 +403,7 @@ export const EcosystemGrid = ({ onHover, hoveredCategory }: { onHover?: (categor
                 <CellBig>
                     <Logo boxSize={{ base: '50px', md: '150px' }} noFilter={true} />
                 </CellBig>
-                <CellBigGrid isInvisible={isInteractive && hoveredCategory !== 'SECURITY'}>
+                <CellBigGrid isInteractive={isInteractive} isInvisible={isInteractive && hoveredCategory !== 'SECURITY'}>
                     <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'SECURITY'}>
                         <EcoCellItem width={50} project="Immunefi" />
                     </CellItem>
@@ -416,20 +423,20 @@ export const EcosystemGrid = ({ onHover, hoveredCategory }: { onHover?: (categor
                 </CellBigGrid>
             </HStack>
             <HStack spacing="0" w='full' maxW="1300px" >
-                <CellSmaller isInvisible={isInteractive && hoveredCategory !== 'INFRASTRUCTURE'}>
-                    <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'INFRASTRUCTURE'}>
+                <CellSmaller isInteractive={isInteractive} isInvisible={isInteractive && hoveredCategory !== 'INFRA'}>
+                    <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'INFRA'}>
                         <EcoCellItem project="Chainlink" />
                     </CellItem>
-                    <CategoryItem isInteractive={isInteractive} category="INFRASTRUCTURE" hoveredCategory={hoveredCategory} onHover={onHover} />
-                    <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'INFRASTRUCTURE'}>
+                    <CategoryItem isInteractive={isInteractive} category="INFRA" hoveredCategory={hoveredCategory} onHover={onHover} />
+                    <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'INFRA'}>
                         <EcoCellItem width={50} project="Debank" />
                     </CellItem>
-                    <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'INFRASTRUCTURE'}>
+                    <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'INFRA'}>
                         <EcoCellItem project="Enso" />
                     </CellItem>
                 </CellSmaller>
-                <CellSmaller isInvisible={isInteractive && hoveredCategory !== 'CEX'}>
-                <CategoryItem isInteractive={isInteractive} category="CEX" hoveredCategory={hoveredCategory} onHover={onHover} />
+                <CellSmaller isInteractive={isInteractive} isInvisible={isInteractive && hoveredCategory !== 'CEX'}>
+                    <CategoryItem isInteractive={isInteractive} category="CEX" hoveredCategory={hoveredCategory} onHover={onHover} />
                     <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'CEX'}>
                         <EcoCellItem project="Coinbase" />
                     </CellItem>
@@ -440,8 +447,8 @@ export const EcosystemGrid = ({ onHover, hoveredCategory }: { onHover?: (categor
                         <EcoCellItem project="MEXC" />
                     </CellItem>
                 </CellSmaller>
-                <CellSmaller isInvisible={isInteractive && hoveredCategory !== 'LIQUIDITY'}>
-                <CategoryItem isInteractive={isInteractive} category="LIQUIDITY" hoveredCategory={hoveredCategory} onHover={onHover} />
+                <CellSmaller isInteractive={isInteractive} isInvisible={isInteractive && hoveredCategory !== 'LIQUIDITY'}>
+                    <CategoryItem isInteractive={isInteractive} category="LIQUIDITY" hoveredCategory={hoveredCategory} onHover={onHover} />
                     <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'LIQUIDITY'}>
                         <EcoCellItem project="CrvUSD" />
                     </CellItem>
