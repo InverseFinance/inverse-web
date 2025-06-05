@@ -143,7 +143,7 @@ export const Landing = ({
           </VStack>
           <VStack maxW="90%" w='full' alignItems="center" pt="50px">
             <VStack pt="8" spacing="8" w='full' alignItems="center">
-              <VStack spacing="0" w='full' alignItems="center">
+              <VStack spacing="0" w='full' alignItems={{ base: 'flex-start', 'md': 'center' }}>
                 <LandingHeading textAlign={{ base: 'flex-start', 'md': 'center' }} whiteSpace="pre-line" as="h1" fontSize={{ base: '30px', 'md': '5xl' }} fontWeight="bold">
                   Fixed Rates,
                   <br />
