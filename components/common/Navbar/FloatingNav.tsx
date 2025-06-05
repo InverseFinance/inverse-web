@@ -63,7 +63,7 @@ const LANDING_NAV_ITEMS = [
       {
         logo: <Image src="/assets/logo.png" alt="Governance" w={{ base: '32px', md: '64px' }} h="auto" />,
         title: 'Governance',
-        href: 'https://inverse.finance/governance',
+        href: '/governance',
       },
     ],
   },
@@ -73,32 +73,34 @@ const LANDING_NAV_ITEMS = [
     type: 'small',
     submenus: [
       {
-        logo: <Image src="/assets/landing/discord.svg" alt="Discord" w="64px" h="auto" />,
-        title: 'Treasury',
-        href: 'https://inverse.finance/transparency/treasury',
-      },
-      {
-        logo: <Image src="/assets/landing/x.svg" alt="X" w="64px" h="auto" />,
-        title: 'Key Metrics',
-        href: 'https://inverse.finance/transparency/keymetrics',
-      },
-      {
-        logo: <Image src="/assets/logo.png" alt="Governance" w="64px" h="auto" />,
+        logo: <Image src="/assets/landing/transparency/dola.svg" alt="DOLA" w="20px" h="20px" />,
         title: 'DOLA',
-        href: 'https://inverse.finance/transparency/dola',
+        href: '/transparency/dola',
       },
       {
-        logo: <Image src="/assets/landing/discord.svg" alt="Discord" w="64px" h="auto" />,
-        title: 'DAO',
-        href: 'https://inverse.finance/transparency/dao',
-      },
-      {
-        logo: <Image src="/assets/logo.png" alt="Governance" w="64px" h="auto" />,
+        logo: <Image src="/assets/landing/transparency/dbr.svg" alt="DBR" w="20px" h="20px" />,
         title: 'DBR',
-        href: 'https://inverse.finance/transparency/dbr',
+        href: '/transparency/dbr',
       },
       {
-        logo: <Image src="/assets/landing/x.svg" alt="X" w="64px" h="auto" />,
+        logo: <Image src="/assets/landing/transparency/treasury.svg" alt="Treasury" w="20px" h="20px" />,
+        title: 'Treasury',
+        href: '/transparency/treasury',
+      },
+      {
+        logo: <Image src="/assets/landing/transparency/keymetrics.svg" alt="Keymetrics" w="20px" h="20px" />,
+        title: 'Key Metrics',
+        href: '/transparency/keymetrics',
+      },
+      
+      {
+        logo: <Image src="/assets/landing/transparency/dao.svg" alt="DAO" w="20px" h="20px" />,
+        title: 'DAO',
+        href: '/transparency/dao',
+      },
+     
+      {
+        logo: <Image src="/assets/landing/transparency/docs.svg" alt="Docs" w="20px" h="20px" />,
         title: 'Docs',
         href: 'https://docs.inverse.finance/inverse-finance',
       },
@@ -141,15 +143,18 @@ export const LandingMediumItem = ({ logo, title, text, href, width }: { logo: st
   )
 }
 
-export const LandingSmallItem = ({ title, href }: { logo: string, title: string, text: string, href: string }) => {
+export const LandingSmallItem = ({ title, href, logo }: { logo: string, title: string, text: string, href: string }) => {
   return (
-    <Link href={href} _hover={{}} w={{ base: 'full', md: '200px' }}>
-      <SimpleCard boxShadow="0 1px 1px 1px #00000011" cursor="pointer" borderRadius="4px" w={{ base: 'full', md: '200px' }} h="auto" p="1" bgColor={inactiveCardBgColor} _hover={{ bgColor: activeCardBgColor }}>
-        <VStack alignItems="center" justifyContent="center">
-          <VStack justifyContent="center" alignItems="flex-start" px="16px">
-            <GeistText py="4" fontSize="16px" fontWeight="bold">{title}</GeistText>
+    <Link href={href} _hover={{}} w='full'>
+      <SimpleCard boxShadow="0 1px 1px 1px #00000011" cursor="pointer" borderRadius="4px" w='full' h="auto" p="1" bgColor={inactiveCardBgColor} _hover={{ bgColor: activeCardBgColor }}>
+        <HStack spacing="4" alignItems="center" justifyContent="flex-start" w='full'>
+          <VStack alignItems="center" justifyContent="center" w="50px" h="50px" bgColor={logoBgColor} borderRadius="2px" p="0">
+            {logo}
+          </VStack>          
+          <VStack justifyContent="center" alignItems="flex-start" pl="0" pr="4">
+            <GeistText py="2" fontSize="16px" fontWeight="bold">{title}</GeistText>
           </VStack>
-        </VStack>
+        </HStack>
       </SimpleCard>
     </Link>
   )
@@ -246,14 +251,14 @@ export const FloatingNav = ({
                   submenus?.length > 0 && type === 'small' &&
                   <PopoverContent pt="20px" w="fit-content" h="187px" background={'transparent'} border="none">
                     <PopoverBody boxShadow="0 1px 1px 1px #00000011" p="2" className={`blurred-container light-bg compat-mode2`} borderRadius="4px">
-                      <SimpleGrid justifyContent="space-between" w='full' columns={2} spacing="2">
+                      <VStack alignItems="flex-start" w='full' spacing="1">
                         {
                           submenus
                             ?.map(s => {
                               return <LandingSmallItem key={s.title} {...s} />
                             })
                         }
-                      </SimpleGrid>
+                      </VStack>
                     </PopoverBody>
                   </PopoverContent>
                 }
@@ -284,7 +289,7 @@ export const FloatingNav = ({
           >
             Launch App
           </LandingBtn>
-          {isSmallerThan && <LandingBurgerMenu isLanding={true} navItems={LANDING_NAV_ITEMS} /> }
+          {isSmallerThan && <LandingBurgerMenu isLanding={true} navItems={LANDING_NAV_ITEMS} />}
         </HStack>
       </SimpleGrid>
     </>
