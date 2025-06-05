@@ -44,3 +44,10 @@
         transform: translateX(-50%);
     }
 }
+
+.landing-gradient-text {
+    /* background: radial-gradient(48.39% 343.8% at 51.87% 81.25%, #885CFF 0%, #581EF4 16.22%, rgba(92, 35, 245, 0.651852) 38.72%, rgba(95, 39, 246, 0.5) 70.72%, rgba(99, 44, 247, 1) 100%) warning: gradient uses a rotation that is not supported by CSS and may not behave as expected; */
+    background: radial-gradient(circle, #5f27f6, #1e1060);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}

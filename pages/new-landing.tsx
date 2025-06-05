@@ -145,9 +145,9 @@ export const Landing = ({
             <VStack pt="8" spacing="8" w='full' alignItems="center">
               <VStack spacing="0" w='full' alignItems="center">
                 <LandingHeading textAlign={{ base: 'flex-start', 'md': 'center' }} whiteSpace="pre-line" as="h1" fontSize={{ base: '30px', 'md': '5xl' }} fontWeight="bold">
-                  Experience Fixed Rates
+                  Fixed Rates,
                   <br />
-                  With Unfixed Potential Today
+                  Unfixed <span className="landing-gradient-text">Potential</span>
                 </LandingHeading>
               </VStack>
               <GeistText as="h2" fontSize="xl">
@@ -313,10 +313,13 @@ export const Landing = ({
                 <GeistText fontSize="md">
                   DOLA enables some of the most attractive yield opportunities in DeFi. Now, sDOLA takes it further—a yield-bearing stablecoin born from our FiRM lending market, delivering pure, uncut DeFi returns fueled by real activity, not centralized compromises.
                 </GeistText>
+                <LandingNoisedBtn btnProps={{ href: "/sDOLA", maxH: '50px' }}>
+                  Get Started <ArrowForwardIcon ml="2" />
+                </LandingNoisedBtn>
               </VStack>
               <ResponsiveStack maxHeight={{ base: '400px', md: 'unset' }} id="section-sdola-2" borderTop={{ base: `1px solid ${landingLightBorderColor}`, md: 'none' }} w={{ base: 'full', md: '50%' }} alignItems="center" justifyContent="space-evenly">
-                <LandingStatBasicBig maxHeight={{ base: '200px', md: 'unset' }} alignItems="center" py={{ base: 4, md: 8 }} h={{ base: 'auto', md: '100%' }} borderLeft={{ base: 'none', md: `1px solid ${landingLightBorderColor}` }} borderRight={{ base: 'none', md: `1px solid ${landingLightBorderColor}` }} value={shortenNumber(sDolaTvl, 2, true)} name="sDOLA TVL" />
-                <LandingStatBasicBig maxHeight={{ base: '200px', md: 'unset' }} alignItems="center" py={{ base: 4, md: 8 }} h={{ base: 'auto', md: '100%' }} borderTop={{ base: `1px solid ${landingLightBorderColor}`, md: 'none' }} value={`${shortenNumber(apy, 2, false)}%`} name="sDOLA APY" />
+                <LandingStatBasicBig justifyContent="center" maxHeight={{ base: '200px', md: 'unset' }} alignItems="center" py={{ base: 4, md: 8 }} h={{ base: 'auto', md: '100%' }} borderLeft={{ base: 'none', md: `1px solid ${landingLightBorderColor}` }} borderRight={{ base: 'none', md: `1px solid ${landingLightBorderColor}` }} value={shortenNumber(sDolaTvl, 2, true)} name="sDOLA TVL" />
+                <LandingStatBasicBig justifyContent="center" maxHeight={{ base: '200px', md: 'unset' }} alignItems="center" py={{ base: 4, md: 8 }} h={{ base: 'auto', md: '100%' }} borderTop={{ base: `1px solid ${landingLightBorderColor}`, md: 'none' }} value={`${shortenNumber(apy, 2, false)}%`} name="sDOLA APY" />
               </ResponsiveStack>
             </ResponsiveStack>
           </ResponsiveStack>
