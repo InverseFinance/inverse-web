@@ -16,8 +16,6 @@ import { Input } from '@app/components/common/Input'
 
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
 
-const firmLogo = <FirmLogo transform="translateY(12px)" position="absolute" top="0" w="65px" h="30px" theme="light" />;
-
 const animWidthToHeightRatio = 1.78;
 
 const bluePastel = "#ebecf7";
