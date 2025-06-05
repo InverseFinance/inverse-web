@@ -203,19 +203,19 @@ export const ecosystemData = [
     },
     {
         image: TOKEN_IMAGES.USR,
-        label: 'USR',
+        label: 'Usual',
         category: 'LIQUIDITY',
         categories: ['LIQUIDITY', 'YIELD'],
         "href": "https://usual.money/",
         "description": "A secure, decentralized issuer that takes back the value captured by crypto giants—and redistributes it to the community through $USUAL.",
     },
     {
-        image: TOKEN_IMAGES.CRVUSD,
-        label: 'CrvUSD',
+        image: TOKEN_IMAGES.USDe,
+        label: 'Ethena',
         category: 'LIQUIDITY',
         categories: ['LIQUIDITY', 'YIELD'],
-        "href": "https://crvusd.curve.finance/#/ethereum/markets",
-        "description": "crvUSD is a collateralized-debt-position (CDP) stablecoin pegged to the US Dollar",
+        "href": "https://www.ethena.fi/",
+        "description": "Ethena is a synthetic dollar protocol built on Ethereum",
     },
     {
         image: TOKEN_IMAGES.PYUSD,
@@ -450,13 +450,13 @@ export const EcosystemGrid = ({ onHover, hoveredCategory }: { onHover?: (categor
                 <CellSmaller isInteractive={isInteractive} isInvisible={isInteractive && hoveredCategory !== 'LIQUIDITY'}>
                     <CategoryItem isInteractive={isInteractive} category="LIQUIDITY" hoveredCategory={hoveredCategory} onHover={onHover} />
                     <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'LIQUIDITY'}>
-                        <EcoCellItem project="CrvUSD" />
+                        <EcoCellItem project="Ethena" />
                     </CellItem>
                     <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'LIQUIDITY'}>
                         <EcoCellItem project="PayPal" />
                     </CellItem>
                     <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'LIQUIDITY'}>
-                        <EcoCellItem project="USR" />
+                        <EcoCellItem project="Usual" />
                     </CellItem>
                 </CellSmaller>
             </HStack>

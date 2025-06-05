@@ -26,17 +26,20 @@ const MiniCard = ({ children, ...props }: { children: React.ReactNode, props: an
   </SimpleCard>
 }
 
-const uniqueCategories = ecosystemData.reduce((acc, item) => {
-  if (!acc.includes(item.category)) {
-    acc.push(item.category);
-  }
-  return acc;
-}, []);
+const uniqueCategories = [
+  "LIQUIDITY",
+  "LENDING",
+  "YIELD",
+  "CHAIN",
+  "SECURITY",
+  "INFRA",
+  "CEX",
+]
 
 export const EcosystemPage = ({
 }: {
   }) => {
-  const isSmallerThan = useMediaQuery('(max-width: 768px)');
+  const [isSmallerThan] = useMediaQuery('(max-width: 768px)');
   const [windowSize, setWindowSize] = useState(0);
   const [isAnimNeedStretch, setIsAnimNeedStretch] = useState(true);
   const [animStrechFactor, setAnimStrechFactor] = useState(1);
@@ -59,7 +62,7 @@ export const EcosystemPage = ({
 
   const filteredEcosystemData = useMemo(() => {
     return ecosystemData
-      .filter((item) => (!categories.length || categories.includes(item.category)))
+      .filter((item) => (!categories.length || categories.includes(item.category) || item.categories?.some(category => categories.includes(category))))
       .filter((item) => (!searchTerm || item.label.toLowerCase().includes(searchTerm.toLowerCase())))
       .map(item => {
         return { ...item, categories: item.categories || [item.category] }
@@ -138,7 +141,7 @@ export const EcosystemPage = ({
                   </HStack> : <VStack w="50%" h="1px" bgColor={landingLightBorderColor} ></VStack>
                 }
               </HStack>
-              <VStack alignItems="flex-start" w='full' display={isFiltersOpen ? 'flex' : 'none'}>
+              <VStack alignItems="flex-start" w='full' display={isFiltersOpen || !isSmallerThan ? 'flex' : 'none'}>
                 <CheckboxGroup colorScheme='blue' defaultValue={[]} value={categories} onChange={setCategories}>
                   <VStack alignItems="flex-start" w='full' spacing="0" justifyContent="center">
                     {

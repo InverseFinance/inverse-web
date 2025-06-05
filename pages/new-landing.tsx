@@ -20,7 +20,7 @@ const yes = <CheckCircleIcon color="#68CF1A" />;
 const no = <VStack borderRadius="full" bgColor="gray"><SmallCloseIcon color="white" /></VStack>;
 
 const compareData = [
-  ["Features", "Interest rate stability", "Collateral protection", "Looping / leverage", "Borrow against LP tokens", "Points program"],
+  ["Features", "Interest rate stability", "Collateral protection", "Looping / leverage", "Borrow against LP tokens", "Points programs"],
   [firmLogo, "Fixed", "Collateral is never loaned to others", "Up to x10 looping", true, "Continue earning partner points"],
   ["Aave", "Variable", "Collateral is loaned to others", "Limited", false, "Surrender earning partner points"],
 ]

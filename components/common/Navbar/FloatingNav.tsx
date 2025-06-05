@@ -2,9 +2,7 @@ import { Box, Image, Popover, SimpleGrid, Stack, Text, VStack, PopoverTrigger, P
 import Link from '@app/components/common/Link'
 import Logo from '@app/components/common/Logo'
 import { lightTheme } from '@app/variables/theme';
-import { MENUS } from '@app/variables/menus'
-import { LandingOutlineButton, LandingSubmitButton } from '../Button/RSubmitButton'
-import { biggerSize, slightlyBiggerSize, smallerSize3, smallerSize2, normalSize, slightlyBiggerSize2, smallerSize } from '@app/variables/responsive';
+import { slightlyBiggerSize, normalSize } from '@app/variables/responsive';
 import { SimpleCard } from '../Cards/Simple';
 import FirmLogo from '../Logo/FirmLogo';
 import { ChevronDownIcon } from '@chakra-ui/icons';
@@ -31,7 +29,7 @@ const LANDING_NAV_ITEMS = [
       {
         logo: <FirmLogo w="100px" h="auto" theme="light" />,
         title: 'FiRM App',
-        text: 'Interact with Inverse Finance in fixed-rate Market',
+        text: 'Borrow for any duration at fixed rates',
         href: '/firm',
       },
       {
@@ -40,7 +38,7 @@ const LANDING_NAV_ITEMS = [
           {/* <GeistText color={mainColor} fontSize="20px" fontWeight="bold">sDOLA</GeistText> */}
         </HStack>,
         title: 'sDOLA',
-        text: "The Inverse Finance's yield-bearing stablecoin",
+        text: "Inverse Finance's yield-bearing stablecoin",
         href: '/sDOLA',
       },
     ]
