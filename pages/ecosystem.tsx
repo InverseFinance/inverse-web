@@ -66,6 +66,8 @@ export const EcosystemPage = ({
       .filter((item) => (!searchTerm || item.label.toLowerCase().includes(searchTerm.toLowerCase())))
       .map(item => {
         return { ...item, categories: item.categories || [item.category] }
+      }).sort((a, b) => {
+        return a.label.localeCompare(b.label)
       })
   }, [categories, searchTerm]);
 
