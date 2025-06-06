@@ -1,18 +1,16 @@
 import { HStack, Image, Stack, SimpleGrid, StackProps, VStack, useMediaQuery, InputGroup, InputRightElement, CheckboxGroup, Checkbox } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import Head from 'next/head'
-import { shortenNumber } from '@app/util/markets'
-import { getLandingProps } from '@app/blog/lib/utils'
-import { ArrowForwardIcon, CheckCircleIcon, ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon, SearchIcon, SmallCloseIcon } from '@chakra-ui/icons'
+import { ArrowForwardIcon, ChevronDownIcon, ChevronRightIcon, SearchIcon } from '@chakra-ui/icons'
 import { LandingAnimation } from '@app/components/common/Animation/LandingAnimation'
 import FloatingNav from '@app/components/common/Navbar/FloatingNav'
-import { EcosystemBanner, ecosystemData, EcosystemGrid } from '@app/components/Landing/EcosystemBanner'
+import { ecosystemData } from '@app/components/Landing/EcosystemBanner'
 import Link from '@app/components/common/Link'
 import { useEffect, useMemo, useState } from 'react'
-import FirmLogo from '@app/components/common/Logo/FirmLogo'
-import { GeistText, LandingBtn, LandingCard, landingDarkNavy2, landingGreenColor, LandingHeading, landingLightBorderColor, LandingLink, landingMainColor, landingMutedColor, LandingNoisedBtn, landingPurple, landingPurpleBg, landingPurpleText, LandingStat, LandingStatBasic, LandingStatBasicBig, landingYellowColor } from '@app/components/common/Landing/LandingComponents'
+import { GeistText, LandingHeading, landingLightBorderColor, landingMutedColor, LandingNoisedBtn, landingPurpleText } from '@app/components/common/Landing/LandingComponents'
 import { SimpleCard } from '@app/components/common/Cards/Simple'
 import { Input } from '@app/components/common/Input'
+import { useRouter } from 'next/router'
 
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
 
@@ -39,12 +37,22 @@ const uniqueCategories = [
 export const EcosystemPage = ({
 }: {
   }) => {
+  const router = useRouter();
+  const { category: categoryQueryParam } = router.query;
   const [isSmallerThan] = useMediaQuery('(max-width: 768px)');
   const [windowSize, setWindowSize] = useState(0);
   const [isAnimNeedStretch, setIsAnimNeedStretch] = useState(true);
   const [animStrechFactor, setAnimStrechFactor] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [categories, setCategories] = useState<string[]>([]);
+  const [inited, setInited] = useState(false);
+
+  useEffect(() => {
+    if (categoryQueryParam && !inited) {
+      setCategories([categoryQueryParam as string]);
+      setInited(true);
+    }
+  }, [categoryQueryParam, inited]);
   // for mobile only
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 

@@ -6,6 +6,7 @@ import { GeistText, LandingHeading, landingMainColor } from '../common/Landing/L
 import { NetworkImage, NetworkItem } from '../common/NetworkItem';
 import { useState } from 'react';
 import { ArrowForwardIcon } from '@chakra-ui/icons';
+import Link from '../common/Link';
 
 const EcoElement = ({
     image,
@@ -642,7 +643,8 @@ const CellText = ({ children }: { children: React.ReactNode }) => {
 
 const CategoryItem = ({ isInteractive, hoveredCategory, onHover, category }: { isInteractive: boolean, hoveredCategory: string, category: string, onHover: (category: string) => void }) => {
     const isCategoryHovered = hoveredCategory === category;
-    return <VStack>
+    const Wrapper = isInteractive && isCategoryHovered ? Link : VStack;
+    return <Wrapper href={`/ecosystem?category=${category}`} target="_blank" isExternal>
         <CellItem isInteractive={isInteractive} isCategoryHovered={isCategoryHovered} onHover={() => onHover?.(category)}>
             <CellText>
                 {isCategoryHovered ? `${COUNTS_PER_CAT[category]} ` : null}
@@ -651,7 +653,7 @@ const CategoryItem = ({ isInteractive, hoveredCategory, onHover, category }: { i
                 {isCategoryHovered && <><br /><ArrowForwardIcon /></>}
             </CellText>
         </CellItem>
-    </VStack>
+    </Wrapper>
 }
 
 export const EcosystemGrid = ({ onHover, hoveredCategory }: { onHover?: (category: string) => void, hoveredCategory?: string }) => {

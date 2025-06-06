@@ -55,7 +55,6 @@ export const Landing = ({
   const [isAnimNeedStretch, setIsAnimNeedStretch] = useState(true);
   const [animStrechFactor, setAnimStrechFactor] = useState(1);
   const [hoveredCategory, setHoveredCategory] = useState<string>('');
-  console.log(hoveredCategory);
 
   useEffect(() => {
     const handleResize = () => {
@@ -402,7 +401,7 @@ export const Landing = ({
           <GeistText fontSize="md">
             Top DeFi protocols trust Inverse Finance
           </GeistText>
-          <VStack  w='full' bg="white" py={{ base: 4, md: 10 }}>
+          <VStack  w='full' bg="white" py={{ base: 4, md: 10 }} onMouseLeave={() => setHoveredCategory('')}>
             <VStack spacing="0" w='full' position="relative">
               <EcosystemGrid hoveredCategory={hoveredCategory} />
               <VStack w='full' position="absolute" top="0" left="0" right="0" bottom="0" zIndex="1">
