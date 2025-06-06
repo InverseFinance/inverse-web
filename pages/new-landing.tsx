@@ -4,13 +4,14 @@ import Head from 'next/head'
 import { shortenNumber } from '@app/util/markets'
 import { getLandingProps } from '@app/blog/lib/utils'
 import { ArrowForwardIcon, CheckCircleIcon, SmallCloseIcon } from '@chakra-ui/icons'
-import { LandingAnimation } from '@app/components/common/Animation/LandingAnimation'
+import { LandingAnimation, LandingMobileAnimation } from '@app/components/common/Animation/LandingAnimation'
 import FloatingNav from '@app/components/common/Navbar/FloatingNav'
 import { EcosystemBanner, EcosystemGrid } from '@app/components/Landing/EcosystemBanner'
 import Link from '@app/components/common/Link'
 import { useEffect, useState } from 'react'
 import FirmLogo from '@app/components/common/Logo/FirmLogo'
 import { GeistText, LandingBtn, LandingCard, landingDarkNavy2, landingGreenColor, LandingHeading, landingLightBorderColor, LandingLink, landingMainColor, landingMutedColor, LandingNoisedBtn, landingPurple, landingPurpleBg, landingPurpleText, LandingStat, LandingStatBasic, LandingStatBasicBig, landingYellowColor } from '@app/components/common/Landing/LandingComponents'
+import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
 
@@ -19,12 +20,14 @@ const yes = <CheckCircleIcon color="#68CF1A" />;
 const no = <VStack borderRadius="full" bgColor="gray"><SmallCloseIcon color="white" /></VStack>;
 
 const compareData = [
-  ["Features", "Interest rate stability", "Collateral protection", "Looping / leverage", "Borrow against LP tokens", "Points program"],
+  ["Features", "Interest rate stability", "Collateral protection", "Looping / leverage", "Borrow against LP tokens", "Points programs"],
   [firmLogo, "Fixed", "Collateral is never loaned to others", "Up to x10 looping", true, "Continue earning partner points"],
   ["Aave", "Variable", "Collateral is loaned to others", "Limited", false, "Surrender earning partner points"],
 ]
 
 const animWidthToHeightRatio = 1.78;
+const mobileAnimWidthToHeightRatio = 0.5925925925925926;
+const mobileAnimWidth = 640;
 
 export const Landing = ({
   currentCirculatingSupply,
@@ -49,16 +52,26 @@ export const Landing = ({
   totalDebt: number,
   sDolaTvl: number,
 }) => {
+  const [isSmallerThan] = useMediaQuery('(max-width: 768px)');
   const [windowSize, setWindowSize] = useState(0);
+  const [windowWidth, setWindowWidth] = useState(0);
+
   const [isAnimNeedStretch, setIsAnimNeedStretch] = useState(true);
   const [animStrechFactor, setAnimStrechFactor] = useState(1);
+  const [hoveredCategory, setHoveredCategory] = useState<string>('');
 
   useEffect(() => {
     const handleResize = () => {
+      // ignore height change
+      if (windowWidth === window.innerWidth) return;
+      setWindowWidth(window.innerWidth);
       setWindowSize(Math.max(window.innerWidth, window.innerHeight));
       const ratio = window.innerWidth / window.innerHeight;
-      setIsAnimNeedStretch(ratio < animWidthToHeightRatio);
-      setAnimStrechFactor(animWidthToHeightRatio - ratio);
+
+      const refRatio = isSmallerThan ? mobileAnimWidthToHeightRatio : animWidthToHeightRatio;
+
+      setIsAnimNeedStretch(ratio < refRatio);
+      setAnimStrechFactor(refRatio - ratio);
 
       const sectionFirm1 = document.getElementById('section-firm-1')
       const sectionFirm2 = document.getElementById('section-firm-2')
@@ -88,7 +101,7 @@ export const Landing = ({
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [isSmallerThan, windowWidth]);
 
   const stats = [
     {
@@ -136,14 +149,20 @@ export const Landing = ({
       <VStack spacing="0" className="landing-v3" w='full' alignItems="center">
         <VStack h='100vh' w='full' alignItems="center" justifyContent="center">
           <VStack bgImage="/assets/landing/anim_bg.png" bgSize="cover" bgRepeat="no-repeat" bgPosition="center" zIndex="-1" position="fixed" top="0" left="0" height="100vh" width="100%">
-            <LandingAnimation boxProps={{ transform: isAnimNeedStretch ? `translateY(${(animStrechFactor) / 2 * 100}%) scale3d(1, ${1 + animStrechFactor}, 1)` : 'none' }} loop={true} height={windowSize} width={windowSize} />
+            <ErrorBoundary description=" ">
+              {
+                isSmallerThan ?
+                  <LandingMobileAnimation boxProps={{ transform: isAnimNeedStretch ? `translateY(${(animStrechFactor) / 2 * 100}%) scale3d(${windowWidth / mobileAnimWidth}, ${1 + animStrechFactor}, 1)` : 'none' }} loop={true} height={windowSize} width={windowSize} />
+                  : <LandingAnimation boxProps={{ transform: isAnimNeedStretch ? `translateY(${(animStrechFactor) / 2 * 100}%) scale3d(1, ${1 + animStrechFactor}, 1)` : 'none' }} loop={true} height={windowSize} width={windowSize} />
+              }
+            </ErrorBoundary>
           </VStack>
           <VStack position="fixed" zIndex="99999" top="0" maxW="2000px" w='full' px={{ base: 0, md: '4%' }} py={{ base: 0, md: '5' }} alignItems="center">
             <FloatingNav />
           </VStack>
           <VStack maxW="90%" w='full' alignItems="center" pt="50px">
             <VStack pt="8" spacing="8" w='full' alignItems="center">
-              <VStack spacing="0" w='full' alignItems="center">
+              <VStack spacing="0" w='full' alignItems={{ base: 'flex-start', 'md': 'center' }}>
                 <LandingHeading textAlign={{ base: 'flex-start', 'md': 'center' }} whiteSpace="pre-line" as="h1" fontSize={{ base: '30px', 'md': '5xl' }} fontWeight="bold">
                   Fixed Rates,
                   <br />
@@ -155,9 +174,11 @@ export const Landing = ({
               </GeistText>
             </VStack>
             <VStack w='full' alignItems={{ base: 'flex-start', md: 'center' }} pt="2%" pb="5%">
-              <LandingNoisedBtn btnProps={{ href: "/firm" }}>
-                Launch App <Image ml="2" src="/assets/landing/rocket.svg" w="20px" h="20px" />
-              </LandingNoisedBtn>
+              <Link href="/firm">
+                <LandingNoisedBtn>
+                  Launch App <Image ml="2" src="/assets/landing/rocket.svg" w="20px" h="20px" />
+                </LandingNoisedBtn>
+              </Link>
               <LandingCard bg="linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(250, 250, 250, 0.8) 2%, rgba(255, 255, 255, 1) 98%, rgba(0, 0, 0, 0.05) 100%)" borderRadius='4px' boxShadow="unset" mt="12" w="full" maxW="800px">
                 <SimpleGrid columns={{ base: 2, md: 4 }} gap="2" w="full">
                   {
@@ -313,9 +334,11 @@ export const Landing = ({
                 <GeistText fontSize="md">
                   DOLA enables some of the most attractive yield opportunities in DeFi. Now, sDOLA takes it further—a yield-bearing stablecoin born from our FiRM lending market, delivering pure, uncut DeFi returns fueled by real activity, not centralized compromises.
                 </GeistText>
-                <LandingNoisedBtn btnProps={{ href: "/sDOLA", maxH: '50px' }}>
-                  Get Started <ArrowForwardIcon ml="2" />
-                </LandingNoisedBtn>
+                <Link href="/sDOLA" target="_blank" isExternal>
+                  <LandingNoisedBtn btnProps={{ maxH: '50px' }}>
+                    Get Started <ArrowForwardIcon ml="2" />
+                  </LandingNoisedBtn>
+                </Link>
               </VStack>
               <ResponsiveStack maxHeight={{ base: '400px', md: 'unset' }} id="section-sdola-2" borderTop={{ base: `1px solid ${landingLightBorderColor}`, md: 'none' }} w={{ base: 'full', md: '50%' }} alignItems="center" justifyContent="space-evenly">
                 <LandingStatBasicBig justifyContent="center" maxHeight={{ base: '200px', md: 'unset' }} alignItems="center" py={{ base: 4, md: 8 }} h={{ base: 'auto', md: '100%' }} borderLeft={{ base: 'none', md: `1px solid ${landingLightBorderColor}` }} borderRight={{ base: 'none', md: `1px solid ${landingLightBorderColor}` }} value={shortenNumber(sDolaTvl, 2, true)} name="sDOLA TVL" />
@@ -393,20 +416,29 @@ export const Landing = ({
           <GeistText fontSize="md">
             Top DeFi protocols trust Inverse Finance
           </GeistText>
-          <VStack w='full' bg="white" py={{ base: 0, md: 10 }}>
-            <EcosystemGrid />
+          <VStack w='full' bg="white" py={{ base: 4, md: 10 }} onMouseLeave={() => setHoveredCategory('')}>
+            <VStack spacing="0" w='full' position="relative">
+              <EcosystemGrid hoveredCategory={hoveredCategory} />
+              <VStack w='full' position="absolute" top="0" left="0" right="0" bottom="0" zIndex="1">
+                <EcosystemGrid onHover={setHoveredCategory} hoveredCategory={hoveredCategory} />
+              </VStack>
+            </VStack>
           </VStack>
           <VStack pt={{ base: '5', md: '20' }} spacing="10">
             <LandingHeading textAlign="center" fontSize={{ base: '36px', 'md': '5xl' }} fontWeight="extrabold">
               Ready to Experience Fixed Rates?
             </LandingHeading>
             <ResponsiveStack spacing="10" alignItems="center">
-              <LandingNoisedBtn btnProps={{ href: "/firm" }}>
-                Get Started Now <Image ml="2" src="/assets/landing/rocket.svg" w="20px" h="20px" />
-              </LandingNoisedBtn>
-              <LandingLink color={landingMutedColor} fontSize={{ base: '15px', "2xl": '17px' }} href="/ecosystem">
-                Or explore our ecosystem
-              </LandingLink>
+              <Link href="/firm">
+                <LandingNoisedBtn>
+                  Get Started Now <Image ml="2" src="/assets/landing/rocket.svg" w="20px" h="20px" />
+                </LandingNoisedBtn>
+              </Link>
+              <Link href="/ecosystem" target="_blank" isExternal>
+                <LandingLink textDecoration="underline" color={landingMutedColor} fontSize={{ base: '15px', "2xl": '17px' }}>
+                  Or explore our ecosystem
+                </LandingLink>
+              </Link>
             </ResponsiveStack>
           </VStack>
         </VStack>

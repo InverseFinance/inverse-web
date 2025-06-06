@@ -2,9 +2,7 @@ import { Box, Image, Popover, SimpleGrid, Stack, Text, VStack, PopoverTrigger, P
 import Link from '@app/components/common/Link'
 import Logo from '@app/components/common/Logo'
 import { lightTheme } from '@app/variables/theme';
-import { MENUS } from '@app/variables/menus'
-import { LandingOutlineButton, LandingSubmitButton } from '../Button/RSubmitButton'
-import { biggerSize, slightlyBiggerSize, smallerSize3, smallerSize2, normalSize, slightlyBiggerSize2, smallerSize } from '@app/variables/responsive';
+import { slightlyBiggerSize, normalSize } from '@app/variables/responsive';
 import { SimpleCard } from '../Cards/Simple';
 import FirmLogo from '../Logo/FirmLogo';
 import { ChevronDownIcon } from '@chakra-ui/icons';
@@ -31,7 +29,7 @@ const LANDING_NAV_ITEMS = [
       {
         logo: <FirmLogo w="100px" h="auto" theme="light" />,
         title: 'FiRM App',
-        text: 'Interact with Inverse Finance in fixed-rate Market',
+        text: 'Borrow for any duration at fixed rates',
         href: '/firm',
       },
       {
@@ -40,7 +38,7 @@ const LANDING_NAV_ITEMS = [
           {/* <GeistText color={mainColor} fontSize="20px" fontWeight="bold">sDOLA</GeistText> */}
         </HStack>,
         title: 'sDOLA',
-        text: "The Inverse Finance's yield-bearing stablecoin",
+        text: "Inverse Finance's yield-bearing stablecoin",
         href: '/sDOLA',
       },
     ]
@@ -92,13 +90,13 @@ const LANDING_NAV_ITEMS = [
         title: 'Key Metrics',
         href: '/transparency/keymetrics',
       },
-      
+
       {
         logo: <Image src="/assets/landing/transparency/dao.svg" alt="DAO" w="20px" h="20px" />,
         title: 'DAO',
         href: '/transparency/dao',
       },
-     
+
       {
         logo: <Image src="/assets/landing/transparency/docs.svg" alt="Docs" w="20px" h="20px" />,
         title: 'Docs',
@@ -150,7 +148,7 @@ export const LandingSmallItem = ({ title, href, logo }: { logo: string, title: s
         <HStack spacing="4" alignItems="center" justifyContent="flex-start" w='full'>
           <VStack alignItems="center" justifyContent="center" w="50px" h="50px" bgColor={logoBgColor} borderRadius="2px" p="0">
             {logo}
-          </VStack>          
+          </VStack>
           <VStack justifyContent="center" alignItems="flex-start" pl="0" pr="4">
             <GeistText py="2" fontSize="16px" fontWeight="bold">{title}</GeistText>
           </VStack>
@@ -267,28 +265,29 @@ export const FloatingNav = ({
           ))}
         </Stack>
         <HStack alignItems="center" justifyContent="flex-end" spacing="8">
-          <LandingBtn
-            color={landingMainColor}
-            href="/firm"
-            className="landing-v3-text"
-            fontWeight="bold"
-            borderRadius="4px"
-            // fontSize={slightlyBiggerSize}
-            outline={isBottom ? '2px solid white' : `1px solid ${lightTheme.colors.mainTextColor}`}
-            bgColor={isBottom ? 'transparent' : 'white'}
-            // h="50px"
-            // py="2.2vmax"
-            // px="3vmax"
-            py="2"
-            // py={{ base: '26px', '2xl': '36px', '3xl': '40px', '4xl': '48px' }}
-            transition="transform ease-in-out 200ms"
-            _hover={{ transform: 'scale(1.03)' }}
-            w='150px'
-            h="40px"
-            fontSize={isLargerThan ? '18px' : '15px'}
-          >
-            Launch App
-          </LandingBtn>
+          <Link href="/firm">
+            <LandingBtn
+              color={landingMainColor}
+              className="landing-v3-text"
+              fontWeight="bold"
+              borderRadius="4px"
+              // fontSize={slightlyBiggerSize}
+              outline={isBottom ? '2px solid white' : `1px solid ${lightTheme.colors.mainTextColor}`}
+              bgColor={isBottom ? 'transparent' : 'white'}
+              // h="50px"
+              // py="2.2vmax"
+              // px="3vmax"
+              py="2"
+              // py={{ base: '26px', '2xl': '36px', '3xl': '40px', '4xl': '48px' }}
+              transition="transform ease-in-out 200ms"
+              _hover={{ transform: 'scale(1.03)' }}
+              w='150px'
+              h="40px"
+              fontSize={isLargerThan ? '18px' : '15px'}
+            >
+              Launch App
+            </LandingBtn>
+          </Link>
           {isSmallerThan && <LandingBurgerMenu isLanding={true} navItems={LANDING_NAV_ITEMS} />}
         </HStack>
       </SimpleGrid>
