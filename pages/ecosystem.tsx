@@ -28,7 +28,7 @@ const uniqueCategories = [
   "LIQUIDITY",
   "LENDING",
   "YIELD",
-  "CHAIN",
+  "CHAINS",
   "SECURITY",
   "INFRA",
   "CEX",
