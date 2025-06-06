@@ -412,48 +412,48 @@ export const ecosystemData = [
     {
         image: 'https://assets.coingecko.com/coins/images/279/large/ethereum.png?1595348880',
         label: 'Ethereum',
-        category: 'CHAIN',
-        categories: ['CHAIN'],
+        category: 'CHAINS',
+        categories: ['CHAINS'],
         href: "https://ethereum.org/",
         description: "Decentralized blockchain platform enabling smart contracts and cryptocurrency transactions."
     },
     {
         image: '/assets/networks/base.svg',
         label: 'Base',
-        category: 'CHAIN',
-        categories: ['CHAIN'],
+        category: 'CHAINS',
+        categories: ['CHAINS'],
         href: "https://base.org/",
         description: "Ethereum Layer 2 blockchain by Coinbase for faster, cheaper transactions."
     },
     {
         image: '/assets/networks/optimism.svg',
         label: 'Optimism',
-        category: 'CHAIN',
-        categories: ['CHAIN'],
+        category: 'CHAINS',
+        categories: ['CHAINS'],
         href: "https://www.optimism.io/",
         description: "Ethereum layer-2 scaling solution using optimistic rollups for faster, cheaper transactions."
     },
     {
         image: '/assets/networks/arbitrum.png',
         label: 'Arbitrum',
-        category: 'CHAIN',
-        categories: ['CHAIN'],
+        category: 'CHAINS',
+        categories: ['CHAINS'],
         href: "https://arbitrum.io/",
         description: "Ethereum Layer 2 scaling solution using optimistic rollups for faster, cheaper transactions."
     },
     {
         image: 'https://assets.coingecko.com/coins/images/34979/standard/MODE.jpg?1714561871',
         label: 'Mode',
-        category: 'CHAIN',
-        categories: ['CHAIN'],
+        category: 'CHAINS',
+        categories: ['CHAINS'],
         href: "https://www.mode.network/",
         description: "Mode is an Ethereum Layer 2 blockchain focused on scaling decentralized applications with high throughput and low fees."
     },
     {
         image: '/assets/networks/polygon.png',
         label: 'Polygon',
-        category: 'CHAIN',
-        categories: ['CHAIN'],
+        category: 'CHAINS',
+        categories: ['CHAINS'],
         href: "https://polygon.technology/",
         description: "Polygon is a multi-chain Ethereum scaling platform with support for zkEVM, PoS, and supernets, enhancing Ethereum's scalability and usability."
     },
@@ -565,8 +565,6 @@ const COUNTS_PER_CAT = ecosystemData.reduce((acc, el) => {
     });
     return acc;
 }, {});
-
-COUNTS_PER_CAT['CHAIN'] = 7;
 
 const projectImages = ecosystemData.reduce((acc, el) => {
     acc[el.label] = el.image;
@@ -705,21 +703,21 @@ export const EcosystemGrid = ({ onHover, hoveredCategory }: { onHover?: (categor
                 </CellSmaller>
             </HStack>
             <HStack spacing="0" w='full' maxW="1300px" >
-                <CellBigGrid isInteractive={isInteractive} isInvisible={isInteractive && hoveredCategory !== 'CHAIN'}>
-                    <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'CHAIN'}>
+                <CellBigGrid isInteractive={isInteractive} isInvisible={isInteractive && hoveredCategory !== 'CHAINS'}>
+                    <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'CHAINS'}>
                         <NetworkImage chainId={10} size={{ base: '25px', md: '50px' }} />
                     </CellItem>
-                    <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'CHAIN'}>
+                    <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'CHAINS'}>
                         <NetworkImage chainId={8453} size={{ base: '25px', md: '50px' }} />
                     </CellItem>
-                    <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'CHAIN'}>
+                    <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'CHAINS'}>
                         <NetworkImage chainId={42161} size={{ base: '25px', md: '50px' }} />
                     </CellItem>
-                    <CategoryItem isInteractive={isInteractive} category="CHAIN" hoveredCategory={hoveredCategory} onHover={onHover} />
-                    <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'CHAIN'}>
+                    <CategoryItem isInteractive={isInteractive} category="CHAINS" hoveredCategory={hoveredCategory} onHover={onHover} />
+                    <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'CHAINS'}>
                         <NetworkImage chainId={43114} size={{ base: '25px', md: '50px' }} />
                     </CellItem>
-                    <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'CHAIN'}>
+                    <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'CHAINS'}>
                         <NetworkImage chainId={1} size={{ base: '25px', md: '50px' }} />
                     </CellItem>
                 </CellBigGrid>

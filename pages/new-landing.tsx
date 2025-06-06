@@ -417,7 +417,7 @@ export const Landing = ({
               <LandingNoisedBtn btnProps={{ href: "/firm" }}>
                 Get Started Now <Image ml="2" src="/assets/landing/rocket.svg" w="20px" h="20px" />
               </LandingNoisedBtn>
-              <LandingLink color={landingMutedColor} fontSize={{ base: '15px', "2xl": '17px' }} href="/ecosystem">
+              <LandingLink textDecoration="underline" color={landingMutedColor} fontSize={{ base: '15px', "2xl": '17px' }} href="/ecosystem">
                 Or explore our ecosystem
               </LandingLink>
             </ResponsiveStack>
