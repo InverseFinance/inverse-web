@@ -726,14 +726,14 @@ export const EcosystemGrid = ({ onHover, hoveredCategory }: { onHover?: (categor
                 </CellBig>
                 <CellBigGrid isInteractive={isInteractive} isInvisible={isInteractive && hoveredCategory !== 'SECURITY'}>
                     <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'SECURITY'}>
-                        <EcoCellItem width={50} project="Immunefi" />
+                        <EcoCellItem width={50} project="ImmuneFi" />
                     </CellItem>
                     <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'SECURITY'}>
                         <EcoCellItem width={50} project="yAudit" />
                     </CellItem>
                     <CategoryItem isInteractive={isInteractive} category="SECURITY" hoveredCategory={hoveredCategory} onHover={onHover} />
                     <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'SECURITY'}>
-                        <EcoCellItem width={50} project="Defimoon" />
+                        <EcoCellItem width={50} project="DeFiMoon" />
                     </CellItem>
                     <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'SECURITY'}>
                         <EcoCellItem width={50} project="Nomoi" />
@@ -774,10 +774,10 @@ export const EcosystemGrid = ({ onHover, hoveredCategory }: { onHover?: (categor
                         <EcoCellItem project="Ethena" />
                     </CellItem>
                     <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'LIQUIDITY'}>
-                        <EcoCellItem project="PayPal" />
+                        <EcoCellItem project="Paypal" />
                     </CellItem>
                     <CellItem isInteractive={isInteractive} isCategoryHovered={hoveredCategory === 'LIQUIDITY'}>
-                        <EcoCellItem project="Usual" />
+                        <EcoCellItem project="Resolv" />
                     </CellItem>
                 </CellSmaller>
             </HStack>
