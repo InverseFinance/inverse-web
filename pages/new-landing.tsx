@@ -4,7 +4,7 @@ import Head from 'next/head'
 import { shortenNumber } from '@app/util/markets'
 import { getLandingProps } from '@app/blog/lib/utils'
 import { ArrowForwardIcon, CheckCircleIcon, SmallCloseIcon } from '@chakra-ui/icons'
-import { LandingAnimation } from '@app/components/common/Animation/LandingAnimation'
+import { LandingAnimation, LandingMobileAnimation } from '@app/components/common/Animation/LandingAnimation'
 import FloatingNav from '@app/components/common/Navbar/FloatingNav'
 import { EcosystemBanner, EcosystemGrid } from '@app/components/Landing/EcosystemBanner'
 import Link from '@app/components/common/Link'
@@ -26,6 +26,8 @@ const compareData = [
 ]
 
 const animWidthToHeightRatio = 1.78;
+const mobileAnimWidthToHeightRatio = 0.5925925925925926;
+const mobileAnimWidth = 640;
 
 export const Landing = ({
   currentCirculatingSupply,
@@ -50,8 +52,10 @@ export const Landing = ({
   totalDebt: number,
   sDolaTvl: number,
 }) => {
+  const [isSmallerThan] = useMediaQuery('(max-width: 768px)');
   const [windowSize, setWindowSize] = useState(0);
   const [windowWidth, setWindowWidth] = useState(0);
+ 
   const [isAnimNeedStretch, setIsAnimNeedStretch] = useState(true);
   const [animStrechFactor, setAnimStrechFactor] = useState(1);
   const [hoveredCategory, setHoveredCategory] = useState<string>('');
@@ -63,8 +67,11 @@ export const Landing = ({
       setWindowWidth(window.innerWidth);
       setWindowSize(Math.max(window.innerWidth, window.innerHeight));
       const ratio = window.innerWidth / window.innerHeight;
-      setIsAnimNeedStretch(ratio < animWidthToHeightRatio);
-      setAnimStrechFactor(animWidthToHeightRatio - ratio);
+
+      const refRatio = isSmallerThan ? mobileAnimWidthToHeightRatio : animWidthToHeightRatio;
+
+      setIsAnimNeedStretch(ratio < refRatio);
+      setAnimStrechFactor(refRatio - ratio);
 
       const sectionFirm1 = document.getElementById('section-firm-1')
       const sectionFirm2 = document.getElementById('section-firm-2')
@@ -94,7 +101,7 @@ export const Landing = ({
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [isSmallerThan, windowWidth]);
 
   const stats = [
     {
@@ -143,7 +150,11 @@ export const Landing = ({
         <VStack h='100vh' w='full' alignItems="center" justifyContent="center">
           <VStack bgImage="/assets/landing/anim_bg.png" bgSize="cover" bgRepeat="no-repeat" bgPosition="center" zIndex="-1" position="fixed" top="0" left="0" height="100vh" width="100%">
             <ErrorBoundary description=" ">
-              <LandingAnimation boxProps={{ transform: isAnimNeedStretch ? `translateY(${(animStrechFactor) / 2 * 100}%) scale3d(1, ${1 + animStrechFactor}, 1)` : 'none' }} loop={true} height={windowSize} width={windowSize} />
+              {
+                isSmallerThan ?
+                  <LandingMobileAnimation boxProps={{ transform: isAnimNeedStretch ? `translateY(${(animStrechFactor) / 2 * 100}%) scale3d(${windowWidth / mobileAnimWidth}, ${1 + animStrechFactor}, 1)` : 'none' }} loop={true} height={windowSize} width={windowSize} />
+                  : <LandingAnimation boxProps={{ transform: isAnimNeedStretch ? `translateY(${(animStrechFactor) / 2 * 100}%) scale3d(1, ${1 + animStrechFactor}, 1)` : 'none' }} loop={true} height={windowSize} width={windowSize} />
+              }
             </ErrorBoundary>
           </VStack>
           <VStack position="fixed" zIndex="99999" top="0" maxW="2000px" w='full' px={{ base: 0, md: '4%' }} py={{ base: 0, md: '5' }} alignItems="center">
@@ -401,7 +412,7 @@ export const Landing = ({
           <GeistText fontSize="md">
             Top DeFi protocols trust Inverse Finance
           </GeistText>
-          <VStack  w='full' bg="white" py={{ base: 4, md: 10 }} onMouseLeave={() => setHoveredCategory('')}>
+          <VStack w='full' bg="white" py={{ base: 4, md: 10 }} onMouseLeave={() => setHoveredCategory('')}>
             <VStack spacing="0" w='full' position="relative">
               <EcosystemGrid hoveredCategory={hoveredCategory} />
               <VStack w='full' position="absolute" top="0" left="0" right="0" bottom="0" zIndex="1">
