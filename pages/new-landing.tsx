@@ -55,7 +55,7 @@ export const Landing = ({
   const [isSmallerThan] = useMediaQuery('(max-width: 768px)');
   const [windowSize, setWindowSize] = useState(0);
   const [windowWidth, setWindowWidth] = useState(0);
- 
+
   const [isAnimNeedStretch, setIsAnimNeedStretch] = useState(true);
   const [animStrechFactor, setAnimStrechFactor] = useState(1);
   const [hoveredCategory, setHoveredCategory] = useState<string>('');
@@ -174,9 +174,11 @@ export const Landing = ({
               </GeistText>
             </VStack>
             <VStack w='full' alignItems={{ base: 'flex-start', md: 'center' }} pt="2%" pb="5%">
-              <LandingNoisedBtn btnProps={{ href: "/firm" }}>
-                Launch App <Image ml="2" src="/assets/landing/rocket.svg" w="20px" h="20px" />
-              </LandingNoisedBtn>
+              <Link href="/firm">
+                <LandingNoisedBtn>
+                  Launch App <Image ml="2" src="/assets/landing/rocket.svg" w="20px" h="20px" />
+                </LandingNoisedBtn>
+              </Link>
               <LandingCard bg="linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(250, 250, 250, 0.8) 2%, rgba(255, 255, 255, 1) 98%, rgba(0, 0, 0, 0.05) 100%)" borderRadius='4px' boxShadow="unset" mt="12" w="full" maxW="800px">
                 <SimpleGrid columns={{ base: 2, md: 4 }} gap="2" w="full">
                   {
@@ -332,9 +334,11 @@ export const Landing = ({
                 <GeistText fontSize="md">
                   DOLA enables some of the most attractive yield opportunities in DeFi. Now, sDOLA takes it further—a yield-bearing stablecoin born from our FiRM lending market, delivering pure, uncut DeFi returns fueled by real activity, not centralized compromises.
                 </GeistText>
-                <LandingNoisedBtn btnProps={{ href: "/sDOLA", maxH: '50px' }}>
-                  Get Started <ArrowForwardIcon ml="2" />
-                </LandingNoisedBtn>
+                <Link href="/sDOLA" target="_blank" isExternal>
+                  <LandingNoisedBtn btnProps={{ maxH: '50px' }}>
+                    Get Started <ArrowForwardIcon ml="2" />
+                  </LandingNoisedBtn>
+                </Link>
               </VStack>
               <ResponsiveStack maxHeight={{ base: '400px', md: 'unset' }} id="section-sdola-2" borderTop={{ base: `1px solid ${landingLightBorderColor}`, md: 'none' }} w={{ base: 'full', md: '50%' }} alignItems="center" justifyContent="space-evenly">
                 <LandingStatBasicBig justifyContent="center" maxHeight={{ base: '200px', md: 'unset' }} alignItems="center" py={{ base: 4, md: 8 }} h={{ base: 'auto', md: '100%' }} borderLeft={{ base: 'none', md: `1px solid ${landingLightBorderColor}` }} borderRight={{ base: 'none', md: `1px solid ${landingLightBorderColor}` }} value={shortenNumber(sDolaTvl, 2, true)} name="sDOLA TVL" />
@@ -425,12 +429,16 @@ export const Landing = ({
               Ready to Experience Fixed Rates?
             </LandingHeading>
             <ResponsiveStack spacing="10" alignItems="center">
-              <LandingNoisedBtn btnProps={{ href: "/firm" }}>
-                Get Started Now <Image ml="2" src="/assets/landing/rocket.svg" w="20px" h="20px" />
-              </LandingNoisedBtn>
-              <LandingLink textDecoration="underline" color={landingMutedColor} fontSize={{ base: '15px', "2xl": '17px' }} href="/ecosystem">
-                Or explore our ecosystem
-              </LandingLink>
+              <Link href="/firm">
+                <LandingNoisedBtn>
+                  Get Started Now <Image ml="2" src="/assets/landing/rocket.svg" w="20px" h="20px" />
+                </LandingNoisedBtn>
+              </Link>
+              <Link href="/ecosystem" target="_blank" isExternal>
+                <LandingLink textDecoration="underline" color={landingMutedColor} fontSize={{ base: '15px', "2xl": '17px' }}>
+                  Or explore our ecosystem
+                </LandingLink>
+              </Link>
             </ResponsiveStack>
           </VStack>
         </VStack>
