@@ -9,6 +9,49 @@ import { BarChartRecharts } from "@app/components/Transparency/BarChartRecharts"
 
 const maxChartWidth = 1200;
 
+const currentYear = new Date().getFullYear();
+// auctions started in 2024
+const activeYears = Array.from({ length: currentYear - 2024 + 1 }, (_, i) => 2024 + i);
+
+function sumDbrByYearAndType(data) {
+    const result = { total: {} };
+
+    for (const item of data) {
+        const { year, auctionType, dbrOut } = item;
+
+        if (!!auctionType) {
+            if (!result[auctionType]) result[auctionType] = {};
+            if (!result[auctionType][year]) result[auctionType][year] = 0;
+            if (!result.total[year]) result.total[year] = 0;
+
+            result[auctionType][year] += dbrOut;
+            result.total[year] += dbrOut;
+        }
+    }
+
+    // Convert to array format
+    let arr = [];
+    for (const i in activeYears) {
+        const year = activeYears[i];
+        arr.push({
+            x: year,
+            y: result.total[year] || 0,
+            name: year,
+            Virtual: result['Virtual']?.[year] || 0,
+            'sDOLA': result['sDOLA']?.[year] || 0,
+            'sINV': result['sINV']?.[year] || 0,
+        })
+    }
+
+    // for (const auctionType in result) {
+    //     result[auctionType] = Object.entries(result[auctionType])
+    //         .map(([year, dbrOut]) => ({ year: Number(year), dbrOut: dbrOut }))
+    //         .sort((a, b) => a.year - b.year);
+    // }
+
+    return arr;
+}
+
 // make the chart look better, => buys appear as spikes
 const surroundByZero = (chartDataAcc: { x: number, y: number }[]) => {
     const cloned = [...chartDataAcc];
@@ -23,9 +66,13 @@ const surroundByZero = (chartDataAcc: { x: number, y: number }[]) => {
 export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useInvAmount = false }) => {
     const [useUsd, setUseUsd] = useState(false);
     const { chartData: chartDataAcc } = useEventsAsChartData(chartEvents, '_acc_', isTotal || useUsd ? 'worthIn' : useInvAmount ? 'invIn' : 'dolaIn', true, true);
-    
+
     const { chartData: chartDataAccUsd } = useEventsAsChartData(chartEvents, '_acc_', 'worthIn', true, true);
-    
+
+    const dbrSoldPerYear = useMemo(() => {
+        return sumDbrByYearAndType(chartDataAcc);
+    }, [chartEvents]);
+
     const dates = useMemo(() => {
         return [...new Set(chartDataAccUsd.map(e => e.utcDate))];
     }, [chartEvents]);
@@ -36,7 +83,7 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
             x: utcDateStringToTimestamp(d),
             utcDate: d,
             y: last?.y || 0,
-            yDay: chartDataAccUsd.filter(cd => cd.utcDate === d).reduce((prev, curr) => prev+curr.yDay, 0),
+            yDay: chartDataAccUsd.filter(cd => cd.utcDate === d).reduce((prev, curr) => prev + curr.yDay, 0),
         }
     });
     const chartDailyDataAcc = dates.map(d => {
@@ -45,10 +92,10 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
             x: utcDateStringToTimestamp(d),
             utcDate: d,
             y: last?.y || 0,
-            yDay: chartDataAcc.filter(cd => cd.utcDate === d).reduce((prev, curr) => prev+curr.yDay, 0),
+            yDay: chartDataAcc.filter(cd => cd.utcDate === d).reduce((prev, curr) => prev + curr.yDay, 0),
         }
     })
-    
+
     const { chartData: chartDataArb } = useEventsAsChartData(chartEvents.filter(e => e.arb > 0), 'arbPerc', 'arbPerc', true, true);
     const virtualAuctionBuysEvents = events.filter(e => e.auctionType === 'Virtual');
     const sdolaAuctionBuysEvents = events.filter(e => e.auctionType === 'sDOLA');
@@ -194,8 +241,24 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
             />
         </VStack>
         <Stack w='full' direction={{ base: 'column', '2xl': 'row' }} alignItems="center">
+            <BarChartRecharts
+                title={`DBR sold by year`}
+                combodata={dbrSoldPerYear}
+                precision={4}
+                yAxisPrecision={4}
+                chartWidth={Math.min(isLargerThan2xl ? autoChartWidth / 2 : autoChartWidth, 400)}
+                yLabel="DBR sold"
+                useUsd={false}
+                showLabel={isLargerThan}
+                isStacked={isTotal}
+                showLegend={true}
+                legendPosition="bottom"
+                stackFields={['Virtual', 'sDOLA', 'sINV']}
+                stackLabels={['Virtual', 'sDOLA', 'sINV']}
+                stackColors={[themeStyles.colors.info, themeStyles.colors.success, themeStyles.colors.warning]}
+            />
             {
-                isTotal && <VStack pt='10' w='full' alignItems="center">
+                isTotal && <VStack  w='full' alignItems="center">
                     <Text fontWeight="bold">Total buys repartition</Text>
                     <PieChartRecharts
                         precision={0}
