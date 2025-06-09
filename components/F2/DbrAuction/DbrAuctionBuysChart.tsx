@@ -24,8 +24,8 @@ function sumDbrByYearAndType(data) {
             if (!result[auctionType][year]) result[auctionType][year] = 0;
             if (!result.total[year]) result.total[year] = 0;
 
-            result[auctionType][year] += dbrOut;
-            result.total[year] += dbrOut;
+            result[auctionType][year] += (dbrOut || 0);
+            result.total[year] += (dbrOut || 0);
         }
     }
 
@@ -65,13 +65,14 @@ const surroundByZero = (chartDataAcc: { x: number, y: number }[]) => {
 
 export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useInvAmount = false }) => {
     const [useUsd, setUseUsd] = useState(false);
+    const { chartData: chartDataAccIncludingInv } = useEventsAsChartData(events, '_acc_', isTotal || useUsd ? 'worthIn' : useInvAmount ? 'invIn' : 'dolaIn', true, true);
     const { chartData: chartDataAcc } = useEventsAsChartData(chartEvents, '_acc_', isTotal || useUsd ? 'worthIn' : useInvAmount ? 'invIn' : 'dolaIn', true, true);
 
     const { chartData: chartDataAccUsd } = useEventsAsChartData(chartEvents, '_acc_', 'worthIn', true, true);
 
     const dbrSoldPerYear = useMemo(() => {
-        return sumDbrByYearAndType(chartDataAcc);
-    }, [chartEvents]);
+        return sumDbrByYearAndType(chartDataAccIncludingInv);
+    }, [chartDataAccIncludingInv]);
 
     const dates = useMemo(() => {
         return [...new Set(chartDataAccUsd.map(e => e.utcDate))];
