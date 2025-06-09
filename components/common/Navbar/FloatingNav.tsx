@@ -28,7 +28,7 @@ const LANDING_NAV_ITEMS = [
     submenus: [
       {
         logo: <FirmLogo w="100px" h="auto" theme="light" />,
-        title: 'FiRM App',
+        title: 'FiRM',
         text: 'Borrow for any duration at fixed rates',
         href: '/firm',
       },

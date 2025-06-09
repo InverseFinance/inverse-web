@@ -96,7 +96,7 @@ export const EcosystemPage = ({
           <VStack position="fixed" zIndex="99999" top="0" maxW="2000px" w='full' px={{ base: 0, md: '4%' }} py={{ base: 0, md: '5' }} alignItems="center">
             <FloatingNav />
           </VStack>
-          <ResponsiveStack spacing={{ base: '10', md: '0' }} pt={{ base: '100px', md: '0' }} w='full' px="4%" alignItems={{ base: 'flex-start', md: 'center' }}>
+          <ResponsiveStack spacing={'10'} pt={{ base: '100px', md: '0' }} w='full' px="4%" alignItems={{ base: 'flex-start', md: 'center' }}>
             <VStack w={{ base: 'full', md: '50%' }} alignItems={'flex-start'}>
               <LandingHeading as="h1" fontSize={{ base: '30px', 'md': '64px' }} fontWeight="bold">
                 Explore Our Growing Partner Ecosystem
