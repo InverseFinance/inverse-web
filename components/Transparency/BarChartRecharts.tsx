@@ -4,7 +4,7 @@ import { shortenNumber, smartShortNumber } from '@app/util/markets';
 import { Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ComposedChart } from 'recharts';
 import { preciseCommify } from '@app/util/misc';
 
-const CustomizedLabel = ({x, y, fill, value, color, useUsd, precision = 2 }) => {
+const CustomizedLabel = ({ x, y, fill, value, color, useUsd, precision = 2, prefix = '' }) => {
     return <text
         x={x}
         y={y}
@@ -12,9 +12,9 @@ const CustomizedLabel = ({x, y, fill, value, color, useUsd, precision = 2 }) => 
         dy={-8}
         fontSize='14'
         fontFamily='sans-serif'
-        fontWeight="bold" 
+        fontWeight="bold"
         fill={color}
-        textAnchor="middle">{value ? smartShortNumber(value, precision, useUsd): ''}</text>
+        textAnchor="middle">{prefix ? `${prefix}: ` : ''}{value ? smartShortNumber(value, precision, useUsd) : ''}</text>
 };
 
 export const BarChartRecharts = ({
@@ -37,8 +37,15 @@ export const BarChartRecharts = ({
     precision = 2,
     yAxisPrecision = 2,
     isDoubleBar = false,
+    isStacked = false,
+    stackFields,
+    stackLabels,
+    stackColors,
+    legendPosition = 'top',
 }: {
-    combodata: { y: number, y2? :number, x: number, timestamp: number, utcDate: string }[]
+    combodata: { y: number, y2?: number, x: number, timestamp: number, utcDate: string }[]
+    isStacked?: boolean
+    stackFields?: string[]
     title: string
     axisStyle?: any
     chartWidth?: number
@@ -61,6 +68,9 @@ export const BarChartRecharts = ({
     isDoubleBar?: boolean
     precision?: number
     yAxisPrecision?: number
+    stackLabels?: string[]
+    stackColors?: string[]
+    legendPosition?: 'top' | 'bottom'
 }) => {
     const { themeStyles } = useAppTheme();
 
@@ -74,7 +84,8 @@ export const BarChartRecharts = ({
 
     const legendStyle = {
         ..._axisStyle.tickLabels,
-        top: -8,
+        verticalAlign: legendPosition,
+        top: legendPosition === 'top' ? -8 : undefined,
         fontSize: '12px',
     }
 
@@ -122,8 +133,17 @@ export const BarChartRecharts = ({
                 {
                     showLegend && <Legend wrapperStyle={legendStyle} style={{ cursor: 'pointer' }} formatter={(value) => value} />
                 }
-                <Bar label={showLabel ? (props) => <CustomizedLabel {...props} useUsd={useUsd} color={color} precision={precision} /> : undefined} maxBarSize={25} name={yLabel} dataKey={'y'} stroke={color} fillOpacity={1} fill={color} />
-                { isDoubleBar && <Bar label={showLabel ? (props) => <CustomizedLabel {...props} useUsd={useUsd} color={color2} precision={precision} /> : undefined} maxBarSize={25} name={yLabel2 || yLabel} dataKey={'y2'} stroke={color2} fillOpacity={1} fill={color2} /> }
+                {
+                    isStacked && stackFields ?
+                        stackFields.map((stackField, index) => {
+                            const isLast = index === stackFields.length - 1;
+                            return <Bar label={showLabel && isLast ? (props) => {
+                                return <CustomizedLabel {...props} prefix="Total: " useUsd={useUsd} color={color} precision={precision} />
+                            } : undefined} stackId="a" maxBarSize={25} name={stackLabels?.[index] || stackField} dataKey={stackField} stroke={stackColors?.[index]} fillOpacity={1} fill={stackColors?.[index]} />
+                        })
+                        : <Bar label={showLabel ? (props) => <CustomizedLabel {...props} useUsd={useUsd} color={color} precision={precision} /> : undefined} maxBarSize={25} name={yLabel} dataKey={'y'} stroke={color} fillOpacity={1} fill={color} />}
+
+                {isDoubleBar && <Bar label={showLabel ? (props) => <CustomizedLabel {...props} useUsd={useUsd} color={color2} precision={precision} /> : undefined} maxBarSize={25} name={yLabel2 || yLabel} dataKey={'y2'} stroke={color2} fillOpacity={1} fill={color2} />}
             </ComposedChart>
         </VStack>
     );
