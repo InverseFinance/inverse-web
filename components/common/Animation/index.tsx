@@ -21,7 +21,7 @@ export type AnimProps = {
 }
 
 // some react-lottie features don't work with React 17
-export const Animation = ({ renderer = 'canvas', animData, height = 30, width = 30, loop = false, autoplay = true, isStopped }: AnimProps) => {
+export const Animation = ({ animData, height = 30, width = 30, loop = false, autoplay = true, isStopped }: AnimProps) => {
     const [inited, setInited] = useState(false);
     useEffect(() => {
         setInited(true);
@@ -30,7 +30,28 @@ export const Animation = ({ renderer = 'canvas', animData, height = 30, width = 
         <Box height={`${height}px`} width={`${width}px`}>
             {
                 inited && <Lottie
-                    renderer={renderer}
+                    loop={loop}
+                    autoplay={autoplay}
+                    animationData={animData}
+                    rendererSettings={{
+                        preserveAspectRatio: 'xMidYMid slice'
+                    }}
+                />
+            }
+        </Box>
+    )
+}
+
+export const SvgAnimation = ({ animData, height = 30, width = 30, loop = false, autoplay = true, isStopped }: AnimProps) => {
+    const [inited, setInited] = useState(false);
+    useEffect(() => {
+        setInited(true);
+    }, []);
+    return (
+        <Box height={`${height}px`} width={`${width}px`}>
+            {
+                inited && <Lottie
+                    renderer="svg"
                     loop={loop}
                     autoplay={autoplay}
                     animationData={animData}
@@ -45,9 +66,15 @@ export const Animation = ({ renderer = 'canvas', animData, height = 30, width = 
 
 export type AnimIconProps = Partial<AnimProps> & { boxProps?: BoxProps, canClick?: boolean }
 
-export const AnimIcon = ({ renderer = 'canvas', animData = infoBubbleLottie, height = 20, width = 20, loop = false, autoplay = true, isStopped, boxProps, canClick = false }: AnimIconProps) => {
+export const AnimIcon = ({ animData = infoBubbleLottie, height = 20, width = 20, loop = false, autoplay = true, isStopped, boxProps, canClick = false }: AnimIconProps) => {
     return <Box className={!canClick ? 'app-anim-box-no-pointer' : undefined} display="inline-block" w={`${width}px`} h={`${height}px`} {...boxProps} alignItems="center" justifyContent="center">
-        <Animation renderer={renderer} animData={animData} height={height} width={width} loop={loop} autoplay={autoplay} isStopped={isStopped} />
+        <Animation animData={animData} height={height} width={width} loop={loop} autoplay={autoplay} isStopped={isStopped} />
+    </Box>;
+}
+
+export const SvgAnimIcon = ({ animData = infoBubbleLottie, height = 20, width = 20, loop = false, autoplay = true, isStopped, boxProps, canClick = false }: AnimIconProps) => {
+    return <Box className={!canClick ? 'app-anim-box-no-pointer' : undefined} display="inline-block" w={`${width}px`} h={`${height}px`} {...boxProps} alignItems="center" justifyContent="center">
+        <SvgAnimation animData={animData} height={height} width={width} loop={loop} autoplay={autoplay} isStopped={isStopped} />
     </Box>;
 }
 
