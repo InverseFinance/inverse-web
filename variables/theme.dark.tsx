@@ -84,7 +84,7 @@ const theme = extendTheme({
     infoAlpha: '#4299e122',
   },
   fonts: {
-    body: 'Inter',
+    body: 'Geist',
   },
   components: {
     Text: {

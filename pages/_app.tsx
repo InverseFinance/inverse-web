@@ -70,6 +70,8 @@ const App = ({ Component, pageProps }: AppProps) => {
 
           <link rel="icon" type="image/png" href="/assets/favicon.png"></link>
           <meta name="google-site-verification" content="bMAjdxhP6hV5H0ZFaFW4AZVipI0NRmFZ2DQPWxgquP4" />
+          <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&display=swap" rel="stylesheet" />
+          <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&family=Geist:wght@100..900&display=swap" rel="stylesheet"></link>
           <link rel="apple-touch-icon" href="/assets/apple-touch.png" />
           <script
             src={`/js/blockaid.js`}

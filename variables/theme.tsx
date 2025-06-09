@@ -112,12 +112,12 @@ export const lightTheme = extendTheme({
     infoAlpha: '#4299e122',
   },
   fonts: {
-    body: 'Inter',
+    body: 'Geist',
   },
   styles: {
     global: (props) => ({
       body: {
-        fontFamily: 'Inter'
+        fontFamily: 'Geist'
       },
     }),
   },
@@ -229,12 +229,12 @@ export const darkTheme = extendTheme({
     infoAlpha: '#4299e122',
   },
   fonts: {
-    body: 'Inter',
+    body: 'Geist',
   },
   styles: {
     global: (props) => ({
       body: {
-        fontFamily: 'Inter'
+        fontFamily: 'Geist'
       },
     }),
   },
