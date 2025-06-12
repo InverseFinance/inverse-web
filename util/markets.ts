@@ -8,6 +8,7 @@ import { getAvgOnLastItems, getNextThursdayTimestamp, lowercaseObjectKeys, remov
 import { getProvider } from './providers';
 import { NETWORKS_BY_NAME } from '@app/config/networks';
 import { fetchWithTimeout } from './web3';
+import { getEnsoData } from './enso';
 
 const DEFI_LLAMA_POOL_IDS = {
     STETH: '747c1d2a-c668-4682-b9f9-296708a3dd90',
@@ -371,6 +372,28 @@ export const getStYethData = async () => {
     return {};
 }
 
+// cross-check between defillama and enso apy
+export const getCrossCheckedApyData = async (poolId: string, convexAddress: string) => {
+    const [defillamaData, ensoData] = await Promise.all([
+        getPoolYield(poolId),
+        getEnsoData([convexAddress]),
+    ])
+
+    const ensoItem = ensoData[0];
+    if (!ensoItem) {
+        return {
+            defillamaData,
+        }
+    }
+    // enso seem to handle better the pending harvest case for Convex in which case the apyReward is null there
+    const apy = ensoItem.apyReward === null ? defillamaData.apyBase : defillamaData.apy;
+
+    return {
+        ...defillamaData,
+        apy,
+    }
+}
+
 export const getCvxCrvData = () => getDefiLlamaApy(DEFI_LLAMA_POOL_IDS.CVX_CRV);
 
 export const getDSRData = () => getDefiLlamaApy(DEFI_LLAMA_POOL_IDS.DSR);
@@ -475,20 +498,20 @@ export const getGOhmData = async () => {
 }
 
 export const getYearnVaultApy = async (vaultId: string) => {
-  try {
-    const response = await fetch(`https://ydaemon.yearn.fi/1/vaults/${vaultId}`);
-    const data = await response.json();
-    return { 
-      apy: data?.apr?.forwardAPR?.netAPR 
-        ? data.apr.forwardAPR.netAPR * 100 
-        : data?.apr?.netAPR 
-          ? data.apr.netAPR * 100 
-          : 0 
-    };
-  } catch (e) {
-    console.log(`Failed to fetch APY for Yearn vault ${vaultId}:`, e);
-    return { apy: 0 };
-  }
+    try {
+        const response = await fetch(`https://ydaemon.yearn.fi/1/vaults/${vaultId}`);
+        const data = await response.json();
+        return {
+            apy: data?.apr?.forwardAPR?.netAPR
+                ? data.apr.forwardAPR.netAPR * 100
+                : data?.apr?.netAPR
+                    ? data.apr.netAPR * 100
+                    : 0
+        };
+    } catch (e) {
+        console.log(`Failed to fetch APY for Yearn vault ${vaultId}:`, e);
+        return { apy: 0 };
+    }
 };
 
 const getYearnVaultApyViaKong = async (vaultId: string) => {
@@ -690,7 +713,10 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         getYvSUSDeDOLAData(),
         getDefiLlamaApy('51f9c038-feed-4666-8866-30efc92e0566'),
         getYearnVaultApy('0x342D24F2a3233F7Ac8A7347fA239187BFd186066'),
-        getDefiLlamaApy('8d316467-0da9-4404-923c-d7726ee60780'),
+        // scrvUSD-DOLA
+        getCrossCheckedApyData('8d316467-0da9-4404-923c-d7726ee60780', '0xff17dAb22F1E61078aBa2623c89cE6110E878B3c'),
+        // getDefiLlamaApy('8d316467-0da9-4404-923c-d7726ee60780'),
+        //
         getYearnVaultApy('0xbCe40f1840A449cAAaF374Df0A1fEe1e212784CB'),
         getDefiLlamaApy('0ff79814-dc93-4b3f-a4e1-7f395ddf0860'),
         getYearnVaultApy('0x08c0833AF1331831759b8e0BFeF1BC5738436325'),
@@ -770,8 +796,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         'yv-sUSDe-DOLA': yvSUSDeDOLAData?.apy || 0,
         'sUSDS-DOLA': sUSDSDolaConvexData?.apy || 0,
         'yv-sUSDS-DOLA': yvSUSDSDolaData?.apy || 0,
-        'scrvUSD-DOLA': 0.001,
-        // 'scrvUSD-DOLA': scrvUsdDolaConvexData?.apy || 0,
+        'scrvUSD-DOLA': scrvUsdDolaConvexData?.apy || 0,
         'yv-scrvUSD-DOLA': yvscrvUsdDolaData?.apy || 0,
         'scrvUSD-sDOLA': scrvUsdSDolaConvexData?.apy || 0,
         'yv-scrvUSD-sDOLA': yvscrvUsdSDolaData?.apy || 0,

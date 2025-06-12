@@ -178,6 +178,19 @@ export const getEnsoBundle = async (fromAddress: string, chainId = 1, actions) =
     return { address, isDeployed }
 }
 
+export const getEnsoData = async (addresses: string[]) => {
+    const path = `https://api.enso.finance/api/v1/tokens?chainId=1&includeMetadata=true&address=${addresses.join(',')}`;
+    const res = await fetch(path, {
+        headers: {
+            'accept': "*/*",
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${key}`,
+        },
+    });
+    const result = await res.json();
+    return result.data;
+}
+
 // the api gives an address per user, the user needs to approve this given address to spend their tokens
 export const getEnsoPools = async (params): Promise<EnsoPool[]> => {
     const queryString = new URLSearchParams(params).toString();
