@@ -113,7 +113,7 @@ export const Landing = ({
       value: firmTotalTvl ? shortenNumber(firmTotalTvl, 2, true) : '-',
     },
     {
-      name: 'DOLA Circulation',
+      name: 'DOLA in Circulation',
       value: shortenNumber(currentCirculatingSupply, 2, true),
     },
     {
@@ -229,10 +229,12 @@ export const Landing = ({
                 </GeistText>
                 <VStack py="4">
                   <HStack spacing="8">
-                    <LandingBtn href="/firm">
-                      Try It Out Now
-                    </LandingBtn>
-                    <LandingLink whiteSpace="nowrap" href="https://docs.inverse.finance">
+                    <Link href="/firm">
+                      <LandingBtn>
+                        Try It Out Now
+                      </LandingBtn>
+                    </Link>
+                    <LandingLink whiteSpace="nowrap" href="https://docs.inverse.finance" isExternal>
                       Read Docs <ArrowForwardIcon />
                     </LandingLink>
                   </HStack>
