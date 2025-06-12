@@ -2,7 +2,7 @@ import { HStack, Image, Stack, SimpleGrid, StackProps, VStack, useMediaQuery, In
 import Layout from '@app/components/common/Layout'
 import Head from 'next/head'
 import { ArrowForwardIcon, ChevronDownIcon, ChevronRightIcon, SearchIcon } from '@chakra-ui/icons'
-import { LandingAnimation } from '@app/components/common/Animation/LandingAnimation'
+import { LandingAnimation, LandingMobileAnimation } from '@app/components/common/Animation/LandingAnimation'
 import FloatingNav from '@app/components/common/Navbar/FloatingNav'
 import { ecosystemData } from '@app/components/Landing/EcosystemBanner'
 import Link from '@app/components/common/Link'
@@ -15,6 +15,8 @@ import { useRouter } from 'next/router'
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
 
 const animWidthToHeightRatio = 1.78;
+const mobileAnimWidthToHeightRatio = 0.5925925925925926;
+const mobileAnimWidth = 640;
 
 const bluePastel = "#ebecf7";
 
@@ -40,7 +42,9 @@ export const EcosystemPage = ({
   const router = useRouter();
   const { category: categoryQueryParam } = router.query;
   const [isSmallerThan] = useMediaQuery('(max-width: 768px)');
-  const [windowSize, setWindowSize] = useState(0);
+  const [refSize, setRefSize] = useState(0);
+  const [windowWidth, setWindowWidth] = useState(0);
+
   const [isAnimNeedStretch, setIsAnimNeedStretch] = useState(true);
   const [animStrechFactor, setAnimStrechFactor] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
@@ -58,15 +62,20 @@ export const EcosystemPage = ({
 
   useEffect(() => {
     const handleResize = () => {
-      setWindowSize(Math.max(window.innerWidth, window.innerHeight) / 2);
+      if (windowWidth === window.innerWidth) return;
+      setWindowWidth(window.innerWidth);
+      setRefSize(Math.max(window.innerWidth, window.innerHeight) / 2);
       const ratio = window.innerWidth / window.innerHeight;
+
+      const refRatio = isSmallerThan ? mobileAnimWidthToHeightRatio : animWidthToHeightRatio;
       setIsAnimNeedStretch(true);
-      setAnimStrechFactor((animWidthToHeightRatio - ratio) + 1);
+      setAnimStrechFactor((refRatio - ratio) + 1);
+      
     };
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [isSmallerThan, windowWidth]);
 
   const filteredEcosystemData = useMemo(() => {
     return ecosystemData
@@ -87,7 +96,7 @@ export const EcosystemPage = ({
         <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&display=swap" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&family=Geist:wght@100..900&display=swap" rel="stylesheet"></link>
         <title>Inverse Finance - Fixed-Rate DeFi borrowing</title>
-        <meta name="og:image" content="https://inverse.finance/assets/social-previews/landing.png" />
+        <meta name="og:image" content="https://inverse.finance/assets/social-previews/ecosystem.png" />
         <link rel="canonical" href="https://inverse.finance" />
         <link rel="stylesheet" href="/landing.css" />
       </Head>
@@ -96,7 +105,7 @@ export const EcosystemPage = ({
           <VStack position="fixed" zIndex="99999" top="0" maxW="2000px" w='full' px={{ base: 0, md: '4%' }} py={{ base: 0, md: '5' }} alignItems="center">
             <FloatingNav />
           </VStack>
-          <ResponsiveStack spacing={'10'} pt={{ base: '100px', md: '0' }} w='full' px="4%" alignItems={{ base: 'flex-start', md: 'center' }}>
+          <ResponsiveStack overflow="hidden" spacing={'10'} pt={{ base: '100px', md: '0' }} w='full' px="4%" alignItems={{ base: 'flex-start', md: 'center' }}>
             <VStack w={{ base: 'full', md: '50%' }} alignItems={'flex-start'}>
               <LandingHeading as="h1" fontSize={{ base: '30px', 'md': '64px' }} fontWeight="bold">
                 Explore Our Growing Partner Ecosystem
@@ -112,7 +121,11 @@ export const EcosystemPage = ({
             </VStack>
             <VStack maxH={{ base: '200px', md: 'unset' }} borderRadius="6px" overflow="hidden" w={{ base: 'full', md: '50%' }}>
               <VStack bgImage="/assets/landing/anim_bg.png" bgSize="cover" bgRepeat="no-repeat" bgPosition="center" height="80vh" width="100%">
-                <LandingAnimation boxProps={{ transform: isAnimNeedStretch ? `translateY(${(animStrechFactor) / 2 * 100}%) scale3d(1, ${1 + animStrechFactor}, 1)` : 'none' }} loop={true} height={windowSize} width={windowSize} />
+                {
+                  isSmallerThan ?
+                    <LandingMobileAnimation boxProps={{ transform: isAnimNeedStretch ? `translateY(${(animStrechFactor) / 2 * 100}%) scale3d(${2 * windowWidth / mobileAnimWidth}, ${1 + animStrechFactor}, 1)` : 'none' }} loop={true} height={refSize} width={refSize} />
+                    : <LandingAnimation boxProps={{ transform: isAnimNeedStretch ? `translateY(${(animStrechFactor) / 2 * 100}%) scale3d(1, ${1 + animStrechFactor}, 1)` : 'none' }} loop={true} height={refSize} width={refSize} />
+                }
               </VStack>
             </VStack>
           </ResponsiveStack>
