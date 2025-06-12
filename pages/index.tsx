@@ -434,11 +434,9 @@ export const Landing = ({
                   Get Started Now <Image ml="2" src="/assets/landing/rocket.svg" w="20px" h="20px" />
                 </LandingNoisedBtn>
               </Link>
-              <Link href="/ecosystem" target="_blank" isExternal>
-                <LandingLink textDecoration="underline" color={landingMutedColor} fontSize={{ base: '15px', "2xl": '17px' }}>
-                  Or explore our ecosystem
-                </LandingLink>
-              </Link>
+              <LandingLink href="/ecosystem" target="_blank" isExternal textDecoration="underline" color={landingMutedColor} fontSize={{ base: '15px', "2xl": '17px' }}>
+                Or explore our ecosystem
+              </LandingLink>
             </ResponsiveStack>
           </VStack>
         </VStack>
