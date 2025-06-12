@@ -184,14 +184,18 @@ export const FloatingNav = ({
         zIndex="docked"
       >
         <Stack alignItems="center" spacing={{ base: '2', '2xl': '1vw' }} direction="row" align="center">
-          {
-            isSmallerThan ? <Image src={TOKEN_IMAGES.INV} w="30px" h="30px" borderRadius="full" /> : <Logo minH="30px" minW="30px" boxSize={isBottom ? '1.8vmax' : '3.8vmax'} filter={isBottom ? "brightness(0) invert(1)" : 'unset'} />
-          }
-          <Text display={{ base: 'none', 'md': 'block' }} className="landing-v3-text" as={isBottom ? 'h3' : 'h1'} color={isBottom ? lightTheme.colors.contrastMainTextColor : lightTheme.colors.mainTextColor}
-            fontSize={isBottom ? normalSize : slightlyBiggerSize}
-          >
-            <b>Inverse</b> Finance
-          </Text>
+          <Link href="/" _hover={{}}>
+            {
+              isSmallerThan ? <Image src={TOKEN_IMAGES.INV} w="30px" h="30px" borderRadius="full" /> : <Logo minH="30px" minW="30px" boxSize={isBottom ? '1.8vmax' : '3.8vmax'} filter={isBottom ? "brightness(0) invert(1)" : 'unset'} />
+            }
+          </Link>
+          <Link href="/" _hover={{}}>
+            <Text display={{ base: 'none', 'md': 'block' }} className="landing-v3-text" as={isBottom ? 'h3' : 'h1'} color={isBottom ? lightTheme.colors.contrastMainTextColor : lightTheme.colors.mainTextColor}
+              fontSize={isBottom ? normalSize : slightlyBiggerSize}
+            >
+              <b>Inverse</b> Finance
+            </Text>
+          </Link>
         </Stack>
         <Stack spacing="8" direction="row" justifyContent="center" fontWeight="semibold" alignItems="center" display={{ base: 'none', lg: 'flex' }}>
           {LANDING_NAV_ITEMS.map(({ label, href, submenus, type }, i) => (
@@ -290,7 +294,7 @@ export const FloatingNav = ({
           </Link>
           {isSmallerThan && <LandingBurgerMenu isLanding={true} navItems={LANDING_NAV_ITEMS} />}
         </HStack>
-      </SimpleGrid>
+      </SimpleGrid >
     </>
   )
 }
