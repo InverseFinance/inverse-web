@@ -70,7 +70,7 @@ export const EcosystemPage = ({
       const refRatio = isSmallerThan ? mobileAnimWidthToHeightRatio : animWidthToHeightRatio;
       setIsAnimNeedStretch(true);
       setAnimStrechFactor((refRatio - ratio) + 1);
-      
+
     };
     handleResize();
     window.addEventListener('resize', handleResize);
@@ -103,7 +103,7 @@ export const EcosystemPage = ({
         <link rel="stylesheet" href="/landing.css" />
       </Head>
       <VStack spacing="0" className="landing-v3" w='full' alignItems="center">
-        <VStack bgColor={bluePastel} h={{ base: '100vh', md: 'calc(100vh - 50px)', "2xl": 'calc(100vh - 130px)' }} w='full' alignItems="flex-start" justifyContent={{ base: 'flex-start', md: 'center' }}>
+        <VStack bgColor={bluePastel} h={{ base: '50vh', md: 'calc(100vh - 50px)', "2xl": 'calc(100vh - 130px)' }} w='full' alignItems="flex-start" justifyContent={{ base: 'flex-start', md: 'center' }}>
           <VStack position="fixed" zIndex="99999" top="0" maxW="2000px" w='full' px={{ base: 0, md: '4%' }} py={{ base: 0, md: '5' }} alignItems="center">
             <FloatingNav />
           </VStack>
@@ -121,15 +121,13 @@ export const EcosystemPage = ({
                 </LandingNoisedBtn>
               </Link>
             </VStack>
-            <VStack maxH={{ base: '200px', md: 'unset' }} borderRadius="6px" overflow="hidden" w={{ base: 'full', md: '50%' }}>
-              <VStack bgImage="/assets/landing/anim_bg.png" bgSize="cover" bgRepeat="no-repeat" bgPosition="center" height="80vh" width="100%">
-                {
-                  isSmallerThan ?
-                    <LandingMobileAnimation boxProps={{ transform: isAnimNeedStretch ? `translateY(${(animStrechFactor) / 2 * 100}%) scale3d(${2 * windowWidth / mobileAnimWidth}, ${1 + animStrechFactor}, 1)` : 'none' }} loop={true} height={refSize} width={refSize} />
-                    : <LandingAnimation boxProps={{ transform: isAnimNeedStretch ? `translateY(${(animStrechFactor) / 2 * 100}%) scale3d(1, ${1 + animStrechFactor}, 1)` : 'none' }} loop={true} height={refSize} width={refSize} />
-                }
+            {
+              !isSmallerThan && <VStack maxH={{ base: '200px', md: 'unset' }} borderRadius="6px" overflow="hidden" w={{ base: 'full', md: '50%' }}>
+                <VStack bgImage="/assets/landing/anim_bg.png" bgSize="cover" bgRepeat="no-repeat" bgPosition="center" height="80vh" width="100%">
+                  <LandingAnimation boxProps={{ transform: isAnimNeedStretch ? `translateY(${(animStrechFactor) / 2 * 100}%) scale3d(1, ${1 + animStrechFactor}, 1)` : 'none' }} loop={true} height={refSize} width={refSize} />
+                </VStack>
               </VStack>
-            </VStack>
+            }
           </ResponsiveStack>
         </VStack>
         <ResponsiveStack bgColor="white" spacing="1px" w='full' alignItems="flex-start">
