@@ -97,6 +97,8 @@ export const EcosystemPage = ({
         <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&family=Geist:wght@100..900&display=swap" rel="stylesheet"></link>
         <title>Inverse Finance - Fixed-Rate DeFi borrowing</title>
         <meta name="og:image" content="https://inverse.finance/assets/social-previews/ecosystem.png" />
+        <meta name="og:title" content="Inverse Finance - Ecosystem" />
+        <meta name="og:description" content="Explore our growing partner ecosystem" />
         <link rel="canonical" href="https://inverse.finance" />
         <link rel="stylesheet" href="/landing.css" />
       </Head>

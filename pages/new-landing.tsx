@@ -142,7 +142,7 @@ export const Landing = ({
         <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&display=swap" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&family=Geist:wght@100..900&display=swap" rel="stylesheet"></link>
         <title>Inverse Finance - Fixed-Rate DeFi borrowing</title>
-        <meta name="og:image" content="https://inverse.finance/assets/social-previews/landing.png" />
+        <meta name="og:image" content="https://inverse.finance/assets/social-previews/landing-v3.png" />
         <link rel="canonical" href="https://inverse.finance" />
         <link rel="stylesheet" href="/landing.css" />
       </Head>
