@@ -38,7 +38,7 @@ export const AboutFirm = () => {
                     label="Analyst coverage"
                 >
                     <VStack spacing="2" alignItems="flex-start">
-                        <Link color="mainTextColor" fontSize="20px" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" href="https://revelointel.com/industry-intel/inverse/" isExternal target="_blank">
+                        <Link color="mainTextColor" fontSize="20px" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" href="https://alearesearch.io/" isExternal target="_blank">
                             <SearchIcon mr="2" />Analyst coverage by Revolo Intel
                         </Link>
                     </VStack>

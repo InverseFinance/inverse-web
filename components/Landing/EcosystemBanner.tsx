@@ -55,7 +55,7 @@ export const ecosystemData = [
         label: 'Velodrome',
         category: 'DEX',
         categories: ['DEX', 'YIELD', 'LIQUIDITY'],
-        href: "https://velodrome.finance",
+        href: "https://velodrome.finance/",
         description: "Velodrome (VELODROME) is a DeFi platform that focuses on improving the efficiency of asset exchange and liquidity in the Optimism ecosystem.",
     },
     {
@@ -95,7 +95,7 @@ export const ecosystemData = [
         label: 'Ramses',
         category: 'DEX',
         categories: ['DEX'],
-        href: "https://ramses.exchange/",
+        href: "https://app.ramses.exchange/",
         description: "Ramses is a next-generation AMM designed to serve as Arbitrum's central liquidity hub.",
     },
     {
@@ -227,7 +227,7 @@ export const ecosystemData = [
         label: 'fx protocol',
         category: 'LIQUIDITY',
         categories: ['LIQUIDITY', 'YIELD'],
-        href: "https://fxprotocol.org/",
+        href: "https://fx.aladdin.club/",
         description: "f(x) Protocol splits ETH into low-volatility stablecoins (fETH) and high-volatility leveraged tokens (xETH).",
     },
     {
@@ -259,7 +259,7 @@ export const ecosystemData = [
         label: 'Resolv',
         category: 'LIQUIDITY',
         categories: ['LIQUIDITY', 'YIELD'],
-        href: "https://resolv.fi/",
+        href: "https://resolv.xyz/",
         description: "Resolv maintains USR, a stablecoin natively backed by Ether (ETH) and Bitcoin (BTC).",
     },
     {
@@ -275,7 +275,7 @@ export const ecosystemData = [
         label: 'SkyEcosystem',
         category: 'LIQUIDITY',
         categories: ['LIQUIDITY'],
-        href: "https://sky.finance/",
+        href: "https://sky.money/",
         description: "Sky is a decentralized stablecoin protocol with USDS and SKY tokens.",
     },
     {
@@ -307,7 +307,7 @@ export const ecosystemData = [
         label: 'YieldFi',
         category: 'LIQUIDITY',
         categories: ['LIQUIDITY', 'YIELD'],
-        href: "https://yieldfi.xyz/",
+        href: "https://yield.fi/",
         description: "YieldFi is a fully on-chain asset management platform designed as a fund of funds for DeFi.",
     },
     // Yield Partners
@@ -356,7 +356,7 @@ export const ecosystemData = [
         label: 'Napier',
         category: 'YIELD',
         categories: ['YIELD'],
-        href: "https://napier.fi/",
+        href: "https://napier.finance/",
         description: "Napier Finance is a modular yield tokenization protocol on the Ethereum Virtual Machine.",
     },
     // Security Partners
@@ -381,7 +381,7 @@ export const ecosystemData = [
         label: 'Code4Arena',
         category: 'SECURITY',
         categories: ['SECURITY'],
-        href: "https://code4arena.com/",
+        href: "https://code4rena.com/",
         description: "Code4rena security auditors (Wardens) compete to find high-severity vulnerabilities.",
     },
     {
@@ -519,7 +519,7 @@ export const ecosystemData = [
         label: 'Socket',
         category: 'INFRA',
         categories: ['INFRA'],
-        href: "https://sockettech.io/",
+        href: "https://www.socket.tech/",
         description: "Socket DeFi tools protocol facilitates decentralized finance applications.",
     },
     {

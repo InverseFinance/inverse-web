@@ -153,7 +153,7 @@ export const FEDS_PARAMS = [
                 {
                     address: '0xB720FBC32d60BB6dcc955Be86b98D8fD3c4bA645',
                     name: 'Velodrome DOLA-USDC',
-                    link: 'https://app.velodrome.finance/deposit?token0=0x7f5c764cbc14f9669b88837ca1490cca17c31607&token1=0x8ae125e8653821e851f12a49f7765db9a9ce7384&stable=true',
+                    link: 'https://velodrome.finance/deposit?token0=0x7f5c764cbc14f9669b88837ca1490cca17c31607&token1=0x8ae125e8653821e851f12a49f7765db9a9ce7384&stable=true',
                     image: 'https://assets.coingecko.com/coins/images/25783/small/velo.png',
                 },
             ],
@@ -438,7 +438,7 @@ export const FEDS_PARAMS = [
                 {
                     address: '0xA56a25Dee5B3199A9198Bbd48715EE3D0ed98378',
                     name: 'Velodrome DOLA-USDC',
-                    link: 'https://app.velodrome.finance/deposit?token0=0x7f5c764cbc14f9669b88837ca1490cca17c31607&token1=0x8ae125e8653821e851f12a49f7765db9a9ce7384&stable=true',
+                    link: 'https://velodrome.finance/deposit?token0=0x7f5c764cbc14f9669b88837ca1490cca17c31607&token1=0x8ae125e8653821e851f12a49f7765db9a9ce7384&stable=true',
                     image: 'https://assets.coingecko.com/coins/images/25783/small/velo.png',
                 },
             ],
