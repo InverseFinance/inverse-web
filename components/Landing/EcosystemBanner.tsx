@@ -33,6 +33,7 @@ export const ecosystemData = [
         categories: ['DEX', 'LENDING', 'LIQUIDITY', 'YIELD'],
         href: "https://curve.finance",
         description: "Curve Finance is a decentralized exchange (DEX) that focuses on stablecoin trading.",
+        inBanner: true,
     },
     {
         image: 'https://assets.coingecko.com/coins/images/11683/large/Balancer.png?1592792958',
@@ -49,6 +50,7 @@ export const ecosystemData = [
         categories: ['DEX', 'YIELD', 'LIQUIDITY'],
         href: "https://aerodrome.finance/",
         description: "Aerodrome Finance (AERO) is a central trading and liquidity marketplace on Base.",
+        inBanner: true,
     },
     {
         image: TOKEN_IMAGES.VELO,
@@ -89,6 +91,7 @@ export const ecosystemData = [
         categories: ['DEX'],
         href: "https://uniswap.org/",
         description: "Uniswap is the largest decentralized exchange (or DEX) operating on the Ethereum blockchain, allowing users anywhere to trade crypto without an intermediary.",
+        inBanner: true,
     },
     {
         image: 'https://assets.coingecko.com/coins/images/29420/standard/newram.png?1708427055',
@@ -113,6 +116,7 @@ export const ecosystemData = [
         categories: ['DEX', 'YIELD'],
         href: "https://bunni.pro/",
         description: "Bunni transforms Uniswap v3 NFT liquidity positions into fungible ERC-20 tokens, enabling advanced liquidity management features.",
+        inBanner: true,
     },
     // CEX Partners
     {
@@ -122,6 +126,7 @@ export const ecosystemData = [
         categories: ['CEX'],
         href: "https://www.coinbase.com/",
         description: "Coinbase is a secure online platform for buying, selling, transferring, and storing cryptocurrency.",
+        inBanner: true,
     },
     {
         image: 'https://assets.coingecko.com/coins/images/2822/large/huobi-token-logo.png?1547036992',
@@ -148,6 +153,7 @@ export const ecosystemData = [
         categories: ['LENDING', 'YIELD', 'LIQUIDITY'],
         href: "https://frax.finance/",
         description: "Frax: Decentralized stablecoin protocol with multiple tokens and supporting subprotocols.",
+        inBanner: true,
     },
     {
         image: 'https://assets.coingecko.com/coins/images/21630/standard/gear.png?1696520990',
@@ -156,6 +162,7 @@ export const ecosystemData = [
         categories: ['LENDING'],
         href: "https://gearbox.fi/",
         description: "Gearbox Protocol is a DeFi lending protocol that allows users to leverage their crypto assets through its smart contracts on Ethereum.",
+        inBanner: true,
     },
     {
         image: 'https://assets.coingecko.com/coins/images/54833/standard/RSUP-icon.png?1741965338',
@@ -164,6 +171,7 @@ export const ecosystemData = [
         categories: ['LENDING', 'YIELD'],
         href: "https://resupply.fi/",
         description: "A decentralized stablecoin protocol, leveraging the liquidity and stability of lending markets.",
+        inBanner: true,
     },
     // Liquidity Partners
     {
@@ -173,6 +181,7 @@ export const ecosystemData = [
         categories: ['LIQUIDITY'],
         href: "https://alchemix.fi/",
         description: "Alchemix: Self-repaying crypto loans using future yield to mint stablecoins.",
+        inBanner: true,
     },
     {
         image: 'https://assets.coingecko.com/coins/images/25942/large/logo.png?1654784187',
@@ -197,6 +206,7 @@ export const ecosystemData = [
         categories: ['LIQUIDITY', 'YIELD'],
         href: "https://www.convexfinance.com/",
         description: "Convex Finance is a protocol built on top of Curve Finance that optimizes yields for liquidity providers.",
+        inBanner: true,
     },
     {
         image: 'https://assets.coingecko.com/coins/images/30711/standard/ELX_logo_%281%29.png?1741217569',
@@ -221,6 +231,7 @@ export const ecosystemData = [
         categories: ['LIQUIDITY', 'YIELD'],
         href: "https://www.ethena.fi/",
         description: "Ethena is a synthetic dollar protocol built on Ethereum.",
+        inBanner: true,
     },
     {
         image: 'https://assets.coingecko.com/coins/images/31889/standard/FXN_200x200.png?1696530700',
@@ -229,6 +240,7 @@ export const ecosystemData = [
         categories: ['LIQUIDITY', 'YIELD'],
         href: "https://fx.aladdin.club/",
         description: "f(x) Protocol splits ETH into low-volatility stablecoins (fETH) and high-volatility leveraged tokens (xETH).",
+        inBanner: true,
     },
     {
         image: 'https://assets.coingecko.com/coins/images/13573/large/Lido_DAO.png?1609873644',
@@ -245,6 +257,7 @@ export const ecosystemData = [
         categories: ['LIQUIDITY', 'YIELD'],
         href: "https://paypal.com",
         description: "PayPal USD (PYUSD): Ethereum-based stablecoin backed 1:1 by US dollars.",
+        inBanner: true,
     },
     {
         image: 'https://assets.coingecko.com/coins/images/30760/standard/PNP_Token.png?1696529629',
@@ -261,6 +274,7 @@ export const ecosystemData = [
         categories: ['LIQUIDITY', 'YIELD'],
         href: "https://resolv.xyz/",
         description: "Resolv maintains USR, a stablecoin natively backed by Ether (ETH) and Bitcoin (BTC).",
+        inBanner: true,
     },
     {
         image: 'https://assets.coingecko.com/coins/images/44/standard/xrp-symbol-white-128.png?1696501442',
@@ -277,6 +291,7 @@ export const ecosystemData = [
         categories: ['LIQUIDITY'],
         href: "https://sky.money/",
         description: "Sky is a decentralized stablecoin protocol with USDS and SKY tokens.",
+        inBanner: true,
     },
     {
         image: 'https://assets.coingecko.com/coins/images/13724/large/stakedao_logo.jpg?1696513468',
@@ -285,6 +300,7 @@ export const ecosystemData = [
         categories: ['LIQUIDITY'],
         href: "https://stakedao.org/",
         description: "Stake DAO is a non-custodial liquid staking platform focused on governance tokens.",
+        inBanner: true,
     },
     {
         image: 'https://assets.coingecko.com/coins/images/17495/standard/tokemak-avatar-200px-black.png?1696517036',
@@ -293,6 +309,7 @@ export const ecosystemData = [
         categories: ['LIQUIDITY', 'YIELD'],
         href: "https://www.tokemak.xyz/",
         description: "Tokemak is a decentralized liquidity-providing and market-making protocol.",
+        inBanner: true,
     },
     {
         image: 'https://assets.coingecko.com/coins/images/11849/large/yfi-192x192.png?1598325330',
@@ -301,6 +318,7 @@ export const ecosystemData = [
         categories: ['LIQUIDITY', 'YIELD'],
         href: "https://yearn.finance/",
         description: "Yearn Finance automatically moves users' deposits between lending protocols to maximize yield returns.",
+        inBanner: true,
     },
     {
         image: 'https://assets.coingecko.com/coins/images/53607/standard/yUSD.png?1739862886',
@@ -318,6 +336,7 @@ export const ecosystemData = [
         categories: ['YIELD'],
         href: "https://beefy.com",
         description: "Beefy automates yield farming to make DeFi easy, safe and efficient through autocompounding.",
+        inBanner: true,
     },
     {
         image: 'https://assets.coingecko.com/coins/images/30973/standard/Ex_logo-white-blue_ring_288x.png?1696529812',
@@ -342,6 +361,7 @@ export const ecosystemData = [
         categories: ['YIELD'],
         href: "https://pendle.finance/",
         description: "Pendle Finance enables trading of tokenized future yield on an AMM system.",
+        inBanner: true,
     },
     {
         image: 'https://assets.coingecko.com/coins/images/52854/large/spectra.jpg?1734517434',
@@ -350,6 +370,7 @@ export const ecosystemData = [
         categories: ['YIELD'],
         href: "https://app.spectra.finance/fixed-rate",
         description: "Spectra Finance is an open-source DeFi protocol enabling users to create, trade, and manage interest rate derivatives.",
+        inBanner: true,
     },
     {
         image: 'https://icons.llamao.fi/icons/protocols/napier?w=48&h=48',
@@ -575,7 +596,7 @@ const EcoCellItem = ({ project, width = 50 }: { project: string, width?: number 
     return <Image borderRadius='full' src={projectImages[project]!} width={{ base: `${parseInt(width / 2)}px`, md: `${width}px` }} alt={project} />
 }
 
-const bannerItems = ecosystemData.filter(item => !['CHAINS', 'SECURITY'].includes(item.category));
+const bannerItems = ecosystemData.filter(item => item.inBanner);
 
 export const EcosystemBanner = () => {
     return <HStack className="banner" bgColor="white" pb="2" pt="2">
