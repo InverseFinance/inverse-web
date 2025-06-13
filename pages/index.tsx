@@ -242,8 +242,8 @@ export const Landing = ({
                 </VStack>
               </VStack>
               <ResponsiveStack alignItems="center" justifyContent="space-evenly" borderTop={`1px solid ${landingLightBorderColor}`} w="full">
-                <LandingStatBasicBig py="30px" borderRight={{ base: 'none', md: `1px solid ${landingLightBorderColor}` }} value={shortenNumber(firmTotalTvl, 2, true)} name="TVL" />
-                <LandingStatBasicBig py="30px" borderTop={{ base: `1px solid ${landingLightBorderColor}`, md: 'none' }} value={`${shortenNumber(dbrPriceUsd * 100, 2, false)}%`} name="Fixed Rate" />
+                <LandingStatBasicBig px={{ base: 4, md: 8 }} py="30px" borderRight={{ base: 'none', md: `1px solid ${landingLightBorderColor}` }} value={shortenNumber(firmTotalTvl, 2, true)} name="TVL" />
+                <LandingStatBasicBig px={{ base: 4, md: 8 }} py="30px" borderTop={{ base: `1px solid ${landingLightBorderColor}`, md: 'none' }} value={`${shortenNumber(dbrPriceUsd * 100, 2, false)}%`} name="Fixed Rate" />
               </ResponsiveStack>
               <ResponsiveStack py="4" px={{ base: 4, md: 8 }} alignItems="flex-start" borderTop={`1px solid ${landingLightBorderColor}`} w="full">
                 <Image mt={{ base: 0, md: 1 }} src="/assets/landing/one-click.png" alt="One-Click Hyperleverage" w="30px" h="30px" />
@@ -355,7 +355,7 @@ export const Landing = ({
         <VStack bgColor={landingPurple} w='full' py={{ base: 8, md: 20 }} px="5%">
           <ResponsiveStack direction={{ base: 'column', lg: 'row' }} maxW="1300px" position="relative" borderRadius="8px" bgColor={landingDarkNavy2} p="2" w='full' alignItems="flex-start">
             <VStack id="section-safety-1" w={{ base: 'full', lg: '50%' }}>
-              <VStack px="6" py="4" alignItems="flex-start">
+              <VStack px={{ base: 4, md: 6 }} py="4" alignItems="flex-start">
                 <LandingHeading color="white" fontSize={{ base: '32px', 'md': '5xl' }}>
                   Our Obsession Is Safety
                 </LandingHeading>
@@ -365,7 +365,7 @@ export const Landing = ({
                 <Link _hover={{ color: 'white' }} color={landingPurple} textDecoration="underline" href="/audits" target="_blank" isExternal>See our audits</Link>
               </VStack>
               <ResponsiveStack spacing="2">
-                <VStack alignItems="flex-start" borderRadius="2px" py={{ base: '16px', md: '48px' }} px={{ base: '12px', md: '32px' }} bgColor={"#FFFFFF1F"}>
+                <VStack alignItems="flex-start" borderRadius="2px" py={{ base: '16px', md: '48px' }} px={{ base: '12px', md: '24px' }} bgColor={"#FFFFFF1F"}>
                   <LandingHeading color="white" fontSize={{ base: '32px', 'md': '5xl' }}>
                     87%
                   </LandingHeading>
