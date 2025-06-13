@@ -575,7 +575,7 @@ const EcoCellItem = ({ project, width = 50 }: { project: string, width?: number 
     return <Image borderRadius='full' src={projectImages[project]!} width={{ base: `${parseInt(width / 2)}px`, md: `${width}px` }} alt={project} />
 }
 
-const bannerItems = ecosystemData.slice(0, 10);
+const bannerItems = ecosystemData.filter(item => !['CHAINS', 'SECURITY'].includes(item.category));
 
 export const EcosystemBanner = () => {
     return <HStack className="banner" bgColor="white" pb="2" pt="2">
