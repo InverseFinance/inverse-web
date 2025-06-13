@@ -181,7 +181,7 @@ export const FloatingNav = ({
         alignItems="center"
         py={2}
         px={{ base: 4, lg: '1%' }}
-        zIndex="docked"
+        zIndex="2"
       >
         <Stack alignItems="center" spacing={{ base: '2', '2xl': '1vw' }} direction="row" align="center">
           <Link href="/" _hover={{}}>
@@ -208,15 +208,14 @@ export const FloatingNav = ({
               <Popover trigger="hover">
                 <PopoverTrigger>
                   <Box>
-                    <Link
+                    <Text
                       fontSize={isLargerThan ? '18px' : '15px'}
                       color={mainColor}
                       _hover={{ color: mainColor }}
-                      href={href}
                       whiteSpace="nowrap"
                     >
                       {label} <ChevronDownIcon />
-                    </Link>
+                    </Text>
                   </Box>
                 </PopoverTrigger>
                 {

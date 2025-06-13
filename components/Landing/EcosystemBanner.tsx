@@ -82,7 +82,6 @@ export const ecosystemData = [
         categories: ['DEX'],
         href: "https://uniswap.org/",
         description: "Uniswap is the largest decentralized exchange (or DEX) operating on the Ethereum blockchain, allowing users anywhere to trade crypto without an intermediary.",
-        inBanner: true,
     },
     {
         image: 'https://assets.coingecko.com/coins/images/29420/standard/newram.png?1708427055',
@@ -291,7 +290,6 @@ export const ecosystemData = [
         categories: ['LIQUIDITY'],
         href: "https://sky.money/",
         description: "Sky is a decentralized stablecoin protocol with USDS and SKY tokens.",
-        inBanner: true,
     },
     {
         image: 'https://assets.coingecko.com/coins/images/13724/large/stakedao_logo.jpg?1696513468',

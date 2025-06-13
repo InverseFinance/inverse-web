@@ -33,7 +33,7 @@ export const Layout = ({ children, isLanding, isLandingV2 = false, bgColor = 'ma
       {children}
     </Flex>
     {
-      isLandingV2 ? <FooterV2 isLanding={true} /> : isLanding ?
+      isLandingV2 ? null : isLanding ?
         <Stack
           bgColor={lightTheme.colors.accentTextColor}
           borderLeftRadius="50px"

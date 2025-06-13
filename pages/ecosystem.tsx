@@ -11,6 +11,7 @@ import { GeistText, LandingHeading, landingLightBorderColor, landingMutedColor, 
 import { SimpleCard } from '@app/components/common/Cards/Simple'
 import { Input } from '@app/components/common/Input'
 import { useRouter } from 'next/router'
+import FooterV2 from '@app/components/common/Footer/FooterV2'
 
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
 
@@ -218,8 +219,7 @@ export const EcosystemPage = ({
           </VStack>
         </ResponsiveStack>
         {/* below fold */}
-        {/* truested by the best banner section  */}
-
+        <FooterV2 isLanding={true} />
       </VStack>
     </Layout>
   )
