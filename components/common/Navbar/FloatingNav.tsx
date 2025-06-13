@@ -208,15 +208,14 @@ export const FloatingNav = ({
               <Popover trigger="hover">
                 <PopoverTrigger>
                   <Box>
-                    <Link
+                    <Text
                       fontSize={isLargerThan ? '18px' : '15px'}
                       color={mainColor}
                       _hover={{ color: mainColor }}
-                      href={href}
                       whiteSpace="nowrap"
                     >
                       {label} <ChevronDownIcon />
-                    </Link>
+                    </Text>
                   </Box>
                 </PopoverTrigger>
                 {
