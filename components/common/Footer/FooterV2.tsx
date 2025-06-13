@@ -12,7 +12,7 @@ import { GeistText, LandingBtn, landingDarkNavy2, LandingHeading, landingMainCol
 const SOCIALS = [
   {
     image: <Image src="/assets/landing/discord.svg" alt="Discord" w="40px" h="auto" />,
-    href: 'https://discord.gg/inversefinance',
+    href: 'https://discord.gg/YpYJC7R5nv',
   },
   {
     image: <Image src="/assets/landing/x.svg" alt="X" w="40px" h="auto" />,

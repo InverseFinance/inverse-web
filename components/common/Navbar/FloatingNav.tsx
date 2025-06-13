@@ -51,7 +51,7 @@ const LANDING_NAV_ITEMS = [
       {
         logo: <Image src="/assets/landing/discord.svg" alt="Discord" w={{ base: '32px', md: '64px' }} h="auto" />,
         title: 'Discord',
-        href: 'https://discord.gg/inversefinance',
+        href: 'https://discord.gg/YpYJC7R5nv',
       },
       {
         logo: <Image src="/assets/landing/x.svg" alt="X" w={{ base: '32px', md: '64px' }} h="auto" />,
