@@ -361,7 +361,7 @@ export const Landing = ({
                 <GeistText color="white">
                   Our obsession with safety includes security innovations like Personal Collateral Escrow accounts, ensuring your collateral is staked and isolated, never loaned out. We designed oracle safety measures to make price manipulation, flash loan, and similar attacks not just difficult, but financially unfeasible.
                 </GeistText>
-                <Link _hover={{ color: landingPurpleText }} color={landingPurple} textDecoration="underline" href="/audits" target="_blank" isExternal>See our audits</Link>
+                <Link _hover={{ color: 'white' }} color={landingPurple} textDecoration="underline" href="/audits" target="_blank" isExternal>See our audits</Link>
               </VStack>
               <ResponsiveStack spacing="2">
                 <VStack alignItems="flex-start" borderRadius="2px" py={{ base: '16px', md: '48px' }} px={{ base: '12px', md: '32px' }} bgColor={"#FFFFFF1F"}>
@@ -374,7 +374,7 @@ export const Landing = ({
                   <GeistText color="white">
                     Inverse Finance maintains an elite DeFi Safety Score of 87, built on years of protocol risk and safety experience.
                   </GeistText>
-                  <Link _hover={{ color: landingPurpleText }} color={landingPurple} textDecoration="underline" href="https://defisafety.com/app/pqrs/567" target="_blank" isExternal>
+                  <Link _hover={{ color: 'white' }} color={landingPurple} textDecoration="underline" href="https://defisafety.com/app/pqrs/567" target="_blank" isExternal>
                     Read DeFi Safety's report
                   </Link>
                 </VStack>
