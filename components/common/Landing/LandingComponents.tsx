@@ -17,12 +17,20 @@ export const landingPurpleText = "#581EF4"
 export const landingLightBorderColor = '#E3E3E3';
 
 export const LandingNoisedBtn = ({ children, btnProps, ...props }: { children: React.ReactNode, btnProps?: any, props?: any }) => {
-    return <VStack borderRadius="6px" bgImage="/assets/landing/noised_shape.png" bgSize="cover" bgRepeat="no-repeat" bgPosition={{ base: 'center', '2xl': '0 20%' }} {...props}>
-        <LandingBtn bgColor="transparent" w="fit-content" h="50px" bg={`linear-gradient(to bottom, ${landingDarkNavy2}cd 10%, ${landingMainColor}ee 95%)`} bgSize="cover" bgRepeat="no-repeat" bgPosition={{ base: 'center', '2xl': '0 20%' }} minH="50px" fontSize={{ base: '16px', "2xl": '18px' }} px="6" py="2" href="/firm" {...btnProps}>
+    return <VStack borderRadius="6px" bgColor={landingMainColor} {...props}>
+        <LandingBtn w="fit-content" h="50px" minH="50px" fontSize={{ base: '16px', "2xl": '18px' }} px="6" py="2" href="/firm" {...btnProps}>
             {children}
         </LandingBtn>
     </VStack>
 }
+
+// export const LandingNoisedBtn = ({ children, btnProps, ...props }: { children: React.ReactNode, btnProps?: any, props?: any }) => {
+//     return <VStack borderRadius="6px" bgImage="/assets/landing/noised_shape.png" bgSize="cover" bgRepeat="no-repeat" bgPosition={{ base: 'center', '2xl': '0 20%' }} {...props}>
+//         <LandingBtn bgColor="transparent" w="fit-content" h="50px" bg={`linear-gradient(to bottom, ${landingDarkNavy2}cd 10%, ${landingMainColor}ee 95%)`} bgSize="cover" bgRepeat="no-repeat" bgPosition={{ base: 'center', '2xl': '0 20%' }} minH="50px" fontSize={{ base: '16px', "2xl": '18px' }} px="6" py="2" href="/firm" {...btnProps}>
+//             {children}
+//         </LandingBtn>
+//     </VStack>
+// }
 
 export const GeistText = ({ children, ...props }: { children: React.ReactNode, props?: any }) => {
     return <Text fontFamily="Geist" color={landingMainColor} {...props}>{children}</Text>

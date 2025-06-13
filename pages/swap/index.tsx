@@ -58,7 +58,7 @@ export const Swap = () => {
                 <Text>
                   Our swap / bridge component is powered by Socket.tech which works as an aggregator.
                 </Text>
-                <Link isExternal target="_blank" href="https://docs.socket.tech/socket-liquidity-layer/socketll-overview/chains-dexs-bridges" textDecoration="underline">
+                <Link isExternal target="_blank" href="https://www.socket.tech/" textDecoration="underline">
                   More infos on Socket.tech <ExternalLinkIcon />
                 </Link>
                 <Link isExternal target="_blank" href="https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola" textDecoration="underline">

@@ -1,24 +1,22 @@
 import { HStack, Image, Stack, SimpleGrid, StackProps, VStack, useMediaQuery, InputGroup, InputRightElement, CheckboxGroup, Checkbox } from '@chakra-ui/react'
 import Layout from '@app/components/common/Layout'
 import Head from 'next/head'
-import { shortenNumber } from '@app/util/markets'
-import { getLandingProps } from '@app/blog/lib/utils'
-import { ArrowForwardIcon, CheckCircleIcon, ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon, SearchIcon, SmallCloseIcon } from '@chakra-ui/icons'
-import { LandingAnimation } from '@app/components/common/Animation/LandingAnimation'
+import { ArrowForwardIcon, ChevronDownIcon, ChevronRightIcon, SearchIcon } from '@chakra-ui/icons'
+import { LandingAnimation, LandingMobileAnimation } from '@app/components/common/Animation/LandingAnimation'
 import FloatingNav from '@app/components/common/Navbar/FloatingNav'
-import { EcosystemBanner, ecosystemData, EcosystemGrid } from '@app/components/Landing/EcosystemBanner'
+import { ecosystemData } from '@app/components/Landing/EcosystemBanner'
 import Link from '@app/components/common/Link'
 import { useEffect, useMemo, useState } from 'react'
-import FirmLogo from '@app/components/common/Logo/FirmLogo'
-import { GeistText, LandingBtn, LandingCard, landingDarkNavy2, landingGreenColor, LandingHeading, landingLightBorderColor, LandingLink, landingMainColor, landingMutedColor, LandingNoisedBtn, landingPurple, landingPurpleBg, landingPurpleText, LandingStat, LandingStatBasic, LandingStatBasicBig, landingYellowColor } from '@app/components/common/Landing/LandingComponents'
+import { GeistText, LandingHeading, landingLightBorderColor, landingMutedColor, LandingNoisedBtn, landingPurpleText } from '@app/components/common/Landing/LandingComponents'
 import { SimpleCard } from '@app/components/common/Cards/Simple'
 import { Input } from '@app/components/common/Input'
+import { useRouter } from 'next/router'
 
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
 
-const firmLogo = <FirmLogo transform="translateY(12px)" position="absolute" top="0" w="65px" h="30px" theme="light" />;
-
 const animWidthToHeightRatio = 1.78;
+const mobileAnimWidthToHeightRatio = 0.5925925925925926;
+const mobileAnimWidth = 640;
 
 const bluePastel = "#ebecf7";
 
@@ -28,43 +26,65 @@ const MiniCard = ({ children, ...props }: { children: React.ReactNode, props: an
   </SimpleCard>
 }
 
-const uniqueCategories = ecosystemData.reduce((acc, item) => {
-  if (!acc.includes(item.category)) {
-    acc.push(item.category);
-  }
-  return acc;
-}, []);
+const uniqueCategories = [
+  "LIQUIDITY",
+  "LENDING",
+  "YIELD",
+  "CHAINS",
+  "SECURITY",
+  "INFRA",
+  "CEX",
+]
 
 export const EcosystemPage = ({
 }: {
   }) => {
-  const isSmallerThan = useMediaQuery('(max-width: 768px)');
-  const [windowSize, setWindowSize] = useState(0);
+  const router = useRouter();
+  const { category: categoryQueryParam } = router.query;
+  const [isSmallerThan] = useMediaQuery('(max-width: 768px)');
+  const [refSize, setRefSize] = useState(0);
+  const [windowWidth, setWindowWidth] = useState(0);
+
   const [isAnimNeedStretch, setIsAnimNeedStretch] = useState(true);
   const [animStrechFactor, setAnimStrechFactor] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [categories, setCategories] = useState<string[]>([]);
+  const [inited, setInited] = useState(false);
+
+  useEffect(() => {
+    if (categoryQueryParam && !inited) {
+      setCategories([categoryQueryParam as string]);
+      setInited(true);
+    }
+  }, [categoryQueryParam, inited]);
   // for mobile only
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
-      setWindowSize(Math.max(window.innerWidth, window.innerHeight) / 2);
+      if (windowWidth === window.innerWidth) return;
+      setWindowWidth(window.innerWidth);
+      setRefSize(Math.max(window.innerWidth, window.innerHeight) / 2);
       const ratio = window.innerWidth / window.innerHeight;
+
+      const refRatio = isSmallerThan ? mobileAnimWidthToHeightRatio : animWidthToHeightRatio;
       setIsAnimNeedStretch(true);
-      setAnimStrechFactor((animWidthToHeightRatio - ratio) + 1);
+      setAnimStrechFactor((refRatio - ratio) + 1);
+
     };
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [isSmallerThan, windowWidth]);
 
   const filteredEcosystemData = useMemo(() => {
     return ecosystemData
-      .filter((item) => (!categories.length || categories.includes(item.category)))
+      .filter((item) => (!categories.length || categories.includes(item.category) || item.categories?.some(category => categories.includes(category))))
       .filter((item) => (!searchTerm || item.label.toLowerCase().includes(searchTerm.toLowerCase())))
       .map(item => {
         return { ...item, categories: item.categories || [item.category] }
+      }).sort((a, b) => {
+        return a.label.localeCompare(b.label)
       })
   }, [categories, searchTerm]);
 
@@ -76,16 +96,18 @@ export const EcosystemPage = ({
         <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&display=swap" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&family=Geist:wght@100..900&display=swap" rel="stylesheet"></link>
         <title>Inverse Finance - Fixed-Rate DeFi borrowing</title>
-        <meta name="og:image" content="https://inverse.finance/assets/social-previews/landing.png" />
+        <meta name="og:image" content="https://inverse.finance/assets/social-previews/ecosystem.png" />
+        <meta name="og:title" content="Inverse Finance - Ecosystem" />
+        <meta name="og:description" content="Explore our growing partner ecosystem" />
         <link rel="canonical" href="https://inverse.finance" />
         <link rel="stylesheet" href="/landing.css" />
       </Head>
       <VStack spacing="0" className="landing-v3" w='full' alignItems="center">
-        <VStack bgColor={bluePastel} h='calc(100vh - 130px)' w='full' alignItems="flex-start" justifyContent={{ base: 'flex-start', md: 'center' }}>
+        <VStack bgColor={bluePastel} h={{ base: '50vh', md: 'calc(100vh - 50px)', "2xl": 'calc(100vh - 130px)' }} w='full' alignItems="flex-start" justifyContent={{ base: 'flex-start', md: 'center' }}>
           <VStack position="fixed" zIndex="99999" top="0" maxW="2000px" w='full' px={{ base: 0, md: '4%' }} py={{ base: 0, md: '5' }} alignItems="center">
             <FloatingNav />
           </VStack>
-          <ResponsiveStack spacing={{ base: '10', md: '0' }} pt={{ base: '100px', md: '0' }} w='full' px="4%" alignItems={{ base: 'flex-start', md: 'center' }}>
+          <ResponsiveStack overflow="hidden" spacing={'10'} pt={{ base: '100px', md: '0' }} w='full' px="4%" alignItems={{ base: 'flex-start', md: 'center' }}>
             <VStack w={{ base: 'full', md: '50%' }} alignItems={'flex-start'}>
               <LandingHeading as="h1" fontSize={{ base: '30px', 'md': '64px' }} fontWeight="bold">
                 Explore Our Growing Partner Ecosystem
@@ -99,11 +121,13 @@ export const EcosystemPage = ({
                 </LandingNoisedBtn>
               </Link>
             </VStack>
-            <VStack maxH={{ base: '200px', md: 'unset' }} borderRadius="6px" overflow="hidden" w={{ base: 'full', md: '50%' }}>
-              <VStack bgImage="/assets/landing/anim_bg.png" bgSize="cover" bgRepeat="no-repeat" bgPosition="center" height="80vh" width="100%">
-                <LandingAnimation boxProps={{ transform: isAnimNeedStretch ? `translateY(${(animStrechFactor) / 2 * 100}%) scale3d(1, ${1 + animStrechFactor}, 1)` : 'none' }} loop={true} height={windowSize} width={windowSize} />
+            {
+              !isSmallerThan && <VStack maxH={{ base: '200px', md: 'unset' }} borderRadius="6px" overflow="hidden" w={{ base: 'full', md: '50%' }}>
+                <VStack bgImage="/assets/landing/anim_bg.png" bgSize="cover" bgRepeat="no-repeat" bgPosition="center" height="80vh" width="100%">
+                  <LandingAnimation boxProps={{ transform: isAnimNeedStretch ? `translateY(${(animStrechFactor) / 2 * 100}%) scale3d(1, ${1 + animStrechFactor}, 1)` : 'none' }} loop={true} height={refSize} width={refSize} />
+                </VStack>
               </VStack>
-            </VStack>
+            }
           </ResponsiveStack>
         </VStack>
         <ResponsiveStack bgColor="white" spacing="1px" w='full' alignItems="flex-start">
@@ -140,7 +164,7 @@ export const EcosystemPage = ({
                   </HStack> : <VStack w="50%" h="1px" bgColor={landingLightBorderColor} ></VStack>
                 }
               </HStack>
-              <VStack alignItems="flex-start" w='full' display={isFiltersOpen ? 'flex' : 'none'}>
+              <VStack alignItems="flex-start" w='full' display={isFiltersOpen || !isSmallerThan ? 'flex' : 'none'}>
                 <CheckboxGroup colorScheme='blue' defaultValue={[]} value={categories} onChange={setCategories}>
                   <VStack alignItems="flex-start" w='full' spacing="0" justifyContent="center">
                     {

@@ -369,7 +369,7 @@ export const MENUS = {
         },
         {
           label: 'DOLA',
-          href: 'https://docs.inverse.finance/inverse-finance/using-dola',
+          href: 'https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/dola',
         },
         // {
         //   label: 'sINV',
@@ -377,7 +377,7 @@ export const MENUS = {
         // },
         {
           label: 'INV',
-          href: 'https://docs.inverse.finance/inverse-finance/using-inv',
+          href: 'https://docs.inverse.finance/inverse-finance/inverse-finance/product-guide/tokens/inv',
         },
         {
           label: 'FiRM',
@@ -466,6 +466,10 @@ export const MENUS = {
         {
           label: 'Debank',
           href: 'https://debank.com/official/Inverse_Finance/follower',
+        },
+        {
+          label: 'Ecosystem',
+          href: '/ecosystem',
         },
         // {
         //   label: 'Telegram',

@@ -42,11 +42,39 @@ export const Animation = ({ animData, height = 30, width = 30, loop = false, aut
     )
 }
 
+export const SvgAnimation = ({ animData, height = 30, width = 30, loop = false, autoplay = true, isStopped }: AnimProps) => {
+    const [inited, setInited] = useState(false);
+    useEffect(() => {
+        setInited(true);
+    }, []);
+    return (
+        <Box height={`${height}px`} width={`${width}px`}>
+            {
+                inited && <Lottie
+                    renderer="svg"
+                    loop={loop}
+                    autoplay={autoplay}
+                    animationData={animData}
+                    rendererSettings={{
+                        preserveAspectRatio: 'xMidYMid slice'
+                    }}
+                />
+            }
+        </Box>
+    )
+}
+
 export type AnimIconProps = Partial<AnimProps> & { boxProps?: BoxProps, canClick?: boolean }
 
 export const AnimIcon = ({ animData = infoBubbleLottie, height = 20, width = 20, loop = false, autoplay = true, isStopped, boxProps, canClick = false }: AnimIconProps) => {
     return <Box className={!canClick ? 'app-anim-box-no-pointer' : undefined} display="inline-block" w={`${width}px`} h={`${height}px`} {...boxProps} alignItems="center" justifyContent="center">
         <Animation animData={animData} height={height} width={width} loop={loop} autoplay={autoplay} isStopped={isStopped} />
+    </Box>;
+}
+
+export const SvgAnimIcon = ({ animData = infoBubbleLottie, height = 20, width = 20, loop = false, autoplay = true, isStopped, boxProps, canClick = false }: AnimIconProps) => {
+    return <Box className={!canClick ? 'app-anim-box-no-pointer' : undefined} display="inline-block" w={`${width}px`} h={`${height}px`} {...boxProps} alignItems="center" justifyContent="center">
+        <SvgAnimation animData={animData} height={height} width={width} loop={loop} autoplay={autoplay} isStopped={isStopped} />
     </Box>;
 }
 

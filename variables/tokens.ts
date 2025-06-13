@@ -3342,9 +3342,9 @@ export const REPAY_ALL_CONTRACTS = {
 export const CHAIN_TOKEN_ADDRESSES = chainTokenAddresses;
 
 export const PROTOCOL_LINKS = {
-  "VELO": (lp: Token) => 'https://app.velodrome.finance/liquidity/manage?address='+lp?.address?.toLowerCase(),
+  "VELO": (lp: Token) => 'https://velodrome.finance/liquidity/manage?address='+lp?.address?.toLowerCase(),
   "AERO": (lp: Token) => `https://aerodrome.finance/deposit?token0=${lp.pairs[0].toLowerCase()}&token1=${lp.pairs[1].toLowerCase()}&stable=true`,
-  "VELOV2": (lp: Token) => `https://app.velodrome.finance/deposit?token0=${lp.pairs[0].toLowerCase()}&token1=${lp.pairs[1].toLowerCase()}&stable=true`,
+  "VELOV2": (lp: Token) => `https://velodrome.finance/deposit?token0=${lp.pairs[0].toLowerCase()}&token1=${lp.pairs[1].toLowerCase()}&stable=true`,
   "THENA": (lp: Token) => 'https://thena.fi/liquidity',
   "AURA": (lp: Token) => 'https://app.aura.finance',
   "CRV": (lp: Token) => lp?.link || 'https://curve.finance/#/ethereum/pools',    
