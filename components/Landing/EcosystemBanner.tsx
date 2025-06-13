@@ -27,15 +27,6 @@ const EcoElement = ({
 
 export const ecosystemData = [
     {
-        image: 'https://assets.coingecko.com/coins/images/12124/large/Curve.png',
-        label: 'Curve',
-        category: 'DEX',
-        categories: ['DEX', 'LENDING', 'LIQUIDITY', 'YIELD'],
-        href: "https://curve.finance",
-        description: "Curve Finance is a decentralized exchange (DEX) that focuses on stablecoin trading.",
-        inBanner: true,
-    },
-    {
         image: 'https://assets.coingecko.com/coins/images/11683/large/Balancer.png?1592792958',
         label: 'Balancer',
         category: 'DEX',
@@ -116,6 +107,15 @@ export const ecosystemData = [
         categories: ['DEX', 'YIELD'],
         href: "https://bunni.pro/",
         description: "Bunni transforms Uniswap v3 NFT liquidity positions into fungible ERC-20 tokens, enabling advanced liquidity management features.",
+        inBanner: true,
+    },
+    {
+        image: 'https://assets.coingecko.com/coins/images/12124/large/Curve.png',
+        label: 'Curve',
+        category: 'DEX',
+        categories: ['DEX', 'LENDING', 'LIQUIDITY', 'YIELD'],
+        href: "https://curve.finance",
+        description: "Curve Finance is a decentralized exchange (DEX) that focuses on stablecoin trading.",
         inBanner: true,
     },
     // CEX Partners
