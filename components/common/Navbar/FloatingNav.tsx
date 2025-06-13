@@ -164,7 +164,7 @@ export const FloatingNav = ({
   isBottom?: boolean
 }) => {
   const [isLargerThan] = useMediaQuery('(min-width: 1330px)');
-  const [isSmallerThan] = useMediaQuery('(max-width: 728px)');
+  const [isSmallerThan] = useMediaQuery('(max-width: 1024px)');
   return (
     <>
       <SimpleGrid
@@ -174,13 +174,13 @@ export const FloatingNav = ({
         borderRadius={{ base: 0, md: '4px' }}
         boxShadow="unset"
         w="full"
-        columns={{ base: 2, md: 3 }}
+        columns={{ base: 2, lg: 3 }}
         width="full"
         bgColor="white"
         justifyContent="space-between"
         alignItems="center"
         py={2}
-        px={{ base: 4, md: '1%' }}
+        px={{ base: 4, lg: '1%' }}
         zIndex="docked"
       >
         <Stack alignItems="center" spacing={{ base: '2', '2xl': '1vw' }} direction="row" align="center">

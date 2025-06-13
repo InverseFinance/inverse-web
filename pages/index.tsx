@@ -354,13 +354,14 @@ export const Landing = ({
         <VStack bgColor={landingPurple} w='full' py={{ base: 8, md: 20 }} px="5%">
           <ResponsiveStack direction={{ base: 'column', lg: 'row' }} maxW="1300px" position="relative" borderRadius="8px" bgColor={landingDarkNavy2} p="2" w='full' alignItems="flex-start">
             <VStack id="section-safety-1" w={{ base: 'full', lg: '50%' }}>
-              <VStack px="6" py="4">
+              <VStack px="6" py="4" alignItems="flex-start">
                 <LandingHeading color="white" fontSize={{ base: '32px', 'md': '5xl' }}>
                   Our Obsession Is Safety
                 </LandingHeading>
                 <GeistText color="white">
                   Our obsession with safety includes security innovations like Personal Collateral Escrow accounts, ensuring your collateral is staked and isolated, never loaned out. We designed oracle safety measures to make price manipulation, flash loan, and similar attacks not just difficult, but financially unfeasible.
                 </GeistText>
+                <Link _hover={{ color: 'white' }} color={landingPurple} textDecoration="underline" href="/audits" target="_blank" isExternal>See our audits</Link>
               </VStack>
               <ResponsiveStack spacing="2">
                 <VStack alignItems="flex-start" borderRadius="2px" py={{ base: '16px', md: '48px' }} px={{ base: '12px', md: '32px' }} bgColor={"#FFFFFF1F"}>
@@ -373,6 +374,9 @@ export const Landing = ({
                   <GeistText color="white">
                     Inverse Finance maintains an elite DeFi Safety Score of 87, built on years of protocol risk and safety experience.
                   </GeistText>
+                  <Link _hover={{ color: 'white' }} color={landingPurple} textDecoration="underline" href="https://defisafety.com/app/pqrs/567" target="_blank" isExternal>
+                    Read DeFi Safety's report
+                  </Link>
                 </VStack>
                 <VStack alignItems="flex-start" borderRadius="2px" py={{ base: '16px', md: '48px' }} px={{ base: '12px', md: '32px' }} bgColor={"#FFFFFF1F"}>
                   <LandingHeading color="white" fontSize={{ base: '32px', 'md': '5xl' }}>

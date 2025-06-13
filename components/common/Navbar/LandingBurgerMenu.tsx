@@ -55,7 +55,7 @@ export const LandingBurgerMenu = ({
     return <>
         {burger}
         {showMobileNav && (
-            <Flex px="4" spacing="0" direction="column" margin="0 !important" w="full" position={'fixed'} top="70px" left="0" zIndex="9999999" transitionDuration="0.1s" transitionTimingFunction="ease">
+            <Flex px="4" spacing="0" direction="column" margin="0 !important" w="full" position={'fixed'} top={{ base: '70px', sm: '85px' }} left="0" zIndex="9999999" transitionDuration="0.1s" transitionTimingFunction="ease">
                 <Stack
                     borderRadius="6px"
                     w="full"
@@ -95,7 +95,7 @@ export const LandingBurgerMenu = ({
                                     }
                                 </LinkComp>
                                 {
-                                    hasSubmenus && openedMenu === label && <Stack maxH="300px" overflowY="auto" w='full' bgColor={"#f0f0f0"} direction={type !== 'medium' ? 'column' : 'row'} px="2" py="4" alignItems="flex-start">
+                                    hasSubmenus && openedMenu === label && <Stack maxH="300px" overflowY="auto" w='full' bgColor={"#f0f0f0"} direction={{ base: type !== 'medium' ? 'column' : 'row', sm: type === 'small' ? 'column' : 'row', xl: type !== 'medium' ? 'column' : 'row' }} px="2" py="4" alignItems="flex-start">
                                         {submenus
                                             .filter(s => !s.href.includes('$account') || (s.href.includes('$account') && !!userAddress))
                                             .map((sub, j) => {
