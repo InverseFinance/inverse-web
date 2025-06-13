@@ -181,7 +181,7 @@ export const FloatingNav = ({
         alignItems="center"
         py={2}
         px={{ base: 4, lg: '1%' }}
-        zIndex="docked"
+        zIndex="2"
       >
         <Stack alignItems="center" spacing={{ base: '2', '2xl': '1vw' }} direction="row" align="center">
           <Link href="/" _hover={{}}>

@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react'
 import FirmLogo from '@app/components/common/Logo/FirmLogo'
 import { GeistText, LandingBtn, LandingCard, landingDarkNavy2, landingGreenColor, LandingHeading, landingLightBorderColor, LandingLink, landingMainColor, landingMutedColor, LandingNoisedBtn, landingPurple, landingPurpleBg, landingPurpleText, LandingStat, LandingStatBasic, LandingStatBasicBig, landingYellowColor } from '@app/components/common/Landing/LandingComponents'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
+import FooterV2 from '@app/components/common/Footer/FooterV2'
 
 const ResponsiveStack = (props: StackProps) => <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" {...props} />
 
@@ -446,6 +447,7 @@ export const Landing = ({
             </ResponsiveStack>
           </VStack>
         </VStack>
+        <FooterV2 isLanding={true} />
       </VStack>
     </Layout>
   )
