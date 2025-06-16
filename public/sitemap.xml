@@ -6,382 +6,1319 @@
             http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 <url>
   <loc>https://www.inverse.finance/</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>1.00</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/frontier</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/firm</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.90</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/analytics</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/sDOLA</loc>
+  <lastmod>2025-06-16T05:17:50+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/en-US</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.80</priority>
+  <loc>https://www.inverse.finance/audits</loc>
+  <lastmod>2025-06-16T05:17:50+00:00</lastmod>
+  <priority>0.65</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/swap</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://www.inverse.finance/bonds</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.70</priority>
+  <loc>https://www.inverse.finance/ecosystem</loc>
+  <lastmod>2025-06-16T05:17:50+00:00</lastmod>
+  <priority>0.65</priority>
 </url>
 <url>
   <loc>https://www.inverse.finance/governance</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.8</priority>
+  <lastmod>2025-06-16T05:17:58+00:00</lastmod>
+  <priority>0.70</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/inv</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.7</priority>
+  <loc>https://www.inverse.finance/transparency/keymetrics</loc>
+  <lastmod>2025-06-16T05:17:59+00:00</lastmod>
+  <priority>0.75</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/transparency/overview</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.8</priority>
+  <loc>https://www.inverse.finance/research</loc>
+  <lastmod>2025-06-16T05:17:59+00:00</lastmod>
+  <priority>0.50</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/governance/proposals</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.7</priority>
+  <loc>https://www.inverse.finance/about-firm</loc>
+  <lastmod>2025-06-15T22:20:19+00:00</lastmod>
+  <priority>0.50</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/governance/delegates</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.6</priority>
+  <loc>https://www.inverse.finance/brand-assets-2025-v1.0.2.pdf</loc>
+  <lastmod>2025-06-16T05:17:59+00:00</lastmod>
+  <priority>0.40</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/transparency/inv</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/blog/en-US</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.65</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/newsletter</loc>
+  <lastmod>2025-06-15T21:56:59+00:00</lastmod>
+  <priority>0.60</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/audits/sDOLA-yAudit.pdf</loc>
+  <lastmod>2025-06-14T15:10:03+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/transparency/treasury</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/audits/firm-nomoi.pdf</loc>
+  <lastmod>2025-06-16T05:18:00+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/swap</loc>
+  <lastmod>2025-06-13T20:52:43+00:00</lastmod>
+  <priority>0.60</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/an-in-depth-analysis-of-the-security-design-of-firm</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/transparency/dbr</loc>
+  <lastmod>2025-06-14T02:01:12+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
   <loc>https://www.inverse.finance/transparency/dola</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <lastmod>2025-06-16T05:18:01+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/transparency/feds/policy</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/transparency/bad-debts</loc>
+  <lastmod>2025-06-16T05:18:01+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/transparency/feds/income</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/dbr/auction</loc>
+  <lastmod>2025-06-16T05:18:01+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/transparency/stabilizer</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.64</priority>
+  <loc>https://www.inverse.finance/firm/INV</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.75</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/transparency/interest-model</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.64</priority>
-</url>
-<url>
-  <loc>https://www.inverse.finance/transparency/multisigs</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/blog/en-US/firm</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
   <loc>https://www.inverse.finance/blog/en-US/home</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/en-US/guides</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/blog/en-US/collateral</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/newsletter</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
   <loc>https://www.inverse.finance/blog/en-US/news</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/community</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/growth</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/airdrop</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/product</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
   <loc>https://www.inverse.finance/blog/en-US/partnerships</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/merch/en-US</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/technology</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
   <loc>https://www.inverse.finance/blog/authors/en-US</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/posts/en-US/News-for-users-affected-by-april-2-2022-incident</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/blog/posts/en-US/pendle-pt-usde-on-firm</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/en-US/tag/inverse</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/blog/en-US/tag/firm</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/en-US/tag/new</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/blog/en-US/tag/susde</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/en-US/tag/anchor</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/blog/en-US/tag/pendle</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
   <loc>https://www.inverse.finance/blog/en-US/author/Patb</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/posts/en-US/re-opening-borrowing-for-inv-stakers</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/blog/posts/en-US/inverse-finance-expands-max-bounty-and-adopts-safe-harbor</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/posts/en-US/dola-optimism-velodrome</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/blog/en-US/tag/risk</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/transparency</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
   <loc>https://www.inverse.finance/blog/en-US/tag/dao</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.64</priority>
-</url>
-<url>
-  <loc>https://www.inverse.finance/blog/en-US/tag/dola</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.64</priority>
-</url>
-<url>
-  <loc>https://www.inverse.finance/blog/en-US/author/Inverse%20Finance%20DAO</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.64</priority>
-</url>
-<url>
-  <loc>https://www.inverse.finance/blog/posts/en-US/expanding-the-frontier</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.64</priority>
-</url>
-<url>
-  <loc>https://www.inverse.finance/blog/posts/en-US/frontier-anchor-money-market</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.64</priority>
-</url>
-<url>
-  <loc>https://www.inverse.finance/blog/posts/en-US/the-inverse-starship-inverse-dao-newsletter-monday-18-may-2022</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.64</priority>
-</url>
-<url>
-  <loc>https://www.inverse.finance/blog/en-US/tag/newsletter</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.64</priority>
-</url>
-<url>
-  <loc>https://www.inverse.finance/blog/en-US/author/Akarin</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.64</priority>
-</url>
-<url>
-  <loc>https://www.inverse.finance/blog/posts/en-US/our-plan-making-good</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
   <loc>https://www.inverse.finance/blog/en-US/tag/security</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/posts/en-US/inverse-finance-dao-curve-wars-nft</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/blog/en-US/author/Edo</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/en-US/tag/rewards</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/blog/posts/en-US/announcing-susde-from-ethena-labs-on-firm</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/posts/en-US/new-salvo-curve-wars</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/blog/posts/en-US/announcing-frax-pyusd-dola-lp-tokens-on-firm</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/en-US/tag/fed</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/blog/en-US/tag/convex</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/posts/en-US/farm-dola-incentives-today-using-curve-and-yearn</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/blog/en-US/tag/curve</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/swap</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/blog/en-US/tag/yearn</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/posts/en-US/dola-borrowing-harvest-finance-available</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.51</priority>
+  <loc>https://www.inverse.finance/blog/en-US/tag/frax</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/posts/en-US/why-play-positive-sum-defi-games</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.51</priority>
+  <loc>https://www.inverse.finance/blog/en-US/tag/paypal</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/en-US/tag/defi</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.51</priority>
+  <loc>https://www.inverse.finance/blog/posts/en-US/introducing-cbbtc-on-firm</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/btc</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/cbbtc</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/announcing-crvusd-dola-on-firm</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/partners</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/announcing-sinv</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.64</priority>
 </url>
 <url>
   <loc>https://www.inverse.finance/blog/en-US/tag/inv</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/sinv</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/product</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/growth</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/announcing-the-firm-affiliate-program</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/announcing-comp-on-firm</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/author/0xMT</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.51</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/en-US/tag/positive-sum-defi</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/governance/proposals/mills/75</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.51</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/posts/en-US/how-to-buy-inv-and-use-inverse-plus</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/governance/proposals/mills/109</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/164</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/167</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/156</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/dbr/auction/stats</loc>
+  <lastmod>2025-06-16T05:19:13+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/dbr/auction/virtual-stats</loc>
+  <lastmod>2025-06-16T05:19:13+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/dbr/auction/sdola-stats</loc>
+  <lastmod>2025-06-16T05:19:13+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/dbr/auction/sinv-stats</loc>
+  <lastmod>2025-06-16T05:19:14+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/introducing-sfrax-on-firm</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/announcing-wbtc-on-firm</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/inv-market-grand-re-opening-on-firm</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/oracles</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/author/Nakamomo</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/deeper-roots-in-the-curve-ecosystem</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/quantifying-token-risk-on-firm</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/analytics</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/author/Naoufel</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/hey-ohmies-borrow-on-firm-with-gohm-without-giving-up-your-voting-rights</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/community</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/inverse-finance-june-newsletter</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/newsletter</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/inverse-finance-newsletter</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/inverse-finance-dao-newsletter</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/dbr</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/pce</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/inverse-finance-october-newsletter</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/debt-repayment</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/dai-dsr-fixed-rate-stablecoin-market-on-firm</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/a-journey-towards-recovery</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/fed</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/inverse-finance-gets-high-marks-from-defi-safety-for-security</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/funds-recovered-from-hacked-rari-fuse-pools</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/dola</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/super-sized-dola-returns-now-on-tarot-finance</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/improving-community-and-governance-functions-at-inverse</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/governance</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/all-about-transparency-at-inverse-finance</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/author/theAlienTourist</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/Introducing%20the%20Inverse%20Finance%20Risk%20Working%20Group</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/inverse-finance-newsletter-may2023</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/how-to-farm-dola-on-solidly-forks</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/we-are-building-on-base</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/base</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/how-to-boost-your-dola-returns-on-optimism-overnight</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.51</priority>
 </url>
 <url>
   <loc>https://www.inverse.finance/blog/en-US/tag/apy</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.51</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/posts/en-US/borrow-dola-0xb1s-fuse-pool-127</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/blog/en-US/tag/treasury</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.51</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/posts/en-US/dola-borrowing-badgerdao-fuse-pool-22</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/blog/posts/en-US/for-2023-smarter-liquidity-operations-at-inverse-finance</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.51</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/posts/en-US/fresh-inv-and-dola-bonds-now-available</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/blog/posts/en-US/inverse-launches-on-bnb-chain-in-new-partnership-with-thena</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.51</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/posts/en-US/inverse-integrates-chainlink-price-feeds-to-enhance-anchor-price-data</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/blog/en-US/tag/airdrop</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.51</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/posts/en-US/inverse-finance-dao-joins-forces-floki-community</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/blog/en-US/tag/bnbchain</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.51</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/posts/en-US/inverse-finance-joins-olympus-pro-cohort-2</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/blog/posts/en-US/liquidity-provider-earn-30-on-your-stablecoins</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.51</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/en-US/tag/product</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/blog/en-US/tag/inverse</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/rewards</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/dola-borrowing-rights-dbr-airdrop</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/inverse-2025-roadmap</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/sdola</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/announcing-sdola-the-organic-yield-bearing-stablecoin</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/dola-savings-account</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/yaudit-joins-inverse-for-sdola-security-audit</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/engineering</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/new-whitepaper-sdola-the-organic-yield-bearing-stablecoin</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/introducing-the-xy-k-dbr-auction-a-game-changer-for-defi</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/xy-k-auction</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/author/Cryptoharry</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/balancing-act-an-insight-into-firm-market-parameter-setting</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/introducing-the-accelerated-leverage-engine</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/firms-new-guard-minimum-debt-amounts</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/announcing-nexus-mutual-cover-for-firm-and-sdola-users</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/inverse-launches-on-mode</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/inverse-launches-on-blast</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/inverse-finance-teams-up-with-immunefi</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/nomoi-a-milestone-in-firms-security-journey</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/polygon-welcomes-dola-as-inverse-and-satin-exchange-team-up</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/polygon</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/announcing-inverses-comprehensive-liquidity-partnership-with-dwf-labs</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/inverse-commits-20-000-dola-to-hats-finance-bug-bounty-program</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/a-new-dola-path-is-open-for-freelancers</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/Why-We-Are-Using-Pessimistic-Price-Oracles</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/lets-rethink-cross-collateral-lending</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/re-thinking-variable-lending-rates-in-defi</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/author/Akarin</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/author/Inverse%20Finance%20DAO</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.51</priority>
 </url>
 <url>
   <loc>https://www.inverse.finance/blog/en-US/author/Karm</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.51</priority>
 </url>
 <url>
   <loc>https://www.inverse.finance/blog/en-US/author/Nour</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.51</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/posts/en-US/dola-trustworthy-capital-efficient-stablecoin</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/firm/PT-sUSDe-27MAR25</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.51</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/posts/en-US/shots-officially-fired-in-the-curve-wars</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/blog/posts/en-US/how-to-borrow-smarter-a-step-by-step-explainer</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.51</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/en-US/tag/ethereum</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/blog/posts/en-US/september-newsletter</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.51</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/en-US/tag/growth</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.51</priority>
-</url>
-<url>
-  <loc>https://www.inverse.finance/blog/posts/en-US/making-good-on-our-commitments</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.51</priority>
-</url>
-<url>
-  <loc>https://www.inverse.finance/blog/en-US/tag/report</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.51</priority>
-</url>
-<url>
-  <loc>https://www.inverse.finance/blog/en-US/tag/smart-contract</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.51</priority>
-</url>
-<url>
-  <loc>https://www.inverse.finance/blog/posts/en-US/inv-price-manipulation-incident</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.51</priority>
-</url>
-<url>
-  <loc>https://www.inverse.finance/blog/posts/en-US/meet-inverse-finance-dao-contributor-massis-orer</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.51</priority>
-</url>
-<url>
-  <loc>https://www.inverse.finance/blog/en-US/tag/hiring</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/blog/posts/en-US/all-about-governance-at-inverse-finance</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.51</priority>
 </url>
 <url>
   <loc>https://www.inverse.finance/blog/en-US/tag/team</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.51</priority>
 </url>
 <url>
-  <loc>https://www.inverse.finance/blog/posts/en-US/new-user-experience</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
+  <loc>https://www.inverse.finance/blog/posts/en-US/dola-optimism-velodrome</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
   <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/new</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/our-plan-making-good</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/inverse-finance-dao-curve-wars-nft</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/inverse-finance-dao-joins-forces-floki-community</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/securing-the-frontier</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/smart-contract</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/announcing-st-yeth-on-firm</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/ethereum</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/staked-cvx-now-on-firm</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/firm/cbBTC</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.70</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/firm/crvUSD-DOLA</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.65</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/firm/sUSDe</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.65</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/firm/sUSDe-DOLA</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.65</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/firm/yv-sUSDe-DOLA</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.65</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/firm/sUSDS-DOLA</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.65</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/firm/yv-sUSDS-DOLA</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.65</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/firm/scrvUSD-DOLA</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.65</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/firm/yv-scrvUSD-DOLA</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.65</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/firm/scrvUSD-sDOLA</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.65</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/firm/yv-scrvUSD-sDOLA</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.65</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/firm/USR-DOLA</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.65</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/firm/cvxCRV</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.65</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/firm/CVX</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.65</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/firm/wstETH</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.65</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/real-yield-added-to-inv</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/feature</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/announcing-dbr-streaming</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/shots-officially-fired-in-the-curve-wars</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/defi</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/making-good-on-our-commitments</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/anchor</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/report</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/How%20Inverse%20Is%20Thinking%20Outside%20The%20Box%20on%20Frontier%20Debt%20Repayments</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals</loc>
+  <lastmod>2025-06-16T05:19:47+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/74</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/31</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/frontier/debt-repayer</loc>
+  <lastmod>2025-06-16T05:19:48+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/108</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/how-dola-works</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/transparency/treasury</loc>
+  <lastmod>2025-06-16T05:19:49+00:00</lastmod>
+  <priority>0.70</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/fresh-whitepaper-firm-a-new-way-to-do-fixed-rate-borrowing</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/a-recap-of-inverses-usd50-000-code4rena-contest</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/maximizing-safety-with-firm-introducing-our-latest-security-features</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/announcing-firm-the-smarter-way-to-do-fixed-rate-borrowing</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/69</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/70</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/60</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/68</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/drafts/mills/80</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/63</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/transparency/feds</loc>
+  <lastmod>2025-06-16T05:19:54+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/111</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/new-fed-for-velodrome-why-we-are-optimistic</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/new-salvo-curve-wars</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/come-up-with-a-way-better-dola-logo-they-demanded</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/%20Clean%20Bulking%20With%20More%20Security%20in%20Inverse%E2%80%99s%20Diet</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/transparency/interest-model</loc>
+  <lastmod>2025-06-16T05:19:57+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/transparency/dao</loc>
+  <lastmod>2025-06-16T05:19:57+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/22</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/drafts/mills/114</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/104</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/tokens/yield-opportunities</loc>
+  <lastmod>2025-06-16T05:19:58+00:00</lastmod>
+  <priority>0.70</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/aerodrome.finance</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/base</loc>
+  <lastmod>2025-06-16T05:19:59+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/21</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/62</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/71</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/june-16-incident-summary</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/News-for-users-affected-by-april-2-2022-incident</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/re-opening-borrowing-for-inv-stakers</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/frontier-anchor-money-market</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/expanding-the-frontier</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/sDOLA.pdf</loc>
+  <lastmod>2025-06-16T05:18:31+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/firm/positions</loc>
+  <lastmod>2025-06-16T05:20:02+00:00</lastmod>
+  <priority>0.70</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/firm/WBTC</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.70</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blast</loc>
+  <lastmod>2025-06-16T05:20:03+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/the-inverse-starship-inverse-dao-newsletter-monday-18-may-2022</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/how-to-buy-inv-and-use-inverse-plus</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/inverse-integrates-chainlink-price-feeds-to-enhance-anchor-price-data</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
 </url>
 <url>
   <loc>https://www.inverse.finance/blog/posts/en-US/happy-one-year-anniversary-inverse-finance-dao</loc>
-  <lastmod>2022-06-14T08:31:22+00:00</lastmod>
-  <priority>0.51</priority>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
 </url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/276</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/inv-price-manipulation-incident</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/28</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/FiRM%20Expands:%20Now%20Borrow%20Using%20stETH%20at%20the%20Lowest%20Rates%20in%20the%20Industry</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/en-US/tag/asset</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/20</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.41</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/firm.pdf</loc>
+  <lastmod>2025-06-16T05:18:02+00:00</lastmod>
+  <priority>0.33</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/new-security-layer-a-welcome-to-the-defi-moon-team</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.33</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/66</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.33</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/57</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.33</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/a-taste-of-analytics-at-inverse</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.33</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/58</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.33</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/blog/posts/en-US/%20Announcing%20the%20New%20DOLA-FRAXBP%20Pool%20on%20Curve</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.33</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/57xo35bpah4xoiwpkyxea3yi</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.33</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/drafts/mills/24</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.33</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/61</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.33</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/17</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.33</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/frontier</loc>
+  <lastmod>2025-06-16T05:20:12+00:00</lastmod>
+  <priority>0.33</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/drafts/mills/25</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.33</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/drafts/mills/26</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.33</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/227</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.33</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/55</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.26</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/frontier/debt-converter</loc>
+  <lastmod>2025-06-16T05:20:13+00:00</lastmod>
+  <priority>0.26</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/7</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.26</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/32</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.26</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/40</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.21</priority>
+</url>
+<url>
+  <loc>https://www.inverse.finance/governance/proposals/mills/10</loc>
+  <lastmod>2025-06-16T05:20:15+00:00</lastmod>
+  <priority>0.17</priority>
+</url>
+
+
 </urlset>
