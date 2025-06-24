@@ -185,6 +185,7 @@ export type SWR = {
 export enum NetworkIds {
   mainnet = '1',
   rinkeby = '4',
+  sepolia = '11155111',
   ftm = '250',
   optimism = '10',
   bsc = '56',
