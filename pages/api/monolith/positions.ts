@@ -13,6 +13,7 @@ const LENS_ABI = [{"type":"function","name":"getCollateralOf","inputs":[{"name":
 
 const LENSES = {
   1: "0x941A224090dC7890BCbC89aDfD045D45E95E7Fb7",
+  11155111: "0x542f65d73263F129D6313D7e6060885465b6e91b",
 }
 
 export default async function handler(req, res) {
