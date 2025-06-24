@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   if(!!lender && !isAddress(lender)) {
     return res.status(400).json({ success: false, error: 'Invalid account address' });
   }
-  const cacheKey = account ? `monolith-redemptions-${account}-${chainId}-v1.0.0` : `monolith-redemptions-${chainId}-v1.0.0`;  
+  const cacheKey = account ? `monolith-redemptions-${account}-${chainId}-v1.0.1` : `monolith-redemptions-${chainId}-v1.0.1`;  
   try {
     const cacheDuration = 60;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
@@ -29,7 +29,7 @@ export default async function handler(req, res) {
     const provider = getPaidProvider(Number(chainId || 1));
 
     const lenderContract = new Contract(lender, ["function collateral() view returns (address)",{"type":"event","name":"Redeemed","inputs":[{"name":"account","type":"address","indexed":true,"internalType":"address"},{"name":"amountIn","type":"uint256","indexed":false,"internalType":"uint256"},{"name":"amountOut","type":"uint256","indexed":false,"internalType":"uint256"}],"anonymous":false}], provider);
-    const lastBlock = cachedData?.events?.length ? cachedData?.events[cachedData.events.length-1].blockNumber : undefined;
+    const lastBlock = cachedData?.last100Events?.length ? cachedData?.last100Events[cachedData.last100Events.length-1].blockNumber : undefined;
     
     let events: any[] = [];
 
@@ -67,9 +67,7 @@ export default async function handler(req, res) {
       }
     }
 
-    events = events.slice(-100);
-
-    const cachedEvents = cachedData?.events || [];
+    const cachedEvents = cachedData?.last100Events || [];
 
     const newEvents = events.map(e => {
       const amountIn = getBnToNumber(e.args?.amountIn, 18);
@@ -91,7 +89,7 @@ export default async function handler(req, res) {
       timestamp: now,
       totalAmountIn: (cachedData?.totalAmountIn || 0) + newAmountIn,
       totalAmountOut: (cachedData?.totalAmountOut || 0) + newAmountOut,
-      events: cachedEvents.concat(newEvents).slice(-100),
+      last100Events: cachedEvents.concat(newEvents).slice(-100),
     }
 
     await redisSetWithTimestamp(cacheKey, resultData, false);

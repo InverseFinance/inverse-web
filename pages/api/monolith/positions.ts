@@ -21,7 +21,7 @@ export default async function handler(req, res) {
   if(!!lender && !isAddress(lender)) {
     return res.status(400).json({ success: false, error: 'Invalid account address' });
   }
-  const cacheKey = account ? `monolith-positions-${account}-${chainId}-v1.0.0` : `monolith-positions-${chainId}-v1.0.0`;  
+  const cacheKey = account ? `monolith-positions-${account}-${chainId}-v1.0.2` : `monolith-positions-${chainId}-v1.0.2`;  
   try {
     const cacheDuration = 60;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
     const lenderContract = new Contract(lender, LENDER_ABI, provider);
     const hasLens = !!LENSES[chainId];
     const lensContract = hasLens ? new Contract(LENSES[chainId], LENS_ABI, provider) : undefined;
-    const lastBlock = cachedData?.events?.length ? cachedData?.events[cachedData.events.length-1].blockNumber : undefined;
+    const lastBlock = cachedData?.last100Events?.length ? cachedData?.last100Events[cachedData.last100Events.length-1].blockNumber : undefined;
     
     let events: any[] = [];
 
@@ -68,7 +68,6 @@ export default async function handler(req, res) {
       );
     }
 
-    let isLimited = false;
     try {
       if(!account) {
         events = await getLargeLogsFunction();
@@ -78,15 +77,12 @@ export default async function handler(req, res) {
     } catch (e) {
       console.log('e', e);
       if(!!account){
-        isLimited = true;
         console.log('fetching with large log function');
         events = await getLargeLogsFunction();
       }
     }
 
-    events = events.slice(-100);
-
-    const cachedEvents = cachedData?.events || [];
+    const cachedEvents = cachedData?.last100Events || [];
 
     const newEvents = events.map(e => {
       return {
@@ -158,7 +154,7 @@ export default async function handler(req, res) {
       lenderTotalDebt: totalDebt,
       hasDirenpency: hasDirenpency,
       uniqueUsers: totalUniqueUsers,
-      events: cachedEvents.concat(newEvents).slice(-100),
+      last100Events: cachedEvents.concat(newEvents).slice(-100),
       positions: activePositions,
     }
 
