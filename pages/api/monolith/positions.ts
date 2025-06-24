@@ -16,6 +16,23 @@ const LENSES = {
   11155111: "0x542f65d73263F129D6313D7e6060885465b6e91b",
 }
 
+// function getLiquidatableDebt(uint collateralBalance, uint price, uint debt) internal view returns(uint liquidatableDebt){
+//   uint borrowingPower = price * collateralBalance * collateralFactor / 1e18 / 10000;
+//   if(borrowingPower > debt) return 0;
+//   // liquidate 25% of the total debt
+//   liquidatableDebt = debt / 4; // 25% of the debt
+//   // liquidate at least MIN_LIQUIDATION_DEBT (or the entire debt if it's less than MIN_LIQUIDATION_DEBT)
+//   if(liquidatableDebt < MIN_LIQUIDATION_DEBT) liquidatableDebt = debt < MIN_LIQUIDATION_DEBT ? debt : MIN_LIQUIDATION_DEBT;
+// }
+
+const getLiquidatableDebt = (collateralBalance: number, price: number, debt: number, collateralFactor: number) => {
+  const borrowingPower = price * collateralBalance * collateralFactor;
+  if(borrowingPower > debt) return 0;
+  let liquidatableDebt = debt / 4;
+  if(liquidatableDebt < 10_000) liquidatableDebt = (debt < 10_000 ? debt : 10_000);
+  return liquidatableDebt;
+}
+
 export default async function handler(req, res) {
   const { account, chainId, lender } = req.query;
   if(!!lender && !isAddress(lender)) {
@@ -44,16 +61,22 @@ export default async function handler(req, res) {
     
     let events: any[] = [];
 
-    const [currentBlock, collateralAddress, totalFreeDebtBn, totalPaidDebtBn] = await Promise.all([
+    const [currentBlock, collateralAddress, totalFreeDebtBn, totalPaidDebtBn, liquidationMetaData, collateralFactorBn] = await Promise.all([
       provider.getBlockNumber(),
       lenderContract.collateral(),
       lenderContract.totalFreeDebt(),
       lenderContract.totalPaidDebt(),
+      lenderContract.getCollateralPrice(),
+      lenderContract.collateralFactor(),
     ]);
 
     const now = Date.now();
     const collateralContract = new Contract(collateralAddress, ["function decimals() view returns (uint8)"], provider);
     const decimals = await collateralContract.decimals();
+    const [priceBn, isReduceOnly, isLiquidationAllowed] = liquidationMetaData;
+    // always use 18 decimals for price
+    const price = getBnToNumber(priceBn, 18);
+    const collateralFactor = getBnToNumber(collateralFactorBn, 4);
     const totalFreeDebt = getBnToNumber(totalFreeDebtBn, 18);
     const totalPaidDebt = getBnToNumber(totalPaidDebtBn, 18);
     const totalDebt = totalFreeDebt + totalPaidDebt;
@@ -120,11 +143,18 @@ export default async function handler(req, res) {
     const debts = debtsBn.map((bn, i) => getBnToNumber(bn, 18));
 
     const positions = totalUniqueUsers.map((u, i) => {
+      const liquidatableDebt = getLiquidatableDebt(deposits[i], price, debts[i], collateralFactor);
+      const borrowingPower = deposits[i] * collateralFactor * price;
       return {
         account: u,
         deposits: deposits[i],
         debt: debts[i],
         isRedeemable: isRedeemable[i],
+        depositsUsd: deposits[i] * price,
+        borrowingPower,
+        liquidatableDebt,
+        shortfall: borrowingPower > debts[i] ? 0 : debts[i] - borrowingPower,
+        hasShortfall: liquidatableDebt > 0,
       }
     });
 
@@ -136,10 +166,14 @@ export default async function handler(req, res) {
     const sumPaidDebt = nonRedeemablePositions.reduce((acc, curr) => acc + curr.debt, 0)
     const sumFreeDebt = redeemablePositions.reduce((acc, curr) => acc + curr.debt, 0)
     const sumDebts = debts.reduce((acc, curr) => acc + curr, 0)
-    const hasDirenpency = (sumFreeDebt + sumPaidDebt) !== sumDebts;
+    const hasDiscrepancy = ((sumFreeDebt + sumPaidDebt) !== sumDebts) || sumFreeDebt !== totalFreeDebt || sumPaidDebt !== totalPaidDebt || totalDebt !== sumDebts;
 
     const resultData = {
       timestamp: now,
+      collateralFactor,
+      price,
+      isReduceOnly,
+      isLiquidationAllowed,
       nbUniqueUsers: totalUniqueUsers.length,
       activeUsers: activeUsers,
       nbActiveUsers: activeUsers.length,
@@ -152,7 +186,7 @@ export default async function handler(req, res) {
       lenderTotalFreeDebt: totalFreeDebt,
       lenderTotalPaidDebt: totalPaidDebt,
       lenderTotalDebt: totalDebt,
-      hasDirenpency: hasDirenpency,
+      hasDiscrepancy: hasDiscrepancy,
       uniqueUsers: totalUniqueUsers,
       last100Events: cachedEvents.concat(newEvents).slice(-100),
       positions: activePositions,
