@@ -143,7 +143,6 @@ export default async function handler(req, res) {
 
     const resultData = {
       timestamp: now,
-      isLimited,
       nbUniqueUsers: totalUniqueUsers.length,
       activeUsers: activeUsers,
       nbActiveUsers: activeUsers.length,
