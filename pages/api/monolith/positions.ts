@@ -34,17 +34,18 @@ const getLiquidatableDebt = (collateralBalance: number, price: number, debt: num
 }
 
 export default async function handler(req, res) {
+  const cacheDuration = 60;
+  res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
+  res.setHeader('Access-Control-Allow-Headers', `Content-Type`);
+  res.setHeader('Access-Control-Allow-Origin', `*`);
+  res.setHeader('Access-Control-Allow-Methods', `OPTIONS,POST,GET`);
+  
   const { account, chainId, lender } = req.query;
   if(!!lender && !isAddress(lender)) {
     return res.status(400).json({ success: false, error: 'Invalid account address' });
   }
   const cacheKey = account ? `monolith-positions-${account}-${chainId}-v1.0.2` : `monolith-positions-${chainId}-v1.0.2`;  
   try {
-    const cacheDuration = 60;
-    res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-    res.setHeader('Access-Control-Allow-Headers', `Content-Type`);
-    res.setHeader('Access-Control-Allow-Origin', `*`);
-    res.setHeader('Access-Control-Allow-Methods', `OPTIONS,POST,GET`);
 
     const { isValid, data: cachedData } = await getCacheFromRedisAsObj(cacheKey, true, cacheDuration, false);
     if (isValid) {
