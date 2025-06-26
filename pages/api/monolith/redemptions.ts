@@ -6,6 +6,8 @@ import { getBnToNumber } from '@app/util/markets'
 import { isAddress } from 'ethers/lib/utils';
 import { estimateBlockTimestamp } from '@app/util/misc';
 import { getLargeLogs } from '@app/util/web3';
+import { monolithSupportedChainIds } from './positions';
+import { BURN_ADDRESS } from '@app/config/constants';
 
 export default async function handler(req, res) {
   const cacheDuration = 60;
@@ -14,7 +16,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', `*`);
   res.setHeader('Access-Control-Allow-Methods', `OPTIONS,POST,GET`);
   const { account, chainId, lender } = req.query;
-  if(!!lender && !isAddress(lender)) {
+  if(!monolithSupportedChainIds.includes(chainId) || !lender || lender === BURN_ADDRESS || (!!lender && !isAddress(lender)) || (!!account && !isAddress(account))) {
     return res.status(400).json({ success: false, error: 'Invalid account address' });
   }
   const cacheKey = account ? `monolith-redemptions-${account}-${chainId}-v1.0.1` : `monolith-redemptions-${chainId}-v1.0.1`;  
