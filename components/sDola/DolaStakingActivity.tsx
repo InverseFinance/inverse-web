@@ -3,7 +3,7 @@ import { shortenNumber } from "@app/util/markets";
 import Table from "@app/components/common/Table";
 import ScannerLink from "@app/components/common/ScannerLink";
 import { Timestamp } from "@app/components/common/BlockTimestamp/Timestamp";
- 
+
 import Container from "../common/Container";
 import { timeSince } from "@app/util/time";
 
@@ -67,7 +67,7 @@ const columns = [
         },
         showFilter: true,
         filterWidth: '90px',
-    },    
+    },
     {
         field: 'amount',
         label: 'Amount',
@@ -79,8 +79,24 @@ const columns = [
         },
     },
 ]
+const columnsWithInitiator = [
+    ...columns.slice(0, 2), // txHash and timestamp columns
+    {
+        field: 'txInitiator',
+        label: 'Initiator',
+        header: ({ ...props }) => <ColHeader justify="center" {...props} minWidth="130px" />,
+        value: ({ txInitiator }) => {
+            return <Cell w="130px" justify="center" position="relative" onClick={(e) => e.stopPropagation()}>
+                {txInitiator ? <ScannerLink value={txInitiator} /> : <CellText fontSize="10px">No data yet</CellText>}
+            </Cell>
+        },
+        showFilter: true,
+        filterWidth: '130px',
+    },
+    ...columns.slice(2) // remaining columns
+];
 
-export const DolaStakingActivity = ({ events, title, lastUpdate, ...containerProps }: { events: any[], title: string, lastUpdate: number, containerProps?: ContainerProps }) => {    
+export const DolaStakingActivity = ({ events, title, lastUpdate, showInitiator, ...containerProps }: { events: any[], title: string, lastUpdate: number, showInitiator?: boolean, containerProps?: ContainerProps }) => {
     return <Container
         label={title}
         description={lastUpdate > 0 ? `Last update: ${timeSince(lastUpdate)}` : undefined}
@@ -91,7 +107,7 @@ export const DolaStakingActivity = ({ events, title, lastUpdate, ...containerPro
     >
         <Table
             keyName="key"
-            columns={columns}
+            columns={showInitiator ? columnsWithInitiator : columns}
             items={events}
             noDataMessage="No staking activity yet"
             defaultSort="timestamp"

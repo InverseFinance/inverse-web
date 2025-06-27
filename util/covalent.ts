@@ -23,15 +23,15 @@ export const getTxsOf_deprecated = async (ad: string, pageSize = 1000, pageNumbe
 }
 
 // cannot get that directly, need to call the recent api+the page before :/
-export const getLast100TxsOf = async (ad: string, chainId = process.env.NEXT_PUBLIC_CHAIN_ID, alsoGetPreviousPage = false) => {
+export const getLast100TxsOf = async (ad: string, chainId = process.env.NEXT_PUBLIC_CHAIN_ID, alsoGetPreviousPage = false, omitLogs = false) => {
     const _chainId = chainId === '31337' ? '1' : chainId
-    const recentPath = `/${_chainId}/address/${ad}/transactions_v3/?quote-currency=USD&format=JSON&key=${process.env.COVALENT_API_KEY}`    
+    const recentPath = `/${_chainId}/address/${ad}/transactions_v3/?quote-currency=USD&format=JSON&no-logs=${omitLogs}&key=${process.env.COVALENT_API_KEY}`    
     const res = await fetch(`${baseUrl}${recentPath}`);
     const result = await res.json();
     if(result?.data?.items && alsoGetPreviousPage){
         const currentPage = result.data.current_page;
         if(currentPage > 0 && result?.data?.items?.length < 100){
-            const path = `/${_chainId}/address/${ad}/transactions_v3/page/${currentPage - 1}/?quote-currency=USD&format=JSON&key=${process.env.COVALENT_API_KEY}`
+            const path = `/${_chainId}/address/${ad}/transactions_v3/page/${currentPage - 1}/?quote-currency=USD&format=JSON&no-logs=${omitLogs}&key=${process.env.COVALENT_API_KEY}`
             const res = await fetch(`${baseUrl}${path}`);
             const previousPage = await res.json();
             if(previousPage?.data?.items){
