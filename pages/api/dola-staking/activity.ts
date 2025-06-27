@@ -16,17 +16,18 @@ export default async function handler(req, res) {
     try {
         const cacheDuration = 300;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-        const { data: cachedData, isValid } = await getCacheFromRedisAsObj(DOLA_STAKING_CACHE_KEY, cacheFirst !== 'true', cacheDuration, true);
-        // if (!!cachedData && isValid) {
-        //     res.status(200).send(cachedData);
-        //     return
-        // }
+        const { data: cachedData, isValid } = await getCacheFromRedisAsObj(DOLA_STAKING_CACHE_KEY, false, cacheDuration, true);
+        const { data: cachedDataNeo, isValid: isValidNeo } = await getCacheFromRedisAsObj(DOLA_STAKING_CACHE_KEY_NEO, cacheFirst !== 'true', cacheDuration, true);
+        if (!!cachedDataNeo && isValidNeo) {
+            res.status(200).send(cachedDataNeo);
+            return
+        }
 
         const paidProvider = getPaidProvider(1);
         const sdolaContract = getSdolaContract(paidProvider);
         const dsaContract = getDolaSavingsContract(paidProvider);
 
-        const archived = cachedData || { events: [] };
+        const archived = cachedDataNeo || cachedData || { events: [] };
         const pastTotalEvents = archived?.events || [];
 
         const lastKnownEvent = pastTotalEvents?.length > 0 ? (pastTotalEvents[pastTotalEvents.length - 1]) : { sDolaStaking: 0, totalDolaStaked: 0 };
@@ -60,7 +61,7 @@ export default async function handler(req, res) {
                 sdolaContract.filters.Withdraw(),
                 newStartingBlock,
             ),
-            getLast100TxsOf(sdolaContract.address, '1', true, true),
+            getLast100TxsOf(sdolaContract.address, '1', false, true),
         ]);
 
         const eventsData = stakeEventsData

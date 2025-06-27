@@ -33,6 +33,9 @@
       "pages/api/drafts/sim.ts": {
         "maxDuration": 60
       },
+      "pages/api/dola-staking/activity.ts": {
+        "maxDuration": 60
+      },
       "pages/api/f2/ale-proxy.ts": {
         "maxDuration": 60
       }
