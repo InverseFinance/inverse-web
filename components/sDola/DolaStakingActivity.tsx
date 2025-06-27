@@ -79,19 +79,22 @@ const columns = [
         },
     },
 ]
-
-const columnsWithInitiator = columns.splice(2, 0, {
-    field: 'txInitiator',
-    label: 'Initiator',
-    header: ({ ...props }) => <ColHeader justify="center" {...props} minWidth="130px" />,
-    value: ({ txInitiator }) => {
-        return <Cell w="130px" justify="center" position="relative" onClick={(e) => e.stopPropagation()}>
-            {txInitiator ? <ScannerLink value={txInitiator} /> : <CellText fontSize="10px">Data not fetched</CellText>}
-        </Cell>
+const columnsWithInitiator = [
+    ...columns.slice(0, 2), // txHash and timestamp columns
+    {
+        field: 'txInitiator',
+        label: 'Initiator',
+        header: ({ ...props }) => <ColHeader justify="center" {...props} minWidth="130px" />,
+        value: ({ txInitiator }) => {
+            return <Cell w="130px" justify="center" position="relative" onClick={(e) => e.stopPropagation()}>
+                {txInitiator ? <ScannerLink value={txInitiator} /> : <CellText fontSize="10px">No data fetched</CellText>}
+            </Cell>
+        },
+        showFilter: true,
+        filterWidth: '130px',
     },
-    showFilter: true,
-    filterWidth: '130px',
-})
+    ...columns.slice(2) // remaining columns
+];
 
 export const DolaStakingActivity = ({ events, title, lastUpdate, showInitiator, ...containerProps }: { events: any[], title: string, lastUpdate: number, showInitiator?: boolean, containerProps?: ContainerProps }) => {
     return <Container
