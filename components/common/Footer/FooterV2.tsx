@@ -56,7 +56,7 @@ export const FooterV2 = ({ isLanding = false }: { isLanding?: boolean }) => {
         <Stack borderRadius="4px" p="40px" bgColor={bgColor} width={{ base: 'full', lg: '450px' }} spacing={'30px'}>
           <Stack alignItems="center" spacing={{ base: '2', '2xl': '1vw' }} direction="row" align="center">
             <Logo minH="30px" minW="30px" boxSize={isBottom ? '1.8vmax' : '3.8vmax'} filter={isBottom ? "brightness(0) invert(1)" : 'unset'} />
-            <Text className="landing-v3-text" as={isBottom ? 'h3' : 'h1'} color={isBottom ? lightTheme.colors.contrastMainTextColor : lightTheme.colors.mainTextColor}
+            <Text className="landing-v3-text" color={isBottom ? lightTheme.colors.contrastMainTextColor : lightTheme.colors.mainTextColor}
               fontSize={isBottom ? normalSize : slightlyBiggerSize}
             >
               <b>Inverse</b> Finance

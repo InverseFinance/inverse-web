@@ -177,7 +177,7 @@ export const Landing = ({
             <VStack w='full' alignItems={{ base: 'flex-start', md: 'center' }} pt="2%" pb="5%">
               <Link href="/firm">
                 <LandingNoisedBtn>
-                  Launch App <Image ml="2" src="/assets/landing/rocket.svg" w="20px" h="20px" />
+                  Launch App <Image ml="2" alt="rocket" src="/assets/landing/rocket.svg" w="20px" h="20px" />
                 </LandingNoisedBtn>
               </Link>
               <LandingCard bg="linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(250, 250, 250, 0.8) 2%, rgba(255, 255, 255, 1) 98%, rgba(0, 0, 0, 0.05) 100%)" borderRadius='4px' boxShadow="unset" mt="12" w="full" maxW="800px">
@@ -195,7 +195,7 @@ export const Landing = ({
         {/* below fold */}
         {/* truested by the best banner section  */}
         <VStack w='full' bg="linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 80%);" pt="100px">
-          <LandingHeading textAlign="center" whiteSpace="pre-line" as="h1" fontSize="3xl" fontWeight="bold">
+          <LandingHeading textAlign="center" whiteSpace="pre-line" as="h3" fontSize="3xl" fontWeight="bold">
             Trusted by the Best
           </LandingHeading>
           <GeistText fontSize="md" textAlign="center">
@@ -394,22 +394,22 @@ export const Landing = ({
             </VStack>
             <VStack id="section-safety-2" borderRadius="4" w={{ base: 'full', lg: '50%' }} bgColor="white">
               <SimpleGrid border="1px solid white" borderRadius="4" bgColor="white" columns={{ base: 1, md: 2 }} gap={0} w="full" h="full">
-                <VStack as="a" target="_blank" w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
+                <VStack  w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
                   <Image maxW="150px" src="/assets/v2/landing/code4arena.png" alt="code4arena" />
                 </VStack>
-                <VStack as="a" target="_blank" w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
+                <VStack  w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
                   <Image maxW="150px" src="/assets/partners/immunefi.svg" alt="immunefi" />
                 </VStack>
-                <VStack as="a" target="_blank" w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
+                <VStack  w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
                   <Image maxW="150px" src="/assets/v2/landing/defimoon.png?v2" alt="defimoon" />
                 </VStack>
-                <VStack as="a" target="_blank" w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
+                <VStack  w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
                   <Image maxW="150px" src="/assets/v2/landing/peckshield.png" alt="peckshield" />
                 </VStack>
-                <VStack as="a" target="_blank" w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
+                <VStack  w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
                   <Image maxW="150px" src="/assets/v2/landing/defisafety.png" alt="defisafety" />
                 </VStack>
-                <VStack as="a" target="_blank" w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
+                <VStack  w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
                   <Image maxW="150px" src="/assets/v2/landing/nomoi.png" alt="nomoi" />
                 </VStack>
               </SimpleGrid>
@@ -438,7 +438,7 @@ export const Landing = ({
             <ResponsiveStack spacing="10" alignItems="center">
               <Link href="/firm">
                 <LandingNoisedBtn>
-                  Get Started Now <Image ml="2" src="/assets/landing/rocket.svg" w="20px" h="20px" />
+                  Get Started Now <Image ml="2" alt="rocket" src="/assets/landing/rocket.svg" w="20px" h="20px" />
                 </LandingNoisedBtn>
               </Link>
               <LandingLink href="/ecosystem" target="_blank" isExternal textDecoration="underline" color={landingMutedColor} fontSize={{ base: '15px', "2xl": '17px' }}>
