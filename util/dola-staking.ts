@@ -343,7 +343,7 @@ export const useDolaStakingEvents = () => {
     return formatDolaStakingEvents(sortedEvents, timestampsAsObj);
 }
 
-export const formatDolaStakingEvents = (events: any[], timestamps?: any, alreadyStaked = 0, sDolaAlreadyStaked = 0) => {
+export const formatDolaStakingEvents = (events: any[], timestamps?: any, alreadyStaked = 0, sDolaAlreadyStaked = 0, txs: any[] = []) => {
     let totalDolaStaked = alreadyStaked;
     let sDolaStaking = sDolaAlreadyStaked;
     return events.map(e => {
@@ -356,12 +356,14 @@ export const formatDolaStakingEvents = (events: any[], timestamps?: any, already
             sDolaStaking += (action === 'Stake' ? amount : -amount);
         }
         const recipient = e.args.recipient || e.args.owner || e.args.caller;
+        const txInitiator = txs?.find(tx => tx.txHash === e.transactionHash)?.fromAddress || '';
         return {
             txHash: e.transactionHash,
             timestamp: timestamps ? timestamps[e.blockNumber] * 1000 : undefined,
             blockNumber: e.blockNumber,
             caller: e.args.caller,
             recipient,
+            txInitiator,
             isDirectlyDsa: e.args.caller !== SDOLA_ADDRESS,
             amount,
             // Stake, Unstake, Claim are from DSA directly

@@ -136,6 +136,7 @@ export const SDolaStatsPage = () => {
         </SimpleGrid>
         <DolaStakingActivity
           events={events.slice(-100)}
+          showInitiator={true}
           lastUpdate={timestamp}
           title="Last 100 sDOLA Staking activity"
           headerProps={{
