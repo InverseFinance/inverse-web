@@ -8,7 +8,6 @@ import { ascendingEventsSorter } from '@app/util/misc';
 import { formatDolaStakingEvents, getDolaSavingsContract, getSdolaContract } from '@app/util/dola-staking';
 import { getLast100TxsOf } from '@app/util/covalent';
 
-const DOLA_STAKING_CACHE_KEY = 'dola-staking-v1.1.0'
 const DOLA_STAKING_CACHE_KEY_NEO = 'dola-staking-v1.2.3'
 
 export default async function handler(req, res) {
@@ -16,7 +15,6 @@ export default async function handler(req, res) {
     try {
         const cacheDuration = 300;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-        const { data: cachedData, isValid } = await getCacheFromRedisAsObj(DOLA_STAKING_CACHE_KEY, false, cacheDuration, true);
         const { data: cachedDataNeo, isValid: isValidNeo } = await getCacheFromRedisAsObj(DOLA_STAKING_CACHE_KEY_NEO, cacheFirst !== 'true', cacheDuration, true);
         if (!!cachedDataNeo && isValidNeo) {
             res.status(200).send(cachedDataNeo);

@@ -87,7 +87,7 @@ const columnsWithInitiator = [
         header: ({ ...props }) => <ColHeader justify="center" {...props} minWidth="130px" />,
         value: ({ txInitiator }) => {
             return <Cell w="130px" justify="center" position="relative" onClick={(e) => e.stopPropagation()}>
-                {txInitiator ? <ScannerLink value={txInitiator} /> : <CellText fontSize="10px">No data fetched</CellText>}
+                {txInitiator ? <ScannerLink value={txInitiator} /> : <CellText fontSize="10px">No data yet</CellText>}
             </Cell>
         },
         showFilter: true,
