@@ -177,7 +177,7 @@ export const Landing = ({
             <VStack w='full' alignItems={{ base: 'flex-start', md: 'center' }} pt="2%" pb="5%">
               <Link href="/firm">
                 <LandingNoisedBtn>
-                  Launch App <Image ml="2" src="/assets/landing/rocket.svg" w="20px" h="20px" />
+                  Launch App <Image ml="2" alt="rocket" src="/assets/landing/rocket.svg" w="20px" h="20px" />
                 </LandingNoisedBtn>
               </Link>
               <LandingCard bg="linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(250, 250, 250, 0.8) 2%, rgba(255, 255, 255, 1) 98%, rgba(0, 0, 0, 0.05) 100%)" borderRadius='4px' boxShadow="unset" mt="12" w="full" maxW="800px">
@@ -195,10 +195,10 @@ export const Landing = ({
         {/* below fold */}
         {/* truested by the best banner section  */}
         <VStack w='full' bg="linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 80%);" pt="100px">
-          <LandingHeading textAlign="center" whiteSpace="pre-line" as="h1" fontSize="3xl" fontWeight="bold">
+          <LandingHeading textAlign="center" whiteSpace="pre-line" as="h3" fontSize="3xl" fontWeight="bold">
             Trusted by the Best
           </LandingHeading>
-          <GeistText fontSize="md" textAlign="center">
+          <GeistText as="h4" fontSize="md" textAlign="center">
             Inverse Finance is trusted by top DeFi protocols
           </GeistText>
         </VStack>
@@ -207,7 +207,7 @@ export const Landing = ({
         </VStack>
         {/* Lock in. Dream Bigger. section  */}
         <VStack alignItems="flex-start" bgColor={landingYellowColor} w='full' py={{ base: 4, md: 8 }} px={{ base: 5, md: 10 }}>
-          <LandingHeading textAlign="flex-start" fontSize={{ base: '24px', 'md': '5xl' }} fontWeight="extrabold">
+          <LandingHeading as="h2" textAlign="flex-start" fontSize={{ base: '24px', 'md': '5xl' }} fontWeight="extrabold">
             Lock in. Dream Bigger.
           </LandingHeading>
         </VStack>
@@ -221,11 +221,11 @@ export const Landing = ({
               <VStack px={{ base: 4, md: 8 }} pt="4" alignItems="flex-start" spacing="4">
                 <HStack border={`1px solid ${landingPurple}`} px="4" py="2" alignItems="center" borderRadius="20px" gap="2" bgColor={landingPurpleBg}>
                   <Image src="/assets/landing/safeguarded.png" alt="Safeguarded" w="14px" h="14px" />
-                  <GeistText color={landingPurpleText} fontSize="md">
+                  <GeistText as="h4" color={landingPurpleText} fontSize="md">
                     Safeguarded with on-chain monitoring
                   </GeistText>
                 </HStack>
-                <GeistText fontSize="md">
+                <GeistText as="h5" fontSize="md">
                   Whether it's longing ETH, looping LP tokens, or just borrowing at size, break free from the drag of unpredictable interest rates
                 </GeistText>
                 <VStack py="4">
@@ -248,10 +248,10 @@ export const Landing = ({
               <ResponsiveStack py="4" px={{ base: 4, md: 8 }} alignItems="flex-start" borderTop={`1px solid ${landingLightBorderColor}`} w="full">
                 <Image mt={{ base: 0, md: 1 }} src="/assets/landing/one-click.png" alt="One-Click Hyperleverage" w="30px" h="30px" />
                 <VStack pl={{ base: 0, md: 2 }} alignItems="flex-start">
-                  <LandingHeading>
+                  <LandingHeading as="h4">
                     One-Click Hyperleverage
                   </LandingHeading>
-                  <GeistText>
+                  <GeistText as="h5">
                     Turbocharge yield-bearing assets while keeping full control of your collateral—never loaned out, always yours.
                   </GeistText>
                 </VStack>
@@ -262,7 +262,7 @@ export const Landing = ({
         {/* Compare section  */}
         <VStack w='full' bg="white" py="20">
           <VStack alignItems="center" position="relative" pb="40px">
-            <LandingHeading color={landingPurpleText} textAlign="center" fontSize="4xl" fontWeight="bold">
+            <LandingHeading as="h3" color={landingPurpleText} textAlign="center" fontSize="4xl" fontWeight="bold">
               Compare FiRM
             </LandingHeading>
             <VStack zIndex="1" top="20px" h="40px" position="absolute" w="full" bg="linear-gradient(to bottom, rgba(255, 255, 255, 0) 10%, rgba(255, 255, 255, 1) 100%)">
@@ -302,7 +302,7 @@ export const Landing = ({
         </VStack>
         {/* sDOLA section  */}
         <VStack alignItems="flex-start" bgColor={landingGreenColor} w='full' py={{ base: 4, md: 8 }} px={{ base: 5, md: 10 }}>
-          <LandingHeading textAlign="flex-start" fontSize={{ base: '24px', 'md': '5xl' }} fontWeight="extrabold">
+          <LandingHeading as="h3" textAlign="flex-start" fontSize={{ base: '24px', 'md': '5xl' }} fontWeight="extrabold">
             Save Different: sDOLA
           </LandingHeading>
         </VStack>
@@ -330,11 +330,11 @@ export const Landing = ({
               <VStack w={{ base: 'full', md: '50%' }} px="8" py="8" alignItems="flex-start" spacing="4">
                 <HStack border={`1px solid ${landingPurple}`} px="4" py="2" alignItems="center" borderRadius="20px" gap="2" bgColor={landingPurpleBg}>
                   <Image src="/assets/landing/safeguarded.png" alt="Safeguarded" w="14px" h="14px" />
-                  <GeistText color={landingPurpleText} fontSize="md">
+                  <GeistText as="h4" color={landingPurpleText} fontSize="md">
                     100% Organic Yield
                   </GeistText>
                 </HStack>
-                <GeistText fontSize="md">
+                <GeistText as="h5" fontSize="md">
                   DOLA enables some of the most attractive yield opportunities in DeFi. Now, sDOLA takes it further—a yield-bearing stablecoin born from our FiRM lending market, delivering pure, uncut DeFi returns fueled by real activity, not centralized compromises.
                 </GeistText>
                 <Link href="/sDOLA" target="_blank" isExternal>
@@ -356,10 +356,10 @@ export const Landing = ({
           <ResponsiveStack direction={{ base: 'column', lg: 'row' }} maxW="1300px" position="relative" borderRadius="8px" bgColor={landingDarkNavy2} p="2" w='full' alignItems="flex-start">
             <VStack id="section-safety-1" w={{ base: 'full', lg: '50%' }}>
               <VStack px={{ base: 4, md: 6 }} py="4" alignItems="flex-start">
-                <LandingHeading color="white" fontSize={{ base: '32px', 'md': '5xl' }}>
+                <LandingHeading as="h4" color="white" fontSize={{ base: '32px', 'md': '5xl' }}>
                   Our Obsession Is Safety
                 </LandingHeading>
-                <GeistText color="white">
+                <GeistText as="h5" color="white">
                   Our obsession with safety includes security innovations like Personal Collateral Escrow accounts, ensuring your collateral is staked and isolated, never loaned out. We designed oracle safety measures to make price manipulation, flash loan, and similar attacks not just difficult, but financially unfeasible.
                 </GeistText>
                 <Link _hover={{ color: 'white' }} color={landingPurple} textDecoration="underline" href="/audits" target="_blank" isExternal>See our audits</Link>
@@ -372,7 +372,7 @@ export const Landing = ({
                   <LandingHeading color="white" fontSize="xl">
                     Defi Safety Score
                   </LandingHeading>
-                  <GeistText color="white">
+                  <GeistText as="h5" color="white">
                     Inverse Finance maintains an elite DeFi Safety Score of 87, built on years of protocol risk and safety experience.
                   </GeistText>
                   <Link _hover={{ color: 'white' }} color={landingPurple} textDecoration="underline" href="https://defisafety.com/app/pqrs/567" target="_blank" isExternal>
@@ -386,7 +386,7 @@ export const Landing = ({
                   <LandingHeading color="white" fontSize="xl">
                     Staked Collateral
                   </LandingHeading>
-                  <GeistText color="white">
+                  <GeistText as="h5" color="white">
                     Fortified with rigorous audits and active bug bounty programs from Nomoi, yAudit, Code4rena, ImmuneFi, Peckshield, and others.
                   </GeistText>
                 </VStack>
@@ -394,22 +394,22 @@ export const Landing = ({
             </VStack>
             <VStack id="section-safety-2" borderRadius="4" w={{ base: 'full', lg: '50%' }} bgColor="white">
               <SimpleGrid border="1px solid white" borderRadius="4" bgColor="white" columns={{ base: 1, md: 2 }} gap={0} w="full" h="full">
-                <VStack as="a" target="_blank" w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
+                <VStack  w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
                   <Image maxW="150px" src="/assets/v2/landing/code4arena.png" alt="code4arena" />
                 </VStack>
-                <VStack as="a" target="_blank" w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
+                <VStack  w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
                   <Image maxW="150px" src="/assets/partners/immunefi.svg" alt="immunefi" />
                 </VStack>
-                <VStack as="a" target="_blank" w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
+                <VStack  w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
                   <Image maxW="150px" src="/assets/v2/landing/defimoon.png?v2" alt="defimoon" />
                 </VStack>
-                <VStack as="a" target="_blank" w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
+                <VStack  w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
                   <Image maxW="150px" src="/assets/v2/landing/peckshield.png" alt="peckshield" />
                 </VStack>
-                <VStack as="a" target="_blank" w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
+                <VStack  w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
                   <Image maxW="150px" src="/assets/v2/landing/defisafety.png" alt="defisafety" />
                 </VStack>
-                <VStack as="a" target="_blank" w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
+                <VStack  w={{ base: 'full' }} h={{ base: '80px', md: '150px' }} bgColor="white" alignItems="center" justify="center">
                   <Image maxW="150px" src="/assets/v2/landing/nomoi.png" alt="nomoi" />
                 </VStack>
               </SimpleGrid>
@@ -438,7 +438,7 @@ export const Landing = ({
             <ResponsiveStack spacing="10" alignItems="center">
               <Link href="/firm">
                 <LandingNoisedBtn>
-                  Get Started Now <Image ml="2" src="/assets/landing/rocket.svg" w="20px" h="20px" />
+                  Get Started Now <Image ml="2" alt="rocket" src="/assets/landing/rocket.svg" w="20px" h="20px" />
                 </LandingNoisedBtn>
               </Link>
               <LandingLink href="/ecosystem" target="_blank" isExternal textDecoration="underline" color={landingMutedColor} fontSize={{ base: '15px', "2xl": '17px' }}>
