@@ -9,7 +9,7 @@ import { formatDolaStakingEvents, getDolaSavingsContract, getSdolaContract } fro
 import { getLast100TxsOf } from '@app/util/covalent';
 
 const DOLA_STAKING_CACHE_KEY = 'dola-staking-v1.1.0'
-const DOLA_STAKING_CACHE_KEY_NEO = 'dola-staking-v1.2.1'
+const DOLA_STAKING_CACHE_KEY_NEO = 'dola-staking-v1.2.2'
 
 export default async function handler(req, res) {
     const { cacheFirst } = req.query;
@@ -56,7 +56,7 @@ export default async function handler(req, res) {
                 sdolaContract.filters.Withdraw(),
                 newStartingBlock,
             ),
-            getLast100TxsOf(sdolaContract.address, '1', false, true),
+            getLast100TxsOf(sdolaContract.address, '1', true, true),
         ]);
 
         const eventsData = stakeEventsData

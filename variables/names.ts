@@ -135,7 +135,8 @@ const namedAddresses: { [key: string]: string } = {
     '0xEc51E66c1e1BFc85aCc3b6847820A3Ff0a38364b': "DbrRewardsHelper",
     '0x94a8216bC7a0390597c0aAF8500d97f4D7663Ce5': 'eldercap',
     '0x00000000009E50a7dDb7a7B0e2ee6604fd120E49': 'MEVBot9E5',
-    '0x7882570840a97a490a37bd8db9e1ae39165bfbd6': 'OdosRouter',
+    '0x7882570840a97a490a37bd8db9e1ae39165bfbd6': 'OdosInternal',
+    '0xCf5540fFFCdC3d510B18bFcA6d2b9987b0772559': 'OdosRouterV2',
     '0x0460ae025d45c570d40c369e06e943ceb931ac10': 'TokemakBot',
     // partners
     '0x58dCB47956De1e99B1AF0ceb643727EF66aF4647': 'DWF Swapper',
