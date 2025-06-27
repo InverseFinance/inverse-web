@@ -9,7 +9,7 @@ import { formatDolaStakingEvents, getDolaSavingsContract, getSdolaContract } fro
 import { getLast100TxsOf } from '@app/util/covalent';
 
 const DOLA_STAKING_CACHE_KEY = 'dola-staking-v1.1.0'
-const DOLA_STAKING_CACHE_KEY_NEO = 'dola-staking-v1.2.0'
+const DOLA_STAKING_CACHE_KEY_NEO = 'dola-staking-v1.2.1'
 
 export default async function handler(req, res) {
     const { cacheFirst } = req.query;
@@ -56,11 +56,6 @@ export default async function handler(req, res) {
                 sdolaContract.filters.Withdraw(),
                 newStartingBlock,
             ),
-            // cross-check transfer to handle router
-            sdolaContract.queryFilter(
-                sdolaContract.filters.Withdraw(),
-                newStartingBlock,
-            ),
             getLast100TxsOf(sdolaContract.address, '1', false, true),
         ]);
 
@@ -78,20 +73,29 @@ export default async function handler(req, res) {
             '1',
         );
 
-        const txsWithFrom = (sdolaTxs?.data?.items).map(tx => ({ txHash: tx.tx_hash, fromAddress: tx.from_address })) || [];
+        const txsWithFrom = (sdolaTxs?.data?.items || []).map(tx => ({ txHash: tx.tx_hash, fromAddress: tx.from_address })) || [];
 
         const newEvents = formatDolaStakingEvents(
             sortedEvents,
             timestamps[NetworkIds.mainnet],
             lastKnownEvent.totalDolaStaked,
             lastKnownEvent.sDolaStaking,
+            txsWithFrom,
         );
+
+        const allEvents = pastTotalEvents.concat(newEvents);
+        const last100 = allEvents.splice(-100);
+        // now allEvents has 100 less
+        const withInitiatorsForLast100 = allEvents.concat(
+            last100.map(e => ({
+                ...e,
+                txInitiator: e.txInitiator || txsWithFrom.find(tx => tx.txHash === e.transactionHash)?.fromAddress,
+            }))
+        )
 
         const resultData = {
             timestamp: Date.now(),
-            events: pastTotalEvents
-                .concat(newEvents)
-                .map(e => ({ ...e, txInitiator: e.txInitiator || txsWithFrom.find(tx => tx.txHash === e.transactionHash)?.fromAddress })),
+            events: withInitiatorsForLast100,
         };
 
         await redisSetWithTimestamp(DOLA_STAKING_CACHE_KEY_NEO, resultData, true);
