@@ -64,7 +64,7 @@ export const fedsDataToPieChart = (fedOverviews: any[], colors) => {
     const color = ['Frontier', 'Fuse'].includes(f.protocol) ? colors.error : f.protocol === 'FiRM' ? colors.success : colors.info;
     return {
       ...f,
-      token: { symbol: name },
+      token: { image: f.projectImage, symbol: name },
       onlyUsdValue: true,
       usdPrice: 1,
       balance: balance,
@@ -89,7 +89,7 @@ export const DolaDiagram = () => {
   const firmPieChartData = markets.map(f => {
     return {
       ...f,
-      token: { symbol: `FiRM ${f.name}` },
+      token: { ...f.underlying, symbol: `FiRM ${f.name}` },
       onlyUsdValue: true,
       usdPrice: 1,
       balance: f.totalDebt,
