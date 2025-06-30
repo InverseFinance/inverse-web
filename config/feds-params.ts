@@ -132,6 +132,7 @@ export const FEDS_PARAMS = [
         address: "0x4d7928e993125A9Cefe7ffa9aB637653654222E2",
         name: "Scream Fed",
         projectImage: "/assets/projects/Scream.webp",
+        supplyFuncName: "dstSupply",
     },
     {
         chainId: NetworkIds.mainnet,

@@ -15,7 +15,7 @@ import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
 import { pricesCacheKey } from '../prices';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
 
-const { FEDS, ANCHOR_DOLA } = getNetworkConfigConstants(NetworkIds.mainnet);
+const { FEDS, ANCHOR_DOLA, DOLA } = getNetworkConfigConstants(NetworkIds.mainnet);
 
 const FUSE_CTOKENS = {
   '0xe3277f1102C1ca248aD859407Ca0cBF128DB0664': '0xf65155C9595F99BFC193CaFF0AAb6e2a98cf68aE',
@@ -164,12 +164,14 @@ export default async function handler(req, res) {
     const multisigData = _multisigData || [];
 
     const [minterRights] = await getGroupedMulticallOutputs(
-      FEDS.map(fed => ({
-        contract: new Contract(fed.address, DOLA_ABI, provider),
-        functionName: 'minters',
-        params: [fed.address],
-        fallbackValue: true,
-      })),
+      [
+        FEDS.map(fed => ({
+          contract: new Contract(DOLA, DOLA_ABI, provider),
+          functionName: 'minters',
+          params: [fed.address],
+          fallbackValue: true,
+        }))
+      ],
       Number(NetworkIds.mainnet),
     )
 
