@@ -13,6 +13,7 @@ import { CTOKEN_ABI, DOLA_ABI } from '@app/config/abis';
 import { getLPBalances, getLPPrice, getPoolRewards } from '@app/util/contracts';
 import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
 import { pricesCacheKey } from '../prices';
+import { getGroupedMulticallOutputs } from '@app/util/multicall';
 
 const { FEDS, ANCHOR_DOLA } = getNetworkConfigConstants(NetworkIds.mainnet);
 
@@ -162,6 +163,16 @@ export default async function handler(req, res) {
     const firmTotalTvl = firmTvlData?.firmTotalTvl || 0;
     const multisigData = _multisigData || [];
 
+    const [minterRights] = await getGroupedMulticallOutputs(
+      FEDS.map(fed => ({
+        contract: new Contract(fed.address, DOLA_ABI, provider),
+        functionName: 'minters',
+        params: [fed.address],
+        fallbackValue: true,
+      })),
+      Number(NetworkIds.mainnet),
+    )
+
     const fedOverviews = FEDS.map((fedConfig, fedIndex) => {
       const fedData = fedsData.find(f => f.address === fedConfig.address);
       let tvl, borrows, lpBalance, lpPrice, lpTotalSupply, lpPol = 0;
@@ -217,6 +228,7 @@ export default async function handler(req, res) {
 
       return {
         ...fedConfig,
+        canMintDola: minterRights[fedIndex] || false,
         abi: undefined,
         supply,
         circSupply: ['FiRM', 'Frontier'].includes(fedConfig.protocol) || !!fedConfig.borrowConfig ? borrows : supply - getBnToNumber(idleDolaBalances[fedIndex]),
