@@ -43,14 +43,14 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', `*`);
   res.setHeader('Access-Control-Allow-Methods', `OPTIONS,POST,GET`);
   
-  const { account, chainId, lender } = req.query;
+  const { account, chainId, lender, cacheFirst } = req.query;
   if(!monolithSupportedChainIds.includes(chainId) || !lender || lender === BURN_ADDRESS || (!!lender && !isAddress(lender)) || (!!account && !isAddress(account))) {
     return res.status(400).json({ success: false, error: 'Invalid account address' });
   }
   const cacheKey = account ? `monolith-positions-${lender}-${account}-${chainId}-v1.0.2` : `monolith-positions-${lender}-${chainId}-v1.0.2`;  
   try {
 
-    const { isValid, data: cachedData } = await getCacheFromRedisAsObj(cacheKey, true, cacheDuration, false);
+    const { isValid, data: cachedData } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration, false);
     if (isValid) {
       res.status(200).json(cachedData);
       return
