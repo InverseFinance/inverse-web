@@ -6,7 +6,6 @@ import { fetcher30sectimeout, fetcher60sectimeout } from "@app/util/web3";
 import { dolaStakingCacheKey } from "../dola-staking";
 import { isAddress } from "ethers/lib/utils";
 import { ONE_DAY_MS, SERVER_BASE_URL } from "@app/config/constants";
-import { dbrReplenishmentsCacheKey } from "../f2/dbr-replenishments";
 import { Contract } from "ethers";
 import { getProvider } from "@app/util/providers";
 import { DBR_ABI } from "@app/config/abis";
@@ -24,7 +23,7 @@ export default async (req, res) => {
     const { include } = req.query;
     const includeList = include ? include.split(',').filter(ad => isAddress(ad)) : [];
     const cacheDuration = 900;
-    const cacheKey = `dola-modal-2-v1.0.92${include ? includeList.join(',') : ''}`;
+    const cacheKey = `dola-modal-2-v1.0.93${include ? includeList.join(',') : ''}`;
 
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
 
@@ -81,7 +80,8 @@ export default async (req, res) => {
             // for sDOLA convert to DOLA and pair amounts
             const hasSDola = /SDOLA/i.test(lp.symbol);
             const isSDolaMain = hasSDola && !/(^DOLA|.*-DOLA.*)/i.test(lp.symbol);                        
-            const pairingValue = hasSDola ? (isSDolaMain ? balanceSource?.pairPartBalance : balanceSource?.pairPartBalance * dolaStakingData.sDolaExRate) : balanceSource?.pairingDepth;
+            const issDOLAScrvUsdpair = lp.lpName === 'sDOLA-scrvUSD';                       
+            const pairingValue = hasSDola && !issDOLAScrvUsdpair ? (isSDolaMain ? balanceSource?.pairPartBalance : balanceSource?.pairPartBalance * dolaStakingData.sDolaExRate) : balanceSource?.pairingDepth;
             const mainValue = balanceSource?.mainPartBalance * (isSDolaMain ? dolaStakingData.sDolaExRate : 1);
             csvData += `${lp.lpName},${lp.fedName || (capitalize(lp.project)+ ' ' + NETWORKS_BY_CHAIN_ID[lp.chainId].name)},${lp.fedSupply || 0},${mainValue || 0},${pairingValue || 0},${lp.ownedAmount || 0}\n`;
         });
