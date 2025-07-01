@@ -15,13 +15,13 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', `Content-Type`);
   res.setHeader('Access-Control-Allow-Origin', `*`);
   res.setHeader('Access-Control-Allow-Methods', `OPTIONS,POST,GET`);
-  const { account, chainId, lender } = req.query;
+  const { account, chainId, lender, cacheFirst } = req.query;
   if(!monolithSupportedChainIds.includes(chainId) || !lender || lender === BURN_ADDRESS || (!!lender && !isAddress(lender)) || (!!account && !isAddress(account))) {
     return res.status(400).json({ success: false, error: 'Invalid account address' });
   }
   const cacheKey = account ? `monolith-redemptions-${account}-${chainId}-v1.0.2` : `monolith-redemptions-${chainId}-v1.0.2`;
   try {
-    const { isValid, data: cachedData } = await getCacheFromRedisAsObj(cacheKey, true, cacheDuration, false);
+    const { isValid, data: cachedData } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration, false);
     if (isValid) {
       res.status(200).json(cachedData);
       return
@@ -52,20 +52,18 @@ export default async function handler(req, res) {
       );
     }
 
-    let isLimited = false;
     try {
-      if(!account) {
-        events = await getLargeLogsFunction();
-      } else {
+      // if(!account) {
+      //   events = await getLargeLogsFunction();
+      // } else {
         events = await lenderContract.queryFilter(lenderContract.filters.Redeemed(account || undefined), lastBlock ? lastBlock+1 : undefined, currentBlock);
-      }
+      // }
     } catch (e) {
       console.log('e', e);
-      if(!!account){
-        isLimited = true;
-        console.log('fetching with large log function');
-        events = await getLargeLogsFunction();
-      }
+      // if(!!account){
+      //   console.log('fetching with large log function');
+      //   events = await getLargeLogsFunction();
+      // }
     }
 
     const cachedEvents = cachedData?.last100Events || [];

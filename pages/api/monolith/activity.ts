@@ -16,14 +16,14 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', `*`);
   res.setHeader('Access-Control-Allow-Methods', `OPTIONS,POST,GET`);
   
-  const { account, chainId, lender } = req.query;
+  const { account, chainId, lender, cacheFirst } = req.query;
   if(!monolithSupportedChainIds.includes(chainId) || !lender || lender === BURN_ADDRESS || (!!lender && !isAddress(lender)) || (!!account && !isAddress(account))) {
     return res.status(400).json({ success: false, error: 'Invalid account address' });
   }
-  const cacheKey = account ? `monolith-activity-${lender}-${account}-${chainId}-v1.0.1` : `monolith-activity-${lender}-${chainId}-v1.0.1`;  
+  const cacheKey = account ? `monolith-activity-${lender}-${account}-${chainId}-v1.0.2` : `monolith-activity-${lender}-${chainId}-v1.0.2`;  
   try {
 
-    const { isValid, data: cachedData } = await getCacheFromRedisAsObj(cacheKey, true, cacheDuration, false);
+    const { isValid, data: cachedData } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration, false);
     if (isValid) {
       res.status(200).json(cachedData);
       return
@@ -54,20 +54,21 @@ export default async function handler(req, res) {
       );
     }
 
+    // temp: no need for large logs function atm
     const getFilterData = async (contractFilter: any) => {
       let events: any[] = [];
       try {
-        if(!account) {
-          events = await getLargeLogsFunction(contractFilter);
-        } else {
+        // if(!account) {
+        //   events = await getLargeLogsFunction(contractFilter);
+        // } else {
           events = await lenderContract.queryFilter(contractFilter, lastBlock ? lastBlock+1 : undefined, currentBlock);
-        }
+        // }
       } catch (e) {
         console.log('e', e);
-        if(!!account){
-          console.log('fetching with large log function');
-          events = await getLargeLogsFunction(contractFilter);
-        }
+        // if(!!account){
+        //   console.log('fetching with large log function');
+        //   events = await getLargeLogsFunction(contractFilter);
+        // }
       }
       return events;
     }
