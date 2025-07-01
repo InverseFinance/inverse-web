@@ -6,7 +6,7 @@ import { getBnToNumber } from '@app/util/markets'
 import { getMulticallOutput } from '@app/util/multicall';
 
 export default async function handler(req, res) {
-  const cacheKey = `misc-csv-feeds-v1.0.0`;
+  const cacheKey = `misc-csv-feeds-v1.0.1`;
 
   try {
     const cacheDuration = 60;
