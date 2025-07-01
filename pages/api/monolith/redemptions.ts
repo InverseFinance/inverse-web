@@ -19,7 +19,7 @@ export default async function handler(req, res) {
   if(!monolithSupportedChainIds.includes(chainId) || !lender || lender === BURN_ADDRESS || (!!lender && !isAddress(lender)) || (!!account && !isAddress(account))) {
     return res.status(400).json({ success: false, error: 'Invalid account address' });
   }
-  const cacheKey = account ? `monolith-redemptions-${account}-${chainId}-v1.0.1` : `monolith-redemptions-${chainId}-v1.0.1`;  
+  const cacheKey = account ? `monolith-redemptions-${account}-${chainId}-v1.0.2` : `monolith-redemptions-${chainId}-v1.0.2`;
   try {
     const { isValid, data: cachedData } = await getCacheFromRedisAsObj(cacheKey, true, cacheDuration, false);
     if (isValid) {
@@ -77,14 +77,14 @@ export default async function handler(req, res) {
         txHash: e.transactionHash,
         blockNumber: e.blockNumber,
         timestamp: estimateBlockTimestamp(e.blockNumber, now, currentBlock),
-        redeemer: e.args?.account,
-        amountIn,
-        amountOut,
+        by: e.args?.account,
+        debtDelta: amountIn,
+        collateralDelta: amountOut,
       }
     });
 
-    const newAmountIn = newEvents.reduce((acc, curr) => acc + curr.amountIn, 0);
-    const newAmountOut = newEvents.reduce((acc, curr) => acc + curr.amountOut, 0);
+    const newAmountIn = newEvents.reduce((acc, curr) => acc + curr.debtDelta, 0);
+    const newAmountOut = newEvents.reduce((acc, curr) => acc + curr.collateralDelta, 0);
 
     const resultData = {
       timestamp: now,
