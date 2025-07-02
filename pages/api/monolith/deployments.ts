@@ -23,7 +23,7 @@ export default async function handler(req, res) {
   if (!monolithSupportedChainIds.includes(chainId) || !factory || factory === BURN_ADDRESS || (!!factory && !isAddress(factory))) {
     return res.status(400).json({ success: false, error: 'Invalid factory address' });
   }
-  const cacheKey = `monolith-deployments-${chainId}-${factory}-v1.0.2`;
+  const cacheKey = `monolith-deployments-${chainId}-${factory}-v1.0.4`;
   try {
     const { isValid, data: cachedData } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration, false);
     if (isValid) {
@@ -82,10 +82,10 @@ export default async function handler(req, res) {
           return { contract: new Contract(e.lender, LENDER_ABI, provider), functionName: 'interestModel' }
         }),
         newEvents.map(e => {
-          return { contract: new Contract(e.coin, LENDER_ABI, provider), functionName: 'symbol' }
+          return { contract: new Contract(e.coin, ERC20_ABI, provider), functionName: 'symbol' }
         }),
         newEvents.map(e => {
-          return { contract: new Contract(e.coin, LENDER_ABI, provider), functionName: 'name' }
+          return { contract: new Contract(e.coin, ERC20_ABI, provider), functionName: 'name' }
         }),
         newEvents.map(e => {
           return { contract: new Contract(e.lender, LENDER_ABI, provider), functionName: 'feed' }
