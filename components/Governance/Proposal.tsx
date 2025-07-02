@@ -2,7 +2,7 @@ import { Badge, Flex, HStack, Stack, Text, VStack } from '@chakra-ui/react'
 import Container from '@app/components/common/Container'
 import { SkeletonBlob, SkeletonTitle } from '@app/components/common/Skeleton'
 import { GovEra, Proposal, ProposalFunction, ProposalStatus } from '@app/types'
- 
+
 import NextLink from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import gfm from 'remark-gfm'
@@ -121,20 +121,23 @@ export const ProposalPreview = ({
 
   return (
     <VStack w='full'>
-      <NextLink href={href} legacyBehavior>
-        <VStack
-          w='full'
-          _hover={{ bgColor: 'primary.850' }}
-          cursor="pointer"
-          borderRadius={8}
-          borderTop={`1px solid ${themeStyles.colors.primary['500']}`}
-        >
+
+      <VStack
+        w='full'
+        borderRadius={8}
+      // borderTop={`1px solid ${themeStyles.colors.primary['500']}`}
+      >
+        <NextLink href={href} legacyBehavior>
           <Flex
             w="full"
             justify="space-between"
             align="center"
             p={2.5}
             px={2}
+            cursor="pointer"
+            borderRadius={8}
+            borderTop={`1px solid ${themeStyles.colors.primary['500']}`}
+            _hover={{ bgColor: 'primary.700' }}
           >
             <Flex direction="column">
               <Text fontWeight={isUnread ? 'bold' : 'semibold'} fontSize="lg" color={isUnread ? 'accentTextColor' : 'mainTextColor'}>
@@ -178,11 +181,11 @@ export const ProposalPreview = ({
               </Flex>
             )}
           </Flex>
-          <Flex w='full' px="2" alignItems="center" overflow="auto">
-            <ProposalTags functions={proposal.functions} onTagSelect={onTagSelect} />
-          </Flex>
-        </VStack>
-      </NextLink>
+        </NextLink>
+        <Flex w='full' px="2" alignItems="center" overflow="auto">
+          <ProposalTags functions={proposal.functions} onTagSelect={onTagSelect} />
+        </Flex>
+      </VStack>
       {
         !!forumLink && <Flex w='full' pb="2">
           <Link w='full' href={forumLink} isExternal target="_blank">
@@ -287,7 +290,7 @@ export const ProposalActions = ({ proposal, isEditing = false }: { proposal: Pro
     setMarketsReports([]);
     return simulateOnChainActions(proposal, (result) => {
       setSimulationUrl(result.simUrl || '');
-      setPositionsUrl(result?.vnetPublicId ? `/firm/sim/positions?vnetPublicId=${result.vnetPublicId||''}&vnetTitle=${result.vnetTitle||''}` : '');
+      setPositionsUrl(result?.vnetPublicId ? `/firm/sim/positions?vnetPublicId=${result.vnetPublicId || ''}&vnetTitle=${result.vnetTitle || ''}` : '');
       setMarketsReports(result.marketsReports || []);
       showToast({
         duration: 15000,
