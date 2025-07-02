@@ -3,7 +3,7 @@ import { getProposalActionFromFunction } from '@app/util/governance'
 import { Box, Text } from '@chakra-ui/react'
 import ScannerLink from '@app/components/common/ScannerLink';
 import { ProposalFunction } from '@app/types';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ChevronRightIcon, ChevronUpIcon } from '@chakra-ui/icons';
 
 const Tag = ({
@@ -57,18 +57,26 @@ export const ProposalTags = ({ functions, onTagSelect, ...props }: {
     onTagSelect?: (tag: { name: string, address: string }) => void,
 }) => {
     const [showMore, setShowMore] = useState(false);
+    const [isOverflowing, setIsOverflowing] = useState(false);
+    const [isInited, setIsInited] = useState(false);
+    const ref =  useRef();
     const uniqueNames = getProposalTags(functions);
+
+    useEffect(() => {
+        if(!isInited && ref?.current && uniqueNames.length > 0) {
+            setIsOverflowing(ref.current?.scrollWidth > ref.current?.clientWidth);
+            setIsInited(true);
+        }
+    }, [uniqueNames, isInited, ref.current]);
 
     if (!uniqueNames.length) {
         return <></>
     }
 
-    // const moreAmountToShow = uniqueNames.length - maxTagsForMore;
-
     return <Box w="full" position="relative" {...props}>
-        <Box  whiteSpace={showMore ? 'normal' : 'nowrap'} overflow={showMore ? 'auto' : 'clip'}  w="full">
-            {uniqueNames.slice(0, showMore ? undefined : maxTagsForMore).map(v => <Tag key={v.address} name={v.name} address={v.address} onTagSelect={onTagSelect} />)}
+        <Box color="secondaryTextColor" textOverflow="ellipsis" maxHeight={showMore ? 'auto' : '1.5em'} ref={ref} whiteSpace={showMore ? 'normal' : 'nowrap'} overflow={showMore ? 'auto' : 'hidden'}  w="full">
+            {uniqueNames.map(v => <Tag key={v.address} name={v.name} address={v.address} onTagSelect={onTagSelect} />)}
         </Box>
-        {maxTagsForMore < uniqueNames.length && <Text textDecoration="underline" fontSize="sm" cursor="pointer" onClick={() => setShowMore(!showMore)}>{showMore ? <>Show less <ChevronUpIcon /></> : <>Show more <ChevronRightIcon /></>}</Text>}
+        {isOverflowing && <Text textDecoration="underline" fontSize="sm" cursor="pointer" onClick={() => setShowMore(!showMore)}>{showMore ? <>Show less <ChevronUpIcon /></> : <>Show more <ChevronRightIcon /></>}</Text>}
     </Box>
 }
