@@ -238,6 +238,7 @@ export const StakeDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => {
                                                 introMessage={''}
                                                 isSingleChoice={true}
                                                 targetAssetPrice={dolaPrice * sDolaExRate}
+                                                exRate={sDolaExRate}
                                                 isInModal={false}
                                                 fromText={"Stake from"}
                                                 fromTextProps={{
