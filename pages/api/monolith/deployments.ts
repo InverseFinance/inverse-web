@@ -23,7 +23,7 @@ export default async function handler(req, res) {
   if (!monolithSupportedChainIds.includes(chainId) || !factory || factory === BURN_ADDRESS || (!!factory && !isAddress(factory))) {
     return res.status(400).json({ success: false, error: 'Invalid factory address' });
   }
-  const cacheKey = `monolith-deployments-${chainId}-${factory}-v1.0.4`;
+  const cacheKey = `monolith-deployments-${chainId}-${factory}-v1.0.5`;
   try {
     const { isValid, data: cachedData } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration, false);
     if (isValid) {
@@ -217,9 +217,9 @@ export default async function handler(req, res) {
       e.collateralSymbol = collateralSymbol[i];
       e.collateralName = collateralName[i];
       e.collateralDecimals = getBnToNumber(collateralDecimals[i], 0);
-      e.marketTotalCollateralBalance = getBnToNumber(marketTotalCollateralBalance[i], e.collateralDecimals);
+      e.totalDeposits = getBnToNumber(marketTotalCollateralBalance[i], e.collateralDecimals);
       e.price = price;
-      e.tvl = e.marketTotalCollateralBalance * price;
+      e.tvl = e.totalDeposits * price;
       e.isReduceOnly = isReduceOnly;
       e.isLiquidationAllowed = isLiquidationAllowed;
       e.immutabilityDeadline = getBnToNumber(immutabilityDeadline[i], 0);
