@@ -23,7 +23,7 @@ export default async function handler(req, res) {
   if (!monolithSupportedChainIds.includes(chainId) || !factory || factory === BURN_ADDRESS || (!!factory && !isAddress(factory))) {
     return res.status(400).json({ success: false, error: 'Invalid factory address' });
   }
-  const cacheKey = `monolith-deployments-${chainId}-${factory}-v1.0.5`;
+  const cacheKey = `monolith-deployments-${chainId}-${factory}-v1.0.6`;
   try {
     const { isValid, data: cachedData } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration, false);
     if (isValid) {
@@ -65,7 +65,7 @@ export default async function handler(req, res) {
         vault,
       }
     });
-
+    
     // immutable state variables
     const [collaterals, collateralFactor, minDebt, interesModel, symbols, names, feeds] = await getGroupedMulticallOutputs(
       [
@@ -95,23 +95,25 @@ export default async function handler(req, res) {
       currentBlock,
       provider,
     );
-
+    
     const deployedEvents = cachedEvents.concat(newEvents);
 
-    const deployments = deployedEvents.map((e, i) => {
-      return {
-        id: i,
-        ...e,
-        collateralDecimals: cachedDeployments?.[i]?.collateralDecimals || undefined,
-        collateral: collaterals[i],
-        collateralFactor: getBnToNumber(collateralFactor[i], 4),
-        minDebt: getBnToNumber(minDebt[i], 18),
-        interestModel: interesModel[i],
-        symbol: symbols[i],
-        name: names[i],
-        feed: feeds[i],
-      }
-    });
+    const deployments = cachedDeployments
+      .concat(
+        newEvents.map((e, i) => {
+          return {
+            id: i + cachedDeployments.length,
+            ...e,
+            collateral: collaterals[i],
+            collateralFactor: getBnToNumber(collateralFactor[i], 4),
+            minDebt: getBnToNumber(minDebt[i], 18),
+            interestModel: interesModel[i],
+            symbol: symbols[i],
+            name: names[i],
+            feed: feeds[i],
+          }
+        })
+      );
 
     const [
       collateralSymbol,
@@ -209,7 +211,7 @@ export default async function handler(req, res) {
       currentBlock,
       provider,
     );
-
+    
     deployments.forEach((e, i) => {
       const [priceBn, isReduceOnly, isLiquidationAllowed] = priceData[i];
       // always use 18 decimals for price
@@ -242,7 +244,7 @@ export default async function handler(req, res) {
       e.staked = getBnToNumber(staked[i], 18);
       e.totalDebt = e.totalPaidDebt + e.totalFreeDebt;
     });
-
+    
     const [realTimeBorrowRate] = await getGroupedMulticallOutputs(
       [
         deployments.map((e, i) => {
@@ -254,7 +256,7 @@ export default async function handler(req, res) {
       currentBlock,
       provider,
     );
-
+    
     deployments.forEach((e, i) => {
       const realTimeBorrowApr = getBnToNumber(realTimeBorrowRate[i][0], 18);
       // staking APY calc
@@ -262,7 +264,7 @@ export default async function handler(req, res) {
 
       const stakedBalance = Math.max(1, totalAssets);
       const annualInterest = e.totalPaidDebt * realTimeBorrowApr;
-      const annualInterestAfterFee = annualInterest * (1 - ((e.feePerc/100) || 0) - ((e.cachedGlobalFeePerc/100) || 0));
+      const annualInterestAfterFee = annualInterest * (1 - ((e.feePerc / 100) || 0) - ((e.cachedGlobalFeePerc / 100) || 0));
       const finalAnnualInterestsForStakers = stakedBalance < e.totalPaidDebt && e.totalPaidDebt > 0 ? annualInterestAfterFee * stakedBalance / e.totalPaidDebt : annualInterestAfterFee;
 
       const apr = stakedBalance ? finalAnnualInterestsForStakers / stakedBalance * 100 : 0;
