@@ -172,10 +172,13 @@ export default async function handler(req, res) {
     const sumDebts = debts.reduce((acc, curr) => acc + curr, 0)
     const hasDiscrepancy = ((sumFreeDebt + sumPaidDebt) !== sumDebts) || sumFreeDebt !== totalFreeDebt || sumPaidDebt !== totalPaidDebt || totalDebt !== sumDebts;
 
+    const sumDeposits = deposits.reduce((acc, curr) => acc + curr, 0);
+
     const resultData = {
       timestamp: now,
       collateralFactor,
       price,
+      tvl: sumDeposits * price,
       isReduceOnly,
       isLiquidationAllowed,
       nbUniqueUsers: totalUniqueUsers.length,
@@ -184,7 +187,7 @@ export default async function handler(req, res) {
       nbRedeemableUsers: redeemablePositions.length,
       nbNonRedeemableUsers: nonRedeemablePositions.length,
       sumDebts: sumDebts,
-      sumDeposits: deposits.reduce((acc, curr) => acc + curr, 0),
+      sumDeposits,
       sumFreeDebt: sumFreeDebt,
       sumPaidDebt: sumPaidDebt,
       lenderTotalFreeDebt: totalFreeDebt,
