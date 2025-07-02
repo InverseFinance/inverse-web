@@ -23,7 +23,7 @@ export default async function handler(req, res) {
   if (!monolithSupportedChainIds.includes(chainId) || !factory || factory === BURN_ADDRESS || (!!factory && !isAddress(factory))) {
     return res.status(400).json({ success: false, error: 'Invalid factory address' });
   }
-  const cacheKey = `monolith-deployments-${chainId}-${factory}-v1.0.0`;
+  const cacheKey = `monolith-deployments-${chainId}-${factory}-v1.0.5`;
   try {
     const { isValid, data: cachedData } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration, false);
     if (isValid) {
@@ -67,7 +67,7 @@ export default async function handler(req, res) {
     });
 
     // immutable state variables
-    const [collaterals, collateralFactor, minDebt, interesModel] = await getGroupedMulticallOutputs(
+    const [collaterals, collateralFactor, minDebt, interesModel, symbols, names, feeds] = await getGroupedMulticallOutputs(
       [
         newEvents.map(e => {
           return { contract: new Contract(e.lender, LENDER_ABI, provider), functionName: 'collateral' }
@@ -80,6 +80,15 @@ export default async function handler(req, res) {
         }),
         newEvents.map(e => {
           return { contract: new Contract(e.lender, LENDER_ABI, provider), functionName: 'interestModel' }
+        }),
+        newEvents.map(e => {
+          return { contract: new Contract(e.coin, ERC20_ABI, provider), functionName: 'symbol' }
+        }),
+        newEvents.map(e => {
+          return { contract: new Contract(e.coin, ERC20_ABI, provider), functionName: 'name' }
+        }),
+        newEvents.map(e => {
+          return { contract: new Contract(e.lender, LENDER_ABI, provider), functionName: 'feed' }
         }),
       ],
       Number(chainId),
@@ -98,10 +107,15 @@ export default async function handler(req, res) {
         collateralFactor: getBnToNumber(collateralFactor[i], 4),
         minDebt: getBnToNumber(minDebt[i], 18),
         interestModel: interesModel[i],
+        symbol: symbols[i],
+        name: names[i],
+        feed: feeds[i],
       }
     });
 
     const [
+      collateralSymbol,
+      collateralName,
       collateralDecimals,
       marketTotalCollateralBalance,
       priceData,
@@ -124,6 +138,12 @@ export default async function handler(req, res) {
       staked,
     ] = await getGroupedMulticallOutputs(
       [
+        deployments.map(e => {
+          return { contract: new Contract(e.collateral, ERC20_ABI, provider), functionName: 'symbol', forceFallback: !!e.collateralSymbol, fallbackValue: e.collateralSymbol }
+        }),
+        deployments.map(e => {
+          return { contract: new Contract(e.collateral, ERC20_ABI, provider), functionName: 'name', forceFallback: !!e.collateralName, fallbackValue: e.collateralName }
+        }),
         deployments.map(e => {
           return { contract: new Contract(e.collateral, ERC20_ABI, provider), functionName: 'decimals', forceFallback: !!e.collateralDecimals, fallbackValue: e.collateralDecimals ? parseUnits(e.collateralDecimals.toString(), 0) : undefined }
         }),
@@ -194,10 +214,12 @@ export default async function handler(req, res) {
       const [priceBn, isReduceOnly, isLiquidationAllowed] = priceData[i];
       // always use 18 decimals for price
       const price = getBnToNumber(priceBn, 18);
+      e.collateralSymbol = collateralSymbol[i];
+      e.collateralName = collateralName[i];
       e.collateralDecimals = getBnToNumber(collateralDecimals[i], 0);
-      e.marketTotalCollateralBalance = getBnToNumber(marketTotalCollateralBalance[i], e.collateralDecimals);
+      e.totalDeposits = getBnToNumber(marketTotalCollateralBalance[i], e.collateralDecimals);
       e.price = price;
-      e.tvl = e.marketTotalCollateralBalance * price;
+      e.tvl = e.totalDeposits * price;
       e.isReduceOnly = isReduceOnly;
       e.isLiquidationAllowed = isLiquidationAllowed;
       e.immutabilityDeadline = getBnToNumber(immutabilityDeadline[i], 0);
