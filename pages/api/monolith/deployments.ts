@@ -23,7 +23,7 @@ export default async function handler(req, res) {
   if (!monolithSupportedChainIds.includes(chainId) || !factory || factory === BURN_ADDRESS || (!!factory && !isAddress(factory))) {
     return res.status(400).json({ success: false, error: 'Invalid factory address' });
   }
-  const cacheKey = `monolith-deployments-${chainId}-${factory}-v1.0.1`;
+  const cacheKey = `monolith-deployments-${chainId}-${factory}-v1.0.2`;
   try {
     const { isValid, data: cachedData } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration, false);
     if (isValid) {
@@ -67,7 +67,7 @@ export default async function handler(req, res) {
     });
 
     // immutable state variables
-    const [collaterals, collateralFactor, minDebt, interesModel, symbols, names] = await getGroupedMulticallOutputs(
+    const [collaterals, collateralFactor, minDebt, interesModel, symbols, names, feeds] = await getGroupedMulticallOutputs(
       [
         newEvents.map(e => {
           return { contract: new Contract(e.lender, LENDER_ABI, provider), functionName: 'collateral' }
@@ -86,6 +86,9 @@ export default async function handler(req, res) {
         }),
         newEvents.map(e => {
           return { contract: new Contract(e.coin, LENDER_ABI, provider), functionName: 'name' }
+        }),
+        newEvents.map(e => {
+          return { contract: new Contract(e.lender, LENDER_ABI, provider), functionName: 'feed' }
         }),
       ],
       Number(chainId),
@@ -106,6 +109,7 @@ export default async function handler(req, res) {
         interestModel: interesModel[i],
         symbol: symbols[i],
         name: names[i],
+        feed: feeds[i],
       }
     });
 
