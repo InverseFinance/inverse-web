@@ -27,6 +27,7 @@ import { usePricesDefillama, usePricesV2 } from "@app/hooks/usePrices";
 import { ETH_SAVINGS_STABLECOINS } from "@app/components/sDola/SavingsOpportunities";
 import { SDOLA_ADDRESS } from "@app/config/constants";
 import { stakeDola } from "@app/util/dola-staking";
+import { shortenNumber } from "@app/util/markets";
 const zapOptions = [...new Set(ZAP_TOKENS_ARRAY.map(t => t.address))];
 
 const removeUndefined = obj => Object.fromEntries(
@@ -48,6 +49,7 @@ function EnsoZap({
     introMessage = null,
     isSingleChoice = false,
     targetAssetPrice = 0,
+    exRate,
     isInModal = true,
     fromText = "From",
     fromTextProps = defaultFromTextProps,
@@ -60,6 +62,7 @@ function EnsoZap({
     introMessage?: string | null
     isSingleChoice?: boolean
     targetAssetPrice?: number
+    exRate?: number
     isInModal?: boolean
     fromText?: string | null
     fromTextProps?: any
@@ -321,7 +324,7 @@ function EnsoZap({
                                 hideInput={true}
                                 showMaxBtn={false}
                                 actionLabel={isDolaStakingFromDola ? `Stake DOLA` : `Zap-In to ${tokenOutObj?.symbol.replace(/ lp$/, ' LP')}`}
-                                isDisabled={!zapResponseData?.route || !amountIn || ((!!tokenIn && tokenIn !== EthXe) && !approveDestinationAddress) || !slippage || !parseFloat(slippage)}
+                                isDisabled={(!isDolaStakingFromDola && !zapResponseData?.route) || !amountIn || ((!!tokenIn && tokenIn !== EthXe) && !approveDestinationAddress) || !slippage || !parseFloat(slippage)}
                                 alsoDisableApprove={!amountIn || ((!!tokenIn && tokenIn !== EthXe) && !approveDestinationAddress) || !slippage || !parseFloat(slippage)}
                                 btnProps={{ needPoaFirst: true }}
                                 signer={provider?.getSigner()}
@@ -366,7 +369,7 @@ function EnsoZap({
                     }
 
                     {
-                        !zapResponseData?.error && zapResponseData?.route && <EnsoRouting
+                        isDolaStakingFromDola && exRate > 0 ? <Text>Result: ~ {1/exRate * parseFloat(amountIn||'0')} sDOLA ({shortenNumber(targetAssetPrice * 1/exRate * parseFloat(amountIn||'0'), 2, true)})</Text> : !zapResponseData?.error && zapResponseData?.route && <EnsoRouting
                             onlyShowResult={isDolaStakingFromDola}
                             chainId={chainId?.toString()}
                             targetChainId={targetChainId?.toString()}
