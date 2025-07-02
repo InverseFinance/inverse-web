@@ -82,10 +82,10 @@ export default async function handler(req, res) {
           return { contract: new Contract(e.lender, LENDER_ABI, provider), functionName: 'interestModel' }
         }),
         newEvents.map(e => {
-          return { contract: new Contract(e.lender, LENDER_ABI, provider), functionName: 'symbol' }
+          return { contract: new Contract(e.coin, LENDER_ABI, provider), functionName: 'symbol' }
         }),
         newEvents.map(e => {
-          return { contract: new Contract(e.lender, LENDER_ABI, provider), functionName: 'name' }
+          return { contract: new Contract(e.coin, LENDER_ABI, provider), functionName: 'name' }
         }),
       ],
       Number(chainId),
