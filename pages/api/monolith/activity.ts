@@ -10,7 +10,7 @@ import { BURN_ADDRESS } from '@app/config/constants';
 import { LENDER_ABI, monolithSupportedChainIds } from './positions';
 
 export default async function handler(req, res) {
-  const cacheDuration = 60;
+  const cacheDuration = 120;
   res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
   res.setHeader('Access-Control-Allow-Headers', `Content-Type`);
   res.setHeader('Access-Control-Allow-Origin', `*`);
