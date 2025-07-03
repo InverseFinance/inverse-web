@@ -325,9 +325,9 @@ export const UserDashboard = ({
         {
             isVirginFirmUser ? <VStack w='full' alignItems="flex-start">
                 <InfoMessage
-                    alertProps={{ w: 'full' }}
-                    title='No position in FiRM at the moment'
-                    description="Once you have assets in one the markets below, more data will be shown in the dashboard"
+                    alertProps={{ w: 'full', mb: '4' }}
+                    title='You do not have any position in FiRM at the moment'
+                    // description="Once you have assets in one the markets below, more data will be shown in the dashboard"
                 />
                 <F2Markets isDashboardPage={true} marketsData={marketsData} firmTvls={firmTvlData.firmTvls} />
             </VStack>
