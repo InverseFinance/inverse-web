@@ -23,7 +23,7 @@ export default async function handler(req, res) {
   if (!monolithSupportedChainIds.includes(chainId) || !factory || factory === BURN_ADDRESS || (!!factory && !isAddress(factory))) {
     return res.status(400).json({ success: false, error: 'Invalid factory address' });
   }
-  const cacheKey = `monolith-deployments-${chainId}-${factory}-v1.0.6`;
+  const cacheKey = `monolith-deployments-${chainId}-${factory}-v1.0.7`;
   try {
     const { isValid, data: cachedData } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration, false);
     if (isValid) {
@@ -138,6 +138,7 @@ export default async function handler(req, res) {
       targetFreeDebtRatioEndBps,
       expRate,
       staked,
+      feedDescription,
     ] = await getGroupedMulticallOutputs(
       [
         deployments.map(e => {
@@ -206,6 +207,9 @@ export default async function handler(req, res) {
         deployments.map(e => {
           return { contract: new Contract(e.vault, SVAULT_ABI, provider), functionName: 'totalAssets' }
         }),
+        deployments.map(e => {
+          return { contract: new Contract(e.feed, ['function description() public view returns (string memory)'], provider), fallbackValue: '', functionName: 'description' }
+        }),
       ],
       Number(chainId),
       currentBlock,
@@ -243,6 +247,7 @@ export default async function handler(req, res) {
       e.freeDebtRatio = e.totalFreeDebt === 0 ? 0 : e.totalFreeDebt / (e.totalPaidDebt + e.totalFreeDebt);
       e.staked = getBnToNumber(staked[i], 18);
       e.totalDebt = e.totalPaidDebt + e.totalFreeDebt;
+      e.feedDescription = feedDescription[i];
     });
     
     const [realTimeBorrowRate] = await getGroupedMulticallOutputs(
