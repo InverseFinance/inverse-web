@@ -6,7 +6,7 @@ import { getBnToNumber } from '@app/util/markets'
 import { getMulticallOutput } from '@app/util/multicall';
 
 export default async function handler(req, res) {
-  const cacheKey = `misc-csv-feeds-v1.0.1`;
+  const cacheKey = `misc-csv-feeds-v1.0.2`;
 
   try {
     const cacheDuration = 60;
@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     const usdsFeedContract = new Contract('0x070287A072cf7Ead994F5b91d75FBdf92A5eAFB7', ["function latestAnswer() external view returns (int256)"], provider);
     const crvusdFeedContract = new Contract('0x4DEcE678ceceb27446b35C672dC7d61F30bAD69E', ["function price_oracle() external view returns (uint256)"], provider);
     const usdcFeedContract = new Contract('0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6', ["function latestAnswer() external view returns (int256)"], provider);
-    const usrFeedContract = new Contract('0x182Af82E3619D2182b3669BbFA8C72bC57614aDf', ["function latestAnswer() external view returns (int256)"], provider);
+    const usrFeedContract = new Contract('0x3eE841F47947FEFbE510366E4bbb49e145484195', ["function price_oracle(uint) external view returns (int256)"], provider);
     const deusdFeedContract = new Contract('0x15f7744C393CD07bEac9322cE531bd0cB363536b', ["function latestAnswer() external view returns (int256)"], provider);
 
     const decimals = [18, 18, 18, 8, 18, 18];
@@ -54,8 +54,8 @@ export default async function handler(req, res) {
       },
       {
         contract: usrFeedContract,
-        functionName: 'latestAnswer',
-        params: [],
+        functionName: 'price_oracle',
+        params: [0],
       },
       {
         contract: deusdFeedContract,
@@ -67,7 +67,7 @@ export default async function handler(req, res) {
     const prices = pricesBn.map((price, index) => getBnToNumber(price, decimals[index]));
 
     let csvData = `Timestamp,USDe,USDS,crvUsd,USR,deUSD\n`;
-    csvData += `${new Date().toISOString()},${prices[0]},${prices[1]},${prices[2]*prices[3]},${prices[4]},${prices[5]}\n`;
+    csvData += `${new Date().toISOString()},${prices[0]},${prices[1]},${prices[2]*prices[3]},${1/prices[4]*prices[3]},${prices[5]}\n`;
 
     await redisSetWithTimestamp(cacheKey, { csvData });
 
