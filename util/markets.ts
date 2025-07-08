@@ -726,6 +726,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         getYearnVaultApy('0x57a2c7925bAA1894a939f9f6721Ea33F2EcFD0e2'),
         getPendleMarketApy('0xb162b764044697cf03617c2efbcb1f42e31e4766'),
         getPendleMarketApy('0x4339ffe2b7592dc783ed13cce310531ab366deac'),
+        getPendleMarketApy('0xa36b60a14a1a5247912584768c6e53e1a269a9f7'),
     ]);
 
     let [
@@ -759,6 +760,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         yvUSRDOLAData,
         ptSUSDe29MAY25Data,
         ptSUSDe31JUL25Data,
+        ptSUSDe25SEP25Data,
     ] = externalYieldResults.map(r => {
         return r.status === 'fulfilled' ? r.value : {};
     });
@@ -806,5 +808,6 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         'yv-USR-DOLA': yvUSRDOLAData?.apy || 0,
         'PT-sUSDe-29MAY25': ptSUSDe29MAY25Data?.apy || 0,
         'PT-sUSDe-31JUL25': ptSUSDe31JUL25Data?.apy || 0,
+        'PT-sUSDe-25SEP25': ptSUSDe25SEP25Data?.apy || 0,
     };
 }
