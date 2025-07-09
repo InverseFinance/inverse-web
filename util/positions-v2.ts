@@ -171,6 +171,7 @@ export const getHistoricalFrontierPositionsDetails = async ({
         const liquidHealth = usdLiquidBackingPower - usdBorrowed;
         const liquidShortfall = Math.abs(Math.min(liquidHealth, 0));
         const usdShortfall = Math.abs(Math.min(usdBackingPower - usdBorrowed, 0));
+        const invBackingPower = supplied.find(s => s.marketIndex === 9)?.usdLiquidBackingPower || 0;
 
         return {
             ...position,
@@ -181,7 +182,8 @@ export const getHistoricalFrontierPositionsDetails = async ({
             usdLiquidBacking: supplied.reduce((prev, curr) => prev + curr.usdLiquidBacking, 0),
             usdLiquidBackingPower,
             dolaBorrowed,
-            dolaBadDebt: liquidShortfall > 0 ? dolaBorrowed >= usdBorrowed * 0.98 ? (dolaBorrowed - usdLiquidBackingPower) : dolaBorrowed : 0,
+            dolaBadDebt: liquidShortfall > 0 ? dolaBorrowed >= usdBorrowed * 0.98 ? (dolaBorrowed - (usdLiquidBackingPower - invBackingPower)) : dolaBorrowed : 0,
+            dolaBadDebtV2: liquidShortfall > 0 ? dolaBorrowed >= usdBorrowed * 0.98 ? (dolaBorrowed - usdLiquidBackingPower) : dolaBorrowed : 0,
             dolaBadDebtClassic: usdShortfall > 0 ? dolaBorrowed >= usdBorrowed * 0.98 ? (dolaBorrowed - usdBackingPower) : dolaBorrowed : 0,
             assetsIn: assetsInMarketIndexes,
             liquidHealth,

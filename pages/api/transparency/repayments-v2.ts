@@ -21,8 +21,8 @@ const TREASURY = '0x926dF14a23BE491164dCF93f4c468A50ef659D5B';
 const RWG = '0xE3eD95e130ad9E15643f5A5f232a3daE980784cd';
 const DBR_AUCTION_REPAYMENT_HANDLERS = ['0xB4497A7351e4915182b3E577B3A2f411FA66b27f', '0x4f4A31C1c11Bdd438Cf0c7668D6aFa2b5825932e'];
 
-const frontierBadDebtEvoCacheKey = 'dola-frontier-evo-v2.0.x';
-export const repaymentsCacheKeyV2 = `repayments-v2.0.0`;
+const frontierBadDebtEvoCacheKey = 'dola-frontier-evo-v3.0.x';
+export const repaymentsCacheKeyV2 = `repayments-v3.0.0`;
 
 const { DEBT_CONVERTER, DEBT_REPAYER } = getNetworkConfigConstants();
 
@@ -45,7 +45,9 @@ export default async function handler(req, res) {
 
         const provider = getPaidProvider(1);
         frontierShortfalls.positions
-            .filter(({ liquidShortfall, usdBorrowed }) => liquidShortfall > 0 && usdBorrowed > 0)
+            .filter(({ liquidShortfall, usdBorrowed, supplied, liquidHealth }) => (liquidShortfall > 0 && usdBorrowed > 0) 
+            // write off INV backing
+            || (liquidHealth - (supplied.find(s => s.marketIndx === 9)?.usdLiquidBackingPower || 0) <= 0))
             .forEach(position => {
                 position.borrowed.forEach(({ marketIndex, balance }) => {
                     const marketAddress = frontierShortfalls.markets[marketIndex];
@@ -65,7 +67,7 @@ export default async function handler(req, res) {
                     badDebts[symbol].badDebtBalance += balance;
                     badDebts[symbol].frontierBadDebtBalance += balance;
                 });
-            });        
+            });
     
         const debtConverter = new Contract(DEBT_CONVERTER, DEBT_CONVERTER_ABI, provider);
         const debtRepayer = new Contract(DEBT_REPAYER, DEBT_REPAYER_ABI, provider);
@@ -418,6 +420,7 @@ const getBadDebtEvolution = async (repaymentBlocks: number[]) => {
         const hasData = results[i]?.status === 'fulfilled';
         return {
             dolaBadDebt: hasData ? results[i]?.value.positionDetails.reduce((acc, pos) => acc + pos.dolaBadDebt, 0) : null,
+            dolaBadDebtV2: hasData ? results[i]?.value.positionDetails.reduce((acc, pos) => acc + pos.dolaBadDebtV2, 0) : null,
             dolaBorrowed: hasData ? results[i]?.value.positionDetails.reduce((acc, pos) => acc + pos.dolaBorrowed, 0) : null,
             dolaBadDebtClassic: hasData ? results[i]?.value.positionDetails.reduce((acc, pos) => acc + pos.dolaBadDebtClassic, 0) : null,
             block,
