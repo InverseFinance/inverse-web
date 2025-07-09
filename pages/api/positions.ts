@@ -3,7 +3,7 @@ import { getCacheFromRedis } from '@app/util/redis';
 import { ONE_DAY_SECS } from "@app/config/constants";
 
 export default async function handler(req, res) { 
-    const cacheKey = `frontier-positions-v2`;
+    const cacheKey = `frontier-positions-v3`;
 
     try {
         const cacheDuration = ONE_DAY_SECS;

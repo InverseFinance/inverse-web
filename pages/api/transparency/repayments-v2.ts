@@ -28,7 +28,7 @@ const { DEBT_CONVERTER, DEBT_REPAYER } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
     const { cacheFirst, ignoreCache } = req.query;    
-    const frontierShortfallsKey = `frontier-positions-v2`;
+    const frontierShortfallsKey = `frontier-positions-v3`;
     const histoPricesCacheKey = `historic-prices-v1.0.4`;
 
     try {
