@@ -1997,7 +1997,10 @@ const DEBT_V2 = [
     }
   ]
 
+export const REF_BLOCK_WRITE_OFF_ALL_FRONTIER_DOLA = 18603073;
+
 export const DOLA_FRONTIER_DEBT_V2 = {
   totals: DEBT_V2.map((d) => d.dolaBadDebt),
+  borrowed: DEBT_V2.map((d) => d.dolaBorrowed),
   blocks: DEBT_V2.map((d) => d.block),
 }
