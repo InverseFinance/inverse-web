@@ -8,7 +8,7 @@ import { getHistoricValue, getPaidProvider, getProvider } from "@app/util/provid
 import { getBnToNumber } from "@app/util/markets";
 import { DWF_PURCHASER, ONE_DAY_SECS } from "@app/config/constants";
 import { addBlockTimestamps } from '@app/util/timestamps';
-import { DOLA_FRONTIER_DEBT_V2 } from "@app/fixtures/frontier-dola";
+import { DOLA_FRONTIER_DEBT_V2, REF_BLOCK_WRITE_OFF_ALL_FRONTIER_DOLA } from "@app/fixtures/frontier-dola";
 import { throttledPromises, timestampToUTC, utcDateToDDMMYYYY } from "@app/util/misc";
 import { getTokenHolders } from "@app/util/covalent";
 import { parseUnits } from "@ethersproject/units";
@@ -21,8 +21,8 @@ const TREASURY = '0x926dF14a23BE491164dCF93f4c468A50ef659D5B';
 const RWG = '0xE3eD95e130ad9E15643f5A5f232a3daE980784cd';
 const DBR_AUCTION_REPAYMENT_HANDLERS = ['0xB4497A7351e4915182b3E577B3A2f411FA66b27f', '0x4f4A31C1c11Bdd438Cf0c7668D6aFa2b5825932e'];
 
-const frontierBadDebtEvoCacheKey = 'dola-frontier-evo-v2.0.x';
-export const repaymentsCacheKeyV2 = `repayments-v2.0.0`;
+const frontierBadDebtEvoCacheKey = 'dola-frontier-evo-v4.0.x';
+export const repaymentsCacheKeyV2 = `repayments-v4.0.0`;
 
 const { DEBT_CONVERTER, DEBT_REPAYER } = getNetworkConfigConstants();
 
@@ -293,11 +293,15 @@ export default async function handler(req, res) {
         badDebtEvents.sort((a, b) => a.timestamp - b.timestamp);
 
         const frontierDolaEvolution = dolaFrontierDebts.totals.map((badDebt, i) => {
+            const borrows = dolaFrontierDebts.borrowed[i];
             const delta = badDebt - dolaFrontierDebts.totals[i - 1];
+            const deltaBorrowed = borrows - dolaFrontierDebts.borrowed[i - 1];
             return {
                 timestamp: timestamps["1"][dolaFrontierDebts.blocks[i]] * 1000,
                 frontierBadDebt: badDebt,
+                frontierBorrowed: borrows,
                 frontierDelta: delta || 0,
+                frontierBorrowedDelta: deltaBorrowed || 0,
                 nonFrontierDelta: 0,
             };
         });
@@ -307,7 +311,9 @@ export default async function handler(req, res) {
         dolaBadDebtEvolution.forEach((ev, i) => {
             if (i > 0) {
                 const last = dolaBadDebtEvolution[i - 1];
-                dolaBadDebtEvolution[i].badDebt = last.badDebt + (ev.frontierDelta || ev.nonFrontierDelta || 0);
+                // after 20nov 2023, we use borrowed delta
+                const delta = ev.timestamp >= 1700438400000 ? (ev.frontierBorrowedDelta || ev.nonFrontierDelta || 0) : (ev.frontierDelta || ev.nonFrontierDelta || 0);
+                dolaBadDebtEvolution[i].badDebt = last.badDebt + delta;
             } else {
                 dolaBadDebtEvolution[i].badDebt = dolaBadDebtEvolution[i].frontierBadDebt;
             }
@@ -426,6 +432,7 @@ const getBadDebtEvolution = async (repaymentBlocks: number[]) => {
 
     const resultData = {
         totals: pastData?.totals.concat(newData.map(d => d.dolaBadDebt)),
+        borrowed: pastData?.totals.concat(newData.map(d => d.dolaBorrowed)),
         blocks: pastData?.blocks.concat(newData.map(d => d.block)),
         timestamp: Date.now(),
     }
