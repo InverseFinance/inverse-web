@@ -72,7 +72,7 @@ export const FirmBorrowsChart = ({
     return (
         <VStack position="relative" alignItems="center" maxW={`${chartWidth}px`}>
             <VStack>
-                <Text fontWeight="bold">
+                <Text className="heading-font" fontWeight="bold">
                     FiRM Borrows
                 </Text>
                 {rangeButtonsBar}

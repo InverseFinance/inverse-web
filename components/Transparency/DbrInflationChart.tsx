@@ -89,7 +89,7 @@ export const DbrInflationChart = ({
     return (
         <VStack position="relative" alignItems="center" maxW={`${chartWidth}px`}>
             <VStack>
-                <Text fontWeight="bold">
+                <Text className="heading-font" fontWeight="bold">
                     DBR Daily Net-Issuance Rate
                 </Text>
                 {rangeButtonsBar}

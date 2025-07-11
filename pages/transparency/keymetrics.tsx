@@ -151,7 +151,7 @@ export const KeymetricsPage = () => {
               cardTitle={
                 <HStack alignItems="center" position={{ base: 'static', md: 'absolute' }} left="0" top="0" w="full" justifyContent="center">
                   <FirmLogo w="65px" h="30px" />
-                  <Text {...defillamaTextProps}>Revenues & Fees</Text>
+                  <Text className="heading-font" {...defillamaTextProps}>Revenues & Fees</Text>
                 </HStack>
               }
               {...dashboardCardProps} w='full' p="0">
@@ -160,7 +160,7 @@ export const KeymetricsPage = () => {
             <DashBoardCard cardTitle={
               <HStack alignItems="center" position={{ base: 'static', md: 'absolute' }} left="0" top="0" w="full" justifyContent="center">
                 <FirmLogo w="65px" h="30px" />
-                <Text {...defillamaTextProps}>TVL</Text>
+                <Text className="heading-font" {...defillamaTextProps}>TVL</Text>
               </HStack>
             }
               {...dashboardCardProps} w='full' p="0">

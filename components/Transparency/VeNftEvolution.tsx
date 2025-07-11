@@ -183,7 +183,7 @@ export const VeNftEvolutionWrapper = () => {
         <DashBoardCard {...commonCardProps}>
             <VStack>
                 <VStack>
-                    <Text fontSize={mainFontSize} fontWeight="extrabold">Total veNFTs value evolution</Text>
+                    <Text className="heading-font" fontSize={mainFontSize} fontWeight="extrabold">Total veNFTs value evolution</Text>
                 </VStack>
                 <VeNftDashboardAreaChart
                     data={accChartData}

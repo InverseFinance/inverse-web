@@ -168,7 +168,7 @@ export const AreaChartRecharts = ({
 
     return (
         <VStack position="relative" alignItems="center" maxW={`${chartWidth}px`}>
-            <Text fontWeight="bold" {...titleProps}>
+            <Text className="heading-font" fontWeight="bold" {...titleProps}>
                 {title}
             </Text>
             {
