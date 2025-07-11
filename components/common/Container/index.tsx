@@ -45,7 +45,7 @@ export const Container = ({
   const title = (
     <Flex cursor={collapsable ? 'pointer' : undefined} onClick={collapsable ? () => setCollapsed(!collapsed) : undefined} position="relative" w="fit-content">
       {typeof label === 'string' ? (
-        <Text as="h3" fontSize="xl" fontWeight="bold" position="relative" {...labelProps}>
+        <Text className="heading-font" as="h3" fontSize="xl" fontWeight="bold" position="relative" {...labelProps}>
           {label}{collapsable ? collapsed ? <ChevronRightIcon /> : <ChevronDownIcon /> : null}
         </Text>
       ) : (

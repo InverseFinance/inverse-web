@@ -690,7 +690,7 @@ export const F2Markets = ({
             <Stack h={{ base: 'auto', xl: '56px' }} direction={{ base: 'column', xl: 'row' }} alignItems="flex-start" justify="center">
                 <FirmLogo transform="translateY(6px)" w='110px' h="50px" />
                 <VStack h={{ base: 'auto', xl: '56px' }} overflow="hidden" spacing="0" alignItems="flex-start">
-                    <Text display="inline-block" fontWeight="bold" fontSize={{ base: '14px', md: '16px', 'xl': '20px' }}>
+                    <Text className="heading-font" display="inline-block" fontWeight="bold" fontSize={{ base: '14px', md: '16px', 'xl': '20px' }}>
                         {
                             !dbrPriceDola ?
                                 null

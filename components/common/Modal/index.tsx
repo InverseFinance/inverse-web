@@ -28,7 +28,7 @@ export const Modal = ({ isOpen, onClose, header, children, footer, scrollBehavio
       <ModalOverlay />
       <ModalContent m={{ base: 4, sm: 32 }} bg="modalContentBg" color="mainTextColor"  {...props}>
         {
-          !!header && <ModalHeader borderBottomWidth={2} borderBottomColor="primary.850">
+          !!header && <ModalHeader className="heading-font" borderBottomWidth={2} borderBottomColor="primary.850">
             {header}
           </ModalHeader>
         }

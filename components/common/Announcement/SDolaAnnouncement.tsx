@@ -67,7 +67,7 @@ export const SDolaAnnouncement = () => {
           {
             highestApy > 0 ?
               <HStack textDecoration="underline" spacing="1">
-                <Text>Get <b style={{ fontWeight: 'extrabold', fontSize: '18px', color: themeStyles.colors.accentTextColor }}>{shortenNumber(highestApy, 2)}%</b>{isSpectraCase ? ' Fixed ' : ' '}APY with sDOLA{isSpectraCase ? ' on Spectra' : ''}</Text>
+                <Text className="heading-font">Get <b style={{ fontWeight: 'extrabold', fontSize: '18px', color: themeStyles.colors.accentTextColor }}>{shortenNumber(highestApy, 2)}%</b>{isSpectraCase ? ' Fixed ' : ' '}APY with sDOLA{isSpectraCase ? ' on Spectra' : ''}</Text>
                 <Image borderRadius="full" src="/assets/sDOLAx128.png" h="20px" w="20px" />
               </HStack>
               : <SmallTextLoader />
