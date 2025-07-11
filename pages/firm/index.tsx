@@ -98,7 +98,7 @@ export const F2PAGE = ({
                     isTwitterAlert &&
                     <>
                         <meta property="twitter:card" content="summary_large_image" />
-                        <meta name="twitter:image" content="https://inverse.finance/assets/social-previews/inverse-alert.jpg" />
+                        <meta name="twitter:image" content="https://inverse.finance/assets/social-previews/inverse-alert-v2.png" />
                         <meta name="twitter:image:alt" content="FiRM" />
                     </>
                 }
