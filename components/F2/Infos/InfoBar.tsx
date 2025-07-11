@@ -338,7 +338,7 @@ const BarBlock = ({
         {
             isLargerThan && !!imgSrc && <MarketImage image={imgSrc} size={40} imgProps={{ borderRadius: '100px' }} />
         }
-        <VStack spacing="1" alignItems="flex-start" {...vstackProps}>
+        <VStack className="heading-font" spacing="1" alignItems="flex-start" {...vstackProps}>
             <HStack spacing="2" alignItems="center">
                 <Link textDecoration="underline" fontWeight="extrabold" fontSize={{ base: '14px', md: '18px' }} color="mainTextColor" textAlign="left" href={href} isExternal target='_blank'>
                     {label}
@@ -399,7 +399,7 @@ export const FirmBar = ({
             </HStack>
             <HStack w={{ base: 'full', md: 'auto' }} alignItems="flex-start" justify="space-between" spacing={{ base: '2', md: '8' }}>
                 <VStack w={{ base: '33%', md: 'auto' }} spacing="1" alignItems={{ base: 'flex-start', md: 'center' }}>
-                    <Link textAlign="center" textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/transparency/dola">
+                    <Link className="heading-font" textAlign="center" textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/transparency/dola">
                         DOLA {isLargerThan ? 'Circulating ' : ' '}Supply
                     </Link>
                     {
@@ -411,7 +411,7 @@ export const FirmBar = ({
                     }
                 </VStack>
                 <VStack w={{ base: '33%', md: 'auto' }} spacing="1" alignItems='center'>
-                    <Link textAlign="center" textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/firm/positions">
+                    <Link className="heading-font" textAlign="center" textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/firm/positions">
                         FiRM TVL
                     </Link>
                     {
@@ -423,7 +423,7 @@ export const FirmBar = ({
                     }
                 </VStack>
                 <VStack w={{ base: '33%', md: 'auto' }} spacing="1" alignItems='flex-end'>
-                    <Link textAlign="center" textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/firm/positions">
+                    <Link className="heading-font" textAlign="center" textDecoration="underline" color="mainTextColor" fontSize={{ base: '14px', md: '18px' }} fontWeight="extrabold" href="/firm/positions">
                         FiRM Borrows
                     </Link>
                     {
