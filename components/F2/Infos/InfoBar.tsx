@@ -25,8 +25,8 @@ import { AnimatedInfoTooltip } from "@app/components/common/Tooltip"
 import { fromNow, timeSince } from "@app/util/time"
 import { F2Market } from "@app/types"
 
-const Title = (props: TextProps) => <Text textAlign="center" fontWeight="extrabold" fontSize={{ base: '13px', md: '18px' }} {...props} />;
-const SubTitle = (props: TextProps) => <Text textAlign="center" color="secondaryTextColor" fontSize={{ base: '13px', md: '16px' }} {...props} />;
+const Title = (props: TextProps) => <Text className="heading-font" textAlign="center" fontWeight="extrabold" fontSize={{ base: '13px', md: '18px' }} {...props} />;
+const SubTitle = (props: TextProps) => <Text className="heading-font" textAlign="center" color="secondaryTextColor" fontSize={{ base: '13px', md: '16px' }} {...props} />;
 
 const DbrRepMsg = ({ replenishmentDailyRate, ...props }: { replenishmentDailyRate: number }) => <WarningMessage
     description={
