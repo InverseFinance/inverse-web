@@ -37,7 +37,7 @@ const getLiquidatableDebt = (collateralBalance: number, price: number, debt: num
 }
 
 export default async function handler(req, res) {
-  const cacheDuration = 60;
+  const cacheDuration = 120;
   res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
   res.setHeader('Access-Control-Allow-Headers', `Content-Type`);
   res.setHeader('Access-Control-Allow-Origin', `*`);
