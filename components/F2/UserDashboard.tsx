@@ -149,7 +149,7 @@ export const DashBoardCard = (props: StackProps & { cardTitle?: string, cardTitl
         className="app-dashboard-card"
         {...props}
     >
-        {typeof props.cardTitle !== 'string' ? props.cardTitle : !!props.cardTitle && <Text fontSize="18px" fontWeight="bold" mx="auto" w='200px' position="absolute" left="0" right="0" top={{ base: '5px', xl: '32px' }} {...props.cardTitleProps}>{props.cardTitle}</Text>}
+        {typeof props.cardTitle !== 'string' ? props.cardTitle : !!props.cardTitle && <Text className="heading-font" fontSize="18px" fontWeight="bold" mx="auto" w='200px' position="absolute" left="0" right="0" top={{ base: '5px', xl: '32px' }} {...props.cardTitleProps}>{props.cardTitle}</Text>}
         {!!props.imageSrc && imgList.map((image, i) => {
             return <Image key={image} borderRadius="50px" src={image} w={`${imgSize}px`} h={`${imgSize}px`} position="absolute" left="10px" top={`${10 + (imgSize + 10) * i}px`} />
         })}
@@ -324,10 +324,10 @@ export const UserDashboard = ({
     return <VStack w='full' spacing="8">
         {
             isVirginFirmUser ? <VStack w='full' alignItems="flex-start">
-                <InfoMessage
-                    alertProps={{ w: 'full' }}
-                    title='No position in FiRM at the moment'
-                    description="Once you have assets in one the markets below, more data will be shown in the dashboard"
+                 <InfoMessage
+                    alertProps={{ w: 'full', mb: '4' }}
+                    title='You do not have any position in FiRM at the moment'
+                    // description="Once you have assets in one the markets below, more data will be shown in the dashboard"
                 />
                 <F2Markets isDashboardPage={true} marketsData={marketsData} firmTvls={firmTvlData.firmTvls} />
             </VStack>

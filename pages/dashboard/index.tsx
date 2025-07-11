@@ -35,7 +35,7 @@ export const UserDashboardPage = ({
             <ErrorBoundary>
                 <VStack pt="4" spacing="4" w='full' maxW={{ base: '94%', '2xl': '90rem' }}>
                     <HStack alignItems="center" justify="space-between" w='full'>
-                        <Text fontWeight="extrabold" fontSize="40px">My Dashboard</Text>
+                        <Text className="heading-font" fontWeight="extrabold" fontSize="40px">My Dashboard</Text>
                         <Image borderRadius="5px" display={{ base: 'none', sm: 'inline-block' }} w='200px' src={`/assets/inverse-logo-banner.png?`} />
                     </HStack>
                     <ErrorBoundary description="Failed to Dashboard">

@@ -2,6 +2,10 @@ body {
     overflow-x: hidden !important;
 }
 
+.heading-font, h1, h2, h3 {
+    font-family: 'Funnel Display', serif !important;
+}
+
 .svg-overflow-visible svg {
     overflow: visible !important;
 }

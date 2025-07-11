@@ -124,7 +124,7 @@ export const DolaDiagram = () => {
   };
 
   const mainFontSize = { base: '16px', sm: '20px', md: '26px' };
-  const dashboardCardTitleProps = { w: 'fit-content', position: 'static', fontSize: mainFontSize, fontWeight: 'extrabold' };
+  const dashboardCardTitleProps = { w: 'fit-content', position: 'static', fontSize: mainFontSize, fontWeight: 'extrabold', transform: { base: 'translateY(5px)', md: 'translateY(-20px)' } };
   const dashboardCardProps = { cardTitleProps: dashboardCardTitleProps, direction: 'column', mx: '0', w: { base: '100vw', sm: '95vw', lg: '600px' }, borderRadius: { base: '0', sm: '8' } };
 
   return (

@@ -179,7 +179,7 @@ const UngroupedComparator = ({ title, allRates, themeStyles, isSmallerThan = fal
         noPadding
         p='0'
         contentProps={{ p: { base: '4', sm: '8' }, direction: 'column' }}
-        label={showLabel ? <Text fontSize={{ base: '22px', lg: '28px' }} fontWeight="extrabold">{title}</Text> : null}
+        label={showLabel ? <Text className="heading-font" fontSize={{ base: '22px', lg: '28px' }} fontWeight="extrabold">{title}</Text> : null}
         labelProps={showLabel ? { color: themeStyles.colors.mainTextColor } : null}
         description={showLabel ? "Compare yield on the biggest yield-bearing stablecoins" : null}
         contentBgColor={themeStyles.colors.gradient3}

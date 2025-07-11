@@ -28,7 +28,7 @@ const ExcludeOwnTokens = ({
   setter: (value: boolean) => void,
   value: boolean,
   label?: string
-}) => <FormControl zIndex="2" top={{ base: '65px', sm: '70px' }} position="absolute" w='fit-content' display='flex' alignItems='center'>
+}) => <FormControl zIndex="2" bottom={{ base: '15px', sm: '20px' }} position="absolute" w='fit-content' display='flex' alignItems='center'>
     <FormLabel cursor="pointer" fontWeight='normal' fontSize='14px' color='secondaryTextColor' htmlFor={id} mb='0'>
       {label}
     </FormLabel>
@@ -82,8 +82,8 @@ export const KeymetricsPage = () => {
 
   const isLoading = isLoadingDao || isLoadingPrices || isDolaPriceLoading || isLoadingPositions;
   const mainFontSize = { base: '16px', sm: '20px', md: '26px' };
-  const dashboardCardTitleProps = { w: 'fit-content', fontSize: mainFontSize, fontWeight: 'extrabold' };
-  const defillamaTextProps = { ...dashboardCardTitleProps, fontSize: '26px', mt: '1' };
+  const dashboardCardTitleProps = { w: 'fit-content', fontSize: mainFontSize, fontWeight: 'extrabold', transform: { base: 'translateY(5px)', md: 'translateY(-20px)' } };
+  const defillamaTextProps = { ...dashboardCardTitleProps, fontSize: '26px', mt: '1', transform: 'none' };
   const dashboardCardProps = { direction: 'column', mx: '0', w: { base: '100vw', sm: '95vw', lg: '600px' }, borderRadius: { base: '0', sm: '8' } };
 
   const fedsPieChartData = fedsDataToPieChart(fedOverviews, themeStyles?.colors);
@@ -128,8 +128,8 @@ export const KeymetricsPage = () => {
                 <Funds isLoading={isLoading} labelWithPercInChart={true} skipLineForPerc={true} funds={groupMarketsByDeposits} chartMode={true} showTotal={false} showChartTotal={true} chartProps={{ width: pieSize, height: pieSize }} useRecharts={true} />
               </DashBoardCard>
               <DashBoardCard cardTitle="Total Treasury Holdings" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps} w={{ base: '100%', xl: '50%' }}>
-                <ExcludeOwnTokens label="Exclude Treasury INV & DBR" setter={setExcludeOwnTokens} value={excludeOwnTokens} id='exclude-1' />
                 <Funds chartMode={true} leftSideMaxW='300px' w='full' isLoading={isLoading} funds={excludeOwnTokens ? totalHoldingsExcludeOwnTokens : totalHoldings} prices={prices} showTotal={false} showChartTotal={true} type='balance' useRecharts={true} chartProps={{ width: pieSize, height: pieSize }} />
+                <ExcludeOwnTokens label="Exclude Treasury INV & DBR" setter={setExcludeOwnTokens} value={excludeOwnTokens} id='exclude-1' />
               </DashBoardCard>
             </Stack>
             <Stack w='full' direction={{ base: 'column', xl: 'row' }} spacing="50px" justifyContent="space-between">
@@ -151,7 +151,7 @@ export const KeymetricsPage = () => {
               cardTitle={
                 <HStack alignItems="center" position={{ base: 'static', md: 'absolute' }} left="0" top="0" w="full" justifyContent="center">
                   <FirmLogo w="65px" h="30px" />
-                  <Text {...defillamaTextProps}>Revenues & Fees</Text>
+                  <Text className="heading-font" {...defillamaTextProps}>Revenues & Fees</Text>
                 </HStack>
               }
               {...dashboardCardProps} w='full' p="0">
@@ -160,7 +160,7 @@ export const KeymetricsPage = () => {
             <DashBoardCard cardTitle={
               <HStack alignItems="center" position={{ base: 'static', md: 'absolute' }} left="0" top="0" w="full" justifyContent="center">
                 <FirmLogo w="65px" h="30px" />
-                <Text {...defillamaTextProps}>TVL</Text>
+                <Text className="heading-font" {...defillamaTextProps}>TVL</Text>
               </HStack>
             }
               {...dashboardCardProps} w='full' p="0">

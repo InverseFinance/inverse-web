@@ -29,7 +29,7 @@ const StatBasic = ({ value, name, isLoading = false }: { value: string, name: st
             !isLoading ? <Text textAlign="center" color={'secondary'} fontSize={{ base: '16px', sm: '18px' }} fontWeight="extrabold">{value}</Text>
                 : <SmallTextLoader />
         }
-        <Text textAlign="center" color={'mainTextColor'} fontSize={{ base: '14px', sm: '16px' }} fontWeight="bold">{name}</Text>
+        <Text className="heading-font" textAlign="center" color={'mainTextColor'} fontSize={{ base: '14px', sm: '16px' }} fontWeight="bold">{name}</Text>
     </VStack>
 }
 
@@ -233,7 +233,7 @@ export const DbrAll = ({
             cardTitle={
                 <HStack alignItems="center" position={{ base: 'static', md: 'absolute' }} left="0" top="0" w="full" justifyContent="center">
                     <FirmLogo w="65px" h="30px" />
-                    <Text {...dashboardCardTitleProps}>Revenues & Fees</Text>
+                    <Text className="heading-font" {...dashboardCardTitleProps}>Revenues & Fees</Text>
                 </HStack>
             }
             {...defillamaCardProps} w='full' p="0">
@@ -242,7 +242,7 @@ export const DbrAll = ({
         <DashBoardCard cardTitle={
             <HStack alignItems="center" position={{ base: 'static', md: 'absolute' }} left="0" top="0" w="full" justifyContent="center">
                 <FirmLogo w="65px" h="30px" />
-                <Text {...dashboardCardTitleProps}>TVL</Text>
+                <Text className="heading-font" {...dashboardCardTitleProps}>TVL</Text>
             </HStack>
         }
             {...defillamaCardProps} w='full' p="0">

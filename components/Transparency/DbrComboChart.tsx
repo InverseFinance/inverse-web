@@ -93,7 +93,7 @@ export const DbrComboChart = ({
     return (
         <VStack position="relative" alignItems="center" maxW={`${chartWidth}px`}>
             <VStack>
-                <Text fontWeight="bold">
+                <Text className="heading-font" fontWeight="bold">
                     DBR annualized burn & issuance over time
                 </Text>
                 {rangeButtonsBar}

@@ -30,7 +30,7 @@ const SimpleModal = ({
             header={
                 title ?
                     <Stack minWidth={24} direction="row" align="center" >
-                        <Text>{title}</Text>
+                        <Text >{title}</Text>
                     </Stack>
                     : undefined
             }

@@ -96,7 +96,7 @@ export const BarChartRecharts = ({
     return (
         <VStack position="relative" alignItems="center" maxW={`${chartWidth}px`}>
             {
-                !!title && <Text fontWeight="bold">
+                !!title && <Text className="heading-font" fontWeight="bold">
                     {title}
                 </Text>
             }
