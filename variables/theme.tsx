@@ -35,7 +35,7 @@ export const lightTheme = extendTheme({
     mainTextColorLightAlpha: '#18205D88',
     // secondaryTextColor: '#333333',
     // secondaryTextColor: '#2457DF',
-    secondaryTextColor: '#7448DC',
+    secondaryTextColor: '#4f589c',
     accentTextColor: '#7448DC',
     accentTextColorAlpha: '#7448DC22',
     secAccentTextColor: '#FFC35C',

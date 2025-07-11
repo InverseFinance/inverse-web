@@ -444,7 +444,7 @@ export const MENUS = {
         },
         {
           label: 'Brand Assets',
-          href: '/brand-assets-2025-v1.0.2.pdf',
+          href: '/brand-assets-2025-v1.1.0.pdf',
         },
       ],
     },

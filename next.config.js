@@ -28,6 +28,11 @@ const redirects = async () => {
       permanent: false,
     },
     {
+      source: '/brand-assets-2025-v1.0.2.pdf',
+      destination: '/brand-assets-2025-v1.1.0.pdf',
+      permanent: false,
+    },
+    {
       source: '/brand-assets-2024-v1.0.1.pdf',
       destination: '/brand-assets-2024-v1.0.2.pdf',
       permanent: false,
