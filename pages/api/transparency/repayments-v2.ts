@@ -21,8 +21,8 @@ const TREASURY = '0x926dF14a23BE491164dCF93f4c468A50ef659D5B';
 const RWG = '0xE3eD95e130ad9E15643f5A5f232a3daE980784cd';
 const DBR_AUCTION_REPAYMENT_HANDLERS = ['0xB4497A7351e4915182b3E577B3A2f411FA66b27f', '0x4f4A31C1c11Bdd438Cf0c7668D6aFa2b5825932e'];
 
-const frontierBadDebtEvoCacheKey = 'dola-frontier-evo-v4.0.x';
-export const repaymentsCacheKeyV2 = `repayments-v4.0.0`;
+const frontierBadDebtEvoCacheKey = 'dola-frontier-evo-v5.0.x';
+export const repaymentsCacheKeyV2 = `repayments-v5.0.0`;
 
 const { DEBT_CONVERTER, DEBT_REPAYER } = getNetworkConfigConstants();
 
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
 
     try {
         res.setHeader('Cache-Control', `public, max-age=${60}`);        
-        const validCache = await getCacheFromRedis(repaymentsCacheKeyV2, cacheFirst !== 'true', ONE_DAY_SECS);                
+        const validCache = await getCacheFromRedis(repaymentsCacheKeyV2, cacheFirst !== 'true', ONE_DAY_SECS * 7);                
         if (validCache && !ignoreCache) {
             res.status(200).json(validCache);
             return
