@@ -18,7 +18,7 @@ export const SDolaComparatorPage = () => {
                 <meta name="og:description" content="Compare sDOLA Yields across Ethereum" />
                 <meta name="description" content="Compare sDOLA Yields across Ethereum" />
                 <meta name="keywords" content="Inverse Finance, sDOLA yield comparison" />
-                <meta name="og:image" content="https://inverse.finance/assets/social-previews/firm-page.png" />
+                <meta name="og:image" content="https://inverse.finance/assets/social-previews/inverse-alert-v2.png" />
             </Head>
             <AppNav active="More" activeSubmenu="Compare sDOLA" />
             <ErrorBoundary>

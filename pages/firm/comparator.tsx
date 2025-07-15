@@ -25,7 +25,7 @@ export const RateComparatorPage = () => {
                 <meta name="og:description" content="Compare Borrowing Rates across Ethereum" />
                 <meta name="description" content="Compare Borrowing Rates across Ethereum" />
                 <meta name="keywords" content="Inverse Finance, borrow rates comparison" />
-                <meta name="og:image" content="https://inverse.finance/assets/social-previews/firm-page.png" />
+                <meta name="og:image" content="https://inverse.finance/assets/social-previews/inverse-alert-v2.png" />
             </Head>
             <AppNav active="More" activeSubmenu="Compare Rates" />
             <ErrorBoundary>
