@@ -70,6 +70,8 @@ export const getHistoricalFrontierPositionsDetails = async ({
         batchUsers = uniqueUsers.slice(+pageOffset, +pageOffset + (+pageSize) - 1);
     }
 
+    const anDola = new Contract('0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670', CTOKEN_ABI, provider);
+
     const [
         bnExRates,
         cashes,
@@ -78,6 +80,7 @@ export const getHistoricalFrontierPositionsDetails = async ({
         assetsIn,
         borrowedAssetsFlat,
         balancesAssetsFlat,
+        dolaTotalBorrows,
     ] = await getGroupedMulticallOutputs(
         [
             contracts.map(contract => {
@@ -105,6 +108,12 @@ export const getHistoricalFrontierPositionsDetails = async ({
                     return { contract, functionName: 'balanceOf', params: [a], fallbackValue: zeroBn }
                 })
             }).flat().filter(callReq => !!callReq.contract?.address),
+            [
+                {
+                    contract: anDola,
+                    functionName: 'totalBorrowsCurrent',
+                },
+            ],
         ],
         1,
         blockNumber,
@@ -194,6 +203,7 @@ export const getHistoricalFrontierPositionsDetails = async ({
     return {
         positionDetails: positionDetails,
         meta: {
+            dolaTotalBorrows: getBnToNumber(dolaTotalBorrows[0] || zeroBn, 18),
             exRates,
             lastUpdate,
             marketDecimals,

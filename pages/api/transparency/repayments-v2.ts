@@ -1,19 +1,19 @@
 import "source-map-support";
-import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis';
+import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis';
 import { TOKENS, UNDERLYING, getToken } from "@app/variables/tokens";
 import { getNetworkConfigConstants } from "@app/util/networks";
-import { BigNumber, Contract } from "ethers";
-import { CTOKEN_ABI, DEBT_CONVERTER_ABI, DEBT_REPAYER_ABI, DWF_PURCHASER_ABI } from "@app/config/abis";
-import { getHistoricValue, getPaidProvider, getProvider } from "@app/util/providers";
+import { Contract } from "ethers";
+import { CTOKEN_ABI, DEBT_CONVERTER_ABI, DEBT_REPAYER_ABI } from "@app/config/abis";
+import { getHistoricValue, getPaidProvider } from "@app/util/providers";
 import { getBnToNumber } from "@app/util/markets";
-import { DWF_PURCHASER, ONE_DAY_SECS } from "@app/config/constants";
+import { ONE_DAY_SECS } from "@app/config/constants";
 import { addBlockTimestamps } from '@app/util/timestamps';
-import { DOLA_FRONTIER_DEBT_V2, REF_BLOCK_WRITE_OFF_ALL_FRONTIER_DOLA } from "@app/fixtures/frontier-dola";
+import { DOLA_FRONTIER_DEBT_V2 } from "@app/fixtures/frontier-dola";
 import { throttledPromises, timestampToUTC, utcDateToDDMMYYYY } from "@app/util/misc";
 import { getTokenHolders } from "@app/util/covalent";
 import { parseUnits } from "@ethersproject/units";
-import { HISTO_PRICES } from "@app/fixtures/histo-prices";
 import { getHistoricalFrontierPositionsDetails } from "@app/util/positions-v2";
+import { REPAYMENTS_V5_ARCHIVE } from "@app/fixtures/fixture-repayments-v5";
 
 const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2';
 const TWG = '0x9D5Df30F475CEA915b1ed4C0CCa59255C897b61B';
@@ -22,28 +22,32 @@ const RWG = '0xE3eD95e130ad9E15643f5A5f232a3daE980784cd';
 const DBR_AUCTION_REPAYMENT_HANDLERS = ['0xB4497A7351e4915182b3E577B3A2f411FA66b27f', '0x4f4A31C1c11Bdd438Cf0c7668D6aFa2b5825932e'];
 
 const frontierBadDebtEvoCacheKey = 'dola-frontier-evo-v5.0.x';
-export const repaymentsCacheKeyV2 = `repayments-v5.0.0`;
+export const repaymentsCacheKeyV2Archive = `repayments-v5.0.0`;
+export const repaymentsCacheKeyV2 = `repayments-v6.0.0`;
 
 const { DEBT_CONVERTER, DEBT_REPAYER } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
-    const { cacheFirst, ignoreCache } = req.query;    
+    const { cacheFirst, ignoreCache } = req.query;
     const frontierShortfallsKey = `frontier-positions-v2`;
-    const histoPricesCacheKey = `historic-prices-v1.0.4`;
 
     try {
-        res.setHeader('Cache-Control', `public, max-age=${60}`);        
-        const validCache = await getCacheFromRedis(repaymentsCacheKeyV2, cacheFirst !== 'true', ONE_DAY_SECS * 7);                
-        if (validCache && !ignoreCache) {
-            res.status(200).json(validCache);
+        res.setHeader('Cache-Control', `public, max-age=${60}`);
+        const { data: cachedData, isValid } = await getCacheFromRedisAsObj(repaymentsCacheKeyV2, cacheFirst !== 'true', ONE_DAY_SECS * 7);
+        if (cachedData && isValid && !ignoreCache) {
+            res.status(200).json(cachedData);
             return
         }
-        
-        const frontierShortfalls = await getCacheFromRedis(frontierShortfallsKey, false, 99999);        
+
+        const archivedData = cachedData || REPAYMENTS_V5_ARCHIVE;
+
+        const frontierShortfalls = await getCacheFromRedis(frontierShortfallsKey, false, 99999);
         const badDebts = {};
-        const repayments = { iou: 0 };
+        // dwf is archived
+        const repayments = { iou: 0, dwf: 409700 };
 
         const provider = getPaidProvider(1);
+
         frontierShortfalls.positions
             .filter(({ liquidShortfall, usdBorrowed }) => liquidShortfall > 0 && usdBorrowed > 0)
             .forEach(position => {
@@ -65,21 +69,23 @@ export default async function handler(req, res) {
                     badDebts[symbol].badDebtBalance += balance;
                     badDebts[symbol].frontierBadDebtBalance += balance;
                 });
-            });        
-    
+            });
+
         const debtConverter = new Contract(DEBT_CONVERTER, DEBT_CONVERTER_ABI, provider);
         const debtRepayer = new Contract(DEBT_REPAYER, DEBT_REPAYER_ABI, provider);
-        const dwfOtc = new Contract(DWF_PURCHASER, DWF_PURCHASER_ABI, provider);
 
         const anWbtc = new Contract('0x17786f3813E6bA35343211bd8Fe18EC4de14F28b', CTOKEN_ABI, provider);
         const anEth = new Contract('0x697b4acAa24430F254224eB794d2a85ba1Fa1FB8', CTOKEN_ABI, provider);
         const anYfi = new Contract('0xde2af899040536884e062D3a334F2dD36F34b4a4', CTOKEN_ABI, provider);
         const anDola = new Contract('0x7Fcb7DAC61eE35b3D4a51117A7c58D53f0a8a670', CTOKEN_ABI, provider);
-        // non-frontier bad debt
-        const anDolaB1 = new Contract('0xC1Fb01415f08Fbd71623aded6Ac8ec74F974Fdc1', CTOKEN_ABI, provider);
-        const anDolaFuse6 = new Contract('0xf65155C9595F99BFC193CaFF0AAb6e2a98cf68aE', CTOKEN_ABI, provider);
-        const anDolaBadger = new Contract('0x5117D9453cC9Be8c3fBFbA4aE3B858D18fe45903', CTOKEN_ABI, provider);        
-        
+        // non-frontier DOLA bad debt, resolved, archived 
+        // const anDolaB1 = new Contract('0xC1Fb01415f08Fbd71623aded6Ac8ec74F974Fdc1', CTOKEN_ABI, provider);
+        // const anDolaFuse6 = new Contract('0xf65155C9595F99BFC193CaFF0AAb6e2a98cf68aE', CTOKEN_ABI, provider);
+        // const anDolaBadger = new Contract('0x5117D9453cC9Be8c3fBFbA4aE3B858D18fe45903', CTOKEN_ABI, provider);  
+
+        const currentBlock = await provider.getBlockNumber();
+        const postArchiveV5Block = (archivedData.lastBlock || 22867534) + 1;
+
         const [
             debtConverterRepaymentsEvents,
             debtConverterConversionsEvents,
@@ -87,14 +93,13 @@ export default async function handler(req, res) {
             iouCumDolaDebt,
             iouDolaRepaid,
             debtRepayerRepaymentsEvents,
-            dwfOtcBuy,
             wbtcRepayEvents,
             ethRepayEvents,
             yfiRepayEvents,
             dolaFrontierRepayEvents,
-            dolaB1RepayEvents,
-            dolaFuse6RepayEvents,
-            dolaBadgerRepayEvents,            
+            // dolaB1RepayEvents,
+            // dolaFuse6RepayEvents,
+            // dolaBadgerRepayEvents,            
             // fedsOverviewData,
             iouHoldersData,
         ] = await Promise.all([
@@ -104,18 +109,17 @@ export default async function handler(req, res) {
             debtConverter.cumDebt(),
             debtConverter.cumDolaRepaid(),
             debtRepayer.queryFilter(debtRepayer.filters.debtRepayment()),
-            dwfOtc.lifetimeBuy(),
-            anWbtc.queryFilter(anWbtc.filters.RepayBorrow(), 14886483),
-            anEth.queryFilter(anEth.filters.RepayBorrow(), 14886483),
-            anYfi.queryFilter(anYfi.filters.RepayBorrow(), 14886483),
-            anDola.queryFilter(anDola.filters.RepayBorrow(), 14886483),
-            anDolaB1.queryFilter(anDolaB1.filters.RepayBorrow(), 14886483),
-            anDolaFuse6.queryFilter(anDolaFuse6.filters.RepayBorrow(), 14886483),
-            anDolaBadger.queryFilter(anDolaBadger.filters.RepayBorrow(), 14886483),            
+            anWbtc.queryFilter(anWbtc.filters.RepayBorrow(), postArchiveV5Block, currentBlock),
+            anEth.queryFilter(anEth.filters.RepayBorrow(), postArchiveV5Block, currentBlock),
+            anYfi.queryFilter(anYfi.filters.RepayBorrow(), postArchiveV5Block, currentBlock),
+            anDola.queryFilter(anDola.filters.RepayBorrow(), postArchiveV5Block, currentBlock),
+            // anDolaB1.queryFilter(anDolaB1.filters.RepayBorrow(), 14886483),
+            // anDolaFuse6.queryFilter(anDolaFuse6.filters.RepayBorrow(), 14886483),
+            // anDolaBadger.queryFilter(anDolaBadger.filters.RepayBorrow(), 14886483),            
             // getCacheFromRedis(fedOverviewCacheKey, false),
             // iou holders
             getTokenHolders(DEBT_CONVERTER, 100, 0, '1'),
-        ]);    
+        ]);
         // const fedOverviews = fedsOverviewData?.fedOverviews || [];
         // const nonFrontierDolaBadDebt = fedOverviews
         //     .filter(({ name }) => ['Badger Fed', '0xb1 Fed', 'AuraEuler Fed'].includes(name))
@@ -124,37 +128,52 @@ export default async function handler(req, res) {
         // badDebts['DOLA'].badDebtBalance += nonFrontierDolaBadDebt;
         // badDebts['DOLA'].nonFrontierBadDebtBalance = nonFrontierDolaBadDebt;
 
-        // non-standard "repayment" via contraction
-        dolaB1RepayEvents.push({
-            transactionHash: '0x1fdb790234dce1f430da820c2c00b84fad92d6286c909e403778ee658bcfb242',
-            blockNumber: 20412936,
-            args: {
-                payer: TWG,
-                repayAmount: parseUnits('165779523966637727284013', 0),
-                accountBorrows: BigNumber.from('0'),
-                totalBorrows: BigNumber.from('0'),
-                logIndex: 273,
-            }
-        });
+        // non-standard "repayment" via contraction, archived
+        // dolaB1RepayEvents.push({
+        //     transactionHash: '0x1fdb790234dce1f430da820c2c00b84fad92d6286c909e403778ee658bcfb242',
+        //     blockNumber: 20412936,
+        //     args: {
+        //         payer: TWG,
+        //         repayAmount: parseUnits('165779523966637727284013', 0),
+        //         accountBorrows: BigNumber.from('0'),
+        //         totalBorrows: BigNumber.from('0'),
+        //         logIndex: 273,
+        //     }
+        // });
+
+        const dolaRepaymentsBlocks = dolaFrontierRepayEvents.map(e => e.blockNumber);
         
-        const dolaRepaymentsBlocks = dolaFrontierRepayEvents.map(e => e.blockNumber);        
-        const dolaFrontierDebts = await getBadDebtEvolution(dolaRepaymentsBlocks);
-        
+        const dolaFrontierDebts = await getBadDebtEvolution(dolaRepaymentsBlocks, currentBlock);
+
         const blocksNeedingTs =
-            [wbtcRepayEvents, ethRepayEvents, yfiRepayEvents, dolaFrontierRepayEvents, dolaB1RepayEvents, dolaFuse6RepayEvents, dolaBadgerRepayEvents].map((arr, i) => {
+            [
+                wbtcRepayEvents,
+                ethRepayEvents,
+                yfiRepayEvents,
+                dolaFrontierRepayEvents,
+                // dolaB1RepayEvents,
+                // dolaFuse6RepayEvents,
+                // dolaBadgerRepayEvents,
+            ].map((arr, i) => {
                 return arr.filter(event => {
                     return [TREASURY, TWG, RWG, ...DBR_AUCTION_REPAYMENT_HANDLERS].includes(event.args.payer);
                 }).map(event => event.blockNumber);
             })
                 .flat()
                 .concat(debtConverterRepaymentsEvents.map(e => e.blockNumber))
-                .concat(debtRepayerRepaymentsEvents.map(e => e.blockNumber))                
+                .concat(debtRepayerRepaymentsEvents.map(e => e.blockNumber))
                 .concat(dolaFrontierDebts.blocks);
-                
+
         const timestamps = await addBlockTimestamps(blocksNeedingTs, '1');
-        
-        const [wbtcRepaidByDAO, ethRepaidByDAO, yfiRepaidByDAO, dolaFrontierRepaidByDAO, dolaB1RepaidByDAO, dolaFuse6RepaidByDAO, dolaBadgerRepaidByDAO] =
-            [wbtcRepayEvents, ethRepayEvents, yfiRepayEvents, dolaFrontierRepayEvents, dolaB1RepayEvents, dolaFuse6RepayEvents, dolaBadgerRepayEvents].map((arr, i) => {
+
+        const [
+            wbtcRepaidByDAO, ethRepaidByDAO, yfiRepaidByDAO, dolaFrontierRepaidByDAO,
+            //  dolaB1RepaidByDAO, dolaFuse6RepaidByDAO, dolaBadgerRepaidByDAO
+        ] =
+            [
+                wbtcRepayEvents, ethRepayEvents, yfiRepayEvents, dolaFrontierRepayEvents,
+                //  dolaB1RepayEvents, dolaFuse6RepayEvents, dolaBadgerRepayEvents
+            ].map((arr, i) => {
                 return arr.filter(event => {
                     return [TREASURY, TWG, RWG, ...DBR_AUCTION_REPAYMENT_HANDLERS].includes(event.args.payer);
                 }).map(event => {
@@ -170,16 +189,17 @@ export default async function handler(req, res) {
                         logIndex: event.logIndex,
                     }
                 });
-            });                  
-        const dolaEulerRepaidByDAO = [
-            {
-                blocknumber: 17636172,
-                timestamp: 1688663111000,// 6th July 2023
-                amount: 854752.437712229,
-                txHash: '0xd402c7521272ea2ff718a8706a79aedf4c916208a6f3e8172aae4ffb54338e2f',
-                logIndex: 0,
-            },
-        ];
+            });
+        // archived
+        // const dolaEulerRepaidByDAO = [
+        //     {
+        //         blocknumber: 17636172,
+        //         timestamp: 1688663111000,// 6th July 2023
+        //         amount: 854752.437712229,
+        //         txHash: '0xd402c7521272ea2ff718a8706a79aedf4c916208a6f3e8172aae4ffb54338e2f',
+        //         logIndex: 0,
+        //     },
+        // ];
 
         const iouRepaymentsBlocks = [...new Set(debtConverterRepaymentsEvents.map(e => e.blockNumber))];
         const histoIouExRates = await getHistoIouExRate(debtConverter, iouRepaymentsBlocks);
@@ -192,11 +212,12 @@ export default async function handler(req, res) {
             return { blocknumber: event.blockNumber, logIndex: event.logIndex, amount, iouExRate, iouAmount: amount / iouExRate, timestamp, date: timestampToUTC(timestamp), txHash: event.transactionHash }
         });
 
-        const nonFrontierDolaRepaidByDAO = dolaB1RepaidByDAO.concat(dolaFuse6RepaidByDAO).concat(dolaBadgerRepaidByDAO).concat(dolaEulerRepaidByDAO).sort((a, b) => a.timestamp - b.timestamp);
-        const totalDolaRepaidByDAO = dolaFrontierRepaidByDAO.concat(nonFrontierDolaRepaidByDAO).sort((a, b) => a.timestamp - b.timestamp);
-
-        // USDC decimals
-        repayments.dwf = getBnToNumber(dwfOtcBuy, 6);
+        // const nonFrontierDolaRepaidByDAO = dolaB1RepaidByDAO.concat(dolaFuse6RepaidByDAO).concat(dolaBadgerRepaidByDAO).concat(dolaEulerRepaidByDAO).sort((a, b) => a.timestamp - b.timestamp);
+        const totalDolaRepaidByDAO = archivedData
+            .totalDolaRepaidByDAO
+            .concat(dolaFrontierRepaidByDAO)
+            // .concat(nonFrontierDolaRepaidByDAO)
+            .sort((a, b) => a.timestamp - b.timestamp);
 
         const debtConverterConversions = debtConverterConversionsEvents.map((event, i) => {
             const underlying = UNDERLYING[event.args.anToken];
@@ -220,79 +241,77 @@ export default async function handler(req, res) {
             const date = timestampToUTC(timestamp);
             return { sold, soldFor, symbol, cgId: underlying.coingeckoId?.replace('weth', 'ethereum'), timestamp, date };
         });
-        
+
         // get and save histo prices
-        const histoPrices = await getCacheFromRedis(histoPricesCacheKey, false) || HISTO_PRICES;
-        
+        const histoPrices = archivedData.histoPrices;
+
         const [dolaPrices, wbtcPrices, ethPrices, yfiPrices] = await Promise.all([
             getHistoPrices('dola-usd', totalDolaRepaidByDAO.concat(dolaForIOUsRepaidByDAO).map(d => d.timestamp), histoPrices),
             getHistoPrices('wrapped-bitcoin', wbtcRepaidByDAO.map(d => d.timestamp), histoPrices),
             getHistoPrices('ethereum', ethRepaidByDAO.map(d => d.timestamp), histoPrices),
             getHistoPrices('yearn-finance', yfiRepaidByDAO.map(d => d.timestamp), histoPrices),
         ]);
-        
+
         histoPrices['dola-usd'] = { ...histoPrices['dola-usd'], ...dolaPrices };
         histoPrices['wrapped-bitcoin'] = { ...histoPrices['wrapped-bitcoin'], ...wbtcPrices };
         histoPrices['ethereum'] = { ...histoPrices['ethereum'], ...ethPrices };
         histoPrices['yearn-finance'] = { ...histoPrices['yearn-finance'], ...yfiPrices };
 
-        if (Object.keys(dolaPrices)?.length > 0 || Object.keys(wbtcPrices)?.length > 0 || Object.keys(ethPrices)?.length > 0 || Object.keys(yfiPrices)?.length > 0) {
-            await redisSetWithTimestamp(histoPricesCacheKey, histoPrices);
-        }
-
         debtRepayerRepayments.forEach(d => {
             d.price = histoPrices[d.cgId][d.date];
         });
 
+        // archived
         badDebts['DOLA'].repaidViaDwf = repayments.dwf;
 
-        const badDebtEvents = [
-            {
-                timestamp: 1646092800000, // march 1st 2022
-                nonFrontierDelta: 0,
-                frontierDelta: 0,
-                frontierBadDebt: 0,
-                badDebt: 0,
-            },
-            {
-                timestamp: 1648912863001, // april 2th
-                nonFrontierDelta: 0,
-                // already naturally accounted for
-                frontierDelta: 0,
-                eventPointLabel: 'Frontier',
-            },
-            {
-                timestamp: 1651276800000, // april 30th
-                nonFrontierDelta: 522830,
-                frontierDelta: 0,
-                eventPointLabel: 'Fuse',
-            },
-            {
-                timestamp: 1655381899001, // June 16th
-                nonFrontierDelta: 0,
-                // already naturally accounted for
-                frontierDelta: 0,
-                eventPointLabel: 'Frontier',
-            },
-            {
-                // sep repayment by mev bot (not by dao), dao repaid 303k
-                timestamp: 1663632000000, // 20 sep
-                nonFrontierDelta: -50850,
-                frontierDelta: 0,
-            },
-            {
-                timestamp: 1678665600000,// 13 mars 2023
-                nonFrontierDelta: 863157,
-                frontierDelta: 0,
-                eventPointLabel: 'Euler',
-            },
-            ...nonFrontierDolaRepaidByDAO.map(({ blocknumber, timestamp, amount }, i) => {
-                return { timestamp, nonFrontierDelta: -amount, frontierDelta: 0 }
-            })
-        ];
-        badDebtEvents.sort((a, b) => a.timestamp - b.timestamp);
+        // archived
+        // const badDebtEvents = [
+        //     {
+        //         timestamp: 1646092800000, // march 1st 2022
+        //         nonFrontierDelta: 0,
+        //         frontierDelta: 0,
+        //         frontierBadDebt: 0,
+        //         badDebt: 0,
+        //     },
+        //     {
+        //         timestamp: 1648912863001, // april 2th
+        //         nonFrontierDelta: 0,
+        //         // already naturally accounted for
+        //         frontierDelta: 0,
+        //         eventPointLabel: 'Frontier',
+        //     },
+        //     {
+        //         timestamp: 1651276800000, // april 30th
+        //         nonFrontierDelta: 522830,
+        //         frontierDelta: 0,
+        //         eventPointLabel: 'Fuse',
+        //     },
+        //     {
+        //         timestamp: 1655381899001, // June 16th
+        //         nonFrontierDelta: 0,
+        //         // already naturally accounted for
+        //         frontierDelta: 0,
+        //         eventPointLabel: 'Frontier',
+        //     },
+        //     {
+        //         // sep repayment by mev bot (not by dao), dao repaid 303k
+        //         timestamp: 1663632000000, // 20 sep
+        //         nonFrontierDelta: -50850,
+        //         frontierDelta: 0,
+        //     },
+        //     {
+        //         timestamp: 1678665600000,// 13 mars 2023
+        //         nonFrontierDelta: 863157,
+        //         frontierDelta: 0,
+        //         eventPointLabel: 'Euler',
+        //     },
+        //     ...nonFrontierDolaRepaidByDAO.map(({ blocknumber, timestamp, amount }, i) => {
+        //         return { timestamp, nonFrontierDelta: -amount, frontierDelta: 0 }
+        //     })
+        // ];
+        // badDebtEvents.sort((a, b) => a.timestamp - b.timestamp);
 
-        const frontierDolaEvolution = dolaFrontierDebts.totals.map((badDebt, i) => {
+        const newFrontierDolaEvolution = dolaFrontierDebts.totals.map((badDebt, i) => {
             const borrows = dolaFrontierDebts.borrowed[i];
             const delta = badDebt - dolaFrontierDebts.totals[i - 1];
             const deltaBorrowed = borrows - dolaFrontierDebts.borrowed[i - 1];
@@ -303,26 +322,31 @@ export default async function handler(req, res) {
                 frontierDelta: delta || 0,
                 frontierBorrowedDelta: deltaBorrowed || 0,
                 nonFrontierDelta: 0,
+                block: dolaFrontierDebts.blocks[i],
             };
-        });
+        }).filter((item, i) => dolaFrontierDebts.blocks[i] >= postArchiveV5Block);
 
-        const dolaBadDebtEvolution = frontierDolaEvolution.concat(badDebtEvents).sort((a, b) => a.timestamp - b.timestamp);
+        const dolaBadDebtEvolution = archivedData.dolaBadDebtEvolution.concat(newFrontierDolaEvolution)//.sort((a, b) => a.timestamp - b.timestamp);
 
         dolaBadDebtEvolution.forEach((ev, i) => {
-            if (i > 0) {
-                const last = dolaBadDebtEvolution[i - 1];
-                // after 20nov 2023, we use borrowed delta
-                const delta = ev.timestamp >= 1700438400000 ? (ev.frontierBorrowedDelta || ev.nonFrontierDelta || 0) : (ev.frontierDelta || ev.nonFrontierDelta || 0);
-                dolaBadDebtEvolution[i].badDebt = last.badDebt + delta;
-            } else {
-                dolaBadDebtEvolution[i].badDebt = dolaBadDebtEvolution[i].frontierBadDebt;
+            // post-archive
+            if (!dolaBadDebtEvolution[i].badDebt) {
+                dolaBadDebtEvolution[i].badDebt = ev.frontierBorrowed;
             }
+            // if (i > 0) {
+            //     const last = dolaBadDebtEvolution[i - 1];
+            //     // after 20nov 2023, we use borrowed delta
+            //     const delta = ev.timestamp >= 1700438400000 ? (ev.frontierBorrowedDelta || ev.nonFrontierDelta || 0) : (ev.frontierDelta || ev.nonFrontierDelta || 0);
+            //     dolaBadDebtEvolution[i].badDebt = last.badDebt + delta;
+            // } else {
+            //     dolaBadDebtEvolution[i].badDebt = dolaBadDebtEvolution[i].frontierBadDebt;
+            // }
         });
 
         // use same data ref instead of frontier shortfall api (update daily)
         badDebts.DOLA.badDebtBalance = dolaBadDebtEvolution[dolaBadDebtEvolution.length - 1].badDebt;
-        badDebts.DOLA.nonFrontierBadDebtBalance = badDebts.DOLA.badDebtBalance - dolaBadDebtEvolution[dolaBadDebtEvolution.length - 1].frontierBadDebt;
-        badDebts.DOLA.frontierBadDebtBalance = dolaBadDebtEvolution[dolaBadDebtEvolution.length - 1].frontierBadDebt;
+        badDebts.DOLA.nonFrontierBadDebtBalance = 0//badDebts.DOLA.badDebtBalance - dolaBadDebtEvolution[dolaBadDebtEvolution.length - 1].frontierBadDebt;
+        badDebts.DOLA.frontierBadDebtBalance = dolaBadDebtEvolution[dolaBadDebtEvolution.length - 1].badDebt;//dolaBadDebtEvolution[dolaBadDebtEvolution.length - 1].frontierBadDebt;
 
         const iousHeld = iouHoldersData?.data?.items?.map(d => d.balance)
             .reduce((prev, curr) => prev + getBnToNumber(parseUnits(curr, 0)), 0) || 0;
@@ -330,7 +354,8 @@ export default async function handler(req, res) {
         const iousDolaAmount = iousHeld * iouExRate;
 
         const resultData = {
-            timestamp: +(new Date()),
+            timestamp: Date.now(),
+            lastBlock: currentBlock,
             iouExRate,
             iouCumDolaDebt: getBnToNumber(iouCumDolaDebt),
             iouDolaRepaid: getBnToNumber(iouDolaRepaid),
@@ -338,15 +363,15 @@ export default async function handler(req, res) {
             iousHeld,
             iousDolaAmount,
             dolaBadDebtEvolution,
-            wbtcRepaidByDAO,
-            ethRepaidByDAO,
-            yfiRepaidByDAO,
-            dolaFrontierRepaidByDAO,
-            nonFrontierDolaRepaidByDAO,
-            dolaEulerRepaidByDAO,
-            dolaB1RepaidByDAO,
-            dolaFuse6RepaidByDAO,
-            dolaBadgerRepaidByDAO,
+            wbtcRepaidByDAO: archivedData.wbtcRepaidByDAO.concat(wbtcRepaidByDAO),
+            ethRepaidByDAO: archivedData.ethRepaidByDAO.concat(ethRepaidByDAO),
+            yfiRepaidByDAO: archivedData.yfiRepaidByDAO.concat(yfiRepaidByDAO),
+            dolaFrontierRepaidByDAO: archivedData.dolaFrontierRepaidByDAO.concat(dolaFrontierRepaidByDAO),
+            nonFrontierDolaRepaidByDAO: archivedData.nonFrontierDolaRepaidByDAO,
+            dolaEulerRepaidByDAO: archivedData.dolaEulerRepaidByDAO,
+            dolaB1RepaidByDAO: archivedData.dolaB1RepaidByDAO,
+            dolaFuse6RepaidByDAO: archivedData.dolaFuse6RepaidByDAO,
+            dolaBadgerRepaidByDAO: archivedData.dolaBadgerRepaidByDAO,
             totalDolaRepaidByDAO,
             dolaForIOUsRepaidByDAO,
             badDebts,
@@ -392,13 +417,9 @@ const getHistoIouExRate = async (debtConverter: Contract, blocks: number[]) => {
     return iouExRates;
 }
 
-const getBadDebtEvolution = async (repaymentBlocks: number[]) => {
-    const provider = getProvider('1', '', true);
-
-    const currentBlock = await provider.getBlockNumber();
-
-    const pastData = await getCacheFromRedis(frontierBadDebtEvoCacheKey, false, 3600) || DOLA_FRONTIER_DEBT_V2;        
-    const newBlocks = [...repaymentBlocks, currentBlock].filter(block => block > pastData.blocks[pastData.blocks.length - 1]);    
+const getBadDebtEvolution = async (repaymentBlocks: number[], currentBlock: number) => {
+    const pastData = await getCacheFromRedis(frontierBadDebtEvoCacheKey, false, 3600) || DOLA_FRONTIER_DEBT_V2;
+    const newBlocks = [...repaymentBlocks, currentBlock].filter(block => block > pastData.blocks[pastData.blocks.length - 1]);
     const blocks = [...new Set(newBlocks)].sort((a, b) => a - b);
 
     if (!blocks.length) {
@@ -424,7 +445,10 @@ const getBadDebtEvolution = async (repaymentBlocks: number[]) => {
         const hasData = results[i]?.status === 'fulfilled';
         return {
             dolaBadDebt: hasData ? results[i]?.value.positionDetails.reduce((acc, pos) => acc + pos.dolaBadDebt, 0) : null,
-            dolaBorrowed: hasData ? results[i]?.value.positionDetails.reduce((acc, pos) => acc + pos.dolaBorrowed, 0) : null,
+            // sum of main positions
+            dolaBorrowedSum: hasData ? results[i]?.value.positionDetails.reduce((acc, pos) => acc + pos.dolaBorrowed, 0) : null,
+            // totalBorrows in anDola
+            dolaBorrowed: hasData ? results[i]?.value.meta.dolaTotalBorrows : null,
             dolaBadDebtClassic: hasData ? results[i]?.value.positionDetails.reduce((acc, pos) => acc + pos.dolaBadDebtClassic, 0) : null,
             block,
         };
@@ -433,6 +457,7 @@ const getBadDebtEvolution = async (repaymentBlocks: number[]) => {
     const resultData = {
         totals: pastData?.totals.concat(newData.map(d => d.dolaBadDebt)),
         borrowed: pastData?.totals.concat(newData.map(d => d.dolaBorrowed)),
+        borrowedSum: pastData?.totals.concat(newData.map(d => d.dolaBorrowedSum)),
         blocks: pastData?.blocks.concat(newData.map(d => d.block)),
         timestamp: Date.now(),
     }
