@@ -93,7 +93,7 @@ export const F2PAGE = ({
                 <title>Inverse Finance - FiRM</title>
                 <meta name="og:description" content="FiRM is Inverse Finance's Fixed Rate Market, borrow DOLA with the DOLA Borrowing Right token DBR. Rethink the way you borrow!" />
                 <meta name="description" content="FiRM is Inverse Finance's Fixed Rate Market, borrow DOLA with the DOLA Borrowing Right token DBR. Rethink the way you borrow!" />
-                <meta name="og:image" content="https://inverse.finance/assets/social-previews/firm-page.png" />
+                <meta name="og:image" content="https://inverse.finance/assets/social-previews/inverse-alert-v2.png" />
                 {
                     isTwitterAlert &&
                     <>
