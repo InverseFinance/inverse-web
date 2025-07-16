@@ -12,7 +12,7 @@ import { getNextThursdayTimestamp, preciseCommify } from "@app/util/misc";
 import { useDOLABalance } from "@app/hooks/useDOLA";
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect";
 import { useDBRPrice } from "@app/hooks/useDBR";
-import { getMonthlyRate, shortenNumber } from "@app/util/markets";
+import { getMonthlyRate, getNumberToBn, shortenNumber } from "@app/util/markets";
 import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { TextInfo } from "../common/Messages/TextInfo";
 import { ONE_DAY_MS, SDOLA_ADDRESS, SECONDS_PER_BLOCK } from "@app/config/constants";
@@ -264,6 +264,7 @@ export const StakeDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => {
                                                 maxActionLabel={`Unstake all`}
                                                 actionLabel={`Unstake`}
                                                 onAmountChange={(v) => setDolaAmount(v)}
+                                                maxAmountFrom={[getNumberToBn(dolaStakedInSDola, 18)]}
                                                 showMaxBtn={stakedDolaBalance > 0}
                                                 showMax={false}
                                                 hideInputIfNoAllowance={false}
