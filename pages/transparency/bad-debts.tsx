@@ -492,7 +492,7 @@ export const BadDebtPage = () => {
                 <VStack spacing="0" alignItems={{ base: 'flex-start', md: 'flex-end' }}>
                   <Text fontSize="14px">Current DOLA bad debt:</Text>
                   {
-                    isLoading ? <SmallTextLoader /> : <Text fontWeight="bold">{dolaBadDebtEvo.length > 0 && !!dolaBadDebtEvo[dolaBadDebtEvo.length - 1].y ? shortenNumber(dolaBadDebtEvo[dolaBadDebtEvo.length - 1].y, 2) : ''}</Text>
+                    isLoading ? <SmallTextLoader /> : <Text fontWeight="bold">{dolaBadDebtEvo.length > 0 && !!dolaBadDebtEvo[dolaBadDebtEvo.length - 1].y ? shortenNumber(Math.floor(dolaBadDebtEvo[dolaBadDebtEvo.length - 1].y/1_0000)*1_0000, 2) : ''}</Text>
                   }
                 </VStack>
               }
