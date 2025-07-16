@@ -307,7 +307,7 @@ export const StakeDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => {
                 </VStack>
             </Container>
         </Stack>
-        {
+        {/* {
             spectraApy > 0 && !!spectraLink && <InfoMessage alertProps={{ w: 'full' }} description={
                 <VStack spacing="0" alignItems='flex-start'>
                     <Text>
@@ -318,6 +318,6 @@ export const StakeDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => {
                     </Link>
                 </VStack>
             } />
-        }
+        } */}
     </VStack>
 }
