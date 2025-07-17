@@ -18,12 +18,12 @@ import { useAccount } from '@app/hooks/misc';
 import ScannerLink from '@app/components/common/ScannerLink';
 import { InfoMessage, SuccessMessage, WarningMessage } from '@app/components/common/Messages';
 import Link from '@app/components/common/Link';
-import { Input } from '@app/components/common/Input';
 import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect';
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip';
-import { formatDateWithTime, fromNow, timeSince } from '@app/util/time';
-import { shortenAddress } from '@app/util';
-import { parseEther, parseUnits } from '@ethersproject/units';
+import { formatDateWithTime, fromNow } from '@app/util/time';
+import { useTokenBalanceAndAllowance } from '@app/hooks/useToken';
+import { RSubmitButton } from '@app/components/common/Button/RSubmitButton';
+import { ApproveButton } from '@app/components/Anchor/AnchorButton';
 
 const zero = BigNumber.from('0');
 
@@ -40,34 +40,32 @@ const OTC_ABI = [
     "function redemptionTimestamp() public view returns (uint256)",
 ]
 
-const OTC_ADDRESS = BURN_ADDRESS;
+const OTC_ADDRESS = '0xD6155cde396d782589886DA9aE33976f8Ac7140C';
 
 const buyers = [
-    '0x34A7a276eD77c6FE866c75Bbc8d79127c4E14a09',
+    '0x6535020cCeB810Bdb3F3cA5e93dE2460FF7989BB',
 ]
 
 export const useOTC = (buyer = BURN_ADDRESS) => {
-    const now = Math.floor(Date.now() / 1000);
-    const { data, error } = useEtherSWR([
-        [DOLA, 'balanceOf', buyer],
-        [OTC_ADDRESS, 'dolaAllocations', buyer],
-        [OTC_ADDRESS, 'buyDeadline'],
-        [OTC_ADDRESS, 'redemptionTimestamp'],
-    ]);
+    const { data, error } = useEtherSWR({
+        abi: OTC_ABI,
+        args: [
+            [OTC_ADDRESS, 'dolaAllocations', buyer],
+            [OTC_ADDRESS, 'buyDeadline'],
+            [OTC_ADDRESS, 'redemptionTimestamp'],
+        ],
+    });
 
-    const [
-        dolaBalanceBn,
-        dolaAllocation,
-        buyDeadline,
-        redemptionTimestamp,
-    ] = data ? data : [];
+    const { balance: dolaBalance, allowance: dolaAllowance } = useTokenBalanceAndAllowance(DOLA, buyer, OTC_ADDRESS);
 
     return {
         isLoading: !data && !error,
-        dolaAllocation: data ? getBnToNumber(parseEther('100000'), 18) : 0,
-        buyDeadline: data ? getBnToNumber(parseUnits((now + 4 * ONE_DAY_SECS).toString(), 0), 0) * 1000 : 0,
-        redemptionTimestamp: data ? getBnToNumber(parseUnits((now + 6 * 30 * ONE_DAY_SECS).toString(), 0), 0) * 1000 : 0,
-        dolaBalance: data ? getBnToNumber(dolaBalanceBn, 18) : 0,
+        dolaAllowance,
+        dolaBalance,
+        dolaAllocation: data ? getBnToNumber(data[0], 18) : 0,
+        dolaAllocationBn: data ? data[0] : BigNumber.from('0'),
+        buyDeadline: data ? getBnToNumber(data[1], 0) * 1000 : 0,
+        redemptionTimestamp: data ? getBnToNumber(data[2], 0) * 1000 : 0,
         isBuyer: buyers.includes(buyer),
     }
 }
@@ -91,19 +89,21 @@ export const OTCPage = () => {
         isBuyer,
         dolaBalance,
         dolaAllocation,
+        dolaAllocationBn,
         buyDeadline,
         redemptionTimestamp,
+        dolaAllowance,
     } = otcData;
 
     useDualSpeedEffect(() => {
         setConnected(!!account);
     }, [account], !account, 1000);
 
-    const handleAction = () => {
+    const handleBuy = () => {
         return buy(provider?.getSigner());
     }
 
-    const isDealDone = false;
+    const isDealDone = !isLoading && isBuyer && dolaAllocation === 0;
 
     return (
         <Layout>
@@ -116,6 +116,7 @@ export const OTCPage = () => {
             <AppNav hideAnnouncement={true} />
             <VStack w={{ base: 'full' }} justify="center" alignItems="center" pt="0">
                 <Stack
+                    transform="translateY(-1px)"
                     alignItems="center"
                     direction={{ base: 'column', sm: 'row' }}
                     spacing="0"
@@ -156,7 +157,7 @@ export const OTCPage = () => {
                         </Container>
                             : <>
                                 <Container noPadding p="0" label="OTC Details">
-                                    <VStack minH={{ lg: '250px' }} w='full' justify="space-between">
+                                    <VStack minH={{ lg: '200px' }} w='full' justify="space-between">
                                         <VStack w='full' >
                                             <HStack w='full' justify="space-between">
                                                 <Text color="mainTextColorLight">OTC Contract:</Text>
@@ -184,7 +185,7 @@ export const OTCPage = () => {
                                             </HStack> */}
                                         </VStack>
                                         {
-                                            isLoading ? null
+                                            (isLoading || !!buyDeadline) ? null
                                                 : <WarningMessage
                                                     alertProps={{ w: 'full', fontSize: '14px' }}
                                                     description={
@@ -202,16 +203,13 @@ export const OTCPage = () => {
                                         isBuyer ? <VStack w='full' alignItems="flex-start" justify="space-between">
                                             {
                                                 isDealDone ? null :
-                                                    <VStack minH={{ lg: '250px' }} w='full' alignItems="flex-start" justify="space-between">
+                                                    <VStack minH={{ lg: '200px' }} w='full' alignItems="flex-start" justify="space-between">
                                                         <VStack w='full' alignItems="flex-start" justify="space-between">
-                                                            <HStack w='full' justify="space-between">
-                                                                <Text color="mainTextColorLight">DOLA in your wallet:</Text>
-                                                                <Text>{preciseCommify(dolaBalance, 2)} DOLA</Text>
-                                                            </HStack>
+
                                                             <HStack w='full' justify="space-between">
                                                                 <Text color="mainTextColorLight">DOLA to exchange:</Text>
                                                                 <Text>
-                                                                    {dolaAllocation ? `${preciseCommify(dolaAllocation, 2)} DOLA` : '-'}
+                                                                    {dolaAllocation ? `${preciseCommify(dolaAllocation, 0)} DOLA` : '-'}
                                                                 </Text>
                                                             </HStack>
                                                             <HStack w='full' justify="space-between">
@@ -220,29 +218,40 @@ export const OTCPage = () => {
                                                                     {dolaAllocation ? `${preciseCommify(dolaAllocation / PRICE, 2)} INV` : '-'}
                                                                 </Text>
                                                             </HStack>
+                                                            {
+                                                                dolaBalance < dolaAllocation ? <InfoMessage
+                                                                    alertProps={{ w: 'full' }}
+                                                                    title="Not enough DOLA"
+                                                                    description={`At least ${preciseCommify(dolaAllocation, 0)} DOLA are needed in your wallet`}
+                                                                /> : <HStack w='full' justify="space-between">
+                                                                    <Text color="mainTextColorLight">DOLA in your wallet:</Text>
+                                                                    <Text>{preciseCommify(dolaBalance, 2)} DOLA</Text>
+                                                                </HStack>
+                                                            }
                                                         </VStack>
                                                         <HStack w='full' justify="space-between">
-                                                            <SimpleAmountForm
-                                                                decimals={18}
-                                                                // defaultAmount={amount}
+                                                            <ApproveButton
                                                                 address={DOLA}
-                                                                destination={OTC_ADDRESS}
+                                                                toAddress={OTC_ADDRESS}
                                                                 signer={provider?.getSigner()}
-                                                                // maxAmountFrom={[dolaBalanceBn]}
-                                                                onAction={handleAction}
-                                                                // onMaxAction={handleAction}
-                                                                actionLabel={'Swap USDC'}
-                                                                hideInputIfNoAllowance={false}
-                                                                // onAmountChange={(v) => setAmount(v)}
-                                                                showMaxBtn={false}
-                                                                showBalance={false}
-                                                                hideInput={true}
-                                                                onlyShowApproveBtn={true}
-                                                                // isDisabled={isDisabled}
-                                                                // isError={hasError}
-                                                                inputProps={{ placeholder: 'USDC to swap' }}
-                                                                btnProps={{ fontSize: '18px' }}
-                                                            />
+                                                                isDisabled={dolaAllowance >= dolaAllocation}
+                                                                forceRefresh={true}
+                                                                ButtonComp={RSubmitButton}
+                                                                tooltipMsg=""
+                                                                amount={dolaAllocationBn}
+                                                                onSuccess={() => {
+                                                                    console.log('success');
+                                                                }}
+                                                            >
+                                                                {
+                                                                    dolaAllowance >= dolaAllocation ? '1/2 - DOLA spending Approved' : '1/2 - Approve DOLA spending'
+                                                                }
+                                                            </ApproveButton>
+                                                            <RSubmitButton
+                                                                disabled={dolaAllowance < dolaAllocation}
+                                                                onClick={handleBuy}>
+                                                                2/2 - Buy INV
+                                                            </RSubmitButton>
                                                         </HStack>
                                                     </VStack>
                                             }
