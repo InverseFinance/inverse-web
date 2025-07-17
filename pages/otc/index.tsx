@@ -3,9 +3,9 @@ import Head from 'next/head';
 import Layout from '@app/components/common/Layout';
 import { AppNav } from '@app/components/common/Navbar';
 import { BigNumber, Contract } from 'ethers';
-import { BURN_ADDRESS, ONE_DAY_SECS } from '@app/config/constants';
+import { BURN_ADDRESS, SINV_ADDRESS } from '@app/config/constants';
 import useEtherSWR from '@app/hooks/useEtherSWR';
-import { getBnToNumber, getNumberToBn, shortenNumber } from '@app/util/markets';
+import { getBnToNumber, shortenNumber } from '@app/util/markets';
 import { usePrices } from '@app/hooks/usePrices';
 ;
 import Container from '@app/components/common/Container';
@@ -25,10 +25,7 @@ import { useTokenBalanceAndAllowance } from '@app/hooks/useToken';
 import { RSubmitButton } from '@app/components/common/Button/RSubmitButton';
 import { ApproveButton } from '@app/components/Anchor/AnchorButton';
 
-const zero = BigNumber.from('0');
-
 const DOLA = '0x865377367054516e17014CcdED1e7d814EDC9ce4';
-const INV = '0x41D5D79431A913C4aE7d69a668ecdfE5fF9DFB68';
 const PRICE = 25;
 
 const OTC_ABI = [
@@ -57,12 +54,16 @@ export const useOTC = (buyer = BURN_ADDRESS) => {
     });
 
     const { balance: dolaBalance, allowance: dolaAllowance } = useTokenBalanceAndAllowance(DOLA, buyer, OTC_ADDRESS);
+    const { balance: sharesBalance, bnBalance: sharesBalanceBn } = useTokenBalanceAndAllowance(OTC_ADDRESS, buyer, OTC_ADDRESS);
+    const { data: sharesInvEquivalent } = useEtherSWR([SINV_ADDRESS, 'convertToAssets', sharesBalanceBn]);
 
     return {
         isLoading: !data && !error,
         dolaAllowance,
         dolaBalance,
         dolaAllocation: data ? getBnToNumber(data[0], 18) : 0,
+        sharesBalance,
+        sharesInvEquivalent: sharesInvEquivalent ? getBnToNumber(sharesInvEquivalent) : 0,
         dolaAllocationBn: data ? data[0] : BigNumber.from('0'),
         buyDeadline: data ? getBnToNumber(data[1], 0) * 1000 : 0,
         redemptionTimestamp: data ? getBnToNumber(data[2], 0) * 1000 : 0,
@@ -93,6 +94,8 @@ export const OTCPage = () => {
         buyDeadline,
         redemptionTimestamp,
         dolaAllowance,
+        sharesBalance,
+        sharesInvEquivalent,
     } = otcData;
 
     useDualSpeedEffect(() => {
@@ -200,9 +203,28 @@ export const OTCPage = () => {
                                 </Container>
                                 <Container noPadding p="0" label="Execute OTC deal">
                                     {
-                                        isBuyer ? <VStack w='full' alignItems="flex-start" justify="space-between">
+                                        isBuyer ? <VStack minH={{ lg: '200px' }} w='full' alignItems="flex-start" justify="space-between">
                                             {
-                                                isDealDone ? null :
+                                                isDealDone ? <VStack minH={{ lg: '200px' }} w='full' alignItems="flex-start" justify="space-between">
+                                                    <SuccessMessage
+                                                        title="INV purchase successful"
+                                                        description={
+                                                            <Text fontSize="16px">You will be able to redeem the sINV tokens after the redemption activation date</Text>
+                                                        }
+                                                        iconProps={{ height: 50, width: 50 }}
+                                                        alertProps={{ w: 'full', fontSize: "24px", fontWeight: 'extrabold' }}
+                                                    />
+                                                    <VStack w='full' alignItems="flex-start" justify="space-between">
+                                                        <HStack w='full' justify="space-between">
+                                                            <Text color="mainTextColorLight">sINV receipt tokens held:</Text>
+                                                            <Text>{preciseCommify(sharesBalance, 2)} lsInv</Text>
+                                                        </HStack>
+                                                        <HStack w='full' justify="space-between">
+                                                            <Text color="mainTextColorLight">INV equivalent:</Text>
+                                                            <Text>{preciseCommify(sharesInvEquivalent, 2)} INV</Text>
+                                                        </HStack>
+                                                    </VStack>
+                                                </VStack> :
                                                     <VStack minH={{ lg: '200px' }} w='full' alignItems="flex-start" justify="space-between">
                                                         <VStack w='full' alignItems="flex-start" justify="space-between">
 
@@ -255,16 +277,8 @@ export const OTCPage = () => {
                                                         </HStack>
                                                     </VStack>
                                             }
-
-                                            {
-                                                isDealDone && <SuccessMessage
-                                                    description="INV purchase sealed!"
-                                                    iconProps={{ height: 50, width: 50 }}
-                                                    alertProps={{ w: 'full', fontSize: "24px", fontWeight: 'extrabold' }}
-                                                />
-                                            }
                                         </VStack>
-                                            : <InfoMessage
+                                            : isConnected && !!viewAddress && <InfoMessage
                                                 alertProps={{ w: 'full' }}
                                                 description={
                                                     <>The <b><ScannerLink value={viewAddress} type="address" /></b> account is not part of this OTC deal</>
