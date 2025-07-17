@@ -63,7 +63,7 @@ const FundLine = ({
                         mx="1"
                     />
                 }
-                <Text color={color} {...limitLeftSideProps} ml={noImage ? 0 : 1} lineHeight="15px">{label || token?.symbol}{token?.address === OLD_XINV && ' (old)'}</Text>
+                <Text color={color} {...limitLeftSideProps} ml={1} lineHeight="15px">{label || token?.symbol}{token?.address === OLD_XINV && ' (old)'}</Text>
                 <Text color={color}>:</Text>
             </Flex>
             {
@@ -196,7 +196,7 @@ export const Funds = ({
 
     const balancesContent = positiveBalances
         .map(({ token, balance, usdBalance, balancePerc, onlyUsdValue, usdPrice, ctoken, label, textColor }) => {
-            return <FundLine color={textColor} leftSideMaxW={leftSideMaxW} noImage={noImage} onlyUsdValue={onlyUsdValue} key={ctoken || token?.address || label || token?.symbol} showAsAmountOnly={showAsAmountOnly} asStable={asStable} label={label} token={token} showPrice={showPrice} usdPrice={usdPrice} value={balance} usdValue={usdBalance} perc={balancePerc} showPerc={showPerc} />
+            return <FundLine color={textColor} leftSideMaxW={leftSideMaxW} noImage={noImage||(!token)} onlyUsdValue={onlyUsdValue} key={ctoken || token?.address || label || token?.symbol} showAsAmountOnly={showAsAmountOnly} asStable={asStable} label={label} token={token} showPrice={showPrice} usdPrice={usdPrice} value={balance} usdValue={usdBalance} perc={balancePerc} showPerc={showPerc} />
         })
 
     const positiveAllowances = fundsWithPerc.filter(({ allowance }) => (allowance || 0) > 0);
@@ -204,7 +204,7 @@ export const Funds = ({
 
     const allowancesContent = positiveAllowances
         .map(({ token, allowance, usdAllowance, allowancePerc, onlyUsdValue, usdPrice, ctoken, label }) => {
-            return <FundLine leftSideMaxW={leftSideMaxW} noImage={noImage} onlyUsdValue={onlyUsdValue} key={ctoken || token?.address || label || token?.symbol} showAsAmountOnly={showAsAmountOnly} asStable={asStable} label={label} showPrice={showPrice} usdPrice={usdPrice} token={token} value={allowance!} usdValue={usdAllowance} perc={allowancePerc} showPerc={showPerc} />
+            return <FundLine leftSideMaxW={leftSideMaxW} noImage={noImage||(!token)} onlyUsdValue={onlyUsdValue} key={ctoken || token?.address || label || token?.symbol} showAsAmountOnly={showAsAmountOnly} asStable={asStable} label={label} showPrice={showPrice} usdPrice={usdPrice} token={token} value={allowance!} usdValue={usdAllowance} perc={allowancePerc} showPerc={showPerc} />
         })
 
     const chartData = fundsWithPerc
