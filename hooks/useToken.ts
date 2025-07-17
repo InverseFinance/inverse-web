@@ -19,11 +19,11 @@ export const useTokenBalances = (ads: string[], account: string | undefined) => 
         abi: ERC20_ABI,
         args: balanceArgs,
     });
-    
+
     return {
-        balances: ads.map((ad,i) => {
+        balances: ads.map((ad, i) => {
             return balanceData && decimalData ? { address: ad, balance: getBnToNumber(balanceData[i], decimalData[i]) } : { address: ad, balance: 0 };
-        }),        
+        }),
         isLoading: (!balanceData && !balanceErr) || (!decimalData && !decimalErr),
         hasError: (!balanceData && !!balanceErr) || (!decimalData && !!decimalErr),
     };
@@ -48,6 +48,29 @@ export const useToken = (ad: string, account: string | undefined) => {
         symbol,
         bnBalance: bnBalance,
         balance: data ? getBnToNumber(bnBalance, decimals) : 0,
+        isLoading: !data && !error,
+        hasError: !data && !!error,
+    };
+}
+
+export const useTokenBalanceAndAllowance = (ad: string, account: string | undefined, spender: string | undefined) => {
+    const args = [
+        [ad, 'decimals'],
+        [ad, 'balanceOf', account],
+        [ad, 'allowance', account, spender],
+    ];
+
+    const { data, error } = useEtherSWR({
+        abi: ERC20_ABI,
+        args,
+    });
+
+    const [decimals, bnBalance, bnAllowance] = data || [18, BigNumber.from('0'), BigNumber.from('0')];
+    return {
+        bnBalance: bnBalance,
+        balance: data ? getBnToNumber(bnBalance, decimals) : 0,
+        bnAllowance: bnAllowance,
+        allowance: data ? getBnToNumber(bnAllowance, decimals) : 0,
         isLoading: !data && !error,
         hasError: !data && !!error,
     };
