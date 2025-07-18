@@ -1,4 +1,4 @@
-import { Stack, HStack, Image, VStack, Text } from '@chakra-ui/react'
+import { Stack, HStack, Image, VStack, Text, useInterval } from '@chakra-ui/react'
 import Head from 'next/head';
 import Layout from '@app/components/common/Layout';
 import { AppNav } from '@app/components/common/Navbar';
@@ -63,6 +63,7 @@ export const useOTC = (buyer = BURN_ADDRESS) => {
         dolaBalance,
         dolaAllocation: data ? getBnToNumber(data[0], 18) : 0,
         sharesBalance,
+        sharesBalanceBn,
         sharesInvEquivalent: sharesInvEquivalent ? getBnToNumber(sharesInvEquivalent) : 0,
         dolaAllocationBn: data ? data[0] : BigNumber.from('0'),
         buyDeadline: data ? getBnToNumber(data[1], 0) * 1000 : 0,
@@ -76,14 +77,27 @@ const buy = (signer: JsonRpcSigner) => {
     return contract.buy();
 }
 
+const redeem = (signer: JsonRpcSigner, lsInvAmount: BigNumber) => {
+    const contract = new Contract(OTC_ADDRESS, OTC_ABI, signer);
+    return contract.redeem(lsInvAmount);
+}
+
 export const OTCPage = () => {
     const { provider, account } = useWeb3React();
+    const [now, setNow] = useState(Date.now());
     const viewAddress = useAccount();
     const otcData = useOTC(viewAddress);
 
     const { prices } = usePrices();
 
     const [isConnected, setConnected] = useState(true);
+
+    useInterval(
+        () => {
+            setNow(Date.now());
+        },
+        1000
+    )
 
     const {
         isLoading,
@@ -95,6 +109,7 @@ export const OTCPage = () => {
         redemptionTimestamp,
         dolaAllowance,
         sharesBalance,
+        sharesBalanceBn,
         sharesInvEquivalent,
     } = otcData;
 
@@ -104,6 +119,10 @@ export const OTCPage = () => {
 
     const handleBuy = () => {
         return buy(provider?.getSigner());
+    }
+
+    const handleRedeem = () => {
+        return redeem(provider?.getSigner(), sharesBalanceBn);
     }
 
     const isDealDone = !isLoading && isBuyer && dolaAllocation === 0;
@@ -160,7 +179,7 @@ export const OTCPage = () => {
                         </Container>
                             : <>
                                 <Container noPadding p="0" label="OTC Details">
-                                    <VStack minH={{ lg: '200px' }} w='full' justify="space-between">
+                                    <VStack minH={{ lg: '230px' }} w='full' justify="space-between">
                                         <VStack w='full' >
                                             <HStack w='full' justify="space-between">
                                                 <Text color="mainTextColorLight">OTC Contract:</Text>
@@ -202,30 +221,35 @@ export const OTCPage = () => {
                                     </VStack>
                                 </Container>
                                 <Container noPadding p="0" label="Execute OTC deal">
-                                    {
-                                        isBuyer ? <VStack minH={{ lg: '200px' }} w='full' alignItems="flex-start" justify="space-between">
-                                            {
-                                                isDealDone ? <VStack minH={{ lg: '200px' }} w='full' alignItems="flex-start" justify="space-between">
-                                                    <SuccessMessage
-                                                        title="INV purchase successful"
-                                                        description={
-                                                            <Text fontSize="16px">You will be able to redeem the sINV tokens after the redemption activation date</Text>
-                                                        }
-                                                        iconProps={{ height: 50, width: 50 }}
-                                                        alertProps={{ w: 'full', fontSize: "24px", fontWeight: 'extrabold' }}
-                                                    />
-                                                    <VStack w='full' alignItems="flex-start" justify="space-between">
-                                                        <HStack w='full' justify="space-between">
-                                                            <Text color="mainTextColorLight">sINV receipt tokens held:</Text>
-                                                            <Text>{preciseCommify(sharesBalance, 2)} lsInv</Text>
-                                                        </HStack>
-                                                        <HStack w='full' justify="space-between">
-                                                            <Text color="mainTextColorLight">INV equivalent:</Text>
-                                                            <Text>{preciseCommify(sharesInvEquivalent, 2)} INV</Text>
-                                                        </HStack>
-                                                    </VStack>
-                                                </VStack> :
-                                                    <VStack minH={{ lg: '200px' }} w='full' alignItems="flex-start" justify="space-between">
+                                    <VStack minH={{ lg: '230px' }} w='full' alignItems="flex-start" justify="space-between">
+                                        {
+                                            isDealDone ? <VStack minH={{ lg: '230px' }} w='full' alignItems="flex-start" justify="space-between">
+                                                <SuccessMessage
+                                                    title="INV purchase successful"
+                                                    description={
+                                                        <Text fontSize="16px">You will be able to redeem the sINV tokens after the redemption activation date</Text>
+                                                    }
+                                                    iconProps={{ height: 50, width: 50 }}
+                                                    alertProps={{ w: 'full', fontSize: "24px", fontWeight: 'extrabold' }}
+                                                />
+                                                <VStack w='full' alignItems="flex-start" justify="space-between">
+                                                    <HStack w='full' justify="space-between">
+                                                        <Text color="mainTextColorLight">Receipt tokens held:</Text>
+                                                        <Text>{preciseCommify(sharesBalance, 2)} lsInv (1 lsInv = 1 sINV after maturity)</Text>
+                                                    </HStack>
+                                                    <HStack w='full' justify="space-between">
+                                                        <Text color="mainTextColorLight">INV equivalent:</Text>
+                                                        <Text>{preciseCommify(sharesInvEquivalent, 2)} INV</Text>
+                                                    </HStack>
+                                                    <RSubmitButton
+                                                        disabled={now < redemptionTimestamp}
+                                                        onClick={handleRedeem}>
+                                                        Redeem for sINV
+                                                    </RSubmitButton>
+                                                </VStack>
+                                            </VStack> :
+                                                isBuyer ?
+                                                    <VStack minH={{ lg: '230px' }} w='full' alignItems="flex-start" justify="space-between">
                                                         <VStack w='full' alignItems="flex-start" justify="space-between">
 
                                                             <HStack w='full' justify="space-between">
@@ -276,15 +300,14 @@ export const OTCPage = () => {
                                                             </RSubmitButton>
                                                         </HStack>
                                                     </VStack>
-                                            }
-                                        </VStack>
-                                            : isConnected && !!viewAddress && <InfoMessage
-                                                alertProps={{ w: 'full' }}
-                                                description={
-                                                    <>The <b><ScannerLink value={viewAddress} type="address" /></b> account is not part of this OTC deal</>
-                                                }
-                                            />
-                                    }
+                                                    : isConnected && !!viewAddress && <InfoMessage
+                                                        alertProps={{ w: 'full' }}
+                                                        description={
+                                                            <>The <b><ScannerLink value={viewAddress} type="address" /></b> account is not part of this OTC deal</>
+                                                        }
+                                                    />
+                                        }
+                                    </VStack>
                                 </Container>
                             </>
                     }
