@@ -37,7 +37,7 @@ const OTC_ABI = [
     "function redemptionTimestamp() public view returns (uint256)",
 ]
 
-const OTC_ADDRESS = '0xD6155cde396d782589886DA9aE33976f8Ac7140C';
+const OTC_ADDRESS = '0x21F9049121F81aD1959938DC2e1c202412ac6766';
 
 const buyers = [
     '0x6535020cCeB810Bdb3F3cA5e93dE2460FF7989BB',
@@ -125,7 +125,9 @@ export const OTCPage = () => {
         return redeem(provider?.getSigner(), sharesBalanceBn);
     }
 
-    const isDealDone = !isLoading && isBuyer && dolaAllocation === 0;
+    const isDealDone = !isLoading && isBuyer && !!buyDeadline && dolaAllocation === 0;
+    const isDealReady = !isLoading && isBuyer && !buyDeadline && now < buyDeadline && dolaAllocation > 0;
+    const isDealExpired = !isLoading && isBuyer && !buyDeadline && now > buyDeadline && dolaAllocation > 0;
 
     return (
         <Layout>
@@ -208,12 +210,13 @@ export const OTCPage = () => {
                                         </VStack>
                                         {
                                             (isLoading || !!buyDeadline) ? null
-                                                : <WarningMessage
+                                                : <InfoMessage
                                                     alertProps={{ w: 'full', fontSize: '14px' }}
+                                                    title="OTC dates are not initialized yet"
                                                     description={
                                                         <VStack spacing="0" w='full' alignItems="flex-start">
-                                                            <Text>OTC dates not initialized yet (awaiting proposal execution)</Text>
-                                                            <Link textDecoration="underline" href="/governance">See Governance</Link>
+                                                            <Text>The deadline and redemption activation dates will be initialized when the proposal is executed</Text>
+                                                            <Link isExternal target="_blank" textDecoration="underline" href="https://www.inverse.finance/governance/proposals/mills/305">See Governance proposal</Link>
                                                         </VStack>
                                                     }
                                                 />
@@ -275,30 +278,38 @@ export const OTCPage = () => {
                                                                 </HStack>
                                                             }
                                                         </VStack>
-                                                        <HStack w='full' justify="space-between">
-                                                            <ApproveButton
-                                                                address={DOLA}
-                                                                toAddress={OTC_ADDRESS}
-                                                                signer={provider?.getSigner()}
-                                                                isDisabled={dolaAllowance >= dolaAllocation}
-                                                                forceRefresh={true}
-                                                                ButtonComp={RSubmitButton}
-                                                                tooltipMsg=""
-                                                                amount={dolaAllocationBn}
-                                                                onSuccess={() => {
-                                                                    console.log('success');
-                                                                }}
-                                                            >
-                                                                {
-                                                                    dolaAllowance >= dolaAllocation ? '1/2 - DOLA spending Approved' : '1/2 - Approve DOLA spending'
-                                                                }
-                                                            </ApproveButton>
-                                                            <RSubmitButton
-                                                                disabled={dolaAllowance < dolaAllocation}
-                                                                onClick={handleBuy}>
-                                                                2/2 - Buy INV
-                                                            </RSubmitButton>
-                                                        </HStack>
+                                                        {
+                                                            isDealExpired && <InfoMessage
+                                                                alertProps={{ w: 'full' }}
+                                                                title="The buy deadline has passed"
+                                                            />
+                                                        }
+                                                        {
+                                                            <HStack w='full' justify="space-between">
+                                                                <ApproveButton
+                                                                    address={DOLA}
+                                                                    toAddress={OTC_ADDRESS}
+                                                                    signer={provider?.getSigner()}
+                                                                    isDisabled={!isDealReady || dolaAllowance >= dolaAllocation}
+                                                                    forceRefresh={true}
+                                                                    ButtonComp={RSubmitButton}
+                                                                    tooltipMsg=""
+                                                                    amount={dolaAllocationBn}
+                                                                    onSuccess={() => {
+                                                                        console.log('success');
+                                                                    }}
+                                                                >
+                                                                    {
+                                                                        dolaAllowance >= dolaAllocation && dolaAllocation > 0 ? '1/2 - DOLA spending Approved' : '1/2 - Approve DOLA spending'
+                                                                    }
+                                                                </ApproveButton>
+                                                                <RSubmitButton
+                                                                    disabled={!isDealReady || dolaAllowance < dolaAllocation}
+                                                                    onClick={handleBuy}>
+                                                                    2/2 - Buy INV
+                                                                </RSubmitButton>
+                                                            </HStack>
+                                                        }
                                                     </VStack>
                                                     : isConnected && !!viewAddress && <InfoMessage
                                                         alertProps={{ w: 'full' }}
