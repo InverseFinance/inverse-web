@@ -5,7 +5,7 @@ import { AppNav } from '@app/components/common/Navbar';
 import { BigNumber, Contract } from 'ethers';
 import { BURN_ADDRESS, SINV_ADDRESS } from '@app/config/constants';
 import useEtherSWR from '@app/hooks/useEtherSWR';
-import { getBnToNumber, shortenNumber } from '@app/util/markets';
+import { getBnToNumber, getNumberToBn, shortenNumber } from '@app/util/markets';
 import { usePrices } from '@app/hooks/usePrices';
 ;
 import Container from '@app/components/common/Container';
@@ -24,12 +24,13 @@ import { formatDateWithTime, fromNow } from '@app/util/time';
 import { useTokenBalanceAndAllowance } from '@app/hooks/useToken';
 import { RSubmitButton } from '@app/components/common/Button/RSubmitButton';
 import { ApproveButton } from '@app/components/Anchor/AnchorButton';
+import { SINV_ABI } from '@app/config/abis';
 
 const DOLA = '0x865377367054516e17014CcdED1e7d814EDC9ce4';
 const PRICE = 25;
 
 const OTC_ABI = [
-    "function buy() external returns (uint256 lsInvOut)",
+    "function buy(uint256 minLsInvAmountOut) external returns (uint256 lsInvOut)",
     "function redeem(uint256 lsInvAmount) external",
     "function dolaAllocations(address buyer) public view returns (uint256)",
     "function INV_PRICE() public view returns (uint256)",
@@ -72,9 +73,13 @@ export const useOTC = (buyer = BURN_ADDRESS) => {
     }
 }
 
-const buy = (signer: JsonRpcSigner) => {
+const buy = async (signer: JsonRpcSigner, invAmount: number) => {
     const contract = new Contract(OTC_ADDRESS, OTC_ABI, signer);
-    return contract.buy();
+    const sINV = new Contract(SINV_ADDRESS, SINV_ABI, signer);
+    // same as previewDeposit
+    const minOutShares = await sINV.convertToShares(getNumberToBn(invAmount));
+    // 0.01% slippage
+    return contract.buy(minOutShares.sub(minOutShares.div(10000)));
 }
 
 const redeem = (signer: JsonRpcSigner, lsInvAmount: BigNumber) => {
@@ -117,8 +122,9 @@ export const OTCPage = () => {
         setConnected(!!account);
     }, [account], !account, 1000);
 
-    const handleBuy = () => {
-        return buy(provider?.getSigner());
+    const handleBuy = async () => {
+        const invAmount = dolaAllocation / PRICE;
+        return buy(provider?.getSigner(), invAmount);
     }
 
     const handleRedeem = () => {
