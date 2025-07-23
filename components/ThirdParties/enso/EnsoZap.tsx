@@ -135,7 +135,10 @@ function EnsoZap({
 
     const fromOptionsWithBalance = useMemo(() => {
         return ZAP_TOKENS_ARRAY
-            .filter(t => t.chainId === chainId && ((!!balances && !!balances[t.address]
+            .filter(t => t.chainId === chainId 
+                && (
+                (
+                    !!balances && !!balances[t.address]
                 //  && getBnToNumber(balances[t.address], t.decimals) >= 0.01
             ) || t.symbol === 'ETH')
 
@@ -263,6 +266,7 @@ function EnsoZap({
                         onAmountChange={(newAmount) => changeAmount(newAmount)}
                         allowMobileMode={true}
                         orderByStable={true}
+                        withSearch={true}
                         {...fromAssetInputProps}
                     />
 

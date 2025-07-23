@@ -37,3 +37,4 @@ export const ETH_SAVINGS_STABLECOINS = STABLE_LIST.reduce((acc, curr) => {
 }, {});
 export const STABLE_ADDRESSES = STABLE_LIST.map(t => t.address!);
 export const STABLE_SYMBOLS = STABLE_LIST.map(t => t.symbol!);
+export const STABLE_SYMBOLS_LOWER = STABLE_SYMBOLS.map(s => s.toLowerCase());

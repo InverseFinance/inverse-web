@@ -4,7 +4,8 @@ import { TokenList, Token, BigNumberList } from '@app/types';
 import { AssetsDropdown } from './AssetsDropdown';
 import { getBnToNumber, shortenNumber } from '@app/util/markets';
 import { ETH_AD } from '@app/components/Base/BaseBridge';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { STABLE_SYMBOLS_LOWER } from '@app/variables/stables';
 
 type FromAssetDropDownProps = {
     tokens: TokenList,
@@ -18,7 +19,9 @@ type FromAssetDropDownProps = {
     handleChange: (from: string, to: string) => void,
     orderByBalance?: boolean,
     orderByWorth?: boolean,
+    orderByStable?: boolean,
     dropdownSelectedProps?: FlexProps,
+    withSearch?: boolean,
 }
 
 export const FromAssetDropdown = ({
@@ -31,10 +34,13 @@ export const FromAssetDropdown = ({
     asset,
     options,
     handleChange,
+    orderByStable = false,
     orderByBalance = false,
     orderByWorth = false,
     dropdownSelectedProps,
+    withSearch = false,
 }: FromAssetDropDownProps) => {
+    const [search, setSearch] = useState('');
     const list = useMemo(() => {
         const items = options.map(ad => {
             const optKey = ad||'CHAIN_COIN';
@@ -45,14 +51,33 @@ export const FromAssetDropdown = ({
             const price = prices && (prices[priceKey] || prices[ETH_AD.toLowerCase()]) ? prices[priceKey] || prices[ETH_AD.toLowerCase()] : 0;
             const worth = price * balanceFloat;
             return { ...t, balance: balanceFloat, worth }
-        }).filter(t => !!t.symbol);
-        if(orderByBalance) {
+        }).filter(t => !!t.symbol && (!search || t.symbol.toLowerCase().includes(search)));
+        
+        if(orderByStable) {
+            items.sort((a, b) => {
+                const aIsStable = STABLE_SYMBOLS_LOWER.includes(a.symbol.toLowerCase());
+                const bIsStable = STABLE_SYMBOLS_LOWER.includes(b.symbol.toLowerCase());
+                
+                // Sort stablecoins first
+                if (aIsStable && !bIsStable) return -1;
+                if (!aIsStable && bIsStable) return 1;
+                
+                // If both are stable or both are non-stable, sort by worth
+                if (a.worth !== b.worth) {
+                    return b.worth - a.worth;
+                }
+                
+                // If worth is the same, sort alphabetically by symbol
+                return a.symbol.localeCompare(b.symbol);
+            });
+        }
+        else if(orderByBalance) {
             items.sort((a, b) => b.balance - a.balance || a.symbol.localeCompare(b.symbol));
         } else if(orderByWorth) {
             items.sort((a, b) => b.worth - a.worth || a.symbol.localeCompare(b.symbol));
         }
         return items;
-    }, [options, orderByBalance, orderByWorth, tokens, balances, prices]);
+    }, [options, orderByBalance, orderByWorth, orderByStable, tokens, balances, prices, search]);
 
     return (
         <AssetsDropdown
@@ -60,6 +85,11 @@ export const FromAssetDropdown = ({
             onClose={onClose}
             onOpen={onOpen}
             noPadding
+            withSearch={withSearch}
+            onSearchChange={(e) => {
+                const search = e.target.value.toLowerCase();
+                setSearch(search);
+            }}
             label={
                 <>
                     <Flex w={5} position="relative">
@@ -84,6 +114,7 @@ export const FromAssetDropdown = ({
                         _hover={{ bgColor: 'primary.850' }}
                         onClick={() => handleChange(token.optKey, 'CHAIN_COIN')}
                         cursor="pointer"
+                        w='full'
                     >
                         <Stack direction="row" align="center">
                             <Flex w={5} position="relative">
