@@ -1,4 +1,4 @@
-import { Stack, PopoverContent, PopoverTrigger, Popover, PopoverBody } from '@chakra-ui/react';
+import { Stack, PopoverContent, PopoverTrigger, Popover, PopoverBody, Input, VStack } from '@chakra-ui/react';
 
 type AssetsDropdownProps = {
     children: React.ReactNode,
@@ -6,10 +6,12 @@ type AssetsDropdownProps = {
     isOpen: boolean,
     onClose: () => void,
     onOpen: () => void,
+    onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void,
     noPadding?: boolean,
+    withSearch?: boolean,
 }
 
-export const AssetsDropdown = ({ children, label, isOpen, onOpen, onClose, noPadding }: AssetsDropdownProps) => {
+export const AssetsDropdown = ({ children, label, isOpen, onOpen, onClose, withSearch = false, noPadding, onSearchChange }: AssetsDropdownProps) => {
     return (
         <Popover placement="bottom" isOpen={isOpen} onClose={onClose} closeOnBlur={true} isLazy>
             <PopoverTrigger>
@@ -38,7 +40,12 @@ export const AssetsDropdown = ({ children, label, isOpen, onOpen, onClose, noPad
                     maxH="300px"
                     overflow="auto"
                 >
-                    {children}
+                    <VStack w='full' spacing={2} alignItems='flex-start'>
+                        {withSearch && !!onSearchChange && <Input borderColor="mainTextColorLight" autoFocus={true} placeholder="Search" onChange={onSearchChange} />}
+                        <VStack w='full' spacing={0} alignItems='flex-start'>
+                            {children}
+                        </VStack>
+                    </VStack>
                 </PopoverBody>
             </PopoverContent>
         </Popover>

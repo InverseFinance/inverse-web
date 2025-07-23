@@ -24,10 +24,10 @@ import { useIsApproved } from "@app/hooks/useApprovals";
 import { useAccount } from "@app/hooks/misc";
 import Link from "@app/components/common/Link";
 import { usePricesDefillama, usePricesV2 } from "@app/hooks/usePrices";
-import { ETH_SAVINGS_STABLECOINS } from "@app/components/sDola/SavingsOpportunities";
 import { SDOLA_ADDRESS } from "@app/config/constants";
 import { stakeDola } from "@app/util/dola-staking";
 import { shortenNumber } from "@app/util/markets";
+import { ETH_SAVINGS_STABLECOINS } from "@app/variables/stables";
 const zapOptions = [...new Set(ZAP_TOKENS_ARRAY.map(t => t.address))];
 
 const removeUndefined = obj => Object.fromEntries(
@@ -135,7 +135,10 @@ function EnsoZap({
 
     const fromOptionsWithBalance = useMemo(() => {
         return ZAP_TOKENS_ARRAY
-            .filter(t => t.chainId === chainId && ((!!balances && !!balances[t.address]
+            .filter(t => t.chainId === chainId 
+                && (
+                (
+                    !!balances && !!balances[t.address]
                 //  && getBnToNumber(balances[t.address], t.decimals) >= 0.01
             ) || t.symbol === 'ETH')
 
@@ -262,8 +265,8 @@ function EnsoZap({
                         }}
                         onAmountChange={(newAmount) => changeAmount(newAmount)}
                         allowMobileMode={true}
-                        orderByWorth={true}
-                        orderByBalance={false}
+                        orderByStable={true}
+                        withSearch={true}
                         {...fromAssetInputProps}
                     />
 

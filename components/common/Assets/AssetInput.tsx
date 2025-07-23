@@ -28,6 +28,8 @@ export const AssetInput = ({
     dropdownSelectedProps,
     allowMobileMode = false,
     prices,
+    orderByStable,
+    withSearch = false,
 }: {
     amount: string,
     balances: BigNumberList,
@@ -45,7 +47,9 @@ export const AssetInput = ({
     orderByWorth?: boolean,
     allowMobileMode?: boolean,
     balanceKey?: string,
-    dropdownSelectedProps?: FlexProps
+    dropdownSelectedProps?: FlexProps,
+    orderByStable?: boolean,
+    withSearch?: boolean,
 }) => {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [justClosed, setJustClosed] = useState(isOpen)
@@ -86,6 +90,8 @@ export const AssetInput = ({
                         prices={prices}
                         orderByBalance={orderByBalance}
                         orderByWorth={orderByWorth}
+                        orderByStable={orderByStable}
+                        withSearch={withSearch}
                         isOpen={isOpen}
                         onClose={onClose}
                         onOpen={() => {
