@@ -27,9 +27,11 @@ const PYUSD = getToken(TOKENS, 'PYUSD');
 const CRVUSD = getToken(TOKENS, 'crvUSD');
 const FRAX = getToken(TOKENS, 'FRAX');
 const DOLA = getToken(TOKENS, 'DOLA');
+const USDS = getToken(TOKENS, 'USDS');
+const FRXUSD = getToken(TOKENS, 'frxUSD');
 
 export const STABLE_LIST = [
-    DOLA, DAI, USDT, LUSD, USDE, USDP, USDC, FRAX, CRVUSD, PYUSD, FEI, MIM, USD3, FXUSD, EUSD, MKUSD, GHO, USDM, USDA, USD0, BUSD, ALUSD, GUSD, TUSD, FDUSD
+    DOLA, DAI, USDT, USDS, FRXUSD, LUSD, USDE, USDP, USDC, CRVUSD, PYUSD, FEI, MIM, USD3, FXUSD, EUSD, MKUSD, GHO, USDM, USDA, USD0, BUSD, ALUSD, GUSD, TUSD, FDUSD
 ];
 export const ETH_SAVINGS_STABLECOINS = STABLE_LIST.reduce((acc, curr) => {
     acc[curr.address] = curr;

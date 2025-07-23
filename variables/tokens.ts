@@ -106,6 +106,7 @@ const chainTokenAddresses = {
     DOLADBRCLP: '0x0a6B1d9F920019BAbc4De3F10c94ECB822106104',
     FRAXUSDC: '0x3175Df0976dFA876431C2E9eE6Bc45b65d3473CC',
     FRAX: '0x853d955acef822db058eb8505911ed77f175b99e',
+    FRXUSD: '0xcacd6fd266af91b8aed52accc382b4e165586e29',
     FXUSD: '0x085780639CC2cACd35E474e71f4d000e2405d8f6',
     DBR: '0xAD038Eb671c44b853887A7E32528FaB35dC5D710',
     GOHM: '0x0ab87046fBb341D058F17CBC4c1133F25a20a52f',
@@ -1173,6 +1174,14 @@ const chainTokens = {
     [chainTokenAddresses["1"].FRAX]: {
       address: chainTokenAddresses["1"].FRAX,
       ...FRAX,
+    },
+    [chainTokenAddresses["1"].FRXUSD]: {
+      address: chainTokenAddresses["1"].FRXUSD,
+      name: 'frxUSD',
+      symbol: 'frxUSD',
+      coingeckoId: 'frax-usd',
+      image: TOKEN_IMAGES.frxUSD,
+      decimals: 18,
     },
     [chainTokenAddresses["1"].FLOKI]: {
       address: chainTokenAddresses["1"].FLOKI,

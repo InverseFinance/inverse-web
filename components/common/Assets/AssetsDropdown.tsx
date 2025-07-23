@@ -41,7 +41,7 @@ export const AssetsDropdown = ({ children, label, isOpen, onOpen, onClose, withS
                     overflow="auto"
                 >
                     <VStack w='full' spacing={2} alignItems='flex-start'>
-                        {withSearch && !!onSearchChange && <Input placeholder="Search" onChange={onSearchChange} />}
+                        {withSearch && !!onSearchChange && <Input borderColor="mainTextColorLight" autoFocus={true} placeholder="Search" onChange={onSearchChange} />}
                         <VStack w='full' spacing={0} alignItems='flex-start'>
                             {children}
                         </VStack>

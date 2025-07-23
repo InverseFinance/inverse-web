@@ -12,7 +12,6 @@ import { SDolaInsuranceCover } from '@app/components/common/InsuranceCover';
 import { SavingsOpportunities, useSavingsOpportunities } from '@app/components/sDola/SavingsOpportunities';
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary';
 import { SDolaComparator } from '@app/components/F2/SDolaComparator';
-import { SkeletonBlob } from '@app/components/common/Skeleton';
 
 export const SdolaPage = () => {
   const account = useAccount();
