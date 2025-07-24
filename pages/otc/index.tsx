@@ -7,10 +7,9 @@ import { BURN_ADDRESS, SINV_ADDRESS } from '@app/config/constants';
 import useEtherSWR from '@app/hooks/useEtherSWR';
 import { getBnToNumber, getNumberToBn, shortenNumber } from '@app/util/markets';
 import { usePrices } from '@app/hooks/usePrices';
-;
+
 import Container from '@app/components/common/Container';
 import { preciseCommify } from '@app/util/misc';
-import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm';
 import { useWeb3React } from '@web3-react/core';
 import { useState } from 'react';
 import { JsonRpcSigner } from '@ethersproject/providers';
@@ -41,7 +40,12 @@ const OTC_ABI = [
 const OTC_ADDRESS = '0x21F9049121F81aD1959938DC2e1c202412ac6766';
 
 const buyers = [
-    '0x6535020cCeB810Bdb3F3cA5e93dE2460FF7989BB',
+    '0xFa4FC4ec2F81A4897743C5b4f45907c02ce06199',
+    '0x0591926d5d3b9Cc48ae6eFB8Db68025ddc3adFA5',
+    '0xB4fb31E7B1471A8e52dD1e962A281a732EaD59c1',
+    '0xa53A13A80D72A855481DE5211E7654fAbDFE3526',
+    '0x5bAaC7ccda079839C9524b90dF81720834FC039f',
+    '0x1883c69cE441f0294097af5abFC53b3C7Fe36808',
 ]
 
 export const useOTC = (buyer = BURN_ADDRESS) => {
