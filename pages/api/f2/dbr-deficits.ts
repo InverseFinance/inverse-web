@@ -73,18 +73,20 @@ export default async function handler(req, res) {
     });
 
     const totalDebt = activeDbrHolders.reduce((acc, i) => acc + i.debt, 0);
+    // DBR balance of active borrowers only
+    const totalDbrBalanceActive = activeDbrHolders.filter(i => i.debt > 1).reduce((acc, i) => acc + i.balance, 0);
     const totalDbrBalance = activeDbrHolders.reduce((acc, i) => acc + i.balance, 0);
     const totalSignedDbrBalance = activeDbrHolders.reduce((acc, i) => acc + i.signedBalance, 0);
-
-    const totalDailyDebtSpend = totalDebt > 0 ? Math.max(0, (ONE_DAY_MS * totalDebt / oneYear)) : 0;
 
     const resultData = {
       timestamp: Date.now(),
       totalDebt,
       dbrBalance: totalDbrBalance,
+      dbrBalanceActive: totalDbrBalanceActive,
       signedDbrBalance: totalSignedDbrBalance,
-      inventory: totalDebt > 0 ? totalDbrBalance / totalDailyDebtSpend : 0,
-      signedInventory: totalDebt > 0 ? totalSignedDbrBalance / totalDailyDebtSpend : 0,
+      inventory: totalDebt > 0 ? totalDbrBalance / totalDebt * 365 : 0,
+      inventoryActive: totalDebt > 0 ? totalDbrBalanceActive / totalDebt * 365 : 0,
+      signedInventory: totalDebt > 0 ? totalSignedDbrBalance / totalDebt * 365 : 0,
       activeDbrHolders,
     }
 
