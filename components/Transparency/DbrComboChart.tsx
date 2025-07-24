@@ -101,7 +101,7 @@ export const DbrComboChart = ({
             {/* {zoomOutButton} */}
             <ComposedChart
                 width={chartWidth}
-                height={400}
+                height={chartWidth > 1000 ? 500 : 400}
                 data={_data}
                 margin={{
                     top: 20,
