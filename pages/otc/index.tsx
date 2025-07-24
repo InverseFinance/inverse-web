@@ -54,6 +54,7 @@ export const useOTC = (buyer = BURN_ADDRESS) => {
         ],
     });
 
+    const { balance: sinvBalance } = useTokenBalanceAndAllowance(SINV_ADDRESS, buyer, OTC_ADDRESS);
     const { balance: dolaBalance, allowance: dolaAllowance } = useTokenBalanceAndAllowance(DOLA, buyer, OTC_ADDRESS);
     const { balance: sharesBalance, bnBalance: sharesBalanceBn } = useTokenBalanceAndAllowance(OTC_ADDRESS, buyer, OTC_ADDRESS);
     const { data: sharesInvEquivalent } = useEtherSWR([SINV_ADDRESS, 'convertToAssets', sharesBalanceBn]);
@@ -62,6 +63,7 @@ export const useOTC = (buyer = BURN_ADDRESS) => {
         isLoading: !data && !error,
         dolaAllowance,
         dolaBalance,
+        sinvBalance,
         dolaAllocation: data ? getBnToNumber(data[0], 18) : 0,
         sharesBalance,
         sharesBalanceBn,
@@ -116,6 +118,7 @@ export const OTCPage = () => {
         sharesBalance,
         sharesBalanceBn,
         sharesInvEquivalent,
+        sinvBalance,
     } = otcData;
 
     useDualSpeedEffect(() => {
@@ -132,8 +135,9 @@ export const OTCPage = () => {
     }
 
     const isDealDone = !isLoading && isBuyer && !!buyDeadline && dolaAllocation === 0;
-    const isDealReady = !isLoading && isBuyer && !buyDeadline && now < buyDeadline && dolaAllocation > 0;
+    const isDealReady = !isLoading && isBuyer && !!buyDeadline && now < buyDeadline && dolaAllocation > 0;
     const isDealExpired = !isLoading && isBuyer && !buyDeadline && now > buyDeadline && dolaAllocation > 0;
+    const isRedeemed = !isLoading && isBuyer && !!redemptionTimestamp && now >= redemptionTimestamp && sharesBalance === 0;
 
     return (
         <Layout>
@@ -233,29 +237,37 @@ export const OTCPage = () => {
                                     <VStack minH={{ lg: '230px' }} w='full' alignItems="flex-start" justify="space-between">
                                         {
                                             isDealDone ? <VStack minH={{ lg: '230px' }} w='full' alignItems="flex-start" justify="space-between">
-                                                <SuccessMessage
-                                                    title="INV purchase successful"
-                                                    description={
-                                                        <Text fontSize="16px">You will be able to redeem the sINV tokens after the redemption activation date</Text>
-                                                    }
-                                                    iconProps={{ height: 50, width: 50 }}
-                                                    alertProps={{ w: 'full', fontSize: "24px", fontWeight: 'extrabold' }}
-                                                />
-                                                <VStack w='full' alignItems="flex-start" justify="space-between">
-                                                    <HStack w='full' justify="space-between">
-                                                        <Text color="mainTextColorLight">Receipt tokens held:</Text>
-                                                        <Text>{preciseCommify(sharesBalance, 2)} lsInv (1 lsInv = 1 sINV after maturity)</Text>
-                                                    </HStack>
-                                                    <HStack w='full' justify="space-between">
-                                                        <Text color="mainTextColorLight">INV equivalent:</Text>
-                                                        <Text>{preciseCommify(sharesInvEquivalent, 2)} INV</Text>
-                                                    </HStack>
-                                                    <RSubmitButton
-                                                        disabled={now < redemptionTimestamp}
-                                                        onClick={handleRedeem}>
-                                                        Redeem for sINV
-                                                    </RSubmitButton>
-                                                </VStack>
+                                                {
+                                                    isRedeemed ? <SuccessMessage
+                                                        title="sINV redeemed!"
+                                                        iconProps={{ height: 50, width: 50 }}
+                                                        alertProps={{ w: 'full', fontSize: "24px", fontWeight: 'extrabold' }}
+                                                    /> : <>
+                                                        <SuccessMessage
+                                                            title="INV purchase successful"
+                                                            description={
+                                                                <Text fontSize="16px">You will be able to redeem the sINV tokens after the redemption activation date</Text>
+                                                            }
+                                                            iconProps={{ height: 50, width: 50 }}
+                                                            alertProps={{ w: 'full', fontSize: "24px", fontWeight: 'extrabold' }}
+                                                        />
+                                                        <VStack w='full' alignItems="flex-start" justify="space-between">
+                                                            <HStack w='full' justify="space-between">
+                                                                <Text color="mainTextColorLight">Receipt tokens held:</Text>
+                                                                <Text>{preciseCommify(sharesBalance, 2)} lsInv (1 lsInv = 1 sINV after maturity)</Text>
+                                                            </HStack>
+                                                            <HStack w='full' justify="space-between">
+                                                                <Text color="mainTextColorLight">INV equivalent:</Text>
+                                                                <Text>{preciseCommify(sharesInvEquivalent, 2)} INV</Text>
+                                                            </HStack>
+                                                            <RSubmitButton
+                                                                disabled={now < redemptionTimestamp}
+                                                                onClick={handleRedeem}>
+                                                                Redeem for sINV
+                                                            </RSubmitButton>
+                                                        </VStack>
+                                                    </>
+                                                }
                                             </VStack> :
                                                 isBuyer ?
                                                     <VStack minH={{ lg: '230px' }} w='full' alignItems="flex-start" justify="space-between">
@@ -277,7 +289,10 @@ export const OTCPage = () => {
                                                                 dolaBalance < dolaAllocation ? <InfoMessage
                                                                     alertProps={{ w: 'full' }}
                                                                     title="Not enough DOLA"
-                                                                    description={`At least ${preciseCommify(dolaAllocation, 0)} DOLA are needed in your wallet`}
+                                                                    description={<VStack spacing="0" alignItems="flex-start">
+                                                                        <Text>At least {preciseCommify(dolaAllocation, 0)} DOLA are needed in your wallet</Text>
+                                                                        <Text>Currently there is {preciseCommify(dolaBalance, 0)} DOLA in your wallet</Text>
+                                                                    </VStack>}
                                                                 /> : <HStack w='full' justify="space-between">
                                                                     <Text color="mainTextColorLight">DOLA in your wallet:</Text>
                                                                     <Text>{preciseCommify(dolaBalance, 2)} DOLA</Text>
@@ -310,7 +325,7 @@ export const OTCPage = () => {
                                                                     }
                                                                 </ApproveButton>
                                                                 <RSubmitButton
-                                                                    disabled={!isDealReady || dolaAllowance < dolaAllocation}
+                                                                    disabled={!isDealReady || dolaAllowance < dolaAllocation || dolaBalance < dolaAllocation}
                                                                     onClick={handleBuy}>
                                                                     2/2 - Buy INV
                                                                 </RSubmitButton>
