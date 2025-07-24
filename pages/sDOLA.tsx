@@ -27,7 +27,7 @@ export const SdolaPage = () => {
         <meta name="og:description" content="sDOLA" />
         <meta name="description" content="sDOLA is a decentralized yield-bearing stablecoin that leverages organic yield from the DOLA Savings Account" />
         <meta name="keywords" content="Inverse Finance, sDOLA, yield-bearing stablecoin, staked DOLA" />
-        <meta name="og:image" content="https://inverse.finance/assets/sDOLAx512.png" />
+        <meta name="og:image" content="https://inverse.finance/assets/social-previews/sDOLA-page.jpeg" />
       </Head>
       <AppNav active="Stake" activeSubmenu="sDOLA" hideAnnouncement={true} />
       <DolaStakingTabs />
