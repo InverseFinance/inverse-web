@@ -5,7 +5,7 @@ import { getNetworkConfigConstants } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
-import { CHAIN_ID } from '@app/config/constants';
+import { CHAIN_ID, ONE_DAY_MS } from '@app/config/constants';
 import { F2_UNIQUE_USERS_CACHE_KEY } from './firm-positions';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
 
@@ -54,20 +54,38 @@ export default async function handler(req, res) {
       ]
     );
 
+    const oneYear = ONE_DAY_MS * 365;
+
     const activeDbrHolders = signedBalanceBn.map((bn, i) => {
       const signedBalance = getBnToNumber(bn);
+      const debt = getBnToNumber(debtsBn[i]);
+      const balance = Math.max(signedBalance, 0);
+      const dailyDebtSpend = Math.max(0, (ONE_DAY_MS * debt / oneYear));
       return {
         signedBalance: signedBalance,
         deficit: Math.min(0, signedBalance),
-        balance: Math.max(signedBalance, 0),
-        debt: getBnToNumber(debtsBn[i]),
+        balance,
+        debt,
         user: dbrUsers[i],
+        inventory: dailyDebtSpend > 0 ? balance / dailyDebtSpend : 0,
+        signedInventory: dailyDebtSpend > 0 ? signedBalance / dailyDebtSpend : 0,
       }
     });
 
-    const resultData = {      
+    const totalDebt = activeDbrHolders.reduce((acc, i) => acc + i.debt, 0);
+    const totalDbrBalance = activeDbrHolders.reduce((acc, i) => acc + i.balance, 0);
+    const totalSignedDbrBalance = activeDbrHolders.reduce((acc, i) => acc + i.signedBalance, 0);
+
+    const totalDailyDebtSpend = totalDebt > 0 ? Math.max(0, (ONE_DAY_MS * totalDebt / oneYear)) : 0;
+
+    const resultData = {
+      timestamp: Date.now(),
+      totalDebt,
+      dbrBalance: totalDbrBalance,
+      signedDbrBalance: totalSignedDbrBalance,
+      inventory: totalDebt > 0 ? totalDbrBalance / totalDailyDebtSpend : 0,
+      signedInventory: totalDebt > 0 ? totalSignedDbrBalance / totalDailyDebtSpend : 0,
       activeDbrHolders,
-      timestamp: +(new Date()),
     }
 
     await redisSetWithTimestamp(DBR_SPENDERS_CACHE_KEY, resultData);
