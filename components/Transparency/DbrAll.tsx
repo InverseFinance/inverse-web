@@ -183,7 +183,7 @@ export const DbrAll = ({
             <SimpleGrid gap="2" w='full' columns={{ base: 2, sm: 5 }}>
                 <StatBasic isLoading={!yearlyRewardRate || isLoadingStakedDola || isLoadingAuction} name="Annualized Issuance" value={`${shortenNumber(annualizedIssuance, 2)} (${shortenNumber(annualizedIssuance * dbrPriceUsd, 2, true)})`} />
                 <StatBasic isLoading={!totalDebt} name="Annualized Burn" value={`${shortenNumber(totalDebt, 2)} (${shortenNumber(totalDebt * dbrPriceUsd, 2, true)})`} />
-                <StatBasic isLoading={!totalDebt} name="Inventory Days" value={`${shortenNumber(signedInventory, 2)}`} />
+                <StatBasic isLoading={!signedInventory} name="Inventory Days" value={`${shortenNumber(signedInventory, 2)}`} />
                 <StatBasic isLoading={isEmmissionLoading} name="Claimed by stakers" value={`${shortenNumber(totalClaimed, 2)} (${shortenNumber(useUsd ? totalClaimedUsd : totalClaimed * dbrPriceUsd, 2, true)})`} />
                 <StatBasic isLoading={!burnEvents?.length} name="Burned by borrowers" value={`${shortenNumber(totalBurned, 2)} (${shortenNumber(useUsd ? accBurnUsd : totalBurned * dbrPriceUsd, 2, true)})`} />
             </SimpleGrid>
