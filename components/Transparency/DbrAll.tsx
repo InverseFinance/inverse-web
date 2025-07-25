@@ -47,6 +47,7 @@ export const DbrAll = ({
     const circSupplyAsObj = !!circSupplyEvolution ? circSupplyEvolution.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr.timestamp)]: curr.circSupply }), {}) : {};
     const invHistoPricesAsObj = !!invHistoPrices ? invHistoPrices.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr[0])]: curr[1] }), {}) : {};
     const dbrCircSupplyAsObj = !!dbrCircSupplyEvolution ? dbrCircSupplyEvolution.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr.timestamp)]: curr.circSupply }), {}) : {};
+    const inventoryAsObj = !!dbrCircSupplyEvolution ? dbrCircSupplyEvolution.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr.timestamp)]: curr.inventory }), {}) : {};
     const { priceUsd: dbrPriceUsd, priceDola: dbrPriceDola } = useDBRPrice();
 
     const { events: emissionEvents, rewardRatesHistory, isLoading: isEmmissionLoading, timestamp: emissionTimestamp } = useDBREmissions();
@@ -55,7 +56,6 @@ export const DbrAll = ({
     const { evolution: dolaStakingEvolution } = useDolaStakingEvolution();
     const { positions, signedInventory } = useFirmUsers();
     const totalDebt = positions.reduce((prev, curr) => prev + curr.debt, 0);
-
 
     const totalClaimed = useMemo(() => emissionEvents.reduce((acc, e) => acc + e.stakingClaims, 0), [emissionTimestamp]);
     const totalClaimedUsd = useMemo(() => {
@@ -105,6 +105,7 @@ export const DbrAll = ({
         const invHistoPrice = (invHistoPricesAsObj[date] || getClosestPreviousHistoValue(invHistoPricesAsObj, date, 0));
         const invHistoCircSupply = (circSupplyAsObj[date] || getClosestPreviousHistoValue(circSupplyAsObj, date, 0));
         const dbrCircSupply = (dbrCircSupplyAsObj[date] || getClosestPreviousHistoValue(dbrCircSupplyAsObj, date, 0));
+        const inventory = (inventoryAsObj[date] || getClosestPreviousHistoValue(inventoryAsObj, date, 0));
         const invHistoMarketCap = invHistoPrice * invHistoCircSupply;
         const yearlyRewardRate = rateChanges.findLast(rd => date >= rd.date)?.yearlyRewardRate || 0;
         const auctionYearlyRewardRate = auctionRateChanges.findLast(rd => date >= rd.date)?.rate || 0;
@@ -124,6 +125,7 @@ export const DbrAll = ({
             yearlyRewardRateUsd: totalAnnualizedIssuance * histoPrice,
             dbrCircSupply,
             dbrCircSupplyUsd: dbrCircSupply * histoPrice,
+            inventory,
             inflation: (totalAnnualizedIssuance - d.debt)/365,
             inflationUsd: (totalAnnualizedIssuance - d.debt)/365 * histoPrice,
         }
@@ -138,6 +140,7 @@ export const DbrAll = ({
         const totalAnnualizedIssuance = auctionYearlyRate + yearlyRewardRate + dsaYearlyDbrEarnings;
         combodata.splice(todayIndex, combodata.length - (todayIndex), {
             ...lastCombodata,
+            inventory: signedInventory || lastCombodata?.inventory,
             debt: totalDebt,
             timestamp: now,
             time: new Date(timestampToUTC(now)),

@@ -1,7 +1,7 @@
 import { useAppTheme } from '@app/hooks/useAppTheme';
 import { VStack, Text } from '@chakra-ui/react'
 import { smartShortNumber } from '@app/util/markets';
-import { Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ComposedChart } from 'recharts';
+import { Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ComposedChart, Line } from 'recharts';
  ;
 import { preciseCommify } from '@app/util/misc';
 import { useEffect, useState } from 'react';
@@ -10,6 +10,7 @@ import { formatDate, formatDay } from '@app/util/time';
 
 const KEYS = {
     BURN: 'Borrows',
+    INVENTORY: 'Inventory',
 }
 
 export const FirmBorrowsChart = ({
@@ -97,7 +98,8 @@ export const FirmBorrowsChart = ({
                 <XAxis minTickGap={28} interval="preserveStartEnd" style={_axisStyle.tickLabels} dataKey="timestamp" scale="time" type={'number'} allowDataOverflow={true} domain={['dataMin', 'dataMax']} tickFormatter={(v) => {
                     return formatDay(v)
                 }} />
-                <YAxis opacity={(actives[KEYS.BURN] || actives[KEYS.ISSUANCE]|| actives[KEYS.STAKERS_ISSUANCE] || actives[KEYS.DBR_MC]) ? 1 : 0} style={_axisStyle.tickLabels} yAxisId="left" domain={leftYDomain} allowDataOverflow={true} tickFormatter={(v) => smartShortNumber(v, 2, useUsd)} />
+                <YAxis style={_axisStyle.tickLabels} yAxisId="left" domain={leftYDomain} allowDataOverflow={true} tickFormatter={(v) => smartShortNumber(v, 2, useUsd)} />
+                <YAxis style={_axisStyle.tickLabels} yAxisId="right" orientation="right" allowDataOverflow={true} tickFormatter={(v) => smartShortNumber(v, 2)} />
                 <Tooltip
                     wrapperStyle={_axisStyle.tickLabels}
                     labelFormatter={v => formatDate(v)}
@@ -107,6 +109,7 @@ export const FirmBorrowsChart = ({
                         return !value ? 'none' : preciseCommify(value, 0, useUsd)
                     }}
                 />
+                <Line opacity={actives[KEYS.INVENTORY] ? 1 : 0} strokeWidth={2} name={KEYS.INVENTORY} yAxisId="right" type="monotone" dataKey={'inventory'} stroke={themeStyles.colors.info} dot={false} />
                 <Area opacity={actives[KEYS.BURN] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.BURN} yAxisId="left" type="monotone" dataKey={useUsd ? 'debtUsd' : 'debt'} stroke={themeStyles.colors.warning} dot={false} fillOpacity={1} fill="url(#warning-gradient)" />
                 <Legend wrapperStyle={legendStyle} onClick={toggleChart} style={{ cursor: 'pointer' }} formatter={(value) => value + (actives[value] ? '' : ' (hidden)')} />
                 {zoomReferenceArea}
