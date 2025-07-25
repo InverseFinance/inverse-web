@@ -10,7 +10,8 @@ import { formatDate, formatDay } from '@app/util/time';
 
 const KEYS = {
     BURN: 'Borrows',
-    INVENTORY: 'Inventory',
+    INVENTORY: 'Inventory days',
+    TOTAL_USER_DBR_BALANCE: 'Total user DBR holdings',
 }
 
 const CURRENT_YEAR = new Date().getFullYear().toString();
@@ -31,13 +32,15 @@ export const FirmBorrowsChart = ({
 
     const { mouseDown, mouseUp, mouseMove, mouseLeave, zoomOutButton, rangeButtonsBar, zoomReferenceArea, data } = useRechartsZoom({
         combodata, xKey: 'timestamp', yKey: useUsd ? 'debtUsd' : 'debt', yAxisId: 'left', 
-        rangesToInclude: ['All', '1Y', '6M', '3M', '1M', '1W','YTD'],
+        defaultRange: '2Y',
+        rangesToInclude: ['All', '2Y', '1Y', '6M', '1M', '1W','YTD'],
     });
     const _data = data || combodata;
 
     const [actives, setActives] = useState({
         [KEYS.BURN]: true,
         [KEYS.INVENTORY]: true,
+        [KEYS.TOTAL_USER_DBR_BALANCE]: true,
     });
 
     useEffect(() => {
@@ -45,7 +48,7 @@ export const FirmBorrowsChart = ({
             return;
         }
         const suffix = useUsd ? 'Usd' : '';
-        const keys = ([actives[KEYS.BURN] ? 'debt'+suffix : '', 'inventory'])
+        const keys = ([actives[KEYS.BURN] ? 'debt'+suffix : '', 'inventory', 'totalUserDbrBalance'])
             .filter(d => !!d);
         
         const dataMin = Math.min(...combodata.map(d => Math.min(...keys.map(k => (d[k]||0)))));
@@ -79,7 +82,7 @@ export const FirmBorrowsChart = ({
         <VStack position="relative" alignItems="center" maxW={`${chartWidth}px`}>
             <VStack>
                 <Text className="heading-font" fontWeight="bold">
-                    FiRM Borrows
+                    FiRM Borrows & DBR Inventory days
                 </Text>
                 {rangeButtonsBar}
             </VStack>
@@ -116,6 +119,7 @@ export const FirmBorrowsChart = ({
                 />
                 <Line opacity={actives[KEYS.INVENTORY] ? 1 : 0} strokeWidth={2} name={KEYS.INVENTORY} yAxisId="right" type="monotone" dataKey={'inventory'} stroke={themeStyles.colors.info} dot={false} />
                 <Area opacity={actives[KEYS.BURN] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.BURN} yAxisId="left" type="monotone" dataKey={useUsd ? 'debtUsd' : 'debt'} stroke={themeStyles.colors.warning} dot={false} fillOpacity={1} fill="url(#warning-gradient)" />
+                <Area opacity={actives[KEYS.TOTAL_USER_DBR_BALANCE] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.TOTAL_USER_DBR_BALANCE} yAxisId="left" type="monotone" dataKey={useUsd ? 'totalUserDbrBalanceUsd' : 'totalUserDbrBalance'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={1} fill="url(#secondary-gradient)" />
                 <Legend wrapperStyle={legendStyle} onClick={toggleChart} style={{ cursor: 'pointer' }} formatter={(value) => value + (actives[value] ? '' : ' (hidden)')} />
                 {
                     _data.filter(d => d.date.endsWith('01-01')).map(d => {

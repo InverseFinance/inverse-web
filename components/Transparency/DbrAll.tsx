@@ -126,6 +126,8 @@ export const DbrAll = ({
             dbrCircSupply,
             dbrCircSupplyUsd: dbrCircSupply * histoPrice,
             inventory,
+            totalUserDbrBalance: inventory * d.debt / 365,
+            totalUserDbrBalanceUsd: inventory * d.debt / 365 * histoPrice,
             inflation: (totalAnnualizedIssuance - d.debt)/365,
             inflationUsd: (totalAnnualizedIssuance - d.debt)/365 * histoPrice,
         }
@@ -138,9 +140,12 @@ export const DbrAll = ({
         const todayUTC = timestampToUTC(now);
         const todayIndex = combodata.findIndex(d => d.date === todayUTC);
         const totalAnnualizedIssuance = auctionYearlyRate + yearlyRewardRate + dsaYearlyDbrEarnings;
+        const inventory = signedInventory || lastCombodata?.inventory;
         combodata.splice(todayIndex, combodata.length - (todayIndex), {
             ...lastCombodata,
-            inventory: signedInventory || lastCombodata?.inventory,
+            inventory,
+            totalUserDbrBalance: inventory * totalDebt / 365,
+            totalUserDbrBalanceUsd: inventory * totalDebt / 365 * dbrPriceUsd,
             debt: totalDebt,
             timestamp: now,
             time: new Date(timestampToUTC(now)),
