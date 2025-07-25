@@ -179,7 +179,7 @@ export const DbrAll = ({
         setChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width))
     }, [isLargerThan, maxChartWidth]);
 
-    return <Stack overflow="hidden" spacing="3" w='full' direction={{ base: 'column' }} p="4">
+    return <Stack overflow="hidden" spacing="3" w='full' direction={{ base: 'column' }} alignItems="center" p="4">
         <FormControl w='full' justifyContent={{ base: 'center', sm: 'flex-start' }} display='flex' alignItems='center'>
             <Text cursor="pointer" fontSize='14px' mr="2" onClick={() => setUseUsd(!useUsd)}>
                 Show in USD historical value
