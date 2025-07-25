@@ -140,7 +140,7 @@ export const OTCPage = () => {
 
     const isDealDone = !isLoading && isBuyer && !!buyDeadline && dolaAllocation === 0;
     const isDealReady = !isLoading && isBuyer && !!buyDeadline && now < buyDeadline && dolaAllocation > 0;
-    const isDealExpired = !isLoading && isBuyer && !buyDeadline && now > buyDeadline && dolaAllocation > 0;
+    const isDealExpired = !isLoading && isBuyer && !!buyDeadline && now > buyDeadline && dolaAllocation > 0;
     const isRedeemed = !isLoading && isBuyer && !!redemptionTimestamp && now >= redemptionTimestamp && sharesBalance === 0;
 
     return (
