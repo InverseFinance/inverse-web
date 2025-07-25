@@ -119,7 +119,7 @@ export const DbrComboChart = ({
                 <XAxis minTickGap={28} interval="preserveStartEnd" style={_axisStyle.tickLabels} dataKey="timestamp" scale="time" type={'number'} allowDataOverflow={true} domain={['dataMin', 'dataMax']} tickFormatter={(v) => {
                     return formatDay(v)
                 }} />
-                <YAxis opacity={(actives[KEYS.BURN] || actives[KEYS.ISSUANCE]|| actives[KEYS.STAKERS_ISSUANCE] || actives[KEYS.DBR_MC]) ? 1 : 0} style={_axisStyle.tickLabels} yAxisId="left" domain={leftYDomain} allowDataOverflow={true} tickFormatter={(v) => smartShortNumber(v, 2, useUsd)} />
+                <YAxis opacity={(actives[KEYS.BURN] || actives[KEYS.ISSUANCE]|| actives[KEYS.STAKERS_ISSUANCE] || actives[KEYS.DBR_MC]) ? 1 : 0} style={_axisStyle.tickLabels} yAxisId="left" domain={leftYDomain} allowDataOverflow={true} tickFormatter={(v) => v > 10_000_000 ? smartShortNumber(v, 0, useUsd) : smartShortNumber(v, 2, useUsd)} />
                 <YAxis opacity={(actives[KEYS.DBR_PRICE] || actives[KEYS.INV_MC]) ? 1 : 0} style={_axisStyle.tickLabels} yAxisId="right" orientation="right" allowDataOverflow={true} tickFormatter={(v) => shortenNumber(v, 4, true)} />
                 <Tooltip
                     wrapperStyle={_axisStyle.tickLabels}

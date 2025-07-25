@@ -106,7 +106,7 @@ export const FirmBorrowsChart = ({
                 <XAxis minTickGap={28} interval="preserveStartEnd" style={_axisStyle.tickLabels} dataKey="timestamp" scale="time" type={'number'} allowDataOverflow={true} domain={['dataMin', 'dataMax']} tickFormatter={(v) => {
                     return formatDay(v)
                 }} />
-                <YAxis style={_axisStyle.tickLabels} yAxisId="left" domain={leftYDomain} allowDataOverflow={true} tickFormatter={(v) => smartShortNumber(v, 2, useUsd)} />
+                <YAxis style={_axisStyle.tickLabels} yAxisId="left" domain={leftYDomain} allowDataOverflow={true} tickFormatter={(v) => v > 10_000_000 ? smartShortNumber(v, 0, useUsd) : smartShortNumber(v, 2, useUsd)} />
                 <YAxis style={_axisStyle.tickLabels} yAxisId="right" orientation="right" allowDataOverflow={true} tickFormatter={(v) => smartShortNumber(v, 2)} />
                 <Tooltip
                     wrapperStyle={_axisStyle.tickLabels}
