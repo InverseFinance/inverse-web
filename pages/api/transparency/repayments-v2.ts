@@ -84,6 +84,7 @@ export default async function handler(req, res) {
         // const anDolaBadger = new Contract('0x5117D9453cC9Be8c3fBFbA4aE3B858D18fe45903', CTOKEN_ABI, provider);  
 
         const currentBlock = await provider.getBlockNumber();
+        const currentTotalDolaFrontierBorrows = getBnToNumber(await anDola.callStatic.totalBorrowsCurrent({ blockTag: currentBlock }));
         const postArchiveV5Block = (archivedData.lastBlock || 22867534) + 1;
        
         const [
@@ -143,7 +144,7 @@ export default async function handler(req, res) {
 
         const dolaRepaymentsBlocks = dolaFrontierRepayEvents.map(e => e.blockNumber);
         
-        const dolaFrontierDebts = await getBadDebtEvolution(dolaRepaymentsBlocks, currentBlock);
+        // const dolaFrontierDebts = await getBadDebtEvolution(dolaRepaymentsBlocks, currentBlock);
 
         const blocksNeedingTs =
             [
@@ -162,7 +163,7 @@ export default async function handler(req, res) {
                 .flat()
                 .concat(debtConverterRepaymentsEvents.map(e => e.blockNumber))
                 .concat(debtRepayerRepaymentsEvents.map(e => e.blockNumber))
-                .concat(dolaFrontierDebts.blocks);
+                .concat([...dolaRepaymentsBlocks, currentBlock]);
 
         const timestamps = await addBlockTimestamps(blocksNeedingTs, '1');
 
@@ -311,20 +312,34 @@ export default async function handler(req, res) {
         // ];
         // badDebtEvents.sort((a, b) => a.timestamp - b.timestamp);
 
-        const newFrontierDolaEvolution = dolaFrontierDebts.totals.map((badDebt, i) => {
-            const borrows = dolaFrontierDebts.borrowed[i];
-            const delta = badDebt - dolaFrontierDebts.totals[i - 1];
-            const deltaBorrowed = borrows - dolaFrontierDebts.borrowed[i - 1];
-            return {
-                timestamp: timestamps["1"][dolaFrontierDebts.blocks[i]] * 1000,
-                frontierBadDebt: badDebt,
-                frontierBorrowed: borrows,
-                frontierDelta: delta || 0,
-                frontierBorrowedDelta: deltaBorrowed || 0,
+        // const newFrontierDolaEvolution = dolaFrontierDebts.totals.map((badDebt, i) => {
+        //     const borrows = dolaFrontierDebts.borrowed[i];
+        //     const delta = badDebt - dolaFrontierDebts.totals[i - 1];
+        //     const deltaBorrowed = borrows - dolaFrontierDebts.borrowed[i - 1];
+        //     return {
+        //         timestamp: timestamps["1"][dolaFrontierDebts.blocks[i]] * 1000,
+        //         frontierBadDebt: badDebt,
+        //         frontierBorrowed: borrows,
+        //         frontierDelta: delta || 0,
+        //         frontierBorrowedDelta: deltaBorrowed || 0,
+        //         nonFrontierDelta: 0,
+        //         block: dolaFrontierDebts.blocks[i],
+        //     };
+        // }).filter((item, i) => dolaFrontierDebts.blocks[i] >= postArchiveV5Block);
+
+        // can be simplified now, just current forntier totalBorrows
+        const archivedEvo = archivedData.dolaBadDebtEvolution;
+        const newFrontierDolaEvolution = [
+            {
+                timestamp: timestamps["1"][currentBlock] * 1000,
+                frontierBadDebt: currentTotalDolaFrontierBorrows,
+                frontierBorrowed: currentTotalDolaFrontierBorrows,
+                frontierDelta: archivedEvo[archivedEvo.length - 1].frontierBadDebt - currentTotalDolaFrontierBorrows,
+                frontierBorrowedDelta: archivedEvo[archivedEvo.length - 1].frontierBorrowed - currentTotalDolaFrontierBorrows,
                 nonFrontierDelta: 0,
-                block: dolaFrontierDebts.blocks[i],
-            };
-        }).filter((item, i) => dolaFrontierDebts.blocks[i] >= postArchiveV5Block);
+                block: currentBlock,
+            }
+        ]
 
         const dolaBadDebtEvolution = archivedData.dolaBadDebtEvolution.concat(newFrontierDolaEvolution).sort((a, b) => a.timestamp - b.timestamp);
 
@@ -417,53 +432,53 @@ const getHistoIouExRate = async (debtConverter: Contract, blocks: number[]) => {
     return iouExRates;
 }
 
-const getBadDebtEvolution = async (repaymentBlocks: number[], currentBlock: number) => {
-    const pastData = await getCacheFromRedis(frontierBadDebtEvoCacheKey, false, 3600) || DOLA_FRONTIER_DEBT_V2;
-    const newBlocks = [...repaymentBlocks, currentBlock].filter(block => block > pastData.blocks[pastData.blocks.length - 1]);
-    const blocks = [...new Set(newBlocks)].sort((a, b) => a - b);
+// const getBadDebtEvolution = async (repaymentBlocks: number[], currentBlock: number) => {
+//     const pastData = await getCacheFromRedis(frontierBadDebtEvoCacheKey, false, 3600) || DOLA_FRONTIER_DEBT_V2;
+//     const newBlocks = [...repaymentBlocks, currentBlock].filter(block => block > pastData.blocks[pastData.blocks.length - 1]);
+//     const blocks = [...new Set(newBlocks)].sort((a, b) => a - b);
 
-    if (!blocks.length) {
-        return pastData;
-    };
+//     if (!blocks.length) {
+//         return pastData;
+//     };
 
-    const results = await throttledPromises(
-        (block: number) => {
-            return getHistoricalFrontierPositionsDetails({
-                pageOffset: 0,
-                pageSize: 2000,
-                blockNumber: block,
-                useDolaShortlist: true,
-            });
-        },
-        blocks,
-        5,
-        1000,
-        'allSettled',
-    );
+//     const results = await throttledPromises(
+//         (block: number) => {
+//             return getHistoricalFrontierPositionsDetails({
+//                 pageOffset: 0,
+//                 pageSize: 2000,
+//                 blockNumber: block,
+//                 useDolaShortlist: true,
+//             });
+//         },
+//         blocks,
+//         5,
+//         1000,
+//         'allSettled',
+//     );
 
-    const newData = blocks.map((block, i) => {
-        const hasData = results[i]?.status === 'fulfilled';
-        return {
-            dolaBadDebt: hasData ? results[i]?.value.positionDetails.reduce((acc, pos) => acc + pos.dolaBadDebt, 0) : null,
-            // sum of main positions
-            dolaBorrowedSum: hasData ? results[i]?.value.positionDetails.reduce((acc, pos) => acc + pos.dolaBorrowed, 0) : null,
-            // totalBorrows in anDola
-            dolaBorrowed: hasData ? results[i]?.value.meta.dolaTotalBorrows : null,
-            dolaBadDebtClassic: hasData ? results[i]?.value.positionDetails.reduce((acc, pos) => acc + pos.dolaBadDebtClassic, 0) : null,
-            block,
-        };
-    }).filter(d => d.dolaBadDebt !== null);
+//     const newData = blocks.map((block, i) => {
+//         const hasData = results[i]?.status === 'fulfilled';
+//         return {
+//             dolaBadDebt: hasData ? results[i]?.value.positionDetails.reduce((acc, pos) => acc + pos.dolaBadDebt, 0) : null,
+//             // sum of main positions
+//             dolaBorrowedSum: hasData ? results[i]?.value.positionDetails.reduce((acc, pos) => acc + pos.dolaBorrowed, 0) : null,
+//             // totalBorrows in anDola
+//             dolaBorrowed: hasData ? results[i]?.value.meta.dolaTotalBorrows : null,
+//             dolaBadDebtClassic: hasData ? results[i]?.value.positionDetails.reduce((acc, pos) => acc + pos.dolaBadDebtClassic, 0) : null,
+//             block,
+//         };
+//     }).filter(d => d.dolaBadDebt !== null);
 
-    const resultData = {
-        totals: pastData?.totals.concat(newData.map(d => d.dolaBadDebt)),
-        borrowed: pastData?.totals.concat(newData.map(d => d.dolaBorrowed)),
-        borrowedSum: pastData?.totals.concat(newData.map(d => d.dolaBorrowedSum)),
-        blocks: pastData?.blocks.concat(newData.map(d => d.block)),
-        timestamp: Date.now(),
-    }
-    await redisSetWithTimestamp(frontierBadDebtEvoCacheKey, resultData);
-    return resultData;
-}
+//     const resultData = {
+//         totals: pastData?.totals.concat(newData.map(d => d.dolaBadDebt)),
+//         borrowed: pastData?.totals.concat(newData.map(d => d.dolaBorrowed)),
+//         borrowedSum: pastData?.totals.concat(newData.map(d => d.dolaBorrowedSum)),
+//         blocks: pastData?.blocks.concat(newData.map(d => d.block)),
+//         timestamp: Date.now(),
+//     }
+//     await redisSetWithTimestamp(frontierBadDebtEvoCacheKey, resultData);
+//     return resultData;
+// }
 
 const getHistoPrices = async (cgId: string, timestamps: number[], histoPrices: any) => {
     const dates = timestamps.map(ts => timestampToUTC(ts));
