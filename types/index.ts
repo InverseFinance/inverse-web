@@ -787,6 +787,7 @@ export type F2Market = {
   noDeposit?: boolean
   noZap?: boolean
   expiry?: string
+  isNewMarket: boolean
 }
 
 export type FirmAction = {

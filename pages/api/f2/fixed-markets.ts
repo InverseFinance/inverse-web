@@ -4,17 +4,18 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { TOKENS } from '@app/variables/tokens'
 import { getBnToNumber, getFirmMarketsApys } from '@app/util/markets'
-import { CHAIN_ID } from '@app/config/constants';
+import { CHAIN_ID, ONE_DAY_MS } from '@app/config/constants';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { formatDistributorData, formatMarketData, inverseViewerRaw } from '@app/util/viewer';
 import { SIMS_CACHE_KEY } from '../drafts/sim';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { marketsDisplaysCacheKey } from './markets-display';
+import { estimateBlockTimestamp } from '@app/util/misc';
 // import { FIRM_MARKETS_SNAPSHOT } from '@app/fixtures/firm-markets-20241022';
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
-export const F2_MARKETS_CACHE_KEY = `f2markets-v1.6.4`;
+export const F2_MARKETS_CACHE_KEY = `f2markets-v1.6.5`;
 
 export default async function handler(req, res) {
   const cacheDuration = 90;
@@ -75,15 +76,18 @@ export default async function handler(req, res) {
       formatDistributorData(dbrDistributorData),
     ];
 
-    const [externalApys, marketsDisplay] = await Promise.all([
+    const [externalApys, marketsDisplay, currentBlock] = await Promise.all([
       getFirmMarketsApys(provider, invApr, cachedData),
       getCacheFromRedis(marketsDisplaysCacheKey, false),
+      provider.getBlockNumber(),
     ])
     const { cvxCrvData, cvxFxsData } = externalApys;
 
     const dbrApr = formattedDistrubutorData.dbrApr;
 
     const { suspendAllDeposits, suspendAllLeverage, suspendAllBorrows } = (marketsDisplay || {});
+
+    const now = Date.now();
 
     const markets = F2_MARKETS.map((m, i) => {
       const underlying = TOKENS[m.collateral];
@@ -118,12 +122,13 @@ export default async function handler(req, res) {
         phasingOutComment: marketCustomDisplay?.phasingOutComment || m.phasingOutComment || '',
         isPendle,
         isPendleMatured,
+        isNewMarket: estimateBlockTimestamp(m.startingBlock, now, currentBlock) >= (now - ONE_DAY_MS * 14),
       }
     });
 
     const resultData = {
+      timestamp: now,
       markets,
-      timestamp: Date.now(),
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);
