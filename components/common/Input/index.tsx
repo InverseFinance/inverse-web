@@ -49,6 +49,7 @@ type BalanceInputProps = {
 
 export const BalanceInput = ({ allowMobileMode = false, isError, value, label, onChange, onMaxClick, inputProps, showBalance, balance, showMax = true, inputRightProps, inputLeftProps, ...props }: BalanceInputProps & Partial<FlexProps>) => {
   const { themeStyles, themeParams } = useAppTheme();
+  console.log(balance)
   return <Flex
     w="full"
     bgColor='primary.850'
@@ -74,7 +75,7 @@ export const BalanceInput = ({ allowMobileMode = false, isError, value, label, o
         {...inputLeftProps}
       >
         {
-          showBalance ? `Bal ${shortenNumber(parseFloat(balance?.toString()?.replace(',', '')), 2, false, true)}` : 'MAX'
+          showBalance ? `Bal ${shortenNumber(parseFloat(balance?.toString()?.replace(/,/g, '')), 2, false, true)}` : 'MAX'
         }        
       </Flex>
       <Input _focusVisible={false} value={value} onChange={onChange} placeholder="0" {...inputProps} />
