@@ -76,7 +76,7 @@ export const useFirmUsers = (): SWR & {
   userPositions: any,
   positions: any,
   timestamp: number,
-  signedInventory: number,
+  inventory: number,
   isLoading: boolean,
 } => {
   const { data, error, isLoading: isLoadingDbr } = useCacheFirstSWR(`/api/f2/dbr-deficits?v2`, fetcher60sectimeout);
@@ -122,7 +122,7 @@ export const useFirmUsers = (): SWR & {
 
   return {
     userPositions: positionsAggregatedByUser,
-    signedInventory: data?.signedInventory || 0,
+    inventory: data?.inventory || 0,
     positions,
     timestamp,
     isLoading: isLoadingDbr || isLoadingPositions,

@@ -54,7 +54,7 @@ export const DbrAll = ({
     const { dsaYearlyDbrEarnings, isLoading: isLoadingStakedDola } = useStakedDola(dbrPriceUsd);
     const { dbrRatePerYear: auctionYearlyRate, historicalRates: auctionHistoricalRates, isLoading: isLoadingAuction } = useDbrAuction("classic");
     const { evolution: dolaStakingEvolution } = useDolaStakingEvolution();
-    const { positions, signedInventory } = useFirmUsers();
+    const { positions, inventory: currentInventory } = useFirmUsers();
     const totalDebt = positions.reduce((prev, curr) => prev + curr.debt, 0);
 
     const totalClaimed = useMemo(() => emissionEvents.reduce((acc, e) => acc + e.stakingClaims, 0), [emissionTimestamp]);
@@ -140,7 +140,7 @@ export const DbrAll = ({
         const todayUTC = timestampToUTC(now);
         const todayIndex = combodata.findIndex(d => d.date === todayUTC);
         const totalAnnualizedIssuance = auctionYearlyRate + yearlyRewardRate + dsaYearlyDbrEarnings;
-        const inventory = signedInventory || lastCombodata?.inventory;
+        const inventory = currentInventory || lastCombodata?.inventory;
         combodata.splice(todayIndex, combodata.length - (todayIndex), {
             ...lastCombodata,
             inventory,
@@ -191,7 +191,7 @@ export const DbrAll = ({
             <SimpleGrid gap="2" w='full' columns={{ base: 2, sm: 5 }}>
                 <StatBasic isLoading={!yearlyRewardRate || isLoadingStakedDola || isLoadingAuction} name="Annualized Issuance" value={`${shortenNumber(annualizedIssuance, 2)} (${shortenNumber(annualizedIssuance * dbrPriceUsd, 2, true)})`} />
                 <StatBasic isLoading={!totalDebt} name="Annualized Burn" value={`${shortenNumber(totalDebt, 2)} (${shortenNumber(totalDebt * dbrPriceUsd, 2, true)})`} />
-                <StatBasic isLoading={!signedInventory} name="Inventory Days" value={`${shortenNumber(signedInventory, 2)}`} />
+                <StatBasic isLoading={!currentInventory} name="Inventory Days" value={`${shortenNumber(currentInventory, 2)}`} />
                 <StatBasic isLoading={isEmmissionLoading} name="Claimed by stakers" value={`${shortenNumber(totalClaimed, 2)} (${shortenNumber(useUsd ? totalClaimedUsd : totalClaimed * dbrPriceUsd, 2, true)})`} />
                 <StatBasic isLoading={!burnEvents?.length} name="Burned by borrowers" value={`${shortenNumber(totalBurned, 2)} (${shortenNumber(useUsd ? accBurnUsd : totalBurned * dbrPriceUsd, 2, true)})`} />
             </SimpleGrid>
