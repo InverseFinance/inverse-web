@@ -27,7 +27,7 @@ export const Layout = ({ children, isLanding, isLandingV2 = false, bgColor = 'ma
       direction="column"
       align="center"
       borderColor={`mainTextColorAlpha`}
-      borderBottomWidth={isLanding ? 0 : 1}
+      // borderBottomWidth={isLanding ? 0 : 1}
       pb={0}
     >
       {children}

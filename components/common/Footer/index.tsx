@@ -25,6 +25,7 @@ export const Footer = ({ isLanding = false }: { isLanding?: boolean }) => {
     direction={{ base: 'column', lg: 'row' }}
     spacing={8}
     p={8}
+    mt={'50px'}
     px="8%"
     justify="space-between"
     color="mainTextColor"

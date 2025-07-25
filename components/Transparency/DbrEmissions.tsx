@@ -117,7 +117,7 @@ export const DbrEmissions = ({
                 eventName: 'Issuance',
                 title: 'DBR circ. supply increases in the last 12 months'
             }}
-            containerProps={{ alignItems: 'flex-start' }}
+            containerProps={{ alignItems: 'center' }}
         />
     </Stack>
 }

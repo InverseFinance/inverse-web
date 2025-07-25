@@ -100,7 +100,7 @@ export const DbrInflationChart = ({
                 data={_data}
                 margin={{
                     top: 20,
-                    right: 0,
+                    right: 60,
                     left: 0,
                     bottom: 20,
                 }}
