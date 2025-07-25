@@ -35,7 +35,7 @@ const StatBasic = ({ value, name, isLoading = false }: { value: string, name: st
 
 export const DbrAll = ({
     histoPrices,
-    maxChartWidth = 1248,
+    maxChartWidth = 1250,
     yearlyRewardRate,
 }) => {
     const { events: burnEvents } = useDBRBurns();
@@ -177,7 +177,7 @@ export const DbrAll = ({
 
     useEffect(() => {
         setChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width))
-    }, [isLargerThan]);
+    }, [isLargerThan, maxChartWidth]);
 
     return <Stack overflow="hidden" spacing="3" w='full' direction={{ base: 'column' }} p="4">
         <FormControl w='full' justifyContent={{ base: 'center', sm: 'flex-start' }} display='flex' alignItems='center'>
