@@ -227,7 +227,7 @@ export const DbrAll = ({
             chartData={burnChartData}
             isDollars={useUsd}
             smoothLineByDefault={false}
-            containerProps={{ alignItems: 'flex-start' }}
+            containerProps={{ alignItems: 'center' }}
             barProps={{ eventName: 'Burn', yAttribute: 'yDay', title: 'DBR burned in the last 12 months' }}
             areaProps={{ title: 'Accumulated DBR burned', fillInByDayInterval: true, showRangeBtns: false, yLabel: 'Acc. DBR burn', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
         />
