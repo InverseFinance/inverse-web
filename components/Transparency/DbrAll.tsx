@@ -176,7 +176,17 @@ export const DbrAll = ({
     const defillamaCardProps = { overflow:"hidden", direction: 'column', mx: '0', w: { base: '100vw', sm: '95vw', lg: '600px' }, borderRadius: { base: '0', sm: '8' } };
 
     useEffect(() => {
-        setChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width))
+        const handleResize = () => {
+            if (chartWidth === (window.innerWidth - 40)) return;
+            setChartWidth(window.innerWidth - 40);
+          };
+          handleResize();
+          window.addEventListener('resize', handleResize);
+          return () => window.removeEventListener('resize', handleResize);
+    }, [])
+
+    useEffect(() => {
+        setChartWidth(isLargerThan ? maxChartWidth : window.innerWidth - 40)
     }, [isLargerThan, maxChartWidth]);
 
     return <Stack overflow="hidden" spacing="3" w='full' direction={{ base: 'column' }} alignItems="center" p="4">
