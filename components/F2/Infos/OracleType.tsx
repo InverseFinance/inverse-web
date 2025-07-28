@@ -1,5 +1,5 @@
 import { InfoTooltip } from "@app/components/common/Tooltip"
-import { capitalize } from "@app/util/misc"
+import { capitalize, capitalizeFirstLetter } from "@app/util/misc"
 import { Stack, Image, Text, VStack } from "@chakra-ui/react"
 
 export const OracleTypeTooltipContent = ({ subText }: { subText?: string }) => {
@@ -44,13 +44,13 @@ export const OracleType = ({
             }
             {showImage && <Image src={`/assets/oracles/${oracleType}.webp`} h="15px" w="15px" ignoreFallback={true} />}
             {showText && <Text whiteSpace="nowrap">
-                {capitalize(oracleType)}
+                {capitalizeFirstLetter(oracleType)}
                 {simplify ? '+PPO' : ''}
                 {simplify && !!subText ? `+${subText}` : '' }
             </Text>}
         </Stack>
         {
-            !simplify ? <Text>{!!subText ? `+${capitalize(subText)}` : ''}+PPO</Text> : null
+            !simplify ? <Text>{!!subText ? `+${capitalizeFirstLetter(subText)}` : ''}+PPO</Text> : null
         }
     </Stack>
 }
