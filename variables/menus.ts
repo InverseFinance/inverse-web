@@ -457,7 +457,7 @@ export const MENUS = {
         },
         {
           label: 'Bug Bounty',
-          href: 'https://discord.gg/YpYJC7R5nv',
+          href: 'https://immunefi.com/bug-bounty/inversefinance/information',
         },
         {
           label: 'Discord',
