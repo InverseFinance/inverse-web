@@ -4,6 +4,7 @@ import { ONE_DAY_MS, SECONDS_PER_BLOCK, SIGN_MSG } from '@app/config/constants';
  ;
 
 export const capitalize = (v: string) => v[0].toUpperCase() + v.substring(1, v.length).toLowerCase();
+export const capitalizeFirstLetter = (v: string) => v[0].toUpperCase() + v.substring(1, v.length);
 
 export const removeScientificFormat = (x: number) => {
     if (!x) { return x }
