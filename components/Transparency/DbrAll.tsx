@@ -177,8 +177,8 @@ export const DbrAll = ({
 
     useEffect(() => {
         const handleResize = () => {
-            if (chartWidth === (window.innerWidth - 40)) return;
-            const width = window.innerWidth - 40;
+            if (chartWidth === (window.innerWidth - 10)) return;
+            const width = window.innerWidth - 10;
             setChartWidth(width > maxChartWidth ? maxChartWidth : width);
           };
           handleResize();
@@ -187,10 +187,10 @@ export const DbrAll = ({
     }, [])
 
     useEffect(() => {
-        setChartWidth(isLargerThan ? maxChartWidth : window.innerWidth - 40)
+        setChartWidth(isLargerThan ? maxChartWidth : window.innerWidth - 10)
     }, [isLargerThan, maxChartWidth]);
 
-    return <Stack overflow="hidden" spacing="3" w='full' direction={{ base: 'column' }} alignItems="center" p="4">
+    return <Stack overflow="hidden" spacing="3" w='full' direction={{ base: 'column' }} alignItems="center" p={{ base: '0', sm: '4' }}>
         <FormControl w='full' justifyContent={{ base: 'center', sm: 'flex-start' }} display='flex' alignItems='center'>
             <Text cursor="pointer" fontSize='14px' mr="2" onClick={() => setUseUsd(!useUsd)}>
                 Show in USD historical value
