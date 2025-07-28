@@ -36,7 +36,7 @@ export const DbrComboChart = ({
 
     const { mouseDown, mouseUp, mouseMove, mouseLeave, zoomOutButton, rangeButtonsBar, zoomReferenceArea, data } = useRechartsZoom({
         combodata, xKey: 'timestamp', yKey: useUsd ? 'debtUsd' : 'debt', yAxisId: 'left', 
-        rangesToInclude: ['All', '6M', '3M', '1M', '1W','YTD'],
+        rangesToInclude: ['All', '1Y', '6M', '3M', '1M', '1W','YTD'],
     });
     const _data = data || combodata;
 
@@ -101,7 +101,7 @@ export const DbrComboChart = ({
             {/* {zoomOutButton} */}
             <ComposedChart
                 width={chartWidth}
-                height={400}
+                height={chartWidth > 1000 ? 500 : 400}
                 data={_data}
                 margin={{
                     top: 20,
@@ -119,7 +119,7 @@ export const DbrComboChart = ({
                 <XAxis minTickGap={28} interval="preserveStartEnd" style={_axisStyle.tickLabels} dataKey="timestamp" scale="time" type={'number'} allowDataOverflow={true} domain={['dataMin', 'dataMax']} tickFormatter={(v) => {
                     return formatDay(v)
                 }} />
-                <YAxis opacity={(actives[KEYS.BURN] || actives[KEYS.ISSUANCE]|| actives[KEYS.STAKERS_ISSUANCE] || actives[KEYS.DBR_MC]) ? 1 : 0} style={_axisStyle.tickLabels} yAxisId="left" domain={leftYDomain} allowDataOverflow={true} tickFormatter={(v) => smartShortNumber(v, 2, useUsd)} />
+                <YAxis opacity={(actives[KEYS.BURN] || actives[KEYS.ISSUANCE]|| actives[KEYS.STAKERS_ISSUANCE] || actives[KEYS.DBR_MC]) ? 1 : 0} style={_axisStyle.tickLabels} yAxisId="left" domain={leftYDomain} allowDataOverflow={true} tickFormatter={(v) => v > 10_000_000 ? smartShortNumber(v, 0, useUsd) : smartShortNumber(v, 2, useUsd)} />
                 <YAxis opacity={(actives[KEYS.DBR_PRICE] || actives[KEYS.INV_MC]) ? 1 : 0} style={_axisStyle.tickLabels} yAxisId="right" orientation="right" allowDataOverflow={true} tickFormatter={(v) => shortenNumber(v, 4, true)} />
                 <Tooltip
                     wrapperStyle={_axisStyle.tickLabels}

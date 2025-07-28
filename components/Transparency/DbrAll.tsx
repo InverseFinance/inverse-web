@@ -35,7 +35,7 @@ const StatBasic = ({ value, name, isLoading = false }: { value: string, name: st
 
 export const DbrAll = ({
     histoPrices,
-    maxChartWidth = 950,
+    maxChartWidth = 1250,
     yearlyRewardRate,
 }) => {
     const { events: burnEvents } = useDBRBurns();
@@ -47,15 +47,15 @@ export const DbrAll = ({
     const circSupplyAsObj = !!circSupplyEvolution ? circSupplyEvolution.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr.timestamp)]: curr.circSupply }), {}) : {};
     const invHistoPricesAsObj = !!invHistoPrices ? invHistoPrices.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr[0])]: curr[1] }), {}) : {};
     const dbrCircSupplyAsObj = !!dbrCircSupplyEvolution ? dbrCircSupplyEvolution.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr.timestamp)]: curr.circSupply }), {}) : {};
+    const inventoryAsObj = !!dbrCircSupplyEvolution ? dbrCircSupplyEvolution.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr.timestamp)]: curr.inventory }), {}) : {};
     const { priceUsd: dbrPriceUsd, priceDola: dbrPriceDola } = useDBRPrice();
 
     const { events: emissionEvents, rewardRatesHistory, isLoading: isEmmissionLoading, timestamp: emissionTimestamp } = useDBREmissions();
     const { dsaYearlyDbrEarnings, isLoading: isLoadingStakedDola } = useStakedDola(dbrPriceUsd);
     const { dbrRatePerYear: auctionYearlyRate, historicalRates: auctionHistoricalRates, isLoading: isLoadingAuction } = useDbrAuction("classic");
     const { evolution: dolaStakingEvolution } = useDolaStakingEvolution();
-    const { positions } = useFirmUsers();
+    const { positions, inventory: currentInventory } = useFirmUsers();
     const totalDebt = positions.reduce((prev, curr) => prev + curr.debt, 0);
-
 
     const totalClaimed = useMemo(() => emissionEvents.reduce((acc, e) => acc + e.stakingClaims, 0), [emissionTimestamp]);
     const totalClaimedUsd = useMemo(() => {
@@ -105,6 +105,7 @@ export const DbrAll = ({
         const invHistoPrice = (invHistoPricesAsObj[date] || getClosestPreviousHistoValue(invHistoPricesAsObj, date, 0));
         const invHistoCircSupply = (circSupplyAsObj[date] || getClosestPreviousHistoValue(circSupplyAsObj, date, 0));
         const dbrCircSupply = (dbrCircSupplyAsObj[date] || getClosestPreviousHistoValue(dbrCircSupplyAsObj, date, 0));
+        const inventory = (inventoryAsObj[date] || getClosestPreviousHistoValue(inventoryAsObj, date, 0));
         const invHistoMarketCap = invHistoPrice * invHistoCircSupply;
         const yearlyRewardRate = rateChanges.findLast(rd => date >= rd.date)?.yearlyRewardRate || 0;
         const auctionYearlyRewardRate = auctionRateChanges.findLast(rd => date >= rd.date)?.rate || 0;
@@ -124,6 +125,9 @@ export const DbrAll = ({
             yearlyRewardRateUsd: totalAnnualizedIssuance * histoPrice,
             dbrCircSupply,
             dbrCircSupplyUsd: dbrCircSupply * histoPrice,
+            inventory,
+            totalUserDbrBalance: inventory * d.debt / 365,
+            totalUserDbrBalanceUsd: inventory * d.debt / 365 * histoPrice,
             inflation: (totalAnnualizedIssuance - d.debt)/365,
             inflationUsd: (totalAnnualizedIssuance - d.debt)/365 * histoPrice,
         }
@@ -136,8 +140,12 @@ export const DbrAll = ({
         const todayUTC = timestampToUTC(now);
         const todayIndex = combodata.findIndex(d => d.date === todayUTC);
         const totalAnnualizedIssuance = auctionYearlyRate + yearlyRewardRate + dsaYearlyDbrEarnings;
+        const inventory = currentInventory || lastCombodata?.inventory;
         combodata.splice(todayIndex, combodata.length - (todayIndex), {
             ...lastCombodata,
+            inventory,
+            totalUserDbrBalance: inventory * totalDebt / 365,
+            totalUserDbrBalanceUsd: inventory * totalDebt / 365 * dbrPriceUsd,
             debt: totalDebt,
             timestamp: now,
             time: new Date(timestampToUTC(now)),
@@ -168,22 +176,34 @@ export const DbrAll = ({
     const defillamaCardProps = { overflow:"hidden", direction: 'column', mx: '0', w: { base: '100vw', sm: '95vw', lg: '600px' }, borderRadius: { base: '0', sm: '8' } };
 
     useEffect(() => {
-        setChartWidth(isLargerThan ? maxChartWidth : (screen.availWidth || screen.width))
-    }, [isLargerThan]);
+        const handleResize = () => {
+            if (chartWidth === (window.innerWidth - 10)) return;
+            const width = window.innerWidth - 10;
+            setChartWidth(width > maxChartWidth ? maxChartWidth : width);
+          };
+          handleResize();
+          window.addEventListener('resize', handleResize);
+          return () => window.removeEventListener('resize', handleResize);
+    }, [])
 
-    return <Stack overflow="hidden" spacing="3" w='full' direction={{ base: 'column' }}>
-        <FormControl cursor="pointer" w='full' justifyContent={{ base: 'center', sm: 'flex-start' }} display='flex' alignItems='center'>
-            <Text fontSize='14px' mr="2" onClick={() => setUseUsd(!useUsd)}>
+    useEffect(() => {
+        setChartWidth(isLargerThan ? maxChartWidth : window.innerWidth - 10)
+    }, [isLargerThan, maxChartWidth]);
+
+    return <Stack overflow="hidden" spacing="3" w='full' direction={{ base: 'column' }} alignItems="center" p={{ base: '0', sm: '4' }}>
+        <FormControl w='full' justifyContent={{ base: 'center', sm: 'flex-start' }} display='flex' alignItems='center'>
+            <Text cursor="pointer" fontSize='14px' mr="2" onClick={() => setUseUsd(!useUsd)}>
                 Show in USD historical value
             </Text>
             <Switch onChange={(e) => setUseUsd(!useUsd)} size="sm" colorScheme="purple" isChecked={useUsd} />
         </FormControl>
         <VStack spacing="3">
             <Divider />
-            <SimpleGrid gap="2" w='full' columns={{ base: 2, sm: 4 }} >
+            <SimpleGrid gap="2" w='full' columns={{ base: 2, sm: 5 }}>
                 <StatBasic isLoading={!yearlyRewardRate || isLoadingStakedDola || isLoadingAuction} name="Annualized Issuance" value={`${shortenNumber(annualizedIssuance, 2)} (${shortenNumber(annualizedIssuance * dbrPriceUsd, 2, true)})`} />
                 <StatBasic isLoading={!totalDebt} name="Annualized Burn" value={`${shortenNumber(totalDebt, 2)} (${shortenNumber(totalDebt * dbrPriceUsd, 2, true)})`} />
-                <StatBasic isLoading={isEmmissionLoading} name="Claimed by INV stakers" value={`${shortenNumber(totalClaimed, 2)} (${shortenNumber(useUsd ? totalClaimedUsd : totalClaimed * dbrPriceUsd, 2, true)})`} />
+                <StatBasic isLoading={!currentInventory} name="Inventory Days" value={`${shortenNumber(currentInventory, 2)}`} />
+                <StatBasic isLoading={isEmmissionLoading} name="Claimed by stakers" value={`${shortenNumber(totalClaimed, 2)} (${shortenNumber(useUsd ? totalClaimedUsd : totalClaimed * dbrPriceUsd, 2, true)})`} />
                 <StatBasic isLoading={!burnEvents?.length} name="Burned by borrowers" value={`${shortenNumber(totalBurned, 2)} (${shortenNumber(useUsd ? accBurnUsd : totalBurned * dbrPriceUsd, 2, true)})`} />
             </SimpleGrid>
             <Divider />
@@ -218,7 +238,7 @@ export const DbrAll = ({
             chartData={burnChartData}
             isDollars={useUsd}
             smoothLineByDefault={false}
-            containerProps={{ alignItems: 'flex-start' }}
+            containerProps={{ alignItems: 'center' }}
             barProps={{ eventName: 'Burn', yAttribute: 'yDay', title: 'DBR burned in the last 12 months' }}
             areaProps={{ title: 'Accumulated DBR burned', fillInByDayInterval: true, showRangeBtns: false, yLabel: 'Acc. DBR burn', useRecharts: true, showMaxY: false, domainYpadding: 1000, showTooltips: true, autoMinY: true, mainColor: 'info', allowZoom: true }}
         />

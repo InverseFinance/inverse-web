@@ -1,4 +1,4 @@
-import { Contract } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
 import 'source-map-support'
 import { DBR_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
@@ -8,10 +8,11 @@ import { getBnToNumber } from '@app/util/markets'
 import { CHAIN_ID } from '@app/config/constants';
 import { F2_UNIQUE_USERS_CACHE_KEY } from './firm-positions';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
+import { dbrCircSupplyCacheKey } from '../dbr/circulating-supply';
 
 const { F2_MARKETS, DBR } = getNetworkConfigConstants();
 
-export const DBR_SPENDERS_CACHE_KEY = `f2dbr-v1.0.6`;
+export const DBR_SPENDERS_CACHE_KEY = `f2dbr-v1.0.7`;
 
 export default async function handler(req, res) {  
   const { cacheFirst } = req.query;
@@ -43,7 +44,7 @@ export default async function handler(req, res) {
 
     dbrUsers = [...new Set(dbrUsers)];
 
-    const [signedBalanceBn, debtsBn] = await getGroupedMulticallOutputs(
+    const [signedBalanceBn, debtsBn, triDbrLpBalancesBn] = await getGroupedMulticallOutputs(
       [
         dbrUsers.map(u => {
           return { contract: dbrContract, functionName: 'signedBalanceOf', params: [u] }
@@ -51,23 +52,45 @@ export default async function handler(req, res) {
         dbrUsers.map(u => {
           return { contract: dbrContract, functionName: 'debts', params: [u] }
         }),
+        // tri-dbr lp
+        [
+          {
+            contract: dbrContract,
+            functionName: 'balanceOf',
+            params: ['0xC7DE47b9Ca2Fc753D6a2F167D8b3e19c6D18b19a'],
+            fallbackValue: BigNumber.from('0'),
+          }
+        ]
       ]
     );
 
+    const circSupply =  parseFloat((await getCacheFromRedis(dbrCircSupplyCacheKey, false)) || '0');
+
+    const triDbrBalance = getBnToNumber(triDbrLpBalancesBn[0]);
+
     const activeDbrHolders = signedBalanceBn.map((bn, i) => {
       const signedBalance = getBnToNumber(bn);
+      const debt = getBnToNumber(debtsBn[i]);
+      const balance = Math.max(signedBalance, 0);
       return {
         signedBalance: signedBalance,
         deficit: Math.min(0, signedBalance),
-        balance: Math.max(signedBalance, 0),
-        debt: getBnToNumber(debtsBn[i]),
+        balance,
+        debt,
         user: dbrUsers[i],
       }
     });
 
-    const resultData = {      
+    const totalDebt = activeDbrHolders.reduce((acc, i) => acc + i.debt, 0);
+    // all users not just firm
+    const totalUsersBalance = circSupply - triDbrBalance;
+
+    const resultData = {
+      timestamp: Date.now(),
+      totalDebt,
+      dbrHeldByAllUsers: totalUsersBalance,
+      inventory: totalDebt > 0 ? totalUsersBalance / totalDebt * 365 : 0,
       activeDbrHolders,
-      timestamp: +(new Date()),
     }
 
     await redisSetWithTimestamp(DBR_SPENDERS_CACHE_KEY, resultData);

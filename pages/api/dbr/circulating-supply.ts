@@ -10,8 +10,9 @@ import { DBR_CIRC_SUPPLY_EVO_CACHE_KEY } from './circulating-supply-evolution';
 import { fillMissingDailyDatesWithMostRecentData, timestampToUTC } from '@app/util/misc';
 import { SDOLA_ADDRESS, SINV_ADDRESS, SINV_ADDRESS_V1 } from '@app/config/constants';
 import { getPendingDbrBurn } from './pending-burn';
+import { inverseViewer } from '@app/util/viewer';
 
-const { DBR, TREASURY, DBR_AIRDROP } = getNetworkConfigConstants();
+const { DBR, TREASURY, DBR_AIRDROP, F2_MARKETS } = getNetworkConfigConstants();
 
 const excluded = [
   TREASURY,
@@ -38,8 +39,9 @@ export default async function handler(req, res) {
     const provider = getProvider(NetworkIds.mainnet);
     const contract = new Contract(DBR, DBR_ABI, provider);
 
-    const [totalSupply, _pendingDbrBurn, ...excludedBalances] = await Promise.all([
+    const [totalSupply, triDbrBalanceBn, _pendingDbrBurn, ...excludedBalances] = await Promise.all([
       contract.totalSupply(),
+      contract.balanceOf('0xC7DE47b9Ca2Fc753D6a2F167D8b3e19c6D18b19a'),
       getPendingDbrBurn(),
       ...excluded.map(excludedAd => contract.balanceOf(excludedAd)),
     ]);
@@ -61,11 +63,16 @@ export default async function handler(req, res) {
       const alreadyThere = cachedCircEvoData.evolution.find(evo => evo.utcDate === utcDate);      
 
       if(!alreadyThere) {
+        const ifv = inverseViewer(provider);
+        const marketListData = await ifv.firm.getMarketListData(F2_MARKETS.map(m => m.address));
+        const totalDebt = marketListData.reduce((prev, curr) => prev + curr.totalDebt, 0);
+        const inventory = totalDebt ? (circulatingSupply - getBnToNumber(triDbrBalanceBn)) / totalDebt * 365 : 0;
         cachedCircEvoData.evolution.push({
           utcDate,
           totalSupply: getBnToNumber(totalSupply),
           circSupply: circulatingSupply,
           circSupplyTheo: circulatingSupplyTheoretical,
+          inventory,
         });
         // in case we missed a day, fill with most recent data
         const filledIn = fillMissingDailyDatesWithMostRecentData(cachedCircEvoData.evolution, 1);
@@ -73,7 +80,7 @@ export default async function handler(req, res) {
           timestamp,
           lastUtcDate: utcDate,
           evolution: filledIn.filter(d => d.utcDate <= utcDate).map(evo => {
-            return { utcDate: evo.utcDate, totalSupply: evo.totalSupply, circSupply: evo.circSupply }
+            return { utcDate: evo.utcDate, totalSupply: evo.totalSupply, circSupply: evo.circSupply, inventory: evo.inventory }
           }),
         }
         await redisSetWithTimestamp(DBR_CIRC_SUPPLY_EVO_CACHE_KEY, results);

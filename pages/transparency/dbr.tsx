@@ -64,8 +64,11 @@ export const DBRTransparency = () => {
                     overflow={{ base: 'scroll', sm: 'auto' }}
                 />
             </VStack>
-            <Flex overflow="hidden" w="full" justify="space-between" direction={{ base: 'column', xl: 'row' }} ml={{ base: '0', xl: '2' }} maxW='1300px'>
-                <VStack w={{ base: 'full', xl: tab === 'Issuance' ? '950px' : undefined }}>
+            <Flex overflow="hidden" w="full" justify="space-between" direction={{ base: 'column' }} ml={{ base: '0' }} maxW='1300px'>
+                <VStack w={{
+                    base: 'full',
+                    // '2xl': tab === 'Issuance' ? '950px' : undefined,
+                }}>
                     <VStack mt="4" spacing="8" w='full'>
                         {
                             tab === 'Spenders' && <DbrSpenders />
@@ -93,7 +96,7 @@ export const DBRTransparency = () => {
                     </VStack>
                 </VStack>
                 {
-                    tab === 'Issuance' && <VStack spacing={4} direction="column" pt="4" px={{ base: '4', xl: '0' }} w={{ base: 'full', xl: '300px' }}>
+                    tab === 'Issuance' && <VStack spacing={4} direction="column" pt="4" px={4} w={{ base: 'full' }}>
                         <ShrinkableInfoMessage
                             title="💸&nbsp;&nbsp;DBR Issuance Policy"
                             description={
