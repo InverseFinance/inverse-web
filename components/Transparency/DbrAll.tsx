@@ -178,7 +178,8 @@ export const DbrAll = ({
     useEffect(() => {
         const handleResize = () => {
             if (chartWidth === (window.innerWidth - 40)) return;
-            setChartWidth(window.innerWidth - 40);
+            const width = window.innerWidth - 40;
+            setChartWidth(width > maxChartWidth ? maxChartWidth : width);
           };
           handleResize();
           window.addEventListener('resize', handleResize);
