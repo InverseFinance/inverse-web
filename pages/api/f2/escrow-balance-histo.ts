@@ -2,7 +2,7 @@ import { BigNumber, Contract } from 'ethers'
 import 'source-map-support'
 import { DBR_ABI, F2_ALE_ABI, F2_ESCROW_ABI, F2_MARKET_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
-import { getProvider } from '@app/util/providers';
+import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber, getToken } from '@app/util/markets'
 import { ALE_V2, BLOCKS_PER_DAY, BURN_ADDRESS, CHAIN_ID } from '@app/config/constants';
@@ -39,7 +39,8 @@ export default async function handler(req, res) {
     }
 
     // not using fallbackprovider because it's not working with call & blockNumber
-    const provider = getProvider(CHAIN_ID, '', true);
+    const provider = getProvider(CHAIN_ID);
+    const eventsProvider = getPaidProvider(CHAIN_ID);
     const _market = F2_MARKETS.find(m => m.address === market);
     _market.underlying = TOKENS[_market.collateral];
 
@@ -49,10 +50,10 @@ export default async function handler(req, res) {
     }
 
     const currentBlock = await provider.getBlockNumber();
-    const marketContract = new Contract(_market.address, F2_MARKET_ABI, provider);   
-    const aleContractV2 = new Contract(ALE_V2, F2_ALE_ABI, provider);
+    const marketContract = new Contract(_market.address, F2_MARKET_ABI, eventsProvider);   
+    const aleContractV2 = new Contract(ALE_V2, F2_ALE_ABI, eventsProvider);
     // current
-    const aleContract = new Contract(F2_ALE, F2_ALE_ABI, provider);
+    const aleContract = new Contract(F2_ALE, F2_ALE_ABI, eventsProvider);
     const aleMarketData = await aleContract.markets(_market.address);
     const hasAleFeature = FEATURE_FLAGS.firmLeverage && aleMarketData[0] !== BURN_ADDRESS;
     const escrowCreations = await marketContract.queryFilter(marketContract.filters.CreateEscrow(account), _market.startingBlock);
@@ -68,7 +69,7 @@ export default async function handler(req, res) {
 
     const startingBlock = lastArchivedBlock + 1 < currentBlock ? lastArchivedBlock + 1 : currentBlock;
 
-    const dbrContract = new Contract(DBR, DBR_ABI, provider);
+    const dbrContract = new Contract(DBR, DBR_ABI, eventsProvider);
     // events impacting escrow balance or visible on the chart
     const eventsToQuery = [
       marketContract.queryFilter(marketContract.filters.Deposit(account), startingBlock),
