@@ -684,6 +684,6 @@ export const formatAndGroupFirmEvents = (
 export const calculateNetApy = (supplyApy: number, collateralFactor: number, dbrPriceUsd: number, _multiplier?: number) => {
     const multiplier = _multiplier ? _multiplier : calculateMaxLeverage(collateralFactor);
     const mApy = supplyApy * multiplier;
-    const mBorrowApr = dbrPriceUsd * 100 * multiplier * collateralFactor;
+    const mBorrowApr = dbrPriceUsd * 100 * (multiplier-1);
     return mApy - mBorrowApr;
 }
