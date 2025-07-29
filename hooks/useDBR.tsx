@@ -614,7 +614,7 @@ export const useDBRBalanceHisto = (account: string): { evolution: any, currentBa
 }
 
 export const useDbrCirculatingSupplyEvolution = () => {
-  const { data, error } = useCustomSWR(`/api/dbr/circulating-supply-evolution`);
+  const { data, error } = useCustomSWR(`/api/dbr/circulating-supply-evolution?v=2`);
   const { data: currentCirculatingSupply } = useCustomSWR(`/api/dbr/circulating-supply`);
 
   const array = (data?.evolution || []);
