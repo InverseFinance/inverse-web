@@ -25,11 +25,16 @@ export default async function handler(req, res) {
             return
         }
 
-        const { data: cachedDataArchived } = await getCacheFromRedisAsObj(DOLA_STAKING_CACHE_KEY_ARCHIVED, cacheFirst !== 'true', cacheDuration, true);
+        let cachedDataArchived;
 
         const paidProvider = getPaidProvider(1);
         const sdolaContract = getSdolaContract(paidProvider);
         const dsaContract = getDolaSavingsContract(paidProvider);
+
+        if(!cachedDataNeo) {
+            const { data: _cachedDataArchived } = await getCacheFromRedisAsObj(DOLA_STAKING_CACHE_KEY_ARCHIVED, cacheFirst !== 'true', cacheDuration, true);
+            cachedDataArchived = _cachedDataArchived;
+        }
 
         const archived = cachedDataNeo || cachedDataArchived || { events: [] };
         let pastTotalEvents = archived?.events || [];
@@ -48,7 +53,7 @@ export default async function handler(req, res) {
                 newStartingBlock,
             ),
             dsaContract.queryFilter(
-                dsaContract.filters.Unstake(undefined, _account),
+                dsaContract.filters.Unstake(_account),
                 newStartingBlock,
             ),
             dsaContract.queryFilter(
