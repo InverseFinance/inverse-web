@@ -91,6 +91,7 @@ export const AreaChartRecharts = ({
     duplicateYAxis = false,
     pricePrecision = 4,
     titleProps,
+    alwaysStartAtZero = false,
 }: {
     combodata: { y: number, x: number, timestamp: number, utcDate: string }[]
     title: string
@@ -137,6 +138,7 @@ export const AreaChartRecharts = ({
     avgDayNumbers?: number[]
     avgLineProps?: any[]
     lineItems?: any[]
+    alwaysStartAtZero?: boolean
 }) => {
     const _combodata = addDayAvg && avgDayNumbers?.length ? getAddDaysAvg(combodata, avgDayNumbers, avgTypes) : combodata;
     const { themeStyles } = useAppTheme();
@@ -162,7 +164,8 @@ export const AreaChartRecharts = ({
         left: rightPadding / 2,
     }
     const doesDataSpansSeveralYears = combodata?.filter(d => d.utcDate.endsWith('01-01')).length > 1;
-    const _yDomain = zoomedData ? [bottom, top] : yDomain || [bottom, top];
+    const __yDomain = zoomedData ? [bottom, top] : yDomain || [bottom, top];
+    const _yDomain = alwaysStartAtZero ? [0, __yDomain[1]] : __yDomain;
     const mainAxisId = secondaryAsLeftAxis ? 'right' : 'left';
     const secAxisId = secondaryAsLeftAxis ? 'left' : 'right';
 
