@@ -32,7 +32,10 @@ export default async function handler(req, res) {
         const dsaContract = getDolaSavingsContract(paidProvider);
 
         const archived = cachedDataNeo || cachedDataArchived || { events: [] };
-        const pastTotalEvents = archived?.events || [];
+        let pastTotalEvents = archived?.events || [];
+        if(!!_account && !cachedDataNeo) {
+            pastTotalEvents = pastTotalEvents.filter(e => e.recipient === _account);
+        }
 
         const lastKnownEvent = pastTotalEvents?.length > 0 ? (pastTotalEvents[pastTotalEvents.length - 1]) : { sDolaStaking: 0, totalDolaStaked: 0 };
         const newStartingBlock = lastKnownEvent?.blockNumber ? lastKnownEvent?.blockNumber + 1 : 0x0;
