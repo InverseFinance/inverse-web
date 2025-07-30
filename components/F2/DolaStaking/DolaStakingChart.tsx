@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 const maxChartWidth = 1200;
 
 export const DsaStakingChart = ({ events }) => {
-    const { chartData } = useEventsAsChartData(events, 'totalDolaStaked', 'totalDolaStaked', true, true);
+    const { chartData } = useEventsAsChartData(events, 'dsaTotalSupply', 'dsaTotalSupply', true, true);
     const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
     const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
 
