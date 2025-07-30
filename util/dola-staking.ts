@@ -243,7 +243,7 @@ export const useDolaStakingActivity = (from?: string, type = 'dsa'): SWR & {
     timestamp: number,
 } => {
     // const liveEvents = useDolaStakingEvents();
-    const { data, error } = useCustomSWR(`/api/dola-staking/activity`, fetcher);
+    const { data, error } = useCustomSWR(`/api/dola-staking/activity?account=${from||''}`, fetcher);
 
     const events = data?.events || []
     //(liveEvents?.length > data?.events?.length ? liveEvents : data?.events || [])
