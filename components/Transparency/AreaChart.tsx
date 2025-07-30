@@ -53,6 +53,7 @@ export type AreaChartProps = {
     defaultRange?: string
     strokeColor?: string
     duplicateYAxis?: boolean
+    alwaysStartAtZero?: boolean
 };
 
 export const AreaChart = ({
@@ -89,6 +90,7 @@ export const AreaChart = ({
     defaultRange,
     forceStaticRangeBtns,
     strokeColor,
+    alwaysStartAtZero,
     ...otherProps
 }: AreaChartProps) => {
     const _data = simplifyData ? getSimplifiedData(data) : fillInByDayInterval > 0 ? fillMissingDailyDatesWithMostRecentData(data, fillInByDayInterval, 'utcDate', fillInValue) : data;
@@ -146,6 +148,7 @@ export const AreaChart = ({
             strokeColor={strokeColor}
             isPerc={isPerc}
             titleProps={titleProps}
+            alwaysStartAtZero={alwaysStartAtZero}
             {...otherProps}
         />
     }
