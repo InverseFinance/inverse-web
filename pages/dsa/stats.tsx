@@ -5,7 +5,7 @@ import Head from 'next/head';
 import { SmallTextLoader } from '@app/components/common/Loaders/SmallTextLoader';
 import { preciseCommify } from '@app/util/misc';
 import { DolaStakingActivity } from '@app/components/sDola/DolaStakingActivity';
-import { useDolaStakingActivity, useStakedDola } from '@app/util/dola-staking';
+import { useDolaStakingActivity, useDolaStakingEvolution, useStakedDola } from '@app/util/dola-staking';
 import { useDBRPrice } from '@app/hooks/useDBR';
 import { DolaStakingTabs } from '@app/components/F2/DolaStaking/DolaStakingTabs';
 import { DsaStakingChart } from '@app/components/F2/DolaStaking/DolaStakingChart';
@@ -13,6 +13,7 @@ import { SkeletonBlob } from '@app/components/common/Skeleton';
 
 export const DsaStatsPage = () => {
   const { events, timestamp } = useDolaStakingActivity(undefined, 'dsa');
+  const { evolution, timestamp: lastDailySnapTs, isLoading: isLoadingEvolution } = useDolaStakingEvolution();
   const { priceDola: dbrDolaPrice, priceUsd: dbrPrice } = useDBRPrice();
   const { dsaTotalSupply, isLoading } = useStakedDola(dbrPrice);
   return (
@@ -33,7 +34,7 @@ export const DsaStatsPage = () => {
         px={{ base: '4', lg: '0' }}
       >
         {
-          isLoading ? <SkeletonBlob /> : <DsaStakingChart events={events} />
+          isLoadingEvolution ? <SkeletonBlob /> : <DsaStakingChart events={evolution} />
         }
         <DolaStakingActivity
           events={events.slice(-100)}
