@@ -19,7 +19,7 @@ export default async function handler(req, res) {
     const _account = !!account && isAddress(account) ? account : undefined;
     const cacheKey = !!_account ? `${DOLA_STAKING_CACHE_KEY_NEO}-${_account}` : DOLA_STAKING_CACHE_KEY_NEO;
     try {            
-        const { data: cachedDataNeo, isValid: isValidNeo } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration, false);
+        const { data: cachedDataNeo, isValid: isValidNeo } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration);
         if (!!cachedDataNeo && isValidNeo) {
             res.status(200).send(cachedDataNeo);
             return
@@ -111,14 +111,14 @@ export default async function handler(req, res) {
             events: withInitiatorsForLast100,
         };
 
-        await redisSetWithTimestamp(cacheKey, resultData, true);
+        await redisSetWithTimestamp(cacheKey, resultData);
 
         res.status(200).send(resultData);
     } catch (err) {
         console.error(err);
         // if an error occured, try to return last cached results
         try {
-            const cache = await getCacheFromRedis(cacheKey, false, 0, true);
+            const cache = await getCacheFromRedis(cacheKey, false, 0);
             if (cache) {
                 console.log('Api call failed, returning last cache found');
                 res.status(200).send(cache);
