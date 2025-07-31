@@ -36,6 +36,7 @@ import { F2Market } from "@app/types";
 import InfoModal from "../common/Modal/InfoModal";
 import { YieldBreakdownTable } from "./rewards/YieldBreakdownTable";
 import { OLD_BORROW_CONTROLLER } from "@app/config/constants";
+import { ptMarkets } from "@app/util/pendle";
 
 export const MARKET_INFOS = {
     'INV': {
@@ -159,7 +160,8 @@ const getMarketInfos = ({ marketName, underlying }: { marketName: string, underl
     if (marketInfos) {
         return marketInfos;
     }
-    const prefix = underlying.isYearnV2LP ? "Yearn vault - " : "";
+    const isPT = underlying.symbol.startsWith('PT-');
+    const prefix = underlying.isYearnV2LP ? "Yearn vault - " : isPT ? 'Pendle - ' : "";
     const suffix = underlying.isLP ? "" : " LP";
     return {
         name: marketName,
@@ -168,8 +170,8 @@ const getMarketInfos = ({ marketName, underlying }: { marketName: string, underl
             (underlying.isYearnV2LP ?
                 `The Yearn Vault for the Curve ${marketName} LP, the yearn vault auto-compounds the rewards of the ${marketName} LP increasing the vault token price`
                 : `The LP token for the ${marketName} pool on Curve, when deposited on FiRM the LP token will be then deposited into Convex to earn claimable CVX+CRV rewards`)
-            : "",
-        getLink: underlying.link || "",
+            : isPT ? `The Principal Token for the Pendle ${marketName} that is a fixed yield asset thanks to Pendle's split of yield-bearing assets into Principal and Yield tokens` : "",
+        getLink: underlying.link || (isPT ? `https://app.pendle.finance/trade/markets/${ptMarkets[underlying.address]}/swap?view=pt&chain=ethereum&page=1` : ""),
     };
 }
 
