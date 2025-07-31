@@ -33,7 +33,7 @@ export default async function handler(req, res) {
 
     try {
         res.setHeader('Cache-Control', `public, max-age=${60}`);
-        const { data: cachedData, isValid } = await getCacheFromRedisAsObj(repaymentsCacheKeyV2, cacheFirst !== 'true', ONE_DAY_SECS * 7);
+        const { data: cachedData, isValid } = await getCacheFromRedisAsObj(repaymentsCacheKeyV2, cacheFirst !== 'true', ONE_DAY_SECS);
         if (cachedData && isValid && !ignoreCache) {
             res.status(200).json(cachedData);
             return
