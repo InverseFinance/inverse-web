@@ -3,7 +3,7 @@ import Container from '@app/components/common/Container'
 import { getNumberToBn } from '@app/util/markets'
 import { parseEther, parseUnits } from '@ethersproject/units'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
-import { f2repayAndWithdrawNative, f2borrow, f2deposit, f2depositAndBorrow, f2depositAndBorrowHelper, f2repay, f2repayAndWithdraw, f2sellAndRepayHelper, f2sellAndWithdrawHelper, f2withdraw, f2withdrawMax } from '@app/util/f2'
+import { f2repayAndWithdrawNative, f2borrow, f2deposit, f2depositAndBorrow, f2depositAndBorrowHelper, f2repay, f2repayAndWithdraw, f2sellAndRepayHelper, f2sellAndWithdrawHelper, f2withdraw, f2withdrawMax, f2ExtendMarketLoan } from '@app/util/f2'
 
 import { useContext, useMemo } from 'react'
 
@@ -24,7 +24,7 @@ import { preciseCommify, removeTrailingZeros } from '@app/util/misc'
 import { showToast } from '@app/util/notify'
 import { BorrowPausedMessage, CannotWithdrawIfDbrDeficitMessage, DebtDustErrorMessage, MinDebtBorrowMessage, NoDbrInWalletMessage, NoDolaLiqMessage, NotEnoughCollateralMessage, NotEnoughDolaToRepayMessage, NotEnoughLiqWithAutobuyMessage, ResultingBorrowLimitTooHighMessage } from './FirmFormSubcomponents/FirmMessages'
 import { AutoBuyDbrDurationInputs, DbrHelperSwitch, SellDbrInput } from './FirmFormSubcomponents/FirmDbrHelper'
-import { FirmBorroInputwSubline, FirmCollateralInputTitle, FirmDebtInputTitle, FirmDepositRecipient, FirmExitModeSwitch, FirmLeverageSwitch, FirmRepayInputSubline, FirmWethSwitch, FirmWithdrawInputSubline } from './FirmFormSubcomponents'
+import { FirmBorroInputwSubline, FirmCollateralInputTitle, FirmDebtInputTitle, FirmDepositRecipient, FirmExitModeSwitch, FirmExtendMarketLoanButton, FirmLeverageSwitch, FirmRepayInputSubline, FirmWethSwitch, FirmWithdrawInputSubline } from './FirmFormSubcomponents'
 import { BigNumber } from 'ethers'
 import { isAddress } from 'ethers/lib/utils'
 import { BURN_ADDRESS } from '@app/config/constants'
@@ -164,7 +164,11 @@ export const F2CombinedForm = ({
         return f2withdrawMax(signer, market.address);
     }
 
-    const handleAction = async () => {
+    const handleExtendMarketLoan = () => {
+        return handleAction(true);
+    }
+
+    const handleAction = async (isExtendMarketLoanCase = false) => {
         if (!signer) { return }
         if (!notFirstTime && isBorrowCase) {
             const firstTimeAction = await onFirstTimeModalOpen();
@@ -172,6 +176,17 @@ export const F2CombinedForm = ({
                 return
             }
         }
+
+        if(isExtendMarketLoanCase){
+            return f2ExtendMarketLoan(
+                signer,
+                market.address,
+                debt,
+                dbrBuySlippage,
+                duration,
+            );
+        }
+
         const action = MODES[mode]
 
         const minDolaOut = !isAutoDBR ? parseUnits('0') : getNumberToBn((parseFloat(dbrSellAmount || '0') * (dbrPriceInDola * (1 - parseFloat(dbrBuySlippage) / 100))));
@@ -644,6 +659,9 @@ export const F2CombinedForm = ({
             contentProps={{ minH: '230px', position: 'relative', id: 'f2-combined-form' }}
             {...props}
         >
+            {
+                (debt > 0) && <FirmExtendMarketLoanButton dbrDurationInputs={dbrDurationInputs} isDeposit={isDeposit} handleExtendMarketLoan={handleExtendMarketLoan} />
+            }
             {
                 (deposits > 0 || debt > 0 || !isDeposit) && <FirmExitModeSwitch isDeposit={isDeposit} handleDirectionChange={handleDirectionChange} isInv={market.isInv} />
             }
