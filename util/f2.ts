@@ -6,7 +6,7 @@ import { BigNumber, Contract } from "ethers";
 
 import { getNetworkConfigConstants } from "./networks";
 import { splitSignature } from "ethers/lib/utils";
-import { getBnToNumber } from "./markets";
+import { getBnToNumber, getNumberToBn } from "./markets";
 import { callWithHigherGL } from "./contracts";
 import { calculateMaxLeverage, uniqueBy } from "./misc";
 import { getMulticallOutput } from "./multicall";
@@ -183,6 +183,30 @@ export const f2approxDbrAndDolaNeeded = async (
             return { ...prev, [`${k}Num`]: getBnToNumber(v) };
         }, {});
     return { ...bns, ...nums };
+}
+
+export const f2ExtendMarketLoan = async (
+    signer: JsonRpcSigner,
+    market: string,
+    marketUserDebt: number,
+    dbrBuySlippage: string | number,
+    durationDays: number,
+    dbrHelperType = DEFAULT_FIRM_HELPER_TYPE,
+) => {
+    const approx = await f2approxDbrAndDolaNeeded(signer, getNumberToBn(marketUserDebt), dbrBuySlippage, durationDays, dbrHelperType);
+    const signatureResult = await getFirmSignature(signer, market, approx.dolaForDbr, 'BorrowOnBehalf');
+
+    if (signatureResult) {
+        const { deadline, r, s, v } = signatureResult;
+        const helperContract = new Contract(F2_HELPER, F2_HELPER_ABI, signer);
+        
+        return callWithHigherGL(
+            helperContract,
+            'buyDbrAndBorrowOnBehalf',
+            [market, '0', approx.dolaForDbr, approx.minDbr, deadline.toString(), v.toString(), r, s]
+        );
+    }
+    return new Promise((res, rej) => rej("Signature failed or canceled"));
 }
 
 export const f2depositAndBorrowHelper = async (
