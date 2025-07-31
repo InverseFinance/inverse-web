@@ -2,12 +2,13 @@ import { Input } from "@app/components/common/Input"
 import { InfoMessage } from "@app/components/common/Messages"
 import { AmountInfos } from "@app/components/common/Messages/AmountInfos"
 import { TextInfo } from "@app/components/common/Messages/TextInfo"
+import ConfirmModal from "@app/components/common/Modal/ConfirmModal"
 import { AnimatedInfoTooltip } from "@app/components/common/Tooltip"
 import { BURN_ADDRESS } from "@app/config/constants"
 import { F2Market } from "@app/types"
 import { getBnToNumber } from "@app/util/markets"
 import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons"
-import { Flex, FormControl, FormLabel, HStack, Switch, Text, VStack, Image, Stack } from "@chakra-ui/react"
+import { Flex, FormControl, FormLabel, HStack, Switch, Text, VStack, Image, Stack, useDisclosure } from "@chakra-ui/react"
 import { formatUnits } from "@ethersproject/units"
 import { BigNumber } from "ethers"
 import { isAddress } from "ethers/lib/utils"
@@ -146,6 +147,39 @@ export const FirmExitModeSwitch = ({
             {isInv ? 'Unstake?' : 'Repay / Withdraw?'}
         </FormLabel>
         <Switch isChecked={!isDeposit} onChange={handleDirectionChange} id='withdraw-mode' />
+    </FormControl>
+}
+
+export const FirmExtendMarketLoanButton = ({
+    handleExtendMarketLoan,
+    dbrDurationInputs,
+}: {
+    handleExtendMarketLoan: () => void
+    dbrDurationInputs: React.ReactNode
+}) => {
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    return <FormControl boxShadow="0px 0px 1px 0px #ccccccaa" bg="primary.400" zIndex="1" borderRadius="10px" px="2" py="1" left="0" top="-20px" margin="auto" position="absolute" w='fit-content' display='flex' alignItems='center'>
+        <FormLabel cursor="pointer" mb='0' onClick={onOpen}>
+            Extend market loan
+        </FormLabel>
+        <ConfirmModal
+            title={`Extend market loan`}
+            onClose={onClose}
+            onCancel={onClose}
+            onOk={() => {
+                return handleExtendMarketLoan()
+            }}
+            isOpen={isOpen}
+            okLabel="Sign"
+            modalProps={{ scrollBehavior: 'inside', minW: { base: '98vw', lg: '700px' } }}
+        >
+            <VStack p="6" alignItems="flex-start">
+                <InfoMessage
+                    description="This will buy enough DBR to cover this market's existing loan for the desired duration, note that if you're using several markets it's more recommended to buy DBR on DEXes."
+                />
+                {dbrDurationInputs}
+            </VStack>
+        </ConfirmModal>
     </FormControl>
 }
 
