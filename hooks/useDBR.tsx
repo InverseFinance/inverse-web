@@ -533,17 +533,17 @@ export const useDBRReplenishmentPrice = (): SWR & {
   }
 }
 
-export const useDBRNeeded = (borrowAmount: string, durationDays: number, iterations?: number): SWR & {
+export const useDBRNeeded = (borrowAmount: string, durationDays: number, iterations?: number, dbrBuySlippage?: number | string): SWR & {
   dolaNeeded: number,
   dbrNeeded: number,
 } => {
   const { provider } = useWeb3React();
 
-  const { data, error } = useSWR(`dbr-helper-approx-${borrowAmount}-${durationDays}-${iterations}`, async () => {
+  const { data, error } = useSWR(`dbr-helper-approx-${borrowAmount}-${durationDays}-${iterations}-${dbrBuySlippage||''}`, async () => {
     if (!borrowAmount) {
       return undefined;
     }
-    return await f2approxDbrAndDolaNeeded(provider?.getSigner(), parseUnits(borrowAmount), '0', durationDays, 'curve-v2', iterations);
+    return await f2approxDbrAndDolaNeeded(provider?.getSigner(), parseUnits(borrowAmount), dbrBuySlippage || '0', durationDays, 'curve-v2', iterations);
   }, {
     refreshInterval: 100000,
   });
