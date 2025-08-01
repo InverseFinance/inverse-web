@@ -37,7 +37,7 @@ const OTC_ABI = [
     "function redemptionTimestamp() public view returns (uint256)",
 ]
 
-const OTC_ADDRESS = '0x21F9049121F81aD1959938DC2e1c202412ac6766';
+export const OTC_ADDRESS = '0x21F9049121F81aD1959938DC2e1c202412ac6766';
 
 const buyers = [
     '0xFa4FC4ec2F81A4897743C5b4f45907c02ce06199',

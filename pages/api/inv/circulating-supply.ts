@@ -1,11 +1,14 @@
 import { Contract } from 'ethers'
 import 'source-map-support'
-import { INV_ABI, VESTER_FACTORY_ABI, XINV_ABI } from '@app/config/abis'
+import { INV_ABI, SINV_ABI, VESTER_FACTORY_ABI, XINV_ABI } from '@app/config/abis'
 import { getNetworkConfig } from '@app/util/networks'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { getBnToNumber } from '@app/util/markets'
+import { SINV_ADDRESS } from '@app/config/constants';
+import { OTC_ADDRESS } from '@app/pages/otc';
+import { parseEther } from '@ethersproject/units';
 
 const {
   TREASURY,
@@ -41,13 +44,18 @@ export default async function handler(req, res) {
     const provider = getProvider(networkConfig.chainId);
     const contract = new Contract(process.env.NEXT_PUBLIC_REWARD_TOKEN!, INV_ABI, provider);
     const xinvContract = new Contract(process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN!, XINV_ABI, provider);
+    const sinvContract = new Contract(SINV_ADDRESS, SINV_ABI, provider);
 
     const exchangeRate = getBnToNumber(await xinvContract.exchangeRateStored());
 
-    const [totalSupply, ...excludedBalances] = await Promise.all([
+    const [totalSupply, otcSinvBalance, sinvToAssetsRate, ...excludedBalances] = await Promise.all([
       contract.totalSupply(),
+      sinvContract.balanceOf(OTC_ADDRESS),
+      sinvContract.convertToAssets(parseEther('1')),
       ...excluded.map(excludedAd => contract.balanceOf(excludedAd)),
     ]);
+
+    const otcLockedInvBalance = getBnToNumber(otcSinvBalance) * getBnToNumber(sinvToAssetsRate);
 
     const vesterFactory = new Contract(XINV_VESTOR_FACTORY, VESTER_FACTORY_ABI, provider);
     const vestersResults = await Promise.allSettled([
@@ -60,7 +68,7 @@ export default async function handler(req, res) {
       ...vesters.map(excludedAd => xinvContract.balanceOf(excludedAd)),
     ]);
 
-    const totalInvExcluded = xinvExcludedBalances
+    const totalInvExcluded = otcLockedInvBalance + xinvExcludedBalances
       .map(bn => getBnToNumber(bn) * exchangeRate)
       .concat(
         excludedBalances.map(bn => getBnToNumber(bn))
