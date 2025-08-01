@@ -660,9 +660,6 @@ export const F2CombinedForm = ({
             {...props}
         >
             {
-                (debt > 0) && <FirmExtendMarketLoanButton dbrDurationInputs={dbrDurationInputs} isDeposit={isDeposit} handleExtendMarketLoan={handleExtendMarketLoan} />
-            }
-            {
                 (deposits > 0 || debt > 0 || !isDeposit) && <FirmExitModeSwitch isDeposit={isDeposit} handleDirectionChange={handleDirectionChange} isInv={market.isInv} />
             }
             <VStack justify="space-between" position="relative" w='full' px='2%' py="2" alignItems="center" spacing="4">
@@ -751,9 +748,12 @@ export const F2CombinedForm = ({
         <Container
             noPadding
             w='full'
-            contentProps={{ minH: '230px', id: 'f2-recap-container', h: { base: 'auto', md: '100%' } }}
+            contentProps={{ position: 'relative', minH: '230px', id: 'f2-recap-container', h: { base: 'auto', md: '100%' } }}
             p="0"
         >
+            {
+                (debt > 0) && <FirmExtendMarketLoanButton dbrDurationInputs={dbrDurationInputs} duration={duration} handleExtendMarketLoan={handleExtendMarketLoan} debt={debt} deposits={deposits} market={market} dolaPriceUsd={dolaPrice} dbrBuySlippage={dbrBuySlippage} />
+            }
             <VStack position="relative" w='full' px='2%' py="2" alignItems="center" justify="space-between" spacing="2">
                 <F2FormInfos
                     collateralAmountNumInfo={hasCollateralChange ? collateralAmountNum : 0}

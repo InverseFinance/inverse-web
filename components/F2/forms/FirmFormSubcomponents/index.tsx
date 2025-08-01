@@ -1,14 +1,16 @@
 import { Input } from "@app/components/common/Input"
-import { InfoMessage } from "@app/components/common/Messages"
+import { InfoMessage, WarningMessage } from "@app/components/common/Messages"
 import { AmountInfos } from "@app/components/common/Messages/AmountInfos"
 import { TextInfo } from "@app/components/common/Messages/TextInfo"
 import ConfirmModal from "@app/components/common/Modal/ConfirmModal"
 import { AnimatedInfoTooltip } from "@app/components/common/Tooltip"
 import { BURN_ADDRESS } from "@app/config/constants"
+import { useDBRNeeded } from "@app/hooks/useDBR"
 import { F2Market } from "@app/types"
-import { getBnToNumber } from "@app/util/markets"
-import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons"
-import { Flex, FormControl, FormLabel, HStack, Switch, Text, VStack, Image, Stack, useDisclosure } from "@chakra-ui/react"
+import { f2CalcNewHealth } from "@app/util/f2"
+import { getBnToNumber, shortenNumber } from "@app/util/markets"
+import { ChevronDownIcon, ChevronRightIcon, RepeatClockIcon } from "@chakra-ui/icons"
+import { Flex, FormControl, FormLabel, HStack, Switch, Text, VStack, Image, Stack, useDisclosure, Divider, Box } from "@chakra-ui/react"
 import { formatUnits } from "@ethersproject/units"
 import { BigNumber } from "ethers"
 import { isAddress } from "ethers/lib/utils"
@@ -142,45 +144,138 @@ export const FirmExitModeSwitch = ({
     handleDirectionChange: () => void
     isInv: boolean
 }) => {
-    return <FormControl boxShadow="0px 0px 1px 0px #ccccccaa" bg="primary.400" zIndex="1" borderRadius="10px" px="2" py="1" right="0" top="-20px" margin="auto" position="absolute" w='fit-content' display='flex' alignItems='center'>
-        <FormLabel cursor="pointer" htmlFor='withdraw-mode' mb='0'>
+    return <FormControl boxShadow="0px 0px 1px 0px #ccccccaa" bg="primary.400" zIndex="1" borderRadius="10px" px="3" py="1" right="0" top="-14px" margin="auto" position="absolute" w='fit-content' display='flex' alignItems='center'>
+        <FormLabel fontWeight="normal" fontSize="14px" cursor="pointer" htmlFor='withdraw-mode' mb='0'>
             {isInv ? 'Unstake?' : 'Repay / Withdraw?'}
         </FormLabel>
         <Switch isChecked={!isDeposit} onChange={handleDirectionChange} id='withdraw-mode' />
     </FormControl>
 }
 
+const ExtendMarketLoanContent = ({
+    handleExtendMarketLoan,
+    onClose,
+    dbrDurationInputs,
+    debt,
+    duration,
+    market,
+    deposits,
+    dolaPriceUsd,
+    dbrBuySlippage,
+}: {
+    handleExtendMarketLoan: () => void
+    onClose: () => void
+    dbrDurationInputs: React.ReactNode
+    debt: number
+    duration: number
+    market: F2Market
+    deposits: number
+    dolaPriceUsd: number
+    dbrBuySlippage: number | string
+}) => {
+    const dbrApproxData = useDBRNeeded(debt.toFixed(0), duration, undefined, dbrBuySlippage);
+    const {
+        newPerc,
+    } = f2CalcNewHealth(
+        market,
+        deposits,
+        debt + dbrApproxData.dolaForDbrNum,
+        0,
+        0,
+    );
+    const percAcceptableDistance = (market.collateralFactor >= 0.9 ? 0.1 : 1)
+    const isOkDisabled = newPerc < percAcceptableDistance;
+    const maxBorrowLimit = 100 - percAcceptableDistance;
+    const effectiveSwapPrice = dbrApproxData.dbrNeededNum ? dbrApproxData.dolaForDbrNum / dbrApproxData.dbrNeededNum * (dolaPriceUsd || 1) : 0;
+    return <ConfirmModal
+        title={`Extend market loan by buying the right amount of DBR`}
+        onClose={onClose}
+        onCancel={onClose}
+        onOk={() => {
+            return handleExtendMarketLoan()
+        }}
+        isOpen={true}
+        okLabel="Extend"
+        modalProps={{ scrollBehavior: 'inside', minW: { base: '98vw', lg: '700px' } }}
+        okDisabled={dbrApproxData?.isLoading || isOkDisabled}
+    >
+        <VStack p="6" alignItems="flex-start">
+            {/* <InfoMessage
+                alertProps={{ w: 'full' }}
+                description="If you're using several markets we recommend to buy DBR on DEXes."
+            /> */}
+            {dbrDurationInputs}
+            <Divider />
+            <VStack spacing="0" w='full' maxW="300px" alignItems="flex-start">
+                <HStack w='full' justify="space-between">
+                    <Text color="mainTextColorLight">
+                        Min. to receive:
+                    </Text>
+                    <Text>
+                        {shortenNumber(dbrApproxData.minDbrNum, 2)} DBR
+                    </Text>
+                </HStack>
+                <HStack w='full' justify="space-between">
+                    <Text color="mainTextColorLight">
+                        Cost to add as debt:
+                    </Text>
+                    <Text>
+                        {shortenNumber(dbrApproxData.dolaForDbrNum, 2)} DOLA
+                    </Text>
+                </HStack>
+                <HStack w='full' justify="space-between" alignItems="center">
+                    <Text color="mainTextColorLight">
+                        Est. DBR swap price:
+                    </Text>
+                    <Text>
+                        {shortenNumber(effectiveSwapPrice, 6, true)}
+                    </Text>
+                </HStack>
+                <HStack w='full' justify="space-between">
+                    <Text color="mainTextColorLight">
+                        New borrow limit:
+                    </Text>
+                    <Text>
+                        {shortenNumber(100 - newPerc, 2)}%
+                    </Text>
+                </HStack>
+            </VStack>
+            {
+                isOkDisabled && <WarningMessage alertProps={{ w: 'full', fontSize: '14px' }} description={`The borrow limit should be under ${maxBorrowLimit}%, please consider extending for a shorter duration.`} />
+            }
+        </VStack>
+    </ConfirmModal>
+}
+
 export const FirmExtendMarketLoanButton = ({
     handleExtendMarketLoan,
     dbrDurationInputs,
+    debt,
+    duration,
+    market,
+    deposits,
+    dolaPriceUsd,
+    dbrBuySlippage,
 }: {
     handleExtendMarketLoan: () => void
     dbrDurationInputs: React.ReactNode
+    debt: number
+    duration: number
+    market: F2Market
+    deposits: number
+    dolaPriceUsd: number
+    dbrBuySlippage: number | string
 }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
-    return <FormControl boxShadow="0px 0px 1px 0px #ccccccaa" bg="primary.400" zIndex="1" borderRadius="10px" px="2" py="1" left="0" top="-20px" margin="auto" position="absolute" w='fit-content' display='flex' alignItems='center'>
-        <FormLabel cursor="pointer" mb='0' onClick={onOpen}>
-            Extend market loan
-        </FormLabel>
-        <ConfirmModal
-            title={`Extend market loan`}
-            onClose={onClose}
-            onCancel={onClose}
-            onOk={() => {
-                return handleExtendMarketLoan()
-            }}
-            isOpen={isOpen}
-            okLabel="Sign"
-            modalProps={{ scrollBehavior: 'inside', minW: { base: '98vw', lg: '700px' } }}
-        >
-            <VStack p="6" alignItems="flex-start">
-                <InfoMessage
-                    description="This will buy enough DBR to cover this market's existing loan for the desired duration, note that if you're using several markets it's more recommended to buy DBR on DEXes."
-                />
-                {dbrDurationInputs}
-            </VStack>
-        </ConfirmModal>
-    </FormControl>
+
+    return <Box boxShadow="0px 0px 1px 0px #ccccccaa" bg="primary.400" zIndex="1" borderRadius="10px" px="3" py="1" right="0" top="-14px" margin="auto" position="absolute" w='fit-content' display='flex' alignItems='center'>
+        <Text display="flex" alignItems="center" fontSize="14px" cursor="pointer" mb='0' onClick={onOpen}>
+            Extend market loan <RepeatClockIcon fontSize="14px" ml="1" />
+        </Text>
+        {
+            isOpen && <ExtendMarketLoanContent dbrBuySlippage={dbrBuySlippage} dolaPriceUsd={dolaPriceUsd} handleExtendMarketLoan={handleExtendMarketLoan} onClose={onClose} dbrDurationInputs={dbrDurationInputs} debt={debt} duration={duration} market={market} deposits={deposits} />
+        }
+    </Box>
 }
 
 export const FirmLeverageSwitch = ({
