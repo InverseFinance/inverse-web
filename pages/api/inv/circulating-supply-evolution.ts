@@ -1,14 +1,16 @@
 import { Contract } from 'ethers'
 import 'source-map-support'
-import { INV_ABI, VESTER_FACTORY_ABI, XINV_ABI } from '@app/config/abis'
+import { INV_ABI, SINV_ABI, VESTER_FACTORY_ABI, XINV_ABI } from '@app/config/abis'
 import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { getNetworkConfigConstants } from '@app/util/networks';
 import { getBnToNumber } from '@app/util/markets'
-import { BLOCKS_PER_DAY, CHAIN_ID } from '@app/config/constants';
+import { BLOCKS_PER_DAY, CHAIN_ID, SINV_ADDRESS } from '@app/config/constants';
 import { throttledPromises } from '@app/util/misc';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { addBlockTimestamps } from '@app/util/timestamps';
+import { OTC_ADDRESS } from '@app/pages/otc';
+import { parseEther } from '@ethersproject/units';
 
 const {
   TREASURY,
@@ -42,6 +44,7 @@ export default async function handler(req, res) {
     const currentBlock = await provider.getBlockNumber();
     const contract = new Contract(process.env.NEXT_PUBLIC_REWARD_TOKEN!, INV_ABI, provider);
     const xinvContract = new Contract(process.env.NEXT_PUBLIC_REWARD_STAKED_TOKEN!, XINV_ABI, provider);
+    const sinvContract = new Contract(SINV_ADDRESS, SINV_ABI, provider);
 
     const archived = cachedData || { blocks: [], timestampsSec: [], evolution: [] };
     const lastArchivedBlock = archived.blocks.length > 0 ? archived.blocks[archived.blocks.length - 1] : 16155758;
@@ -65,6 +68,8 @@ export default async function handler(req, res) {
         return getGroupedMulticallOutputs([
           { contract: xinvContract, functionName: 'exchangeRateStored' },
           { contract: contract, functionName: 'totalSupply' },
+          { contract: sinvContract, functionName: 'balanceOf', params: [OTC_ADDRESS] },
+          { contract: sinvContract, functionName: 'convertToAssets', params: [parseEther('1')] },
           excluded.map(excludedAd => ({ contract, functionName: 'balanceOf', params: [excludedAd] })),
         ],
           Number(CHAIN_ID),
@@ -78,7 +83,9 @@ export default async function handler(req, res) {
 
     const exRates = batchedData.map(b => getBnToNumber(b[0]));
     const totalSupplies = batchedData.map(b => getBnToNumber(b[1]));
-    const excludedBalances = batchedData.map(b => b[2].map((bn) => getBnToNumber(bn)));
+    const sinvLockedBalances = batchedData.map(b => getBnToNumber(b[2]));
+    const invLockedBalances = sinvLockedBalances.map((slb,i) => slb * getBnToNumber(batchedData[i][3]));
+    const excludedBalances = batchedData.map(b => b[4].map((bn) => getBnToNumber(bn)));
 
     const vesterFactory = new Contract(XINV_VESTOR_FACTORY, VESTER_FACTORY_ABI, provider);
     const vestersResults = await Promise.allSettled([
@@ -101,7 +108,7 @@ export default async function handler(req, res) {
     );
 
     const evolution = blocks.map((block, i) => {
-      const totalInvExcluded = vestersData[i]
+      const totalInvExcluded = invLockedBalances[i] + vestersData[i]
         .map(bn => getBnToNumber(bn) * exRates[i])
         .concat(
           excludedBalances[i]
