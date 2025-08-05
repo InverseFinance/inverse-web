@@ -10,7 +10,7 @@ import { F2Market } from "@app/types"
 import { f2CalcNewHealth } from "@app/util/f2"
 import { getBnToNumber, shortenNumber } from "@app/util/markets"
 import { ChevronDownIcon, ChevronRightIcon, RepeatClockIcon } from "@chakra-ui/icons"
-import { Flex, FormControl, FormLabel, HStack, Switch, Text, VStack, Image, Stack, useDisclosure, Divider, Box } from "@chakra-ui/react"
+import { Flex, FormControl, FormLabel, HStack, Switch, Text, VStack, Image, Stack, useDisclosure, Divider, Box, SimpleGrid } from "@chakra-ui/react"
 import { formatUnits } from "@ethersproject/units"
 import { BigNumber } from "ethers"
 import { isAddress } from "ethers/lib/utils"
@@ -206,7 +206,7 @@ const ExtendMarketLoanContent = ({
             /> */}
             {dbrDurationInputs}
             <Divider />
-            <VStack spacing="0" w='full' maxW="300px" alignItems="flex-start">
+            <SimpleGrid columns={{ base: 1, md: 2 }} spacingX={{ base: 0, md: 8 }} w='full' alignItems="flex-start">
                 <HStack w='full' justify="space-between">
                     <Text color="mainTextColorLight">
                         Min. to receive:
@@ -239,7 +239,7 @@ const ExtendMarketLoanContent = ({
                         {shortenNumber(100 - newPerc, 2)}%
                     </Text>
                 </HStack>
-            </VStack>
+            </SimpleGrid>
             {
                 isOkDisabled && <WarningMessage alertProps={{ w: 'full', fontSize: '14px' }} description={`The borrow limit should be under ${maxBorrowLimit}%, please consider extending for a shorter duration.`} />
             }
