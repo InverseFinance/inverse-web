@@ -27,7 +27,7 @@ import { usePricesDefillama, usePricesV2 } from "@app/hooks/usePrices";
 import { SDOLA_ADDRESS } from "@app/config/constants";
 import { stakeDola } from "@app/util/dola-staking";
 import { shortenNumber } from "@app/util/markets";
-import { ETH_SAVINGS_STABLECOINS } from "@app/variables/stables";
+import { ETH_SAVINGS_STABLECOINS, STABLE_SYMBOLS_LOWER } from "@app/variables/stables";
 const zapOptions = [...new Set(ZAP_TOKENS_ARRAY.map(t => t.address))];
 
 const removeUndefined = obj => Object.fromEntries(
@@ -53,6 +53,10 @@ function EnsoZap({
     isInModal = true,
     fromText = "From",
     fromTextProps = defaultFromTextProps,
+    onlyFromStables = false,
+    defaultAmountIn = '',
+    isDbrCoveringCase = false,
+    userDebt = 0
 }: {
     defaultTokenIn?: string
     defaultTokenOut: string
@@ -66,6 +70,10 @@ function EnsoZap({
     isInModal?: boolean
     fromText?: string | null
     fromTextProps?: any
+    onlyFromStables?: boolean
+    defaultAmountIn?: string
+    isDbrCoveringCase?: boolean
+    userDebt?: number
 }) {
     const account = useAccount();
     const { provider, chainId } = useWeb3React<Web3Provider>();
@@ -95,7 +103,7 @@ function EnsoZap({
     }, [NETWORKS, availableChainIds, ensoPools]);
 
     const targetNetwork = implementedNetworks.find(n => n.id === targetChainId);
-    const [amountIn, setAmountIn] = useState<string>('');
+    const [amountIn, setAmountIn] = useState<string>(defaultAmountIn || '');
     const [zapRequestData, setZapRequestData] = useState<any>({});
 
     const { address: spender } = useEnso(account, chainId, tokenIn, amountIn, tokenInObj?.decimals);
@@ -109,6 +117,12 @@ function EnsoZap({
     const zapTokens = useMemo(() => {
         return ZAP_TOKENS_ARRAY.filter(t => t.chainId === chainId && t.address !== tokenOut);
     }, [ZAP_TOKENS_ARRAY, chainId, tokenOut]);
+
+    useEffect(() => {
+        if (!!defaultAmountIn) {
+            setAmountIn(defaultAmountIn);
+        }
+    }, [defaultAmountIn]);
 
     const fromOptions = useMemo(() => {
         return zapTokens
@@ -139,8 +153,9 @@ function EnsoZap({
                 && (
                 (
                     !!balances && !!balances[t.address]
+                    && (onlyFromStables ? STABLE_SYMBOLS_LOWER.includes(t.symbol.toLowerCase()) : true)
                 //  && getBnToNumber(balances[t.address], t.decimals) >= 0.01
-            ) || t.symbol === 'ETH')
+            ) || (t.symbol === 'ETH' && !onlyFromStables))
 
             )
             .reduce((prev, curr) => {
@@ -373,7 +388,7 @@ function EnsoZap({
 
                     {
                         isDolaStakingFromDola && exRate > 0 ? <Text>Result: ~ {1/exRate * parseFloat(amountIn||'0')} sDOLA ({shortenNumber(targetAssetPrice * 1/exRate * parseFloat(amountIn||'0'), 2, true)})</Text> : !zapResponseData?.error && zapResponseData?.route && <EnsoRouting
-                            onlyShowResult={isDolaStakingFromDola}
+                            onlyShowResult={isDolaStakingFromDola || isDbrCoveringCase}
                             chainId={chainId?.toString()}
                             targetChainId={targetChainId?.toString()}
                             targetAsset={tokenOutObj}
@@ -382,6 +397,8 @@ function EnsoZap({
                             routes={zapResponseData.route}
                             priceImpactBps={zapResponseData.priceImpact}
                             isLoading={zapResponseData.isLoading}
+                            isDbrCoveringCase={isDbrCoveringCase}
+                            userDebt={userDebt}
                         />
                     }
 

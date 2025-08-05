@@ -21,6 +21,7 @@ import { SERVER_BASE_URL } from '@app/config/constants'
 import { F2Market } from '@app/types'
 import { useFirmTVL } from '@app/hooks/useTVL'
 import { timeSince } from '@app/util/time'
+import { DbrFloatingTrigger } from '@app/components/F2/DbrEasyBuyer.tsx/DbrEasyBuyer'
 
 export const F2PAGE = ({
     isTwitterAlert = false,
@@ -180,6 +181,9 @@ export const F2PAGE = ({
                     }
                     <ErrorBoundary description="Failed to load Markets">
                         <F2Markets marketsData={marketsData} firmTvls={isLoadingTvl ? firmTvlData.firmTvls : firmTvls} />
+                    </ErrorBoundary>
+                    <ErrorBoundary description=" ">
+                        <DbrFloatingTrigger />
                     </ErrorBoundary>
                     <VStack py="6" px='6' w='full' spacing="6">
                         <FirmInsuranceCover />

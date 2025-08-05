@@ -1,6 +1,7 @@
 import { UnderlyingItem } from "@app/components/common/Assets/UnderlyingItem"
 import { Token } from "@app/types"
 import { EthXe } from "@app/util/enso"
+import { getDepletionDate } from "@app/util/f2"
 import { getBnToNumber, shortenNumber, smartShortNumber } from "@app/util/markets"
 import { CHAIN_TOKENS, getToken } from "@app/variables/tokens"
 import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons"
@@ -35,6 +36,8 @@ export const EnsoRouting = ({
     targetAssetPrice,
     isLoading = false,
     onlyShowResult = false,
+    isDbrCoveringCase = false,
+    userDebt = 0
 }: {
     chainId: string
     amountOut: string
@@ -45,6 +48,8 @@ export const EnsoRouting = ({
     isLoading: boolean
     targetAssetPrice: number
     onlyShowResult?: boolean
+    isDbrCoveringCase?: boolean
+    userDebt?: number
 }) => {
     const [showActions, setShowActions] = useState(false);
     const isPriceImpactUnknown = typeof priceImpactBps !== 'number';
@@ -67,6 +72,16 @@ export const EnsoRouting = ({
                 </Text>
             </Stack>
         </HStack>
+        {/* {
+            isDbrCoveringCase && <HStack w='full' justify="space-between" spacing="1">
+            <Stack direction={{ base: 'column', sm: 'row' }}>
+                <Text>New DBR depletion date:</Text>
+                <Text fontWeight="bold">
+                    {`${getDepletionDate(newDBRExpiryDate, (new Date()).getTime())}`}
+                </Text>
+            </Stack>
+        </HStack>
+        } */}
         {
             !onlyShowResult && <HStack textDecoration="underline" cursor="pointer" onClick={() => setShowActions(!showActions)}>
                 <Text fontWeight="bold">Actions ({routes?.length})</Text>
