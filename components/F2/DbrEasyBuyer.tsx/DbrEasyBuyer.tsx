@@ -16,6 +16,8 @@ import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader"
 import { getDepletionDate } from "@app/util/f2";
 import { fromNow } from "@app/util/time";
 import Container from "@app/components/common/Container";
+import Link from "@app/components/common/Link";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 
 export const DbrBuyerTrigger = ({
     children,
@@ -75,7 +77,7 @@ export const DbrEasyBuyerModal = ({
     const [isInited, setIsInited] = useState(false);
     const [now, setNow] = useState(Date.now());
 
-    const _debtToCover = parseFloat(debtToCover||'0') || 0;
+    const _debtToCover = parseFloat(debtToCover || '0') || 0;
 
     const dbrNeeded = _debtToCover / 365 * duration;
     const dbrUsdCost = dbrNeeded * dbrPriceUsd;
@@ -152,9 +154,9 @@ export const DbrEasyBuyerModal = ({
                         </Text>
                     </VStack>
                 } />
-                <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify="space-between" spacing="4">
+                <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between" spacing="4">
                     <Container w='full' label="" noPadding m="0" p="0">
-                        <VStack h={{ base: 'auto', sm: '318px' }} w='full' justify="flex-start" spacing="1" alignItems="flex-start">
+                        <VStack h={{ base: 'auto', lg: '318px' }} w='full' justify="flex-start" spacing="1" alignItems="flex-start">
                             {dbrDurationInputs}
                             <InfoMessage
                                 alertProps={{ w: 'full', fontSize: '14px' }}
@@ -172,7 +174,7 @@ export const DbrEasyBuyerModal = ({
                         </VStack>
                     </Container>
                     <EnsoZap
-                        containerProps={{ h: { base: 'auto', sm: '350px' } }}
+                        containerProps={{ h: { base: 'auto', lg: '350px' } }}
                         defaultTokenIn={topStable?.token?.address}
                         defaultTokenOut={DBR_ADDRESS}
                         defaultAmountIn={dbrUsdCostWithSlippage?.toFixed(0) || ''}
@@ -239,6 +241,15 @@ export const DbrEasyBuyerModal = ({
                         }}
                     />
                 </Stack>
+                <InfoMessage alertProps={{ w: 'full', fontSize: '14px', mt: 4 }} title="Buying in size?" description={
+                    <VStack spacing="0" w='full' alignItems="flex-start">
+                        <Text>
+                            For large DBR purchases we recommend to use <Link textDecoration="underline" href="https://swap.cow.fi/#/1/advanced/0x865377367054516e17014CcdED1e7d814EDC9ce4/0xAD038Eb671c44b853887A7E32528FaB35dC5D710?tab=all&page=1" isExternal target="_blank">
+                                CoW Swap TWAP buys <ExternalLinkIcon />
+                            </Link>
+                        </Text>
+                    </VStack>
+                } />
             </VStack>
         </VStack>
     </SimpleModal>
