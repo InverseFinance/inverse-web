@@ -26,7 +26,6 @@ export const AutoBuyDbrDurationInputs = ({
     handleDurationChange,
     durationType,
     durationTypedValue,
-    dbrPriceUsd,
     userDebt,
     debtToCover,
     handleDebtChange,
@@ -38,7 +37,6 @@ export const AutoBuyDbrDurationInputs = ({
     dbrBuySlippage: string
     durationTypedValue: string
     duration: string | number
-    dbrPriceUsd: number
     userDebt: number
     debtToCover: number
     handleDebtChange?: (value: string) => void
@@ -85,7 +83,7 @@ export const AutoBuyDbrDurationInputs = ({
                 </HStack>
             }
             {
-                !isDexMode && <AutoBuyDbrNoteMessage duration={duration} dbrPriceUsd={dbrPriceUsd} debt={debtToCover} />
+                !isDexMode && <AutoBuyDbrNoteMessage />
             }
         </VStack>
     </VStack>

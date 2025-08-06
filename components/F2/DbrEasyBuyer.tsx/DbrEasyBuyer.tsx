@@ -1,4 +1,4 @@
-import { Image, useDisclosure, VStack, Text } from "@chakra-ui/react"
+import { Image, useDisclosure, VStack, Text, HStack, Stack } from "@chakra-ui/react"
 import { AutoBuyDbrDurationInputs } from "../forms/FirmFormSubcomponents/FirmDbrHelper";
 import { useEffect, useState } from "react";
 import { useAccount } from "@app/hooks/misc";
@@ -8,19 +8,40 @@ import { useSavingsOpportunities } from "@app/components/sDola/SavingsOpportunit
 import { DBR_ADDRESS } from "@app/config/constants";
 import SimpleModal from "@app/components/common/Modal/SimpleModal";
 import { preciseCommify } from "@app/util/misc";
-import { shortenNumber } from "@app/util/markets";
+import { getBnToNumber, shortenNumber, smartShortNumber } from "@app/util/markets";
 import { InfoMessage } from "@app/components/common/Messages";
+import { Token } from "@app/types";
+import { parseUnits } from "@ethersproject/units";
+import { SmallTextLoader } from "@app/components/common/Loaders/SmallTextLoader";
+import { getDepletionDate } from "@app/util/f2";
+import { fromNow } from "@app/util/time";
+import Container from "@app/components/common/Container";
 
-export const DbrFloatingTrigger = () => {
+export const DbrBuyerTrigger = ({
+    children,
+}: {
+    children: React.ReactNode
+}) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     return <>
+        <VStack onClick={onOpen} spacing="0">
+            {children}
+        </VStack>
+        {
+            isOpen && <DbrEasyBuyerModal onClose={onClose} />
+        }
+    </>
+}
+
+export const DbrFloatingTrigger = () => {
+    return <DbrBuyerTrigger>
         <Image
-            src="/assets/v2/dbr.png"
+            src="/assets/v2/dbr-calc.webp"
             position="fixed"
             bottom="20px"
-            right="20px"
-            w="50px"
-            h="50px"
+            left="20px"
+            w="60px"
+            h="60px"
             cursor="pointer"
             zIndex="1"
             borderRadius="full"
@@ -28,16 +49,12 @@ export const DbrFloatingTrigger = () => {
             border="1px solid white"
             borderColor="mainTextColor"
             _hover={{
-                transform: "scale(1.05)",
+                transform: "scale(1.1)",
                 filter: "brightness(1.1)",
                 transition: "transform 0.2s ease-in-out"
             }}
-            onClick={onOpen}
         />
-        {
-            isOpen && <DbrEasyBuyerModal onClose={onClose} />
-        }
-    </>
+    </DbrBuyerTrigger>
 }
 
 export const DbrEasyBuyerModal = ({
@@ -56,11 +73,12 @@ export const DbrEasyBuyerModal = ({
     const [dbrBuySlippage, setDbrBuySlippage] = useState('0.3');
     const [debtToCover, setDebtToCover] = useState(0);
     const [isInited, setIsInited] = useState(false);
+    const [now, setNow] = useState(Date.now());
 
     const dbrNeeded = debtToCover / 365 * duration;
     const dbrUsdCost = dbrNeeded * dbrPriceUsd;
     const { price: dbrRate } = useTriCryptoSwap(dbrUsdCost, 0, 1);
-    const effectiveSwapPrice = dbrRate ? 1/dbrRate : 0;
+    const effectiveSwapPrice = dbrRate ? 1 / dbrRate : 0;
     const dbrUsdCostWithSlippage = dbrNeeded * effectiveSwapPrice;
 
     useEffect(() => {
@@ -69,6 +87,8 @@ export const DbrEasyBuyerModal = ({
         setDebtToCover(debt.toFixed(0));
     }, [isInited, debt]);
 
+    const debtToCalcDepletion = debt > 0 ? debt : debtToCover;
+   
     const handleDurationChange = (duration: number, typedValue: number, type: string) => {
         setDurationTypedValue(typedValue);
         setDurationType(type);
@@ -94,44 +114,126 @@ export const DbrEasyBuyerModal = ({
     />
 
     return <SimpleModal
-        title="DBR calculator & buyer"
+        title={
+            <VStack w='full' justify="center" spacing="1" alignItems="center">
+                <HStack spacing="4" alignItems="center" w='full' maxW="1200px" justify="center">
+                    <Text>DBR calculator & buyer</Text>
+                    <Image
+                        src="/assets/v2/dbr2.webp"
+                        w="40px"
+                        h="40px"
+                        borderRadius="full"
+                        border="1px solid white"
+                        borderColor="mainTextColor"
+                    />
+                </HStack>
+            </VStack>
+        }
         isOpen={true}
         onClose={onClose}
         modalProps={{
             scrollBehavior: 'inside',
-            minW: { base: '98vw', lg: '700px' }
+            minW: { base: '100%' },
+            minH: '100%',
+            borderRadius: '0px',
         }}
     >
-        <VStack p="4" alignItems="flex-start" w='full'>
-            {dbrDurationInputs}
-            <InfoMessage
-                alertProps={{ w: 'full', fontSize: '14px' }}
-                description={
+        <VStack p="4" alignItems="center" justify="center" w='full'>
+            <VStack w='full' maxW="1200px" justify="flex-start" spacing="1" alignItems="flex-start">
+                <InfoMessage alertProps={{ w: 'full', fontSize: '14px' }} description={
                     <VStack spacing="0" w='full' alignItems="flex-start">
                         <Text>
-                            Amount needed to cover the debt and duration: <b>{preciseCommify(dbrNeeded, 0)} DBR (~{shortenNumber(dbrUsdCost, 2, true)})</b>
+                            This interface calculates the amount of DBR needed to cover a certain debt and duration and pre-fills an estimated amount to sell to buy the calculated DBR.
                         </Text>
                         <Text>
-                            Note: You might need to adjust the estimated sell amount to account for price slippage
+                            Reminder: one DBR allows to borrow one DOLA for one year, or two DOLA for 6 months etc.
                         </Text>
                     </VStack>
-                }
-            />
-            <EnsoZap
-                defaultTokenIn={topStable?.token?.address}
-                defaultTokenOut={DBR_ADDRESS}
-                defaultAmountIn={dbrUsdCostWithSlippage?.toFixed(0) || ''}
-                defaultTargetChainId={'1'}
-                ensoPools={[{ poolAddress: DBR_ADDRESS, chainId: 1 }]}
-                introMessage={''}
-                isSingleChoice={true}
-                targetAssetPrice={dbrPriceUsd}
-                isInModal={true}
-                onlyFromStables={true}
-                isDbrCoveringCase={true}
-                userDebt={debt}
-                fromText={"Asset to sell to Buy DBR with"}
-            />
+                } />
+                <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify="space-between" spacing="4">
+                    <Container w='full' label="" noPadding m="0" p="0">
+                        <VStack h={{ base: 'auto', sm: '318px' }} w='full' justify="flex-start" spacing="1" alignItems="flex-start">
+                            {dbrDurationInputs}
+                            <InfoMessage
+                                alertProps={{ w: 'full', fontSize: '14px' }}
+                                description={
+                                    <VStack spacing="0" w='full' alignItems="flex-start">
+                                        <Text>
+                                            Amount needed to cover the debt and duration: {dbrNeeded > 0 ? <b>{preciseCommify(dbrNeeded, 0)} DBR (~{shortenNumber(dbrUsdCost, 2, true)})</b> : '-'}
+                                        </Text>
+                                        <Text>
+                                            Note: You might need to adjust the estimated sell amount to account for price slippage
+                                        </Text>
+                                    </VStack>
+                                }
+                            />
+                        </VStack>
+                    </Container>
+                    <EnsoZap
+                        containerProps={{ h: { base: 'auto', sm: '350px' } }}
+                        defaultTokenIn={topStable?.token?.address}
+                        defaultTokenOut={DBR_ADDRESS}
+                        defaultAmountIn={dbrUsdCostWithSlippage?.toFixed(0) || ''}
+                        defaultTargetChainId={'1'}
+                        ensoPools={[{ poolAddress: DBR_ADDRESS, chainId: 1 }]}
+                        introMessage={''}
+                        isSingleChoice={true}
+                        targetAssetPrice={dbrPriceUsd}
+                        isInModal={true}
+                        onlyFromStables={true}
+                        resultFormatter={
+                            (targetAsset: Token, zapResponseData: { amountOut: number }, price: number) => {
+                                const amountOut = zapResponseData?.amountOut ? getBnToNumber(parseUnits(zapResponseData?.amountOut, 0), targetAsset.decimals) : 0;
+                                const newExpiryTimestamp = debtToCalcDepletion ? dbrExpiryDate + amountOut / debtToCalcDepletion * 22896000000 : dbrExpiryDate;
+                                const newExpiryDate = getDepletionDate(newExpiryTimestamp, now);
+                                return <VStack w='full' justify="space-between" spacing="1" alignItems="flex-start">
+                                    <HStack spacing="1" w='full' justify="space-between">
+                                        <Text color="mainTextColorLight">Estimated amount to receive:</Text>
+                                        {
+                                            zapResponseData?.isLoading ? <SmallTextLoader pt="10px" width={'90px'} /> : <Text fontWeight="bold">
+                                                {`~${preciseCommify(amountOut, 0)} ${targetAsset.symbol}`}
+                                                {price ? ` (${smartShortNumber(amountOut * price, 2, true)})` : ''}
+                                            </Text>
+                                        }
+                                    </HStack>
+                                    {
+                                        debt > 0 ? <VStack w='full' justify="flex-start" spacing="1" alignItems="flex-start" direction={{ base: 'column', sm: 'row' }}>
+                                            <HStack justify="space-between" w='full' spacing="1">
+                                                <Text color="mainTextColorLight">Current depletion date:</Text>
+                                                {
+                                                    <Text fontWeight="bold">
+                                                        {dbrExpiryDate ? `${getDepletionDate(dbrExpiryDate, now)} (${fromNow(dbrExpiryDate)})` : '-'}
+                                                    </Text>
+                                                }
+                                            </HStack>
+                                            <HStack spacing="1" justify="space-between" w='full'>
+                                                <Text color="mainTextColorLight">New DBR estimated depletion date:</Text>
+                                                {
+                                                    zapResponseData?.isLoading ? <SmallTextLoader pt="10px" width={'90px'} /> : <Text fontWeight="bold">
+                                                        {newExpiryDate} ({fromNow(newExpiryTimestamp)})
+                                                    </Text>
+                                                }
+                                            </HStack>
+                                        </VStack> : <HStack spacing="1">
+                                            <Text color="mainTextColorLight">DBR estimated depletion date:</Text>
+                                            {
+                                                zapResponseData?.isLoading ? <SmallTextLoader pt="10px" width={'90px'} /> : <Text fontWeight="bold">
+                                                    {newExpiryDate} ({fromNow(newExpiryTimestamp)})
+                                                </Text>
+                                            }
+                                        </HStack>
+                                    }
+                                </VStack>
+                            }
+                        }
+                        fromText={"Asset to sell to Buy DBR with"}
+                        fromTextProps={{
+                            fontSize: '18px',
+                            fontWeight: 'bold',
+                        }}
+                    />
+                </Stack>
+            </VStack>
         </VStack>
     </SimpleModal>
 }

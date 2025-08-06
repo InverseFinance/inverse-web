@@ -69,7 +69,11 @@ export const NotEnoughDolaToRepayMessage = ({
 export const AutoBuyDbrNoteMessage = () => {
     return <InfoMessage
         alertProps={{ w: 'full', fontStyle: 'italic', fontSize: '14px' }}
-        description="Note: The cost of the auto-bought DBR will be added to your debt."
+        description={
+            <VStack spacing="0" alignItems="flex-start" w='full'>
+                <Text>Note: The cost of the auto-bought DBR will be added to your debt.</Text>
+            </VStack>
+        }
     />
 }
 
