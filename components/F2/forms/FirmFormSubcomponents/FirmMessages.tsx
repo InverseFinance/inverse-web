@@ -6,6 +6,7 @@ import { shortenNumber } from "@app/util/markets"
 import { preciseCommify } from "@app/util/misc"
 import { Flex, Text, useDisclosure, VStack } from "@chakra-ui/react"
 import { FirmFAQ } from "../../Infos/FirmFAQ"
+import { DbrBuyerTrigger } from "../../DbrEasyBuyer.tsx/DbrEasyBuyer"
 
 export const DebtDustErrorMessage = ({
     debt
@@ -38,9 +39,11 @@ export const NoDbrInWalletMessage = () => {
             alertProps={{ w: 'full' }}
             description={
                 <Flex display="inline-block">
-                    To borrow DOLA you need to first <Link textDecoration="underline" color="accentTextColor" display="inline-block" href={BUY_LINKS.DBR} isExternal target="_blank">
-                        buy DBR tokens
-                    </Link> OR use the <b>auto-buy</b> option which adds the DBR cost to your DOLA loan.
+                    To borrow DOLA you need to first <Flex display="inline-block" color="accentTextColor"><DbrBuyerTrigger>
+                        <b style={{ cursor: 'pointer', textDecoration: 'underline'}}>
+                            buy DBR tokens
+                        </b>
+                    </DbrBuyerTrigger></Flex> OR use the <b>auto-buy</b> option which adds the DBR cost to your DOLA loan.
                     <Text onClick={onOpen} cursor="pointer" textDecoration="underline" mt="2">
                         New to FiRM? Discover how DBR powers FiRM loans
                     </Text>
