@@ -182,9 +182,11 @@ export const F2PAGE = ({
                     <ErrorBoundary description="Failed to load Markets">
                         <F2Markets marketsData={marketsData} firmTvls={isLoadingTvl ? firmTvlData.firmTvls : firmTvls} />
                     </ErrorBoundary>
-                    <ErrorBoundary description=" ">
-                        <DbrFloatingTrigger />
-                    </ErrorBoundary>
+                    {
+                        !!account && debt > 0 && <ErrorBoundary description=" ">
+                            <DbrFloatingTrigger />
+                        </ErrorBoundary>
+                    }
                     <VStack py="6" px='6' w='full' spacing="6">
                         <FirmInsuranceCover />
                         <FirmFAQ collapsable={true} defaultCollapse={false} />

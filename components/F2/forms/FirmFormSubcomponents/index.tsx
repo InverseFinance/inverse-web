@@ -188,14 +188,20 @@ const ExtendMarketLoanContent = ({
     const maxBorrowLimit = 100 - percAcceptableDistance;
     const effectiveSwapPrice = dbrApproxData.dbrNeededNum ? dbrApproxData.dolaForDbrNum / dbrApproxData.dbrNeededNum * (dolaPriceUsd || 1) : 0;
     return <ConfirmModal
-        title={`Extend market loan by buying the right amount of DBR`}
+        title={`Extend market loan by auto-buying the right amount of DBR`}
         onClose={onClose}
         onCancel={onClose}
         onOk={() => {
             return handleExtendMarketLoan()
         }}
         isOpen={true}
-        okLabel="Extend"
+        okLabel="Auto-buy DBR"
+        okButtonProps={{
+            w: '150px'
+        }}
+        cancelButtonProps={{
+            w: '150px'
+        }}
         modalProps={{ scrollBehavior: 'inside', minW: { base: '98vw', lg: '700px' } }}
         okDisabled={dbrApproxData?.isLoading || isOkDisabled}
     >
