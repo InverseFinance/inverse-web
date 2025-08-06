@@ -55,8 +55,8 @@ function EnsoZap({
     fromTextProps = defaultFromTextProps,
     onlyFromStables = false,
     defaultAmountIn = '',
-    isDbrCoveringCase = false,
-    userDebt = 0
+    resultFormatter,
+    containerProps,
 }: {
     defaultTokenIn?: string
     defaultTokenOut: string
@@ -72,8 +72,8 @@ function EnsoZap({
     fromTextProps?: any
     onlyFromStables?: boolean
     defaultAmountIn?: string
-    isDbrCoveringCase?: boolean
-    userDebt?: number
+    resultFormatter?: (amountOut: string, price: number) => React.ReactNode
+    containerProps?: any
 }) {
     const account = useAccount();
     const { provider, chainId } = useWeb3React<Web3Provider>();
@@ -255,7 +255,7 @@ function EnsoZap({
         return isInModal ? {} : { mt: 0, border: 'none', p: 0, shadow: 'none' }
     }, [isInModal]);
 
-    return <Container w='full' noPadding p='0' label={title} contentProps={{ ...extraContentProps }}>
+    return <Container w='full' noPadding p='0' label={title} contentProps={{ ...extraContentProps, ...containerProps }}>
         {
             !isConnected ? <WarningMessage
                 alertProps={{ w: 'full' }}
@@ -387,7 +387,7 @@ function EnsoZap({
                     }
 
                     {
-                        isDolaStakingFromDola && exRate > 0 ? <Text>Result: ~ {1/exRate * parseFloat(amountIn||'0')} sDOLA ({shortenNumber(targetAssetPrice * 1/exRate * parseFloat(amountIn||'0'), 2, true)})</Text> : !zapResponseData?.error && zapResponseData?.route && <EnsoRouting
+                        !!resultFormatter ? resultFormatter(tokenOutObj, zapResponseData, targetAssetPrice) : isDolaStakingFromDola && exRate > 0 ? <Text>Result: ~ {1/exRate * parseFloat(amountIn||'0')} sDOLA ({shortenNumber(targetAssetPrice * 1/exRate * parseFloat(amountIn||'0'), 2, true)})</Text> : !zapResponseData?.error && zapResponseData?.route && <EnsoRouting
                             onlyShowResult={isDolaStakingFromDola || isDbrCoveringCase}
                             chainId={chainId?.toString()}
                             targetChainId={targetChainId?.toString()}
@@ -397,12 +397,10 @@ function EnsoZap({
                             routes={zapResponseData.route}
                             priceImpactBps={zapResponseData.priceImpact}
                             isLoading={zapResponseData.isLoading}
-                            isDbrCoveringCase={isDbrCoveringCase}
-                            userDebt={userDebt}
                         />
                     }
 
-                    {!isDolaStakingFromDola && thirdPartyInfo}
+                    {!isDolaStakingFromDola && !resultFormatter && thirdPartyInfo}
                 </VStack>
         }
     </Container>
