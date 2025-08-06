@@ -71,11 +71,13 @@ export const DbrEasyBuyerModal = ({
     const [durationType, setDurationType] = useState('months');
     const [durationTypedValue, setDurationTypedValue] = useState(3);
     const [dbrBuySlippage, setDbrBuySlippage] = useState('0.3');
-    const [debtToCover, setDebtToCover] = useState(0);
+    const [debtToCover, setDebtToCover] = useState('');
     const [isInited, setIsInited] = useState(false);
     const [now, setNow] = useState(Date.now());
 
-    const dbrNeeded = debtToCover / 365 * duration;
+    const _debtToCover = parseFloat(debtToCover||'0') || 0;
+
+    const dbrNeeded = _debtToCover / 365 * duration;
     const dbrUsdCost = dbrNeeded * dbrPriceUsd;
     const { price: dbrRate } = useTriCryptoSwap(dbrUsdCost, 0, 1);
     const effectiveSwapPrice = dbrRate ? 1 / dbrRate : 0;
@@ -87,8 +89,8 @@ export const DbrEasyBuyerModal = ({
         setDebtToCover(debt.toFixed(0));
     }, [isInited, debt]);
 
-    const debtToCalcDepletion = debt > 0 ? debt : debtToCover;
-   
+    const debtToCalcDepletion = debt > 0 ? debt : _debtToCover;
+
     const handleDurationChange = (duration: number, typedValue: number, type: string) => {
         setDurationTypedValue(typedValue);
         setDurationType(type);
@@ -183,8 +185,11 @@ export const DbrEasyBuyerModal = ({
                         onlyFromStables={true}
                         resultFormatter={
                             (targetAsset: Token, zapResponseData: { amountOut: number }, price: number) => {
+                                if ((!duration || !_debtToCover) && !zapResponseData?.amountOut) return <></>;
+                                if (dbrUsdCost < 1 && !zapResponseData?.amountOut) return <InfoMessage alertProps={{ w: 'full', fontSize: '14px' }} description="Trade size too small, at least $1 worth of DBR should be bought" />
                                 const amountOut = zapResponseData?.amountOut ? getBnToNumber(parseUnits(zapResponseData?.amountOut, 0), targetAsset.decimals) : 0;
-                                const newExpiryTimestamp = debtToCalcDepletion ? dbrExpiryDate + amountOut / debtToCalcDepletion * 22896000000 : dbrExpiryDate;
+                                const refDbrAnchorDate = dbrExpiryDate ? dbrExpiryDate : now;
+                                const newExpiryTimestamp = debtToCalcDepletion ? refDbrAnchorDate + amountOut / debtToCalcDepletion * 31536000000 : refDbrAnchorDate;
                                 const newExpiryDate = getDepletionDate(newExpiryTimestamp, now);
                                 return <VStack w='full' justify="space-between" spacing="1" alignItems="flex-start">
                                     <HStack spacing="1" w='full' justify="space-between">
@@ -202,7 +207,7 @@ export const DbrEasyBuyerModal = ({
                                                 <Text color="mainTextColorLight">Current depletion date:</Text>
                                                 {
                                                     <Text fontWeight="bold">
-                                                        {dbrExpiryDate ? `${getDepletionDate(dbrExpiryDate, now)} (${fromNow(dbrExpiryDate)})` : '-'}
+                                                        {newExpiryDate ? `${getDepletionDate(newExpiryDate, now)} (${fromNow(newExpiryDate)})` : '-'}
                                                     </Text>
                                                 }
                                             </HStack>
@@ -214,14 +219,15 @@ export const DbrEasyBuyerModal = ({
                                                     </Text>
                                                 }
                                             </HStack>
-                                        </VStack> : <HStack spacing="1">
-                                            <Text color="mainTextColorLight">DBR estimated depletion date:</Text>
-                                            {
-                                                zapResponseData?.isLoading ? <SmallTextLoader pt="10px" width={'90px'} /> : <Text fontWeight="bold">
-                                                    {newExpiryDate} ({fromNow(newExpiryTimestamp)})
-                                                </Text>
-                                            }
-                                        </HStack>
+                                        </VStack> :
+                                            !!_debtToCover ? <HStack spacing="1" justify="space-between" w='full'>
+                                                <Text color="mainTextColorLight">DBR estimated depletion date:</Text>
+                                                {
+                                                    zapResponseData?.isLoading ? <SmallTextLoader pt="10px" width={'90px'} /> : <Text fontWeight="bold">
+                                                        {newExpiryDate} ({fromNow(newExpiryTimestamp)})
+                                                    </Text>
+                                                }
+                                            </HStack> : null
                                     }
                                 </VStack>
                             }
