@@ -209,7 +209,7 @@ export const DbrEasyBuyerModal = ({
                                                 <Text color="mainTextColorLight">Current depletion date:</Text>
                                                 {
                                                     <Text fontWeight="bold">
-                                                        {newExpiryDate ? `${getDepletionDate(newExpiryDate, now)} (${fromNow(newExpiryDate)})` : '-'}
+                                                        {refDbrAnchorDate ? `${getDepletionDate(refDbrAnchorDate, now)} (${fromNow(refDbrAnchorDate)})` : '-'}
                                                     </Text>
                                                 }
                                             </HStack>
