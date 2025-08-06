@@ -194,7 +194,7 @@ export const DbrEasyBuyerModal = ({
                                 const newExpiryTimestamp = debtToCalcDepletion ? refDbrAnchorDate + amountOut / debtToCalcDepletion * 31536000000 : refDbrAnchorDate;
                                 const newExpiryDate = getDepletionDate(newExpiryTimestamp, now);
                                 return <VStack w='full' justify="space-between" spacing="1" alignItems="flex-start">
-                                    <HStack spacing="1" w='full' justify="space-between">
+                                    <Stack direction={{ base: 'column', sm: 'row' }} spacing="1" w='full' justify="space-between">
                                         <Text color="mainTextColorLight">Estimated amount to receive:</Text>
                                         {
                                             zapResponseData?.isLoading ? <SmallTextLoader pt="10px" width={'90px'} /> : <Text fontWeight="bold">
@@ -202,34 +202,34 @@ export const DbrEasyBuyerModal = ({
                                                 {price ? ` (${smartShortNumber(amountOut * price, 2, true)})` : ''}
                                             </Text>
                                         }
-                                    </HStack>
+                                    </Stack>
                                     {
                                         debt > 0 ? <VStack w='full' justify="flex-start" spacing="1" alignItems="flex-start" direction={{ base: 'column', sm: 'row' }}>
-                                            <HStack justify="space-between" w='full' spacing="1">
+                                            <Stack direction={{ base: 'column', sm: 'row' }} justify="space-between" w='full' spacing="1">
                                                 <Text color="mainTextColorLight">Current depletion date:</Text>
                                                 {
                                                     <Text fontWeight="bold">
                                                         {refDbrAnchorDate ? `${getDepletionDate(refDbrAnchorDate, now)} (${fromNow(refDbrAnchorDate)})` : '-'}
                                                     </Text>
                                                 }
-                                            </HStack>
-                                            <HStack spacing="1" justify="space-between" w='full'>
+                                            </Stack>
+                                            <Stack direction={{ base: 'column', sm: 'row' }} spacing="1" justify="space-between" w='full'>
                                                 <Text color="mainTextColorLight">New DBR estimated depletion date:</Text>
                                                 {
                                                     zapResponseData?.isLoading ? <SmallTextLoader pt="10px" width={'90px'} /> : <Text fontWeight="bold">
                                                         {newExpiryDate} ({fromNow(newExpiryTimestamp)})
                                                     </Text>
                                                 }
-                                            </HStack>
+                                            </Stack>
                                         </VStack> :
-                                            !!_debtToCover ? <HStack spacing="1" justify="space-between" w='full'>
+                                            !!_debtToCover ? <Stack direction={{ base: 'column', sm: 'row' }} spacing="1" justify="space-between" w='full'>
                                                 <Text color="mainTextColorLight">DBR estimated depletion date:</Text>
                                                 {
                                                     zapResponseData?.isLoading ? <SmallTextLoader pt="10px" width={'90px'} /> : <Text fontWeight="bold">
                                                         {newExpiryDate} ({fromNow(newExpiryTimestamp)})
                                                     </Text>
                                                 }
-                                            </HStack> : null
+                                            </Stack> : null
                                     }
                                 </VStack>
                             }
@@ -245,7 +245,7 @@ export const DbrEasyBuyerModal = ({
                     <VStack spacing="0" w='full' alignItems="flex-start">
                         <Text>
                             For large DBR purchases we recommend to use <Link textDecoration="underline" href="https://swap.cow.fi/#/1/advanced/0x865377367054516e17014CcdED1e7d814EDC9ce4/0xAD038Eb671c44b853887A7E32528FaB35dC5D710?tab=all&page=1" isExternal target="_blank">
-                                CoW Swap TWAP buys <ExternalLinkIcon />
+                                CoW Swap TWAP <ExternalLinkIcon />
                             </Link>
                         </Text>
                     </VStack>
