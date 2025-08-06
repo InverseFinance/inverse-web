@@ -2,6 +2,8 @@ import { FAQ, FAQType } from "@app/components/common/FAQ"
 import Link from "@app/components/common/Link"
 import { BUY_LINKS } from "@app/config/constants"
 import { VStack, Text, TextProps } from "@chakra-ui/react"
+import { DbrBuyerTrigger } from "../DbrEasyBuyer.tsx/DbrEasyBuyer"
+import { ExternalLinkIcon } from "@chakra-ui/icons"
 
 const FaqText = (props: TextProps) => <Text color="secondaryTextColor" lineHeight="1.5" {...props} />
 const FaqStack = (props: TextProps) => <VStack alignItems="flex-start" spacing="2" {...props} />
@@ -98,8 +100,13 @@ export const FirmFAQ = (props: Partial<FAQType>) => {
                 <FaqText color="secondaryTextColor">
                     There are multiple ways to get DBR: by simply buying it on DEXes, by staking INV and getting DBR rewards, by buying it from DBR auctions or via the auto-buy DBR feature when borrowing.
                 </FaqText>
+                <DbrBuyerTrigger>
+                    <FaqText fontWeight="bold" textDecoration="underline" color="mainTextColor" cursor="pointer">
+                        Buy DBR with the loan calculator
+                    </FaqText>
+                </DbrBuyerTrigger>
                 <FaqLink href={BUY_LINKS.DBR}>
-                    Buy DBR via an aggregator
+                    Buy DBR via an aggregator <ExternalLinkIcon />
                 </FaqLink>
                 <FaqLink href={'/dbr/auction'}>
                     Buy DBR via auction
