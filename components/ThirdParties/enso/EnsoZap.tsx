@@ -154,6 +154,8 @@ function EnsoZap({
                 (
                     !!balances && !!balances[t.address]
                     && (onlyFromStables ? STABLE_SYMBOLS_LOWER.includes(t.symbol.toLowerCase()) : true)
+                    // USDT is not well supported by Enso
+                    && (t.symbol !== 'USDT')
                 //  && getBnToNumber(balances[t.address], t.decimals) >= 0.01
             ) || (t.symbol === 'ETH' && !onlyFromStables))
 
@@ -388,7 +390,7 @@ function EnsoZap({
 
                     {
                         !!resultFormatter ? resultFormatter(tokenOutObj, zapResponseData, targetAssetPrice) : isDolaStakingFromDola && exRate > 0 ? <Text>Result: ~ {1/exRate * parseFloat(amountIn||'0')} sDOLA ({shortenNumber(targetAssetPrice * 1/exRate * parseFloat(amountIn||'0'), 2, true)})</Text> : !zapResponseData?.error && zapResponseData?.route && <EnsoRouting
-                            onlyShowResult={isDolaStakingFromDola || isDbrCoveringCase}
+                            onlyShowResult={isDolaStakingFromDola}
                             chainId={chainId?.toString()}
                             targetChainId={targetChainId?.toString()}
                             targetAsset={tokenOutObj}
