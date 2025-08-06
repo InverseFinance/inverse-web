@@ -121,7 +121,7 @@ export const DbrEasyBuyerModal = ({
                 <HStack spacing="4" alignItems="center" w='full' maxW="1200px" justify="center">
                     <Text>DBR calculator & buyer</Text>
                     <Image
-                        src="/assets/v2/dbr2.webp"
+                        src="/assets/v2/dbr-calc.webp"
                         w="40px"
                         h="40px"
                         borderRadius="full"
