@@ -176,8 +176,8 @@ export const DbrEasyBuyerModal = ({
                         </VStack>
                     </Container>
                     {
-                        !isInited ? <Container w='full' label="" noPadding m="0" p="0">
-                            <SkeletonBlob w='full' h={{ base: 'auto', lg: '338px' }} />
+                        !isInited && !!account ? <Container w='full' label="" noPadding m="0" p="0">
+                            <SkeletonBlob mt="0" w='full' h={{ base: 'auto', lg: '338px' }} />
                         </Container> : <EnsoZap
                             containerProps={{ h: { base: 'auto', lg: '370px' } }}
                             retriggerUsdConversionKey={`dbr-${duration}-${debtToCover}-${refreshIndex}`}
