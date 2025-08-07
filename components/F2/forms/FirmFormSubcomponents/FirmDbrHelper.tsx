@@ -53,7 +53,7 @@ export const AutoBuyDbrDurationInputs = ({
                             <Text fontSize='18px' color="mainTextColor"><b>Debt size</b> to cover:</Text>
                             {
                                 userDebt > 0 && <Text textDecoration="underline" fontSize='14px' color="mainTextColorLight" cursor="pointer" onClick={() => handleDebtChange(userDebt.toFixed(0))}>
-                                    Current FiRM debt ({preciseCommify(userDebt, 0)} DOLA)
+                                    Total debt ({preciseCommify(userDebt, 0)} DOLA)
                                 </Text>
                             }
                         </HStack>
