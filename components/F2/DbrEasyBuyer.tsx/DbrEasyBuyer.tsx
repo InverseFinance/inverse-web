@@ -18,6 +18,7 @@ import { fromNow } from "@app/util/time";
 import Container from "@app/components/common/Container";
 import Link from "@app/components/common/Link";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
+import { SkeletonBlob } from "@app/components/common/Skeleton";
 
 export const DbrBuyerTrigger = ({
     children,
@@ -65,9 +66,9 @@ export const DbrEasyBuyerModal = ({
     onClose: () => void
 }) => {
     const account = useAccount();
-    const { topStable } = useSavingsOpportunities(account);
+    const { topStable, isLoading: isLoadingStables } = useSavingsOpportunities(account);
 
-    const { debt, dbrExpiryDate } = useAccountDBR(account);
+    const { debt, dbrExpiryDate, isLoading: isLoadingAccountDBR } = useAccountDBR(account);
     const { priceUsd: dbrPriceUsd } = useDBRPrice();
     const [duration, setDuration] = useState(365);
     const [durationType, setDurationType] = useState('months');
@@ -86,10 +87,10 @@ export const DbrEasyBuyerModal = ({
     const dbrUsdCostWithSlippage = dbrNeeded * effectiveSwapPrice;
 
     useEffect(() => {
-        if (isInited || !debt) return;
+        if (isInited || isLoadingAccountDBR || isLoadingStables) return;
         setIsInited(true);
         setDebtToCover(debt.toFixed(0));
-    }, [isInited, debt]);
+    }, [isInited, debt, isLoadingAccountDBR, isLoadingStables]);
 
     const debtToCalcDepletion = debt > 0 ? debt : _debtToCover;
 
@@ -173,73 +174,77 @@ export const DbrEasyBuyerModal = ({
                             />
                         </VStack>
                     </Container>
-                    <EnsoZap
-                        containerProps={{ h: { base: 'auto', lg: '350px' } }}
-                        defaultTokenIn={topStable?.token?.address}
-                        defaultTokenOut={DBR_ADDRESS}
-                        defaultAmountIn={dbrUsdCostWithSlippage?.toFixed(0) || ''}
-                        defaultTargetChainId={'1'}
-                        ensoPools={[{ poolAddress: DBR_ADDRESS, chainId: 1 }]}
-                        introMessage={''}
-                        isSingleChoice={true}
-                        targetAssetPrice={dbrPriceUsd}
-                        isInModal={true}
-                        onlyFromStables={true}
-                        resultFormatter={
-                            (targetAsset: Token, zapResponseData: { amountOut: number }, price: number) => {
-                                if ((!duration || !_debtToCover) && !zapResponseData?.amountOut) return <></>;
-                                if (dbrUsdCost < 1 && !zapResponseData?.amountOut) return <InfoMessage alertProps={{ w: 'full', fontSize: '14px' }} description="Trade size too small, at least $1 worth of DBR should be bought" />
-                                const amountOut = zapResponseData?.amountOut ? getBnToNumber(parseUnits(zapResponseData?.amountOut, 0), targetAsset.decimals) : 0;
-                                const refDbrAnchorDate = dbrExpiryDate ? dbrExpiryDate : now;
-                                const newExpiryTimestamp = debtToCalcDepletion ? refDbrAnchorDate + amountOut / debtToCalcDepletion * 31536000000 : refDbrAnchorDate;
-                                const newExpiryDate = getDepletionDate(newExpiryTimestamp, now);
-                                return <VStack w='full' justify="space-between" spacing="1" alignItems="flex-start">
-                                    <Stack direction={{ base: 'column', sm: 'row' }} spacing="1" w='full' justify="space-between">
-                                        <Text color="mainTextColorLight">Estimated amount to receive:</Text>
+                    {
+                        !isInited ? <Container w='full' label="" noPadding m="0" p="0">
+                            <SkeletonBlob w='full' h={{ base: 'auto', lg: '318px' }} />
+                        </Container> : <EnsoZap
+                            containerProps={{ h: { base: 'auto', lg: '350px' } }}
+                            defaultTokenIn={topStable?.token?.address}
+                            defaultTokenOut={DBR_ADDRESS}
+                            defaultAmountIn={dbrUsdCostWithSlippage?.toFixed(0) || ''}
+                            defaultTargetChainId={'1'}
+                            ensoPools={[{ poolAddress: DBR_ADDRESS, chainId: 1 }]}
+                            introMessage={''}
+                            isSingleChoice={true}
+                            targetAssetPrice={dbrPriceUsd}
+                            isInModal={true}
+                            onlyFromStables={true}
+                            resultFormatter={
+                                (targetAsset: Token, zapResponseData: { amountOut: number }, price: number) => {
+                                    if ((!duration || !_debtToCover) && !zapResponseData?.amountOut) return <></>;
+                                    if (dbrUsdCost < 1 && !zapResponseData?.amountOut) return <InfoMessage alertProps={{ w: 'full', fontSize: '14px' }} description="Trade size too small, at least $1 worth of DBR should be bought" />
+                                    const amountOut = zapResponseData?.amountOut ? getBnToNumber(parseUnits(zapResponseData?.amountOut, 0), targetAsset.decimals) : 0;
+                                    const refDbrAnchorDate = dbrExpiryDate ? dbrExpiryDate : now;
+                                    const newExpiryTimestamp = debtToCalcDepletion ? refDbrAnchorDate + amountOut / debtToCalcDepletion * 31536000000 : refDbrAnchorDate;
+                                    const newExpiryDate = getDepletionDate(newExpiryTimestamp, now);
+                                    return <VStack w='full' justify="space-between" spacing="1" alignItems="flex-start">
+                                        <Stack direction={{ base: 'column', sm: 'row' }} spacing="1" w='full' justify="space-between">
+                                            <Text color="mainTextColorLight">Estimated amount to receive:</Text>
+                                            {
+                                                zapResponseData?.isLoading ? <SmallTextLoader pt="10px" width={'90px'} /> : <Text fontWeight="bold">
+                                                    {`~${preciseCommify(amountOut, 0)} ${targetAsset.symbol}`}
+                                                    {price ? ` (${smartShortNumber(amountOut * price, 2, true)})` : ''}
+                                                </Text>
+                                            }
+                                        </Stack>
                                         {
-                                            zapResponseData?.isLoading ? <SmallTextLoader pt="10px" width={'90px'} /> : <Text fontWeight="bold">
-                                                {`~${preciseCommify(amountOut, 0)} ${targetAsset.symbol}`}
-                                                {price ? ` (${smartShortNumber(amountOut * price, 2, true)})` : ''}
-                                            </Text>
+                                            debt > 0 ? <VStack w='full' justify="flex-start" spacing="1" alignItems="flex-start" direction={{ base: 'column', sm: 'row' }}>
+                                                <Stack direction={{ base: 'column', sm: 'row' }} justify="space-between" w='full' spacing="1">
+                                                    <Text color="mainTextColorLight">Current depletion date:</Text>
+                                                    {
+                                                        <Text fontWeight="bold">
+                                                            {refDbrAnchorDate ? `${getDepletionDate(refDbrAnchorDate, now)} (${fromNow(refDbrAnchorDate)})` : '-'}
+                                                        </Text>
+                                                    }
+                                                </Stack>
+                                                <Stack direction={{ base: 'column', sm: 'row' }} spacing="1" justify="space-between" w='full'>
+                                                    <Text color="mainTextColorLight">New DBR estimated depletion date:</Text>
+                                                    {
+                                                        zapResponseData?.isLoading ? <SmallTextLoader pt="10px" width={'90px'} /> : <Text fontWeight="bold">
+                                                            {newExpiryDate} ({fromNow(newExpiryTimestamp)})
+                                                        </Text>
+                                                    }
+                                                </Stack>
+                                            </VStack> :
+                                                !!_debtToCover ? <Stack direction={{ base: 'column', sm: 'row' }} spacing="1" justify="space-between" w='full'>
+                                                    <Text color="mainTextColorLight">DBR estimated depletion date:</Text>
+                                                    {
+                                                        zapResponseData?.isLoading ? <SmallTextLoader pt="10px" width={'90px'} /> : <Text fontWeight="bold">
+                                                            {newExpiryDate} ({fromNow(newExpiryTimestamp)})
+                                                        </Text>
+                                                    }
+                                                </Stack> : null
                                         }
-                                    </Stack>
-                                    {
-                                        debt > 0 ? <VStack w='full' justify="flex-start" spacing="1" alignItems="flex-start" direction={{ base: 'column', sm: 'row' }}>
-                                            <Stack direction={{ base: 'column', sm: 'row' }} justify="space-between" w='full' spacing="1">
-                                                <Text color="mainTextColorLight">Current depletion date:</Text>
-                                                {
-                                                    <Text fontWeight="bold">
-                                                        {refDbrAnchorDate ? `${getDepletionDate(refDbrAnchorDate, now)} (${fromNow(refDbrAnchorDate)})` : '-'}
-                                                    </Text>
-                                                }
-                                            </Stack>
-                                            <Stack direction={{ base: 'column', sm: 'row' }} spacing="1" justify="space-between" w='full'>
-                                                <Text color="mainTextColorLight">New DBR estimated depletion date:</Text>
-                                                {
-                                                    zapResponseData?.isLoading ? <SmallTextLoader pt="10px" width={'90px'} /> : <Text fontWeight="bold">
-                                                        {newExpiryDate} ({fromNow(newExpiryTimestamp)})
-                                                    </Text>
-                                                }
-                                            </Stack>
-                                        </VStack> :
-                                            !!_debtToCover ? <Stack direction={{ base: 'column', sm: 'row' }} spacing="1" justify="space-between" w='full'>
-                                                <Text color="mainTextColorLight">DBR estimated depletion date:</Text>
-                                                {
-                                                    zapResponseData?.isLoading ? <SmallTextLoader pt="10px" width={'90px'} /> : <Text fontWeight="bold">
-                                                        {newExpiryDate} ({fromNow(newExpiryTimestamp)})
-                                                    </Text>
-                                                }
-                                            </Stack> : null
-                                    }
-                                </VStack>
+                                    </VStack>
+                                }
                             }
-                        }
-                        fromText={"Asset to sell to Buy DBR with"}
-                        fromTextProps={{
-                            fontSize: '18px',
-                            fontWeight: 'bold',
-                        }}
-                    />
+                            fromText={"Asset to sell to Buy DBR with"}
+                            fromTextProps={{
+                                fontSize: '18px',
+                                fontWeight: 'bold',
+                            }}
+                        />
+                    }
                 </Stack>
                 <InfoMessage alertProps={{ w: 'full', fontSize: '14px', mt: 4 }} title="Buying in size?" description={
                     <VStack spacing="0" w='full' alignItems="flex-start">
