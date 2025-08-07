@@ -417,6 +417,7 @@ export const F2Context = ({
             newCreditLeft,
             sDolaExRate,
             bestProxyName,
+            totalDebt: currentTotalDebt,
             setBestProxyName,
         }}
         {...props}

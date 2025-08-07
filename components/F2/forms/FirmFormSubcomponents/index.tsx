@@ -15,6 +15,7 @@ import { formatUnits } from "@ethersproject/units"
 import { BigNumber } from "ethers"
 import { isAddress } from "ethers/lib/utils"
 import { useState } from "react"
+import { DbrBuyerTrigger } from "../../DbrEasyBuyer.tsx/DbrEasyBuyer"
 
 export const FirmRepayInputSubline = ({
     isDeleverageCase,
@@ -157,6 +158,7 @@ const ExtendMarketLoanContent = ({
     onClose,
     dbrDurationInputs,
     debt,
+    totalDebt,
     duration,
     market,
     deposits,
@@ -167,6 +169,7 @@ const ExtendMarketLoanContent = ({
     onClose: () => void
     dbrDurationInputs: React.ReactNode
     debt: number
+    totalDebt: number
     duration: number
     market: F2Market
     deposits: number
@@ -187,6 +190,7 @@ const ExtendMarketLoanContent = ({
     const isOkDisabled = newPerc < percAcceptableDistance;
     const maxBorrowLimit = 100 - percAcceptableDistance;
     const effectiveSwapPrice = dbrApproxData.dbrNeededNum ? dbrApproxData.dolaForDbrNum / dbrApproxData.dbrNeededNum * (dolaPriceUsd || 1) : 0;
+    const hasDebtInOtherMarkets = totalDebt > (debt+1);
     return <ConfirmModal
         title={`Extend market loan by auto-buying the right amount of DBR`}
         onClose={onClose}
@@ -247,6 +251,9 @@ const ExtendMarketLoanContent = ({
                 </HStack>
             </SimpleGrid>
             {
+                hasDebtInOtherMarkets && <InfoMessage alertProps={{ w: 'full', fontSize: '14px' }} description={<Text><b>Note</b>: You also have debt in other markets, in that case we recommend to buy DBR on DEXes or buy using the <b style={{ display: 'inline-block', textDecoration: 'underline', cursor: 'pointer' }}><DbrBuyerTrigger><p>global calculator</p></DbrBuyerTrigger></b> instead of auto-buying on this market.</Text>} />
+            }
+            {
                 isOkDisabled && <WarningMessage alertProps={{ w: 'full', fontSize: '14px' }} description={`The borrow limit should be under ${maxBorrowLimit}%, please consider extending for a shorter duration.`} />
             }
         </VStack>
@@ -257,6 +264,7 @@ export const FirmExtendMarketLoanButton = ({
     handleExtendMarketLoan,
     dbrDurationInputs,
     debt,
+    totalDebt,
     duration,
     market,
     deposits,
@@ -266,6 +274,7 @@ export const FirmExtendMarketLoanButton = ({
     handleExtendMarketLoan: () => void
     dbrDurationInputs: React.ReactNode
     debt: number
+    totalDebt: number
     duration: number
     market: F2Market
     deposits: number
@@ -276,10 +285,10 @@ export const FirmExtendMarketLoanButton = ({
 
     return <Box boxShadow="0px 0px 1px 0px #ccccccaa" bg="primary.400" zIndex="1" borderRadius="10px" px="3" py="1" right="0" top="-14px" margin="auto" position="absolute" w='fit-content' display='flex' alignItems='center'>
         <Text display="flex" alignItems="center" fontSize="14px" cursor="pointer" mb='0' onClick={onOpen}>
-            Extend market loan <RepeatClockIcon fontSize="14px" ml="1" />
+            Extend market loan by auto-buying DBR <RepeatClockIcon fontSize="14px" ml="1" />
         </Text>
         {
-            isOpen && <ExtendMarketLoanContent dbrBuySlippage={dbrBuySlippage} dolaPriceUsd={dolaPriceUsd} handleExtendMarketLoan={handleExtendMarketLoan} onClose={onClose} dbrDurationInputs={dbrDurationInputs} debt={debt} duration={duration} market={market} deposits={deposits} />
+            isOpen && <ExtendMarketLoanContent dbrBuySlippage={dbrBuySlippage} dolaPriceUsd={dolaPriceUsd} handleExtendMarketLoan={handleExtendMarketLoan} onClose={onClose} dbrDurationInputs={dbrDurationInputs} debt={debt} totalDebt={totalDebt} duration={duration} market={market} deposits={deposits} />
         }
     </Box>
 }

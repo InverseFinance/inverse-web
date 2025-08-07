@@ -139,6 +139,7 @@ export const F2CombinedForm = ({
         sDolaExRate,
         hasDustIssue,
         setBestProxyName,
+        totalDebt,
     } = useContext(F2MarketContext);
 
     const { isMultisig, isWhitelisted } = useMultisig(market.borrowController);
@@ -752,7 +753,7 @@ export const F2CombinedForm = ({
             p="0"
         >
             {
-                (debt > 0) && <FirmExtendMarketLoanButton dbrDurationInputs={dbrDurationInputs} duration={duration} handleExtendMarketLoan={handleExtendMarketLoan} debt={debt} deposits={deposits} market={market} dolaPriceUsd={dolaPrice} dbrBuySlippage={dbrBuySlippage} />
+                (debt > 0) && <FirmExtendMarketLoanButton dbrDurationInputs={dbrDurationInputs} duration={duration} handleExtendMarketLoan={handleExtendMarketLoan} debt={debt} totalDebt={totalDebt} deposits={deposits} market={market} dolaPriceUsd={dolaPrice} dbrBuySlippage={dbrBuySlippage} />
             }
             <VStack position="relative" w='full' px='2%' py="2" alignItems="center" justify="space-between" spacing="2">
                 <F2FormInfos
