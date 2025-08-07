@@ -5,7 +5,7 @@ import { useAccount } from "@app/hooks/misc";
 import { useAccountDBR, useDBRPrice, useTriCryptoSwap } from "@app/hooks/useDBR";
 import EnsoZap from "@app/components/ThirdParties/enso/EnsoZap";
 import { useSavingsOpportunities } from "@app/components/sDola/SavingsOpportunities";
-import { DBR_ADDRESS } from "@app/config/constants";
+import { BUY_LINKS, DBR_ADDRESS } from "@app/config/constants";
 import SimpleModal from "@app/components/common/Modal/SimpleModal";
 import { preciseCommify } from "@app/util/misc";
 import { getBnToNumber, shortenNumber, smartShortNumber } from "@app/util/markets";
@@ -77,6 +77,7 @@ export const DbrEasyBuyerModal = ({
     const [debtToCover, setDebtToCover] = useState('');
     const [isInited, setIsInited] = useState(false);
     const [now, setNow] = useState(Date.now());
+    const [refreshIndex, setRefreshIndex] = useState(0);
 
     const _debtToCover = parseFloat(debtToCover || '0') || 0;
 
@@ -87,10 +88,10 @@ export const DbrEasyBuyerModal = ({
     const dbrUsdCostWithSlippage = dbrNeeded * effectiveSwapPrice;
 
     useEffect(() => {
-        if (isInited || isLoadingAccountDBR || isLoadingStables) return;
+        if (isInited || isLoadingAccountDBR || isLoadingStables || !dbrPriceUsd) return;
         setIsInited(true);
         setDebtToCover(debt.toFixed(0));
-    }, [isInited, debt, isLoadingAccountDBR, isLoadingStables]);
+    }, [isInited, debt, isLoadingAccountDBR, isLoadingStables, dbrPriceUsd]);
 
     const debtToCalcDepletion = debt > 0 ? debt : _debtToCover;
 
@@ -157,14 +158,14 @@ export const DbrEasyBuyerModal = ({
                 } />
                 <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between" spacing="4">
                     <Container w='full' label="" noPadding m="0" p="0">
-                        <VStack h={{ base: 'auto', lg: '318px' }} w='full' justify="flex-start" spacing="1" alignItems="flex-start">
+                        <VStack h={{ base: 'auto', lg: '318px' }} w='full' justify="space-between" spacing="1" alignItems="flex-start">
                             {dbrDurationInputs}
                             <InfoMessage
                                 alertProps={{ w: 'full', fontSize: '14px' }}
                                 description={
                                     <VStack spacing="0" w='full' alignItems="flex-start">
                                         <Text>
-                                            Amount needed to cover the debt and duration: {dbrNeeded > 0 ? <b>{preciseCommify(dbrNeeded, 0)} DBR (~{shortenNumber(dbrUsdCost, 2, true)})</b> : '-'}
+                                            Amount needed to cover the debt and duration: {dbrNeeded > 0 ? <b style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => setRefreshIndex(refreshIndex + 1)}>{preciseCommify(dbrNeeded, 0)} DBR (~{shortenNumber(dbrUsdCostWithSlippage, 2, true)})</b> : '-'}
                                         </Text>
                                         <Text>
                                             Note: You might need to adjust the estimated sell amount to account for price slippage
@@ -179,16 +180,17 @@ export const DbrEasyBuyerModal = ({
                             <SkeletonBlob w='full' h={{ base: 'auto', lg: '318px' }} />
                         </Container> : <EnsoZap
                             containerProps={{ h: { base: 'auto', lg: '350px' } }}
+                            retriggerUsdConversionKey={`dbr-${duration}-${debtToCover}-${refreshIndex}`}
                             defaultTokenIn={topStable?.token?.address}
                             defaultTokenOut={DBR_ADDRESS}
-                            defaultAmountIn={dbrUsdCostWithSlippage?.toFixed(0) || ''}
+                            defaultAmountInUSD={dbrUsdCostWithSlippage ? Math.ceil(dbrUsdCostWithSlippage) : undefined}
                             defaultTargetChainId={'1'}
                             ensoPools={[{ poolAddress: DBR_ADDRESS, chainId: 1 }]}
                             introMessage={''}
                             isSingleChoice={true}
                             targetAssetPrice={dbrPriceUsd}
                             isInModal={true}
-                            onlyFromStables={true}
+                            autoConvertAmountWhenTokenChanges={true}
                             resultFormatter={
                                 (targetAsset: Token, zapResponseData: { amountOut: number }, price: number) => {
                                     if ((!duration || !_debtToCover) && !zapResponseData?.amountOut) return <></>;
@@ -246,12 +248,25 @@ export const DbrEasyBuyerModal = ({
                         />
                     }
                 </Stack>
-                <InfoMessage alertProps={{ w: 'full', fontSize: '14px', mt: 4 }} title="Buying in size?" description={
+                <InfoMessage alertProps={{ w: 'full', fontSize: '14px', mt: 4 }} title="Other ways to buy DBR:" description={
                     <VStack spacing="0" w='full' alignItems="flex-start">
                         <Text>
-                            For large DBR purchases we recommend to use <Link textDecoration="underline" href="https://swap.cow.fi/#/1/advanced/0x865377367054516e17014CcdED1e7d814EDC9ce4/0xAD038Eb671c44b853887A7E32528FaB35dC5D710?tab=all&page=1" isExternal target="_blank">
+                            - In most cases you can use the <Link textDecoration="underline" href={BUY_LINKS.DBR} isExternal target="_blank">
+                                Defillama aggregator <ExternalLinkIcon />
+                            </Link>
+                        </Text>
+                        <Text>
+                            - For larger DBR purchases we recommend to use <Link textDecoration="underline" href="https://swap.cow.fi/#/1/advanced/0x865377367054516e17014CcdED1e7d814EDC9ce4/0xAD038Eb671c44b853887A7E32528FaB35dC5D710?tab=all&page=1" isExternal target="_blank">
                                 CoW Swap TWAP <ExternalLinkIcon />
                             </Link>
+                        </Text>
+                        {/* <Text>
+                            - For smaller DBR purchases you might get a better price by selling DOLA with the <Link textDecoration="underline" href={'/dbr/auction'} isExternal target="_blank">
+                                DBR auctions
+                            </Link>
+                        </Text> */}
+                        <Text>
+                            - If you prefer to not sell an asset to buy DBR, you can also use the <b>auto-buy</b> or <b>extend</b> features on the market pages (adds the cost as debt).
                         </Text>
                     </VStack>
                 } />

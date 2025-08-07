@@ -26,7 +26,7 @@ import Link from "@app/components/common/Link";
 import { usePricesDefillama, usePricesV2 } from "@app/hooks/usePrices";
 import { SDOLA_ADDRESS } from "@app/config/constants";
 import { stakeDola } from "@app/util/dola-staking";
-import { shortenNumber } from "@app/util/markets";
+import { shortenNumber, smartAutoNumber } from "@app/util/markets";
 import { ETH_SAVINGS_STABLECOINS, STABLE_SYMBOLS_LOWER } from "@app/variables/stables";
 const zapOptions = [...new Set(ZAP_TOKENS_ARRAY.map(t => t.address))];
 
@@ -55,6 +55,9 @@ function EnsoZap({
     fromTextProps = defaultFromTextProps,
     onlyFromStables = false,
     defaultAmountIn = '',
+    defaultAmountInUSD,
+    retriggerUsdConversionKey,
+    autoConvertAmountWhenTokenChanges = false,
     resultFormatter,
     containerProps,
 }: {
@@ -71,7 +74,10 @@ function EnsoZap({
     fromText?: string | null
     fromTextProps?: any
     onlyFromStables?: boolean
+    autoConvertAmountWhenTokenChanges?: boolean
     defaultAmountIn?: string
+    retriggerUsdConversionKey?: string
+    defaultAmountInUSD?: number
     resultFormatter?: (amountOut: string, price: number) => React.ReactNode
     containerProps?: any
 }) {
@@ -80,6 +86,7 @@ function EnsoZap({
 
     const [isConnected, setIsConnected] = useState(true);
     const [isInited, setIsInited] = useState(false);
+    const [isInitialUsdConversionDone, setIsInitialUsdConversionDone] = useState(false);
     const [slippage, setSlippage] = useState('0.1');
     const [refreshIndex, setRefreshIndex] = useState(0);
     const [lastChainId, setLastChainId] = useState(chainId);
@@ -165,6 +172,22 @@ function EnsoZap({
                 return { ...prev, [ad]: { ...curr, address: ad.replace(EthXe, '') } }
             }, {});
     }, [ZAP_TOKENS_ARRAY, chainId, balances])
+
+    useEffect(() => {
+        if (!!retriggerUsdConversionKey) {
+            setIsInitialUsdConversionDone(false);
+            setAmountIn('');
+        }
+    }, [retriggerUsdConversionKey]);
+
+    useEffect(() => {
+        if (!isInitialUsdConversionDone && !!defaultAmountInUSD && !amountIn && !!tokenInObj?.address && !!combinedPrices[tokenInObj.address]) {
+            const tokenInPrice = combinedPrices[tokenInObj.address];
+            const amountIn = defaultAmountInUSD / tokenInPrice;
+            setAmountIn(smartAutoNumber(amountIn, tokenInPrice, 6));
+            setIsInitialUsdConversionDone(true);
+        }
+    }, [isInitialUsdConversionDone, defaultAmountInUSD, amountIn, tokenInObj, combinedPrices]);
 
     const fromAssetInputProps = { tokens: fromOptionsWithBalance, balances, prices: combinedPrices, showBalance: true, dropdownSelectedProps: { whiteSpace: 'nowrap', w: 'fit-content' }, inputProps: { minW: '200px' } }
 
@@ -277,7 +300,14 @@ function EnsoZap({
                         token={tokenInObj}
                         assetOptions={zapOptions}
                         onAssetChange={(newToken) => {
-                            changeAmount('');
+                            if(autoConvertAmountWhenTokenChanges && !!amountIn && !!combinedPrices[newToken.address] && !!combinedPrices[tokenInObj.address]) {
+                                const tokenInPrice = combinedPrices[newToken.address];
+                                const amountInNewSelectedToken = parseFloat(amountIn) * combinedPrices[tokenInObj.address]  / tokenInPrice;
+                                changeAmount(smartAutoNumber(amountInNewSelectedToken, tokenInPrice, 6));
+                                setTokenIn(newToken.address);
+                            } else {
+                                changeAmount('');
+                            }
                             changeTokenIn(newToken);
                         }}
                         onAmountChange={(newAmount) => changeAmount(newAmount)}
