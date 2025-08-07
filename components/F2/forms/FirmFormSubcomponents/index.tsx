@@ -7,15 +7,17 @@ import { AnimatedInfoTooltip } from "@app/components/common/Tooltip"
 import { BURN_ADDRESS } from "@app/config/constants"
 import { useDBRNeeded } from "@app/hooks/useDBR"
 import { F2Market } from "@app/types"
-import { f2CalcNewHealth } from "@app/util/f2"
+import { f2CalcNewHealth, getDepletionDate } from "@app/util/f2"
 import { getBnToNumber, shortenNumber } from "@app/util/markets"
 import { ChevronDownIcon, ChevronRightIcon, RepeatClockIcon } from "@chakra-ui/icons"
 import { Flex, FormControl, FormLabel, HStack, Switch, Text, VStack, Image, Stack, useDisclosure, Divider, Box, SimpleGrid } from "@chakra-ui/react"
 import { formatUnits } from "@ethersproject/units"
 import { BigNumber } from "ethers"
 import { isAddress } from "ethers/lib/utils"
-import { useState } from "react"
+import { useContext, useState } from "react"
 import { DbrBuyerTrigger } from "../../DbrEasyBuyer.tsx/DbrEasyBuyer"
+import { F2MarketContext } from "../../F2Contex"
+import { fromNow } from "@app/util/time"
 
 export const FirmRepayInputSubline = ({
     isDeleverageCase,
@@ -176,6 +178,8 @@ const ExtendMarketLoanContent = ({
     dolaPriceUsd: number
     dbrBuySlippage: number | string
 }) => {
+    const { dbrBalance, dbrExpiryDate } = useContext(F2MarketContext);
+    const [now, setNow] = useState(Date.now());
     const dbrApproxData = useDBRNeeded(debt.toFixed(0), duration, undefined, dbrBuySlippage);
     const {
         newPerc,
@@ -190,7 +194,8 @@ const ExtendMarketLoanContent = ({
     const isOkDisabled = newPerc < percAcceptableDistance;
     const maxBorrowLimit = 100 - percAcceptableDistance;
     const effectiveSwapPrice = dbrApproxData.dbrNeededNum ? dbrApproxData.dolaForDbrNum / dbrApproxData.dbrNeededNum * (dolaPriceUsd || 1) : 0;
-    const hasDebtInOtherMarkets = totalDebt > (debt+1);
+    const hasDebtInOtherMarkets = totalDebt > (debt + 1);
+    const newExpiryTimestamp = now + (dbrBalance + (dbrApproxData?.dbrNeededNum || 0)) / (totalDebt + (dbrApproxData?.dolaForDbrNum || 0)) * 31536000000;
     return <ConfirmModal
         title={`Extend market loan by auto-buying the right amount of DBR`}
         onClose={onClose}
@@ -219,10 +224,10 @@ const ExtendMarketLoanContent = ({
             <SimpleGrid columns={{ base: 1, md: 2 }} spacingX={{ base: 0, md: 8 }} w='full' alignItems="flex-start">
                 <HStack w='full' justify="space-between">
                     <Text color="mainTextColorLight">
-                        Min. to receive:
+                        Est. DBR to receive:
                     </Text>
                     <Text>
-                        {shortenNumber(dbrApproxData.minDbrNum, 2)} DBR
+                        {shortenNumber(dbrApproxData.dbrNeededNum, 2)} DBR
                     </Text>
                 </HStack>
                 <HStack w='full' justify="space-between">
@@ -249,6 +254,25 @@ const ExtendMarketLoanContent = ({
                         {shortenNumber(100 - newPerc, 2)}%
                     </Text>
                 </HStack>
+            </SimpleGrid>
+            <Divider />
+            <SimpleGrid columns={{ base: 1, md: 2 }} spacingX={{ base: 0, md: 8 }} w='full' alignItems="flex-start">
+                <VStack spacing="0" w='full' justify="space-between" alignItems="flex-start">
+                    <Text color="mainTextColorLight">
+                        Current depletion date:
+                    </Text>
+                    <Text>
+                        {dbrExpiryDate ? `${getDepletionDate(dbrExpiryDate, now)} (${fromNow(dbrExpiryDate)})` : '-'}
+                    </Text>
+                </VStack>
+                <VStack spacing="0" w='full' justify="space-between" alignItems="flex-start">
+                    <Text color="mainTextColorLight">
+                        New estimated depletion date:
+                    </Text>
+                    <Text>
+                        {newExpiryTimestamp ? `${getDepletionDate(newExpiryTimestamp, now)} (${fromNow(newExpiryTimestamp)})` : '-'}
+                    </Text>
+                </VStack>
             </SimpleGrid>
             {
                 hasDebtInOtherMarkets && <InfoMessage alertProps={{ w: 'full', fontSize: '14px' }} description={<Text><b>Note</b>: You also have debt in other markets, in that case we recommend to buy DBR on DEXes or buy using the <b style={{ display: 'inline-block', textDecoration: 'underline', cursor: 'pointer' }}><DbrBuyerTrigger><p>global calculator</p></DbrBuyerTrigger></b> instead of auto-buying on this market.</Text>} />
