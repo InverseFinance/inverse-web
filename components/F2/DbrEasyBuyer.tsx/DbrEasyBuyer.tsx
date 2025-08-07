@@ -158,7 +158,7 @@ export const DbrEasyBuyerModal = ({
                 } />
                 <Stack direction={{ base: 'column', lg: 'row' }} w='full' justify="space-between" spacing="4">
                     <Container w='full' label="" noPadding m="0" p="0">
-                        <VStack h={{ base: 'auto', lg: '318px' }} w='full' justify="space-between" spacing="1" alignItems="flex-start">
+                        <VStack h={{ base: 'auto', lg: '338px' }} w='full' justify="space-between" spacing="1" alignItems="flex-start">
                             {dbrDurationInputs}
                             <InfoMessage
                                 alertProps={{ w: 'full', fontSize: '14px' }}
@@ -177,9 +177,9 @@ export const DbrEasyBuyerModal = ({
                     </Container>
                     {
                         !isInited ? <Container w='full' label="" noPadding m="0" p="0">
-                            <SkeletonBlob w='full' h={{ base: 'auto', lg: '318px' }} />
+                            <SkeletonBlob w='full' h={{ base: 'auto', lg: '338px' }} />
                         </Container> : <EnsoZap
-                            containerProps={{ h: { base: 'auto', lg: '350px' } }}
+                            containerProps={{ h: { base: 'auto', lg: '370px' } }}
                             retriggerUsdConversionKey={`dbr-${duration}-${debtToCover}-${refreshIndex}`}
                             defaultTokenIn={topStable?.token?.address}
                             defaultTokenOut={DBR_ADDRESS}
@@ -192,25 +192,34 @@ export const DbrEasyBuyerModal = ({
                             isInModal={true}
                             autoConvertAmountWhenTokenChanges={true}
                             resultFormatter={
-                                (targetAsset: Token, zapResponseData: { amountOut: number }, price: number) => {
+                                (targetAsset: Token, inputAsset: Token, zapResponseData: { amountOut: number }, targetAssetPrice: number, inputAssetPrice: number, amountIn: string) => {
                                     if ((!duration || !_debtToCover) && !zapResponseData?.amountOut) return <></>;
                                     if (dbrUsdCost < 1 && !zapResponseData?.amountOut) return <InfoMessage alertProps={{ w: 'full', fontSize: '14px' }} description="Trade size too small, at least $1 worth of DBR should be bought" />
                                     const amountOut = zapResponseData?.amountOut ? getBnToNumber(parseUnits(zapResponseData?.amountOut, 0), targetAsset.decimals) : 0;
                                     const refDbrAnchorDate = dbrExpiryDate ? dbrExpiryDate : now;
                                     const newExpiryTimestamp = debtToCalcDepletion ? refDbrAnchorDate + amountOut / debtToCalcDepletion * 31536000000 : refDbrAnchorDate;
                                     const newExpiryDate = getDepletionDate(newExpiryTimestamp, now);
-                                    return <VStack w='full' justify="space-between" spacing="1" alignItems="flex-start">
+                                    const effectiveZapPrice = amountOut ? inputAssetPrice * parseFloat(amountIn||'0') / amountOut : 0;
+                                    return <VStack w='full' justify="space-between" spacing="0" alignItems="flex-start">
                                         <Stack direction={{ base: 'column', sm: 'row' }} spacing="1" w='full' justify="space-between">
                                             <Text color="mainTextColorLight">Estimated amount to receive:</Text>
                                             {
                                                 zapResponseData?.isLoading ? <SmallTextLoader pt="10px" width={'90px'} /> : <Text fontWeight="bold">
                                                     {`~${preciseCommify(amountOut, 0)} ${targetAsset.symbol}`}
-                                                    {price ? ` (${smartShortNumber(amountOut * price, 2, true)})` : ''}
+                                                    {targetAssetPrice ? ` (${smartShortNumber(amountOut * targetAssetPrice, 2, true)})` : ''}
+                                                </Text>
+                                            }
+                                        </Stack>
+                                        <Stack direction={{ base: 'column', sm: 'row' }} spacing="1" w='full' justify="space-between">
+                                            <Text color="mainTextColorLight">Effective DBR swap price:</Text>
+                                            {
+                                                zapResponseData?.isLoading ? <SmallTextLoader pt="10px" width={'90px'} /> : <Text fontWeight="bold">
+                                                    {effectiveZapPrice ? `~${smartShortNumber(effectiveZapPrice, 6, true)}` : 'unknown'}
                                                 </Text>
                                             }
                                         </Stack>
                                         {
-                                            debt > 0 ? <VStack w='full' justify="flex-start" spacing="1" alignItems="flex-start" direction={{ base: 'column', sm: 'row' }}>
+                                            debt > 0 ? <VStack w='full' justify="flex-start" spacing="0" alignItems="flex-start" direction={{ base: 'column', sm: 'row' }}>
                                                 <Stack direction={{ base: 'column', sm: 'row' }} justify="space-between" w='full' spacing="1">
                                                     <Text color="mainTextColorLight">Current depletion date:</Text>
                                                     {

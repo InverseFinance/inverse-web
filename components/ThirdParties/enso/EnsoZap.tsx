@@ -419,7 +419,7 @@ function EnsoZap({
                     }
 
                     {
-                        !!resultFormatter ? resultFormatter(tokenOutObj, zapResponseData, targetAssetPrice) : isDolaStakingFromDola && exRate > 0 ? <Text>Result: ~ {1/exRate * parseFloat(amountIn||'0')} sDOLA ({shortenNumber(targetAssetPrice * 1/exRate * parseFloat(amountIn||'0'), 2, true)})</Text> : !zapResponseData?.error && zapResponseData?.route && <EnsoRouting
+                        !!resultFormatter ? resultFormatter(tokenOutObj, tokenInObj, zapResponseData, targetAssetPrice, combinedPrices[tokenInObj.address], amountIn) : isDolaStakingFromDola && exRate > 0 ? <Text>Result: ~ {1/exRate * parseFloat(amountIn||'0')} sDOLA ({shortenNumber(targetAssetPrice * 1/exRate * parseFloat(amountIn||'0'), 2, true)})</Text> : !zapResponseData?.error && zapResponseData?.route && <EnsoRouting
                             onlyShowResult={isDolaStakingFromDola}
                             chainId={chainId?.toString()}
                             targetChainId={targetChainId?.toString()}
