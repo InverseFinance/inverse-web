@@ -214,7 +214,7 @@ export const DbrEasyBuyerModal = ({
                                             <Text color="mainTextColorLight">Effective DBR swap price:</Text>
                                             {
                                                 zapResponseData?.isLoading ? <SmallTextLoader pt="10px" width={'90px'} /> : <Text fontWeight="bold">
-                                                    {effectiveZapPrice ? `~${smartShortNumber(effectiveZapPrice, 6, true)}` : 'unknown'}
+                                                    {effectiveZapPrice ? `~${smartShortNumber(effectiveZapPrice, 6, true)}` : amountOut ? 'unknown' : '-'}
                                                 </Text>
                                             }
                                         </Stack>
