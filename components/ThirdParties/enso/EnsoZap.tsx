@@ -60,6 +60,7 @@ function EnsoZap({
     autoConvertAmountWhenTokenChanges = false,
     resultFormatter,
     containerProps,
+    slippageDefault = '0.1',
 }: {
     defaultTokenIn?: string
     defaultTokenOut: string
@@ -77,6 +78,7 @@ function EnsoZap({
     autoConvertAmountWhenTokenChanges?: boolean
     defaultAmountIn?: string
     retriggerUsdConversionKey?: string
+    slippageDefault?: string
     defaultAmountInUSD?: number
     resultFormatter?: (amountOut: string, price: number) => React.ReactNode
     containerProps?: any
@@ -87,7 +89,7 @@ function EnsoZap({
     const [isConnected, setIsConnected] = useState(true);
     const [isInited, setIsInited] = useState(false);
     const [isInitialUsdConversionDone, setIsInitialUsdConversionDone] = useState(false);
-    const [slippage, setSlippage] = useState('0.1');
+    const [slippage, setSlippage] = useState(slippageDefault);
     const [refreshIndex, setRefreshIndex] = useState(0);
     const [lastChainId, setLastChainId] = useState(chainId);
 

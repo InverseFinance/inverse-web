@@ -191,6 +191,7 @@ export const DbrEasyBuyerModal = ({
                             targetAssetPrice={dbrPriceUsd}
                             isInModal={true}
                             autoConvertAmountWhenTokenChanges={true}
+                            slippageDefault="0.3"
                             resultFormatter={
                                 (targetAsset: Token, inputAsset: Token, zapResponseData: { amountOut: number }, targetAssetPrice: number, inputAssetPrice: number, amountIn: string) => {
                                     if ((!duration || !_debtToCover) && !zapResponseData?.amountOut) return <></>;
