@@ -11,7 +11,7 @@ import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import { F2CombinedForm } from '@app/components/F2/forms/F2CombinedForm'
 import { FirmFAQ } from '@app/components/F2/Infos/FirmFAQ'
 import { MarketBar } from '@app/components/F2/Infos/InfoBar'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { F2Context } from '@app/components/F2/F2Contex'
 import { useRouter } from 'next/router'
 import { ArrowBackIcon } from '@chakra-ui/icons'
@@ -65,13 +65,21 @@ const StatTable = ({
 
 export const F2MarketPage = ({ market }: { market: string }) => {
     const router = useRouter();
+    const [inited, setInited] = useState(false);
+
+    useEffect(() => {
+        if(!inited) {
+            setInited(true);
+        }
+    }, [inited]);
+
     const { time: _time, deposits: _deposits, layout: _layout } = router.query;
 
     const layout = ['yield', 'long', 'auto'].includes(_layout) ? _layout : 'auto';
     const time = ['monthly', 'yearly'].includes(_time) ? _time : DEFAULT_TIME;
     const deposits = _deposits && /^\d+$/.test(_deposits) ? Number(_deposits) : DEFAULT_DEPOSITS;
 
-    const { firmTvls, isLoading: isLoadingTvl } = useFirmTVL();
+    const { firmTvls } = useFirmTVL();
     const { markets } = useDBRMarkets(market);
     const { priceUsd } = useDBRPrice();
 
@@ -172,80 +180,78 @@ export const F2MarketPage = ({ market }: { market: string }) => {
         },
     ]);
 
-    if(!f2market?.underlying) {
-        return null;
-    }
-
     return (
         <Layout hideFooter={true} bgColor="black" bg="black">
             <Head>
                 <title>Inverse Finance - FiRM {f2market?.name}</title>
                 <meta name="og:description" content="FiRM is Inverse Finance's Fixed Rate Market, borrow DOLA with the DOLA Borrowing Right token DBR. Rethink the way you borrow!" />
                 <meta name="description" content="FiRM is Inverse Finance's Fixed Rate Market, borrow DOLA with the DOLA Borrowing Right token DBR. Rethink the way you borrow!" />
-                <meta name="og:image" content={useDefaultPreview.includes(market) ? "https://inverse.finance/assets/social-previews/inverse-alert-v2.png" : `https://inverse.finance/assets/social-previews/markets/${market}.jpeg`} />
             </Head>
-            <ErrorBoundary description="Error in the market page, please try reloading">
-                <VStack alignItems="flex-start" color="white" spacing={8} w="full" justify="flex-start" maxW="1000px">
-                    <Text color="white" as="h1" fontSize="40px" fontWeight="bold">Accelerated Leveraged Economics</Text>
-                    <HStack w="full" justify="space-between" fontSize="24px">
-                        <HStack w='fit-content' borderWidth="2px" borderColor="gold" bgColor="black" borderRadius="full" px="5" py="3">
-                            <Text whiteSpace="nowrap" color="white" >
-                                Deposit Asset:
-                            </Text>
-                            <Text fontWeight="bold" whiteSpace="nowrap" color="white">{f2market?.name}</Text>
-                            <MarketNameAndIcon marketIcon={f2market?.icon} icon={f2market?.icon} underlying={f2market?.underlying} name={""} lpSize={40} size={40} />
-                        </HStack>
+            {
+                !f2market?.underlying || !inited ? null :
+                    <ErrorBoundary description="Error in the market page, please try reloading">
+                        <VStack alignItems="flex-start" color="white" spacing={8} w="full" justify="flex-start" maxW="1000px">
+                            <Text color="white" as="h1" fontSize="40px" fontWeight="bold">Accelerated Leveraged Economics</Text>
+                            <HStack w="full" justify="space-between" fontSize="24px">
+                                <HStack w='fit-content' borderWidth="2px" borderColor="gold" bgColor="black" borderRadius="full" px="5" py="3">
+                                    <Text whiteSpace="nowrap" color="white" >
+                                        Deposit Asset:
+                                    </Text>
+                                    <Text fontWeight="bold" whiteSpace="nowrap" color="white">{f2market?.name}</Text>
+                                    <MarketNameAndIcon marketIcon={f2market?.icon} icon={f2market?.icon} underlying={f2market?.underlying} name={""} lpSize={40} size={40} />
+                                </HStack>
 
-                        <HStack w='fit-content' borderWidth="2px" borderColor="gold" bgColor="black" borderRadius="full" px="5" py="3">
-                            <Text whiteSpace="nowrap" color="white" >
-                                Borrow Asset:
+                                <HStack w='fit-content' borderWidth="2px" borderColor="gold" bgColor="black" borderRadius="full" px="5" py="3">
+                                    <Text whiteSpace="nowrap" color="white" >
+                                        Borrow Asset:
+                                    </Text>
+                                    <Text fontWeight="bold" whiteSpace="nowrap" color="white">DOLA</Text>
+                                    <Image src="/assets/v2/dola.png" alt="DOLA" w="40px" h="40px" borderRadius="full" />
+                                </HStack>
+                            </HStack>
+                            <HStack alignItems="flex-start" maxW="1000px" spacing={8} fontSize="20px" w="full" justify="space-between">
+                                <StatTable data={leftTable} />
+                                <StatTable data={rightTable} />
+                            </HStack>
+                            <Text color="white" as="h2" fontSize="40px" fontWeight="bold">
+                                {
+                                    hasYield ? 'Strategy Performance' : 'Long Strategy'
+                                }
                             </Text>
-                            <Text fontWeight="bold" whiteSpace="nowrap" color="white">DOLA</Text>
-                            <Image src="/assets/v2/dola.png" alt="DOLA" w="40px" h="40px" borderRadius="full" />
-                        </HStack>
-                    </HStack>
-                    <HStack alignItems="flex-start" maxW="1000px" spacing={8} fontSize="20px" w="full" justify="space-between">
-                        <StatTable data={leftTable} />
-                        <StatTable data={rightTable} />
-                    </HStack>
-                    <Text color="white" as="h2" fontSize="40px" fontWeight="bold">
-                        {
-                            hasYield ? 'Strategy Performance' : 'Long Strategy'
-                        }
-                    </Text>
-                    <HStack w="full" justify="space-between" maxW="1000px" spacing={8}>
-                        {
-                            hasYield && <VStack align="center" minW="200px" minH="100px" borderWidth="2px" borderColor="gold" bgColor="black" borderRadius="20px" px="5" py="3">
-                                <Text color="white" fontSize="20px" fontWeight="bold">Leveraged APY</Text>
-                                <Text color={netApy > 0 ? 'lightgreen' : 'error'} fontSize="34px" fontWeight="extrabold">{shortenNumber(netApy, 2)}%</Text>
-                            </VStack>
-                        }
-                        <VStack minW="200px" minH="100px" borderWidth="2px" borderColor="gold" bgColor="black" borderRadius="20px" px="5" py="3">
-                            <Text color="white" fontSize="20px" fontWeight="bold">
-                                {hasYield ? 'Collateral Multiplier' : 'Leverage Up To'}
+                            <HStack w="full" justify="space-between" maxW="1000px" spacing={8}>
+                                {
+                                    hasYield && <VStack align="center" minW="200px" minH="100px" borderWidth="2px" borderColor="gold" bgColor="black" borderRadius="20px" px="5" py="3">
+                                        <Text color="white" fontSize="20px" fontWeight="bold">Leveraged APY</Text>
+                                        <Text color={netApy > 0 ? 'lightgreen' : 'error'} fontSize="34px" fontWeight="extrabold">{shortenNumber(netApy, 2)}%</Text>
+                                    </VStack>
+                                }
+                                <VStack minW="200px" minH="100px" borderWidth="2px" borderColor="gold" bgColor="black" borderRadius="20px" px="5" py="3">
+                                    <Text color="white" fontSize="20px" fontWeight="bold">
+                                        {hasYield ? 'Collateral Multiplier' : 'Leverage Up To'}
+                                    </Text>
+                                    <Text color="lightgreen" fontSize="34px" fontWeight="extrabold">{shortenNumber(maxLeverage, 2)}x</Text>
+                                </VStack>
+                                {
+                                    hasYield && <VStack minW="200px" minH="100px" borderWidth="2px" borderColor="gold" bgColor="black" borderRadius="20px" px="5" py="3">
+                                        <Text color="white" fontSize="20px" fontWeight="bold">APY Amplification</Text>
+                                        <Text color={netApy > apy ? 'lightgreen' : 'error'} fontSize="34px" fontWeight="extrabold">{shortenNumber(netApy / apy, 2)}x</Text>
+                                    </VStack>
+                                }
+                                {
+                                    f2market?.pointsMultiplier > 0 && <VStack minW="200px" minH="100px" borderWidth="2px" borderColor="gold" bgColor="black" borderRadius="20px" px="5" py="3">
+                                        <Text color="white" fontSize="20px" fontWeight="bold">
+                                            Leveraged Points
+                                        </Text>
+                                        <MarketPointsInfo points={f2market?.pointsMultiplier * maxLeverage} pointsImage={f2market?.pointsImage} textProps={{ fontSize: '34px', fontWeight: 'extrabold', color: 'lightgreen' }} imageProps={{ h: '34px', w: '34px' }} />
+                                    </VStack>
+                                }
+                            </HStack>
+                            <Text color="white" fontSize="16px" fontStyle="italic">
+                                Example is for illustrative purposes only and does not constitute an offer, solicitation, or inducement to any person to acquire any particular asset or enter into any strategy.
                             </Text>
-                            <Text color="lightgreen" fontSize="34px" fontWeight="extrabold">{shortenNumber(maxLeverage, 2)}x</Text>
                         </VStack>
-                        {
-                            hasYield && <VStack minW="200px" minH="100px" borderWidth="2px" borderColor="gold" bgColor="black" borderRadius="20px" px="5" py="3">
-                                <Text color="white" fontSize="20px" fontWeight="bold">APY Amplification</Text>
-                                <Text color={netApy > apy ? 'lightgreen' : 'error'} fontSize="34px" fontWeight="extrabold">{shortenNumber(netApy / apy, 2)}x</Text>
-                            </VStack>
-                        }
-                        {
-                            f2market?.pointsMultiplier > 0 && <VStack minW="200px" minH="100px" borderWidth="2px" borderColor="gold" bgColor="black" borderRadius="20px" px="5" py="3">
-                                <Text color="white" fontSize="20px" fontWeight="bold">
-                                    Leveraged Points
-                                </Text>
-                                <MarketPointsInfo points={f2market?.pointsMultiplier * maxLeverage} pointsImage={f2market?.pointsImage} textProps={{ fontSize: '34px', fontWeight: 'extrabold', color: 'lightgreen' }} imageProps={{ h: '34px', w: '34px' }} />
-                            </VStack>
-                        }
-                    </HStack>
-                    <Text color="white" fontSize="16px" fontStyle="italic">
-                        Example is for illustrative purposes only and does not constitute an offer, solicitation, or inducement to any person to acquire any particular asset or enter into any strategy.
-                    </Text>
-                </VStack>
-            </ErrorBoundary>
+                    </ErrorBoundary>
+            }
         </Layout>
     )
 }
