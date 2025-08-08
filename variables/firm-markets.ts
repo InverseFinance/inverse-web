@@ -254,6 +254,8 @@ export const FIRM_MARKETS = [
         isERC4626Collateral: true,
         startingBlock: 20519771,
         isInv: false,
+        pointsMultiplier: 5,
+        pointsImage: 'https://assets.coingecko.com/coins/images/36530/standard/ethena.png?1711701436',
     },
     {
         name: 'crvUSD-DOLA',
@@ -427,6 +429,8 @@ export const FIRM_MARKETS = [
         isAleWithoutSwap: true,
         convexRewardsAddress: '0xf1d547f657a05A4A081F899070A5585eb9F326b2',
         isInv: false,
+        pointsMultiplier: 15,
+        pointsImage: 'https://assets.coingecko.com/coins/images/36530/standard/ethena.png?1711701436',
     },
     {
         name: 'yv-sUSDe-DOLA',
@@ -575,6 +579,8 @@ export const FIRM_MARKETS = [
         isAleWithoutSwap: true,
         convexRewardsAddress: '0xD30E66cBc869Aa808eB9c81f8Aad8408767E3a3E',
         isInv: false,
+        pointsMultiplier: 10,
+        pointsImage: 'https://cdn.jsdelivr.net/gh/curvefi/curve-assets/platforms/Elixir.png',
     },
     {
         name: 'yv-deUSD-DOLA',
@@ -594,6 +600,8 @@ export const FIRM_MARKETS = [
         underlyingSymbol: 'deUSD-DOLA',
         isAleWithoutSwap: true,
         isInv: false,
+        pointsMultiplier: 10,
+        pointsImage: 'https://cdn.jsdelivr.net/gh/curvefi/curve-assets/platforms/Elixir.png',
     },
     // USR
     {
@@ -613,6 +621,8 @@ export const FIRM_MARKETS = [
         isAleWithoutSwap: true,
         convexRewardsAddress: '0xE694a5e9272ea7ed2DC25f0c6D21640fb8a83166',
         isInv: false,
+        pointsMultiplier: 30,
+        pointsImage: 'https://cdn.jsdelivr.net/gh/curvefi/curve-assets/platforms/resolv.png',
     },
     {
         name: 'yv-USR-DOLA',
@@ -632,6 +642,8 @@ export const FIRM_MARKETS = [
         underlyingSymbol: 'USR-DOLA',
         isAleWithoutSwap: true,
         isInv: false,
+        pointsMultiplier: 30,
+        pointsImage: 'https://cdn.jsdelivr.net/gh/curvefi/curve-assets/platforms/resolv.png',
     },
     {
         name: 'PT-sUSDe-29MAY25',
