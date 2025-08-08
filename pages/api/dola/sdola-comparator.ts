@@ -34,14 +34,17 @@ export const getOnChainData = async (meta: any[]) => {
   const now = Date.now();
   const dayMs = 24 * 60 * 60 * 1000;
 
+  const sevenDayAgoBlock = utcKeyBlockValues[NetworkIds.mainnet][timestampToUTC(now - 7 * dayMs)];
+  const fourteenDayAgoBlock = utcKeyBlockValues[NetworkIds.mainnet][timestampToUTC(now - 14 * dayMs)];
   const thirtyDaysAgoBlock = utcKeyBlockValues[NetworkIds.mainnet][timestampToUTC(now - 30 * dayMs)];
   const sixtyDaysAgoBlock = utcKeyBlockValues[NetworkIds.mainnet][timestampToUTC(now - 60 * dayMs)];
   const ninetyDaysAgoBlock = utcKeyBlockValues[NetworkIds.mainnet][timestampToUTC(now - 90 * dayMs)];
   const oneHundredEightyDaysAgoBlock = utcKeyBlockValues[NetworkIds.mainnet][timestampToUTC(now - 180 * dayMs)];
   const threeHundredSixtyDaysAgoBlock = utcKeyBlockValues[NetworkIds.mainnet][timestampToUTC(now - 365 * dayMs)];
-  const blocks = [currentBlockNumber, previousBlock.number, thirtyDaysAgoBlock, sixtyDaysAgoBlock, ninetyDaysAgoBlock, oneHundredEightyDaysAgoBlock, threeHundredSixtyDaysAgoBlock];
 
-  const [todayRates, previousBlockRates, thirtyDayRates, sixtyDayRates, ninetyDayRates, oneHundredEightyDayRates, threeHundredSixtyDayRates] = await Promise.all(
+  const blocks = [currentBlockNumber, previousBlock.number, sevenDayAgoBlock, fourteenDayAgoBlock, thirtyDaysAgoBlock, sixtyDaysAgoBlock, ninetyDaysAgoBlock, oneHundredEightyDaysAgoBlock, threeHundredSixtyDaysAgoBlock];
+
+  const [todayRates, previousBlockRates, sevenDayRates, fourteenDayRates, thirtyDayRates, sixtyDayRates, ninetyDayRates, oneHundredEightyDayRates, threeHundredSixtyDayRates] = await Promise.all(
     blocks.map(block => getMulticallOutput(
       meta.map(metaItem => ({
         contract: new Contract(metaItem.address, VAULT_ABI_EXTENDED, provider),
@@ -96,6 +99,8 @@ export const getOnChainData = async (meta: any[]) => {
     }
     const todayExRate = getBnToNumber(todayRates[index]);
     const calculatedApy = 100 * (Math.pow(todayExRate / getBnToNumber(previousBlockRates[index]), (365 * ONE_DAY_SECS) / (currentBlockTimestamp - previousBlockTimestamp)) - 1);
+    const apy7d = 100 * (Math.pow(todayExRate / getBnToNumber(sevenDayRates[index]), 365 / 7) - 1);
+    const apy14d = 100 * (Math.pow(todayExRate / getBnToNumber(fourteenDayRates[index]), 365 / 14) - 1);
     const apy30d = 100 * (Math.pow(todayExRate / getBnToNumber(thirtyDayRates[index]), 365 / 30) - 1);
     const apy60d = 100 * (Math.pow(todayExRate / getBnToNumber(sixtyDayRates[index]), 365 / 60) - 1);
     const apy90d = 100 * (Math.pow(todayExRate / getBnToNumber(ninetyDayRates[index]), 365 / 90) - 1);
@@ -103,6 +108,9 @@ export const getOnChainData = async (meta: any[]) => {
     const apy365d = 100 * (Math.pow(todayExRate / getBnToNumber(threeHundredSixtyDayRates[index]), 1) - 1);
     return {
       calculatedApy,
+      exchangeRate: todayExRate,
+      apy7d,
+      apy14d,
       apy30d,
       apy60d,
       apy90d,
@@ -333,9 +341,14 @@ export default async function handler(req, res) {
           totalAssets: onChainData[index].totalAssets,
           totalAssets30d: onChainData[index].totalAssets30d,
           totalAssets90d: onChainData[index].totalAssets90d,
+          exchangeRate: onChainData[index].exchangeRate,
           tvl: metaData.symbol === 'sDOLA' && !!dolaStakingData?.tvlUsd ? dolaStakingData.tvlUsd : defillamaPoolData?.tvlUsd || onChainData[index].totalAssets || null,
-          apy: (rate.supplyRate || rate.apy || onChainData[index].calculatedApy),
-          apy30d: (rate.apyMean30d || rate.apy30d),
+          apy: (onChainData[index].calculatedApy || rate.supplyRate || rate.apy),
+          thirdPartyApy: rate.supplyRate || rate.apy,
+          apy7d: onChainData[index].apy7d,
+          apy14d: onChainData[index].apy14d,
+          apy30d: onChainData[index].apy30d || (rate.apyMean30d || rate.apy30d),
+          apym30d: (rate.apyMean30d || rate.apy30d),
           calculatedApy: onChainData[index].calculatedApy,
           avg30: onChainData[index].apy30d || (last30.length >= 30 ? last30.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last30.length : 0),
           avg60: onChainData[index].apy60d || (last60.length >= 60 ? last60.reduce((prev, curr) => prev + (curr[symbol] || 0), 0) / last60.length : 0),
