@@ -171,6 +171,10 @@ export const F2MarketPage = ({ market }: { market: string }) => {
         },
     ]);
 
+    if(!f2market?.underlying) {
+        return null;
+    }
+
     return (
         <Layout hideFooter={true} bgColor="black" bg="black">
             <Head>
