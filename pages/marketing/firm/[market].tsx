@@ -65,8 +65,9 @@ const StatTable = ({
 
 export const F2MarketPage = ({ market }: { market: string }) => {
     const router = useRouter();
-    const { time: _time, deposits: _deposits } = router.query;
+    const { time: _time, deposits: _deposits, layout: _layout } = router.query;
 
+    const layout = ['yield', 'long', 'auto'].includes(_layout) ? _layout : 'auto';
     const time = ['monthly', 'yearly'].includes(_time) ? _time : DEFAULT_TIME;
     const deposits = _deposits && /^\d+$/.test(_deposits) ? Number(_deposits) : DEFAULT_DEPOSITS;
 
@@ -92,7 +93,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
 
     const netApy = apy * maxLeverage - (maxLeverage - 1) * borrowApy;
 
-    const hasYield = apy > 0;
+    const hasYield = layout === 'auto' ? netApy > 0 : layout === 'yield';
 
     const leftTableStart = [
         {
