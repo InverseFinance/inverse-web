@@ -1,17 +1,23 @@
 import { Input } from "@app/components/common/Input"
-import { InfoMessage } from "@app/components/common/Messages"
+import { InfoMessage, WarningMessage } from "@app/components/common/Messages"
 import { AmountInfos } from "@app/components/common/Messages/AmountInfos"
 import { TextInfo } from "@app/components/common/Messages/TextInfo"
+import ConfirmModal from "@app/components/common/Modal/ConfirmModal"
 import { AnimatedInfoTooltip } from "@app/components/common/Tooltip"
 import { BURN_ADDRESS } from "@app/config/constants"
+import { useDBRNeeded } from "@app/hooks/useDBR"
 import { F2Market } from "@app/types"
-import { getBnToNumber } from "@app/util/markets"
-import { ChevronDownIcon, ChevronRightIcon } from "@chakra-ui/icons"
-import { Flex, FormControl, FormLabel, HStack, Switch, Text, VStack, Image, Stack } from "@chakra-ui/react"
+import { f2CalcNewHealth, getDepletionDate } from "@app/util/f2"
+import { getBnToNumber, shortenNumber } from "@app/util/markets"
+import { ChevronDownIcon, ChevronRightIcon, RepeatClockIcon } from "@chakra-ui/icons"
+import { Flex, FormControl, FormLabel, HStack, Switch, Text, VStack, Image, Stack, useDisclosure, Divider, Box, SimpleGrid } from "@chakra-ui/react"
 import { formatUnits } from "@ethersproject/units"
 import { BigNumber } from "ethers"
 import { isAddress } from "ethers/lib/utils"
-import { useState } from "react"
+import { useContext, useState } from "react"
+import { DbrBuyerTrigger } from "../../DbrEasyBuyer.tsx/DbrEasyBuyer"
+import { F2MarketContext } from "../../F2Contex"
+import { fromNow } from "@app/util/time"
 
 export const FirmRepayInputSubline = ({
     isDeleverageCase,
@@ -141,12 +147,174 @@ export const FirmExitModeSwitch = ({
     handleDirectionChange: () => void
     isInv: boolean
 }) => {
-    return <FormControl boxShadow="0px 0px 1px 0px #ccccccaa" bg="primary.400" zIndex="1" borderRadius="10px" px="2" py="1" right="0" top="-20px" margin="auto" position="absolute" w='fit-content' display='flex' alignItems='center'>
-        <FormLabel cursor="pointer" htmlFor='withdraw-mode' mb='0'>
+    return <FormControl boxShadow="0px 0px 1px 0px #ccccccaa" bg="primary.400" zIndex="1" borderRadius="10px" px="3" py="1" right="0" top="-14px" margin="auto" position="absolute" w='fit-content' display='flex' alignItems='center'>
+        <FormLabel fontWeight="normal" fontSize="14px" cursor="pointer" htmlFor='withdraw-mode' mb='0'>
             {isInv ? 'Unstake?' : 'Repay / Withdraw?'}
         </FormLabel>
         <Switch isChecked={!isDeposit} onChange={handleDirectionChange} id='withdraw-mode' />
     </FormControl>
+}
+
+const ExtendMarketLoanContent = ({
+    handleExtendMarketLoan,
+    onClose,
+    dbrDurationInputs,
+    debt,
+    totalDebt,
+    duration,
+    market,
+    deposits,
+    dolaPriceUsd,
+    dbrBuySlippage,
+}: {
+    handleExtendMarketLoan: () => void
+    onClose: () => void
+    dbrDurationInputs: React.ReactNode
+    debt: number
+    totalDebt: number
+    duration: number
+    market: F2Market
+    deposits: number
+    dolaPriceUsd: number
+    dbrBuySlippage: number | string
+}) => {
+    const { dbrBalance, dbrExpiryDate } = useContext(F2MarketContext);
+    const [now, setNow] = useState(Date.now());
+    const dbrApproxData = useDBRNeeded(debt.toFixed(0), duration, undefined, dbrBuySlippage);
+    const {
+        newPerc,
+    } = f2CalcNewHealth(
+        market,
+        deposits,
+        debt + dbrApproxData.dolaForDbrNum,
+        0,
+        0,
+    );
+    const percAcceptableDistance = (market.collateralFactor >= 0.9 ? 0.1 : 1)
+    const isOkDisabled = newPerc < percAcceptableDistance;
+    const maxBorrowLimit = 100 - percAcceptableDistance;
+    const effectiveSwapPrice = dbrApproxData.dbrNeededNum ? dbrApproxData.dolaForDbrNum / dbrApproxData.dbrNeededNum * (dolaPriceUsd || 1) : 0;
+    const hasDebtInOtherMarkets = totalDebt > (debt + 1);
+    const newExpiryTimestamp = now + (dbrBalance + (dbrApproxData?.dbrNeededNum || 0)) / (totalDebt + (dbrApproxData?.dolaForDbrNum || 0)) * 31536000000;
+    return <ConfirmModal
+        title={`Extend market loan by auto-buying the right amount of DBR`}
+        onClose={onClose}
+        onCancel={onClose}
+        onOk={() => {
+            return handleExtendMarketLoan()
+        }}
+        isOpen={true}
+        okLabel="Auto-buy DBR"
+        okButtonProps={{
+            w: '150px'
+        }}
+        cancelButtonProps={{
+            w: '150px'
+        }}
+        modalProps={{ scrollBehavior: 'inside', minW: { base: '98vw', lg: '700px' } }}
+        okDisabled={dbrApproxData?.isLoading || isOkDisabled}
+    >
+        <VStack p="6" alignItems="flex-start">
+            {/* <InfoMessage
+                alertProps={{ w: 'full' }}
+                description="If you're using several markets we recommend to buy DBR on DEXes."
+            /> */}
+            {dbrDurationInputs}
+            <Divider />
+            <SimpleGrid columns={{ base: 1, md: 2 }} spacingX={{ base: 0, md: 8 }} w='full' alignItems="flex-start">
+                <HStack w='full' justify="space-between">
+                    <Text color="mainTextColorLight">
+                        Est. DBR to receive:
+                    </Text>
+                    <Text>
+                        {shortenNumber(dbrApproxData.dbrNeededNum, 2)} DBR
+                    </Text>
+                </HStack>
+                <HStack w='full' justify="space-between">
+                    <Text color="mainTextColorLight">
+                        Cost to add as debt:
+                    </Text>
+                    <Text>
+                        {shortenNumber(dbrApproxData.dolaForDbrNum, 2)} DOLA
+                    </Text>
+                </HStack>
+                <HStack w='full' justify="space-between" alignItems="center">
+                    <Text color="mainTextColorLight">
+                        Est. DBR swap price:
+                    </Text>
+                    <Text>
+                        {shortenNumber(effectiveSwapPrice, 6, true)}
+                    </Text>
+                </HStack>
+                <HStack w='full' justify="space-between">
+                    <Text color="mainTextColorLight">
+                        New borrow limit:
+                    </Text>
+                    <Text>
+                        {shortenNumber(100 - newPerc, 2)}%
+                    </Text>
+                </HStack>
+            </SimpleGrid>
+            <Divider />
+            <SimpleGrid columns={{ base: 1, md: 2 }} spacingX={{ base: 0, md: 8 }} w='full' alignItems="flex-start">
+                <VStack spacing="0" w='full' justify="space-between" alignItems="flex-start">
+                    <Text color="mainTextColorLight">
+                        Current depletion date:
+                    </Text>
+                    <Text>
+                        {dbrExpiryDate ? `${getDepletionDate(dbrExpiryDate, now)} (${fromNow(dbrExpiryDate)})` : '-'}
+                    </Text>
+                </VStack>
+                <VStack spacing="0" w='full' justify="space-between" alignItems="flex-start">
+                    <Text color="mainTextColorLight">
+                        New estimated depletion date:
+                    </Text>
+                    <Text>
+                        {newExpiryTimestamp ? `${getDepletionDate(newExpiryTimestamp, now)} (${fromNow(newExpiryTimestamp)})` : '-'}
+                    </Text>
+                </VStack>
+            </SimpleGrid>
+            {
+                hasDebtInOtherMarkets && <InfoMessage alertProps={{ w: 'full', fontSize: '14px' }} description={<Text><b>Note</b>: You also have debt in other markets, in that case we recommend to buy DBR on DEXes or buy using the <b style={{ display: 'inline-block', textDecoration: 'underline', cursor: 'pointer' }}><DbrBuyerTrigger><p>global calculator</p></DbrBuyerTrigger></b> instead of auto-buying on this market.</Text>} />
+            }
+            {
+                isOkDisabled && <WarningMessage alertProps={{ w: 'full', fontSize: '14px' }} description={`The borrow limit should be under ${maxBorrowLimit}%, please consider extending for a shorter duration.`} />
+            }
+        </VStack>
+    </ConfirmModal>
+}
+
+export const FirmExtendMarketLoanButton = ({
+    handleExtendMarketLoan,
+    dbrDurationInputs,
+    debt,
+    totalDebt,
+    duration,
+    market,
+    deposits,
+    dolaPriceUsd,
+    dbrBuySlippage,
+}: {
+    handleExtendMarketLoan: () => void
+    dbrDurationInputs: React.ReactNode
+    debt: number
+    totalDebt: number
+    duration: number
+    market: F2Market
+    deposits: number
+    dolaPriceUsd: number
+    dbrBuySlippage: number | string
+}) => {
+    const { isOpen, onOpen, onClose } = useDisclosure();
+
+    return <Box boxShadow="0px 0px 1px 0px #ccccccaa" bg="primary.400" zIndex="1" borderRadius="10px" px="3" py="1" right="0" top="-14px" margin="auto" position="absolute" w='fit-content' display='flex' alignItems='center'>
+        <Text display="flex" alignItems="center" fontSize="14px" cursor="pointer" mb='0' onClick={onOpen}>
+            Extend market loan by auto-buying DBR <RepeatClockIcon fontSize="14px" ml="1" />
+        </Text>
+        {
+            isOpen && <ExtendMarketLoanContent dbrBuySlippage={dbrBuySlippage} dolaPriceUsd={dolaPriceUsd} handleExtendMarketLoan={handleExtendMarketLoan} onClose={onClose} dbrDurationInputs={dbrDurationInputs} debt={debt} totalDebt={totalDebt} duration={duration} market={market} deposits={deposits} />
+        }
+    </Box>
 }
 
 export const FirmLeverageSwitch = ({

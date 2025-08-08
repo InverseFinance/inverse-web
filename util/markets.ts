@@ -152,6 +152,23 @@ export const smartShortNumber = (value: number, precision = 2, isDollar = false,
     return removeTrailingZeros(num);
 }
 
+// Precision grows with value
+function getSmartPrecision(value: number, cap = 6) {
+    const absValue = Math.abs(value);
+    if (absValue <= 1.01) return 0;
+    return Math.min(cap, Math.floor(Math.log10(absValue)));
+}
+
+// format an amount with higher precision if price of the asset is higher
+export const smartAutoNumber = (value: number, price: number, cap? :number) => {
+    return value?.toFixed(getSmartPrecision(price, cap));
+}
+
+// format an amount with higher precision if price of the asset is higher
+export const smartAutoShortNumber = (value: number, price: number, cap? :number, isDollar = false, showMinPrecision = false) => {
+    return smartShortNumber(value, getSmartPrecision(price, cap), isDollar, showMinPrecision);
+}
+
 export const getToken = (tokens: TokenList, symbolOrAddress: string) => {
     return Object.entries(tokens)
         .map(([address, token]) => token)

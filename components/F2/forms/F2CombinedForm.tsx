@@ -3,7 +3,7 @@ import Container from '@app/components/common/Container'
 import { getNumberToBn } from '@app/util/markets'
 import { parseEther, parseUnits } from '@ethersproject/units'
 import { SimpleAmountForm } from '@app/components/common/SimpleAmountForm'
-import { f2repayAndWithdrawNative, f2borrow, f2deposit, f2depositAndBorrow, f2depositAndBorrowHelper, f2repay, f2repayAndWithdraw, f2sellAndRepayHelper, f2sellAndWithdrawHelper, f2withdraw, f2withdrawMax } from '@app/util/f2'
+import { f2repayAndWithdrawNative, f2borrow, f2deposit, f2depositAndBorrow, f2depositAndBorrowHelper, f2repay, f2repayAndWithdraw, f2sellAndRepayHelper, f2sellAndWithdrawHelper, f2withdraw, f2withdrawMax, f2ExtendMarketLoan } from '@app/util/f2'
 
 import { useContext, useMemo } from 'react'
 
@@ -24,7 +24,7 @@ import { preciseCommify, removeTrailingZeros } from '@app/util/misc'
 import { showToast } from '@app/util/notify'
 import { BorrowPausedMessage, CannotWithdrawIfDbrDeficitMessage, DebtDustErrorMessage, MinDebtBorrowMessage, NoDbrInWalletMessage, NoDolaLiqMessage, NotEnoughCollateralMessage, NotEnoughDolaToRepayMessage, NotEnoughLiqWithAutobuyMessage, ResultingBorrowLimitTooHighMessage } from './FirmFormSubcomponents/FirmMessages'
 import { AutoBuyDbrDurationInputs, DbrHelperSwitch, SellDbrInput } from './FirmFormSubcomponents/FirmDbrHelper'
-import { FirmBorroInputwSubline, FirmCollateralInputTitle, FirmDebtInputTitle, FirmDepositRecipient, FirmExitModeSwitch, FirmLeverageSwitch, FirmRepayInputSubline, FirmWethSwitch, FirmWithdrawInputSubline } from './FirmFormSubcomponents'
+import { FirmBorroInputwSubline, FirmCollateralInputTitle, FirmDebtInputTitle, FirmDepositRecipient, FirmExitModeSwitch, FirmExtendMarketLoanButton, FirmLeverageSwitch, FirmRepayInputSubline, FirmWethSwitch, FirmWithdrawInputSubline } from './FirmFormSubcomponents'
 import { BigNumber } from 'ethers'
 import { isAddress } from 'ethers/lib/utils'
 import { BURN_ADDRESS } from '@app/config/constants'
@@ -139,6 +139,7 @@ export const F2CombinedForm = ({
         sDolaExRate,
         hasDustIssue,
         setBestProxyName,
+        totalDebt,
     } = useContext(F2MarketContext);
 
     const { isMultisig, isWhitelisted } = useMultisig(market.borrowController);
@@ -164,7 +165,11 @@ export const F2CombinedForm = ({
         return f2withdrawMax(signer, market.address);
     }
 
-    const handleAction = async () => {
+    const handleExtendMarketLoan = () => {
+        return handleAction(true);
+    }
+
+    const handleAction = async (isExtendMarketLoanCase = false) => {
         if (!signer) { return }
         if (!notFirstTime && isBorrowCase) {
             const firstTimeAction = await onFirstTimeModalOpen();
@@ -172,6 +177,17 @@ export const F2CombinedForm = ({
                 return
             }
         }
+
+        if(isExtendMarketLoanCase){
+            return f2ExtendMarketLoan(
+                signer,
+                market.address,
+                debt,
+                dbrBuySlippage,
+                duration,
+            );
+        }
+
         const action = MODES[mode]
 
         const minDolaOut = !isAutoDBR ? parseUnits('0') : getNumberToBn((parseFloat(dbrSellAmount || '0') * (dbrPriceInDola * (1 - parseFloat(dbrBuySlippage) / 100))));
@@ -733,9 +749,12 @@ export const F2CombinedForm = ({
         <Container
             noPadding
             w='full'
-            contentProps={{ minH: '230px', id: 'f2-recap-container', h: { base: 'auto', md: '100%' } }}
+            contentProps={{ position: 'relative', minH: '230px', id: 'f2-recap-container', h: { base: 'auto', md: '100%' } }}
             p="0"
         >
+            {
+                (debt > 0) && <FirmExtendMarketLoanButton dbrDurationInputs={dbrDurationInputs} duration={duration} handleExtendMarketLoan={handleExtendMarketLoan} debt={debt} totalDebt={totalDebt} deposits={deposits} market={market} dolaPriceUsd={dolaPrice} dbrBuySlippage={dbrBuySlippage} />
+            }
             <VStack position="relative" w='full' px='2%' py="2" alignItems="center" justify="space-between" spacing="2">
                 <F2FormInfos
                     collateralAmountNumInfo={hasCollateralChange ? collateralAmountNum : 0}

@@ -7,7 +7,7 @@ import { preciseCommify } from "@app/util/misc"
 import { HStack, VStack, Text, useMediaQuery, StackProps, TextProps, Stack } from "@chakra-ui/react"
 import { useContext, useEffect, useState } from "react"
 import { F2MarketContext } from "../F2Contex"
- 
+
 import Container from "@app/components/common/Container"
 import { useDebouncedEffect } from "@app/hooks/useDebouncedEffect"
 import { useDOLAPrice } from "@app/hooks/usePrices"
@@ -24,6 +24,7 @@ import { useCustomSWR } from "@app/hooks/useCustomSWR"
 import { AnimatedInfoTooltip } from "@app/components/common/Tooltip"
 import { fromNow, timeSince } from "@app/util/time"
 import { F2Market } from "@app/types"
+import { DbrBuyerTrigger } from "../DbrEasyBuyer.tsx/DbrEasyBuyer"
 
 const Title = (props: TextProps) => <Text className="heading-font" textAlign="center" fontWeight="extrabold" fontSize={{ base: '13px', md: '18px' }} {...props} />;
 const SubTitle = (props: TextProps) => <Text className="heading-font" textAlign="center" color="secondaryTextColor" fontSize={{ base: '13px', md: '16px' }} {...props} />;
@@ -330,7 +331,7 @@ const BarBlock = ({
     imgSrc?: string,
     price: number,
     precision?: number,
-    href: string,
+    href?: string,
     vstackProps?: StackProps,
     tooltip?: string
 }) => {
@@ -340,9 +341,15 @@ const BarBlock = ({
         }
         <VStack spacing="1" alignItems="flex-start" {...vstackProps}>
             <HStack spacing="2" alignItems="center">
-                <Link textDecoration="underline" fontWeight="extrabold" fontSize={{ base: '14px', md: '18px' }} color="mainTextColor" textAlign="left" href={href} isExternal target='_blank'>
+                {!!href ? <Link textDecoration="underline" fontWeight="extrabold" fontSize={{ base: '14px', md: '18px' }} color="mainTextColor" textAlign="left" href={href} isExternal target='_blank'>
                     {label}
-                </Link>
+                </Link> :
+                    <DbrBuyerTrigger>
+                        <Text cursor="pointer" textDecoration="underline" fontWeight="extrabold" fontSize={{ base: '14px', md: '18px' }} color="mainTextColor" textAlign="left">
+                            {label}
+                        </Text>
+                    </DbrBuyerTrigger>
+                }
                 <AnimatedInfoTooltip message={tooltip} iconProps={{ transform: 'translateY(1px)', fontSize: ' 15px', color: 'mainTextColor' }} />
             </HStack>
 
@@ -392,8 +399,8 @@ export const FirmBar = ({
         <Stack direction={{ base: 'column', md: 'row' }} w='full' justify="space-between">
             <HStack alignItems="flex-start" w={{ base: 'full', md: 'auto' }} justify="flex-start">
                 <HStack spacing="8" w={{ base: 'full', md: 'auto' }} justify={{ base: 'space-between', md: 'flex-start' }}>
-                    <BarBlock tooltip="DBR are borrowing credits you can buy and sell at a market price, they are consumed at a constant rate according to your loan size if any" label="Buy DBR" isLargerThan={isLargerThan} precision={4} price={dbrPriceUsd} href={BUY_LINKS.DBR} imgSrc={`/assets/v2/dbr.webp`} />
-                    <BarBlock tooltip="DOLA is a stablecoin soft-pegged to $1, can be borrowed on FiRM or bought on markets" label="Buy DOLA" isLoading={false} isLargerThan={isLargerThan} precision={4} price={dolaPriceUsd} href={'/swap'} imgSrc={`/assets/v2/dola.webp`} vstackProps={{ alignItems: { base: 'center', md: 'flex-start' } }} />
+                    <BarBlock tooltip="DBR are borrowing credits you can buy and sell at a market price, they are consumed at a constant rate according to your loan size if any" label="Buy DBR" isLargerThan={isLargerThan} precision={4} price={dbrPriceUsd} imgSrc={`/assets/v2/dbr.webp`} />
+                    <BarBlock tooltip="DOLA is a stablecoin soft-pegged to $1, can be borrowed on FiRM or bought on markets" label="Buy DOLA" isLoading={false} isLargerThan={isLargerThan} precision={4} price={dolaPriceUsd} href={BUY_LINKS.DOLA} imgSrc={`/assets/v2/dola.webp`} vstackProps={{ alignItems: { base: 'center', md: 'flex-start' } }} />
                     <BarBlock tooltip="INV is Inverse Finance's Governance token" label="Buy INV" isLargerThan={isLargerThan} price={invFirmPrice} href={BUY_LINKS.INV} imgSrc={`/assets/inv-square-dark.jpeg`} vstackProps={{ alignItems: { base: 'flex-end', md: 'flex-start' } }} />
                 </HStack>
             </HStack>

@@ -5,7 +5,7 @@ import Head from 'next/head'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { useDBRMarkets } from '@app/hooks/useDBR'
 
-import { VStack, Text, HStack, Divider, Image, Flex } from '@chakra-ui/react'
+import { VStack, Text, HStack, Image, Flex } from '@chakra-ui/react'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 
 import { F2CombinedForm } from '@app/components/F2/forms/F2CombinedForm'
@@ -29,6 +29,7 @@ import { useMultisig } from '@app/hooks/useSafeMultisig'
 import Link from '@app/components/common/Link'
 import { FirmInsuranceCover } from '@app/components/common/InsuranceCover'
 import { OLD_BORROW_CONTROLLER } from '@app/config/constants'
+import { DbrFloatingTrigger } from '@app/components/F2/DbrEasyBuyer.tsx/DbrEasyBuyer'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -229,6 +230,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                         </VStack>
                                 }
                                 <FirmFAQ collapsable={true} defaultCollapse={false} />
+                                <DbrFloatingTrigger />
                             </VStack>
                         </F2Context>
                 }

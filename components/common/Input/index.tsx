@@ -49,7 +49,6 @@ type BalanceInputProps = {
 
 export const BalanceInput = ({ allowMobileMode = false, isError, value, label, onChange, onMaxClick, inputProps, showBalance, balance, showMax = true, inputRightProps, inputLeftProps, ...props }: BalanceInputProps & Partial<FlexProps>) => {
   const { themeStyles, themeParams } = useAppTheme();
-  console.log(balance)
   return <Flex
     w="full"
     bgColor='primary.850'

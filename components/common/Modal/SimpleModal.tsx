@@ -4,7 +4,7 @@ import { ReactNode } from 'react';
 import { useAppTheme } from '@app/hooks/useAppTheme';
 
 export type Props = {
-    title?: string,
+    title?: string | ReactNode,
     isOpen: boolean
     onClose: () => void
     children?: ReactNode
@@ -28,10 +28,11 @@ const SimpleModal = ({
             isOpen={isOpen}
             scrollBehavior="inside"
             header={
-                title ?
+                title ? typeof title === 'string' ?
                     <Stack minWidth={24} direction="row" align="center" >
-                        <Text >{title}</Text>
-                    </Stack>
+                        <Text>{title}</Text>
+                    </Stack> : 
+                    title
                     : undefined
             }
             minW={minW}

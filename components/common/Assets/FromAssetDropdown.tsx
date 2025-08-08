@@ -112,7 +112,10 @@ export const FromAssetDropdown = ({
                         justify="space-between"
                         borderRadius={8}
                         _hover={{ bgColor: 'primary.850' }}
-                        onClick={() => handleChange(token.optKey, 'CHAIN_COIN')}
+                        onClick={() => {
+                            handleChange(token.optKey, 'CHAIN_COIN')
+                            setSearch('');
+                        }}
                         cursor="pointer"
                         w='full'
                     >

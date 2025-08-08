@@ -25,6 +25,7 @@ import { FirmInsuranceCover, SDolaInsuranceCover } from "../common/InsuranceCove
 import { useStakedInv, useStakedInvBalance } from "@app/util/sINV";
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { formatDate } from "@app/util/time";
+import { DbrFloatingTrigger } from "./DbrEasyBuyer.tsx/DbrEasyBuyer";
 
 const MAX_AREA_CHART_WIDTH = 625;
 
@@ -133,7 +134,7 @@ const DbrEvoChart = ({
     />
 }
 
-export const DashBoardCard = (props: StackProps & { cardTitle?: string, cardTitleProps?: TextProps, externalLink?: string, imageSize?: number,imageSrc?: string, imageList?: string[] }) => {
+export const DashBoardCard = (props: StackProps & { cardTitle?: string, cardTitleProps?: TextProps, externalLink?: string, imageSize?: number, imageSrc?: string, imageList?: string[] }) => {
     const imgList = Array.isArray(props.imageSrc) ? props.imageSrc : [props.imageSrc];
     const imgSize = props.imageSize || 30;
     return <Flex
@@ -153,7 +154,7 @@ export const DashBoardCard = (props: StackProps & { cardTitle?: string, cardTitl
         {!!props.imageSrc && imgList.map((image, i) => {
             return <Image key={image} borderRadius="50px" src={image} w={`${imgSize}px`} h={`${imgSize}px`} position="absolute" left="10px" top={`${10 + (imgSize + 10) * i}px`} />
         })}
-        {!!props.externalLink && <Link position="absolute" right="10px" top="10px" textDecoration="underline" href={props.externalLink} isExternal target="_blank"><ExternalLinkIcon/></Link>}
+        {!!props.externalLink && <Link position="absolute" right="10px" top="10px" textDecoration="underline" href={props.externalLink} isExternal target="_blank"><ExternalLinkIcon /></Link>}
         {props.children}
     </Flex>
 }
@@ -299,11 +300,11 @@ export const UserDashboard = ({
     const { balance: stakedDolaBalance } = useStakedDolaBalance(account);
     const { assets: invStakedInSInvV1 } = useStakedInvBalance(account, "V1");
     const { assets: invStakedInSInvV2 } = useStakedInvBalance(account, "V2");
-    
+
     const { apr: sDolaApr, projectedApr: sDolaProjectedApr, sDolaExRate, apy: sDolaApy, projectedApy: sDolaProjectedApy } = useStakedDola(dbrPriceUsd);
     const { apy: sInvApy, projectedApy: sInvProjectedApy } = useStakedInv(dbrDolaPrice);
 
-    const dolaStakedInSDola = sDolaExRate && stakedDolaBalance ? sDolaExRate * stakedDolaBalance : 0;    
+    const dolaStakedInSDola = sDolaExRate && stakedDolaBalance ? sDolaExRate * stakedDolaBalance : 0;
     const invStakedInSInv = invStakedInSInvV1 + invStakedInSInvV2;
 
     const { themeStyles } = useAppTheme();
@@ -324,22 +325,25 @@ export const UserDashboard = ({
     return <VStack w='full' spacing="8">
         {
             isVirginFirmUser ? <VStack w='full' alignItems="flex-start">
-                 <InfoMessage
+                <InfoMessage
                     alertProps={{ w: 'full', mb: '4' }}
                     title='You do not have any position in FiRM at the moment'
-                    // description="Once you have assets in one the markets below, more data will be shown in the dashboard"
+                // description="Once you have assets in one the markets below, more data will be shown in the dashboard"
                 />
                 <F2Markets isDashboardPage={true} marketsData={marketsData} firmTvls={firmTvlData.firmTvls} />
             </VStack>
                 :
-                <SimpleGrid columns={{ base: 1, xl: 2 }} spacing="8" w="100%" >
-                    <NumberAndPieCard footer={
-                        <CardFooter
-                            labelRight={<Link textDecoration="underline" href="/firm">Go to markets</Link>}
-                        />
-                    } noDataFallback={SupplyAssets} isLoading={isLoading} fill={themeStyles.colors.mainTextColorLight} activeFill={themeStyles.colors.mainTextColor} value={totalTotalSuppliedUsd} label="Deposits" precision={0} isUsd={true} data={marketsWithDeposits} dataKey="depositsUsd" />
-                    <NumberAndPieCard noDataFallback={BorrowDola} isLoading={isLoading} fill={themeStyles.colors.warning} activeFill={themeStyles.colors.error} value={debt} label="DOLA debt" precision={0} isUsd={false} data={marketsWithDebt} dataKey="debt" />
-                </SimpleGrid>
+                <>
+                    <SimpleGrid columns={{ base: 1, xl: 2 }} spacing="8" w="100%" >
+                        <NumberAndPieCard footer={
+                            <CardFooter
+                                labelRight={<Link textDecoration="underline" href="/firm">Go to markets</Link>}
+                            />
+                        } noDataFallback={SupplyAssets} isLoading={isLoading} fill={themeStyles.colors.mainTextColorLight} activeFill={themeStyles.colors.mainTextColor} value={totalTotalSuppliedUsd} label="Deposits" precision={0} isUsd={true} data={marketsWithDeposits} dataKey="depositsUsd" />
+                        <NumberAndPieCard noDataFallback={BorrowDola} isLoading={isLoading} fill={themeStyles.colors.warning} activeFill={themeStyles.colors.error} value={debt} label="DOLA debt" precision={0} isUsd={false} data={marketsWithDebt} dataKey="debt" />
+                    </SimpleGrid>
+                    <DbrFloatingTrigger />
+                </>
         }
         <SimpleGrid columns={{ base: 1, md: 2, xl: 4 }} spacing="8" w="100%">
             <NumberCard imageSrc={TOKEN_IMAGES.INV} footer={
@@ -356,7 +360,7 @@ export const UserDashboard = ({
                         labelRight={<>proj. APY: <b>{shortenNumber(sDolaProjectedApy, 2)}%</b></>}
                     />
                 } href="/sDOLA" noDataFallback={StakeDOLA} isLoading={isLoading} value={dolaStakedInSDola} label="DOLA staked" precision={2} />
-                <NumberCard
+            <NumberCard
                 imageSrc={TOKEN_IMAGES.SINV}
                 price={invPrice}
                 footer={
@@ -425,6 +429,6 @@ export const UserDashboard = ({
                     })
             }
         </SimpleGrid>
-        <FirmInsuranceCover />        
+        <FirmInsuranceCover />
     </VStack>
 }

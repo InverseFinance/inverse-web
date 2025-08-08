@@ -61,7 +61,7 @@ export const F2Context = ({
     const account = useAccount();
     const [duration, setDuration] = useState(365);
     const [durationType, setDurationType] = useState('months');
-    const [durationTypedValue, setDurationTypedValue] = useState(12);
+    const [durationTypedValue, setDurationTypedValue] = useState(3);
     const [collateralAmount, setCollateralAmount] = useState('');
     const [inputAmount, setInputAmount] = useState('');
     const [debtAmount, setDebtAmount] = useState('');
@@ -417,6 +417,7 @@ export const F2Context = ({
             newCreditLeft,
             sDolaExRate,
             bestProxyName,
+            totalDebt: currentTotalDebt,
             setBestProxyName,
         }}
         {...props}
