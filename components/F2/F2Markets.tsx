@@ -278,7 +278,7 @@ export const MarketPointsInfo = ({
 }) => {
     return <HStack spacing="1">
         <Image src={pointsImage} h="15px" w="15px" {...imageProps} />
-        <Text fontSize="12px" color="mainTextColorLight" {...textProps}>x{points}</Text>
+        <Text fontSize="12px" color="mainTextColorLight" {...textProps}>x{Math.round(points)}</Text>
     </HStack>
 }
 
