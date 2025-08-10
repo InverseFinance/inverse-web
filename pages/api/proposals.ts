@@ -4,7 +4,7 @@ import { getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis';
 import { NetworkIds, GovEra, ProposalStatus, Proposal } from '@app/types';
 import { getGovProposals } from '@app/util/the-graph';
 import { getProvider } from '@app/util/providers';
-import { SECONDS_PER_BLOCK } from '@app/config/constants';
+import { IS_PROD, SECONDS_PER_BLOCK } from '@app/config/constants';
 import removeMd from 'remove-markdown';
 import { checkDraftRights, getProposalStatus } from '@app/util/governance';
 import { Contract } from 'ethers';
@@ -26,7 +26,10 @@ export default async function handler(req, res) {
     const sigAddress = checkDraftRights(sig);
     const { isValid, data: cachedData } = await getCacheFromRedisAsObj(proposalsCacheKey, !sigAddress, cacheDuration, true);
 
-    if(isStatsOnly === 'true') {
+    if(!IS_PROD && isStatsOnly !== 'true') {
+      return res.status(200).json(await fetch(`https://inverse.finance/api/proposals?proposalNum=${proposalNum}`).then(r => r.json()));
+    }
+    else if(isStatsOnly === 'true') {
       const active = cachedData.proposals?.reduce(
         (prev: number, curr: Proposal) =>
           prev + ([ProposalStatus.pending, ProposalStatus.active].includes(curr.status) ? 1 : 0),
