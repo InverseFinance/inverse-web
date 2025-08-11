@@ -1,22 +1,19 @@
-import { Badge, Divider, Flex, HStack, Stack, Text, useMediaQuery, VStack, Input as ChakraInput, Image, PopoverBody, Popover, PopoverTrigger, PopoverContent, InputGroup, InputLeftElement, Select, useDisclosure, SimpleGrid } from "@chakra-ui/react"
+import { Badge, Flex, HStack, Stack, Text, useMediaQuery, VStack, Input as ChakraInput, Image, PopoverBody, Popover, PopoverTrigger, PopoverContent, InputGroup, InputLeftElement, Select, useDisclosure, SimpleGrid, TextProps, ImageProps } from "@chakra-ui/react"
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
-import { useAccountF2Markets, useDBRMarkets, useDBRMarketsSSR, useDBRPrice } from '@app/hooks/useDBR';
+import { useAccountF2Markets, useDBRMarketsSSR, useDBRPrice } from '@app/hooks/useDBR';
 import { useRouter } from 'next/router';
 import { useAccount } from '@app/hooks/misc';
 import { calculateNetApy, getRiskColor } from "@app/util/f2";
 import { BigImageButton } from "@app/components/common/Button/BigImageButton";
 import Table from "@app/components/common/Table";
-import { useFirmTVL } from "@app/hooks/useTVL";
 import { AnchorPoolInfo } from "../Anchor/AnchorPoolnfo";
-import { OracleType, OracleTypeTooltipContent } from "./Infos/OracleType";
 import { SkeletonList } from "@app/components/common/Skeleton";
 import { useAppTheme } from "@app/hooks/useAppTheme";
 import { gaEvent } from "@app/util/analytics";
 import { DailyLimitCountdown } from "@app/components/common/Countdown";
-import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { SafetyBadges } from "./SecurityMiniCaroussel";
-import { ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon, InfoIcon, SearchIcon, SettingsIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon, InfoIcon, SearchIcon } from "@chakra-ui/icons";
 import { SplashedText } from "../common/SplashedText";
 import { lightTheme } from "@app/variables/theme";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -26,11 +23,9 @@ import { LPImages } from "../common/Assets/LPImg";
 import { TextInfo } from "../common/Messages/TextInfo";
 import { RadioCardGroup } from "../common/Input/RadioCardGroup";
 import useStorage from "@app/hooks/useStorage";
-import { RSubmitButton } from "../common/Button/RSubmitButton";
 import { InfoMessage } from "../common/Messages";
 import ConfirmModal from "../common/Modal/ConfirmModal";
 import { Input } from "../common/Input";
-import { getNetworkConfigConstants } from "@app/util/networks";
 import FirmLogo from "../common/Logo/FirmLogo";
 import { F2Market } from "@app/types";
 import InfoModal from "../common/Modal/InfoModal";
@@ -265,7 +260,24 @@ const CollateralFactorCell = ({ collateralFactor, isLeverageComingSoon, supplyAp
     </Cell>
 }
 
-export const MarketApyInfos = ({ showLeveragedApy = true, isLeverageComingSoon, isUserApy, maxApy, minWidth = "140px", name, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, borrowPaused, rewardTypeLabel, collateralFactor, dbrPriceUsd, _isMobileCase }) => {
+export const MarketPointsInfo = ({
+    points,
+    pointsImage,
+    textProps,
+    imageProps
+}: {
+    points: number,
+    pointsImage: string,
+    imageProps?: ImageProps,
+    textProps?: TextProps,
+}) => {
+    return <HStack spacing="1">
+        <Image src={pointsImage} h="15px" w="15px" {...imageProps} />
+        <Text fontSize="12px" color="mainTextColorLight" {...textProps}>{Math.round(points)}x</Text>
+    </HStack>
+}
+
+export const MarketApyInfos = ({ showLeveragedApy = true, isLeverageComingSoon, isUserApy, maxApy, minWidth = "140px", points, pointsImage, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, borrowPaused, rewardTypeLabel, collateralFactor, dbrPriceUsd, _isMobileCase }) => {
     const maxLong = calculateMaxLeverage(collateralFactor);
     const totalApy = ((supplyApy || 0) + (extraApy || 0));
     return <Cell spacing="0" direction="column" minWidth={minWidth} alignItems={_isMobileCase ? 'flex-end' : 'center'} justify="center" fontSize="14px">
@@ -281,30 +293,7 @@ export const MarketApyInfos = ({ showLeveragedApy = true, isLeverageComingSoon, 
                 textProps={{ textAlign: "end" }}
                 hasClaimableRewards={hasClaimableRewards}
             />
-            {
-                name === 'sUSDe' && <HStack spacing="1">
-                    <Image src={'https://assets.coingecko.com/coins/images/36530/standard/ethena.png?1711701436'} h="15px" w="15px" />
-                    <Text fontSize="12px" color="mainTextColorLight">x5</Text>
-                </HStack>
-            }
-            {
-                ['sUSDe-DOLA', 'yv-sUSDe-DOLA'].includes(name) && <HStack spacing="1">
-                    <Image src={'https://assets.coingecko.com/coins/images/36530/standard/ethena.png?1711701436'} h="15px" w="15px" />
-                    <Text fontSize="12px" color="mainTextColorLight">x15</Text>
-                </HStack>
-            }
-            {
-                name.includes('deUSD') && <HStack spacing="1">
-                    <Image borderRadius="30px" src={'https://cdn.jsdelivr.net/gh/curvefi/curve-assets/platforms/Elixir.png'} h="15px" w="15px" />
-                    <Text fontSize="12px" color="mainTextColorLight">x10</Text>
-                </HStack>
-            }
-            {
-                name.includes('USR') && <HStack spacing="1">
-                    <Image borderRadius="30px" src={'https://cdn.jsdelivr.net/gh/curvefi/curve-assets/platforms/resolv.png'} h="15px" w="15px" />
-                    <Text fontSize="12px" color="mainTextColorLight">x30</Text>
-                </HStack>
-            }
+            <MarketPointsInfo points={points} pointsImage={pointsImage} />
         </HStack>
         {
             totalApy > 0 && <Text fontSize="12px" color="mainTextColorLight">
@@ -327,7 +316,7 @@ const leverageColumn = {
         <Text><b>Net APY</b>: Annual Percentage Yield at maximum theoretical leverage with the borrowing cost already deducted (at current DBR price), your Net APY depends on the actual price you bought DBR at</Text>
         <Text><b>Long up to</b>: theoretical maximum leverage with DOLA at $1 and borrow limit at 100%</Text>
     </VStack>,
-    value: ({ maxApy, name, isLeverageComingSoon, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
+    value: ({ maxApy, name, isLeverageComingSoon, supplyApy, points, pointsImage, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
         const maxLong = calculateMaxLeverage(collateralFactor);
         const totalApy = ((supplyApy || 0) + (extraApy || 0));
         return <Cell spacing="0" direction="column" minWidth="100px" alignItems="center">
@@ -357,6 +346,8 @@ const leverageColumn = {
                         rewardTypeLabel={rewardTypeLabel}
                         _isMobileCase={_isMobileCase}
                         showLeveragedApy={false}
+                        points={points}
+                        pointsImage={pointsImage}
                     /> : <CellText fontSize="12px" color="mainTextColorLight">
                         Long up to x{smartShortNumber(maxLong, 2)}
                     </CellText>
@@ -380,7 +371,7 @@ const columns = [
         label: 'Underlying APY',
         tooltip: 'The APY provided by the asset itself (or via its claimable rewards) and that is kept even after supplying. This is not an additional APY from FiRM. If leverage is possible the Net yield at maximum theoretical leverage will be showed as well.',
         header: ({ ...props }) => <ColHeader minWidth="140px" justify="center"  {...props} />,
-        value: ({ name, isUserApy, isLeverageComingSoon, maxApy, isLeverageView, supplyApy, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
+        value: ({ name, isUserApy, isLeverageComingSoon, maxApy, isLeverageView, supplyApy, points, pointsImage, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
             return <MarketApyInfos
                 name={name}
                 isLeverageComingSoon={isLeverageComingSoon}
@@ -399,6 +390,8 @@ const columns = [
                 rewardTypeLabel={rewardTypeLabel}
                 _isMobileCase={_isMobileCase}
                 showLeveragedApy={!isLeverageView}
+                points={points}
+                pointsImage={pointsImage}
             />
         },
     },
