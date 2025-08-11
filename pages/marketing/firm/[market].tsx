@@ -227,11 +227,11 @@ export const F2MarketPage = ({ market, isEditable = true }: { market: string, is
                                     </VStack>
                                 }
                                 {
-                                    f2market?.pointsMultiplier > 0 && <VStack minW="200px" minH="100px" borderWidth="2px" borderColor="gold" bgColor="black" borderRadius="20px" px="5" py="3">
+                                    f2market?.points > 0 && <VStack minW="200px" minH="100px" borderWidth="2px" borderColor="gold" bgColor="black" borderRadius="20px" px="5" py="3">
                                         <Text color="white" fontSize="20px" fontWeight="bold">
                                             Leveraged Points
                                         </Text>
-                                        <MarketPointsInfo points={f2market?.pointsMultiplier * maxLeverage} pointsImage={f2market?.pointsImage} textProps={{ fontSize: '34px', fontWeight: 'extrabold', color: landingPurple }} imageProps={{ h: '34px', w: '34px' }} />
+                                        <MarketPointsInfo points={f2market?.points * maxLeverage} pointsImage={f2market?.pointsImage} textProps={{ fontSize: '34px', fontWeight: 'extrabold', color: landingPurple }} imageProps={{ h: '34px', w: '34px' }} />
                                     </VStack>
                                 }
                             </HStack>
