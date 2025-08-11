@@ -1,22 +1,19 @@
-import { Badge, Divider, Flex, HStack, Stack, Text, useMediaQuery, VStack, Input as ChakraInput, Image, PopoverBody, Popover, PopoverTrigger, PopoverContent, InputGroup, InputLeftElement, Select, useDisclosure, SimpleGrid, TextProps, ImageProps } from "@chakra-ui/react"
+import { Badge, Flex, HStack, Stack, Text, useMediaQuery, VStack, Input as ChakraInput, Image, PopoverBody, Popover, PopoverTrigger, PopoverContent, InputGroup, InputLeftElement, Select, useDisclosure, SimpleGrid, TextProps, ImageProps } from "@chakra-ui/react"
 import { shortenNumber, smartShortNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
-import { useAccountF2Markets, useDBRMarkets, useDBRMarketsSSR, useDBRPrice } from '@app/hooks/useDBR';
+import { useAccountF2Markets, useDBRMarketsSSR, useDBRPrice } from '@app/hooks/useDBR';
 import { useRouter } from 'next/router';
 import { useAccount } from '@app/hooks/misc';
 import { calculateNetApy, getRiskColor } from "@app/util/f2";
 import { BigImageButton } from "@app/components/common/Button/BigImageButton";
 import Table from "@app/components/common/Table";
-import { useFirmTVL } from "@app/hooks/useTVL";
 import { AnchorPoolInfo } from "../Anchor/AnchorPoolnfo";
-import { OracleType, OracleTypeTooltipContent } from "./Infos/OracleType";
 import { SkeletonList } from "@app/components/common/Skeleton";
 import { useAppTheme } from "@app/hooks/useAppTheme";
 import { gaEvent } from "@app/util/analytics";
 import { DailyLimitCountdown } from "@app/components/common/Countdown";
-import { SmallTextLoader } from "../common/Loaders/SmallTextLoader";
 import { SafetyBadges } from "./SecurityMiniCaroussel";
-import { ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon, InfoIcon, SearchIcon, SettingsIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon, ChevronRightIcon, ExternalLinkIcon, InfoIcon, SearchIcon } from "@chakra-ui/icons";
 import { SplashedText } from "../common/SplashedText";
 import { lightTheme } from "@app/variables/theme";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -26,11 +23,9 @@ import { LPImages } from "../common/Assets/LPImg";
 import { TextInfo } from "../common/Messages/TextInfo";
 import { RadioCardGroup } from "../common/Input/RadioCardGroup";
 import useStorage from "@app/hooks/useStorage";
-import { RSubmitButton } from "../common/Button/RSubmitButton";
 import { InfoMessage } from "../common/Messages";
 import ConfirmModal from "../common/Modal/ConfirmModal";
 import { Input } from "../common/Input";
-import { getNetworkConfigConstants } from "@app/util/networks";
 import FirmLogo from "../common/Logo/FirmLogo";
 import { F2Market } from "@app/types";
 import InfoModal from "../common/Modal/InfoModal";
@@ -278,7 +273,7 @@ export const MarketPointsInfo = ({
 }) => {
     return <HStack spacing="1">
         <Image src={pointsImage} h="15px" w="15px" {...imageProps} />
-        <Text fontSize="12px" color="mainTextColorLight" {...textProps}>x{Math.round(points)}</Text>
+        <Text fontSize="12px" color="mainTextColorLight" {...textProps}>{Math.round(points)}x</Text>
     </HStack>
 }
 

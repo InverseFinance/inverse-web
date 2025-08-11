@@ -1,9 +1,6 @@
 import { Text, VStack } from "@chakra-ui/react"
 import { SimpleCard } from "../Cards/Simple"
-import { lightTheme } from "@app/variables/theme"
-import { LandingSubmitButton } from "../Button/RSubmitButton"
 import { Link } from "../Link"
-import { biggestSize, smallerSize } from "@app/variables/responsive"
 import { SubmitButton } from "../Button"
 
 export const landingMainColor = "#040826"
