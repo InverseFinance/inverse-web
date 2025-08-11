@@ -1702,6 +1702,7 @@ const chainTokens = {
       symbol: 'PT-sUSDe-29MAY25',
       image: TOKEN_IMAGES.sUSDe,
       decimals: 18,
+      isStable: true,
     },
     [chainTokenAddresses["1"].PTsUSDe31JUL25]: {
       address: chainTokenAddresses["1"].PTsUSDe31JUL25,
@@ -1709,6 +1710,7 @@ const chainTokens = {
       symbol: 'PT-sUSDe-31JUL25',
       image: TOKEN_IMAGES.sUSDe,
       decimals: 18,
+      isStable: true,
     },
     [chainTokenAddresses["1"].PTsUSDe25SEP25]: {
       address: chainTokenAddresses["1"].PTsUSDe25SEP25,
@@ -1716,6 +1718,7 @@ const chainTokens = {
       symbol: 'PT-sUSDe-25SEP25',
       image: TOKEN_IMAGES.sUSDe,
       decimals: 18,
+      isStable: true,
     },
     [chainTokenAddresses["1"].USDE]: {
       address: chainTokenAddresses["1"].USDE,

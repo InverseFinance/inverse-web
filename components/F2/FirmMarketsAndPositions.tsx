@@ -78,7 +78,7 @@ export const FirmMarketsAndPositionsRenderer = ({
             categoryCondition = m.isPhasingOut;
         }
         else if (category === 'stablecoins') {
-            categoryCondition = m.underlying.isStable && !m.underlying.isLP;
+            categoryCondition = (m.underlying.isStable && !m.underlying.isLP) || m.isPendle;
         }
         else if (category === 'lps') {
             categoryCondition = m.underlying.isLP;
