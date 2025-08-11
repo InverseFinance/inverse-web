@@ -33,9 +33,11 @@ const DbrRepMsg = ({ replenishmentDailyRate, ...props }: { replenishmentDailyRat
     description={
         <HStack spacing='1' display={{ base: 'inline-block', sm: 'inline-flex' }} {...props}>
             <Text><b>You are out of DBR,</b></Text>
-            <Link style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" fontWeight="extrabold" color={'error'} href={BUY_LINKS.DBR} isExternal target='_blank'>
-                please top-up your balance,
-            </Link>
+            <DbrBuyerTrigger>
+                <Text style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" fontWeight="extrabold" color={'error'} cursor="pointer">
+                    please top-up your balance,
+                </Text>
+            </DbrBuyerTrigger>
             <Text>the daily cost is <b>{replenishmentDailyRate}% of your debt</b></Text>
         </HStack>
     } />;
@@ -101,7 +103,7 @@ export const MarketBar = ({
             DBR Balance
         </Title>
 
-        <Link color={needTopUp ? 'error' : 'secondaryTextColor'} href={BUY_LINKS.DBR} isExternal target='_blank'>
+        <Text color={needTopUp ? 'error' : 'secondaryTextColor'}>
             {
                 dbrBalance > 0 && <SubTitle color="inherit">
                     {shortenNumber(dbrBalance, 2)}{!!dbrBalance && ` (${shortenNumber(dbrBalance * dbrPriceUsd, 2, true)})`}
@@ -117,7 +119,7 @@ export const MarketBar = ({
                     {shortenNumber(dbrBalance, 2)} {depletedLabel}
                 </SubTitle>
             }
-        </Link>
+        </Text>
     </VStack>;
 
     const otherInfos = <>
@@ -248,23 +250,25 @@ export const DbrBar = ({
             DBR Balance
         </Title>
 
-        <Link color={needTopUp ? 'error' : 'secondaryTextColor'} href={BUY_LINKS.DBR} isExternal target='_blank'>
-            {
-                dbrBalance > 0 && <SubTitle textAlign="left" color="inherit">
-                    {shortenNumber(dbrBalance, 2, false, true)}{!!dbrBalance && ` (${shortenNumber(dbrBalance * dbrPriceUsd, 2, true, true)})`}
-                </SubTitle>
-            }
-            {
-                dbrBalance === 0 && !debt && <SubTitle textAlign="left" color="inherit">
-                    Buy now
-                </SubTitle>
-            }
-            {
-                needTopUp && <SubTitle textAlign="left" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" color="inherit" fontWeight={dbrBalance < 0 ? 'extrabold' : 'normal'}>
-                    {shortenNumber(dbrBalance, 2)} Top-up now
-                </SubTitle>
-            }
-        </Link>
+        <DbrBuyerTrigger>
+            <Text color={needTopUp ? 'error' : 'secondaryTextColor'} cursor="pointer">
+                {
+                    dbrBalance > 0 && <SubTitle textAlign="left" color="inherit">
+                        {shortenNumber(dbrBalance, 2, false, true)}{!!dbrBalance && ` (${shortenNumber(dbrBalance * dbrPriceUsd, 2, true, true)})`}
+                    </SubTitle>
+                }
+                {
+                    dbrBalance === 0 && !debt && <SubTitle textAlign="left" color="inherit">
+                        Buy now
+                    </SubTitle>
+                }
+                {
+                    needTopUp && <SubTitle textAlign="left" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" color="inherit" fontWeight={dbrBalance < 0 ? 'extrabold' : 'normal'}>
+                        {shortenNumber(dbrBalance, 2)} Top-up now
+                    </SubTitle>
+                }
+            </Text>
+        </DbrBuyerTrigger>
     </VStack>
 
     return <VStack w='full' {...props}>
@@ -297,9 +301,11 @@ export const DbrBar = ({
                     <Title textAlign="right">
                         DBR Depletion Time
                     </Title>
-                    <SubTitle textAlign="right" display="flex" alignItems="center" fontWeight={needsRechargeSoon ? 'extrabold' : 'inherit'} color={needsRechargeSoon ? dbrBalance < 0 ? 'error' : 'warning' : 'secondaryTextColor'}>
-                        {dbrBalance <= 0 && <WarningTwoIcon mr="1" />}{dbrBalance <= 0 ? 'Depleted' : fromNow(dbrExpiryDate)}
-                    </SubTitle>
+                    <DbrBuyerTrigger>
+                        <SubTitle textAlign="right" display="flex" alignItems="center" fontWeight={needsRechargeSoon ? 'extrabold' : 'inherit'} color={needsRechargeSoon ? dbrBalance < 0 ? 'error' : 'warning' : 'secondaryTextColor'} cursor="pointer">
+                            {dbrBalance <= 0 && <WarningTwoIcon mr="1" />}{dbrBalance <= 0 ? 'Depleted' : fromNow(dbrExpiryDate)}
+                        </SubTitle>
+                    </DbrBuyerTrigger>
                 </VStack>
                 <VStack spacing="1" alignItems='flex-end'>
                     <DbrReminder dbrExpiryDate={dbrExpiryDate} dbrBalance={dbrBalance} />
