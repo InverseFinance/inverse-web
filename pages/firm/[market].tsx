@@ -33,7 +33,8 @@ import { DbrFloatingTrigger } from '@app/components/F2/DbrEasyBuyer.tsx/DbrEasyB
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
-const useDefaultPreview = ['CRV', 'cvxCRV', 'cvxFXS', 'st-yCRV']
+// markets with custom preview images in social-previews/markets/ folder
+const customPreviewMarkets = ['COMP', 'CVX', 'DAI', 'INV', 'sFRAX', 'st-yETH', 'WBTC', 'WETH', 'wstETH']
 
 export const F2MarketPage = ({ market }: { market: string }) => {
     const router = useRouter();
@@ -54,7 +55,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                 <title>Inverse Finance - FiRM {f2market?.name}</title>
                 <meta name="og:description" content="FiRM is Inverse Finance's Fixed Rate Market, borrow DOLA with the DOLA Borrowing Right token DBR. Rethink the way you borrow!" />
                 <meta name="description" content="FiRM is Inverse Finance's Fixed Rate Market, borrow DOLA with the DOLA Borrowing Right token DBR. Rethink the way you borrow!" />
-                <meta name="og:image" content={useDefaultPreview.includes(market) ? "https://inverse.finance/assets/social-previews/inverse-alert-v2.png" : `https://inverse.finance/assets/social-previews/markets/${market}.jpeg`} />
+                <meta name="og:image" content={customPreviewMarkets.includes(market) ? `https://inverse.finance/assets/social-previews/markets/${market}.jpeg` : "https://inverse.finance/assets/social-previews/inverse-alert-v2.png"} />
             </Head>
             <AppNav hideAnnouncement={true} active={'Markets'} activeSubmenu={market?.isInv ? 'Stake INV' : `${market} Market`} />
             <ErrorBoundary description="Error in the market page, please try reloading">

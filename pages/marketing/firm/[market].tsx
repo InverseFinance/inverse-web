@@ -166,6 +166,7 @@ export const F2MarketPage = ({ market, isEditable = true }: { market: string, is
                 <title>Inverse Finance - FiRM {f2market?.name}</title>
                 <meta name="og:description" content="FiRM is Inverse Finance's Fixed Rate Market, borrow DOLA with the DOLA Borrowing Right token DBR. Rethink the way you borrow!" />
                 <meta name="description" content="FiRM is Inverse Finance's Fixed Rate Market, borrow DOLA with the DOLA Borrowing Right token DBR. Rethink the way you borrow!" />
+                <meta name="og:image" content={"https://inverse.finance/assets/social-previews/inverse-alert-v2.png"} />
             </Head>
             {
                 !f2market?.underlying || !inited ? null :
