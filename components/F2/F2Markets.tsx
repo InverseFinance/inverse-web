@@ -293,7 +293,9 @@ export const MarketApyInfos = ({ showLeveragedApy = true, isLeverageComingSoon, 
                 textProps={{ textAlign: "end" }}
                 hasClaimableRewards={hasClaimableRewards}
             />
-            <MarketPointsInfo points={points} pointsImage={pointsImage} />
+            {
+                points > 0 && <MarketPointsInfo points={points} pointsImage={pointsImage} />
+            }
         </HStack>
         {
             totalApy > 0 && <Text fontSize="12px" color="mainTextColorLight">
