@@ -101,23 +101,25 @@ export const MarketBar = ({
             DBR Balance
         </Title>
 
-        <Link color={needTopUp ? 'error' : 'secondaryTextColor'} href={BUY_LINKS.DBR} isExternal target='_blank'>
-            {
-                dbrBalance > 0 && <SubTitle color="inherit">
-                    {shortenNumber(dbrBalance, 2)}{!!dbrBalance && ` (${shortenNumber(dbrBalance * dbrPriceUsd, 2, true)})`}
-                </SubTitle>
-            }
-            {
-                dbrBalance === 0 && !debt && <SubTitle textDecoration="underline" style={{ 'text-decoration-skip-ink': 'none' }} color="inherit">
-                    Buy now
-                </SubTitle>
-            }
-            {
-                needTopUp && <SubTitle textDecoration="underline" style={{ 'text-decoration-skip-ink': 'none' }} color="inherit" fontWeight={dbrBalance < 0 ? 'extrabold' : 'normal'}>
-                    {shortenNumber(dbrBalance, 2)} {depletedLabel}
-                </SubTitle>
-            }
-        </Link>
+        <DbrBuyerTrigger>
+            <Text color={needTopUp ? 'error' : 'secondaryTextColor'} cursor="pointer">
+                {
+                    dbrBalance > 0 && <SubTitle color="inherit">
+                        {shortenNumber(dbrBalance, 2)}{!!dbrBalance && ` (${shortenNumber(dbrBalance * dbrPriceUsd, 2, true)})`}
+                    </SubTitle>
+                }
+                {
+                    dbrBalance === 0 && !debt && <SubTitle textDecoration="underline" style={{ 'text-decoration-skip-ink': 'none' }} color="inherit">
+                        Buy now
+                    </SubTitle>
+                }
+                {
+                    needTopUp && <SubTitle textDecoration="underline" style={{ 'text-decoration-skip-ink': 'none' }} color="inherit" fontWeight={dbrBalance < 0 ? 'extrabold' : 'normal'}>
+                        {shortenNumber(dbrBalance, 2)} {depletedLabel}
+                    </SubTitle>
+                }
+            </Text>
+        </DbrBuyerTrigger>
     </VStack>;
 
     const otherInfos = <>
@@ -297,9 +299,11 @@ export const DbrBar = ({
                     <Title textAlign="right">
                         DBR Depletion Time
                     </Title>
-                    <SubTitle textAlign="right" display="flex" alignItems="center" fontWeight={needsRechargeSoon ? 'extrabold' : 'inherit'} color={needsRechargeSoon ? dbrBalance < 0 ? 'error' : 'warning' : 'secondaryTextColor'}>
-                        {dbrBalance <= 0 && <WarningTwoIcon mr="1" />}{dbrBalance <= 0 ? 'Depleted' : fromNow(dbrExpiryDate)}
-                    </SubTitle>
+                    <DbrBuyerTrigger>
+                        <SubTitle textAlign="right" display="flex" alignItems="center" fontWeight={needsRechargeSoon ? 'extrabold' : 'inherit'} color={needsRechargeSoon ? dbrBalance < 0 ? 'error' : 'warning' : 'secondaryTextColor'} cursor="pointer">
+                            {dbrBalance <= 0 && <WarningTwoIcon mr="1" />}{dbrBalance <= 0 ? 'Depleted' : fromNow(dbrExpiryDate)}
+                        </SubTitle>
+                    </DbrBuyerTrigger>
                 </VStack>
                 <VStack spacing="1" alignItems='flex-end'>
                     <DbrReminder dbrExpiryDate={dbrExpiryDate} dbrBalance={dbrBalance} />
