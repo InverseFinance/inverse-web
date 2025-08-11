@@ -33,9 +33,11 @@ const DbrRepMsg = ({ replenishmentDailyRate, ...props }: { replenishmentDailyRat
     description={
         <HStack spacing='1' display={{ base: 'inline-block', sm: 'inline-flex' }} {...props}>
             <Text><b>You are out of DBR,</b></Text>
-            <Link style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" fontWeight="extrabold" color={'error'} href={BUY_LINKS.DBR} isExternal target='_blank'>
-                please top-up your balance,
-            </Link>
+            <DbrBuyerTrigger>
+                <Text style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" fontWeight="extrabold" color={'error'} cursor="pointer">
+                    please top-up your balance,
+                </Text>
+            </DbrBuyerTrigger>
             <Text>the daily cost is <b>{replenishmentDailyRate}% of your debt</b></Text>
         </HStack>
     } />;
