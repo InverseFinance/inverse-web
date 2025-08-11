@@ -282,6 +282,8 @@ function EnsoZap({
         return isInModal ? {} : { mt: 0, border: 'none', p: 0, shadow: 'none' }
     }, [isInModal]);
 
+    const showError = (isApproved || !!amountIn) && !!zapResponseData?.error;
+
     return <Container w='full' noPadding p='0' label={title} contentProps={{ ...extraContentProps, ...containerProps }}>
         {
             !isConnected ? <WarningMessage
@@ -413,7 +415,7 @@ function EnsoZap({
                                     </Text>
                             }
                             {
-                                (isApproved || !!amountIn) && !!zapResponseData?.error && <Text color="warning" fontWeight="bold" fontSize="14px">
+                                showError && <Text color="warning" fontWeight="bold" fontSize="14px">
                                     {zapResponseData?.error?.toString()}
                                 </Text>
                             }
@@ -421,7 +423,7 @@ function EnsoZap({
                     }
 
                     {
-                        !!resultFormatter ? resultFormatter(tokenOutObj, tokenInObj, zapResponseData, targetAssetPrice, combinedPrices[tokenInObj.address], amountIn) : isDolaStakingFromDola && exRate > 0 ? <Text>Result: ~ {1/exRate * parseFloat(amountIn||'0')} sDOLA ({shortenNumber(targetAssetPrice * 1/exRate * parseFloat(amountIn||'0'), 2, true)})</Text> : !zapResponseData?.error && zapResponseData?.route && <EnsoRouting
+                        showError ? null : !!resultFormatter ? resultFormatter(tokenOutObj, tokenInObj, zapResponseData, targetAssetPrice, combinedPrices[tokenInObj.address], amountIn) : isDolaStakingFromDola && exRate > 0 ? <Text>Result: ~ {1/exRate * parseFloat(amountIn||'0')} sDOLA ({shortenNumber(targetAssetPrice * 1/exRate * parseFloat(amountIn||'0'), 2, true)})</Text> : !zapResponseData?.error && zapResponseData?.route && <EnsoRouting
                             onlyShowResult={isDolaStakingFromDola}
                             chainId={chainId?.toString()}
                             targetChainId={targetChainId?.toString()}
