@@ -252,25 +252,23 @@ export const DbrBar = ({
             DBR Balance
         </Title>
 
-        <DbrBuyerTrigger>
-            <Text color={needTopUp ? 'error' : 'secondaryTextColor'} cursor="pointer">
-                {
-                    dbrBalance > 0 && <SubTitle textAlign="left" color="inherit">
-                        {shortenNumber(dbrBalance, 2, false, true)}{!!dbrBalance && ` (${shortenNumber(dbrBalance * dbrPriceUsd, 2, true, true)})`}
-                    </SubTitle>
-                }
-                {
-                    dbrBalance === 0 && !debt && <SubTitle textAlign="left" color="inherit">
-                        Buy now
-                    </SubTitle>
-                }
-                {
-                    needTopUp && <SubTitle textAlign="left" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" color="inherit" fontWeight={dbrBalance < 0 ? 'extrabold' : 'normal'}>
-                        {shortenNumber(dbrBalance, 2)} Top-up now
-                    </SubTitle>
-                }
-            </Text>
-        </DbrBuyerTrigger>
+        <Link color={needTopUp ? 'error' : 'secondaryTextColor'} href={BUY_LINKS.DBR} isExternal target='_blank'>
+            {
+                dbrBalance > 0 && <SubTitle textAlign="left" color="inherit">
+                    {shortenNumber(dbrBalance, 2, false, true)}{!!dbrBalance && ` (${shortenNumber(dbrBalance * dbrPriceUsd, 2, true, true)})`}
+                </SubTitle>
+            }
+            {
+                dbrBalance === 0 && !debt && <SubTitle textAlign="left" color="inherit">
+                    Buy now
+                </SubTitle>
+            }
+            {
+                needTopUp && <SubTitle textAlign="left" style={{ 'text-decoration-skip-ink': 'none' }} textDecoration="underline" color="inherit" fontWeight={dbrBalance < 0 ? 'extrabold' : 'normal'}>
+                    {shortenNumber(dbrBalance, 2)} Top-up now
+                </SubTitle>
+            }
+        </Link>
     </VStack>
 
     return <VStack w='full' {...props}>
