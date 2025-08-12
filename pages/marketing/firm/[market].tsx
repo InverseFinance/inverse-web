@@ -171,7 +171,7 @@ export const F2MarketPage = ({ market, isEditable = true }: { market: string, is
             {
                 !f2market?.underlying || !inited ? null :
                     <ErrorBoundary description="Error in the market page, please try reloading">
-                        <VStack contentEditable={isEditable} alignItems="flex-start" color="white" spacing={8} w="full" justify="flex-start" maxW="1000px">
+                        <VStack spellCheck="false" contentEditable={isEditable} alignItems="flex-start" color="white" spacing={8} w="full" justify="flex-start" maxW="1000px">
                             <Text color="white" as="h1" fontSize="40px" fontWeight="bold">Accelerated Leveraged Economics</Text>
                             <HStack spacing="4" w="full" justify="flex-start" fontSize="24px">
                                 <HStack w='50%'>
