@@ -67,6 +67,7 @@ export default async function handler(req, res) {
         });
 
         const resultData = {
+            timestamp: Date.now(),
             firmTotalTvl: tvl,
             firmTvls: Object.entries(marketTvls).map(([marketIndex, tvl]) => {
                 const market = marketsCache.markets[marketIndex];
@@ -75,7 +76,6 @@ export default async function handler(req, res) {
                     market: { name: market.name, address: market.address, underlying: market.underlying }
                 }
             }),
-            timestamp: +(new Date()),
         }
 
         await redisSetWithTimestamp(firmTvlCacheKey, resultData);

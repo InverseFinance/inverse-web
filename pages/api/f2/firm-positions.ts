@@ -19,7 +19,7 @@ export const F2_UNIQUE_USERS_CACHE_KEY = 'f2unique-users-v1.0.91'
 
 export const getFirmMarketUsers = async (provider, cacheDuration = 240) => {
   const { data: _uniqueUsersCacheData, isValid: isUniqueUsersCacheValid } = (await getCacheFromRedisAsObj(F2_UNIQUE_USERS_CACHE_KEY, true, cacheDuration));
-  if(isUniqueUsersCacheValid) {
+  if(isUniqueUsersCacheValid && !!_uniqueUsersCacheData?.firmMarketUsers) {
     return _uniqueUsersCacheData;
   }
   const uniqueUsersCacheData = _uniqueUsersCacheData || {
@@ -53,8 +53,6 @@ export const getFirmMarketUsers = async (provider, cacheDuration = 240) => {
     });
   });
 
-  await redisSetWithTimestamp(F2_UNIQUE_USERS_CACHE_KEY, { latestBlockNumber: currentBlock, marketUsersAndEscrows });
-
   const usedMarkets = Object.keys(marketUsersAndEscrows);
 
   const firmMarketUsers = usedMarkets.map((marketAd, usedMarketIndex) => {
@@ -67,6 +65,8 @@ export const getFirmMarketUsers = async (provider, cacheDuration = 240) => {
     });
   })
     .flat()
+
+  await redisSetWithTimestamp(F2_UNIQUE_USERS_CACHE_KEY, { latestBlockNumber: currentBlock, marketUsersAndEscrows, firmMarketUsers });
 
   return { firmMarketUsers, marketUsersAndEscrows };
 }
