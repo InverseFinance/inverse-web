@@ -450,6 +450,8 @@ export const FIRM_MARKETS = [
         underlyingSymbol: 'sUSDe-DOLA',
         isAleWithoutSwap: true,
         isInv: false,
+        points: 15,
+        pointsImage: 'https://assets.coingecko.com/coins/images/36530/standard/ethena.png?1711701436',
     },
     {
         name: 'sUSDS-DOLA',
