@@ -19,7 +19,7 @@ export const firmTvlCacheKey = 'f2-tvl-v1.0.3'
 export default async function handler(req, res) {
     const { cacheFirst } = req.query;
     try {
-        const cacheDuration = 120;
+        const cacheDuration = 90;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
         
         const { data: cachedTvl, isValid: isCachedTvlValid } = await getCacheFromRedisAsObj(firmTvlCacheKey, cacheFirst !== 'true', cacheDuration);

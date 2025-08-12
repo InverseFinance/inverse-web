@@ -3,14 +3,13 @@ import 'source-map-support'
 import { F2_MARKET_ABI, F2_ESCROW_ABI, DBR_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getPaidProvider, getProvider } from '@app/util/providers';
-import { getCacheFromRedis, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
+import { getCacheFromRedis, getCacheFromRedisAsObj, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { CHAIN_ID, ONE_DAY_MS } from '@app/config/constants';
 import { CHAIN_TOKENS, getToken } from '@app/variables/tokens';
 import { F2_MARKETS_CACHE_KEY } from './fixed-markets';
 import { uniqueBy } from '@app/util/misc';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
-import { SIMS_CACHE_KEY } from '../drafts/sim';
 import { JsonRpcProvider } from '@ethersproject/providers';
 
 const { F2_MARKETS, DBR } = getNetworkConfigConstants();
@@ -18,8 +17,12 @@ const { F2_MARKETS, DBR } = getNetworkConfigConstants();
 export const F2_POSITIONS_CACHE_KEY = 'f2positions-v1.1.0'
 export const F2_UNIQUE_USERS_CACHE_KEY = 'f2unique-users-v1.0.91'
 
-export const getFirmMarketUsers = async (provider) => {
-  const uniqueUsersCacheData = (await getCacheFromRedis(F2_UNIQUE_USERS_CACHE_KEY, false)) || {
+export const getFirmMarketUsers = async (provider, cacheDuration = 240) => {
+  const { data: _uniqueUsersCacheData, isValid: isUniqueUsersCacheValid } = (await getCacheFromRedisAsObj(F2_UNIQUE_USERS_CACHE_KEY, true, cacheDuration));
+  if(isUniqueUsersCacheValid) {
+    return _uniqueUsersCacheData;
+  }
+  const uniqueUsersCacheData = _uniqueUsersCacheData || {
     latestBlockNumber: undefined,
     marketUsersAndEscrows: {}, // with marketAddress: { users: [], escrows: [] }
   };
