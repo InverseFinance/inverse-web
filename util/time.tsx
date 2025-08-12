@@ -71,15 +71,15 @@ export const timeSince = (time: Date | number | undefined, withoutSuffix = false
     return `${hours} hour${hours !== 1 ? 's' : ''}${withoutSuffix ? '' : ' ago'}`
   }
 
-  if (minutes < 60 * 24 * 7) {
+  if (minutes < 60 * 24 * 60) {
     const days = Math.floor(minutes / 60 / 24)
     return `${days} day${days !== 1 ? 's' : ''}${withoutSuffix ? '' : ' ago'}`
   }
 
-  if (minutes < 60 * 24 * 30) {
-    const weeks = Math.floor(minutes / (60 * 24 * 7))
-    return `${weeks} week${weeks !== 1 ? 's' : ''}${withoutSuffix ? '' : ' ago'}`
-  }
+  // if (minutes < 60 * 24 * 30) {
+  //   const weeks = Math.floor(minutes / (60 * 24 * 7))
+  //   return `${weeks} week${weeks !== 1 ? 's' : ''}${withoutSuffix ? '' : ' ago'}`
+  // }
 
   if (minutes < 60 * 24 * 365) {
     const months = Math.floor(minutes / (60 * 24 * 30))
@@ -109,15 +109,15 @@ export const timeUntil = (time: Date | number | undefined, withoutPrefix = false
     return `${withoutPrefix ? '' : 'in '}${hours} hour${hours !== 1 ? 's' : ''}`
   }
 
-  if (minutes < 60 * 24 * 7) {
+  if (minutes < 60 * 24 * 60) {
     const days = Math.floor(minutes / 60 / 24)
     return `${withoutPrefix ? '' : 'in '}${days} day${days !== 1 ? 's' : ''}`
   }
 
-  if (minutes < 60 * 24 * 30) {
-    const weeks = Math.floor(minutes / (60 * 24 * 7))
-    return `${withoutPrefix ? '' : 'in '}${weeks} week${weeks !== 1 ? 's' : ''}`
-  }
+  // if (minutes < 60 * 24 * 30) {
+  //   const weeks = Math.floor(minutes / (60 * 24 * 7))
+  //   return `${withoutPrefix ? '' : 'in '}${weeks} week${weeks !== 1 ? 's' : ''}`
+  // }
 
   if (minutes < 60 * 24 * 365) {
     const months = Math.floor(minutes / (60 * 24 * 30))
