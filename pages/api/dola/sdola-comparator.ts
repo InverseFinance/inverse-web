@@ -12,7 +12,7 @@ import { SVAULT_ABI } from '@app/config/abis';
 import { getMulticallOutput } from '@app/util/multicall';
 import { DAILY_UTC_CACHE_KEY } from '../cron-daily-block-timestamp';
 import { ARCHIVED_UTC_DATES_BLOCKS } from '@app/fixtures/utc-dates-blocks';
-import { ONE_DAY_SECS } from '@app/config/constants';
+import { BLOCKS_PER_DAY, ONE_DAY_SECS } from '@app/config/constants';
 import { dolaStakingCacheKey } from '../dola-staking';
 
 // https://vision.perspective.fi/api/mainnet/graph-data/0xb45ad160634c528Cc3D2926d9807104FA3157305
@@ -26,10 +26,18 @@ export const getOnChainData = async (meta: any[]) => {
   const { data: utcKeyBlockValues, isValid } = await getCacheFromRedisAsObj(DAILY_UTC_CACHE_KEY, false) || { data: ARCHIVED_UTC_DATES_BLOCKS, isValid: false };
   const provider = getProvider(NetworkIds.mainnet);
   const currentBlockNumber = await provider.getBlockNumber();
-  const currentBlock = await provider.getBlock(currentBlockNumber);
+
+  const [currentBlock, previousBlock, oneHourBlock, oneDayBlock] = await Promise.all([
+    provider.getBlock(currentBlockNumber),
+    provider.getBlock(`0x${(currentBlockNumber - 1).toString(16)}`),
+    provider.getBlock(`0x${(currentBlockNumber - Math.floor(BLOCKS_PER_DAY/24)).toString(16)}`),
+    provider.getBlock(`0x${(currentBlockNumber - Math.floor(BLOCKS_PER_DAY)).toString(16)}`),
+  ]);
+
   const currentBlockTimestamp = currentBlock.timestamp;
-  const previousBlock = await provider.getBlock(`0x${(currentBlockNumber - 1).toString(16)}`);
   const previousBlockTimestamp = previousBlock.timestamp;
+  const oneHourBlockTimestamp = oneHourBlock.timestamp;
+  const oneDayBlockTimestamp = oneDayBlock.timestamp;
 
   const now = Date.now();
   const dayMs = 24 * 60 * 60 * 1000;
@@ -42,9 +50,9 @@ export const getOnChainData = async (meta: any[]) => {
   const oneHundredEightyDaysAgoBlock = utcKeyBlockValues[NetworkIds.mainnet][timestampToUTC(now - 180 * dayMs)];
   const threeHundredSixtyDaysAgoBlock = utcKeyBlockValues[NetworkIds.mainnet][timestampToUTC(now - 365 * dayMs)];
 
-  const blocks = [currentBlockNumber, previousBlock.number, sevenDayAgoBlock, fourteenDayAgoBlock, thirtyDaysAgoBlock, sixtyDaysAgoBlock, ninetyDaysAgoBlock, oneHundredEightyDaysAgoBlock, threeHundredSixtyDaysAgoBlock];
+  const blocks = [currentBlockNumber, previousBlock.number, oneHourBlock.number, oneDayBlock.number, sevenDayAgoBlock, fourteenDayAgoBlock, thirtyDaysAgoBlock, sixtyDaysAgoBlock, ninetyDaysAgoBlock, oneHundredEightyDaysAgoBlock, threeHundredSixtyDaysAgoBlock];
 
-  const [todayRates, previousBlockRates, sevenDayRates, fourteenDayRates, thirtyDayRates, sixtyDayRates, ninetyDayRates, oneHundredEightyDayRates, threeHundredSixtyDayRates] = await Promise.all(
+  const [todayRates, previousBlockRates, oneHourRates, oneDayRates, sevenDayRates, fourteenDayRates, thirtyDayRates, sixtyDayRates, ninetyDayRates, oneHundredEightyDayRates, threeHundredSixtyDayRates] = await Promise.all(
     blocks.map(block => getMulticallOutput(
       meta.map(metaItem => ({
         contract: new Contract(metaItem.address, VAULT_ABI_EXTENDED, provider),
@@ -94,11 +102,14 @@ export const getOnChainData = async (meta: any[]) => {
         return nonVaultHistoricalRates[index];
       }
       return {
-        calculatedApy: 0, apy30d: 0, apy60d: 0, apy90d: 0, apy180d: 0, apy365d: 0, totalAssets: 0, totalAssets30d: 0, totalAssets90d: 0,
+        calculatedApy: 0, apy1h: 0, apy1d: 0, apy7d: 0, apy14d: 0, apy30d: 0, apy60d: 0, apy90d: 0, apy180d: 0, apy365d: 0, totalAssets: 0, totalAssets30d: 0, totalAssets90d: 0,
       }
     }
     const todayExRate = getBnToNumber(todayRates[index]);
     const calculatedApy = 100 * (Math.pow(todayExRate / getBnToNumber(previousBlockRates[index]), (365 * ONE_DAY_SECS) / (currentBlockTimestamp - previousBlockTimestamp)) - 1);
+
+    const apy1h = 100 * (Math.pow(todayExRate / getBnToNumber(oneHourRates[index]), (365 * ONE_DAY_SECS) / (currentBlockTimestamp - oneHourBlockTimestamp)) - 1);
+    const apy1d = 100 * (Math.pow(todayExRate / getBnToNumber(oneDayRates[index]), (365 * ONE_DAY_SECS) / (currentBlockTimestamp - oneDayBlockTimestamp)) - 1);
     const apy7d = 100 * (Math.pow(todayExRate / getBnToNumber(sevenDayRates[index]), 365 / 7) - 1);
     const apy14d = 100 * (Math.pow(todayExRate / getBnToNumber(fourteenDayRates[index]), 365 / 14) - 1);
     const apy30d = 100 * (Math.pow(todayExRate / getBnToNumber(thirtyDayRates[index]), 365 / 30) - 1);
@@ -109,6 +120,8 @@ export const getOnChainData = async (meta: any[]) => {
     return {
       calculatedApy,
       exchangeRate: todayExRate,
+      apy1h,
+      apy1d,
       apy7d,
       apy14d,
       apy30d,
@@ -345,6 +358,8 @@ export default async function handler(req, res) {
           tvl: metaData.symbol === 'sDOLA' && !!dolaStakingData?.tvlUsd ? dolaStakingData.tvlUsd : defillamaPoolData?.tvlUsd || onChainData[index].totalAssets || null,
           apy: (onChainData[index].calculatedApy || rate.supplyRate || rate.apy),
           thirdPartyApy: rate.supplyRate || rate.apy,
+          apy1h: onChainData[index].apy1h,
+          apy1d: onChainData[index].apy1d,
           apy7d: onChainData[index].apy7d,
           apy14d: onChainData[index].apy14d,
           apy30d: onChainData[index].apy30d || (rate.apyMean30d || rate.apy30d),
