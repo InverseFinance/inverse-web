@@ -327,13 +327,13 @@ function EnsoZap({
 
                     <Stack alignItems="center" spacing="2" direction={{ base: 'columns', md: 'row' }} justify="space-between" w='full'>
                         {
-                            !isSingleChoice && <HStack>
-                                <Text>To</Text>
-                                <SimpleAssetDropdown
+                            toOptions?.length > 1 && <HStack>
+                                <Text fontWeight="bold">To:</Text>
+                                {/* <SimpleAssetDropdown
                                     list={implementedNetworks}
                                     selectedValue={targetChainId}
                                     handleChange={(v) => setTargetChainId(v.value)}
-                                />
+                                /> */}
                             </HStack>
                         }
                         {
