@@ -235,6 +235,9 @@ export const F2MarketPage = ({ market, isEditable = true }: { market: string, is
                                     </VStack>
                                 }
                             </HStack>
+                            <Text color="white" fontSize="16px" textDecoration="underline">
+                                inverse.finance/firm
+                            </Text>
                             <Text color="white" fontSize="16px" fontStyle="italic">
                                 Example is for illustrative purposes only and does not constitute an offer, solicitation, or inducement to any person to acquire any particular asset or enter into any strategy.
                             </Text>

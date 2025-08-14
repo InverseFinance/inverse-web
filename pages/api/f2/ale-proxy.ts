@@ -103,6 +103,8 @@ export default async function handler(req, res) {
      
       const pendleData = await getPendleSwapData(buyToken, sellToken, sellAmount, slippagePercentage, isExpired);
       return res.status(200).json({
+        error: pendleData.error,
+        msg: pendleData.msg,
         bestProxyName: 'pendle',
         buyAmount: pendleData.buyAmount,
         data: '0x',

@@ -104,11 +104,16 @@ export const getPendleSwapData = async (
     }
 
     const responseData = await fetch(`${baseUrl}?${queryParams}`).then(r => r.json());
+
+    const hasError = !!responseData.error;
+
     return {
-        buyAmount: responseData.data.amountOut,
-        data: responseData.tx.data,
-        gasPrice: responseData.tx.gasPrice,
-        to: responseData.tx.to,
+        error: hasError,
+        msg: hasError ? responseData?.message || 'Unknown error' : undefined,
+        buyAmount: responseData?.data?.amountOut || '0',
+        data: responseData?.tx?.data || '0x',
+        gasPrice: responseData?.tx?.gasPrice || '0',
+        to: responseData?.tx?.to || '0x',
         receiver,
         baseUrl,
     };
