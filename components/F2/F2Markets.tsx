@@ -311,7 +311,7 @@ export const MarketApyInfos = ({ showLeveragedApy = true, isLeverageComingSoon, 
 }
 
 const leverageColumn = {
-    field: 'maxApy',
+    field: 'maxUsableApy',
     label: 'Leverage',
     header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
     tooltip: <VStack>
@@ -945,7 +945,8 @@ export const F2Markets = ({
                                             .filter(marketFilter)
                                             .map(m => {
                                                 const maxApy = calculateNetApy((m.supplyApy || 0) + (m.extraApy || 0), m.collateralFactor, dbrPrice);
-                                                return { ...m, isLeverageView, maxApy, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
+                                                const maxUsableApy = m.leftToBorrow >= 1 ? maxApy : -9999;
+                                                return { ...m, isLeverageView, maxUsableApy, maxApy, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
                                             })
                                     }
                                     onClick={openMarket}
@@ -993,13 +994,15 @@ export const F2Markets = ({
                                     .filter(marketFilter)
                                     .map(m => {
                                         const maxApy = calculateNetApy((m.supplyApy || 0) + (m.extraApy || 0), m.collateralFactor, dbrPrice);
-                                        return { ...m, isLeverageView, maxApy: maxApy <= 0 ? -1 / m.collateralFactor : maxApy, dbrPriceUsd: (dbrPrice), tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
+                                        const maxUsableApy = m.leftToBorrow >= 1 ? maxApy : -9999;
+                                        const leftToBorrowVisible = m.leftToBorrow < 1 ? 0 : m.leftToBorrow;
+                                        return { ...m, isLeverageView, leftToBorrowVisible, maxUsableApy, maxApy: maxApy <= 0 ? -1 / m.collateralFactor : maxApy, dbrPriceUsd: (dbrPrice), tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
                                     })
                             }
                             onClick={openMarket}
-                            defaultSort={isLeverageView ? 'maxApy' : 'maxBorrowableByUserWallet'}
+                            defaultSort={isLeverageView ? 'maxUsableApy' : 'maxBorrowableByUserWallet'}
                             defaultSortDir="desc"
-                            secondarySortFields={account ? ['maxBorrowableByUserWallet', 'leftToBorrow', 'tvl'] : ['leftToBorrow', 'collateralFactor']}
+                            secondarySortFields={isLeverageView ? account ? ['maxApy', 'maxBorrowableByUserWallet', 'leftToBorrowVisible', 'tvl'] : ['maxApy', 'leftToBorrowVisible', 'collateralFactor', 'tvl'] : account ? ['maxBorrowableByUserWallet', 'leftToBorrowVisible', 'tvl'] : ['leftToBorrowVisible', 'collateralFactor', 'tvl']}
                             enableMobileRender={true}
                             mobileClickBtnLabel={'View Market'}
                             mobileThreshold={responsiveThreshold}
