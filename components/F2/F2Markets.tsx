@@ -311,7 +311,7 @@ export const MarketApyInfos = ({ showLeveragedApy = true, isLeverageComingSoon, 
 }
 
 const leverageColumn = {
-    field: 'maxApy',
+    field: 'maxUsableApy',
     label: 'Leverage',
     header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
     tooltip: <VStack>
@@ -945,7 +945,8 @@ export const F2Markets = ({
                                             .filter(marketFilter)
                                             .map(m => {
                                                 const maxApy = calculateNetApy((m.supplyApy || 0) + (m.extraApy || 0), m.collateralFactor, dbrPrice);
-                                                return { ...m, isLeverageView, maxApy, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
+                                                const maxUsableApy = m.leftToBorrow >= 1 ? maxApy : -9999;
+                                                return { ...m, isLeverageView, maxUsableApy, maxApy, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
                                             })
                                     }
                                     onClick={openMarket}
