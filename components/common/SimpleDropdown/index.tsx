@@ -8,6 +8,7 @@ type SimpleDropDownProps = {
     selectedValue?: string,
     handleChange: (v: any) => void,
     dropdownSelectedProps?: FlexProps,
+    withSearch?: boolean,
 }
 
 export const SimpleAssetDropdown = ({
@@ -15,6 +16,7 @@ export const SimpleAssetDropdown = ({
     selectedValue,
     handleChange,
     dropdownSelectedProps,
+    withSearch = false,
 }: SimpleDropDownProps) => {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [justClosed, setJustClosed] = useState(isOpen)
@@ -34,6 +36,7 @@ export const SimpleAssetDropdown = ({
                 if (!isOpen && !justClosed) { onOpen() }
             }}
             noPadding
+            withSearch={withSearch}
             label={
                 <HStack w='full' p="2">
                     {
