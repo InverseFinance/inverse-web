@@ -993,11 +993,12 @@ export const F2Markets = ({
                                     .filter(marketFilter)
                                     .map(m => {
                                         const maxApy = calculateNetApy((m.supplyApy || 0) + (m.extraApy || 0), m.collateralFactor, dbrPrice);
-                                        return { ...m, isLeverageView, maxApy: maxApy <= 0 ? -1 / m.collateralFactor : maxApy, dbrPriceUsd: (dbrPrice), tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
+                                        const maxUsableApy = m.leftToBorrow >= 1 ? maxApy : -9999;
+                                        return { ...m, isLeverageView, maxUsableApy, maxApy: maxApy <= 0 ? -1 / m.collateralFactor : maxApy, dbrPriceUsd: (dbrPrice), tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
                                     })
                             }
                             onClick={openMarket}
-                            defaultSort={isLeverageView ? 'maxApy' : 'maxBorrowableByUserWallet'}
+                            defaultSort={isLeverageView ? 'maxUsableApy' : 'maxBorrowableByUserWallet'}
                             defaultSortDir="desc"
                             secondarySortFields={account ? ['maxBorrowableByUserWallet', 'leftToBorrow', 'tvl'] : ['leftToBorrow', 'collateralFactor']}
                             enableMobileRender={true}
