@@ -45,6 +45,7 @@ export const Swap = () => {
               title="Swap between popular assets"
               containerProps={{ w: 'full' }}
               isSingleChoice={true}
+              asSwapUi={true}
               ensoPools={
                 ZAP_TOKENS_ARRAY.filter(token => token.chainId === 1).map(token => {
                   return { poolAddress: token.address, ...token, chainId: token.chainId }

@@ -28,6 +28,7 @@ import { SDOLA_ADDRESS } from "@app/config/constants";
 import { stakeDola } from "@app/util/dola-staking";
 import { shortenNumber, smartAutoNumber } from "@app/util/markets";
 import { ETH_SAVINGS_STABLECOINS, STABLE_SYMBOLS_LOWER } from "@app/variables/stables";
+import { AssetDropdown } from "@app/components/common/Assets/FromAssetDropdown";
 const zapOptions = [...new Set(ZAP_TOKENS_ARRAY.map(t => t.address))];
 
 const removeUndefined = obj => Object.fromEntries(
@@ -61,6 +62,7 @@ function EnsoZap({
     resultFormatter,
     containerProps,
     slippageDefault = '0.1',
+    asSwapUi = false,
 }: {
     defaultTokenIn?: string
     defaultTokenOut: string
@@ -82,6 +84,7 @@ function EnsoZap({
     defaultAmountInUSD?: number
     resultFormatter?: (amountOut: string, price: number) => React.ReactNode
     containerProps?: any
+    asSwapUi?: boolean
 }) {
     const account = useAccount();
     const { provider, chainId } = useWeb3React<Web3Provider>();
@@ -158,15 +161,15 @@ function EnsoZap({
 
     const fromOptionsWithBalance = useMemo(() => {
         return ZAP_TOKENS_ARRAY
-            .filter(t => t.chainId === chainId 
+            .filter(t => t.chainId === chainId
                 && (
-                (
-                    !!balances && !!balances[t.address]
-                    && (onlyFromStables ? STABLE_SYMBOLS_LOWER.includes(t.symbol.toLowerCase()) : true)
-                    // USDT is not well supported by Enso
-                    && (t.symbol !== 'USDT')
-                //  && getBnToNumber(balances[t.address], t.decimals) >= 0.01
-            ) || (t.symbol === 'ETH' && !onlyFromStables))
+                    (
+                        !!balances && !!balances[t.address]
+                        && (onlyFromStables ? STABLE_SYMBOLS_LOWER.includes(t.symbol.toLowerCase()) : true)
+                        // USDT is not well supported by Enso
+                        && (t.symbol !== 'USDT')
+                        //  && getBnToNumber(balances[t.address], t.decimals) >= 0.01
+                    ) || (t.symbol === 'ETH' && !onlyFromStables))
 
             )
             .reduce((prev, curr) => {
@@ -243,7 +246,7 @@ function EnsoZap({
         return !!amountIn && parseFloat(amountIn) > 0;
     }, [amountIn]);
 
-    const isLoading = (!ads.length || !balances);
+    const isLoading = asSwapUi ? false : (!ads.length || !balances);
 
     const resetForm = () => {
         setAmountIn('');
@@ -304,9 +307,9 @@ function EnsoZap({
                         token={tokenInObj}
                         assetOptions={zapOptions}
                         onAssetChange={(newToken) => {
-                            if(autoConvertAmountWhenTokenChanges && !!amountIn && !!combinedPrices[newToken.address] && !!combinedPrices[tokenInObj.address]) {
+                            if (autoConvertAmountWhenTokenChanges && !!amountIn && !!combinedPrices[newToken.address] && !!combinedPrices[tokenInObj.address]) {
                                 const tokenInPrice = combinedPrices[newToken.address];
-                                const amountInNewSelectedToken = parseFloat(amountIn) * combinedPrices[tokenInObj.address]  / tokenInPrice;
+                                const amountInNewSelectedToken = parseFloat(amountIn) * combinedPrices[tokenInObj.address] / tokenInPrice;
                                 changeAmount(smartAutoNumber(amountInNewSelectedToken, tokenInPrice, 6));
                                 setTokenIn(newToken.address);
                             } else {
@@ -337,10 +340,19 @@ function EnsoZap({
                             </HStack>
                         }
                         {
-                            toOptions?.length > 1 ? <SimpleAssetDropdown
+                            asSwapUi ? <AssetDropdown
+                                noPadding={false}
+                                token={tokenOutObj}
+                                withSearch={true}
+                                assetOptions={zapOptions.filter(t => t !== tokenInObj.address && t !== EthXe)}
+                                onAssetChange={(v) => setTokenOut(v.address)}
+                                {...fromAssetInputProps}
+                                dropdownSelectedProps={{ whiteSpace: 'nowrap', w: 'fit-content' }}
+                            /> : toOptions?.length > 1 ? <SimpleAssetDropdown
                                 list={toOptions}
                                 selectedValue={tokenOut}
                                 handleChange={(v) => setTokenOut(v.value)}
+                                withSearch={true}
                             /> : toOptions?.length === 1 ? null : <Text>No options for this chain</Text>
                         }
                     </Stack>
@@ -423,7 +435,7 @@ function EnsoZap({
                     }
 
                     {
-                        showError ? null : !!resultFormatter ? resultFormatter(tokenOutObj, tokenInObj, zapResponseData, targetAssetPrice, combinedPrices[tokenInObj.address], amountIn) : isDolaStakingFromDola && exRate > 0 ? <Text>Result: ~ {1/exRate * parseFloat(amountIn||'0')} sDOLA ({shortenNumber(targetAssetPrice * 1/exRate * parseFloat(amountIn||'0'), 2, true)})</Text> : !zapResponseData?.error && zapResponseData?.route && <EnsoRouting
+                        showError ? null : !!resultFormatter ? resultFormatter(tokenOutObj, tokenInObj, zapResponseData, targetAssetPrice, combinedPrices[tokenInObj.address], amountIn) : isDolaStakingFromDola && exRate > 0 ? <Text>Result: ~ {1 / exRate * parseFloat(amountIn || '0')} sDOLA ({shortenNumber(targetAssetPrice * 1 / exRate * parseFloat(amountIn || '0'), 2, true)})</Text> : !zapResponseData?.error && zapResponseData?.route && <EnsoRouting
                             onlyShowResult={isDolaStakingFromDola}
                             chainId={chainId?.toString()}
                             targetChainId={targetChainId?.toString()}
