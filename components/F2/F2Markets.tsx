@@ -328,7 +328,7 @@ const leverageColumn = {
                         Up to <b>{maxApy.toFixed(2)}%</b>
                     </CellText>
                     <CellText fontSize="12px" color="mainTextColorLight">
-                        Net APY at x{smartShortNumber(maxLong, 2)}
+                        Net APY at {smartShortNumber(maxLong, 2)}x
                     </CellText>
                 </>
                     : borrowPaused ? <MarketApyInfos
@@ -351,8 +351,35 @@ const leverageColumn = {
                         points={points}
                         pointsImage={pointsImage}
                     /> : <CellText fontSize="12px" color="mainTextColorLight">
-                        Long up to x{smartShortNumber(maxLong, 2)}
+                        Long up to {smartShortNumber(maxLong, 2)}x
                     </CellText>
+            }
+        </Cell>
+    },
+};
+
+const leverageUserColumn = {
+    field: 'maxUsableApy',
+    label: 'Leverage',
+    header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+    tooltip: <VStack>
+        <Text><b>Net APY</b>: Annual Percentage Yield at maximum theoretical leverage with the borrowing cost already deducted (at current DBR price), your Net APY depends on the actual price you bought DBR at</Text>
+        <Text><b>Long up to</b>: theoretical maximum leverage with DOLA at $1 and borrow limit at 100%</Text>
+    </VStack>,
+    value: ({ maxApy, name, userLeveragedApy, userLeverageLevel, isLeverageComingSoon, supplyApy, points, pointsImage, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
+        const maxLong = calculateMaxLeverage(collateralFactor);
+        const totalApy = ((supplyApy || 0) + (extraApy || 0));
+        return <Cell spacing="0" direction="column" minWidth="100px" alignItems="center">
+            {
+                !borrowPaused && dbrPriceUsd > 0 && maxApy > totalApy ? <>
+                    <CellText fontSize="14px" color="accentTextColor">
+                        <b>~{userLeveragedApy.toFixed(2)}%</b>
+                    </CellText>
+                    <CellText fontSize="12px" color="mainTextColorLight">
+                        Net APY at ~{smartShortNumber(userLeverageLevel, 2)}x
+                    </CellText>
+                </>
+                    : null
             }
         </Cell>
     },
@@ -551,14 +578,11 @@ const columns = [
 
 const columnsWithout = columns.slice(0, 9);
 const leverageColumns = [...columns];
+const leverageUserColumns = [...columns];
 const leverageColumnsWithout = [...columnsWithout];
 leverageColumns.splice(2, 1, leverageColumn);
+leverageUserColumns.splice(2, 1, leverageUserColumn);
 leverageColumnsWithout.splice(2, 1, leverageColumn);
-
-const firmImages = {
-    'dark': 'firm-final-logo-white.png',
-    'light': 'firm-final-logo.png',
-}
 
 const responsiveThreshold = 1260;
 
@@ -937,14 +961,17 @@ export const F2Markets = ({
                                 showMyPositions && <Table
                                     keyName="address"
                                     noDataMessage={search || category ? "No position for the selected filters" : "Loading..."}
-                                    columns={isLeverageView ? leverageColumns : columns}
+                                    columns={isLeverageView ? leverageUserColumns : columns}
                                     items={
                                         withDeposits
                                             .filter(marketFilter)
                                             .map(m => {
                                                 const maxApy = calculateNetApy((m.supplyApy || 0) + (m.extraApy || 0), m.collateralFactor, dbrPrice);
                                                 const maxUsableApy = m.leftToBorrow >= 1 ? maxApy : -9999;
-                                                return { ...m, isLeverageView, maxUsableApy, maxApy, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
+                                                const equity = m.depositsUsd - m.debt;
+                                                const userLeveragedApy = equity > 0 && m.collateralFactor >= 0.9 ? ((m.depositsUsd * m.totalApy) - (m.debt * dbrPrice * 100)) / equity : 0;
+                                                const userLeverageLevel = equity > 0 ? m.depositsUsd / equity : 0;
+                                                return { ...m, isLeverageView, maxUsableApy, userLeveragedApy, userLeverageLevel, maxApy, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
                                             })
                                     }
                                     onClick={openMarket}
