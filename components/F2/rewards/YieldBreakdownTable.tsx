@@ -59,12 +59,34 @@ const columns = [
     },
     {
         field: 'totalApy',
-        label: 'Total APY',
+        label: 'APY',
         boxProps,
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ totalApy }) => {
             return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
                 <CellText>{shortenNumber(totalApy, 2)}%</CellText>
+            </Cell>
+        },
+    },
+    {
+        field: 'userLeveragedApy',
+        label: 'Leveraged APY',
+        boxProps,
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        value: ({ userLeveragedApy }) => {
+            return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
+                <CellText>{userLeveragedApy > 0 ? `~${shortenNumber(userLeveragedApy, 2)}%` : '-'}</CellText>
+            </Cell>
+        },
+    },
+    {
+        field: 'userLeverageLevel',
+        label: 'Leverage Level',
+        boxProps,
+        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+        value: ({ userLeverageLevel }) => {
+            return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
+                <CellText>{userLeverageLevel > 0 ? `~${shortenNumber(userLeverageLevel, 2)}` : '-'}x</CellText>
             </Cell>
         },
     },

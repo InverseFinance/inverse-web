@@ -328,7 +328,7 @@ const leverageColumn = {
                         Up to <b>{maxApy.toFixed(2)}%</b>
                     </CellText>
                     <CellText fontSize="12px" color="mainTextColorLight">
-                        Net APY at x{smartShortNumber(maxLong, 2)}
+                        Net APY at {smartShortNumber(maxLong, 2)}x
                     </CellText>
                 </>
                     : borrowPaused ? <MarketApyInfos
@@ -351,8 +351,51 @@ const leverageColumn = {
                         points={points}
                         pointsImage={pointsImage}
                     /> : <CellText fontSize="12px" color="mainTextColorLight">
-                        Long up to x{smartShortNumber(maxLong, 2)}
+                        Long up to {smartShortNumber(maxLong, 2)}x
                     </CellText>
+            }
+        </Cell>
+    },
+};
+
+const leverageUserColumn = {
+    field: 'maxUsableApy',
+    label: 'Leveraged APY',
+    header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+    tooltip: <VStack>
+        <Text>Estimated leveraged net-APY using:</Text>
+        <math display="block">
+            <mrow>
+                <msub>
+                    <mi>netAPY</mi>
+                </msub>
+                <mo>=</mo>
+                <mfrac>
+                    <mrow>
+                        <mi>Deposits</mi><mi>*</mi><msub><mi>APY</mi></msub>
+                        <mo>−</mo>
+                        <mi>Debt</mi><mi>*</mi><msub><mi>APR</mi></msub>
+                    </mrow>
+                    <msub><mi>Deposits - Debt</mi></msub>
+                </mfrac>
+            </mrow>
+        </math>
+        {/* <Text>(depositsUSD * APY - debt * APR) / (equity)</Text> */}
+    </VStack>,
+    value: ({ maxApy, name, userLeveragedApy, userLeverageLevel, isLeverageComingSoon, supplyApy, points, pointsImage, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
+        // const maxLong = calculateMaxLeverage(collateralFactor);
+        const totalApy = ((supplyApy || 0) + (extraApy || 0));
+        return <Cell spacing="0" direction="column" minWidth="100px" alignItems="center">
+            {
+                !borrowPaused && dbrPriceUsd > 0 && maxApy > totalApy ? <>
+                    <CellText fontSize="14px" color="accentTextColor">
+                        <b>~{userLeveragedApy.toFixed(2)}%</b>
+                    </CellText>
+                    <CellText fontSize="12px" color="mainTextColorLight">
+                        Net APY at ~{smartShortNumber(userLeverageLevel, 2)}x
+                    </CellText>
+                </>
+                    : null
             }
         </Cell>
     },
@@ -551,14 +594,11 @@ const columns = [
 
 const columnsWithout = columns.slice(0, 9);
 const leverageColumns = [...columns];
+const leverageUserColumns = [...columns];
 const leverageColumnsWithout = [...columnsWithout];
 leverageColumns.splice(2, 1, leverageColumn);
+leverageUserColumns.splice(2, 1, leverageUserColumn);
 leverageColumnsWithout.splice(2, 1, leverageColumn);
-
-const firmImages = {
-    'dark': 'firm-final-logo-white.png',
-    'light': 'firm-final-logo.png',
-}
 
 const responsiveThreshold = 1260;
 
@@ -609,9 +649,17 @@ export const F2Markets = ({
     const withDeposits = accountMarketsWithoutPhasingOutMarkets
         .filter(m => m.depositsUsd > 1 || m.debt > 1)
         .map(m => {
+            const totalApy = ((m.supplyApy || 0) + (m.extraApy || 0));
+            const equity = m.depositsUsd - m.debt;
+            const apr = dbrUserRefPrice ? dbrUserRefPrice * 100 : dbrPrice * 100;
+            const userLeveragedApy = equity > 0 && m.collateralFactor >= 0.9 ? ((m.depositsUsd * totalApy) - (m.debt * apr)) / equity : 0;
+            const userLeverageLevel = equity > 0 ? m.depositsUsd / equity : 0;
             return {
                 ...m,
-                totalApy: (m.supplyApy || 0) + (m.extraApy || 0),
+                equity,
+                userLeveragedApy,
+                userLeverageLevel,
+                totalApy,
                 monthlyDbrBurnUsd: dbrUserRefPrice ? m.monthlyDbrBurn * dbrUserRefPrice : 0,
                 monthlyNetUsdYield: dbrUserRefPrice ? m.monthlyUsdYield - m.monthlyDbrBurn * dbrUserRefPrice : 0,
                 dbrUserRefPrice,
@@ -764,7 +812,7 @@ export const F2Markets = ({
                         }}
                         onClose={closeYieldBreakdown}
                         isOpen={isOpenYieldBreakdown}
-                        modalProps={{ minW: { base: '98vw', lg: '1000px' }, scrollBehavior: 'inside' }}
+                        modalProps={{ minW: { base: '98vw', lg: '1300px' }, scrollBehavior: 'inside' }}
                     >
                         <VStack alignItems="flex-start" spacing="4" p="4">
                             <InfoMessage
@@ -939,7 +987,7 @@ export const F2Markets = ({
                                 showMyPositions && <Table
                                     keyName="address"
                                     noDataMessage={search || category ? "No position for the selected filters" : "Loading..."}
-                                    columns={isLeverageView ? leverageColumns : columns}
+                                    columns={isLeverageView ? leverageUserColumns : columns}
                                     items={
                                         withDeposits
                                             .filter(marketFilter)
