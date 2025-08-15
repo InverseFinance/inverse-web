@@ -633,9 +633,16 @@ export const F2Markets = ({
     const withDeposits = accountMarketsWithoutPhasingOutMarkets
         .filter(m => m.depositsUsd > 1 || m.debt > 1)
         .map(m => {
+            const totalApy = ((m.supplyApy || 0) + (m.extraApy || 0));
+            const equity = m.depositsUsd - m.debt;
+            const userLeveragedApy = equity > 0 && m.collateralFactor >= 0.9 ? ((m.depositsUsd * totalApy) - (m.debt * dbrPrice * 100)) / equity : 0;
+            const userLeverageLevel = equity > 0 ? m.depositsUsd / equity : 0;
             return {
                 ...m,
-                totalApy: (m.supplyApy || 0) + (m.extraApy || 0),
+                equity,
+                userLeveragedApy,
+                userLeverageLevel,
+                totalApy,
                 monthlyDbrBurnUsd: dbrUserRefPrice ? m.monthlyDbrBurn * dbrUserRefPrice : 0,
                 monthlyNetUsdYield: dbrUserRefPrice ? m.monthlyUsdYield - m.monthlyDbrBurn * dbrUserRefPrice : 0,
                 dbrUserRefPrice,
@@ -786,7 +793,7 @@ export const F2Markets = ({
                         }}
                         onClose={closeYieldBreakdown}
                         isOpen={isOpenYieldBreakdown}
-                        modalProps={{ minW: { base: '98vw', lg: '1000px' }, scrollBehavior: 'inside' }}
+                        modalProps={{ minW: { base: '98vw', lg: '1300px' }, scrollBehavior: 'inside' }}
                     >
                         <VStack alignItems="flex-start" spacing="4" p="4">
                             <InfoMessage
@@ -968,10 +975,7 @@ export const F2Markets = ({
                                             .map(m => {
                                                 const maxApy = calculateNetApy((m.supplyApy || 0) + (m.extraApy || 0), m.collateralFactor, dbrPrice);
                                                 const maxUsableApy = m.leftToBorrow >= 1 ? maxApy : -9999;
-                                                const equity = m.depositsUsd - m.debt;
-                                                const userLeveragedApy = equity > 0 && m.collateralFactor >= 0.9 ? ((m.depositsUsd * m.totalApy) - (m.debt * dbrPrice * 100)) / equity : 0;
-                                                const userLeverageLevel = equity > 0 ? m.depositsUsd / equity : 0;
-                                                return { ...m, isLeverageView, maxUsableApy, userLeveragedApy, userLeverageLevel, maxApy, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
+                                                return { ...m, isLeverageView, maxUsableApy, maxApy, dbrPriceUsd: dbrPrice, tvl: firmTvls ? firmTvls?.find(d => d.market.address === m.address)?.tvl : 0 }
                                             })
                                     }
                                     onClick={openMarket}
