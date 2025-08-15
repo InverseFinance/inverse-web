@@ -360,14 +360,30 @@ const leverageColumn = {
 
 const leverageUserColumn = {
     field: 'maxUsableApy',
-    label: 'Leverage',
+    label: 'Leveraged APY',
     header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
     tooltip: <VStack>
-        <Text><b>Net APY</b>: Annual Percentage Yield at maximum theoretical leverage with the borrowing cost already deducted (at current DBR price), your Net APY depends on the actual price you bought DBR at</Text>
-        <Text><b>Long up to</b>: theoretical maximum leverage with DOLA at $1 and borrow limit at 100%</Text>
+        <Text>Estimated leveraged net-APY using:</Text>
+        <math display="block">
+            <mrow>
+                <msub>
+                    <mi>netAPY</mi>
+                </msub>
+                <mo>=</mo>
+                <mfrac>
+                    <mrow>
+                        <mi>Deposits</mi><mi>*</mi><msub><mi>APY</mi></msub>
+                        <mo>−</mo>
+                        <mi>Debt</mi><mi>*</mi><msub><mi>APR</mi></msub>
+                    </mrow>
+                    <msub><mi>Deposits - Debt</mi></msub>
+                </mfrac>
+            </mrow>
+        </math>
+        {/* <Text>(depositsUSD * APY - debt * APR) / (equity)</Text> */}
     </VStack>,
     value: ({ maxApy, name, userLeveragedApy, userLeverageLevel, isLeverageComingSoon, supplyApy, points, pointsImage, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
-        const maxLong = calculateMaxLeverage(collateralFactor);
+        // const maxLong = calculateMaxLeverage(collateralFactor);
         const totalApy = ((supplyApy || 0) + (extraApy || 0));
         return <Cell spacing="0" direction="column" minWidth="100px" alignItems="center">
             {
@@ -635,7 +651,8 @@ export const F2Markets = ({
         .map(m => {
             const totalApy = ((m.supplyApy || 0) + (m.extraApy || 0));
             const equity = m.depositsUsd - m.debt;
-            const userLeveragedApy = equity > 0 && m.collateralFactor >= 0.9 ? ((m.depositsUsd * totalApy) - (m.debt * dbrPrice * 100)) / equity : 0;
+            const apr = dbrUserRefPrice ? dbrUserRefPrice * 100 : dbrPrice * 100;
+            const userLeveragedApy = equity > 0 && m.collateralFactor >= 0.9 ? ((m.depositsUsd * totalApy) - (m.debt * apr)) / equity : 0;
             const userLeverageLevel = equity > 0 ? m.depositsUsd / equity : 0;
             return {
                 ...m,
