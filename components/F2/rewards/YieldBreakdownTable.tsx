@@ -86,7 +86,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
         value: ({ userLeverageLevel, underlying }) => {
             return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
-                <CellText>{underlying?.isStable ? `~${shortenNumber(userLeverageLevel, 2)}` : '-'}x</CellText>
+                <CellText>{underlying?.isStable ? `~${shortenNumber(userLeverageLevel, 2)}x` : '-'}</CellText>
             </Cell>
         },
     },
