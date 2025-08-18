@@ -73,9 +73,9 @@ const columns = [
         label: 'Leveraged APY',
         boxProps,
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        value: ({ userLeveragedApy }) => {
+        value: ({ userLeveragedApy, underlying }) => {
             return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
-                <CellText>{userLeveragedApy > 0 ? `~${shortenNumber(userLeveragedApy, 2)}%` : '-'}</CellText>
+                <CellText>{underlying?.isStable ? `~${shortenNumber(userLeveragedApy, 2)}%` : '-'}</CellText>
             </Cell>
         },
     },
@@ -84,9 +84,9 @@ const columns = [
         label: 'Leverage Level',
         boxProps,
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        value: ({ userLeverageLevel }) => {
+        value: ({ userLeverageLevel, underlying }) => {
             return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
-                <CellText>{userLeverageLevel > 0 ? `~${shortenNumber(userLeverageLevel, 2)}` : '-'}x</CellText>
+                <CellText>{underlying?.isStable ? `~${shortenNumber(userLeverageLevel, 2)}` : '-'}x</CellText>
             </Cell>
         },
     },

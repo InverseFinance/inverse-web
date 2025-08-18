@@ -387,15 +387,19 @@ const leverageUserColumn = {
         const totalApy = ((supplyApy || 0) + (extraApy || 0));
         return <Cell spacing="0" direction="column" minWidth="100px" alignItems="center">
             {
-                !borrowPaused && dbrPriceUsd > 0 && maxApy > totalApy ? <>
-                    <CellText fontSize="14px" color="accentTextColor">
+                !borrowPaused && dbrPriceUsd > 0 && underlying?.isStable ? <>
+                    <CellText fontSize="14px" color={userLeveragedApy > 0 ? 'accentTextColor' : 'warning'}>
                         <b>~{userLeveragedApy.toFixed(2)}%</b>
                     </CellText>
                     <CellText fontSize="12px" color="mainTextColorLight">
                         Net APY at ~{smartShortNumber(userLeverageLevel, 2)}x
                     </CellText>
                 </>
-                    : null
+                    : <>
+                        <CellText fontSize="12px" color="mainTextColorLight">
+                            -
+                        </CellText>
+                    </>
             }
         </Cell>
     },
@@ -652,8 +656,8 @@ export const F2Markets = ({
             const totalApy = ((m.supplyApy || 0) + (m.extraApy || 0));
             const equity = m.depositsUsd - m.debt;
             const apr = dbrUserRefPrice ? dbrUserRefPrice * 100 : dbrPrice * 100;
-            const userLeveragedApy = equity > 0 && m.collateralFactor >= 0.9 ? ((m.depositsUsd * totalApy) - (m.debt * apr)) / equity : 0;
-            const userLeverageLevel = equity > 0 ? m.depositsUsd / equity : 0;
+            const userLeveragedApy = equity !== 0 && m.underlying.isStable ? ((m.depositsUsd * totalApy) - (m.debt * apr)) / equity : 0;
+            const userLeverageLevel = equity !== 0 ? m.depositsUsd / equity : 0;
             return {
                 ...m,
                 equity,
@@ -810,7 +814,12 @@ export const F2Markets = ({
                         }}
                         onClose={closeYieldBreakdown}
                         isOpen={isOpenYieldBreakdown}
-                        modalProps={{ minW: { base: '98vw', lg: '1300px' }, scrollBehavior: 'inside' }}
+                        modalProps={{
+                            scrollBehavior: 'inside',
+                            minW: { base: '100%' },
+                            minH: '100%',
+                            borderRadius: '0px',
+                        }}
                     >
                         <VStack alignItems="flex-start" spacing="4" p="4">
                             <InfoMessage
