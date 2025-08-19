@@ -142,8 +142,8 @@ export const F2CombinedForm = ({
         totalDebt,
     } = useContext(F2MarketContext);
 
-    const { isMultisig, isWhitelisted } = useMultisig(market.borrowController);
-    const isNotWhitelistedMultisig = useMemo(() => isMultisig && !isWhitelisted, [isMultisig, isWhitelisted]);
+    const { isMultisig, isWhitelisted, isProbablySmartAccount, hasCode } = useMultisig(market.borrowController);
+    const isNotWhitelistedContract = useMemo(() => hasCode && !isWhitelisted, [hasCode, isWhitelisted]);
 
     const [isLargerThan] = useMediaQuery('(min-width: 1280px)');
     const { isOpen: isWethSwapModalOpen, onOpen: onWethSwapModalOpen, onClose: onWethSwapModalClose } = useDisclosure();
@@ -407,7 +407,7 @@ export const F2CombinedForm = ({
 
     const disabledConditions = {
         'deposit': ((collateralAmountNum <= 0 && !useLeverageInMode) || inputBalance < inputAmountNum) || (isWrongCustomRecipient && isDepositOnlyCase) || !!market.noDeposit,
-        'borrow': duration <= 0 || hasDustIssue || borrowLimitDisabledCondition || showNeedDbrMessage || market.leftToBorrow < 1 || !debtAmountNum || debtAmountNum > market.leftToBorrow || notEnoughToBorrowWithAutobuy || minDebtDisabledCondition || disabledDueToLeverage || showMinDebtMessage || isNotWhitelistedMultisig || !!market.isBorrowingSuspended,
+        'borrow': duration <= 0 || hasDustIssue || borrowLimitDisabledCondition || showNeedDbrMessage || market.leftToBorrow < 1 || !debtAmountNum || debtAmountNum > market.leftToBorrow || notEnoughToBorrowWithAutobuy || minDebtDisabledCondition || disabledDueToLeverage || showMinDebtMessage || isNotWhitelistedContract || !!market.isBorrowingSuspended,
         'repay': (debtAmountNum <= 0 && !useLeverageInMode) || debtAmountNum > debt || showNotEnoughDolaToRepayMessage || (isAutoDBR && !parseFloat(dbrSellAmount)) || disabledDueToLeverage || showMinDebtMessage,
         'withdraw': ((collateralAmountNum <= 0 && !useLeverageInMode) || collateralAmountNum > deposits || borrowLimitDisabledCondition || dbrBalance < 0),
     }

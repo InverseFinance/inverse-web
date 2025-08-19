@@ -14,7 +14,7 @@ import { MarketBar } from '@app/components/F2/Infos/InfoBar'
 import React from 'react'
 import { F2Context } from '@app/components/F2/F2Contex'
 import { useRouter } from 'next/router'
-import { ArrowBackIcon } from '@chakra-ui/icons'
+import { ArrowBackIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { FirmGovToken, InvInconsistentFirmDelegation } from '@app/components/F2/GovToken/FirmGovToken'
 import { FirstTimeModal } from '@app/components/F2/Modals/FirstTimeModal'
 import { FirmRewardWrapper } from '@app/components/F2/rewards/FirmRewardWrapper'
@@ -42,7 +42,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
 
     const { markets } = useDBRMarkets(market, vnetPublicId as string);
     const f2market = markets.length > 0 && !!market ? markets[0] : undefined;
-    const { isMultisig, isWhitelisted } = useMultisig(f2market?.borrowController);
+    const { isMultisig, isWhitelisted, isProbablySmartAccount } = useMultisig(f2market?.borrowController);
     const needCountdown = !f2market?.borrowPaused && f2market?.leftToBorrow < f2market?.dailyLimit && f2market?.dolaLiquidity > 0 && f2market?.leftToBorrow < f2market?.dolaLiquidity && shortenNumber(f2market?.dolaLiquidity, 2) !== shortenNumber(f2market?.leftToBorrow, 2);
 
     const backToMarkets = () => {
@@ -161,6 +161,21 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                             <Flex w='full' justify="flex-end" display="inline">
                                                                 <Text display="inline"><b>Note</b>: to be whitelisted, please reach out on <Link isExternal={true} target="_blank" textDecoration="underline" href="https://discord.gg/YpYJC7R5nv">discord</Link> or the <Link textDecoration="underline" isExternal={true} target="_blank" href="https://forum.inverse.finance">forum</Link>, if you have enough INV you can also <Link textDecoration="underline" display="inline" href="/governance/propose">submit a governance proposal</Link> yourself.</Text>
                                                             </Flex>
+                                                        </VStack>
+                                                    }
+                                                />
+                                            }
+                                            {
+                                                isProbablySmartAccount && !isWhitelisted && <WarningMessage
+                                                    alertProps={{ w: 'full' }}
+                                                    title="Using a Smart Account or an eip7702 delegation?"
+                                                    description={
+                                                        <VStack spacing="0" alignItems="flex-start" w='full'>
+                                                            <Text>It seems your account has code on it indicating it might be a smart account or used a eip7702 delegation, <b>borrowing is not allowed by such addresses</b>.</Text>
+                                                            <Text display="inline"><b>Note</b>: you can revoke your eip7702 delegation so that your address is back to being considered a standard EOA account:</Text>
+                                                            <Link display="inline" textDecoration="underline" cursor="pointer" href="https://support.metamask.io/configure/accounts/switch-to-or-revert-from-a-smart-account/#how-to-switch-back-to-a-standard-account" isExternal target="_blank">
+                                                                Revoke your eip7702 delegation <ExternalLinkIcon />
+                                                            </Link>
                                                         </VStack>
                                                     }
                                                 />
