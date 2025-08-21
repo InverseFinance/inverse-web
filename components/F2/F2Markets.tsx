@@ -669,13 +669,11 @@ export const F2Markets = ({
     const pinnedItems = invMarketIsInOtherSection ?
         [
             '0xb516247596Ca36bf32876199FBdCaD6B3322330B',
-            // uncomment to show 2 latest markets as "new"
-            ...(markets?.length > 0 ? markets.filter(m => m.isNewMarket).map(m => m.address).slice(markets.length - 2) : []),
+            ...(markets?.length > 0 ? markets.filter(m => m.isNewMarket).map(m => m.address) : []),
         ]
-        // : [];
-        : (markets?.length > 0 ? markets.filter(m => m.isNewMarket).map(m => m.address).slice(markets.length - 2) : []);
+        : (markets?.length > 0 ? markets.filter(m => m.isNewMarket).map(m => m.address) : []);
 
-    const pinnedLabels = invMarketIsInOtherSection ? ['Stake', 'New', 'New'] : ['New', 'New'];
+    const pinnedLabels = pinnedItems.map(p => p === '0xb516247596Ca36bf32876199FBdCaD6B3322330B' ? 'Stake' : 'New');
 
     const isLeverageView = useMemo(() => {
         return category === 'leverage';
