@@ -32,6 +32,7 @@ import InfoModal from "../common/Modal/InfoModal";
 import { YieldBreakdownTable } from "./rewards/YieldBreakdownTable";
 import { OLD_BORROW_CONTROLLER } from "@app/config/constants";
 import { ptMarkets } from "@app/util/pendle";
+import { useUserNetDeposits } from "@app/hooks/useFirm";
 
 export const MARKET_INFOS = {
     'INV': {
@@ -387,7 +388,7 @@ const leverageUserColumn = {
         const totalApy = ((supplyApy || 0) + (extraApy || 0));
         return <Cell spacing="0" direction="column" minWidth="100px" alignItems="center">
             {
-                !borrowPaused && dbrPriceUsd > 0 && underlying?.isStable ? <>
+                !borrowPaused && dbrPriceUsd > 0 && underlying?.isStable && userLeveragedApy > 0 ? <>
                     <CellText fontSize="14px" color={userLeveragedApy > 0 ? 'accentTextColor' : 'warning'}>
                         <b>~{userLeveragedApy.toFixed(2)}%</b>
                     </CellText>
@@ -555,7 +556,7 @@ const columns = [
         label: 'Your Deposits',
         header: ({ ...props }) => <ColHeader minWidth="120px" justify="center"  {...props} />,
         tooltip: 'Amount of Collateral you deposited in the Market',
-        value: ({ depositsUsd, deposits, account, collateralBalance, collateralBalanceUsd, underlying }) => {
+        value: ({ depositsUsd, deposits, netDepositsUsd, equity, account, collateralBalance, collateralBalanceUsd, underlying }) => {
             return <Cell minWidth="120px" justify="center" alignItems="center" direction={{ base: 'row', sm: 'column' }} spacing={{ base: '1', sm: '0' }}>
                 {
                     account && collateralBalanceUsd > 1 && <Badge display={{ base: 'none', xl: 'inline-block' }} bgColor="mainTextColor" color="contrastMainTextColor" position="absolute" top="-4.5px" textTransform="none">
@@ -619,6 +620,7 @@ export const F2Markets = ({
     const account = useAccount();
     const { priceUsd: dbrPrice, priceDola: dbrPriceDola } = useDBRPrice();
     const accountMarkets = useAccountF2Markets(markets, account);
+    const accountNetDeposits = useUserNetDeposits(account);
     const router = useRouter();
     // const { firmTvls, isLoading: tvlLoading } = useFirmTVL();
     const { themeStyles, themeName } = useAppTheme();
@@ -655,14 +657,16 @@ export const F2Markets = ({
         .map(m => {
             const totalApy = ((m.supplyApy || 0) + (m.extraApy || 0));
             const equity = m.depositsUsd - m.debt;
+            const netDepositsUsd = (accountNetDeposits.userDepositsPerMarket[m.address]?.netDeposits || 0) * m.price;
             const apr = dbrUserRefPrice ? dbrUserRefPrice * 100 : dbrPrice * 100;
-            const userLeveragedApy = equity !== 0 && m.underlying.isStable ? ((m.depositsUsd * totalApy) - (m.debt * apr)) / equity : 0;
-            const userLeverageLevel = equity !== 0 ? m.depositsUsd / equity : 0;
+            const userLeveragedApy = netDepositsUsd > 0 && netDepositsUsd < m.depositsUsd && m.debt > 0 && m.underlying.isStable ? ((m.depositsUsd * totalApy) - (m.debt * apr)) / netDepositsUsd : 0;
+            const userLeverageLevel = m.debt > 0 && netDepositsUsd < m.depositsUsd ? m.depositsUsd / netDepositsUsd : 0;
             return {
                 ...m,
                 equity,
                 userLeveragedApy,
                 userLeverageLevel,
+                netDepositsUsd,
                 totalApy,
                 monthlyDbrBurnUsd: dbrUserRefPrice ? m.monthlyDbrBurn * dbrUserRefPrice : 0,
                 monthlyNetUsdYield: dbrUserRefPrice ? m.monthlyUsdYield - m.monthlyDbrBurn * dbrUserRefPrice : 0,

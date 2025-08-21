@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     res.status(400).json({ msg: 'invalid request' });
     return;
   }
-  const cacheKey = `firm-net-user-deposits-${account}-v1.0.2`;
+  const cacheKey = `firm-net-user-deposits-${account}-v1.0.5`;
   try {
     const webCacheDuration = 60;
     const redisCacheDuration = 60;
@@ -71,6 +71,7 @@ export default async function handler(req, res) {
     ].map(a => a.toLowerCase());
 
     const relevantDestinationsPerMarket = {};
+    const aleContractForEvents = new Contract(F2_ALE, F2_ALE_ABI, eventsProvider);
     // const dolaContract = new Contract(DOLA, ERC20_ABI, eventsProvider);
 
     const userTransfersPerMarketQueries = userActivePositions.map(position => {
@@ -91,9 +92,14 @@ export default async function handler(req, res) {
       const aleConfig = marketsAleDataRaw[aleConfigIndex];
 
       if (aleConfig.buySellToken !== BURN_ADDRESS && aleConfig.buySellToken.toLowerCase() !== collateral.toLowerCase()) {
-        // leverage with initial deposit different than collateral
-        const alternativeDepositTokenContract = new Contract(aleConfig.buySellToken, ERC20_ABI, eventsProvider);
-        queries.push(alternativeDepositTokenContract.queryFilter(alternativeDepositTokenContract.filters.Transfer(account, F2_ALE), startBlock, endBlock));
+        // initial deposit with DOLA
+        // if (aleConfig.buySellToken.toLowerCase() === DOLA.toLowerCase()) {
+          queries.push(aleContractForEvents.queryFilter(aleContractForEvents.filters.Deposit(position.market, account, DOLA), startBlock, endBlock));
+        // } // leverage with initial deposit different than collateral and 
+        // else {
+          // const alternativeDepositTokenContract = new Contract(aleConfig.buySellToken, ERC20_ABI, eventsProvider);
+          // queries.push(alternativeDepositTokenContract.queryFilter(alternativeDepositTokenContract.filters.Transfer(account), startBlock, endBlock));
+        // }
       } else {
         queries.push(
           new Promise(resolve => {
@@ -121,13 +127,13 @@ export default async function handler(req, res) {
       const alternativeTokenTransfers = userTransfersPerMarketResults[index * 3 + 2];
 
       const relevantTransfersDestinations = relevantDestinationsPerMarket[position.market] || [];
-      
+
       const depositsTxs = transfers.filter(e => e.args[0]?.toLowerCase() === accountLc && relevantTransfersDestinations.includes(e.args[1]?.toLowerCase()))
       const deposits = getBnToNumber(depositsTxs.reduce((acc, e) => acc.add(e.args[2] || 0), BigNumber.from(0)));
       // approximation
-      
-      const depositsComingFromAlternativeToken = getBnToNumber(alternativeTokenTransfers.filter(e => e.args[0]?.toLowerCase() === accountLc && e.args[1]?.toLowerCase() === F2_ALE)
-        .reduce((acc, e) => acc.add(e.args[2] || 0), BigNumber.from(0))) / (marketData.price || 1);
+
+      const depositsComingFromAlternativeToken = getBnToNumber(alternativeTokenTransfers
+        .reduce((acc, e) => acc.add(e.args[3] || 0), BigNumber.from(0))) / (marketData.price || 1);
 
       const withdrawalsTxs = transfers.filter(e => e.args[1]?.toLowerCase() === accountLc && relevantTransfersDestinations.includes(e.args[0]?.toLowerCase()))
       const withdrawals = getBnToNumber(withdrawalsTxs.reduce((acc, e) => acc.add(e.args[2] || 0), BigNumber.from(0)));
@@ -141,8 +147,8 @@ export default async function handler(req, res) {
         withdrawals: 0,
         netDeposits: 0,
         transfersLength: 0,
-        depositsTxs: 0,
-        withdrawalsTxs: 0,
+        nbDepositsTxs: 0,
+        nbWithdrawalsTxs: 0,
       };
 
       return {
@@ -153,8 +159,9 @@ export default async function handler(req, res) {
         withdrawals: cachedMarketUserData.withdrawals + withdrawals,
         netDeposits: cachedMarketUserData.netDeposits + netDeposits,
         transfersLength: cachedMarketUserData.transfersLength + transfers.length,
-        depositsTxs: cachedMarketUserData.depositsTxs + depositsTxs.length,
-        withdrawalsTxs: cachedMarketUserData.withdrawalsTxs + withdrawalsTxs.length,
+        nbDepositsTxs: cachedMarketUserData.nbDepositsTxs + depositsTxs.length,
+        nbWithdrawalsTxs: cachedMarketUserData.nbWithdrawalsTxs + withdrawalsTxs.length,
+        nbAltDepositsTxs: cachedMarketUserData.nbAltDepositsTxs + alternativeTokenTransfers.length,
       }
     });
 
