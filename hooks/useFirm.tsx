@@ -851,6 +851,22 @@ export const useHistoOraclePrices = (marketAddress: string): {
   }
 }
 
+export const useUserNetDeposits = (account: string): SWR & {
+  isLoading: boolean,
+  isError: boolean,
+  userDepositsPerMarket: { [key: string]: { netDeposits: number, deposits: number, withdrawals: number, transfersLength: number, depositsTxs: number, withdrawalsTxs: number } },
+} => {
+  const { data, error } = useCacheFirstSWR(`/api/f2/net-user-deposits?account=${account}`, fetcher60sectimeout);
+
+  const userDepositsPerMarket = data ? data.userDepositsPerMarket : {};
+
+  return {
+    userDepositsPerMarket,
+    isLoading: !error && !data,
+    isError: !!error,
+  }
+}
+
 export const useEscrowBalanceEvolution = (account: string, escrow: string, market: string, firmActionIndex: number): SWR & {
   evolution: { balance: number, timestamp: number, debt: number, blocknumber: number, dbrClaimable: number }[],
   formattedEvents: any[],
