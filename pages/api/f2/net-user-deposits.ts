@@ -1,13 +1,14 @@
 import { BigNumber, Contract } from 'ethers'
 import 'source-map-support'
-import { ERC20_ABI } from '@app/config/abis'
+import { ERC20_ABI, F2_ALE_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
-import { ALE_V2, CHAIN_ID } from '@app/config/constants';
+import { ALE_V2, BURN_ADDRESS, CHAIN_ID } from '@app/config/constants';
 import { isAddress } from 'ethers/lib/utils';
-import { inverseViewer } from '@app/util/viewer';
+import { formatAccountAndMarketListBreakdown, formatMarketData, inverseViewer } from '@app/util/viewer';
+import { getGroupedMulticallOutputs } from '@app/util/multicall';
 
 const { F2_MARKETS, F2_ALE, F2_HELPER, DOLA } = getNetworkConfigConstants();
 
@@ -40,10 +41,27 @@ export default async function handler(req, res) {
 
     const deltaBlocks = startBlock ? currentBlock - startBlock : currentBlock;
     // Infura if more than 10k blocks, otherwise alchemy is fine
-    const eventsProvider = deltaBlocks > 10_000 ? getPaidProvider(CHAIN_ID) : provider;
+    const eventsProvider = deltaBlocks > 500 ? getPaidProvider(CHAIN_ID) : provider;
 
     const ifv = inverseViewer(provider);
-    const marketsAndPositions = await ifv.firm.getMarketListForAccountBreakdown(F2_MARKETS.map(m => m.address), account);
+    const currentAleContract = new Contract(F2_ALE, F2_ALE_ABI, provider);
+
+    const [
+      marketsAndPositionsRaw,
+      marketsAleDataRaw,
+    ] = await getGroupedMulticallOutputs([
+      { contract: ifv.firmContract, functionName: 'getMarketListForAccountBreakdown', params: [F2_MARKETS.map(m => m.address), account], fallbackValue: [] },
+      F2_MARKETS.map(m => {
+        return {
+          contract: currentAleContract,
+          functionName: 'markets',
+          params: [m.address],
+        }
+      }),
+    ], Number(CHAIN_ID));
+
+    const marketsAndPositions = formatAccountAndMarketListBreakdown(marketsAndPositionsRaw);
+
     const userActivePositions = marketsAndPositions.positions.filter(p => p.collateralValue >= 1);
 
     const commonDestinations = [
@@ -53,7 +71,7 @@ export default async function handler(req, res) {
     ].map(a => a.toLowerCase());
 
     const relevantDestinationsPerMarket = {};
-    const dolaContract = new Contract(DOLA, ERC20_ABI, eventsProvider);
+    // const dolaContract = new Contract(DOLA, ERC20_ABI, eventsProvider);
 
     const userTransfersPerMarketQueries = userActivePositions.map(position => {
       relevantDestinationsPerMarket[position.market] = [
@@ -67,10 +85,15 @@ export default async function handler(req, res) {
         contract.queryFilter(contract.filters.Transfer(account, undefined), startBlock, endBlock),
         contract.queryFilter(contract.filters.Transfer(undefined, account), startBlock, endBlock),
       ];
-      const marketConfig = F2_MARKETS.find(m => m.address?.toLowerCase() === position.market.toLowerCase());
-      if (marketConfig?.aleTransformerType === 'marketAddressAndAmount' && marketConfig.oracleType === 'chainlink+CurveLP') {
-        // leverage with initial deposit via DOLA (lp market only)
-        queries.push(dolaContract.queryFilter(dolaContract.filters.Transfer(account, F2_ALE), startBlock, endBlock));
+      // const marketConfig = F2_MARKETS.find(m => m.address?.toLowerCase() === position.market.toLowerCase());
+
+      const aleConfigIndex = F2_MARKETS.findIndex(m => m.address?.toLowerCase() === position.market.toLowerCase());
+      const aleConfig = marketsAleDataRaw[aleConfigIndex];
+
+      if (aleConfig.buySellToken !== BURN_ADDRESS && aleConfig.buySellToken.toLowerCase() !== collateral.toLowerCase()) {
+        // leverage with initial deposit different than collateral
+        const alternativeDepositTokenContract = new Contract(aleConfig.buySellToken, ERC20_ABI, eventsProvider);
+        queries.push(alternativeDepositTokenContract.queryFilter(alternativeDepositTokenContract.filters.Transfer(account, F2_ALE), startBlock, endBlock));
       } else {
         queries.push(
           new Promise(resolve => {
@@ -86,29 +109,30 @@ export default async function handler(req, res) {
     const userTransfersPerMarketResults = await Promise.all(userTransfersPerMarketQueries);
 
     const resultsPerMarket = userActivePositions.map((position, index) => {
-      const marketConfig = F2_MARKETS.find(m => m.address?.toLowerCase() === position.market.toLowerCase());
-      const marketData = marketsAndPositions.markets.find(m => m.market?.toLowerCase() === position.market.toLowerCase());
+      // const marketConfig = F2_MARKETS.find(m => m.address?.toLowerCase() === position.market.toLowerCase());
+      const aleConfigIndex = F2_MARKETS.findIndex(m => m.address?.toLowerCase() === position.market.toLowerCase());
+      const aleConfig = marketsAleDataRaw[aleConfigIndex];
 
-      const isMarketAcceptsDolaAsDeposit = marketConfig?.aleTransformerType === 'marketAddressAndAmount' && marketConfig.oracleType === 'chainlink+CurveLP';
+      const marketData = marketsAndPositions.markets.find(m => m.market?.toLowerCase() === position.market.toLowerCase());
 
       const transfers = userTransfersPerMarketResults[index * 3]
         .concat(userTransfersPerMarketResults[index * 3 + 1]);
 
-      const dolaDepositsTransfers = userTransfersPerMarketResults[index * 3 + 2];
+      const alternativeTokenTransfers = userTransfersPerMarketResults[index * 3 + 2];
 
       const relevantTransfersDestinations = relevantDestinationsPerMarket[position.market] || [];
-
+      
       const depositsTxs = transfers.filter(e => e.args[0]?.toLowerCase() === accountLc && relevantTransfersDestinations.includes(e.args[1]?.toLowerCase()))
       const deposits = getBnToNumber(depositsTxs.reduce((acc, e) => acc.add(e.args[2] || 0), BigNumber.from(0)));
       // approximation
-      const depositsComingFromDola = getBnToNumber(dolaDepositsTransfers.filter(e => e.args[0]?.toLowerCase() === accountLc && e.args[1]?.toLowerCase() === F2_ALE)
+      
+      const depositsComingFromAlternativeToken = getBnToNumber(alternativeTokenTransfers.filter(e => e.args[0]?.toLowerCase() === accountLc && e.args[1]?.toLowerCase() === F2_ALE)
         .reduce((acc, e) => acc.add(e.args[2] || 0), BigNumber.from(0))) / (marketData.price || 1);
-
 
       const withdrawalsTxs = transfers.filter(e => e.args[1]?.toLowerCase() === accountLc && relevantTransfersDestinations.includes(e.args[0]?.toLowerCase()))
       const withdrawals = getBnToNumber(withdrawalsTxs.reduce((acc, e) => acc.add(e.args[2] || 0), BigNumber.from(0)));
 
-      const totalDeposits = deposits + depositsComingFromDola;
+      const totalDeposits = deposits + depositsComingFromAlternativeToken;
 
       const netDeposits = Math.max(0, totalDeposits - withdrawals);
 
@@ -123,6 +147,8 @@ export default async function handler(req, res) {
 
       return {
         market: position.market,
+        collateral: marketData.collateral,
+        buySellToken: aleConfig.buySellToken,
         deposits: cachedMarketUserData.deposits + totalDeposits,
         withdrawals: cachedMarketUserData.withdrawals + withdrawals,
         netDeposits: cachedMarketUserData.netDeposits + netDeposits,
