@@ -708,7 +708,7 @@ export const FIRM_MARKETS = [
         badgeInfo: 'Pendle',
         rewardTypeLabel: "Fixed Yield",
         badgeProps: { bgColor: 'success', color: 'contrastMainTextColor' },            
-        startingBlock: 23175919,
+        startingBlock: 23188960,
         isInv: false,
         noZap: true,
         fixedFeed: false,
