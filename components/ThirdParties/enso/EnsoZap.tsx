@@ -236,7 +236,7 @@ function EnsoZap({
         }
         const amountInValue = amountIn && tokenInObj?.decimals ? formatUnits(parseUnits(parseFloat(amountIn).toFixed(tokenInObj?.decimals), tokenInObj?.decimals), 0) : '';
         setZapRequestData({ account, chainId, targetChainId, tokenIn, tokenOut, amountIn: amountInValue });
-    }, [account, chainId, targetChainId, tokenIn, tokenOut, amountIn, tokenInObj]);
+    }, [account, chainId, targetChainId, tokenIn, tokenOut, amountIn, tokenInObj?.decimals]);
 
     useDebouncedEffect(() => {
         setIsConnected(!!account)

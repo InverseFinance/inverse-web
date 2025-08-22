@@ -320,7 +320,7 @@ export const UserDashboard = ({
 
     useDebouncedEffect(() => {
         setIsVirginFirmUser(!isLoading && !marketsWithDeposits?.length);
-    }, [isLoading, marketsWithDeposits]);
+    }, [isLoading, marketsWithDeposits?.length]);
 
     return <VStack w='full' spacing="8">
         {

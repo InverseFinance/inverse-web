@@ -26,7 +26,7 @@ export const AirdropModalCheck = ({
         if (!isAlreadyShown && isEligible && !hasClaimed && router && router?.route.indexOf('claim-dbr') === -1) {
             onOpen();
         }
-    }, [isAlreadyShown, isEligible, hasClaimed, router], 6000)
+    }, [isAlreadyShown, isEligible, hasClaimed, router?.route], 6000)
 
     const handleClose = async () => {
         setter('done');
