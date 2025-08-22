@@ -9,6 +9,7 @@ import NextLink from 'next/link'
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useNamedAddress } from '@app/hooks/useNamedAddress'
+import { preciseCommify } from '@app/util/misc'
 
 const DelegateName = ({address, chainId, ensName}: { address: string, chainId?: number | undefined, ensName?: string }) => {
   const { addressName } = useNamedAddress(address, chainId, ensName)
@@ -50,7 +51,7 @@ export const DelegatesPreview = (containerProps: Partial<FlexProps>) => {
                   </Stack>
                   <Flex direction="column" align="flex-end">
                     <Text fontSize="sm" fontWeight="semibold">
-                      {votingPower.toFixed(2)}
+                      {preciseCommify(votingPower, 0)}
                     </Text>
                     <Text style={{ whiteSpace: 'nowrap' }} fontSize="sm" color="lightAccentTextColor">
                       {`${delegators.length} delegators`}

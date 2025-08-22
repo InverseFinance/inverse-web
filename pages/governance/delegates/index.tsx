@@ -28,6 +28,7 @@ import { BURN_ADDRESS } from '@app/config/constants'
 import Link from '@app/components/common/Link'
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons';
 import { AnimatedInfoTooltip } from '@app/components/common/Tooltip'
+import { preciseCommify } from '@app/util/misc'
 
 const { INV } = getNetworkConfigConstants();
 
@@ -416,9 +417,9 @@ const DelegatesTable = () => {
     },
     {
       field: 'votingPower',
-      label: 'Votes',
+      label: 'Voting Power',
       header: ({ ...props }) => <Flex justify="flex-end" minWidth={32} {...props} />,
-      value: ({ votingPower }: Delegate) => <Flex justify="flex-end" minWidth={32}>{`${votingPower.toFixed(2)}`}</Flex>,
+      value: ({ votingPower }: Delegate) => <Flex justify="flex-end" minWidth={32}>{`${preciseCommify(votingPower, 0)}`}</Flex>,
     },
     {
       field: 'votingPower',
