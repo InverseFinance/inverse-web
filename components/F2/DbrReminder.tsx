@@ -3,6 +3,7 @@ import { formatDate } from "@app/util/time";
  ;
 
 export const DbrReminder = ({ dbrExpiryDate, dbrBalance }: { dbrExpiryDate: number, dbrBalance: number }) => {
+    if(!dbrExpiryDate) return null;
     return <add-to-calendar-button
         name="FiRM - DBR reminder"
         options="'Apple','Google', 'iCal', 'Outlook.com'"
