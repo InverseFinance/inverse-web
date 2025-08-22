@@ -365,9 +365,6 @@ function EnsoZap({
                             <Input color="mainTextColorLight" borderColor="mainTextColorLight" py="0" maxH="30px" w='90px' value={slippage} onChange={(e) => setSlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'))} />
                         </HStack>
                     }
-                    <Text color="mainTextColorLight">
-                        Target: {tokenIn}, amount: {amountIn}, ri: {refreshIndex}
-                    </Text>
 
                     {
                         chainId?.toString() !== targetChainId?.toString() ? <WarningMessage
