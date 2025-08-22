@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, type DependencyList } from "react";
 
+// dont use object as deps, not deep comparison
 export const useDebouncedEffect = (
   effect: () => void | (() => void),
   deps: DependencyList,
