@@ -236,7 +236,7 @@ function EnsoZap({
         }
         const amountInValue = amountIn && tokenInObj?.decimals ? formatUnits(parseUnits(parseFloat(amountIn).toFixed(tokenInObj?.decimals), tokenInObj?.decimals), 0) : '';
         setZapRequestData({ account, chainId, targetChainId, tokenIn, tokenOut, amountIn: amountInValue });
-    }, [account, chainId, targetChainId, tokenIn, tokenOut, amountIn, tokenInObj]);
+    }, [account, chainId, targetChainId, tokenIn, tokenOut, amountIn, tokenInObj?.decimals]);
 
     useDebouncedEffect(() => {
         setIsConnected(!!account)
@@ -365,6 +365,9 @@ function EnsoZap({
                             <Input color="mainTextColorLight" borderColor="mainTextColorLight" py="0" maxH="30px" w='90px' value={slippage} onChange={(e) => setSlippage(e.target.value.replace(/[^0-9.]/, '').replace(/(\..*)\./g, '$1'))} />
                         </HStack>
                     }
+                    <Text color="mainTextColorLight">
+                        Target: {tokenIn}, amount: {amountIn}, ri: {refreshIndex}
+                    </Text>
 
                     {
                         chainId?.toString() !== targetChainId?.toString() ? <WarningMessage
