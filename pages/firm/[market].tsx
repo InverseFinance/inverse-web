@@ -30,6 +30,7 @@ import Link from '@app/components/common/Link'
 import { FirmInsuranceCover } from '@app/components/common/InsuranceCover'
 import { OLD_BORROW_CONTROLLER } from '@app/config/constants'
 import { DbrFloatingTrigger } from '@app/components/F2/DbrEasyBuyer.tsx/DbrEasyBuyer'
+import { MarketPriceChartWrapper } from '@app/components/F2/MarketPriceChartContainer'
 
 const { F2_MARKETS } = getNetworkConfigConstants();
 
@@ -239,10 +240,9 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                                                 (f2market.hasClaimableRewards && f2market.name === 'cvxCRV') && <CvxCrvPreferences />
                                             }
                                             <FirmInsuranceCover />
-                                            {/* temporarily disabled */}
-                                            {/* <ErrorBoundary description="The portfolio value chart could not load">
-                                                <WorthEvoChartWrapper market={f2market} />
-                                            </ErrorBoundary> */}
+                                            <ErrorBoundary description="The portfolio value chart could not load">
+                                                <MarketPriceChartWrapper market={f2market} />
+                                            </ErrorBoundary>
                                         </VStack>
                                 }
                                 <FirmFAQ collapsable={true} defaultCollapse={false} />
