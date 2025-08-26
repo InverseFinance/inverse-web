@@ -25,7 +25,7 @@ export default async function handler(req, res) {
     return;
   }
   const _market = F2_MARKETS.find(m => m.address === market);
-  const cacheKey = `firm-oracle-prices-${market}-v2.0.0`;
+  const cacheKey = `firm-oracle-prices-${market}-v2.0.1`;
   
   try {
     const cacheDuration = 3600;
@@ -49,7 +49,7 @@ export default async function handler(req, res) {
     const currentBlock = await provider.getBlockNumber();
     const marketContract = new Contract(_market.address, F2_MARKET_ABI, paidProvider);
 
-    const archived = validCache || { blocks: [], timestamps: [], oraclePrices: [], collateralFactors: [] };
+    const archived = validCache || { blocks: [], timestamps: [], oraclePrices: [], collateralFactors: [], dates: [] };
 
     const viewerContractStart = 21055482
 
@@ -140,11 +140,9 @@ export default async function handler(req, res) {
 
     const resultData = {
       timestamp: Date.now(),
-      preViewerBlocks,
-      postViewerBlocks,
-      oraclePrices: archived.oraclePrices.concat(newOraclePrices),
+      oraclePrices: archived?.oraclePrices.concat(newOraclePrices),
       blocks: archived?.blocks.concat(newDailyBlocks),
-      // collateralFactors: archived?.collateralFactors.concat(newCollateralFactorsBn.map(bn => getBnToNumber(bn, 4))),
+      dates: archived?.dates.concat(newDailyBlockValues.map(d => d.date)),
       timestamps: resultTimestamps,
     }
 
