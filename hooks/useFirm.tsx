@@ -825,21 +825,27 @@ export const useHistoricalPrices = (cgId: string) => {
 
 export const useHistoOraclePrices = (marketAddress: string): {
   timestamp: number,
-  evolution: [number, number][],
+  evolution: { timestamp: number, price: number, utcDate: string }[],
   prices: number[],
   blocks: number[],
   timestamps: number[],
+  dates: string[],
   isLoading: boolean,
   isError: boolean,
 } => {
-  const { data, error } = useCacheFirstSWR(!marketAddress ? '-' : `/api/f2/histo-oracle-prices?v=1.2&market=${marketAddress}`, fetcher);
+  const { data, error } = useCacheFirstSWR(!marketAddress ? '-' : `/api/f2/daily-histo-oracle-prices?v=2&market=${marketAddress}`, fetcher);
 
   return {
-    evolution: data?.timestamps?.map((t, i) => [data.timestamps[i], data.oraclePrices[i], data.collateralFactors[i]]) || [],
+    evolution: data?.timestamps?.map((t, i) => {
+      return {
+        timestamp: t,
+        x: t,
+        price: data.oraclePrices[i],
+        y: data.oraclePrices[i],
+        utcDate: data.dates[i],
+      }
+    }) || [],
     timestamp: data?.timestamp || 0,
-    prices: data?.oraclePrices || [],
-    blocks: data?.blocks || [],
-    timestamps: data?.timestamps || [],
     isLoading: !error && !data,
     isError: !!error,
   }
