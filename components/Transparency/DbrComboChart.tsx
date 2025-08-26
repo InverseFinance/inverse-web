@@ -133,12 +133,12 @@ export const DbrComboChart = ({
                         return !_value ? 'none' : isPrice ? shortenNumber(_value, 4, true) : preciseCommify(_value, 0, useUsd)
                     }}
                 />
-                <Area opacity={actives[KEYS.BURN] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.BURN} yAxisId="left" type="monotone" dataKey={useUsd ? 'debtUsd' : 'debt'} stroke={themeStyles.colors.warning} dot={false} fillOpacity={1} fill="url(#warning-gradient)" />
-                <Area opacity={actives[KEYS.ISSUANCE] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.ISSUANCE} yAxisId="left" type="monotone" dataKey={useUsd ? 'yearlyRewardRateUsd' : 'yearlyRewardRate'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={1} fill="url(#secondary-gradient)" />
-                <Area opacity={actives[KEYS.STAKERS_ISSUANCE] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.STAKERS_ISSUANCE} yAxisId="left" type="monotone" dataKey={useUsd ? 'stakersYearlyRewardRateUsd' : 'stakersYearlyRewardRate'} stroke={lightTheme.colors.mainTextColor} dot={false} fillOpacity={1} fill="url(#primary-gradient)" />
-                <Line opacity={actives[KEYS.DBR_MC] ? 1 : 0} strokeWidth={2} name={KEYS.DBR_MC} yAxisId="left" type="monotone" dataKey={useUsd ? 'dbrCircSupplyUsd' : 'dbrCircSupply'} stroke={lightTheme.colors.accentTextColor} dot={false} />
-                <Line opacity={actives[KEYS.DBR_PRICE] ? 1 : 0} strokeWidth={2} name={KEYS.DBR_PRICE} yAxisId="right" type="monotone" dataKey={priceKey} stroke={dbrPriceColor} dot={false} />
-                <Line opacity={actives[KEYS.INV_MC] ? 1 : 0} strokeWidth={2} name={KEYS.INV_MC} yAxisId="right" type="monotone" dataKey={priceKey} stroke={invPriceColor} dot={false} />
+                <Area opacity={actives[KEYS.BURN] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.BURN} yAxisId="left" type="monotone" dataKey={actives[KEYS.BURN] ? useUsd ? 'debtUsd' : 'debt' : ''} stroke={themeStyles.colors.warning} dot={false} fillOpacity={1} fill="url(#warning-gradient)" />
+                <Area opacity={actives[KEYS.ISSUANCE] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.ISSUANCE} yAxisId="left" type="monotone" dataKey={actives[KEYS.ISSUANCE] ? useUsd ? 'yearlyRewardRateUsd' : 'yearlyRewardRate' : ''} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={1} fill="url(#secondary-gradient)" />
+                <Area opacity={actives[KEYS.STAKERS_ISSUANCE] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.STAKERS_ISSUANCE} yAxisId="left" type="monotone" dataKey={actives[KEYS.STAKERS_ISSUANCE] ? useUsd ? 'stakersYearlyRewardRateUsd' : 'stakersYearlyRewardRate' : ''} stroke={lightTheme.colors.mainTextColor} dot={false} fillOpacity={1} fill="url(#primary-gradient)" />
+                <Line opacity={actives[KEYS.DBR_MC] ? 1 : 0} strokeWidth={2} name={KEYS.DBR_MC} yAxisId="left" type="monotone" dataKey={actives[KEYS.DBR_MC] ? useUsd ? 'dbrCircSupplyUsd' : 'dbrCircSupply' : ''} stroke={lightTheme.colors.accentTextColor} dot={false} />
+                <Line opacity={actives[KEYS.DBR_PRICE] ? 1 : 0} strokeWidth={2} name={KEYS.DBR_PRICE} yAxisId="right" type="monotone" dataKey={actives[KEYS.DBR_PRICE] ? priceKey : ''} stroke={dbrPriceColor} dot={false} />
+                <Line opacity={actives[KEYS.INV_MC] ? 1 : 0} strokeWidth={2} name={KEYS.INV_MC} yAxisId="right" type="monotone" dataKey={actives[KEYS.INV_MC] ? priceKey : ''} stroke={invPriceColor} dot={false} />
                 <Legend wrapperStyle={legendStyle} onClick={toggleChart} style={{ cursor: 'pointer' }} formatter={(value) => value + (actives[value] ? '' : ' (hidden)')} />
                 {
                     _data.filter(d => d.date.endsWith('01-01')).map(d => {

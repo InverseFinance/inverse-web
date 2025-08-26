@@ -117,9 +117,9 @@ export const FirmBorrowsChart = ({
                         return !value ? 'none' : preciseCommify(value, 0, useUsd)
                     }}
                 />
-                <Line opacity={actives[KEYS.INVENTORY] ? 1 : 0} strokeWidth={2} name={KEYS.INVENTORY} yAxisId="right" type="monotone" dataKey={'inventory'} stroke={themeStyles.colors.info} dot={false} />
-                <Area opacity={actives[KEYS.BURN] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.BURN} yAxisId="left" type="monotone" dataKey={useUsd ? 'debtUsd' : 'debt'} stroke={themeStyles.colors.warning} dot={false} fillOpacity={1} fill="url(#warning-gradient)" />
-                <Area opacity={actives[KEYS.TOTAL_USER_DBR_BALANCE] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.TOTAL_USER_DBR_BALANCE} yAxisId="left" type="monotone" dataKey={useUsd ? 'totalUserDbrBalanceUsd' : 'totalUserDbrBalance'} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={1} fill="url(#secondary-gradient)" />
+                <Line opacity={actives[KEYS.INVENTORY] ? 1 : 0} strokeWidth={2} name={KEYS.INVENTORY} yAxisId="right" type="monotone" dataKey={actives[KEYS.INVENTORY] ? 'inventory' : ''} stroke={themeStyles.colors.info} dot={false} />
+                <Area opacity={actives[KEYS.BURN] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.BURN} yAxisId="left" type="monotone" dataKey={actives[KEYS.BURN] ? useUsd ? 'debtUsd' : 'debt' : ''} stroke={themeStyles.colors.warning} dot={false} fillOpacity={1} fill="url(#warning-gradient)" />
+                <Area opacity={actives[KEYS.TOTAL_USER_DBR_BALANCE] ? 1 : 0} strokeDasharray="4" strokeWidth={2} name={KEYS.TOTAL_USER_DBR_BALANCE} yAxisId="left" type="monotone" dataKey={actives[KEYS.TOTAL_USER_DBR_BALANCE] ? useUsd ? 'totalUserDbrBalanceUsd' : 'totalUserDbrBalance' : ''} stroke={themeStyles.colors.secondary} dot={false} fillOpacity={1} fill="url(#secondary-gradient)" />
                 <Legend wrapperStyle={legendStyle} onClick={toggleChart} style={{ cursor: 'pointer' }} formatter={(value) => value + (actives[value] ? '' : ' (hidden)')} />
                 {
                     _data.filter(d => d.date.endsWith('01-01')).map(d => {
