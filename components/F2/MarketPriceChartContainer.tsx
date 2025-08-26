@@ -6,7 +6,7 @@ import { useDualSpeedEffect } from '@app/hooks/useDualSpeedEffect'
 import { DefaultCharts } from "../Transparency/DefaultCharts";
 import Container from "../common/Container";
 
-const maxWidth = 1200;
+const maxWidth = 1250;
 
 export const useMarketPriceChart = (
     market: F2Market,
@@ -48,10 +48,10 @@ export const MarketPriceChartWrapper = ({
     market: F2Market,
 }) => {
     const [chartWidth, setChartWidth] = useState<number>(maxWidth);
-    const [isLargerThan] = useMediaQuery(`(min-width: ${maxWidth + 50}px)`)
+    const [isLargerThan] = useMediaQuery(`(min-width: ${maxWidth}px)`)
 
     useEffect(() => {
-        setChartWidth(isLargerThan ? maxWidth : (screen.availWidth || screen.width) - 50)
+        setChartWidth(isLargerThan ? maxWidth : window.innerWidth - 50)
     }, [isLargerThan, maxWidth]);
 
     return <MarketPriceChartContainer chartWidth={chartWidth} market={market} />
@@ -67,7 +67,7 @@ export const MarketPriceChartContainer = ({
     const { data, isLoading } = useMarketPriceChart(market);
     if (!data?.length) return null;
     return <Container noPadding m="0" p="0" label="Daily collateral price evolution" description="According to the pessimistic oracle">
-        <VStack mt="10">
+        <VStack pl={{ base: 0, sm: '45px' }} mt="10" w="100%" alignItems="center">
             <DefaultCharts
                 showMonthlyBarChart={false}
                 maxChartWidth={chartWidth}
