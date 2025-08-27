@@ -118,7 +118,7 @@ export default async function handler(req, res) {
     const userTransfersPerMarketResults = await Promise.all(userTransfersPerMarketQueries);
 
     const resultsPerMarket = userActivePositions.map((position, index) => {
-      // const marketConfig = F2_MARKETS.find(m => m.address?.toLowerCase() === position.market.toLowerCase());
+      const marketConfig = F2_MARKETS.find(m => m.address?.toLowerCase() === position.market.toLowerCase());
       const aleConfigIndex = F2_MARKETS.findIndex(m => m.address?.toLowerCase() === position.market.toLowerCase());
       const aleConfig = marketsAleDataRaw[aleConfigIndex];
 
@@ -161,6 +161,7 @@ export default async function handler(req, res) {
       };
 
       return {
+        name: marketConfig.name,
         market: position.market,
         collateral: marketData.collateral,
         buySellToken: aleConfig.buySellToken,
