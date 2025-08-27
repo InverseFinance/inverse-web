@@ -4,7 +4,7 @@ import Container from "@app/components/common/Container";
 import { useAccountF2Markets, useDBRMarketsSSR, useDBRPrice } from '@app/hooks/useDBR';
 import { useRouter } from 'next/router';
 import { useAccount } from '@app/hooks/misc';
-import { calculateNetApy, getRiskColor } from "@app/util/f2";
+import { calculateNetApy, getLeveragedPositionDetails, getRiskColor } from "@app/util/f2";
 import { BigImageButton } from "@app/components/common/Button/BigImageButton";
 import Table from "@app/components/common/Table";
 import { AnchorPoolInfo } from "../Anchor/AnchorPoolnfo";
@@ -383,17 +383,21 @@ const leverageUserColumn = {
         </math>
         {/* <Text>(depositsUSD * APY - debt * APR) / (equity)</Text> */}
     </VStack>,
-    value: ({ maxApy, name, userLeveragedApy, userLeverageLevel, isLeverageComingSoon, supplyApy, points, pointsImage, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
-        // const maxLong = calculateMaxLeverage(collateralFactor);
-        const totalApy = ((supplyApy || 0) + (extraApy || 0));
+    value: ({ maxApy, name, netDepositsNetApy, netDepositsLeverageLevel, isLeverageComingSoon, supplyApy, points, pointsImage, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
+        
         return <Cell spacing="0" direction="column" minWidth="100px" alignItems="center">
             {
-                !borrowPaused && dbrPriceUsd > 0 && underlying?.isStable && userLeveragedApy > 0 ? <>
-                    <CellText fontSize="14px" color={userLeveragedApy > 0 ? 'accentTextColor' : 'warning'}>
-                        <b>~{userLeveragedApy.toFixed(2)}%</b>
-                    </CellText>
+                !borrowPaused && dbrPriceUsd > 0 && underlying?.isStable && netDepositsNetApy > 0 ? <>
+                    <HStack spacing="2">
+                        <CellText fontSize="14px" color={netDepositsNetApy > 0 ? 'accentTextColor' : 'warning'}>
+                            <b>~{netDepositsNetApy.toFixed(2)}%</b>
+                        </CellText>
+                        {
+                            points > 0 && <MarketPointsInfo points={points * netDepositsLeverageLevel} pointsImage={pointsImage} />
+                        }
+                    </HStack>
                     <CellText fontSize="12px" color="mainTextColorLight">
-                        Net APY at ~{smartShortNumber(userLeverageLevel, 2)}x
+                        Net APY at ~{smartShortNumber(netDepositsLeverageLevel, 2)}x
                     </CellText>
                 </>
                     : <>
@@ -569,6 +573,12 @@ const columns = [
                         <CellText>({smartShortNumber(depositsUsd, 2, true)})</CellText>
                     </> : <>-</>
                 }
+                <CellText fontSize="12px" color="mainTextColorLight">
+                    net: {smartShortNumber(netDepositsUsd, 2, true)}
+                </CellText>
+                <CellText fontSize="12px" color="mainTextColorLight">
+                    eq: {smartShortNumber(equity, 2, true)}
+                </CellText>
             </Cell>
         },
     },
@@ -618,7 +628,7 @@ export const F2Markets = ({
 }) => {
     const { markets } = useDBRMarketsSSR(marketsData);
     const account = useAccount();
-    const { priceUsd: dbrPrice, priceDola: dbrPriceDola } = useDBRPrice();
+    const { priceUsd: dbrPrice, priceDola: dbrPriceDola, dolaUsd } = useDBRPrice();
     const accountMarkets = useAccountF2Markets(markets, account);
     const accountNetDeposits = useUserNetDeposits(account);
     const router = useRouter();
@@ -640,6 +650,8 @@ export const F2Markets = ({
         }
     }, [dbrUserRefPrice]);
 
+    const borrowApr = dbrUserRefPrice ? dbrUserRefPrice * 100 : dbrPrice * 100;
+
     const isLoading = !markets?.length;
 
     const openMarket = (market: any) => {
@@ -656,16 +668,17 @@ export const F2Markets = ({
         .filter(m => m.depositsUsd > 1 || m.debt > 1)
         .map(m => {
             const totalApy = ((m.supplyApy || 0) + (m.extraApy || 0));
-            const equity = m.depositsUsd - m.debt;
             const netDepositsUsd = (accountNetDeposits.userDepositsPerMarket[m.address]?.netDeposits || 0) * m.price;
-            const apr = dbrUserRefPrice ? dbrUserRefPrice * 100 : dbrPrice * 100;
-            const userLeveragedApy = netDepositsUsd > 0 && netDepositsUsd < m.depositsUsd && m.debt > 0 && m.underlying.isStable ? ((m.depositsUsd * totalApy) - (m.debt * apr)) / netDepositsUsd : 0;
-            const userLeverageLevel = m.debt > 0 && netDepositsUsd < m.depositsUsd ? m.depositsUsd / netDepositsUsd : 0;
+            
+            const { equity, equityNetApy, equityLeverageLevel, netDepositsNetApy, netDepositsLeverageLevel } = getLeveragedPositionDetails(netDepositsUsd, m.depositsUsd, m.debt * dolaUsd, totalApy, borrowApr);
+            
             return {
                 ...m,
                 equity,
-                userLeveragedApy,
-                userLeverageLevel,
+                equityNetApy,
+                equityLeverageLevel,
+                netDepositsNetApy,
+                netDepositsLeverageLevel,
                 netDepositsUsd,
                 totalApy,
                 monthlyDbrBurnUsd: dbrUserRefPrice ? m.monthlyDbrBurn * dbrUserRefPrice : 0,
