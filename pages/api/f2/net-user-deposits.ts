@@ -1,6 +1,6 @@
 import { BigNumber, Contract } from 'ethers'
 import 'source-map-support'
-import { ERC20_ABI, F2_ALE_ABI } from '@app/config/abis'
+import { ERC20_ABI, F2_ALE_ABI, F2_MARKET_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     res.status(400).json({ msg: 'invalid request' });
     return;
   }
-  const cacheKey = `firm-net-user-deposits-${account}-v1.0.5`;
+  const cacheKey = `firm-net-user-deposits-${account}-v1.0.6`;
   try {
     const webCacheDuration = 60;
     const redisCacheDuration = 60;
@@ -82,9 +82,12 @@ export default async function handler(req, res) {
       ];
       const collateral = marketsAndPositions.markets.find(m => m.market === position.market).collateral;
       const contract = new Contract(collateral, ERC20_ABI, eventsProvider);
+      const marketContract = new Contract(position.market, F2_MARKET_ABI, eventsProvider);
+
       const queries = [
         contract.queryFilter(contract.filters.Transfer(account, undefined), startBlock, endBlock),
         contract.queryFilter(contract.filters.Transfer(undefined, account), startBlock, endBlock),
+        marketContract.queryFilter(marketContract.filters.Liquidate(account), startBlock, endBlock),
       ];
       // const marketConfig = F2_MARKETS.find(m => m.address?.toLowerCase() === position.market.toLowerCase());
 
@@ -121,10 +124,13 @@ export default async function handler(req, res) {
 
       const marketData = marketsAndPositions.markets.find(m => m.market?.toLowerCase() === position.market.toLowerCase());
 
-      const transfers = userTransfersPerMarketResults[index * 3]
-        .concat(userTransfersPerMarketResults[index * 3 + 1]);
+      const transfers = userTransfersPerMarketResults[index * 4]
+        .concat(userTransfersPerMarketResults[index * 4 + 1]);
 
-      const alternativeTokenTransfers = userTransfersPerMarketResults[index * 3 + 2];
+      const liquidationsTxs = userTransfersPerMarketResults[index * 4 + 2];
+      const liquidated = getBnToNumber(liquidationsTxs.reduce((acc, e) => acc.add(e.args[3] || 0), BigNumber.from(0)));
+
+      const alternativeTokenTransfers = userTransfersPerMarketResults[index * 4 + 3];
 
       const relevantTransfersDestinations = relevantDestinationsPerMarket[position.market] || [];
 
@@ -140,21 +146,25 @@ export default async function handler(req, res) {
 
       const totalDeposits = deposits + depositsComingFromAlternativeToken;
 
-      const netDeposits = Math.max(0, totalDeposits - withdrawals);
+      const netDeposits = Math.max(0, totalDeposits - withdrawals - liquidated);
 
       const cachedMarketUserData = archivedData?.userDepositsPerMarket?.[position.market] || {
         deposits: 0,
         withdrawals: 0,
+        liquidated: 0,
         netDeposits: 0,
         transfersLength: 0,
         nbDepositsTxs: 0,
         nbWithdrawalsTxs: 0,
+        nbAltDepositsTxs: 0,
+        nbLiquidationsTxs: 0,
       };
 
       return {
         market: position.market,
         collateral: marketData.collateral,
         buySellToken: aleConfig.buySellToken,
+        liquidated: cachedMarketUserData.liquidated + liquidated,
         deposits: cachedMarketUserData.deposits + totalDeposits,
         withdrawals: cachedMarketUserData.withdrawals + withdrawals,
         netDeposits: cachedMarketUserData.netDeposits + netDeposits,
@@ -162,6 +172,7 @@ export default async function handler(req, res) {
         nbDepositsTxs: cachedMarketUserData.nbDepositsTxs + depositsTxs.length,
         nbWithdrawalsTxs: cachedMarketUserData.nbWithdrawalsTxs + withdrawalsTxs.length,
         nbAltDepositsTxs: cachedMarketUserData.nbAltDepositsTxs + alternativeTokenTransfers.length,
+        nbLiquidationsTxs: cachedMarketUserData.nbLiquidationsTxs + liquidationsTxs.length,
       }
     });
 
