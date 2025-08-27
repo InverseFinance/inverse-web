@@ -1,16 +1,16 @@
 import { BigNumber, Contract } from 'ethers'
 import 'source-map-support'
-import { ERC20_ABI, F2_ALE_ABI, F2_MARKET_ABI } from '@app/config/abis'
+import { DBR_ABI, ERC20_ABI, F2_ALE_ABI, F2_MARKET_ABI } from '@app/config/abis'
 import { getNetworkConfigConstants } from '@app/util/networks'
 import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, isInvalidGenericParam, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
 import { ALE_V2, BURN_ADDRESS, CHAIN_ID } from '@app/config/constants';
 import { isAddress } from 'ethers/lib/utils';
-import { formatAccountAndMarketListBreakdown, formatMarketData, inverseViewer } from '@app/util/viewer';
+import { formatAccountAndMarketListBreakdown, inverseViewer } from '@app/util/viewer';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
 
-const { F2_MARKETS, F2_ALE, F2_HELPER, DOLA } = getNetworkConfigConstants();
+const { F2_MARKETS, F2_ALE, F2_HELPER, DOLA, DBR } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
   const { cacheFirst, account } = req.query;
@@ -33,6 +33,13 @@ export default async function handler(req, res) {
     }
 
     const provider = getProvider(CHAIN_ID);
+    const dbrContract = new Contract(DBR, DBR_ABI, provider);
+    const dbrLastUpdated = getBnToNumber(await dbrContract.lastUpdated(account));
+    // => means no change in net deposits, skip re-fetching
+    if(archivedData?.dbrLastUpdated === dbrLastUpdated) {
+      res.status(200).json(archivedData);
+      return;
+    }
 
     const currentBlock = await provider.getBlockNumber();
     const lastCheckedBlock = archivedData?.lastCheckedBlock || undefined;
@@ -72,7 +79,6 @@ export default async function handler(req, res) {
 
     const relevantDestinationsPerMarket = {};
     const aleContractForEvents = new Contract(F2_ALE, F2_ALE_ABI, eventsProvider);
-    // const dolaContract = new Contract(DOLA, ERC20_ABI, eventsProvider);
 
     const userTransfersPerMarketQueries = userActivePositions.map(position => {
       relevantDestinationsPerMarket[position.market] = [
@@ -116,6 +122,9 @@ export default async function handler(req, res) {
     const accountLc = account.toLowerCase();
 
     const userTransfersPerMarketResults = await Promise.all(userTransfersPerMarketQueries);
+    // const userTransfersPerMarketResponses = await Promise.allSettled(userTransfersPerMarketQueries);
+    // const userTransfersPerMarketResults = userTransfersPerMarketResponses
+    //   .map(r => r.status === 'fulfilled' ? r.value : []);
 
     const resultsPerMarket = userActivePositions.map((position, index) => {
       const marketConfig = F2_MARKETS.find(m => m.address?.toLowerCase() === position.market.toLowerCase());
@@ -179,6 +188,7 @@ export default async function handler(req, res) {
 
     const resultData = {
       timestamp: Date.now(),
+      dbrLastUpdated,
       lastCheckedBlock: endBlock,
       // past markets are not included, the net deposits will start from 0 if the user exited a market
       userDepositsPerMarket: resultsPerMarket.reduce((acc, curr) => {
