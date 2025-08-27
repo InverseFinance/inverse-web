@@ -68,28 +68,28 @@ const columns = [
             </Cell>
         },
     },
-    {
-        field: 'equityNetApy',
-        label: 'Leveraged APY',
-        boxProps,
-        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        value: ({ equityNetApy, underlying }) => {
-            return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
-                <CellText>{underlying?.isStable ? `~${shortenNumber(equityNetApy, 2)}%` : '-'}</CellText>
-            </Cell>
-        },
-    },
-    {
-        field: 'equityLeverageLevel',
-        label: 'Leverage Level',
-        boxProps,
-        header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        value: ({ equityLeverageLevel, underlying }) => {
-            return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
-                <CellText>{underlying?.isStable ? `~${shortenNumber(equityLeverageLevel, 2)}x` : '-'}</CellText>
-            </Cell>
-        },
-    },
+    // {
+    //     field: 'equityNetApy',
+    //     label: 'Leveraged APY',
+    //     boxProps,
+    //     header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+    //     value: ({ equityNetApy, underlying }) => {
+    //         return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
+    //             <CellText>{underlying?.isStable ? `~${shortenNumber(equityNetApy, 2)}%` : '-'}</CellText>
+    //         </Cell>
+    //     },
+    // },
+    // {
+    //     field: 'equityLeverageLevel',
+    //     label: 'Leverage Level',
+    //     boxProps,
+    //     header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
+    //     value: ({ equityLeverageLevel, underlying }) => {
+    //         return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
+    //             <CellText>{underlying?.isStable ? `~${shortenNumber(equityLeverageLevel, 2)}x` : '-'}</CellText>
+    //         </Cell>
+    //     },
+    // },
     {
         field: 'monthlyUsdYield',
         label: 'Monthly Yield',
