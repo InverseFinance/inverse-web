@@ -69,24 +69,24 @@ const columns = [
         },
     },
     {
-        field: 'userLeveragedApy',
+        field: 'equityNetApy',
         label: 'Leveraged APY',
         boxProps,
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        value: ({ userLeveragedApy, underlying }) => {
+        value: ({ equityNetApy, underlying }) => {
             return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
-                <CellText>{underlying?.isStable ? `~${shortenNumber(userLeveragedApy, 2)}%` : '-'}</CellText>
+                <CellText>{underlying?.isStable ? `~${shortenNumber(equityNetApy, 2)}%` : '-'}</CellText>
             </Cell>
         },
     },
     {
-        field: 'userLeverageLevel',
+        field: 'equityLeverageLevel',
         label: 'Leverage Level',
         boxProps,
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
-        value: ({ userLeverageLevel, underlying }) => {
+        value: ({ equityLeverageLevel, underlying }) => {
             return <Cell minWidth="100px" justify="center" alignItems="center" direction="column" spacing="0">
-                <CellText>{underlying?.isStable ? `~${shortenNumber(userLeverageLevel, 2)}x` : '-'}</CellText>
+                <CellText>{underlying?.isStable ? `~${shortenNumber(equityLeverageLevel, 2)}x` : '-'}</CellText>
             </Cell>
         },
     },
