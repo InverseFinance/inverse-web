@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     res.status(400).json({ msg: 'invalid request' });
     return;
   }
-  const cacheKey = `firm-net-user-deposits-${account}-v1.0.6`;
+  const cacheKey = `firm-net-user-deposits-${account}-v1.0.7`;
   try {
     const webCacheDuration = 60;
     const redisCacheDuration = 60;
