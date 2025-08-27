@@ -383,7 +383,7 @@ const leverageUserColumn = {
         </math>
         {/* <Text>(depositsUSD * APY - debt * APR) / (equity)</Text> */}
     </VStack>,
-    value: ({ maxApy, name, netDepositsNetApy, netDepositsLeverageLevel, isLeverageComingSoon, supplyApy, points, pointsImage, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
+    value: ({ maxApy, name, netDepositsNetApy, netDepositsLeverageLevel, equityLeverageLevel, equityNetApy, points, pointsImage, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
         
         return <Cell spacing="0" direction="column" minWidth="100px" alignItems="center">
             {
@@ -398,6 +398,9 @@ const leverageUserColumn = {
                     </HStack>
                     <CellText fontSize="12px" color="mainTextColorLight">
                         Net APY at ~{smartShortNumber(netDepositsLeverageLevel, 2)}x
+                    </CellText>
+                    <CellText fontSize="12px" color="mainTextColorLight">
+                        eq: {smartShortNumber(equityNetApy, 2)}% at ~{smartShortNumber(equityLeverageLevel, 2)}x
                     </CellText>
                 </>
                     : <>
