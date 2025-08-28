@@ -9,44 +9,48 @@ import { ALE_V2, BURN_ADDRESS, CHAIN_ID } from '@app/config/constants';
 import { isAddress } from 'ethers/lib/utils';
 import { formatAccountAndMarketListBreakdown, inverseViewer } from '@app/util/viewer';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
+import { getLargeLogs } from '@app/util/web3';
 
 const { F2_MARKETS, F2_ALE, F2_HELPER, DOLA, DBR } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
-  const { cacheFirst, account } = req.query;
+  const { cacheFirst, account, market } = req.query;
   if (
     !account || !isAddress(account) || isInvalidGenericParam(account)
+    || (market && !F2_MARKETS.find(m => m.address?.toLowerCase() === market?.toLowerCase()))
   ) {
     res.status(400).json({ msg: 'invalid request' });
     return;
   }
-  const cacheKey = `firm-net-user-deposits-${account}-v1.0.7`;
+  const cacheKey = `firm-net-user-deposits-${account}-v1.0.8`;
   try {
     const webCacheDuration = 60;
     const redisCacheDuration = 60;
     res.setHeader('Cache-Control', `public, max-age=${webCacheDuration}`);
     const { data: archivedData, isValid } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', redisCacheDuration);
 
-    if (isValid && cacheFirst === 'true') {
+    if (isValid || (!!archivedData && cacheFirst === 'true')) {
       res.status(200).json(archivedData);
       return
     }
 
     const provider = getProvider(CHAIN_ID);
     const dbrContract = new Contract(DBR, DBR_ABI, provider);
-    const dbrLastUpdated = getBnToNumber(await dbrContract.lastUpdated(account));
+    const dbrLastUpdated = getBnToNumber(await dbrContract.lastUpdated(account), 0);
     // => means no change in net deposits, skip re-fetching
-    if(archivedData?.dbrLastUpdated === dbrLastUpdated) {
+    if (archivedData?.dbrLastUpdated === dbrLastUpdated && !market || (!!market && !!archivedData?.userDepositsPerMarket?.[market])) {
       res.status(200).json(archivedData);
       return;
     }
 
     const currentBlock = await provider.getBlockNumber();
-    const lastCheckedBlock = archivedData?.lastCheckedBlock || undefined;
-    const startBlock = lastCheckedBlock ? lastCheckedBlock + 1 : undefined;
+    const queryMarketConfig = F2_MARKETS.find(m => m.address?.toLowerCase() === market.toLowerCase());
+    const lastCheckedBlock = market ? archivedData?.userDepositsPerMarket?.[market]?.lastCheckedBlock : archivedData?.lastCheckedBlock || undefined;
+    const startBlock = lastCheckedBlock ? lastCheckedBlock + 1 : market ? queryMarketConfig?.startingBlock : undefined;
     const endBlock = currentBlock;
 
     const deltaBlocks = startBlock ? currentBlock - startBlock : currentBlock;
+    const isLargeCase = deltaBlocks > 100_000;
     // Infura if more than 10k blocks, otherwise alchemy is fine
     const eventsProvider = deltaBlocks > 500 ? getPaidProvider(CHAIN_ID) : provider;
 
@@ -57,7 +61,12 @@ export default async function handler(req, res) {
       marketsAndPositionsRaw,
       marketsAleDataRaw,
     ] = await getGroupedMulticallOutputs([
-      { contract: ifv.firmContract, functionName: 'getMarketListForAccountBreakdown', params: [F2_MARKETS.map(m => m.address), account], fallbackValue: [] },
+      {
+        contract: ifv.firmContract, functionName: 'getMarketListForAccountBreakdown', params: [
+          market ? [market] : F2_MARKETS.map(m => m.address),
+          account,
+        ], fallbackValue: []
+      },
       F2_MARKETS.map(m => {
         return {
           contract: currentAleContract,
@@ -90,24 +99,33 @@ export default async function handler(req, res) {
       const contract = new Contract(collateral, ERC20_ABI, eventsProvider);
       const marketContract = new Contract(position.market, F2_MARKET_ABI, eventsProvider);
 
-      const queries = [
+      const aleConfigIndex = F2_MARKETS.findIndex(m => m.address?.toLowerCase() === position.market.toLowerCase());
+      const aleConfig = marketsAleDataRaw[aleConfigIndex];
+
+      let queries = [];
+
+      // if(isLargeCase) {
+      //   queries = [
+      //     getLargeLogs(contract, contract.filters.Transfer(account, undefined), startBlock, endBlock, 10_000),
+      //     getLargeLogs(contract, contract.filters.Transfer(undefined, account), startBlock, endBlock, 10_000),
+      //     getLargeLogs(marketContract, marketContract.filters.Liquidate(account), startBlock, endBlock, 10_000),
+      //   ]
+      // } else {
+      queries = [
         contract.queryFilter(contract.filters.Transfer(account, undefined), startBlock, endBlock),
         contract.queryFilter(contract.filters.Transfer(undefined, account), startBlock, endBlock),
         marketContract.queryFilter(marketContract.filters.Liquidate(account), startBlock, endBlock),
       ];
-      // const marketConfig = F2_MARKETS.find(m => m.address?.toLowerCase() === position.market.toLowerCase());
-
-      const aleConfigIndex = F2_MARKETS.findIndex(m => m.address?.toLowerCase() === position.market.toLowerCase());
-      const aleConfig = marketsAleDataRaw[aleConfigIndex];
+      // }
 
       if (aleConfig.buySellToken !== BURN_ADDRESS && aleConfig.buySellToken.toLowerCase() !== collateral.toLowerCase()) {
         // initial deposit with DOLA
         // if (aleConfig.buySellToken.toLowerCase() === DOLA.toLowerCase()) {
-          queries.push(aleContractForEvents.queryFilter(aleContractForEvents.filters.Deposit(position.market, account, DOLA), startBlock, endBlock));
+        queries.push(aleContractForEvents.queryFilter(aleContractForEvents.filters.Deposit(position.market, account, DOLA), startBlock, endBlock));
         // } // leverage with initial deposit different than collateral and 
         // else {
-          // const alternativeDepositTokenContract = new Contract(aleConfig.buySellToken, ERC20_ABI, eventsProvider);
-          // queries.push(alternativeDepositTokenContract.queryFilter(alternativeDepositTokenContract.filters.Transfer(account), startBlock, endBlock));
+        // const alternativeDepositTokenContract = new Contract(aleConfig.buySellToken, ERC20_ABI, eventsProvider);
+        // queries.push(alternativeDepositTokenContract.queryFilter(alternativeDepositTokenContract.filters.Transfer(account), startBlock, endBlock));
         // }
       } else {
         queries.push(
@@ -122,9 +140,27 @@ export default async function handler(req, res) {
     const accountLc = account.toLowerCase();
 
     const userTransfersPerMarketResults = await Promise.all(userTransfersPerMarketQueries);
+    // const userTransfersPerMarketResults = await Promise.all(
+    //   userTransfersPerMarketQueries.map(query => {
+    //     return getLargeLogs(
+    //       dbrContract,
+    //       dbrContract.filters.ForceReplenish(account || undefined),
+    //       lastBlock ? lastBlock+1 : currentBlock - 50_000,
+    //       currentBlock,
+    //       10_000,
+    //     );
+    //   })
+    // );
     // const userTransfersPerMarketResponses = await Promise.allSettled(userTransfersPerMarketQueries);
     // const userTransfersPerMarketResults = userTransfersPerMarketResponses
     //   .map(r => r.status === 'fulfilled' ? r.value : []);
+
+    // return res.status(200).json({
+    //   errors: userTransfersPerMarketResponses.map((r,i) => r.status === 'rejected' ? {
+    //     query: userTransfersPerMarketQueries[i],
+    //     error: r.reason,
+    //   } : null),
+    // });
 
     const resultsPerMarket = userActivePositions.map((position, index) => {
       const marketConfig = F2_MARKETS.find(m => m.address?.toLowerCase() === position.market.toLowerCase());
@@ -172,6 +208,7 @@ export default async function handler(req, res) {
       return {
         name: marketConfig.name,
         market: position.market,
+        lastCheckedBlock: endBlock,
         collateral: marketData.collateral,
         buySellToken: aleConfig.buySellToken,
         liquidated: cachedMarketUserData.liquidated + liquidated,
@@ -194,7 +231,7 @@ export default async function handler(req, res) {
       userDepositsPerMarket: resultsPerMarket.reduce((acc, curr) => {
         acc[curr.market] = curr;
         return acc;
-      }, {}),
+      }, archivedData?.userDepositsPerMarket || {}),
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);
