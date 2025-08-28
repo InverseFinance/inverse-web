@@ -851,12 +851,12 @@ export const useHistoOraclePrices = (marketAddress: string): {
   }
 }
 
-export const useUserNetDeposits = (account: string): SWR & {
+export const useUserNetDeposits = (account: string, market?: string): SWR & {
   isLoading: boolean,
   isError: boolean,
   userDepositsPerMarket: { [key: string]: { netDeposits: number, deposits: number, withdrawals: number, transfersLength: number, depositsTxs: number, withdrawalsTxs: number } },
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/f2/net-user-deposits?account=${account}`, fetcher60sectimeout);
+  const { data, error } = useCacheFirstSWR(`/api/f2/net-user-deposits?account=${account}&market=${market || ''}`, fetcher60sectimeout);
 
   const userDepositsPerMarket = data ? data.userDepositsPerMarket : {};
 

@@ -29,8 +29,8 @@ export default async function handler(req, res) {
     res.setHeader('Cache-Control', `public, max-age=${webCacheDuration}`);
     const { data: archivedData, isValid } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', redisCacheDuration);
 
-    if (isValid || (!!archivedData && cacheFirst === 'true')) {
-      res.status(200).json(archivedData);
+    if (isValid || (!!archivedData && cacheFirst === 'true') || !market) {
+      res.status(200).json(archivedData || {});
       return
     }
 
