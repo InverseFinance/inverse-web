@@ -361,10 +361,10 @@ const leverageColumn = {
 
 const leverageUserColumn = {
     field: 'maxUsableApy',
-    label: 'Leveraged APY',
+    label: 'Net APY',
     header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
     tooltip: <VStack>
-        <Text>Estimated leveraged net-APY using:</Text>
+        <Text>Estimated resulting net-APY using net-deposits:</Text>
         <math display="block">
             <mrow>
                 <msub>
@@ -377,14 +377,14 @@ const leverageUserColumn = {
                         <mo>−</mo>
                         <mi>Debt</mi><mi>*</mi><msub><mi>APR</mi></msub>
                     </mrow>
-                    <msub><mi>Deposits - Debt</mi></msub>
+                    <msub><mi>netDeposits</mi></msub>
                 </mfrac>
             </mrow>
         </math>
         {/* <Text>(depositsUSD * APY - debt * APR) / (equity)</Text> */}
     </VStack>,
-    value: ({ maxApy, name, netDepositsNetApy, netDepositsLeverageLevel, equityLeverageLevel, equityNetApy, points, pointsImage, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, collateralFactor, borrowPaused, _isMobileCase }) => {
-        
+    value: ({ maxApy, monthlyNetUsdYield, netDepositsNetApy, netDepositsLeverageLevel, equityLeverageLevel, equityNetApy, points, pointsImage, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, monthlyUsdYield, borrowPaused, _isMobileCase }) => {
+
         return <Cell spacing="0" direction="column" minWidth="100px" alignItems="center">
             {
                 !borrowPaused && dbrPriceUsd > 0 && underlying?.isStable && netDepositsNetApy > 0 ? <>
@@ -402,6 +402,11 @@ const leverageUserColumn = {
                     <CellText fontSize="12px" color="mainTextColorLight">
                         eq: {smartShortNumber(equityNetApy, 2)}% at ~{smartShortNumber(equityLeverageLevel, 2)}x
                     </CellText>
+                    {
+                        monthlyNetUsdYield > 0 && <CellText fontSize="12px" color="mainTextColorLight">
+                            +{smartShortNumber(monthlyNetUsdYield, 2, true)}/month
+                        </CellText>
+                    }
                 </>
                     : <>
                         <CellText fontSize="12px" color="mainTextColorLight">
@@ -672,9 +677,9 @@ export const F2Markets = ({
         .map(m => {
             const totalApy = ((m.supplyApy || 0) + (m.extraApy || 0));
             const netDepositsUsd = (accountNetDeposits.userDepositsPerMarket[m.address]?.netDeposits || 0) * m.price;
-            
+
             const { equity, equityNetApy, equityLeverageLevel, netDepositsNetApy, netDepositsLeverageLevel } = getLeveragedPositionDetails(netDepositsUsd, m.depositsUsd, m.debt * dolaUsd, totalApy, borrowApr);
-            
+
             return {
                 ...m,
                 equity,
