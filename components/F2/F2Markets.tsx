@@ -383,7 +383,7 @@ const leverageUserColumn = {
         </math>
         {/* <Text>(depositsUSD * APY - debt * APR) / (equity)</Text> */}
     </VStack>,
-    value: ({ maxApy, monthlyNetUsdYield, netDepositsNetApy, netDepositsLeverageLevel, equityLeverageLevel, equityNetApy, points, pointsImage, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, monthlyUsdYield, borrowPaused, _isMobileCase }) => {
+    value: ({ maxLong, monthlyNetUsdYield, netDepositsNetApy, netDepositsLeverageLevel, equityLeverageLevel, equityNetApy, points, pointsImage, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, monthlyUsdYield, borrowPaused, _isMobileCase }) => {
 
         return <Cell spacing="0" direction="column" minWidth="100px" alignItems="center">
             {
@@ -402,17 +402,15 @@ const leverageUserColumn = {
                     <CellText fontSize="12px" color="mainTextColorLight">
                         eq: {smartShortNumber(equityNetApy, 2)}% at ~{smartShortNumber(equityLeverageLevel, 2)}x
                     </CellText>
-                    {
-                        monthlyNetUsdYield > 0 && <CellText fontSize="12px" color="mainTextColorLight">
-                            +{smartShortNumber(monthlyNetUsdYield, 2, true)}/month
-                        </CellText>
-                    }
                 </>
-                    : <>
-                        <CellText fontSize="12px" color="mainTextColorLight">
-                            -
-                        </CellText>
-                    </>
+                    : <CellText fontSize="12px" color="mainTextColorLight">
+                        Long up to {smartShortNumber(maxLong, 2)}x
+                    </CellText>
+            }
+            {
+                monthlyNetUsdYield > 0 && <CellText fontSize="12px" color="mainTextColorLight">
+                    +{smartShortNumber(monthlyNetUsdYield, 2, true)}/month
+                </CellText>
             }
         </Cell>
     },
