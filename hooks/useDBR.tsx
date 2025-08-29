@@ -419,13 +419,17 @@ export const useTriCryptoSwap = (amountToSell: number, srcIdx = 1, dstIdx = 0): 
   }
 }
 
-export const useDBRPrice = (): { priceUsd: number, priceDola: number | undefined } => {
+export const useDBRPrice = (): { priceUsd: number, priceDola: number | undefined, dolaUsd: number } => {
   const { data: apiData } = useCustomSWR(`/api/dbr`, fetcher);
   const { priceUsd: livePriceUsd, priceDola: livePriceDola } = useDBRPriceLive();
 
+  const priceUsd = livePriceUsd ?? (apiData?.priceUsd || 0);
+  const priceDola = livePriceDola ?? (apiData?.priceDola || 0);
+
   return {
-    priceUsd: livePriceUsd ?? (apiData?.priceUsd || 0),
-    priceDola: livePriceDola ?? (apiData?.priceDola || 0),
+    priceUsd,
+    priceDola,
+    dolaUsd: priceDola ? priceUsd / priceDola : 0,
   }
 }
 

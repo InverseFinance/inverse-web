@@ -6,7 +6,7 @@ import { InfoMessage, WarningMessage } from '@app/components/common/Messages'
 import { ArrowDownIcon, ArrowUpIcon, CheckCircleIcon } from '@chakra-ui/icons'
 import { Input } from '@app/components/common/Input'
 import { F2MarketContext } from '../F2Contex'
-import { calculateNetApy, f2CalcNewHealth, getRiskColor } from '@app/util/f2'
+import { calculateNetApy, f2CalcNewHealth, getLeveragedPositionDetails, getRiskColor } from '@app/util/f2'
 import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect'
 import { F2Market } from '@app/types'
 import { TextInfo, TextInfoSimple } from '@app/components/common/Messages/TextInfo'
@@ -70,7 +70,7 @@ const getSteps = (
     if (previousSteps && previousPerc && previousPerc >= safeMinHealth && newPerc < safeMinHealth) {
         return previousSteps;
     }
-    else if ((newPerc <= safeMinHealth) || _leverageLevel > 10 || doLastOne) {
+    else if ((newPerc <= safeMinHealth) || _leverageLevel > 12 || doLastOne) {
         return steps;
     } else {
         return getSteps(market, dolaPrice, deposits, debt, perc, type, _leverageLevel, aleSlippage, [...steps, _leverageLevel], newDebtSigned <= 0 && Math.abs(newDebtSigned) >= debt * (parseFloat(aleSlippage) / 100), newPerc, steps);
@@ -317,6 +317,8 @@ export const FirmBoostInfos = ({
         isDolaAsInputCase,
         inputAmountNum,
         totalCollateralAmountNum,
+        newTotalDebtInMarket,
+        newDeposits,
     } = useContext(F2MarketContext);
 
     const newBorrowLimit = 100 - newPerc;
@@ -392,7 +394,6 @@ export const FirmBoostInfos = ({
         if (!dbrPriceUsd || !market.collateralFactor || !market.supplyApy) return 0;
         return calculateNetApy(market.supplyApy + market.extraApy, market.collateralFactor, dbrPriceUsd, leverageLevel);
     }, [leverageLevel, market, dbrPriceUsd]);
-
     if (!market?.underlying) {
         return <></>
     }
@@ -503,7 +504,7 @@ export const FirmBoostInfos = ({
                     }
                     {
                         !leverageLoading && leverageLevel > 1 && <TextInfoSimple direction="row-reverse" message={isLeverageUp ? `Collateral added thanks to leverage` : `Collateral reduced thanks to deleverage`}>
-                            <HStack fontWeight="bold" spacing="1" alignItems="center">
+                            <HStack fontWeight="bold" spacing="1" alignItems="center" pl="6">
                                 {isLeverageUp ? <ArrowUpIcon color="success" fontSize="20px" /> : <ArrowDownIcon color="warning" fontSize="20px" />}
                                 <VStack spacing="0">
                                     <Text textDecoration="underline" cursor="default" w='fit-content' fontSize="14px" textAlign="center">
@@ -568,9 +569,9 @@ export const FirmBoostInfos = ({
                 </Text>
             </HStack>
             {
-                leverageLevel > 1 && isLeverageUp && market?.supplyApy > 0 && <>
+                isLeverageUp && market?.supplyApy > 0 && <>
                     {
-                        deposits > 0 ? null :
+                        debt > 0 ? null :
                             <HStack spacing="1" w='full' alignItems="flex-start">
                                 <TextInfo message="The net yield is the yield thanks to the increase in collateral size minus the cost of the corresponding leverage-linked debt">
                                     <Stack direction={{ base: 'column', sm: 'row' }} w='full' justify="space-between" alignItems="center">
@@ -636,7 +637,7 @@ export const FirmBoostInfos = ({
                 About the Accelerated Leverage Engine
             </Text>
             {
-                debouncedShowdBorrowLimitMsg && <WarningMessage description="New borrow limit would be too high" />
+                debouncedShowdBorrowLimitMsg && <WarningMessage alertProps={{ w: 'full' }} description="New borrow limit would be too high" />
             }
         </VStack>
     </Stack>

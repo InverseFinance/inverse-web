@@ -98,7 +98,7 @@ export const F2MarketPage = ({ market }: { market: string }) => {
                     </Text>
                         : <F2Context market={f2market}>
                             <FirstTimeModal />
-                            <DbrV1IssueModal />
+                            {/* <DbrV1IssueModal /> */}
                             <VStack
                                 pt="4"
                                 w='full'
