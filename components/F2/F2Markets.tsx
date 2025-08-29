@@ -351,17 +351,17 @@ const leverageColumn = {
                         showLeveragedApy={false}
                         points={points}
                         pointsImage={pointsImage}
-                    /> : <CellText fontSize="12px" color="mainTextColorLight">
+                    /> : maxLong > 0 ? <CellText fontSize="12px" color="mainTextColorLight">
                         Long up to {smartShortNumber(maxLong, 2)}x
-                    </CellText>
+                    </CellText> : null
             }
         </Cell>
     },
 };
 
 const leverageUserColumn = {
-    field: 'maxUsableApy',
-    label: 'Net APY',
+    field: 'monthlyNetUsdYield',
+    label: 'Net Yield',
     header: ({ ...props }) => <ColHeader minWidth="100px" justify="center"  {...props} />,
     tooltip: <VStack>
         <Text>Estimated resulting net-APY using net-deposits:</Text>
@@ -383,11 +383,11 @@ const leverageUserColumn = {
         </math>
         {/* <Text>(depositsUSD * APY - debt * APR) / (equity)</Text> */}
     </VStack>,
-    value: ({ maxLong, monthlyNetUsdYield, netDepositsNetApy, netDepositsLeverageLevel, equityLeverageLevel, equityNetApy, points, pointsImage, supplyApyLow, extraApy, price, underlying, hasClaimableRewards, isInv, rewardTypeLabel, dbrPriceUsd, monthlyUsdYield, borrowPaused, _isMobileCase }) => {
-
+    value: (rowData) => {
+        const { maxLong, monthlyNetUsdYield, netDepositsNetApy, netDepositsLeverageLevel, equityLeverageLevel, equityNetApy, points, pointsImage, underlying, dbrPriceUsd, borrowPaused } = rowData;
         return <Cell spacing="0" direction="column" minWidth="100px" alignItems="center">
-            {
-                !borrowPaused && dbrPriceUsd > 0 && underlying?.isStable && netDepositsNetApy > 0 ? <>
+            {/* {
+                !borrowPaused && dbrPriceUsd > 0 && underlying?.isStable && netDepositsNetApy > 0 && <>
                     <HStack spacing="2">
                         <CellText fontSize="14px" color={netDepositsNetApy > 0 ? 'accentTextColor' : 'warning'}>
                             <b>~{netDepositsNetApy.toFixed(2)}%</b>
@@ -399,18 +399,12 @@ const leverageUserColumn = {
                     <CellText fontSize="12px" color="mainTextColorLight">
                         Net APY at ~{smartShortNumber(netDepositsLeverageLevel, 2)}x
                     </CellText>
-                    <CellText fontSize="12px" color="mainTextColorLight">
-                        eq: {smartShortNumber(equityNetApy, 2)}% at ~{smartShortNumber(equityLeverageLevel, 2)}x
-                    </CellText>
                 </>
-                    : <CellText fontSize="12px" color="mainTextColorLight">
-                        Long up to {smartShortNumber(maxLong, 2)}x
-                    </CellText>
-            }
+            } */}
             {
-                monthlyNetUsdYield > 0 && <CellText fontSize="12px" color="mainTextColorLight">
-                    +{smartShortNumber(monthlyNetUsdYield, 2, true)}/month
-                </CellText>
+                monthlyNetUsdYield > 0 ? <CellText fontSize="14px" color="accentTextColor">
+                    {smartShortNumber(monthlyNetUsdYield, 2, true)}/month
+                </CellText> : leverageColumn.value(rowData)
             }
         </Cell>
     },
@@ -579,12 +573,12 @@ const columns = [
                         <CellText>({smartShortNumber(depositsUsd, 2, true)})</CellText>
                     </> : <>-</>
                 }
-                <CellText fontSize="12px" color="mainTextColorLight">
+                {/* <CellText fontSize="12px" color="mainTextColorLight">
                     net: {smartShortNumber(netDepositsUsd, 2, true)}
                 </CellText>
                 <CellText fontSize="12px" color="mainTextColorLight">
                     eq: {smartShortNumber(equity, 2, true)}
-                </CellText>
+                </CellText> */}
             </Cell>
         },
     },
@@ -615,10 +609,12 @@ const columns = [
 
 const columnsWithout = columns.slice(0, 9);
 const leverageColumns = [...columns];
-const leverageUserColumns = [...columns];
+
 const leverageColumnsWithout = [...columnsWithout];
 leverageColumns.splice(2, 1, leverageColumn);
-leverageUserColumns.splice(2, 1, leverageUserColumn);
+// TODO: uncomment when ready
+// leverageUserColumns.splice(2, 1, leverageUserColumn);
+const leverageUserColumns = [...leverageColumns];
 leverageColumnsWithout.splice(2, 1, leverageColumn);
 
 const responsiveThreshold = 1260;
@@ -674,7 +670,7 @@ export const F2Markets = ({
         .filter(m => m.depositsUsd > 1 || m.debt > 1)
         .map(m => {
             const totalApy = ((m.supplyApy || 0) + (m.extraApy || 0));
-            const netDepositsUsd = (accountNetDeposits.userDepositsPerMarket[m.address]?.netDeposits || 0) * m.price;
+            const netDepositsUsd = (accountNetDeposits?.userDepositsPerMarket?.[m.address]?.netDeposits || 0) * m.price;
 
             const { equity, equityNetApy, equityLeverageLevel, netDepositsNetApy, netDepositsLeverageLevel } = getLeveragedPositionDetails(netDepositsUsd, m.depositsUsd, m.debt * dolaUsd, totalApy, borrowApr);
 
@@ -700,6 +696,7 @@ export const F2Markets = ({
         .filter(m => !(m.depositsUsd > 1 || m.debt > 1));
 
     const depositsUsd = withDeposits.reduce((prev, curr) => prev + curr.depositsUsd, 0);
+    const totalEquityUsd = withDeposits.reduce((prev, curr) => prev + curr.equity, 0);
 
     const toggleMyPositions = () => {
         setShowMyPositions(!showMyPositions);
@@ -994,24 +991,29 @@ export const F2Markets = ({
                 <VStack alignItems="flex-start" spacing="6">
                     {
                         withDeposits.length > 0 && <>
-                            <HStack _hover={{ filter: 'brightness(1.5)', transition: '400ms all' }} cursor="pointer" onClick={() => toggleMyPositions()}>
-                                <SplashedText
-                                    as="h3"
-                                    color={`${lightTheme?.colors.mainTextColor}`}
-                                    fontSize={{ base: '18px', md: '20px' }}
-                                    fontWeight="extrabold"
-                                    color={`${themeStyles?.colors.mainTextColor}`}
-                                    splashColor={`${themeStyles?.colors.accentTextColor}`}
-                                    lineHeight='1'
-                                    splashProps={{
-                                        top: '-10px',
-                                        left: '-14px',
-                                        w: '370px',
-                                        opacity: 0.3,
-                                    }}
-                                >
-                                    Your Isolated Markets ({shortenNumber(depositsUsd, 2, true)}) {showMyPositions ? <ChevronDownIcon fontSize="24px" /> : <ChevronRightIcon fontSize="24px" />}
-                                </SplashedText>
+                            <HStack w='full' justifyContent="space-between" alignItems="center">
+                                <HStack _hover={{ filter: 'brightness(1.5)', transition: '400ms all' }} cursor="pointer" onClick={() => toggleMyPositions()}>
+                                    <SplashedText
+                                        as="h3"
+                                        color={`${lightTheme?.colors.mainTextColor}`}
+                                        fontSize={{ base: '18px', md: '20px' }}
+                                        fontWeight="extrabold"
+                                        color={`${themeStyles?.colors.mainTextColor}`}
+                                        splashColor={`${themeStyles?.colors.accentTextColor}`}
+                                        lineHeight='1'
+                                        splashProps={{
+                                            top: '-10px',
+                                            left: '-14px',
+                                            w: '370px',
+                                            opacity: 0.3,
+                                        }}
+                                    >
+                                        Your Isolated Markets ({shortenNumber(depositsUsd, 2, true)}) {showMyPositions ? <ChevronDownIcon fontSize="24px" /> : <ChevronRightIcon fontSize="24px" />}
+                                    </SplashedText>
+                                </HStack>
+                                <Text fontSize="14px" color="mainTextColorLight">
+                                    Equity: {shortenNumber(totalEquityUsd, 2, true)}
+                                </Text>
                             </HStack>
                             {
                                 showMyPositions && <Table
