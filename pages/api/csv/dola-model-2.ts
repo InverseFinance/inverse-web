@@ -39,7 +39,7 @@ export default async (req, res) => {
     const sevenDaysAgoTsInSecs = (sevenDaysAgoTs/1000).toFixed(0);
 
     try {
-        const [liquidityData, badDebtData, dolaStakingData, replenishmentsEvolutionData, dbrCirculatingSupply, dbrTriPoolBalanceBn, dbrPriceData, aaveData] = await Promise.all([
+        const [liquidityData, badDebtData, dolaStakingData, replenishmentsEvolutionData, dbrCirculatingSupply, dbrTriPoolBalanceBn, dbrPriceData, aaveRes] = await Promise.all([
             fetcher60sectimeout(`${SERVER_BASE_URL}/api/transparency/liquidity?cacheFirst=true`),            
             getCacheFromRedis(repaymentsCacheKeyV2, false),
             getCacheFromRedis(dolaStakingCacheKey, false),  
@@ -86,6 +86,7 @@ export default async (req, res) => {
         const dbrReplenished30d = replenishmentsEvolutionData?.events?.filter(ev => ev.timestamp >= nowMinus30d)?.reduce((prev, curr) => prev+curr.deficit, 0);
 
         const { priceInDola: dbrPrice } = dbrPriceData;
+        const aaveData = await aaveRes.json();
         const aave7dAvgRate = aaveData.data.value.reduce((p,c) => p+parseFloat(c.avgRate.formatted), 0)/aaveData.data.value.length;
 
         let csvData = `DOLA bad debt:,${currentDolaBadDebt},FiRM borrows:,${totalBorrowsOnFirm},DSA DOLA bal:,${dolaStakingData.dsaTotalSupply},DSA dbrYearlyEarnings:,${dolaStakingData.dsaYearlyDbrEarnings},DBR replenishments (30d):,${dbrReplenished30d},DBR balance in tripool:,${getBnToNumber(dbrTriPoolBalanceBn).toFixed(0)},DBR circ supply:,${Number(dbrCirculatingSupply).toFixed(0)},DBR price (in dola):,${Number(dbrPrice).toFixed(4)},Aave USDC 7d avg borrow APR:,${Number(aave7dAvgRate).toFixed(2)}\n`;
