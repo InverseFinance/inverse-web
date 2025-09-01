@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { EthXe, ensoZap, useEnso, useEnsoRoute } from "@app/util/enso";
 import { formatUnits, parseEther, parseUnits } from "@ethersproject/units";
-import { VStack, Text, HStack, Divider, Stack, Input, Box } from "@chakra-ui/react";
+import { VStack, Text, HStack, Divider, Stack, Input, Box, Spinner } from "@chakra-ui/react";
 import { AssetInput } from "../../common/Assets/AssetInput";
 import { ZAP_TOKENS_ARRAY } from "../tokenlist";
 import { useBalances } from "@app/hooks/useBalances";
@@ -63,6 +63,7 @@ function EnsoZap({
     containerProps,
     slippageDefault = '0.1',
     asSwapUi = false,
+    keepAmountOnAssetChange = false,
 }: {
     defaultTokenIn?: string
     defaultTokenOut: string
@@ -85,6 +86,7 @@ function EnsoZap({
     resultFormatter?: (amountOut: string, price: number) => React.ReactNode
     containerProps?: any
     asSwapUi?: boolean
+    keepAmountOnAssetChange?: boolean
 }) {
     const account = useAccount();
     const { provider, chainId } = useWeb3React<Web3Provider>();
@@ -312,7 +314,7 @@ function EnsoZap({
                                 const amountInNewSelectedToken = parseFloat(amountIn) * combinedPrices[tokenInObj.address] / tokenInPrice;
                                 changeAmount(smartAutoNumber(amountInNewSelectedToken, tokenInPrice, 6));
                                 setTokenIn(newToken.address);
-                            } else {
+                            } else if(!keepAmountOnAssetChange) {
                                 changeAmount('');
                             }
                             changeTokenIn(newToken);
@@ -420,7 +422,7 @@ function EnsoZap({
                         !isDolaStakingFromDola && <>
                             {
                                 isValidAmountIn && zapResponseData?.isLoading ? <Text fontWeight="bold">
-                                    Loading routes and conversion data...
+                                    Loading routes and conversion data...<Spinner size="xs" ml="2" transform="translateY(20px)" />
                                 </Text> :
                                     !!amountIn && parseFloat(amountIn) > 0 && <Text textDecoration="underline" cursor="pointer" onClick={() => setRefreshIndex(refreshIndex + 1)}>
                                         Refresh conversion data
