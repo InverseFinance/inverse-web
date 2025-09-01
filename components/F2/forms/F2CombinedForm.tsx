@@ -34,6 +34,7 @@ import { TOKEN_IMAGES } from '@app/variables/images'
 import { LPImages } from '@app/components/common/Assets/LPImg'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
 import { EnsoModal } from '@app/components/common/Modal/EnsoModal'
+import { useUserNetDeposits } from '@app/hooks/useFirm'
 
 const { DOLA, F2_HELPER, F2_ALE } = getNetworkConfigConstants();
 
@@ -143,7 +144,8 @@ export const F2CombinedForm = ({
     } = useContext(F2MarketContext);
 
     const { isMultisig, isWhitelisted, isProbablySmartAccount, hasCode } = useMultisig(market.borrowController);
-    const isNotWhitelistedContract = useMemo(() => hasCode && !isWhitelisted, [hasCode, isWhitelisted]);
+    const { userDepositsPerMarket } = useUserNetDeposits(account, market.address);
+    const isNotWhitelistedContract = hasCode && !isWhitelisted;
 
     const [isLargerThan] = useMediaQuery('(min-width: 1280px)');
     const { isOpen: isWethSwapModalOpen, onOpen: onWethSwapModalOpen, onClose: onWethSwapModalClose } = useDisclosure();
