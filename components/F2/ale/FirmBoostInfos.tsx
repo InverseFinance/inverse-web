@@ -631,6 +631,12 @@ export const FirmBoostInfos = ({
                     description="Warning: there seems to be a routing issue with 1inch at the moment, we don't advise to continue, the transaction will likely fail."
                 />
             }
+            {
+                isLeverageUp && dolaPrice < 0.995 && <WarningMessage
+                    alertProps={{ w: 'full' }}
+                    description="Note: DOLA's peg is not ideal at the moment, we recommend to leverage up once the peg is higher."
+                />
+            }
             <AboutAleModal isOpen={isOpen} onClose={onClose} />
             <Text fontWeight="bold" cursor="pointer" w='full' textAlign="left" textDecoration="underline" onClick={onOpen}>
                 About the Accelerated Leverage Engine
