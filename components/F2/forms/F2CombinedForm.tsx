@@ -678,7 +678,7 @@ export const F2CombinedForm = ({
                                 isDeposit && dolaPrice < 0.995 && <WarningMessage
                                     alertProps={{ w: 'full' }}
                                     description={
-                                        <Text><b>Note</b>: Using the leverage up feature while DOLA's peg is under 0.995 might not be advantageous, we recommend to wait for a higher peg to leverage up.</Text>
+                                        <Text><b>Note</b>: Using the leverage up feature while DOLA's peg is under 0.995 might not be advantageous.</Text>
                                     }
                                 />
                             }
