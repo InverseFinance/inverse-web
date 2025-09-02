@@ -3,7 +3,7 @@ import 'source-map-support'
 import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { getBnToNumber } from '@app/util/markets'
-import { getDbrAuctionContract } from '@app/util/dbr-auction';
+import { getDbrAuctionContract, getFormattedAuctionBuys } from '@app/util/dbr-auction';
 import { addBlockTimestamps } from '@app/util/timestamps';
 import { NetworkIds } from '@app/types';
 import { getSdolaContract } from '@app/util/dola-staking';
@@ -13,13 +13,16 @@ import { getSInvContract } from '@app/util/sINV';
 import { SINV_ADDRESS, SINV_ADDRESS_V1, SINV_HELPER_ADDRESS, SINV_HELPER_ADDRESS_V1 } from '@app/config/constants';
 import { Contract } from 'ethers';
 
-const DBR_AUCTION_BUYS_CACHE_KEY = 'dbr-auction-buys-v1.1.0'
+const DBR_AUCTION_BUYS_CACHE_KEY_V1 = 'dbr-auction-buys-v1.1.0'
+const DBR_AUCTION_BUYS_CACHE_KEY_V2 = 'dbr-auction-buys-v2.0.0'
 
 export default async function handler(req, res) {
     try {
         const cacheDuration = 300;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-        const { data: cachedData, isValid } = await getCacheFromRedisAsObj(DBR_AUCTION_BUYS_CACHE_KEY, true, cacheDuration, true);
+        const { data: archivedData } = await getCacheFromRedisAsObj(DBR_AUCTION_BUYS_CACHE_KEY_V1, false, cacheDuration, true);
+        const { data: cachedData, isValid } = await getCacheFromRedisAsObj(DBR_AUCTION_BUYS_CACHE_KEY_V2, true, cacheDuration);
+
         if (!!cachedData && isValid) {
             res.status(200).send(cachedData);
             return
@@ -33,7 +36,7 @@ export default async function handler(req, res) {
         const sinvContract = getSInvContract(paidProvider);
         const sinvContractV1 = getSInvContract(paidProvider, SINV_ADDRESS_V1);
 
-        const archived = cachedData || { buys: [] };
+        const archived = archivedData || { buys: [] };
         const pastTotalEvents = archived?.buys || [];
 
         const lastKnownEvent = pastTotalEvents?.length > 0 ? (pastTotalEvents[pastTotalEvents.length - 1]) : {};
@@ -107,22 +110,26 @@ export default async function handler(req, res) {
         const dbrSaleHandler = new Contract('0x4f4A31C1c11Bdd438Cf0c7668D6aFa2b5825932e', ['function repayBps() public view returns (uint)'], provider);
         const dbrSaleHandlerRepayBpsData = await dbrSaleHandler.repayBps();
 
+        const totalBuys = pastTotalEvents.concat(newBuys);
+        const formattedBuys = getFormattedAuctionBuys(totalBuys);
+
+        totalBuys.sort((a, b) => b.timestamp - a.timestamp);
+
         const resultData = {
             timestamp: Date.now(),
+            ...formattedBuys.aggregated,
             dbrSaleHandlerRepayPercentage: getBnToNumber(dbrSaleHandlerRepayBpsData, 2),
-            buys: pastTotalEvents.concat(newBuys),
+            buys: totalBuys,
         };
 
-        await redisSetWithTimestamp(DBR_AUCTION_BUYS_CACHE_KEY, resultData, true);
-
-        resultData.buys.sort((a, b) => b.timestamp - a.timestamp);
+        await redisSetWithTimestamp(DBR_AUCTION_BUYS_CACHE_KEY_V2, resultData);
 
         res.status(200).send(resultData);
     } catch (err) {
         console.error(err);
         // if an error occured, try to return last cached results
         try {
-            const cache = await getCacheFromRedis(DBR_AUCTION_BUYS_CACHE_KEY, false, 0, true);
+            const cache = await getCacheFromRedis(DBR_AUCTION_BUYS_CACHE_KEY_V2, false, 0, true);
             if (cache) {
                 console.log('Api call failed, returning last cache found');
                 res.status(200).send(cache);
