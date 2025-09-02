@@ -202,18 +202,18 @@ export const MarketInfos = ({ name, underlying, nameAndIcon, ...props }) => {
     </VStack>
 }
 
-export const MarketNameAndIcon = ({ marketIcon, icon, underlying, name, lpSize = 18, size = 25 }) => {
-    return <HStack maxW='180px' justify="flex-start" alignItems="center" spacing="2" w='full'>
+export const MarketNameAndIcon = ({ marketIcon, icon, underlying, name, lpSize = 18, size = 25, textProps, stackProps }) => {
+    return <Stack maxW='180px' justify="flex-start" alignItems="center" spacing="2" w='full' direction="row" {...stackProps}>
         {
             !underlying.isLP ? <BigImageButton bg={`url('${marketIcon || icon || underlying.image}')`} h={`${size}px`} w={`${size}px`} backgroundSize='contain' backgroundRepeat="no-repeat" />
                 : <LPImages alternativeDisplay={true} lpToken={{ pairs: underlying.pairs, image: underlying.image, protocolImage: underlying.protocolImage }} chainId={1} imgSize={lpSize} />
         }
         {
-            !!name && <CellText textOverflow="clip" overflow="hidden" whiteSpace="nowrap" fontWeight="bold" fontSize={{ base: '14px', '2xl': name.length > 14 ? '14px' : name.length > 12 ? '15px' : '18px' }}>
+            !!name && <CellText textOverflow="clip" overflow="hidden" whiteSpace="nowrap" fontWeight="bold" fontSize={{ base: '14px', '2xl': name.length > 14 ? '14px' : name.length > 12 ? '15px' : '18px' }} {...textProps}>
                 {name}
             </CellText>
         }
-    </HStack>
+    </Stack>
 }
 
 const MarketCell = ({ icon, marketIcon, underlying, badgeInfo, badgeProps, name, _isMobileCase }) => {

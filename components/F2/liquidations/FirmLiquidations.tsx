@@ -1,11 +1,11 @@
 import { Flex, SimpleGrid, Stack, Text, useMediaQuery, VStack } from "@chakra-ui/react"
-import { shortenNumber } from "@app/util/markets";
+import { homogeneizeLpName, shortenNumber } from "@app/util/markets";
 import Container from "@app/components/common/Container";
 import { useFirmLiquidations } from "@app/hooks/useFirm";
 import Link from "@app/components/common/Link";
 import { ViewIcon } from "@chakra-ui/icons";
 import ScannerLink from "@app/components/common/ScannerLink";
- 
+
 import Table from "@app/components/common/Table";
 import { BigImageButton } from "@app/components/common/Button/BigImageButton";
 import { Timestamp } from "@app/components/common/BlockTimestamp/Timestamp";
@@ -17,6 +17,7 @@ import { DashBoardCard, NumberCard } from "../UserDashboard";
 import { useEffect, useState } from "react";
 import { ONE_DAY_MS } from "@app/config/constants";
 import { timeSince } from "@app/util/time";
+import { MarketNameAndIcon } from "../F2Markets";
 
 const ColHeader = ({ ...props }) => {
     return <Flex justify="flex-start" minWidth={'100px'} fontSize="12px" fontWeight="extrabold" {...props} />
@@ -34,9 +35,9 @@ const columns = [
     {
         field: 'txHash',
         label: 'tx',
-        header: ({ ...props }) => <ColHeader minWidth="100px" justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="90px" justify="flex-start"  {...props} />,
         value: ({ txHash }) => {
-            return <Cell justify="flex-start" minWidth="100px">
+            return <Cell justify="flex-start" minWidth="90px">
                 <ScannerLink value={txHash} type="tx" fontSize='12px' />
             </Cell>
         },
@@ -44,17 +45,17 @@ const columns = [
     {
         field: 'timestamp',
         label: 'Date',
-        header: ({ ...props }) => <ColHeader justify="flex-start" minWidth={'100px'} {...props} />,
-        value: ({ timestamp }) => <Cell justify="flex-start" minWidth="100px">
+        header: ({ ...props }) => <ColHeader justify="flex-start" minWidth={'140px'} {...props} />,
+        value: ({ timestamp }) => <Cell justify="flex-start" minWidth="140px">
             <Timestamp timestamp={timestamp} text1Props={{ fontSize: '12px' }} text2Props={{ fontSize: '12px' }} />
         </Cell>,
     },
     {
         field: 'borrower',
         label: 'Borrower',
-        header: ({ ...props }) => <ColHeader justify="flex-start" {...props} minWidth="130px" />,
+        header: ({ ...props }) => <ColHeader justify="flex-start" {...props} minWidth="90px" />,
         value: ({ borrower }) => {
-            return <Cell w="130px" justify="flex-start" position="relative" onClick={(e) => e.stopPropagation()}>
+            return <Cell w="90px" justify="flex-start" position="relative" onClick={(e) => e.stopPropagation()}>
                 <Link isExternal href={`/firm?viewAddress=${borrower}`}>
                     <ViewIcon color="blue.600" boxSize={3} />
                 </Link>
@@ -62,29 +63,30 @@ const columns = [
             </Cell>
         },
         showFilter: true,
-        filterWidth: '120px',
+        filterWidth: '90px',
     },
     {
         field: 'marketName',
         label: 'Market',
-        header: ({ ...props }) => <ColHeader minWidth="100px" justify="flex-start"  {...props} />,
+        header: ({ ...props }) => <ColHeader minWidth="110px" justify="flex-start"  {...props} />,
         value: ({ market }) => {
             const { name, icon, marketIcon, underlying } = market;
-            return <Cell minWidth="100px" justify="flex-start" alignItems="center" >
-                <BigImageButton bg={`url('${marketIcon || icon || underlying?.image}')`} h="20px" w="20px" backgroundSize='contain' backgroundRepeat="no-repeat" />
-                <CellText>{name}</CellText>
+            return <Cell minWidth="110px">
+                {/* <BigImageButton bg={`url('${marketIcon || icon || underlying?.image}')`} h="20px" w="20px" backgroundSize='contain' backgroundRepeat="no-repeat" />
+                <CellText>{name}</CellText> */}
+                <MarketNameAndIcon stackProps={{ direction: 'column', alignItems: 'flex-start', justify: 'center' }} textProps={{ fontWeight: "normal", fontSize: "12px" }} direction="column" name={name} icon={icon} marketIcon={marketIcon} underlying={underlying} />
             </Cell>
         },
         showFilter: true,
-        filterWidth: '90px',
+        filterWidth: '110px',
         filterItemRenderer: ({ marketName }) => <CellText>{marketName}</CellText>
     },
     {
         field: 'liquidator',
         label: 'Liquidator',
-        header: ({ ...props }) => <ColHeader justify="flex-start" {...props} minWidth="100px" />,
+        header: ({ ...props }) => <ColHeader justify="flex-start" {...props} minWidth="90px" />,
         value: ({ liquidator }) => {
-            return <Cell w="100px" justify="flex-start" position="relative" onClick={(e) => e.stopPropagation()}>
+            return <Cell w="90px" justify="flex-start" position="relative" onClick={(e) => e.stopPropagation()}>
                 <ScannerLink value={liquidator} />
             </Cell>
         },
@@ -106,8 +108,12 @@ const columns = [
         label: 'Liquidator Reward',
         header: ({ ...props }) => <ColHeader minWidth="90px" justify="center"  {...props} />,
         value: ({ liquidatorReward, market }) => {
-            return <Cell minWidth="90px" justify="center" >
-                <CellText>{shortenNumber(liquidatorReward, 2, false, true)} {market.underlying.symbol}</CellText>
+            return <Cell minWidth="90px" justify="flex-end" >
+                <CellText textAlign="right">
+                    {shortenNumber(liquidatorReward, 2, false, true)} 
+                    <br />
+                    {homogeneizeLpName(market.underlying.symbol)}
+                </CellText>
             </Cell>
         },
     },
@@ -140,7 +146,7 @@ export const FirmLiquidations = ({
             return { ...l, y: nbRepaid, yDay: nbRepaid };
         }),
         (a, b) => a.utcDate === b.utcDate,
-    );    
+    );
 
     const nbLiqChartData = uniqueBy(
         repaidChartData.map(l => {
