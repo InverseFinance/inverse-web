@@ -131,16 +131,16 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
         return { week, avg, avgMarketPrice, min, max, y: avg, y2: avgMarketPrice, x: week }
     });
 
-    const dbrWeeklyIncomeStats = uniqueWeeks.map(week => {
-        const weekEvents = chartEvents.filter(e => getPreviousThursdayUtcDateOfTimestamp(e.timestamp) === week);
-        const dolaIn = weekEvents.map(e => e.dolaIn ? e.dolaIn : useInvAmount ? (e.invIn || 0) : e.worthIn);
-        const total = dolaIn.reduce((prev, curr) => prev + curr, 0);
-        return { week, y: total, x: week }
-    });
+    // const dbrWeeklyIncomeStats = uniqueWeeks.map(week => {
+    //     const weekEvents = chartEvents.filter(e => getPreviousThursdayUtcDateOfTimestamp(e.timestamp) === week);
+    //     const dolaIn = weekEvents.map(e => e.dolaIn ? e.dolaIn : useInvAmount ? (e.invIn || 0) : e.worthIn);
+    //     const total = dolaIn.reduce((prev, curr) => prev + curr, 0);
+    //     return { week, y: total, x: week }
+    // });
 
     const nbWeeksToShow = isLargerThan ? 8 : 6;
     const last8WeeksDbrPricesStats = dbrPricesStats.slice(dbrPricesStats.length - nbWeeksToShow, dbrPricesStats.length);
-    const last8WeeksIncomeStats = dbrWeeklyIncomeStats.slice(dbrWeeklyIncomeStats.length - nbWeeksToShow, dbrWeeklyIncomeStats.length);
+    // const last8WeeksIncomeStats = dbrWeeklyIncomeStats.slice(dbrWeeklyIncomeStats.length - nbWeeksToShow, dbrWeeklyIncomeStats.length);
 
     const pieChartData = [
         { name: 'Virtual', value: generalAuctionBuys },

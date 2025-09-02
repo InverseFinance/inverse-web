@@ -51,7 +51,6 @@ export const StakeInvUI = ({
 
     const account = useAccount();
     const { provider, account: connectedAccount } = useWeb3React();
-    const { events: auctionBuys } = useDbrAuctionActivity();
 
     const { markets } = useDBRMarkets();
     const invMarket = markets?.find(m => m.isInv);
@@ -83,10 +82,7 @@ export const StakeInvUI = ({
     // value in INV terms
     const invStakedInSInv = sInvExRate * stakedInvBalance;
     const sINVamount = invAmount ? parseFloat(invAmount) / sInvExRate : '';
-
-    const sInvAuctionBuys = auctionBuys.filter(e => e.auctionType === 'sINV')
-        .reduce((prev, curr) => prev + curr.invIn, 0);
-    const invBoughtByPressure = sInvAuctionBuys;
+    
     const monthlyBuyPressureInInv = sInvTotalAssets * invMarket?.dbrApr / 100 / 12;
 
     useEffect(() => {
