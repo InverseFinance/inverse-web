@@ -29,7 +29,7 @@ import { BigNumber } from 'ethers'
 import { isAddress } from 'ethers/lib/utils'
 import { BURN_ADDRESS } from '@app/config/constants'
 import { useMultisig } from '@app/hooks/useSafeMultisig'
-import { InfoMessage } from '@app/components/common/Messages'
+import { InfoMessage, WarningMessage } from '@app/components/common/Messages'
 import { TOKEN_IMAGES } from '@app/variables/images'
 import { LPImages } from '@app/components/common/Assets/LPImg'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
@@ -178,7 +178,7 @@ export const F2CombinedForm = ({
             }
         }
 
-        if(isExtendMarketLoanCase){
+        if (isExtendMarketLoanCase) {
             return f2ExtendMarketLoan(
                 signer,
                 market.address,
@@ -563,7 +563,7 @@ export const F2CombinedForm = ({
                         </>
                         : market.isBorrowingSuspended ? null : isBorrowOnlyCase ? <Text>Please deposit collateral first</Text> : <Text>Nothing to repay</Text>
                 }
-                {hasDustIssue && <DebtDustErrorMessage debt={debt}  />}
+                {hasDustIssue && <DebtDustErrorMessage debt={debt} />}
                 {showMinDebtMessage && <MinDebtBorrowMessage debt={debt} minDebt={market.minDebt} />}
                 {showNeedDbrMessage && <NoDbrInWalletMessage />}
                 {showNotEnoughDolaToRepayMessage && <NotEnoughDolaToRepayMessage amount={debtAmountNum} />}
@@ -578,7 +578,7 @@ export const F2CombinedForm = ({
                     }
                     {
                         market.isLeverageComingSoon && <Text color="mainTextColorLight">
-                            Leverage coming{market.isLeverageSuspended ? ' back ': ' '}soon
+                            Leverage coming{market.isLeverageSuspended ? ' back ' : ' '}soon
                         </Text>
                     }
                     {
@@ -674,6 +674,14 @@ export const F2CombinedForm = ({
                     {mainFormInputs}
                     {
                         canShowLeverage && <VStack display={useLeverage ? 'inline-block' : 'none'}>
+                            {
+                                isDeposit && dolaPrice < 0.995 && <WarningMessage
+                                    alertProps={{ w: 'full' }}
+                                    description={
+                                        <Text><b>Note</b>: Using the leverage up feature while DOLA's peg is under 0.995 might not be advantageous, we recommend to wait for a higher peg to leverage up.</Text>
+                                    }
+                                />
+                            }
                             {
                                 canActivateLeverage ? <ErrorBoundary description="Something went wrong in the leverage interface. Please try again later.">
                                     <FirmBoostInfos
