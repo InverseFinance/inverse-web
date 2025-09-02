@@ -40,10 +40,9 @@ export const getProvider = (chainId: string | number, specificAlchemyKey?: strin
     const network = Number(chainId);
     const providers = [new AlchemyProvider(network, specificAlchemyKey || getRandomFromStringList(process.env.ALCHEMY_KEYS!))];
 
-    // TEMP
-    if(!onlyAlchemy && chainId?.toString() === NetworkIds.mainnet) {
-        return getPaidProvider(chainId);
-    }
+    // if(!onlyAlchemy && chainId?.toString() === NetworkIds.mainnet) {
+    //     return getPaidProvider(chainId);
+    // }
     return providers[0]
     // if(!onlyAlchemy) {
     //     // providers.push(new CloudflareProvider(network));
