@@ -95,62 +95,29 @@ export const estimateAuctionTimeToReachMarketPrice = (
     return timeToAddSec;
 }
 
-export const useDbrAuctionActivity = (from?: string): SWR & {
-    events: any[],
-    dolaEvents: any[],
-    invEvents: any[],
-    virtualAuctionEvents: any[],
-    sdolaAuctionEvents: any[],
-    sinvAuctionEvents: any[],
-    accountEvents: any,
-    timestamp: number,
-    dbrSaleHandlerRepayPercentage: number,
-    avgDbrPrice: number,
-    nbBuys: number,
-    accDolaIn: number,
-    accDbrOut: number,
-    accDolaInVirtual: number,
-    accDolaInSdola: number,
-    accDbrOutVirtual: number,
-    accDbrOutSdola: number,
-    accInvInSinv: number,
-    accDbrOutSinv: number,
-    accDbrOutFromDola: number,
-    accInvIn: number,
-    accInvWorthIn: number,
-    accWorthIn: number,
-    accInvWorthOut: number,
-    accWorthOut: number,
-    accDolaWorthOut: number,
-    accVirtualWorthOut: number,
-    accSdolaWorthOut: number,
-} => {
-    const liveEvents = []//useDbrAuctionBuyEvents(from);
-    const { data, error } = useCustomSWR(`/api/auctions/dbr-buys?v=1.0.1`, fetcher);
-
-    const events = (liveEvents?.length > data?.buys?.length ? liveEvents : data?.buys || [])
-        .map((e, i) => {
-            const isInvCase = e.auctionType === 'sINV';
-            const priceInDola = ((e.dolaIn || 0) / e.dbrOut);
-            const priceInInv = ((e.invIn || 0) / e.dbrOut);
-            const amountIn = isInvCase ? e.invIn : e.dolaIn;
-            const arb = isInvCase ? e.marketPriceInInv - priceInInv : e.marketPriceInDola - priceInDola;
-            const worthIn = e.dolaIn ? e.dolaIn : e.invIn * 1 / e.marketPriceInInv * e.marketPriceInDola;
-            const worthOut = e.dbrOut * e.marketPriceInDola;
-            const priceAvg = isInvCase ? (priceInInv + e.marketPriceInInv) / 2 : (priceInDola + e.marketPriceInDola) / 2;
-            return {
-                ...e,
-                key: `${e.txHash}-${i}`,
-                priceInDola,
-                priceInInv,
-                amountIn,
-                worthIn,
-                worthOut,
-                arb,
-                arbPerc: arb / (priceAvg) * 100,
-                version: e.version || (isInvCase ? 'V1' : undefined),
-            };
-        });
+export const getFormattedAuctionBuys = (buyEvents: any[]) => {
+    const events = buyEvents.map((e, i) => {
+        const isInvCase = e.auctionType === 'sINV';
+        const priceInDola = ((e.dolaIn || 0) / e.dbrOut);
+        const priceInInv = ((e.invIn || 0) / e.dbrOut);
+        const amountIn = isInvCase ? e.invIn : e.dolaIn;
+        const arb = isInvCase ? e.marketPriceInInv - priceInInv : e.marketPriceInDola - priceInDola;
+        const worthIn = e.dolaIn ? e.dolaIn : e.invIn * 1 / e.marketPriceInInv * e.marketPriceInDola;
+        const worthOut = e.dbrOut * e.marketPriceInDola;
+        const priceAvg = isInvCase ? (priceInInv + e.marketPriceInInv) / 2 : (priceInDola + e.marketPriceInDola) / 2;
+        return {
+            ...e,
+            key: `${e.txHash}-${i}`,
+            priceInDola,
+            priceInInv,
+            amountIn,
+            worthIn,
+            worthOut,
+            arb,
+            arbPerc: arb / (priceAvg) * 100,
+            version: e.version || (isInvCase ? 'V1' : undefined),
+        };
+    });
 
     const dolaEvents = events.filter(e => e.auctionType === 'Virtual' || e.auctionType === 'sDOLA');
     const invEvents = events.filter(e => e.auctionType === 'sINV');
@@ -189,26 +156,73 @@ export const useDbrAuctionActivity = (from?: string): SWR & {
         virtualAuctionEvents,
         sdolaAuctionEvents,
         sinvAuctionEvents,
+        aggregated: {
+            accDolaIn,
+            accDbrOut,
+            accDolaInVirtual,
+            accDbrOutVirtual,
+            accDolaInSdola,
+            accDbrOutSdola,
+            accInvInSinv,
+            accDbrOutSinv,
+            accDbrOutFromDola,
+            accInvIn,
+            accInvWorthIn,
+            accWorthIn,
+            accInvWorthOut,
+            accWorthOut,
+            accDolaWorthOut,
+            accVirtualWorthOut,
+            accSdolaWorthOut,
+            avgDbrPrice,
+            nbBuys,
+        }
+    }
+}
+
+export const useDbrAuctionActivity = (from?: string): SWR & {
+    events: any[],
+    dolaEvents: any[],
+    invEvents: any[],
+    virtualAuctionEvents: any[],
+    sdolaAuctionEvents: any[],
+    sinvAuctionEvents: any[],
+    accountEvents: any,
+    timestamp: number,
+    dbrSaleHandlerRepayPercentage: number,
+    avgDbrPrice: number,
+    nbBuys: number,
+    accDolaIn: number,
+    accDbrOut: number,
+    accDolaInVirtual: number,
+    accDolaInSdola: number,
+    accDbrOutVirtual: number,
+    accDbrOutSdola: number,
+    accInvInSinv: number,
+    accDbrOutSinv: number,
+    accDbrOutFromDola: number,
+    accInvIn: number,
+    accInvWorthIn: number,
+    accWorthIn: number,
+    accInvWorthOut: number,
+    accWorthOut: number,
+    accDolaWorthOut: number,
+    accVirtualWorthOut: number,
+    accSdolaWorthOut: number,
+} => {
+    const { data, error } = useCustomSWR(`/api/auctions/dbr-buys?v=1.0.1`, fetcher);
+
+    const { events, dolaEvents, invEvents, virtualAuctionEvents, sdolaAuctionEvents, sinvAuctionEvents, aggregated } = getFormattedAuctionBuys(data?.buys || []);
+
+    return {
+        events,
+        dolaEvents,
+        invEvents,
+        virtualAuctionEvents,
+        sdolaAuctionEvents,
+        sinvAuctionEvents,
         accountEvents: events.filter(e => e.to === from),
-        nbBuys,
-        avgDbrPrice,
-        accDolaIn,
-        accDbrOut,
-        accDolaInVirtual,
-        accDbrOutVirtual,
-        accDolaInSdola,
-        accDbrOutSdola,
-        accInvInSinv,
-        accDbrOutSinv,
-        accDbrOutFromDola,
-        accInvIn,
-        accWorthIn,
-        accInvWorthIn,
-        accInvWorthOut,
-        accWorthOut,
-        accDolaWorthOut,
-        accVirtualWorthOut,
-        accSdolaWorthOut,
+        ...aggregated,
         dbrSaleHandlerRepayPercentage: data?.dbrSaleHandlerRepayPercentage || 20,
         timestamp: !from ? data?.timestamp : 0,
         isLoading: !error && !data,
