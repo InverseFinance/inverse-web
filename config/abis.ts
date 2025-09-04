@@ -655,12 +655,14 @@ export const PSM_ABI = [
   "function getDolaOut(uint amountIn) public view returns (uint amountOut)",
   "function getCollateralOut(uint amountIn) public view returns (uint amountOut)",
   "function getTotalReserves() public view returns (uint amountOut)",
+  "function getProfit() public view returns (uint amountOut)",
   "function supply() public view returns (uint amountOut)",
+  "function minTotalSupply() public view returns (uint amountOut)",
   "function collateral() public view returns (address)",
-  "function buy(address to, uint collateralIn) public view returns (uint dolaOut)",
-  "function buy(uint collateralIn) public view returns (uint dolaOut)",
-  "function sell(address to, uint dolaIn) public view returns (uint collateralOut)",
-  "function sell(uint dolaIn) public view returns (uint collateralOut)",
+  // "function buy(address to, uint collateralIn) external",
+  "function buy(uint collateralIn) external",
+  // "function sell(address to, uint dolaIn) external",
+  "function sell(uint dolaIn) external",
 ]
 
 export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {
