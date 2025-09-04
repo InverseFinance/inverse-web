@@ -16,6 +16,7 @@ import { PSM_ABI } from "@app/config/abis";
 import Link from "../common/Link";
 import ScannerLink from "../common/ScannerLink";
 import { useCacheFirstSWR } from "@app/hooks/useCustomSWR";
+import { PsmActivityTable } from "./PsmActivityTable";
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -258,5 +259,9 @@ export const PSMui = ({
                 </HStack>
             </VStack>
         </Container>
+        <PsmActivityTable
+            timestamp={psmApiData?.timestamp || 0}
+            events={psmApiData?.events || []}
+        />
     </Stack>
 }
