@@ -663,6 +663,9 @@ export const PSM_ABI = [
   "function buy(uint collateralIn) external",
   // "function sell(address to, uint dolaIn) external",
   "function sell(uint dolaIn) external",
+  "event Buy(address indexed user, uint256 dolaAmount, uint256 colAmount)",
+  "event Sell(address indexed user, uint256 dolaAmount, uint256 colAmount)",
+  "event ProfitTaken(uint256 colAmount)",
 ]
 
 export const getAbis = (chainId = process.env.NEXT_PUBLIC_CHAIN_ID!): Map<string, string[]> => {
