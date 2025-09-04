@@ -262,6 +262,7 @@ export const PSMui = ({
         <PsmActivityTable
             timestamp={psmApiData?.timestamp || 0}
             events={psmApiData?.events || []}
+            isLoading={isLoadingPsmData}
         />
     </Stack>
 }

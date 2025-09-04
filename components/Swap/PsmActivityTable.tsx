@@ -1,4 +1,4 @@
-
+import { SkeletonBlob } from '@app/components/common/Skeleton'
 import Table from "../common/Table"
 import { Flex, Stack, Text } from "@chakra-ui/react"
 import { Timestamp } from "../common/BlockTimestamp/Timestamp"
@@ -46,7 +46,7 @@ const columns = [
         header: ({ ...props }) => <ColHeader minWidth="100px" justify="flex-start"  {...props} />,
         value: ({ account }) => {
             return <Cell minWidth="100px" justify="flex-start" >
-                <CellText><ScannerLink value={account||'0x926dF14a23BE491164dCF93f4c468A50ef659D5B'} type="address" fontSize='12px' /></CellText>
+                <CellText><ScannerLink value={account || '0x926dF14a23BE491164dCF93f4c468A50ef659D5B'} type="address" fontSize='12px' /></CellText>
             </Cell>
         },
         showFilter: true,
@@ -87,7 +87,7 @@ const columns = [
     },
 ]
 
-export const PsmActivityTable = ({ events, timestamp }: { events: any[], timestamp: number }) => {
+export const PsmActivityTable = ({ events, timestamp, isLoading }: { events: any[], timestamp: number, isLoading: boolean }) => {
     return <Container
         label="PSM Activity"
         description={`Last update: ${timestamp > 0 ? timeSince(timestamp) : ''}`}
@@ -95,17 +95,19 @@ export const PsmActivityTable = ({ events, timestamp }: { events: any[], timesta
         m="0"
         p="0"
     >
-        <Table
-            columns={columns}
-            items={events}
-            keyName="txHash"
-            noDataMessage="No activity yet"
-            defaultSortDir="desc"
-            enableMobileRender={true}
-            defaultSort="timestamp"
-            mobileThreshold={1000}
-            showRowBorder={true}
-            spacing="0"
-        />
+        {
+            isLoading ? <SkeletonBlob skeletonHeight={6} noOfLines={5} /> : <Table
+                columns={columns}
+                items={events}
+                keyName="txHash"
+                noDataMessage="No activity yet"
+                defaultSortDir="desc"
+                enableMobileRender={true}
+                defaultSort="timestamp"
+                mobileThreshold={1000}
+                showRowBorder={true}
+                spacing="0"
+            />
+        }
     </Container>
 }
