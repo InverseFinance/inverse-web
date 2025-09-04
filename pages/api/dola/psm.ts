@@ -5,16 +5,19 @@ import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from
 import { ascendingEventsSorter, estimateBlocksTimestamps } from '@app/util/misc';
 import { PSM_ADDRESS } from '@app/config/constants';
 import { Contract } from 'ethers';
-import { PSM_ABI } from '@app/config/abis';
+import { DOLA_ABI, PSM_ABI } from '@app/config/abis';
 import { getBnToNumber } from '@app/util/markets';
 import { getMulticallOutput } from '@app/util/multicall';
+import { getNetworkConfigConstants } from '@app/util/networks';
+
+const { DOLA } = getNetworkConfigConstants();
 
 export default async function handler(req, res) {
     const cacheDuration = 60;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const { cacheFirst } = req.query;
     
-    const cacheKey = 'psm-activity-v1.0.1';
+    const cacheKey = 'psm-activity-v1.0.2';
 
     try {            
         const { data: cachedData, isValid: isValid } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration);
@@ -27,7 +30,8 @@ export default async function handler(req, res) {
         const provider = getProvider(1);
 
         const psmEventsContract = new Contract(PSM_ADDRESS, PSM_ABI, eventsProvider);
-        const psmContract = new Contract(PSM_ADDRESS, PSM_ABI, eventsProvider);
+        const psmContract = new Contract(PSM_ADDRESS, PSM_ABI, provider);
+        const dolaContract = new Contract(DOLA, DOLA_ABI, provider);
 
         const archived = cachedData || { events: [], lastCheckedBlock: 0, totalProfit: 0, totalRealisedProfit: 0, totalDolaBought: 0, totalDolaSold: 0, totalColBought: 0, totalColSold: 0 };
         let pastTotalEvents = archived?.events || [];
@@ -45,6 +49,7 @@ export default async function handler(req, res) {
             totalReservesBn,
             buyFeeBps,
             sellFeeBps,
+            dolaBalanceBn,
         ] = await getMulticallOutput(
             [
                 { contract: psmContract, functionName: 'getProfit' },
@@ -53,6 +58,7 @@ export default async function handler(req, res) {
                 { contract: psmContract, functionName: 'getTotalReserves' },
                 { contract: psmContract, functionName: 'buyFeeBps' },
                 { contract: psmContract, functionName: 'sellFeeBps' },
+                { contract: dolaContract, functionName: 'balanceOf', params: [PSM_ADDRESS] },
             ],
             1,
             currentBlock,
@@ -65,6 +71,7 @@ export default async function handler(req, res) {
         const totalReserves = getBnToNumber(totalReservesBn, 18);
         const buyFeePerc = getBnToNumber(buyFeeBps, 2);
         const sellFeePerc = getBnToNumber(sellFeeBps, 2);
+        const dolaLiquidity = getBnToNumber(dolaBalanceBn, 18);
 
         const [
             buysData, sellsData, profitTakenData,
@@ -122,6 +129,7 @@ export default async function handler(req, res) {
             minTotalSupply,
             supply,
             totalReserves,
+            dolaLiquidity,
             buyFeePerc,
             sellFeePerc,
             totalDolaBought: archived.totalDolaBought + newBuys.reduce((acc, curr) => acc + curr.dolaAmount, 0),
