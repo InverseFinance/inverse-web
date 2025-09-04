@@ -3,6 +3,7 @@ import Layout from '@app/components/common/Layout'
 import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head';
 import { PSMui } from '@app/components/Swap/PSMui';
+import { PSM_ADDRESS } from '@app/config/constants';
 
 export const PSMPage = () => {
   return (
@@ -14,14 +15,19 @@ export const PSMPage = () => {
         <meta name="description" content="PSM between DOLA and USDS" />
         <meta name="keywords" content="Inverse Finance, PSM, DOLA, USDS" />
       </Head>
-      <AppNav active="More" activeSubmenu="PSM" />
+      <AppNav active="More" activeSubmenu="PSM" hideAnnouncement={true} />
       <VStack
         w={{ base: 'full', lg: '1200px' }}
         mt='6'
         spacing="8"
         px={{ base: '4', lg: '0' }}
       >
-        <PSMui />
+        <PSMui
+          collateral={'0xdC035D45d973E3EC169d2276DDab16f1e407384F'}
+          collateralSymbol="USDS"
+          collateralDecimals={18}
+          psm={PSM_ADDRESS}
+        />
       </VStack>
     </Layout>
   )
