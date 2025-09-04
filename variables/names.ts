@@ -141,6 +141,7 @@ const namedAddresses: { [key: string]: string } = {
     '0x0460ae025d45c570d40c369e06e943ceb931ac10': 'TokemakBot',
     '0x39ff6d21204B919441d17bef61D19181870835A2': 'TokemakAutopilot',
     '0x1597E4B7cF6D2877A1d690b6088668afDb045763': 'StreamFinance',
+    '0x4Dfd662622D766304Cb539e66f893c4dEFA19398': 'PSM',
     // partners
     '0x58dCB47956De1e99B1AF0ceb643727EF66aF4647': 'DWF Swapper',
 }
