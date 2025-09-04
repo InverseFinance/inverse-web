@@ -1,6 +1,6 @@
 import { Contract } from 'ethers'
 import 'source-map-support'
-import { getPaidProvider } from '@app/util/providers';
+import { getPaidProvider, getProvider } from '@app/util/providers';
 import { getCacheFromRedis, getCacheFromRedisAsObj, redisSetWithTimestamp } from '@app/util/redis'
 import { aprToApy, getBnToNumber, getNumberToBn } from '@app/util/markets'
 import { isAddress, parseUnits } from 'ethers/lib/utils';
@@ -9,6 +9,8 @@ import { LENDER_ABI, monolithSupportedChainIds } from './positions';
 import { BLOCKS_PER_YEAR, BURN_ADDRESS } from '@app/config/constants';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { ERC20_ABI, SVAULT_ABI } from '@app/config/abis';
+import { theGraphFetch } from '@app/util/the-graph';
+import { getEnsName } from '@app/util';
 
 const FACTORY_ABI = [{ "type": "constructor", "inputs": [{ "name": "_operator", "type": "address", "internalType": "address" }], "stateMutability": "nonpayable" }, { "type": "function", "name": "MAX_FEE_BPS", "inputs": [], "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }], "stateMutability": "view" }, { "type": "function", "name": "acceptOperator", "inputs": [], "outputs": [], "stateMutability": "nonpayable" }, { "type": "function", "name": "customFeeBps", "inputs": [{ "name": "", "type": "address", "internalType": "address" }], "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }], "stateMutability": "view" }, { "type": "function", "name": "deploy", "inputs": [{ "name": "_name", "type": "string", "internalType": "string" }, { "name": "_symbol", "type": "string", "internalType": "string" }, { "name": "_collateral", "type": "address", "internalType": "address" }, { "name": "_feed", "type": "address", "internalType": "address" }, { "name": "_collateralFactor", "type": "uint256", "internalType": "uint256" }, { "name": "_minDebt", "type": "uint256", "internalType": "uint256" }, { "name": "_timeUntilImmutability", "type": "uint256", "internalType": "uint256" }, { "name": "_operator", "type": "address", "internalType": "address" }], "outputs": [{ "name": "lender", "type": "address", "internalType": "address" }, { "name": "coin", "type": "address", "internalType": "address" }, { "name": "vault", "type": "address", "internalType": "address" }], "stateMutability": "nonpayable" }, { "type": "function", "name": "deployments", "inputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }], "outputs": [{ "name": "", "type": "address", "internalType": "address" }], "stateMutability": "view" }, { "type": "function", "name": "deploymentsLength", "inputs": [], "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }], "stateMutability": "view" }, { "type": "function", "name": "feeBps", "inputs": [], "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }], "stateMutability": "view" }, { "type": "function", "name": "feeRecipient", "inputs": [], "outputs": [{ "name": "", "type": "address", "internalType": "address" }], "stateMutability": "view" }, { "type": "function", "name": "getFeeOf", "inputs": [{ "name": "_lender", "type": "address", "internalType": "address" }], "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }], "stateMutability": "view" }, { "type": "function", "name": "interestModel", "inputs": [], "outputs": [{ "name": "", "type": "address", "internalType": "address" }], "stateMutability": "view" }, { "type": "function", "name": "isDeployed", "inputs": [{ "name": "", "type": "address", "internalType": "address" }], "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }], "stateMutability": "view" }, { "type": "function", "name": "operator", "inputs": [], "outputs": [{ "name": "", "type": "address", "internalType": "address" }], "stateMutability": "view" }, { "type": "function", "name": "pendingOperator", "inputs": [], "outputs": [{ "name": "", "type": "address", "internalType": "address" }], "stateMutability": "view" }, { "type": "function", "name": "pullReserves", "inputs": [{ "name": "_deployment", "type": "address", "internalType": "address" }], "outputs": [], "stateMutability": "nonpayable" }, { "type": "function", "name": "setCustomFeeBps", "inputs": [{ "name": "_address", "type": "address", "internalType": "address" }, { "name": "_feeBps", "type": "uint256", "internalType": "uint256" }], "outputs": [], "stateMutability": "nonpayable" }, { "type": "function", "name": "setFeeBps", "inputs": [{ "name": "_feeBps", "type": "uint256", "internalType": "uint256" }], "outputs": [], "stateMutability": "nonpayable" }, { "type": "function", "name": "setFeeRecipient", "inputs": [{ "name": "_feeRecipient", "type": "address", "internalType": "address" }], "outputs": [], "stateMutability": "nonpayable" }, { "type": "function", "name": "setPendingOperator", "inputs": [{ "name": "_pendingOperator", "type": "address", "internalType": "address" }], "outputs": [], "stateMutability": "nonpayable" }, { "type": "event", "name": "CustomFeeBpsSet", "inputs": [{ "name": "lender", "type": "address", "indexed": true, "internalType": "address" }, { "name": "feeBps", "type": "uint256", "indexed": false, "internalType": "uint256" }], "anonymous": false }, { "type": "event", "name": "Deployed", "inputs": [{ "name": "lender", "type": "address", "indexed": true, "internalType": "address" }, { "name": "coin", "type": "address", "indexed": true, "internalType": "address" }, { "name": "vault", "type": "address", "indexed": true, "internalType": "address" }], "anonymous": false }];
 const INTEREST_MODEL_ABI = [{ "type": "function", "name": "calculateInterest", "inputs": [{ "name": "_totalPaidDebt", "type": "uint256", "internalType": "uint256" }, { "name": "_lastRate", "type": "uint256", "internalType": "uint256" }, { "name": "_timeElapsed", "type": "uint256", "internalType": "uint256" }, { "name": "_expRate", "type": "uint256", "internalType": "uint256" }, { "name": "_lastFreeDebtRatioBps", "type": "uint256", "internalType": "uint256" }, { "name": "_targetFreeDebtRatioStartBps", "type": "uint256", "internalType": "uint256" }, { "name": "_targetFreeDebtRatioEndBps", "type": "uint256", "internalType": "uint256" }], "outputs": [{ "name": "currBorrowRate", "type": "uint256", "internalType": "uint256" }, { "name": "interest", "type": "uint256", "internalType": "uint256" }], "stateMutability": "pure" }]
@@ -65,7 +67,7 @@ export default async function handler(req, res) {
         vault,
       }
     });
-    
+
     // immutable state variables
     const [collaterals, collateralFactor, minDebt, interesModel, symbols, names, feeds] = await getGroupedMulticallOutputs(
       [
@@ -95,7 +97,7 @@ export default async function handler(req, res) {
       currentBlock,
       provider,
     );
-    
+
     const deployedEvents = cachedEvents.concat(newEvents);
 
     const deployments = cachedDeployments
@@ -114,6 +116,25 @@ export default async function handler(req, res) {
           }
         })
       );
+
+    
+
+    // const ensGraphQl = `{
+    //     wrappedDomains(
+    //       where: { owner_in: ${JSON.stringify(deployments.map(e => e.operator.toLowerCase()))} }
+    //     ) {
+    //       name
+    //       expiryDate
+    //       owner {
+    //         id
+    //       }
+    //     }
+    //   }`;
+
+    // const ensGraphQlData = await theGraphFetch(
+    //   "https://api.thegraph.com/subgraphs/name/ensdomains/ens",
+    //   ensGraphQl,
+    // );
 
     const [
       collateralSymbol,
@@ -215,7 +236,7 @@ export default async function handler(req, res) {
       currentBlock,
       provider,
     );
-    
+
     deployments.forEach((e, i) => {
       const [priceBn, isReduceOnly, isLiquidationAllowed] = priceData[i];
       // always use 18 decimals for price
@@ -249,7 +270,18 @@ export default async function handler(req, res) {
       e.totalDebt = e.totalPaidDebt + e.totalFreeDebt;
       e.feedDescription = feedDescription[i];
     });
-    
+
+    const disctinctOperators = [...new Set(deployments.map(e => e.operator.toLowerCase()))];
+
+    const ensNames = await Promise.all(disctinctOperators.map(op => {
+      return getEnsName(op, true, getProvider(1));
+    }));
+
+    deployments.forEach((e, i) => {
+      const distinctIndex = disctinctOperators.indexOf(e.operator.toLowerCase());
+      e.operatorEnsName = ensNames[distinctIndex] || '';
+    });
+
     const [realTimeBorrowRate] = await getGroupedMulticallOutputs(
       [
         deployments.map((e, i) => {
@@ -261,7 +293,7 @@ export default async function handler(req, res) {
       currentBlock,
       provider,
     );
-    
+
     deployments.forEach((e, i) => {
       const realTimeBorrowApr = getBnToNumber(realTimeBorrowRate[i][0], 18);
       // staking APY calc
