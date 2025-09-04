@@ -1,4 +1,4 @@
-import { VStack, Text, Stack, HStack, Divider } from "@chakra-ui/react"
+import { VStack, Text, Stack, HStack, Divider, Spinner } from "@chakra-ui/react"
 import { useWeb3React } from "@web3-react/core";
 import { SimpleAmountForm } from "../common/SimpleAmountForm";
 import { useState } from "react";
@@ -15,6 +15,7 @@ import { Contract } from "ethers";
 import { PSM_ABI } from "@app/config/abis";
 import Link from "../common/Link";
 import ScannerLink from "../common/ScannerLink";
+import { useCacheFirstSWR } from "@app/hooks/useCustomSWR";
 
 const { DOLA } = getNetworkConfigConstants();
 
@@ -53,6 +54,15 @@ const swap = (
     }
 }
 
+const usePsmApi = () => {
+    const { data, error } = useCacheFirstSWR(`/api/dola/psm`);
+    return {
+        data,
+        isLoading: !error && !data,
+        error,
+    }
+}
+
 export const PSMui = ({
     collateral,
     collateralSymbol,
@@ -64,6 +74,7 @@ export const PSMui = ({
     collateralDecimals: number;
     psm: string;
 }) => {
+    const { data: psmApiData, isLoading: isLoadingPsmData, error: psmDataError } = usePsmApi();
     const { provider, account: connectedAccount } = useWeb3React();
 
     const [inAmount, setInAmount] = useState('');
@@ -100,22 +111,22 @@ export const PSMui = ({
 
     const isLoadingOutAmount = !outAmountBn && !outAmountError;
 
-    const dolaLiquidity = psmData ? getBnToNumber(psmData[0]) : 0;
-    const collateralLiquidity = psmData ? getBnToNumber(psmData[1], collateralDecimals) : 0;
+    const dolaLiquidity = psmData ? getBnToNumber(psmData[0]) : psmApiData?.dolaLiquidity || 0;
+    const collateralLiquidity = psmData ? getBnToNumber(psmData[1], collateralDecimals) : psmApiData?.totalReserves || 0;
 
     const outLiquidity = isBuyDola ? dolaLiquidity : collateralLiquidity;
 
-    const buyFeePerc = psmData ? getBnToNumber(psmData[2], 2) : 0;
-    const sellFeePerc = psmData ? getBnToNumber(psmData[3], 2) : 0;
+    const buyFeePerc = psmData ? getBnToNumber(psmData[2], 2) : psmApiData?.buyFeePerc || 0;
+    const sellFeePerc = psmData ? getBnToNumber(psmData[3], 2) : psmApiData?.sellFeePerc || 0;
 
     const outAmount = outAmountBn ? getBnToNumber(outAmountBn, outDecimals) : 0;
     const outAmountFormatted = outAmount ? preciseCommify(outAmount, 2, false) : '0';
 
-    const profit = psmData ? getBnToNumber(psmData[4], 18) : 0;
+    const profit = psmData ? getBnToNumber(psmData[4], 18) : psmApiData?.unclaimedProfit || 0;
     const profitFormatted = profit ? preciseCommify(profit, 2, false) : '0';
 
-    const supply = psmData ? getBnToNumber(psmData[5], 18) : 0;
-    const minTotalSupply = psmData ? getBnToNumber(psmData[6], 18) : 0;
+    const supply = psmData ? getBnToNumber(psmData[5], 18) : psmApiData?.supply || 0;
+    const minTotalSupply = psmData ? getBnToNumber(psmData[6], 18) : psmApiData?.minTotalSupply || 0;
 
     useDebouncedEffect(() => {
         setIsConnected(!!connectedAccount);
@@ -202,13 +213,16 @@ export const PSMui = ({
             m="0"
             p="0"
             maxW='600px'
+            right={
+                isLoadingPsmData && !psmData ? <Spinner /> : null
+            }
         >
             <VStack spacing="2" alignItems="flex-start" w='full'>
                 <HStack w='full' justify="space-between">
                     <Text>
                         DOLA Buy Fee: <b>{buyFeePerc}%</b>
                     </Text>
-                    <Text>
+                    <Text align="right">
                         DOLA Sell Fee: <b>{sellFeePerc}%</b>
                     </Text>
                 </HStack>
@@ -216,7 +230,7 @@ export const PSMui = ({
                     <Text>
                         DOLA Liquidity: <b>{shortenNumber(dolaLiquidity, 2)} {outSymbol}</b>
                     </Text>
-                    <Text>
+                    <Text align="right">
                         {collateralSymbol} Liquidity: <b>{shortenNumber(collateralLiquidity, 2)} {collateralSymbol}</b>
                     </Text>
                 </HStack>
@@ -224,13 +238,18 @@ export const PSMui = ({
                     <Text>
                         PSM Supply: <b>{shortenNumber(supply, 2)} {collateralSymbol}</b>
                     </Text>
-                    <Text>
+                    <Text align="right">
                         Min. Vault Supply: <b>{shortenNumber(minTotalSupply, 2)} s{collateralSymbol}</b>
                     </Text>
                 </HStack>
-                <Text>
-                    PSM unclaimed profit: <b>{profitFormatted} {collateralSymbol}</b>
-                </Text>
+                <HStack w='full' justify="space-between">
+                    <Text>
+                        PSM unclaimed profit: <b>{profitFormatted} {collateralSymbol}</b>
+                    </Text>
+                    <Text align="right">
+                        PSM total profit: <b>{shortenNumber(psmApiData?.totalProfit, 2)} {collateralSymbol}</b>
+                    </Text>
+                </HStack>
                 <HStack w='full' justify="space-between">
                     <ScannerLink value={psm} label="PSM Contract" />
                     <Link textDecoration="underline" href="https://www.inverse.finance/governance/proposals/mills/311" isExternal target="_blank">
