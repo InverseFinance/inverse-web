@@ -102,6 +102,9 @@ export const PSMui = ({
 
     const dolaLiquidity = psmData ? getBnToNumber(psmData[0]) : 0;
     const collateralLiquidity = psmData ? getBnToNumber(psmData[1], collateralDecimals) : 0;
+
+    const outLiquidity = isBuyDola ? dolaLiquidity : collateralLiquidity;
+
     const buyFeePerc = psmData ? getBnToNumber(psmData[2], 2) : 0;
     const sellFeePerc = psmData ? getBnToNumber(psmData[3], 2) : 0;
 
@@ -118,7 +121,7 @@ export const PSMui = ({
         setIsConnected(!!connectedAccount);
     }, [connectedAccount], 500);
 
-    const noLiquidity = parseFloat(inAmount) > dolaLiquidity;
+    const noLiquidity = outAmount > outLiquidity;
 
     const handleAction = async () => {
         if (!provider?.getSigner()) { return }
