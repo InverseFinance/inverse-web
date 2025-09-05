@@ -8,6 +8,7 @@ import { estimateBlockTimestamp } from '@app/util/misc';
 import { BURN_ADDRESS } from '@app/config/constants';
 import { getGroupedMulticallOutputs } from '@app/util/multicall';
 import { ERC20_ABI } from '@app/config/abis';
+import { getEnsName } from '@app/util';
 
 const FACTORY_ABI = [{ "inputs": [{ "internalType": "address", "name": "_token0", "type": "address" }, { "internalType": "address", "name": "_operator", "type": "address" }], "stateMutability": "nonpayable", "type": "constructor" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "token0", "type": "address" }, { "indexed": true, "internalType": "address", "name": "token1", "type": "address" }, { "indexed": true, "internalType": "address", "name": "pair", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "fee", "type": "uint256" }, { "indexed": false, "internalType": "address", "name": "feeOperator", "type": "address" }], "name": "PairCreated", "type": "event" }, { "inputs": [], "name": "MAX_PROTOCOL_FEE", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "acceptPendingOperator", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "name": "allPairs", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "allPairsLength", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "token1", "type": "address" }, { "internalType": "uint256", "name": "fee", "type": "uint256" }, { "internalType": "address", "name": "feeOperator", "type": "address" }], "name": "createPair", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "feeRecipient", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "pair", "type": "address" }], "name": "getProtocolFee", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "", "type": "address" }], "name": "isPair", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "operator", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "", "type": "address" }], "name": "pairFees", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "pendingOperator", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "protocolFee", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "newFeeRecipient", "type": "address" }], "name": "setFeeRecipient", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "pair", "type": "address" }, { "internalType": "uint256", "name": "newFee", "type": "uint256" }], "name": "setPairFee", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "newPending", "type": "address" }], "name": "setPendingOperator", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "newProtocolFee", "type": "uint256" }], "name": "setProtocolFee", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "token0", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }];
 const PAIR_ABI = [
@@ -29,7 +30,7 @@ export default async function handler(req, res) {
   if (!['1', '11155111'].includes(chainId) || !factory || factory === BURN_ADDRESS || (!!factory && !isAddress(factory))) {
     return res.status(400).json({ success: false, error: 'Invalid factory address' });
   }
-  const cacheKey = `amm-deployments-${chainId}-${factory}-v1.0.2`;
+  const cacheKey = `amm-deployments-${chainId}-${factory}-v1.0.4`;
   try {
     const { isValid, data: cachedData } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration, false);
     if (isValid) {
@@ -50,7 +51,7 @@ export default async function handler(req, res) {
     ]);
 
     const currentBlock = block.number;
-    const now = block.timestamp;
+    const now = block.timestamp * 1000;
 
     try {
       events = await factoryContract.queryFilter(factoryContract.filters.PairCreated(), lastBlock ? lastBlock + 1 : undefined, currentBlock);
@@ -73,13 +74,15 @@ export default async function handler(req, res) {
         timestamp: estimateBlockTimestamp(e.blockNumber, now, currentBlock),
         token0,
         token1,
+        coin: token0,
+        collateral: token1,
         pair,
         feePerc: getBnToNumber(fee, 2),
         feeBps: getBnToNumber(fee, 0),
         feeOperator,
+        operator: feeOperator,
       }
     });
-
 
     const [
       reserves,
@@ -135,11 +138,23 @@ export default async function handler(req, res) {
       );
 
     const [
+      coinSymbol,
+      coinName,
+      coinDecimals,
       collateralSymbol,
       collateralName,
       collateralDecimals,
     ] = await getGroupedMulticallOutputs(
       [
+        deployments.map(e => {
+          return { contract: new Contract(e.token0, ERC20_ABI, provider), functionName: 'symbol', forceFallback: !!e.coinSymbol, fallbackValue: e.coinSymbol }
+        }),
+        deployments.map(e => {
+          return { contract: new Contract(e.token0, ERC20_ABI, provider), functionName: 'name', forceFallback: !!e.coinName, fallbackValue: e.coinName }
+        }),
+        deployments.map(e => {
+          return { contract: new Contract(e.token0, ERC20_ABI, provider), functionName: 'decimals', forceFallback: !!e.coinDecimals, fallbackValue: e.coinDecimals ? parseUnits(e.coinDecimals.toString(), 0) : undefined }
+        }),
         deployments.map(e => {
           return { contract: new Contract(e.token1, ERC20_ABI, provider), functionName: 'symbol', forceFallback: !!e.collateralSymbol, fallbackValue: e.collateralSymbol }
         }),
@@ -156,21 +171,35 @@ export default async function handler(req, res) {
     );
 
     deployments.forEach((e, i) => {
+      e.coinSymbol = coinSymbol[i];
+      e.coinName = coinName[i];
+      e.coinDecimals = getBnToNumber(coinDecimals[i], 0);
       e.collateralSymbol = collateralSymbol[i];
       e.collateralName = collateralName[i];
       e.collateralDecimals = getBnToNumber(collateralDecimals[i], 0);
-      e.reserve0 = getBnToNumber(reserves[i][0], 18);
+      e.reserve0 = getBnToNumber(reserves[i][0], coinDecimals);
       e.reserve1 = getBnToNumber(reserves[i][1], collateralDecimals);
       e.price = getBnToNumber(prices[i], 18);
-      e.feesUnclaimedTotal0 = getBnToNumber(feesUnclaimedTotal0[i], 18);
-      e.protocolFeesUnclaimed0 = getBnToNumber(protocolFeesUnclaimed0[i], 18);
-      e.operatorFeesUnclaimed0 = getBnToNumber(operatorFeesUnclaimed0[i], 18);
+      e.feesUnclaimedTotal0 = getBnToNumber(feesUnclaimedTotal0[i], coinDecimals);
+      e.protocolFeesUnclaimed0 = getBnToNumber(protocolFeesUnclaimed0[i], coinDecimals);
+      e.operatorFeesUnclaimed0 = getBnToNumber(operatorFeesUnclaimed0[i], coinDecimals);
       e.pairFeePerc = getBnToNumber(fee[i], 2);
       e.pairFeeBps = getBnToNumber(fee[i], 0);
-      e.token0Balance = getBnToNumber(token0Balance[i], 18);
-      e.token1Balance = getBnToNumber(token1Balance[i], 18);
+      e.token0Balance = getBnToNumber(token0Balance[i], coinDecimals);
+      e.token1Balance = getBnToNumber(token1Balance[i], collateralDecimals);
       e.reserveTimestampLast = getBnToNumber(reserves[i][2], 0) * 1000;
-      e.name = `sDOLA-${e.collateralSymbol}`;
+      e.name = `${e.coinSymbol}-${e.collateralSymbol}`;
+    });
+
+    const disctinctOperators = [...new Set(deployments.map(e => e.feeOperator.toLowerCase()))];
+
+    const ensNames = await Promise.all(disctinctOperators.map(op => {
+      return getEnsName(op, true, getProvider(1));
+    }));
+
+    deployments.forEach((e, i) => {
+      const distinctIndex = disctinctOperators.indexOf(e.feeOperator.toLowerCase());
+      e.operatorEnsName = ensNames[distinctIndex] || '';
     });
 
     const resultData = {
