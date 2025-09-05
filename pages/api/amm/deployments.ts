@@ -170,6 +170,7 @@ export default async function handler(req, res) {
       e.token0Balance = getBnToNumber(token0Balance[i], 18);
       e.token1Balance = getBnToNumber(token1Balance[i], 18);
       e.reserveTimestampLast = getBnToNumber(reserves[i][2], 0) * 1000;
+      e.name = `sDOLA-${e.collateralSymbol}`;
     });
 
     const resultData = {
