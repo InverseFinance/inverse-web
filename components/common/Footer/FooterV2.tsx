@@ -58,6 +58,7 @@ export const FooterV2 = ({ isLanding = false }: { isLanding?: boolean }) => {
             <Logo minH="30px" minW="30px" boxSize={isBottom ? '1.8vmax' : '3.8vmax'} filter={isBottom ? "brightness(0) invert(1)" : 'unset'} />
             <Text className="landing-v3-text" color={isBottom ? lightTheme.colors.contrastMainTextColor : lightTheme.colors.mainTextColor}
               fontSize={isBottom ? normalSize : slightlyBiggerSize}
+              fontFamily="Inter !important"
             >
               <b>Inverse</b> Finance
             </Text>
