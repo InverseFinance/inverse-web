@@ -192,6 +192,7 @@ export const FloatingNav = ({
           <Link href="/" _hover={{}}>
             <Text display={{ base: 'none', 'md': 'block' }} className="landing-v3-text" as={isBottom ? 'h3' : 'h2'} color={isBottom ? lightTheme.colors.contrastMainTextColor : lightTheme.colors.mainTextColor}
               fontSize={isBottom ? normalSize : slightlyBiggerSize}
+              fontFamily="Inter !important"
             >
               <b>Inverse</b> Finance
             </Text>

@@ -30,6 +30,7 @@ export const LandingNav = ({
           <Text as={isBottom ? 'h3' : 'h1'} color={isBottom ? lightTheme.colors.contrastMainTextColor : lightTheme.colors.mainTextColor}
             fontWeight="bold"
             fontSize={isBottom ? normalSize : slightlyBiggerSize}
+            fontFamily="Inter !important"
           >
             Inverse Finance
           </Text>
