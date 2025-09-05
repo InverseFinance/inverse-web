@@ -731,8 +731,8 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         getDefiLlamaApy('51f9c038-feed-4666-8866-30efc92e0566'),
         getYearnVaultApy('0x342D24F2a3233F7Ac8A7347fA239187BFd186066'),
         // scrvUSD-DOLA
-        getCrossCheckedApyData('8d316467-0da9-4404-923c-d7726ee60780', '0xff17dAb22F1E61078aBa2623c89cE6110E878B3c'),
-        // getDefiLlamaApy('8d316467-0da9-4404-923c-d7726ee60780'),
+        // getCrossCheckedApyData('8d316467-0da9-4404-923c-d7726ee60780', '0xff17dAb22F1E61078aBa2623c89cE6110E878B3c'),
+        getDefiLlamaApy('8d316467-0da9-4404-923c-d7726ee60780'),
         //
         getYearnVaultApy('0xbCe40f1840A449cAAaF374Df0A1fEe1e212784CB'),
         getDefiLlamaApy('0ff79814-dc93-4b3f-a4e1-7f395ddf0860'),
