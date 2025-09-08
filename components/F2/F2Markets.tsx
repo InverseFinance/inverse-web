@@ -842,7 +842,7 @@ export const F2Markets = ({
                 : <SafetyBadges />
         }
         subheader={
-            <VStack>
+            <VStack w='full'>
                 <Stack direction={{ base: 'column', md: 'row' }} pt="2" justify="space-between" alignItems="center">
                     <InputGroup
                         left="0"
