@@ -675,12 +675,12 @@ export const F2CombinedForm = ({
                     {
                         canShowLeverage && <VStack display={useLeverage ? 'inline-block' : 'none'}>
                             {
-                                isDeposit && dolaPrice < 0.995 && <ErrorMessage
+                                isDeposit && dolaPrice < 0.995 && <WarningMessage
                                     alertProps={{ w: 'full' }}
                                     description={
                                         <VStack spacing="0">
                                             <Text><b>Note</b>: Using the leverage up feature while DOLA's peg is under $0.995 might not be advantageous.</Text>
-                                            <Text>All net APY calculations assume DOLA is at $1 at entry and exit of the position.</Text>
+                                            <Text>All net APY estimations and yields assume DOLA is at $1 at the time of entry and exit of the position.</Text>
                                         </VStack>
                                     }
                                 />

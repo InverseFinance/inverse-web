@@ -911,9 +911,9 @@ export const F2Markets = ({
                     category === 'leverage' && dolaUsdPrice < 0.995 && <InfoMessage
                         alertProps={{ w: 'full' }}
                         description={
-                            <VStack spacing="0">
+                            <VStack spacing="0" alignItems="flex-start">
                                 <Text><b>Note</b>: Using the leverage up feature while DOLA's peg is under $0.995 might not be advantageous.</Text>
-                                <Text>All net APY estimations and yields assume DOLA is at $1 at entry and exit of the position.</Text>
+                                <Text>All net APY estimations and yields assume DOLA is at $1 at the time of entry and exit of the position.</Text>
                             </VStack>
                         }
                     />
