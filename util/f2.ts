@@ -705,9 +705,38 @@ export const formatAndGroupFirmEvents = (
     };
 }
 
+// net apy with pure productive looping
 export const calculateNetApy = (supplyApy: number, collateralFactor: number, dbrPriceUsd: number, _multiplier?: number) => {
     const multiplier = _multiplier ? _multiplier : calculateMaxLeverage(collateralFactor);
     const mApy = supplyApy * multiplier;
     const mBorrowApr = dbrPriceUsd * 100 * (multiplier-1);
     return mApy - mBorrowApr;
+}
+
+export const calculateEquityNetApy = (depositsUsd: number, debtUsd: number, depositsApy: number, borrowApy: number) => {
+    const equity = depositsUsd - debtUsd;
+    const equityNetApy = equity > 0 ? (depositsUsd * depositsApy - debtUsd * borrowApy) / equity : 0;
+    return equityNetApy;
+}
+
+export const calculateNetDepositsNetApy = (netDepositsUsd: number, depositsUsd: number, debtUsd: number, depositsApy: number, borrowApy: number) => {
+    const netDepositsNetApy = netDepositsUsd > 0 ? (depositsUsd * depositsApy - debtUsd * borrowApy) / netDepositsUsd : 0;
+    return netDepositsNetApy;
+}
+
+export const getLeveragedPositionDetails = (netDepositsUsd: number, depositsUsd: number, debtUsd: number, depositsApy: number, borrowApy: number) => {
+    const equity = depositsUsd - debtUsd;
+    const equityNetApy = equity > 0 ? (depositsUsd * depositsApy - debtUsd * borrowApy) / equity : 0;
+    const equityLeverageLevel = debtUsd > 0 ? depositsUsd / debtUsd : 1;
+    const netDepositsNetApy = netDepositsUsd > 0 ? (depositsUsd * depositsApy - debtUsd * borrowApy) / netDepositsUsd : 0;
+    
+    return {
+        equity,
+        equityNetApy,
+        equityLeverageLevel,
+
+        netDepositsNetApy,
+        // does not take into account underlying rebasing, but price increase is ok
+        netDepositsLeverageLevel: netDepositsUsd > 0 && depositsUsd > 0 ? depositsUsd / netDepositsUsd : 1,
+    }
 }
