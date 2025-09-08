@@ -232,6 +232,7 @@ export default async function handler(req, res) {
         pool: '5fd328af-4203-471b-bd16-1705c726d926',
         address: '0x0655977FEb2f289A4aB78af67BAB0d17aAb84367',
         underlying: '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E',
+        image: TOKEN_IMAGES['scrvUSD'],
         currentRateGetter: () => getSavingsCrvUsdData(),
       },
       {
