@@ -25,6 +25,7 @@ const projectImages = {
     'Sky': 'https://icons.llamao.fi/icons/protocols/spark?w=48&h=48',
     'Elixir': 'https://icons.llamao.fi/icons/protocols/elixir?w=48&h=48',
     'Yearn': 'https://icons.llamao.fi/icons/protocols/yearn?w=48&h=48',
+    'Resupply': 'https://icons.llamao.fi/icons/protocols/resupply?w=48&h=48',
 }
 
 const CollateralToken = ({ collateral, isMobile = false, themeStyles, image }: { project: string, isMobile: boolean, themeStyles: any, image: string }) => {
