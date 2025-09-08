@@ -308,6 +308,16 @@ export default async function handler(req, res) {
         currentRateGetter: () => getDefiLlamaApy("ee0b7069-f8f3-4aa2-a415-728f13e6cc3d"),
         image: 'https://raw.githubusercontent.com/AladdinDAO/aladdin-assets/refs/heads/main/images/branding/fxSave.png',
       },
+      {
+        symbol: 'sreUSD',
+        project: 'Resupply',
+        link: 'https://resupply.fi/savings-reusd',
+        pool: 'a1b05c10-6d01-4b64-9247-4e86ca82a291',
+        address: '0x557AB1e003951A73c12D16F0fEA8490E39C33C35',
+        underlying: '0x57aB1E0003F623289CD798B1824Be09a793e4Bec',
+        currentRateGetter: () => getDefiLlamaApy("a1b05c10-6d01-4b64-9247-4e86ca82a291"),
+        image: 'https://raw.githubusercontent.com/resupplyfi/resupply-brand-kit/refs/heads/main/Logos%20%26%20Token%20Icons/sreUSD%20-%20Logo%20Design/sreUSD%20-%20Token%20icon/sreusd-icon-green-bg-128.png',
+      },
     ];
 
     const [currentRates, defillamaData, dolaStakingData] = await Promise.all(
