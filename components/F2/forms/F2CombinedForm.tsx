@@ -29,7 +29,7 @@ import { BigNumber } from 'ethers'
 import { isAddress } from 'ethers/lib/utils'
 import { BURN_ADDRESS } from '@app/config/constants'
 import { useMultisig } from '@app/hooks/useSafeMultisig'
-import { InfoMessage, WarningMessage } from '@app/components/common/Messages'
+import { ErrorMessage, InfoMessage, WarningMessage } from '@app/components/common/Messages'
 import { TOKEN_IMAGES } from '@app/variables/images'
 import { LPImages } from '@app/components/common/Assets/LPImg'
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary'
@@ -675,10 +675,13 @@ export const F2CombinedForm = ({
                     {
                         canShowLeverage && <VStack display={useLeverage ? 'inline-block' : 'none'}>
                             {
-                                isDeposit && dolaPrice < 0.995 && <WarningMessage
+                                isDeposit && dolaPrice < 0.995 && <ErrorMessage
                                     alertProps={{ w: 'full' }}
                                     description={
-                                        <Text><b>Note</b>: Using the leverage up feature while DOLA's peg is under 0.995 might not be advantageous.</Text>
+                                        <VStack spacing="0">
+                                            <Text><b>Note</b>: Using the leverage up feature while DOLA's peg is under $0.995 might not be advantageous.</Text>
+                                            <Text>All net APY calculations assume DOLA is at $1 at entry and exit of the position.</Text>
+                                        </VStack>
                                     }
                                 />
                             }
