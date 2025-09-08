@@ -908,7 +908,7 @@ export const F2Markets = ({
                     }
                 </Stack>
                 {
-                    category === 'leverage' && dolaUsdPrice < 0.995 && <WarningMessage
+                    category === 'leverage' && dolaUsdPrice < 0.995 && <InfoMessage
                         alertProps={{ w: 'full' }}
                         description={
                             <VStack spacing="0">
