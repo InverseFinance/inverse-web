@@ -678,9 +678,9 @@ export const F2CombinedForm = ({
                                 isDeposit && dolaPrice < 0.995 && <WarningMessage
                                     alertProps={{ w: 'full' }}
                                     description={
-                                        <VStack spacing="0">
-                                            <Text><b>Note</b>: Using the leverage up feature while DOLA's peg is under $0.995 might not be advantageous.</Text>
-                                            <Text>All net APY estimations and yields assume DOLA is at $1 at the time of entry and exit of the position.</Text>
+                                        <VStack spacing="0" alignItems="flex-start">
+                                            <Text><b>Note</b>: All net APY estimations and yields assume DOLA is priced at $1 at the time of entry and exit of the position.</Text>
+                                            <Text>Users should independently verify expected yields and costs.</Text>
                                         </VStack>
                                     }
                                 />

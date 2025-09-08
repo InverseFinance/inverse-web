@@ -137,7 +137,7 @@ export const TOKEN_IMAGES = {
     "PEARL": "https://www.pearl.exchange/logo.png",
     "VELOCIMETER": "https://assets.coingecko.com/markets/images/1066/small/velocimeter.jpeg?1677577182",
     "ERN": "https://assets.coingecko.com/coins/images/29744/small/ERN200x200.png?1681106290",
-    "scrvUSD": "https://assets.coingecko.com/coins/images/51712/standard/scrvUSD200x200.png?1731899723",
+    "scrvUSD": "https://resources.curve.finance/images/branding/scrvUSD-200x200.png",
     "sUSDS": "https://cdn.jsdelivr.net/gh/curvefi/curve-assets/images/assets/0xa3931d71877c0e7a3148cb7eb4463524fec27fbd.png",
     "USDS": "https://assets.coingecko.com/coins/images/39926/standard/usds.webp?1726666683",
     "CRVUSD": "https://assets.coingecko.com/coins/images/30118/standard/0xf939e0a03fb07f59a73314e73794be0e57ac1b4e.png?1721097561",

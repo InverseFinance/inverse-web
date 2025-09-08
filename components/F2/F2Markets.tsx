@@ -842,83 +842,70 @@ export const F2Markets = ({
                 : <SafetyBadges />
         }
         subheader={
-            <VStack w='full'>
-                <Stack direction={{ base: 'column', md: 'row' }} pt="2" justify="space-between" alignItems="center">
-                    <InputGroup
-                        left="0"
-                        w={{ base: '100%', md: '230px' }}
-                        bgColor="transparent"
-                    >
-                        <InputLeftElement
-                            pointerEvents='none'
-                            children={<SearchIcon color='gray.300' />}
-                        />
-                        <ChakraInput
-                            color="mainTextColor"
-                            borderRadius="20px"
-                            type="search"
-                            bgColor="containerContentBackgroundAlpha"
-                            // w="200px"
-                            placeholder="Search a market"
-                            value={search}
-                            onChange={(e) => {
-                                setSearch(e.target.value)
-                            }}
-                        />
-                    </InputGroup>
-                    {
-                        isSmallerThan ? <Select
-                            bgColor="containerContentBackgroundAlpha"
-                            borderRadius="20px"
-                            onChange={(e) => { setCategory(e.target.value) }}>
-                            <option value="all">All</option>
-                            <option value="leverage">Leverage</option>
-                            <option value="majors">BTC/ETH</option>
-                            <option value="stablecoins">Stablecoins</option>
-                            <option value="lps">Stable LPs</option>
-                            <option value="yield-compounding">Compounding Yield</option>
-                            <option value="yield-claimable">Claimable Yield</option>
-                            <option value="curve-convex">Curve/Convex</option>
-                        </Select> : <RadioCardGroup
-                            wrapperProps={{ overflow: 'auto', maxW: '90vw', alignItems: 'center' }}
-                            group={{
-                                name: 'bool',
-                                defaultValue: category,
-                                onChange: (v) => { setCategory(v) },
-                            }}
-                            radioCardProps={{
-                                w: 'fit-content',
-                                textAlign: 'center',
-                                px: { base: '2', md: '3' },
-                                py: '1',
-                                fontSize: '14px',
-                                whiteSpace: 'nowrap'
-                            }}
-                            options={[
-                                { label: 'All', value: 'all' },
-                                { label: 'Leverage', value: 'leverage' },
-                                { label: 'BTC/ETH', value: 'majors' },
-                                { label: 'Stablecoins', value: 'stablecoins' },
-                                { label: 'Stable LPs', value: 'lps' },
-                                { label: 'Compounding Yield', value: 'yield-compounding' },
-                                { label: 'Claimable Yield', value: 'yield-claimable' },
-                                { label: 'Curve/Convex', value: 'curve-convex' },
-                            ]}
-                        />
-                    }
-                </Stack>
+            <Stack direction={{ base: 'column', md: 'row' }} pt="2" justify="space-between" alignItems="center">
+                <InputGroup
+                    left="0"
+                    w={{ base: '100%', md: '230px' }}
+                    bgColor="transparent"
+                >
+                    <InputLeftElement
+                        pointerEvents='none'
+                        children={<SearchIcon color='gray.300' />}
+                    />
+                    <ChakraInput
+                        color="mainTextColor"
+                        borderRadius="20px"
+                        type="search"
+                        bgColor="containerContentBackgroundAlpha"
+                        // w="200px"
+                        placeholder="Search a market"
+                        value={search}
+                        onChange={(e) => {
+                            setSearch(e.target.value)
+                        }}
+                    />
+                </InputGroup>
                 {
-                    category === 'leverage' && dolaUsdPrice < 0.995 && <InfoMessage
-                        alertProps={{ w: 'full' }}
-                        description={
-                            <VStack spacing="0" alignItems="flex-start">
-                                <Text><b>Note</b>: Using the leverage up feature while DOLA's peg is under $0.995 might not be advantageous.</Text>
-                                <Text>All net APY estimations and yields assume DOLA is at $1 at the time of entry and exit of the position.</Text>
-                            </VStack>
-                        }
+                    isSmallerThan ? <Select
+                        bgColor="containerContentBackgroundAlpha"
+                        borderRadius="20px"
+                        onChange={(e) => { setCategory(e.target.value) }}>
+                        <option value="all">All</option>
+                        <option value="leverage">Leverage</option>
+                        <option value="majors">BTC/ETH</option>
+                        <option value="stablecoins">Stablecoins</option>
+                        <option value="lps">Stable LPs</option>
+                        <option value="yield-compounding">Compounding Yield</option>
+                        <option value="yield-claimable">Claimable Yield</option>
+                        <option value="curve-convex">Curve/Convex</option>
+                    </Select> : <RadioCardGroup
+                        wrapperProps={{ overflow: 'auto', maxW: '90vw', alignItems: 'center' }}
+                        group={{
+                            name: 'bool',
+                            defaultValue: category,
+                            onChange: (v) => { setCategory(v) },
+                        }}
+                        radioCardProps={{
+                            w: 'fit-content',
+                            textAlign: 'center',
+                            px: { base: '2', md: '3' },
+                            py: '1',
+                            fontSize: '14px',
+                            whiteSpace: 'nowrap'
+                        }}
+                        options={[
+                            { label: 'All', value: 'all' },
+                            { label: 'Leverage', value: 'leverage' },
+                            { label: 'BTC/ETH', value: 'majors' },
+                            { label: 'Stablecoins', value: 'stablecoins' },
+                            { label: 'Stable LPs', value: 'lps' },
+                            { label: 'Compounding Yield', value: 'yield-compounding' },
+                            { label: 'Claimable Yield', value: 'yield-claimable' },
+                            { label: 'Curve/Convex', value: 'curve-convex' },
+                        ]}
                     />
                 }
-            </VStack>
+            </Stack>
         }
     >
         {
