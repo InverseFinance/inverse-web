@@ -49,6 +49,7 @@ export const StakeDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => {
 
     const [dolaAmount, setDolaAmount] = useState('');
     const [isConnected, setIsConnected] = useState(true);
+    const [isPreventLoader, setIsPreventLoader] = useState(false);
     const { isOpen: isEnsoModalOpen, onOpen: onEnsoModalOpen, onClose: onEnsoModalClose } = useDisclosure();
     const [nowWithInterval, setNowWithInterval] = useState(Date.now());
     const [tab, setTab] = useState('Stake');
@@ -230,7 +231,7 @@ export const StakeDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => {
                                                     enableCustomApprove={true}
                                                 />
                                             </VStack>
-                                            : isLoadingStables ? <SkeletonBlob /> : <EnsoZap
+                                            : isLoadingStables && !isPreventLoader ? <SkeletonBlob /> : <EnsoZap
                                                 defaultTokenIn={topStable?.token?.address}
                                                 defaultTokenOut={SDOLA_ADDRESS}
                                                 defaultTargetChainId={'1'}
@@ -245,6 +246,11 @@ export const StakeDolaUI = ({ isLoadingStables, useDolaAsMain, topStable }) => {
                                                 fromTextProps={{
                                                     fontSize: '22px',
                                                     fontWeight: 'bold'
+                                                }}
+                                                onAmountChange={(v) => {
+                                                    if(!!v){
+                                                        setIsPreventLoader(true);
+                                                    }
                                                 }}
                                             />)
                                         :

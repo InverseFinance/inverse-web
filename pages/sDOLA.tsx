@@ -12,12 +12,30 @@ import { SDolaInsuranceCover } from '@app/components/common/InsuranceCover';
 import { SavingsOpportunities, useSavingsOpportunities } from '@app/components/sDola/SavingsOpportunities';
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary';
 import { SDolaComparator } from '@app/components/F2/SDolaComparator';
+import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect';
+import { useEffect, useState } from 'react';
 
 export const SdolaPage = () => {
   const account = useAccount();
+  const [debouncedTotalStables, setDebouncedTotalStables] = useState(0);
   const { accountEvents } = useDolaStakingActivity(account, 'sdola');
-  
+  const [topStableInited, setTopStableInited] = useState(false);
+  const [lastTopStable, setLastTopStable] = useState(null);
+
   const { tokenAndBalances, totalStables, topStable, useDolaAsMain, isLoading: isLoadingStables } = useSavingsOpportunities(account);
+
+  useDebouncedEffect(() => {
+    setDebouncedTotalStables(totalStables);
+  }, [totalStables], 500);
+
+  useEffect(() => {
+    if(!isLoadingStables && !topStableInited && !!topStable?.token?.address){
+      setTopStableInited(true);
+      setLastTopStable(topStable);
+    }
+  }, [topStable?.token?.address, isLoadingStables, topStableInited]);
+
+  const _totalStables = totalStables > 0 ? totalStables : debouncedTotalStables;
 
   return (
     <Layout>
@@ -45,8 +63,8 @@ export const SdolaPage = () => {
           direction={{ base: 'column', xl: 'row' }}
         >
           <VStack spacing="10" alignItems={"center"} w={{ base: 'full' }}>
-            <SavingsOpportunities tokenAndBalances={tokenAndBalances} totalStables={totalStables} />
-            <StakeDolaUI isLoadingStables={isLoadingStables} useDolaAsMain={useDolaAsMain} topStable={topStable} />
+            <SavingsOpportunities tokenAndBalances={tokenAndBalances} totalStables={_totalStables} />
+            <StakeDolaUI isLoadingStables={topStableInited ? false : isLoadingStables} useDolaAsMain={useDolaAsMain} topStable={lastTopStable} />
             <SDolaInsuranceCover />
             <ErrorBoundary>
               <SDolaComparator title="Compare sDOLA" />

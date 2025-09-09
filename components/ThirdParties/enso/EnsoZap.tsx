@@ -64,6 +64,7 @@ function EnsoZap({
     slippageDefault = '0.1',
     asSwapUi = false,
     keepAmountOnAssetChange = false,
+    onAmountChange,
 }: {
     defaultTokenIn?: string
     defaultTokenOut: string
@@ -87,6 +88,7 @@ function EnsoZap({
     containerProps?: any
     asSwapUi?: boolean
     keepAmountOnAssetChange?: boolean
+    onAmountChange?: (v: string) => void
 }) {
     const account = useAccount();
     const { provider, chainId } = useWeb3React<Web3Provider>();
@@ -214,6 +216,9 @@ function EnsoZap({
     }
     const changeAmount = (v) => {
         setAmountIn(v);
+        if(onAmountChange) {
+            onAmountChange(v);
+        }
     }
 
     useEffect(() => {
