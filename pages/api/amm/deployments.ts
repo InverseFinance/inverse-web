@@ -18,6 +18,8 @@ const PAIR_ABI = [
   "function protocolFeesUnclaimed0() public view returns (uint256)",
   "function operatorFeesUnclaimed0() public view returns (uint256)",
   "function fee() public view returns (uint256)",
+  "function totalSupply() public view returns (uint256)",
+  "function activeSupply() public view returns (uint256)",
 ];
 
 export default async function handler(req, res) {
@@ -84,47 +86,6 @@ export default async function handler(req, res) {
       }
     });
 
-    const [
-      reserves,
-      prices,
-      feesUnclaimedTotal0,
-      protocolFeesUnclaimed0,
-      operatorFeesUnclaimed0,
-      fee,
-      token0Balance,
-      token1Balance,
-    ] = await getGroupedMulticallOutputs(
-      [
-        newEvents.map(e => {
-          return { contract: new Contract(e.pair, PAIR_ABI, provider), functionName: 'getReserves' }
-        }),
-        newEvents.map(e => {
-          return { contract: new Contract(e.pair, PAIR_ABI, provider), functionName: 'getCurrentToken1EmaPrice' }
-        }),
-        newEvents.map(e => {
-          return { contract: new Contract(e.pair, PAIR_ABI, provider), functionName: 'feesUnclaimedTotal0' }
-        }),
-        newEvents.map(e => {
-          return { contract: new Contract(e.pair, PAIR_ABI, provider), functionName: 'protocolFeesUnclaimed0' }
-        }),
-        newEvents.map(e => {
-          return { contract: new Contract(e.pair, PAIR_ABI, provider), functionName: 'operatorFeesUnclaimed0' }
-        }),
-        newEvents.map(e => {
-          return { contract: new Contract(e.pair, PAIR_ABI, provider), functionName: 'fee' }
-        }),
-        newEvents.map(e => {
-          return { contract: new Contract(e.token0, ERC20_ABI, provider), functionName: 'balanceOf', params: [e.pair] }
-        }),
-        newEvents.map(e => {
-          return { contract: new Contract(e.token1, ERC20_ABI, provider), functionName: 'balanceOf', params: [e.pair] }
-        }),
-      ],
-      Number(chainId),
-      currentBlock,
-      provider,
-    );
-
     const deployedEvents = cachedEvents.concat(newEvents);
 
     const deployments = cachedDeployments
@@ -136,6 +97,55 @@ export default async function handler(req, res) {
           }
         })
       );
+
+    const [
+      reserves,
+      prices,
+      feesUnclaimedTotal0,
+      protocolFeesUnclaimed0,
+      operatorFeesUnclaimed0,
+      fee,
+      token0Balance,
+      token1Balance,
+      totalSupplies,
+      activeSupplies,
+    ] = await getGroupedMulticallOutputs(
+      [
+        deployments.map(e => {
+          return { contract: new Contract(e.pair, PAIR_ABI, provider), functionName: 'getReserves' }
+        }),
+        deployments.map(e => {
+          return { contract: new Contract(e.pair, PAIR_ABI, provider), functionName: 'getCurrentToken1EmaPrice' }
+        }),
+        deployments.map(e => {
+          return { contract: new Contract(e.pair, PAIR_ABI, provider), functionName: 'feesUnclaimedTotal0' }
+        }),
+        deployments.map(e => {
+          return { contract: new Contract(e.pair, PAIR_ABI, provider), functionName: 'protocolFeesUnclaimed0' }
+        }),
+        deployments.map(e => {
+          return { contract: new Contract(e.pair, PAIR_ABI, provider), functionName: 'operatorFeesUnclaimed0' }
+        }),
+        deployments.map(e => {
+          return { contract: new Contract(e.pair, PAIR_ABI, provider), functionName: 'fee' }
+        }),
+        deployments.map(e => {
+          return { contract: new Contract(e.token0, ERC20_ABI, provider), functionName: 'balanceOf', params: [e.pair] }
+        }),
+        deployments.map(e => {
+          return { contract: new Contract(e.token1, ERC20_ABI, provider), functionName: 'balanceOf', params: [e.pair] }
+        }),
+        deployments.map(e => {
+          return { contract: new Contract(e.pair, PAIR_ABI, provider), functionName: 'totalSupply' }
+        }),
+        deployments.map(e => {
+          return { contract: new Contract(e.pair, PAIR_ABI, provider), functionName: 'activeSupply' }
+        }),
+      ],
+      Number(chainId),
+      currentBlock,
+      provider,
+    );
 
     const [
       coinSymbol,
@@ -174,21 +184,23 @@ export default async function handler(req, res) {
       e.coinSymbol = coinSymbol[i];
       e.coinName = coinName[i];
       e.coinDecimals = getBnToNumber(coinDecimals[i], 0);
+      e.collateralDecimals = getBnToNumber(collateralDecimals[i], 0);
       e.collateralSymbol = collateralSymbol[i];
       e.collateralName = collateralName[i];
-      e.collateralDecimals = getBnToNumber(collateralDecimals[i], 0);
-      e.reserve0 = getBnToNumber(reserves[i][0], coinDecimals);
-      e.reserve1 = getBnToNumber(reserves[i][1], collateralDecimals);
+      e.reserve0 = getBnToNumber(reserves[i][0], e.coinDecimals);
+      e.reserve1 = getBnToNumber(reserves[i][1], e.collateralDecimals);
       e.price = getBnToNumber(prices[i], 18);
-      e.feesUnclaimedTotal0 = getBnToNumber(feesUnclaimedTotal0[i], coinDecimals);
-      e.protocolFeesUnclaimed0 = getBnToNumber(protocolFeesUnclaimed0[i], coinDecimals);
-      e.operatorFeesUnclaimed0 = getBnToNumber(operatorFeesUnclaimed0[i], coinDecimals);
+      e.feesUnclaimedTotal0 = getBnToNumber(feesUnclaimedTotal0[i], e.coinDecimals);
+      e.protocolFeesUnclaimed0 = getBnToNumber(protocolFeesUnclaimed0[i], e.coinDecimals);
+      e.operatorFeesUnclaimed0 = getBnToNumber(operatorFeesUnclaimed0[i], e.coinDecimals);
       e.pairFeePerc = getBnToNumber(fee[i], 2);
       e.pairFeeBps = getBnToNumber(fee[i], 0);
-      e.token0Balance = getBnToNumber(token0Balance[i], coinDecimals);
-      e.token1Balance = getBnToNumber(token1Balance[i], collateralDecimals);
+      e.token0Balance = getBnToNumber(token0Balance[i], e.coinDecimals);
+      e.token1Balance = getBnToNumber(token1Balance[i], e.collateralDecimals);
       e.reserveTimestampLast = getBnToNumber(reserves[i][2], 0) * 1000;
       e.name = `${e.coinSymbol}-${e.collateralSymbol}`;
+      e.totalSupply = getBnToNumber(totalSupplies[i], 18);
+      e.activeSupply = getBnToNumber(activeSupplies[i], 18);
     });
 
     const disctinctOperators = [...new Set(deployments.map(e => e.feeOperator.toLowerCase()))];
