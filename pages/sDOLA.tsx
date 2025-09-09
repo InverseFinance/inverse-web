@@ -12,12 +12,21 @@ import { SDolaInsuranceCover } from '@app/components/common/InsuranceCover';
 import { SavingsOpportunities, useSavingsOpportunities } from '@app/components/sDola/SavingsOpportunities';
 import { ErrorBoundary } from '@app/components/common/ErrorBoundary';
 import { SDolaComparator } from '@app/components/F2/SDolaComparator';
+import { useDebouncedEffect } from '@app/hooks/useDebouncedEffect';
+import { useState } from 'react';
 
 export const SdolaPage = () => {
   const account = useAccount();
+  const [debouncedTotalStables, setDebouncedTotalStables] = useState(0);
   const { accountEvents } = useDolaStakingActivity(account, 'sdola');
   
   const { tokenAndBalances, totalStables, topStable, useDolaAsMain, isLoading: isLoadingStables } = useSavingsOpportunities(account);
+
+  useDebouncedEffect(() => {
+    setDebouncedTotalStables(totalStables);
+}, [totalStables], 500);
+
+  const _totalStables = totalStables > 0 ? totalStables : debouncedTotalStables;
 
   return (
     <Layout>
@@ -45,7 +54,7 @@ export const SdolaPage = () => {
           direction={{ base: 'column', xl: 'row' }}
         >
           <VStack spacing="10" alignItems={"center"} w={{ base: 'full' }}>
-            <SavingsOpportunities tokenAndBalances={tokenAndBalances} totalStables={totalStables} />
+            <SavingsOpportunities tokenAndBalances={tokenAndBalances} totalStables={_totalStables} />
             <StakeDolaUI isLoadingStables={isLoadingStables} useDolaAsMain={useDolaAsMain} topStable={topStable} />
             <SDolaInsuranceCover />
             <ErrorBoundary>
