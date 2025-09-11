@@ -6,6 +6,7 @@ import { PieChartRecharts } from "@app/components/Transparency/PieChartRecharts"
 import { useAppTheme } from "@app/hooks/useAppTheme";
 import { getPreviousThursdayUtcDateOfTimestamp, utcDateStringToTimestamp } from "@app/util/misc";
 import { BarChartRecharts } from "@app/components/Transparency/BarChartRecharts";
+import { DbrYearlyBudgetEvolution } from "./DbrYearlyBudgetEvolution";
 
 const maxChartWidth = 1200;
 
@@ -243,23 +244,10 @@ export const DbrAuctionBuysChart = ({ events, chartEvents, isTotal = false, useI
             />
         </VStack>
         {
-            auctionType === 'virtual' && <VStack pt="10">
-                <DefaultCharts
-                    showMonthlyBarChart={false}
-                    showAreaChart={true}
-                    maxChartWidth={autoChartWidth - 50}
-                    chartWidth={autoChartWidth - 50}
-                    chartData={budgetChartData}
-                    isDollars={false}
-                    smoothLineByDefault={false}
-                    areaProps={{
-                        interpolation: 'step',
-                        showLegend: false,
-                        allowEscapeViewBox: false,
-                        title: 'DBR yearly budget evolution', fillInByDayInterval: true, id: 'dbr-budget-evolution', showRangeBtns: true, yLabel: 'Yearly DBR budget', useRecharts: true, showMaxY: false, showTooltips: true, autoMinY: true, allowZoom: true, rangesToInclude: ['All', '6M', '3M', '1M', '1W', 'YTD']
-                    }}
-                />
-            </VStack>
+            auctionType === 'virtual' && <DbrYearlyBudgetEvolution
+                autoChartWidth={autoChartWidth}
+                budgetChartData={budgetChartData}
+            />
         }
         <Stack w='full' direction={{ base: 'column', '2xl': 'row' }} alignItems="center">
             {/* <BarChartRecharts
