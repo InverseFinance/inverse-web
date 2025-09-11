@@ -6,7 +6,7 @@ import { FormControl, VStack, Text, Switch } from "@chakra-ui/react"
 import { useState } from "react";
 
 const getUsdChartData = (chartData: CoordinatesArray, histoPrices: Record<string, number>) => {
-    const keys = Object.keys(chartData[0]);
+    const keys = Object.keys(histoPrices);
     return keys.map(utcDate => {
         const histoPrice = histoPrices[utcDate] || getClosestPreviousHistoValue(histoPrices, utcDate, 0);
         return {
