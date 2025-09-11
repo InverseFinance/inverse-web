@@ -5,15 +5,27 @@ import { getClosestPreviousHistoValue, timestampToUTC, utcDateStringToTimestamp 
 import { FormControl, VStack, Text, Switch } from "@chakra-ui/react"
 import { useState } from "react";
 
-const getUsdChartData = (chartData: CoordinatesArray, histoPrices: Record<string, number>) => {
-    const keys = Object.keys(histoPrices);
+const getUsdChartData = (chartData: CoordinatesArray, histoPrices: Record<string, number>, dbrPriceUsd: number) => {
+    const startDate = chartData[1]?.utcDate;
+    const keys = Object.keys(histoPrices).filter(d => d >= startDate);
+    let rateObj = null;
+    const todayUtc = timestampToUTC(Date.now());
     return keys.map(utcDate => {
-        const histoPrice = histoPrices[utcDate] || getClosestPreviousHistoValue(histoPrices, utcDate, 0);
+        const histoPrice = todayUtc === utcDate ? dbrPriceUsd : histoPrices[utcDate] || getClosestPreviousHistoValue(histoPrices, utcDate, 0);
+        const timestamp = utcDateStringToTimestamp(utcDate);
+        if (chartData.find(d => d.utcDate === utcDate)) {
+            rateObj = chartData.find(d => d.utcDate === utcDate);
+        }
         return {
             utcDate,
-            x: utcDateStringToTimestamp(utcDate),
-            y: chartData.find(d => d.utcDate === utcDate)?.y * histoPrice,
-            yDay: chartData.find(d => d.utcDate === utcDate)?.yDay * histoPrice,
+            timestamp,
+            x: timestamp,
+            year: new Date(utcDate).getFullYear(),
+            month: new Date(utcDate).getMonth(),
+            rate: rateObj?.rate,
+            histoPrice,
+            y: (rateObj?.rate || 0) * histoPrice,
+            yDay: (rateObj?.yDay || 0) * histoPrice,
         }
     });
 }
@@ -26,10 +38,10 @@ export const DbrYearlyBudgetEvolution = ({
     budgetChartData: CoordinatesArray,
 }) => {
     const [useUsd, setUseUsd] = useState(false);
-    const { historicalData } = useDBR();
+    const { historicalData, priceUsd: dbrPriceUsd } = useDBR();
     const histoPrices = historicalData && !!historicalData?.prices ? historicalData.prices.reduce((prev, curr) => ({ ...prev, [timestampToUTC(curr[0])]: curr[1] }), {}) : {};
 
-    const _chartData = useUsd ? getUsdChartData(budgetChartData, histoPrices) : budgetChartData;
+    const _chartData = useUsd ? getUsdChartData(budgetChartData, histoPrices, dbrPriceUsd) : budgetChartData;
 
     return <VStack pt="10">
         <FormControl w='full' justifyContent={{ base: 'center', sm: 'flex-start' }} display='flex' alignItems='center'>
@@ -47,6 +59,9 @@ export const DbrYearlyBudgetEvolution = ({
             isDollars={false}
             smoothLineByDefault={false}
             areaProps={{
+                showSecondary: true,
+                secondaryRef: 'histoPrice',
+                secondaryLabel: 'Historical DBR price',
                 interpolation: 'step',
                 showLegend: false,
                 allowEscapeViewBox: false,
