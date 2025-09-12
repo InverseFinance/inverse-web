@@ -299,12 +299,12 @@ export default async function handler(req, res) {
       // staking APY calc
       const totalAssets = e.staked;
 
-      const stakedBalance = Math.max(1, totalAssets);
+      const stakedBalanceRef = totalAssets > 0 ? totalAssets : e.totalPaidDebt;
       const annualInterest = e.totalPaidDebt * realTimeBorrowApr;
       const annualInterestAfterFee = annualInterest * (1 - ((e.feePerc / 100) || 0) - ((e.cachedGlobalFeePerc / 100) || 0));
-      const finalAnnualInterestsForStakers = stakedBalance < e.totalPaidDebt && e.totalPaidDebt > 0 ? annualInterestAfterFee * stakedBalance / e.totalPaidDebt : annualInterestAfterFee;
+      const finalAnnualInterestsForStakers = stakedBalanceRef < e.totalPaidDebt && e.totalPaidDebt > 0 ? annualInterestAfterFee * stakedBalanceRef / e.totalPaidDebt : annualInterestAfterFee;
 
-      const apr = stakedBalance ? finalAnnualInterestsForStakers / stakedBalance * 100 : 0;
+      const apr = stakedBalanceRef ? finalAnnualInterestsForStakers / stakedBalanceRef * 100 : 0;
       const apy = aprToApy(apr, BLOCKS_PER_YEAR);
       e.borrowApr = realTimeBorrowApr * 100;
       e.borrowApy = aprToApy(e.borrowApr, BLOCKS_PER_YEAR);
