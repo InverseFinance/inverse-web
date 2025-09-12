@@ -745,6 +745,8 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         getPendleMarketApy('0x4339ffe2b7592dc783ed13cce310531ab366deac'),
         getPendleMarketApy('0xa36b60a14a1a5247912584768c6e53e1a269a9f7'),
         getPendleMarketApy('0x6d98a2b6cdbf44939362a3e99793339ba2016af4'),
+        getPendleMarketApy('0xb6ac3d5da138918ac4e84441e924a20daa60dbdd'),
+        getPendleMarketApy('0x4eaa571eafcd96f51728756bd7f396459bb9b869'),
     ]);
 
     let [
@@ -780,6 +782,8 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         ptSUSDe31JUL25Data,
         ptSUSDe25SEP25Data,
         ptUSDe25SEP25Data,
+        ptSUSDe27NOV25Data,
+        ptUSDe27NOV25Data,
     ] = externalYieldResults.map(r => {
         return r.status === 'fulfilled' ? r.value : {};
     });
@@ -829,5 +833,7 @@ export const getFirmMarketsApys = async (provider, invApr, cachedData) => {
         'PT-sUSDe-31JUL25': ptSUSDe31JUL25Data?.apy || 0,
         'PT-sUSDe-25SEP25': ptSUSDe25SEP25Data?.apy || 0,
         'PT-USDe-25SEP25': ptUSDe25SEP25Data?.apy || 0,
+        'PT-sUSDe-27NOV25': ptSUSDe27NOV25Data?.apy || 0,
+        'PT-USDe-27NOV25': ptUSDe27NOV25Data?.apy || 0,
     };
 }
