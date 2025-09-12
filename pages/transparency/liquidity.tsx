@@ -299,6 +299,7 @@ export const Liquidity = () => {
                       rangesToInclude: ['All', '1Y', '6M', '3M', '1M', 'YTD'],
                       yLabel: histoAttributeLabel,
                       mainColor: 'info',
+                      allowEscapeViewBox: false,
                     }}
                   />
               }
