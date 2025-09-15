@@ -95,29 +95,27 @@ export const estimateAuctionTimeToReachMarketPrice = (
     return timeToAddSec;
 }
 
-const formatAuctionEvents = (events: any[]) => {
-    return events.map((e, i) => {
-        const isInvCase = e.auctionType === 'sINV';
-        const priceInDola = ((e.dolaIn || 0) / e.dbrOut);
-        const priceInInv = ((e.invIn || 0) / e.dbrOut);
-        const amountIn = isInvCase ? e.invIn : e.dolaIn;
-        const arb = isInvCase ? e.marketPriceInInv - priceInInv : e.marketPriceInDola - priceInDola;
-        const worthIn = e.dolaIn ? e.dolaIn : e.invIn * 1 / e.marketPriceInInv * e.marketPriceInDola;
-        const worthOut = e.dbrOut * e.marketPriceInDola;
-        const priceAvg = isInvCase ? (priceInInv + e.marketPriceInInv) / 2 : (priceInDola + e.marketPriceInDola) / 2;
-        return {
-            ...e,
-            key: `${e.txHash}-${i}`,
-            priceInDola,
-            priceInInv,
-            amountIn,
-            worthIn,
-            worthOut,
-            arb,
-            arbPerc: arb / (priceAvg) * 100,
-            version: e.version || (isInvCase ? 'V1' : undefined),
-        };
-    });
+const formatAuctionEvents = (e: any, i: number) => {
+    const isInvCase = e.auctionType === 'sINV';
+    const priceInDola = ((e.dolaIn || 0) / e.dbrOut);
+    const priceInInv = ((e.invIn || 0) / e.dbrOut);
+    const amountIn = isInvCase ? e.invIn : e.dolaIn;
+    const arb = isInvCase ? e.marketPriceInInv - priceInInv : e.marketPriceInDola - priceInDola;
+    const worthIn = e.dolaIn ? e.dolaIn : e.invIn * 1 / e.marketPriceInInv * e.marketPriceInDola;
+    const worthOut = e.dbrOut * e.marketPriceInDola;
+    const priceAvg = isInvCase ? (priceInInv + e.marketPriceInInv) / 2 : (priceInDola + e.marketPriceInDola) / 2;
+    return {
+        ...e,
+        key: `${e.txHash}-${i}`,
+        priceInDola,
+        priceInInv,
+        amountIn,
+        worthIn,
+        worthOut,
+        arb,
+        arbPerc: arb / (priceAvg) * 100,
+        version: e.version || (isInvCase ? 'V1' : undefined),
+    };
 }
 
 export const useDbrAuctionActivity = (from?: string): SWR & {
