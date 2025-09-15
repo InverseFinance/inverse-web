@@ -73,7 +73,7 @@ export const DbrAuctionStatsPage = () => {
               : <DbrAuctionBuysChart isTotal={true} events={events} chartEvents={dolaEvents} />
           }
         </Container>
-        <DbrAuctionBuys lastUpdate={timestamp} events={events.slice(0, 100)} title="Last 100 DBR buys from the auction" />
+        <DbrAuctionBuys lastUpdate={timestamp} events={events.slice(-100)} title="Last 100 DBR buys from the auction" />
       </VStack>
     </Layout>
   )
