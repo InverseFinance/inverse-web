@@ -13,7 +13,7 @@ import { SkeletonBlob } from '@app/components/common/Skeleton';
 import { shortenNumber } from '@app/util/markets';
 
 export const DbrAuctionSdolaStatsPage = () => {
-  const { isLoading, sdolaAuctionEvents: events, accDolaInSdola: accDolaIn, accDbrOutSdola: accDbrOut, accSdolaWorthOut, timestamp } = useDbrAuctionActivity();  
+  const { isLoading, sdolaAuctionEvents: events, accDolaInSdola: accDolaIn, accDbrOutSdola: accDbrOut, accSdolaWorthOut, last100SdolaAuctionEvents, timestamp } = useDbrAuctionActivity();  
   return (
     <Layout>
       <Head>
@@ -66,7 +66,7 @@ export const DbrAuctionSdolaStatsPage = () => {
               : <DbrAuctionBuysChart isTotal={false} events={events} chartEvents={events} />
           }
         </Container>
-        <DbrAuctionBuys lastUpdate={timestamp} events={events.slice(0, 100)} title="Last 100 DBR buys from the auction" />
+        <DbrAuctionBuys lastUpdate={timestamp} events={last100SdolaAuctionEvents} title="Last 100 DBR buys from the auction" />
       </VStack>
     </Layout>
   )

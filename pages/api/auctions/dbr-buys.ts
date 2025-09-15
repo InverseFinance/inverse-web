@@ -107,10 +107,20 @@ export default async function handler(req, res) {
         const dbrSaleHandler = new Contract('0x4f4A31C1c11Bdd438Cf0c7668D6aFa2b5825932e', ['function repayBps() public view returns (uint)'], provider);
         const dbrSaleHandlerRepayBpsData = await dbrSaleHandler.repayBps();
 
+
+        const buys = pastTotalEvents.concat(newBuys);
+        const last100VirtualAuctionEvents = buys.filter(e => e.auctionType === 'Virtual').slice(-100);
+        const last100SdolaAuctionEvents = buys.filter(e => e.auctionType === 'sDOLA').slice(-100);
+        const last100SinvAuctionEvents = buys.filter(e => e.auctionType === 'sINV').slice(-100);
+
         const resultData = {
             timestamp: Date.now(),
             dbrSaleHandlerRepayPercentage: getBnToNumber(dbrSaleHandlerRepayBpsData, 2),
-            buys: pastTotalEvents.concat(newBuys),
+            last100: buys.slice(-100),
+            last100VirtualAuctionEvents,
+            last100SdolaAuctionEvents,
+            last100SinvAuctionEvents,
+            buys,
         };
 
         await redisSetWithTimestamp(DBR_AUCTION_BUYS_CACHE_KEY, resultData, true);

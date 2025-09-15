@@ -95,10 +95,32 @@ export const estimateAuctionTimeToReachMarketPrice = (
     return timeToAddSec;
 }
 
+const formatAuctionEvents = (e: any, i: number) => {
+    const isInvCase = e.auctionType === 'sINV';
+    const priceInDola = ((e.dolaIn || 0) / e.dbrOut);
+    const priceInInv = ((e.invIn || 0) / e.dbrOut);
+    const amountIn = isInvCase ? e.invIn : e.dolaIn;
+    const arb = isInvCase ? e.marketPriceInInv - priceInInv : e.marketPriceInDola - priceInDola;
+    const worthIn = e.dolaIn ? e.dolaIn : e.invIn * 1 / e.marketPriceInInv * e.marketPriceInDola;
+    const worthOut = e.dbrOut * e.marketPriceInDola;
+    const priceAvg = isInvCase ? (priceInInv + e.marketPriceInInv) / 2 : (priceInDola + e.marketPriceInDola) / 2;
+    return {
+        ...e,
+        key: `${e.txHash}-${i}`,
+        priceInDola,
+        priceInInv,
+        amountIn,
+        worthIn,
+        worthOut,
+        arb,
+        arbPerc: arb / (priceAvg) * 100,
+        version: e.version || (isInvCase ? 'V1' : undefined),
+    };
+}
+
 export const useDbrAuctionActivity = (from?: string): SWR & {
     events: any[],
     dolaEvents: any[],
-    invEvents: any[],
     virtualAuctionEvents: any[],
     sdolaAuctionEvents: any[],
     sinvAuctionEvents: any[],
@@ -124,36 +146,18 @@ export const useDbrAuctionActivity = (from?: string): SWR & {
     accDolaWorthOut: number,
     accVirtualWorthOut: number,
     accSdolaWorthOut: number,
+    last100: any[],
+    last100VirtualAuctionEvents: any[],
+    last100SdolaAuctionEvents: any[],
+    last100SinvAuctionEvents: any[],
 } => {
     const liveEvents = []//useDbrAuctionBuyEvents(from);
     const { data, error } = useCustomSWR(`/api/auctions/dbr-buys?v=1.0.1`, fetcher);
 
     const events = (liveEvents?.length > data?.buys?.length ? liveEvents : data?.buys || [])
-        .map((e, i) => {
-            const isInvCase = e.auctionType === 'sINV';
-            const priceInDola = ((e.dolaIn || 0) / e.dbrOut);
-            const priceInInv = ((e.invIn || 0) / e.dbrOut);
-            const amountIn = isInvCase ? e.invIn : e.dolaIn;
-            const arb = isInvCase ? e.marketPriceInInv - priceInInv : e.marketPriceInDola - priceInDola;
-            const worthIn = e.dolaIn ? e.dolaIn : e.invIn * 1 / e.marketPriceInInv * e.marketPriceInDola;
-            const worthOut = e.dbrOut * e.marketPriceInDola;
-            const priceAvg = isInvCase ? (priceInInv + e.marketPriceInInv) / 2 : (priceInDola + e.marketPriceInDola) / 2;
-            return {
-                ...e,
-                key: `${e.txHash}-${i}`,
-                priceInDola,
-                priceInInv,
-                amountIn,
-                worthIn,
-                worthOut,
-                arb,
-                arbPerc: arb / (priceAvg) * 100,
-                version: e.version || (isInvCase ? 'V1' : undefined),
-            };
-        });
+        .map(formatAuctionEvents)
 
     const dolaEvents = events.filter(e => e.auctionType === 'Virtual' || e.auctionType === 'sDOLA');
-    const invEvents = events.filter(e => e.auctionType === 'sINV');
     const virtualAuctionEvents = events.filter(e => e.auctionType === 'Virtual');
     const sdolaAuctionEvents = events.filter(e => e.auctionType === 'sDOLA');
     const sinvAuctionEvents = events.filter(e => e.auctionType === 'sINV');
@@ -185,10 +189,13 @@ export const useDbrAuctionActivity = (from?: string): SWR & {
     return {
         events,
         dolaEvents,
-        invEvents,
         virtualAuctionEvents,
         sdolaAuctionEvents,
         sinvAuctionEvents,
+        last100: (data?.last100 || []).map(formatAuctionEvents),
+        last100VirtualAuctionEvents: (data?.last100VirtualAuctionEvents || []).map(formatAuctionEvents),
+        last100SdolaAuctionEvents: (data?.last100SdolaAuctionEvents || []).map(formatAuctionEvents),
+        last100SinvAuctionEvents: (data?.last100SinvAuctionEvents || []).map(formatAuctionEvents),
         accountEvents: events.filter(e => e.to === from),
         nbBuys,
         avgDbrPrice,

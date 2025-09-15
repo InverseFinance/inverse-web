@@ -14,7 +14,7 @@ import { shortenNumber, smartShortNumber } from '@app/util/markets';
 import { useDbrAuction } from '@app/components/F2/DbrAuction/DbrAuctionInfos';
 
 export const DbrAuctionVirtualStatsPage = () => {
-  const { dbrSaleHandlerRepayPercentage, isLoading, virtualAuctionEvents: events, accDolaInVirtual: accDolaIn, accDbrOutVirtual: accDbrOut, accVirtualWorthOut, timestamp } = useDbrAuctionActivity();  
+  const { dbrSaleHandlerRepayPercentage, isLoading, virtualAuctionEvents: events, accDolaInVirtual: accDolaIn, accDbrOutVirtual: accDbrOut, accVirtualWorthOut, last100VirtualAuctionEvents, timestamp } = useDbrAuctionActivity();  
   const { historicalRates } = useDbrAuction('classic');
   return (
     <Layout>
@@ -68,7 +68,7 @@ export const DbrAuctionVirtualStatsPage = () => {
               : <DbrAuctionBuysChart historicalRates={historicalRates} auctionType='virtual' isTotal={false} events={events} chartEvents={events} />
           }
         </Container>
-        <DbrAuctionBuys lastUpdate={timestamp} events={events.slice(0, 100)} title="Last 100 DBR buys from the auction" />
+        <DbrAuctionBuys lastUpdate={timestamp} events={last100VirtualAuctionEvents} title="Last 100 DBR buys from the auction" />
       </VStack>
     </Layout>
   )
