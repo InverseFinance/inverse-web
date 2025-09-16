@@ -21,7 +21,7 @@ export default async function handler(req, res) {
   if(!monolithSupportedChainIds.includes(chainId) || !lender || lender === BURN_ADDRESS || (!!lender && !isAddress(lender)) || (!!account && !isAddress(account))) {
     return res.status(400).json({ success: false, error: 'Invalid account address' });
   }
-  const cacheKey = account ? `monolith-activity-${lender}-${account}-${chainId}-v1.1.2` : `monolith-activity-${lender}-${chainId}-v1.1.2`;  
+  const cacheKey = account ? `monolith-activity-${lender}-${account}-${chainId}-v1.1.3` : `monolith-activity-${lender}-${chainId}-v1.1.3`;  
   try {
 
     const { isValid, data: cachedData } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration, false);
@@ -140,7 +140,7 @@ export default async function handler(req, res) {
         txHash: e.transactionHash,
         blockNumber: e.blockNumber,
         timestamp: estimateBlockTimestamp(e.blockNumber, now, currentBlock),
-        event: e.event.replace('Deposit', 'Stake').replace('Withdraw', 'Unstake'),
+        event: e.event,
         account: e.args?.account || e.args?.borrower || e.args?.caller,
         ...extraData,
       }
