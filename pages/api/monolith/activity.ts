@@ -21,7 +21,7 @@ export default async function handler(req, res) {
   if(!monolithSupportedChainIds.includes(chainId) || !lender || lender === BURN_ADDRESS || (!!lender && !isAddress(lender)) || (!!account && !isAddress(account))) {
     return res.status(400).json({ success: false, error: 'Invalid account address' });
   }
-  const cacheKey = account ? `monolith-activity-${lender}-${account}-${chainId}-v1.1.0` : `monolith-activity-${lender}-${chainId}-v1.1.0`;  
+  const cacheKey = account ? `monolith-activity-${lender}-${account}-${chainId}-v1.1.2` : `monolith-activity-${lender}-${chainId}-v1.1.2`;  
   try {
 
     const { isValid, data: cachedData } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration, false);
@@ -33,13 +33,15 @@ export default async function handler(req, res) {
     const provider = getPaidProvider(Number(chainId || 1));
 
     const lenderContract = new Contract(lender, LENDER_ABI, provider);
-    const vaultContract = new Contract(lender, SVAULT_ABI, provider);
     const lastBlock = cachedData?.last1000Events?.length ? cachedData?.last1000Events[cachedData.last1000Events.length-1].blockNumber : undefined;
 
-    const [currentBlock, collateralAddress] = await Promise.all([
+    const [currentBlock, collateralAddress, vaultAddress] = await Promise.all([
       provider.getBlockNumber(),
       lenderContract.collateral(),
+      lenderContract.vault(),
     ]);
+
+    const vaultContract = new Contract(vaultAddress, SVAULT_ABI, provider);
 
     const collateralContract = new Contract(collateralAddress, ["function decimals() view returns (uint8)"], provider);
     const decimals = await collateralContract.decimals();
@@ -57,13 +59,14 @@ export default async function handler(req, res) {
     }
 
     // temp: no need for large logs function atm
-    const getFilterData = async (contractFilter: any) => {
+    const getFilterData = async (params: [Contract, any]) => {
+      const [contract, contractFilter] = params;
       let events: any[] = [];
       try {
         // if(!account) {
         //   events = await getLargeLogsFunction(contractFilter);
         // } else {
-          events = await lenderContract.queryFilter(contractFilter, lastBlock ? lastBlock+1 : undefined, currentBlock);
+          events = await contract.queryFilter(contractFilter, lastBlock ? lastBlock+1 : undefined, currentBlock);
         // }
       } catch (e) {
         console.log('e', e);
@@ -76,13 +79,13 @@ export default async function handler(req, res) {
     }
 
     const filters = [
-      lenderContract.filters.PositionAdjusted(account || undefined),
-      lenderContract.filters.RedemptionStatusUpdated(account || undefined),
-      lenderContract.filters.Liquidated(account || undefined),
-      lenderContract.filters.WrittenOff(account || undefined),
-      lenderContract.filters.Redeemed(),
-      vaultContract.filters.Deposit(account || undefined),
-      vaultContract.filters.Withdraw(account || undefined),
+      [lenderContract, lenderContract.filters.PositionAdjusted(account || undefined)],
+      [lenderContract, lenderContract.filters.RedemptionStatusUpdated(account || undefined)],
+      [lenderContract, lenderContract.filters.Liquidated(account || undefined)],
+      [lenderContract, lenderContract.filters.WrittenOff(account || undefined)],
+      [lenderContract, lenderContract.filters.Redeemed()],
+      [vaultContract, vaultContract.filters.Deposit(account || undefined)],
+      [vaultContract, vaultContract.filters.Withdraw(account || undefined)],
     ];
 
     const events = (await Promise.all(filters.map(getFilterData))).flat().sort(ascendingEventsSorter);
@@ -137,7 +140,7 @@ export default async function handler(req, res) {
         txHash: e.transactionHash,
         blockNumber: e.blockNumber,
         timestamp: estimateBlockTimestamp(e.blockNumber, now, currentBlock),
-        event: e.event,
+        event: e.event.replace('Deposit', 'Stake').replace('Withdraw', 'Unstake'),
         account: e.args?.account || e.args?.borrower || e.args?.caller,
         ...extraData,
       }
@@ -145,6 +148,8 @@ export default async function handler(req, res) {
 
     const resultData = {
       timestamp: now,
+      lender,
+      vault: vaultAddress,
       last1000Events: cachedEvents.concat(newEvents).slice(-1000),
     }
 
