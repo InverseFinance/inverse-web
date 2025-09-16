@@ -8,6 +8,7 @@ import { ascendingEventsSorter, estimateBlockTimestamp } from '@app/util/misc';
 import { getLargeLogs } from '@app/util/web3';
 import { BURN_ADDRESS } from '@app/config/constants';
 import { LENDER_ABI, monolithSupportedChainIds } from './positions';
+import { SVAULT_ABI } from '@app/config/abis';
 
 export default async function handler(req, res) {
   const cacheDuration = 60;
@@ -20,7 +21,7 @@ export default async function handler(req, res) {
   if(!monolithSupportedChainIds.includes(chainId) || !lender || lender === BURN_ADDRESS || (!!lender && !isAddress(lender)) || (!!account && !isAddress(account))) {
     return res.status(400).json({ success: false, error: 'Invalid account address' });
   }
-  const cacheKey = account ? `monolith-activity-${lender}-${account}-${chainId}-v1.0.2` : `monolith-activity-${lender}-${chainId}-v1.0.2`;  
+  const cacheKey = account ? `monolith-activity-${lender}-${account}-${chainId}-v1.1.0` : `monolith-activity-${lender}-${chainId}-v1.1.0`;  
   try {
 
     const { isValid, data: cachedData } = await getCacheFromRedisAsObj(cacheKey, cacheFirst !== 'true', cacheDuration, false);
@@ -32,6 +33,7 @@ export default async function handler(req, res) {
     const provider = getPaidProvider(Number(chainId || 1));
 
     const lenderContract = new Contract(lender, LENDER_ABI, provider);
+    const vaultContract = new Contract(lender, SVAULT_ABI, provider);
     const lastBlock = cachedData?.last1000Events?.length ? cachedData?.last1000Events[cachedData.last1000Events.length-1].blockNumber : undefined;
 
     const [currentBlock, collateralAddress] = await Promise.all([
@@ -79,6 +81,8 @@ export default async function handler(req, res) {
       lenderContract.filters.Liquidated(account || undefined),
       lenderContract.filters.WrittenOff(account || undefined),
       lenderContract.filters.Redeemed(),
+      vaultContract.filters.Deposit(account || undefined),
+      vaultContract.filters.Withdraw(account || undefined),
     ];
 
     const events = (await Promise.all(filters.map(getFilterData))).flat().sort(ascendingEventsSorter);
@@ -91,6 +95,8 @@ export default async function handler(req, res) {
       const isLiquidated = e.event === 'Liquidated';
       const isWrittenOff = e.event === 'WrittenOff';
       const isRedeemed = e.event === 'Redeemed';
+      const isStake = e.event === 'Deposit';
+      const isUnstake = e.event === 'Withdraw';
 
       let extraData = {};
       if(isPositionAdjusted) {
@@ -120,6 +126,11 @@ export default async function handler(req, res) {
           debtDelta: getBnToNumber(e.args?.amountIn, 18),
           collateralDelta: getBnToNumber(e.args?.amountOut, decimals),
         }
+      } else if(isStake || isUnstake) {
+        extraData = {
+          collateralDelta: getBnToNumber(e.args?.assets, 18),
+          debtDelta: 0,
+        }
       }
 
       return {
@@ -127,7 +138,7 @@ export default async function handler(req, res) {
         blockNumber: e.blockNumber,
         timestamp: estimateBlockTimestamp(e.blockNumber, now, currentBlock),
         event: e.event,
-        account: e.args?.account || e.args?.borrower,
+        account: e.args?.account || e.args?.borrower || e.args?.caller,
         ...extraData,
       }
     });
