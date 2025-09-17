@@ -597,6 +597,7 @@ export const DOLA_SAVINGS_ABI = [
 // ERC4626, 
 export const SVAULT_ABI = [
   "function buyDBR(uint, uint) public",
+  "function asset() public view returns (address)",
   "function deposit(uint assets, address receiver) public",
   "function withdraw(uint assets, address receiver, address owner) public",
   "function redeem(uint assets, address receiver, address owner) public",
