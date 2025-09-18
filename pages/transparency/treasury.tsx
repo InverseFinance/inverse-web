@@ -5,7 +5,7 @@ import { AppNav } from '@app/components/common/Navbar'
 import Head from 'next/head'
 import { usePricesV2 } from '@app/hooks/usePrices'
 import { TransparencyTabs } from '@app/components/Transparency/TransparencyTabs';
-import { useDAO, useStableReserves } from '@app/hooks/useDAO'
+import { useDAO, useLiquidityPools, useStableReserves } from '@app/hooks/useDAO'
 import { getFundsTotalUsd } from '@app/components/Transparency/Funds'
 import { FundsDetails } from '@app/components/Transparency/FundsDetails'
 import { DashBoardCard } from '@app/components/F2/UserDashboard'
@@ -46,6 +46,7 @@ export const Overview = () => {
   const { themeName } = useAppTheme();
   const { prices, isLoading: isLoadingPrices } = usePricesV2(true)
   const { treasury, anchorReserves, multisigs, isLoading: isLoadingDao } = useDAO();
+  const { liquidity, isLoading: isLoadingLiquidity } = useLiquidityPools();
   const { stableReservesEvolution, isLoading: isLoadingStableReserves } = useStableReserves();
   const [excludeOwnTokens, setExcludeOwnTokens] = useState(false);
   const [excludeOwnTokens2, setExcludeOwnTokens2] = useState(false);
@@ -53,12 +54,30 @@ export const Overview = () => {
   const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
   const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
 
+  const TWGmultisigs = multisigs?.filter(m => m.shortName.includes('TWG') && m.chainId !== NetworkIds.ftm) || [];
+  const TWGfunds = TWGmultisigs.map(m => m.funds);
+
+  const treasuryStables = treasury?.filter(f => (f.token.isStable && !f.isLP) || (['DOLA', 'USDC', 'USDT', 'sDOLA', 'DAI', 'USDS'].includes(f.token.symbol))).map(f => {
+    return { label: `${f.token.symbol} (Treasury)`, balance: f.balance, onlyUsdValue: true, usdPrice: (f.price || prices[f.token.symbol]?.usd || prices[f.token.coingeckoId]?.usd || 1) }
+  }) || [];
+
+  const twgStables = TWGmultisigs.map(m => {
+    return m.funds.filter(f => (f.token.isStable && !f.isLP) || (['DOLA', 'USDC', 'USDT', 'sDOLA', 'DAI', 'USDS'].includes(f.token.symbol))).map(f => {
+      return { label: `${f.token.symbol} (${m.shortName})`, balance: f.balance, onlyUsdValue: true, usdPrice: (f.price || prices[f.token.symbol]?.usd || prices[f.token.coingeckoId]?.usd || 1) }
+    });
+  }).flat();
+
+  const twgStableLps = liquidity.filter(m => m.isStable && !m.isFed).map(m => {
+    const twg = TWGmultisigs.find(m => m.chainId === m.chainId);
+    // ownedAmount already in usd
+    return { label: `${m.lpName} (${twg?.shortName || 'TWG'})`, balance: m.ownedAmount, onlyUsdValue: true, usdPrice: 1 }
+  });
+
+  const stableReserves = [...treasuryStables, ...twgStables, ...twgStableLps];
+
   useEffect(() => {
     setAutoChartWidth(isLargerThan ? maxChartWidth : (window.innerWidth) - 80)
   }, [isLargerThan]);
-
-  const TWGmultisigs = multisigs?.filter(m => m.shortName.includes('TWG') && m.chainId !== NetworkIds.ftm) || [];
-  const TWGfunds = TWGmultisigs.map(m => m.funds);
 
   const totalMultisigs = multisigs?.map(m => {
     return { label: m.shortName, balance: getFundsTotalUsd(m.funds.filter(above100UsdFilter), prices, 'balance'), onlyUsdValue: true, usdPrice: 1, drill: m.funds }
@@ -135,6 +154,9 @@ export const Overview = () => {
               <DashBoardCard cardTitle="Total Treasury Holdings" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
                 <ExcludeOwnTokens label="Exclude Treasury INV & DBR" setter={setExcludeOwnTokens} value={excludeOwnTokens} id='exclude-1' />
                 <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={excludeOwnTokens ? totalHoldingsExcludeOwnTokens : totalHoldings} prices={prices} type='balance' useRecharts={true} />
+              </DashBoardCard>
+              <DashBoardCard cardTitle="Total Stable Reserves" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
+                <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={stableReserves} prices={prices} type='balance' useRecharts={true} />
               </DashBoardCard>
               <DashBoardCard cardTitle="Multisigs's Holdings" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
                 <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={totalMultisigs} prices={prices} type='balance' useRecharts={true} />
