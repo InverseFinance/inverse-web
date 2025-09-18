@@ -289,6 +289,9 @@ function multicallAddress(chainId: number) {
             return MULTICALL_ADDRESS_AURORA;
         case 10:
             return MULTICALL_ADDRESS_OPTIMISM;
+        case 8453:
+            // return '0xcA11bde05977b3631167028862bE2a173976CA11';//v3
+            return '0xbc94456e36dd97301F98927279939fa45Ef7Ac72';
         case 25:
             return "0x5e954f5972EC6BFc7dECd75779F10d848230345F"; // cronos
         case 288:

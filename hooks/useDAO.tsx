@@ -18,6 +18,15 @@ const defaultFedsData = FEDS.map(((fed) => {
   }
 }))
 
+export const useStableReserves = (): SWR & { stableReservesEvolution: any[] } => {
+  const { data, error } = useCacheFirstSWR(`/api/transparency/stable-reserves-history`, fetcher)
+  return {
+    stableReservesEvolution: (data?.totalEvolution || []).map(d => ({...d, x: d.timestamp, y: d.totalReserves})),
+    isLoading: !error && !data,
+    isError: error,
+  }
+}
+
 export const useDAO = (): SWR & DAO => {
   const { data, error } = useCacheFirstSWR(`/api/transparency/dao?v=4`, fetcher)
 
