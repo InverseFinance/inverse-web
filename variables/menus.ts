@@ -225,11 +225,11 @@ export const MENUS = {
           href: '/base',
           needReload: true,
         },
-        {
-          label: 'Native Blast Bridge',
-          href: '/blast',
-          needReload: true,
-        },
+        // {
+        //   label: 'Native Blast Bridge',
+        //   href: '/blast',
+        //   needReload: true,
+        // },
         {
           label: 'Analytics',
           href: 'https://inverse.watch/',
