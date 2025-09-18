@@ -127,6 +127,7 @@ export const Overview = () => {
                   useRecharts: true,
                   allowZoom: true,
                   mainColor: 'info',
+                  allowEscapeViewBox: false,
                 }}
               />
             </VStack>
