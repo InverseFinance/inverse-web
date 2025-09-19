@@ -21,7 +21,9 @@ const defaultFedsData = FEDS.map(((fed) => {
 export const useStableReserves = (): SWR & { stableReservesEvolution: any[] } => {
   const { data, error } = useCacheFirstSWR(`/api/transparency/stable-reserves-history`, fetcher)
   return {
-    stableReservesEvolution: (data?.totalEvolution || []).map(d => ({...d, x: d.timestamp, y: d.totalReserves})),
+    stableReservesEvolution: (data?.totalEvolution || [])
+      .filter(d => d.utcDate !== (new Date().toISOString().substring(0, 10)))
+      .map(d => ({...d, x: d.timestamp, y: d.totalReserves})),
     isLoading: !error && !data,
     isError: error,
   }
