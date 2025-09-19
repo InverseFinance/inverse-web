@@ -132,6 +132,7 @@ export default async function handler(req, res) {
             dolaLiquidity,
             buyFeePerc,
             sellFeePerc,
+            collateralLiquidity: supply - (supply*sellFeePerc/100),
             totalDolaBought: archived.totalDolaBought + newBuys.reduce((acc, curr) => acc + curr.dolaAmount, 0),
             totalDolaSold: archived.totalDolaSold + newSells.reduce((acc, curr) => acc + curr.dolaAmount, 0),
             totalColBought: archived.totalColBought + newSells.reduce((acc, curr) => acc + curr.colAmount, 0),
