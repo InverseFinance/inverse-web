@@ -112,22 +112,22 @@ export const PSMui = ({
 
     const isLoadingOutAmount = !outAmountBn && !outAmountError;
 
-    const dolaLiquidity = psmData ? getBnToNumber(psmData[0]) : psmApiData?.dolaLiquidity || 0;
-    const collateralLiquidity = psmData ? getBnToNumber(psmData[1], collateralDecimals) : psmApiData?.totalReserves || 0;
-
-    const outLiquidity = isBuyDola ? dolaLiquidity : collateralLiquidity;
+    const supply = psmData ? getBnToNumber(psmData[5], 18) : psmApiData?.supply || 0;
+    const minTotalSupply = psmData ? getBnToNumber(psmData[6], 18) : psmApiData?.minTotalSupply || 0;
 
     const buyFeePerc = psmData ? getBnToNumber(psmData[2], 2) : psmApiData?.buyFeePerc || 0;
     const sellFeePerc = psmData ? getBnToNumber(psmData[3], 2) : psmApiData?.sellFeePerc || 0;
+
+    const dolaLiquidity = psmData ? getBnToNumber(psmData[0]) : psmApiData?.dolaLiquidity || 0;
+    const collateralLiquidity = psmData ? supply - (supply*sellFeePerc/100) : psmApiData?.collateralLiquidity || 0;
+
+    const outLiquidity = isBuyDola ? dolaLiquidity : collateralLiquidity;
 
     const outAmount = outAmountBn ? getBnToNumber(outAmountBn, outDecimals) : 0;
     const outAmountFormatted = outAmount ? preciseCommify(outAmount, 2, false) : '0';
 
     const profit = psmData ? getBnToNumber(psmData[4], 18) : psmApiData?.unclaimedProfit || 0;
     const profitFormatted = profit ? preciseCommify(profit, 2, false) : '0';
-
-    const supply = psmData ? getBnToNumber(psmData[5], 18) : psmApiData?.supply || 0;
-    const minTotalSupply = psmData ? getBnToNumber(psmData[6], 18) : psmApiData?.minTotalSupply || 0;
 
     useDebouncedEffect(() => {
         setIsConnected(!!connectedAccount);
