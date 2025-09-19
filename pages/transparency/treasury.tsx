@@ -58,17 +58,16 @@ export const Overview = () => {
   const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
   const [isLargerThan] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
 
-
   const TWGmultisigs = multisigs?.filter(m => m.shortName.includes('TWG') && m.chainId !== NetworkIds.ftm) || [];
   const TWGfunds = TWGmultisigs.map(m => m.funds);
 
   // stable reserves
-  const treasuryStables = treasury?.filter(f => (f.token.isStable && !f.isLP) || (['DOLA', 'USDC', 'USDT', 'sDOLA', 'DAI', 'USDS'].includes(f.token.symbol))).map(f => {
+  const treasuryStables = treasury?.filter(f => (f.token.isStable && !f.token.isLP) || (['DOLA', 'USDC', 'USDT', 'sDOLA', 'DAI', 'USDS'].includes(f.token.symbol))).map(f => {
     return { label: `${f.token.symbol} (Treasury)`, balance: f.balance, onlyUsdValue: true, usdPrice: (f.price || prices[f.token.symbol]?.usd || prices[f.token.coingeckoId]?.usd || 1) }
   }) || [];
 
   const twgStables = TWGmultisigs.map(m => {
-    return m.funds.filter(f => (f.token.isStable && !f.isLP) || (['DOLA', 'USDC', 'USDT', 'sDOLA', 'DAI', 'USDS'].includes(f.token.symbol))).map(f => {
+    return m.funds.filter(f => (f.token.isStable && !f.token.isLP) || (['DOLA', 'USDC', 'USDT', 'sDOLA', 'DAI', 'USDS'].includes(f.token.symbol))).map(f => {
       return { label: `${f.token.symbol} (${m.shortName})`, balance: f.balance, onlyUsdValue: true, usdPrice: (f.price || prices[f.token.symbol]?.usd || prices[f.token.coingeckoId]?.usd || 1) }
     });
   }).flat();
@@ -149,7 +148,7 @@ export const Overview = () => {
               <iframe width="100%" height="360px" src={`https://defillama.com/chart/protocol/inverse-finance?treasury=true&tvl=false&events=false&groupBy=daily&theme=${themeName}`} title="DefiLlama" frameborder="0"></iframe>
             </DashBoardCard>
             <VStack w='full' alignItems="center" py="10">
-              <DashBoardCard cardTitle="Stable Reserves Evolution & Runway" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps} w='full'>
+              <DashBoardCard cardTitle="Stable Reserves & Runway" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps} w='full'>
                 <DefaultCharts
                   chartData={stableAndRunwayEvolution}
                   maxChartWidth={maxChartWidth}
@@ -159,7 +158,7 @@ export const Overview = () => {
                   showAreaChart={true}
                   smoothLineByDefault={true}
                   areaProps={{
-                    title: `Currently: ${shortenNumber(totalCurrentStableReserves, 2, true)} and ${runwayInMonths.toFixed(2)} months runway`,
+                    title: `Currently: ${shortenNumber(totalCurrentStableReserves, 2, true)} and ${runwayInMonths.toFixed(2)} months`,
                     id: 'stable-reserves',
                     showRangeBtns: false,
                     yLabel: 'Stable Reserves',
