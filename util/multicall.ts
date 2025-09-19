@@ -32,6 +32,8 @@ export function sliceIntoChunks(arr: any[], chunkSize = 100) {
     }
     return res;
 }
+// xchain
+export const MULTICALL_V3 = '0xcA11bde05977b3631167028862bE2a173976CA11';
 
 export const MULTICALL_ADDRESS_MAINNET =
     "0xeefba1e63905ef1d7acba5a8513c70307c1ce441";
@@ -65,6 +67,7 @@ export const MULTICALL_ADDRESS_OPTIMISM =
     "0xD0E99f15B24F265074747B2A1444eB02b9E30422";
 
 export const AGGREGATE_SELECTOR = "0x252dba42";
+export const TRY_AGGREGATE_SELECTOR = "0xbce38bd7";
 
 const formatOutput = (output: any) => {
     if (output instanceof Array)
@@ -80,12 +83,13 @@ export const getGroupedMulticallOutputs = async (
     chainId = Number(CHAIN_ID),
     block?: BlockTag,
     _provider?: BaseProvider,
+    useV3Try = false,
 ) => {
-    const flatOutputs = await getMulticallOutput(groupedCallRequests.flat(), chainId, block, _provider);    
+    const flatOutputs = await getMulticallOutput(groupedCallRequests.flat(), chainId, block, _provider, useV3Try);
     let startIndex = 0;
-    return groupedCallRequests.map((callRequests) => {      
+    return groupedCallRequests.map((callRequests) => {
         const isArray = Array.isArray(callRequests);
-        const length = isArray ? callRequests.length : 1;  
+        const length = isArray ? callRequests.length : 1;
         const groupItems = flatOutputs.slice(startIndex, startIndex + length);
         startIndex += length;
         return isArray ? groupItems : groupItems[0];
@@ -97,6 +101,7 @@ export const getMulticallOutput = async (
     chainId = Number(CHAIN_ID),
     block?: BlockTag,
     _provider?: BaseProvider,
+    useV3Try = false,
 ) => {
 
     const _callRequests = callRequests.filter((callRequest) => !callRequest.forceFallback);
@@ -111,7 +116,7 @@ export const getMulticallOutput = async (
         };
     });
 
-    const returnValues = await executeCalls(calls, chainId, block, _provider);
+    const returnValues = await executeCalls(calls, chainId, block, _provider, useV3Try);
 
     const formattedValues = returnValues.map((values: any, index: number) => {
         let output: any;
@@ -126,7 +131,7 @@ export const getMulticallOutput = async (
         }
         return formatOutput(output);
     });
-    if(forcedFallbacksIndexes?.length > 0){
+    if (forcedFallbacksIndexes?.length > 0) {
         forcedFallbacksIndexes.forEach((idx) => {
             formattedValues.splice(idx, 0, callRequests[idx].fallbackValue);
         });
@@ -175,25 +180,34 @@ export const executeCalls = async (
     chainId = Number(CHAIN_ID),
     block?: BlockTag,
     _provider?: BaseProvider,
+    useV3Try = false,
 ) => {
     if (networkSupportsMulticall(chainId)) {
         try {
+            const aggregateParams = [
+                ParamType.fromObject({
+                    components: [
+                        { name: "target", type: "address" },
+                        { name: "callData", type: "bytes" },
+                    ],
+                    name: "data",
+                    type: "tuple[]",
+                }),
+            ];
+            const aggregateParamValues = [contractCalls.map((call) => [call.to, call.data])];
+            if (useV3Try) {
+                aggregateParams.unshift(ParamType.fromObject({
+                    name: "requireSuccess",
+                    type: "bool",
+                }));
+                aggregateParamValues.unshift(false);
+            }
             const multicallData = ethers.utils.defaultAbiCoder.encode(
-                [
-                    ParamType.fromObject({
-                        components: [
-                            { name: "target", type: "address" },
-                            { name: "callData", type: "bytes" },
-                        ],
-                        name: "data",
-                        type: "tuple[]",
-                    }),
-                ],
-                [contractCalls.map((call) => [call.to, call.data])]
+                aggregateParams,
+                aggregateParamValues,
             );
-            const address = await multicallAddressOrThrow(chainId);
-
-            const callData = AGGREGATE_SELECTOR + multicallData.substr(2);
+            const address = await multicallAddressOrThrow(chainId, useV3Try);
+            const callData = (useV3Try ? TRY_AGGREGATE_SELECTOR : AGGREGATE_SELECTOR) + multicallData.substr(2);
 
             const tx = {
                 to: address,
@@ -202,11 +216,24 @@ export const executeCalls = async (
             const provider = _provider ? _provider : (!!block ? getHistoricalProvider(chainId?.toString()) : getProvider(chainId?.toString()));
             const returnData = await call(provider, tx, block ?? "latest", chainId?.toString())
 
-            const [blockNumber, returnValues] = ethers.utils.defaultAbiCoder.decode(
-                ["uint256", "bytes[]"],
-                returnData
-            );
-            return returnValues;
+            if (useV3Try) {
+                let finalValues = [];
+                const [returnValues] = ethers.utils.defaultAbiCoder.decode(
+                    ["tuple(bool,bytes)[]"],
+                    returnData
+                );
+
+                finalValues = returnValues.map((v: any, i: number) => {
+                    return v[0] ? v[1] : contractCalls[i].fallbackValue || v[1];
+                });
+                return finalValues;
+            } else {
+                const [blockNumber, returnValues] = ethers.utils.defaultAbiCoder.decode(
+                    ["uint256", "bytes[]"],
+                    returnData
+                );
+                return returnValues;
+            }
         } catch (e) {
             if (contractCalls.length > 10) {
                 const chunkSize = Math.ceil(contractCalls.length / 5)
@@ -239,7 +266,10 @@ export const executeCalls = async (
     })
 }
 
-async function multicallAddressOrThrow(chainId: number) {
+async function multicallAddressOrThrow(chainId: number, useV3Try = false) {
+    if (useV3Try) {
+        return MULTICALL_V3;
+    }
     const network = await getProvider(chainId?.toString()).getNetwork();
     const address = multicallAddress(network?.chainId);
     if (address === null) {
