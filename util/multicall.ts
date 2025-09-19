@@ -235,6 +235,7 @@ export const executeCalls = async (
                 return returnValues;
             }
         } catch (e) {
+            console.log("err chainId: "+chainId)
             if (contractCalls.length > 10) {
                 const chunkSize = Math.ceil(contractCalls.length / 5)
                 const chunks = sliceIntoChunks(contractCalls, chunkSize)
