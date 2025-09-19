@@ -118,7 +118,7 @@ export const getBaseAddressWithrawals = async (
     ethProvider: Web3Provider,
     address: string,
 ) => {
-    const path = `https://api.basescan.org/api?address=${address}&action=txlist&module=account&apiKey=WZMDK47D2YU9KDBQSJJCKWJPAGZ1NDG4P6`;
+    const path = `https://api.etherscan.io/v2/api?chainId=8453&address=${address}&action=txlist&module=account&apiKey=DTIA41KB2WXUKK8DY8H59YJFIQD246SH4V`;
     try {
         const res = await fetcher(path);
         const list = res?.status === "1" ? res?.result : [];
