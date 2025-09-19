@@ -9,19 +9,19 @@ const ABI_PROXYS: { [key:string]: string} = {
 
 export const getRemoteAbi = async (address: string, chainId = 1) => {
     const addressOrProxyAddress = ABI_PROXYS[address] || address;
-    const path = `?chainid=${chainId}&module=contract&action=getabi&address=${addressOrProxyAddress}&apikey=A6SD2E7KYV3F7HR2KY88TH7A4H89JCFNNS`
+    const path = `?chainid=${chainId}&module=contract&action=getabi&address=${addressOrProxyAddress}&apikey=DTIA41KB2WXUKK8DY8H59YJFIQD246SH4V`
     const res = await fetcher(`${baseUrl}${path}`);
     return res?.status === "1" ? res?.result : '[]'
 }
 
 export const getGasPrice = async (chainId = 1) => {
-    const path = `?chainid=${chainId}&module=gastracker&action=gasoracle&apikey=A6SD2E7KYV3F7HR2KY88TH7A4H89JCFNNS`
+    const path = `?chainid=${chainId}&module=gastracker&action=gasoracle&apikey=DTIA41KB2WXUKK8DY8H59YJFIQD246SH4V`
     const res = await fetcher(`${baseUrl}${path}`);
     return res?.status === "1" ? res?.result : '{"result":{"SafeGasPrice":"0","ProposeGasPrice":"0","FastGasPrice":"0"}}'
 }
 
 export const getTransactions = async (address: string, startBlock = 0, chainId = 1) => {
-    const path = `?chainid=${chainId}&module=account&action=txlist&address=${address}&startblock=${startBlock}&endblock=99999999&sort=desc&apikey=A6SD2E7KYV3F7HR2KY88TH7A4H89JCFNNS`
+    const path = `?chainid=${chainId}&module=account&action=txlist&address=${address}&startblock=${startBlock}&endblock=99999999&sort=desc&apikey=DTIA41KB2WXUKK8DY8H59YJFIQD246SH4V`
     const res = await fetcher(`${baseUrl}${path}`);
     return res?.status === "1" ? res?.result : [];
 }
