@@ -6,7 +6,7 @@ import { BURN_ADDRESS } from '@app/config/constants';
 import { getTokenHolders } from '@app/util/covalent';
 
 const LENSES = {
-  1: "0x941A224090dC7890BCbC89aDfD045D45E95E7Fb7",
+  1: "0x5336183353cA175Cc1ED3E067c8F057683bf21a9",
   11155111: "0x542f65d73263F129D6313D7e6060885465b6e91b",
 }
 
