@@ -16,10 +16,10 @@ import { BURN_ADDRESS } from '@app/config/constants';
 
 export const stableReservesCacheKey = `stable-reserves-history-v1.0.0`;
 
-const getChainStableBalances = async (archivedTimeData, chainId, snapshotsStart, ad1, ad2?: string) => {
+const getChainStableBalances = async (archivedTimeData, chainId, snapshotsStart, snapshotsEnd, ad1, ad2?: string) => {
     const blockValues = Object.entries(archivedTimeData[chainId]).map(([date, block]) => {
         return { date, block: parseInt(block), timestamp: utcDateStringToTimestamp(date) };
-    }).filter(d => d.date >= snapshotsStart);
+    }).filter(d => d.date >= snapshotsStart && d.date <= snapshotsEnd);
 
     const blocks = blockValues.map(d => d.block);
 
@@ -71,6 +71,8 @@ const getChainStableBalances = async (archivedTimeData, chainId, snapshotsStart,
             ],
                 Number(chainId),
                 block,
+                undefined,
+                true,
             );
         },
         blocks,
@@ -125,7 +127,7 @@ export default async function handler(req, res) {
     const { cacheFirst } = req.query;
     const { TREASURY, MULTISIGS } = getNetworkConfigConstants(NetworkIds.mainnet);
     try {
-        return res.status(200).json(
+        const archived = (
             {
                 "timestamp": 1758196772728,
                 "snapshotsStart": "2025-06-15",
@@ -764,13 +766,23 @@ export default async function handler(req, res) {
                 ]
             }
         )
+        const part2 = [{"timestamp":1741566916092,"utcDate":"2025-03-10","totalReserves":208912.189036581,"lpReserves":0,"nonLpReserves":208912.189036581},{"timestamp":1741653697661,"utcDate":"2025-03-11","totalReserves":207162.337438408,"lpReserves":0,"nonLpReserves":207162.337438408},{"timestamp":1741740076210,"utcDate":"2025-03-12","totalReserves":206793.844287723,"lpReserves":0,"nonLpReserves":206793.844287723},{"timestamp":1741826519573,"utcDate":"2025-03-13","totalReserves":501045.448443378,"lpReserves":0,"nonLpReserves":501045.448443378},{"timestamp":1741912858379,"utcDate":"2025-03-14","totalReserves":577239.689972767,"lpReserves":0,"nonLpReserves":577239.689972767},{"timestamp":1741999255217,"utcDate":"2025-03-15","totalReserves":655051.120367896,"lpReserves":0,"nonLpReserves":655051.120367896},{"timestamp":1742085917348,"utcDate":"2025-03-16","totalReserves":655051.120367896,"lpReserves":0,"nonLpReserves":655051.120367896},{"timestamp":1742172209798,"utcDate":"2025-03-17","totalReserves":653870.846395294,"lpReserves":0,"nonLpReserves":653870.846395294},{"timestamp":1742258499125,"utcDate":"2025-03-18","totalReserves":929520.314107377,"lpReserves":0,"nonLpReserves":929520.314107377},{"timestamp":1742344929323,"utcDate":"2025-03-19","totalReserves":854739.578266273,"lpReserves":0,"nonLpReserves":854739.578266273},{"timestamp":1742431277851,"utcDate":"2025-03-20","totalReserves":844989.196987734,"lpReserves":0,"nonLpReserves":844989.196987734},{"timestamp":1742517752647,"utcDate":"2025-03-21","totalReserves":839607.345389561,"lpReserves":0,"nonLpReserves":839607.345389561},{"timestamp":1742604067825,"utcDate":"2025-03-22","totalReserves":827865.091096557,"lpReserves":0,"nonLpReserves":827865.091096557},{"timestamp":1742690747455,"utcDate":"2025-03-23","totalReserves":810205.415173466,"lpReserves":0,"nonLpReserves":810205.415173466},{"timestamp":1742777046978,"utcDate":"2025-03-24","totalReserves":806887.123137714,"lpReserves":0,"nonLpReserves":806887.123137714},{"timestamp":1742863372035,"utcDate":"2025-03-25","totalReserves":823904.411885664,"lpReserves":0,"nonLpReserves":823904.411885664},{"timestamp":1742949737797,"utcDate":"2025-03-26","totalReserves":779473.058243023,"lpReserves":0,"nonLpReserves":779473.058243023},{"timestamp":1743036134560,"utcDate":"2025-03-27","totalReserves":776200.976051242,"lpReserves":0,"nonLpReserves":776200.976051242},{"timestamp":1743122539942,"utcDate":"2025-03-28","totalReserves":776200.976051242,"lpReserves":0,"nonLpReserves":776200.976051242},{"timestamp":1743208922053,"utcDate":"2025-03-29","totalReserves":778305.076306172,"lpReserves":0,"nonLpReserves":778305.076306172},{"timestamp":1743295624477,"utcDate":"2025-03-30","totalReserves":774906.565092338,"lpReserves":0,"nonLpReserves":774906.565092338},{"timestamp":1743381940701,"utcDate":"2025-03-31","totalReserves":773006.428106036,"lpReserves":0,"nonLpReserves":773006.428106036},{"timestamp":1743468611052,"utcDate":"2025-04-01","totalReserves":881707.035090782,"lpReserves":0,"nonLpReserves":881707.035090782},{"timestamp":1743554595538,"utcDate":"2025-04-02","totalReserves":905481.292172572,"lpReserves":195467.779104286,"nonLpReserves":710013.513068286},{"timestamp":1743640948926,"utcDate":"2025-04-03","totalReserves":849630.269711655,"lpReserves":196442.741142448,"nonLpReserves":653187.528569207},{"timestamp":1743727351533,"utcDate":"2025-04-04","totalReserves":777092.782498905,"lpReserves":196410.899919508,"nonLpReserves":580681.882579397},{"timestamp":1743813712137,"utcDate":"2025-04-05","totalReserves":773132.171235091,"lpReserves":196401.853959097,"nonLpReserves":576730.317275994},{"timestamp":1743900390420,"utcDate":"2025-04-06","totalReserves":772538.49510397,"lpReserves":196521.218923866,"nonLpReserves":576017.276180103},{"timestamp":1743986675637,"utcDate":"2025-04-07","totalReserves":772193.225196466,"lpReserves":196572.113399924,"nonLpReserves":575621.111796542},{"timestamp":1744072949546,"utcDate":"2025-04-08","totalReserves":751019.650009495,"lpReserves":196528.91732019,"nonLpReserves":554490.732689304},{"timestamp":1744159374832,"utcDate":"2025-04-09","totalReserves":749765.086463643,"lpReserves":196461.309663188,"nonLpReserves":553303.776800455},{"timestamp":1744245772550,"utcDate":"2025-04-10","totalReserves":747684.388271206,"lpReserves":196520.724691885,"nonLpReserves":551163.663579321},{"timestamp":1744332208865,"utcDate":"2025-04-11","totalReserves":742099.724240145,"lpReserves":196513.42460864,"nonLpReserves":545586.299631505},{"timestamp":1744637064693,"utcDate":"2025-04-14","totalReserves":736537.092789022,"lpReserves":196461.790874412,"nonLpReserves":540075.30191461},{"timestamp":1744637064693,"utcDate":"2025-04-14","totalReserves":736537.092789022,"lpReserves":196461.790874412,"nonLpReserves":540075.30191461},{"timestamp":1744850639446,"utcDate":"2025-04-17","totalReserves":547578.266734576,"lpReserves":196360.805917435,"nonLpReserves":351217.460817141},{"timestamp":1744937011844,"utcDate":"2025-04-18","totalReserves":545539.689677933,"lpReserves":196405.108860792,"nonLpReserves":349134.580817141},{"timestamp":1745023314997,"utcDate":"2025-04-19","totalReserves":541455.412228216,"lpReserves":196392.881639386,"nonLpReserves":345062.530588831},{"timestamp":1745110141057,"utcDate":"2025-04-20","totalReserves":538634.451916786,"lpReserves":196432.460140741,"nonLpReserves":342201.991776045},{"timestamp":1745196430363,"utcDate":"2025-04-21","totalReserves":535844.643839789,"lpReserves":196418.049324018,"nonLpReserves":339426.594515771},{"timestamp":1745282668700,"utcDate":"2025-04-22","totalReserves":428265.18846829,"lpReserves":196431.306281286,"nonLpReserves":231833.882187004},{"timestamp":1745369055212,"utcDate":"2025-04-23","totalReserves":479620.640413072,"lpReserves":245923.448561301,"nonLpReserves":233697.191851771},{"timestamp":1745455461752,"utcDate":"2025-04-24","totalReserves":430142.624296676,"lpReserves":196445.432444906,"nonLpReserves":233697.191851771},{"timestamp":1745541874115,"utcDate":"2025-04-25","totalReserves":414627.463256025,"lpReserves":196478.011130282,"nonLpReserves":218149.452125743},{"timestamp":1745628205775,"utcDate":"2025-04-26","totalReserves":408078.827207282,"lpReserves":196500.623939987,"nonLpReserves":211578.203267296},{"timestamp":1745714927917,"utcDate":"2025-04-27","totalReserves":407730.013534494,"lpReserves":196485.234924732,"nonLpReserves":211244.778609762},{"timestamp":1745801223662,"utcDate":"2025-04-28","totalReserves":407718.910959013,"lpReserves":196474.132349252,"nonLpReserves":211244.778609762},{"timestamp":1745887474673,"utcDate":"2025-04-29","totalReserves":525893.623906064,"lpReserves":196484.380179409,"nonLpReserves":329409.243726655},{"timestamp":1745973909853,"utcDate":"2025-04-30","totalReserves":521906.278960583,"lpReserves":196478.449973156,"nonLpReserves":325427.828987427},{"timestamp":1746060723653,"utcDate":"2025-05-01","totalReserves":469286.703695987,"lpReserves":196527.740999329,"nonLpReserves":272758.962696658},{"timestamp":1746146708424,"utcDate":"2025-05-02","totalReserves":460666.766193937,"lpReserves":196541.469905248,"nonLpReserves":264125.296288689},{"timestamp":1746233043958,"utcDate":"2025-05-03","totalReserves":439567.606828845,"lpReserves":196570.268213899,"nonLpReserves":242997.338614946},{"timestamp":1746319889288,"utcDate":"2025-05-04","totalReserves":419593.385339074,"lpReserves":196593.890801427,"nonLpReserves":222999.494537647},{"timestamp":1746406153596,"utcDate":"2025-05-05","totalReserves":396170.814695947,"lpReserves":196523.892578162,"nonLpReserves":199646.922117785},{"timestamp":1746492329336,"utcDate":"2025-05-06","totalReserves":375032.584453003,"lpReserves":196608.69543865,"nonLpReserves":178423.889014353},{"timestamp":1746578733931,"utcDate":"2025-05-07","totalReserves":369433.704057155,"lpReserves":196603.621665684,"nonLpReserves":172830.082391471},{"timestamp":1746751557653,"utcDate":"2025-05-09","totalReserves":367176.812261876,"lpReserves":196609.238612522,"nonLpReserves":170567.573649354},{"timestamp":1746837810907,"utcDate":"2025-05-10","totalReserves":359268.404761929,"lpReserves":196569.630199333,"nonLpReserves":162698.774562596},{"timestamp":1746924611468,"utcDate":"2025-05-11","totalReserves":358871.631699773,"lpReserves":196629.185904301,"nonLpReserves":162242.445795473},{"timestamp":1747010986210,"utcDate":"2025-05-12","totalReserves":348008.613897564,"lpReserves":196577.460339534,"nonLpReserves":151431.15355803},{"timestamp":1747097188157,"utcDate":"2025-05-13","totalReserves":454218.488822309,"lpReserves":196506.966128046,"nonLpReserves":257711.522694263},{"timestamp":1747183540793,"utcDate":"2025-05-14","totalReserves":327544.875074307,"lpReserves":196547.033216011,"nonLpReserves":130997.841858296},{"timestamp":1747269921448,"utcDate":"2025-05-15","totalReserves":681862.263392743,"lpReserves":398241.254113928,"nonLpReserves":283621.009278815},{"timestamp":1747356409475,"utcDate":"2025-05-16","totalReserves":681855.522814443,"lpReserves":398205.969478018,"nonLpReserves":283649.553336425},{"timestamp":1747442685995,"utcDate":"2025-05-17","totalReserves":694901.527179463,"lpReserves":412041.069518096,"nonLpReserves":282860.457661367},{"timestamp":1747529478462,"utcDate":"2025-05-18","totalReserves":681154.654648802,"lpReserves":398579.574521253,"nonLpReserves":282575.080127549},{"timestamp":1747615799681,"utcDate":"2025-05-19","totalReserves":674062.649287959,"lpReserves":398312.301153322,"nonLpReserves":275750.348134637},{"timestamp":1747702085160,"utcDate":"2025-05-20","totalReserves":695792.901064592,"lpReserves":398279.526843155,"nonLpReserves":297513.374221438},{"timestamp":1747788416808,"utcDate":"2025-05-21","totalReserves":695640.923291775,"lpReserves":398100.692331916,"nonLpReserves":297540.230959858},{"timestamp":1747874756608,"utcDate":"2025-05-22","totalReserves":683207.383432147,"lpReserves":398320.006441149,"nonLpReserves":284887.376990998},{"timestamp":1747961172562,"utcDate":"2025-05-23","totalReserves":682811.1027666,"lpReserves":398295.760386244,"nonLpReserves":284515.342380356},{"timestamp":1748134344163,"utcDate":"2025-05-25","totalReserves":667630.65337901,"lpReserves":398141.680527644,"nonLpReserves":269488.972851366},{"timestamp":1748306718346,"utcDate":"2025-05-27","totalReserves":805222.755627518,"lpReserves":397944.919839691,"nonLpReserves":407277.835787827},{"timestamp":1748393203311,"utcDate":"2025-05-28","totalReserves":779787.249866686,"lpReserves":397521.074204177,"nonLpReserves":382266.175662509},{"timestamp":1748479627016,"utcDate":"2025-05-29","totalReserves":762851.241202054,"lpReserves":397799.596897753,"nonLpReserves":365051.644304301},{"timestamp":1748565995716,"utcDate":"2025-05-30","totalReserves":752835.979058711,"lpReserves":397452.69490485,"nonLpReserves":355383.28415386},{"timestamp":1748652298216,"utcDate":"2025-05-31","totalReserves":683268.308871601,"lpReserves":397461.746385193,"nonLpReserves":285806.562486408},{"timestamp":1748739520352,"utcDate":"2025-06-01","totalReserves":681902.650720319,"lpReserves":397562.46325311,"nonLpReserves":284340.187467209},{"timestamp":1748825441379,"utcDate":"2025-06-02","totalReserves":678815.876940603,"lpReserves":397708.92755265,"nonLpReserves":281106.949387953},{"timestamp":1748911701558,"utcDate":"2025-06-03","totalReserves":713410.402716284,"lpReserves":397683.877989825,"nonLpReserves":315726.524726459},{"timestamp":1748998089634,"utcDate":"2025-06-04","totalReserves":707020.771724262,"lpReserves":397766.631853645,"nonLpReserves":309254.139870617},{"timestamp":1749084421524,"utcDate":"2025-06-05","totalReserves":706628.815228484,"lpReserves":397847.230247191,"nonLpReserves":308781.584981293},{"timestamp":1749170806892,"utcDate":"2025-06-06","totalReserves":698803.030143279,"lpReserves":397812.701008181,"nonLpReserves":300990.329135098},{"timestamp":1749257195576,"utcDate":"2025-06-07","totalReserves":698878.104964234,"lpReserves":397858.713634599,"nonLpReserves":301019.391329634},{"timestamp":1749344019831,"utcDate":"2025-06-08","totalReserves":698984.324130408,"lpReserves":397935.69868642,"nonLpReserves":301048.625443988},{"timestamp":1749430303403,"utcDate":"2025-06-09","totalReserves":695451.051253526,"lpReserves":397904.790893092,"nonLpReserves":297546.260360434},{"timestamp":1749516450290,"utcDate":"2025-06-10","totalReserves":776166.177643033,"lpReserves":397849.950176313,"nonLpReserves":378316.227466719},{"timestamp":1749602891223,"utcDate":"2025-06-11","totalReserves":698948.722161723,"lpReserves":397744.454794476,"nonLpReserves":301204.267367246},{"timestamp":1749689266727,"utcDate":"2025-06-12","totalReserves":876613.613621132,"lpReserves":397941.554953637,"nonLpReserves":478672.058667495},{"timestamp":1749775664259,"utcDate":"2025-06-13","totalReserves":872836.152272691,"lpReserves":397493.578778228,"nonLpReserves":475342.573494463}]
+        return res.status(200).json({
+            "timestamp": 1758196772728,
+            "snapshotsStart": "2025-06-15",
+            "snapshotsEnd": "2025-09-18",
+            "totalEvolution": [
+                ...part2,
+                ...archived.totalEvolution,
+            ]
+        });
         const cacheDuration = 180;
         res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
-        const { data: cachedData, isValid } = await getCacheFromRedisAsObj(stableReservesCacheKey, cacheFirst !== 'true', cacheDuration);
-        if (isValid && cachedData) {
-            res.status(200).json(cachedData);
-            return
-        }
+        // const { data: cachedData, isValid } = await getCacheFromRedisAsObj(stableReservesCacheKey, cacheFirst !== 'true', cacheDuration);
+        // if (isValid && cachedData) {
+        //     res.status(200).json(cachedData);
+        //     return
+        // }
 
         const twgs = MULTISIGS
             .filter(m => m.shortName.includes('TWG'))
@@ -781,7 +793,7 @@ export default async function handler(req, res) {
         const lpData = await lpRes.json();
 
         const lpHistory = lpData.entries.map((d, i) => {
-            const nonFedLps = d.liquidity.filter(lp => !lp.isFed);
+            const nonFedLps = d.liquidity.filter(lp => lp.isStable && !lp.isFed);
             const ownedStableLpsTvl = nonFedLps.reduce((prev, curr) => prev + curr.ownedAmount, 0);
             const byChainId = nonFedLps.reduce((prev, curr) => ({ ...prev, [curr.chainId]: (prev[curr.chainId] || 0) + curr.ownedAmount }), {});
             return {
@@ -790,21 +802,30 @@ export default async function handler(req, res) {
                 ownedStableLpsTvl,
                 byChainId,
             }
-        }).slice(-90);
+        })
+            .filter(d => d.utcDate < archived.snapshotsStart)
+            .slice(-90);
 
         const snapshotsStart = lpHistory[0].utcDate;
         const snapshotsEnd = lpHistory[lpHistory.length - 1].utcDate;
+
+        console.log(snapshotsStart, snapshotsEnd);
 
         const { data: archivedTimeData } = await getCacheFromRedisAsObj(DAILY_UTC_CACHE_KEY, false) || { data: ARCHIVED_UTC_DATES_BLOCKS };
 
         const arbMultisigs = MULTISIGS.filter(m => m.chainId === NetworkIds.arbitrum).map(m => m.address);
 
+        const chainIds = [
+            NetworkIds.mainnet,
+             NetworkIds.base, NetworkIds.optimism, NetworkIds.polygon, NetworkIds.arbitrum
+            ];
+
         const chainStableBalancesResults = await Promise.all([
-            getChainStableBalances(archivedTimeData, NetworkIds.mainnet, snapshotsStart, TREASURY, twgs[NetworkIds.mainnet]),
-            getChainStableBalances(archivedTimeData, NetworkIds.base, snapshotsStart, twgs[NetworkIds.base]),
-            getChainStableBalances(archivedTimeData, NetworkIds.optimism, snapshotsStart, twgs[NetworkIds.optimism]),
-            getChainStableBalances(archivedTimeData, NetworkIds.polygon, snapshotsStart, twgs[NetworkIds.polygon]),
-            getChainStableBalances(archivedTimeData, NetworkIds.arbitrum, snapshotsStart, arbMultisigs[0], arbMultisigs[1]),
+            getChainStableBalances(archivedTimeData, NetworkIds.mainnet, snapshotsStart, snapshotsEnd, TREASURY, twgs[NetworkIds.mainnet]),
+            getChainStableBalances(archivedTimeData, NetworkIds.base, snapshotsStart, snapshotsEnd, twgs[NetworkIds.base]),
+            getChainStableBalances(archivedTimeData, NetworkIds.optimism, snapshotsStart, snapshotsEnd, twgs[NetworkIds.optimism]),
+            getChainStableBalances(archivedTimeData, NetworkIds.polygon, snapshotsStart, snapshotsEnd, twgs[NetworkIds.polygon]),
+            getChainStableBalances(archivedTimeData, NetworkIds.arbitrum, snapshotsStart, snapshotsEnd, arbMultisigs[0], arbMultisigs[1]),
         ]);
 
         const flatChainStableBalancesResults = chainStableBalancesResults.flat();
@@ -816,12 +837,15 @@ export default async function handler(req, res) {
             totalEvolution: lpHistory.map((d, i) => {
                 const dayChainStableBalances = flatChainStableBalancesResults.filter(sb => sb.utcDate === d.utcDate);
                 const nonLpReserves = dayChainStableBalances.reduce((prev, curr) => prev + curr.sum, 0);
+                const stablesByChainId = chainStableBalancesResults.reduce((prev, curr, chainIdIndex) => ({ ...prev, [chainIds[chainIdIndex]]: curr }), {});
                 return {
                     timestamp: d.timestamp,
                     utcDate: d.utcDate,
                     totalReserves: d.ownedStableLpsTvl + nonLpReserves,
                     lpReserves: d.ownedStableLpsTvl,
                     nonLpReserves,
+                    stablesByChainId,
+                    lpsByChainId: d.byChainId,
                 }
             }),
         }
