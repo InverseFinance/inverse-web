@@ -145,13 +145,13 @@ export default async function handler(req, res) {
 
         const lpHistory = lpData.entries.map((d, i) => {
             const nonFedLps = d.liquidity.filter(lp => lp.isStable && !lp.isFed);
-            const ownedStableLpsTvl = nonFedLps.reduce((prev, curr) => prev + curr.ownedAmount, 0);
-            const byChainId = nonFedLps.reduce((prev, curr) => ({ ...prev, [curr.chainId]: (prev[curr.chainId] || 0) + curr.ownedAmount }), {});
+            const ownedStableLpsTvl = nonFedLps.reduce((prev, curr) => prev + (curr.owned?.twg || 0) + (curr.owned?.treasuryContract || 0), 0);
+            // const byChainId = nonFedLps.reduce((prev, curr) => ({ ...prev, [curr.chainId]: (prev[curr.chainId] || 0) + curr.ownedAmount }), {});
             return {
                 timestamp: d.timestamp,
                 utcDate: timestampToUTC(d.timestamp),
                 ownedStableLpsTvl,
-                byChainId,
+                // byChainId,
             }
         })
             .filter(d => d.utcDate > cachedData?.snapshotsEnd)
