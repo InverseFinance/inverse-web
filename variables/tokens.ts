@@ -167,6 +167,7 @@ const chainTokenAddresses = {
     reUSD: '0x57aB1E0003F623289CD798B1824Be09a793e4Bec',
     YUSD: '0x1CE7D9942ff78c328A4181b9F3826fEE6D845A97',
     YUSDSDOLACLP: '0x9353976A6B6E7A9e1E9B1F2aaaBA629aD310947f',
+    MORPHOYEARNUSDCVAULT: '0xdC2Dd5189F70Fe2832D9caf7b17d27AA3D79dbE1',
     // PAL: '0xAB846Fb6C81370327e784Ae7CbB6d6a6af6Ff4BF',
   },
   "250": {
@@ -345,6 +346,7 @@ const DOLA = {
   coingeckoId: 'dola-usd',
   image: TOKEN_IMAGES.DOLA,
   decimals: 18,
+  isStable: true,
 }
 
 const USDC = {
@@ -353,6 +355,7 @@ const USDC = {
   coingeckoId: 'usd-coin',
   image: TOKEN_IMAGES.USDC,
   decimals: 6,
+  isStable: true,
 }
 
 const FRAX = {
@@ -361,6 +364,7 @@ const FRAX = {
   coingeckoId: 'frax',
   image: TOKEN_IMAGES.FRAX,      
   decimals: 18,
+  isStable: true,
 }
 
 const MAI = {
@@ -369,6 +373,7 @@ const MAI = {
   image: TOKEN_IMAGES['MAI'],
   decimals: 18,
   coingeckoId: 'mimatic',
+  isStable: true,
 }
 
 const chainTokens = {
@@ -385,6 +390,7 @@ const chainTokens = {
       address: chainTokenAddresses["1"].SDOLA,
       symbol: 'sDOLA',
       name: 'sDOLA',
+      isERC4626: true,
     },
     [chainTokenAddresses["1"].SINV]: {
       decimals: 18,
@@ -393,6 +399,7 @@ const chainTokens = {
       address: chainTokenAddresses["1"].SINV,
       symbol: 'sINV',
       name: 'sINV',
+      isERC4626: true,
     },
     [chainTokenAddresses["1"].PYUSD]: {
       decimals: 6,
@@ -400,6 +407,7 @@ const chainTokens = {
       address: chainTokenAddresses["1"].PYUSD,
       symbol: 'PYUSD',
       name: 'PayPal USD',
+      isStable: true,
     },
     [chainTokenAddresses["1"].DAI]: {
       address: chainTokenAddresses["1"].DAI,
@@ -462,6 +470,7 @@ const chainTokens = {
       coingeckoId: 'tether',
       image: TOKEN_IMAGES.USDT,
       decimals: 6,
+      isStable: true,
     },
     [chainTokenAddresses["1"].USDC]: {
       ...USDC,
@@ -525,6 +534,7 @@ const chainTokens = {
       coingeckoId: 'f-x-protocol-fxusd',
       image: TOKEN_IMAGES.FXUSD,
       decimals: 18,      
+      isStable: true,
     },
     [chainTokenAddresses["1"].WSTETH]: {
       address: chainTokenAddresses["1"].WSTETH,
@@ -591,6 +601,7 @@ const chainTokens = {
       image: TOKEN_IMAGES['ALUSD'],
       decimals: 18,
       coingeckoId: 'alchemix-usd',
+      isStable: true,
     },
     [chainTokenAddresses["1"].SDOLAALUSDCLP]: {
       address: chainTokenAddresses["1"].SDOLAALUSDCLP,
@@ -699,6 +710,7 @@ const chainTokens = {
       coingeckoId: 'revenue-generating-usd',
       image: TOKEN_IMAGES.RGUSD,
       decimals: 18,   
+      isStable: true,
     },
     [chainTokenAddresses["1"].DOLARGUSDCRVLP]: {
       address: chainTokenAddresses["1"].DOLARGUSDCRVLP,
@@ -760,6 +772,16 @@ const chainTokens = {
       ],
       image: TOKEN_IMAGES.DOLA,
       link: 'https://curve.finance/dex/#/ethereum/pools/factory-stable-ng-361/deposit',
+    },
+    [chainTokenAddresses["1"].MORPHOYEARNUSDCVAULT]: {
+      address: chainTokenAddresses["1"].MORPHOYEARNUSDCVAULT,
+      name: 'yDG-USDC',
+      symbol: 'yDG-USDC', 
+      protocolImage: PROTOCOL_IMAGES.MORPHO,
+      decimals: 18,
+      isStable: true,
+      image: TOKEN_IMAGES.USDC,
+      link: 'https://app.morpho.org/ethereum/vault/0xdC2Dd5189F70Fe2832D9caf7b17d27AA3D79dbE1/yearn-degen-usdc',
     },
     [chainTokenAddresses["1"].DOLAdeUSDCRVLP]: {
       address: chainTokenAddresses["1"].DOLAdeUSDCRVLP,
@@ -1147,6 +1169,7 @@ const chainTokens = {
       coingeckoId: 'prisma-mkusd',
       image: TOKEN_IMAGES.MKUSD,
       decimals: 18,
+      isStable: true,
     },
     [chainTokenAddresses["1"].THREECRV]: {
       address: chainTokenAddresses["1"].THREECRV,
@@ -1173,6 +1196,7 @@ const chainTokens = {
       image: TOKEN_IMAGES.FRAX,
       protocolImage: TOKEN_IMAGES.PYUSD,
       decimals: 18,
+      isStable: true,
     },
     [chainTokenAddresses["1"].FRAX]: {
       address: chainTokenAddresses["1"].FRAX,
@@ -1185,6 +1209,7 @@ const chainTokens = {
       coingeckoId: 'frax-usd',
       image: TOKEN_IMAGES.frxUSD,
       decimals: 18,
+      isStable: true,
     },
     [chainTokenAddresses["1"].FLOKI]: {
       address: chainTokenAddresses["1"].FLOKI,
@@ -1211,6 +1236,7 @@ const chainTokens = {
       coingeckoId: 'magic-internet-money',
       image: TOKEN_IMAGES.MIM,
       decimals: 18,
+      isStable: true,
     },
     [chainTokenAddresses["1"].YVCRVCVXETH]: {
       address: chainTokenAddresses["1"].YVCRVCVXETH,
@@ -1361,6 +1387,7 @@ const chainTokens = {
       coingeckoId: 'coin98-dollar',
       image: TOKEN_IMAGES.CUSD,
       decimals: 18,
+      isStable: true,
     },
     [chainTokenAddresses["1"].DOLACUSDBLP]: {
       address: chainTokenAddresses["1"].DOLACUSDBLP,
@@ -1625,6 +1652,7 @@ const chainTokens = {
       coingeckoId: 'crvusd',
       image: TOKEN_IMAGES.CRVUSD,
       decimals: 18,
+      isStable: true,
     },
     [chainTokenAddresses["1"].SCRVUSD]: {
       address: chainTokenAddresses["1"].SCRVUSD,
@@ -1633,6 +1661,7 @@ const chainTokens = {
       coingeckoId: 'savings-crvusd',
       image: TOKEN_IMAGES.scrvUSD,
       decimals: 18,
+      isStable: true,
     },
     [chainTokenAddresses["1"].USDS]: {
       address: chainTokenAddresses["1"].USDS,
@@ -1641,6 +1670,7 @@ const chainTokens = {
       coingeckoId: 'usds',
       image: TOKEN_IMAGES.USDS,
       decimals: 18,
+      isStable: true,
     },
     [chainTokenAddresses["1"].SUSDS]: {
       address: chainTokenAddresses["1"].SUSDS,
@@ -1649,6 +1679,7 @@ const chainTokens = {
       // coingeckoId: '?',
       image: TOKEN_IMAGES.sUSDS,
       decimals: 18,
+      isStable: true,
     },
     [chainTokenAddresses["1"].STYCRV]: {
       address: chainTokenAddresses["1"].STYCRV,
