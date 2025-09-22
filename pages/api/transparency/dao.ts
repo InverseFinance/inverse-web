@@ -6,7 +6,7 @@ import { getProvider } from '@app/util/providers';
 import { getCacheFromRedis, redisSetWithTimestamp } from '@app/util/redis'
 import { Fed, Multisig, NetworkIds, Token } from '@app/types';
 import { getBnToNumber, getNumberToBn } from '@app/util/markets'
-import { CHAIN_TOKENS, CHAIN_TOKEN_ADDRESSES } from '@app/variables/tokens';
+import { CHAIN_TOKENS, CHAIN_TOKEN_ADDRESSES, getToken } from '@app/variables/tokens';
 import { isAddress } from 'ethers/lib/utils';
 import { DOLA_BRIDGED_CHAINS, INV_BRIDGED_CHAINS, ONE_DAY_SECS } from '@app/config/constants';
 import { liquidityCacheKey } from './liquidity';
@@ -39,7 +39,7 @@ export default async function handler(req, res) {
   const { cacheFirst } = req.query;
 
   const { DOLA, INV, ANCHOR_TOKENS, UNDERLYING, FEDS, TREASURY, MULTISIGS, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `dao-cache-v1.4.3`;
+  const cacheKey = `dao-cache-v1.4.4`;
 
   try {
     const cacheDuration = 360;
@@ -111,7 +111,8 @@ export default async function handler(req, res) {
 
     const mainnetTokens = CHAIN_TOKEN_ADDRESSES["1"];
     const treasuryFundsToCheck = [
-      mainnetTokens.INV, mainnetTokens.DOLA, mainnetTokens.SDOLA, mainnetTokens.DAI, mainnetTokens.USDC, mainnetTokens.USDT, mainnetTokens.WETH, mainnetTokens.WBTC, mainnetTokens.INVETHLP, mainnetTokens.INVETHSLP, mainnetTokens.CRV, mainnetTokens.CVX, mainnetTokens.BAL, mainnetTokens.AURA, mainnetTokens.DBR, mainnetTokens.YFI, mainnetTokens.FRAX
+      mainnetTokens.INV, mainnetTokens.WETH, mainnetTokens.WBTC, mainnetTokens.INVETHLP, mainnetTokens.INVETHSLP, mainnetTokens.CRV, mainnetTokens.CVX, mainnetTokens.BAL, mainnetTokens.AURA, mainnetTokens.DBR, mainnetTokens.YFI,
+      ...Object.values(mainnetTokens).map(ad => getToken(TOKENS, ad)?.address).filter(ad => ad)
     ];
     const [treasuryBalances, anchorReserves] = await getGroupedMulticallOutputs([
       treasuryFundsToCheck.map((ad: string) => {

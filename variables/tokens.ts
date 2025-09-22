@@ -162,12 +162,14 @@ const chainTokenAddresses = {
     YVDOLAUSRCRVLP: '0x57a2c7925bAA1894a939f9f6721Ea33F2EcFD0e2',
     DOLAdeUSDCRVLP: '0x6691DBb44154A9f23f8357C56FC9ff5548A8bdc4',
     YVDOLAdeUSDCRVLP: '0xc7C1B907BCD3194C0D9bFA2125251af98BdDAfbb',
+    YVDOLAreUSDCRVLP: '0x7c439Df9ADE8831180EA4D546c1E910D4Ba71a86',
     DOLASdeUSDCRVLP: '0x82202CAEC5E6d85014eADC68D4912F3C90093e7C',
     sDOLAreUSDCRVLP: '0x48d670D189B4b48757992D36897bCa6E3f889040',
     reUSD: '0x57aB1E0003F623289CD798B1824Be09a793e4Bec',
     YUSD: '0x1CE7D9942ff78c328A4181b9F3826fEE6D845A97',
     YUSDSDOLACLP: '0x9353976A6B6E7A9e1E9B1F2aaaBA629aD310947f',
     MORPHOYEARNUSDCVAULT: '0xdC2Dd5189F70Fe2832D9caf7b17d27AA3D79dbE1',
+    yvUSDS: '0x0868076663Bbc6638ceDd27704cc8F0Fa53d5b81',
     // PAL: '0xAB846Fb6C81370327e784Ae7CbB6d6a6af6Ff4BF',
   },
   "250": {
@@ -470,6 +472,15 @@ const chainTokens = {
       coingeckoId: 'tether',
       image: TOKEN_IMAGES.USDT,
       decimals: 6,
+      isStable: true,
+    },
+    [chainTokenAddresses["1"].yvUSDS]: {
+      address: chainTokenAddresses["1"].yvUSDS,
+      name: 'yvUSDS',
+      symbol: 'yvUSDS',
+      image: TOKEN_IMAGES.USDS,
+      protocolImage: PROTOCOL_IMAGES.YEARN,
+      decimals: 18,
       isStable: true,
     },
     [chainTokenAddresses["1"].USDC]: {
@@ -813,6 +824,22 @@ const chainTokens = {
       ],
       image: TOKEN_IMAGES.DOLA,
       link: 'https://yearn.fi/vaults/1/0xc7C1B907BCD3194C0D9bFA2125251af98BdDAfbb',
+    },
+    [chainTokenAddresses["1"].YVDOLAreUSDCRVLP]: {
+      address: chainTokenAddresses["1"].YVDOLAreUSDCRVLP,
+      name: 'yv-sDOLA-reUSD',
+      symbol: 'yv-sDOLA-reUSD',
+      protocolImage: PROTOCOL_IMAGES.YFI,
+      rootCrvPool: chainTokenAddresses["1"].sDOLAreUSDCRVLP,
+      decimals: 18,
+      isStable: true,
+      isLP: true,
+      isYearnV2LP: true,
+      pairs: [
+        chainTokenAddresses["1"].reUSD, chainTokenAddresses["1"].SDOLA
+      ],
+      image: TOKEN_IMAGES.DOLA,
+      link: 'https://yearn.fi/vaults/1/0x7c439df9ade8831180ea4d546c1e910d4ba71a86',
     },
     [chainTokenAddresses["1"].sDOLAreUSDCRVLP]: {
       address: chainTokenAddresses["1"].sDOLAreUSDCRVLP,
