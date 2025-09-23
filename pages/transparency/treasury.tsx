@@ -63,12 +63,12 @@ export const Overview = () => {
 
   // stable reserves
   const treasuryStables = treasury?.filter(f => (f.token.isStable) || (['DOLA', 'USDC', 'USDT', 'sDOLA', 'DAI', 'USDS'].includes(f.token.symbol))).map(f => {
-    return { label: `${f.token.symbol} (Treasury)`, balance: f.balance, onlyUsdValue: true, usdPrice: (f.price || prices[f.token.symbol]?.usd || prices[f.token.coingeckoId]?.usd || 1) }
+    return { ...f, label: `${f.token.symbol} (Treasury)`, balance: f.balance, onlyUsdValue: true, usdPrice: (f.price || prices[f.token.symbol]?.usd || prices[f.token.coingeckoId]?.usd || 1) }
   }) || [];
 
   const twgStables = TWGmultisigs.map(m => {
     return m.funds.filter(f => (f.token.isStable) || (['DOLA', 'USDC', 'USDT', 'sDOLA', 'DAI', 'USDS', 'sinvUSD'].includes(f.token.symbol))).map(f => {
-      return { label: `${f.token.symbol.replace(/ [a-z]*lp$/ig, '')} (${m.shortName})`, balance: f.balance, onlyUsdValue: true, usdPrice: (f.price || prices[f.token.symbol]?.usd || prices[f.token.coingeckoId]?.usd || 1) }
+      return { ...f, label: `${f.token.symbol.replace(/ [a-z]*lp$/ig, '')} (${m.shortName})`, balance: f.balance, onlyUsdValue: true, usdPrice: (f.price || prices[f.token.symbol]?.usd || prices[f.token.coingeckoId]?.usd || 1) }
     });
   }).flat();
 
@@ -78,9 +78,15 @@ export const Overview = () => {
   //   return { label: `${m.lpName} (${twg?.shortName || 'TWG'})`, balance: m.owned?.twg||0, onlyUsdValue: true, usdPrice: 1 }
   // });
 
+  const dolaFrontierReserves = anchorReserves.filter(f => f.token.symbol === 'DOLA')
+    .map(f => {
+      return { ...f, label: 'DOLA (Frontier Reserves)', balance: f.balance, onlyUsdValue: true, usdPrice: 1 }
+    });
+
   const stableReserves = [
     ...treasuryStables, 
     ...twgStables,
+    ...dolaFrontierReserves,
     // , ...twgStableLps
   ];
   const totalCurrentStableReserves = stableReserves.reduce((prev, curr) => prev + curr.balance * curr.usdPrice, 0);
