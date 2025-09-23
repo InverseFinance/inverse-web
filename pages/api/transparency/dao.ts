@@ -347,7 +347,7 @@ export default async function handler(req, res) {
         balances: []//bondManagerBalances.map((bn, i) => formatBn(bn, TOKENS[bondTokens[i]])),
       },
       anchorReserves: anchorReserves.map((bn, i) => formatBn(bn, UNDERLYING[ANCHOR_TOKENS[i]])).filter(d => d.balance > 0),
-      treasury: treasuryBalances.map((bn, i) => formatBn(bn, TOKENS[treasuryFundsToCheck[i]])).filter(d => d.balance > 0),
+      treasury: treasuryBalances.filter(d => d.balance > 0),
       dolaSupplies,
       invSupplies,
       multisigs: multisigData,
