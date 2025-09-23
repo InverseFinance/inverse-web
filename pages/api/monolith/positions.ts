@@ -13,7 +13,7 @@ export const LENDER_ABI = [{"inputs":[{"internalType":"contract ERC20","name":"_
 const LENS_ABI = [{"type":"function","name":"getCollateralOf","inputs":[{"name":"_lender","type":"address","internalType":"contract Lender"},{"name":"_borrower","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"}];
 
 const LENSES = {
-  1: "0x5336183353cA175Cc1ED3E067c8F057683bf21a9",
+  1: "0x941A224090dC7890BCbC89aDfD045D45E95E7Fb7",
   11155111: "0x542f65d73263F129D6313D7e6060885465b6e91b",
 }
 
