@@ -30,7 +30,7 @@ export const useStableReserves = (): SWR & { stableReservesEvolution: any[] } =>
 }
 
 export const useDAO = (): SWR & DAO => {
-  const { data, error } = useCacheFirstSWR(`/api/transparency/dao?v=4`, fetcher)
+  const { data, error } = useCacheFirstSWR(`/api/transparency/dao?v=7`, fetcher)
 
   return {
     dolaTotalSupply: data?.dolaTotalSupply || 0,
