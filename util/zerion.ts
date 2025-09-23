@@ -111,7 +111,7 @@ export const formatZerionWalletResponse = async (response) => {
             };
         });
     return uniqueBy(
-        [...walletPositions, ...nonWalletPositions],
+        [...nonWalletPositions, ...walletPositions],
         (a, b) => a.chainCodeName === b.chainCodeName && (a.token.address === b.token.address || (a.token.symbol === b.token.symbol && a.protocolImage === b.protocolImage)),
     );
 }
