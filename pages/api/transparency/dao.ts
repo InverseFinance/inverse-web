@@ -248,9 +248,11 @@ export default async function handler(req, res) {
       await redisSetWithTimestamp(cacheMulAllKey, multisigsAllowanceValues);
     }
 
+    const mainnet = getNetwork(NetworkIds.mainnet);
+
     const [treasuryBalances, ...multisigsFunds] = await Promise.all(
       [
-        fetchZerionWithRetry(TREASURY, NetworkIds.mainnet),
+        fetchZerionWithRetry(TREASURY, mainnet.zerionId || mainnet.codename),
         multisigsToShow.map(multisig => {
           const net = getNetwork(multisig.chainId);
           return fetchZerionWithRetry(multisig.address, net.zerionId || net.codename)
