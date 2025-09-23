@@ -67,8 +67,8 @@ export const Overview = () => {
   }) || [];
 
   const twgStables = TWGmultisigs.map(m => {
-    return m.funds.filter(f => (f.token.isStable) || (['DOLA', 'USDC', 'USDT', 'sDOLA', 'DAI', 'USDS'].includes(f.token.symbol))).map(f => {
-      return { label: `${f.token.symbol} (${m.shortName})`, balance: f.balance, onlyUsdValue: true, usdPrice: (f.price || prices[f.token.symbol]?.usd || prices[f.token.coingeckoId]?.usd || 1) }
+    return m.funds.filter(f => (f.token.isStable) || (['DOLA', 'USDC', 'USDT', 'sDOLA', 'DAI', 'USDS', 'sinvUSD'].includes(f.token.symbol))).map(f => {
+      return { label: `${f.token.symbol.replace(/ [a-z]*lp$/ig, '')} (${m.shortName})`, balance: f.balance, onlyUsdValue: true, usdPrice: (f.price || prices[f.token.symbol]?.usd || prices[f.token.coingeckoId]?.usd || 1) }
     });
   }).flat();
 
@@ -78,7 +78,9 @@ export const Overview = () => {
   //   return { label: `${m.lpName} (${twg?.shortName || 'TWG'})`, balance: m.owned?.twg||0, onlyUsdValue: true, usdPrice: 1 }
   // });
 
-  const stableReserves = [...treasuryStables, ...twgStables
+  const stableReserves = [
+    ...treasuryStables, 
+    ...twgStables,
     // , ...twgStableLps
   ];
   const totalCurrentStableReserves = stableReserves.reduce((prev, curr) => prev + curr.balance * curr.usdPrice, 0);
@@ -184,7 +186,7 @@ export const Overview = () => {
               <DashBoardCard cardTitle="Total Stable Reserves" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
                 <VStack zIndex="2" top={{ base: '65px', sm: '70px' }} position="absolute" w='fit-content' display='flex' alignItems='center'>
                   <Text mb='0' fontWeight='normal' fontSize='14px' color='secondaryTextColor'>
-                    Current runway: {runwayInMonths ? `${runwayInMonths.toFixed(2)} months` : '-'}
+                    Current runway: {runwayInMonths ? `${runwayInMonths.toFixed(2)} months` : ''}
                   </Text>
                 </VStack>
                 <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={stableReserves} prices={prices} type='balance' useRecharts={true} />
