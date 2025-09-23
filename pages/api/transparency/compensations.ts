@@ -8,11 +8,13 @@ import { NetworkIds, Vester } from '@app/types';
 import { getBnToNumber } from '@app/util/markets'
 import { BURN_ADDRESS } from '@app/config/constants';
 import { FounderAddresses } from '@app/pages/transparency/dao';
+import { timestampToUTC, utcDateStringToTimestamp } from '@app/util/misc';
+import { addBlockTimestamps } from '@app/util/timestamps';
 
 export default async function handler(req, res) {
 
   const { INV, F2_MARKETS, XINV, DOLA_PAYROLL, XINV_VESTOR_FACTORY } = getNetworkConfigConstants(NetworkIds.mainnet);
-  const cacheKey = `compensations-cache-v1.2.3`;
+  const cacheKey = `compensations-cache-v1.2.4`;
   const { cacheFirst } = req.query;
   try {
     const cacheDuration = 6000;
@@ -25,6 +27,7 @@ export default async function handler(req, res) {
 
     const provider = getProvider(NetworkIds.mainnet);
     const paidProvider = getPaidProvider(1);
+
     const invContract = new Contract(INV, INV_ABI, provider);
     const xinvContract = new Contract(XINV, XINV_ABI, provider);
     const invFirmContract = new Contract(F2_MARKETS.find(m => m.isInv).address, F2_MARKET_ABI, provider);
@@ -48,6 +51,40 @@ export default async function handler(req, res) {
           { recipient: curr.args[0], amount: getBnToNumber(curr.args[1]) } : undefined
       }
     }, {})).filter(v => !!v);
+
+    let payrollCheckpoints = {};
+
+    const timestamps = await addBlockTimestamps(payrollEvents.map(e => e.blockNumber), NetworkIds.mainnet);        
+
+    const payrollTotalEvolution = payrollEvents.map(e => {
+      if(!payrollCheckpoints[e.args[0]]) {
+        payrollCheckpoints[e.args[0]] = 0;
+      }
+      if(e.event === 'NewRecipient') {
+        payrollCheckpoints[e.args[0]] += getBnToNumber(e.args[1]);
+      } else {
+        payrollCheckpoints[e.args[0]] = 0;
+      }
+      const total = Object.values(payrollCheckpoints).reduce((prev, curr) => prev + curr, 0);
+      return {
+        blockNumber: e.blockNumber,
+        timestamp: timestamps[NetworkIds.mainnet][e.blockNumber],
+        utcDate: timestampToUTC(timestamps[NetworkIds.mainnet][e.blockNumber] * 1000),
+        total,
+        nbRecipients: Object.values(payrollCheckpoints).filter(v => v > 0).length,
+      }
+    });
+
+    const distinctDays = [...new Set(payrollTotalEvolution.map(e => e.utcDate))];
+    const payrollTotalEvolutionByDay = distinctDays.map(day => {
+      const dayData = payrollTotalEvolution.findLast(e => e.utcDate === day);
+      return {
+        timestamp: utcDateStringToTimestamp(day),
+        utcDate: day,
+        total: dayData.total!,
+        nbRecipients: dayData.nbRecipients!,
+      }
+    });
 
     const unclaimeds = await Promise.all(currentPayrolls.map(p => {
       return payrollContract.balanceOf(p.recipient);
@@ -150,6 +187,7 @@ export default async function handler(req, res) {
       currentPayrolls,
       currentVesters,
       currentInvBalances,
+      payrollTotalEvolutionByDay,
     }
 
     await redisSetWithTimestamp(cacheKey, resultData);
