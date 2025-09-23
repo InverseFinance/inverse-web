@@ -45,14 +45,17 @@ export default async function handler(req, res) {
     const cacheDuration = 360;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
-    if (validCache) {
-      res.status(200).json(validCache);
-      return
-    }
+    // if (validCache) {
+    //   res.status(200).json(validCache);
+    //   return
+    // }
 
     const provider = getProvider(NetworkIds.mainnet);
     const dolaContract = new Contract(DOLA, DOLA_ABI, provider);
     const invContract = new Contract(INV, INV_ABI, provider);
+
+    const mainnet = getNetwork(NetworkIds.mainnet);
+    const multisigsToShow = MULTISIGS;
 
     let dolaBridgedSupplies = [];
     let invBridgedSupplies = [];
@@ -120,8 +123,6 @@ export default async function handler(req, res) {
         return { contract, functionName: 'totalReserves', params: [], forceFallback: !ANCHOR_RESERVES_TO_CHECK.includes(ad), fallbackValue: BigNumber.from('0') };
       })
     ]);
-
-    const multisigsToShow = MULTISIGS;
 
     // Multisigs
     const multisigMetaCache = await getCacheFromRedis(cacheMultisigMetaKey, true, ONE_DAY_SECS);
@@ -248,15 +249,15 @@ export default async function handler(req, res) {
       await redisSetWithTimestamp(cacheMulAllKey, multisigsAllowanceValues);
     }
 
-    const mainnet = getNetwork(NetworkIds.mainnet);
-
-    const [treasuryBalances, ...multisigsFunds] = await Promise.all(
+    const [treasuryBalances, multisigsFunds] = await Promise.all(
       [
         fetchZerionWithRetry(TREASURY, mainnet.zerionId || mainnet.codename),
-        multisigsToShow.map(multisig => {
-          const net = getNetwork(multisig.chainId);
-          return fetchZerionWithRetry(multisig.address, net.zerionId || net.codename)
-        }),
+        Promise.all(
+          multisigsToShow.map(multisig => {
+            const net = getNetwork(multisig.chainId);
+            return fetchZerionWithRetry(multisig.address, net.zerionId || net.codename)
+          })
+        ),
       ]
     );
 
