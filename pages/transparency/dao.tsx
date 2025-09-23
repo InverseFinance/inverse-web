@@ -26,6 +26,8 @@ import { preciseCommify } from '@app/util/misc'
 import { MultisigsDiagram } from '@app/components/Transparency/MultisigsDiagram'
 import Container from '@app/components/common/Container'
 import { InvChart } from '@app/components/Transparency/InvChart'
+import { DefaultCharts } from '@app/components/Transparency/DefaultCharts'
+import { useEffect, useState } from 'react'
 
 const hasPayrollOrVester = (
     payrolls: Payroll[],
@@ -51,8 +53,10 @@ export const TempleDaoAddresses = ['0xb1BD5762fAf7D6F86f965a3fF324BD81bB746d00',
 
 const { INV, XINV, TOKENS } = getNetworkConfigConstants(NetworkIds.mainnet);
 
+const maxChartWidth = 1350;
+
 export const GovTransparency = () => {
-    const { currentPayrolls, currentVesters, currentInvBalances, isLoading } = useCompensations();
+    const { currentPayrolls, currentVesters, currentInvBalances, payrollEvolution, isLoading } = useCompensations();
     const { prices } = usePricesV2();
     const { delegates } = useTopDelegates();
     const { proposals } = useProposals();
@@ -65,6 +69,13 @@ export const GovTransparency = () => {
         "(min-width: 450px)",
         "(min-width: 96em)",
     ]);
+
+    const [autoChartWidth, setAutoChartWidth] = useState<number>(maxChartWidth);
+    const [isLargerThanMaxChartWidth] = useMediaQuery(`(min-width: ${maxChartWidth}px)`);
+
+    useEffect(() => {
+        setAutoChartWidth(isLargerThanMaxChartWidth ? maxChartWidth : (window.innerWidth))
+    }, [isLargerThanMaxChartWidth]);
 
     // Frontier staking (includes staked via FiRM)
     const invFrontierMarket = markets?.find(market => market.token === XINV);
@@ -204,7 +215,7 @@ export const GovTransparency = () => {
                                 <PayrollDetails title="DOLA monthly payrolls" chartMode={isLargerThan} maxW='400px' isLoading={isLoading} currentPayrolls={currentPayrolls} prices={prices} useRecharts={true} />
                             </VStack>
                             <VStack w='full'>
-                                <PayrollDetails title="Unclaimed payrolls" toMonthly={false} chartMode={isLargerThan} maxW='400px' isLoading={isLoading} currentPayrolls={currentPayrolls} fundKey={'unclaimed'}  prices={prices} useRecharts={true} />
+                                <PayrollDetails title="Unclaimed payrolls" toMonthly={false} chartMode={isLargerThan} maxW='400px' isLoading={isLoading} currentPayrolls={currentPayrolls} fundKey={'unclaimed'} prices={prices} useRecharts={true} />
                             </VStack>
                             <VStack w='full'>
                                 <FundsDetails
@@ -222,6 +233,34 @@ export const GovTransparency = () => {
                                 />
                             </VStack>
                         </SimpleGrid>
+                        <VStack w='full' alignItems="center" py="10">
+                            <DefaultCharts
+                                chartData={payrollEvolution}
+                                maxChartWidth={maxChartWidth}
+                                chartWidth={autoChartWidth}
+                                isDollars={true}
+                                showMonthlyBarChart={false}
+                                showAreaChart={true}
+                                smoothLineByDefault={true}
+                                areaProps={{
+                                    title: `Total yearly payroll evolution & number of recipients`,
+                                    id: 'payroll-evolution',
+                                    showRangeBtns: false,
+                                    yLabel: 'Total yearly payroll',
+                                    useRecharts: true,
+                                    allowZoom: true,
+                                    allowEscapeViewBox: false,
+                                    showSecondary: true,
+                                    secondaryRef: 'nbRecipients',
+                                    secondaryLabel: 'Number of recipients',
+                                    secondaryAsUsd: false,
+                                    secondaryPrecision: 0,
+                                    interpolation: 'stepAfter',
+                                    secondaryType: 'stepAfter',
+                                    fillInByDayInterval: true,
+                                }}
+                            />
+                        </VStack>
                         <Stack alignItems="flex-start" spacing={4} direction={{ base: 'column', lg: 'row' }} pt="4" px={{ base: '4', xl: '0' }} w='full'>
                             <SupplyInfos isLoading={isLoadingSupplies} token={TOKENS[INV]} supplies={invSupplies} />
                             <ShrinkableInfoMessage

@@ -89,8 +89,9 @@ export const useCompensations = (): SWR & {
   currentPayrolls: Payroll[]
   currentVesters: Vester[]
   currentInvBalances: { address: string, totalInvBalance: number }[]
+  payrollEvolution: { timestamp: number, utcDate: string, total: number, nbRecipients: number, x: number, y: number }[]
 } => {
-  const { data, error } = useCacheFirstSWR(`/api/transparency/compensations?v=3`, fetcher)
+  const { data, error } = useCacheFirstSWR(`/api/transparency/compensations?v=4`, fetcher)
 
   return {
     isLoading: !error && !data,
@@ -98,6 +99,7 @@ export const useCompensations = (): SWR & {
     currentPayrolls: data?.currentPayrolls || [],
     currentVesters: data?.currentVesters || [],
     currentInvBalances: data?.currentInvBalances || [],
+    payrollEvolution: (data?.payrollTotalEvolutionByDay || []).map(d => ({ ...d, x: d.timestamp, y: d.total })),
   }
 }
 
