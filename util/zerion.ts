@@ -2,6 +2,7 @@ import { NETWORKS } from "@app/config/networks";
 import { PROTOCOL_IMAGES, PROTOCOL_ZERION_MAPPING } from "@app/variables/images";
 import { CHAIN_TOKENS, getToken } from "@app/variables/tokens";
 import { isAddress } from "ethers/lib/utils";
+import { uniqueBy } from "./misc";
 
 const WALLET_ZERION_URL = 'https://api.zerion.io/v1/wallets';
 
@@ -70,6 +71,7 @@ export const formatZerionWalletResponse = async (response) => {
             protocolImage: firstToken?.protocolImage || PROTOCOL_IMAGES[(PROTOCOL_ZERION_MAPPING[(item.attributes.protocol || '')]||'')],
             isStable: firstToken?.isStable,
             isLP: firstToken?.isLP,
+            address: firstToken?.address,
         };
         return {
             balance: totalValue,
@@ -77,6 +79,7 @@ export const formatZerionWalletResponse = async (response) => {
             onlyUsdValue: true,
             allowance: 0,
             token,
+            chainCodeName,
         }
     })
 
@@ -104,7 +107,11 @@ export const formatZerionWalletResponse = async (response) => {
                 balance: position.attributes?.quantity?.float || 0,
                 price: position.attributes?.price,
                 allowance: 0,
+                chainCodeName,
             };
         });
-    return [...walletPositions, ...nonWalletPositions];
+    return uniqueBy(
+        [...walletPositions, ...nonWalletPositions],
+        (a, b) => a.chainCodeName === b.chainCodeName && (a.token.address === b.token.address || (a.token.symbol === b.token.symbol && a.protocolImage === b.protocolImage)),
+    );
 }
