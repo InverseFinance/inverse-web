@@ -45,10 +45,10 @@ export default async function handler(req, res) {
     const cacheDuration = 360;
     res.setHeader('Cache-Control', `public, max-age=${cacheDuration}`);
     const validCache = await getCacheFromRedis(cacheKey, cacheFirst !== 'true', cacheDuration);
-    // if (validCache) {
-    //   res.status(200).json(validCache);
-    //   return
-    // }
+    if (validCache) {
+      res.status(200).json(validCache);
+      return
+    }
 
     const provider = getProvider(NetworkIds.mainnet);
     const dolaContract = new Contract(DOLA, DOLA_ABI, provider);
