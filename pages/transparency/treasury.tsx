@@ -48,8 +48,8 @@ export const Overview = () => {
   const { themeName } = useAppTheme();
   const { prices, isLoading: isLoadingPrices } = usePricesV2(true)
   const { treasury, anchorReserves, multisigs, isLoading: isLoadingDao } = useDAO();
-  const { liquidity, isLoading: isLoadingLiquidity } = useLiquidityPools();
-  const { stableReservesEvolution, isLoading: isLoadingStableReserves } = useStableReserves();
+  // const { liquidity, isLoading: isLoadingLiquidity } = useLiquidityPools();
+  // const { stableReservesEvolution, isLoading: isLoadingStableReserves } = useStableReserves();
   const { currentPayrolls } = useCompensations();
   const [excludeOwnTokens, setExcludeOwnTokens] = useState(false);
   const [excludeOwnTokens2, setExcludeOwnTokens2] = useState(false);
@@ -62,23 +62,25 @@ export const Overview = () => {
   const TWGfunds = TWGmultisigs.map(m => m.funds);
 
   // stable reserves
-  const treasuryStables = treasury?.filter(f => (f.token.isStable && !f.token.isLP) || (['DOLA', 'USDC', 'USDT', 'sDOLA', 'DAI', 'USDS'].includes(f.token.symbol))).map(f => {
+  const treasuryStables = treasury?.filter(f => (f.token.isStable) || (['DOLA', 'USDC', 'USDT', 'sDOLA', 'DAI', 'USDS'].includes(f.token.symbol))).map(f => {
     return { label: `${f.token.symbol} (Treasury)`, balance: f.balance, onlyUsdValue: true, usdPrice: (f.price || prices[f.token.symbol]?.usd || prices[f.token.coingeckoId]?.usd || 1) }
   }) || [];
 
   const twgStables = TWGmultisigs.map(m => {
-    return m.funds.filter(f => (f.token.isStable && !f.token.isLP) || (['DOLA', 'USDC', 'USDT', 'sDOLA', 'DAI', 'USDS'].includes(f.token.symbol))).map(f => {
+    return m.funds.filter(f => (f.token.isStable) || (['DOLA', 'USDC', 'USDT', 'sDOLA', 'DAI', 'USDS'].includes(f.token.symbol))).map(f => {
       return { label: `${f.token.symbol} (${m.shortName})`, balance: f.balance, onlyUsdValue: true, usdPrice: (f.price || prices[f.token.symbol]?.usd || prices[f.token.coingeckoId]?.usd || 1) }
     });
   }).flat();
 
-  const twgStableLps = liquidity.filter(m => m.isStable && !m.isFed).map(m => {
-    const twg = TWGmultisigs.find(m => m.chainId === m.chainId);
-    // ownedAmount already in usd
-    return { label: `${m.lpName} (${twg?.shortName || 'TWG'})`, balance: m.ownedAmount, onlyUsdValue: true, usdPrice: 1 }
-  });
+  // const twgStableLps = liquidity.filter(m => m.isStable && !m.isFed).map(m => {
+  //   const twg = TWGmultisigs.find(m => m.chainId === m.chainId);
+  //   // ownedAmount already in usd
+  //   return { label: `${m.lpName} (${twg?.shortName || 'TWG'})`, balance: m.owned?.twg||0, onlyUsdValue: true, usdPrice: 1 }
+  // });
 
-  const stableReserves = [...treasuryStables, ...twgStables, ...twgStableLps];
+  const stableReserves = [...treasuryStables, ...twgStables
+    // , ...twgStableLps
+  ];
   const totalCurrentStableReserves = stableReserves.reduce((prev, curr) => prev + curr.balance * curr.usdPrice, 0);
 
   // runway
@@ -86,13 +88,13 @@ export const Overview = () => {
   const runwayInYears = totalCurrentPayrolls ? totalCurrentStableReserves / totalCurrentPayrolls : 0;
   const runwayInMonths = runwayInYears * 12;
 
-  const stableAndRunwayEvolution = stableReservesEvolution.map(d => {
-    return { ...d, runway: totalCurrentPayrolls ? d.y / totalCurrentPayrolls * 12 : 0 };
-  });
+  // const stableAndRunwayEvolution = stableReservesEvolution.map(d => {
+  //   return { ...d, runway: totalCurrentPayrolls ? d.y / totalCurrentPayrolls * 12 : 0 };
+  // });
 
-  if (totalCurrentStableReserves) {
-    stableAndRunwayEvolution.push({ x: now, timestamp: now, y: totalCurrentStableReserves, runway: runwayInMonths, totalReserves: totalCurrentStableReserves, utcDate: timestampToUTC(now) });
-  }
+  // if (totalCurrentStableReserves) {
+  //   stableAndRunwayEvolution.push({ x: now, timestamp: now, y: totalCurrentStableReserves, runway: runwayInMonths, totalReserves: totalCurrentStableReserves, utcDate: timestampToUTC(now) });
+  // }
 
   useEffect(() => {
     setAutoChartWidth(isLargerThan ? maxChartWidth : (window.innerWidth))
@@ -147,7 +149,7 @@ export const Overview = () => {
               {...dashboardCardProps} w='full' p="0">
               <iframe width="100%" height="360px" src={`https://defillama.com/chart/protocol/inverse-finance?treasury=true&tvl=false&events=false&groupBy=daily&theme=${themeName}`} title="DefiLlama" frameborder="0"></iframe>
             </DashBoardCard>
-            <VStack w='full' alignItems="center" py="10">
+            {/* <VStack w='full' alignItems="center" py="10">
               <DashBoardCard cardTitle="Stable Reserves & Runway" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps} w='full'>
                 <DefaultCharts
                   chartData={stableAndRunwayEvolution}
@@ -173,13 +175,18 @@ export const Overview = () => {
                   }}
                 />
               </DashBoardCard>
-            </VStack>
+            </VStack> */}
             <SimpleGrid columns={{ base: 1, xl: 2 }} spacingX="50px" spacingY="40px">
               <DashBoardCard cardTitle="Total Treasury Holdings" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
                 <ExcludeOwnTokens label="Exclude Treasury INV & DBR" setter={setExcludeOwnTokens} value={excludeOwnTokens} id='exclude-1' />
                 <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={excludeOwnTokens ? totalHoldingsExcludeOwnTokens : totalHoldings} prices={prices} type='balance' useRecharts={true} />
               </DashBoardCard>
               <DashBoardCard cardTitle="Total Stable Reserves" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
+                <VStack zIndex="2" top={{ base: '65px', sm: '70px' }} position="absolute" w='fit-content' display='flex' alignItems='center'>
+                  <Text mb='0' fontWeight='normal' fontSize='14px' color='secondaryTextColor'>
+                    Current runway: {runwayInMonths ? `${runwayInMonths.toFixed(2)} months` : '-'}
+                  </Text>
+                </VStack>
                 <FundsDetails leftSideMaxW='300px' w='full' isLoading={isLoading} funds={stableReserves} prices={prices} type='balance' useRecharts={true} />
               </DashBoardCard>
               <DashBoardCard cardTitle="Multisigs's Holdings" cardTitleProps={dashboardCardTitleProps} {...dashboardCardProps}>
